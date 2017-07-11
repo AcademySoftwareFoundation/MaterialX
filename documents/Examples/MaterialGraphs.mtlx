@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<materialx version="1.35" colorspace="lin_rec709" require="matnodegraph,override">
+  <xi:include href="NodeGraphs.mtlx"/>
+  <xi:include href="GeomInfos.mtlx"/>
+
+  <nodedef name="basicsrfdef" type="surfaceshader" node="basic_surface">
+    <input name="diff_albedo" type="color3" value="0.18,0.18,0.18"/>
+    <input name="spec_color" type="color3" value="1,1,1"/>
+    <input name="roughness" type="float" value="0.3"/>
+    <parameter name="fresnel_exp" type="float" value="0.2"/>
+  </nodedef>
+
+  <nodedef name="noisebumpdef" type="displacementshader" node="noise_bump">
+    <parameter name="bump_scale" type="float" value="0.02"/>
+    <parameter name="bump_ampl" type="float" value="0.015"/>
+  </nodedef>
+
+  <material name="material1">
+    <shaderref name="sr1" node="basic_surface">
+      <bindinput name="diff_albedo" type="color3" nodegraph="nodegraph3"
+          output="albedo"/>
+      <bindinput name="spec_color" type="color3" value="1.0, 0.99, 0.95"/>
+      <bindinput name="roughness" type="float" value="0.15"/>
+    </shaderref>
+    <shaderref name="sr2" node="noise_bump">
+      <bindparam name="bump_ampl" type="float" value="0.0125"/>
+    </shaderref>
+    <override name="diffbase" type="color3" value="0.25, 0.24, 0.16"/>
+    <override name="dirt_contrast" type="float" value="0.33"/>
+    <override name="grain_gain" type="float" value="0.1"/>
+    <override name="grain_size" type="float" value="0.008"/>
+  </material>
+
+  <material name="material2">
+    <shaderref name="sr3" node="basic_surface">
+      <bindinput name="spec_color" type="color3" value="0.7,0.7,0.7"/>
+      <bindinput name="roughness" type="float" value="0.1"/>
+      <bindparam name="fresnel_exp" type="float" value="0.3"/>
+    </shaderref>
+    <override name="diffbase" type="color3" value="0.18, 0.18, 0.18"/>
+  </material>
+</materialx>
