@@ -39,6 +39,11 @@ template <class T> string TypedValue<T>::getValueString() const
     return ss.str();
 }
 
+template <class T> const string& TypedValue<T>::getTypeString() const
+{
+    return TYPE;
+}
+
 template <> ValuePtr TypedValue<std::string>::createFromString(const string& value)
 {
     return Value::createValue<std::string>(value);
@@ -103,6 +108,15 @@ template<class T> T Value::asA() const
 }
 
 //
+// Global functions
+//
+
+template<class T> const string& getTypeString()
+{
+    return TypedValue<T>::TYPE;
+}
+
+//
 // Value registry class
 //
 
@@ -121,11 +135,12 @@ template <class T> class ValueRegistry
 //
 
 #define INSTANTIATE_TYPE(T, type)                                   \
+template bool Value::isA<T>() const;                                \
+template T Value::asA<T>() const;                                   \
+template const string& getTypeString<T>();                          \
 template <> const string TypedValue<T>::TYPE = type;                \
 template <> const T TypedValue<T>::ZERO = T();                      \
-ValueRegistry<T> registry##T;                                       \
-template bool Value::isA<T>() const;                                \
-template T Value::asA<T>() const;
+ValueRegistry<T> registry##T;
 
 INSTANTIATE_TYPE(int, "integer")
 INSTANTIATE_TYPE(bool, "boolean")

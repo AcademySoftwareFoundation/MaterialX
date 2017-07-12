@@ -112,10 +112,7 @@ template <class T> class TypedValue : public Value
     string getValueString() const override;
 
     /// Return type string.
-    const string& getTypeString() const override
-    {
-        return TYPE;
-    }
+    const string& getTypeString() const override;
 
     //
     // Static helper methods
@@ -133,10 +130,7 @@ template <class T> class TypedValue : public Value
 };
 
 /// Return the type string associated with the given data type.
-template<class T> const string& getTypeString()
-{
-    return TypedValue<T>::TYPE;
-}
+template<class T> const string& getTypeString();
 
 } // namespace MaterialX
 
