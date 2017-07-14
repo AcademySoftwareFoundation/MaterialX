@@ -1,0 +1,7 @@
+void mx_geomattrvalue_vector2(string attrname, output vector out)
+{
+    float value[2];
+    getattribute(attrname, value);
+    out[0] = value[0];
+    out[1] = value[1];
+}

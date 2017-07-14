@@ -193,6 +193,18 @@ ValuePtr InterfaceElement::getParameterValue(const string& name) const
     return param ? param->getValue() : ValuePtr();
 }
 
+const string& InterfaceElement::getInputValueString(const string& name) const
+{
+    InputPtr input = getChildOfType<Input>(name);
+    return input ? input->getValueString() : EMPTY_STRING;
+}
+
+ValuePtr InterfaceElement::getInputValue(const string& name) const
+{
+    InputPtr input = getChildOfType<Input>(name);
+    return input ? input->getValue() : ValuePtr();
+}
+
 void InterfaceElement::registerChildElement(ElementPtr child)
 {
     TypedElement::registerChildElement(child);

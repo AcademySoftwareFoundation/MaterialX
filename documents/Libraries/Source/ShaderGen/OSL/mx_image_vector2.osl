@@ -1,0 +1,9 @@
+void mx_image_vector2(string file, string layer, vector default_value, vector texcoord, string uaddressmode, string vaddressmode, string framerange, int frameoffset, string frameendaction, output vector out)
+{
+    vdirection(texcoord, texcoord);
+    color missingColor = default_value;
+    color rgb = texture(file, texcoord[0], texcoord[1], "subimage", layer, "missingcolor", missingColor, "wrap", uaddressmode);
+    out[0] = rgb[0];
+    out[1] = rgb[1];
+    out[2] = 0;
+}

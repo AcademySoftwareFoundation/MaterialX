@@ -57,8 +57,8 @@
     <parameter name="layer" type="string" value=""/>
     <parameter name="default" type="float" value="0.0"/>
     <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
-    <parameter name="uaddressmode" type="string" value="wrap"/>
-    <parameter name="vaddressmode" type="string" value="wrap"/>
+    <parameter name="uaddressmode" type="string" value="periodic"/>
+    <parameter name="vaddressmode" type="string" value="periodic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
     <parameter name="frameendaction" type="string" value="black"/>
@@ -68,8 +68,8 @@
     <parameter name="layer" type="string" value=""/>
     <parameter name="default" type="color2" value="0.0, 0.0"/>
     <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
-    <parameter name="uaddressmode" type="string" value="wrap"/>
-    <parameter name="vaddressmode" type="string" value="wrap"/>
+    <parameter name="uaddressmode" type="string" value="periodic"/>
+    <parameter name="vaddressmode" type="string" value="periodic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
     <parameter name="frameendaction" type="string" value="black"/>
@@ -79,8 +79,8 @@
     <parameter name="layer" type="string" value=""/>
     <parameter name="default" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
-    <parameter name="uaddressmode" type="string" value="wrap"/>
-    <parameter name="vaddressmode" type="string" value="wrap"/>
+    <parameter name="uaddressmode" type="string" value="periodic"/>
+    <parameter name="vaddressmode" type="string" value="periodic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
     <parameter name="frameendaction" type="string" value="black"/>
@@ -90,8 +90,8 @@
     <parameter name="layer" type="string" value=""/>
     <parameter name="default" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
     <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
-    <parameter name="uaddressmode" type="string" value="wrap"/>
-    <parameter name="vaddressmode" type="string" value="wrap"/>
+    <parameter name="uaddressmode" type="string" value="periodic"/>
+    <parameter name="vaddressmode" type="string" value="periodic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
     <parameter name="frameendaction" type="string" value="black"/>
@@ -101,8 +101,8 @@
     <parameter name="layer" type="string" value=""/>
     <parameter name="default" type="vector2" value="0.0, 0.0"/>
     <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
-    <parameter name="uaddressmode" type="string" value="wrap"/>
-    <parameter name="vaddressmode" type="string" value="wrap"/>
+    <parameter name="uaddressmode" type="string" value="periodic"/>
+    <parameter name="vaddressmode" type="string" value="periodic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
     <parameter name="frameendaction" type="string" value="black"/>
@@ -112,8 +112,8 @@
     <parameter name="layer" type="string" value=""/>
     <parameter name="default" type="vector3" value="0.0, 0.0, 0.0"/>
     <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
-    <parameter name="uaddressmode" type="string" value="wrap"/>
-    <parameter name="vaddressmode" type="string" value="wrap"/>
+    <parameter name="uaddressmode" type="string" value="periodic"/>
+    <parameter name="vaddressmode" type="string" value="periodic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
     <parameter name="frameendaction" type="string" value="black"/>
@@ -123,8 +123,8 @@
     <parameter name="layer" type="string" value=""/>
     <parameter name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
     <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
-    <parameter name="uaddressmode" type="string" value="wrap"/>
-    <parameter name="vaddressmode" type="string" value="wrap"/>
+    <parameter name="uaddressmode" type="string" value="periodic"/>
+    <parameter name="vaddressmode" type="string" value="periodic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
     <parameter name="frameendaction" type="string" value="black"/>

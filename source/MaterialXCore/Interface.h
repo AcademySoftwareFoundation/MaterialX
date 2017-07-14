@@ -22,6 +22,7 @@ using ParameterPtr = shared_ptr<class Parameter>;
 using PortElementPtr = shared_ptr<class PortElement>;
 /// A shared pointer to an Input
 using InputPtr = shared_ptr<class Input>;
+using ConstInputPtr = shared_ptr<const class Input>;
 /// A shared pointer to an Output
 using OutputPtr = shared_ptr<class Output>;
 /// A shared pointer to an InterfaceElement
@@ -350,6 +351,20 @@ class InterfaceElement : public TypedElement
         removeChildOfType<Input>(name);
     }
 
+    /// Set the value of an input by its name, creating a child element
+    /// to hold the input if needed.
+    template<class T> InputPtr setInputValue(const string& name,
+        const T& value,
+        const string& type = EMPTY_STRING);
+
+    /// Return the value instance of an input by its name.  If the given input
+    /// is not present, then an empty ValuePtr is returned.
+    ValuePtr getInputValue(const string& name) const;
+
+    /// Return the value string of an input by its name.  If the given input
+    /// is not present, then an empty string is returned.
+    const string& getInputValueString(const string& name) const;
+
     /// @}
 
   protected:
@@ -370,6 +385,17 @@ template<class T> ParameterPtr InterfaceElement::setParameterValue(const string&
         param = addParameter(name);
     param->setValue(value, type);
     return param;
+}
+
+template<class T> InputPtr InterfaceElement::setInputValue(const string& name,
+                                                           const T& value,
+                                                           const string& type)
+{
+    InputPtr input = getChildOfType<Input>(name);
+    if (!input)
+        input = addInput(name);
+    input->setValue(value, type);
+    return input;
 }
 
 } // namespace MaterialX
