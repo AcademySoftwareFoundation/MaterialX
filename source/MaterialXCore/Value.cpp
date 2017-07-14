@@ -135,11 +135,11 @@ template <class T> class ValueRegistry
 //
 
 #define INSTANTIATE_TYPE(T, type)                                   \
+template <> const string TypedValue<T>::TYPE = type;                \
+template <> const T TypedValue<T>::ZERO = T();                      \
 template bool Value::isA<T>() const;                                \
 template T Value::asA<T>() const;                                   \
 template const string& getTypeString<T>();                          \
-template <> const string TypedValue<T>::TYPE = type;                \
-template <> const T TypedValue<T>::ZERO = T();                      \
 ValueRegistry<T> registry##T;
 
 INSTANTIATE_TYPE(int, "integer")
