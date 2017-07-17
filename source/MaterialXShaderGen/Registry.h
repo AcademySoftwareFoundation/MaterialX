@@ -10,7 +10,7 @@ namespace MaterialX
 {
 
 using ShaderGeneratorPtr = shared_ptr<class ShaderGenerator>;
-using CustomImplPtr = shared_ptr<class CustomImpl>;
+using NodeImplementationPtr = shared_ptr<class NodeImplementation>;
 
 /// Registry class for handling shader generators and custom implementations.
 /// Shader generators and implementations can be registered for a specific shading 
@@ -29,21 +29,21 @@ public:
     /// Unregister a shader generator for the given language and target.
     static void unregisterShaderGenerator(const string& language, const string& target);
 
-    /// Register a custom implementation for a node for the given language and target.
-    static void registerImplementation(const string& node, const string& language, const string& target, CreatorFunc<CustomImpl> creator);
+    /// Register an implementation for a node for the given language and target.
+    static void registerNodeImplementation(const string& node, const string& language, const string& target, CreatorFunc<NodeImplementation> creator);
 
-    /// Unregister a custom implementation for a node for the given language and target.
-    static void unregisterImplementation(const string& node, const string& language, const string& target);
+    /// Unregister an implementation for a node for the given language and target.
+    static void unregisterNodeImplementation(const string& node, const string& language, const string& target);
 
     /// Find a shader generator for the given language and target. Creating a new instance 
     /// if it's not been created already. Return nullptr if no generator has been registered 
     /// for the given language and target.
     static ShaderGeneratorPtr findShaderGenerator(const string& language, const string& target = EMPTY_STRING);
 
-    /// Find a custom implementation for a node for the given language and target. Creating a new 
-    /// instance if it's not been created already. Return nullptr if no custom implementation has been 
+    /// Find an implementation for a node for the given language and target. Creating a new 
+    /// instance if it's not been created already. Return nullptr if no implementation has been 
     /// registered for the given node, language and target.
-    static CustomImplPtr findImplementation(const string& node, const string& language = EMPTY_STRING, const string& target = EMPTY_STRING);
+    static NodeImplementationPtr findNodeImplementation(const string& node, const string& language = EMPTY_STRING, const string& target = EMPTY_STRING);
 
     /// Register all built-in shader generators and implementations.
     /// Should be called at application initializetion.
@@ -55,13 +55,13 @@ public:
 
 private:
     static ShaderGeneratorPtr findShaderGeneratorById(const string& id);
-    static CustomImplPtr findImplementationById(const string& id);
+    static NodeImplementationPtr findNodeImplementationById(const string& id);
     
     static Factory<ShaderGenerator> _shaderGeneratorFactory;
     static unordered_map<string, ShaderGeneratorPtr> _shaderGenerators;
 
-    static Factory<CustomImpl> _implementationFactory;
-    static unordered_map<string, CustomImplPtr> _implementations;
+    static Factory<NodeImplementation> _implementationFactory;
+    static unordered_map<string, NodeImplementationPtr> _implementations;
 };
 
 

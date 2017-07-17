@@ -1,7 +1,7 @@
 #include <MaterialXShaderGen/SgNode.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/Registry.h>
-#include <MaterialXShaderGen/CustomImpl.h>
+#include <MaterialXShaderGen/NodeImplementation.h>
 #include <MaterialXShaderGen/Util.h>
 
 #include <MaterialXCore/Document.h>
@@ -113,8 +113,8 @@ SgNode::SgNode(NodePtr node, const string& language, const string& target)
         throw ExceptionShaderGenError("Could not find a nodedef for node '" + node->getName() + "'");
     }
 
-    // Check if this node has a custom implementation
-    _customImpl = Registry::findImplementation(_nodeDef->getNode(), language, target);
+    // Check if this node has a custom node implementation registered
+    _customImpl = Registry::findNodeImplementation(_nodeDef->getNode(), language, target);
 
     if (!_customImpl)
     {
