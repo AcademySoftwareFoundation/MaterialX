@@ -31,7 +31,8 @@ public:
 
     /// Generate a shader starting from the given node, translating the node 
     /// and all dependencies upstream into shader code.
-    virtual ShaderPtr generate(NodePtr node, OutputPtr downstreamConnection = nullptr) = 0;
+    virtual ShaderPtr generate(const string& shaderName, 
+        NodePtr node, OutputPtr downstreamConnection = nullptr) = 0;
 
     /// Emit typedefs for all data types that needs it
     virtual void emitTypeDefs(Shader& shader);

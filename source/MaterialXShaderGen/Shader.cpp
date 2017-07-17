@@ -7,9 +7,10 @@
 namespace MaterialX
 {
 
-Shader::Shader()
+Shader::Shader(const string& name)
+    : _name(name)
+    , _activeStage(0)
 {
-    _activeStage = 0;
     _stages.resize(numStages());
 }
 
@@ -19,7 +20,8 @@ void Shader::initialize(NodePtr node, OutputPtr downstreamConnection, const stri
     _stages.resize(numStages());
 
     // Create a new graph, to hold this node and it's dependencies upstream
-    _nodeGraph = node->getDocument()->addNodeGraph("sg_" + node->getName());
+    // TODO: Create a unique name
+    _nodeGraph = node->getDocument()->addNodeGraph("sg_" + _name);
     _output = _nodeGraph->addOutput("out");
 
     if (downstreamConnection)
@@ -34,7 +36,7 @@ void Shader::initialize(NodePtr node, OutputPtr downstreamConnection, const stri
 
     //
     // Add the node itself and then travers upstream to add all dependencies.
-    // Dring this traversal we also add in any needed default geometric nodes
+    // During this traversal we also add in any needed default geometric nodes.
     // 
 
     NodePtr rootNode = _nodeGraph->addNode(node->getCategory(), node->getName(), node->getType());
@@ -221,6 +223,18 @@ void Shader::initialize(NodePtr node, OutputPtr downstreamConnection, const stri
         }
     }
 #endif
+}
+
+void Shader::finalize()
+{
+    // Remove the optimized graph we created for shader generation
+    DocumentPtr doc = _nodeGraph->getDocument();
+    doc->removeNodeGraph(_nodeGraph->getName());
+
+    // Release resources
+    _nodeGraph.reset();
+    _output.reset();
+    _nodes.clear();
 }
 
 void Shader::beginScope(Brackets brackets)

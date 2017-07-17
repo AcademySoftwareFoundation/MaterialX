@@ -193,8 +193,8 @@ void ShaderGenerator::emitShaderBody(Shader &shader)
 {
     const bool debugOutput = true;
 
-    const Output& output = shader.getOutput();
-    const NodePtr connectedNode = output.getConnectedNode();
+    const OutputPtr& output = shader.getOutput();
+    const NodePtr connectedNode = output->getConnectedNode();
 
     // Emit function calls for all nodes
     for (const SgNode& node : shader.getNodes())
@@ -242,21 +242,21 @@ void ShaderGenerator::emitShaderBody(Shader &shader)
     }
 
     string finalResult = _syntax->getVariableName(*connectedNode);
-    if (output.getChannels() != EMPTY_STRING)
+    if (output->getChannels() != EMPTY_STRING)
     {
-        finalResult = _syntax->getSwizzledVariable(finalResult, output.getType(), connectedNode->getType(), output.getChannels());
+        finalResult = _syntax->getSwizzledVariable(finalResult, output->getType(), connectedNode->getType(), output->getChannels());
     }
 
-    const string& outputType = output.getType();
+    const string& outputType = output->getType();
     const string outputExpr = _syntax->getOutputExpression(outputType);
     if (outputExpr.length())
     {
         shader.addLine(_syntax->getTypeName(outputType) + " _final = " + finalResult);
-        shader.addLine(_syntax->getVariableName(output) + " = " + outputExpr);
+        shader.addLine(_syntax->getVariableName(*output) + " = " + outputExpr);
     }
     else
     {
-        shader.addLine(_syntax->getVariableName(output) + " = " + finalResult);
+        shader.addLine(_syntax->getVariableName(*output) + " = " + finalResult);
     }
 }
 

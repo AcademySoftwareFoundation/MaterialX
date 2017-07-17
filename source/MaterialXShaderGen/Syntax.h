@@ -1,5 +1,5 @@
-#ifndef SHADERX_SYNTAX_H
-#define SHADERX_SYNTAX_H
+#ifndef MATERIALX_SYNTAX_H
+#define MATERIALX_SYNTAX_H
 
 #include <MaterialXCore/Library.h>
 #include <MaterialXCore/Value.h>
@@ -125,6 +125,6 @@ static const string kSURFACE("surfaceshader");
 static const string kVOLUME("volumeshader");
 static const string kDISPLACEMENT("displacementshader");
 
-} // namespace ShaderX
+} // namespace MaterialX
 
 #endif

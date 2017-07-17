@@ -4,6 +4,7 @@
 #include <MaterialXShaderGen/CustomImpl.h>
 #include <MaterialXShaderGen/Util.h>
 
+#include <MaterialXCore/Document.h>
 #include <MaterialXCore/Value.h>
 
 #include <MaterialXFormat/File.h>
@@ -117,13 +118,12 @@ SgNode::SgNode(NodePtr node, const string& language, const string& target)
 
     if (!_customImpl)
     {
-        ElementPtr implElem = node->getImplementation(target);
-        if (!(implElem && implElem->isA<Implementation>()))
+        ImplementationPtr impl = getSourceCodeImplementation(*_nodeDef, language, target);
+        if (!impl)
         {
-            throw ExceptionShaderGenError("Could not find a valid implementation for node '" + node->getName() + "' for target '" + target + "'");
+            throw ExceptionShaderGenError("Could not find an implementation for node '" + _nodeDef->getNode() + "' matching language '" + language + "' and target '" + target + "'");
         }
 
-        ImplementationPtr impl = implElem->asA<Implementation>();
         getSourceCode(*impl, _functionSource, _inlined);
         _functionName = impl->getFunction();
     }
@@ -141,6 +141,30 @@ const ValueElement& SgNode::getPort(const string& name) const
         }
     }
     return *port;
+}
+
+ImplementationPtr SgNode::getSourceCodeImplementation(const NodeDef& nodeDef, const string& language, const string& target)
+{
+    vector<ElementPtr> elements = nodeDef.getDocument()->getMatchingImplementations(nodeDef.getName());
+    for (ElementPtr element : elements)
+    {
+        if (!element->isA<Implementation>())
+        {
+            // Ignore node graph implementations
+            continue;
+        }
+
+        ImplementationPtr impl = element->asA<Implementation>();
+
+        const string& matchingTarget = impl->getTarget();
+
+        if (impl->getLanguage() == language && (matchingTarget.empty() || matchingTarget == target))
+        {
+            return impl;
+        }
+    }
+
+    return nullptr;
 }
 
 } // namespace MaterialX

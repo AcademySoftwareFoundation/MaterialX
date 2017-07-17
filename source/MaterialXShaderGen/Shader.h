@@ -68,17 +68,21 @@ public:
 
 public:
     /// Constructor
-    Shader();
+    Shader(const string& name);
 
     /// Destructor
     virtual ~Shader() {}
 
-    /// Initialize the shader before shader generation. 
+    /// Initialize the shader before shader generation.
     /// @param node The root node of the graph to generate the shader from.
     /// @param downstreamConnection The output connected downstream to the node.
     /// @param language The shading language identifyer.
     /// @param target The target application identifyer.
     virtual void initialize(NodePtr node, OutputPtr downstreamConnection, const string& language, const string& target);
+
+    /// Must be called after shader generation is completed.
+    /// Will release resources used during shader generation.
+    virtual void finalize();
 
     /// Return the number of shader stanges for this shader
     /// Defaults to a single stage, derived classes can override this
@@ -126,11 +130,14 @@ public:
         stage().code += str.str();
     }
 
+    /// Return the shader name
+    const string& getName() const { return _name; }
+
     /// Return the optimized node graph created for shader generation.
-    const NodeGraph& getNodeGraph() const { return *_nodeGraph; }
+    const NodeGraphPtr getNodeGraph() const { return _nodeGraph; }
 
     /// Return the output used for shader generation.
-    const Output& getOutput() const { return *_output; }
+    const OutputPtr getOutput() const { return _output; }
 
     /// Return a vector of the nodes in the optimized node graph,
     /// given in topological order.
@@ -172,6 +179,7 @@ protected:
     /// Add indentation on current line
     virtual void indent();
 
+    string _name;
     NodeGraphPtr _nodeGraph;
     OutputPtr _output;
     vector<SgNode> _nodes;

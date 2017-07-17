@@ -9,23 +9,26 @@ OslShaderGenerator::OslShaderGenerator()
 {
 }
 
-ShaderPtr OslShaderGenerator::generate(NodePtr node, OutputPtr downstreamConnection)
+ShaderPtr OslShaderGenerator::generate(const string& shaderName, NodePtr node, OutputPtr downstreamConnection)
 {
-    ShaderPtr shader = std::make_shared<Shader>();
-    shader->initialize(node, downstreamConnection, getLanguage(), getTarget());
+    ShaderPtr shaderPtr = std::make_shared<Shader>(shaderName);
+    shaderPtr->initialize(node, downstreamConnection, getLanguage(), getTarget());
 
-    Shader& shaderRef = *shader;
+    Shader& shader = *shaderPtr;
 
-    emitTypeDefs(shaderRef);
-    emitFunctions(shaderRef);
+    emitTypeDefs(shader);
+    emitFunctions(shader);
 
-    emitShaderSignature(shaderRef);
+    emitShaderSignature(shader);
 
-    shaderRef.beginScope(Shader::Brackets::BRACES);
-    emitShaderBody(shaderRef);
-    shaderRef.endScope();
+    shader.beginScope(Shader::Brackets::BRACES);
+    emitShaderBody(shader);
+    shader.endScope();
 
-    return shader;
+    // Release resources used by shader gen
+    shaderPtr->finalize();
+
+    return shaderPtr;
 }
 
 void OslShaderGenerator::emitShaderBody(Shader &shader)
@@ -39,10 +42,10 @@ void OslShaderGenerator::emitShaderBody(Shader &shader)
 
 void OslShaderGenerator::emitShaderSignature(Shader &shader)
 {
-    const NodeGraph& graph = shader.getNodeGraph();
+    const NodeGraphPtr& graph = shader.getNodeGraph();
 
     // Emit shader type
-    const string& outputType = shader.getOutput().getType();
+    const string& outputType = shader.getOutput()->getType();
     if (outputType == "surfaceshader")
     {
         shader.addStr("surface ");
@@ -57,7 +60,7 @@ void OslShaderGenerator::emitShaderSignature(Shader &shader)
     }
 
     // Emit shader name
-    shader.addStr(graph.getName() + "\n");
+    shader.addStr(graph->getName() + "\n");
 
     shader.beginScope(Shader::Brackets::PARENTHESES);
 
@@ -91,7 +94,7 @@ void OslShaderGenerator::emitShaderSignature(Shader &shader)
 
     // Emit shader output
     const string type = _syntax->getOutputTypeName(outputType);
-    const string variable = _syntax->getVariableName(shader.getOutput());
+    const string variable = _syntax->getVariableName(*shader.getOutput());
     const string value = _syntax->getTypeDefault(outputType, true);
     shader.addLine(type + " " + variable + " = " + value, false);
 
