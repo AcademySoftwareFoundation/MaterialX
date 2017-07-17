@@ -3,7 +3,7 @@
 
 #include <MaterialXCore/Node.h>
 
-#include <MaterialXShaderGen/CustomImpl.h>
+#include <MaterialXShaderGen/NodeImplementation.h>
 
 namespace MaterialX
 {
@@ -42,7 +42,7 @@ public:
 
     /// Return the custom implementation used for this node,
     /// or nullptr if the node is not using a custom implementation.
-    const CustomImplPtr& getCustomImpl() const
+    const NodeImplementationPtr& getCustomImpl() const
     {
         return _customImpl;
     }
@@ -72,7 +72,7 @@ public:
 private:
     NodePtr _node;
     NodeDefPtr _nodeDef;
-    CustomImplPtr _customImpl;
+    NodeImplementationPtr _customImpl;
     bool _inlined;
     string _functionName;
     string _functionSource;

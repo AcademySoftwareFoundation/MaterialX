@@ -1,4 +1,4 @@
-#include <MaterialXShaderGen/CustomImpls/VDirectionImpl.h>
+#include <MaterialXShaderGen/NodeImplementations/VDirectionImpl.h>
 #include <MaterialXShaderGen/Shader.h>
 
 namespace
@@ -33,10 +33,10 @@ namespace
 namespace MaterialX
 {
 
-DEFINE_IMPLEMENTATION(VDirectionImplFlipOsl, "vdirection_flip", "osl", "")
-DEFINE_IMPLEMENTATION(VDirectionImplNoOpOsl, "vdirection_noop", "osl", "")
-DEFINE_IMPLEMENTATION(VDirectionImplFlipGlsl, "vdirection_flip", "glsl", "")
-DEFINE_IMPLEMENTATION(VDirectionImplNoOpGlsl, "vdirection_noop", "glsl", "")
+DEFINE_NODE_IMPLEMENTATION(VDirectionImplFlipOsl, "vdirection_flip", "osl", "")
+DEFINE_NODE_IMPLEMENTATION(VDirectionImplNoOpOsl, "vdirection_noop", "osl", "")
+DEFINE_NODE_IMPLEMENTATION(VDirectionImplFlipGlsl, "vdirection_flip", "glsl", "")
+DEFINE_NODE_IMPLEMENTATION(VDirectionImplNoOpGlsl, "vdirection_noop", "glsl", "")
 
 void VDirectionImplFlipOsl::emitCode(const SgNode&, ShaderGenerator&, Shader& shader)
 {

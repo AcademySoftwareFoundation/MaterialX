@@ -1,6 +1,6 @@
 #include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/Registry.h>
-#include <MaterialXShaderGen/CustomImpl.h>
+#include <MaterialXShaderGen/NodeImplementation.h>
 #include <MaterialXShaderGen/Util.h>
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Value.h>
@@ -43,21 +43,21 @@ void ShaderGenerator::emitFunctions(Shader& shader)
     // as needed by the v-direction set by the user
     if (shader.getRequestedVDirection() != getTargetVDirection())
     {
-        CustomImplPtr node = Registry::findImplementation("vdirection_flip", getLanguage(), getTarget());
-        if (!node)
+        NodeImplementationPtr impl = Registry::findNodeImplementation("vdirection_flip", getLanguage(), getTarget());
+        if (!impl)
         {
            throw ExceptionShaderGenError("Built-in implementation for 'vdirection_flip' was not found. Did you forget to register built-in implementations?");
         }
-        node->emitCode(EMPTY_SGNODE, *this, shader);
+        impl->emitCode(EMPTY_SGNODE, *this, shader);
     }
     else
     {
-        CustomImplPtr node = Registry::findImplementation("vdirection_noop", getLanguage(), getTarget());
-        if (!node)
+        NodeImplementationPtr impl = Registry::findNodeImplementation("vdirection_noop", getLanguage(), getTarget());
+        if (!impl)
         {
            throw ExceptionShaderGenError("Built-in implementation for 'vdirection_noop' was not found. Did you forget to register built-in implementations?");
         }
-        node->emitCode(EMPTY_SGNODE, *this, shader);
+        impl->emitCode(EMPTY_SGNODE, *this, shader);
     }
 
     shader.newLine();
@@ -104,7 +104,7 @@ void ShaderGenerator::emitFunction(const SgNode& node, Shader &shader)
 void ShaderGenerator::emitFunctionCall(const SgNode& node, Shader &shader)
 {
     // Check if this node has a custom implementation
-    CustomImplPtr customImpl = node.getCustomImpl();
+    NodeImplementationPtr customImpl = node.getCustomImpl();
     if (customImpl)
     {
         customImpl->emitCode(node, *this, shader);

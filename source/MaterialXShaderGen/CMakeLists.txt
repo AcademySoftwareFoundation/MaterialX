@@ -7,19 +7,19 @@ file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_header "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 file(GLOB shadergenerators_source "${CMAKE_CURRENT_SOURCE_DIR}/ShaderGenerators/*.cpp")
 file(GLOB shadergenerators_header "${CMAKE_CURRENT_SOURCE_DIR}/ShaderGenerators/*.h")
-file(GLOB customimpls_source "${CMAKE_CURRENT_SOURCE_DIR}/CustomImpls/*.cpp")
-file(GLOB customimpls_header "${CMAKE_CURRENT_SOURCE_DIR}/CustomImpls/*.h")
+file(GLOB nodeimplementations_source "${CMAKE_CURRENT_SOURCE_DIR}/NodeImplementations/*.cpp")
+file(GLOB nodeimplementations_header "${CMAKE_CURRENT_SOURCE_DIR}/NodeImplementations/*.h")
 
-source_group("Header Files\\CustomImpls" FILES ${customimpls_header})
-source_group("Source Files\\CustomImpls" FILES ${customimpls_source})
+source_group("Header Files\\NodeImplementations" FILES ${nodeimplementations_header})
+source_group("Source Files\\NodeImplementations" FILES ${nodeimplementations_source})
 source_group("Header Files\\ShaderGenerators" FILES ${shadergenerators_header})
 source_group("Source Files\\ShaderGenerators" FILES ${shadergenerators_source})
 
 add_library(MaterialXShaderGen STATIC 
     ${materialx_source} 
     ${materialx_header}
-    ${customimpls_source} 
-    ${customimpls_header}
+    ${nodeimplementations_source} 
+    ${nodeimplementations_header}
     ${shadergenerators_source} 
     ${shadergenerators_header}
 )

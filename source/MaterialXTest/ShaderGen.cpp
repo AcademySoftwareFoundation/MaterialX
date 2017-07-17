@@ -8,8 +8,8 @@
 #include <MaterialXShaderGen/ShaderGenerators/ArnoldShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OgsFxShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OslSyntax.h>
-#include <MaterialXShaderGen/CustomImpls/VDirectionImpl.h>
-#include <MaterialXShaderGen/CustomImpls/SwizzleImpl.h>
+#include <MaterialXShaderGen/NodeImplementations/VDirectionImpl.h>
+#include <MaterialXShaderGen/NodeImplementations/SwizzleImpl.h>
 
 #include <iostream>
 #include <fstream>
@@ -38,23 +38,23 @@ TEST_CASE("Registry", "[ShaderGen]")
         mx::ArnoldShaderGenerator::kTarget);
     REQUIRE(sg1 == nullptr);
 
-    mx::CustomImplPtr impl1 = mx::Registry::findImplementation(
+    mx::NodeImplementationPtr impl1 = mx::Registry::findNodeImplementation(
         mx::VDirectionImplFlipOsl::kNode,
         mx::VDirectionImplFlipOsl::kLanguage,
         mx::VDirectionImplFlipOsl::kTarget);
     REQUIRE(impl1 != nullptr);
 
-    mx::CustomImplPtr impl2 = mx::Registry::findImplementation(
+    mx::NodeImplementationPtr impl2 = mx::Registry::findNodeImplementation(
         mx::VDirectionImplFlipOsl::kNode,
         mx::VDirectionImplFlipOsl::kLanguage);
     REQUIRE(impl2 != nullptr);
     REQUIRE(impl2 == impl1);
 
-    mx::CustomImplPtr impl3 = mx::Registry::findImplementation(
+    mx::NodeImplementationPtr impl3 = mx::Registry::findNodeImplementation(
         mx::VDirectionImplFlipOsl::kNode);
     REQUIRE(impl3 == nullptr);
 
-    mx::CustomImplPtr impl4 = mx::Registry::findImplementation(
+    mx::NodeImplementationPtr impl4 = mx::Registry::findNodeImplementation(
         mx::VDirectionImplFlipGlsl::kNode,
         mx::VDirectionImplFlipGlsl::kLanguage,
         mx::VDirectionImplFlipGlsl::kTarget);
@@ -63,7 +63,7 @@ TEST_CASE("Registry", "[ShaderGen]")
 
     mx::Registry::unregisterBuiltIn();
 
-    impl4 = mx::Registry::findImplementation(
+    impl4 = mx::Registry::findNodeImplementation(
         mx::VDirectionImplFlipGlsl::kNode,
         mx::VDirectionImplFlipGlsl::kLanguage,
         mx::VDirectionImplFlipGlsl::kTarget);
@@ -130,7 +130,7 @@ TEST_CASE("Simple Shader Generation", "[ShaderGen]")
     file << dot;
     file.close();
 
-    // Setup descriptions of the shader generators
+    // Setup the shader generators
     using GeneratorDescription = std::tuple<std::string, std::string, std::string, std::string>;
     std::vector<GeneratorDescription> generatorDescriptions =
     {
@@ -153,6 +153,8 @@ TEST_CASE("Simple Shader Generation", "[ShaderGen]")
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
 
+        // Write out to file for inspection
+        // TODO: Match against blessed versions
         file.open(shader->getName() + "." + std::get<2>(desc));
         file << shader->getSourceCode();
         file.close();
