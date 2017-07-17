@@ -85,6 +85,24 @@ string Element::getNamePath(ConstElementPtr relativeTo) const
     return res;
 }
 
+void Element::renameChild(const string& name, const string& newName)
+{
+    if (_childMap.count(newName))
+    {
+        throw Exception("New child name is not unique: " + newName);
+    }
+
+    ElementPtr child = getChild(name);
+    if (!child)
+    {
+        return;
+    }
+
+    _childMap.erase(name);
+    _childMap[newName] = child;
+    child->_name = newName;
+}
+
 void Element::registerChildElement(ElementPtr child)
 {
     DocumentPtr doc = getDocument();

@@ -65,6 +65,10 @@ public:
         return _functionSource;
     }
 
+    /// Return the source code implementation element for the given nodedef and language/target,
+    /// or nullptr if no matching implemenation is found.
+    static ImplementationPtr getSourceCodeImplementation(const NodeDef& nodeDef, const string& language, const string& target);
+
 private:
     NodePtr _node;
     NodeDefPtr _nodeDef;

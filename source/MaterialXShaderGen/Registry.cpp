@@ -1,6 +1,7 @@
 #include <MaterialXShaderGen/Registry.h>
 
 #include <MaterialXShaderGen/ShaderGenerators/ArnoldShaderGenerator.h>
+#include <MaterialXShaderGen/ShaderGenerators/OgsFxShaderGenerator.h>
 
 #include <MaterialXShaderGen/CustomImpls/VDirectionImpl.h>
 #include <MaterialXShaderGen/CustomImpls/SwizzleImpl.h>
@@ -121,6 +122,7 @@ CustomImplPtr Registry::findImplementationById(const string& id)
 void Registry::registerBuiltIn()
 {
     REGISTER_SHADER_GENERATOR(ArnoldShaderGenerator);
+    REGISTER_SHADER_GENERATOR(OgsFxShaderGenerator);
 
     REGISTER_IMPLEMENTATION(VDirectionImplFlipOsl);
     REGISTER_IMPLEMENTATION(VDirectionImplNoOpOsl);
@@ -132,6 +134,7 @@ void Registry::registerBuiltIn()
 void Registry::unregisterBuiltIn()
 {
     UNREGISTER_SHADER_GENERATOR(ArnoldShaderGenerator);
+    UNREGISTER_SHADER_GENERATOR(OgsFxShaderGenerator);
 
     UNREGISTER_IMPLEMENTATION(VDirectionImplFlipOsl);
     UNREGISTER_IMPLEMENTATION(VDirectionImplNoOpOsl);

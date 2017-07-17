@@ -6,6 +6,7 @@
 
 #include <MaterialXShaderGen/Registry.h>
 #include <MaterialXShaderGen/ShaderGenerators/ArnoldShaderGenerator.h>
+#include <MaterialXShaderGen/ShaderGenerators/OgsFxShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OslSyntax.h>
 #include <MaterialXShaderGen/CustomImpls/VDirectionImpl.h>
 #include <MaterialXShaderGen/CustomImpls/SwizzleImpl.h>
@@ -100,8 +101,7 @@ TEST_CASE("Simple Shader Generation", "[ShaderGen]")
     // Load standard libraries
     std::vector<std::string> filenames =
     {
-        "documents/Libraries/mx_stdlib_defs.mtlx",
-        "documents/Libraries/mx_stdlib_impl_shadergen_osl.mtlx"
+        "documents/Libraries/mx_stdlib_defs.mtlx"
     };
 
     for (const std::string& filename : filenames)
@@ -110,41 +110,53 @@ TEST_CASE("Simple Shader Generation", "[ShaderGen]")
     }
 
     // Create a simple node graph
-    mx::NodeDefPtr nodeDef = doc->addNodeDef("ND_testgraph", "color3");
-    mx::ParameterPtr param1 = nodeDef->addParameter("color1", "color3");
-    mx::ParameterPtr param2 = nodeDef->addParameter("color2", "color3");
-
-    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("testgraph");
-    nodeGraph->setNodeDef(nodeDef->getName());
-
-    mx::NodePtr add = nodeGraph->addNode("add", "add1", "color3");
-    mx::NodePtr constant1 = nodeGraph->addNode("constant", "constant1", "color3");
-    mx::NodePtr image1 = nodeGraph->addNode("image", "image1", "color3");
-    constant1->setParameterValue("value", mx::Color3(1, 0, 0));
-    image1->setParameterValue("file", std::string("/foo/bar.exr"));
-    add->setConnectedNode("in1", constant1);
-    add->setConnectedNode("in2", image1);
+    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("test1");
+    mx::NodePtr constant = nodeGraph->addNode("constant", "constant1", "color3");
+    constant->setParameterValue("value", mx::Color3(1, 0, 0));
+    mx::NodePtr image = nodeGraph->addNode("image", "image1", "color3");
+    image->setParameterValue("file", std::string("/foo/bar.exr"), "filename");
+    mx::NodePtr multiply = nodeGraph->addNode("multiply", "multiply1", "color3");
+    multiply->setConnectedNode("in1", constant);
+    multiply->setConnectedNode("in2", image);
 
     // Connected to output.
     mx::OutputPtr output1 = nodeGraph->addOutput();
-    output1->setConnectedNode(add);
-    output1->setChannels("rrr");
+    output1->setConnectedNode(multiply);
 
-    // Generate an OSL shader from the output
-    mx::ArnoldShaderGenerator sg;
-    mx::ShaderPtr shader = sg.generate(output1->getConnectedNode(), output1);
-
-    REQUIRE(shader != nullptr);
-    REQUIRE(shader->getSourceCode().length() > 0);
-
-    std::ofstream stream;
-    stream.open(nodeGraph->getName() + ".osl");
-    stream << shader->getSourceCode();
-    stream.close();
-
+    // Write out a .dot file for visualization
+    std::ofstream file;
     std::string dot = mx::printGraphDot(nodeGraph);
-    stream.open(nodeGraph->getName() + ".dot");
-    stream << dot;
+    file.open(nodeGraph->getName() + ".dot");
+    file << dot;
+    file.close();
+
+    // Setup descriptions of the shader generators
+    using GeneratorDescription = std::tuple<std::string, std::string, std::string, std::string>;
+    std::vector<GeneratorDescription> generatorDescriptions =
+    {
+        // language,  target,    file ext,  implementation library
+        { "osl",      "arnold",  "osl",     "documents/Libraries/mx_stdlib_impl_shadergen_osl.mtlx"  },
+        { "glsl",     "ogsfx",   "ogsfx",   "documents/Libraries/mx_stdlib_impl_shadergen_glsl.mtlx" }
+    };
+
+    for (auto desc : generatorDescriptions)
+    {
+        // Load in the library of implementations
+        mx::readFromXmlFile(doc, std::get<3>(desc));
+
+        // Find the shader generator
+        mx::ShaderGeneratorPtr sg = mx::Registry::findShaderGenerator(std::get<0>(desc), std::get<1>(desc));
+        REQUIRE(sg != nullptr);
+
+        // Generate the shader
+        mx::ShaderPtr shader = sg->generate(nodeGraph->getName(), output1->getConnectedNode(), output1);
+        REQUIRE(shader != nullptr);
+        REQUIRE(shader->getSourceCode().length() > 0);
+
+        file.open(shader->getName() + "." + std::get<2>(desc));
+        file << shader->getSourceCode();
+        file.close();
+    }
 }
 
 TEST_CASE("Swizzling", "[ShaderGen]")
@@ -188,13 +200,13 @@ TEST_CASE("Swizzling", "[ShaderGen]")
     // Test swizzle node custom implementation
     mx::SwizzleImpl swizzleImpl;
 
-    mx::Shader test1;
+    mx::Shader test1("test1");
     swizzleImpl.emitCode(mx::SgNode(swizzle, sg.getLanguage(), sg.getTarget()), sg, test1);
     REQUIRE(test1.getSourceCode() == "color foo_swizzle = color(foo_bar[0], foo_bar[0], foo_bar[0]);\n");
 
     swizzle->setParameterValue("channels", std::string("b0b"));
 
-    mx::Shader test2;
+    mx::Shader test2("test2");
     swizzleImpl.emitCode(mx::SgNode(swizzle, sg.getLanguage(), sg.getTarget()), sg, test2);
     REQUIRE(test2.getSourceCode() == "color foo_swizzle = color(foo_bar[2], 0, foo_bar[2]);\n");
 }

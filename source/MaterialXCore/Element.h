@@ -272,6 +272,13 @@ class Element : public enable_shared_from_this<Element>
             return it->second;
     }
 
+    /// Rename a child element.
+    /// Note that this will just rename the element, it will not update
+    /// any named references to this element kept on other elements.
+    /// @param name The name of the child element to rename.
+    /// @param newName The new name of the child element.
+    void renameChild(const string& name, const string& newName);
+
     /// Return the child element, if any, with the given name and subclass.
     /// If a child with the given name exists, but belongs to a different
     /// subclass, then an empty shared pointer is returned.

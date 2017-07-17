@@ -94,20 +94,9 @@ ElementPtr Node::getImplementation(const string& target) const
     if (nodeDef)
     {
         vector<ElementPtr> implementations = getDocument()->getMatchingImplementations(nodeDef->getName());
-
-        // Check for an implementation matching this target
         for (ElementPtr implementation : implementations)
         {
             if (implementation->getTarget() == target)
-            {
-                return implementation;
-            }
-        }
-
-        // Check for a general implementation matching any target
-        for (ElementPtr implementation : implementations)
-        {
-            if (implementation->getTarget().empty())
             {
                 return implementation;
             }

@@ -12,7 +12,7 @@ class OslShaderGenerator : public ShaderGenerator
 {
 public:
     /// Generate the shader for a graph starting from the given output port.
-    ShaderPtr generate(NodePtr node, OutputPtr connectingElement = nullptr) override;
+    ShaderPtr generate(const string& shaderName, NodePtr node, OutputPtr downstreamConnection = nullptr) override;
 
     /// Emit the shader body
     void emitShaderBody(Shader& shader) override;
