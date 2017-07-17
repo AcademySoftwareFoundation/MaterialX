@@ -92,4 +92,12 @@ TEST_CASE("Document", "[document]")
         REQUIRE(orphan);
     }
     REQUIRE_THROWS_AS(orphan->getDocument(), mx::ExceptionOrphanedElement);    
+
+    // Test element renaming
+    mx::NodeGraphPtr nodeGraph2 = doc->addNodeGraph();
+    mx::NodePtr foo = nodeGraph2->addNode("constant", "foo");
+    nodeGraph2->renameChild(foo->getName(), "bar");
+    REQUIRE(foo->getName() == "bar");
+    REQUIRE(nodeGraph2->getNode("bar") == foo);
+    REQUIRE(nodeGraph2->getNode("foo") == nullptr);
 }
