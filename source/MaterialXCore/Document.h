@@ -515,6 +515,12 @@ class Document : public Element
     /// @name Callbacks
     /// @{
 
+    /// Enable all observer notifications
+    virtual void enableNotifications() { }
+
+    /// Disable all observer notifications
+    virtual void disableNotifications() { }
+
     /// Called when an element is added to the element tree.
     virtual void onAddElement(ElementPtr parent, ElementPtr elem);
 
@@ -577,7 +583,29 @@ class ScopedUpdate
         _doc->onEndUpdate();
     }
 
-    private:
+private:
+    DocumentPtr _doc;
+};
+
+/// @class @ScopedDisableNotifications
+/// An RAII class for disabling all Document notifications.
+///
+/// A ScopedDisableNotifications instance calls Document::disableNotifications() when created, and
+/// Document::enableNotifications when destroyed.
+class ScopedDisableNotifications
+{
+public:
+    ScopedDisableNotifications(DocumentPtr doc) :
+        _doc(doc)
+    {
+        _doc->disableNotifications();
+    }
+    ~ScopedDisableNotifications()
+    {
+        _doc->enableNotifications();
+    }
+
+private:
     DocumentPtr _doc;
 };
 

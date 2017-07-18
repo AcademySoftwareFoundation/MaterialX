@@ -15,6 +15,7 @@
 namespace MaterialX
 {
 
+const string Element::NAME_ATTRIBUTE = "name";
 const string Element::TYPE_ATTRIBUTE = "type";
 const string Element::FILE_PREFIX_ATTRIBUTE = "fileprefix";
 const string Element::GEOM_PREFIX_ATTRIBUTE = "geomprefix";
@@ -85,22 +86,31 @@ string Element::getNamePath(ConstElementPtr relativeTo) const
     return res;
 }
 
-void Element::renameChild(const string& name, const string& newName)
+void Element::setName(const string& name)
 {
-    if (_childMap.count(newName))
-    {
-        throw Exception("New child name is not unique: " + newName);
-    }
-
-    ElementPtr child = getChild(name);
-    if (!child)
+    if (name == getName())
     {
         return;
     }
 
-    _childMap.erase(name);
-    _childMap[newName] = child;
-    child->_name = newName;
+    ElementPtr parent = getParent();
+    if (parent->_childMap.count(name))
+    {
+        throw Exception("Child name is not unique: " + name);
+    }
+
+    DocumentPtr doc = getDocument();
+
+    // Handle change notifications.
+    ScopedUpdate update(doc);
+    doc->onSetAttribute(getSelf(), NAME_ATTRIBUTE, name);
+
+    if (parent)
+    {
+        parent->_childMap.erase(getName());
+        parent->_childMap[name] = getSelf();
+    }
+    _name = name;
 }
 
 void Element::registerChildElement(ElementPtr child)
