@@ -19,9 +19,15 @@ void Shader::initialize(NodePtr node, OutputPtr downstreamConnection, const stri
     _activeStage = 0;
     _stages.resize(numStages());
 
+    DocumentPtr doc = node->getDocument();
+
     // Create a new graph, to hold this node and it's dependencies upstream
-    // TODO: Create a unique name
-    _nodeGraph = node->getDocument()->addNodeGraph("sg_" + _name);
+    //
+    // Disable notifications since this is an internal change.
+    // TODO: Do we need a better solution for handling the shader generation graph?
+    ScopedDisableNotifications disableNotifications(doc);
+
+    _nodeGraph = doc->addNodeGraph("sg_" + _name);
     _output = _nodeGraph->addOutput("out");
 
     if (downstreamConnection)
@@ -227,11 +233,14 @@ void Shader::initialize(NodePtr node, OutputPtr downstreamConnection, const stri
 
 void Shader::finalize()
 {
-    // Remove the optimized graph we created for shader generation
-    DocumentPtr doc = _nodeGraph->getDocument();
-    doc->removeNodeGraph(_nodeGraph->getName());
-
     // Release resources
+    if (_nodeGraph)
+    {
+        // Disable notifications since this is an internal change.
+        // TODO: Do we need a better solution for handling the shader generation graph?
+        ScopedDisableNotifications disableNotifications(_nodeGraph->getDocument());
+        _nodeGraph->getDocument()->removeChild(_nodeGraph->getName());
+    }
     _nodeGraph.reset();
     _output.reset();
     _nodes.clear();
