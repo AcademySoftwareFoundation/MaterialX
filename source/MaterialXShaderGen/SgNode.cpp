@@ -1,6 +1,6 @@
 #include <MaterialXShaderGen/SgNode.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
-#include <MaterialXShaderGen/Registry.h>
+#include <MaterialXShaderGen/ShaderGenRegistry.h>
 #include <MaterialXShaderGen/NodeImplementation.h>
 #include <MaterialXShaderGen/Util.h>
 
@@ -36,7 +36,7 @@ namespace
         }
 
         string contents;
-        if (!readFile(ShaderGenerator::findFile(file), contents))
+        if (!readFile(ShaderGenRegistry::findSourceCode(file), contents))
         {
             throw ExceptionShaderGenError("Can't find source file '" + file + "' used by implementation '" + impl.getName() + "'");
         }
@@ -114,7 +114,7 @@ SgNode::SgNode(NodePtr node, const string& language, const string& target)
     }
 
     // Check if this node has a custom node implementation registered
-    _customImpl = Registry::findNodeImplementation(_nodeDef->getNode(), language, target);
+    _customImpl = ShaderGenRegistry::findNodeImplementation(_nodeDef->getNode(), language, target);
 
     if (!_customImpl)
     {

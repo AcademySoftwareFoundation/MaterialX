@@ -1,8 +1,10 @@
-#ifndef MATERIALX_REGISTRY_H
-#define MATERIALX_REGISTRY_H
+#ifndef MATERIALX_SHADERGENREGISTRY_H
+#define MATERIALX_SHADERGENREGISTRY_H
 
 #include <MaterialXCore/Library.h>
 #include <MaterialXCore/Util.h>
+
+#include <MaterialXFormat/File.h>
 
 #include <MaterialXShaderGen/Factory.h>
 
@@ -12,12 +14,12 @@ namespace MaterialX
 using ShaderGeneratorPtr = shared_ptr<class ShaderGenerator>;
 using NodeImplementationPtr = shared_ptr<class NodeImplementation>;
 
-/// Registry class for handling shader generators and custom implementations.
+/// Registry class for handling shader generators and node implementations.
 /// Shader generators and implementations can be registered for a specific shading 
 /// language and target application/renderer.
-/// 3rd party shader generators and custom implementations must register with this
+/// 3rd party shader generators and node implementations must register with this
 /// class in order for the system to find them.
-class Registry
+class ShaderGenRegistry
 {
 public:
     template<class T>
@@ -45,12 +47,18 @@ public:
     /// registered for the given node, language and target.
     static NodeImplementationPtr findNodeImplementation(const string& node, const string& language = EMPTY_STRING, const string& target = EMPTY_STRING);
 
+    /// Add to the search path used for finding source code.
+    static void registerSourceCodeSearchPath(const FilePath& path);
+
+    /// Resolve a source code file using the registered search paths.
+    static FilePath findSourceCode(const FilePath& filename);
+
     /// Register all built-in shader generators and implementations.
-    /// Should be called at application initializetion.
+    /// Should be called at application initialization.
     static void registerBuiltIn();
 
     /// Register all built-in shader generators and implementations.
-    /// Should be called at application deinitializetion.
+    /// Should be called at application deinitialization.
     static void unregisterBuiltIn();
 
 private:
@@ -62,24 +70,26 @@ private:
 
     static Factory<NodeImplementation> _implementationFactory;
     static unordered_map<string, NodeImplementationPtr> _implementations;
+
+    static FileSearchPath _sourceCodeSearchPath;
 };
 
 
-/// @class @ScopedRegistryInit
-/// An RAII class for Registry registration.
+/// @class @ScopedShaderGenInit
+/// An RAII class for registration of built-in ShaderGen classes.
 ///
-/// A ScopedRegistryInit instance calls Registry registration when created,
-/// and Registry unregistration when destroyed.
-class ScopedRegistryInit
+/// A ScopedShaderGenInit instance calls ShaderGenRegistry::registerBuiltIn when created,
+/// and ShaderGenRegistry::unregisterBuiltIn when destroyed.
+class ScopedShaderGenInit
 {
 public:
-    ScopedRegistryInit()
+    ScopedShaderGenInit()
     {
-        Registry::registerBuiltIn();
+        ShaderGenRegistry::registerBuiltIn();
     }
-    ~ScopedRegistryInit()
+    ~ScopedShaderGenInit()
     {
-        Registry::unregisterBuiltIn();
+        ShaderGenRegistry::unregisterBuiltIn();
     }
 };
 

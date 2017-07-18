@@ -6,8 +6,6 @@
 
 #include <MaterialXCore/Util.h>
 
-#include <MaterialXFormat/File.h>
-
 namespace MaterialX
 {
 
@@ -68,25 +66,11 @@ public:
     /// Get a unique id from the langunage/target combination
     static string id(const string& language, const string& target = EMPTY_STRING);
 
-    /// Add a path to the search path used for finding source code
-    static void addSearchPath(const FilePath& path)
-    {
-        _searchPath.append(path);
-    }
-
-    /// Resolve a file using the registered search paths.
-    static FilePath findFile(const FilePath& filename)
-    {
-        return _searchPath.find(filename);
-    }
-    
 protected:
     /// Protected constructor
     ShaderGenerator(SyntaxPtr syntax) : _syntax(syntax) {}
 
     SyntaxPtr _syntax;
-
-    static FileSearchPath _searchPath;
 };
 
 } // namespace MaterialX

@@ -4,7 +4,7 @@
 
 #include <MaterialXFormat/XmlIo.h>
 
-#include <MaterialXShaderGen/Registry.h>
+#include <MaterialXShaderGen/ShaderGenRegistry.h>
 #include <MaterialXShaderGen/ShaderGenerators/ArnoldShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OgsFxShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OslSyntax.h>
@@ -18,52 +18,52 @@ namespace mx = MaterialX;
 
 TEST_CASE("Registry", "[ShaderGen]")
 {
-    mx::Registry::registerBuiltIn();
+    mx::ShaderGenRegistry::registerBuiltIn();
 
-    mx::ShaderGeneratorPtr sg1 = mx::Registry::findShaderGenerator(
+    mx::ShaderGeneratorPtr sg1 = mx::ShaderGenRegistry::findShaderGenerator(
         mx::ArnoldShaderGenerator::kLanguage,
         mx::ArnoldShaderGenerator::kTarget);
     REQUIRE(sg1->getTarget() == mx::ArnoldShaderGenerator::kTarget);
     
-    mx::ShaderGeneratorPtr sg2 = mx::Registry::findShaderGenerator(
+    mx::ShaderGeneratorPtr sg2 = mx::ShaderGenRegistry::findShaderGenerator(
         mx::ArnoldShaderGenerator::kLanguage);
     REQUIRE(sg2 == nullptr);
 
-    mx::Registry::unregisterShaderGenerator(
+    mx::ShaderGenRegistry::unregisterShaderGenerator(
         mx::ArnoldShaderGenerator::kLanguage, 
         mx::ArnoldShaderGenerator::kTarget);
 
-    sg1 = mx::Registry::findShaderGenerator(
+    sg1 = mx::ShaderGenRegistry::findShaderGenerator(
         mx::ArnoldShaderGenerator::kLanguage, 
         mx::ArnoldShaderGenerator::kTarget);
     REQUIRE(sg1 == nullptr);
 
-    mx::NodeImplementationPtr impl1 = mx::Registry::findNodeImplementation(
+    mx::NodeImplementationPtr impl1 = mx::ShaderGenRegistry::findNodeImplementation(
         mx::VDirectionImplFlipOsl::kNode,
         mx::VDirectionImplFlipOsl::kLanguage,
         mx::VDirectionImplFlipOsl::kTarget);
     REQUIRE(impl1 != nullptr);
 
-    mx::NodeImplementationPtr impl2 = mx::Registry::findNodeImplementation(
+    mx::NodeImplementationPtr impl2 = mx::ShaderGenRegistry::findNodeImplementation(
         mx::VDirectionImplFlipOsl::kNode,
         mx::VDirectionImplFlipOsl::kLanguage);
     REQUIRE(impl2 != nullptr);
     REQUIRE(impl2 == impl1);
 
-    mx::NodeImplementationPtr impl3 = mx::Registry::findNodeImplementation(
+    mx::NodeImplementationPtr impl3 = mx::ShaderGenRegistry::findNodeImplementation(
         mx::VDirectionImplFlipOsl::kNode);
     REQUIRE(impl3 == nullptr);
 
-    mx::NodeImplementationPtr impl4 = mx::Registry::findNodeImplementation(
+    mx::NodeImplementationPtr impl4 = mx::ShaderGenRegistry::findNodeImplementation(
         mx::VDirectionImplFlipGlsl::kNode,
         mx::VDirectionImplFlipGlsl::kLanguage,
         mx::VDirectionImplFlipGlsl::kTarget);
     REQUIRE(impl4 != nullptr);
     REQUIRE(impl4 != impl2);
 
-    mx::Registry::unregisterBuiltIn();
+    mx::ShaderGenRegistry::unregisterBuiltIn();
 
-    impl4 = mx::Registry::findNodeImplementation(
+    impl4 = mx::ShaderGenRegistry::findNodeImplementation(
         mx::VDirectionImplFlipGlsl::kNode,
         mx::VDirectionImplFlipGlsl::kLanguage,
         mx::VDirectionImplFlipGlsl::kTarget);
@@ -91,10 +91,10 @@ TEST_CASE("OslSyntax", "[ShaderGen]")
 
 TEST_CASE("Simple Shader Generation", "[ShaderGen]")
 {
-    mx::ScopedRegistryInit registryInit;
+    mx::ScopedShaderGenInit shaderGenInit;
 
     std::string searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    mx::ShaderGenerator::addSearchPath(searchPath);
+    mx::ShaderGenRegistry::registerSourceCodeSearchPath(searchPath);
 
     mx::DocumentPtr doc = mx::createDocument();
 
@@ -145,7 +145,7 @@ TEST_CASE("Simple Shader Generation", "[ShaderGen]")
         mx::readFromXmlFile(doc, std::get<3>(desc));
 
         // Find the shader generator
-        mx::ShaderGeneratorPtr sg = mx::Registry::findShaderGenerator(std::get<0>(desc), std::get<1>(desc));
+        mx::ShaderGeneratorPtr sg = mx::ShaderGenRegistry::findShaderGenerator(std::get<0>(desc), std::get<1>(desc));
         REQUIRE(sg != nullptr);
 
         // Generate the shader
@@ -163,10 +163,10 @@ TEST_CASE("Simple Shader Generation", "[ShaderGen]")
 
 TEST_CASE("Swizzling", "[ShaderGen]")
 {
-    mx::ScopedRegistryInit registryInit;
+    mx::ScopedShaderGenInit shaderGenInit;
 
     std::string searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    mx::ShaderGenerator::addSearchPath(searchPath);
+    mx::ShaderGenRegistry::registerSourceCodeSearchPath(searchPath);
 
     mx::DocumentPtr doc = mx::createDocument();
     std::vector<std::string> filenames =
