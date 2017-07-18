@@ -1,5 +1,5 @@
 #include <MaterialXShaderGen/ShaderGenerator.h>
-#include <MaterialXShaderGen/Registry.h>
+#include <MaterialXShaderGen/ShaderGenRegistry.h>
 #include <MaterialXShaderGen/NodeImplementation.h>
 #include <MaterialXShaderGen/Util.h>
 #include <MaterialXCore/Node.h>
@@ -15,8 +15,6 @@ namespace
 {
     static const SgNode EMPTY_SGNODE(nullptr, EMPTY_STRING, EMPTY_STRING);
 }
-
-FileSearchPath ShaderGenerator::_searchPath;
 
 Shader::VDirection ShaderGenerator::getTargetVDirection() const
 {
@@ -43,7 +41,7 @@ void ShaderGenerator::emitFunctions(Shader& shader)
     // as needed by the v-direction set by the user
     if (shader.getRequestedVDirection() != getTargetVDirection())
     {
-        NodeImplementationPtr impl = Registry::findNodeImplementation("vdirection_flip", getLanguage(), getTarget());
+        NodeImplementationPtr impl = ShaderGenRegistry::findNodeImplementation("vdirection_flip", getLanguage(), getTarget());
         if (!impl)
         {
            throw ExceptionShaderGenError("Built-in implementation for 'vdirection_flip' was not found. Did you forget to register built-in implementations?");
@@ -52,7 +50,7 @@ void ShaderGenerator::emitFunctions(Shader& shader)
     }
     else
     {
-        NodeImplementationPtr impl = Registry::findNodeImplementation("vdirection_noop", getLanguage(), getTarget());
+        NodeImplementationPtr impl = ShaderGenRegistry::findNodeImplementation("vdirection_noop", getLanguage(), getTarget());
         if (!impl)
         {
            throw ExceptionShaderGenError("Built-in implementation for 'vdirection_noop' was not found. Did you forget to register built-in implementations?");

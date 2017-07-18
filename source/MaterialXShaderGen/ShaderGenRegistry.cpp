@@ -1,4 +1,4 @@
-#include <MaterialXShaderGen/Registry.h>
+#include <MaterialXShaderGen/ShaderGenRegistry.h>
 
 #include <MaterialXShaderGen/ShaderGenerators/ArnoldShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OgsFxShaderGenerator.h>
@@ -9,39 +9,41 @@
 namespace MaterialX
 {
 
-Factory<ShaderGenerator> Registry::_shaderGeneratorFactory;
-unordered_map<string, ShaderGeneratorPtr> Registry::_shaderGenerators;
+Factory<ShaderGenerator> ShaderGenRegistry::_shaderGeneratorFactory;
+unordered_map<string, ShaderGeneratorPtr> ShaderGenRegistry::_shaderGenerators;
 
-Factory<NodeImplementation> Registry::_implementationFactory;
-unordered_map<string, NodeImplementationPtr> Registry::_implementations;
+Factory<NodeImplementation> ShaderGenRegistry::_implementationFactory;
+unordered_map<string, NodeImplementationPtr> ShaderGenRegistry::_implementations;
 
-void Registry::registerShaderGenerator(const string& language, const string& target, CreatorFunc<ShaderGenerator> f)
+FileSearchPath ShaderGenRegistry::_sourceCodeSearchPath;
+
+void ShaderGenRegistry::registerShaderGenerator(const string& language, const string& target, CreatorFunc<ShaderGenerator> f)
 {
     const string id = ShaderGenerator::id(language, target);
     _shaderGeneratorFactory.registerClass(id, f);
 }
 
-void Registry::unregisterShaderGenerator(const string& language, const string& target)
+void ShaderGenRegistry::unregisterShaderGenerator(const string& language, const string& target)
 {
     const string id = ShaderGenerator::id(language, target);
     _shaderGeneratorFactory.unregisterClass(id);
     _shaderGenerators.erase(id);
 }
 
-void Registry::registerNodeImplementation(const string& node, const string& language, const string& target, CreatorFunc<NodeImplementation> f)
+void ShaderGenRegistry::registerNodeImplementation(const string& node, const string& language, const string& target, CreatorFunc<NodeImplementation> f)
 {
     const string id = NodeImplementation::id(node, language, target);
     _implementationFactory.registerClass(id, f);
 }
 
-void Registry::unregisterNodeImplementation(const string& node, const string& language, const string& target)
+void ShaderGenRegistry::unregisterNodeImplementation(const string& node, const string& language, const string& target)
 {
     const string id = NodeImplementation::id(node, language, target);
     _implementationFactory.unregisterClass(id);
     _implementations.erase(id);
 }
 
-ShaderGeneratorPtr Registry::findShaderGenerator(const string& language, const string& target)
+ShaderGeneratorPtr ShaderGenRegistry::findShaderGenerator(const string& language, const string& target)
 {
     // First, search only by language
     ShaderGeneratorPtr ptr = findShaderGeneratorById(ShaderGenerator::id(language));
@@ -54,7 +56,7 @@ ShaderGeneratorPtr Registry::findShaderGenerator(const string& language, const s
     return findShaderGeneratorById(ShaderGenerator::id(language, target));
 }
 
-NodeImplementationPtr Registry::findNodeImplementation(const string& node, const string& language, const string& target)
+NodeImplementationPtr ShaderGenRegistry::findNodeImplementation(const string& node, const string& language, const string& target)
 {
     // First, search only by node name
     NodeImplementationPtr ptr = findNodeImplementationById(NodeImplementation::id(node));
@@ -74,7 +76,18 @@ NodeImplementationPtr Registry::findNodeImplementation(const string& node, const
     return findNodeImplementationById(NodeImplementation::id(node, language, target));
 }
 
-ShaderGeneratorPtr Registry::findShaderGeneratorById(const string& id)
+void ShaderGenRegistry::registerSourceCodeSearchPath(const FilePath& path)
+{
+    _sourceCodeSearchPath.append(path);
+}
+
+/// Resolve a file using the registered search paths.
+FilePath ShaderGenRegistry::findSourceCode(const FilePath& filename)
+{
+    return _sourceCodeSearchPath.find(filename);
+}
+
+ShaderGeneratorPtr ShaderGenRegistry::findShaderGeneratorById(const string& id)
 {
     auto it = _shaderGenerators.find(id);
     if (it != _shaderGenerators.end())
@@ -91,7 +104,7 @@ ShaderGeneratorPtr Registry::findShaderGeneratorById(const string& id)
     return generatorPtr;
 }
 
-NodeImplementationPtr Registry::findNodeImplementationById(const string& id)
+NodeImplementationPtr ShaderGenRegistry::findNodeImplementationById(const string& id)
 {
     auto it = _implementations.find(id);
     if (it != _implementations.end())
@@ -119,7 +132,7 @@ NodeImplementationPtr Registry::findNodeImplementationById(const string& id)
 #define UNREGISTER_NODE_IMPLEMENTATION(T)      \
     unregisterNodeImplementation(T::kNode, T::kLanguage, T::kTarget);
 
-void Registry::registerBuiltIn()
+void ShaderGenRegistry::registerBuiltIn()
 {
     REGISTER_SHADER_GENERATOR(ArnoldShaderGenerator);
     REGISTER_SHADER_GENERATOR(OgsFxShaderGenerator);
@@ -131,7 +144,7 @@ void Registry::registerBuiltIn()
     REGISTER_NODE_IMPLEMENTATION(SwizzleImpl);
 }
 
-void Registry::unregisterBuiltIn()
+void ShaderGenRegistry::unregisterBuiltIn()
 {
     UNREGISTER_SHADER_GENERATOR(ArnoldShaderGenerator);
     UNREGISTER_SHADER_GENERATOR(OgsFxShaderGenerator);
