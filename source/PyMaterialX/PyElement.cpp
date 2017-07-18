@@ -37,6 +37,7 @@ void bindPyElement(py::module& mod)
         .def("getName", &mx::Element::getName)
         .def("getNamePath", &mx::Element::getNamePath,
             py::arg("relativeTo") = mx::ConstElementPtr())
+        .def("setName", &mx::Element::setName)
         .def("setFilePrefix", &mx::Element::setFilePrefix)
         .def("hasFilePrefix", &mx::Element::hasFilePrefix)
         .def("getFilePrefix", &mx::Element::getFilePrefix)

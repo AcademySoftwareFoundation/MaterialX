@@ -95,8 +95,7 @@ class Element : public enable_shared_from_this<Element>
     /// @{
 
     /// Return the element's name string.  The name of a MaterialX element
-    /// must be unique among all elements at the same scope, and cannot be
-    /// modified after the element is created.
+    /// must be unique among all elements at the same scope.
     /// @todo The MaterialX notion of namespaces is not yet supported.
     const string& getName() const
     {
@@ -109,6 +108,14 @@ class Element : public enable_shared_from_this<Element>
     /// @param relativeTo If a valid ancestor element is specified, then
     ///    the returned path will be relative to this ancestor.
     string getNamePath(ConstElementPtr relativeTo = ConstElementPtr()) const;
+
+    /// Rename the element.
+    /// Note that this will only rename the element, it will not update
+    /// any named references to this element kept on other elements.
+    /// @param name The new name of the element.
+    /// @todo The MaterialX notion of namespaces is not yet supported.
+    /// @todo Implement Document.updateNameReferences(orig, new) to support reference updates.
+    void setName(const string& name);
 
     /// @}
     /// @name File Prefix
@@ -271,13 +278,6 @@ class Element : public enable_shared_from_this<Element>
         else
             return it->second;
     }
-
-    /// Rename a child element.
-    /// Note that this will just rename the element, it will not update
-    /// any named references to this element kept on other elements.
-    /// @param name The name of the child element to rename.
-    /// @param newName The new name of the child element.
-    void renameChild(const string& name, const string& newName);
 
     /// Return the child element, if any, with the given name and subclass.
     /// If a child with the given name exists, but belongs to a different
@@ -586,6 +586,7 @@ class Element : public enable_shared_from_this<Element>
     void validateRequire(bool expression, bool& res, string* message, string errorDesc) const;
 
   public:
+    static const string NAME_ATTRIBUTE;
     static const string TYPE_ATTRIBUTE;
     static const string FILE_PREFIX_ATTRIBUTE;
     static const string GEOM_PREFIX_ATTRIBUTE;
