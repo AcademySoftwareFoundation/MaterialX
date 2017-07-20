@@ -85,7 +85,7 @@ vec3 computeDiffuse(float roughness, vec3 normal)
         vec3 LightVecNorm = normalize(LightVec);
 
         vec3 LightContribution = LightContributionFunction(ActiveLightIndex, PS_IN.WorldPosition, LightVec);
-        L += standardShaderDiffuse(normal, LightVec, LightContribution);
+        L += standardShaderDiffuse(normal, LightVecNorm, LightContribution);
     }
     return L;
 }
@@ -104,7 +104,7 @@ void computeSpecular(float roughness, vec3 normal, vec3 view, out vec3 result)
 
         vec3 LightContribution = LightContributionFunction(ActiveLightIndex, PS_IN.WorldPosition, LightVec);
 
-        vec3 specular = standardShaderSpecular(normal, LightVec, view, LightContribution, roughness);
+        vec3 specular = standardShaderSpecular(normal, LightVecNorm, view, LightContribution, roughness);
         L += specular;
     }
     result = L;
