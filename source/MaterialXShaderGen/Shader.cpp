@@ -14,12 +14,12 @@ Shader::Shader(const string& name)
     _stages.resize(numStages());
 }
 
-void Shader::initialize(NodePtr node, OutputPtr downstreamConnection, const string& language, const string& target)
+void Shader::initialize(ElementPtr element, const string& language, const string& target)
 {
     _activeStage = 0;
     _stages.resize(numStages());
 
-    DocumentPtr doc = node->getDocument();
+    DocumentPtr doc = element->getDocument();
 
     // Create a new graph, to hold this node and it's dependencies upstream
     //
@@ -30,40 +30,118 @@ void Shader::initialize(NodePtr node, OutputPtr downstreamConnection, const stri
     _nodeGraph = doc->addNodeGraph("sg_" + _name);
     _output = _nodeGraph->addOutput("out");
 
-    if (downstreamConnection)
-    {
-        _output->setType(downstreamConnection->getType());
-        _output->setChannels(downstreamConnection->getChannels());
-    }
-    else
-    {
-        _output->setType(node->getType());
-    }
-
     //
-    // Add the node itself and then travers upstream to add all dependencies.
-    // During this traversal we also add in any needed default geometric nodes.
+    // Add the element itself to our graph
     // 
-
-    NodePtr rootNode = _nodeGraph->addNode(node->getCategory(), node->getName(), node->getType());
-    rootNode->copyContentFrom(node);
-    _output->setConnectedNode(rootNode);
 
     // Keep track of the default geometric nodes we create below.
     unordered_map<string, NodePtr> defaultGeometricNodes;
+
+    ElementPtr root;
+    MaterialPtr material;
+
+    if (element->isA<Output>())
+    {
+        OutputPtr output = element->asA<Output>();
+        NodePtr srcNode = output->getConnectedNode();
+        if (!srcNode)
+        {
+            ExceptionShaderGenError("Given output element '" + element->getName() + "' has no node connection");
+        }
+
+        NodePtr node = _nodeGraph->addNode(srcNode->getCategory(), srcNode->getName(), srcNode->getType());
+        node->copyContentFrom(srcNode);
+        _output->setType(node->getType());
+        _output->setNodeName(node->getName());
+        _output->setChannels(output->getChannels());
+
+        root = srcNode;
+    }
+    else if (element->isA<Node>())
+    {
+        NodePtr srcNode = element->asA<Node>();
+        NodePtr node = _nodeGraph->addNode(srcNode->getCategory(), srcNode->getName(), srcNode->getType());
+        node->copyContentFrom(srcNode);
+        _output->setType(node->getType());
+        _output->setNodeName(node->getName());
+        root = srcNode;
+    }
+    else if (element->isA<ShaderRef>())
+    {
+        ShaderRefPtr shaderRef = element->asA<ShaderRef>();
+        NodeDefPtr nodeDef = shaderRef->getReferencedShaderDef();
+
+        NodePtr node = _nodeGraph->addNode(nodeDef->getNode(), shaderRef->getName(), nodeDef->getType());
+        for (BindInputPtr bindInput : shaderRef->getBindInputs())
+        {
+            InputPtr input = node->addInput(bindInput->getName(), bindInput->getType());
+            input->setValueString(bindInput->getValueString());
+        }
+
+        // TODO: Improve!!!!
+
+        // Add connections to default geometric nodes
+        for (InputPtr inputDef : nodeDef->getInputs())
+        {
+            const string& defaultgeomprop = inputDef->getAttribute("defaultgeomprop");
+            if (!defaultgeomprop.empty())
+            {
+                InputPtr input = node->getInput(inputDef->getName());
+                if (!input)
+                {
+                    input = node->addInput(inputDef->getName(), inputDef->getType());
+                }
+
+                if (input->getNodeName().empty())
+                {
+                    NodePtr geomNode = nullptr;
+                    auto it = defaultGeometricNodes.find(defaultgeomprop);
+                    if (it != defaultGeometricNodes.end())
+                    {
+                        geomNode = it->second;
+                    }
+                    else
+                    {
+                        geomNode = _nodeGraph->addNode(defaultgeomprop, defaultgeomprop + "_default", input->getType());
+                        defaultGeometricNodes[defaultgeomprop] = geomNode;
+                    }
+                    input->setNodeName(geomNode->getName());
+                }
+            }
+        }
+
+        _output->setType(node->getType());
+        _output->setNodeName(node->getName());
+
+        root = shaderRef;
+        material = shaderRef->getParent()->asA<Material>();
+    }
+
+    if (!root)
+    {
+        throw ExceptionShaderGenError("Element '" + element->getName() + "' is not of supported type for shader generation");
+    }
+
+    //
+    // Travers upstream to add all dependencies.
+    // During this traversal we also add in any needed default geometric nodes.
+    // 
+
 
     // Keep track of processed nodes to avoid duplication
     // of nodes with multiple downstream connections.
     std::set<NodePtr> processedNodes;
 
-    // TODO: traversGraph should be given the current material
-    //
-    for (Edge edge : node->traverseGraph())
+    for (Edge edge : root->traverseGraph(material))
     {
-        NodePtr upstreamNode = edge.getUpstreamElement()->asA<Node>();
-        if (processedNodes.count(upstreamNode))
+        ElementPtr upstreamElement = edge.getUpstreamElement();
+
+        NodePtr upstreamNode = upstreamElement->isA<Output>() ?
+            upstreamElement->asA<Output>()->getConnectedNode() : upstreamElement->asA<Node>();
+
+        if (!upstreamNode || processedNodes.count(upstreamNode))
         {
-            // Node is already processed.
+            // Unconnected or node is already processed.
             continue;
         }
 
@@ -109,7 +187,7 @@ void Shader::initialize(NodePtr node, OutputPtr downstreamConnection, const stri
                     else
                     {
                         geomNode = _nodeGraph->addNode(defaultgeomprop, defaultgeomprop+"_default", input->getType());
-                        defaultGeometricNodes[geomNode->getName()] = geomNode;
+                        defaultGeometricNodes[defaultgeomprop] = geomNode;
                     }
                     input->setNodeName(geomNode->getName());
                 }
@@ -127,7 +205,7 @@ void Shader::initialize(NodePtr node, OutputPtr downstreamConnection, const stri
     vector<ElementPtr> topologicalOrder = _nodeGraph->topologicalSort();
     std::reverse(topologicalOrder.begin(), topologicalOrder.end());
 
-    // Create an SgnNode for each node, holding cached data for shader generation
+    // Create an SgNode for each node, holding cached data for shader generation
     for (ElementPtr elem : topologicalOrder)
     {
         if (elem->isA<Node>())
@@ -138,7 +216,7 @@ void Shader::initialize(NodePtr node, OutputPtr downstreamConnection, const stri
 
     // Set the vdirection to use for texture nodes
     // Default is to use direction UP
-    const string& vdir = node->getRoot()->getAttribute("vdirection");
+    const string& vdir = element->getRoot()->getAttribute("vdirection");
     _vdirection = vdir == "down" ? VDirection::DOWN : VDirection::UP;;
 
 #if 0

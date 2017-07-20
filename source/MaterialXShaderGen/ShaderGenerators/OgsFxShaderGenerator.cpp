@@ -69,21 +69,21 @@ const char* kShaderBlock_Lights =
     "	string Object = \"Light 2\";\n"
     "> = 3;\n"
     "\n"
-    "uniform vec3 Light0Color : LIGHTCOLOR\n"
+    "uniform vec3 Light0Color\n"
     "<\n"
     "	string UIName = \"Light 0 Color\";\n"
     "	string UIWidget = \"ColorPicker\";\n"
     "	string Object = \"Light 0\";\n"
     "> = {1.0, 1.0, 1.0};\n"
     "\n"
-    "uniform vec3 Light1Color : LIGHTCOLOR\n"
+    "uniform vec3 Light1Color\n"
     "<\n"
     "	string UIName = \"Light 1 Color\";\n"
     "	string UIWidget = \"ColorPicker\";\n"
     "	string Object = \"Light 1\";\n"
     "> = {1.0, 1.0, 1.0};\n"
     "\n"
-    "uniform vec3 Light2Color : LIGHTCOLOR\n"
+    "uniform vec3 Light2Color\n"
     "<\n"
     "	string UIName = \"Light 2 Color\";\n"
     "	string UIWidget = \"ColorPicker\";\n"
@@ -126,35 +126,35 @@ const char* kShaderBlock_Lights =
     "	string UIName = \"Light 1 Position\";\n"
     "	string Space = \"World\";\n"
     "	string Object = \"Light 1\";\n"
-    "> = {1.0, 1.0, 1.0};\n"
+    "> = { -1.0, -1.0, 1.0 };\n"
     "\n"
     "uniform vec3 Light2Pos : POSITION\n"
     "<\n"
     "	string UIName = \"Light 2 Position\";\n"
     "	string Space = \"World\";\n"
     "	string Object = \"Light 2\";\n"
-    "> = {1.0, 1.0, 1.0};\n"
+    "> = { 1.0, -1.0, -1.0 };\n"
     "\n"
     "uniform vec3 Light0Dir : DIRECTION\n"
     "<\n"
     "	string UIName = \"Light 0 Direction\";\n"
     "	string Space = \"World\";\n"
     "	string Object = \"Light 0\";\n"
-    "> = {0.0, -1.0, 0.0};\n"
+    "> = {-1.0, -1.0, 0.0};\n"
     "\n"
     "uniform vec3 Light1Dir : DIRECTION\n"
     "<\n"
     "	string UIName = \"Light 1 Direction\";\n"
     "	string Space = \"World\";\n"
     "	string Object = \"Light 1\";\n"
-    "> = {0.0, -1.0, 0.0};\n"
+    "> = {-1.0, 1.0, 0.0};\n"
     "\n"
     "uniform vec3 Light2Dir : DIRECTION\n"
     "<\n"
     "	string UIName = \"Light 2 Direction\";\n"
     "	string Space = \"World\";\n"
     "	string Object = \"Light 2\";\n"
-    "> = {0.0, -1.0, 0.0};\n"
+    "> = {0.0, -1.0, 1.0};\n"
     "\n"
     "uniform float Light0Attenuation : DECAYRATE\n"
     "<\n"
@@ -162,7 +162,7 @@ const char* kShaderBlock_Lights =
     "	float UIMin = 0;\n"
     "	float UIStep = 1;\n"
     "	string Object = \"Light 0\";\n"
-    "> = 0.0;\n"
+    "> = 0.01;\n"
     "\n"
     "uniform float Light1Attenuation : DECAYRATE\n"
     "<\n"
@@ -170,7 +170,7 @@ const char* kShaderBlock_Lights =
     "	float UIMin = 0;\n"
     "	float UIStep = 1;\n"
     "	string Object = \"Light 1\";\n"
-    "> = 0.0;\n"
+    "> = 0.01;\n"
     "\n"
     "uniform float Light2Attenuation : DECAYRATE\n"
     "<\n"
@@ -178,7 +178,7 @@ const char* kShaderBlock_Lights =
     "	float UIMin = 0;\n"
     "	float UIStep = 1;\n"
     "	string Object = \"Light 2\";\n"
-    "> = 0.0;\n"
+    "> = 0.01;\n"
     "\n"
     "uniform float Light0ConeAngle : HOTSPOT\n"
     "<\n"
@@ -241,19 +241,19 @@ const char* kShaderBlock_Lights =
     "<\n"
     "	string UIName = \"Light 0 Casts Shadow\";\n"
     "	string Object = \"Light 0\";\n"
-    "> = true;\n"
+    "> = false;\n"
     "\n"
     "uniform bool Light1ShadowOn : SHADOWFLAG\n"
     "<\n"
     "	string UIName = \"Light 1 Casts Shadow\";\n"
     "	string Object = \"Light 1\";\n"
-    "> = true;\n"
+    "> = false;\n"
     "\n"
     "uniform bool Light2ShadowOn : SHADOWFLAG\n"
     "<\n"
     "	string UIName = \"Light 2 Casts Shadow\";\n"
     "	string Object = \"Light 2\";\n"
-    "> = true;\n"
+    "> = false;\n"
     "\n"
     "uniform mat4 Light0ViewPrj : SHADOWMAPMATRIX\n"
     "<\n"
@@ -569,10 +569,10 @@ namespace MaterialX
 
 DEFINE_SHADER_GENERATOR(OgsFxShaderGenerator, "glsl", "ogsfx")
 
-ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, NodePtr node, OutputPtr downstreamConnection)
+ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr element)
 {
     ShaderPtr shaderPtr = std::make_shared<Shader>(shaderName);
-    shaderPtr->initialize(node, downstreamConnection, getLanguage(), getTarget());
+    shaderPtr->initialize(element, getLanguage(), getTarget());
 
     Shader& shader = *shaderPtr;
 
@@ -655,6 +655,34 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, NodePtr node,
     return shaderPtr;
 }
 
+// TODO: Remove the hard coded gamma transform
+void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
+{
+    const OutputPtr& output = shader.getOutput();
+    const NodePtr connectedNode = output->getConnectedNode();
+
+    string finalResult = _syntax->getVariableName(*connectedNode);
+
+    const string& outputType = output->getType();
+    if (outputType == kSURFACE)
+    {
+        finalResult = finalResult + ".bsdf + " + finalResult + ".edf";
+        string outputExpr = "vec4(pow(" + finalResult + ", vec3(1.0/2.2)), 1.0)";
+        shader.addLine(_syntax->getVariableName(*output) + " = " + outputExpr);
+    }
+    else
+    {
+        if (output->getChannels() != EMPTY_STRING)
+        {
+            finalResult = _syntax->getSwizzledVariable(finalResult, output->getType(), connectedNode->getType(), output->getChannels());
+        }
+
+        const string typeName = _syntax->getTypeName(outputType);
+        string outputExpr = typeName + "(pow(" + finalResult + ", " + typeName + "(1.0/2.2)))";
+        shader.addLine(_syntax->getVariableName(*output) + " = " + outputExpr);
+    }
+}
+
 void OgsFxShaderGenerator::emitUniform(const string& name, const string& type, const ValuePtr& value, Shader& shader)
 {
     // A file texture input needs special handling on GLSL
@@ -710,9 +738,14 @@ void OgsFxShaderGenerator::addExtraShaderUniforms(Shader& shader)
 bool OgsFxShaderGenerator::useAsShaderUniform(const Parameter& param) const
 {
     // Unconnected file texture inputs should be promoted to shader uniforms
-    return (param.getType() == kFilename &&
-        param.getInterfaceName().empty() &&
-        param.getParent()->asA<Node>()->getCategory() == "image");
+    if (param.getType() == kFilename && param.getInterfaceName().empty())
+    {
+        ConstElementPtr parent = param.getParent();
+        const string& nodeName = parent->isA<NodeDef>() ?
+            parent->asA<NodeDef>()->getNode() : parent->asA<Node>()->getCategory();
+        return nodeName == "image";
+    }
+    return false;
 }
 
 } // namespace MaterialX

@@ -419,6 +419,21 @@ class ShaderRef : public Element
     }
 
     /// @}
+    /// @name Traversal
+    /// @{
+
+    /// Return the Edge with the given index that lies directly upstream from
+    /// this element in the dataflow graph.
+    Edge getUpstreamEdge(MaterialPtr material = MaterialPtr(),
+        size_t index = 0) override;
+
+    /// Return the number of queriable upstream edges for this element.
+    size_t getUpstreamEdgeCount() override
+    {
+        // TODO: 
+        return getBindInputs().size();
+    }
+
 
   public:
     static const string CATEGORY;

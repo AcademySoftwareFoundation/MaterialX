@@ -27,10 +27,9 @@ public:
     /// Return a unique identifyer for the target this generator is for
     virtual const string& getTarget() const = 0;
 
-    /// Generate a shader starting from the given node, translating the node 
-    /// and all dependencies upstream into shader code.
-    virtual ShaderPtr generate(const string& shaderName, 
-        NodePtr node, OutputPtr downstreamConnection = nullptr) = 0;
+    /// Generate a shader starting from the given element, translating 
+    /// the element and all dependencies upstream into shader code.
+    virtual ShaderPtr generate(const string& shaderName, ElementPtr element) = 0;
 
     /// Emit typedefs for all data types that needs it
     virtual void emitTypeDefs(Shader& shader);
@@ -46,6 +45,9 @@ public:
 
     /// Emit the shader body
     virtual void emitShaderBody(Shader& shader);
+
+    /// Emit the final output expression
+    virtual void emitFinalOutput(Shader& shader) const;
 
     /// Emit a shader uniform input variable
     virtual void emitUniform(const string& name, const string& type, const ValuePtr& value, Shader& shader);

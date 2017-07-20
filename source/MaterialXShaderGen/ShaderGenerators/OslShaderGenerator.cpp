@@ -9,10 +9,10 @@ OslShaderGenerator::OslShaderGenerator()
 {
 }
 
-ShaderPtr OslShaderGenerator::generate(const string& shaderName, NodePtr node, OutputPtr downstreamConnection)
+ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr element)
 {
     ShaderPtr shaderPtr = std::make_shared<Shader>(shaderName);
-    shaderPtr->initialize(node, downstreamConnection, getLanguage(), getTarget());
+    shaderPtr->initialize(element, getLanguage(), getTarget());
 
     Shader& shader = *shaderPtr;
 
@@ -38,6 +38,26 @@ void OslShaderGenerator::emitShaderBody(Shader &shader)
 
     // Call parent
     ShaderGenerator::emitShaderBody(shader);
+}
+
+void OslShaderGenerator::emitFinalOutput(Shader& shader) const
+{
+    const OutputPtr& output = shader.getOutput();
+    const NodePtr connectedNode = output->getConnectedNode();
+
+    string finalResult = _syntax->getVariableName(*connectedNode);
+
+    const string& outputType = output->getType();
+    if (outputType == kSURFACE)
+    {
+        finalResult = finalResult + ".bsdf + " + finalResult + ".edf";
+    }
+    else if (output->getChannels() != EMPTY_STRING)
+    {
+        finalResult = _syntax->getSwizzledVariable(finalResult, output->getType(), connectedNode->getType(), output->getChannels());
+    }
+
+    shader.addLine(_syntax->getVariableName(*output) + " = " + finalResult);
 }
 
 void OslShaderGenerator::emitShaderSignature(Shader &shader)

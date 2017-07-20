@@ -11,11 +11,15 @@ namespace MaterialX
 class OslShaderGenerator : public ShaderGenerator
 {
 public:
-    /// Generate the shader for a graph starting from the given output port.
-    ShaderPtr generate(const string& shaderName, NodePtr node, OutputPtr downstreamConnection = nullptr) override;
+    /// Generate a shader starting from the given element, translating 
+    /// the element and all dependencies upstream into shader code.
+    ShaderPtr generate(const string& shaderName, ElementPtr element) override;
 
     /// Emit the shader body
     void emitShaderBody(Shader& shader) override;
+
+    /// Emit the final output expression
+    void emitFinalOutput(Shader& shader) const override;
 
 protected:
     /// Protected constructor.

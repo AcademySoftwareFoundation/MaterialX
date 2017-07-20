@@ -77,16 +77,6 @@ namespace MaterialX
         return EMPTY_STRING;
     }
 
-    const string& Syntax::getOutputExpression(const string& type) const
-    {
-        auto it = _typeSyntaxByName.find(type);
-        if (it != _typeSyntaxByName.end())
-        {
-            return _typeSyntax[it->second].outputExpr;
-        }
-        return EMPTY_STRING;
-    }
-    
     string Syntax::getVariableName(const Element& elem, bool longName) const
     {
         if (longName)

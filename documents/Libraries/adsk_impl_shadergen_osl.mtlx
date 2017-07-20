@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<materialx version="1.35">
+
+  <!-- <adskSurface> -->
+  <implementation name="IM_adskSurface__osl" nodedef="ND_adskSurface" file="Source/ShaderGen/OSL/adskSurface.osl" function="adskSurface" language="osl"/>
+  <implementation name="IM_adskSurface__arnold" nodedef="ND_adskSurface" function="standard_surface" language="cpp" target="arnold"/>
+
+</materialx>
