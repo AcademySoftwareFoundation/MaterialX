@@ -124,7 +124,7 @@ Edge Node::getUpstreamEdge(MaterialPtr material, size_t index)
 vector<PortElementPtr> Node::getDownstreamPorts() const
 {
     vector<PortElementPtr> downstreamPorts;
-    for (PortElementPtr port : getDocument()->getMatchingPorts(getName()))
+    for (PortElementPtr port : getDocument()->getMatchingPorts(getSelf()))
     {
         if (port->getConnectedNode() == getSelf())
         {
@@ -253,12 +253,12 @@ vector<ElementPtr> NodeGraph::topologicalSort() const
     const vector<ElementPtr>& children = getChildren();
 
     // Calculate in-degrees for all nodes, and enqueue those with degree 0.
-    std::unordered_map<ElementPtr, size_t> inDegree(children.size());
+    std::unordered_map<ElementPtr, int> inDegree(children.size());
     std::deque<ElementPtr> childQueue;
     for (ElementPtr child : children)
     {
         NodePtr node = child->asA<Node>();
-        inDegree[child] = node ? node->getDownstreamPorts().size() : 0;
+        inDegree[child] = node ? int(node->getDownstreamPorts().size()) : 0;
         if (inDegree[child] == 0)
         {
             childQueue.push_back(child);
@@ -282,7 +282,7 @@ vector<ElementPtr> NodeGraph::topologicalSort() const
             const ElementPtr connected = child->asA<Output>()->getConnectedNode();
             if (connected)
             {
-                if (--inDegree[connected] == 0)
+                if (--inDegree[connected] <= 0)
                 {
                     childQueue.push_back(connected);
                 }
@@ -295,7 +295,7 @@ vector<ElementPtr> NodeGraph::topologicalSort() const
                 const ElementPtr connected = input->getConnectedNode();
                 if (connected)
                 {
-                    if (--inDegree[connected] == 0)
+                    if (--inDegree[connected] <= 0)
                     {
                         childQueue.push_back(connected);
                     }

@@ -121,10 +121,10 @@ class Document : public Element
         removeChildOfType<NodeGraph>(name);
     }
 
-    /// Return a vector of all port elements that match the given node name.
+    /// Return a vector of all port elements that match the given node.
     /// Port elements support spatially-varying upstream connections to
     /// nodes, and include both Input and Output elements.
-    vector<PortElementPtr> getMatchingPorts(const string& nodeName) const;
+    vector<PortElementPtr> getMatchingPorts(const ConstElementPtr& node) const;
 
     /// @}
     /// @name Material Elements

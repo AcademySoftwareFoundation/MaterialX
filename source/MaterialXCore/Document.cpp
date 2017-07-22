@@ -89,8 +89,8 @@ class Document::Cache
 
                 if (portElem && portElem->hasNodeName())
                 {
-                    portElementMap.insert(std::pair<string, PortElementPtr>(
-                        portElem->getNodeName(),
+                    portElementMap.insert(std::pair<NodePtr, PortElementPtr>(
+                        portElem->getConnectedNode(),
                         portElem));
                 }
                 if (valueElem && valueElem->hasPublicName())
@@ -127,7 +127,7 @@ class Document::Cache
     weak_ptr<Document> doc;
     std::mutex mutex;
     bool valid;
-    std::unordered_multimap<string, PortElementPtr> portElementMap;
+    std::unordered_multimap<ConstElementPtr, PortElementPtr> portElementMap;
     std::unordered_multimap<string, ValueElementPtr> publicElementMap;
     std::unordered_multimap<string, NodeDefPtr> nodeDefMap;
     std::unordered_multimap<string, ElementPtr> implementationMap;
@@ -193,14 +193,14 @@ std::pair<int, int> Document::getVersionIntegers()
     return std::pair<int, int>(0, 0);
 }
 
-vector<PortElementPtr> Document::getMatchingPorts(const string& nodeName) const
+vector<PortElementPtr> Document::getMatchingPorts(const ConstElementPtr& node) const
 {
     // Refresh the cache.
     _cache->refresh();
 
-    // Find all port elements matching the given node name.
+    // Find all port elements matching the given node.
     vector<PortElementPtr> ports;
-    auto keyRange = _cache->portElementMap.equal_range(nodeName);
+    auto keyRange = _cache->portElementMap.equal_range(node);
     for (auto it = keyRange.first; it != keyRange.second; ++it)
     {
         ports.push_back(it->second);
