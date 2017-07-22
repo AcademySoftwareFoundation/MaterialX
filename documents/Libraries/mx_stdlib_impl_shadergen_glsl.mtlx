@@ -367,8 +367,8 @@
   <!-- <pack> -->
   <implementation name="IM_pack__color2__glsl" nodedef="ND_pack__color2" file="Source/ShaderGen/GLSL/mx_pack_color2.inline" language="glsl"/>
   <implementation name="IM_pack__vector2__glsl" nodedef="ND_pack__vector2" file="Source/ShaderGen/GLSL/mx_pack_vector2.inline" language="glsl"/>
-  <implementation name="IM_pack__color3__glsl" nodedef="ND_pack__color3" file="Source/ShaderGen/GLSL/mx_pack_color.inline" language="glsl"/>
-  <implementation name="IM_pack__vector3__glsl" nodedef="ND_pack__vector3" file="Source/ShaderGen/GLSL/mx_pack_vector.inline" language="glsl"/>
+  <implementation name="IM_pack__color3__glsl" nodedef="ND_pack__color3" file="Source/ShaderGen/GLSL/mx_pack_color3.inline" language="glsl"/>
+  <implementation name="IM_pack__vector3__glsl" nodedef="ND_pack__vector3" file="Source/ShaderGen/GLSL/mx_pack_vector3.inline" language="glsl"/>
   <implementation name="IM_pack__color4__glsl" nodedef="ND_pack__color4" file="Source/ShaderGen/GLSL/mx_pack_color4.inline" language="glsl"/>
   <implementation name="IM_pack__vector4__glsl" nodedef="ND_pack__vector4" file="Source/ShaderGen/GLSL/mx_pack_vector4.inline" language="glsl"/>
   <implementation name="IM_pack__color4CF__glsl" nodedef="ND_pack__color4CF" file="Source/ShaderGen/GLSL/mx_pack_cf_color4.inline" language="glsl"/>

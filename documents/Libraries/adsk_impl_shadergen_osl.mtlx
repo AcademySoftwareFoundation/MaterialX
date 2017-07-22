@@ -3,6 +3,17 @@
 
   <!-- <adskSurface> -->
   <implementation name="IM_adskSurface__osl" nodedef="ND_adskSurface" file="Source/ShaderGen/OSL/adskSurface.osl" function="adskSurface" language="osl"/>
-  <implementation name="IM_adskSurface__arnold" nodedef="ND_adskSurface" function="standard_surface" language="cpp" target="arnold"/>
+
+  <!-- <adskCellNoise2d> -->
+  <implementation name="IM_adskCellNoise2d__color3__osl" nodedef="ND_adskCellNoise2d__color3" file="Source/ShaderGen/OSL/adskCellNoise2d_color3.osl" function="adskCellNoise2d_color3" language="osl"/>
+  <implementation name="IM_adskCellNoise2d__float__osl" nodedef="ND_adskCellNoise2d__float" file="Source/ShaderGen/OSL/adskCellNoise2d_float.osl" function="adskCellNoise2d_float" language="osl"/>
+
+  <!-- <adskRidgedNoise2d> -->
+  <implementation name="IM_adskRidgedNoise2d__color3_osl" nodedef="ND_adskRidgedNoise2d__color3" file="Source/ShaderGen/OSL/adskRidgedNoise2d_color3.osl" function="adskRidgedNoise2d_color3" language="osl"/>
+  <implementation name="IM_adskRidgedNoise2d__float__osl" nodedef="ND_adskRidgedNoise2d__float" file="Source/ShaderGen/OSL/adskRidgedNoise2d_float.osl" function="adskRidgedNoise2d_float" language="osl"/>
+
+  <!-- <adskFractalNoise2d> -->
+  <implementation name="IM_adskFractalNoise2d__color3__osl" nodedef="ND_adskFractalNoise2d__color3" file="Source/ShaderGen/OSL/adskFractalNoise2d_color3.osl" function="adskFractalNoise2d_color3" language="osl"/>
+  <implementation name="IM_adskFractalNoise2d__float__osl" nodedef="ND_adskFractalNoise2d__float" file="Source/ShaderGen/OSL/adskFractalNoise2d_float.osl" function="adskFractalNoise2d_float" language="osl"/>
 
 </materialx>

@@ -178,6 +178,8 @@ protected:
     /// Add indentation on current line
     virtual void indent();
 
+    void addDefaultGeometricNodes(NodePtr node, NodeDefPtr nodeDef, NodeGraphPtr parent);
+
     string _name;
     NodeGraphPtr _nodeGraph;
     OutputPtr _output;

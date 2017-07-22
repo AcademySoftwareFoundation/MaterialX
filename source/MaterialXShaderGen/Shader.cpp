@@ -2,6 +2,9 @@
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Node.h>
 
+#include <MaterialXShaderGen/ShaderGenRegistry.h>
+#include <MaterialXShaderGen/Util.h>
+
 #include <sstream>
 
 namespace MaterialX
@@ -49,10 +52,21 @@ void Shader::initialize(ElementPtr element, const string& language, const string
             ExceptionShaderGenError("Given output element '" + element->getName() + "' has no node connection");
         }
 
-        NodePtr node = _nodeGraph->addNode(srcNode->getCategory(), srcNode->getName(), srcNode->getType());
-        node->copyContentFrom(srcNode);
-        _output->setType(node->getType());
-        _output->setNodeName(node->getName());
+        NodePtr newNode = _nodeGraph->addNode(srcNode->getCategory(), srcNode->getName(), srcNode->getType());
+        newNode->copyContentFrom(srcNode);
+
+        // Make sure there is a matching node def
+        NodeDefPtr nodeDef = newNode->getReferencedNodeDef();
+        if (!nodeDef)
+        {
+            throw ExceptionShaderGenError("No nodedef found for node '" + newNode->getCategory() + "' with type '" + newNode->getType() + "'");
+        }
+
+        // Connect any needed default geometric nodes
+        addDefaultGeometricNodes(newNode, nodeDef, _nodeGraph);
+
+        _output->setType(newNode->getType());
+        _output->setNodeName(newNode->getName());
         _output->setChannels(output->getChannels());
 
         root = srcNode;
@@ -60,58 +74,45 @@ void Shader::initialize(ElementPtr element, const string& language, const string
     else if (element->isA<Node>())
     {
         NodePtr srcNode = element->asA<Node>();
-        NodePtr node = _nodeGraph->addNode(srcNode->getCategory(), srcNode->getName(), srcNode->getType());
-        node->copyContentFrom(srcNode);
-        _output->setType(node->getType());
-        _output->setNodeName(node->getName());
+        NodePtr newNode = _nodeGraph->addNode(srcNode->getCategory(), srcNode->getName(), srcNode->getType());
+        newNode->copyContentFrom(srcNode);
+
+        // Make sure there is a matching node def
+        NodeDefPtr nodeDef = newNode->getReferencedNodeDef();
+        if (!nodeDef)
+        {
+            throw ExceptionShaderGenError("No nodedef found for node '" + newNode->getCategory() + "' with type '" + newNode->getType() + "'");
+        }
+
+        // Connect any needed default geometric nodes
+        addDefaultGeometricNodes(newNode, nodeDef, _nodeGraph);
+
+        _output->setType(newNode->getType());
+        _output->setNodeName(newNode->getName());
+
         root = srcNode;
     }
     else if (element->isA<ShaderRef>())
     {
         ShaderRefPtr shaderRef = element->asA<ShaderRef>();
         NodeDefPtr nodeDef = shaderRef->getReferencedShaderDef();
+        if (!nodeDef)
+        {
+            throw ExceptionShaderGenError("No nodedef found for shader node '" + shaderRef->getNode() + "'");
+        }
 
-        NodePtr node = _nodeGraph->addNode(nodeDef->getNode(), shaderRef->getName(), nodeDef->getType());
+        NodePtr newNode = _nodeGraph->addNode(nodeDef->getNode(), shaderRef->getName(), nodeDef->getType());
         for (BindInputPtr bindInput : shaderRef->getBindInputs())
         {
-            InputPtr input = node->addInput(bindInput->getName(), bindInput->getType());
+            InputPtr input = newNode->addInput(bindInput->getName(), bindInput->getType());
             input->setValueString(bindInput->getValueString());
         }
 
-        // TODO: Improve!!!!
+        // Connect any needed default geometric nodes
+        addDefaultGeometricNodes(newNode, nodeDef, _nodeGraph);
 
-        // Add connections to default geometric nodes
-        for (InputPtr inputDef : nodeDef->getInputs())
-        {
-            const string& defaultgeomprop = inputDef->getAttribute("defaultgeomprop");
-            if (!defaultgeomprop.empty())
-            {
-                InputPtr input = node->getInput(inputDef->getName());
-                if (!input)
-                {
-                    input = node->addInput(inputDef->getName(), inputDef->getType());
-                }
-
-                if (input->getNodeName().empty())
-                {
-                    NodePtr geomNode = nullptr;
-                    auto it = defaultGeometricNodes.find(defaultgeomprop);
-                    if (it != defaultGeometricNodes.end())
-                    {
-                        geomNode = it->second;
-                    }
-                    else
-                    {
-                        geomNode = _nodeGraph->addNode(defaultgeomprop, defaultgeomprop + "_default", input->getType());
-                        defaultGeometricNodes[defaultgeomprop] = geomNode;
-                    }
-                    input->setNodeName(geomNode->getName());
-                }
-            }
-        }
-
-        _output->setType(node->getType());
-        _output->setNodeName(node->getName());
+        _output->setType(newNode->getType());
+        _output->setNodeName(newNode->getName());
 
         root = shaderRef;
         material = shaderRef->getParent()->asA<Material>();
@@ -163,37 +164,16 @@ void Shader::initialize(ElementPtr element, const string& language, const string
             downstream->setConnectedNode(connectingElement->getName(), newNode);
         }
 
-        // Add connections to default geometric nodes
+        // Make sure there is a matching node def
         NodeDefPtr nodeDef = newNode->getReferencedNodeDef();
-        for (InputPtr inputDef : nodeDef->getInputs())
+        if (!nodeDef)
         {
-            const string& defaultgeomprop = inputDef->getAttribute("defaultgeomprop");
-            if (!defaultgeomprop.empty())
-            {
-                InputPtr input = newNode->getInput(inputDef->getName());
-                if (!input)
-                {
-                    input = newNode->addInput(inputDef->getName(), inputDef->getType());
-                }
-
-                if (input->getNodeName().empty())
-                {
-                    NodePtr geomNode = nullptr;
-                    auto it = defaultGeometricNodes.find(defaultgeomprop);
-                    if (it != defaultGeometricNodes.end())
-                    {
-                        geomNode = it->second;
-                    }
-                    else
-                    {
-                        geomNode = _nodeGraph->addNode(defaultgeomprop, defaultgeomprop+"_default", input->getType());
-                        defaultGeometricNodes[defaultgeomprop] = geomNode;
-                    }
-                    input->setNodeName(geomNode->getName());
-                }
-            }
+            throw ExceptionShaderGenError("No nodedef found for node '" + newNode->getCategory() + "' with type '" + newNode->getType() + "'");
         }
-        
+
+        // Connect any needed default geometric nodes
+        addDefaultGeometricNodes(newNode, nodeDef, _nodeGraph);
+
         // Mark node as processed.
         processedNodes.insert(upstreamNode);
     }
@@ -414,9 +394,21 @@ void Shader::addBlock(const string& str)
     }
 }
 
-void Shader::addInclude(const string& /*file*/)
+void Shader::addInclude(const string& file)
 {
-    throw Exception("Shader::addInclude is not implemented!");
+    const string path = ShaderGenRegistry::findSourceCode(file);
+
+    Stage& s = stage();
+    if (s.includes.find(path) == s.includes.end())
+    {
+        string content;
+        if (!readFile(path, content))
+        {
+            throw ExceptionShaderGenError("Could not find include file: '" + file + "'");
+        }
+        s.includes.insert(path);
+        addBlock(content);
+    }
 }
 
 void Shader::indent()
@@ -426,6 +418,34 @@ void Shader::indent()
     for (int i = 0; i < s.indentations; ++i)
     {
         s.code += kIndent;
+    }
+}
+
+void Shader::addDefaultGeometricNodes(NodePtr node, NodeDefPtr nodeDef, NodeGraphPtr parent)
+{
+    // Add connections to default geometric nodes
+    for (InputPtr inputDef : nodeDef->getInputs())
+    {
+        const string& defaultgeomprop = inputDef->getAttribute("defaultgeomprop");
+        if (!defaultgeomprop.empty())
+        {
+            InputPtr input = node->getInput(inputDef->getName());
+            if (!input)
+            {
+                input = node->addInput(inputDef->getName(), inputDef->getType());
+            }
+
+            if (input->getNodeName().empty())
+            {
+                const string geomNodeName = defaultgeomprop + "_default";
+                NodePtr geomNode = parent->getNode(geomNodeName);
+                if (!geomNode)
+                {
+                    geomNode = _nodeGraph->addNode(defaultgeomprop, geomNodeName, input->getType());
+                }
+                input->setNodeName(geomNode->getName());
+            }
+        }
     }
 }
 

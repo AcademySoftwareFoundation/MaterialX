@@ -74,26 +74,23 @@ void ShaderGenerator::emitFunctions(Shader& shader)
 
 void ShaderGenerator::emitFunction(const SgNode& node, Shader &shader)
 {
-    //static const string kIncludePattern = "#include ";
+    static const string kIncludePattern = "#include ";
 
     std::stringstream stream(node.getFunctionSource());
     for (string line; std::getline(stream, line); )
     {
-        /*
         size_t pos = line.find(kIncludePattern);
         if (pos != string::npos)
         {
             const size_t start = pos + kIncludePattern.size() + 1;
             const size_t count = line.size() - start - 1;
             const string filename = line.substr(start, count);
-            FilePath path(impl.getFile());
-            shader.addInclude(path.getDirectory() + filename);
+            shader.addInclude(filename);
         }
         else
         {
-        */
-        shader.addLine(line, false);
-        //}
+            shader.addLine(line, false);
+        }
     }
 
     shader.newLine();
