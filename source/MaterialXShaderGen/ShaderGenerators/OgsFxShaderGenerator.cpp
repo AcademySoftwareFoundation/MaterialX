@@ -294,8 +294,16 @@ const char* kShaderBlock_Lights =
     "	string Object = \"Light 2\";\n"
     "> = {0, 0, 0};\n"
     "\n"
+    "uniform texture2D IBL_file_texture : SourceTexture;\n"
+    "uniform sampler2D IBL_file = sampler_state\n"
+    "{\n"
+    "    Texture = <IBL_file_texture>;\n"
+    "};\n"
+    "\n"
     "\n"
     "// ----------------------------------- Light Functions --------------------------------------\n"
+    "\n"
+    "#define M_PI 3.1415926535897932384626433832795\n"
     "\n"
     "GLSLShader PixelShader_LightFuncs\n"
     "{\n"
@@ -474,6 +482,31 @@ const char* kShaderBlock_Lights =
     "		return result;\n"
     "	}\n"
     "\n"
+    "vec2 GetSphericalCoords(vec3 vec)\n"
+    "{\n"
+    "    float v = acos(clamp(vec.z, -1.0, 1.0));\n"
+    "    float u = clamp(vec.x / sin(v), -1.0, 1.0);\n"
+    "    if (vec.y >= 0.0)\n"
+    "        u = acos(u);\n"
+    "    else\n"
+    "        u = 2 * M_PI - acos(u);\n"
+    "    return vec2(u / (2 * M_PI), v / M_PI);\n"
+    "}\n"
+    "\n"
+    "vec3 EnvironmentLight(vec3 normal, vec3 view, float rougness)\n"
+    "{\n"
+    "    if (textureSize(IBL_file, 0).x > 0)\n"
+    "    {\n"
+    "        vec3 dir = reflect(-view, normal);\n"
+    "        // Y is up vector\n"
+    "        dir = vec3(dir.x, -dir.z, dir.y);\n"
+    "        vec2 uv = GetSphericalCoords(dir);\n"
+    "        float lod = (1.0 - 0.1 / (rougness + 0.1)) * 10.0;\n"
+    "        return textureLod(IBL_file, uv, lod).rgb;\n"
+    "    }\n"
+    "    return vec3(0.0); \n"
+    "}\n"
+    "\n"
     "	float FresnelSchlickTIR(float nt, float ni, vec3 n, vec3 i)\n"
     "	{\n"
     "		float R0 = (nt - ni) / (nt + ni);\n"
@@ -611,12 +644,22 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     emitTypeDefs(shader);
 
     // Emit shader output
-    string type = _syntax->getOutputTypeName(outputType);
-    size_t pos = type.find("out ");
-    if (pos != string::npos)
+    string type;
+    if (outputType == "float")
     {
-        // Strip away the 'out' decorator
-        type.erase(pos, 4);
+        // Hack to avoid float output from OgsFX shader
+        // Gives random artifacts in LookdevX viewer
+        type = "vec3";
+    }
+    else
+    {
+        type = _syntax->getOutputTypeName(outputType);
+        size_t pos = type.find("out ");
+        if (pos != string::npos)
+        {
+            // Strip the 'out' decorator
+            type.erase(pos, 4);
+        }
     }
     const string variable = _syntax->getVariableName(*shader.getOutput());
     shader.addLine("// Data output by the pixel shader", false);
@@ -667,8 +710,7 @@ void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
     if (outputType == kSURFACE)
     {
         finalResult = finalResult + ".bsdf + " + finalResult + ".edf";
-        string outputExpr = "vec4(pow(" + finalResult + ", vec3(1.0/2.2)), 1.0)";
-        shader.addLine(_syntax->getVariableName(*output) + " = " + outputExpr);
+        shader.addLine(_syntax->getVariableName(*output) + " = vec4(" + finalResult + ", 1.0)");
     }
     else
     {
@@ -676,10 +718,13 @@ void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
         {
             finalResult = _syntax->getSwizzledVariable(finalResult, output->getType(), connectedNode->getType(), output->getChannels());
         }
-
-        const string typeName = _syntax->getTypeName(outputType);
-        string outputExpr = typeName + "(pow(" + finalResult + ", " + typeName + "(1.0/2.2)))";
-        shader.addLine(_syntax->getVariableName(*output) + " = " + outputExpr);
+        if (outputType == "float")
+        {
+            // Hack to avoid float output from OgsFX shader
+            // Gives random artifacts in LookdevX viewer
+            finalResult = "vec3(" + finalResult + ", " + finalResult + ", " + finalResult + ")";
+        }
+        shader.addLine(_syntax->getVariableName(*output) + " = " + finalResult);
     }
 }
 

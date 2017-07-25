@@ -153,7 +153,7 @@ vec3 standardShaderCombiner(
     float clampedIOR = max(1.0, IOR);
 
     vec3 specularAmount = (specularInput + SpecularEnv);
-    float NV = dot(N, V);
+    float NV = dot(N, -V);
 
     // compute the fresnel factors for the specular, coat, and transmission layers
     if (NV < 0.0f)
@@ -317,7 +317,7 @@ void adskSurface(
     bool FresnelUseIOR = false;
     float Ksn = 0.0;
     vec3 IrradianceEnv = vec3(0.000000, 0.000000, 0.000000);
-    vec3 SpecularEnv = vec3(0.000000, 0.000000, 0.000000);
+    vec3 SpecularEnv = EnvironmentLight(worldNormal, worldView, specular_roughness);
 
     // Compute total bsdf
     result.bsdf = standardShaderCombiner(
