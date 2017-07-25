@@ -243,12 +243,11 @@ vec4 standardShaderCombiner(
     // lower the specular in the straight-on angles when the roughness is low.   
     specular *= lerp(1.0 - transp, 1.0, transmissionRoughness * (1.0 - transmission));
 
-    result = diffuse + specular + metalColor + metalSpecular + coatSpecular;
+    result.rgb = diffuse + specular + metalColor + metalSpecular + coatSpecular;
 
     vec3 luminanceConv = vec3(0.2125f, 0.7154f, 0.0721f);
-    //vec3 transparency = max((1.0 - metalness) * transmission * transAmount, (1.0 - opacity));
-    vec3 transparency = vec3(1.0);
-    result.a= dot(luminanceConv, transparency);
+    vec3 transparency = max((1.0 - metalness) * transmission * transAmount, (1.0 - opacity));
+    result.a = dot(luminanceConv, transparency);
 
     // None of these results are required outputs for now
     //result.outGlowColor = vec3(0.0f, 0.0f, 0.0f);
