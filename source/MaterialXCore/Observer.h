@@ -141,9 +141,10 @@ class ObservedDocument : public Document
 
     void onAddElement(ElementPtr parent, ElementPtr elem) override
     {
+        Document::onAddElement(parent, elem);
+
         if (_notificationsEnabled)
         {
-            Document::onAddElement(parent, elem);
             for (auto &item : _observerMap)
             {
                 item.second->onAddElement(parent, elem);
@@ -153,9 +154,10 @@ class ObservedDocument : public Document
 
     void onRemoveElement(ElementPtr parent, ElementPtr elem) override
     {
+        Document::onRemoveElement(parent, elem);
+
         if (_notificationsEnabled)
         {
-            Document::onRemoveElement(parent, elem);
             for (auto &item : _observerMap)
             {
                 item.second->onRemoveElement(parent, elem);
@@ -165,9 +167,10 @@ class ObservedDocument : public Document
 
     void onSetAttribute(ElementPtr elem, const string& attrib, const string& value) override
     {
+        Document::onSetAttribute(elem, attrib, value);
+
         if (_notificationsEnabled)
         {
-            Document::onSetAttribute(elem, attrib, value);
             for (auto &item : _observerMap)
             {
                 item.second->onSetAttribute(elem, attrib, value);
@@ -177,9 +180,10 @@ class ObservedDocument : public Document
 
     void onRemoveAttribute(ElementPtr elem, const string& attrib) override
     {
+        Document::onRemoveAttribute(elem, attrib);
+
         if (_notificationsEnabled)
         {
-            Document::onRemoveAttribute(elem, attrib);
             for (auto &item : _observerMap)
             {
                 item.second->onRemoveAttribute(elem, attrib);
@@ -222,29 +226,29 @@ class ObservedDocument : public Document
 
     void onBeginUpdate() override
     {
-        if (_notificationsEnabled)
+        // Only send notification for the outermost scope.
+        if (!getUpdateScope())
         {
-            // Only send notification for the outermost scope.
-            if (!getUpdateScope())
+            if (_notificationsEnabled)
             {
                 for (auto &item : _observerMap)
                 {
                     item.second->onBeginUpdate();
                 }
             }
-
-            _updateScope++;
         }
+
+        _updateScope++;
     }
 
     void onEndUpdate() override
     {
-        if (_notificationsEnabled)
-        {
-            _updateScope = std::max(_updateScope - 1, 0);
+        _updateScope = std::max(_updateScope - 1, 0);
 
-            // Only send notification for the outermost scope.
-            if (!getUpdateScope())
+        // Only send notification for the outermost scope.
+        if (!getUpdateScope())
+        {
+            if (_notificationsEnabled)
             {
                 for (auto &item : _observerMap)
                 {

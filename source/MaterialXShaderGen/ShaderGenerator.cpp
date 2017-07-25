@@ -74,26 +74,23 @@ void ShaderGenerator::emitFunctions(Shader& shader)
 
 void ShaderGenerator::emitFunction(const SgNode& node, Shader &shader)
 {
-    //static const string kIncludePattern = "#include ";
+    static const string kIncludePattern = "#include ";
 
     std::stringstream stream(node.getFunctionSource());
     for (string line; std::getline(stream, line); )
     {
-        /*
         size_t pos = line.find(kIncludePattern);
         if (pos != string::npos)
         {
             const size_t start = pos + kIncludePattern.size() + 1;
             const size_t count = line.size() - start - 1;
             const string filename = line.substr(start, count);
-            FilePath path(impl.getFile());
-            shader.addInclude(path.getDirectory() + filename);
+            shader.addInclude(filename);
         }
         else
         {
-        */
-        shader.addLine(line, false);
-        //}
+            shader.addLine(line, false);
+        }
     }
 
     shader.newLine();
@@ -191,9 +188,6 @@ void ShaderGenerator::emitShaderBody(Shader &shader)
 {
     const bool debugOutput = true;
 
-    const OutputPtr& output = shader.getOutput();
-    const NodePtr connectedNode = output->getConnectedNode();
-
     // Emit function calls for all nodes
     for (const SgNode& node : shader.getNodes())
     {
@@ -239,22 +233,33 @@ void ShaderGenerator::emitShaderBody(Shader &shader)
         emitFunctionCall(node, shader);
     }
 
+    emitFinalOutput(shader);
+}
+
+void ShaderGenerator::emitFinalOutput(Shader& shader) const
+{
+    const OutputPtr& output = shader.getOutput();
+    const NodePtr connectedNode = output->getConnectedNode();
+
     string finalResult = _syntax->getVariableName(*connectedNode);
-    if (output->getChannels() != EMPTY_STRING)
-    {
-        finalResult = _syntax->getSwizzledVariable(finalResult, output->getType(), connectedNode->getType(), output->getChannels());
-    }
 
     const string& outputType = output->getType();
-    const string outputExpr = _syntax->getOutputExpression(outputType);
-    if (outputExpr.length())
+    if (outputType == kSURFACE)
     {
-        shader.addLine(_syntax->getTypeName(outputType) + " _final = " + finalResult);
+        finalResult = finalResult + ".bsdf + " + finalResult + ".edf";
+        string outputExpr = "vec4(pow(" + finalResult + ", vec3(1.0/2.2)), 1.0)";
         shader.addLine(_syntax->getVariableName(*output) + " = " + outputExpr);
     }
     else
     {
-        shader.addLine(_syntax->getVariableName(*output) + " = " + finalResult);
+        if (output->getChannels() != EMPTY_STRING)
+        {
+            finalResult = _syntax->getSwizzledVariable(finalResult, output->getType(), connectedNode->getType(), output->getChannels());
+        }
+
+        const string typeName = _syntax->getTypeName(outputType);
+        string outputExpr = typeName + "(pow(" + finalResult + ", " + typeName + "(1.0/2.2)))";
+        shader.addLine(_syntax->getVariableName(*output) + " = " + outputExpr);
     }
 }
 

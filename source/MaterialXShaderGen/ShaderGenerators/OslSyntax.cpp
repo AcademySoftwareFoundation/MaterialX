@@ -21,8 +21,7 @@ OslSyntax::OslSyntax()
             "0.0",          // default value
             "0.0",          // default value in a shader param initialization context
             "",             // custom type definition to add in source code
-            "output float", // type name in output context
-            ""              // custom expression when used as final output
+            "output float"  // type name in output context
         )
     );
 
@@ -35,8 +34,7 @@ OslSyntax::OslSyntax()
             "0", 
             "0",
             "",
-            "output int", 
-            ""
+            "output int" 
         )
     );
 
@@ -49,8 +47,7 @@ OslSyntax::OslSyntax()
             "0", 
             "0",
             "#define true 1\n#define false 0",
-            "output int", 
-            ""
+            "output int"
         )
     );
 
@@ -63,8 +60,8 @@ OslSyntax::OslSyntax()
             "color(0.0, 0.0, 0.0)", 
             "color(0.0, 0.0, 0.0)",
             "",
-            "output color", 
-            "")
+            "output color"
+        )
     );
 
     addTypeSyntax
@@ -76,8 +73,8 @@ OslSyntax::OslSyntax()
             "color(0.0, 0.0, 0.0)", 
             "color(0.0, 0.0, 0.0)",
             "",
-            "output color", 
-            "")
+            "output color"
+        )
     );
 
     addTypeSyntax
@@ -103,8 +100,8 @@ OslSyntax::OslSyntax()
             "    c4.a = a;\n"
             "    return c4;\n"
             "}",
-            "output color4",
-            "")
+            "output color4"
+        )
     );
 
     addTypeSyntax
@@ -116,8 +113,8 @@ OslSyntax::OslSyntax()
             "vector(0.0, 0.0, 0.0)", 
             "vector(0.0, 0.0, 0.0)",
             "",
-            "output vector", 
-            "")
+            "output vector"
+        )
     );
 
     addTypeSyntax
@@ -129,8 +126,8 @@ OslSyntax::OslSyntax()
             "vector(0.0, 0.0, 0.0)", 
             "vector(0.0, 0.0, 0.0)",
             "",
-            "output vector", 
-            "")
+            "output vector"
+        )
     );
 
     addTypeSyntax
@@ -156,8 +153,8 @@ OslSyntax::OslSyntax()
             "    v4.w = w;\n"
             "    return v4;\n"
             "}",
-            "output vector4",
-            "")
+            "output vector4"
+        )
     );
 
     addTypeSyntax
@@ -169,8 +166,7 @@ OslSyntax::OslSyntax()
             "\"\"", 
             "\"\"",
             "",
-            "output string", 
-            ""
+            "output string"
         )
     );
 
@@ -183,8 +179,8 @@ OslSyntax::OslSyntax()
             "\"\"", 
             "\"\"",
             "",
-            "string", 
-            "")
+            "string"
+        )
     );
 
     addTypeSyntax
@@ -196,8 +192,8 @@ OslSyntax::OslSyntax()
             "null_closure", 
             "0",
             "#define BSDF closure color",
-            "output closure color", 
-            "")
+            "output closure color"
+        )
     );
 
     addTypeSyntax
@@ -209,8 +205,8 @@ OslSyntax::OslSyntax()
             "null_closure", 
             "0",
             "#define EDF closure color",
-            "output closure color", 
-            "")
+            "output closure color"
+        )
     );
 
     addTypeSyntax
@@ -222,8 +218,7 @@ OslSyntax::OslSyntax()
             "null_closure", 
             "0",
             "#define VDF closure color",
-            "output closure color", 
-            ""
+            "output closure color"
         )
     );
 
@@ -236,8 +231,8 @@ OslSyntax::OslSyntax()
             "{0,0,0}", 
             "0",
             "struct surfaceshader { BSDF bsdf; EDF edf; float ior; };",
-            "output closure color", 
-            "_final.bsdf + _final.edf")
+            "output closure color" 
+        )
     );
 
     addTypeSyntax
@@ -249,8 +244,7 @@ OslSyntax::OslSyntax()
             "{0,0,0}", 
             "0",
             "struct volumeshader { VDF vdf; EDF  edf; color absorption; };",
-            "output closure color", 
-            "_final.bsdf + _final.edf"
+            "output closure color" 
         )
     );
 
@@ -263,8 +257,7 @@ OslSyntax::OslSyntax()
             "{0,0}", 
             "0",
             "struct displacementshader { vector offset; float scale; };",
-            "output vector", 
-            "_final.offset * _final.scale"
+            "output vector"
         )
     );
 

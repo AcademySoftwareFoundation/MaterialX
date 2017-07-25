@@ -139,6 +139,22 @@ NodeDefPtr ShaderRef::getReferencedShaderDef()
     return NodeDefPtr();
 }
 
+Edge ShaderRef::getUpstreamEdge(MaterialPtr material, size_t index)
+{
+    if (index < getUpstreamEdgeCount())
+    {
+        BindInputPtr input = getBindInputs()[index];
+        ElementPtr upstreamOutput = input->getConnectedOutput();
+        if (upstreamOutput)
+        {
+            return Edge(getSelf(), input, upstreamOutput);
+        }
+    }
+
+    return NULL_EDGE;
+}
+
+
 //
 // Override methods
 //

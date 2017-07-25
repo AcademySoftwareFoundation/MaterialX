@@ -331,9 +331,11 @@
   <!-- <remap> -->
   <!-- <smoothstep> -->
   <!-- <hueshift> -->
+  <implementation name="IM_hueshift__color3__osl" nodedef="ND_hueshift__color3" file="Source/ShaderGen/OSL/mx_hueshift_color3.osl" function="mx_hueshift_color3" language="osl"/>
+  <implementation name="IM_hueshift__color4__osl" nodedef="ND_hueshift__color4" file="Source/ShaderGen/OSL/mx_hueshift_color4.osl" function="mx_hueshift_color4" language="osl"/>
+
   <!-- <saturate> -->
   <!-- <luminance> -->
-
 
   <!-- ======================================================================== -->
   <!-- Compositing nodes                                                        -->
@@ -382,8 +384,8 @@
   <!-- <pack> -->
   <implementation name="IM_pack__color2__osl" nodedef="ND_pack__color2" file="Source/ShaderGen/OSL/mx_pack_color2.inline" language="osl"/>
   <implementation name="IM_pack__vector2__osl" nodedef="ND_pack__vector2" file="Source/ShaderGen/OSL/mx_pack_vector2.inline" language="osl"/>
-  <implementation name="IM_pack__color3__osl" nodedef="ND_pack__color3" file="Source/ShaderGen/OSL/mx_pack_color.inline" language="osl"/>
-  <implementation name="IM_pack__vector3__osl" nodedef="ND_pack__vector3" file="Source/ShaderGen/OSL/mx_pack_vector.inline" language="osl"/>
+  <implementation name="IM_pack__color3__osl" nodedef="ND_pack__color3" file="Source/ShaderGen/OSL/mx_pack_color3.inline" language="osl"/>
+  <implementation name="IM_pack__vector3__osl" nodedef="ND_pack__vector3" file="Source/ShaderGen/OSL/mx_pack_vector3.inline" language="osl"/>
   <implementation name="IM_pack__color4__osl" nodedef="ND_pack__color4" file="Source/ShaderGen/OSL/mx_pack_color4.inline" language="osl"/>
   <implementation name="IM_pack__vector4__osl" nodedef="ND_pack__vector4" file="Source/ShaderGen/OSL/mx_pack_vector4.inline" language="osl"/>
   <implementation name="IM_pack__color4CF__osl" nodedef="ND_pack__color4CF" file="Source/ShaderGen/OSL/mx_pack_cf_color4.inline" language="osl"/>

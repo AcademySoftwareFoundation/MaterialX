@@ -161,3 +161,75 @@ TEST_CASE("Traversal", "[traversal]")
     REQUIRE(!output->hasUpstreamCycle());
     REQUIRE(doc->validate());
 }
+
+TEST_CASE("Material Traversal", "[traversal]")
+{
+    // Create a document.
+    mx::DocumentPtr doc = mx::createDocument();
+
+    // Create a node graph with the following structure:
+    //
+    // [image1] [constant]     [image2]
+    //        \ /                 |   
+    //    [multiply]          [contrast]         [noise3d]
+    //             \____________  |  ____________/
+    //                          [mix]
+    //                            |
+    //                         [output]
+    //
+    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
+    mx::NodePtr image1 = nodeGraph->addNode("image");
+    mx::NodePtr image2 = nodeGraph->addNode("image");
+    mx::NodePtr constant = nodeGraph->addNode("constant");
+    mx::NodePtr multiply = nodeGraph->addNode("multiply");
+    mx::NodePtr contrast = nodeGraph->addNode("contrast");
+    mx::NodePtr noise3d = nodeGraph->addNode("noise3d");
+    mx::NodePtr mix = nodeGraph->addNode("mix");
+    mx::OutputPtr output = nodeGraph->addOutput();
+    multiply->setConnectedNode("in1", image1);
+    multiply->setConnectedNode("in2", constant);
+    contrast->setConnectedNode("in", image2);
+    mix->setConnectedNode("fg", multiply);
+    mix->setConnectedNode("bg", contrast);
+    mix->setConnectedNode("mask", noise3d);
+    output->setConnectedNode(mix);
+
+    // Create a material with a shader ref connecting to the graph
+    mx::MaterialPtr material = doc->addMaterial();
+    mx::ShaderRefPtr shaderRef = material->addShaderRef("stdSurface1", "stdSurface");
+    mx::BindInputPtr diffuseWeight = shaderRef->addBindInput("diffuseWeight", "float");
+    mx::BindInputPtr diffuseColor  = shaderRef->addBindInput("diffuseColor", "color3");
+    diffuseWeight->setValue(0.8f);
+    diffuseColor->setConnectedOutput(output);
+
+    // Validate the document.
+    REQUIRE(doc->validate());
+
+    // Traverse upstream from the shader ref (implicit iterator).
+    int nodeCount = 0;
+    int outputCount = 0;
+    for (mx::Edge edge : shaderRef->traverseGraph(material))
+    {
+        mx::ElementPtr upstreamElem = edge.getUpstreamElement();
+        mx::ElementPtr connectingElem = edge.getConnectingElement();
+        mx::ElementPtr downstreamElem = edge.getDownstreamElement();
+        if (upstreamElem->isA<mx::Node>())
+        {
+            nodeCount++;
+            if (downstreamElem->isA<mx::Node>())
+            {
+                REQUIRE(connectingElem->isA<mx::Input>());
+            }
+        }
+        else if (upstreamElem->isA<mx::Output>())
+        {
+            outputCount++;
+            if (downstreamElem->isA<mx::ShaderRef>())
+            {
+                REQUIRE(connectingElem->isA<mx::BindInput>());
+            }
+        }
+    }
+    REQUIRE(nodeCount == 7);
+    REQUIRE(outputCount == 1);
+}

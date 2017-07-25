@@ -35,64 +35,14 @@ namespace
             function = impl.getNodeDef();
         }
 
-        string contents;
-        if (!readFile(ShaderGenRegistry::findSourceCode(file), contents))
+        if (!readFile(ShaderGenRegistry::findSourceCode(file), source))
         {
             throw ExceptionShaderGenError("Can't find source file '" + file + "' used by implementation '" + impl.getName() + "'");
         }
 
-        // Get the source code
         if (inlined)
         {
-            if (function[0] == '@')
-            {
-                std::stringstream stream(contents);
-                std::string line;
-                while (std::getline(stream, line))
-                {
-                    if (line == function)
-                    {
-                        std::getline(stream, line);
-                        source = line;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                source = contents;
-                source.erase(std::remove(source.begin(), source.end(), '\n'), source.end());
-            }
-        }
-        else
-        {
-            // Find the function source code in the file
-            std::stringstream stream(contents);
-            bool found = false;
-            string line;
-            while (std::getline(stream, line))
-            {
-                if (line.find("#include") != string::npos)
-                {
-                    source += line + "\n";
-                }
-                if (!found && line.find(" " + function) != string::npos)
-                {
-                    found = true;
-                }
-                if (found)
-                {
-                    source += line + "\n";
-                    if (line == "}")
-                    {
-                        break;
-                    }
-                }
-            }
-            if (!found)
-            {
-                throw ExceptionShaderGenError("Function '" + function + "' was not found in file '" + file + "' used by implementation '" + impl.getName() + "'");
-            }
+            source.erase(std::remove(source.begin(), source.end(), '\n'), source.end());
         }
     }
 }

@@ -25,16 +25,14 @@ public:
         string paramDefaultValue;   // default value in a shader param initialization context
         string typeDef;             // custom typedef if needed in source code
         string outputName;          // type name in output context
-        string outputExpr;          // custom expression when used as final output
 
         TypeSyntax() {}
-        TypeSyntax(const string& n, const string& dv, const string& pdv, const string& dn, const string& on, const string& oe)
+        TypeSyntax(const string& n, const string& dv, const string& pdv, const string& dn, const string& on)
             : name(n)
             , defaultValue(dv)
             , paramDefaultValue(pdv)
             , typeDef(dn)
             , outputName(on)
-            , outputExpr(oe)
         {}
     };
 
@@ -80,11 +78,6 @@ public:
 
     /// Returns the type name in an output context
     virtual const string& getOutputTypeName(const string& type) const;
-
-    /// Returns the custom expression to use when the given data type 
-    /// is used as the final output
-    /// If not used returns an empty string
-    virtual const string& getOutputExpression(const string& type) const;
 
     /// Get variable name for an input, output or node
     virtual string getVariableName(const Element& elem, bool longName = true) const;

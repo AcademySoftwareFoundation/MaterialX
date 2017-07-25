@@ -21,8 +21,7 @@ GlslSyntax::GlslSyntax()
             "0.0",       // default value
             "0.0",       // default value in a shader param initialization context
             "",          // custom type definition to add in source code
-            "out float", // type name in output context
-            ""           // custom expression when used as final output
+            "out float"  // type name in output context
         )
     );
 
@@ -35,8 +34,7 @@ GlslSyntax::GlslSyntax()
             "0", 
             "0",
             "",
-            "out int", 
-            ""
+            "out int"
         )
     );
 
@@ -49,8 +47,7 @@ GlslSyntax::GlslSyntax()
             "false", 
             "false",
             "",
-            "out bool", 
-            ""
+            "out bool"
         )
     );
 
@@ -63,8 +60,8 @@ GlslSyntax::GlslSyntax()
             "vec2(0.0)", 
             "{0.0, 0.0}",
             "",
-            "out vec2", 
-            "")
+            "out vec2"
+        )
     );
 
     addTypeSyntax
@@ -76,8 +73,8 @@ GlslSyntax::GlslSyntax()
             "vec3(0.0)", 
             "{0.0, 0.0, 0.0}",
             "",
-            "out vec3", 
-            "")
+            "out vec3"
+        )
     );
 
     addTypeSyntax
@@ -89,8 +86,8 @@ GlslSyntax::GlslSyntax()
             "vec4(0.0)",
             "{0.0, 0.0, 0.0, 0.0}",
             "",
-            "out vec4",
-            "")
+            "out vec4"
+        )
     );
 
     addTypeSyntax
@@ -102,8 +99,8 @@ GlslSyntax::GlslSyntax()
             "vec2(0.0)",
             "{0.0, 0.0}",
             "",
-            "out vec2",
-            "")
+            "out vec2"
+        )
     );
 
     addTypeSyntax
@@ -115,8 +112,8 @@ GlslSyntax::GlslSyntax()
             "vec3(0.0)",
             "{0.0, 0.0, 0.0}",
             "",
-            "out vec3",
-            "")
+            "out vec3"
+        )
     );
 
     addTypeSyntax
@@ -128,8 +125,8 @@ GlslSyntax::GlslSyntax()
             "vec4(0.0)",
             "{0.0, 0.0, 0.0, 0.0}",
             "",
-            "out vec4",
-            "")
+            "out vec4"
+        )
     );
 
     addTypeSyntax
@@ -141,8 +138,7 @@ GlslSyntax::GlslSyntax()
             "0", 
             "0",
             "",
-            "out int", 
-            ""
+            "out int"
         )
     );
 
@@ -155,8 +151,7 @@ GlslSyntax::GlslSyntax()
             "", 
             "",
             "",
-            "out sampler2D", 
-            ""
+            "out sampler2D"
         )
     );
 
@@ -169,8 +164,7 @@ GlslSyntax::GlslSyntax()
             "vec3(0.0)",
             "{0.0, 0.0, 0.0}",
             "",
-            "out vec3",
-            ""
+            "out vec3"
         )
     );
 
@@ -183,8 +177,7 @@ GlslSyntax::GlslSyntax()
             "vec3(0.0)",
             "{0.0, 0.0, 0.0}",
             "",
-            "out vec3",
-            ""
+            "out vec3"
         )
     );
 
@@ -197,8 +190,7 @@ GlslSyntax::GlslSyntax()
             "vec3(0.0)",
             "{0.0, 0.0, 0.0}",
             "",
-            "out vec3",
-            ""
+            "out vec3"
         )
     );
 
@@ -211,8 +203,8 @@ GlslSyntax::GlslSyntax()
             "surfaceshader(vec3(0.0),vec3(0.0),1.0)", 
             "",
             "struct surfaceshader { vec3 bsdf; vec3 edf; float ior; };",
-            "out vec4", 
-            "vec4(_final.bsdf + _final.edf, 1.0)")
+            "out vec4"
+        )
     );
 
     addTypeSyntax
@@ -224,8 +216,7 @@ GlslSyntax::GlslSyntax()
             "volumeshader(vec3(0.0),vec3(0.0),vec3(0.0))",
             "",
             "struct volumeshader { vec3 vdf; vec3 edf; vec3 absorption; };",
-            "out vec4", 
-            "vec4(_final.vdf + _final.edf, 1.0)"
+            "out vec4"
         )
     );
 
@@ -238,8 +229,7 @@ GlslSyntax::GlslSyntax()
             "displacementshader(vec3(0.0),1.0)",
             "",
             "struct displacementshader { vec3 offset; float scale; };",
-            "out vec3", 
-            "_final.offset * _final.scale"
+            "out vec3"
         )
     );
 

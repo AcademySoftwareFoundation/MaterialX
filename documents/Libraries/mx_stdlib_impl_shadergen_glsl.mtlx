@@ -13,25 +13,25 @@
   <!-- ======================================================================== -->
 
   <!-- <image> -->
-  <implementation name="IM_image__float__glsl" nodedef="ND_image__float" file="Source/ShaderGen/GLSL/mx_image_float.osl" function="mx_image_float" language="glsl">
+  <implementation name="IM_image__float__glsl" nodedef="ND_image__float" file="Source/ShaderGen/GLSL/mx_image_float.glsl" function="mx_image_float" language="glsl">
     <parameter name="default" type="float" implname="default_value"/>
   </implementation>
-  <implementation name="IM_image__color2__glsl" nodedef="ND_image__color2" file="Source/ShaderGen/GLSL/mx_image_color2.osl" function="mx_image_color2" language="glsl">
+  <implementation name="IM_image__color2__glsl" nodedef="ND_image__color2" file="Source/ShaderGen/GLSL/mx_image_color2.glsl" function="mx_image_color2" language="glsl">
     <parameter name="default" type="color2" implname="default_value"/>
   </implementation>
   <implementation name="IM_image__color3__glsl" nodedef="ND_image__color3" file="Source/ShaderGen/GLSL/mx_image_color3.glsl" function="mx_image_color3" language="glsl">
     <parameter name="default" type="color3" implname="default_value"/>
   </implementation>
-  <implementation name="IM_image__color4__glsl" nodedef="ND_image__color4" file="Source/ShaderGen/GLSL/mx_image_color4.osl" function="mx_image_color4" language="glsl">
+  <implementation name="IM_image__color4__glsl" nodedef="ND_image__color4" file="Source/ShaderGen/GLSL/mx_image_color4.glsl" function="mx_image_color4" language="glsl">
     <parameter name="default" type="color4" implname="default_value"/>
   </implementation>
-  <implementation name="IM_image__vector2__glsl" nodedef="ND_image__vector2" file="Source/ShaderGen/GLSL/mx_image_color2.osl" function="mx_image_color2" language="glsl">
+  <implementation name="IM_image__vector2__glsl" nodedef="ND_image__vector2" file="Source/ShaderGen/GLSL/mx_image_color2.glsl" function="mx_image_color2" language="glsl">
     <parameter name="default" type="vector2" implname="default_value"/>
   </implementation>
-  <implementation name="IM_image__vector3__glsl" nodedef="ND_image__vector3" file="Source/ShaderGen/GLSL/mx_image_color3.osl" function="mx_image_color3" language="glsl">
+  <implementation name="IM_image__vector3__glsl" nodedef="ND_image__vector3" file="Source/ShaderGen/GLSL/mx_image_color3.glsl" function="mx_image_color3" language="glsl">
     <parameter name="default" type="vector3" implname="default_value"/>
   </implementation>
-  <implementation name="IM_image__vector4__glsl" nodedef="ND_image__vector4" file="Source/ShaderGen/GLSL/mx_image_color4.osl" function="mx_image_color4" language="glsl">
+  <implementation name="IM_image__vector4__glsl" nodedef="ND_image__vector4" file="Source/ShaderGen/GLSL/mx_image_color4.glsl" function="mx_image_color4" language="glsl">
     <parameter name="default" type="vector4" implname="default_value"/>
   </implementation>
 
@@ -315,7 +315,11 @@
   <!-- <contrast> -->
   <!-- <remap> -->
   <!-- <smoothstep> -->
+
   <!-- <hueshift> -->
+  <implementation name="IM_hueshift__color3__glsl" nodedef="ND_hueshift__color3" file="Source/ShaderGen/GLSL/mx_hueshift_color3.glsl" function="mx_hueshift_color3" language="glsl"/>
+  <implementation name="IM_hueshift__color4__glsl" nodedef="ND_hueshift__color4" file="Source/ShaderGen/GLSL/mx_hueshift_color4.glsl" function="mx_hueshift_color4" language="glsl"/>
+
   <!-- <saturate> -->
   <!-- <luminance> -->
 
@@ -367,8 +371,8 @@
   <!-- <pack> -->
   <implementation name="IM_pack__color2__glsl" nodedef="ND_pack__color2" file="Source/ShaderGen/GLSL/mx_pack_color2.inline" language="glsl"/>
   <implementation name="IM_pack__vector2__glsl" nodedef="ND_pack__vector2" file="Source/ShaderGen/GLSL/mx_pack_vector2.inline" language="glsl"/>
-  <implementation name="IM_pack__color3__glsl" nodedef="ND_pack__color3" file="Source/ShaderGen/GLSL/mx_pack_color.inline" language="glsl"/>
-  <implementation name="IM_pack__vector3__glsl" nodedef="ND_pack__vector3" file="Source/ShaderGen/GLSL/mx_pack_vector.inline" language="glsl"/>
+  <implementation name="IM_pack__color3__glsl" nodedef="ND_pack__color3" file="Source/ShaderGen/GLSL/mx_pack_color3.inline" language="glsl"/>
+  <implementation name="IM_pack__vector3__glsl" nodedef="ND_pack__vector3" file="Source/ShaderGen/GLSL/mx_pack_vector3.inline" language="glsl"/>
   <implementation name="IM_pack__color4__glsl" nodedef="ND_pack__color4" file="Source/ShaderGen/GLSL/mx_pack_color4.inline" language="glsl"/>
   <implementation name="IM_pack__vector4__glsl" nodedef="ND_pack__vector4" file="Source/ShaderGen/GLSL/mx_pack_vector4.inline" language="glsl"/>
   <implementation name="IM_pack__color4CF__glsl" nodedef="ND_pack__color4CF" file="Source/ShaderGen/GLSL/mx_pack_cf_color4.inline" language="glsl"/>
@@ -383,6 +387,7 @@
 
   <!-- <blur> -->
   <!-- <heighttonormal> -->
+  <implementation name="IM_heighttonormal__vector3__glsl" nodedef="ND_heighttonormal__vector3" file="Source/ShaderGen/GLSL/mx_heighttonormal_vector3.glsl" function="mx_heighttonormal_vector3" language="glsl"/>
 
 
   <!-- ======================================================================== -->
