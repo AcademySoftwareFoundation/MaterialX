@@ -1,6 +1,6 @@
 #include "Source/ShaderGen/OSL/adskNoiseFunctions.osl"
 
-void adskRidgedNoise2d_float(vec2 position, float amplitude, float ratio, int octaves, float frequency, float frequencyRatio, vec2 distortion, float distortionRatio, out float result)
+void adskRidgedNoise2d_float(vector position, float amplitude, float ratio, int octaves, float frequency, float frequencyRatio, vector distortion, float distortionRatio, output float result)
 {
 	position *= 8;
 
@@ -22,7 +22,7 @@ void adskRidgedNoise2d_float(vec2 position, float amplitude, float ratio, int oc
 		distortion *= distortionRatio;
 	}
 
-	simplex = 0.5f * simplex + 0.5f;
+	simplex = 0.5 * simplex + 0.5;
 
 	result = simplex;
 }

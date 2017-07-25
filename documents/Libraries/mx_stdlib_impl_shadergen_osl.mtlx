@@ -331,9 +331,11 @@
   <!-- <remap> -->
   <!-- <smoothstep> -->
   <!-- <hueshift> -->
+  <implementation name="IM_hueshift__color3__osl" nodedef="ND_hueshift__color3" file="Source/ShaderGen/OSL/mx_hueshift_color3.osl" function="mx_hueshift_color3" language="osl"/>
+  <implementation name="IM_hueshift__color4__osl" nodedef="ND_hueshift__color4" file="Source/ShaderGen/OSL/mx_hueshift_color4.osl" function="mx_hueshift_color4" language="osl"/>
+
   <!-- <saturate> -->
   <!-- <luminance> -->
-
 
   <!-- ======================================================================== -->
   <!-- Compositing nodes                                                        -->

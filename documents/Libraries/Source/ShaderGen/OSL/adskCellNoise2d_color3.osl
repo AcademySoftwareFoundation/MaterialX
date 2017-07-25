@@ -1,10 +1,10 @@
 #include "Source/ShaderGen/OSL/adskNoiseFunctions.osl"
 
-void adskCellNoise2d_color3(vec2 position, float amplitude, float frequency, vec2 distortion, float distortionRatio, out color result)
+void adskCellNoise2d_color3(vector position, float amplitude, float frequency, vector distortion, float distortionRatio, output color result)
 {
 	position *= 8;
-	position.x += distortion.x * distortionRatio;
-	position.y += (distortion.y + 0.2) * distortionRatio;
+	position[0] += distortion[0] * distortionRatio;
+	position[1] += (distortion[1] + 0.2) * distortionRatio;
 
 	float noise = simplex_cellular2d(position * frequency);
 

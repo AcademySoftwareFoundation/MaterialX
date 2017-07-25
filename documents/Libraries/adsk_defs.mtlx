@@ -44,14 +44,14 @@
     </nodedef> 
 
     <!-- <adskCellNoise2d> -->
-    <nodedef name="ND_adskCellNoise2d__color3" node="adskCellNoise2d" type="color3" nodecategory="procedural">
+    <nodedef name="ND_adskCellNoise2d__float" node="adskCellNoise2d" type="float" nodecategory="procedural">
         <input name="position" type="vector2" defaultgeomprop="texcoord"/>
         <input name="amplitude" type="float" value="1.0"/>
         <input name="frequency" type="float" value="8.0"/>
         <input name="distortion" type="vector2" value="0.0, 0.0"/>
         <input name="distortionRatio" type="float" value="1.0"/>
     </nodedef>
-    <nodedef name="ND_adskCellNoise2d__float" node="adskCellNoise2d" type="float" nodecategory="procedural">
+    <nodedef name="ND_adskCellNoise2d__color3" node="adskCellNoise2d" type="color3" nodecategory="procedural">
         <input name="position" type="vector2" defaultgeomprop="texcoord"/>
         <input name="amplitude" type="float" value="1.0"/>
         <input name="frequency" type="float" value="8.0"/>
@@ -60,7 +60,7 @@
     </nodedef>
 
     <!-- <adskRidgedNoise2d> -->
-    <nodedef name="ND_adskRidgedNoise2d__color3" node="adskRidgedNoise2d" type="color3" nodecategory="procedural">
+    <nodedef name="ND_adskRidgedNoise2d__float" node="adskRidgedNoise2d" type="float" nodecategory="procedural">
         <input name="position" type="vector2" defaultgeomprop="texcoord"/>
         <input name="amplitude" type="float" value="1.0"/>
         <input name="ratio" type="float" value="0.707"/>
@@ -70,7 +70,7 @@
         <input name="distortion" type="vector2" value="0.0, 0.0"/>
         <input name="distortionRatio" type="float" value="1.0"/>
     </nodedef>
-    <nodedef name="ND_adskRidgedNoise2d__float" node="adskRidgedNoise2d" type="float" nodecategory="procedural">
+    <nodedef name="ND_adskRidgedNoise2d__color3" node="adskRidgedNoise2d" type="color3" nodecategory="procedural">
         <input name="position" type="vector2" defaultgeomprop="texcoord"/>
         <input name="amplitude" type="float" value="1.0"/>
         <input name="ratio" type="float" value="0.707"/>
@@ -82,7 +82,7 @@
     </nodedef>
 
     <!-- <adskFractalNoise2d> -->
-    <nodedef name="ND_adskFractalNoise2d__color3" node="adskFractalNoise2d" type="color3" nodecategory="procedural">
+    <nodedef name="ND_adskFractalNoise2d__float" node="adskFractalNoise2d" type="float" nodecategory="procedural">
         <input name="position" type="vector2" defaultgeomprop="texcoord"/>
         <input name="amplitude" type="float" value="1.0"/>
         <input name="ratio" type="float" value="0.707"/>
@@ -92,7 +92,7 @@
         <input name="distortion" type="vector2" value="0.0, 0.0"/>
         <input name="distortionRatio" type="float" value="1.0"/>
     </nodedef>
-    <nodedef name="ND_adskFractalNoise2d__float" node="adskFractalNoise2d" type="float" nodecategory="procedural">
+    <nodedef name="ND_adskFractalNoise2d__color3" node="adskFractalNoise2d" type="color3" nodecategory="procedural">
         <input name="position" type="vector2" defaultgeomprop="texcoord"/>
         <input name="amplitude" type="float" value="1.0"/>
         <input name="ratio" type="float" value="0.707"/>

@@ -315,7 +315,11 @@
   <!-- <contrast> -->
   <!-- <remap> -->
   <!-- <smoothstep> -->
+
   <!-- <hueshift> -->
+  <implementation name="IM_hueshift__color3__glsl" nodedef="ND_hueshift__color3" file="Source/ShaderGen/GLSL/mx_hueshift_color3.glsl" function="mx_hueshift_color3" language="glsl"/>
+  <implementation name="IM_hueshift__color4__glsl" nodedef="ND_hueshift__color4" file="Source/ShaderGen/GLSL/mx_hueshift_color4.glsl" function="mx_hueshift_color4" language="glsl"/>
+
   <!-- <saturate> -->
   <!-- <luminance> -->
 
@@ -383,6 +387,7 @@
 
   <!-- <blur> -->
   <!-- <heighttonormal> -->
+  <implementation name="IM_heighttonormal__vector3__glsl" nodedef="ND_heighttonormal__vector3" file="Source/ShaderGen/GLSL/mx_heighttonormal_vector3.glsl" function="mx_heighttonormal_vector3" language="glsl"/>
 
 
   <!-- ======================================================================== -->

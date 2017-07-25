@@ -1,100 +1,187 @@
-void hash2d(vec2 gridcell, out vec4 hash_0, out vec4 hash_1)
+float fract(float x)
 {
-	const vec2 OFFSET = vec2( 26.0, 161.0 );
-	const float DOMAIN = 71.0;
-	const vec2 SOMELARGEFLOATS = vec2( 951.135664, 642.949883 );
-	vec4 P = vec4( gridcell.xy, gridcell.xy + 1.0 );
-	P = P - floor(P * ( 1.0 / DOMAIN )) * DOMAIN;
-	P += OFFSET.xyxy;
-	P *= P;
-	P = P.xzxz * P.yyww;
-	hash_0 = fract( P * ( 1.0 / SOMELARGEFLOATS.x ) );
-	hash_1 = fract( P * ( 1.0 / SOMELARGEFLOATS.y ) );
+	return x - floor(x);
 }
 
-vec3 invsqrt( vec3 input_is_glsl_kw )
+void hash2d(vector gridcell, output float hash_0[4], output float hash_1[4])
 {
-	return vec3(1.0f / sqrt(input_is_glsl_kw));
+	vector OFFSET = vector( 26.0, 161.0, 0 );
+	float DOMAIN = 71.0;
+	vector SOMELARGEFLOATS = vector( 951.135664, 642.949883, 0 );
+
+	float P0 = gridcell[0];
+	float P1 = gridcell[1];
+	float P2 = gridcell[0] + 1.0;
+	float P3 = gridcell[1] + 1.0;
+
+	P0 = P0 - floor(P0 * ( 1.0 / DOMAIN )) * DOMAIN;
+	P1 = P1 - floor(P1 * ( 1.0 / DOMAIN )) * DOMAIN;
+	P2 = P2 - floor(P2 * ( 1.0 / DOMAIN )) * DOMAIN;
+	P3 = P3 - floor(P3 * ( 1.0 / DOMAIN )) * DOMAIN;
+
+	P0 += OFFSET[0];
+	P1 += OFFSET[1];
+	P2 += OFFSET[0];
+	P3 += OFFSET[1];
+
+	P0 *= P0;
+	P1 *= P1;
+	P2 *= P2;
+	P3 *= P3;
+
+	P0 = P0 * P1;
+	P1 = P2 * P1;
+	P2 = P0 * P3;
+	P3 = P2 * P3;
+
+	hash_0[0] = fract( P0 * ( 1.0 / SOMELARGEFLOATS[0] ) );
+	hash_0[1] = fract( P1 * ( 1.0 / SOMELARGEFLOATS[0] ) );
+	hash_0[2] = fract( P2 * ( 1.0 / SOMELARGEFLOATS[0] ) );
+	hash_0[3] = fract( P3 * ( 1.0 / SOMELARGEFLOATS[0] ) );
+
+	hash_1[0] = fract( P0 * ( 1.0 / SOMELARGEFLOATS[1] ) );
+	hash_1[1] = fract( P1 * ( 1.0 / SOMELARGEFLOATS[1] ) );
+	hash_1[2] = fract( P2 * ( 1.0 / SOMELARGEFLOATS[1] ) );
+	hash_1[3] = fract( P3 * ( 1.0 / SOMELARGEFLOATS[1] ) );
 }
 
-float simplex_perlin2d( vec2 P )
+float simplex_perlin2d( vector P )
 {
 	//	simplex math constants
-	const float SKEWFACTOR = 0.36602540378443864676372317075294;			// 0.5*(sqrt(3.0)-1.0)
-	const float UNSKEWFACTOR = 0.21132486540518711774542560974902;			// (3.0-sqrt(3.0))/6.0
-	const float SIMPLEX_TRI_HEIGHT = 0.70710678118654752440084436210485;	// sqrt( 0.5 )	height of simplex triangle
-	const vec3 SIMPLEX_POINTS = vec3( 1.0-UNSKEWFACTOR, -UNSKEWFACTOR, 1.0-2.0*UNSKEWFACTOR );	// vertex info for simplex triangle
+	float SKEWFACTOR = 0.36602540378443864676372317075294;			// 0.5*(sqrt(3.0)-1.0)
+	float UNSKEWFACTOR = 0.21132486540518711774542560974902;			// (3.0-sqrt(3.0))/6.0
+	float SIMPLEX_TRI_HEIGHT = 0.70710678118654752440084436210485;	// sqrt( 0.5 )	height of simplex triangle
+	vector SIMPLEX_POINTS = vector( 1.0-UNSKEWFACTOR, -UNSKEWFACTOR, 1.0-2.0*UNSKEWFACTOR );	// vertex info for simplex triangle
 
 	//	establish our grid cell.
 	P *= SIMPLEX_TRI_HEIGHT;		// scale space so we can have an approx feature size of 1.0  ( optional )
-	vec2 Pi = floor( P + dot( P, vec2( SKEWFACTOR ) ) );
+	vector Pi = floor( P + dot( P, vector( SKEWFACTOR ) ) );
 
 	//	calculate the hash.
-	vec4 hash_x, hash_y;
+	float hash_x[4];
+	float hash_y[4];
 	hash2d( Pi, hash_x, hash_y );
 
 	//	establish vectors to the 3 corners of our simplex triangle
-	vec2 v0 = Pi - dot( Pi, vec2( UNSKEWFACTOR ) ) - P;
+	vector v0 = Pi - dot( Pi, vector( UNSKEWFACTOR ) ) - P;
 
-	vec4 v1pos_v1hash = (v0.x < v0.y) ? vec4(SIMPLEX_POINTS.xy, hash_x.y, hash_y.y) : vec4(SIMPLEX_POINTS.yx, hash_x.z, hash_y.z);
-	vec4 v12 = vec4( v1pos_v1hash.xy, SIMPLEX_POINTS.zz ) + v0.xyxy;
+	float v1pos_v1hash[4];
+	if (v0[0] < v0[1])
+	{
+		v1pos_v1hash[0] = SIMPLEX_POINTS[0];
+		v1pos_v1hash[1] = SIMPLEX_POINTS[1];
+		v1pos_v1hash[2] = hash_x[1];
+		v1pos_v1hash[3] = hash_y[1];
+	}
+	else
+	{
+		v1pos_v1hash[0] = SIMPLEX_POINTS[1];
+		v1pos_v1hash[1] = SIMPLEX_POINTS[0];
+		v1pos_v1hash[2] = hash_x[2];
+		v1pos_v1hash[3] = hash_y[2];
+	}
+
+	float v12[4] = {v1pos_v1hash[0] + v0[0], v1pos_v1hash[1] + v0[1], SIMPLEX_POINTS[2] + v0[0], SIMPLEX_POINTS[2] + v0[1]};
 
 	//	calculate the dotproduct of our 3 corner vectors with 3 random normalized vectors
-	vec3 grad_x = vec3( hash_x.x, v1pos_v1hash.z, hash_x.w ) - 0.49999;
-	vec3 grad_y = vec3( hash_y.x, v1pos_v1hash.w, hash_y.w ) - 0.49999;
-	vec3 grad_results = invsqrt( grad_x * grad_x + grad_y * grad_y ) * ( grad_x * vec3( v0.x, v12.xz ) + grad_y * vec3( v0.y, v12.yw ) );
+	vector grad_x = vector( hash_x[0], v1pos_v1hash[2], hash_x[3] ) - 0.49999;
+	vector grad_y = vector( hash_y[0], v1pos_v1hash[3], hash_y[3] ) - 0.49999;
+	vector grad_results = inversesqrt( grad_x * grad_x + grad_y * grad_y ) * ( grad_x * vector( v0[0], v12[0], v12[2] ) + grad_y * vector( v0[1], v12[1], v12[3] ) );
 
 	//	Normalization factor to scale the final result to a strict 1.0->-1.0 range
 	//	x = ( sqrt( 0.5 )/sqrt( 0.75 ) ) * 0.5
 	//	NF = 1.0 / ( x * ( ( 0.5 – x*x ) ^ 4 ) * 2.0 )
 	//	http://briansharpe.wordpress.com/2012/01/13/simplex-noise/#comment-36
-	const float FINAL_NORMALIZATION = 99.204334582718712976990005025589;
+	float FINAL_NORMALIZATION = 99.204334582718712976990005025589;
 
 	//	evaluate the surflet, sum and return
-	vec3 m = vec3( v0.x, v12.xz ) * vec3( v0.x, v12.xz ) + vec3( v0.y, v12.yw ) * vec3( v0.y, v12.yw );
+	vector m = vector( v0[0], v12[0], v12[2] ) * vector( v0[0], v12[0], v12[2] ) + vector( v0[1], v12[1], v12[3] ) * vector( v0[1], v12[1], v12[3] );
 	m = max(0.5 - m, 0.0);		//	The 0.5 here is SIMPLEX_TRI_HEIGHT^2
 	m = m*m;
 	return dot(m*m, grad_results) * FINAL_NORMALIZATION;
 }
 
-vec4 cellular_weight_samples( vec4 samples )
+void cellular_weight_samples( float samples[4], output float result[4] )
 {
-	samples = samples * 2.0 - 1.0;
-	return (samples * samples * samples) - sign(samples);	// cubic (even more variance)
+	result[0] = samples[0] * 2.0 - 1.0;
+	result[1] = samples[1] * 2.0 - 1.0;
+	result[2] = samples[2] * 2.0 - 1.0;
+	result[3] = samples[3] * 2.0 - 1.0;
+
+	result[0] = (result[0] * result[0] * result[0]) - sign(result[0]);
+	result[1] = (result[1] * result[1] * result[1]) - sign(result[1]);
+	result[2] = (result[2] * result[2] * result[2]) - sign(result[2]);
+	result[3] = (result[3] * result[3] * result[3]) - sign(result[3]);
 }
 
-float simplex_cellular2d( vec2 P )
+float simplex_cellular2d( vector P )
 {
 	//	simplex math based off Stefan Gustavson's and Ian McEwan's work at...
 	//	http://github.com/ashima/webgl-noise
 
 	//	simplex math constants
-	const float SKEWFACTOR = 0.36602540378443864676372317075294;			// 0.5*(sqrt(3.0)-1.0)
-	const float UNSKEWFACTOR = 0.21132486540518711774542560974902;			// (3.0-sqrt(3.0))/6.0
-	const float SIMPLEX_TRI_HEIGHT = 0.70710678118654752440084436210485;	// sqrt( 0.5 )	height of simplex triangle.
-	const float INV_SIMPLEX_TRI_HEIGHT = 1.4142135623730950488016887242097;	//	1.0 / sqrt( 0.5 )
-	const vec3 SIMPLEX_POINTS = vec3( 1.0-UNSKEWFACTOR, -UNSKEWFACTOR, 1.0-2.0*UNSKEWFACTOR ) * INV_SIMPLEX_TRI_HEIGHT;	// vertex info for simplex triangle
+	float SKEWFACTOR = 0.36602540378443864676372317075294;			// 0.5*(sqrt(3.0)-1.0)
+	float UNSKEWFACTOR = 0.21132486540518711774542560974902;			// (3.0-sqrt(3.0))/6.0
+	float SIMPLEX_TRI_HEIGHT = 0.70710678118654752440084436210485;	// sqrt( 0.5 )	height of simplex triangle.
+	float INV_SIMPLEX_TRI_HEIGHT = 1.4142135623730950488016887242097;	//	1.0 / sqrt( 0.5 )
+	vector SIMPLEX_POINTS = vector( 1.0-UNSKEWFACTOR, -UNSKEWFACTOR, 1.0-2.0*UNSKEWFACTOR ) * INV_SIMPLEX_TRI_HEIGHT;	// vertex info for simplex triangle
 
 	//	establish our grid cell.
 	P *= SIMPLEX_TRI_HEIGHT;		// scale space so we can have an approx feature size of 1.0  ( optional )
-	vec2 Pi = floor( P + dot( P, vec2( SKEWFACTOR ) ) );
+	vector Pi = floor( P + dot( P, vector( SKEWFACTOR ) ) );
 
 	//	calculate the hash.
-	vec4 hash_x, hash_y;
+	float hash_x[4];
+	float hash_y[4];
 	hash2d( Pi, hash_x, hash_y );
 
 	//	push hash values to extremes of jitter window
-	const float JITTER_WINDOW = ( 0.10566243270259355887271280487451 * INV_SIMPLEX_TRI_HEIGHT ); // this will guarentee no artifacts.
-	hash_x = cellular_weight_samples( hash_x ) * JITTER_WINDOW;
-	hash_y = cellular_weight_samples( hash_y ) * JITTER_WINDOW;
+	float JITTER_WINDOW = ( 0.10566243270259355887271280487451 * INV_SIMPLEX_TRI_HEIGHT ); // this will guarentee no artifacts.
+
+	cellular_weight_samples(hash_x, hash_x);
+	hash_x[0] *= JITTER_WINDOW;
+	hash_x[1] *= JITTER_WINDOW;
+	hash_x[2] *= JITTER_WINDOW;
+	hash_x[3] *= JITTER_WINDOW;
+
+	cellular_weight_samples(hash_y, hash_y);
+	hash_y[0] *= JITTER_WINDOW;
+	hash_y[1] *= JITTER_WINDOW;
+	hash_y[2] *= JITTER_WINDOW;
+	hash_y[3] *= JITTER_WINDOW;
 
 	//	calculate sq distance to closest point
-	vec2 p0 = ( ( Pi - dot( Pi, vec2( UNSKEWFACTOR ) ) ) - P ) * INV_SIMPLEX_TRI_HEIGHT;
-	hash_x += p0.xxxx;
-	hash_y += p0.yyyy;
-	hash_x.yzw += SIMPLEX_POINTS.xyz;
-	hash_y.yzw += SIMPLEX_POINTS.yxz;
-	vec4 distsq = hash_x*hash_x + hash_y*hash_y;
-	vec2 tmp = min( distsq.xy, distsq.zw );
-	return min( tmp.x, tmp.y );
+	vector p0 = ( ( Pi - dot( Pi, vector( UNSKEWFACTOR ) ) ) - P ) * INV_SIMPLEX_TRI_HEIGHT;
+
+	hash_x[0] += p0[0];
+	hash_x[1] += p0[0];
+	hash_x[2] += p0[0];
+	hash_x[3] += p0[0];
+
+	hash_y[0] += p0[1];
+	hash_y[1] += p0[1];
+	hash_y[2] += p0[1];
+	hash_y[3] += p0[1];
+
+	hash_x[1] += SIMPLEX_POINTS[0];
+	hash_x[2] += SIMPLEX_POINTS[1];
+	hash_x[3] += SIMPLEX_POINTS[2];
+
+	hash_y[1] += SIMPLEX_POINTS[1];
+	hash_y[2] += SIMPLEX_POINTS[0];
+	hash_y[3] += SIMPLEX_POINTS[2];
+
+	float distsq[4] = {
+		hash_x[0]*hash_x[0] + hash_y[0]*hash_y[0],
+		hash_x[1]*hash_x[1] + hash_y[1]*hash_y[1],
+		hash_x[2]*hash_x[2] + hash_y[2]*hash_y[2],
+		hash_x[3]*hash_x[3] + hash_y[3]*hash_y[3]
+	};
+
+	float tmp[2] = {
+		min( distsq[0], distsq[2] ),
+		min( distsq[1], distsq[3] )
+	};
+
+	return min( tmp[0], tmp[1] );
 }
