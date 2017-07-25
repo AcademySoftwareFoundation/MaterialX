@@ -256,7 +256,7 @@ TEST_CASE("Material Shader Generation", "[shadergen]")
     //
     // [image1] [constant]     
     //        \ /                    
-    //    [multiply]          [image2]         [image3]
+    //    [multiply]          [image2]         [adskCellNoise2d]
     //             \____________  |  ____________/
     //                          [mix]
     //                            |
@@ -267,8 +267,7 @@ TEST_CASE("Material Shader Generation", "[shadergen]")
     image1->addParameter("file", "filename");
     mx::NodePtr image2 = nodeGraph->addNode("image");
     image2->addParameter("file", "filename");
-    mx::NodePtr image3 = nodeGraph->addNode("image");
-    image3->addParameter("file", "filename");
+    mx::NodePtr noise = nodeGraph->addNode("adskCellNoise2d");
     mx::NodePtr constant = nodeGraph->addNode("constant");
     mx::NodePtr multiply = nodeGraph->addNode("multiply");
     mx::NodePtr mix = nodeGraph->addNode("mix");
@@ -277,7 +276,7 @@ TEST_CASE("Material Shader Generation", "[shadergen]")
     multiply->setConnectedNode("in2", constant);
     mix->setConnectedNode("fg", multiply);
     mix->setConnectedNode("bg", image2);
-    mix->setConnectedNode("mask", image3);
+    mix->setConnectedNode("mask", noise);
     output->setConnectedNode(mix);
 
     // Create a material with a shader ref connecting to the graph

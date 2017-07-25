@@ -10,6 +10,14 @@
 namespace MaterialX
 {
 
+namespace
+{
+    string getLongName(const ElementPtr& element)
+    {
+        return element->getParent()->getName() + "_" + element->getName();
+    }
+}
+
 Shader::Shader(const string& name)
     : _name(name)
     , _activeStage(0)
@@ -30,7 +38,13 @@ void Shader::initialize(ElementPtr element, const string& language, const string
     // TODO: Do we need a better solution for handling the shader generation graph?
     ScopedDisableNotifications disableNotifications(doc);
 
-    _nodeGraph = doc->addNodeGraph("sg_" + _name);
+    string sgGraphName = "sg_" + _name;
+    _nodeGraph = doc->getNodeGraph(sgGraphName);
+    if (_nodeGraph)
+    {
+        doc->removeChild(sgGraphName);
+    }
+    _nodeGraph = doc->addNodeGraph(sgGraphName);
     _output = _nodeGraph->addOutput("out");
 
     //
@@ -52,7 +66,7 @@ void Shader::initialize(ElementPtr element, const string& language, const string
             ExceptionShaderGenError("Given output element '" + element->getName() + "' has no node connection");
         }
 
-        NodePtr newNode = _nodeGraph->addNode(srcNode->getCategory(), srcNode->getName(), srcNode->getType());
+        NodePtr newNode = _nodeGraph->addNode(srcNode->getCategory(), getLongName(srcNode), srcNode->getType());
         newNode->copyContentFrom(srcNode);
 
         // Make sure there is a matching node def
@@ -74,7 +88,7 @@ void Shader::initialize(ElementPtr element, const string& language, const string
     else if (element->isA<Node>())
     {
         NodePtr srcNode = element->asA<Node>();
-        NodePtr newNode = _nodeGraph->addNode(srcNode->getCategory(), srcNode->getName(), srcNode->getType());
+        NodePtr newNode = _nodeGraph->addNode(srcNode->getCategory(), getLongName(srcNode), srcNode->getType());
         newNode->copyContentFrom(srcNode);
 
         // Make sure there is a matching node def
@@ -101,7 +115,7 @@ void Shader::initialize(ElementPtr element, const string& language, const string
             throw ExceptionShaderGenError("No nodedef found for shader node '" + shaderRef->getNode() + "'");
         }
 
-        NodePtr newNode = _nodeGraph->addNode(nodeDef->getNode(), shaderRef->getName(), nodeDef->getType());
+        NodePtr newNode = _nodeGraph->addNode(nodeDef->getNode(), getLongName(shaderRef), nodeDef->getType());
         for (BindInputPtr bindInput : shaderRef->getBindInputs())
         {
             InputPtr input = newNode->addInput(bindInput->getName(), bindInput->getType());
@@ -147,7 +161,7 @@ void Shader::initialize(ElementPtr element, const string& language, const string
         }
 
         // Create this node in the new graph.
-        NodePtr newNode = _nodeGraph->addNode(upstreamNode->getCategory(), upstreamNode->getName(), upstreamNode->getType());
+        NodePtr newNode = _nodeGraph->addNode(upstreamNode->getCategory(), getLongName(upstreamNode), upstreamNode->getType());
         newNode->copyContentFrom(upstreamNode);
 
         // Connect the node to downstream element in the new graph.
@@ -160,7 +174,7 @@ void Shader::initialize(ElementPtr element, const string& language, const string
         }
         else if (connectingElement)
         {
-            NodePtr downstream = _nodeGraph->getNode(downstreamElement->getName());
+            NodePtr downstream = _nodeGraph->getNode(getLongName(downstreamElement));
             downstream->setConnectedNode(connectingElement->getName(), newNode);
         }
 
