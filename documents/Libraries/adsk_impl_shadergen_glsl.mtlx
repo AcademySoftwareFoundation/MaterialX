@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.35">
 
+  <!-- <adskSurfaceShader> -->
+  <implementation name="IM_adskSurfaceShader__glsl" nodedef="ND_adskSurfaceShader" file="Source/ShaderGen/GLSL/adskSurfaceShader.glsl" function="adskSurfaceShader" language="glsl"/>
+
+  <!-- <adskSurfaceShader> -->
+  <implementation name="IM_adskDiffuseBsdf__glsl" nodedef="ND_adskDiffuseBsdf" file="Source/ShaderGen/GLSL/adskDiffuseBsdf.glsl" function="adskDiffuseBsdf" language="glsl"/>
+
+  <!-- <adskSurfaceShader> -->
+  <implementation name="IM_adskUniformEdf__glsl" nodedef="ND_adskUniformEdf" file="Source/ShaderGen/GLSL/adskUniformEdf.glsl" function="adskUniformEdf" language="glsl"/>
+
   <!-- <adskSurface> -->
   <implementation name="IM_adskSurface__glsl" nodedef="ND_adskSurface" file="Source/ShaderGen/GLSL/adskSurface.glsl" function="adskSurface" language="glsl"/>
 
