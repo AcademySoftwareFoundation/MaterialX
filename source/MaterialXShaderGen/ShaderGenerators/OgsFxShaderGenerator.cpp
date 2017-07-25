@@ -711,8 +711,9 @@ void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
     const string& outputType = output->getType();
     if (outputType == kSURFACE)
     {
-        finalResult = finalResult + ".bsdf + " + finalResult + ".edf";
-        shader.addLine(_syntax->getVariableName(*output) + " = vec4(" + finalResult + ", 1.0)");
+        string finalRGB = finalResult + ".bsdf + " + finalResult + ".edf";
+        string finalAlpha = finalResult + ".alpha";
+        shader.addLine(_syntax->getVariableName(*output) + " = vec4(" + finalRGB + "," + finalAlpha + ")");
     }
     else
     {

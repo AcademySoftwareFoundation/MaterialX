@@ -111,7 +111,7 @@ void computeSpecular(float roughness, vec3 normal, vec3 view, out vec3 result)
 }
 
 // Arnold standard shader combiner
-vec3 standardShaderCombiner(
+vec4 standardShaderCombiner(
     vec3 diffuseInput,
     vec3 specularInput,
     vec3 color,
@@ -144,7 +144,7 @@ vec3 standardShaderCombiner(
     vec3 N,
     vec3 V)
 {
-    vec3 result;
+    vec4 result;
 
     float fresnel = 1.0;
     float coatFresnel = 1.0;
@@ -245,8 +245,12 @@ vec3 standardShaderCombiner(
 
     result = diffuse + specular + metalColor + metalSpecular + coatSpecular;
 
+    vec3 luminanceConv = vec3(0.2125f, 0.7154f, 0.0721f);
+    //vec3 transparency = max((1.0 - metalness) * transmission * transAmount, (1.0 - opacity));
+    vec3 transparency = vec3(1.0);
+    result.a= dot(luminanceConv, transparency);
+
     // None of these results are required outputs for now
-    //result.outTransparency = max((1.0 - metalness) * transmission * transAmount, (1.0 - opacity));
     //result.outGlowColor = vec3(0.0f, 0.0f, 0.0f);
     //result.outMatteOpacity = vec3(-1.0e+06f, -1.0e+06f, -1.0e+06f);
     //result.outSurfaceFinal = vec4(result.outColor, 1.0f);
@@ -320,7 +324,7 @@ void adskSurface(
     vec3 SpecularEnv = EnvironmentLight(worldNormal, worldView, specular_roughness);
 
     // Compute total bsdf
-    result.bsdf = standardShaderCombiner(
+    vec4 combined = standardShaderCombiner(
         _diffuse,
         _specular,
         base_color,
@@ -353,6 +357,9 @@ void adskSurface(
         SpecularEnv,
         worldNormal,
         worldView);
+
+    result.bsdf = combined.rgb;
+    result.alpha = combined.a;
 
     result.ior = specular_IOR;
 }
