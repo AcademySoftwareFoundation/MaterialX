@@ -323,7 +323,7 @@ void adskSurface(
     vec3 SpecularEnv = EnvironmentLight(worldNormal, worldView, specular_roughness);
 
     // Compute total bsdf
-    vec4 combined = standardShaderCombiner(
+    result.bsdf = standardShaderCombiner(
         _diffuse,
         _specular,
         base_color,
@@ -356,9 +356,6 @@ void adskSurface(
         SpecularEnv,
         worldNormal,
         worldView);
-
-    result.bsdf = combined.rgb;
-    result.alpha = combined.a;
 
     result.ior = specular_IOR;
 }
