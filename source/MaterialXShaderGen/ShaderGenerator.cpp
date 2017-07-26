@@ -291,9 +291,10 @@ void ShaderGenerator::emitInput(const ValueElement& port, Shader &shader)
         }
     }
 
-    ValuePtr value = port.getValue();
-    if (value)
+    const string& valueStr = port.getValueString();
+    if (valueStr.length())
     {
+        ValuePtr value = port.getValue();
         shader.addStr(_syntax->getValue(*value));
     }
     else

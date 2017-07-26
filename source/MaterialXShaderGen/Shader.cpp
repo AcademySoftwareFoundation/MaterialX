@@ -154,15 +154,37 @@ void Shader::initialize(ElementPtr element, const string& language, const string
         NodePtr upstreamNode = upstreamElement->isA<Output>() ?
             upstreamElement->asA<Output>()->getConnectedNode() : upstreamElement->asA<Node>();
 
-        if (!upstreamNode || processedNodes.count(upstreamNode))
+        if (!upstreamNode)
         {
-            // Unconnected or node is already processed.
+            // Unconnected
             continue;
         }
 
-        // Create this node in the new graph.
-        NodePtr newNode = _nodeGraph->addNode(upstreamNode->getCategory(), getLongName(upstreamNode), upstreamNode->getType());
-        newNode->copyContentFrom(upstreamNode);
+        NodePtr newNode;
+        if (processedNodes.count(upstreamNode))
+        {
+            // Already processed so get the corresponding node in the new graph
+            newNode = _nodeGraph->getNode(getLongName(upstreamNode));
+        }
+        else
+        {
+            // Create this node in the new graph.
+            newNode = _nodeGraph->addNode(upstreamNode->getCategory(), getLongName(upstreamNode), upstreamNode->getType());
+            newNode->copyContentFrom(upstreamNode);
+
+            // Make sure there is a matching node def
+            NodeDefPtr nodeDef = newNode->getReferencedNodeDef();
+            if (!nodeDef)
+            {
+                throw ExceptionShaderGenError("No nodedef found for node '" + newNode->getCategory() + "' with type '" + newNode->getType() + "'");
+            }
+
+            // Connect any needed default geometric nodes
+            addDefaultGeometricNodes(newNode, nodeDef, _nodeGraph);
+
+            // Mark node as processed.
+            processedNodes.insert(upstreamNode);
+        }
 
         // Connect the node to downstream element in the new graph.
         ElementPtr downstreamElement = edge.getDownstreamElement();
@@ -177,19 +199,6 @@ void Shader::initialize(ElementPtr element, const string& language, const string
             NodePtr downstream = _nodeGraph->getNode(getLongName(downstreamElement));
             downstream->setConnectedNode(connectingElement->getName(), newNode);
         }
-
-        // Make sure there is a matching node def
-        NodeDefPtr nodeDef = newNode->getReferencedNodeDef();
-        if (!nodeDef)
-        {
-            throw ExceptionShaderGenError("No nodedef found for node '" + newNode->getCategory() + "' with type '" + newNode->getType() + "'");
-        }
-
-        // Connect any needed default geometric nodes
-        addDefaultGeometricNodes(newNode, nodeDef, _nodeGraph);
-
-        // Mark node as processed.
-        processedNodes.insert(upstreamNode);
     }
 
     // Create a flat version of the graph.
