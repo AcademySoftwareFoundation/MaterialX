@@ -247,7 +247,7 @@ vec4 standardShaderCombiner(
 
     vec3 luminanceConv = vec3(0.2125f, 0.7154f, 0.0721f);
     vec3 transparency = max((1.0 - metalness) * transmission * transAmount, (1.0 - opacity));
-    result.a = dot(luminanceConv, transparency);
+    result.a = 1.0 - clamp(dot(luminanceConv, transparency), 0.0, 1.0);
 
     // None of these results are required outputs for now
     //result.outGlowColor = vec3(0.0f, 0.0f, 0.0f);
