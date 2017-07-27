@@ -163,6 +163,18 @@ void Shader::initialize(ElementPtr element, const string& language, const string
         NodePtr newNode;
         if (processedNodes.count(upstreamNode))
         {
+            // Check if we came to this node from an output. In that case it's the same node
+            // we jumped to in the previous iteration, so skip this directly.
+            //
+            // TODO: This is a hack to avoid a bug triggered when the same processed output
+            // is passed again. We need a more robust handling of this!
+            //
+            ElementPtr downstreamElement = edge.getDownstreamElement();
+            if (downstreamElement && downstreamElement->isA<Output>())
+            {
+                continue;
+            }
+
             // Already processed so get the corresponding node in the new graph
             newNode = _nodeGraph->getNode(getLongName(upstreamNode));
         }
