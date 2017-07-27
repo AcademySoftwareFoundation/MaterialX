@@ -1,4 +1,4 @@
-#include "Source/ShaderGen/GLSL/adskNoiseFunctions.glsl"
+#include "Source/ShaderGen/GLSL/noise_functions.glsl"
 
 void adskCellNoise2d_float(vec2 position, float amplitude, float frequency, vec2 distortion, float distortionRatio, out float result)
 {

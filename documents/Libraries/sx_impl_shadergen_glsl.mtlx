@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<materialx version="1.35">
+
+  <!-- <surfacelayer> -->
+  <implementation name="IM_surfacelayer__glsl" nodedef="ND_surfacelayer" file="Source/ShaderGen/GLSL/sx_surfacelayer.glsl" function="sx_surfacelayer" language="glsl"/>
+
+  <!-- <surfaceshader> -->
+  <implementation name="IM_surfaceshader__glsl" nodedef="ND_surfaceshader" file="Source/ShaderGen/GLSL/sx_surfaceshader.glsl" function="sx_surfaceshader" language="glsl"/>
+
+  <!-- <diffusebsdf> -->
+  <implementation name="IM_diffusebsdf__glsl" nodedef="ND_diffusebsdf" file="Source/ShaderGen/GLSL/sx_diffusebsdf.glsl" function="sx_diffusebsdf" language="glsl"/>
+
+  <!-- <reflectionbsdf> -->
+  <implementation name="IM_reflectionbsdf__glsl" nodedef="ND_reflectionbsdf" file="Source/ShaderGen/GLSL/sx_reflectionbsdf.glsl" function="sx_reflectionbsdf" language="glsl"/>
+
+  <!-- <uniformedf> -->
+  <implementation name="IM_uniformedf__glsl" nodedef="ND_uniformedf" file="Source/ShaderGen/GLSL/sx_uniformedf.glsl" function="sx_uniformedf" language="glsl"/>
+
+  <!-- <layer> -->
+  <implementation name="IM_layer__glsl" nodedef="ND_layer" file="Source/ShaderGen/GLSL/sx_layer.glsl" function="sx_layer" language="glsl"/>
+
+  <!-- <physicallayer> -->
+  <implementation name="IM_physicallayer__glsl" nodedef="ND_physicallayer" file="Source/ShaderGen/GLSL/sx_physicallayer.glsl" function="sx_physicallayer" language="glsl"/>
+
+</materialx>

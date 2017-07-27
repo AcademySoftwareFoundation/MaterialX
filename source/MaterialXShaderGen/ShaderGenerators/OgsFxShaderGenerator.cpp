@@ -646,28 +646,11 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     emitTypeDefs(shader);
 
     // Emit shader output
-    string type;
-    if (outputType == "float")
-    {
-        // Hack to avoid float output from OgsFX shader
-        // Gives random artifacts in LookdevX viewer
-        type = "vec3";
-    }
-    else
-    {
-        type = _syntax->getOutputTypeName(outputType);
-        size_t pos = type.find("out ");
-        if (pos != string::npos)
-        {
-            // Strip the 'out' decorator
-            type.erase(pos, 4);
-        }
-    }
     const string variable = _syntax->getVariableName(*shader.getOutput());
     shader.addLine("// Data output by the pixel shader", false);
     shader.addLine("attribute PixelOutput", false);
     shader.beginScope(Shader::Brackets::BRACES);
-    shader.addLine(type + " " + variable);
+    shader.addLine("vec4 " + variable);
     shader.endScope(true);
     shader.newLine();
 
@@ -720,11 +703,26 @@ void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
         {
             finalResult = _syntax->getSwizzledVariable(finalResult, output->getType(), connectedNode->getType(), output->getChannels());
         }
-        if (outputType == "float")
+        if (outputType != "color4" && outputType != "vector4")
         {
-            // Hack to avoid float output from OgsFX shader
-            // Gives random artifacts in LookdevX viewer
-            finalResult = "vec3(" + finalResult + ", " + finalResult + ", " + finalResult + ")";
+            // Remap to vec4 type for final output
+            if (outputType == "float" || outputType == "boolean" || outputType == "integer")
+            {
+                finalResult = "vec4(" + finalResult + ", " + finalResult + ", " + finalResult + ", 1.0)";
+            }
+            else if (outputType == "vector2" || outputType == "color2")
+            {
+                finalResult = "vec4(" + finalResult + ", 0.0, 1.0)";
+            }
+            else if (outputType == "vector3" || outputType == "color3")
+            {
+                finalResult = "vec4(" + finalResult + ", 1.0)";
+            }
+            else
+            {
+                // Can't understand other types. Just output black
+                finalResult = "vect4(0.0,0.0,0.0,1.0)";
+            }
         }
         shader.addLine(_syntax->getVariableName(*output) + " = " + finalResult);
     }
