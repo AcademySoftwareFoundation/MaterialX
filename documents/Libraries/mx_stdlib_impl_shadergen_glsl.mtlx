@@ -58,10 +58,48 @@
   <implementation name="IM_constant__filename__glsl" nodedef="ND_constant__filename" file="Source/ShaderGen/Common/mx_constant.inline" language="glsl"/>
 
   <!-- <ramplr> -->
+  <implementation name="IM_ramplr__float__glsl" nodedef="ND_ramplr__float" file="Source/ShaderGen/GLSL/mx_ramplr_float.glsl" function="mx_ramplr_float" language="glsl"/>
+  <implementation name="IM_ramplr__color2__glsl" nodedef="ND_ramplr__color2" file="Source/ShaderGen/GLSL/mx_ramplr_vector2.glsl" function="mx_ramplr_vector2" language="glsl"/>
+  <implementation name="IM_ramplr__color3__glsl" nodedef="ND_ramplr__color3" file="Source/ShaderGen/GLSL/mx_ramplr_vector3.glsl" function="mx_ramplr_vector3" language="glsl"/>
+  <implementation name="IM_ramplr__color4__glsl" nodedef="ND_ramplr__color4" file="Source/ShaderGen/GLSL/mx_ramplr_vector4.glsl" function="mx_ramplr_vector4" language="glsl"/>
+  <implementation name="IM_ramplr__vector2__glsl" nodedef="ND_ramplr__vector2" file="Source/ShaderGen/GLSL/mx_ramplr_vector2.glsl" function="mx_ramplr_vector2" language="glsl"/>
+  <implementation name="IM_ramplr__vector3__glsl" nodedef="ND_ramplr__vector3" file="Source/ShaderGen/GLSL/mx_ramplr_vector3.glsl" function="mx_ramplr_vector3" language="glsl"/>
+  <implementation name="IM_ramplr__vector4__glsl" nodedef="ND_ramplr__vector4" file="Source/ShaderGen/GLSL/mx_ramplr_vector4.glsl" function="mx_ramplr_vector4" language="glsl"/>
   <!-- <ramptb> -->
+  <implementation name="IM_ramptb__float__glsl" nodedef="ND_ramptb__float" file="Source/ShaderGen/GLSL/mx_ramptb_float.glsl" function="mx_ramptb_float" language="glsl"/>
+  <implementation name="IM_ramptb__color2__glsl" nodedef="ND_ramptb__color2" file="Source/ShaderGen/GLSL/mx_ramptb_vector2.glsl" function="mx_ramptb_vector2" language="glsl"/>
+  <implementation name="IM_ramptb__color3__glsl" nodedef="ND_ramptb__color3" file="Source/ShaderGen/GLSL/mx_ramptb_vector3.glsl" function="mx_ramptb_vector3" language="glsl"/>
+  <implementation name="IM_ramptb__color4__glsl" nodedef="ND_ramptb__color4" file="Source/ShaderGen/GLSL/mx_ramptb_vector4.glsl" function="mx_ramptb_vector4" language="glsl"/>
+  <implementation name="IM_ramptb__vector2__glsl" nodedef="ND_ramptb__vector2" file="Source/ShaderGen/GLSL/mx_ramptb_vector2.glsl" function="mx_ramptb_vector2" language="glsl"/>
+  <implementation name="IM_ramptb__vector3__glsl" nodedef="ND_ramptb__vector3" file="Source/ShaderGen/GLSL/mx_ramptb_vector3.glsl" function="mx_ramptb_vector3" language="glsl"/>
+  <implementation name="IM_ramptb__vector4__glsl" nodedef="ND_ramptb__vector4" file="Source/ShaderGen/GLSL/mx_ramptb_vector4.glsl" function="mx_ramptb_vector4" language="glsl"/>
   <!-- <ramp4> -->
+  <implementation name="IM_ramp4__float__glsl" nodedef="ND_ramp4__float" file="Source/ShaderGen/GLSL/mx_ramp4_float.glsl" function="mx_ramp4_float" language="glsl"/>
+  <implementation name="IM_ramp4__color2__glsl" nodedef="ND_ramp4__color2" file="Source/ShaderGen/GLSL/mx_ramp4_vector2.glsl" function="mx_ramp4_vector2" language="glsl"/>
+  <implementation name="IM_ramp4__color3__glsl" nodedef="ND_ramp4__color3" file="Source/ShaderGen/GLSL/mx_ramp4_vector3.glsl" function="mx_ramp4_vector3" language="glsl"/>
+  <implementation name="IM_ramp4__color4__glsl" nodedef="ND_ramp4__color4" file="Source/ShaderGen/GLSL/mx_ramp4_vector4.glsl" function="mx_ramp4_vector4" language="glsl"/>
+  <implementation name="IM_ramp4__vector2__glsl" nodedef="ND_ramp4__vector2" file="Source/ShaderGen/GLSL/mx_ramp4_vector2.glsl" function="mx_ramp4_vector2" language="glsl"/>
+  <implementation name="IM_ramp4__vector3__glsl" nodedef="ND_ramp4__vector3" file="Source/ShaderGen/GLSL/mx_ramp4_vector3.glsl" function="mx_ramp4_vector3" language="glsl"/>
+  <implementation name="IM_ramp4__vector4__glsl" nodedef="ND_ramp4__vector4" file="Source/ShaderGen/GLSL/mx_ramp4_vector4.glsl" function="mx_ramp4_vector4" language="glsl"/>
+
   <!-- <splitlr> -->
+  <implementation name="IM_splitlr__float__glsl" nodedef="ND_splitlr__float" file="Source/ShaderGen/GLSL/mx_splitlr_float.glsl" function="mx_splitlr_float" language="glsl"/>
+  <implementation name="IM_splitlr__color2__glsl" nodedef="ND_splitlr__color2" file="Source/ShaderGen/GLSL/mx_splitlr_vector2.glsl" function="mx_splitlr_vector2" language="glsl"/>
+  <implementation name="IM_splitlr__color3__glsl" nodedef="ND_splitlr__color3" file="Source/ShaderGen/GLSL/mx_splitlr_vector3.glsl" function="mx_splitlr_vector3" language="glsl"/>
+  <implementation name="IM_splitlr__color4__glsl" nodedef="ND_splitlr__color4" file="Source/ShaderGen/GLSL/mx_splitlr_vector4.glsl" function="mx_splitlr_vector4" language="glsl"/>
+  <implementation name="IM_splitlr__vector2__glsl" nodedef="ND_splitlr__vector2" file="Source/ShaderGen/GLSL/mx_splitlr_vector2.glsl" function="mx_splitlr_vector2" language="glsl"/>
+  <implementation name="IM_splitlr__vector3__glsl" nodedef="ND_splitlr__vector3" file="Source/ShaderGen/GLSL/mx_splitlr_vector3.glsl" function="mx_splitlr_vector3" language="glsl"/>
+  <implementation name="IM_splitlr__vector4__glsl" nodedef="ND_splitlr__vector4" file="Source/ShaderGen/GLSL/mx_splitlr_vector4.glsl" function="mx_splitlr_vector4" language="glsl"/>
+
   <!-- <splittb> -->
+  <implementation name="IM_splittb__float__glsl" nodedef="ND_splittb__float" file="Source/ShaderGen/GLSL/mx_splittb_float.glsl" function="mx_splittb_float" language="glsl"/>
+  <implementation name="IM_splittb__color2__glsl" nodedef="ND_splittb__color2" file="Source/ShaderGen/GLSL/mx_splittb_vector2.glsl" function="mx_splittb_vector2" language="glsl"/>
+  <implementation name="IM_splittb__color3__glsl" nodedef="ND_splittb__color3" file="Source/ShaderGen/GLSL/mx_splittb_vector3.glsl" function="mx_splittb_vector3" language="glsl"/>
+  <implementation name="IM_splittb__color4__glsl" nodedef="ND_splittb__color4" file="Source/ShaderGen/GLSL/mx_splittb_vector4.glsl" function="mx_splittb_vector4" language="glsl"/>
+  <implementation name="IM_splittb__vector2__glsl" nodedef="ND_splittb__vector2" file="Source/ShaderGen/GLSL/mx_splittb_vector2.glsl" function="mx_splittb_vector2" language="glsl"/>
+  <implementation name="IM_splittb__vector3__glsl" nodedef="ND_splittb__vector3" file="Source/ShaderGen/GLSL/mx_splittb_vector3.glsl" function="mx_splittb_vector3" language="glsl"/>
+  <implementation name="IM_splittb__vector4__glsl" nodedef="ND_splittb__vector4" file="Source/ShaderGen/GLSL/mx_splittb_vector4.glsl" function="mx_splittb_vector4" language="glsl"/>
+
   <!-- <noise2d> -->
   <!-- <noise3d> -->
   <!-- <fractal3d> -->
@@ -359,7 +397,13 @@
 
   <!-- <compare> -->
   <!-- <switch> -->
-
+  <implementation name="IM_switch__float__glsl" nodedef="ND_switch__float" file="Source/ShaderGen/GLSL/mx_switch_float.glsl" function="mx_switch_float" language="glsl"/>
+  <implementation name="IM_switch__color2__glsl" nodedef="ND_switch__color2" file="Source/ShaderGen/GLSL/mx_switch_vector2.glsl" function="mx_switch_vector2" language="glsl"/>
+  <implementation name="IM_switch__color3__glsl" nodedef="ND_switch__color3" file="Source/ShaderGen/GLSL/mx_switch_vector3.glsl" function="mx_switch_vector3" language="glsl"/>
+  <implementation name="IM_switch__color4__glsl" nodedef="ND_switch__color4" file="Source/ShaderGen/GLSL/mx_switch_vector4.glsl" function="mx_switch_vector4" language="glsl"/>
+  <implementation name="IM_switch__vector2__glsl" nodedef="ND_switch__vector2" file="Source/ShaderGen/GLSL/mx_switch_vector2.glsl" function="mx_switch_vector2" language="glsl"/>
+  <implementation name="IM_switch__vector3__glsl" nodedef="ND_switch__vector3" file="Source/ShaderGen/GLSL/mx_switch_vector3.glsl" function="mx_switch_vector3" language="glsl"/>
+  <implementation name="IM_switch__vector4__glsl" nodedef="ND_switch__vector4" file="Source/ShaderGen/GLSL/mx_switch_vector4.glsl" function="mx_switch_vector4" language="glsl"/>
 
   <!-- ======================================================================== -->
   <!-- Channel nodes                                                            -->
