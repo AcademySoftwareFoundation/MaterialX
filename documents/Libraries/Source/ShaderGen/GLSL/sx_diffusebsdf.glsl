@@ -1,4 +1,4 @@
-void adskDiffuseBsdf(vec3 reflectance, float roughness, vec3 normal, out vec3 result)
+void sx_diffusebsdf(vec3 reflectance, float roughness, vec3 normal, out vec4 result)
 {
 	const vec3 Lo = -PS_IN.WorldView;
 	vec3 L = vec3(0.0);
@@ -27,5 +27,5 @@ void adskDiffuseBsdf(vec3 reflectance, float roughness, vec3 normal, out vec3 re
 		vec3 LightContribution = LightContributionFunction(ActiveLightIndex, PS_IN.WorldPosition, LightVec);
 		L += LightContribution * (A + B * t) * cosThetaI;
 	}
-	result = L * reflectance; // * (1.0/M_PI);
+	result = vec4(L * reflectance, 1.0);
 }

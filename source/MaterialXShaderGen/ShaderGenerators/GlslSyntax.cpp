@@ -161,8 +161,8 @@ GlslSyntax::GlslSyntax()
         TypeSyntax
         (
             "vec4",
-            "vec4(0.0)",
-            "{0.0, 0.0, 0.0, 0.0}",
+            "vec4(0.0, 0.0, 0.0, 1.0)",
+            "{0.0, 0.0, 0.0, 1.0}",
             "",
             "out vec4"
         )
@@ -200,7 +200,7 @@ GlslSyntax::GlslSyntax()
         TypeSyntax
         (
             "surfaceshader",
-            "surfaceshader(vec4(0.0),vec3(0.0),1.0)",
+            "surfaceshader(vec4(0.0,0.0,0.0,1.0),vec3(0.0),1.0)",
             "",
             "struct surfaceshader { vec4 bsdf; vec3 edf; float ior; };",
             "out vec4"

@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.35">
 
-
-  <!------------------------------------------------------------------------------>
-  <!-- Data types                                                               -->
-  <!------------------------------------------------------------------------------>
-  <typedef name="BSDF"/>
-  <typedef name="EDF"/>
-  <typedef name="VDF"/>
-
-  <!------------------------------------------------------------------------------>
-  <!-- Nodes                                                                    -->
-  <!------------------------------------------------------------------------------>
-
   <!-- <adskSurface> -->
   <nodedef name="ND_adskSurface" node="adskSurface" type="surfaceshader" nodecategory="surfaceshader">
       <input name="base" type="float" value="0.8" />
@@ -55,33 +43,6 @@
       <input name="indirect_diffuse" type="float" value="1" />
       <input name="indirect_specular" type="float" value="1" />
   </nodedef> 
-
-  <!--
-    A constructor node for the surface shader type.
-  -->
-  <nodedef name="ND_adskSurfaceShader" node="adskSurfaceShader" type="surfaceshader" nodecategory="autodesk">
-    <input name="bsdf" type="BSDF"/>
-    <input name="edf" type="EDF"/>
-    <input name="ior" type="float" value="1.0"/>
-  </nodedef>
-
-  <!--
-    Node: <adskDiffuseBsdf>
-    A BSDF node for pure diffuse reflections.
-  -->
-  <nodedef name="ND_adskDiffuseBsdf" node="adskDiffuseBsdf" type="BSDF" nodecategory="autodesk">
-    <input name="reflectance" type="color3" value="0.8, 0.8, 0.8"/>
-    <input name="roughness" type="float" value="1.0"/>
-    <input name="normal" type="vector3"/>
-  </nodedef>
-
-  <!--
-    Node: <adskUniformEdf>
-    An EDF node for uniform emission.
-  -->
-  <nodedef name="ND_adskUniformEdf" node="adskUniformEdf" type="EDF" nodecategory="autodesk">
-    <input name="intensity" type="color3" value="1.0, 1.0, 1.0"/>
-  </nodedef>
 
   <!-- <adskCellNoise2d> -->
   <nodedef name="ND_adskCellNoise2d__float" node="adskCellNoise2d" type="float" nodecategory="autodesk">
