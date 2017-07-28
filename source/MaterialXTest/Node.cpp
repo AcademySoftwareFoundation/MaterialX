@@ -10,6 +10,8 @@
 
 #include <MaterialXFormat/XmlIo.h>
 
+#include <iostream>
+
 namespace mx = MaterialX;
 
 TEST_CASE("Node", "[node]")
@@ -167,17 +169,17 @@ TEST_CASE("Topological sort", "[nodegraph]")
     // Blessed solution to the topological sort
     const std::vector<std::string> blessedElemOrder =
     {
-        "output",
-        "mix",
-        "multiply",
-        "add3",
-        "noise3d",
         "image1",
-        "add1",
-        "add2",
+        "image2",
         "constant1",
         "constant2",
-        "image2"
+        "noise3d",
+        "add1",
+        "add2",
+        "multiply",
+        "add3",
+        "mix",
+        "output"
     };
 
     // Create a topological order and test it agains the blessed solution
@@ -246,8 +248,25 @@ TEST_CASE("New nodegraph from output", "[nodegraph]")
     // Blessed solution to a topological sort for the outputs.
     const std::vector<std::vector<std::string>> blessedElemOrder =
     {
-        { "out1", "mix", "multiply1", "add3", "noise3d", "image1", "add1", "add2", "constant1", "constant2", "image2" },
-        { "out2", "multiply2", "noise3d", "constant3" }
+        {
+            "image1",
+            "constant1",
+            "constant2",
+            "image2",
+            "noise3d",
+            "add1",
+            "add2",
+            "multiply1",
+            "add3",
+            "mix",
+            "out1"
+        },
+        {
+            "noise3d",
+            "constant3",
+            "multiply2",
+            "out2"
+        }
     };
 
     for (size_t i = 0; i < outputs.size(); ++i)
@@ -433,12 +452,12 @@ TEST_CASE("Prune nodes", "[nodegraph]")
     // prunned graph.
     const std::vector<std::string> blessedElemOrder = 
     {
-        "output",
-        "mix",
-        "multiply",
-        "noise3d",
         "image1",
-        "constant1"
+        "constant1",
+        "noise3d",
+        "multiply",
+        "mix",
+        "output",
     };
 
     // Create a topological order and test it agains the blessed solution.

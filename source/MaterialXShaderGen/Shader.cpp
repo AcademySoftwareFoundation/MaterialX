@@ -218,7 +218,6 @@ void Shader::initialize(ElementPtr element, const string& language, const string
 
     // Create a topological ordering of the nodes
     vector<ElementPtr> topologicalOrder = _nodeGraph->topologicalSort();
-    std::reverse(topologicalOrder.begin(), topologicalOrder.end());
 
     // Create an SgNode for each node, holding cached data for shader generation
     for (ElementPtr elem : topologicalOrder)
