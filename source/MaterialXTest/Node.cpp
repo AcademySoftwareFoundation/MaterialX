@@ -10,8 +10,6 @@
 
 #include <MaterialXFormat/XmlIo.h>
 
-#include <iostream>
-
 namespace mx = MaterialX;
 
 TEST_CASE("Node", "[node]")
