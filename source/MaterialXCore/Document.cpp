@@ -27,16 +27,13 @@ const string Document::REQUIRE_STRING_OVERRIDE = "override";
 
 namespace {
 
-template<class T> shared_ptr<T> replaceChild(ElementPtr parent, ElementPtr origChild, string newChildName = EMPTY_STRING)
+template<class T> shared_ptr<T> updateChildSubclass(ElementPtr parent, ElementPtr origChild)
 {
-    if (newChildName.empty())
-    {
-        newChildName = origChild->getName();
-    }
-    int origIndex = parent->getChildIndex(origChild->getName());
-    parent->removeChild(origChild->getName());
-    shared_ptr<T> newChild = parent->addChild<T>(newChildName);
-    parent->setChildIndex(newChildName, origIndex);
+    string childName = origChild->getName();
+    int childIndex = parent->getChildIndex(childName);
+    parent->removeChild(childName);
+    shared_ptr<T> newChild = parent->addChild<T>(childName);
+    parent->setChildIndex(childName, childIndex);
     newChild->copyContentFrom(origChild);
     return newChild;
 }
@@ -378,7 +375,7 @@ void Document::upgradeVersion()
             {
                 if (child->getCategory() == "assign")
                 {
-                    replaceChild<MaterialAssign>(elem, child);
+                    updateChildSubclass<MaterialAssign>(elem, child);
                 }
             }
         }
@@ -430,11 +427,11 @@ void Document::upgradeVersion()
             {
                 if (child->getCategory() == "opgraph")
                 {
-                    replaceChild<NodeGraph>(elem, child);
+                    updateChildSubclass<NodeGraph>(elem, child);
                 }
                 else if (child->getCategory() == "shader")
                 {
-                    NodeDefPtr nodeDef = replaceChild<NodeDef>(elem, child);
+                    NodeDefPtr nodeDef = updateChildSubclass<NodeDef>(elem, child);
                     if (nodeDef->hasAttribute("shadertype"))
                     {
                         nodeDef->setType(nodeDef->getAttribute("shadertype") + "shader");
@@ -453,7 +450,7 @@ void Document::upgradeVersion()
                     {
                         if (elem->isA<Node>())
                         {
-                            InputPtr input = replaceChild<Input>(elem, param);
+                            InputPtr input = updateChildSubclass<Input>(elem, param);
                             input->setNodeName(input->getAttribute("value"));
                             input->removeAttribute("value");
                             if (input->getConnectedNode())
@@ -478,39 +475,40 @@ void Document::upgradeVersion()
             }
         }
 
-        // Assign node names to shaderrefs.
-        for (ElementPtr elem : traverseTree())
+        // Assign nodedef names to shaderrefs.
+        for (MaterialPtr mat : getMaterials())
         {
-            if (elem->isA<Material>())
+            for (ShaderRefPtr shaderRef : mat->getShaderRefs())
             {
-                MaterialPtr mat = elem->asA<Material>();
-                for (ShaderRefPtr shaderRef : mat->getShaderRefs())
+                if (!shaderRef->getReferencedShaderDef())
                 {
                     NodeDefPtr nodeDef = getNodeDef(shaderRef->getName());
-                    if (nodeDef && !nodeDef->getNode().empty())
+                    if (nodeDef)
                     {
-                        replaceChild<ShaderRef>(mat, shaderRef, nodeDef->getNode());
+                        shaderRef->setNodeDef(nodeDef->getName());
                     }
                 }
             }
         }
 
-        // Move connections from inputs to bindinputs.
-        for (ElementPtr elem : traverseTree())
+        // Move connections from nodedef inputs to bindinputs.
+        for (NodeDefPtr nodeDef : getNodeDefs())
         {
-            if (elem->isA<Input>() && elem->getParent() && elem->getParent()->isA<NodeDef>())
+            for (InputPtr input : nodeDef->getInputs())
             {
-                InputPtr input = elem->asA<Input>();
-                NodeDefPtr nodeDef = elem->getParent()->asA<NodeDef>();
                 if (input->hasAttribute("opgraph") && input->hasAttribute("graphoutput"))
                 {
                     for (MaterialPtr mat : getMaterials())
                     {
-                        for (ShaderRefPtr ref : mat->getShaderRefs())
+                        for (ShaderRefPtr shaderRef : mat->getShaderRefs())
                         {
-                            if (ref->getName() == nodeDef->getNode())
+                            if (nodeDef == shaderRef->getReferencedShaderDef())
                             {
-                                BindInputPtr bind = ref->addBindInput(input->getName(), input->getType());
+                                if (shaderRef->getChild(input->getName()))
+                                {
+                                    shaderRef = shaderRef;
+                                }
+                                BindInputPtr bind = shaderRef->addBindInput(input->getName(), input->getType());
                                 bind->setNodeGraphString(input->getAttribute("opgraph"));
                                 bind->setOutputString(input->getAttribute("graphoutput"));
                             }
@@ -518,18 +516,6 @@ void Document::upgradeVersion()
                     }
                     input->removeAttribute("opgraph");
                     input->removeAttribute("graphoutput");
-                }
-            }
-            else if (elem->isA<Material>())
-            {
-                MaterialPtr mat = elem->asA<Material>();
-                for (ShaderRefPtr shaderRef : mat->getShaderRefs())
-                {
-                    NodeDefPtr nodeDef = getNodeDef(shaderRef->getName());
-                    if (nodeDef && !nodeDef->getNode().empty())
-                    {
-                        replaceChild<ShaderRef>(mat, shaderRef, nodeDef->getNode());
-                    }
                 }
             }
         }
@@ -544,7 +530,6 @@ void Document::upgradeVersion()
         {
             TypedElementPtr typedElem = elem->asA<TypedElement>();
             ValueElementPtr valueElem = elem->asA<ValueElement>();
-            ShaderRefPtr shaderRef = elem->asA<ShaderRef>();
             MaterialAssignPtr matAssign = elem->asA<MaterialAssign>();
             if (typedElem && typedElem->getType() == "matrix")
             {
@@ -554,10 +539,6 @@ void Document::upgradeVersion()
             {
                 valueElem->setValueString(elem->getAttribute("default"));
                 valueElem->removeAttribute("default");
-            }
-            if (shaderRef)
-            {
-                shaderRef->setNode(shaderRef->getName());
             }
             if (matAssign)
             {

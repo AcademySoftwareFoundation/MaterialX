@@ -67,29 +67,4 @@ TEST_CASE("Document", "[document]")
 
     // Validate the document.
     REQUIRE(doc->validate());
-
-    // Copy and reorder the document.
-    mx::DocumentPtr doc2 = doc->copy();
-    REQUIRE(*doc2 == *doc);
-    int origIndex = doc2->getChildIndex(shader->getName());
-    doc2->setChildIndex(shader->getName(), origIndex + 1);
-    REQUIRE(*doc2 != *doc);
-    doc2->setChildIndex(shader->getName(), origIndex);
-    REQUIRE(*doc2 == *doc);
-    REQUIRE_THROWS_AS(doc2->setChildIndex(shader->getName(), 100), mx::Exception);
-
-    // Create and test an orphaned element.
-    mx::ElementPtr orphan;
-    {
-        mx::DocumentPtr doc3 = doc->copy();
-        for (mx::ElementPtr elem : doc3->traverseTree())
-        {
-            if (elem->isA<mx::Node>("constant"))
-            {
-                orphan = elem;
-            }
-        }
-        REQUIRE(orphan);
-    }
-    REQUIRE_THROWS_AS(orphan->getDocument(), mx::ExceptionOrphanedElement);    
 }

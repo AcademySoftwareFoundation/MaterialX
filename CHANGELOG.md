@@ -1,5 +1,14 @@
 # Change Log
 
+## [1.35.3] - Development
+
+### Added
+- Added method Element\:\:setName.
+
+### Fixed
+- Fixed handling of empty names in Element\:\:addChildOfCategory.
+- Fixed an edge case in Document\:\:upgradeVersion.
+
 ## [1.35.2] - 2017-07-03
 
 ### Added

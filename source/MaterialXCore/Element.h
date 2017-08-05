@@ -94,9 +94,13 @@ class Element : public enable_shared_from_this<Element>
     /// @name Name
     /// @{
 
-    /// Return the element's name string.  The name of a MaterialX element
-    /// must be unique among all elements at the same scope, and cannot be
-    /// modified after the element is created.
+    /// Set the element's name string.  The name of a MaterialX element must be
+    /// unique among all elements at the same scope.
+    /// @throws Exception if an element at the same scope already possesses the
+    ///    given name.
+    void setName(const string& name);
+
+    /// Return the element's name string.
     /// @todo The MaterialX notion of namespaces is not yet supported.
     const string& getName() const
     {
@@ -248,6 +252,8 @@ class Element : public enable_shared_from_this<Element>
     /// @param name The name of the new child element.
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
+    /// @throws Exception if a child of this element already possesses the
+    ///    given name.
     /// @return A shared pointer to the new child element.
     template<class T> shared_ptr<T> addChild(const string& name = EMPTY_STRING);
 
@@ -258,6 +264,8 @@ class Element : public enable_shared_from_this<Element>
     /// @param name The name of the new child element.
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
+    /// @throws Exception if a child of this element already possesses the
+    ///    given name.
     /// @return A shared pointer to the new child element.
     ElementPtr addChildOfCategory(const string& category,
                                   const string& name = EMPTY_STRING);
@@ -579,6 +587,7 @@ class Element : public enable_shared_from_this<Element>
     void validateRequire(bool expression, bool& res, string* message, string errorDesc) const;
 
   public:
+    static const string NAME_ATTRIBUTE;
     static const string TYPE_ATTRIBUTE;
     static const string FILE_PREFIX_ATTRIBUTE;
     static const string GEOM_PREFIX_ATTRIBUTE;
