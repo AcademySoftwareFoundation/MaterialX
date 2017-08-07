@@ -15,6 +15,7 @@
 namespace MaterialX
 {
 
+const string Element::NAME_ATTRIBUTE = "name";
 const string Element::TYPE_ATTRIBUTE = "type";
 const string Element::FILE_PREFIX_ATTRIBUTE = "fileprefix";
 const string Element::GEOM_PREFIX_ATTRIBUTE = "geomprefix";
@@ -64,6 +65,27 @@ bool Element::operator==(const Element& rhs) const
 bool Element::operator!=(const Element& rhs) const
 {
     return !(*this == rhs);
+}
+
+void Element::setName(const string& name)
+{
+    DocumentPtr doc = getDocument();
+    ElementPtr parent = getParent();
+    if (parent && parent->_childMap.count(name) && name != getName())
+    {
+        throw Exception("Element name is not unique at the given scope: " + name);
+    }
+
+    // Handle change notifications.
+    ScopedUpdate update(doc);
+    doc->onSetAttribute(getSelf(), NAME_ATTRIBUTE, name);
+
+    if (parent)
+    {
+        parent->_childMap.erase(getName());
+        parent->_childMap[name] = getSelf();
+    }
+    _name = name;
 }
 
 string Element::getNamePath(ConstElementPtr relativeTo) const
@@ -195,9 +217,15 @@ template<class T> shared_ptr<const T> Element::asA() const
 ElementPtr Element::addChildOfCategory(const string& category,
                                        const string& name)
 {
-    if (_childMap.count(name))
+    string childName = name;
+    if (childName.empty())
     {
-        throw Exception("Child name is not unique: " + name);
+        childName = createValidChildName(category + "1");
+    }
+
+    if (_childMap.count(childName))
+    {
+        throw Exception("Child name is not unique: " + childName);
     }
 
     ElementPtr child;
@@ -206,20 +234,20 @@ ElementPtr Element::addChildOfCategory(const string& category,
     CreatorMap::iterator it = _creatorMap.find(category);
     if (it != _creatorMap.end())
     {
-        child = it->second(getSelf(), name);
+        child = it->second(getSelf(), childName);
     }
 
     // Check for a node within a graph.
     if (!child && getCategory() == NodeGraph::CATEGORY)
     {
-        child = createElement<Node>(getSelf(), name);
+        child = createElement<Node>(getSelf(), childName);
         child->setCategory(category);
     }
 
     // If no match was found, then create a generic element.
     if (!child)
     {
-        child = createElement<GenericElement>(getSelf(), name);
+        child = createElement<GenericElement>(getSelf(), childName);
         child->setCategory(category);
     }
 

@@ -100,7 +100,7 @@ import MaterialX as mx
 
 # Read a document from disk.
 doc = mx.createDocument()
-mx.readFromXmlFile(doc, "ExampleFile.mtlx")
+mx.readFromXmlFile(doc, 'ExampleFile.mtlx')
 
 # Traverse the document tree in depth-first order.
 for elem in doc.traverseTree():
@@ -156,10 +156,10 @@ import MaterialX as mx
 
 # Read a document from disk.
 doc = mx.createDocument()
-mx.readFromXmlFile(doc, "ExampleFile.mtlx")
+mx.readFromXmlFile(doc, 'ExampleFile.mtlx')
 
 # Iterate through materials.
-for material in self.doc.getMaterials():
+for material in doc.getMaterials():
 
     # Iterate through each referenced shader interface.
     for shaderDef in material.getReferencedShaderDefs():

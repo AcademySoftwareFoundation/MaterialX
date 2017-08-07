@@ -34,6 +34,7 @@ void bindPyElement(py::module& mod)
         .def(py::self != py::self)
         .def("setCategory", &mx::Element::setCategory)
         .def("getCategory", &mx::Element::getCategory)
+        .def("setName", &mx::Element::setName)
         .def("getName", &mx::Element::getName)
         .def("getNamePath", &mx::Element::getNamePath,
             py::arg("relativeTo") = mx::ConstElementPtr())

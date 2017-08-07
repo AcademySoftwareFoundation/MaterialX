@@ -23,7 +23,6 @@ namespace MaterialX
 
 namespace {
 
-const string NAME_ATTRIBUTE = "name";
 const string SOURCE_URI_ATTRIBUTE = "__sourceUri";
 const string XINCLUDE_TAG = "xi:include";
 
@@ -36,7 +35,7 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem)
         {
             elem->setSourceUri(xmlAttr.value());
         }
-        else if (xmlAttr.name() != NAME_ATTRIBUTE)
+        else if (xmlAttr.name() != Element::NAME_ATTRIBUTE)
         {
             elem->setAttribute(xmlAttr.name(), xmlAttr.value());
         }
@@ -49,7 +48,7 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem)
         string name;
         for (const xml_attribute& xmlAttr : xmlChild.attributes())
         {
-            if (xmlAttr.name() == NAME_ATTRIBUTE)
+            if (xmlAttr.name() == Element::NAME_ATTRIBUTE)
             {
                 name = xmlAttr.value();
                 break;
@@ -66,7 +65,7 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, bool writeXIncludes, 
     // Store attributes in XML.
     if (!elem->getName().empty())
     {
-        xmlNode.append_attribute(NAME_ATTRIBUTE.c_str()) = elem->getName().c_str();
+        xmlNode.append_attribute(Element::NAME_ATTRIBUTE.c_str()) = elem->getName().c_str();
     }
     for (const string& attrName : elem->getAttributeNames())
     {
