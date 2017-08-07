@@ -252,14 +252,28 @@ vector<ElementPtr> NodeGraph::topologicalSort() const
 
     const vector<ElementPtr>& children = getChildren();
 
-    // Calculate in-degrees for all nodes, and enqueue those with degree 0.
-    std::unordered_map<ElementPtr, size_t> inDegree(children.size());
+    // Calculate in-degrees for all children.
+    std::unordered_map<ElementPtr, int> inDegree(children.size());
     std::deque<ElementPtr> childQueue;
     for (ElementPtr child : children)
     {
-        NodePtr node = child->asA<Node>();
-        inDegree[child] = node ? node->getDownstreamPorts().size() : 0;
-        if (inDegree[child] == 0)
+        int connectionCount = 0;
+        if (child->isA<Output>())
+        {
+            connectionCount += int(!child->asA<Output>()->getNodeName().empty());
+        }
+        else
+        {
+            for (InputPtr input : child->getChildrenOfType<Input>())
+            {
+                connectionCount += int(!input->getNodeName().empty());
+            }
+        }
+
+        inDegree[child] = connectionCount;
+
+        // Enqueue children with in-degree 0.
+        if (connectionCount == 0)
         {
             childQueue.push_back(child);
         }
@@ -277,28 +291,14 @@ vector<ElementPtr> NodeGraph::topologicalSort() const
 
         // Find connected nodes and decrease their in-degree, 
         // adding node to the queue if in-degrees becomes 0.
-        if (child->isA<Output>())
+        if (child->isA<Node>())
         {
-            const ElementPtr connected = child->asA<Output>()->getConnectedNode();
-            if (connected)
+            for (PortElementPtr port : child->asA<Node>()->getDownstreamPorts())
             {
-                if (--inDegree[connected] == 0)
+                const ElementPtr downstreamElem = port->isA<Output>() ? port : port->getParent();
+                if (--inDegree[downstreamElem] <= 0)
                 {
-                    childQueue.push_back(connected);
-                }
-            }
-        }
-        else
-        {
-            for (auto input : child->getChildrenOfType<Input>())
-            {
-                const ElementPtr connected = input->getConnectedNode();
-                if (connected)
-                {
-                    if (--inDegree[connected] == 0)
-                    {
-                        childQueue.push_back(connected);
-                    }
+                    childQueue.push_back(downstreamElem);
                 }
             }
         }
