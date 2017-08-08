@@ -258,16 +258,9 @@ vector<ElementPtr> NodeGraph::topologicalSort() const
     for (ElementPtr child : children)
     {
         int connectionCount = 0;
-        if (child->isA<Output>())
+        for (size_t i = 0; i < child->getUpstreamEdgeCount(); ++i)
         {
-            connectionCount += int(!child->asA<Output>()->getNodeName().empty());
-        }
-        else
-        {
-            for (InputPtr input : child->getChildrenOfType<Input>())
-            {
-                connectionCount += int(!input->getNodeName().empty());
-            }
+            connectionCount += int(child->getUpstreamEdge(MaterialPtr(), i) != NULL_EDGE);
         }
 
         inDegree[child] = connectionCount;
