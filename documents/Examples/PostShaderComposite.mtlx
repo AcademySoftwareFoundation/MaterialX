@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<materialx version="1.35" colorspace="lin_rec709" require="shadernode">
+  <!-- Assume an external file defines nodegraph "shaderparams", with outputs -->
+  <!-- "o_diffcolor1", "o_diffcolor2", "o_speccolor1" and "o_speccolor2". -->
+  <!-- Define external "alSurface" shader -->
+  <nodedef name="alSurfaceDef" type="surfaceshader" node="alSurface">
+    <input name="DiffuseColor" type="color3" value="0.2,0.2,0.2"/>
+    <input name="Specular1Color" type="color3" value="1,1,1"/>
+    <parameter name="Specular1Roughness" type="float" value="0.3"/>
+  </nodedef>
+
+  <nodedef name="twolayersrfdef" type="surfaceshader" node="twoLayerSurface">
+    <input name="diff1" type="color3" value="0.1,0.1,0.1"/>
+    <input name="spec1" type="color3" value="1,1,1"/>
+    <parameter name="roughness1" type="float" value="0.5"/>
+    <input name="diff2" type="color3" value="0.1,0.1,0.1"/>
+    <input name="spec2" type="color3" value="1,1,1"/>
+    <parameter name="roughness2" type="float" value="0.5"/>
+    <input name="mixamt" type="float" value="0"/>
+  </nodedef>
+  <nodegraph name="ng_twolayersrf" nodedef="twolayersrfdef">
+    <alSurface name="als1" type="surfaceshader">
+      <input name="DiffuseColor" type="color3" interfacename="diff1"/>
+      <input name="Specular1Color" type="color3" interfacename="spec1"/>
+      <parameter name="Specular1Roughness" type="float" interfacename="roughness1"/>
+    </alSurface>
+    <alSurface name="als2" type="surfaceshader">
+      <input name="DiffuseColor" type="color3" interfacename="diff2"/>
+      <input name="Specular1Color" type="color3" interfacename="spec2"/>
+      <parameter name="Specular1Roughness" type="float" interfacename="roughness2"/>
+    </alSurface>
+    <mix name="srfmix" type="surfaceshader">
+      <input name="bg" type="surfaceshader" nodename="als1"/>
+      <input name="fg" type="surfaceshader" nodename="als2"/>
+      <input name="mask" type="float" interfacename="mixamt"/>
+    </mix>
+    <output name="o_out" type="surfaceshader" nodename="srfmix"/>
+  </nodegraph>
+
+  <material name="mblended1">
+    <shaderref name="sr6" node="twoLayerSurface">
+      <bindinput name="diff1" type="color3" nodegraph="shaderparams" output="o_diffcolor1"/>
+      <bindinput name="spec1" type="color3" nodegraph="shaderparams" output="o_speccolor1"/>
+      <bindparameter name="roughness1" type="color3" value="0.34"/>
+      <bindinput name="diff2" type="color3" nodegraph="shaderparams" output="o_diffcolor2"/>
+      <bindinput name="spec2" type="color3" nodegraph="shaderparams" output="o_speccolor2"/>
+      <bindparameter name="roughness2" type="color3" value="0.6"/>
+      <bindinput name="mixamt" type="float" nodegraph="shaderparams" output="o_mixamt"/>
+    </shaderref>
+  </material>
+</materialx>
