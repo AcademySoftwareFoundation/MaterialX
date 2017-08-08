@@ -94,8 +94,13 @@ class Element : public enable_shared_from_this<Element>
     /// @name Name
     /// @{
 
-    /// Return the element's name string.  The name of a MaterialX element
-    /// must be unique among all elements at the same scope.
+    /// Set the element's name string.  The name of a MaterialX element must be
+    /// unique among all elements at the same scope.
+    /// @throws Exception if an element at the same scope already possesses the
+    ///    given name.
+    void setName(const string& name);
+
+    /// Return the element's name string.
     /// @todo The MaterialX notion of namespaces is not yet supported.
     const string& getName() const
     {
@@ -108,14 +113,6 @@ class Element : public enable_shared_from_this<Element>
     /// @param relativeTo If a valid ancestor element is specified, then
     ///    the returned path will be relative to this ancestor.
     string getNamePath(ConstElementPtr relativeTo = ConstElementPtr()) const;
-
-    /// Rename the element.
-    /// Note that this will only rename the element, it will not update
-    /// any named references to this element kept on other elements.
-    /// @param name The new name of the element.
-    /// @todo The MaterialX notion of namespaces is not yet supported.
-    /// @todo Implement Document.updateNameReferences(orig, new) to support reference updates.
-    void setName(const string& name);
 
     /// @}
     /// @name File Prefix
@@ -255,6 +252,8 @@ class Element : public enable_shared_from_this<Element>
     /// @param name The name of the new child element.
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
+    /// @throws Exception if a child of this element already possesses the
+    ///    given name.
     /// @return A shared pointer to the new child element.
     template<class T> shared_ptr<T> addChild(const string& name = EMPTY_STRING);
 
@@ -265,6 +264,8 @@ class Element : public enable_shared_from_this<Element>
     /// @param name The name of the new child element.
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
+    /// @throws Exception if a child of this element already possesses the
+    ///    given name.
     /// @return A shared pointer to the new child element.
     ElementPtr addChildOfCategory(const string& category,
                                   const string& name = EMPTY_STRING);

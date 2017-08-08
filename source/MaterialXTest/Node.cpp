@@ -45,10 +45,6 @@ TEST_CASE("Node", "[node]")
     REQUIRE(output1->getUpstreamElement() == constant);
     REQUIRE(output2->getUpstreamElement() == image);
 
-    // Set file prefix.
-    nodeGraph->setFilePrefix("prefix");
-    REQUIRE(image->getActiveFilePrefix() == "prefix");
-
     // Define and reference a custom type.
     doc->addTypeDef("spectrum");
     std::string d65("400.0,82.75,500.0,109.35,600.0,90.01,700.0,71.61,800.0,59.45");

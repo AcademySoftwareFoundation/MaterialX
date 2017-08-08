@@ -61,6 +61,8 @@ function(pybind11_add_module target_name)
   set_target_properties(${target_name} PROPERTIES PREFIX "")
   if(WIN32)
     set_target_properties(${target_name} PROPERTIES SUFFIX ".pyd")
+  elseif(APPLE)
+    set_target_properties(${target_name} PROPERTIES SUFFIX ".so")
   endif()
 
   if(WIN32 OR CYGWIN)
