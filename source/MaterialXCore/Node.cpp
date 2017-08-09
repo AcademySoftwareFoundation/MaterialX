@@ -253,14 +253,17 @@ vector<ElementPtr> NodeGraph::topologicalSort() const
     const vector<ElementPtr>& children = getChildren();
 
     // Calculate in-degrees for all children.
-    std::unordered_map<ElementPtr, int> inDegree(children.size());
+    std::unordered_map<ElementPtr, size_t> inDegree(children.size());
     std::deque<ElementPtr> childQueue;
     for (ElementPtr child : children)
     {
-        int connectionCount = 0;
+        size_t connectionCount = 0;
         for (size_t i = 0; i < child->getUpstreamEdgeCount(); ++i)
         {
-            connectionCount += int(child->getUpstreamEdge(MaterialPtr(), i) != NULL_EDGE);
+            if (child->getUpstreamEdge(MaterialPtr(), i))
+            {
+                connectionCount++;
+            }
         }
 
         inDegree[child] = connectionCount;
@@ -289,8 +292,13 @@ vector<ElementPtr> NodeGraph::topologicalSort() const
             for (PortElementPtr port : child->asA<Node>()->getDownstreamPorts())
             {
                 const ElementPtr downstreamElem = port->isA<Output>() ? port : port->getParent();
-                if (--inDegree[downstreamElem] <= 0)
+                if (inDegree[downstreamElem] > 1)
                 {
+                    inDegree[downstreamElem]--;
+                }
+                else
+                {
+                    inDegree[downstreamElem] = 0;
                     childQueue.push_back(downstreamElem);
                 }
             }
