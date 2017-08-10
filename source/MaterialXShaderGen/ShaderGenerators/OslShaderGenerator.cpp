@@ -1,5 +1,6 @@
 #include <MaterialXShaderGen/ShaderGenerators/OslShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OslSyntax.h>
+#include <MaterialXShaderGen/ShaderGenRegistry.h>
 
 namespace MaterialX
 {
@@ -16,6 +17,7 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
 
     Shader& shader = *shaderPtr;
 
+    emitIncludes(shader);
     emitTypeDefs(shader);
     emitFunctions(shader);
 
@@ -29,6 +31,26 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     shaderPtr->finalize();
 
     return shaderPtr;
+}
+
+void OslShaderGenerator::emitIncludes(Shader& shader)
+{
+    static const vector<string> includeFiles =
+    {
+        "Source/ShaderGen/OSL/color2.h",
+        "Source/ShaderGen/OSL/color4.h",
+        "Source/ShaderGen/OSL/vector2.h",
+        "Source/ShaderGen/OSL/vector4.h",
+        "Source/ShaderGen/OSL/mx_funcs.h"
+    };
+
+    for (const string& file : includeFiles)
+    {
+        FilePath path = ShaderGenRegistry::findSourceCode(file);
+        shader.addLine("#include \"" + path.asString() + "\"", false);
+    }
+
+    shader.newLine();
 }
 
 void OslShaderGenerator::emitShaderBody(Shader &shader)

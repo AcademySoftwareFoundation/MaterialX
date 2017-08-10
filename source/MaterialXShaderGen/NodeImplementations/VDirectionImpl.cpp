@@ -4,14 +4,14 @@
 namespace
 {
     const char* kVDirectionFlipOSL =
-        "void vdirection(vector texcoord, output vector result)\n"
+        "void vdirection(vector2 texcoord, output vector2 result)\n"
         "{\n"
-        "   result[0] = texcoord[0];\n"
-        "   result[1] = 1.0 - texcoord[1];\n"
+        "   result.x = texcoord.x;\n"
+        "   result.y = 1.0 - texcoord.y;\n"
         "}\n";
 
     const char* kVDirectionNoOpOSL =
-        "void vdirection(vector texcoord, output vector result)\n"
+        "void vdirection(vector2 texcoord, output vector2 result)\n"
         "{\n"
         "   result = texcoord;\n"
         "}\n";

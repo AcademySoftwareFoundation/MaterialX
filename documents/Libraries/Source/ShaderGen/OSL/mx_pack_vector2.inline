@@ -1,1 +1,1 @@
-vector({{in1}}, {{in2}}, 0.0)
+vector2({{in1}}, {{in2}})

@@ -86,7 +86,7 @@ TEST_CASE("OslSyntax", "[shadergen]")
     REQUIRE(syntax->getTypeName("vector3") == "vector");
 
     REQUIRE(syntax->getTypeName("BSDF") == "BSDF");
-    REQUIRE(syntax->getOutputTypeName("BSDF") == "output closure color");
+    REQUIRE(syntax->getOutputTypeName("BSDF") == "output BSDF");
 
     std::string dv = syntax->getTypeDefault("float");
     REQUIRE(dv == "0.0");
@@ -121,9 +121,9 @@ TEST_CASE("Swizzling", "[shadergen]")
     std::string var1 = syntax->getSwizzledVariable("foo", "color3", "color3", "bgr");
     REQUIRE(var1 == "color(foo[2], foo[1], foo[0])");
     std::string var2 = syntax->getSwizzledVariable("foo", "color4", "float", "rr01");
-    REQUIRE(var2 == "_color4(foo, foo, 0, 1)");
+    REQUIRE(var2 == "pack(foo, foo, 0, 1)");
     std::string var3 = syntax->getSwizzledVariable("foo", "color2", "vector2", "xy");
-    REQUIRE(var3 == "color(foo[0], foo[1], 0)");
+    REQUIRE(var3 == "color2(foo.x, foo.y)");
 
     // Create a simple test graph
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("foo");

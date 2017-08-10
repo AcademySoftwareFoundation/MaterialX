@@ -1,8 +1,8 @@
-void mx_rotate2d_vector2(vector in, float amount, vector center, out vector result)
+void mx_rotate2d_vector2(vector2 in, float amount, vector2 center, out vector2 result)
 {
     float rotationRadians = radians(amount);
     float sa = sin(rotationRadians);
     float ca = cos(rotationRadians);
-    vector v = in + center;
-    result = vector(ca*v[0] + sa*v[1], -sa*v[0] + ca*v[1], 0.0) - center;
+    vector2 v = in + center;
+    result = vector2(ca*v.x + sa*v.y, -sa*v.x + ca*v.y) - center;
 }

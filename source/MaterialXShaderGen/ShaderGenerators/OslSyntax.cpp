@@ -56,11 +56,11 @@ OslSyntax::OslSyntax()
         kColor2, 
         TypeSyntax
         (
-            "color", 
-            "color(0.0, 0.0, 0.0)", 
-            "color(0.0, 0.0, 0.0)",
+            "color2", 
+            "color2(0.0, 0.0)", 
+            "color2(0.0, 0.0)",
             "",
-            "output color"
+            "output color2"
         )
     );
 
@@ -83,23 +83,9 @@ OslSyntax::OslSyntax()
         TypeSyntax
         (
             "color4",
-            "_color4(0.0, 0.0, 0.0, 0.0)",
-            "{color(0,0,0),0}",
-            "struct color4 { color rgb; float a; };\n"
-            "color4 _color4(float r, float g, float b, float a)\n"
-            "{\n"
-            "    color4 c4;\n"
-            "    c4.rgb = color(r, g, b);\n"
-            "    c4.a = a;\n"
-            "    return c4;\n"
-            "}\n"
-            "color4 _color4(color rgb, float a)\n"
-            "{\n"
-            "    color4 c4;\n"
-            "    c4.rgb = rgb;\n"
-            "    c4.a = a;\n"
-            "    return c4;\n"
-            "}",
+            "color4(color(0,0,0), 0.0)",
+            "color4(color(0,0,0), 0.0)",
+            "",
             "output color4"
         )
     );
@@ -109,11 +95,11 @@ OslSyntax::OslSyntax()
         kVector2, 
         TypeSyntax
         (
-            "vector", 
-            "vector(0.0, 0.0, 0.0)", 
-            "vector(0.0, 0.0, 0.0)",
+            "vector2", 
+            "vector2(0.0, 0.0)", 
+            "vector2(0.0, 0.0)",
             "",
-            "output vector"
+            "output vector2"
         )
     );
 
@@ -136,23 +122,9 @@ OslSyntax::OslSyntax()
         TypeSyntax
         (
             "vector4", 
-            "_vector4(0.0, 0.0, 0.0, 0.0)", 
-            "{vector(0,0,0),0}",
-            "struct vector4 { vector xyz; float w; };\n"
-            "vector4 _vector4(float x, float y, float z, float w)\n"
-            "{\n"
-            "    vector4 v4;\n"
-            "    v4.xyz = vector(x, y, z);\n"
-            "    v4.w = w;\n"
-            "    return v4;\n"
-            "}\n"
-            "vector4 _vector4(vector xyz, float w)\n"
-            "{\n"
-            "    vector4 v4;\n"
-            "    v4.xyz = xyz;\n"
-            "    v4.w = w;\n"
-            "    return v4;\n"
-            "}",
+            "vector4(0.0, 0.0, 0.0, 0.0)",
+            "vector4(0.0, 0.0, 0.0, 0.0)",
+            "",
             "output vector4"
         )
     );
@@ -179,7 +151,7 @@ OslSyntax::OslSyntax()
             "\"\"", 
             "\"\"",
             "",
-            "string"
+            "output string"
         )
     );
 
@@ -192,7 +164,7 @@ OslSyntax::OslSyntax()
             "null_closure", 
             "0",
             "#define BSDF closure color",
-            "output closure color"
+            "output BSDF"
         )
     );
 
@@ -205,7 +177,7 @@ OslSyntax::OslSyntax()
             "null_closure", 
             "0",
             "#define EDF closure color",
-            "output closure color"
+            "output EDF"
         )
     );
 
@@ -218,7 +190,7 @@ OslSyntax::OslSyntax()
             "null_closure", 
             "0",
             "#define VDF closure color",
-            "output closure color"
+            "output VDF"
         )
     );
 
@@ -231,7 +203,7 @@ OslSyntax::OslSyntax()
             "{0,0,0}", 
             "0",
             "struct surfaceshader { BSDF bsdf; EDF edf; float ior; };",
-            "output closure color" 
+            "output surfaceshader" 
         )
     );
 
@@ -244,7 +216,7 @@ OslSyntax::OslSyntax()
             "{0,0,0}", 
             "0",
             "struct volumeshader { VDF vdf; EDF  edf; color absorption; };",
-            "output closure color" 
+            "output volumeshader" 
         )
     );
 
@@ -257,7 +229,7 @@ OslSyntax::OslSyntax()
             "{0,0}", 
             "0",
             "struct displacementshader { vector offset; float scale; };",
-            "output vector"
+            "output displacementshader"
         )
     );
 
@@ -269,9 +241,9 @@ OslSyntax::OslSyntax()
     addValueConstructSyntax(
         kColor2, 
         ValueConstructSyntax(
-            "color(", ", 0)", // Value constructor syntax
-            "color(", ", 0)", // Value constructor syntax in a shader param initialization context
-            {"[0]", "[1]"}    // Syntax for each vector component
+            "color2(", ")", // Value constructor syntax
+            "color2(", ")", // Value constructor syntax in a shader param initialization context
+            {".r", ".a"}    // Syntax for each vector component
         )
     );
 
@@ -291,8 +263,8 @@ OslSyntax::OslSyntax()
         kColor4,
         ValueConstructSyntax
         (
-            "_color4(", ")",
-            "_color4(", ")",
+            "pack(", ")",
+            "pack(", ")",
             {".rgb[0]", ".rgb[1]", ".rgb[2]", ".a"}
         )
     );
@@ -301,9 +273,9 @@ OslSyntax::OslSyntax()
         kVector2, 
         ValueConstructSyntax
         (
-            "vector(", ", 0)",
-            "vector(", ", 0)",
-            {"[0]", "[1]"}
+            "vector2(", ")",
+            "vector2(", ")",
+            {".x", ".y"}
         )
     );
 
@@ -323,9 +295,9 @@ OslSyntax::OslSyntax()
         kVector4, 
         ValueConstructSyntax
         (
-            "_vector4(", ")",
-            "_vector4(", ")",
-            {".xyz[0]", ".xyz[1]", ".xyz[2]", ".w"}
+            "pack(", ")",
+            "pack(", ")",
+            {".x", ".y", ".z", ".w"}
         )
     );
 

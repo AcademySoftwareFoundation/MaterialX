@@ -1,1 +1,1 @@
-_color4({{in1}}, {{in2}}, {{in3}}, {{in4}})
+color4(color({{in1}}, {{in2}}, {{in3}}), {{in4}})

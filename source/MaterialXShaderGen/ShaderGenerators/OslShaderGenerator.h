@@ -25,7 +25,10 @@ protected:
     /// Protected constructor.
     OslShaderGenerator();
 
-    /// Emit the shader signature with inputs and outputs
+    /// Emit include headers needed by the generated shader code.
+    void emitIncludes(Shader& shader);
+
+    /// Emit the shader signature with inputs and outputs.
     void emitShaderSignature(Shader &shader);
 };
 
