@@ -6,11 +6,11 @@
 
 #include "mx_funcs.h"
 
-shader mx_mult_surfaceshader_color
+shader mx_mult_surfaceshader_float
     [[ string help = "multiply surfaceshader closures" ]]
   (
     closure color in1 = 0,
-    color in2 = 1,
+    float in2 = 1,
     output closure color out = 0
   )
 {

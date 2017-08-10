@@ -6,11 +6,11 @@
 
 #include "mx_funcs.h"
 
-shader mx_dotproduct_vector
-    [[ string help = "Vector"" Perform a dot product of two 2-4 channel vectors" ]]
+shader mx_dotproduct_vector2
+    [[ string help = "Vector2"" Perform a dot product of two 2-4 channel vectors" ]]
   (
-    vector in1 = 0,
-    vector in2 = 0,
+    vector2 in1 = {0,0},
+    vector2 in2 = {0,0},
     output float out = 0
   )
 {

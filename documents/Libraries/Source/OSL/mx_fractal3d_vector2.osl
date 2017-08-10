@@ -6,14 +6,14 @@
 
 #include "mx_funcs.h"
 
-shader mx_fractal3d_float
+shader mx_fractal3d_vector2
     [[ string help = "3D fractal noise"  ]]
   (
     point position = transform ("object", P)
         [[  string help = "input coordinate position (default: object space P)",
             int lockgeom = 0 ]],
 
-    float amplitude = 1
+    vector2 amplitude = {1,1}
         [[  string help = "center-to-peak amplitude of the noise" ]],
 
     int octaves = 3
@@ -28,9 +28,9 @@ shader mx_fractal3d_float
     string noisetype = "snoise"
         [[  string help = "type of noise" ]],
 
-    output float out = 0
+    output vector2 out = {0,0}
   )
 {
-    float f = fBm(position, octaves, lacunarity, diminish, noisetype);
+    vector2 f = fBm(position, octaves, lacunarity, diminish, noisetype);
     out = f * amplitude;
 }

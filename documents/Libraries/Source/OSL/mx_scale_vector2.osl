@@ -6,13 +6,13 @@
 
 #include "mx_funcs.h"
 
-shader mx_scale_vector
-    [[ string help = "Vector"" Scales a vector2 or vector3 value about a center point in 2D or 3D pattern space." ]]
+shader mx_scale_vector2
+    [[ string help = "Vector2"" Scales a vector2 or vector3 value about a center point in 2D or 3D pattern space." ]]
   (
-    vector in = 0,
-    vector amount = 1,
-    vector center = 0.5, 
-    output vector out = 0
+    vector2 in = {0,0},
+    vector2 amount = {1,1},
+    vector2 center = {0.5,0.5}, 
+    output vector2 out = {0,0}
   )
 {
     out = ((in - center) / amount) + center;

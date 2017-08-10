@@ -6,13 +6,13 @@
 
 #include "mx_funcs.h"
 
-shader mx_inside_float
-    [[ string help = "Float"" Take one 1-4 channel input in plus a separate float mask input and apply the same \
+shader mx_inside_color
+    [[ string help = "Color"" Take one 1-4 channel input in plus a separate float mask input and apply the same \
                      operator to all channels: in * mask" ]]
   (
-    float in = 0,
+    color in = 0,
     float mask = 1,
-    output float out = 0
+    output color out = 0
   )
 {
     out = in * mask; 

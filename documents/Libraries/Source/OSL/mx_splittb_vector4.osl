@@ -6,13 +6,13 @@
 
 #include "mx_funcs.h"
 
-shader mx_splittb_float
+shader mx_splittb_vector4
     [[ string help = "split top/bottom"  ]]
   (
-    float valuet = 0
+    vector4 valuet = {0,0,0,0}
         [[  string help = "value on the top"  ]],
 
-    float valueb = 1
+    vector4 valueb = {1,1,1,1}
         [[  string help = "value on the bottom"  ]],
 
     float center = 0.5
@@ -22,7 +22,7 @@ shader mx_splittb_float
         [[  string help = "input coordinate position",
             int lockgeom = 0 ]],
 
-    output float out = 0
+    output vector4 out = {0,0,0,0}
   )
 {
     out = mix(valuet, valueb, aastep (center, texcoord.y));

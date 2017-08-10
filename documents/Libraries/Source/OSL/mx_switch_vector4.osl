@@ -6,16 +6,16 @@
 
 #include "mx_funcs.h"
 
-shader mx_switch_float
+shader mx_switch_vector4
     [[ string help = "Pass on the value of one of five input streams, according to the value of a selector parameter." ]]
   (
-    float in1 = 0,
-    float in2 = 0,
-    float in3 = 0,
-    float in4 = 0,
-    float in5 = 0,
+    vector4 in1 = {0,0,0,0},
+    vector4 in2 = {0,0,0,0},
+    vector4 in3 = {0,0,0,0},
+    vector4 in4 = {0,0,0,0},
+    vector4 in5 = {0,0,0,0},
     float which = 1,
-    output float out = 0
+    output vector4 out = {0,0,0,0}
   )
 {
     int selection = int(clamp(floor(which), 1, 5));

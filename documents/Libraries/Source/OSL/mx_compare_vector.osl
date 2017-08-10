@@ -6,16 +6,16 @@
 
 #include "mx_funcs.h"
 
-shader mx_compare_float
+shader mx_compare_vector
     [[ string help = "Test the value of an incoming float selector stream against a specified cutoff value, \
                       then pass the value of one of two other incoming streams depending on whether the selector stream \
                       value is greater than the fixed cutoff value." ]]
   (
     float intest = 0.0,
-    float in1 = 1,
-    float in2 = 0,
+    vector in1 = 1,
+    vector in2 = 0,
     float cutoff = 0.0,
-    output float out = 0
+    output vector out = 0
   )
 {
     if (intest > cutoff) {

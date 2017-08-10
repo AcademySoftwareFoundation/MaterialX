@@ -7,18 +7,18 @@
 #include "mx_funcs.h"
 
 
-shader mx_swizzle_color2_float
+shader mx_swizzle_color2_color4
     [[ string help = "Perform an arbitrary permutation of the channels of the input stream" ]]
   (
     color2 in = {0,0},
     string channels = "ra",
-    output float out = 0
+    output color4 out = {color(0,0,0), 0}
   )
 {
     float inF[4];
     inF[0] = in.r;
     inF[1] = in.a;
 
-    out = swizzle_float(inF, channels);
+    out = swizzle_color4(inF, channels);
 }
 

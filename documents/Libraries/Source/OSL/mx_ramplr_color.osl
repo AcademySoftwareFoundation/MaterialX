@@ -6,20 +6,20 @@
 
 #include "mx_funcs.h"
 
-shader mx_ramplr_float
+shader mx_ramplr_color
     [[ string help = "linear value ramp source, left to right" ]]
   (
-    float valuel = 0
+    color valuel = 0
         [[  string help = "value at the left (s=0) edge"  ]],
 
-    float valuer = 1
+    color valuer = 1
         [[  string help = "value at the right (s=1) edge"  ]],
 
     vector2 texcoord = { u, v }
         [[  string help = "input coordinate position",
             int lockgeom = 0 ]],
             
-    output float out = 0
+    output color out = 0
   )
 {
     out = mix (valuel, valuer, clamp(texcoord.x, 0, 1) );

@@ -6,12 +6,12 @@
 
 #include "mx_funcs.h"
 
-shader mx_max_float
-    [[ string help = "Float""  Select the maximum among incoming values." ]]
+shader mx_max_vector2
+    [[ string help = "Vector2""  Select the maximum among incoming values." ]]
   (
-    float in1 = 0,
-    float in2 = 0,
-    output float out = 0
+    vector2 in1 = {0,0},
+    vector2 in2 = {0,0},
+    output vector2 out = {0,0}
   )
 {
     out = max(in1, in2); 

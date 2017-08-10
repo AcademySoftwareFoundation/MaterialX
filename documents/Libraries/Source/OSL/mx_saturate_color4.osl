@@ -22,13 +22,13 @@ color4 saturate (color4 in, color lumacoeffs)
 
 
 
-shader mx_saturate_color
+shader mx_saturate_color4
     [[ string help = "Adjust the saturation of a color; the alpha channel will be unchanged if present." ]]
   (
-    color in = 0,
+    color4 in = {color(0,0,0), 0},
     float amount = 1,
     color lumacoeffs = color(0.272287, 0.6740818, 0.0536895),
-    output color out = 0
+    output color4 out = {color(0,0,0), 0}
   )
 {
     out = mix (saturate (in, lumacoeffs), in, amount);

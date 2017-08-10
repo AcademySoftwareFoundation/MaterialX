@@ -6,11 +6,11 @@
 
 #include "mx_funcs.h"
 
-shader mx_dot_float
-    [[ string help = "Float"" no-op " ]]
+shader mx_dot_bool
+    [[ string help = "bool"" no-op " ]]
   (
-    float in = 0,
-    output float out = 0
+    int in = 0,
+    output int out = 0
   )
 {
     out = in; 

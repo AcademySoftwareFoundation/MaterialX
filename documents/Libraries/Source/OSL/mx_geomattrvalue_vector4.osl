@@ -6,11 +6,11 @@
 
 #include "mx_funcs.h"
 
-shader mx_geomattrvalue_float
+shader mx_geomattrvalue_vector4
     [[ string help = "The value assigned to the current geometry through the specified geomattr name" ]]
   (
     string attrname = "",
-    output float out = 0
+    output vector4 out = {0,0,0,0}
   )
 {
     getattribute(attrname, out);

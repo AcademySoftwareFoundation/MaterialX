@@ -6,7 +6,7 @@
 
 #include "mx_funcs.h"
 
-shader mx_image_float
+shader mx_image_color
     [[ string help = "Texture lookup" ]]
 (
     string file = ""
@@ -17,7 +17,7 @@ shader mx_image_float
         [[  string help = "Subimage in texture file",
             string widget = "filename" ]],
 
-    float default_value = 0
+    color default_value = 0
         [[  string help = "Default value" ]],
 
     vector2 texcoord = {u, v}
@@ -36,7 +36,7 @@ shader mx_image_float
 
     string frameendaction = "black",
 
-     output float out = 0
+     output color out = 0
         [[  string help = "Output color" ]]
   )
 {

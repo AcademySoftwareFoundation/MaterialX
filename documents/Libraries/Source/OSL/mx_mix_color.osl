@@ -6,13 +6,13 @@
 
 #include "mx_funcs.h"
 
-shader mx_mix_float
-    [[ string help = "Float"" Mix two inputs according to an input mask or a constant amount." ]]
+shader mx_mix_color
+    [[ string help = "Color"" Mix two inputs according to an input mask or a constant amount." ]]
   (
-    float fg = 0,
-    float bg = 0,
+    color fg = 0,
+    color bg = 0,
     float mask = 0.0,
-    output float out = 0
+    output color out = 0
   )
 {
     out = mix(bg, fg, mask); 

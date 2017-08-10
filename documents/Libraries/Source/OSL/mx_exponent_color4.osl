@@ -6,12 +6,12 @@
 
 #include "mx_funcs.h"
 
-shader mx_exponent_float
-    [[ string help = "Float"" Raise incoming float/color/vector values to the in2 exponent value/stream" ]]
+shader mx_exponent_color4
+    [[ string help = "Color4"" Raise incoming float/color/vector values to the in2 exponent value/stream" ]]
   (
-    float in1 = 0,
-    float in2 = 1,
-    output float out = 0
+    color4 in1 = {color(0,0,0), 0},
+    color4 in2 = {color(1,1,1), 1},
+    output color4 out = {color(0,0,0), 0}
   )
 {
     out = pow(in1, in2);

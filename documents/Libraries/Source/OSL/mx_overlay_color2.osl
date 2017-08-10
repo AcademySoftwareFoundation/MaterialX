@@ -33,12 +33,12 @@ color4 overlay(color4 fg, color4 bg)
 
 
 
-shader mx_overlay_float
-    [[ string help = "Float"" overlay composite operator" ]]
+shader mx_overlay_color2
+    [[ string help = "Color2"" overlay composite operator" ]]
   (
-    float fg = 0,
-    float bg = 0,
-    output float out = 0
+    color2 fg = {0,0},
+    color2 bg = {0,0},
+    output color2 out = {0,0}
   )
 {
     out = overlay(fg, bg); 
