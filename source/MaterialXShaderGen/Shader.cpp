@@ -219,12 +219,14 @@ void Shader::initialize(ElementPtr element, const string& language, const string
     // Create a topological ordering of the nodes
     vector<ElementPtr> topologicalOrder = _nodeGraph->topologicalSort();
 
-    // Create an SgNode for each node, holding cached data for shader generation
+    // Create an SgNode for each node, holding cached data needed for shader generation
     for (ElementPtr elem : topologicalOrder)
     {
         if (elem->isA<Node>())
         {
-            _nodes.push_back(SgNode(elem->asA<Node>(), language, target));
+            NodePtr node = elem->asA<Node>();
+            _nodeToSgNodeIndex[node] = _nodes.size();
+            _nodes.push_back(SgNode(node, language, target));
         }
     }
 
@@ -233,8 +235,9 @@ void Shader::initialize(ElementPtr element, const string& language, const string
     const string& vdir = element->getRoot()->getAttribute("vdirection");
     _vdirection = vdir == "down" ? VDirection::DOWN : VDirection::UP;;
 
-#if 0
-
+    // TODO: Add back the support for creating shader uniforms from the graph inputs
+    //       This has not been merged over from the old ShaderX repo yet 
+/*
     for (size_t i = 0; i < _graph->numInputs(); ++i)
     {
         const Input* input = _graph->getInput(i);
@@ -244,83 +247,66 @@ void Shader::initialize(ElementPtr element, const string& language, const string
             _finalShaderInputs.push_back(std::make_pair(inputName.str(), input->asShared<const Input>()));
         }
     }
+*/
 
-    if (_graph->numChildren() > 0)
+    //
+    // Calculate scopes for all nodes, considering branching from conditional nodes
+    //
+
+    size_t lastNodeIndex = _nodes.size() - 1;
+    SgNode& lastNode = _nodes[lastNodeIndex];
+    lastNode.getScopeInfo().type = SgNode::ScopeInfo::Type::GLOBAL;
+
+    StringSet nodeUsed;
+    nodeUsed.insert(lastNode.getName());
+
+    // Iterate nodes in reversed toplogical order such that every node is visited AFTER 
+    // each of the nodes that depend on it have been processed first.
+    for (int nodeIndex = int(lastNodeIndex); nodeIndex >= 0; --nodeIndex)
     {
-        // Find the topological order of the nodes
-        NodeTraversalCallback callback = std::bind(nodeGetterCallback, std::placeholders::_1, std::ref(_topologicalOrder));
-        _graph->getOutput()->traverseTopologic(callback, true);
-        if (_topologicalOrder.empty())
+        SgNode& node = _nodes[nodeIndex];
+
+        // Once we visit a node the scopeInfo has been determined and it will not be changed
+        // By then we have visited all the nodes that depend on it already
+        if (nodeUsed.count(node.getName()) == 0)
         {
-            throw CodeGenerationError("Code generation: Graph output '" + output->getFullName() + "' holds an empty graph ");
+            continue;
         }
 
-        //
-        // Calculate scopes for all nodes, considering branching from conditional nodes
-        //
+        const bool isIfElse = node.getNode().getCategory() == "compare";
+        const bool isSwitch = node.getNode().getCategory() == "switch";
 
-        // Fill the map with empty scope info's
-        for (auto node : _topologicalOrder)
+        const SgNode::ScopeInfo& currentScopeInfo = node.getScopeInfo();
+
+        const vector<InputPtr> inputs = node.getNode().getInputs();
+
+        for (size_t inputIndex = 0; inputIndex < inputs.size(); ++inputIndex)
         {
-            _scopeInfo[node->getName()] = ScopeInfo();
-        }
-
-        size_t lastNode = _topologicalOrder.size() - 1;
-        const Node* node = _topologicalOrder[lastNode];
-        _scopeInfo[node->getName()].type = ScopeInfo::Type::GLOBAL;
-
-        UStringSet nodeUsed;
-        nodeUsed.insert(node->getName());
-
-        // Iterate nodes in reversed toplogical order such that every node is visited AFTER each of the nodes that depend on it have been processed first
-        for (int nodeIndex = int(lastNode); nodeIndex >= 0; --nodeIndex)
-        {
-            node = _topologicalOrder[nodeIndex];
-            const NodeClass* nodeClass = node->getNodeClass();
-
-            // Once we visit a node the scopeInfo has been determined and it will not be changed
-            // By then we have visited all the nodes that depend on it already
-            if (!nodeClass || nodeUsed.find(node->getName()) == nodeUsed.end())
+            const InputPtr input = inputs[inputIndex];
+            const NodePtr upstreamNode = input->getConnectedNode();
+            if (upstreamNode)
             {
-                continue;
-            }
-
-            const bool isIfElse = nodeClass->isSet(NodeClassFlag::IFELSE_CONDITIONAL);
-            const bool isSwitch = nodeClass->isSet(NodeClassFlag::SWITCH_CONDITIONAL);
-
-            const ScopeInfo currentScopeInfo = _scopeInfo.at(node->getName());
-
-            for (size_t plugIndex = 0; plugIndex < node->numInputs(); ++plugIndex)
-            {
-                const Input* plug = node->getInput(plugIndex);
-                const Output* connected = plug->getConnection();
-                if (connected && connected->type() != PlugType::INPUT_INTERFACE)
+                // Create scope info for this network brach
+                // If it's a conditonal branch the scope is adjusted
+                SgNode::ScopeInfo newScopeInfo = currentScopeInfo;
+                if (isIfElse && (inputIndex == 1 || inputIndex == 2))
                 {
-                    const Node* upstreamNode = connected->getNode();
-
-                    // Create scope info for this network brach
-                    // If it's a conditonal branch the scope is adjusted
-                    ScopeInfo newScopeInfo = currentScopeInfo;
-                    if (isIfElse && (plugIndex == 1 || plugIndex == 2))
-                    {
-                        adjustAtConditionalInput(newScopeInfo, node, int(plugIndex), 0x6);
-                    }
-                    else if (isSwitch && plugIndex > 0)
-                    {
-                        const uint32_t fullMask = (1 << node->numInputs()) - 1;
-                        adjustAtConditionalInput(newScopeInfo, node, int(plugIndex), fullMask);
-                    }
-
-                    // Add the info to the upstream node
-                    ScopeInfo& upstreamScopeInfo = _scopeInfo.at(upstreamNode->getName());
-                    merge(upstreamScopeInfo, newScopeInfo);
-
-                    nodeUsed.insert(upstreamNode->getName());
+                    newScopeInfo.adjustAtConditionalInput(node.getNodePtr(), int(inputIndex), 0x6);
                 }
+                else if (isSwitch)
+                {
+                    const uint32_t fullMask = (1 << inputs.size()) - 1;
+                    newScopeInfo.adjustAtConditionalInput(node.getNodePtr(), int(inputIndex), fullMask);
+                }
+
+                // Add the info to the upstream node
+                SgNode::ScopeInfo& upstreamScopeInfo = getNode(upstreamNode).getScopeInfo();
+                upstreamScopeInfo.merge(newScopeInfo);
+
+                nodeUsed.insert(upstreamNode->getName());
             }
         }
     }
-#endif
 }
 
 void Shader::finalize()
@@ -481,6 +467,16 @@ void Shader::addDefaultGeometricNodes(NodePtr node, NodeDefPtr nodeDef, NodeGrap
             }
         }
     }
+}
+
+SgNode& Shader::getNode(const NodePtr& nodePtr)
+{
+    auto it = _nodeToSgNodeIndex.find(nodePtr);
+    if (it == _nodeToSgNodeIndex.end())
+    {
+        throw ExceptionShaderGenError("No SgNode found for node '" + nodePtr->getName() + "'");
+    }
+    return _nodes[it->second];
 }
 
 }

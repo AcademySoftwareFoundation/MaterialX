@@ -1,15 +1,15 @@
-#ifndef MATERIALX_SWIZZLEIMPL_H
-#define MATERIALX_SWIZZLEIMPL_H
+#ifndef MATERIALX_SWITCH_H
+#define MATERIALX_SWITCH_H
 
 #include <MaterialXShaderGen/NodeImplementation.h>
 
 namespace MaterialX
 {
 
-/// Implementation of swizzle node
-class SwizzleImpl : public NodeImplementation
+/// Implementation of switch node
+class Switch : public NodeImplementation
 {
-    DECLARE_NODE_IMPLEMENTATION(SwizzleImpl)
+    DECLARE_NODE_IMPLEMENTATION(Switch)
 public:
     void emitCode(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 };

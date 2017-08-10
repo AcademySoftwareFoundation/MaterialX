@@ -1,13 +1,13 @@
-#include <MaterialXShaderGen/NodeImplementations/SwizzleImpl.h>
+#include <MaterialXShaderGen/NodeImplementations/Swizzle.h>
 #include <MaterialXShaderGen/Shader.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 
 namespace MaterialX
 {
 
-DEFINE_NODE_IMPLEMENTATION(SwizzleImpl, "swizzle", "", "")
+DEFINE_NODE_IMPLEMENTATION(Swizzle, "swizzle", "", "")
 
-void SwizzleImpl::emitCode(const SgNode& sgnode, ShaderGenerator& shadergen, Shader& shader)
+void Swizzle::emitCode(const SgNode& sgnode, ShaderGenerator& shadergen, Shader& shader)
 {
     const Node& node = sgnode.getNode();
 

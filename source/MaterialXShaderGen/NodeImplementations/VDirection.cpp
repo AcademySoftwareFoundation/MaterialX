@@ -1,4 +1,4 @@
-#include <MaterialXShaderGen/NodeImplementations/VDirectionImpl.h>
+#include <MaterialXShaderGen/NodeImplementations/VDirection.h>
 #include <MaterialXShaderGen/Shader.h>
 
 namespace
@@ -33,27 +33,27 @@ namespace
 namespace MaterialX
 {
 
-DEFINE_NODE_IMPLEMENTATION(VDirectionImplFlipOsl, "vdirection_flip", "osl", "")
-DEFINE_NODE_IMPLEMENTATION(VDirectionImplNoOpOsl, "vdirection_noop", "osl", "")
-DEFINE_NODE_IMPLEMENTATION(VDirectionImplFlipGlsl, "vdirection_flip", "glsl", "")
-DEFINE_NODE_IMPLEMENTATION(VDirectionImplNoOpGlsl, "vdirection_noop", "glsl", "")
+DEFINE_NODE_IMPLEMENTATION(VDirectionFlipOsl, "vdirection_flip", "osl", "")
+DEFINE_NODE_IMPLEMENTATION(VDirectionNoOpOsl, "vdirection_noop", "osl", "")
+DEFINE_NODE_IMPLEMENTATION(VDirectionFlipGlsl, "vdirection_flip", "glsl", "")
+DEFINE_NODE_IMPLEMENTATION(VDirectionNoOpGlsl, "vdirection_noop", "glsl", "")
 
-void VDirectionImplFlipOsl::emitCode(const SgNode&, ShaderGenerator&, Shader& shader)
+void VDirectionFlipOsl::emitCode(const SgNode&, ShaderGenerator&, Shader& shader)
 {
     shader.addBlock(kVDirectionFlipOSL);
 }
 
-void VDirectionImplNoOpOsl::emitCode(const SgNode&, ShaderGenerator&, Shader& shader)
+void VDirectionNoOpOsl::emitCode(const SgNode&, ShaderGenerator&, Shader& shader)
 {
     shader.addBlock(kVDirectionNoOpOSL);
 }
 
-void VDirectionImplFlipGlsl::emitCode(const SgNode&, ShaderGenerator&, Shader& shader)
+void VDirectionFlipGlsl::emitCode(const SgNode&, ShaderGenerator&, Shader& shader)
 {
     shader.addBlock(kVDirectionFlipGLSL);
 }
 
-void VDirectionImplNoOpGlsl::emitCode(const SgNode&, ShaderGenerator&, Shader& shader)
+void VDirectionNoOpGlsl::emitCode(const SgNode&, ShaderGenerator&, Shader& shader)
 {
     shader.addBlock(kVDirectionNoOpGLSL);
 }

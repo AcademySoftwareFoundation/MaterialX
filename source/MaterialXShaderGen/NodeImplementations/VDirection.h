@@ -1,5 +1,5 @@
-#ifndef MATERIALX_VDIRECTIONIMPL_H
-#define MATERIALX_VDIRECTIONIMPL_H
+#ifndef MATERIALX_VDIRECTION_H
+#define MATERIALX_VDIRECTION_H
 
 #include <MaterialXShaderGen/NodeImplementation.h>
 
@@ -7,33 +7,33 @@ namespace MaterialX
 {
 
 /// vdirection flip in OSL
-class VDirectionImplFlipOsl : public NodeImplementation
+class VDirectionFlipOsl : public NodeImplementation
 {
-    DECLARE_NODE_IMPLEMENTATION(VDirectionImplFlipOsl)
+    DECLARE_NODE_IMPLEMENTATION(VDirectionFlipOsl)
 public:
     void emitCode(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 };
 
 /// vdirection no-op in OSL
-class VDirectionImplNoOpOsl : public NodeImplementation
+class VDirectionNoOpOsl : public NodeImplementation
 {
-    DECLARE_NODE_IMPLEMENTATION(VDirectionImplNoOpOsl)
+    DECLARE_NODE_IMPLEMENTATION(VDirectionNoOpOsl)
 public:
     void emitCode(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 };
 
 /// vdirection flip in GLSL
-class VDirectionImplFlipGlsl : public NodeImplementation
+class VDirectionFlipGlsl : public NodeImplementation
 {
-    DECLARE_NODE_IMPLEMENTATION(VDirectionImplFlipGlsl)
+    DECLARE_NODE_IMPLEMENTATION(VDirectionFlipGlsl)
 public:
     void emitCode(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 };
 
 /// vdirection no-op in GLSL
-class VDirectionImplNoOpGlsl : public NodeImplementation
+class VDirectionNoOpGlsl : public NodeImplementation
 {
-    DECLARE_NODE_IMPLEMENTATION(VDirectionImplNoOpGlsl)
+    DECLARE_NODE_IMPLEMENTATION(VDirectionNoOpGlsl)
 public:
     void emitCode(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 };

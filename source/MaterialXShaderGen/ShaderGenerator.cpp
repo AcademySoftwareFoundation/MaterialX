@@ -191,12 +191,10 @@ void ShaderGenerator::emitShaderBody(Shader &shader)
     // Emit function calls for all nodes
     for (const SgNode& node : shader.getNodes())
     {
-#if 0
         // Omit node if it's only used inside a conditional branch
-        const ScopeInfo& scope = cgi.getScopeInfo(childNode->getName());
-        if (scope.type == ScopeInfo::Type::SINGLE)
+        const SgNode::ScopeInfo& scope = node.getScopeInfo();
+        if (scope.type == SgNode::ScopeInfo::Type::SINGLE)
         {
-            const NodeClass* nodeClass = childNode->getNodeClass();
             int numBranches = 0;
             uint32_t mask = scope.conditionBitmask;
             for (int j = 0; mask != 0; j++, mask >>= 1)
@@ -211,7 +209,7 @@ void ShaderGenerator::emitShaderBody(Shader &shader)
                 if (debugOutput)
                 {
                     std::stringstream str;
-                    str << "// Omitted node '" << childNode->getName().str() << "' of class '" << nodeClass->getName().c_str() << "'" << ". Used in branch ";
+                    str << "// Omitted node '" << node.getName() << "'. Only used in conditional node '" << scope.conditionalNode->getName() << "', in branch ";
                     mask = scope.conditionBitmask;
                     string delim = "";
                     for (int j = 0; mask != 0; j++, mask >>= 1)
@@ -222,13 +220,13 @@ void ShaderGenerator::emitShaderBody(Shader &shader)
                             delim = ", ";
                         }
                     }
+                    str << ".";
                     shader.addLine(str.str(), false);
                 }
                 // Omit this node
                 continue;
             }
         }
-#endif
 
         emitFunctionCall(node, shader);
     }
