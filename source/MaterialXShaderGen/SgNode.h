@@ -14,6 +14,30 @@ using SgNodePtr = shared_ptr<class SgNode>;
 class SgNode
 {
 public:
+    /// Information on source code scope for the node.
+    struct ScopeInfo
+    {
+        enum class Type
+        {
+            UNKNOWN,
+            GLOBAL,
+            SINGLE,
+            MULTIPLE
+        };
+
+        ScopeInfo() : type(Type::UNKNOWN), conditionalNode(nullptr), conditionBitmask(0), fullConditionMask(0) {}
+
+        void merge(const ScopeInfo& fromScope);
+        void adjustAtConditionalInput(const NodePtr& condNode, int branch, const uint32_t condMask);
+        bool usedByBranch(int branchIndex) const { return (conditionBitmask & (1 << branchIndex)) != 0; }
+
+        Type type;
+        NodePtr conditionalNode;
+        uint32_t conditionBitmask;
+        uint32_t fullConditionMask;
+    };
+
+public:
     SgNode(NodePtr node, const string& language, const string& target);
 
     /// Return the name of this node.
@@ -22,10 +46,16 @@ public:
         return _node->getName();
     }
 
-    /// Return this node.
+    /// Return a reference to this node.
     const Node& getNode() const
     {
         return *_node;
+    }
+
+    /// Return a pointer to this node.
+    const NodePtr& getNodePtr() const
+    {
+        return _node;
     }
 
     /// Return the nodedef for this node.
@@ -65,6 +95,18 @@ public:
         return _functionSource;
     }
 
+    /// Return the scope info for this node.
+    ScopeInfo& getScopeInfo()
+    {
+        return _scopeInfo;
+    }
+
+    /// Return the scope info for this node.
+    const ScopeInfo& getScopeInfo() const
+    {
+        return _scopeInfo;
+    }
+    
     /// Return the source code implementation element for the given nodedef and language/target,
     /// or nullptr if no matching implemenation is found.
     static ImplementationPtr getSourceCodeImplementation(const NodeDef& nodeDef, const string& language, const string& target);
@@ -76,6 +118,7 @@ private:
     bool _inlined;
     string _functionName;
     string _functionSource;
+    ScopeInfo _scopeInfo;
 };
 
 

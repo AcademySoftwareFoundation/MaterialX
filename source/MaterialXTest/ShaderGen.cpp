@@ -8,8 +8,8 @@
 #include <MaterialXShaderGen/ShaderGenerators/ArnoldShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OgsFxShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OslSyntax.h>
-#include <MaterialXShaderGen/NodeImplementations/VDirectionImpl.h>
-#include <MaterialXShaderGen/NodeImplementations/SwizzleImpl.h>
+#include <MaterialXShaderGen/NodeImplementations/VDirection.h>
+#include <MaterialXShaderGen/NodeImplementations/Swizzle.h>
 
 #include <iostream>
 #include <fstream>
@@ -46,34 +46,34 @@ TEST_CASE("Registry", "[shadergen]")
     REQUIRE(sg1 == nullptr);
 
     mx::NodeImplementationPtr impl1 = mx::ShaderGenRegistry::findNodeImplementation(
-        mx::VDirectionImplFlipOsl::kNode,
-        mx::VDirectionImplFlipOsl::kLanguage,
-        mx::VDirectionImplFlipOsl::kTarget);
+        mx::VDirectionFlipOsl::kNode,
+        mx::VDirectionFlipOsl::kLanguage,
+        mx::VDirectionFlipOsl::kTarget);
     REQUIRE(impl1 != nullptr);
 
     mx::NodeImplementationPtr impl2 = mx::ShaderGenRegistry::findNodeImplementation(
-        mx::VDirectionImplFlipOsl::kNode,
-        mx::VDirectionImplFlipOsl::kLanguage);
+        mx::VDirectionFlipOsl::kNode,
+        mx::VDirectionFlipOsl::kLanguage);
     REQUIRE(impl2 != nullptr);
     REQUIRE(impl2 == impl1);
 
     mx::NodeImplementationPtr impl3 = mx::ShaderGenRegistry::findNodeImplementation(
-        mx::VDirectionImplFlipOsl::kNode);
+        mx::VDirectionFlipOsl::kNode);
     REQUIRE(impl3 == nullptr);
 
     mx::NodeImplementationPtr impl4 = mx::ShaderGenRegistry::findNodeImplementation(
-        mx::VDirectionImplFlipGlsl::kNode,
-        mx::VDirectionImplFlipGlsl::kLanguage,
-        mx::VDirectionImplFlipGlsl::kTarget);
+        mx::VDirectionFlipGlsl::kNode,
+        mx::VDirectionFlipGlsl::kLanguage,
+        mx::VDirectionFlipGlsl::kTarget);
     REQUIRE(impl4 != nullptr);
     REQUIRE(impl4 != impl2);
 
     mx::ShaderGenRegistry::unregisterBuiltIn();
 
     impl4 = mx::ShaderGenRegistry::findNodeImplementation(
-        mx::VDirectionImplFlipGlsl::kNode,
-        mx::VDirectionImplFlipGlsl::kLanguage,
-        mx::VDirectionImplFlipGlsl::kTarget);
+        mx::VDirectionFlipGlsl::kNode,
+        mx::VDirectionFlipGlsl::kLanguage,
+        mx::VDirectionFlipGlsl::kTarget);
     REQUIRE(impl4 == nullptr);
 }
 
@@ -135,16 +135,16 @@ TEST_CASE("Swizzling", "[shadergen]")
     add->setConnectedNode("in1", swizzle);
 
     // Test swizzle node custom implementation
-    mx::SwizzleImpl swizzleImpl;
+    mx::Swizzle swizzleNode;
 
     mx::Shader test1("test1");
-    swizzleImpl.emitCode(mx::SgNode(swizzle, sg.getLanguage(), sg.getTarget()), sg, test1);
+    swizzleNode.emitCode(mx::SgNode(swizzle, sg.getLanguage(), sg.getTarget()), sg, test1);
     REQUIRE(test1.getSourceCode() == "color foo_swizzle = color(foo_bar[0], foo_bar[0], foo_bar[0]);\n");
 
     swizzle->setParameterValue("channels", std::string("b0b"));
 
     mx::Shader test2("test2");
-    swizzleImpl.emitCode(mx::SgNode(swizzle, sg.getLanguage(), sg.getTarget()), sg, test2);
+    swizzleNode.emitCode(mx::SgNode(swizzle, sg.getLanguage(), sg.getTarget()), sg, test2);
     REQUIRE(test2.getSourceCode() == "color foo_swizzle = color(foo_bar[2], 0, foo_bar[2]);\n");
 }
 
@@ -267,7 +267,7 @@ TEST_CASE("Material Shader Generation", "[shadergen]")
     image1->addParameter("file", "filename");
     mx::NodePtr image2 = nodeGraph->addNode("image");
     image2->addParameter("file", "filename");
-    mx::NodePtr noise = nodeGraph->addNode("adskCellNoise2d");
+    mx::NodePtr noise = nodeGraph->addNode("adskCellNoise2d", mx::EMPTY_STRING, "float");
     mx::NodePtr constant = nodeGraph->addNode("constant");
     mx::NodePtr multiply = nodeGraph->addNode("multiply");
     mx::NodePtr mix = nodeGraph->addNode("mix");

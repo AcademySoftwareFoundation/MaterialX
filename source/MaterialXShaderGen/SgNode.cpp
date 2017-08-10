@@ -47,6 +47,53 @@ namespace
     }
 }
 
+
+void SgNode::ScopeInfo::adjustAtConditionalInput(const NodePtr& condNode, int branch, const uint32_t fullMask)
+{
+    if (type == ScopeInfo::Type::GLOBAL || (type == ScopeInfo::Type::SINGLE && conditionBitmask == fullConditionMask))
+    {
+        type = ScopeInfo::Type::SINGLE;
+        conditionalNode = condNode;
+        conditionBitmask = 1 << branch;
+        fullConditionMask = fullMask;
+    }
+    else if (type == ScopeInfo::Type::SINGLE)
+    {
+        type = ScopeInfo::Type::MULTIPLE;
+        conditionalNode = nullptr;
+    }
+}
+
+void SgNode::ScopeInfo::merge(const ScopeInfo &fromScope)
+{
+    if (type == ScopeInfo::Type::UNKNOWN || fromScope.type == ScopeInfo::Type::GLOBAL)
+    {
+        *this = fromScope;
+    }
+    else if (type == ScopeInfo::Type::GLOBAL)
+    {
+
+    }
+    else if (type == ScopeInfo::Type::SINGLE && fromScope.type == ScopeInfo::Type::SINGLE && conditionalNode == fromScope.conditionalNode)
+    {
+        conditionBitmask |= fromScope.conditionBitmask;
+
+        // This node is needed for all branches so it is no longer conditional
+        if (conditionBitmask == fullConditionMask)
+        {
+            type = ScopeInfo::Type::GLOBAL;
+            conditionalNode = nullptr;
+        }
+    }
+    else
+    {
+        // NOTE: Right now multiple scopes is not really used, it works exactly as GLOBAL_SCOPE
+        type = ScopeInfo::Type::MULTIPLE;
+        conditionalNode = nullptr;
+    }
+}
+
+
 SgNode::SgNode(NodePtr node, const string& language, const string& target)
     : _node(node)
     , _nodeDef(nullptr)

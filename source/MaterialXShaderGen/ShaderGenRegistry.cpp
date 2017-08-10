@@ -3,8 +3,10 @@
 #include <MaterialXShaderGen/ShaderGenerators/ArnoldShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OgsFxShaderGenerator.h>
 
-#include <MaterialXShaderGen/NodeImplementations/VDirectionImpl.h>
-#include <MaterialXShaderGen/NodeImplementations/SwizzleImpl.h>
+#include <MaterialXShaderGen/NodeImplementations/VDirection.h>
+#include <MaterialXShaderGen/NodeImplementations/Swizzle.h>
+#include <MaterialXShaderGen/NodeImplementations/Switch.h>
+#include <MaterialXShaderGen/NodeImplementations/Compare.h>
 
 namespace MaterialX
 {
@@ -137,11 +139,13 @@ void ShaderGenRegistry::registerBuiltIn()
     REGISTER_SHADER_GENERATOR(ArnoldShaderGenerator);
     REGISTER_SHADER_GENERATOR(OgsFxShaderGenerator);
 
-    REGISTER_NODE_IMPLEMENTATION(VDirectionImplFlipOsl);
-    REGISTER_NODE_IMPLEMENTATION(VDirectionImplNoOpOsl);
-    REGISTER_NODE_IMPLEMENTATION(VDirectionImplFlipGlsl);
-    REGISTER_NODE_IMPLEMENTATION(VDirectionImplNoOpGlsl);
-    REGISTER_NODE_IMPLEMENTATION(SwizzleImpl);
+    REGISTER_NODE_IMPLEMENTATION(VDirectionFlipOsl);
+    REGISTER_NODE_IMPLEMENTATION(VDirectionNoOpOsl);
+    REGISTER_NODE_IMPLEMENTATION(VDirectionFlipGlsl);
+    REGISTER_NODE_IMPLEMENTATION(VDirectionNoOpGlsl);
+    REGISTER_NODE_IMPLEMENTATION(Swizzle);
+    REGISTER_NODE_IMPLEMENTATION(Switch);
+    REGISTER_NODE_IMPLEMENTATION(Compare);
 }
 
 void ShaderGenRegistry::unregisterBuiltIn()
@@ -149,11 +153,13 @@ void ShaderGenRegistry::unregisterBuiltIn()
     UNREGISTER_SHADER_GENERATOR(ArnoldShaderGenerator);
     UNREGISTER_SHADER_GENERATOR(OgsFxShaderGenerator);
 
-    UNREGISTER_NODE_IMPLEMENTATION(VDirectionImplFlipOsl);
-    UNREGISTER_NODE_IMPLEMENTATION(VDirectionImplNoOpOsl);
-    UNREGISTER_NODE_IMPLEMENTATION(VDirectionImplFlipGlsl);
-    UNREGISTER_NODE_IMPLEMENTATION(VDirectionImplNoOpGlsl);
-    UNREGISTER_NODE_IMPLEMENTATION(SwizzleImpl);
+    UNREGISTER_NODE_IMPLEMENTATION(VDirectionFlipOsl);
+    UNREGISTER_NODE_IMPLEMENTATION(VDirectionNoOpOsl);
+    UNREGISTER_NODE_IMPLEMENTATION(VDirectionFlipGlsl);
+    UNREGISTER_NODE_IMPLEMENTATION(VDirectionNoOpGlsl);
+    UNREGISTER_NODE_IMPLEMENTATION(Swizzle);
+    UNREGISTER_NODE_IMPLEMENTATION(Switch);
+    UNREGISTER_NODE_IMPLEMENTATION(Compare);
 }
 
 

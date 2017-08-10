@@ -396,21 +396,17 @@
   <!-- ======================================================================== -->
 
   <!-- <compare> -->
+  <!-- Implemented by C++ class: see Compare.h/cpp -->
+
   <!-- <switch> -->
-  <implementation name="IM_switch__float__glsl" nodedef="ND_switch__float" file="Source/ShaderGen/GLSL/mx_switch_float.glsl" function="mx_switch_float" language="glsl"/>
-  <implementation name="IM_switch__color2__glsl" nodedef="ND_switch__color2" file="Source/ShaderGen/GLSL/mx_switch_vector2.glsl" function="mx_switch_vector2" language="glsl"/>
-  <implementation name="IM_switch__color3__glsl" nodedef="ND_switch__color3" file="Source/ShaderGen/GLSL/mx_switch_vector3.glsl" function="mx_switch_vector3" language="glsl"/>
-  <implementation name="IM_switch__color4__glsl" nodedef="ND_switch__color4" file="Source/ShaderGen/GLSL/mx_switch_vector4.glsl" function="mx_switch_vector4" language="glsl"/>
-  <implementation name="IM_switch__vector2__glsl" nodedef="ND_switch__vector2" file="Source/ShaderGen/GLSL/mx_switch_vector2.glsl" function="mx_switch_vector2" language="glsl"/>
-  <implementation name="IM_switch__vector3__glsl" nodedef="ND_switch__vector3" file="Source/ShaderGen/GLSL/mx_switch_vector3.glsl" function="mx_switch_vector3" language="glsl"/>
-  <implementation name="IM_switch__vector4__glsl" nodedef="ND_switch__vector4" file="Source/ShaderGen/GLSL/mx_switch_vector4.glsl" function="mx_switch_vector4" language="glsl"/>
+  <!-- Implemented by C++ class: see Switch.h/cpp -->
 
   <!-- ======================================================================== -->
   <!-- Channel nodes                                                            -->
   <!-- ======================================================================== -->
 
   <!-- <swizzle> -->
-  <!-- Implemented by custom implementations: see SwizzleImpl.h/cpp -->
+  <!-- Implemented by C++ class: see Swizzle.h/cpp -->
 
   <!-- <pack> -->
   <implementation name="IM_pack__color2__glsl" nodedef="ND_pack__color2" file="Source/ShaderGen/GLSL/mx_pack_color2.inline" language="glsl"/>

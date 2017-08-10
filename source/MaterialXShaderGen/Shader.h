@@ -6,6 +6,7 @@
 #include <MaterialXShaderGen/SgNode.h>
 
 #include <queue>
+#include <sstream>
 
 namespace MaterialX
 {
@@ -37,27 +38,6 @@ public:
     {
         UP,
         DOWN
-    };
-
-    /// Information on source code scope for a specific node
-    struct ScopeInfo
-    {
-        enum class Type
-        {
-            UNKNOWN,
-            GLOBAL,
-            SINGLE,
-            MULTIPLE
-        };
-
-        ScopeInfo() : type(Type::UNKNOWN), condNode(nullptr), conditionBitmask(0), fullConditionMask(0) {}
-
-        Type type;
-        NodePtr condNode;
-        uint32_t conditionBitmask;
-        uint32_t fullConditionMask;
-
-        bool usedByBranch(int branchIndex) const { return (conditionBitmask & (1 << branchIndex)) != 0; }
     };
 
     /// A uniform shader parameter
@@ -142,6 +122,10 @@ public:
     /// given in topological order.
     const vector<SgNode>& getNodes() const { return _nodes;  }
 
+    /// Return the SgNode for the given node pointer.
+    SgNode& getNode(const NodePtr& nodePtr);
+    const SgNode& getNode(const NodePtr& nodePtr) const { return const_cast<Shader*>(this)->getNode(nodePtr); }
+
     /// Return the vdirection requested in the current document.
     VDirection getRequestedVDirection() const { return _vdirection; }
 
@@ -184,7 +168,7 @@ protected:
     NodeGraphPtr _nodeGraph;
     OutputPtr _output;
     vector<SgNode> _nodes;
-    unordered_map<string, ScopeInfo> _scopeInfo;
+    unordered_map<NodePtr, size_t> _nodeToSgNodeIndex;
     VDirection _vdirection;
 
     size_t _activeStage;
