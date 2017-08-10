@@ -74,15 +74,20 @@ NodeDefPtr Node::getReferencedNodeDef() const
     {
         if (nodeDef->getType() == getType())
         {
+            bool matching = true;
             for (InputPtr input : getInputs())
             {
                 InputPtr matchingInput = nodeDef->getInput(input->getName());
-                if (matchingInput && matchingInput->getType() != input->getType())
+                if (!matchingInput || matchingInput->getType() != input->getType())
                 {
+                    matching = false;
                     continue;
                 }
             }
-            return nodeDef;
+            if (matching)
+            {
+                return nodeDef;
+            }
         }
     }
     return NodeDefPtr();
