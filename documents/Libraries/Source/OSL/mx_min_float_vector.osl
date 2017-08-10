@@ -6,12 +6,12 @@
 
 #include "mx_funcs.h"
 
-shader mx_min_float_color
-    [[ string help = "Color"" Select the minimum among incoming values." ]]
+shader mx_min_float_vector
+    [[ string help = "Vector"" Select the minimum among incoming values." ]]
   (
-    color in1 = 0,
+    vector in1 = 0,
     float in2 = 0.0,
-    output color out = 0
+    output vector out = 0
   )
 {
     out = min(in1, in2); 

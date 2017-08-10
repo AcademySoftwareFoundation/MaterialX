@@ -6,13 +6,13 @@
 
 #include "mx_funcs.h"
 
-shader mx_splitlr_float
+shader mx_splitlr_vector
     [[ string help = "split left/right"  ]]
   (
-    float valuel = 0
+    vector valuel = 0
         [[  string help = "value on the left"  ]],
 
-    float valuer = 1
+    vector valuer = 1
         [[  string help = "value on the right"  ]],
 
     float center = 0.5
@@ -22,7 +22,7 @@ shader mx_splitlr_float
         [[  string help = "input coordinate position",
             int lockgeom = 0 ]],
             
-    output float out = 0
+    output vector out = 0
   )
 {
     out = mix(valuel, valuer, aastep (center, texcoord.x));

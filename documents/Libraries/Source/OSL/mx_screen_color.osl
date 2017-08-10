@@ -6,12 +6,12 @@
 
 #include "mx_funcs.h"
 
-shader mx_screen_float
-    [[ string help = "Float"" Take two 1-4 channel inputs and apply the same operator to all channels: 1-(1-F)*(1-B)" ]]
+shader mx_screen_color
+    [[ string help = "Color"" Take two 1-4 channel inputs and apply the same operator to all channels: 1-(1-F)*(1-B)" ]]
   (
-    float fg = 0,
-    float bg = 0,
-    output float out = 0
+    color fg = 0,
+    color bg = 0,
+    output color out = 0
   )
 {
     out = 1 - (1 - fg) * (1 - bg); 

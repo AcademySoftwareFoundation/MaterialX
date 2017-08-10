@@ -6,12 +6,12 @@
 
 #include "mx_funcs.h"
 
-shader mx_multiply_float
-    [[ string help = "Float"" multiply in1 by in2" ]]
+shader mx_multiply_color4
+    [[ string help = "Color4"" multiply in1 by in2" ]]
   (
-    float in1 = 0,
-    float in2 = 1,
-    output float out = 0
+    color4 in1 = {color(0,0,0), 0},
+    color4 in2 = {color(1,1,1), 1},
+    output color4 out = {color(0,0,0), 0}
   )
 {
     out = in1 * in2; 

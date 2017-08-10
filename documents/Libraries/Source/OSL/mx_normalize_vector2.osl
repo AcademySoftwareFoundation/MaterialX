@@ -6,11 +6,11 @@
 
 #include "mx_funcs.h"
 
-shader mx_normalize_vector
-    [[ string help = "Vector""  Outputs the normalized vector from the incoming vector stream." ]]
+shader mx_normalize_vector2
+    [[ string help = "Vector2""  Outputs the normalized vector from the incoming vector stream." ]]
   (
-    vector in = 0,
-    output vector out = 0
+    vector2 in = {0,0},
+    output vector2 out = {0,0}
   )
 {
     out = normalize(in);

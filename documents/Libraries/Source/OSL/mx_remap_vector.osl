@@ -6,23 +6,23 @@
 
 #include "mx_funcs.h"
 
-shader mx_remap_float
+shader mx_remap_vector
     [[ string help = "bilinear 4-corner ramp source" ]]
   (
-    float valuetl = 0
+    vector valuetl = 0
         [[  string help = "value at the top right (s=0,t=0) edge"  ]],
-    float valuetr = 1
+    vector valuetr = 1
         [[  string help = "value at the top right (s=1,t=0) edge"  ]],
-    float valuebl = 0
+    vector valuebl = 0
         [[  string help = "value at the bottom left (s=0,t=1) edge"  ]],
-    float valuebr = 1
+    vector valuebr = 1
         [[  string help = "value at the bottom right (s=1,t=1) edge"  ]],
 
     vector2 texcoord = { u, v }
         [[  string help = "input coordinate position",
             int lockgeom = 0 ]],
 
-    output float out = 0
+    output vector out = 0
   )
 {
     float ss = clamp (texcoord.x, 0, 1);

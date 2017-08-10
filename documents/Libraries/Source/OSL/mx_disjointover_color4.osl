@@ -40,13 +40,13 @@ color4 disjointover(color4 fg, color4 bg)
 
 
 
-shader mx_disjointover_color2
-    [[ string help = "Color2"" Take two color2 or two color4 inputs and use the built-in alpha \
+shader mx_disjointover_color4
+    [[ string help = "Color4"" Take two color2 or two color4 inputs and use the built-in alpha \
                                channel(s) to control the compositing of the fg and bg inputs" ]]
   (
-    color2 fg = {0,0},
-    color2 bg = {0,0},
-    output color2 out = {0,0}
+    color4 fg = {color(0,0,0), 0},
+    color4 bg = {color(0,0,0), 0},
+    output color4 out = {color(0,0,0), 0}
   )
 {
     out = disjointover(fg, bg); 

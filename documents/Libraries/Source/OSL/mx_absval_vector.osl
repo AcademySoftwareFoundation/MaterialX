@@ -6,11 +6,11 @@
 
 #include "mx_funcs.h"
 
-shader mx_absval_float
+shader mx_absval_vector
     [[ string help = "The per-channel absolute value of the incoming float/color/vector." ]]
   (
-    float in = 0,
-    output float out = 0
+    vector in = 0,
+    output vector out = 0
   )
 {
     out = abs(in);

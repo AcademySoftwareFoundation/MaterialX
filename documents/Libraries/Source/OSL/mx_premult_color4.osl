@@ -27,12 +27,12 @@ color4 premult (color4 in, float alpha)
 
 
 
-shader mx_premult_color
-    [[ string help = "Color"" Multiply the R or RGB channels of the input by the Alpha channel of the input." ]]
+shader mx_premult_color4
+    [[ string help = "Color4"" Multiply the R or RGB channels of the input by the Alpha channel of the input." ]]
   (
-    color in = 0,
+    color4 in = {color(0,0,0), 0},
     float alpha = 1,
-    output color out = 0
+    output color4 out = {color(0,0,0), 0}
   )
 {
     out = premult (in, alpha);

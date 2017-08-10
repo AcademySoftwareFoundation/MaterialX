@@ -6,12 +6,12 @@
 
 #include "mx_funcs.h"
 
-shader mx_subtract_float_color
-    [[ string help = "Color"" subtract in2 from the incoming data" ]]
+shader mx_subtract_float_vector4
+    [[ string help = "Vector4"" subtract in2 from the incoming data" ]]
   (
-    color in1 = 0,
+    vector4 in1 = {0,0,0,0},
     float in2 = 0.0,
-    output color out = 0
+    output vector4 out = {0,0,0,0}
   )
 {
     out = in1 - in2;

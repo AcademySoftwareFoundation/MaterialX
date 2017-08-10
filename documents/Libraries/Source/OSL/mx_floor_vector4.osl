@@ -6,11 +6,11 @@
 
 #include "mx_funcs.h"
 
-shader mx_floor_float
-    [[ string help = "Float"" Find the nearest integer less than or equal to the parameter." ]]
+shader mx_floor_vector4
+    [[ string help = "Vector4"" Find the nearest integer less than or equal to the parameter." ]]
   (
-    float in = 0,
-    output float out = 0
+    vector4 in = {0,0,0,0},
+    output vector4 out = {0,0,0,0}
   )
 {
     out = floor(in); 

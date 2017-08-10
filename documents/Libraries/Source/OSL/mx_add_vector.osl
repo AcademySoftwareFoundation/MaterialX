@@ -6,12 +6,12 @@
 
 #include "mx_funcs.h"
 
-shader mx_add_float
-    [[ string help = "Float"" add in2 to the incoming data" ]]
+shader mx_add_vector
+    [[ string help = "Vector"" add in2 to the incoming data" ]]
   (
-    float in1 = 0,
-    float in2 = 0,
-    output float out = 0
+    vector in1 = 0,
+    vector in2 = 0,
+    output vector out = 0
   )
 {
     out = in1 + in2;

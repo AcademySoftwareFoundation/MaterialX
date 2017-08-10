@@ -6,13 +6,13 @@
 
 #include "mx_funcs.h"
 
-shader mx_clamp_float_color 
-    [[ string help = "Color"" Clamp incoming value to a specified range of values." ]]
+shader mx_clamp_float_vector4 
+    [[ string help = "Vector4"" Clamp incoming value to a specified range of values." ]]
   (
-    color in = 0,
+    vector4 in = {0,0,0,0},
     float low = 0.0,
     float high = 1.0,
-    output color out = 0
+    output vector4 out = {0,0,0,0}
   )
 {
     out = clamp(in, low, high);

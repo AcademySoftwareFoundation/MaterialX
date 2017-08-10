@@ -6,10 +6,10 @@
 
 #include "mx_funcs.h"
 
-shader mx_geomcolor_float
+shader mx_geomcolor_color2
     [[ string help = "The color associated with the current geometry " ]]
   (
-    output float out = 0
+    output color2 out = {0,0}
   )
 {
     getattribute("color", out);

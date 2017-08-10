@@ -6,17 +6,17 @@
 
 #include "mx_funcs.h"
 
-shader mx_ramptb_float
+shader mx_ramptb_color4
     [[ string help = "linear value ramp source, top to bottom" ]]
   (
-    float valuet = 0
+    color4 valuet = {color(0,0,0), 0}
         [[  string help = "value at the top (t=0) edge"  ]],
-    float valueb = 1
+    color4 valueb = {color(1,1,1), 1}
         [[  string help = "value at the bottom (t=1) edge"  ]],
     vector2 texcoord = { u, v }
         [[  string help = "input coordinate position",
             int lockgeom = 0 ]],
-    output float out = 0
+    output color4 out = {color(0,0,0), 0}
   )
 {
     out = mix (valuet, valueb, clamp(texcoord.y, 0, 1) );
