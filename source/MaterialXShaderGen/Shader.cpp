@@ -1,9 +1,13 @@
 #include <MaterialXShaderGen/Shader.h>
-#include <MaterialXCore/Document.h>
-#include <MaterialXCore/Node.h>
-
 #include <MaterialXShaderGen/ShaderGenRegistry.h>
 #include <MaterialXShaderGen/Util.h>
+#include <MaterialXShaderGen/NodeImplementations/Compare.h>
+#include <MaterialXShaderGen/NodeImplementations/Switch.h>
+#include <MaterialXShaderGen/NodeImplementations/Constant.h>
+
+#include <MaterialXCore/Document.h>
+#include <MaterialXCore/Node.h>
+#include <MaterialXCore/Value.h>
 
 #include <sstream>
 
@@ -42,6 +46,7 @@ void Shader::initialize(ElementPtr element, const string& language, const string
     _nodeGraph = doc->getNodeGraph(sgGraphName);
     if (_nodeGraph)
     {
+        // Remove old graph if it already exists
         doc->removeChild(sgGraphName);
     }
     _nodeGraph = doc->addNodeGraph(sgGraphName);
@@ -139,9 +144,10 @@ void Shader::initialize(ElementPtr element, const string& language, const string
 
     //
     // Travers upstream to add all dependencies.
-    // During this traversal we also add in any needed default geometric nodes.
+    // During this traversal we optimize the graph, pruning conditional branches 
+    // what will never be taken, and replacing constant nodes with values.
+    // We also add in any needed default geometric nodes.
     // 
-
 
     // Keep track of processed nodes to avoid duplication
     // of nodes with multiple downstream connections.
@@ -149,16 +155,13 @@ void Shader::initialize(ElementPtr element, const string& language, const string
 
     for (Edge edge : root->traverseGraph(material))
     {
-        ElementPtr upstreamElement = edge.getUpstreamElement();
-
-        NodePtr upstreamNode = upstreamElement->isA<Output>() ?
-            upstreamElement->asA<Output>()->getConnectedNode() : upstreamElement->asA<Node>();
-
+        NodePtr upstreamNode = optimize(edge);
         if (!upstreamNode)
         {
-            // Unconnected
             continue;
         }
+
+        ElementPtr downstreamElement = edge.getDownstreamElement();
 
         NodePtr newNode;
         if (processedNodes.count(upstreamNode))
@@ -169,8 +172,7 @@ void Shader::initialize(ElementPtr element, const string& language, const string
             // TODO: This is a hack to avoid a bug triggered when the same processed output
             // is passed again. We need a more robust handling of this!
             //
-            ElementPtr downstreamElement = edge.getDownstreamElement();
-            if (downstreamElement && downstreamElement->isA<Output>())
+            if (downstreamElement->isA<Output>())
             {
                 continue;
             }
@@ -198,17 +200,11 @@ void Shader::initialize(ElementPtr element, const string& language, const string
             processedNodes.insert(upstreamNode);
         }
 
-        // Connect the node to downstream element in the new graph.
-        ElementPtr downstreamElement = edge.getDownstreamElement();
+        // Connect the node to downstream node in the new graph.
+        NodePtr downstream = _nodeGraph->getNode(getLongName(downstreamElement));
         ElementPtr connectingElement = edge.getConnectingElement();
-        if (downstreamElement->isA<Output>())
+        if (downstream && connectingElement)
         {
-            OutputPtr downstream = _nodeGraph->getOutput(downstreamElement->getName());
-            downstream->setConnectedNode(newNode);
-        }
-        else if (connectingElement)
-        {
-            NodePtr downstream = _nodeGraph->getNode(getLongName(downstreamElement));
             downstream->setConnectedNode(connectingElement->getName(), newNode);
         }
     }
@@ -431,6 +427,16 @@ void Shader::addInclude(const string& file)
     }
 }
 
+SgNode& Shader::getNode(const NodePtr& nodePtr)
+{
+    auto it = _nodeToSgNodeIndex.find(nodePtr);
+    if (it == _nodeToSgNodeIndex.end())
+    {
+        throw ExceptionShaderGenError("No SgNode found for node '" + nodePtr->getName() + "'");
+    }
+    return _nodes[it->second];
+}
+
 void Shader::indent()
 {
     static const string kIndent = "    ";
@@ -469,14 +475,89 @@ void Shader::addDefaultGeometricNodes(NodePtr node, NodeDefPtr nodeDef, NodeGrap
     }
 }
 
-SgNode& Shader::getNode(const NodePtr& nodePtr)
+NodePtr Shader::optimize(const Edge& edge)
 {
-    auto it = _nodeToSgNodeIndex.find(nodePtr);
-    if (it == _nodeToSgNodeIndex.end())
+    // Find the downstream element in the new graph.
+    ElementPtr downstreamElement = edge.getDownstreamElement();
+    ElementPtr downstreamElementNew = _nodeGraph->getChild(getLongName(downstreamElement));
+    if (!downstreamElementNew)
     {
-        throw ExceptionShaderGenError("No SgNode found for node '" + nodePtr->getName() + "'");
+        // Downstream element has been pruned
+        // so ignore this edge.
+        return nullptr;
     }
-    return _nodes[it->second];
+
+    NodePtr node = edge.getUpstreamElement()->asA<Node>();
+    if (!node)
+    {
+        return nullptr;
+    }
+
+    ValuePtr value = nullptr;
+
+    if (node->getCategory() == Compare::kNode)
+    {
+        // Check if we have a constant conditional expression
+        const InputPtr intest = node->getInput("intest");
+        NodePtr intestNode = intest->getConnectedNode();
+        if (!intestNode || intestNode->getCategory() == Constant::kNode)
+        {
+            const ParameterPtr cutoff = node->getParameter("cutoff");
+
+            const float intestValue = intestNode ?
+                intestNode->getParameter("value")->getValue()->asA<float>() :
+                intest->getValue()->asA<float>();
+
+            const int branch = (intestValue <= cutoff->getValue()->asA<float>() ? 1 : 2);
+            const InputPtr input = node->getInput(Compare::kInputNames[branch]);
+
+            node = input->getConnectedNode();
+            if (!node)
+            {
+                value = input->getValue();
+            }
+        }
+    }
+    else if (node->getCategory() == Switch::kNode)
+    {
+        // For switch the conditional is always constant
+        const ParameterPtr which = node->getParameter("which");
+        const float whichValue = which->getValue()->asA<float>();
+
+        const int branch = int(whichValue);
+        const InputPtr input = node->getInput(Switch::kInputNames[branch]);
+
+        node = input->getConnectedNode();
+        if (!node)
+        {
+            value = input->getValue();
+        }
+    }
+
+    if (node && node->getCategory() == Constant::kNode)
+    {
+        const ParameterPtr param = node->getParameter("value");
+        value = param->getValue();
+    }
+
+    if (value)
+    {
+        NodePtr downstreamNode = downstreamElementNew->asA<Node>();
+        ElementPtr connectingElement = edge.getConnectingElement();
+        if (downstreamNode && connectingElement)
+        {
+            InputPtr input = downstreamNode->getInput(connectingElement->getName());
+            if (input)
+            {
+                input->setConnectedNode(nullptr);
+                input->setValueString(value->getValueString());
+            }
+        }
+
+        return nullptr;
+    }
+
+    return node;
 }
 
 }

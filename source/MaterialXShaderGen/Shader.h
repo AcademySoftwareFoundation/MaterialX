@@ -163,6 +163,7 @@ protected:
     virtual void indent();
 
     void addDefaultGeometricNodes(NodePtr node, NodeDefPtr nodeDef, NodeGraphPtr parent);
+    NodePtr optimize(const Edge& edge);
 
     string _name;
     NodeGraphPtr _nodeGraph;

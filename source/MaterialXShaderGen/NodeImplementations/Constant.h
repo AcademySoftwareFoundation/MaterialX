@@ -1,18 +1,16 @@
-#ifndef MATERIALX_SWITCH_H
-#define MATERIALX_SWITCH_H
+#ifndef MATERIALX_SWIZZLE_H
+#define MATERIALX_SWIZZLE_H
 
 #include <MaterialXShaderGen/NodeImplementation.h>
 
 namespace MaterialX
 {
 
-/// Implementation of switch node
-class Switch : public NodeImplementation
+/// Implementation of constant node
+class Constant : public NodeImplementation
 {
-    DECLARE_NODE_IMPLEMENTATION(Switch)
+    DECLARE_NODE_IMPLEMENTATION(Constant)
 public:
-    static const vector<string> kInputNames;
-
     void emitCode(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 };
 
