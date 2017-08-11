@@ -5,7 +5,7 @@ file(GLOB _node_translator_headers "${CMAKE_CURRENT_SOURCE_DIR}/NodeTranslators/
 
 file(GLOB _scripts "${CMAKE_CURRENT_SOURCE_DIR}/*.mel")
 file(GLOB _mods "${CMAKE_CURRENT_SOURCE_DIR}/*.mod")
-file(GLOB _data "${CMAKE_CURRENT_SOURCE_DIR}/../../data/*.*")
+file(GLOB _data "${CMAKE_CURRENT_SOURCE_DIR}/../data/*.*")
 
 source_group("Header Files" FILES ${_headers})
 source_group("Source Files" FILES ${_source})
@@ -50,7 +50,7 @@ target_link_libraries(
 )
 DEPEND_MAYAAPI_LINK(MaterialXForMaya)
 
-install(TARGETS MaterialXForMaya DESTINATION ${CMAKE_INSTALL_PREFIX}/MaterialXForMaya/plug-ins)
-install(FILES ${_scripts} DESTINATION ${CMAKE_INSTALL_PREFIX}/MaterialXForMaya/scripts)
-install(FILES ${_data} DESTINATION ${CMAKE_INSTALL_PREFIX}/MaterialXForMaya/data)
-install(FILES ${_mods} DESTINATION ${CMAKE_INSTALL_PREFIX}/MaterialXForMaya)
+install(TARGETS MaterialXForMaya DESTINATION ${CMAKE_INSTALL_PREFIX}/contrib/MaterialXForMaya/plug-ins)
+install(FILES ${_scripts} DESTINATION ${CMAKE_INSTALL_PREFIX}/contrib/MaterialXForMaya/scripts)
+install(FILES ${_data} DESTINATION ${CMAKE_INSTALL_PREFIX}/contrib/MaterialXForMaya/data)
+install(FILES ${_mods} DESTINATION ${CMAKE_INSTALL_PREFIX}/contrib/MaterialXForMaya)
