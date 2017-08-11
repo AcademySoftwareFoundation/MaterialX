@@ -11,6 +11,8 @@ class Compare : public NodeImplementation
 {
     DECLARE_NODE_IMPLEMENTATION(Compare)
 public:
+    static const vector<string> kInputNames;
+
     void emitCode(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 };
 
