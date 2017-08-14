@@ -12,6 +12,24 @@
 
 namespace mx = MaterialX;
 
+bool isTopologicalOrder(const std::vector<mx::ElementPtr>& elems)
+{
+    std::set<mx::ElementPtr> prevElems;
+    for (mx::ElementPtr elem : elems)
+    {
+        for (size_t i = 0; i < elem->getUpstreamEdgeCount(); i++)
+        {
+            mx::ElementPtr upstreamElem = elem->getUpstreamElement(nullptr, i);
+            if (upstreamElem && !prevElems.count(upstreamElem))
+            {
+                return false;
+            }
+        }
+        prevElems.insert(elem);
+    }
+    return true;
+}
+
 TEST_CASE("Node", "[node]")
 {
     // Create a document.
@@ -160,29 +178,10 @@ TEST_CASE("Topological sort", "[nodegraph]")
     // Validate the document.
     REQUIRE(doc->validate());
 
-    // Blessed solution to the topological sort
-    const std::vector<std::string> blessedElemOrder =
-    {
-        "image1",
-        "image2",
-        "constant1",
-        "constant2",
-        "noise3d",
-        "add1",
-        "add2",
-        "multiply",
-        "add3",
-        "mix",
-        "output"
-    };
-
-    // Create a topological order and test it agains the blessed solution
+    // Create a topological order and validate the results.
     std::vector<mx::ElementPtr> elemOrder = nodeGraph->topologicalSort();
-    REQUIRE(elemOrder.size() == blessedElemOrder.size());
-    for (size_t i = 0; i < elemOrder.size(); ++i)
-    {
-        REQUIRE(elemOrder[i]->getName() == blessedElemOrder[i]);
-    }
+    REQUIRE(elemOrder.size() == nodeGraph->getChildren().size());
+    REQUIRE(isTopologicalOrder(elemOrder));
 }
 
 TEST_CASE("New nodegraph from output", "[nodegraph]")
@@ -233,36 +232,8 @@ TEST_CASE("New nodegraph from output", "[nodegraph]")
     out1->setConnectedNode(mix);
     out2->setConnectedNode(multiply2);
 
-    // Validate the document.
-    REQUIRE(doc->validate());
-
-    // Vector of the outputs to generate new graphs from.
+    // Generate a new graph from each output.
     std::vector<mx::OutputPtr> outputs = {out1, out2};
-
-    // Blessed solution to a topological sort for the outputs.
-    const std::vector<std::vector<std::string>> blessedElemOrder =
-    {
-        {
-            "image1",
-            "constant1",
-            "constant2",
-            "image2",
-            "noise3d",
-            "add1",
-            "add2",
-            "multiply1",
-            "add3",
-            "mix",
-            "out1"
-        },
-        {
-            "noise3d",
-            "constant3",
-            "multiply2",
-            "out2"
-        }
-    };
-
     for (size_t i = 0; i < outputs.size(); ++i)
     {
         const mx::OutputPtr output = outputs[i];
@@ -306,14 +277,14 @@ TEST_CASE("New nodegraph from output", "[nodegraph]")
             processedNodes.insert(upstreamNode);
         }
 
-        // Create a topological order and test it agains the blessed solution.
+        // Create a topological order and validate the results.
         std::vector<mx::ElementPtr> elemOrder = nodeGraph2->topologicalSort();
-        REQUIRE(elemOrder.size() == blessedElemOrder[i].size());
-        for (size_t j = 0; j < elemOrder.size(); ++j)
-        {
-            REQUIRE(elemOrder[j]->getName() == blessedElemOrder[i][j]);
-        }
+        REQUIRE(elemOrder.size() == nodeGraph2->getChildren().size());
+        REQUIRE(isTopologicalOrder(elemOrder));
     }
+
+    // Validate the document.
+    REQUIRE(doc->validate());
 }
 
 TEST_CASE("Prune nodes", "[nodegraph]")
@@ -357,9 +328,6 @@ TEST_CASE("Prune nodes", "[nodegraph]")
     mix->setConnectedNode("bg", add3);
     mix->setConnectedNode("mask", noise3d);
     output->setConnectedNode(mix);
-
-    // Validate the document.
-    REQUIRE(doc->validate());
 
     // Set the node names we want to prune from the graph
     // and which corresponding input to use for the bypass.
@@ -412,7 +380,7 @@ TEST_CASE("Prune nodes", "[nodegraph]")
             upstreamNode = upstreamNode->getConnectedNode(inputName);
         }
 
-        if(upstreamNode)
+        if (upstreamNode)
         {
             // Get (or create) the node in the new graph.
             mx::NodePtr upstreamNode2 = nodeGraph2->getNode(upstreamNode->getName());
@@ -442,23 +410,11 @@ TEST_CASE("Prune nodes", "[nodegraph]")
         processedNodes.insert(upstreamNode);
     }
 
-    // Blessed solution to a topological sort of the
-    // prunned graph.
-    const std::vector<std::string> blessedElemOrder =
-    {
-        "image1",
-        "constant1",
-        "noise3d",
-        "multiply",
-        "mix",
-        "output",
-    };
+    // Validate the document.
+    REQUIRE(doc->validate());
 
-    // Create a topological order and test it agains the blessed solution.
+    // Create a topological order and validate the results.
     std::vector<mx::ElementPtr> elemOrder = nodeGraph2->topologicalSort();
-    REQUIRE(elemOrder.size() == blessedElemOrder.size());
-    for (size_t i = 0; i < elemOrder.size(); ++i)
-    {
-        REQUIRE(elemOrder[i]->getName() == blessedElemOrder[i]);
-    }
+    REQUIRE(elemOrder.size() == nodeGraph2->getChildren().size());
+    REQUIRE(isTopologicalOrder(elemOrder));
 }
