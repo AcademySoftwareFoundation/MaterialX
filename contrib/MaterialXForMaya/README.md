@@ -14,16 +14,20 @@ Follow the steps below to generate the build files. "yourpath" should be replace
 root directory of the project.
 
 1. Download or build the MaterialX SDK. 
-	- If building locally, build against at least the 3.5.2 tag in the MaterialX repo.
+	- If building locally use the 'adsk/master' fork in the MaterialX repo for now.
 
 2. Install or download a cut of Maya. Maya 2018 is needed for Arnold 5.
 	- If building Arnold locally use the 'develop' branch for now.
 
 3. Run Cmake GUI and set the following options:
+    - BUILD_MATERIALX_FOR_MAYA = True
 	- CMAKE_INSTALL_PREFIX = yourpath/deploy
 	- MATERIALX_DIR = path to MaterialX SDK
 	- MAYA_DEBUG_DIR = path to debug build of Maya (as needed)
 	- MAYA_RELEASE_DIR = path to release build of Maya (as needed)
+
+BUILD_MATERIALX_FOR_MAYA will result in adding the plug-in to the build setup. 
+By default it is turned off.
 
 4. Press Configure and then Generate. Build files should be generated and placed in <yourpath>/build
 
