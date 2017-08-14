@@ -1,0 +1,13 @@
+dist: trusty
+language: cpp
+
+compiler:
+  - gcc
+  - clang
+  
+script:
+  - mkdir build && cd build
+  - cmake -DMATERIALX_BUILD_PYTHON=ON ..
+  - make -j4
+  - cd source/MaterialXTest
+  - ./MaterialXTest
