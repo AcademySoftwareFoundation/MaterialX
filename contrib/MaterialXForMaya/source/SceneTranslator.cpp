@@ -1,3 +1,10 @@
+// Copyright 2017 Autodesk, Inc. All rights reserved.
+//
+// Use of this software is subject to the terms of the Autodesk
+// license agreement provided at the time of installation or download,
+// or which otherwise accompanies this software in either electronic
+// or hard copy form.
+//
 #include <SceneTranslator.h>
 #include <NodeTranslator.h>
 #include <Plugin.h>
@@ -25,25 +32,24 @@
 #include <maya/MObjectHandle.h>
 #include <maya/MFnLight.h>
 
-namespace
+namespace MaterialXForMaya
 {
-    static const std::set<std::string> kMayaFilenamePlugs =
-    {
-        "fileTextureName"
-    };
+static const std::set<std::string> kMayaFilenamePlugs =
+{
+    "fileTextureName"
+};
 
-    static const std::vector<MString> kMayaOutputPlugs =
-    {
-        "outColor",
-        "outAlpha",
-        "outNormal",
-        "outUV",
-        "output",
-        "out"
-    };
+static const std::vector<MString> kMayaOutputPlugs =
+{
+    "outColor",
+    "outAlpha",
+    "outNormal",
+    "outUV",
+    "output",
+    "out"
+};
 
-    static const std::string kDefaultGraphOutputName = "out";
-}
+static const std::string kDefaultGraphOutputName = "out";
 
 SceneTranslator::SceneTranslator(const Options& options)
     : _options(options)
@@ -196,7 +202,7 @@ mx::ShaderRefPtr SceneTranslator::exportShader(const MObject& mayaShader, mx::Ma
 
     NodeTranslatorPtr translator = Plugin::instance().getTranslator(mayaShader);
 
-    const string& shaderType = getMxType(mayaShader);
+    const string& shaderType = getMaterialXType(mayaShader);
     mx::NodeDefPtr nodeDef = translator->exportNodeDef(mayaShader, shaderType, _context);
     if (!nodeDef)
     {
@@ -286,7 +292,7 @@ mx::NodeGraphPtr SceneTranslator::exportNodeGraph(const MPlug& mayaPlug, const s
 
 void SceneTranslator::exportValue(const MPlug& mayaPlug, mx::ValueElementPtr target)
 {
-    const std::string mxType = getMxType(mayaPlug.attribute());
+    const std::string mxType = getMaterialXType(mayaPlug.attribute());
     if (mxType == "boolean")
     {
         target->setValue(mayaPlug.asBool());
@@ -327,7 +333,7 @@ void SceneTranslator::exportValue(const MPlug& mayaPlug, mx::ValueElementPtr tar
 
 mx::ValuePtr SceneTranslator::exportDefaultValue(const MObject& mayaAttr)
 {
-    const std::string mxType = getMxType(mayaAttr);
+    const std::string mxType = getMaterialXType(mayaAttr);
     if (mxType == "boolean")
     {
         MFnNumericAttribute fnAttr(mayaAttr);
@@ -542,7 +548,7 @@ void SceneTranslator::findLights(bool onlySelection, MObjectHandleSet& mayaLight
     }
 }
 
-std::string SceneTranslator::getMxType(const MObject& mayaObj)
+std::string SceneTranslator::getMaterialXType(const MObject& mayaObj)
 {
     if (mayaObj.hasFn(MFn::kDependencyNode))
     {
@@ -569,7 +575,7 @@ std::string SceneTranslator::getMxType(const MObject& mayaObj)
             MPlug outPlug = fnNode.findPlug(plugName, false);
             if (!outPlug.isNull())
             {
-                return getMxType(outPlug.attribute());
+                return getMaterialXType(outPlug.attribute());
             }
         }
     }
@@ -646,3 +652,5 @@ void SceneTranslator::writeToStream(std::ostream& stream)
     finalize();
     mx::writeToXmlStream(_context.doc, stream, true);
 }
+
+} // namespace MaterialXForMaya

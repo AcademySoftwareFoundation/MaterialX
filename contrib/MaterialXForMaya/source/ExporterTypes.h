@@ -1,3 +1,10 @@
+// Copyright 2017 Autodesk, Inc. All rights reserved.
+//
+// Use of this software is subject to the terms of the Autodesk
+// license agreement provided at the time of installation or download,
+// or which otherwise accompanies this software in either electronic
+// or hard copy form.
+//
 #ifndef MATERIALXFORMAYA_TYPES_H
 #define MATERIALXFORMAYA_TYPES_H
 
@@ -15,6 +22,9 @@ using std::set;
 using std::pair;
 using std::shared_ptr;
 using std::make_shared;
+
+namespace MaterialXForMaya
+{
 
 struct TranslatorContext;
 class NodeTranslator;
@@ -53,5 +63,7 @@ public:
 private:
     string _msg;
 };
+
+} // namespace MaterialXForMaya
 
 #endif // MATERIALXFORMAYA_TYPES_H

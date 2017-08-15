@@ -1,3 +1,10 @@
+// Copyright 2017 Autodesk, Inc. All rights reserved.
+//
+// Use of this software is subject to the terms of the Autodesk
+// license agreement provided at the time of installation or download,
+// or which otherwise accompanies this software in either electronic
+// or hard copy form.
+//
 #include <NodeTranslator.h>
 #include <SceneTranslator.h>
 #include <Plugin.h>
@@ -8,7 +15,7 @@
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnTypedAttribute.h>
 
-namespace
+namespace MaterialXForMaya
 {
     // TODO: Use a better float compare operator
     inline bool isDifferent(float a, float b)
@@ -32,8 +39,6 @@ namespace
         }
         return name;
     }
-}
-
 
 set<string> NodeTranslator::_attributeIgnoreList;
 
@@ -213,7 +218,7 @@ bool NodeTranslator::shouldExport(const MPlug& mayaPlug, mx::ValuePtr defaultVal
         return true;
     }
 
-    const std::string mxType = SceneTranslator::getMxType(mayaPlug.attribute());
+    const std::string mxType = SceneTranslator::getMaterialXType(mayaPlug.attribute());
 
     // Export only if value is different from default value
     if (mxType == "boolean")
@@ -335,7 +340,7 @@ NodeTranslator::TranslatorData::TranslatorData(const MObject& mayaNode, mx::Cons
         for (unsigned int i = 0; i < fnNode.attributeCount(); ++i)
         {
             MFnAttribute fnAttr(fnNode.attribute(i));
-            const std::string attrType = SceneTranslator::getMxType(fnAttr.object());
+            const std::string attrType = SceneTranslator::getMaterialXType(fnAttr.object());
 
             // Ignore unsupported types and child attributes
             if (attrType.empty() ||
@@ -376,4 +381,7 @@ NodeTranslator::TranslatorData::TranslatorData(const MObject& mayaNode, mx::Cons
         }
     }
 }
+
+} // namespace MaterialXForMaya
+
 

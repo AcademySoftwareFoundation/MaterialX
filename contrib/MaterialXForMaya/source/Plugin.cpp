@@ -1,3 +1,10 @@
+// Copyright 2017 Autodesk, Inc. All rights reserved.
+//
+// Use of this software is subject to the terms of the Autodesk
+// license agreement provided at the time of installation or download,
+// or which otherwise accompanies this software in either electronic
+// or hard copy form.
+//
 #include <Plugin.h>
 #include <Factory.h>
 #include <FileTranslator.h>
@@ -13,6 +20,9 @@
 
 #include <maya/MFnPlugin.h>
 #include <maya/MFnDependencyNode.h>
+
+namespace MaterialXForMaya
+{
 
 Plugin& Plugin::instance()
 {
@@ -92,31 +102,34 @@ NodeTranslatorPtr Plugin::getTranslator(const MObject& mayaNode)
     return translator;
 }
 
+} // namespace MaterialXForMaya
 
 MStatus initializePlugin(MObject obj)
 {
     MFnPlugin fnPlugin(obj, PLUGIN_COMPANY, "0.1", "Any");
 
-    if (!Plugin::instance().initialize(fnPlugin.loadPath().asChar()))
+    if (!MaterialXForMaya::Plugin::instance().initialize(fnPlugin.loadPath().asChar()))
     {
         return MS::kFailure;
     }
 
     // Register all translator classes
-    Plugin::instance().registerTranslator(DefaultTranslator::typeName(), DefaultTranslator::creator);
-    Plugin::instance().registerTranslator(ImageFile::typeName(), ImageFile::creator);
-    Plugin::instance().registerTranslator(AmbientOcclusion::typeName(), AmbientOcclusion::creator);
-    Plugin::instance().registerTranslator(Place2dTexture::typeName(), Place2dTexture::creator);
-    Plugin::instance().setDefaultTranslator(DefaultTranslator::typeName());
+    MaterialXForMaya::Plugin::instance().registerTranslator(MaterialXForMaya::DefaultTranslator::typeName(), MaterialXForMaya::DefaultTranslator::creator);
+    MaterialXForMaya::Plugin::instance().registerTranslator(MaterialXForMaya::ImageFile::typeName(), MaterialXForMaya::ImageFile::creator);
+    MaterialXForMaya::Plugin::instance().registerTranslator(MaterialXForMaya::AmbientOcclusion::typeName(), MaterialXForMaya::AmbientOcclusion::creator);
+    MaterialXForMaya::Plugin::instance().registerTranslator(MaterialXForMaya::Place2dTexture::typeName(), MaterialXForMaya::Place2dTexture::creator);
+    MaterialXForMaya::Plugin::instance().setDefaultTranslator(MaterialXForMaya::DefaultTranslator::typeName());
 
     MStatus status;
-    status = fnPlugin.registerFileTranslator(FileTranslator::kTranslatorName, "none", FileTranslator::creator, FileTranslator::kOptionScript.asChar(), FileTranslator::kDefaultOptions.asChar());
+    status = fnPlugin.registerFileTranslator(MaterialXForMaya::FileTranslator::kTranslatorName, "none", MaterialXForMaya::FileTranslator::creator, 
+        MaterialXForMaya::FileTranslator::kOptionScript.asChar(), MaterialXForMaya::FileTranslator::kDefaultOptions.asChar());
     if (!status)
     {
         return status;
     }
 
-    status = fnPlugin.registerCommand(ExportCmd::kCmdName, ExportCmd::creator, ExportCmd::newSyntax);
+    status = fnPlugin.registerCommand(MaterialXForMaya::ExportCmd::kCmdName, MaterialXForMaya::ExportCmd::creator, 
+                                      MaterialXForMaya::ExportCmd::newSyntax);
     if (!status)
     {
         return status;
@@ -131,12 +144,12 @@ MStatus uninitializePlugin(MObject obj)
 
     MStatus status;
 
-    status = fnPlugin.deregisterFileTranslator(FileTranslator::kTranslatorName);
+    status = fnPlugin.deregisterFileTranslator(MaterialXForMaya::FileTranslator::kTranslatorName);
     if (!status)
     {
         return status;
     }
-    status = fnPlugin.deregisterCommand(ExportCmd::kCmdName);
+    status = fnPlugin.deregisterCommand(MaterialXForMaya::ExportCmd::kCmdName);
     if (!status)
     {
         return status;
@@ -144,3 +157,4 @@ MStatus uninitializePlugin(MObject obj)
 
     return status;
 }
+

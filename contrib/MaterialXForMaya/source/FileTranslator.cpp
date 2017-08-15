@@ -1,3 +1,10 @@
+// Copyright 2017 Autodesk, Inc. All rights reserved.
+//
+// Use of this software is subject to the terms of the Autodesk
+// license agreement provided at the time of installation or download,
+// or which otherwise accompanies this software in either electronic
+// or hard copy form.
+//
 #include <FileTranslator.h>
 #include <SceneTranslator.h>
 #include <MaterialXFormat/XmlIo.h>
@@ -5,7 +12,7 @@
 
 namespace mx = MaterialX;
 
-namespace
+namespace MaterialXForMaya
 {
     MStatus parseOptions(const MString& optionsString, SceneTranslator::Options& options)
     {
@@ -59,7 +66,6 @@ namespace
         }
         return MS::kSuccess;
     }
-}
 
 const MString FileTranslator::kTranslatorName = "MaterialX";
 const MString FileTranslator::kOptionScript = "mxFileTranslatorOptions";
@@ -152,3 +158,4 @@ MPxFileTranslator::MFileKind FileTranslator::identifyFile(const MFileObject& fil
     return kNotMyFileType;
 }
 
+} // namespace MaterialXForMaya

@@ -1,3 +1,10 @@
+// Copyright 2017 Autodesk, Inc. All rights reserved.
+//
+// Use of this software is subject to the terms of the Autodesk
+// license agreement provided at the time of installation or download,
+// or which otherwise accompanies this software in either electronic
+// or hard copy form.
+//
 #include <ExportCmd.h>
 #include <SceneTranslator.h>
 
@@ -8,39 +15,37 @@
 
 #include <sstream>
 
-namespace
+namespace MaterialXForMaya
 {
-    const char* fileFlag = "file";
-    const char* fileFlagShort = "f";
+const char* fileFlag = "file";
+const char* fileFlagShort = "f";
 
-    const char* selectionFlag = "selection";
-    const char* selectionFlagShort = "sel";
+const char* selectionFlag = "selection";
+const char* selectionFlagShort = "sel";
 
-    const char* includeStdLibFlag = "includeStdLib";
-    const char* includeStdLibFlagShort = "std";
+const char* includeStdLibFlag = "includeStdLib";
+const char* includeStdLibFlagShort = "std";
 
-    const char* materialAssignmentsFlag = "materialAssignments";
-    const char* materialAssignmentsFlagShort = "ma";
+const char* materialAssignmentsFlag = "materialAssignments";
+const char* materialAssignmentsFlagShort = "ma";
 
-    const char* surfaceShadersFlag = "surfaceShaders";
-    const char* surfaceShadersFlagShort = "ss";
+const char* surfaceShadersFlag = "surfaceShaders";
+const char* surfaceShadersFlagShort = "ss";
 
-    const char* displacementShadersFlag = "displacementShaders";
-    const char* displacementShadersFlagShort = "ds";
+const char* displacementShadersFlag = "displacementShaders";
+const char* displacementShadersFlagShort = "ds";
 
-    const char* nodeDefinitionsFlag = "nodeDefinitions";
-    const char* nodeDefinitionsFlagShort = "nd";
+const char* nodeDefinitionsFlag = "nodeDefinitions";
+const char* nodeDefinitionsFlagShort = "nd";
 
-    const char* lightsFlag = "lights";
-    const char* lightsFlagShort = "li";
+const char* lightsFlag = "lights";
+const char* lightsFlagShort = "li";
 
-    const char* lightAssignmentsFlag = "lightAssignments";
-    const char* lightAssignmentsFlagShort = "lia";
+const char* lightAssignmentsFlag = "lightAssignments";
+const char* lightAssignmentsFlagShort = "lia";
 
-    const char* lightShadersFlag = "lightShaders";
-    const char* lightShadersFlagShort = "lis";
-}
-
+const char* lightShadersFlag = "lightShaders";
+const char* lightShadersFlagShort = "lis";
 
 const MString ExportCmd::kCmdName = "mxExport";
 
@@ -123,3 +128,5 @@ MStatus ExportCmd::doIt(const MArgList& argList)
 
     return MS::kSuccess;
 }
+
+} // namespace MaterialXForMaya
