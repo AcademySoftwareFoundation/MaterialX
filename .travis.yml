@@ -1,13 +1,23 @@
-dist: trusty
 language: cpp
 
-compiler:
-  - gcc
-  - clang
-  
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      compiler: gcc
+    - os: linux
+      dist: trusty
+      compiler: clang
+    - os: osx
+      compiler: gcc
+    - os: osx
+      compiler: clang
+      
 script:
-  - mkdir build && cd build
+  - mkdir build
+  - cd build
   - cmake -DMATERIALX_BUILD_PYTHON=ON ..
-  - make -j4
+  - make -j4 install
+  - python ../python/MaterialXTest/main.py
   - cd source/MaterialXTest
   - ./MaterialXTest
