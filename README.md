@@ -1,10 +1,13 @@
 # MaterialX
 
+[![Travis Build Status](https://travis-ci.org/materialx/MaterialX.svg?branch=master)](https://travis-ci.org/materialx/MaterialX)
+[![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/dqn1n7y37xra88ol?svg=true)](https://ci.appveyor.com/project/jstone-lucasfilm/materialx-pbgc5)
+
 MaterialX is an open standard for transfer of rich material and look-development content between applications and renderers.  Originated at Lucasfilm in 2012, MaterialX has been used by Industrial Light & Magic (ILM) in feature films such as _Star Wars: The Force Awakens_ and real-time experiences such as _Trials on Tatooine_, and it remains the central material format for new ILM productions.
 
 ### Quick Start for Developers
 
-- Download the latest version of the [CMake](https://cmake.org/) build system.
+- Download the latest version of theÂ [CMake](https://cmake.org/) build system.
 - Point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
 - Select the `MATERIALX_BUILD_PYTHON` option to build Python 2.x bindings.
 
