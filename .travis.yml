@@ -17,7 +17,6 @@ script:
   - mkdir build
   - cd build
   - cmake -DMATERIALX_BUILD_PYTHON=ON ..
-  - make -j4 install
-  - python ../python/MaterialXTest/main.py
-  - cd source/MaterialXTest
-  - ./MaterialXTest
+  - cmake --build . --target install -- -j4
+  - cmake -E chdir source/MaterialXTest ./MaterialXTest
+  - cmake -E chdir ../python/MaterialXTest python main.py
