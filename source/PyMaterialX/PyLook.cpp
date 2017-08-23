@@ -51,6 +51,9 @@ void bindPyLook(py::module& mod)
         .def_readonly_static("CATEGORY", &mx::Look::CATEGORY);
 
     py::class_<mx::MaterialAssign, mx::MaterialAssignPtr, mx::GeomElement>(mod, "MaterialAssign", py::metaclass())
+        .def("setMaterial", &mx::MaterialAssign::setMaterial)
+        .def("hasMaterial", &mx::MaterialAssign::hasMaterial)
+        .def("getMaterial", &mx::MaterialAssign::getMaterial)
         .def("setExclusive", &mx::MaterialAssign::setExclusive)
         .def("getExclusive", &mx::MaterialAssign::getExclusive)
         .def("getReferencedMaterial", &mx::MaterialAssign::getReferencedMaterial)

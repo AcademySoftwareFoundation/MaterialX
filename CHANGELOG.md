@@ -4,6 +4,11 @@
 
 ### Added
 - Added method Element\:\:setName.
+- Extended Python bindings for Document, MaterialAssign, and Collection.
+
+### Changed
+- Modified NodeGraph\:\:topologicalSort to return elements in a more intuitive top-down order, with upstream elements preceding downstream elements.
+- Updated OSL reference implementations.
 
 ### Fixed
 - Fixed handling of empty names in Element\:\:addChildOfCategory.
@@ -47,7 +52,7 @@ Updated the MaterialX library to the v1.35 specification.
 - Removed the 'default' attribute from MaterialX\:\:ValueElement.  In v1.35, this functionality is now handled by the 'value' attribute.
 - Replaced the 'matrix' type with 'matrix33' and 'matrix44', and replaced the MaterialX\:\:Matrix16 class with MaterialX\:\:Matrix3x3 and MaterialX\:\:Matrix4x4.
 - Renamed Material\:\:getMaterialAssigns to Material\:\:getReferencingMaterialAssigns.
-- Change the argument type for MaterialAssign\:\:setExclusive and MaterialAssign\:\:getExclusive to boolean.
+- Changed the argument type for MaterialAssign\:\:setExclusive and MaterialAssign\:\:getExclusive to boolean.
 
 ## [1.34.4] - 2017-06-09
 
