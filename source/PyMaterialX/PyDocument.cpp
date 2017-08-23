@@ -61,6 +61,7 @@ void bindPyDocument(py::module& mod)
         .def("getNodeDefs", &mx::Document::getNodeDefs)
         .def("removeNodeDef", &mx::Document::removeNodeDef)
         .def("getMatchingNodeDefs", &mx::Document::getMatchingNodeDefs)
+        .def("getMatchingImplementations", &mx::Document::getMatchingImplementations)
         .def("addPropertySet", &mx::Document::addPropertySet,
             py::arg("name") = mx::EMPTY_STRING)
         .def("getPropertySet", &mx::Document::getPropertySet)

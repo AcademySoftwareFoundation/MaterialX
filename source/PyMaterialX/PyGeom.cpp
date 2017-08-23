@@ -45,7 +45,17 @@ void bindPyGeom(py::module& mod)
         .def_readonly_static("CATEGORY", &mx::GeomAttr::CATEGORY);
 
     py::class_<mx::Collection, mx::CollectionPtr, mx::Element>(mod, "Collection", py::metaclass())
-        .def_readonly_static("CATEGORY", &mx::CollectionAdd::CATEGORY);
+        .def("addCollectionAdd", &mx::Collection::addCollectionAdd,
+            py::arg("name") = mx::EMPTY_STRING)
+        .def("getCollectionAdd", &mx::Collection::getCollectionAdd)
+        .def("getCollectionAdds", &mx::Collection::getCollectionAdds)
+        .def("removeCollectionAdd", &mx::Collection::removeCollectionAdd)
+        .def("addCollectionRemove", &mx::Collection::addCollectionRemove,
+            py::arg("name") = mx::EMPTY_STRING)
+        .def("getCollectionRemove", &mx::Collection::getCollectionRemove)
+        .def("getCollectionRemoves", &mx::Collection::getCollectionRemoves)
+        .def("removeCollectionRemove", &mx::Collection::removeCollectionRemove)
+        .def_readonly_static("CATEGORY", &mx::Collection::CATEGORY);
 
     py::class_<mx::CollectionAdd, mx::CollectionAddPtr, mx::GeomElement>(mod, "CollectionAdd", py::metaclass())
         .def_readonly_static("CATEGORY", &mx::CollectionAdd::CATEGORY);
