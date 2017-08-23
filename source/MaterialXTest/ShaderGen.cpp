@@ -16,12 +16,13 @@
 
 namespace mx = MaterialX;
 
-using GeneratorDescription = std::tuple<
-    std::string, 
-    std::string, 
-    std::string, 
-    std::vector<std::string>
->;
+struct GeneratorDescription
+{
+    std::string _language;
+    std::string _target;
+    std::string _fileExt;
+    std::vector<std::string> _implementationLibrary;
+};
 
 TEST_CASE("Registry", "[shadergen]")
 {
@@ -200,13 +201,13 @@ TEST_CASE("Nodegraph Shader Generation", "[shadergen]")
     for (auto desc : generatorDescriptions)
     {
         // Load in the implementation libraries
-        for (const std::string& libfile : std::get<3>(desc))
+        for (const std::string& libfile : desc._implementationLibrary)
         {
             mx::readFromXmlFile(doc, libfile);
         }
 
         // Find the shader generator
-        mx::ShaderGeneratorPtr sg = mx::ShaderGenRegistry::findShaderGenerator(std::get<0>(desc), std::get<1>(desc));
+        mx::ShaderGeneratorPtr sg = mx::ShaderGenRegistry::findShaderGenerator(desc._language, desc._target);
         REQUIRE(sg != nullptr);
 
         // Test shader generation from nodegraph output
@@ -215,7 +216,7 @@ TEST_CASE("Nodegraph Shader Generation", "[shadergen]")
         REQUIRE(shader->getSourceCode().length() > 0);
         // Write out to file for inspection
         // TODO: Match against blessed versions
-        file.open(shader->getName() + "_graphoutput." + std::get<2>(desc));
+        file.open(shader->getName() + "_graphoutput." + desc._fileExt);
         file << shader->getSourceCode();
         file.close();
 
@@ -225,7 +226,7 @@ TEST_CASE("Nodegraph Shader Generation", "[shadergen]")
         REQUIRE(shader->getSourceCode().length() > 0);
         // Write out to file for inspection
         // TODO: Match against blessed versions
-        file.open(shader->getName() + "_node." + std::get<2>(desc));
+        file.open(shader->getName() + "_node." + desc._fileExt);
         file << shader->getSourceCode();
         file.close();
     }
@@ -307,12 +308,12 @@ TEST_CASE("Material Shader Generation", "[shadergen]")
     for (auto desc : generatorDescriptions)
     {
         // Load in the implementation libraries
-        for (const std::string& libfile : std::get<3>(desc))
+        for (const std::string& libfile : desc._implementationLibrary)
         {
             mx::readFromXmlFile(doc, libfile);
         }
         // Find the shader generator
-        mx::ShaderGeneratorPtr sg = mx::ShaderGenRegistry::findShaderGenerator(std::get<0>(desc), std::get<1>(desc));
+        mx::ShaderGeneratorPtr sg = mx::ShaderGenRegistry::findShaderGenerator(desc._language, desc._target);
         REQUIRE(sg != nullptr);
 
         // Test shader generation from nodegraph output
@@ -323,7 +324,7 @@ TEST_CASE("Material Shader Generation", "[shadergen]")
         // Write out to file for inspection
         // TODO: Match against blessed versions
         std::ofstream file;
-        file.open(shader->getName() + "_shaderref." + std::get<2>(desc));
+        file.open(shader->getName() + "_shaderref." + desc._fileExt);
         file << shader->getSourceCode();
         file.close();
     }
