@@ -7,6 +7,7 @@ cmake_minimum_required(VERSION 3.1)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_MACOSX_RPATH ON)
+enable_testing()
 
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 2.6 or greater." OFF)
 option(MATERIALX_GENERATE_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
