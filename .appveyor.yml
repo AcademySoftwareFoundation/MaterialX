@@ -5,14 +5,20 @@ clone_folder: C:\Projects\MaterialX
 environment:
   matrix:
     - CMAKE_PLATFORM: "Visual Studio 14 2015"
+      PYTHON: C:\Python26
     - CMAKE_PLATFORM: "Visual Studio 14 2015 Win64"
+      PYTHON: C:\Python27-x64
 
 configuration:
-    - Release
+  - Release
     
+install:
+  - SET PATH=%PYTHON%;%PATH%
+  
 build_script:
   - mkdir build
   - cd build
-  - cmake -G "%CMAKE_PLATFORM%" ..
+  - cmake -DMATERIALX_BUILD_PYTHON=ON -G "%CMAKE_PLATFORM%" ..
   - cmake --build . --target install --config %CONFIGURATION%
   - ctest --output-on-failure --build-config %CONFIGURATION%
+  - cmake -E chdir ../python/MaterialXTest python main.py
