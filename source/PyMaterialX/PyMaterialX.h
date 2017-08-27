@@ -17,6 +17,10 @@
 
 #include <PyBind11/pybind11.h>
 
-PYBIND11_DECLARE_HOLDER_TYPE(holder, std::shared_ptr<holder>);
+#if PY_MAJOR_VERSION < 3
+using PyDefaultString = pybind11::bytes;
+#else
+using PyDefaultString = pybind11::str;
+#endif
 
 #endif
