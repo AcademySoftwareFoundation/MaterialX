@@ -112,14 +112,8 @@ InterfaceElement.getParameterValue = _getParameterValue
 
 def _addNode(self, category, name = '', typeString = 'color3'):
     "Add an opgraph node."
-    if not isinstance(typeString, basestring):
-        warnings.warn("The typeString argument of NodeGraph.addNode is expected to be of string type", DeprecationWarning, stacklevel = 2)
-        typeString = typeToName(typeString)
-    if category == 'output':
-        warnings.warn("To create an output element, use the method NodeGraph.addOutput", DeprecationWarning, stacklevel = 2)
-        return self.addOutput(name, typeString)
     return self._addNode(category, name, typeString)
-    
+
 NodeGraph.addNode = _addNode
 
 
