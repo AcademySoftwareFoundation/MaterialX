@@ -1,5 +1,5 @@
 version: "{build}"
-os: Visual Studio 2015
+os: Visual Studio 2017
 clone_folder: C:\Projects\MaterialX
 
 environment:
@@ -8,12 +8,14 @@ environment:
       PYTHON: C:\Python26
     - CMAKE_PLATFORM: "Visual Studio 14 2015 Win64"
       PYTHON: C:\Python27-x64
+    - CMAKE_PLATFORM: "Visual Studio 15 2017 Win64"
+      PYTHON: C:\Python36-x64
 
 configuration:
   - Release
     
 install:
-  - SET PATH=%PYTHON%;%PATH%
+  - set PATH=%PYTHON%;%PATH%
   
 build_script:
   - mkdir build
