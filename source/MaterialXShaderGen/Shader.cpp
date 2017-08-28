@@ -81,6 +81,9 @@ void Shader::initialize(ElementPtr element, const string& language, const string
             throw ExceptionShaderGenError("No nodedef found for node '" + newNode->getCategory() + "' with type '" + newNode->getType() + "'");
         }
 
+        // Copy the nodedef string from the source graph
+        _nodeGraph->setNodeDef(output->getParent()->asA<NodeGraph>()->getNodeDef());
+
         // Connect any needed default geometric nodes
         addDefaultGeometricNodes(newNode, nodeDef, _nodeGraph);
 
@@ -103,6 +106,9 @@ void Shader::initialize(ElementPtr element, const string& language, const string
             throw ExceptionShaderGenError("No nodedef found for node '" + newNode->getCategory() + "' with type '" + newNode->getType() + "'");
         }
 
+        // Copy the nodedef string from the source node
+        _nodeGraph->setNodeDef(nodeDef->getName());
+
         // Connect any needed default geometric nodes
         addDefaultGeometricNodes(newNode, nodeDef, _nodeGraph);
 
@@ -119,6 +125,9 @@ void Shader::initialize(ElementPtr element, const string& language, const string
         {
             throw ExceptionShaderGenError("No nodedef found for shader node '" + shaderRef->getNode() + "'");
         }
+
+        // Copy the nodedef string from the source shader
+        _nodeGraph->setNodeDef(nodeDef->getName());
 
         NodePtr newNode = _nodeGraph->addNode(nodeDef->getNode(), getLongName(shaderRef), nodeDef->getType());
         for (BindInputPtr bindInput : shaderRef->getBindInputs())
@@ -231,19 +240,52 @@ void Shader::initialize(ElementPtr element, const string& language, const string
     const string& vdir = element->getRoot()->getAttribute("vdirection");
     _vdirection = vdir == "down" ? VDirection::DOWN : VDirection::UP;;
 
-    // TODO: Add back the support for creating shader uniforms from the graph inputs
-    //       This has not been merged over from the old ShaderX repo yet 
-/*
-    for (size_t i = 0; i < _graph->numInputs(); ++i)
+    // Create shader uniforms from the graph interface being used
+    NodeDefPtr graphNodeDef = doc->getNodeDef(_nodeGraph->getNodeDef());
+    if (graphNodeDef)
     {
-        const Input* input = _graph->getInput(i);
-        const UString& inputName = input->getName();
-        if (usedInputInterface.find(inputName) != usedInputInterface.end())
+        for (ParameterPtr param : graphNodeDef->getParameters())
         {
-            _finalShaderInputs.push_back(std::make_pair(inputName.str(), input->asShared<const Input>()));
+            if (_usedInterface.count(param) > 0)
+            {
+                addUniform(Uniform(param->getName(), param));
+            }
+        }
+        for (InputPtr input : graphNodeDef->getInputs())
+        {
+            if (_usedInterface.count(input) > 0)
+            {
+                addVarying(Varying(input->getName(), input));
+            }
         }
     }
-*/
+
+    // Create shader uniforms from all public named ports
+    for (const SgNode& n : _nodes)
+    {
+        const Node& node = n.getNode();
+
+        for (ParameterPtr param : node.getParameters())
+        {
+            const string& publicname = param->getPublicName();
+            if (!publicname.empty())
+            {
+                addUniform(Uniform(publicname, param));
+            }
+        }
+        for (InputPtr input : node.getInputs())
+        {
+            // Don't publish connected inputs
+            if (input->getNodeName().empty())
+            {
+                const string& publicname = input->getPublicName();
+                if (!publicname.empty())
+                {
+                    addVarying(Varying(publicname, input));
+                }
+            }
+        }
+    }
 
     //
     // Calculate scopes for all nodes, considering branching from conditional nodes
@@ -487,13 +529,24 @@ NodePtr Shader::optimize(const Edge& edge)
         return nullptr;
     }
 
-    NodePtr node = edge.getUpstreamElement()->asA<Node>();
+    ElementPtr upstreamElement = edge.getUpstreamElement();
+
+    // Check if this is a connection to the graph interface
+    if (upstreamElement->getParent()->isA<NodeDef>())
+    {
+        ValueElementPtr interfacePort = upstreamElement->asA<ValueElement>();
+        _usedInterface.insert(interfacePort);
+        return nullptr;
+    }
+
+    NodePtr node = upstreamElement->asA<Node>();
     if (!node)
     {
         return nullptr;
     }
 
     ValuePtr value = nullptr;
+    string publicname = "";
 
     if (node->getCategory() == Compare::kNode)
     {
@@ -538,6 +591,7 @@ NodePtr Shader::optimize(const Edge& edge)
     {
         const ParameterPtr param = node->getParameter("value");
         value = param->getValue();
+        publicname = param->getPublicName();
     }
 
     if (value)
@@ -551,6 +605,7 @@ NodePtr Shader::optimize(const Edge& edge)
             {
                 input->setConnectedNode(nullptr);
                 input->setValueString(value->getValueString());
+                input->setPublicName(publicname);
             }
         }
 

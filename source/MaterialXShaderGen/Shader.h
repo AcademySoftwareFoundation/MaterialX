@@ -170,6 +170,7 @@ protected:
     OutputPtr _output;
     vector<SgNode> _nodes;
     unordered_map<NodePtr, size_t> _nodeToSgNodeIndex;
+    set<ValueElementPtr> _usedInterface;
     VDirection _vdirection;
 
     size_t _activeStage;

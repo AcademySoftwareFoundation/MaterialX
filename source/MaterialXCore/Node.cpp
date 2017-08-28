@@ -101,7 +101,8 @@ ElementPtr Node::getImplementation(const string& target) const
         vector<ElementPtr> implementations = getDocument()->getMatchingImplementations(nodeDef->getName());
         for (ElementPtr implementation : implementations)
         {
-            if (implementation->getTarget() == target)
+            const string& implTarget = implementation->getTarget();
+            if (implTarget.empty() || implTarget == target)
             {
                 return implementation;
             }
@@ -120,6 +121,20 @@ Edge Node::getUpstreamEdge(MaterialPtr material, size_t index)
         if (upstreamNode)
         {
             return Edge(getSelf(), input, upstreamNode);
+        }
+        const string& interfaceName = input->getInterfaceName();
+        if (!interfaceName.empty())
+        {
+            const string& nodeDefName = getParent()->asA<NodeGraph>()->getNodeDef();
+            NodeDefPtr nodeDef = getDocument()->getNodeDef(nodeDefName);
+            if (nodeDef)
+            {
+                ValueElementPtr interfacePort = nodeDef->getChildOfType<ValueElement>(interfaceName);
+                if (interfacePort)
+                {
+                    return Edge(getSelf(), input, interfacePort);
+                }
+            }
         }
     }
 
@@ -186,7 +201,7 @@ void NodeGraph::flattenSubgraphs(const string& target)
                 }
 
                 ValueElementPtr refValue = refNode->getChildOfType<ValueElement>(newValue->getInterfaceName());
-                if (refNode)
+                if (refValue)
                 {
                     if (refValue->hasValueString())
                     {
@@ -195,14 +210,22 @@ void NodeGraph::flattenSubgraphs(const string& target)
                     if (newValue->isA<Input>() && refValue->isA<Input>())
                     {
                         InputPtr refInput = refValue->asA<Input>();
-                        InputPtr newInput = newValue->asA<Input>();
                         if (refInput->hasNodeName())
                         {
+                            InputPtr newInput = newValue->asA<Input>();
                             newInput->setNodeName(refInput->getNodeName());
                         }
                     }
+                    if (refValue->hasInterfaceName())
+                    {
+                        newValue->setInterfaceName(refValue->getInterfaceName());
+                    }
+                    else
+                    {
+                        newValue->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                    }
+                    newValue->setPublicName(refValue->getPublicName());
                 }
-                newValue->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
             }
 
             // Store the mapping between subgraphs.
