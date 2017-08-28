@@ -276,13 +276,13 @@ TEST_CASE("Subgraph Shader Generation", "[shadergen]")
     for (auto desc : generatorDescriptions)
     {
         // Load in the implementation libraries
-        for (const std::string& libfile : std::get<3>(desc))
+        for (const std::string& libfile : desc._implementationLibrary)
         {
             mx::readFromXmlFile(doc, libfile);
         }
 
         // Find the shader generator
-        mx::ShaderGeneratorPtr sg = mx::ShaderGenRegistry::findShaderGenerator(std::get<0>(desc), std::get<1>(desc));
+        mx::ShaderGeneratorPtr sg = mx::ShaderGenRegistry::findShaderGenerator(desc._language, desc._target);
         REQUIRE(sg != nullptr);
 
         // Test shader generation from nodegraph output
@@ -292,7 +292,7 @@ TEST_CASE("Subgraph Shader Generation", "[shadergen]")
 
         // Write out to file for inspection
         // TODO: Match against blessed versions
-        file.open(shader->getName() + "." + std::get<2>(desc));
+        file.open(shader->getName() + "." + desc._fileExt);
         file << shader->getSourceCode();
         file.close();
     }
