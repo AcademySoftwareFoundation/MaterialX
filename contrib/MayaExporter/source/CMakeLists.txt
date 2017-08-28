@@ -26,13 +26,10 @@ set_target_properties(
     COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
     VERSION ${MAYA_EXPORTER_VERSION}
-    SOVERSION ${SOVERSION})
-
-set_target_properties(
-    MayaExporter
-    PROPERTIES
+    SOVERSION ${MAYA_EXPORTER_VERSION}
     PREFIX ""
-    SUFFIX ".mll")
+    SUFFIX ".mll"
+)
 
 include_directories(
     ${EXTERNAL_INCLUDE_DIRS}
