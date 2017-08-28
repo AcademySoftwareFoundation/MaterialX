@@ -20,7 +20,7 @@ root directory of the project.
 	- If building Arnold locally use the 'develop' branch for now.
 
 3. Run Cmake GUI and set the following options:
-    - BUILD_MATERIALX_FOR_MAYA = True
+    - MATERIALX_BUILD_MAYA_EXPORTER = True
 	- CMAKE_INSTALL_PREFIX = yourpath/deploy
 	- MATERIALX_DIR = path to MaterialX SDK
 	- MAYA_DEBUG_DIR = path to debug build of Maya (as needed)
