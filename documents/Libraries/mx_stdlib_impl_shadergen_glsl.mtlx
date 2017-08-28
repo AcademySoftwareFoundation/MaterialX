@@ -352,7 +352,21 @@
 
   <!-- <contrast> -->
   <!-- <remap> -->
+
   <!-- <smoothstep> -->
+  <implementation name="IM_smoothstep__float__glsl" nodedef="ND_smoothstep__float" file="Source/ShaderGen/Common/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__color2__glsl" nodedef="ND_smoothstep__color2" file="Source/ShaderGen/Common/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__color2FA__glsl" nodedef="ND_smoothstep__color2FA" file="Source/ShaderGen/Common/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__color3__glsl" nodedef="ND_smoothstep__color3" file="Source/ShaderGen/Common/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__color3FA__glsl" nodedef="ND_smoothstep__color3FA" file="Source/ShaderGen/Common/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__color4__glsl" nodedef="ND_smoothstep__color4" file="Source/ShaderGen/Common/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__color4FA__glsl" nodedef="ND_smoothstep__color4FA" file="Source/ShaderGen/Common/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__vector2__glsl" nodedef="ND_smoothstep__vector2" file="Source/ShaderGen/Common/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__vector2FA__glsl" nodedef="ND_smoothstep__vector2FA" file="Source/ShaderGen/Common/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__vector3__glsl" nodedef="ND_smoothstep__vector3" file="Source/ShaderGen/Common/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__vector3FA__glsl" nodedef="ND_smoothstep__vector3FA" file="Source/ShaderGen/Common/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__vector4__glsl" nodedef="ND_smoothstep__vector4" file="Source/ShaderGen/Common/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__vector4FA__glsl" nodedef="ND_smoothstep__vector4FA" file="Source/ShaderGen/Common/mx_smoothstep.inline" language="glsl"/>
 
   <!-- <hueshift> -->
   <implementation name="IM_hueshift__color3__glsl" nodedef="ND_hueshift__color3" file="Source/ShaderGen/GLSL/mx_hueshift_color3.glsl" function="mx_hueshift_color3" language="glsl"/>
