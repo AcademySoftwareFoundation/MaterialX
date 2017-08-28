@@ -1,16 +1,14 @@
-project(MaterialXForMaya)
-set(MXTOOLS_VERSION_MAJOR 0)
-set(MXTOOLS_VERSION_MINOR 1)
+project(MayaExporter)
+set(MAYA_EXPORTER_VERSION_MAJOR 0)
+set(MAYA_EXPORTER_VERSION_MINOR 1)
 
 cmake_minimum_required(VERSION 3.1)
 set (CMAKE_CXX_STANDARD 11)
 
-set(ADSKMATERIALX_VERSION "${ADSKMATERIALX_VERSION_MAJOR}.${ADSKMATERIALX_VERSION_MINOR}")
-set(SOVERSION ${ADSKMATERIALX_VERSION_MAJOR} CACHE STRING "Set the SO version in the SO name of the output library")
+set(MAYA_EXPORTER_VERSION "${MAYA_EXPORTER_VERSION_MAJOR}.${MAYA_EXPORTER_VERSION_MINOR}")
+set(SOVERSION ${MAYA_EXPORTER_VERSION_MAJOR} CACHE STRING "Set the SO version in the SO name of the output library")
 SET(MAYA_DEBUG_DIR "" CACHE STRING "Location of Maya debug installation.")
 SET(MAYA_RELEASE_DIR "" CACHE STRING "Location of Maya release installation.")
-SET(MAYA_RELEASE_DIR "" CACHE STRING "Location of Maya release installation.")
-SET(MATERIALX_DIR "" CACHE STRING "Location of MaterialX SDK.")
 
 macro(DEPEND_MAYAAPI_INCLUDE)
     if (CMAKE_BUILD_TYPE MATCHES Debug)

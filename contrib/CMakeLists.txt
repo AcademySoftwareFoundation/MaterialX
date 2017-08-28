@@ -1,5 +1,5 @@
-option(BUILD_MATERIALX_FOR_MAYA "BUild MaterialX Exporter for Maya" OFF)
+option(MATERIALX_BUILD_MAYA_EXPORTER "Build MaterialX Exporter for Maya" OFF)
 
-if (BUILD_MATERIALX_FOR_MAYA)	
-  add_subdirectory(MaterialXForMaya)
+if (MATERIALX_BUILD_MAYA_EXPORTER)	
+  add_subdirectory(MayaExporter)
 endif()
