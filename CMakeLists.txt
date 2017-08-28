@@ -59,3 +59,6 @@ endif(MATERIALX_BUILD_PYTHON)
 if(MATERIALX_GENERATE_DOCS)
     add_subdirectory(documents)
 endif(MATERIALX_GENERATE_DOCS)
+
+# Add contribution subdirectories
+add_subdirectory(contrib)
