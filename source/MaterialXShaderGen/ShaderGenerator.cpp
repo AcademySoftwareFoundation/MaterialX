@@ -289,15 +289,30 @@ void ShaderGenerator::emitInput(const ValueElement& port, Shader &shader)
         }
     }
 
-    const string& valueStr = port.getValueString();
-    if (valueStr.length())
+    if (!port.getInterfaceName().empty())
     {
-        ValuePtr value = port.getValue();
-        shader.addStr(_syntax->getValue(*value));
+        shader.addStr(port.getInterfaceName());
+    }
+    else if (!port.getPublicName().empty())
+    {
+        shader.addStr(port.getPublicName());
     }
     else
     {
-        shader.addStr(_syntax->getTypeDefault(port.getType()));
+        const string& valueStr = port.getValueString();
+        if (valueStr.length())
+        {
+            ValuePtr value = port.getValue();
+            if (!value)
+            {
+                throw ExceptionShaderGenError("Malformed value on node port " + port.getParent()->getName() + "." + port.getName());
+            }
+            shader.addStr(_syntax->getValue(*value));
+        }
+        else
+        {
+            shader.addStr(_syntax->getTypeDefault(port.getType()));
+        }
     }
 }
 

@@ -783,7 +783,7 @@ void OgsFxShaderGenerator::addExtraShaderUniforms(Shader& shader)
 bool OgsFxShaderGenerator::useAsShaderUniform(const Parameter& param) const
 {
     // Unconnected file texture inputs should be promoted to shader uniforms
-    if (param.getType() == kFilename && param.getInterfaceName().empty())
+    if (param.getType() == kFilename && param.getInterfaceName().empty() && param.getPublicName().empty())
     {
         ConstElementPtr parent = param.getParent();
         const string& nodeName = parent->isA<NodeDef>() ?
