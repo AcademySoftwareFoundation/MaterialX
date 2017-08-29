@@ -1,7 +1,7 @@
-from MaterialX.main import *
-from MaterialX.colorspace import *
+from .main import *
+from .colorspace import *
 
 try:
-    from MaterialX.legacy import *
+    from .legacy import *
 except ImportError:
     pass

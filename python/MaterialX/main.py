@@ -1,7 +1,7 @@
 import warnings
 
-from MaterialX.PyMaterialX import *
-from MaterialX.datatype import *
+from .PyMaterialX import *
+from .datatype import *
 
 """
 Native Python wrappers for PyMaterialX, providing a more Pythonic interface
