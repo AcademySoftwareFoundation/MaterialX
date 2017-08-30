@@ -1,4 +1,6 @@
-# MaterialXForMaya
+# MayaExporter
+
+Note: This is documentation currently for internal ADSK usage only as work resides in an internal ADSK fork ads/master.
 
 Sample MaterialX exporter for Maya
 
@@ -7,33 +9,14 @@ The project distribution contains the following:
 - **source** (source code)
 - **tools** (various tools and scripts)
 
-# Building
+# Download
 
-The project has succesfully been build on Windows. Cmake is used to generate build files. 
-Follow the steps below to generate the build files. "yourpath" should be replaced with the path to the
-root directory of the project.
-
-1. Download or build the MaterialX SDK. 
-	- If building locally use the 'adsk/master' fork in the MaterialX repo for now.
-
-2. Install or download a cut of Maya. Maya 2018 is needed for Arnold 5.
-	- If building Arnold locally use the 'develop' branch for now.
-
-3. Run Cmake GUI and set the following options:
-    - MATERIALX_BUILD_MAYA_EXPORTER = True
-	- CMAKE_INSTALL_PREFIX = yourpath/deploy
-	- MATERIALX_DIR = path to MaterialX SDK
-	- MAYA_DEBUG_DIR = path to debug build of Maya (as needed)
-	- MAYA_RELEASE_DIR = path to release build of Maya (as needed)
-
-BUILD_MATERIALX_FOR_MAYA will result in adding the plug-in to the build setup. 
-By default it is turned off.
-
-4. Press Configure and then Generate. Build files should be generated and placed in <yourpath>/build
+The internally pre-build export is part of the adsk/master fork which has an artifact located here: 
+https://art-bobcat.autodesk.com/artifactory/webapp/#/artifacts/browse/tree/General/team-autodesk-materialx-generic/materialx
 
 # Running
 
-To have the plug-in show up in Maya's plug-in path make sure to add 'CMAKE_INSTALL_PREFIX'/contrib/MaterialXForMaya to your MAYA_MODULE_PATH.
+To have the plug-in show up in Maya's plug-in path make sure to add 'CMAKE_INSTALL_PREFIX'/contrib/MayaExporter to your MAYA_MODULE_PATH.
 Just loading in the plug-in will result in errors trying to find dependent files.
 
 There are two interfaces which can be used to export. Via the standard Maya export menus (Export All or Export Selected), or directly via the 'mxExport' MEL command.
@@ -51,3 +34,28 @@ Flags:
   -ss -surfaceShaders       on|off
  -std -includeStdLib        on|off
  ```
+
+# Building
+
+The project is currently known to build on Windows and Linux. Cmake is used to generate build files. 
+Follow the steps below to generate the build files. "yourpath" should be replaced with the path to the
+root directory of the project.
+
+1. Download or build the MaterialX SDK. 
+	- (internal) If building locally use the 'adsk/master' fork in the MaterialX repo for now.
+
+2. Install or download a cut of Maya. Maya 2018 is needed for Arnold 5.
+	- If building Arnold locally use the 'develop' branch for now.
+	- (internal) If using the ADSK artifact, use Maya 2018 Gold.
+
+3. Run Cmake GUI and set the following options:
+    	- MATERIALX_BUILD_MAYA_EXPORTER = True 
+	- CMAKE_INSTALL_PREFIX = yourpath/deploy
+	- MATERIALX_DIR = path to MaterialX SDK
+	- MAYA_DEBUG_DIR = path to debug build of Maya (as needed)
+	- MAYA_RELEASE_DIR = path to release build of Maya (as needed)
+
+MATERIALX_BUILD_MAYA_EXPORTER will result in adding the plug-in to the build setup. 
+By default it is turned off.
+
+4. Press Configure and then Generate. Build files should be generated and placed in <yourpath>/build
