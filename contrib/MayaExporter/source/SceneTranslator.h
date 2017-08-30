@@ -39,29 +39,33 @@ struct TranslatorContext
 /// Maya scene translator
 class SceneTranslator
 {
-public:
-    /// @struct SceneTranslator::Options
+  public:
+    /// @struct MaterialXForMaya::SceneTranslator::Options
     /// Options for scene export
     struct Options
     {
-        bool includeStdLib;
-        bool materialAssignments;
-        bool surfaceShaders;
-        bool displacementShaders;
-        bool nodeDefinitions;
-        bool lights;
-        bool lightAssignments;
-        bool lightShaders;
+        bool includeStdLib;         /*!< Output standard library definitions */
+        bool materialAssignments;   /*!< Output material assignments */
+        bool surfaceShaders;        /*!< Output surface shaders */
+        bool displacementShaders;   /*!< Output displaycement shaders */
+        bool nodeDefinitions;       /*!< Output node definitions */
+        bool lights;                /*!< Output lights */
+        bool lightAssignments;      /*!< Output light assignments */
+        bool lightShaders;          /*!< Output light shaders */
     };
 
+    /// Comparitor between Maya object handles
     struct MObjectHandleLess {
+        /// Comparison operator
         bool operator()(const MObjectHandle &lhs, const MObjectHandle &rhs) {
             return lhs.hashCode() < rhs.hashCode();
         }
     };
+
+    /// Set of Maya object handles
     using MObjectHandleSet = std::set<MObjectHandle, MObjectHandleLess>;
 
-public:
+  public:
     /// Scene translator constructor
     SceneTranslator(const Options& options);
     /// Scene translator destructor
@@ -110,7 +114,8 @@ private:
 /// Handler for translation exceptions
 class TranslatorError : public Exception
 {
-public:
+  public:
+    /// Constructor
 	TranslatorError(const string& msg) : Exception(msg) {}
 };
 

@@ -2,7 +2,8 @@
 <materialx version="1.35">
 
   <!-- <adskSurface> -->
-  <nodedef name="ND_adskSurface" node="adskSurface" type="surfaceshader" nodecategory="surfaceshader">
+  <nodedef name="ND_adskSurface" node="adskSurface" type="surfaceshader" nodecategory="surfaceshader"
+           doc="This node is a stock ADSK surface uber shader. The current implementation is based on the Arnold surface shader">
       <input name="base" type="float" value="0.8" />
       <input name="base_color" type="color3" value="1, 1, 1" />
       <input name="diffuse_roughness" type="float" value="0" />

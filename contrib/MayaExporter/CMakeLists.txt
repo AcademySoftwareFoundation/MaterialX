@@ -1,6 +1,7 @@
 project(MayaExporter)
 set(MAYA_EXPORTER_VERSION_MAJOR 0)
 set(MAYA_EXPORTER_VERSION_MINOR 1)
+set(MAYA_EXPORTER_BUILD_VERSION 0)
 
 cmake_minimum_required(VERSION 3.1)
 set (CMAKE_CXX_STANDARD 11)
@@ -45,3 +46,4 @@ endif()
 
 # Add subdirectories
 add_subdirectory(source)
+add_subdirectory(documents)

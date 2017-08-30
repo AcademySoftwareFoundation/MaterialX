@@ -16,7 +16,7 @@ namespace MaterialXForMaya
 /// @class FileTranslator
 /// Custom Maya File translator
 class FileTranslator : public MPxFileTranslator {
-public:
+  public:
     FileTranslator();
     virtual ~FileTranslator();
 
@@ -38,8 +38,11 @@ public:
     /// Identify file type
     MFileKind identifyFile(const MFileObject& fileName, const char* buffer, short size) const override;
 
+    /// Name of translator
     static const MString kTranslatorName;
+    /// Option script
     static const MString kOptionScript;
+    /// Default options
     static const MString kDefaultOptions;
 };
 

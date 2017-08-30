@@ -21,13 +21,15 @@ namespace mx = MaterialX;
 namespace MaterialXForMaya
 {
 
+/// Shared pointer to node translator
 using NodeTranslatorPtr = shared_ptr<class NodeTranslator>;
 
 /// @class NodeTranslator
 /// The base class for node translators.
 class NodeTranslator
 {
-public:
+  public:
+    /// Destructor
     virtual ~NodeTranslator() {}
 
     /// Initialize with translator data
@@ -65,12 +67,14 @@ public:
         return mxName;
     }
 
-protected:
-    // Protected constructor
+  protected:
+    /// Protected constructor
     NodeTranslator();
 
+    /// Get node name based on type
     string getNodeName(const MObject& mayaNode, const std::string& outputType);
 
+    /// PortType
     enum PortType
     {
         INPUT_PORT,
@@ -78,35 +82,47 @@ protected:
         OUTPUT_PORT
     };
 
+    /// Attribute description
     struct Attribute
     {
-        int portType;
-        string name;
-        string type;
-        string value;
-        Attribute() {}
+        int portType;   /*! Port type */
+        string name;    /*! Name */
+        string type;    /*! Type */
+        string value;   /*! Value */
+        
+        /// Default constructor
+        Attribute() {}  
+
+        /// Constructor
         Attribute(int pt, const string& n, const string& t, const string& v = "") 
             : portType(pt), name(n), type(t), value(v)
         {}
     };
 
+    /// Node translator data
     struct TranslatorData
     {
-        bool exportByValue;
-        string mayaNodeType;
-        string mxNodeType;
-        string mxDataType;
-        string mxNodeDef;
-        vector<Attribute> attributes;
-        unordered_map<string, string> mxToMaya;
+        bool exportByValue;     /*!< Export by value */
+        string mayaNodeType;    /*!< Maya node type */
+        string mxNodeType;      /*!< MaterialX node type */
+        string mxDataType;      /*!< MaterialX data type */
+        string mxNodeDef;       /*!< Materialx nodedef */
+        vector<Attribute> attributes;   /*!< List of node attribs */
+        unordered_map<string, string> mxToMaya; /*!< Node, MaterialX mapper*/
+
+        /// Constructor
         TranslatorData(const MObject& mayaNode, mx::ConstDocumentPtr data);
     };
 
+    /// Translator data shared pointer
     using TranslatorDataPtr = shared_ptr<TranslatorData>;
 
+    /// Translator data
     TranslatorDataPtr _translatorData;
 
     friend class Plugin;
+
+    /// List of attributes to ignore
     static set<string> _attributeIgnoreList;
 };
 

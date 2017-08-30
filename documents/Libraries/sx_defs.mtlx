@@ -4,9 +4,9 @@
   <!------------------------------------------------------------------------------>
   <!-- Data types                                                               -->
   <!------------------------------------------------------------------------------>
-  <typedef name="BSDF"/>
-  <typedef name="EDF"/>
-  <typedef name="VDF"/>
+  <typedef name="BSDF" doc="Bidirectional scattering distribution function"/>
+  <typedef name="EDF" doc="Emission distribution function"/>
+  <typedef name="VDF" doc="Volume distribution function"/>
 
   <!------------------------------------------------------------------------------>
   <!-- Nodes                                                                    -->
@@ -16,7 +16,8 @@
     Node: <diffusebsdf>
     A BSDF node for pure diffuse reflections.
   -->
-  <nodedef name="ND_diffusebsdf" node="diffusebsdf" type="BSDF" nodecategory="shaderx">
+  <nodedef name="ND_diffusebsdf" node="diffusebsdf" type="BSDF" nodecategory="shaderx"
+           doc="A BSDF node for pure diffuse reflections.">
     <input name="reflectance" type="color3" value="0.8, 0.8, 0.8"/>
     <input name="roughness" type="float" value="1.0"/>
     <input name="normal" type="vector3" defaultgeomprop="normal"/>
@@ -26,7 +27,8 @@
     Node: <reflectionbsdf>
     A BSDF node for reflections using a microfacet model.
   -->
-  <nodedef name="ND_reflectionbsdf" node="reflectionbsdf" type="BSDF" nodecategory="shaderx">
+  <nodedef name="ND_reflectionbsdf" node="reflectionbsdf" type="BSDF" nodecategory="shaderx"
+           doc="A BSDF node for reflections using a microfacet model.">
     <input name="reflectance" type="color3" value="0.8, 0.8, 0.8"/>
     <input name="roughness" type="float" value="0.1"/>
     <input name="normal" type="vector3" defaultgeomprop="normal"/>
@@ -37,7 +39,8 @@
     Node: <uniformedf>
     An EDF node for uniform emission.
   -->
-  <nodedef name="ND_uniformedf" node="uniformedf" type="EDF" nodecategory="shaderx">
+  <nodedef name="ND_uniformedf" node="uniformedf" type="EDF" nodecategory="shaderx"
+           doc=" An EDF node for uniform emission.">
     <input name="intensity" type="color3" value="1.0, 1.0, 1.0"/>
   </nodedef>
 
@@ -45,21 +48,23 @@
     Node: <surfaceshader>
     A constructor node for the surfaceshader type.
   -->
-  <nodedef name="ND_surfaceshader" node="surfaceshader" type="surfaceshader" nodecategory="shaderx">
+  <nodedef name="ND_surfaceshader" node="surfaceshader" type="surfaceshader" nodecategory="shaderx"
+           doc="A constructor node for the surfaceshader type.">
     <input name="bsdf" type="BSDF"/>
     <input name="edf" type="EDF"/>
-    <input name="ior" type="float" value="1.0"/>
+    <input name="ior" type="float" value="1.0" doc="Index of refraction"/>
   </nodedef>
 
   <!--
     Node: <surfacelayer>
     Surface shader layering node.
   -->
-  <nodedef name="ND_surfacelayer" node="surfacelayer" type="surfaceshader" nodecategory="shaderx">
+  <nodedef name="ND_surfacelayer" node="surfacelayer" type="surfaceshader" nodecategory="shaderx"
+           doc="Surface shader layering node.">
     <input name="influence" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="bsdf" type="BSDF"/>
     <input name="edf" type="EDF"/>
-    <input name="ior" type="float" value="0.0"/>
+    <input name="ior" type="float" value="0.0" doc="Index of refraction"/>
     <input name="baselayer" type="surfaceshader"/>
   </nodedef>
 

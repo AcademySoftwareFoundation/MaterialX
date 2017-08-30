@@ -13,14 +13,17 @@
 namespace MaterialXForMaya
 {
 
-/// @Class Factory
+/// @class Factory
 /// Static map of names to node translator functions
 template<class T>
 class Factory
 {
-public:
+  public:
+    /// Shared point to type
     using Ptr = shared_ptr<T>;
+    /// Creator function
     using CreatorFunction = Ptr(*)();
+    /// Creator map
     using CreatorMap = unordered_map<string, CreatorFunction>;
 
     /// Register a new class given a unique type name
@@ -39,7 +42,7 @@ public:
         return (it != map.end() ? it->second() : nullptr);
     }
 
-private:
+  private:
     static CreatorMap& creatorMap()
     {
         static CreatorMap s_creatorMap;

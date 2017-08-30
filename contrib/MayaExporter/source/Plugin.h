@@ -15,17 +15,20 @@
 namespace MaterialXForMaya
 {
 
-/// @Class Plugin
+/// @class Plugin
 /// Class to handle translators
 class Plugin
 {
-public:
+  public:
+    /// Return instance of plug-in
     static Plugin& instance();
 
+    /// Initialize the plug-in
     bool initialize(const string& loadPath);
 
-    /// Registration of a creator function (based on type)
+    /// Creation function type
     using CreatorFunction = NodeTranslatorPtr(*)();
+    /// Registration of a creator function (based on type)
     void registerTranslator(const string& typeName, CreatorFunction f);
 
     /// Default translator
@@ -40,7 +43,7 @@ public:
         return _librarySearchPath;
     }
 
-private:
+  private:
     Plugin();
 
     Factory<NodeTranslator> _factory;

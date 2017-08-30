@@ -32,35 +32,40 @@ class NodeTranslator;
 /// The base class for exceptions used for error handling
 class Exception : public std::exception
 {
-public:
+  public:
+    /// Constructor with string
     Exception(const string& msg) :
         std::exception(),
         _msg(msg)
     {
     }
 
+    /// Copy constructor
     Exception(const Exception& e) :
         std::exception(),
         _msg(e._msg)
     {
     }
 
+    /// Assignment operator
     Exception& operator=(const Exception& e)
     {
         _msg = e._msg;
         return *this;
     }
 
+    /// Destructor 
     virtual ~Exception() throw()
     {
     }
 
+    /// throw override
     const char* what() const throw() override
     {
         return _msg.c_str();
     }
 
-private:
+  private:
     string _msg;
 };
 

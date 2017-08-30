@@ -1,0 +1,36 @@
+PROJECT_NAME           = MayaExporter
+PROJECT_NUMBER         = ${MAYA_EXPORTER_VERSION_MAJOR}.${MAYA_EXPORTER_VERSION_MINOR}.${MAYA_EXPORTER_BUILD_VERSION}
+
+OUTPUT_DIRECTORY       = ${DOXYGEN_OUTPUT_DIR}
+STRIP_FROM_PATH        = ${CMAKE_SOURCE_DIR}
+JAVADOC_AUTOBRIEF      = YES
+EXTRACT_LOCAL_CLASSES  = NO
+
+QUIET                  = YES
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+
+INPUT                  = ${DOXYGEN_INPUT_STR}
+IMAGE_PATH             = ${DOXYGEN_OUTPUT_DIR}
+HTML_OUTPUT            = ${DOXYGEN_HTML_OUTPUT_DIR}
+GENERATE_LATEX         = NO
+
+CLASS_DIAGRAMS         = YES
+HAVE_DOT               = @doxy_enable_graph@
+CLASS_GRAPH            = @doxy_enable_graph@
+COLLABORATION_GRAPH    = @doxy_enable_graph@
+GROUP_GRAPHS           = @doxy_enable_graph@
+DIRECTORY_GRAPH        = @doxy_enable_graph@
+GRAPHICAL_HIERARCHY    = @doxy_enable_graph@
+CALLER_GRAPH           = @doxy_enable_graph@
+CALL_GRAPH             = @doxy_enable_graph@
+INCLUDED_BY_GRAPH      = YES
+INCLUDE_GRAPH          = @doxy_enable_graph@
+TEMPLATE_RELATIONS     = @doxy_enable_graph@
+UML_LIMIT_NUM_FIELDS   = 10
+UML_LOOK               = NO
+DOT_FONTNAME           = Helvetica
+DOT_FONTSIZE           = 10
+HIDE_UNDOC_RELATIONS   = YES
+
+

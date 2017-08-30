@@ -19,7 +19,7 @@ namespace MaterialXForMaya
 /// Custom Maya command for MaterialX export
 class ExportCmd : public MPxCommand
 {
-public:
+  public:
     /// Command creator
     static void* creator();
     /// Command syntax creation
