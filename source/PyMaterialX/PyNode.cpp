@@ -40,5 +40,6 @@ void bindPyNode(py::module& mod)
         .def("removeOutput", &mx::NodeGraph::removeOutput)
         .def("flattenSubgraphs", &mx::NodeGraph::flattenSubgraphs,
             py::arg("target") = mx::EMPTY_STRING)
+        .def("topologicalSort", &mx::NodeGraph::topologicalSort)
         .def_readonly_static("CATEGORY", &mx::NodeGraph::CATEGORY);
 }

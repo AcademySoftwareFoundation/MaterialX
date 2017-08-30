@@ -93,8 +93,52 @@ class TypeDef : public Element
     }
     virtual ~TypeDef() { }
 
+    /// @name Semantic
+    /// @{
+
+    /// Set the semantic string of the TypeDef.
+    void setSemantic(const string& semantic)
+    {
+        setAttribute(SEMANTIC_ATTRIBUTE, semantic);
+    }
+
+    /// Return true if the given TypeDef has a semantic string.
+    bool hasSemantic() const
+    {
+        return hasAttribute(SEMANTIC_ATTRIBUTE);
+    }
+
+    /// Return the semantic string of the TypeDef.
+    const string& getSemantic() const
+    {
+        return getAttribute(SEMANTIC_ATTRIBUTE);
+    }
+
+    /// @name Context
+    /// @{
+
+    /// Set the context string of the TypeDef.
+    void setContext(const string& context)
+    {
+        setAttribute(CONTEXT_ATTRIBUTE, context);
+    }
+
+    /// Return true if the given TypeDef has a context string.
+    bool hasContext() const
+    {
+        return hasAttribute(CONTEXT_ATTRIBUTE);
+    }
+
+    /// Return the context string of the TypeDef.
+    const string& getContext() const
+    {
+        return getAttribute(CONTEXT_ATTRIBUTE);
+    }
+
   public:
     static const string CATEGORY;
+    static const string SEMANTIC_ATTRIBUTE;
+    static const string CONTEXT_ATTRIBUTE;
 };
 
 /// @class Implementation
