@@ -6,6 +6,7 @@ file(GLOB _node_translator_headers "${CMAKE_CURRENT_SOURCE_DIR}/NodeTranslators/
 file(GLOB _scripts "${CMAKE_CURRENT_SOURCE_DIR}/*.mel")
 file(GLOB _mods "${CMAKE_CURRENT_SOURCE_DIR}/*.mod")
 file(GLOB _data "${CMAKE_CURRENT_SOURCE_DIR}/../data/*.*")
+file(GLOB _examples "${CMAKE_CURRENT_SOURCE_DIR}/../examples/*.*")
 
 source_group("Header Files" FILES ${_headers})
 source_group("Source Files" FILES ${_source})
@@ -49,4 +50,5 @@ DEPEND_MAYAAPI_LINK(MayaExporter)
 install(TARGETS MayaExporter DESTINATION ${CMAKE_INSTALL_PREFIX}/contrib/MayaExporter/plug-ins)
 install(FILES ${_scripts} DESTINATION ${CMAKE_INSTALL_PREFIX}/contrib/MayaExporter/scripts)
 install(FILES ${_data} DESTINATION ${CMAKE_INSTALL_PREFIX}/contrib/MayaExporter/data)
+install(FILES ${_examples} DESTINATION ${CMAKE_INSTALL_PREFIX}/contrib/MayaExporter/examples)
 install(FILES ${_mods} DESTINATION ${CMAKE_INSTALL_PREFIX}/contrib/MayaExporter)
