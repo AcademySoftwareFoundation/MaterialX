@@ -107,8 +107,8 @@ TEST_CASE("Swizzling", "[shadergen]")
     mx::DocumentPtr doc = mx::createDocument();
     std::vector<std::string> filenames =
     {
-        "documents/Libraries/mx_stdlib_defs.mtlx",
-        "documents/Libraries/mx_stdlib_impl_shadergen_osl.mtlx"
+        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
+        "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx"
     };
     for (const std::string& filename : filenames)
     {
@@ -161,7 +161,7 @@ TEST_CASE("Simple Nodegraph Shader Generation", "[shadergen]")
     // Load standard libraries
     std::vector<std::string> filenames =
     {
-        "documents/Libraries/mx_stdlib_defs.mtlx"
+        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx"
     };
 
     for (const std::string& filename : filenames)
@@ -194,8 +194,8 @@ TEST_CASE("Simple Nodegraph Shader Generation", "[shadergen]")
     std::vector<GeneratorDescription> generatorDescriptions =
     {
         // language,  target,    file ext,  implementation library
-        { "osl",      "arnold",  "osl",     {"documents/Libraries/mx_stdlib_impl_shadergen_osl.mtlx"} },
-        { "glsl",     "ogsfx",   "ogsfx",   {"documents/Libraries/mx_stdlib_impl_shadergen_glsl.mtlx"} }
+        { "osl",      "arnold",  "osl",     {"documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx"} },
+        { "glsl",     "ogsfx",   "ogsfx",   {"documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx"} }
     };
 
     for (auto desc : generatorDescriptions)
@@ -236,7 +236,7 @@ TEST_CASE("Subgraph Shader Generation", "[shadergen]")
 {
     mx::ScopedShaderGenInit shaderGenInit;
 
-    std::string searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    std::string searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries/stdlib");
     mx::ShaderGenRegistry::registerSourceCodeSearchPath(searchPath);
 
     mx::DocumentPtr doc = mx::createDocument();
@@ -269,8 +269,8 @@ TEST_CASE("Subgraph Shader Generation", "[shadergen]")
     std::vector<GeneratorDescription> generatorDescriptions =
     {
         // language,  target,    file ext,  implementation library
-        { "osl",      "arnold",  "osl",     { "documents/Libraries/mx_stdlib_impl_shadergen_osl.mtlx" } },
-        { "glsl",     "ogsfx",   "ogsfx",   { "documents/Libraries/mx_stdlib_impl_shadergen_glsl.mtlx" } }
+        { "osl",      "arnold",  "osl",     { "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx" } },
+        { "glsl",     "ogsfx",   "ogsfx",   { "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx" } }
     };
 
     for (auto desc : generatorDescriptions)
@@ -310,8 +310,8 @@ TEST_CASE("Material Shader Generation", "[shadergen]")
     // Load standard libraries
     std::vector<std::string> filenames =
     {
-        "documents/Libraries/mx_stdlib_defs.mtlx",
-        "documents/Libraries/adsk_defs.mtlx"
+        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
+        "documents/Libraries/adsk/adsk_defs.mtlx"
     };
 
     for (const std::string& filename : filenames)
@@ -359,14 +359,14 @@ TEST_CASE("Material Shader Generation", "[shadergen]")
     {
         { "osl", "arnold", "osl",
             {
-                "documents/Libraries/mx_stdlib_impl_shadergen_osl.mtlx",
-                "documents/Libraries/adsk_impl_shadergen_osl.mtlx"
+                "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx",
+                "documents/Libraries/adsk/impl/shadergen/adsk_impl_shadergen_osl.mtlx"
             }
         },
         { "glsl", "ogsfx", "ogsfx",
             { 
-                "documents/Libraries/mx_stdlib_impl_shadergen_glsl.mtlx",
-                "documents/Libraries/adsk_impl_shadergen_glsl.mtlx"
+                "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx",
+                "documents/Libraries/adsk/impl/shadergen/adsk_impl_shadergen_glsl.mtlx"
             }
         }
     };
