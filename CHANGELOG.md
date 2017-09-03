@@ -3,8 +3,10 @@
 ## [1.35.3] - Development
 
 ### Added
+- Added support for Python 3.
+- Added support for standard TypeDef attributes.
 - Added method Element\:\:setName.
-- Extended Python bindings for Document, MaterialAssign, and Collection.
+- Extended Python bindings for Document, NodeGraph, MaterialAssign, and Collection.
 
 ### Changed
 - Modified NodeGraph\:\:topologicalSort to return elements in a more intuitive top-down order, with upstream elements preceding downstream elements.
