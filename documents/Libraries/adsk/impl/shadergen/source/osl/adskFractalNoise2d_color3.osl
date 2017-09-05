@@ -1,4 +1,4 @@
-#include "Source/ShaderGen/OSL/adskNoiseFunctions.osl"
+#include "adsk/impl/shadergen/source/osl/adskNoiseFunctions.osl"
 
 void adskFractalNoise2d_color3(vector position, float amplitude, float ratio, int octaves, float frequency, float frequencyRatio, vector distortion, float distortionRatio, output color result)
 {

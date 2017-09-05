@@ -1,4 +1,4 @@
-#include "Source/ShaderGen/GLSL/adskShadingmodel_functions.glsl"
+#include "adsk/impl/shadergen/source/glsl/adskShadingmodel_functions.glsl"
 
 void adskSurface(
     float base,

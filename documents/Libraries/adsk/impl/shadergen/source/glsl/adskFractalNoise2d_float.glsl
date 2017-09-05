@@ -1,4 +1,4 @@
-#include "Source/ShaderGen/GLSL/adskNoiseFunctions.glsl"
+#include "adsk/impl/shadergen/source/glsl/adskNoiseFunctions.glsl"
 
 void adskFractalNoise2d_float(vec2 position, float amplitude, float ratio, int octaves, float frequency, float frequencyRatio, vec2 distortion, float distortionRatio, out float result)
 {

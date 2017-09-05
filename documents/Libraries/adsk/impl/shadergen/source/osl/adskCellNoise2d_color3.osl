@@ -1,4 +1,4 @@
-#include "Source/ShaderGen/OSL/adskNoiseFunctions.osl"
+#include "adsk/impl/shadergen/source/osl/adskNoiseFunctions.osl"
 
 void adskCellNoise2d_color3(vector position, float amplitude, float frequency, vector distortion, float distortionRatio, output color result)
 {

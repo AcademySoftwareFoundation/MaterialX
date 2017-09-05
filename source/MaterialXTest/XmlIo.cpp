@@ -20,7 +20,7 @@ TEST_CASE("Load content", "[xmlio]")
         "PaintMaterials.mtlx",
         "PreShaderComposite.mtlx",
     };
-    std::string searchPath = "documents/Libraries;documents/Examples";
+    std::string searchPath = "documents/Libraries/stdlib;documents/Examples";
 
     // Load the standard library.
     mx::DocumentPtr lib = mx::createDocument();
