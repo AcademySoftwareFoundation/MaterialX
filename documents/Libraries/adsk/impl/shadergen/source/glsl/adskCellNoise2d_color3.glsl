@@ -1,4 +1,4 @@
-#include "adsk/impl/shadergen/source/glsl/noise_functions.glsl"
+#include "adsk/impl/shadergen/source/glsl/adskNoiseFunctions.glsl"
 
 void adskCellNoise2d_color3(vec2 position, float amplitude, float frequency, vec2 distortion, float distortionRatio, out vec3 result)
 {
