@@ -31,3 +31,6 @@ install(TARGETS MaterialXCore
 
 install(FILES ${materialx_headers}
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXCore/)
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXCore.pdb"
+        DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/" OPTIONAL)
