@@ -135,6 +135,9 @@ template <std::size_t N> std::ostream& operator<<(std::ostream& os, const Vector
     return os;
 }
 
+std::istream& operator>>(std::istream& is, vector<string>& v);
+std::ostream& operator<<(std::ostream& os, const vector<string>& v);
+
 } // namespace MaterialX
 
 #ifdef __GNUC__
