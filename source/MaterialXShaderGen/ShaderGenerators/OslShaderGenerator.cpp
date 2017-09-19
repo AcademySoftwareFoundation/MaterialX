@@ -37,11 +37,11 @@ void OslShaderGenerator::emitIncludes(Shader& shader)
 {
     static const vector<string> includeFiles =
     {
-        "Source/ShaderGen/OSL/color2.h",
-        "Source/ShaderGen/OSL/color4.h",
-        "Source/ShaderGen/OSL/vector2.h",
-        "Source/ShaderGen/OSL/vector4.h",
-        "Source/ShaderGen/OSL/mx_funcs.h"
+        "color2.h",
+        "color4.h",
+        "vector2.h",
+        "vector4.h",
+        "mx_funcs.h"
     };
 
     for (const string& file : includeFiles)
