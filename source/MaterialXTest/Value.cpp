@@ -59,4 +59,6 @@ TEST_CASE("Typed values", "[value]")
                    mx::Matrix4x4(std::array<float, 16>{1.0f}));
     testTypedValue(std::string("first_value"),
                    std::string("second_value"));
+    testTypedValue(std::vector<std::string>{"first_value", "second_value"},
+                   std::vector<std::string>{"third_value", "fourth_value"});
 }

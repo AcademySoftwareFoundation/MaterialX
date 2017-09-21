@@ -6,12 +6,12 @@
 
 #include "mx_funcs.h"
 
-shader mx_dodge_float
-    [[ string help = "Float"" Take two 1-4 channel inputs and apply the same operator to all channels: B/(1-F)" ]]
+shader mx_dodge_color2
+    [[ string help = "Color2"" Take two 1-4 channel inputs and apply the same operator to all channels: B/(1-F)" ]]
   (
-    float fg = 0,
-    float bg = 0,
-    output float out = 0
+    color2 fg = {0,0},
+    color2 bg = {0,0},
+    output color2 out = {0,0}
   )
 {
     out = bg / (1 - fg); 

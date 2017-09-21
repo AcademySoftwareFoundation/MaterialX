@@ -6,13 +6,13 @@
 
 #include "mx_funcs.h"
 
-shader mx_out_color2
-    [[ string help = "Color2"" Take two color2 or two color4 inputs and use the built-in alpha \
+shader mx_out_color4
+    [[ string help = "Color4"" Take two color2 or two color4 inputs and use the built-in alpha \
                      channel(s) to control the compositing of the fg and bg inputs: F(1-b)  (alpha: f(1-b))" ]]
   (
-    color2 fg = {0,0},
-    color2 bg = {0,0},
-    output color2 out = {0,0}
+    color4 fg = {color(0,0,0), 0},
+    color4 bg = {color(0,0,0), 0},
+    output color4 out = {color(0,0,0), 0}
   )
 {
     out = fg * (1 - bg.a);

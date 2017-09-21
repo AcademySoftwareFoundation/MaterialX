@@ -7,7 +7,7 @@
 #include "mx_funcs.h"
 
 
-shader mx_triplanarprojection_float
+shader mx_triplanarprojection_vector2
     [[ string help = "triplanarprojection node" ]]
   (
     string filex = ""
@@ -25,10 +25,10 @@ shader mx_triplanarprojection_float
     string layerx = "",
     string layery = "",
     string layerz = "",
-    float default_value = 0,
+    vector2 default_value = {0,0},
     vector position = P,
 	normal inN   = N,
-    output float out = 0
+    output vector2 out = {0,0}
   )
 {
     color missingColor;

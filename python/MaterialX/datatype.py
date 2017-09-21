@@ -1,6 +1,7 @@
 import re
+import sys
 
-from MaterialX.PyMaterialX import *
+from .PyMaterialX import *
 
 """
 Native Python helper functions for MaterialX data types.
@@ -22,7 +23,7 @@ _nameToType = { 'integer'   : int,
                 'string'    : str }
 _typeToName = dict(reversed(i) for i in _nameToType.items())
 
-_stringTypeAliases = [unicode]
+_stringTypeAliases = [unicode] if sys.version_info[0] < 3 else [bytes]
 _typeToName.update(dict.fromkeys(_stringTypeAliases, 'string'))
 
 

@@ -20,10 +20,10 @@ vector mk_coord (float u, float v)
 
 
 
-shader mx_texcoord_vector
+shader mx_texcoord_vector2
     [[ string help = " The 2D texture coordinates" ]]
   (
-    output vector out = 0
+    output vector2 out = {0,0}
   )
 {
     out = mk_coord (u, v);

@@ -6,14 +6,14 @@
 
 #include "mx_funcs.h"
 
-shader mx_modulo_float_color
-    [[ string help = "Color"" The remaining fraction after dividing the incoming \
+shader mx_modulo_float_vector2
+    [[ string help = "Vector2"" The remaining fraction after dividing the incoming \
                      float/color/vector by the constant amount and subtracting the integer portion.\
                      The modula amount cannot be 0." ]]
   (
-    color in1 = 0,
+    vector2 in1 = {0,0},
     float in2 = 1.0,
-    output color out = 0
+    output vector2 out = {0,0}
   )
 {
     out = fmod(in1, in2); 

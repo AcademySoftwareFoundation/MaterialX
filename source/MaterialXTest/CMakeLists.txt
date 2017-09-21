@@ -10,6 +10,10 @@ source_group("Header Files\\Catch" FILES ${catch_headers})
 
 add_executable(MaterialXTest ${materialx_source} ${catch_headers})
 
+add_test(NAME MaterialXTest
+         COMMAND MaterialXTest
+         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
 add_custom_command(TARGET MaterialXTest POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${CMAKE_SOURCE_DIR}/documents/Libraries ${CMAKE_CURRENT_BINARY_DIR}/documents/Libraries)

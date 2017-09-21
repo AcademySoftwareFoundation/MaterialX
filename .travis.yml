@@ -1,0 +1,23 @@
+language: cpp
+sudo: required
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      compiler: gcc
+    - os: linux
+      dist: trusty
+      compiler: clang
+    - os: osx
+      compiler: gcc
+    - os: osx
+      compiler: clang
+      
+script:
+  - mkdir build
+  - cd build
+  - cmake -DMATERIALX_BUILD_PYTHON=ON ..
+  - sudo cmake --build . --target install -- -j4
+  - ctest --output-on-failure
+  - cmake -E chdir ../python/MaterialXTest python main.py

@@ -6,7 +6,7 @@ MaterialX is an open standard for transfer of rich material and look-development
 
 - Download the latest version of the [CMake](https://cmake.org) build system.
 - Point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
-- Select the `MATERIALX_BUILD_PYTHON` option to build Python 2.x bindings.
+- Select the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
 
 ### Supported Platforms
 
@@ -16,7 +16,7 @@ The MaterialX codebase requires a compiler with support for C++11, and can be bu
 - GCC 4.8 or newer
 - Clang 3.3 or newer
 
-The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and currently support Python 2.6.x and Python 2.7.x.
+The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and currently support Python versions 2.6, 2.7, and 3.x.
 
 ### Building MaterialX Python
 
@@ -34,7 +34,7 @@ The recommended OpenColorIO configuration for MaterialX is [ACES 1.0.3](https://
 
 ### Building API Documentation
 
-To generate HTML documentation for the MaterialX C++ API, make sure a version of [Doxygen](https://www.doxygen.org/) is on your path, and select the advanced option `MATERIALX_GENERATE_DOCS` in CMake.  Documentation will then be generated during the normal build process for the MaterialX library.
+To generate HTML documentation for the MaterialX C++ API, make sure a version of [Doxygen](https://www.doxygen.org/) is on your path, and select the advanced option `MATERIALX_GENERATE_DOCS` in CMake.  This option will add a target named `MaterialXDocs` to your project, which can be built as an independent step from your development environment.
 
 ### Additional Links
 

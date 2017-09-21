@@ -6,12 +6,12 @@
 
 #include "mx_funcs.h"
 
-shader mx_invert_float
-    [[ string help = "Float"" Subtract the incoming float/color/vector from amount in all channels," ]]
+shader mx_invert_vector2
+    [[ string help = "Vector2"" Subtract the incoming float/color/vector from amount in all channels," ]]
   (
-    float in = 0,
-    float amount = 1,
-    output float out = 0
+    vector2 in = {0,0},
+    vector2 amount = {1,1},
+    output vector2 out = {0,0}
   )
 {
     out = amount - in;

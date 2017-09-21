@@ -6,17 +6,17 @@
 
 #include "mx_funcs.h"
 
-shader mx_remap_float_color
-    [[ string help = "Color"" Increase or decrease remap of a float/color value using a linear slope multiplier." ]]
+shader mx_remap_float_vector2
+    [[ string help = "Vector2"" Increase or decrease remap of a float/color value using a linear slope multiplier." ]]
   (
-    color in = 0,
+    vector2 in = {0,0},
     float inlow = 0,
     float inhigh = 1,
     float gamma  = 1,
     float outlow = 0,
     float outhigh = 1,
     int doclamp = 0,
-    output color out = 0
+    output vector2 out = {0,0}
   )
 {
     //remap from [inlow, inhigh] to [0,1]

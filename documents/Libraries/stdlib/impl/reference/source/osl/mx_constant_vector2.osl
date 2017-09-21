@@ -6,11 +6,11 @@
 
 #include "mx_funcs.h"
 
-shader mx_constant_float
+shader mx_constant_vector2
   [[ string help = "constant source" ]]
   (
-    float value = 0,
-    output float out = 0
+    vector2 value = {0,0},
+    output vector2 out = {0,0}
   )
 {
     out = value;

@@ -24,6 +24,12 @@ void bindPyDefinition(py::module& mod)
         .def_readonly_static("CATEGORY", &mx::NodeDef::CATEGORY);
 
     py::class_<mx::TypeDef, mx::TypeDefPtr, mx::Element>(mod, "TypeDef", py::metaclass())
+        .def("setSemantic", &mx::TypeDef::setSemantic)
+        .def("hasSemantic", &mx::TypeDef::hasSemantic)
+        .def("getSemantic", &mx::TypeDef::getSemantic)
+        .def("setContext", &mx::TypeDef::setContext)
+        .def("hasContext", &mx::TypeDef::hasContext)
+        .def("getContext", &mx::TypeDef::getContext)
         .def_readonly_static("CATEGORY", &mx::TypeDef::CATEGORY);
 
     py::class_<mx::Implementation, mx::ImplementationPtr, mx::InterfaceElement>(mod, "Implementation", py::metaclass())

@@ -27,12 +27,12 @@ color4 unpremult (color4 in, float alpha)
 
 
 
-shader mx_unpremult_color
-    [[ string help = "Color"" Divide the R or RGB channels of the input by the Alpha channel of the input." ]]
+shader mx_unpremult_color4
+    [[ string help = "Color4"" Divide the R or RGB channels of the input by the Alpha channel of the input." ]]
   (
-    color in = 0,
+    color4 in = {color(0,0,0), 0},
     float alpha = 1,   // Note: unused when 'in' is a color2 or color4
-    output color out = 0
+    output color4 out = {color(0,0,0), 0}
   )
 {
     out = unpremult (in, alpha);

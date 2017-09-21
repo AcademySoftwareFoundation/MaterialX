@@ -6,16 +6,16 @@
 
 #include "mx_funcs.h"
 
-shader mx_smoothstep_float
+shader mx_smoothstep_vector2
     [[ string help = "outputs a smooth (hermite-interpolated) remapping of input values from low-high to output 0-1."  ]]
   (
-    float in = 0
+    vector2 in = {0,0}
         [[  string help = "input"  ]],
-    float low = 0
+    vector2 low = {0,0}
         [[  string help = "input value of this or lower will return 0"  ]],
-    float high = 1
+    vector2 high = {1,1}
         [[  string help = " an input value of this or higher will result in an output value of 1"  ]],
-    output float out = 0
+    output vector2 out = {0,0}
   )
 {
     out = smoothstep(low, high, in);

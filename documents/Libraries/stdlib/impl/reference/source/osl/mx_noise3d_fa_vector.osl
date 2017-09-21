@@ -6,7 +6,7 @@
 
 #include "mx_funcs.h"
 
-shader mx_noise3d_fa_color
+shader mx_noise3d_fa_vector
     [[ string help = "3D noise"  ]]
   (
     point position = transform("object", P)
@@ -22,9 +22,9 @@ shader mx_noise3d_fa_color
     string noisetype = "snoise"
         [[  string help = "type of noise" ]],
 
-    output color out = 0,
+    output vector out = 0,
   )
 {
-    color n = noise (noisetype, position);
+    vector n = noise (noisetype, position);
     out = pivot + n * amplitude;
 }

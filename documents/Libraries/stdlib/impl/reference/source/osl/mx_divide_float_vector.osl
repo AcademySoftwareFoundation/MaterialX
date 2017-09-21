@@ -6,12 +6,12 @@
 
 #include "mx_funcs.h"
 
-shader mx_divide_float_color
-    [[ string help = "Color"" Divide an incoming float/color/vector by the in2" ]]
+shader mx_divide_float_vector
+    [[ string help = "Vector"" Divide an incoming float/color/vector by the in2" ]]
   (
-    color in1 = 0,
+    vector in1 = 0,
     float in2 = 1.0,
-    output color out = 0
+    output vector out = 0
   )
 {
     out = in1 / in2; 

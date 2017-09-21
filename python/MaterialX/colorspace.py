@@ -1,6 +1,6 @@
 import os
 
-from MaterialX.PyMaterialX import *
+from .PyMaterialX import *
 
 """
 Native Python wrappers for PyMaterialX and PyOpenColorIO, providing helper

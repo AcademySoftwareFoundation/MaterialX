@@ -6,7 +6,7 @@
 
 #include "mx_funcs.h"
 
-shader mx_pack_color
+shader mx_pack_color4
     [[ string help = "Pack the channels from two, three or four streams into the same number of channels of a \
                       single stream of a specified compatible type;" ]]
   (
@@ -15,7 +15,7 @@ shader mx_pack_color
     float in3 = 0,
     float in4 = 0,
 
-    output color out = 0
+    output color4 out = {color(0,0,0), 0}
   )
 {
     out = pack (in1, in2, in3, in4);

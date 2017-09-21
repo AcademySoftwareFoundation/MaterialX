@@ -6,10 +6,10 @@
 
 #include "mx_funcs.h"
 
-shader mx_magnitude_vector
-    [[ string help = "Vector"" Outputs the float magnitude (vector length) of the incoming vector stream." ]]
+shader mx_magnitude_vector2
+    [[ string help = "Vector2"" Outputs the float magnitude (vector length) of the incoming vector stream." ]]
   (
-    vector in = 0,
+    vector2 in = {0,0},
     output float out = 0
   )
 {

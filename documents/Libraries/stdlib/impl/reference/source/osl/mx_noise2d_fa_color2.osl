@@ -6,7 +6,7 @@
 
 #include "mx_funcs.h"
 
-shader mx_noise2d_fa_color
+shader mx_noise2d_fa_color2
     [[ string help = "2D noise"  ]]
   (
     vector2 texcoord = { u, v }
@@ -22,9 +22,9 @@ shader mx_noise2d_fa_color
     string noisetype = "snoise"
         [[  string help = "type of noise" ]],
 
-    output color out = 0
+    output color2 out = {0,0}
   )
 {
-    color n = noise (noisetype, texcoord.x, texcoord.y);
+    color2 n = noise (noisetype, texcoord.x, texcoord.y);
     out = pivot + n * amplitude;
 }

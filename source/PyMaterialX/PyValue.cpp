@@ -9,10 +9,16 @@
 
 #include <PyBind11/stl.h>
 
+#ifdef __clang__
+#if __has_warning("-Wundefined-var-template")
+#pragma clang diagnostic ignored "-Wundefined-var-template"
+#endif
+#endif
+
 #define BIND_TYPE_INSTANCE(NAME, T, PYTYPE)                                                                                 \
 py::class_<mx::TypedValue<T>, std::shared_ptr< mx::TypedValue<T> >, mx::Value>(mod, "TypedValue_" #NAME, py::metaclass())   \
     .def("getData", [](const mx::TypedValue<T>& value) { return PYTYPE(value.getData()); })                                 \
-    .def("getValueString", [](const mx::TypedValue<T>& value) { return py::bytes(value.getValueString()); })                \
+    .def("getValueString", [](const mx::TypedValue<T>& value) { return PyDefaultString(value.getValueString()); })          \
     .def_static("createValue", &mx::Value::createValue<T>)                                                                  \
     .def_readonly_static("TYPE", &mx::TypedValue<T>::TYPE)                                                                  \
     .def_readonly_static("ZERO", &mx::TypedValue<T>::ZERO);
@@ -38,5 +44,5 @@ void bindPyValue(py::module& mod)
     BIND_TYPE_INSTANCE(vector4, mx::Vector4, mx::Vector4)
     BIND_TYPE_INSTANCE(matrix33, mx::Matrix3x3, mx::Matrix3x3)
     BIND_TYPE_INSTANCE(matrix44, mx::Matrix4x4, mx::Matrix4x4)
-    BIND_TYPE_INSTANCE(string, std::string, py::bytes)
+    BIND_TYPE_INSTANCE(string, std::string, PyDefaultString)
 }

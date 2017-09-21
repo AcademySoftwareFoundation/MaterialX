@@ -135,24 +135,25 @@ template <class T> class ValueRegistry
 //
 
 #define INSTANTIATE_TYPE(T, type)                                   \
-template <> const string TypedValue<T>::TYPE = type;                \
+template <> const string TypedValue<T>::TYPE = #type;               \
 template <> const T TypedValue<T>::ZERO = T();                      \
 template bool Value::isA<T>() const;                                \
 template T Value::asA<T>() const;                                   \
 template const string& getTypeString<T>();                          \
-ValueRegistry<T> registry##T;
+ValueRegistry<T> registry##type;
 
-INSTANTIATE_TYPE(int, "integer")
-INSTANTIATE_TYPE(bool, "boolean")
-INSTANTIATE_TYPE(float, "float")
-INSTANTIATE_TYPE(Color2, "color2")
-INSTANTIATE_TYPE(Color3, "color3")
-INSTANTIATE_TYPE(Color4, "color4")
-INSTANTIATE_TYPE(Vector2, "vector2")
-INSTANTIATE_TYPE(Vector3, "vector3")
-INSTANTIATE_TYPE(Vector4, "vector4")
-INSTANTIATE_TYPE(Matrix3x3, "matrix33")
-INSTANTIATE_TYPE(Matrix4x4, "matrix44")
-INSTANTIATE_TYPE(string, "string")
+INSTANTIATE_TYPE(int, integer)
+INSTANTIATE_TYPE(bool, boolean)
+INSTANTIATE_TYPE(float, float)
+INSTANTIATE_TYPE(Color2, color2)
+INSTANTIATE_TYPE(Color3, color3)
+INSTANTIATE_TYPE(Color4, color4)
+INSTANTIATE_TYPE(Vector2, vector2)
+INSTANTIATE_TYPE(Vector3, vector3)
+INSTANTIATE_TYPE(Vector4, vector4)
+INSTANTIATE_TYPE(Matrix3x3, matrix33)
+INSTANTIATE_TYPE(Matrix4x4, matrix44)
+INSTANTIATE_TYPE(string, string)
+INSTANTIATE_TYPE(vector<string>, stringarray)
 
 } // namespace MaterialX
