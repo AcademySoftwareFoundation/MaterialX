@@ -1,4 +1,4 @@
-/*
+﻿/*
     pybind11/common.h -- Basic macros
 
     Copyright (c) 2016 Wenzel Jakob <wenzel.jakob@epfl.ch>
@@ -37,7 +37,7 @@
 #  endif
 #elif defined(__clang__) && !defined(__apple_build_version__)
 #  if __clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ < 3)
-#    error pybind11 requires clang 3.3 or newer
+//#    error pybind11 requires clang 3.3 or newer
 #  endif
 #elif defined(__clang__)
 // Apple changes clang version macros to its Xcode version; the first Xcode release based on
@@ -53,7 +53,7 @@
 // Pybind hits various compiler bugs in 2015u2 and earlier, and also makes use of some stl features
 // (e.g. std::negation) added in 2015u3:
 #  if _MSC_FULL_VER < 190024210
-#    error pybind11 requires MSVC 2015 update 3 or newer
+//#    error pybind11 requires MSVC 2015 update 3 or newer
 #  endif
 #endif
 
