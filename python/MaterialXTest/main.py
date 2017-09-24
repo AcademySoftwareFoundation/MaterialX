@@ -9,10 +9,22 @@ Unit tests for MaterialX Python.
 
 
 #--------------------------------------------------------------------------------
+_testValues = (1,
+               True,
+               1.0,
+               mx.Color2(0.1, 0.2),
+               mx.Color3(0.1, 0.2, 0.3),
+               mx.Color4(0.1, 0.2, 0.3, 0.4),
+               mx.Vector2(1.0, 2.0),
+               mx.Vector3(1.0, 2.0, 3.0),
+               mx.Vector4(1.0, 2.0, 3.0, 4.0),
+               'value')
+
 _fileDir = os.path.dirname(os.path.abspath(__file__))
 _libraryDir = os.path.join(_fileDir, '../../documents/Libraries/')
 _exampleDir = os.path.join(_fileDir, '../../documents/Examples/')
 _searchPath = _libraryDir + ';' + _exampleDir
+
 _libraryFilename = 'mx_stdlib_defs.mtlx'
 _exampleFilenames = ('CustomNode.mtlx',
                      'Looks.mtlx',
@@ -22,7 +34,14 @@ _exampleFilenames = ('CustomNode.mtlx',
 
 
 #--------------------------------------------------------------------------------
-class TestBuildContent(unittest.TestCase):
+class TestMaterialX(unittest.TestCase):
+    def test_DataTypes(self):
+        # Convert between values and strings
+        for value in _testValues:
+            string = mx.objectToString(value)
+            newValue = mx.stringToObject(string, type(value))
+            self.assertTrue(newValue == value)
+
     def test_BuildNodeGraph(self):
         # Create a document.
         doc = mx.createDocument()
@@ -104,18 +123,14 @@ class TestBuildContent(unittest.TestCase):
         self.assertTrue(output1.getConnectedNode() == None)
         self.assertTrue(output2.getConnectedNode() == None)
 
-
-#--------------------------------------------------------------------------------
-class TestLoadContent(unittest.TestCase):
-    def test_LoadXml(self):
-
+    def test_ReadXml(self):
         # Load the standard library.
         lib = mx.createDocument()
         mx.readFromXmlFile(lib, _libraryFilename, _searchPath)
         self.assertTrue(lib.validate()[0])
 
         for filename in _exampleFilenames:
-            # Load the example document.
+            # Read the example document.
             doc = mx.createDocument()
             mx.readFromXmlFile(doc, filename, _searchPath)
             self.assertTrue(doc.validate()[0])
