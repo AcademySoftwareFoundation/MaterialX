@@ -10,9 +10,9 @@ set(CMAKE_MACOSX_RPATH ON)
 enable_testing()
 
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 2.6 or greater." OFF)
-option(MATERIALX_GENERATE_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
+option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
 
-mark_as_advanced(MATERIALX_GENERATE_DOCS)
+mark_as_advanced(MATERIALX_BUILD_DOCS)
 
 set(MATERIALX_PYTHON_EXECUTABLE "" CACHE FILEPATH
     "Path to the Python executable (e.g. 'C:/Python27/python.exe').")
@@ -30,6 +30,10 @@ mark_as_advanced(MATERIALX_PYTHON_OCIO_DIR)
 
 set(PYTHON_INCLUDE_DIR ${MATERIALX_PYTHON_INCLUDE_DIR})
 set(PYTHON_LIBRARY ${MATERIALX_PYTHON_LIBRARY})
+
+option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
+
+mark_as_advanced(MATERIALX_INSTALL_PYTHON)
 
 # Adjust the default installation path
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -57,6 +61,6 @@ if(MATERIALX_BUILD_PYTHON)
     add_subdirectory(python)
 endif(MATERIALX_BUILD_PYTHON)
 
-if(MATERIALX_GENERATE_DOCS)
+if(MATERIALX_BUILD_DOCS)
     add_subdirectory(documents)
-endif(MATERIALX_GENERATE_DOCS)
+endif(MATERIALX_BUILD_DOCS)
