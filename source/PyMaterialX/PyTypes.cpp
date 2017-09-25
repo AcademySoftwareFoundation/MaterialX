@@ -37,7 +37,7 @@ void bindPyTypes(py::module& mod)
             {
                 std::ostringstream output;
                 output << vec;
-                return PyDefaultString(output.str());
+                return output.str();
             }
         );
 
@@ -59,7 +59,7 @@ void bindPyTypes(py::module& mod)
             {
                 std::ostringstream output;
                 output << vec;
-                return PyDefaultString(output.str());
+                return output.str();
             }
         );
 
@@ -81,7 +81,7 @@ void bindPyTypes(py::module& mod)
             {
                 std::ostringstream output;
                 output << vec;
-                return PyDefaultString(output.str());
+                return output.str();
             }
         );
 
@@ -101,7 +101,7 @@ void bindPyTypes(py::module& mod)
             {
                 std::ostringstream output;
                 output << vec;
-                return PyDefaultString(output.str());
+                return output.str();
             }
         );
 
@@ -121,7 +121,7 @@ void bindPyTypes(py::module& mod)
             {
                 std::ostringstream output;
                 output << vec;
-                return PyDefaultString(output.str());
+                return output.str();
             }
         );
 
