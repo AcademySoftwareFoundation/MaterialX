@@ -591,7 +591,11 @@
   <!-- ======================================================================== -->
 
   <!-- <compare> -->
+  <!-- Implemented by custom implementations: see Compare.h/cpp -->
+  <!-- Implemented by C++ class: see Compare.h/cpp -->
+
   <!-- <switch> -->
+  <!-- Implemented by C++ class: see Switch.h/cpp -->
 
 
   <!-- ======================================================================== -->
@@ -599,7 +603,7 @@
   <!-- ======================================================================== -->
 
   <!-- <swizzle> -->
-  <!-- Implemented by custom implementations: see SwizzleNode.h/cpp -->
+  <!-- Implemented by custom implementations: see Swizzle.h/cpp -->
 
   <!-- <pack> -->
   <implementation name="IM_pack__color2__osl" nodedef="ND_pack__color2" file="stdlib/impl/shadergen/source/osl/mx_pack_color2.inline" language="osl"/>
