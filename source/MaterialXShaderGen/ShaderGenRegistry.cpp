@@ -89,6 +89,11 @@ FilePath ShaderGenRegistry::findSourceCode(const FilePath& filename)
     return _sourceCodeSearchPath.find(filename);
 }
 
+const FileSearchPath& ShaderGenRegistry::sourceCodeSearchPath()
+{
+    return _sourceCodeSearchPath;
+}
+
 ShaderGeneratorPtr ShaderGenRegistry::findShaderGeneratorById(const string& id)
 {
     auto it = _shaderGenerators.find(id);

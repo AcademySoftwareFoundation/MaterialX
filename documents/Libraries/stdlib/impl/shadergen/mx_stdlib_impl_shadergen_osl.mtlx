@@ -258,6 +258,7 @@
   <implementation name="IM_add__vector3FA__osl" nodedef="ND_add__vector3FA" file="stdlib/impl/shadergen/source/mx_add.inline" language="osl"/>
   <implementation name="IM_add__vector4__osl" nodedef="ND_add__vector4" file="stdlib/impl/shadergen/source/mx_add.inline" language="osl"/>
   <implementation name="IM_add__vector4FA__osl" nodedef="ND_add__vector4FA" file="stdlib/impl/shadergen/source/mx_add.inline" language="osl"/>
+  <implementation name="IM_add__surfaceshader__osl" nodedef="ND_add__surfaceshader" file="stdlib/impl/reference/source/osl/mx_add_surfaceshader.osl" function="mx_add_surfaceshader" language="osl"/>
 
   <!-- <subtract> -->
   <implementation name="IM_subtract__float__osl" nodedef="ND_subtract__float" file="stdlib/impl/shadergen/source/mx_subtract.inline" language="osl"/>
@@ -288,6 +289,8 @@
   <implementation name="IM_multiply__vector3FA__osl" nodedef="ND_multiply__vector3FA" file="stdlib/impl/shadergen/source/mx_multiply.inline" language="osl"/>
   <implementation name="IM_multiply__vector4__osl" nodedef="ND_multiply__vector4" file="stdlib/impl/shadergen/source/mx_multiply.inline" language="osl"/>
   <implementation name="IM_multiply__vector4FA__osl" nodedef="ND_multiply__vector4FA" file="stdlib/impl/shadergen/source/mx_multiply.inline" language="osl"/>
+  <implementation name="IM_multiply__surfaceshaderF__osl" nodedef="ND_multiply__surfaceshaderF" file="stdlib/impl/reference/source/osl/mx_mult_surfaceshader_float.osl" function="mx_mult_surfaceshader_float" language="osl"/>
+  <implementation name="IM_multiply__surfaceshaderC__osl" nodedef="ND_multiply__surfaceshaderC" file="stdlib/impl/reference/source/osl/mx_mult_surfaceshader_color.osl" function="mx_mult_surfaceshader_color" language="osl"/>
 
   <!-- <divide> -->
   <implementation name="IM_divide__float__osl" nodedef="ND_divide__float" file="stdlib/impl/shadergen/source/mx_divide.inline" language="osl"/>
@@ -584,7 +587,7 @@
   <implementation name="IM_mix__vector2__osl" nodedef="ND_mix__vector2" file="stdlib/impl/shadergen/source/mx_mix.inline" language="osl"/>
   <implementation name="IM_mix__vector3__osl" nodedef="ND_mix__vector3" file="stdlib/impl/shadergen/source/mx_mix.inline" language="osl"/>
   <implementation name="IM_mix__vector4__osl" nodedef="ND_mix__vector4" file="stdlib/impl/shadergen/source/mx_mix.inline" language="osl"/>
-
+  <implementation name="IM_mix__surfaceshader__osl" nodedef="ND_mix__surfaceshader" file="stdlib/impl/reference/source/osl/mx_mix_surfaceshader.osl" function="mx_mix_surfaceshader" language="osl"/>
 
   <!-- ======================================================================== -->
   <!-- Conditional nodes                                                        -->
@@ -647,15 +650,15 @@
   <implementation name="IM_dot__vector2__osl" nodedef="ND_dot__vector2" file="stdlib/impl/reference/source/osl/mx_dot_vector2.osl" function="mx_dot_vector2" language="osl"/>
   <implementation name="IM_dot__vector3__osl" nodedef="ND_dot__vector3" file="stdlib/impl/reference/source/osl/mx_dot_vector.osl" function="mx_dot_vector" language="osl"/>
   <implementation name="IM_dot__vector4__osl" nodedef="ND_dot__vector4" file="stdlib/impl/reference/source/osl/mx_dot_vector4.osl" function="mx_dot_vector4" language="osl"/>
-  <implementation name="IM_dot__boolean__osl" nodedef="ND_dot__boolean" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot__integer__osl" nodedef="ND_dot__integer" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot__matrix33__osl" nodedef="ND_dot__matrix33" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot__matrix44__osl" nodedef="ND_dot__matrix44" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot__string__osl" nodedef="ND_dot__string" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot__filename__osl" nodedef="ND_dot__filename" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot__surfaceshader__osl" nodedef="ND_dot__surfaceshader" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot__displacementshader__osl" nodedef="ND_dot__displacementshader" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot__volumeshader__osl" nodedef="ND_dot__volumeshader" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot__lightshader__osl" nodedef="ND_dot__lightshader" file="FILE" function="FUNC" language="osl"/>
+  <implementation name="IM_dot__boolean__osl" nodedef="ND_dot__boolean" file="stdlib/impl/reference/source/osl/mx_dot_bool.osl" function="mx_dot_bool" language="osl"/>
+  <implementation name="IM_dot__integer__osl" nodedef="ND_dot__integer" file="stdlib/impl/reference/source/osl/mx_dot_int.osl" function="mx_dot_int" language="osl"/>
+  <implementation name="IM_dot__matrix33__osl" nodedef="ND_dot__matrix33" file="stdlib/impl/reference/source/osl/mx_dot_matrix33.osl" function="mx_dot_matrix33" language="osl"/>
+  <implementation name="IM_dot__matrix44__osl" nodedef="ND_dot__matrix44" file="stdlib/impl/reference/source/osl/mx_dot_matrix44.osl" function="mx_dot_matrix44" language="osl"/>
+  <implementation name="IM_dot__string__osl" nodedef="ND_dot__string" file="stdlib/impl/reference/source/osl/mx_dot_string.osl" function="mx_dot_string" language="osl"/>
+  <implementation name="IM_dot__filename__osl" nodedef="ND_dot__filename" file="stdlib/impl/reference/source/osl/mx_dot_filename.osl" function="mx_dot_filename" language="osl"/>
+  <implementation name="IM_dot__surfaceshader__osl" nodedef="ND_dot__surfaceshader" file="stdlib/impl/reference/source/osl/mx_dot_surfaceshader.osl" function="mx_dot_surfaceshader" language="osl"/>
+  <implementation name="IM_dot__displacementshader__osl" nodedef="ND_dot__displacementshader" file="stdlib/impl/reference/source/osl/mx_dot_displacementshader.osl" function="mx_dot_displacementshader" language="osl"/>
+  <implementation name="IM_dot__volumeshader__osl" nodedef="ND_dot__volumeshader" file="stdlib/impl/reference/source/osl/mx_dot_volumeshader.osl" function="mx_dot_volumeshader" language="osl"/>
+  <implementation name="IM_dot__lightshader__osl" nodedef="ND_dot__lightshader" file="stdlib/impl/reference/source/osl/mx_dot_lightshader.osl" function="mx_dot_lightshader" language="osl"/>
 
 </materialx>

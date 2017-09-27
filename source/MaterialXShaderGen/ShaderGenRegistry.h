@@ -53,6 +53,9 @@ public:
     /// Resolve a source code file using the registered search paths.
     static FilePath findSourceCode(const FilePath& filename);
 
+    /// Return source code search path
+    static const FileSearchPath& sourceCodeSearchPath();
+
     /// Register all built-in shader generators and implementations.
     /// Should be called at application initialization.
     static void registerBuiltIn();
