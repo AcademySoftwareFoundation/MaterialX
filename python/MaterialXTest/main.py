@@ -38,8 +38,8 @@ class TestMaterialX(unittest.TestCase):
     def test_DataTypes(self):
         # Convert between values and strings
         for value in _testValues:
-            string = mx.objectToString(value)
-            newValue = mx.stringToObject(string, type(value))
+            string = mx.valueToString(value)
+            newValue = mx.stringToValue(string, type(value))
             self.assertTrue(newValue == value)
 
     def test_BuildNodeGraph(self):
