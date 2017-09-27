@@ -1,5 +1,3 @@
-import warnings
-
 from .PyMaterialX import *
 from .datatype import *
 
@@ -83,14 +81,6 @@ ValueElement.getValue = _getValue
 def _setParameterValue(self, name, value, typeString = ''):
     """Set the value of a parameter by its name, creating a child element
        to hold the parameter if needed."""
-    if typeString == 'opgraphnode':
-        warnings.warn("To create a connection between two nodes, use Node.addInput and Input.setConnectedNode", DeprecationWarning, stacklevel = 2)
-        input = self.addInput(name)
-        input.setNodeName(value)
-        connectedNode = input.getConnectedNode()
-        if connectedNode:
-            input.setType(connectedNode.getType())
-        return input
     method = getattr(self.__class__, "_setParameterValue" + typeToName(value.__class__))
     return method(self, name, value, typeString)
 
@@ -98,7 +88,7 @@ def _getParameterValue(self, name):
     """Return the value instance of a parameter by its name.  If the given parameter
        is not present, then None is returned."""
     valuePtr = self._getParameterValue(name)
-    if (valuePtr != None):
+    if (valuePtr is not None):
         return valuePtr.getData()
     return None
 
@@ -121,12 +111,8 @@ NodeGraph.addNode = _addNode
 # Material
 #
 
-def _addOverride(self, name, typeString = '', value = ''):
+def _addOverride(self, name):
     "Add an override to the material."
-    if typeString or value:
-        warnings.warn("The addOverride method no longer supports type and value arguments, use setOverrideValue", DeprecationWarning, stacklevel = 2)
-        value = stringToObject(value, nameToType(typeString))
-        return self.setOverrideValue(name, value)
     return self._addOverride(name)
 
 def _setOverrideValue(self, name, value, typeString = ''):
@@ -137,13 +123,7 @@ def _setOverrideValue(self, name, value, typeString = ''):
 
 def _addShaderRef(self, name = '', node = ''):
     "Add a shader ref to the material."
-    shaderRef = self._addShaderRef(name, node)
-    if not shaderRef.getReferencedShaderDef():
-        nodeDef = self.getDocument().getNodeDef(name)
-        if nodeDef:
-            warnings.warn("Detected a legacy call to addShaderRef; the node attribute of a ShaderRef should match the node attribute of its connected NodeDef", DeprecationWarning, stacklevel = 2)
-            shaderRef.setNode(nodeDef.getNode())
-    return shaderRef
+    return self._addShaderRef(name, node)
 
 Material.addOverride = _addOverride
 Material.setOverrideValue = _setOverrideValue
@@ -154,11 +134,8 @@ Material.addShaderRef = _addShaderRef
 # GeomInfo
 #
 
-def _addGeomAttr(self, name, value = None, typeString = ''):
+def _addGeomAttr(self, name):
     "Add a geomattr to the geominfo."
-    if value is not None:
-        warnings.warn("The addGeomAttr method no longer supports value and type arguments, use setGeomattrValue", DeprecationWarning, stacklevel = 2)
-        return self.setGeomAttrValue(name, value, typeString)
     return self._addGeomAttr(name)
 
 def _setGeomAttrValue(self, name, value, typeString = ''):
@@ -175,18 +152,8 @@ GeomInfo.setGeomAttrValue = _setGeomAttrValue
 # Value
 #
 
-def createValueFromTypedData(object):
-    "Convert an object of MaterialX type to a Value instance."
-    method = globals()['TypedValue_' + typeToName(object.__class__)].createValue
-    return method(object)
-
-def objectToString(object):
-    "Convert an object of MaterialX type to a string."
-    return createValueFromTypedData(object).getValueString()
-
-def stringToObject(string, t):
-    "Convert a string to an object of MaterialX type."
-    return Value.createValueFromStrings(string, typeToName(t)).getData()  
+objectToString = valueToString
+stringToObject = stringToValue
 
 
 #
