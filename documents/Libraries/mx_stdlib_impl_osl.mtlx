@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
   TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-  All rights reserved.  See LICENSE.txt for license.
-  
+  All rights reserved. See LICENSE.txt for license.
+
   Declarations for OSL implementations of standard nodes included in the MaterialX specification.
 -->
 
@@ -78,12 +78,12 @@
   <implementation name="IM_constant__vector2__osl" nodedef="ND_constant__vector2" file="Source/OSL/mx_constant_vector2.osl" function="mx_constant_vector2" language="osl"/>
   <implementation name="IM_constant__vector3__osl" nodedef="ND_constant__vector3" file="Source/OSL/mx_constant_vector.osl" function="mx_constant_vector" language="osl"/>
   <implementation name="IM_constant__vector4__osl" nodedef="ND_constant__vector4" file="Source/OSL/mx_constant_vector4.osl" function="mx_constant_vector4" language="osl"/>
-  <implementation name="IM_constant__boolean__osl" nodedef="ND_constant__boolean" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_constant__integer__osl" nodedef="ND_constant__integer" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_constant__matrix33__osl" nodedef="ND_constant__matrix33" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_constant__matrix44__osl" nodedef="ND_constant__matrix44" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_constant__string__osl" nodedef="ND_constant__string" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_constant__filename__osl" nodedef="ND_constant__filename" file="FILE" function="FUNC" language="osl"/>
+  <implementation name="IM_constant__boolean__osl" nodedef="ND_constant__boolean" file="Source/OSL/mx_constant_bool.osl" function="mx_constant_bool" language="osl"/>
+  <implementation name="IM_constant__integer__osl" nodedef="ND_constant__integer" file="Source/OSL/mx_constant_int.osl" function="mx_constant_int" language="osl"/>
+  <implementation name="IM_constant__matrix33__osl" nodedef="ND_constant__matrix33" file="Source/OSL/mx_constant_matrix33.osl" function="mx_constant_matrix33" language="osl"/>
+  <implementation name="IM_constant__matrix44__osl" nodedef="ND_constant__matrix44" file="Source/OSL/mx_constant_matrix44.osl" function="mx_constant_matrix44" language="osl"/>
+  <implementation name="IM_constant__string__osl" nodedef="ND_constant__string" file="Source/OSL/mx_constant_string.osl" function="mx_constant_string" language="osl"/>
+  <implementation name="IM_constant__filename__osl" nodedef="ND_constant__filename" file="Source/OSL/mx_constant_filename.osl" function="mx_constant_filename" language="osl"/>
 
   <!-- <ramplr> -->
   <implementation name="IM_ramplr__float__osl" nodedef="ND_ramplr__float" file="Source/OSL/mx_ramplr_float.osl" function="mx_ramplr_float" language="osl"/>
@@ -217,9 +217,9 @@
   <implementation name="IM_geomcolor__color4__osl" nodedef="ND_geomcolor__color4" file="Source/OSL/mx_geomcolor_color4.osl" function="mx_geomcolor_color4" language="osl"/>
 
   <!-- <geomattrvalue> -->
-  <implementation name="IM_geomattrvalue__integer__osl" nodedef="ND_geomattrvalue__integer" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_geomattrvalue__boolean__osl" nodedef="ND_geomattrvalue__boolean" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_geomattrvalue__string__osl" nodedef="ND_geomattrvalue__string" file="FILE" function="FUNC" language="osl"/>
+  <implementation name="IM_geomattrvalue__integer__osl" nodedef="ND_geomattrvalue__integer" file="Source/OSL/mx_geomattrvalue_int.osl" function="mx_geomattrvalue_int" language="osl"/>
+  <implementation name="IM_geomattrvalue__boolean__osl" nodedef="ND_geomattrvalue__boolean" file="Source/OSL/mx_geomattrvalue_bool.osl" function="mx_geomattrvalue_bool" language="osl"/>
+  <implementation name="IM_geomattrvalue__string__osl" nodedef="ND_geomattrvalue__string" file="Source/OSL/mx_geomattrvalue_string.osl" function="mx_geomattrvalue_string" language="osl"/>
   <implementation name="IM_geomattrvalue__float__osl" nodedef="ND_geomattrvalue__float" file="Source/OSL/mx_geomattrvalue_float.osl" function="mx_geomattrvalue_float" language="osl"/>
   <implementation name="IM_geomattrvalue__color2__osl" nodedef="ND_geomattrvalue__color2" file="Source/OSL/mx_geomattrvalue_color2.osl" function="mx_geomattrvalue_color2" language="osl"/>
   <implementation name="IM_geomattrvalue__color3__osl" nodedef="ND_geomattrvalue__color3" file="Source/OSL/mx_geomattrvalue_color.osl" function="mx_geomattrvalue_color" language="osl"/>
@@ -258,7 +258,7 @@
   <implementation name="IM_add__vector3FA__osl" nodedef="ND_add__vector3FA" file="Source/OSL/mx_add_float_vector.osl" function="mx_add_float_vector" language="osl"/>
   <implementation name="IM_add__vector4__osl" nodedef="ND_add__vector4" file="Source/OSL/mx_add_vector4.osl" function="mx_add_vector4" language="osl"/>
   <implementation name="IM_add__vector4FA__osl" nodedef="ND_add__vector4FA" file="Source/OSL/mx_add_float_vector4.osl" function="mx_add_float_vector4" language="osl"/>
-  <implementation name="IM_add__surfaceshader__osl" nodedef="ND_add__surfaceshader" file="FILE" function="FUNC" language="osl"/>
+  <implementation name="IM_add__surfaceshader__osl" nodedef="ND_add__surfaceshader" file="Source/OSL/mx_add_surfaceshader.osl" function="mx_add_surfaceshader" language="osl"/>
 
   <!-- <subtract> -->
   <implementation name="IM_subtract__float__osl" nodedef="ND_subtract__float" file="Source/OSL/mx_subtract_float.osl" function="mx_subtract_float" language="osl"/>
@@ -289,8 +289,8 @@
   <implementation name="IM_multiply__vector3FA__osl" nodedef="ND_multiply__vector3FA" file="Source/OSL/mx_multiply_float_vector.osl" function="mx_multiply_float_vector" language="osl"/>
   <implementation name="IM_multiply__vector4__osl" nodedef="ND_multiply__vector4" file="Source/OSL/mx_multiply_vector4.osl" function="mx_multiply_vector4" language="osl"/>
   <implementation name="IM_multiply__vector4FA__osl" nodedef="ND_multiply__vector4FA" file="Source/OSL/mx_multiply_float_vector4.osl" function="mx_multiply_float_vector4" language="osl"/>
-  <implementation name="IM_multiply__surfaceshaderF__osl" nodedef="ND_multiply__surfaceshaderF" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_multiply__surfaceshaderC__osl" nodedef="ND_multiply__surfaceshaderC" file="FILE" function="FUNC" language="osl"/>
+  <implementation name="IM_multiply__surfaceshaderF__osl" nodedef="ND_multiply__surfaceshaderF" file="Source/OSL/mx_mult_surfaceshader_float.osl" function="mx_mult_surfaceshader_float" language="osl"/>
+  <implementation name="IM_multiply__surfaceshaderC__osl" nodedef="ND_multiply__surfaceshaderC" file="Source/OSL/mx_mult_surfaceshader_color.osl" function="mx_mult_surfaceshader_color" language="osl"/>
 
   <!-- <divide> -->
   <implementation name="IM_divide__float__osl" nodedef="ND_divide__float" file="Source/OSL/mx_divide_float.osl" function="mx_divide_float" language="osl"/>
@@ -587,7 +587,7 @@
   <implementation name="IM_mix__vector2__osl" nodedef="ND_mix__vector2" file="Source/OSL/mx_mix_vector2.osl" function="mx_mix_vector2" language="osl"/>
   <implementation name="IM_mix__vector3__osl" nodedef="ND_mix__vector3" file="Source/OSL/mx_mix_vector.osl" function="mx_mix_vector" language="osl"/>
   <implementation name="IM_mix__vector4__osl" nodedef="ND_mix__vector4" file="Source/OSL/mx_mix_vector4.osl" function="mx_mix_vector4" language="osl"/>
-  <implementation name="IM_mix__surfaceshader__osl" nodedef="ND_mix__surfaceshader" file="FILE" function="FUNC" language="osl"/>
+  <implementation name="IM_mix__surfaceshader__osl" nodedef="ND_mix__surfaceshader" file="Source/OSL/mx_mix_surfaceshader.osl" function="mx_mix_surfaceshader" language="osl"/>
 
 
   <!-- ======================================================================== -->
@@ -716,13 +716,13 @@
   <implementation name="IM_dot__vector2__osl" nodedef="ND_dot__vector2" file="Source/OSL/mx_dot_vector2.osl" function="mx_dot_vector2" language="osl"/>
   <implementation name="IM_dot__vector3__osl" nodedef="ND_dot__vector3" file="Source/OSL/mx_dot_vector.osl" function="mx_dot_vector" language="osl"/>
   <implementation name="IM_dot__vector4__osl" nodedef="ND_dot__vector4" file="Source/OSL/mx_dot_vector4.osl" function="mx_dot_vector4" language="osl"/>
-  <implementation name="IM_dot__boolean__osl" nodedef="ND_dot__boolean" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot__integer__osl" nodedef="ND_dot__integer" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot__matrix33__osl" nodedef="ND_dot__matrix33" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot__matrix44__osl" nodedef="ND_dot__matrix44" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot__string__osl" nodedef="ND_dot__string" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot__filename__osl" nodedef="ND_dot__filename" file="FILE" function="FUNC" language="osl"/>
-  <implementation name="IM_dot__surfaceshader__osl" nodedef="ND_dot__surfaceshader" file="FILE" function="FUNC" language="osl"/>
+  <implementation name="IM_dot__boolean__osl" nodedef="ND_dot__boolean" file="Source/OSL/mx_dot_bool.osl" function="mx_dot_bool" language="osl"/>
+  <implementation name="IM_dot__integer__osl" nodedef="ND_dot__integer" file="Source/OSL/mx_dot_int.osl" function="mx_dot_int" language="osl"/>
+  <implementation name="IM_dot__matrix33__osl" nodedef="ND_dot__matrix33" file="Source/OSL/mx_dot_matrix33.osl" function="mx_dot_matrix33" language="osl"/>
+  <implementation name="IM_dot__matrix44__osl" nodedef="ND_dot__matrix44" file="Source/OSL/mx_dot_matrix44.osl" function="mx_dot_matrix44" language="osl"/>
+  <implementation name="IM_dot__string__osl" nodedef="ND_dot__string" file="Source/OSL/mx_dot_string.osl" function="mx_dot_string" language="osl"/>
+  <implementation name="IM_dot__filename__osl" nodedef="ND_dot__filename" file="Source/OSL/mx_dot_filename.osl" function="mx_dot_filename" language="osl"/>
+  <implementation name="IM_dot__surfaceshader__osl" nodedef="ND_dot__surfaceshader" file="Source/OSL/mx_dot_surfaceshader.osl" function="mx_dot_surfaceshader" language="osl"/>
   <implementation name="IM_dot__displacementshader__osl" nodedef="ND_dot__displacementshader" file="FILE" function="FUNC" language="osl"/>
   <implementation name="IM_dot__volumeshader__osl" nodedef="ND_dot__volumeshader" file="FILE" function="FUNC" language="osl"/>
   <implementation name="IM_dot__lightshader__osl" nodedef="ND_dot__lightshader" file="FILE" function="FUNC" language="osl"/>
