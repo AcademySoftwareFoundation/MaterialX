@@ -100,12 +100,20 @@ InterfaceElement.getParameterValue = _getParameterValue
 # NodeGraph
 #
 
-NodeGraph.addNode = NodeGraph._addNode
+def _addNode(self, category, name = '', typeString = 'color3'):
+    "Add an opgraph node."
+    return self._addNode(category, name, typeString)
+
+NodeGraph.addNode = _addNode
 
 
 #
 # Material
 #
+
+def _addOverride(self, name):
+    "Add an override to the material."
+    return self._addOverride(name)
 
 def _setOverrideValue(self, name, value, typeString = ''):
     """Set the value of an override by its name, creating a child element
@@ -113,14 +121,22 @@ def _setOverrideValue(self, name, value, typeString = ''):
     method = getattr(self.__class__, "_setOverrideValue" + typeToName(value.__class__))
     return method(self, name, value, typeString)
 
+def _addShaderRef(self, name = '', node = ''):
+    "Add a shader ref to the material."
+    return self._addShaderRef(name, node)
+
+Material.addOverride = _addOverride
 Material.setOverrideValue = _setOverrideValue
-Material.addOverride = Material._addOverride
-Material.addShaderRef = Material._addShaderRef
+Material.addShaderRef = _addShaderRef
 
 
 #
 # GeomInfo
 #
+
+def _addGeomAttr(self, name):
+    "Add a geomattr to the geominfo."
+    return self._addGeomAttr(name)
 
 def _setGeomAttrValue(self, name, value, typeString = ''):
     """Set the value of a geomattr by its name, creating a child element
@@ -128,8 +144,8 @@ def _setGeomAttrValue(self, name, value, typeString = ''):
     method = getattr(self.__class__, "_setGeomAttrValue" + typeToName(value.__class__))
     return method(self, name, value, typeString)
 
+GeomInfo.addGeomAttr = _addGeomAttr
 GeomInfo.setGeomAttrValue = _setGeomAttrValue
-GeomInfo.addGeomAttr = GeomInfo._addGeomAttr
 
 
 #
