@@ -6,10 +6,12 @@
 - Added support for Python 3.
 - Added support for standard TypeDef attributes.
 - Added method Element\:\:setName.
+- Added support for values of type 'stringarray'.
 - Extended Python bindings for Document, NodeGraph, MaterialAssign, and Collection.
 
 ### Changed
 - Modified NodeGraph\:\:topologicalSort to return elements in a more intuitive top-down order, with upstream elements preceding downstream elements.
+- Removed special cases for string return values in MaterialX Python, with all strings now returned as 'unicode' in Python 2 and 'str' in Python 3.
 - Updated OSL reference implementations.
 
 ### Fixed
