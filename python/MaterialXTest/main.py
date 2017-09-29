@@ -42,7 +42,7 @@ class TestMaterialX(unittest.TestCase):
             newValue = mx.stringToValue(string, type(value))
             self.assertTrue(newValue == value)
 
-    def test_BuildNodeGraph(self):
+    def test_BuildDocument(self):
         # Create a document.
         doc = mx.createDocument()
 
@@ -123,6 +123,108 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(output1.getConnectedNode() == None)
         self.assertTrue(output2.getConnectedNode() == None)
 
+    def test_TraverseGraph(self):
+        # Create a document.
+        doc = mx.createDocument()
+
+        # Create a node graph with the following structure:
+        #
+        # [image1] [constant]     [image2]
+        #        \ /                 |   
+        #    [multiply]          [contrast]         [noise3d]
+        #             \____________  |  ____________/
+        #                          [mix]
+        #                            |
+        #                         [output]
+        #
+        nodeGraph = doc.addNodeGraph()
+        image1 = nodeGraph.addNode('image')
+        image2 = nodeGraph.addNode('image')
+        constant = nodeGraph.addNode('constant');
+        multiply = nodeGraph.addNode('multiply');
+        contrast = nodeGraph.addNode('contrast');
+        noise3d = nodeGraph.addNode('noise3d');
+        mix = nodeGraph.addNode('mix');
+        output = nodeGraph.addOutput();
+        multiply.setConnectedNode('in1', image1);
+        multiply.setConnectedNode('in2', constant);
+        contrast.setConnectedNode('in', image2);
+        mix.setConnectedNode('fg', multiply);
+        mix.setConnectedNode('bg', contrast);
+        mix.setConnectedNode('mask', noise3d);
+        output.setConnectedNode(mix);
+
+        # Validate the document.
+        self.assertTrue(doc.validate()[0])
+
+        # Traverse the document tree (implicit iterator).
+        nodeCount = 0
+        for elem in doc.traverseTree():
+            if elem.isA(mx.Node):
+                nodeCount += 1
+        self.assertTrue(nodeCount == 7)
+
+        # Traverse the document tree (explicit iterator).
+        nodeCount = 0
+        maxElementDepth = 0
+        treeIter = doc.traverseTree()
+        for elem in treeIter:
+            if elem.isA(mx.Node):
+                nodeCount += 1
+            maxElementDepth = max(maxElementDepth, treeIter.getElementDepth())
+        self.assertTrue(nodeCount == 7)
+        self.assertTrue(maxElementDepth == 3)
+
+        # Traverse the document tree (prune subtree).
+        nodeCount = 0
+        treeIter = doc.traverseTree()
+        for elem in treeIter:
+            if elem.isA(mx.Node):
+                nodeCount += 1
+            if elem.isA(mx.NodeGraph):
+                treeIter.setPruneSubtree(True)
+        self.assertTrue(nodeCount == 0)
+
+        # Traverse upstream from the graph output (implicit iterator).
+        nodeCount = 0
+        for edge in output.traverseGraph():
+            upstreamElem = edge.getUpstreamElement()
+            connectingElem = edge.getConnectingElement()
+            downstreamElem = edge.getDownstreamElement()
+            if upstreamElem.isA(mx.Node):
+                nodeCount += 1
+        self.assertTrue(nodeCount == 7)
+
+        # Traverse upstream from the graph output (explicit iterator).
+        nodeCount = 0
+        maxElementDepth = 0
+        maxNodeDepth = 0
+        graphIter = output.traverseGraph()
+        for edge in graphIter:
+            upstreamElem = edge.getUpstreamElement()
+            connectingElem = edge.getConnectingElement()
+            downstreamElem = edge.getDownstreamElement()
+            if upstreamElem.isA(mx.Node):
+                nodeCount += 1
+            maxElementDepth = max(maxElementDepth, graphIter.getElementDepth());
+            maxNodeDepth = max(maxNodeDepth, graphIter.getNodeDepth());
+        self.assertTrue(nodeCount == 7)
+        self.assertTrue(maxElementDepth == 3)
+        self.assertTrue(maxNodeDepth == 3)
+
+        # Traverse upstream from the graph output (prune subgraph).
+        nodeCount = 0
+        graphIter = output.traverseGraph()
+        for edge in graphIter:
+            upstreamElem = edge.getUpstreamElement()
+            connectingElem = edge.getConnectingElement()
+            downstreamElem = edge.getDownstreamElement()
+            if upstreamElem.isA(mx.Node):
+                nodeCount += 1
+                if upstreamElem.getCategory() == 'multiply':
+                    graphIter.setPruneSubgraph(True)
+        self.assertTrue(nodeCount == 5)
+
     def test_ReadXml(self):
         # Load the standard library.
         lib = mx.createDocument()
@@ -141,25 +243,14 @@ class TestMaterialX(unittest.TestCase):
             copiedDoc.addLook()
             self.assertTrue(copiedDoc != doc)
 
-            # Traverse the document tree (implicit iterator).
+            # Traverse the document tree.
             valueElementCount = 0
             for elem in doc.traverseTree():
                 if elem.isA(mx.ValueElement):
                     valueElementCount += 1
             self.assertTrue(valueElementCount > 0)
 
-            # Traverse the document tree (explicit iterator).
-            valueElementCount = 0
-            maxElementDepth = 0
-            treeIter = doc.traverseTree()
-            for elem in treeIter:
-                if elem.isA(mx.ValueElement):
-                    valueElementCount += 1
-                maxElementDepth = max(maxElementDepth, treeIter.getElementDepth())
-            self.assertTrue(valueElementCount > 0)
-            self.assertTrue(maxElementDepth > 0)
-
-            # Traverse the dataflow graph from each shader input to its source nodes.
+            # Traverse upstream from each shader input.
             for material in doc.getMaterials():
                 self.assertTrue(material.getReferencedShaderDefs())
                 edgeCount = 0
