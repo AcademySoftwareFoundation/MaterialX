@@ -47,8 +47,8 @@ class NodeTranslator
     /// Return false if attribute of given name should be ignored.
     virtual bool shouldExport(const string& mayaAttrName) const;
 
-    /// Return false if the given plug should be ignored, considering 
-    /// the MaterialX default value. Can be used to ignore plugs where 
+    /// Return false if the given plug should be ignored, considering
+    /// the MaterialX default value. Can be used to ignore plugs where
     /// the value hasn't changed.
     virtual bool shouldExport(const MPlug& mayaPlug, mx::ValuePtr defaultValue) const;
 
@@ -85,16 +85,16 @@ class NodeTranslator
     /// Attribute description
     struct Attribute
     {
-        int portType;   /*! Port type */
-        string name;    /*! Name */
-        string type;    /*! Type */
-        string value;   /*! Value */
-        
+        int portType;   /*!< Port type */
+        string name;    /*!< Name */
+        string type;    /*!< Type */
+        string value;   /*!< Value */
+
         /// Default constructor
-        Attribute() {}  
+        Attribute() {}
 
         /// Constructor
-        Attribute(int pt, const string& n, const string& t, const string& v = "") 
+        Attribute(int pt, const string& n, const string& t, const string& v = "")
             : portType(pt), name(n), type(t), value(v)
         {}
     };
