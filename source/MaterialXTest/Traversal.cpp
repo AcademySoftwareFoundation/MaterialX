@@ -45,50 +45,50 @@ TEST_CASE("Traversal", "[traversal]")
     REQUIRE(doc->validate());
 
     // Traverse the document tree (implicit iterator).
-    int totalNodeCount = 0;
+    int nodeCount = 0;
     for (mx::ElementPtr elem : doc->traverseTree())
     {
         REQUIRE(elem->getName() == mx::createValidName(elem->getName()));
         if (elem->isA<mx::Node>())
         {
-            totalNodeCount++;
+            nodeCount++;
         }
     }
-    REQUIRE(totalNodeCount == 7);
+    REQUIRE(nodeCount == 7);
 
     // Traverse the document tree (explicit iterator).
-    totalNodeCount = 0;
+    nodeCount = 0;
     size_t maxElementDepth = 0;
     for (mx::TreeIterator it = doc->traverseTree().begin(); it != mx::TreeIterator::end(); ++it)
     {
         mx::ElementPtr elem = it.getElement();
         if (elem->isA<mx::Node>())
         {
-            totalNodeCount++;
+            nodeCount++;
         }
         maxElementDepth = std::max(maxElementDepth, it.getElementDepth());
     }
-    REQUIRE(totalNodeCount == 7);
+    REQUIRE(nodeCount == 7);
     REQUIRE(maxElementDepth == 3);
 
     // Traverse the document tree (prune subtree).
-    totalNodeCount = 0;
+    nodeCount = 0;
     for (mx::TreeIterator it = doc->traverseTree().begin(); it != mx::TreeIterator::end(); ++it)
     {
         mx::ElementPtr elem = it.getElement();
         if (elem->isA<mx::Node>())
         {
-            totalNodeCount++;
+            nodeCount++;
         }
         if (elem->isA<mx::NodeGraph>())
         {
             it.setPruneSubtree(true);
         }
     }
-    REQUIRE(totalNodeCount == 0);
+    REQUIRE(nodeCount == 0);
 
     // Traverse upstream from the graph output (implicit iterator).
-    int nodeCount = 0;
+    nodeCount = 0;
     for (mx::Edge edge : output->traverseGraph())
     {
         mx::ElementPtr upstreamElem = edge.getUpstreamElement();
