@@ -34,6 +34,7 @@ void bindPyInterface(py::module& mod)
         .def_readonly_static("CATEGORY", &mx::Input::CATEGORY);
 
     py::class_<mx::Output, mx::OutputPtr, mx::PortElement>(mod, "Output", py::metaclass())
+        .def("hasUpstreamCycle", &mx::Output::hasUpstreamCycle)
         .def_readonly_static("CATEGORY", &mx::Output::CATEGORY);
 
     py::class_<mx::InterfaceElement, std::shared_ptr<mx::InterfaceElement>, mx::TypedElement>(mod, "InterfaceElement", py::metaclass())

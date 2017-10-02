@@ -140,19 +140,19 @@ class TestMaterialX(unittest.TestCase):
         nodeGraph = doc.addNodeGraph()
         image1 = nodeGraph.addNode('image')
         image2 = nodeGraph.addNode('image')
-        constant = nodeGraph.addNode('constant');
-        multiply = nodeGraph.addNode('multiply');
-        contrast = nodeGraph.addNode('contrast');
-        noise3d = nodeGraph.addNode('noise3d');
-        mix = nodeGraph.addNode('mix');
-        output = nodeGraph.addOutput();
-        multiply.setConnectedNode('in1', image1);
-        multiply.setConnectedNode('in2', constant);
-        contrast.setConnectedNode('in', image2);
-        mix.setConnectedNode('fg', multiply);
-        mix.setConnectedNode('bg', contrast);
-        mix.setConnectedNode('mask', noise3d);
-        output.setConnectedNode(mix);
+        constant = nodeGraph.addNode('constant')
+        multiply = nodeGraph.addNode('multiply')
+        contrast = nodeGraph.addNode('contrast')
+        noise3d = nodeGraph.addNode('noise3d')
+        mix = nodeGraph.addNode('mix')
+        output = nodeGraph.addOutput()
+        multiply.setConnectedNode('in1', image1)
+        multiply.setConnectedNode('in2', constant)
+        contrast.setConnectedNode('in', image2)
+        mix.setConnectedNode('fg', multiply)
+        mix.setConnectedNode('bg', contrast)
+        mix.setConnectedNode('mask', noise3d)
+        output.setConnectedNode(mix)
 
         # Validate the document.
         self.assertTrue(doc.validate()[0])
@@ -193,6 +193,8 @@ class TestMaterialX(unittest.TestCase):
             downstreamElem = edge.getDownstreamElement()
             if upstreamElem.isA(mx.Node):
                 nodeCount += 1
+                if downstreamElem.isA(mx.Node):
+                    self.assertTrue(connectingElem.isA(mx.Input))
         self.assertTrue(nodeCount == 7)
 
         # Traverse upstream from the graph output (explicit iterator).
@@ -206,8 +208,8 @@ class TestMaterialX(unittest.TestCase):
             downstreamElem = edge.getDownstreamElement()
             if upstreamElem.isA(mx.Node):
                 nodeCount += 1
-            maxElementDepth = max(maxElementDepth, graphIter.getElementDepth());
-            maxNodeDepth = max(maxNodeDepth, graphIter.getNodeDepth());
+            maxElementDepth = max(maxElementDepth, graphIter.getElementDepth())
+            maxNodeDepth = max(maxNodeDepth, graphIter.getNodeDepth())
         self.assertTrue(nodeCount == 7)
         self.assertTrue(maxElementDepth == 3)
         self.assertTrue(maxNodeDepth == 3)
@@ -224,6 +226,22 @@ class TestMaterialX(unittest.TestCase):
                 if upstreamElem.getCategory() == 'multiply':
                     graphIter.setPruneSubgraph(True)
         self.assertTrue(nodeCount == 5)
+
+        # Create and detect a cycle.
+        multiply.setConnectedNode('in2', mix)
+        self.assertTrue(output.hasUpstreamCycle())
+        self.assertFalse(doc.validate()[0])
+        multiply.setConnectedNode('in2', constant)
+        self.assertFalse(output.hasUpstreamCycle())
+        self.assertTrue(doc.validate()[0])
+
+        # Create and detect a loop.
+        contrast.setConnectedNode('in', contrast)
+        self.assertTrue(output.hasUpstreamCycle())
+        self.assertFalse(doc.validate()[0])
+        contrast.setConnectedNode('in', image2)
+        self.assertFalse(output.hasUpstreamCycle())
+        self.assertTrue(doc.validate()[0])
 
     def test_ReadXml(self):
         # Load the standard library.
@@ -273,7 +291,7 @@ class TestMaterialX(unittest.TestCase):
 
             # Combine document with the standard library.
             doc2 = doc.copy()
-            doc2.importLibrary(lib);
+            doc2.importLibrary(lib)
             self.assertTrue(doc2.validate()[0])
 
             # Verify that all referenced nodes are declared.
