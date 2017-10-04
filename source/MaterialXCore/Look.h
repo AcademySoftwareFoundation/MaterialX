@@ -273,7 +273,7 @@ class MaterialAssign : public GeomElement
     }
 
     /// Return the exclusive boolean for the MaterialAssign.
-    const bool getExclusive() const
+    bool getExclusive() const
     {
         return getTypedAttribute<bool>(EXCLUSIVE_ATTRIBUTE);
     }
@@ -386,7 +386,7 @@ class Visibility : public GeomElement
     }
 
     /// Return the visible boolean of the element.
-    const bool getVisible() const
+    bool getVisible() const
     {
         return getTypedAttribute<bool>(VISIBLE_ATTRIBUTE);
     }

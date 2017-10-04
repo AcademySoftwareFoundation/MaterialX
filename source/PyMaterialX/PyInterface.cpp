@@ -19,10 +19,10 @@ namespace mx = MaterialX;
 
 void bindPyInterface(py::module& mod)
 {
-    py::class_<mx::Parameter, mx::ParameterPtr, mx::ValueElement>(mod, "Parameter", py::metaclass())
+    py::class_<mx::Parameter, mx::ParameterPtr, mx::ValueElement>(mod, "Parameter")
         .def_readonly_static("CATEGORY", &mx::Parameter::CATEGORY);
 
-    py::class_<mx::PortElement, mx::PortElementPtr, mx::ValueElement>(mod, "PortElement", py::metaclass())
+    py::class_<mx::PortElement, mx::PortElementPtr, mx::ValueElement>(mod, "PortElement")
         .def("setNodeName", &mx::PortElement::setNodeName)
         .def("getNodeName", &mx::PortElement::getNodeName)
         .def("setChannels", &mx::PortElement::setChannels)
@@ -30,14 +30,14 @@ void bindPyInterface(py::module& mod)
         .def("setConnectedNode", &mx::PortElement::setConnectedNode)
         .def("getConnectedNode", &mx::PortElement::getConnectedNode);
 
-    py::class_<mx::Input, mx::InputPtr, mx::PortElement>(mod, "Input", py::metaclass())
+    py::class_<mx::Input, mx::InputPtr, mx::PortElement>(mod, "Input")
         .def_readonly_static("CATEGORY", &mx::Input::CATEGORY);
 
-    py::class_<mx::Output, mx::OutputPtr, mx::PortElement>(mod, "Output", py::metaclass())
+    py::class_<mx::Output, mx::OutputPtr, mx::PortElement>(mod, "Output")
         .def("hasUpstreamCycle", &mx::Output::hasUpstreamCycle)
         .def_readonly_static("CATEGORY", &mx::Output::CATEGORY);
 
-    py::class_<mx::InterfaceElement, std::shared_ptr<mx::InterfaceElement>, mx::TypedElement>(mod, "InterfaceElement", py::metaclass())
+    py::class_<mx::InterfaceElement, std::shared_ptr<mx::InterfaceElement>, mx::TypedElement>(mod, "InterfaceElement")
         .def("addParameter", &mx::InterfaceElement::addParameter,
             py::arg("name"), py::arg("type") = mx::DEFAULT_TYPE_STRING)
         .def("getParameter", &mx::InterfaceElement::getParameter)

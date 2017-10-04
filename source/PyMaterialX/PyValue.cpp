@@ -9,18 +9,12 @@
 
 #include <PyBind11/stl.h>
 
-#ifdef __clang__
-#if __has_warning("-Wundefined-var-template")
-#pragma clang diagnostic ignored "-Wundefined-var-template"
-#endif
-#endif
-
-#define BIND_TYPE_INSTANCE(NAME, T)                                                                                         \
-py::class_<mx::TypedValue<T>, std::shared_ptr< mx::TypedValue<T> >, mx::Value>(mod, "TypedValue_" #NAME, py::metaclass())   \
-    .def("getData", &mx::TypedValue<T>::getData)                                                                            \
-    .def("getValueString", &mx::TypedValue<T>::getValueString)                                                              \
-    .def_static("createValue", &mx::Value::createValue<T>)                                                                  \
-    .def_readonly_static("TYPE", &mx::TypedValue<T>::TYPE)                                                                  \
+#define BIND_TYPE_INSTANCE(NAME, T)                                                                         \
+py::class_<mx::TypedValue<T>, std::shared_ptr< mx::TypedValue<T> >, mx::Value>(mod, "TypedValue_" #NAME)    \
+    .def("getData", &mx::TypedValue<T>::getData)                                                            \
+    .def("getValueString", &mx::TypedValue<T>::getValueString)                                              \
+    .def_static("createValue", &mx::Value::createValue<T>)                                                  \
+    .def_readonly_static("TYPE", &mx::TypedValue<T>::TYPE)                                                  \
     .def_readonly_static("ZERO", &mx::TypedValue<T>::ZERO);
 
 namespace py = pybind11;

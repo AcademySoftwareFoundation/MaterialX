@@ -16,7 +16,7 @@ void bindPyDocument(py::module& mod)
 {
     mod.def("createDocument", &mx::createDocument);
 
-    py::class_<mx::Document, mx::DocumentPtr, mx::Element>(mod, "Document", py::metaclass())
+    py::class_<mx::Document, mx::DocumentPtr, mx::Element>(mod, "Document")
         .def("initialize", &mx::Document::initialize)
         .def("copy", &mx::Document::copy)
         .def("importLibrary", &mx::Document::importLibrary)
