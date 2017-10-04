@@ -29,7 +29,7 @@ namespace mx = MaterialX;
 
 void bindPyElement(py::module& mod)
 {
-    py::class_<mx::Element, mx::ElementPtr>(mod, "Element", py::metaclass())
+    py::class_<mx::Element, mx::ElementPtr>(mod, "Element")
         .def(py::self == py::self)
         .def(py::self != py::self)
         .def("setCategory", &mx::Element::setCategory)
@@ -115,12 +115,12 @@ void bindPyElement(py::module& mod)
         BIND_ELEMENT_FUNC_INSTANCE(TypeDef)
         BIND_ELEMENT_FUNC_INSTANCE(Visibility);
 
-    py::class_<mx::TypedElement, mx::TypedElementPtr, mx::Element>(mod, "TypedElement", py::metaclass())
+    py::class_<mx::TypedElement, mx::TypedElementPtr, mx::Element>(mod, "TypedElement")
         .def("setType", &mx::TypedElement::setType)
         .def("hasType", &mx::TypedElement::hasType)
         .def("getType", &mx::TypedElement::getType);
 
-    py::class_<mx::ValueElement, mx::ValueElementPtr, mx::TypedElement>(mod, "ValueElement", py::metaclass())
+    py::class_<mx::ValueElement, mx::ValueElementPtr, mx::TypedElement>(mod, "ValueElement")
         .def("setValueString", &mx::ValueElement::setValueString)
         .def("hasValueString", &mx::ValueElement::hasValueString)
         .def("getValueString", &mx::ValueElement::getValueString)

@@ -19,7 +19,7 @@ namespace mx = MaterialX;
 
 void bindPyMaterial(py::module& mod)
 {
-    py::class_<mx::Material, mx::MaterialPtr, mx::Element>(mod, "Material", py::metaclass())
+    py::class_<mx::Material, mx::MaterialPtr, mx::Element>(mod, "Material")
         .def("_addShaderRef", &mx::Material::addShaderRef,
             py::arg("name") = mx::EMPTY_STRING, py::arg("node") = mx::EMPTY_STRING)
         .def("getShaderRef", &mx::Material::getShaderRef)
@@ -52,10 +52,10 @@ void bindPyMaterial(py::module& mod)
         BIND_MATERIAL_FUNC_INSTANCE(string, std::string)
         .def_readonly_static("CATEGORY", &mx::Material::CATEGORY);
 
-    py::class_<mx::BindParam, mx::BindParamPtr, mx::ValueElement>(mod, "BindParam", py::metaclass())
+    py::class_<mx::BindParam, mx::BindParamPtr, mx::ValueElement>(mod, "BindParam")
         .def_readonly_static("CATEGORY", &mx::BindParam::CATEGORY);
 
-    py::class_<mx::BindInput, mx::BindInputPtr, mx::ValueElement>(mod, "BindInput", py::metaclass())
+    py::class_<mx::BindInput, mx::BindInputPtr, mx::ValueElement>(mod, "BindInput")
         .def("setNodeGraphString", &mx::BindInput::setNodeGraphString)
         .def("getNodeGraphString", &mx::BindInput::getNodeGraphString)
         .def("setOutputString", &mx::BindInput::setOutputString)
@@ -64,7 +64,7 @@ void bindPyMaterial(py::module& mod)
         .def("getConnectedOutput", &mx::BindInput::getConnectedOutput)
         .def_readonly_static("CATEGORY", &mx::BindInput::CATEGORY);
 
-    py::class_<mx::ShaderRef, mx::ShaderRefPtr, mx::Element>(mod, "ShaderRef", py::metaclass())
+    py::class_<mx::ShaderRef, mx::ShaderRefPtr, mx::Element>(mod, "ShaderRef")
         .def("setNode", &mx::ShaderRef::setNode)
         .def("hasNode", &mx::ShaderRef::hasNode)
         .def("getNode", &mx::ShaderRef::getNode)
@@ -85,10 +85,10 @@ void bindPyMaterial(py::module& mod)
         .def("getReferencedOutputs", &mx::ShaderRef::getReferencedOutputs)
         .def_readonly_static("CATEGORY", &mx::ShaderRef::CATEGORY);
 
-    py::class_<mx::Override, mx::OverridePtr, mx::ValueElement>(mod, "Override", py::metaclass())
+    py::class_<mx::Override, mx::OverridePtr, mx::ValueElement>(mod, "Override")
         .def("getReceiver", &mx::Override::getReceiver)
         .def_readonly_static("CATEGORY", &mx::Override::CATEGORY);
 
-    py::class_<mx::MaterialInherit, mx::MaterialInheritPtr, mx::Element>(mod, "MaterialInherit", py::metaclass())
+    py::class_<mx::MaterialInherit, mx::MaterialInheritPtr, mx::Element>(mod, "MaterialInherit")
         .def_readonly_static("CATEGORY", &mx::MaterialInherit::CATEGORY);
 }

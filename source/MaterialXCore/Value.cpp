@@ -8,10 +8,6 @@
 #include <sstream>
 #include <type_traits>
 
-#ifdef _MSC_VER
-#pragma warning(disable: 4702) // unreachable code
-#endif
-
 namespace MaterialX
 {
 
