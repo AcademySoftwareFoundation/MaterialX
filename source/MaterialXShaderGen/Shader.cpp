@@ -449,6 +449,13 @@ void Shader::addLine(const string& str, bool semicolon)
     endLine(semicolon);
 }
 
+void Shader::addComment(const string& str)
+{
+    beginLine();
+    stage().code += "// " + str;
+    endLine(false);
+}
+
 void Shader::addBlock(const string& str)
 {
     // Add each line in the block seperatelly

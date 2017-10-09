@@ -107,6 +107,9 @@ public:
     /// for a shader stage
     virtual void addInclude(const string& file);
 
+    /// Add a single line of code comment to the shader
+    virtual void addComment(const string& str);
+
     /// Add a value to the shader
     template<typename T>
     void addValue(const T& value)
