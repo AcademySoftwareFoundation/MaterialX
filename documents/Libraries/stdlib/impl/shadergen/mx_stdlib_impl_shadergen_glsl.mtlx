@@ -3,7 +3,7 @@
   TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
   All rights reserved.  See LICENSE.txt for license.
 
-  Declarations for OSL implementations of standard nodes included in the MaterialX specification.
+  Declarations for glsl implementations of standard nodes included in the MaterialX specification.
 -->
 
 <materialx version="1.35">
@@ -391,9 +391,22 @@
   <!-- <mask> -->
   <!-- <matte> -->
   <!-- <out> -->
+
   <!-- <over> -->
+  <implementation name="IM_over__color2__glsl" nodedef="ND_over__color2" file="stdlib/impl/shadergen/source/glsl/mx_over_color2.inline" language="glsl"/>
+  <implementation name="IM_over__color4__glsl" nodedef="ND_over__color4" file="stdlib/impl/shadergen/source/glsl/mx_over_color4.inline" language="glsl"/>
+
   <!-- <inside> -->
+  <implementation name="IM_inside__float__glsl" nodedef="ND_inside__float" file="stdlib/impl/shadergen/source/mx_multiply.inline" language="glsl"/>
+  <implementation name="IM_inside__color2__glsl" nodedef="ND_inside__color2" file="stdlib/impl/shadergen/source/mx_multiply.inline" language="glsl"/>
+  <implementation name="IM_inside__color3__glsl" nodedef="ND_inside__color3" file="stdlib/impl/shadergen/source/mx_multiply.inline" language="glsl"/>
+  <implementation name="IM_inside__color4__glsl" nodedef="ND_inside__color4" file="stdlib/impl/shadergen/source/mx_multiply.inline" language="glsl"/>
+
   <!-- <outside> -->
+  <implementation name="IM_outside__float__glsl" nodedef="ND_outside__float" file="stdlib/impl/shadergen/source/glsl/mx_outside.inline" language="glsl"/>
+  <implementation name="IM_outside__color2__glsl" nodedef="ND_outside__color2" file="stdlib/impl/shadergen/source/glsl/mx_outside.inline" language="glsl"/>
+  <implementation name="IM_outside__color3__glsl" nodedef="ND_outside__color3" file="stdlib/impl/shadergen/source/glsl/mx_outside.inline" language="glsl"/>
+  <implementation name="IM_outside__color4__glsl" nodedef="ND_outside__color4" file="stdlib/impl/shadergen/source/glsl/mx_outside.inline" language="glsl"/>
 
   <!-- <mix> -->
   <implementation name="IM_mix__float__glsl" nodedef="ND_mix__float" file="stdlib/impl/shadergen/source/mx_mix.inline" language="glsl"/>
@@ -449,5 +462,22 @@
   <!-- ======================================================================== -->
 
   <!-- <dot> -->
+  <implementation name="IM_dot__float__glsl" nodedef="ND_dot__float" file="stdlib/impl/shadergen/source/glsl/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__color2__glsl" nodedef="ND_dot__color2" file="stdlib/impl/shadergen/source/glsl/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__color3__glsl" nodedef="ND_dot__color3" file="stdlib/impl/shadergen/source/glsl/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__color4__glsl" nodedef="ND_dot__color4" file="stdlib/impl/shadergen/source/glsl/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__vector2__glsl" nodedef="ND_dot__vector2" file="stdlib/impl/shadergen/source/glsl/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__vector3__glsl" nodedef="ND_dot__vector3" file="stdlib/impl/shadergen/source/glsl/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__vector4__glsl" nodedef="ND_dot__vector4" file="stdlib/impl/shadergen/source/glsl/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__integer__glsl" nodedef="ND_dot__integer" file="stdlib/impl/shadergen/source/glsl/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__boolean__glsl" nodedef="ND_dot__boolean" file="stdlib/impl/shadergen/source/glsl/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__matrix33__glsl" nodedef="ND_dot__matrix33" file="stdlib/impl/shadergen/source/glsl/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__matrix44__glsl" nodedef="ND_dot__matrix44" file="stdlib/impl/shadergen/source/glsl/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__string__glsl" nodedef="ND_dot__string" file="stdlib/impl/shadergen/source/glsl/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__filename__glsl" nodedef="ND_dot__filename" file="stdlib/impl/shadergen/source/glsl/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__surfaceshader__glsl" nodedef="ND_dot__surfaceshader" file="stdlib/impl/shadergen/source/glsl/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__displacementshader__glsl" nodedef="ND_dot__displacementshader" file="stdlib/impl/shadergen/source/glsl/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__volumeshader__glsl" nodedef="ND_dot__volumeshader" file="stdlib/impl/shadergen/source/glsl/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__lightshader__glsl" nodedef="ND_dot__lightshader" file="stdlib/impl/shadergen/source/glsl/mx_dot.inline" language="glsl"/>
 
 </materialx>
