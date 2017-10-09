@@ -4,22 +4,19 @@
   <!-- <surfacelayer> -->
   <implementation name="IM_surfacelayer__glsl" nodedef="ND_surfacelayer" file="sx/impl/shadergen/source/glsl/sx_surfacelayer.glsl" function="sx_surfacelayer" language="glsl"/>
 
-  <!-- <surfaceshader> -->
-  <implementation name="IM_surfaceshader__glsl" nodedef="ND_surfaceshader" file="sx/impl/shadergen/source/glsl/sx_surfaceshader.glsl" function="sx_surfaceshader" language="glsl"/>
-
   <!-- <diffusebsdf> -->
   <implementation name="IM_diffusebsdf__glsl" nodedef="ND_diffusebsdf" file="sx/impl/shadergen/source/glsl/sx_diffusebsdf.glsl" function="sx_diffusebsdf" language="glsl"/>
 
-  <!-- <reflectionbsdf> -->
-  <implementation name="IM_reflectionbsdf__glsl" nodedef="ND_reflectionbsdf" file="sx/impl/shadergen/source/glsl/sx_reflectionbsdf.glsl" function="sx_reflectionbsdf" language="glsl"/>
+  <!-- <translucentbsdf> -->
+  <implementation name="IM_translucentbsdf__glsl" nodedef="ND_translucentbsdf" file="sx/impl/shadergen/source/glsl/sx_translucentbsdf.glsl" function="sx_translucentbsdf" language="glsl"/>
+
+  <!-- <coatingbsdf> -->
+  <implementation name="IM_coatingbsdf__glsl" nodedef="ND_coatingbsdf" file="sx/impl/shadergen/source/glsl/sx_coatingbsdf.glsl" function="sx_coatingbsdf" language="glsl"/>
+
+  <!-- <mixbsdf> -->
+  <implementation name="IM_mixbsdf__glsl" nodedef="ND_mixbsdf" file="sx/impl/shadergen/source/glsl/sx_mixbsdf.glsl" function="sx_mixbsdf" language="glsl"/>
 
   <!-- <uniformedf> -->
   <implementation name="IM_uniformedf__glsl" nodedef="ND_uniformedf" file="sx/impl/shadergen/source/glsl/sx_uniformedf.glsl" function="sx_uniformedf" language="glsl"/>
-
-  <!-- <layer> -->
-  <implementation name="IM_layer__glsl" nodedef="ND_layer" file="sx/impl/shadergen/source/glsl/sx_layer.glsl" function="sx_layer" language="glsl"/>
-
-  <!-- <physicallayer> -->
-  <implementation name="IM_physicallayer__glsl" nodedef="ND_physicallayer" file="sx/impl/shadergen/source/glsl/sx_physicallayer.glsl" function="sx_physicallayer" language="glsl"/>
 
 </materialx>

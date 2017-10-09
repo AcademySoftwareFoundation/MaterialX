@@ -1,17 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.35">
 
-  <!------------------------------------------------------------------------------>
-  <!-- Data types                                                               -->
-  <!------------------------------------------------------------------------------>
+  <!-- D A T A  T Y P E S -->
   <typedef name="BSDF" doc="Bidirectional scattering distribution function"/>
   <typedef name="EDF" doc="Emission distribution function"/>
   <typedef name="VDF" doc="Volume distribution function"/>
 
-  <!------------------------------------------------------------------------------>
-  <!-- Nodes                                                                    -->
-  <!------------------------------------------------------------------------------>
-
+  <!-- N O D E S -->
   <!--
     Node: <diffusebsdf>
     A BSDF node for pure diffuse reflections.
@@ -24,15 +19,36 @@
   </nodedef>
 
   <!--
-    Node: <reflectionbsdf>
-    A BSDF node for reflections using a microfacet model.
+    Node: <translucentbsdf>
+    A BSDF node for pure diffuse transmission.
   -->
-  <nodedef name="ND_reflectionbsdf" node="reflectionbsdf" type="BSDF" nodecategory="shaderx"
-           doc="A BSDF node for reflections using a microfacet model.">
-    <input name="reflectance" type="color3" value="0.8, 0.8, 0.8"/>
-    <input name="roughness" type="float" value="0.1"/>
+  <nodedef name="ND_translucentbsdf" node="translucentbsdf" type="BSDF" nodecategory="shaderx"
+           doc="A BSDF node for pure diffuse transmission.">
+    <input name="transmittance" type="color3" value="0.8, 0.8, 0.8"/>
     <input name="normal" type="vector3" defaultgeomprop="normal"/>
-    <parameter name="distribution" type="string" value="GGX"/>
+  </nodedef>
+
+  <!--
+    Node: <coatingbsdf>
+    A BSDF node for specular reflections.
+  -->
+  <nodedef name="ND_coatingbsdf" node="coatingbsdf" type="BSDF" nodecategory="shaderx"
+           doc="A BSDF node for specular reflections.">
+    <input name="reflectance" type="color3" value="1.0, 1.0, 1.0"/>
+    <input name="ior" type="float" value="1.52"/>
+    <input name="roughness" type="float" value="0.2"/>
+    <input name="anisotropy" type="float" value="0.0"/>
+    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="tangent" type="vector3" defaultgeomprop="tangent"/>
+    <input name="distribution" type="string" value="ggx"/>
+    <input name="base" type="BSDF"/>
+  </nodedef>
+
+  <nodedef name="ND_mixbsdf" node="mixbsdf" type="BSDF" nodecategory="shaderx"
+           doc="">
+    <input name="fg" type="BSDF"/>
+    <input name="bg" type="BSDF"/>
+    <input name="mask" type="float"/>
   </nodedef>
 
   <!--
@@ -45,27 +61,15 @@
   </nodedef>
 
   <!--
-    Node: <surfaceshader>
+    Node: <surfacelayer>
     A constructor node for the surfaceshader type.
   -->
-  <nodedef name="ND_surfaceshader" node="surfaceshader" type="surfaceshader" nodecategory="shaderx"
+  <nodedef name="ND_surfacelayer" node="surfacelayer" type="surfaceshader" nodecategory="shaderx"
            doc="A constructor node for the surfaceshader type.">
     <input name="bsdf" type="BSDF"/>
     <input name="edf" type="EDF"/>
-    <input name="ior" type="float" value="1.0" doc="Index of refraction"/>
-  </nodedef>
-
-  <!--
-    Node: <surfacelayer>
-    Surface shader layering node.
-  -->
-  <nodedef name="ND_surfacelayer" node="surfacelayer" type="surfaceshader" nodecategory="shaderx"
-           doc="Surface shader layering node.">
-    <input name="influence" type="color3" value="1.0, 1.0, 1.0"/>
-    <input name="bsdf" type="BSDF"/>
-    <input name="edf" type="EDF"/>
-    <input name="ior" type="float" value="0.0" doc="Index of refraction"/>
-    <input name="baselayer" type="surfaceshader"/>
+    <input name="opacity" type="color3" value="1.0,1.0,1.0" doc="Surface layer opacity"/>
+    <input name="base" type="surfaceshader" doc="Surface layer below this surface layer"/>
   </nodedef>
 
 </materialx>
