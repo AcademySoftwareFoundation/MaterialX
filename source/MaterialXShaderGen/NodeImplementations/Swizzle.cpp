@@ -7,7 +7,7 @@ namespace MaterialX
 
 DEFINE_NODE_IMPLEMENTATION(Swizzle, "swizzle", "", "")
 
-void Swizzle::emitCode(const SgNode& sgnode, ShaderGenerator& shadergen, Shader& shader)
+void Swizzle::emitFunctionCall(const SgNode& sgnode, ShaderGenerator& shadergen, Shader& shader)
 {
     const Node& node = sgnode.getNode();
 

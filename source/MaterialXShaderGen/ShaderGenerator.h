@@ -40,8 +40,11 @@ public:
     /// Emit function source code for the given node
     virtual void emitFunction(const SgNode& node, Shader& shader);
 
-    /// Emit the function call (or inline expression) for a node
-    virtual void emitFunctionCall(const SgNode& node, Shader& shader);
+    /// Emit the function call (or inline expression) for a node.
+    /// extraInputs will optionally hold a vector of named extra inputs
+    /// to give in the function call. If used these are given before the 
+    /// ordinary node inputs in the function call.
+    virtual void emitFunctionCall(const SgNode& node, Shader& shader, vector<string>* extraInputs = nullptr);
 
     /// Emit the shader body
     virtual void emitShaderBody(Shader& shader);

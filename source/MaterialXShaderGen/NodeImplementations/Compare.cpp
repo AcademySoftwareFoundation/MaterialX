@@ -9,7 +9,7 @@ DEFINE_NODE_IMPLEMENTATION(Compare, "compare", "", "")
 
 const vector<string> Compare::kInputNames = { "intest", "in1", "in2" };
 
-void Compare::emitCode(const SgNode& sgnode, ShaderGenerator& shadergen, Shader& shader)
+void Compare::emitFunctionCall(const SgNode& sgnode, ShaderGenerator& shadergen, Shader& shader)
 {
     const Node& node = sgnode.getNode();
 

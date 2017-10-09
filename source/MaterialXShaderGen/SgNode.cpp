@@ -47,6 +47,23 @@ namespace
     }
 }
 
+bool SgNode::referencedConditionally() const
+{
+    if (_scopeInfo.type == SgNode::ScopeInfo::Type::SINGLE)
+    {
+        int numBranches = 0;
+        uint32_t mask = _scopeInfo.conditionBitmask;
+        for (; mask != 0; mask >>= 1)
+        {
+            if (mask & 1)
+            {
+                numBranches++;
+            }
+        }
+        return numBranches > 0;
+    }
+    return false;
+}
 
 void SgNode::ScopeInfo::adjustAtConditionalInput(const NodePtr& condNode, int branch, const uint32_t fullMask)
 {
@@ -95,7 +112,8 @@ void SgNode::ScopeInfo::merge(const ScopeInfo &fromScope)
 
 
 SgNode::SgNode(NodePtr node, const string& language, const string& target)
-    : _node(node)
+    : _classification(0)
+    , _node(node)
     , _nodeDef(nullptr)
     , _customImpl(nullptr)
 {
@@ -112,7 +130,6 @@ SgNode::SgNode(NodePtr node, const string& language, const string& target)
 
     // Check if this node has a custom node implementation registered
     _customImpl = ShaderGenRegistry::findNodeImplementation(_nodeDef->getNode(), language, target);
-
     if (!_customImpl)
     {
         ImplementationPtr impl = getSourceCodeImplementation(*_nodeDef, language, target);
@@ -123,6 +140,24 @@ SgNode::SgNode(NodePtr node, const string& language, const string& target)
 
         getSourceCode(*impl, _functionSource, _inlined);
         _functionName = impl->getFunction();
+    }
+
+    // Set node classification
+    if (_nodeDef->getType() == kSURFACE)
+    {
+        _classification = (unsigned char)Classification::SURFACE | (unsigned char)Classification::CLOSURE;
+    }
+    else if (_nodeDef->getType() == kBSDF)
+    {
+        _classification = (unsigned char)Classification::BSDF | (unsigned char)Classification::CLOSURE;
+    }
+    else if (_nodeDef->getType() == kEDF)
+    {
+        _classification = (unsigned char)Classification::EDF | (unsigned char)Classification::CLOSURE;
+    }
+    else if (_nodeDef->getType() == kVDF)
+    {
+        _classification = (unsigned char)Classification::VDF | (unsigned char)Classification::CLOSURE;
     }
 }
 

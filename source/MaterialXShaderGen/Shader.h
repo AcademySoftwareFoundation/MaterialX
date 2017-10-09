@@ -46,6 +46,13 @@ public:
     /// A varying shader parameter
     using Varying = pair<string, InputPtr>;
 
+    class Context
+    {
+    public:
+        static const unsigned char SCATTERING = 1;
+        static const unsigned char EMISSION   = 2;
+    };
+
 public:
     /// Constructor
     Shader(const string& name);
@@ -122,6 +129,12 @@ public:
     /// given in topological order.
     const vector<SgNode>& getNodes() const { return _nodes;  }
 
+    /// Return true if the shader has the given classification.
+    bool hasClassification(SgNode::Classification c) const { return (_classification & (unsigned char)c) != 0; }
+
+    void setContext(unsigned char c) { _context = c; }
+    unsigned char getContext() const { return _context; }
+
     /// Return the SgNode for the given node pointer.
     SgNode& getNode(const NodePtr& nodePtr);
     const SgNode& getNode(const NodePtr& nodePtr) const { return const_cast<Shader*>(this)->getNode(nodePtr); }
@@ -168,6 +181,8 @@ protected:
     string _name;
     NodeGraphPtr _nodeGraph;
     OutputPtr _output;
+    unsigned char _classification;
+    unsigned char _context;
     vector<SgNode> _nodes;
     unordered_map<NodePtr, size_t> _nodeToSgNodeIndex;
     set<ValueElementPtr> _usedInterface;

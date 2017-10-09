@@ -160,10 +160,10 @@ GlslSyntax::GlslSyntax()
         kBSDF, 
         TypeSyntax
         (
-            "vec4",
-            "vec4(0.0, 0.0, 0.0, 1.0)",
-            "{0.0, 0.0, 0.0, 1.0}",
+            "BSDF",
+            "BSDF(vec3(0.0),vec3(0.0))",
             "",
+            "struct BSDF { vec3 fr; vec3 ft; };",
             "out vec4"
         )
     );
@@ -200,9 +200,9 @@ GlslSyntax::GlslSyntax()
         TypeSyntax
         (
             "surfaceshader",
-            "surfaceshader(vec4(0.0,0.0,0.0,1.0),vec3(0.0),1.0)",
+            "surfaceshader(BSDF(vec3(0.0),vec3(0.0)),vec3(0.0),vec3(1.0))",
             "",
-            "struct surfaceshader { vec4 bsdf; vec3 edf; float ior; };",
+            "struct surfaceshader { BSDF bsdf; vec3 edf; vec3 opacity; };",
             "out vec4"
         )
     );

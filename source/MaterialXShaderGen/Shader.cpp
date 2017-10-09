@@ -1,5 +1,6 @@
 #include <MaterialXShaderGen/Shader.h>
 #include <MaterialXShaderGen/ShaderGenRegistry.h>
+#include <MaterialXShaderGen/Syntax.h>
 #include <MaterialXShaderGen/Util.h>
 #include <MaterialXShaderGen/NodeImplementations/Compare.h>
 #include <MaterialXShaderGen/NodeImplementations/Switch.h>
@@ -24,6 +25,8 @@ namespace
 
 Shader::Shader(const string& name)
     : _name(name)
+    , _classification(0)
+    , _context(Context::SCATTERING)
     , _activeStage(0)
 {
     _stages.resize(numStages());
@@ -31,6 +34,7 @@ Shader::Shader(const string& name)
 
 void Shader::initialize(ElementPtr element, const string& language, const string& target)
 {
+    _context = Context::SCATTERING;
     _activeStage = 0;
     _stages.resize(numStages());
 
@@ -234,6 +238,10 @@ void Shader::initialize(ElementPtr element, const string& language, const string
             _nodes.push_back(SgNode(node, language, target));
         }
     }
+
+    // Set shader classification according to the last node
+    const size_t numNode = _nodes.size();
+    _classification = numNode > 0 ? _nodes[numNode - 1]._classification : 0;
 
     // Set the vdirection to use for texture nodes
     // Default is to use direction UP

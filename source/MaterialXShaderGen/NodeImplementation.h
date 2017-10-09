@@ -33,8 +33,11 @@ public:
     /// Return a unique identifyer for the target this implementation is for
     virtual const string& getTarget() const = 0;
 
-    /// Emit the implementation source code for given node instance
-    virtual void emitCode(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) = 0;
+    /// Emit function definition, if needed, for the given node instance
+    virtual void emitFunction(const SgNode& node, ShaderGenerator& shadergen, Shader& shader);
+
+    /// Emit the function call, or other node implementation source code, for given node instance
+    virtual void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader);
 
     /// Get a unique id from the node/langunage/target combination
     static string id(const string& node, const string& language = EMPTY_STRING, const string& target = EMPTY_STRING);

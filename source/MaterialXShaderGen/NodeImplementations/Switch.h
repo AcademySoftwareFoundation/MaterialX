@@ -13,7 +13,7 @@ class Switch : public NodeImplementation
 public:
     static const vector<string> kInputNames;
 
-    void emitCode(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 };
 
 } // namespace MaterialX

@@ -11,7 +11,7 @@ class Swizzle : public NodeImplementation
 {
     DECLARE_NODE_IMPLEMENTATION(Swizzle)
 public:
-    void emitCode(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 };
 
 } // namespace MaterialX

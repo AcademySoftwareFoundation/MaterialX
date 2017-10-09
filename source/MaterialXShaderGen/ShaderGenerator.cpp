@@ -37,7 +37,7 @@ void ShaderGenerator::emitTypeDefs(Shader& shader)
 
 void ShaderGenerator::emitFunctions(Shader& shader)
 {
-    // Emit source code for handling texture coords v-flip 
+    // Emit function for handling texture coords v-flip 
     // as needed by the v-direction set by the user
     if (shader.getRequestedVDirection() != getTargetVDirection())
     {
@@ -46,7 +46,7 @@ void ShaderGenerator::emitFunctions(Shader& shader)
         {
            throw ExceptionShaderGenError("Built-in implementation for 'vdirection_flip' was not found. Did you forget to register built-in implementations?");
         }
-        impl->emitCode(EMPTY_SGNODE, *this, shader);
+        impl->emitFunction(EMPTY_SGNODE, *this, shader);
     }
     else
     {
@@ -55,25 +55,33 @@ void ShaderGenerator::emitFunctions(Shader& shader)
         {
            throw ExceptionShaderGenError("Built-in implementation for 'vdirection_noop' was not found. Did you forget to register built-in implementations?");
         }
-        impl->emitCode(EMPTY_SGNODE, *this, shader);
+        impl->emitFunction(EMPTY_SGNODE, *this, shader);
     }
 
     shader.newLine();
 
     // Emit funtion source code for all nodes that are not inlined
-    StringSet emittedFunctions;
+    StringSet emittedNodeDefs;
     for (const SgNode& node : shader.getNodes())
     {
-        if (!node.getInlined() && emittedFunctions.find(node.getFunctionName()) == emittedFunctions.end())
+        if (!node.getInlined() && emittedNodeDefs.find(node.getNodeDef().getName()) == emittedNodeDefs.end())
         {
             emitFunction(node, shader);
-            emittedFunctions.insert(node.getFunctionName());
+            emittedNodeDefs.insert(node.getNodeDef().getName());
         }
     }
 }
 
 void ShaderGenerator::emitFunction(const SgNode& node, Shader &shader)
 {
+    // Check if this node has a custom implementation
+    NodeImplementationPtr customImpl = node.getCustomImpl();
+    if (customImpl)
+    {
+        customImpl->emitFunction(node, *this, shader);
+        return;
+    }
+
     static const string kIncludePattern = "#include ";
 
     std::stringstream stream(node.getFunctionSource());
@@ -96,13 +104,13 @@ void ShaderGenerator::emitFunction(const SgNode& node, Shader &shader)
     shader.newLine();
 }
 
-void ShaderGenerator::emitFunctionCall(const SgNode& node, Shader &shader)
+void ShaderGenerator::emitFunctionCall(const SgNode& node, Shader &shader, vector<string>* extraInputs)
 {
     // Check if this node has a custom implementation
     NodeImplementationPtr customImpl = node.getCustomImpl();
     if (customImpl)
     {
-        customImpl->emitCode(node, *this, shader);
+        customImpl->emitFunctionCall(node, *this, shader);
         return;
     }
 
@@ -159,6 +167,14 @@ void ShaderGenerator::emitFunctionCall(const SgNode& node, Shader &shader)
 
         // Emit function inputs
         string delim = "";
+        if (extraInputs)
+        {
+            for (const string& input : *extraInputs)
+            {
+                shader.addStr(delim + input);
+                delim = ", ";
+            }
+        }
         for (ValueElementPtr port : node.getNodeDef().getChildrenOfType<ValueElement>())
         {
             // Find the input port on the node instance
@@ -192,40 +208,16 @@ void ShaderGenerator::emitShaderBody(Shader &shader)
     for (const SgNode& node : shader.getNodes())
     {
         // Omit node if it's only used inside a conditional branch
-        const SgNode::ScopeInfo& scope = node.getScopeInfo();
-        if (scope.type == SgNode::ScopeInfo::Type::SINGLE)
+        if (node.referencedConditionally())
         {
-            int numBranches = 0;
-            uint32_t mask = scope.conditionBitmask;
-            for (int j = 0; mask != 0; j++, mask >>= 1)
+            if (debugOutput)
             {
-                if (mask & 1)
-                {
-                    numBranches++;
-                }
+                std::stringstream str;
+                str << "// Omitted node '" << node.getName() << "'. Only used in conditional node '" << node.getScopeInfo().conditionalNode->getName() << "'";
+                shader.addLine(str.str(), false);
             }
-            if (numBranches > 0)
-            {
-                if (debugOutput)
-                {
-                    std::stringstream str;
-                    str << "// Omitted node '" << node.getName() << "'. Only used in conditional node '" << scope.conditionalNode->getName() << "', in branch ";
-                    mask = scope.conditionBitmask;
-                    string delim = "";
-                    for (int j = 0; mask != 0; j++, mask >>= 1)
-                    {
-                        if (mask & 1)
-                        {
-                            str << delim << j;
-                            delim = ", ";
-                        }
-                    }
-                    str << ".";
-                    shader.addLine(str.str(), false);
-                }
-                // Omit this node
-                continue;
-            }
+            // Omit this node
+            continue;
         }
 
         emitFunctionCall(node, shader);

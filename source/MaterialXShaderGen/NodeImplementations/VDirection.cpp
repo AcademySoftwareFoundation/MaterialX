@@ -38,22 +38,22 @@ DEFINE_NODE_IMPLEMENTATION(VDirectionNoOpOsl, "vdirection_noop", "osl", "")
 DEFINE_NODE_IMPLEMENTATION(VDirectionFlipGlsl, "vdirection_flip", "glsl", "")
 DEFINE_NODE_IMPLEMENTATION(VDirectionNoOpGlsl, "vdirection_noop", "glsl", "")
 
-void VDirectionFlipOsl::emitCode(const SgNode&, ShaderGenerator&, Shader& shader)
+void VDirectionFlipOsl::emitFunction(const SgNode&, ShaderGenerator&, Shader& shader)
 {
     shader.addBlock(kVDirectionFlipOSL);
 }
 
-void VDirectionNoOpOsl::emitCode(const SgNode&, ShaderGenerator&, Shader& shader)
+void VDirectionNoOpOsl::emitFunction(const SgNode&, ShaderGenerator&, Shader& shader)
 {
     shader.addBlock(kVDirectionNoOpOSL);
 }
 
-void VDirectionFlipGlsl::emitCode(const SgNode&, ShaderGenerator&, Shader& shader)
+void VDirectionFlipGlsl::emitFunction(const SgNode&, ShaderGenerator&, Shader& shader)
 {
     shader.addBlock(kVDirectionFlipGLSL);
 }
 
-void VDirectionNoOpGlsl::emitCode(const SgNode&, ShaderGenerator&, Shader& shader)
+void VDirectionNoOpGlsl::emitFunction(const SgNode&, ShaderGenerator&, Shader& shader)
 {
     shader.addBlock(kVDirectionNoOpGLSL);
 }
