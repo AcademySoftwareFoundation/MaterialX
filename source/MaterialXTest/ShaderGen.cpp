@@ -139,13 +139,13 @@ TEST_CASE("Swizzling", "[shadergen]")
     mx::Swizzle swizzleNode;
 
     mx::Shader test1("test1");
-    swizzleNode.emitCode(mx::SgNode(swizzle, sg.getLanguage(), sg.getTarget()), sg, test1);
+    swizzleNode.emitFunctionCall(mx::SgNode(swizzle, sg.getLanguage(), sg.getTarget()), sg, test1);
     REQUIRE(test1.getSourceCode() == "color foo_swizzle = color(foo_bar[0], foo_bar[0], foo_bar[0]);\n");
 
     swizzle->setParameterValue("channels", std::string("b0b"));
 
     mx::Shader test2("test2");
-    swizzleNode.emitCode(mx::SgNode(swizzle, sg.getLanguage(), sg.getTarget()), sg, test2);
+    swizzleNode.emitFunctionCall(mx::SgNode(swizzle, sg.getLanguage(), sg.getTarget()), sg, test2);
     REQUIRE(test2.getSourceCode() == "color foo_swizzle = color(foo_bar[2], 0, foo_bar[2]);\n");
 }
 
@@ -396,3 +396,204 @@ TEST_CASE("Material Shader Generation", "[shadergen]")
     }
 }
 
+TEST_CASE("BSDF Test", "[shadergen]")
+{
+    mx::ScopedShaderGenInit shaderGenInit;
+
+    std::string searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    mx::ShaderGenRegistry::registerSourceCodeSearchPath(searchPath);
+
+    mx::DocumentPtr doc = mx::createDocument();
+
+    // Load standard libraries
+    std::vector<std::string> filenames =
+    {
+        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
+        "documents/Libraries/sx/sx_defs.mtlx"
+    };
+
+    for (const std::string& filename : filenames)
+    {
+        mx::readFromXmlFile(doc, filename);
+    }
+
+    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("BsdfTest");
+
+    mx::NodePtr diffuse_tex = nodeGraph->addNode("image");
+    mx::NodePtr sss         = nodeGraph->addNode("translucentbsdf", "sss", "BSDF");
+    mx::NodePtr diffuse     = nodeGraph->addNode("diffusebsdf", "diffuse", "BSDF");
+    mx::NodePtr mix         = nodeGraph->addNode("mixbsdf", "mix", "BSDF");
+    mx::NodePtr specular    = nodeGraph->addNode("coatingbsdf", "specular", "BSDF");
+    mx::OutputPtr output    = nodeGraph->addOutput("out", "BSDF");
+
+    diffuse->setConnectedNode("reflectance", diffuse_tex);
+    mix->setConnectedNode("fg", sss);
+    mix->setConnectedNode("bg", diffuse);
+    specular->setConnectedNode("base", mix);
+    output->setConnectedNode(specular);
+
+    mx::ParameterPtr diffuse_file = diffuse_tex->addParameter("file", "filename");
+    diffuse_file->setPublicName("diffuse_file");
+    diffuse_file->setValueString("");
+    mx::ParameterPtr diffuse_color = diffuse_tex->addParameter("default", "color3");
+    diffuse_color->setPublicName("diffuse_color");
+    diffuse_color->setValueString("0.8, 0.8, 0.8");
+
+    mx::InputPtr sss_color = sss->addInput("transmittance", "color3");
+    sss_color->setPublicName("sss_color");
+    sss_color->setValueString("0.3, 0.3, 0.3");
+
+    mx::InputPtr sss_weight = mix->addInput("mask", "float");
+    sss_weight->setPublicName("sss_weight");
+    sss_weight->setValueString("0.0");
+
+    mx::InputPtr specular_color = specular->addInput("reflectance", "color3");
+    specular_color->setPublicName("specular_color");
+    specular_color->setValueString("1.0, 1.0, 1.0");
+
+    mx::InputPtr specular_roughness = specular->addInput("roughness", "float");
+    specular_roughness->setPublicName("specular_roughness");
+    specular_roughness->setValueString("0.2");
+
+    mx::InputPtr specular_ior = specular->addInput("ior", "float");
+    specular_ior->setPublicName("specular_ior");
+    specular_ior->setValueString("1.52");
+
+    // Setup the shader generators
+    std::vector<GeneratorDescription> generatorDescriptions =
+    {
+        { "glsl", "ogsfx", "ogsfx",
+            {
+                "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx",
+                "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_glsl.mtlx"
+            }
+        }
+    };
+
+    for (auto desc : generatorDescriptions)
+    {
+        // Load in the implementation libraries
+        for (const std::string& libfile : desc._implementationLibrary)
+        {
+            mx::readFromXmlFile(doc, libfile);
+        }
+        // Find the shader generator
+        mx::ShaderGeneratorPtr sg = mx::ShaderGenRegistry::findShaderGenerator(desc._language, desc._target);
+        REQUIRE(sg != nullptr);
+
+        // Test shader generation from nodegraph output
+        mx::ShaderPtr shader = sg->generate(nodeGraph->getName(), output);
+        REQUIRE(shader != nullptr);
+        REQUIRE(shader->getSourceCode().length() > 0);
+
+        // Write out to file for inspection
+        // TODO: Match against blessed versions
+        std::ofstream file;
+        file.open(shader->getName() + "." + desc._fileExt);
+        file << shader->getSourceCode();
+        file.close();
+    }
+}
+
+TEST_CASE("Surface Layer Test", "[shadergen]")
+{
+    mx::ScopedShaderGenInit shaderGenInit;
+
+    std::string searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    mx::ShaderGenRegistry::registerSourceCodeSearchPath(searchPath);
+
+    mx::DocumentPtr doc = mx::createDocument();
+
+    // Load standard libraries
+    std::vector<std::string> filenames =
+    {
+        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
+        "documents/Libraries/sx/sx_defs.mtlx"
+    };
+
+    for (const std::string& filename : filenames)
+    {
+        mx::readFromXmlFile(doc, filename);
+    }
+
+    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("SurfaceLayerTest");
+    mx::NodePtr image1 = nodeGraph->addNode("image");
+    image1->addParameter("file", "filename");
+    mx::NodePtr image2 = nodeGraph->addNode("image");
+    image2->addParameter("file", "filename");
+    mx::NodePtr image3 = nodeGraph->addNode("image");
+    image3->addParameter("file", "filename");
+
+    mx::NodePtr layer1_diffuse  = nodeGraph->addNode("diffusebsdf", "layer1_diffuse", "BSDF");
+    mx::NodePtr layer1_specular = nodeGraph->addNode("coatingbsdf", "layer1_specular", "BSDF");
+    mx::NodePtr layer1          = nodeGraph->addNode("surfacelayer", "layer1", "surfaceshader");
+    layer1_specular->setConnectedNode("base", layer1_diffuse);
+    layer1->setConnectedNode("bsdf", layer1_specular);
+
+    mx::NodePtr layer2_diffuse  = nodeGraph->addNode("diffusebsdf", "layer2_diffuse", "BSDF");
+    mx::NodePtr layer2_emission = nodeGraph->addNode("uniformedf", "layer2_emission", "EDF");
+    mx::NodePtr layer2_mask     = nodeGraph->addNode("image");
+    mx::NodePtr layer2          = nodeGraph->addNode("surfacelayer", "layer2", "surfaceshader");
+    layer2->setConnectedNode("bsdf", layer2_diffuse);
+    layer2->setConnectedNode("edf", layer2_emission);
+    layer2->setConnectedNode("opacity", layer2_mask);
+    layer2->setConnectedNode("base", layer1);
+
+    mx::OutputPtr output = nodeGraph->addOutput("out", "surfaceshader");
+    output->setConnectedNode(layer2);
+
+    mx::InputPtr layer1_diffuse_ = layer1_diffuse->addInput("reflectance", "color3");
+    layer1_diffuse_->setPublicName("layer1_diffuse");
+    layer1_diffuse_->setValueString("0.2, 0.9, 0.2");
+
+    mx::InputPtr layer1_specular_ = layer1_specular->addInput("reflectance", "color3");
+    layer1_specular_->setPublicName("layer1_specular");
+    layer1_specular_->setValueString("1.0, 1.0, 1.0");
+
+    mx::InputPtr layer2_diffuse_ = layer2_diffuse->addInput("reflectance", "color3");
+    layer2_diffuse_->setPublicName("layer2_diffuse");
+    layer2_diffuse_->setValueString("0.2, 0.2, 0.9");
+
+    mx::InputPtr layer2_emission_ = layer2_emission->addInput("intensity", "color3");
+    layer2_emission_->setPublicName("layer2_emission");
+    layer2_emission_->setValueString("0.0, 0.0, 0.0");
+
+    mx::ParameterPtr layer2_mask_file = layer2_mask->addParameter("file", "filename");
+    layer2_mask_file->setPublicName("layer2_mask");
+    layer2_mask_file->setValueString("");
+
+    // Setup the shader generators
+    std::vector<GeneratorDescription> generatorDescriptions =
+    {
+        { "glsl", "ogsfx", "ogsfx",
+            {
+                "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx",
+                "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_glsl.mtlx"
+            }
+        }
+    };
+
+    for (auto desc : generatorDescriptions)
+    {
+        // Load in the implementation libraries
+        for (const std::string& libfile : desc._implementationLibrary)
+        {
+            mx::readFromXmlFile(doc, libfile);
+        }
+        // Find the shader generator
+        mx::ShaderGeneratorPtr sg = mx::ShaderGenRegistry::findShaderGenerator(desc._language, desc._target);
+        REQUIRE(sg != nullptr);
+
+        // Test shader generation from nodegraph output
+        mx::ShaderPtr shader = sg->generate(nodeGraph->getName(), output);
+        REQUIRE(shader != nullptr);
+        REQUIRE(shader->getSourceCode().length() > 0);
+
+        // Write out to file for inspection
+        // TODO: Match against blessed versions
+        std::ofstream file;
+        file.open(shader->getName() + "." + desc._fileExt);
+        file << shader->getSourceCode();
+        file.close();
+    }
+}
