@@ -1,12 +1,12 @@
 # Change Log
 
-## [1.35.3] - Development
+## [1.35.3] - 2017-10-11
 
 ### Added
 - Added support for Python 3.
 - Added support for standard TypeDef attributes.
-- Added method Element\:\:setName.
 - Added support for values of type 'stringarray'.
+- Added method Element\:\:setName.
 - Extended Python bindings for Document, NodeGraph, MaterialAssign, and Collection.
 
 ### Changed
