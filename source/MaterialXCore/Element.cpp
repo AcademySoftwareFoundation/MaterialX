@@ -282,17 +282,17 @@ TreeIterator Element::traverseTree() const
     return TreeIterator(std::const_pointer_cast<Element>(getSelf()));
 }
 
-GraphIterator Element::traverseGraph(MaterialPtr material) const
+GraphIterator Element::traverseGraph(ConstMaterialPtr material) const
 {
     return GraphIterator(std::const_pointer_cast<Element>(getSelf()), material);
 }
 
-Edge Element::getUpstreamEdge(MaterialPtr, size_t)
+Edge Element::getUpstreamEdge(ConstMaterialPtr, size_t)
 {
     return NULL_EDGE;
 }
 
-ElementPtr Element::getUpstreamElement(MaterialPtr material, size_t index)
+ElementPtr Element::getUpstreamElement(ConstMaterialPtr material, size_t index)
 {
     return getUpstreamEdge(material, index).getUpstreamElement();
 }

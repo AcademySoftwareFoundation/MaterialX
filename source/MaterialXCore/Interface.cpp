@@ -61,7 +61,7 @@ bool PortElement::validate(string* message) const
 // Parameter methods
 //
 
-Edge Parameter::getUpstreamEdge(MaterialPtr material, size_t index)
+Edge Parameter::getUpstreamEdge(ConstMaterialPtr material, size_t index)
 {
     if (material && index < getUpstreamEdgeCount())
     {
@@ -98,7 +98,7 @@ Edge Parameter::getUpstreamEdge(MaterialPtr material, size_t index)
 // Input methods
 //
 
-Edge Input::getUpstreamEdge(MaterialPtr material, size_t index)
+Edge Input::getUpstreamEdge(ConstMaterialPtr material, size_t index)
 {
     if (material && index < getUpstreamEdgeCount())
     {
@@ -147,7 +147,7 @@ Edge Input::getUpstreamEdge(MaterialPtr material, size_t index)
 // Output methods
 //
 
-Edge Output::getUpstreamEdge(MaterialPtr material, size_t index)
+Edge Output::getUpstreamEdge(ConstMaterialPtr material, size_t index)
 {
     if (index < getUpstreamEdgeCount())
     {

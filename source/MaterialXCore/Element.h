@@ -60,7 +60,7 @@ class Element : public enable_shared_from_this<Element>
   protected:
     using DocumentPtr = shared_ptr<class Document>;
     using ConstDocumentPtr = shared_ptr<const class Document>;
-    using MaterialPtr = shared_ptr<class Material>;
+    using ConstMaterialPtr = shared_ptr<const class Material>;
 
     template <class T> friend class ElementRegistry;
 
@@ -477,7 +477,7 @@ class Element : public enable_shared_from_this<Element>
     ///     its material argument.
     /// @sa getUpstreamEdge
     /// @sa getUpstreamElement
-    GraphIterator traverseGraph(MaterialPtr material = MaterialPtr()) const;
+    GraphIterator traverseGraph(ConstMaterialPtr material = ConstMaterialPtr()) const;
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
@@ -486,7 +486,7 @@ class Element : public enable_shared_from_this<Element>
     /// @param index An optional index of the edge to be returned, where the
     ///    valid index range may be determined with getUpstreamEdgeCount.
     /// @return The upstream Edge, if valid, or an empty Edge object.
-    virtual Edge getUpstreamEdge(MaterialPtr material = MaterialPtr(),
+    virtual Edge getUpstreamEdge(ConstMaterialPtr material = ConstMaterialPtr(),
                                  size_t index = 0);
 
     /// Return the number of queriable upstream edges for this element.
@@ -502,7 +502,7 @@ class Element : public enable_shared_from_this<Element>
     /// @param index An optional index of the element to be returned, where the
     ///    valid index range may be determined with getUpstreamEdgeCount.
     /// @return The upstream Element, if valid, or an empty ElementPtr.
-    ElementPtr getUpstreamElement(MaterialPtr material = MaterialPtr(),
+    ElementPtr getUpstreamElement(ConstMaterialPtr material = ConstMaterialPtr(),
                                   size_t index = 0);
 
     /// Traverse the tree from the given element to each of its ancestors.

@@ -5,7 +5,6 @@
 
 #include <MaterialXCore/Traversal.h>
 
-#include <MaterialXCore/Element.h>
 #include <MaterialXCore/Node.h>
 
 namespace MaterialX

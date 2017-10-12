@@ -68,12 +68,12 @@ void bindPyElement(py::module& mod)
         .def("getDocument", static_cast<mx::DocumentPtr(mx::Element::*)()>(&mx::Element::getDocument))
         .def("traverseTree", &mx::Element::traverseTree)
         .def("traverseGraph", &mx::Element::traverseGraph,
-            py::arg("material") = mx::MaterialPtr())
+            py::arg("material") = mx::ConstMaterialPtr())
         .def("getUpstreamEdge", &mx::Element::getUpstreamEdge,
-            py::arg("material") = mx::MaterialPtr(), py::arg("index") = 0)
+            py::arg("material") = mx::ConstMaterialPtr(), py::arg("index") = 0)
         .def("getUpstreamEdgeCount", &mx::Element::getUpstreamEdgeCount)
         .def("getUpstreamElement", &mx::Element::getUpstreamElement,
-            py::arg("material") = mx::MaterialPtr(), py::arg("index") = 0)
+            py::arg("material") = mx::ConstMaterialPtr(), py::arg("index") = 0)
         .def("traverseAncestors", &mx::Element::traverseAncestors)
         .def("setSourceUri", &mx::Element::setSourceUri)
         .def("hasSourceUri", &mx::Element::hasSourceUri)
