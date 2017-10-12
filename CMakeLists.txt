@@ -1,7 +1,7 @@
 project(MaterialX)
 set(MATERIALX_MAJOR_VERSION 1)
 set(MATERIALX_MINOR_VERSION 35)
-set(MATERIALX_BUILD_VERSION 3)
+set(MATERIALX_BUILD_VERSION 4)
 
 cmake_minimum_required(VERSION 3.1)
 set(CMAKE_CXX_STANDARD 11)
@@ -12,8 +12,8 @@ enable_testing()
 
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 2.6 or greater." OFF)
 option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
-
-mark_as_advanced(MATERIALX_BUILD_DOCS)
+option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
+option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors." OFF)
 
 set(MATERIALX_PYTHON_EXECUTABLE "" CACHE FILEPATH
     "Path to the Python executable (e.g. 'C:/Python27/python.exe').")
@@ -24,17 +24,16 @@ set(MATERIALX_PYTHON_LIBRARY "" CACHE FILEPATH
 set(MATERIALX_PYTHON_OCIO_DIR "" CACHE PATH
     "Path to a folder containing the default OCIO configuration to be packaged with MaterialX Python (e.g. 'D:/Projects/OpenColorIO-Configs/aces_1.0.3').")
 
+mark_as_advanced(MATERIALX_BUILD_DOCS)
 mark_as_advanced(MATERIALX_PYTHON_EXECUTABLE)
 mark_as_advanced(MATERIALX_PYTHON_INCLUDE_DIR)
 mark_as_advanced(MATERIALX_PYTHON_LIBRARY)
 mark_as_advanced(MATERIALX_PYTHON_OCIO_DIR)
+mark_as_advanced(MATERIALX_INSTALL_PYTHON)
+mark_as_advanced(MATERIALX_WARNINGS_AS_ERRORS)
 
 set(PYTHON_INCLUDE_DIR ${MATERIALX_PYTHON_INCLUDE_DIR})
 set(PYTHON_LIBRARY ${MATERIALX_PYTHON_LIBRARY})
-
-option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
-
-mark_as_advanced(MATERIALX_INSTALL_PYTHON)
 
 # Adjust the default installation path
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -48,13 +47,19 @@ if(MSVC)
     else()
         add_compile_options(/W4)
     endif()
-elseif(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+    if(MATERIALX_WARNINGS_AS_ERRORS)
+        add_compile_options(/WX)
+    endif()
+else()
     add_compile_options(-Wall)
-elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
-    add_compile_options(-Wall)
-    CHECK_CXX_COMPILER_FLAG(-Wno-undefined-var-template UNDEFINED_VAR_TEMPLATE_FLAG)
-    if(UNDEFINED_VAR_TEMPLATE_FLAG)
-        add_compile_options(-Wno-undefined-var-template)
+    if(MATERIALX_WARNINGS_AS_ERRORS)
+        add_compile_options(-Werror)
+    endif()
+    if(CMAKE_CXX_COMPILER_ID MATCHES Clang)
+        CHECK_CXX_COMPILER_FLAG(-Wno-undefined-var-template UNDEFINED_VAR_TEMPLATE_FLAG)
+        if(UNDEFINED_VAR_TEMPLATE_FLAG)
+            add_compile_options(-Wno-undefined-var-template)
+        endif()
     endif()
 endif()
 

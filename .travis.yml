@@ -16,8 +16,8 @@ matrix:
 script:
   - mkdir build
   - cd build
-  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_INSTALL_PYTHON=OFF ..
+  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ..
   - cmake --build . --target install -- -j4
-  - export PYTHONPATH=$PYTHONPATH:$PWD/installed/python
   - ctest --output-on-failure
+  - export PYTHONPATH=$PYTHONPATH:$PWD/installed/python
   - cmake -E chdir ../python/MaterialXTest python main.py
