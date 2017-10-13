@@ -46,7 +46,7 @@ class Parameter : public ValueElement
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
-    Edge getUpstreamEdge(MaterialPtr material = MaterialPtr(),
+    Edge getUpstreamEdge(ConstMaterialPtr material = ConstMaterialPtr(),
                          size_t index = 0) override;
 
     /// Return the number of queriable upstream edges for this element.
@@ -173,7 +173,7 @@ class Input : public PortElement
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
-    Edge getUpstreamEdge(MaterialPtr material = MaterialPtr(),
+    Edge getUpstreamEdge(ConstMaterialPtr material = ConstMaterialPtr(),
                          size_t index = 0) override;
 
     /// Return the number of queriable upstream edges for this element.
@@ -208,7 +208,7 @@ class Output : public PortElement
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
-    Edge getUpstreamEdge(MaterialPtr material = MaterialPtr(),
+    Edge getUpstreamEdge(ConstMaterialPtr material = ConstMaterialPtr(),
                          size_t index = 0) override;
 
     /// Return the number of queriable upstream edges for this element.

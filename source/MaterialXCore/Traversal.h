@@ -16,7 +16,7 @@ namespace MaterialX
 
 using ElementPtr = shared_ptr<class Element>;
 using ConstElementPtr = shared_ptr<const class Element>;
-using MaterialPtr = shared_ptr<class Material>;
+using ConstMaterialPtr = shared_ptr<const class Material>;
 
 /// @class Edge
 /// An edge between two connected Elements, returned during graph traversal.
@@ -191,7 +191,7 @@ class TreeIterator
 class GraphIterator
 {
   public:
-    GraphIterator(ElementPtr elem, MaterialPtr material = MaterialPtr()):
+    GraphIterator(ElementPtr elem, ConstMaterialPtr material = ConstMaterialPtr()):
         _upstreamElem(elem),
         _material(material),
         _prune(false),
@@ -323,7 +323,7 @@ class GraphIterator
     ElementPtr _upstreamElem;
     ElementPtr _connectingElem;
     ElementSet _pathElems;
-    MaterialPtr _material;
+    ConstMaterialPtr _material;
     vector<StackFrame> _stack;
     bool _prune;
     size_t _holdCount;

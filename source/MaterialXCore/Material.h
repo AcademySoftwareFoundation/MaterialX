@@ -19,8 +19,8 @@ namespace MaterialX
 
 /// A shared pointer to a Material
 using MaterialPtr = shared_ptr<class Material>;
-/// A shared pointer to a MaterialInherit
-using MaterialInheritPtr = shared_ptr<class MaterialInherit>;
+/// A shared pointer to a const Material
+using ConstMaterialPtr = shared_ptr<const class Material>;
 
 /// A shared pointer to a ShaderRef
 using ShaderRefPtr = shared_ptr<class ShaderRef>;
@@ -28,9 +28,10 @@ using ShaderRefPtr = shared_ptr<class ShaderRef>;
 using BindParamPtr = shared_ptr<class BindParam>;
 /// A shared pointer to a BindInput
 using BindInputPtr = shared_ptr<class BindInput>;
-
 /// A shared pointer to an Override
 using OverridePtr = shared_ptr<class Override>;
+/// A shared pointer to a MaterialInherit
+using MaterialInheritPtr = shared_ptr<class MaterialInherit>;
 
 /// @class Material
 /// A material element within a Document.

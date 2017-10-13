@@ -106,7 +106,7 @@ ElementPtr Node::getImplementation(const string& target) const
     return ElementPtr();
 }
 
-Edge Node::getUpstreamEdge(MaterialPtr material, size_t index)
+Edge Node::getUpstreamEdge(ConstMaterialPtr material, size_t index)
 {
     if (index < getUpstreamEdgeCount())
     {
