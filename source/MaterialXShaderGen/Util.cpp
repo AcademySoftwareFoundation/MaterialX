@@ -2,13 +2,25 @@
 #include <MaterialXCore/Util.h>
 
 #include <fstream>
+#if defined(_WIN32)
+#include <fcntl.h>
+#endif
 
 namespace MaterialX
 {
 
 bool readFile(const string& filename, string& contents)
 {
-    std::ifstream file(filename, std::ios::in);
+#if defined(_WIN32)
+    // Protection in case someone sets fmode to binary
+    int oldMode;
+    _get_fmode(&oldMode);
+    _set_fmode(_O_TEXT);
+#endif
+
+    bool result = false;
+    
+    std::ifstream file(filename, std::ios::in );
     if (file)
     {
         string buffer;
@@ -22,9 +34,13 @@ bool readFile(const string& filename, string& contents)
             size_t pos = buffer.find_last_not_of('\0');
             contents = buffer.substr(0, pos + 1);
         }
-        return true;
+        result = true;
     }
-    return false;
+#if defined(_WIN32)
+    _set_fmode(oldMode);
+#endif
+
+    return result;
 }
 
 string getFileExtension(const string& filename)
