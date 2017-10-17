@@ -127,26 +127,24 @@ TEST_CASE("Swizzling", "[shadergen]")
     REQUIRE(var3 == "color2(foo.x, foo.y)");
 
     // Create a simple test graph
-    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("foo");
-    mx::NodePtr add = nodeGraph->addNode("add", "", "color3");
-    mx::NodePtr constant = nodeGraph->addNode("constant", "bar", "color3");
-    mx::NodePtr swizzle = nodeGraph->addNode("swizzle", "swizzle", "color3");
+    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
+    mx::NodePtr constant = nodeGraph->addNode("constant", "constant1", "color3");
+    mx::NodePtr swizzle = nodeGraph->addNode("swizzle", "swizzle1", "color3");
     swizzle->setConnectedNode("in", constant);
     swizzle->setParameterValue("channels", std::string("rrr"));
-    add->setConnectedNode("in1", swizzle);
 
     // Test swizzle node custom implementation
     mx::Swizzle swizzleNode;
 
     mx::Shader test1("test1");
     swizzleNode.emitFunctionCall(mx::SgNode(swizzle, sg.getLanguage(), sg.getTarget()), sg, test1);
-    REQUIRE(test1.getSourceCode() == "color foo_swizzle = color(foo_bar[0], foo_bar[0], foo_bar[0]);\n");
+    REQUIRE(test1.getSourceCode() == "color swizzle1 = color(constant1[0], constant1[0], constant1[0]);\n");
 
     swizzle->setParameterValue("channels", std::string("b0b"));
 
     mx::Shader test2("test2");
     swizzleNode.emitFunctionCall(mx::SgNode(swizzle, sg.getLanguage(), sg.getTarget()), sg, test2);
-    REQUIRE(test2.getSourceCode() == "color foo_swizzle = color(foo_bar[2], 0, foo_bar[2]);\n");
+    REQUIRE(test2.getSourceCode() == "color swizzle1 = color(constant1[2], 0, constant1[2]);\n");
 }
 
 TEST_CASE("Simple Nodegraph Shader Generation", "[shadergen]")
@@ -346,12 +344,14 @@ TEST_CASE("Material Shader Generation", "[shadergen]")
     mix->setConnectedNode("mask", noise);
     output->setConnectedNode(mix);
 
+
+
     // Create a material with a shader ref connecting to the graph
     mx::MaterialPtr material = doc->addMaterial();
     mx::ShaderRefPtr shaderRef = material->addShaderRef("adskSurface1", "adskSurface");
     mx::BindInputPtr base = shaderRef->addBindInput("base", "float");
     mx::BindInputPtr baseColor = shaderRef->addBindInput("base_color", "color3");
-    base->setValue(0.8f);
+    base->setValue(0.6f);
     baseColor->setConnectedOutput(output);
 
     // Setup the shader generators
@@ -424,13 +424,18 @@ TEST_CASE("BSDF Test", "[shadergen]")
     mx::NodePtr diffuse     = nodeGraph->addNode("diffusebsdf", "diffuse", "BSDF");
     mx::NodePtr mix         = nodeGraph->addNode("mixbsdf", "mix", "BSDF");
     mx::NodePtr specular    = nodeGraph->addNode("coatingbsdf", "specular", "BSDF");
-    mx::OutputPtr output    = nodeGraph->addOutput("out", "BSDF");
+    mx::NodePtr layer       = nodeGraph->addNode("surfacelayer", "layer", "surfacelayer");
+    mx::NodePtr surface     = nodeGraph->addNode("surfaceshader", "surface", "surfaceshader");
+
+    mx::OutputPtr output    = nodeGraph->addOutput("out", "surfaceshader");
 
     diffuse->setConnectedNode("reflectance", diffuse_tex);
-    mix->setConnectedNode("fg", sss);
-    mix->setConnectedNode("bg", diffuse);
+    mix->setConnectedNode("bsdf1", sss);
+    mix->setConnectedNode("bsdf2", diffuse);
     specular->setConnectedNode("base", mix);
-    output->setConnectedNode(specular);
+    layer->setConnectedNode("bsdf", specular);
+    surface->setConnectedNode("surface", layer);
+    output->setConnectedNode(surface);
 
     mx::ParameterPtr diffuse_file = diffuse_tex->addParameter("file", "filename");
     diffuse_file->setPublicName("diffuse_file");
@@ -443,7 +448,7 @@ TEST_CASE("BSDF Test", "[shadergen]")
     sss_color->setPublicName("sss_color");
     sss_color->setValueString("0.3, 0.3, 0.3");
 
-    mx::InputPtr sss_weight = mix->addInput("mask", "float");
+    mx::InputPtr sss_weight = mix->addInput("weight", "float");
     sss_weight->setPublicName("sss_weight");
     sss_weight->setValueString("0.0");
 
@@ -495,7 +500,8 @@ TEST_CASE("BSDF Test", "[shadergen]")
     }
 }
 
-TEST_CASE("Surface Layer Test", "[shadergen]")
+
+TEST_CASE("Transparency", "[shadergen]")
 {
     mx::ScopedShaderGenInit shaderGenInit;
 
@@ -516,7 +522,94 @@ TEST_CASE("Surface Layer Test", "[shadergen]")
         mx::readFromXmlFile(doc, filename);
     }
 
-    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("SurfaceLayerTest");
+    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("Transparency");
+
+    mx::NodePtr refraction = nodeGraph->addNode("refractionbsdf", "refraction", "BSDF");
+    mx::NodePtr coating = nodeGraph->addNode("coatingbsdf", "coating", "BSDF");
+    mx::NodePtr layer = nodeGraph->addNode("surfacelayer", "layer", "surfacelayer");
+    mx::NodePtr surface = nodeGraph->addNode("surfaceshader", "surface", "surfaceshader");
+
+    mx::OutputPtr output = nodeGraph->addOutput("out", "surfaceshader");
+
+    coating->setConnectedNode("base", refraction);
+    layer->setConnectedNode("bsdf", coating);
+    surface->setConnectedNode("surface", layer);
+    output->setConnectedNode(surface);
+
+    mx::InputPtr transmittance = refraction->addInput("transmittance", "color3");
+    transmittance->setPublicName("transmittance");
+    transmittance->setValueString("0.0, 0.0, 0.0");
+
+    mx::InputPtr coating_color = coating->addInput("reflectance", "color3");
+    coating_color->setPublicName("coating_color");
+    coating_color->setValueString("1.0, 1.0, 1.0");
+
+    mx::InputPtr roughness = coating->addInput("roughness", "float");
+    roughness->setPublicName("roughness");
+    roughness->setValueString("0.2");
+
+    mx::InputPtr ior = coating->addInput("ior", "float");
+    ior->setPublicName("ior");
+    ior->setValueString("1.52");
+
+    // Setup the shader generators
+    std::vector<GeneratorDescription> generatorDescriptions =
+    {
+        { "glsl", "ogsfx", "ogsfx",
+        {
+            "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx",
+            "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_glsl.mtlx"
+        }
+        }
+    };
+
+    for (auto desc : generatorDescriptions)
+    {
+        // Load in the implementation libraries
+        for (const std::string& libfile : desc._implementationLibrary)
+        {
+            mx::readFromXmlFile(doc, libfile);
+        }
+        // Find the shader generator
+        mx::ShaderGeneratorPtr sg = mx::ShaderGenRegistry::findShaderGenerator(desc._language, desc._target);
+        REQUIRE(sg != nullptr);
+
+        // Test shader generation from nodegraph output
+        mx::ShaderPtr shader = sg->generate(nodeGraph->getName(), output);
+        REQUIRE(shader != nullptr);
+        REQUIRE(shader->getSourceCode().length() > 0);
+
+        // Write out to file for inspection
+        // TODO: Match against blessed versions
+        std::ofstream file;
+        file.open(shader->getName() + "." + desc._fileExt);
+        file << shader->getSourceCode();
+        file.close();
+    }
+}
+
+TEST_CASE("LayeredSurface", "[shadergen]")
+{
+    mx::ScopedShaderGenInit shaderGenInit;
+
+    std::string searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    mx::ShaderGenRegistry::registerSourceCodeSearchPath(searchPath);
+
+    mx::DocumentPtr doc = mx::createDocument();
+
+    // Load standard libraries
+    std::vector<std::string> filenames =
+    {
+        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
+        "documents/Libraries/sx/sx_defs.mtlx"
+    };
+
+    for (const std::string& filename : filenames)
+    {
+        mx::readFromXmlFile(doc, filename);
+    }
+
+    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("LayeredSurface");
     mx::NodePtr image1 = nodeGraph->addNode("image");
     image1->addParameter("file", "filename");
     mx::NodePtr image2 = nodeGraph->addNode("image");
@@ -526,21 +619,24 @@ TEST_CASE("Surface Layer Test", "[shadergen]")
 
     mx::NodePtr layer1_diffuse  = nodeGraph->addNode("diffusebsdf", "layer1_diffuse", "BSDF");
     mx::NodePtr layer1_specular = nodeGraph->addNode("coatingbsdf", "layer1_specular", "BSDF");
-    mx::NodePtr layer1          = nodeGraph->addNode("surfacelayer", "layer1", "surfaceshader");
+    mx::NodePtr layer1          = nodeGraph->addNode("surfacelayer", "layer1", "surfacelayer");
     layer1_specular->setConnectedNode("base", layer1_diffuse);
     layer1->setConnectedNode("bsdf", layer1_specular);
 
     mx::NodePtr layer2_diffuse  = nodeGraph->addNode("diffusebsdf", "layer2_diffuse", "BSDF");
     mx::NodePtr layer2_emission = nodeGraph->addNode("uniformedf", "layer2_emission", "EDF");
     mx::NodePtr layer2_mask     = nodeGraph->addNode("image");
-    mx::NodePtr layer2          = nodeGraph->addNode("surfacelayer", "layer2", "surfaceshader");
+    mx::NodePtr layer2          = nodeGraph->addNode("surfacelayer", "layer2", "surfacelayer");
     layer2->setConnectedNode("bsdf", layer2_diffuse);
     layer2->setConnectedNode("edf", layer2_emission);
-    layer2->setConnectedNode("opacity", layer2_mask);
     layer2->setConnectedNode("base", layer1);
+    layer2->setConnectedNode("weight", layer2_mask);
+
+    mx::NodePtr surface = nodeGraph->addNode("surfaceshader", "surface", "surfaceshader");
+    surface->setConnectedNode("surface", layer2);
 
     mx::OutputPtr output = nodeGraph->addOutput("out", "surfaceshader");
-    output->setConnectedNode(layer2);
+    output->setConnectedNode(surface);
 
     mx::InputPtr layer1_diffuse_ = layer1_diffuse->addInput("reflectance", "color3");
     layer1_diffuse_->setPublicName("layer1_diffuse");
@@ -562,6 +658,10 @@ TEST_CASE("Surface Layer Test", "[shadergen]")
     layer2_mask_file->setPublicName("layer2_mask");
     layer2_mask_file->setValueString("");
 
+    mx::InputPtr surface_opacity = surface->addInput("opacity", "float");
+    surface_opacity->setPublicName("surface_opacity");
+    surface_opacity->setValueString("1.0");
+    
     // Setup the shader generators
     std::vector<GeneratorDescription> generatorDescriptions =
     {

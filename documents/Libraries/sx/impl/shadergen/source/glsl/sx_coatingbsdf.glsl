@@ -19,5 +19,5 @@ void sx_coatingbsdf(vec3 L, vec3 V, vec3 reflectance, float ior, float roughness
     float F = sx_fresnel_schlick_roughness(NdotH, ior, alpha);
 
     result.fr = reflectance * D * G * F * NdotH / (4*NdotV*NdotL) + base.fr * (1.0 - F);
-    result.ft = vec3(0.0);
+    result.ft = base.ft * (1.0 - F);
 }

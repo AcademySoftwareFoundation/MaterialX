@@ -132,32 +132,37 @@ SgNode::SgNode(NodePtr node, const string& language, const string& target)
     _customImpl = ShaderGenRegistry::findNodeImplementation(_nodeDef->getNode(), language, target);
     if (!_customImpl)
     {
-        ImplementationPtr impl = getSourceCodeImplementation(*_nodeDef, language, target);
-        if (!impl)
+        ImplementationPtr srcImpl = getSourceCodeImplementation(*_nodeDef, language, target);
+        if (!srcImpl)
         {
             throw ExceptionShaderGenError("Could not find an implementation for node '" + _nodeDef->getNode() + "' matching language '" + language + "' and target '" + target + "'");
         }
 
-        getSourceCode(*impl, _functionSource, _inlined);
-        _functionName = impl->getFunction();
+        getSourceCode(*srcImpl, _functionSource, _inlined);
+        _functionName = srcImpl->getFunction();
     }
 
     // Set node classification
+    _classification = Classification::TEXTURE;
     if (_nodeDef->getType() == kSURFACE)
     {
-        _classification = (unsigned char)Classification::SURFACE | (unsigned char)Classification::CLOSURE;
+        _classification = Classification::SURFACE | Classification::SHADER;
+    }
+    else if (_nodeDef->getType() == kLAYER)
+    {
+        _classification = Classification::LAYER | Classification::CLOSURE;
     }
     else if (_nodeDef->getType() == kBSDF)
     {
-        _classification = (unsigned char)Classification::BSDF | (unsigned char)Classification::CLOSURE;
+        _classification = Classification::BSDF | Classification::CLOSURE;
     }
     else if (_nodeDef->getType() == kEDF)
     {
-        _classification = (unsigned char)Classification::EDF | (unsigned char)Classification::CLOSURE;
+        _classification = Classification::EDF | Classification::CLOSURE;
     }
     else if (_nodeDef->getType() == kVDF)
     {
-        _classification = (unsigned char)Classification::VDF | (unsigned char)Classification::CLOSURE;
+        _classification = Classification::VDF | Classification::CLOSURE;
     }
 }
 

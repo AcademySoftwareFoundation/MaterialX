@@ -11,24 +11,23 @@ DEFINE_NODE_IMPLEMENTATION(SurfaceLayerGlsl, "surfacelayer", "glsl", "")
 namespace
 {
     static const string kFunctions =
-        "void sx_surfacelayer_scattering(BSDF bsdf, vec3 opacity, surfaceshader base, out surfaceshader result)\n"
+        "void sx_surfacelayer_scattering(BSDF bsdf, surfacelayer base, vec3 weight, out surfacelayer result)\n"
         "{\n"
-        "    result.bsdf.fr = bsdf.fr * opacity + base.bsdf.fr * (1 - opacity);\n"
-        "    result.opacity = max(opacity, base.opacity);\n"
+        "    result.bsdf.fr = bsdf.fr * weight + base.bsdf.fr * (1 - weight);\n"
+        "    result.bsdf.ft = bsdf.ft * weight + base.bsdf.ft * (1 - weight);\n"
         "}\n"
         "\n"
-        "void sx_surfacelayer_emission(vec3 edf, vec3 opacity, surfaceshader base, out surfaceshader result)\n"
+        "void sx_surfacelayer_emission(vec3 edf, surfacelayer base, vec3 weight, out surfacelayer result)\n"
         "{\n"
-        "    result.edf = edf * opacity + base.edf * (1 - opacity);\n"
-        "    result.opacity = max(opacity, base.opacity);\n"
+        "    result.edf = edf * weight + base.edf * (1 - weight);\n"
         "}\n"
         "\n";
 
     static const string kScatteringFunctionName = "sx_surfacelayer_scattering";
-    static const vector<string> kScatteringInputs = {"bsdf", "opacity", "base" };
+    static const vector<string> kScatteringInputs = {"bsdf", "base", "weight" };
 
     static const string kEmissionFunctionName = "sx_surfacelayer_emission";
-    static const vector<string> kEmissionInputs = { "edf", "opacity", "base" };
+    static const vector<string> kEmissionInputs = { "edf", "base", "weight" };
 }
 
 void SurfaceLayerGlsl::emitFunction(const SgNode&, ShaderGenerator&, Shader& shader)
@@ -46,10 +45,14 @@ void SurfaceLayerGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& sha
         functionName = &kScatteringFunctionName;
         inputNames = &kScatteringInputs;
     }
-    else
+    else if (shader.getContext() == Shader::Context::EMISSION)
     {
         functionName = &kEmissionFunctionName;
         inputNames = &kEmissionInputs;
+    }
+    else
+    {
+        throw ExceptionShaderGenError("Unsupported context for node 'surfacelayer'");
     }
 
     // Declare the output variable

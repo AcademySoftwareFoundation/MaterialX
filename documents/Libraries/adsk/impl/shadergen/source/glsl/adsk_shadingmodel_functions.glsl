@@ -111,7 +111,7 @@ void computeSpecular(float roughness, vec3 normal, vec3 view, out vec3 result)
 }
 
 // Arnold standard shader combiner
-vec4 standardShaderCombiner(
+void standardShaderCombiner(
     vec3 diffuseInput,
     vec3 specularInput,
     vec3 color,
@@ -142,10 +142,9 @@ vec4 standardShaderCombiner(
     vec3 IrradianceEnv,
     vec3 SpecularEnv,
     vec3 N,
-    vec3 V)
+    vec3 V,
+    out surfaceshader result)
 {
-    vec4 result;
-
     float fresnel = 1.0;
     float coatFresnel = 1.0;
     float transFresnel = 1.0;
@@ -243,15 +242,6 @@ vec4 standardShaderCombiner(
     // lower the specular in the straight-on angles when the roughness is low.   
     specular *= lerp(1.0 - transp, 1.0, transmissionRoughness * (1.0 - transmission));
 
-    result.rgb = diffuse + specular + metalColor + metalSpecular + coatSpecular;
-
-    vec3 luminanceConv = vec3(0.2125f, 0.7154f, 0.0721f);
-    vec3 transparency = max((1.0 - metalness) * transmission * transAmount, (1.0 - opacity));
-    result.a = 1.0 - clamp(dot(luminanceConv, transparency), 0.0, 1.0);
-
-    // None of these results are required outputs for now
-    //result.outGlowColor = vec3(0.0f, 0.0f, 0.0f);
-    //result.outMatteOpacity = vec3(-1.0e+06f, -1.0e+06f, -1.0e+06f);
-    //result.outSurfaceFinal = vec4(result.outColor, 1.0f);
-    return result;
+    result.color = diffuse + specular + metalColor + metalSpecular + coatSpecular;
+    result.transparency = max((1.0 - metalness) * transmission * transAmount, (1.0 - opacity));
 }

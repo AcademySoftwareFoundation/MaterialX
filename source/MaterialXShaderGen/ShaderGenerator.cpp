@@ -267,9 +267,7 @@ void ShaderGenerator::emitInput(const ValueElement& port, Shader &shader)
         const NodePtr connectedNode = input->getConnectedNode();
         if (connectedNode)
         {
-            bool longName = true;
-            string name = _syntax->getVariableName(*connectedNode, longName);
-
+            string name = _syntax->getVariableName(*connectedNode);
             if (input->getChannels() != EMPTY_STRING)
             {
                 name = _syntax->getSwizzledVariable(name, input->getType(), connectedNode->getType(), input->getChannels());

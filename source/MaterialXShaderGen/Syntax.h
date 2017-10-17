@@ -80,7 +80,7 @@ public:
     virtual const string& getOutputTypeName(const string& type) const;
 
     /// Get variable name for an input, output or node
-    virtual string getVariableName(const Element& elem, bool longName = true) const;
+    virtual string getVariableName(const Element& elem) const;
 
     /// Get syntax for a swizzled variable
     virtual string getSwizzledVariable(const string& name, const string& type, const string& fromType, const string& channels) const;
@@ -114,6 +114,7 @@ static const string kFilename("filename");
 static const string kBSDF("BSDF");
 static const string kEDF("EDF");
 static const string kVDF("VDF");
+static const string kLAYER("surfacelayer");
 static const string kSURFACE("surfaceshader");
 static const string kVOLUME("volumeshader");
 static const string kDISPLACEMENT("displacementshader");

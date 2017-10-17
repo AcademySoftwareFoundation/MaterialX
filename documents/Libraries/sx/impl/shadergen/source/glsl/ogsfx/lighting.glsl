@@ -452,4 +452,30 @@ GLSLShader PixelShader_Lighting
         return result;
     }
 
+    vec2 GetSphericalCoords(vec3 vec)
+    {
+        float v = acos(clamp(vec.z, -1.0, 1.0));
+        float u = clamp(vec.x / sin(v), -1.0, 1.0);
+        if (vec.y >= 0.0)
+            u = acos(u);
+        else
+            u = 2 * M_PI - acos(u);
+        return vec2(u / (2 * M_PI), v / M_PI);
+    }
+
+    vec3 EnvironmentLight(vec3 normal, vec3 view, float rougness)
+    {
+        vec2 res = textureSize(IBL_file, 0);
+        if (res.x > 0)
+        {
+            vec3 dir = reflect(-view, normal);
+            // Y is up vector
+            dir = vec3(dir.x, -dir.z, dir.y);
+            vec2 uv = GetSphericalCoords(dir);
+            int levels = 1 + int(floor(log2(max(res.x, res.y))));
+            float lod = rougness * levels;
+            return textureLod(IBL_file, uv, lod).rgb;
+        }
+        return vec3(0.0);
+    }
 }

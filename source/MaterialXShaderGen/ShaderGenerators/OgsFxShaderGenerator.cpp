@@ -43,7 +43,8 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 
     addExtraShaderUniforms(shader);
 
-    if (shader.hasClassification(SgNode::Classification::CLOSURE))
+    // Emit functions for lighting if needed
+    if (!shader.hasClassification(SgNode::Classification::TEXTURE))
     {
         shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/lighting.glsl");
         shader.newLine();
@@ -83,13 +84,13 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.endScope();
     shader.newLine();
 
-    if (shader.hasClassification(SgNode::Classification::CLOSURE))
+    if (shader.hasClassification(SgNode::Classification::TEXTURE))
     {
-        shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/techniques_lighting.glsl");
+        shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/techniques_texturing.glsl");
     }
     else
     {
-        shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/techniques_texturing.glsl");
+        shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/techniques_lighting.glsl");
     }
     shader.newLine();
 
@@ -101,65 +102,23 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 
 void OgsFxShaderGenerator::emitShaderBody(Shader &shader)
 {
-    static const string kLightLoopBegin =
-        "vec3 outColor   = vec3(0.0);\n"
-        "vec3 outOpacity = vec3(1.0);\n"
-        "vec3 V = PS_IN.WorldView;\n"
-        "const int numLights = min(ClampDynamicLights, 3);\n"
-        "for (int ActiveLightIndex = 0; ActiveLightIndex < numLights; ++ActiveLightIndex)\n";
+    // Get the output node (last node in topological order)
+    const SgNode& outputNode = shader.getNodes().back();
 
-    static const string kLightContribution =
-        "vec3 LightPos = GetLightPos(ActiveLightIndex);\n"
-        "vec3 LightDir = GetLightDir(ActiveLightIndex);\n"
-        "vec3 LightVec = GetLightVectorFunction(ActiveLightIndex, LightPos, PS_IN.WorldPosition, LightDir);\n"
-        "vec3 L = normalize(LightVec);\n"
-        "vec3 LightContribution = LightContributionFunction(ActiveLightIndex, PS_IN.WorldPosition, LightVec);\n";
-
-    static const string incident = "L";
-    static const string outgoing = "V";
-
-    shader.addComment("Emit code for all non-closure nodes (texturing nodes)");
-    emitClosureInputs(shader);
-
-    if (shader.hasClassification(SgNode::Classification::BSDF) ||
-        shader.hasClassification(SgNode::Classification::SURFACE))
+    // If the output node is a surface shader with a custom node implementation,
+    // this implementation handled the full shasder body
+    if (outputNode.hasClassification(SgNode::Classification::SURFACE))
     {
-        shader.newLine();
-        shader.addComment("Light loop");
-        shader.addBlock(kLightLoopBegin);
-        shader.beginScope();
-
-        shader.addBlock(kLightContribution);
-
-        shader.newLine();
-        shader.addComment("Calculate the BSDF response for this light source");
-        string bsdf;
-        emitBsdf(incident, outgoing, shader, bsdf);
-
-        shader.newLine();
-        shader.addComment("Accumulate the light's contribution");
-        shader.addLine("outColor += LightContribution * " + bsdf + ".fr");
-
-        shader.endScope();
+        NodeImplementationPtr customImpl = outputNode.getCustomImpl();
+        if (customImpl)
+        {
+            customImpl->emitFunctionCall(outputNode, *this, shader);
+            emitFinalOutput(shader);
+            return;
+        }
     }
-    shader.newLine();
 
-    if (shader.hasClassification(SgNode::Classification::SURFACE))
-    {
-        shader.addComment("Calculate surface emission and total opacity");
-        string emission, opacity;
-        emitSurfaceEmissionAndOpacity(shader, emission, opacity);
-
-        shader.newLine();
-        shader.addComment("Add in the emission");
-        shader.addLine("outColor += " + emission);
-
-        shader.newLine();
-        shader.addComment("TODO: How should we handle opacity/transparency?");
-        shader.addLine("outOpacity = " + opacity);
-    }
-    
-    emitFinalOutput(shader);
+    GlslShaderGenerator::emitShaderBody(shader);
 }
 
 void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
@@ -167,18 +126,18 @@ void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
     const OutputPtr& output = shader.getOutput();
     const string outputVariable = _syntax->getVariableName(*output);
 
-    if (shader.hasClassification(SgNode::Classification::CLOSURE))
+    const NodePtr connectedNode = output->getConnectedNode();
+    string finalResult = _syntax->getVariableName(*connectedNode);
+
+    if (shader.hasClassification(SgNode::Classification::SURFACE))
     {
-        shader.addComment("TODO: How should we handle opacity/transparency?");
-        shader.addLine("float outAlpha = maxv(outOpacity)");
-        shader.addLine(outputVariable + " = vec4(outColor, outAlpha)");
+        shader.addComment("TODO: How should we output transparency?");
+        shader.addLine("float outAlpha = 1.0 - maxv(" + finalResult + ".transparency)");
+        shader.addLine(outputVariable + " = vec4(" + finalResult + ".color, outAlpha)");
     }
     else
     {
         const string& outputType = output->getType();
-        const NodePtr connectedNode = output->getConnectedNode();
-
-        string finalResult = _syntax->getVariableName(*connectedNode);
         if (output->getChannels() != EMPTY_STRING)
         {
             finalResult = _syntax->getSwizzledVariable(finalResult, output->getType(), connectedNode->getType(), output->getChannels());

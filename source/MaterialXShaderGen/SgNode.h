@@ -14,13 +14,23 @@ using SgNodePtr = shared_ptr<class SgNode>;
 class SgNode
 {
 public:
-    enum class Classification
+    /// Flags for classifying nodes into different categories.
+    class Classification
     {
-        CLOSURE = 1<<1,
-        BSDF    = 1<<2,
-        EDF     = 1<<3,
-        VDF     = 1<<4,
-        SURFACE = 1<<5
+    public:
+        // Node classes
+        static const unsigned int TEXTURE = 1 << 0; // Any node that outputs floats, colors, vectors, etc.
+        static const unsigned int CLOSURE = 1 << 1; // Any node that represents light integration
+        static const unsigned int SHADER  = 1 << 2; // Any node that outputs a complete shader
+        // Specific closure types
+        static const unsigned int BSDF    = 1 << 3; // A BDFS node 
+        static const unsigned int EDF     = 1 << 4; // A EDF node
+        static const unsigned int VDF     = 1 << 5; // A VDF node 
+        static const unsigned int LAYER   = 1 << 6; // A surface layer node
+        // Specific shader types
+        static const unsigned int SURFACE = 1 << 7; // A surface shader node
+        static const unsigned int VOLUME  = 1 << 8; // A volume shader node
+        static const unsigned int LIGHT   = 1 << 9; // A light shader node
     };
 
     /// Information on source code scope for the node.
@@ -49,10 +59,10 @@ public:
 public:
     SgNode(NodePtr node, const string& language, const string& target);
 
-    /// Return true if the node has the given classification.
-    bool hasClassification(Classification c) const
+    /// Return true if this node matches the given classification.
+    bool hasClassification(unsigned int c) const
     {
-        return (_classification & (unsigned char)c) != 0;
+        return (_classification & c) == c;
     }
 
     /// Return the name of this node.
@@ -130,7 +140,7 @@ public:
     static ImplementationPtr getSourceCodeImplementation(const NodeDef& nodeDef, const string& language, const string& target);
 
 private:
-    unsigned char _classification;
+    unsigned int _classification;
     NodePtr _node;
     NodeDefPtr _nodeDef;
     NodeImplementationPtr _customImpl;

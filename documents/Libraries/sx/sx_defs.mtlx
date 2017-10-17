@@ -2,14 +2,17 @@
 <materialx version="1.35">
 
   <!-- D A T A  T Y P E S -->
+
   <typedef name="BSDF" doc="Bidirectional scattering distribution function"/>
   <typedef name="EDF" doc="Emission distribution function"/>
   <typedef name="VDF" doc="Volume distribution function"/>
+  <typedef name="surfacelayer" doc="A layer in a surface shader"/>
 
   <!-- N O D E S -->
+
   <!--
     Node: <diffusebsdf>
-    A BSDF node for pure diffuse reflections.
+    A BSDF node for pure diffuse reflection.
   -->
   <nodedef name="ND_diffusebsdf" node="diffusebsdf" type="BSDF" nodecategory="shaderx"
            doc="A BSDF node for pure diffuse reflections.">
@@ -29,11 +32,20 @@
   </nodedef>
 
   <!--
+    Node: <transparentbsdf>
+    A BSDF node for straight transmission.
+  -->
+  <nodedef name="ND_transparentbsdf" node="transparentbsdf" type="BSDF" nodecategory="shaderx"
+           doc="A BSDF node for straight transmission.">
+    <input name="transmittance" type="color3"/>
+  </nodedef>
+
+  <!--
     Node: <coatingbsdf>
-    A BSDF node for specular reflections.
+    A BSDF node for specular to glossy reflection.
   -->
   <nodedef name="ND_coatingbsdf" node="coatingbsdf" type="BSDF" nodecategory="shaderx"
-           doc="A BSDF node for specular reflections.">
+           doc="A BSDF node for specular to glossy reflection.">
     <input name="reflectance" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="ior" type="float" value="1.52"/>
     <input name="roughness" type="float" value="0.2"/>
@@ -44,11 +56,31 @@
     <input name="base" type="BSDF"/>
   </nodedef>
 
+  <!--
+    Node: <refractionbsdf>
+    A BSDF node for specular to glossy transmission.
+  -->
+  <nodedef name="ND_refractionbsdf" node="refractionbsdf" type="BSDF" nodecategory="shaderx" 
+           doc="A BSDF node for specular to glossy transmission.">
+    <input name="transmittance" type="color3" value="1.0, 1.0, 1.0"/>
+    <input name="ior" type="float" value="1.52"/>
+    <input name="roughness" type="float" value="0.2"/>
+    <input name="anisotropy" type="float" value="0.0"/>
+    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="tangent" type="vector3" defaultgeomprop="tangent"/>
+    <input name="distribution" type="string" value="ggx"/>
+    <input name="interior" type="VDF"/>
+  </nodedef>
+
+  <!--
+    Node: <mixbsdf>
+    A BSDF node for mixing two BSDF's.
+  -->
   <nodedef name="ND_mixbsdf" node="mixbsdf" type="BSDF" nodecategory="shaderx"
-           doc="">
-    <input name="fg" type="BSDF"/>
-    <input name="bg" type="BSDF"/>
-    <input name="mask" type="float"/>
+           doc="A BSDF node for mixing two BSDF's according to a weight.">
+    <input name="bsdf1" type="BSDF"/>
+    <input name="bsdf2" type="BSDF"/>
+    <input name="weight" type="float"/>
   </nodedef>
 
   <!--
@@ -62,14 +94,24 @@
 
   <!--
     Node: <surfacelayer>
-    A constructor node for the surfaceshader type.
+    A constructor node for the surfacelayer type.
   -->
-  <nodedef name="ND_surfacelayer" node="surfacelayer" type="surfaceshader" nodecategory="shaderx"
-           doc="A constructor node for the surfaceshader type.">
+  <nodedef name="ND_surfacelayer" node="surfacelayer" type="surfacelayer" nodecategory="shaderx"
+           doc="A constructor node for the surfacelayer type.">
     <input name="bsdf" type="BSDF"/>
     <input name="edf" type="EDF"/>
-    <input name="opacity" type="color3" value="1.0,1.0,1.0" doc="Surface layer opacity"/>
-    <input name="base" type="surfaceshader" doc="Surface layer below this surface layer"/>
+    <input name="base" type="surfacelayer" doc="Optional base layer below this surface layer"/>
+    <input name="weight" type="color3" value="1.0,1.0,1.0" doc="Mix weight between this layer and the base layer."/>
+  </nodedef>
+
+  <!--
+    Node: <surfaceshader>
+    A constructor node for the surfaceshader type.
+  -->
+  <nodedef name="ND_surfaceshader" node="surfaceshader" type="surfaceshader" nodecategory="shaderx"
+           doc="A constructor node for the surfaceshader type.">
+    <input name="surface" type="surfacelayer"/>
+    <input name="opacity" type="float" value="1.0" doc="Surface cutout opacity"/>
   </nodedef>
 
 </materialx>
