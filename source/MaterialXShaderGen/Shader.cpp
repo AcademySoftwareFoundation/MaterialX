@@ -544,7 +544,17 @@ NodePtr Shader::optimize(const Edge& edge)
         return nullptr;
     }
 
+    // Find the upstream element. If it's an output move on
+    // to the actual node connected to the output.
     ElementPtr upstreamElement = edge.getUpstreamElement();
+    if (upstreamElement->isA<Output>())
+    {
+        upstreamElement = upstreamElement->asA<Output>()->getConnectedNode();
+        if (!upstreamElement)
+        {
+            return nullptr;
+        }
+    }
 
     // Check if this is a connection to the graph interface
     if (upstreamElement->getParent()->isA<NodeDef>())
