@@ -860,6 +860,11 @@ template<class T> shared_ptr<T> Element::addChild(const string& name)
     return child;
 }
 
+/// Given two target strings, each containing a string array of target names,
+/// return true if they have any targets in common.  An empty target string
+/// matches all targets.
+bool targetStringsMatch(const string& target1, const string& target2);
+
 } // namespace MaterialX
 
 #endif

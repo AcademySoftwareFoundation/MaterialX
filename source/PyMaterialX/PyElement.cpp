@@ -151,4 +151,6 @@ void bindPyElement(py::module& mod)
     py::class_<mx::ElementPredicate>(mod, "ElementPredicate");
 
     py::register_exception<mx::ExceptionOrphanedElement>(mod, "ExceptionOrphanedElement");
+
+    mod.def("targetStringsMatch", &mx::targetStringsMatch);
 }
