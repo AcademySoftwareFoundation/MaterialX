@@ -17,11 +17,13 @@ const string VOLUME_SHADER_TYPE_STRING = "volumeshader";
 const string VALUE_STRING_TRUE = "true";
 const string VALUE_STRING_FALSE = "false";
 const string NAME_PATH_SEPARATOR = "/";
+const string ARRAY_VALID_SEPARATORS = ", ";
+const string ARRAY_PREFERRED_SEPARATOR = ", ";
 
 std::istream& operator>>(std::istream& is, vector<string>& v)
 {
     string str(std::istreambuf_iterator<char>(is), { });
-    v = splitString(str, ", ");
+    v = splitString(str, ARRAY_VALID_SEPARATORS);
     return is;
 }
 
@@ -32,7 +34,7 @@ std::ostream& operator<<(std::ostream& os, const vector<string>& v)
         os << v[i];
         if (i < v.size() - (size_t) 1)
         {
-            os << ", ";
+            os << ARRAY_PREFERRED_SEPARATOR;
         }
     }
     return os;

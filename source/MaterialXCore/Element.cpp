@@ -394,6 +394,26 @@ bool ValueElement::validate(string* message) const
 }
 
 //
+// Global functions
+//
+
+bool targetStringsMatch(const string& target1, const string& target2)
+{
+    if (target1.empty() || target2.empty())
+        return true;
+
+    vector<string> vec1 = splitString(target1, ARRAY_VALID_SEPARATORS);
+    vector<string> vec2 = splitString(target2, ARRAY_VALID_SEPARATORS);
+    std::set<string> set1(vec1.begin(), vec1.end());
+    std::set<string> set2(vec2.begin(), vec2.end());
+
+    std::set<string> matches;
+    std::set_intersection(set1.begin(), set1.end(), set2.begin(), set2.end(), 
+                          std::inserter(matches, matches.end()));
+    return !matches.empty();
+}
+
+//
 // Element registry class
 //
 
