@@ -37,7 +37,7 @@ bool readFile(const string& filename, string& contents)
         result = true;
     }
 #if defined(_WIN32)
-    _set_fmode(oldMode);
+    _set_fmode(oldMode ? oldMode : _O_TEXT);
 #endif
 
     return result;
