@@ -336,6 +336,8 @@ TEST_CASE("Material Shader Generation", "[shadergen]")
     image2->addParameter("file", "filename");
     mx::NodePtr noise = nodeGraph->addNode("adskCellNoise2d", mx::EMPTY_STRING, "float");
     mx::NodePtr constant = nodeGraph->addNode("constant");
+    mx::ParameterPtr v = constant->addParameter("value", "color3");
+    v->setValueString("1.0, 1.0, 1.0");
     mx::NodePtr multiply = nodeGraph->addNode("multiply");
     mx::NodePtr mix = nodeGraph->addNode("mix");
     mx::OutputPtr output = nodeGraph->addOutput();
