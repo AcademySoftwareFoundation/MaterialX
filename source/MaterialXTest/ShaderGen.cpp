@@ -346,8 +346,6 @@ TEST_CASE("Material Shader Generation", "[shadergen]")
     mix->setConnectedNode("mask", noise);
     output->setConnectedNode(mix);
 
-
-
     // Create a material with a shader ref connecting to the graph
     mx::MaterialPtr material = doc->addMaterial();
     mx::ShaderRefPtr shaderRef = material->addShaderRef("adskSurface1", "adskSurface");

@@ -77,9 +77,9 @@ namespace MaterialX
         return EMPTY_STRING;
     }
 
-    string Syntax::getVariableName(const Element& elem) const
+    string Syntax::getVariableName(const Element& elem, bool includeParentName) const
     {
-        if (elem.isA<Output>())
+        if (includeParentName || elem.isA<Output>())
         {
             return elem.getParent()->getName() + "_" + elem.getName();
         }

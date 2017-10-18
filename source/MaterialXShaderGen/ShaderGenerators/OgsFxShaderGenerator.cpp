@@ -13,6 +13,8 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 
     Shader& shader = *shaderPtr;
 
+    addExtraShaderUniforms(shader);
+
     shader.addInclude("sx/impl/shadergen/source/glsl/defines.glsl");
     shader.newLine();
 
@@ -40,8 +42,6 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
         );
     }
     shader.newLine();
-
-    addExtraShaderUniforms(shader);
 
     // Emit functions for lighting if needed
     if (!shader.hasClassification(SgNode::Classification::TEXTURE))
@@ -194,7 +194,7 @@ void OgsFxShaderGenerator::emitInput(const ValueElement& port, Shader& shader)
     {
         // This input is promoted to a shader input
         // So just use the name of that shader input
-        shader.addStr(_syntax->getVariableName(port));
+        shader.addStr(_syntax->getVariableName(port, true));
     }
     else
     {
@@ -212,7 +212,7 @@ void OgsFxShaderGenerator::addExtraShaderUniforms(Shader& shader)
         {
             if (useAsShaderUniform(*param))
             {
-                const string name = _syntax->getVariableName(*param);
+                const string name = _syntax->getVariableName(*param, true);
                 shader.addUniform(Shader::Uniform(name, param));
             }
         }

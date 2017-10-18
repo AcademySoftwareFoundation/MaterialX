@@ -80,7 +80,7 @@ public:
     virtual const string& getOutputTypeName(const string& type) const;
 
     /// Get variable name for an input, output or node
-    virtual string getVariableName(const Element& elem) const;
+    virtual string getVariableName(const Element& elem, bool includeParentName = false) const;
 
     /// Get syntax for a swizzled variable
     virtual string getSwizzledVariable(const string& name, const string& type, const string& fromType, const string& channels) const;
