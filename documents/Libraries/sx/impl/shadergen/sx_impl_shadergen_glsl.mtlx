@@ -16,16 +16,19 @@
   <!-- <refractionbsdf> -->
   <implementation name="IM_refractionbsdf__glsl" nodedef="ND_refractionbsdf" file="sx/impl/shadergen/source/glsl/sx_refractionbsdf.glsl" function="sx_refractionbsdf" language="glsl"/>
 
-  <!-- <mixbsdf> -->
-  <implementation name="IM_mixbsdf__glsl" nodedef="ND_mixbsdf" file="sx/impl/shadergen/source/glsl/sx_mixbsdf.glsl" function="sx_mixbsdf" language="glsl"/>
-
   <!-- <uniformedf> -->
   <implementation name="IM_uniformedf__glsl" nodedef="ND_uniformedf" file="sx/impl/shadergen/source/glsl/sx_uniformedf.glsl" function="sx_uniformedf" language="glsl"/>
 
-  <!-- <surfacelayer> -->
-  <!-- Implemented by C++ class: SurfaceLayer.h/cpp -->
-
   <!-- <surfaceshader> -->
   <!-- Implemented by C++ class: SurfaceShader.h/cpp -->
+
+  <!-- <mixbsdf> -->
+  <implementation name="IM_mixbsdf__glsl" nodedef="ND_mixbsdf" file="sx/impl/shadergen/source/glsl/sx_mixbsdf.glsl" function="sx_mixbsdf" language="glsl"/>
+
+  <!-- <mixedf> -->
+  <implementation name="IM_mixedf__glsl" nodedef="ND_mixedf" file="sx/impl/shadergen/source/glsl/sx_mixedf.glsl" function="sx_mixedf" language="glsl"/>
+
+  <!-- <mixsurface> -->
+  <implementation name="IM_mixsurface__glsl" nodedef="ND_mixsurface" file="sx/impl/shadergen/source/glsl/sx_mixsurface.glsl" function="sx_mixsurface" language="glsl"/>
 
 </materialx>

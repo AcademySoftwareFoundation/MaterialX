@@ -7,7 +7,6 @@
 #include <MaterialXShaderGen/NodeImplementations/Swizzle.h>
 #include <MaterialXShaderGen/NodeImplementations/Switch.h>
 #include <MaterialXShaderGen/NodeImplementations/Compare.h>
-#include <MaterialXShaderGen/NodeImplementations/SurfaceLayer.h>
 #include <MaterialXShaderGen/NodeImplementations/SurfaceShader.h>
 
 namespace MaterialX
@@ -153,7 +152,6 @@ void ShaderGenRegistry::registerBuiltIn()
     REGISTER_NODE_IMPLEMENTATION(Swizzle);
     REGISTER_NODE_IMPLEMENTATION(Switch);
     REGISTER_NODE_IMPLEMENTATION(Compare);
-    REGISTER_NODE_IMPLEMENTATION(SurfaceLayerGlsl);
     REGISTER_NODE_IMPLEMENTATION(SurfaceShaderOgsFx);
 }
 
@@ -169,9 +167,7 @@ void ShaderGenRegistry::unregisterBuiltIn()
     UNREGISTER_NODE_IMPLEMENTATION(Swizzle);
     UNREGISTER_NODE_IMPLEMENTATION(Switch);
     UNREGISTER_NODE_IMPLEMENTATION(Compare);
-    UNREGISTER_NODE_IMPLEMENTATION(SurfaceLayerGlsl);
     UNREGISTER_NODE_IMPLEMENTATION(SurfaceShaderOgsFx);
 }
-
 
 } // namepsace MaterialX

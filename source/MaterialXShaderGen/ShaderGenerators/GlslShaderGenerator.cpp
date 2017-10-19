@@ -23,7 +23,7 @@ void GlslShaderGenerator::emitTextureNodes(Shader& shader)
     }
 }
 
-void GlslShaderGenerator::emitBsdf(const string& incident, const string& outgoing, Shader& shader, string& bsdf)
+void GlslShaderGenerator::emitSurfaceBsdf(const SgNode& surfaceShaderNode, const string& incident, const string& outgoing, Shader& shader, string& bsdf)
 {
     unsigned char oldContext = shader.getContext();
     shader.setContext(Shader::Context::SCATTERING);
@@ -35,14 +35,9 @@ void GlslShaderGenerator::emitBsdf(const string& incident, const string& outgoin
     // The last node will hold the final result
     for (const SgNode& node : shader.getNodes())
     {
-        if (node.hasClassification(SgNode::Classification::BSDF))
+        if (node.hasClassification(SgNode::Classification::BSDF) && surfaceShaderNode.hasDependency(node.getName()))
         {
             emitFunctionCall(node, shader, &lightDirections);
-            last = &node;
-        }
-        else if (node.hasClassification(SgNode::Classification::LAYER))
-        {
-            emitFunctionCall(node, shader);
             last = &node;
         }
     }
@@ -50,16 +45,12 @@ void GlslShaderGenerator::emitBsdf(const string& incident, const string& outgoin
     if (last)
     {
         bsdf = _syntax->getVariableName(*last->getNodePtr());
-        if (last->hasClassification(SgNode::Classification::LAYER))
-        {
-            bsdf += ".bsdf";
-        }
     }
 
     shader.setContext(oldContext);
 }
 
-void GlslShaderGenerator::emitSurfaceEmission(Shader& shader, string& emission)
+void GlslShaderGenerator::emitSurfaceEmission(const SgNode& surfaceShaderNode, Shader& shader, string& emission)
 {
     emission = "vec3(0.0)";
 
@@ -72,8 +63,7 @@ void GlslShaderGenerator::emitSurfaceEmission(Shader& shader, string& emission)
     // The last node will hold the final result
     for (const SgNode& node : shader.getNodes())
     {
-        if (node.hasClassification(SgNode::Classification::EDF) ||
-            node.hasClassification(SgNode::Classification::LAYER))
+        if (node.hasClassification(SgNode::Classification::EDF) && surfaceShaderNode.hasDependency(node.getName()))
         {
             emitFunctionCall(node, shader);
             last = &node;
@@ -83,10 +73,6 @@ void GlslShaderGenerator::emitSurfaceEmission(Shader& shader, string& emission)
     if (last)
     {
         emission = _syntax->getVariableName(*last->getNodePtr());
-        if (last->hasClassification(SgNode::Classification::LAYER))
-        {
-            emission += ".edf";
-        }
     }
 
     shader.setContext(oldContext);

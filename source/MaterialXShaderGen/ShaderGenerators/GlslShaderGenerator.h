@@ -16,11 +16,11 @@ public:
 
     /// Emit code for calculating the BSDF response given the incident and outgoing light directions.
     /// The output bsdf will hold the variable name keeping the result.
-    virtual void emitBsdf(const string& incident, const string& outgoing, Shader& shader, string& bsdf);
+    virtual void emitSurfaceBsdf(const SgNode& surfaceShaderNode, const string& incident, const string& outgoing, Shader& shader, string& bsdf);
 
     /// Emit code for calculating the emission
     /// The output emission will hold the variable keeping the result.
-    virtual void emitSurfaceEmission(Shader& shader, string& emission);
+    virtual void emitSurfaceEmission(const SgNode& surfaceShaderNode, Shader& shader, string& emission);
 
 protected:
     /// Protected constructor.

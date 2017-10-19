@@ -114,7 +114,6 @@ static const string kFilename("filename");
 static const string kBSDF("BSDF");
 static const string kEDF("EDF");
 static const string kVDF("VDF");
-static const string kLAYER("surfacelayer");
 static const string kSURFACE("surfaceshader");
 static const string kVOLUME("volumeshader");
 static const string kDISPLACEMENT("displacementshader");

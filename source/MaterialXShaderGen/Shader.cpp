@@ -353,6 +353,21 @@ void Shader::initialize(ElementPtr element, const string& language, const string
             }
         }
     }
+
+    for (SgNode& n : _nodes)
+    {
+        if (n.hasClassification(SgNode::Classification::SHADER))
+        {
+            for (Edge edge : n.getNodePtr()->traverseGraph())
+            {
+                ElementPtr upstream = edge.getUpstreamElement();
+                if (upstream->isA<Node>())
+                {
+                    n._dependencyNodes.insert(upstream->getName());
+                }
+            }
+        }
+    }
 }
 
 void Shader::finalize()

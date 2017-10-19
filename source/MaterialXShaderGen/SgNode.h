@@ -21,16 +21,15 @@ public:
         // Node classes
         static const unsigned int TEXTURE = 1 << 0; // Any node that outputs floats, colors, vectors, etc.
         static const unsigned int CLOSURE = 1 << 1; // Any node that represents light integration
-        static const unsigned int SHADER  = 1 << 2; // Any node that outputs a complete shader
+        static const unsigned int SHADER  = 1 << 2; // Any node that outputs a shader
         // Specific closure types
         static const unsigned int BSDF    = 1 << 3; // A BDFS node 
         static const unsigned int EDF     = 1 << 4; // A EDF node
         static const unsigned int VDF     = 1 << 5; // A VDF node 
-        static const unsigned int LAYER   = 1 << 6; // A surface layer node
         // Specific shader types
-        static const unsigned int SURFACE = 1 << 7; // A surface shader node
-        static const unsigned int VOLUME  = 1 << 8; // A volume shader node
-        static const unsigned int LIGHT   = 1 << 9; // A light shader node
+        static const unsigned int SURFACE = 1 << 6; // A surface shader node
+        static const unsigned int VOLUME  = 1 << 7; // A volume shader node
+        static const unsigned int LIGHT   = 1 << 8; // A light shader node
     };
 
     /// Information on source code scope for the node.
@@ -134,6 +133,13 @@ public:
 
     /// Returns true if this node is only referenced by a conditional
     bool referencedConditionally() const;
+
+    // TODO: Clean up this hack!
+    set<string> _dependencyNodes;
+    bool hasDependency(const string& node) const
+    {
+        return _dependencyNodes.count(node) > 0;
+    }
 
     /// Return the source code implementation element for the given nodedef and language/target,
     /// or nullptr if no matching implemenation is found.

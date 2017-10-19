@@ -6,7 +6,6 @@
   <typedef name="BSDF" doc="Bidirectional scattering distribution function"/>
   <typedef name="EDF" doc="Emission distribution function"/>
   <typedef name="VDF" doc="Volume distribution function"/>
-  <typedef name="surfacelayer" doc="A layer in a surface shader"/>
 
   <!-- N O D E S -->
 
@@ -73,17 +72,6 @@
   </nodedef>
 
   <!--
-    Node: <mixbsdf>
-    A BSDF node for mixing two BSDF's.
-  -->
-  <nodedef name="ND_mixbsdf" node="mixbsdf" type="BSDF" nodecategory="shaderx"
-           doc="A BSDF node for mixing two BSDF's according to a weight.">
-    <input name="bsdf1" type="BSDF"/>
-    <input name="bsdf2" type="BSDF"/>
-    <input name="weight" type="float"/>
-  </nodedef>
-
-  <!--
     Node: <uniformedf>
     An EDF node for uniform emission.
   -->
@@ -93,25 +81,47 @@
   </nodedef>
 
   <!--
-    Node: <surfacelayer>
-    A constructor node for the surfacelayer type.
-  -->
-  <nodedef name="ND_surfacelayer" node="surfacelayer" type="surfacelayer" nodecategory="shaderx"
-           doc="A constructor node for the surfacelayer type.">
-    <input name="bsdf" type="BSDF"/>
-    <input name="edf" type="EDF"/>
-    <input name="base" type="surfacelayer" doc="Optional base layer below this surface layer"/>
-    <input name="weight" type="color3" value="1.0,1.0,1.0" doc="Mix weight between this layer and the base layer."/>
-  </nodedef>
-
-  <!--
     Node: <surfaceshader>
     A constructor node for the surfaceshader type.
   -->
   <nodedef name="ND_surfaceshader" node="surfaceshader" type="surfaceshader" nodecategory="shaderx"
            doc="A constructor node for the surfaceshader type.">
-    <input name="surface" type="surfacelayer"/>
+    <input name="bsdf" type="BSDF"/>
+    <input name="edf" type="EDF"/>
     <input name="opacity" type="float" value="1.0" doc="Surface cutout opacity"/>
+  </nodedef>
+
+  <!--
+    Node: <mixbsdf>
+    A BSDF node for mixing two BSDF's.
+  -->
+  <nodedef name="ND_mixbsdf" node="mixbsdf" type="BSDF" nodecategory="shaderx"
+           doc="A BSDF node for mixing two BSDF's according to a weight.">
+    <input name="in1" type="BSDF" doc="First BSDF."/>
+    <input name="in2" type="BSDF" doc="Second BSDF."/>
+    <input name="weight" type="float" value="0.5" doc="Mix weight between the two BSDF's."/>
+  </nodedef>
+
+  <!--
+    Node: <mixedf>
+    An EDF node for mixing two EDF's.
+  -->
+  <nodedef name="ND_mixedf" node="mixedf" type="EDF" nodecategory="shaderx"
+           doc="An EDF node for mixing two EDF's according to a weight.">
+    <input name="in1" type="EDF" doc="First EDF."/>
+    <input name="in2" type="EDF" doc="Second EDF."/>
+    <input name="weight" type="float" value="0.5" doc="Mix weight between the two EDF's."/>
+  </nodedef>
+
+  <!--
+    Node: <mixsurface>
+    A node for mixing two surface shaders.
+  -->
+  <nodedef name="ND_mixsurface" node="mixsurface" type="surfaceshader" nodecategory="shaderx"
+           doc="A node for mixing two surface shaders.">
+    <input name="in1" type="surfaceshader" doc="Surface shader for the top layer"/>
+    <input name="in2" type="surfaceshader" doc="Surface shader for the base layer"/>
+    <input name="weight" type="float" value="0.5" doc="Mix weight between the top and base layers."/>
   </nodedef>
 
 </materialx>

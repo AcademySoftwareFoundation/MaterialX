@@ -173,11 +173,11 @@ GlslSyntax::GlslSyntax()
         kEDF, 
         TypeSyntax
         (
-            "vec3",
-            "vec3(0.0)",
-            "{0.0, 0.0, 0.0}",
+            "EDF",
+            "EDF(0.0)",
             "",
-            "out vec3"
+            "#define EDF vec3",
+            "out EDF"
         )
     );
 
@@ -191,19 +191,6 @@ GlslSyntax::GlslSyntax()
             "",
             "struct VDF { vec3 absorption; vec3 scattering; };",
             "out VDF"
-        )
-    );
-
-    addTypeSyntax
-    (
-        kLAYER,
-        TypeSyntax
-        (
-            "surfacelayer",
-            "surfacelayer(BSDF(vec3(0.0),vec3(0.0)),vec3(0.0))",
-            "",
-            "struct surfacelayer { BSDF bsdf; vec3 edf; };",
-            "out surfacelayer"
         )
     );
 

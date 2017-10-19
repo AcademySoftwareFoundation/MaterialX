@@ -148,10 +148,6 @@ SgNode::SgNode(NodePtr node, const string& language, const string& target)
     {
         _classification = Classification::SURFACE | Classification::SHADER;
     }
-    else if (_nodeDef->getType() == kLAYER)
-    {
-        _classification = Classification::LAYER | Classification::CLOSURE;
-    }
     else if (_nodeDef->getType() == kBSDF)
     {
         _classification = Classification::BSDF | Classification::CLOSURE;

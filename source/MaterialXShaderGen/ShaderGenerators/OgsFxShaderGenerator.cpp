@@ -102,23 +102,26 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 
 void OgsFxShaderGenerator::emitShaderBody(Shader &shader)
 {
-    // Get the output node (last node in topological order)
-    const SgNode& outputNode = shader.getNodes().back();
+    // Handle all texturing nodes. These are inputs to any
+    // closure/shader nodes and need to be emitted first.
+    //
+    shader.addComment("Emit code for all texturing nodes");
+    emitTextureNodes(shader);
+    shader.newLine();
 
-    // If the output node is a surface shader with a custom node implementation,
-    // this implementation handled the full shasder body
-    if (outputNode.hasClassification(SgNode::Classification::SURFACE))
+    // Emit function calls for all shader nodes
+    for (const SgNode& node : shader.getNodes())
     {
-        NodeImplementationPtr customImpl = outputNode.getCustomImpl();
-        if (customImpl)
+        // Emit only unconditional nodes, since any node within a conditional 
+        // branch is emitted by the conditional node itself
+        if (node.hasClassification(SgNode::Classification::SHADER) && !node.referencedConditionally())
         {
-            customImpl->emitFunctionCall(outputNode, *this, shader);
-            emitFinalOutput(shader);
-            return;
+            emitFunctionCall(node, shader);
         }
     }
+    shader.newLine();
 
-    GlslShaderGenerator::emitShaderBody(shader);
+    emitFinalOutput(shader);
 }
 
 void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
