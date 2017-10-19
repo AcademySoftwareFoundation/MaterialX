@@ -1,4 +1,4 @@
-#include <MaterialXShaderGen/NodeImplementations/SurfaceShader.h>
+#include <MaterialXShaderGen/NodeImplementations/Surface.h>
 #include <MaterialXShaderGen/Shader.h>
 #include <MaterialXShaderGen/ShaderGenerators/GlslShaderGenerator.h>
 
@@ -24,9 +24,9 @@ namespace {
 
 }
 
-DEFINE_NODE_IMPLEMENTATION(SurfaceShaderOgsFx, "surfaceshader", "glsl", "ogsfx")
+DEFINE_NODE_IMPLEMENTATION(SurfaceOgsFx, "surface", "glsl", "ogsfx")
 
-void SurfaceShaderOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
+void SurfaceOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
 {
     GlslShaderGenerator& glslgen = static_cast<GlslShaderGenerator&>(shadergen);
 

@@ -396,7 +396,7 @@ TEST_CASE("Material Shader Generation", "[shadergen]")
     }
 }
 
-TEST_CASE("BSDF Test", "[shadergen]")
+TEST_CASE("BSDF Layering", "[shadergen]")
 {
     mx::ScopedShaderGenInit shaderGenInit;
 
@@ -417,24 +417,12 @@ TEST_CASE("BSDF Test", "[shadergen]")
         mx::readFromXmlFile(doc, filename);
     }
 
-    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("BsdfTest");
+    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("BsdfLayering");
 
+    // Diffuse component
     mx::NodePtr diffuse_tex = nodeGraph->addNode("image");
-    mx::NodePtr sss         = nodeGraph->addNode("translucentbsdf", "sss", "BSDF");
-    mx::NodePtr diffuse     = nodeGraph->addNode("diffusebsdf", "diffuse", "BSDF");
-    mx::NodePtr mix         = nodeGraph->addNode("mixbsdf", "mix", "BSDF");
-    mx::NodePtr specular    = nodeGraph->addNode("coatingbsdf", "specular", "BSDF");
-    mx::NodePtr surface     = nodeGraph->addNode("surfaceshader", "surface", "surfaceshader");
-
-    mx::OutputPtr output    = nodeGraph->addOutput("out", "surfaceshader");
-
+    mx::NodePtr diffuse = nodeGraph->addNode("diffusebsdf", "diffuse", "BSDF");
     diffuse->setConnectedNode("reflectance", diffuse_tex);
-    mix->setConnectedNode("in1", sss);
-    mix->setConnectedNode("in2", diffuse);
-    specular->setConnectedNode("base", mix);
-    surface->setConnectedNode("bsdf", specular);
-    output->setConnectedNode(surface);
-
     mx::ParameterPtr diffuse_file = diffuse_tex->addParameter("file", "filename");
     diffuse_file->setPublicName("diffuse_file");
     diffuse_file->setValueString("");
@@ -442,25 +430,42 @@ TEST_CASE("BSDF Test", "[shadergen]")
     diffuse_color->setPublicName("diffuse_color");
     diffuse_color->setValueString("0.8, 0.8, 0.8");
 
+    // Translucent (fake SSS) component
+    mx::NodePtr sss = nodeGraph->addNode("translucentbsdf", "sss", "BSDF");
     mx::InputPtr sss_color = sss->addInput("transmittance", "color3");
     sss_color->setPublicName("sss_color");
     sss_color->setValueString("0.3, 0.3, 0.3");
 
-    mx::InputPtr sss_weight = mix->addInput("weight", "float");
+    // Layer diffuse over sss
+    mx::NodePtr substrate = nodeGraph->addNode("layeredbsdf", "substrate", "BSDF");
+    mx::NodePtr substrate_weight_inv = nodeGraph->addNode("invert", "substrate_weight_inv", "float");
+    substrate->setConnectedNode("top", diffuse);
+    substrate->setConnectedNode("base", sss);
+    substrate->setConnectedNode("weight", substrate_weight_inv);
+    mx::InputPtr sss_weight = substrate_weight_inv->addInput("in", "float");
     sss_weight->setPublicName("sss_weight");
     sss_weight->setValueString("0.0");
 
-    mx::InputPtr specular_color = specular->addInput("reflectance", "color3");
-    specular_color->setPublicName("specular_color");
-    specular_color->setValueString("1.0, 1.0, 1.0");
+    // Add a coating specular component on top
+    mx::NodePtr coating = nodeGraph->addNode("coatingbsdf", "coating", "BSDF");
+    coating->setConnectedNode("base", substrate);
+    mx::InputPtr coating_color = coating->addInput("reflectance", "color3");
+    coating_color->setPublicName("coating_color");
+    coating_color->setValueString("1.0, 1.0, 1.0");
+    mx::InputPtr coating_roughness = coating->addInput("roughness", "float");
+    coating_roughness->setPublicName("coating_roughness");
+    coating_roughness->setValueString("0.2");
+    mx::InputPtr coating_ior = coating->addInput("ior", "float");
+    coating_ior->setPublicName("coating_ior");
+    coating_ior->setValueString("1.52");
 
-    mx::InputPtr specular_roughness = specular->addInput("roughness", "float");
-    specular_roughness->setPublicName("specular_roughness");
-    specular_roughness->setValueString("0.2");
+    // Create a surface shader
+    mx::NodePtr surface = nodeGraph->addNode("surface", "surface1", "surfaceshader");
+    surface->setConnectedNode("bsdf", coating);
 
-    mx::InputPtr specular_ior = specular->addInput("ior", "float");
-    specular_ior->setPublicName("specular_ior");
-    specular_ior->setValueString("1.52");
+    // Connect to graph output
+    mx::OutputPtr output = nodeGraph->addOutput("out", "surfaceshader");
+    output->setConnectedNode(surface);
 
     // Setup the shader generators
     std::vector<GeneratorDescription> generatorDescriptions =
@@ -498,7 +503,6 @@ TEST_CASE("BSDF Test", "[shadergen]")
     }
 }
 
-
 TEST_CASE("Transparency", "[shadergen]")
 {
     mx::ScopedShaderGenInit shaderGenInit;
@@ -523,32 +527,30 @@ TEST_CASE("Transparency", "[shadergen]")
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("Transparency");
 
     mx::NodePtr refraction = nodeGraph->addNode("refractionbsdf", "refraction", "BSDF");
-    mx::NodePtr coating = nodeGraph->addNode("coatingbsdf", "coating", "BSDF");
-    mx::NodePtr layer = nodeGraph->addNode("surfacelayer", "layer", "surfacelayer");
-    mx::NodePtr surface = nodeGraph->addNode("surfaceshader", "surface", "surfaceshader");
-
-    mx::OutputPtr output = nodeGraph->addOutput("out", "surfaceshader");
-
-    coating->setConnectedNode("base", refraction);
-    layer->setConnectedNode("bsdf", coating);
-    surface->setConnectedNode("surface", layer);
-    output->setConnectedNode(surface);
-
     mx::InputPtr transmittance = refraction->addInput("transmittance", "color3");
     transmittance->setPublicName("transmittance");
     transmittance->setValueString("0.0, 0.0, 0.0");
 
+    mx::NodePtr coating = nodeGraph->addNode("coatingbsdf", "coating", "BSDF");
+    coating->setConnectedNode("base", refraction);
     mx::InputPtr coating_color = coating->addInput("reflectance", "color3");
     coating_color->setPublicName("coating_color");
     coating_color->setValueString("1.0, 1.0, 1.0");
-
     mx::InputPtr roughness = coating->addInput("roughness", "float");
     roughness->setPublicName("roughness");
     roughness->setValueString("0.2");
-
     mx::InputPtr ior = coating->addInput("ior", "float");
     ior->setPublicName("ior");
     ior->setValueString("1.52");
+
+    mx::NodePtr surface = nodeGraph->addNode("surface", "surface1", "surfaceshader");
+    surface->setConnectedNode("bsdf", coating);
+    mx::InputPtr opacity = surface->addInput("opacity", "float");
+    opacity->setPublicName("opacity");
+    opacity->setValueString("1.0");
+
+    mx::OutputPtr output = nodeGraph->addOutput("out", "surfaceshader");
+    output->setConnectedNode(surface);
 
     // Setup the shader generators
     std::vector<GeneratorDescription> generatorDescriptions =
@@ -609,57 +611,40 @@ TEST_CASE("LayeredSurface", "[shadergen]")
     }
 
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("LayeredSurface");
-    mx::NodePtr image1 = nodeGraph->addNode("image");
-    image1->addParameter("file", "filename");
-    mx::NodePtr image2 = nodeGraph->addNode("image");
-    image2->addParameter("file", "filename");
-    mx::NodePtr image3 = nodeGraph->addNode("image");
-    image3->addParameter("file", "filename");
 
+    // Create first surface layer from a surface with two BSDF's
     mx::NodePtr layer1_diffuse  = nodeGraph->addNode("diffusebsdf", "layer1_diffuse", "BSDF");
+    mx::InputPtr layer1_diffuse_color = layer1_diffuse->addInput("reflectance", "color3");
+    layer1_diffuse_color->setPublicName("layer1_diffuse");
+    layer1_diffuse_color->setValueString("0.2, 0.9, 0.2");
     mx::NodePtr layer1_specular = nodeGraph->addNode("coatingbsdf", "layer1_specular", "BSDF");
-    mx::NodePtr layer1          = nodeGraph->addNode("surfaceshader", "layer1", "surfaceshader");
     layer1_specular->setConnectedNode("base", layer1_diffuse);
+    mx::InputPtr layer1_specular_color = layer1_specular->addInput("reflectance", "color3");
+    layer1_specular_color->setPublicName("layer1_specular");
+    layer1_specular_color->setValueString("1.0, 1.0, 1.0");
+    mx::NodePtr layer1 = nodeGraph->addNode("surface", "layer1", "surfaceshader");
     layer1->setConnectedNode("bsdf", layer1_specular);
 
-#if 0
-    mx::NodePtr layer2_diffuse  = nodeGraph->addNode("diffusebsdf", "layer2_diffuse", "BSDF");
-    mx::NodePtr layer2_emission = nodeGraph->addNode("uniformedf", "layer2_emission", "EDF");
-    mx::NodePtr layer2          = nodeGraph->addNode("surfaceshader", "layer2", "surfaceshader");
-    layer2->setConnectedNode("bsdf", layer2_diffuse);
-    layer2->setConnectedNode("edf", layer2_emission);
-#else
+    // Create second surface layer from an uber shader
     mx::NodePtr layer2 = nodeGraph->addNode("adskSurface", "layer2", "surfaceshader");
-#endif
+    mx::InputPtr layer2_diffuse_color = layer2->addInput("base_color", "color3");
+    layer2_diffuse_color->setPublicName("layer2_diffuse");
+    layer2_diffuse_color->setValueString("0.9, 0.1, 0.2");
+    mx::InputPtr layer2_specular_color = layer2->addInput("specular_color", "color3");
+    layer2_specular_color->setPublicName("layer2_specular");
+    layer2_specular_color->setValueString("1.0, 1.0, 1.0");
 
-    mx::NodePtr mix_weight = nodeGraph->addNode("image", "mix_weight", "float");
-    mx::NodePtr mix1 = nodeGraph->addNode("mixsurface", "mix1", "surfaceshader");
-    mix1->setConnectedNode("in1", layer1);
-    mix1->setConnectedNode("in2", layer2);
-    mix1->setConnectedNode("weight", mix_weight);
+    // Create layer mixer
+    mx::NodePtr mixer = nodeGraph->addNode("layeredsurface", "mixer", "surfaceshader");
+    mixer->setConnectedNode("top", layer2);
+    mixer->setConnectedNode("base", layer1);
+    mx::InputPtr mix_weight = mixer->addInput("weight", "float");
+    mix_weight->setPublicName("mix_weight");
+    mix_weight->setValueString("1.0");
 
+    // Connect to graph output
     mx::OutputPtr output = nodeGraph->addOutput("out", "surfaceshader");
-    output->setConnectedNode(mix1);
-
-    mx::InputPtr layer1_diffuse_ = layer1_diffuse->addInput("reflectance", "color3");
-    layer1_diffuse_->setPublicName("layer1_diffuse");
-    layer1_diffuse_->setValueString("0.2, 0.9, 0.2");
-
-    mx::InputPtr layer1_specular_ = layer1_specular->addInput("reflectance", "color3");
-    layer1_specular_->setPublicName("layer1_specular");
-    layer1_specular_->setValueString("1.0, 1.0, 1.0");
-/*
-    mx::InputPtr layer2_diffuse_ = layer2_diffuse->addInput("reflectance", "color3");
-    layer2_diffuse_->setPublicName("layer2_diffuse");
-    layer2_diffuse_->setValueString("0.2, 0.2, 0.9");
-
-    mx::InputPtr layer2_emission_ = layer2_emission->addInput("intensity", "color3");
-    layer2_emission_->setPublicName("layer2_emission");
-    layer2_emission_->setValueString("0.0, 0.0, 0.0");
-*/
-    mx::ParameterPtr mix_weight_file = mix_weight->addParameter("file", "filename");
-    mix_weight_file->setPublicName("mix_weight");
-    mix_weight_file->setValueString("");
+    output->setConnectedNode(mixer);
 
     // Setup the shader generators
     std::vector<GeneratorDescription> generatorDescriptions =

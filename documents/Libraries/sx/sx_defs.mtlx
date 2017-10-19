@@ -72,6 +72,17 @@
   </nodedef>
 
   <!--
+    Node: <layeredbsdf>
+    A node for layering a BSDF on top of another BSDF.
+  -->
+  <nodedef name="ND_layeredbsdf" node="layeredbsdf" type="BSDF" nodecategory="shaderx"
+           doc="A node for layering a BSDF on top of another BSDF.">
+    <input name="top" type="BSDF" doc="Top layer BSDF."/>
+    <input name="base" type="BSDF" doc="Base layer BSDF."/>
+    <input name="weight" type="float" value="1.0" doc="Weight for the top layer."/>
+  </nodedef>
+
+  <!--
     Node: <uniformedf>
     An EDF node for uniform emission.
   -->
@@ -81,47 +92,49 @@
   </nodedef>
 
   <!--
-    Node: <surfaceshader>
-    A constructor node for the surfaceshader type.
-  -->
-  <nodedef name="ND_surfaceshader" node="surfaceshader" type="surfaceshader" nodecategory="shaderx"
-           doc="A constructor node for the surfaceshader type.">
-    <input name="bsdf" type="BSDF"/>
-    <input name="edf" type="EDF"/>
-    <input name="opacity" type="float" value="1.0" doc="Surface cutout opacity"/>
-  </nodedef>
-
-  <!--
     Node: <mixbsdf>
-    A BSDF node for mixing two BSDF's.
+    A node for mixing BSDF's.
   -->
   <nodedef name="ND_mixbsdf" node="mixbsdf" type="BSDF" nodecategory="shaderx"
-           doc="A BSDF node for mixing two BSDF's according to a weight.">
+           doc="A node for mixing BSDF's.">
     <input name="in1" type="BSDF" doc="First BSDF."/>
+    <input name="weight1" type="float" value="1.0" doc="Mix weight for the first BSDF."/>
     <input name="in2" type="BSDF" doc="Second BSDF."/>
-    <input name="weight" type="float" value="0.5" doc="Mix weight between the two BSDF's."/>
+    <input name="weight2" type="float" value="1.0" doc="Mix weight for the second BSDF."/>
   </nodedef>
 
   <!--
     Node: <mixedf>
-    An EDF node for mixing two EDF's.
+    A node for mixing EDF's.
   -->
   <nodedef name="ND_mixedf" node="mixedf" type="EDF" nodecategory="shaderx"
-           doc="An EDF node for mixing two EDF's according to a weight.">
+           doc="A node for mixing EDF's.">
     <input name="in1" type="EDF" doc="First EDF."/>
+    <input name="weight1" type="float" value="1.0" doc="Mix weight for the first EDF."/>
     <input name="in2" type="EDF" doc="Second EDF."/>
-    <input name="weight" type="float" value="0.5" doc="Mix weight between the two EDF's."/>
+    <input name="weight2" type="float" value="1.0" doc="Mix weight for the second EDF."/>
   </nodedef>
 
   <!--
-    Node: <mixsurface>
-    A node for mixing two surface shaders.
+    Node: <surface>
+    Construct a surface shader from scattering and emission distribution functions.
   -->
-  <nodedef name="ND_mixsurface" node="mixsurface" type="surfaceshader" nodecategory="shaderx"
-           doc="A node for mixing two surface shaders.">
-    <input name="in1" type="surfaceshader" doc="Surface shader for the top layer"/>
-    <input name="in2" type="surfaceshader" doc="Surface shader for the base layer"/>
-    <input name="weight" type="float" value="0.5" doc="Mix weight between the top and base layers."/>
+  <nodedef name="ND_surface" node="surface" type="surfaceshader" nodecategory="shaderx"
+           doc="A constructor node for the surfaceshader type.">
+    <input name="bsdf" type="BSDF" doc="Distribution function for surface scattering."/>
+    <input name="edf" type="EDF" doc="Distribution function for surface emission."/>
+    <input name="opacity" type="float" value="1.0" doc="Surface cutout opacity"/>
+  </nodedef>
+
+  <!--
+    Node: <layeredsurface>
+    A node for layering a surface shader on top of another surface shader.
+  -->
+  <nodedef name="ND_layeredsurface" node="layeredsurface" type="surfaceshader" nodecategory="shaderx"
+           doc="A node for layering a surface shader on top of another surface shader.">
+    <input name="top" type="surfaceshader" doc="Top layer surface shader."/>
+    <input name="base" type="surfaceshader" doc="Base layer surface shader."/>
+    <input name="weight" type="float" value="1.0" doc="Weight for the top layer."/>
   </nodedef>
 
 </materialx>
