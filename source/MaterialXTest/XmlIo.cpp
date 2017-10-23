@@ -146,4 +146,32 @@ TEST_CASE("Load content", "[xmlio]")
             REQUIRE(*doc2 == *writtenDoc);
         }
     }
+
+    // Read the same documents more than once.
+    // When duplcate names are found an error exception is thrown.
+    // Setting to skip duplicates names first avoid trying to
+    // create a child with a duplicate name in the first place
+    // thus no error exception is thrown.
+    mx::DocumentPtr doc3 = mx::createDocument();
+    const bool readXincludes = true;
+    const bool skipDuplicates = true;
+    bool exceptionThrown = false;
+    try
+    {
+        mx::readFromXmlFile(doc3, libFilename, searchPath);
+        mx::readFromXmlFile(doc3, libFilename, searchPath, readXincludes, skipDuplicates);
+        for (std::string filename : exampleFilenames)
+        {
+            mx::readFromXmlFile(doc3, filename, searchPath, readXincludes, skipDuplicates);
+            mx::readFromXmlFile(doc3, filename, searchPath, readXincludes, skipDuplicates);
+        }
+    }
+    catch (MaterialX::Exception e)
+    {
+        exceptionThrown = true;
+    }
+    catch (...)
+    {
+    }
+    REQUIRE(exceptionThrown == false);
 }

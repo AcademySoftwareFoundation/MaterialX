@@ -22,14 +22,16 @@ namespace MaterialX
 /// Read a document as XML from the given character buffer.
 /// @param doc The document into which data is read.
 /// @param buffer The character buffer from which data is read.
+/// @param skipDuplicates Will skip reading in Elements with duplicate names
 /// @throws ExceptionParseError if the document cannot be parsed.
-void readFromXmlBuffer(DocumentPtr doc, const char* buffer);
+void readFromXmlBuffer(DocumentPtr doc, const char* buffer, bool skipDuplicates=false);
 
 /// Read a document as XML from the given input stream.
 /// @param doc The document into which data is read.
 /// @param stream The input stream from which data is read.
+/// @param skipDuplicates Will skip reading in Elements with duplicate names
 /// @throws ExceptionParseError if the document cannot be parsed.
-void readFromXmlStream(DocumentPtr doc, std::istream& stream);
+void readFromXmlStream(DocumentPtr doc, std::istream& stream, bool skipDuplicates = false);
 
 /// Read a document as XML from the given filename.
 /// @param doc The document into which data is read.
@@ -39,18 +41,21 @@ void readFromXmlStream(DocumentPtr doc, std::istream& stream);
 ///    Defaults to the empty string.
 /// @param readXIncludes If true, XInclude references will be read from disk
 ///    and included in the document.  Defaults to true.
+/// @param skipDuplicates Will skip reading in Elements with duplicate names
 /// @throws ExceptionParseError if the document cannot be parsed.
 /// @throws ExceptionFileMissing if the file cannot be opened.
 void readFromXmlFile(DocumentPtr doc,
                      const string& filename,
                      const string& searchPath = EMPTY_STRING,
-                     bool readXIncludes = true);
+                     bool readXIncludes = true,
+                     bool skipDuplicates = false);
 
 /// Read a document as XML from the given string.
 /// @param doc The document into which data is read.
 /// @param str The string from which data is read.
+/// @param skipDuplicates Will skip reading in Elements with duplicate names
 /// @throws ExceptionParseError if the document cannot be parsed.
-void readFromXmlString(DocumentPtr doc, const string& str);
+void readFromXmlString(DocumentPtr doc, const string& str, bool skipDuplicates = false);
 
 /// @}
 /// @name Writing
