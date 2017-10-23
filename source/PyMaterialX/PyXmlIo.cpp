@@ -16,7 +16,8 @@ namespace mx = MaterialX;
 void bindPyXmlIo(py::module& mod)
 {
     mod.def("readFromXmlFileBase", &mx::readFromXmlFile,
-        py::arg("doc"), py::arg("filename"), py::arg("searchPath") = mx::EMPTY_STRING, py::arg("readXIncludes") = true);
+        py::arg("doc"), py::arg("filename"), py::arg("searchPath") = mx::EMPTY_STRING, py::arg("readXIncludes") = true,
+        py::arg("skipDuplicates") = false);
     mod.def("readFromXmlString", &mx::readFromXmlString);
     mod.def("writeToXmlFile", mx::writeToXmlFile,
         py::arg("doc"), py::arg("filename"), py::arg("writeXIncludes") = true, py::arg("predicate") = mx::ElementPredicate());
