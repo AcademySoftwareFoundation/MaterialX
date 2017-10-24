@@ -46,15 +46,6 @@ public:
     /// A varying shader parameter
     using Varying = pair<string, InputPtr>;
 
-    /// Types of context in which code is generated for the shader
-    class Context
-    {
-    public:
-        static const char DEFAULT    = '0';
-        static const char SCATTERING = 'S';
-        static const char EMISSION   = 'E';
-    };
-
 public:
     /// Constructor
     Shader(const string& name);
@@ -137,12 +128,6 @@ public:
     /// Return true if this shader matches the given classification.
     bool hasClassification(unsigned int c) const { return (_classification & c) == c; }
 
-    /// Set the current context in which code is generated
-    void setContext(char c) { _context = c; }
-
-    /// Return the current context in which code is generated
-    char getContext() const { return _context; }
-
     /// Return the SgNode for the given node pointer.
     SgNode& getNode(const NodePtr& nodePtr);
     const SgNode& getNode(const NodePtr& nodePtr) const { return const_cast<Shader*>(this)->getNode(nodePtr); }
@@ -190,7 +175,6 @@ protected:
     NodeGraphPtr _nodeGraph;
     OutputPtr _output;
     unsigned int _classification;
-    unsigned char _context;
     vector<SgNode> _nodes;
     unordered_map<NodePtr, size_t> _nodeToSgNodeIndex;
     set<ValueElementPtr> _usedInterface;

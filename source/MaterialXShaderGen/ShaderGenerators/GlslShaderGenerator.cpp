@@ -25,9 +25,6 @@ void GlslShaderGenerator::emitTextureNodes(Shader& shader)
 
 void GlslShaderGenerator::emitSurfaceBsdf(const SgNode& surfaceShaderNode, const string& incident, const string& outgoing, Shader& shader, string& bsdf)
 {
-    unsigned char oldContext = shader.getContext();
-    shader.setContext(Shader::Context::SCATTERING);
-
     vector<string> lightDirections = { incident, outgoing };
     const SgNode* last = nullptr;
 
@@ -46,16 +43,11 @@ void GlslShaderGenerator::emitSurfaceBsdf(const SgNode& surfaceShaderNode, const
     {
         bsdf = _syntax->getVariableName(*last->getNodePtr());
     }
-
-    shader.setContext(oldContext);
 }
 
 void GlslShaderGenerator::emitSurfaceEmission(const SgNode& surfaceShaderNode, Shader& shader, string& emission)
 {
     emission = "vec3(0.0)";
-
-    unsigned char oldContext = shader.getContext();
-    shader.setContext(Shader::Context::EMISSION);
 
     const SgNode* last = nullptr;
 
@@ -74,8 +66,6 @@ void GlslShaderGenerator::emitSurfaceEmission(const SgNode& surfaceShaderNode, S
     {
         emission = _syntax->getVariableName(*last->getNodePtr());
     }
-
-    shader.setContext(oldContext);
 }
 
 }

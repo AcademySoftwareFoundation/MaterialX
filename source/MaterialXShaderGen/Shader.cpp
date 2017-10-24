@@ -26,7 +26,6 @@ namespace
 Shader::Shader(const string& name)
     : _name(name)
     , _classification(0)
-    , _context(Context::DEFAULT)
     , _activeStage(0)
 {
     _stages.resize(numStages());
@@ -34,7 +33,6 @@ Shader::Shader(const string& name)
 
 void Shader::initialize(ElementPtr element, const string& language, const string& target)
 {
-    _context = Context::DEFAULT;
     _activeStage = 0;
     _stages.resize(numStages());
 
