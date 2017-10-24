@@ -6,6 +6,7 @@
 #include <MaterialXTest/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
+#include <MaterialXFormat/XmlIo.h>
 
 namespace mx = MaterialX;
 
@@ -105,4 +106,26 @@ TEST_CASE("Document", "[document]")
     REQUIRE(graph->getName() == "graphX");
     REQUIRE(doc->getNodeGraph("graphX") == graph);
     REQUIRE(doc->getNodeGraph("graph1") == nullptr);
+
+    // Test import library more than once
+    std::string libFilename = "mx_stdlib_defs.mtlx";
+    std::string searchPath = "documents/Libraries/stdlib;";
+    mx::DocumentPtr doc1 = mx::createDocument();
+    mx::DocumentPtr lib = mx::createDocument();
+    mx::readFromXmlFile(lib, libFilename, searchPath);
+    bool exceptionThrown = false;
+    try
+    {
+        doc1->importLibrary(lib, false);
+        doc1->importLibrary(lib, true);
+    }
+    catch (MaterialX::Exception e)
+    {
+        exceptionThrown = true;
+    }
+    catch (...)
+    {
+    }
+    REQUIRE(exceptionThrown == false);
+
 }
