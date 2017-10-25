@@ -420,21 +420,16 @@ TEST_CASE("BSDF Layering", "[shadergen]")
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("BsdfLayering");
 
     // Diffuse component
-    mx::NodePtr diffuse_tex = nodeGraph->addNode("image");
     mx::NodePtr diffuse = nodeGraph->addNode("diffusebsdf", "diffuse", "BSDF");
-    diffuse->setConnectedNode("reflectance", diffuse_tex);
-    mx::ParameterPtr diffuse_file = diffuse_tex->addParameter("file", "filename");
-    diffuse_file->setPublicName("diffuse_file");
-    diffuse_file->setValueString("");
-    mx::ParameterPtr diffuse_color = diffuse_tex->addParameter("default", "color3");
+    mx::InputPtr diffuse_color = diffuse->addInput("reflectance", "color3");
     diffuse_color->setPublicName("diffuse_color");
-    diffuse_color->setValueString("0.8, 0.8, 0.8");
+    diffuse_color->setValueString("0.9, 0.1, 0.1");
 
-    // Translucent (fake SSS) component
+    // Translucent (thin walled SSS) component
     mx::NodePtr sss = nodeGraph->addNode("translucentbsdf", "sss", "BSDF");
     mx::InputPtr sss_color = sss->addInput("transmittance", "color3");
     sss_color->setPublicName("sss_color");
-    sss_color->setValueString("0.3, 0.3, 0.3");
+    sss_color->setValueString("0.1, 0.1, 0.8");
 
     // Layer diffuse over sss
     mx::NodePtr substrate = nodeGraph->addNode("layeredbsdf", "substrate", "BSDF");
@@ -444,7 +439,7 @@ TEST_CASE("BSDF Layering", "[shadergen]")
     substrate->setConnectedNode("weight", substrate_weight_inv);
     mx::InputPtr sss_weight = substrate_weight_inv->addInput("in", "float");
     sss_weight->setPublicName("sss_weight");
-    sss_weight->setValueString("0.0");
+    sss_weight->setValueString("0.5");
 
     // Add a coating specular component on top
     mx::NodePtr coating = nodeGraph->addNode("coatingbsdf", "coating", "BSDF");
@@ -470,11 +465,19 @@ TEST_CASE("BSDF Layering", "[shadergen]")
     // Setup the shader generators
     std::vector<GeneratorDescription> generatorDescriptions =
     {
+        { "osl", "arnold", "osl",
+        {
+            "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx",
+            "documents/Libraries/adsk/impl/shadergen/adsk_impl_shadergen_osl.mtlx",
+            "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_osl.mtlx",
+        }
+        },
         { "glsl", "ogsfx", "ogsfx",
-            {
-                "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx",
-                "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_glsl.mtlx"
-            }
+        {
+            "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx",
+            "documents/Libraries/adsk/impl/shadergen/adsk_impl_shadergen_glsl.mtlx",
+            "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_glsl.mtlx",
+        }
         }
     };
 
@@ -536,12 +539,20 @@ TEST_CASE("Transparency", "[shadergen]")
     mx::InputPtr coating_color = coating->addInput("reflectance", "color3");
     coating_color->setPublicName("coating_color");
     coating_color->setValueString("1.0, 1.0, 1.0");
-    mx::InputPtr roughness = coating->addInput("roughness", "float");
-    roughness->setPublicName("roughness");
-    roughness->setValueString("0.2");
-    mx::InputPtr ior = coating->addInput("ior", "float");
+
+    mx::NodePtr ior_common = nodeGraph->addNode("constant", "ior_common", "float");
+    mx::ParameterPtr ior = ior_common->addParameter("value", "float");
     ior->setPublicName("ior");
     ior->setValueString("1.52");
+    coating->setConnectedNode("ior", ior_common);
+    refraction->setConnectedNode("ior", ior_common);
+
+    mx::NodePtr roughness_common = nodeGraph->addNode("constant", "roughness_common", "float");
+    mx::ParameterPtr roughness = roughness_common->addParameter("value", "float");
+    roughness->setPublicName("roughness");
+    roughness->setValueString("0.2");
+    coating->setConnectedNode("roughness", roughness_common);
+    refraction->setConnectedNode("roughness", roughness_common);
 
     mx::NodePtr surface = nodeGraph->addNode("surface", "surface1", "surfaceshader");
     surface->setConnectedNode("bsdf", coating);
@@ -555,10 +566,18 @@ TEST_CASE("Transparency", "[shadergen]")
     // Setup the shader generators
     std::vector<GeneratorDescription> generatorDescriptions =
     {
+        { "osl", "arnold", "osl",
+        {
+            "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx",
+            "documents/Libraries/adsk/impl/shadergen/adsk_impl_shadergen_osl.mtlx",
+            "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_osl.mtlx",
+        }
+        },
         { "glsl", "ogsfx", "ogsfx",
         {
             "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx",
-            "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_glsl.mtlx"
+            "documents/Libraries/adsk/impl/shadergen/adsk_impl_shadergen_glsl.mtlx",
+            "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_glsl.mtlx",
         }
         }
     };

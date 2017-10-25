@@ -1,0 +1,5 @@
+void sx_refractionbsdf(color transmittance, float ior, float roughness, float anisotropy, normal N, vector U, string distribution, VDF interior, output BSDF result)
+{
+    float alpha = roughness * roughness;
+    result = transmittance * microfacet(distribution, N, U, alpha, alpha, ior, true) + interior;
+}

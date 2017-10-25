@@ -18,9 +18,6 @@ public:
     /// Emit the shader body
     void emitShaderBody(Shader& shader) override;
 
-    /// Emit the final output expression
-    void emitFinalOutput(Shader& shader) const override;
-
 protected:
     /// Protected constructor.
     OslShaderGenerator();

@@ -40,11 +40,11 @@ public:
         DOWN
     };
 
-    /// A uniform shader parameter
-    using Uniform = pair<string, ParameterPtr>;
+    /// Container for uniform shader parameters
+    using Uniforms = unordered_map<string, ParameterPtr>;
 
-    /// A varying shader parameter
-    using Varying = pair<string, InputPtr>;
+    /// Container for varying shader parameters
+    using Varyings = unordered_map<string, InputPtr>;
 
 public:
     /// Constructor
@@ -135,17 +135,17 @@ public:
     /// Return the vdirection requested in the current document.
     VDirection getRequestedVDirection() const { return _vdirection; }
 
-    /// 
-    void addUniform(const Uniform& u) { _uniforms.push_back(u); }
+    /// Add a shader uniform
+    void addUniform(const string& name, ParameterPtr param);
 
-    /// 
-    void addVarying(const Varying& v) { _varyings.push_back(v); }
+    /// Add a shader varying
+    void addVarying(const string& name, InputPtr input);
 
-    /// Return a vector of the final shader uniforms.
-    const vector<Uniform>& getUniforms() const { return _uniforms; }
+    /// Return the final shader uniforms.
+    const Uniforms& getUniforms() const { return _uniforms; }
 
-    /// Return a vector of the final shader varyings.
-    const vector<Varying>& getVaryings() const { return _varyings; }
+    /// Return the final shader varyings.
+    const Varyings& getVaryings() const { return _varyings; }
 
     /// Return the final shader source code for a given shader stage
     const string& getSourceCode(size_t stage = 0) const { return _stages[stage].code; }
@@ -182,8 +182,8 @@ protected:
 
     size_t _activeStage;
     vector<Stage> _stages;
-    vector<Uniform> _uniforms;
-    vector<Varying> _varyings;
+    Uniforms _uniforms;
+    Varyings _varyings;
 };
 
 /// @class @ExceptionShaderGenError

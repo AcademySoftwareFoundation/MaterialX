@@ -1,0 +1,17 @@
+void sx_coatingbsdf(color reflectance, float ior, float roughness, float anisotropy, normal N, vector U, string distribution, BSDF base, output BSDF result)
+{
+    float alpha = roughness * roughness;
+    float eta = backfacing() ? 1.0 / ior : ior;
+
+    // Fresnel should be based on microfacet normal
+    // but we have no access to that from here, so just use
+    // view direction and surface normal instead
+    float NdotV = fabs(dot(N,-I));
+    float F0 = (eta - 1.0) / (eta + 1.0);
+    F0 *= F0;
+    float F = F0 + (1.0 - F0) * pow(1.0 - NdotV, 5.0);
+
+    // Microfacet reflection is using fresnel internally, so here we attenuate the base layer
+    // by the fresnel transmission
+    result = reflectance * microfacet(distribution, N, U, alpha, alpha, eta, false) + base * (1.0 - F);
+}

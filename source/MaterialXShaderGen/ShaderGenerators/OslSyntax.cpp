@@ -200,9 +200,9 @@ OslSyntax::OslSyntax()
         TypeSyntax
         (
             "surfaceshader", 
-            "{0,0,0}", 
+            "null_closure", 
             "0",
-            "struct surfaceshader { BSDF bsdf; EDF edf; float ior; };",
+            "#define surfaceshader closure color",
             "output surfaceshader" 
         )
     );

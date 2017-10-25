@@ -22,17 +22,17 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.newLine();
 
     // Emit all shader uniforms
-    for (const Shader::Uniform& uniform : shader.getUniforms())
+    for (const auto& uniform : shader.getUniforms())
     {
         emitUniform(
-            uniform.first, 
+            uniform.first,
             uniform.second->getType(), 
             uniform.second->getValue(),
             shader
         );
     }
     // Emit all shader varyings
-    for (const Shader::Varying& varying : shader.getVaryings())
+    for (const auto& varying : shader.getVaryings())
     {
         emitUniform(
             varying.first,
@@ -216,7 +216,7 @@ void OgsFxShaderGenerator::addExtraShaderUniforms(Shader& shader)
             if (useAsShaderUniform(*param))
             {
                 const string name = _syntax->getVariableName(*param, true);
-                shader.addUniform(Shader::Uniform(name, param));
+                shader.addUniform(name, param);
             }
         }
     }

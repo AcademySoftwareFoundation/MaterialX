@@ -232,25 +232,12 @@ void ShaderGenerator::emitFinalOutput(Shader& shader) const
     const NodePtr connectedNode = output->getConnectedNode();
 
     string finalResult = _syntax->getVariableName(*connectedNode);
-
-    const string& outputType = output->getType();
-    if (outputType == kSURFACE)
+    if (output->getChannels() != EMPTY_STRING)
     {
-        finalResult = finalResult + ".bsdf + " + finalResult + ".edf";
-        string outputExpr = "vec4(pow(" + finalResult + ", vec3(1.0/2.2)), 1.0)";
-        shader.addLine(_syntax->getVariableName(*output) + " = " + outputExpr);
+        finalResult = _syntax->getSwizzledVariable(finalResult, output->getType(), connectedNode->getType(), output->getChannels());
     }
-    else
-    {
-        if (output->getChannels() != EMPTY_STRING)
-        {
-            finalResult = _syntax->getSwizzledVariable(finalResult, output->getType(), connectedNode->getType(), output->getChannels());
-        }
 
-        const string typeName = _syntax->getTypeName(outputType);
-        string outputExpr = typeName + "(pow(" + finalResult + ", " + typeName + "(1.0/2.2)))";
-        shader.addLine(_syntax->getVariableName(*output) + " = " + outputExpr);
-    }
+    shader.addLine(_syntax->getVariableName(*output) + " = " + finalResult);
 }
 
 void ShaderGenerator::emitUniform(const string& name, const string& type, const ValuePtr& value, Shader& shader)

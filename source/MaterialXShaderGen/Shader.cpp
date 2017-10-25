@@ -254,14 +254,14 @@ void Shader::initialize(ElementPtr element, const string& language, const string
         {
             if (_usedInterface.count(param) > 0)
             {
-                addUniform(Uniform(param->getName(), param));
+                addUniform(param->getName(), param);
             }
         }
         for (InputPtr input : graphNodeDef->getInputs())
         {
             if (_usedInterface.count(input) > 0)
             {
-                addVarying(Varying(input->getName(), input));
+                addVarying(input->getName(), input);
             }
         }
     }
@@ -276,7 +276,7 @@ void Shader::initialize(ElementPtr element, const string& language, const string
             const string& publicname = param->getPublicName();
             if (!publicname.empty())
             {
-                addUniform(Uniform(publicname, param));
+                addUniform(publicname, param);
             }
         }
         for (InputPtr input : node.getInputs())
@@ -287,7 +287,7 @@ void Shader::initialize(ElementPtr element, const string& language, const string
                 const string& publicname = input->getPublicName();
                 if (!publicname.empty())
                 {
-                    addVarying(Varying(publicname, input));
+                    addVarying(publicname, input);
                 }
             }
         }
@@ -514,6 +514,42 @@ void Shader::indent()
     for (int i = 0; i < s.indentations; ++i)
     {
         s.code += kIndent;
+    }
+}
+
+void Shader::addUniform(const string& name, ParameterPtr param)
+{
+    auto it = _uniforms.find(name);
+    if (it != _uniforms.end())
+    {
+        // The uniform name already exists.
+        // Make sure it's the same data types.
+        if (it->second->getType() != param->getType())
+        {
+            throw ExceptionShaderGenError("A shader uniform named '" + name + "' already exists but with different type.");
+        }
+    }
+    else
+    {
+        _uniforms[name] = param;
+    }
+}
+
+void Shader::addVarying(const string& name, InputPtr input)
+{
+    auto it = _varyings.find(name);
+    if (it != _varyings.end())
+    {
+        // The uniform name already exists.
+        // Make sure it's the same data types.
+        if (it->second->getType() != input->getType())
+        {
+            throw ExceptionShaderGenError("A shader varying named '" + name + "' already exists but with different type.");
+        }
+    }
+    else
+    {
+        _varyings[name] = input;
     }
 }
 
