@@ -47,10 +47,10 @@ class Parameter : public ValueElement
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
     Edge getUpstreamEdge(ConstMaterialPtr material = ConstMaterialPtr(),
-                         size_t index = 0) override;
+                         size_t index = 0) const override;
 
     /// Return the number of queriable upstream edges for this element.
-    size_t getUpstreamEdgeCount() override
+    size_t getUpstreamEdgeCount() const override
     {
         return 1;
     }
@@ -174,10 +174,10 @@ class Input : public PortElement
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
     Edge getUpstreamEdge(ConstMaterialPtr material = ConstMaterialPtr(),
-                         size_t index = 0) override;
+                         size_t index = 0) const override;
 
     /// Return the number of queriable upstream edges for this element.
-    size_t getUpstreamEdgeCount() override
+    size_t getUpstreamEdgeCount() const override
     {
         return 1;
     }
@@ -209,10 +209,10 @@ class Output : public PortElement
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
     Edge getUpstreamEdge(ConstMaterialPtr material = ConstMaterialPtr(),
-                         size_t index = 0) override;
+                         size_t index = 0) const override;
 
     /// Return the number of queriable upstream edges for this element.
-    size_t getUpstreamEdgeCount() override
+    size_t getUpstreamEdgeCount() const override
     {
         return 1;
     }
@@ -295,20 +295,6 @@ class InterfaceElement : public TypedElement
         removeChildOfType<Parameter>(name);
     }
 
-    /// Set the value of a parameter by its name, creating a child element
-    /// to hold the parameter if needed.
-    template<class T> ParameterPtr setParameterValue(const string& name,
-                                                     const T& value,
-                                                     const string& type = EMPTY_STRING);
-
-    /// Return the value instance of a parameter by its name.  If the given parameter
-    /// is not present, then an empty ValuePtr is returned.
-    ValuePtr getParameterValue(const string& name) const;
-
-    /// Return the value string of a parameter by its name.  If the given parameter
-    /// is not present, then an empty string is returned.
-    const string& getParameterValueString(const string& name) const;
-
     /// @}
     /// @name Inputs
     /// @{
@@ -351,6 +337,51 @@ class InterfaceElement : public TypedElement
     }
 
     /// @}
+    /// @name Values
+    /// @{
+
+    /// Set the typed value of a parameter by its name, creating a child element
+    /// to hold the parameter if needed.
+    template<class T> ParameterPtr setParameterValue(const string& name,
+                                                     const T& value,
+                                                     const string& type = EMPTY_STRING);
+
+    /// Return the typed value of a parameter by its name.
+    /// @param name The name of the parameter to be evaluated.
+    /// @return If the given parameter is present, then a shared pointer to its
+    ///    value is returned; otherwise, an empty shared pointer is returned.
+    ValuePtr getParameterValue(const string& name) const;
+
+    /// Set the typed value of an input by its name, creating a child element
+    /// to hold the input if needed.
+    template<class T> InputPtr setInputValue(const string& name,
+                                             const T& value,
+                                             const string& type = EMPTY_STRING);
+
+    /// Return the typed value of an input by its name.
+    /// @param name The name of the input to be evaluated.
+    /// @return If the given input is present, then a shared pointer to its
+    ///    value is returned; otherwise, an empty shared pointer is returned.
+    ValuePtr getInputValue(const string& name) const;
+
+    /// @}
+    /// @name Utility
+    /// @{
+
+    /// Return true if the given interface element is type compatible with
+    /// this one.  This may be used to test, for example, whether a NodeDef
+    /// and Implementation may be used together.
+    ///
+    /// If the type string of the given interface element differs from this
+    /// one, then false is returned.
+    ///
+    /// If the two interface elements have child Parameter or Input elements
+    /// with identical names but different types, then false is returned.  Note
+    /// that a Parameter or Input that is present in only one of the two
+    /// interfaces does not affect their type compatibility.
+    bool isTypeCompatible(InterfaceElementPtr rhs) const;
+
+    /// @}
 
   protected:
     void registerChildElement(ElementPtr child) override;
@@ -370,6 +401,17 @@ template<class T> ParameterPtr InterfaceElement::setParameterValue(const string&
         param = addParameter(name);
     param->setValue(value, type);
     return param;
+}
+
+template<class T> InputPtr InterfaceElement::setInputValue(const string& name,
+                                                           const T& value,
+                                                           const string& type)
+{
+    InputPtr input = getChildOfType<Input>(name);
+    if (!input)
+        input = addInput(name);
+    input->setValue(value, type);
+    return input;
 }
 
 } // namespace MaterialX

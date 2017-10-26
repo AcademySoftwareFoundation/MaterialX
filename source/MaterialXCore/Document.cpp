@@ -7,9 +7,7 @@
 
 #include <MaterialXCore/Util.h>
 
-#include <iterator>
 #include <mutex>
-#include <sstream>
 
 namespace MaterialX
 {
@@ -96,22 +94,22 @@ class Document::Cache
                         valueElem->getPublicName(),
                         valueElem));
                 }
-                if (nodeDef && nodeDef->hasNode())
+                if (nodeDef && nodeDef->hasNodeString())
                 {
                     nodeDefMap.insert(std::pair<string, NodeDefPtr>(
-                        nodeDef->getNode(),
+                        nodeDef->getNodeString(),
                         nodeDef));
                 }
-                if (nodeGraph && nodeGraph->hasNodeDef())
+                if (nodeGraph && nodeGraph->hasNodeDefString())
                 {
                     implementationMap.insert(std::pair<string, ElementPtr>(
-                        nodeGraph->getNodeDef(),
+                        nodeGraph->getNodeDefString(),
                         nodeGraph));
                 }
-                if (implementation && implementation->hasNodeDef())
+                if (implementation && implementation->hasNodeDefString())
                 {
                     implementationMap.insert(std::pair<string, ElementPtr>(
-                        implementation->getNodeDef(),
+                        implementation->getNodeDefString(),
                         implementation));
                 }
             }
@@ -273,28 +271,6 @@ vector<ElementPtr> Document::getPublicElements(const string& publicName) const
     return publicElements;
 }
 
-StringMap Document::getFilenameStringMap(const string& geom) const
-{
-    StringMap map;
-    for (GeomInfoPtr geomInfo : getGeomInfos())
-    {
-        if (!geomStringsMatch(geom, geomInfo->getGeom()))
-            continue;
-        for (GeomAttrPtr geomAttr : geomInfo->getGeomAttrs())
-        {
-            string key = "%" + geomAttr->getName();
-            string value = geomAttr->getResolvedValueString();
-            map[key] = value;
-        }
-    }
-    return map;
-}
-
-string Document::applyStringSubstitutions(const string& filename, const string& geom) const
-{
-    return replaceSubstrings(filename, getFilenameStringMap(geom));
-}
-
 void Document::generateRequireString()
 {
     std::set<string> requireSet;
@@ -439,7 +415,7 @@ void Document::upgradeVersion()
                     }
                     if (nodeDef->hasAttribute("shaderprogram"))
                     {
-                        nodeDef->setNode(nodeDef->getAttribute("shaderprogram"));
+                        nodeDef->setNodeString(nodeDef->getAttribute("shaderprogram"));
                         nodeDef->removeAttribute("shaderprogram");
                     }
                 }
@@ -480,12 +456,12 @@ void Document::upgradeVersion()
         {
             for (ShaderRefPtr shaderRef : mat->getShaderRefs())
             {
-                if (!shaderRef->getReferencedShaderDef())
+                if (!shaderRef->getNodeDef())
                 {
                     NodeDefPtr nodeDef = getNodeDef(shaderRef->getName());
                     if (nodeDef)
                     {
-                        shaderRef->setNodeDef(nodeDef->getName());
+                        shaderRef->setNodeDefString(nodeDef->getName());
                     }
                 }
             }
@@ -502,7 +478,7 @@ void Document::upgradeVersion()
                     {
                         for (ShaderRefPtr shaderRef : mat->getShaderRefs())
                         {
-                            if (nodeDef == shaderRef->getReferencedShaderDef())
+                            if (nodeDef == shaderRef->getNodeDef())
                             {
                                 if (shaderRef->getChild(input->getName()))
                                 {

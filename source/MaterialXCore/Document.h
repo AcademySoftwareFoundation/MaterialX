@@ -308,7 +308,7 @@ class Document : public Element
         child->setType(type);
         if (!node.empty())
         {
-            child->setNode(node);
+            child->setNodeString(node);
         }
         return child;
     }
@@ -484,19 +484,6 @@ class Document : public Element
     {
         return getAttribute(CMS_CONFIG_ATTRIBUTE);
     }
-
-    /// @}
-    /// @name String Substitutions
-    /// @{
-
-    /// Return the map of filename string substitutions defined for the given geom.
-    StringMap getFilenameStringMap(const string& geom) const;
-
-    /// Given an input filename and geom string, apply any string substitutions
-    /// that have been defined for the given geom to the filename, returning the
-    /// modified filename.
-    string applyStringSubstitutions(const string& filename,
-                                    const string& geom = UNIVERSAL_GEOM_NAME) const;
 
     /// @}
     /// @name Validation

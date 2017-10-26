@@ -19,19 +19,24 @@ void bindPyNode(py::module& mod)
         .def("getConnectedNode", &mx::Node::getConnectedNode)
         .def("setConnectedNodeName", &mx::Node::setConnectedNodeName)
         .def("getConnectedNodeName", &mx::Node::getConnectedNodeName)
-        .def("getReferencedNodeDef", &mx::Node::getReferencedNodeDef)
-        .def("getImplementation", &mx::Node::getImplementation)
+        .def("getNodeDef", &mx::Node::getNodeDef,
+            py::arg("target") = mx::EMPTY_STRING)
+        .def("getImplementation", &mx::Node::getImplementation,
+            py::arg("target") = mx::EMPTY_STRING)
         .def("getDownstreamPorts", &mx::Node::getDownstreamPorts)
         .def_readonly_static("CATEGORY", &mx::Node::CATEGORY);
 
     py::class_<mx::NodeGraph, mx::NodeGraphPtr, mx::Element>(mod, "NodeGraph")
+        .def("setNodeDefString", &mx::NodeGraph::setNodeDefString)
+        .def("hasNodeDefString", &mx::NodeGraph::hasNodeDefString)
+        .def("getNodeDefString", &mx::NodeGraph::getNodeDefString)
         .def("setNodeDef", &mx::NodeGraph::setNodeDef)
-        .def("hasNodeDef", &mx::NodeGraph::hasNodeDef)
         .def("getNodeDef", &mx::NodeGraph::getNodeDef)
         .def("_addNode", &mx::NodeGraph::addNode,
             py::arg("category"), py::arg("name") = mx::EMPTY_STRING, py::arg("type") = mx::DEFAULT_TYPE_STRING)
         .def("getNode", &mx::NodeGraph::getNode)
-        .def("getNodes", &mx::NodeGraph::getNodes)
+        .def("getNodes", &mx::NodeGraph::getNodes,
+            py::arg("category") = mx::EMPTY_STRING)
         .def("removeNode", &mx::NodeGraph::removeNode)
         .def("addOutput", &mx::NodeGraph::addOutput,
             py::arg("name") = mx::EMPTY_STRING, py::arg("type") = mx::DEFAULT_TYPE_STRING)

@@ -18,10 +18,18 @@ namespace MaterialX
 
 /// A shared pointer to a NodeDef
 using NodeDefPtr = shared_ptr<class NodeDef>;
+/// A shared pointer to a const NodeDef
+using ConstNodeDefPtr = shared_ptr<const class NodeDef>;
+
 /// A shared pointer to a TypeDef
 using TypeDefPtr = shared_ptr<class TypeDef>;
+/// A shared pointer to a const TypeDef
+using ConstTypeDefPtr = shared_ptr<const class TypeDef>;
+
 /// A shared pointer to an Implementation
 using ImplementationPtr = shared_ptr<class Implementation>;
+/// A shared pointer to a const Implementation
+using ConstImplementationPtr = shared_ptr<const class Implementation>;
 
 /// @class NodeDef
 /// A node definition element within a Document.
@@ -43,25 +51,25 @@ class NodeDef : public InterfaceElement
     /// @{
 
     /// Set the node string of the NodeDef.
-    void setNode(const string& node)
+    void setNodeString(const string& node)
     {
         setAttribute(NODE_ATTRIBUTE, node);
     }
 
     /// Return true if the given NodeDef has a node string.
-    bool hasNode() const
+    bool hasNodeString() const
     {
         return hasAttribute(NODE_ATTRIBUTE);
     }
 
     /// Return the node string of the NodeDef.
-    const string& getNode() const
+    const string& getNodeString() const
     {
         return getAttribute(NODE_ATTRIBUTE);
     }
 
     /// @}
-    /// @name Connections
+    /// @name Shader References
     /// @{
 
     /// Return all ShaderRef elements that instantiate this NodeDef.
@@ -156,26 +164,42 @@ class Implementation : public InterfaceElement
     }
     virtual ~Implementation() { }
 
-    /// @name NodeDef String
+    /// @name NodeDef
     /// @{
 
     /// Set the NodeDef string for the Implementation.
-    void setNodeDef(const string& nodeDef)
+    void setNodeDefString(const string& nodeDef)
     {
         setAttribute(NODE_DEF_ATTRIBUTE, nodeDef);
     }
 
     /// Return true if the given Implementation has a NodeDef string.
-    bool hasNodeDef() const
+    bool hasNodeDefString() const
     {
         return hasAttribute(NODE_DEF_ATTRIBUTE);
     }
 
     /// Return the NodeDef string for the Implementation.
-    const string& getNodeDef() const
+    const string& getNodeDefString() const
     {
         return getAttribute(NODE_DEF_ATTRIBUTE);
     }
+
+    /// Set the NodeDef element for the Implementation.
+    void setNodeDef(NodeDefPtr nodeDef)
+    {
+        if (nodeDef)
+        {
+            setNodeDefString(nodeDef->getName());
+        }
+        else
+        {
+            removeAttribute(NODE_DEF_ATTRIBUTE);
+        }
+    }
+
+    /// Return the NodeDef element for the Implementation.
+    NodeDefPtr getNodeDef() const;
 
     /// @}
     /// @name File String

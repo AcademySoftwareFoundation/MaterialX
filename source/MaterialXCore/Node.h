@@ -61,17 +61,28 @@ class Node : public InterfaceElement
     string getConnectedNodeName(const string& inputName) const;
 
     /// @}
-    /// @name References
+    /// @name NodeDef References
     /// @{
 
-    /// Return the NodeDef, if any, that this Node references.
-    NodeDefPtr getReferencedNodeDef() const;
+    /// Return the first NodeDef that declares this node, optionally filtered
+    /// by the given target name.
+    /// @param target An optional target name, which will be used to filter
+    ///    the nodedefs that are considered.
+    /// @return A NodeDef for this node, or an empty shared pointer if none
+    ///    was found.
+    NodeDefPtr getNodeDef(const string& target = EMPTY_STRING) const;
 
-    /// Return an implementation for this Node, if any, matching the given
-    /// target string.  Note that a node implementation may be either an
-    /// Implementation element or a NodeGraph element.
-    /// @param target The specified target string, which defaults to the
-    ///    empty string.
+    /// @}
+    /// @name Implementation References
+    /// @{
+
+    /// Return the first implementation for this node, optionally filtered by
+    /// the given target name.
+    /// @param target An optional target name, which will be used to filter
+    ///    the implementations that are considered.
+    /// @return An implementation for this node, or an empty shared pointer if
+    ///    none was found.  Note that a node implementation may be either an
+    ///    Implementation element or a NodeGraph element.
     ElementPtr getImplementation(const string& target = EMPTY_STRING) const;
 
     /// @}
@@ -81,10 +92,10 @@ class Node : public InterfaceElement
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
     Edge getUpstreamEdge(ConstMaterialPtr material = ConstMaterialPtr(),
-                         size_t index = 0) override;
+                         size_t index = 0) const override;
 
     /// Return the number of queriable upstream edges for this element.
-    size_t getUpstreamEdgeCount() override
+    size_t getUpstreamEdgeCount() const override
     {
         return getInputCount();
     }
@@ -117,26 +128,42 @@ class NodeGraph : public Element
     }
     virtual ~NodeGraph() { }
 
-    /// @name NodeDef String
+    /// @name NodeDef
     /// @{
 
     /// Set the NodeDef string for the graph.
-    void setNodeDef(const string& target)
+    void setNodeDefString(const string& nodeDef)
     {
-        setAttribute(NODE_DEF_ATTRIBUTE, target);
+        setAttribute(NODE_DEF_ATTRIBUTE, nodeDef);
     }
 
     /// Return true if the given graph has a NodeDef string.
-    bool hasNodeDef() const
+    bool hasNodeDefString() const
     {
         return hasAttribute(NODE_DEF_ATTRIBUTE);
     }
 
     /// Return the NodeDef string for the graph.
-    const string& getNodeDef() const
+    const string& getNodeDefString() const
     {
         return getAttribute(NODE_DEF_ATTRIBUTE);
     }
+
+    /// Set the NodeDef element for the graph.
+    void setNodeDef(NodeDefPtr nodeDef)
+    {
+        if (nodeDef)
+        {
+            setNodeDefString(nodeDef->getName());
+        }
+        else
+        {
+            removeAttribute(NODE_DEF_ATTRIBUTE);
+        }
+    }
+
+    /// Return the NodeDef element for the graph.
+    NodeDefPtr getNodeDef() const;
 
     /// @}
     /// @name Node Elements
@@ -165,10 +192,11 @@ class NodeGraph : public Element
         return getChildOfType<Node>(name);
     }
 
-    /// Return a vector of all Nodes in the graph.
-    vector<NodePtr> getNodes() const
+    /// Return a vector of all Nodes in the graph, optionally filtered by the
+    /// given category string.
+    vector<NodePtr> getNodes(const string& category = EMPTY_STRING) const
     {
-        return getChildrenOfType<Node>();
+        return getChildrenOfType<Node>(category);
     }
 
     /// Remove the Node, if any, with the given name.

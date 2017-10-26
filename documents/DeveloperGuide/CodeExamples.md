@@ -14,26 +14,29 @@ namespace mx = MaterialX;
 // Create a document.
 mx::DocumentPtr doc = mx::createDocument();
 
-// Create a node graph with a constant color output.
+// Create a node graph with a single image node and output.
 mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
-mx::NodePtr constant = nodeGraph->addNode("constant");
-constant->setParameterValue("value", mx::Color3(0.5f, 0.5f, 0.5f));
+mx::NodePtr image = nodeGraph->addNode("image");
+image->setParameterValue("file", "image1.tif", "filename");
 mx::OutputPtr output = nodeGraph->addOutput();
-output->setConnectedNode(constant);
+output->setConnectedNode(image);
 
 // Create a simple shader interface.
 mx::NodeDefPtr shader = doc->addNodeDef("shader1", "surfaceshader", "simpleSrf");
-mx::InputPtr diffColor = shader->addInput("diffColor", "color3");
-mx::InputPtr specColor = shader->addInput("specColor", "color3");
-mx::ParameterPtr roughness = shader->addParameter("roughness", "float");
+mx::InputPtr diffColor = shader->setInputValue("diffColor", mx::Color3(1.0));
+mx::InputPtr specColor = shader->setInputValue("specColor", mx::Color3(0.0));
+mx::ParameterPtr roughness = shader->setParameterValue("roughness", 0.25f);
 
 // Create a material that instantiates the shader.
 mx::MaterialPtr material = doc->addMaterial();
 mx::ShaderRefPtr shaderRef = material->addShaderRef("shaderRef1", "simpleSrf");
 
-// Bind the diffuse color input to the constant color output.
-mx::BindInputPtr bindInput = shaderRef->addBindInput("diffColor");
-bindInput->setConnectedOutput(output);
+// Bind roughness to a new value within this material.
+mx::BindParamPtr bindParam = shaderRef->addBindParam("roughness");
+bindParam->setValue(0.5f);
+
+// Display the value of roughness in the context of this material.
+cout << roughness->getBoundValue(material)->getValueString();
 ~~~
 
 #### Python
@@ -44,26 +47,29 @@ import MaterialX as mx
 # Create a document.
 doc = mx.createDocument()
 
-# Create a node graph with a constant color output.
+# Create a node graph with a single image node and output.
 nodeGraph = doc.addNodeGraph()
-constant = nodeGraph.addNode('constant')
-constant.setParameterValue('value', mx.Color3(0.5, 0.5, 0.5))
+image = nodeGraph.addNode('image')
+image.setParameterValue('file', 'image1.tif', 'filename')
 output = nodeGraph.addOutput()
-output.setConnectedNode(constant)
+output.setConnectedNode(image)
 
 # Create a simple shader interface.
 shader = doc.addNodeDef('shader1', 'surfaceshader', 'simpleSrf')
-diffColor = shader.addInput('diffColor', 'color3')
-specColor = shader.addInput('specColor', 'color3')
-roughness = shader.addParameter('roughness', 'float')
+diffColor = shader.setInputValue('diffColor', mx.Color3(1.0))
+specColor = shader.setInputValue('specColor', mx.Color3(0.0))
+roughness = shader.setParameterValue('roughness', 0.25)
 
 # Create a material that instantiates the shader.
 material = doc.addMaterial()
 shaderRef = material.addShaderRef('shaderRef1', 'simpleSrf')
 
-# Bind the diffuse color input to the constant color output.
-bindInput = shaderRef.addBindInput('diffColor')
-bindInput.setConnectedOutput(output)
+# Bind roughness to a new value within this material.
+bindParam = shaderRef.addBindParam('roughness')
+bindParam.setValue(0.5)
+
+# Display the value of roughness in the context of this material.
+print str(roughness.getBoundValue(material))
 ~~~
 
 ### Traversing a Document Tree:
@@ -82,13 +88,16 @@ mx::readFromXmlFile(doc, "ExampleFile.mtlx");
 // Traverse the document tree in depth-first order.
 for (mx::ElementPtr elem : doc->traverseTree())
 {
-    if (elem->isA<mx::Node>("constant"))
+    // Display the filename of each image node.
+    if (elem->isA<mx::Node>("image"))
     {
-        std::cout << "Constant node " << elem->getName() << std::endl;
-    }
-    else if (elem->isA<mx::Node>("image"))
-    {
-        std::cout << "Image node " << elem->getName() << std::endl;
+        mx::ParameterPtr param = elem->asA<mx::Node>()->getParameter("file");
+        if (param)
+        {
+            string filename = param->getValueString();
+            cout << "Image node " << elem->getName() <<
+                    " references " << filename << endl;
+        }
     }
 }
 ~~~
@@ -104,10 +113,13 @@ mx.readFromXmlFile(doc, 'ExampleFile.mtlx')
 
 # Traverse the document tree in depth-first order.
 for elem in doc.traverseTree():
-    if elem.isA(mx.Node, 'constant'):
-        print 'Constant node', elem.getName()
-    elif elem.isA(mx.Node, 'image'):
-        print 'Image node', elem.getName()
+
+    # Display the filename of each image node.
+    if elem.isA(mx.Node, 'image'):
+        param = elem.getParameter('file')
+        if param:
+            filename = param.getValueString()
+            print 'Image node', elem.getName(), 'references', filename
 ~~~
 
 ### Traversing a Dataflow Graph:
@@ -126,23 +138,27 @@ mx::readFromXmlFile(doc, "ExampleFile.mtlx");
 // Iterate through materials.
 for (mx::MaterialPtr material : doc->getMaterials())
 {
-    // Iterate through each referenced shader interface.
-    for (mx::NodeDefPtr shaderDef : material->getReferencedShaderDefs())
+    // For each shader parameter, compute its value in the context of this material.
+    for (mx::ParameterPtr param : material->getPrimaryShaderParameters())
     {
-        // For each shader input, traverse the dataflow graph to its sources.
-        for (mx::InputPtr input : shaderDef->getInputs())
+        mx::ValuePtr value = param->getBoundValue(material);
+        if (value)
         {
-            for (mx::Edge edge : input->traverseGraph(material))
+            cout << "Parameter " << param->getName() <<
+                    " has bound value ", value->getValueString() << endl;
+        }
+    }
+
+    // For each shader input, find all upstream images in the dataflow graph.
+    for (mx::InputPtr input : material->getPrimaryShaderInputs())
+    {
+        for (mx::Edge edge : input->traverseGraph(material))
+        {
+            mx::ElementPtr elem = edge.getUpstreamElement();
+            if (elem->isA<mx::Node>("image"))
             {
-                mx::ElementPtr elem = edge.getUpstreamElement();
-                if (elem->isA<mx::Node>("constant"))
-                {
-                    std::cout << "Constant node " << elem->getName() << std::endl;
-                }
-                else if (elem->isA<mx::Node>("image"))
-                {
-                    std::cout << "Image node " << elem->getName() << std::endl;
-                }
+                cout << "Input " << input->getName() <<
+                        " has upstream image node " << elem->getName() << endl;
             }
         }
     }
@@ -161,15 +177,15 @@ mx.readFromXmlFile(doc, 'ExampleFile.mtlx')
 # Iterate through materials.
 for material in doc.getMaterials():
 
-    # Iterate through each referenced shader interface.
-    for shaderDef in material.getReferencedShaderDefs():
+    # For each shader parameter, compute its value in the context of this material.
+    for param in material.getPrimaryShaderParameters():
+        value = param.getBoundValue(material)
+        print 'Parameter', param.getName(), 'has value', str(value)
 
-        # For each shader input, traverse the dataflow graph to its sources.
-        for input in shaderDef.getInputs():
-            for edge in input.traverseGraph(material):
-                elem = edge.getUpstreamElement()
-                if elem.isA(mx.Node, 'constant'):
-                    print 'Constant node', elem.getName()
-                elif elem.isA(mx.Node, 'image'):
-                    print 'Image node', elem.getName()
+    # For each shader input, find all upstream images in the dataflow graph.
+    for input in material.getPrimaryShaderInputs():
+        for edge in input.traverseGraph(material):
+            elem = edge.getUpstreamElement(material)
+            if elem.isA(mx.Node, 'image'):
+                print 'Input', input.getName(), 'has upstream image node', elem.getName()
 ~~~
