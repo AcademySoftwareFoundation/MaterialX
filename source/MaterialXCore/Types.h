@@ -25,6 +25,7 @@ namespace MaterialX
 
 extern const string DEFAULT_TYPE_STRING;
 extern const string FILENAME_TYPE_STRING;
+extern const string GEOMNAME_TYPE_STRING;
 extern const string SURFACE_SHADER_TYPE_STRING;
 extern const string VOLUME_SHADER_TYPE_STRING;
 extern const string VALUE_STRING_TRUE;

@@ -17,7 +17,7 @@ TEST_CASE("Document", "[document]")
     // Create a node graph with a constant color output.
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
     mx::NodePtr constant = nodeGraph->addNode("constant");
-    constant->setParameterValue("value", mx::Color3(0.5f, 0.5f, 0.5f));
+    constant->setParameterValue("value", mx::Color3(0.5f));
     mx::OutputPtr output = nodeGraph->addOutput();
     output->setConnectedNode(constant);
     REQUIRE(doc->validate());

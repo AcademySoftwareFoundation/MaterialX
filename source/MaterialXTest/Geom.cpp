@@ -22,11 +22,21 @@ TEST_CASE("Geom", "[geom]")
     geominfo3->setGeomAttrValue("id", std::string("02"));
     REQUIRE_THROWS_AS(doc->addGeomInfo("geominfo1"), mx::Exception);
 
+    // Create a node graph with a single image node.
+    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
+    nodeGraph->setFilePrefix("folder/");
+    REQUIRE_THROWS_AS(doc->addNodeGraph(nodeGraph->getName()), mx::Exception);
+    mx::NodePtr image = nodeGraph->addNode("image");
+    image->setParameterValue("file", std::string("%asset%id_diffuse_%UDIM.tif"), mx::FILENAME_TYPE_STRING);
+
     // Test string substitutions.
-    REQUIRE(doc->applyStringSubstitutions("%asset%id_diffuse.tif", "robot1") ==
-                                        "robot01_diffuse.tif");
-    REQUIRE(doc->applyStringSubstitutions("%asset%id_diffuse.tif", "robot2") ==
-                                        "robot02_diffuse.tif");
+    mx::ParameterPtr fileParam = image->getParameter("file");
+    mx::StringResolverPtr resolver1 = image->createStringResolver("robot1");
+    resolver1->setUdimString("1001");
+    mx::StringResolverPtr resolver2 = image->createStringResolver("robot2");
+    resolver2->setUdimString("1002");
+    REQUIRE(fileParam->getResolvedValueString(resolver1) == "folder/robot01_diffuse_1001.tif");
+    REQUIRE(fileParam->getResolvedValueString(resolver2) == "folder/robot02_diffuse_1002.tif");
 
     // Collection add / remove test
     mx::CollectionPtr collection = doc->addCollection("robot_collection"); 

@@ -279,20 +279,20 @@ ConstElementPtr Element::getRoot() const
 
 TreeIterator Element::traverseTree() const
 {
-    return TreeIterator(std::const_pointer_cast<Element>(getSelf()));
+    return TreeIterator(getSelfNonConst());
 }
 
 GraphIterator Element::traverseGraph(ConstMaterialPtr material) const
 {
-    return GraphIterator(std::const_pointer_cast<Element>(getSelf()), material);
+    return GraphIterator(getSelfNonConst(), material);
 }
 
-Edge Element::getUpstreamEdge(ConstMaterialPtr, size_t)
+Edge Element::getUpstreamEdge(ConstMaterialPtr, size_t) const
 {
     return NULL_EDGE;
 }
 
-ElementPtr Element::getUpstreamElement(ConstMaterialPtr material, size_t index)
+ElementPtr Element::getUpstreamElement(ConstMaterialPtr material, size_t index) const
 {
     return getUpstreamEdge(material, index).getUpstreamElement();
 }
@@ -344,6 +344,35 @@ bool Element::validate(string* message) const
     return res;
 }
 
+StringResolverPtr Element::createStringResolver(const string& geom) const
+{
+    StringResolverPtr resolver = std::make_shared<StringResolver>();
+    StringMap stringMap;
+
+    // Compute file and geom prefixes as this scope.
+    resolver->setFilePrefix(getActiveFilePrefix());
+    resolver->setGeomPrefix(getActiveGeomPrefix());
+
+    // If a geometry name is specified, then use it to initialize the filename map.
+    if (!geom.empty())
+    {
+        ConstDocumentPtr doc = getDocument();
+        for (GeomInfoPtr geomInfo : doc->getGeomInfos())
+        {
+            if (!geomStringsMatch(geom, geomInfo->getGeom()))
+                continue;
+            for (GeomAttrPtr geomAttr : geomInfo->getGeomAttrs())
+            {
+                string key = "%" + geomAttr->getName();
+                string value = geomAttr->getResolvedValueString();
+                resolver->setFilenameSubstitution(key, value);
+            }
+        }
+    }
+
+    return resolver;
+}
+
 string Element::asString() const
 {
     string res = "<" + getCategory();
@@ -375,12 +404,61 @@ void Element::validateRequire(bool expression, bool& res, string* message, strin
 // ValueElement methods
 //
 
-string ValueElement::getResolvedValueString() const
+string ValueElement::getResolvedValueString(StringResolverPtr resolver) const
 {
-    string value = getValueString();
-    if (getType() == FILENAME_TYPE_STRING)
-        value = getActiveFilePrefix() + value;
-    return value;
+    if (!resolver)
+    {
+        resolver = createStringResolver();
+    }
+    return resolver->resolve(getValueString(), getType());
+}
+
+ValuePtr ValueElement::getBoundValue(ConstMaterialPtr material) const
+{
+    ElementPtr upstreamElem = getUpstreamElement(material);
+    if (!upstreamElem)
+    {
+        return getDefaultValue();
+    }
+    if (upstreamElem->isA<ValueElement>())
+    {
+        return upstreamElem->asA<ValueElement>()->getValue();
+    }
+    return ValuePtr();
+}
+
+ValuePtr ValueElement::getDefaultValue() const
+{
+    if (hasValue())
+    {
+        return getValue();
+    }
+    ConstElementPtr parent = getParent();
+    if (parent->isA<Implementation>())
+    {
+        ConstNodeDefPtr nodeDef = parent->asA<Implementation>()->getNodeDef();
+        if (nodeDef)
+        {
+            InputPtr input = nodeDef->getInput(getName());
+            if (input)
+            {
+                return input->getValue();
+            }
+        }
+    }
+    if (parent->isA<Node>())
+    {
+        ConstNodeDefPtr nodeDef = parent->asA<Node>()->getNodeDef();
+        if (nodeDef)
+        {
+            InputPtr input = nodeDef->getInput(getName());
+            if (input)
+            {
+                return input->getValue();
+            }
+        }
+    }
+    return ValuePtr();
 }
 
 bool ValueElement::validate(string* message) const
@@ -391,6 +469,33 @@ bool ValueElement::validate(string* message) const
         validateRequire(hasValue(), res, message, "Invalid value");
     }
     return TypedElement::validate(message) && res;
+}
+
+//
+// StringResolver methods
+//
+
+void StringResolver::setUdimString(const string& udim)
+{
+    setFilenameSubstitution(UDIM_TOKEN, udim);
+}
+
+void StringResolver::setUvTileString(const string& uvTile)
+{
+    setFilenameSubstitution(UV_TILE_TOKEN, uvTile);
+}
+    
+string StringResolver::resolve(const string& str, const string& type) const
+{
+    if (type == FILENAME_TYPE_STRING)
+    {
+        return _filePrefix + replaceSubstrings(str, _filenameMap);
+    }
+    if (type == GEOMNAME_TYPE_STRING)
+    {
+        return _geomPrefix + str;
+    }
+    return str;
 }
 
 //

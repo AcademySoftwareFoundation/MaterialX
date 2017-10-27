@@ -5,7 +5,7 @@
 
 #include <MaterialXCore/Node.h>
 
-#include <MaterialXCore/Material.h>
+#include <MaterialXCore/Document.h>
 
 namespace MaterialX
 {
@@ -29,7 +29,7 @@ vector<ShaderRefPtr> NodeDef::getInstantiatingShaderRefs() const
     {
         for (ShaderRefPtr shaderRef : mat->getShaderRefs())
         {
-            if (shaderRef->getReferencedShaderDef() == getSelf())
+            if (shaderRef->getNodeDef() == getSelf())
             {
                 shaderRefs.push_back(shaderRef);
             }
@@ -43,6 +43,15 @@ bool NodeDef::validate(string* message) const
     bool res = true;
     validateRequire(hasType(), res, message, "Missing type");
     return InterfaceElement::validate(message) && res;
+}
+
+//
+// Implementation methods
+//
+
+NodeDefPtr Implementation::getNodeDef() const
+{
+    return getDocument()->getNodeDef(getNodeDefString());
 }
 
 } // namespace MaterialX

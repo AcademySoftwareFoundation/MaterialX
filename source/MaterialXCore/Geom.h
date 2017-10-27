@@ -18,6 +18,7 @@ namespace MaterialX
 
 extern const string UNIVERSAL_GEOM_NAME;
 extern const string UDIM_TOKEN;
+extern const string UV_TILE_TOKEN;
 
 /// A shared pointer to a GeomElement
 using GeomElementPtr = shared_ptr<class GeomElement>;

@@ -40,9 +40,9 @@ TEST_CASE("Node", "[node]")
     REQUIRE_THROWS_AS(doc->addNodeGraph(nodeGraph->getName()), mx::Exception);
     mx::NodePtr constant = nodeGraph->addNode("constant");
     mx::NodePtr image = nodeGraph->addNode("image");
-    REQUIRE(nodeGraph->getChildrenOfType<mx::Node>().size() == 2);
-    REQUIRE(nodeGraph->getChildrenOfType<mx::Node>("constant").size() == 1);
-    REQUIRE(nodeGraph->getChildrenOfType<mx::Node>("image").size() == 1);
+    REQUIRE(nodeGraph->getNodes().size() == 2);
+    REQUIRE(nodeGraph->getNodes("constant").size() == 1);
+    REQUIRE(nodeGraph->getNodes("image").size() == 1);
 
     // Set constant node color.
     mx::Color3 color(0.1f, 0.2f, 0.3f);
@@ -52,8 +52,9 @@ TEST_CASE("Node", "[node]")
 
     // Set image node file.
     std::string file("image1.tif");
-    image->setParameterValue("file", file);
-    REQUIRE(image->getParameterValueString("file") == file);
+    image->setParameterValue("file", file, mx::FILENAME_TYPE_STRING);
+    REQUIRE(image->getParameterValue("file")->isA<std::string>());
+    REQUIRE(image->getParameterValue("file")->asA<std::string>() == file);
 
     // Create connected outputs.
     mx::OutputPtr output1 = nodeGraph->addOutput();
