@@ -83,7 +83,5 @@ void bindPyDocument(py::module& mod)
         .def("getColorManagementSystem", &mx::Document::getColorManagementSystem)
         .def("setColorManagementConfig", &mx::Document::setColorManagementConfig)
         .def("hasColorManagementConfig", &mx::Document::hasColorManagementConfig)
-        .def("getColorManagementConfig", &mx::Document::getColorManagementConfig)
-        .def("getFilenameStringMap", &mx::Document::getFilenameStringMap)
-        .def("applyStringSubstitutions", &mx::Document::applyStringSubstitutions);
+        .def("getColorManagementConfig", &mx::Document::getColorManagementConfig);
 }

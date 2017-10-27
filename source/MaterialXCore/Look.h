@@ -279,7 +279,7 @@ class MaterialAssign : public GeomElement
     }
 
     /// @}
-    /// @name References
+    /// @name Material References
     /// @{
 
     /// Return the Material, if any, referenced by the MaterialAssign.

@@ -33,6 +33,9 @@ using ValueElementPtr = shared_ptr<class ValueElement>;
 /// A shared pointer to a const ValueElement
 using ConstValueElementPtr = shared_ptr<const class ValueElement>;
 
+/// A shared pointer to a StringResolver
+using StringResolverPtr = shared_ptr<class StringResolver>;
+
 /// A hash map from strings to elements
 using ElementMap = std::unordered_map<string, ElementPtr>;
 
@@ -159,10 +162,29 @@ class Element : public enable_shared_from_this<Element>
         setAttribute(GEOM_PREFIX_ATTRIBUTE, prefix);
     }
 
+    /// Return true if the given element has a geom prefix string.
+    bool hasGeomPrefix() const
+    {
+        return hasAttribute(GEOM_PREFIX_ATTRIBUTE);
+    }
+
     /// Return the element's geom prefix string.
     const string& getGeomPrefix() const
     {
         return getAttribute(GEOM_PREFIX_ATTRIBUTE);
+    }
+
+    /// Return the active geom prefix string at the scope of this element.
+    const string& getActiveGeomPrefix() const
+    {
+        for (ConstElementPtr elem : traverseAncestors())
+        {
+            if (elem->hasGeomPrefix())
+            {
+                return elem->getGeomPrefix();
+            }
+        }
+        return EMPTY_STRING;
     }
 
     /// @}
@@ -296,8 +318,9 @@ class Element : public enable_shared_from_this<Element>
         return _childOrder;
     }
 
-    /// Return a vector of all child elements that are instances of the given type.
-    /// The returned vector maintains the order in which children were added.
+    /// Return a vector of all child elements that are instances of the given type,
+    /// optionally filtered by the given category string.  The returned vector
+    /// maintains the order in which children were added.
     template<class T> vector< shared_ptr<T> > getChildrenOfType(const string& category = EMPTY_STRING) const
     {
         vector< shared_ptr<T> > children;
@@ -487,10 +510,10 @@ class Element : public enable_shared_from_this<Element>
     ///    valid index range may be determined with getUpstreamEdgeCount.
     /// @return The upstream Edge, if valid, or an empty Edge object.
     virtual Edge getUpstreamEdge(ConstMaterialPtr material = ConstMaterialPtr(),
-                                 size_t index = 0);
+                                 size_t index = 0) const;
 
     /// Return the number of queriable upstream edges for this element.
-    virtual size_t getUpstreamEdgeCount()
+    virtual size_t getUpstreamEdgeCount() const
     {
         return 0;
     }
@@ -503,7 +526,7 @@ class Element : public enable_shared_from_this<Element>
     ///    valid index range may be determined with getUpstreamEdgeCount.
     /// @return The upstream Element, if valid, or an empty ElementPtr.
     ElementPtr getUpstreamElement(ConstMaterialPtr material = ConstMaterialPtr(),
-                                  size_t index = 0);
+                                  size_t index = 0) const;
 
     /// Traverse the tree from the given element to each of its ancestors.
     /// @return An AncestorIterator object.
@@ -575,6 +598,16 @@ class Element : public enable_shared_from_this<Element>
         return name;
     }
 
+    /// Construct a StringResolver at the scope of this element.  The returned
+    /// object may be used to apply substring modifiers to data values in the
+    /// context of a specific element and geometry.
+    /// @param geom An optional geometry name, which will be used to the
+    ///    applicable set of GeomAttr-based string substitutions.  This name
+    ///    may be the univeral geometry name "*", which requests that all
+    ///    GeomAttr string substitutions be used.
+    /// @return A shared pointer to a StringResolver.
+    StringResolverPtr createStringResolver(const string& geom = EMPTY_STRING) const;
+
     /// Return a single-line description of this element, including its category,
     /// name, type, and value.
     string asString() const;
@@ -597,6 +630,13 @@ class Element : public enable_shared_from_this<Element>
   protected:
     virtual void registerChildElement(ElementPtr child);
     virtual void unregisterChildElement(ElementPtr child);
+
+    // Return a non-const copy of our self pointer, for use in constructing
+    // graph traversal objects that require non-const storage.
+    ElementPtr getSelfNonConst() const
+    {
+        return std::const_pointer_cast<Element>(shared_from_this());
+    }
 
   protected:
     string _category;
@@ -671,7 +711,7 @@ class ValueElement : public TypedElement
   public:
     virtual ~ValueElement() { }
 
-    /// @name Values
+    /// @name Value String
     /// @{
 
     /// Set the value string of an element.
@@ -692,37 +732,12 @@ class ValueElement : public TypedElement
         return getAttribute(VALUE_ATTRIBUTE);
     }
 
-    /// Return the resolved value string of an element, taking all active string
-    /// substitutions into account.  Filename values, for example, will receive
-    /// the fileprefix, if any, that is active at the scope of this element.
-    string getResolvedValueString() const;
-
-    /// Set the typed value of an element.
-    template<class T> void setValue(const T& value, const string& type = EMPTY_STRING)
-    {
-        ValuePtr valuePtr = Value::createValue<T>(value);
-        if (!type.empty())
-            setType(type);
-        else
-            setType(valuePtr->getTypeString());
-        setValueString(valuePtr->getValueString());
-    }
-
-    /// Return true if the element possesses a valid value, which may be
-    /// converted to a value object through the getValue method.
-    bool hasValue() const
-    {
-        return getValue() != nullptr;
-    }
-
-    /// Return the typed value of an element as a generic value object, which
-    /// may be queried to access its data.  If this element does not possess
-    /// a typed value, then a then a value object containing an empty string
-    /// is returned.
-    ValuePtr getValue() const
-    {
-        return Value::createValueFromStrings(getValueString(), getType());
-    }
+    /// Return the resolved value string of an element, applying any string
+    /// substitutions that are defined at the element's scope.
+    /// @param resolver An optional string resolver, which will be used to
+    ///    apply string substitutions.  By default, a new string resolver
+    ///    will be created at this scope and applied to the return value.
+    string getResolvedValueString(StringResolverPtr resolver = StringResolverPtr()) const;
 
     /// @}
     /// @name Public Names
@@ -791,6 +806,64 @@ class ValueElement : public TypedElement
     }
 
     /// @}
+    /// @name Typed Value
+    /// @{
+
+    /// Set the typed value of an element.
+    template<class T> void setValue(const T& value, const string& type = EMPTY_STRING)
+    {
+        ValuePtr valuePtr = Value::createValue<T>(value);
+        if (!type.empty())
+            setType(type);
+        else
+            setType(valuePtr->getTypeString());
+        setValueString(valuePtr->getValueString());
+    }
+
+    /// Return true if the element possesses a typed value.
+    bool hasValue() const
+    {
+        return hasAttribute(VALUE_ATTRIBUTE);
+    }
+
+    /// Return the typed value of an element as a generic value object, which
+    /// may be queried to access its data.  If this element does not possess
+    /// a typed value, then a then a value object containing an empty string
+    /// is returned.
+    ValuePtr getValue() const
+    {
+        return Value::createValueFromStrings(getValueString(), getType());
+    }
+
+    /// @}
+    /// @name Bound Value
+    /// @{
+
+    /// Return the value that is bound to this element within the context of a
+    /// given material.  For example, a BindParam within the material will
+    /// affect the value of its correponding Parameter, and a BindInput will
+    /// affect the value of its corresponding Input.
+    ///
+    /// If this element is bound to an Output of a NodeGraph, rather than to a
+    /// uniform value, then an empty shared pointer is returned.
+    ///
+    /// If no data binding is applied by the material, then the default value for
+    /// this element is returned.
+    ///
+    /// @param material The material whose data bindings will be applied to
+    ///    the evaluation.
+    /// @return A shared pointer to a generic value.
+    ValuePtr getBoundValue(ConstMaterialPtr material) const;
+
+    /// Return the default value for this element, which will be used as its bound
+    /// value when no external binding from a material is present.
+    ///
+    /// If this element has no default value then an empty shared pointer is
+    /// returned.
+    /// @return A shared pointer to a generic value.
+    ValuePtr getDefaultValue() const;
+
+    /// @}
     /// @name Validation
     /// @{
 
@@ -820,6 +893,92 @@ class GenericElement : public Element
 
   public:
     static const string CATEGORY;
+};
+
+/// @class StringResolver
+/// A helper object for applying string modifiers to data values in the context
+/// of a specific element and geometry.
+///
+/// A StringResolver may be constructed through the Element::createStringResolver
+/// method, which initializes it in the context of a specific element and
+/// geometry.  The given element is used to select element-specific modifiers
+/// such as filename and geomname prefixes, while the geometry is used to select
+/// GeomAttr-based string substitutions.
+///
+/// Calling the StringResolver::resolve method applies all modifiers to a
+/// particular string value.
+///
+/// Methods such as StringResolver::setFilePrefix may be used to edit the
+/// stored string modifiers before calling StringResolver::resolve.
+class StringResolver
+{
+  public:
+    StringResolver() { }
+    virtual ~StringResolver() { }
+
+    /// @name File Prefix
+    /// @{
+
+    /// Set the file prefix for this context.
+    void setFilePrefix(const string& filePrefix)
+    {
+        _filePrefix = filePrefix;
+    }
+
+    /// Return the file prefix for this context.
+    const string& getFilePrefix() const
+    {
+        return _filePrefix;
+    }
+
+    /// @}
+    /// @name Geom Prefix
+    /// @{
+
+    /// Set the geom prefix for this context.
+    void setGeomPrefix(const string& geomPrefix)
+    {
+        _geomPrefix = geomPrefix;
+    }
+
+    /// Return the geom prefix for this context.
+    const string& getGeomPrefix() const
+    {
+        return _geomPrefix;
+    }
+
+    /// @}
+    /// @name Filename Substitutions
+    /// @{
+
+    /// Set the UDIM substring substitution for filename data values.
+    /// This string will be used to replace the standard %UDIM token.
+    void setUdimString(const string& udim);
+
+    /// Set the UV-tile substring substitution for filename data values.
+    /// This string will be used to replace the standard %UVTILE token.
+    void setUvTileString(const string& uvTile);
+
+    /// Set an arbitrary substring substitution for filename data values.
+    void setFilenameSubstitution(const string& key, const string& value)
+    {
+        _filenameMap[key] = value;
+    }
+
+    /// @}
+    /// @name Resolution
+    /// @{
+
+    /// Given an input string and type, apply all appropriate modifiers and
+    /// return the resulting string.
+    string resolve(const string& str, const string& type) const;
+
+    /// @}
+
+  protected:
+    string _filePrefix;
+    string _geomPrefix;
+    StringMap _filenameMap;
 };
 
 /// @class @ExceptionOrphanedElement

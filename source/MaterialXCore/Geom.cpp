@@ -10,6 +10,7 @@ namespace MaterialX
 
 const string UNIVERSAL_GEOM_NAME = "*";
 const string UDIM_TOKEN = "%UDIM";
+const string UV_TILE_TOKEN = "%UVTILE";
 
 const string GeomElement::GEOM_ATTRIBUTE = "geom";
 const string GeomElement::COLLECTION_ATTRIBUTE = "collection";

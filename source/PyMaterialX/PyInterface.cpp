@@ -14,8 +14,9 @@
 namespace py = pybind11;
 namespace mx = MaterialX;
 
-#define BIND_INTERFACE_TYPE_INSTANCE(NAME, T) \
-.def("_setParameterValue" #NAME, &mx::InterfaceElement::setParameterValue<T>, py::arg("name"), py::arg("value"), py::arg("type") = mx::EMPTY_STRING)
+#define BIND_INTERFACE_TYPE_INSTANCE(NAME, T)                                                                                                           \
+.def("_setParameterValue" #NAME, &mx::InterfaceElement::setParameterValue<T>, py::arg("name"), py::arg("value"), py::arg("type") = mx::EMPTY_STRING)    \
+.def("_setInputValue" #NAME, &mx::InterfaceElement::setInputValue<T>, py::arg("name"), py::arg("value"), py::arg("type") = mx::EMPTY_STRING)
 
 void bindPyInterface(py::module& mod)
 {
@@ -45,13 +46,13 @@ void bindPyInterface(py::module& mod)
         .def("getParameterCount", &mx::InterfaceElement::getParameterCount)
         .def("removeParameter", &mx::InterfaceElement::removeParameter)
         .def("_getParameterValue", &mx::InterfaceElement::getParameterValue)
-        .def("getParameterValueString", &mx::InterfaceElement::getParameterValueString)
         .def("addInput", &mx::InterfaceElement::addInput,
             py::arg("name"), py::arg("type") = mx::DEFAULT_TYPE_STRING)
         .def("getInput", &mx::InterfaceElement::getInput)
         .def("getInputs", &mx::InterfaceElement::getInputs)
         .def("getInputCount", &mx::InterfaceElement::getInputCount)
         .def("removeInput", &mx::InterfaceElement::removeInput)
+        .def("_getInputValue", &mx::InterfaceElement::getInputValue)
         BIND_INTERFACE_TYPE_INSTANCE(integer, int)
         BIND_INTERFACE_TYPE_INSTANCE(boolean, bool)
         BIND_INTERFACE_TYPE_INSTANCE(float, float)

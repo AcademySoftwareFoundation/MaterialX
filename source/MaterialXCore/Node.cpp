@@ -68,20 +68,13 @@ string Node::getConnectedNodeName(const string& inputName) const
     return input->getNodeName();
 }
 
-NodeDefPtr Node::getReferencedNodeDef() const
+NodeDefPtr Node::getNodeDef(const string& target) const
 {
     for (NodeDefPtr nodeDef : getDocument()->getMatchingNodeDefs(getCategory()))
     {
-        if (nodeDef->getType() == getType())
+        if (targetStringsMatch(target, nodeDef->getTarget()) &&
+            isTypeCompatible(nodeDef))
         {
-            for (InputPtr input : getInputs())
-            {
-                InputPtr matchingInput = nodeDef->getInput(input->getName());
-                if (matchingInput && matchingInput->getType() != input->getType())
-                {
-                    continue;
-                }
-            }
             return nodeDef;
         }
     }
@@ -90,13 +83,12 @@ NodeDefPtr Node::getReferencedNodeDef() const
 
 ElementPtr Node::getImplementation(const string& target) const
 {
-    NodeDefPtr nodeDef = getReferencedNodeDef();
+    NodeDefPtr nodeDef = getNodeDef(target);
     if (nodeDef)
     {
-        vector<ElementPtr> implementations = getDocument()->getMatchingImplementations(nodeDef->getName());
-        for (ElementPtr implementation : implementations)
+        for (ElementPtr implementation : getDocument()->getMatchingImplementations(nodeDef->getName()))
         {
-            if (implementation->getTarget() == target)
+            if (targetStringsMatch(implementation->getTarget(), target))
             {
                 return implementation;
             }
@@ -106,7 +98,7 @@ ElementPtr Node::getImplementation(const string& target) const
     return ElementPtr();
 }
 
-Edge Node::getUpstreamEdge(ConstMaterialPtr material, size_t index)
+Edge Node::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
 {
     if (index < getUpstreamEdgeCount())
     {
@@ -114,7 +106,7 @@ Edge Node::getUpstreamEdge(ConstMaterialPtr material, size_t index)
         ElementPtr upstreamNode = input->getConnectedNode();
         if (upstreamNode)
         {
-            return Edge(getSelf(), input, upstreamNode);
+            return Edge(getSelfNonConst(), input, upstreamNode);
         }
     }
 
@@ -144,6 +136,11 @@ bool Node::validate(string* message) const
 //
 // NodeGraph methods
 //
+
+NodeDefPtr NodeGraph::getNodeDef() const
+{
+    return getDocument()->getNodeDef(getNodeDefString());
+}
 
 void NodeGraph::flattenSubgraphs(const string& target)
 {

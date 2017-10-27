@@ -1,5 +1,23 @@
 # Change Log
 
+## [1.35.4] - Development
+
+### Added
+- Added Material methods getPrimaryShaderNodeDef, getPrimaryShaderName, getPrimaryShaderParameters, and getPrimaryShaderInputs.
+- Added ValueElement methods getBoundValue and getDefaultValue.
+- Added InterfaceElement methods setInputValue and getInputValue.
+- Added method Element\:\:createStringResolver and class StringResolver, for applying substring substitutions to data values.
+
+### Changed
+- Renamed method Material\:\:getReferencedShaderDefs to Material\:\:getShaderNodeDefs.
+- Renamed method ShaderRef\:\:getReferencedShaderDef to ShaderRef\:\:getNodeDef.
+- Renamed method Node\:\:getReferencedNodeDef to Node\:\:getNodeDef.
+- Added a 'string' suffix to all accessors for 'node' and 'nodedef' strings.
+
+### Removed
+- Removed method Document\:\:applyStringSubstitutions (deprecated in Python).
+- Removed method InterfaceElement\:\:getParameterValueString (deprecated in Python).
+
 ## [1.35.3] - 2017-10-11
 
 ### Added
