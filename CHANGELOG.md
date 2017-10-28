@@ -7,6 +7,7 @@
 - Added ValueElement methods getBoundValue and getDefaultValue.
 - Added InterfaceElement methods setInputValue and getInputValue.
 - Added method Element\:\:createStringResolver and class StringResolver, for applying substring substitutions to data values.
+- Added support for multi-output nodes, nodedefs, and connections.
 
 ### Changed
 - Renamed method Material\:\:getReferencedShaderDefs to Material\:\:getShaderNodeDefs.

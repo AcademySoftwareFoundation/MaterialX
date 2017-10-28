@@ -69,6 +69,19 @@ class NodeDef : public InterfaceElement
     }
 
     /// @}
+    /// @name Implementation References
+    /// @{
+
+    /// Return the first implementation for this nodedef, optionally filtered
+    /// by the given target name.
+    /// @param target An optional target name, which will be used to filter
+    ///    the implementations that are considered.
+    /// @return An implementation for this nodedef, or an empty shared pointer
+    ///    if none was found.  Note that a node implementation may be either
+    ///    an Implementation element or a NodeGraph element.
+    InterfaceElementPtr getImplementation(const string& target = EMPTY_STRING) const;
+
+    /// @}
     /// @name Shader References
     /// @{
 

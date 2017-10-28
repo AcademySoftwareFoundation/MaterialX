@@ -15,6 +15,7 @@ const string FILENAME_TYPE_STRING = "filename";
 const string GEOMNAME_TYPE_STRING = "geomname";
 const string SURFACE_SHADER_TYPE_STRING = "surfaceshader";
 const string VOLUME_SHADER_TYPE_STRING = "volumeshader";
+const string MULTI_OUTPUT_TYPE_STRING = "multioutput";
 const string VALUE_STRING_TRUE = "true";
 const string VALUE_STRING_FALSE = "false";
 const string NAME_PATH_SEPARATOR = "/";

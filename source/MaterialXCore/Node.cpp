@@ -81,23 +81,6 @@ NodeDefPtr Node::getNodeDef(const string& target) const
     return NodeDefPtr();
 }
 
-ElementPtr Node::getImplementation(const string& target) const
-{
-    NodeDefPtr nodeDef = getNodeDef(target);
-    if (nodeDef)
-    {
-        for (ElementPtr implementation : getDocument()->getMatchingImplementations(nodeDef->getName()))
-        {
-            if (targetStringsMatch(implementation->getTarget(), target))
-            {
-                return implementation;
-            }
-        }
-    }
-
-    return ElementPtr();
-}
-
 Edge Node::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
 {
     if (index < getUpstreamEdgeCount())
@@ -152,7 +135,7 @@ void NodeGraph::flattenSubgraphs(const string& target)
         NodePtr refNode = nodeQueue.front();
         nodeQueue.pop_front();
 
-        ElementPtr implement = refNode->getImplementation(target);
+        InterfaceElementPtr implement = refNode->getImplementation(target);
         if (!implement || !implement->isA<NodeGraph>())
         {
             continue;
@@ -202,7 +185,7 @@ void NodeGraph::flattenSubgraphs(const string& target)
 
             // Check if the new subnode has a graph implementation.
             // If so this subgraph will need to be flattened as well.
-            ElementPtr subNodeImplement = newSubNode->getImplementation(target);
+            InterfaceElementPtr subNodeImplement = newSubNode->getImplementation(target);
             if (subNodeImplement && subNodeImplement->isA<NodeGraph>())
             {
                 nodeQueue.push_back(newSubNode);

@@ -102,13 +102,13 @@ class Document::Cache
                 }
                 if (nodeGraph && nodeGraph->hasNodeDefString())
                 {
-                    implementationMap.insert(std::pair<string, ElementPtr>(
+                    implementationMap.insert(std::pair<string, InterfaceElementPtr>(
                         nodeGraph->getNodeDefString(),
                         nodeGraph));
                 }
                 if (implementation && implementation->hasNodeDefString())
                 {
-                    implementationMap.insert(std::pair<string, ElementPtr>(
+                    implementationMap.insert(std::pair<string, InterfaceElementPtr>(
                         implementation->getNodeDefString(),
                         implementation));
                 }
@@ -125,7 +125,7 @@ class Document::Cache
     std::unordered_multimap<string, PortElementPtr> portElementMap;
     std::unordered_multimap<string, ValueElementPtr> publicElementMap;
     std::unordered_multimap<string, NodeDefPtr> nodeDefMap;
-    std::unordered_multimap<string, ElementPtr> implementationMap;
+    std::unordered_multimap<string, InterfaceElementPtr> implementationMap;
 };
 
 //
@@ -222,13 +222,13 @@ vector<NodeDefPtr> Document::getMatchingNodeDefs(const string& nodeName) const
     return nodeDefs;
 }
 
-vector<ElementPtr> Document::getMatchingImplementations(const string& nodeDef) const
+vector<InterfaceElementPtr> Document::getMatchingImplementations(const string& nodeDef) const
 {
     // Refresh the cache.
     _cache->refresh();
 
     // Find all implementations matching the given nodedef string.
-    vector<ElementPtr> implementations;
+    vector<InterfaceElementPtr> implementations;
     auto keyRange = _cache->implementationMap.equal_range(nodeDef);
     for (auto it = keyRange.first; it != keyRange.second; ++it)
     {

@@ -334,11 +334,6 @@ class Document : public Element
     /// Return a vector of all NodeDef elements that match the given node name.
     vector<NodeDefPtr> getMatchingNodeDefs(const string& nodeName) const;
 
-    /// Return a vector of all node implementations that match the given
-    /// NodeDef string.  Note that a node implementation may be either an
-    /// Implementation element or NodeGraph element.
-    vector<ElementPtr> getMatchingImplementations(const string& nodeDef) const;
-
     /// @}
     /// @name PropertySet Elements
     /// @{
@@ -402,6 +397,11 @@ class Document : public Element
     {
         removeChildOfType<Implementation>(name);
     }
+
+    /// Return a vector of all node implementations that match the given
+    /// NodeDef string.  Note that a node implementation may be either an
+    /// Implementation element or NodeGraph element.
+    vector<InterfaceElementPtr> getMatchingImplementations(const string& nodeDef) const;
 
     /// @}
     /// @name Public Elements

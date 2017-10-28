@@ -63,6 +63,8 @@ TEST_CASE("Node", "[node]")
     output2->setConnectedNode(image);
     REQUIRE(output1->getUpstreamElement() == constant);
     REQUIRE(output2->getUpstreamElement() == image);
+    REQUIRE(constant->getDownstreamPorts()[0] == output1);
+    REQUIRE(image->getDownstreamPorts()[0] == output2);
 
     // Define and reference a custom type.
     doc->addTypeDef("spectrum");
@@ -78,6 +80,8 @@ TEST_CASE("Node", "[node]")
     output2->setConnectedNode(nullptr);
     REQUIRE(output1->getUpstreamElement() == nullptr);
     REQUIRE(output2->getUpstreamElement() == nullptr);
+    REQUIRE(constant->getDownstreamPorts().empty());
+    REQUIRE(image->getDownstreamPorts().empty());
 
     // Remove nodes and outputs.
     nodeGraph->removeNode(image->getName());
@@ -126,7 +130,7 @@ TEST_CASE("Flatten", "[nodegraph]")
             totalNodeCount++;
 
             // Make sure it's an atomic node.
-            mx::ElementPtr implement = elem->asA<mx::Node>()->getImplementation();
+            mx::InterfaceElementPtr implement = elem->asA<mx::Node>()->getImplementation();
             bool isAtomic = !implement || !implement->isA<mx::NodeGraph>();
             REQUIRE(isAtomic);
         }

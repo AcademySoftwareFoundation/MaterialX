@@ -12,6 +12,7 @@ namespace MaterialX
 {
 
 const string PortElement::NODE_NAME_ATTRIBUTE = "nodename";
+const string PortElement::OUTPUT_ATTRIBUTE = "output";
 const string PortElement::CHANNELS_ATTRIBUTE = "channels";
 
 //
@@ -50,9 +51,26 @@ bool PortElement::validate(string* message) const
     {
         validateRequire(getConnectedNode() != nullptr, res, message, "Invalid port connection");
     }
-    if (getConnectedNode() && !hasChannels())
+    if (getConnectedNode())
     {
-        validateRequire(getType() == getConnectedNode()->getType(), res, message, "Mismatched types in port connection");
+        if (hasOutputString())
+        {
+            validateRequire(getConnectedNode()->getType() == MULTI_OUTPUT_TYPE_STRING, res, message, "Multi-output type expected in port connection");
+            NodeDefPtr connectedNodeDef = getConnectedNode()->getNodeDef();
+            if (connectedNodeDef)
+            {
+                OutputPtr output = connectedNodeDef->getOutput(getOutputString());
+                validateRequire(output != nullptr, res, message, "Invalid output in port connection");
+                if (output && !hasChannels())
+                {
+                    validateRequire(getType() == output->getType(), res, message, "Mismatched output type in port connection");
+                }
+            }
+        }
+        else if (!hasChannels())
+        {
+            validateRequire(getType() == getConnectedNode()->getType(), res, message, "Mismatched types in port connection");
+        }
     }
     return ValueElement::validate(message) && res;
 }
@@ -210,6 +228,10 @@ void InterfaceElement::registerChildElement(ElementPtr child)
     {
         _inputCount++;
     }
+    else if (child->isA<Output>())
+    {
+        _outputCount++;
+    }
 }
 
 void InterfaceElement::unregisterChildElement(ElementPtr child)
@@ -222,6 +244,10 @@ void InterfaceElement::unregisterChildElement(ElementPtr child)
     else if (child->isA<Input>())
     {
         _inputCount--;
+    }
+    else if (child->isA<Output>())
+    {
+        _outputCount--;
     }
 }
 
