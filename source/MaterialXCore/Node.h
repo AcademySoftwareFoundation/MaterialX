@@ -83,7 +83,11 @@ class Node : public InterfaceElement
     /// @return An implementation for this node, or an empty shared pointer if
     ///    none was found.  Note that a node implementation may be either an
     ///    Implementation element or a NodeGraph element.
-    ElementPtr getImplementation(const string& target = EMPTY_STRING) const;
+    InterfaceElementPtr getImplementation(const string& target = EMPTY_STRING) const
+    {
+        NodeDefPtr nodeDef = getNodeDef(target);
+        return nodeDef ? nodeDef->getImplementation(target) : InterfaceElementPtr();
+    }
 
     /// @}
     /// @name Traversal
@@ -119,11 +123,11 @@ class Node : public InterfaceElement
 
 /// @class NodeGraph
 /// A node graph element within a Document.
-class NodeGraph : public Element
+class NodeGraph : public InterfaceElement
 {
   public:
     NodeGraph(ElementPtr parent, const string& name) :
-        Element(parent, CATEGORY, name)
+        InterfaceElement(parent, CATEGORY, name)
     {
     }
     virtual ~NodeGraph() { }
@@ -203,42 +207,6 @@ class NodeGraph : public Element
     void removeNode(const string& name)
     {
         removeChildOfType<Node>(name);
-    }
-
-    /// @}
-    /// @name Output Elements
-    /// @{
-
-    /// Add a Output to the graph.
-    /// @param name The name of the new Output.
-    ///     If no name is specified, then a unique name will automatically be
-    ///     generated.
-    /// @param type An optional type string.
-    /// @return A shared pointer to the new Output.
-    OutputPtr addOutput(const string& name = EMPTY_STRING,
-                        const string& type = DEFAULT_TYPE_STRING)
-    {
-        OutputPtr output = addChild<Output>(name);
-        output->setType(type);
-        return output;
-    }
-
-    /// Return the Output, if any, with the given name.
-    OutputPtr getOutput(const string& name) const
-    {
-        return getChildOfType<Output>(name);
-    }
-
-    /// Return a vector of all Outputs of the graph.
-    vector<OutputPtr> getOutputs() const
-    {
-        return getChildrenOfType<Output>();
-    }
-
-    /// Remove the Output, if any, with the given name.
-    void removeOutput(const string& name)
-    {
-        removeChildOfType<Output>(name);
     }
 
     /// @}

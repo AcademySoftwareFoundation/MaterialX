@@ -20,6 +20,7 @@ void bindPyDefinition(py::module& mod)
         .def("setNodeString", &mx::NodeDef::setNodeString)
         .def("hasNodeString", &mx::NodeDef::hasNodeString)
         .def("getNodeString", &mx::NodeDef::getNodeString)
+        .def("getImplementation", &mx::NodeDef::getImplementation)
         .def("getInstantiatingShaderRefs", &mx::NodeDef::getInstantiatingShaderRefs)
         .def_readonly_static("CATEGORY", &mx::NodeDef::CATEGORY);
 

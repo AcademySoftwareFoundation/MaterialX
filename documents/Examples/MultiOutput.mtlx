@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<materialx version="1.35" colorspace="lin_rec709" require="multioutput">
+
+  <!-- Declare a multi-output node with an external OSL implementation -->
+  <nodedef name="dblclr3" node="doublecolor" type="multioutput">
+    <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
+    <parameter name="seed" type="float" value="1.0"/>
+    <output name="c1" type="color3" default="1.0, 1.0, 1.0"/>
+    <output name="c2" type="color3" defaultinput="in1"/>
+  </nodedef>
+  <implementation name="osl_dc3" nodedef="dblclr3" file="lib/mtlx_funcs.osl" language="osl"/>
+
+  <!-- Use the multi-output node in a nodegraph -->
+  <nodegraph name="nodegraph1">
+    <image name="n0" type="color3">
+      <parameter name="file" type="filename" value="layer1.tif"/>
+    </image>
+    <hueshift name="n1" type="color3">
+      <input name="in" type="color3" nodename="n0"/>
+      <parameter name="amount" type="float" value="0.22"/>
+    </hueshift>
+    <doublecolor name="dc1" type="multioutput">
+      <input name="in1" type="color3" nodename="n0"/>
+      <parameter name="seed" type="float" value="0.442367"/>
+    </doublecolor>
+    <contrast name="n2" type="color3">
+      <input name="in" type="color3" nodename="dc1" output="c1"/>
+      <parameter name="amount" type="float" value="0.14"/>
+    </contrast>
+    <add name="n4" type="color3">
+      <input name="in1" type="color3" nodename="dc1" output="c2"/>
+      <input name="in2" type="color3" nodename="n1"/>
+    </add>
+    <output name="diffuse" type="color3" nodename="n4"/>
+  </nodegraph>
+  
+</materialx>

@@ -229,11 +229,7 @@ class Material : public Element
     /// @return The parameters of the first matching shader referenced by this
     ///    material, or an empty vector if no matching shader was found.
     vector<ParameterPtr> getPrimaryShaderParameters(const string& target = EMPTY_STRING,
-                                                    const string& type = EMPTY_STRING) const
-    {
-        NodeDefPtr nodeDef = getPrimaryShaderNodeDef(target, type);
-        return nodeDef ? nodeDef->getParameters() : vector<ParameterPtr>();
-    }
+                                                    const string& type = EMPTY_STRING) const;
 
     /// Return the inputs of the first shader referenced by this material,
     /// optionally filtered by the given target and shader type.
@@ -244,11 +240,7 @@ class Material : public Element
     /// @return The inputs of the first matching shader referenced by this
     ///    material, or an empty vector if no matching shader was found.
     vector<InputPtr> getPrimaryShaderInputs(const string& target = EMPTY_STRING,
-                                            const string& type = EMPTY_STRING) const
-    {
-        NodeDefPtr nodeDef = getPrimaryShaderNodeDef(target, type);
-        return nodeDef ? nodeDef->getInputs() : vector<InputPtr>();
-    }
+                                            const string& type = EMPTY_STRING) const;
 
     /// @}
     /// @name Validation
