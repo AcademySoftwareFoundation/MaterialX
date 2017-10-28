@@ -102,6 +102,28 @@ class PortElement : public ValueElement
     }
 
     /// @}
+    /// @name Output
+    /// @{
+
+    /// Set the output string of this element.
+    void setOutputString(const string& output)
+    {
+        setAttribute(OUTPUT_ATTRIBUTE, output);
+    }
+
+    /// Return true if this element has an output string.
+    bool hasOutputString() const
+    {
+        return hasAttribute(OUTPUT_ATTRIBUTE);
+    }
+
+    /// Return the output string of this element.
+    const string& getOutputString() const
+    {
+        return getAttribute(OUTPUT_ATTRIBUTE);
+    }
+
+    /// @}
     /// @name Channels
     /// @{
 
@@ -147,6 +169,7 @@ class PortElement : public ValueElement
 
   public:
     static const string NODE_NAME_ATTRIBUTE;
+    static const string OUTPUT_ATTRIBUTE;
     static const string CHANNELS_ATTRIBUTE;
 };
 
@@ -189,7 +212,7 @@ class Input : public PortElement
 };
 
 /// @class Output
-/// A spatially-varying output element within a NodeGraph.
+/// A spatially-varying output element within a NodeGraph or NodeDef.
 class Output : public PortElement
 {
   public:
@@ -235,17 +258,18 @@ class Output : public PortElement
 };
 
 /// @class InterfaceElement
-/// The base class for interface elements such as Node and NodeDef.
+/// The base class for interface elements such as Node, NodeDef, and NodeGraph.
 ///
-/// An InterfaceElement supports a set of Parameter and Input elements, with
-/// an API for setting their values.
+/// An InterfaceElement supports a set of Parameter, Input, and Output elements,
+/// with an API for setting their values.
 class InterfaceElement : public TypedElement
 {
   protected:
     InterfaceElement(ElementPtr parent, const string& category, const string& name) :
         TypedElement(parent, category, name),
         _parameterCount(0),
-        _inputCount(0)
+        _inputCount(0),
+        _outputCount(0)
     {
     }
   public:
@@ -337,6 +361,48 @@ class InterfaceElement : public TypedElement
     }
 
     /// @}
+    /// @name Output Elements
+    /// @{
+
+    /// Add an Output to this element.
+    /// @param name The name of the new Output.
+    ///     If no name is specified, then a unique name will automatically be
+    ///     generated.
+    /// @param type An optional type string.
+    /// @return A shared pointer to the new Output.
+    OutputPtr addOutput(const string& name = EMPTY_STRING,
+                        const string& type = DEFAULT_TYPE_STRING)
+    {
+        OutputPtr output = addChild<Output>(name);
+        output->setType(type);
+        return output;
+    }
+
+    /// Return the Output, if any, with the given name.
+    OutputPtr getOutput(const string& name) const
+    {
+        return getChildOfType<Output>(name);
+    }
+
+    /// Return a vector of all Output elements.
+    vector<OutputPtr> getOutputs() const
+    {
+        return getChildrenOfType<Output>();
+    }
+
+    /// Remove the Output, if any, with the given name.
+    void removeOutput(const string& name)
+    {
+        removeChildOfType<Output>(name);
+    }
+
+    /// Return the number of Output elements.
+    size_t getOutputCount() const
+    {
+        return _outputCount;
+    }
+
+    /// @}
     /// @name Values
     /// @{
 
@@ -390,6 +456,7 @@ class InterfaceElement : public TypedElement
   private:
     size_t _parameterCount;
     size_t _inputCount;
+    size_t _outputCount;
 };
 
 template<class T> ParameterPtr InterfaceElement::setParameterValue(const string& name,

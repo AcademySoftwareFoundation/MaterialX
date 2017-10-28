@@ -87,6 +87,38 @@ MaterialPtr Material::getInheritsFrom() const
     return getRoot()->getChildOfType<Material>(inherits[0]->getName());
 }
 
+vector<ParameterPtr> Material::getPrimaryShaderParameters(const string & target, const string & type) const
+{
+    NodeDefPtr nodeDef = getPrimaryShaderNodeDef(target, type);
+    vector<ParameterPtr> res;
+    if (nodeDef)
+    {
+        InterfaceElementPtr implement = nodeDef->getImplementation();
+        for (ParameterPtr nodeDefParam : nodeDef->getParameters())
+        {
+            ParameterPtr implementParam = implement ? implement->getParameter(nodeDefParam->getName()) : nullptr;
+            res.push_back(implementParam ? implementParam : nodeDefParam);
+        }
+    }
+    return res;
+}
+
+vector<InputPtr> Material::getPrimaryShaderInputs(const string & target, const string & type) const
+{
+    NodeDefPtr nodeDef = getPrimaryShaderNodeDef(target, type);
+    vector<InputPtr> res;
+    if (nodeDef)
+    {
+        InterfaceElementPtr implement = nodeDef->getImplementation();
+        for (InputPtr nodeDefInput : nodeDef->getInputs())
+        {
+            InputPtr implementInput = implement ? implement->getInput(nodeDefInput->getName()) : nullptr;
+            res.push_back(implementInput ? implementInput : nodeDefInput);
+        }
+    }
+    return res;
+}
+
 bool Material::validate(string* message) const
 {
     bool res = true;
