@@ -161,10 +161,13 @@ TEST_CASE("Load content", "[xmlio]")
     bool exceptionThrown = false;
     try
     {
-        readingOptions._skipDuplicates = false;
-        mx::readFromXmlFile(doc3, libFilename, searchPath, &readingOptions);
-        readingOptions._skipDuplicates = true;
-        mx::readFromXmlFile(doc3, libFilename, searchPath, &readingOptions);
+        for (std::string libFilename : libraryFilenames)
+        {
+            readingOptions._skipDuplicates = false;
+            mx::readFromXmlFile(doc3, libFilename, searchPath, &readingOptions);
+            readingOptions._skipDuplicates = true;
+            mx::readFromXmlFile(doc3, libFilename, searchPath, &readingOptions);
+        }
         for (std::string filename : exampleFilenames)
         {
             mx::readFromXmlFile(doc3, filename, searchPath, &readingOptions);
