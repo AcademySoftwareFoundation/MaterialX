@@ -137,12 +137,15 @@ TEST_CASE("Load content", "[xmlio]")
 
         // Read document without XIncludes.
         doc2 = mx::createDocument();
-        mx::readFromXmlFile(doc2, filename, searchPath, false);
+
+        mx::XmlReadOptions readingOptions;
+        readingOptions._readXincludes = false;
+        mx::readFromXmlFile(doc2, filename, searchPath, &readingOptions);
         if (*doc2 != *doc)
         {
             writtenDoc = mx::createDocument();
             xmlString = mx::writeToXmlString(doc);
-            mx::readFromXmlString(writtenDoc, xmlString);
+            mx::readFromXmlString(writtenDoc, xmlString, &readingOptions);
             REQUIRE(*doc2 == *writtenDoc);
         }
     }
