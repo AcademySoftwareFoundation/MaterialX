@@ -142,17 +142,19 @@ TEST_CASE("Load content", "[xmlio]")
     // create a child with a duplicate name in the first place
     // thus no error exception is thrown.
     mx::DocumentPtr doc3 = mx::createDocument();
-    const bool readXincludes = true;
-    const bool skipDuplicates = true;
+    mx::XmlReadOptions readingOptions;
+    readingOptions._readXincludes = true;
     bool exceptionThrown = false;
     try
     {
-        mx::readFromXmlFile(doc3, libFilename, searchPath);
-        mx::readFromXmlFile(doc3, libFilename, searchPath, readXincludes, skipDuplicates);
+        readingOptions._skipDuplicates = false;
+        mx::readFromXmlFile(doc3, libFilename, searchPath, &readingOptions);
+        readingOptions._skipDuplicates = true;
+        mx::readFromXmlFile(doc3, libFilename, searchPath, &readingOptions);
         for (std::string filename : exampleFilenames)
         {
-            mx::readFromXmlFile(doc3, filename, searchPath, readXincludes, skipDuplicates);
-            mx::readFromXmlFile(doc3, filename, searchPath, readXincludes, skipDuplicates);
+            mx::readFromXmlFile(doc3, filename, searchPath, &readingOptions);
+            mx::readFromXmlFile(doc3, filename, searchPath, &readingOptions);
         }
     }
     catch (MaterialX::Exception e)
