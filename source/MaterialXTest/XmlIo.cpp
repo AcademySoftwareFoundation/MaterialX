@@ -123,13 +123,46 @@ TEST_CASE("Load content", "[xmlio]")
 
         // Read document without XIncludes.
         doc2 = mx::createDocument();
-        mx::readFromXmlFile(doc2, filename, searchPath, false);
+
+        mx::XmlReadOptions readingOptions;
+        readingOptions._readXincludes = false;
+        mx::readFromXmlFile(doc2, filename, searchPath, &readingOptions);
         if (*doc2 != *doc)
         {
             writtenDoc = mx::createDocument();
             xmlString = mx::writeToXmlString(doc);
-            mx::readFromXmlString(writtenDoc, xmlString);
+            mx::readFromXmlString(writtenDoc, xmlString, &readingOptions);
             REQUIRE(*doc2 == *writtenDoc);
         }
     }
+
+    // Read the same documents more than once.
+    // When duplcate names are found an error exception is thrown.
+    // Setting to skip duplicates names first avoid trying to
+    // create a child with a duplicate name in the first place
+    // thus no error exception is thrown.
+    mx::DocumentPtr doc3 = mx::createDocument();
+    mx::XmlReadOptions readingOptions;
+    readingOptions._readXincludes = true;
+    bool exceptionThrown = false;
+    try
+    {
+        readingOptions._skipDuplicates = false;
+        mx::readFromXmlFile(doc3, libFilename, searchPath, &readingOptions);
+        readingOptions._skipDuplicates = true;
+        mx::readFromXmlFile(doc3, libFilename, searchPath, &readingOptions);
+        for (std::string filename : exampleFilenames)
+        {
+            mx::readFromXmlFile(doc3, filename, searchPath, &readingOptions);
+            mx::readFromXmlFile(doc3, filename, searchPath, &readingOptions);
+        }
+    }
+    catch (MaterialX::Exception e)
+    {
+        exceptionThrown = true;
+    }
+    catch (...)
+    {
+    }
+    REQUIRE(exceptionThrown == false);
 }

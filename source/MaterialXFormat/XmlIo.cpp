@@ -26,7 +26,7 @@ namespace {
 const string SOURCE_URI_ATTRIBUTE = "__sourceUri";
 const string XINCLUDE_TAG = "xi:include";
 
-void elementFromXml(const xml_node& xmlNode, ElementPtr elem)
+void elementFromXml(const xml_node& xmlNode, ElementPtr elem, bool skipDuplicates=false)
 {
     // Store attributes in element.
     for (const xml_attribute& xmlAttr : xmlNode.attributes())
@@ -55,8 +55,13 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem)
             }
         }
 
+        // Skip duplicate named children
+        if (skipDuplicates && elem->getChild(name))
+        {
+            continue;
+        }
         ElementPtr child = elem->addChildOfCategory(category, name);
-        elementFromXml(xmlChild, child);
+        elementFromXml(xmlChild, child, skipDuplicates);
     }
 }
 
@@ -163,7 +168,7 @@ void processXIncludes(xml_node& xmlNode, const string& searchPath, bool readXInc
 void documentFromXml(DocumentPtr doc,
                      const xml_document& xmlDoc,
                      const string& searchPath = EMPTY_STRING,
-                     bool readXIncludes = false)
+                     const XmlReadOptions* readOptions = nullptr)
 {
     ScopedUpdate update(doc);
     doc->onRead();
@@ -171,8 +176,10 @@ void documentFromXml(DocumentPtr doc,
     xml_node xmlRoot = xmlDoc.child(Document::CATEGORY.c_str());
     if (xmlRoot)
     {
-        processXIncludes(xmlRoot, searchPath, readXIncludes);
-        elementFromXml(xmlRoot, doc);
+        // Note: We use the defaults as specified in XmlReadOptions if no options
+        // are passed in.
+        processXIncludes(xmlRoot, searchPath, (readOptions ? readOptions->_readXincludes : true));
+        elementFromXml(xmlRoot, doc, (readOptions ? readOptions->_skipDuplicates : false));
     }
 
     doc->upgradeVersion();
@@ -184,7 +191,7 @@ void documentFromXml(DocumentPtr doc,
 // Reading
 //
 
-void readFromXmlBuffer(DocumentPtr doc, const char* buffer)
+void readFromXmlBuffer(DocumentPtr doc, const char* buffer, const XmlReadOptions* readingOptions)
 {
     xml_document xmlDoc;
     xml_parse_result result = xmlDoc.load_string(buffer);
@@ -193,10 +200,10 @@ void readFromXmlBuffer(DocumentPtr doc, const char* buffer)
         throw ExceptionParseError("Parse error in readFromXmlBuffer");
     }
 
-    documentFromXml(doc, xmlDoc);
+    documentFromXml(doc, xmlDoc, EMPTY_STRING, readingOptions);
 }
 
-void readFromXmlStream(DocumentPtr doc, std::istream& stream)
+void readFromXmlStream(DocumentPtr doc, std::istream& stream, const XmlReadOptions* readingOptions)
 {
     xml_document xmlDoc;
     xml_parse_result result = xmlDoc.load(stream);
@@ -205,22 +212,22 @@ void readFromXmlStream(DocumentPtr doc, std::istream& stream)
         throw ExceptionParseError("Parse error in readFromXmlStream");
     }
 
-    documentFromXml(doc, xmlDoc);
+    documentFromXml(doc, xmlDoc, EMPTY_STRING, readingOptions);
 }
 
-void readFromXmlFile(DocumentPtr doc, const string& filename, const string& searchPath, bool readXIncludes)
+void readFromXmlFile(DocumentPtr doc, const string& filename, const string& searchPath, const XmlReadOptions* readingOptions)
 {
     xml_document xmlDoc;
     xmlDocumentFromFile(xmlDoc, filename, searchPath);
 
-    documentFromXml(doc, xmlDoc, searchPath, readXIncludes);
+    documentFromXml(doc, xmlDoc, searchPath, readingOptions);
     doc->setSourceUri(filename);
 }
 
-void readFromXmlString(DocumentPtr doc, const string& str)
+void readFromXmlString(DocumentPtr doc, const string& str, const XmlReadOptions* readingOptions)
 {
     std::istringstream stream(str);
-    readFromXmlStream(doc, stream);
+    readFromXmlStream(doc, stream, readingOptions);
 }
 
 //

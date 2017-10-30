@@ -558,7 +558,10 @@ class Element : public enable_shared_from_this<Element>
     /// @param source The element from which content is copied.
     /// @param sourceUris If true, then source URIs from the given element
     ///    and its descendants are also copied.  Defaults to false.
-    void copyContentFrom(ConstElementPtr source, bool sourceUris = false);
+    /// @param skipDuplicates If true then skip copying any child Elements with
+    ///      if one with the same name already exists. Defaults to false.
+    void copyContentFrom(ConstElementPtr source, bool sourceUris = false,
+        bool skipDuplicates = false);
 
     /// Clear all attributes and descendants from this element.
     void clearContent();

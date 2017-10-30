@@ -22,16 +22,28 @@ endmacro(DEPEND_MAYAAPI_INCLUDE)
 
 macro(DEPEND_MAYAAPI_LINK targetname)
 	set(LIBS 
-		"OpenMaya.lib"
-		"OpenMayaRender.lib"
-		"Foundation.lib"
-		"OpenMayaUI.lib"
-		"OpenMayaAnim.lib"
-		"OpenMayaFX.lib"
+		"OpenMaya"
+		"OpenMayaRender"
+		"Foundation"
+		"OpenMayaUI"
+		"OpenMayaAnim"
+		"OpenMayaFX"
 	)
+	if (${APPLE})
+	   add_definitions(-DOSMac_)
+	   set(MAYA_LIB_PREFIX "lib")
+	   set(MAYA_LIB_EXT "dylib")
+	   set(MAYA_LIB_DEBUG_DIR "${MAYA_DEBUG_DIR}/Maya.app/Contents/MacOS")
+	   set(MAYA_LIB_RELEASE_DIR "${MAYA_RELEASE_DIR}/Maya.app/Contents/MacOS")
+	else()
+	   set(MAYA_LIB_PREFIX "")
+	   set(MAYA_LIB_EXT "lib")
+	   set(MAYA_LIB_DEBUG_DIR "${MAYA_DEBUG_DIR}/lib")
+	   set(MAYA_LIB_RELEASE_DIR "${MAYA_RELEASE_DIR}/lib")
+	endif()
 	FOREACH(F ${LIBS})
-		target_link_libraries(${targetname} debug "${MAYA_DEBUG_DIR}/lib/${F}")
-		target_link_libraries(${targetname} optimized "${MAYA_RELEASE_DIR}/lib/${F}")
+		target_link_libraries(${targetname} debug "${MAYA_LIB_DEBUG_DIR}/${MAYA_LIB_PREFIX}${F}.${MAYA_LIB_EXT}")
+		target_link_libraries(${targetname} optimized "${MAYA_LIB_RELEASE_DIR}/${MAYA_LIB_PREFIX}${F}.${MAYA_LIB_EXT}")
 	ENDFOREACH(F)
 endmacro(DEPEND_MAYAAPI_LINK)
 
