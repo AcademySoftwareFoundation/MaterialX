@@ -251,7 +251,7 @@ TEST_CASE("Subgraph Shader Generation", "[shadergen]")
 
     for (const std::string& filename : filenames)
     {
-        mx::readFromXmlFile(doc, filename, searchPath, true);
+        mx::readFromXmlFile(doc, filename, searchPath);
     }
 
     // Get a node graph from the example file
