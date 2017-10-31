@@ -26,7 +26,7 @@ namespace {
 const string SOURCE_URI_ATTRIBUTE = "__sourceUri";
 const string XINCLUDE_TAG = "xi:include";
 
-void elementFromXml(const xml_node& xmlNode, ElementPtr elem)
+void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptions* readOptions)
 {
     // Store attributes in element.
     for (const xml_attribute& xmlAttr : xmlNode.attributes())
@@ -55,8 +55,13 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem)
             }
         }
 
+        // Skip duplicate named children if specified
+        if ((readOptions ? readOptions->skipDuplicates : false) && elem->getChild(name))
+        {
+            continue;
+        }
         ElementPtr child = elem->addChildOfCategory(category, name);
-        elementFromXml(xmlChild, child);
+        elementFromXml(xmlChild, child, readOptions);
     }
 }
 
@@ -124,9 +129,11 @@ void xmlDocumentFromFile(xml_document& xmlDoc, string filename, const string& se
     }
 }
 
-void processXIncludes(xml_node& xmlNode, const string& searchPath, bool readXIncludes)
+void processXIncludes(xml_node& xmlNode, const string& searchPath, const XmlReadOptions* readOptions)
 {
     xml_node xmlChild = xmlNode.first_child();
+
+    bool readXIncludes = (readOptions ? readOptions->readXincludes : true);
     while (xmlChild)
     {
         if (xmlChild.name() == XINCLUDE_TAG)
@@ -163,7 +170,7 @@ void processXIncludes(xml_node& xmlNode, const string& searchPath, bool readXInc
 void documentFromXml(DocumentPtr doc,
                      const xml_document& xmlDoc,
                      const string& searchPath = EMPTY_STRING,
-                     bool readXIncludes = false)
+                     const XmlReadOptions* readOptions = nullptr)
 {
     ScopedUpdate update(doc);
     doc->onRead();
@@ -171,8 +178,8 @@ void documentFromXml(DocumentPtr doc,
     xml_node xmlRoot = xmlDoc.child(Document::CATEGORY.c_str());
     if (xmlRoot)
     {
-        processXIncludes(xmlRoot, searchPath, readXIncludes);
-        elementFromXml(xmlRoot, doc);
+        processXIncludes(xmlRoot, searchPath, readOptions);
+        elementFromXml(xmlRoot, doc, readOptions);
     }
 
     doc->upgradeVersion();
@@ -184,7 +191,7 @@ void documentFromXml(DocumentPtr doc,
 // Reading
 //
 
-void readFromXmlBuffer(DocumentPtr doc, const char* buffer)
+void readFromXmlBuffer(DocumentPtr doc, const char* buffer, const XmlReadOptions* readOptions)
 {
     xml_document xmlDoc;
     xml_parse_result result = xmlDoc.load_string(buffer);
@@ -193,10 +200,10 @@ void readFromXmlBuffer(DocumentPtr doc, const char* buffer)
         throw ExceptionParseError("Parse error in readFromXmlBuffer");
     }
 
-    documentFromXml(doc, xmlDoc);
+    documentFromXml(doc, xmlDoc, EMPTY_STRING, readOptions);
 }
 
-void readFromXmlStream(DocumentPtr doc, std::istream& stream)
+void readFromXmlStream(DocumentPtr doc, std::istream& stream, const XmlReadOptions* readOptions)
 {
     xml_document xmlDoc;
     xml_parse_result result = xmlDoc.load(stream);
@@ -205,22 +212,22 @@ void readFromXmlStream(DocumentPtr doc, std::istream& stream)
         throw ExceptionParseError("Parse error in readFromXmlStream");
     }
 
-    documentFromXml(doc, xmlDoc);
+    documentFromXml(doc, xmlDoc, EMPTY_STRING, readOptions);
 }
 
-void readFromXmlFile(DocumentPtr doc, const string& filename, const string& searchPath, bool readXIncludes)
+void readFromXmlFile(DocumentPtr doc, const string& filename, const string& searchPath, const XmlReadOptions* readOptions)
 {
     xml_document xmlDoc;
     xmlDocumentFromFile(xmlDoc, filename, searchPath);
 
-    documentFromXml(doc, xmlDoc, searchPath, readXIncludes);
+    documentFromXml(doc, xmlDoc, searchPath, readOptions);
     doc->setSourceUri(filename);
 }
 
-void readFromXmlString(DocumentPtr doc, const string& str)
+void readFromXmlString(DocumentPtr doc, const string& str, const XmlReadOptions* readOptions)
 {
     std::istringstream stream(str);
-    readFromXmlStream(doc, stream);
+    readFromXmlStream(doc, stream, readOptions);
 }
 
 //

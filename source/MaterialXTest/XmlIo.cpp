@@ -137,13 +137,39 @@ TEST_CASE("Load content", "[xmlio]")
 
         // Read document without XIncludes.
         doc2 = mx::createDocument();
-        mx::readFromXmlFile(doc2, filename, searchPath, false);
+
+        mx::XmlReadOptions readOptions;
+        readOptions.readXincludes = false;
+        mx::readFromXmlFile(doc2, filename, searchPath, &readOptions);
         if (*doc2 != *doc)
         {
             writtenDoc = mx::createDocument();
             xmlString = mx::writeToXmlString(doc);
-            mx::readFromXmlString(writtenDoc, xmlString);
+            mx::readFromXmlString(writtenDoc, xmlString, &readOptions);
             REQUIRE(*doc2 == *writtenDoc);
         }
+    }
+
+    // Read the same documents more than once.
+    // Check that document stays valid when duplicates are skipped.
+    mx::DocumentPtr doc3 = mx::createDocument();
+    mx::XmlReadOptions readOptions;
+    readOptions.readXincludes = true;
+
+    for (std::string libFilename : libraryFilenames)
+    {
+        readOptions.skipDuplicates = false;
+        mx::readFromXmlFile(doc3, libFilename, searchPath, &readOptions);
+        REQUIRE(doc3->validate());
+        readOptions.skipDuplicates = true;
+        mx::readFromXmlFile(doc3, libFilename, searchPath, &readOptions);
+        REQUIRE(doc3->validate());
+    }
+    for (std::string filename : exampleFilenames)
+    {
+        mx::readFromXmlFile(doc3, filename, searchPath, &readOptions);
+        REQUIRE(doc3->validate());
+        mx::readFromXmlFile(doc3, filename, searchPath, &readOptions);
+        REQUIRE(doc3->validate());
     }
 }
