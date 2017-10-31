@@ -51,7 +51,8 @@ private_fork    https://git.autodesk.com/autodesk-forks/MaterialX (push)
 ```
 
 - ILM master
-```upstream        https://github.com/materialx/MaterialX (fetch)
+```
+upstream        https://github.com/materialx/MaterialX (fetch)
 upstream        /// ATTENTION ///   Are you sure you want to push to public github.com? To override this warning run: 'git adsk enable-public-push github.com/materialx/MaterialX (push)
 ```
 
