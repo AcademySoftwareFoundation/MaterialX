@@ -19,17 +19,64 @@ namespace MaterialX
 /// @name Reading
 /// @{
 
+/// @struct XmlReadOptions
+/// Structure to hold options to use during reading. 
+///
+struct XmlReadOptions
+{
+    XmlReadOptions() :
+        readXincludes(true),
+        skipDuplicates(false) {}
+
+    virtual ~XmlReadOptions() {}
+    
+    /// Set option for whether XInclude references will be read from disk and included in the document.
+    /// @param value Option value
+    void setReadXincludes(bool value)
+    {
+        readXincludes = value;
+    }
+
+    /// Get option for whether XInclude references will be read from disk and included in the document.
+    bool getReadXincludes() const
+    {
+        return readXincludes;
+    }
+
+    /// Set option for whether to skip reading in Elements with duplicate names.
+    /// @param value Option value
+    void setSkipDuplicates(bool value)
+    {
+        skipDuplicates = value;
+    }
+
+    /// Get option for whether to skip reading in Elements with duplicate names.
+    bool getSkipDuplicates() const
+    {
+        return skipDuplicates;
+    }
+
+    /// If true, XInclude references will be read from disk and included in the document. Defaults to true.
+    bool readXincludes;
+    /// If true, Will skip reading in Elements with duplicate names. Defaults to false.
+    bool skipDuplicates;
+};
+
 /// Read a document as XML from the given character buffer.
 /// @param doc The document into which data is read.
 /// @param buffer The character buffer from which data is read.
+/// @param readOptions Options to use during reading. Default is null which indicates to use the 
+///    default values as specified in the XmlReadOptions structure.
 /// @throws ExceptionParseError if the document cannot be parsed.
-void readFromXmlBuffer(DocumentPtr doc, const char* buffer);
+void readFromXmlBuffer(DocumentPtr doc, const char* buffer, const XmlReadOptions* readOptions = nullptr);
 
 /// Read a document as XML from the given input stream.
 /// @param doc The document into which data is read.
 /// @param stream The input stream from which data is read.
+/// @param readOptions Options to use during reading. Default is null which indicates to use the 
+///    default values as specified in the XmlReadOptions structure.
 /// @throws ExceptionParseError if the document cannot be parsed.
-void readFromXmlStream(DocumentPtr doc, std::istream& stream);
+void readFromXmlStream(DocumentPtr doc, std::istream& stream, const XmlReadOptions* readOptions = nullptr);
 
 /// Read a document as XML from the given filename.
 /// @param doc The document into which data is read.
@@ -37,20 +84,22 @@ void readFromXmlStream(DocumentPtr doc, std::istream& stream);
 /// @param searchPath A semicolon-separated sequence of file paths, which will
 ///    be applied in order when searching for the given file and its includes.
 ///    Defaults to the empty string.
-/// @param readXIncludes If true, XInclude references will be read from disk
-///    and included in the document.  Defaults to true.
+/// @param readOptions Options to use during reading. Default is null which indicates to use the 
+///    default values as specified in the XmlReadOptions structure.
 /// @throws ExceptionParseError if the document cannot be parsed.
 /// @throws ExceptionFileMissing if the file cannot be opened.
 void readFromXmlFile(DocumentPtr doc,
                      const string& filename,
                      const string& searchPath = EMPTY_STRING,
-                     bool readXIncludes = true);
+                     const XmlReadOptions* readOptions = nullptr);
 
 /// Read a document as XML from the given string.
 /// @param doc The document into which data is read.
 /// @param str The string from which data is read.
+/// @param readOptions Options to use during reading. Default is null which indicates to use the 
+///    default values as specified in the XmlReadOptions structure.
 /// @throws ExceptionParseError if the document cannot be parsed.
-void readFromXmlString(DocumentPtr doc, const string& str);
+void readFromXmlString(DocumentPtr doc, const string& str, const XmlReadOptions* readOptions = nullptr);
 
 /// @}
 /// @name Writing
