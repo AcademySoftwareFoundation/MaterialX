@@ -72,8 +72,9 @@ Otherwise create a new branch in the public fork.
 
 ### Synchonrizing code between public and private forks
 If working in a private branch then the changes can be cherry-picked to the pubiic branch and vice versa:
-
+```
 git cherry-pick <commit-hash>
+```
 
 ### Code reviews
 All code will need to be reviewed by ILM so all changes must eventually be put into a public fork branch.
