@@ -39,23 +39,31 @@ The MaterialX repository consists of the following folders:
 As setup the following remotes should be set up: (git remote -v)
 
 - Public fork:
--- public_fork  https://github.com/autodesk-forks/MaterialX.git (fetch)
--- public_fork  https://github.com/autodesk-forks/MaterialX.git (push)
+```
+ public_fork  https://github.com/autodesk-forks/MaterialX.git (fetch)
+ public_fork  https://github.com/autodesk-forks/MaterialX.git (push)
+```
 
 - Private fork
+```
 private_fork    https://git.autodesk.com/autodesk-forks/MaterialX (fetch)
 private_fork    https://git.autodesk.com/autodesk-forks/MaterialX (push)
+```
 
 - ILM master
-upstream        https://github.com/materialx/MaterialX (fetch)
+```upstream        https://github.com/materialx/MaterialX (fetch)
 upstream        /// ATTENTION ///   Are you sure you want to push to public github.com? To override this warning run: 'git adsk enable-public-push github.com/materialx/MaterialX (push)
+```
 
 Remotes can be added using this syntax:
+```
 git remote add <desired-name> <remote-location.git>
 git fetch fetch
-
+```
 ### When working on a ADSK contribution make sure to update your branch to the latest ILM master
+```
 git pull upstream master
+```
 
 Note that master on both the private and public fork cannot be modified so the pull should be to a local branch.
 If doing your work in the private fork, and it makes sense update adsk/master and branch from there.
@@ -69,12 +77,21 @@ git cherry-pick <commit-hash>
 ### Code reviews
 All code will need to be reviewed by ILM so all changes must eventually be put into a public fork branch.
 It may be best to just pass the diff to ILM first before creaing a pull request. Once a pull request is done,
-then ILM's CI system will be invoked. Commont the review as necessary and naturally fix an errors found during CI.
+then ILM's CI system will be invoked. Comment the review as necessary and naturally fix an errors found during CI.
 
 ### Testing
 There are yaml files which define the build process. Make sure to run those build steps instead of / or just
-building and testing locally. See .appyveyor.yml for Windows, and .travis.yml for Linux and Mac. The CI build
-will run build and test on all the platforms specified.
+building and testing locally. See 
+```
+.appyveyor.yml 
+```
+for Windows, and 
+```
+.travis.yml 
+```
+for Linux and Mac. 
+
+The CI build will run build and test on all the platforms specified.
 
 ### Coding standards
 Make sure to follow the Pixar/ILM coding standards.
