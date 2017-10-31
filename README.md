@@ -71,5 +71,10 @@ All code will need to be reviewed by ILM so all changes must eventually be put i
 It may be best to just pass the diff to ILM first before creaing a pull request. Once a pull request is done,
 then ILM's CI system will be invoked. Commont the review as necessary and naturally fix an errors found during CI.
 
+### Testing
+There are yaml files which define the build process. Make sure to run those build steps instead of / or just
+building and testing locally. See .appyveyor.yml for Windows, and .travis.yml for Linux and Mac. The CI build
+will run build and test on all the platforms specified.
+
 ### Coding standards
 Make sure to follow the Pixar/ILM coding standards.
