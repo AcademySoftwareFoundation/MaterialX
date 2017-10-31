@@ -61,12 +61,20 @@ Remotes can be added using this syntax:
 git remote add <desired-name> <remote-location.git>
 git fetch fetch
 ```
-### When working on a ADSK contribution make sure to update your branch to the latest ILM master
+
+### Update from upstream master
+When working on a ADSK contribution make sure to update your branch to the latest ILM master
 ```
 git pull upstream master
 ```
 
-Note that master on both the private and public fork cannot be modified so the pull should be to a local branch.
+Note that 'master' on both the private and public fork cannot be modified so the pull should be to a local branch.
+In the private fork, this should be branched off of the
+```
+adsk/master
+```
+branch. *Never* try and delete the adsk/master branch.
+
 If doing your work in the private fork, and it makes sense update adsk/master and branch from there.
 Otherwise create a new branch in the public fork.
 
