@@ -28,11 +28,11 @@ void GlslShaderGenerator::emitSurfaceBsdf(const SgNode& surfaceShaderNode, const
     vector<string> lightDirections = { incident, outgoing };
     const SgNode* last = nullptr;
 
-    // Emit function calls for all BSDF nodes
+    // Emit function calls for all BSDF nodes used by this shader
     // The last node will hold the final result
     for (const SgNode& node : shader.getNodes())
     {
-        if (node.hasClassification(SgNode::Classification::BSDF) && surfaceShaderNode.hasDependency(node.getName()))
+        if (node.hasClassification(SgNode::Classification::BSDF) && surfaceShaderNode.isUsedClosure(&node))
         {
             emitFunctionCall(node, shader, &lightDirections);
             last = &node;
@@ -51,11 +51,11 @@ void GlslShaderGenerator::emitSurfaceEmission(const SgNode& surfaceShaderNode, S
 
     const SgNode* last = nullptr;
 
-    // Emit function calls for all EDF nodes
+    // Emit function calls for all EDF nodes used by this shader
     // The last node will hold the final result
     for (const SgNode& node : shader.getNodes())
     {
-        if (node.hasClassification(SgNode::Classification::EDF) && surfaceShaderNode.hasDependency(node.getName()))
+        if (node.hasClassification(SgNode::Classification::EDF) && surfaceShaderNode.isUsedClosure(&node))
         {
             emitFunctionCall(node, shader);
             last = &node;

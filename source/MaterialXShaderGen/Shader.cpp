@@ -352,16 +352,21 @@ void Shader::initialize(ElementPtr element, const string& language, const string
         }
     }
 
-    for (SgNode& n : _nodes)
+    // Track closure nodes used by each surface shader.
+    for (SgNode& node : _nodes)
     {
-        if (n.hasClassification(SgNode::Classification::SHADER))
+        if (node.hasClassification(SgNode::Classification::SHADER))
         {
-            for (Edge edge : n.getNodePtr()->traverseGraph())
+            for (Edge edge : node.getNodePtr()->traverseGraph())
             {
-                ElementPtr upstream = edge.getUpstreamElement();
-                if (upstream->isA<Node>())
+                NodePtr upstreamNode = edge.getUpstreamElement()->asA<Node>();
+                if (upstreamNode)
                 {
-                    n._dependencyNodes.insert(upstream->getName());
+                    const SgNode& upstreamSgNode = getNode(upstreamNode);
+                    if (upstreamSgNode.hasClassification(SgNode::Classification::CLOSURE))
+                    {
+                        node._usedClosures.insert(&upstreamSgNode);
+                    }
                 }
             }
         }

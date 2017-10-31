@@ -131,14 +131,13 @@ public:
         return _scopeInfo;
     }
 
-    /// Returns true if this node is only referenced by a conditional
+    /// Returns true if this node is only referenced by a conditional.
     bool referencedConditionally() const;
 
-    // TODO: Clean up this hack!
-    set<string> _dependencyNodes;
-    bool hasDependency(const string& node) const
+    /// Returns true if the given node is a closure used by this node.
+    bool isUsedClosure(const SgNode* node) const
     {
-        return _dependencyNodes.count(node) > 0;
+        return _usedClosures.count(node) > 0;
     }
 
     /// Return the source code implementation element for the given nodedef and language/target,
@@ -154,6 +153,7 @@ private:
     string _functionName;
     string _functionSource;
     ScopeInfo _scopeInfo;
+    set<const SgNode*> _usedClosures;
 
     friend class Shader;
 };
