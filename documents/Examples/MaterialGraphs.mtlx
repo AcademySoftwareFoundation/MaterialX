@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.35" colorspace="lin_rec709" require="matnodegraph,override">
+<materialx version="1.35" cms="ocio" colorspace="lin_rec709" require="matnodegraph,override">
   <xi:include href="NodeGraphs.mtlx"/>
   <xi:include href="GeomInfos.mtlx"/>
 
