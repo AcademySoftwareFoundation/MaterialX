@@ -9,6 +9,8 @@
 
 #include <MaterialXCore/Material.h>
 
+#include <MaterialXFormat/XmlIo.h>
+
 #include <PyBind11/stl.h>
 
 namespace py = pybind11;
@@ -49,4 +51,7 @@ void bindPyDefinition(py::module& mod)
         .def("hasLanguage", &mx::Implementation::hasLanguage)
         .def("getLanguage", &mx::Implementation::getLanguage)
         .def_readonly_static("CATEGORY", &mx::Implementation::CATEGORY);
+
+    py::class_<mx::XmlReadOptions>(mod, "XmlReadOptions")
+        .def(py::init());
 }
