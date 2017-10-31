@@ -14,6 +14,24 @@ using SgNodePtr = shared_ptr<class SgNode>;
 class SgNode
 {
 public:
+    /// Flags for classifying nodes into different categories.
+    class Classification
+    {
+    public:
+        // Node classes
+        static const unsigned int TEXTURE = 1 << 0; // Any node that outputs floats, colors, vectors, etc.
+        static const unsigned int CLOSURE = 1 << 1; // Any node that represents light integration
+        static const unsigned int SHADER  = 1 << 2; // Any node that outputs a shader
+        // Specific closure types
+        static const unsigned int BSDF    = 1 << 3; // A BDFS node 
+        static const unsigned int EDF     = 1 << 4; // A EDF node
+        static const unsigned int VDF     = 1 << 5; // A VDF node 
+        // Specific shader types
+        static const unsigned int SURFACE = 1 << 6; // A surface shader node
+        static const unsigned int VOLUME  = 1 << 7; // A volume shader node
+        static const unsigned int LIGHT   = 1 << 8; // A light shader node
+    };
+
     /// Information on source code scope for the node.
     struct ScopeInfo
     {
@@ -39,6 +57,12 @@ public:
 
 public:
     SgNode(NodePtr node, const string& language, const string& target);
+
+    /// Return true if this node matches the given classification.
+    bool hasClassification(unsigned int c) const
+    {
+        return (_classification & c) == c;
+    }
 
     /// Return the name of this node.
     const string& getName() const
@@ -106,12 +130,22 @@ public:
     {
         return _scopeInfo;
     }
-    
+
+    /// Returns true if this node is only referenced by a conditional.
+    bool referencedConditionally() const;
+
+    /// Returns true if the given node is a closure used by this node.
+    bool isUsedClosure(const SgNode* node) const
+    {
+        return _usedClosures.count(node) > 0;
+    }
+
     /// Return the source code implementation element for the given nodedef and language/target,
     /// or nullptr if no matching implemenation is found.
     static ImplementationPtr getSourceCodeImplementation(const NodeDef& nodeDef, const string& language, const string& target);
 
 private:
+    unsigned int _classification;
     NodePtr _node;
     NodeDefPtr _nodeDef;
     NodeImplementationPtr _customImpl;
@@ -119,6 +153,9 @@ private:
     string _functionName;
     string _functionSource;
     ScopeInfo _scopeInfo;
+    set<const SgNode*> _usedClosures;
+
+    friend class Shader;
 };
 
 

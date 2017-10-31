@@ -7,7 +7,7 @@ namespace MaterialX
 
 DEFINE_NODE_IMPLEMENTATION(Constant, "constant", "", "")
 
-void Constant::emitCode(const SgNode& sgnode, ShaderGenerator& shadergen, Shader& shader)
+void Constant::emitFunctionCall(const SgNode& sgnode, ShaderGenerator& shadergen, Shader& shader)
 {
     const Node& node = sgnode.getNode();
 

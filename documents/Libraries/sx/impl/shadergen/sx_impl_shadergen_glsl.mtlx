@@ -1,25 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.35">
 
-  <!-- <surfacelayer> -->
-  <implementation name="IM_surfacelayer__glsl" nodedef="ND_surfacelayer" file="sx/impl/shadergen/source/glsl/sx_surfacelayer.glsl" function="sx_surfacelayer" language="glsl"/>
-
-  <!-- <surfaceshader> -->
-  <implementation name="IM_surfaceshader__glsl" nodedef="ND_surfaceshader" file="sx/impl/shadergen/source/glsl/sx_surfaceshader.glsl" function="sx_surfaceshader" language="glsl"/>
-
   <!-- <diffusebsdf> -->
   <implementation name="IM_diffusebsdf__glsl" nodedef="ND_diffusebsdf" file="sx/impl/shadergen/source/glsl/sx_diffusebsdf.glsl" function="sx_diffusebsdf" language="glsl"/>
 
-  <!-- <reflectionbsdf> -->
-  <implementation name="IM_reflectionbsdf__glsl" nodedef="ND_reflectionbsdf" file="sx/impl/shadergen/source/glsl/sx_reflectionbsdf.glsl" function="sx_reflectionbsdf" language="glsl"/>
+  <!-- <translucentbsdf> -->
+  <implementation name="IM_translucentbsdf__glsl" nodedef="ND_translucentbsdf" file="sx/impl/shadergen/source/glsl/sx_translucentbsdf.glsl" function="sx_translucentbsdf" language="glsl"/>
+
+  <!-- <transparentbsdf> -->
+  <implementation name="IM_transparentbsdf__glsl" nodedef="ND_transparentbsdf" file="sx/impl/shadergen/source/glsl/sx_transparentbsdf.glsl" function="sx_transparentbsdf" language="glsl"/>
+
+  <!-- <coatingbsdf> -->
+  <implementation name="IM_coatingbsdf__glsl" nodedef="ND_coatingbsdf" file="sx/impl/shadergen/source/glsl/sx_coatingbsdf.glsl" function="sx_coatingbsdf" language="glsl"/>
+
+  <!-- <refractionbsdf> -->
+  <implementation name="IM_refractionbsdf__glsl" nodedef="ND_refractionbsdf" file="sx/impl/shadergen/source/glsl/sx_refractionbsdf.glsl" function="sx_refractionbsdf" language="glsl"/>
+
+  <!-- <layeredbsdf> -->
+  <implementation name="IM_layeredbsdf__glsl" nodedef="ND_layeredbsdf" file="sx/impl/shadergen/source/glsl/sx_layeredbsdf.glsl" function="sx_layeredbsdf" language="glsl"/>
 
   <!-- <uniformedf> -->
   <implementation name="IM_uniformedf__glsl" nodedef="ND_uniformedf" file="sx/impl/shadergen/source/glsl/sx_uniformedf.glsl" function="sx_uniformedf" language="glsl"/>
 
-  <!-- <layer> -->
-  <implementation name="IM_layer__glsl" nodedef="ND_layer" file="sx/impl/shadergen/source/glsl/sx_layer.glsl" function="sx_layer" language="glsl"/>
+  <!-- <mixbsdf> -->
+  <implementation name="IM_mixbsdf__glsl" nodedef="ND_mixbsdf" file="sx/impl/shadergen/source/glsl/sx_mixbsdf.glsl" function="sx_mixbsdf" language="glsl"/>
 
-  <!-- <physicallayer> -->
-  <implementation name="IM_physicallayer__glsl" nodedef="ND_physicallayer" file="sx/impl/shadergen/source/glsl/sx_physicallayer.glsl" function="sx_physicallayer" language="glsl"/>
+  <!-- <mixedf> -->
+  <implementation name="IM_mixedf__glsl" nodedef="ND_mixedf" file="sx/impl/shadergen/source/glsl/sx_mixedf.glsl" function="sx_mixedf" language="glsl"/>
+
+  <!-- <surface> -->
+  <!-- Implemented by C++ class: Surface.h/cpp -->
+
+  <!-- <layeredsurface> -->
+  <implementation name="IM_layeredsurface__glsl" nodedef="ND_layeredsurface" file="sx/impl/shadergen/source/glsl/sx_layeredsurface.glsl" function="sx_layeredsurface" language="glsl"/>
 
 </materialx>

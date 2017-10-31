@@ -62,26 +62,6 @@ void OslShaderGenerator::emitShaderBody(Shader &shader)
     ShaderGenerator::emitShaderBody(shader);
 }
 
-void OslShaderGenerator::emitFinalOutput(Shader& shader) const
-{
-    const OutputPtr& output = shader.getOutput();
-    const NodePtr connectedNode = output->getConnectedNode();
-
-    string finalResult = _syntax->getVariableName(*connectedNode);
-
-    const string& outputType = output->getType();
-    if (outputType == kSURFACE)
-    {
-        finalResult = finalResult + ".bsdf + " + finalResult + ".edf";
-    }
-    else if (output->getChannels() != EMPTY_STRING)
-    {
-        finalResult = _syntax->getSwizzledVariable(finalResult, output->getType(), connectedNode->getType(), output->getChannels());
-    }
-
-    shader.addLine(_syntax->getVariableName(*output) + " = " + finalResult);
-}
-
 void OslShaderGenerator::emitShaderSignature(Shader &shader)
 {
     const NodeGraphPtr& graph = shader.getNodeGraph();
@@ -107,7 +87,7 @@ void OslShaderGenerator::emitShaderSignature(Shader &shader)
     shader.beginScope(Shader::Brackets::PARENTHESES);
 
     // Emit varying variables used by the shader
-    for (const Shader::Varying& varyings : shader.getVaryings())
+    for (const auto& varyings : shader.getVaryings())
     {
         shader.beginLine();
         emitUniform(
@@ -121,7 +101,7 @@ void OslShaderGenerator::emitShaderSignature(Shader &shader)
     }
 
     // Emit uniforms variables used by the shader
-    for (const Shader::Uniform& uniform : shader.getUniforms())
+    for (const auto& uniform : shader.getUniforms())
     {
         shader.beginLine();
         emitUniform(

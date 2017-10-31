@@ -1,5 +1,6 @@
 #include <MaterialXShaderGen/Shader.h>
 #include <MaterialXShaderGen/ShaderGenRegistry.h>
+#include <MaterialXShaderGen/Syntax.h>
 #include <MaterialXShaderGen/Util.h>
 #include <MaterialXShaderGen/NodeImplementations/Compare.h>
 #include <MaterialXShaderGen/NodeImplementations/Switch.h>
@@ -24,6 +25,7 @@ namespace
 
 Shader::Shader(const string& name)
     : _name(name)
+    , _classification(0)
     , _activeStage(0)
 {
     _stages.resize(numStages());
@@ -235,6 +237,10 @@ void Shader::initialize(ElementPtr element, const string& language, const string
         }
     }
 
+    // Set shader classification according to the last node
+    const size_t numNode = _nodes.size();
+    _classification = numNode > 0 ? _nodes[numNode - 1]._classification : 0;
+
     // Set the vdirection to use for texture nodes
     // Default is to use direction UP
     const string& vdir = element->getRoot()->getAttribute("vdirection");
@@ -248,14 +254,14 @@ void Shader::initialize(ElementPtr element, const string& language, const string
         {
             if (_usedInterface.count(param) > 0)
             {
-                addUniform(Uniform(param->getName(), param));
+                addUniform(param->getName(), param);
             }
         }
         for (InputPtr input : graphNodeDef->getInputs())
         {
             if (_usedInterface.count(input) > 0)
             {
-                addVarying(Varying(input->getName(), input));
+                addVarying(input->getName(), input);
             }
         }
     }
@@ -270,7 +276,7 @@ void Shader::initialize(ElementPtr element, const string& language, const string
             const string& publicname = param->getPublicName();
             if (!publicname.empty())
             {
-                addUniform(Uniform(publicname, param));
+                addUniform(publicname, param);
             }
         }
         for (InputPtr input : node.getInputs())
@@ -281,7 +287,7 @@ void Shader::initialize(ElementPtr element, const string& language, const string
                 const string& publicname = input->getPublicName();
                 if (!publicname.empty())
                 {
-                    addVarying(Varying(publicname, input));
+                    addVarying(publicname, input);
                 }
             }
         }
@@ -342,6 +348,26 @@ void Shader::initialize(ElementPtr element, const string& language, const string
                 upstreamScopeInfo.merge(newScopeInfo);
 
                 nodeUsed.insert(upstreamNode->getName());
+            }
+        }
+    }
+
+    // Track closure nodes used by each surface shader.
+    for (SgNode& node : _nodes)
+    {
+        if (node.hasClassification(SgNode::Classification::SHADER))
+        {
+            for (Edge edge : node.getNodePtr()->traverseGraph())
+            {
+                NodePtr upstreamNode = edge.getUpstreamElement()->asA<Node>();
+                if (upstreamNode)
+                {
+                    const SgNode& upstreamSgNode = getNode(upstreamNode);
+                    if (upstreamSgNode.hasClassification(SgNode::Classification::CLOSURE))
+                    {
+                        node._usedClosures.insert(&upstreamSgNode);
+                    }
+                }
             }
         }
     }
@@ -441,6 +467,13 @@ void Shader::addLine(const string& str, bool semicolon)
     endLine(semicolon);
 }
 
+void Shader::addComment(const string& str)
+{
+    beginLine();
+    stage().code += "// " + str;
+    endLine(false);
+}
+
 void Shader::addBlock(const string& str)
 {
     // Add each line in the block seperatelly
@@ -486,6 +519,42 @@ void Shader::indent()
     for (int i = 0; i < s.indentations; ++i)
     {
         s.code += kIndent;
+    }
+}
+
+void Shader::addUniform(const string& name, ParameterPtr param)
+{
+    auto it = _uniforms.find(name);
+    if (it != _uniforms.end())
+    {
+        // The uniform name already exists.
+        // Make sure it's the same data types.
+        if (it->second->getType() != param->getType())
+        {
+            throw ExceptionShaderGenError("A shader uniform named '" + name + "' already exists but with different type.");
+        }
+    }
+    else
+    {
+        _uniforms[name] = param;
+    }
+}
+
+void Shader::addVarying(const string& name, InputPtr input)
+{
+    auto it = _varyings.find(name);
+    if (it != _varyings.end())
+    {
+        // The uniform name already exists.
+        // Make sure it's the same data types.
+        if (it->second->getType() != input->getType())
+        {
+            throw ExceptionShaderGenError("A shader varying named '" + name + "' already exists but with different type.");
+        }
+    }
+    else
+    {
+        _varyings[name] = input;
     }
 }
 

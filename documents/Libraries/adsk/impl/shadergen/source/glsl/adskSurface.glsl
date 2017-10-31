@@ -53,9 +53,6 @@ void adskSurface(
     vec3 _specular = vec3(0.0);
     computeSpecular(specular_roughness, worldNormal, worldView, _specular);
 
-    // Compute emission
-    result.edf = standardShaderEmission(emission_color, emission);
-
     // Extra inputs
     float directDiffuse = 1.0;
     float directSpecular = 1.0;
@@ -67,7 +64,7 @@ void adskSurface(
     vec3 SpecularEnv = EnvironmentLight(worldNormal, worldView, specular_roughness);
 
     // Compute total bsdf
-    result.bsdf = standardShaderCombiner(
+    standardShaderCombiner(
         _diffuse,
         _specular,
         base_color,
@@ -99,7 +96,9 @@ void adskSurface(
         IrradianceEnv,
         SpecularEnv,
         worldNormal,
-        worldView);
+        worldView,
+        result);
 
-    result.ior = specular_IOR;
+    // Compute emission
+    result.color += standardShaderEmission(emission_color, emission);
 }

@@ -160,11 +160,11 @@ GlslSyntax::GlslSyntax()
         kBSDF, 
         TypeSyntax
         (
-            "vec4",
-            "vec4(0.0, 0.0, 0.0, 1.0)",
-            "{0.0, 0.0, 0.0, 1.0}",
+            "BSDF",
+            "BSDF(vec3(0.0),vec3(0.0))",
             "",
-            "out vec4"
+            "struct BSDF { vec3 fr; vec3 ft; };",
+            "out BSDF"
         )
     );
 
@@ -173,11 +173,11 @@ GlslSyntax::GlslSyntax()
         kEDF, 
         TypeSyntax
         (
-            "vec3",
-            "vec3(0.0)",
-            "{0.0, 0.0, 0.0}",
+            "EDF",
+            "EDF(0.0)",
             "",
-            "out vec3"
+            "#define EDF vec3",
+            "out EDF"
         )
     );
 
@@ -186,11 +186,11 @@ GlslSyntax::GlslSyntax()
         kVDF, 
         TypeSyntax
         (
-            "vec3",
-            "vec3(0.0)",
-            "{0.0, 0.0, 0.0}",
+            "VDF",
+            "VDF(vec3(0.0),vec3(0.0))",
             "",
-            "out vec3"
+            "struct VDF { vec3 absorption; vec3 scattering; };",
+            "out VDF"
         )
     );
 
@@ -200,9 +200,9 @@ GlslSyntax::GlslSyntax()
         TypeSyntax
         (
             "surfaceshader",
-            "surfaceshader(vec4(0.0,0.0,0.0,1.0),vec3(0.0),1.0)",
+            "surfaceshader(vec3(0.0),vec3(0.0))",
             "",
-            "struct surfaceshader { vec4 bsdf; vec3 edf; float ior; };",
+            "struct surfaceshader { vec3 color; vec3 transparency; };",
             "out vec4"
         )
     );
@@ -213,9 +213,9 @@ GlslSyntax::GlslSyntax()
         TypeSyntax
         (
             "volumeshader", 
-            "volumeshader(vec3(0.0),vec3(0.0),vec3(0.0))",
+            "volumeshader(VDF(vec3(0.0),vec3(0.0)),vec3(0.0))",
             "",
-            "struct volumeshader { vec3 vdf; vec3 edf; vec3 absorption; };",
+            "struct volumeshader { VDF vdf; vec3 edf; };",
             "out vec4"
         )
     );

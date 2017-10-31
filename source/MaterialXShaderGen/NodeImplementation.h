@@ -11,6 +11,7 @@ class SgNode;
 class Shader;
 class ShaderGenerator;
 
+using NodePtr = shared_ptr<class Node>;
 using NodeImplementationPtr = shared_ptr<class NodeImplementation>;
 
 /// Base class for implementations that require custom code for a shader generator target.
@@ -33,8 +34,16 @@ public:
     /// Return a unique identifyer for the target this implementation is for
     virtual const string& getTarget() const = 0;
 
-    /// Emit the implementation source code for given node instance
-    virtual void emitCode(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) = 0;
+    /// Emit function definition, if needed, for the given node instance
+    virtual void emitFunction(const SgNode& node, ShaderGenerator& shadergen, Shader& shader);
+
+    /// Emit the function call, or other node implementation source code, for given node instance
+    virtual void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader);
+
+    /// Return true if this node for the given node instance is transparent.
+    /// False is returned by default. Only override this if your node represents
+    /// a surface shader with transparency.
+    virtual bool isTransparent(const NodePtr& node) const;
 
     /// Get a unique id from the node/langunage/target combination
     static string id(const string& node, const string& language = EMPTY_STRING, const string& target = EMPTY_STRING);

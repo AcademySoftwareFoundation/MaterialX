@@ -11,7 +11,7 @@ class Constant : public NodeImplementation
 {
     DECLARE_NODE_IMPLEMENTATION(Constant)
 public:
-    void emitCode(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 };
 
 } // namespace MaterialX

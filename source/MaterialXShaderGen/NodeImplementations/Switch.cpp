@@ -9,7 +9,7 @@ DEFINE_NODE_IMPLEMENTATION(Switch, "switch", "", "")
 
 const vector<string> Switch::kInputNames = { "in1", "in2", "in3", "in4", "in5" };
 
-void Switch::emitCode(const SgNode& sgnode, ShaderGenerator& shadergen, Shader& shader)
+void Switch::emitFunctionCall(const SgNode& sgnode, ShaderGenerator& shadergen, Shader& shader)
 {
     const Node& node = sgnode.getNode();
 

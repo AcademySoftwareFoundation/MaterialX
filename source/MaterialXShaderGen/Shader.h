@@ -40,11 +40,11 @@ public:
         DOWN
     };
 
-    /// A uniform shader parameter
-    using Uniform = pair<string, ParameterPtr>;
+    /// Container for uniform shader parameters
+    using Uniforms = unordered_map<string, ParameterPtr>;
 
-    /// A varying shader parameter
-    using Varying = pair<string, InputPtr>;
+    /// Container for varying shader parameters
+    using Varyings = unordered_map<string, InputPtr>;
 
 public:
     /// Constructor
@@ -100,6 +100,9 @@ public:
     /// for a shader stage
     virtual void addInclude(const string& file);
 
+    /// Add a single line of code comment to the shader
+    virtual void addComment(const string& str);
+
     /// Add a value to the shader
     template<typename T>
     void addValue(const T& value)
@@ -122,6 +125,9 @@ public:
     /// given in topological order.
     const vector<SgNode>& getNodes() const { return _nodes;  }
 
+    /// Return true if this shader matches the given classification.
+    bool hasClassification(unsigned int c) const { return (_classification & c) == c; }
+
     /// Return the SgNode for the given node pointer.
     SgNode& getNode(const NodePtr& nodePtr);
     const SgNode& getNode(const NodePtr& nodePtr) const { return const_cast<Shader*>(this)->getNode(nodePtr); }
@@ -129,17 +135,17 @@ public:
     /// Return the vdirection requested in the current document.
     VDirection getRequestedVDirection() const { return _vdirection; }
 
-    /// 
-    void addUniform(const Uniform& u) { _uniforms.push_back(u); }
+    /// Add a shader uniform
+    void addUniform(const string& name, ParameterPtr param);
 
-    /// 
-    void addVarying(const Varying& v) { _varyings.push_back(v); }
+    /// Add a shader varying
+    void addVarying(const string& name, InputPtr input);
 
-    /// Return a vector of the final shader uniforms.
-    const vector<Uniform>& getUniforms() const { return _uniforms; }
+    /// Return the final shader uniforms.
+    const Uniforms& getUniforms() const { return _uniforms; }
 
-    /// Return a vector of the final shader varyings.
-    const vector<Varying>& getVaryings() const { return _varyings; }
+    /// Return the final shader varyings.
+    const Varyings& getVaryings() const { return _varyings; }
 
     /// Return the final shader source code for a given shader stage
     const string& getSourceCode(size_t stage = 0) const { return _stages[stage].code; }
@@ -168,6 +174,7 @@ protected:
     string _name;
     NodeGraphPtr _nodeGraph;
     OutputPtr _output;
+    unsigned int _classification;
     vector<SgNode> _nodes;
     unordered_map<NodePtr, size_t> _nodeToSgNodeIndex;
     set<ValueElementPtr> _usedInterface;
@@ -175,8 +182,8 @@ protected:
 
     size_t _activeStage;
     vector<Stage> _stages;
-    vector<Uniform> _uniforms;
-    vector<Varying> _varyings;
+    Uniforms _uniforms;
+    Varyings _varyings;
 };
 
 /// @class @ExceptionShaderGenError
