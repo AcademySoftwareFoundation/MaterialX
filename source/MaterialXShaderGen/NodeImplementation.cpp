@@ -14,9 +14,9 @@ void NodeImplementation::emitFunctionCall(const SgNode&, ShaderGenerator&, Shade
     // default implementation has no source code
 }
 
-bool NodeImplementation::isOpaque(const NodePtr&) const
+bool NodeImplementation::isTransparent(const NodePtr&) const
 {
-    return true;
+    return false;
 }
 
 string NodeImplementation::id(const string& node, const string& language, const string& target)
