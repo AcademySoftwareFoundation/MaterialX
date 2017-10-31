@@ -26,7 +26,7 @@ namespace {
 const string SOURCE_URI_ATTRIBUTE = "__sourceUri";
 const string XINCLUDE_TAG = "xi:include";
 
-void elementFromXml(const xml_node& xmlNode, ElementPtr elem, bool skipDuplicates=false)
+void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptions* readOptions)
 {
     // Store attributes in element.
     for (const xml_attribute& xmlAttr : xmlNode.attributes())
@@ -55,13 +55,13 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, bool skipDuplicate
             }
         }
 
-        // Skip duplicate named children
-        if (skipDuplicates && elem->getChild(name))
+        // Skip duplicate named children if specified
+        if ((readOptions ? readOptions->skipDuplicates : false) && elem->getChild(name))
         {
             continue;
         }
         ElementPtr child = elem->addChildOfCategory(category, name);
-        elementFromXml(xmlChild, child, skipDuplicates);
+        elementFromXml(xmlChild, child, readOptions);
     }
 }
 
@@ -129,9 +129,11 @@ void xmlDocumentFromFile(xml_document& xmlDoc, string filename, const string& se
     }
 }
 
-void processXIncludes(xml_node& xmlNode, const string& searchPath, bool readXIncludes)
+void processXIncludes(xml_node& xmlNode, const string& searchPath, const XmlReadOptions* readOptions)
 {
     xml_node xmlChild = xmlNode.first_child();
+
+    bool readXIncludes = (readOptions ? readOptions->readXincludes : true);
     while (xmlChild)
     {
         if (xmlChild.name() == XINCLUDE_TAG)
@@ -176,10 +178,8 @@ void documentFromXml(DocumentPtr doc,
     xml_node xmlRoot = xmlDoc.child(Document::CATEGORY.c_str());
     if (xmlRoot)
     {
-        // Note: We use the defaults as specified in XmlReadOptions if no options
-        // are passed in.
-        processXIncludes(xmlRoot, searchPath, (readOptions ? readOptions->_readXincludes : true));
-        elementFromXml(xmlRoot, doc, (readOptions ? readOptions->_skipDuplicates : false));
+        processXIncludes(xmlRoot, searchPath, readOptions);
+        elementFromXml(xmlRoot, doc, readOptions);
     }
 
     doc->upgradeVersion();
@@ -191,7 +191,7 @@ void documentFromXml(DocumentPtr doc,
 // Reading
 //
 
-void readFromXmlBuffer(DocumentPtr doc, const char* buffer, const XmlReadOptions* readingOptions)
+void readFromXmlBuffer(DocumentPtr doc, const char* buffer, const XmlReadOptions* readOptions)
 {
     xml_document xmlDoc;
     xml_parse_result result = xmlDoc.load_string(buffer);
@@ -200,10 +200,10 @@ void readFromXmlBuffer(DocumentPtr doc, const char* buffer, const XmlReadOptions
         throw ExceptionParseError("Parse error in readFromXmlBuffer");
     }
 
-    documentFromXml(doc, xmlDoc, EMPTY_STRING, readingOptions);
+    documentFromXml(doc, xmlDoc, EMPTY_STRING, readOptions);
 }
 
-void readFromXmlStream(DocumentPtr doc, std::istream& stream, const XmlReadOptions* readingOptions)
+void readFromXmlStream(DocumentPtr doc, std::istream& stream, const XmlReadOptions* readOptions)
 {
     xml_document xmlDoc;
     xml_parse_result result = xmlDoc.load(stream);
@@ -212,22 +212,22 @@ void readFromXmlStream(DocumentPtr doc, std::istream& stream, const XmlReadOptio
         throw ExceptionParseError("Parse error in readFromXmlStream");
     }
 
-    documentFromXml(doc, xmlDoc, EMPTY_STRING, readingOptions);
+    documentFromXml(doc, xmlDoc, EMPTY_STRING, readOptions);
 }
 
-void readFromXmlFile(DocumentPtr doc, const string& filename, const string& searchPath, const XmlReadOptions* readingOptions)
+void readFromXmlFile(DocumentPtr doc, const string& filename, const string& searchPath, const XmlReadOptions* readOptions)
 {
     xml_document xmlDoc;
     xmlDocumentFromFile(xmlDoc, filename, searchPath);
 
-    documentFromXml(doc, xmlDoc, searchPath, readingOptions);
+    documentFromXml(doc, xmlDoc, searchPath, readOptions);
     doc->setSourceUri(filename);
 }
 
-void readFromXmlString(DocumentPtr doc, const string& str, const XmlReadOptions* readingOptions)
+void readFromXmlString(DocumentPtr doc, const string& str, const XmlReadOptions* readOptions)
 {
     std::istringstream stream(str);
-    readFromXmlStream(doc, stream, readingOptions);
+    readFromXmlStream(doc, stream, readOptions);
 }
 
 //

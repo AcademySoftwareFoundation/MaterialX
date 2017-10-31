@@ -138,48 +138,38 @@ TEST_CASE("Load content", "[xmlio]")
         // Read document without XIncludes.
         doc2 = mx::createDocument();
 
-        mx::XmlReadOptions readingOptions;
-        readingOptions._readXincludes = false;
-        mx::readFromXmlFile(doc2, filename, searchPath, &readingOptions);
+        mx::XmlReadOptions readOptions;
+        readOptions.readXincludes = false;
+        mx::readFromXmlFile(doc2, filename, searchPath, &readOptions);
         if (*doc2 != *doc)
         {
             writtenDoc = mx::createDocument();
             xmlString = mx::writeToXmlString(doc);
-            mx::readFromXmlString(writtenDoc, xmlString, &readingOptions);
+            mx::readFromXmlString(writtenDoc, xmlString, &readOptions);
             REQUIRE(*doc2 == *writtenDoc);
         }
     }
 
     // Read the same documents more than once.
-    // When duplcate names are found an error exception is thrown.
-    // Setting to skip duplicates names first avoid trying to
-    // create a child with a duplicate name in the first place
-    // thus no error exception is thrown.
+    // Check that document stays valid when duplicates are skipped.
     mx::DocumentPtr doc3 = mx::createDocument();
-    mx::XmlReadOptions readingOptions;
-    readingOptions._readXincludes = true;
-    bool exceptionThrown = false;
-    try
+    mx::XmlReadOptions readOptions;
+    readOptions.readXincludes = true;
+
+    for (std::string libFilename : libraryFilenames)
     {
-        for (std::string libFilename : libraryFilenames)
-        {
-            readingOptions._skipDuplicates = false;
-            mx::readFromXmlFile(doc3, libFilename, searchPath, &readingOptions);
-            readingOptions._skipDuplicates = true;
-            mx::readFromXmlFile(doc3, libFilename, searchPath, &readingOptions);
-        }
-        for (std::string filename : exampleFilenames)
-        {
-            mx::readFromXmlFile(doc3, filename, searchPath, &readingOptions);
-            mx::readFromXmlFile(doc3, filename, searchPath, &readingOptions);
-        }
+        readOptions.skipDuplicates = false;
+        mx::readFromXmlFile(doc3, libFilename, searchPath, &readOptions);
+        REQUIRE(doc3->validate());
+        readOptions.skipDuplicates = true;
+        mx::readFromXmlFile(doc3, libFilename, searchPath, &readOptions);
+        REQUIRE(doc3->validate());
     }
-    catch (MaterialX::Exception e)
+    for (std::string filename : exampleFilenames)
     {
-        exceptionThrown = true;
+        mx::readFromXmlFile(doc3, filename, searchPath, &readOptions);
+        REQUIRE(doc3->validate());
+        mx::readFromXmlFile(doc3, filename, searchPath, &readOptions);
+        REQUIRE(doc3->validate());
     }
-    catch (...)
-    {
-    }
-    REQUIRE(exceptionThrown == false);
 }

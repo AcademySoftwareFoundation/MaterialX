@@ -25,32 +25,32 @@ namespace MaterialX
 struct XmlReadOptions
 {
     XmlReadOptions() :
-        _readXincludes(true),
-        _skipDuplicates(false) {}
+        readXincludes(true),
+        skipDuplicates(false) {}
 
     virtual ~XmlReadOptions() {}
 
     /// If true, XInclude references will be read from disk and included in the document. Defaults to true.
-    bool _readXincludes;
+    bool readXincludes;
     /// If true, Will skip reading in Elements with duplicate names. Defaults to false.
-    bool _skipDuplicates;
+    bool skipDuplicates;
 };
 
 /// Read a document as XML from the given character buffer.
 /// @param doc The document into which data is read.
 /// @param buffer The character buffer from which data is read.
-/// @param readingOptions Options to use during reading. Default is null which indicates to use the 
+/// @param readOptions Options to use during reading. Default is null which indicates to use the 
 /// default values as specified in the XmlReadOptions structure.
 /// @throws ExceptionParseError if the document cannot be parsed.
-void readFromXmlBuffer(DocumentPtr doc, const char* buffer, const XmlReadOptions* readingOptions = nullptr);
+void readFromXmlBuffer(DocumentPtr doc, const char* buffer, const XmlReadOptions* readOptions = nullptr);
 
 /// Read a document as XML from the given input stream.
 /// @param doc The document into which data is read.
 /// @param stream The input stream from which data is read.
-/// @param readingOptions Options to use during reading. Default is null which indicates to use the 
+/// @param readOptions Options to use during reading. Default is null which indicates to use the 
 /// default values as specified in the XmlReadOptions structure.
 /// @throws ExceptionParseError if the document cannot be parsed.
-void readFromXmlStream(DocumentPtr doc, std::istream& stream, const XmlReadOptions* readingOptions = nullptr);
+void readFromXmlStream(DocumentPtr doc, std::istream& stream, const XmlReadOptions* readOptions = nullptr);
 
 /// Read a document as XML from the given filename.
 /// @param doc The document into which data is read.
@@ -58,22 +58,22 @@ void readFromXmlStream(DocumentPtr doc, std::istream& stream, const XmlReadOptio
 /// @param searchPath A semicolon-separated sequence of file paths, which will
 ///    be applied in order when searching for the given file and its includes.
 ///    Defaults to the empty string.
-/// @param readingOptions Options to use during reading. Default is null which indicates to use the 
+/// @param readOptions Options to use during reading. Default is null which indicates to use the 
 /// default values as specified in the XmlReadOptions structure.
 /// @throws ExceptionParseError if the document cannot be parsed.
 /// @throws ExceptionFileMissing if the file cannot be opened.
 void readFromXmlFile(DocumentPtr doc,
                      const string& filename,
                      const string& searchPath = EMPTY_STRING,
-                     const XmlReadOptions* readingOptions = nullptr);
+                     const XmlReadOptions* readOptions = nullptr);
 
 /// Read a document as XML from the given string.
 /// @param doc The document into which data is read.
 /// @param str The string from which data is read.
-/// @param readingOptions Options to use during reading. Default is null which indicates to use the 
+/// @param readOptions Options to use during reading. Default is null which indicates to use the 
 /// default values as specified in the XmlReadOptions structure.
 /// @throws ExceptionParseError if the document cannot be parsed.
-void readFromXmlString(DocumentPtr doc, const string& str, const XmlReadOptions* readingOptions = nullptr);
+void readFromXmlString(DocumentPtr doc, const string& str, const XmlReadOptions* readOptions = nullptr);
 
 /// @}
 /// @name Writing
