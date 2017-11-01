@@ -27,7 +27,7 @@ TEST_CASE("Load content", "[xmlio]")
     };
     std::string searchPath = "documents/Libraries;documents/Examples";
 
-    // Load the standard library.
+    // Read the standard library.
     std::vector<mx::DocumentPtr> libs;
     for (std::string filename : libraryFilenames)
     {
@@ -37,9 +37,9 @@ TEST_CASE("Load content", "[xmlio]")
         libs.push_back(lib);
     }
 
+    // Read and validate each example document.
     for (std::string filename : exampleFilenames)
     {
-        // Load the example document.
         mx::DocumentPtr doc = mx::createDocument();
         mx::readFromXmlFile(doc, filename, searchPath);
         REQUIRE(doc->validate());
@@ -137,9 +137,8 @@ TEST_CASE("Load content", "[xmlio]")
 
         // Read document without XIncludes.
         doc2 = mx::createDocument();
-
         mx::XmlReadOptions readOptions;
-        readOptions.readXincludes = false;
+        readOptions.readXIncludes = false;
         mx::readFromXmlFile(doc2, filename, searchPath, &readOptions);
         if (*doc2 != *doc)
         {
@@ -150,26 +149,16 @@ TEST_CASE("Load content", "[xmlio]")
         }
     }
 
-    // Read the same documents more than once.
-    // Check that document stays valid when duplicates are skipped.
-    mx::DocumentPtr doc3 = mx::createDocument();
+    // Read the same document twice with duplicate elements skipped.
+    mx::DocumentPtr doc = mx::createDocument();
     mx::XmlReadOptions readOptions;
-    readOptions.readXincludes = true;
+    readOptions.skipDuplicateElements = true;
+    std::string filename = "PaintMaterials.mtlx";
+    mx::readFromXmlFile(doc, filename, searchPath, &readOptions);
+    mx::readFromXmlFile(doc, filename, searchPath, &readOptions);
+    REQUIRE(doc->validate());
 
-    for (std::string libFilename : libraryFilenames)
-    {
-        readOptions.skipDuplicates = false;
-        mx::readFromXmlFile(doc3, libFilename, searchPath, &readOptions);
-        REQUIRE(doc3->validate());
-        readOptions.skipDuplicates = true;
-        mx::readFromXmlFile(doc3, libFilename, searchPath, &readOptions);
-        REQUIRE(doc3->validate());
-    }
-    for (std::string filename : exampleFilenames)
-    {
-        mx::readFromXmlFile(doc3, filename, searchPath, &readOptions);
-        REQUIRE(doc3->validate());
-        mx::readFromXmlFile(doc3, filename, searchPath, &readOptions);
-        REQUIRE(doc3->validate());
-    }
+    // Read a non-existent document.
+    mx::DocumentPtr doc2 = mx::createDocument();
+    REQUIRE_THROWS_AS(mx::readFromXmlFile(doc2, "NonExistent.mtlx"), mx::ExceptionFileMissing);
 }
