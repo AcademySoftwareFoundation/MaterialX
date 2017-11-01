@@ -262,7 +262,7 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(doc.validate()[0])
 
     def test_ReadXml(self):
-        # Load the standard library.
+        # Read the standard library.
         libs = []
         for filename in _libraryFilenames:
             lib = mx.createDocument()
@@ -270,8 +270,8 @@ class TestMaterialX(unittest.TestCase):
             self.assertTrue(lib.validate()[0])
             libs.append(lib)
 
+        # Read and validate each example document.
         for filename in _exampleFilenames:
-            # Read the example document.
             doc = mx.createDocument()
             mx.readFromXmlFile(doc, filename, _searchPath)
             self.assertTrue(doc.validate()[0])
@@ -326,27 +326,14 @@ class TestMaterialX(unittest.TestCase):
                     self.assertTrue(elem.getNodeDef())
                     self.assertTrue(elem.getImplementation())
 
-        # Read the same documents more than once.
-        # Check that document stays valid when duplicates are skipped.
-        doc3 = mx.createDocument()
+        # Read the same document twice with duplicate elements skipped.
+        doc = mx.createDocument()
         readOptions = mx.XmlReadOptions()
-        # Test the default state
-        self.assertTrue(readOptions.getReadXincludes() == True)
-        self.assertTrue(readOptions.getSkipDuplicates() == False)
-
-        for filename in _libraryFilenames:
-            readOptions.setSkipDuplicates(False)
-            mx.readFromXmlFile(doc3, filename, _searchPath, readOptions)
-            self.assertTrue(doc3.validate()[0])
-            readOptions.setSkipDuplicates(True)
-            mx.readFromXmlFile(doc3, filename, _searchPath, readOptions);
-            self.assertTrue(doc3.validate()[0])
-        
-        for filename in _exampleFilenames:
-            mx.readFromXmlFile(doc3, filename, _searchPath, readOptions);
-            self.assertTrue(doc3.validate()[0])
-            mx.readFromXmlFile(doc3, filename, _searchPath, readOptions);
-            self.assertTrue(doc3.validate()[0])
+        readOptions.skipDuplicateElements = True
+        filename = 'PaintMaterials.mtlx'
+        mx.readFromXmlFile(doc, filename, _searchPath, readOptions)
+        mx.readFromXmlFile(doc, filename, _searchPath, readOptions)
+        self.assertTrue(doc.validate()[0])
 
 
 #--------------------------------------------------------------------------------
