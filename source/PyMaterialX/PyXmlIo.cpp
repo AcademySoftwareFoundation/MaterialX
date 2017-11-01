@@ -15,8 +15,15 @@ namespace mx = MaterialX;
 
 void bindPyXmlIo(py::module& mod)
 {
+    py::class_<mx::XmlReadOptions>(mod, "XmlReadOptions")
+        .def(py::init())
+        .def("setReadXincludes", &mx::XmlReadOptions::setReadXincludes)
+        .def("getReadXincludes", &mx::XmlReadOptions::getReadXincludes)
+        .def("setSkipDuplicates", &mx::XmlReadOptions::setSkipDuplicates)
+        .def("getSkipDuplicates", &mx::XmlReadOptions::getSkipDuplicates);
+
     mod.def("readFromXmlFileBase", &mx::readFromXmlFile,
-        py::arg("doc"), py::arg("filename"), py::arg("searchPath") = mx::EMPTY_STRING, py::arg("readingOptions") = nullptr);
+        py::arg("doc"), py::arg("filename"), py::arg("searchPath") = mx::EMPTY_STRING, py::arg("readOptions") = (const mx::XmlReadOptions*)nullptr);
     mod.def("readFromXmlString", &mx::readFromXmlString);
     mod.def("writeToXmlFile", mx::writeToXmlFile,
         py::arg("doc"), py::arg("filename"), py::arg("writeXIncludes") = true, py::arg("predicate") = mx::ElementPredicate());

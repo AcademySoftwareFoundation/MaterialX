@@ -23,9 +23,9 @@ TEST_CASE("Load content", "[xmlio]")
     std::string searchPath = "documents/Libraries/stdlib;documents/Examples";
 
     // Load the standard library.
-    mx::DocumentPtr lib = mx::createDocument();
+        mx::DocumentPtr lib = mx::createDocument();
     mx::readFromXmlFile(lib, libFilename, searchPath);
-    REQUIRE(lib->validate());
+        REQUIRE(lib->validate());
 
     for (std::string filename : exampleFilenames)
     {
@@ -55,17 +55,17 @@ TEST_CASE("Load content", "[xmlio]")
                 for (mx::InputPtr input : shader->getInputs())
                 {
                     for (mx::Edge edge : input->traverseGraph(material))
-                    {
-                        edgeCount++;
-                    }
-                }
-                for (mx::ParameterPtr param : shader->getParameters())
                 {
-                    for (mx::Edge edge : param->traverseGraph(material))
-                    {
-                        edgeCount++;
-                    }
+                    edgeCount++;
                 }
+            }
+                for (mx::ParameterPtr param : shader->getParameters())
+            {
+                    for (mx::Edge edge : param->traverseGraph(material))
+                {
+                    edgeCount++;
+                }
+            }
             }
             REQUIRE(edgeCount > 0);
         }
@@ -100,7 +100,7 @@ TEST_CASE("Load content", "[xmlio]")
 
         // Combine document with the standard library.
         mx::DocumentPtr doc2 = doc->copy();
-        doc2->importLibrary(lib);
+            doc2->importLibrary(lib);
         REQUIRE(doc2->validate());
 
         // Verify that all referenced nodes are declared.
@@ -124,45 +124,38 @@ TEST_CASE("Load content", "[xmlio]")
         // Read document without XIncludes.
         doc2 = mx::createDocument();
 
-        mx::XmlReadOptions readingOptions;
-        readingOptions._readXincludes = false;
-        mx::readFromXmlFile(doc2, filename, searchPath, &readingOptions);
+        mx::XmlReadOptions readOptions;
+        readOptions.readXincludes = false;
+        mx::readFromXmlFile(doc2, filename, searchPath, &readOptions);
         if (*doc2 != *doc)
         {
             writtenDoc = mx::createDocument();
             xmlString = mx::writeToXmlString(doc);
-            mx::readFromXmlString(writtenDoc, xmlString, &readingOptions);
+            mx::readFromXmlString(writtenDoc, xmlString, &readOptions);
             REQUIRE(*doc2 == *writtenDoc);
         }
     }
 
     // Read the same documents more than once.
-    // When duplcate names are found an error exception is thrown.
-    // Setting to skip duplicates names first avoid trying to
-    // create a child with a duplicate name in the first place
-    // thus no error exception is thrown.
+    // Check that document stays valid when duplicates are skipped.
     mx::DocumentPtr doc3 = mx::createDocument();
-    mx::XmlReadOptions readingOptions;
-    readingOptions._readXincludes = true;
-    bool exceptionThrown = false;
-    try
+    mx::XmlReadOptions readOptions;
+    readOptions.readXincludes = true;
+
+    //for (std::string libFilename : libraryFilenames)
     {
-        readingOptions._skipDuplicates = false;
-        mx::readFromXmlFile(doc3, libFilename, searchPath, &readingOptions);
-        readingOptions._skipDuplicates = true;
-        mx::readFromXmlFile(doc3, libFilename, searchPath, &readingOptions);
-        for (std::string filename : exampleFilenames)
-        {
-            mx::readFromXmlFile(doc3, filename, searchPath, &readingOptions);
-            mx::readFromXmlFile(doc3, filename, searchPath, &readingOptions);
-        }
+        readOptions.skipDuplicates = false;
+        mx::readFromXmlFile(doc3, libFilename, searchPath, &readOptions);
+        REQUIRE(doc3->validate());
+        readOptions.skipDuplicates = true;
+        mx::readFromXmlFile(doc3, libFilename, searchPath, &readOptions);
+        REQUIRE(doc3->validate());
     }
-    catch (MaterialX::Exception e)
+    for (std::string filename : exampleFilenames)
     {
-        exceptionThrown = true;
+        mx::readFromXmlFile(doc3, filename, searchPath, &readOptions);
+        REQUIRE(doc3->validate());
+        mx::readFromXmlFile(doc3, filename, searchPath, &readOptions);
+        REQUIRE(doc3->validate());
     }
-    catch (...)
-    {
-    }
-    REQUIRE(exceptionThrown == false);
 }

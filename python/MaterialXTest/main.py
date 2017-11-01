@@ -175,6 +175,28 @@ class TestLoadContent(unittest.TestCase):
                 if elem.isA(mx.Node):
                     self.assertTrue(elem.getReferencedNodeDef())
 
+        # Read the same documents more than once.
+        # Check that document stays valid when duplicates are skipped.
+        doc3 = mx.createDocument()
+        readOptions = mx.XmlReadOptions()
+        # Test the default state
+        self.assertTrue(readOptions.getReadXincludes() == True)
+        self.assertTrue(readOptions.getSkipDuplicates() == False)
+
+        for filename in _libraryFilenames:
+            readOptions.setSkipDuplicates(False)
+            mx.readFromXmlFile(doc3, filename, _searchPath, readOptions)
+            self.assertTrue(doc3.validate()[0])
+            readOptions.setSkipDuplicates(True)
+            mx.readFromXmlFile(doc3, filename, _searchPath, readOptions);
+            self.assertTrue(doc3.validate()[0])
+        
+        for filename in _exampleFilenames:
+            mx.readFromXmlFile(doc3, filename, _searchPath, readOptions);
+            self.assertTrue(doc3.validate()[0])
+            mx.readFromXmlFile(doc3, filename, _searchPath, readOptions);
+            self.assertTrue(doc3.validate()[0])
+
 
 #--------------------------------------------------------------------------------
 if __name__ == '__main__':
