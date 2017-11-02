@@ -1,20 +1,18 @@
 #include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenRegistry.h>
 #include <MaterialXShaderGen/NodeImplementation.h>
-#include <MaterialXShaderGen/Util.h>
+#include <MaterialXShaderGen/NodeImplementations/SourceCode.h>
+
 #include <MaterialXCore/Node.h>
+#include <MaterialXCore/Document.h>
 #include <MaterialXCore/Value.h>
+
 #include <MaterialXFormat/File.h>
 
 #include <sstream>
 
 namespace MaterialX
 {
-
-namespace
-{
-    static const SgNode EMPTY_SGNODE(nullptr, EMPTY_STRING, EMPTY_STRING);
-}
 
 Shader::VDirection ShaderGenerator::getTargetVDirection() const
 {
@@ -37,166 +35,15 @@ void ShaderGenerator::emitTypeDefs(Shader& shader)
 
 void ShaderGenerator::emitFunctions(Shader& shader)
 {
-    // Emit function for handling texture coords v-flip 
-    // as needed by the v-direction set by the user
-    if (shader.getRequestedVDirection() != getTargetVDirection())
-    {
-        NodeImplementationPtr impl = ShaderGenRegistry::findNodeImplementation("vdirection_flip", getLanguage(), getTarget());
-        if (!impl)
-        {
-           throw ExceptionShaderGenError("Built-in implementation for 'vdirection_flip' was not found. Did you forget to register built-in implementations?");
-        }
-        impl->emitFunction(EMPTY_SGNODE, *this, shader);
-    }
-    else
-    {
-        NodeImplementationPtr impl = ShaderGenRegistry::findNodeImplementation("vdirection_noop", getLanguage(), getTarget());
-        if (!impl)
-        {
-           throw ExceptionShaderGenError("Built-in implementation for 'vdirection_noop' was not found. Did you forget to register built-in implementations?");
-        }
-        impl->emitFunction(EMPTY_SGNODE, *this, shader);
-    }
-
-    shader.newLine();
-
-    // Emit funtion source code for all nodes that are not inlined
+    // Emit funtion definitions for all nodes
     StringSet emittedNodeDefs;
     for (const SgNode& node : shader.getNodes())
     {
-        if (!node.getInlined() && emittedNodeDefs.find(node.getNodeDef().getName()) == emittedNodeDefs.end())
+        if (emittedNodeDefs.find(node.getNodeDef().getName()) == emittedNodeDefs.end())
         {
-            emitFunction(node, shader);
+            node.getImplementation()->emitFunction(node, *this, shader);
             emittedNodeDefs.insert(node.getNodeDef().getName());
         }
-    }
-}
-
-void ShaderGenerator::emitFunction(const SgNode& node, Shader &shader)
-{
-    // Check if this node has a custom implementation
-    NodeImplementationPtr customImpl = node.getCustomImpl();
-    if (customImpl)
-    {
-        customImpl->emitFunction(node, *this, shader);
-        return;
-    }
-
-    static const string kIncludePattern = "#include ";
-
-    std::stringstream stream(node.getFunctionSource());
-    for (string line; std::getline(stream, line); )
-    {
-        size_t pos = line.find(kIncludePattern);
-        if (pos != string::npos)
-        {
-            const size_t start = pos + kIncludePattern.size() + 1;
-            const size_t count = line.size() - start - 1;
-            const string filename = line.substr(start, count);
-            shader.addInclude(filename);
-        }
-        else
-        {
-            shader.addLine(line, false);
-        }
-    }
-
-    shader.newLine();
-}
-
-void ShaderGenerator::emitFunctionCall(const SgNode& node, Shader &shader, vector<string>* extraInputs)
-{
-    // Check if this node has a custom implementation
-    NodeImplementationPtr customImpl = node.getCustomImpl();
-    if (customImpl)
-    {
-        customImpl->emitFunctionCall(node, *this, shader);
-        return;
-    }
-
-    if (node.getInlined())
-    {
-        // An inline function call
-
-        static const string prefix("{{");
-        static const string postfix("}}");
-
-        const string& source = node.getFunctionSource();
-
-        // Inline expressions can only have a single output
-        shader.beginLine();
-        emitOutput(node.getNode(), true, shader);
-        shader.addStr(" = ");
-
-        size_t pos = 0;
-        size_t i = source.find_first_of(prefix);
-        while (i != string::npos)
-        {
-            shader.addStr(source.substr(pos, i - pos));
-
-            size_t j = source.find_first_of(postfix, i + 2);
-            if (j == string::npos)
-            {
-                throw ExceptionShaderGenError("Malformed inline expression in implementation for node " + node.getName());
-            }
-
-            const string variable = source.substr(i + 2, j - i - 2);
-            const ValueElement& port = node.getPort(variable);
-            emitInput(port, shader);
-
-            pos = j + 2;
-            i = source.find_first_of(prefix, pos);
-        }
-        shader.addStr(source.substr(pos));
-        shader.endLine();
-    }
-    else
-    {
-        // An ordinary source code function call
-        // TODO: Support multiple outputs
-
-        // Declare the output variable
-        shader.beginLine();
-        emitOutput(node.getNode(), true, shader);
-        shader.endLine();
-
-        shader.beginLine();
-
-        // Emit function name
-        shader.addStr(node.getFunctionName() + "(");
-
-        // Emit function inputs
-        string delim = "";
-        if (extraInputs)
-        {
-            for (const string& input : *extraInputs)
-            {
-                shader.addStr(delim + input);
-                delim = ", ";
-            }
-        }
-        for (ValueElementPtr port : node.getNodeDef().getChildrenOfType<ValueElement>())
-        {
-            // Find the input port on the node instance
-            ValueElementPtr input = node.getNode().getChildOfType<ValueElement>(port->getName());
-            if (!input)
-            {
-                // Not found so used default on the node def
-                input = port;
-            }
-
-            shader.addStr(delim);
-            emitInput(*input, shader);
-            delim = ", ";
-        }
-
-        // Emit function output
-        shader.addStr(delim);
-        emitOutput(node.getNode(), false, shader);
-
-        // End function call
-        shader.addStr(")");
-        shader.endLine();
     }
 }
 
@@ -220,7 +67,7 @@ void ShaderGenerator::emitShaderBody(Shader &shader)
             continue;
         }
 
-        emitFunctionCall(node, shader);
+        node.getImplementation()->emitFunctionCall(node, *this, shader);
     }
 
     emitFinalOutput(shader);
@@ -306,6 +153,60 @@ void ShaderGenerator::emitOutput(const TypedElement& nodeOrOutput, bool includeT
 string ShaderGenerator::id(const string& language, const string& target)
 {
     return language + "_" + target;
+}
+
+void ShaderGenerator::registerNodeImplementation(const string& name, CreatorFunc<NodeImplementation> creator)
+{
+    _nodeImplFactory.registerClass(name, creator);
+}
+
+NodeImplementationPtr ShaderGenerator::getNodeImplementation(const NodeDef& nodeDef)
+{
+    // Find the matching implementation element in the document
+    ImplementationPtr matchingImpl;
+    vector<ElementPtr> elements = nodeDef.getDocument()->getMatchingImplementations(nodeDef.getName());
+    for (ElementPtr element : elements)
+    {
+        ImplementationPtr candidate = element->asA<Implementation>();
+        if (candidate)
+        {
+            const string& matchingTarget = candidate->getTarget();
+            if (candidate->getLanguage() == getLanguage() && (matchingTarget.empty() || matchingTarget == getTarget()))
+            {
+                matchingImpl = candidate;
+                break;
+            }
+        }
+    }
+
+    if (!matchingImpl)
+    {
+        throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef.getNode() +
+            "' matching language '" + getLanguage() + "' and target '" + getTarget() + "'");
+    }
+
+    const string& name = matchingImpl->getName();
+
+    // Check if it's created already
+    auto it = _cachedNodeImpls.find(name);
+    if (it != _cachedNodeImpls.end())
+    {
+        return it->second;
+    }
+
+    // Try creating a new in the factory
+    NodeImplementationPtr impl = _nodeImplFactory.create(name);
+    if (!impl)
+    {
+        // No implementation was registed for this name
+        // Fall back to data driven source code implementation
+        impl = SourceCode::creator();
+    }
+
+    impl->initialize(*matchingImpl);
+    _cachedNodeImpls[name] = impl;
+
+    return impl;
 }
 
 }

@@ -7,6 +7,9 @@ namespace MaterialX
 
 namespace {
 
+    static const string kLanguage = "glsl";
+    static const string kTarget = "ogsfx";
+
     static const string kLightLoopBegin =
         "vec3 V = PS_IN.WorldView;\n"
         "const int numLights = min(ClampDynamicLights, 3);\n"
@@ -24,9 +27,22 @@ namespace {
 
 }
 
-DEFINE_NODE_IMPLEMENTATION(SurfaceOgsFx, "surface", "glsl", "ogsfx")
+NodeImplementationPtr SurfaceOgsFx::creator()
+{
+    return std::make_shared<SurfaceOgsFx>();
+}
 
-void SurfaceOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
+const string& SurfaceOgsFx::getLanguage() const
+{ 
+    return kLanguage;
+}
+
+const string& SurfaceOgsFx::getTarget() const
+{
+    return kTarget;
+}
+
+void SurfaceOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader, int, ...)
 {
     GlslShaderGenerator& glslgen = static_cast<GlslShaderGenerator&>(shadergen);
 

@@ -56,7 +56,7 @@ public:
     };
 
 public:
-    SgNode(NodePtr node, const string& language, const string& target);
+    SgNode(NodePtr node, ShaderGenerator& shadergen);
 
     /// Return true if this node matches the given classification.
     bool hasClassification(unsigned int c) const
@@ -94,29 +94,10 @@ public:
     /// Throws exception if no port is found.
     const ValueElement& getPort(const string& name) const;
 
-    /// Return the custom implementation used for this node,
-    /// or nullptr if the node is not using a custom implementation.
-    const NodeImplementationPtr& getCustomImpl() const
+    /// Return the implementation used for this node.
+    const NodeImplementationPtr& getImplementation() const
     {
-        return _customImpl;
-    }
-
-    /// Return true if this node is using an inlined implementation.
-    bool getInlined() const
-    {
-        return _inlined;
-    }
-
-    /// Return the function name for this node.
-    const string& getFunctionName() const
-    {
-        return _functionName;
-    }
-
-    /// Return the function source code for this node.
-    const string& getFunctionSource() const
-    {
-        return _functionSource;
+        return _impl;
     }
 
     /// Return the scope info for this node.
@@ -140,18 +121,11 @@ public:
         return _usedClosures.count(node) > 0;
     }
 
-    /// Return the source code implementation element for the given nodedef and language/target,
-    /// or nullptr if no matching implemenation is found.
-    static ImplementationPtr getSourceCodeImplementation(const NodeDef& nodeDef, const string& language, const string& target);
-
 private:
     unsigned int _classification;
     NodePtr _node;
     NodeDefPtr _nodeDef;
-    NodeImplementationPtr _customImpl;
-    bool _inlined;
-    string _functionName;
-    string _functionSource;
+    NodeImplementationPtr _impl;
     ScopeInfo _scopeInfo;
     set<const SgNode*> _usedClosures;
 

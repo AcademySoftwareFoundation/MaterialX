@@ -11,12 +11,15 @@ namespace MaterialX
 class GlslShaderGenerator : public ShaderGenerator
 {
 public:
+    /// Emit function definitions for all nodes
+    void emitFunctions(Shader& shader) override;
+
     /// Emit code for all texturing nodes.
     virtual void emitTextureNodes(Shader& shader);
 
     /// Emit code for calculating the BSDF response given the incident and outgoing light directions.
     /// The output bsdf will hold the variable name keeping the result.
-    virtual void emitSurfaceBsdf(const SgNode& surfaceShaderNode, const string& incident, const string& outgoing, Shader& shader, string& bsdf);
+    virtual void emitSurfaceBsdf(const SgNode& surfaceShaderNode, const string& wi, const string& wo, Shader& shader, string& bsdf);
 
     /// Emit code for calculating the emission
     /// The output emission will hold the variable keeping the result.

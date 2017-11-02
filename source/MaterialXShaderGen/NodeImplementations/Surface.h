@@ -9,9 +9,12 @@ namespace MaterialX
 /// Implementation of 'surface' node for OgsFx
 class SurfaceOgsFx : public NodeImplementation
 {
-    DECLARE_NODE_IMPLEMENTATION(SurfaceOgsFx)
 public:
-    void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
+    static NodeImplementationPtr creator();
+    const string& getLanguage() const override;
+    const string& getTarget() const override;
+
+    void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader, int numArgs = 0, ...) override;
 };
 
 } // namespace MaterialX

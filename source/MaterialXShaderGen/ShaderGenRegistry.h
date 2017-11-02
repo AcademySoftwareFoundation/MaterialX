@@ -31,21 +31,10 @@ public:
     /// Unregister a shader generator for the given language and target.
     static void unregisterShaderGenerator(const string& language, const string& target);
 
-    /// Register an implementation for a node for the given language and target.
-    static void registerNodeImplementation(const string& node, const string& language, const string& target, CreatorFunc<NodeImplementation> creator);
-
-    /// Unregister an implementation for a node for the given language and target.
-    static void unregisterNodeImplementation(const string& node, const string& language, const string& target);
-
     /// Find a shader generator for the given language and target. Creating a new instance 
     /// if it's not been created already. Return nullptr if no generator has been registered 
     /// for the given language and target.
     static ShaderGeneratorPtr findShaderGenerator(const string& language, const string& target = EMPTY_STRING);
-
-    /// Find an implementation for a node for the given language and target. Creating a new 
-    /// instance if it's not been created already. Return nullptr if no implementation has been 
-    /// registered for the given node, language and target.
-    static NodeImplementationPtr findNodeImplementation(const string& node, const string& language = EMPTY_STRING, const string& target = EMPTY_STRING);
 
     /// Add to the search path used for finding source code.
     static void registerSourceCodeSearchPath(const FilePath& path);
@@ -66,13 +55,9 @@ public:
 
 private:
     static ShaderGeneratorPtr findShaderGeneratorById(const string& id);
-    static NodeImplementationPtr findNodeImplementationById(const string& id);
     
     static Factory<ShaderGenerator> _shaderGeneratorFactory;
     static unordered_map<string, ShaderGeneratorPtr> _shaderGenerators;
-
-    static Factory<NodeImplementation> _implementationFactory;
-    static unordered_map<string, NodeImplementationPtr> _implementations;
 
     static FileSearchPath _sourceCodeSearchPath;
 };

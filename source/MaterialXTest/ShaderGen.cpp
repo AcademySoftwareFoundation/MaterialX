@@ -8,7 +8,6 @@
 #include <MaterialXShaderGen/ShaderGenerators/ArnoldShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OgsFxShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OslSyntax.h>
-#include <MaterialXShaderGen/NodeImplementations/VDirection.h>
 #include <MaterialXShaderGen/NodeImplementations/Swizzle.h>
 
 #include <iostream>
@@ -45,37 +44,6 @@ TEST_CASE("Registry", "[shadergen]")
         mx::ArnoldShaderGenerator::kLanguage, 
         mx::ArnoldShaderGenerator::kTarget);
     REQUIRE(sg1 == nullptr);
-
-    mx::NodeImplementationPtr impl1 = mx::ShaderGenRegistry::findNodeImplementation(
-        mx::VDirectionFlipOsl::kNode,
-        mx::VDirectionFlipOsl::kLanguage,
-        mx::VDirectionFlipOsl::kTarget);
-    REQUIRE(impl1 != nullptr);
-
-    mx::NodeImplementationPtr impl2 = mx::ShaderGenRegistry::findNodeImplementation(
-        mx::VDirectionFlipOsl::kNode,
-        mx::VDirectionFlipOsl::kLanguage);
-    REQUIRE(impl2 != nullptr);
-    REQUIRE(impl2 == impl1);
-
-    mx::NodeImplementationPtr impl3 = mx::ShaderGenRegistry::findNodeImplementation(
-        mx::VDirectionFlipOsl::kNode);
-    REQUIRE(impl3 == nullptr);
-
-    mx::NodeImplementationPtr impl4 = mx::ShaderGenRegistry::findNodeImplementation(
-        mx::VDirectionFlipGlsl::kNode,
-        mx::VDirectionFlipGlsl::kLanguage,
-        mx::VDirectionFlipGlsl::kTarget);
-    REQUIRE(impl4 != nullptr);
-    REQUIRE(impl4 != impl2);
-
-    mx::ShaderGenRegistry::unregisterBuiltIn();
-
-    impl4 = mx::ShaderGenRegistry::findNodeImplementation(
-        mx::VDirectionFlipGlsl::kNode,
-        mx::VDirectionFlipGlsl::kLanguage,
-        mx::VDirectionFlipGlsl::kTarget);
-    REQUIRE(impl4 == nullptr);
 }
 
 TEST_CASE("OslSyntax", "[shadergen]")
@@ -137,13 +105,13 @@ TEST_CASE("Swizzling", "[shadergen]")
     mx::Swizzle swizzleNode;
 
     mx::Shader test1("test1");
-    swizzleNode.emitFunctionCall(mx::SgNode(swizzle, sg.getLanguage(), sg.getTarget()), sg, test1);
+    swizzleNode.emitFunctionCall(mx::SgNode(swizzle, sg), sg, test1);
     REQUIRE(test1.getSourceCode() == "color swizzle1 = color(constant1[0], constant1[0], constant1[0]);\n");
 
     swizzle->setParameterValue("channels", std::string("b0b"));
 
     mx::Shader test2("test2");
-    swizzleNode.emitFunctionCall(mx::SgNode(swizzle, sg.getLanguage(), sg.getTarget()), sg, test2);
+    swizzleNode.emitFunctionCall(mx::SgNode(swizzle, sg), sg, test2);
     REQUIRE(test2.getSourceCode() == "color swizzle1 = color(constant1[2], 0, constant1[2]);\n");
 }
 

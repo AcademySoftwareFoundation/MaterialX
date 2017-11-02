@@ -9,11 +9,13 @@ namespace MaterialX
 /// Implementation of switch node
 class Switch : public NodeImplementation
 {
-    DECLARE_NODE_IMPLEMENTATION(Switch)
+public:
+    static NodeImplementationPtr creator();
+
+    void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader, int numArgs = 0, ...) override;
+
 public:
     static const vector<string> kInputNames;
-
-    void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 };
 
 } // namespace MaterialX

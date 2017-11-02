@@ -1,10 +1,10 @@
 #include <MaterialXShaderGen/Shader.h>
 #include <MaterialXShaderGen/ShaderGenRegistry.h>
+#include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/Syntax.h>
 #include <MaterialXShaderGen/Util.h>
 #include <MaterialXShaderGen/NodeImplementations/Compare.h>
 #include <MaterialXShaderGen/NodeImplementations/Switch.h>
-#include <MaterialXShaderGen/NodeImplementations/Constant.h>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Node.h>
@@ -31,7 +31,7 @@ Shader::Shader(const string& name)
     _stages.resize(numStages());
 }
 
-void Shader::initialize(ElementPtr element, const string& language, const string& target)
+void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
 {
     _activeStage = 0;
     _stages.resize(numStages());
@@ -221,7 +221,7 @@ void Shader::initialize(ElementPtr element, const string& language, const string
     }
 
     // Create a flat version of the graph.
-    _nodeGraph->flattenSubgraphs(target);
+    _nodeGraph->flattenSubgraphs(shadergen.getTarget());
 
     // Create a topological ordering of the nodes
     vector<ElementPtr> topologicalOrder = _nodeGraph->topologicalSort();
@@ -233,7 +233,7 @@ void Shader::initialize(ElementPtr element, const string& language, const string
         {
             NodePtr node = elem->asA<Node>();
             _nodeToSgNodeIndex[node] = _nodes.size();
-            _nodes.push_back(SgNode(node, language, target));
+            _nodes.push_back(SgNode(node, shadergen));
         }
     }
 
@@ -627,12 +627,12 @@ NodePtr Shader::optimize(const Edge& edge)
     ValuePtr value = nullptr;
     string publicname = "";
 
-    if (node->getCategory() == Compare::kNode)
+    if (node->getCategory() == "compare")
     {
         // Check if we have a constant conditional expression
         const InputPtr intest = node->getInput("intest");
         NodePtr intestNode = intest->getConnectedNode();
-        if (!intestNode || intestNode->getCategory() == Constant::kNode)
+        if (!intestNode || intestNode->getCategory() == "constant")
         {
             const ParameterPtr cutoff = node->getParameter("cutoff");
 
@@ -650,7 +650,7 @@ NodePtr Shader::optimize(const Edge& edge)
             }
         }
     }
-    else if (node->getCategory() == Switch::kNode)
+    else if (node->getCategory() == "switch")
     {
         // For switch the conditional is always constant
         const ParameterPtr which = node->getParameter("which");
@@ -666,7 +666,7 @@ NodePtr Shader::optimize(const Edge& edge)
         }
     }
 
-    if (node && node->getCategory() == Constant::kNode)
+    if (node && node->getCategory() == "constant")
     {
         const ParameterPtr param = node->getParameter("value");
         value = param->getValue();

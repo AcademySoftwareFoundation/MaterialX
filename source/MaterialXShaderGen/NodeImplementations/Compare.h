@@ -9,11 +9,13 @@ namespace MaterialX
 /// Implementation of compare node
 class Compare : public NodeImplementation
 {
-    DECLARE_NODE_IMPLEMENTATION(Compare)
+public:
+    static NodeImplementationPtr creator();
+
+    void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader, int numArgs = 0, ...) override;
+
 public:
     static const vector<string> kInputNames;
-
-    void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 };
 
 } // namespace MaterialX

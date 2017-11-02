@@ -55,9 +55,8 @@ public:
 
     /// Initialize the shader before shader generation.
     /// @param element The root element to generate the shader from. 
-    /// @param language The shading language identifyer.
-    /// @param target The target application identifyer.
-    virtual void initialize(ElementPtr element, const string& language, const string& target);
+    /// @param shadergen The shader generator instance.
+    virtual void initialize(ElementPtr element, ShaderGenerator& shadergen);
 
     /// Must be called after shader generation is completed.
     /// Will release resources used during shader generation.
