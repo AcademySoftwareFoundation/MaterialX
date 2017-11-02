@@ -1,6 +1,5 @@
 #include <MaterialXShaderGen/ShaderGenerators/OslShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OslSyntax.h>
-#include <MaterialXShaderGen/ShaderGenRegistry.h>
 
 #include <MaterialXShaderGen/NodeImplementations/Swizzle.h>
 #include <MaterialXShaderGen/NodeImplementations/Switch.h>
@@ -152,7 +151,7 @@ void OslShaderGenerator::emitIncludes(Shader& shader)
 
     for (const string& file : includeFiles)
     {
-        FilePath path = ShaderGenRegistry::findSourceCode(file);
+        FilePath path = ShaderGenerator::findSourceCode(file);
         shader.addLine("#include \"" + path.asString() + "\"", false);
     }
 

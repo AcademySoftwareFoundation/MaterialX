@@ -3,7 +3,6 @@
 #include <MaterialXCore/Document.h>
 
 #include <MaterialXShaderGen/NodeImplementations/SourceCode.h>
-#include <MaterialXShaderGen/ShaderGenRegistry.h>
 #include <MaterialXShaderGen/Shader.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/Util.h>
@@ -39,7 +38,7 @@ void SourceCode::initialize(const Implementation& implementation)
         _functionName = implementation.getNodeDef();
     }
 
-    if (!readFile(ShaderGenRegistry::findSourceCode(file), _functionSource))
+    if (!readFile(ShaderGenerator::findSourceCode(file), _functionSource))
     {
         throw ExceptionShaderGenError("Can't find source file '" + file + "' used by implementation '" + implementation.getName() + "'");
     }

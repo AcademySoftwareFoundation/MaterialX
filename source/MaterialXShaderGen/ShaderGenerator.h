@@ -7,6 +7,8 @@
 
 #include <MaterialXCore/Util.h>
 
+#include <MaterialXFormat/File.h>
+
 namespace MaterialX
 {
 
@@ -74,6 +76,12 @@ public:
     /// a default source code implementation node will be returned
     NodeImplementationPtr getNodeImplementation(const NodeDef& nodeDef);
 
+    /// Add to the search path used for finding source code.
+    static void registerSourceCodeSearchPath(const FilePath& path);
+
+    /// Resolve a source code file using the registered search paths.
+    static FilePath findSourceCode(const FilePath& filename);
+
 protected:
     /// Protected constructor
     ShaderGenerator(SyntaxPtr syntax) : _syntax(syntax) {}
@@ -81,6 +89,8 @@ protected:
     SyntaxPtr _syntax;
     Factory<NodeImplementation> _nodeImplFactory;
     unordered_map<string, NodeImplementationPtr> _cachedNodeImpls;
+
+    static FileSearchPath _sourceCodeSearchPath;
 };
 
 } // namespace MaterialX

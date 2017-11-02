@@ -1,5 +1,4 @@
 #include <MaterialXShaderGen/ShaderGenerator.h>
-#include <MaterialXShaderGen/ShaderGenRegistry.h>
 #include <MaterialXShaderGen/NodeImplementation.h>
 #include <MaterialXShaderGen/NodeImplementations/SourceCode.h>
 
@@ -13,6 +12,8 @@
 
 namespace MaterialX
 {
+
+FileSearchPath ShaderGenerator::_sourceCodeSearchPath;
 
 Shader::VDirection ShaderGenerator::getTargetVDirection() const
 {
@@ -207,6 +208,17 @@ NodeImplementationPtr ShaderGenerator::getNodeImplementation(const NodeDef& node
     _cachedNodeImpls[name] = impl;
 
     return impl;
+}
+
+void ShaderGenerator::registerSourceCodeSearchPath(const FilePath& path)
+{
+    _sourceCodeSearchPath.append(path);
+}
+
+/// Resolve a file using the registered search paths.
+FilePath ShaderGenerator::findSourceCode(const FilePath& filename)
+{
+    return _sourceCodeSearchPath.find(filename);
 }
 
 }

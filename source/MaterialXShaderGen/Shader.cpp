@@ -1,5 +1,4 @@
 #include <MaterialXShaderGen/Shader.h>
-#include <MaterialXShaderGen/ShaderGenRegistry.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/Syntax.h>
 #include <MaterialXShaderGen/Util.h>
@@ -487,7 +486,7 @@ void Shader::addBlock(const string& str)
 
 void Shader::addInclude(const string& file)
 {
-    const string path = ShaderGenRegistry::findSourceCode(file);
+    const string path = ShaderGenerator::findSourceCode(file);
 
     Stage& s = stage();
     if (s.includes.find(path) == s.includes.end())
