@@ -1,6 +1,6 @@
 #include <MaterialXShaderGen/ShaderGenerator.h>
-#include <MaterialXShaderGen/NodeImplementation.h>
-#include <MaterialXShaderGen/NodeImplementations/SourceCode.h>
+#include <MaterialXShaderGen/SgImplementation.h>
+#include <MaterialXShaderGen/Implementations/SourceCode.h>
 
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Document.h>
@@ -156,12 +156,12 @@ string ShaderGenerator::id(const string& language, const string& target)
     return language + "_" + target;
 }
 
-void ShaderGenerator::registerNodeImplementation(const string& name, CreatorFunc<NodeImplementation> creator)
+void ShaderGenerator::registerNodeImplementation(const string& name, CreatorFunc<SgImplementation> creator)
 {
     _nodeImplFactory.registerClass(name, creator);
 }
 
-NodeImplementationPtr ShaderGenerator::getNodeImplementation(const NodeDef& nodeDef)
+SgImplementationPtr ShaderGenerator::getNodeImplementation(const NodeDef& nodeDef)
 {
     // Find the matching implementation element in the document
     ImplementationPtr matchingImpl;
@@ -196,7 +196,7 @@ NodeImplementationPtr ShaderGenerator::getNodeImplementation(const NodeDef& node
     }
 
     // Try creating a new in the factory
-    NodeImplementationPtr impl = _nodeImplFactory.create(name);
+    SgImplementationPtr impl = _nodeImplFactory.create(name);
     if (!impl)
     {
         // No implementation was registed for this name

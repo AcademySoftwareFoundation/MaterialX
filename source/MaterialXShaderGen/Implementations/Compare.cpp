@@ -1,4 +1,4 @@
-#include <MaterialXShaderGen/NodeImplementations/Compare.h>
+#include <MaterialXShaderGen/Implementations/Compare.h>
 #include <MaterialXShaderGen/Shader.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 
@@ -7,7 +7,7 @@ namespace MaterialX
 
 const vector<string> Compare::kInputNames = { "intest", "in1", "in2" };
 
-NodeImplementationPtr Compare::creator()
+SgImplementationPtr Compare::creator()
 {
     return std::make_shared<Compare>();
 }

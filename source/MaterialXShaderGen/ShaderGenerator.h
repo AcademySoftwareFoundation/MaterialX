@@ -69,12 +69,12 @@ public:
     using CreatorFunc = shared_ptr<T>(*)();
 
     /// Register a node implementation for a given implementation element name
-    void registerNodeImplementation(const string& name, CreatorFunc<NodeImplementation> creator);
+    void registerNodeImplementation(const string& name, CreatorFunc<SgImplementation> creator);
 
     /// Return a registered node implementation given a nodedef
     /// If no registered implementaion is found matching the nodedef
     /// a default source code implementation node will be returned
-    NodeImplementationPtr getNodeImplementation(const NodeDef& nodeDef);
+    SgImplementationPtr getNodeImplementation(const NodeDef& nodeDef);
 
     /// Add to the search path used for finding source code.
     static void registerSourceCodeSearchPath(const FilePath& path);
@@ -87,8 +87,8 @@ protected:
     ShaderGenerator(SyntaxPtr syntax) : _syntax(syntax) {}
 
     SyntaxPtr _syntax;
-    Factory<NodeImplementation> _nodeImplFactory;
-    unordered_map<string, NodeImplementationPtr> _cachedNodeImpls;
+    Factory<SgImplementation> _nodeImplFactory;
+    unordered_map<string, SgImplementationPtr> _cachedNodeImpls;
 
     static FileSearchPath _sourceCodeSearchPath;
 };

@@ -1,4 +1,4 @@
-#include <MaterialXShaderGen/NodeImplementations/Switch.h>
+#include <MaterialXShaderGen/Implementations/Switch.h>
 #include <MaterialXShaderGen/Shader.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 
@@ -7,7 +7,7 @@ namespace MaterialX
 
 const vector<string> Switch::kInputNames = { "in1", "in2", "in3", "in4", "in5" };
 
-NodeImplementationPtr Switch::creator()
+SgImplementationPtr Switch::creator()
 {
     return std::make_shared<Switch>();
 }

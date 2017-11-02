@@ -2,7 +2,7 @@
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Document.h>
 
-#include <MaterialXShaderGen/NodeImplementations/SourceCode.h>
+#include <MaterialXShaderGen/Implementations/SourceCode.h>
 #include <MaterialXShaderGen/Shader.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/Util.h>
@@ -12,14 +12,14 @@
 namespace MaterialX
 {
 
-NodeImplementationPtr SourceCode::creator()
+SgImplementationPtr SourceCode::creator()
 {
     return std::make_shared<SourceCode>();
 }
 
 void SourceCode::initialize(const Implementation& implementation)
 {
-    NodeImplementation::initialize(implementation);
+    SgImplementation::initialize(implementation);
 
     const string& file = implementation.getAttribute("file");
     if (file.empty())

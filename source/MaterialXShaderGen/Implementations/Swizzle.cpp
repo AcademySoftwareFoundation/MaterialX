@@ -1,11 +1,11 @@
-#include <MaterialXShaderGen/NodeImplementations/Swizzle.h>
+#include <MaterialXShaderGen/Implementations/Swizzle.h>
 #include <MaterialXShaderGen/Shader.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 
 namespace MaterialX
 {
 
-NodeImplementationPtr Swizzle::creator()
+SgImplementationPtr Swizzle::creator()
 {
     return std::make_shared<Swizzle>();
 }

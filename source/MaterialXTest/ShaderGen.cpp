@@ -7,7 +7,7 @@
 #include <MaterialXShaderGen/ShaderGenerators/ArnoldShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OgsFxShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OslSyntax.h>
-#include <MaterialXShaderGen/NodeImplementations/Swizzle.h>
+#include <MaterialXShaderGen/Implementations/Swizzle.h>
 
 #include <iostream>
 #include <fstream>

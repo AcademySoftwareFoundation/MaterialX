@@ -3,7 +3,7 @@
 
 #include <MaterialXCore/Node.h>
 
-#include <MaterialXShaderGen/NodeImplementation.h>
+#include <MaterialXShaderGen/SgImplementation.h>
 
 namespace MaterialX
 {
@@ -95,7 +95,7 @@ public:
     const ValueElement& getPort(const string& name) const;
 
     /// Return the implementation used for this node.
-    const NodeImplementationPtr& getImplementation() const
+    const SgImplementationPtr& getImplementation() const
     {
         return _impl;
     }
@@ -125,7 +125,7 @@ private:
     unsigned int _classification;
     NodePtr _node;
     NodeDefPtr _nodeDef;
-    NodeImplementationPtr _impl;
+    SgImplementationPtr _impl;
     ScopeInfo _scopeInfo;
     set<const SgNode*> _usedClosures;
 

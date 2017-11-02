@@ -7,19 +7,19 @@ file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_header "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 file(GLOB shadergenerators_source "${CMAKE_CURRENT_SOURCE_DIR}/ShaderGenerators/*.cpp")
 file(GLOB shadergenerators_header "${CMAKE_CURRENT_SOURCE_DIR}/ShaderGenerators/*.h")
-file(GLOB nodeimplementations_source "${CMAKE_CURRENT_SOURCE_DIR}/NodeImplementations/*.cpp")
-file(GLOB nodeimplementations_header "${CMAKE_CURRENT_SOURCE_DIR}/NodeImplementations/*.h")
+file(GLOB implementations_source "${CMAKE_CURRENT_SOURCE_DIR}/Implementations/*.cpp")
+file(GLOB implementations_header "${CMAKE_CURRENT_SOURCE_DIR}/Implementations/*.h")
 
-source_group("Header Files\\NodeImplementations" FILES ${nodeimplementations_header})
-source_group("Source Files\\NodeImplementations" FILES ${nodeimplementations_source})
+source_group("Header Files\\Implementations" FILES ${implementations_header})
+source_group("Source Files\\Implementations" FILES ${implementations_source})
 source_group("Header Files\\ShaderGenerators" FILES ${shadergenerators_header})
 source_group("Source Files\\ShaderGenerators" FILES ${shadergenerators_source})
 
 add_library(MaterialXShaderGen STATIC 
     ${materialx_source} 
     ${materialx_header}
-    ${nodeimplementations_source} 
-    ${nodeimplementations_header}
+    ${implementations_source} 
+    ${implementations_header}
     ${shadergenerators_source} 
     ${shadergenerators_header}
 )
@@ -46,6 +46,8 @@ install(FILES ${materialx_header}
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXShaderGen/)
 install(FILES ${shadergenerators_header}
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXShaderGen/ShaderGenerators)
+install(FILES ${implementations_header}
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXShaderGen/Implementations)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXShaderGen.pdb"
         DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/" OPTIONAL)
 

@@ -1,5 +1,5 @@
 #include <MaterialXShaderGen/ShaderGenerators/OgsFxShaderGenerator.h>
-#include <MaterialXShaderGen/NodeImplementations/Surface.h>
+#include <MaterialXShaderGen/Implementations/Surface.h>
 
 #include <sstream>
 

@@ -1,6 +1,6 @@
 #include <MaterialXShaderGen/SgNode.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
-#include <MaterialXShaderGen/NodeImplementation.h>
+#include <MaterialXShaderGen/SgImplementation.h>
 #include <MaterialXShaderGen/Util.h>
 
 #include <MaterialXCore/Document.h>

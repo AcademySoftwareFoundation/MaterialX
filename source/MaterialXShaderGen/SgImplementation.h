@@ -1,5 +1,5 @@
-#ifndef MATERIALX_NODEIMPLEMENTATION_H
-#define MATERIALX_NODEIMPLEMENTATION_H
+#ifndef MATERIALX_SGIMPLEMENTATION_H
+#define MATERIALX_SGIMPLEMENTATION_H
 
 #include <MaterialXCore/Library.h>
 #include <MaterialXCore/Util.h>
@@ -12,12 +12,15 @@ class SgNode;
 class Shader;
 class ShaderGenerator;
 
-using NodeImplementationPtr = shared_ptr<class NodeImplementation>;
+using SgImplementationPtr = shared_ptr<class SgImplementation>;
 
-class NodeImplementation
+/// Class handling the shader generation implementation for a node.
+/// Responsible for emitting the function definition and function call 
+/// that is the node implementation.
+class SgImplementation
 {
 public:
-    virtual ~NodeImplementation() {}
+    virtual ~SgImplementation() {}
 
     /// Initialize with the given implementation element
     virtual void initialize(const Implementation& implementation);
@@ -37,7 +40,11 @@ public:
     /// Emit function definition, if needed, for the given node instance
     virtual void emitFunction(const SgNode& node, ShaderGenerator& shadergen, Shader& shader);
 
-    /// Emit the function call, or other node implementation source code, for given node instance
+    /// Emit the function call or inline source code for given node instance.
+    /// The varying length arguments can, if needed, be used to emit extra inputs 
+    /// to the function. These should be given as raw C strings, and can be variable 
+    /// names created by the shader generator or numeric values. If used the arguments 
+    /// are given to the function first, before the node's usual inputs and parameters.
     virtual void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader, int numArgs = 0, ...);
 
     /// Return true if this implementation for the given node instance is transparent.
@@ -47,7 +54,7 @@ public:
 
 protected:
     /// Protected constructor
-    NodeImplementation() {}
+    SgImplementation() {}
 };
 
 } // namespace MaterialX

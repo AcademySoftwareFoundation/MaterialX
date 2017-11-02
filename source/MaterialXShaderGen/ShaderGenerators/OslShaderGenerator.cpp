@@ -1,9 +1,9 @@
 #include <MaterialXShaderGen/ShaderGenerators/OslShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OslSyntax.h>
 
-#include <MaterialXShaderGen/NodeImplementations/Swizzle.h>
-#include <MaterialXShaderGen/NodeImplementations/Switch.h>
-#include <MaterialXShaderGen/NodeImplementations/Compare.h>
+#include <MaterialXShaderGen/Implementations/Swizzle.h>
+#include <MaterialXShaderGen/Implementations/Switch.h>
+#include <MaterialXShaderGen/Implementations/Compare.h>
 
 namespace
 {
