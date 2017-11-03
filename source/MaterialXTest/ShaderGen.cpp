@@ -4,12 +4,10 @@
 
 #include <MaterialXFormat/XmlIo.h>
 
-#include <MaterialXShaderGen/ShaderGenRegistry.h>
 #include <MaterialXShaderGen/ShaderGenerators/ArnoldShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OgsFxShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OslSyntax.h>
-#include <MaterialXShaderGen/NodeImplementations/VDirection.h>
-#include <MaterialXShaderGen/NodeImplementations/Swizzle.h>
+#include <MaterialXShaderGen/Implementations/Swizzle.h>
 
 #include <iostream>
 #include <fstream>
@@ -18,65 +16,10 @@ namespace mx = MaterialX;
 
 struct GeneratorDescription
 {
-    std::string _language;
-    std::string _target;
-    std::string _fileExt;
-    std::vector<std::string> _implementationLibrary;
+    mx::ShaderGeneratorPtr shadergen;
+    std::string fileExt;
+    std::vector<std::string> implementationLibrary;
 };
-
-TEST_CASE("Registry", "[shadergen]")
-{
-    mx::ShaderGenRegistry::registerBuiltIn();
-
-    mx::ShaderGeneratorPtr sg1 = mx::ShaderGenRegistry::findShaderGenerator(
-        mx::ArnoldShaderGenerator::kLanguage,
-        mx::ArnoldShaderGenerator::kTarget);
-    REQUIRE(sg1->getTarget() == mx::ArnoldShaderGenerator::kTarget);
-    
-    mx::ShaderGeneratorPtr sg2 = mx::ShaderGenRegistry::findShaderGenerator(
-        mx::ArnoldShaderGenerator::kLanguage);
-    REQUIRE(sg2 == nullptr);
-
-    mx::ShaderGenRegistry::unregisterShaderGenerator(
-        mx::ArnoldShaderGenerator::kLanguage, 
-        mx::ArnoldShaderGenerator::kTarget);
-
-    sg1 = mx::ShaderGenRegistry::findShaderGenerator(
-        mx::ArnoldShaderGenerator::kLanguage, 
-        mx::ArnoldShaderGenerator::kTarget);
-    REQUIRE(sg1 == nullptr);
-
-    mx::NodeImplementationPtr impl1 = mx::ShaderGenRegistry::findNodeImplementation(
-        mx::VDirectionFlipOsl::kNode,
-        mx::VDirectionFlipOsl::kLanguage,
-        mx::VDirectionFlipOsl::kTarget);
-    REQUIRE(impl1 != nullptr);
-
-    mx::NodeImplementationPtr impl2 = mx::ShaderGenRegistry::findNodeImplementation(
-        mx::VDirectionFlipOsl::kNode,
-        mx::VDirectionFlipOsl::kLanguage);
-    REQUIRE(impl2 != nullptr);
-    REQUIRE(impl2 == impl1);
-
-    mx::NodeImplementationPtr impl3 = mx::ShaderGenRegistry::findNodeImplementation(
-        mx::VDirectionFlipOsl::kNode);
-    REQUIRE(impl3 == nullptr);
-
-    mx::NodeImplementationPtr impl4 = mx::ShaderGenRegistry::findNodeImplementation(
-        mx::VDirectionFlipGlsl::kNode,
-        mx::VDirectionFlipGlsl::kLanguage,
-        mx::VDirectionFlipGlsl::kTarget);
-    REQUIRE(impl4 != nullptr);
-    REQUIRE(impl4 != impl2);
-
-    mx::ShaderGenRegistry::unregisterBuiltIn();
-
-    impl4 = mx::ShaderGenRegistry::findNodeImplementation(
-        mx::VDirectionFlipGlsl::kNode,
-        mx::VDirectionFlipGlsl::kLanguage,
-        mx::VDirectionFlipGlsl::kTarget);
-    REQUIRE(impl4 == nullptr);
-}
 
 TEST_CASE("OslSyntax", "[shadergen]")
 {
@@ -99,10 +42,8 @@ TEST_CASE("OslSyntax", "[shadergen]")
 
 TEST_CASE("Swizzling", "[shadergen]")
 {
-    mx::ScopedShaderGenInit shaderGenInit;
-
     std::string searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    mx::ShaderGenRegistry::registerSourceCodeSearchPath(searchPath);
+    mx::ShaderGenerator::registerSourceCodeSearchPath(searchPath);
 
     mx::DocumentPtr doc = mx::createDocument();
     std::vector<std::string> filenames =
@@ -137,22 +78,20 @@ TEST_CASE("Swizzling", "[shadergen]")
     mx::Swizzle swizzleNode;
 
     mx::Shader test1("test1");
-    swizzleNode.emitFunctionCall(mx::SgNode(swizzle, sg.getLanguage(), sg.getTarget()), sg, test1);
+    swizzleNode.emitFunctionCall(mx::SgNode(swizzle, sg), sg, test1);
     REQUIRE(test1.getSourceCode() == "color swizzle1 = color(constant1[0], constant1[0], constant1[0]);\n");
 
     swizzle->setParameterValue("channels", std::string("b0b"));
 
     mx::Shader test2("test2");
-    swizzleNode.emitFunctionCall(mx::SgNode(swizzle, sg.getLanguage(), sg.getTarget()), sg, test2);
+    swizzleNode.emitFunctionCall(mx::SgNode(swizzle, sg), sg, test2);
     REQUIRE(test2.getSourceCode() == "color swizzle1 = color(constant1[2], 0, constant1[2]);\n");
 }
 
 TEST_CASE("Simple Nodegraph Shader Generation", "[shadergen]")
 {
-    mx::ScopedShaderGenInit shaderGenInit;
-
     std::string searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    mx::ShaderGenRegistry::registerSourceCodeSearchPath(searchPath);
+    mx::ShaderGenerator::registerSourceCodeSearchPath(searchPath);
 
     mx::DocumentPtr doc = mx::createDocument();
 
@@ -191,40 +130,35 @@ TEST_CASE("Simple Nodegraph Shader Generation", "[shadergen]")
     // Setup the shader generators
     std::vector<GeneratorDescription> generatorDescriptions =
     {
-        // language,  target,    file ext,  implementation library
-        { "osl",      "arnold",  "osl",     {"documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx"} },
-        { "glsl",     "ogsfx",   "ogsfx",   {"documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx"} }
+        { mx::ArnoldShaderGenerator::creator(), "osl",  {"documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx"} },
+        { mx::OgsFxShaderGenerator::creator(), "ogsfx", {"documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx"} }
     };
 
     for (auto desc : generatorDescriptions)
     {
         // Load in the implementation libraries
-        for (const std::string& libfile : desc._implementationLibrary)
+        for (const std::string& libfile : desc.implementationLibrary)
         {
             mx::readFromXmlFile(doc, libfile);
         }
 
-        // Find the shader generator
-        mx::ShaderGeneratorPtr sg = mx::ShaderGenRegistry::findShaderGenerator(desc._language, desc._target);
-        REQUIRE(sg != nullptr);
-
         // Test shader generation from nodegraph output
-        mx::ShaderPtr shader = sg->generate(nodeGraph->getName(), output1);
+        mx::ShaderPtr shader = desc.shadergen->generate(nodeGraph->getName(), output1);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
         // Write out to file for inspection
         // TODO: Match against blessed versions
-        file.open(shader->getName() + "_graphoutput." + desc._fileExt);
+        file.open(shader->getName() + "_graphoutput." + desc.fileExt);
         file << shader->getSourceCode();
         file.close();
 
         // Test shader generation from a node
-        shader = sg->generate(nodeGraph->getName(), multiply);
+        shader = desc.shadergen->generate(nodeGraph->getName(), multiply);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
         // Write out to file for inspection
         // TODO: Match against blessed versions
-        file.open(shader->getName() + "_node." + desc._fileExt);
+        file.open(shader->getName() + "_node." + desc.fileExt);
         file << shader->getSourceCode();
         file.close();
     }
@@ -232,10 +166,8 @@ TEST_CASE("Simple Nodegraph Shader Generation", "[shadergen]")
 
 TEST_CASE("Subgraph Shader Generation", "[shadergen]")
 {
-    mx::ScopedShaderGenInit shaderGenInit;
-
     std::string searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries/stdlib");
-    mx::ShaderGenRegistry::registerSourceCodeSearchPath(searchPath);
+    mx::ShaderGenerator::registerSourceCodeSearchPath(searchPath);
 
     mx::DocumentPtr doc = mx::createDocument();
 
@@ -266,31 +198,26 @@ TEST_CASE("Subgraph Shader Generation", "[shadergen]")
     // Setup the shader generators
     std::vector<GeneratorDescription> generatorDescriptions =
     {
-        // language,  target,    file ext,  implementation library
-        { "osl",      "arnold",  "osl",     { "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx" } },
-        { "glsl",     "ogsfx",   "ogsfx",   { "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx" } }
+        { mx::ArnoldShaderGenerator::creator(), "osl",  { "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx" } },
+        { mx::OgsFxShaderGenerator::creator(), "ogsfx", { "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx" } }
     };
 
     for (auto desc : generatorDescriptions)
     {
         // Load in the implementation libraries
-        for (const std::string& libfile : desc._implementationLibrary)
+        for (const std::string& libfile : desc.implementationLibrary)
         {
             mx::readFromXmlFile(doc, libfile);
         }
 
-        // Find the shader generator
-        mx::ShaderGeneratorPtr sg = mx::ShaderGenRegistry::findShaderGenerator(desc._language, desc._target);
-        REQUIRE(sg != nullptr);
-
         // Test shader generation from nodegraph output
-        mx::ShaderPtr shader = sg->generate(nodeGraph->getName(), output);
+        mx::ShaderPtr shader = desc.shadergen->generate(nodeGraph->getName(), output);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
 
         // Write out to file for inspection
         // TODO: Match against blessed versions
-        file.open(shader->getName() + "." + desc._fileExt);
+        file.open(shader->getName() + "." + desc.fileExt);
         file << shader->getSourceCode();
         file.close();
     }
@@ -298,10 +225,8 @@ TEST_CASE("Subgraph Shader Generation", "[shadergen]")
 
 TEST_CASE("Material Shader Generation", "[shadergen]")
 {
-    mx::ScopedShaderGenInit shaderGenInit;
-
     std::string searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    mx::ShaderGenRegistry::registerSourceCodeSearchPath(searchPath);
+    mx::ShaderGenerator::registerSourceCodeSearchPath(searchPath);
 
     mx::DocumentPtr doc = mx::createDocument();
 
@@ -357,13 +282,13 @@ TEST_CASE("Material Shader Generation", "[shadergen]")
     // Setup the shader generators
     std::vector<GeneratorDescription> generatorDescriptions =
     {
-        { "osl", "arnold", "osl",
+        { mx::ArnoldShaderGenerator::creator(), "osl",
             {
                 "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx",
                 "documents/Libraries/adsk/impl/shadergen/adsk_impl_shadergen_osl.mtlx"
             }
         },
-        { "glsl", "ogsfx", "ogsfx",
+        { mx::OgsFxShaderGenerator::creator(), "ogsfx",
             { 
                 "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx",
                 "documents/Libraries/adsk/impl/shadergen/adsk_impl_shadergen_glsl.mtlx"
@@ -374,23 +299,20 @@ TEST_CASE("Material Shader Generation", "[shadergen]")
     for (auto desc : generatorDescriptions)
     {
         // Load in the implementation libraries
-        for (const std::string& libfile : desc._implementationLibrary)
+        for (const std::string& libfile : desc.implementationLibrary)
         {
             mx::readFromXmlFile(doc, libfile);
         }
-        // Find the shader generator
-        mx::ShaderGeneratorPtr sg = mx::ShaderGenRegistry::findShaderGenerator(desc._language, desc._target);
-        REQUIRE(sg != nullptr);
 
         // Test shader generation from nodegraph output
-        mx::ShaderPtr shader = sg->generate(shaderRef->getName(), shaderRef);
+        mx::ShaderPtr shader = desc.shadergen->generate(shaderRef->getName(), shaderRef);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
 
         // Write out to file for inspection
         // TODO: Match against blessed versions
         std::ofstream file;
-        file.open(shader->getName() + "_shaderref." + desc._fileExt);
+        file.open(shader->getName() + "_shaderref." + desc.fileExt);
         file << shader->getSourceCode();
         file.close();
     }
@@ -398,10 +320,8 @@ TEST_CASE("Material Shader Generation", "[shadergen]")
 
 TEST_CASE("BSDF Layering", "[shadergen]")
 {
-    mx::ScopedShaderGenInit shaderGenInit;
-
     std::string searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    mx::ShaderGenRegistry::registerSourceCodeSearchPath(searchPath);
+    mx::ShaderGenerator::registerSourceCodeSearchPath(searchPath);
 
     mx::DocumentPtr doc = mx::createDocument();
 
@@ -465,42 +385,39 @@ TEST_CASE("BSDF Layering", "[shadergen]")
     // Setup the shader generators
     std::vector<GeneratorDescription> generatorDescriptions =
     {
-        { "osl", "arnold", "osl",
-        {
-            "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx",
-            "documents/Libraries/adsk/impl/shadergen/adsk_impl_shadergen_osl.mtlx",
-            "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_osl.mtlx",
-        }
+        { mx::ArnoldShaderGenerator::creator(), "osl",
+            {
+                "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx",
+                "documents/Libraries/adsk/impl/shadergen/adsk_impl_shadergen_osl.mtlx",
+                "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_osl.mtlx",
+            }
         },
-        { "glsl", "ogsfx", "ogsfx",
-        {
-            "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx",
-            "documents/Libraries/adsk/impl/shadergen/adsk_impl_shadergen_glsl.mtlx",
-            "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_glsl.mtlx",
-        }
+        { mx::OgsFxShaderGenerator::creator(), "ogsfx",
+            {
+                "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx",
+                "documents/Libraries/adsk/impl/shadergen/adsk_impl_shadergen_glsl.mtlx",
+                "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_glsl.mtlx",
+            }
         }
     };
 
     for (auto desc : generatorDescriptions)
     {
         // Load in the implementation libraries
-        for (const std::string& libfile : desc._implementationLibrary)
+        for (const std::string& libfile : desc.implementationLibrary)
         {
             mx::readFromXmlFile(doc, libfile);
         }
-        // Find the shader generator
-        mx::ShaderGeneratorPtr sg = mx::ShaderGenRegistry::findShaderGenerator(desc._language, desc._target);
-        REQUIRE(sg != nullptr);
 
         // Test shader generation from nodegraph output
-        mx::ShaderPtr shader = sg->generate(nodeGraph->getName(), output);
+        mx::ShaderPtr shader = desc.shadergen->generate(nodeGraph->getName(), output);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
 
         // Write out to file for inspection
         // TODO: Match against blessed versions
         std::ofstream file;
-        file.open(shader->getName() + "." + desc._fileExt);
+        file.open(shader->getName() + "." + desc.fileExt);
         file << shader->getSourceCode();
         file.close();
     }
@@ -508,10 +425,8 @@ TEST_CASE("BSDF Layering", "[shadergen]")
 
 TEST_CASE("Transparency", "[shadergen]")
 {
-    mx::ScopedShaderGenInit shaderGenInit;
-
     std::string searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    mx::ShaderGenRegistry::registerSourceCodeSearchPath(searchPath);
+    mx::ShaderGenerator::registerSourceCodeSearchPath(searchPath);
 
     mx::DocumentPtr doc = mx::createDocument();
 
@@ -566,42 +481,39 @@ TEST_CASE("Transparency", "[shadergen]")
     // Setup the shader generators
     std::vector<GeneratorDescription> generatorDescriptions =
     {
-        { "osl", "arnold", "osl",
-        {
-            "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx",
-            "documents/Libraries/adsk/impl/shadergen/adsk_impl_shadergen_osl.mtlx",
-            "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_osl.mtlx",
-        }
+        { mx::ArnoldShaderGenerator::creator(), "osl",
+            {
+                "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx",
+                "documents/Libraries/adsk/impl/shadergen/adsk_impl_shadergen_osl.mtlx",
+                "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_osl.mtlx",
+            }
         },
-        { "glsl", "ogsfx", "ogsfx",
-        {
-            "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx",
-            "documents/Libraries/adsk/impl/shadergen/adsk_impl_shadergen_glsl.mtlx",
-            "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_glsl.mtlx",
-        }
+        { mx::OgsFxShaderGenerator::creator(), "ogsfx",
+            {
+                "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx",
+                "documents/Libraries/adsk/impl/shadergen/adsk_impl_shadergen_glsl.mtlx",
+                "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_glsl.mtlx",
+            }
         }
     };
 
     for (auto desc : generatorDescriptions)
     {
         // Load in the implementation libraries
-        for (const std::string& libfile : desc._implementationLibrary)
+        for (const std::string& libfile : desc.implementationLibrary)
         {
             mx::readFromXmlFile(doc, libfile);
         }
-        // Find the shader generator
-        mx::ShaderGeneratorPtr sg = mx::ShaderGenRegistry::findShaderGenerator(desc._language, desc._target);
-        REQUIRE(sg != nullptr);
 
         // Test shader generation from nodegraph output
-        mx::ShaderPtr shader = sg->generate(nodeGraph->getName(), output);
+        mx::ShaderPtr shader = desc.shadergen->generate(nodeGraph->getName(), output);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
 
         // Write out to file for inspection
         // TODO: Match against blessed versions
         std::ofstream file;
-        file.open(shader->getName() + "." + desc._fileExt);
+        file.open(shader->getName() + "." + desc.fileExt);
         file << shader->getSourceCode();
         file.close();
     }
@@ -609,10 +521,8 @@ TEST_CASE("Transparency", "[shadergen]")
 
 TEST_CASE("LayeredSurface", "[shadergen]")
 {
-    mx::ScopedShaderGenInit shaderGenInit;
-
     std::string searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    mx::ShaderGenRegistry::registerSourceCodeSearchPath(searchPath);
+    mx::ShaderGenerator::registerSourceCodeSearchPath(searchPath);
 
     mx::DocumentPtr doc = mx::createDocument();
 
@@ -668,11 +578,11 @@ TEST_CASE("LayeredSurface", "[shadergen]")
     // Setup the shader generators
     std::vector<GeneratorDescription> generatorDescriptions =
     {
-        { "glsl", "ogsfx", "ogsfx",
+        { mx::OgsFxShaderGenerator::creator(), "ogsfx",
             {
                 "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx",
+                "documents/Libraries/adsk/impl/shadergen/adsk_impl_shadergen_glsl.mtlx",
                 "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_glsl.mtlx",
-                "documents/Libraries/adsk/impl/shadergen/adsk_impl_shadergen_glsl.mtlx"
             }
         }
     };
@@ -680,23 +590,20 @@ TEST_CASE("LayeredSurface", "[shadergen]")
     for (auto desc : generatorDescriptions)
     {
         // Load in the implementation libraries
-        for (const std::string& libfile : desc._implementationLibrary)
+        for (const std::string& libfile : desc.implementationLibrary)
         {
             mx::readFromXmlFile(doc, libfile);
         }
-        // Find the shader generator
-        mx::ShaderGeneratorPtr sg = mx::ShaderGenRegistry::findShaderGenerator(desc._language, desc._target);
-        REQUIRE(sg != nullptr);
 
         // Test shader generation from nodegraph output
-        mx::ShaderPtr shader = sg->generate(nodeGraph->getName(), output);
+        mx::ShaderPtr shader = desc.shadergen->generate(nodeGraph->getName(), output);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
 
         // Write out to file for inspection
         // TODO: Match against blessed versions
         std::ofstream file;
-        file.open(shader->getName() + "." + desc._fileExt);
+        file.open(shader->getName() + "." + desc.fileExt);
         file << shader->getSourceCode();
         file.close();
     }

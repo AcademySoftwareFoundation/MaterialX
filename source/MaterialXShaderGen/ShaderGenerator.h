@@ -3,8 +3,11 @@
 
 #include <MaterialXShaderGen/Shader.h>
 #include <MaterialXShaderGen/Syntax.h>
+#include <MaterialXShaderGen/Factory.h>
 
 #include <MaterialXCore/Util.h>
+
+#include <MaterialXFormat/File.h>
 
 namespace MaterialX
 {
@@ -34,17 +37,8 @@ public:
     /// Emit typedefs for all data types that needs it
     virtual void emitTypeDefs(Shader& shader);
 
-    /// Emit function source code for all nodes
+    /// Emit function definitions for all nodes
     virtual void emitFunctions(Shader& shader);
-
-    /// Emit function source code for the given node
-    virtual void emitFunction(const SgNode& node, Shader& shader);
-
-    /// Emit the function call (or inline expression) for a node.
-    /// extraInputs will optionally hold a vector of named extra inputs
-    /// to give in the function call. If used these are given before the 
-    /// ordinary node inputs in the function call.
-    virtual void emitFunctionCall(const SgNode& node, Shader& shader, vector<string>* extraInputs = nullptr);
 
     /// Emit the shader body
     virtual void emitShaderBody(Shader& shader);
@@ -71,11 +65,32 @@ public:
     /// Get a unique id from the langunage/target combination
     static string id(const string& language, const string& target = EMPTY_STRING);
 
+    template<class T>
+    using CreatorFunc = shared_ptr<T>(*)();
+
+    /// Register a node implementation for a given implementation element name
+    void registerNodeImplementation(const string& name, CreatorFunc<SgImplementation> creator);
+
+    /// Return a registered node implementation given a nodedef
+    /// If no registered implementaion is found matching the nodedef
+    /// a default source code implementation node will be returned
+    SgImplementationPtr getNodeImplementation(const NodeDef& nodeDef);
+
+    /// Add to the search path used for finding source code.
+    static void registerSourceCodeSearchPath(const FilePath& path);
+
+    /// Resolve a source code file using the registered search paths.
+    static FilePath findSourceCode(const FilePath& filename);
+
 protected:
     /// Protected constructor
     ShaderGenerator(SyntaxPtr syntax) : _syntax(syntax) {}
 
     SyntaxPtr _syntax;
+    Factory<SgImplementation> _nodeImplFactory;
+    unordered_map<string, SgImplementationPtr> _cachedNodeImpls;
+
+    static FileSearchPath _sourceCodeSearchPath;
 };
 
 } // namespace MaterialX

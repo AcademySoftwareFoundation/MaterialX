@@ -1,4 +1,4 @@
-#include <MaterialXShaderGen/NodeImplementations/Surface.h>
+#include <MaterialXShaderGen/Implementations/Surface.h>
 #include <MaterialXShaderGen/Shader.h>
 #include <MaterialXShaderGen/ShaderGenerators/GlslShaderGenerator.h>
 
@@ -6,6 +6,9 @@ namespace MaterialX
 {
 
 namespace {
+
+    static const string kLanguage = "glsl";
+    static const string kTarget = "ogsfx";
 
     static const string kLightLoopBegin =
         "vec3 V = PS_IN.WorldView;\n"
@@ -24,9 +27,22 @@ namespace {
 
 }
 
-DEFINE_NODE_IMPLEMENTATION(SurfaceOgsFx, "surface", "glsl", "ogsfx")
+SgImplementationPtr SurfaceOgsFx::creator()
+{
+    return std::make_shared<SurfaceOgsFx>();
+}
 
-void SurfaceOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
+const string& SurfaceOgsFx::getLanguage() const
+{ 
+    return kLanguage;
+}
+
+const string& SurfaceOgsFx::getTarget() const
+{
+    return kTarget;
+}
+
+void SurfaceOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader, int, ...)
 {
     GlslShaderGenerator& glslgen = static_cast<GlslShaderGenerator&>(shadergen);
 
@@ -111,6 +127,12 @@ void SurfaceOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
     shader.addLine(outTransparency + " = vec3(1.0)");
     shader.endScope();
     shader.newLine();
+}
+
+bool SurfaceOgsFx::isTransparent(const SgNode& /*node*/) const
+{
+    // TODO: find out if the surface shader has transparency
+    return false;
 }
 
 } // namespace MaterialX

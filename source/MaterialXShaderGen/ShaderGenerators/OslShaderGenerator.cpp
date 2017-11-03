@@ -1,6 +1,25 @@
 #include <MaterialXShaderGen/ShaderGenerators/OslShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OslSyntax.h>
-#include <MaterialXShaderGen/ShaderGenRegistry.h>
+
+#include <MaterialXShaderGen/Implementations/Swizzle.h>
+#include <MaterialXShaderGen/Implementations/Switch.h>
+#include <MaterialXShaderGen/Implementations/Compare.h>
+
+namespace
+{
+    const char* kVDirectionFlip =
+        "void vdirection(vector2 texcoord, output vector2 result)\n"
+        "{\n"
+        "   result.x = texcoord.x;\n"
+        "   result.y = 1.0 - texcoord.y;\n"
+        "}\n\n";
+
+    const char* kVDirectionNoop =
+        "void vdirection(vector2 texcoord, output vector2 result)\n"
+        "{\n"
+        "   result = texcoord;\n"
+        "}\n\n";
+}
 
 namespace MaterialX
 {
@@ -8,12 +27,88 @@ namespace MaterialX
 OslShaderGenerator::OslShaderGenerator()
     : ShaderGenerator(std::make_shared<OslSyntax>())
 {
+    // Register build-in node implementations
+
+    // <!-- <compare> -->
+    registerNodeImplementation("IM_compare__float__osl", Compare::creator);
+    registerNodeImplementation("IM_compare__color2__osl", Compare::creator);
+    registerNodeImplementation("IM_compare__color3__osl", Compare::creator);
+    registerNodeImplementation("IM_compare__color4__osl", Compare::creator);
+    registerNodeImplementation("IM_compare__vector2__osl", Compare::creator);
+    registerNodeImplementation("IM_compare__vector3__osl", Compare::creator);
+    registerNodeImplementation("IM_compare__vector4__osl", Compare::creator);
+
+    // <!-- <switch> -->
+    registerNodeImplementation("IM_switch__float__osl", Switch::creator);
+    registerNodeImplementation("IM_switch__color2__osl", Switch::creator);
+    registerNodeImplementation("IM_switch__color3__osl", Switch::creator);
+    registerNodeImplementation("IM_switch__color4__osl", Switch::creator);
+    registerNodeImplementation("IM_switch__vector2__osl", Switch::creator);
+    registerNodeImplementation("IM_switch__vector3__osl", Switch::creator);
+    registerNodeImplementation("IM_switch__vector4__osl", Switch::creator);
+
+    // <!-- <swizzle> -->
+    // <!-- from type : float -->
+    registerNodeImplementation("IM_swizzle__float_color2__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__float_color3__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__float_color4__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__float_vector2__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__float_vector3__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__float_vector4__osl", Swizzle::creator);
+    // <!-- from type : color2 -->
+    registerNodeImplementation("IM_swizzle__color2_float__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__color2_color2__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__color2_color3__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__color2_color4__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__color2_vector2__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__color2_vector3__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__color2_vector4__osl", Swizzle::creator);
+    // <!-- from type : color3 -->
+    registerNodeImplementation("IM_swizzle__color3_float__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__color3_color2__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__color3_color3__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__color3_color4__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__color3_vector2__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__color3_vector3__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__color3_vector4__osl", Swizzle::creator);
+    // <!-- from type : color4 -->
+    registerNodeImplementation("IM_swizzle__color4_float__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__color4_color2__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__color4_color3__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__color4_color4__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__color4_vector2__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__color4_vector3__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__color4_vector4__osl", Swizzle::creator);
+    // <!-- from type : vector2 -->
+    registerNodeImplementation("IM_swizzle__vector2_float__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__vector2_color2__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__vector2_color3__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__vector2_color4__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__vector2_vector2__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__vector2_vector3__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__vector2_vector4__osl", Swizzle::creator);
+    // <!-- from type : vector3 -->
+    registerNodeImplementation("IM_swizzle__vector3_float__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__vector3_color2__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__vector3_color3__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__vector3_color4__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__vector3_vector2__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__vector3_vector3__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__vector3_vector4__osl", Swizzle::creator);
+    // <!-- from type : vector4 -->
+    registerNodeImplementation("IM_swizzle__vector4_float__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__vector4_color2__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__vector4_color3__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__vector4_color4__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__vector4_vector2__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__vector4_vector3__osl", Swizzle::creator);
+    registerNodeImplementation("IM_swizzle__vector4_vector4__osl", Swizzle::creator);
 }
 
 ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr element)
 {
     ShaderPtr shaderPtr = std::make_shared<Shader>(shaderName);
-    shaderPtr->initialize(element, getLanguage(), getTarget());
+    shaderPtr->initialize(element, *this);
 
     Shader& shader = *shaderPtr;
 
@@ -33,6 +128,16 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     return shaderPtr;
 }
 
+void OslShaderGenerator::emitFunctions(Shader& shader)
+{
+    // Emit function for handling texture coords v-flip 
+    // as needed by the v-direction set by the user
+    shader.addBlock(shader.getRequestedVDirection() != getTargetVDirection() ? kVDirectionFlip : kVDirectionNoop);
+
+    // Call parent to emit all other functions
+    ShaderGenerator::emitFunctions(shader);
+}
+
 void OslShaderGenerator::emitIncludes(Shader& shader)
 {
     static const vector<string> includeFiles =
@@ -46,7 +151,7 @@ void OslShaderGenerator::emitIncludes(Shader& shader)
 
     for (const string& file : includeFiles)
     {
-        FilePath path = ShaderGenRegistry::findSourceCode(file);
+        FilePath path = ShaderGenerator::findSourceCode(file);
         shader.addLine("#include \"" + path.asString() + "\"", false);
     }
 

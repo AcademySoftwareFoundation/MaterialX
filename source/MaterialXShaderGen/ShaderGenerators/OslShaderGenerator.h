@@ -15,6 +15,9 @@ public:
     /// the element and all dependencies upstream into shader code.
     ShaderPtr generate(const string& shaderName, ElementPtr element) override;
 
+    /// Emit function definitions for all nodes
+    void emitFunctions(Shader& shader) override;
+
     /// Emit the shader body
     void emitShaderBody(Shader& shader) override;
 

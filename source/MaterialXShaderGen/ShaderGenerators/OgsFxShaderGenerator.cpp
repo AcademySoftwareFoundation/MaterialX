@@ -1,4 +1,6 @@
 #include <MaterialXShaderGen/ShaderGenerators/OgsFxShaderGenerator.h>
+#include <MaterialXShaderGen/Implementations/Surface.h>
+
 #include <sstream>
 
 namespace MaterialX
@@ -6,10 +8,19 @@ namespace MaterialX
 
 DEFINE_SHADER_GENERATOR(OgsFxShaderGenerator, "glsl", "ogsfx")
 
+OgsFxShaderGenerator::OgsFxShaderGenerator()
+    : GlslShaderGenerator()
+{
+    // Add target specific node implementations
+
+    // <!-- <surface> -->
+    registerNodeImplementation("IM_surface__glsl", SurfaceOgsFx::creator);
+}
+
 ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr element)
 {
     ShaderPtr shaderPtr = std::make_shared<Shader>(shaderName);
-    shaderPtr->initialize(element, getLanguage(), getTarget());
+    shaderPtr->initialize(element, *this);
 
     Shader& shader = *shaderPtr;
 
@@ -116,7 +127,7 @@ void OgsFxShaderGenerator::emitShaderBody(Shader &shader)
         // branch is emitted by the conditional node itself
         if (node.hasClassification(SgNode::Classification::SHADER) && !node.referencedConditionally())
         {
-            emitFunctionCall(node, shader);
+            node.getImplementation()->emitFunctionCall(node, *this, shader);
         }
     }
     shader.newLine();

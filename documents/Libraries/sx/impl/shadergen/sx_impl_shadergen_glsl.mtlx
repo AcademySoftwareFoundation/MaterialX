@@ -29,7 +29,7 @@
   <implementation name="IM_mixedf__glsl" nodedef="ND_mixedf" file="sx/impl/shadergen/source/glsl/sx_mixedf.glsl" function="sx_mixedf" language="glsl"/>
 
   <!-- <surface> -->
-  <!-- Implemented by C++ class: Surface.h/cpp -->
+  <implementation name="IM_surface__glsl" nodedef="ND_surface" language="glsl"/>
 
   <!-- <layeredsurface> -->
   <implementation name="IM_layeredsurface__glsl" nodedef="ND_layeredsurface" file="sx/impl/shadergen/source/glsl/sx_layeredsurface.glsl" function="sx_layeredsurface" language="glsl"/>

@@ -1,15 +1,18 @@
-#include <MaterialXShaderGen/NodeImplementations/Switch.h>
+#include <MaterialXShaderGen/Implementations/Switch.h>
 #include <MaterialXShaderGen/Shader.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 
 namespace MaterialX
 {
 
-DEFINE_NODE_IMPLEMENTATION(Switch, "switch", "", "")
-
 const vector<string> Switch::kInputNames = { "in1", "in2", "in3", "in4", "in5" };
 
-void Switch::emitFunctionCall(const SgNode& sgnode, ShaderGenerator& shadergen, Shader& shader)
+SgImplementationPtr Switch::creator()
+{
+    return std::make_shared<Switch>();
+}
+
+void Switch::emitFunctionCall(const SgNode& sgnode, ShaderGenerator& shadergen, Shader& shader, int, ...)
 {
     const Node& node = sgnode.getNode();
 
@@ -46,7 +49,7 @@ void Switch::emitFunctionCall(const SgNode& sgnode, ShaderGenerator& shadergen, 
             const SgNode::ScopeInfo& scope = sg.getScopeInfo();
             if (scope.conditionalNode == sgnode.getNodePtr() && scope.usedByBranch(branch))
             {
-                shadergen.emitFunctionCall(sg, shader);
+                sg.getImplementation()->emitFunctionCall(sg, shadergen, shader);
             }
         }
 

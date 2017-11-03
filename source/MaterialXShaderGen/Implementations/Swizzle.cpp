@@ -1,13 +1,16 @@
-#include <MaterialXShaderGen/NodeImplementations/Swizzle.h>
+#include <MaterialXShaderGen/Implementations/Swizzle.h>
 #include <MaterialXShaderGen/Shader.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 
 namespace MaterialX
 {
 
-DEFINE_NODE_IMPLEMENTATION(Swizzle, "swizzle", "", "")
+SgImplementationPtr Swizzle::creator()
+{
+    return std::make_shared<Swizzle>();
+}
 
-void Swizzle::emitFunctionCall(const SgNode& sgnode, ShaderGenerator& shadergen, Shader& shader)
+void Swizzle::emitFunctionCall(const SgNode& sgnode, ShaderGenerator& shadergen, Shader& shader, int, ...)
 {
     const Node& node = sgnode.getNode();
 

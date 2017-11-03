@@ -423,17 +423,83 @@
   <!-- ======================================================================== -->
 
   <!-- <compare> -->
-  <!-- Implemented by C++ class: see Compare.h/cpp -->
+  <implementation name="IM_compare__float_glsl" nodedef="ND_compare__float" language="glsl"/>
+  <implementation name="IM_compare__color2_glsl" nodedef="ND_compare__color2" language="glsl"/>
+  <implementation name="IM_compare__color3_glsl" nodedef="ND_compare__color3" language="glsl"/>
+  <implementation name="IM_compare__color4_glsl" nodedef="ND_compare__color4" language="glsl"/>
+  <implementation name="IM_compare__vector2_glsl" nodedef="ND_compare__vector2" language="glsl"/>
+  <implementation name="IM_compare__vector3_glsl" nodedef="ND_compare__vector3" language="glsl"/>
+  <implementation name="IM_compare__vector4_glsl" nodedef="ND_compare__vector4" language="glsl"/>
 
   <!-- <switch> -->
-  <!-- Implemented by C++ class: see Switch.h/cpp -->
+  <implementation name="IM_switch__float_glsl" nodedef="ND_switch__float" language="glsl"/>
+  <implementation name="IM_switch__color2_glsl" nodedef="ND_switch__color2" language="glsl"/>
+  <implementation name="IM_switch__color3_glsl" nodedef="ND_switch__color3" language="glsl"/>
+  <implementation name="IM_switch__color4_glsl" nodedef="ND_switch__color4" language="glsl"/>
+  <implementation name="IM_switch__vector2_glsl" nodedef="ND_switch__vector2" language="glsl"/>
+  <implementation name="IM_switch__vector3_glsl" nodedef="ND_switch__vector3" language="glsl"/>
+  <implementation name="IM_switch__vector4_glsl" nodedef="ND_switch__vector4" language="glsl"/>
 
   <!-- ======================================================================== -->
   <!-- Channel nodes                                                            -->
   <!-- ======================================================================== -->
 
   <!-- <swizzle> -->
-  <!-- Implemented by C++ class: see Swizzle.h/cpp -->
+  <!-- from type: float -->
+  <implementation name="IM_swizzle__float_color2__glsl" nodedef="ND_swizzle__float_color2" language="glsl"/>
+  <implementation name="IM_swizzle__float_color3__glsl" nodedef="ND_swizzle__float_color3" language="glsl"/>
+  <implementation name="IM_swizzle__float_color4__glsl" nodedef="ND_swizzle__float_color4" language="glsl"/>
+  <implementation name="IM_swizzle__float_vector2__glsl" nodedef="ND_swizzle__float_vector2" language="glsl"/>
+  <implementation name="IM_swizzle__float_vector3__glsl" nodedef="ND_swizzle__float_vector3" language="glsl"/>
+  <implementation name="IM_swizzle__float_vector4__glsl" nodedef="ND_swizzle__float_vector4" language="glsl"/>
+  <!-- from type: color2 -->
+  <implementation name="IM_swizzle__color2_float__glsl" nodedef="ND_swizzle__color2_float" language="glsl"/>
+  <implementation name="IM_swizzle__color2_color2__glsl" nodedef="ND_swizzle__color2_color2" language="glsl"/>
+  <implementation name="IM_swizzle__color2_color3__glsl" nodedef="ND_swizzle__color2_color3" language="glsl"/>
+  <implementation name="IM_swizzle__color2_color4__glsl" nodedef="ND_swizzle__color2_color4" language="glsl"/>
+  <implementation name="IM_swizzle__color2_vector2__glsl" nodedef="ND_swizzle__color2_vector2" language="glsl"/>
+  <implementation name="IM_swizzle__color2_vector3__glsl" nodedef="ND_swizzle__color2_vector3" language="glsl"/>
+  <implementation name="IM_swizzle__color2_vector4__glsl" nodedef="ND_swizzle__color2_vector4" language="glsl"/>
+  <!-- from type: color3 -->
+  <implementation name="IM_swizzle__color3_float__glsl" nodedef="ND_swizzle__color3_float"  language="glsl"/>
+  <implementation name="IM_swizzle__color3_color2__glsl" nodedef="ND_swizzle__color3_color2" language="glsl"/>
+  <implementation name="IM_swizzle__color3_color3__glsl" nodedef="ND_swizzle__color3_color3" language="glsl"/>
+  <implementation name="IM_swizzle__color3_color4__glsl" nodedef="ND_swizzle__color3_color4" language="glsl"/>
+  <implementation name="IM_swizzle__color3_vector2__glsl" nodedef="ND_swizzle__color3_vector2" language="glsl"/>
+  <implementation name="IM_swizzle__color3_vector3__glsl" nodedef="ND_swizzle__color3_vector3" language="glsl"/>
+  <implementation name="IM_swizzle__color3_vector4__glsl" nodedef="ND_swizzle__color3_vector4" language="glsl"/>
+  <!-- from type: color4 -->
+  <implementation name="IM_swizzle__color4_float__glsl" nodedef="ND_swizzle__color4_float" language="glsl"/>
+  <implementation name="IM_swizzle__color4_color2__glsl" nodedef="ND_swizzle__color4_color2" language="glsl"/>
+  <implementation name="IM_swizzle__color4_color3__glsl" nodedef="ND_swizzle__color4_color3" language="glsl"/>
+  <implementation name="IM_swizzle__color4_color4__glsl" nodedef="ND_swizzle__color4_color4" language="glsl"/>
+  <implementation name="IM_swizzle__color4_vector2__glsl" nodedef="ND_swizzle__color4_vector2" language="glsl"/>
+  <implementation name="IM_swizzle__color4_vector3__glsl" nodedef="ND_swizzle__color4_vector3" language="glsl"/>
+  <implementation name="IM_swizzle__color4_vector4__glsl" nodedef="ND_swizzle__color4_vector4" language="glsl"/>
+  <!-- from type: vector2 -->
+  <implementation name="IM_swizzle__vector2_float__glsl" nodedef="ND_swizzle__vector2_float" language="glsl"/>
+  <implementation name="IM_swizzle__vector2_color2__glsl" nodedef="ND_swizzle__vector2_color2" language="glsl"/>
+  <implementation name="IM_swizzle__vector2_color3__glsl" nodedef="ND_swizzle__vector2_color3" language="glsl"/>
+  <implementation name="IM_swizzle__vector2_color4__glsl" nodedef="ND_swizzle__vector2_color4" language="glsl"/>
+  <implementation name="IM_swizzle__vector2_vector2__glsl" nodedef="ND_swizzle__vector2_vector2" language="glsl"/>
+  <implementation name="IM_swizzle__vector2_vector3__glsl" nodedef="ND_swizzle__vector2_vector3" language="glsl"/>
+  <implementation name="IM_swizzle__vector2_vector4__glsl" nodedef="ND_swizzle__vector2_vector4" language="glsl"/>
+  <!-- from type: vector3 -->
+  <implementation name="IM_swizzle__vector3_float__glsl" nodedef="ND_swizzle__vector3_float" language="glsl"/>
+  <implementation name="IM_swizzle__vector3_color2__glsl" nodedef="ND_swizzle__vector3_color2" language="glsl"/>
+  <implementation name="IM_swizzle__vector3_color3__glsl" nodedef="ND_swizzle__vector3_color3" language="glsl"/>
+  <implementation name="IM_swizzle__vector3_color4__glsl" nodedef="ND_swizzle__vector3_color4" language="glsl"/>
+  <implementation name="IM_swizzle__vector3_vector2__glsl" nodedef="ND_swizzle__vector3_vector2" language="glsl"/>
+  <implementation name="IM_swizzle__vector3_vector3__glsl" nodedef="ND_swizzle__vector3_vector3" language="glsl"/>
+  <implementation name="IM_swizzle__vector3_vector4__glsl" nodedef="ND_swizzle__vector3_vector4" language="glsl"/>
+  <!-- from type: vector4 -->
+  <implementation name="IM_swizzle__vector4_float__glsl" nodedef="ND_swizzle__vector4_float" language="glsl"/>
+  <implementation name="IM_swizzle__vector4_color2__glsl" nodedef="ND_swizzle__vector4_color2" language="glsl"/>
+  <implementation name="IM_swizzle__vector4_color3__glsl" nodedef="ND_swizzle__vector4_color3" language="glsl"/>
+  <implementation name="IM_swizzle__vector4_color4__glsl" nodedef="ND_swizzle__vector4_color4" language="glsl"/>
+  <implementation name="IM_swizzle__vector4_vector2__glsl" nodedef="ND_swizzle__vector4_vector2" language="glsl"/>
+  <implementation name="IM_swizzle__vector4_vector3__glsl" nodedef="ND_swizzle__vector4_vector3" language="glsl"/>
+  <implementation name="IM_swizzle__vector4_vector4__glsl" nodedef="ND_swizzle__vector4_vector4" language="glsl"/>
 
   <!-- <pack> -->
   <implementation name="IM_pack__color2__glsl" nodedef="ND_pack__color2" file="stdlib/impl/shadergen/source/glsl/mx_pack_color2.inline" language="glsl"/>

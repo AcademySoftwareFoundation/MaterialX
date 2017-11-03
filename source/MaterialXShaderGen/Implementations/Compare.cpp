@@ -1,15 +1,18 @@
-#include <MaterialXShaderGen/NodeImplementations/Compare.h>
+#include <MaterialXShaderGen/Implementations/Compare.h>
 #include <MaterialXShaderGen/Shader.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 
 namespace MaterialX
 {
 
-DEFINE_NODE_IMPLEMENTATION(Compare, "compare", "", "")
-
 const vector<string> Compare::kInputNames = { "intest", "in1", "in2" };
 
-void Compare::emitFunctionCall(const SgNode& sgnode, ShaderGenerator& shadergen, Shader& shader)
+SgImplementationPtr Compare::creator()
+{
+    return std::make_shared<Compare>();
+}
+
+void Compare::emitFunctionCall(const SgNode& sgnode, ShaderGenerator& shadergen, Shader& shader, int, ...)
 {
     const Node& node = sgnode.getNode();
 
@@ -50,7 +53,7 @@ void Compare::emitFunctionCall(const SgNode& sgnode, ShaderGenerator& shadergen,
             const SgNode::ScopeInfo& scope = sg.getScopeInfo();
             if (scope.conditionalNode == sgnode.getNodePtr() && scope.usedByBranch(branch))
             {
-                shadergen.emitFunctionCall(sg, shader);
+                sg.getImplementation()->emitFunctionCall(sg, shadergen, shader);
             }
         }
 

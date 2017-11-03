@@ -12,7 +12,8 @@ class OgsFxShaderGenerator : public GlslShaderGenerator
 {
     DECLARE_SHADER_GENERATOR(OgsFxShaderGenerator)
 public:
-    OgsFxShaderGenerator() : GlslShaderGenerator() {}
+    /// Constructor
+    OgsFxShaderGenerator();
 
     /// Return the v-direction used by the target system
     Shader::VDirection getTargetVDirection() const override { return Shader::VDirection::DOWN; }
