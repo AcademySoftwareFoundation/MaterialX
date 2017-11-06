@@ -1,6 +1,9 @@
 #include <MaterialXShaderGen/Util.h>
+#include <MaterialXShaderGen/SgNode.h>
 #include <MaterialXCore/Util.h>
 
+#include <stack>
+#include <sstream>
 #include <fstream>
 #if defined(_WIN32)
 #include <fcntl.h>
@@ -49,5 +52,65 @@ string getFileExtension(const string& filename)
     return i != string::npos ? filename.substr(i + 1) : EMPTY_STRING;
 }
 
+
+string printGraphDot(const SgNodeGraph& graph)
+{
+    std::stringstream dot;
+
+    dot << "digraph {\n";
+
+    // Print the nodes
+    for (const SgNode* node : graph.getNodeOrder())
+    {
+        dot << "    \"" << node->getName() << "\" ";
+        const string& category = node->getNodePtr()->getCategory();
+        if (category == "compare" || category == "switch")
+        {
+            dot << "[shape=diamond];\n";
+        }
+        else
+        {
+            dot << "[shape=box];\n";
+        }
+    }
+
+    // Print the connections
+    std::set<const SgNode*> visited;
+    for (auto it : graph.getInternalOutputs())
+    {
+        std::stack<const SgNode*> stack;
+        stack.push(it.second->parent);
+
+        while (!stack.empty())
+        {
+            const SgNode* node = stack.top();
+            stack.pop();
+
+            if (visited.count(node) == 0)
+            {
+                for (const SgInput* input : node->getInputs())
+                {
+                    if (input->connection)
+                    {
+                        dot << "    \"" << input->connection->parent->getName() << "\" -> \"" << input->parent->getName() << "\" [label=\"" << input->name << "\"];\n";
+                    }
+                }
+                visited.insert(node);
+            }
+
+            for (const SgInput* input : node->getInputs())
+            {
+                if (input->connection)
+                {
+                    stack.push(input->connection->parent);
+                }
+            }
+        }
+    }
+
+    dot << "}\n";
+
+    return dot.str();
+}
 
 } // namespace MaterialX

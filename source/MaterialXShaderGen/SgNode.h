@@ -8,7 +8,32 @@
 namespace MaterialX
 {
 
+class SgInput;
+class SgOutput;
+class SgNode;
+class SgNodeGraph;
+
+using SgInputPtr = shared_ptr<class SgInput>;
+using SgOutputPtr = shared_ptr<class SgOutput>;
 using SgNodePtr = shared_ptr<class SgNode>;
+using SgNodeGraphPtr = shared_ptr<class SgNodeGraph>;
+
+class SgInput
+{
+public:
+    string name;
+    ValuePtr value;
+    SgOutput* connection;
+    SgNode* parent;
+};
+
+class SgOutput
+{
+public:
+    string name;
+    set<SgInput*> connections;
+    SgNode* parent;
+};
 
 /// Caches required node data for shader generation.
 class SgNode
@@ -56,7 +81,9 @@ public:
     };
 
 public:
-    SgNode(NodePtr node, ShaderGenerator& shadergen);
+    SgNode();
+
+    static SgNodePtr creator(NodePtr node, ShaderGenerator& shadergen);
 
     /// Return true if this node matches the given classification.
     bool hasClassification(unsigned int c) const
@@ -100,6 +127,12 @@ public:
         return _impl;
     }
 
+    void setImplementation(SgImplementationPtr impl)
+    {
+        _impl = impl;
+    }
+
+
     /// Return the scope info for this node.
     ScopeInfo& getScopeInfo()
     {
@@ -121,10 +154,26 @@ public:
         return _usedClosures.count(node) > 0;
     }
 
-private:
-    unsigned int _classification;
+    SgInputPtr getInput(const string& name);
+    SgOutputPtr getOutput(const string& name);
+    SgOutputPtr getOutput();
+
+    const vector<SgInput*>& getInputs() const { return _inputOrder; }
+    const vector<SgOutput*>& getOutputs() const { return _outputOrder; }
+
+    virtual bool isNodeGraph() const { return false; }
+
+protected:
     NodePtr _node;
     NodeDefPtr _nodeDef;
+
+    unordered_map<string, SgInputPtr> _inputMap;
+    vector<SgInput*> _inputOrder;
+
+    unordered_map<string, SgOutputPtr> _outputMap;
+    vector<SgOutput*> _outputOrder;
+
+    unsigned int _classification;
     SgImplementationPtr _impl;
     ScopeInfo _scopeInfo;
     set<const SgNode*> _usedClosures;
@@ -132,6 +181,36 @@ private:
     friend class Shader;
 };
 
+class SgNodeGraph : public SgNode
+{
+public:
+    using InternalInputs = unordered_map<string, set<SgInput*>>;
+    using InternalOutputs = unordered_map<string, SgOutput*>;
+
+public:
+    static SgNodeGraphPtr creator(ElementPtr element, ShaderGenerator& shadergen);
+
+    bool isNodeGraph() const override { return true; }
+
+    SgNodePtr getNode(const string& name);
+
+    const vector<SgNode*>& getNodeOrder() const { return _nodeOrder; }
+
+    const InternalInputs& getInternalInputs() const { return _internalInputs; }
+
+    const InternalOutputs& getInternalOutputs() const { return _internalOutputs; }
+
+    void flattenSubgraphs();
+
+    void topologicalSort();
+
+protected:
+    unordered_map<string, SgNodePtr> _nodeMap;
+    vector<SgNode*> _nodeOrder;
+
+    InternalInputs _internalInputs;
+    InternalOutputs _internalOutputs;
+};
 
 } // namespace MaterialX
 

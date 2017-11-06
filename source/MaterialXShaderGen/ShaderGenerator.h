@@ -68,13 +68,13 @@ public:
     template<class T>
     using CreatorFunc = shared_ptr<T>(*)();
 
-    /// Register a node implementation for a given implementation element name
-    void registerNodeImplementation(const string& name, CreatorFunc<SgImplementation> creator);
+    /// Register a shader gen implementation for a given implementation element name
+    void registerImplementation(const string& name, CreatorFunc<SgImplementation> creator);
 
-    /// Return a registered node implementation given a nodedef
-    /// If no registered implementaion is found matching the nodedef
-    /// a default source code implementation node will be returned
-    SgImplementationPtr getNodeImplementation(const NodeDef& nodeDef);
+    /// Return a registered shader gen implementation given an implementation element.
+    /// If no registered implementaion is found a default source code implementation 
+    /// instance will be returned.
+    SgImplementationPtr getImplementation(const Implementation& element);
 
     /// Add to the search path used for finding source code.
     static void registerSourceCodeSearchPath(const FilePath& path);
@@ -87,8 +87,8 @@ protected:
     ShaderGenerator(SyntaxPtr syntax) : _syntax(syntax) {}
 
     SyntaxPtr _syntax;
-    Factory<SgImplementation> _nodeImplFactory;
-    unordered_map<string, SgImplementationPtr> _cachedNodeImpls;
+    Factory<SgImplementation> _implFactory;
+    unordered_map<string, SgImplementationPtr> _cachedImpls;
 
     static FileSearchPath _sourceCodeSearchPath;
 };

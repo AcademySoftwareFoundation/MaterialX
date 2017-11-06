@@ -11,10 +11,10 @@ DEFINE_SHADER_GENERATOR(OgsFxShaderGenerator, "glsl", "ogsfx")
 OgsFxShaderGenerator::OgsFxShaderGenerator()
     : GlslShaderGenerator()
 {
-    // Add target specific node implementations
+    // Add target specific implementations
 
     // <!-- <surface> -->
-    registerNodeImplementation("IM_surface__glsl", SurfaceOgsFx::creator);
+    registerImplementation("IM_surface__glsl", SurfaceOgsFx::creator);
 }
 
 ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr element)
@@ -121,13 +121,13 @@ void OgsFxShaderGenerator::emitShaderBody(Shader &shader)
     shader.newLine();
 
     // Emit function calls for all shader nodes
-    for (const SgNode& node : shader.getNodes())
+    for (const SgNodePtr& node : shader.getNodes())
     {
         // Emit only unconditional nodes, since any node within a conditional 
         // branch is emitted by the conditional node itself
-        if (node.hasClassification(SgNode::Classification::SHADER) && !node.referencedConditionally())
+        if (node->hasClassification(SgNode::Classification::SHADER) && !node->referencedConditionally())
         {
-            node.getImplementation()->emitFunctionCall(node, *this, shader);
+            node->getImplementation()->emitFunctionCall(*node, *this, shader);
         }
     }
     shader.newLine();
@@ -220,9 +220,9 @@ void OgsFxShaderGenerator::addExtraShaderUniforms(Shader& shader)
 {
     // Run over all node ports and check if any should be promoted to shader inputs
     // (this is the case for file texture filename inputs)
-    for (const SgNode& node : shader.getNodes())
+    for (const SgNodePtr& node : shader.getNodes())
     {
-        for (ParameterPtr param : node.getNode().getParameters())
+        for (ParameterPtr param : node->getNode().getParameters())
         {
             if (useAsShaderUniform(*param))
             {

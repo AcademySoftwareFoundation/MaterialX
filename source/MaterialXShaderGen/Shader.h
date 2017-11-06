@@ -122,7 +122,7 @@ public:
 
     /// Return a vector of the nodes in the optimized node graph,
     /// given in topological order.
-    const vector<SgNode>& getNodes() const { return _nodes;  }
+    const vector<SgNodePtr>& getNodes() const { return _nodes;  }
 
     /// Return true if this shader matches the given classification.
     bool hasClassification(unsigned int c) const { return (_classification & c) == c; }
@@ -174,7 +174,7 @@ protected:
     NodeGraphPtr _nodeGraph;
     OutputPtr _output;
     unsigned int _classification;
-    vector<SgNode> _nodes;
+    vector<SgNodePtr> _nodes;
     unordered_map<NodePtr, size_t> _nodeToSgNodeIndex;
     set<ValueElementPtr> _usedInterface;
     VDirection _vdirection;

@@ -21,6 +21,23 @@ struct GeneratorDescription
     std::vector<std::string> implementationLibrary;
 };
 
+bool isTopologicalOrder(const std::vector<const mx::SgNode*>& nodeOrder)
+{
+    std::set<const mx::SgNode*> prevNodes;
+    for (const mx::SgNode* node : nodeOrder)
+    {
+        for (auto input : node->getInputs())
+        {
+            if (input->connection && !prevNodes.count(input->connection->parent))
+            {
+                return false;
+            }
+        }
+        prevNodes.insert(node);
+    }
+    return true;
+}
+
 TEST_CASE("OslSyntax", "[shadergen]")
 {
     mx::SyntaxPtr syntax = std::make_shared<mx::OslSyntax>();
@@ -78,13 +95,15 @@ TEST_CASE("Swizzling", "[shadergen]")
     mx::Swizzle swizzleNode;
 
     mx::Shader test1("test1");
-    swizzleNode.emitFunctionCall(mx::SgNode(swizzle, sg), sg, test1);
+    mx::SgNodePtr sgNode1 = mx::SgNode::creator(swizzle, sg);
+    swizzleNode.emitFunctionCall(*sgNode1, sg, test1);
     REQUIRE(test1.getSourceCode() == "color swizzle1 = color(constant1[0], constant1[0], constant1[0]);\n");
 
     swizzle->setParameterValue("channels", std::string("b0b"));
 
     mx::Shader test2("test2");
-    swizzleNode.emitFunctionCall(mx::SgNode(swizzle, sg), sg, test2);
+    mx::SgNodePtr sgNode2 = mx::SgNode::creator(swizzle, sg);
+    swizzleNode.emitFunctionCall(*sgNode2, sg, test2);
     REQUIRE(test2.getSourceCode() == "color swizzle1 = color(constant1[2], 0, constant1[2]);\n");
 }
 

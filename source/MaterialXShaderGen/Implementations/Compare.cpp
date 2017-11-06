@@ -48,12 +48,12 @@ void Compare::emitFunctionCall(const SgNode& sgnode, ShaderGenerator& shadergen,
 
         // Emit nodes that are ONLY needed in this scope
         // TODO: Performance warning, iterating all nodes in the graph!
-        for (const SgNode& sg : shader.getNodes())
+        for (const SgNodePtr& sg : shader.getNodes())
         {
-            const SgNode::ScopeInfo& scope = sg.getScopeInfo();
+            const SgNode::ScopeInfo& scope = sg->getScopeInfo();
             if (scope.conditionalNode == sgnode.getNodePtr() && scope.usedByBranch(branch))
             {
-                sg.getImplementation()->emitFunctionCall(sg, shadergen, shader);
+                sg->getImplementation()->emitFunctionCall(*sg, shadergen, shader);
             }
         }
 

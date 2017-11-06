@@ -38,12 +38,12 @@ void ShaderGenerator::emitFunctions(Shader& shader)
 {
     // Emit funtion definitions for all nodes
     StringSet emittedNodeDefs;
-    for (const SgNode& node : shader.getNodes())
+    for (const SgNodePtr& node : shader.getNodes())
     {
-        if (emittedNodeDefs.find(node.getNodeDef().getName()) == emittedNodeDefs.end())
+        if (emittedNodeDefs.find(node->getNodeDef().getName()) == emittedNodeDefs.end())
         {
-            node.getImplementation()->emitFunction(node, *this, shader);
-            emittedNodeDefs.insert(node.getNodeDef().getName());
+            node->getImplementation()->emitFunction(*node, *this, shader);
+            emittedNodeDefs.insert(node->getNodeDef().getName());
         }
     }
 }
@@ -53,22 +53,22 @@ void ShaderGenerator::emitShaderBody(Shader &shader)
     const bool debugOutput = true;
 
     // Emit function calls for all nodes
-    for (const SgNode& node : shader.getNodes())
+    for (const SgNodePtr& node : shader.getNodes())
     {
         // Omit node if it's only used inside a conditional branch
-        if (node.referencedConditionally())
+        if (node->referencedConditionally())
         {
             if (debugOutput)
             {
                 std::stringstream str;
-                str << "// Omitted node '" << node.getName() << "'. Only used in conditional node '" << node.getScopeInfo().conditionalNode->getName() << "'";
+                str << "// Omitted node '" << node->getName() << "'. Only used in conditional node '" << node->getScopeInfo().conditionalNode->getName() << "'";
                 shader.addLine(str.str(), false);
             }
             // Omit this node
             continue;
         }
 
-        node.getImplementation()->emitFunctionCall(node, *this, shader);
+        node->getImplementation()->emitFunctionCall(*node, *this, shader);
     }
 
     emitFinalOutput(shader);
@@ -156,47 +156,24 @@ string ShaderGenerator::id(const string& language, const string& target)
     return language + "_" + target;
 }
 
-void ShaderGenerator::registerNodeImplementation(const string& name, CreatorFunc<SgImplementation> creator)
+void ShaderGenerator::registerImplementation(const string& name, CreatorFunc<SgImplementation> creator)
 {
-    _nodeImplFactory.registerClass(name, creator);
+    _implFactory.registerClass(name, creator);
 }
 
-SgImplementationPtr ShaderGenerator::getNodeImplementation(const NodeDef& nodeDef)
+SgImplementationPtr ShaderGenerator::getImplementation(const Implementation& implElement)
 {
-    // Find the matching implementation element in the document
-    ImplementationPtr matchingImpl;
-    vector<ElementPtr> elements = nodeDef.getDocument()->getMatchingImplementations(nodeDef.getName());
-    for (ElementPtr element : elements)
-    {
-        ImplementationPtr candidate = element->asA<Implementation>();
-        if (candidate)
-        {
-            const string& matchingTarget = candidate->getTarget();
-            if (candidate->getLanguage() == getLanguage() && (matchingTarget.empty() || matchingTarget == getTarget()))
-            {
-                matchingImpl = candidate;
-                break;
-            }
-        }
-    }
-
-    if (!matchingImpl)
-    {
-        throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef.getNode() +
-            "' matching language '" + getLanguage() + "' and target '" + getTarget() + "'");
-    }
-
-    const string& name = matchingImpl->getName();
+    const string& name = implElement.getName();
 
     // Check if it's created already
-    auto it = _cachedNodeImpls.find(name);
-    if (it != _cachedNodeImpls.end())
+    auto it = _cachedImpls.find(name);
+    if (it != _cachedImpls.end())
     {
         return it->second;
     }
 
     // Try creating a new in the factory
-    SgImplementationPtr impl = _nodeImplFactory.create(name);
+    SgImplementationPtr impl = _implFactory.create(name);
     if (!impl)
     {
         // No implementation was registed for this name
@@ -204,8 +181,8 @@ SgImplementationPtr ShaderGenerator::getNodeImplementation(const NodeDef& nodeDe
         impl = SourceCode::creator();
     }
 
-    impl->initialize(*matchingImpl);
-    _cachedNodeImpls[name] = impl;
+    impl->initialize(implElement);
+    _cachedImpls[name] = impl;
 
     return impl;
 }

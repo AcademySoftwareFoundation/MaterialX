@@ -232,13 +232,13 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
         {
             NodePtr node = elem->asA<Node>();
             _nodeToSgNodeIndex[node] = _nodes.size();
-            _nodes.push_back(SgNode(node, shadergen));
+            _nodes.push_back(SgNode::creator(node, shadergen));
         }
     }
 
     // Set shader classification according to the last node
     const size_t numNode = _nodes.size();
-    _classification = numNode > 0 ? _nodes[numNode - 1]._classification : 0;
+    _classification = numNode > 0 ? _nodes[numNode - 1]->_classification : 0;
 
     // Set the vdirection to use for texture nodes
     // Default is to use direction UP
@@ -266,9 +266,9 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
     }
 
     // Create shader uniforms from all public named ports
-    for (const SgNode& n : _nodes)
+    for (const SgNodePtr& n : _nodes)
     {
-        const Node& node = n.getNode();
+        const Node& node = n->getNode();
 
         for (ParameterPtr param : node.getParameters())
         {
@@ -297,7 +297,7 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
     //
 
     size_t lastNodeIndex = _nodes.size() - 1;
-    SgNode& lastNode = _nodes[lastNodeIndex];
+    SgNode& lastNode = *_nodes[lastNodeIndex];
     lastNode.getScopeInfo().type = SgNode::ScopeInfo::Type::GLOBAL;
 
     StringSet nodeUsed;
@@ -307,7 +307,7 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
     // each of the nodes that depend on it have been processed first.
     for (int nodeIndex = int(lastNodeIndex); nodeIndex >= 0; --nodeIndex)
     {
-        SgNode& node = _nodes[nodeIndex];
+        SgNode& node = *_nodes[nodeIndex];
 
         // Once we visit a node the scopeInfo has been determined and it will not be changed
         // By then we have visited all the nodes that depend on it already
@@ -352,11 +352,11 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
     }
 
     // Track closure nodes used by each surface shader.
-    for (SgNode& node : _nodes)
+    for (SgNodePtr& node : _nodes)
     {
-        if (node.hasClassification(SgNode::Classification::SHADER))
+        if (node->hasClassification(SgNode::Classification::SHADER))
         {
-            for (Edge edge : node.getNodePtr()->traverseGraph())
+            for (Edge edge : node->getNodePtr()->traverseGraph())
             {
                 NodePtr upstreamNode = edge.getUpstreamElement()->asA<Node>();
                 if (upstreamNode)
@@ -364,7 +364,7 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
                     const SgNode& upstreamSgNode = getNode(upstreamNode);
                     if (upstreamSgNode.hasClassification(SgNode::Classification::CLOSURE))
                     {
-                        node._usedClosures.insert(&upstreamSgNode);
+                        node->_usedClosures.insert(&upstreamSgNode);
                     }
                 }
             }
@@ -508,7 +508,7 @@ SgNode& Shader::getNode(const NodePtr& nodePtr)
     {
         throw ExceptionShaderGenError("No SgNode found for node '" + nodePtr->getName() + "'");
     }
-    return _nodes[it->second];
+    return *_nodes[it->second];
 }
 
 void Shader::indent()
