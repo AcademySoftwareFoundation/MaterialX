@@ -13,40 +13,37 @@ TEST_CASE("Look", "[look]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    // Add look and material.
-    mx::LookPtr look = doc->addLook();
-    mx::MaterialPtr material = doc->addMaterial();
-    REQUIRE(doc->getLooks().size() == 1);
+    // Create a material and look.
+    mx::MaterialPtr material = doc->addMaterial("material1");
+    mx::LookPtr look = doc->addLook("look1");
     REQUIRE(doc->getMaterials().size() == 1);
+    REQUIRE(doc->getLooks().size() == 1);
 
-    // Add inherited look.
-    mx::LookPtr look2 = doc->addLook();
-    look2->setInheritsFrom(look);
-    REQUIRE(look2->getInheritsFrom() == look);
-    look2->setInheritsFrom(nullptr);
-    REQUIRE(look2->getInheritsFrom() == nullptr);
-    REQUIRE(look2->getLookInherits().empty());
+    // Bind the material to a geometry string.
+    mx::MaterialAssignPtr matAssign1 = look->addMaterialAssign("matAssign1", material->getName());
+    matAssign1->setGeom("/robot1");
+    REQUIRE(matAssign1->getReferencedMaterial() == material);
+    REQUIRE(material->getBoundGeomStrings()[0] == "/robot1");
 
-    // Add material assignment.
-    mx::MaterialAssignPtr materialAssign = look->addMaterialAssign("", material->getName());
-    REQUIRE(material->getReferencingMaterialAssigns()[0] == materialAssign);
-    REQUIRE(materialAssign->getReferencedMaterial() == material);
-    materialAssign->setGeom("geom1");
-    REQUIRE(materialAssign->getGeom() == "geom1");
-    materialAssign->setCollection("collection1");
-    REQUIRE(materialAssign->getCollection() == "collection1");
-    materialAssign->setExclusive(true);
-    REQUIRE(materialAssign->getExclusive());
+    // Bind the material to a geometric collection.
+    mx::MaterialAssignPtr matAssign2 = look->addMaterialAssign("matAssign2", material->getName());
+    mx::CollectionPtr collection = doc->addCollection();
+    mx::CollectionAddPtr collectionAdd = collection->addCollectionAdd();
+    collectionAdd->setGeom("/robot2");
+    mx::CollectionRemovePtr collectionRemove = collection->addCollectionRemove();
+    collectionRemove->setGeom("/robot2/left_arm");
+    matAssign2->setCollection(collection);
+    REQUIRE(material->getBoundGeomCollections()[0] == collection);
 
-    // Add property assignment.
+    // Create a property assignment.
     mx::PropertyAssignPtr propertyAssign = look->addPropertyAssign("twosided");
-    propertyAssign->setGeom("geom1");
+    propertyAssign->setGeom("/robot1");
     propertyAssign->setValue(true);
-    REQUIRE(propertyAssign->getGeom() == "geom1");
+    REQUIRE(propertyAssign->getGeom() == "/robot1");
     REQUIRE(propertyAssign->getValue()->isA<bool>());
     REQUIRE(propertyAssign->getValue()->asA<bool>() == true);
 
-    // Add property set assignment.
+    // Create a property set assignment.
     mx::PropertySetPtr propertySet = doc->addPropertySet();
     REQUIRE(doc->getPropertySets().size() == 1);
     mx::PropertyPtr property = propertySet->addProperty("matte");
@@ -56,11 +53,19 @@ TEST_CASE("Look", "[look]")
     mx::PropertySetAssignPtr propertySetAssign = look->addPropertySetAssign(propertySet->getName());
     REQUIRE(look->getPropertySetAssigns().size() == 1);
 
-    // Add visibility.
+    // Create a visibility element.
     mx::VisibilityPtr visibility = look->addVisibility();
     REQUIRE(look->getVisibilities().size() == 1);
-    visibility->setGeom("geom1");
-    REQUIRE(visibility->getGeom() == "geom1");
-    visibility->setCollection("collection1");
-    REQUIRE(visibility->getCollection() == "collection1");
+    visibility->setGeom("/robot2");
+    REQUIRE(visibility->getGeom() == "/robot2");
+    visibility->setCollection(collection);
+    REQUIRE(visibility->getCollection() == collection);
+
+    // Create an inherited look.
+    mx::LookPtr look2 = doc->addLook();
+    look2->setInheritsFrom(look);
+    REQUIRE(look2->getInheritsFrom() == look);
+    look2->setInheritsFrom(nullptr);
+    REQUIRE(look2->getInheritsFrom() == nullptr);
+    REQUIRE(look2->getLookInherits().empty());
 }

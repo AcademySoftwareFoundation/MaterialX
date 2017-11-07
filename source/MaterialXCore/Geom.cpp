@@ -5,6 +5,8 @@
 
 #include <MaterialXCore/Geom.h>
 
+#include <MaterialXCore/Document.h>
+
 namespace MaterialX
 {
 
@@ -31,6 +33,23 @@ bool geomStringsMatch(const string& geom1, const string& geom2)
     std::set_intersection(set1.begin(), set1.end(), set2.begin(), set2.end(), 
                           std::inserter(matches, matches.end()));
     return !matches.empty();
+}
+
+void GeomElement::setCollection(CollectionPtr collection)
+{
+    if (collection)
+    {
+        setCollectionString(collection->getName());
+    }
+    else
+    {
+        removeAttribute(COLLECTION_ATTRIBUTE);
+    }
+}
+
+CollectionPtr GeomElement::getCollection() const
+{
+    return getDocument()->getCollection(getCollectionString());
 }
 
 } // namespace MaterialX
