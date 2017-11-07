@@ -97,7 +97,7 @@ TEST_CASE("Node", "[node]")
 
 TEST_CASE("Flatten", "[nodegraph]")
 {
-    // Load the example file.
+    // Read the example file.
     mx::DocumentPtr doc = mx::createDocument();
     mx::readFromXmlFile(doc, "SubGraphs.mtlx", "documents/Examples;documents/Libraries");
 

@@ -5,10 +5,29 @@
 
 #include <MaterialXCore/Property.h>
 
+#include <MaterialXCore/Document.h>
+
 namespace MaterialX
 {
 
 const string PropertyAssign::GEOM_ATTRIBUTE = "geom";
 const string PropertyAssign::COLLECTION_ATTRIBUTE = "collection";
+
+void PropertyAssign::setCollection(CollectionPtr collection)
+{
+    if (collection)
+    {
+        setCollectionString(collection->getName());
+    }
+    else
+    {
+        removeAttribute(COLLECTION_ATTRIBUTE);
+    }
+}
+
+CollectionPtr PropertyAssign::getCollection() const
+{
+    return getDocument()->getCollection(getCollectionString());
+}
 
 } // namespace MaterialX

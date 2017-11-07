@@ -32,9 +32,11 @@ TEST_CASE("Material", "[material]")
     {
         // Add a shader reference.
         mx::ShaderRefPtr shaderRef = material->addShaderRef("shaderRef1", "simpleSrf");
-        REQUIRE(material->getPrimaryShaderName() == shaderRef->getNodeString());
         REQUIRE(shaderDef->getInstantiatingShaderRefs()[0] == shaderRef);
         REQUIRE(shaderRef->getNodeDef() == shaderDef);
+        REQUIRE(material->getPrimaryShaderName() == shaderRef->getNodeString());
+        REQUIRE(material->getPrimaryShaderParameters().size() == 1);
+        REQUIRE(material->getPrimaryShaderInputs().size() == 2);
 
         // Bind a shader input to a value.
         mx::BindInputPtr bindInput = shaderRef->addBindInput("specColor");
@@ -55,8 +57,10 @@ TEST_CASE("Material", "[material]")
         // Remove shader references.
         material->removeShaderRef(shaderRef->getName());
         material->removeShaderRef(shaderRef2->getName());
-        REQUIRE(material->getPrimaryShaderName().empty());
         REQUIRE(shaderDef->getInstantiatingShaderRefs().empty());
+        REQUIRE(material->getPrimaryShaderName().empty());
+        REQUIRE(material->getPrimaryShaderParameters().empty());
+        REQUIRE(material->getPrimaryShaderInputs().empty());
     }
 
     SECTION("Overrides")
