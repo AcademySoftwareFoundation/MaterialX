@@ -1,15 +1,13 @@
-#ifndef MATERIALX_SOURCECODE_H
-#define MATERIALX_SOURCECODE_H
+#ifndef MATERIALX_COMPOUND_H
+#define MATERIALX_COMPOUND_H
 
 #include <MaterialXShaderGen/SgImplementation.h>
+#include <MaterialXShaderGen/SgNode.h>
 
 namespace MaterialX
 {
 
-/// Implementation using data driven static source code.
-/// This is the defaul implementation used for all nodes that 
-/// does not have a custom SgImplementation class.
-class SourceCode : public SgImplementation
+class Compound : public SgImplementation
 {
 public:
     static SgImplementationPtr creator();
@@ -21,9 +19,8 @@ public:
     void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader, int numArgs = 0, ...) override;
 
 protected:
-    bool _inlined;
+    SgNodeGraphPtr _sgNodeGraph;
     string _functionName;
-    string _functionSource;
 };
 
 } // namespace MaterialX

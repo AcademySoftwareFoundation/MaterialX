@@ -41,10 +41,10 @@ public:
     };
 
     /// Container for uniform shader parameters
-    using Uniforms = unordered_map<string, ParameterPtr>;
+    using Uniforms = unordered_map<string, SgInput*>;
 
     /// Container for varying shader parameters
-    using Varyings = unordered_map<string, InputPtr>;
+    using Varyings = unordered_map<string, SgInput*>;
 
 public:
     /// Constructor
@@ -114,15 +114,8 @@ public:
     /// Return the shader name
     const string& getName() const { return _name; }
 
-    /// Return the optimized node graph created for shader generation.
-    const NodeGraphPtr getNodeGraph() const { return _nodeGraph; }
-
-    /// Return the output used for shader generation.
-    const OutputPtr getOutput() const { return _output; }
-
-    /// Return a vector of the nodes in the optimized node graph,
-    /// given in topological order.
-    const vector<SgNodePtr>& getNodes() const { return _nodes;  }
+    /// Return the shader node graph.
+    SgNodeGraph* getNodeGraph() const { return _sgNodeGraph.get(); }
 
     /// Return true if this shader matches the given classification.
     bool hasClassification(unsigned int c) const { return (_classification & c) == c; }
@@ -135,10 +128,10 @@ public:
     VDirection getRequestedVDirection() const { return _vdirection; }
 
     /// Add a shader uniform
-    void addUniform(const string& name, ParameterPtr param);
+    void addUniform(const string& name, SgInput* input);
 
     /// Add a shader varying
-    void addVarying(const string& name, InputPtr input);
+    void addVarying(const string& name, SgInput* input);
 
     /// Return the final shader uniforms.
     const Uniforms& getUniforms() const { return _uniforms; }
@@ -183,6 +176,10 @@ protected:
     vector<Stage> _stages;
     Uniforms _uniforms;
     Varyings _varyings;
+
+
+    SgNodeGraphPtr _sgNodeGraph;
+    SgOutput* _sgOutput;
 };
 
 /// @class @ExceptionShaderGenError

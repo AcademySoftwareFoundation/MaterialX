@@ -8,6 +8,7 @@
 #include <MaterialXShaderGen/ShaderGenerators/OgsFxShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/OslSyntax.h>
 #include <MaterialXShaderGen/Implementations/Swizzle.h>
+#include <MaterialXShaderGen/Util.h>
 
 #include <iostream>
 #include <fstream>
@@ -28,7 +29,7 @@ bool isTopologicalOrder(const std::vector<const mx::SgNode*>& nodeOrder)
     {
         for (auto input : node->getInputs())
         {
-            if (input->connection && !prevNodes.count(input->connection->parent))
+            if (input->connection && !prevNodes.count(input->connection->node))
             {
                 return false;
             }
@@ -90,21 +91,23 @@ TEST_CASE("Swizzling", "[shadergen]")
     mx::NodePtr swizzle = nodeGraph->addNode("swizzle", "swizzle1", "color3");
     swizzle->setConnectedNode("in", constant);
     swizzle->setParameterValue("channels", std::string("rrr"));
+    mx::OutputPtr output1 = nodeGraph->addOutput();
+    output1->setConnectedNode(swizzle);
 
-    // Test swizzle node custom implementation
-    mx::Swizzle swizzleNode;
+    // Create shader gen graph
+    mx::SgNodeGraphPtr sgNodeGraph = mx::SgNodeGraph::creator(nodeGraph->getName(), output1, sg);
+    mx::SgNodePtr sgNode = sgNodeGraph->getNode("swizzle1");
 
+    // Test swizzle implementation
     mx::Shader test1("test1");
-    mx::SgNodePtr sgNode1 = mx::SgNode::creator(swizzle, sg);
-    swizzleNode.emitFunctionCall(*sgNode1, sg, test1);
-    REQUIRE(test1.getSourceCode() == "color swizzle1 = color(constant1[0], constant1[0], constant1[0]);\n");
+    sgNode->getImplementation()->emitFunctionCall(*sgNode, sg, test1);
+    REQUIRE(test1.getSourceCode() == "color swizzle1_out = color(constant1_out[0], constant1_out[0], constant1_out[0]);\n");
 
-    swizzle->setParameterValue("channels", std::string("b0b"));
-
+    // Change swizzle pattern and test again
+    sgNode->getInput("channels")->value = mx::Value::createValue(std::string("b0b"));
     mx::Shader test2("test2");
-    mx::SgNodePtr sgNode2 = mx::SgNode::creator(swizzle, sg);
-    swizzleNode.emitFunctionCall(*sgNode2, sg, test2);
-    REQUIRE(test2.getSourceCode() == "color swizzle1 = color(constant1[2], 0, constant1[2]);\n");
+    sgNode->getImplementation()->emitFunctionCall(*sgNode, sg, test2);
+    REQUIRE(test2.getSourceCode() == "color swizzle1_out = color(constant1_out[2], 0, constant1_out[2]);\n");
 }
 
 TEST_CASE("Simple Nodegraph Shader Generation", "[shadergen]")
@@ -185,13 +188,12 @@ TEST_CASE("Simple Nodegraph Shader Generation", "[shadergen]")
 
 TEST_CASE("Subgraph Shader Generation", "[shadergen]")
 {
-    std::string searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries/stdlib");
-    mx::ShaderGenerator::registerSourceCodeSearchPath(searchPath);
+    mx::ShaderGenerator::registerSourceCodeSearchPath(mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries"));
 
     mx::DocumentPtr doc = mx::createDocument();
 
     // Load example file
-    searchPath += ";";
+    std::string searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries/stdlib;");
     searchPath += mx::FilePath::getCurrentPath() / mx::FilePath("documents/Examples");
     std::vector<std::string> filenames =
     {

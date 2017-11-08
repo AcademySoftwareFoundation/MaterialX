@@ -37,8 +37,8 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     {
         emitUniform(
             uniform.first,
-            uniform.second->getType(), 
-            uniform.second->getValue(),
+            uniform.second->type, 
+            uniform.second->value,
             shader
         );
     }
@@ -47,8 +47,8 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     {
         emitUniform(
             varying.first,
-            varying.second->getType(),
-            varying.second->getValue(),
+            varying.second->type,
+            varying.second->value,
             shader
         );
     }
@@ -69,7 +69,9 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     emitTypeDefs(shader);
 
     // Emit shader output
-    const string variable = _syntax->getVariableName(*shader.getOutput());
+    SgNodeGraph* graph = shader.getNodeGraph();
+    const SgOutput* output = graph->getOutput();
+    const string variable = _syntax->getVariableName(output);
     shader.addComment("Data output by the pixel shader");
     shader.addLine("attribute PixelOutput", false);
     shader.beginScope(Shader::Brackets::BRACES);
@@ -116,12 +118,11 @@ void OgsFxShaderGenerator::emitShaderBody(Shader &shader)
     // Handle all texturing nodes. These are inputs to any
     // closure/shader nodes and need to be emitted first.
     //
-    shader.addComment("Emit code for all texturing nodes");
     emitTextureNodes(shader);
     shader.newLine();
 
     // Emit function calls for all shader nodes
-    for (const SgNodePtr& node : shader.getNodes())
+    for (SgNode* node : shader.getNodeGraph()->getNodes())
     {
         // Emit only unconditional nodes, since any node within a conditional 
         // branch is emitted by the conditional node itself
@@ -130,18 +131,18 @@ void OgsFxShaderGenerator::emitShaderBody(Shader &shader)
             node->getImplementation()->emitFunctionCall(*node, *this, shader);
         }
     }
-    shader.newLine();
 
     emitFinalOutput(shader);
 }
 
 void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
 {
-    const OutputPtr& output = shader.getOutput();
-    const string outputVariable = _syntax->getVariableName(*output);
+    SgNodeGraph* graph = shader.getNodeGraph();
+    const SgOutput* output = graph->getOutput();
+    const string outputVariable = _syntax->getVariableName(output);
 
-    const NodePtr connectedNode = output->getConnectedNode();
-    string finalResult = _syntax->getVariableName(*connectedNode);
+    SgInput* outputSocket = graph->getOutputSocket(output->name);
+    string finalResult = _syntax->getVariableName(outputSocket->connection);
 
     if (shader.hasClassification(SgNode::Classification::SURFACE))
     {
@@ -151,23 +152,22 @@ void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
     }
     else
     {
-        const string& outputType = output->getType();
-        if (output->getChannels() != EMPTY_STRING)
+        if (outputSocket->channels != EMPTY_STRING)
         {
-            finalResult = _syntax->getSwizzledVariable(finalResult, output->getType(), connectedNode->getType(), output->getChannels());
+            finalResult = _syntax->getSwizzledVariable(finalResult, output->type, outputSocket->connection->type, outputSocket->channels);
         }
-        if (outputType != "color4" && outputType != "vector4")
+        if (output->type != "color4" && output->type != "vector4")
         {
             // Remap to vec4 type for final output
-            if (outputType == "float" || outputType == "boolean" || outputType == "integer")
+            if (output->type == "float" || output->type == "boolean" || output->type == "integer")
             {
                 finalResult = "vec4(" + finalResult + ", " + finalResult + ", " + finalResult + ", 1.0)";
             }
-            else if (outputType == "vector2" || outputType == "color2")
+            else if (output->type == "vector2" || output->type == "color2")
             {
                 finalResult = "vec4(" + finalResult + ", 0.0, 1.0)";
             }
-            else if (outputType == "vector3" || outputType == "color3")
+            else if (output->type == "vector3" || output->type == "color3")
             {
                 finalResult = "vec4(" + finalResult + ", 1.0)";
             }
@@ -201,18 +201,17 @@ void OgsFxShaderGenerator::emitUniform(const string& name, const string& type, c
     }
 }
 
-void OgsFxShaderGenerator::emitInput(const ValueElement& port, Shader& shader)
+void OgsFxShaderGenerator::emitInput(const SgInput* input, Shader& shader)
 {
-    if (port.isA<Parameter>() && 
-        useAsShaderUniform(*port.asA<Parameter>()))
+    if (useAsShaderUniform(input))
     {
         // This input is promoted to a shader input
         // So just use the name of that shader input
-        shader.addStr(_syntax->getVariableName(port, true));
+        shader.addStr(_syntax->getVariableName(input));
     }
     else
     {
-        GlslShaderGenerator::emitInput(port, shader);
+        GlslShaderGenerator::emitInput(input, shader);
     }
 }
 
@@ -220,28 +219,25 @@ void OgsFxShaderGenerator::addExtraShaderUniforms(Shader& shader)
 {
     // Run over all node ports and check if any should be promoted to shader inputs
     // (this is the case for file texture filename inputs)
-    for (const SgNodePtr& node : shader.getNodes())
+    for (SgNode* node : shader.getNodeGraph()->getNodes())
     {
-        for (ParameterPtr param : node->getNode().getParameters())
+        for (SgInput* input : node->getInputs())
         {
-            if (useAsShaderUniform(*param))
+            if (useAsShaderUniform(input))
             {
-                const string name = _syntax->getVariableName(*param, true);
-                shader.addUniform(name, param);
+                const string name = _syntax->getVariableName(input);
+                shader.addUniform(name, input);
             }
         }
     }
 }
 
-bool OgsFxShaderGenerator::useAsShaderUniform(const Parameter& param) const
+bool OgsFxShaderGenerator::useAsShaderUniform(const SgInput* input) const
 {
     // Unconnected file texture inputs should be promoted to shader uniforms
-    if (param.getType() == kFilename && param.getInterfaceName().empty() && param.getPublicName().empty())
+    if (!input->connection && input->node->hasClassification(SgNode::Classification::FILETEXTURE) && input->type == kFilename)
     {
-        ConstElementPtr parent = param.getParent();
-        const string& nodeName = parent->isA<NodeDef>() ?
-            parent->asA<NodeDef>()->getNode() : parent->asA<Node>()->getCategory();
-        return nodeName == "image";
+        return true;
     }
     return false;
 }

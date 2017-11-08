@@ -169,15 +169,15 @@ void OslShaderGenerator::emitShaderBody(Shader &shader)
 
 void OslShaderGenerator::emitShaderSignature(Shader &shader)
 {
-    const NodeGraphPtr& graph = shader.getNodeGraph();
-
     // Emit shader type
-    const string& outputType = shader.getOutput()->getType();
-    if (outputType == "surfaceshader")
+    SgNodeGraph* graph = shader.getNodeGraph();
+    const SgOutput* output = graph->getOutput();
+
+    if (output->type == "surfaceshader")
     {
         shader.addStr("surface ");
     }
-    else if (outputType == "displacementshader")
+    else if (output->type == "volumeshader")
     {
         shader.addStr("volume ");
     }
@@ -187,7 +187,7 @@ void OslShaderGenerator::emitShaderSignature(Shader &shader)
     }
 
     // Emit shader name
-    shader.addStr(graph->getName() + "\n");
+    shader.addStr(shader.getName() + "\n");
 
     shader.beginScope(Shader::Brackets::PARENTHESES);
 
@@ -197,8 +197,8 @@ void OslShaderGenerator::emitShaderSignature(Shader &shader)
         shader.beginLine();
         emitUniform(
             varyings.first,
-            varyings.second->getType(),
-            varyings.second->getValue(),
+            varyings.second->type,
+            varyings.second->value,
             shader
         );
         shader.addStr(",");
@@ -211,8 +211,8 @@ void OslShaderGenerator::emitShaderSignature(Shader &shader)
         shader.beginLine();
         emitUniform(
             uniform.first,
-            uniform.second->getType(),
-            uniform.second->getValue(),
+            uniform.second->type,
+            uniform.second->value,
             shader
         );
         shader.addStr(",");
@@ -220,9 +220,9 @@ void OslShaderGenerator::emitShaderSignature(Shader &shader)
     }
 
     // Emit shader output
-    const string type = _syntax->getOutputTypeName(outputType);
-    const string variable = _syntax->getVariableName(*shader.getOutput());
-    const string value = _syntax->getTypeDefault(outputType, true);
+    const string type = _syntax->getOutputTypeName(output->type);
+    const string variable = _syntax->getVariableName(output);
+    const string value = _syntax->getTypeDefault(output->type, true);
     shader.addLine(type + " " + variable + " = " + value, false);
 
     shader.endScope();

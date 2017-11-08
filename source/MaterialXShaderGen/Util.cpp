@@ -3,6 +3,7 @@
 #include <MaterialXCore/Util.h>
 
 #include <stack>
+#include <iostream>
 #include <sstream>
 #include <fstream>
 #if defined(_WIN32)
@@ -52,7 +53,6 @@ string getFileExtension(const string& filename)
     return i != string::npos ? filename.substr(i + 1) : EMPTY_STRING;
 }
 
-
 string printGraphDot(const SgNodeGraph& graph)
 {
     std::stringstream dot;
@@ -60,11 +60,10 @@ string printGraphDot(const SgNodeGraph& graph)
     dot << "digraph {\n";
 
     // Print the nodes
-    for (const SgNode* node : graph.getNodeOrder())
+    for (const SgNode* node : graph.getNodes())
     {
         dot << "    \"" << node->getName() << "\" ";
-        const string& category = node->getNodePtr()->getCategory();
-        if (category == "compare" || category == "switch")
+        if (node->hasClassification(SgNode::Classification::CONDITIONAL))
         {
             dot << "[shape=diamond];\n";
         }
@@ -76,33 +75,15 @@ string printGraphDot(const SgNodeGraph& graph)
 
     // Print the connections
     std::set<const SgNode*> visited;
-    for (auto it : graph.getInternalOutputs())
+    for (SgInput* outputSocket : graph.getOutputSockets())
     {
-        std::stack<const SgNode*> stack;
-        stack.push(it.second->parent);
-
-        while (!stack.empty())
+        if (outputSocket->connection)
         {
-            const SgNode* node = stack.top();
-            stack.pop();
-
-            if (visited.count(node) == 0)
+            for (SgEdge edge : outputSocket->connection->traverseUpstream())
             {
-                for (const SgInput* input : node->getInputs())
+                if (edge.downstream)
                 {
-                    if (input->connection)
-                    {
-                        dot << "    \"" << input->connection->parent->getName() << "\" -> \"" << input->parent->getName() << "\" [label=\"" << input->name << "\"];\n";
-                    }
-                }
-                visited.insert(node);
-            }
-
-            for (const SgInput* input : node->getInputs())
-            {
-                if (input->connection)
-                {
-                    stack.push(input->connection->parent);
+                    dot << "    \"" << edge.upstream->node->getName() << "\" -> \"" << edge.downstream->node->getName() << "\" [label=\"" << edge.downstream->name << "\"];\n";
                 }
             }
         }

@@ -35,6 +35,28 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
     _activeStage = 0;
     _stages.resize(numStages());
 
+    // Set the vdirection to use for texture nodes
+    // Default is to use direction UP
+    const string& vdir = element->getRoot()->getAttribute("vdirection");
+    _vdirection = vdir == "down" ? VDirection::DOWN : VDirection::UP;;
+
+    // Create our shader generation graph
+    _sgNodeGraph = SgNodeGraph::creator(_name, element, shadergen);
+
+    // Make sure we have a connection inside the graph
+    SgInput* outputSocket = _sgNodeGraph->getOutputSocket(_sgNodeGraph->getOutput()->name);
+    if (!outputSocket->connection)
+    {
+        ExceptionShaderGenError("Graph created for element '" + element->getName() + "' has no internal output connected");
+    }
+}
+
+/*
+void Shader::initialize2(ElementPtr element, ShaderGenerator& shadergen)
+{
+    _activeStage = 0;
+    _stages.resize(numStages());
+
     DocumentPtr doc = element->getDocument();
 
     // Create a new graph, to hold this node and it's dependencies upstream
@@ -56,9 +78,6 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
     //
     // Add the element itself to our graph
     // 
-
-    // Keep track of the default geometric nodes we create below.
-    unordered_map<string, NodePtr> defaultGeometricNodes;
 
     ElementPtr root;
     MaterialPtr material;
@@ -371,6 +390,7 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
         }
     }
 }
+*/
 
 void Shader::finalize()
 {
@@ -521,32 +541,32 @@ void Shader::indent()
     }
 }
 
-void Shader::addUniform(const string& name, ParameterPtr param)
+void Shader::addUniform(const string& name, SgInput* input)
 {
     auto it = _uniforms.find(name);
     if (it != _uniforms.end())
     {
         // The uniform name already exists.
         // Make sure it's the same data types.
-        if (it->second->getType() != param->getType())
+        if (it->second->type != input->type)
         {
             throw ExceptionShaderGenError("A shader uniform named '" + name + "' already exists but with different type.");
         }
     }
     else
     {
-        _uniforms[name] = param;
+        _uniforms[name] = input;
     }
 }
 
-void Shader::addVarying(const string& name, InputPtr input)
+void Shader::addVarying(const string& name, SgInput* input)
 {
     auto it = _varyings.find(name);
     if (it != _varyings.end())
     {
         // The uniform name already exists.
         // Make sure it's the same data types.
-        if (it->second->getType() != input->getType())
+        if (it->second->type != input->type)
         {
             throw ExceptionShaderGenError("A shader varying named '" + name + "' already exists but with different type.");
         }

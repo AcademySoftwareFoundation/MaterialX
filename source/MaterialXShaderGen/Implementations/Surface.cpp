@@ -48,11 +48,11 @@ void SurfaceOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
 
     // Declare the output variable
     shader.beginLine();
-    glslgen.emitOutput(node.getNode(), true, shader);
+    glslgen.emitOutput(node.getOutput(), true, shader);
     shader.endLine();
     shader.newLine();
 
-    const string outputVariable = glslgen.getSyntax()->getVariableName(node.getNode());
+    const string outputVariable = glslgen.getSyntax()->getVariableName(node.getOutput());
     const string outColor = outputVariable + ".color";
     const string outTransparency = outputVariable + ".transparency";
 
@@ -64,7 +64,7 @@ void SurfaceOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
     //
     string surfaceOpacity = node.getName() + "_opacity";
     shader.addStr("float " + surfaceOpacity + " = ");
-    glslgen.emitInput(node.getPort("opacity"), shader);
+    glslgen.emitInput(node.getInput("opacity"), shader);
     shader.endLine();
     shader.addLine("if (" + surfaceOpacity + " > 0.001)", false);
     shader.beginScope();

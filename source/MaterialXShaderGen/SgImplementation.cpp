@@ -4,11 +4,11 @@
 namespace MaterialX
 {
 
-void SgImplementation::initialize(const Implementation& /*implementation*/)
+void SgImplementation::initialize(ElementPtr, ShaderGenerator&)
 {
 }
 
-void SgImplementation::emitFunction(const SgNode&, ShaderGenerator&, Shader&)
+void SgImplementation::emitFunction(const SgNode&, ShaderGenerator&, Shader&, int, ...)
 {
     // default implementation has no function definition
 }

@@ -118,7 +118,7 @@ void GlslShaderGenerator::emitFunctions(Shader& shader)
 void GlslShaderGenerator::emitTextureNodes(Shader& shader)
 {
     // Emit function calls for all texturing nodes
-    for (const SgNodePtr& node : shader.getNodes())
+    for (SgNode* node : shader.getNodeGraph()->getNodes())
     {
         // Emit only unconditional nodes, since any node within a conditional 
         // branch is emitted by the conditional node itself
@@ -131,22 +131,22 @@ void GlslShaderGenerator::emitTextureNodes(Shader& shader)
 
 void GlslShaderGenerator::emitSurfaceBsdf(const SgNode& surfaceShaderNode, const string& wi, const string& wo, Shader& shader, string& bsdf)
 {
-    const SgNode* last = nullptr;
+    SgNode* last = nullptr;
 
     // Emit function calls for all BSDF nodes used by this shader
     // The last node will hold the final result
-    for (const SgNodePtr& node : shader.getNodes())
+    for (SgNode* node : shader.getNodeGraph()->getNodes())
     {
-        if (node->hasClassification(SgNode::Classification::BSDF) && surfaceShaderNode.isUsedClosure(node.get()))
+        if (node->hasClassification(SgNode::Classification::BSDF) && surfaceShaderNode.isUsedClosure(node))
         {
             node->getImplementation()->emitFunctionCall(*node, *this, shader, 2, wi.c_str(), wo.c_str());
-            last = node.get();
+            last = node;
         }
     }
 
     if (last)
     {
-        bsdf = _syntax->getVariableName(last->getNode());
+        bsdf = _syntax->getVariableName(last->getOutput());
     }
 }
 
@@ -154,22 +154,22 @@ void GlslShaderGenerator::emitSurfaceEmission(const SgNode& surfaceShaderNode, S
 {
     emission = "vec3(0.0)";
 
-    const SgNode* last = nullptr;
+    SgNode* last = nullptr;
 
     // Emit function calls for all EDF nodes used by this shader
     // The last node will hold the final result
-    for (const SgNodePtr& node : shader.getNodes())
+    for (SgNode* node : shader.getNodeGraph()->getNodes())
     {
-        if (node->hasClassification(SgNode::Classification::EDF) && surfaceShaderNode.isUsedClosure(node.get()))
+        if (node->hasClassification(SgNode::Classification::EDF) && surfaceShaderNode.isUsedClosure(node))
         {
             node->getImplementation()->emitFunctionCall(*node, *this, shader);
-            last = node.get();
+            last = node;
         }
     }
 
     if (last)
     {
-        emission = _syntax->getVariableName(last->getNode());
+        emission = _syntax->getVariableName(last->getOutput());
     }
 }
 

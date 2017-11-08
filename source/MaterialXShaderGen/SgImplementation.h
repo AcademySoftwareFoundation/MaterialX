@@ -22,9 +22,6 @@ class SgImplementation
 public:
     virtual ~SgImplementation() {}
 
-    /// Initialize with the given implementation element
-    virtual void initialize(const Implementation& implementation);
-
     /// Return an identifyer for the language used by this implementation.
     /// By default an empty string is returned, representing any language.
     /// Only override this method if your derived node implementation class
@@ -37,8 +34,11 @@ public:
     /// is for a specific target.
     virtual const string& getTarget() const { return EMPTY_STRING; }
 
+    /// Initialize with the given implementation element
+    virtual void initialize(ElementPtr implementation, ShaderGenerator& shadergen);
+
     /// Emit function definition, if needed, for the given node instance
-    virtual void emitFunction(const SgNode& node, ShaderGenerator& shadergen, Shader& shader);
+    virtual void emitFunction(const SgNode& node, ShaderGenerator& shadergen, Shader& shader, int numArgs = 0, ...);
 
     /// Emit the function call or inline source code for given node instance.
     /// The varying length arguments can, if needed, be used to emit extra inputs 

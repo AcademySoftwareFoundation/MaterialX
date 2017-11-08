@@ -1,6 +1,7 @@
 #include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/SgImplementation.h>
 #include <MaterialXShaderGen/Implementations/SourceCode.h>
+#include <MaterialXShaderGen/Implementations/Compound.h>
 
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Document.h>
@@ -37,13 +38,14 @@ void ShaderGenerator::emitTypeDefs(Shader& shader)
 void ShaderGenerator::emitFunctions(Shader& shader)
 {
     // Emit funtion definitions for all nodes
-    StringSet emittedNodeDefs;
-    for (const SgNodePtr& node : shader.getNodes())
+    set<SgImplementation*> emitted;
+    for (SgNode* node : shader.getNodeGraph()->getNodes())
     {
-        if (emittedNodeDefs.find(node->getNodeDef().getName()) == emittedNodeDefs.end())
+        SgImplementation* impl = node->getImplementation().get();
+        if (emitted.find(impl) == emitted.end())
         {
-            node->getImplementation()->emitFunction(*node, *this, shader);
-            emittedNodeDefs.insert(node->getNodeDef().getName());
+            impl->emitFunction(*node, *this, shader);
+            emitted.insert(impl);
         }
     }
 }
@@ -53,7 +55,7 @@ void ShaderGenerator::emitShaderBody(Shader &shader)
     const bool debugOutput = true;
 
     // Emit function calls for all nodes
-    for (const SgNodePtr& node : shader.getNodes())
+    for (SgNode* node : shader.getNodeGraph()->getNodes())
     {
         // Omit node if it's only used inside a conditional branch
         if (node->referencedConditionally())
@@ -76,16 +78,19 @@ void ShaderGenerator::emitShaderBody(Shader &shader)
 
 void ShaderGenerator::emitFinalOutput(Shader& shader) const
 {
-    const OutputPtr& output = shader.getOutput();
-    const NodePtr connectedNode = output->getConnectedNode();
+    SgNodeGraph* graph = shader.getNodeGraph();
+    const SgOutput* output = graph->getOutput();
+    const string outputVariable = _syntax->getVariableName(output);
 
-    string finalResult = _syntax->getVariableName(*connectedNode);
-    if (output->getChannels() != EMPTY_STRING)
+    SgInput* outputSocket = graph->getOutputSocket(output->name);
+    string finalResult = _syntax->getVariableName(outputSocket->connection);
+
+    if (outputSocket->channels != EMPTY_STRING)
     {
-        finalResult = _syntax->getSwizzledVariable(finalResult, output->getType(), connectedNode->getType(), output->getChannels());
+        finalResult = _syntax->getSwizzledVariable(finalResult, output->type, outputSocket->connection->type, outputSocket->channels);
     }
 
-    shader.addLine(_syntax->getVariableName(*output) + " = " + finalResult);
+    shader.addLine(outputVariable + " = " + finalResult);
 }
 
 void ShaderGenerator::emitUniform(const string& name, const string& type, const ValuePtr& value, Shader& shader)
@@ -94,61 +99,39 @@ void ShaderGenerator::emitUniform(const string& name, const string& type, const 
     shader.addStr(_syntax->getTypeName(type) + " " + name + (initStr.empty() ? "" : " = " + initStr));
 }
 
-void ShaderGenerator::emitInput(const ValueElement& port, Shader &shader)
+void ShaderGenerator::emitInput(const SgInput* input, Shader &shader)
 {
-    if (port.isA<Input>())
+    if (input->connection)
     {
-        ConstInputPtr input = port.asA<Input>();
-        const NodePtr connectedNode = input->getConnectedNode();
-        if (connectedNode)
+        string name = _syntax->getVariableName(input->connection);
+        if (input->channels != EMPTY_STRING)
         {
-            string name = _syntax->getVariableName(*connectedNode);
-            if (input->getChannels() != EMPTY_STRING)
-            {
-                name = _syntax->getSwizzledVariable(name, input->getType(), connectedNode->getType(), input->getChannels());
-            }
-
-            shader.addStr(name);
-
-            return;
+            name = _syntax->getSwizzledVariable(name, input->type, input->connection->type, input->channels);
         }
+
+        shader.addStr(name);
+
+        return;
     }
 
-    if (!port.getInterfaceName().empty())
+    if (input->value)
     {
-        shader.addStr(port.getInterfaceName());
-    }
-    else if (!port.getPublicName().empty())
-    {
-        shader.addStr(port.getPublicName());
+        shader.addStr(_syntax->getValue(*input->value));
     }
     else
     {
-        const string& valueStr = port.getValueString();
-        if (valueStr.length())
-        {
-            ValuePtr value = port.getValue();
-            if (!value)
-            {
-                throw ExceptionShaderGenError("Malformed value on node port " + port.getParent()->getName() + "." + port.getName());
-            }
-            shader.addStr(_syntax->getValue(*value));
-        }
-        else
-        {
-            shader.addStr(_syntax->getTypeDefault(port.getType()));
-        }
+        shader.addStr(_syntax->getTypeDefault(input->type));
     }
 }
 
-void ShaderGenerator::emitOutput(const TypedElement& nodeOrOutput, bool includeType, Shader& shader)
+void ShaderGenerator::emitOutput(const SgOutput* output, bool includeType, Shader& shader)
 {
     string typeStr;
     if (includeType)
     {
-        typeStr = _syntax->getTypeName(nodeOrOutput.getType()) + " ";
+        typeStr = _syntax->getTypeName(output->type) + " ";
     }
-    shader.addStr(typeStr + _syntax->getVariableName(nodeOrOutput));
+    shader.addStr(typeStr + _syntax->getVariableName(output));
 }
 
 string ShaderGenerator::id(const string& language, const string& target)
@@ -161,9 +144,9 @@ void ShaderGenerator::registerImplementation(const string& name, CreatorFunc<SgI
     _implFactory.registerClass(name, creator);
 }
 
-SgImplementationPtr ShaderGenerator::getImplementation(const Implementation& implElement)
+SgImplementationPtr ShaderGenerator::getImplementation(ElementPtr element)
 {
-    const string& name = implElement.getName();
+    const string& name = element->getName();
 
     // Check if it's created already
     auto it = _cachedImpls.find(name);
@@ -172,16 +155,26 @@ SgImplementationPtr ShaderGenerator::getImplementation(const Implementation& imp
         return it->second;
     }
 
-    // Try creating a new in the factory
-    SgImplementationPtr impl = _implFactory.create(name);
-    if (!impl)
+    SgImplementationPtr impl;
+    if (element->isA<NodeGraph>())
     {
         // No implementation was registed for this name
         // Fall back to data driven source code implementation
-        impl = SourceCode::creator();
+        impl = Compound::creator();
+    }
+    else
+    {
+        // Try creating a new in the factory
+        impl = _implFactory.create(name);
+        if (!impl)
+        {
+            // No implementation was registed for this name
+            // Fall back to data driven source code implementation
+            impl = SourceCode::creator();
+        }
     }
 
-    impl->initialize(implElement);
+    impl->initialize(element, *this);
     _cachedImpls[name] = impl;
 
     return impl;

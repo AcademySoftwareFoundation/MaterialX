@@ -29,14 +29,14 @@ public:
 
     /// Emit the connected variable name for an input port
     /// or constant value if the port is not connected
-    void emitInput(const ValueElement& port, Shader& shader) override;
+    void emitInput(const SgInput* input, Shader& shader) override;
 
     /// Emit the final output expression
     void emitFinalOutput(Shader& shader) const override;
 
 protected:
     void addExtraShaderUniforms(Shader& shader);
-    bool useAsShaderUniform(const Parameter& param) const;
+    bool useAsShaderUniform(const SgInput* input) const;
 };
 
 }

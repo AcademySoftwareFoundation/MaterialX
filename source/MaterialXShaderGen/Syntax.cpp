@@ -77,13 +77,14 @@ namespace MaterialX
         return EMPTY_STRING;
     }
 
-    string Syntax::getVariableName(const Element& elem, bool includeParentName) const
+    string Syntax::getVariableName(const SgInput* input) const
     {
-        if (includeParentName || elem.isA<Output>())
-        {
-            return elem.getParent()->getName() + "_" + elem.getName();
-        }
-        return  elem.getName();
+        return input->node->getName() + "_" + input->name;
+    }
+
+    string Syntax::getVariableName(const SgOutput* output) const
+    {
+        return output->node->getName() + "_" + output->name;
     }
 
     string Syntax::getSwizzledVariable(const string& name, const string& type, const string& fromType, const string& channels) const

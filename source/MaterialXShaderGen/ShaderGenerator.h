@@ -49,12 +49,12 @@ public:
     /// Emit a shader uniform input variable
     virtual void emitUniform(const string& name, const string& type, const ValuePtr& value, Shader& shader);
 
-    /// Emit the connected variable name for an input port
+    /// Emit the connected variable name for an input,
     /// or constant value if the port is not connected
-    virtual void emitInput(const ValueElement& port, Shader& shader);
+    virtual void emitInput(const SgInput* input, Shader& shader);
 
-    /// Emit the output variable name for a node or node output, optionally including it's type
-    virtual void emitOutput(const TypedElement& nodeOrOutput, bool includeType, Shader& shader);
+    /// Emit the output variable name for an output, optionally including it's type
+    virtual void emitOutput(const SgOutput* output, bool includeType, Shader& shader);
 
     /// Return the v-direction used by the target system
     virtual Shader::VDirection getTargetVDirection() const;
@@ -74,7 +74,7 @@ public:
     /// Return a registered shader gen implementation given an implementation element.
     /// If no registered implementaion is found a default source code implementation 
     /// instance will be returned.
-    SgImplementationPtr getImplementation(const Implementation& element);
+    SgImplementationPtr getImplementation(ElementPtr element);
 
     /// Add to the search path used for finding source code.
     static void registerSourceCodeSearchPath(const FilePath& path);
