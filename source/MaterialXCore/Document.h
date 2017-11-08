@@ -166,7 +166,7 @@ class Document : public Element
     /// @param name The name of the new GeomInfo.
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
-    /// @param geom An optional geom string for the GeomInfo.
+    /// @param geom An optional geometry string for the GeomInfo.
     /// @return A shared pointer to the new GeomInfo.
     GeomInfoPtr addGeomInfo(const string& name = EMPTY_STRING, const string& geom = UNIVERSAL_GEOM_NAME)
     {

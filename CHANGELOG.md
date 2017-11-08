@@ -4,16 +4,18 @@
 
 ### Added
 - Added Material methods getPrimaryShaderNodeDef, getPrimaryShaderName, getPrimaryShaderParameters, and getPrimaryShaderInputs.
+- Added Material methods getBoundGeomStrings and getBoundGeomCollections.
 - Added ValueElement methods getBoundValue and getDefaultValue.
 - Added InterfaceElement methods setInputValue and getInputValue.
 - Added method Element\:\:createStringResolver and class StringResolver, for applying substring substitutions to data values.
 - Added support for multi-output nodes, nodedefs, and connections.
+- Added the XmlReadOptions argument to XML read functions.
 
 ### Changed
 - Renamed method Material\:\:getReferencedShaderDefs to Material\:\:getShaderNodeDefs.
 - Renamed method ShaderRef\:\:getReferencedShaderDef to ShaderRef\:\:getNodeDef.
 - Renamed method Node\:\:getReferencedNodeDef to Node\:\:getNodeDef.
-- Added a 'string' suffix to all accessors for 'node' and 'nodedef' strings.
+- Added a 'string' suffix to all accessors for 'node', 'nodedef', and 'collection' strings.
 
 ### Removed
 - Removed method Document\:\:applyStringSubstitutions (deprecated in Python).

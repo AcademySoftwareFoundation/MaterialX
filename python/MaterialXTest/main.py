@@ -96,6 +96,9 @@ class TestMaterialX(unittest.TestCase):
         # Create a material that instantiates the shader.
         material = doc.addMaterial()
         shaderRef = material.addShaderRef('shaderRef1', 'simpleSrf')
+        self.assertTrue(material.getPrimaryShaderName() == 'simpleSrf')
+        self.assertTrue(len(material.getPrimaryShaderParameters()) == 1)
+        self.assertTrue(len(material.getPrimaryShaderInputs()) == 2)
         self.assertTrue(roughness.getBoundValue(material) == 0.25)
 
         # Bind a shader input to a value.
@@ -117,19 +120,32 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(diffColor.getBoundValue(material) is None)
         self.assertTrue(diffColor.getDefaultValue() == mx.Color3(1.0))
 
-        # Create a collection.
-        collection = doc.addCollection()
-        self.assertTrue(doc.getCollections())
-        doc.removeCollection(collection.getName())
-        self.assertFalse(doc.getCollections())
+        # Create a look for the material.
+        look = doc.addLook()
+        self.assertTrue(len(doc.getLooks()) == 1)
 
-        # Create a property set.
-        propertySet = doc.addPropertySet()
-        property = propertySet.addProperty('twosided')
-        self.assertTrue(doc.getPropertySets())
-        self.assertTrue(propertySet.getProperties())
-        doc.removePropertySet(propertySet.getName())
-        self.assertFalse(doc.getPropertySets())
+        # Bind the material to a geometry string.
+        matAssign1 = look.addMaterialAssign("matAssign1", material.getName())
+        self.assertTrue(material.getReferencingMaterialAssigns()[0] == matAssign1)
+        matAssign1.setGeom("/robot1")
+        self.assertTrue(material.getBoundGeomStrings()[0] == "/robot1")
+
+        # Bind the material to a collection.
+        matAssign2 = look.addMaterialAssign("matAssign2", material.getName())
+        collection = doc.addCollection()
+        collectionAdd = collection.addCollectionAdd()
+        collectionAdd.setGeom("/robot2")
+        collectionRemove = collection.addCollectionRemove()
+        collectionRemove.setGeom("/robot2/left_arm")
+        matAssign2.setCollection(collection)
+        self.assertTrue(material.getBoundGeomCollections()[0] == collection)
+
+        # Create a property assignment.
+        propertyAssign = look.addPropertyAssign("twosided")
+        propertyAssign.setGeom("/robot1")
+        propertyAssign.setValue(True)
+        self.assertTrue(propertyAssign.getGeom() == "/robot1")
+        self.assertTrue(propertyAssign.getValue() == True)
 
         # Generate and verify require string.
         doc.generateRequireString()
