@@ -133,13 +133,11 @@ void xmlDocumentFromFile(xml_document& xmlDoc, string filename, const string& se
 void processXIncludes(xml_node& xmlNode, const string& searchPath, const XmlReadOptions* readOptions)
 {
     xml_node xmlChild = xmlNode.first_child();
-
-    bool readXIncludes = (readOptions ? readOptions->readXIncludes : true);
     while (xmlChild)
     {
         if (xmlChild.name() == XINCLUDE_TAG)
         {
-            if (readXIncludes)
+            if (!readOptions || readOptions->readXIncludes)
             {
                 xml_attribute fileAttr = xmlChild.attribute("href");
                 string filename = fileAttr.value();

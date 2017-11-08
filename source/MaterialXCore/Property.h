@@ -54,13 +54,19 @@ class PropertyAssign : public ValueElement
     /// @name Geometry
     /// @{
 
-    /// Set the geom string of the element.
-    void setGeom(const string& name)
+    /// Set the geometry string of this element.
+    void setGeom(const string& geom)
     {
-        setAttribute(GEOM_ATTRIBUTE, name);
+        setAttribute(GEOM_ATTRIBUTE, geom);
     }
 
-    /// Return the geom string of the element.
+    /// Return true if this element has a geometry string.
+    bool hasGeom()
+    {
+        return hasAttribute(GEOM_ATTRIBUTE);
+    }
+
+    /// Return the geometry string of this element.
     const string& getGeom() const
     {
         return getAttribute(GEOM_ATTRIBUTE);
@@ -70,17 +76,29 @@ class PropertyAssign : public ValueElement
     /// @name Collection
     /// @{
 
-    /// Set the collection string of the element.
-    void setCollection(const string& name)
+    /// Set the collection string of this element.
+    void setCollectionString(const string& collection)
     {
-        setAttribute(COLLECTION_ATTRIBUTE, name);
+        setAttribute(COLLECTION_ATTRIBUTE, collection);
     }
 
-    /// Return the collection string of the element.
-    const string& getCollection() const
+    /// Return true if this element has a collection string.
+    bool hasCollectionString()
+    {
+        return hasAttribute(COLLECTION_ATTRIBUTE);
+    }
+
+    /// Return the collection string of this element.
+    const string& getCollectionString() const
     {
         return getAttribute(COLLECTION_ATTRIBUTE);
     }
+
+    /// Assign a Collection to this element.
+    void setCollection(CollectionPtr collection);
+
+    /// Return the Collection that is assigned to this element.
+    CollectionPtr getCollection() const;
 
     /// @}
 
