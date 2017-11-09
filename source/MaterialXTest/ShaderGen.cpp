@@ -166,13 +166,12 @@ TEST_CASE("Simple Nodegraph Shader Generation", "[shadergen]")
 
 TEST_CASE("Subgraph Shader Generation", "[shadergen]")
 {
-    std::string searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries/stdlib");
-    mx::ShaderGenerator::registerSourceCodeSearchPath(searchPath);
+    mx::ShaderGenerator::registerSourceCodeSearchPath(mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries"));
 
     mx::DocumentPtr doc = mx::createDocument();
 
     // Load example file
-    searchPath += ";";
+    std::string searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries/stdlib;");
     searchPath += mx::FilePath::getCurrentPath() / mx::FilePath("documents/Examples");
     std::vector<std::string> filenames =
     {
