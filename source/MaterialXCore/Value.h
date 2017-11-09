@@ -80,7 +80,7 @@ template <class T> class TypedValue : public Value
         _data(ZERO)
     {
     }
-    TypedValue(const T& value) :
+    explicit TypedValue(const T& value) :
         _data(value)
     {
     }
