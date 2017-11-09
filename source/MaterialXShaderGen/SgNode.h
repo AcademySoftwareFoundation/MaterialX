@@ -31,7 +31,6 @@ public:
     ValuePtr value;
     SgOutput* connection;
     string channels;
-    bool isSocket;
 
     void makeConnection(SgOutput* src);
     void breakConnection(SgOutput* src);
@@ -44,7 +43,6 @@ public:
     string type;
     SgNode* node;
     set<SgInput*> connections;
-    bool isSocket;
 
     void makeConnection(SgInput* dst);
     void breakConnection(SgInput* dst);
@@ -146,17 +144,15 @@ public:
     size_t numInputs() const { return _inputOrder.size(); }
     size_t numOutputs() const { return _outputOrder.size(); }
 
-    SgInput* getInput(size_t i) { return _inputOrder[i]; }
-    SgOutput* getOutput(size_t i) { return _outputOrder[i]; }
+    SgInput* getInput(size_t index) { return _inputOrder[index]; }
+    SgOutput* getOutput(size_t index = 0) { return _outputOrder[index]; }
+    const SgInput* getInput(size_t index) const { return _inputOrder[index]; }
+    const SgOutput* getOutput(size_t index = 0) const { return _outputOrder[index]; }
 
-    SgInputPtr getInput(const string& name);
-    SgOutputPtr getOutput(const string& name);
-
+    SgInput* getInput(const string& name);
+    SgOutput* getOutput(const string& name);
     const SgInput* getInput(const string& name) const;
     const SgOutput* getOutput(const string& name) const;
-
-    SgOutput* getOutput() { return _outputOrder[0]; }
-    const SgOutput* getOutput() const { return _outputOrder[0]; }
 
     const vector<SgInput*>& getInputs() const { return _inputOrder; }
     const vector<SgOutput*>& getOutputs() const { return _outputOrder; }
@@ -179,7 +175,11 @@ protected:
     set<const SgNode*> _usedClosures;
 
     friend class Shader;
+    friend class SgNodeGraph;
 };
+
+using SgInputSocket = SgOutput;
+using SgOutputSocket = SgInput;
 
 class SgNodeGraph : public SgNode
 {
@@ -190,34 +190,44 @@ public:
     static SgNodeGraphPtr creator(const string& name, ElementPtr element, ShaderGenerator& shadergen);
 
     SgNodePtr getNode(const string& name);
-
     const vector<SgNode*>& getNodes() const { return _nodeOrder; }
 
-    SgOutput* getInputSocket(const string& name);
-    SgInput* getOutputSocket(const string& name);
-    const SgOutput* getInputSocket(const string& name) const;
-    const SgInput* getOutputSocket(const string& name) const;
+    /// Get number of sockets
+    size_t numInputSockets() const { return numOutputs(); }
+    size_t numOutputSockets() const { return numInputs(); }
 
-    const vector<SgOutput*>& getInputSockets() const { return _inputSocketOrder; }
-    const vector<SgInput*>& getOutputSockets() const { return _outputSocketOrder; }
+    /// Get socket by index
+    SgInputSocket* getInputSocket(size_t index) { return getOutput(index); }
+    SgOutputSocket* getOutputSocket(size_t index = 0) { return getInput(index); }
+    const SgInputSocket* getInputSocket(size_t index) const { return getOutput(index); }
+    const SgOutputSocket* getOutputSocket(size_t index = 0) const { return getInput(index); }
 
+    /// Get socket by name
+    SgInputSocket* getInputSocket(const string& name) { return getOutput(name); }
+    SgOutputSocket* getOutputSocket(const string& name) { return getInput(name); }
+    const SgInputSocket* getInputSocket(const string& name) const { return getOutput(name); }
+    const SgOutputSocket* getOutputSocket(const string& name) const { return getInput(name); }
+
+    /// Get vector of sockets
+    const vector<SgInputSocket*>& getInputSockets() const { return _outputOrder; }
+    const vector<SgOutputSocket*>& getOutputSockets() const { return _inputOrder; }
+
+    /// Flatten any references to graph-based implementations within this
+    /// node graph, replacing each reference with the equivalent node network.
     void flattenSubgraphs();
+
+    /// Sort the nodes in topological order.
+    /// @throws ExceptionFoundCycle if a cycle is encountered.
     void topologicalSort();
 
 protected:
-    SgInput* addInput(const string& name, const string& type, const string& channels = EMPTY_STRING, ValuePtr value = nullptr) override;
-    SgOutput* addOutput(const string& name, const string& type, const string& channels = EMPTY_STRING) override;
+    void addInputSocket(const string& name, const string& type);
+    void addOutputSocket(const string& name, const string& type, const string& channels);
 
     void finalize();
 
     unordered_map<string, SgNodePtr> _nodeMap;
     vector<SgNode*> _nodeOrder;
-
-    unordered_map<string, SgOutputPtr> _inputSocketMap;
-    vector<SgOutput*> _inputSocketOrder;
-
-    unordered_map<string, SgInputPtr> _outputSocketMap;
-    vector<SgInput*> _outputSocketOrder;
 };
 
 

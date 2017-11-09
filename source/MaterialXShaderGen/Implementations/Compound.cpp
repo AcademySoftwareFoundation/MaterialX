@@ -60,16 +60,16 @@ void Compound::emitFunction(const SgNode&, ShaderGenerator& shadergen, Shader& s
     va_end(argsList);
 
     // Add all inputs
-    for (SgInput* input : _sgNodeGraph->getInputs())
+    for (SgOutput* inputSocket : _sgNodeGraph->getInputSockets())
     {
-        shader.addStr(delim + syntax->getTypeName(input->type) + " " + syntax->getVariableName(input));
+        shader.addStr(delim + syntax->getTypeName(inputSocket->type) + " " + syntax->getVariableName(inputSocket));
         delim = ", ";
     }
 
     // Add all outputs
-    for (SgOutput* output : _sgNodeGraph->getOutputs())
+    for (SgOutputSocket* outputSocket : _sgNodeGraph->getOutputSockets())
     {
-        shader.addStr(delim + syntax->getOutputTypeName(output->type) + " " + syntax->getVariableName(output));
+        shader.addStr(delim + syntax->getOutputTypeName(outputSocket->type) + " " + syntax->getVariableName(outputSocket));
         delim = ", ";
     }
 
@@ -100,15 +100,14 @@ void Compound::emitFunction(const SgNode&, ShaderGenerator& shadergen, Shader& s
         childNode->getImplementation()->emitFunctionCall(*childNode, shadergen, shader);
     }
 
-    for (SgOutput* output : _sgNodeGraph->getOutputs())
+    for (SgOutputSocket* outputSocket : _sgNodeGraph->getOutputSockets())
     {
-        const string outputVariable = syntax->getVariableName(output);
-        SgInput* outputSocket = _sgNodeGraph->getOutputSocket(output->name);
+        const string outputVariable = syntax->getVariableName(outputSocket);
         string finalResult = syntax->getVariableName(outputSocket->connection);
 
         if (outputSocket->channels != EMPTY_STRING)
         {
-            finalResult = syntax->getSwizzledVariable(finalResult, output->type, outputSocket->connection->type, outputSocket->channels);
+            finalResult = syntax->getSwizzledVariable(finalResult, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
         }
 
         shader.addLine(outputVariable + " = " + finalResult);

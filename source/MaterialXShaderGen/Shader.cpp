@@ -44,7 +44,7 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
     _sgNodeGraph = SgNodeGraph::creator(_name, element, shadergen);
 
     // Make sure we have a connection inside the graph
-    SgInput* outputSocket = _sgNodeGraph->getOutputSocket(_sgNodeGraph->getOutput()->name);
+    SgOutputSocket* outputSocket = _sgNodeGraph->getOutputSocket();
     if (!outputSocket->connection)
     {
         ExceptionShaderGenError("Graph created for element '" + element->getName() + "' has no internal output connected");

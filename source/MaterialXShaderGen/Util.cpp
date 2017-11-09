@@ -75,7 +75,7 @@ string printGraphDot(const SgNodeGraph& graph)
 
     // Print the connections
     std::set<const SgNode*> visited;
-    for (SgInput* outputSocket : graph.getOutputSockets())
+    for (SgOutputSocket* outputSocket : graph.getOutputSockets())
     {
         if (outputSocket->connection)
         {

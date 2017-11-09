@@ -171,13 +171,13 @@ void OslShaderGenerator::emitShaderSignature(Shader &shader)
 {
     // Emit shader type
     SgNodeGraph* graph = shader.getNodeGraph();
-    const SgOutput* output = graph->getOutput();
+    const SgOutputSocket* outputSocket = graph->getOutputSocket();
 
-    if (output->type == "surfaceshader")
+    if (outputSocket->type == "surfaceshader")
     {
         shader.addStr("surface ");
     }
-    else if (output->type == "volumeshader")
+    else if (outputSocket->type == "volumeshader")
     {
         shader.addStr("volume ");
     }
@@ -220,9 +220,9 @@ void OslShaderGenerator::emitShaderSignature(Shader &shader)
     }
 
     // Emit shader output
-    const string type = _syntax->getOutputTypeName(output->type);
-    const string variable = _syntax->getVariableName(output);
-    const string value = _syntax->getTypeDefault(output->type, true);
+    const string type = _syntax->getOutputTypeName(outputSocket->type);
+    const string variable = _syntax->getVariableName(outputSocket);
+    const string value = _syntax->getTypeDefault(outputSocket->type, true);
     shader.addLine(type + " " + variable + " = " + value, false);
 
     shader.endScope();

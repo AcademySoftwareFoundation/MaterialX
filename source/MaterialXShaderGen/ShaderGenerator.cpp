@@ -79,15 +79,14 @@ void ShaderGenerator::emitShaderBody(Shader &shader)
 void ShaderGenerator::emitFinalOutput(Shader& shader) const
 {
     SgNodeGraph* graph = shader.getNodeGraph();
-    const SgOutput* output = graph->getOutput();
-    const string outputVariable = _syntax->getVariableName(output);
+    const SgOutputSocket* outputSocket = graph->getOutputSocket();
+    const string outputVariable = _syntax->getVariableName(outputSocket);
 
-    SgInput* outputSocket = graph->getOutputSocket(output->name);
     string finalResult = _syntax->getVariableName(outputSocket->connection);
 
     if (outputSocket->channels != EMPTY_STRING)
     {
-        finalResult = _syntax->getSwizzledVariable(finalResult, output->type, outputSocket->connection->type, outputSocket->channels);
+        finalResult = _syntax->getSwizzledVariable(finalResult, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
     }
 
     shader.addLine(outputVariable + " = " + finalResult);

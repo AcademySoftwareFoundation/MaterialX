@@ -70,8 +70,8 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 
     // Emit shader output
     SgNodeGraph* graph = shader.getNodeGraph();
-    const SgOutput* output = graph->getOutput();
-    const string variable = _syntax->getVariableName(output);
+    const SgOutputSocket* outputSocket = graph->getOutputSocket();
+    const string variable = _syntax->getVariableName(outputSocket);
     shader.addComment("Data output by the pixel shader");
     shader.addLine("attribute PixelOutput", false);
     shader.beginScope(Shader::Brackets::BRACES);
@@ -138,10 +138,9 @@ void OgsFxShaderGenerator::emitShaderBody(Shader &shader)
 void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
 {
     SgNodeGraph* graph = shader.getNodeGraph();
-    const SgOutput* output = graph->getOutput();
-    const string outputVariable = _syntax->getVariableName(output);
+    const SgOutputSocket* outputSocket = graph->getOutputSocket();
+    const string outputVariable = _syntax->getVariableName(outputSocket);
 
-    SgInput* outputSocket = graph->getOutputSocket(output->name);
     string finalResult = _syntax->getVariableName(outputSocket->connection);
 
     if (shader.hasClassification(SgNode::Classification::SURFACE))
@@ -154,20 +153,20 @@ void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
     {
         if (outputSocket->channels != EMPTY_STRING)
         {
-            finalResult = _syntax->getSwizzledVariable(finalResult, output->type, outputSocket->connection->type, outputSocket->channels);
+            finalResult = _syntax->getSwizzledVariable(finalResult, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
         }
-        if (output->type != "color4" && output->type != "vector4")
+        if (outputSocket->type != "color4" && outputSocket->type != "vector4")
         {
             // Remap to vec4 type for final output
-            if (output->type == "float" || output->type == "boolean" || output->type == "integer")
+            if (outputSocket->type == "float" || outputSocket->type == "boolean" || outputSocket->type == "integer")
             {
                 finalResult = "vec4(" + finalResult + ", " + finalResult + ", " + finalResult + ", 1.0)";
             }
-            else if (output->type == "vector2" || output->type == "color2")
+            else if (outputSocket->type == "vector2" || outputSocket->type == "color2")
             {
                 finalResult = "vec4(" + finalResult + ", 0.0, 1.0)";
             }
-            else if (output->type == "vector3" || output->type == "color3")
+            else if (outputSocket->type == "vector3" || outputSocket->type == "color3")
             {
                 finalResult = "vec4(" + finalResult + ", 1.0)";
             }
