@@ -82,6 +82,13 @@ public:
     /// Resolve a source code file using the registered search paths.
     static FilePath findSourceCode(const FilePath& filename);
 
+    // Get the search source code path
+    static const FileSearchPath& sourceCodeSearchPath()
+    {
+        return _sourceCodeSearchPath;
+    }
+
+
 protected:
     /// Protected constructor
     ShaderGenerator(SyntaxPtr syntax) : _syntax(syntax) {}
