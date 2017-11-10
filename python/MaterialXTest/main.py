@@ -40,11 +40,26 @@ _exampleFilenames = ('CustomNode.mtlx',
 #--------------------------------------------------------------------------------
 class TestMaterialX(unittest.TestCase):
     def test_DataTypes(self):
-        # Convert between values and strings
         for value in _testValues:
+            # Convert between values and strings.
             string = mx.valueToString(value)
             newValue = mx.stringToValue(string, type(value))
             self.assertTrue(newValue == value)
+
+            # Test features of vector subclasses.
+            if isinstance(value, mx.VectorBase):
+                for index, scalar in enumerate(value):
+                    self.assertTrue(scalar == value[index])
+
+                value2 = value.copy()
+                self.assertTrue(value2 == value)
+                value2[0] += 1.0
+                self.assertTrue(value2 != value)
+
+                tup = tuple(value)
+                self.assertTrue(len(value) == len(tup))
+                for index in range(len(value)):
+                    self.assertTrue(value[index] == tup[index])
 
     def test_BuildDocument(self):
         # Create a document.
