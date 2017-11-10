@@ -66,7 +66,7 @@ class FilePath
     }
 
     /// Convert a path to a standard string.
-    operator string()
+    operator string() const
     {
         return asString();
     }

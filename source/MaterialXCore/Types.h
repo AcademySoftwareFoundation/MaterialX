@@ -15,11 +15,6 @@
 #include <istream>
 #include <ostream>
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmissing-braces"
-#endif
-
 namespace MaterialX
 {
 
@@ -53,7 +48,7 @@ template <size_t N> class VectorN : public VectorBase
     float operator[](size_t i) const { return data.at(i); }
     float& operator[](size_t i) { return data.at(i); }
 
-    size_t length() const { return N; }
+    static size_t length() { return N; }
 
   public:
     std::array<float, N> data;
@@ -144,9 +139,5 @@ std::istream& operator>>(std::istream& is, vector<string>& v);
 std::ostream& operator<<(std::ostream& os, const vector<string>& v);
 
 } // namespace MaterialX
-
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
 
 #endif
