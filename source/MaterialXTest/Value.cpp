@@ -8,10 +8,6 @@
 #include <MaterialXCore/Util.h>
 #include <MaterialXCore/Value.h>
 
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Wmissing-braces"
-#endif
-
 namespace mx = MaterialX;
 
 template<class T> void testTypedValue(const T& v1, const T& v2)
