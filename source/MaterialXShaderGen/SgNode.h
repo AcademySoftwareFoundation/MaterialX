@@ -31,6 +31,7 @@ public:
     ValuePtr value;
     SgOutput* connection;
     string channels;
+    bool published;
 
     void makeConnection(SgOutput* src);
     void breakConnection(SgOutput* src);
@@ -42,7 +43,9 @@ public:
     string name;
     string type;
     SgNode* node;
+    ValuePtr value;
     set<SgInput*> connections;
+    bool published;
 
     void makeConnection(SgInput* dst);
     void breakConnection(SgInput* dst);
@@ -72,9 +75,15 @@ public:
         static const unsigned int SURFACE = 1 << 8;  // A surface shader node
         static const unsigned int VOLUME = 1 << 9;  // A volume shader node
         static const unsigned int LIGHT = 1 << 10; // A light shader node
+        // Specific conditional types
+        static const unsigned int IFELSE = 1 << 11;  // An if-else statement
+        static const unsigned int SWITCH = 1 << 12;  // A switch statement
     };
 
     /// Information on source code scope for the node.
+    ///
+    /// TODO: Refactor the scope handling, using scope id's instead
+    ///
     struct ScopeInfo
     {
         enum class Type
@@ -88,11 +97,11 @@ public:
         ScopeInfo() : type(Type::UNKNOWN), conditionalNode(nullptr), conditionBitmask(0), fullConditionMask(0) {}
 
         void merge(const ScopeInfo& fromScope);
-        void adjustAtConditionalInput(const NodePtr& condNode, int branch, const uint32_t condMask);
+        void adjustAtConditionalInput(SgNode* condNode, int branch, const uint32_t condMask);
         bool usedByBranch(int branchIndex) const { return (conditionBitmask & (1 << branchIndex)) != 0; }
 
         Type type;
-        NodePtr conditionalNode;
+        SgNode* conditionalNode;
         uint32_t conditionBitmask;
         uint32_t fullConditionMask;
     };
@@ -101,6 +110,8 @@ public:
     SgNode(const string& name);
 
     static SgNodePtr creator(const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, const Node* nodeInstance = nullptr);
+
+    virtual bool isNodeGraph() const { return false; }
 
     /// Return true if this node matches the given classification.
     bool hasClassification(unsigned int c) const
@@ -115,9 +126,9 @@ public:
     }
 
     /// Return the implementation used for this node.
-    const SgImplementationPtr& getImplementation() const
+    SgImplementation* getImplementation()
     {
-        return _impl;
+        return _impl.get();
     }
 
     /// Return the scope info for this node.
@@ -158,8 +169,8 @@ public:
     const vector<SgOutput*>& getOutputs() const { return _outputOrder; }
 
 protected:
-    virtual SgInput* addInput(const string& name, const string& type, const string& channels, ValuePtr value = nullptr);
-    virtual SgOutput* addOutput(const string& name, const string& type, const string& channels);
+    virtual SgInput* addInput(const string& name, const string& type);
+    virtual SgOutput* addOutput(const string& name, const string& type);
 
     string _name;
     unsigned int _classification;
@@ -189,7 +200,9 @@ public:
     static SgNodeGraphPtr creator(NodeGraphPtr nodeGraph, ShaderGenerator& shadergen);
     static SgNodeGraphPtr creator(const string& name, ElementPtr element, ShaderGenerator& shadergen);
 
-    SgNodePtr getNode(const string& name);
+    virtual bool isNodeGraph() const { return true; }
+
+    SgNode* getNode(const string& name);
     const vector<SgNode*>& getNodes() const { return _nodeOrder; }
 
     /// Get number of sockets
@@ -212,18 +225,21 @@ public:
     const vector<SgInputSocket*>& getInputSockets() const { return _outputOrder; }
     const vector<SgOutputSocket*>& getOutputSockets() const { return _inputOrder; }
 
-    /// Flatten any references to graph-based implementations within this
-    /// node graph, replacing each reference with the equivalent node network.
-    void flattenSubgraphs();
+protected:
+    SgNode* addNode(const Node& node, ShaderGenerator& shadergen);
+    SgNode* addNode(const ShaderRef& shaderRef, ShaderGenerator& shadergen);
+
+    SgInputSocket* addInputSocket(const string& name, const string& type);
+    SgOutputSocket* addOutputSocket(const string& name, const string& type);
 
     /// Sort the nodes in topological order.
     /// @throws ExceptionFoundCycle if a cycle is encountered.
     void topologicalSort();
 
-protected:
-    void addInputSocket(const string& name, const string& type);
-    void addOutputSocket(const string& name, const string& type, const string& channels);
+    /// Calculate scopes for all nodes in the graph
+    void calculateScopes();
 
+    /// Perform post-build operations on the graph
     void finalize();
 
     unordered_map<string, SgNodePtr> _nodeMap;

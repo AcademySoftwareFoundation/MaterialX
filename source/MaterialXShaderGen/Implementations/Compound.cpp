@@ -7,6 +7,10 @@
 #include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/Util.h>
 
+
+#include <MaterialXShaderGen/ShaderGenerators/GlslShaderGenerator.h>
+
+
 #include <cstdarg>
 
 namespace MaterialX
@@ -27,18 +31,21 @@ void Compound::initialize(ElementPtr implementation, ShaderGenerator& shadergen)
         throw ExceptionShaderGenError("Element '" + implementation->getName() + "' is not a node graph implementation");
     }
 
-    _sgNodeGraph = SgNodeGraph::creator(graph, shadergen);
+    _rootGraph = SgNodeGraph::creator(graph, shadergen);
     _functionName = graph->getName();
 }
 
-void Compound::emitFunction(const SgNode&, ShaderGenerator& shadergen, Shader& shader, int numArgs, ...)
+void Compound::emitFunction(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
 {
+    // Make the compound root graph the active graph
+    shader.pushActiveGraph(_rootGraph.get());
+
     const Syntax* syntax = shadergen.getSyntax().get();
 
     // Emit functions for all child nodes
-    for (SgNode* childNode : _sgNodeGraph->getNodes())
+    for (SgNode* childNode : _rootGraph->getNodes())
     {
-        childNode->getImplementation()->emitFunction(*childNode, shadergen, shader);
+        shader.addFunctionDefinition(childNode, shadergen);
     }
 
     // Emit function name
@@ -49,25 +56,26 @@ void Compound::emitFunction(const SgNode&, ShaderGenerator& shadergen, Shader& s
     string delim = "";
 
     // Add any extra argument inputs first
-    va_list argsList;
-    va_start(argsList, numArgs);
-    for (int i = 0; i < numArgs; i++)
+    const vector<ShaderGenerator::Argument>* args = shadergen.getExtraArguments(node);
+    if (args)
     {
-        const char* arg = va_arg(argsList, const char*);
-        shader.addStr(delim + arg);
-        delim = ", ";
+        for (int i = 0; i < args->size(); i++)
+        {
+            const ShaderGenerator::Argument& arg = (*args)[i];
+            shader.addStr(delim + arg.first + " " + arg.second);
+            delim = ", ";
+        }
     }
-    va_end(argsList);
 
     // Add all inputs
-    for (SgOutput* inputSocket : _sgNodeGraph->getInputSockets())
+    for (SgInputSocket* inputSocket : _rootGraph->getInputSockets())
     {
         shader.addStr(delim + syntax->getTypeName(inputSocket->type) + " " + syntax->getVariableName(inputSocket));
         delim = ", ";
     }
 
     // Add all outputs
-    for (SgOutputSocket* outputSocket : _sgNodeGraph->getOutputSockets())
+    for (SgOutputSocket* outputSocket : _rootGraph->getOutputSockets())
     {
         shader.addStr(delim + syntax->getOutputTypeName(outputSocket->type) + " " + syntax->getVariableName(outputSocket));
         delim = ", ";
@@ -79,28 +87,11 @@ void Compound::emitFunction(const SgNode&, ShaderGenerator& shadergen, Shader& s
 
     shader.beginScope();
 
-    const bool debugOutput = true;
+    // Add function body, with all child node function calls
+    shadergen.emitShaderBody(shader);
 
-    // Emit function calls for all child nodes
-    for (SgNode* childNode : _sgNodeGraph->getNodes())
-    {
-        // Omit node if it's only used inside a conditional branch
-        if (childNode->referencedConditionally())
-        {
-            if (debugOutput)
-            {
-                std::stringstream str;
-                str << "// Omitted node '" << childNode->getName() << "'. Only used in conditional node '" << childNode->getScopeInfo().conditionalNode->getName() << "'";
-                shader.addLine(str.str(), false);
-            }
-            // Omit this node
-            continue;
-        }
-
-        childNode->getImplementation()->emitFunctionCall(*childNode, shadergen, shader);
-    }
-
-    for (SgOutputSocket* outputSocket : _sgNodeGraph->getOutputSockets())
+    // Emit final results
+    for (SgOutputSocket* outputSocket : _rootGraph->getOutputSockets())
     {
         const string outputVariable = syntax->getVariableName(outputSocket);
         string finalResult = syntax->getVariableName(outputSocket->connection);
@@ -115,9 +106,12 @@ void Compound::emitFunction(const SgNode&, ShaderGenerator& shadergen, Shader& s
 
     shader.endScope();
     shader.newLine();
+
+    // Restore active graph
+    shader.popActiveGraph();
 }
 
-void Compound::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader, int numArgs, ...)
+void Compound::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
 {
     // An ordinary source code function call
     // TODO: Support multiple outputs
@@ -136,15 +130,16 @@ void Compound::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, 
     string delim = "";
 
     // Add any extra argument inputs first...
-    va_list argsList;
-    va_start(argsList, numArgs);
-    for (int i = 0; i < numArgs; i++)
+    const vector<ShaderGenerator::Argument>* args = shadergen.getExtraArguments(node);
+    if (args)
     {
-        const char* arg = va_arg(argsList, const char*);
-        shader.addStr(delim + arg);
-        delim = ", ";
+        for (int i = 0; i < args->size(); i++)
+        {
+            const ShaderGenerator::Argument& arg = (*args)[i];
+            shader.addStr(delim + arg.second);
+            delim = ", ";
+        }
     }
-    va_end(argsList);
 
     // ...and then all inputs on the node
     for (SgInput* input : node.getInputs())

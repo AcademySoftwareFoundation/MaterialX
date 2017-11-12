@@ -63,7 +63,7 @@ bool SgNode::referencedConditionally() const
     return false;
 }
 
-void SgNode::ScopeInfo::adjustAtConditionalInput(const NodePtr& condNode, int branch, const uint32_t fullMask)
+void SgNode::ScopeInfo::adjustAtConditionalInput(SgNode* condNode, int branch, const uint32_t fullMask)
 {
     if (type == ScopeInfo::Type::GLOBAL || (type == ScopeInfo::Type::SINGLE && conditionBitmask == fullConditionMask))
     {
@@ -117,7 +117,7 @@ SgNode::SgNode(const string& name)
 
 SgNodePtr SgNode::creator(const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, const Node* nodeInstance)
 {
-    SgNodePtr sgNode = std::make_shared<SgNode>(name);
+    SgNodePtr newNode = std::make_shared<SgNode>(name);
 
     // Find the implementation in the document (graph or implementation element)
     vector<ElementPtr> elements = nodeDef.getDocument()->getMatchingImplementations(nodeDef.getName());
@@ -129,7 +129,7 @@ SgNodePtr SgNode::creator(const string& name, const NodeDef& nodeDef, ShaderGene
             const string& matchingTarget = implGraph->getTarget();
             if (matchingTarget.empty() || matchingTarget == shadergen.getTarget())
             {
-                sgNode->_impl = shadergen.getImplementation(implGraph);
+                newNode->_impl = shadergen.getImplementation(implGraph);
                 break;
             }
         }
@@ -139,77 +139,96 @@ SgNodePtr SgNode::creator(const string& name, const NodeDef& nodeDef, ShaderGene
             const string& matchingTarget = implElement->getTarget();
             if (implElement->getLanguage() == shadergen.getLanguage() && (matchingTarget.empty() || matchingTarget == shadergen.getTarget()))
             {
-                sgNode->_impl = shadergen.getImplementation(implElement);
+                newNode->_impl = shadergen.getImplementation(implElement);
                 break;
             }
         }
     }
 
-    if (!sgNode->_impl)
+    if (!newNode->_impl)
     {
         throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef.getNode() +
             "' matching language '" + shadergen.getLanguage() + "' and target '" + shadergen.getTarget() + "'");
     }
 
-    const vector<ValueElementPtr> nodeDefInputs = nodeDef.getChildrenOfType<ValueElement>();
-    for (const ValueElementPtr& elem : nodeDefInputs)
+    if (newNode->_impl->getNodeGraph())
     {
-        InputPtr in = elem->asA<Input>();
-        sgNode->addInput(elem->getName(), elem->getType(), in ? in->getChannels() : EMPTY_STRING, elem->getValue());
+        for (SgInputSocket* inputSocket : newNode->_impl->getNodeGraph()->getInputSockets())
+        {
+            SgInput* input = newNode->addInput(inputSocket->name, inputSocket->type);
+            input->value = inputSocket->value;
+            input->published = inputSocket->published;
+        }
+    }
+    else
+    {
+        const vector<ValueElementPtr> nodeDefInputs = nodeDef.getChildrenOfType<ValueElement>();
+        for (const ValueElementPtr& elem : nodeDefInputs)
+        {
+            SgInput* input = newNode->addInput(elem->getName(), elem->getType());
+
+            if (!elem->getValueString().empty())
+            {
+                input->value = elem->getValue();
+            }
+        }
     }
 
     if (nodeInstance)
     {
-        // Fill in data from the node instance
         const vector<ValueElementPtr> nodeInstanceInputs = nodeInstance->getChildrenOfType<ValueElement>();
         for (const ValueElementPtr& elem : nodeInstanceInputs)
         {
-            SgInput* input = sgNode->getInput(elem->getName());
+            SgInput* input = newNode->getInput(elem->getName());
 
             if (!elem->getValueString().empty())
             {
                 input->value = elem->getValue();
             }
 
-            InputPtr in = elem->asA<Input>();
-            if (in)
+            InputPtr inputElem = elem->asA<Input>();
+            if (inputElem)
             {
-                input->channels = in->getChannels();
+                input->channels = inputElem->getChannels();
             }
         }
     }
-    
+
     // TODO: Support multiple outputs
-    sgNode->addOutput("out", nodeDef.getType(), "");
+    newNode->addOutput("out", nodeDef.getType());
 
     // Set node classification
-    sgNode->_classification = Classification::TEXTURE;
+    newNode->_classification = Classification::TEXTURE;
     if (nodeDef.getType() == kSURFACE)
     {
-        sgNode->_classification = Classification::SURFACE | Classification::SHADER;
+        newNode->_classification = Classification::SURFACE | Classification::SHADER;
     }
     else if (nodeDef.getType() == kBSDF)
     {
-        sgNode->_classification = Classification::BSDF | Classification::CLOSURE;
+        newNode->_classification = Classification::BSDF | Classification::CLOSURE;
     }
     else if (nodeDef.getType() == kEDF)
     {
-        sgNode->_classification = Classification::EDF | Classification::CLOSURE;
+        newNode->_classification = Classification::EDF | Classification::CLOSURE;
     }
     else if (nodeDef.getType() == kVDF)
     {
-        sgNode->_classification = Classification::VDF | Classification::CLOSURE;
+        newNode->_classification = Classification::VDF | Classification::CLOSURE;
     }
     else if (nodeDef.getNode() == "image")
     {
-        sgNode->_classification = Classification::TEXTURE | Classification::FILETEXTURE;
+        newNode->_classification = Classification::TEXTURE | Classification::FILETEXTURE;
     }
-    else if (nodeDef.getNode() == "compare" || nodeDef.getNode() == "switch")
+    else if (nodeDef.getNode() == "compare")
     {
-        sgNode->_classification = Classification::TEXTURE | Classification::CONDITIONAL;
+        newNode->_classification = Classification::TEXTURE | Classification::CONDITIONAL | Classification::IFELSE;
+    }
+    else if (nodeDef.getNode() == "switch")
+    {
+        newNode->_classification = Classification::TEXTURE | Classification::CONDITIONAL | Classification::SWITCH;
     }
 
-    return sgNode;
+    return newNode;
 }
 
 SgInput* SgNode::getInput(const string& name)
@@ -236,27 +255,28 @@ const SgOutput* SgNode::getOutput(const string& name) const
     return it != _outputMap.end() ? it->second.get() : nullptr;
 }
 
-SgInput* SgNode::addInput(const string& name, const string& type, const string& channels, ValuePtr value)
+SgInput* SgNode::addInput(const string& name, const string& type)
 {
     SgInputPtr input = std::make_shared<SgInput>();
     input->name = name;
     input->type = type;
     input->node = this;
-    input->value = value;
+    input->value = nullptr;
     input->connection = nullptr;
-    input->channels = channels;
+    input->published = false;
     _inputMap[name] = input;
     _inputOrder.push_back(input.get());
 
     return input.get();
 }
 
-SgOutput* SgNode::addOutput(const string& name, const string& type, const string&)
+SgOutput* SgNode::addOutput(const string& name, const string& type)
 {
     SgOutputPtr output = std::make_shared<SgOutput>();
     output->name = name;
     output->type = type;
     output->node = this;
+    output->published = false;
     _outputMap[name] = output;
     _outputOrder.push_back(output.get());
 
@@ -280,13 +300,18 @@ SgNodeGraphPtr SgNodeGraph::creator(NodeGraphPtr nodeGraph, ShaderGenerator& sha
 
     for (const ValueElementPtr& elem : graphDef->getChildrenOfType<ValueElement>())
     {
-        InputPtr graphInput = elem->asA<Input>();
-        graph->addInputSocket(elem->getName(), elem->getType());
+        SgInputSocket* inputSocket = graph->addInputSocket(elem->getName(), elem->getType());
+
+        if (!elem->getValueString().empty())
+        {
+            inputSocket->value = elem->getValue();
+        }
     }
 
     for (const OutputPtr& graphOutput : nodeGraph->getOutputs())
     {
-        graph->addOutputSocket(graphOutput->getName(), graphOutput->getType(), graphOutput->getChannels());
+        SgOutputSocket* outputSocket = graph->addOutputSocket(graphOutput->getName(), graphOutput->getType());
+        outputSocket->channels = graphOutput->getChannels();
     }
 
     // Traverse all outputs and create all dependencies upstream
@@ -308,7 +333,7 @@ SgNodeGraphPtr SgNodeGraph::creator(NodeGraphPtr nodeGraph, ShaderGenerator& sha
             if (upstreamElement->getParent()->isA<NodeDef>())
             {
                 // Find the downstream input this came from and connect to the graph interface
-                SgNodePtr downstream = graph->getNode(edge.getDownstreamElement()->getName());
+                SgNode* downstream = graph->getNode(edge.getDownstreamElement()->getName());
                 if (downstream)
                 {
                     SgInput* downstreamInput = downstream->getInput(edge.getConnectingElement()->getName());
@@ -320,24 +345,18 @@ SgNodeGraphPtr SgNodeGraph::creator(NodeGraphPtr nodeGraph, ShaderGenerator& sha
             }
 
             NodePtr upstreamNode = upstreamElement->asA<Node>();
-            SgNodePtr newNode = graph->getNode(upstreamNode->getName());
+            const string& newNodeName = upstreamNode->getName();
+            SgNode* newNode = graph->getNode(newNodeName);
             if (!newNode)
             {
-                // Create this node in the new graph.
-                NodeDefPtr nodeDef = upstreamNode->getReferencedNodeDef();
-                if (!nodeDef)
-                {
-                    throw ExceptionShaderGenError("Could not find a nodedef for node '" + upstreamNode->getName() + "'");
-                }
-                newNode = SgNode::creator(upstreamNode->getName(), *nodeDef, shadergen, upstreamNode.get());
-                graph->_nodeMap[newNode->getName()] = newNode;
+                newNode = graph->addNode(*upstreamNode, shadergen);
             }
 
             // Make connections
             NodePtr downstreamNode = edge.getDownstreamElement()->asA<Node>();
             if (downstreamNode)
             {
-                SgNodePtr downstream = graph->getNode(downstreamNode->getName());
+                SgNode* downstream = graph->getNode(downstreamNode->getName());
                 ElementPtr connectingElement = edge.getConnectingElement();
                 if (downstream && connectingElement)
                 {
@@ -354,6 +373,9 @@ SgNodeGraphPtr SgNodeGraph::creator(NodeGraphPtr nodeGraph, ShaderGenerator& sha
         }
     }
 
+    // Set classification according to last node
+    graph->_classification = graph->getOutputSocket()->connection->node->_classification;
+
     graph->finalize();
 
     return graph;
@@ -361,34 +383,26 @@ SgNodeGraphPtr SgNodeGraph::creator(NodeGraphPtr nodeGraph, ShaderGenerator& sha
 
 SgNodeGraphPtr SgNodeGraph::creator(const string& name, ElementPtr element, ShaderGenerator& shadergen)
 {
-    SgNodeGraphPtr graph;
+    SgNodeGraphPtr graph = std::make_shared<SgNodeGraph>(name);
+
     ElementPtr root;
     MaterialPtr material;
 
-    if (element->isA<Output>() && element->getParent()->isA<NodeGraph>())
+    if (element->isA<Output>())
     {
-        NodeGraphPtr nodeGraph = element->getParent()->asA<NodeGraph>();
-        OutputPtr nodeGraphOutput = element->asA<Output>();
+        OutputPtr output = element->asA<Output>();
 
-        NodePtr srcNode = nodeGraphOutput->getConnectedNode();
+        NodePtr srcNode = output->getParent()->isA<NodeGraph>() ? output->getConnectedNode() : output->getParent()->asA<Node>();
         if (!srcNode)
         {
-            ExceptionShaderGenError("Given output element '" + element->getName() + "' has no node connection");
+            ExceptionShaderGenError("Given output element '" + output->getName() + "' has no node connection");
         }
 
-        NodeDefPtr nodeDef = srcNode->getReferencedNodeDef();
-        if (!nodeDef)
-        {
-            throw ExceptionShaderGenError("Could not find a nodedef for node '" + srcNode->getName() + "'");
-        }
-
-        graph = std::make_shared<SgNodeGraph>(name);
-        graph->addOutputSocket(nodeGraphOutput->getName(), nodeGraphOutput->getType(), nodeGraphOutput->getChannels());
-
-        // Create this node in the new graph and connect it to the socket
-        SgNodePtr sgNode = SgNode::creator(srcNode->getName(), *nodeDef, shadergen, srcNode.get());
-        graph->_nodeMap[sgNode->getName()] = sgNode;
-        graph->getOutputSocket(nodeGraphOutput->getName())->makeConnection(sgNode->getOutput());
+        // Create this node in the graph and connect it to an output socket
+        SgNode* newNode = graph->addNode(*srcNode, shadergen);
+        SgOutputSocket* outputSocket = graph->addOutputSocket(output->getName(), output->getType());
+        outputSocket->makeConnection(newNode->getOutput());
+        outputSocket->channels = output->getChannels();
 
         // Start traveral from this node
         root = srcNode;
@@ -397,19 +411,10 @@ SgNodeGraphPtr SgNodeGraph::creator(const string& name, ElementPtr element, Shad
     {
         NodePtr srcNode = element->asA<Node>();
 
-        NodeDefPtr nodeDef = srcNode->getReferencedNodeDef();
-        if (!nodeDef)
-        {
-            throw ExceptionShaderGenError("Could not find a nodedef for node '" + srcNode->getName() + "'");
-        }
-
-        graph = std::make_shared<SgNodeGraph>(name);
-        graph->addOutputSocket("out", element->asA<Node>()->getType(), "");
-
-        // Create this node in the new graph and connect it to the socket
-        SgNodePtr sgNode = SgNode::creator(srcNode->getName(), *nodeDef, shadergen, srcNode.get());
-        graph->_nodeMap[sgNode->getName()] = sgNode;
-        graph->getOutputSocket()->makeConnection(sgNode->getOutput());
+        // Create this node in the graph and connect it to an output socket
+        SgNode* newNode = graph->addNode(*srcNode, shadergen);
+        SgOutputSocket* outputSocket = graph->addOutputSocket("out", newNode->getOutput()->type);
+        outputSocket->makeConnection(newNode->getOutput());
 
         // Start traveral from this node
         root = srcNode;
@@ -417,24 +422,11 @@ SgNodeGraphPtr SgNodeGraph::creator(const string& name, ElementPtr element, Shad
     else if (element->isA<ShaderRef>())
     {
         ShaderRefPtr shaderRef = element->asA<ShaderRef>();
-        NodeDefPtr nodeDef = shaderRef->getReferencedShaderDef();
-        if (!nodeDef)
-        {
-            throw ExceptionShaderGenError("No nodedef found for shader node '" + shaderRef->getNode() + "'");
-        }
 
-        graph = std::make_shared<SgNodeGraph>(name);
-        graph->addOutputSocket("out", nodeDef->getType(), "");
-
-
-        //... TODO ...
-        // Create inputs from nodedef
-
-
-        // Create this node in the new graph and connect it to the socket
-        SgNodePtr sgNode = SgNode::creator(shaderRef->getName(), *nodeDef, shadergen);
-        graph->_nodeMap[sgNode->getName()] = sgNode;
-        graph->getOutputSocket()->makeConnection(sgNode->getOutput());
+        // Create this node in the graph and connect it to an output socket
+        SgNode* newNode = graph->addNode(*shaderRef, shadergen);
+        SgOutputSocket* outputSocket = graph->addOutputSocket("out", newNode->getOutput()->type);
+        outputSocket->makeConnection(newNode->getOutput());
 
         // Start traveral from this shader ref and material
         root = shaderRef;
@@ -449,6 +441,8 @@ SgNodeGraphPtr SgNodeGraph::creator(const string& name, ElementPtr element, Shad
     // Traverse and create all dependencies upstream
     for (Edge edge : root->traverseGraph(material))
     {
+        // Find the upstream element. If it's an output move on
+        // to the actual node connected to the output.
         ElementPtr upstreamElement = edge.getUpstreamElement();
         if (upstreamElement->isA<Output>())
         {
@@ -463,7 +457,7 @@ SgNodeGraphPtr SgNodeGraph::creator(const string& name, ElementPtr element, Shad
         if (upstreamElement->getParent()->isA<NodeDef>())
         {
             // Find the downstream input this came from and connect to the graph interface
-            SgNodePtr downstreamNode = graph->getNode(edge.getDownstreamElement()->getName());
+            SgNode* downstreamNode = graph->getNode(edge.getDownstreamElement()->getName());
             if (downstreamNode)
             {
                 SgInput* downstreamInput = downstreamNode->getInput(edge.getConnectingElement()->getName());
@@ -474,126 +468,204 @@ SgNodeGraphPtr SgNodeGraph::creator(const string& name, ElementPtr element, Shad
             continue;
         }
 
+        // Create the node.
         NodePtr upstreamNode = upstreamElement->asA<Node>();
-        SgNodePtr newNode = graph->getNode(upstreamNode->getName());
+        const string& newNodeName = upstreamNode->getName();
+        SgNode* newNode = graph->getNode(newNodeName);
         if (!newNode)
         {
-            // Create this node in the new graph.
-            NodeDefPtr nodeDef = upstreamNode->getReferencedNodeDef();
-            if (!nodeDef)
-            {
-                throw ExceptionShaderGenError("Could not find a nodedef for node '" + upstreamNode->getName() + "'");
-            }
-            newNode = SgNode::creator(upstreamNode->getName(), *nodeDef, shadergen, upstreamNode.get());
-            graph->_nodeMap[newNode->getName()] = newNode;
+            newNode = graph->addNode(*upstreamNode, shadergen);
         }
 
-        // Make connections.
-        ElementPtr downstreamNode = edge.getDownstreamElement()->asA<Node>();
-        if (downstreamNode)
+        // Make the connection.
+        SgNode* downstream = graph->getNode(edge.getDownstreamElement()->getName());
+        ElementPtr connectingElement = edge.getConnectingElement();
+        if (downstream && connectingElement)
         {
-            SgNodePtr downstream = graph->getNode(downstreamNode->getName());
-            ElementPtr connectingElement = edge.getConnectingElement();
-            if (downstream && connectingElement)
-            {
-                SgInput* input = downstream->getInput(connectingElement->getName());
-                input->makeConnection(newNode->getOutput());
-            }
+            SgInput* input = downstream->getInput(connectingElement->getName());
+            input->makeConnection(newNode->getOutput());
         }
     }
+
+    // Set classification according to last node
+    graph->_classification = graph->getOutputSocket()->connection->node->_classification;
 
     graph->finalize();
 
     return graph;
 }
 
-void SgNodeGraph::addInputSocket(const string& name, const string& type)
+SgNode* SgNodeGraph::addNode(const Node& node, ShaderGenerator& shadergen)
 {
-    SgNode::addOutput(name, type, "");
-}
-
-void SgNodeGraph::addOutputSocket(const string& name, const string& type, const string& channels)
-{
-    SgNode::addInput(name, type, channels);
-}
-
-SgNodePtr SgNodeGraph::getNode(const string& name)
-{
-    auto it = _nodeMap.find(name);
-    return it != _nodeMap.end() ? it->second : nullptr;
-}
-
-void SgNodeGraph::flattenSubgraphs()
-{
-/*
-    std::deque<SgNodePtr> nodeQueue;
-    for (auto it : _nodeMap)
+    NodeDefPtr nodeDef = node.getReferencedNodeDef();
+    if (!nodeDef)
     {
-        nodeQueue.push_back(it.second);
+        throw ExceptionShaderGenError("Could not find a nodedef for node '" + node.getName() + "'");
     }
+    
+    // Create this node in the graph.
+    const string& name = node.getName();
+    SgNodePtr newNode = SgNode::creator(name, *nodeDef, shadergen, &node);
+    _nodeMap[name] = newNode;
+    _nodeOrder.push_back(newNode.get());
 
-    while (!nodeQueue.empty())
+    // Create and connect input sockets for published inputs.
+    for (SgInput* input : newNode->getInputs())
     {
-        SgNodePtr currentNode = nodeQueue.front();
-        nodeQueue.pop_front();
-
-        if (currentNode->isNodeGraph())
+        if (input->published)
         {
-            SgNodeGraph* graph = static_cast<SgNodeGraph*>(currentNode.get());
-
-            for (auto it : graph->_nodeMap)
+            // It's published already, propagate this to our graph
+            SgInputSocket* inputSocket = addInputSocket(input->node->getName()+"_"+input->name, input->type);
+            inputSocket->makeConnection(input);
+            inputSocket->value = input->value;
+            inputSocket->published = true;
+        }
+        else
+        {
+            // Check if it should be published
+            ValueElementPtr inputElem = node.getChildOfType<ValueElement>(input->name);
+            if (inputElem)
             {
-                if (it.second->isNodeGraph())
+                string publicName;
+                if (shadergen.shouldPublish(inputElem.get(), publicName))
                 {
-                    nodeQueue.push_back(it.second);
-                }
-                else
-                {
-                    _nodeMap[it.first] = it.second;
+                    SgInputSocket* inputSocket = addInputSocket(publicName, input->type);
+                    inputSocket->makeConnection(input);
+                    inputSocket->value = input->value;
+                    inputSocket->published = input->published = true;
                 }
             }
-
-            // Re-route input connections
-            for (SgInput* input : currentNode->getInputs())
-            {
-                if (input->connection)
-                {
-                    // Remove direct connection to graph
-                    input->connection->breakConnection() ->connections.erase(input);
-
-                    // Add input connections to graph internal nodes
-                    auto it = graph->_internalInputs.find(input->name);
-                    if (it != graph->_internalInputs.end())
-                    {
-                        for (auto input2 : it->second)
-                        {
-                            input2->connection = input->connection;
-                            input->connection->connections.insert(input2);
-                        }
-                    }
-                }
-            }
-
-            // Re-route output connections
-            for (SgOutput* output : currentNode->getOutputs())
-            {
-                // Add output connections to graph internal nodes
-                auto it = graph->_internalOutputs.find(output->name);
-                if (it != graph->_internalOutputs.end())
-                {
-                    for (auto input : output->connections)
-                    {
-                        input->connection = it->second;
-                        it->second->connections.insert(input);
-                    }
-                }
-            }
-
-            // Remove the graph
-            _nodeMap.erase(currentNode->getName());
         }
     }
-*/
+
+    // Handle the "defaultgeomprop" directives on the nodedef inputs.
+    // Create and connect default geometric nodes on unconnected inputs.
+    for (const InputPtr& nodeDefInput : nodeDef->getInputs())
+    {
+        InputPtr nodeInput = node.getInput(nodeDefInput->getName());
+
+        const string& connectedNode = nodeInput ? nodeInput->getNodeName() : EMPTY_STRING;
+        const string& defaultGeomNode = connectedNode.empty() ? nodeDefInput->getAttribute("defaultgeomprop") : EMPTY_STRING;
+
+        if (!defaultGeomNode.empty())
+        {
+            const string geomNodeName = "default_" + defaultGeomNode;
+            SgNode* geomNode = getNode(geomNodeName);
+            if (!geomNode)
+            {
+                string geomNodeDefName = "ND_" + defaultGeomNode + "__" + nodeDefInput->getType();
+                NodeDefPtr geomNodeDef = node.getDocument()->getNodeDef(geomNodeDefName);
+                if (!geomNodeDef)
+                {
+                    throw ExceptionShaderGenError("Could not find a nodedef named '" + geomNodeDefName +
+                        "' for defaultgeomprop on input '" + node.getName() + "." + nodeDefInput->getName() + "'");
+                }
+
+                SgNodePtr geomNodePtr = SgNode::creator(geomNodeName, *geomNodeDef, shadergen);
+                _nodeMap[geomNodeName] = geomNodePtr;
+                _nodeOrder.push_back(geomNodePtr.get());
+
+                geomNode = geomNodePtr.get();
+            }
+
+            SgInput* input = newNode->getInput(nodeDefInput->getName());
+            input->makeConnection(geomNode->getOutput());
+        }
+    }
+
+    return newNode.get();
+}
+
+SgNode* SgNodeGraph::addNode(const ShaderRef& shaderRef, ShaderGenerator& shadergen)
+{
+    NodeDefPtr nodeDef = shaderRef.getReferencedShaderDef();
+    if (!nodeDef)
+    {
+        throw ExceptionShaderGenError("Could not find a nodedef for shader '" + shaderRef.getName() + "'");
+    }
+
+    // Create this shader node in the graph.
+    const string& name = shaderRef.getName();
+    SgNodePtr newNode = SgNode::creator(name, *nodeDef, shadergen, nullptr);
+    _nodeMap[name] = newNode;
+    _nodeOrder.push_back(newNode.get());
+
+    // Copy input values from all bindings
+    for (BindParamPtr bindParam : shaderRef.getBindParams())
+    {
+        SgInput* input = newNode->getInput(bindParam->getName());
+        if (input)
+        {
+            if (!bindParam->getValueString().empty())
+            {
+                input->value = bindParam->getValue();
+            }
+        }
+    }
+    for (BindInputPtr bindInput : shaderRef.getBindInputs())
+    {
+        SgInput* input = newNode->getInput(bindInput->getName());
+        if (input)
+        {
+            if (!bindInput->getValueString().empty())
+            {
+                input->value = bindInput->getValue();
+            }
+        }
+    }
+
+    // Handle the "defaultgeomprop" directives on the nodedef inputs.
+    // Create and connect default geometric nodes on unconnected inputs.
+    for (const InputPtr& nodeDefInput : nodeDef->getInputs())
+    {
+        BindInputPtr bindInput = shaderRef.getBindInput(nodeDefInput->getName());
+
+        const string& connection = bindInput ? bindInput->getNodeGraphString() : EMPTY_STRING;
+        const string& defaultGeomNode = connection.empty() ? nodeDefInput->getAttribute("defaultgeomprop") : EMPTY_STRING;
+
+        if (!defaultGeomNode.empty())
+        {
+            const string geomNodeName = "default_" + defaultGeomNode;
+            SgNode* geomNode = getNode(geomNodeName);
+            if (!geomNode)
+            {
+                string geomNodeDefName = "ND_" + defaultGeomNode + "__" + nodeDefInput->getType();
+                NodeDefPtr geomNodeDef = shaderRef.getDocument()->getNodeDef(geomNodeDefName);
+                if (!geomNodeDef)
+                {
+                    throw ExceptionShaderGenError("Could not find a nodedef named '" + geomNodeDefName +
+                        "' for defaultgeomprop on input '" + shaderRef.getName() + "." + nodeDefInput->getName() + "'");
+                }
+
+                SgNodePtr geomNodePtr = SgNode::creator(geomNodeName, *geomNodeDef, shadergen);
+                _nodeMap[geomNodeName] = geomNodePtr;
+                _nodeOrder.push_back(geomNodePtr.get());
+
+                geomNode = geomNodePtr.get();
+            }
+
+            SgInput* input = newNode->getInput(nodeDefInput->getName());
+            input->makeConnection(geomNode->getOutput());
+        }
+    }
+
+    return newNode.get();
+}
+
+SgInputSocket* SgNodeGraph::addInputSocket(const string& name, const string& type)
+{
+    return SgNode::addOutput(name, type);
+}
+
+SgOutputSocket* SgNodeGraph::addOutputSocket(const string& name, const string& type)
+{
+    return SgNode::addInput(name, type);
+}
+
+SgNode* SgNodeGraph::getNode(const string& name)
+{
+    auto it = _nodeMap.find(name);
+    return it != _nodeMap.end() ? it->second.get() : nullptr;
 }
 
 void SgNodeGraph::topologicalSort()
@@ -627,7 +699,7 @@ void SgNodeGraph::topologicalSort()
         }
     }
 
-    _nodeOrder.resize(_nodeMap.size());
+    _nodeOrder.resize(_nodeMap.size(), nullptr);
     size_t count = 0;
 
     while (!nodeQueue.empty())
@@ -661,9 +733,74 @@ void SgNodeGraph::topologicalSort()
     }
 }
 
+void SgNodeGraph::calculateScopes()
+{
+    //
+    // Calculate scopes for all nodes, considering branching from conditional nodes
+    //
+    // TODO: Refactor the scope handling, using scope id's instead
+    //
+
+    size_t lastNodeIndex = _nodeOrder.size() - 1;
+    SgNode* lastNode = _nodeOrder[lastNodeIndex];
+    lastNode->getScopeInfo().type = SgNode::ScopeInfo::Type::GLOBAL;
+
+    set<SgNode*> nodeUsed;
+    nodeUsed.insert(lastNode);
+
+    // Iterate nodes in reversed toplogical order such that every node is visited AFTER 
+    // each of the nodes that depend on it have been processed first.
+    for (int nodeIndex = int(lastNodeIndex); nodeIndex >= 0; --nodeIndex)
+    {
+        SgNode* node = _nodeOrder[nodeIndex];
+
+        // Once we visit a node the scopeInfo has been determined and it will not be changed
+        // By then we have visited all the nodes that depend on it already
+        if (nodeUsed.count(node) == 0)
+        {
+            continue;
+        }
+
+        const bool isIfElse = node->hasClassification(SgNode::Classification::IFELSE);
+        const bool isSwitch = node->hasClassification(SgNode::Classification::SWITCH);
+
+        const SgNode::ScopeInfo& currentScopeInfo = node->getScopeInfo();
+
+        for (size_t inputIndex = 0; inputIndex < node->numInputs(); ++inputIndex)
+        {
+            SgInput* input = node->getInput(inputIndex);
+
+            if (input->connection)
+            {
+                SgNode* upstreamNode = input->connection->node;
+
+                // Create scope info for this network brach
+                // If it's a conditonal branch the scope is adjusted
+                SgNode::ScopeInfo newScopeInfo = currentScopeInfo;
+                if (isIfElse && (inputIndex == 2 || inputIndex == 3))
+                {
+                    newScopeInfo.adjustAtConditionalInput(node, int(inputIndex), 0x12);
+                }
+                else if (isSwitch)
+                {
+                    const uint32_t fullMask = (1 << node->numInputs()) - 1;
+                    newScopeInfo.adjustAtConditionalInput(node, int(inputIndex), fullMask);
+                }
+
+                // Add the info to the upstream node
+                SgNode::ScopeInfo& upstreamScopeInfo = upstreamNode->getScopeInfo();
+                upstreamScopeInfo.merge(newScopeInfo);
+
+                nodeUsed.insert(upstreamNode);
+            }
+        }
+    }
+}
+
 void SgNodeGraph::finalize()
 {
     topologicalSort();
+    calculateScopes();
 
     // Track closure nodes used by each surface shader.
     for (SgNode* node : _nodeOrder)
@@ -704,7 +841,8 @@ SgEdgeIterator& SgEdgeIterator::operator++()
 
         SgInput* input = _upstream->node->getInput(0);
         SgOutput* output = input->connection;
-        if (output)
+
+        if (output && !output->node->isNodeGraph())
         {
             extendPathUpstream(output, input);
             return *this;
@@ -731,7 +869,8 @@ SgEdgeIterator& SgEdgeIterator::operator++()
         {
             SgInput* input = parentFrame.first->node->getInput(++parentFrame.second);
             SgOutput* output = input->connection;
-            if (output)
+
+            if (output && !output->node->isNodeGraph())
             {
                 extendPathUpstream(output, input);
                 return *this;

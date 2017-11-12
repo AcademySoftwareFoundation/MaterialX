@@ -11,15 +11,26 @@ namespace MaterialX
 class GlslShaderGenerator : public ShaderGenerator
 {
 public:
+    enum class BsdfDir
+    {
+        LIGHT_DIR,
+        VIEW_DIR,
+        REFL_DIR
+    };
+
+public:
     /// Emit function definitions for all nodes
     void emitFunctions(Shader& shader) override;
+
+    /// 
+    const vector<Argument>* getExtraArguments(const SgNode& node) const override;
 
     /// Emit code for all texturing nodes.
     virtual void emitTextureNodes(Shader& shader);
 
     /// Emit code for calculating the BSDF response given the incident and outgoing light directions.
     /// The output bsdf will hold the variable name keeping the result.
-    virtual void emitSurfaceBsdf(const SgNode& surfaceShaderNode, const string& wi, const string& wo, Shader& shader, string& bsdf);
+    virtual void emitSurfaceBsdf(const SgNode& surfaceShaderNode, BsdfDir wi, BsdfDir wo, Shader& shader, string& bsdf);
 
     /// Emit code for calculating the emission
     /// The output emission will hold the variable keeping the result.
@@ -28,6 +39,9 @@ public:
 protected:
     /// Protected constructor.
     GlslShaderGenerator();
+
+    vector<Argument> _bsdfNodeArguments;
+    vector<Argument> _bsdfDirArguments;
 };
 
 } // namespace MaterialX

@@ -401,7 +401,7 @@ class ShaderRef : public Element
     /// @{
 
     /// Return the shader NodeDef, if any, that this element references.
-    NodeDefPtr getReferencedShaderDef();
+    NodeDefPtr getReferencedShaderDef() const;
 
     /// Return the set of outputs that this element references.
     std::set<OutputPtr> getReferencedOutputs() const

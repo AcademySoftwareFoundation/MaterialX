@@ -6,14 +6,14 @@
 namespace MaterialX
 {
 
-const vector<string> Compare::kInputNames = { "intest", "in1", "in2" };
+const vector<string> Compare::kInputNames = { "intest", "cutoff", "in1", "in2" };
 
 SgImplementationPtr Compare::creator()
 {
     return std::make_shared<Compare>();
 }
 
-void Compare::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader, int, ...)
+void Compare::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
 {
     // Declare the output variable
     shader.beginLine();
@@ -24,11 +24,11 @@ void Compare::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, S
     const SgInput* cutoff = node.getInput("cutoff");
 
     // Process the if and else branches of the conditional
-    for (int branch = 1; branch <= 2; ++branch)
+    for (int branch = 2; branch <= 3; ++branch)
     {
         const SgInput* input = node.getInput(kInputNames[branch]);
 
-        if (branch > 1)
+        if (branch > 2)
         {
             shader.addLine("else", false);
         }
@@ -46,18 +46,13 @@ void Compare::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, S
         shader.beginScope();
 
         // Emit nodes that are ONLY needed in this scope
-        // TODO: Performance warning, iterating all nodes in the graph!
-        for (const SgNode* sg : shader.getNodeGraph()->getNodes())
+        for (SgNode* otherNode : shader.getNodeGraph()->getNodes())
         {
-
-            // TODO: FIX SCOPE
-/*
-            const SgNode::ScopeInfo& scope = sg->getScopeInfo();
-            if (scope.conditionalNode == node.getNodePtr() && scope.usedByBranch(branch))
+            const SgNode::ScopeInfo& scope = otherNode->getScopeInfo();
+            if (scope.conditionalNode == &node && scope.usedByBranch(branch))
             {
-                sg->getImplementation()->emitFunctionCall(*sg, shadergen, shader);
+                shader.addFunctionCall(otherNode, shadergen);
             }
-            */
         }
 
         shader.beginLine();

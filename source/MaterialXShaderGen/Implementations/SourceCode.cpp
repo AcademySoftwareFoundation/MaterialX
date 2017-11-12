@@ -55,7 +55,7 @@ void SourceCode::initialize(ElementPtr implementation, ShaderGenerator& shaderge
     }
 }
 
-void SourceCode::emitFunction(const SgNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader, int /*numArgs*/, ...)
+void SourceCode::emitFunction(const SgNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader)
 {
     // Emit function definition for non-inlined functions
     if (!_inlined)
@@ -83,7 +83,7 @@ void SourceCode::emitFunction(const SgNode& /*node*/, ShaderGenerator& /*shaderg
     }
 }
 
-void SourceCode::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader, int numArgs, ...)
+void SourceCode::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
 {
     if (_inlined)
     {
@@ -138,15 +138,16 @@ void SourceCode::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen
         string delim = "";
 
         // Add any extra argument inputs first...
-        va_list argsList;
-        va_start(argsList, numArgs);
-        for (int i = 0; i < numArgs; i++)
+        const vector<ShaderGenerator::Argument>* args = shadergen.getExtraArguments(node);
+        if (args)
         {
-            const char* arg = va_arg(argsList, const char*);
-            shader.addStr(delim + arg);
-            delim = ", ";
+            for (int i = 0; i < args->size(); i++)
+            {
+                const ShaderGenerator::Argument& arg = (*args)[i];
+                shader.addStr(delim + arg.second);
+                delim = ", ";
+            }
         }
-        va_end(argsList);
 
         // ...and then all inputs on the node
         for (SgInput* input : node.getInputs())

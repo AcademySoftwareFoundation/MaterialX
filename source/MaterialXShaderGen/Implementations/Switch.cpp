@@ -12,7 +12,7 @@ SgImplementationPtr Switch::creator()
     return std::make_shared<Switch>();
 }
 
-void Switch::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader, int, ...)
+void Switch::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
 {
     // Declare the output variable
     shader.beginLine();
@@ -40,19 +40,16 @@ void Switch::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Sh
 
         shader.beginScope();
 
-        // TODO: Handle scope
-/*
         // Emit nodes that are ONLY needed in this scope
-        // TODO: Performance warning, iterating all nodes in the graph!
-        for (const SgNode* sg : shader.getNodeGraph()->getNodes())
+        for (SgNode* otherNode : shader.getNodeGraph()->getNodes())
         {
-            const SgNode::ScopeInfo& scope = sg->getScopeInfo();
-            if (scope.conditionalNode == node.getNodePtr() && scope.usedByBranch(branch))
+            const SgNode::ScopeInfo& scope = otherNode->getScopeInfo();
+            if (scope.conditionalNode == &node && scope.usedByBranch(branch))
             {
-                sg->getImplementation()->emitFunctionCall(*sg, shadergen, shader);
+                shader.addFunctionCall(otherNode, shadergen);
             }
         }
-*/
+
         shader.beginLine();
         shadergen.emitOutput(node.getOutput(), false, shader);
         shader.addStr(" = ");

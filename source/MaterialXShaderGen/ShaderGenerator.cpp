@@ -16,6 +16,11 @@ namespace MaterialX
 
 FileSearchPath ShaderGenerator::_sourceCodeSearchPath;
 
+ShaderGenerator::ShaderGenerator(SyntaxPtr syntax) 
+    : _syntax(syntax) 
+{
+}
+
 Shader::VDirection ShaderGenerator::getTargetVDirection() const
 {
     // Default is to use vdirection up
@@ -38,15 +43,9 @@ void ShaderGenerator::emitTypeDefs(Shader& shader)
 void ShaderGenerator::emitFunctions(Shader& shader)
 {
     // Emit funtion definitions for all nodes
-    set<SgImplementation*> emitted;
     for (SgNode* node : shader.getNodeGraph()->getNodes())
     {
-        SgImplementation* impl = node->getImplementation().get();
-        if (emitted.find(impl) == emitted.end())
-        {
-            impl->emitFunction(*node, *this, shader);
-            emitted.insert(impl);
-        }
+        shader.addFunctionDefinition(node, *this);
     }
 }
 
@@ -70,10 +69,8 @@ void ShaderGenerator::emitShaderBody(Shader &shader)
             continue;
         }
 
-        node->getImplementation()->emitFunctionCall(*node, *this, shader);
+        shader.addFunctionCall(node, *this);
     }
-
-    emitFinalOutput(shader);
 }
 
 void ShaderGenerator::emitFinalOutput(Shader& shader) const
@@ -133,9 +130,17 @@ void ShaderGenerator::emitOutput(const SgOutput* output, bool includeType, Shade
     shader.addStr(typeStr + _syntax->getVariableName(output));
 }
 
-string ShaderGenerator::id(const string& language, const string& target)
+bool ShaderGenerator::shouldPublish(const ValueElement* port, string& publicName) const
 {
-    return language + "_" + target;
+    ConstInputPtr inputElem = port->asA<Input>();
+    const string& connectedNode = inputElem ? inputElem->getNodeName() : EMPTY_STRING;
+    publicName = connectedNode.empty() ? port->getPublicName() : EMPTY_STRING;
+    return !publicName.empty();
+}
+
+const vector<ShaderGenerator::Argument>* ShaderGenerator::getExtraArguments(const SgNode&) const
+{
+    return nullptr;
 }
 
 void ShaderGenerator::registerImplementation(const string& name, CreatorFunc<SgImplementation> creator)
@@ -157,8 +162,7 @@ SgImplementationPtr ShaderGenerator::getImplementation(ElementPtr element)
     SgImplementationPtr impl;
     if (element->isA<NodeGraph>())
     {
-        // No implementation was registed for this name
-        // Fall back to data driven source code implementation
+        // Use the graph based compound implementation
         impl = Compound::creator();
     }
     else
@@ -168,7 +172,7 @@ SgImplementationPtr ShaderGenerator::getImplementation(ElementPtr element)
         if (!impl)
         {
             // No implementation was registed for this name
-            // Fall back to data driven source code implementation
+            // Fall back to the data driven source code implementation
             impl = SourceCode::creator();
         }
     }

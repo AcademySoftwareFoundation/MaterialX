@@ -125,7 +125,7 @@ OutputPtr BindInput::getConnectedOutput() const
 // ShaderRef methods
 //
 
-NodeDefPtr ShaderRef::getReferencedShaderDef()
+NodeDefPtr ShaderRef::getReferencedShaderDef() const
 {
     if (hasNodeDef())
     {

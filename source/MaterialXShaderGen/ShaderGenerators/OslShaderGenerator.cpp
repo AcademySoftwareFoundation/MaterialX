@@ -120,10 +120,8 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
 
     shader.beginScope(Shader::Brackets::BRACES);
     emitShaderBody(shader);
+    emitFinalOutput(shader);
     shader.endScope();
-
-    // Release resources used by shader gen
-    shaderPtr->finalize();
 
     return shaderPtr;
 }
@@ -191,22 +189,8 @@ void OslShaderGenerator::emitShaderSignature(Shader &shader)
 
     shader.beginScope(Shader::Brackets::PARENTHESES);
 
-    // Emit varying variables used by the shader
-    for (const auto& varyings : shader.getVaryings())
-    {
-        shader.beginLine();
-        emitUniform(
-            varyings.first,
-            varyings.second->type,
-            varyings.second->value,
-            shader
-        );
-        shader.addStr(",");
-        shader.endLine(false);
-    }
-
-    // Emit uniforms variables used by the shader
-    for (const auto& uniform : shader.getUniforms())
+    // Emit all shader uniforms
+    for (const Shader::Uniform& uniform : shader.getUniforms())
     {
         shader.beginLine();
         emitUniform(

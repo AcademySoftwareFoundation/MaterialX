@@ -56,14 +56,17 @@ public:
     /// Emit the output variable name for an output, optionally including it's type
     virtual void emitOutput(const SgOutput* output, bool includeType, Shader& shader);
 
+    ///
+    virtual bool shouldPublish(const ValueElement* port, string& publicName) const;
+
+    using Argument = std::pair<string, string>;
+    virtual const vector<Argument>* getExtraArguments(const SgNode& node) const;
+
     /// Return the v-direction used by the target system
     virtual Shader::VDirection getTargetVDirection() const;
 
     /// Return the syntax object for the language used by the code generator
     SyntaxPtr getSyntax() const { return _syntax; }
-
-    /// Get a unique id from the langunage/target combination
-    static string id(const string& language, const string& target = EMPTY_STRING);
 
     template<class T>
     using CreatorFunc = shared_ptr<T>(*)();
@@ -84,7 +87,7 @@ public:
 
 protected:
     /// Protected constructor
-    ShaderGenerator(SyntaxPtr syntax) : _syntax(syntax) {}
+    ShaderGenerator(SyntaxPtr syntax);
 
     SyntaxPtr _syntax;
     Factory<SgImplementation> _implFactory;

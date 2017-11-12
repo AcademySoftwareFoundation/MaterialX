@@ -10,7 +10,7 @@ SgImplementationPtr Swizzle::creator()
     return std::make_shared<Swizzle>();
 }
 
-void Swizzle::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader, int, ...)
+void Swizzle::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
 {
     const SgInput* in = node.getInput("in");
     const SgInput* channels = node.getInput("channels");

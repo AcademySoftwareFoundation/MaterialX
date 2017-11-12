@@ -203,7 +203,7 @@ GlslSyntax::GlslSyntax()
             "surfaceshader(vec3(0.0),vec3(0.0))",
             "",
             "struct surfaceshader { vec3 color; vec3 transparency; };",
-            "out vec4"
+            "out surfaceshader"
         )
     );
 
@@ -216,7 +216,7 @@ GlslSyntax::GlslSyntax()
             "volumeshader(VDF(vec3(0.0),vec3(0.0)),vec3(0.0))",
             "",
             "struct volumeshader { VDF vdf; vec3 edf; };",
-            "out vec4"
+            "out volumeshader"
         )
     );
 
@@ -229,7 +229,7 @@ GlslSyntax::GlslSyntax()
             "displacementshader(vec3(0.0),1.0)",
             "",
             "struct displacementshader { vec3 offset; float scale; };",
-            "out vec3"
+            "out displacementshader"
         )
     );
 

@@ -24,8 +24,6 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 
     Shader& shader = *shaderPtr;
 
-    addExtraShaderUniforms(shader);
-
     shader.addInclude("sx/impl/shadergen/source/glsl/defines.glsl");
     shader.newLine();
 
@@ -33,25 +31,16 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.newLine();
 
     // Emit all shader uniforms
-    for (const auto& uniform : shader.getUniforms())
+    for (const Shader::Uniform& uniform : shader.getUniforms())
     {
         emitUniform(
             uniform.first,
-            uniform.second->type, 
+            uniform.second->type,
             uniform.second->value,
             shader
         );
     }
-    // Emit all shader varyings
-    for (const auto& varying : shader.getVaryings())
-    {
-        emitUniform(
-            varying.first,
-            varying.second->type,
-            varying.second->value,
-            shader
-        );
-    }
+
     shader.newLine();
 
     // Emit functions for lighting if needed
@@ -92,6 +81,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.addLine("void main()", false);
     shader.beginScope(Shader::Brackets::BRACES);
     emitShaderBody(shader);
+    emitFinalOutput(shader);
     shader.endScope();
 
     shader.endScope();
@@ -107,32 +97,36 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     }
     shader.newLine();
 
-    // Release resources used by shader gen
-    shaderPtr->finalize();
-
     return shaderPtr;
 }
 
 void OgsFxShaderGenerator::emitShaderBody(Shader &shader)
 {
-    // Handle all texturing nodes. These are inputs to any
-    // closure/shader nodes and need to be emitted first.
-    //
-    emitTextureNodes(shader);
-    shader.newLine();
-
-    // Emit function calls for all shader nodes
-    for (SgNode* node : shader.getNodeGraph()->getNodes())
+    // Shaders need special handling to get closures right
+    if (shader.getNodeGraph()->hasClassification(SgNode::Classification::SHADER))
     {
-        // Emit only unconditional nodes, since any node within a conditional 
-        // branch is emitted by the conditional node itself
-        if (node->hasClassification(SgNode::Classification::SHADER) && !node->referencedConditionally())
+        // Handle all texturing nodes. These are inputs to any
+        // closure/shader nodes and need to be emitted first.
+        //
+        emitTextureNodes(shader);
+        shader.newLine();
+
+        // Emit function calls for all shader nodes
+        for (SgNode* node : shader.getNodeGraph()->getNodes())
         {
-            node->getImplementation()->emitFunctionCall(*node, *this, shader);
+            // Emit only unconditional nodes, since any node within a conditional 
+            // branch is emitted by the conditional node itself
+            if (node->hasClassification(SgNode::Classification::SHADER) && !node->referencedConditionally())
+            {
+                shader.addFunctionCall(node, *this);
+            }
         }
     }
-
-    emitFinalOutput(shader);
+    else
+    {
+        // No shader, just call parent method
+        GlslShaderGenerator::emitShaderBody(shader);
+    }
 }
 
 void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
@@ -200,45 +194,24 @@ void OgsFxShaderGenerator::emitUniform(const string& name, const string& type, c
     }
 }
 
-void OgsFxShaderGenerator::emitInput(const SgInput* input, Shader& shader)
+bool OgsFxShaderGenerator::shouldPublish(const ValueElement* port, string& publicName) const
 {
-    if (useAsShaderUniform(input))
+    if (!ShaderGenerator::shouldPublish(port, publicName))
     {
-        // This input is promoted to a shader input
-        // So just use the name of that shader input
-        shader.addStr(_syntax->getVariableName(input));
-    }
-    else
-    {
-        GlslShaderGenerator::emitInput(input, shader);
-    }
-}
-
-void OgsFxShaderGenerator::addExtraShaderUniforms(Shader& shader)
-{
-    // Run over all node ports and check if any should be promoted to shader inputs
-    // (this is the case for file texture filename inputs)
-    for (SgNode* node : shader.getNodeGraph()->getNodes())
-    {
-        for (SgInput* input : node->getInputs())
+        // File texture inputs must be published in GLSL
+        static const string kImage = "image";
+        if (port->getParent()->getCategory() == kImage &&
+            port->getType() == kFilename)
         {
-            if (useAsShaderUniform(input))
-            {
-                const string name = _syntax->getVariableName(input);
-                shader.addUniform(name, input);
-            }
+            publicName = port->getParent()->getName() + "_" + port->getName();
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
-}
-
-bool OgsFxShaderGenerator::useAsShaderUniform(const SgInput* input) const
-{
-    // Unconnected file texture inputs should be promoted to shader uniforms
-    if (!input->connection && input->node->hasClassification(SgNode::Classification::FILETEXTURE) && input->type == kFilename)
-    {
-        return true;
-    }
-    return false;
+    return true;
 }
 
 } // namespace MaterialX

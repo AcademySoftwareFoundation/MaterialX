@@ -27,6 +27,13 @@ namespace MaterialX
 GlslShaderGenerator::GlslShaderGenerator()
     : ShaderGenerator(std::make_shared<GlslSyntax>())
 {
+    _bsdfNodeArguments.resize(2);
+
+    _bsdfDirArguments.resize(3);
+    _bsdfDirArguments[size_t(BsdfDir::LIGHT_DIR)] = Argument("vec3", "L");
+    _bsdfDirArguments[size_t(BsdfDir::VIEW_DIR)]  = Argument("vec3", "V");
+    _bsdfDirArguments[size_t(BsdfDir::REFL_DIR)]  = Argument("vec3", "R");
+
     // Register build-in node implementations
 
     // <!-- <compare> -->
@@ -111,6 +118,9 @@ void GlslShaderGenerator::emitFunctions(Shader& shader)
     // as needed by the v-direction set by the user
     shader.addBlock(shader.getRequestedVDirection() != getTargetVDirection() ? kVDirectionFlip : kVDirectionNoop);
 
+    _bsdfNodeArguments[0] = Argument("vec3", "wi");
+    _bsdfNodeArguments[1] = Argument("vec3", "wo");
+    
     // Call parent to emit all other functions
     ShaderGenerator::emitFunctions(shader);
 }
@@ -124,13 +134,16 @@ void GlslShaderGenerator::emitTextureNodes(Shader& shader)
         // branch is emitted by the conditional node itself
         if (node->hasClassification(SgNode::Classification::TEXTURE) && !node->referencedConditionally())
         {
-            node->getImplementation()->emitFunctionCall(*node, *this, shader);
+            shader.addFunctionCall(node, *this);
         }
     }
 }
 
-void GlslShaderGenerator::emitSurfaceBsdf(const SgNode& surfaceShaderNode, const string& wi, const string& wo, Shader& shader, string& bsdf)
+void GlslShaderGenerator::emitSurfaceBsdf(const SgNode& surfaceShaderNode, BsdfDir wi, BsdfDir wo, Shader& shader, string& bsdf)
 {
+    _bsdfNodeArguments[0] = _bsdfDirArguments[size_t(wi)];
+    _bsdfNodeArguments[1] = _bsdfDirArguments[size_t(wo)];
+
     SgNode* last = nullptr;
 
     // Emit function calls for all BSDF nodes used by this shader
@@ -139,7 +152,7 @@ void GlslShaderGenerator::emitSurfaceBsdf(const SgNode& surfaceShaderNode, const
     {
         if (node->hasClassification(SgNode::Classification::BSDF) && surfaceShaderNode.isUsedClosure(node))
         {
-            node->getImplementation()->emitFunctionCall(*node, *this, shader, 2, wi.c_str(), wo.c_str());
+            shader.addFunctionCall(node, *this);
             last = node;
         }
     }
@@ -162,7 +175,7 @@ void GlslShaderGenerator::emitSurfaceEmission(const SgNode& surfaceShaderNode, S
     {
         if (node->hasClassification(SgNode::Classification::EDF) && surfaceShaderNode.isUsedClosure(node))
         {
-            node->getImplementation()->emitFunctionCall(*node, *this, shader);
+            shader.addFunctionCall(node, *this);
             last = node;
         }
     }
@@ -171,6 +184,11 @@ void GlslShaderGenerator::emitSurfaceEmission(const SgNode& surfaceShaderNode, S
     {
         emission = _syntax->getVariableName(last->getOutput());
     }
+}
+
+const vector<ShaderGenerator::Argument>* GlslShaderGenerator::getExtraArguments(const SgNode& node) const
+{
+    return node.hasClassification(SgNode::Classification::BSDF) ? &_bsdfNodeArguments : nullptr;
 }
 
 }
