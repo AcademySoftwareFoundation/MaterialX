@@ -7,15 +7,17 @@
 - Added Material methods getBoundGeomStrings and getBoundGeomCollections.
 - Added ValueElement methods getBoundValue and getDefaultValue.
 - Added InterfaceElement methods setInputValue and getInputValue.
-- Added method Element\:\:createStringResolver and class StringResolver, for applying substring substitutions to data values.
+- Added StringResolver class, for applying substring modifiers to data values.
 - Added support for multi-output nodes, nodedefs, and connections.
-- Added the XmlReadOptions argument to XML read functions.
+- Added support for TypeDef members.
+- Added example interfaces for the Disney BRDF, Disney BSDF, and alSurface shaders.
 
 ### Changed
 - Renamed method Material\:\:getReferencedShaderDefs to Material\:\:getShaderNodeDefs.
 - Renamed method ShaderRef\:\:getReferencedShaderDef to ShaderRef\:\:getNodeDef.
 - Renamed method Node\:\:getReferencedNodeDef to Node\:\:getNodeDef.
 - Added a 'string' suffix to all accessors for 'node', 'nodedef', and 'collection' strings.
+- Combined individual booleans into an XmlReadOptions argument for the XML read functions.
 
 ### Removed
 - Removed method Document\:\:applyStringSubstitutions (deprecated in Python).

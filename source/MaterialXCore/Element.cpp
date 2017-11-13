@@ -337,6 +337,10 @@ bool Element::validate(string* message) const
 {
     bool res = true;
     validateRequire(isValidName(getName()), res, message, "Invalid element name");
+    if (hasColorSpace())
+    {
+        validateRequire(getDocument()->hasColorManagementSystem(), res, message, "Colorspace set without color management system");
+    }
     for (ElementPtr child : getChildren())
     {
         res = child->validate(message) && res;
