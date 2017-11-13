@@ -34,7 +34,10 @@ _exampleFilenames = ('CustomNode.mtlx',
                      'MaterialGraphs.mtlx',
                      'MultiOutput.mtlx',
                      'PaintMaterials.mtlx',
-                     'PreShaderComposite.mtlx')
+                     'PreShaderComposite.mtlx',
+                     'BxDF/alSurface.mtlx',
+                     'BxDF/Disney_BRDF_2012.mtlx',
+                     'BxDF/Disney_BSDF_2015.mtlx')
 
 
 #--------------------------------------------------------------------------------
