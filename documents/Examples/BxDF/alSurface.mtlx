@@ -1,120 +1,120 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.35" colorspace="lin_rec709">
+<materialx version="1.35" cms="ocio" colorspace="lin_rec709">
   <nodedef name="alSurface_def" type="surfaceshader" node="alSurface">
-      <input name="diffuseStrength" type="float" value="1.0" publicname="Diffuse/Strength" uimax="1.0"
-             helptext="Multiplier on the intensity of the diffuse reflection."  />
-      <input name="diffuseColor" type="color3" value="0.5 0.5 0.5" publicname="Diffuse/Color"
-             helptext="Color of the diffuse reflection."  />
-      <input name="diffuseRoughness" type="float" value="0.0" publicname="Diffuse/Roughness" uimax="1"
-             helptext="Roughness of the diffuse reflection. Higher values cause the surface to appear flatter and darker."  />
-      <input name="backlightStrength" type="float" value="0.0" publicname="Diffuse/Backlight/Strength" uimax="1"
-             helptext="Multiplier on the intensity of the backlight transmission."  />
-      <input name="backlightColor" type="color3" value="1.0 1.0 1.0" publicname="Diffuse/Backlight/Color"
-             helptext="Color of the backlight transmission."  />
-      <input name="backlightIndirectStrength" type="float" value="1.0" publicname="Diffuse/Backlight/Indirect strength" uimax="1"
-             helptext="Multiplier on the amount of indirect light transmitted by the backlight lobe."  />
-      <input name="sssMix" type="float" value="0.0" publicname="Diffuse/SSS/Mix" uimax="1"
-             helptext="How much to mix SSS in with the diffuse. 0 means no SSS, full diffuse. 1 means full SSS no diffuse."  />
-      <input name="sssDensityScale" type="float" value="1.0" publicname="Diffuse/SSS/Density scale"
-             helptext="A multiplier on the scale of the object. This simply multiplies down the Distance values below, but can be used to adapt materials from scenes of one scale to another without changing the look. Higher values mean a larger, or less scattery object. Lower values mean smaller or more scattery object."  />
-      <input name="sssRadius" type="float" value="1.5" publicname="Diffuse/SSS/Distance 1"
-             helptext="The scatter distance of the first layer. Higher values mean the light travels further through the object, lower values mean it travels a shorter distance."  />
-      <input name="sssWeight1" type="float" value="1.0" publicname="Diffuse/SSS/Weight 1" uimax="1"
-             helptext="The weight of the first layer. Larger values relative to the other layers will cause more of this layer to be present in the result."  />
-      <input name="sssRadiusColor" type="color3" value="0.439 0.156 0.078" publicname="Diffuse/SSS/Color 1"
-             helptext="The scatter color of the first layer. This is the color the light will tend to the further it travels through the material, e.g. reddish for skin."  />
-      <input name="sssRadius2" type="float" value="4.0" publicname="Diffuse/SSS/Distance 2"
-             helptext="The scatter distance of the second layer. Higher values mean the light travels further through the object, lower values mean it travels a shorter distance."  />
-      <input name="sssWeight2" type="float" value="0.0" publicname="Diffuse/SSS/Weight 2" uimax="1"
-             helptext="The weight of the second layer. Larger values relative to the other layers will cause more of this layer to be present in the result."  />
-      <input name="sssRadiusColor2" type="color3" value="0.439 0.08 0.018" publicname="Diffuse/SSS/Color 2"
-             helptext="The scatter color of the second layer. This is the color the light will tend to the further it travels through the material, e.g. reddish for skin."  />
-      <input name="sssRadius3" type="float" value="1.0" publicname="Diffuse/SSS/Distance 3"
-             helptext="The scatter distance of the third layer. Higher values mean the light travels further through the object, lower values mean it travels a shorter distance."  />
-      <input name="sssWeight3" type="float" value="0.0" publicname="Diffuse/SSS/Weight 3" uimax="1"
-             helptext="The weight of the third layer. Larger values relative to the other layers will cause more of this layer to be present in the result."  />
-      <input name="sssRadiusColor3" type="color3" value="0.523 0.637 0.667" publicname="Diffuse/SSS/Color 3"
-             helptext="The scatter color of the third layer. This is the color the light will tend to the further it travels through the material, e.g. reddish for skin."  />
-      <input name="diffuseIndirectStrength" type="float" value="1.0" publicname="Diffuse/Advanced/Indirect strength" uimax="1"
-             helptext="Multiplier on the amount of indirect light transmitted by this lobe."  />
-      <input name="diffuseNormal" type="vector3" value="0.0 0.0 0.0" publicname="Diffuse/Advanced/Normal"
-             helptext="Override the normal used for this lobe."  />
-      <input name="specular1Strength" type="float" value="1.0" publicname="Specular 1/Strength" uimax="1"
-             helptext="Multiplier on the intensity of the specular reflection."  />
-      <input name="specular1Color" type="color3" value="1.0 1.0 1.0" publicname="Specular 1/Color"
-             helptext="Color tint on the specular reflection."  />
-      <input name="specular1Roughness" type="float" value="0.3" publicname="Specular 1/Roughness" uimax="1"
-             helptext="The roughness of the specular reflection. Lower numbers produce sharper reflections, higher numbers produce blurrier reflections."  />
-      <input name="specular1Anisotropy" type="float" value="0.5" publicname="Specular 1/Anisotropy" uimax="1"
-             helptext="Controls how much the specular highlight is stretched along its axis. The default value of 0.5 produces a round highlight. Higher values will stretch the highlight along the V axis, lower values stretch along the U axis. The axis of the highlight is controlled by the UVs of the object. For best results, give your object a single UV shell with as few seams as possible."  />
-      <input name="specular1Rotation" type="float" value="0.0" publicname="Specular 1/Rotation" uimax="1"
-             helptext="Rotates the axis of specular anisotropy around the surface normal. 0 gives no rotation, 0.5 gives 90 degree rotation, 1 gives 180 degree rotation."  />
-      <parameter name="specular1FresnelMode" type="int" value="0" publicname="Specular 1/Fresnel/Mode"
-                 helptext="Selects which mode to use for the fresnel. Dielectric is appropriate for non-conductive materials such as most organics, plastic, glass and water etc. and gives dark reflections at normal incidence and bright reflections at glancing angles. Metallic is appropriate for metals and gives colored reflections that vary less strongly with angle."  />
-      <input name="specular1Ior" type="float" value="1.4" publicname="Specular 1/Fresnel/IOR"
-             helptext="The index of refraction for the dielectric fresnel mode."  />
-      <input name="specular1Reflectivity" type="color3" value="0.548 0.549 0.57" publicname="Specular 1/Fresnel/Reflectivity"
-             helptext="Selects the color of the reflection at normal incidence for the metallic fresnel mode."  />
-      <input name="specular1EdgeTint" type="color3" value="0.579 0.598 0.62" publicname="Specular 1/Fresnel/Edge tint"
-             helptext="Selects the color of the reflection at glancing angles for the metallic fresnel mode."  />
-      <input name="specular1Normal" type="vector3" value="0.0 0.0 0.0" publicname="Specular 1/Advanced/Normal"
-             helptext="Override the normal used for this lobe."  />
-      <input name="specular1IndirectStrength" type="float" value="1.0" publicname="Specular 1/Advanced/Indirect strength" uimax="1"
-             helptext="Multiplier on the amount of indirect light reflected by this lobe."  />
-      <input name="specular2Strength" type="float" value="1.0" publicname="Specular 2/Strength" uimax="1"
-             helptext="Multiplier on the intensity of the specular reflection."  />
-      <input name="specular2Color" type="color3" value="1.0 1.0 1.0" publicname="Specular 2/Color"
-             helptext="Color tint on the specular reflection."  />
-      <input name="specular2Roughness" type="float" value="0.5" publicname="Specular 2/Roughness" uimax="1"
-             helptext="The roughness of the specular reflection. Lower numbers produce sharper reflections, higher numbers produce blurrier reflections."  />
-      <input name="specular2Anisotropy" type="float" value="0.5" publicname="Specular 2/Anisotropy" uimax="1"
-             helptext="Controls how much the specular highlight is stretched along its axis. The default value of 0.5 produces a round highlight. Higher values will stretch the highlight along the V axis, lower values stretch along the U axis. The axis of the highlight is controlled by the UVs of the object. For best results, give your object a single UV shell with as few seams as possible."  />
-      <input name="specular2Rotation" type="float" value="0.0" publicname="Specular 2/Rotation" uimax="1"
-             helptext="Rotates the axis of specular anisotropy around the surface normal. 0 gives no rotation, 0.5 gives 90 degree rotation, 1 gives 180 degree rotation."  />
-      <parameter name="specular2FresnelMode" type="int" value="0" publicname="Specular 2/Fresnel/Mode"
-                 helptext="Selects which mode to use for the fresnel. Dielectric is appropriate for non-conductive materials such as most organics, plastic, glass and water etc. and gives dark reflections at normal incidence and bright reflections at glancing angles. Metallic is appropriate for metals and gives colored reflections that vary less strongly with angle."  />
-      <input name="specular2Ior" type="float" value="1.4" publicname="Specular 2/Fresnel/IOR"
-             helptext="The index of refraction for the dielectric fresnel mode."  />
-      <input name="specular2Reflectivity" type="color3" value="0.548 0.549 0.57" publicname="Specular 2/Fresnel/Reflectivity"
-             helptext="Selects the color of the reflection at normal incidence for the metallic fresnel mode."  />
-      <input name="specular2EdgeTint" type="color3" value="0.579 0.598 0.62" publicname="Specular 2/Fresnel/Edge tint"
-             helptext="Selects the color of the reflection at glancing angles for the metallic fresnel mode."  />
-      <input name="specular2Normal" type="vector3" value="0.0 0.0 0.0" publicname="Specular 2/Advanced/Normal"
-             helptext="Override the normal used for this lobe."  />
-      <input name="specular2IndirectStrength" type="float" value="1.0" publicname="Specular 2/Advanced/Indirect strength" uimax="1"
-             helptext="Multiplier on the amount of indirect light reflected by this lobe."  />
-      <input name="transmissionStrength" type="float" value="0.0" publicname="Transmission/Strength" uimax="1"
-             helptext="Multiplier on the intensity of the transmission."  />
-      <input name="transmissionColor" type="color3" value="1.0 1.0 1.0" publicname="Transmission/Color"
-             helptext="Multiplier on the intensity of the transmission."  />
-      <parameter name="transmissionLinkToSpecular1" type="boolean" value="True" publicname="Transmission/Link to specular 1"
-                 helptext="When this is enabled, the transmission lobe will copy its Roughness and IOR values from the Specular 1 lobe. This is generally what you want for most materials."  />
-      <input name="transmissionRoughness" type="float" value="0.0" publicname="Transmission/Roughness" uimax="1"
-             helptext="The roughness of the transmission. 0 creates a perfect refracted image like water or highly polished glass. Higher values will give results like frosted glass."  />
-      <input name="transmissionIor" type="float" value="1.4" publicname="Transmission/IOR"
-             helptext="The index of refraction of the transmission lobe. Higher values cause a more distorted refracted image."  />
-      <input name="ssAttenuationColor" type="color3" value="1.0 1.0 1.0" publicname="Transmission/Attenuation/Color"
-             helptext="This is the color light tends towards the further it travels through the material."  />
-      <input name="ssInScatteringStrength" type="float" value="0.0" publicname="Transmission/Attenuation/Scattering"
-             helptext="How much in-scattering takes place along the transmitted ray. The default of 0 means no in-scattering. Higher values add more in-scattering at the cost of additional render time. Use this to make your materials feel thicker or cloudier."  />
-      <input name="ssDensityScale" type="float" value="1.0" publicname="Transmission/Attenuation/Density scale"
-             helptext="A scale factor on the attenuation and scattering effects. Scaller values make the object feel smaller, larger values make the object feel larger."  />
-      <input name="ssDirection" type="float" value="0.0" publicname="Transmission/Attenuation/Direction" uimin="-0.99" uimax="0.99"
-             helptext="The direction, or anisotropy, or the scattering. Values greater than zero means light tends to travel through the material from one side to the other, while values less than zero mean light tends to bounce back in the direction it came from."  />
-      <parameter name="ssSpecifyCoefficients" type="boolean" value="False" publicname="Transmission/Advanced/Specify attenuation coeffs."
-                 helptext="Enable this to directly specify the scattering and absorption parameters rather than use the Color and Scattering controls in the attenutaion section above. This can be useful for inputting measured data."  />
-      <input name="ssScattering" type="color3" value="1.0 1.0 1.0" publicname="Transmission/Advanced/Scattering"
-             helptext="Scattering coefficient"  />
-      <input name="ssAbsorption" type="color3" value="1.0 1.0 1.0" publicname="Transmission/Advanced/Absorption"
-             helptext="Absorption coefficient"  />
-      <input name="transmissionNormal" type="vector3" value="0.0 0.0 0.0" publicname="Transmission/Advanced/Normal"
-             helptext="Override the normal used for this lobe."  />
-      <input name="emissionStrength" type="float" value="0.0" publicname="Emission/Strength"
-             helptext="Multiplier on the intensity of the emitted light."  />
-      <input name="emissionColor" type="color3" value="1.0 1.0 1.0" publicname="Emission/Color"
-             helptext="Color tint on the emitted light."  />
-      <input name="opacity" type="color3" value="1.0 1.0 1.0" publicname="Opacity"
-             helptext="Opacity of the material. In the vast majority of cases, if you want to see through your material you should be using transmission. Opacity can be useful for doing cut out effects such as a leaf texture on a card."  />
+    <input name="diffuseStrength" type="float" value="1.0" publicname="Diffuse/Strength" uimax="1.0"
+           helptext="Multiplier on the intensity of the diffuse reflection."  />
+    <input name="diffuseColor" type="color3" value="0.5, 0.5, 0.5" publicname="Diffuse/Color"
+           helptext="Color of the diffuse reflection."  />
+    <input name="diffuseRoughness" type="float" value="0.0" publicname="Diffuse/Roughness" uimax="1"
+           helptext="Roughness of the diffuse reflection. Higher values cause the surface to appear flatter and darker."  />
+    <input name="backlightStrength" type="float" value="0.0" publicname="Diffuse/Backlight/Strength" uimax="1"
+           helptext="Multiplier on the intensity of the backlight transmission."  />
+    <input name="backlightColor" type="color3" value="1.0, 1.0, 1.0" publicname="Diffuse/Backlight/Color"
+           helptext="Color of the backlight transmission."  />
+    <input name="backlightIndirectStrength" type="float" value="1.0" publicname="Diffuse/Backlight/Indirect strength" uimax="1"
+           helptext="Multiplier on the amount of indirect light transmitted by the backlight lobe."  />
+    <input name="sssMix" type="float" value="0.0" publicname="Diffuse/SSS/Mix" uimax="1"
+           helptext="How much to mix SSS in with the diffuse. 0 means no SSS, full diffuse. 1 means full SSS no diffuse."  />
+    <input name="sssDensityScale" type="float" value="1.0" publicname="Diffuse/SSS/Density scale"
+           helptext="A multiplier on the scale of the object. This simply multiplies down the Distance values below, but can be used to adapt materials from scenes of one scale to another without changing the look. Higher values mean a larger, or less scattery object. Lower values mean smaller or more scattery object."  />
+    <input name="sssRadius" type="float" value="1.5" publicname="Diffuse/SSS/Distance 1"
+           helptext="The scatter distance of the first layer. Higher values mean the light travels further through the object, lower values mean it travels a shorter distance."  />
+    <input name="sssWeight1" type="float" value="1.0" publicname="Diffuse/SSS/Weight 1" uimax="1"
+           helptext="The weight of the first layer. Larger values relative to the other layers will cause more of this layer to be present in the result."  />
+    <input name="sssRadiusColor" type="color3" value="0.439, 0.156, 0.078" publicname="Diffuse/SSS/Color 1"
+           helptext="The scatter color of the first layer. This is the color the light will tend to the further it travels through the material, e.g. reddish for skin."  />
+    <input name="sssRadius2" type="float" value="4.0" publicname="Diffuse/SSS/Distance 2"
+           helptext="The scatter distance of the second layer. Higher values mean the light travels further through the object, lower values mean it travels a shorter distance."  />
+    <input name="sssWeight2" type="float" value="0.0" publicname="Diffuse/SSS/Weight 2" uimax="1"
+           helptext="The weight of the second layer. Larger values relative to the other layers will cause more of this layer to be present in the result."  />
+    <input name="sssRadiusColor2" type="color3" value="0.439, 0.08, 0.018" publicname="Diffuse/SSS/Color 2"
+           helptext="The scatter color of the second layer. This is the color the light will tend to the further it travels through the material, e.g. reddish for skin."  />
+    <input name="sssRadius3" type="float" value="1.0" publicname="Diffuse/SSS/Distance 3"
+           helptext="The scatter distance of the third layer. Higher values mean the light travels further through the object, lower values mean it travels a shorter distance."  />
+    <input name="sssWeight3" type="float" value="0.0" publicname="Diffuse/SSS/Weight 3" uimax="1"
+           helptext="The weight of the third layer. Larger values relative to the other layers will cause more of this layer to be present in the result."  />
+    <input name="sssRadiusColor3" type="color3" value="0.523, 0.637, 0.667" publicname="Diffuse/SSS/Color 3"
+           helptext="The scatter color of the third layer. This is the color the light will tend to the further it travels through the material, e.g. reddish for skin."  />
+    <input name="diffuseIndirectStrength" type="float" value="1.0" publicname="Diffuse/Advanced/Indirect strength" uimax="1"
+           helptext="Multiplier on the amount of indirect light transmitted by this lobe."  />
+    <input name="diffuseNormal" type="vector3" value="0.0, 0.0, 0.0" publicname="Diffuse/Advanced/Normal"
+           helptext="Override the normal used for this lobe."  />
+    <input name="specular1Strength" type="float" value="1.0" publicname="Specular 1/Strength" uimax="1"
+           helptext="Multiplier on the intensity of the specular reflection."  />
+    <input name="specular1Color" type="color3" value="1.0, 1.0, 1.0" publicname="Specular 1/Color"
+           helptext="Color tint on the specular reflection."  />
+    <input name="specular1Roughness" type="float" value="0.3" publicname="Specular 1/Roughness" uimax="1"
+           helptext="The roughness of the specular reflection. Lower numbers produce sharper reflections, higher numbers produce blurrier reflections."  />
+    <input name="specular1Anisotropy" type="float" value="0.5" publicname="Specular 1/Anisotropy" uimax="1"
+           helptext="Controls how much the specular highlight is stretched along its axis. The default value of 0.5 produces a round highlight. Higher values will stretch the highlight along the V axis, lower values stretch along the U axis. The axis of the highlight is controlled by the UVs of the object. For best results, give your object a single UV shell with as few seams as possible."  />
+    <input name="specular1Rotation" type="float" value="0.0" publicname="Specular 1/Rotation" uimax="1"
+           helptext="Rotates the axis of specular anisotropy around the surface normal. 0 gives no rotation, 0.5 gives 90 degree rotation, 1 gives 180 degree rotation."  />
+    <parameter name="specular1FresnelMode" type="int" value="0" publicname="Specular 1/Fresnel/Mode"
+           helptext="Selects which mode to use for the fresnel. Dielectric is appropriate for non-conductive materials such as most organics, plastic, glass and water etc. and gives dark reflections at normal incidence and bright reflections at glancing angles. Metallic is appropriate for metals and gives colored reflections that vary less strongly with angle."  />
+    <input name="specular1Ior" type="float" value="1.4" publicname="Specular 1/Fresnel/IOR"
+           helptext="The index of refraction for the dielectric fresnel mode."  />
+    <input name="specular1Reflectivity" type="color3" value="0.548, 0.549, 0.57" publicname="Specular 1/Fresnel/Reflectivity"
+           helptext="Selects the color of the reflection at normal incidence for the metallic fresnel mode."  />
+    <input name="specular1EdgeTint" type="color3" value="0.579, 0.598, 0.62" publicname="Specular 1/Fresnel/Edge tint"
+           helptext="Selects the color of the reflection at glancing angles for the metallic fresnel mode."  />
+    <input name="specular1Normal" type="vector3" value="0.0, 0.0, 0.0" publicname="Specular 1/Advanced/Normal"
+           helptext="Override the normal used for this lobe."  />
+    <input name="specular1IndirectStrength" type="float" value="1.0" publicname="Specular 1/Advanced/Indirect strength" uimax="1"
+           helptext="Multiplier on the amount of indirect light reflected by this lobe."  />
+    <input name="specular2Strength" type="float" value="1.0" publicname="Specular 2/Strength" uimax="1"
+           helptext="Multiplier on the intensity of the specular reflection."  />
+    <input name="specular2Color" type="color3" value="1.0, 1.0, 1.0" publicname="Specular 2/Color"
+           helptext="Color tint on the specular reflection."  />
+    <input name="specular2Roughness" type="float" value="0.5" publicname="Specular 2/Roughness" uimax="1"
+           helptext="The roughness of the specular reflection. Lower numbers produce sharper reflections, higher numbers produce blurrier reflections."  />
+    <input name="specular2Anisotropy" type="float" value="0.5" publicname="Specular 2/Anisotropy" uimax="1"
+           helptext="Controls how much the specular highlight is stretched along its axis. The default value of 0.5 produces a round highlight. Higher values will stretch the highlight along the V axis, lower values stretch along the U axis. The axis of the highlight is controlled by the UVs of the object. For best results, give your object a single UV shell with as few seams as possible."  />
+    <input name="specular2Rotation" type="float" value="0.0" publicname="Specular 2/Rotation" uimax="1"
+           helptext="Rotates the axis of specular anisotropy around the surface normal. 0 gives no rotation, 0.5 gives 90 degree rotation, 1 gives 180 degree rotation."  />
+    <parameter name="specular2FresnelMode" type="int" value="0" publicname="Specular 2/Fresnel/Mode"
+           helptext="Selects which mode to use for the fresnel. Dielectric is appropriate for non-conductive materials such as most organics, plastic, glass and water etc. and gives dark reflections at normal incidence and bright reflections at glancing angles. Metallic is appropriate for metals and gives colored reflections that vary less strongly with angle."  />
+    <input name="specular2Ior" type="float" value="1.4" publicname="Specular 2/Fresnel/IOR"
+           helptext="The index of refraction for the dielectric fresnel mode."  />
+    <input name="specular2Reflectivity" type="color3" value="0.548, 0.549, 0.57" publicname="Specular 2/Fresnel/Reflectivity"
+           helptext="Selects the color of the reflection at normal incidence for the metallic fresnel mode."  />
+    <input name="specular2EdgeTint" type="color3" value="0.579, 0.598, 0.62" publicname="Specular 2/Fresnel/Edge tint"
+           helptext="Selects the color of the reflection at glancing angles for the metallic fresnel mode."  />
+    <input name="specular2Normal" type="vector3" value="0.0, 0.0, 0.0" publicname="Specular 2/Advanced/Normal"
+           helptext="Override the normal used for this lobe."  />
+    <input name="specular2IndirectStrength" type="float" value="1.0" publicname="Specular 2/Advanced/Indirect strength" uimax="1"
+           helptext="Multiplier on the amount of indirect light reflected by this lobe."  />
+    <input name="transmissionStrength" type="float" value="0.0" publicname="Transmission/Strength" uimax="1"
+           helptext="Multiplier on the intensity of the transmission."  />
+    <input name="transmissionColor" type="color3" value="1.0, 1.0, 1.0" publicname="Transmission/Color"
+           helptext="Multiplier on the intensity of the transmission."  />
+    <parameter name="transmissionLinkToSpecular1" type="boolean" value="True" publicname="Transmission/Link to specular 1"
+           helptext="When this is enabled, the transmission lobe will copy its Roughness and IOR values from the Specular 1 lobe. This is generally what you want for most materials."  />
+    <input name="transmissionRoughness" type="float" value="0.0" publicname="Transmission/Roughness" uimax="1"
+           helptext="The roughness of the transmission. 0 creates a perfect refracted image like water or highly polished glass. Higher values will give results like frosted glass."  />
+    <input name="transmissionIor" type="float" value="1.4" publicname="Transmission/IOR"
+           helptext="The index of refraction of the transmission lobe. Higher values cause a more distorted refracted image."  />
+    <input name="ssAttenuationColor" type="color3" value="1.0, 1.0, 1.0" publicname="Transmission/Attenuation/Color"
+           helptext="This is the color light tends towards the further it travels through the material."  />
+    <input name="ssInScatteringStrength" type="float" value="0.0" publicname="Transmission/Attenuation/Scattering"
+           helptext="How much in-scattering takes place along the transmitted ray. The default of 0 means no in-scattering. Higher values add more in-scattering at the cost of additional render time. Use this to make your materials feel thicker or cloudier."  />
+    <input name="ssDensityScale" type="float" value="1.0" publicname="Transmission/Attenuation/Density scale"
+           helptext="A scale factor on the attenuation and scattering effects. Scaller values make the object feel smaller, larger values make the object feel larger."  />
+    <input name="ssDirection" type="float" value="0.0" publicname="Transmission/Attenuation/Direction" uimin="-0.99" uimax="0.99"
+           helptext="The direction, or anisotropy, or the scattering. Values greater than zero means light tends to travel through the material from one side to the other, while values less than zero mean light tends to bounce back in the direction it came from."  />
+    <parameter name="ssSpecifyCoefficients" type="boolean" value="False" publicname="Transmission/Advanced/Specify attenuation coeffs."
+           helptext="Enable this to directly specify the scattering and absorption parameters rather than use the Color and Scattering controls in the attenutaion section above. This can be useful for inputting measured data."  />
+    <input name="ssScattering" type="color3" value="1.0, 1.0, 1.0" publicname="Transmission/Advanced/Scattering"
+           helptext="Scattering coefficient"  />
+    <input name="ssAbsorption" type="color3" value="1.0, 1.0, 1.0" publicname="Transmission/Advanced/Absorption"
+           helptext="Absorption coefficient"  />
+    <input name="transmissionNormal" type="vector3" value="0.0, 0.0, 0.0" publicname="Transmission/Advanced/Normal"
+           helptext="Override the normal used for this lobe."  />
+    <input name="emissionStrength" type="float" value="0.0" publicname="Emission/Strength"
+           helptext="Multiplier on the intensity of the emitted light."  />
+    <input name="emissionColor" type="color3" value="1.0, 1.0, 1.0" publicname="Emission/Color"
+           helptext="Color tint on the emitted light."  />
+    <input name="opacity" type="color3" value="1.0, 1.0, 1.0" publicname="Opacity"
+           helptext="Opacity of the material. In the vast majority of cases, if you want to see through your material you should be using transmission. Opacity can be useful for doing cut out effects such as a leaf texture on a card."  />
   </nodedef>
   <implementation name="alSurface_impl_arnold4" nodedef="alSurface_def" target="arnold4" language="c++" file="https://bitbucket.org/anderslanglands/alshaders/src"/>
 </materialx>
