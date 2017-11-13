@@ -7,12 +7,6 @@
 #include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/Util.h>
 
-
-#include <MaterialXShaderGen/ShaderGenerators/GlslShaderGenerator.h>
-
-
-#include <cstdarg>
-
 namespace MaterialX
 {
 
@@ -56,12 +50,12 @@ void Compound::emitFunction(const SgNode& node, ShaderGenerator& shadergen, Shad
     string delim = "";
 
     // Add any extra argument inputs first
-    const vector<ShaderGenerator::Argument>* args = shadergen.getExtraArguments(node);
+    const Arguments* args = shadergen.getExtraArguments(node);
     if (args)
     {
         for (int i = 0; i < args->size(); i++)
         {
-            const ShaderGenerator::Argument& arg = (*args)[i];
+            const Argument& arg = (*args)[i];
             shader.addStr(delim + arg.first + " " + arg.second);
             delim = ", ";
         }
@@ -130,12 +124,12 @@ void Compound::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, 
     string delim = "";
 
     // Add any extra argument inputs first...
-    const vector<ShaderGenerator::Argument>* args = shadergen.getExtraArguments(node);
+    const Arguments* args = shadergen.getExtraArguments(node);
     if (args)
     {
         for (int i = 0; i < args->size(); i++)
         {
-            const ShaderGenerator::Argument& arg = (*args)[i];
+            const Argument& arg = (*args)[i];
             shader.addStr(delim + arg.second);
             delim = ", ";
         }

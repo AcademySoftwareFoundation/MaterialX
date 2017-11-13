@@ -138,7 +138,7 @@ bool ShaderGenerator::shouldPublish(const ValueElement* port, string& publicName
     return !publicName.empty();
 }
 
-const vector<ShaderGenerator::Argument>* ShaderGenerator::getExtraArguments(const SgNode&) const
+const Arguments* ShaderGenerator::getExtraArguments(const SgNode&) const
 {
     return nullptr;
 }

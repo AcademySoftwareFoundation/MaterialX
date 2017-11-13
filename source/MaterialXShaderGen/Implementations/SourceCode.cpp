@@ -138,12 +138,12 @@ void SourceCode::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen
         string delim = "";
 
         // Add any extra argument inputs first...
-        const vector<ShaderGenerator::Argument>* args = shadergen.getExtraArguments(node);
+        const Arguments* args = shadergen.getExtraArguments(node);
         if (args)
         {
             for (int i = 0; i < args->size(); i++)
             {
-                const ShaderGenerator::Argument& arg = (*args)[i];
+                const Argument& arg = (*args)[i];
                 shader.addStr(delim + arg.second);
                 delim = ", ";
             }

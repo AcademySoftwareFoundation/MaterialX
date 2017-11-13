@@ -14,6 +14,10 @@ namespace MaterialX
 
 using ShaderGeneratorPtr = shared_ptr<class ShaderGenerator>;
 
+/// An argument is a pair of strings holding the 'type' and 'name' of the argument.
+using Argument = std::pair<string, string>;
+using Arguments = vector<Argument>;
+
 /// Base class for shader generators
 /// All 3rd party shader generators should derive from this class.
 /// Derived classes should use DECLARE_SHADER_GENERATOR / DEFINE_SHADER_GENERATOR
@@ -56,11 +60,13 @@ public:
     /// Emit the output variable name for an output, optionally including it's type
     virtual void emitOutput(const SgOutput* output, bool includeType, Shader& shader);
 
-    ///
+    /// Query the shader generator if it wants to publish a given port as a
+    /// shader uniform. Return the publicName to use if it should be published.
     virtual bool shouldPublish(const ValueElement* port, string& publicName) const;
 
-    using Argument = std::pair<string, string>;
-    virtual const vector<Argument>* getExtraArguments(const SgNode& node) const;
+    /// Query the shader generator if it wants any extra arguments added when 
+    /// emiting the function for the given node.
+    virtual const Arguments* getExtraArguments(const SgNode& node) const;
 
     /// Return the v-direction used by the target system
     virtual Shader::VDirection getTargetVDirection() const;

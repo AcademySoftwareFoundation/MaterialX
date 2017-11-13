@@ -22,6 +22,7 @@ using SgOutputPtr = shared_ptr<class SgOutput>;
 using SgNodePtr = shared_ptr<class SgNode>;
 using SgNodeGraphPtr = shared_ptr<class SgNodeGraph>;
 
+/// An input on an SgNode
 class SgInput
 {
 public:
@@ -37,6 +38,7 @@ public:
     void breakConnection(SgOutput* src);
 };
 
+/// An output on an SgNode
 class SgOutput
 {
 public:
@@ -53,6 +55,7 @@ public:
     SgEdgeIterator traverseUpstream();
 };
 
+/// Class representing a node setup for shader generation
 class SgNode
 {
 public:
@@ -61,23 +64,24 @@ public:
     {
     public:
         // Node classes
-        static const unsigned int TEXTURE = 1 << 0;  // Any node that outputs floats, colors, vectors, etc.
-        static const unsigned int CLOSURE = 1 << 1;  // Any node that represents light integration
-        static const unsigned int SHADER = 1 << 2;  // Any node that outputs a shader
+        static const unsigned int TEXTURE     = 1 << 0;  // Any node that outputs floats, colors, vectors, etc.
+        static const unsigned int CLOSURE     = 1 << 1;  // Any node that represents light integration
+        static const unsigned int SHADER      = 1 << 2;  // Any node that outputs a shader
         // Specific texture node types
         static const unsigned int FILETEXTURE = 1 << 3;  // A file texture node
-        static const unsigned int CONDITIONAL = 1 << 4;  // A conditional nodes 
+        static const unsigned int CONDITIONAL = 1 << 4;  // A conditional node
+        static const unsigned int CONSTANT    = 1 << 5;  // A constant node
         // Specific closure types
-        static const unsigned int BSDF = 1 << 5;  // A BDFS node 
-        static const unsigned int EDF = 1 << 6;  // A EDF node
-        static const unsigned int VDF = 1 << 7;  // A VDF node 
+        static const unsigned int BSDF        = 1 << 6;  // A BDFS node 
+        static const unsigned int EDF         = 1 << 7;  // A EDF node
+        static const unsigned int VDF         = 1 << 8;  // A VDF node 
         // Specific shader types
-        static const unsigned int SURFACE = 1 << 8;  // A surface shader node
-        static const unsigned int VOLUME = 1 << 9;  // A volume shader node
-        static const unsigned int LIGHT = 1 << 10; // A light shader node
+        static const unsigned int SURFACE     = 1 << 9;  // A surface shader node
+        static const unsigned int VOLUME      = 1 << 10; // A volume shader node
+        static const unsigned int LIGHT       = 1 << 11; // A light shader node
         // Specific conditional types
-        static const unsigned int IFELSE = 1 << 11;  // An if-else statement
-        static const unsigned int SWITCH = 1 << 12;  // A switch statement
+        static const unsigned int IFELSE      = 1 << 12; // An if-else statement
+        static const unsigned int SWITCH      = 1 << 13; // A switch statement
     };
 
     /// Information on source code scope for the node.
@@ -152,25 +156,29 @@ public:
         return _usedClosures.count(node) > 0;
     }
 
+    /// Get number of inputs/outputs
     size_t numInputs() const { return _inputOrder.size(); }
     size_t numOutputs() const { return _outputOrder.size(); }
 
+    /// Get inputs/outputs by index
     SgInput* getInput(size_t index) { return _inputOrder[index]; }
     SgOutput* getOutput(size_t index = 0) { return _outputOrder[index]; }
     const SgInput* getInput(size_t index) const { return _inputOrder[index]; }
     const SgOutput* getOutput(size_t index = 0) const { return _outputOrder[index]; }
 
+    /// Get inputs/outputs by name
     SgInput* getInput(const string& name);
     SgOutput* getOutput(const string& name);
     const SgInput* getInput(const string& name) const;
     const SgOutput* getOutput(const string& name) const;
 
+    /// Get vector of inputs/outputs
     const vector<SgInput*>& getInputs() const { return _inputOrder; }
     const vector<SgOutput*>& getOutputs() const { return _outputOrder; }
 
 protected:
-    virtual SgInput* addInput(const string& name, const string& type);
-    virtual SgOutput* addOutput(const string& name, const string& type);
+    SgInput* addInput(const string& name, const string& type);
+    SgOutput* addOutput(const string& name, const string& type);
 
     string _name;
     unsigned int _classification;
@@ -189,20 +197,29 @@ protected:
     friend class SgNodeGraph;
 };
 
+/// An internal input socket in a graph,
+/// used for connecting internal nodes to the outside
 using SgInputSocket = SgOutput;
+
+/// An internal input socket in a graph,
+/// used for connecting internal nodes to the outside
 using SgOutputSocket = SgInput;
 
+/// Class representing a node graph setup for shader generation
 class SgNodeGraph : public SgNode
 {
 public:
     SgNodeGraph(const string& name);
 
-    static SgNodeGraphPtr creator(NodeGraphPtr nodeGraph, ShaderGenerator& shadergen);
     static SgNodeGraphPtr creator(const string& name, ElementPtr element, ShaderGenerator& shadergen);
+    static SgNodeGraphPtr creator(NodeGraphPtr nodeGraph, ShaderGenerator& shadergen);
 
     virtual bool isNodeGraph() const { return true; }
 
+    /// Get an internal node by name
     SgNode* getNode(const string& name);
+
+    /// Get a vector of all nodes in order
     const vector<SgNode*>& getNodes() const { return _nodeOrder; }
 
     /// Get number of sockets
@@ -246,7 +263,7 @@ protected:
     vector<SgNode*> _nodeOrder;
 };
 
-
+/// An edge returned during SgNode traversal
 class SgEdge
 {
 public:
@@ -258,6 +275,7 @@ public:
     SgInput* downstream;
 };
 
+/// Iterator class for traversing edges between SgNodes
 class SgEdgeIterator
 {
 public:

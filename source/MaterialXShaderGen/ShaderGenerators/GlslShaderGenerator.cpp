@@ -5,6 +5,8 @@
 #include <MaterialXShaderGen/Implementations/Switch.h>
 #include <MaterialXShaderGen/Implementations/Compare.h>
 
+namespace MaterialX
+{
 namespace
 {
     const char* kVDirectionFlip =
@@ -19,20 +21,20 @@ namespace
         "{\n"
         "   result = texcoord;\n"
         "}\n\n";
-}
 
-namespace MaterialX
-{
+    // Arguments used to represent BSDF direction vectors
+    Arguments kBsdfDirArguments =
+    {
+        Argument("vec3", "L"), // BsdfDir::LIGHT_DIR
+        Argument("vec3", "V"), // BsdfDir::VIEW_DIR
+        Argument("vec3", "R")  // BsdfDir::REFL_DIR
+    };
+}
 
 GlslShaderGenerator::GlslShaderGenerator()
     : ShaderGenerator(std::make_shared<GlslSyntax>())
 {
     _bsdfNodeArguments.resize(2);
-
-    _bsdfDirArguments.resize(3);
-    _bsdfDirArguments[size_t(BsdfDir::LIGHT_DIR)] = Argument("vec3", "L");
-    _bsdfDirArguments[size_t(BsdfDir::VIEW_DIR)]  = Argument("vec3", "V");
-    _bsdfDirArguments[size_t(BsdfDir::REFL_DIR)]  = Argument("vec3", "R");
 
     // Register build-in node implementations
 
@@ -118,9 +120,10 @@ void GlslShaderGenerator::emitFunctions(Shader& shader)
     // as needed by the v-direction set by the user
     shader.addBlock(shader.getRequestedVDirection() != getTargetVDirection() ? kVDirectionFlip : kVDirectionNoop);
 
+    // Set BSDF node arguments to the variables used for BSDF direction vectors
     _bsdfNodeArguments[0] = Argument("vec3", "wi");
     _bsdfNodeArguments[1] = Argument("vec3", "wo");
-    
+
     // Call parent to emit all other functions
     ShaderGenerator::emitFunctions(shader);
 }
@@ -141,8 +144,9 @@ void GlslShaderGenerator::emitTextureNodes(Shader& shader)
 
 void GlslShaderGenerator::emitSurfaceBsdf(const SgNode& surfaceShaderNode, BsdfDir wi, BsdfDir wo, Shader& shader, string& bsdf)
 {
-    _bsdfNodeArguments[0] = _bsdfDirArguments[size_t(wi)];
-    _bsdfNodeArguments[1] = _bsdfDirArguments[size_t(wo)];
+    // Set BSDF node arguments according to the given directions
+    _bsdfNodeArguments[0] = kBsdfDirArguments[size_t(wi)];
+    _bsdfNodeArguments[1] = kBsdfDirArguments[size_t(wo)];
 
     SgNode* last = nullptr;
 
@@ -186,7 +190,7 @@ void GlslShaderGenerator::emitSurfaceEmission(const SgNode& surfaceShaderNode, S
     }
 }
 
-const vector<ShaderGenerator::Argument>* GlslShaderGenerator::getExtraArguments(const SgNode& node) const
+const Arguments* GlslShaderGenerator::getExtraArguments(const SgNode& node) const
 {
     return node.hasClassification(SgNode::Classification::BSDF) ? &_bsdfNodeArguments : nullptr;
 }

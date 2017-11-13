@@ -22,8 +22,8 @@ public:
     /// Emit function definitions for all nodes
     void emitFunctions(Shader& shader) override;
 
-    /// 
-    const vector<Argument>* getExtraArguments(const SgNode& node) const override;
+    /// Return any extra arguments if needed for the given node
+    const Arguments* getExtraArguments(const SgNode& node) const override;
 
     /// Emit code for all texturing nodes.
     virtual void emitTextureNodes(Shader& shader);
@@ -40,8 +40,7 @@ protected:
     /// Protected constructor.
     GlslShaderGenerator();
 
-    vector<Argument> _bsdfNodeArguments;
-    vector<Argument> _bsdfDirArguments;
+    Arguments _bsdfNodeArguments;
 };
 
 } // namespace MaterialX
