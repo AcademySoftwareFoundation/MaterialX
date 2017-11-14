@@ -20,7 +20,7 @@ void Swizzle::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, S
     }
 
     const SyntaxPtr& syntax = shadergen.getSyntax();
-    const string& swizzle = channels->value->getValueString();
+    const string& swizzle = channels->value ? channels->value->getValueString() : EMPTY_STRING;
 
     string variableName;
 

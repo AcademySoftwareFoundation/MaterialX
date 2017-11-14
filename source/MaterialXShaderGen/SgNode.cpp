@@ -556,10 +556,11 @@ SgNode* SgNodeGraph::addNode(const Node& node, ShaderGenerator& shadergen)
     // Create and connect default geometric nodes on unconnected inputs.
     for (const InputPtr& nodeDefInput : nodeDef->getInputs())
     {
+        SgInput* input = newNode->getInput(nodeDefInput->getName());
         InputPtr nodeInput = node.getInput(nodeDefInput->getName());
 
         const string& connectedNode = nodeInput ? nodeInput->getNodeName() : EMPTY_STRING;
-        const string& defaultGeomNode = connectedNode.empty() ? nodeDefInput->getAttribute("defaultgeomprop") : EMPTY_STRING;
+        const string& defaultGeomNode = connectedNode.empty() && !input->connection ? nodeDefInput->getAttribute("defaultgeomprop") : EMPTY_STRING;
 
         if (!defaultGeomNode.empty())
         {
@@ -582,7 +583,6 @@ SgNode* SgNodeGraph::addNode(const Node& node, ShaderGenerator& shadergen)
                 geomNode = geomNodePtr.get();
             }
 
-            SgInput* input = newNode->getInput(nodeDefInput->getName());
             input->makeConnection(geomNode->getOutput());
         }
     }
