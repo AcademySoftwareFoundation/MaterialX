@@ -6,6 +6,8 @@
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Node.h>
 
+#include <utility>
+
 namespace MaterialX
 {
 
@@ -43,8 +45,8 @@ public:
     /// Optional and only used if a custom constructor and/or swizzling is needed for a data type
     struct ValueConstructSyntax
     {
-        pair<string, string> valueConstructor;      // value constructor prefix/post fix
-        pair<string, string> paramValueConstructor; // value constructor prefix/post fix in a shader param initialization context
+        std::pair<string, string> valueConstructor;      // value constructor prefix/post fix
+        std::pair<string, string> paramValueConstructor; // value constructor prefix/post fix in a shader param initialization context
         vector<string> vectorComponents;            // syntax for each vector component if swizzling is supported
 
         ValueConstructSyntax() {}
@@ -99,10 +101,10 @@ protected:
     Syntax();
 
     vector<TypeSyntax> _typeSyntax;
-    unordered_map<string, size_t> _typeSyntaxByName;
+    std::unordered_map<string, size_t> _typeSyntaxByName;
 
     vector<ValueConstructSyntax> _valueConstructSyntax;
-    unordered_map<string, size_t> _valueConstructSyntaxByName;
+    std::unordered_map<string, size_t> _valueConstructSyntaxByName;
 };
 
 /// Built in data types

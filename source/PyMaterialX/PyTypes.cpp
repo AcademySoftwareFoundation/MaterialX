@@ -21,6 +21,7 @@ void bindPyTypes(py::module& mod)
 
     py::class_<mx::Vector2, mx::VectorBase>(mod, "Vector2")
         .def(py::init<>())
+        .def(py::init<float>())
         .def(py::init<float, float>())
         .def(py::init<const mx::Vector2&>())
         .def(py::init<const std::array<float, 2>&>())
@@ -37,12 +38,13 @@ void bindPyTypes(py::module& mod)
             {
                 std::ostringstream output;
                 output << vec;
-                return PyDefaultString(output.str());
+                return output.str();
             }
         );
 
     py::class_<mx::Vector3, mx::VectorBase>(mod, "Vector3")
         .def(py::init<>())
+        .def(py::init<float>())
         .def(py::init<float, float, float>())
         .def(py::init<const mx::Vector3&>())
         .def(py::init<const std::array<float, 3>&>())
@@ -59,12 +61,13 @@ void bindPyTypes(py::module& mod)
             {
                 std::ostringstream output;
                 output << vec;
-                return PyDefaultString(output.str());
+                return output.str();
             }
         );
 
     py::class_<mx::Vector4, mx::VectorBase>(mod, "Vector4")
         .def(py::init<>())
+        .def(py::init<float>())
         .def(py::init<float, float, float, float>())
         .def(py::init<const mx::Vector4&>())
         .def(py::init<const std::array<float, 4>&>())
@@ -81,12 +84,13 @@ void bindPyTypes(py::module& mod)
             {
                 std::ostringstream output;
                 output << vec;
-                return PyDefaultString(output.str());
+                return output.str();
             }
         );
 
     py::class_<mx::Matrix3x3, mx::VectorBase>(mod, "Matrix3x3")
         .def(py::init<>())
+        .def(py::init<float>())
         .def(py::init<const mx::Matrix3x3&>())
         .def(py::init<const std::array<float, 9>&>())
         .def(py::init<const std::vector<float>&>())
@@ -101,12 +105,13 @@ void bindPyTypes(py::module& mod)
             {
                 std::ostringstream output;
                 output << vec;
-                return PyDefaultString(output.str());
+                return output.str();
             }
         );
 
     py::class_<mx::Matrix4x4, mx::VectorBase>(mod, "Matrix4x4")
         .def(py::init<>())
+        .def(py::init<float>())
         .def(py::init<const mx::Matrix4x4&>())
         .def(py::init<const std::array<float, 16>&>())
         .def(py::init<const std::vector<float>&>())
@@ -121,12 +126,13 @@ void bindPyTypes(py::module& mod)
             {
                 std::ostringstream output;
                 output << vec;
-                return PyDefaultString(output.str());
+                return output.str();
             }
         );
 
     py::class_<mx::Color2, mx::Vector2>(mod, "Color2")
         .def(py::init<>())
+        .def(py::init<float>())
         .def(py::init<float, float>())
         .def(py::init<const mx::Color2&>())
         .def(py::init<const std::array<float, 2>&>())
@@ -136,6 +142,7 @@ void bindPyTypes(py::module& mod)
 
     py::class_<mx::Color3, mx::Vector3>(mod, "Color3")
         .def(py::init<>())
+        .def(py::init<float>())
         .def(py::init<float, float, float>())
         .def(py::init<const mx::Color3&>())
         .def(py::init<const std::array<float, 3>&>())
@@ -145,6 +152,7 @@ void bindPyTypes(py::module& mod)
 
     py::class_<mx::Color4, mx::Vector4>(mod, "Color4")
         .def(py::init<>())
+        .def(py::init<float>())
         .def(py::init<float, float, float, float>())
         .def(py::init<const mx::Color4&>())
         .def(py::init<const std::array<float, 4>&>())

@@ -16,7 +16,7 @@ void bindPyDocument(py::module& mod)
 {
     mod.def("createDocument", &mx::createDocument);
 
-    py::class_<mx::Document, mx::DocumentPtr, mx::Element>(mod, "Document", py::metaclass())
+    py::class_<mx::Document, mx::DocumentPtr, mx::Element>(mod, "Document")
         .def("initialize", &mx::Document::initialize)
         .def("copy", &mx::Document::copy)
         .def("importLibrary", &mx::Document::importLibrary)
@@ -83,7 +83,5 @@ void bindPyDocument(py::module& mod)
         .def("getColorManagementSystem", &mx::Document::getColorManagementSystem)
         .def("setColorManagementConfig", &mx::Document::setColorManagementConfig)
         .def("hasColorManagementConfig", &mx::Document::hasColorManagementConfig)
-        .def("getColorManagementConfig", &mx::Document::getColorManagementConfig)
-        .def("getFilenameStringMap", &mx::Document::getFilenameStringMap)
-        .def("applyStringSubstitutions", &mx::Document::applyStringSubstitutions);
+        .def("getColorManagementConfig", &mx::Document::getColorManagementConfig);
 }

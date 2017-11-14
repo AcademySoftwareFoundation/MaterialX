@@ -4,6 +4,7 @@
 #include <MaterialXCore/Node.h>
 
 #include <MaterialXShaderGen/SgImplementation.h>
+#include <set>
 
 #include <stack>
 
@@ -46,7 +47,7 @@ public:
     string type;
     SgNode* node;
     ValuePtr value;
-    set<SgInput*> connections;
+    std::set<SgInput*> connections;
     bool published;
 
     void makeConnection(SgInput* dst);
@@ -184,15 +185,15 @@ protected:
     string _name;
     unsigned int _classification;
 
-    unordered_map<string, SgInputPtr> _inputMap;
+    std::unordered_map<string, SgInputPtr> _inputMap;
     vector<SgInput*> _inputOrder;
 
-    unordered_map<string, SgOutputPtr> _outputMap;
+    std::unordered_map<string, SgOutputPtr> _outputMap;
     vector<SgOutput*> _outputOrder;
 
     SgImplementationPtr _impl;
     ScopeInfo _scopeInfo;
-    set<const SgNode*> _usedClosures;
+    std::set<const SgNode*> _usedClosures;
 
     friend class SgNodeGraph;
 };
@@ -265,8 +266,8 @@ protected:
     /// Break all connections on a node
     static void disconnect(SgNode* node);
 
-    unordered_map<string, SgNodePtr> _nodeMap;
-    vector<SgNode*> _nodeOrder;
+    std::unordered_map<string, SgNodePtr> _nodeMap;
+    std::vector<SgNode*> _nodeOrder;
 };
 
 /// An edge returned during SgNode traversal
@@ -322,9 +323,9 @@ private:
 
     SgOutput* _upstream;
     SgInput* _downstream;
-    using StackFrame = pair<SgOutput*, size_t>;
-    vector<StackFrame> _stack;
-    set<SgOutput*> _path;
+    using StackFrame = std::pair<SgOutput*, size_t>;
+    std::vector<StackFrame> _stack;
+    std::set<SgOutput*> _path;
 };
 
 } // namespace MaterialX

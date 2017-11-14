@@ -129,7 +129,7 @@ mx::NodePtr NodeTranslator::exportNode(const MObject& mayaNode, const std::strin
         return nullptr;
     }
 
-    node = parent->addNode(nodeDef->getNode(), name, nodeDef->getType());
+    node = parent->addNode(nodeDef->getNodeString(), name, nodeDef->getType());
 
     MFnDependencyNode fnNode(mayaNode);
 

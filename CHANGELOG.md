@@ -1,15 +1,36 @@
 # Change Log
 
-## [1.35.3] - Development
+## [1.35.4] - Development
+
+### Added
+- Added Material methods getPrimaryShaderNodeDef, getPrimaryShaderName, getPrimaryShaderParameters, and getPrimaryShaderInputs.
+- Added ValueElement methods getBoundValue and getDefaultValue.
+- Added InterfaceElement methods setInputValue and getInputValue.
+- Added method Element\:\:createStringResolver and class StringResolver, for applying substring substitutions to data values.
+- Added support for multi-output nodes, nodedefs, and connections.
+
+### Changed
+- Renamed method Material\:\:getReferencedShaderDefs to Material\:\:getShaderNodeDefs.
+- Renamed method ShaderRef\:\:getReferencedShaderDef to ShaderRef\:\:getNodeDef.
+- Renamed method Node\:\:getReferencedNodeDef to Node\:\:getNodeDef.
+- Added a 'string' suffix to all accessors for 'node' and 'nodedef' strings.
+
+### Removed
+- Removed method Document\:\:applyStringSubstitutions (deprecated in Python).
+- Removed method InterfaceElement\:\:getParameterValueString (deprecated in Python).
+
+## [1.35.3] - 2017-10-11
 
 ### Added
 - Added support for Python 3.
 - Added support for standard TypeDef attributes.
+- Added support for values of type 'stringarray'.
 - Added method Element\:\:setName.
 - Extended Python bindings for Document, NodeGraph, MaterialAssign, and Collection.
 
 ### Changed
 - Modified NodeGraph\:\:topologicalSort to return elements in a more intuitive top-down order, with upstream elements preceding downstream elements.
+- Removed special cases for string return values in MaterialX Python, with all strings now returned as 'unicode' in Python 2 and 'str' in Python 3.
 - Updated OSL reference implementations.
 
 ### Fixed

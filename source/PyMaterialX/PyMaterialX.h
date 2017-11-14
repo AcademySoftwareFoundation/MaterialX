@@ -11,16 +11,6 @@
 // translation unit within the PyMaterialX library.
 //
 
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 #include <PyBind11/pybind11.h>
-
-#if PY_MAJOR_VERSION < 3
-using PyDefaultString = pybind11::bytes;
-#else
-using PyDefaultString = pybind11::str;
-#endif
 
 #endif

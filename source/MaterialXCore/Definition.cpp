@@ -5,7 +5,7 @@
 
 #include <MaterialXCore/Node.h>
 
-#include <MaterialXCore/Material.h>
+#include <MaterialXCore/Document.h>
 
 namespace MaterialX
 {
@@ -22,6 +22,18 @@ const string Implementation::LANGUAGE_ATTRIBUTE = "language";
 // NodeDef methods
 //
 
+InterfaceElementPtr NodeDef::getImplementation(const string& target) const
+{
+    for (InterfaceElementPtr implement : getDocument()->getMatchingImplementations(getName()))
+    {
+        if (targetStringsMatch(implement->getTarget(), target))
+        {
+            return implement;
+        }
+    }
+    return InterfaceElementPtr();
+}
+
 vector<ShaderRefPtr> NodeDef::getInstantiatingShaderRefs() const
 {
     vector<ShaderRefPtr> shaderRefs;
@@ -29,7 +41,7 @@ vector<ShaderRefPtr> NodeDef::getInstantiatingShaderRefs() const
     {
         for (ShaderRefPtr shaderRef : mat->getShaderRefs())
         {
-            if (shaderRef->getReferencedShaderDef() == getSelf())
+            if (shaderRef->getNodeDef() == getSelf())
             {
                 shaderRefs.push_back(shaderRef);
             }
@@ -42,7 +54,24 @@ bool NodeDef::validate(string* message) const
 {
     bool res = true;
     validateRequire(hasType(), res, message, "Missing type");
+    if (getType() == MULTI_OUTPUT_TYPE_STRING)
+    {
+        validateRequire(getOutputCount() >= 2, res, message, "Multioutput nodedefs must have two or more output ports");
+    }
+    else
+    {
+        validateRequire(getOutputCount() == 0, res, message, "Only multioutput nodedefs support output ports");
+    }
     return InterfaceElement::validate(message) && res;
+}
+
+//
+// Implementation methods
+//
+
+NodeDefPtr Implementation::getNodeDef() const
+{
+    return getDocument()->getNodeDef(getNodeDefString());
 }
 
 } // namespace MaterialX

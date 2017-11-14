@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.35" colorspace="lin_rec709">
+<materialx version="1.35" cms="ocio" colorspace="lin_rec709">
   <nodegraph name="nodegraph1">
     <image name="img1" type="color3">
       <parameter name="file" type="filename" value="layer1.tif"/>
@@ -93,7 +93,7 @@
     </scale>
     <noise2d name="n9" type="color3">
       <input name="texcoord" type="vector2" nodename="s1"/>
-      <parameter name="amplitude" type="color3" value="0.03,0.04,0.06" publicname="grain_gain"/>
+      <parameter name="amplitude" type="vector3" value="0.03,0.04,0.06" publicname="grain_gain"/>
     </noise2d>
     <inside name="n10" type="color3">
       <input name="mask" type="float" nodename="img4"/>

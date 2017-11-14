@@ -8,10 +8,6 @@
 #include <PyBind11/stl.h>
 #include <PyBind11/eval.h>
 
-#ifdef _MSC_VER
-#pragma warning(disable: 4996) // deprecated function
-#endif
-
 namespace py = pybind11;
 
 // Forward Declared Binding Functions

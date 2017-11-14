@@ -29,7 +29,7 @@ namespace mx = MaterialX;
 
 void bindPyElement(py::module& mod)
 {
-    py::class_<mx::Element, mx::ElementPtr>(mod, "Element", py::metaclass())
+    py::class_<mx::Element, mx::ElementPtr>(mod, "Element")
         .def(py::self == py::self)
         .def(py::self != py::self)
         .def("setCategory", &mx::Element::setCategory)
@@ -38,13 +38,14 @@ void bindPyElement(py::module& mod)
         .def("getName", &mx::Element::getName)
         .def("getNamePath", &mx::Element::getNamePath,
             py::arg("relativeTo") = mx::ConstElementPtr())
-        .def("setName", &mx::Element::setName)
         .def("setFilePrefix", &mx::Element::setFilePrefix)
         .def("hasFilePrefix", &mx::Element::hasFilePrefix)
         .def("getFilePrefix", &mx::Element::getFilePrefix)
         .def("getActiveFilePrefix", &mx::Element::getActiveFilePrefix)
         .def("setGeomPrefix", &mx::Element::setGeomPrefix)
+        .def("hasGeomPrefix", &mx::Element::hasGeomPrefix)
         .def("getGeomPrefix", &mx::Element::getGeomPrefix)
+        .def("getActiveGeomPrefix", &mx::Element::getActiveGeomPrefix)
         .def("setColorSpace", &mx::Element::setColorSpace)
         .def("hasColorSpace", &mx::Element::hasColorSpace)
         .def("getColorSpace", &mx::Element::getColorSpace)
@@ -69,12 +70,12 @@ void bindPyElement(py::module& mod)
         .def("getDocument", static_cast<mx::DocumentPtr(mx::Element::*)()>(&mx::Element::getDocument))
         .def("traverseTree", &mx::Element::traverseTree)
         .def("traverseGraph", &mx::Element::traverseGraph,
-            py::arg("material") = mx::MaterialPtr())
+            py::arg("material") = mx::ConstMaterialPtr())
         .def("getUpstreamEdge", &mx::Element::getUpstreamEdge,
-            py::arg("material") = mx::MaterialPtr(), py::arg("index") = 0)
+            py::arg("material") = mx::ConstMaterialPtr(), py::arg("index") = 0)
         .def("getUpstreamEdgeCount", &mx::Element::getUpstreamEdgeCount)
         .def("getUpstreamElement", &mx::Element::getUpstreamElement,
-            py::arg("material") = mx::MaterialPtr(), py::arg("index") = 0)
+            py::arg("material") = mx::ConstMaterialPtr(), py::arg("index") = 0)
         .def("traverseAncestors", &mx::Element::traverseAncestors)
         .def("setSourceUri", &mx::Element::setSourceUri)
         .def("hasSourceUri", &mx::Element::hasSourceUri)
@@ -89,6 +90,8 @@ void bindPyElement(py::module& mod)
             py::arg("source"), py::arg("sourceUris") = false, py::arg("skipDuplicates") = false)
         .def("clearContent", &mx::Element::clearContent)
         .def("createValidChildName", &mx::Element::createValidChildName)
+        .def("createStringResolver", &mx::Element::createStringResolver,
+             py::arg("geom") = mx::EMPTY_STRING)
         .def("asString", &mx::Element::asString)
         .def("__str__", &mx::Element::asString)
         BIND_ELEMENT_FUNC_INSTANCE(BindParam)
@@ -116,17 +119,17 @@ void bindPyElement(py::module& mod)
         BIND_ELEMENT_FUNC_INSTANCE(TypeDef)
         BIND_ELEMENT_FUNC_INSTANCE(Visibility);
 
-    py::class_<mx::TypedElement, mx::TypedElementPtr, mx::Element>(mod, "TypedElement", py::metaclass())
+    py::class_<mx::TypedElement, mx::TypedElementPtr, mx::Element>(mod, "TypedElement")
         .def("setType", &mx::TypedElement::setType)
         .def("hasType", &mx::TypedElement::hasType)
         .def("getType", &mx::TypedElement::getType);
 
-    py::class_<mx::ValueElement, mx::ValueElementPtr, mx::TypedElement>(mod, "ValueElement", py::metaclass())
+    py::class_<mx::ValueElement, mx::ValueElementPtr, mx::TypedElement>(mod, "ValueElement")
         .def("setValueString", &mx::ValueElement::setValueString)
         .def("hasValueString", &mx::ValueElement::hasValueString)
         .def("getValueString", &mx::ValueElement::getValueString)
-        .def("getResolvedValueString", &mx::ValueElement::getResolvedValueString)
-        .def("_getValue", &mx::ValueElement::getValue)
+        .def("getResolvedValueString", &mx::ValueElement::getResolvedValueString,
+            py::arg("resolver") = mx::StringResolverPtr())
         .def("setPublicName", &mx::ValueElement::setPublicName)
         .def("hasPublicName", &mx::ValueElement::hasPublicName)
         .def("getPublicName", &mx::ValueElement::getPublicName)
@@ -136,6 +139,9 @@ void bindPyElement(py::module& mod)
         .def("setImplementationName", &mx::ValueElement::setImplementationName)
         .def("hasImplementationName", &mx::ValueElement::hasImplementationName)
         .def("getImplementationName", &mx::ValueElement::getImplementationName)
+        .def("_getValue", &mx::ValueElement::getValue)
+        .def("_getBoundValue", &mx::ValueElement::getBoundValue)
+        .def("_getDefaultValue", &mx::ValueElement::getDefaultValue)
         BIND_VALUE_ELEMENT_FUNC_INSTANCE(integer, int)
         BIND_VALUE_ELEMENT_FUNC_INSTANCE(boolean, bool)
         BIND_VALUE_ELEMENT_FUNC_INSTANCE(float, float)
@@ -151,5 +157,17 @@ void bindPyElement(py::module& mod)
 
     py::class_<mx::ElementPredicate>(mod, "ElementPredicate");
 
+    py::class_<mx::StringResolver, mx::StringResolverPtr>(mod, "StringResolver")
+        .def("setFilePrefix", &mx::StringResolver::setFilePrefix)
+        .def("getFilePrefix", &mx::StringResolver::getFilePrefix)
+        .def("setGeomPrefix", &mx::StringResolver::setGeomPrefix)
+        .def("getGeomPrefix", &mx::StringResolver::getGeomPrefix)
+        .def("setUdimString", &mx::StringResolver::setUdimString)
+        .def("setUvTileString", &mx::StringResolver::setUvTileString)
+        .def("setFilenameSubstitution", &mx::StringResolver::setFilenameSubstitution)
+        .def("resolve", &mx::StringResolver::resolve);
+
     py::register_exception<mx::ExceptionOrphanedElement>(mod, "ExceptionOrphanedElement");
+
+    mod.def("targetStringsMatch", &mx::targetStringsMatch);
 }

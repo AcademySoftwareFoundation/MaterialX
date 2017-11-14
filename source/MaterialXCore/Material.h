@@ -19,8 +19,8 @@ namespace MaterialX
 
 /// A shared pointer to a Material
 using MaterialPtr = shared_ptr<class Material>;
-/// A shared pointer to a MaterialInherit
-using MaterialInheritPtr = shared_ptr<class MaterialInherit>;
+/// A shared pointer to a const Material
+using ConstMaterialPtr = shared_ptr<const class Material>;
 
 /// A shared pointer to a ShaderRef
 using ShaderRefPtr = shared_ptr<class ShaderRef>;
@@ -28,9 +28,10 @@ using ShaderRefPtr = shared_ptr<class ShaderRef>;
 using BindParamPtr = shared_ptr<class BindParam>;
 /// A shared pointer to a BindInput
 using BindInputPtr = shared_ptr<class BindInput>;
-
 /// A shared pointer to an Override
 using OverridePtr = shared_ptr<class Override>;
+/// A shared pointer to a MaterialInherit
+using MaterialInheritPtr = shared_ptr<class MaterialInherit>;
 
 /// @class Material
 /// A material element within a Document.
@@ -153,16 +154,6 @@ class Material : public Element
     }
 
     /// @}
-    /// @name References
-    /// @{
-
-    /// Return all shader nodedefs referenced by shaderrefs in this material.
-    vector<NodeDefPtr> getReferencedShaderDefs() const;
-
-    /// Return all material assigns that reference this material.
-    vector<MaterialAssignPtr> getReferencingMaterialAssigns() const;
-
-    /// @}
     /// @name Material Inheritance
     /// @{
 
@@ -173,6 +164,83 @@ class Material : public Element
 
     /// Return the material, if any, that this material inherits from.
     MaterialPtr getInheritsFrom() const;
+
+    /// @}
+    /// @name NodeDef References
+    /// @{
+
+    /// Return a vector of all shader nodedefs referenced by this material,
+    /// optionally filtered by the given target name and shader type.
+    /// @param target An optional target name, which will be used to filter
+    ///    the shader nodedefs that are returned.
+    /// @param type An optional shader type (e.g. "surfaceshader"), which will
+    ///    be used to filter the shader nodedefs that are returned.
+    /// @return A vector of shared pointers to NodeDef elements.
+    vector<NodeDefPtr> getShaderNodeDefs(const string& target = EMPTY_STRING,
+                                         const string& type = EMPTY_STRING) const;
+
+    /// @}
+    /// @name MaterialAssign References
+    /// @{
+
+    /// Return all MaterialAssign elements that reference this material.
+    vector<MaterialAssignPtr> getReferencingMaterialAssigns() const;
+
+    /// @}
+    /// @name Primary Shader
+    /// @{
+
+    /// Return the nodedef of the first shader referenced by this material,
+    /// optionally filtered by the given target and shader type.
+    /// @param target An optional target name, which will be used to filter
+    ///    the shader nodedefs that are considered.
+    /// @param type An optional shader type (e.g. "surfaceshader"), which will
+    ///    be used to filter the shader nodedefs that are considered.
+    /// @return The nodedef of the first matching shader referenced by this
+    ///    material, or an empty shared pointer if no matching shader was found.
+    NodeDefPtr getPrimaryShaderNodeDef(const string& target = EMPTY_STRING,
+                                       const string& type = EMPTY_STRING) const
+    {
+        vector<NodeDefPtr> shaderDefs = getShaderNodeDefs(target, type);
+        return shaderDefs.empty() ? NodeDefPtr() : shaderDefs[0];
+    }
+
+    /// Return the node name of the first shader referenced by this material,
+    /// optionally filtered by the given target and shader type.
+    /// @param target An optional target name, which will be used to filter
+    ///    the shader nodedefs that are considered.
+    /// @param type An optional shader type (e.g. "surfaceshader"), which will
+    ///    be used to filter the shader nodedefs that are considered.
+    /// @return The node name of the first matching shader referenced by this
+    ///    material, or an empty string if no matching shader was found.
+    string getPrimaryShaderName(const string& target = EMPTY_STRING,
+                                const string& type = EMPTY_STRING) const
+    {
+        NodeDefPtr nodeDef = getPrimaryShaderNodeDef(target, type);
+        return nodeDef ? nodeDef->getNodeString() : EMPTY_STRING;
+    }
+
+    /// Return the parameters of the first shader referenced by this material,
+    /// optionally filtered by the given target and shader type.
+    /// @param target An optional target name, which will be used to filter
+    ///    the shader nodedefs that are considered.
+    /// @param type An optional shader type (e.g. "surfaceshader"), which will
+    ///    be used to filter the shader nodedefs that are considered.
+    /// @return The parameters of the first matching shader referenced by this
+    ///    material, or an empty vector if no matching shader was found.
+    vector<ParameterPtr> getPrimaryShaderParameters(const string& target = EMPTY_STRING,
+                                                    const string& type = EMPTY_STRING) const;
+
+    /// Return the inputs of the first shader referenced by this material,
+    /// optionally filtered by the given target and shader type.
+    /// @param target An optional target name, which will be used to filter
+    ///    the shader nodedefs that are considered.
+    /// @param type An optional shader type (e.g. "surfaceshader"), which will
+    ///    be used to filter the shader nodedefs that are considered.
+    /// @return The inputs of the first matching shader referenced by this
+    ///    material, or an empty vector if no matching shader was found.
+    vector<InputPtr> getPrimaryShaderInputs(const string& target = EMPTY_STRING,
+                                            const string& type = EMPTY_STRING) const;
 
     /// @}
     /// @name Validation
@@ -287,19 +355,19 @@ class ShaderRef : public Element
     /// @{
 
     /// Set the node string of the ShaderRef.
-    void setNode(const string& node)
+    void setNodeString(const string& node)
     {
         setAttribute(NODE_ATTRIBUTE, node);
     }
 
     /// Return true if the given ShaderRef has a node string.
-    bool hasNode() const
+    bool hasNodeString() const
     {
         return hasAttribute(NODE_ATTRIBUTE);
     }
 
     /// Return the node string of the ShaderRef.
-    const string& getNode() const
+    const string& getNodeString() const
     {
         return getAttribute(NODE_ATTRIBUTE);
     }
@@ -309,19 +377,19 @@ class ShaderRef : public Element
     /// @{
 
     /// Set the NodeDef string for the ShaderRef.
-    void setNodeDef(const string& nodeDef)
+    void setNodeDefString(const string& nodeDef)
     {
         setAttribute(NODE_DEF_ATTRIBUTE, nodeDef);
     }
 
     /// Return true if the given ShaderRef has a NodeDef string.
-    bool hasNodeDef() const
+    bool hasNodeDefString() const
     {
         return hasAttribute(NODE_DEF_ATTRIBUTE);
     }
 
-    /// Return the NodeDef string for the Implementation.
-    const string& getNodeDef() const
+    /// Return the NodeDef string for the ShaderRef.
+    const string& getNodeDefString() const
     {
         return getAttribute(NODE_DEF_ATTRIBUTE);
     }
@@ -330,7 +398,7 @@ class ShaderRef : public Element
     /// @name BindParam Elements
     /// @{
 
-    /// Add a BindParam to the shader reference.
+    /// Add a BindParam to the ShaderRef.
     /// @param name The name of the new BindParam.
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
@@ -349,7 +417,7 @@ class ShaderRef : public Element
         return getChildOfType<BindParam>(name);
     }
 
-    /// Return a vector of all BindParam elements in the shader reference.
+    /// Return a vector of all BindParam elements in the ShaderRef.
     vector<BindParamPtr> getBindParams() const
     {
         return getChildrenOfType<BindParam>();
@@ -365,7 +433,7 @@ class ShaderRef : public Element
     /// @name BindInput Elements
     /// @{
 
-    /// Add a BindInput to the shader reference.
+    /// Add a BindInput to the ShaderRef.
     /// @param name The name of the new BindInput.
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
@@ -384,7 +452,7 @@ class ShaderRef : public Element
         return getChildOfType<BindInput>(name);
     }
 
-    /// Return a vector of all BindInput elements in the shader reference.
+    /// Return a vector of all BindInput elements in the ShaderRef.
     vector<BindInputPtr> getBindInputs() const
     {
         return getChildrenOfType<BindInput>();
@@ -397,11 +465,15 @@ class ShaderRef : public Element
     }
 
     /// @}
-    /// @name Connections
+    /// @name NodeDef References
     /// @{
 
-    /// Return the shader NodeDef, if any, that this element references.
-    NodeDefPtr getReferencedShaderDef() const;
+    /// Return the NodeDef, if any, that this element references.
+    NodeDefPtr getNodeDef() const;
+
+    /// @}
+    /// @name Output References
+    /// @{
 
     /// Return the set of outputs that this element references.
     std::set<OutputPtr> getReferencedOutputs() const
@@ -424,16 +496,16 @@ class ShaderRef : public Element
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
-    Edge getUpstreamEdge(MaterialPtr material = MaterialPtr(),
-        size_t index = 0) override;
+    Edge getUpstreamEdge(ConstMaterialPtr material = ConstMaterialPtr(),
+                         size_t index = 0) const override;
 
     /// Return the number of queriable upstream edges for this element.
-    size_t getUpstreamEdgeCount() override
+    size_t getUpstreamEdgeCount() const override
     {
-        // TODO: 
         return getBindInputs().size();
     }
 
+    /// @}
 
   public:
     static const string CATEGORY;

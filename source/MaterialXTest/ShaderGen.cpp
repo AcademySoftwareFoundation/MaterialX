@@ -273,7 +273,7 @@ TEST_CASE("Conditional Nodegraph Shader Generation", "[shadergen]")
         // All of the nodes should have been removed by optimization
         // leaving a graph with a single constant value
         REQUIRE(shader->getNodeGraph()->getNodes().empty());
-        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValueString("value"));
+        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
 
         // Write out to file for inspection
         // TODO: Match against blessed versions

@@ -55,11 +55,12 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
             }
         }
 
-        // Skip duplicate named children if specified
-        if ((readOptions ? readOptions->skipDuplicates : false) && elem->getChild(name))
+        // If requested, skip elements with duplicate names.
+        if (readOptions && readOptions->skipDuplicateElements && elem->getChild(name))
         {
             continue;
         }
+
         ElementPtr child = elem->addChildOfCategory(category, name);
         elementFromXml(xmlChild, child, readOptions);
     }
@@ -133,7 +134,7 @@ void processXIncludes(xml_node& xmlNode, const string& searchPath, const XmlRead
 {
     xml_node xmlChild = xmlNode.first_child();
 
-    bool readXIncludes = (readOptions ? readOptions->readXincludes : true);
+    bool readXIncludes = (readOptions ? readOptions->readXIncludes : true);
     while (xmlChild)
     {
         if (xmlChild.name() == XINCLUDE_TAG)

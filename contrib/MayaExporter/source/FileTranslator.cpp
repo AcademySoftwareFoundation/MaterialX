@@ -107,7 +107,7 @@ MStatus FileTranslator::writer(const MFileObject& file, const MString& optionsSt
     }
 
     const bool selectionOnly = (mode == MPxFileTranslator::kExportActiveAccessMode);
-    const std::string filename = file.fullName().asChar();
+    const std::string filename = file.resolvedFullName().asChar();
 
     try
     {
@@ -149,7 +149,7 @@ MString FileTranslator::defaultExtension () const
 
 MPxFileTranslator::MFileKind FileTranslator::identifyFile(const MFileObject& file, const char* /*buffer*/, short /*size*/) const
 {
-    const std::string name = file.name().asChar();
+    const std::string name = file.resolvedName().asChar();
     const size_t length = name.length();
     if (length > 5 && name.substr(length - 4) == ".mtlx")
     {

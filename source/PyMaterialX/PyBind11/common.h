@@ -52,7 +52,7 @@
 #elif defined(_MSC_VER)
 // Pybind hits various compiler bugs in 2015u2 and earlier, and also makes use of some stl features
 // (e.g. std::negation) added in 2015u3:
-#  if _MSC_FULL_VER < 19002421
+#  if _MSC_FULL_VER < 190024210
 #    error pybind11 requires MSVC 2015 update 3 or newer
 #  endif
 #endif
@@ -169,13 +169,6 @@
 #define PYBIND11_BYTES_AS_STRING PyString_AsString
 #define PYBIND11_BYTES_SIZE PyString_Size
 #define PYBIND11_LONG_CHECK(o) (PyInt_Check(o) || PyLong_Check(o))
-#  ifdef PYBIND11_PREFER_PYINT
-#    define PYBIND11_PYOBJECT_FROM_LONG PyInt_FromLong
-#    define PYBIND11_PYOBJECT_AS_LONG PyInt_AsLong
-#  else
-#    define PYBIND11_PYOBJECT_FROM_LONG PyLong_FromLong
-#    define PYBIND11_PYOBJECT_AS_LONG PyLong_AsLong
-#  endif
 #define PYBIND11_LONG_AS_LONGLONG(o) (PyInt_Check(o) ? (long long) PyLong_AsLong(o) : PyLong_AsLongLong(o))
 #define PYBIND11_LONG_AS_UNSIGNED_LONGLONG(o) (PyInt_Check(o) ? (unsigned long long) PyLong_AsUnsignedLong(o) : PyLong_AsUnsignedLongLong(o))
 #define PYBIND11_BYTES_NAME "str"
@@ -189,6 +182,14 @@
         (void)pybind11_init_wrapper();                      \
     }                                                       \
     PyObject *pybind11_init_wrapper()
+#endif
+
+#if PY_MAJOR_VERSION < 3 && defined(PYBIND11_PREFER_PYINT)
+#define PYBIND11_PYOBJECT_FROM_LONG PyInt_FromLong
+#define PYBIND11_PYOBJECT_AS_LONG PyInt_AsLong
+#else
+#define PYBIND11_PYOBJECT_FROM_LONG PyLong_FromLong
+#define PYBIND11_PYOBJECT_AS_LONG PyLong_AsLong
 #endif
 
 #if PY_VERSION_HEX >= 0x03050000 && PY_VERSION_HEX < 0x03050200

@@ -18,16 +18,12 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <set>
 
 namespace MaterialX
 {
 
 using std::string;
 using std::vector;
-using std::unordered_map;
-using std::set;
-using std::pair;
 using std::shared_ptr;
 using std::weak_ptr;
 using std::enable_shared_from_this;

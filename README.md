@@ -89,7 +89,7 @@ All code will need to be reviewed by ILM so all changes must eventually be put i
 It may be best to just pass the diff to ILM first before creaing a pull request. Once a pull request is done,
 then ILM's CI system will be invoked. Comment the review as necessary and naturally fix an errors found during CI.
 
-### Testing
+### Building and Testing
 There are yaml files which define the build process. Make sure to run those build steps instead of / or just
 building and testing locally. See 
 ```
@@ -102,6 +102,15 @@ for Windows, and
 for Linux and Mac. 
 
 The CI build will run build and test on all the platforms specified.
+
+To build the full set of items the following cmake variables should be defined
+* MATERIALX_BUILD_DOCS=ON
+* MATERIALX_BUILD_MAYA_EXPORTER=ON
+* MATERIALX_BUILD_PYTHON=ON
+* MATERIALX_INSTALL_PYTHON=ON
+* MATERIALX_WARNINGS_AS_ERRORS=ON
+* MAYA_DEBUG_DIR=```<run-time path to Maya>```
+* MAYA_RELEASE_DIR=```<run-time path to Maya>```
 
 ### Coding standards
 Make sure to follow the Pixar/ILM coding standards.

@@ -7,6 +7,7 @@
 
 #include <queue>
 #include <sstream>
+#include <unordered_map>
 
 namespace MaterialX
 {
@@ -141,7 +142,7 @@ protected:
     {
         int indentations;
         std::queue<Brackets> scopes;
-        set<string> includes;
+        std::set<string> includes;
         string code;
         Stage() : indentations(0) {}
     };
@@ -160,7 +161,7 @@ protected:
     size_t _activeStage;
     vector<Stage> _stages;
     vector<Uniform> _uniforms;
-    set<SgImplementation*> _definedFunctions;
+    std::set<SgImplementation*> _definedFunctions;
 };
 
 /// @class @ExceptionShaderGenError

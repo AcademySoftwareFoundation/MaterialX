@@ -99,7 +99,7 @@ namespace MaterialX
 
         string result;
 
-        const pair<string, string>* constructorSyntax = nullptr;
+        const std::pair<string, string>* constructorSyntax = nullptr;
         it = _valueConstructSyntaxByName.find(type);
         if (it != _valueConstructSyntaxByName.end())
         {
@@ -107,7 +107,7 @@ namespace MaterialX
             result = constructorSyntax->first;
         }
 
-        static const unordered_map<char, size_t> s_channelsMapping =
+        static const std::unordered_map<char, size_t> s_channelsMapping =
         {
             { 'r', 0 },{ 'x', 0 },
             { 'g', 1 },{ 'y', 1 },

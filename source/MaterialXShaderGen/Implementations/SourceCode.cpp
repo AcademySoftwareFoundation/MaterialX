@@ -41,7 +41,7 @@ void SourceCode::initialize(ElementPtr implementation, ShaderGenerator& shaderge
     if (_functionName.empty())
     {
         // No function given so use nodedef name
-        _functionName = impl->getNodeDef();
+        _functionName = impl->getNodeDefString();
     }
 
     if (!readFile(ShaderGenerator::findSourceCode(file), _functionSource))

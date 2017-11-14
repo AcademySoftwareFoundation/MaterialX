@@ -132,8 +132,8 @@ SgNodePtr SgNode::creator(const string& name, const NodeDef& nodeDef, ShaderGene
     SgNodePtr newNode = std::make_shared<SgNode>(name);
 
     // Find the implementation in the document (graph or implementation element)
-    vector<ElementPtr> elements = nodeDef.getDocument()->getMatchingImplementations(nodeDef.getName());
-    for (ElementPtr element : elements)
+    vector<InterfaceElementPtr> elements = nodeDef.getDocument()->getMatchingImplementations(nodeDef.getName());
+    for (InterfaceElementPtr element : elements)
     {
         if (element->isA<NodeGraph>())
         {
@@ -159,7 +159,7 @@ SgNodePtr SgNode::creator(const string& name, const NodeDef& nodeDef, ShaderGene
 
     if (!newNode->_impl)
     {
-        throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef.getNode() +
+        throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef.getNodeString() +
             "' matching language '" + shadergen.getLanguage() + "' and target '" + shadergen.getTarget() + "'");
     }
 
@@ -227,19 +227,19 @@ SgNodePtr SgNode::creator(const string& name, const NodeDef& nodeDef, ShaderGene
     {
         newNode->_classification = Classification::VDF | Classification::CLOSURE;
     }
-    else if (nodeDef.getNode() == "constant")
+    else if (nodeDef.getNodeString() == "constant")
     {
         newNode->_classification = Classification::TEXTURE | Classification::CONSTANT;
     }
-    else if (nodeDef.getNode() == "image")
+    else if (nodeDef.getNodeString() == "image")
     {
         newNode->_classification = Classification::TEXTURE | Classification::FILETEXTURE;
     }
-    else if (nodeDef.getNode() == "compare")
+    else if (nodeDef.getNodeString() == "compare")
     {
         newNode->_classification = Classification::TEXTURE | Classification::CONDITIONAL | Classification::IFELSE;
     }
-    else if (nodeDef.getNode() == "switch")
+    else if (nodeDef.getNodeString() == "switch")
     {
         newNode->_classification = Classification::TEXTURE | Classification::CONDITIONAL | Classification::SWITCH;
     }
@@ -308,10 +308,10 @@ SgNodeGraphPtr SgNodeGraph::creator(NodeGraphPtr nodeGraph, ShaderGenerator& sha
 {
     SgNodeGraphPtr graph = std::make_shared<SgNodeGraph>(nodeGraph->getName());
 
-    NodeDefPtr graphDef = nodeGraph->getDocument()->getNodeDef(nodeGraph->getNodeDef());
+    NodeDefPtr graphDef = nodeGraph->getNodeDef();
     if (!graphDef)
     {
-        throw ExceptionShaderGenError("Can't find nodedef '" + nodeGraph->getNodeDef() + "' referenced by nodegraph '" + nodeGraph->getName() + "'");
+        throw ExceptionShaderGenError("Can't find nodedef '" + nodeGraph->getNodeDefString() + "' referenced by nodegraph '" + nodeGraph->getName() + "'");
     }
 
     for (const ValueElementPtr& elem : graphDef->getChildrenOfType<ValueElement>())
@@ -516,7 +516,7 @@ SgNodeGraphPtr SgNodeGraph::creator(const string& name, ElementPtr element, Shad
 
 SgNode* SgNodeGraph::addNode(const Node& node, ShaderGenerator& shadergen)
 {
-    NodeDefPtr nodeDef = node.getReferencedNodeDef();
+    NodeDefPtr nodeDef = node.getNodeDef();
     if (!nodeDef)
     {
         throw ExceptionShaderGenError("Could not find a nodedef for node '" + node.getName() + "'");
@@ -597,7 +597,7 @@ SgNode* SgNodeGraph::addNode(const Node& node, ShaderGenerator& shadergen)
 
 SgNode* SgNodeGraph::addNode(const ShaderRef& shaderRef, ShaderGenerator& shadergen)
 {
-    NodeDefPtr nodeDef = shaderRef.getReferencedShaderDef();
+    NodeDefPtr nodeDef = shaderRef.getNodeDef();
     if (!nodeDef)
     {
         throw ExceptionShaderGenError("Could not find a nodedef for shader '" + shaderRef.getName() + "'");
@@ -902,7 +902,7 @@ void SgNodeGraph::calculateScopes()
     SgNode* lastNode = _nodeOrder[lastNodeIndex];
     lastNode->getScopeInfo().type = SgNode::ScopeInfo::Type::GLOBAL;
 
-    set<SgNode*> nodeUsed;
+    std::set<SgNode*> nodeUsed;
     nodeUsed.insert(lastNode);
 
     // Iterate nodes in reversed toplogical order such that every node is visited AFTER 

@@ -17,7 +17,7 @@ namespace mx = MaterialX;
 
 void bindPyLook(py::module& mod)
 {
-    py::class_<mx::Look, mx::LookPtr, mx::Element>(mod, "Look", py::metaclass())
+    py::class_<mx::Look, mx::LookPtr, mx::Element>(mod, "Look")
         .def("addLookInherit", &mx::Look::addLookInherit,
             py::arg("name") = mx::EMPTY_STRING)
         .def("getLookInherit", &mx::Look::getLookInherit)
@@ -47,10 +47,10 @@ void bindPyLook(py::module& mod)
         .def("getInheritsFrom", &mx::Look::getInheritsFrom)
         .def_readonly_static("CATEGORY", &mx::Look::CATEGORY);
 
-    py::class_<mx::LookInherit, mx::LookInheritPtr, mx::Element>(mod, "LookInherit", py::metaclass())
+    py::class_<mx::LookInherit, mx::LookInheritPtr, mx::Element>(mod, "LookInherit")
         .def_readonly_static("CATEGORY", &mx::Look::CATEGORY);
 
-    py::class_<mx::MaterialAssign, mx::MaterialAssignPtr, mx::GeomElement>(mod, "MaterialAssign", py::metaclass())
+    py::class_<mx::MaterialAssign, mx::MaterialAssignPtr, mx::GeomElement>(mod, "MaterialAssign")
         .def("setMaterial", &mx::MaterialAssign::setMaterial)
         .def("hasMaterial", &mx::MaterialAssign::hasMaterial)
         .def("getMaterial", &mx::MaterialAssign::getMaterial)
@@ -59,7 +59,7 @@ void bindPyLook(py::module& mod)
         .def("getReferencedMaterial", &mx::MaterialAssign::getReferencedMaterial)
         .def_readonly_static("CATEGORY", &mx::MaterialAssign::CATEGORY);
 
-    py::class_<mx::Visibility, mx::VisibilityPtr, mx::GeomElement>(mod, "Visibility", py::metaclass())
+    py::class_<mx::Visibility, mx::VisibilityPtr, mx::GeomElement>(mod, "Visibility")
         .def("setViewerGeom", &mx::Visibility::setViewerGeom)
         .def("hasViewerGeom", &mx::Visibility::hasViewerGeom)
         .def("getViewerGeom", &mx::Visibility::getViewerGeom)

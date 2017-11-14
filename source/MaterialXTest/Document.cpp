@@ -6,7 +6,6 @@
 #include <MaterialXTest/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
-#include <MaterialXFormat/XmlIo.h>
 
 namespace mx = MaterialX;
 
@@ -18,7 +17,7 @@ TEST_CASE("Document", "[document]")
     // Create a node graph with a constant color output.
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
     mx::NodePtr constant = nodeGraph->addNode("constant");
-    constant->setParameterValue("value", mx::Color3(0.5f, 0.5f, 0.5f));
+    constant->setParameterValue("value", mx::Color3(0.5f));
     mx::OutputPtr output = nodeGraph->addOutput();
     output->setConnectedNode(constant);
     REQUIRE(doc->validate());
@@ -68,64 +67,4 @@ TEST_CASE("Document", "[document]")
 
     // Validate the document.
     REQUIRE(doc->validate());
-
-    // Copy and reorder the document.
-    mx::DocumentPtr doc2 = doc->copy();
-    REQUIRE(*doc2 == *doc);
-    int origIndex = doc2->getChildIndex(shader->getName());
-    doc2->setChildIndex(shader->getName(), origIndex + 1);
-    REQUIRE(*doc2 != *doc);
-    doc2->setChildIndex(shader->getName(), origIndex);
-    REQUIRE(*doc2 == *doc);
-    REQUIRE_THROWS_AS(doc2->setChildIndex(shader->getName(), 100), mx::Exception);
-
-    // Create and test an orphaned element.
-    mx::ElementPtr orphan;
-    {
-        mx::DocumentPtr doc3 = doc->copy();
-        for (mx::ElementPtr elem : doc3->traverseTree())
-        {
-            if (elem->isA<mx::Node>("constant"))
-            {
-                orphan = elem;
-            }
-        }
-        REQUIRE(orphan);
-    }
-    REQUIRE_THROWS_AS(orphan->getDocument(), mx::ExceptionOrphanedElement);    
-
-    // Test element renaming
-    mx::NodeGraphPtr graph = doc->addNodeGraph("graph1");
-    mx::NodePtr node = graph->addNode("constant", "node1");
-    REQUIRE(node->getName() == "node1");
-    node->setName("nodeX");
-    REQUIRE(node->getName() == "nodeX");
-    REQUIRE(graph->getNode("nodeX") == node);
-    REQUIRE(graph->getNode("node1") == nullptr);
-    graph->setName("graphX");
-    REQUIRE(graph->getName() == "graphX");
-    REQUIRE(doc->getNodeGraph("graphX") == graph);
-    REQUIRE(doc->getNodeGraph("graph1") == nullptr);
-
-    // Test import library more than once
-    std::string libFilename = "mx_stdlib_defs.mtlx";
-    std::string searchPath = "documents/Libraries/stdlib;";
-    mx::DocumentPtr doc1 = mx::createDocument();
-    mx::DocumentPtr lib = mx::createDocument();
-    mx::readFromXmlFile(lib, libFilename, searchPath);
-    bool exceptionThrown = false;
-    try
-    {
-        doc1->importLibrary(lib, false);
-        doc1->importLibrary(lib, true);
-    }
-    catch (MaterialX::Exception e)
-    {
-        exceptionThrown = true;
-    }
-    catch (...)
-    {
-    }
-    REQUIRE(exceptionThrown == false);
-
 }

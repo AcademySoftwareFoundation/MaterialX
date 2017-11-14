@@ -61,18 +61,33 @@ class Node : public InterfaceElement
     string getConnectedNodeName(const string& inputName) const;
 
     /// @}
-    /// @name References
+    /// @name NodeDef References
     /// @{
 
-    /// Return the NodeDef, if any, that this Node references.
-    NodeDefPtr getReferencedNodeDef() const;
+    /// Return the first NodeDef that declares this node, optionally filtered
+    /// by the given target name.
+    /// @param target An optional target name, which will be used to filter
+    ///    the nodedefs that are considered.
+    /// @return A NodeDef for this node, or an empty shared pointer if none
+    ///    was found.
+    NodeDefPtr getNodeDef(const string& target = EMPTY_STRING) const;
 
-    /// Return an implementation for this Node, if any, matching the given
-    /// target string.  Note that a node implementation may be either an
-    /// Implementation element or a NodeGraph element.
-    /// @param target The specified target string, which defaults to the
-    ///    empty string.
-    ElementPtr getImplementation(const string& target = EMPTY_STRING) const;
+    /// @}
+    /// @name Implementation References
+    /// @{
+
+    /// Return the first implementation for this node, optionally filtered by
+    /// the given target name.
+    /// @param target An optional target name, which will be used to filter
+    ///    the implementations that are considered.
+    /// @return An implementation for this node, or an empty shared pointer if
+    ///    none was found.  Note that a node implementation may be either an
+    ///    Implementation element or a NodeGraph element.
+    InterfaceElementPtr getImplementation(const string& target = EMPTY_STRING) const
+    {
+        NodeDefPtr nodeDef = getNodeDef(target);
+        return nodeDef ? nodeDef->getImplementation(target) : InterfaceElementPtr();
+    }
 
     /// @}
     /// @name Traversal
@@ -80,11 +95,11 @@ class Node : public InterfaceElement
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
-    Edge getUpstreamEdge(MaterialPtr material = MaterialPtr(),
-                         size_t index = 0) override;
+    Edge getUpstreamEdge(ConstMaterialPtr material = ConstMaterialPtr(),
+                         size_t index = 0) const override;
 
     /// Return the number of queriable upstream edges for this element.
-    size_t getUpstreamEdgeCount() override
+    size_t getUpstreamEdgeCount() const override
     {
         return getInputCount();
     }
@@ -108,35 +123,51 @@ class Node : public InterfaceElement
 
 /// @class NodeGraph
 /// A node graph element within a Document.
-class NodeGraph : public Element
+class NodeGraph : public InterfaceElement
 {
   public:
     NodeGraph(ElementPtr parent, const string& name) :
-        Element(parent, CATEGORY, name)
+        InterfaceElement(parent, CATEGORY, name)
     {
     }
     virtual ~NodeGraph() { }
 
-    /// @name NodeDef String
+    /// @name NodeDef
     /// @{
 
     /// Set the NodeDef string for the graph.
-    void setNodeDef(const string& target)
+    void setNodeDefString(const string& nodeDef)
     {
-        setAttribute(NODE_DEF_ATTRIBUTE, target);
+        setAttribute(NODE_DEF_ATTRIBUTE, nodeDef);
     }
 
     /// Return true if the given graph has a NodeDef string.
-    bool hasNodeDef() const
+    bool hasNodeDefString() const
     {
         return hasAttribute(NODE_DEF_ATTRIBUTE);
     }
 
     /// Return the NodeDef string for the graph.
-    const string& getNodeDef() const
+    const string& getNodeDefString() const
     {
         return getAttribute(NODE_DEF_ATTRIBUTE);
     }
+
+    /// Set the NodeDef element for the graph.
+    void setNodeDef(NodeDefPtr nodeDef)
+    {
+        if (nodeDef)
+        {
+            setNodeDefString(nodeDef->getName());
+        }
+        else
+        {
+            removeAttribute(NODE_DEF_ATTRIBUTE);
+        }
+    }
+
+    /// Return the NodeDef element for the graph.
+    NodeDefPtr getNodeDef() const;
 
     /// @}
     /// @name Node Elements
@@ -165,52 +196,17 @@ class NodeGraph : public Element
         return getChildOfType<Node>(name);
     }
 
-    /// Return a vector of all Nodes in the graph.
-    vector<NodePtr> getNodes() const
+    /// Return a vector of all Nodes in the graph, optionally filtered by the
+    /// given category string.
+    vector<NodePtr> getNodes(const string& category = EMPTY_STRING) const
     {
-        return getChildrenOfType<Node>();
+        return getChildrenOfType<Node>(category);
     }
 
     /// Remove the Node, if any, with the given name.
     void removeNode(const string& name)
     {
         removeChildOfType<Node>(name);
-    }
-
-    /// @}
-    /// @name Output Elements
-    /// @{
-
-    /// Add a Output to the graph.
-    /// @param name The name of the new Output.
-    ///     If no name is specified, then a unique name will automatically be
-    ///     generated.
-    /// @param type An optional type string.
-    /// @return A shared pointer to the new Output.
-    OutputPtr addOutput(const string& name = EMPTY_STRING,
-                        const string& type = DEFAULT_TYPE_STRING)
-    {
-        OutputPtr output = addChild<Output>(name);
-        output->setType(type);
-        return output;
-    }
-
-    /// Return the Output, if any, with the given name.
-    OutputPtr getOutput(const string& name) const
-    {
-        return getChildOfType<Output>(name);
-    }
-
-    /// Return a vector of all Outputs of the graph.
-    vector<OutputPtr> getOutputs() const
-    {
-        return getChildrenOfType<Output>();
-    }
-
-    /// Remove the Output, if any, with the given name.
-    void removeOutput(const string& name)
-    {
-        removeChildOfType<Output>(name);
     }
 
     /// @}

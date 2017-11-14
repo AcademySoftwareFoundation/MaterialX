@@ -1,18 +1,20 @@
 project(MaterialX)
 set(MATERIALX_MAJOR_VERSION 1)
 set(MATERIALX_MINOR_VERSION 35)
-set(MATERIALX_BUILD_VERSION 3)
+set(MATERIALX_BUILD_VERSION 4)
+set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
 
 cmake_minimum_required(VERSION 3.1)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_MACOSX_RPATH ON)
+include(CheckCXXCompilerFlag)
 enable_testing()
 
-option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 2.6 or greater." ON)
-option(MATERIALX_GENERATE_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." ON)
-
-mark_as_advanced(MATERIALX_GENERATE_DOCS)
+option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 2.6 or greater." OFF)
+option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
+option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
+option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors." OFF)
 
 set(MATERIALX_PYTHON_EXECUTABLE "" CACHE FILEPATH
     "Path to the Python executable (e.g. 'C:/Python27/python.exe').")
@@ -23,10 +25,13 @@ set(MATERIALX_PYTHON_LIBRARY "" CACHE FILEPATH
 set(MATERIALX_PYTHON_OCIO_DIR "" CACHE PATH
     "Path to a folder containing the default OCIO configuration to be packaged with MaterialX Python (e.g. 'D:/Projects/OpenColorIO-Configs/aces_1.0.3').")
 
+mark_as_advanced(MATERIALX_BUILD_DOCS)
 mark_as_advanced(MATERIALX_PYTHON_EXECUTABLE)
 mark_as_advanced(MATERIALX_PYTHON_INCLUDE_DIR)
 mark_as_advanced(MATERIALX_PYTHON_LIBRARY)
 mark_as_advanced(MATERIALX_PYTHON_OCIO_DIR)
+mark_as_advanced(MATERIALX_INSTALL_PYTHON)
+mark_as_advanced(MATERIALX_WARNINGS_AS_ERRORS)
 
 set(PYTHON_INCLUDE_DIR ${MATERIALX_PYTHON_INCLUDE_DIR})
 set(PYTHON_LIBRARY ${MATERIALX_PYTHON_LIBRARY})
@@ -41,22 +46,34 @@ if(MSVC)
     if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
         string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     else()
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+        add_compile_options(/W4)
     endif()
-
+    if(MATERIALX_WARNINGS_AS_ERRORS)
+        add_compile_options(/WX)
+    endif()
+    
     # Use /Z7 to avoid having pdbs
     if(CMAKE_CXX_FLAGS_DEBUG MATCHES "/Zi")
         string(REGEX REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
     else()
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Z7")
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Z7")
     endif()
     if(CMAKE_CXX_FLAGS_RELEASE MATCHES "/Zi")
         string(REGEX REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
     else()
         set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Z7")
     endif()
-elseif(CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+else()
+    add_compile_options(-Wall)
+    if(MATERIALX_WARNINGS_AS_ERRORS)
+        add_compile_options(-Werror)
+    endif()
+    if(CMAKE_CXX_COMPILER_ID MATCHES Clang)
+        CHECK_CXX_COMPILER_FLAG(-Wno-undefined-var-template UNDEFINED_VAR_TEMPLATE_FLAG)
+        if(UNDEFINED_VAR_TEMPLATE_FLAG)
+            add_compile_options(-Wno-undefined-var-template)
+        endif()
+    endif()
 endif()
 
 # Add subdirectories
@@ -70,9 +87,9 @@ if(MATERIALX_BUILD_PYTHON)
     add_subdirectory(python)
 endif(MATERIALX_BUILD_PYTHON)
 
-if(MATERIALX_GENERATE_DOCS)
+if(MATERIALX_BUILD_DOCS)
     add_subdirectory(documents)
-endif(MATERIALX_GENERATE_DOCS)
+endif(MATERIALX_BUILD_DOCS)
 
 # Add contribution subdirectories
 add_subdirectory(contrib)

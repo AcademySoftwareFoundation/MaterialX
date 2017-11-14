@@ -10,10 +10,6 @@
 
 #include <sstream>
 
-#ifdef _MSC_VER
-#pragma warning(disable: 4127) // conditional expression is constant
-#endif
-
 namespace MaterialX
 {
 
@@ -125,7 +121,7 @@ string printGraphDot(NodeGraphPtr graph)
     dot << "digraph {\n";
 
     // Print the nodes
-    for (auto node : graph->getChildrenOfType<Node>())
+    for (NodePtr node : graph->getChildrenOfType<Node>())
     {
         dot << "    \"" << node->getName() << "\" ";
         const string& category = node->getCategory();
@@ -141,7 +137,7 @@ string printGraphDot(NodeGraphPtr graph)
  
     // Print the connections
     std::set<Edge> processedEdges;
-    for (auto output : graph->getChildrenOfType<Output>())
+    for (OutputPtr output : graph->getChildrenOfType<Output>())
     {
         for (Edge edge : output->traverseGraph())
         {

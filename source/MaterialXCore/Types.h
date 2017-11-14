@@ -25,11 +25,15 @@ namespace MaterialX
 
 extern const string DEFAULT_TYPE_STRING;
 extern const string FILENAME_TYPE_STRING;
+extern const string GEOMNAME_TYPE_STRING;
 extern const string SURFACE_SHADER_TYPE_STRING;
 extern const string VOLUME_SHADER_TYPE_STRING;
+extern const string MULTI_OUTPUT_TYPE_STRING;
 extern const string VALUE_STRING_TRUE;
 extern const string VALUE_STRING_FALSE;
 extern const string NAME_PATH_SEPARATOR;
+extern const string ARRAY_VALID_SEPARATORS;
+extern const string ARRAY_PREFERRED_SEPARATOR;
 
 /// The base class for vectors of floating-point values
 class VectorBase { };
@@ -39,6 +43,7 @@ template <size_t N> class VectorN : public VectorBase
 {
   public:
     VectorN() : data{0.0f} { }
+    VectorN(float f) { data.fill(f); }
     VectorN(const std::array<float, N>& arr) : data(arr) { }
     VectorN(const vector<float>& vec) { std::copy_n(vec.begin(), N, data.begin()); }
 
@@ -129,7 +134,7 @@ template <std::size_t N> std::ostream& operator<<(std::ostream& os, const Vector
 {
     for (size_t i = 0; i < N - (size_t) 1; i++)
     {
-        os << v[i] << ", ";
+        os << v[i] << ARRAY_PREFERRED_SEPARATOR;
     }
     os << v[N - (size_t) 1];
     return os;
