@@ -211,7 +211,7 @@ mx::ShaderRefPtr SceneTranslator::exportShader(const MObject& mayaShader, mx::Ma
     }
 
     shaderRef = target->addShaderRef(shaderName);
-    shaderRef->setAttribute("node", nodeDef->getNode());
+    shaderRef->setAttribute("node", nodeDef->getNodeString());
 
     // Export inputs
     for (mx::InputPtr input : nodeDef->getInputs())

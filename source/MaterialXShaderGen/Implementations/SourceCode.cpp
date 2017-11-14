@@ -35,7 +35,7 @@ void SourceCode::initialize(const Implementation& implementation)
     if (_functionName.empty())
     {
         // No function given so use nodedef name
-        _functionName = implementation.getNodeDef();
+        _functionName = implementation.getNodeDefString();
     }
 
     if (!readFile(ShaderGenerator::findSourceCode(file), _functionSource))

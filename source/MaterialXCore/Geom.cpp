@@ -5,21 +5,20 @@
 
 #include <MaterialXCore/Geom.h>
 
-#include <iterator>
-
 namespace MaterialX
 {
 
 const string UNIVERSAL_GEOM_NAME = "*";
 const string UDIM_TOKEN = "%UDIM";
+const string UV_TILE_TOKEN = "%UVTILE";
 
 const string GeomElement::GEOM_ATTRIBUTE = "geom";
 const string GeomElement::COLLECTION_ATTRIBUTE = "collection";
 
 bool geomStringsMatch(const string& geom1, const string& geom2)
 {
-    vector<string> vec1 = splitString(geom1, ",");
-    vector<string> vec2 = splitString(geom2, ",");
+    vector<string> vec1 = splitString(geom1, ARRAY_VALID_SEPARATORS);
+    vector<string> vec2 = splitString(geom2, ARRAY_VALID_SEPARATORS);
     std::set<string> set1(vec1.begin(), vec1.end());
     std::set<string> set2(vec2.begin(), vec2.end());
 

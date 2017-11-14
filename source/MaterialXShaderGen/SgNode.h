@@ -4,6 +4,7 @@
 #include <MaterialXCore/Node.h>
 
 #include <MaterialXShaderGen/SgImplementation.h>
+#include <set>
 
 namespace MaterialX
 {
@@ -127,7 +128,7 @@ private:
     NodeDefPtr _nodeDef;
     SgImplementationPtr _impl;
     ScopeInfo _scopeInfo;
-    set<const SgNode*> _usedClosures;
+    std::set<const SgNode*> _usedClosures;
 
     friend class Shader;
 };

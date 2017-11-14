@@ -32,7 +32,7 @@ void bindPyObservedDocument(py::module& mod)
 {
     mod.def("createObservedDocument", &mx::Document::createDocument<mx::ObservedDocument>);
 
-    py::class_<mx::ObservedDocument, mx::ObservedDocumentPtr, mx::Document>(mod, "ObservedDocument", py::metaclass())
+    py::class_<mx::ObservedDocument, mx::ObservedDocumentPtr, mx::Document>(mod, "ObservedDocument")
         .def("copy", &mx::ObservedDocument::copy)
         .def("addObserver", &mx::ObservedDocument::addObserver)
         .def("removeObserver", &mx::ObservedDocument::removeObserver)

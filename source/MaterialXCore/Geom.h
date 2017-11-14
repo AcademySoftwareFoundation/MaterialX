@@ -18,6 +18,7 @@ namespace MaterialX
 
 extern const string UNIVERSAL_GEOM_NAME;
 extern const string UDIM_TOKEN;
+extern const string UV_TILE_TOKEN;
 
 /// A shared pointer to a GeomElement
 using GeomElementPtr = shared_ptr<class GeomElement>;
@@ -276,9 +277,9 @@ template<class T> GeomAttrPtr GeomInfo::setGeomAttrValue(const string& name,
     return geomAttr;
 }
 
-/// Given two arbitrary geom strings, each containing a comma-separated list
-/// of geom names, return true if they have any geometries in common.  The
-/// universal geom name "*" matches all geometries.
+/// Given two geom strings, each containing an array of geom names, return true
+/// if they have any geometries in common.  The universal geom name "*" matches
+/// all geometries.
 /// @todo The full set of pattern matching rules in the specification is not
 ///    yet supported, and only the universal geom name is currently handled.
 /// @relates GeomInfo

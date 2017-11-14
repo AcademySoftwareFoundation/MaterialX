@@ -13,7 +13,7 @@ class Factory
 public:
     using Ptr = shared_ptr<T>;
     using CreatorFunction = Ptr(*)();
-    using CreatorMap = unordered_map<string, CreatorFunction>;
+    using CreatorMap = std::unordered_map<string, CreatorFunction>;
 
     /// Register a new class given a unique type name
     /// and a creator function for the class.

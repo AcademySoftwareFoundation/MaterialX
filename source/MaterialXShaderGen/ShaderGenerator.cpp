@@ -165,8 +165,8 @@ SgImplementationPtr ShaderGenerator::getNodeImplementation(const NodeDef& nodeDe
 {
     // Find the matching implementation element in the document
     ImplementationPtr matchingImpl;
-    vector<ElementPtr> elements = nodeDef.getDocument()->getMatchingImplementations(nodeDef.getName());
-    for (ElementPtr element : elements)
+    vector<InterfaceElementPtr> elements = nodeDef.getDocument()->getMatchingImplementations(nodeDef.getName());
+    for (InterfaceElementPtr element : elements)
     {
         ImplementationPtr candidate = element->asA<Implementation>();
         if (candidate)
@@ -182,7 +182,7 @@ SgImplementationPtr ShaderGenerator::getNodeImplementation(const NodeDef& nodeDe
 
     if (!matchingImpl)
     {
-        throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef.getNode() +
+        throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef.getNodeString() +
             "' matching language '" + getLanguage() + "' and target '" + getTarget() + "'");
     }
 

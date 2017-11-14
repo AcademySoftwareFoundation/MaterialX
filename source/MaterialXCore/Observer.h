@@ -155,7 +155,6 @@ class ObservedDocument : public Document
     void onRemoveElement(ElementPtr parent, ElementPtr elem) override
     {
         Document::onRemoveElement(parent, elem);
-
         if (_notificationsEnabled)
         {
             for (auto &item : _observerMap)
@@ -168,7 +167,6 @@ class ObservedDocument : public Document
     void onSetAttribute(ElementPtr elem, const string& attrib, const string& value) override
     {
         Document::onSetAttribute(elem, attrib, value);
-
         if (_notificationsEnabled)
         {
             for (auto &item : _observerMap)
@@ -181,7 +179,6 @@ class ObservedDocument : public Document
     void onRemoveAttribute(ElementPtr elem, const string& attrib) override
     {
         Document::onRemoveAttribute(elem, attrib);
-
         if (_notificationsEnabled)
         {
             for (auto &item : _observerMap)

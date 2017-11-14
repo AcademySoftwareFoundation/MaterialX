@@ -88,7 +88,7 @@ SgNode::SgNode(NodePtr node, ShaderGenerator& shadergen)
         return;
     }
 
-    _nodeDef = node->getReferencedNodeDef();
+    _nodeDef = node->getNodeDef();
     if (!_nodeDef)
     {
         throw ExceptionShaderGenError("Could not find a nodedef for node '" + node->getName() + "'");

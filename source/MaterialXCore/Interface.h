@@ -21,8 +21,9 @@ using ParameterPtr = shared_ptr<class Parameter>;
 /// A shared pointer to a PortElement
 using PortElementPtr = shared_ptr<class PortElement>;
 /// A shared pointer to an Input
-using InputPtr = shared_ptr<class Input>;
 using ConstInputPtr = shared_ptr<const class Input>;
+/// A shared pointer to an Input
+using InputPtr = shared_ptr<class Input>;
 /// A shared pointer to an Output
 using OutputPtr = shared_ptr<class Output>;
 /// A shared pointer to an InterfaceElement
@@ -47,11 +48,11 @@ class Parameter : public ValueElement
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
-    Edge getUpstreamEdge(MaterialPtr material = MaterialPtr(),
-                         size_t index = 0) override;
+    Edge getUpstreamEdge(ConstMaterialPtr material = ConstMaterialPtr(),
+                         size_t index = 0) const override;
 
     /// Return the number of queriable upstream edges for this element.
-    size_t getUpstreamEdgeCount() override
+    size_t getUpstreamEdgeCount() const override
     {
         return 1;
     }
@@ -103,6 +104,28 @@ class PortElement : public ValueElement
     }
 
     /// @}
+    /// @name Output
+    /// @{
+
+    /// Set the output string of this element.
+    void setOutputString(const string& output)
+    {
+        setAttribute(OUTPUT_ATTRIBUTE, output);
+    }
+
+    /// Return true if this element has an output string.
+    bool hasOutputString() const
+    {
+        return hasAttribute(OUTPUT_ATTRIBUTE);
+    }
+
+    /// Return the output string of this element.
+    const string& getOutputString() const
+    {
+        return getAttribute(OUTPUT_ATTRIBUTE);
+    }
+
+    /// @}
     /// @name Channels
     /// @{
 
@@ -148,6 +171,7 @@ class PortElement : public ValueElement
 
   public:
     static const string NODE_NAME_ATTRIBUTE;
+    static const string OUTPUT_ATTRIBUTE;
     static const string CHANNELS_ATTRIBUTE;
 };
 
@@ -174,11 +198,11 @@ class Input : public PortElement
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
-    Edge getUpstreamEdge(MaterialPtr material = MaterialPtr(),
-                         size_t index = 0) override;
+    Edge getUpstreamEdge(ConstMaterialPtr material = ConstMaterialPtr(),
+                         size_t index = 0) const override;
 
     /// Return the number of queriable upstream edges for this element.
-    size_t getUpstreamEdgeCount() override
+    size_t getUpstreamEdgeCount() const override
     {
         return 1;
     }
@@ -190,7 +214,7 @@ class Input : public PortElement
 };
 
 /// @class Output
-/// A spatially-varying output element within a NodeGraph.
+/// A spatially-varying output element within a NodeGraph or NodeDef.
 class Output : public PortElement
 {
   public:
@@ -209,11 +233,11 @@ class Output : public PortElement
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
-    Edge getUpstreamEdge(MaterialPtr material = MaterialPtr(),
-                         size_t index = 0) override;
+    Edge getUpstreamEdge(ConstMaterialPtr material = ConstMaterialPtr(),
+                         size_t index = 0) const override;
 
     /// Return the number of queriable upstream edges for this element.
-    size_t getUpstreamEdgeCount() override
+    size_t getUpstreamEdgeCount() const override
     {
         return 1;
     }
@@ -236,17 +260,18 @@ class Output : public PortElement
 };
 
 /// @class InterfaceElement
-/// The base class for interface elements such as Node and NodeDef.
+/// The base class for interface elements such as Node, NodeDef, and NodeGraph.
 ///
-/// An InterfaceElement supports a set of Parameter and Input elements, with
-/// an API for setting their values.
+/// An InterfaceElement supports a set of Parameter, Input, and Output elements,
+/// with an API for setting their values.
 class InterfaceElement : public TypedElement
 {
   protected:
     InterfaceElement(ElementPtr parent, const string& category, const string& name) :
         TypedElement(parent, category, name),
         _parameterCount(0),
-        _inputCount(0)
+        _inputCount(0),
+        _outputCount(0)
     {
     }
   public:
@@ -296,20 +321,6 @@ class InterfaceElement : public TypedElement
         removeChildOfType<Parameter>(name);
     }
 
-    /// Set the value of a parameter by its name, creating a child element
-    /// to hold the parameter if needed.
-    template<class T> ParameterPtr setParameterValue(const string& name,
-                                                     const T& value,
-                                                     const string& type = EMPTY_STRING);
-
-    /// Return the value instance of a parameter by its name.  If the given parameter
-    /// is not present, then an empty ValuePtr is returned.
-    ValuePtr getParameterValue(const string& name) const;
-
-    /// Return the value string of a parameter by its name.  If the given parameter
-    /// is not present, then an empty string is returned.
-    const string& getParameterValueString(const string& name) const;
-
     /// @}
     /// @name Inputs
     /// @{
@@ -351,19 +362,92 @@ class InterfaceElement : public TypedElement
         removeChildOfType<Input>(name);
     }
 
-    /// Set the value of an input by its name, creating a child element
+    /// @}
+    /// @name Output Elements
+    /// @{
+
+    /// Add an Output to this element.
+    /// @param name The name of the new Output.
+    ///     If no name is specified, then a unique name will automatically be
+    ///     generated.
+    /// @param type An optional type string.
+    /// @return A shared pointer to the new Output.
+    OutputPtr addOutput(const string& name = EMPTY_STRING,
+                        const string& type = DEFAULT_TYPE_STRING)
+    {
+        OutputPtr output = addChild<Output>(name);
+        output->setType(type);
+        return output;
+    }
+
+    /// Return the Output, if any, with the given name.
+    OutputPtr getOutput(const string& name) const
+    {
+        return getChildOfType<Output>(name);
+    }
+
+    /// Return a vector of all Output elements.
+    vector<OutputPtr> getOutputs() const
+    {
+        return getChildrenOfType<Output>();
+    }
+
+    /// Remove the Output, if any, with the given name.
+    void removeOutput(const string& name)
+    {
+        removeChildOfType<Output>(name);
+    }
+
+    /// Return the number of Output elements.
+    size_t getOutputCount() const
+    {
+        return _outputCount;
+    }
+
+    /// @}
+    /// @name Values
+    /// @{
+
+    /// Set the typed value of a parameter by its name, creating a child element
+    /// to hold the parameter if needed.
+    template<class T> ParameterPtr setParameterValue(const string& name,
+                                                     const T& value,
+                                                     const string& type = EMPTY_STRING);
+
+    /// Return the typed value of a parameter by its name.
+    /// @param name The name of the parameter to be evaluated.
+    /// @return If the given parameter is present, then a shared pointer to its
+    ///    value is returned; otherwise, an empty shared pointer is returned.
+    ValuePtr getParameterValue(const string& name) const;
+
+    /// Set the typed value of an input by its name, creating a child element
     /// to hold the input if needed.
     template<class T> InputPtr setInputValue(const string& name,
-        const T& value,
-        const string& type = EMPTY_STRING);
+                                             const T& value,
+                                             const string& type = EMPTY_STRING);
 
-    /// Return the value instance of an input by its name.  If the given input
-    /// is not present, then an empty ValuePtr is returned.
+    /// Return the typed value of an input by its name.
+    /// @param name The name of the input to be evaluated.
+    /// @return If the given input is present, then a shared pointer to its
+    ///    value is returned; otherwise, an empty shared pointer is returned.
     ValuePtr getInputValue(const string& name) const;
 
-    /// Return the value string of an input by its name.  If the given input
-    /// is not present, then an empty string is returned.
-    const string& getInputValueString(const string& name) const;
+    /// @}
+    /// @name Utility
+    /// @{
+
+    /// Return true if the given interface element is type compatible with
+    /// this one.  This may be used to test, for example, whether a NodeDef
+    /// and Implementation may be used together.
+    ///
+    /// If the type string of the given interface element differs from this
+    /// one, then false is returned.
+    ///
+    /// If the two interface elements have child Parameter or Input elements
+    /// with identical names but different types, then false is returned.  Note
+    /// that a Parameter or Input that is present in only one of the two
+    /// interfaces does not affect their type compatibility.
+    bool isTypeCompatible(InterfaceElementPtr rhs) const;
 
     /// @}
 
@@ -374,6 +458,7 @@ class InterfaceElement : public TypedElement
   private:
     size_t _parameterCount;
     size_t _inputCount;
+    size_t _outputCount;
 };
 
 template<class T> ParameterPtr InterfaceElement::setParameterValue(const string& name,

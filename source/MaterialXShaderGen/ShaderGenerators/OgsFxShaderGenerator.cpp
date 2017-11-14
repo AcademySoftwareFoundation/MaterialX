@@ -240,7 +240,7 @@ bool OgsFxShaderGenerator::useAsShaderUniform(const Parameter& param) const
     {
         ConstElementPtr parent = param.getParent();
         const string& nodeName = parent->isA<NodeDef>() ?
-            parent->asA<NodeDef>()->getNode() : parent->asA<Node>()->getCategory();
+            parent->asA<NodeDef>()->getNodeString() : parent->asA<Node>()->getCategory();
         return nodeName == "image";
     }
     return false;

@@ -17,13 +17,13 @@ namespace mx = MaterialX;
 
 void bindPyGeom(py::module& mod)
 {
-    py::class_<mx::GeomElement, mx::GeomElementPtr, mx::Element>(mod, "GeomElement", py::metaclass())
+    py::class_<mx::GeomElement, mx::GeomElementPtr, mx::Element>(mod, "GeomElement")
         .def("setGeom", &mx::GeomElement::setGeom)
         .def("getGeom", &mx::GeomElement::getGeom)
         .def("setCollection", &mx::GeomElement::setCollection)
         .def("getCollection", &mx::GeomElement::getCollection);
 
-    py::class_<mx::GeomInfo, mx::GeomInfoPtr, mx::GeomElement>(mod, "GeomInfo", py::metaclass())
+    py::class_<mx::GeomInfo, mx::GeomInfoPtr, mx::GeomElement>(mod, "GeomInfo")
         .def("_addGeomAttr", &mx::GeomInfo::addGeomAttr)
         .def("getGeomAttrs", &mx::GeomInfo::getGeomAttrs)
         .def("removeGeomAttr", &mx::GeomInfo::removeGeomAttr)
@@ -41,10 +41,10 @@ void bindPyGeom(py::module& mod)
         BIND_GEOMINFO_FUNC_INSTANCE(string, std::string)
         .def_readonly_static("CATEGORY", &mx::GeomInfo::CATEGORY);
 
-    py::class_<mx::GeomAttr, mx::GeomAttrPtr, mx::ValueElement>(mod, "GeomAttr", py::metaclass())
+    py::class_<mx::GeomAttr, mx::GeomAttrPtr, mx::ValueElement>(mod, "GeomAttr")
         .def_readonly_static("CATEGORY", &mx::GeomAttr::CATEGORY);
 
-    py::class_<mx::Collection, mx::CollectionPtr, mx::Element>(mod, "Collection", py::metaclass())
+    py::class_<mx::Collection, mx::CollectionPtr, mx::Element>(mod, "Collection")
         .def("addCollectionAdd", &mx::Collection::addCollectionAdd,
             py::arg("name") = mx::EMPTY_STRING)
         .def("getCollectionAdd", &mx::Collection::getCollectionAdd)
@@ -57,10 +57,10 @@ void bindPyGeom(py::module& mod)
         .def("removeCollectionRemove", &mx::Collection::removeCollectionRemove)
         .def_readonly_static("CATEGORY", &mx::Collection::CATEGORY);
 
-    py::class_<mx::CollectionAdd, mx::CollectionAddPtr, mx::GeomElement>(mod, "CollectionAdd", py::metaclass())
+    py::class_<mx::CollectionAdd, mx::CollectionAddPtr, mx::GeomElement>(mod, "CollectionAdd")
         .def_readonly_static("CATEGORY", &mx::CollectionAdd::CATEGORY);
 
-    py::class_<mx::CollectionRemove, mx::CollectionRemovePtr, mx::GeomElement>(mod, "CollectionRemove", py::metaclass())
+    py::class_<mx::CollectionRemove, mx::CollectionRemovePtr, mx::GeomElement>(mod, "CollectionRemove")
         .def_readonly_static("CATEGORY", &mx::CollectionRemove::CATEGORY);
 
     mod.def("geomStringsMatch", &mx::geomStringsMatch);

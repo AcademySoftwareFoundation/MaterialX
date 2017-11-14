@@ -72,8 +72,22 @@ def _getValue(self):
     value = self._getValue()
     return value.getData() if value else None
 
+def _getBoundValue(self, material):
+    """Return the value that is bound to this element within the context of a
+       given material, taking the entire dataflow graph into account."""
+    value = self._getBoundValue(material)
+    return value.getData() if value else None
+
+def _getDefaultValue(self):
+    """Return the default value for this element, which will be used as its bound
+       value when no external binding from a material is present."""
+    value = self._getDefaultValue()
+    return value.getData() if value else None
+
 ValueElement.setValue = _setValue
 ValueElement.getValue = _getValue
+ValueElement.getBoundValue = _getBoundValue
+ValueElement.getDefaultValue = _getDefaultValue
 
 
 #
@@ -81,29 +95,53 @@ ValueElement.getValue = _getValue
 #
 
 def _setParameterValue(self, name, value, typeString = ''):
-    """Set the value of a parameter by its name, creating a child element
+    """Set the typed value of a parameter by its name, creating a child element
        to hold the parameter if needed."""
-    if typeString == 'opgraphnode':
-        warnings.warn("To create a connection between two nodes, use Node.addInput and Input.setConnectedNode", DeprecationWarning, stacklevel = 2)
-        input = self.addInput(name)
-        input.setNodeName(value)
-        connectedNode = input.getConnectedNode()
-        if connectedNode:
-            input.setType(connectedNode.getType())
-        return input
     method = getattr(self.__class__, "_setParameterValue" + typeToName(value.__class__))
     return method(self, name, value, typeString)
 
 def _getParameterValue(self, name):
-    """Return the value instance of a parameter by its name.  If the given parameter
+    """Return the typed value of a parameter by its name.  If the given parameter
        is not present, then None is returned."""
-    valuePtr = self._getParameterValue(name)
-    if (valuePtr != None):
-        return valuePtr.getData()
-    return None
+    value = self._getParameterValue(name)
+    return value.getData() if value else None
+
+def _getParameterValueString(self, name):
+    """(Deprecated) Return the value string of a parameter by its name.  If the
+       given parameter is not present, then an empty string is returned."""
+    warnings.warn("This function is deprecated; call InterfaceElement.getParameter() and Parameter.getValueString() instead.", DeprecationWarning, stacklevel = 2)
+    param = self.getParameter(name)
+    return param.getValueString() if param else ""
+
+def _setInputValue(self, name, value, typeString = ''):
+    """Set the typed value of an input by its name, creating a child element
+       to hold the input if needed."""
+    method = getattr(self.__class__, "_setInputValue" + typeToName(value.__class__))
+    return method(self, name, value, typeString)
+
+def _getInputValue(self, name):
+    """Return the typed value of a parameter by its name.  If the given parameter
+       is not present, then None is returned."""
+    value = self._getInputValue(name)
+    return value.getData() if value else None
 
 InterfaceElement.setParameterValue = _setParameterValue
 InterfaceElement.getParameterValue = _getParameterValue
+InterfaceElement.getParameterValueString = _getParameterValueString
+InterfaceElement.setInputValue = _setInputValue
+InterfaceElement.getInputValue = _getInputValue
+
+
+#
+# Node
+#
+
+def _getReferencedNodeDef(self):
+    "(Deprecated) Return the first NodeDef that declares this node."
+    warnings.warn("This function is deprecated; call Node.getNodeDef instead.", DeprecationWarning, stacklevel = 2)
+    return self.getNodeDef()
+
+Node.getReferencedNodeDef = _getReferencedNodeDef
 
 
 #
@@ -121,12 +159,8 @@ NodeGraph.addNode = _addNode
 # Material
 #
 
-def _addOverride(self, name, typeString = '', value = ''):
+def _addOverride(self, name):
     "Add an override to the material."
-    if typeString or value:
-        warnings.warn("The addOverride method no longer supports type and value arguments, use setOverrideValue", DeprecationWarning, stacklevel = 2)
-        value = stringToObject(value, nameToType(typeString))
-        return self.setOverrideValue(name, value)
     return self._addOverride(name)
 
 def _setOverrideValue(self, name, value, typeString = ''):
@@ -137,28 +171,37 @@ def _setOverrideValue(self, name, value, typeString = ''):
 
 def _addShaderRef(self, name = '', node = ''):
     "Add a shader ref to the material."
-    shaderRef = self._addShaderRef(name, node)
-    if not shaderRef.getReferencedShaderDef():
-        nodeDef = self.getDocument().getNodeDef(name)
-        if nodeDef:
-            warnings.warn("Detected a legacy call to addShaderRef; the node attribute of a ShaderRef should match the node attribute of its connected NodeDef", DeprecationWarning, stacklevel = 2)
-            shaderRef.setNode(nodeDef.getNode())
-    return shaderRef
+    return self._addShaderRef(name, node)
+
+def _getReferencedShaderDefs(self):
+    "(Deprecated) Return a list of all shader nodedefs referenced by this material."
+    warnings.warn("This function is deprecated; call Material.getShaderNodeDefs instead.", DeprecationWarning, stacklevel = 2)
+    return self.getShaderNodeDefs()
 
 Material.addOverride = _addOverride
 Material.setOverrideValue = _setOverrideValue
 Material.addShaderRef = _addShaderRef
+Material.getReferencedShaderDefs = _getReferencedShaderDefs
+
+
+#
+# ShaderRef
+#
+
+def _getReferencedShaderDef(self):
+    "(Deprecated) Return the NodeDef that this element references."
+    warnings.warn("This function is deprecated; call ShaderRef.getNodeDef instead.", DeprecationWarning, stacklevel = 2)
+    return self.getNodeDef()
+
+ShaderRef.getReferencedShaderDef = _getReferencedShaderDef
 
 
 #
 # GeomInfo
 #
 
-def _addGeomAttr(self, name, value = None, typeString = ''):
+def _addGeomAttr(self, name):
     "Add a geomattr to the geominfo."
-    if value is not None:
-        warnings.warn("The addGeomAttr method no longer supports value and type arguments, use setGeomattrValue", DeprecationWarning, stacklevel = 2)
-        return self.setGeomAttrValue(name, value, typeString)
     return self._addGeomAttr(name)
 
 def _setGeomAttrValue(self, name, value, typeString = ''):
@@ -172,21 +215,35 @@ GeomInfo.setGeomAttrValue = _setGeomAttrValue
 
 
 #
+# Document
+#
+
+def _applyStringSubstitutions(self, filename, geom = '*'):
+    """(Deprecated) Given an input filename and geom string, apply any string
+        substitutions that have been defined for the given geom to the filename,
+        returning the modified filename."""
+    warnings.warn("This function is deprecated; call Element.createStringResolver() instead.", DeprecationWarning, stacklevel = 2)
+    return self.createStringResolver(geom).resolve(filename, 'filename')
+
+Document.applyStringSubstitutions = _applyStringSubstitutions
+
+
+#
 # Value
 #
 
-def createValueFromTypedData(object):
-    "Convert an object of MaterialX type to a Value instance."
-    method = globals()['TypedValue_' + typeToName(object.__class__)].createValue
-    return method(object)
+def _objectToString(value):
+    "(Deprecated) Convert a value of MaterialX type to a string."
+    warnings.warn("This function is deprecated; call valueToString instead.", DeprecationWarning, stacklevel = 2)
+    return valueToString(value)
 
-def objectToString(object):
-    "Convert an object of MaterialX type to a string."
-    return createValueFromTypedData(object).getValueString()
+def _stringToObject(string, t):
+    "(Deprecated) Convert a string to a value of MaterialX type."
+    warnings.warn("This function is deprecated; call stringToValue instead.", DeprecationWarning, stacklevel = 2)
+    return stringToValue(string, t)
 
-def stringToObject(string, t):
-    "Convert a string to an object of MaterialX type."
-    return Value.createValueFromStrings(string, typeToName(t)).getData()  
+objectToString = _objectToString
+stringToObject = _stringToObject
 
 
 #

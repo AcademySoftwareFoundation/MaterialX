@@ -95,7 +95,7 @@ protected:
 
     SyntaxPtr _syntax;
     Factory<SgImplementation> _nodeImplFactory;
-    unordered_map<string, SgImplementationPtr> _cachedNodeImpls;
+    std::unordered_map<string, SgImplementationPtr> _cachedNodeImpls;
 
     static FileSearchPath _sourceCodeSearchPath;
 };

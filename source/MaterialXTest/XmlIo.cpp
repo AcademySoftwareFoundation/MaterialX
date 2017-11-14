@@ -11,25 +11,35 @@ namespace mx = MaterialX;
 
 TEST_CASE("Load content", "[xmlio]")
 {
-    std::string libFilename = "mx_stdlib_defs.mtlx";
+    std::string libraryFilenames[] =
+    {
+        "mx_stdlib_defs.mtlx",
+        "mx_stdlib_impl_osl.mtlx"
+    };
     std::string exampleFilenames[] =
     {
         "CustomNode.mtlx",
         "Looks.mtlx",
         "MaterialGraphs.mtlx",
+        "MultiOutput.mtlx",
         "PaintMaterials.mtlx",
         "PreShaderComposite.mtlx",
     };
-    std::string searchPath = "documents/Libraries/stdlib;documents/Examples";
+    std::string searchPath = "documents/Libraries/stdlib;documents/Libraries/stdlib/impl/reference;documents/Examples";
 
-    // Load the standard library.
+    // Read the standard library.
+    std::vector<mx::DocumentPtr> libs;
+    for (std::string filename : libraryFilenames)
+    {
         mx::DocumentPtr lib = mx::createDocument();
-    mx::readFromXmlFile(lib, libFilename, searchPath);
+        mx::readFromXmlFile(lib, filename, searchPath);
         REQUIRE(lib->validate());
+        libs.push_back(lib);
+    }
 
+    // Read and validate each example document.
     for (std::string filename : exampleFilenames)
     {
-        // Load the example document.
         mx::DocumentPtr doc = mx::createDocument();
         mx::readFromXmlFile(doc, filename, searchPath);
         REQUIRE(doc->validate());
@@ -45,27 +55,27 @@ TEST_CASE("Load content", "[xmlio]")
         }
         REQUIRE(valueElementCount > 0);
 
-        // Traverse the dataflow graph from each shader input to its source nodes.
+        // Traverse the dataflow graph from each shader parameter and input
+        // to its source nodes.
         for (mx::MaterialPtr material : doc->getMaterials())
         {
-            REQUIRE(!material->getReferencedShaderDefs().empty());
+            REQUIRE(material->getPrimaryShaderNodeDef());
             int edgeCount = 0;
-            for (mx::NodeDefPtr shader : material->getReferencedShaderDefs())
+            for (mx::ParameterPtr param : material->getPrimaryShaderParameters())
             {
-                for (mx::InputPtr input : shader->getInputs())
-                {
-                    for (mx::Edge edge : input->traverseGraph(material))
+                REQUIRE(param->getBoundValue(material));
+                for (mx::Edge edge : param->traverseGraph(material))
                 {
                     edgeCount++;
                 }
             }
-                for (mx::ParameterPtr param : shader->getParameters())
+            for (mx::InputPtr input : material->getPrimaryShaderInputs())
             {
-                    for (mx::Edge edge : param->traverseGraph(material))
+                REQUIRE((input->getBoundValue(material) || input->getUpstreamElement(material)));
+                for (mx::Edge edge : input->traverseGraph(material))
                 {
                     edgeCount++;
                 }
-            }
             }
             REQUIRE(edgeCount > 0);
         }
@@ -100,16 +110,20 @@ TEST_CASE("Load content", "[xmlio]")
 
         // Combine document with the standard library.
         mx::DocumentPtr doc2 = doc->copy();
+        for (mx::DocumentPtr lib : libs)
+        {
             doc2->importLibrary(lib);
+        }
         REQUIRE(doc2->validate());
 
-        // Verify that all referenced nodes are declared.
+        // Verify that all referenced nodes are declared and implemented.
         for (mx::ElementPtr elem : doc2->traverseTree())
         {
             mx::NodePtr node = elem->asA<mx::Node>();
             if (node)
             {
-                REQUIRE(node->getReferencedNodeDef());
+                REQUIRE(node->getNodeDef());
+                REQUIRE(node->getImplementation());
             }
         }
 
@@ -123,9 +137,8 @@ TEST_CASE("Load content", "[xmlio]")
 
         // Read document without XIncludes.
         doc2 = mx::createDocument();
-
         mx::XmlReadOptions readOptions;
-        readOptions.readXincludes = false;
+        readOptions.readXIncludes = false;
         mx::readFromXmlFile(doc2, filename, searchPath, &readOptions);
         if (*doc2 != *doc)
         {
@@ -136,26 +149,16 @@ TEST_CASE("Load content", "[xmlio]")
         }
     }
 
-    // Read the same documents more than once.
-    // Check that document stays valid when duplicates are skipped.
-    mx::DocumentPtr doc3 = mx::createDocument();
+    // Read the same document twice with duplicate elements skipped.
+    mx::DocumentPtr doc = mx::createDocument();
     mx::XmlReadOptions readOptions;
-    readOptions.readXincludes = true;
+    readOptions.skipDuplicateElements = true;
+    std::string filename = "PaintMaterials.mtlx";
+    mx::readFromXmlFile(doc, filename, searchPath, &readOptions);
+    mx::readFromXmlFile(doc, filename, searchPath, &readOptions);
+    REQUIRE(doc->validate());
 
-    //for (std::string libFilename : libraryFilenames)
-    {
-        readOptions.skipDuplicates = false;
-        mx::readFromXmlFile(doc3, libFilename, searchPath, &readOptions);
-        REQUIRE(doc3->validate());
-        readOptions.skipDuplicates = true;
-        mx::readFromXmlFile(doc3, libFilename, searchPath, &readOptions);
-        REQUIRE(doc3->validate());
-    }
-    for (std::string filename : exampleFilenames)
-    {
-        mx::readFromXmlFile(doc3, filename, searchPath, &readOptions);
-        REQUIRE(doc3->validate());
-        mx::readFromXmlFile(doc3, filename, searchPath, &readOptions);
-        REQUIRE(doc3->validate());
-    }
+    // Read a non-existent document.
+    mx::DocumentPtr doc2 = mx::createDocument();
+    REQUIRE_THROWS_AS(mx::readFromXmlFile(doc2, "NonExistent.mtlx"), mx::ExceptionFileMissing);
 }

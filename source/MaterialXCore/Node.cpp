@@ -68,51 +68,20 @@ string Node::getConnectedNodeName(const string& inputName) const
     return input->getNodeName();
 }
 
-NodeDefPtr Node::getReferencedNodeDef() const
+NodeDefPtr Node::getNodeDef(const string& target) const
 {
     for (NodeDefPtr nodeDef : getDocument()->getMatchingNodeDefs(getCategory()))
     {
-        if (nodeDef->getType() == getType())
+        if (targetStringsMatch(target, nodeDef->getTarget()) &&
+            isTypeCompatible(nodeDef))
         {
-            bool matching = true;
-            for (InputPtr input : getInputs())
-            {
-                InputPtr matchingInput = nodeDef->getInput(input->getName());
-                if (!matchingInput || matchingInput->getType() != input->getType())
-                {
-                    matching = false;
-                    continue;
-                }
-            }
-            if (matching)
-            {
-                return nodeDef;
-            }
+            return nodeDef;
         }
     }
     return NodeDefPtr();
 }
 
-ElementPtr Node::getImplementation(const string& target) const
-{
-    NodeDefPtr nodeDef = getReferencedNodeDef();
-    if (nodeDef)
-    {
-        vector<ElementPtr> implementations = getDocument()->getMatchingImplementations(nodeDef->getName());
-        for (ElementPtr implementation : implementations)
-        {
-            const string& implTarget = implementation->getTarget();
-            if (implTarget.empty() || implTarget == target)
-            {
-                return implementation;
-            }
-        }
-    }
-
-    return ElementPtr();
-}
-
-Edge Node::getUpstreamEdge(MaterialPtr material, size_t index)
+Edge Node::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
 {
     if (index < getUpstreamEdgeCount())
     {
@@ -120,21 +89,7 @@ Edge Node::getUpstreamEdge(MaterialPtr material, size_t index)
         ElementPtr upstreamNode = input->getConnectedNode();
         if (upstreamNode)
         {
-            return Edge(getSelf(), input, upstreamNode);
-        }
-        const string& interfaceName = input->getInterfaceName();
-        if (!interfaceName.empty())
-        {
-            const string& nodeDefName = getParent()->asA<NodeGraph>()->getNodeDef();
-            NodeDefPtr nodeDef = getDocument()->getNodeDef(nodeDefName);
-            if (nodeDef)
-            {
-                ValueElementPtr interfacePort = nodeDef->getChildOfType<ValueElement>(interfaceName);
-                if (interfacePort)
-                {
-                    return Edge(getSelf(), input, interfacePort);
-                }
-            }
+            return Edge(getSelfNonConst(), input, upstreamNode);
         }
     }
 
@@ -144,7 +99,7 @@ Edge Node::getUpstreamEdge(MaterialPtr material, size_t index)
 vector<PortElementPtr> Node::getDownstreamPorts() const
 {
     vector<PortElementPtr> downstreamPorts;
-    for (PortElementPtr port : getDocument()->getMatchingPorts(getSelf()))
+    for (PortElementPtr port : getDocument()->getMatchingPorts(getName()))
     {
         if (port->getConnectedNode() == getSelf())
         {
@@ -165,6 +120,11 @@ bool Node::validate(string* message) const
 // NodeGraph methods
 //
 
+NodeDefPtr NodeGraph::getNodeDef() const
+{
+    return getDocument()->getNodeDef(getNodeDefString());
+}
+
 void NodeGraph::flattenSubgraphs(const string& target)
 {
     vector<NodePtr> initialNodes = getNodes();
@@ -175,7 +135,7 @@ void NodeGraph::flattenSubgraphs(const string& target)
         NodePtr refNode = nodeQueue.front();
         nodeQueue.pop_front();
 
-        ElementPtr implement = refNode->getImplementation(target);
+        InterfaceElementPtr implement = refNode->getImplementation(target);
         if (!implement || !implement->isA<NodeGraph>())
         {
             continue;
@@ -201,7 +161,7 @@ void NodeGraph::flattenSubgraphs(const string& target)
                 }
 
                 ValueElementPtr refValue = refNode->getChildOfType<ValueElement>(newValue->getInterfaceName());
-                if (refValue)
+                if (refNode)
                 {
                     if (refValue->hasValueString())
                     {
@@ -210,22 +170,14 @@ void NodeGraph::flattenSubgraphs(const string& target)
                     if (newValue->isA<Input>() && refValue->isA<Input>())
                     {
                         InputPtr refInput = refValue->asA<Input>();
+                        InputPtr newInput = newValue->asA<Input>();
                         if (refInput->hasNodeName())
                         {
-                            InputPtr newInput = newValue->asA<Input>();
                             newInput->setNodeName(refInput->getNodeName());
                         }
                     }
-                    if (refValue->hasInterfaceName())
-                    {
-                        newValue->setInterfaceName(refValue->getInterfaceName());
-                    }
-                    else
-                    {
-                        newValue->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
-                    }
-                    newValue->setPublicName(refValue->getPublicName());
                 }
+                newValue->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
             }
 
             // Store the mapping between subgraphs.
@@ -233,7 +185,7 @@ void NodeGraph::flattenSubgraphs(const string& target)
 
             // Check if the new subnode has a graph implementation.
             // If so this subgraph will need to be flattened as well.
-            ElementPtr subNodeImplement = newSubNode->getImplementation(target);
+            InterfaceElementPtr subNodeImplement = newSubNode->getImplementation(target);
             if (subNodeImplement && subNodeImplement->isA<NodeGraph>())
             {
                 nodeQueue.push_back(newSubNode);
@@ -280,26 +232,23 @@ vector<ElementPtr> NodeGraph::topologicalSort() const
 
     const vector<ElementPtr>& children = getChildren();
 
-    // Calculate in-degrees for all nodes, and enqueue those with degree 0.
-    std::unordered_map<ElementPtr, int> inDegree(children.size());
+    // Calculate in-degrees for all children.
+    std::unordered_map<ElementPtr, size_t> inDegree(children.size());
     std::deque<ElementPtr> childQueue;
     for (ElementPtr child : children)
     {
-        int connectionCount = 0;
-        if (child->isA<Output>())
+        size_t connectionCount = 0;
+        for (size_t i = 0; i < child->getUpstreamEdgeCount(); ++i)
         {
-            connectionCount += int(!child->asA<Output>()->getNodeName().empty());
-        }
-        else
-        {
-            for (InputPtr input : child->getChildrenOfType<Input>())
+            if (child->getUpstreamEdge(MaterialPtr(), i))
             {
-                connectionCount += int(!input->getNodeName().empty());
+                connectionCount++;
             }
         }
 
         inDegree[child] = connectionCount;
 
+        // Enqueue children with in-degree 0.
         if (connectionCount == 0)
         {
             childQueue.push_back(child);
@@ -320,11 +269,16 @@ vector<ElementPtr> NodeGraph::topologicalSort() const
         // adding node to the queue if in-degrees becomes 0.
         if (child->isA<Node>())
         {
-            for (auto port : child->asA<Node>()->getDownstreamPorts())
+            for (PortElementPtr port : child->asA<Node>()->getDownstreamPorts())
             {
                 const ElementPtr downstreamElem = port->isA<Output>() ? port : port->getParent();
-                if (--inDegree[downstreamElem] <= 0)
+                if (inDegree[downstreamElem] > 1)
                 {
+                    inDegree[downstreamElem]--;
+                }
+                else
+                {
+                    inDegree[downstreamElem] = 0;
                     childQueue.push_back(downstreamElem);
                 }
             }

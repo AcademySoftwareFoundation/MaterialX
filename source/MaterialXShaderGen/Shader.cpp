@@ -58,7 +58,7 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
     // 
 
     // Keep track of the default geometric nodes we create below.
-    unordered_map<string, NodePtr> defaultGeometricNodes;
+    std::unordered_map<string, NodePtr> defaultGeometricNodes;
 
     ElementPtr root;
     MaterialPtr material;
@@ -76,7 +76,7 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
         newNode->copyContentFrom(srcNode);
 
         // Make sure there is a matching node def
-        NodeDefPtr nodeDef = newNode->getReferencedNodeDef();
+        NodeDefPtr nodeDef = newNode->getNodeDef();
         if (!nodeDef)
         {
             throw ExceptionShaderGenError("No nodedef found for node '" + newNode->getCategory() + "' with type '" + newNode->getType() + "'");
@@ -101,14 +101,14 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
         newNode->copyContentFrom(srcNode);
 
         // Make sure there is a matching node def
-        NodeDefPtr nodeDef = newNode->getReferencedNodeDef();
+        NodeDefPtr nodeDef = newNode->getNodeDef();
         if (!nodeDef)
         {
             throw ExceptionShaderGenError("No nodedef found for node '" + newNode->getCategory() + "' with type '" + newNode->getType() + "'");
         }
 
         // Copy the nodedef string from the source node
-        _nodeGraph->setNodeDef(nodeDef->getName());
+        _nodeGraph->setNodeDef(nodeDef);
 
         // Connect any needed default geometric nodes
         addDefaultGeometricNodes(newNode, nodeDef, _nodeGraph);
@@ -121,16 +121,16 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
     else if (element->isA<ShaderRef>())
     {
         ShaderRefPtr shaderRef = element->asA<ShaderRef>();
-        NodeDefPtr nodeDef = shaderRef->getReferencedShaderDef();
+        NodeDefPtr nodeDef = shaderRef->getNodeDef();
         if (!nodeDef)
         {
-            throw ExceptionShaderGenError("No nodedef found for shader node '" + shaderRef->getNode() + "'");
+            throw ExceptionShaderGenError("No nodedef found for shader node '" + shaderRef->getNodeString() + "'");
         }
 
         // Copy the nodedef string from the source shader
-        _nodeGraph->setNodeDef(nodeDef->getName());
+        _nodeGraph->setNodeDef(nodeDef);
 
-        NodePtr newNode = _nodeGraph->addNode(nodeDef->getNode(), getLongName(shaderRef), nodeDef->getType());
+        NodePtr newNode = _nodeGraph->addNode(nodeDef->getNodeString(), getLongName(shaderRef), nodeDef->getType());
         for (BindInputPtr bindInput : shaderRef->getBindInputs())
         {
             InputPtr input = newNode->addInput(bindInput->getName(), bindInput->getType());
@@ -197,7 +197,7 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
             newNode->copyContentFrom(upstreamNode);
 
             // Make sure there is a matching node def
-            NodeDefPtr nodeDef = newNode->getReferencedNodeDef();
+            NodeDefPtr nodeDef = newNode->getNodeDef();
             if (!nodeDef)
             {
                 throw ExceptionShaderGenError("No nodedef found for node '" + newNode->getCategory() + "' with type '" + newNode->getType() + "'");
@@ -246,7 +246,7 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
     _vdirection = vdir == "down" ? VDirection::DOWN : VDirection::UP;;
 
     // Create shader uniforms from the graph interface being used
-    NodeDefPtr graphNodeDef = doc->getNodeDef(_nodeGraph->getNodeDef());
+    NodeDefPtr graphNodeDef = doc->getNodeDef(_nodeGraph->getNodeDefString());
     if (graphNodeDef)
     {
         for (ParameterPtr param : graphNodeDef->getParameters())

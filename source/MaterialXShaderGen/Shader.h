@@ -7,6 +7,7 @@
 
 #include <queue>
 #include <sstream>
+#include <unordered_map>
 
 namespace MaterialX
 {
@@ -41,10 +42,10 @@ public:
     };
 
     /// Container for uniform shader parameters
-    using Uniforms = unordered_map<string, ParameterPtr>;
+    using Uniforms = std::unordered_map<string, ParameterPtr>;
 
     /// Container for varying shader parameters
-    using Varyings = unordered_map<string, InputPtr>;
+    using Varyings = std::unordered_map<string, InputPtr>;
 
 public:
     /// Constructor
@@ -156,7 +157,7 @@ protected:
     {
         int indentations;
         std::queue<Brackets> scopes;
-        set<string> includes;
+        std::set<string> includes;
         string code;
         Stage() : indentations(0) {}
     };
@@ -175,8 +176,8 @@ protected:
     OutputPtr _output;
     unsigned int _classification;
     vector<SgNode> _nodes;
-    unordered_map<NodePtr, size_t> _nodeToSgNodeIndex;
-    set<ValueElementPtr> _usedInterface;
+    std::unordered_map<NodePtr, size_t> _nodeToSgNodeIndex;
+    std::set<ValueElementPtr> _usedInterface;
     VDirection _vdirection;
 
     size_t _activeStage;

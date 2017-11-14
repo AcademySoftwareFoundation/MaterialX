@@ -123,10 +123,10 @@ class Document : public Element
         removeChildOfType<NodeGraph>(name);
     }
 
-    /// Return a vector of all port elements that match the given node.
+    /// Return a vector of all port elements that match the given node name.
     /// Port elements support spatially-varying upstream connections to
     /// nodes, and include both Input and Output elements.
-    vector<PortElementPtr> getMatchingPorts(const ConstElementPtr& node) const;
+    vector<PortElementPtr> getMatchingPorts(const string& nodeName) const;
 
     /// @}
     /// @name Material Elements
@@ -310,7 +310,7 @@ class Document : public Element
         child->setType(type);
         if (!node.empty())
         {
-            child->setNode(node);
+            child->setNodeString(node);
         }
         return child;
     }
@@ -335,11 +335,6 @@ class Document : public Element
 
     /// Return a vector of all NodeDef elements that match the given node name.
     vector<NodeDefPtr> getMatchingNodeDefs(const string& nodeName) const;
-
-    /// Return a vector of all node implementations that match the given
-    /// NodeDef string.  Note that a node implementation may be either an
-    /// Implementation element or NodeGraph element.
-    vector<ElementPtr> getMatchingImplementations(const string& nodeDef) const;
 
     /// @}
     /// @name PropertySet Elements
@@ -404,6 +399,11 @@ class Document : public Element
     {
         removeChildOfType<Implementation>(name);
     }
+
+    /// Return a vector of all node implementations that match the given
+    /// NodeDef string.  Note that a node implementation may be either an
+    /// Implementation element or NodeGraph element.
+    vector<InterfaceElementPtr> getMatchingImplementations(const string& nodeDef) const;
 
     /// @}
     /// @name Public Elements
@@ -488,19 +488,6 @@ class Document : public Element
     }
 
     /// @}
-    /// @name String Substitutions
-    /// @{
-
-    /// Return the map of filename string substitutions defined for the given geom.
-    StringMap getFilenameStringMap(const string& geom) const;
-
-    /// Given an input filename and geom string, apply any string substitutions
-    /// that have been defined for the given geom to the filename, returning the
-    /// modified filename.
-    string applyStringSubstitutions(const string& filename,
-                                    const string& geom = UNIVERSAL_GEOM_NAME) const;
-
-    /// @}
     /// @name Validation
     /// @{
 
@@ -517,10 +504,10 @@ class Document : public Element
     /// @name Callbacks
     /// @{
 
-    /// Enable all observer notifications
+    /// Enable all observer notifications		
     virtual void enableNotifications() { }
-
-    /// Disable all observer notifications
+    
+    /// Disable all observer notifications		
     virtual void disableNotifications() { }
 
     /// Called when an element is added to the element tree.
@@ -585,18 +572,18 @@ class ScopedUpdate
         _doc->onEndUpdate();
     }
 
-private:
+    private:
     DocumentPtr _doc;
 };
 
-/// @class @ScopedDisableNotifications
-/// An RAII class for disabling all Document notifications.
-///
-/// A ScopedDisableNotifications instance calls Document::disableNotifications() when created, and
-/// Document::enableNotifications when destroyed.
+/// @class @ScopedDisableNotifications		
+/// An RAII class for disabling all Document notifications.		
+///		
+/// A ScopedDisableNotifications instance calls Document::disableNotifications() when created, and		
+/// Document::enableNotifications when destroyed.		
 class ScopedDisableNotifications
 {
-public:
+  public:
     ScopedDisableNotifications(DocumentPtr doc) :
         _doc(doc)
     {
@@ -606,8 +593,7 @@ public:
     {
         _doc->enableNotifications();
     }
-
-private:
+  private:
     DocumentPtr _doc;
 };
 
