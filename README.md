@@ -112,5 +112,15 @@ To build the full set of items the following cmake variables should be defined
 * MAYA_DEBUG_DIR=```<run-time path to Maya>```
 * MAYA_RELEASE_DIR=```<run-time path to Maya>```
 
+#### Example Windows build script:
+```
+mkdir build_public_release
+cd build_public_release
+cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON -DMATERIALX_BUILD_DOCS=ON -DMATERIALX_BUILD_MAYA_EXPORTER=ON -DMAYA_DEBUG_DIR="D:\Work\maya_cuts\mainline-2cd3ff87c4-201711091615-RUNTIME\runTime" -DMAYA_RELEASE_DIR="D:\Work\maya_cuts\mainline-2cd3ff87c4-201711091615-RUNTIME\runTime" -G "Visual Studio 14 2015 Win64" ..
+cmake --build . --target install --config Release
+ctest -VV --debug --output-on-failure --build-config Release
+cmake -E chdir ../python/MaterialXTest python main.py
+```
+
 ### Coding standards
 Make sure to follow the Pixar/ILM coding standards.
