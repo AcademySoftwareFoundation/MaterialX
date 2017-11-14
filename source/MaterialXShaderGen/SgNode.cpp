@@ -273,6 +273,11 @@ const SgOutput* SgNode::getOutput(const string& name) const
 
 SgInput* SgNode::addInput(const string& name, const string& type)
 {
+    if (getInput(name))
+    {
+        throw ExceptionShaderGenError("An input named '" + name + "' already exists on node '" + _name + "'");
+    }
+
     SgInputPtr input = std::make_shared<SgInput>();
     input->name = name;
     input->type = type;
@@ -288,6 +293,11 @@ SgInput* SgNode::addInput(const string& name, const string& type)
 
 SgOutput* SgNode::addOutput(const string& name, const string& type)
 {
+    if (getOutput(name))
+    {
+        throw ExceptionShaderGenError("An output named '" + name + "' already exists on node '" + _name + "'");
+    }
+
     SgOutputPtr output = std::make_shared<SgOutput>();
     output->name = name;
     output->type = type;
@@ -336,21 +346,6 @@ SgNodeGraphPtr SgNodeGraph::creator(NodeGraphPtr nodeGraph, ShaderGenerator& sha
         for (Edge edge : graphOutput->traverseGraph())
         {
             ElementPtr upstreamElement = edge.getUpstreamElement();
-
-            // Check if this is a connection to the graph interface
-            if (upstreamElement->getParent()->isA<NodeDef>())
-            {
-                // Find the downstream input this came from and connect to the graph socket
-                SgNode* downstream = graph->getNode(edge.getDownstreamElement()->getName());
-                if (downstream)
-                {
-                    SgInput* downstreamInput = downstream->getInput(edge.getConnectingElement()->getName());
-                    SgOutput* inputSocket = graph->getInputSocket(upstreamElement->getName());
-                    inputSocket->makeConnection(downstreamInput);
-                }
-
-                continue;
-            }
 
             // If it's an output move on to the actual node connected to the output.
             if (upstreamElement->isA<Output>())
@@ -462,21 +457,6 @@ SgNodeGraphPtr SgNodeGraph::creator(const string& name, ElementPtr element, Shad
     {
         ElementPtr upstreamElement = edge.getUpstreamElement();
 
-        // Check if this is a connection to the graph interface
-        if (upstreamElement->getParent()->isA<NodeDef>())
-        {
-            // Find the downstream input this came from and connect to the graph socket
-            SgNode* downstreamNode = graph->getNode(edge.getDownstreamElement()->getName());
-            if (downstreamNode)
-            {
-                SgInput* downstreamInput = downstreamNode->getInput(edge.getConnectingElement()->getName());
-                SgOutput* inputSocket = graph->getInputSocket(upstreamElement->getName());
-                inputSocket->makeConnection(downstreamInput);
-            }
-
-            continue;
-        }
-
         // If it's an output move on to the actual node connected to the output.
         if (upstreamElement->isA<Output>())
         {
@@ -545,13 +525,28 @@ SgNode* SgNodeGraph::addNode(const Node& node, ShaderGenerator& shadergen)
             ValueElementPtr inputElem = node.getChildOfType<ValueElement>(input->name);
             if (inputElem)
             {
-                string publicName;
-                if (shadergen.shouldPublish(inputElem.get(), publicName))
+                // Check if it's connected to the graph interface
+                const string& interfaceName = inputElem->getInterfaceName();
+                if (!interfaceName.empty())
                 {
-                    SgInputSocket* inputSocket = addInputSocket(publicName, input->type);
+                    SgOutput* inputSocket = getInputSocket(interfaceName);
+                    if (!inputSocket)
+                    {
+                        throw ExceptionShaderGenError("Interface name '" + interfaceName + "' doesn't match an existing input on node graph '" + getName() + "'");
+                    }
                     inputSocket->makeConnection(input);
-                    inputSocket->value = input->value;
-                    inputSocket->published = input->published = true;
+                }
+                else
+                {
+                    // Query shader generator if it should be published as a new input socket
+                    string publicName;
+                    if (shadergen.shouldPublish(inputElem.get(), publicName))
+                    {
+                        SgInputSocket* inputSocket = addInputSocket(publicName, input->type);
+                        inputSocket->makeConnection(input);
+                        inputSocket->value = input->value;
+                        inputSocket->published = input->published = true;
+                    }
                 }
             }
         }
@@ -732,12 +727,18 @@ void SgNodeGraph::optimize()
         if (node->hasClassification(SgNode::Classification::CONSTANT))
         {
             // Constant nodes can be removed by assigning their value downstream
-            for (SgInput* downstream : node->getOutput()->connections)
+            // But don't remove it if it's connected upstream, i.e. it's value 
+            // input is published.
+            SgInput* valueInput = node->getInput(0);
+            if (!valueInput->connection)
             {
-                downstream->value = node->getInput(0)->value;
+                for (SgInput* downstream : node->getOutput()->connections)
+                {
+                    downstream->value = valueInput->value;
+                }
+                disconnect(node);
+                ++numEdits;
             }
-            disconnect(node);
-            ++numEdits;
         }
         else if (node->hasClassification(SgNode::Classification::IFELSE))
         {
