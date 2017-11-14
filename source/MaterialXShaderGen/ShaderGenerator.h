@@ -55,10 +55,10 @@ public:
 
     /// Emit the connected variable name for an input,
     /// or constant value if the port is not connected
-    virtual void emitInput(const SgInput* input, Shader& shader);
+    virtual void emitInput(const SgInput* input, Shader& shader) const;
 
     /// Emit the output variable name for an output, optionally including it's type
-    virtual void emitOutput(const SgOutput* output, bool includeType, Shader& shader);
+    virtual void emitOutput(const SgOutput* output, bool includeType, Shader& shader) const;
 
     /// Query the shader generator if it wants to publish a given port as a
     /// shader uniform. Return the publicName to use if it should be published.

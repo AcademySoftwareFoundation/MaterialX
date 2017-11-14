@@ -35,7 +35,7 @@ public:
     bool published;
 
     void makeConnection(SgOutput* src);
-    void breakConnection(SgOutput* src);
+    void breakConnection();
 };
 
 /// An output on an SgNode
@@ -51,6 +51,7 @@ public:
 
     void makeConnection(SgInput* dst);
     void breakConnection(SgInput* dst);
+    void breakConnection();
 
     SgEdgeIterator traverseUpstream();
 };
@@ -193,7 +194,6 @@ protected:
     ScopeInfo _scopeInfo;
     set<const SgNode*> _usedClosures;
 
-    friend class Shader;
     friend class SgNodeGraph;
 };
 
@@ -249,6 +249,12 @@ protected:
     SgInputSocket* addInputSocket(const string& name, const string& type);
     SgOutputSocket* addOutputSocket(const string& name, const string& type);
 
+    /// Perform all post-build operations on the graph.
+    void finalize();
+
+    /// Optimize the graph, removing redundant paths.
+    void optimize();
+
     /// Sort the nodes in topological order.
     /// @throws ExceptionFoundCycle if a cycle is encountered.
     void topologicalSort();
@@ -256,8 +262,8 @@ protected:
     /// Calculate scopes for all nodes in the graph
     void calculateScopes();
 
-    /// Perform post-build operations on the graph
-    void finalize();
+    /// Break all connections on a node
+    static void disconnect(SgNode* node);
 
     unordered_map<string, SgNodePtr> _nodeMap;
     vector<SgNode*> _nodeOrder;

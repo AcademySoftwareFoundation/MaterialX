@@ -79,8 +79,14 @@ void ShaderGenerator::emitFinalOutput(Shader& shader) const
     const SgOutputSocket* outputSocket = graph->getOutputSocket();
     const string outputVariable = _syntax->getVariableName(outputSocket);
 
-    string finalResult = _syntax->getVariableName(outputSocket->connection);
+    if (!outputSocket->connection)
+    {
+        // Early out for the rare case where the whole graph is just a single value
+        shader.addLine(outputVariable + " = " + (outputSocket->value ? _syntax->getValue(*outputSocket->value) : _syntax->getTypeDefault(outputSocket->type)));
+        return;
+    }
 
+    string finalResult = _syntax->getVariableName(outputSocket->connection);
     if (outputSocket->channels != EMPTY_STRING)
     {
         finalResult = _syntax->getSwizzledVariable(finalResult, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
@@ -95,7 +101,7 @@ void ShaderGenerator::emitUniform(const string& name, const string& type, const 
     shader.addStr(_syntax->getTypeName(type) + " " + name + (initStr.empty() ? "" : " = " + initStr));
 }
 
-void ShaderGenerator::emitInput(const SgInput* input, Shader &shader)
+void ShaderGenerator::emitInput(const SgInput* input, Shader &shader) const
 {
     if (input->connection)
     {
@@ -120,7 +126,7 @@ void ShaderGenerator::emitInput(const SgInput* input, Shader &shader)
     }
 }
 
-void ShaderGenerator::emitOutput(const SgOutput* output, bool includeType, Shader& shader)
+void ShaderGenerator::emitOutput(const SgOutput* output, bool includeType, Shader& shader) const
 {
     string typeStr;
     if (includeType)

@@ -29,7 +29,7 @@ void Compound::initialize(ElementPtr implementation, ShaderGenerator& shadergen)
     _functionName = graph->getName();
 }
 
-void Compound::emitFunction(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
+void Compound::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
 {
     // Make the compound root graph the active graph
     shader.pushActiveGraph(_rootGraph.get());

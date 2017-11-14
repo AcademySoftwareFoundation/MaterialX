@@ -21,10 +21,13 @@ void SgInput::makeConnection(SgOutput* src)
     src->connections.insert(this);
 }
 
-void SgInput::breakConnection(SgOutput* src)
+void SgInput::breakConnection()
 {
-    src->connections.erase(this);
-    this->connection = nullptr;
+    if (this->connection)
+    {
+        this->connection->connections.erase(this);
+        this->connection = nullptr;
+    }
 }
 
 void SgOutput::makeConnection(SgInput* dst)
@@ -37,6 +40,15 @@ void SgOutput::breakConnection(SgInput* dst)
 {
     this->connections.erase(dst);
     dst->connection = nullptr;
+}
+
+void SgOutput::breakConnection()
+{
+    for (SgInput* input : this->connections)
+    {
+        input->connection = nullptr;
+    }
+    this->connections.clear();
 }
 
 SgEdgeIterator SgOutput::traverseUpstream()
@@ -215,6 +227,10 @@ SgNodePtr SgNode::creator(const string& name, const NodeDef& nodeDef, ShaderGene
     {
         newNode->_classification = Classification::VDF | Classification::CLOSURE;
     }
+    else if (nodeDef.getNode() == "constant")
+    {
+        newNode->_classification = Classification::TEXTURE | Classification::CONSTANT;
+    }
     else if (nodeDef.getNode() == "image")
     {
         newNode->_classification = Classification::TEXTURE | Classification::FILETEXTURE;
@@ -320,19 +336,11 @@ SgNodeGraphPtr SgNodeGraph::creator(NodeGraphPtr nodeGraph, ShaderGenerator& sha
         for (Edge edge : graphOutput->traverseGraph())
         {
             ElementPtr upstreamElement = edge.getUpstreamElement();
-            if (upstreamElement->isA<Output>())
-            {
-                upstreamElement = upstreamElement->asA<Output>()->getConnectedNode();
-                if (!upstreamElement)
-                {
-                    continue;
-                }
-            }
 
             // Check if this is a connection to the graph interface
             if (upstreamElement->getParent()->isA<NodeDef>())
             {
-                // Find the downstream input this came from and connect to the graph interface
+                // Find the downstream input this came from and connect to the graph socket
                 SgNode* downstream = graph->getNode(edge.getDownstreamElement()->getName());
                 if (downstream)
                 {
@@ -342,6 +350,16 @@ SgNodeGraphPtr SgNodeGraph::creator(NodeGraphPtr nodeGraph, ShaderGenerator& sha
                 }
 
                 continue;
+            }
+
+            // If it's an output move on to the actual node connected to the output.
+            if (upstreamElement->isA<Output>())
+            {
+                upstreamElement = upstreamElement->asA<Output>()->getConnectedNode();
+                if (!upstreamElement)
+                {
+                    continue;
+                }
             }
 
             NodePtr upstreamNode = upstreamElement->asA<Node>();
@@ -374,6 +392,7 @@ SgNodeGraphPtr SgNodeGraph::creator(NodeGraphPtr nodeGraph, ShaderGenerator& sha
     }
 
     // Set classification according to last node
+    // TODO: What if the graph has multiple outputs?
     graph->_classification = graph->getOutputSocket()->connection->node->_classification;
 
     graph->finalize();
@@ -395,7 +414,7 @@ SgNodeGraphPtr SgNodeGraph::creator(const string& name, ElementPtr element, Shad
         NodePtr srcNode = output->getParent()->isA<NodeGraph>() ? output->getConnectedNode() : output->getParent()->asA<Node>();
         if (!srcNode)
         {
-            ExceptionShaderGenError("Given output element '" + output->getName() + "' has no node connection");
+            throw ExceptionShaderGenError("Given output element '" + output->getName() + "' has no node connection");
         }
 
         // Create this node in the graph and connect it to an output socket
@@ -441,22 +460,12 @@ SgNodeGraphPtr SgNodeGraph::creator(const string& name, ElementPtr element, Shad
     // Traverse and create all dependencies upstream
     for (Edge edge : root->traverseGraph(material))
     {
-        // Find the upstream element. If it's an output move on
-        // to the actual node connected to the output.
         ElementPtr upstreamElement = edge.getUpstreamElement();
-        if (upstreamElement->isA<Output>())
-        {
-            upstreamElement = upstreamElement->asA<Output>()->getConnectedNode();
-            if (!upstreamElement)
-            {
-                continue;
-            }
-        }
 
         // Check if this is a connection to the graph interface
         if (upstreamElement->getParent()->isA<NodeDef>())
         {
-            // Find the downstream input this came from and connect to the graph interface
+            // Find the downstream input this came from and connect to the graph socket
             SgNode* downstreamNode = graph->getNode(edge.getDownstreamElement()->getName());
             if (downstreamNode)
             {
@@ -466,6 +475,16 @@ SgNodeGraphPtr SgNodeGraph::creator(const string& name, ElementPtr element, Shad
             }
 
             continue;
+        }
+
+        // If it's an output move on to the actual node connected to the output.
+        if (upstreamElement->isA<Output>())
+        {
+            upstreamElement = upstreamElement->asA<Output>()->getConnectedNode();
+            if (!upstreamElement)
+            {
+                continue;
+            }
         }
 
         // Create the node.
@@ -668,6 +687,139 @@ SgNode* SgNodeGraph::getNode(const string& name)
     return it != _nodeMap.end() ? it->second.get() : nullptr;
 }
 
+void SgNodeGraph::finalize()
+{
+    optimize();
+    topologicalSort();
+    calculateScopes();
+
+    // Track closure nodes used by each surface shader.
+    for (SgNode* node : _nodeOrder)
+    {
+        if (node->hasClassification(SgNode::Classification::SHADER))
+        {
+            for (SgEdge edge : node->getOutput()->traverseUpstream())
+            {
+                if (edge.upstream)
+                {
+                    if (edge.upstream->node->hasClassification(SgNode::Classification::CLOSURE))
+                    {
+                        node->_usedClosures.insert(edge.upstream->node);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void SgNodeGraph::disconnect(SgNode* node)
+{
+    for (SgInput* input : node->getInputs())
+    {
+        input->breakConnection();
+    }
+    for (SgOutput* output : node->getOutputs())
+    {
+        output->breakConnection();
+    }
+}
+
+void SgNodeGraph::optimize()
+{
+    size_t numEdits = 0;
+    for (SgNode* node : getNodes())
+    {
+        if (node->hasClassification(SgNode::Classification::CONSTANT))
+        {
+            // Constant nodes can be removed by assigning their value downstream
+            for (SgInput* downstream : node->getOutput()->connections)
+            {
+                downstream->value = node->getInput(0)->value;
+            }
+            disconnect(node);
+            ++numEdits;
+        }
+        else if (node->hasClassification(SgNode::Classification::IFELSE))
+        {
+            // Check if we have a constant conditional expression
+            SgInput* intest = node->getInput("intest");
+            if (!intest->connection || intest->connection->node->hasClassification(SgNode::Classification::CONSTANT))
+            {
+                SgInput* cutoff = node->getInput("cutoff");
+
+                ValuePtr value = intest->connection ? intest->connection->node->getInput(0)->value : intest->value;
+                const float intestValue = value ? value->asA<float>() : 0.0f;
+                const int branch = (intestValue <= cutoff->value->asA<float>() ? 2 : 3);
+
+                // Re-route downstream connections to the taken branch
+                // and disconnect the conditional node
+                SgOutput* upstream = node->getInput(branch)->connection;
+                if (upstream)
+                {
+                    for (SgInput* downstream : node->getOutput()->connections)
+                    {
+                        downstream->makeConnection(upstream);
+                    }
+                }
+                disconnect(node);
+                ++numEdits;
+            }
+        }
+        else if (node->hasClassification(SgNode::Classification::SWITCH))
+        {
+            // Check if we have a constant conditional expression
+            SgInput* which = node->getInput("which");
+            if (!which->connection || which->connection->node->hasClassification(SgNode::Classification::CONSTANT))
+            {
+                ValuePtr value = which->connection ? which->connection->node->getInput(0)->value : which->value;
+                const float whichValue = value ? value->asA<float>() : 0.0f;
+                const int branch = int(whichValue);
+
+                // Re-route downstream connections to the taken branch
+                // and disconnect the conditional node
+                SgOutput* upstream = node->getInput(branch)->connection;
+                if (upstream)
+                {
+                    for (SgInput* downstream : node->getOutput()->connections)
+                    {
+                        downstream->makeConnection(upstream);
+                    }
+                }
+                disconnect(node);
+                ++numEdits;
+            }
+        }
+    }
+
+    if (numEdits > 0)
+    {
+        std::set<SgNode*> usedNodes;
+
+        // Travers the graph to find nodes still in use
+        for (SgOutputSocket* outputSocket : getOutputSockets())
+        {
+            if (outputSocket->connection)
+            {
+                for (SgEdge edge : outputSocket->connection->traverseUpstream())
+                {
+                    usedNodes.insert(edge.upstream->node);
+                }
+            }
+        }
+
+        // Remove any unused nodes
+        for (SgNode* node : _nodeOrder)
+        {
+            if (usedNodes.count(node) == 0)
+            {
+                _nodeMap.erase(node->getName());
+            }
+        }
+        _nodeOrder.resize(usedNodes.size());
+        _nodeOrder.assign(usedNodes.begin(), usedNodes.end());
+    }
+}
+
 void SgNodeGraph::topologicalSort()
 {
     // Calculate a topological order of the children, using Kahn's algorithm
@@ -741,6 +893,11 @@ void SgNodeGraph::calculateScopes()
     // TODO: Refactor the scope handling, using scope id's instead
     //
 
+    if (_nodeOrder.empty())
+    {
+        return;
+    }
+
     size_t lastNodeIndex = _nodeOrder.size() - 1;
     SgNode* lastNode = _nodeOrder[lastNodeIndex];
     lastNode->getScopeInfo().type = SgNode::ScopeInfo::Type::GLOBAL;
@@ -792,30 +949,6 @@ void SgNodeGraph::calculateScopes()
                 upstreamScopeInfo.merge(newScopeInfo);
 
                 nodeUsed.insert(upstreamNode);
-            }
-        }
-    }
-}
-
-void SgNodeGraph::finalize()
-{
-    topologicalSort();
-    calculateScopes();
-
-    // Track closure nodes used by each surface shader.
-    for (SgNode* node : _nodeOrder)
-    {
-        if (node->hasClassification(SgNode::Classification::SHADER))
-        {
-            for (SgEdge edge : node->getOutput()->traverseUpstream())
-            {
-                if (edge.upstream)
-                {
-                    if (edge.upstream->node->hasClassification(SgNode::Classification::CLOSURE))
-                    {
-                        node->_usedClosures.insert(edge.upstream->node);
-                    }
-                }
             }
         }
     }

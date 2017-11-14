@@ -55,7 +55,7 @@ void SourceCode::initialize(ElementPtr implementation, ShaderGenerator& shaderge
     }
 }
 
-void SourceCode::emitFunction(const SgNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader)
+void SourceCode::emitFunctionDefinition(const SgNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader)
 {
     // Emit function definition for non-inlined functions
     if (!_inlined)

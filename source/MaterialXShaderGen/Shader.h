@@ -54,8 +54,8 @@ public:
     /// @param shadergen The shader generator instance.
     virtual void initialize(ElementPtr element, ShaderGenerator& shadergen);
 
-    /// Return the number of shader stanges for this shader
-    /// Defaults to a single stage, derived classes can override this
+    /// Return the number of shader stages for this shader.
+    /// Defaults to a single stage, derived classes can override this.
     virtual size_t numStages() const { return 1; }
 
     /// Set the active stage that code will be added to
@@ -112,10 +112,14 @@ public:
     /// Return the shader name
     const string& getName() const { return _name; }
 
-    /// Return the active shader node graph.
+    /// Return the active shader graph.
     SgNodeGraph* getNodeGraph() const { return _graphStack.back(); }
 
+    /// Push a new active shader graph.
+    /// Used when emitting code for compounds / subgraphs.
     void pushActiveGraph(SgNodeGraph* graph) { _graphStack.push_back(graph); }
+
+    /// Reactivate the previously last used shader graph.
     void popActiveGraph() { _graphStack.pop_back(); }
 
     /// Return true if this shader matches the given classification.
@@ -127,6 +131,7 @@ public:
     /// Return the final shader source code for a given shader stage
     const string& getSourceCode(size_t stage = 0) const { return _stages[stage].code; }
 
+    /// Return the uniform inputs published for this shader
     const vector<Uniform>& getUniforms() const { return _uniforms; }
 
 protected:
@@ -146,8 +151,6 @@ protected:
 
     /// Add indentation on current line
     virtual void indent();
-
-    NodePtr optimize(const Edge& edge);
 
     string _name;
     SgNodeGraphPtr _rootGraph;

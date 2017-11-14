@@ -87,27 +87,34 @@ TEST_CASE("Swizzling", "[shadergen]")
 
     // Create a simple test graph
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
-    mx::NodePtr constant = nodeGraph->addNode("constant", "constant1", "color3");
-    mx::NodePtr swizzle = nodeGraph->addNode("swizzle", "swizzle1", "color3");
-    swizzle->setConnectedNode("in", constant);
-    swizzle->setParameterValue("channels", std::string("rrr"));
+    mx::NodePtr constant1 = nodeGraph->addNode("constant", "constant1", "color3");
+    constant1->setParameterValue("value", mx::Color3(1, 2, 3));
+    mx::NodePtr swizzle1 = nodeGraph->addNode("swizzle", "swizzle1", "color3");
+    swizzle1->setConnectedNode("in", constant1);
+    swizzle1->setParameterValue("channels", std::string("rrr"));
     mx::OutputPtr output1 = nodeGraph->addOutput();
-    output1->setConnectedNode(swizzle);
+    output1->setConnectedNode(swizzle1);
 
-    // Create shader gen graph
-    mx::SgNodeGraphPtr sgNodeGraph = mx::SgNodeGraph::creator(nodeGraph->getName(), output1, sg);
-    mx::SgNode* sgNode = sgNodeGraph->getNode("swizzle1");
-
-    // Test swizzle implementation
+    // Test swizzle node implementation
     mx::Shader test1("test1");
+    test1.initialize(output1, sg);
+    mx::SgNode* sgNode = test1.getNodeGraph()->getNode("swizzle1");
     test1.addFunctionCall(sgNode, sg);
-    REQUIRE(test1.getSourceCode() == "color swizzle1_out = color(constant1_out[0], constant1_out[0], constant1_out[0]);\n");
+    const std::string test1Result =
+        "color swizzle1_in = color(1, 2, 3);\n"
+        "color swizzle1_out = color(swizzle1_in[0], swizzle1_in[0], swizzle1_in[0]);\n";
+    REQUIRE(test1.getSourceCode() == test1Result);
 
     // Change swizzle pattern and test again
-    sgNode->getInput("channels")->value = mx::Value::createValue(std::string("b0b"));
+    swizzle1->setParameterValue("channels", std::string("b0b"));
     mx::Shader test2("test2");
+    test2.initialize(output1, sg);
+    sgNode = test2.getNodeGraph()->getNode("swizzle1");
     test2.addFunctionCall(sgNode, sg);
-    REQUIRE(test2.getSourceCode() == "color swizzle1_out = color(constant1_out[2], 0, constant1_out[2]);\n");
+    const std::string test2Result =
+        "color swizzle1_in = color(1, 2, 3);\n"
+        "color swizzle1_out = color(swizzle1_in[2], 0, swizzle1_in[2]);\n";
+    REQUIRE(test2.getSourceCode() == test2Result);
 }
 
 TEST_CASE("Simple Nodegraph Shader Generation", "[shadergen]")
@@ -208,9 +215,9 @@ TEST_CASE("Conditional Nodegraph Shader Generation", "[shadergen]")
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("conditional_test1");
 
     mx::NodePtr constant1 = nodeGraph->addNode("constant", "constant1", "color3");
-    constant1->setParameterValue("value", mx::Color3(1, 0, 0));
+    constant1->setParameterValue("value", mx::Color3(0, 0, 0));
     mx::NodePtr constant2 = nodeGraph->addNode("constant", "constant2", "color3");
-    constant2->setParameterValue("value", mx::Color3(0, 1, 0));
+    constant2->setParameterValue("value", mx::Color3(1, 1, 1));
     mx::NodePtr constant3 = nodeGraph->addNode("constant", "constant3", "float");
     constant3->setParameterValue("value", 0.5f);
 
@@ -262,6 +269,11 @@ TEST_CASE("Conditional Nodegraph Shader Generation", "[shadergen]")
         mx::ShaderPtr shader = desc.shadergen->generate(nodeGraph->getName(), output1);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
+
+        // All of the nodes should have been removed by optimization
+        // leaving a graph with a single constant value
+        REQUIRE(shader->getNodeGraph()->getNodes().empty());
+        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValueString("value"));
 
         // Write out to file for inspection
         // TODO: Match against blessed versions

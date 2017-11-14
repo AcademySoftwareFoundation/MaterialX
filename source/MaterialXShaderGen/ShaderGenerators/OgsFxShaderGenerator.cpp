@@ -135,6 +135,13 @@ void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
     const SgOutputSocket* outputSocket = graph->getOutputSocket();
     const string outputVariable = _syntax->getVariableName(outputSocket);
 
+    if (!outputSocket->connection)
+    {
+        // Early out for the rare case where the whole graph is just a single value
+        shader.addLine(outputVariable + " = " + (outputSocket->value ? _syntax->getValue(*outputSocket->value) : _syntax->getTypeDefault(outputSocket->type)));
+        return;
+    }
+
     string finalResult = _syntax->getVariableName(outputSocket->connection);
 
     if (shader.hasClassification(SgNode::Classification::SURFACE))

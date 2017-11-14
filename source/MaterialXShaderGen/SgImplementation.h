@@ -39,7 +39,7 @@ public:
     virtual void initialize(ElementPtr implementation, ShaderGenerator& shadergen);
 
     /// Emit function definition for the given node instance.
-    virtual void emitFunction(const SgNode& node, ShaderGenerator& shadergen, Shader& shader);
+    virtual void emitFunctionDefinition(const SgNode& node, ShaderGenerator& shadergen, Shader& shader);
 
     /// Emit the function call or inline source code for given node instance.
     virtual void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader);

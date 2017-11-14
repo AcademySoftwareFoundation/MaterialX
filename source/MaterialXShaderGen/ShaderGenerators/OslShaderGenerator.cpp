@@ -159,7 +159,10 @@ void OslShaderGenerator::emitIncludes(Shader& shader)
 void OslShaderGenerator::emitShaderBody(Shader &shader)
 {
     // Emit needed globals
-    shader.addLine("closure color null_closure = 0");
+    if (!shader.getNodeGraph()->hasClassification(SgNode::Classification::TEXTURE))
+    {
+        shader.addLine("closure color null_closure = 0");
+    }
 
     // Call parent
     ShaderGenerator::emitShaderBody(shader);
