@@ -16,8 +16,8 @@ namespace MaterialX
 
 Shader::Shader(const string& name)
     : _name(name)
-    , _activeStage(0)
     , _rootGraph(nullptr)
+    , _activeStage(0)
 {
     _stages.resize(numStages());
 }

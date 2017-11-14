@@ -53,7 +53,7 @@ void Compound::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shade
     const Arguments* args = shadergen.getExtraArguments(node);
     if (args)
     {
-        for (int i = 0; i < args->size(); i++)
+        for (size_t i = 0; i < args->size(); ++i)
         {
             const Argument& arg = (*args)[i];
             shader.addStr(delim + arg.first + " " + arg.second);
@@ -127,7 +127,7 @@ void Compound::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, 
     const Arguments* args = shadergen.getExtraArguments(node);
     if (args)
     {
-        for (int i = 0; i < args->size(); i++)
+        for (size_t i = 0; i < args->size(); ++i)
         {
             const Argument& arg = (*args)[i];
             shader.addStr(delim + arg.second);

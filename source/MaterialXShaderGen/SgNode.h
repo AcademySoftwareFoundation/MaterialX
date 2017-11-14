@@ -322,7 +322,7 @@ private:
 
     SgOutput* _upstream;
     SgInput* _downstream;
-    using StackFrame = pair<SgOutput*, int>;
+    using StackFrame = pair<SgOutput*, size_t>;
     vector<StackFrame> _stack;
     set<SgOutput*> _path;
 };
