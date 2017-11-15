@@ -10,54 +10,50 @@ SgImplementationPtr Swizzle::creator()
     return std::make_shared<Swizzle>();
 }
 
-void Swizzle::emitFunctionCall(const SgNode& sgnode, ShaderGenerator& shadergen, Shader& shader, int, ...)
+void Swizzle::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
 {
-    const Node& node = sgnode.getNode();
-
-    const InputPtr in = node.getInput("in");
-    const ParameterPtr& channels = node.getParameter("channels");
+    const SgInput* in = node.getInput("in");
+    const SgInput* channels = node.getInput("channels");
     if (!in || !channels)
     {
         throw ExceptionShaderGenError("Node '" + node.getName() +"' is not a valid swizzle node");
     }
 
     const SyntaxPtr& syntax = shadergen.getSyntax();
-    const string& swizzle = channels->getValueString();
+    const string& swizzle = channels->value ? channels->value->getValueString() : EMPTY_STRING;
 
     string variableName;
 
-    NodePtr connectedNode = in->getConnectedNode();
-    if (connectedNode)
+    if (in->connection)
     {
-        variableName = syntax->getVariableName(*connectedNode);
+        variableName = syntax->getVariableName(in->connection);
         if (!swizzle.empty())
         {
-            variableName = syntax->getSwizzledVariable(variableName, node.getType(), connectedNode->getType(), swizzle);
+            variableName = syntax->getSwizzledVariable(variableName, node.getOutput()->type, in->connection->type, swizzle);
         }
     }
     else
     {
-        const ValuePtr value = in->getValue();
-        if (!value)
+        if (!in->value)
         {
             throw ExceptionShaderGenError("No connection or value found to swizzle on node '" + node.getName() + "'");
         }
 
-        variableName = syntax->getVariableName(*in);
+        variableName = syntax->getVariableName(in);
 
         shader.beginLine();
-        shader.addStr(syntax->getTypeName(in->getType()) + " " + variableName);
-        shader.addStr(" = " + syntax->getValue(*value));
+        shader.addStr(syntax->getTypeName(in->type) + " " + variableName);
+        shader.addStr(" = " + syntax->getValue(*in->value));
         shader.endLine();
 
         if (!swizzle.empty())
         {
-            variableName = syntax->getSwizzledVariable(variableName, node.getType(), in->getType(), swizzle);
+            variableName = syntax->getSwizzledVariable(variableName, node.getOutput()->type, in->type, swizzle);
         }
     }
 
     shader.beginLine();
-    shadergen.emitOutput(node, true, shader);
+    shadergen.emitOutput(node.getOutput(), true, shader);
     shader.addStr(" = " + variableName);
     shader.endLine();
 }

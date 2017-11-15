@@ -1,6 +1,7 @@
 #include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/SgImplementation.h>
 #include <MaterialXShaderGen/Implementations/SourceCode.h>
+#include <MaterialXShaderGen/Implementations/Compound.h>
 
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Document.h>
@@ -14,6 +15,11 @@ namespace MaterialX
 {
 
 FileSearchPath ShaderGenerator::_sourceCodeSearchPath;
+
+ShaderGenerator::ShaderGenerator(SyntaxPtr syntax) 
+    : _syntax(syntax) 
+{
+}
 
 Shader::VDirection ShaderGenerator::getTargetVDirection() const
 {
@@ -37,14 +43,9 @@ void ShaderGenerator::emitTypeDefs(Shader& shader)
 void ShaderGenerator::emitFunctions(Shader& shader)
 {
     // Emit funtion definitions for all nodes
-    StringSet emittedNodeDefs;
-    for (const SgNode& node : shader.getNodes())
+    for (SgNode* node : shader.getNodeGraph()->getNodes())
     {
-        if (emittedNodeDefs.find(node.getNodeDef().getName()) == emittedNodeDefs.end())
-        {
-            node.getImplementation()->emitFunction(node, *this, shader);
-            emittedNodeDefs.insert(node.getNodeDef().getName());
-        }
+        shader.addFunctionDefinition(node, *this);
     }
 }
 
@@ -53,39 +54,45 @@ void ShaderGenerator::emitShaderBody(Shader &shader)
     const bool debugOutput = true;
 
     // Emit function calls for all nodes
-    for (const SgNode& node : shader.getNodes())
+    for (SgNode* node : shader.getNodeGraph()->getNodes())
     {
         // Omit node if it's only used inside a conditional branch
-        if (node.referencedConditionally())
+        if (node->referencedConditionally())
         {
             if (debugOutput)
             {
                 std::stringstream str;
-                str << "// Omitted node '" << node.getName() << "'. Only used in conditional node '" << node.getScopeInfo().conditionalNode->getName() << "'";
+                str << "// Omitted node '" << node->getName() << "'. Only used in conditional node '" << node->getScopeInfo().conditionalNode->getName() << "'";
                 shader.addLine(str.str(), false);
             }
             // Omit this node
             continue;
         }
 
-        node.getImplementation()->emitFunctionCall(node, *this, shader);
+        shader.addFunctionCall(node, *this);
     }
-
-    emitFinalOutput(shader);
 }
 
 void ShaderGenerator::emitFinalOutput(Shader& shader) const
 {
-    const OutputPtr& output = shader.getOutput();
-    const NodePtr connectedNode = output->getConnectedNode();
+    SgNodeGraph* graph = shader.getNodeGraph();
+    const SgOutputSocket* outputSocket = graph->getOutputSocket();
+    const string outputVariable = _syntax->getVariableName(outputSocket);
 
-    string finalResult = _syntax->getVariableName(*connectedNode);
-    if (output->getChannels() != EMPTY_STRING)
+    if (!outputSocket->connection)
     {
-        finalResult = _syntax->getSwizzledVariable(finalResult, output->getType(), connectedNode->getType(), output->getChannels());
+        // Early out for the rare case where the whole graph is just a single value
+        shader.addLine(outputVariable + " = " + (outputSocket->value ? _syntax->getValue(*outputSocket->value) : _syntax->getTypeDefault(outputSocket->type)));
+        return;
     }
 
-    shader.addLine(_syntax->getVariableName(*output) + " = " + finalResult);
+    string finalResult = _syntax->getVariableName(outputSocket->connection);
+    if (outputSocket->channels != EMPTY_STRING)
+    {
+        finalResult = _syntax->getSwizzledVariable(finalResult, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
+    }
+
+    shader.addLine(outputVariable + " = " + finalResult);
 }
 
 void ShaderGenerator::emitUniform(const string& name, const string& type, const ValuePtr& value, Shader& shader)
@@ -94,118 +101,90 @@ void ShaderGenerator::emitUniform(const string& name, const string& type, const 
     shader.addStr(_syntax->getTypeName(type) + " " + name + (initStr.empty() ? "" : " = " + initStr));
 }
 
-void ShaderGenerator::emitInput(const ValueElement& port, Shader &shader)
+void ShaderGenerator::emitInput(const SgInput* input, Shader &shader) const
 {
-    if (port.isA<Input>())
+    if (input->connection)
     {
-        ConstInputPtr input = port.asA<Input>();
-        const NodePtr connectedNode = input->getConnectedNode();
-        if (connectedNode)
+        string name = _syntax->getVariableName(input->connection);
+        if (input->channels != EMPTY_STRING)
         {
-            string name = _syntax->getVariableName(*connectedNode);
-            if (input->getChannels() != EMPTY_STRING)
-            {
-                name = _syntax->getSwizzledVariable(name, input->getType(), connectedNode->getType(), input->getChannels());
-            }
-
-            shader.addStr(name);
-
-            return;
+            name = _syntax->getSwizzledVariable(name, input->type, input->connection->type, input->channels);
         }
+
+        shader.addStr(name);
+
+        return;
     }
 
-    if (!port.getInterfaceName().empty())
+    if (input->value)
     {
-        shader.addStr(port.getInterfaceName());
-    }
-    else if (!port.getPublicName().empty())
-    {
-        shader.addStr(port.getPublicName());
+        shader.addStr(_syntax->getValue(*input->value));
     }
     else
     {
-        const string& valueStr = port.getValueString();
-        if (valueStr.length())
-        {
-            ValuePtr value = port.getValue();
-            if (!value)
-            {
-                throw ExceptionShaderGenError("Malformed value on node port " + port.getParent()->getName() + "." + port.getName());
-            }
-            shader.addStr(_syntax->getValue(*value));
-        }
-        else
-        {
-            shader.addStr(_syntax->getTypeDefault(port.getType()));
-        }
+        shader.addStr(_syntax->getTypeDefault(input->type));
     }
 }
 
-void ShaderGenerator::emitOutput(const TypedElement& nodeOrOutput, bool includeType, Shader& shader)
+void ShaderGenerator::emitOutput(const SgOutput* output, bool includeType, Shader& shader) const
 {
     string typeStr;
     if (includeType)
     {
-        typeStr = _syntax->getTypeName(nodeOrOutput.getType()) + " ";
+        typeStr = _syntax->getTypeName(output->type) + " ";
     }
-    shader.addStr(typeStr + _syntax->getVariableName(nodeOrOutput));
+    shader.addStr(typeStr + _syntax->getVariableName(output));
 }
 
-string ShaderGenerator::id(const string& language, const string& target)
+bool ShaderGenerator::shouldPublish(const ValueElement* port, string& publicName) const
 {
-    return language + "_" + target;
+    ConstInputPtr inputElem = port->asA<Input>();
+    const string& connectedNode = inputElem ? inputElem->getNodeName() : EMPTY_STRING;
+    publicName = connectedNode.empty() ? port->getPublicName() : EMPTY_STRING;
+    return !publicName.empty();
 }
 
-void ShaderGenerator::registerNodeImplementation(const string& name, CreatorFunc<SgImplementation> creator)
+const Arguments* ShaderGenerator::getExtraArguments(const SgNode&) const
 {
-    _nodeImplFactory.registerClass(name, creator);
+    return nullptr;
 }
 
-SgImplementationPtr ShaderGenerator::getNodeImplementation(const NodeDef& nodeDef)
+void ShaderGenerator::registerImplementation(const string& name, CreatorFunc<SgImplementation> creator)
 {
-    // Find the matching implementation element in the document
-    ImplementationPtr matchingImpl;
-    vector<InterfaceElementPtr> elements = nodeDef.getDocument()->getMatchingImplementations(nodeDef.getName());
-    for (InterfaceElementPtr element : elements)
-    {
-        ImplementationPtr candidate = element->asA<Implementation>();
-        if (candidate)
-        {
-            const string& matchingTarget = candidate->getTarget();
-            if (candidate->getLanguage() == getLanguage() && (matchingTarget.empty() || matchingTarget == getTarget()))
-            {
-                matchingImpl = candidate;
-                break;
-            }
-        }
-    }
+    _implFactory.registerClass(name, creator);
+}
 
-    if (!matchingImpl)
-    {
-        throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef.getNodeString() +
-            "' matching language '" + getLanguage() + "' and target '" + getTarget() + "'");
-    }
-
-    const string& name = matchingImpl->getName();
+SgImplementationPtr ShaderGenerator::getImplementation(ElementPtr element)
+{
+    const string& name = element->getName();
 
     // Check if it's created already
-    auto it = _cachedNodeImpls.find(name);
-    if (it != _cachedNodeImpls.end())
+    auto it = _cachedImpls.find(name);
+    if (it != _cachedImpls.end())
     {
         return it->second;
     }
 
-    // Try creating a new in the factory
-    SgImplementationPtr impl = _nodeImplFactory.create(name);
-    if (!impl)
+    SgImplementationPtr impl;
+    if (element->isA<NodeGraph>())
     {
-        // No implementation was registed for this name
-        // Fall back to data driven source code implementation
-        impl = SourceCode::creator();
+        // Use the graph based compound implementation
+        impl = Compound::creator();
+    }
+    else
+    {
+        // Try creating a new in the factory
+        impl = _implFactory.create(name);
+        if (!impl)
+        {
+            // No implementation was registed for this name
+            // Fall back to the data driven source code implementation
+            impl = SourceCode::creator();
+        }
     }
 
-    impl->initialize(*matchingImpl);
-    _cachedNodeImpls[name] = impl;
+    impl->initialize(element, *this);
+    _cachedImpls[name] = impl;
 
     return impl;
 }

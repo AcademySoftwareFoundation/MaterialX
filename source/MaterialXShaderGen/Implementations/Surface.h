@@ -14,7 +14,7 @@ public:
     const string& getLanguage() const override;
     const string& getTarget() const override;
 
-    void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader, int numArgs = 0, ...) override;
+    void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 
     bool isTransparent(const SgNode& node) const override;
 };

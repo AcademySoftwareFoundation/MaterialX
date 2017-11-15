@@ -215,7 +215,7 @@ OslSyntax::OslSyntax()
             "volumeshader", 
             "{0,0,0}", 
             "0",
-            "struct volumeshader { VDF vdf; EDF  edf; color absorption; };",
+            "struct volumeshader { VDF vdf; EDF edf; color absorption; };",
             "output volumeshader" 
         )
     );

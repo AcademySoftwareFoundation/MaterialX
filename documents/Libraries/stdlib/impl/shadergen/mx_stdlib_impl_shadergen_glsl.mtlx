@@ -423,22 +423,22 @@
   <!-- ======================================================================== -->
 
   <!-- <compare> -->
-  <implementation name="IM_compare__float_glsl" nodedef="ND_compare__float" language="glsl"/>
-  <implementation name="IM_compare__color2_glsl" nodedef="ND_compare__color2" language="glsl"/>
-  <implementation name="IM_compare__color3_glsl" nodedef="ND_compare__color3" language="glsl"/>
-  <implementation name="IM_compare__color4_glsl" nodedef="ND_compare__color4" language="glsl"/>
-  <implementation name="IM_compare__vector2_glsl" nodedef="ND_compare__vector2" language="glsl"/>
-  <implementation name="IM_compare__vector3_glsl" nodedef="ND_compare__vector3" language="glsl"/>
-  <implementation name="IM_compare__vector4_glsl" nodedef="ND_compare__vector4" language="glsl"/>
+  <implementation name="IM_compare__float__glsl" nodedef="ND_compare__float" language="glsl"/>
+  <implementation name="IM_compare__color2__glsl" nodedef="ND_compare__color2" language="glsl"/>
+  <implementation name="IM_compare__color3__glsl" nodedef="ND_compare__color3" language="glsl"/>
+  <implementation name="IM_compare__color4__glsl" nodedef="ND_compare__color4" language="glsl"/>
+  <implementation name="IM_compare__vector2__glsl" nodedef="ND_compare__vector2" language="glsl"/>
+  <implementation name="IM_compare__vector3__glsl" nodedef="ND_compare__vector3" language="glsl"/>
+  <implementation name="IM_compare__vector4__glsl" nodedef="ND_compare__vector4" language="glsl"/>
 
   <!-- <switch> -->
-  <implementation name="IM_switch__float_glsl" nodedef="ND_switch__float" language="glsl"/>
-  <implementation name="IM_switch__color2_glsl" nodedef="ND_switch__color2" language="glsl"/>
-  <implementation name="IM_switch__color3_glsl" nodedef="ND_switch__color3" language="glsl"/>
-  <implementation name="IM_switch__color4_glsl" nodedef="ND_switch__color4" language="glsl"/>
-  <implementation name="IM_switch__vector2_glsl" nodedef="ND_switch__vector2" language="glsl"/>
-  <implementation name="IM_switch__vector3_glsl" nodedef="ND_switch__vector3" language="glsl"/>
-  <implementation name="IM_switch__vector4_glsl" nodedef="ND_switch__vector4" language="glsl"/>
+  <implementation name="IM_switch__float__glsl" nodedef="ND_switch__float" language="glsl"/>
+  <implementation name="IM_switch__color2__glsl" nodedef="ND_switch__color2" language="glsl"/>
+  <implementation name="IM_switch__color3__glsl" nodedef="ND_switch__color3" language="glsl"/>
+  <implementation name="IM_switch__color4__glsl" nodedef="ND_switch__color4" language="glsl"/>
+  <implementation name="IM_switch__vector2__glsl" nodedef="ND_switch__vector2" language="glsl"/>
+  <implementation name="IM_switch__vector3__glsl" nodedef="ND_switch__vector3" language="glsl"/>
+  <implementation name="IM_switch__vector4__glsl" nodedef="ND_switch__vector4" language="glsl"/>
 
   <!-- ======================================================================== -->
   <!-- Channel nodes                                                            -->

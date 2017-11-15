@@ -469,7 +469,7 @@ class ShaderRef : public Element
     /// @{
 
     /// Return the NodeDef, if any, that this element references.
-    NodeDefPtr getNodeDef();
+    NodeDefPtr getNodeDef() const;
 
     /// @}
     /// @name Output References

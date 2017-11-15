@@ -21,8 +21,8 @@ void adskSurface(
     color subsurface_radius,
     float subsurface_scale,
     bool thin_walled,
-    vector normal,
-    vector tangent,
+    normal N,
+    vector U,
     float coat,
     color coat_color,
     float coat_roughness,
@@ -40,7 +40,5 @@ void adskSurface(
     float indirect_specular,
     output surfaceshader result)
 {
-    result.edf = emission_weight * emission_color * emission();
-    result.bsdf = base * base_color * oren_nayar(normal, diffuse_roughness);
-    result.ior = specular_IOR;
+    result = base * base_color * oren_nayar(N, diffuse_roughness) + emission_weight * emission_color * emission();
 }

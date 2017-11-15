@@ -105,4 +105,48 @@
       <input name="distortionRatio" type="float" value="1.0"/>
   </nodedef>
 
+  <nodedef name="ND_checker__float" node="checker" type="float" nodecategory="autodesk">
+    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="scale" type="vector2" value="8.0, 8.0"/>
+  </nodedef>
+ <nodegraph name="IMP_checker__float" nodedef="ND_checker__float">
+    <multiply name="mult1" type="vector2">
+      <input name="in1" type="vector2" interfacename="texcoord"/>
+      <input name="in2" type="vector2" interfacename="scale"/>
+    </multiply>
+    <floor name="floor1" type="float">
+      <input name="in" type="float" nodename="mult1" channels="x"/>
+    </floor>
+    <floor name="floor2" type="float">
+      <input name="in" type="float" nodename="mult1" channels="y"/>
+    </floor>
+    <add name="add1" type="float">
+      <input name="in1" type="float" nodename="floor1"/>
+      <input name="in2" type="float" nodename="floor2"/>
+    </add>
+    <modulo name="mod1" type="float">
+      <input name="in1" type="float" nodename="add1"/>
+      <input name="in2" type="float" value="2.0"/>
+    </modulo>
+    <output name="out" type="float" nodename="mod1"/>
+  </nodegraph>
+
+  <nodedef name="ND_colorchecker__color3" node="colorchecker" type="color3" nodecategory="autodesk">
+    <input name="color1" type="color3" value="0.8, 0.2, 0.1"/>
+    <input name="color2" type="color3" value="0.1, 0.1, 0.8"/>
+    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="scale" type="vector2" value="8.0, 8.0"/>
+  </nodedef>
+  <nodegraph name="IMP_colorchecker__color3" nodedef="ND_colorchecker__color3">
+    <checker name="checker1" type="float">
+      <input name="texcoord" type="vector2" interfacename="texcoord"/>
+      <input name="scale" type="vector2" interfacename="scale"/>
+    </checker>
+    <mix name="mix1" type="color3">
+      <input name="fg" type="color3" interfacename="color1"/>
+      <input name="bg" type="color3" interfacename="color2"/>
+      <input name="mask" type="float" nodename="checker1"/>
+    </mix>
+    <output name="out" type="color3" nodename="mix1"/>
+  </nodegraph>
 </materialx>

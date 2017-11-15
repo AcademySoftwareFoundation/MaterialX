@@ -14,6 +14,10 @@ namespace MaterialX
 
 using ShaderGeneratorPtr = shared_ptr<class ShaderGenerator>;
 
+/// An argument is a pair of strings holding the 'type' and 'name' of the argument.
+using Argument = std::pair<string, string>;
+using Arguments = vector<Argument>;
+
 /// Base class for shader generators
 /// All 3rd party shader generators should derive from this class.
 /// Derived classes should use DECLARE_SHADER_GENERATOR / DEFINE_SHADER_GENERATOR
@@ -49,12 +53,20 @@ public:
     /// Emit a shader uniform input variable
     virtual void emitUniform(const string& name, const string& type, const ValuePtr& value, Shader& shader);
 
-    /// Emit the connected variable name for an input port
+    /// Emit the connected variable name for an input,
     /// or constant value if the port is not connected
-    virtual void emitInput(const ValueElement& port, Shader& shader);
+    virtual void emitInput(const SgInput* input, Shader& shader) const;
 
-    /// Emit the output variable name for a node or node output, optionally including it's type
-    virtual void emitOutput(const TypedElement& nodeOrOutput, bool includeType, Shader& shader);
+    /// Emit the output variable name for an output, optionally including it's type
+    virtual void emitOutput(const SgOutput* output, bool includeType, Shader& shader) const;
+
+    /// Query the shader generator if it wants to publish a given port as a
+    /// shader uniform. Return the publicName to use if it should be published.
+    virtual bool shouldPublish(const ValueElement* port, string& publicName) const;
+
+    /// Query the shader generator if it wants any extra arguments added when 
+    /// emiting the function for the given node.
+    virtual const Arguments* getExtraArguments(const SgNode& node) const;
 
     /// Return the v-direction used by the target system
     virtual Shader::VDirection getTargetVDirection() const;
@@ -62,19 +74,16 @@ public:
     /// Return the syntax object for the language used by the code generator
     SyntaxPtr getSyntax() const { return _syntax; }
 
-    /// Get a unique id from the langunage/target combination
-    static string id(const string& language, const string& target = EMPTY_STRING);
-
     template<class T>
     using CreatorFunc = shared_ptr<T>(*)();
 
-    /// Register a node implementation for a given implementation element name
-    void registerNodeImplementation(const string& name, CreatorFunc<SgImplementation> creator);
+    /// Register a shader gen implementation for a given implementation element name
+    void registerImplementation(const string& name, CreatorFunc<SgImplementation> creator);
 
-    /// Return a registered node implementation given a nodedef
-    /// If no registered implementaion is found matching the nodedef
-    /// a default source code implementation node will be returned
-    SgImplementationPtr getNodeImplementation(const NodeDef& nodeDef);
+    /// Return a registered shader gen implementation given an implementation element.
+    /// If no registered implementaion is found a default source code implementation 
+    /// instance will be returned.
+    SgImplementationPtr getImplementation(ElementPtr element);
 
     /// Add to the search path used for finding source code.
     static void registerSourceCodeSearchPath(const FilePath& path);
@@ -91,11 +100,11 @@ public:
 
 protected:
     /// Protected constructor
-    ShaderGenerator(SyntaxPtr syntax) : _syntax(syntax) {}
+    ShaderGenerator(SyntaxPtr syntax);
 
     SyntaxPtr _syntax;
-    Factory<SgImplementation> _nodeImplFactory;
-    std::unordered_map<string, SgImplementationPtr> _cachedNodeImpls;
+    Factory<SgImplementation> _implFactory;
+    std::unordered_map<string, SgImplementationPtr> _cachedImpls;
 
     static FileSearchPath _sourceCodeSearchPath;
 };

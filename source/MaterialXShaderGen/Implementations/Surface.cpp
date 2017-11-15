@@ -22,9 +22,6 @@ namespace {
         "vec3 L = normalize(LightVec);\n"
         "vec3 LightContribution = LightContributionFunction(ActiveLightIndex, PS_IN.WorldPosition, LightVec);\n";
 
-    static const string V = "V"; // View direction
-    static const string L = "L"; // Light direction inside light loop
-
 }
 
 SgImplementationPtr SurfaceOgsFx::creator()
@@ -42,17 +39,17 @@ const string& SurfaceOgsFx::getTarget() const
     return kTarget;
 }
 
-void SurfaceOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader, int, ...)
+void SurfaceOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
 {
     GlslShaderGenerator& glslgen = static_cast<GlslShaderGenerator&>(shadergen);
 
     // Declare the output variable
     shader.beginLine();
-    glslgen.emitOutput(node.getNode(), true, shader);
+    glslgen.emitOutput(node.getOutput(), true, shader);
     shader.endLine();
     shader.newLine();
 
-    const string outputVariable = glslgen.getSyntax()->getVariableName(node.getNode());
+    const string outputVariable = glslgen.getSyntax()->getVariableName(node.getOutput());
     const string outColor = outputVariable + ".color";
     const string outTransparency = outputVariable + ".transparency";
 
@@ -64,7 +61,7 @@ void SurfaceOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
     //
     string surfaceOpacity = node.getName() + "_opacity";
     shader.addStr("float " + surfaceOpacity + " = ");
-    glslgen.emitInput(node.getPort("opacity"), shader);
+    glslgen.emitInput(node.getInput("opacity"), shader);
     shader.endLine();
     shader.addLine("if (" + surfaceOpacity + " > 0.001)", false);
     shader.beginScope();
@@ -80,7 +77,7 @@ void SurfaceOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
 
     shader.addComment("Calculate the BSDF response for this light source");
     string bsdf;
-    glslgen.emitSurfaceBsdf(node, L, V, shader, bsdf);
+    glslgen.emitSurfaceBsdf(node, GlslShaderGenerator::BsdfDir::LIGHT_DIR, GlslShaderGenerator::BsdfDir::VIEW_DIR, shader, bsdf);
     shader.newLine();
 
     shader.addComment("Accumulate the light's contribution");
@@ -107,7 +104,7 @@ void SurfaceOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
     //
     shader.addComment("Calculate the BSDF transmission for viewing direction");
     shader.beginScope();
-    glslgen.emitSurfaceBsdf(node, V, V, shader, bsdf);
+    glslgen.emitSurfaceBsdf(node, GlslShaderGenerator::BsdfDir::VIEW_DIR, GlslShaderGenerator::BsdfDir::VIEW_DIR, shader, bsdf);
     shader.addLine(outTransparency + " = " + bsdf + ".ft");
     shader.endScope();
     shader.newLine();

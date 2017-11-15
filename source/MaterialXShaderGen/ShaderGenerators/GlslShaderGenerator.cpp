@@ -5,6 +5,8 @@
 #include <MaterialXShaderGen/Implementations/Switch.h>
 #include <MaterialXShaderGen/Implementations/Compare.h>
 
+namespace MaterialX
+{
 namespace
 {
     const char* kVDirectionFlip =
@@ -19,90 +21,97 @@ namespace
         "{\n"
         "   result = texcoord;\n"
         "}\n\n";
-}
 
-namespace MaterialX
-{
+    // Arguments used to represent BSDF direction vectors
+    Arguments kBsdfDirArguments =
+    {
+        Argument("vec3", "L"), // BsdfDir::LIGHT_DIR
+        Argument("vec3", "V"), // BsdfDir::VIEW_DIR
+        Argument("vec3", "R")  // BsdfDir::REFL_DIR
+    };
+}
 
 GlslShaderGenerator::GlslShaderGenerator()
     : ShaderGenerator(std::make_shared<GlslSyntax>())
 {
+    _bsdfNodeArguments.resize(2);
+
     // Register build-in node implementations
 
     // <!-- <compare> -->
-    registerNodeImplementation("IM_compare__float__glsl", Compare::creator);
-    registerNodeImplementation("IM_compare__color2__glsl", Compare::creator);
-    registerNodeImplementation("IM_compare__color3__glsl", Compare::creator);
-    registerNodeImplementation("IM_compare__color4__glsl", Compare::creator);
-    registerNodeImplementation("IM_compare__vector2__glsl", Compare::creator);
-    registerNodeImplementation("IM_compare__vector3__glsl", Compare::creator);
-    registerNodeImplementation("IM_compare__vector4__glsl", Compare::creator);
+    registerImplementation("IM_compare__float__glsl", Compare::creator);
+    registerImplementation("IM_compare__color2__glsl", Compare::creator);
+    registerImplementation("IM_compare__color3__glsl", Compare::creator);
+    registerImplementation("IM_compare__color4__glsl", Compare::creator);
+    registerImplementation("IM_compare__vector2__glsl", Compare::creator);
+    registerImplementation("IM_compare__vector3__glsl", Compare::creator);
+    registerImplementation("IM_compare__vector4__glsl", Compare::creator);
 
     // <!-- <switch> -->
-    registerNodeImplementation("IM_switch__float__glsl", Switch::creator);
-    registerNodeImplementation("IM_switch__color2__glsl", Switch::creator);
-    registerNodeImplementation("IM_switch__color3__glsl", Switch::creator);
-    registerNodeImplementation("IM_switch__color4__glsl", Switch::creator);
-    registerNodeImplementation("IM_switch__vector2__glsl", Switch::creator);
-    registerNodeImplementation("IM_switch__vector3__glsl", Switch::creator);
-    registerNodeImplementation("IM_switch__vector4__glsl", Switch::creator);
+    registerImplementation("IM_switch__float__glsl", Switch::creator);
+    registerImplementation("IM_switch__color2__glsl", Switch::creator);
+    registerImplementation("IM_switch__color3__glsl", Switch::creator);
+    registerImplementation("IM_switch__color4__glsl", Switch::creator);
+    registerImplementation("IM_switch__vector2__glsl", Switch::creator);
+    registerImplementation("IM_switch__vector3__glsl", Switch::creator);
+    registerImplementation("IM_switch__vector4__glsl", Switch::creator);
 
     // <!-- <swizzle> -->
     // <!-- from type : float -->
-    registerNodeImplementation("IM_swizzle__float_color2__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__float_color3__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__float_color4__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__float_vector2__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__float_vector3__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__float_vector4__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__float_color2__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__float_color3__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__float_color4__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__float_vector2__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__float_vector3__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__float_vector4__glsl", Swizzle::creator);
     // <!-- from type : color2 -->
-    registerNodeImplementation("IM_swizzle__color2_float__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__color2_color2__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__color2_color3__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__color2_color4__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__color2_vector2__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__color2_vector3__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__color2_vector4__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color2_float__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color2_color2__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color2_color3__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color2_color4__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color2_vector2__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color2_vector3__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color2_vector4__glsl", Swizzle::creator);
     // <!-- from type : color3 -->
-    registerNodeImplementation("IM_swizzle__color3_float__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__color3_color2__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__color3_color3__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__color3_color4__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__color3_vector2__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__color3_vector3__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__color3_vector4__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color3_float__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color3_color2__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color3_color3__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color3_color4__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color3_vector2__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color3_vector3__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color3_vector4__glsl", Swizzle::creator);
     // <!-- from type : color4 -->
-    registerNodeImplementation("IM_swizzle__color4_float__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__color4_color2__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__color4_color3__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__color4_color4__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__color4_vector2__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__color4_vector3__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__color4_vector4__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color4_float__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color4_color2__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color4_color3__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color4_color4__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color4_vector2__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color4_vector3__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__color4_vector4__glsl", Swizzle::creator);
     // <!-- from type : vector2 -->
-    registerNodeImplementation("IM_swizzle__vector2_float__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__vector2_color2__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__vector2_color3__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__vector2_color4__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__vector2_vector2__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__vector2_vector3__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__vector2_vector4__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector2_float__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector2_color2__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector2_color3__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector2_color4__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector2_vector2__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector2_vector3__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector2_vector4__glsl", Swizzle::creator);
     // <!-- from type : vector3 -->
-    registerNodeImplementation("IM_swizzle__vector3_float__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__vector3_color2__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__vector3_color3__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__vector3_color4__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__vector3_vector2__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__vector3_vector3__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__vector3_vector4__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector3_float__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector3_color2__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector3_color3__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector3_color4__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector3_vector2__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector3_vector3__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector3_vector4__glsl", Swizzle::creator);
     // <!-- from type : vector4 -->
-    registerNodeImplementation("IM_swizzle__vector4_float__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__vector4_color2__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__vector4_color3__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__vector4_color4__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__vector4_vector2__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__vector4_vector3__glsl", Swizzle::creator);
-    registerNodeImplementation("IM_swizzle__vector4_vector4__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector4_float__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector4_color2__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector4_color3__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector4_color4__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector4_vector2__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector4_vector3__glsl", Swizzle::creator);
+    registerImplementation("IM_swizzle__vector4_vector4__glsl", Swizzle::creator);
 }
 
 void GlslShaderGenerator::emitFunctions(Shader& shader)
@@ -111,6 +120,10 @@ void GlslShaderGenerator::emitFunctions(Shader& shader)
     // as needed by the v-direction set by the user
     shader.addBlock(shader.getRequestedVDirection() != getTargetVDirection() ? kVDirectionFlip : kVDirectionNoop);
 
+    // Set BSDF node arguments to the variables used for BSDF direction vectors
+    _bsdfNodeArguments[0] = Argument("vec3", "wi");
+    _bsdfNodeArguments[1] = Argument("vec3", "wo");
+
     // Call parent to emit all other functions
     ShaderGenerator::emitFunctions(shader);
 }
@@ -118,35 +131,39 @@ void GlslShaderGenerator::emitFunctions(Shader& shader)
 void GlslShaderGenerator::emitTextureNodes(Shader& shader)
 {
     // Emit function calls for all texturing nodes
-    for (const SgNode& node : shader.getNodes())
+    for (SgNode* node : shader.getNodeGraph()->getNodes())
     {
         // Emit only unconditional nodes, since any node within a conditional 
         // branch is emitted by the conditional node itself
-        if (node.hasClassification(SgNode::Classification::TEXTURE) && !node.referencedConditionally())
+        if (node->hasClassification(SgNode::Classification::TEXTURE) && !node->referencedConditionally())
         {
-            node.getImplementation()->emitFunctionCall(node, *this, shader);
+            shader.addFunctionCall(node, *this);
         }
     }
 }
 
-void GlslShaderGenerator::emitSurfaceBsdf(const SgNode& surfaceShaderNode, const string& wi, const string& wo, Shader& shader, string& bsdf)
+void GlslShaderGenerator::emitSurfaceBsdf(const SgNode& surfaceShaderNode, BsdfDir wi, BsdfDir wo, Shader& shader, string& bsdf)
 {
-    const SgNode* last = nullptr;
+    // Set BSDF node arguments according to the given directions
+    _bsdfNodeArguments[0] = kBsdfDirArguments[size_t(wi)];
+    _bsdfNodeArguments[1] = kBsdfDirArguments[size_t(wo)];
+
+    SgNode* last = nullptr;
 
     // Emit function calls for all BSDF nodes used by this shader
     // The last node will hold the final result
-    for (const SgNode& node : shader.getNodes())
+    for (SgNode* node : shader.getNodeGraph()->getNodes())
     {
-        if (node.hasClassification(SgNode::Classification::BSDF) && surfaceShaderNode.isUsedClosure(&node))
+        if (node->hasClassification(SgNode::Classification::BSDF) && surfaceShaderNode.isUsedClosure(node))
         {
-            node.getImplementation()->emitFunctionCall(node, *this, shader, 2, wi.c_str(), wo.c_str());
-            last = &node;
+            shader.addFunctionCall(node, *this);
+            last = node;
         }
     }
 
     if (last)
     {
-        bsdf = _syntax->getVariableName(last->getNode());
+        bsdf = _syntax->getVariableName(last->getOutput());
     }
 }
 
@@ -154,23 +171,28 @@ void GlslShaderGenerator::emitSurfaceEmission(const SgNode& surfaceShaderNode, S
 {
     emission = "vec3(0.0)";
 
-    const SgNode* last = nullptr;
+    SgNode* last = nullptr;
 
     // Emit function calls for all EDF nodes used by this shader
     // The last node will hold the final result
-    for (const SgNode& node : shader.getNodes())
+    for (SgNode* node : shader.getNodeGraph()->getNodes())
     {
-        if (node.hasClassification(SgNode::Classification::EDF) && surfaceShaderNode.isUsedClosure(&node))
+        if (node->hasClassification(SgNode::Classification::EDF) && surfaceShaderNode.isUsedClosure(node))
         {
-            node.getImplementation()->emitFunctionCall(node, *this, shader);
-            last = &node;
+            shader.addFunctionCall(node, *this);
+            last = node;
         }
     }
 
     if (last)
     {
-        emission = _syntax->getVariableName(last->getNode());
+        emission = _syntax->getVariableName(last->getOutput());
     }
+}
+
+const Arguments* GlslShaderGenerator::getExtraArguments(const SgNode& node) const
+{
+    return node.hasClassification(SgNode::Classification::BSDF) ? &_bsdfNodeArguments : nullptr;
 }
 
 }

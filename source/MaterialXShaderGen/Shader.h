@@ -41,11 +41,7 @@ public:
         DOWN
     };
 
-    /// Container for uniform shader parameters
-    using Uniforms = std::unordered_map<string, ParameterPtr>;
-
-    /// Container for varying shader parameters
-    using Varyings = std::unordered_map<string, InputPtr>;
+    using Uniform = std::pair<string, SgInputSocket*>;
 
 public:
     /// Constructor
@@ -59,12 +55,8 @@ public:
     /// @param shadergen The shader generator instance.
     virtual void initialize(ElementPtr element, ShaderGenerator& shadergen);
 
-    /// Must be called after shader generation is completed.
-    /// Will release resources used during shader generation.
-    virtual void finalize();
-
-    /// Return the number of shader stanges for this shader
-    /// Defaults to a single stage, derived classes can override this
+    /// Return the number of shader stages for this shader.
+    /// Defaults to a single stage, derived classes can override this.
     virtual size_t numStages() const { return 1; }
 
     /// Set the active stage that code will be added to
@@ -95,6 +87,12 @@ public:
     /// Add a block of code to the shader
     virtual void addBlock(const string& str);
 
+    /// Add the function definition for a node
+    virtual void addFunctionDefinition(SgNode* node, ShaderGenerator& shadergen);
+
+    /// Add the function call for a node
+    virtual void addFunctionCall(SgNode* node, ShaderGenerator& shadergen);
+
     /// Add the contents of an include file
     /// Making sure it is only included once
     /// for a shader stage
@@ -115,40 +113,27 @@ public:
     /// Return the shader name
     const string& getName() const { return _name; }
 
-    /// Return the optimized node graph created for shader generation.
-    const NodeGraphPtr getNodeGraph() const { return _nodeGraph; }
+    /// Return the active shader graph.
+    SgNodeGraph* getNodeGraph() const { return _graphStack.back(); }
 
-    /// Return the output used for shader generation.
-    const OutputPtr getOutput() const { return _output; }
+    /// Push a new active shader graph.
+    /// Used when emitting code for compounds / subgraphs.
+    void pushActiveGraph(SgNodeGraph* graph) { _graphStack.push_back(graph); }
 
-    /// Return a vector of the nodes in the optimized node graph,
-    /// given in topological order.
-    const vector<SgNode>& getNodes() const { return _nodes;  }
+    /// Reactivate the previously last used shader graph.
+    void popActiveGraph() { _graphStack.pop_back(); }
 
     /// Return true if this shader matches the given classification.
-    bool hasClassification(unsigned int c) const { return (_classification & c) == c; }
-
-    /// Return the SgNode for the given node pointer.
-    SgNode& getNode(const NodePtr& nodePtr);
-    const SgNode& getNode(const NodePtr& nodePtr) const { return const_cast<Shader*>(this)->getNode(nodePtr); }
+    bool hasClassification(unsigned int c) const { return _rootGraph->hasClassification(c); }
 
     /// Return the vdirection requested in the current document.
     VDirection getRequestedVDirection() const { return _vdirection; }
 
-    /// Add a shader uniform
-    void addUniform(const string& name, ParameterPtr param);
-
-    /// Add a shader varying
-    void addVarying(const string& name, InputPtr input);
-
-    /// Return the final shader uniforms.
-    const Uniforms& getUniforms() const { return _uniforms; }
-
-    /// Return the final shader varyings.
-    const Varyings& getVaryings() const { return _varyings; }
-
     /// Return the final shader source code for a given shader stage
     const string& getSourceCode(size_t stage = 0) const { return _stages[stage].code; }
+
+    /// Return the uniform inputs published for this shader
+    const vector<Uniform>& getUniforms() const { return _uniforms; }
 
 protected:
     /// A shader stage, containing the state and 
@@ -168,22 +153,15 @@ protected:
     /// Add indentation on current line
     virtual void indent();
 
-    void addDefaultGeometricNodes(NodePtr node, NodeDefPtr nodeDef, NodeGraphPtr parent);
-    NodePtr optimize(const Edge& edge);
-
     string _name;
-    NodeGraphPtr _nodeGraph;
-    OutputPtr _output;
-    unsigned int _classification;
-    vector<SgNode> _nodes;
-    std::unordered_map<NodePtr, size_t> _nodeToSgNodeIndex;
-    std::set<ValueElementPtr> _usedInterface;
+    SgNodeGraphPtr _rootGraph;
+    vector<SgNodeGraph*> _graphStack;
     VDirection _vdirection;
 
     size_t _activeStage;
     vector<Stage> _stages;
-    Uniforms _uniforms;
-    Varyings _varyings;
+    vector<Uniform> _uniforms;
+    std::set<SgImplementation*> _definedFunctions;
 };
 
 /// @class @ExceptionShaderGenError

@@ -1,6 +1,10 @@
 #include <MaterialXShaderGen/Util.h>
+#include <MaterialXShaderGen/SgNode.h>
 #include <MaterialXCore/Util.h>
 
+#include <stack>
+#include <iostream>
+#include <sstream>
 #include <fstream>
 #if defined(_WIN32)
 #include <fcntl.h>
@@ -49,5 +53,45 @@ string getFileExtension(const string& filename)
     return i != string::npos ? filename.substr(i + 1) : EMPTY_STRING;
 }
 
+string printGraphDot(const SgNodeGraph& graph)
+{
+    std::stringstream dot;
+
+    dot << "digraph {\n";
+
+    // Print the nodes
+    for (const SgNode* node : graph.getNodes())
+    {
+        dot << "    \"" << node->getName() << "\" ";
+        if (node->hasClassification(SgNode::Classification::CONDITIONAL))
+        {
+            dot << "[shape=diamond];\n";
+        }
+        else
+        {
+            dot << "[shape=box];\n";
+        }
+    }
+
+    // Print the connections
+    std::set<const SgNode*> visited;
+    for (SgOutputSocket* outputSocket : graph.getOutputSockets())
+    {
+        if (outputSocket->connection)
+        {
+            for (SgEdge edge : outputSocket->connection->traverseUpstream())
+            {
+                if (edge.downstream)
+                {
+                    dot << "    \"" << edge.upstream->node->getName() << "\" -> \"" << edge.downstream->node->getName() << "\" [label=\"" << edge.downstream->name << "\"];\n";
+                }
+            }
+        }
+    }
+
+    dot << "}\n";
+
+    return dot.str();
+}
 
 } // namespace MaterialX

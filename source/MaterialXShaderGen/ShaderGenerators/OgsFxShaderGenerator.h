@@ -27,16 +27,11 @@ public:
     /// Emit a shader uniform input variable
     void emitUniform(const string& name, const string& type, const ValuePtr& value, Shader& shader) override;
 
-    /// Emit the connected variable name for an input port
-    /// or constant value if the port is not connected
-    void emitInput(const ValueElement& port, Shader& shader) override;
+    ///
+    bool shouldPublish(const ValueElement* port, string& publicName) const override;
 
     /// Emit the final output expression
     void emitFinalOutput(Shader& shader) const override;
-
-protected:
-    void addExtraShaderUniforms(Shader& shader);
-    bool useAsShaderUniform(const Parameter& param) const;
 };
 
 }
