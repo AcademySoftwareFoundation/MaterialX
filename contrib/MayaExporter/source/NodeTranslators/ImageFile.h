@@ -20,7 +20,7 @@ class ImageFile : public TextureNode
     DECLARE_NODE_TRANSLATOR(ImageFile)
 public:
     /// Custom node export
-    virtual mx::NodePtr exportNode(const MObject& mayaNode, const string& outputType, mx::NodeGraphPtr parent, TranslatorContext& context);
+    mx::NodePtr exportNode(const MObject& mayaNode, const string& outputType, mx::NodeGraphPtr parent, TranslatorContext& context) override;
 };
 
 } // namespace MaterialXForMaya

@@ -19,7 +19,7 @@ class AmbientOcclusion : public NodeTranslator
     DECLARE_NODE_TRANSLATOR(AmbientOcclusion)
 public:
     /// Custom node exporter
-    virtual mx::NodePtr exportNode(const MObject& mayaNode, const string& outputType, mx::NodeGraphPtr parent, TranslatorContext& context);
+    mx::NodePtr exportNode(const MObject& mayaNode, const string& outputType, mx::NodeGraphPtr parent, TranslatorContext& context) override;
 };
 
 } // namespace MaterialXForMaya

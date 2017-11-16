@@ -20,7 +20,7 @@ class Place2dTexture : public NodeTranslator
     DECLARE_NODE_TRANSLATOR(Place2dTexture)
 public:
     /// Custom node export
-    virtual mx::NodePtr exportNode(const MObject& mayaNode, const string& outputType, mx::NodeGraphPtr parent, TranslatorContext& context);
+    mx::NodePtr exportNode(const MObject& mayaNode, const string& outputType, mx::NodeGraphPtr parent, TranslatorContext& context) override;
 };
 
 } // namespace MaterialXForMaya
