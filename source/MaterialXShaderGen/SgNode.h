@@ -34,6 +34,7 @@ public:
     SgOutput* connection;
     string channels;
     bool published;
+    StringResolverPtr valueResolver;
 
     void makeConnection(SgOutput* src);
     void breakConnection();
@@ -49,6 +50,7 @@ public:
     ValuePtr value;
     std::set<SgInput*> connections;
     bool published;
+    StringResolverPtr valueResolver;
 
     void makeConnection(SgInput* dst);
     void breakConnection(SgInput* dst);

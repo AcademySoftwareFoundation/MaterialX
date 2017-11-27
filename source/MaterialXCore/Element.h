@@ -968,6 +968,12 @@ class StringResolver
         _filenameMap[key] = value;
     }
 
+    /// Get list of substring substitutions.
+    const StringMap& getFilenameSubstitutions() const
+    {
+        return _filenameMap;
+    }
+
     /// @}
     /// @name Resolution
     /// @{

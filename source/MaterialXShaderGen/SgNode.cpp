@@ -195,6 +195,15 @@ SgNodePtr SgNode::creator(const string& name, const NodeDef& nodeDef, ShaderGene
 
             if (!elem->getValueString().empty())
             {
+                if (elem->getType() == kFilename)
+                {
+                    // Add a resolver for input file names
+                    input->valueResolver = elem->createStringResolver();
+                }
+                else
+                {
+                    input->valueResolver = nullptr;
+                }
                 input->value = elem->getValue();
             }
 
@@ -285,6 +294,7 @@ SgInput* SgNode::addInput(const string& name, const string& type)
     input->value = nullptr;
     input->connection = nullptr;
     input->published = false;
+    input->valueResolver = nullptr;
     _inputMap[name] = input;
     _inputOrder.push_back(input.get());
 
@@ -330,6 +340,15 @@ SgNodeGraphPtr SgNodeGraph::creator(NodeGraphPtr nodeGraph, ShaderGenerator& sha
 
         if (!elem->getValueString().empty())
         {
+            if (elem->getType() == kFilename)
+            {
+                inputSocket->valueResolver = elem->createStringResolver();
+            }
+            else
+            {
+                inputSocket->valueResolver = nullptr;
+            }
+
             inputSocket->value = elem->getValue();
         }
     }
@@ -545,6 +564,7 @@ SgNode* SgNodeGraph::addNode(const Node& node, ShaderGenerator& shadergen)
                         SgInputSocket* inputSocket = addInputSocket(publicName, input->type);
                         inputSocket->makeConnection(input);
                         inputSocket->value = input->value;
+                        inputSocket->valueResolver = input->valueResolver;
                         inputSocket->published = input->published = true;
                     }
                 }
