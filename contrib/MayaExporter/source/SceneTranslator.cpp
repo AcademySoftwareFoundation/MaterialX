@@ -527,24 +527,29 @@ void SceneTranslator::getAssignedMaterials(const MDagPath& dagPath, MObjectHandl
 
 void SceneTranslator::findLights(bool onlySelection, MObjectHandleSet& mayaLights)
 {
+    //
+    // Note that we must manually perform the type test one type at a time
+    // as Maya has a defect in the "ls" command in which it will not continue
+    // to look at all the node types once one type is not found.
+    //
     MStringArray lights;
-    if (onlySelection)
+    MStringArray typeList;
+    MString lsString = onlySelection ? "ls -sl -type " : "ls -type ";
+    MGlobal::executeCommand("listNodeTypes(\"light\")", typeList);
+    for (unsigned int t = 0; t < typeList.length(); t++)
     {
-        MGlobal::executeCommand("ls -sl -type `listNodeTypes(\"light\")`", lights);
-    }
-    else
-    {
-        MGlobal::executeCommand("ls -type `listNodeTypes(\"light\")`", lights);
-    }
-    for (unsigned int i = 0; i < lights.length(); ++i)
-    {
-        MSelectionList list;
-        list.add(lights[i]);
+        MString command = lsString + typeList[t];
+        MGlobal::executeCommand(command, lights);
+        for (unsigned int i = 0; i < lights.length(); ++i)
+        {
+            MSelectionList list;
+            list.add(lights[i]);
 
-        MObject obj;
-        list.getDependNode(0, obj);
+            MObject obj;
+            list.getDependNode(0, obj);
 
-        mayaLights.insert(obj);
+            mayaLights.insert(obj);
+        }
     }
 }
 
