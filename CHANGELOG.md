@@ -3,13 +3,11 @@
 ## [1.35.4] - Development
 
 ### Added
-- Added Material methods getPrimaryShaderNodeDef, getPrimaryShaderName, getPrimaryShaderParameters, and getPrimaryShaderInputs.
-- Added Material methods getBoundGeomStrings and getBoundGeomCollections.
-- Added ValueElement methods getBoundValue and getDefaultValue.
-- Added InterfaceElement methods setInputValue and getInputValue.
-- Added StringResolver class, for applying substring modifiers to data values.
-- Added support for multi-output nodes, nodedefs, and connections.
+- Added high-level Material API, including getPrimaryShaderParameters, getPrimaryShaderInputs, getBoundGeomStrings, and getBoundGeomCollections.
+- Added methods ValueElement\:\:getBoundValue and ValueElement\:\:getDefaultValue.
+- Added support for multi-output nodes.
 - Added support for TypeDef members.
+- Added StringResolver class, for applying substring modifiers to data values.
 - Added example interfaces for the Disney BRDF, Disney BSDF, and alSurface shaders.
 
 ### Changed
