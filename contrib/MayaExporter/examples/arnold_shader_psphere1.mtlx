@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<materialx version="1.35" require="">
+  <look name="look1">
+    <materialassign name="materialassign1" material="aiStandardSurface1SG" collection="collection1" />
+  </look>
+  <material name="aiStandardSurface1SG">
+    <shaderref name="aiStandardSurface1" node="adskSurface">
+      <bindinput name="normal" type="vector3" value="1, 1, 1" />
+    </shaderref>
+  </material>
+  <collection name="collection1">
+    <collectionadd name="collectionadd1" geom="|pSphere1|pSphereShape1" />
+  </collection>
+</materialx>

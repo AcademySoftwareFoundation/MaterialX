@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<materialx version="1.35" require="matnodegraph">
+    <look name="look0">
+      <materialassign name="materialassign0" material="aiStandardSurface0SG" collection="collection0" />
+    </look>
+    <material name="aiStandardSurface0SG">
+      <shaderref name="aiStandardSurface0" node="adskSurface">
+        <bindinput name="normal" type="vector3" value="1, 1, 1" />
+      </shaderref>
+    </material>
+    <collection name="collection0">
+      <collectionadd name="collectionadd0" geom="|pSphere1|pSphereShape1" />
+    </collection>
+  <look name="look1">
+    <materialassign name="materialassign1" material="aiStandardSurface1SG" collection="collection1" />
+  </look>
+  <material name="aiStandardSurface1SG">
+    <shaderref name="aiStandardSurface1" node="adskSurface">
+      <bindinput name="base_color" type="color3" nodegraph="file1_outColor" output="out" />
+      <bindinput name="normal" type="vector3" value="1, 1, 1" />
+    </shaderref>
+  </material>
+  <collection name="collection1">
+    <collectionadd name="collectionadd1" geom="|pSphere1|pSphereShape1" />
+  </collection>
+  <nodegraph name="file1_outColor">
+    <output name="out" type="color3" nodename="file1_color3" />
+    <image name="file1_color3" type="color3">
+      <input name="texcoord" type="vector2" nodename="place2dTexture1_vector2" />
+      <parameter name="file" type="filename" value="MaterialXLogo.png" colorspace="Raw" />
+    </image>
+    <texcoord name="place2dTexture1_vector2" type="vector2" />
+  </nodegraph>
+</materialx>
