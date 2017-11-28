@@ -165,6 +165,9 @@ void bindPyElement(py::module& mod)
         .def("setUdimString", &mx::StringResolver::setUdimString)
         .def("setUvTileString", &mx::StringResolver::setUvTileString)
         .def("setFilenameSubstitution", &mx::StringResolver::setFilenameSubstitution)
+        .def("getFilenameSubstitutions", &mx::StringResolver::getFilenameSubstitutions)
+        .def("setGeomNameSubstitution", &mx::StringResolver::setGeomNameSubstitution)
+        .def("getGeomNameSubstitutions", &mx::StringResolver::getGeomNameSubstitutions)
         .def("resolve", &mx::StringResolver::resolve);
 
     py::register_exception<mx::ExceptionOrphanedElement>(mod, "ExceptionOrphanedElement");

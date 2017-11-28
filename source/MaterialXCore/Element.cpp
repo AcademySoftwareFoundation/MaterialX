@@ -498,7 +498,7 @@ string StringResolver::resolve(const string& str, const string& type) const
     }
     if (type == GEOMNAME_TYPE_STRING)
     {
-        return _geomPrefix + str;
+        return _geomPrefix + replaceSubstrings(str, _geomNameMap);
     }
     return str;
 }

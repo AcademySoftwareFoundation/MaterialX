@@ -968,11 +968,24 @@ class StringResolver
         _filenameMap[key] = value;
     }
 
-    /// Get list of substring substitutions.
+    /// Get list of filename substring substitutions.
     const StringMap& getFilenameSubstitutions() const
     {
         return _filenameMap;
     }
+
+    /// Set an arbitrary substring substitution for geometry name data values.
+    void setGeomNameSubstitution(const string& key, const string& value)
+    {
+        _geomNameMap[key] = value;
+    }
+
+    /// Get list of geometry name substring substitutions.
+    const StringMap& getGeomNameSubstitutions() const
+    {
+        return _geomNameMap;
+    }
+    
 
     /// @}
     /// @name Resolution
@@ -980,7 +993,7 @@ class StringResolver
 
     /// Given an input string and type, apply all appropriate modifiers and
     /// return the resulting string.
-    string resolve(const string& str, const string& type) const;
+    virtual string resolve(const string& str, const string& type) const;
 
     /// @}
 
@@ -988,6 +1001,7 @@ class StringResolver
     string _filePrefix;
     string _geomPrefix;
     StringMap _filenameMap;
+    StringMap _geomNameMap;
 };
 
 /// @class @ExceptionOrphanedElement
