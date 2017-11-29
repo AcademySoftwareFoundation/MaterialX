@@ -145,7 +145,7 @@ createNode aiAOVDriver -s -n "defaultArnoldDisplayDriver";
 	setAttr ".ai_translator" -type "string" "maya";
 createNode file -n "file1";
 	rename -uid "1D77FA61-4A94-378F-178C-DEB46107A592";
-	setAttr ".ftn" -type "string" "Exterior1_Color.exr";
+	setAttr ".ftn" -type "string" "./Exterior1_Color.exr";
 	setAttr ".cs" -type "string" "Raw";
 createNode place2dTexture -n "place2dTexture1";
 	rename -uid "752524FC-42D6-4D10-00F1-CD86D72203B3";

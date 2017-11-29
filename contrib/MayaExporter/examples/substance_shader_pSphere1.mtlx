@@ -1,0 +1,259 @@
+<?xml version="1.0"?>
+<materialx version="1.35" require="matnodegraph">
+  <look name="look1">
+    <materialassign name="materialassign1" material="aiStandardSurface4SG" collection="collection1" />
+    <materialassign name="materialassign2" material="aiStandardSurface3SG" collection="collection2" />
+  </look>
+  <material name="aiStandardSurface4SG">
+    <shaderref name="aiStandardSurface4" node="adskSurface">
+      <bindinput name="base_color" type="color3" nodegraph="Diffuse_substance1_outColor" output="out" />
+      <bindinput name="specular_color" type="color3" value="0.5, 0.5, 0.5" />
+      <bindinput name="normal" type="vector3" value="1, 1, 1" />
+    </shaderref>
+  </material>
+  <collection name="collection1">
+    <collectionadd name="collectionadd1" geom="|pSphere1|pSphereShape1" />
+  </collection>
+  <nodegraph name="Diffuse_substance1_outColor">
+    <output name="out" type="color3" nodename="Diffuse_substance1_color3" />
+    <substanceOutput name="Diffuse_substance1_color3" type="color3">
+      <input name="wrapperID" type="integer" value="4" />
+      <input name="channelName" type="string" nodename="substance1_string" />
+      <input name="uvFilterSize" type="vector2" nodename="place2dTexture1_vector2" />
+      <input name="uvCoord" type="vector2" nodename="place2dTexture1_vector2" />
+      <input name="needToDeleteData" type="float" value="1" />
+      <input name="inColor" type="color3" nodename="substance1_color3" />
+      <input name="inAlpha" type="float" nodename="substance1_float" />
+    </substanceOutput>
+    <substance name="substance1_string" type="string">
+      <input name="package" type="string" value="./BrickWall_03.sbsar" />
+      <input name="graph" type="string" value="BrickWall_03" />
+      <input name="uvFilterSize" type="vector2" nodename="place2dTexture1_vector2" />
+      <input name="uvCoord" type="vector2" nodename="place2dTexture1_vector2" />
+      <input name="textureWidth" type="integer" value="4" />
+      <input name="textureHeight" type="integer" value="4" />
+      <input name="scriptJobAdded" type="integer" value="1" />
+      <input name="outputdyn_Diffuse_Name" type="string" value="Diffuse" />
+      <input name="outputdyn_Specular_Name" type="string" value="Specular" />
+      <input name="outputdyn_Normal_Name" type="string" value="Normal" />
+      <input name="outputdyn_Bump_Name" type="string" value="Bump" />
+      <input name="outputdyn_Displacement_Name" type="string" value="Displacement" />
+      <input name="outputdyn_Height_Name" type="string" value="Height" />
+    </substance>
+    <texcoord name="place2dTexture1_vector2" type="vector2" />
+    <substance name="substance1_color3" type="color3">
+      <input name="package" type="string" value="./BrickWall_03.sbsar" />
+      <input name="graph" type="string" value="BrickWall_03" />
+      <input name="uvFilterSize" type="vector2" nodename="place2dTexture1_vector2" />
+      <input name="uvCoord" type="vector2" nodename="place2dTexture1_vector2" />
+      <input name="textureWidth" type="integer" value="4" />
+      <input name="textureHeight" type="integer" value="4" />
+      <input name="scriptJobAdded" type="integer" value="1" />
+      <input name="outputdyn_Diffuse_Name" type="string" value="Diffuse" />
+      <input name="outputdyn_Specular_Name" type="string" value="Specular" />
+      <input name="outputdyn_Normal_Name" type="string" value="Normal" />
+      <input name="outputdyn_Bump_Name" type="string" value="Bump" />
+      <input name="outputdyn_Displacement_Name" type="string" value="Displacement" />
+      <input name="outputdyn_Height_Name" type="string" value="Height" />
+    </substance>
+    <substance name="substance1_float" type="float">
+      <input name="package" type="string" value="./BrickWall_03.sbsar" />
+      <input name="graph" type="string" value="BrickWall_03" />
+      <input name="uvFilterSize" type="vector2" nodename="place2dTexture1_vector2" />
+      <input name="uvCoord" type="vector2" nodename="place2dTexture1_vector2" />
+      <input name="textureWidth" type="integer" value="4" />
+      <input name="textureHeight" type="integer" value="4" />
+      <input name="scriptJobAdded" type="integer" value="1" />
+      <input name="outputdyn_Diffuse_Name" type="string" value="Diffuse" />
+      <input name="outputdyn_Specular_Name" type="string" value="Specular" />
+      <input name="outputdyn_Normal_Name" type="string" value="Normal" />
+      <input name="outputdyn_Bump_Name" type="string" value="Bump" />
+      <input name="outputdyn_Displacement_Name" type="string" value="Displacement" />
+      <input name="outputdyn_Height_Name" type="string" value="Height" />
+    </substance>
+  </nodegraph>
+  <material name="aiStandardSurface3SG">
+    <shaderref name="aiStandardSurface3" node="adskSurface">
+      <bindinput name="base_color" type="color3" nodegraph="Diffuse_substance2_outColor" output="out" />
+      <bindinput name="specular_color" type="color3" nodegraph="Specular_substance2_outColor" output="out" />
+      <bindinput name="normal" type="vector3" nodegraph="substance2_bump2d_outNormal" output="out" />
+    </shaderref>
+  </material>
+  <collection name="collection2">
+    <collectionadd name="collectionadd1" geom="|pSphere2|pSphereShape2" />
+  </collection>
+  <nodegraph name="Diffuse_substance2_outColor">
+    <output name="out" type="color3" nodename="Diffuse_substance2_color3" />
+    <substanceOutput name="Diffuse_substance2_color3" type="color3">
+      <input name="wrapperID" type="integer" value="2" />
+      <input name="channelName" type="string" nodename="substance2_string" />
+      <input name="uvFilterSize" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="uvCoord" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="inColor" type="color3" nodename="substance2_color3" />
+      <input name="inAlpha" type="float" nodename="substance2_float" />
+    </substanceOutput>
+    <substance name="substance2_string" type="string">
+      <input name="package" type="string" value="./Meteor.sbsar" />
+      <input name="graph" type="string" value="Meteor" />
+      <input name="uvFilterSize" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="uvCoord" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="textureWidth" type="integer" value="4" />
+      <input name="textureHeight" type="integer" value="4" />
+      <input name="scriptJobAdded" type="integer" value="1" />
+      <input name="outputdyn_Diffuse_Name" type="string" value="Diffuse" />
+      <input name="outputdyn_Specular_Name" type="string" value="Specular" />
+      <input name="outputdyn_Normal_Name" type="string" value="Normal" />
+      <input name="outputdyn_Bump_Name" type="string" value="Bump" />
+      <input name="outputdyn_Displacement_Name" type="string" value="Displacement" />
+      <input name="outputdyn_Height_Name" type="string" value="Height" />
+    </substance>
+    <texcoord name="place2dTexture2_vector2" type="vector2" />
+    <substance name="substance2_color3" type="color3">
+      <input name="package" type="string" value="./Meteor.sbsar" />
+      <input name="graph" type="string" value="Meteor" />
+      <input name="uvFilterSize" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="uvCoord" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="textureWidth" type="integer" value="4" />
+      <input name="textureHeight" type="integer" value="4" />
+      <input name="scriptJobAdded" type="integer" value="1" />
+      <input name="outputdyn_Diffuse_Name" type="string" value="Diffuse" />
+      <input name="outputdyn_Specular_Name" type="string" value="Specular" />
+      <input name="outputdyn_Normal_Name" type="string" value="Normal" />
+      <input name="outputdyn_Bump_Name" type="string" value="Bump" />
+      <input name="outputdyn_Displacement_Name" type="string" value="Displacement" />
+      <input name="outputdyn_Height_Name" type="string" value="Height" />
+    </substance>
+    <substance name="substance2_float" type="float">
+      <input name="package" type="string" value="./Meteor.sbsar" />
+      <input name="graph" type="string" value="Meteor" />
+      <input name="uvFilterSize" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="uvCoord" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="textureWidth" type="integer" value="4" />
+      <input name="textureHeight" type="integer" value="4" />
+      <input name="scriptJobAdded" type="integer" value="1" />
+      <input name="outputdyn_Diffuse_Name" type="string" value="Diffuse" />
+      <input name="outputdyn_Specular_Name" type="string" value="Specular" />
+      <input name="outputdyn_Normal_Name" type="string" value="Normal" />
+      <input name="outputdyn_Bump_Name" type="string" value="Bump" />
+      <input name="outputdyn_Displacement_Name" type="string" value="Displacement" />
+      <input name="outputdyn_Height_Name" type="string" value="Height" />
+    </substance>
+  </nodegraph>
+  <nodegraph name="Specular_substance2_outColor">
+    <output name="out" type="color3" nodename="Specular_substance2_color3" />
+    <substanceOutput name="Specular_substance2_color3" type="color3">
+      <input name="wrapperID" type="integer" value="1" />
+      <input name="channelName" type="string" nodename="substance2_string" />
+      <input name="uvFilterSize" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="uvCoord" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="inColor" type="color3" nodename="substance2_color3" />
+      <input name="inAlpha" type="float" nodename="substance2_float" />
+    </substanceOutput>
+    <substance name="substance2_string" type="string">
+      <input name="package" type="string" value="./Meteor.sbsar" />
+      <input name="graph" type="string" value="Meteor" />
+      <input name="uvFilterSize" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="uvCoord" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="textureWidth" type="integer" value="4" />
+      <input name="textureHeight" type="integer" value="4" />
+      <input name="scriptJobAdded" type="integer" value="1" />
+      <input name="outputdyn_Diffuse_Name" type="string" value="Diffuse" />
+      <input name="outputdyn_Specular_Name" type="string" value="Specular" />
+      <input name="outputdyn_Normal_Name" type="string" value="Normal" />
+      <input name="outputdyn_Bump_Name" type="string" value="Bump" />
+      <input name="outputdyn_Displacement_Name" type="string" value="Displacement" />
+      <input name="outputdyn_Height_Name" type="string" value="Height" />
+    </substance>
+    <texcoord name="place2dTexture2_vector2" type="vector2" />
+    <substance name="substance2_color3" type="color3">
+      <input name="package" type="string" value="./Meteor.sbsar" />
+      <input name="graph" type="string" value="Meteor" />
+      <input name="uvFilterSize" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="uvCoord" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="textureWidth" type="integer" value="4" />
+      <input name="textureHeight" type="integer" value="4" />
+      <input name="scriptJobAdded" type="integer" value="1" />
+      <input name="outputdyn_Diffuse_Name" type="string" value="Diffuse" />
+      <input name="outputdyn_Specular_Name" type="string" value="Specular" />
+      <input name="outputdyn_Normal_Name" type="string" value="Normal" />
+      <input name="outputdyn_Bump_Name" type="string" value="Bump" />
+      <input name="outputdyn_Displacement_Name" type="string" value="Displacement" />
+      <input name="outputdyn_Height_Name" type="string" value="Height" />
+    </substance>
+    <substance name="substance2_float" type="float">
+      <input name="package" type="string" value="./Meteor.sbsar" />
+      <input name="graph" type="string" value="Meteor" />
+      <input name="uvFilterSize" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="uvCoord" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="textureWidth" type="integer" value="4" />
+      <input name="textureHeight" type="integer" value="4" />
+      <input name="scriptJobAdded" type="integer" value="1" />
+      <input name="outputdyn_Diffuse_Name" type="string" value="Diffuse" />
+      <input name="outputdyn_Specular_Name" type="string" value="Specular" />
+      <input name="outputdyn_Normal_Name" type="string" value="Normal" />
+      <input name="outputdyn_Bump_Name" type="string" value="Bump" />
+      <input name="outputdyn_Displacement_Name" type="string" value="Displacement" />
+      <input name="outputdyn_Height_Name" type="string" value="Height" />
+    </substance>
+  </nodegraph>
+  <nodegraph name="substance2_bump2d_outNormal">
+    <output name="out" type="vector3" nodename="substance2_bump2d_vector3" />
+    <heighttonormal name="substance2_bump2d_vector3" type="vector3">
+      <input name="in" type="float" nodename="Normal_substance2_float" />
+    </heighttonormal>
+    <substanceOutput name="Normal_substance2_float" type="float">
+      <input name="wrapperID" type="integer" value="0" />
+      <input name="channelName" type="string" nodename="substance2_string" />
+      <input name="uvFilterSize" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="uvCoord" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="inColor" type="color3" nodename="substance2_color3" />
+      <input name="inAlpha" type="float" nodename="substance2_float" />
+    </substanceOutput>
+    <substance name="substance2_string" type="string">
+      <input name="package" type="string" value="./Meteor.sbsar" />
+      <input name="graph" type="string" value="Meteor" />
+      <input name="uvFilterSize" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="uvCoord" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="textureWidth" type="integer" value="4" />
+      <input name="textureHeight" type="integer" value="4" />
+      <input name="scriptJobAdded" type="integer" value="1" />
+      <input name="outputdyn_Diffuse_Name" type="string" value="Diffuse" />
+      <input name="outputdyn_Specular_Name" type="string" value="Specular" />
+      <input name="outputdyn_Normal_Name" type="string" value="Normal" />
+      <input name="outputdyn_Bump_Name" type="string" value="Bump" />
+      <input name="outputdyn_Displacement_Name" type="string" value="Displacement" />
+      <input name="outputdyn_Height_Name" type="string" value="Height" />
+    </substance>
+    <texcoord name="place2dTexture2_vector2" type="vector2" />
+    <substance name="substance2_color3" type="color3">
+      <input name="package" type="string" value="./Meteor.sbsar" />
+      <input name="graph" type="string" value="Meteor" />
+      <input name="uvFilterSize" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="uvCoord" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="textureWidth" type="integer" value="4" />
+      <input name="textureHeight" type="integer" value="4" />
+      <input name="scriptJobAdded" type="integer" value="1" />
+      <input name="outputdyn_Diffuse_Name" type="string" value="Diffuse" />
+      <input name="outputdyn_Specular_Name" type="string" value="Specular" />
+      <input name="outputdyn_Normal_Name" type="string" value="Normal" />
+      <input name="outputdyn_Bump_Name" type="string" value="Bump" />
+      <input name="outputdyn_Displacement_Name" type="string" value="Displacement" />
+      <input name="outputdyn_Height_Name" type="string" value="Height" />
+    </substance>
+    <substance name="substance2_float" type="float">
+      <input name="package" type="string" value="./Meteor.sbsar" />
+      <input name="graph" type="string" value="Meteor" />
+      <input name="uvFilterSize" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="uvCoord" type="vector2" nodename="place2dTexture2_vector2" />
+      <input name="textureWidth" type="integer" value="4" />
+      <input name="textureHeight" type="integer" value="4" />
+      <input name="scriptJobAdded" type="integer" value="1" />
+      <input name="outputdyn_Diffuse_Name" type="string" value="Diffuse" />
+      <input name="outputdyn_Specular_Name" type="string" value="Specular" />
+      <input name="outputdyn_Normal_Name" type="string" value="Normal" />
+      <input name="outputdyn_Bump_Name" type="string" value="Bump" />
+      <input name="outputdyn_Displacement_Name" type="string" value="Displacement" />
+      <input name="outputdyn_Height_Name" type="string" value="Height" />
+    </substance>
+  </nodegraph>
+</materialx>

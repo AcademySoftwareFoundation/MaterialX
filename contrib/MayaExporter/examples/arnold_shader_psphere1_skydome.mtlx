@@ -40,7 +40,7 @@
     <output name="out" type="color3" nodename="file1_color3" />
     <image name="file1_color3" type="color3">
       <input name="texcoord" type="vector2" nodename="place2dTexture1_vector2" />
-      <parameter name="file" type="filename" value="Exterior1_Color.exr" colorspace="Raw" />
+      <parameter name="file" type="filename" value="./Exterior1_Color.exr" colorspace="Raw" />
     </image>
     <texcoord name="place2dTexture1_vector2" type="vector2" />
   </nodegraph>
