@@ -2,12 +2,15 @@
 <materialx version="1.35" require="matnodegraph">
     <look name="look0">
       <materialassign name="materialassign0" material="aiStandardSurface0SG" collection="collection1" />
-      <materialassign name="materialassign00" material="aiAreaLightShape1" geom="|aiAreaLight1|aiAreaLightShape1" />
-      <visibility name="aiAreaLightShape1" geom="|aiAreaLight1|aiAreaLightShape1" viewergeom="*" visible="true" />
+      <materialassign name="materialassign00" material="aiAreaLightShape1" geom="/aiAreaLight1/aiAreaLightShape1" />
+      <visibility name="aiAreaLightShape1" geom="/aiAreaLight1/aiAreaLightShape1" viewergeom="*" visible="true" />
     </look>
     <material name="aiStandardSurface0SG">
       <shaderref name="aiStandardSurface0" node="adskSurface">
-        <bindinput name="normal" type="vector3" value="1, 1, 1" />
+         <bindinput name="specular_roughness" type="float" value="0.096" />
+         <bindinput name="specular_IOR" type="float" value="2.69585" />
+         <bindinput name="specular_rotation" type="float" value="0.0319635" />
+         <bindinput name="normal" type="vector3" value="1, 1, 1" />
       </shaderref>
     </material>
   <look name="look1">
@@ -16,11 +19,14 @@
   <material name="aiStandardSurface1SG">
     <shaderref name="aiStandardSurface1" node="adskSurface">
       <bindinput name="base_color" type="color3" nodegraph="file1_outColor" output="out" />
-      <bindinput name="normal" type="vector3" value="1, 1, 1" />
+       <bindinput name="specular_roughness" type="float" value="0.096" />
+       <bindinput name="specular_IOR" type="float" value="2.69585" />
+       <bindinput name="specular_rotation" type="float" value="0.0319635" />
+       <bindinput name="normal" type="vector3" value="1, 1, 1" />
     </shaderref>
   </material>
   <collection name="collection1">
-    <collectionadd name="collectionadd1" geom="|pSphere1|pSphereShape1" />
+    <collectionadd name="collectionadd1" geom="/pSphere1/pSphereShape1" />
   </collection>
   <nodegraph name="file1_outColor">
     <output name="out" type="color3" nodename="file1_color3" />

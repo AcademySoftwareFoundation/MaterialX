@@ -267,124 +267,130 @@ uniform vec3 Light2ShadowColor : SHADOWCOLOR
     string Object = "Light 2";
 > = {0, 0, 0};
 
-uniform texture2D IBL_file_texture : SourceTexture;
-uniform sampler2D IBL_file = sampler_state
+uniform texture2D Specular_IBL_file_texture : SourceTexture;
+uniform sampler2D Specular_IBL_file = sampler_state
 {
-    Texture = <IBL_file_texture>;
+    Texture = <Specular_IBL_file_texture>;
+};
+
+uniform texture2D Irradiance_IBL_file_texture : SourceTexture;
+uniform sampler2D Irradiance_IBL_file = sampler_state
+{
+    Texture = <Irradiance_IBL_file_texture>;
 };
 
 // --------------------------------- Lighting Functions -------------------------------------
 
 GLSLShader PixelShader_Lighting
 {
-    int GetLightType(int ActiveLightIndex) 
-    { 
-        if (ActiveLightIndex == 0) 
-            return Light0Type; 
-        else if (ActiveLightIndex == 1) 
-            return Light1Type; 
-        else 
-            return Light2Type; 
+    int GetLightType(int ActiveLightIndex)
+    {
+        if (ActiveLightIndex == 0)
+            return Light0Type;
+        else if (ActiveLightIndex == 1)
+            return Light1Type;
+        else
+            return Light2Type;
     }
 
-    vec3 GetLightColor(int ActiveLightIndex) 
-    { 
-        if (ActiveLightIndex == 0) 
-            return Light0Color; 
-        else if (ActiveLightIndex == 1) 
-            return Light1Color; 
-        else 
-            return Light2Color; 
+    vec3 GetLightColor(int ActiveLightIndex)
+    {
+        if (ActiveLightIndex == 0)
+            return Light0Color;
+        else if (ActiveLightIndex == 1)
+            return Light1Color;
+        else
+            return Light2Color;
     }
 
-    float GetLightIntensity(int ActiveLightIndex) 
-    { 
-        if (ActiveLightIndex == 0) 
-            return Light0Intensity; 
-        else if (ActiveLightIndex == 1) 
-            return Light1Intensity; 
-        else 
-            return Light2Intensity; 
+    float GetLightIntensity(int ActiveLightIndex)
+    {
+        if (ActiveLightIndex == 0)
+            return Light0Intensity;
+        else if (ActiveLightIndex == 1)
+            return Light1Intensity;
+        else
+            return Light2Intensity;
     }
 
-    vec3 GetLightPos(int ActiveLightIndex) 
-    { 
-        if (ActiveLightIndex == 0) 
-            return Light0Pos; 
-        else if (ActiveLightIndex == 1) 
-            return Light1Pos; 
-        else 
-            return Light2Pos; 
+    vec3 GetLightPos(int ActiveLightIndex)
+    {
+        if (ActiveLightIndex == 0)
+            return Light0Pos;
+        else if (ActiveLightIndex == 1)
+            return Light1Pos;
+        else
+            return Light2Pos;
     }
 
-    vec3 GetLightDir(int ActiveLightIndex) 
-    { 
-        if (ActiveLightIndex == 0) 
-            return normalize(Light0Dir); 
-        else if (ActiveLightIndex == 1) 
-            return normalize(Light1Dir); 
-        else 
-            return normalize(Light2Dir); 
+    vec3 GetLightDir(int ActiveLightIndex)
+    {
+        if (ActiveLightIndex == 0)
+            return normalize(Light0Dir);
+        else if (ActiveLightIndex == 1)
+            return normalize(Light1Dir);
+        else
+            return normalize(Light2Dir);
     }
 
-    float GetLightAttenuation(int ActiveLightIndex) 
-    { 
-        if (ActiveLightIndex == 0) 
-            return Light0Attenuation; 
-        else if (ActiveLightIndex == 1) 
-            return Light1Attenuation; 
-        else 
-            return Light2Attenuation; 
+    float GetLightAttenuation(int ActiveLightIndex)
+    {
+        if (ActiveLightIndex == 0)
+            return Light0Attenuation;
+        else if (ActiveLightIndex == 1)
+            return Light1Attenuation;
+        else
+            return Light2Attenuation;
     }
 
-    float GetLightConeAngle(int ActiveLightIndex) 
-    { 
-        if (ActiveLightIndex == 0) 
-            return Light0ConeAngle; 
-        else if (ActiveLightIndex == 1) 
-            return Light1ConeAngle; 
-        else 
-            return Light2ConeAngle; 
+    float GetLightConeAngle(int ActiveLightIndex)
+    {
+        if (ActiveLightIndex == 0)
+            return Light0ConeAngle;
+        else if (ActiveLightIndex == 1)
+            return Light1ConeAngle;
+        else
+            return Light2ConeAngle;
     }
 
-    float GetLightFalloff(int ActiveLightIndex) 
-    { 
-        if (ActiveLightIndex == 0) 
-            return Light0Falloff; 
-        else if (ActiveLightIndex == 1) 
-            return Light1Falloff; 
-        else 
-            return Light2Falloff; 
+    float GetLightFalloff(int ActiveLightIndex)
+    {
+        if (ActiveLightIndex == 0)
+            return Light0Falloff;
+        else if (ActiveLightIndex == 1)
+            return Light1Falloff;
+        else
+            return Light2Falloff;
     }
 
-    bool GetLightShadowOn(int ActiveLightIndex) 
-    { 
-        if (ActiveLightIndex == 0) 
-            return Light0ShadowOn; 
-        else if (ActiveLightIndex == 1) 
-            return Light1ShadowOn; 
-        else 
-            return Light2ShadowOn; 
+    bool GetLightShadowOn(int ActiveLightIndex)
+    {
+        if (ActiveLightIndex == 0)
+            return Light0ShadowOn;
+        else if (ActiveLightIndex == 1)
+            return Light1ShadowOn;
+        else
+            return Light2ShadowOn;
     }
 
-    mat4 GetLightViewPrj(int ActiveLightIndex) 
-    { 
-        if (ActiveLightIndex == 0) 
-            return Light0ViewPrj; 
-        else if (ActiveLightIndex == 1) 
-            return Light1ViewPrj; 
-        else 
-            return Light2ViewPrj; 
+    mat4 GetLightViewPrj(int ActiveLightIndex)
+    {
+        if (ActiveLightIndex == 0)
+            return Light0ViewPrj;
+        else if (ActiveLightIndex == 1)
+            return Light1ViewPrj;
+        else
+            return Light2ViewPrj;
     }
 
-    vec3 GetLightShadowColor(int ActiveLightIndex) 
-    { 
-        if (ActiveLightIndex == 0) 
-            return Light0ShadowColor; 
-        else if (ActiveLightIndex == 1) 
-            return Light1ShadowColor; 
-        else 
-            return Light2ShadowColor; 
+    vec3 GetLightShadowColor(int ActiveLightIndex)
+    {
+        if (ActiveLightIndex == 0)
+            return Light0ShadowColor;
+        else if (ActiveLightIndex == 1)
+            return Light1ShadowColor;
+        else
+            return Light2ShadowColor;
     }
 
     vec3 GetLightVectorFunction(int ActiveLightIndex, vec3 LightPosition, vec3 VertexWorldPosition, vec3 LightDirection)
@@ -463,19 +469,30 @@ GLSLShader PixelShader_Lighting
         return vec2(u / (2 * M_PI), v / M_PI);
     }
 
-    vec3 EnvironmentLight(vec3 normal, vec3 view, float rougness)
+    vec3 LatLongMapLookup(vec3 dir, float lodBias, sampler2D sampler)
     {
-        vec2 res = textureSize(IBL_file, 0);
+        vec2 res = textureSize(sampler, 0);
         if (res.x > 0)
         {
-            vec3 dir = reflect(-view, normal);
-            // Y is up vector
-            dir = vec3(dir.x, -dir.z, dir.y);
             vec2 uv = GetSphericalCoords(dir);
             int levels = 1 + int(floor(log2(max(res.x, res.y))));
-            float lod = rougness * levels;
-            return textureLod(IBL_file, uv, lod).rgb;
+            float lod = lodBias * levels;
+            return textureLod(sampler, uv, lod).rgb;
         }
         return vec3(0.0);
+    }
+
+    vec3 SpecularEnvironment(vec3 normal, vec3 view, float roughness)
+    {
+        vec3 dir = reflect(-view, normal);
+        // Y is up vector
+        dir = vec3(dir.x, -dir.z, dir.y);
+
+        return LatLongMapLookup(dir, roughness, Specular_IBL_file);
+    }
+
+    vec3 IrradianceEnvironment(vec3 normal)
+    {
+        return LatLongMapLookup(normal, 1.0, Irradiance_IBL_file);
     }
 }

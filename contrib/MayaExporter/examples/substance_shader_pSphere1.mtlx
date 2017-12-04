@@ -12,7 +12,7 @@
     </shaderref>
   </material>
   <collection name="collection1">
-    <collectionadd name="collectionadd1" geom="|pSphere1|pSphereShape1" />
+    <collectionadd name="collectionadd1" geom="/pSphere1/pSphereShape1" />
   </collection>
   <nodegraph name="Diffuse_substance1_outColor">
     <output name="out" type="color3" nodename="Diffuse_substance1_color3" />
@@ -80,7 +80,7 @@
     </shaderref>
   </material>
   <collection name="collection2">
-    <collectionadd name="collectionadd1" geom="|pSphere2|pSphereShape2" />
+    <collectionadd name="collectionadd1" geom="/pSphere2/pSphereShape2" />
   </collection>
   <nodegraph name="Diffuse_substance2_outColor">
     <output name="out" type="color3" nodename="Diffuse_substance2_color3" />

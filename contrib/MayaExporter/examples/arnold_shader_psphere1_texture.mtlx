@@ -1,29 +1,35 @@
 <?xml version="1.0"?>
 <materialx version="1.35" require="matnodegraph">
-    <look name="look0">
-      <materialassign name="materialassign0" material="aiStandardSurface0SG" collection="collection0" />
-    </look>
-    <material name="aiStandardSurface0SG">
-      <shaderref name="aiStandardSurface0" node="adskSurface">
-        <bindinput name="normal" type="vector3" value="1, 1, 1" />
-      </shaderref>
-    </material>
-    <collection name="collection0">
-      <collectionadd name="collectionadd0" geom="|pSphere1|pSphereShape1" />
-    </collection>
-  <look name="look1">
+  <look name="look0" xpos="6.62835" ypos="8.51588" adskDisplayMode="2">
+    <materialassign name="materialassign0" material="aiStandardSurface0SG" collection="collection0" />
+  </look>
+  <material name="aiStandardSurface0SG" xpos="5.44039" ypos="0.551861" adskDisplayMode="2">
+    <shaderref name="aiStandardSurface0" node="adskSurface">
+      <bindinput name="normal" type="vector3" value="1, 1, 1" />
+      <bindinput name="specular_roughness" type="float" value="0.4000" />
+      <bindinput name="base" type="float" value="0.5000" />
+      <bindinput name="specular_IOR" type="float" value="3.0000" />
+    </shaderref>
+  </material>
+  <collection name="collection0" xpos="4.84466" ypos="20.7747" adskDisplayMode="2">
+    <collectionadd name="collectionadd0" geom="/pSphere1/pSphereShape1" />
+  </collection>
+  <look name="look1" xpos="7.47225" ypos="2.7147" adskDisplayMode="2">
     <materialassign name="materialassign1" material="aiStandardSurface1SG" collection="collection1" />
   </look>
-  <material name="aiStandardSurface1SG">
+  <material name="aiStandardSurface1SG" xpos="4.31966" ypos="2.39152" adskDisplayMode="2">
     <shaderref name="aiStandardSurface1" node="adskSurface">
       <bindinput name="base_color" type="color3" nodegraph="file1_outColor" output="out" />
       <bindinput name="normal" type="vector3" value="1, 1, 1" />
+      <bindinput name="metalness" type="float" value="0.3000" />
+      <bindinput name="transmission" type="float" value="0.0000" />
+      <bindinput name="opacity" type="color3" value="0.2000, 1, 1" />
     </shaderref>
   </material>
-  <collection name="collection1">
-    <collectionadd name="collectionadd1" geom="|pSphere1|pSphereShape1" />
+  <collection name="collection1" xpos="5.61708" ypos="14.0147" adskDisplayMode="2">
+    <collectionadd name="collectionadd1" geom="/pSphere1/pSphereShape1" />
   </collection>
-  <nodegraph name="file1_outColor">
+  <nodegraph name="file1_outColor" xpos="7.47225" ypos="40.8546" adskDisplayMode="1">
     <output name="out" type="color3" nodename="file1_color3" />
     <image name="file1_color3" type="color3">
       <input name="texcoord" type="vector2" nodename="place2dTexture1_vector2" />

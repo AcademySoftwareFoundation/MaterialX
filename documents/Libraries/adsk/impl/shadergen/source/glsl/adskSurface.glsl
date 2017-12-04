@@ -60,8 +60,8 @@ void adskSurface(
     bool FresnelAffectDiffuse = false;
     bool FresnelUseIOR = false;
     float Ksn = 0.0;
-    vec3 IrradianceEnv = vec3(0.000000, 0.000000, 0.000000);
-    vec3 SpecularEnv = EnvironmentLight(worldNormal, worldView, specular_roughness);
+    vec3 IrradianceEnv = IrradianceEnvironment(worldNormal);
+    vec3 SpecularEnv = SpecularEnvironment(worldNormal, worldView, specular_roughness);
 
     // Compute total bsdf
     standardShaderCombiner(
