@@ -64,6 +64,9 @@ SceneTranslator::SceneTranslator(const Options& options)
         mx::readFromXmlFile(stdlib, "mx_stdlib.mtlx", Plugin::instance().getLibrarySearchPath());
         _context.doc->importLibrary(stdlib);
     }
+
+    // Create scene id name resolver
+    _resolver = SceneIdNameResolver::create();
 }
 
 SceneTranslator::~SceneTranslator()
@@ -101,7 +104,13 @@ mx::MaterialPtr SceneTranslator::exportLight(const MObject& mayaLight, mx::LookP
     // - 
     MFnDagNode fnLight(mayaLight);
     const std::string lightName = fnLight.name().asChar();
-    const std::string lightPathName = fnLight.fullPathName().asChar();
+    std::string lightPathName = fnLight.fullPathName().asChar();
+
+    // Resolve to get string to save
+    if (_resolver)
+    {
+        lightPathName = _resolver->resolve(lightPathName, MaterialX::GEOMNAME_TYPE_STRING);
+    }
 
     // Light is a material
     mx::MaterialPtr material = _context.doc->getMaterial(lightName);
@@ -163,7 +172,15 @@ mx::MaterialPtr SceneTranslator::exportMaterial(const MObject& mayaMaterial, mx:
             MDagPath dagPath;
             members.getDagPath(j, dagPath);
             mx::CollectionAddPtr collAdd = collection->addCollectionAdd();
-            collAdd->setGeom(dagPath.fullPathName().asChar());
+
+            // Resolve to get string to save            
+            std::string geomPath = dagPath.fullPathName().asChar();
+            if (_resolver)
+            {
+                geomPath = _resolver->resolve(geomPath, MaterialX::GEOMNAME_TYPE_STRING);
+            }
+
+            collAdd->setGeom(geomPath);
         }
     }
 

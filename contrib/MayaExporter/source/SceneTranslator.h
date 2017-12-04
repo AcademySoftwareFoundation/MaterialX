@@ -35,6 +35,30 @@ struct TranslatorContext
     mx::DocumentPtr nodeDefs;
 };
 
+/// A shared pointer to a scene id resolver from Maya
+using SceneIdNameResolverPtr = std::shared_ptr<class SceneIdNameResolver>;
+/// A scene id resolver from Maya
+class SceneIdNameResolver : public MaterialX::StringResolver
+{
+public:
+    /// Creator function
+    static SceneIdNameResolverPtr create()
+    {
+        SceneIdNameResolverPtr result(new SceneIdNameResolver());
+        return result;
+    }
+
+private:
+    /// Default constructor
+    SceneIdNameResolver()
+        : MaterialX::StringResolver()
+    {
+        // Substitue | with / for save
+        setGeomNameSubstitution("|", "/");
+    }
+};
+
+
 /// @class SceneTranslator
 /// Maya scene translator
 class SceneTranslator
@@ -108,6 +132,7 @@ private:
 
     const Options& _options;
     TranslatorContext _context;
+    SceneIdNameResolverPtr _resolver;
 };
 
 /// @class TranslatorError
