@@ -135,6 +135,25 @@ public:
     /// Return the uniform inputs published for this shader
     const vector<Uniform>& getUniforms() const { return _uniforms; }
 
+    bool isTransparent() const
+    {
+        if (getNodeGraph()->hasClassification(SgNode::Classification::SHADER))
+        {
+            for (SgNode* node : getNodeGraph()->getNodes())
+            {
+                if (node && node->hasClassification(SgNode::Classification::SHADER) && !node->referencedConditionally())
+                {
+                    MaterialX::SgImplementation* implementation = node->getImplementation();
+                    if (implementation)
+                    {
+                        return implementation->isTransparent(*node);
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
 protected:
     /// A shader stage, containing the state and 
     /// resulting source code for the stage

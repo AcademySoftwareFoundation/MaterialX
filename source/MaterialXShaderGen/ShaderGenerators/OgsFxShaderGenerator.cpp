@@ -1,4 +1,5 @@
 #include <MaterialXShaderGen/ShaderGenerators/OgsFxShaderGenerator.h>
+#include <MaterialXShaderGen/Implementations/AdskSurface.h>
 #include <MaterialXShaderGen/Implementations/Surface.h>
 
 #include <sstream>
@@ -13,6 +14,8 @@ OgsFxShaderGenerator::OgsFxShaderGenerator()
 {
     // Add target specific implementations
 
+    // <!-- <adskSurface> -->
+    registerImplementation("IM_adskSurface__glsl", AdskSurfaceOgsFx::creator);
     // <!-- <surface> -->
     registerImplementation("IM_surface__glsl", SurfaceOgsFx::creator);
 }

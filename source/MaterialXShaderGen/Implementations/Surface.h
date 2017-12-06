@@ -9,8 +9,9 @@ namespace MaterialX
 /// Implementation of 'surface' node for OgsFx
 class SurfaceOgsFx : public SgImplementation
 {
-public:
+  public:
     static SgImplementationPtr creator();
+
     const string& getLanguage() const override;
     const string& getTarget() const override;
 

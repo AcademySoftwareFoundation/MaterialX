@@ -62,6 +62,7 @@ void SurfaceOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
     string surfaceOpacity = node.getName() + "_opacity";
     shader.addStr("float " + surfaceOpacity + " = ");
     glslgen.emitInput(node.getInput("opacity"), shader);
+
     shader.endLine();
     shader.addLine("if (" + surfaceOpacity + " > 0.001)", false);
     shader.beginScope();
@@ -126,9 +127,24 @@ void SurfaceOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
     shader.newLine();
 }
 
-bool SurfaceOgsFx::isTransparent(const SgNode& /*node*/) const
+bool SurfaceOgsFx::isTransparent(const SgNode& node) const
 {
-    // TODO: find out if the surface shader has transparency
+    if (node.getInput("opacity"))
+    {
+        MaterialX::ValuePtr value = node.getInput("opacity")->value;
+        if (value)
+        {
+            try
+            {
+                MaterialX::Color3 color3Value = value->asA<MaterialX::Color3>();
+                return color3Value[0] < 1.0 || color3Value[1] < 1.0 || color3Value[2] < 1.0;
+            }
+            catch(Exception)
+            {
+                return false;
+            }
+        }
+    }
     return false;
 }
 
