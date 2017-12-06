@@ -136,8 +136,8 @@ bool SurfaceOgsFx::isTransparent(const SgNode& node) const
         {
             try
             {
-                MaterialX::Color3 color3Value = value->asA<MaterialX::Color3>();
-                return color3Value[0] < 1.0 || color3Value[1] < 1.0 || color3Value[2] < 1.0;
+                float opacityValue = value->asA<float>();
+                return (opacityValue < 1.0);
             }
             catch(Exception)
             {
