@@ -189,7 +189,7 @@ OutputPtr BindInput::getConnectedOutput() const
 // ShaderRef methods
 //
 
-NodeDefPtr ShaderRef::getNodeDef()
+NodeDefPtr ShaderRef::getNodeDef() const
 {
     if (hasNodeDefString())
     {
@@ -201,6 +201,18 @@ NodeDefPtr ShaderRef::getNodeDef()
         return nodeDefs.empty() ? NodeDefPtr() : nodeDefs[0];
     }
     return NodeDefPtr();
+}
+
+bool ShaderRef::validate(string * message) const
+{
+    bool res = true;
+    NodeDefPtr nodeDef = getNodeDef();
+    TypeDefPtr typeDef = nodeDef ? getDocument()->getTypeDef(nodeDef->getType()) : TypeDefPtr();
+    if (typeDef)
+    {
+        validateRequire(typeDef->getSemantic() == SHADER_SEMANTIC, res, message, "Shader reference to a non-shader nodedef");
+    }
+    return Element::validate(message) && res;
 }
 
 //

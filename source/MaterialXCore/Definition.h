@@ -16,6 +16,9 @@
 namespace MaterialX
 {
 
+extern const string COLOR_SEMANTIC;
+extern const string SHADER_SEMANTIC;
+
 /// A shared pointer to a NodeDef
 using NodeDefPtr = shared_ptr<class NodeDef>;
 /// A shared pointer to a const NodeDef
