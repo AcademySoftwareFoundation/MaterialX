@@ -3,12 +3,15 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXCore/Node.h>
+#include <MaterialXCore/Definition.h>
 
 #include <MaterialXCore/Document.h>
 
 namespace MaterialX
 {
+
+const string COLOR_SEMANTIC = "color";
+const string SHADER_SEMANTIC = "shader";
 
 const string NodeDef::NODE_ATTRIBUTE = "node";
 const string TypeDef::SEMANTIC_ATTRIBUTE = "semantic";
