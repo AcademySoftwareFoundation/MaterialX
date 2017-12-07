@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<materialx version="1.35" require="">
+  <look name="transparencyLook" xpos="9.42282" ypos="8.45934" adskDisplayMode="2">
+    <materialassign name="materialassign2" collection="transparentCollection" material="BsdfLayering" xpos="6.31694" ypos="9.78264" adskDisplayMode="2" />
+  </look>
+  <collection name="transparentCollection" xpos="7.75385" ypos="11.8556" adskDisplayMode="1">
+    <collectionadd name="collectionadd1" geom="/pSphere1" xpos="5.76552" ypos="11.18" adskDisplayMode="2" />
+  </collection>
+   <nodegraph name="BsdfLayering">
+      <diffusebsdf name="diffuse" type="BSDF">
+         <input name="reflectance" type="color3" publicname="diffuse_color" value="0.9, 0.5, 1.0" />
+      </diffusebsdf>
+      <translucentbsdf name="sss" type="BSDF">
+         <input name="transmittance" type="color3" publicname="sss_color" value="0.1, 0.1, 0.8" />
+      </translucentbsdf>
+      <layeredbsdf name="substrate" type="BSDF">
+         <input name="top" type="BSDF" nodename="diffuse" />
+         <input name="base" type="BSDF" nodename="sss" />
+         <input name="weight" type="float" nodename="substrate_weight_inv" />
+      </layeredbsdf>
+      <invert name="substrate_weight_inv" type="float">
+         <input name="in" type="float" publicname="sss_weight" value="0.5" />
+      </invert>
+      <coatingbsdf name="coating" type="BSDF">
+         <input name="base" type="BSDF" nodename="substrate" />
+         <input name="reflectance" type="color3" publicname="coating_color" value="1.0, 1.0, 1.0" />
+         <input name="roughness" type="float" publicname="coating_roughness" value="0.2" />
+         <input name="ior" type="float" publicname="coating_ior" value="2.52" />
+      </coatingbsdf>
+      <surface name="surface1" type="surfaceshader">
+         <input name="bsdf" type="BSDF" nodename="coating" />
+         <input name="opacity" type="float" value="0.7" />
+      </surface>
+      <output name="out" type="surfaceshader" nodename="surface1" />
+   </nodegraph>
+</materialx>
