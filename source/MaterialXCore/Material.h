@@ -486,7 +486,7 @@ class ShaderRef : public Element
     /// @{
 
     /// Return the NodeDef, if any, that this element references.
-    NodeDefPtr getNodeDef();
+    NodeDefPtr getNodeDef() const;
 
     /// @}
     /// @name Output References
@@ -506,6 +506,14 @@ class ShaderRef : public Element
         }
         return outputs;
     }
+
+    /// @}
+    /// @name Validation
+    /// @{
+
+    /// Validate that the given element tree, including all descendants, is
+    /// consistent with the MaterialX specification.
+    bool validate(string* message = nullptr) const override;
 
     /// @}
 
