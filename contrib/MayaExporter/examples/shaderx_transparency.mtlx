@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<materialx version="1.35" require="matnodegraph">
+  <look name="look0" xpos="9.47889" ypos="13.6829" adskDisplayMode="2">
+    <materialassign name="materialassign0" material="aiStandardSurface0SG" collection="collection0" />
+  </look>
+  <material name="aiStandardSurface0SG" xpos="11.7882" ypos="3.08416" adskDisplayMode="2">
+    <shaderref name="aiStandardSurface0" node="adskSurface">
+      <bindinput name="normal" type="vector3" value="1, 1, 1" />
+      <bindinput name="specular_roughness" type="float" value="0.4000" />
+      <bindinput name="base" type="float" value="0.5000" />
+      <bindinput name="specular_IOR" type="float" value="3.0000" />
+      <bindinput name="opacity" type="color3" value="0.5, 0.5, 0.5" />
+    </shaderref>
+  </material>
+  <collection name="collection0" xpos="7.97804" ypos="19.8606" adskDisplayMode="2">
+    <collectionadd name="collectionadd0" geom="/pSphere1/pSphereShape1" />
+  </collection>
+  <look name="look1" xpos="8.31363" ypos="5.1947" adskDisplayMode="2">
+    <materialassign name="materialassign1" material="aiStandardSurface1SG" collection="collection1" />
+  </look>
+  <material name="aiStandardSurface1SG" xpos="3.90743" ypos="-0.5467" adskDisplayMode="2">
+    <shaderref name="aiStandardSurface1" node="adskSurface">
+      <bindinput name="normal" type="vector3" value="1, 1, 1" />
+      <bindinput name="metalness" type="float" value="0.3000" />
+      <bindinput name="transmission" type="float" value="0.0000" />
+      <bindinput name="opacity" type="color3" value="0.5, 0.5, 0.5" />
+      <bindinput name="base_color" type="color3" nodegraph="file1_outColor" output="out" />
+    </shaderref>
+  </material>
+  <collection name="collection1" xpos="6.45846" ypos="16.4947" adskDisplayMode="2">
+    <collectionadd name="collectionadd1" geom="/pSphere1/pSphereShape1" />
+  </collection>
+  <nodegraph name="file1_outColor" xpos="2.18397" ypos="4.5787" adskDisplayMode="2">
+    <output name="out" type="color3" nodename="file1_color3" channels="" />
+    <image name="file1_color3" type="color3" xpos="5.06544" ypos="10.2887" adskDisplayMode="2">
+      <input name="texcoord" type="vector2" nodename="place2dTexture1_vector2" channels="" />
+      <parameter name="file" type="filename" value="D:\Work\materialx\MaterialX\contrib\MayaExporter\examples\MaterialXLogo.png" colorspace="Raw" />
+    </image>
+    <texcoord name="place2dTexture1_vector2" type="vector2" xpos="3.64768" ypos="9.74368" adskDisplayMode="2" />
+  </nodegraph>
+</materialx>

@@ -23,7 +23,7 @@
       <bindinput name="normal" type="vector3" value="1, 1, 1" />
       <bindinput name="metalness" type="float" value="0.3000" />
       <bindinput name="transmission" type="float" value="0.0000" />
-      <bindinput name="opacity" type="color3" value="0.2000, 1, 1" />
+      <bindinput name="opacity" type="color3" value="1.0, 1.0, 1.0" />
     </shaderref>
   </material>
   <collection name="collection1" xpos="5.61708" ypos="14.0147" adskDisplayMode="2">
