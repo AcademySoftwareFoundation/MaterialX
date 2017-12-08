@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<materialx version="1.35" require="">
+  <nodegraph name="bitangentGraph" type="" xpos="6.78272" ypos="27.8151" adskDisplayMode="2">
+    <bitangent name="bitangent1" type="vector3" xpos="5.63788" ypos="5.91384" adskDisplayMode="2">
+      <parameter name="space" type="string" value="object" />
+    </bitangent>
+    <output name="out" type="vector3" nodename="bitangent1" channels="" />
+  </nodegraph>
+  <nodegraph name="tangentGraph" type="" xpos="6.96556" ypos="18.1119" adskDisplayMode="2">
+    <tangent name="tangent1" type="vector3" xpos="5.74483" ypos="5.72" adskDisplayMode="2">
+      <parameter name="space" type="string" value="object" />
+    </tangent>
+    <output name="out" type="vector3" nodename="tangent1" channels="" />
+  </nodegraph>
+  <nodegraph name="normalGraph" type="" xpos="7.87539" ypos="23.7636" adskDisplayMode="2">
+    <normal name="normal1" type="vector3" xpos="5.68801" ypos="6.62134" adskDisplayMode="2">
+      <parameter name="space" type="string" value="object" />
+    </normal>
+    <output name="out" type="vector3" nodename="normal1" channels="" />
+  </nodegraph>
+  <nodegraph name="uvGraph" type="" xpos="4.71276" ypos="10.2755" adskDisplayMode="2">
+    <texcoord name="texcoord1" type="vector2" xpos="5.49418" ypos="6.65042" adskDisplayMode="2">
+      <parameter name="index" type="integer" value="0" />
+    </texcoord>
+    <output name="out" type="vector2" nodename="texcoord1" channels="" />
+  </nodegraph>
+  <nodegraph name="positionGraph" type="" xpos="6.43932" ypos="9.70212" adskDisplayMode="2">
+    <position name="position1" type="vector3" xpos="5.74483" ypos="5.72" adskDisplayMode="2">
+      <parameter name="space" type="string" value="object" />
+    </position>
+    <output name="out" type="vector3" nodename="position1" channels="" />
+  </nodegraph>
+  <look name="positionLook" xpos="8.33525" ypos="11.4542" adskDisplayMode="2">
+    <materialassign name="materialassign1" collection="positionCollection" material="positionGraph" xpos="5.74483" ypos="5.46" adskDisplayMode="2" />
+  </look>
+  <collection name="positionCollection" xpos="7.81838" ypos="9.31114" adskDisplayMode="2">
+    <collectionadd name="collectionadd1" geom="/*" xpos="5.39973" ypos="11.4428" adskDisplayMode="2" />
+  </collection>
+  <look name="tangentLook" xpos="7.88536" ypos="19.2138" adskDisplayMode="2">
+    <materialassign name="materialassign2" collection="tangentCollection" material="tangentGraph" xpos="5.74483" ypos="5.46" adskDisplayMode="2" />
+  </look>
+  <collection name="tangentCollection" xpos="6.7094" ypos="20.2839" adskDisplayMode="2">
+    <collectionadd name="collectionadd2" geom="/*" xpos="5.39973" ypos="11.4428" adskDisplayMode="2" />
+  </collection>
+  <look name="normalLook" xpos="7.85723" ypos="22.1961" adskDisplayMode="2">
+    <materialassign name="materialassign3" collection="normalCollection" material="normalGraph" xpos="5.74483" ypos="5.46" adskDisplayMode="2" />
+  </look>
+  <collection name="normalCollection" xpos="6.5929" ypos="22.7536" adskDisplayMode="2">
+    <collectionadd name="collectionadd3" geom="/*" xpos="5.39973" ypos="11.4428" adskDisplayMode="2" />
+  </collection>
+  <look name="uvLook" xpos="3.82952" ypos="12.5779" adskDisplayMode="2">
+    <materialassign name="materialassign4" collection="uvCollection" material="uvGraph" xpos="5.74483" ypos="5.46" adskDisplayMode="2" />
+  </look>
+  <collection name="uvCollection" xpos="4.97401" ypos="14.296" adskDisplayMode="2">
+    <collectionadd name="collectionadd4" geom="/*" xpos="5.39973" ypos="11.4428" adskDisplayMode="2" />
+  </collection>
+  <look name="bitangentLook" xpos="6.81538" ypos="25.5191" adskDisplayMode="2">
+    <materialassign name="materialassign5" collection="bitangentCollection" material="bitangentGraph" xpos="6.48276" ypos="9.84" adskDisplayMode="2" />
+  </look>
+  <collection name="bitangentCollection" xpos="5.52435" ypos="26.4116" adskDisplayMode="1">
+    <collectionadd name="collectionadd5" geom="/*" xpos="5.39973" ypos="11.4428" adskDisplayMode="2" />
+  </collection>
+</materialx>
