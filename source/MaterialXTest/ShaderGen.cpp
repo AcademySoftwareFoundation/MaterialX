@@ -414,6 +414,9 @@ TEST_CASE("Material Shader Generation", "[shadergen]")
     mx::BindInputPtr baseColor = shaderRef->addBindInput("base_color", "color3");
     base->setValue(0.6f);
     baseColor->setConnectedOutput(output);
+    // Set opacity for transparency check
+    mx::BindInputPtr baseOpacity = shaderRef->addBindInput("opacity", "color3");
+    baseOpacity->setValueString("0.8, 0.8, 0.8");
 
     // Setup the shader generators
     std::vector<GeneratorDescription> generatorDescriptions =
@@ -444,6 +447,11 @@ TEST_CASE("Material Shader Generation", "[shadergen]")
         mx::ShaderPtr shader = desc.shadergen->generate(material->getName(), shaderRef);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
+        // For now only ogsfx has transparency detection set up
+        if (desc.fileExt == "ogsfx")
+        {
+            REQUIRE(shader->isTransparent());
+        }
 
         // Write out a .dot file for visualization
         std::ofstream file;
@@ -615,7 +623,7 @@ TEST_CASE("Transparency", "[shadergen]")
     surface->setConnectedNode("bsdf", coating);
     mx::InputPtr opacity = surface->addInput("opacity", "float");
     opacity->setPublicName("opacity");
-    opacity->setValueString("1.0");
+    opacity->setValueString("0.8");
 
     mx::OutputPtr output = nodeGraph->addOutput("out", "surfaceshader");
     output->setConnectedNode(surface);
@@ -651,6 +659,11 @@ TEST_CASE("Transparency", "[shadergen]")
         mx::ShaderPtr shader = desc.shadergen->generate(nodeGraph->getName(), output);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
+        // For now only ogsfx has transparency detection set up
+        if (desc.fileExt == "ogsfx")
+        {
+            REQUIRE(shader->isTransparent());
+        }
 
         // Write out to file for inspection
         // TODO: Match against blessed versions
