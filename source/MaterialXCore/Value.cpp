@@ -150,6 +150,6 @@ INSTANTIATE_TYPE(Vector4, vector4)
 INSTANTIATE_TYPE(Matrix3x3, matrix33)
 INSTANTIATE_TYPE(Matrix4x4, matrix44)
 INSTANTIATE_TYPE(string, string)
-INSTANTIATE_TYPE(vector<string>, stringarray)
+INSTANTIATE_TYPE(StringVec, stringarray)
 
 } // namespace MaterialX
