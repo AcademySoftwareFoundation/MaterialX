@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.35.4] - Development
+## [1.35.4] - 2017-12-18
 
 ### Added
 - Added high-level Material API, including getPrimaryShaderParameters, getPrimaryShaderInputs, getBoundGeomStrings, and getBoundGeomCollections.
