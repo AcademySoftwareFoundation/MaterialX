@@ -28,6 +28,8 @@ using std::shared_ptr;
 using std::weak_ptr;
 using std::enable_shared_from_this;
 
+/// A vector of strings.
+using StringVec = vector<string>;
 /// An unordered map with strings as both keys and values.
 using StringMap = std::unordered_map<string, string>;
 /// A set of strings.
