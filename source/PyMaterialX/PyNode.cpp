@@ -7,8 +7,6 @@
 
 #include <MaterialXCore/Node.h>
 
-#include <PyBind11/stl.h>
-
 namespace py = pybind11;
 namespace mx = MaterialX;
 

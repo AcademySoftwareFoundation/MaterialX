@@ -7,8 +7,9 @@
 #define MATERIALX_PYMATERIALX_H
 
 //
-// This header contains Python.h, and should be the first include for any
-// translation unit within the PyMaterialX library.
+// This header is used to include PyBind11 headers consistently across the
+// translation units in the PyMaterialX library, and it should be the first
+// include within any PyMaterialX source file.
 //
 
 #ifdef _MSC_VER
@@ -19,6 +20,7 @@
 #define HAVE_HYPOT
 #endif
 
-#include <PyBind11/pybind11.h>
+#include <PyBind11/operators.h>
+#include <PyBind11/stl.h>
 
 #endif
