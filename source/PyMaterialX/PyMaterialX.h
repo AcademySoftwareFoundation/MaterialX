@@ -11,6 +11,14 @@
 // translation unit within the PyMaterialX library.
 //
 
+#ifdef _MSC_VER
+#define HAVE_ACOSH
+#define HAVE_ASINH
+#define HAVE_ATANH
+#define HAVE_LOG1P
+#define HAVE_HYPOT
+#endif
+
 #include <PyBind11/pybind11.h>
 
 #endif

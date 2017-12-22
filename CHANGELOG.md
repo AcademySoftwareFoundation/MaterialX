@@ -1,5 +1,10 @@
 # Change Log
 
+## [1.35.5] - Development
+
+### Changed
+- Updated Python bindings to PyBind11 2.2.
+
 ## [1.35.4] - 2017-12-18
 
 ### Added
