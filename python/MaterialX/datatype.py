@@ -23,7 +23,9 @@ _nameToType = { 'integer'   : int,
                 'string'    : str }
 _typeToName = dict(reversed(i) for i in _nameToType.items())
 
+_integerTypeAliases = [long] if sys.version_info[0] < 3 else []
 _stringTypeAliases = [unicode] if sys.version_info[0] < 3 else [bytes]
+_typeToName.update(dict.fromkeys(_integerTypeAliases, 'integer'))
 _typeToName.update(dict.fromkeys(_stringTypeAliases, 'string'))
 
 

@@ -115,7 +115,7 @@ class Element : public enable_shared_from_this<Element>
     /// separated by forward slashes.
     /// @param relativeTo If a valid ancestor element is specified, then
     ///    the returned path will be relative to this ancestor.
-    string getNamePath(ConstElementPtr relativeTo = ConstElementPtr()) const;
+    string getNamePath(ConstElementPtr relativeTo = nullptr) const;
 
     /// @}
     /// @name File Prefix
@@ -500,7 +500,7 @@ class Element : public enable_shared_from_this<Element>
     ///     its material argument.
     /// @sa getUpstreamEdge
     /// @sa getUpstreamElement
-    GraphIterator traverseGraph(ConstMaterialPtr material = ConstMaterialPtr()) const;
+    GraphIterator traverseGraph(ConstMaterialPtr material = nullptr) const;
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
@@ -509,7 +509,7 @@ class Element : public enable_shared_from_this<Element>
     /// @param index An optional index of the edge to be returned, where the
     ///    valid index range may be determined with getUpstreamEdgeCount.
     /// @return The upstream Edge, if valid, or an empty Edge object.
-    virtual Edge getUpstreamEdge(ConstMaterialPtr material = ConstMaterialPtr(),
+    virtual Edge getUpstreamEdge(ConstMaterialPtr material = nullptr,
                                  size_t index = 0) const;
 
     /// Return the number of queriable upstream edges for this element.
@@ -525,7 +525,7 @@ class Element : public enable_shared_from_this<Element>
     /// @param index An optional index of the element to be returned, where the
     ///    valid index range may be determined with getUpstreamEdgeCount.
     /// @return The upstream Element, if valid, or an empty ElementPtr.
-    ElementPtr getUpstreamElement(ConstMaterialPtr material = ConstMaterialPtr(),
+    ElementPtr getUpstreamElement(ConstMaterialPtr material = nullptr,
                                   size_t index = 0) const;
 
     /// Traverse the tree from the given element to each of its ancestors.
@@ -737,7 +737,7 @@ class ValueElement : public TypedElement
     /// @param resolver An optional string resolver, which will be used to
     ///    apply string substitutions.  By default, a new string resolver
     ///    will be created at this scope and applied to the return value.
-    string getResolvedValueString(StringResolverPtr resolver = StringResolverPtr()) const;
+    string getResolvedValueString(StringResolverPtr resolver = nullptr) const;
 
     /// @}
     /// @name Public Names

@@ -191,7 +191,7 @@ class TreeIterator
 class GraphIterator
 {
   public:
-    GraphIterator(ElementPtr elem, ConstMaterialPtr material = ConstMaterialPtr()):
+    GraphIterator(ElementPtr elem, ConstMaterialPtr material = nullptr):
         _upstreamElem(elem),
         _material(material),
         _prune(false),
