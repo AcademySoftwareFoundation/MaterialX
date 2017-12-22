@@ -7,9 +7,6 @@
 
 #include <MaterialXCore/Types.h>
 
-#include <PyBind11/stl.h>
-#include <PyBind11/operators.h>
-
 #include <sstream>
 
 namespace py = pybind11;
