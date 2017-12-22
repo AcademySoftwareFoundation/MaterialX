@@ -5,9 +5,6 @@
 
 #include <PyMaterialX/PyMaterialX.h>
 
-#include <PyBind11/stl.h>
-#include <PyBind11/eval.h>
-
 namespace py = pybind11;
 
 void bindPyDefinition(py::module& mod);

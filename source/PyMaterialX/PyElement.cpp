@@ -12,9 +12,6 @@
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Traversal.h>
 
-#include <PyBind11/operators.h>
-#include <PyBind11/stl.h>
-
 #define BIND_ELEMENT_FUNC_INSTANCE(T)                                                                           \
 .def("_addChild" #T, &mx::Element::addChild<mx::T>)                                                             \
 .def("_getChildOfType" #T, &mx::Element::getChildOfType<mx::T>)                                                 \

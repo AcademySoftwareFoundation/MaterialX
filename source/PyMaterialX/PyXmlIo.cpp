@@ -8,8 +8,6 @@
 #include <MaterialXFormat/XmlIo.h>
 #include <MaterialXCore/Document.h>
 
-#include <PyBind11/operators.h>
-
 namespace py = pybind11;
 namespace mx = MaterialX;
 
