@@ -77,7 +77,7 @@ template <class T> class TypedValue : public Value
 {
   public:
     TypedValue() :
-        _data(ZERO)
+        _data{}
     {
     }
     explicit TypedValue(const T& value) :
@@ -125,7 +125,6 @@ template <class T> class TypedValue : public Value
 
   public:
     static const string TYPE;
-    static const T ZERO;
 
   private:
     T _data;

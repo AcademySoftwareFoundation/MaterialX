@@ -12,8 +12,7 @@ py::class_<mx::TypedValue<T>, std::shared_ptr< mx::TypedValue<T> >, mx::Value>(m
     .def("getData", &mx::TypedValue<T>::getData)                                                            \
     .def("getValueString", &mx::TypedValue<T>::getValueString)                                              \
     .def_static("createValue", &mx::Value::createValue<T>)                                                  \
-    .def_readonly_static("TYPE", &mx::TypedValue<T>::TYPE)                                                  \
-    .def_readonly_static("ZERO", &mx::TypedValue<T>::ZERO);
+    .def_readonly_static("TYPE", &mx::TypedValue<T>::TYPE);
 
 namespace py = pybind11;
 namespace mx = MaterialX;
