@@ -2,19 +2,17 @@ language: cpp
 
 matrix:
   include:
-    # Standard Linux builds
+    # Standard builds
     - os: linux
       compiler: gcc
     - os: linux
       compiler: clang
-
-    # Standard OSX builds
     - os: osx
       compiler: gcc
     - os: osx
       compiler: clang
 
-    # Custom Linux builds
+    # Custom builds
     - os: linux
       compiler: gcc
       env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"

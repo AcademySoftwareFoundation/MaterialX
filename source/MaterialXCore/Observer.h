@@ -131,7 +131,7 @@ class ObservedDocument : public Document
     void onAddElement(ElementPtr parent, ElementPtr elem) override
     {
         Document::onAddElement(parent, elem);
-        for (auto &item : _observerMap)
+        for (auto& item : _observerMap)
         {
             item.second->onAddElement(parent, elem);
         }
@@ -140,7 +140,7 @@ class ObservedDocument : public Document
     void onRemoveElement(ElementPtr parent, ElementPtr elem) override
     {
         Document::onRemoveElement(parent, elem);
-        for (auto &item : _observerMap)
+        for (auto& item : _observerMap)
         {
             item.second->onRemoveElement(parent, elem);
         }
@@ -149,7 +149,7 @@ class ObservedDocument : public Document
     void onSetAttribute(ElementPtr elem, const string& attrib, const string& value) override
     {
         Document::onSetAttribute(elem, attrib, value);
-        for (auto &item : _observerMap)
+        for (auto& item : _observerMap)
         {
             item.second->onSetAttribute(elem, attrib, value);
         }
@@ -158,7 +158,7 @@ class ObservedDocument : public Document
     void onRemoveAttribute(ElementPtr elem, const string& attrib) override
     {
         Document::onRemoveAttribute(elem, attrib);
-        for (auto &item : _observerMap)
+        for (auto& item : _observerMap)
         {
             item.second->onRemoveAttribute(elem, attrib);
         }
@@ -166,7 +166,7 @@ class ObservedDocument : public Document
 
     void onInitialize() override
     {
-        for (auto &item : _observerMap)
+        for (auto& item : _observerMap)
         {
             item.second->onInitialize();
         }
@@ -174,7 +174,7 @@ class ObservedDocument : public Document
 
     void onRead() override
     {
-        for (auto &item : _observerMap)
+        for (auto& item : _observerMap)
         {
             item.second->onRead();
         }
@@ -182,7 +182,7 @@ class ObservedDocument : public Document
 
     void onWrite() override
     {
-        for (auto &item : _observerMap)
+        for (auto& item : _observerMap)
         {
             item.second->onWrite();
         }
@@ -193,7 +193,7 @@ class ObservedDocument : public Document
         // Only send notification for the outermost scope.
         if (!getUpdateScope())
         {
-            for (auto &item : _observerMap)
+            for (auto& item : _observerMap)
             {
                 item.second->onBeginUpdate();
             }
@@ -209,7 +209,7 @@ class ObservedDocument : public Document
         // Only send notification for the outermost scope.
         if (!getUpdateScope())
         {
-            for (auto &item : _observerMap)
+            for (auto& item : _observerMap)
             {
                 item.second->onEndUpdate();
             }
