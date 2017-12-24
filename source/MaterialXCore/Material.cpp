@@ -203,7 +203,7 @@ NodeDefPtr ShaderRef::getNodeDef() const
     return NodeDefPtr();
 }
 
-bool ShaderRef::validate(string * message) const
+bool ShaderRef::validate(string* message) const
 {
     bool res = true;
     NodeDefPtr nodeDef = getNodeDef();
