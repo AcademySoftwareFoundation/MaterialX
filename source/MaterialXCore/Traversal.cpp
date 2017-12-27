@@ -195,7 +195,10 @@ AncestorIterator& AncestorIterator::operator++()
         return *this;
     }
 
-    _elem = _elem->getParent();
+    if (_elem)
+    {
+        _elem = _elem->getParent();
+    }
     return *this;
 }
 
