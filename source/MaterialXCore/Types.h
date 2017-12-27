@@ -37,7 +37,7 @@ class VectorBase { };
 template <size_t N> class VectorN : public VectorBase
 {
   public:
-    VectorN() : data{0.0f} { }
+    VectorN() : data{} { }
     explicit VectorN(float f) { data.fill(f); }
     explicit VectorN(const std::array<float, N>& arr) : data(arr) { }
     explicit VectorN(const vector<float>& vec) { std::copy_n(vec.begin(), N, data.begin()); }
