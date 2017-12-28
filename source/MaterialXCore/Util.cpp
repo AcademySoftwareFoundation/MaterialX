@@ -121,7 +121,7 @@ string printGraphDot(NodeGraphPtr graph)
     dot << "digraph {\n";
 
     // Print the nodes
-    for (NodePtr node : graph->getChildrenOfType<Node>())
+    for (NodePtr node : graph->getNodes())
     {
         dot << "    \"" << node->getName() << "\" ";
         const string& category = node->getCategory();
@@ -137,7 +137,7 @@ string printGraphDot(NodeGraphPtr graph)
  
     // Print the connections
     std::set<Edge> processedEdges;
-    for (OutputPtr output : graph->getChildrenOfType<Output>())
+    for (OutputPtr output : graph->getOutputs())
     {
         for (Edge edge : output->traverseGraph())
         {
