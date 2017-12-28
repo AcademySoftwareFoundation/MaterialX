@@ -2,6 +2,9 @@
 
 ## [1.35.5] - Development
 
+### Added
+- Added support for Visual Studio 2017, GCC 7, and Clang 5.
+
 ### Changed
 - Updated Python bindings to PyBind11 2.2.
 
