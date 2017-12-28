@@ -90,12 +90,12 @@ ValuePtr Value::createValueFromStrings(const string& value, const string& type)
 
 template<class T> bool Value::isA() const
 {
-    return dynamic_cast<TypedValue<T> const*>(this) != nullptr;    
+    return dynamic_cast<const TypedValue<T>*>(this) != nullptr;    
 }
 
 template<class T> T Value::asA() const
 {
-    TypedValue<T> const* typedVal = dynamic_cast<TypedValue<T> const*>(this);
+    const TypedValue<T>* typedVal = dynamic_cast<const TypedValue<T>*>(this);
     if (!typedVal)
     {
         throw Exception("Incorrect type specified for value");
