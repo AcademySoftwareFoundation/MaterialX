@@ -94,7 +94,7 @@ string replaceSubstrings(string str, const StringMap& stringMap)
             continue;
 
         size_t pos = 0;
-        while ((pos = str.find(pair.first, pos)) != std::string::npos)
+        while ((pos = str.find(pair.first, pos)) != string::npos)
         {
              str.replace(pos, pair.first.length(), pair.second);
              pos += pair.second.length();
@@ -121,7 +121,7 @@ string printGraphDot(NodeGraphPtr graph)
     dot << "digraph {\n";
 
     // Print the nodes
-    for (NodePtr node : graph->getChildrenOfType<Node>())
+    for (NodePtr node : graph->getNodes())
     {
         dot << "    \"" << node->getName() << "\" ";
         const string& category = node->getCategory();
@@ -137,7 +137,7 @@ string printGraphDot(NodeGraphPtr graph)
  
     // Print the connections
     std::set<Edge> processedEdges;
-    for (OutputPtr output : graph->getChildrenOfType<Output>())
+    for (OutputPtr output : graph->getOutputs())
     {
         for (Edge edge : output->traverseGraph())
         {
