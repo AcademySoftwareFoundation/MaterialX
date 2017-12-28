@@ -94,7 +94,7 @@ string replaceSubstrings(string str, const StringMap& stringMap)
             continue;
 
         size_t pos = 0;
-        while ((pos = str.find(pair.first, pos)) != std::string::npos)
+        while ((pos = str.find(pair.first, pos)) != string::npos)
         {
              str.replace(pos, pair.first.length(), pair.second);
              pos += pair.second.length();

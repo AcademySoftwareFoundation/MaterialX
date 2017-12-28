@@ -17,7 +17,7 @@ Value::CreatorMap Value::_creatorMap;
 // TypedValue methods
 //
 
-template <> string TypedValue<std::string>::getValueString() const
+template <> string TypedValue<string>::getValueString() const
 {
     return _data;
 }
@@ -40,9 +40,9 @@ template <class T> const string& TypedValue<T>::getTypeString() const
     return TYPE;
 }
 
-template <> ValuePtr TypedValue<std::string>::createFromString(const string& value)
+template <> ValuePtr TypedValue<string>::createFromString(const string& value)
 {
-    return Value::createValue<std::string>(value);
+    return Value::createValue<string>(value);
 }
 
 template <> ValuePtr TypedValue<bool>::createFromString(const string& value)
@@ -70,7 +70,7 @@ template <class T> ValuePtr TypedValue<T>::createFromString(const string& value)
     }
 
     T data;
-    if ((ss >> data))
+    if (ss >> data)
         return Value::createValue<T>(data);
     return nullptr;
 }
@@ -85,7 +85,7 @@ ValuePtr Value::createValueFromStrings(const string& value, const string& type)
     if (it != _creatorMap.end())
         return it->second(value);
 
-    return TypedValue<std::string>::createFromString(value);
+    return TypedValue<string>::createFromString(value);
 }
 
 template<class T> bool Value::isA() const
