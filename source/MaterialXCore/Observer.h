@@ -22,7 +22,7 @@ using ObservedDocumentPtr = shared_ptr<class ObservedDocument>;
 /// An observer of a MaterialX Document
 class Observer
 {
-public:
+  public:
     Observer() { }
     virtual ~Observer() { }
 
@@ -70,7 +70,7 @@ class ObservedDocument : public Document
     /// @{
 
     /// Add an observer.
-    bool addObserver(const string &name, ObserverPtr observer)
+    bool addObserver(const string& name, ObserverPtr observer)
     {
         if (_observerMap.find(name) != _observerMap.end())
         {
@@ -204,7 +204,7 @@ class ObservedDocument : public Document
 
     void onEndUpdate() override
     {
-      _updateScope = std::max(_updateScope - 1, 0);
+        _updateScope = std::max(_updateScope - 1, 0);
 
         // Only send notification for the outermost scope.
         if (!getUpdateScope())

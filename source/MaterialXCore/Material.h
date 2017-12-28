@@ -257,7 +257,7 @@ class Material : public Element
     /// Return all geometry collections that are bound to this material by
     /// Look elements.
     /// @return A vector of shared pointers to Collection elements.
-   vector<CollectionPtr> getBoundGeomCollections() const;
+    vector<CollectionPtr> getBoundGeomCollections() const;
 
     /// @}
     /// @name Validation
