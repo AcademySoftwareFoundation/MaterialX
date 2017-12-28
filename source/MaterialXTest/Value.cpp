@@ -12,7 +12,7 @@ namespace mx = MaterialX;
 
 template<class T> void testTypedValue(const T& v1, const T& v2)
 {
-    T v0 = {};
+    T v0{};
 
     // Constructor and assignment
     mx::ValuePtr value0 = mx::Value::createValue(v0);
