@@ -49,6 +49,11 @@ class TestMaterialX(unittest.TestCase):
             newValue = mx.stringToValue(string, type(value))
             self.assertTrue(newValue == value)
 
+            # Convert between types and strings.
+            string = mx.typeToName(type(value))
+            newType = mx.nameToType(string)
+            self.assertTrue(newType == type(value))
+
             # Test features of vector subclasses.
             if isinstance(value, mx.VectorBase):
                 for index, scalar in enumerate(value):
