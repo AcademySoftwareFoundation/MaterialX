@@ -13,8 +13,6 @@ source_group("Header Files\\PyBind11" FILES ${pybind11_headers})
 add_subdirectory(PyBind11)
 pybind11_add_module(PyMaterialX SHARED ${pymaterialx_source} ${pymaterialx_headers} ${pybind11_headers})
 
-add_definitions(-DPYBIND11_PREFER_PYINT)
-
 set_target_properties(
     PyMaterialX
     PROPERTIES

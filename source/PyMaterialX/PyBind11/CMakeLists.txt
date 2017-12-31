@@ -1,8 +1,5 @@
 # A helper module for building MaterialX Python with PyBind11, based on pybind11Tools.cmake.
 
-cmake_minimum_required(VERSION 2.8.12)
-set(MIN_PYTHON_VERSION_REQ "2.6" CACHE INTERNAL "")
-
 if(MATERIALX_PYTHON_EXECUTABLE)
   set(PYTHON_EXECUTABLE ${MATERIALX_PYTHON_EXECUTABLE})
 else()
@@ -142,13 +139,6 @@ function(pybind11_add_module target_name)
   elseif(APPLE)
     set_target_properties(${target_name} PROPERTIES SUFFIX ".so")
   endif()
-
-  # -fvisibility=hidden is required to allow multiple modules compiled against
-  # different pybind versions to work properly, and for some features (e.g.
-  # py::module_local).  We force it on everything inside the `pybind11`
-  # namespace; also turning it on for a pybind module compilation here avoids
-  # potential warnings or issues from having mixed hidden/non-hidden types.
-  set_target_properties(${target_name} PROPERTIES CXX_VISIBILITY_PRESET "hidden")
 
   if(WIN32 OR CYGWIN)
     # Link against the Python shared library on Windows
