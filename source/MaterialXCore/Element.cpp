@@ -302,7 +302,7 @@ AncestorIterator Element::traverseAncestors() const
     return AncestorIterator(getSelf());
 }
 
-void Element::copyContentFrom(ConstElementPtr source, bool sourceUris)
+void Element::copyContentFrom(ConstElementPtr source, bool sourceUris, bool skipDuplicates)
 {
     if (sourceUris)
     {
@@ -314,7 +314,12 @@ void Element::copyContentFrom(ConstElementPtr source, bool sourceUris)
     }
     for (ElementPtr child : source->getChildren())
     {
-        addChildOfCategory(child->getCategory(), child->getName())->copyContentFrom(child);
+        std::string childName = child->getName();
+        if (skipDuplicates && getChild(childName))
+        {
+            continue;
+        }
+        addChildOfCategory(child->getCategory(), childName)->copyContentFrom(child);
     }
 }
 
@@ -497,7 +502,7 @@ string StringResolver::resolve(const string& str, const string& type) const
     }
     if (type == GEOMNAME_TYPE_STRING)
     {
-        return _geomPrefix + str;
+        return _geomPrefix + replaceSubstrings(str, _geomNameMap);
     }
     return str;
 }

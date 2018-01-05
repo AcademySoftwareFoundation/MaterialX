@@ -59,7 +59,9 @@ class Document : public Element
     /// The contents of the library document are copied into this one, and
     /// are assigned the source URI of the library.
     /// @param library The library document to be imported.
-    void importLibrary(ConstDocumentPtr library);
+    /// @param skipDuplicates If true then skip copying any child Elements with
+    ///      if one with the same name already exists. Defaults to false.
+    void importLibrary(ConstDocumentPtr library, bool skipDuplicates = false);
 
     /// @name Document Versions
     /// @{
@@ -502,6 +504,12 @@ class Document : public Element
     /// @name Callbacks
     /// @{
 
+    /// Enable all observer notifications		
+    virtual void enableNotifications() { }
+    
+    /// Disable all observer notifications		
+    virtual void disableNotifications() { }
+
     /// Called when an element is added to the element tree.
     virtual void onAddElement(ElementPtr parent, ElementPtr elem);
 
@@ -565,6 +573,27 @@ class ScopedUpdate
     }
 
     private:
+    DocumentPtr _doc;
+};
+
+/// @class @ScopedDisableNotifications		
+/// An RAII class for disabling all Document notifications.		
+///		
+/// A ScopedDisableNotifications instance calls Document::disableNotifications() when created, and		
+/// Document::enableNotifications when destroyed.		
+class ScopedDisableNotifications
+{
+  public:
+    ScopedDisableNotifications(DocumentPtr doc) :
+        _doc(doc)
+    {
+        _doc->disableNotifications();
+    }
+    ~ScopedDisableNotifications()
+    {
+        _doc->enableNotifications();
+    }
+  private:
     DocumentPtr _doc;
 };
 
