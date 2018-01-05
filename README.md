@@ -121,8 +121,8 @@ It is not allowed to public private forks nor autodesk git repos so for testing 
 
 * For Travis: https://travis-ci.org/autodesk-forks/MaterialX/
 * For Appveyor: It seems you need to set up a personal project based on log-in. 
-** Sign in appveyor.com and add a project. autodesk-forks, materialx should show up if you have permission to this repo. e.g. https://ci.appveyor.com/project/bernardkwok/materialx-2k4yy.
-** TBD if can set up a shared project.
+    * Sign in appveyor.com and add a project. autodesk-forks, materialx should show up if you have permission to this repo. e.g. https://ci.appveyor.com/project/bernardkwok/materialx-2k4yy.
+    * Attempt to create shared appveyor acct in progress (materialx.core.dev.com / shaderx).
 
 #### Local build testing
 
