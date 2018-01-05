@@ -112,7 +112,23 @@ To build the full set of items the following cmake variables should be defined
 * MAYA_DEBUG_DIR=```<run-time path to Maya>```
 * MAYA_RELEASE_DIR=```<run-time path to Maya>```
 
-#### Example Windows build script:
+#### Remote build testing
+
+Travis and appveyor environments have been set up / tested to build only with https://github.com/autodesk-forks/MaterialX/ .
+In particular adsk_update should be the branch to build.
+
+It is not allowed to public private forks nor autodesk git repos so for testing all changes should be placed here first for basic platform sanity checking, *before* sending a pull request to ILM. Note that no h/w graphics tests can be performed since the build machines have no graphics on them. TBD if/how can work around this.
+
+* For Travis: https://travis-ci.org/autodesk-forks/MaterialX/
+* For Appveyor: It seems you need to set up a personal project based on log-in. 
+** Sign in appveyor.com and add a project. autodesk-forks, materialx should show up if you have permission to this repo. e.g. https://ci.appveyor.com/project/bernardkwok/materialx-2k4yy.
+** TBD if can set up a shared project.
+
+#### Local build testing
+
+It is supposed to be possible to run Travis/appveyor yaml scripts on a local machine. TBD exact steps but appears Docker
+must be set up locally. It is easy to extract scrupts from the yaml files as the build steps are pretty simple. An
+example is below which also builds Maya dependencies (not part of public fork).
 ```
 mkdir build_public_release
 cd build_public_release
