@@ -987,19 +987,7 @@ class StringResolver
 class ExceptionOrphanedElement : public Exception
 {
   public:
-    ExceptionOrphanedElement(const string& msg) :
-        Exception(msg)
-    {
-    }
-
-    ExceptionOrphanedElement(const ExceptionOrphanedElement& e) :
-        Exception(e)
-    {
-    }
-
-    virtual ~ExceptionOrphanedElement() throw()
-    {
-    }
+    using Exception::Exception;
 };
 
 template<class T> shared_ptr<T> Element::addChild(const string& name)
