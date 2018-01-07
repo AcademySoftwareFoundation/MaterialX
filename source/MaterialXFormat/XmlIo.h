@@ -42,19 +42,7 @@ class XmlReadOptions
 class ExceptionParseError : public Exception
 {
   public:
-    ExceptionParseError(const string& msg) :
-        Exception(msg)
-    {
-    }
-
-    ExceptionParseError(const ExceptionParseError& e) :
-        Exception(e)
-    {
-    }
-
-    virtual ~ExceptionParseError() throw()
-    {
-    }
+    using Exception::Exception;
 };
 
 /// @class @ExceptionFileMissing
@@ -62,19 +50,7 @@ class ExceptionParseError : public Exception
 class ExceptionFileMissing : public Exception
 {
   public:
-    ExceptionFileMissing(const string& msg) :
-        Exception(msg)
-    {
-    }
-
-    ExceptionFileMissing(const ExceptionFileMissing& e) :
-        Exception(e)
-    {
-    }
-
-    virtual ~ExceptionFileMissing() throw()
-    {
-    }
+    using Exception::Exception;
 };
 
 /// @name Read Functions

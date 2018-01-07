@@ -41,7 +41,7 @@ using StringSet = std::set<string>;
 class Exception : public std::exception
 {
   public:
-    Exception(const string& msg) :
+    explicit Exception(const string& msg) :
         std::exception(),
         _msg(msg)
     {
