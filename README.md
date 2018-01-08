@@ -59,7 +59,7 @@ upstream        /// ATTENTION ///   Are you sure you want to push to public gith
 Remotes can be added using this syntax:
 ```
 git remote add <desired-name> <remote-location.git>
-git fetch fetch
+git fetch <desired-name>
 ```
 
 ### Update from upstream master
@@ -69,41 +69,47 @@ git pull upstream master
 ```
 
 Note that 'master' on both the private and public fork cannot be modified so the pull should be to a local branch.
+
 In the private fork, this should be branched off of the
 ```
 adsk/master
 ```
-branch. *Never* try and delete the adsk/master branch.
+branch. *Never* try and delete this branch.
 
-If doing your work in the private fork, and it makes sense update adsk/master and branch from there.
-Otherwise create a new branch in the public fork.
+In the public fork, this should be branched off of the 
+```
+adsk_update
+```
+branch. *Never* try and delete this branch.
+
+Continue work in a branch derived from adsk/master or adsk_update. 
 
 ### Synchonrizing code between public and private forks
 If working in a private branch then the changes can be cherry-picked to the pubiic branch and vice versa:
 ```
 git cherry-pick <commit-hash>
 ```
+Another alternative is to do a diff between branche SHA1 commeits and then perform a patch.
 
 ### Code reviews
-All code will need to be reviewed by ILM so all changes must eventually be put into a public fork branch.
-It may be best to just pass the diff to ILM first before creaing a pull request. Once a pull request is done,
-then ILM's CI system will be invoked. Comment the review as necessary and naturally fix an errors found during CI.
+Code reviews should be on the public fork, and go through regular github review process.
 
 ### Building and Testing
-There are yaml files which define the build process. Make sure to run those build steps instead of / or just
-building and testing locally. See 
+There are yaml files which define the build process for the public fork.
+
+The config files are:
 ```
 .appyveyor.yml 
 ```
-for Windows, and 
+for Windows (Appveyor), and 
 ```
 .travis.yml 
 ```
-for Linux and Mac. 
+for Linux and Mac (Travis). 
 
-The CI build will run build and test on all the platforms specified.
-
-To build the full set of items the following cmake variables should be defined
+Note that the private fork currently has a superset of
+source available in the public fork. To build the full set of items the following cmake variables should be defined
+for the private fork:
 * MATERIALX_BUILD_DOCS=ON
 * MATERIALX_BUILD_MAYA_EXPORTER=ON
 * MATERIALX_BUILD_PYTHON=ON
@@ -114,15 +120,16 @@ To build the full set of items the following cmake variables should be defined
 
 #### Remote build testing
 
-Travis and appveyor environments have been set up / tested to build only with https://github.com/autodesk-forks/MaterialX/ .
-In particular adsk_update should be the branch to build.
+Travis and Appveyor hooks have been set up / tested for the public branch only. https://github.com/autodesk-forks/MaterialX/ .
+Specifically adsk_update + branches has been set up to build.
 
 It is not allowed to public private forks nor autodesk git repos so for testing all changes should be placed here first for basic platform sanity checking, *before* sending a pull request to ILM. Note that no h/w graphics tests can be performed since the build machines have no graphics on them. TBD if/how can work around this.
 
-* For Travis: https://travis-ci.org/autodesk-forks/MaterialX/
-* For Appveyor: It seems you need to set up a personal project based on log-in. 
-    * Sign in appveyor.com and add a project. autodesk-forks, materialx should show up if you have permission to this repo. e.g. https://ci.appveyor.com/project/bernardkwok/materialx-2k4yy.
-    * Attempt to create shared appveyor acct in progress (materialx.core.dev.com / shaderx).
+* For Travis, CI builds can be found here: https://travis-ci.org/autodesk-forks/MaterialX/
+* For Appveyor, a team account has been set up.
+    * Sign via appveyor.com via github and change the MaterialXAdmin account. 
+    * A MaterialX project has already been set up: https://ci.appveyor.com/project/MaterialxAdmin/materialx
+    * The user account is tied to to this email materialx.core.dev. Please ask to be added to this list as requiread. 
 
 #### Local build testing
 
