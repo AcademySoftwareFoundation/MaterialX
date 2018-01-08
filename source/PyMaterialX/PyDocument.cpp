@@ -14,10 +14,14 @@ void bindPyDocument(py::module& mod)
 {
     mod.def("createDocument", &mx::createDocument);
 
+    py::class_<mx::ReadOptions>(mod, "ReadOptions")
+        .def(py::init())
+        .def_readwrite("skipDuplicateElements", &mx::ReadOptions::skipDuplicateElements);
+
     py::class_<mx::Document, mx::DocumentPtr, mx::Element>(mod, "Document")
         .def("initialize", &mx::Document::initialize)
         .def("copy", &mx::Document::copy)
-        .def("importLibrary", &mx::Document::importLibrary, py::arg("library"), py::arg("skipDuplicates") = false)
+        .def("importLibrary", &mx::Document::importLibrary, py::arg("library"), py::arg("readOptions") = (mx::ReadOptions*) nullptr)
         .def("setVersionString", &mx::Document::setVersionString)
         .def("hasVersionString", &mx::Document::hasVersionString)
         .def("getVersionString", &mx::Document::getVersionString)

@@ -25,6 +25,22 @@ using DocumentPtr = shared_ptr<class Document>;
 /// A shared pointer to a const Document
 using ConstDocumentPtr = shared_ptr<const class Document>;
 
+/// @class ReadOptions
+/// Based set of options for controlling the behavior of document read / import interface.
+class ReadOptions
+{
+public:
+    ReadOptions() :
+        skipDuplicateElements(false)
+    {
+    }
+    ~ReadOptions() { }
+
+    /// If true, elements at the same scope with duplicate names will be skipped;
+    /// otherwise, they will trigger an exception.  Defaults to false.
+    bool skipDuplicateElements;
+};
+
 /// @class Document
 /// A MaterialX document, which represents the top-level element in the
 /// MaterialX ownership hierarchy.
@@ -59,9 +75,8 @@ class Document : public Element
     /// The contents of the library document are copied into this one, and
     /// are assigned the source URI of the library.
     /// @param library The library document to be imported.
-    /// @param skipDuplicates If true then skip copying any child Elements with
-    ///      if one with the same name already exists. Defaults to false.
-    void importLibrary(ConstDocumentPtr library, bool skipDuplicates = false);
+    /// @param readOptions An optional pointer to a ReadOptions object.
+    void importLibrary(ConstDocumentPtr library, const ReadOptions* readOptions = nullptr);
 
     /// @name Document Versions
     /// @{
