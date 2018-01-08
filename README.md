@@ -120,16 +120,17 @@ for the private fork:
 
 #### Remote build testing
 
-Travis and Appveyor hooks have been set up / tested for the public branch only. https://github.com/autodesk-forks/MaterialX/ .
+Travis and Appveyor hooks have been set up / tested for the **public branch** only. https://github.com/autodesk-forks/MaterialX/ .
 Specifically adsk_update + branches has been set up to build.
 
-It is not allowed to public private forks nor autodesk git repos so for testing all changes should be placed here first for basic platform sanity checking, *before* sending a pull request to ILM. Note that no h/w graphics tests can be performed since the build machines have no graphics on them. TBD if/how can work around this.
+It is not allowed to set hooks for private forks nor autodesk git repos so for testing all changes run on the public fork for basic platform sanity checking, *before* sending a pull request to ILM. Note that no h/w graphics tests can be performed since the build machines have no graphics on them. TBD if/how can work around this.
 
 * For Travis, CI builds can be found here: https://travis-ci.org/autodesk-forks/MaterialX/
-* For Appveyor, a team account has been set up.
-    * Sign via appveyor.com via github and change the MaterialXAdmin account. 
+* For Appveyor, a "team" account has been set up using this email: materialx.core.dev, password: shaderx.
+    * You can sign via appveyor.com via github and choose the MaterialXAdmin account during log-in. (i.e. don't sign in
+    via the email address).
     * A MaterialX project has already been set up: https://ci.appveyor.com/project/MaterialxAdmin/materialx
-    * The user account is tied to to this email materialx.core.dev. Please ask to be added to this list as requiread. 
+    * The user account is tied to to the email. Please ask to be added to this list as requiread. 
 
 #### Local build testing
 
