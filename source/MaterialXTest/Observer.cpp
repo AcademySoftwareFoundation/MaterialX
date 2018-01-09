@@ -77,6 +77,20 @@ TEST_CASE("Observer", "[observer]")
             REQUIRE(_writeCount == 1);
         }
 
+        void verifyCountsDisabled()
+        {
+            REQUIRE(_beginUpdateCount == 0);
+            REQUIRE(_endUpdateCount == 0);
+            REQUIRE(_addElementCount == 0);
+            REQUIRE(_setAttributeCount == 0);
+            REQUIRE(_removeElementCount == 0);
+            REQUIRE(_removeAttributeCount == 0);
+            REQUIRE(_initializeCount == 0);
+            REQUIRE(_readCount == 0);
+            REQUIRE(_writeCount == 0);
+        }
+
+
       protected:
         // Set of counts for verification.
         unsigned int _beginUpdateCount;
@@ -126,4 +140,11 @@ TEST_CASE("Observer", "[observer]")
 
     // Check that observer tracked the correct number of changes during initialize and read
     testObserver->verifyCountsPostRead();
+
+    // Check observer callback disabling. All counts should be 0 after being cleared.
+    testObserver->clear();
+    doc->disableCallbacks();
+    doc->initialize();
+    mx::readFromXmlString(doc, xmlString);
+    testObserver->verifyCountsDisabled();
 }

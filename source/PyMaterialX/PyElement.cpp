@@ -84,7 +84,7 @@ void bindPyElement(py::module& mod)
                 return std::pair<bool, std::string>(res, message);
             })
         .def("copyContentFrom", &mx::Element::copyContentFrom,
-            py::arg("source"), py::arg("sourceUris") = false, py::arg("skipDuplicates") = false)
+            py::arg("source"), py::arg("sourceUris") = false, py::arg("skipDuplicateElements") = false)
         .def("clearContent", &mx::Element::clearContent)
         .def("createValidChildName", &mx::Element::createValidChildName)
         .def("createStringResolver", &mx::Element::createStringResolver,

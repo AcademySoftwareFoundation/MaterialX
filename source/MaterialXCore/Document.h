@@ -26,7 +26,7 @@ using DocumentPtr = shared_ptr<class Document>;
 using ConstDocumentPtr = shared_ptr<const class Document>;
 
 /// @class ReadOptions
-/// Based set of options for controlling the behavior of document read / import interface.
+/// Base set of options for controlling the behavior of document read / import interfaces.
 class ReadOptions
 {
 public:
@@ -519,11 +519,11 @@ class Document : public Element
     /// @name Callbacks
     /// @{
 
-    /// Enable all observer notifications		
-    virtual void enableNotifications() { }
+    /// Enable all observer callbacks		
+    virtual void enableCallbacks() { }
     
-    /// Disable all observer notifications		
-    virtual void disableNotifications() { }
+    /// Disable all observer callbacks
+    virtual void disableCallbacks() { }
 
     /// Called when an element is added to the element tree.
     virtual void onAddElement(ElementPtr parent, ElementPtr elem);
@@ -591,22 +591,22 @@ class ScopedUpdate
     DocumentPtr _doc;
 };
 
-/// @class @ScopedDisableNotifications		
-/// An RAII class for disabling all Document notifications.		
+/// @class @ScopedDisableCallbacks		
+/// An RAII class for disabling all Document objerver callbacks.		
 ///		
 /// A ScopedDisableNotifications instance calls Document::disableNotifications() when created, and		
 /// Document::enableNotifications when destroyed.		
-class ScopedDisableNotifications
+class ScopedDisableCallbacks
 {
   public:
-    ScopedDisableNotifications(DocumentPtr doc) :
+      ScopedDisableCallbacks(DocumentPtr doc) :
         _doc(doc)
     {
-        _doc->disableNotifications();
+        _doc->disableCallbacks();
     }
-    ~ScopedDisableNotifications()
+    ~ScopedDisableCallbacks()
     {
-        _doc->enableNotifications();
+        _doc->enableCallbacks();
     }
   private:
     DocumentPtr _doc;

@@ -159,16 +159,16 @@ void Document::initialize()
 
 void Document::importLibrary(ConstDocumentPtr library, const ReadOptions* readOptions)
 {
-    bool skipDuplicatesElements = readOptions && readOptions->skipDuplicateElements;
+    bool skipDuplicateElements = readOptions && readOptions->skipDuplicateElements;
     for (ElementPtr child : library->getChildren())
     {
         std::string childName = child->getName();
-        if (skipDuplicatesElements && getChild(childName))
+        if (skipDuplicateElements && getChild(childName))
         {
             continue;
         }
         ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName);
-        childCopy->copyContentFrom(child, skipDuplicatesElements);
+        childCopy->copyContentFrom(child, false, skipDuplicateElements);
         if (!childCopy->hasSourceUri())
         {
             childCopy->setSourceUri(library->getSourceUri());

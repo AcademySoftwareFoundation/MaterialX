@@ -62,7 +62,7 @@ class ObservedDocument : public Document
     ObservedDocument(ElementPtr parent, const string& name) : 
         Document(parent, name),
         _updateScope(0),
-        _notificationsEnabled(true)
+        _callbacksEnabled(true)
     {
     }
     virtual ~ObservedDocument() { }
@@ -122,14 +122,14 @@ class ObservedDocument : public Document
         _updateScope = 0;
     }
 
-    void enableNotifications() override
+    void enableCallbacks() override
     {
-        _notificationsEnabled = true;
+        _callbacksEnabled = true;
     }
 
-    void disableNotifications() override
+    void disableCallbacks() override
     {
-        _notificationsEnabled = false;
+        _callbacksEnabled = false;
     }
 
     DocumentPtr copy() override
@@ -143,7 +143,7 @@ class ObservedDocument : public Document
     {
         Document::onAddElement(parent, elem);
 
-        if (_notificationsEnabled)
+        if (_callbacksEnabled)
         {
             for (auto &item : _observerMap)
             {
@@ -155,7 +155,7 @@ class ObservedDocument : public Document
     void onRemoveElement(ElementPtr parent, ElementPtr elem) override
     {
         Document::onRemoveElement(parent, elem);
-        if (_notificationsEnabled)
+        if (_callbacksEnabled)
         {
             for (auto &item : _observerMap)
             {
@@ -167,7 +167,7 @@ class ObservedDocument : public Document
     void onSetAttribute(ElementPtr elem, const string& attrib, const string& value) override
     {
         Document::onSetAttribute(elem, attrib, value);
-        if (_notificationsEnabled)
+        if (_callbacksEnabled)
         {
             for (auto &item : _observerMap)
             {
@@ -179,7 +179,7 @@ class ObservedDocument : public Document
     void onRemoveAttribute(ElementPtr elem, const string& attrib) override
     {
         Document::onRemoveAttribute(elem, attrib);
-        if (_notificationsEnabled)
+        if (_callbacksEnabled)
         {
             for (auto &item : _observerMap)
             {
@@ -190,7 +190,7 @@ class ObservedDocument : public Document
 
     void onInitialize() override
     {
-        if (_notificationsEnabled)
+        if (_callbacksEnabled)
         {
             for (auto &item : _observerMap)
             {
@@ -201,7 +201,7 @@ class ObservedDocument : public Document
 
     void onRead() override
     {
-        if (_notificationsEnabled)
+        if (_callbacksEnabled)
         {
             for (auto &item : _observerMap)
             {
@@ -212,7 +212,7 @@ class ObservedDocument : public Document
 
     void onWrite() override
     {
-        if (_notificationsEnabled)
+        if (_callbacksEnabled)
         {
             for (auto &item : _observerMap)
             {
@@ -226,7 +226,7 @@ class ObservedDocument : public Document
         // Only send notification for the outermost scope.
         if (!getUpdateScope())
         {
-            if (_notificationsEnabled)
+            if (_callbacksEnabled)
             {
                 for (auto &item : _observerMap)
                 {
@@ -245,7 +245,7 @@ class ObservedDocument : public Document
         // Only send notification for the outermost scope.
         if (!getUpdateScope())
         {
-            if (_notificationsEnabled)
+            if (_callbacksEnabled)
             {
                 for (auto &item : _observerMap)
                 {
@@ -260,7 +260,7 @@ class ObservedDocument : public Document
   private:
     std::unordered_map<string, ObserverPtr> _observerMap;
     int _updateScope;
-    bool _notificationsEnabled;
+    bool _callbacksEnabled;
 };
 
 } // namespace MaterialX
