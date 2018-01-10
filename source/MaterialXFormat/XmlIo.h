@@ -18,16 +18,20 @@ namespace MaterialX
 
 /// @class XmlReadOptions
 /// A set of options for controlling the behavior of XML read functions.
-class XmlReadOptions : public ReadOptions
+class XmlReadOptions 
 {
   public:
     XmlReadOptions() :
-        ReadOptions(),
+        skipDuplicateElements(false),
         readXIncludes(true)
     {
     }
     ~XmlReadOptions() { }
     
+    /// If true, elements at the same scope with duplicate names will be skipped;
+    /// otherwise, they will trigger an exception.  Defaults to false.
+    bool skipDuplicateElements;
+
     /// If true, XInclude references will be read from disk and included in the
     /// document.  Defaults to true.
     bool readXIncludes;

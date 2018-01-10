@@ -42,6 +42,27 @@ using ElementMap = std::unordered_map<string, ElementPtr>;
 /// A standard function taking an ElementPtr and returning a boolean.
 using ElementPredicate = std::function<bool(ElementPtr)>;
 
+/// @class CopyOptions
+/// A set options for controlling the behavior of copying of elements.
+class CopyOptions
+{
+  public:
+    CopyOptions() :
+        skipDuplicateElements(false),
+        sourceUris(false)
+    {
+    }
+    ~CopyOptions() { }
+
+    /// If true, elements at the same scope with duplicate names will be skipped;
+    /// otherwise, they will trigger an exception.  Defaults to false.
+    bool skipDuplicateElements;
+
+    /// If true, then source URIs from the given element
+    /// and its descendants are also copied.  Defaults to false.
+    bool sourceUris;
+};
+
 /// @class Element
 /// The base class for MaterialX elements.
 ///
@@ -579,12 +600,8 @@ class Element : public enable_shared_from_this<Element>
 
     /// Copy all attributes and descendants from the given element to this one.
     /// @param source The element from which content is copied.
-    /// @param sourceUris If true, then source URIs from the given element
-    ///    and its descendants are also copied.  Defaults to false.
-    /// @param skipDuplicateElements If true then skip copying any child Elements with
-    ///      if one with the same name already exists. Defaults to false.
-    void copyContentFrom(ConstElementPtr source, bool sourceUris = false,
-        bool skipDuplicateElements = false);
+    /// @param copyOptions Optional pointer to element copying options object.
+    void copyContentFrom(ConstElementPtr source, const CopyOptions* copyOptions = nullptr);
 
     /// Clear all attributes and descendants from this element.
     void clearContent();

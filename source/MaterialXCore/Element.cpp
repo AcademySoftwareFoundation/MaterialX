@@ -302,9 +302,9 @@ AncestorIterator Element::traverseAncestors() const
     return AncestorIterator(getSelf());
 }
 
-void Element::copyContentFrom(ConstElementPtr source, bool sourceUris, bool skipDuplicates)
+void Element::copyContentFrom(ConstElementPtr source, const CopyOptions* copyOptions)
 {
-    if (sourceUris)
+    if (copyOptions && copyOptions->sourceUris)
     {
         _sourceUri = source->_sourceUri;
     }
@@ -312,10 +312,11 @@ void Element::copyContentFrom(ConstElementPtr source, bool sourceUris, bool skip
     {
         setAttribute(attr, source->getAttribute(attr));
     }
+    bool skipDuplicateElements = copyOptions && copyOptions->skipDuplicateElements;
     for (ElementPtr child : source->getChildren())
     {
         std::string childName = child->getName();
-        if (skipDuplicates && getChild(childName))
+        if (skipDuplicateElements && getChild(childName))
         {
             continue;
         }

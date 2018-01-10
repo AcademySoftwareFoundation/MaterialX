@@ -26,6 +26,11 @@ namespace mx = MaterialX;
 
 void bindPyElement(py::module& mod)
 {
+    py::class_<mx::CopyOptions>(mod, "CopyOptions")
+        .def(py::init())
+        .def_readwrite("skipDuplicateElements", &mx::CopyOptions::skipDuplicateElements)
+        .def_readwrite("sourceUris", &mx::CopyOptions::sourceUris);
+
     py::class_<mx::Element, mx::ElementPtr>(mod, "Element")
         .def(py::self == py::self)
         .def(py::self != py::self)
@@ -84,7 +89,7 @@ void bindPyElement(py::module& mod)
                 return std::pair<bool, std::string>(res, message);
             })
         .def("copyContentFrom", &mx::Element::copyContentFrom,
-            py::arg("source"), py::arg("sourceUris") = false, py::arg("skipDuplicateElements") = false)
+            py::arg("source"), py::arg("copyOptions") = (mx::CopyOptions*) nullptr)
         .def("clearContent", &mx::Element::clearContent)
         .def("createValidChildName", &mx::Element::createValidChildName)
         .def("createStringResolver", &mx::Element::createStringResolver,

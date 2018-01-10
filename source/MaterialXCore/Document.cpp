@@ -157,9 +157,9 @@ void Document::initialize()
     setVersionString(DOCUMENT_VERSION_STRING);
 }
 
-void Document::importLibrary(ConstDocumentPtr library, const ReadOptions* readOptions)
+void Document::importLibrary(ConstDocumentPtr library, const CopyOptions* copyOptions)
 {
-    bool skipDuplicateElements = readOptions && readOptions->skipDuplicateElements;
+    bool skipDuplicateElements = copyOptions && copyOptions->skipDuplicateElements;
     for (ElementPtr child : library->getChildren())
     {
         std::string childName = child->getName();
@@ -168,7 +168,7 @@ void Document::importLibrary(ConstDocumentPtr library, const ReadOptions* readOp
             continue;
         }
         ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName);
-        childCopy->copyContentFrom(child, false, skipDuplicateElements);
+        childCopy->copyContentFrom(child, copyOptions);
         if (!childCopy->hasSourceUri())
         {
             childCopy->setSourceUri(library->getSourceUri());
