@@ -31,6 +31,9 @@ using ConstImplementationPtr = shared_ptr<const class Implementation>;
 
 /// A shared pointer to a TypeDef
 using TypeDefPtr = shared_ptr<class TypeDef>;
+/// A shared pointer to a const TypeDef
+using ConstTypeDefPtr = shared_ptr<const class TypeDef>;
+
 /// A shared pointer to a Member
 using MemberPtr = shared_ptr<class Member>;
 

@@ -42,6 +42,27 @@ using ElementMap = std::unordered_map<string, ElementPtr>;
 /// A standard function taking an ElementPtr and returning a boolean.
 using ElementPredicate = std::function<bool(ElementPtr)>;
 
+/// @class CopyOptions
+/// A set options for controlling the behavior of copying of elements.
+class CopyOptions
+{
+  public:
+    CopyOptions() :
+        skipDuplicateElements(false),
+        copySourceUris(false)
+    {
+    }
+    ~CopyOptions() { }
+
+    /// If true, elements at the same scope with duplicate names will be skipped;
+    /// otherwise, they will trigger an exception.  Defaults to false.
+    bool skipDuplicateElements;
+
+    /// If true, then source URIs from the given element
+    /// and its descendants are also copied.  Defaults to false.
+    bool copySourceUris;
+};
+
 /// @class Element
 /// The base class for MaterialX elements.
 ///
@@ -579,9 +600,10 @@ class Element : public enable_shared_from_this<Element>
 
     /// Copy all attributes and descendants from the given element to this one.
     /// @param source The element from which content is copied.
-    /// @param sourceUris If true, then source URIs from the given element
-    ///    and its descendants are also copied.  Defaults to false.
-    void copyContentFrom(ConstElementPtr source, bool sourceUris = false);
+    /// @param copyOptions An optional pointer to a CopyOptions object.
+    ///    If provided, then the given options will affect the behavior of the
+    ///    copy function.  Defaults to a null pointer.    
+    void copyContentFrom(ConstElementPtr source, const CopyOptions* copyOptions = nullptr);
 
     /// Clear all attributes and descendants from this element.
     void clearContent();
@@ -965,13 +987,32 @@ class StringResolver
         _filenameMap[key] = value;
     }
 
+    /// Get list of filename substring substitutions.
+    const StringMap& getFilenameSubstitutions() const
+    {
+        return _filenameMap;
+    }
+
+    /// Set an arbitrary substring substitution for geometry name data values.
+    void setGeomNameSubstitution(const string& key, const string& value)
+    {
+        _geomNameMap[key] = value;
+    }
+
+    /// Get list of geometry name substring substitutions.
+    const StringMap& getGeomNameSubstitutions() const
+    {
+        return _geomNameMap;
+    }
+    
+
     /// @}
     /// @name Resolution
     /// @{
 
     /// Given an input string and type, apply all appropriate modifiers and
     /// return the resulting string.
-    string resolve(const string& str, const string& type) const;
+    virtual string resolve(const string& str, const string& type) const;
 
     /// @}
 
@@ -979,6 +1020,7 @@ class StringResolver
     string _filePrefix;
     string _geomPrefix;
     StringMap _filenameMap;
+    StringMap _geomNameMap;
 };
 
 /// @class @ExceptionOrphanedElement
