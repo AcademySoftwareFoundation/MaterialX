@@ -7,8 +7,6 @@
 
 #include <MaterialXCore/Geom.h>
 
-#include <PyBind11/stl.h>
-
 namespace py = pybind11;
 namespace mx = MaterialX;
 
@@ -19,7 +17,11 @@ void bindPyGeom(py::module& mod)
 {
     py::class_<mx::GeomElement, mx::GeomElementPtr, mx::Element>(mod, "GeomElement")
         .def("setGeom", &mx::GeomElement::setGeom)
+        .def("hasGeom", &mx::GeomElement::hasGeom)
         .def("getGeom", &mx::GeomElement::getGeom)
+        .def("setCollectionString", &mx::GeomElement::setCollectionString)
+        .def("hasCollectionString", &mx::GeomElement::hasCollectionString)
+        .def("getCollectionString", &mx::GeomElement::getCollectionString)
         .def("setCollection", &mx::GeomElement::setCollection)
         .def("getCollection", &mx::GeomElement::getCollection);
 

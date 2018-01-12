@@ -42,6 +42,27 @@ using ElementMap = std::unordered_map<string, ElementPtr>;
 /// A standard function taking an ElementPtr and returning a boolean.
 using ElementPredicate = std::function<bool(ElementPtr)>;
 
+/// @class CopyOptions
+/// A set options for controlling the behavior of copying of elements.
+class CopyOptions
+{
+  public:
+    CopyOptions() :
+        skipDuplicateElements(false),
+        copySourceUris(false)
+    {
+    }
+    ~CopyOptions() { }
+
+    /// If true, elements at the same scope with duplicate names will be skipped;
+    /// otherwise, they will trigger an exception.  Defaults to false.
+    bool skipDuplicateElements;
+
+    /// If true, then source URIs from the given element
+    /// and its descendants are also copied.  Defaults to false.
+    bool copySourceUris;
+};
+
 /// @class Element
 /// The base class for MaterialX elements.
 ///
@@ -115,7 +136,7 @@ class Element : public enable_shared_from_this<Element>
     /// separated by forward slashes.
     /// @param relativeTo If a valid ancestor element is specified, then
     ///    the returned path will be relative to this ancestor.
-    string getNamePath(ConstElementPtr relativeTo = ConstElementPtr()) const;
+    string getNamePath(ConstElementPtr relativeTo = nullptr) const;
 
     /// @}
     /// @name File Prefix
@@ -500,7 +521,7 @@ class Element : public enable_shared_from_this<Element>
     ///     its material argument.
     /// @sa getUpstreamEdge
     /// @sa getUpstreamElement
-    GraphIterator traverseGraph(ConstMaterialPtr material = ConstMaterialPtr()) const;
+    GraphIterator traverseGraph(ConstMaterialPtr material = nullptr) const;
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
@@ -509,7 +530,7 @@ class Element : public enable_shared_from_this<Element>
     /// @param index An optional index of the edge to be returned, where the
     ///    valid index range may be determined with getUpstreamEdgeCount.
     /// @return The upstream Edge, if valid, or an empty Edge object.
-    virtual Edge getUpstreamEdge(ConstMaterialPtr material = ConstMaterialPtr(),
+    virtual Edge getUpstreamEdge(ConstMaterialPtr material = nullptr,
                                  size_t index = 0) const;
 
     /// Return the number of queriable upstream edges for this element.
@@ -525,7 +546,7 @@ class Element : public enable_shared_from_this<Element>
     /// @param index An optional index of the element to be returned, where the
     ///    valid index range may be determined with getUpstreamEdgeCount.
     /// @return The upstream Element, if valid, or an empty ElementPtr.
-    ElementPtr getUpstreamElement(ConstMaterialPtr material = ConstMaterialPtr(),
+    ElementPtr getUpstreamElement(ConstMaterialPtr material = nullptr,
                                   size_t index = 0) const;
 
     /// Traverse the tree from the given element to each of its ancestors.
@@ -579,12 +600,10 @@ class Element : public enable_shared_from_this<Element>
 
     /// Copy all attributes and descendants from the given element to this one.
     /// @param source The element from which content is copied.
-    /// @param sourceUris If true, then source URIs from the given element
-    ///    and its descendants are also copied.  Defaults to false.
-    /// @param skipDuplicates If true then skip copying any child Elements with
-    ///      if one with the same name already exists. Defaults to false.
-    void copyContentFrom(ConstElementPtr source, bool sourceUris = false,
-        bool skipDuplicates = false);
+    /// @param copyOptions An optional pointer to a CopyOptions object.
+    ///    If provided, then the given options will affect the behavior of the
+    ///    copy function.  Defaults to a null pointer.    
+    void copyContentFrom(ConstElementPtr source, const CopyOptions* copyOptions = nullptr);
 
     /// Clear all attributes and descendants from this element.
     void clearContent();
@@ -740,7 +759,7 @@ class ValueElement : public TypedElement
     /// @param resolver An optional string resolver, which will be used to
     ///    apply string substitutions.  By default, a new string resolver
     ///    will be created at this scope and applied to the return value.
-    string getResolvedValueString(StringResolverPtr resolver = StringResolverPtr()) const;
+    string getResolvedValueString(StringResolverPtr resolver = nullptr) const;
 
     /// @}
     /// @name Public Names
@@ -1010,19 +1029,7 @@ class StringResolver
 class ExceptionOrphanedElement : public Exception
 {
   public:
-    ExceptionOrphanedElement(const string& msg) :
-        Exception(msg)
-    {
-    }
-
-    ExceptionOrphanedElement(const ExceptionOrphanedElement& e) :
-        Exception(e)
-    {
-    }
-
-    virtual ~ExceptionOrphanedElement() throw()
-    {
-    }
+    using Exception::Exception;
 };
 
 template<class T> shared_ptr<T> Element::addChild(const string& name)

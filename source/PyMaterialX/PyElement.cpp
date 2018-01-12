@@ -12,9 +12,6 @@
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Traversal.h>
 
-#include <PyBind11/operators.h>
-#include <PyBind11/stl.h>
-
 #define BIND_ELEMENT_FUNC_INSTANCE(T)                                                                           \
 .def("_addChild" #T, &mx::Element::addChild<mx::T>)                                                             \
 .def("_getChildOfType" #T, &mx::Element::getChildOfType<mx::T>)                                                 \
@@ -29,6 +26,11 @@ namespace mx = MaterialX;
 
 void bindPyElement(py::module& mod)
 {
+    py::class_<mx::CopyOptions>(mod, "CopyOptions")
+        .def(py::init())
+        .def_readwrite("skipDuplicateElements", &mx::CopyOptions::skipDuplicateElements)
+        .def_readwrite("copySourceUris", &mx::CopyOptions::copySourceUris);
+
     py::class_<mx::Element, mx::ElementPtr>(mod, "Element")
         .def(py::self == py::self)
         .def(py::self != py::self)
@@ -37,7 +39,7 @@ void bindPyElement(py::module& mod)
         .def("setName", &mx::Element::setName)
         .def("getName", &mx::Element::getName)
         .def("getNamePath", &mx::Element::getNamePath,
-            py::arg("relativeTo") = mx::ConstElementPtr())
+            py::arg("relativeTo") = nullptr)
         .def("setFilePrefix", &mx::Element::setFilePrefix)
         .def("hasFilePrefix", &mx::Element::hasFilePrefix)
         .def("getFilePrefix", &mx::Element::getFilePrefix)
@@ -70,12 +72,12 @@ void bindPyElement(py::module& mod)
         .def("getDocument", static_cast<mx::DocumentPtr(mx::Element::*)()>(&mx::Element::getDocument))
         .def("traverseTree", &mx::Element::traverseTree)
         .def("traverseGraph", &mx::Element::traverseGraph,
-            py::arg("material") = mx::ConstMaterialPtr())
+            py::arg("material") = nullptr)
         .def("getUpstreamEdge", &mx::Element::getUpstreamEdge,
-            py::arg("material") = mx::ConstMaterialPtr(), py::arg("index") = 0)
+            py::arg("material") = nullptr, py::arg("index") = 0)
         .def("getUpstreamEdgeCount", &mx::Element::getUpstreamEdgeCount)
         .def("getUpstreamElement", &mx::Element::getUpstreamElement,
-            py::arg("material") = mx::ConstMaterialPtr(), py::arg("index") = 0)
+            py::arg("material") = nullptr, py::arg("index") = 0)
         .def("traverseAncestors", &mx::Element::traverseAncestors)
         .def("setSourceUri", &mx::Element::setSourceUri)
         .def("hasSourceUri", &mx::Element::hasSourceUri)
@@ -87,7 +89,7 @@ void bindPyElement(py::module& mod)
                 return std::pair<bool, std::string>(res, message);
             })
         .def("copyContentFrom", &mx::Element::copyContentFrom,
-            py::arg("source"), py::arg("sourceUris") = false, py::arg("skipDuplicates") = false)
+            py::arg("source"), py::arg("copyOptions") = (mx::CopyOptions*) nullptr)
         .def("clearContent", &mx::Element::clearContent)
         .def("createValidChildName", &mx::Element::createValidChildName)
         .def("createStringResolver", &mx::Element::createStringResolver,
@@ -129,7 +131,7 @@ void bindPyElement(py::module& mod)
         .def("hasValueString", &mx::ValueElement::hasValueString)
         .def("getValueString", &mx::ValueElement::getValueString)
         .def("getResolvedValueString", &mx::ValueElement::getResolvedValueString,
-            py::arg("resolver") = mx::StringResolverPtr())
+            py::arg("resolver") = nullptr)
         .def("setPublicName", &mx::ValueElement::setPublicName)
         .def("hasPublicName", &mx::ValueElement::hasPublicName)
         .def("getPublicName", &mx::ValueElement::getPublicName)

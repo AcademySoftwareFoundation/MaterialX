@@ -191,7 +191,7 @@ class TreeIterator
 class GraphIterator
 {
   public:
-    GraphIterator(ElementPtr elem, ConstMaterialPtr material = ConstMaterialPtr()):
+    GraphIterator(ElementPtr elem, ConstMaterialPtr material = nullptr):
         _upstreamElem(elem),
         _material(material),
         _prune(false),
@@ -383,19 +383,7 @@ class AncestorIterator
 class ExceptionFoundCycle : public Exception
 {
   public:
-    ExceptionFoundCycle(const string& msg) :
-        Exception(msg)
-    {
-    }
-
-    ExceptionFoundCycle(const ExceptionFoundCycle& e) :
-        Exception(e)
-    {
-    }
-
-    virtual ~ExceptionFoundCycle() throw()
-    {
-    }
+    using Exception::Exception;
 };
 
 extern const Edge NULL_EDGE;

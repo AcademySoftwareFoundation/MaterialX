@@ -1,19 +1,29 @@
 # Change Log
 
-## [1.35.4] - Development
+## [1.35.5] - Development
 
 ### Added
-- Added Material methods getPrimaryShaderNodeDef, getPrimaryShaderName, getPrimaryShaderParameters, and getPrimaryShaderInputs.
-- Added ValueElement methods getBoundValue and getDefaultValue.
-- Added InterfaceElement methods setInputValue and getInputValue.
-- Added method Element\:\:createStringResolver and class StringResolver, for applying substring substitutions to data values.
-- Added support for multi-output nodes, nodedefs, and connections.
+- Added support for Visual Studio 2017, GCC 7, and Clang 5.
+
+### Changed
+- Updated Python bindings to PyBind11 2.2.
+
+## [1.35.4] - 2017-12-18
+
+### Added
+- Added high-level Material API, including getPrimaryShaderParameters, getPrimaryShaderInputs, getBoundGeomStrings, and getBoundGeomCollections.
+- Added methods ValueElement\:\:getBoundValue and ValueElement\:\:getDefaultValue.
+- Added support for multi-output nodes.
+- Added support for TypeDef members.
+- Added StringResolver class, for applying substring modifiers to data values.
+- Added example interfaces for the Disney BRDF, Disney BSDF, and alSurface shaders.
 
 ### Changed
 - Renamed method Material\:\:getReferencedShaderDefs to Material\:\:getShaderNodeDefs.
 - Renamed method ShaderRef\:\:getReferencedShaderDef to ShaderRef\:\:getNodeDef.
 - Renamed method Node\:\:getReferencedNodeDef to Node\:\:getNodeDef.
-- Added a 'string' suffix to all accessors for 'node' and 'nodedef' strings.
+- Added a 'string' suffix to all accessors for 'node', 'nodedef', and 'collection' strings.
+- Combined individual booleans into an XmlReadOptions argument for the XML read functions.
 
 ### Removed
 - Removed method Document\:\:applyStringSubstitutions (deprecated in Python).

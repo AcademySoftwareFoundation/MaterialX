@@ -9,8 +9,6 @@
 
 #include <MaterialXCore/Look.h>
 
-#include <PyBind11/stl.h>
-
 namespace py = pybind11;
 namespace mx = MaterialX;
 
@@ -45,6 +43,8 @@ void bindPyMaterial(py::module& mod)
             py::arg("target") = mx::EMPTY_STRING, py::arg("type") = mx::EMPTY_STRING)
         .def("getPrimaryShaderInputs", &mx::Material::getPrimaryShaderInputs,
             py::arg("target") = mx::EMPTY_STRING, py::arg("type") = mx::EMPTY_STRING)
+        .def("getBoundGeomStrings", &mx::Material::getBoundGeomStrings)
+        .def("getBoundGeomCollections", &mx::Material::getBoundGeomCollections)
         .def("setInheritsFrom", &mx::Material::setInheritsFrom)
         .def("getInheritsFrom", &mx::Material::getInheritsFrom)
         BIND_MATERIAL_FUNC_INSTANCE(integer, int)

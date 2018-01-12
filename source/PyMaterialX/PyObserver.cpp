@@ -7,10 +7,6 @@
 
 #include <MaterialXCore/Observer.h>
 
-#include <PyBind11/pybind11.h>
-#include <PyBind11/operators.h>
-#include <PyBind11/stl.h>
-
 namespace py = pybind11;
 namespace mx = MaterialX;
 
@@ -36,5 +32,8 @@ void bindPyObservedDocument(py::module& mod)
         .def("copy", &mx::ObservedDocument::copy)
         .def("addObserver", &mx::ObservedDocument::addObserver)
         .def("removeObserver", &mx::ObservedDocument::removeObserver)
-        .def("clearObservers", &mx::ObservedDocument::clearObservers);
+        .def("clearObservers", &mx::ObservedDocument::clearObservers)
+        .def("getUpdateScope", &mx::ObservedDocument::getUpdateScope)
+        .def("enableCallbacks", &mx::ObservedDocument::enableCallbacks)
+        .def("disableCallbacks", &mx::ObservedDocument::disableCallbacks);
 }

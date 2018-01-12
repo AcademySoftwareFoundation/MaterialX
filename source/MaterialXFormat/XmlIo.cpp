@@ -139,7 +139,7 @@ void processXIncludes(xml_node& xmlNode, const string& searchPath, const XmlRead
     {
         if (xmlChild.name() == XINCLUDE_TAG)
         {
-            if (readXIncludes)
+            if (!readOptions || readXIncludes)
             {
                 xml_attribute fileAttr = xmlChild.attribute("href");
                 string filename = fileAttr.value();

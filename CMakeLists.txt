@@ -1,7 +1,7 @@
 project(MaterialX)
 set(MATERIALX_MAJOR_VERSION 1)
 set(MATERIALX_MINOR_VERSION 35)
-set(MATERIALX_BUILD_VERSION 4)
+set(MATERIALX_BUILD_VERSION 5)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
 
 cmake_minimum_required(VERSION 3.1)
@@ -51,7 +51,7 @@ if(MSVC)
     if(MATERIALX_WARNINGS_AS_ERRORS)
         add_compile_options(/WX)
     endif()
-    
+
     # Use /Z7 to avoid having pdbs
     if(CMAKE_CXX_FLAGS_DEBUG MATCHES "/Zi")
         string(REGEX REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
@@ -69,7 +69,7 @@ if(MSVC)
         set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Z7")
     endif()
 else()
-    add_compile_options(-Wall)
+    add_compile_options(-Wall -Wno-missing-braces)
     if(MATERIALX_WARNINGS_AS_ERRORS)
         add_compile_options(-Werror)
     endif()

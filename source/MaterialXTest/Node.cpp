@@ -66,8 +66,17 @@ TEST_CASE("Node", "[node]")
     REQUIRE(constant->getDownstreamPorts()[0] == output1);
     REQUIRE(image->getDownstreamPorts()[0] == output2);
 
-    // Define and reference a custom type.
-    doc->addTypeDef("spectrum");
+    // Define a custom type.
+    mx::TypeDefPtr typeDef = doc->addTypeDef("spectrum");
+    const int scalarCount = 10;
+    for (int i = 0; i < scalarCount; i++)
+    {
+        mx::MemberPtr scalar = typeDef->addMember();
+        scalar->setType("float");
+    }
+    REQUIRE(typeDef->getMembers().size() == scalarCount);
+
+    // Reference the custom type.
     std::string d65("400.0,82.75,500.0,109.35,600.0,90.01,700.0,71.61,800.0,59.45");
     constant->setParameterValue<std::string>("value", d65, "spectrum");
     REQUIRE(constant->getParameter("value")->getType() == "spectrum");
@@ -97,7 +106,7 @@ TEST_CASE("Node", "[node]")
 
 TEST_CASE("Flatten", "[nodegraph]")
 {
-    // Load the example file.
+    // Read the example file.
     mx::DocumentPtr doc = mx::createDocument();
     mx::readFromXmlFile(doc, "SubGraphs.mtlx", "documents/Examples;documents/Libraries/stdlib");
 

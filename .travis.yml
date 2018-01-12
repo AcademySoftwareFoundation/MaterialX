@@ -2,17 +2,35 @@ language: cpp
 
 matrix:
   include:
+    # Standard builds
     - os: linux
-      dist: trusty
       compiler: gcc
     - os: linux
-      dist: trusty
       compiler: clang
     - os: osx
       compiler: gcc
     - os: osx
       compiler: clang
-      
+
+    # Custom builds
+    - os: linux
+      compiler: gcc
+      env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+      addons:
+        apt:
+          sources: ubuntu-toolchain-r-test
+          packages: g++-7
+    - os: linux
+      compiler: clang
+      env: MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+      addons:
+        apt:
+          sources: llvm-toolchain-trusty-5.0
+          packages: clang-5.0
+
+before_install:
+    - eval "${MATRIX_EVAL}"
+
 script:
   - mkdir build
   - cd build

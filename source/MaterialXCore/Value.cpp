@@ -17,7 +17,7 @@ Value::CreatorMap Value::_creatorMap;
 // TypedValue methods
 //
 
-template <> string TypedValue<std::string>::getValueString() const
+template <> string TypedValue<string>::getValueString() const
 {
     return _data;
 }
@@ -40,9 +40,9 @@ template <class T> const string& TypedValue<T>::getTypeString() const
     return TYPE;
 }
 
-template <> ValuePtr TypedValue<std::string>::createFromString(const string& value)
+template <> ValuePtr TypedValue<string>::createFromString(const string& value)
 {
-    return Value::createValue<std::string>(value);
+    return Value::createValue<string>(value);
 }
 
 template <> ValuePtr TypedValue<bool>::createFromString(const string& value)
@@ -70,7 +70,7 @@ template <class T> ValuePtr TypedValue<T>::createFromString(const string& value)
     }
 
     T data;
-    if ((ss >> data))
+    if (ss >> data)
         return Value::createValue<T>(data);
     return nullptr;
 }
@@ -85,17 +85,17 @@ ValuePtr Value::createValueFromStrings(const string& value, const string& type)
     if (it != _creatorMap.end())
         return it->second(value);
 
-    return TypedValue<std::string>::createFromString(value);
+    return TypedValue<string>::createFromString(value);
 }
 
 template<class T> bool Value::isA() const
 {
-    return dynamic_cast<TypedValue<T> const*>(this) != nullptr;    
+    return dynamic_cast<const TypedValue<T>*>(this) != nullptr;    
 }
 
 template<class T> T Value::asA() const
 {
-    TypedValue<T> const* typedVal = dynamic_cast<TypedValue<T> const*>(this);
+    const TypedValue<T>* typedVal = dynamic_cast<const TypedValue<T>*>(this);
     if (!typedVal)
     {
         throw Exception("Incorrect type specified for value");
@@ -130,26 +130,25 @@ template <class T> class ValueRegistry
 // Template instantiations
 //
 
-#define INSTANTIATE_TYPE(T, type)                                   \
-template <> const string TypedValue<T>::TYPE = #type;               \
-template <> const T TypedValue<T>::ZERO = T();                      \
-template bool Value::isA<T>() const;                                \
-template T Value::asA<T>() const;                                   \
-template const string& getTypeString<T>();                          \
-ValueRegistry<T> registry##type;
+#define INSTANTIATE_TYPE(T, name)                       \
+template <> const string TypedValue<T>::TYPE = name;    \
+template bool Value::isA<T>() const;                    \
+template T Value::asA<T>() const;                       \
+template const string& getTypeString<T>();              \
+ValueRegistry<T> registry##T;
 
-INSTANTIATE_TYPE(int, integer)
-INSTANTIATE_TYPE(bool, boolean)
-INSTANTIATE_TYPE(float, float)
-INSTANTIATE_TYPE(Color2, color2)
-INSTANTIATE_TYPE(Color3, color3)
-INSTANTIATE_TYPE(Color4, color4)
-INSTANTIATE_TYPE(Vector2, vector2)
-INSTANTIATE_TYPE(Vector3, vector3)
-INSTANTIATE_TYPE(Vector4, vector4)
-INSTANTIATE_TYPE(Matrix3x3, matrix33)
-INSTANTIATE_TYPE(Matrix4x4, matrix44)
-INSTANTIATE_TYPE(string, string)
-INSTANTIATE_TYPE(vector<string>, stringarray)
+INSTANTIATE_TYPE(int, "integer")
+INSTANTIATE_TYPE(bool, "boolean")
+INSTANTIATE_TYPE(float, "float")
+INSTANTIATE_TYPE(Color2, "color2")
+INSTANTIATE_TYPE(Color3, "color3")
+INSTANTIATE_TYPE(Color4, "color4")
+INSTANTIATE_TYPE(Vector2, "vector2")
+INSTANTIATE_TYPE(Vector3, "vector3")
+INSTANTIATE_TYPE(Vector4, "vector4")
+INSTANTIATE_TYPE(Matrix3x3, "matrix33")
+INSTANTIATE_TYPE(Matrix4x4, "matrix44")
+INSTANTIATE_TYPE(string, "string")
+INSTANTIATE_TYPE(StringVec, "stringarray")
 
 } // namespace MaterialX

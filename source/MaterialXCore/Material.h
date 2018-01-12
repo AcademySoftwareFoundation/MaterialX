@@ -49,6 +49,7 @@ class Material : public Element
 
   protected:
     using MaterialAssignPtr = shared_ptr<class MaterialAssign>;
+    using CollectionPtr = shared_ptr<class Collection>;
 
   public:
     /// @name ShaderRef Elements
@@ -241,6 +242,22 @@ class Material : public Element
     ///    material, or an empty vector if no matching shader was found.
     vector<InputPtr> getPrimaryShaderInputs(const string& target = EMPTY_STRING,
                                             const string& type = EMPTY_STRING) const;
+
+    /// @}
+    /// @name Geometry Bindings
+    /// @{
+
+    /// Return all geometry strings that are bound to this material by Look
+    /// elements.  Note that this method only considers geometry strings,
+    /// not geometric collections.
+    /// @return A vector of geometry strings, each containing an array of
+    ///    geom names.
+    vector<string> getBoundGeomStrings() const;
+
+    /// Return all geometry collections that are bound to this material by
+    /// Look elements.
+    /// @return A vector of shared pointers to Collection elements.
+    vector<CollectionPtr> getBoundGeomCollections() const;
 
     /// @}
     /// @name Validation
@@ -489,6 +506,14 @@ class ShaderRef : public Element
         }
         return outputs;
     }
+
+    /// @}
+    /// @name Validation
+    /// @{
+
+    /// Validate that the given element tree, including all descendants, is
+    /// consistent with the MaterialX specification.
+    bool validate(string* message = nullptr) const override;
 
     /// @}
     /// @name Traversal

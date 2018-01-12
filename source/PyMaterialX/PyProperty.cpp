@@ -7,8 +7,6 @@
 
 #include <MaterialXCore/Property.h>
 
-#include <PyBind11/stl.h>
-
 namespace py = pybind11;
 namespace mx = MaterialX;
 
@@ -19,7 +17,11 @@ void bindPyProperty(py::module& mod)
 
     py::class_<mx::PropertyAssign, mx::PropertyAssignPtr, mx::ValueElement>(mod, "PropertyAssign")
         .def("setGeom", &mx::PropertyAssign::setGeom)
+        .def("hasGeom", &mx::PropertyAssign::hasGeom)
         .def("getGeom", &mx::PropertyAssign::getGeom)
+        .def("setCollectionString", &mx::PropertyAssign::setCollectionString)
+        .def("hasCollectionString", &mx::PropertyAssign::hasCollectionString)
+        .def("getCollectionString", &mx::PropertyAssign::getCollectionString)
         .def("setCollection", &mx::PropertyAssign::setCollection)
         .def("getCollection", &mx::PropertyAssign::getCollection)
         .def_readonly_static("CATEGORY", &mx::PropertyAssign::CATEGORY);

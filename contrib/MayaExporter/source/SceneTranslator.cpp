@@ -166,7 +166,7 @@ mx::MaterialPtr SceneTranslator::exportMaterial(const MObject& mayaMaterial, mx:
         mx::CollectionPtr collection = _context.doc->addCollection();
         mx::MaterialAssignPtr materialAssign = target->addMaterialAssign();
         materialAssign->setMaterial(material->getName());
-        materialAssign->setCollection(collection->getName());
+        materialAssign->setCollection(collection);
         for (unsigned int j = 0; j < members.length(); ++j)
         {
             MDagPath dagPath;

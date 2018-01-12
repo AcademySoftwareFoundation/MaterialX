@@ -15,11 +15,6 @@
 #include <istream>
 #include <ostream>
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmissing-braces"
-#endif
-
 namespace MaterialX
 {
 
@@ -42,10 +37,10 @@ class VectorBase { };
 template <size_t N> class VectorN : public VectorBase
 {
   public:
-    VectorN() : data{0.0f} { }
-    VectorN(float f) { data.fill(f); }
-    VectorN(const std::array<float, N>& arr) : data(arr) { }
-    VectorN(const vector<float>& vec) { std::copy_n(vec.begin(), N, data.begin()); }
+    VectorN() : data{} { }
+    explicit VectorN(float f) { data.fill(f); }
+    explicit VectorN(const std::array<float, N>& arr) : data(arr) { }
+    explicit VectorN(const vector<float>& vec) { std::copy_n(vec.begin(), N, data.begin()); }
 
     bool operator==(const VectorN& rhs) const { return data == rhs.data; }
     bool operator!=(const VectorN& rhs) const { return data != rhs.data; }
@@ -53,7 +48,7 @@ template <size_t N> class VectorN : public VectorBase
     float operator[](size_t i) const { return data.at(i); }
     float& operator[](size_t i) { return data.at(i); }
 
-    size_t length() const { return N; }
+    static size_t length() { return N; }
 
   public:
     std::array<float, N> data;
@@ -65,7 +60,7 @@ class Vector2 : public VectorN<2>
   public:
     using VectorN<2>::VectorN;
     Vector2() { }
-    Vector2(float x, float y) { data[0] = x; data[1] = y; }
+    Vector2(float x, float y) { data = {x, y}; }
 };
 
 /// A vector of three floating-point values
@@ -74,7 +69,7 @@ class Vector3 : public VectorN<3>
   public:
     using VectorN<3>::VectorN;
     Vector3() { }
-    Vector3(float x, float y, float z) { data[0] = x; data[1] = y; data[2] = z; }
+    Vector3(float x, float y, float z) { data = {x, y, z}; }
 };
 
 /// A vector of four floating-point values
@@ -83,7 +78,7 @@ class Vector4 : public VectorN<4>
   public:
     using VectorN<4>::VectorN;
     Vector4() { }
-    Vector4(float x, float y, float z, float w) { data[0] = x; data[1] = y; data[2] = z; data[3] = w; }
+    Vector4(float x, float y, float z, float w) { data = {x, y, z, w}; }
 };
 
 /// A 3x3 matrix of floating-point values
@@ -144,9 +139,5 @@ std::istream& operator>>(std::istream& is, vector<string>& v);
 std::ostream& operator<<(std::ostream& os, const vector<string>& v);
 
 } // namespace MaterialX
-
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
 
 #endif

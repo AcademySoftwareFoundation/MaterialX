@@ -7,8 +7,6 @@
 
 #include <MaterialXCore/Document.h>
 
-#include <PyBind11/stl.h>
-
 namespace py = pybind11;
 namespace mx = MaterialX;
 
@@ -19,7 +17,8 @@ void bindPyDocument(py::module& mod)
     py::class_<mx::Document, mx::DocumentPtr, mx::Element>(mod, "Document")
         .def("initialize", &mx::Document::initialize)
         .def("copy", &mx::Document::copy)
-        .def("importLibrary", &mx::Document::importLibrary)
+        .def("importLibrary", &mx::Document::importLibrary, 
+            py::arg("library"), py::arg("copyOptions") = (mx::CopyOptions*) nullptr)
         .def("setVersionString", &mx::Document::setVersionString)
         .def("hasVersionString", &mx::Document::hasVersionString)
         .def("getVersionString", &mx::Document::getVersionString)

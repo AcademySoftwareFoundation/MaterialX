@@ -87,7 +87,7 @@ MaterialPtr Material::getInheritsFrom() const
     return getRoot()->getChildOfType<Material>(inherits[0]->getName());
 }
 
-vector<ParameterPtr> Material::getPrimaryShaderParameters(const string & target, const string & type) const
+vector<ParameterPtr> Material::getPrimaryShaderParameters(const string& target, const string& type) const
 {
     NodeDefPtr nodeDef = getPrimaryShaderNodeDef(target, type);
     vector<ParameterPtr> res;
@@ -103,7 +103,7 @@ vector<ParameterPtr> Material::getPrimaryShaderParameters(const string & target,
     return res;
 }
 
-vector<InputPtr> Material::getPrimaryShaderInputs(const string & target, const string & type) const
+vector<InputPtr> Material::getPrimaryShaderInputs(const string& target, const string& type) const
 {
     NodeDefPtr nodeDef = getPrimaryShaderNodeDef(target, type);
     vector<InputPtr> res;
@@ -117,6 +117,33 @@ vector<InputPtr> Material::getPrimaryShaderInputs(const string & target, const s
         }
     }
     return res;
+}
+
+vector<string> Material::getBoundGeomStrings() const
+{
+    vector<string> geomStrings;
+    for (MaterialAssignPtr matAssign : getReferencingMaterialAssigns())
+    {
+        if (matAssign->hasGeom())
+        {
+            geomStrings.push_back(matAssign->getGeom());
+        }
+    }
+    return geomStrings;
+}
+
+vector<CollectionPtr> Material::getBoundGeomCollections() const
+{
+    vector<CollectionPtr> collections;
+    for (MaterialAssignPtr matAssign : getReferencingMaterialAssigns())
+    {
+        CollectionPtr collection = matAssign->getCollection();
+        if (collection)
+        {
+            collections.push_back(collection);
+        }
+    }
+    return collections;
 }
 
 bool Material::validate(string* message) const
@@ -174,6 +201,18 @@ NodeDefPtr ShaderRef::getNodeDef() const
         return nodeDefs.empty() ? NodeDefPtr() : nodeDefs[0];
     }
     return NodeDefPtr();
+}
+
+bool ShaderRef::validate(string* message) const
+{
+    bool res = true;
+    NodeDefPtr nodeDef = getNodeDef();
+    TypeDefPtr typeDef = nodeDef ? getDocument()->getTypeDef(nodeDef->getType()) : TypeDefPtr();
+    if (typeDef)
+    {
+        validateRequire(typeDef->getSemantic() == SHADER_SEMANTIC, res, message, "Shader reference to a non-shader nodedef");
+    }
+    return Element::validate(message) && res;
 }
 
 Edge ShaderRef::getUpstreamEdge(ConstMaterialPtr material, size_t index) const

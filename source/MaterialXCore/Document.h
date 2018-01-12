@@ -51,7 +51,9 @@ class Document : public Element
     virtual DocumentPtr copy()
     {
         DocumentPtr doc = createDocument<Document>();
-        doc->copyContentFrom(getSelf(), true);
+        CopyOptions copyOptions;
+        copyOptions.copySourceUris = true;
+        doc->copyContentFrom(getSelf(), &copyOptions);
         return doc;
     }
 
@@ -59,9 +61,8 @@ class Document : public Element
     /// The contents of the library document are copied into this one, and
     /// are assigned the source URI of the library.
     /// @param library The library document to be imported.
-    /// @param skipDuplicates If true then skip copying any child Elements with
-    ///      if one with the same name already exists. Defaults to false.
-    void importLibrary(ConstDocumentPtr library, bool skipDuplicates = false);
+    /// @param readOptions An optional pointer to a CopyOptions object.
+    void importLibrary(ConstDocumentPtr library, const CopyOptions* readOptions = nullptr);
 
     /// @name Document Versions
     /// @{
@@ -168,7 +169,7 @@ class Document : public Element
     /// @param name The name of the new GeomInfo.
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
-    /// @param geom An optional geom string for the GeomInfo.
+    /// @param geom An optional geometry string for the GeomInfo.
     /// @return A shared pointer to the new GeomInfo.
     GeomInfoPtr addGeomInfo(const string& name = EMPTY_STRING, const string& geom = UNIVERSAL_GEOM_NAME)
     {
@@ -504,11 +505,11 @@ class Document : public Element
     /// @name Callbacks
     /// @{
 
-    /// Enable all observer notifications		
-    virtual void enableNotifications() { }
+    /// Enable all observer callbacks		
+    virtual void enableCallbacks() { }
     
-    /// Disable all observer notifications		
-    virtual void disableNotifications() { }
+    /// Disable all observer callbacks
+    virtual void disableCallbacks() { }
 
     /// Called when an element is added to the element tree.
     virtual void onAddElement(ElementPtr parent, ElementPtr elem);
@@ -576,22 +577,22 @@ class ScopedUpdate
     DocumentPtr _doc;
 };
 
-/// @class @ScopedDisableNotifications		
-/// An RAII class for disabling all Document notifications.		
+/// @class @ScopedDisableCallbacks		
+/// An RAII class for disabling all Document observer callbacks.		
 ///		
-/// A ScopedDisableNotifications instance calls Document::disableNotifications() when created, and		
-/// Document::enableNotifications when destroyed.		
-class ScopedDisableNotifications
+/// A ScopedDisableNotifications instance calls Document::disableCallbacks() when created, and		
+/// Document::enableCallbacks when destroyed.		
+class ScopedDisableCallbacks
 {
   public:
-    ScopedDisableNotifications(DocumentPtr doc) :
+      ScopedDisableCallbacks(DocumentPtr doc) :
         _doc(doc)
     {
-        _doc->disableNotifications();
+        _doc->disableCallbacks();
     }
-    ~ScopedDisableNotifications()
+    ~ScopedDisableCallbacks()
     {
-        _doc->enableNotifications();
+        _doc->enableCallbacks();
     }
   private:
     DocumentPtr _doc;

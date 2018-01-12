@@ -5,12 +5,8 @@
 
 #include <PyMaterialX/PyMaterialX.h>
 
-#include <PyBind11/stl.h>
-#include <PyBind11/eval.h>
-
 namespace py = pybind11;
 
-// Forward Declared Binding Functions
 void bindPyDefinition(py::module& mod);
 void bindPyDocument(py::module& mod);
 void bindPyElement(py::module& mod);
@@ -27,9 +23,9 @@ void bindPyUtil(py::module& mod);
 void bindPyValue(py::module& mod);
 void bindPyXmlIo(py::module& mod);
 
-PYBIND11_PLUGIN(PyMaterialX)
+PYBIND11_MODULE(PyMaterialX, mod)
 {
-    py::module mod("PyMaterialX", "Module containing Python bindings for MaterialX C++");
+    mod.doc() = "Module containing Python bindings for MaterialX C++";
 
     bindPyElement(mod);
     bindPyTraversal(mod);
@@ -46,6 +42,4 @@ PYBIND11_PLUGIN(PyMaterialX)
     bindPyUtil(mod);
     bindPyException(mod);
     bindPyXmlIo(mod);
-
-    return mod.ptr();
 }

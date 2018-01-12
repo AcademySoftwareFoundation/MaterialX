@@ -8,6 +8,8 @@ environment:
       PYTHON: C:\Python26
     - CMAKE_PLATFORM: "Visual Studio 14 2015 Win64"
       PYTHON: C:\Python27-x64
+    - CMAKE_PLATFORM: "Visual Studio 15 2017"
+      PYTHON: C:\Python35
     - CMAKE_PLATFORM: "Visual Studio 15 2017 Win64"
       PYTHON: C:\Python36-x64
 

@@ -95,7 +95,7 @@ class Node : public InterfaceElement
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
-    Edge getUpstreamEdge(ConstMaterialPtr material = ConstMaterialPtr(),
+    Edge getUpstreamEdge(ConstMaterialPtr material = nullptr,
                          size_t index = 0) const override;
 
     /// Return the number of queriable upstream edges for this element.

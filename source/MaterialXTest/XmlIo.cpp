@@ -24,6 +24,9 @@ TEST_CASE("Load content", "[xmlio]")
         "MultiOutput.mtlx",
         "PaintMaterials.mtlx",
         "PreShaderComposite.mtlx",
+        "BxDF/alSurface.mtlx",
+        "BxDF/Disney_BRDF_2012.mtlx",
+        "BxDF/Disney_BSDF_2015.mtlx",
     };
     std::string searchPath = "documents/Libraries/stdlib;documents/Libraries/stdlib/impl/reference;documents/Examples";
 
@@ -42,7 +45,13 @@ TEST_CASE("Load content", "[xmlio]")
     {
         mx::DocumentPtr doc = mx::createDocument();
         mx::readFromXmlFile(doc, filename, searchPath);
-        REQUIRE(doc->validate());
+        std::string message;
+        bool docValid = doc->validate(&message);
+        if (!docValid)
+        {
+            WARN("[" + filename + "] " + message);
+        }
+        REQUIRE(docValid);
 
         // Traverse the document tree
         int valueElementCount = 0;
