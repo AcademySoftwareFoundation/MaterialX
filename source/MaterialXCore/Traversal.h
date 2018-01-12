@@ -383,19 +383,7 @@ class AncestorIterator
 class ExceptionFoundCycle : public Exception
 {
   public:
-    ExceptionFoundCycle(const string& msg) :
-        Exception(msg)
-    {
-    }
-
-    ExceptionFoundCycle(const ExceptionFoundCycle& e) :
-        Exception(e)
-    {
-    }
-
-    virtual ~ExceptionFoundCycle() throw()
-    {
-    }
+    using Exception::Exception;
 };
 
 extern const Edge NULL_EDGE;
