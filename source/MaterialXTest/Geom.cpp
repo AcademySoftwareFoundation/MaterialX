@@ -29,7 +29,7 @@ TEST_CASE("Geom", "[geom]")
     mx::NodePtr image = nodeGraph->addNode("image");
     image->setParameterValue("file", std::string("%asset%id_diffuse_%UDIM.tif"), mx::FILENAME_TYPE_STRING);
 
-    // Test file name string substitutions.
+    // Test filename string substitutions.
     mx::ParameterPtr fileParam = image->getParameter("file");
     mx::StringResolverPtr resolver1 = image->createStringResolver("/robot1");
     resolver1->setUdimString("1001");
@@ -46,5 +46,5 @@ TEST_CASE("Geom", "[geom]")
     collectionAdd->setGeomPrefix("/geomPrefix1");
     mx::StringResolverPtr resolver3 = collectionAdd->createStringResolver();
     resolver3->setGeomNameSubstitution("|", "/");
-    REQUIRE(resolver3->resolve(collectionAdd->getGeom(), MaterialX::GEOMNAME_TYPE_STRING) == "/geomPrefix1/group1/sphere1");
+    REQUIRE(resolver3->resolve(collectionAdd->getGeom(), mx::GEOMNAME_TYPE_STRING) == "/geomPrefix1/group1/sphere1");
 }

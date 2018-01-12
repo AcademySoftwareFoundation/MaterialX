@@ -49,7 +49,7 @@ class CopyOptions
   public:
     CopyOptions() :
         skipDuplicateElements(false),
-        sourceUris(false)
+        copySourceUris(false)
     {
     }
     ~CopyOptions() { }
@@ -60,7 +60,7 @@ class CopyOptions
 
     /// If true, then source URIs from the given element
     /// and its descendants are also copied.  Defaults to false.
-    bool sourceUris;
+    bool copySourceUris;
 };
 
 /// @class Element
@@ -600,7 +600,9 @@ class Element : public enable_shared_from_this<Element>
 
     /// Copy all attributes and descendants from the given element to this one.
     /// @param source The element from which content is copied.
-    /// @param copyOptions Optional pointer to element copying options object.
+    /// @param copyOptions An optional pointer to a CopyOptions object.
+    ///    If provided, then the given options will affect the behavior of the
+    ///    copy function.  Defaults to a null pointer.    
     void copyContentFrom(ConstElementPtr source, const CopyOptions* copyOptions = nullptr);
 
     /// Clear all attributes and descendants from this element.

@@ -52,7 +52,7 @@ class Document : public Element
     {
         DocumentPtr doc = createDocument<Document>();
         CopyOptions copyOptions;
-        copyOptions.sourceUris = true;
+        copyOptions.copySourceUris = true;
         doc->copyContentFrom(getSelf(), &copyOptions);
         return doc;
     }
@@ -578,10 +578,10 @@ class ScopedUpdate
 };
 
 /// @class @ScopedDisableCallbacks		
-/// An RAII class for disabling all Document objerver callbacks.		
+/// An RAII class for disabling all Document observer callbacks.		
 ///		
-/// A ScopedDisableNotifications instance calls Document::disableNotifications() when created, and		
-/// Document::enableNotifications when destroyed.		
+/// A ScopedDisableNotifications instance calls Document::disableCallbacks() when created, and		
+/// Document::enableCallbacks when destroyed.		
 class ScopedDisableCallbacks
 {
   public:

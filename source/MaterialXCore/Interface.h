@@ -21,9 +21,9 @@ using ParameterPtr = shared_ptr<class Parameter>;
 /// A shared pointer to a PortElement
 using PortElementPtr = shared_ptr<class PortElement>;
 /// A shared pointer to an Input
-using ConstInputPtr = shared_ptr<const class Input>;
-/// A shared pointer to an Input
 using InputPtr = shared_ptr<class Input>;
+/// A shared pointer to an Input
+using ConstInputPtr = shared_ptr<const class Input>;
 /// A shared pointer to an Output
 using OutputPtr = shared_ptr<class Output>;
 /// A shared pointer to an InterfaceElement

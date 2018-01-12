@@ -90,7 +90,6 @@ TEST_CASE("Observer", "[observer]")
             REQUIRE(_writeCount == 0);
         }
 
-
       protected:
         // Set of counts for verification.
         unsigned int _beginUpdateCount;

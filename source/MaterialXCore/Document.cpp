@@ -160,6 +160,7 @@ void Document::initialize()
 void Document::importLibrary(ConstDocumentPtr library, const CopyOptions* copyOptions)
 {
     bool skipDuplicateElements = copyOptions && copyOptions->skipDuplicateElements;
+    bool copySourceUris = copyOptions && copyOptions->copySourceUris;
     for (ElementPtr child : library->getChildren())
     {
         std::string childName = child->getName();
@@ -169,7 +170,7 @@ void Document::importLibrary(ConstDocumentPtr library, const CopyOptions* copyOp
         }
         ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName);
         childCopy->copyContentFrom(child, copyOptions);
-        if (!childCopy->hasSourceUri())
+        if (copySourceUris && !childCopy->hasSourceUri())
         {
             childCopy->setSourceUri(library->getSourceUri());
         }

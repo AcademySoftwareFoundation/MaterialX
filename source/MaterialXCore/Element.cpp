@@ -304,7 +304,7 @@ AncestorIterator Element::traverseAncestors() const
 
 void Element::copyContentFrom(ConstElementPtr source, const CopyOptions* copyOptions)
 {
-    if (copyOptions && copyOptions->sourceUris)
+    if (copyOptions && copyOptions->copySourceUris)
     {
         _sourceUri = source->_sourceUri;
     }

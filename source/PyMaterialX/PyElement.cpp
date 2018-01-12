@@ -29,7 +29,7 @@ void bindPyElement(py::module& mod)
     py::class_<mx::CopyOptions>(mod, "CopyOptions")
         .def(py::init())
         .def_readwrite("skipDuplicateElements", &mx::CopyOptions::skipDuplicateElements)
-        .def_readwrite("sourceUris", &mx::CopyOptions::sourceUris);
+        .def_readwrite("copySourceUris", &mx::CopyOptions::copySourceUris);
 
     py::class_<mx::Element, mx::ElementPtr>(mod, "Element")
         .def(py::self == py::self)
