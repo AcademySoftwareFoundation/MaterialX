@@ -51,7 +51,9 @@ class Document : public Element
     virtual DocumentPtr copy()
     {
         DocumentPtr doc = createDocument<Document>();
-        doc->copyContentFrom(getSelf(), true);
+        CopyOptions copyOptions;
+        copyOptions.copySourceUris = true;
+        doc->copyContentFrom(getSelf(), &copyOptions);
         return doc;
     }
 
@@ -59,7 +61,8 @@ class Document : public Element
     /// The contents of the library document are copied into this one, and
     /// are assigned the source URI of the library.
     /// @param library The library document to be imported.
-    void importLibrary(ConstDocumentPtr library);
+    /// @param readOptions An optional pointer to a CopyOptions object.
+    void importLibrary(ConstDocumentPtr library, const CopyOptions* readOptions = nullptr);
 
     /// @name Document Versions
     /// @{
@@ -502,6 +505,12 @@ class Document : public Element
     /// @name Callbacks
     /// @{
 
+    /// Enable all observer callbacks		
+    virtual void enableCallbacks() { }
+    
+    /// Disable all observer callbacks
+    virtual void disableCallbacks() { }
+
     /// Called when an element is added to the element tree.
     virtual void onAddElement(ElementPtr parent, ElementPtr elem);
 
@@ -565,6 +574,27 @@ class ScopedUpdate
     }
 
     private:
+    DocumentPtr _doc;
+};
+
+/// @class @ScopedDisableCallbacks		
+/// An RAII class for disabling all Document observer callbacks.		
+///		
+/// A ScopedDisableNotifications instance calls Document::disableCallbacks() when created, and		
+/// Document::enableCallbacks when destroyed.		
+class ScopedDisableCallbacks
+{
+  public:
+      ScopedDisableCallbacks(DocumentPtr doc) :
+        _doc(doc)
+    {
+        _doc->disableCallbacks();
+    }
+    ~ScopedDisableCallbacks()
+    {
+        _doc->enableCallbacks();
+    }
+  private:
     DocumentPtr _doc;
 };
 

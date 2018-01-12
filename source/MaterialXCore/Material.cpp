@@ -215,6 +215,21 @@ bool ShaderRef::validate(string* message) const
     return Element::validate(message) && res;
 }
 
+Edge ShaderRef::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
+{
+    if (index < getUpstreamEdgeCount())
+    {
+        BindInputPtr input = getBindInputs()[index];
+        ElementPtr upstreamOutput = input->getConnectedOutput();
+        if (upstreamOutput)
+        {
+            return Edge(getSelfNonConst(), input, upstreamOutput);
+        }
+    }
+
+    return NULL_EDGE;
+}
+
 //
 // Override methods
 //

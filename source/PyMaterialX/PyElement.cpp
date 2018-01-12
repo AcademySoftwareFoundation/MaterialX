@@ -26,6 +26,11 @@ namespace mx = MaterialX;
 
 void bindPyElement(py::module& mod)
 {
+    py::class_<mx::CopyOptions>(mod, "CopyOptions")
+        .def(py::init())
+        .def_readwrite("skipDuplicateElements", &mx::CopyOptions::skipDuplicateElements)
+        .def_readwrite("copySourceUris", &mx::CopyOptions::copySourceUris);
+
     py::class_<mx::Element, mx::ElementPtr>(mod, "Element")
         .def(py::self == py::self)
         .def(py::self != py::self)
@@ -84,7 +89,7 @@ void bindPyElement(py::module& mod)
                 return std::pair<bool, std::string>(res, message);
             })
         .def("copyContentFrom", &mx::Element::copyContentFrom,
-            py::arg("source"), py::arg("sourceUris") = false)
+            py::arg("source"), py::arg("copyOptions") = (mx::CopyOptions*) nullptr)
         .def("clearContent", &mx::Element::clearContent)
         .def("createValidChildName", &mx::Element::createValidChildName)
         .def("createStringResolver", &mx::Element::createStringResolver,
@@ -162,6 +167,9 @@ void bindPyElement(py::module& mod)
         .def("setUdimString", &mx::StringResolver::setUdimString)
         .def("setUvTileString", &mx::StringResolver::setUvTileString)
         .def("setFilenameSubstitution", &mx::StringResolver::setFilenameSubstitution)
+        .def("getFilenameSubstitutions", &mx::StringResolver::getFilenameSubstitutions)
+        .def("setGeomNameSubstitution", &mx::StringResolver::setGeomNameSubstitution)
+        .def("getGeomNameSubstitutions", &mx::StringResolver::getGeomNameSubstitutions)
         .def("resolve", &mx::StringResolver::resolve);
 
     py::register_exception<mx::ExceptionOrphanedElement>(mod, "ExceptionOrphanedElement");
