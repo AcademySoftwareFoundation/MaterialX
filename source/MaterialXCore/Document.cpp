@@ -157,13 +157,20 @@ void Document::initialize()
     setVersionString(DOCUMENT_VERSION_STRING);
 }
 
-void Document::importLibrary(ConstDocumentPtr library)
+void Document::importLibrary(ConstDocumentPtr library, const CopyOptions* copyOptions)
 {
+    bool skipDuplicateElements = copyOptions && copyOptions->skipDuplicateElements;
+    bool copySourceUris = copyOptions && copyOptions->copySourceUris;
     for (ElementPtr child : library->getChildren())
     {
-        ElementPtr childCopy = addChildOfCategory(child->getCategory(), child->getName());
-        childCopy->copyContentFrom(child);
-        if (!childCopy->hasSourceUri())
+        std::string childName = child->getName();
+        if (skipDuplicateElements && getChild(childName))
+        {
+            continue;
+        }
+        ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName);
+        childCopy->copyContentFrom(child, copyOptions);
+        if (copySourceUris && !childCopy->hasSourceUri())
         {
             childCopy->setSourceUri(library->getSourceUri());
         }

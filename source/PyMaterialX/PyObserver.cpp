@@ -32,5 +32,8 @@ void bindPyObservedDocument(py::module& mod)
         .def("copy", &mx::ObservedDocument::copy)
         .def("addObserver", &mx::ObservedDocument::addObserver)
         .def("removeObserver", &mx::ObservedDocument::removeObserver)
-        .def("clearObservers", &mx::ObservedDocument::clearObservers);
+        .def("clearObservers", &mx::ObservedDocument::clearObservers)
+        .def("getUpdateScope", &mx::ObservedDocument::getUpdateScope)
+        .def("enableCallbacks", &mx::ObservedDocument::enableCallbacks)
+        .def("disableCallbacks", &mx::ObservedDocument::disableCallbacks);
 }
