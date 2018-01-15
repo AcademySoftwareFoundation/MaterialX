@@ -120,8 +120,8 @@ for the private fork:
 
 #### Remote build testing
 
-Travis and Appveyor hooks have been set up / tested for the **public branch** only. https://github.com/autodesk-forks/MaterialX/ .
-Specifically adsk_update + branches has been set up to build.
+Travis and Appveyor hooks have been set up / tested for the **public fork** only. https://github.com/autodesk-forks/MaterialX/ .
+Specifically adsk_update + branches have been set up to build.
 
 It is not allowed to set hooks for private forks nor autodesk git repos so for testing all changes run on the public fork for basic platform sanity checking, *before* sending a pull request to ILM. Note that no h/w graphics tests can be performed since the build machines have no graphics on them. TBD if/how can work around this.
 
