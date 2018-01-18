@@ -28,7 +28,7 @@ TEST_CASE("Load content", "[xmlio]")
         "BxDF/Disney_BRDF_2012.mtlx",
         "BxDF/Disney_BSDF_2015.mtlx",
     };
-    std::string searchPath = "documents/Libraries;documents/Examples";
+    std::string searchPath = "documents/Libraries/stdlib;documents/Libraries/stdlib/impl/reference;documents/Examples";
 
     // Read the standard library.
     std::vector<mx::DocumentPtr> libs;

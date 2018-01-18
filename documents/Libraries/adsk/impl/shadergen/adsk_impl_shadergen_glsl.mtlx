@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<materialx version="1.35">
+
+  <!-- <adskSurface> -->
+  <implementation name="IM_adskSurface__glsl" nodedef="ND_adskSurface" file="adsk/impl/shadergen/source/glsl/adskSurface.glsl" function="adskSurface" language="glsl"/>
+
+  <!-- <adskCellNoise2d> -->
+  <implementation name="IM_adskCellNoise2d__color3__glsl" nodedef="ND_adskCellNoise2d__color3" file="adsk/impl/shadergen/source/glsl/adskCellNoise2d_color3.glsl" function="adskCellNoise2d_color3" language="glsl"/>
+  <implementation name="IM_adskCellNoise2d__float__glsl" nodedef="ND_adskCellNoise2d__float" file="adsk/impl/shadergen/source/glsl/adskCellNoise2d_float.glsl" function="adskCellNoise2d_float" language="glsl"/>
+
+  <!-- <adskRidgedNoise2d> -->
+  <implementation name="IM_adskRidgedNoise2d__color3__glsl" nodedef="ND_adskRidgedNoise2d__color3" file="adsk/impl/shadergen/source/glsl/adskRidgedNoise2d_color3.glsl" function="adskRidgedNoise2d_color3" language="glsl"/>
+  <implementation name="IM_adskRidgedNoise2d__float__glsl" nodedef="ND_adskRidgedNoise2d__float" file="adsk/impl/shadergen/source/glsl/adskRidgedNoise2d_float.glsl" function="adskRidgedNoise2d_float" language="glsl"/>
+
+  <!-- <adskFractalNoise2d> -->
+  <implementation name="IM_adskFractalNoise2d__color3__glsl" nodedef="ND_adskFractalNoise2d__color3" file="adsk/impl/shadergen/source/glsl/adskFractalNoise2d_color3.glsl" function="adskFractalNoise2d_color3" language="glsl"/>
+  <implementation name="IM_adskFractalNoise2d__float__glsl" nodedef="ND_adskFractalNoise2d__float" file="adsk/impl/shadergen/source/glsl/adskFractalNoise2d_float.glsl" function="adskFractalNoise2d_float" language="glsl"/>
+
+</materialx>

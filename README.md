@@ -32,3 +32,8 @@ The MaterialX repository consists of the following folders:
                 and graph traversal, while the MaterialXFormat module supports
                 XML serialization.
     python    - Support modules for MaterialX Python.
+
+### Disclaimer
+
+    All code which resides in the ShaderGen module is ADSK work in progress all code may be subject to change. 
+    Additionally the definition and implementation library structure under documents/ is also work in progress.

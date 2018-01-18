@@ -1,0 +1,1 @@
+color4(color({{in1}}.r, {{in1}}.a, {{in2}}.r), {{in2}}.a)

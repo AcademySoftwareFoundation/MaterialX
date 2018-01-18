@@ -1,0 +1,5 @@
+void sx_layeredsurface(surfaceshader top, surfaceshader base, float weight, output surfaceshader result)
+{
+    float w = clamp(weight, 0.0, 1.0);
+    result = top * w + base * (1.0 - w);
+}

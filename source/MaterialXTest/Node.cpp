@@ -108,7 +108,7 @@ TEST_CASE("Flatten", "[nodegraph]")
 {
     // Read the example file.
     mx::DocumentPtr doc = mx::createDocument();
-    mx::readFromXmlFile(doc, "SubGraphs.mtlx", "documents/Examples;documents/Libraries");
+    mx::readFromXmlFile(doc, "SubGraphs.mtlx", "documents/Examples;documents/Libraries/stdlib");
 
     // Find the example graph.
     mx::NodeGraphPtr graph = doc->getChildOfType<mx::NodeGraph>("subgraph_ex1");
@@ -144,7 +144,7 @@ TEST_CASE("Flatten", "[nodegraph]")
             REQUIRE(isAtomic);
         }
     }
-    REQUIRE(totalNodeCount == 19);
+    REQUIRE(totalNodeCount == 19); //13
 }
 
 TEST_CASE("Topological sort", "[nodegraph]")

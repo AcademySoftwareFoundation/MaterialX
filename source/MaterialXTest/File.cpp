@@ -34,7 +34,7 @@ TEST_CASE("File system operations", "[file]")
 {
     std::vector<std::string> filenames =
     {
-        "documents/Libraries/mx_stdlib_defs.mtlx",
+        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
         "documents/Examples/MaterialGraphs.mtlx",
         "documents/Examples/PaintMaterials.mtlx",
     };

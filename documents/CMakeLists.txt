@@ -2,7 +2,8 @@ set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR})
 set(DOXYGEN_HTML_OUTPUT_DIR ${DOXYGEN_OUTPUT_DIR}/MaterialXDocs)
 set(DOXYGEN_INPUT_LIST ${CMAKE_SOURCE_DIR}/documents/DeveloperGuide
                        ${CMAKE_SOURCE_DIR}/source/MaterialXCore
-                       ${CMAKE_SOURCE_DIR}/source/MaterialXFormat)
+                       ${CMAKE_SOURCE_DIR}/source/MaterialXFormat
+                       ${CMAKE_SOURCE_DIR}/source/MaterialXShaderGen)
 string (REPLACE ";" " " DOXYGEN_INPUT_STR "${DOXYGEN_INPUT_LIST}")
 
 find_package(Doxygen)
