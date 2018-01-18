@@ -33,7 +33,10 @@ The MaterialX repository consists of the following folders:
                 XML serialization.
     python    - Support modules for MaterialX Python.
 
-### Disclaimer
+### Usage
 
-    All code which resides in the ShaderGen module is ADSK work in progress all code may be subject to change. 
-    Additionally the definition and implementation library structure under documents/ is also work in progress.
+    All code which resides in the ShaderGen module as well as the definition and implementation library structure 
+    under documents/ is Autodesk work in progress. All code may be subject to change. 
+
+    Use of this code is subject to the terms of the Autodesk license agreement provided at the time of installation or download, 
+    or which otherwise accompanies this software in either electronic or hard copy form.
