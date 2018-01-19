@@ -61,8 +61,10 @@ class Document : public Element
     /// The contents of the library document are copied into this one, and
     /// are assigned the source URI of the library.
     /// @param library The library document to be imported.
-    /// @param readOptions An optional pointer to a CopyOptions object.
-    void importLibrary(ConstDocumentPtr library, const CopyOptions* readOptions = nullptr);
+    /// @param copyOptions An optional pointer to a CopyOptions object.
+    ///    If provided, then the given options will affect the behavior of the
+    ///    import function.  Defaults to a null pointer.
+    void importLibrary(ConstDocumentPtr library, ConstCopyOptionsPtr copyOptions = nullptr);
 
     /// @name Document Versions
     /// @{
@@ -562,8 +564,8 @@ class Document : public Element
 /// Document::onEndUpdate when destroyed.
 class ScopedUpdate
 {
-    public:
-    ScopedUpdate(DocumentPtr doc) :
+  public:
+    explicit ScopedUpdate(DocumentPtr doc) :
         _doc(doc)
     {
         _doc->onBeginUpdate();
@@ -573,19 +575,19 @@ class ScopedUpdate
         _doc->onEndUpdate();
     }
 
-    private:
+  private:
     DocumentPtr _doc;
 };
 
-/// @class @ScopedDisableCallbacks		
-/// An RAII class for disabling all Document observer callbacks.		
-///		
-/// A ScopedDisableNotifications instance calls Document::disableCallbacks() when created, and		
-/// Document::enableCallbacks when destroyed.		
+/// @class @ScopedDisableCallbacks
+/// An RAII class for disabling Document callbacks.
+///
+/// A ScopedDisableCallbacks instance calls Document::disableCallbacks() when
+/// created, and Document::enableCallbacks when destroyed.
 class ScopedDisableCallbacks
 {
   public:
-      ScopedDisableCallbacks(DocumentPtr doc) :
+    explicit ScopedDisableCallbacks(DocumentPtr doc) :
         _doc(doc)
     {
         _doc->disableCallbacks();
@@ -594,6 +596,7 @@ class ScopedDisableCallbacks
     {
         _doc->enableCallbacks();
     }
+
   private:
     DocumentPtr _doc;
 };
