@@ -302,7 +302,7 @@ AncestorIterator Element::traverseAncestors() const
     return AncestorIterator(getSelf());
 }
 
-void Element::copyContentFrom(ConstElementPtr source, const CopyOptions* copyOptions)
+void Element::copyContentFrom(ConstElementPtr source, ConstCopyOptionsPtr copyOptions)
 {
     if (copyOptions && copyOptions->copySourceUris)
     {

@@ -157,7 +157,7 @@ void Document::initialize()
     setVersionString(DOCUMENT_VERSION_STRING);
 }
 
-void Document::importLibrary(ConstDocumentPtr library, const CopyOptions* copyOptions)
+void Document::importLibrary(ConstDocumentPtr library, ConstCopyOptionsPtr copyOptions)
 {
     bool skipDuplicateElements = copyOptions && copyOptions->skipDuplicateElements;
     bool copySourceUris = copyOptions && copyOptions->copySourceUris;
