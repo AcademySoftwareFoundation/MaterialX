@@ -10,6 +10,7 @@
 #include <MaterialXCore/Value.h>
 
 #include <sstream>
+#include <iostream>
 
 namespace MaterialX
 {
@@ -17,14 +18,14 @@ namespace MaterialX
 Shader::Shader(const string& name)
     : _name(name)
     , _rootGraph(nullptr)
-    , _activeStage(0)
+    , _activeStage(PIXEL_STAGE)
 {
     _stages.resize(numStages());
 }
 
 void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
 {
-    _activeStage = 0;
+    _activeStage = PIXEL_STAGE;
     _stages.resize(numStages());
 
     // Create our shader generation root graph
@@ -35,12 +36,20 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
     // Set the vdirection to use for texture nodes
     // Default is to use direction UP
     const string& vdir = element->getRoot()->getAttribute("vdirection");
-    _vdirection = vdir == "down" ? VDirection::DOWN : VDirection::UP;;
+    _vdirection = vdir == "down" ? VDirection::DOWN : VDirection::UP;
 
-    // Store the graph input sockets as shader uniforms
+    // Register shader uniforms for the graph interface
     for (SgInputSocket* inputSocket : _rootGraph->getInputSockets())
     {
-        _uniforms.push_back(Uniform(shadergen.getSyntax()->getVariableName(inputSocket), inputSocket));
+        const string name = shadergen.getSyntax()->getVariableName(inputSocket);
+        registerUniform(Variable(inputSocket->type, name, EMPTY_STRING, inputSocket->value));
+    }
+
+    // Add shader inputs for nodes that need this (geometric nodes / input streams)
+    for (SgNode* node : _rootGraph->getNodes())
+    {
+        SgImplementation* impl = node->getImplementation();
+        impl->registerInputs(*node, shadergen, *this);
     }
 }
 
@@ -143,10 +152,11 @@ void Shader::addBlock(const string& str)
 
 void Shader::addFunctionDefinition(SgNode* node, ShaderGenerator& shadergen)
 {
+    Stage& s = stage();
     SgImplementation* impl = node->getImplementation();
-    if (_definedFunctions.count(impl) == 0)
+    if (s.definedFunctions.find(impl) == s.definedFunctions.end())
     {
-        _definedFunctions.insert(impl);
+        s.definedFunctions.insert(impl);
         impl->emitFunctionDefinition(*node, shadergen, *this);
     }
 }
@@ -181,6 +191,33 @@ void Shader::indent()
     for (int i = 0; i < s.indentations; ++i)
     {
         s.code += kIndent;
+    }
+}
+
+void Shader::registerUniform(const Variable& uniform)
+{
+    if (!_registeredVariables.count(uniform.name))
+    {
+        _registeredVariables.insert(uniform.name);
+        _uniforms.push_back(uniform);
+    }
+}
+
+void Shader::registerVarying(const Variable& varying)
+{
+    if (!_registeredVariables.count(varying.name))
+    {
+        _registeredVariables.insert(varying.name);
+        _varyings.push_back(varying);
+    }
+}
+
+void Shader::registerAttribute(const Variable& attribute)
+{
+    if (!_registeredVariables.count(attribute.name))
+    {
+        _registeredVariables.insert(attribute.name);
+        _attributes.push_back(attribute);
     }
 }
 

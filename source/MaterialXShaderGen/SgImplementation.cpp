@@ -8,6 +8,10 @@ void SgImplementation::initialize(ElementPtr, ShaderGenerator&)
 {
 }
 
+void SgImplementation::registerInputs(const SgNode&, ShaderGenerator&, Shader&)
+{
+}
+
 void SgImplementation::emitFunctionDefinition(const SgNode&, ShaderGenerator&, Shader&)
 {
     // default implementation has no function definition

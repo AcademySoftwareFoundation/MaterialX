@@ -3,7 +3,7 @@
 #include <MaterialXCore/Document.h>
 
 #include <MaterialXShaderGen/Implementations/Compound.h>
-#include <MaterialXShaderGen/Shader.h>
+#include <MaterialXShaderGen/HwShader.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/Util.h>
 
@@ -29,8 +29,20 @@ void Compound::initialize(ElementPtr implementation, ShaderGenerator& shadergen)
     _functionName = graph->getName();
 }
 
+void Compound::registerInputs(const SgNode& /*node*/, ShaderGenerator& shadergen, Shader& shader)
+{
+    // Gather shader inputs from all child nodes
+    for (SgNode* childNode : _rootGraph->getNodes())
+    {
+        SgImplementation* impl = childNode->getImplementation();
+        impl->registerInputs(*childNode, shadergen, shader);
+    }
+}
+
 void Compound::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
 {
+    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+
     // Make the compound root graph the active graph
     shader.pushActiveGraph(_rootGraph.get());
 
@@ -82,7 +94,7 @@ void Compound::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shade
     shader.beginScope();
 
     // Add function body, with all child node function calls
-    shadergen.emitShaderBody(shader);
+    shadergen.emitFunctionCalls(shader);
 
     // Emit final results
     for (SgOutputSocket* outputSocket : _rootGraph->getOutputSockets())
@@ -103,12 +115,23 @@ void Compound::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shade
 
     // Restore active graph
     shader.popActiveGraph();
+
+    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
 void Compound::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
 {
-    // An ordinary source code function call
-    // TODO: Support multiple outputs
+    BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
+
+    // Emit function calls for all child nodes to the vertex shader stage
+    for (SgNode* childNode : _rootGraph->getNodes())
+    {
+        shader.addFunctionCall(childNode, shadergen);
+    }
+
+    END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
+
+    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
     // Declare the output variable
     shader.beginLine();
@@ -150,6 +173,8 @@ void Compound::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, 
     // End function call
     shader.addStr(")");
     shader.endLine();
+
+    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

@@ -9,6 +9,12 @@
 #include <sstream>
 #include <unordered_map>
 
+/// Macro for being/end of statements to be picked up by a given shader stage.
+/// For shaders that are multi-stage all code generation statements adding code 
+/// to the shader should be wrapped inside such begin/end stating its target.
+#define BEGIN_SHADER_STAGE(shader, stageId) if (shader.getActiveStage() == stageId) {
+#define END_SHADER_STAGE(shader, stageId) }
+
 namespace MaterialX
 {
 
@@ -41,7 +47,27 @@ public:
         DOWN
     };
 
-    using Uniform = std::pair<string, SgInputSocket*>;
+    struct Variable
+    {
+        string type;
+        string name;
+        string semantic;
+        ValuePtr value;
+
+        Variable(const string& t = EMPTY_STRING, const string& n = EMPTY_STRING, const string& s = EMPTY_STRING, ValuePtr v = nullptr)
+            : type(t)
+            , name(n)
+            , semantic(s)
+            , value(v)
+        {}
+    };
+
+    using Variables = vector<Variable>;
+
+    /// Identifier for shader stages. The base class shader has only a single 
+    /// pixel shader stage. Derived shader classes can define additional stages.
+    static const size_t PIXEL_STAGE = 0;
+    static const size_t NUM_STAGES  = 1;
 
 public:
     /// Constructor
@@ -57,10 +83,13 @@ public:
 
     /// Return the number of shader stages for this shader.
     /// Defaults to a single stage, derived classes can override this.
-    virtual size_t numStages() const { return 1; }
+    virtual size_t numStages() const { return NUM_STAGES; }
 
     /// Set the active stage that code will be added to
-    virtual void setStage(size_t stage) { _activeStage = stage; }
+    virtual void setActiveStage(size_t stage) { _activeStage = stage; }
+
+    /// Return the active stage
+    virtual size_t getActiveStage() const { return _activeStage; }
 
     /// Start a new scope in the shader, using the given bracket type
     virtual void beginScope(Brackets brackets = Brackets::BRACES);
@@ -130,10 +159,25 @@ public:
     VDirection getRequestedVDirection() const { return _vdirection; }
 
     /// Return the final shader source code for a given shader stage
-    const string& getSourceCode(size_t stage = 0) const { return _stages[stage].code; }
+    const string& getSourceCode(size_t stage = PIXEL_STAGE) const { return _stages[stage].code; }
 
-    /// Return the uniform inputs published for this shader
-    const vector<Uniform>& getUniforms() const { return _uniforms; }
+    /// Register a uniform variable to be used by the shader
+    void registerUniform(const Variable& uniform);
+
+    /// Register a varying variable to be used by the shader
+    void registerVarying(const Variable& varying);
+
+    /// Register an attribute variable to be used by the shader
+    void registerAttribute(const Variable& attribute);
+
+    /// Return the uniforms registered for this shader
+    const vector<Variable>& getUniforms() const { return _uniforms; }
+
+    /// Return the varyings registered for this shader
+    const vector<Variable>& getVaryings() const { return _varyings; }
+
+    /// Return the attributes registered for this shader
+    const vector<Variable>& getAttributes() const { return _attributes; }
 
     bool isTransparent() const
     {
@@ -141,7 +185,7 @@ public:
         {
             for (SgNode* node : getNodeGraph()->getNodes())
             {
-                if (node && node->hasClassification(SgNode::Classification::SHADER) && !node->referencedConditionally())
+                if (node && node->hasClassification(SgNode::Classification::SHADER))
                 {
                     MaterialX::SgImplementation* implementation = node->getImplementation();
                     if (implementation)
@@ -162,6 +206,7 @@ protected:
         int indentations;
         std::queue<Brackets> scopes;
         std::set<string> includes;
+        std::set<SgImplementation*> definedFunctions;
         string code;
         Stage() : indentations(0) {}
     };
@@ -179,8 +224,10 @@ protected:
 
     size_t _activeStage;
     vector<Stage> _stages;
-    vector<Uniform> _uniforms;
-    std::set<SgImplementation*> _definedFunctions;
+    vector<Variable> _uniforms;
+    vector<Variable> _varyings;
+    vector<Variable> _attributes;
+    std::set<string> _registeredVariables;
 };
 
 /// @class @ExceptionShaderGenError

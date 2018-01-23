@@ -281,7 +281,7 @@ uniform sampler2D Irradiance_IBL_file = sampler_state
 
 // --------------------------------- Lighting Functions -------------------------------------
 
-GLSLShader PixelShader_Lighting
+GLSLShader LightingFunctions
 {
     int GetLightType(int ActiveLightIndex)
     {

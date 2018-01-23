@@ -14,6 +14,8 @@ public:
 
     void initialize(ElementPtr implementation, ShaderGenerator& shadergen) override;
 
+    void registerInputs(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
+
     void emitFunctionDefinition(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 
     void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;

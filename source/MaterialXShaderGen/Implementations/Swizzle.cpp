@@ -1,5 +1,5 @@
 #include <MaterialXShaderGen/Implementations/Swizzle.h>
-#include <MaterialXShaderGen/Shader.h>
+#include <MaterialXShaderGen/HwShader.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 
 namespace MaterialX
@@ -12,6 +12,8 @@ SgImplementationPtr Swizzle::creator()
 
 void Swizzle::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
 {
+    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+
     const SgInput* in = node.getInput("in");
     const SgInput* channels = node.getInput("channels");
     if (!in || !channels)
@@ -56,6 +58,8 @@ void Swizzle::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, S
     shadergen.emitOutput(node.getOutput(), true, shader);
     shader.addStr(" = " + variableName);
     shader.endLine();
+
+    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
 } // namespace MaterialX
