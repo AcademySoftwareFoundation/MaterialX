@@ -96,7 +96,7 @@ public:
     /// Add the contents of an include file
     /// Making sure it is only included once
     /// for a shader stage
-    virtual void addInclude(const string& file);
+    virtual void addInclude(const string& file, ShaderGenerator& shadergen);
 
     /// Add a single line of code comment to the shader
     virtual void addComment(const string& str);

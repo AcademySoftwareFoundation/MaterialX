@@ -86,13 +86,13 @@ public:
     SgImplementationPtr getImplementation(ElementPtr element);
 
     /// Add to the search path used for finding source code.
-    static void registerSourceCodeSearchPath(const FilePath& path);
+    void registerSourceCodeSearchPath(const FilePath& path);
 
     /// Resolve a source code file using the registered search paths.
-    static FilePath findSourceCode(const FilePath& filename);
+    FilePath findSourceCode(const FilePath& filename);
 
     // Get the search source code path
-    static const FileSearchPath& sourceCodeSearchPath()
+    const FileSearchPath& sourceCodeSearchPath()
     {
         return _sourceCodeSearchPath;
     }
@@ -106,7 +106,7 @@ protected:
     Factory<SgImplementation> _implFactory;
     std::unordered_map<string, SgImplementationPtr> _cachedImpls;
 
-    static FileSearchPath _sourceCodeSearchPath;
+    FileSearchPath _sourceCodeSearchPath;
 };
 
 } // namespace MaterialX

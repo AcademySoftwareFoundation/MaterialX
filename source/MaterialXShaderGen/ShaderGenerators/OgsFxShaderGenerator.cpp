@@ -27,10 +27,10 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 
     Shader& shader = *shaderPtr;
 
-    shader.addInclude("sx/impl/shadergen/source/glsl/defines.glsl");
+    shader.addInclude("sx/impl/shadergen/source/glsl/defines.glsl", *this);
     shader.newLine();
 
-    shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/default_uniforms.glsl");
+    shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/default_uniforms.glsl", *this);
     shader.newLine();
 
     // Emit all shader uniforms
@@ -49,11 +49,11 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     // Emit functions for lighting if needed
     if (!shader.hasClassification(SgNode::Classification::TEXTURE))
     {
-        shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/lighting.glsl");
+        shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/lighting.glsl", *this);
         shader.newLine();
     }
 
-    shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/vertexshader.glsl");
+    shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/vertexshader.glsl", *this);
     shader.newLine();
 
     shader.addComment("---------------------------------- Pixel shader ----------------------------------------\n");
@@ -75,7 +75,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.addStr("GLSLShader PS\n");
     shader.beginScope(Shader::Brackets::BRACES);
 
-    shader.addInclude("sx/impl/shadergen/source/glsl/math.glsl");
+    shader.addInclude("sx/impl/shadergen/source/glsl/math.glsl", *this);
     shader.newLine();
 
     shader.addComment("-------------------------------- Node Functions ------------------------------------\n");
@@ -92,11 +92,11 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 
     if (shader.hasClassification(SgNode::Classification::TEXTURE))
     {
-        shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/techniques_texturing.glsl");
+        shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/techniques_texturing.glsl", *this);
     }
     else
     {
-        shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/techniques_lighting.glsl");
+        shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/techniques_lighting.glsl", *this);
     }
     shader.newLine();
 
