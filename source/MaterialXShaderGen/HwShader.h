@@ -10,7 +10,7 @@ namespace MaterialX
 class HwShader : public Shader
 {
 public:
-    // Identifyer for additional vertex shader stage
+    // Identifier for additional vertex shader stage
     static const size_t VERTEX_STAGE = Shader::NUM_STAGES;
     static const size_t NUM_STAGES = Shader::NUM_STAGES + 1;
 

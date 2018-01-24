@@ -13,6 +13,29 @@
 namespace MaterialX
 {
 
+namespace {
+    void toVec4(const string& type, string& variable)
+    {
+        if (kScalars.count(type))
+        {
+            variable = "vec4(" + variable + ", " + variable + ", " + variable + ", 1.0)";
+        }
+        else if (kTuples.count(type))
+        {
+            variable = "vec4(" + variable + ", 0.0, 1.0)";
+        }
+        else if (kTriples.count(type))
+        {
+            variable = "vec4(" + variable + ", 1.0)";
+        }
+        else
+        {
+            // Can't understand other types. Just return black.
+            variable = "vect4(0.0,0.0,0.0,1.0)";
+        }
+    }
+}
+
 DEFINE_SHADER_GENERATOR(OgsFxShaderGenerator, "glsl", "ogsfx")
 
 OgsFxShaderGenerator::OgsFxShaderGenerator()
@@ -194,49 +217,43 @@ void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
         const SgOutputSocket* outputSocket = graph->getOutputSocket();
         const string outputVariable = _syntax->getVariableName(outputSocket);
 
+        // Early out for the rare case where the whole graph is just a single value
         if (!outputSocket->connection)
         {
-            // Early out for the rare case where the whole graph is just a single value
-            shader.addLine(outputVariable + " = " + (outputSocket->value ? _syntax->getValue(*outputSocket->value) : _syntax->getTypeDefault(outputSocket->type)));
+            string outputValue = outputSocket->value ? _syntax->getValue(*outputSocket->value) : _syntax->getTypeDefault(outputSocket->type);
+            if (!kQuadruples.count(outputSocket->type))
+            {
+                string finalOutput = outputVariable + "_tmp";
+                shader.addLine(_syntax->getTypeName(outputSocket->type) + " " + finalOutput + " = " + outputValue);
+                toVec4(outputSocket->type, finalOutput);
+                shader.addLine(outputVariable + " = " + finalOutput);
+            }
+            else
+            {
+                shader.addLine(outputVariable + " = " + outputValue);
+            }
             return;
         }
 
-        string finalResult = _syntax->getVariableName(outputSocket->connection);
+        string finalOutput = _syntax->getVariableName(outputSocket->connection);
 
         if (shader.hasClassification(SgNode::Classification::SURFACE))
         {
             shader.addComment("TODO: How should we output transparency?");
-            shader.addLine("float outAlpha = 1.0 - maxv(" + finalResult + ".transparency)");
-            shader.addLine(outputVariable + " = vec4(" + finalResult + ".color, outAlpha)");
+            shader.addLine("float outAlpha = 1.0 - maxv(" + finalOutput + ".transparency)");
+            shader.addLine(outputVariable + " = vec4(" + finalOutput + ".color, outAlpha)");
         }
         else
         {
             if (outputSocket->channels != EMPTY_STRING)
             {
-                finalResult = _syntax->getSwizzledVariable(finalResult, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
+                finalOutput = _syntax->getSwizzledVariable(finalOutput, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
             }
-            if (outputSocket->type != "color4" && outputSocket->type != "vector4")
+            if (!kQuadruples.count(outputSocket->type))
             {
-                // Remap to vec4 type for final output
-                if (outputSocket->type == "float" || outputSocket->type == "boolean" || outputSocket->type == "integer")
-                {
-                    finalResult = "vec4(" + finalResult + ", " + finalResult + ", " + finalResult + ", 1.0)";
-                }
-                else if (outputSocket->type == "vector2" || outputSocket->type == "color2")
-                {
-                    finalResult = "vec4(" + finalResult + ", 0.0, 1.0)";
-                }
-                else if (outputSocket->type == "vector3" || outputSocket->type == "color3")
-                {
-                    finalResult = "vec4(" + finalResult + ", 1.0)";
-                }
-                else
-                {
-                    // Can't understand other types. Just output black
-                    finalResult = "vect4(0.0,0.0,0.0,1.0)";
-                }
+                toVec4(outputSocket->type, finalOutput);
             }
-            shader.addLine(outputVariable + " = " + finalResult);
+            shader.addLine(outputVariable + " = " + finalOutput);
         }
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }

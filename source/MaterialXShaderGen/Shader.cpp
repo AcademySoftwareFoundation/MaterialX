@@ -9,9 +9,6 @@
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Value.h>
 
-#include <sstream>
-#include <iostream>
-
 namespace MaterialX
 {
 

@@ -14,7 +14,7 @@ using OgsFxShaderPtr = shared_ptr<class OgsFxShader>;
 class OgsFxShader : public HwShader
 {
 public:
-    /// Identifyer for final effects stage
+    /// Identifier for final effects stage
     static const size_t FINAL_FX_STAGE = HwShader::NUM_STAGES;
     static const size_t NUM_STAGES = HwShader::NUM_STAGES + 1;
 
