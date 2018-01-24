@@ -31,7 +31,7 @@ namespace {
         else
         {
             // Can't understand other types. Just return black.
-            variable = "vect4(0.0,0.0,0.0,1.0)";
+            variable = "vec4(0.0,0.0,0.0,1.0)";
         }
     }
 }
