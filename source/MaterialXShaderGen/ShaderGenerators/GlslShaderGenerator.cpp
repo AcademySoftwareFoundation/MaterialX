@@ -1,9 +1,12 @@
 #include <MaterialXShaderGen/ShaderGenerators/GlslShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/GlslSyntax.h>
 
+#include <MaterialXShaderGen/Implementations/SourceCode.h>
 #include <MaterialXShaderGen/Implementations/Swizzle.h>
 #include <MaterialXShaderGen/Implementations/Switch.h>
 #include <MaterialXShaderGen/Implementations/Compare.h>
+
+#include <MaterialXShaderGen/HwShader.h>
 
 namespace MaterialX
 {
@@ -36,7 +39,7 @@ GlslShaderGenerator::GlslShaderGenerator()
 {
     _bsdfNodeArguments.resize(2);
 
-    // Register build-in node implementations
+    // Add target specific implementations
 
     // <!-- <compare> -->
     registerImplementation("IM_compare__float__glsl", Compare::creator);
@@ -114,18 +117,99 @@ GlslShaderGenerator::GlslShaderGenerator()
     registerImplementation("IM_swizzle__vector4_vector4__glsl", Swizzle::creator);
 }
 
-void GlslShaderGenerator::emitFunctions(Shader& shader)
+void GlslShaderGenerator::emitFunctionDefinitions(Shader& shader)
 {
-    // Emit function for handling texture coords v-flip 
-    // as needed by the v-direction set by the user
-    shader.addBlock(shader.getRequestedVDirection() != getTargetVDirection() ? kVDirectionFlip : kVDirectionNoop);
-
     // Set BSDF node arguments to the variables used for BSDF direction vectors
     _bsdfNodeArguments[0] = Argument("vec3", "wi");
     _bsdfNodeArguments[1] = Argument("vec3", "wo");
 
+    // Emit function for handling texture coords v-flip 
+    // as needed by the v-direction set by the user
+    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+        shader.addBlock(shader.getRequestedVDirection() != getTargetVDirection() ? kVDirectionFlip : kVDirectionNoop);
+    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+
     // Call parent to emit all other functions
-    ShaderGenerator::emitFunctions(shader);
+    ShaderGenerator::emitFunctionDefinitions(shader);
+}
+
+void GlslShaderGenerator::emitFunctionCalls(Shader &shader)
+{
+    BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
+        // For vertex stage just emit all function calls in order
+        // and ignore conditional scope.
+        for (SgNode* node : shader.getNodeGraph()->getNodes())
+        {
+            shader.addFunctionCall(node, *this);
+        }
+    END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
+
+    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+        // For pixel stage surface shaders need special handling
+        if (shader.getNodeGraph()->hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE))
+        {
+            // Handle all texturing nodes. These are inputs to any
+            // closure/shader nodes and need to be emitted first.
+            emitTextureNodes(shader);
+            shader.newLine();
+
+            // Emit function calls for all surface shader nodes
+            for (SgNode* node : shader.getNodeGraph()->getNodes())
+            {
+                if (node->hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE))
+                {
+                    shader.addFunctionCall(node, *this);
+                }
+            }
+        }
+        else
+        {
+            // No surface shader, fallback to base class
+            ShaderGenerator::emitFunctionCalls(shader);
+        }
+    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+}
+
+void GlslShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& shader)
+{
+    // A file texture input needs special handling on GLSL
+    if (uniform.type == kFilename)
+    {
+        std::stringstream str;
+        str << "uniform texture2D " << uniform.name << "_texture : SourceTexture;\n";
+        str << "uniform sampler2D " << uniform.name << " = sampler_state\n";
+        str << "{\n    Texture = <" << uniform.name << "_texture>;\n};\n";
+        shader.addBlock(str.str());
+    }
+    else if (!uniform.semantic.empty())
+    {
+        shader.addLine("uniform " + _syntax->getTypeName(uniform.type) + " " + uniform.name + " : " + uniform.semantic);
+    }
+    else
+    {
+        const string initStr = (uniform.value ? _syntax->getValue(*uniform.value, true) : _syntax->getTypeDefault(uniform.type, true));
+        shader.addLine("uniform " + _syntax->getTypeName(uniform.type) + " " + uniform.name + (initStr.empty() ? "" : " = " + initStr));
+    }
+}
+
+bool GlslShaderGenerator::shouldPublish(const ValueElement* port, string& publicName) const
+{
+    if (!ShaderGenerator::shouldPublish(port, publicName))
+    {
+        // File texture inputs must be published in GLSL
+        static const string kImage = "image";
+        if (port->getParent()->getCategory() == kImage &&
+            port->getType() == kFilename)
+        {
+            publicName = port->getParent()->getName() + "_" + port->getName();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 void GlslShaderGenerator::emitTextureNodes(Shader& shader)
@@ -133,8 +217,6 @@ void GlslShaderGenerator::emitTextureNodes(Shader& shader)
     // Emit function calls for all texturing nodes
     for (SgNode* node : shader.getNodeGraph()->getNodes())
     {
-        // Emit only unconditional nodes, since any node within a conditional 
-        // branch is emitted by the conditional node itself
         if (node->hasClassification(SgNode::Classification::TEXTURE) && !node->referencedConditionally())
         {
             shader.addFunctionCall(node, *this);

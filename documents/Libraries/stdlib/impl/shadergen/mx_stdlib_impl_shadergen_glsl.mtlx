@@ -119,20 +119,20 @@
   <!-- ======================================================================== -->
 
   <!-- <position> -->
-  <implementation name="IM_position__vector3__glsl" nodedef="ND_position__vector3" file="stdlib/impl/shadergen/source/glsl/mx_position_vector3.inline" language="glsl"/>
+  <implementation name="IM_position__vector3__glsl" nodedef="ND_position__vector3" language="glsl"/>
 
   <!-- <normal> -->
-  <implementation name="IM_normal__vector3__glsl" nodedef="ND_normal__vector3" file="stdlib/impl/shadergen/source/glsl/mx_normal_vector3.inline" language="glsl"/>
+  <implementation name="IM_normal__vector3__glsl" nodedef="ND_normal__vector3" language="glsl"/>
 
   <!-- <tangent> -->
-  <implementation name="IM_tangent__vector3__glsl" nodedef="ND_tangent__vector3" file="stdlib/impl/shadergen/source/glsl/mx_tangent_vector3.inline" language="glsl"/>
+  <implementation name="IM_tangent__vector3__glsl" nodedef="ND_tangent__vector3" language="glsl"/>
 
   <!-- <bitangent> -->
-  <implementation name="IM_bitangent__vector3__glsl" nodedef="ND_bitangent__vector3" file="stdlib/impl/shadergen/source/glsl/mx_bitangent_vector3.inline" language="glsl"/>
+  <implementation name="IM_bitangent__vector3__glsl" nodedef="ND_bitangent__vector3" language="glsl"/>
 
   <!-- <texcoord> -->
-  <implementation name="IM_texcoord__vector2__glsl" nodedef="ND_texcoord__vector2" file="stdlib/impl/shadergen/source/glsl/mx_texcoord_vector2.inline" language="glsl"/>
-  <implementation name="IM_texcoord__vector3__glsl" nodedef="ND_texcoord__vector3" file="stdlib/impl/shadergen/source/glsl/mx_texcoord_vector3.inline" language="glsl"/>
+  <implementation name="IM_texcoord__vector2__glsl" nodedef="ND_texcoord__vector2" language="glsl"/>
+  <implementation name="IM_texcoord__vector3__glsl" nodedef="ND_texcoord__vector3" language="glsl"/>
 
   <!-- <geomcolor> -->
   <!-- <geomattrvalue> -->

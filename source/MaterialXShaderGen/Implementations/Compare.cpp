@@ -1,5 +1,5 @@
 #include <MaterialXShaderGen/Implementations/Compare.h>
-#include <MaterialXShaderGen/Shader.h>
+#include <MaterialXShaderGen/HwShader.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/SgNode.h>
 
@@ -15,6 +15,8 @@ SgImplementationPtr Compare::creator()
 
 void Compare::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
 {
+    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+
     // Declare the output variable
     shader.beginLine();
     shadergen.emitOutput(node.getOutput(), true, shader);
@@ -63,6 +65,8 @@ void Compare::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, S
 
         shader.endScope();
     }
+
+    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

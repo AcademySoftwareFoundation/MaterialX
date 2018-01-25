@@ -20,7 +20,17 @@ public:
 
 public:
     /// Emit function definitions for all nodes
-    void emitFunctions(Shader& shader) override;
+    void emitFunctionDefinitions(Shader& shader) override;
+
+    /// Emit all functon calls constructing the shader body
+    void emitFunctionCalls(Shader &shader) override;
+
+    /// Emit a shader uniform input variable
+    void emitUniform(const Shader::Variable& uniform, Shader& shader) override;
+
+    /// Query the shader generator if it wants to publish a given port as a
+    /// shader uniform. Return the publicName to use if it should be published.
+    bool shouldPublish(const ValueElement* port, string& publicName) const override;
 
     /// Return any extra arguments if needed for the given node
     const Arguments* getExtraArguments(const SgNode& node) const override;

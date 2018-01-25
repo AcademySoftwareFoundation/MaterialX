@@ -38,6 +38,10 @@ public:
     /// Initialize with the given implementation element.
     virtual void initialize(ElementPtr implementation, ShaderGenerator& shadergen);
 
+    /// Register shader inputs needed for the implementation of this node (e.g. uniforms, varyings, attributes).
+    /// Used if the node requires input data from the application.
+    virtual void registerInputs(const SgNode& node, ShaderGenerator& shadergen, Shader& shader);
+
     /// Emit function definition for the given node instance.
     virtual void emitFunctionDefinition(const SgNode& node, ShaderGenerator& shadergen, Shader& shader);
 

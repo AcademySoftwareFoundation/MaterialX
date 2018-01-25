@@ -2,10 +2,28 @@
 #define MATERIALX_OGSFX_CODEGENERATOR_H
 
 #include <MaterialXShaderGen/ShaderGenerators/GlslShaderGenerator.h>
-#include <MaterialXShaderGen/Shader.h>
+#include <MaterialXShaderGen/HwShader.h>
 
 namespace MaterialX
 {
+
+using OgsFxShaderPtr = shared_ptr<class OgsFxShader>;
+
+/// Shader class extending HwShader with a new stage 
+/// holding the final composited OsgFx shader.
+class OgsFxShader : public HwShader
+{
+public:
+    /// Identifier for final effects stage
+    static const size_t FINAL_FX_STAGE = HwShader::NUM_STAGES;
+    static const size_t NUM_STAGES = HwShader::NUM_STAGES + 1;
+
+public:
+    OgsFxShader(const string& name) : HwShader(name) {}
+
+    /// Return the number of shader stages for this shader.
+    virtual size_t numStages() const { return NUM_STAGES; }
+};
 
 /// A GLSL shader generator targeting the OgsFX file format
 class OgsFxShaderGenerator : public GlslShaderGenerator
@@ -21,14 +39,6 @@ public:
     /// Generate a shader starting from the given element, translating 
     /// the element and all dependencies upstream into shader code.
     ShaderPtr generate(const string& shaderName, ElementPtr element) override;
-
-    void emitShaderBody(Shader &shader) override;
-
-    /// Emit a shader uniform input variable
-    void emitUniform(const string& name, const string& type, const ValuePtr& value, Shader& shader) override;
-
-    ///
-    bool shouldPublish(const ValueElement* port, string& publicName) const override;
 
     /// Emit the final output expression
     void emitFinalOutput(Shader& shader) const override;

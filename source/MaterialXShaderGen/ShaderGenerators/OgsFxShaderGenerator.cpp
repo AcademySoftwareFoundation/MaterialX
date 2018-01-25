@@ -1,11 +1,40 @@
 #include <MaterialXShaderGen/ShaderGenerators/OgsFxShaderGenerator.h>
+#include <MaterialXShaderGen/Implementations/Position.h>
+#include <MaterialXShaderGen/Implementations/Normal.h>
+#include <MaterialXShaderGen/Implementations/Tangent.h>
+#include <MaterialXShaderGen/Implementations/Bitangent.h>
+#include <MaterialXShaderGen/Implementations/TexCoord.h>
 #include <MaterialXShaderGen/Implementations/AdskSurface.h>
 #include <MaterialXShaderGen/Implementations/Surface.h>
+#include <MaterialXShaderGen/HwShader.h>
 
 #include <sstream>
 
 namespace MaterialX
 {
+
+namespace {
+    void toVec4(const string& type, string& variable)
+    {
+        if (kScalars.count(type))
+        {
+            variable = "vec4(" + variable + ", " + variable + ", " + variable + ", 1.0)";
+        }
+        else if (kTuples.count(type))
+        {
+            variable = "vec4(" + variable + ", 0.0, 1.0)";
+        }
+        else if (kTriples.count(type))
+        {
+            variable = "vec4(" + variable + ", 1.0)";
+        }
+        else
+        {
+            // Can't understand other types. Just return black.
+            variable = "vec4(0.0,0.0,0.0,1.0)";
+        }
+    }
+}
 
 DEFINE_SHADER_GENERATOR(OgsFxShaderGenerator, "glsl", "ogsfx")
 
@@ -14,6 +43,17 @@ OgsFxShaderGenerator::OgsFxShaderGenerator()
 {
     // Add target specific implementations
 
+    // <!-- <position> -->
+    registerImplementation("IM_position__vector3__glsl", PositionOgsFx::creator);
+    // <!-- <normal> -->
+    registerImplementation("IM_normal__vector3__glsl", NormalOgsFx::creator);
+    // <!-- <tangent> -->
+    registerImplementation("IM_tangent__vector3__glsl", TangentOgsFx::creator);
+    // <!-- <bitangent> -->
+    registerImplementation("IM_bitangent__vector3__glsl", BitangentOgsFx::creator);
+    // <!-- <texcoord> -->
+    registerImplementation("IM_texcoord__vector2__glsl", TexCoordOgsFx::creator);
+    registerImplementation("IM_texcoord__vector3__glsl", TexCoordOgsFx::creator);
     // <!-- <adskSurface> -->
     registerImplementation("IM_adskSurface__glsl", AdskSurfaceOgsFx::creator);
     // <!-- <surface> -->
@@ -22,28 +62,124 @@ OgsFxShaderGenerator::OgsFxShaderGenerator()
 
 ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr element)
 {
-    ShaderPtr shaderPtr = std::make_shared<Shader>(shaderName);
+    OgsFxShaderPtr shaderPtr = std::make_shared<OgsFxShader>(shaderName);
     shaderPtr->initialize(element, *this);
 
-    Shader& shader = *shaderPtr;
+    OgsFxShader& shader = *shaderPtr;
+    SgNodeGraph* graph = shader.getNodeGraph();
 
-    shader.addInclude("sx/impl/shadergen/source/glsl/defines.glsl");
+    // Register default shader inputs
+    shader.registerUniform(Shader::Variable("mat4", "gWorldXf", "World"));
+    shader.registerUniform(Shader::Variable("mat4", "gWvpXf", "WorldViewProjection"));
+    shader.registerUniform(Shader::Variable("mat4", "gViewIXf", "ViewInverse"));
+    shader.registerAttribute(Shader::Variable("vec3", "inPosition", "POSITION"));
+    shader.registerVarying(Shader::Variable("vec3", "ObjectPosition", "POSITION"));
+    shader.registerVarying(Shader::Variable("vec3", "WorldPosition", "POSITION"));
+    shader.registerVarying(Shader::Variable("vec3", "WorldView"));
+
+    //
+    // Emit code for vertex shader stage
+    //
+
+    shader.setActiveStage(OgsFxShader::VERTEX_STAGE);
+
+    shader.addComment("---------------------------------- Vertex shader ----------------------------------------\n");
+    shader.addLine("GLSLShader VS", false);
+    shader.beginScope(Shader::Brackets::BRACES);
+
+    emitFunctionDefinitions(shader);
+
+    shader.addLine("void main()", false);
+    shader.beginScope(Shader::Brackets::BRACES);
+
+    // Calculate default vertex data
+    shader.addLine("vec4 Po = vec4(inPosition.xyz, 1)");
+    shader.addLine("vec4 Pw = gWorldXf * Po");
+    shader.addLine("VS_OUT.ObjectPosition = Po.xyz");
+    shader.setCalculated("ObjectPosition");
+    shader.addLine("VS_OUT.WorldPosition = Pw.xyz");
+    shader.setCalculated("WorldPosition");
+    shader.addLine("VS_OUT.WorldView = normalize(gViewIXf[3].xyz - Pw.xyz)");
+    shader.setCalculated("WorldView");
+
+    emitFunctionCalls(shader);
+    emitFinalOutput(shader);
+
+    shader.endScope();
+    shader.endScope();
     shader.newLine();
 
-    shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/default_uniforms.glsl");
+    //
+    // Emit code for pixel shader stage
+    //
+
+    shader.setActiveStage(OgsFxShader::PIXEL_STAGE);
+    
+    shader.addComment("---------------------------------- Pixel shader ----------------------------------------\n");
+    shader.addStr("GLSLShader PS\n");
+    shader.beginScope(Shader::Brackets::BRACES);
+
+    emitFunctionDefinitions(shader);
+
+    shader.addLine("void main()", false);
+    shader.beginScope(Shader::Brackets::BRACES);
+
+    emitFunctionCalls(shader);
+    emitFinalOutput(shader);
+
+    shader.endScope();
+    shader.endScope();
+    shader.newLine();
+
+    //
+    // Assemble the final effects shader
+    //
+
+    shader.setActiveStage(size_t(OgsFxShader::FINAL_FX_STAGE));
+
+    // Add global constants and type definitions
+    shader.addInclude("sx/impl/shadergen/source/glsl/defines.glsl");
+    shader.newLine();
+    emitTypeDefs(shader);
+
+    shader.addComment("Data from application to vertex buffer");
+    shader.addLine("attribute AppData", false);
+    shader.beginScope(Shader::Brackets::BRACES);
+    for (const Shader::Variable& attr : shader.getAttributes())
+    {
+        shader.addLine(attr.type + " " + attr.name + (!attr.semantic.empty() ? " : " + attr.semantic : ""));
+    }
+    shader.endScope(true);
+    shader.newLine();
+
+    shader.addComment("Data passed from vertex shader to pixel shader");
+    shader.addLine("attribute VertexOutput", false);
+    shader.beginScope(Shader::Brackets::BRACES);
+    for (const Shader::Variable& vary : shader.getVaryings())
+    {
+        shader.addLine(vary.type + " " + vary.name + (!vary.semantic.empty() ? " : " + vary.semantic : ""));
+    }
+    shader.endScope(true);
+    shader.newLine();
+
+    shader.addComment("Data output by the pixel shader");
+    const SgOutputSocket* outputSocket = graph->getOutputSocket();
+    const string variable = _syntax->getVariableName(outputSocket);
+    shader.addLine("attribute PixelOutput", false);
+    shader.beginScope(Shader::Brackets::BRACES);
+    shader.addLine("vec4 " + variable);
+    shader.endScope(true);
     shader.newLine();
 
     // Emit all shader uniforms
-    for (const Shader::Uniform& uniform : shader.getUniforms())
+    for (const Shader::Variable& uniform : shader.getUniforms())
     {
-        emitUniform(
-            uniform.first,
-            uniform.second->type,
-            uniform.second->value,
-            shader
-        );
+        emitUniform(uniform, shader);
     }
+    shader.newLine();
 
+    // Emit common math functions
+    shader.addInclude("sx/impl/shadergen/source/glsl/math.glsl");
     shader.newLine();
 
     // Emit functions for lighting if needed
@@ -53,42 +189,9 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
         shader.newLine();
     }
 
-    shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/vertexshader.glsl");
-    shader.newLine();
-
-    shader.addComment("---------------------------------- Pixel shader ----------------------------------------\n");
-
-    emitTypeDefs(shader);
-
-    // Emit shader output
-    SgNodeGraph* graph = shader.getNodeGraph();
-    const SgOutputSocket* outputSocket = graph->getOutputSocket();
-    const string variable = _syntax->getVariableName(outputSocket);
-    shader.addComment("Data output by the pixel shader");
-    shader.addLine("attribute PixelOutput", false);
-    shader.beginScope(Shader::Brackets::BRACES);
-    shader.addLine("vec4 " + variable);
-    shader.endScope(true);
-    shader.newLine();
-
-    shader.addComment("Pixel shader");
-    shader.addStr("GLSLShader PS\n");
-    shader.beginScope(Shader::Brackets::BRACES);
-
-    shader.addInclude("sx/impl/shadergen/source/glsl/math.glsl");
-    shader.newLine();
-
-    shader.addComment("-------------------------------- Node Functions ------------------------------------\n");
-    emitFunctions(shader);
-
-    shader.addLine("void main()", false);
-    shader.beginScope(Shader::Brackets::BRACES);
-    emitShaderBody(shader);
-    emitFinalOutput(shader);
-    shader.endScope();
-
-    shader.endScope();
-    shader.newLine();
+    // Add code blocks from the vertex and pixel shader stages generated above
+    shader.addBlock(shader.getSourceCode(OgsFxShader::VERTEX_STAGE));
+    shader.addBlock(shader.getSourceCode(OgsFxShader::PIXEL_STAGE));
 
     if (shader.hasClassification(SgNode::Classification::TEXTURE))
     {
@@ -103,125 +206,56 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     return shaderPtr;
 }
 
-void OgsFxShaderGenerator::emitShaderBody(Shader &shader)
-{
-    // Shaders need special handling to get closures right
-    if (shader.getNodeGraph()->hasClassification(SgNode::Classification::SHADER))
-    {
-        // Handle all texturing nodes. These are inputs to any
-        // closure/shader nodes and need to be emitted first.
-        //
-        emitTextureNodes(shader);
-        shader.newLine();
-
-        // Emit function calls for all shader nodes
-        for (SgNode* node : shader.getNodeGraph()->getNodes())
-        {
-            // Emit only unconditional nodes, since any node within a conditional 
-            // branch is emitted by the conditional node itself
-            if (node->hasClassification(SgNode::Classification::SHADER) && !node->referencedConditionally())
-            {
-                shader.addFunctionCall(node, *this);
-            }
-        }
-    }
-    else
-    {
-        // No shader, just call parent method
-        GlslShaderGenerator::emitShaderBody(shader);
-    }
-}
-
 void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
 {
-    SgNodeGraph* graph = shader.getNodeGraph();
-    const SgOutputSocket* outputSocket = graph->getOutputSocket();
-    const string outputVariable = _syntax->getVariableName(outputSocket);
+    BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
+        shader.addLine("gl_Position = gWvpXf * Po");
+    END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
 
-    if (!outputSocket->connection)
-    {
+    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+        SgNodeGraph* graph = shader.getNodeGraph();
+        const SgOutputSocket* outputSocket = graph->getOutputSocket();
+        const string outputVariable = _syntax->getVariableName(outputSocket);
+
         // Early out for the rare case where the whole graph is just a single value
-        shader.addLine(outputVariable + " = " + (outputSocket->value ? _syntax->getValue(*outputSocket->value) : _syntax->getTypeDefault(outputSocket->type)));
-        return;
-    }
-
-    string finalResult = _syntax->getVariableName(outputSocket->connection);
-
-    if (shader.hasClassification(SgNode::Classification::SURFACE))
-    {
-        shader.addComment("TODO: How should we output transparency?");
-        shader.addLine("float outAlpha = 1.0 - maxv(" + finalResult + ".transparency)");
-        shader.addLine(outputVariable + " = vec4(" + finalResult + ".color, outAlpha)");
-    }
-    else
-    {
-        if (outputSocket->channels != EMPTY_STRING)
+        if (!outputSocket->connection)
         {
-            finalResult = _syntax->getSwizzledVariable(finalResult, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
-        }
-        if (outputSocket->type != "color4" && outputSocket->type != "vector4")
-        {
-            // Remap to vec4 type for final output
-            if (outputSocket->type == "float" || outputSocket->type == "boolean" || outputSocket->type == "integer")
+            string outputValue = outputSocket->value ? _syntax->getValue(*outputSocket->value) : _syntax->getTypeDefault(outputSocket->type);
+            if (!kQuadruples.count(outputSocket->type))
             {
-                finalResult = "vec4(" + finalResult + ", " + finalResult + ", " + finalResult + ", 1.0)";
-            }
-            else if (outputSocket->type == "vector2" || outputSocket->type == "color2")
-            {
-                finalResult = "vec4(" + finalResult + ", 0.0, 1.0)";
-            }
-            else if (outputSocket->type == "vector3" || outputSocket->type == "color3")
-            {
-                finalResult = "vec4(" + finalResult + ", 1.0)";
+                string finalOutput = outputVariable + "_tmp";
+                shader.addLine(_syntax->getTypeName(outputSocket->type) + " " + finalOutput + " = " + outputValue);
+                toVec4(outputSocket->type, finalOutput);
+                shader.addLine(outputVariable + " = " + finalOutput);
             }
             else
             {
-                // Can't understand other types. Just output black
-                finalResult = "vect4(0.0,0.0,0.0,1.0)";
+                shader.addLine(outputVariable + " = " + outputValue);
             }
+            return;
         }
-        shader.addLine(outputVariable + " = " + finalResult);
-    }
-}
 
-void OgsFxShaderGenerator::emitUniform(const string& name, const string& type, const ValuePtr& value, Shader& shader)
-{
-    // A file texture input needs special handling on GLSL
-    if (type == kFilename)
-    {
-        std::stringstream str;
-        str << "uniform texture2D " << name << "_texture : SourceTexture;\n";
-        str << "uniform sampler2D " << name << " = sampler_state\n";
-        str << "{\n    Texture = <" << name << "_texture>;\n};\n";
-        shader.addBlock(str.str());
-    }
-    else
-    {
-        shader.beginLine();
-        shader.addStr("uniform ");
-        ShaderGenerator::emitUniform(name, type, value, shader);
-        shader.endLine();
-    }
-}
+        string finalOutput = _syntax->getVariableName(outputSocket->connection);
 
-bool OgsFxShaderGenerator::shouldPublish(const ValueElement* port, string& publicName) const
-{
-    if (!ShaderGenerator::shouldPublish(port, publicName))
-    {
-        // File texture inputs must be published in GLSL
-        static const string kImage = "image";
-        if (port->getParent()->getCategory() == kImage &&
-            port->getType() == kFilename)
+        if (shader.hasClassification(SgNode::Classification::SURFACE))
         {
-            publicName = port->getParent()->getName() + "_" + port->getName();
-            return true;
+            shader.addComment("TODO: How should we output transparency?");
+            shader.addLine("float outAlpha = 1.0 - maxv(" + finalOutput + ".transparency)");
+            shader.addLine(outputVariable + " = vec4(" + finalOutput + ".color, outAlpha)");
         }
         else
         {
-            return false;
+            if (outputSocket->channels != EMPTY_STRING)
+            {
+                finalOutput = _syntax->getSwizzledVariable(finalOutput, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
+            }
+            if (!kQuadruples.count(outputSocket->type))
+            {
+                toVec4(outputSocket->type, finalOutput);
+            }
+            shader.addLine(outputVariable + " = " + finalOutput);
         }
-    }
-    return true;
+    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

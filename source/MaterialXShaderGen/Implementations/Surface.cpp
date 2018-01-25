@@ -1,5 +1,5 @@
 #include <MaterialXShaderGen/Implementations/Surface.h>
-#include <MaterialXShaderGen/Shader.h>
+#include <MaterialXShaderGen/HwShader.h>
 #include <MaterialXShaderGen/ShaderGenerators/GlslShaderGenerator.h>
 
 namespace MaterialX
@@ -41,6 +41,8 @@ const string& SurfaceOgsFx::getTarget() const
 
 void SurfaceOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
 {
+    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+
     GlslShaderGenerator& glslgen = static_cast<GlslShaderGenerator&>(shadergen);
 
     // Declare the output variable
@@ -125,6 +127,8 @@ void SurfaceOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
     shader.addLine(outTransparency + " = vec3(1.0)");
     shader.endScope();
     shader.newLine();
+
+    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
 bool SurfaceOgsFx::isTransparent(const SgNode& node) const
