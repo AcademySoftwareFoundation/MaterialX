@@ -149,7 +149,7 @@ void OslShaderGenerator::emitIncludes(Shader& shader)
 
     for (const string& file : includeFiles)
     {
-        FilePath path = ShaderGenerator::findSourceCode(file);
+        FilePath path = findSourceCode(file);
         shader.addLine("#include \"" + path.asString() + "\"", false);
     }
 

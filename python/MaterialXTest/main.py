@@ -23,12 +23,12 @@ _testValues = (1,
                'value')
 
 _fileDir = os.path.dirname(os.path.abspath(__file__))
-_libraryDir = os.path.join(_fileDir, '../../documents/Libraries/')
+_libraryDir = os.path.join(_fileDir, '../../documents/Libraries/stdlib')
 _exampleDir = os.path.join(_fileDir, '../../documents/Examples/')
 _searchPath = _libraryDir + ';' + _exampleDir
 
 _libraryFilenames = ('mx_stdlib_defs.mtlx',
-                     'mx_stdlib_impl_osl.mtlx')
+                     'impl/reference/mx_stdlib_impl_osl.mtlx')
 _exampleFilenames = ('CustomNode.mtlx',
                      'Looks.mtlx',
                      'MaterialGraphs.mtlx',

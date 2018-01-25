@@ -14,7 +14,8 @@ int main(int argc, char* const argv[])
     session.configData().showDurations = Catch::ShowDurations::Always;
 #endif
 #ifdef CATCH_PLATFORM_WINDOWS
-//    session.configData().outputFilename = "%debug";
+    // Use "%debug" to route only to Visual studio debugger.
+    session.configData().outputFilename = "";
 #endif
 
     int returnCode = session.applyCommandLine(argc, argv);

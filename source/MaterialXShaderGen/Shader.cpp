@@ -164,9 +164,9 @@ void Shader::addFunctionCall(SgNode* node, ShaderGenerator& shadergen)
     impl->emitFunctionCall(*node, shadergen, *this);
 }
 
-void Shader::addInclude(const string& file)
+void Shader::addInclude(const string& file, ShaderGenerator& shadergen)
 {
-    const string path = ShaderGenerator::findSourceCode(file);
+    const string path = shadergen.findSourceCode(file);
 
     Stage& s = stage();
     if (s.includes.find(path) == s.includes.end())

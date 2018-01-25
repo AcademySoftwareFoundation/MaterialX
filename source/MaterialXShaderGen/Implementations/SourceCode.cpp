@@ -45,7 +45,7 @@ void SourceCode::initialize(ElementPtr implementation, ShaderGenerator& shaderge
         _functionName = impl->getNodeDefString();
     }
 
-    if (!readFile(ShaderGenerator::findSourceCode(file), _functionSource))
+    if (!readFile(shadergen.findSourceCode(file), _functionSource))
     {
         throw ExceptionShaderGenError("Can't find source file '" + file + "' used by implementation '" + impl->getName() + "'");
     }
@@ -56,7 +56,7 @@ void SourceCode::initialize(ElementPtr implementation, ShaderGenerator& shaderge
     }
 }
 
-void SourceCode::emitFunctionDefinition(const SgNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader)
+void SourceCode::emitFunctionDefinition(const SgNode& /*node*/, ShaderGenerator& shadergen, Shader& shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
@@ -74,7 +74,7 @@ void SourceCode::emitFunctionDefinition(const SgNode& /*node*/, ShaderGenerator&
                 const size_t start = pos + kIncludePattern.size() + 1;
                 const size_t count = line.size() - start - 1;
                 const string filename = line.substr(start, count);
-                shader.addInclude(filename);
+                shader.addInclude(filename, shadergen);
             }
             else
             {

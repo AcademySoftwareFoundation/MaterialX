@@ -14,8 +14,6 @@
 namespace MaterialX
 {
 
-FileSearchPath ShaderGenerator::_sourceCodeSearchPath;
-
 ShaderGenerator::ShaderGenerator(SyntaxPtr syntax) 
     : _syntax(syntax) 
 {
