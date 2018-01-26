@@ -16,10 +16,10 @@ public:
     ShaderPtr generate(const string& shaderName, ElementPtr element) override;
 
     /// Emit function definitions for all nodes
-    void emitFunctions(Shader& shader) override;
+    void emitFunctionDefinitions(Shader& shader) override;
 
     /// Emit the shader body
-    void emitShaderBody(Shader& shader) override;
+    void emitFunctionCalls(Shader& shader) override;
 
 protected:
     /// Protected constructor.

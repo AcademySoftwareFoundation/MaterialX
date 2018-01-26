@@ -4,6 +4,7 @@
 
 #include <MaterialXShaderGen/Implementations/SourceCode.h>
 #include <MaterialXShaderGen/Shader.h>
+#include <MaterialXShaderGen/HwShader.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/Util.h>
 
@@ -57,6 +58,8 @@ void SourceCode::initialize(ElementPtr implementation, ShaderGenerator& shaderge
 
 void SourceCode::emitFunctionDefinition(const SgNode& /*node*/, ShaderGenerator& shadergen, Shader& shader)
 {
+    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+
     // Emit function definition for non-inlined functions
     if (!_inlined)
     {
@@ -81,10 +84,14 @@ void SourceCode::emitFunctionDefinition(const SgNode& /*node*/, ShaderGenerator&
 
         shader.newLine();
     }
+
+    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
 void SourceCode::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
 {
+    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+
     if (_inlined)
     {
         // An inline function call
@@ -165,6 +172,8 @@ void SourceCode::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen
         shader.addStr(")");
         shader.endLine();
     }
+
+    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

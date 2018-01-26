@@ -42,16 +42,16 @@ public:
     virtual void emitTypeDefs(Shader& shader);
 
     /// Emit function definitions for all nodes
-    virtual void emitFunctions(Shader& shader);
+    virtual void emitFunctionDefinitions(Shader& shader);
 
-    /// Emit the shader body
-    virtual void emitShaderBody(Shader& shader);
+    /// Emit all functon calls constructing the shader body
+    virtual void emitFunctionCalls(Shader& shader);
 
     /// Emit the final output expression
     virtual void emitFinalOutput(Shader& shader) const;
 
     /// Emit a shader uniform input variable
-    virtual void emitUniform(const string& name, const string& type, const ValuePtr& value, Shader& shader);
+    virtual void emitUniform(const Shader::Variable& uniform, Shader& shader);
 
     /// Emit the connected variable name for an input,
     /// or constant value if the port is not connected

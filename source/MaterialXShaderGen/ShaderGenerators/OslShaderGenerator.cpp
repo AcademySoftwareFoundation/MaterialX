@@ -114,26 +114,26 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
 
     emitIncludes(shader);
     emitTypeDefs(shader);
-    emitFunctions(shader);
+    emitFunctionDefinitions(shader);
 
     emitShaderSignature(shader);
 
     shader.beginScope(Shader::Brackets::BRACES);
-    emitShaderBody(shader);
+    emitFunctionCalls(shader);
     emitFinalOutput(shader);
     shader.endScope();
 
     return shaderPtr;
 }
 
-void OslShaderGenerator::emitFunctions(Shader& shader)
+void OslShaderGenerator::emitFunctionDefinitions(Shader& shader)
 {
     // Emit function for handling texture coords v-flip 
     // as needed by the v-direction set by the user
     shader.addBlock(shader.getRequestedVDirection() != getTargetVDirection() ? kVDirectionFlip : kVDirectionNoop);
 
     // Call parent to emit all other functions
-    ShaderGenerator::emitFunctions(shader);
+    ShaderGenerator::emitFunctionDefinitions(shader);
 }
 
 void OslShaderGenerator::emitIncludes(Shader& shader)
@@ -156,7 +156,7 @@ void OslShaderGenerator::emitIncludes(Shader& shader)
     shader.newLine();
 }
 
-void OslShaderGenerator::emitShaderBody(Shader &shader)
+void OslShaderGenerator::emitFunctionCalls(Shader &shader)
 {
     // Emit needed globals
     if (!shader.getNodeGraph()->hasClassification(SgNode::Classification::TEXTURE))
@@ -165,7 +165,7 @@ void OslShaderGenerator::emitShaderBody(Shader &shader)
     }
 
     // Call parent
-    ShaderGenerator::emitShaderBody(shader);
+    ShaderGenerator::emitFunctionCalls(shader);
 }
 
 void OslShaderGenerator::emitShaderSignature(Shader &shader)
@@ -193,15 +193,10 @@ void OslShaderGenerator::emitShaderSignature(Shader &shader)
     shader.beginScope(Shader::Brackets::PARENTHESES);
 
     // Emit all shader uniforms
-    for (const Shader::Uniform& uniform : shader.getUniforms())
+    for (const Shader::Variable& uniform : shader.getUniforms())
     {
         shader.beginLine();
-        emitUniform(
-            uniform.first,
-            uniform.second->type,
-            uniform.second->value,
-            shader
-        );
+        emitUniform(uniform, shader);
         shader.addStr(",");
         shader.endLine(false);
     }

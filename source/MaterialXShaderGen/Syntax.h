@@ -7,6 +7,7 @@
 #include <MaterialXCore/Node.h>
 
 #include <utility>
+#include <set>
 
 namespace MaterialX
 {
@@ -125,6 +126,11 @@ static const string kVDF("VDF");
 static const string kSURFACE("surfaceshader");
 static const string kVOLUME("volumeshader");
 static const string kDISPLACEMENT("displacementshader");
+
+static const std::set<string> kScalars = { kBoolean, kFloat, kInteger };
+static const std::set<string> kTuples  = { kVector2, kColor2 };
+static const std::set<string> kTriples = { kVector3, kColor3 };
+static const std::set<string> kQuadruples = { kVector4, kColor4 };
 
 } // namespace MaterialX
 
