@@ -6,6 +6,10 @@
 
 MaterialX is an open standard for transfer of rich material and look-development content between applications and renderers.  Originated at Lucasfilm in 2012, MaterialX has been used by Industrial Light & Magic (ILM) in feature films such as _Star Wars: The Force Awakens_ and real-time experiences such as _Trials on Tatooine_, and it remains the central material format for new ILM productions.
 
+### Disclaimer
+
+All code which resides in the MaterialXShaderGen module as well as the definition and implementation library structure under documents/ is work in progress. All code may be subject to change.
+
 ### Quick Start for Developers
 
 - Download the latest version of the [CMake](https://cmake.org/) build system.
@@ -35,8 +39,4 @@ The MaterialX repository consists of the following folders:
 
 ### Usage
 
-    All code which resides in the ShaderGen module as well as the definition and implementation library structure 
-    under documents/ is Autodesk work in progress. All code may be subject to change. 
-
-    Use of this code is subject to the terms of the Autodesk license agreement provided at the time of installation or download, 
-    or which otherwise accompanies this software in either electronic or hard copy form.
+Use of this code is subject to the terms of the Autodesk license agreement provided at the time of installation or download, or which otherwise accompanies this software in either electronic or hard copy form.
