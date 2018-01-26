@@ -36,32 +36,14 @@ using ConstValueElementPtr = shared_ptr<const class ValueElement>;
 /// A shared pointer to a StringResolver
 using StringResolverPtr = shared_ptr<class StringResolver>;
 
+/// A raw pointer to a const CopyOptions
+using ConstCopyOptionsPtr = const class CopyOptions*;
+
 /// A hash map from strings to elements
 using ElementMap = std::unordered_map<string, ElementPtr>;
 
 /// A standard function taking an ElementPtr and returning a boolean.
 using ElementPredicate = std::function<bool(ElementPtr)>;
-
-/// @class CopyOptions
-/// A set options for controlling the behavior of copying of elements.
-class CopyOptions
-{
-  public:
-    CopyOptions() :
-        skipDuplicateElements(false),
-        copySourceUris(false)
-    {
-    }
-    ~CopyOptions() { }
-
-    /// If true, elements at the same scope with duplicate names will be skipped;
-    /// otherwise, they will trigger an exception.  Defaults to false.
-    bool skipDuplicateElements;
-
-    /// If true, then source URIs from the given element
-    /// and its descendants are also copied.  Defaults to false.
-    bool copySourceUris;
-};
 
 /// @class Element
 /// The base class for MaterialX elements.
@@ -602,8 +584,8 @@ class Element : public enable_shared_from_this<Element>
     /// @param source The element from which content is copied.
     /// @param copyOptions An optional pointer to a CopyOptions object.
     ///    If provided, then the given options will affect the behavior of the
-    ///    copy function.  Defaults to a null pointer.    
-    void copyContentFrom(ConstElementPtr source, const CopyOptions* copyOptions = nullptr);
+    ///    copy function.  Defaults to a null pointer.
+    void copyContentFrom(ConstElementPtr source, ConstCopyOptionsPtr copyOptions = nullptr);
 
     /// Clear all attributes and descendants from this element.
     void clearContent();
@@ -1021,6 +1003,27 @@ class StringResolver
     string _geomPrefix;
     StringMap _filenameMap;
     StringMap _geomNameMap;
+};
+
+/// @class CopyOptions
+/// A set of options for controlling the behavior of element copy operations.
+class CopyOptions
+{
+  public:
+    CopyOptions() :
+        skipDuplicateElements(false),
+        copySourceUris(false)
+    {
+    }
+    ~CopyOptions() { }
+
+    /// If true, elements at the same scope with duplicate names will be skipped;
+    /// otherwise, they will trigger an exception.  Defaults to false.
+    bool skipDuplicateElements;
+
+    /// If true, then source URIs from the given element
+    /// and its descendants are also copied.  Defaults to false.
+    bool copySourceUris;
 };
 
 /// @class @ExceptionOrphanedElement
