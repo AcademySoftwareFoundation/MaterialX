@@ -56,6 +56,18 @@ void bindPyTraversal(py::module& mod)
                 return *it;
             });
 
+    py::class_<mx::InheritanceIterator>(mod, "InheritanceIterator")
+        .def("__iter__", [](mx::InheritanceIterator& it) -> mx::InheritanceIterator&
+            {
+                return it.begin(1);
+            })
+        .def("__next__", [](mx::InheritanceIterator& it)
+            {
+                if (++it == it.end())
+                    throw py::stop_iteration();
+                return *it;
+            });
+
     py::class_<mx::AncestorIterator>(mod, "AncestorIterator")
         .def("__iter__", [](mx::AncestorIterator& it) -> mx::AncestorIterator&
             {
