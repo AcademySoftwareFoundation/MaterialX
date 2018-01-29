@@ -11,6 +11,9 @@ namespace MaterialX
 class OslShaderGenerator : public ShaderGenerator
 {
 public:
+    /// Return a unique identifyer for the language used by this generator
+    const string& getLanguage() const override { return LANGUAGE; }
+
     /// Generate a shader starting from the given element, translating 
     /// the element and all dependencies upstream into shader code.
     ShaderPtr generate(const string& shaderName, ElementPtr element) override;
@@ -20,6 +23,9 @@ public:
 
     /// Emit the shader body
     void emitFunctionCalls(Shader& shader) override;
+
+    /// Unique identifyer for the osl language
+    static const string LANGUAGE;
 
 protected:
     /// Protected constructor.

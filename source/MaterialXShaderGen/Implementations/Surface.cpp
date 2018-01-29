@@ -5,38 +5,24 @@
 namespace MaterialX
 {
 
-namespace {
-
-    static const string kLanguage = "glsl";
-    static const string kTarget = "ogsfx";
-
-    static const string kLightLoopBegin =
+namespace
+{
+    static const string LIGHT_LOOP_BEGIN =
         "vec3 V = PS_IN.WorldView;\n"
         "const int numLights = min(ClampDynamicLights, 3);\n"
         "for (int ActiveLightIndex = 0; ActiveLightIndex < numLights; ++ActiveLightIndex)\n";
 
-    static const string kLightContribution =
+    static const string LIGHT_CONTRIBUTION =
         "vec3 LightPos = GetLightPos(ActiveLightIndex);\n"
         "vec3 LightDir = GetLightDir(ActiveLightIndex);\n"
         "vec3 LightVec = GetLightVectorFunction(ActiveLightIndex, LightPos, PS_IN.WorldPosition, LightDir);\n"
         "vec3 L = normalize(LightVec);\n"
         "vec3 LightContribution = LightContributionFunction(ActiveLightIndex, PS_IN.WorldPosition, LightVec);\n";
-
 }
 
 SgImplementationPtr SurfaceOgsFx::creator()
 {
     return std::make_shared<SurfaceOgsFx>();
-}
-
-const string& SurfaceOgsFx::getLanguage() const
-{ 
-    return kLanguage;
-}
-
-const string& SurfaceOgsFx::getTarget() const
-{
-    return kTarget;
 }
 
 void SurfaceOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
@@ -72,10 +58,10 @@ void SurfaceOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
     // Handle direct lighting
     //
     shader.addComment("Light loop");
-    shader.addBlock(kLightLoopBegin);
+    shader.addBlock(LIGHT_LOOP_BEGIN);
     shader.beginScope();
 
-    shader.addBlock(kLightContribution);
+    shader.addBlock(LIGHT_CONTRIBUTION);
     shader.newLine();
 
     shader.addComment("Calculate the BSDF response for this light source");

@@ -10,29 +10,32 @@
 
 namespace MaterialX
 {
+
 namespace
 {
-    const char* kVDirectionFlip =
+    const char* VDIRECTION_FLIP =
         "void vdirection(vec2 texcoord, out vec2 result)\n"
         "{\n"
         "   result.x = texcoord.x;\n"
         "   result.y = 1.0 - texcoord.y;\n"
         "}\n\n";
 
-    const char* kVDirectionNoop =
+    const char* VDIRECTION_NOOP =
         "void vdirection(vec2 texcoord, out vec2 result)\n"
         "{\n"
         "   result = texcoord;\n"
         "}\n\n";
 
     // Arguments used to represent BSDF direction vectors
-    Arguments kBsdfDirArguments =
+    Arguments BSDF_DIR_ARGUMENTS =
     {
         Argument("vec3", "L"), // BsdfDir::LIGHT_DIR
         Argument("vec3", "V"), // BsdfDir::VIEW_DIR
         Argument("vec3", "R")  // BsdfDir::REFL_DIR
     };
 }
+
+const string GlslShaderGenerator::LANGUAGE = "glsl";
 
 GlslShaderGenerator::GlslShaderGenerator()
     : ShaderGenerator(std::make_shared<GlslSyntax>())
@@ -126,7 +129,7 @@ void GlslShaderGenerator::emitFunctionDefinitions(Shader& shader)
     // Emit function for handling texture coords v-flip 
     // as needed by the v-direction set by the user
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-        shader.addBlock(shader.getRequestedVDirection() != getTargetVDirection() ? kVDirectionFlip : kVDirectionNoop);
+        shader.addBlock(shader.getRequestedVDirection() != getTargetVDirection() ? VDIRECTION_FLIP : VDIRECTION_NOOP);
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
     // Call parent to emit all other functions
@@ -173,7 +176,7 @@ void GlslShaderGenerator::emitFunctionCalls(Shader &shader)
 void GlslShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& shader)
 {
     // A file texture input needs special handling on GLSL
-    if (uniform.type == kFilename)
+    if (uniform.type == DataType::FILENAME)
     {
         std::stringstream str;
         str << "uniform texture2D " << uniform.name << "_texture : SourceTexture;\n";
@@ -197,9 +200,9 @@ bool GlslShaderGenerator::shouldPublish(const ValueElement* port, string& public
     if (!ShaderGenerator::shouldPublish(port, publicName))
     {
         // File texture inputs must be published in GLSL
-        static const string kImage = "image";
-        if (port->getParent()->getCategory() == kImage &&
-            port->getType() == kFilename)
+        static const string IMAGE_NODE_NAME = "image";
+        if (port->getParent()->getCategory() == IMAGE_NODE_NAME &&
+            port->getType() == DataType::FILENAME)
         {
             publicName = port->getParent()->getName() + "_" + port->getName();
             return true;
@@ -227,8 +230,8 @@ void GlslShaderGenerator::emitTextureNodes(Shader& shader)
 void GlslShaderGenerator::emitSurfaceBsdf(const SgNode& surfaceShaderNode, BsdfDir wi, BsdfDir wo, Shader& shader, string& bsdf)
 {
     // Set BSDF node arguments according to the given directions
-    _bsdfNodeArguments[0] = kBsdfDirArguments[size_t(wi)];
-    _bsdfNodeArguments[1] = kBsdfDirArguments[size_t(wo)];
+    _bsdfNodeArguments[0] = BSDF_DIR_ARGUMENTS[size_t(wi)];
+    _bsdfNodeArguments[1] = BSDF_DIR_ARGUMENTS[size_t(wo)];
 
     SgNode* last = nullptr;
 

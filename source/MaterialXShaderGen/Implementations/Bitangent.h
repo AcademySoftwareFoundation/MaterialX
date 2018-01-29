@@ -1,21 +1,19 @@
 #ifndef MATERIALX_BITANGENT_H
 #define MATERIALX_BITANGENT_H
 
-#include <MaterialXShaderGen/SgImplementation.h>
+#include <MaterialXShaderGen/Implementations/OgsFxImplementation.h>
 
 namespace MaterialX
 {
 
 /// Implementation of 'bitangent' node for OgsFx
-class BitangentOgsFx : public SgImplementation
+class BitangentOgsFx : public OgsFxImplementation
 {
 public:
     static SgImplementationPtr creator();
 
-    const string& getLanguage() const override;
-    const string& getTarget() const override;
-
     void registerInputs(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
+
     void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 };
 

@@ -1,15 +1,9 @@
 #include <MaterialXShaderGen/Implementations/AdskSurface.h>
+#include <MaterialXShaderGen/ShaderGenerators/OgsFxShaderGenerator.h>
 #include <MaterialXShaderGen/SgNode.h>
 
 namespace MaterialX
 {
-
-namespace {
-
-    static const string kLanguage = "glsl";
-    static const string kTarget = "ogsfx";
-
-}
 
 SgImplementationPtr AdskSurfaceOgsFx::creator()
 {
@@ -18,12 +12,12 @@ SgImplementationPtr AdskSurfaceOgsFx::creator()
 
 const string& AdskSurfaceOgsFx::getLanguage() const
 {
-    return kLanguage;
+    return OgsFxShaderGenerator::LANGUAGE;
 }
 
 const string& AdskSurfaceOgsFx::getTarget() const
 {
-    return kTarget;
+    return OgsFxShaderGenerator::TARGET;
 }
 
 bool AdskSurfaceOgsFx::isTransparent(const SgNode& node) const

@@ -183,11 +183,12 @@ void Shader::addInclude(const string& file, ShaderGenerator& shadergen)
 
 void Shader::indent()
 {
-    static const string kIndent = "    ";
+    // Use 4 spaces as default indentation
+    static const string INDENTATION = "    ";
     Stage& s = stage();
     for (int i = 0; i < s.indentations; ++i)
     {
-        s.code += kIndent;
+        s.code += INDENTATION;
     }
 }
 

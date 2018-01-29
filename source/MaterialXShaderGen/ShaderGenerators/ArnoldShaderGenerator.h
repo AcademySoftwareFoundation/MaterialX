@@ -9,10 +9,19 @@ namespace MaterialX
 /// An OSL shader generator targeting the Arnold renderer
 class ArnoldShaderGenerator : public OslShaderGenerator
 {
-    DECLARE_SHADER_GENERATOR(ArnoldShaderGenerator)
 public:
     ArnoldShaderGenerator() : OslShaderGenerator() {}
+
+    static ShaderGeneratorPtr creator() { return std::make_shared<ArnoldShaderGenerator>(); }
+
+    /// Return a unique identifyer for the target this generator is for
+    const string& getTarget() const override { return TARGET; }
+
+    /// Return the v-direction used by the target system
     Shader::VDirection getTargetVDirection() const override;
+
+    /// Unique identifyer for this generator target
+    static const string TARGET;
 };
 
 }

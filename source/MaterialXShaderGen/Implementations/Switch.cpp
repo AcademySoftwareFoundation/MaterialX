@@ -5,7 +5,7 @@
 namespace MaterialX
 {
 
-const vector<string> Switch::kInputNames = { "in1", "in2", "in3", "in4", "in5" };
+const vector<string> Switch::INPUT_NAMES = { "in1", "in2", "in3", "in4", "in5", "which" };
 
 SgImplementationPtr Switch::creator()
 {
@@ -21,13 +21,12 @@ void Switch::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Sh
     shadergen.emitOutput(node.getOutput(), true, shader);
     shader.endLine();
 
-    static const vector<string> inputNames = { "in1", "in2", "in3", "in4", "in5" };
-    const SgInput* which = node.getInput("which");
+    const SgInput* which = node.getInput(INPUT_NAMES[5]);
 
     // Process the five branches of the switch node
     for (int branch = 0; branch < 5; ++branch)
     {
-        const SgInput* input = node.getInput(inputNames[branch]);
+        const SgInput* input = node.getInput(INPUT_NAMES[branch]);
 
         shader.beginLine();
         if (branch > 0)

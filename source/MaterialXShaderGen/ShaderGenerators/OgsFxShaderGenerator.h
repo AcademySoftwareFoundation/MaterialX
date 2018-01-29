@@ -28,10 +28,13 @@ public:
 /// A GLSL shader generator targeting the OgsFX file format
 class OgsFxShaderGenerator : public GlslShaderGenerator
 {
-    DECLARE_SHADER_GENERATOR(OgsFxShaderGenerator)
 public:
-    /// Constructor
     OgsFxShaderGenerator();
+
+    static ShaderGeneratorPtr creator() { return std::make_shared<OgsFxShaderGenerator>(); }
+
+    /// Return a unique identifyer for the target this generator is for
+    const string& getTarget() const override { return TARGET; }
 
     /// Return the v-direction used by the target system
     Shader::VDirection getTargetVDirection() const override { return Shader::VDirection::DOWN; }
@@ -42,6 +45,9 @@ public:
 
     /// Emit the final output expression
     void emitFinalOutput(Shader& shader) const override;
+
+    /// Unique identifyer for this generator target
+    static const string TARGET;
 };
 
 }

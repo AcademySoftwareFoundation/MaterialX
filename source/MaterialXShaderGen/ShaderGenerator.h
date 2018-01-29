@@ -111,20 +111,4 @@ protected:
 
 } // namespace MaterialX
 
-  /// Macro declaring required members and methods for a shader generator
-#define DECLARE_SHADER_GENERATOR(T)                                           \
-    public:                                                                   \
-        static const string kLanguage;                                        \
-        static const string kTarget;                                          \
-        static ShaderGeneratorPtr creator() { return std::make_shared<T>(); } \
-        const string& getLanguage() const override { return kLanguage; }      \
-        const string& getTarget() const override { return kTarget; }          \
-
-  /// Macro defining required members and methods for a shader generator
-  /// LNG sets the language string identifier
-  /// TRG sets the target string identifier
-#define DEFINE_SHADER_GENERATOR(T, LNG, TRG) \
-    const string T::kLanguage = LNG;         \
-    const string T::kTarget = TRG;           \
-
 #endif

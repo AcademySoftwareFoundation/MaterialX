@@ -7,24 +7,26 @@
 #include <MaterialXShaderGen/Implementations/AdskSurface.h>
 #include <MaterialXShaderGen/Implementations/Surface.h>
 #include <MaterialXShaderGen/HwShader.h>
+#include <MaterialXShaderGen/Syntax.h>
 
 #include <sstream>
 
 namespace MaterialX
 {
 
-namespace {
+namespace
+{
     void toVec4(const string& type, string& variable)
     {
-        if (kScalars.count(type))
+        if (DataType::isScalar(type))
         {
             variable = "vec4(" + variable + ", " + variable + ", " + variable + ", 1.0)";
         }
-        else if (kTuples.count(type))
+        else if (DataType::isTuple(type))
         {
             variable = "vec4(" + variable + ", 0.0, 1.0)";
         }
-        else if (kTriples.count(type))
+        else if (DataType::isTriple(type))
         {
             variable = "vec4(" + variable + ", 1.0)";
         }
@@ -36,7 +38,7 @@ namespace {
     }
 }
 
-DEFINE_SHADER_GENERATOR(OgsFxShaderGenerator, "glsl", "ogsfx")
+const string OgsFxShaderGenerator::TARGET = "ogsfx";
 
 OgsFxShaderGenerator::OgsFxShaderGenerator()
     : GlslShaderGenerator()
@@ -221,7 +223,7 @@ void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
         if (!outputSocket->connection)
         {
             string outputValue = outputSocket->value ? _syntax->getValue(*outputSocket->value) : _syntax->getTypeDefault(outputSocket->type);
-            if (!kQuadruples.count(outputSocket->type))
+            if (!DataType::isQuadruple(outputSocket->type))
             {
                 string finalOutput = outputVariable + "_tmp";
                 shader.addLine(_syntax->getTypeName(outputSocket->type) + " " + finalOutput + " = " + outputValue);
@@ -249,7 +251,7 @@ void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
             {
                 finalOutput = _syntax->getSwizzledVariable(finalOutput, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
             }
-            if (!kQuadruples.count(outputSocket->type))
+            if (!DataType::isQuadruple(outputSocket->type))
             {
                 toVec4(outputSocket->type, finalOutput);
             }

@@ -108,29 +108,39 @@ protected:
     std::unordered_map<string, size_t> _valueConstructSyntaxByName;
 };
 
-/// Built in data types
-static const string kBoolean("boolean");
-static const string kInteger("integer");
-static const string kFloat("float");
-static const string kVector2("vector2");
-static const string kVector3("vector3");
-static const string kVector4("vector4");
-static const string kColor2("color2");
-static const string kColor3("color3");
-static const string kColor4("color4");
-static const string kString("string");
-static const string kFilename("filename");
-static const string kBSDF("BSDF");
-static const string kEDF("EDF");
-static const string kVDF("VDF");
-static const string kSURFACE("surfaceshader");
-static const string kVOLUME("volumeshader");
-static const string kDISPLACEMENT("displacementshader");
 
-static const std::set<string> kScalars = { kBoolean, kFloat, kInteger };
-static const std::set<string> kTuples  = { kVector2, kColor2 };
-static const std::set<string> kTriples = { kVector3, kColor3 };
-static const std::set<string> kQuadruples = { kVector4, kColor4 };
+/// Built in data types
+class DataType
+{
+public:
+    static const string BOOLEAN;
+    static const string INTEGER;
+    static const string FLOAT;
+    static const string VECTOR2;
+    static const string VECTOR3;
+    static const string VECTOR4;
+    static const string COLOR2;
+    static const string COLOR3;
+    static const string COLOR4;
+    static const string STRING;
+    static const string FILENAME;
+    static const string BSDF;
+    static const string EDF;
+    static const string VDF;
+    static const string SURFACE;
+    static const string VOLUME;
+    static const string DISPLACEMENT;
+
+    static const std::set<string> SCALARS;
+    static const std::set<string> TUPLES;
+    static const std::set<string> TRIPLES;
+    static const std::set<string> QUADRUPLES;
+
+    static bool isScalar(const string& type) { return SCALARS.count(type) > 0; }
+    static bool isTuple(const string& type) { return TUPLES.count(type) > 0; }
+    static bool isTriple(const string& type) { return TRIPLES.count(type) > 0; }
+    static bool isQuadruple(const string& type) { return QUADRUPLES.count(type) > 0; }
+};
 
 } // namespace MaterialX
 

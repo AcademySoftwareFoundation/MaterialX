@@ -211,19 +211,19 @@ SgNodePtr SgNode::creator(const string& name, const NodeDef& nodeDef, ShaderGene
 
     // Set node classification
     newNode->_classification = Classification::TEXTURE;
-    if (nodeDef.getType() == kSURFACE)
+    if (nodeDef.getType() == DataType::SURFACE)
     {
         newNode->_classification = Classification::SURFACE | Classification::SHADER;
     }
-    else if (nodeDef.getType() == kBSDF)
+    else if (nodeDef.getType() == DataType::BSDF)
     {
         newNode->_classification = Classification::BSDF | Classification::CLOSURE;
     }
-    else if (nodeDef.getType() == kEDF)
+    else if (nodeDef.getType() == DataType::EDF)
     {
         newNode->_classification = Classification::EDF | Classification::CLOSURE;
     }
-    else if (nodeDef.getType() == kVDF)
+    else if (nodeDef.getType() == DataType::VDF)
     {
         newNode->_classification = Classification::VDF | Classification::CLOSURE;
     }

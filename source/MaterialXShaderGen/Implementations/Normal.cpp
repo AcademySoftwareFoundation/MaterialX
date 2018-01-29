@@ -6,45 +6,24 @@
 namespace MaterialX
 {
 
-namespace
-{
-    static const string kLanguage = "glsl";
-    static const string kTarget = "ogsfx";
-    static const string kSpace  = "space";
-    static const string kWorld  = "world";
-    static const string kObject = "object";
-    static const string kModel  = "model";
-}
-
 SgImplementationPtr NormalOgsFx::creator()
 {
     return std::make_shared<NormalOgsFx>();
-}
-
-const string& NormalOgsFx::getLanguage() const
-{
-    return kLanguage;
-}
-
-const string& NormalOgsFx::getTarget() const
-{
-    return kTarget;
 }
 
 void NormalOgsFx::registerInputs(const SgNode& node, ShaderGenerator& /*shadergen*/, Shader& shader)
 {
     shader.registerAttribute(Shader::Variable("vec3", "inNormal", "NORMAL"));
 
-    const SgInput* spaceInput = node.getInput(kSpace);
+    const SgInput* spaceInput = node.getInput(SPACE);
     string space = spaceInput ? spaceInput->value->getValueString() : "";
-    if (space == kWorld)
+    if (space == WORLD)
     {
         shader.registerUniform(Shader::Variable("mat4", "gWorldITXf", "WorldInverseTranspose"));
         shader.registerVarying(Shader::Variable("vec3", "WorldNormal", "NORMAL"));
     }
-    else if (space == kModel)
+    else if (space == MODEL)
     {
-        // TODO: add uniform for model space transformation matrix
         shader.registerVarying(Shader::Variable("vec3", "ModelNormal", "NORMAL"));
     }
     else
@@ -58,9 +37,9 @@ void NormalOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
-        const SgInput* spaceInput = node.getInput(kSpace);
+        const SgInput* spaceInput = node.getInput(SPACE);
         string space = spaceInput ? spaceInput->value->getValueString() : "";
-        if (space == kWorld)
+        if (space == WORLD)
         {
             if (!shader.isCalculated("WorldNormal"))
             {
@@ -73,7 +52,7 @@ void NormalOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
                 shader.endScope();
             }
         }
-        else if (space == kModel)
+        else if (space == MODEL)
         {
             if (!shader.isCalculated("ModelNormal"))
             {
@@ -95,13 +74,13 @@ void NormalOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
         shader.beginLine();
         shadergen.emitOutput(node.getOutput(), true, shader);
 
-        const SgInput* spaceInput = node.getInput(kSpace);
+        const SgInput* spaceInput = node.getInput(SPACE);
         string space = spaceInput ? spaceInput->value->getValueString() : "";
-        if (space == kWorld)
+        if (space == WORLD)
         {
             shader.addStr(" = PS_IN.WorldNormal");
         }
-        else if (space == kModel)
+        else if (space == MODEL)
         {
             shader.addStr(" = PS_IN.ModelNormal");
         }

@@ -6,7 +6,7 @@
 namespace MaterialX
 {
 
-const vector<string> Compare::kInputNames = { "intest", "cutoff", "in1", "in2" };
+const vector<string> Compare::INPUT_NAMES = { "intest", "cutoff", "in1", "in2" };
 
 SgImplementationPtr Compare::creator()
 {
@@ -22,13 +22,13 @@ void Compare::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, S
     shadergen.emitOutput(node.getOutput(), true, shader);
     shader.endLine();
 
-    const SgInput* intest = node.getInput("intest");
-    const SgInput* cutoff = node.getInput("cutoff");
+    const SgInput* intest = node.getInput(INPUT_NAMES[0]);
+    const SgInput* cutoff = node.getInput(INPUT_NAMES[1]);
 
     // Process the if and else branches of the conditional
     for (int branch = 2; branch <= 3; ++branch)
     {
-        const SgInput* input = node.getInput(kInputNames[branch]);
+        const SgInput* input = node.getInput(INPUT_NAMES[branch]);
 
         if (branch > 2)
         {
