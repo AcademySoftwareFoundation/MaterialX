@@ -14,8 +14,9 @@ TEST_CASE("Look", "[look]")
     mx::DocumentPtr doc = mx::createDocument();
 
     // Create a material and look.
-    mx::MaterialPtr material = doc->addMaterial("material1");
-    mx::LookPtr look = doc->addLook("look1");
+    mx::MaterialPtr material = doc->addMaterial();
+    mx::ShaderRefPtr shaderRef = material->addShaderRef("shaderRef1", "simpleSrf");
+    mx::LookPtr look = doc->addLook();
     REQUIRE(doc->getMaterials().size() == 1);
     REQUIRE(doc->getLooks().size() == 1);
 
@@ -64,8 +65,19 @@ TEST_CASE("Look", "[look]")
     // Create an inherited look.
     mx::LookPtr look2 = doc->addLook();
     look2->setInheritsFrom(look);
-    REQUIRE(look2->getInheritsFrom() == look);
+    REQUIRE(look2->getActiveMaterialAssigns().size() == 2);
+    REQUIRE(look2->getActivePropertySetAssigns().size() == 1);
+    REQUIRE(look2->getActiveVisibilities().size() == 1);
+
+    // Create and detect an inheritance cycle.
+    look->setInheritsFrom(look2);
+    REQUIRE(!doc->validate());
+    look->setInheritsFrom(nullptr);
+    REQUIRE(doc->validate());
+
+    // Disconnect the inherited look.
     look2->setInheritsFrom(nullptr);
-    REQUIRE(look2->getInheritsFrom() == nullptr);
-    REQUIRE(look2->getLookInherits().empty());
+    REQUIRE(look2->getActiveMaterialAssigns().empty());
+    REQUIRE(look2->getActivePropertySetAssigns().empty());
+    REQUIRE(look2->getActiveVisibilities().empty());
 }

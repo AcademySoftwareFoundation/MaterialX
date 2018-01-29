@@ -88,7 +88,7 @@ class Edge
 class TreeIterator
 {
   public:
-    TreeIterator(ElementPtr elem):
+    explicit TreeIterator(ElementPtr elem):
         _elem(elem),
         _prune(false),
         _holdCount(0)
@@ -191,7 +191,7 @@ class TreeIterator
 class GraphIterator
 {
   public:
-    GraphIterator(ElementPtr elem, ConstMaterialPtr material = nullptr):
+    explicit GraphIterator(ElementPtr elem, ConstMaterialPtr material = nullptr):
         _upstreamElem(elem),
         _material(material),
         _prune(false),
@@ -329,6 +329,62 @@ class GraphIterator
     size_t _holdCount;
 };
 
+/// @class @InheritanceIterator
+/// An iterator object representing the current state of an inheritance traversal.
+///
+/// @sa Element::traverseInheritance
+class InheritanceIterator
+{
+  public:
+    explicit InheritanceIterator(ElementPtr elem) :
+        _elem(elem),
+        _holdCount(0)
+    {
+        _pathElems.insert(elem);
+    }
+    ~InheritanceIterator() { }
+
+  private:
+    using ElementSet = std::set<ElementPtr>;
+
+  public:
+    bool operator==(const InheritanceIterator& rhs) const
+    {
+        return _elem == rhs._elem;
+    }
+    bool operator!=(const InheritanceIterator& rhs) const
+    {
+        return !(*this == rhs);
+    }
+
+    /// Dereference this iterator, returning the current element in the
+    /// traversal.
+    ElementPtr operator*() const
+    {
+        return _elem;
+    }
+
+    /// Iterate to the next element in the traversal.
+    /// @throws ExceptionFoundCycle if a cycle is encountered.
+    InheritanceIterator& operator++();
+
+    /// Interpret this object as an iteration range, and return its begin
+    /// iterator.
+    InheritanceIterator& begin(size_t holdCount = 0)
+    {
+        _holdCount = holdCount;
+        return *this;
+    }
+
+    /// Return the sentinel end iterator for this class.
+    static const InheritanceIterator& end();
+
+  private:
+    ElementPtr _elem;
+    ElementSet _pathElems;
+    size_t _holdCount;
+};
+
 /// @class @AncestorIterator
 /// An iterator object representing the current state of an ancestor traversal.
 ///
@@ -336,7 +392,7 @@ class GraphIterator
 class AncestorIterator
 {
   public:
-    AncestorIterator(ConstElementPtr elem) :
+    explicit AncestorIterator(ConstElementPtr elem) :
         _elem(elem),
         _holdCount(0)
     {
@@ -379,7 +435,7 @@ class AncestorIterator
 };
 
 /// @class @ExceptionFoundCycle
-/// An exception that is thrown when a graph traversal call encounters a cycle.
+/// An exception that is thrown when a traversal call encounters a cycle.
 class ExceptionFoundCycle : public Exception
 {
   public:
@@ -390,6 +446,7 @@ extern const Edge NULL_EDGE;
 
 extern const TreeIterator NULL_TREE_ITERATOR;
 extern const GraphIterator NULL_GRAPH_ITERATOR;
+extern const InheritanceIterator NULL_INHERITANCE_ITERATOR;
 extern const AncestorIterator NULL_ANCESTOR_ITERATOR;
 
 } // namespace MaterialX
