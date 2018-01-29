@@ -6,9 +6,6 @@
 #include <MaterialXCore/Element.h>
 
 #include <MaterialXCore/Document.h>
-#include <MaterialXCore/Geom.h>
-#include <MaterialXCore/Look.h>
-#include <MaterialXCore/Material.h>
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Util.h>
 
@@ -277,6 +274,19 @@ ConstElementPtr Element::getRoot() const
     return root;
 }
 
+bool Element::hasInheritanceCycle() const
+{
+    try
+    {
+        for (ElementPtr elem : traverseInheritance()) { }
+    }
+    catch (ExceptionFoundCycle&)
+    {
+        return true;
+    }
+    return false;
+}
+
 TreeIterator Element::traverseTree() const
 {
     return TreeIterator(getSelfNonConst());
@@ -295,6 +305,11 @@ Edge Element::getUpstreamEdge(ConstMaterialPtr, size_t) const
 ElementPtr Element::getUpstreamElement(ConstMaterialPtr material, size_t index) const
 {
     return getUpstreamEdge(material, index).getUpstreamElement();
+}
+
+InheritanceIterator Element::traverseInheritance() const
+{
+    return InheritanceIterator(getSelfNonConst());
 }
 
 AncestorIterator Element::traverseAncestors() const
@@ -351,6 +366,7 @@ bool Element::validate(string* message) const
     {
         res = child->validate(message) && res;
     }
+    validateRequire(!hasInheritanceCycle(), res, message, "Cycle in element inheritance chain");
     return res;
 }
 

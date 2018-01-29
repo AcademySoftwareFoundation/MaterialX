@@ -89,7 +89,7 @@ Edge Parameter::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
         if (nodeDef)
         {
             // Apply BindParam elements to the Parameter.
-            for (ShaderRefPtr shaderRef : material->getShaderRefs())
+            for (ShaderRefPtr shaderRef : material->getActiveShaderRefs())
             {
                 if (shaderRef->getNodeDef() == nodeDef)
                 {
@@ -131,7 +131,7 @@ Edge Input::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
             if (material)
             {
                 // Apply BindInput elements to the Input.
-                for (ShaderRefPtr shaderRef : material->getShaderRefs())
+                for (ShaderRefPtr shaderRef : material->getActiveShaderRefs())
                 {
                     if (shaderRef->getNodeDef() == nodeDef)
                     {
