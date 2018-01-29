@@ -6,43 +6,23 @@
 namespace MaterialX
 {
 
-namespace
-{
-    static const string kLanguage = "glsl";
-    static const string kTarget = "ogsfx";
-    static const string kSpace  = "space";
-    static const string kWorld  = "world";
-    static const string kObject = "object";
-    static const string kModel  = "model";
-}
-
 SgImplementationPtr TangentOgsFx::creator()
 {
     return std::make_shared<TangentOgsFx>();
-}
-
-const string& TangentOgsFx::getLanguage() const
-{
-    return kLanguage;
-}
-
-const string& TangentOgsFx::getTarget() const
-{
-    return kTarget;
 }
 
 void TangentOgsFx::registerInputs(const SgNode& node, ShaderGenerator& /*shadergen*/, Shader& shader)
 {
     shader.registerAttribute(Shader::Variable("vec3", "inTangent", "TANGENT"));
 
-    const SgInput* spaceInput = node.getInput(kSpace);
+    const SgInput* spaceInput = node.getInput(SPACE);
     string space = spaceInput ? spaceInput->value->getValueString() : "";
-    if (space == kWorld)
+    if (space == WORLD)
     {
         shader.registerUniform(Shader::Variable("mat4", "gWorldITXf", "WorldInverseTranspose"));
         shader.registerVarying(Shader::Variable("vec3", "WorldTangent", "TANGENT"));
     }
-    else if (space == kModel)
+    else if (space == MODEL)
     {
         shader.registerVarying(Shader::Variable("vec3", "ModelTangent", "TANGENT"));
     }
@@ -57,9 +37,9 @@ void TangentOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
-        const SgInput* spaceInput = node.getInput(kSpace);
+        const SgInput* spaceInput = node.getInput(SPACE);
         string space = spaceInput ? spaceInput->value->getValueString() : "";
-        if (space == kWorld)
+        if (space == WORLD)
         {
             if (!shader.isCalculated("WorldTangent"))
             {
@@ -67,7 +47,7 @@ void TangentOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
                 shader.addLine("VS_OUT.WorldTangent = normalize((gWorldITXf * vec4(inTangent,0)).xyz)");
             }
         }
-        else if (space == kModel)
+        else if (space == MODEL)
         {
             if (!shader.isCalculated("ModelTangent"))
             {
@@ -89,13 +69,13 @@ void TangentOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
         shader.beginLine();
         shadergen.emitOutput(node.getOutput(), true, shader);
 
-        const SgInput* spaceInput = node.getInput(kSpace);
+        const SgInput* spaceInput = node.getInput(SPACE);
         string space = spaceInput ? spaceInput->value->getValueString() : "";
-        if (space == kWorld)
+        if (space == WORLD)
         {
             shader.addStr(" = PS_IN.WorldTangent");
         }
-        else if (space == kModel)
+        else if (space == MODEL)
         {
             shader.addStr(" = PS_IN.ModelTangent");
         }

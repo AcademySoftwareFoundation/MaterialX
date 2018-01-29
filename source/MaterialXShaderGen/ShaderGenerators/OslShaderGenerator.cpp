@@ -5,24 +5,26 @@
 #include <MaterialXShaderGen/Implementations/Switch.h>
 #include <MaterialXShaderGen/Implementations/Compare.h>
 
+namespace MaterialX
+{
+
 namespace
 {
-    const char* kVDirectionFlip =
+    const char* VDIRECTION_FLIP =
         "void vdirection(vector2 texcoord, output vector2 result)\n"
         "{\n"
         "   result.x = texcoord.x;\n"
         "   result.y = 1.0 - texcoord.y;\n"
         "}\n\n";
 
-    const char* kVDirectionNoop =
+    const char* VDIRECTION_NOOP =
         "void vdirection(vector2 texcoord, output vector2 result)\n"
         "{\n"
         "   result = texcoord;\n"
         "}\n\n";
 }
 
-namespace MaterialX
-{
+const string OslShaderGenerator::LANGUAGE = "osl";
 
 OslShaderGenerator::OslShaderGenerator()
     : ShaderGenerator(std::make_shared<OslSyntax>())
@@ -130,7 +132,7 @@ void OslShaderGenerator::emitFunctionDefinitions(Shader& shader)
 {
     // Emit function for handling texture coords v-flip 
     // as needed by the v-direction set by the user
-    shader.addBlock(shader.getRequestedVDirection() != getTargetVDirection() ? kVDirectionFlip : kVDirectionNoop);
+    shader.addBlock(shader.getRequestedVDirection() != getTargetVDirection() ? VDIRECTION_FLIP : VDIRECTION_NOOP);
 
     // Call parent to emit all other functions
     ShaderGenerator::emitFunctionDefinitions(shader);

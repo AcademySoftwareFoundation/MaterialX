@@ -3,7 +3,7 @@
 namespace MaterialX
 {
 
-DEFINE_SHADER_GENERATOR(ArnoldShaderGenerator, "osl", "arnold")
+const string ArnoldShaderGenerator::TARGET = "arnold";
 
 Shader::VDirection ArnoldShaderGenerator::getTargetVDirection() const
 {

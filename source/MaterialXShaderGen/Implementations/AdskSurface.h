@@ -1,5 +1,5 @@
-#ifndef MATERIALX_ADSK_SURFACE_H
-#define MATERIALX_ADSK_SURFACE_H
+#ifndef MATERIALX_ADSKSURFACE_H
+#define MATERIALX_ADSKSURFACE_H
 
 #include <MaterialXShaderGen/Implementations/SourceCode.h>
 
@@ -13,6 +13,7 @@ class AdskSurfaceOgsFx : public SourceCode
     static SgImplementationPtr creator();
 
     const string& getLanguage() const override;
+
     const string& getTarget() const override;
 
     bool isTransparent(const SgNode& node) const override;

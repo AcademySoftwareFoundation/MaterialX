@@ -1,5 +1,5 @@
-#ifndef MATERIALX_GLSL_CODEGENERATOR_H
-#define MATERIALX_GLSL_CODEGENERATOR_H
+#ifndef MATERIALX_GLSLSHADERGENERATOR_H
+#define MATERIALX_GLSLSHADERGENERATOR_H
 
 #include <MaterialXShaderGen/ShaderGenerator.h>
 
@@ -19,6 +19,9 @@ public:
     };
 
 public:
+    /// Return a unique identifyer for the language used by this generator
+    const string& getLanguage() const override { return LANGUAGE; }
+
     /// Emit function definitions for all nodes
     void emitFunctionDefinitions(Shader& shader) override;
 
@@ -45,6 +48,9 @@ public:
     /// Emit code for calculating the emission
     /// The output emission will hold the variable keeping the result.
     virtual void emitSurfaceEmission(const SgNode& surfaceShaderNode, Shader& shader, string& emission);
+
+    /// Unique identifyer for the glsl language
+    static const string LANGUAGE;
 
 protected:
     /// Protected constructor.

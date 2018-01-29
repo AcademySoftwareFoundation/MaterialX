@@ -14,7 +14,7 @@ GlslSyntax::GlslSyntax()
 
     addTypeSyntax
     (
-        kFloat, 
+        DataType::FLOAT,
         TypeSyntax
         (
             "float",     // type name
@@ -27,7 +27,7 @@ GlslSyntax::GlslSyntax()
 
     addTypeSyntax
     (
-        kInteger, 
+        DataType::INTEGER,
         TypeSyntax
         (
             "int", 
@@ -40,7 +40,7 @@ GlslSyntax::GlslSyntax()
 
     addTypeSyntax
     (
-        kBoolean, 
+        DataType::BOOLEAN,
         TypeSyntax
         (
             "bool", 
@@ -53,7 +53,7 @@ GlslSyntax::GlslSyntax()
 
     addTypeSyntax
     (
-        kColor2, 
+        DataType::COLOR2,
         TypeSyntax
         (
             "vec2", 
@@ -66,7 +66,7 @@ GlslSyntax::GlslSyntax()
 
     addTypeSyntax
     (
-        kColor3, 
+        DataType::COLOR3,
         TypeSyntax
         (
             "vec3", 
@@ -79,7 +79,7 @@ GlslSyntax::GlslSyntax()
 
     addTypeSyntax
     (
-        kColor4, 
+        DataType::COLOR4,
         TypeSyntax
         (
             "vec4",
@@ -92,7 +92,7 @@ GlslSyntax::GlslSyntax()
 
     addTypeSyntax
     (
-        kVector2, 
+        DataType::VECTOR2,
         TypeSyntax
         (
             "vec2",
@@ -105,7 +105,7 @@ GlslSyntax::GlslSyntax()
 
     addTypeSyntax
     (
-        kVector3, 
+        DataType::VECTOR3,
         TypeSyntax
         (
             "vec3",
@@ -118,7 +118,7 @@ GlslSyntax::GlslSyntax()
 
     addTypeSyntax
     (
-        kVector4, 
+        DataType::VECTOR4,
         TypeSyntax
         (
             "vec4",
@@ -131,7 +131,7 @@ GlslSyntax::GlslSyntax()
 
     addTypeSyntax
     (
-        kString, 
+        DataType::STRING,
         TypeSyntax
         (
             "int", 
@@ -144,7 +144,7 @@ GlslSyntax::GlslSyntax()
 
     addTypeSyntax
     (
-        kFilename, 
+        DataType::FILENAME,
         TypeSyntax
         (
             "sampler2D", 
@@ -157,7 +157,7 @@ GlslSyntax::GlslSyntax()
 
     addTypeSyntax
     (
-        kBSDF, 
+        DataType::BSDF,
         TypeSyntax
         (
             "BSDF",
@@ -170,7 +170,7 @@ GlslSyntax::GlslSyntax()
 
     addTypeSyntax
     (
-        kEDF, 
+        DataType::EDF,
         TypeSyntax
         (
             "EDF",
@@ -183,7 +183,7 @@ GlslSyntax::GlslSyntax()
 
     addTypeSyntax
     (
-        kVDF, 
+        DataType::VDF,
         TypeSyntax
         (
             "VDF",
@@ -196,7 +196,7 @@ GlslSyntax::GlslSyntax()
 
     addTypeSyntax
     (
-        kSURFACE,
+        DataType::SURFACE,
         TypeSyntax
         (
             "surfaceshader",
@@ -209,7 +209,7 @@ GlslSyntax::GlslSyntax()
 
     addTypeSyntax
     (
-        kVOLUME, 
+        DataType::VOLUME,
         TypeSyntax
         (
             "volumeshader", 
@@ -222,7 +222,7 @@ GlslSyntax::GlslSyntax()
 
     addTypeSyntax
     (
-        kDISPLACEMENT, 
+        DataType::DISPLACEMENT,
         TypeSyntax
         (
             "displacementshader", 
@@ -239,7 +239,7 @@ GlslSyntax::GlslSyntax()
     //
 
     addValueConstructSyntax(
-        kColor2, 
+        DataType::COLOR2,
         ValueConstructSyntax(
             "vec2(", ")", // Value constructor syntax
             "{", "}",     // Value constructor syntax in a shader param initialization context
@@ -249,7 +249,7 @@ GlslSyntax::GlslSyntax()
 
     addValueConstructSyntax
     (
-        kColor3, 
+        DataType::COLOR3,
         ValueConstructSyntax
         (
             "vec3(", ")",
@@ -260,7 +260,7 @@ GlslSyntax::GlslSyntax()
 
     addValueConstructSyntax
     (
-        kColor4,
+        DataType::COLOR4,
         ValueConstructSyntax
         (
             "vec4(", ")",
@@ -270,7 +270,7 @@ GlslSyntax::GlslSyntax()
     );
 
     addValueConstructSyntax(
-        kVector2, 
+        DataType::VECTOR2,
         ValueConstructSyntax
         (
             "vec2(", ")",
@@ -281,7 +281,7 @@ GlslSyntax::GlslSyntax()
 
     addValueConstructSyntax
     (
-        kVector3, 
+        DataType::VECTOR3,
         ValueConstructSyntax
         (
             "vec3(", ")",
@@ -292,7 +292,7 @@ GlslSyntax::GlslSyntax()
 
     addValueConstructSyntax
     (
-        kVector4, 
+        DataType::VECTOR4,
         ValueConstructSyntax
         (
             "vec4(", ")",

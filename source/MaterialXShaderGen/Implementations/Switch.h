@@ -15,7 +15,7 @@ public:
     void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 
 public:
-    static const vector<string> kInputNames;
+    static const vector<string> INPUT_NAMES;
 };
 
 } // namespace MaterialX

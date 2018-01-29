@@ -6,42 +6,23 @@
 namespace MaterialX
 {
 
-namespace
-{
-    static const string kLanguage = "glsl";
-    static const string kTarget = "ogsfx";
-    static const string kSpace  = "space";
-    static const string kWorld  = "world";
-    static const string kObject = "object";
-    static const string kModel  = "model";
-}
-
 SgImplementationPtr PositionOgsFx::creator()
 {
     return std::make_shared<PositionOgsFx>();
 }
 
-const string& PositionOgsFx::getLanguage() const
-{
-    return kLanguage;
-}
-
-const string& PositionOgsFx::getTarget() const
-{
-    return kTarget;
-}
-
 void PositionOgsFx::registerInputs(const SgNode& node, ShaderGenerator& /*shadergen*/, Shader& shader)
 {
     shader.registerAttribute(Shader::Variable("vec3", "inPosition", "POSITION"));
+    shader.registerUniform(Shader::Variable("mat4", "gWorldXf", "World"));
 
-    const SgInput* spaceInput = node.getInput(kSpace);
+    const SgInput* spaceInput = node.getInput(SPACE);
     string space = spaceInput ? spaceInput->value->getValueString() : "";
-    if (space == kWorld)
+    if (space == WORLD)
     {
         shader.registerVarying(Shader::Variable("vec3", "WorldPosition", "POSITION"));
     }
-    else if (space == kModel)
+    else if (space == MODEL)
     {
         shader.registerVarying(Shader::Variable("vec3", "ModelPosition", "POSITION"));
     }
@@ -56,9 +37,9 @@ void PositionOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shader
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
-        const SgInput* spaceInput = node.getInput(kSpace);
+        const SgInput* spaceInput = node.getInput(SPACE);
         string space = spaceInput ? spaceInput->value->getValueString() : "";
-        if (space == kWorld)
+        if (space == WORLD)
         {
             if (!shader.isCalculated("WorldPosition"))
             {
@@ -66,7 +47,7 @@ void PositionOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shader
                 shader.addLine("VS_OUT.WorldPosition = Pw.xyz");
             }
         }
-        else if (space == kModel)
+        else if (space == MODEL)
         {
             if (!shader.isCalculated("ModelPosition"))
             {
@@ -88,13 +69,13 @@ void PositionOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shader
         shader.beginLine();
         shadergen.emitOutput(node.getOutput(), true, shader);
 
-        const SgInput* spaceInput = node.getInput(kSpace);
+        const SgInput* spaceInput = node.getInput(SPACE);
         string space = spaceInput ? spaceInput->value->getValueString() : "";
-        if (space == kWorld)
+        if (space == WORLD)
         {
             shader.addStr(" = PS_IN.WorldPosition");
         }
-        else if (space == kModel)
+        else if (space == MODEL)
         {
             shader.addStr(" = PS_IN.ModelPosition");
         }

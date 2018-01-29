@@ -1,7 +1,7 @@
 #ifndef MATERIALX_SURFACE_H
 #define MATERIALX_SURFACE_H
 
-#include <MaterialXShaderGen/SgImplementation.h>
+#include <MaterialXShaderGen/Implementations/OgsFxImplementation.h>
 
 namespace MaterialX
 {
@@ -11,9 +11,6 @@ class SurfaceOgsFx : public SgImplementation
 {
   public:
     static SgImplementationPtr creator();
-
-    const string& getLanguage() const override;
-    const string& getTarget() const override;
 
     void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 

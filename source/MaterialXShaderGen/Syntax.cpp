@@ -149,4 +149,27 @@ namespace MaterialX
 
         return result;
     }
+
+    const string DataType::BOOLEAN = "boolean";
+    const string DataType::INTEGER = "integer";
+    const string DataType::FLOAT = "float";
+    const string DataType::VECTOR2 = "vector2";
+    const string DataType::VECTOR3 = "vector3";
+    const string DataType::VECTOR4 = "vector4";
+    const string DataType::COLOR2 = "color2";
+    const string DataType::COLOR3 = "color3";
+    const string DataType::COLOR4 = "color4";
+    const string DataType::STRING = "string";
+    const string DataType::FILENAME = "filename";
+    const string DataType::BSDF = "BSDF";
+    const string DataType::EDF = "EDF";
+    const string DataType::VDF = "VDF";
+    const string DataType::SURFACE = "surfaceshader";
+    const string DataType::VOLUME = "volumeshader";
+    const string DataType::DISPLACEMENT = "displacementshader";
+
+    const std::set<string> DataType::SCALARS = { DataType::BOOLEAN, DataType::FLOAT, DataType::INTEGER };
+    const std::set<string> DataType::TUPLES = { DataType::VECTOR2, DataType::COLOR2 };
+    const std::set<string> DataType::TRIPLES = { DataType::VECTOR3, DataType::COLOR3 };
+    const std::set<string> DataType::QUADRUPLES = { DataType::VECTOR4, DataType::COLOR4 };
 }

@@ -14,7 +14,7 @@ OslSyntax::OslSyntax()
 
     addTypeSyntax
     (
-        kFloat, 
+        DataType::FLOAT,
         TypeSyntax
         (
             "float",        // type name
@@ -27,7 +27,7 @@ OslSyntax::OslSyntax()
 
     addTypeSyntax
     (
-        kInteger, 
+        DataType::INTEGER,
         TypeSyntax
         (
             "int", 
@@ -40,7 +40,7 @@ OslSyntax::OslSyntax()
 
     addTypeSyntax
     (
-        kBoolean, 
+        DataType::BOOLEAN,
         TypeSyntax
         (
             "int", 
@@ -53,7 +53,7 @@ OslSyntax::OslSyntax()
 
     addTypeSyntax
     (
-        kColor2, 
+        DataType::COLOR2,
         TypeSyntax
         (
             "color2", 
@@ -66,7 +66,7 @@ OslSyntax::OslSyntax()
 
     addTypeSyntax
     (
-        kColor3, 
+        DataType::COLOR3,
         TypeSyntax
         (
             "color", 
@@ -79,7 +79,7 @@ OslSyntax::OslSyntax()
 
     addTypeSyntax
     (
-        kColor4,
+        DataType::COLOR4,
         TypeSyntax
         (
             "color4",
@@ -92,7 +92,7 @@ OslSyntax::OslSyntax()
 
     addTypeSyntax
     (
-        kVector2, 
+        DataType::VECTOR2,
         TypeSyntax
         (
             "vector2", 
@@ -105,7 +105,7 @@ OslSyntax::OslSyntax()
 
     addTypeSyntax
     (
-        kVector3, 
+        DataType::VECTOR3,
         TypeSyntax
         (
             "vector", 
@@ -118,7 +118,7 @@ OslSyntax::OslSyntax()
 
     addTypeSyntax
     (
-        kVector4, 
+        DataType::VECTOR4,
         TypeSyntax
         (
             "vector4", 
@@ -131,7 +131,7 @@ OslSyntax::OslSyntax()
 
     addTypeSyntax
     (
-        kString, 
+        DataType::STRING,
         TypeSyntax
         (
             "string", 
@@ -144,7 +144,7 @@ OslSyntax::OslSyntax()
 
     addTypeSyntax
     (
-        kFilename, 
+        DataType::FILENAME,
         TypeSyntax
         (
             "string", 
@@ -157,7 +157,7 @@ OslSyntax::OslSyntax()
 
     addTypeSyntax
     (
-        kBSDF, 
+        DataType::BSDF,
         TypeSyntax
         (
             "BSDF", 
@@ -170,7 +170,7 @@ OslSyntax::OslSyntax()
 
     addTypeSyntax
     (
-        kEDF, 
+        DataType::EDF,
         TypeSyntax
         (
             "EDF", 
@@ -183,7 +183,7 @@ OslSyntax::OslSyntax()
 
     addTypeSyntax
     (
-        kVDF, 
+        DataType::VDF,
         TypeSyntax
         (
             "VDF", 
@@ -196,7 +196,7 @@ OslSyntax::OslSyntax()
 
     addTypeSyntax
     (
-        kSURFACE, 
+        DataType::SURFACE,
         TypeSyntax
         (
             "surfaceshader", 
@@ -209,7 +209,7 @@ OslSyntax::OslSyntax()
 
     addTypeSyntax
     (
-        kVOLUME, 
+        DataType::VOLUME,
         TypeSyntax
         (
             "volumeshader", 
@@ -222,7 +222,7 @@ OslSyntax::OslSyntax()
 
     addTypeSyntax
     (
-        kDISPLACEMENT, 
+        DataType::DISPLACEMENT,
         TypeSyntax
         (
             "displacementshader", 
@@ -239,7 +239,7 @@ OslSyntax::OslSyntax()
     //
 
     addValueConstructSyntax(
-        kColor2, 
+        DataType::COLOR2,
         ValueConstructSyntax(
             "color2(", ")", // Value constructor syntax
             "color2(", ")", // Value constructor syntax in a shader param initialization context
@@ -249,7 +249,7 @@ OslSyntax::OslSyntax()
 
     addValueConstructSyntax
     (
-        kColor3, 
+        DataType::COLOR3,
         ValueConstructSyntax
         (
             "color(", ")",
@@ -260,7 +260,7 @@ OslSyntax::OslSyntax()
 
     addValueConstructSyntax
     (
-        kColor4,
+        DataType::COLOR4,
         ValueConstructSyntax
         (
             "pack(", ")",
@@ -270,7 +270,7 @@ OslSyntax::OslSyntax()
     );
 
     addValueConstructSyntax(
-        kVector2, 
+        DataType::VECTOR2,
         ValueConstructSyntax
         (
             "vector2(", ")",
@@ -281,7 +281,7 @@ OslSyntax::OslSyntax()
 
     addValueConstructSyntax
     (
-        kVector3, 
+        DataType::VECTOR3,
         ValueConstructSyntax
         (
             "vector(", ")",
@@ -292,7 +292,7 @@ OslSyntax::OslSyntax()
 
     addValueConstructSyntax
     (
-        kVector4, 
+        DataType::VECTOR4,
         ValueConstructSyntax
         (
             "pack(", ")",
@@ -303,7 +303,7 @@ OslSyntax::OslSyntax()
 
     addValueConstructSyntax
     (
-        kString, 
+        DataType::STRING,
         ValueConstructSyntax
         (
             "\"", "\"",
@@ -314,7 +314,7 @@ OslSyntax::OslSyntax()
 
     addValueConstructSyntax
     (
-        kFilename, 
+        DataType::FILENAME,
         ValueConstructSyntax
         (
             "\"", "\"",
