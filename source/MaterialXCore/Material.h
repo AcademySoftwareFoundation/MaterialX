@@ -77,6 +77,10 @@ class Material : public Element
         return getChildrenOfType<ShaderRef>();
     }
 
+    /// Return a vector of all ShaderRef elements that belong to this material,
+    /// taking material inheritance into account.
+    vector<ShaderRefPtr> getActiveShaderRefs() const;
+
     /// Remove the ShaderRef, if any, with the given name.
     void removeShaderRef(const string& name)
     {
@@ -103,7 +107,11 @@ class Material : public Element
         return getChildOfType<Override>(name);
     }
 
-    /// Return a vector of all Override elements in the material.
+    /// Return a vector of all Override elements that belong to this material,
+    /// taking material inheritance into account.
+    vector<OverridePtr> getActiveOverrides() const;
+
+    /// Return a vector of all Override elements 
     vector<OverridePtr> getOverrides() const
     {
         return getChildrenOfType<Override>();
@@ -155,16 +163,14 @@ class Material : public Element
     }
 
     /// @}
-    /// @name Material Inheritance
+    /// @name Inheritance
     /// @{
 
-    /// Clear any existing material inheritance, and mark this material as
-    /// inheriting the given material.  If the given pointer is empty, then
-    /// this material is marked as not inheriting from any material.
-    void setInheritsFrom(MaterialPtr mat);
+    /// Set the material element that this one inherits from.
+    void setInheritsFrom(ElementPtr mat) override;
 
-    /// Return the material, if any, that this material inherits from.
-    MaterialPtr getInheritsFrom() const;
+    /// Return the material element, if any, that this one inherits from.
+    ElementPtr getInheritsFrom() const override;
 
     /// @}
     /// @name NodeDef References
@@ -521,7 +527,7 @@ class ShaderRef : public Element
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
-    Edge getUpstreamEdge(ConstMaterialPtr material = ConstMaterialPtr(),
+    Edge getUpstreamEdge(ConstMaterialPtr material = nullptr,
                          size_t index = 0) const override;
 
     /// Return the number of queriable upstream edges for this element.

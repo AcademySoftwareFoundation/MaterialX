@@ -142,7 +142,8 @@ class Element : public enable_shared_from_this<Element>
         return getAttribute(FILE_PREFIX_ATTRIBUTE);
     }
 
-    /// Return the active file prefix string at the scope of this element.
+    /// Return the file prefix string that is active at the scope of this
+    /// element, taking all ancestor elements into account.
     const string& getActiveFilePrefix() const
     {
         for (ConstElementPtr elem : traverseAncestors())
@@ -177,7 +178,8 @@ class Element : public enable_shared_from_this<Element>
         return getAttribute(GEOM_PREFIX_ATTRIBUTE);
     }
 
-    /// Return the active geom prefix string at the scope of this element.
+    /// Return the geom prefix string that is active at the scope of this
+    /// element, taking all ancestor elements into account.
     const string& getActiveGeomPrefix() const
     {
         for (ConstElementPtr elem : traverseAncestors())
@@ -212,7 +214,8 @@ class Element : public enable_shared_from_this<Element>
         return getAttribute(COLOR_SPACE_ATTRIBUTE);
     }
 
-    /// Return the active color space string at the scope of this element.
+    /// Return the color space string that is active at the scope of this
+    /// element, taking all ancestor elements into account.
     const string& getActiveColorSpace() const
     {
         for (ConstElementPtr elem : traverseAncestors())
@@ -456,6 +459,23 @@ class Element : public enable_shared_from_this<Element>
     }
 
     /// @}
+    /// @name Inheritance
+    /// @{
+
+    /// Set the element that this one inherits from, if inheritance is
+    /// supported by this element subclass.
+    virtual void setInheritsFrom(ElementPtr elem) { };
+
+    /// Return the element, if any, that this one inherits from.
+    virtual ElementPtr getInheritsFrom() const
+    {
+        return nullptr;
+    }
+
+    /// Return true if this element has an inheritance cycle.
+    bool hasInheritanceCycle() const;
+
+    /// @}
     /// @name Traversal
     /// @{
 
@@ -464,14 +484,14 @@ class Element : public enable_shared_from_this<Element>
     /// @return A TreeIterator object.
     /// @details Example usage with an implicit iterator:
     /// @code
-    /// for (ElementPtr elem : doc->traverseTree())
+    /// for (ElementPtr elem : inputElem->traverseTree())
     /// {
     ///     cout << elem->asString() << endl;
     /// }
     /// @endcode
     /// Example usage with an explicit iterator:
     /// @code
-    /// for (mx::TreeIterator it = doc->traverseTree().begin(); it != mx::TreeIterator::end(); ++it)
+    /// for (mx::TreeIterator it = inputElem->traverseTree().begin(); it != mx::TreeIterator::end(); ++it)
     /// {
     ///     mx::ElementPtr elem = it.getElement();
     ///     cout << elem->asString() << " at depth " << it.getElementDepth() << endl;
@@ -483,24 +503,25 @@ class Element : public enable_shared_from_this<Element>
     /// upstream sources in depth-first order, using pre-order visitation.
     /// @param material An optional material element, whose data bindings and
     ///    overrides will be applied to the traversal.
+    /// @throws ExceptionFoundCycle if a cycle is encountered.
     /// @return A GraphIterator object.
     /// @details Example usage with an implicit iterator:
     /// @code
-    /// for (Edge edge : doc->traverseGraph())
+    /// for (Edge edge : inputElem->traverseGraph())
     /// {
-    ///     cout << edge.getUpstreamElement()->asString() << endl;
+    ///     ElementPtr upElem = edge.getUpstreamElement();
+    ///     ElementPtr downElem = edge.getDownstreamElement();
+    ///     cout << upElem->asString() << " lies upstream from " << downElem->asString() << endl;
     /// }
     /// @endcode
     /// Example usage with an explicit iterator:
     /// @code
-    /// for (mx::GraphIterator it = doc->traverseGraph().begin(); it != mx::GraphIterator::end(); ++it)
+    /// for (mx::GraphIterator it = inputElem->traverseGraph().begin(); it != mx::GraphIterator::end(); ++it)
     /// {
     ///     mx::ElementPtr elem = it.getUpstreamElement();
     ///     cout << elem->asString() << " at depth " << it.getElementDepth() << endl;
     /// }
     /// @endcode
-    /// @todo This method doesn't yet support material inheritance for
-    ///     its material argument.
     /// @sa getUpstreamEdge
     /// @sa getUpstreamElement
     GraphIterator traverseGraph(ConstMaterialPtr material = nullptr) const;
@@ -531,13 +552,32 @@ class Element : public enable_shared_from_this<Element>
     ElementPtr getUpstreamElement(ConstMaterialPtr material = nullptr,
                                   size_t index = 0) const;
 
+    /// Traverse the inheritance chain from the given element to each element
+    /// from which it inherits.
+    /// @throws ExceptionFoundCycle if a cycle is encountered.
+    /// @return An InheritanceIterator object.
+    /// @details Example usage:
+    /// @code
+    /// ElementPtr derivedElem;
+    /// for (ElementPtr elem : inputElem->traverseInheritance())
+    /// {
+    ///     if (derivedElem)
+    ///         cout << derivedElem->asString() << " inherits from " << elem->asString() << endl;
+    ///     derivedElem = elem;
+    /// }
+    /// @endcode
+    InheritanceIterator traverseInheritance() const;
+
     /// Traverse the tree from the given element to each of its ancestors.
     /// @return An AncestorIterator object.
     /// @details Example usage:
     /// @code
-    /// for (ConstElementPtr elem : doc->traverseAncestors())
+    /// ConstElementPtr childElem;
+    /// for (ConstElementPtr elem : inputElem->traverseAncestors())
     /// {
-    ///     cout << elem->asString() << endl;
+    ///     if (childElem)
+    ///         cout << childElem->asString() << " is a child of " << elem->asString() << endl;
+    ///     childElem = elem;
     /// }
     /// @endcode
     AncestorIterator traverseAncestors() const;
