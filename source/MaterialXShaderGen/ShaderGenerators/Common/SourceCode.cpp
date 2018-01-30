@@ -1,4 +1,4 @@
-#include "SourceCode.h"
+#include <MaterialXShaderGen/ShaderGenerators/Common/SourceCode.h>
 #include <MaterialXShaderGen/Shader.h>
 #include <MaterialXShaderGen/HwShader.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>

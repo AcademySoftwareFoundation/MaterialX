@@ -1,4 +1,4 @@
-#include "GlslSyntax.h"
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/GlslSyntax.h>
 
 namespace MaterialX
 {

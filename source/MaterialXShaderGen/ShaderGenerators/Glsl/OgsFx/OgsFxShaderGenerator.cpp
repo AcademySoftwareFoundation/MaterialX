@@ -1,4 +1,4 @@
-#include "OgsFxShaderGenerator.h"
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/OgsFx/OgsFxShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/OgsFx/PositionOgsFx.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/OgsFx/NormalOgsFx.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/OgsFx/TangentOgsFx.h>

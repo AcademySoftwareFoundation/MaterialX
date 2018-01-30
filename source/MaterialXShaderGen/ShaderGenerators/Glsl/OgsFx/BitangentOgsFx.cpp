@@ -1,4 +1,4 @@
-#include "BitangentOgsFx.h"
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/OgsFx/BitangentOgsFx.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/SgNode.h>
 #include <MaterialXShaderGen/HwShader.h>

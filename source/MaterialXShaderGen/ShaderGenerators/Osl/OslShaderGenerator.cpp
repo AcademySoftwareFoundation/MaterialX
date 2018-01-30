@@ -1,4 +1,4 @@
-#include "OslShaderGenerator.h"
+#include <MaterialXShaderGen/ShaderGenerators/Osl/OslShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/Osl/OslSyntax.h>
 #include <MaterialXShaderGen/ShaderGenerators/Common/Swizzle.h>
 #include <MaterialXShaderGen/ShaderGenerators/Common/Switch.h>

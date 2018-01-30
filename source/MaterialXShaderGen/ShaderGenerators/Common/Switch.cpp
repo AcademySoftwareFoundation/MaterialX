@@ -1,4 +1,4 @@
-#include "Switch.h"
+#include <MaterialXShaderGen/ShaderGenerators/Common/Switch.h>
 #include <MaterialXShaderGen/HwShader.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 

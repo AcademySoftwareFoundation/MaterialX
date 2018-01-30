@@ -1,4 +1,4 @@
-#include "GlslShaderGenerator.h"
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/GlslShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/GlslSyntax.h>
 #include <MaterialXShaderGen/ShaderGenerators/Common/SourceCode.h>
 #include <MaterialXShaderGen/ShaderGenerators/Common/Swizzle.h>

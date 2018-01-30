@@ -1,4 +1,4 @@
-#include "OslSyntax.h"
+#include <MaterialXShaderGen/ShaderGenerators/Osl/OslSyntax.h>
 
 namespace MaterialX
 {

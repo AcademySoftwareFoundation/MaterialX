@@ -1,4 +1,4 @@
-#include "TangentOgsFx.h"
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/OgsFx/TangentOgsFx.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/SgNode.h>
 #include <MaterialXShaderGen/HwShader.h>

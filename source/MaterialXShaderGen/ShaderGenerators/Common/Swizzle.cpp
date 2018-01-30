@@ -1,4 +1,4 @@
-#include "Swizzle.h"
+#include <MaterialXShaderGen/ShaderGenerators/Common/Swizzle.h>
 #include <MaterialXShaderGen/HwShader.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 

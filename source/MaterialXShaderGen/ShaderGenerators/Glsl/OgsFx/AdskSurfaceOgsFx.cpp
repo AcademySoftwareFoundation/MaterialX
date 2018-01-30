@@ -1,4 +1,4 @@
-#include "AdskSurfaceOgsFx.h"
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/OgsFx/AdskSurfaceOgsFx.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/OgsFx/OgsFxShaderGenerator.h>
 #include <MaterialXShaderGen/SgNode.h>
 

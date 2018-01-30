@@ -1,4 +1,4 @@
-#include "Compare.h"
+#include <MaterialXShaderGen/ShaderGenerators/Common/Compare.h>
 #include <MaterialXShaderGen/HwShader.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/SgNode.h>

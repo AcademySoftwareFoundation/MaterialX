@@ -1,4 +1,4 @@
-#include "SurfaceOgsFx.h"
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/OgsFx/SurfaceOgsFx.h>
 #include <MaterialXShaderGen/HwShader.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/GlslShaderGenerator.h>
 

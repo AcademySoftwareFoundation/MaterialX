@@ -1,4 +1,4 @@
-#include "Compound.h"
+#include <MaterialXShaderGen/ShaderGenerators/Common/Compound.h>
 #include <MaterialXShaderGen/HwShader.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/Util.h>

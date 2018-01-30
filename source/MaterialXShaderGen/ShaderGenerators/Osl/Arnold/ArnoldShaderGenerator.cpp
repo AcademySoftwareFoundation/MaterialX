@@ -1,4 +1,4 @@
-#include "ArnoldShaderGenerator.h"
+#include <MaterialXShaderGen/ShaderGenerators/Osl/Arnold/ArnoldShaderGenerator.h>
 
 namespace MaterialX
 {
