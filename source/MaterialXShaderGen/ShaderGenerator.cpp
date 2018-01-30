@@ -1,7 +1,7 @@
 #include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/SgImplementation.h>
-#include <MaterialXShaderGen/Implementations/SourceCode.h>
-#include <MaterialXShaderGen/Implementations/Compound.h>
+#include <MaterialXShaderGen/ShaderGenerators/Common/SourceCode.h>
+#include <MaterialXShaderGen/ShaderGenerators/Common/Compound.h>
 
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Document.h>
