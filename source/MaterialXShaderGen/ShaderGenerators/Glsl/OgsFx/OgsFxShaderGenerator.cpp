@@ -116,7 +116,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.setActiveStage(size_t(OgsFxShader::FINAL_FX_STAGE));
 
     // Add global constants and type definitions
-    shader.addInclude("sx/impl/shadergen/source/glsl/defines.glsl", *this);
+    shader.addInclude("sx/impl/shadergen/glsl/source/defines.glsl", *this);
     shader.newLine();
     emitTypeDefs(shader);
 
@@ -157,13 +157,13 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.newLine();
 
     // Emit common math functions
-    shader.addInclude("sx/impl/shadergen/source/glsl/math.glsl", *this);
+    shader.addInclude("sx/impl/shadergen/glsl/source/math.glsl", *this);
     shader.newLine();
 
     // Emit functions for lighting if needed
     if (!shader.hasClassification(SgNode::Classification::TEXTURE))
     {
-        shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/lighting.glsl", *this);
+        shader.addInclude("sx/impl/shadergen/glsl/source/ogsfx/lighting.glsl", *this);
         shader.newLine();
     }
 
@@ -173,11 +173,11 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 
     if (shader.hasClassification(SgNode::Classification::TEXTURE))
     {
-        shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/techniques_texturing.glsl", *this);
+        shader.addInclude("sx/impl/shadergen/glsl/source/ogsfx/techniques_texturing.glsl", *this);
     }
     else
     {
-        shader.addInclude("sx/impl/shadergen/source/glsl/ogsfx/techniques_lighting.glsl", *this);
+        shader.addInclude("sx/impl/shadergen/glsl/source/ogsfx/techniques_lighting.glsl", *this);
     }
     shader.newLine();
 

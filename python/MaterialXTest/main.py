@@ -28,7 +28,7 @@ _exampleDir = os.path.join(_fileDir, '../../documents/Examples/')
 _searchPath = _libraryDir + ';' + _exampleDir
 
 _libraryFilenames = ('mx_stdlib_defs.mtlx',
-                     'impl/reference/mx_stdlib_impl_osl.mtlx')
+                     'impl/reference/osl/impl.mtlx')
 _exampleFilenames = ('CustomNode.mtlx',
                      'Looks.mtlx',
                      'MaterialGraphs.mtlx',
