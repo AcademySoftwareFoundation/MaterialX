@@ -4,14 +4,13 @@
 
 #include <MaterialXFormat/XmlIo.h>
 
-#include <MaterialXShaderGen/ShaderGenerators/ArnoldShaderGenerator.h>
-#include <MaterialXShaderGen/ShaderGenerators/OgsFxShaderGenerator.h>
-#include <MaterialXShaderGen/ShaderGenerators/OslSyntax.h>
-#include <MaterialXShaderGen/Implementations/Swizzle.h>
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/OgsFx/OgsFxShaderGenerator.h>
+#include <MaterialXShaderGen/ShaderGenerators/Osl/Arnold/ArnoldShaderGenerator.h>
+#include <MaterialXShaderGen/ShaderGenerators/Osl/OslSyntax.h>
+#include <MaterialXShaderGen/ShaderGenerators/Common/Swizzle.h>
 #include <MaterialXShaderGen/Util.h>
 #include <MaterialXShaderGen/HwShader.h>
 
-#include <iostream>
 #include <fstream>
 
 namespace mx = MaterialX;

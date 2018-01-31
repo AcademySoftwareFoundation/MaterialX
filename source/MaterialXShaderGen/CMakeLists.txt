@@ -3,25 +3,28 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../
 )
 
-file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB materialx_header "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
-file(GLOB shadergenerators_source "${CMAKE_CURRENT_SOURCE_DIR}/ShaderGenerators/*.cpp")
-file(GLOB shadergenerators_header "${CMAKE_CURRENT_SOURCE_DIR}/ShaderGenerators/*.h")
-file(GLOB implementations_source "${CMAKE_CURRENT_SOURCE_DIR}/Implementations/*.cpp")
-file(GLOB implementations_header "${CMAKE_CURRENT_SOURCE_DIR}/Implementations/*.h")
+file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB_RECURSE materialx_header "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
-source_group("Header Files\\Implementations" FILES ${implementations_header})
-source_group("Source Files\\Implementations" FILES ${implementations_source})
-source_group("Header Files\\ShaderGenerators" FILES ${shadergenerators_header})
-source_group("Source Files\\ShaderGenerators" FILES ${shadergenerators_source})
+function(assign_source_group prefix)
+    foreach(_source IN ITEMS ${ARGN})
+        if (IS_ABSOLUTE "${_source}")
+            file(RELATIVE_PATH _source_rel "${CMAKE_CURRENT_SOURCE_DIR}" "${_source}")
+        else()
+            set(_source_rel "${_source}")
+        endif()
+        get_filename_component(_source_path "${_source_rel}" PATH)
+        string(REPLACE "/" "\\" _source_path_msvc "${_source_path}")
+        source_group("${prefix}\\${_source_path_msvc}" FILES "${_source}")
+    endforeach()
+endfunction(assign_source_group)
+
+assign_source_group("Header Files" ${materialx_header})
+assign_source_group("Source Files" ${materialx_source})
 
 add_library(MaterialXShaderGen STATIC 
     ${materialx_source} 
     ${materialx_header}
-    ${implementations_source} 
-    ${implementations_header}
-    ${shadergenerators_source} 
-    ${shadergenerators_header}
 )
 
 set_target_properties(
@@ -39,15 +42,13 @@ target_link_libraries(
 )
 
 install(TARGETS MaterialXShaderGen
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/
 )
 
-install(FILES ${materialx_header}
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXShaderGen/)
-install(FILES ${shadergenerators_header}
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXShaderGen/ShaderGenerators)
-install(FILES ${implementations_header}
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXShaderGen/Implementations)
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXShaderGen/
+    FILES_MATCHING PATTERN "*.h*")
+
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXShaderGen.pdb"
         DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/" OPTIONAL)
 
