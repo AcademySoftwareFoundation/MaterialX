@@ -36,9 +36,6 @@ using ConstValueElementPtr = shared_ptr<const class ValueElement>;
 /// A shared pointer to a StringResolver
 using StringResolverPtr = shared_ptr<class StringResolver>;
 
-/// A raw pointer to a const CopyOptions
-using ConstCopyOptionsPtr = const class CopyOptions*;
-
 /// A hash map from strings to elements
 using ElementMap = std::unordered_map<string, ElementPtr>;
 
@@ -50,7 +47,7 @@ using ElementPredicate = std::function<bool(ElementPtr)>;
 ///
 /// An Element is a named object within a Document, which may possess any
 /// number of child elements and attributes.
-class Element : public enable_shared_from_this<Element>
+class Element : public std::enable_shared_from_this<Element>
 {
   protected:
     Element(ElementPtr parent, const string& category, const string& name) :
@@ -625,7 +622,7 @@ class Element : public enable_shared_from_this<Element>
     /// @param copyOptions An optional pointer to a CopyOptions object.
     ///    If provided, then the given options will affect the behavior of the
     ///    copy function.  Defaults to a null pointer.
-    void copyContentFrom(ConstElementPtr source, ConstCopyOptionsPtr copyOptions = nullptr);
+    void copyContentFrom(ConstElementPtr source, const class CopyOptions* copyOptions = nullptr);
 
     /// Clear all attributes and descendants from this element.
     void clearContent();
