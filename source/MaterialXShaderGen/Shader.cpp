@@ -42,11 +42,11 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
         registerUniform(Variable(inputSocket->type, name, EMPTY_STRING, inputSocket->value));
     }
 
-    // Add shader inputs for nodes that need this (geometric nodes / input streams)
+    // Add shader variables for nodes that need this (geometric nodes / input streams)
     for (SgNode* node : _rootGraph->getNodes())
     {
         SgImplementation* impl = node->getImplementation();
-        impl->registerInputs(*node, shadergen, *this);
+        impl->registerVariables(*node, shadergen, *this);
     }
 }
 
@@ -192,30 +192,33 @@ void Shader::indent()
     }
 }
 
-void Shader::registerUniform(const Variable& uniform)
+void Shader::registerUniform(const Variable& uniform, size_t stage)
 {
-    if (!_registeredVariables.count(uniform.name))
+    Stage& s = _stages[stage];
+    if (!s.registeredVariables.count(uniform.name))
     {
-        _registeredVariables.insert(uniform.name);
-        _uniforms.push_back(uniform);
+        s.registeredVariables.insert(uniform.name);
+        s.uniforms.push_back(uniform);
     }
 }
 
-void Shader::registerVarying(const Variable& varying)
+void Shader::registerInput(const Variable& input, size_t stage)
 {
-    if (!_registeredVariables.count(varying.name))
+    Stage& s = _stages[stage];
+    if (!s.registeredVariables.count(input.name))
     {
-        _registeredVariables.insert(varying.name);
-        _varyings.push_back(varying);
+        s.registeredVariables.insert(input.name);
+        s.inputs.push_back(input);
     }
 }
 
-void Shader::registerAttribute(const Variable& attribute)
+void Shader::registerOutput(const Variable& output, size_t stage)
 {
-    if (!_registeredVariables.count(attribute.name))
+    Stage& s = _stages[stage];
+    if (!s.registeredVariables.count(output.name))
     {
-        _registeredVariables.insert(attribute.name);
-        _attributes.push_back(attribute);
+        s.registeredVariables.insert(output.name);
+        s.outputs.push_back(output);
     }
 }
 

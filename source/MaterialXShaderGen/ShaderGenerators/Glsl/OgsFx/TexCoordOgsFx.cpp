@@ -11,14 +11,14 @@ SgImplementationPtr TexCoordOgsFx::creator()
     return std::make_shared<TexCoordOgsFx>();
 }
 
-void TexCoordOgsFx::registerInputs(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
+void TexCoordOgsFx::registerVariables(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
 {
     const SgInput* indexInput = node.getInput(INDEX);
     const string index = indexInput ? indexInput->value->getValueString() : "0";
     const string type = shadergen.getSyntax()->getTypeName(node.getOutput()->type);
 
-    shader.registerAttribute(Shader::Variable(type, "inUV" + index, "TEXCOORD" + index));
-    shader.registerVarying(Shader::Variable(type, "UV" + index, "TEXCOORD" + index));
+    shader.registerInput(Shader::Variable(type, "inUV" + index, "TEXCOORD" + index), HwShader::VERTEX_STAGE);
+    shader.registerOutput(Shader::Variable(type, "UV" + index, "TEXCOORD" + index), HwShader::VERTEX_STAGE);
 }
 
 void TexCoordOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)

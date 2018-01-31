@@ -11,24 +11,24 @@ SgImplementationPtr NormalOgsFx::creator()
     return std::make_shared<NormalOgsFx>();
 }
 
-void NormalOgsFx::registerInputs(const SgNode& node, ShaderGenerator& /*shadergen*/, Shader& shader)
+void NormalOgsFx::registerVariables(const SgNode& node, ShaderGenerator& /*shadergen*/, Shader& shader)
 {
-    shader.registerAttribute(Shader::Variable("vec3", "inNormal", "NORMAL"));
+    shader.registerInput(Shader::Variable("vec3", "inNormal", "NORMAL"), HwShader::VERTEX_STAGE);
 
     const SgInput* spaceInput = node.getInput(SPACE);
     string space = spaceInput ? spaceInput->value->getValueString() : "";
     if (space == WORLD)
     {
-        shader.registerUniform(Shader::Variable("mat4", "gWorldITXf", "WorldInverseTranspose"));
-        shader.registerVarying(Shader::Variable("vec3", "WorldNormal", "NORMAL"));
+        shader.registerUniform(Shader::Variable("mat4", "gWorldITXf", "WorldInverseTranspose"), HwShader::VERTEX_STAGE);
+        shader.registerOutput(Shader::Variable("vec3", "WorldNormal", "NORMAL"), HwShader::VERTEX_STAGE);
     }
     else if (space == MODEL)
     {
-        shader.registerVarying(Shader::Variable("vec3", "ModelNormal", "NORMAL"));
+        shader.registerOutput(Shader::Variable("vec3", "ModelNormal", "NORMAL"), HwShader::VERTEX_STAGE);
     }
     else
     {
-        shader.registerVarying(Shader::Variable("vec3", "ObjectNormal", "NORMAL"));
+        shader.registerOutput(Shader::Variable("vec3", "ObjectNormal", "NORMAL"), HwShader::VERTEX_STAGE);
     }
 }
 

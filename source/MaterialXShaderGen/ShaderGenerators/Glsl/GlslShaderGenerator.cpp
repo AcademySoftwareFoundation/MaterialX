@@ -176,15 +176,8 @@ void GlslShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& s
     // A file texture input needs special handling on GLSL
     if (uniform.type == DataType::FILENAME)
     {
-        std::stringstream str;
-        str << "uniform texture2D " << uniform.name << "_texture : SourceTexture;\n";
-        str << "uniform sampler2D " << uniform.name << " = sampler_state\n";
-        str << "{\n    Texture = <" << uniform.name << "_texture>;\n};\n";
-        shader.addBlock(str.str());
-    }
-    else if (!uniform.semantic.empty())
-    {
-        shader.addLine("uniform " + _syntax->getTypeName(uniform.type) + " " + uniform.name + " : " + uniform.semantic);
+        shader.addLine("uniform texture2D " + uniform.name + "_texture");
+        shader.addLine("uniform sampler2D " + uniform.name);
     }
     else
     {

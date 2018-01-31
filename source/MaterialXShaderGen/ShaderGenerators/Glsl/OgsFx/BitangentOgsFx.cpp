@@ -11,24 +11,24 @@ SgImplementationPtr BitangentOgsFx::creator()
     return std::make_shared<BitangentOgsFx>();
 }
 
-void BitangentOgsFx::registerInputs(const SgNode& node, ShaderGenerator& /*shadergen*/, Shader& shader)
+void BitangentOgsFx::registerVariables(const SgNode& node, ShaderGenerator& /*shadergen*/, Shader& shader)
 {
-    shader.registerAttribute(Shader::Variable("vec3", "inBitangent", "BITANGENT"));
+    shader.registerInput(Shader::Variable("vec3", "inBitangent", "BITANGENT"), HwShader::VERTEX_STAGE);
 
     const SgInput* spaceInput = node.getInput(SPACE);
     string space = spaceInput ? spaceInput->value->getValueString() : "";
     if (space == WORLD)
     {
-        shader.registerUniform(Shader::Variable("mat4", "gWorldITXf", "WorldInverseTranspose"));
-        shader.registerVarying(Shader::Variable("vec3", "WorldBitangent", "BITANGENT"));
+        shader.registerUniform(Shader::Variable("mat4", "gWorldITXf", "WorldInverseTranspose"), HwShader::VERTEX_STAGE);
+        shader.registerOutput(Shader::Variable("vec3", "WorldBitangent", "BITANGENT"), HwShader::VERTEX_STAGE);
     }
     else if (space == MODEL)
     {
-        shader.registerVarying(Shader::Variable("vec3", "ModelBitangent", "BITANGENT"));
+        shader.registerOutput(Shader::Variable("vec3", "ModelBitangent", "BITANGENT"), HwShader::VERTEX_STAGE);
     }
     else
     {
-        shader.registerVarying(Shader::Variable("vec3", "ObjectBitangent", "BITANGENT"));
+        shader.registerOutput(Shader::Variable("vec3", "ObjectBitangent", "BITANGENT"), HwShader::VERTEX_STAGE);
     }
 }
 

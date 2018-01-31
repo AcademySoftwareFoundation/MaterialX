@@ -161,23 +161,23 @@ public:
     /// Return the final shader source code for a given shader stage
     const string& getSourceCode(size_t stage = PIXEL_STAGE) const { return _stages[stage].code; }
 
-    /// Register a uniform variable to be used by the shader
-    void registerUniform(const Variable& uniform);
+    /// Register a uniform variable to be used by a shader stage
+    virtual void registerUniform(const Variable& uniform, size_t stage = PIXEL_STAGE);
 
-    /// Register a varying variable to be used by the shader
-    void registerVarying(const Variable& varying);
+    /// Register an input variable to be used by a shader stage
+    virtual void registerInput(const Variable& input, size_t stage = PIXEL_STAGE);
 
-    /// Register an attribute variable to be used by the shader
-    void registerAttribute(const Variable& attribute);
+    /// Register an output variable to be used by a shader stage
+    virtual void registerOutput(const Variable& output, size_t stage = PIXEL_STAGE);
 
-    /// Return the uniforms registered for this shader
-    const vector<Variable>& getUniforms() const { return _uniforms; }
+    /// Return the uniforms registered for a shader stage
+    const vector<Variable>& getUniforms(size_t stage = PIXEL_STAGE) const { return _stages[stage].uniforms; }
 
-    /// Return the varyings registered for this shader
-    const vector<Variable>& getVaryings() const { return _varyings; }
+    /// Return the inputs registered for a shader stage
+    const vector<Variable>& getInputs(size_t stage = PIXEL_STAGE) const { return _stages[stage].inputs; }
 
-    /// Return the attributes registered for this shader
-    const vector<Variable>& getAttributes() const { return _attributes; }
+    /// Return the outputs registered for a shader stage
+    const vector<Variable>& getOutputs(size_t stage = PIXEL_STAGE) const { return _stages[stage].outputs; }
 
     bool isTransparent() const
     {
@@ -207,7 +207,14 @@ protected:
         std::queue<Brackets> scopes;
         std::set<string> includes;
         std::set<SgImplementation*> definedFunctions;
+
+        vector<Variable> uniforms;
+        vector<Variable> inputs;
+        vector<Variable> outputs;
+        std::set<string> registeredVariables;
+
         string code;
+
         Stage() : indentations(0) {}
     };
 
@@ -224,10 +231,6 @@ protected:
 
     size_t _activeStage;
     vector<Stage> _stages;
-    vector<Variable> _uniforms;
-    vector<Variable> _varyings;
-    vector<Variable> _attributes;
-    std::set<string> _registeredVariables;
 };
 
 /// @class @ExceptionShaderGenError

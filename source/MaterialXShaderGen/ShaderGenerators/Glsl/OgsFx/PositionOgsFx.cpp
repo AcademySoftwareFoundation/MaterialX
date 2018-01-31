@@ -11,24 +11,24 @@ SgImplementationPtr PositionOgsFx::creator()
     return std::make_shared<PositionOgsFx>();
 }
 
-void PositionOgsFx::registerInputs(const SgNode& node, ShaderGenerator& /*shadergen*/, Shader& shader)
+void PositionOgsFx::registerVariables(const SgNode& node, ShaderGenerator& /*shadergen*/, Shader& shader)
 {
-    shader.registerAttribute(Shader::Variable("vec3", "inPosition", "POSITION"));
-    shader.registerUniform(Shader::Variable("mat4", "gWorldXf", "World"));
+    shader.registerInput(Shader::Variable("vec3", "inPosition", "POSITION"), HwShader::VERTEX_STAGE);
+    shader.registerUniform(Shader::Variable("mat4", "gWorldXf", "World"), HwShader::VERTEX_STAGE);
 
     const SgInput* spaceInput = node.getInput(SPACE);
     string space = spaceInput ? spaceInput->value->getValueString() : "";
     if (space == WORLD)
     {
-        shader.registerVarying(Shader::Variable("vec3", "WorldPosition", "POSITION"));
+        shader.registerOutput(Shader::Variable("vec3", "WorldPosition", "POSITION"), HwShader::VERTEX_STAGE);
     }
     else if (space == MODEL)
     {
-        shader.registerVarying(Shader::Variable("vec3", "ModelPosition", "POSITION"));
+        shader.registerOutput(Shader::Variable("vec3", "ModelPosition", "POSITION"), HwShader::VERTEX_STAGE);
     }
     else
     {
-        shader.registerVarying(Shader::Variable("vec3", "ObjectPosition", "POSITION"));
+        shader.registerOutput(Shader::Variable("vec3", "ObjectPosition", "POSITION"), HwShader::VERTEX_STAGE);
     }
 }
 

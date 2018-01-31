@@ -6,6 +6,8 @@
 namespace MaterialX
 {
 
+using HwShaderPtr = shared_ptr<class HwShader>;
+
 /// HwShader class extending the base Shader with a vertex shader stage.
 class HwShader : public Shader
 {
@@ -20,14 +22,14 @@ public:
     /// Return the number of shader stages for this shader.
     virtual size_t numStages() const { return NUM_STAGES; }
 
-    /// Query if a varying has been calculated by the vertex stage
-    bool isCalculated(const string& varying) const { return _calculatedVaryings.count(varying) > 0; }
+    /// Query if an output has been calculated by the vertex stage
+    bool isCalculated(const string& outputName) const { return _calculatedOutputs.count(outputName) > 0; }
 
-    /// Set a varying as calculated by the vertex stage
-    void setCalculated(const string& varying) { _calculatedVaryings.insert(varying); }
+    /// Set an output as calculated by the vertex stage
+    void setCalculated(const string& outputName) { _calculatedOutputs.insert(outputName); }
 
 private:
-    std::set<string> _calculatedVaryings;
+    std::set<string> _calculatedOutputs;
 };
 
 } // namespace MaterialX

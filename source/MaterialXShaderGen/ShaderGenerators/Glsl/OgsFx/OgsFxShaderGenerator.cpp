@@ -44,16 +44,20 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shaderPtr->initialize(element, *this);
 
     OgsFxShader& shader = *shaderPtr;
-    SgNodeGraph* graph = shader.getNodeGraph();
 
-    // Register default shader inputs
-    shader.registerUniform(Shader::Variable("mat4", "gWorldXf", "World"));
-    shader.registerUniform(Shader::Variable("mat4", "gWvpXf", "WorldViewProjection"));
-    shader.registerUniform(Shader::Variable("mat4", "gViewIXf", "ViewInverse"));
-    shader.registerAttribute(Shader::Variable("vec3", "inPosition", "POSITION"));
-    shader.registerVarying(Shader::Variable("vec3", "ObjectPosition", "POSITION"));
-    shader.registerVarying(Shader::Variable("vec3", "WorldPosition", "POSITION"));
-    shader.registerVarying(Shader::Variable("vec3", "WorldView"));
+    // Register required variables for vertex stage
+    shader.registerUniform(Shader::Variable("mat4", "gWorldXf", "World"), HwShader::VERTEX_STAGE);
+    shader.registerUniform(Shader::Variable("mat4", "gWvpXf", "WorldViewProjection"), HwShader::VERTEX_STAGE);
+    shader.registerUniform(Shader::Variable("mat4", "gViewIXf", "ViewInverse"), HwShader::VERTEX_STAGE);
+    shader.registerInput(Shader::Variable("vec3", "inPosition", "POSITION"), HwShader::VERTEX_STAGE);
+    shader.registerOutput(Shader::Variable("vec3", "ObjectPosition", "POSITION"), HwShader::VERTEX_STAGE);
+    shader.registerOutput(Shader::Variable("vec3", "WorldPosition", "POSITION"), HwShader::VERTEX_STAGE);
+    shader.registerOutput(Shader::Variable("vec3", "WorldView"), HwShader::VERTEX_STAGE);
+
+    // Register outputs from pixel stage
+    const SgOutputSocket* outputSocket = shader.getNodeGraph()->getOutputSocket();
+    const string outputName = _syntax->getVariableName(outputSocket);
+    shader.registerOutput(Shader::Variable("vec4", outputName), HwShader::PIXEL_STAGE);
 
     //
     // Emit code for vertex shader stage
@@ -123,9 +127,9 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.addComment("Data from application to vertex buffer");
     shader.addLine("attribute AppData", false);
     shader.beginScope(Shader::Brackets::BRACES);
-    for (const Shader::Variable& attr : shader.getAttributes())
+    for (const Shader::Variable& input : shader.getInputs(HwShader::VERTEX_STAGE))
     {
-        shader.addLine(attr.type + " " + attr.name + (!attr.semantic.empty() ? " : " + attr.semantic : ""));
+        shader.addLine(input.type + " " + input.name + (!input.semantic.empty() ? " : " + input.semantic : ""));
     }
     shader.endScope(true);
     shader.newLine();
@@ -133,24 +137,29 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.addComment("Data passed from vertex shader to pixel shader");
     shader.addLine("attribute VertexOutput", false);
     shader.beginScope(Shader::Brackets::BRACES);
-    for (const Shader::Variable& vary : shader.getVaryings())
+    for (const Shader::Variable& output : shader.getOutputs(HwShader::VERTEX_STAGE))
     {
-        shader.addLine(vary.type + " " + vary.name + (!vary.semantic.empty() ? " : " + vary.semantic : ""));
+        shader.addLine(output.type + " " + output.name + (!output.semantic.empty() ? " : " + output.semantic : ""));
     }
     shader.endScope(true);
     shader.newLine();
 
     shader.addComment("Data output by the pixel shader");
-    const SgOutputSocket* outputSocket = graph->getOutputSocket();
-    const string variable = _syntax->getVariableName(outputSocket);
     shader.addLine("attribute PixelOutput", false);
     shader.beginScope(Shader::Brackets::BRACES);
-    shader.addLine("vec4 " + variable);
+    for (const Shader::Variable& output : shader.getOutputs(HwShader::PIXEL_STAGE))
+    {
+        shader.addLine(output.type + " " + output.name + (!output.semantic.empty() ? " : " + output.semantic : ""));
+    }
     shader.endScope(true);
     shader.newLine();
 
     // Emit all shader uniforms
-    for (const Shader::Variable& uniform : shader.getUniforms())
+    for (const Shader::Variable& uniform : shader.getUniforms(HwShader::VERTEX_STAGE))
+    {
+        emitUniform(uniform, shader);
+    }
+    for (const Shader::Variable& uniform : shader.getUniforms(HwShader::PIXEL_STAGE))
     {
         emitUniform(uniform, shader);
     }
@@ -191,9 +200,14 @@ void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
     END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
 
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-        SgNodeGraph* graph = shader.getNodeGraph();
-        const SgOutputSocket* outputSocket = graph->getOutputSocket();
-        const string outputVariable = _syntax->getVariableName(outputSocket);
+        const vector<Shader::Variable>& outputs = shader.getOutputs(HwShader::PIXEL_STAGE);
+        if (outputs.empty())
+        {
+            throw ExceptionShaderGenError("Shader '" + shader.getName() + "' has no registered output");
+        }
+
+        const string& outputVariable = outputs[0].name;
+        const SgOutputSocket* outputSocket = shader.getNodeGraph()->getOutputSocket();
 
         // Early out for the rare case where the whole graph is just a single value
         if (!outputSocket->connection)
@@ -236,6 +250,27 @@ void OgsFxShaderGenerator::emitFinalOutput(Shader& shader) const
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
+void OgsFxShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& shader)
+{
+    // A file texture input needs special handling on GLSL
+    if (uniform.type == DataType::FILENAME)
+    {
+        std::stringstream str;
+        str << "uniform texture2D " << uniform.name << "_texture : SourceTexture;\n";
+        str << "uniform sampler2D " << uniform.name << " = sampler_state\n";
+        str << "{\n    Texture = <" << uniform.name << "_texture>;\n};\n";
+        shader.addBlock(str.str());
+    }
+    else if (!uniform.semantic.empty())
+    {
+        shader.addLine("uniform " + _syntax->getTypeName(uniform.type) + " " + uniform.name + " : " + uniform.semantic);
+    }
+    else
+    {
+        const string initStr = (uniform.value ? _syntax->getValue(*uniform.value, true) : _syntax->getTypeDefault(uniform.type, true));
+        shader.addLine("uniform " + _syntax->getTypeName(uniform.type) + " " + uniform.name + (initStr.empty() ? "" : " = " + initStr));
+    }
+}
 
 const string OgsFxImplementation::SPACE = "space";
 const string OgsFxImplementation::WORLD = "world";

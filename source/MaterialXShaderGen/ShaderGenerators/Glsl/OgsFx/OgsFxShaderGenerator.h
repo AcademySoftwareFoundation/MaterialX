@@ -9,8 +9,9 @@ namespace MaterialX
 
 using OgsFxShaderPtr = shared_ptr<class OgsFxShader>;
 
-/// Shader class extending HwShader with a new stage 
-/// holding the final composited OsgFx shader.
+/// Shader class targeting the OgsFX file format.
+/// Extending HwShader with a new stage holding the final 
+/// composited OsgFx shader.
 class OgsFxShader : public HwShader
 {
 public:
@@ -22,7 +23,7 @@ public:
     OgsFxShader(const string& name) : HwShader(name) {}
 
     /// Return the number of shader stages for this shader.
-    virtual size_t numStages() const { return NUM_STAGES; }
+    size_t numStages() const override { return NUM_STAGES; }
 };
 
 
@@ -46,6 +47,9 @@ public:
 
     /// Emit the final output expression
     void emitFinalOutput(Shader& shader) const override;
+
+    /// Emit a shader uniform input variable
+    void emitUniform(const Shader::Variable& uniform, Shader& shader) override;
 
     /// Unique identifyer for this generator target
     static const string TARGET;
