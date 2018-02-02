@@ -469,7 +469,7 @@ class Element : public std::enable_shared_from_this<Element>
         return nullptr;
     }
 
-    /// Return true if this element has an inheritance cycle.
+    /// Return true if the inheritance chain for this element contains a cycle.
     bool hasInheritanceCycle() const;
 
     /// @}

@@ -278,7 +278,7 @@ bool Element::hasInheritanceCycle() const
 {
     try
     {
-        for (ElementPtr elem : traverseInheritance()) { }
+        for (ConstElementPtr elem : traverseInheritance()) { }
     }
     catch (ExceptionFoundCycle&)
     {
@@ -309,7 +309,7 @@ ElementPtr Element::getUpstreamElement(ConstMaterialPtr material, size_t index) 
 
 InheritanceIterator Element::traverseInheritance() const
 {
-    return InheritanceIterator(getSelfNonConst());
+    return InheritanceIterator(getSelf());
 }
 
 AncestorIterator Element::traverseAncestors() const
