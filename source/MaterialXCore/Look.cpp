@@ -33,7 +33,7 @@ MaterialAssignPtr Look::addMaterialAssign(const string& name, const string& mate
 vector<MaterialAssignPtr> Look::getActiveMaterialAssigns() const
 {
     vector<MaterialAssignPtr> activeAssigns;
-    for (ElementPtr elem : traverseInheritance())
+    for (ConstElementPtr elem : traverseInheritance())
     {
         vector<MaterialAssignPtr> assigns = elem->asA<Look>()->getMaterialAssigns();
         activeAssigns.insert(activeAssigns.end(), assigns.begin(), assigns.end());
@@ -44,7 +44,7 @@ vector<MaterialAssignPtr> Look::getActiveMaterialAssigns() const
 vector<PropertyAssignPtr> Look::getActivePropertyAssigns() const
 {
     vector<PropertyAssignPtr> activeAssigns;
-    for (ElementPtr elem : traverseInheritance())
+    for (ConstElementPtr elem : traverseInheritance())
     {
         vector<PropertyAssignPtr> assigns = elem->asA<Look>()->getPropertyAssigns();
         activeAssigns.insert(activeAssigns.end(), assigns.begin(), assigns.end());
@@ -55,7 +55,7 @@ vector<PropertyAssignPtr> Look::getActivePropertyAssigns() const
 vector<PropertySetAssignPtr> Look::getActivePropertySetAssigns() const
 {
     vector<PropertySetAssignPtr> activeAssigns;
-    for (ElementPtr elem : traverseInheritance())
+    for (ConstElementPtr elem : traverseInheritance())
     {
         vector<PropertySetAssignPtr> assigns = elem->asA<Look>()->getPropertySetAssigns();
         activeAssigns.insert(activeAssigns.end(), assigns.begin(), assigns.end());
@@ -66,7 +66,7 @@ vector<PropertySetAssignPtr> Look::getActivePropertySetAssigns() const
 vector<VisibilityPtr> Look::getActiveVisibilities() const
 {
     vector<VisibilityPtr> activeVisibilities;
-    for (ElementPtr elem : traverseInheritance())
+    for (ConstElementPtr elem : traverseInheritance())
     {
         vector<VisibilityPtr> visibilities = elem->asA<Look>()->getVisibilities();
         activeVisibilities.insert(activeVisibilities.end(), visibilities.begin(), visibilities.end());

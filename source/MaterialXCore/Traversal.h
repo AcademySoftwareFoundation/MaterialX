@@ -336,7 +336,7 @@ class GraphIterator
 class InheritanceIterator
 {
   public:
-    explicit InheritanceIterator(ElementPtr elem) :
+    explicit InheritanceIterator(ConstElementPtr elem) :
         _elem(elem),
         _holdCount(0)
     {
@@ -345,7 +345,7 @@ class InheritanceIterator
     ~InheritanceIterator() { }
 
   private:
-    using ElementSet = std::set<ElementPtr>;
+    using ConstElementSet = std::set<ConstElementPtr>;
 
   public:
     bool operator==(const InheritanceIterator& rhs) const
@@ -359,7 +359,7 @@ class InheritanceIterator
 
     /// Dereference this iterator, returning the current element in the
     /// traversal.
-    ElementPtr operator*() const
+    ConstElementPtr operator*() const
     {
         return _elem;
     }
@@ -380,8 +380,8 @@ class InheritanceIterator
     static const InheritanceIterator& end();
 
   private:
-    ElementPtr _elem;
-    ElementSet _pathElems;
+    ConstElementPtr _elem;
+    ConstElementSet _pathElems;
     size_t _holdCount;
 };
 
