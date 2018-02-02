@@ -33,7 +33,7 @@ ShaderRefPtr Material::addShaderRef(const string& name, const string& node)
 vector<ShaderRefPtr> Material::getActiveShaderRefs() const
 {
     vector<ShaderRefPtr> activeShaderRefs;
-    for (ElementPtr elem : traverseInheritance())
+    for (ConstElementPtr elem : traverseInheritance())
     {
         vector<ShaderRefPtr> shaderRefs = elem->asA<Material>()->getShaderRefs();
         activeShaderRefs.insert(activeShaderRefs.end(), shaderRefs.begin(), shaderRefs.end());
@@ -44,7 +44,7 @@ vector<ShaderRefPtr> Material::getActiveShaderRefs() const
 vector<OverridePtr> Material::getActiveOverrides() const
 {
     vector<OverridePtr> activeOverrides;
-    for (ElementPtr elem : traverseInheritance())
+    for (ConstElementPtr elem : traverseInheritance())
     {
         vector<OverridePtr> overrides = elem->asA<Material>()->getOverrides();
         activeOverrides.insert(activeOverrides.end(), overrides.begin(), overrides.end());
