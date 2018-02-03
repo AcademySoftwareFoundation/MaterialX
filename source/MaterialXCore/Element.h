@@ -555,8 +555,8 @@ class Element : public std::enable_shared_from_this<Element>
     /// @return An InheritanceIterator object.
     /// @details Example usage:
     /// @code
-    /// ElementPtr derivedElem;
-    /// for (ElementPtr elem : inputElem->traverseInheritance())
+    /// ConstElementPtr derivedElem;
+    /// for (ConstElementPtr elem : inputElem->traverseInheritance())
     /// {
     ///     if (derivedElem)
     ///         cout << derivedElem->asString() << " inherits from " << elem->asString() << endl;
