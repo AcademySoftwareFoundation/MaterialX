@@ -8,29 +8,37 @@ environment:
       PYTHON: C:\Python26
       VS_PLATFORM: x86
       VS_COMPILER: vs2015
+      configuration: Release
     - CMAKE_PLATFORM: "Visual Studio 14 2015 Win64"
       PYTHON: C:\Python27-x64
       VS_PLATFORM: x64
       VS_COMPILER: vs2015
+      configuration: Debug
+    - CMAKE_PLATFORM: "Visual Studio 14 2015 Win64"
+      PYTHON: C:\Python27-x64
+      VS_PLATFORM: x64
+      VS_COMPILER: vs2015
+      configuration: Release
+    - CMAKE_PLATFORM: "Visual Studio 14 2015 Win64"
+      PYTHON: C:\Python27-x64
+      VS_PLATFORM: x64
+      VS_COMPILER: vs2015
+      configuration: RelWithDebInfo
     - CMAKE_PLATFORM: "Visual Studio 15 2017"
       PYTHON: C:\Python35
       VS_PLATFORM: x86
       VS_COMPILER: vs2017
+      configuration: Release
     - CMAKE_PLATFORM: "Visual Studio 15 2017 Win64"
       PYTHON: C:\Python36-x64
       VS_PLATFORM: x64
       VS_COMPILER: vs2017
+      configuration: Release
 
 configuration:
   - Release
   - Debug
-      on:
-        VS_PLATFORM: x64
-        VS_COMPILER: vs2015
   - RelWithDebInfo
-      on:
-        VS_PLATFORM: x64
-        VS_COMPILER: vs2015
 
 install:
   - set PATH=%PYTHON%;%PATH%
@@ -38,7 +46,7 @@ install:
 build_script:
   - mkdir build
   - cd build
-  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON -G "%CMAKE_PLATFORM%" ..
+  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON -G "%CMAKE_PLATFORM%" -DCMAKE_BUILD_TYPE="%configuration%" ..
   - cmake --build . --target install --config %CONFIGURATION%
   - ctest --output-on-failure --build-config %CONFIGURATION%
   - cmake -E chdir ../python/MaterialXTest python main.py
