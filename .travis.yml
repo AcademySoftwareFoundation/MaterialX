@@ -2,6 +2,14 @@ language: cpp
 
 matrix:
   include:
+    - os: linux
+      compiler: gcc
+      env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+      addons:
+        apt:
+          sources: ubuntu-toolchain-r-test
+          packages: g++-7
+
     # Standard builds
     - os: linux
       compiler: gcc
@@ -29,13 +37,7 @@ matrix:
       env: CONFIG=Release
 
     # Custom builds
-    - os: linux
-      compiler: gcc
-      env: CONFIG=Release MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-      addons:
-        apt:
-          sources: ubuntu-toolchain-r-test
-          packages: g++-7
+
     - os: linux
       compiler: clang
       env: CONFIG=Release MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
