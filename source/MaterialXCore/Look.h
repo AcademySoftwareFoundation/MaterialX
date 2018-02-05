@@ -38,38 +38,6 @@ class Look : public Element
     virtual ~Look() { }
 
     /// @}
-    /// @name LookInherit Elements
-    /// @{
-
-    /// Add a LookInherit to the look.
-    /// @param name The name of the new LookInherit.
-    ///     If no name is specified, then a unique name will automatically be
-    ///     generated.
-    /// @return A shared pointer to the new LookInherit.
-    LookInheritPtr addLookInherit(const string& name = EMPTY_STRING)
-    {
-        return addChild<LookInherit>(name);
-    }
-
-    /// Return the LookInherit, if any, with the given name.
-    LookInheritPtr getLookInherit(const string& name) const
-    {
-        return getChildOfType<LookInherit>(name);
-    }
-
-    /// Return a vector of all LookInherit elements in the look.
-    vector<LookInheritPtr> getLookInherits() const
-    {
-        return getChildrenOfType<LookInherit>();
-    }
-
-    /// Remove the LookInherit, if any, with the given name.
-    void removeLookInherit(const string& name)
-    {
-        removeChildOfType<LookInherit>(name);
-    }
-
-    /// @}
     /// @name MaterialAssign Elements
     /// @{
 
@@ -94,6 +62,10 @@ class Look : public Element
     {
         return getChildrenOfType<MaterialAssign>();
     }
+
+    /// Return a vector of all MaterialAssign elements that belong to this look,
+    /// taking look inheritance into account.
+    vector<MaterialAssignPtr> getActiveMaterialAssigns() const;
 
     /// Remove the MaterialAssign, if any, with the given name.
     void removeMaterialAssign(const string& name)
@@ -127,6 +99,10 @@ class Look : public Element
         return getChildrenOfType<PropertyAssign>();
     }
 
+    /// Return a vector of all PropertyAssign elements that belong to this look,
+    /// taking look inheritance into account.
+    vector<PropertyAssignPtr> getActivePropertyAssigns() const;
+
     /// Remove the PropertyAssign, if any, with the given name.
     void removePropertyAssign(const string& name)
     {
@@ -158,6 +134,10 @@ class Look : public Element
     {
         return getChildrenOfType<PropertySetAssign>();
     }
+
+    /// Return a vector of all PropertySetAssign elements that belong to this look,
+    /// taking look inheritance into account.
+    vector<PropertySetAssignPtr> getActivePropertySetAssigns() const;
 
     /// Remove the PropertySetAssign, if any, with the given name.
     void removePropertySetAssign(const string& name)
@@ -191,6 +171,10 @@ class Look : public Element
         return getChildrenOfType<Visibility>();
     }
 
+    /// Return a vector of all Visibility elements that belong to this look,
+    /// taking look inheritance into account.
+    vector<VisibilityPtr> getActiveVisibilities() const;
+
     /// Remove the Visibility, if any, with the given name.
     void removeVisibility(const string& name)
     {
@@ -198,16 +182,46 @@ class Look : public Element
     }
 
     /// @}
-    /// @name Look Inheritance
+    /// @name LookInherit Elements
     /// @{
 
-    /// Clear any existing look inheritance, and mark this look as
-    /// inheriting the given look.  If the given pointer is empty, then
-    /// this look is marked as not inheriting from any look.
-    void setInheritsFrom(LookPtr look);
+    /// Add a LookInherit to the look.
+    /// @param name The name of the new LookInherit.
+    ///     If no name is specified, then a unique name will automatically be
+    ///     generated.
+    /// @return A shared pointer to the new LookInherit.
+    LookInheritPtr addLookInherit(const string& name = EMPTY_STRING)
+    {
+        return addChild<LookInherit>(name);
+    }
 
-    /// Return the look, if any, that this look inherits from.
-    LookPtr getInheritsFrom() const;
+    /// Return the LookInherit, if any, with the given name.
+    LookInheritPtr getLookInherit(const string& name) const
+    {
+        return getChildOfType<LookInherit>(name);
+    }
+
+    /// Return a vector of all LookInherit elements in the look.
+    vector<LookInheritPtr> getLookInherits() const
+    {
+        return getChildrenOfType<LookInherit>();
+    }
+
+    /// Remove the LookInherit, if any, with the given name.
+    void removeLookInherit(const string& name)
+    {
+        removeChildOfType<LookInherit>(name);
+    }
+
+    /// @}
+    /// @name Inheritance
+    /// @{
+
+    /// Set the look element that this one inherits from.
+    void setInheritsFrom(ElementPtr look) override;
+
+    /// Return the look element, if any, that this one inherits from.
+    ElementPtr getInheritsFrom() const override;
 
     /// @}
 

@@ -70,6 +70,9 @@ void bindPyElement(py::module& mod)
         .def("getParent", static_cast<mx::ElementPtr(mx::Element::*)()>(&mx::Element::getParent))
         .def("getRoot", static_cast<mx::ElementPtr(mx::Element::*)()>(&mx::Element::getRoot))
         .def("getDocument", static_cast<mx::DocumentPtr(mx::Element::*)()>(&mx::Element::getDocument))
+        .def("setInheritsFrom", &mx::Element::setInheritsFrom)
+        .def("getInheritsFrom", &mx::Element::getInheritsFrom)
+        .def("hasInheritanceCycle", &mx::Element::hasInheritanceCycle)
         .def("traverseTree", &mx::Element::traverseTree)
         .def("traverseGraph", &mx::Element::traverseGraph,
             py::arg("material") = nullptr)
@@ -78,6 +81,7 @@ void bindPyElement(py::module& mod)
         .def("getUpstreamEdgeCount", &mx::Element::getUpstreamEdgeCount)
         .def("getUpstreamElement", &mx::Element::getUpstreamElement,
             py::arg("material") = nullptr, py::arg("index") = 0)
+        .def("traverseInheritance", &mx::Element::traverseInheritance)
         .def("traverseAncestors", &mx::Element::traverseAncestors)
         .def("setSourceUri", &mx::Element::setSourceUri)
         .def("hasSourceUri", &mx::Element::hasSourceUri)
@@ -89,7 +93,7 @@ void bindPyElement(py::module& mod)
                 return std::pair<bool, std::string>(res, message);
             })
         .def("copyContentFrom", &mx::Element::copyContentFrom,
-            py::arg("source"), py::arg("copyOptions") = (mx::ConstCopyOptionsPtr) nullptr)
+            py::arg("source"), py::arg("copyOptions") = (const mx::CopyOptions*) nullptr)
         .def("clearContent", &mx::Element::clearContent)
         .def("createValidChildName", &mx::Element::createValidChildName)
         .def("createStringResolver", &mx::Element::createStringResolver,

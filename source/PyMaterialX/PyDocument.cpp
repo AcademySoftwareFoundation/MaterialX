@@ -18,7 +18,7 @@ void bindPyDocument(py::module& mod)
         .def("initialize", &mx::Document::initialize)
         .def("copy", &mx::Document::copy)
         .def("importLibrary", &mx::Document::importLibrary, 
-            py::arg("library"), py::arg("copyOptions") = (mx::ConstCopyOptionsPtr) nullptr)
+            py::arg("library"), py::arg("copyOptions") = (const mx::CopyOptions*) nullptr)
         .def("setVersionString", &mx::Document::setVersionString)
         .def("hasVersionString", &mx::Document::hasVersionString)
         .def("getVersionString", &mx::Document::getVersionString)
