@@ -24,7 +24,13 @@ environment:
 configuration:
   - Release
   - Debug
+      on:
+        VS_PLATFORM: x64
+        VS_COMPILER: vs2015
   - RelWithDebInfo
+      on:
+        VS_PLATFORM: x64
+        VS_COMPILER: vs2015
 
 install:
   - set PATH=%PYTHON%;%PATH%

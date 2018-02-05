@@ -5,24 +5,40 @@ matrix:
     # Standard builds
     - os: linux
       compiler: gcc
+      env: CONFIG=Debug
+    - os: linux
+      compiler: gcc
+      env: CONFIG=Release
+    - os: linux
+      compiler: gcc
+      env: CONFIG=RelWithDebInfo
     - os: linux
       compiler: clang
+      env: CONFIG=Release
     - os: osx
       compiler: gcc
+      env: CONFIG=Debug
+    - os: osx
+      compiler: gcc
+      env: CONFIG=Release
+    - os: osx
+      compiler: gcc
+      env: CONFIG=RelWithDebInfo
     - os: osx
       compiler: clang
+      env: CONFIG=Release
 
     # Custom builds
     - os: linux
       compiler: gcc
-      env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+      env: CONFIG=Release MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
       addons:
         apt:
           sources: ubuntu-toolchain-r-test
           packages: g++-7
     - os: linux
       compiler: clang
-      env: MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+      env: CONFIG=Release MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
       addons:
         apt:
           sources: llvm-toolchain-trusty-5.0
@@ -34,7 +50,7 @@ before_install:
 script:
   - mkdir build
   - cd build
-  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ..
+  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -DCMAKE_BUILD_TYPE=${CONFIG} ..
   - cmake --build . --target install -- -j4
   - ctest --output-on-failure
   - export PYTHONPATH=$PYTHONPATH:$PWD/installed/python
