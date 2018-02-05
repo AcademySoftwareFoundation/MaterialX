@@ -50,8 +50,8 @@ before_install:
 script:
   - mkdir build
   - cd build
-  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -DCMAKE_BUILD_TYPE=${CONFIG} ..
-  - cmake --build . --target install -- -j4 -DCMAKE_BUILD_TYPE=${CONFIG}
-  - ctest --output-on-failure --build-config ${CONFIG}
+  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -DCMAKE_BUILD_TYPE="${CONFIG}" ..
+  - cmake --build . --target install -- -j4 --config "${CONFIG}"
+  - ctest --output-on-failure --build-config "${CONFIG}"
   - export PYTHONPATH=$PYTHONPATH:$PWD/installed/python
   - cmake -E chdir ../python/MaterialXTest python main.py
