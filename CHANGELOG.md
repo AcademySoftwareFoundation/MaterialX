@@ -3,10 +3,13 @@
 ## [1.35.5] - Development
 
 ### Added
+- Added material inheritance support to graph traversal and the high-level Material API.
+- Added Material methods getActiveShaderRefs and getActiveOverrides.
+- Added Element methods setInheritsFrom, getInheritsFrom, traverseInheritance, and hasInheritanceCycle.
 - Added support for Visual Studio 2017, GCC 7, and Clang 5.
 
 ### Changed
-- Updated Python bindings to PyBind11 2.2.
+- Updated Python bindings to PyBind11 2.2.1.
 
 ## [1.35.4] - 2017-12-18
 

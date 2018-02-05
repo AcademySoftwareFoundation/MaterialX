@@ -143,6 +143,12 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(diffColor.getBoundValue(material) is None)
         self.assertTrue(diffColor.getDefaultValue() == mx.Color3(1.0))
 
+        # Create an inherited material.
+        material2 = doc.addMaterial()
+        material2.setInheritsFrom(material)
+        self.assertTrue(roughness.getBoundValue(material2) == 0.5)
+        self.assertTrue(diffColor.getUpstreamElement(material2) == output2)
+
         # Create a look for the material.
         look = doc.addLook()
         self.assertTrue(len(doc.getLooks()) == 1)
