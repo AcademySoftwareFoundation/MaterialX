@@ -5,12 +5,28 @@ matrix:
     # Standard builds
     - os: linux
       compiler: gcc
+      env: CONFIG=Debug
+    - os: linux
+      compiler: gcc
+      env: CONFIG=Release
+    - os: linux
+      compiler: gcc
+      env: CONFIG=RelWithDebInfo
     - os: linux
       compiler: clang
+      env: CONFIG=Release
     - os: osx
       compiler: gcc
+      env: CONFIG=Debug
+    - os: osx
+      compiler: gcc
+      env: CONFIG=Release
+    - os: osx
+      compiler: gcc
+      env: CONFIG=RelWithDebInfo
     - os: osx
       compiler: clang
+      env: CONFIG=Release
 
     # Custom builds
     - os: linux
@@ -22,7 +38,7 @@ matrix:
           packages: g++-7
     - os: linux
       compiler: clang
-      env: MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+      env: CONFIG=Release MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
       addons:
         apt:
           sources: llvm-toolchain-trusty-5.0
@@ -34,8 +50,39 @@ before_install:
 script:
   - mkdir build
   - cd build
-  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ..
-  - cmake --build . --target install -- -j4
-  - ctest --output-on-failure
+  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -DCMAKE_BUILD_TYPE="${CONFIG}" ..
+  - cmake --build . --target install --config "${CONFIG}" -- -j4
+  - ctest --output-on-failure --build-config "${CONFIG}"
   - export PYTHONPATH=$PYTHONPATH:$PWD/installed/python
   - cmake -E chdir ../python/MaterialXTest python main.py
+
+before_deploy:
+    # Go to install directory and zip up to create artifact
+    - cd ${TRAVIS_BUILD_DIR}/build/installed
+    - zip -r ${TRAVIS_BUILD_DIR}/MaterialX-${TRAVIS_OS_NAME}-${TRAVIS_BRANCH}-${CC}-${CONFIG}-${TRAVIS_BUILD_NUMBER}.zip .
+deploy:
+    # Deploy on main branch. Currently marked as pre-release
+    - provider: releases
+      api_key:
+        secure: c9kZbgxrcgNFmTh/TYn+aL4Yqww122YlGNVWaIcKdLpLlRyyrejlyOhnFF1VTnytU6CQGeH580I6IQ21auV1PCAMoD7anWT5sJa5vGo7pCAMFrEKk4PSSSF8LNWw1lHVMw96exI0JHywGx7t2fOYX0COSJab4XK8cM/0FEoJ2/rQYNVXz1oG+4F5B39Jl4zuBfI+oEeD+Q1B6LRMY52uFn1dpRIujYhihBJ3jMwKFzOB0rS/pbKSczQaa4M/HNUvCEupNLKQmnTiHv72JwXRzGsIsqbFJ7e0n6jz2Cv9eGdbVDT2fyEz7Kq8faRPB34wo4PP1DBJAkzpbvejdNvUCXHe+l0MsHbBDe6avjrR7IK1+nu5rT/HzPIqzidPunwKxABfQguYLOE2CZs4hqpwCULGdQ1GR/Hy9vCy7I6MpTw5K9VMRTyt/7MbnVlN/tDy8095Sh9GkJBZPzig7eyw37ylLibXDkmmWx+HrDLV9bP/re+NYk2bXWSHOEr8jgZyxeNJwli2p2WZaMFgfYS0AVdEoujq2b4jWawepkLm1U3UOK71NZLGVjY8tElo3j5NbB6Qbvyr9NNTQbj4BJadiGCfsp57QA1/G4UPXaWSvGWjHUnHkDyUl6AtglB9iciTc6mxxWGS57aPNCsbE+NRRV4E9abBycTeJd2nrLlej1I=
+      file: ${TRAVIS_BUILD_DIR}/MaterialX-${TRAVIS_OS_NAME}-${TRAVIS_BRANCH}-${CC}-${CONFIG}-${TRAVIS_BUILD_NUMBER}.zip
+      prerelease: true
+      skip_cleanup: true
+      on:
+        repo: autodesk-forks/MaterialX
+        # Pick a branch to use.
+        branch: adsk_update
+        condition: "$CC = gcc"
+
+    # Deploy on tags. Currently marked as pre-release
+    - provider: releases
+      api_key:
+        secure: c9kZbgxrcgNFmTh/TYn+aL4Yqww122YlGNVWaIcKdLpLlRyyrejlyOhnFF1VTnytU6CQGeH580I6IQ21auV1PCAMoD7anWT5sJa5vGo7pCAMFrEKk4PSSSF8LNWw1lHVMw96exI0JHywGx7t2fOYX0COSJab4XK8cM/0FEoJ2/rQYNVXz1oG+4F5B39Jl4zuBfI+oEeD+Q1B6LRMY52uFn1dpRIujYhihBJ3jMwKFzOB0rS/pbKSczQaa4M/HNUvCEupNLKQmnTiHv72JwXRzGsIsqbFJ7e0n6jz2Cv9eGdbVDT2fyEz7Kq8faRPB34wo4PP1DBJAkzpbvejdNvUCXHe+l0MsHbBDe6avjrR7IK1+nu5rT/HzPIqzidPunwKxABfQguYLOE2CZs4hqpwCULGdQ1GR/Hy9vCy7I6MpTw5K9VMRTyt/7MbnVlN/tDy8095Sh9GkJBZPzig7eyw37ylLibXDkmmWx+HrDLV9bP/re+NYk2bXWSHOEr8jgZyxeNJwli2p2WZaMFgfYS0AVdEoujq2b4jWawepkLm1U3UOK71NZLGVjY8tElo3j5NbB6Qbvyr9NNTQbj4BJadiGCfsp57QA1/G4UPXaWSvGWjHUnHkDyUl6AtglB9iciTc6mxxWGS57aPNCsbE+NRRV4E9abBycTeJd2nrLlej1I=
+      file: ${TRAVIS_BUILD_DIR}/MaterialX-${TRAVIS_OS_NAME}-${TRAVIS_BRANCH}-${CC}-${CONFIG}-${TRAVIS_BUILD_NUMBER}.zip
+      prerelease: true
+      skip_cleanup: true
+      on:
+        repo: autodesk-forks/MaterialX
+        all_branches: true
+        tags: true
+        condition: "$CC = gcc"
