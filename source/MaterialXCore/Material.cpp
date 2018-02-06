@@ -233,6 +233,10 @@ bool ShaderRef::validate(string* message) const
     bool res = true;
     NodeDefPtr nodeDef = getNodeDef();
     TypeDefPtr typeDef = nodeDef ? getDocument()->getTypeDef(nodeDef->getType()) : TypeDefPtr();
+    if (!nodeDef)
+    {
+        validateRequire(!hasNodeString() && !hasNodeDefString(), res, message, "Shader reference to a non-existent nodedef");
+    }
     if (typeDef)
     {
         validateRequire(typeDef->getSemantic() == SHADER_SEMANTIC, res, message, "Shader reference to a non-shader nodedef");
