@@ -22,6 +22,13 @@ public:
         creatorMap()[typeName] = f;
     }
 
+    /// Determine if a class has been registered for a type name
+    static bool classRegistered(const string& typeName)
+    {
+        CreatorMap& map = creatorMap();
+        return map.find(typeName) != map.end();
+    }
+
     /// Unregister a registered class
     static void unregisterClass(const string& typeName)
     {

@@ -80,6 +80,9 @@ public:
     /// Register a shader gen implementation for a given implementation element name
     void registerImplementation(const string& name, CreatorFunc<SgImplementation> creator);
 
+    /// Determine if an implementation has been registered for a given implementation element name
+    bool implementationRegistered(const string& name) const;
+
     /// Return a registered shader gen implementation given an implementation element.
     /// If no registered implementaion is found a default source code implementation 
     /// instance will be returned.

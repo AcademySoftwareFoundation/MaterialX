@@ -152,6 +152,11 @@ void ShaderGenerator::registerImplementation(const string& name, CreatorFunc<SgI
     _implFactory.registerClass(name, creator);
 }
 
+bool ShaderGenerator::implementationRegistered(const string& name) const
+{
+    return _implFactory.classRegistered(name);
+}
+
 SgImplementationPtr ShaderGenerator::getImplementation(ElementPtr element)
 {
     const string& name = element->getName();
