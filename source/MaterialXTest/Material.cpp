@@ -50,7 +50,9 @@ TEST_CASE("Material", "[material]")
 
     // Add an invalid shader reference.
     mx::ShaderRefPtr shaderRef2 = material->addShaderRef("shaderRef2", "invalidSrf");
-    REQUIRE(!shaderRef2->getNodeDef());
+    REQUIRE(!doc->validate());
+    material->removeShaderRef("shaderRef2");
+    REQUIRE(doc->validate());
 
     // Create an inherited material.
     mx::MaterialPtr material2 = doc->addMaterial();
