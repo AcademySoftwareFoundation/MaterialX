@@ -377,7 +377,9 @@ class ShaderRef : public Element
     /// @name Node String
     /// @{
 
-    /// Set the node string of the ShaderRef.
+    /// Set the node string of the ShaderRef.  This attribute declares a
+    /// ShaderRef as a reference to the first NodeDef with the matching
+    /// node string.
     void setNodeString(const string& node)
     {
         setAttribute(NODE_ATTRIBUTE, node);
@@ -399,7 +401,8 @@ class ShaderRef : public Element
     /// @name NodeDef String
     /// @{
 
-    /// Set the NodeDef string for the ShaderRef.
+    /// Set the NodeDef string for the ShaderRef.  This attribute declares a
+    /// ShaderRef as a reference to the unique NodeDef with the given name.
     void setNodeDefString(const string& nodeDef)
     {
         setAttribute(NODE_DEF_ATTRIBUTE, nodeDef);
