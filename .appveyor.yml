@@ -8,21 +8,32 @@ environment:
       PYTHON: C:\Python26
       VS_PLATFORM: x86
       VS_COMPILER: vs2015
+      configuration: Release
     - CMAKE_PLATFORM: "Visual Studio 14 2015 Win64"
       PYTHON: C:\Python27-x64
       VS_PLATFORM: x64
       VS_COMPILER: vs2015
+      configuration: Debug
+    - CMAKE_PLATFORM: "Visual Studio 14 2015 Win64"
+      PYTHON: C:\Python27-x64
+      VS_PLATFORM: x64
+      VS_COMPILER: vs2015
+      configuration: Release
+    - CMAKE_PLATFORM: "Visual Studio 14 2015 Win64"
+      PYTHON: C:\Python27-x64
+      VS_PLATFORM: x64
+      VS_COMPILER: vs2015
+      configuration: RelWithDebInfo
     - CMAKE_PLATFORM: "Visual Studio 15 2017"
       PYTHON: C:\Python35
       VS_PLATFORM: x86
       VS_COMPILER: vs2017
+      configuration: Release
     - CMAKE_PLATFORM: "Visual Studio 15 2017 Win64"
       PYTHON: C:\Python36-x64
       VS_PLATFORM: x64
       VS_COMPILER: vs2017
-
-configuration:
-  - Release
+      configuration: Release
 
 install:
   - set PATH=%PYTHON%;%PATH%
@@ -30,7 +41,7 @@ install:
 build_script:
   - mkdir build
   - cd build
-  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON -G "%CMAKE_PLATFORM%" ..
+  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON -G "%CMAKE_PLATFORM%" -DCMAKE_BUILD_TYPE="%CONFIGURATION%" ..
   - cmake --build . --target install --config %CONFIGURATION%
   - ctest --output-on-failure --build-config %CONFIGURATION%
   - cmake -E chdir ../python/MaterialXTest python main.py
@@ -38,11 +49,11 @@ build_script:
 after_build:
     # Go to install directory and zip it up.  Currently marked as pre-release
     - cd C:\Projects\MaterialX\build\installed
-    - 7z a -r C:\Projects\MaterialX\MaterialX-Windows-%APPVEYOR_REPO_BRANCH%-%VS_PLATFORM%-%VS_COMPILER%-%APPVEYOR_BUILD_NUMBER%.zip .
+    - 7z a -r C:\Projects\MaterialX\MaterialX-Windows-%APPVEYOR_REPO_BRANCH%-%VS_PLATFORM%-%VS_COMPILER%-%CONFIGURATION%-%APPVEYOR_BUILD_NUMBER%.zip .
 
 artifacts:
     # Set artifact to be created zip.  Currently marked as pre-release
-    - path: MaterialX-Windows-%APPVEYOR_REPO_BRANCH%-%VS_PLATFORM%-%VS_COMPILER%-%APPVEYOR_BUILD_NUMBER%.zip
+    - path: MaterialX-Windows-%APPVEYOR_REPO_BRANCH%-%VS_PLATFORM%-%VS_COMPILER%-%CONFIGURATION%-%APPVEYOR_BUILD_NUMBER%.zip
       name: MaterialX_ADSK
 
 deploy:
