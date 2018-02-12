@@ -35,6 +35,9 @@ void NormalGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
+    const string& blockInstance = shader.getVertexDataBlock().instance;
+    const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
+
     const SgInput* spaceInput = node.getInput(SPACE);
     string space = spaceInput ? spaceInput->value->getValueString() : EMPTY_STRING;
 
@@ -44,7 +47,7 @@ void NormalGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen
             if (!shader.isCalculated("normalWorld"))
             {
                 shader.setCalculated("normalWorld");
-                shader.addLine("vd.normalWorld = normalize((u_normalMatrix * vec4(i_normal, 0)).xyz)");
+                shader.addLine(blockPrefix + "normalWorld = normalize((u_normalMatrix * vec4(i_normal, 0)).xyz)");
             }
         }
         else if (space == MODEL)
@@ -52,7 +55,7 @@ void NormalGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen
             if (!shader.isCalculated("normalModel"))
             {
                 shader.setCalculated("normalModel");
-                shader.addLine("vd.normalModel = i_normal");
+                shader.addLine(blockPrefix + "normalModel = i_normal");
             }
         }
         else
@@ -60,7 +63,7 @@ void NormalGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen
             if (!shader.isCalculated("normalObject"))
             {
                 shader.setCalculated("normalObject");
-                shader.addLine("vd.normalObject = i_normal");
+                shader.addLine(blockPrefix + "normalObject = i_normal");
             }
         }
     END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
@@ -70,15 +73,15 @@ void NormalGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen
         shadergen.emitOutput(node.getOutput(), true, shader);
         if (space == WORLD)
         {
-            shader.addStr(" = vd.normalWorld");
+            shader.addStr(" = " + blockPrefix + "normalWorld");
         }
         else if (space == MODEL)
         {
-            shader.addStr(" = vd.normalModel");
+            shader.addStr(" = " + blockPrefix + "normalModel");
         }
         else
         {
-            shader.addStr(" = vd.normalObject");
+            shader.addStr(" = " + blockPrefix + "normalObject");
         }
 
         shader.endLine();

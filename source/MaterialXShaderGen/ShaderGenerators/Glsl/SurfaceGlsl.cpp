@@ -47,15 +47,18 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
+        const string& blockInstance = shader.getVertexDataBlock().instance;
+        const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
+
         if (!shader.isCalculated("positionWorld"))
         {
             shader.setCalculated("positionWorld");
-            shader.addLine("vd.positionWorld = hPositionWorld.xyz");
+            shader.addLine(blockPrefix + "positionWorld = hPositionWorld.xyz");
         }
         if (!shader.isCalculated("viewWorld"))
         {
             shader.setCalculated("viewWorld");
-            shader.addLine("vd.viewWorld = normalize(u_viewInverseMatrix[3].xyz - hPositionWorld.xyz)");
+            shader.addLine(blockPrefix + "viewWorld = normalize(u_viewInverseMatrix[3].xyz - hPositionWorld.xyz)");
         }
     END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
 

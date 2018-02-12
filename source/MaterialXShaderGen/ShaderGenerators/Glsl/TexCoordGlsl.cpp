@@ -24,6 +24,9 @@ void TexCoordGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
+    const string& blockInstance = shader.getVertexDataBlock().instance;
+    const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
+
     const SgInput* indexInput = node.getInput(INDEX);
     string index = indexInput ? indexInput->value->getValueString() : "0";
     string variable = "texcoord" + index;
@@ -31,7 +34,7 @@ void TexCoordGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
     BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
         if (!shader.isCalculated(variable))
         {
-            shader.addLine("vd." + variable + " = i_" + variable);
+            shader.addLine(blockPrefix + variable + " = i_" + variable);
             shader.setCalculated(variable);
         }
     END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
@@ -39,7 +42,7 @@ void TexCoordGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
         shader.beginLine();
         shadergen.emitOutput(node.getOutput(), true, shader);
-        shader.addStr(" = vd." + variable);
+        shader.addStr(" = " + blockPrefix + variable);
         shader.endLine();
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }

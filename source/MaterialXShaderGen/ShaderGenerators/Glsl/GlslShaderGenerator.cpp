@@ -42,6 +42,7 @@ namespace
 
 const string GlslShaderGenerator::LANGUAGE = "glsl";
 const string GlslShaderGenerator::TARGET = "glsl_v4.0";
+const string GlslShaderGenerator::VERSION = "400";
 
 GlslShaderGenerator::GlslShaderGenerator()
     : ShaderGenerator(std::make_shared<GlslSyntax>())
@@ -160,38 +161,47 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_viewProjectionMatrix");
 
     // Add version directive
-    shader.addLine("#version 400", false);
+    shader.addLine("#version " + getVersion(), false);
     shader.newLine();
 
     // Add all global scope uniforms
     const Shader::VariableBlock& globalUniformBlock = shader.getUniformBlock(Shader::GLOBAL_SCOPE);
-    for (const Shader::Variable* uniform : globalUniformBlock.variableOrder)
+    if (globalUniformBlock.variableOrder.size())
     {
-        emitUniform(*uniform, shader);
+        for (const Shader::Variable* uniform : globalUniformBlock.variableOrder)
+        {
+            emitUniform(*uniform, shader);
+        }
+        shader.newLine();
     }
-    shader.newLine();
 
     // Add all app data inputs
     const Shader::VariableBlock& appDataBlock = shader.getAppDataBlock();
-    for (const Shader::Variable* input : appDataBlock.variableOrder)
+    if (appDataBlock.variableOrder.size())
     {
-        const string& type = _syntax->getTypeName(input->type);
-        shader.addLine("in " + type + " " + input->name);
+        for (const Shader::Variable* input : appDataBlock.variableOrder)
+        {
+            const string& type = _syntax->getTypeName(input->type);
+            shader.addLine("in " + type + " " + input->name);
+        }
+        shader.newLine();
     }
-    shader.newLine();
 
     // Add vertex data block
     const Shader::VariableBlock& vertexDataBlock = shader.getVertexDataBlock();
-    shader.addLine("out VertexData", false);
-    shader.beginScope(Shader::Brackets::BRACES);
-    for (const Shader::Variable* output : vertexDataBlock.variableOrder)
+    if (vertexDataBlock.variableOrder.size())
     {
-        const string& type = _syntax->getTypeName(output->type);
-        shader.addLine(type + " " + output->name);
+        shader.addLine("out VertexData", false);
+        shader.beginScope(Shader::Brackets::BRACES);
+        for (const Shader::Variable* output : vertexDataBlock.variableOrder)
+        {
+            const string& type = _syntax->getTypeName(output->type);
+            shader.addLine(type + " " + output->name);
+        }
+        shader.endScope(false, false);
+        shader.addStr(" " + vertexDataBlock.instance + ";\n");
+        shader.newLine();
     }
-    shader.endScope(false, false);
-    shader.addStr(" " + vertexDataBlock.instance + ";\n");
-    shader.newLine();
 
     emitFunctionDefinitions(shader);
 
@@ -211,7 +221,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     shader.setActiveStage(HwShader::PIXEL_STAGE);
 
     // Add version directive
-    shader.addLine("#version 460", false);
+    shader.addLine("#version " + getVersion(), false);
     shader.newLine();
 
     // Add global constants and type definitions
@@ -220,31 +230,40 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     emitTypeDefs(shader);
 
     // Add all global scope uniforms
-    for (const Shader::Variable* uniform : globalUniformBlock.variableOrder)
+    if (globalUniformBlock.variableOrder.size())
     {
-        emitUniform(*uniform, shader);
+        for (const Shader::Variable* uniform : globalUniformBlock.variableOrder)
+        {
+            emitUniform(*uniform, shader);
+        }
+        shader.newLine();
     }
-    shader.newLine();
 
     // Add all shader interface uniforms
     const Shader::VariableBlock& shaderInterfaceBlock = shader.getUniformBlock(Shader::SHADER_INTERFACE);
-    for (const Shader::Variable* uniform : shaderInterfaceBlock.variableOrder)
+    if (shaderInterfaceBlock.variableOrder.size())
     {
-        emitUniform(*uniform, shader);
+        for (const Shader::Variable* uniform : shaderInterfaceBlock.variableOrder)
+        {
+            emitUniform(*uniform, shader);
+        }
+        shader.newLine();
     }
-    shader.newLine();
 
     // Add vertex data block
-    shader.addLine("in VertexData", false);
-    shader.beginScope(Shader::Brackets::BRACES);
-    for (const Shader::Variable* input : vertexDataBlock.variableOrder)
+    if (vertexDataBlock.variableOrder.size())
     {
-        const string& type = _syntax->getTypeName(input->type);
-        shader.addLine(type + " " + input->name);
+        shader.addLine("in VertexData", false);
+        shader.beginScope(Shader::Brackets::BRACES);
+        for (const Shader::Variable* input : vertexDataBlock.variableOrder)
+        {
+            const string& type = _syntax->getTypeName(input->type);
+            shader.addLine(type + " " + input->name);
+        }
+        shader.endScope(false, false);
+        shader.addStr(" " + vertexDataBlock.instance + ";\n");
+        shader.newLine();
     }
-    shader.endScope(false, false);
-    shader.addStr(" " + vertexDataBlock.instance + ";\n");
-    shader.newLine();
 
     // Add the pixel shader output. This needs to be a vec4 for rendering
     // and upstream connection will be converted to vec4 if needed in emitFinalOutput()

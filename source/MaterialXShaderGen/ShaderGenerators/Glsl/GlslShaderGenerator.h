@@ -34,6 +34,9 @@ public:
     /// Return a unique identifyer for the target this generator is for
     const string& getTarget() const override { return TARGET; }
 
+    /// Return the version string for the GLSL version this generator is for
+    virtual const string& getVersion() const { return VERSION; }
+
     /// Emit function definitions for all nodes
     void emitFunctionDefinitions(Shader& shader) override;
 
@@ -69,6 +72,9 @@ public:
 
     /// Unique identifyer for this generator target
     static const string TARGET;
+
+    /// Version string for the generator target
+    static const string VERSION;
 
 protected:
     static void toVec4(const string& type, string& variable);

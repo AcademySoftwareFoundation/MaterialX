@@ -35,8 +35,8 @@ void BitangentGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shader
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
-    const string& vertexDataInstance = shader.getVertexDataBlock().instance;
-    const string vertexDataPrefix = vertexDataInstance.length() ? vertexDataInstance + "." : EMPTY_STRING;
+    const string& blockInstance = shader.getVertexDataBlock().instance;
+    const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
 
     const SgInput* spaceInput = node.getInput(SPACE);
     string space = spaceInput ? spaceInput->value->getValueString() : EMPTY_STRING;
@@ -47,7 +47,7 @@ void BitangentGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shader
             if (!shader.isCalculated("bitangentWorld"))
             {
                 shader.setCalculated("bitangentWorld");
-                shader.addLine(vertexDataPrefix + "bitangentWorld = normalize(u_normalMatrix * i_bitangent)");
+                shader.addLine(blockPrefix + "bitangentWorld = normalize(u_normalMatrix * i_bitangent)");
             }
         }
         else if (space == MODEL)
@@ -55,7 +55,7 @@ void BitangentGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shader
             if (!shader.isCalculated("bitangentModel"))
             {
                 shader.setCalculated("bitangentModel");
-                shader.addLine(vertexDataPrefix + "bitangentModel = i_bitangent");
+                shader.addLine(blockPrefix + "bitangentModel = i_bitangent");
             }
         }
         else
@@ -63,7 +63,7 @@ void BitangentGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shader
             if (!shader.isCalculated("bitangentObject"))
             {
                 shader.setCalculated("bitangentObject");
-                shader.addLine(vertexDataPrefix + "bitangentObject = i_bitangent");
+                shader.addLine(blockPrefix + "bitangentObject = i_bitangent");
             }
         }
     END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
@@ -73,15 +73,15 @@ void BitangentGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shader
         shadergen.emitOutput(node.getOutput(), true, shader);
         if (space == WORLD)
         {
-            shader.addStr(" = " + vertexDataPrefix + "bitangentWorld");
+            shader.addStr(" = " + blockPrefix + "bitangentWorld");
         }
         else if (space == MODEL)
         {
-            shader.addStr(" = " + vertexDataPrefix + "bitangentModel");
+            shader.addStr(" = " + blockPrefix + "bitangentModel");
         }
         else
         {
-            shader.addStr(" = " + vertexDataPrefix + "bitangentObject");
+            shader.addStr(" = " + blockPrefix + "bitangentObject");
         }
         shader.endLine();
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)

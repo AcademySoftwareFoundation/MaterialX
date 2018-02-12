@@ -20,18 +20,21 @@ void ViewGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, 
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
+    const string& blockInstance = shader.getVertexDataBlock().instance;
+    const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
+
     BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
         if (!shader.isCalculated("viewWorld"))
         {
             shader.setCalculated("viewWorld");
-            shader.addLine("vd.viewWorld = normalize(u_viewInverseMatrix[3].xyz - hPositionWorld.xyz)");
+            shader.addLine(blockPrefix + "viewWorld = normalize(u_viewInverseMatrix[3].xyz - hPositionWorld.xyz)");
         }
     END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
 
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
         shader.beginLine();
         shadergen.emitOutput(node.getOutput(), true, shader);
-        shader.addStr(" = vd.viewWorld");
+        shader.addStr(" = " + blockPrefix + "viewWorld");
         shader.endLine();
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }

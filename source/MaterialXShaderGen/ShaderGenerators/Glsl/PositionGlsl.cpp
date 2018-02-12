@@ -34,6 +34,9 @@ void PositionGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
+    const string& blockInstance = shader.getVertexDataBlock().instance;
+    const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
+
     const SgInput* spaceInput = node.getInput(SPACE);
     string space = spaceInput ? spaceInput->value->getValueString() : EMPTY_STRING;
 
@@ -43,7 +46,7 @@ void PositionGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
             if (!shader.isCalculated("positionWorld"))
             {
                 shader.setCalculated("positionWorld");
-                shader.addLine("vd.positionWorld = hPositionWorld.xyz");
+                shader.addLine(blockPrefix + "positionWorld = hPositionWorld.xyz");
             }
         }
         else if (space == MODEL)
@@ -51,7 +54,7 @@ void PositionGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
             if (!shader.isCalculated("positionModel"))
             {
                 shader.setCalculated("positionModel");
-                shader.addLine("vd.positionModel = i_position");
+                shader.addLine(blockPrefix + "positionModel = i_position");
             }
         }
         else
@@ -59,7 +62,7 @@ void PositionGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
             if (!shader.isCalculated("positionObject"))
             {
                 shader.setCalculated("positionObject");
-                shader.addLine("vd.positionObject = i_position");
+                shader.addLine(blockPrefix + "positionObject = i_position");
             }
         }
     END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
@@ -69,15 +72,15 @@ void PositionGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
         shadergen.emitOutput(node.getOutput(), true, shader);
         if (space == WORLD)
         {
-            shader.addStr(" = vd.positionWorld");
+            shader.addStr(" = " + blockPrefix + "positionWorld");
         }
         else if (space == MODEL)
         {
-            shader.addStr(" = vd.positionModel");
+            shader.addStr(" = " + blockPrefix + "positionModel");
         }
         else
         {
-            shader.addStr(" = vd.positionObject");
+            shader.addStr(" = " + blockPrefix + "positionObject");
         }
 
         shader.endLine();

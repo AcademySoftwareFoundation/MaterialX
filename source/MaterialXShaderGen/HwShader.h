@@ -37,13 +37,13 @@ public:
     /// Return the block of avertex data variables.
     const VariableBlock& getVertexDataBlock() { return _vertexData; }
     
-    /// Query if an output has been calculated in a given stage
+    /// Query if an output has been calculated in the vertex stage.
     bool isCalculated(const string& outputName) const 
     {
         return _calculatedVertexData.count(outputName) > 0;
     }
 
-    /// Set an output as calculated in a given stage
+    /// Set an output as calculated in the vertex stage.
     void setCalculated(const string& outputName)
     {
         _calculatedVertexData.insert(outputName);
