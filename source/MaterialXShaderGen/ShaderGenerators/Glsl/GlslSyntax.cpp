@@ -131,6 +131,32 @@ GlslSyntax::GlslSyntax()
 
     addTypeSyntax
     (
+        DataType::MATRIX3,
+        TypeSyntax
+        (
+            "mat3",
+            "mat3(1.0)",
+            "mat3(1.0)",
+            "",
+            "out mat3"
+        )
+    );
+
+    addTypeSyntax
+    (
+        DataType::MATRIX4,
+        TypeSyntax
+        (
+            "mat4",
+            "mat4(1.0)",
+            "mat4(1.0)",
+            "",
+            "out mat4"
+        )
+    );
+
+    addTypeSyntax
+    (
         DataType::STRING,
         TypeSyntax
         (

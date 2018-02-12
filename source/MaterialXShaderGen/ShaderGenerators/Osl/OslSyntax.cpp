@@ -131,6 +131,32 @@ OslSyntax::OslSyntax()
 
     addTypeSyntax
     (
+        DataType::MATRIX3,
+        TypeSyntax
+        (
+            "matrix",
+            "1",
+            "1",
+            "",
+            "out matrix"
+        )
+    );
+
+    addTypeSyntax
+    (
+        DataType::MATRIX4,
+        TypeSyntax
+        (
+            "matrix",
+            "1",
+            "1",
+            "",
+            "out matrix"
+        )
+    );
+
+    addTypeSyntax
+    (
         DataType::STRING,
         TypeSyntax
         (

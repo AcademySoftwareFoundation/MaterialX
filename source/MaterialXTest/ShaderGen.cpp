@@ -4,6 +4,7 @@
 
 #include <MaterialXFormat/XmlIo.h>
 
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/GlslShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/OgsFx/OgsFxShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/Osl/Arnold/ArnoldShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/Osl/OslSyntax.h>
@@ -125,7 +126,9 @@ TEST_CASE("Simple Nodegraph Shader Generation", "[shadergen]")
     // Load standard libraries
     std::vector<std::string> filenames =
     {
-        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx"
+        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
+        "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx",
+        "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx"
     };
 
     for (const std::string& filename : filenames)
@@ -154,45 +157,89 @@ TEST_CASE("Simple Nodegraph Shader Generation", "[shadergen]")
     file << dot;
     file.close();
 
-    mx::ShaderGeneratorPtr arnoldShaderGenerator = mx::ArnoldShaderGenerator::creator();
-    mx::ShaderGeneratorPtr ogsfxShaderGenerator = mx::OgsFxShaderGenerator::creator();
+
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    arnoldShaderGenerator->registerSourceCodeSearchPath(searchPath);
-    ogsfxShaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-    // Setup the shader generators
-    std::vector<GeneratorDescription> generatorDescriptions =
-    {
-        { arnoldShaderGenerator, "osl",  {"documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx"}, mx::Shader::PIXEL_STAGE },
-        { ogsfxShaderGenerator, "ogsfx", {"documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx"}, mx::OgsFxShader::FINAL_FX_STAGE }
-    };
 
-    for (auto desc : generatorDescriptions)
+    // Arnold
     {
-        // Load in the implementation libraries
-        for (const std::string& libfile : desc.implementationLibrary)
-        {
-            mx::readFromXmlFile(doc, libfile);
-        }
+        mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::creator();
+        shadergen->registerSourceCodeSearchPath(searchPath);
 
         // Test shader generation from nodegraph output
-        mx::ShaderPtr shader = desc.shadergen->generate(nodeGraph->getName(), output1);
+        mx::ShaderPtr shader = shadergen->generate(nodeGraph->getName(), output1);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
         // Write out to file for inspection
         // TODO: Match against blessed versions
-        file.open(shader->getName() + "_graphoutput." + desc.fileExt);
+        file.open(shader->getName() + "_graphoutput.osl");
         file << shader->getSourceCode();
         file.close();
 
         // Test shader generation from a node
-        shader = desc.shadergen->generate(nodeGraph->getName(), multiply);
+        shader = shadergen->generate(nodeGraph->getName(), multiply);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
         // Write out to file for inspection
         // TODO: Match against blessed versions
-        file.open(shader->getName() + "_node." + desc.fileExt);
-        file << shader->getSourceCode(desc.outputStage);
+        file.open(shader->getName() + "_node.osl");
+        file << shader->getSourceCode();
+        file.close();
+    }
+
+    // OgsFx
+    {
+        mx::ShaderGeneratorPtr shadergen = mx::OgsFxShaderGenerator::creator();
+        shadergen->registerSourceCodeSearchPath(searchPath);
+
+        // Test shader generation from nodegraph output
+        mx::ShaderPtr shader = shadergen->generate(nodeGraph->getName(), output1);
+        REQUIRE(shader != nullptr);
+        REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+        // Write out to file for inspection
+        // TODO: Match against blessed versions
+        file.open(shader->getName() + "_graphoutput.ogsfx");
+        file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+        file.close();
+
+        // Test shader generation from a node
+        shader = shadergen->generate(nodeGraph->getName(), multiply);
+        REQUIRE(shader != nullptr);
+        REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+        // Write out to file for inspection
+        // TODO: Match against blessed versions
+        file.open(shader->getName() + "_node.ogsfx");
+        file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+        file.close();
+    }
+
+    // Glsl
+    {
+        mx::ShaderGeneratorPtr shadergen = mx::GlslShaderGenerator::creator();
+        shadergen->registerSourceCodeSearchPath(searchPath);
+
+        // Test shader generation from nodegraph output
+        mx::ShaderPtr shader = shadergen->generate(nodeGraph->getName(), output1);
+        REQUIRE(shader != nullptr);
+        REQUIRE(shader->getSourceCode(mx::OgsFxShader::VERTEX_STAGE).length() > 0);
+        REQUIRE(shader->getSourceCode(mx::OgsFxShader::PIXEL_STAGE).length() > 0);
+        file.open(shader->getName() + "_graphoutput.vert");
+        file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
+        file.close();
+        file.open(shader->getName() + "_graphoutput.frag");
+        file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
+        file.close();
+
+        // Test shader generation from a node
+        shader = shadergen->generate(nodeGraph->getName(), multiply);
+        REQUIRE(shader != nullptr);
+        REQUIRE(shader->getSourceCode(mx::OgsFxShader::VERTEX_STAGE).length() > 0);
+        REQUIRE(shader->getSourceCode(mx::OgsFxShader::PIXEL_STAGE).length() > 0);
+        file.open(shader->getName() + "_node.vert");
+        file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
+        file.close();
+        file.open(shader->getName() + "_node.frag");
+        file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
         file.close();
     }
 }
@@ -204,7 +251,9 @@ TEST_CASE("Conditional Nodegraph Shader Generation", "[shadergen]")
     // Load standard libraries
     std::vector<std::string> filenames =
     {
-        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx"
+        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
+        "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx",
+        "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx"
     };
 
     for (const std::string& filename : filenames)
@@ -252,28 +301,14 @@ TEST_CASE("Conditional Nodegraph Shader Generation", "[shadergen]")
     file << dot;
     file.close();
 
-    mx::ShaderGeneratorPtr arnoldShaderGenerator = mx::ArnoldShaderGenerator::creator();
-    mx::ShaderGeneratorPtr ogsfxShaderGenerator = mx::OgsFxShaderGenerator::creator();
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    arnoldShaderGenerator->registerSourceCodeSearchPath(searchPath);
-    ogsfxShaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-    // Setup the shader generators
-    std::vector<GeneratorDescription> generatorDescriptions =
+    // Arnold
     {
-        { arnoldShaderGenerator, "osl",{ "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx" }, mx::Shader::PIXEL_STAGE },
-        { ogsfxShaderGenerator, "ogsfx",{ "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx" }, mx::OgsFxShader::FINAL_FX_STAGE }
-    };
+        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::creator();
+        shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-    for (auto desc : generatorDescriptions)
-    {
-        // Load in the implementation libraries
-        for (const std::string& libfile : desc.implementationLibrary)
-        {
-            mx::readFromXmlFile(doc, libfile);
-        }
-
-        mx::ShaderPtr shader = desc.shadergen->generate(nodeGraph->getName(), output1);
+        mx::ShaderPtr shader = shaderGenerator->generate(nodeGraph->getName(), output1);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
 
@@ -284,8 +319,54 @@ TEST_CASE("Conditional Nodegraph Shader Generation", "[shadergen]")
 
         // Write out to file for inspection
         // TODO: Match against blessed versions
-        file.open(shader->getName() + "." + desc.fileExt);
-        file << shader->getSourceCode(desc.outputStage);
+        file.open(shader->getName() + ".osl");
+        file << shader->getSourceCode();
+        file.close();
+    }
+
+    // OgsFx
+    {
+        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::creator();
+        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        mx::ShaderPtr shader = shaderGenerator->generate(nodeGraph->getName(), output1);
+        REQUIRE(shader != nullptr);
+        REQUIRE(shader->getSourceCode().length() > 0);
+
+        // All of the nodes should have been removed by optimization
+        // leaving a graph with a single constant value
+        REQUIRE(shader->getNodeGraph()->getNodes().empty());
+        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
+
+        // Write out to file for inspection
+        // TODO: Match against blessed versions
+        file.open(shader->getName() + ".ogsfx");
+        file << shader->getSourceCode();
+        file.close();
+    }
+
+    // Glsl
+    {
+        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
+        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        mx::ShaderPtr shader = shaderGenerator->generate(nodeGraph->getName(), output1);
+        REQUIRE(shader != nullptr);
+        REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
+        REQUIRE(shader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
+
+        // All of the nodes should have been removed by optimization
+        // leaving a graph with a single constant value
+        REQUIRE(shader->getNodeGraph()->getNodes().empty());
+        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
+
+        // Write out to file for inspection
+        // TODO: Match against blessed versions
+        file.open(shader->getName() + ".vert");
+        file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
+        file.close();
+        file.open(shader->getName() + ".frag");
+        file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
         file.close();
     }
 }
@@ -297,7 +378,8 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
     // Load standard libraries
     std::vector<std::string> filenames =
     {
-        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx"
+        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
+        "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx"
     };
 
     for (const std::string& filename : filenames)
@@ -333,36 +415,43 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
     mx::OutputPtr output1 = nodeGraph->addOutput(mx::EMPTY_STRING, "vector3");
     output1->setConnectedNode(multiply1);
 
-    mx::ShaderGeneratorPtr ogsfxShaderGenerator = mx::OgsFxShaderGenerator::creator();
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    ogsfxShaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-    // Setup the shader generator
-    GeneratorDescription desc = {
-        ogsfxShaderGenerator, "ogsfx",
-        { 
-            "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx"
-        },
-        mx::OgsFxShader::FINAL_FX_STAGE
-    };
-
-    // Load in the implementation libraries
-    for (const std::string& libfile : desc.implementationLibrary)
+    // OgsFx
     {
-        mx::readFromXmlFile(doc, libfile);
+        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::creator();
+        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        mx::ShaderPtr shader = shaderGenerator->generate(nodeGraph->getName(), output1);
+        REQUIRE(shader != nullptr);
+        REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+
+        // Write out to file for inspection
+        // TODO: Match against blessed versions
+        std::ofstream file;
+        file.open(shader->getName() + ".ogsfx");
+        file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
     }
 
-    mx::ShaderPtr shader = desc.shadergen->generate(nodeGraph->getName(), output1);
-    REQUIRE(shader != nullptr);
+    // Glsl
+    {
+        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
+        shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-    std::ofstream file;
-    file.open(shader->getName() + "." + desc.fileExt);
+        mx::ShaderPtr shader = shaderGenerator->generate(nodeGraph->getName(), output1);
+        REQUIRE(shader != nullptr);
+        REQUIRE(shader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
+        REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
 
-    REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
-
-    // Write out to file for inspection
-    // TODO: Match against blessed versions
-    file << shader->getSourceCode(desc.outputStage);
+        // Write out to file for inspection
+        // TODO: Match against blessed versions
+        std::ofstream file;
+        file.open(shader->getName() + ".frag");
+        file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
+        file.close();
+        file.open(shader->getName() + ".vert");
+        file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
+    }
 }
 
 TEST_CASE("Subgraph Shader Generation", "[shadergen]")
@@ -376,47 +465,24 @@ TEST_CASE("Subgraph Shader Generation", "[shadergen]")
     std::vector<std::string> filenames =
     {
         "SubGraphs.mtlx",
-        "BsdfSubGraphs.mtlx"
+        "BsdfSubGraphs.mtlx",
+        "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx",
+        "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_osl.mtlx",
+        "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx",
+        "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_glsl.mtlx"
     };
     for (const std::string& filename : filenames)
     {
         mx::readFromXmlFile(doc, filename, searchPath1);
     }
 
-    mx::ShaderGeneratorPtr arnoldShaderGenerator = mx::ArnoldShaderGenerator::creator();
-    mx::ShaderGeneratorPtr ogsfxShaderGenerator = mx::OgsFxShaderGenerator::creator();
     mx::FilePath searchPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    arnoldShaderGenerator->registerSourceCodeSearchPath(searchPath2);
-    ogsfxShaderGenerator->registerSourceCodeSearchPath(searchPath2);
-
-    // Setup the shader generators
-    std::vector<GeneratorDescription> generatorDescriptions =
-    {
-        { arnoldShaderGenerator, "osl",
-            {
-                "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_osl.mtlx",
-                "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_osl.mtlx",
-            }, 
-            mx::Shader::PIXEL_STAGE
-        },
-        { ogsfxShaderGenerator, "ogsfx",
-            {
-                "documents/Libraries/stdlib/impl/shadergen/mx_stdlib_impl_shadergen_glsl.mtlx",
-                "documents/Libraries/sx/impl/shadergen/sx_impl_shadergen_glsl.mtlx",
-            },
-            mx::OgsFxShader::FINAL_FX_STAGE
-        }
-    };
-
     std::vector<std::string> exampleGraphNames = { "subgraph_ex1" , "subgraph_ex2" };
 
-    for (auto desc : generatorDescriptions)
+    // Arnold
     {
-        // Load in the implementation libraries
-        for (const std::string& libfile : desc.implementationLibrary)
-        {
-            mx::readFromXmlFile(doc, libfile);
-        }
+        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::creator();
+        shaderGenerator->registerSourceCodeSearchPath(searchPath2);
 
         for (const std::string& graphName : exampleGraphNames)
         {
@@ -426,23 +492,70 @@ TEST_CASE("Subgraph Shader Generation", "[shadergen]")
             mx::OutputPtr output = nodeGraph->getOutput("out");
             REQUIRE(output != nullptr);
 
-            // Write out a .dot file for visualization
-            std::ofstream file;
-            std::string dot = mx::printGraphDot(nodeGraph);
-            file.open(nodeGraph->getName() + ".dot");
-            file << dot;
-            file.close();
-
-            // Test shader generation from the output
-            mx::ShaderPtr shader = desc.shadergen->generate(nodeGraph->getName(), output);
+            mx::ShaderPtr shader = shaderGenerator->generate(nodeGraph->getName(), output);
             REQUIRE(shader != nullptr);
             REQUIRE(shader->getSourceCode().length() > 0);
 
             // Write out to file for inspection
             // TODO: Match against blessed versions
-            file.open(shader->getName() + "." + desc.fileExt);
-            file << shader->getSourceCode(desc.outputStage);
+            std::ofstream file;
+            file.open(shader->getName() + ".osl");
+            file << shader->getSourceCode();
+        }
+    }
+
+    // OgsFx
+    {
+        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::creator();
+        shaderGenerator->registerSourceCodeSearchPath(searchPath2);
+
+        for (const std::string& graphName : exampleGraphNames)
+        {
+            mx::NodeGraphPtr nodeGraph = doc->getNodeGraph(graphName);
+            REQUIRE(nodeGraph != nullptr);
+
+            mx::OutputPtr output = nodeGraph->getOutput("out");
+            REQUIRE(output != nullptr);
+
+            mx::ShaderPtr shader = shaderGenerator->generate(nodeGraph->getName(), output);
+            REQUIRE(shader != nullptr);
+            REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+
+            // Write out to file for inspection
+            // TODO: Match against blessed versions
+            std::ofstream file;
+            file.open(shader->getName() + ".ogsfx");
+            file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+        }
+    }
+
+    // Glsl
+    {
+        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
+        shaderGenerator->registerSourceCodeSearchPath(searchPath2);
+
+        for (const std::string& graphName : exampleGraphNames)
+        {
+            mx::NodeGraphPtr nodeGraph = doc->getNodeGraph(graphName);
+            REQUIRE(nodeGraph != nullptr);
+
+            mx::OutputPtr output = nodeGraph->getOutput("out");
+            REQUIRE(output != nullptr);
+
+            mx::ShaderPtr shader = shaderGenerator->generate(nodeGraph->getName(), output);
+            REQUIRE(shader != nullptr);
+
+            REQUIRE(shader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
+            REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
+
+            // Write out to file for inspection
+            // TODO: Match against blessed versions
+            std::ofstream file;
+            file.open(shader->getName() + ".frag");
+            file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
             file.close();
+            file.open(shader->getName() + ".vert");
+            file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
         }
     }
 }

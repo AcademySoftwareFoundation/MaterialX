@@ -1,38 +1,37 @@
-#include <MaterialXShaderGen/ShaderGenerators/Glsl/OgsFx/TexCoordOgsFx.h>
-#include <MaterialXShaderGen/ShaderGenerator.h>
-#include <MaterialXShaderGen/SgNode.h>
-#include <MaterialXShaderGen/HwShader.h>
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/TexCoordGlsl.h>
 
 namespace MaterialX
 {
 
-SgImplementationPtr TexCoordOgsFx::creator()
+SgImplementationPtr TexCoordGlsl::creator()
 {
-    return std::make_shared<TexCoordOgsFx>();
+    return std::make_shared<TexCoordGlsl>();
 }
 
-void TexCoordOgsFx::registerVariables(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
+void TexCoordGlsl::createVariables(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
 {
+    HwShader& shader = static_cast<HwShader&>(shader_);
+
     const SgInput* indexInput = node.getInput(INDEX);
     const string index = indexInput ? indexInput->value->getValueString() : "0";
     const string type = shadergen.getSyntax()->getTypeName(node.getOutput()->type);
 
-    shader.registerInput(Shader::Variable(type, "inUV" + index, "TEXCOORD" + index), HwShader::VERTEX_STAGE);
-    shader.registerOutput(Shader::Variable(type, "UV" + index, "TEXCOORD" + index), HwShader::VERTEX_STAGE);
+    shader.createAppData(DataType::VECTOR2, "i_texcoord" + index);
+    shader.createVertexData(DataType::VECTOR2, "texcoord" + index);
 }
 
-void TexCoordOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
+void TexCoordGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     const SgInput* indexInput = node.getInput(INDEX);
     string index = indexInput ? indexInput->value->getValueString() : "0";
-    string variable = "UV" + index;
+    string variable = "texcoord" + index;
 
     BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
         if (!shader.isCalculated(variable))
         {
-            shader.addLine("VS_OUT." + variable + " = in" + variable);
+            shader.addLine("vd." + variable + " = i_" + variable);
             shader.setCalculated(variable);
         }
     END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
@@ -40,7 +39,7 @@ void TexCoordOgsFx::emitFunctionCall(const SgNode& node, ShaderGenerator& shader
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
         shader.beginLine();
         shadergen.emitOutput(node.getOutput(), true, shader);
-        shader.addStr(" = PS_IN." + variable);
+        shader.addStr(" = vd." + variable);
         shader.endLine();
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }

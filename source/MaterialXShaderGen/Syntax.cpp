@@ -159,6 +159,8 @@ namespace MaterialX
     const string DataType::COLOR2 = "color2";
     const string DataType::COLOR3 = "color3";
     const string DataType::COLOR4 = "color4";
+    const string DataType::MATRIX3 = "matrix33";
+    const string DataType::MATRIX4 = "matrix44";
     const string DataType::STRING = "string";
     const string DataType::FILENAME = "filename";
     const string DataType::BSDF = "BSDF";

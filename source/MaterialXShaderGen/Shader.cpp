@@ -12,12 +12,18 @@
 namespace MaterialX
 {
 
+const string Shader::GLOBAL_SCOPE = "Globals";
+const string Shader::SHADER_INTERFACE = "ShaderInterface";
+
 Shader::Shader(const string& name)
     : _name(name)
     , _rootGraph(nullptr)
     , _activeStage(PIXEL_STAGE)
+    , _appData("AppData", "ad")
 {
-    _stages.resize(numStages());
+    // Create default uniform blocks
+    createUniformBlock(GLOBAL_SCOPE);
+    createUniformBlock(SHADER_INTERFACE, "si");
 }
 
 void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
@@ -35,18 +41,18 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
     const string& vdir = element->getRoot()->getAttribute("vdirection");
     _vdirection = vdir == "down" ? VDirection::DOWN : VDirection::UP;
 
-    // Register shader uniforms for the graph interface
-    for (SgInputSocket* inputSocket : _rootGraph->getInputSockets())
-    {
-        const string name = shadergen.getSyntax()->getVariableName(inputSocket);
-        registerUniform(Variable(inputSocket->type, name, EMPTY_STRING, inputSocket->value));
-    }
-
-    // Add shader variables for nodes that need this (geometric nodes / input streams)
+    // Register shader variables for nodes that need this (geometric nodes / input streams)
     for (SgNode* node : _rootGraph->getNodes())
     {
         SgImplementation* impl = node->getImplementation();
-        impl->registerVariables(*node, shadergen, *this);
+        impl->createVariables(*node, shadergen, *this);
+    }
+
+    // Register uniforms for the graph interface
+    for (SgInputSocket* inputSocket : _rootGraph->getInputSockets())
+    {
+        const string name = shadergen.getSyntax()->getVariableName(inputSocket);
+        createUniform(SHADER_INTERFACE, inputSocket->type, name, EMPTY_STRING, inputSocket->value);
     }
 }
 
@@ -75,7 +81,7 @@ void Shader::beginScope(Brackets brackets)
     s.scopes.push(brackets);
 }
 
-void Shader::endScope(bool semicolon)
+void Shader::endScope(bool semicolon, bool newline)
 {
     Stage& s = stage();
 
@@ -99,7 +105,10 @@ void Shader::endScope(bool semicolon)
     case Brackets::NONE:
         break;
     }
-    s.code += semicolon ? ";\n" : "\n";
+    if (semicolon)
+        s.code += ";";
+    if (newline)
+        s.code += "\n";
 }
 
 void Shader::beginLine()
@@ -192,33 +201,48 @@ void Shader::indent()
     }
 }
 
-void Shader::registerUniform(const Variable& uniform, size_t stage)
+void Shader::createUniformBlock(const string& block, const string& instance)
 {
-    Stage& s = _stages[stage];
-    if (!s.registeredVariables.count(uniform.name))
+    auto it = _uniforms.find(block);
+    if (it == _uniforms.end())
     {
-        s.registeredVariables.insert(uniform.name);
-        s.uniforms.push_back(uniform);
+        _uniforms[block] = std::make_shared<VariableBlock>(block, instance);
     }
 }
 
-void Shader::registerInput(const Variable& input, size_t stage)
+void Shader::createUniform(const string& block, const string& type, const string& name, const string& sementic, ValuePtr value)
 {
-    Stage& s = _stages[stage];
-    if (!s.registeredVariables.count(input.name))
+    auto it = _uniforms.find(block);
+    if (it == _uniforms.end())
     {
-        s.registeredVariables.insert(input.name);
-        s.inputs.push_back(input);
+        throw ExceptionShaderGenError("No uniform block named '" + block + "' exists for shader '" + getName() + "'");
+    }
+    VariableBlockPtr  blockPtr = it->second;
+    if (blockPtr->variableMap.find(name) == blockPtr->variableMap.end())
+    {
+        VariablePtr variablePtr = std::make_shared<Variable>(type, name, sementic, value);
+        blockPtr->variableMap[name] = variablePtr;
+        blockPtr->variableOrder.push_back(variablePtr.get());
     }
 }
 
-void Shader::registerOutput(const Variable& output, size_t stage)
+const Shader::VariableBlock& Shader::getUniformBlock(const string& block)
 {
-    Stage& s = _stages[stage];
-    if (!s.registeredVariables.count(output.name))
+    auto it = _uniforms.find(block);
+    if (it == _uniforms.end())
     {
-        s.registeredVariables.insert(output.name);
-        s.outputs.push_back(output);
+        throw ExceptionShaderGenError("No uniform block named '" + block + "' exists for shader '" + getName() + "'");
+    }
+    return *it->second;
+}
+
+void Shader::createAppData(const string& type, const string& name, const string& sementic)
+{
+    if (_appData.variableMap.find(name) == _appData.variableMap.end())
+    {
+        VariablePtr variable = std::make_shared<Variable>(type, name, sementic);
+        _appData.variableMap[name] = variable;
+        _appData.variableOrder.push_back(variable.get());
     }
 }
 

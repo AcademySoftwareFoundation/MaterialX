@@ -6,7 +6,7 @@ float SQR(float a)
 // Arnold standard shader diffuse
 vec3 standardShaderDiffuse(vec3 N, vec3 L, vec3 inDiffuse)
 {
-    float NDL = saturate(dot(N, L));
+    float NDL = clamp(dot(N, L), 0.0f, 1.0f);
     if (NDL > 0.0f)
         return inDiffuse * NDL;
     else
@@ -17,26 +17,26 @@ vec3 standardShaderDiffuse(vec3 N, vec3 L, vec3 inDiffuse)
 vec3 standardShaderSpecular(
     vec3 N,
     vec3 SL, // Same as diffuse for now
-    vec3 V, // PS_IN.Vw
+    vec3 V, // vd.viewWorld
     vec3 specular,
     float roughness)
 {
 
-    float LdotN = saturate(dot(SL, N));
+    float LdotN = clamp(dot(SL, N), 0.0f, 1.0f);
     if (LdotN == 0.0f)
         return vec3(0.0f, 0.0f, 0.0f);
-    float VdotN = saturate(dot(V, N));
+    float VdotN = clamp(dot(V, N), 0.0f, 1.0f);
     if (VdotN == 0.0f)
         return vec3(0.0f, 0.0f, 0.0f);
 
     vec3 iPlusO = SL + V;
     vec3 microfacet = normalize(iPlusO);
 
-    float LdotM = saturate(dot(SL, microfacet));
+    float LdotM = clamp(dot(SL, microfacet), 0.0f, 1.0f);
     if (LdotM == 0.0f) return vec3(0.0f, 0.0f, 0.0f);
-    float VdotM = saturate(dot(V, microfacet));
+    float VdotM = clamp(dot(V, microfacet), 0.0f, 1.0f);
     if (VdotM == 0.0f) return vec3(0.0f, 0.0f, 0.0f);
-    float MdotN = saturate(dot(microfacet, N));
+    float MdotN = clamp(dot(microfacet, N), 0.0f, 1.0f);
     if (MdotN == 0.0f) return vec3(0.0f, 0.0f, 0.0f);
 
     float LdotN2 = SQR(LdotN);
@@ -44,7 +44,7 @@ vec3 standardShaderSpecular(
     float MdotN2 = SQR(MdotN);
     float MdotN4 = SQR(MdotN2);
 
-    float rx = SQR(saturate(roughness));
+    float rx = SQR(clamp(roughness, 0.0f, 1.0f));
 
     float rx2 = SQR(rx);
     float tanThetaL = sqrt(1.0f - LdotN2) / LdotN;
@@ -81,10 +81,10 @@ vec3 computeDiffuse(float roughness, vec3 normal)
     {
         vec3 LightPos = GetLightPos(ActiveLightIndex);
         vec3 LightDir = GetLightDir(ActiveLightIndex);
-        vec3 LightVec = GetLightVectorFunction(ActiveLightIndex, LightPos, PS_IN.WorldPosition, LightDir);
+        vec3 LightVec = GetLightVectorFunction(ActiveLightIndex, LightPos, vd.positionWorld, LightDir);
         vec3 LightVecNorm = normalize(LightVec);
 
-        vec3 LightContribution = LightContributionFunction(ActiveLightIndex, PS_IN.WorldPosition, LightVec);
+        vec3 LightContribution = LightContributionFunction(ActiveLightIndex, vd.positionWorld, LightVec);
         L += standardShaderDiffuse(normal, LightVecNorm, LightContribution);
     }
     return L;
@@ -99,10 +99,10 @@ void computeSpecular(float roughness, vec3 normal, vec3 view, out vec3 result)
     {
         vec3 LightPos = GetLightPos(ActiveLightIndex);
         vec3 LightDir = GetLightDir(ActiveLightIndex);
-        vec3 LightVec = GetLightVectorFunction(ActiveLightIndex, LightPos, PS_IN.WorldPosition, LightDir);
+        vec3 LightVec = GetLightVectorFunction(ActiveLightIndex, LightPos, vd.positionWorld, LightDir);
         vec3 LightVecNorm = normalize(LightVec);
 
-        vec3 LightContribution = LightContributionFunction(ActiveLightIndex, PS_IN.WorldPosition, LightVec);
+        vec3 LightContribution = LightContributionFunction(ActiveLightIndex, vd.positionWorld, LightVec);
 
         vec3 specular = standardShaderSpecular(normal, LightVecNorm, view, LightContribution, roughness);
         L += specular;

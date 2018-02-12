@@ -49,7 +49,7 @@ void adskSurface(
     _diffuse = computeDiffuse(diffuse_roughness, worldNormal);
 
     // Compute specular
-    vec3 worldView = normalize(PS_IN.WorldView); // Not correct. Which one to use
+    vec3 worldView = normalize(vd.viewWorld); // Not correct. Which one to use
     vec3 _specular = vec3(0.0);
     computeSpecular(specular_roughness, worldNormal, worldView, _specular);
 

@@ -117,11 +117,69 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     emitTypeDefs(shader);
     emitFunctionDefinitions(shader);
 
-    emitShaderSignature(shader);
+    // Emit shader type
+    const SgOutputSocket* outputSocket = shader.getNodeGraph()->getOutputSocket();
+    if (outputSocket->type == "surfaceshader")
+    {
+        shader.addStr("surface ");
+    }
+    else if (outputSocket->type == "volumeshader")
+    {
+        shader.addStr("volume ");
+    }
+    else
+    {
+        shader.addStr("shader ");
+    }
 
+    // Emit shader name
+    shader.addStr(shader.getName() + "\n");
+
+    shader.beginScope(Shader::Brackets::PARENTHESES);
+
+    // Emit all app data inputs
+    const Shader::VariableBlock& appDataBlock = shader.getAppDataBlock();
+    for (const Shader::Variable* input : appDataBlock.variableOrder)
+    {
+        const string& type = _syntax->getTypeName(input->type);
+        const string value = _syntax->getTypeDefault(input->type, true);
+        shader.addLine(type + " " + input->name + " = " + value + " [[ int lockgeom=0 ]],");
+    }
+
+    // Emit all uniforms from global scope
+    const Shader::VariableBlock& globalUniformBlock = shader.getUniformBlock(Shader::GLOBAL_SCOPE);
+    for (const Shader::Variable* uniform : globalUniformBlock.variableOrder)
+    {
+        shader.beginLine();
+        emitUniform(*uniform, shader);
+        shader.addStr(",");
+        shader.endLine(false);
+    }
+
+    // Emit all uniforms from shader interface block
+    const Shader::VariableBlock& shaderInterfaceBlock = shader.getUniformBlock(Shader::SHADER_INTERFACE);
+    for (const Shader::Variable* uniform : shaderInterfaceBlock.variableOrder)
+    {
+        shader.beginLine();
+        emitUniform(*uniform, shader);
+        shader.addStr(",");
+        shader.endLine(false);
+    }
+
+    // Emit shader output
+    const string type = _syntax->getOutputTypeName(outputSocket->type);
+    const string variable = _syntax->getVariableName(outputSocket);
+    const string value = _syntax->getTypeDefault(outputSocket->type, true);
+    shader.addLine(type + " " + variable + " = " + value, false);
+
+    shader.endScope();
+
+    // Emit shader body
     shader.beginScope(Shader::Brackets::BRACES);
+
     emitFunctionCalls(shader);
     emitFinalOutput(shader);
+
     shader.endScope();
 
     return shaderPtr;
@@ -167,48 +225,6 @@ void OslShaderGenerator::emitFunctionCalls(Shader &shader)
 
     // Call parent
     ShaderGenerator::emitFunctionCalls(shader);
-}
-
-void OslShaderGenerator::emitShaderSignature(Shader &shader)
-{
-    // Emit shader type
-    SgNodeGraph* graph = shader.getNodeGraph();
-    const SgOutputSocket* outputSocket = graph->getOutputSocket();
-
-    if (outputSocket->type == "surfaceshader")
-    {
-        shader.addStr("surface ");
-    }
-    else if (outputSocket->type == "volumeshader")
-    {
-        shader.addStr("volume ");
-    }
-    else
-    {
-        shader.addStr("shader ");
-    }
-
-    // Emit shader name
-    shader.addStr(shader.getName() + "\n");
-
-    shader.beginScope(Shader::Brackets::PARENTHESES);
-
-    // Emit all shader uniforms
-    for (const Shader::Variable& uniform : shader.getUniforms())
-    {
-        shader.beginLine();
-        emitUniform(uniform, shader);
-        shader.addStr(",");
-        shader.endLine(false);
-    }
-
-    // Emit shader output
-    const string type = _syntax->getOutputTypeName(outputSocket->type);
-    const string variable = _syntax->getVariableName(outputSocket);
-    const string value = _syntax->getTypeDefault(outputSocket->type, true);
-    shader.addLine(type + " " + variable + " = " + value, false);
-
-    shader.endScope();
 }
 
 } // namespace MaterialX

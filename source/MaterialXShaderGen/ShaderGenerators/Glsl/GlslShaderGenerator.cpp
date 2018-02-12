@@ -1,10 +1,16 @@
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/GlslShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/GlslSyntax.h>
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/PositionGlsl.h>
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/NormalGlsl.h>
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/TangentGlsl.h>
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/BitangentGlsl.h>
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/TexCoordGlsl.h>
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/AdskSurfaceGlsl.h>
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/SurfaceGlsl.h>
 #include <MaterialXShaderGen/ShaderGenerators/Common/SourceCode.h>
 #include <MaterialXShaderGen/ShaderGenerators/Common/Swizzle.h>
 #include <MaterialXShaderGen/ShaderGenerators/Common/Switch.h>
 #include <MaterialXShaderGen/ShaderGenerators/Common/Compare.h>
-#include <MaterialXShaderGen/HwShader.h>
 
 namespace MaterialX
 {
@@ -33,14 +39,14 @@ namespace
     };
 }
 
+
 const string GlslShaderGenerator::LANGUAGE = "glsl";
+const string GlslShaderGenerator::TARGET = "glsl_v4.0";
 
 GlslShaderGenerator::GlslShaderGenerator()
     : ShaderGenerator(std::make_shared<GlslSyntax>())
 {
     _bsdfNodeArguments.resize(2);
-
-    // Add target specific implementations
 
     // <!-- <compare> -->
     registerImplementation("IM_compare__float__glsl", Compare::creator);
@@ -116,6 +122,155 @@ GlslShaderGenerator::GlslShaderGenerator()
     registerImplementation("IM_swizzle__vector4_vector2__glsl", Swizzle::creator);
     registerImplementation("IM_swizzle__vector4_vector3__glsl", Swizzle::creator);
     registerImplementation("IM_swizzle__vector4_vector4__glsl", Swizzle::creator);
+
+    // <!-- <position> -->
+    registerImplementation("IM_position__vector3__glsl", PositionGlsl::creator);
+    // <!-- <normal> -->
+    registerImplementation("IM_normal__vector3__glsl", NormalGlsl::creator);
+    // <!-- <tangent> -->
+    registerImplementation("IM_tangent__vector3__glsl", TangentGlsl::creator);
+    // <!-- <bitangent> -->
+    registerImplementation("IM_bitangent__vector3__glsl", BitangentGlsl::creator);
+    // <!-- <texcoord> -->
+    registerImplementation("IM_texcoord__vector2__glsl", TexCoordGlsl::creator);
+    registerImplementation("IM_texcoord__vector3__glsl", TexCoordGlsl::creator);
+
+    // <!-- <adskSurface> -->
+    registerImplementation("IM_adskSurface__glsl", AdskSurfaceGlsl::creator);
+    // <!-- <surface> -->
+    registerImplementation("IM_surface__glsl", SurfaceGlsl::creator);
+}
+
+ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr element)
+{
+    HwShaderPtr shaderPtr = std::make_shared<HwShader>(shaderName);
+    shaderPtr->initialize(element, *this);
+
+    HwShader& shader = *shaderPtr;
+
+    //
+    // Emit code for vertex shader stage
+    //
+
+    shader.setActiveStage(HwShader::VERTEX_STAGE);
+
+    // Create required variables for vertex stage
+    shader.createAppData(DataType::VECTOR3, "i_position");
+    shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_modelMatrix");
+    shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_viewProjectionMatrix");
+
+    // Add version directive
+    shader.addLine("#version 400", false);
+    shader.newLine();
+
+    // Add all global scope uniforms
+    const Shader::VariableBlock& globalUniformBlock = shader.getUniformBlock(Shader::GLOBAL_SCOPE);
+    for (const Shader::Variable* uniform : globalUniformBlock.variableOrder)
+    {
+        emitUniform(*uniform, shader);
+    }
+    shader.newLine();
+
+    // Add all app data inputs
+    const Shader::VariableBlock& appDataBlock = shader.getAppDataBlock();
+    for (const Shader::Variable* input : appDataBlock.variableOrder)
+    {
+        const string& type = _syntax->getTypeName(input->type);
+        shader.addLine("in " + type + " " + input->name);
+    }
+    shader.newLine();
+
+    // Add vertex data block
+    const Shader::VariableBlock& vertexDataBlock = shader.getVertexDataBlock();
+    shader.addLine("out VertexData", false);
+    shader.beginScope(Shader::Brackets::BRACES);
+    for (const Shader::Variable* output : vertexDataBlock.variableOrder)
+    {
+        const string& type = _syntax->getTypeName(output->type);
+        shader.addLine(type + " " + output->name);
+    }
+    shader.endScope(false, false);
+    shader.addStr(" " + vertexDataBlock.instance + ";\n");
+    shader.newLine();
+
+    emitFunctionDefinitions(shader);
+
+    // Add main function
+    shader.addLine("void main()", false);
+    shader.beginScope(Shader::Brackets::BRACES);
+    shader.addLine("vec4 hPositionWorld = u_modelMatrix * vec4(i_position, 1.0)");
+    shader.addLine("gl_Position = u_viewProjectionMatrix * hPositionWorld");
+    emitFunctionCalls(shader);
+    shader.endScope();
+    shader.newLine();
+
+    //
+    // Emit code for pixel shader stage
+    //
+
+    shader.setActiveStage(HwShader::PIXEL_STAGE);
+
+    // Add version directive
+    shader.addLine("#version 460", false);
+    shader.newLine();
+
+    // Add global constants and type definitions
+    shader.addInclude("sx/impl/shadergen/source/glsl/defines.glsl", *this);
+    shader.newLine();
+    emitTypeDefs(shader);
+
+    // Add all global scope uniforms
+    for (const Shader::Variable* uniform : globalUniformBlock.variableOrder)
+    {
+        emitUniform(*uniform, shader);
+    }
+    shader.newLine();
+
+    // Add all shader interface uniforms
+    const Shader::VariableBlock& shaderInterfaceBlock = shader.getUniformBlock(Shader::SHADER_INTERFACE);
+    for (const Shader::Variable* uniform : shaderInterfaceBlock.variableOrder)
+    {
+        emitUniform(*uniform, shader);
+    }
+    shader.newLine();
+
+    // Add vertex data block
+    shader.addLine("in VertexData", false);
+    shader.beginScope(Shader::Brackets::BRACES);
+    for (const Shader::Variable* input : vertexDataBlock.variableOrder)
+    {
+        const string& type = _syntax->getTypeName(input->type);
+        shader.addLine(type + " " + input->name);
+    }
+    shader.endScope(false, false);
+    shader.addStr(" " + vertexDataBlock.instance + ";\n");
+    shader.newLine();
+
+
+    // Add the pixel shader output. This needs to be a vec4 for rendering
+    // and upstream connection will be converted to vec4 if needed in emitFinalOutput()
+    shader.addComment("Data output by the pixel shader");
+    const SgOutputSocket* outputSocket = shader.getNodeGraph()->getOutputSocket();
+    const string variable = _syntax->getVariableName(outputSocket);
+    shader.addLine("out vec4 " + variable);
+    shader.newLine();
+
+    // Emit common math functions
+    shader.addInclude("sx/impl/shadergen/source/glsl/math.glsl", *this);
+    shader.newLine();
+
+    // Add all functions for node implementations
+    emitFunctionDefinitions(shader);
+
+    // Add main function
+    shader.addLine("void main()", false);
+    shader.beginScope(Shader::Brackets::BRACES);
+    emitFunctionCalls(shader);
+    emitFinalOutput(shader);
+    shader.endScope();
+    shader.newLine();
+
+    return shaderPtr;
 }
 
 void GlslShaderGenerator::emitFunctionDefinitions(Shader& shader)
@@ -171,18 +326,48 @@ void GlslShaderGenerator::emitFunctionCalls(Shader &shader)
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
-void GlslShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& shader)
+void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
 {
-    // A file texture input needs special handling on GLSL
-    if (uniform.type == DataType::FILENAME)
+    const SgOutputSocket* outputSocket = shader.getNodeGraph()->getOutputSocket();
+    const string& outputVariable = _syntax->getVariableName(outputSocket);
+
+    // Early out for the rare case where the whole graph is just a single value
+    if (!outputSocket->connection)
     {
-        shader.addLine("uniform texture2D " + uniform.name + "_texture");
-        shader.addLine("uniform sampler2D " + uniform.name);
+        string outputValue = outputSocket->value ? _syntax->getValue(*outputSocket->value) : _syntax->getTypeDefault(outputSocket->type);
+        if (!DataType::isQuadruple(outputSocket->type))
+        {
+            string finalOutput = outputVariable + "_tmp";
+            shader.addLine(_syntax->getTypeName(outputSocket->type) + " " + finalOutput + " = " + outputValue);
+            toVec4(outputSocket->type, finalOutput);
+            shader.addLine(outputVariable + " = " + finalOutput);
+        }
+        else
+        {
+            shader.addLine(outputVariable + " = " + outputValue);
+        }
+        return;
+    }
+
+    string finalOutput = _syntax->getVariableName(outputSocket->connection);
+
+    if (shader.hasClassification(SgNode::Classification::SURFACE))
+    {
+        shader.addComment("TODO: How should we output transparency?");
+        shader.addLine("float outAlpha = 1.0 - maxv(" + finalOutput + ".transparency)");
+        shader.addLine(outputVariable + " = vec4(" + finalOutput + ".color, outAlpha)");
     }
     else
     {
-        const string initStr = (uniform.value ? _syntax->getValue(*uniform.value, true) : _syntax->getTypeDefault(uniform.type, true));
-        shader.addLine("uniform " + _syntax->getTypeName(uniform.type) + " " + uniform.name + (initStr.empty() ? "" : " = " + initStr));
+        if (outputSocket->channels != EMPTY_STRING)
+        {
+            finalOutput = _syntax->getSwizzledVariable(finalOutput, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
+        }
+        if (!DataType::isQuadruple(outputSocket->type))
+        {
+            toVec4(outputSocket->type, finalOutput);
+        }
+        shader.addLine(outputVariable + " = " + finalOutput);
     }
 }
 
@@ -290,6 +475,44 @@ void GlslShaderGenerator::toVec4(const string& type, string& variable)
         // Can't understand other types. Just return black.
         variable = "vec4(0.0,0.0,0.0,1.0)";
     }
+}
+
+void GlslShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& shader)
+{
+    // A file texture input needs special handling on GLSL
+    if (uniform.type == DataType::FILENAME)
+    {
+        shader.addLine("uniform sampler2D " + uniform.name);
+    }
+    else
+    {
+        const string& type = _syntax->getTypeName(uniform.type);
+        string line = "uniform " + type + " " + uniform.name;
+        if (uniform.semantic.length())
+            line += " : " + uniform.semantic;
+        if (uniform.value)
+            line += " = " + _syntax->getValue(*uniform.value, true);
+        else
+            line += " = " + _syntax->getTypeDefault(uniform.type, true);
+        shader.addLine(line);
+    }
+}
+
+
+const string GlslImplementation::SPACE = "space";
+const string GlslImplementation::WORLD = "world";
+const string GlslImplementation::OBJECT = "object";
+const string GlslImplementation::MODEL = "model";
+const string GlslImplementation::INDEX = "index";
+
+const string& GlslImplementation::getLanguage() const
+{
+    return GlslShaderGenerator::LANGUAGE;
+}
+
+const string& GlslImplementation::getTarget() const
+{
+    return GlslShaderGenerator::TARGET;
 }
 
 }

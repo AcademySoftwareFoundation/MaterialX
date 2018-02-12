@@ -12,24 +12,46 @@ using HwShaderPtr = shared_ptr<class HwShader>;
 class HwShader : public Shader
 {
 public:
-    // Identifier for additional vertex shader stage
+    /// Identifier for additional vertex shader stage
     static const size_t VERTEX_STAGE = Shader::NUM_STAGES;
     static const size_t NUM_STAGES = Shader::NUM_STAGES + 1;
 
+    /// Identifier for vertex data block.
+    static const string VERTEX_DATA_BLOCK;
+
 public:
-    HwShader(const string& name) : Shader(name)  {}
+    HwShader(const string& name);
+
+    /// Initialize the shader before shader generation.
+    /// @param element The root element to generate the shader from. 
+    /// @param shadergen The shader generator instance.
+    void initialize(ElementPtr element, ShaderGenerator& shadergen) override;
 
     /// Return the number of shader stages for this shader.
-    virtual size_t numStages() const { return NUM_STAGES; }
+    size_t numStages() const override { return NUM_STAGES; }
 
-    /// Query if an output has been calculated by the vertex stage
-    bool isCalculated(const string& outputName) const { return _calculatedOutputs.count(outputName) > 0; }
+    /// Create a new variable for vertex data. This creates an 
+    /// output from the vertex stage and and input to the pixel stage.
+    virtual void createVertexData(const string& type, const string& name, const string& sementic = EMPTY_STRING);
 
-    /// Set an output as calculated by the vertex stage
-    void setCalculated(const string& outputName) { _calculatedOutputs.insert(outputName); }
+    /// Return the block of avertex data variables.
+    const VariableBlock& getVertexDataBlock() { return _vertexData; }
+    
+    /// Query if an output has been calculated in a given stage
+    bool isCalculated(const string& outputName) const 
+    {
+        return _calculatedVertexData.count(outputName) > 0;
+    }
+
+    /// Set an output as calculated in a given stage
+    void setCalculated(const string& outputName)
+    {
+        _calculatedVertexData.insert(outputName);
+    }
 
 private:
-    std::set<string> _calculatedOutputs;
+    VariableBlock _vertexData;
+    std::set<string> _calculatedVertexData;
 };
 
 } // namespace MaterialX

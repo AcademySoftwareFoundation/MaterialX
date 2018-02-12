@@ -8,7 +8,7 @@ void SgImplementation::initialize(ElementPtr, ShaderGenerator&)
 {
 }
 
-void SgImplementation::registerVariables(const SgNode&, ShaderGenerator&, Shader&)
+void SgImplementation::createVariables(const SgNode&, ShaderGenerator&, Shader&)
 {
 }
 

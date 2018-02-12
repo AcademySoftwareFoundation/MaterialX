@@ -1,5 +1,5 @@
-#ifndef MATERIALX_OGSFX_CODEGENERATOR_H
-#define MATERIALX_OGSFX_CODEGENERATOR_H
+#ifndef MATERIALX_OGSFXSHADERGENERATOR_H
+#define MATERIALX_OGSFXSHADERGENERATOR_H
 
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/GlslShaderGenerator.h>
 #include <MaterialXShaderGen/HwShader.h>
@@ -22,8 +22,11 @@ public:
 public:
     OgsFxShader(const string& name) : HwShader(name) {}
 
-    /// Return the number of shader stages for this shader.
     size_t numStages() const override { return NUM_STAGES; }
+
+    void createUniform(const string& block, const string& type, const string& name, const string& sementic = EMPTY_STRING, ValuePtr value = nullptr) override;
+    void createAppData(const string& type, const string& name, const string& sementic = EMPTY_STRING) override;
+    void createVertexData(const string& type, const string& name, const string& sementic = EMPTY_STRING) override;
 };
 
 
@@ -45,32 +48,11 @@ public:
     /// the element and all dependencies upstream into shader code.
     ShaderPtr generate(const string& shaderName, ElementPtr element) override;
 
-    /// Emit the final output expression
-    void emitFinalOutput(Shader& shader) const override;
-
     /// Emit a shader uniform input variable
     void emitUniform(const Shader::Variable& uniform, Shader& shader) override;
 
     /// Unique identifyer for this generator target
     static const string TARGET;
-};
-
-
-/// Base class for node implementations targeting OgsFx
-class OgsFxImplementation : public SgImplementation
-{
-public:
-    const string& getLanguage() const override;
-    const string& getTarget() const override;
-
-protected:
-    OgsFxImplementation() {}
-
-    static const string SPACE;
-    static const string WORLD;
-    static const string OBJECT;
-    static const string MODEL;
-    static const string INDEX;
 };
 
 }
