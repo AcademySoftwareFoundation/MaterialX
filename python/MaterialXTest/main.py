@@ -28,7 +28,7 @@ _exampleDir = os.path.join(_fileDir, '../../documents/Examples/')
 _searchPath = _libraryDir + ';' + _exampleDir
 
 _libraryFilenames = ('mx_stdlib_defs.mtlx',
-                     'impl/reference/mx_stdlib_impl_osl.mtlx')
+                     'impl/reference/osl/impl.mtlx')
 _exampleFilenames = ('CustomNode.mtlx',
                      'Looks.mtlx',
                      'MaterialGraphs.mtlx',
@@ -142,6 +142,12 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(diffColor.getUpstreamElement(material) == output2)
         self.assertTrue(diffColor.getBoundValue(material) is None)
         self.assertTrue(diffColor.getDefaultValue() == mx.Color3(1.0))
+
+        # Create an inherited material.
+        material2 = doc.addMaterial()
+        material2.setInheritsFrom(material)
+        self.assertTrue(roughness.getBoundValue(material2) == 0.5)
+        self.assertTrue(diffColor.getUpstreamElement(material2) == output2)
 
         # Create a look for the material.
         look = doc.addLook()

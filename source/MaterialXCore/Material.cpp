@@ -30,10 +30,32 @@ ShaderRefPtr Material::addShaderRef(const string& name, const string& node)
     return shaderRef;
 }
 
+vector<ShaderRefPtr> Material::getActiveShaderRefs() const
+{
+    vector<ShaderRefPtr> activeShaderRefs;
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        vector<ShaderRefPtr> shaderRefs = elem->asA<Material>()->getShaderRefs();
+        activeShaderRefs.insert(activeShaderRefs.end(), shaderRefs.begin(), shaderRefs.end());
+    }
+    return activeShaderRefs;
+}
+
+vector<OverridePtr> Material::getActiveOverrides() const
+{
+    vector<OverridePtr> activeOverrides;
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        vector<OverridePtr> overrides = elem->asA<Material>()->getOverrides();
+        activeOverrides.insert(activeOverrides.end(), overrides.begin(), overrides.end());
+    }
+    return activeOverrides;
+}
+
 vector<NodeDefPtr> Material::getShaderNodeDefs(const string& target, const string& type) const
 {
     vector<NodeDefPtr> nodeDefs;
-    for (ShaderRefPtr shaderRef : getShaderRefs())
+    for (ShaderRefPtr shaderRef : getActiveShaderRefs())
     {
         NodeDefPtr nodeDef = shaderRef->getNodeDef();
         if (!nodeDef || !targetStringsMatch(nodeDef->getTarget(), target))
@@ -65,7 +87,7 @@ vector<MaterialAssignPtr> Material::getReferencingMaterialAssigns() const
     return matAssigns;
 }
 
-void Material::setInheritsFrom(MaterialPtr mat)
+void Material::setInheritsFrom(ElementPtr mat)
 {
     for (MaterialInheritPtr inherit : getMaterialInherits())
     {
@@ -77,12 +99,12 @@ void Material::setInheritsFrom(MaterialPtr mat)
     }
 }
 
-MaterialPtr Material::getInheritsFrom() const
+ElementPtr Material::getInheritsFrom() const
 {
     vector<MaterialInheritPtr> inherits = getMaterialInherits();
     if (inherits.empty())
     {
-        return MaterialPtr();
+        return nullptr;
     }
     return getRoot()->getChildOfType<Material>(inherits[0]->getName());
 }
@@ -149,7 +171,10 @@ vector<CollectionPtr> Material::getBoundGeomCollections() const
 bool Material::validate(string* message) const
 {
     bool res = true;
-    validateRequire(!getShaderRefs().empty(), res, message, "Missing shader reference");
+    if (!hasInheritanceCycle())
+    {
+        validateRequire(!getActiveShaderRefs().empty(), res, message, "Missing shader reference");
+    }
     return Element::validate(message) && res;
 }
 
@@ -208,6 +233,10 @@ bool ShaderRef::validate(string* message) const
     bool res = true;
     NodeDefPtr nodeDef = getNodeDef();
     TypeDefPtr typeDef = nodeDef ? getDocument()->getTypeDef(nodeDef->getType()) : TypeDefPtr();
+    if (!nodeDef)
+    {
+        validateRequire(!hasNodeString() && !hasNodeDefString(), res, message, "Shader reference to a non-existent nodedef");
+    }
     if (typeDef)
     {
         validateRequire(typeDef->getSemantic() == SHADER_SEMANTIC, res, message, "Shader reference to a non-shader nodedef");

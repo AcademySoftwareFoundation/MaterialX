@@ -1,0 +1,549 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+  All rights reserved.  See LICENSE.txt for license.
+
+  Declarations for glsl implementations of standard nodes included in the MaterialX specification.
+-->
+
+<materialx version="1.35">
+
+  <!-- ======================================================================== -->
+  <!-- Texture nodes                                                            -->
+  <!-- ======================================================================== -->
+
+  <!-- <image> -->
+  <implementation name="IM_image__float__glsl" nodedef="ND_image__float" file="stdlib/impl/shadergen/glsl/source/mx_image_float.glsl" function="mx_image_float" language="glsl">
+    <parameter name="default" type="float" implname="default_value"/>
+  </implementation>
+  <implementation name="IM_image__color2__glsl" nodedef="ND_image__color2" file="stdlib/impl/shadergen/glsl/source/mx_image_color2.glsl" function="mx_image_color2" language="glsl">
+    <parameter name="default" type="color2" implname="default_value"/>
+  </implementation>
+  <implementation name="IM_image__color3__glsl" nodedef="ND_image__color3" file="stdlib/impl/shadergen/glsl/source/mx_image_color3.glsl" function="mx_image_color3" language="glsl">
+    <parameter name="default" type="color3" implname="default_value"/>
+  </implementation>
+  <implementation name="IM_image__color4__glsl" nodedef="ND_image__color4" file="stdlib/impl/shadergen/glsl/source/mx_image_color4.glsl" function="mx_image_color4" language="glsl">
+    <parameter name="default" type="color4" implname="default_value"/>
+  </implementation>
+  <implementation name="IM_image__vector2__glsl" nodedef="ND_image__vector2" file="stdlib/impl/shadergen/glsl/source/mx_image_color2.glsl" function="mx_image_color2" language="glsl">
+    <parameter name="default" type="vector2" implname="default_value"/>
+  </implementation>
+  <implementation name="IM_image__vector3__glsl" nodedef="ND_image__vector3" file="stdlib/impl/shadergen/glsl/source/mx_image_color3.glsl" function="mx_image_color3" language="glsl">
+    <parameter name="default" type="vector3" implname="default_value"/>
+  </implementation>
+  <implementation name="IM_image__vector4__glsl" nodedef="ND_image__vector4" file="stdlib/impl/shadergen/glsl/source/mx_image_color4.glsl" function="mx_image_color4" language="glsl">
+    <parameter name="default" type="vector4" implname="default_value"/>
+  </implementation>
+
+  <!-- <triplanarprojection> -->
+
+
+  <!-- ======================================================================== -->
+  <!-- Procedural nodes                                                         -->
+  <!-- ======================================================================== -->
+
+  <!-- <constant> -->
+  <implementation name="IM_constant__float__glsl" nodedef="ND_constant__float" file="stdlib/impl/shadergen/glsl/source/mx_constant.inline" language="glsl"/>
+  <implementation name="IM_constant__color2__glsl" nodedef="ND_constant__color2" file="stdlib/impl/shadergen/glsl/source/mx_constant.inline" language="glsl"/>
+  <implementation name="IM_constant__color3__glsl" nodedef="ND_constant__color3" file="stdlib/impl/shadergen/glsl/source/mx_constant.inline" language="glsl"/>
+  <implementation name="IM_constant__color4__glsl" nodedef="ND_constant__color4" file="stdlib/impl/shadergen/glsl/source/mx_constant.inline" language="glsl"/>
+  <implementation name="IM_constant__vector2__glsl" nodedef="ND_constant__vector2" file="stdlib/impl/shadergen/glsl/source/mx_constant.inline" language="glsl"/>
+  <implementation name="IM_constant__vector3__glsl" nodedef="ND_constant__vector3" file="stdlib/impl/shadergen/glsl/source/mx_constant.inline" language="glsl"/>
+  <implementation name="IM_constant__vector4__glsl" nodedef="ND_constant__vector4" file="stdlib/impl/shadergen/glsl/source/mx_constant.inline" language="glsl"/>
+  <implementation name="IM_constant__boolean__glsl" nodedef="ND_constant__boolean" file="stdlib/impl/shadergen/glsl/source/mx_constant.inline" language="glsl"/>
+  <implementation name="IM_constant__integer__glsl" nodedef="ND_constant__integer" file="stdlib/impl/shadergen/glsl/source/mx_constant.inline" language="glsl"/>
+  <implementation name="IM_constant__matrix33__glsl" nodedef="ND_constant__matrix33" file="stdlib/impl/shadergen/glsl/source/mx_constant.inline" language="glsl"/>
+  <implementation name="IM_constant__matrix44__glsl" nodedef="ND_constant__matrix44" file="stdlib/impl/shadergen/glsl/source/mx_constant.inline" language="glsl"/>
+  <implementation name="IM_constant__string__glsl" nodedef="ND_constant__string" file="stdlib/impl/shadergen/glsl/source/mx_constant.inline" language="glsl"/>
+  <implementation name="IM_constant__filename__glsl" nodedef="ND_constant__filename" file="stdlib/impl/shadergen/glsl/source/mx_constant.inline" language="glsl"/>
+
+  <!-- <ramplr> -->
+  <implementation name="IM_ramplr__float__glsl" nodedef="ND_ramplr__float" file="stdlib/impl/shadergen/glsl/source/mx_ramplr_float.glsl" function="mx_ramplr_float" language="glsl"/>
+  <implementation name="IM_ramplr__color2__glsl" nodedef="ND_ramplr__color2" file="stdlib/impl/shadergen/glsl/source/mx_ramplr_vector2.glsl" function="mx_ramplr_vector2" language="glsl"/>
+  <implementation name="IM_ramplr__color3__glsl" nodedef="ND_ramplr__color3" file="stdlib/impl/shadergen/glsl/source/mx_ramplr_vector3.glsl" function="mx_ramplr_vector3" language="glsl"/>
+  <implementation name="IM_ramplr__color4__glsl" nodedef="ND_ramplr__color4" file="stdlib/impl/shadergen/glsl/source/mx_ramplr_vector4.glsl" function="mx_ramplr_vector4" language="glsl"/>
+  <implementation name="IM_ramplr__vector2__glsl" nodedef="ND_ramplr__vector2" file="stdlib/impl/shadergen/glsl/source/mx_ramplr_vector2.glsl" function="mx_ramplr_vector2" language="glsl"/>
+  <implementation name="IM_ramplr__vector3__glsl" nodedef="ND_ramplr__vector3" file="stdlib/impl/shadergen/glsl/source/mx_ramplr_vector3.glsl" function="mx_ramplr_vector3" language="glsl"/>
+  <implementation name="IM_ramplr__vector4__glsl" nodedef="ND_ramplr__vector4" file="stdlib/impl/shadergen/glsl/source/mx_ramplr_vector4.glsl" function="mx_ramplr_vector4" language="glsl"/>
+  <!-- <ramptb> -->
+  <implementation name="IM_ramptb__float__glsl" nodedef="ND_ramptb__float" file="stdlib/impl/shadergen/glsl/source/mx_ramptb_float.glsl" function="mx_ramptb_float" language="glsl"/>
+  <implementation name="IM_ramptb__color2__glsl" nodedef="ND_ramptb__color2" file="stdlib/impl/shadergen/glsl/source/mx_ramptb_vector2.glsl" function="mx_ramptb_vector2" language="glsl"/>
+  <implementation name="IM_ramptb__color3__glsl" nodedef="ND_ramptb__color3" file="stdlib/impl/shadergen/glsl/source/mx_ramptb_vector3.glsl" function="mx_ramptb_vector3" language="glsl"/>
+  <implementation name="IM_ramptb__color4__glsl" nodedef="ND_ramptb__color4" file="stdlib/impl/shadergen/glsl/source/mx_ramptb_vector4.glsl" function="mx_ramptb_vector4" language="glsl"/>
+  <implementation name="IM_ramptb__vector2__glsl" nodedef="ND_ramptb__vector2" file="stdlib/impl/shadergen/glsl/source/mx_ramptb_vector2.glsl" function="mx_ramptb_vector2" language="glsl"/>
+  <implementation name="IM_ramptb__vector3__glsl" nodedef="ND_ramptb__vector3" file="stdlib/impl/shadergen/glsl/source/mx_ramptb_vector3.glsl" function="mx_ramptb_vector3" language="glsl"/>
+  <implementation name="IM_ramptb__vector4__glsl" nodedef="ND_ramptb__vector4" file="stdlib/impl/shadergen/glsl/source/mx_ramptb_vector4.glsl" function="mx_ramptb_vector4" language="glsl"/>
+  <!-- <ramp4> -->
+  <implementation name="IM_ramp4__float__glsl" nodedef="ND_ramp4__float" file="stdlib/impl/shadergen/glsl/source/mx_ramp4_float.glsl" function="mx_ramp4_float" language="glsl"/>
+  <implementation name="IM_ramp4__color2__glsl" nodedef="ND_ramp4__color2" file="stdlib/impl/shadergen/glsl/source/mx_ramp4_vector2.glsl" function="mx_ramp4_vector2" language="glsl"/>
+  <implementation name="IM_ramp4__color3__glsl" nodedef="ND_ramp4__color3" file="stdlib/impl/shadergen/glsl/source/mx_ramp4_vector3.glsl" function="mx_ramp4_vector3" language="glsl"/>
+  <implementation name="IM_ramp4__color4__glsl" nodedef="ND_ramp4__color4" file="stdlib/impl/shadergen/glsl/source/mx_ramp4_vector4.glsl" function="mx_ramp4_vector4" language="glsl"/>
+  <implementation name="IM_ramp4__vector2__glsl" nodedef="ND_ramp4__vector2" file="stdlib/impl/shadergen/glsl/source/mx_ramp4_vector2.glsl" function="mx_ramp4_vector2" language="glsl"/>
+  <implementation name="IM_ramp4__vector3__glsl" nodedef="ND_ramp4__vector3" file="stdlib/impl/shadergen/glsl/source/mx_ramp4_vector3.glsl" function="mx_ramp4_vector3" language="glsl"/>
+  <implementation name="IM_ramp4__vector4__glsl" nodedef="ND_ramp4__vector4" file="stdlib/impl/shadergen/glsl/source/mx_ramp4_vector4.glsl" function="mx_ramp4_vector4" language="glsl"/>
+
+  <!-- <splitlr> -->
+  <implementation name="IM_splitlr__float__glsl" nodedef="ND_splitlr__float" file="stdlib/impl/shadergen/glsl/source/mx_splitlr_float.glsl" function="mx_splitlr_float" language="glsl"/>
+  <implementation name="IM_splitlr__color2__glsl" nodedef="ND_splitlr__color2" file="stdlib/impl/shadergen/glsl/source/mx_splitlr_vector2.glsl" function="mx_splitlr_vector2" language="glsl"/>
+  <implementation name="IM_splitlr__color3__glsl" nodedef="ND_splitlr__color3" file="stdlib/impl/shadergen/glsl/source/mx_splitlr_vector3.glsl" function="mx_splitlr_vector3" language="glsl"/>
+  <implementation name="IM_splitlr__color4__glsl" nodedef="ND_splitlr__color4" file="stdlib/impl/shadergen/glsl/source/mx_splitlr_vector4.glsl" function="mx_splitlr_vector4" language="glsl"/>
+  <implementation name="IM_splitlr__vector2__glsl" nodedef="ND_splitlr__vector2" file="stdlib/impl/shadergen/glsl/source/mx_splitlr_vector2.glsl" function="mx_splitlr_vector2" language="glsl"/>
+  <implementation name="IM_splitlr__vector3__glsl" nodedef="ND_splitlr__vector3" file="stdlib/impl/shadergen/glsl/source/mx_splitlr_vector3.glsl" function="mx_splitlr_vector3" language="glsl"/>
+  <implementation name="IM_splitlr__vector4__glsl" nodedef="ND_splitlr__vector4" file="stdlib/impl/shadergen/glsl/source/mx_splitlr_vector4.glsl" function="mx_splitlr_vector4" language="glsl"/>
+
+  <!-- <splittb> -->
+  <implementation name="IM_splittb__float__glsl" nodedef="ND_splittb__float" file="stdlib/impl/shadergen/glsl/source/mx_splittb_float.glsl" function="mx_splittb_float" language="glsl"/>
+  <implementation name="IM_splittb__color2__glsl" nodedef="ND_splittb__color2" file="stdlib/impl/shadergen/glsl/source/mx_splittb_vector2.glsl" function="mx_splittb_vector2" language="glsl"/>
+  <implementation name="IM_splittb__color3__glsl" nodedef="ND_splittb__color3" file="stdlib/impl/shadergen/glsl/source/mx_splittb_vector3.glsl" function="mx_splittb_vector3" language="glsl"/>
+  <implementation name="IM_splittb__color4__glsl" nodedef="ND_splittb__color4" file="stdlib/impl/shadergen/glsl/source/mx_splittb_vector4.glsl" function="mx_splittb_vector4" language="glsl"/>
+  <implementation name="IM_splittb__vector2__glsl" nodedef="ND_splittb__vector2" file="stdlib/impl/shadergen/glsl/source/mx_splittb_vector2.glsl" function="mx_splittb_vector2" language="glsl"/>
+  <implementation name="IM_splittb__vector3__glsl" nodedef="ND_splittb__vector3" file="stdlib/impl/shadergen/glsl/source/mx_splittb_vector3.glsl" function="mx_splittb_vector3" language="glsl"/>
+  <implementation name="IM_splittb__vector4__glsl" nodedef="ND_splittb__vector4" file="stdlib/impl/shadergen/glsl/source/mx_splittb_vector4.glsl" function="mx_splittb_vector4" language="glsl"/>
+
+  <!-- <noise2d> -->
+  <!-- <noise3d> -->
+  <!-- <fractal3d> -->
+  <!-- <cellnoise2d> -->
+  <!-- <cellnoise3d> -->
+
+
+  <!-- ======================================================================== -->
+  <!-- Global nodes                                                             -->
+  <!-- ======================================================================== -->
+
+  <!-- <ambientocclusion> -->
+
+
+  <!-- ======================================================================== -->
+  <!-- Geometric nodes                                                          -->
+  <!-- ======================================================================== -->
+
+  <!-- <position> -->
+  <implementation name="IM_position__vector3__glsl" nodedef="ND_position__vector3" language="glsl"/>
+
+  <!-- <normal> -->
+  <implementation name="IM_normal__vector3__glsl" nodedef="ND_normal__vector3" language="glsl"/>
+
+  <!-- <tangent> -->
+  <implementation name="IM_tangent__vector3__glsl" nodedef="ND_tangent__vector3" language="glsl"/>
+
+  <!-- <bitangent> -->
+  <implementation name="IM_bitangent__vector3__glsl" nodedef="ND_bitangent__vector3" language="glsl"/>
+
+  <!-- <texcoord> -->
+  <implementation name="IM_texcoord__vector2__glsl" nodedef="ND_texcoord__vector2" language="glsl"/>
+  <implementation name="IM_texcoord__vector3__glsl" nodedef="ND_texcoord__vector3" language="glsl"/>
+
+  <!-- <geomcolor> -->
+  <!-- <geomattrvalue> -->
+
+
+  <!-- ======================================================================== -->
+  <!-- Application nodes                                                        -->
+  <!-- ======================================================================== -->
+
+  <!-- <frame> -->
+  <!-- <time> -->
+
+
+  <!-- ======================================================================== -->
+  <!-- Math nodes                                                               -->
+  <!-- ======================================================================== -->
+
+  <!-- <add> -->
+  <implementation name="IM_add__float__glsl" nodedef="ND_add__float" file="stdlib/impl/shadergen/glsl/source/mx_add.inline" language="glsl"/>
+  <implementation name="IM_add__color2__glsl" nodedef="ND_add__color2" file="stdlib/impl/shadergen/glsl/source/mx_add.inline" language="glsl"/>
+  <implementation name="IM_add__color2FA__glsl" nodedef="ND_add__color2FA" file="stdlib/impl/shadergen/glsl/source/mx_add.inline" language="glsl"/>
+  <implementation name="IM_add__color3__glsl" nodedef="ND_add__color3" file="stdlib/impl/shadergen/glsl/source/mx_add.inline" language="glsl"/>
+  <implementation name="IM_add__color3FA__glsl" nodedef="ND_add__color3FA" file="stdlib/impl/shadergen/glsl/source/mx_add.inline" language="glsl"/>
+  <implementation name="IM_add__color4__glsl" nodedef="ND_add__color4" file="stdlib/impl/shadergen/glsl/source/mx_add.inline" language="glsl"/>
+  <implementation name="IM_add__color4FA__glsl" nodedef="ND_add__color4FA" file="stdlib/impl/shadergen/glsl/source/mx_add.inline" language="glsl"/>
+  <implementation name="IM_add__vector2__glsl" nodedef="ND_add__vector2" file="stdlib/impl/shadergen/glsl/source/mx_add.inline" language="glsl"/>
+  <implementation name="IM_add__vector2FA__glsl" nodedef="ND_add__vector2FA" file="stdlib/impl/shadergen/glsl/source/mx_add.inline" language="glsl"/>
+  <implementation name="IM_add__vector3__glsl" nodedef="ND_add__vector3" file="stdlib/impl/shadergen/glsl/source/mx_add.inline" language="glsl"/>
+  <implementation name="IM_add__vector3FA__glsl" nodedef="ND_add__vector3FA" file="stdlib/impl/shadergen/glsl/source/mx_add.inline" language="glsl"/>
+  <implementation name="IM_add__vector4__glsl" nodedef="ND_add__vector4" file="stdlib/impl/shadergen/glsl/source/mx_add.inline" language="glsl"/>
+  <implementation name="IM_add__vector4FA__glsl" nodedef="ND_add__vector4FA" file="stdlib/impl/shadergen/glsl/source/mx_add.inline" language="glsl"/>
+
+  <!-- <subtract> -->
+  <implementation name="IM_subtract__float__glsl" nodedef="ND_subtract__float" file="stdlib/impl/shadergen/glsl/source/mx_subtract.inline" language="glsl"/>
+  <implementation name="IM_subtract__color2__glsl" nodedef="ND_subtract__color2" file="stdlib/impl/shadergen/glsl/source/mx_subtract.inline"  language="glsl"/>
+  <implementation name="IM_subtract__color2FA__glsl" nodedef="ND_subtract__color2FA" file="stdlib/impl/shadergen/glsl/source/mx_subtract.inline" language="glsl"/>
+  <implementation name="IM_subtract__color3__glsl" nodedef="ND_subtract__color3" file="stdlib/impl/shadergen/glsl/source/mx_subtract.inline" language="glsl"/>
+  <implementation name="IM_subtract__color3FA__glsl" nodedef="ND_subtract__color3FA" file="stdlib/impl/shadergen/glsl/source/mx_subtract.inline" language="glsl"/>
+  <implementation name="IM_subtract__color4__glsl" nodedef="ND_subtract__color4" file="stdlib/impl/shadergen/glsl/source/mx_subtract.inline" language="glsl"/>
+  <implementation name="IM_subtract__color4FA__glsl" nodedef="ND_subtract__color4FA" file="stdlib/impl/shadergen/glsl/source/mx_subtract.inline" language="glsl"/>
+  <implementation name="IM_subtract__vector2__glsl" nodedef="ND_subtract__vector2" file="stdlib/impl/shadergen/glsl/source/mx_subtract.inline" language="glsl"/>
+  <implementation name="IM_subtract__vector2FA__glsl" nodedef="ND_subtract__vector2FA" file="stdlib/impl/shadergen/glsl/source/mx_subtract.inline" language="glsl"/>
+  <implementation name="IM_subtract__vector3__glsl" nodedef="ND_subtract__vector3" file="stdlib/impl/shadergen/glsl/source/mx_subtract.inline" language="glsl"/>
+  <implementation name="IM_subtract__vector3FA__glsl" nodedef="ND_subtract__vector3FA" file="stdlib/impl/shadergen/glsl/source/mx_subtract.inline" language="glsl"/>
+  <implementation name="IM_subtract__vector4__glsl" nodedef="ND_subtract__vector4" file="stdlib/impl/shadergen/glsl/source/mx_subtract.inline" language="glsl"/>
+  <implementation name="IM_subtract__vector4FA__glsl" nodedef="ND_subtract__vector4FA" file="stdlib/impl/shadergen/glsl/source/mx_subtract.inline" language="glsl"/>
+
+  <!-- <multiply> -->
+  <implementation name="IM_multiply__float__glsl" nodedef="ND_multiply__float" file="stdlib/impl/shadergen/glsl/source/mx_multiply.inline" language="glsl"/>
+  <implementation name="IM_multiply__color2__glsl" nodedef="ND_multiply__color2" file="stdlib/impl/shadergen/glsl/source/mx_multiply.inline"  language="glsl"/>
+  <implementation name="IM_multiply__color2FA__glsl" nodedef="ND_multiply__color2FA" file="stdlib/impl/shadergen/glsl/source/mx_multiply.inline" language="glsl"/>
+  <implementation name="IM_multiply__color3__glsl" nodedef="ND_multiply__color3" file="stdlib/impl/shadergen/glsl/source/mx_multiply.inline" language="glsl"/>
+  <implementation name="IM_multiply__color3FA__glsl" nodedef="ND_multiply__color3FA" file="stdlib/impl/shadergen/glsl/source/mx_multiply.inline" language="glsl"/>
+  <implementation name="IM_multiply__color4__glsl" nodedef="ND_multiply__color4" file="stdlib/impl/shadergen/glsl/source/mx_multiply.inline" language="glsl"/>
+  <implementation name="IM_multiply__color4FA__glsl" nodedef="ND_multiply__color4FA" file="stdlib/impl/shadergen/glsl/source/mx_multiply.inline" language="glsl"/>
+  <implementation name="IM_multiply__vector2__glsl" nodedef="ND_multiply__vector2" file="stdlib/impl/shadergen/glsl/source/mx_multiply.inline" language="glsl"/>
+  <implementation name="IM_multiply__vector2FA__glsl" nodedef="ND_multiply__vector2FA" file="stdlib/impl/shadergen/glsl/source/mx_multiply.inline" language="glsl"/>
+  <implementation name="IM_multiply__vector3__glsl" nodedef="ND_multiply__vector3" file="stdlib/impl/shadergen/glsl/source/mx_multiply.inline" language="glsl"/>
+  <implementation name="IM_multiply__vector3FA__glsl" nodedef="ND_multiply__vector3FA" file="stdlib/impl/shadergen/glsl/source/mx_multiply.inline" language="glsl"/>
+  <implementation name="IM_multiply__vector4__glsl" nodedef="ND_multiply__vector4" file="stdlib/impl/shadergen/glsl/source/mx_multiply.inline" language="glsl"/>
+  <implementation name="IM_multiply__vector4FA__glsl" nodedef="ND_multiply__vector4FA" file="stdlib/impl/shadergen/glsl/source/mx_multiply.inline" language="glsl"/>
+
+  <!-- <divide> -->
+  <implementation name="IM_divide__float__glsl" nodedef="ND_divide__float" file="stdlib/impl/shadergen/glsl/source/mx_divide.inline" language="glsl"/>
+  <implementation name="IM_divide__color2__glsl" nodedef="ND_divide__color2" file="stdlib/impl/shadergen/glsl/source/mx_divide.inline"  language="glsl"/>
+  <implementation name="IM_divide__color2FA__glsl" nodedef="ND_divide__color2FA" file="stdlib/impl/shadergen/glsl/source/mx_divide.inline" language="glsl"/>
+  <implementation name="IM_divide__color3__glsl" nodedef="ND_divide__color3" file="stdlib/impl/shadergen/glsl/source/mx_divide.inline" language="glsl"/>
+  <implementation name="IM_divide__color3FA__glsl" nodedef="ND_divide__color3FA" file="stdlib/impl/shadergen/glsl/source/mx_divide.inline" language="glsl"/>
+  <implementation name="IM_divide__color4__glsl" nodedef="ND_divide__color4" file="stdlib/impl/shadergen/glsl/source/mx_divide.inline" language="glsl"/>
+  <implementation name="IM_divide__color4FA__glsl" nodedef="ND_divide__color4FA" file="stdlib/impl/shadergen/glsl/source/mx_divide.inline" language="glsl"/>
+  <implementation name="IM_divide__vector2__glsl" nodedef="ND_divide__vector2" file="stdlib/impl/shadergen/glsl/source/mx_divide.inline" language="glsl"/>
+  <implementation name="IM_divide__vector2FA__glsl" nodedef="ND_divide__vector2FA" file="stdlib/impl/shadergen/glsl/source/mx_divide.inline" language="glsl"/>
+  <implementation name="IM_divide__vector3__glsl" nodedef="ND_divide__vector3" file="stdlib/impl/shadergen/glsl/source/mx_divide.inline" language="glsl"/>
+  <implementation name="IM_divide__vector3FA__glsl" nodedef="ND_divide__vector3FA" file="stdlib/impl/shadergen/glsl/source/mx_divide.inline" language="glsl"/>
+  <implementation name="IM_divide__vector4__glsl" nodedef="ND_divide__vector4" file="stdlib/impl/shadergen/glsl/source/mx_divide.inline" language="glsl"/>
+  <implementation name="IM_divide__vector4FA__glsl" nodedef="ND_divide__vector4FA" file="stdlib/impl/shadergen/glsl/source/mx_divide.inline" language="glsl"/>
+
+  <!-- <modulo> -->
+  <implementation name="IM_modulo__float__glsl" nodedef="ND_modulo__float" file="stdlib/impl/shadergen/glsl/source/mx_modulo.inline" language="glsl"/>
+  <implementation name="IM_modulo__color2__glsl" nodedef="ND_modulo__color2" file="stdlib/impl/shadergen/glsl/source/mx_modulo.inline"  language="glsl"/>
+  <implementation name="IM_modulo__color2FA__glsl" nodedef="ND_modulo__color2FA" file="stdlib/impl/shadergen/glsl/source/mx_modulo.inline" language="glsl"/>
+  <implementation name="IM_modulo__color3__glsl" nodedef="ND_modulo__color3" file="stdlib/impl/shadergen/glsl/source/mx_modulo.inline" language="glsl"/>
+  <implementation name="IM_modulo__color3FA__glsl" nodedef="ND_modulo__color3FA" file="stdlib/impl/shadergen/glsl/source/mx_modulo.inline" language="glsl"/>
+  <implementation name="IM_modulo__color4__glsl" nodedef="ND_modulo__color4" file="stdlib/impl/shadergen/glsl/source/mx_modulo.inline" language="glsl"/>
+  <implementation name="IM_modulo__color4FA__glsl" nodedef="ND_modulo__color4FA" file="stdlib/impl/shadergen/glsl/source/mx_modulo.inline" language="glsl"/>
+  <implementation name="IM_modulo__vector2__glsl" nodedef="ND_modulo__vector2" file="stdlib/impl/shadergen/glsl/source/mx_modulo.inline" language="glsl"/>
+  <implementation name="IM_modulo__vector2FA__glsl" nodedef="ND_modulo__vector2FA" file="stdlib/impl/shadergen/glsl/source/mx_modulo.inline" language="glsl"/>
+  <implementation name="IM_modulo__vector3__glsl" nodedef="ND_modulo__vector3" file="stdlib/impl/shadergen/glsl/source/mx_modulo.inline" language="glsl"/>
+  <implementation name="IM_modulo__vector3FA__glsl" nodedef="ND_modulo__vector3FA" file="stdlib/impl/shadergen/glsl/source/mx_modulo.inline" language="glsl"/>
+  <implementation name="IM_modulo__vector4__glsl" nodedef="ND_modulo__vector4" file="stdlib/impl/shadergen/glsl/source/mx_modulo.inline" language="glsl"/>
+  <implementation name="IM_modulo__vector4FA__glsl" nodedef="ND_modulo__vector4FA" file="stdlib/impl/shadergen/glsl/source/mx_modulo.inline" language="glsl"/>
+
+  <!-- <invert> -->
+  <implementation name="IM_invert__float__glsl" nodedef="ND_invert__float" file="stdlib/impl/shadergen/glsl/source/mx_invert.inline" language="glsl"/>
+  <implementation name="IM_invert__color2__glsl" nodedef="ND_invert__color2" file="stdlib/impl/shadergen/glsl/source/mx_invert.inline"  language="glsl"/>
+  <implementation name="IM_invert__color2FA__glsl" nodedef="ND_invert__color2FA" file="stdlib/impl/shadergen/glsl/source/mx_invert.inline" language="glsl"/>
+  <implementation name="IM_invert__color3__glsl" nodedef="ND_invert__color3" file="stdlib/impl/shadergen/glsl/source/mx_invert.inline" language="glsl"/>
+  <implementation name="IM_invert__color3FA__glsl" nodedef="ND_invert__color3FA" file="stdlib/impl/shadergen/glsl/source/mx_invert.inline" language="glsl"/>
+  <implementation name="IM_invert__color4__glsl" nodedef="ND_invert__color4" file="stdlib/impl/shadergen/glsl/source/mx_invert.inline" language="glsl"/>
+  <implementation name="IM_invert__color4FA__glsl" nodedef="ND_invert__color4FA" file="stdlib/impl/shadergen/glsl/source/mx_invert.inline" language="glsl"/>
+  <implementation name="IM_invert__vector2__glsl" nodedef="ND_invert__vector2" file="stdlib/impl/shadergen/glsl/source/mx_invert.inline" language="glsl"/>
+  <implementation name="IM_invert__vector2FA__glsl" nodedef="ND_invert__vector2FA" file="stdlib/impl/shadergen/glsl/source/mx_invert.inline" language="glsl"/>
+  <implementation name="IM_invert__vector3__glsl" nodedef="ND_invert__vector3" file="stdlib/impl/shadergen/glsl/source/mx_invert.inline" language="glsl"/>
+  <implementation name="IM_invert__vector3FA__glsl" nodedef="ND_invert__vector3FA" file="stdlib/impl/shadergen/glsl/source/mx_invert.inline" language="glsl"/>
+  <implementation name="IM_invert__vector4__glsl" nodedef="ND_invert__vector4" file="stdlib/impl/shadergen/glsl/source/mx_invert.inline" language="glsl"/>
+  <implementation name="IM_invert__vector4FA__glsl" nodedef="ND_invert__vector4FA" file="stdlib/impl/shadergen/glsl/source/mx_invert.inline" language="glsl"/>
+
+  <!-- <absval> -->
+  <implementation name="IM_absval__float__glsl" nodedef="ND_absval__float" file="stdlib/impl/shadergen/glsl/source/mx_absval.inline" language="glsl"/>
+  <implementation name="IM_absval__color2__glsl" nodedef="ND_absval__color2" file="stdlib/impl/shadergen/glsl/source/mx_absval.inline"  language="glsl"/>
+  <implementation name="IM_absval__color3__glsl" nodedef="ND_absval__color3" file="stdlib/impl/shadergen/glsl/source/mx_absval.inline" language="glsl"/>
+  <implementation name="IM_absval__color4__glsl" nodedef="ND_absval__color4" file="stdlib/impl/shadergen/glsl/source/mx_absval.inline" language="glsl"/>
+  <implementation name="IM_absval__vector2__glsl" nodedef="ND_absval__vector2" file="stdlib/impl/shadergen/glsl/source/mx_absval.inline" language="glsl"/>
+  <implementation name="IM_absval__vector3__glsl" nodedef="ND_absval__vector3" file="stdlib/impl/shadergen/glsl/source/mx_absval.inline" language="glsl"/>
+  <implementation name="IM_absval__vector4__glsl" nodedef="ND_absval__vector4" file="stdlib/impl/shadergen/glsl/source/mx_absval.inline" language="glsl"/>
+
+  <!-- <floor> -->
+  <implementation name="IM_floor__float__glsl" nodedef="ND_floor__float" file="stdlib/impl/shadergen/glsl/source/mx_floor.inline" language="glsl"/>
+  <implementation name="IM_floor__color2__glsl" nodedef="ND_floor__color2" file="stdlib/impl/shadergen/glsl/source/mx_floor.inline"  language="glsl"/>
+  <implementation name="IM_floor__color3__glsl" nodedef="ND_floor__color3" file="stdlib/impl/shadergen/glsl/source/mx_floor.inline" language="glsl"/>
+  <implementation name="IM_floor__color4__glsl" nodedef="ND_floor__color4" file="stdlib/impl/shadergen/glsl/source/mx_floor.inline" language="glsl"/>
+  <implementation name="IM_floor__vector2__glsl" nodedef="ND_floor__vector2" file="stdlib/impl/shadergen/glsl/source/mx_floor.inline" language="glsl"/>
+  <implementation name="IM_floor__vector3__glsl" nodedef="ND_floor__vector3" file="stdlib/impl/shadergen/glsl/source/mx_floor.inline" language="glsl"/>
+  <implementation name="IM_floor__vector4__glsl" nodedef="ND_floor__vector4" file="stdlib/impl/shadergen/glsl/source/mx_floor.inline" language="glsl"/>
+
+  <!-- <exponent> -->
+  <implementation name="IM_exponent__float__glsl" nodedef="ND_exponent__float" file="stdlib/impl/shadergen/glsl/source/mx_exponent.inline" language="glsl"/>
+  <implementation name="IM_exponent__color2__glsl" nodedef="ND_exponent__color2" file="stdlib/impl/shadergen/glsl/source/mx_exponent.inline"  language="glsl"/>
+  <implementation name="IM_exponent__color2FA__glsl" nodedef="ND_exponent__color2FA" file="stdlib/impl/shadergen/glsl/source/mx_exponent.inline" language="glsl"/>
+  <implementation name="IM_exponent__color3__glsl" nodedef="ND_exponent__color3" file="stdlib/impl/shadergen/glsl/source/mx_exponent.inline" language="glsl"/>
+  <implementation name="IM_exponent__color3FA__glsl" nodedef="ND_exponent__color3FA" file="stdlib/impl/shadergen/glsl/source/mx_exponent.inline" language="glsl"/>
+  <implementation name="IM_exponent__color4__glsl" nodedef="ND_exponent__color4" file="stdlib/impl/shadergen/glsl/source/mx_exponent.inline" language="glsl"/>
+  <implementation name="IM_exponent__color4FA__glsl" nodedef="ND_exponent__color4FA" file="stdlib/impl/shadergen/glsl/source/mx_exponent.inline" language="glsl"/>
+  <implementation name="IM_exponent__vector2__glsl" nodedef="ND_exponent__vector2" file="stdlib/impl/shadergen/glsl/source/mx_exponent.inline" language="glsl"/>
+  <implementation name="IM_exponent__vector2FA__glsl" nodedef="ND_exponent__vector2FA" file="stdlib/impl/shadergen/glsl/source/mx_exponent.inline" language="glsl"/>
+  <implementation name="IM_exponent__vector3__glsl" nodedef="ND_exponent__vector3" file="stdlib/impl/shadergen/glsl/source/mx_exponent.inline" language="glsl"/>
+  <implementation name="IM_exponent__vector3FA__glsl" nodedef="ND_exponent__vector3FA" file="stdlib/impl/shadergen/glsl/source/mx_exponent.inline" language="glsl"/>
+  <implementation name="IM_exponent__vector4__glsl" nodedef="ND_exponent__vector4" file="stdlib/impl/shadergen/glsl/source/mx_exponent.inline" language="glsl"/>
+  <implementation name="IM_exponent__vector4FA__glsl" nodedef="ND_exponent__vector4FA" file="stdlib/impl/shadergen/glsl/source/mx_exponent.inline" language="glsl"/>
+
+  <!-- <clamp> -->
+  <implementation name="IM_clamp__float__glsl" nodedef="ND_clamp__float" file="stdlib/impl/shadergen/glsl/source/mx_clamp.inline" language="glsl"/>
+  <implementation name="IM_clamp__color2__glsl" nodedef="ND_clamp__color2" file="stdlib/impl/shadergen/glsl/source/mx_clamp.inline"  language="glsl"/>
+  <implementation name="IM_clamp__color2FA__glsl" nodedef="ND_clamp__color2FA" file="stdlib/impl/shadergen/glsl/source/mx_clamp.inline" language="glsl"/>
+  <implementation name="IM_clamp__color3__glsl" nodedef="ND_clamp__color3" file="stdlib/impl/shadergen/glsl/source/mx_clamp.inline" language="glsl"/>
+  <implementation name="IM_clamp__color3FA__glsl" nodedef="ND_clamp__color3FA" file="stdlib/impl/shadergen/glsl/source/mx_clamp.inline" language="glsl"/>
+  <implementation name="IM_clamp__color4__glsl" nodedef="ND_clamp__color4" file="stdlib/impl/shadergen/glsl/source/mx_clamp.inline" language="glsl"/>
+  <implementation name="IM_clamp__color4FA__glsl" nodedef="ND_clamp__color4FA" file="stdlib/impl/shadergen/glsl/source/mx_clamp.inline" language="glsl"/>
+  <implementation name="IM_clamp__vector2__glsl" nodedef="ND_clamp__vector2" file="stdlib/impl/shadergen/glsl/source/mx_clamp.inline" language="glsl"/>
+  <implementation name="IM_clamp__vector2FA__glsl" nodedef="ND_clamp__vector2FA" file="stdlib/impl/shadergen/glsl/source/mx_clamp.inline" language="glsl"/>
+  <implementation name="IM_clamp__vector3__glsl" nodedef="ND_clamp__vector3" file="stdlib/impl/shadergen/glsl/source/mx_clamp.inline" language="glsl"/>
+  <implementation name="IM_clamp__vector3FA__glsl" nodedef="ND_clamp__vector3FA" file="stdlib/impl/shadergen/glsl/source/mx_clamp.inline" language="glsl"/>
+  <implementation name="IM_clamp__vector4__glsl" nodedef="ND_clamp__vector4" file="stdlib/impl/shadergen/glsl/source/mx_clamp.inline" language="glsl"/>
+  <implementation name="IM_clamp__vector4FA__glsl" nodedef="ND_clamp__vector4FA" file="stdlib/impl/shadergen/glsl/source/mx_clamp.inline" language="glsl"/>
+
+  <!-- <min> -->
+  <implementation name="IM_min__float__glsl" nodedef="ND_min__float" file="stdlib/impl/shadergen/glsl/source/mx_min.inline" language="glsl"/>
+  <implementation name="IM_min__color2__glsl" nodedef="ND_min__color2" file="stdlib/impl/shadergen/glsl/source/mx_min.inline"  language="glsl"/>
+  <implementation name="IM_min__color2FA__glsl" nodedef="ND_min__color2FA" file="stdlib/impl/shadergen/glsl/source/mx_min.inline" language="glsl"/>
+  <implementation name="IM_min__color3__glsl" nodedef="ND_min__color3" file="stdlib/impl/shadergen/glsl/source/mx_min.inline" language="glsl"/>
+  <implementation name="IM_min__color3FA__glsl" nodedef="ND_min__color3FA" file="stdlib/impl/shadergen/glsl/source/mx_min.inline" language="glsl"/>
+  <implementation name="IM_min__color4__glsl" nodedef="ND_min__color4" file="stdlib/impl/shadergen/glsl/source/mx_min.inline" language="glsl"/>
+  <implementation name="IM_min__color4FA__glsl" nodedef="ND_min__color4FA" file="stdlib/impl/shadergen/glsl/source/mx_min.inline" language="glsl"/>
+  <implementation name="IM_min__vector2__glsl" nodedef="ND_min__vector2" file="stdlib/impl/shadergen/glsl/source/mx_min.inline" language="glsl"/>
+  <implementation name="IM_min__vector2FA__glsl" nodedef="ND_min__vector2FA" file="stdlib/impl/shadergen/glsl/source/mx_min.inline" language="glsl"/>
+  <implementation name="IM_min__vector3__glsl" nodedef="ND_min__vector3" file="stdlib/impl/shadergen/glsl/source/mx_min.inline" language="glsl"/>
+  <implementation name="IM_min__vector3FA__glsl" nodedef="ND_min__vector3FA" file="stdlib/impl/shadergen/glsl/source/mx_min.inline" language="glsl"/>
+  <implementation name="IM_min__vector4__glsl" nodedef="ND_min__vector4" file="stdlib/impl/shadergen/glsl/source/mx_min.inline" language="glsl"/>
+  <implementation name="IM_min__vector4FA__glsl" nodedef="ND_min__vector4FA" file="stdlib/impl/shadergen/glsl/source/mx_min.inline" language="glsl"/>
+
+  <!-- <max> -->
+  <implementation name="IM_max__float__glsl" nodedef="ND_max__float" file="stdlib/impl/shadergen/glsl/source/mx_max.inline" language="glsl"/>
+  <implementation name="IM_max__color2__glsl" nodedef="ND_max__color2" file="stdlib/impl/shadergen/glsl/source/mx_max.inline"  language="glsl"/>
+  <implementation name="IM_max__color2FA__glsl" nodedef="ND_max__color2FA" file="stdlib/impl/shadergen/glsl/source/mx_max.inline" language="glsl"/>
+  <implementation name="IM_max__color3__glsl" nodedef="ND_max__color3" file="stdlib/impl/shadergen/glsl/source/mx_max.inline" language="glsl"/>
+  <implementation name="IM_max__color3FA__glsl" nodedef="ND_max__color3FA" file="stdlib/impl/shadergen/glsl/source/mx_max.inline" language="glsl"/>
+  <implementation name="IM_max__color4__glsl" nodedef="ND_max__color4" file="stdlib/impl/shadergen/glsl/source/mx_max.inline" language="glsl"/>
+  <implementation name="IM_max__color4FA__glsl" nodedef="ND_max__color4FA" file="stdlib/impl/shadergen/glsl/source/mx_max.inline" language="glsl"/>
+  <implementation name="IM_max__vector2__glsl" nodedef="ND_max__vector2" file="stdlib/impl/shadergen/glsl/source/mx_max.inline" language="glsl"/>
+  <implementation name="IM_max__vector2FA__glsl" nodedef="ND_max__vector2FA" file="stdlib/impl/shadergen/glsl/source/mx_max.inline" language="glsl"/>
+  <implementation name="IM_max__vector3__glsl" nodedef="ND_max__vector3" file="stdlib/impl/shadergen/glsl/source/mx_max.inline" language="glsl"/>
+  <implementation name="IM_max__vector3FA__glsl" nodedef="ND_max__vector3FA" file="stdlib/impl/shadergen/glsl/source/mx_max.inline" language="glsl"/>
+  <implementation name="IM_max__vector4__glsl" nodedef="ND_max__vector4" file="stdlib/impl/shadergen/glsl/source/mx_max.inline" language="glsl"/>
+  <implementation name="IM_max__vector4FA__glsl" nodedef="ND_max__vector4FA" file="stdlib/impl/shadergen/glsl/source/mx_max.inline" language="glsl"/>
+
+  <!-- <normalize> -->
+  <implementation name="IM_normalize__vector2__glsl" nodedef="ND_normalize__vector2" file="stdlib/impl/shadergen/glsl/source/mx_normalize.inline" language="glsl"/>
+  <implementation name="IM_normalize__vector3__glsl" nodedef="ND_normalize__vector3" file="stdlib/impl/shadergen/glsl/source/mx_normalize.inline" language="glsl"/>
+  <implementation name="IM_normalize__vector4__glsl" nodedef="ND_normalize__vector4" file="stdlib/impl/shadergen/glsl/source/mx_normalize.inline" language="glsl"/>
+
+  <!-- <magnitude> -->
+  <implementation name="IM_magnitude__vector2__glsl" nodedef="ND_magnitude__vector2" file="stdlib/impl/shadergen/glsl/source/mx_magnitude.inline" language="glsl"/>
+  <implementation name="IM_magnitude__vector3__glsl" nodedef="ND_magnitude__vector3" file="stdlib/impl/shadergen/glsl/source/mx_magnitude.inline" language="glsl"/>
+  <implementation name="IM_magnitude__vector4__glsl" nodedef="ND_magnitude__vector4" file="stdlib/impl/shadergen/glsl/source/mx_magnitude.inline" language="glsl"/>
+
+  <!-- <dotproduct> -->
+  <implementation name="IM_dotproduct__vector2__glsl" nodedef="ND_dotproduct__vector2" file="stdlib/impl/shadergen/glsl/source/mx_dotproduct.inline" language="glsl"/>
+  <implementation name="IM_dotproduct__vector3__glsl" nodedef="ND_dotproduct__vector3" file="stdlib/impl/shadergen/glsl/source/mx_dotproduct.inline" language="glsl"/>
+  <implementation name="IM_dotproduct__vector4__glsl" nodedef="ND_dotproduct__vector4" file="stdlib/impl/shadergen/glsl/source/mx_dotproduct.inline" language="glsl"/>
+
+  <!-- <crossproduct> -->
+  <implementation name="IM_crossproduct__vector3__glsl" nodedef="ND_crossproduct__vector3" file="stdlib/impl/shadergen/glsl/source/mx_crossproduct.inline" language="glsl"/>
+
+  <!-- <scale> -->
+  <implementation name="IM_scale__vector2__glsl" nodedef="ND_scale__vector2" file="stdlib/impl/shadergen/glsl/source/mx_scale.inline" language="glsl"/>
+  <implementation name="IM_scale__vector2FA__glsl" nodedef="ND_scale__vector2FA" file="stdlib/impl/shadergen/glsl/source/mx_scale.inline" language="glsl"/>
+  <implementation name="IM_scale__vector3__glsl" nodedef="ND_scale__vector3" file="stdlib/impl/shadergen/glsl/source/mx_scale.inline" language="glsl"/>
+  <implementation name="IM_scale__vector3FA__glsl" nodedef="ND_scale__vector3FA" file="stdlib/impl/shadergen/glsl/source/mx_scale.inline" language="glsl"/>
+
+  <!-- <rotate2d> -->
+  <implementation name="IM_rotate2d__vector2__glsl" nodedef="ND_rotate2d__vector2" file="stdlib/impl/shadergen/glsl/source/mx_rotate2d_vector2.glsl" function="mx_rotate2d_vector2" language="glsl"/>
+
+
+  <!-- ======================================================================== -->
+  <!-- Adjustment nodes                                                         -->
+  <!-- ======================================================================== -->
+
+  <!-- <contrast> -->
+  <!-- <remap> -->
+
+  <!-- <smoothstep> -->
+  <implementation name="IM_smoothstep__float__glsl" nodedef="ND_smoothstep__float" file="stdlib/impl/shadergen/glsl/source/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__color2__glsl" nodedef="ND_smoothstep__color2" file="stdlib/impl/shadergen/glsl/source/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__color2FA__glsl" nodedef="ND_smoothstep__color2FA" file="stdlib/impl/shadergen/glsl/source/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__color3__glsl" nodedef="ND_smoothstep__color3" file="stdlib/impl/shadergen/glsl/source/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__color3FA__glsl" nodedef="ND_smoothstep__color3FA" file="stdlib/impl/shadergen/glsl/source/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__color4__glsl" nodedef="ND_smoothstep__color4" file="stdlib/impl/shadergen/glsl/source/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__color4FA__glsl" nodedef="ND_smoothstep__color4FA" file="stdlib/impl/shadergen/glsl/source/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__vector2__glsl" nodedef="ND_smoothstep__vector2" file="stdlib/impl/shadergen/glsl/source/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__vector2FA__glsl" nodedef="ND_smoothstep__vector2FA" file="stdlib/impl/shadergen/glsl/source/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__vector3__glsl" nodedef="ND_smoothstep__vector3" file="stdlib/impl/shadergen/glsl/source/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__vector3FA__glsl" nodedef="ND_smoothstep__vector3FA" file="stdlib/impl/shadergen/glsl/source/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__vector4__glsl" nodedef="ND_smoothstep__vector4" file="stdlib/impl/shadergen/glsl/source/mx_smoothstep.inline" language="glsl"/>
+  <implementation name="IM_smoothstep__vector4FA__glsl" nodedef="ND_smoothstep__vector4FA" file="stdlib/impl/shadergen/glsl/source/mx_smoothstep.inline" language="glsl"/>
+
+  <!-- <hueshift> -->
+  <implementation name="IM_hueshift__color3__glsl" nodedef="ND_hueshift__color3" file="stdlib/impl/shadergen/glsl/source/mx_hueshift_color3.glsl" function="mx_hueshift_color3" language="glsl"/>
+  <implementation name="IM_hueshift__color4__glsl" nodedef="ND_hueshift__color4" file="stdlib/impl/shadergen/glsl/source/mx_hueshift_color4.glsl" function="mx_hueshift_color4" language="glsl"/>
+
+  <!-- <saturate> -->
+  <!-- <luminance> -->
+
+
+  <!-- ======================================================================== -->
+  <!-- Compositing nodes                                                        -->
+  <!-- ======================================================================== -->
+
+  <!-- <premult> -->
+  <!-- <unpremult> -->
+  <!-- <burn> -->
+  <!-- <dodge> -->
+  <!-- <screen> -->
+  <!-- <overlay> -->
+  <!-- <disjointover> -->
+  <!-- <in> -->
+  <!-- <mask> -->
+  <!-- <matte> -->
+  <!-- <out> -->
+
+  <!-- <over> -->
+  <implementation name="IM_over__color2__glsl" nodedef="ND_over__color2" file="stdlib/impl/shadergen/glsl/source/mx_over_color2.inline" language="glsl"/>
+  <implementation name="IM_over__color4__glsl" nodedef="ND_over__color4" file="stdlib/impl/shadergen/glsl/source/mx_over_color4.inline" language="glsl"/>
+
+  <!-- <inside> -->
+  <implementation name="IM_inside__float__glsl" nodedef="ND_inside__float" file="stdlib/impl/shadergen/glsl/source/mx_multiply.inline" language="glsl"/>
+  <implementation name="IM_inside__color2__glsl" nodedef="ND_inside__color2" file="stdlib/impl/shadergen/glsl/source/mx_multiply.inline" language="glsl"/>
+  <implementation name="IM_inside__color3__glsl" nodedef="ND_inside__color3" file="stdlib/impl/shadergen/glsl/source/mx_multiply.inline" language="glsl"/>
+  <implementation name="IM_inside__color4__glsl" nodedef="ND_inside__color4" file="stdlib/impl/shadergen/glsl/source/mx_multiply.inline" language="glsl"/>
+
+  <!-- <outside> -->
+  <implementation name="IM_outside__float__glsl" nodedef="ND_outside__float" file="stdlib/impl/shadergen/glsl/source/mx_outside.inline" language="glsl"/>
+  <implementation name="IM_outside__color2__glsl" nodedef="ND_outside__color2" file="stdlib/impl/shadergen/glsl/source/mx_outside.inline" language="glsl"/>
+  <implementation name="IM_outside__color3__glsl" nodedef="ND_outside__color3" file="stdlib/impl/shadergen/glsl/source/mx_outside.inline" language="glsl"/>
+  <implementation name="IM_outside__color4__glsl" nodedef="ND_outside__color4" file="stdlib/impl/shadergen/glsl/source/mx_outside.inline" language="glsl"/>
+
+  <!-- <mix> -->
+  <implementation name="IM_mix__float__glsl" nodedef="ND_mix__float" file="stdlib/impl/shadergen/glsl/source/mx_mix.inline" language="glsl"/>
+  <implementation name="IM_mix__color2__glsl" nodedef="ND_mix__color2" file="stdlib/impl/shadergen/glsl/source/mx_mix.inline"  language="glsl"/>
+  <implementation name="IM_mix__color3__glsl" nodedef="ND_mix__color3" file="stdlib/impl/shadergen/glsl/source/mx_mix.inline" language="glsl"/>
+  <implementation name="IM_mix__color4__glsl" nodedef="ND_mix__color4" file="stdlib/impl/shadergen/glsl/source/mx_mix.inline" language="glsl"/>
+  <implementation name="IM_mix__vector2__glsl" nodedef="ND_mix__vector2" file="stdlib/impl/shadergen/glsl/source/mx_mix.inline" language="glsl"/>
+  <implementation name="IM_mix__vector3__glsl" nodedef="ND_mix__vector3" file="stdlib/impl/shadergen/glsl/source/mx_mix.inline" language="glsl"/>
+  <implementation name="IM_mix__vector4__glsl" nodedef="ND_mix__vector4" file="stdlib/impl/shadergen/glsl/source/mx_mix.inline" language="glsl"/>
+
+
+  <!-- ======================================================================== -->
+  <!-- Conditional nodes                                                        -->
+  <!-- ======================================================================== -->
+
+  <!-- <compare> -->
+  <implementation name="IM_compare__float__glsl" nodedef="ND_compare__float" language="glsl"/>
+  <implementation name="IM_compare__color2__glsl" nodedef="ND_compare__color2" language="glsl"/>
+  <implementation name="IM_compare__color3__glsl" nodedef="ND_compare__color3" language="glsl"/>
+  <implementation name="IM_compare__color4__glsl" nodedef="ND_compare__color4" language="glsl"/>
+  <implementation name="IM_compare__vector2__glsl" nodedef="ND_compare__vector2" language="glsl"/>
+  <implementation name="IM_compare__vector3__glsl" nodedef="ND_compare__vector3" language="glsl"/>
+  <implementation name="IM_compare__vector4__glsl" nodedef="ND_compare__vector4" language="glsl"/>
+
+  <!-- <switch> -->
+  <implementation name="IM_switch__float__glsl" nodedef="ND_switch__float" language="glsl"/>
+  <implementation name="IM_switch__color2__glsl" nodedef="ND_switch__color2" language="glsl"/>
+  <implementation name="IM_switch__color3__glsl" nodedef="ND_switch__color3" language="glsl"/>
+  <implementation name="IM_switch__color4__glsl" nodedef="ND_switch__color4" language="glsl"/>
+  <implementation name="IM_switch__vector2__glsl" nodedef="ND_switch__vector2" language="glsl"/>
+  <implementation name="IM_switch__vector3__glsl" nodedef="ND_switch__vector3" language="glsl"/>
+  <implementation name="IM_switch__vector4__glsl" nodedef="ND_switch__vector4" language="glsl"/>
+
+  <!-- ======================================================================== -->
+  <!-- Channel nodes                                                            -->
+  <!-- ======================================================================== -->
+
+  <!-- <swizzle> -->
+  <!-- from type: float -->
+  <implementation name="IM_swizzle__float_color2__glsl" nodedef="ND_swizzle__float_color2" language="glsl"/>
+  <implementation name="IM_swizzle__float_color3__glsl" nodedef="ND_swizzle__float_color3" language="glsl"/>
+  <implementation name="IM_swizzle__float_color4__glsl" nodedef="ND_swizzle__float_color4" language="glsl"/>
+  <implementation name="IM_swizzle__float_vector2__glsl" nodedef="ND_swizzle__float_vector2" language="glsl"/>
+  <implementation name="IM_swizzle__float_vector3__glsl" nodedef="ND_swizzle__float_vector3" language="glsl"/>
+  <implementation name="IM_swizzle__float_vector4__glsl" nodedef="ND_swizzle__float_vector4" language="glsl"/>
+  <!-- from type: color2 -->
+  <implementation name="IM_swizzle__color2_float__glsl" nodedef="ND_swizzle__color2_float" language="glsl"/>
+  <implementation name="IM_swizzle__color2_color2__glsl" nodedef="ND_swizzle__color2_color2" language="glsl"/>
+  <implementation name="IM_swizzle__color2_color3__glsl" nodedef="ND_swizzle__color2_color3" language="glsl"/>
+  <implementation name="IM_swizzle__color2_color4__glsl" nodedef="ND_swizzle__color2_color4" language="glsl"/>
+  <implementation name="IM_swizzle__color2_vector2__glsl" nodedef="ND_swizzle__color2_vector2" language="glsl"/>
+  <implementation name="IM_swizzle__color2_vector3__glsl" nodedef="ND_swizzle__color2_vector3" language="glsl"/>
+  <implementation name="IM_swizzle__color2_vector4__glsl" nodedef="ND_swizzle__color2_vector4" language="glsl"/>
+  <!-- from type: color3 -->
+  <implementation name="IM_swizzle__color3_float__glsl" nodedef="ND_swizzle__color3_float"  language="glsl"/>
+  <implementation name="IM_swizzle__color3_color2__glsl" nodedef="ND_swizzle__color3_color2" language="glsl"/>
+  <implementation name="IM_swizzle__color3_color3__glsl" nodedef="ND_swizzle__color3_color3" language="glsl"/>
+  <implementation name="IM_swizzle__color3_color4__glsl" nodedef="ND_swizzle__color3_color4" language="glsl"/>
+  <implementation name="IM_swizzle__color3_vector2__glsl" nodedef="ND_swizzle__color3_vector2" language="glsl"/>
+  <implementation name="IM_swizzle__color3_vector3__glsl" nodedef="ND_swizzle__color3_vector3" language="glsl"/>
+  <implementation name="IM_swizzle__color3_vector4__glsl" nodedef="ND_swizzle__color3_vector4" language="glsl"/>
+  <!-- from type: color4 -->
+  <implementation name="IM_swizzle__color4_float__glsl" nodedef="ND_swizzle__color4_float" language="glsl"/>
+  <implementation name="IM_swizzle__color4_color2__glsl" nodedef="ND_swizzle__color4_color2" language="glsl"/>
+  <implementation name="IM_swizzle__color4_color3__glsl" nodedef="ND_swizzle__color4_color3" language="glsl"/>
+  <implementation name="IM_swizzle__color4_color4__glsl" nodedef="ND_swizzle__color4_color4" language="glsl"/>
+  <implementation name="IM_swizzle__color4_vector2__glsl" nodedef="ND_swizzle__color4_vector2" language="glsl"/>
+  <implementation name="IM_swizzle__color4_vector3__glsl" nodedef="ND_swizzle__color4_vector3" language="glsl"/>
+  <implementation name="IM_swizzle__color4_vector4__glsl" nodedef="ND_swizzle__color4_vector4" language="glsl"/>
+  <!-- from type: vector2 -->
+  <implementation name="IM_swizzle__vector2_float__glsl" nodedef="ND_swizzle__vector2_float" language="glsl"/>
+  <implementation name="IM_swizzle__vector2_color2__glsl" nodedef="ND_swizzle__vector2_color2" language="glsl"/>
+  <implementation name="IM_swizzle__vector2_color3__glsl" nodedef="ND_swizzle__vector2_color3" language="glsl"/>
+  <implementation name="IM_swizzle__vector2_color4__glsl" nodedef="ND_swizzle__vector2_color4" language="glsl"/>
+  <implementation name="IM_swizzle__vector2_vector2__glsl" nodedef="ND_swizzle__vector2_vector2" language="glsl"/>
+  <implementation name="IM_swizzle__vector2_vector3__glsl" nodedef="ND_swizzle__vector2_vector3" language="glsl"/>
+  <implementation name="IM_swizzle__vector2_vector4__glsl" nodedef="ND_swizzle__vector2_vector4" language="glsl"/>
+  <!-- from type: vector3 -->
+  <implementation name="IM_swizzle__vector3_float__glsl" nodedef="ND_swizzle__vector3_float" language="glsl"/>
+  <implementation name="IM_swizzle__vector3_color2__glsl" nodedef="ND_swizzle__vector3_color2" language="glsl"/>
+  <implementation name="IM_swizzle__vector3_color3__glsl" nodedef="ND_swizzle__vector3_color3" language="glsl"/>
+  <implementation name="IM_swizzle__vector3_color4__glsl" nodedef="ND_swizzle__vector3_color4" language="glsl"/>
+  <implementation name="IM_swizzle__vector3_vector2__glsl" nodedef="ND_swizzle__vector3_vector2" language="glsl"/>
+  <implementation name="IM_swizzle__vector3_vector3__glsl" nodedef="ND_swizzle__vector3_vector3" language="glsl"/>
+  <implementation name="IM_swizzle__vector3_vector4__glsl" nodedef="ND_swizzle__vector3_vector4" language="glsl"/>
+  <!-- from type: vector4 -->
+  <implementation name="IM_swizzle__vector4_float__glsl" nodedef="ND_swizzle__vector4_float" language="glsl"/>
+  <implementation name="IM_swizzle__vector4_color2__glsl" nodedef="ND_swizzle__vector4_color2" language="glsl"/>
+  <implementation name="IM_swizzle__vector4_color3__glsl" nodedef="ND_swizzle__vector4_color3" language="glsl"/>
+  <implementation name="IM_swizzle__vector4_color4__glsl" nodedef="ND_swizzle__vector4_color4" language="glsl"/>
+  <implementation name="IM_swizzle__vector4_vector2__glsl" nodedef="ND_swizzle__vector4_vector2" language="glsl"/>
+  <implementation name="IM_swizzle__vector4_vector3__glsl" nodedef="ND_swizzle__vector4_vector3" language="glsl"/>
+  <implementation name="IM_swizzle__vector4_vector4__glsl" nodedef="ND_swizzle__vector4_vector4" language="glsl"/>
+
+  <!-- <pack> -->
+  <implementation name="IM_pack__color2__glsl" nodedef="ND_pack__color2" file="stdlib/impl/shadergen/glsl/source/mx_pack_color2.inline" language="glsl"/>
+  <implementation name="IM_pack__vector2__glsl" nodedef="ND_pack__vector2" file="stdlib/impl/shadergen/glsl/source/mx_pack_vector2.inline" language="glsl"/>
+  <implementation name="IM_pack__color3__glsl" nodedef="ND_pack__color3" file="stdlib/impl/shadergen/glsl/source/mx_pack_color3.inline" language="glsl"/>
+  <implementation name="IM_pack__vector3__glsl" nodedef="ND_pack__vector3" file="stdlib/impl/shadergen/glsl/source/mx_pack_vector3.inline" language="glsl"/>
+  <implementation name="IM_pack__color4__glsl" nodedef="ND_pack__color4" file="stdlib/impl/shadergen/glsl/source/mx_pack_color4.inline" language="glsl"/>
+  <implementation name="IM_pack__vector4__glsl" nodedef="ND_pack__vector4" file="stdlib/impl/shadergen/glsl/source/mx_pack_vector4.inline" language="glsl"/>
+  <implementation name="IM_pack__color4CF__glsl" nodedef="ND_pack__color4CF" file="stdlib/impl/shadergen/glsl/source/mx_pack_cf_color4.inline" language="glsl"/>
+  <implementation name="IM_pack__vector4VF__glsl" nodedef="ND_pack__vector4VF" file="stdlib/impl/shadergen/glsl/source/mx_pack_vf_vector4.inline" language="glsl"/>
+  <implementation name="IM_pack__color4CC__glsl" nodedef="ND_pack__color4CC" file="stdlib/impl/shadergen/glsl/source/mx_pack_cc_color4.inline" language="glsl"/>
+  <implementation name="IM_pack__vector4VV__glsl" nodedef="ND_pack__vector4VV" file="stdlib/impl/shadergen/glsl/source/mx_pack_vv_vector4.inline" language="glsl"/>
+
+
+  <!-- ======================================================================== -->
+  <!-- Convolution nodes                                                        -->
+  <!-- ======================================================================== -->
+
+  <!-- <blur> -->
+  <!-- <heighttonormal> -->
+  <implementation name="IM_heighttonormal__vector3__glsl" nodedef="ND_heighttonormal__vector3" file="stdlib/impl/shadergen/glsl/source/mx_heighttonormal_vector3.glsl" function="mx_heighttonormal_vector3" language="glsl"/>
+
+
+  <!-- ======================================================================== -->
+  <!-- Organization nodes                                                       -->
+  <!-- ======================================================================== -->
+
+  <!-- <dot> -->
+  <implementation name="IM_dot__float__glsl" nodedef="ND_dot__float" file="stdlib/impl/shadergen/glsl/source/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__color2__glsl" nodedef="ND_dot__color2" file="stdlib/impl/shadergen/glsl/source/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__color3__glsl" nodedef="ND_dot__color3" file="stdlib/impl/shadergen/glsl/source/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__color4__glsl" nodedef="ND_dot__color4" file="stdlib/impl/shadergen/glsl/source/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__vector2__glsl" nodedef="ND_dot__vector2" file="stdlib/impl/shadergen/glsl/source/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__vector3__glsl" nodedef="ND_dot__vector3" file="stdlib/impl/shadergen/glsl/source/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__vector4__glsl" nodedef="ND_dot__vector4" file="stdlib/impl/shadergen/glsl/source/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__integer__glsl" nodedef="ND_dot__integer" file="stdlib/impl/shadergen/glsl/source/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__boolean__glsl" nodedef="ND_dot__boolean" file="stdlib/impl/shadergen/glsl/source/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__matrix33__glsl" nodedef="ND_dot__matrix33" file="stdlib/impl/shadergen/glsl/source/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__matrix44__glsl" nodedef="ND_dot__matrix44" file="stdlib/impl/shadergen/glsl/source/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__string__glsl" nodedef="ND_dot__string" file="stdlib/impl/shadergen/glsl/source/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__filename__glsl" nodedef="ND_dot__filename" file="stdlib/impl/shadergen/glsl/source/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__surfaceshader__glsl" nodedef="ND_dot__surfaceshader" file="stdlib/impl/shadergen/glsl/source/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__displacementshader__glsl" nodedef="ND_dot__displacementshader" file="stdlib/impl/shadergen/glsl/source/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__volumeshader__glsl" nodedef="ND_dot__volumeshader" file="stdlib/impl/shadergen/glsl/source/mx_dot.inline" language="glsl"/>
+  <implementation name="IM_dot__lightshader__glsl" nodedef="ND_dot__lightshader" file="stdlib/impl/shadergen/glsl/source/mx_dot.inline" language="glsl"/>
+
+</materialx>

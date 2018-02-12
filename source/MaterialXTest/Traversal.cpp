@@ -210,7 +210,7 @@ TEST_CASE("Material Traversal", "[traversal]")
 
     // Create a material with a shader ref connecting to the graph
     mx::MaterialPtr material = doc->addMaterial();
-    mx::ShaderRefPtr shaderRef = material->addShaderRef("simpleSrf1", "simpleSrf");
+    mx::ShaderRefPtr shaderRef = material->addShaderRef();
     mx::BindInputPtr diffuseWeight = shaderRef->addBindInput("diffWeight", "float");
     mx::BindInputPtr diffuseColor  = shaderRef->addBindInput("diffColor", "color3");
     diffuseWeight->setValue(0.8f);

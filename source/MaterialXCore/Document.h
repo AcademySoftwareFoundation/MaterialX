@@ -64,7 +64,7 @@ class Document : public Element
     /// @param copyOptions An optional pointer to a CopyOptions object.
     ///    If provided, then the given options will affect the behavior of the
     ///    import function.  Defaults to a null pointer.
-    void importLibrary(ConstDocumentPtr library, ConstCopyOptionsPtr copyOptions = nullptr);
+    void importLibrary(ConstDocumentPtr library, const class CopyOptions* copyOptions = nullptr);
 
     /// @name Document Versions
     /// @{

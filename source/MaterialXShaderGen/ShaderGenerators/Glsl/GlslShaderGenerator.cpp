@@ -215,7 +215,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     shader.newLine();
 
     // Add global constants and type definitions
-    shader.addInclude("sx/impl/shadergen/source/glsl/defines.glsl", *this);
+    shader.addInclude("sx/impl/shadergen/glsl/source/defines.glsl", *this);
     shader.newLine();
     emitTypeDefs(shader);
 
@@ -246,7 +246,6 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     shader.addStr(" " + vertexDataBlock.instance + ";\n");
     shader.newLine();
 
-
     // Add the pixel shader output. This needs to be a vec4 for rendering
     // and upstream connection will be converted to vec4 if needed in emitFinalOutput()
     shader.addComment("Data output by the pixel shader");
@@ -256,7 +255,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     shader.newLine();
 
     // Emit common math functions
-    shader.addInclude("sx/impl/shadergen/source/glsl/math.glsl", *this);
+    shader.addInclude("sx/impl/shadergen/glsl/source/math.glsl", *this);
     shader.newLine();
 
     // Add all functions for node implementations

@@ -26,7 +26,6 @@ using std::string;
 using std::vector;
 using std::shared_ptr;
 using std::weak_ptr;
-using std::enable_shared_from_this;
 
 /// A vector of strings.
 using StringVec = vector<string>;

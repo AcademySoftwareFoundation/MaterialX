@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<materialx version="1.35">
+
+  <!-- <diffusebsdf> -->
+  <implementation name="IM_diffusebsdf__osl" nodedef="ND_diffusebsdf" file="sx/impl/shadergen/osl/source/sx_diffusebsdf.inline" function="sx_diffusebsdf" language="osl"/>
+
+  <!-- <translucentbsdf> -->
+  <implementation name="IM_translucentbsdf__osl" nodedef="ND_translucentbsdf" file="sx/impl/shadergen/osl/source/sx_translucentbsdf.inline" function="sx_translucentbsdf" language="osl"/>
+
+  <!-- <transparentbsdf> -->
+  <implementation name="IM_transparentbsdf__osl" nodedef="ND_transparentbsdf" file="sx/impl/shadergen/osl/source/sx_transparentbsdf.inline" function="sx_transparentbsdf" language="osl"/>
+
+  <!-- <coatingbsdf> -->
+  <implementation name="IM_coatingbsdf__osl" nodedef="ND_coatingbsdf" file="sx/impl/shadergen/osl/source/sx_coatingbsdf.osl" function="sx_coatingbsdf" language="osl"/>
+
+  <!-- <refractionbsdf> -->
+  <implementation name="IM_refractionbsdf__osl" nodedef="ND_refractionbsdf" file="sx/impl/shadergen/osl/source/sx_refractionbsdf.osl" function="sx_refractionbsdf" language="osl"/>
+
+  <!-- <layeredbsdf> -->
+  <implementation name="IM_layeredbsdf__osl" nodedef="ND_layeredbsdf" file="sx/impl/shadergen/osl/source/sx_layeredbsdf.osl" function="sx_layeredbsdf" language="osl"/>
+
+  <!-- <uniformedf> -->
+  <implementation name="IM_uniformedf__osl" nodedef="ND_uniformedf" file="sx/impl/shadergen/osl/source/sx_uniformedf.inline" function="sx_uniformedf" language="osl"/>
+
+  <!-- <mixbsdf> -->
+  <implementation name="IM_mixbsdf__osl" nodedef="ND_mixbsdf" file="sx/impl/shadergen/osl/source/sx_mixbsdf.osl" function="sx_mixbsdf" language="osl"/>
+
+  <!-- <mixedf> -->
+  <implementation name="IM_mixedf__osl" nodedef="ND_mixedf" file="sx/impl/shadergen/osl/source/sx_mixedf.osl" function="sx_mixedf" language="osl"/>
+
+  <!-- <surface> -->
+  <implementation name="IM_surface__osl" nodedef="ND_surface" file="sx/impl/shadergen/osl/source/sx_surface.osl" function="sx_surface" language="osl"/>
+
+  <!-- <layeredsurface> -->
+  <implementation name="IM_layeredsurface__osl" nodedef="ND_layeredsurface" file="sx/impl/shadergen/osl/source/sx_layeredsurface.osl" function="sx_layeredsurface" language="osl"/>
+
+</materialx>
