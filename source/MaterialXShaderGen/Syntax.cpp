@@ -11,14 +11,31 @@ namespace MaterialX
 
     void Syntax::addValueConstructSyntax(const string& type, const ValueConstructSyntax& syntax)
     {
-        _valueConstructSyntax.push_back(syntax);
-        _valueConstructSyntaxByName[type] = _valueConstructSyntax.size() - 1;
+        auto it = _valueConstructSyntaxByName.find(type);
+        if (it != _valueConstructSyntaxByName.end())
+        {
+            _valueConstructSyntax[it->second] = syntax;
+        }
+        else
+        {
+            // Type already exists so override with new value
+            _valueConstructSyntax.push_back(syntax);
+            _valueConstructSyntaxByName[type] = _valueConstructSyntax.size() - 1;
+        }
     }
 
     void Syntax::addTypeSyntax(const string& type, const TypeSyntax& syntax)
     {
-        _typeSyntax.push_back(syntax);
-        _typeSyntaxByName[type] = _typeSyntax.size() - 1;
+        auto it = _typeSyntaxByName.find(type);
+        if (it != _typeSyntaxByName.end())
+        {
+            _typeSyntax[it->second] = syntax;
+        }
+        else
+        {
+            _typeSyntax.push_back(syntax);
+            _typeSyntaxByName[type] = _typeSyntax.size() - 1;
+        }
     }
 
     string Syntax::getValue(const Value& value, bool paramInit) const

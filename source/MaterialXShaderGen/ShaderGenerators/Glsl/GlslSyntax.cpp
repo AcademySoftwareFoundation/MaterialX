@@ -57,8 +57,8 @@ GlslSyntax::GlslSyntax()
         TypeSyntax
         (
             "vec2", 
-            "vec2(0.0)", 
-            "{0.0, 0.0}",
+            "vec2(0.0)",
+            "vec2(0.0)",
             "",
             "out vec2"
         )
@@ -70,8 +70,8 @@ GlslSyntax::GlslSyntax()
         TypeSyntax
         (
             "vec3", 
-            "vec3(0.0)", 
-            "{0.0, 0.0, 0.0}",
+            "vec3(0.0)",
+            "vec3(0.0)",
             "",
             "out vec3"
         )
@@ -84,7 +84,7 @@ GlslSyntax::GlslSyntax()
         (
             "vec4",
             "vec4(0.0)",
-            "{0.0, 0.0, 0.0, 0.0}",
+            "vec4(0.0)",
             "",
             "out vec4"
         )
@@ -97,7 +97,7 @@ GlslSyntax::GlslSyntax()
         (
             "vec2",
             "vec2(0.0)",
-            "{0.0, 0.0}",
+            "vec2(0.0)",
             "",
             "out vec2"
         )
@@ -110,7 +110,7 @@ GlslSyntax::GlslSyntax()
         (
             "vec3",
             "vec3(0.0)",
-            "{0.0, 0.0, 0.0}",
+            "vec3(0.0)",
             "",
             "out vec3"
         )
@@ -123,7 +123,7 @@ GlslSyntax::GlslSyntax()
         (
             "vec4",
             "vec4(0.0)",
-            "{0.0, 0.0, 0.0, 0.0}",
+            "vec4(0.0)",
             "",
             "out vec4"
         )
@@ -268,7 +268,7 @@ GlslSyntax::GlslSyntax()
         DataType::COLOR2,
         ValueConstructSyntax(
             "vec2(", ")", // Value constructor syntax
-            "{", "}",     // Value constructor syntax in a shader param initialization context
+            "vec2(", ")", // Value constructor syntax in a shader param initialization context
             {".r", ".g"}  // Syntax for each vector component
         )
     );
@@ -279,7 +279,7 @@ GlslSyntax::GlslSyntax()
         ValueConstructSyntax
         (
             "vec3(", ")",
-            "{", "}",
+            "vec3(", ")",
             {".r", ".g", ".b"}
     )
     );
@@ -290,7 +290,7 @@ GlslSyntax::GlslSyntax()
         ValueConstructSyntax
         (
             "vec4(", ")",
-            "{", "}",
+            "vec4(", ")",
             {".r", ".g", ".b", ".a"}
     )
     );
@@ -300,7 +300,7 @@ GlslSyntax::GlslSyntax()
         ValueConstructSyntax
         (
             "vec2(", ")",
-            "{", "}",
+            "vec2(", ")",
             { ".x", ".y"}
         )
     );
@@ -311,7 +311,7 @@ GlslSyntax::GlslSyntax()
         ValueConstructSyntax
         (
             "vec3(", ")",
-            "{", "}",
+            "vec3(", ")",
             { ".x", ".y", ".z"}
         )
     );
@@ -322,7 +322,7 @@ GlslSyntax::GlslSyntax()
         ValueConstructSyntax
         (
             "vec4(", ")",
-            "{", "}",
+            "vec4(", ")",
             { ".x", ".y", ".z", ".w"}
         )
     );
