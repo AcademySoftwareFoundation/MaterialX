@@ -46,7 +46,7 @@ build_script:
   - ctest --output-on-failure --build-config %CONFIGURATION%
   - cmake -E chdir ../python/MaterialXTest python main.py
 
-after_build:
+before_deploy:
     # Go to install directory and zip it up.  Currently marked as pre-release
     - cd C:\Projects\MaterialX\build\installed
     - 7z a -r C:\Projects\MaterialX\MaterialX-Windows-%APPVEYOR_REPO_BRANCH%-%VS_PLATFORM%-%VS_COMPILER%-%CONFIGURATION%-%APPVEYOR_BUILD_NUMBER%.zip .
@@ -63,7 +63,7 @@ deploy:
       on:
         VS_PLATFORM: x64
         # Choose branch
-        branch: adsk_update_shadergen
+        branch: adsk_update
       auth_token:
         secure: qg4BvNKremS4OMcbGZEjaXrumrQ+8/pJvr3WrNqM1ZQDyzvNpmUEA0ZMRkUJzeOh
 
