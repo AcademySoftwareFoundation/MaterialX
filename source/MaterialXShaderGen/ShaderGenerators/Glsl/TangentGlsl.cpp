@@ -18,7 +18,7 @@ void TangentGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shaderg
     string space = spaceInput ? spaceInput->value->getValueString() : EMPTY_STRING;
     if (space == WORLD)
     {
-        shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_worldInverseTranspose");
+        shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::MATRIX4, "u_worldInverseTranspose");
         shader.createVertexData(DataType::VECTOR3, "tangentWorld");
     }
     else if (space == MODEL)

@@ -7,11 +7,11 @@ HwShader::HwShader(const string& name)
     : Shader(name)
     , _vertexData("VertexData", "vd")
 {
-}
+    _stages.push_back(Stage("Vertex"));
 
-void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen)
-{
-    Shader::initialize(element, shadergen);
+    // Create default uniform blocks for vertex stage
+    createUniformBlock(VERTEX_STAGE, PRIVATE_UNIFORMS, "prv");
+    createUniformBlock(VERTEX_STAGE, PUBLIC_UNIFORMS, "pub");
 }
 
 void HwShader::createVertexData(const string& type, const string& name, const string& semantic)

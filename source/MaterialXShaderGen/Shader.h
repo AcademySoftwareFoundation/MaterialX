@@ -82,9 +82,15 @@ public:
     static const size_t PIXEL_STAGE = 0;
     static const size_t NUM_STAGES  = 1;
 
-    /// Identifier for variable blocks. Derived classes can define additional blocks.
-    static const string GLOBAL_SCOPE;
-    static const string SHADER_INTERFACE;
+    /// Identifiers for uniform variable blocks. 
+    /// Derived classes can define additional blocks.
+    ///
+    /// Default uniform block for private variables.
+    /// For uniforms not visible to user and only set by application.
+    static const string PRIVATE_UNIFORMS;
+    /// Default uniform block for public variables. 
+    /// For uniforms visible in UI and set by users.
+    static const string PUBLIC_UNIFORMS;
 
 public:
     /// Constructor
@@ -108,22 +114,22 @@ public:
     /// Return the active stage
     virtual size_t getActiveStage() const { return _activeStage; }
 
-    /// Create a new variable block for uniform inputs.
-    virtual void createUniformBlock(const string& block, const string& instance = EMPTY_STRING);
+    /// Create a new variable block for uniform inputs in a stage.
+    virtual void createUniformBlock(size_t stage, const string& block, const string& instance = EMPTY_STRING);
 
-    /// Create a new variable for uniform data in the given block. 
+    /// Create a new variable for uniform data in the given block for a stage.
     /// The block must be previously created with createUniformBlock.
-    virtual void createUniform(const string& block, const string& type, const string& name, 
+    virtual void createUniform(size_t stage, const string& block, const string& type, const string& name,
         const string& semantic = EMPTY_STRING, ValuePtr value = nullptr);
 
     /// Create a new variable for application/geometric data (primvars).
     virtual void createAppData(const string& type, const string& name, const string& semantic = EMPTY_STRING);
 
-    /// Return all blocks of uniform variables.
-    const VariableBlockMap& getUniformBlocks() const { return _uniforms; }
+    /// Return all blocks of uniform variables for a stage.
+    const VariableBlockMap& getUniformBlocks(size_t stage) const { return _stages[stage].uniforms; }
 
-    /// Return a specific block of uniform variables.
-    const VariableBlock& getUniformBlock(const string& block) const;
+    /// Return a specific block of uniform variables for a stage.
+    const VariableBlock& getUniformBlock(size_t stage, const string& block) const;
 
     /// Return the block of application data variables.
     const VariableBlock& getAppDataBlock() const { return _appData; }
@@ -223,13 +229,19 @@ protected:
     /// resulting source code for the stage
     struct Stage
     {
+        string name;
         int indentations;
         std::queue<Brackets> scopes;
         std::set<string> includes;
         std::set<SgImplementation*> definedFunctions;
+        
+        // Blocks holding uniform variables for this stage
+        VariableBlockMap uniforms;
+
+        // Resulting source code for this stage
         string code;
 
-        Stage() : indentations(0) {}
+        Stage(const string& n) : name(n), indentations(0) {}
     };
 
     /// Return the currently active stage
@@ -248,9 +260,6 @@ protected:
 
     // Block holding application/geometric input variables
     VariableBlock _appData;
-
-    // Map of blocks holding uniform input variables
-    VariableBlockMap _uniforms;
 };
 
 /// @class @ExceptionShaderGenError

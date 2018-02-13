@@ -157,18 +157,31 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
 
     // Create required variables for vertex stage
     shader.createAppData(DataType::VECTOR3, "i_position");
-    shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_worldMatrix");
-    shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_viewProjectionMatrix");
+    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::MATRIX4, "u_worldMatrix");
+    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::MATRIX4, "u_viewProjectionMatrix");
 
     // Add version directive
     shader.addLine("#version " + getVersion(), false);
     shader.newLine();
 
-    // Add all global scope uniforms
-    const Shader::VariableBlock& globalUniformBlock = shader.getUniformBlock(Shader::GLOBAL_SCOPE);
-    if (globalUniformBlock.variableOrder.size())
+    // Add all private uniforms
+    const Shader::VariableBlock& vsPrivateUniforms = shader.getUniformBlock(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS);
+    if (vsPrivateUniforms.variableOrder.size())
     {
-        for (const Shader::Variable* uniform : globalUniformBlock.variableOrder)
+        shader.addComment("Uniform block: " + vsPrivateUniforms.name);
+        for (const Shader::Variable* uniform : vsPrivateUniforms.variableOrder)
+        {
+            emitUniform(*uniform, shader);
+        }
+        shader.newLine();
+    }
+
+    // Add any public uniforms
+    const Shader::VariableBlock& vsPublicUniforms = shader.getUniformBlock(HwShader::VERTEX_STAGE, HwShader::PUBLIC_UNIFORMS);
+    if (vsPublicUniforms.variableOrder.size())
+    {
+        shader.addComment("Uniform block: " + vsPublicUniforms.name);
+        for (const Shader::Variable* uniform : vsPublicUniforms.variableOrder)
         {
             emitUniform(*uniform, shader);
         }
@@ -179,6 +192,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     const Shader::VariableBlock& appDataBlock = shader.getAppDataBlock();
     if (appDataBlock.variableOrder.size())
     {
+        shader.addComment("Application data block: " + appDataBlock.name);
         for (const Shader::Variable* input : appDataBlock.variableOrder)
         {
             const string& type = _syntax->getTypeName(input->type);
@@ -229,21 +243,24 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     shader.newLine();
     emitTypeDefs(shader);
 
-    // Add all global scope uniforms
-    if (globalUniformBlock.variableOrder.size())
+    // Add all private uniforms
+    const Shader::VariableBlock& psPrivateUniforms = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS);
+    if (psPrivateUniforms.variableOrder.size())
     {
-        for (const Shader::Variable* uniform : globalUniformBlock.variableOrder)
+        shader.addComment("Uniform block: " + psPrivateUniforms.name);
+        for (const Shader::Variable* uniform : psPrivateUniforms.variableOrder)
         {
             emitUniform(*uniform, shader);
         }
         shader.newLine();
     }
 
-    // Add all shader interface uniforms
-    const Shader::VariableBlock& shaderInterfaceBlock = shader.getUniformBlock(Shader::SHADER_INTERFACE);
-    if (shaderInterfaceBlock.variableOrder.size())
+    // Add all public uniforms
+    const Shader::VariableBlock& psPublicUniforms = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::PUBLIC_UNIFORMS);
+    if (psPublicUniforms.variableOrder.size())
     {
-        for (const Shader::Variable* uniform : shaderInterfaceBlock.variableOrder)
+        shader.addComment("Uniform block: " + psPublicUniforms.name);
+        for (const Shader::Variable* uniform : psPublicUniforms.variableOrder)
         {
             emitUniform(*uniform, shader);
         }

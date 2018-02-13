@@ -12,7 +12,7 @@ void ViewGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*shader
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
-    shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_viewInverseMatrix");
+    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::MATRIX4, "u_viewInverseMatrix");
     shader.createVertexData(DataType::VECTOR3, "viewWorld");
 }
 

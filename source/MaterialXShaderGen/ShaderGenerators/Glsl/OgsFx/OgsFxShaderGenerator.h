@@ -20,11 +20,11 @@ public:
     static const size_t NUM_STAGES = HwShader::NUM_STAGES + 1;
 
 public:
-    OgsFxShader(const string& name) : HwShader(name) {}
+    OgsFxShader(const string& name);
 
     size_t numStages() const override { return NUM_STAGES; }
 
-    void createUniform(const string& block, const string& type, const string& name, const string& semantic = EMPTY_STRING, ValuePtr value = nullptr) override;
+    void createUniform(size_t stage, const string& block, const string& type, const string& name, const string& semantic = EMPTY_STRING, ValuePtr value = nullptr) override;
     void createAppData(const string& type, const string& name, const string& semantic = EMPTY_STRING) override;
     void createVertexData(const string& type, const string& name, const string& semantic = EMPTY_STRING) override;
 };
