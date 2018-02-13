@@ -200,7 +200,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.newLine();
 
     // Add all private vertex shader uniforms
-    const Shader::VariableBlock& vsPrivateUniforms = shader.getUniformBlock(HwShader::VERTEX_STAGE, Shader::PRIVATE_UNIFORMS);
+    const Shader::VariableBlock& vsPrivateUniforms = shader.getUniformBlock(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS);
     if (vsPrivateUniforms.variableOrder.size())
     {
         shader.addComment("Vertex stage uniform block: " + vsPrivateUniforms.name);
@@ -212,7 +212,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     }
 
     // Add all public vertex shader uniforms
-    const Shader::VariableBlock& vsPublicUniforms = shader.getUniformBlock(HwShader::VERTEX_STAGE, Shader::PUBLIC_UNIFORMS);
+    const Shader::VariableBlock& vsPublicUniforms = shader.getUniformBlock(HwShader::VERTEX_STAGE, HwShader::PUBLIC_UNIFORMS);
     if (vsPublicUniforms.variableOrder.size())
     {
         shader.addComment("Vertex stage uniform block: " + vsPublicUniforms.name);
@@ -224,7 +224,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     }
 
     // Add all private pixel shader uniforms
-    const Shader::VariableBlock& psPrivateUniforms = shader.getUniformBlock(HwShader::PIXEL_STAGE, Shader::PRIVATE_UNIFORMS);
+    const Shader::VariableBlock& psPrivateUniforms = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS);
     if (psPrivateUniforms.variableOrder.size())
     {
         shader.addComment("Pixel stage uniform block: " + psPrivateUniforms.name);
@@ -236,7 +236,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     }
 
     // Add all public pixel shader uniforms
-    const Shader::VariableBlock& psPublicUniforms = shader.getUniformBlock(HwShader::PIXEL_STAGE, Shader::PUBLIC_UNIFORMS);
+    const Shader::VariableBlock& psPublicUniforms = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::PUBLIC_UNIFORMS);
     if (psPublicUniforms.variableOrder.size())
     {
         shader.addComment("Pixel stage uniform block: " + psPublicUniforms.name);
