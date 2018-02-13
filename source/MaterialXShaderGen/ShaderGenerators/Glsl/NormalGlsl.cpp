@@ -18,7 +18,7 @@ void NormalGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shaderge
     string space = spaceInput ? spaceInput->value->getValueString() : EMPTY_STRING;
     if (space == WORLD)
     {
-        shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_normalMatrix");
+        shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_worldInverseTranspose");
         shader.createVertexData(DataType::VECTOR3, "normalWorld");
     }
     else if (space == MODEL)
@@ -47,7 +47,7 @@ void NormalGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen
             if (!shader.isCalculated("normalWorld"))
             {
                 shader.setCalculated("normalWorld");
-                shader.addLine(blockPrefix + "normalWorld = normalize((u_normalMatrix * vec4(i_normal, 0)).xyz)");
+                shader.addLine(blockPrefix + "normalWorld = normalize((u_worldInverseTranspose * vec4(i_normal, 0)).xyz)");
             }
         }
         else if (space == MODEL)

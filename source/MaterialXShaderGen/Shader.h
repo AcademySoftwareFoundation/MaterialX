@@ -114,19 +114,19 @@ public:
     /// Create a new variable for uniform data in the given block. 
     /// The block must be previously created with createUniformBlock.
     virtual void createUniform(const string& block, const string& type, const string& name, 
-        const string& sementic = EMPTY_STRING, ValuePtr value = nullptr);
+        const string& semantic = EMPTY_STRING, ValuePtr value = nullptr);
 
     /// Create a new variable for application/geometric data (primvars).
-    virtual void createAppData(const string& type, const string& name, const string& sementic = EMPTY_STRING);
+    virtual void createAppData(const string& type, const string& name, const string& semantic = EMPTY_STRING);
 
     /// Return all blocks of uniform variables.
-    const VariableBlockMap& getUniformBlocks() { return _uniforms; }
+    const VariableBlockMap& getUniformBlocks() const { return _uniforms; }
 
     /// Return a specific block of uniform variables.
-    const VariableBlock& getUniformBlock(const string& block);
+    const VariableBlock& getUniformBlock(const string& block) const;
 
     /// Return the block of application data variables.
-    const VariableBlock& getAppDataBlock() { return _appData; }
+    const VariableBlock& getAppDataBlock() const { return _appData; }
 
     /// Start a new scope in the shader, using the given bracket type
     virtual void beginScope(Brackets brackets = Brackets::BRACES);

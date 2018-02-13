@@ -16,9 +16,6 @@ public:
     static const size_t VERTEX_STAGE = Shader::NUM_STAGES;
     static const size_t NUM_STAGES = Shader::NUM_STAGES + 1;
 
-    /// Identifier for vertex data block.
-    static const string VERTEX_DATA_BLOCK;
-
 public:
     HwShader(const string& name);
 
@@ -32,10 +29,10 @@ public:
 
     /// Create a new variable for vertex data. This creates an 
     /// output from the vertex stage and and input to the pixel stage.
-    virtual void createVertexData(const string& type, const string& name, const string& sementic = EMPTY_STRING);
+    virtual void createVertexData(const string& type, const string& name, const string& semantic = EMPTY_STRING);
 
-    /// Return the block of avertex data variables.
-    const VariableBlock& getVertexDataBlock() { return _vertexData; }
+    /// Return the block of a vertex data variables.
+    const VariableBlock& getVertexDataBlock() const { return _vertexData; }
     
     /// Query if an output has been calculated in the vertex stage.
     bool isCalculated(const string& outputName) const 

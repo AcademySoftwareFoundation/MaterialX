@@ -157,7 +157,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
 
     // Create required variables for vertex stage
     shader.createAppData(DataType::VECTOR3, "i_position");
-    shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_modelMatrix");
+    shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_worldMatrix");
     shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_viewProjectionMatrix");
 
     // Add version directive
@@ -208,7 +208,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     // Add main function
     shader.addLine("void main()", false);
     shader.beginScope(Shader::Brackets::BRACES);
-    shader.addLine("vec4 hPositionWorld = u_modelMatrix * vec4(i_position, 1.0)");
+    shader.addLine("vec4 hPositionWorld = u_worldMatrix * vec4(i_position, 1.0)");
     shader.addLine("gl_Position = u_viewProjectionMatrix * hPositionWorld");
     emitFunctionCalls(shader);
     shader.endScope();

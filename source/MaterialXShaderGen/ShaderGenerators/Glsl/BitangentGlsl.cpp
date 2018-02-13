@@ -18,7 +18,7 @@ void BitangentGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shade
     string space = spaceInput ? spaceInput->value->getValueString() : EMPTY_STRING;
     if (space == WORLD)
     {
-        shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_normalMatrix");
+        shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_worldInverseTranspose");
         shader.createVertexData(DataType::VECTOR3, "bitangentWorld");
     }
     else if (space == MODEL)
@@ -47,7 +47,7 @@ void BitangentGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shader
             if (!shader.isCalculated("bitangentWorld"))
             {
                 shader.setCalculated("bitangentWorld");
-                shader.addLine(blockPrefix + "bitangentWorld = normalize(u_normalMatrix * i_bitangent)");
+                shader.addLine(blockPrefix + "bitangentWorld = normalize(u_worldInverseTranspose * i_bitangent)");
             }
         }
         else if (space == MODEL)

@@ -25,18 +25,18 @@ namespace
         { "i_texcoord7", "TEXCOORD7" },
         { "i_texcoord8", "TEXCOORD8" },
         { "i_texcoord9", "TEXCOORD9" },
-        { "u_modelMatrix", "World" },
+        { "u_worldMatrix", "World" },
         { "u_viewProjectionMatrix", "ViewProjection" },
-        { "u_normalMatrix", "WorldInverseTranspose" },
+        { "u_worldInverseTranspose", "WorldInverseTranspose" },
         { "u_viewInverseMatrix", "ViewInverse" }
     };
 }
 
-void OgsFxShader::createUniform(const string& block, const string& type, const string& name, const string& sementic, ValuePtr value)
+void OgsFxShader::createUniform(const string& block, const string& type, const string& name, const string& semantic, ValuePtr value)
 {
     // If no semantic is given check if we have 
     // an OgsFx semantic that should be used
-    if (sementic.empty())
+    if (semantic.empty())
     {
         auto it = OGSFX_DEFAULT_SEMANTICS_MAP.find(name);
         if (it != OGSFX_DEFAULT_SEMANTICS_MAP.end())
@@ -45,14 +45,14 @@ void OgsFxShader::createUniform(const string& block, const string& type, const s
             return;
         }
     }
-    HwShader::createUniform(block, type, name, sementic, value);
+    HwShader::createUniform(block, type, name, semantic, value);
 }
 
-void OgsFxShader::createAppData(const string& type, const string& name, const string& sementic)
+void OgsFxShader::createAppData(const string& type, const string& name, const string& semantic)
 {
     // If no semantic is given check if we have 
     // an OgsFx semantic that should be used
-    if (sementic.empty())
+    if (semantic.empty())
     {
         auto it = OGSFX_DEFAULT_SEMANTICS_MAP.find(name);
         if (it != OGSFX_DEFAULT_SEMANTICS_MAP.end())
@@ -61,14 +61,14 @@ void OgsFxShader::createAppData(const string& type, const string& name, const st
             return;
         }
     }
-    HwShader::createAppData(type, name, sementic);
+    HwShader::createAppData(type, name, semantic);
 }
 
-void OgsFxShader::createVertexData(const string& type, const string& name, const string& sementic)
+void OgsFxShader::createVertexData(const string& type, const string& name, const string& semantic)
 {
     // If no semantic is given check if we have 
     // an OgsFx semantic that should be used
-    if (sementic.empty())
+    if (semantic.empty())
     {
         auto it = OGSFX_DEFAULT_SEMANTICS_MAP.find(name);
         if (it != OGSFX_DEFAULT_SEMANTICS_MAP.end())
@@ -77,7 +77,7 @@ void OgsFxShader::createVertexData(const string& type, const string& name, const
             return;
         }
     }
-    HwShader::createVertexData(type, name, sementic);
+    HwShader::createVertexData(type, name, semantic);
 }
 
 
@@ -103,7 +103,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 
     // Create required variables
     shader.createAppData(DataType::VECTOR3, "i_position");
-    shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_modelMatrix");
+    shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_worldMatrix");
     shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_viewProjectionMatrix");
 
     shader.addComment("---------------------------------- Vertex shader ----------------------------------------\n");
@@ -115,7 +115,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     // Add main function
     shader.addLine("void main()", false);
     shader.beginScope(Shader::Brackets::BRACES);
-    shader.addLine("vec4 hPositionWorld = u_modelMatrix * vec4(i_position, 1.0)");
+    shader.addLine("vec4 hPositionWorld = u_worldMatrix * vec4(i_position, 1.0)");
     shader.addLine("gl_Position = u_viewProjectionMatrix * hPositionWorld");
     emitFunctionCalls(shader);
     shader.endScope();

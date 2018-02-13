@@ -24,9 +24,9 @@ public:
 
     size_t numStages() const override { return NUM_STAGES; }
 
-    void createUniform(const string& block, const string& type, const string& name, const string& sementic = EMPTY_STRING, ValuePtr value = nullptr) override;
-    void createAppData(const string& type, const string& name, const string& sementic = EMPTY_STRING) override;
-    void createVertexData(const string& type, const string& name, const string& sementic = EMPTY_STRING) override;
+    void createUniform(const string& block, const string& type, const string& name, const string& semantic = EMPTY_STRING, ValuePtr value = nullptr) override;
+    void createAppData(const string& type, const string& name, const string& semantic = EMPTY_STRING) override;
+    void createVertexData(const string& type, const string& name, const string& semantic = EMPTY_STRING) override;
 };
 
 

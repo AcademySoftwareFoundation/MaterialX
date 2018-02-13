@@ -210,7 +210,7 @@ void Shader::createUniformBlock(const string& block, const string& instance)
     }
 }
 
-void Shader::createUniform(const string& block, const string& type, const string& name, const string& sementic, ValuePtr value)
+void Shader::createUniform(const string& block, const string& type, const string& name, const string& semantic, ValuePtr value)
 {
     auto it = _uniforms.find(block);
     if (it == _uniforms.end())
@@ -220,13 +220,13 @@ void Shader::createUniform(const string& block, const string& type, const string
     VariableBlockPtr  blockPtr = it->second;
     if (blockPtr->variableMap.find(name) == blockPtr->variableMap.end())
     {
-        VariablePtr variablePtr = std::make_shared<Variable>(type, name, sementic, value);
+        VariablePtr variablePtr = std::make_shared<Variable>(type, name, semantic, value);
         blockPtr->variableMap[name] = variablePtr;
         blockPtr->variableOrder.push_back(variablePtr.get());
     }
 }
 
-const Shader::VariableBlock& Shader::getUniformBlock(const string& block)
+const Shader::VariableBlock& Shader::getUniformBlock(const string& block) const
 {
     auto it = _uniforms.find(block);
     if (it == _uniforms.end())
@@ -236,11 +236,11 @@ const Shader::VariableBlock& Shader::getUniformBlock(const string& block)
     return *it->second;
 }
 
-void Shader::createAppData(const string& type, const string& name, const string& sementic)
+void Shader::createAppData(const string& type, const string& name, const string& semantic)
 {
     if (_appData.variableMap.find(name) == _appData.variableMap.end())
     {
-        VariablePtr variable = std::make_shared<Variable>(type, name, sementic);
+        VariablePtr variable = std::make_shared<Variable>(type, name, semantic);
         _appData.variableMap[name] = variable;
         _appData.variableOrder.push_back(variable.get());
     }
