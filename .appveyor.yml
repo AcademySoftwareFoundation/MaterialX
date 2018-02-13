@@ -58,14 +58,14 @@ artifacts:
 
 deploy:
     # Deploy on main working branch
-    - provider: GitHub
-      prerelease: true
-      on:
-        VS_PLATFORM: x64
-        # Choose branch
-        branch: adsk_update
-      auth_token:
-        secure: qg4BvNKremS4OMcbGZEjaXrumrQ+8/pJvr3WrNqM1ZQDyzvNpmUEA0ZMRkUJzeOh
+    #- provider: GitHub
+    #  prerelease: true
+    #  on:
+    #    VS_PLATFORM: x64
+    #    # Choose branch
+    #    branch: adsk_update
+    #  auth_token:
+    #    secure: qg4BvNKremS4OMcbGZEjaXrumrQ+8/pJvr3WrNqM1ZQDyzvNpmUEA0ZMRkUJzeOh
 
     # Deploy on tags
     - provider: GitHub
