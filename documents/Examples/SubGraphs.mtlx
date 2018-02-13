@@ -87,8 +87,8 @@
     <constant name="c2" type="color3">
       <parameter name="value" type="color3" value="0.0,1.0,0.0" publicname="color2"/>
     </constant>
-    <constant name="scale1" type="float">
-      <parameter name="value" type="float" value="8.0" publicname="scale"/>
+    <constant name="scale1" type="vector2">
+      <parameter name="value" type="vector2" value="8.0,8.0" publicname="scale"/>
     </constant>
     <texcoord name="texcoord2" type="vector2">
       <parameter name="index" type="integer" value="0"/>

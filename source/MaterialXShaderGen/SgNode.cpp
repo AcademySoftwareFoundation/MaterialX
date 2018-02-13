@@ -114,7 +114,7 @@ void SgNode::ScopeInfo::merge(const ScopeInfo &fromScope)
     }
     else
     {
-        // NOTE: Right now multiple scopes is not really used, it works exactly as GLOBAL_SCOPE
+        // NOTE: Right now multiple scopes is not really used, it works exactly as ScopeInfo::Type::GLOBAL
         type = ScopeInfo::Type::MULTIPLE;
         conditionalNode = nullptr;
     }

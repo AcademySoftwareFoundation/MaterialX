@@ -62,12 +62,35 @@ public:
         {}
     };
 
-    using Variables = vector<Variable>;
+    using VariablePtr = std::shared_ptr<Variable>;
+
+    /// A block of variables for a shader stage
+    struct VariableBlock
+    {
+        string name;
+        string instance;
+        std::unordered_map<string, VariablePtr> variableMap;
+        std::vector<Variable*> variableOrder;
+        VariableBlock(const string& n, const string& i) : name(n), instance(i) {}
+    };
+
+    using VariableBlockPtr = std::shared_ptr<VariableBlock>;
+    using VariableBlockMap = std::unordered_map<string, VariableBlockPtr>;
 
     /// Identifier for shader stages. The base class shader has only a single 
     /// pixel shader stage. Derived shader classes can define additional stages.
     static const size_t PIXEL_STAGE = 0;
     static const size_t NUM_STAGES  = 1;
+
+    /// Identifiers for uniform variable blocks. 
+    /// Derived classes can define additional blocks.
+    ///
+    /// Default uniform block for private variables.
+    /// For uniforms not visible to user and only set by application.
+    static const string PRIVATE_UNIFORMS;
+    /// Default uniform block for public variables. 
+    /// For uniforms visible in UI and set by users.
+    static const string PUBLIC_UNIFORMS;
 
 public:
     /// Constructor
@@ -91,11 +114,31 @@ public:
     /// Return the active stage
     virtual size_t getActiveStage() const { return _activeStage; }
 
+    /// Create a new variable block for uniform inputs in a stage.
+    virtual void createUniformBlock(size_t stage, const string& block, const string& instance = EMPTY_STRING);
+
+    /// Create a new variable for uniform data in the given block for a stage.
+    /// The block must be previously created with createUniformBlock.
+    virtual void createUniform(size_t stage, const string& block, const string& type, const string& name,
+        const string& semantic = EMPTY_STRING, ValuePtr value = nullptr);
+
+    /// Create a new variable for application/geometric data (primvars).
+    virtual void createAppData(const string& type, const string& name, const string& semantic = EMPTY_STRING);
+
+    /// Return all blocks of uniform variables for a stage.
+    const VariableBlockMap& getUniformBlocks(size_t stage) const { return _stages[stage].uniforms; }
+
+    /// Return a specific block of uniform variables for a stage.
+    const VariableBlock& getUniformBlock(size_t stage, const string& block) const;
+
+    /// Return the block of application data variables.
+    const VariableBlock& getAppDataBlock() const { return _appData; }
+
     /// Start a new scope in the shader, using the given bracket type
     virtual void beginScope(Brackets brackets = Brackets::BRACES);
 
     /// End the current scope in the shader
-    virtual void endScope(bool semicolon = false);
+    virtual void endScope(bool semicolon = false, bool newline = true);
 
     /// Start a new line in the shader
     virtual void beginLine();
@@ -161,24 +204,6 @@ public:
     /// Return the final shader source code for a given shader stage
     const string& getSourceCode(size_t stage = PIXEL_STAGE) const { return _stages[stage].code; }
 
-    /// Register a uniform variable to be used by the shader
-    void registerUniform(const Variable& uniform);
-
-    /// Register a varying variable to be used by the shader
-    void registerVarying(const Variable& varying);
-
-    /// Register an attribute variable to be used by the shader
-    void registerAttribute(const Variable& attribute);
-
-    /// Return the uniforms registered for this shader
-    const vector<Variable>& getUniforms() const { return _uniforms; }
-
-    /// Return the varyings registered for this shader
-    const vector<Variable>& getVaryings() const { return _varyings; }
-
-    /// Return the attributes registered for this shader
-    const vector<Variable>& getAttributes() const { return _attributes; }
-
     bool isTransparent() const
     {
         if (getNodeGraph()->hasClassification(SgNode::Classification::SHADER))
@@ -199,16 +224,24 @@ public:
     }
 
 protected:
+
     /// A shader stage, containing the state and 
     /// resulting source code for the stage
     struct Stage
     {
+        string name;
         int indentations;
         std::queue<Brackets> scopes;
         std::set<string> includes;
         std::set<SgImplementation*> definedFunctions;
+        
+        // Blocks holding uniform variables for this stage
+        VariableBlockMap uniforms;
+
+        // Resulting source code for this stage
         string code;
-        Stage() : indentations(0) {}
+
+        Stage(const string& n) : name(n), indentations(0) {}
     };
 
     /// Return the currently active stage
@@ -224,10 +257,9 @@ protected:
 
     size_t _activeStage;
     vector<Stage> _stages;
-    vector<Variable> _uniforms;
-    vector<Variable> _varyings;
-    vector<Variable> _attributes;
-    std::set<string> _registeredVariables;
+
+    // Block holding application/geometric input variables
+    VariableBlock _appData;
 };
 
 /// @class @ExceptionShaderGenError

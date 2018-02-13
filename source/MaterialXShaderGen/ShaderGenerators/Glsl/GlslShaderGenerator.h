@@ -2,6 +2,7 @@
 #define MATERIALX_GLSLSHADERGENERATOR_H
 
 #include <MaterialXShaderGen/ShaderGenerator.h>
+#include <MaterialXShaderGen/HwShader.h>
 
 namespace MaterialX
 {
@@ -19,8 +20,22 @@ public:
     };
 
 public:
+    GlslShaderGenerator();
+
+    static ShaderGeneratorPtr creator() { return std::make_shared<GlslShaderGenerator>(); }
+
+    /// Generate a shader starting from the given element, translating 
+    /// the element and all dependencies upstream into shader code.
+    ShaderPtr generate(const string& shaderName, ElementPtr element) override;
+
     /// Return a unique identifyer for the language used by this generator
     const string& getLanguage() const override { return LANGUAGE; }
+
+    /// Return a unique identifyer for the target this generator is for
+    const string& getTarget() const override { return TARGET; }
+
+    /// Return the version string for the GLSL version this generator is for
+    virtual const string& getVersion() const { return VERSION; }
 
     /// Emit function definitions for all nodes
     void emitFunctionDefinitions(Shader& shader) override;
@@ -30,6 +45,9 @@ public:
 
     /// Emit a shader uniform input variable
     void emitUniform(const Shader::Variable& uniform, Shader& shader) override;
+
+    /// Emit the final output expression
+    void emitFinalOutput(Shader& shader) const override;
 
     /// Query the shader generator if it wants to publish a given port as a
     /// shader uniform. Return the publicName to use if it should be published.
@@ -52,14 +70,36 @@ public:
     /// Unique identifyer for the glsl language
     static const string LANGUAGE;
 
-protected:
-    /// Protected constructor.
-    GlslShaderGenerator();
+    /// Unique identifyer for this generator target
+    static const string TARGET;
 
+    /// Version string for the generator target
+    static const string VERSION;
+
+protected:
     static void toVec4(const string& type, string& variable);
 
     Arguments _bsdfNodeArguments;
 };
+
+
+/// Base class for common GLSL node implementations
+class GlslImplementation : public SgImplementation
+{
+public:
+    const string& getLanguage() const override;
+    const string& getTarget() const override;
+
+protected:
+    GlslImplementation() {}
+
+    static const string SPACE;
+    static const string WORLD;
+    static const string OBJECT;
+    static const string MODEL;
+    static const string INDEX;
+};
+
 
 } // namespace MaterialX
 

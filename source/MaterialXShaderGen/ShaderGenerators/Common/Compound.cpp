@@ -29,13 +29,13 @@ void Compound::initialize(ElementPtr implementation, ShaderGenerator& shadergen)
     _functionName = graph->getName();
 }
 
-void Compound::registerInputs(const SgNode& /*node*/, ShaderGenerator& shadergen, Shader& shader)
+void Compound::createVariables(const SgNode& /*node*/, ShaderGenerator& shadergen, Shader& shader)
 {
     // Gather shader inputs from all child nodes
     for (SgNode* childNode : _rootGraph->getNodes())
     {
         SgImplementation* impl = childNode->getImplementation();
-        impl->registerInputs(*childNode, shadergen, shader);
+        impl->createVariables(*childNode, shadergen, shader);
     }
 }
 

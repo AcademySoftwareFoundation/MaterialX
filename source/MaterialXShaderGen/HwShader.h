@@ -6,28 +6,44 @@
 namespace MaterialX
 {
 
+using HwShaderPtr = shared_ptr<class HwShader>;
+
 /// HwShader class extending the base Shader with a vertex shader stage.
 class HwShader : public Shader
 {
 public:
-    // Identifier for additional vertex shader stage
+    /// Identifier for additional vertex shader stage
     static const size_t VERTEX_STAGE = Shader::NUM_STAGES;
     static const size_t NUM_STAGES = Shader::NUM_STAGES + 1;
 
 public:
-    HwShader(const string& name) : Shader(name)  {}
+    HwShader(const string& name);
 
     /// Return the number of shader stages for this shader.
-    virtual size_t numStages() const { return NUM_STAGES; }
+    size_t numStages() const override { return NUM_STAGES; }
 
-    /// Query if a varying has been calculated by the vertex stage
-    bool isCalculated(const string& varying) const { return _calculatedVaryings.count(varying) > 0; }
+    /// Create a new variable for vertex data. This creates an 
+    /// output from the vertex stage and and input to the pixel stage.
+    virtual void createVertexData(const string& type, const string& name, const string& semantic = EMPTY_STRING);
 
-    /// Set a varying as calculated by the vertex stage
-    void setCalculated(const string& varying) { _calculatedVaryings.insert(varying); }
+    /// Return the block of a vertex data variables.
+    const VariableBlock& getVertexDataBlock() const { return _vertexData; }
+    
+    /// Query if an output has been calculated in the vertex stage.
+    bool isCalculated(const string& outputName) const 
+    {
+        return _calculatedVertexData.count(outputName) > 0;
+    }
+
+    /// Set an output as calculated in the vertex stage.
+    void setCalculated(const string& outputName)
+    {
+        _calculatedVertexData.insert(outputName);
+    }
 
 private:
-    std::set<string> _calculatedVaryings;
+    VariableBlock _vertexData;
+    std::set<string> _calculatedVertexData;
 };
 
 } // namespace MaterialX

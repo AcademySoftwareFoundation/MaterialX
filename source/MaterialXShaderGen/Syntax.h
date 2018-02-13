@@ -122,6 +122,8 @@ public:
     static const string COLOR2;
     static const string COLOR3;
     static const string COLOR4;
+    static const string MATRIX3;
+    static const string MATRIX4;
     static const string STRING;
     static const string FILENAME;
     static const string BSDF;
