@@ -146,19 +146,9 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
         shader.addLine(type + " " + input->name + " = " + value + " [[ int lockgeom=0 ]],");
     }
 
-    // Emit all uniforms from global scope
-    const Shader::VariableBlock& globalUniformBlock = shader.getUniformBlock(Shader::GLOBAL_SCOPE);
-    for (const Shader::Variable* uniform : globalUniformBlock.variableOrder)
-    {
-        shader.beginLine();
-        emitUniform(*uniform, shader);
-        shader.addStr(",");
-        shader.endLine(false);
-    }
-
-    // Emit all uniforms from shader interface block
-    const Shader::VariableBlock& shaderInterfaceBlock = shader.getUniformBlock(Shader::SHADER_INTERFACE);
-    for (const Shader::Variable* uniform : shaderInterfaceBlock.variableOrder)
+    // Emit all public inputs
+    const Shader::VariableBlock& publicUniforms = shader.getUniformBlock(Shader::PIXEL_STAGE, Shader::PUBLIC_UNIFORMS);
+    for (const Shader::Variable* uniform : publicUniforms.variableOrder)
     {
         shader.beginLine();
         emitUniform(*uniform, shader);

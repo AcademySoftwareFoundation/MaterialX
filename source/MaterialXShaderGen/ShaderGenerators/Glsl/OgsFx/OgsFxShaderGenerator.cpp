@@ -25,34 +25,44 @@ namespace
         { "i_texcoord7", "TEXCOORD7" },
         { "i_texcoord8", "TEXCOORD8" },
         { "i_texcoord9", "TEXCOORD9" },
-        { "u_modelMatrix", "World" },
+        { "u_worldMatrix", "World" },
         { "u_viewProjectionMatrix", "ViewProjection" },
-        { "u_normalMatrix", "WorldInverseTranspose" },
+        { "u_worldInverseTranspose", "WorldInverseTranspose" },
         { "u_viewInverseMatrix", "ViewInverse" }
     };
 }
 
-void OgsFxShader::createUniform(const string& block, const string& type, const string& name, const string& sementic, ValuePtr value)
+OgsFxShader::OgsFxShader(const string& name) 
+    : HwShader(name) 
+{
+    _stages.push_back(Stage("FinalFx"));
+
+    // Create default uniform blocks for final fx stage
+    createUniformBlock(FINAL_FX_STAGE, PRIVATE_UNIFORMS, "prv");
+    createUniformBlock(FINAL_FX_STAGE, PUBLIC_UNIFORMS, "pub");
+}
+
+void OgsFxShader::createUniform(size_t stage, const string& block, const string& type, const string& name, const string& semantic, ValuePtr value)
 {
     // If no semantic is given check if we have 
     // an OgsFx semantic that should be used
-    if (sementic.empty())
+    if (semantic.empty())
     {
         auto it = OGSFX_DEFAULT_SEMANTICS_MAP.find(name);
         if (it != OGSFX_DEFAULT_SEMANTICS_MAP.end())
         {
-            HwShader::createUniform(block, type, name, it->second, value);
+            HwShader::createUniform(stage, block, type, name, it->second, value);
             return;
         }
     }
-    HwShader::createUniform(block, type, name, sementic, value);
+    HwShader::createUniform(stage, block, type, name, semantic, value);
 }
 
-void OgsFxShader::createAppData(const string& type, const string& name, const string& sementic)
+void OgsFxShader::createAppData(const string& type, const string& name, const string& semantic)
 {
     // If no semantic is given check if we have 
     // an OgsFx semantic that should be used
-    if (sementic.empty())
+    if (semantic.empty())
     {
         auto it = OGSFX_DEFAULT_SEMANTICS_MAP.find(name);
         if (it != OGSFX_DEFAULT_SEMANTICS_MAP.end())
@@ -61,14 +71,14 @@ void OgsFxShader::createAppData(const string& type, const string& name, const st
             return;
         }
     }
-    HwShader::createAppData(type, name, sementic);
+    HwShader::createAppData(type, name, semantic);
 }
 
-void OgsFxShader::createVertexData(const string& type, const string& name, const string& sementic)
+void OgsFxShader::createVertexData(const string& type, const string& name, const string& semantic)
 {
     // If no semantic is given check if we have 
     // an OgsFx semantic that should be used
-    if (sementic.empty())
+    if (semantic.empty())
     {
         auto it = OGSFX_DEFAULT_SEMANTICS_MAP.find(name);
         if (it != OGSFX_DEFAULT_SEMANTICS_MAP.end())
@@ -77,7 +87,7 @@ void OgsFxShader::createVertexData(const string& type, const string& name, const
             return;
         }
     }
-    HwShader::createVertexData(type, name, sementic);
+    HwShader::createVertexData(type, name, semantic);
 }
 
 
@@ -104,8 +114,8 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 
     // Create required variables
     shader.createAppData(DataType::VECTOR3, "i_position");
-    shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_modelMatrix");
-    shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_viewProjectionMatrix");
+    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::MATRIX4, "u_worldMatrix");
+    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::MATRIX4, "u_viewProjectionMatrix");
 
     shader.addComment("---------------------------------- Vertex shader ----------------------------------------\n");
     shader.addLine("GLSLShader VS", false);
@@ -116,7 +126,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     // Add main function
     shader.addLine("void main()", false);
     shader.beginScope(Shader::Brackets::BRACES);
-    shader.addLine("vec4 hPositionWorld = u_modelMatrix * vec4(i_position, 1.0)");
+    shader.addLine("vec4 hPositionWorld = u_worldMatrix * vec4(i_position, 1.0)");
     shader.addLine("gl_Position = u_viewProjectionMatrix * hPositionWorld");
     emitFunctionCalls(shader);
     shader.endScope();
@@ -190,21 +200,53 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.endScope(true);
     shader.newLine();
 
-    // Add all global scope uniforms
-    const Shader::VariableBlock& globalUniformBlock = shader.getUniformBlock(Shader::GLOBAL_SCOPE);
-    for (const Shader::Variable* uniform : globalUniformBlock.variableOrder)
+    // Add all private vertex shader uniforms
+    const Shader::VariableBlock& vsPrivateUniforms = shader.getUniformBlock(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS);
+    if (vsPrivateUniforms.variableOrder.size())
     {
-        emitUniform(*uniform, shader);
+        shader.addComment("Vertex stage uniform block: " + vsPrivateUniforms.name);
+        for (const Shader::Variable* uniform : vsPrivateUniforms.variableOrder)
+        {
+            emitUniform(*uniform, shader);
+        }
+        shader.newLine();
     }
-    shader.newLine();
 
-    // Add all shader interface uniforms
-    const Shader::VariableBlock& shaderInterfaceBlock = shader.getUniformBlock(Shader::SHADER_INTERFACE);
-    for (const Shader::Variable* uniform : shaderInterfaceBlock.variableOrder)
+    // Add all public vertex shader uniforms
+    const Shader::VariableBlock& vsPublicUniforms = shader.getUniformBlock(HwShader::VERTEX_STAGE, HwShader::PUBLIC_UNIFORMS);
+    if (vsPublicUniforms.variableOrder.size())
     {
-        emitUniform(*uniform, shader);
+        shader.addComment("Vertex stage uniform block: " + vsPublicUniforms.name);
+        for (const Shader::Variable* uniform : vsPublicUniforms.variableOrder)
+        {
+            emitUniform(*uniform, shader);
+        }
+        shader.newLine();
     }
-    shader.newLine();
+
+    // Add all private pixel shader uniforms
+    const Shader::VariableBlock& psPrivateUniforms = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS);
+    if (psPrivateUniforms.variableOrder.size())
+    {
+        shader.addComment("Pixel stage uniform block: " + psPrivateUniforms.name);
+        for (const Shader::Variable* uniform : psPrivateUniforms.variableOrder)
+        {
+            emitUniform(*uniform, shader);
+        }
+        shader.newLine();
+    }
+
+    // Add all public pixel shader uniforms
+    const Shader::VariableBlock& psPublicUniforms = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::PUBLIC_UNIFORMS);
+    if (psPublicUniforms.variableOrder.size())
+    {
+        shader.addComment("Pixel stage uniform block: " + psPublicUniforms.name);
+        for (const Shader::Variable* uniform : psPublicUniforms.variableOrder)
+        {
+            emitUniform(*uniform, shader);
+        }
+        shader.newLine();
+    }
 
     // Emit common math functions
     shader.addLine("GLSLShader MathFunctions", false);

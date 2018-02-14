@@ -16,8 +16,8 @@ void TexCoordGlsl::createVariables(const SgNode& node, ShaderGenerator& shaderge
     const string index = indexInput ? indexInput->value->getValueString() : "0";
     const string type = shadergen.getSyntax()->getTypeName(node.getOutput()->type);
 
-    shader.createAppData(DataType::VECTOR2, "i_texcoord" + index);
-    shader.createVertexData(DataType::VECTOR2, "texcoord" + index);
+    shader.createAppData(type, "i_texcoord" + index);
+    shader.createVertexData(type, "texcoord" + index);
 }
 
 void TexCoordGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)

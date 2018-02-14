@@ -32,7 +32,7 @@ void AdskSurfaceGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /
 
     shader.createAppData(DataType::VECTOR3, "i_position");
 
-    shader.createUniform(HwShader::GLOBAL_SCOPE, DataType::MATRIX4, "u_viewInverseMatrix");
+    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::MATRIX4, "u_viewInverseMatrix");
 
     shader.createVertexData(DataType::VECTOR3, "positionWorld");
     shader.createVertexData(DataType::VECTOR3, "viewWorld");
