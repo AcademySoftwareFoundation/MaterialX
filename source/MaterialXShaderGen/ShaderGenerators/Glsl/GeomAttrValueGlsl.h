@@ -1,13 +1,13 @@
-#ifndef MATERIALX_VIEWGLSL_H
-#define MATERIALX_VIEWGLSL_H
+#ifndef MATERIALX_GEOMATTRVALUEGLSL_H
+#define MATERIALX_GEOMATTRVALUEGLSL_H
 
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/GlslShaderGenerator.h>
 
 namespace MaterialX
 {
 
-/// Implementation of view direction geometric stream for GLSL
-class ViewGlsl : public GlslImplementation
+/// Implementation of 'geomattrvalue' node for GLSL
+class GeomAttrValueGlsl : public GlslImplementation
 {
 public:
     static SgImplementationPtr creator();

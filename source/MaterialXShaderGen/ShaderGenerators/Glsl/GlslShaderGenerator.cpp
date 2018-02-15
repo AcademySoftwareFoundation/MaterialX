@@ -5,6 +5,10 @@
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/TangentGlsl.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/BitangentGlsl.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/TexCoordGlsl.h>
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/GeomColorGlsl.h>
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/GeomAttrValueGlsl.h>
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/FrameGlsl.h>
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/TimeGlsl.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/AdskSurfaceGlsl.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/SurfaceGlsl.h>
 #include <MaterialXShaderGen/ShaderGenerators/Common/SourceCode.h>
@@ -135,6 +139,27 @@ GlslShaderGenerator::GlslShaderGenerator()
     // <!-- <texcoord> -->
     registerImplementation("IM_texcoord__vector2__glsl", TexCoordGlsl::creator);
     registerImplementation("IM_texcoord__vector3__glsl", TexCoordGlsl::creator);
+    // <!-- <geomcolor> -->
+    registerImplementation("IM_geomcolor__float__glsl", GeomColorGlsl::creator);
+    registerImplementation("IM_geomcolor__color2__glsl", GeomColorGlsl::creator);
+    registerImplementation("IM_geomcolor__color3__glsl", GeomColorGlsl::creator);
+    registerImplementation("IM_geomcolor__color4__glsl", GeomColorGlsl::creator);
+    // <!-- <geomattrvalue> -->
+    registerImplementation("IM_geomattrvalue__integer__glsl", GeomAttrValueGlsl::creator);
+    registerImplementation("IM_geomattrvalue__boolean__glsl", GeomAttrValueGlsl::creator);
+    registerImplementation("IM_geomattrvalue__string__glsl", GeomAttrValueGlsl::creator);
+    registerImplementation("IM_geomattrvalue__float__glsl", GeomAttrValueGlsl::creator);
+    registerImplementation("IM_geomattrvalue__color2__glsl", GeomAttrValueGlsl::creator);
+    registerImplementation("IM_geomattrvalue__color3__glsl", GeomAttrValueGlsl::creator);
+    registerImplementation("IM_geomattrvalue__color4__glsl", GeomAttrValueGlsl::creator);
+    registerImplementation("IM_geomattrvalue__vector2__glsl", GeomAttrValueGlsl::creator);
+    registerImplementation("IM_geomattrvalue__vector3__glsl", GeomAttrValueGlsl::creator);
+    registerImplementation("IM_geomattrvalue__vector4__glsl", GeomAttrValueGlsl::creator);
+
+    // <!-- <frame> -->
+    registerImplementation("IM_frame__float__glsl", FrameGlsl::creator);
+    // <!-- <time> -->
+    registerImplementation("IM_time__float__glsl", TimeGlsl::creator);
 
     // <!-- <adskSurface> -->
     registerImplementation("IM_adskSurface__glsl", AdskSurfaceGlsl::creator);
@@ -539,6 +564,7 @@ const string GlslImplementation::WORLD = "world";
 const string GlslImplementation::OBJECT = "object";
 const string GlslImplementation::MODEL = "model";
 const string GlslImplementation::INDEX = "index";
+const string GlslImplementation::ATTRNAME = "attrname";
 
 const string& GlslImplementation::getLanguage() const
 {

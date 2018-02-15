@@ -7,7 +7,7 @@ namespace MaterialX
 namespace
 {
     static const string LIGHT_LOOP_BEGIN =
-        "vec3 V = vd.viewWorld;\n"
+        "vec3 V = u_viewDirection;\n"
         "const int numLights = min(ClampDynamicLights, 3);\n"
         "for (int ActiveLightIndex = 0; ActiveLightIndex < numLights; ++ActiveLightIndex)\n";
 
@@ -29,17 +29,14 @@ void SurfaceGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*sha
     // TODO: 
     // The surface shader needs position and view data. We should solve this by adding some 
     // dependency mechanism so this implementation can be set to depend on the PositionGlsl 
-    // and ViewGlsl nodes instead? This is where the MaterialX attribute "internalgeomprops" 
+    // and ViewDirectionGlsl nodes instead? This is where the MaterialX attribute "internalgeomprops" 
     // is needed.
     //
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     shader.createAppData(DataType::VECTOR3, "i_position");
-
-    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::MATRIX4, "u_viewInverseMatrix");
-
     shader.createVertexData(DataType::VECTOR3, "positionWorld");
-    shader.createVertexData(DataType::VECTOR3, "viewWorld");
+    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::VECTOR3, "u_viewDirection");
 }
 
 void SurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
@@ -47,18 +44,12 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
-        const string& blockInstance = shader.getVertexDataBlock().instance;
-        const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
-
         if (!shader.isCalculated("positionWorld"))
         {
-            shader.setCalculated("positionWorld");
+            const string& blockInstance = shader.getVertexDataBlock().instance;
+            const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
             shader.addLine(blockPrefix + "positionWorld = hPositionWorld.xyz");
-        }
-        if (!shader.isCalculated("viewWorld"))
-        {
-            shader.setCalculated("viewWorld");
-            shader.addLine(blockPrefix + "viewWorld = normalize(u_viewInverseMatrix[3].xyz - hPositionWorld.xyz)");
+            shader.setCalculated("positionWorld");
         }
     END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
 

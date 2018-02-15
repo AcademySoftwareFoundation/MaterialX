@@ -25,17 +25,14 @@ void AdskSurfaceGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /
     // TODO: 
     // The surface shader needs position and view data. We should solve this by adding some 
     // dependency mechanism so this implementation can be set to depend on the PositionGlsl 
-    // and ViewGlsl nodes instead? This is where the MaterialX attribute "internalgeomprops" 
+    // and ViewDirectionGlsl nodes instead? This is where the MaterialX attribute "internalgeomprops" 
     // is needed.
     //
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     shader.createAppData(DataType::VECTOR3, "i_position");
-
-    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::MATRIX4, "u_viewInverseMatrix");
-
     shader.createVertexData(DataType::VECTOR3, "positionWorld");
-    shader.createVertexData(DataType::VECTOR3, "viewWorld");
+    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::VECTOR3, "u_viewDirection");
 }
 
 void AdskSurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
@@ -47,11 +44,6 @@ void AdskSurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shad
         {
             shader.setCalculated("positionWorld");
             shader.addLine("vd.positionWorld = hPositionWorld.xyz");
-        }
-        if (!shader.isCalculated("viewWorld"))
-        {
-            shader.setCalculated("viewWorld");
-            shader.addLine("vd.viewWorld = normalize(u_viewInverseMatrix[3].xyz - hPositionWorld.xyz)");
         }
     END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
 

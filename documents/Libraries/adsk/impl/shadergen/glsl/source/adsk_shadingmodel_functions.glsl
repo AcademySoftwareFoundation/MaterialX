@@ -17,7 +17,7 @@ vec3 standardShaderDiffuse(vec3 N, vec3 L, vec3 inDiffuse)
 vec3 standardShaderSpecular(
     vec3 N,
     vec3 SL, // Same as diffuse for now
-    vec3 V, // vd.viewWorld
+    vec3 V, // u_viewDirection
     vec3 specular,
     float roughness)
 {

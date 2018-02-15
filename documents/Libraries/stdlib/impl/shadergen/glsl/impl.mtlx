@@ -135,7 +135,22 @@
   <implementation name="IM_texcoord__vector3__glsl" nodedef="ND_texcoord__vector3" language="glsl"/>
 
   <!-- <geomcolor> -->
+  <implementation name="IM_geomcolor__float__glsl" nodedef="ND_geomcolor__float" language="glsl"/>
+  <implementation name="IM_geomcolor__color2__glsl" nodedef="ND_geomcolor__color2" language="glsl"/>
+  <implementation name="IM_geomcolor__color3__glsl" nodedef="ND_geomcolor__color3" language="glsl"/>
+  <implementation name="IM_geomcolor__color4__glsl" nodedef="ND_geomcolor__color4" language="glsl"/>
+
   <!-- <geomattrvalue> -->
+  <implementation name="IM_geomattrvalue__integer__glsl" nodedef="ND_geomattrvalue__integer" function="mx_geomattrvalue_int" language="glsl"/>
+  <implementation name="IM_geomattrvalue__boolean__glsl" nodedef="ND_geomattrvalue__boolean" function="mx_geomattrvalue_bool" language="glsl"/>
+  <implementation name="IM_geomattrvalue__string__glsl" nodedef="ND_geomattrvalue__string" function="mx_geomattrvalue_string" language="glsl"/>
+  <implementation name="IM_geomattrvalue__float__glsl" nodedef="ND_geomattrvalue__float" function="mx_geomattrvalue_float" language="glsl"/>
+  <implementation name="IM_geomattrvalue__color2__glsl" nodedef="ND_geomattrvalue__color2" function="mx_geomattrvalue_color2" language="glsl"/>
+  <implementation name="IM_geomattrvalue__color3__glsl" nodedef="ND_geomattrvalue__color3" function="mx_geomattrvalue_color" language="glsl"/>
+  <implementation name="IM_geomattrvalue__color4__glsl" nodedef="ND_geomattrvalue__color4" function="mx_geomattrvalue_color4" language="glsl"/>
+  <implementation name="IM_geomattrvalue__vector2__glsl" nodedef="ND_geomattrvalue__vector2" function="mx_geomattrvalue_vector2" language="glsl"/>
+  <implementation name="IM_geomattrvalue__vector3__glsl" nodedef="ND_geomattrvalue__vector3" function="mx_geomattrvalue_vector" language="glsl"/>
+  <implementation name="IM_geomattrvalue__vector4__glsl" nodedef="ND_geomattrvalue__vector4" function="mx_geomattrvalue_vector4" language="glsl"/>
 
 
   <!-- ======================================================================== -->
@@ -143,7 +158,10 @@
   <!-- ======================================================================== -->
 
   <!-- <frame> -->
+  <implementation name="IM_frame__float__glsl" nodedef="ND_frame__float" function="mx_frame_float" language="glsl"/>
+
   <!-- <time> -->
+  <implementation name="IM_time__float__glsl" nodedef="ND_time__float" function="mx_time_float" language="glsl"/>
 
 
   <!-- ======================================================================== -->
