@@ -57,7 +57,7 @@ void GeomColorGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shader
         }
         else if (output->type == DataType::COLOR2)
         {
-            suffix = ".rb";
+            suffix = ".rg";
         }
         shader.beginLine();
         shadergen.emitOutput(node.getOutput(), true, shader);
