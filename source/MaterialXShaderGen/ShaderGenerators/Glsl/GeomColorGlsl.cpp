@@ -8,24 +8,23 @@ SgImplementationPtr GeomColorGlsl::creator()
     return std::make_shared<GeomColorGlsl>();
 }
 
-void GeomColorGlsl::createVariables(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
+void GeomColorGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     const SgOutput* output = node.getOutput();
     const SgInput* indexInput = node.getInput(INDEX);
     const string index = indexInput ? indexInput->value->getValueString() : "0";
-    const string type = shadergen.getSyntax()->getTypeName(node.getOutput()->type);
 
     if (output->type == DataType::COLOR4)
     {
-        shader.createAppData(type, "i_color4_" + index);
-        shader.createVertexData(type, "color4_" + index);
+        shader.createAppData(DataType::COLOR4, "i_color4_" + index);
+        shader.createVertexData(DataType::COLOR4, "color4_" + index);
     }
     else
     {
-        shader.createAppData(type, "i_color3_" + index);
-        shader.createVertexData(type, "color3_" + index);
+        shader.createAppData(DataType::COLOR3, "i_color3_" + index);
+        shader.createVertexData(DataType::COLOR3, "color3_" + index);
     }
 }
 
