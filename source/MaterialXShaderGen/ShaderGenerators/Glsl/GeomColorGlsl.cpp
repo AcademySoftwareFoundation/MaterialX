@@ -12,20 +12,11 @@ void GeomColorGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shade
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
-    const SgOutput* output = node.getOutput();
     const SgInput* indexInput = node.getInput(INDEX);
     const string index = indexInput ? indexInput->value->getValueString() : "0";
 
-    if (output->type == DataType::COLOR4)
-    {
-        shader.createAppData(DataType::COLOR4, "i_color4_" + index);
-        shader.createVertexData(DataType::COLOR4, "color4_" + index);
-    }
-    else
-    {
-        shader.createAppData(DataType::COLOR3, "i_color3_" + index);
-        shader.createVertexData(DataType::COLOR3, "color3_" + index);
-    }
+    shader.createAppData(DataType::COLOR4, "i_color_" + index);
+    shader.createVertexData(DataType::COLOR4, "color_" + index);
 }
 
 void GeomColorGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
@@ -38,7 +29,7 @@ void GeomColorGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shader
     const SgOutput* output = node.getOutput();
     const SgInput* indexInput = node.getInput(INDEX);
     string index = indexInput ? indexInput->value->getValueString() : "0";
-    string variable = (output->type == DataType::COLOR4 ? "color4_" : "color3_") + index;
+    string variable = "color_" + index;
 
     BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
         if (!shader.isCalculated(variable))
@@ -57,6 +48,10 @@ void GeomColorGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shader
         else if (output->type == DataType::COLOR2)
         {
             suffix = ".rg";
+        }
+        else if (output->type == DataType::COLOR3)
+        {
+            suffix = ".rgb";
         }
         shader.beginLine();
         shadergen.emitOutput(node.getOutput(), true, shader);
