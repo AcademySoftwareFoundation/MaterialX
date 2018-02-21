@@ -15,20 +15,41 @@ namespace
         { "i_normal", "NORMAL" },
         { "i_tangent", "TANGENT" },
         { "i_bitangent", "BITANGENT" },
-        { "i_texcoord0", "TEXCOORD0" },
-        { "i_texcoord1", "TEXCOORD1" },
-        { "i_texcoord2", "TEXCOORD2" },
-        { "i_texcoord3", "TEXCOORD3" },
-        { "i_texcoord4", "TEXCOORD4" },
-        { "i_texcoord5", "TEXCOORD5" },
-        { "i_texcoord6", "TEXCOORD6" },
-        { "i_texcoord7", "TEXCOORD7" },
-        { "i_texcoord8", "TEXCOORD8" },
-        { "i_texcoord9", "TEXCOORD9" },
+
+        { "i_texcoord_0", "TEXCOORD0" },
+        { "i_texcoord_1", "TEXCOORD1" },
+        { "i_texcoord_2", "TEXCOORD2" },
+        { "i_texcoord_3", "TEXCOORD3" },
+        { "i_texcoord_4", "TEXCOORD4" },
+        { "i_texcoord_5", "TEXCOORD5" },
+        { "i_texcoord_6", "TEXCOORD6" },
+        { "i_texcoord_7", "TEXCOORD7" },
+
+        { "i_color_0", "COLOR0" },
+
         { "u_worldMatrix", "World" },
+        { "u_worldInverseMatrix", "WorldInverse" },
+        { "u_worldTransposeMatrix", "WorldTranspose" },
+        { "u_worldInverseTransposeMatrix", "WorldInverseTranspose" },
+
+        { "u_viewMatrix", "View" },
+        { "u_viewInverseMatrix", "ViewInverse" },
+        { "u_viewTransposeMatrix", "ViewTranspose" },
+        { "u_viewInverseTransposeMatrix", "ViewInverseTranspose" },
+
+        { "u_projectionMatrix", "Projection" },
+        { "u_projectionInverseMatrix", "ProjectionInverse" },
+        { "u_projectionTransposeMatrix", "ProjectionTranspose" },
+        { "u_projectionInverseTransposeMatrix", "ProjectionInverseTranspose" },
+
+        { "u_worldViewMatrix", "WorldView" },
         { "u_viewProjectionMatrix", "ViewProjection" },
-        { "u_worldInverseTranspose", "WorldInverseTranspose" },
-        { "u_viewInverseMatrix", "ViewInverse" }
+        { "u_worldViewProjectionMatrix", "WorldViewProjection" },
+
+        { "u_viewDirection", "ViewDirection" },
+        { "u_viewPosition", "ViewPosition" },
+        { "u_frame", "Frame" },
+        { "u_time", "Time" }
     };
 }
 

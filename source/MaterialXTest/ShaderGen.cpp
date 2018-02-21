@@ -502,21 +502,41 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
     mx::NodePtr texcoord1 = nodeGraph->addNode("texcoord", "texcoord1", "vector2");
     texcoord1->setParameterValue("index", 0, "integer");
 
+    mx::NodePtr geomcolor1 = nodeGraph->addNode("geomcolor", "geomcolor1", "color3");
+    geomcolor1->setParameterValue("index", 0, "integer");
+
+    mx::NodePtr geomattrvalue1 = nodeGraph->addNode("geomattrvalue", "geomattrvalue1", "float");
+    geomattrvalue1->setParameterValue("attrname", std::string("temperature"));
+
     mx::NodePtr add1 = nodeGraph->addNode("add", "add1", "vector3");
     add1->setConnectedNode("in1", normal1);
     add1->setConnectedNode("in2", position1);
 
-    mx::NodePtr swizzle1 = nodeGraph->addNode("swizzle", "swizzle1", "vector3");
-    swizzle1->setConnectedNode("in", texcoord1);
-    swizzle1->setParameterValue("channels", std::string("xy1"));
+    mx::NodePtr multiply1 = nodeGraph->addNode("multiply", "multiply1", "color3");
+    multiply1->setConnectedNode("in1", geomcolor1);
+    multiply1->setConnectedNode("in2", geomattrvalue1);
 
-    mx::NodePtr multiply1 = nodeGraph->addNode("multiply", "multiply1", "vector3");
-    multiply1->setConnectedNode("in1", add1);
-    multiply1->setConnectedNode("in2", swizzle1);
+    mx::NodePtr convert1 = nodeGraph->addNode("swizzle", "convert1", "color3");
+    convert1->setConnectedNode("in", add1);
+    convert1->setParameterValue("channels", std::string("xyz"));
+
+    mx::NodePtr multiply2 = nodeGraph->addNode("multiply", "multiply2", "color3");
+    multiply2->setConnectedNode("in1", convert1);
+    multiply2->setConnectedNode("in2", multiply1);
+
+    mx::NodePtr time1 = nodeGraph->addNode("time", "time1", "float");
+    mx::NodePtr multiply3 = nodeGraph->addNode("multiply", "multiply3", "color3");
+    multiply3->setConnectedNode("in1", multiply2);
+    multiply3->setConnectedNode("in2", time1);
+
+    mx::NodePtr frame1 = nodeGraph->addNode("frame", "frame1", "float");
+    mx::NodePtr multiply4 = nodeGraph->addNode("multiply", "multiply4", "color3");
+    multiply4->setConnectedNode("in1", multiply3);
+    multiply4->setConnectedNode("in2", frame1);
 
     // Connected to output.
-    mx::OutputPtr output1 = nodeGraph->addOutput(mx::EMPTY_STRING, "vector3");
-    output1->setConnectedNode(multiply1);
+    mx::OutputPtr output1 = nodeGraph->addOutput(mx::EMPTY_STRING, "color3");
+    output1->setConnectedNode(multiply4);
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
 

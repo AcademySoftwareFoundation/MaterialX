@@ -1,35 +1,35 @@
-#include <MaterialXShaderGen/ShaderGenerators/Glsl/TexCoordGlsl.h>
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/GeomColorGlsl.h>
 
 namespace MaterialX
 {
 
-SgImplementationPtr TexCoordGlsl::creator()
+SgImplementationPtr GeomColorGlsl::creator()
 {
-    return std::make_shared<TexCoordGlsl>();
+    return std::make_shared<GeomColorGlsl>();
 }
 
-void TexCoordGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void GeomColorGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
-    const SgOutput* output = node.getOutput();
     const SgInput* indexInput = node.getInput(INDEX);
     const string index = indexInput ? indexInput->value->getValueString() : "0";
 
-    shader.createAppData(output->type, "i_texcoord_" + index);
-    shader.createVertexData(output->type, "texcoord_" + index);
+    shader.createAppData(DataType::COLOR4, "i_color_" + index);
+    shader.createVertexData(DataType::COLOR4, "color_" + index);
 }
 
-void TexCoordGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
+void GeomColorGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     const string& blockInstance = shader.getVertexDataBlock().instance;
     const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
 
+    const SgOutput* output = node.getOutput();
     const SgInput* indexInput = node.getInput(INDEX);
     string index = indexInput ? indexInput->value->getValueString() : "0";
-    string variable = "texcoord_" + index;
+    string variable = "color_" + index;
 
     BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
         if (!shader.isCalculated(variable))
@@ -40,9 +40,22 @@ void TexCoordGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderg
     END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
 
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+        string suffix = "";
+        if (output->type == DataType::FLOAT)
+        {
+            suffix = ".r";
+        }
+        else if (output->type == DataType::COLOR2)
+        {
+            suffix = ".rg";
+        }
+        else if (output->type == DataType::COLOR3)
+        {
+            suffix = ".rgb";
+        }
         shader.beginLine();
         shadergen.emitOutput(node.getOutput(), true, shader);
-        shader.addStr(" = " + blockPrefix + variable);
+        shader.addStr(" = " + blockPrefix + variable + suffix);
         shader.endLine();
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
