@@ -1,7 +1,7 @@
 #ifndef MATERIALX_GLSLSHADERGENERATOR_H
 #define MATERIALX_GLSLSHADERGENERATOR_H
 
-#include <MaterialXShaderGen/ShaderGenerator.h>
+#include <MaterialXShaderGen/HwShaderGenerator.h>
 #include <MaterialXShaderGen/HwShader.h>
 
 /*
@@ -43,6 +43,10 @@ Uniform variables :
     u_viewDirection                     vec3    World-space direction of the view (camera)
     u_frame                             float   The current frame number as defined by the host application
     u_time                              float   The current time in seconds
+    u_numActiveLightSources             int     The number of active light sources
+    u_lightData[]                       struct  Array of struct LightData holding parameters for active light sources.
+                                                The LightData struct is built dynamically depending on requirements for
+                                                bound light shaders.
 
 ------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------
@@ -53,7 +57,7 @@ namespace MaterialX
 
 /// Base class for GLSL (OpenGL Shading Language) code generation.
 /// A generator for a specific GLSL target should be derived from this class.
-class GlslShaderGenerator : public ShaderGenerator
+class GlslShaderGenerator : public HwShaderGenerator
 {
 public:
     enum class BsdfDir

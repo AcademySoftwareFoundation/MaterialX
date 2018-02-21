@@ -46,7 +46,7 @@ void adskSurface(
 
     // Compute diffuse, and texture map with a checker
     vec3 _diffuse = vec3(0.0);
-    _diffuse = computeDiffuse(diffuse_roughness, worldNormal);
+    computeDiffuse(diffuse_roughness, worldNormal, _diffuse);
 
     // Compute specular
     vec3 worldView = normalize(u_viewDirection); // Not correct. Which one to use

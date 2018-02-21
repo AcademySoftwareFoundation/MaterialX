@@ -11,6 +11,7 @@
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/TimeGlsl.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/AdskSurfaceGlsl.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/SurfaceGlsl.h>
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/LightGlsl.h>
 #include <MaterialXShaderGen/ShaderGenerators/Common/SourceCode.h>
 #include <MaterialXShaderGen/ShaderGenerators/Common/Swizzle.h>
 #include <MaterialXShaderGen/ShaderGenerators/Common/Switch.h>
@@ -49,7 +50,7 @@ const string GlslShaderGenerator::TARGET = "glsl_v4.0";
 const string GlslShaderGenerator::VERSION = "400";
 
 GlslShaderGenerator::GlslShaderGenerator()
-    : ShaderGenerator(std::make_shared<GlslSyntax>())
+    : HwShaderGenerator(std::make_shared<GlslSyntax>())
 {
     _bsdfNodeArguments.resize(2);
 
@@ -165,6 +166,11 @@ GlslShaderGenerator::GlslShaderGenerator()
     registerImplementation("IM_adskSurface__glsl", AdskSurfaceGlsl::creator);
     // <!-- <surface> -->
     registerImplementation("IM_surface__glsl", SurfaceGlsl::creator);
+
+    // <!-- <pointlight> -->
+    registerImplementation("IM_pointlight__glsl", LightGlsl::creator);
+    // <!-- <directionallight> -->
+    registerImplementation("IM_directionallight__glsl", LightGlsl::creator);
 }
 
 ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr element)
@@ -265,6 +271,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
 
     // Add global constants and type definitions
     shader.addInclude("sx/impl/shadergen/glsl/source/defines.glsl", *this);
+    shader.addLine("#define MAX_LIGHT_SOURCES " + std::to_string(getMaxActiveLightSources()), false);
     shader.newLine();
     emitTypeDefs(shader);
 
@@ -289,6 +296,23 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
         {
             emitUniform(*uniform, shader);
         }
+        shader.newLine();
+    }
+
+    // Add light data block if needed
+    if (shader.hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE))
+    {
+        const Shader::VariableBlock& lightData = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK);
+        shader.addLine("struct " + lightData.name, false);
+        shader.beginScope(Shader::Brackets::BRACES);
+        for (const Shader::Variable* uniform : lightData.variableOrder)
+        {
+            const string& type = _syntax->getTypeName(uniform->type);
+            shader.addLine(type + " " + uniform->name);
+        }
+        shader.endScope(true);
+        shader.newLine();
+        shader.addLine("uniform " + lightData.name + " " + lightData.instance);
         shader.newLine();
     }
 
@@ -339,10 +363,45 @@ void GlslShaderGenerator::emitFunctionDefinitions(Shader& shader)
     _bsdfNodeArguments[0] = Argument("vec3", "wi");
     _bsdfNodeArguments[1] = Argument("vec3", "wo");
 
-    // Emit function for handling texture coords v-flip 
-    // as needed by the v-direction set by the user
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+
+        // Emit function for handling texture coords v-flip 
+        // as needed by the v-direction set by the user
         shader.addBlock(shader.getRequestedVDirection() != getTargetVDirection() ? VDIRECTION_FLIP : VDIRECTION_NOOP);
+
+        // For surface shaders we need light shaders
+        if (shader.hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE))
+        {
+            // Emit functions for all bound light shaders
+            for (auto lightShader : getBoundLightShaders())
+            {
+                lightShader.second->emitFunctionDefinition(SgNode::NONE, *this, shader);
+            }
+
+            // Emit active light count function
+            shader.addLine("int numActiveLightSources()", false);
+            shader.beginScope(Shader::Brackets::BRACES);
+            shader.addLine("return min(u_numActiveLightSources, MAX_LIGHT_SOURCES)");
+            shader.endScope();
+            shader.newLine();
+
+            // Emit light sampler function with all bound light types
+            shader.addLine("void sampleLightSource(LightData light, vec3 position, out lightshader result)", false);
+            shader.beginScope(Shader::Brackets::BRACES);
+            shader.addLine("result.intensity = vec3(0.0)");
+            string ifstatement = "if ";
+            for (auto lightShader : getBoundLightShaders())
+            {
+                shader.addLine(ifstatement + "(light.type == " + std::to_string(lightShader.first) + ")", false);
+                shader.beginScope(Shader::Brackets::BRACES);
+                lightShader.second->emitFunctionCall(SgNode::NONE, *this, shader);
+                shader.endScope();
+                ifstatement = "else if ";
+            }
+            shader.endScope();
+            shader.newLine();
+        }
+
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
     // Call parent to emit all other functions
@@ -362,7 +421,7 @@ void GlslShaderGenerator::emitFunctionCalls(Shader &shader)
 
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
         // For pixel stage surface shaders need special handling
-        if (shader.getNodeGraph()->hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE))
+        if (shader.hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE))
         {
             // Handle all texturing nodes. These are inputs to any
             // closure/shader nodes and need to be emitted first.

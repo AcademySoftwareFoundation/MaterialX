@@ -259,6 +259,18 @@ GlslSyntax::GlslSyntax()
         )
     );
 
+    addTypeSyntax
+    (
+        DataType::LIGHT,
+        TypeSyntax
+        (
+            "lightshader",
+            "lightshader(vec3(0.0),vec3(0.0))",
+            "",
+            "struct lightshader { vec3 intensity; vec3 direction; };",
+            "out lightshader"
+        )
+    );
 
     //
     // Add value constructor syntax for data types that needs this

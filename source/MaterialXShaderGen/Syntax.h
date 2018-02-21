@@ -132,6 +132,7 @@ public:
     static const string SURFACE;
     static const string VOLUME;
     static const string DISPLACEMENT;
+    static const string LIGHT;
 
     static const std::set<string> SCALARS;
     static const std::set<string> TUPLES;

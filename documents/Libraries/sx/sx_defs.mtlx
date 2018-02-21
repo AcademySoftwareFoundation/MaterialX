@@ -137,4 +137,25 @@
     <input name="weight" type="float" value="1.0" doc="Weight for the top layer."/>
   </nodedef>
 
+  <!--
+    Node: <pointlight>
+  -->
+  <nodedef name="ND_pointlight" node="pointlight" type="lightshader" nodecategory="shaderx"
+           doc="A light shader node of 'point' type.">
+    <input name="position" type="vector3" doc="Light source position."/>
+    <input name="color" type="color3" doc="Light color."/>
+    <input name="intensity" type="float" doc="Light intensity."/>
+    <input name="decayRate" type="float" value="2.0" doc="Light decay exponent. Defaults to 2 for quadratic decay."/>
+  </nodedef>
+
+  <!--
+    Node: <directionallight>
+  -->
+  <nodedef name="ND_directionallight" node="directionallight" type="lightshader" nodecategory="shaderx"
+           doc="A light shader node of 'directional' type.">
+    <input name="direction" type="vector3" doc="Light source direction."/>
+    <input name="color" type="color3" doc="Light color."/>
+    <input name="intensity" type="float" doc="Light intensity."/>
+  </nodedef>
+
 </materialx>

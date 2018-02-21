@@ -8,15 +8,13 @@ namespace
 {
     static const string LIGHT_LOOP_BEGIN =
         "vec3 V = u_viewDirection;\n"
-        "const int numLights = min(ClampDynamicLights, 3);\n"
-        "for (int ActiveLightIndex = 0; ActiveLightIndex < numLights; ++ActiveLightIndex)\n";
+        "int numLights = numActiveLightSources();\n"
+        "lightshader lightShader;\n"
+        "for (int activeLightIndex = 0; activeLightIndex < numLights; ++activeLightIndex)\n";
 
     static const string LIGHT_CONTRIBUTION =
-        "vec3 LightPos = GetLightPos(ActiveLightIndex);\n"
-        "vec3 LightDir = GetLightDir(ActiveLightIndex);\n"
-        "vec3 LightVec = GetLightVectorFunction(ActiveLightIndex, LightPos, vd.positionWorld, LightDir);\n"
-        "vec3 L = normalize(LightVec);\n"
-        "vec3 LightContribution = LightContributionFunction(ActiveLightIndex, vd.positionWorld, LightVec);\n";
+        "sampleLightSource(u_lightData[activeLightIndex], vd.positionWorld, lightShader);\n"
+        "vec3 L = lightShader.direction;\n";
 }
 
 SgImplementationPtr SurfaceGlsl::creator()
@@ -27,9 +25,9 @@ SgImplementationPtr SurfaceGlsl::creator()
 void SurfaceGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     // TODO: 
-    // The surface shader needs position and view data. We should solve this by adding some 
-    // dependency mechanism so this implementation can be set to depend on the PositionGlsl 
-    // and ViewDirectionGlsl nodes instead? This is where the MaterialX attribute "internalgeomprops" 
+    // The surface shader needs position, view and light sources. We should solve this by adding some 
+    // dependency mechanism so this implementation can be set to depend on the PositionGlsl,  
+    // ViewDirectionGlsl and LightGlsl nodes instead? This is where the MaterialX attribute "internalgeomprops" 
     // is needed.
     //
     HwShader& shader = static_cast<HwShader&>(shader_);
@@ -37,6 +35,8 @@ void SurfaceGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*sha
     shader.createAppData(DataType::VECTOR3, "i_position");
     shader.createVertexData(DataType::VECTOR3, "positionWorld");
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::VECTOR3, "u_viewDirection");
+    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::INTEGER, "u_numActiveLightSources",
+        EMPTY_STRING, Value::createValue<int>(1));
 }
 
 void SurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
@@ -61,11 +61,14 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
     shader.beginLine();
     glslgen.emitOutput(node.getOutput(), true, shader);
     shader.endLine();
-    shader.newLine();
 
     const string outputVariable = glslgen.getSyntax()->getVariableName(node.getOutput());
     const string outColor = outputVariable + ".color";
     const string outTransparency = outputVariable + ".transparency";
+
+    shader.addLine(outColor + " = vec3(0.0)");
+    shader.addLine(outTransparency + " = vec3(1.0)");
+    shader.newLine();
 
     // Calculate opacity
     //
@@ -96,7 +99,7 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
     shader.newLine();
 
     shader.addComment("Accumulate the light's contribution");
-    shader.addLine(outColor + " += LightContribution * " + bsdf + ".fr");
+    shader.addLine(outColor + " += lightShader.intensity * " + bsdf + ".fr");
 
     shader.endScope();
     shader.newLine();
@@ -130,15 +133,6 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
     shader.addLine(outTransparency + " = mix(vec3(1.0), " + outTransparency + ", " + surfaceOpacity + ")");
 
     shader.endScope();
-
-    // Else case: return 100% transparency
-    //
-    shader.addLine("else", false);
-    shader.beginScope();
-    shader.addLine(outColor + " = vec3(0.0)");
-    shader.addLine(outTransparency + " = vec3(1.0)");
-    shader.endScope();
-    shader.newLine();
 
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }

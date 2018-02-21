@@ -70,7 +70,7 @@ public:
         string name;
         string instance;
         std::unordered_map<string, VariablePtr> variableMap;
-        std::vector<Variable*> variableOrder;
+        vector<Variable*> variableOrder;
         VariableBlock(const string& n, const string& i) : name(n), instance(i) {}
     };
 
@@ -196,7 +196,7 @@ public:
     void popActiveGraph() { _graphStack.pop_back(); }
 
     /// Return true if this shader matches the given classification.
-    bool hasClassification(unsigned int c) const { return _rootGraph->hasClassification(c); }
+    bool hasClassification(unsigned int c) const { return getNodeGraph()->hasClassification(c); }
 
     /// Return the vdirection requested in the current document.
     VDirection getRequestedVDirection() const { return _vdirection; }

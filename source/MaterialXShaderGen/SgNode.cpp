@@ -57,6 +57,8 @@ SgEdgeIterator SgOutput::traverseUpstream()
 }
 
 
+const SgNode SgNode::NONE("");
+
 bool SgNode::referencedConditionally() const
 {
     if (_scopeInfo.type == SgNode::ScopeInfo::Type::SINGLE)

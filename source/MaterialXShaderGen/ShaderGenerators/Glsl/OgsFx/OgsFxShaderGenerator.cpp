@@ -1,8 +1,6 @@
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/OgsFx/OgsFxShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/OgsFx/OgsFxSyntax.h>
 
-#include <sstream>
-
 namespace MaterialX
 {
 
@@ -70,7 +68,7 @@ namespace
         { "u_viewDirection", "ViewDirection" },
         { "u_viewPosition", "ViewPosition" },
         { "u_frame", "Frame" },
-        { "u_time", "Time" }
+        { "u_time", "Time" },
     };
 }
 
@@ -202,12 +200,17 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 
     shader.setActiveStage(size_t(OgsFxShader::FINAL_FX_STAGE));
 
+    // Add version directive
+    shader.addLine("#version " + getVersion(), false);
+    shader.newLine();
+
     // Add global constants and type definitions
     shader.addInclude("sx/impl/shadergen/glsl/source/defines.glsl", *this);
+    shader.addLine("#define MAX_LIGHT_SOURCES " + std::to_string(getMaxActiveLightSources()), false);
     shader.newLine();
     emitTypeDefs(shader);
 
-    shader.addComment("Data from application to vertex buffer");
+    shader.addComment("Data from application to vertex shader");
     shader.addLine("attribute AppData", false);
     shader.beginScope(Shader::Brackets::BRACES);
     const Shader::VariableBlock& appDataBlock = shader.getAppDataBlock();
@@ -290,19 +293,29 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
         shader.newLine();
     }
 
+    // Add light data block if needed
+    if (shader.hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE))
+    {
+        const Shader::VariableBlock& lightData = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK);
+        shader.addLine("struct " + lightData.name, false);
+        shader.beginScope(Shader::Brackets::BRACES);
+        for (const Shader::Variable* uniform : lightData.variableOrder)
+        {
+            const string& type = _syntax->getTypeName(uniform->type);
+            shader.addLine(type + " " + uniform->name);
+        }
+        shader.endScope(true);
+        shader.newLine();
+        shader.addLine("uniform " + lightData.name + " " + lightData.instance);
+        shader.newLine();
+    }
+
     // Emit common math functions
     shader.addLine("GLSLShader MathFunctions", false);
     shader.beginScope(Shader::Brackets::BRACES);
     shader.addInclude("sx/impl/shadergen/glsl/source/math.glsl", *this);
     shader.endScope();
     shader.newLine();
-
-    // Emit functions for lighting if needed
-    if (!shader.hasClassification(SgNode::Classification::TEXTURE))
-    {
-        shader.addInclude("sx/impl/shadergen/glsl/source/ogsfx/lighting.glsl", *this);
-        shader.newLine();
-    }
 
     // Add code blocks from the vertex and pixel shader stages generated above
     shader.addBlock(shader.getSourceCode(OgsFxShader::VERTEX_STAGE));
@@ -314,14 +327,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.addLine("pass p0", false);
     shader.beginScope(Shader::Brackets::BRACES);
     shader.addLine("VertexShader(in AppData, out VertexData vd) = { MathFunctions, VS }");
-    if (shader.hasClassification(SgNode::Classification::TEXTURE))
-    {
-        shader.addLine("PixelShader(in VertexData vd, out PixelOutput) = { MathFunctions, PS }");
-    }
-    else
-    {
-        shader.addLine("PixelShader(in VertexData vd, out PixelOutput) = { MathFunctions, LightingFunctions, PS }");
-    }
+    shader.addLine("PixelShader(in VertexData vd, out PixelOutput) = { MathFunctions, PS }");
     shader.endScope();
     shader.endScope();
     shader.newLine();
