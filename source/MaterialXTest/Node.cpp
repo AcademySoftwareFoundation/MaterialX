@@ -66,6 +66,19 @@ TEST_CASE("Node", "[node]")
     REQUIRE(constant->getDownstreamPorts()[0] == output1);
     REQUIRE(image->getDownstreamPorts()[0] == output2);
 
+    // Create a custom nodedef.
+    mx::NodeDefPtr nodeDef = doc->addNodeDef("nodeDef1", "float", "turbulence3d");
+    nodeDef->setParameterValue("octaves", 3);
+    nodeDef->setParameterValue("lacunarity", 2.0f);
+    nodeDef->setParameterValue("gain", 0.5f);
+
+    // Reference the custom nodedef.
+    mx::NodePtr custom = nodeGraph->addNode("turbulence3d", "turbulence1", "float");
+    REQUIRE(custom->getParameterValue("octaves")->isA<int>());
+    REQUIRE(custom->getParameterValue("octaves")->asA<int>() == 3);
+    custom->setParameterValue("octaves", 5);
+    REQUIRE(custom->getParameterValue("octaves")->asA<int>() == 5);
+
     // Define a custom type.
     mx::TypeDefPtr typeDef = doc->addTypeDef("spectrum");
     const int scalarCount = 10;
@@ -84,6 +97,9 @@ TEST_CASE("Node", "[node]")
     REQUIRE(constant->getParameterValue("value")->isA<std::string>());
     REQUIRE(constant->getParameterValue("value")->asA<std::string>() == d65);
 
+    // Validate the document.
+    REQUIRE(doc->validate());
+
     // Disconnect outputs from sources.
     output1->setConnectedNode(nullptr);
     output2->setConnectedNode(nullptr);
@@ -95,6 +111,7 @@ TEST_CASE("Node", "[node]")
     // Remove nodes and outputs.
     nodeGraph->removeNode(image->getName());
     nodeGraph->removeNode(constant->getName());
+    nodeGraph->removeNode(custom->getName());
     nodeGraph->removeOutput(output1->getName());
     nodeGraph->removeOutput(output2->getName());
     REQUIRE(nodeGraph->getChildren().empty());
