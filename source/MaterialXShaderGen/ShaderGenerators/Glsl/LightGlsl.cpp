@@ -65,7 +65,7 @@ void LightGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*shade
 
     // Create uniform for number of active light sources
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::INTEGER, "u_numActiveLightSources",
-        EMPTY_STRING, Value::createValue<int>(1));
+        EMPTY_STRING, Value::createValue<int>(0));
 }
 
 void LightGlsl::emitFunctionDefinition(const SgNode& /*node*/, ShaderGenerator& shadergen, Shader& shader_)

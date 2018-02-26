@@ -34,7 +34,7 @@ void AdskSurfaceGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /
     shader.createVertexData(DataType::VECTOR3, "positionWorld");
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::VECTOR3, "u_viewDirection");
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::INTEGER, "u_numActiveLightSources",
-        EMPTY_STRING, Value::createValue<int>(1));
+        EMPTY_STRING, Value::createValue<int>(0));
 }
 
 void AdskSurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)

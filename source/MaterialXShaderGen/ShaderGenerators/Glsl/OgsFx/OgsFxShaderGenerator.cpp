@@ -47,7 +47,7 @@ namespace
         { "u_viewDirection", "ViewDirection" },
         { "u_viewPosition", "ViewPosition" },
         { "u_frame", "Frame" },
-        { "u_time", "Time" },
+        { "u_time", "Time" }
     };
 }
 
