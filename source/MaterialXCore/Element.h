@@ -901,6 +901,7 @@ class ValueElement : public TypedElement
     ///
     /// If this element has no default value then an empty shared pointer is
     /// returned.
+    ///
     /// @return A shared pointer to a generic value.
     ValuePtr getDefaultValue() const;
 
@@ -1012,6 +1013,10 @@ class StringResolver
         return _filenameMap;
     }
 
+    /// @}
+    /// @name Geometry Name Substitutions
+    /// @{
+
     /// Set an arbitrary substring substitution for geometry name data values.
     void setGeomNameSubstitution(const string& key, const string& value)
     {
@@ -1023,7 +1028,6 @@ class StringResolver
     {
         return _geomNameMap;
     }
-    
 
     /// @}
     /// @name Resolution

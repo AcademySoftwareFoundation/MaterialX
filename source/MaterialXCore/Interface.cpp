@@ -205,16 +205,48 @@ bool Output::validate(string* message) const
 // InterfaceElement methods
 //
 
-ValuePtr InterfaceElement::getParameterValue(const string& name) const
+ValuePtr InterfaceElement::getParameterValue(const string& name, const string& target) const
 {
-    ParameterPtr param = getChildOfType<Parameter>(name);
-    return param ? param->getValue() : ValuePtr();
+    ParameterPtr param = getParameter(name);
+    if (param)
+    {
+        return param->getValue();
+    }
+
+    // Return the value, if any, stored in our declaration.
+    NodeDefPtr decl = getDeclaration(target);
+    if (decl)
+    {
+        param = decl->getParameter(name);
+        if (param)
+        {
+            return param->getValue();
+        }
+    }
+
+    return ValuePtr();
 }
 
-ValuePtr InterfaceElement::getInputValue(const string& name) const
+ValuePtr InterfaceElement::getInputValue(const string& name, const string& target) const
 {
-    InputPtr input = getChildOfType<Input>(name);
-    return input ? input->getValue() : ValuePtr();
+    InputPtr input = getInput(name);
+    if (input)
+    {
+        return input->getValue();
+    }
+
+    // Return the value, if any, stored in our declaration.
+    NodeDefPtr decl = getDeclaration(target);
+    if (decl)
+    {
+        input = decl->getInput(name);
+        if (input)
+        {
+            return input->getValue();
+        }
+    }
+
+    return ValuePtr();
 }
 
 void InterfaceElement::registerChildElement(ElementPtr child)
@@ -249,6 +281,24 @@ void InterfaceElement::unregisterChildElement(ElementPtr child)
     {
         _outputCount--;
     }
+}
+
+NodeDefPtr InterfaceElement::getDeclaration(const string& target) const
+{
+    if (isA<Node>())
+    {
+        return asA<Node>()->getNodeDef(target);
+    }
+    else if (isA<NodeGraph>())
+    {
+        return asA<NodeGraph>()->getNodeDef();
+    }
+    else if (isA<Implementation>())
+    {
+        return asA<Implementation>()->getNodeDef();
+    }
+
+    return NodeDefPtr();
 }
 
 bool InterfaceElement::isTypeCompatible(InterfaceElementPtr rhs) const

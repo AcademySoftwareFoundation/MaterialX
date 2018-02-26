@@ -189,9 +189,6 @@ class Input : public PortElement
     }
     virtual ~Input() { }
 
-  protected:
-    using NodePtr = shared_ptr<class Node>;
-
   public:
     /// @name Traversal
     /// @{
@@ -223,9 +220,6 @@ class Output : public PortElement
     {
     }
     virtual ~Output() { }
-
-  protected:
-    using NodePtr = shared_ptr<class Node>;
 
   public:
     /// @name Traversal
@@ -278,7 +272,7 @@ class InterfaceElement : public TypedElement
     virtual ~InterfaceElement() { }
 
   protected:
-    using NodePtr = shared_ptr<class Node>;
+    using NodeDefPtr = shared_ptr<class NodeDef>;
 
   public:
     /// @name Parameters
@@ -414,11 +408,15 @@ class InterfaceElement : public TypedElement
                                                      const T& value,
                                                      const string& type = EMPTY_STRING);
 
-    /// Return the typed value of a parameter by its name.
+    /// Return the typed value of a parameter by its name, with interface
+    /// declarations optionally filtered by the given target string.
     /// @param name The name of the parameter to be evaluated.
-    /// @return If the given parameter is present, then a shared pointer to its
-    ///    value is returned; otherwise, an empty shared pointer is returned.
-    ValuePtr getParameterValue(const string& name) const;
+    /// @param target An optional target name, which will be used to filter
+    ///    the declarations that are considered.
+    /// @return If the given parameter is found in this interface or its
+    ///    declaration, then a shared pointer to its value is returned;
+    ///    otherwise, an empty shared pointer is returned.
+    ValuePtr getParameterValue(const string& name, const string& target = EMPTY_STRING) const;
 
     /// Set the typed value of an input by its name, creating a child element
     /// to hold the input if needed.
@@ -426,15 +424,26 @@ class InterfaceElement : public TypedElement
                                              const T& value,
                                              const string& type = EMPTY_STRING);
 
-    /// Return the typed value of an input by its name.
-    /// @param name The name of the input to be evaluated.
-    /// @return If the given input is present, then a shared pointer to its
-    ///    value is returned; otherwise, an empty shared pointer is returned.
-    ValuePtr getInputValue(const string& name) const;
+    /// Return the typed value of an input by its name, with interface
+    /// declarations optionally filtered by the given target string.
+    /// @param target An optional target name, which will be used to filter
+    ///    the declarations that are considered.
+    /// @return If the given parameter is found in this interface or its
+    ///    declaration, then a shared pointer to its value is returned;
+    ///    otherwise, an empty shared pointer is returned.
+    ValuePtr getInputValue(const string& name, const string& target = EMPTY_STRING) const;
 
     /// @}
     /// @name Utility
     /// @{
+
+    /// Return the first declaration of this interface, optionally filtered
+    ///    by the given target name.
+    /// @param target An optional target name, which will be used to filter
+    ///    the declarations that are considered.
+    /// @return A shared pointer to nodedef, or an empty shared pointer if
+    ///    no declaration was found.
+    NodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const;
 
     /// Return true if the given interface element is type compatible with
     /// this one.  This may be used to test, for example, whether a NodeDef
