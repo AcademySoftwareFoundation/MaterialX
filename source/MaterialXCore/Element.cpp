@@ -459,28 +459,17 @@ ValuePtr ValueElement::getDefaultValue() const
     {
         return getValue();
     }
-    ConstElementPtr parent = getParent();
-    if (parent->isA<Implementation>())
+
+    // Return the value, if any, stored in our declaration.
+    if (getParent()->isA<InterfaceElement>())
     {
-        ConstNodeDefPtr nodeDef = parent->asA<Implementation>()->getNodeDef();
-        if (nodeDef)
+        NodeDefPtr decl = getParent()->asA<InterfaceElement>()->getDeclaration();
+        if (decl)
         {
-            InputPtr input = nodeDef->getInput(getName());
-            if (input)
+            ValueElementPtr value = decl->getChildOfType<ValueElement>(getName());
+            if (value)
             {
-                return input->getValue();
-            }
-        }
-    }
-    if (parent->isA<Node>())
-    {
-        ConstNodeDefPtr nodeDef = parent->asA<Node>()->getNodeDef();
-        if (nodeDef)
-        {
-            InputPtr input = nodeDef->getInput(getName());
-            if (input)
-            {
-                return input->getValue();
+                return value->getValue();
             }
         }
     }

@@ -100,6 +100,18 @@ class TestMaterialX(unittest.TestCase):
         image.setParameterValue('file', file, 'filename')
         self.assertTrue(image.getParameterValue('file') == file)
 
+        # Create a custom nodedef.
+        nodeDef = doc.addNodeDef('nodeDef1', 'float', 'turbulence3d');
+        nodeDef.setParameterValue('octaves', 3);
+        nodeDef.setParameterValue('lacunarity', 2.0);
+        nodeDef.setParameterValue('gain', 0.5);
+
+        # Reference the custom nodedef.
+        custom = nodeGraph.addNode('turbulence3d', 'turbulence1', 'float');
+        self.assertTrue(custom.getParameterValue('octaves') == 3)
+        custom.setParameterValue('octaves', 5);
+        self.assertTrue(custom.getParameterValue('octaves') == 5)
+
         # Validate the document.
         self.assertTrue(doc.validate()[0])
 
