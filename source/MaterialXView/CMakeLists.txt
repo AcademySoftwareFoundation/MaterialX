@@ -22,14 +22,14 @@ endfunction(assign_source_group)
 assign_source_group("Header Files" ${materialx_header})
 assign_source_group("Source Files" ${materialx_source})
 
-add_library(MaterialXShaderGen STATIC 
+add_library(MaterialXView STATIC 
     ${materialx_source} 
     ${materialx_header}
 )
 
 set_target_properties(
-    MaterialXShaderGen PROPERTIES
-    OUTPUT_NAME MaterialXShaderGen
+    MaterialXView PROPERTIES
+    OUTPUT_NAME MaterialXView
     COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
     VERSION "${MATERIALX_LIBRARY_VERSION}"
@@ -37,26 +37,28 @@ set_target_properties(
 
 if(MSVC)
     target_link_libraries(
+        MaterialXView
         MaterialXShaderGen
         MaterialXCore
         Opengl32
         ${CMAKE_DL_LIBS})
 else()
     target_link_libraries(
+        MaterialXView
         MaterialXShaderGen
         MaterialXCore
         ${CMAKE_DL_LIBS})
 endif()
 
-install(TARGETS MaterialXShaderGen
+install(TARGETS MaterialXView
     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/
 )
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXShaderGen/
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXView/
     FILES_MATCHING PATTERN "*.h*")
 
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXShaderGen.pdb"
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXView.pdb"
         DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/" OPTIONAL)
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/documents/Examples" DESTINATION ${CMAKE_INSTALL_PREFIX}/documents)

@@ -15,6 +15,8 @@ option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindi
 option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
 option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
 option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors." OFF)
+option(MATERIALX_BUILD_VIEW "Build the MaterialX View module. " ON)
+option(MATERIALX_TEST_VIEW "Run tests for MaterialX View module. Requires a valid GPU setup." OFF)
 
 set(MATERIALX_PYTHON_EXECUTABLE "" CACHE FILEPATH
     "Path to the Python executable (e.g. 'C:/Python27/python.exe').")
@@ -32,6 +34,8 @@ mark_as_advanced(MATERIALX_PYTHON_LIBRARY)
 mark_as_advanced(MATERIALX_PYTHON_OCIO_DIR)
 mark_as_advanced(MATERIALX_INSTALL_PYTHON)
 mark_as_advanced(MATERIALX_WARNINGS_AS_ERRORS)
+mark_as_advanced(MATERIALX_BUILD_VIEW)
+mark_as_advanced(MATERIALX_TEST_VIEW)
 
 set(PYTHON_INCLUDE_DIR ${MATERIALX_PYTHON_INCLUDE_DIR})
 set(PYTHON_LIBRARY ${MATERIALX_PYTHON_LIBRARY})
@@ -85,6 +89,14 @@ endif()
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
 add_subdirectory(source/MaterialXShaderGen)
+if (MATERIALX_BUILD_VIEW)
+    if (MATERIALX_TEST_VIEW)
+        add_definitions(-DMATERIALX_TEST_VIEW)
+    endif(MATERIALX_TEST_VIEW)
+    add_definitions(-DMATERIALX_BUILD_VIEW)
+    add_subdirectory(source/MaterialXView)
+endif(MATERIALX_BUILD_VIEW)
+
 add_subdirectory(source/MaterialXTest)
 
 if(MATERIALX_BUILD_PYTHON)
