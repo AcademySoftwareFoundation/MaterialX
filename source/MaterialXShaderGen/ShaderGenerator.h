@@ -84,9 +84,10 @@ public:
     bool implementationRegistered(const string& name) const;
 
     /// Return a registered shader gen implementation given an implementation element.
-    /// If no registered implementaion is found a default source code implementation 
-    /// instance will be returned.
-    SgImplementationPtr getImplementation(ElementPtr element);
+    /// The element must be an Implementation or a NodeGraph acting as implementation.
+    /// If no registered implementation is found a 'default' implementation instance 
+    /// will be returned, as created by the 
+    SgImplementationPtr getImplementation(InterfaceElementPtr element);
 
     /// Add to the search path used for finding source code.
     void registerSourceCodeSearchPath(const FilePath& path);

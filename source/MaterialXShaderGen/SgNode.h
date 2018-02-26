@@ -111,6 +111,8 @@ public:
         uint32_t fullConditionMask;
     };
 
+    static const SgNode NONE;
+
 public:
     SgNode(const string& name);
 

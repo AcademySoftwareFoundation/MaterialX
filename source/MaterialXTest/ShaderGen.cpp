@@ -146,6 +146,37 @@ bool requiresImplementation(const mx::NodeDefPtr nodeDef)
     return !typeAttribute.empty() && typeAttribute != TYPE_NONE;
 }
 
+// Identifiers for supported light types.
+enum LightTypes
+{
+    DIRECTIONAL_LIGHT,
+    POINT_LIGHT
+};
+
+// Light shader nodes to bind to each light type.
+const std::vector<std::pair<int, std::string>> LIGHT_SHADERS =
+{
+    { DIRECTIONAL_LIGHT, "ND_directionallight" },
+    { POINT_LIGHT, "ND_pointlight" }
+};
+
+// Bind the supported light types to corresponding light shaders
+// for the given shader generator.
+void bindLightShaders(mx::DocumentPtr document, mx::HwShaderGenerator& shadergen)
+{
+    for (auto lightShader : LIGHT_SHADERS)
+    {
+        mx::InterfaceElementPtr implElement = findImplementation(document, lightShader.second, shadergen.getLanguage(), shadergen.getTarget());
+        REQUIRE(implElement != nullptr);
+
+        mx::SgImplementationPtr impl = shadergen.getImplementation(implElement);
+        REQUIRE(impl != nullptr);
+
+        shadergen.bindLightShader(lightShader.first, impl);
+    }
+}
+
+
 TEST_CASE("OslSyntax", "[shadergen]")
 {
     mx::SyntaxPtr syntax = std::make_shared<mx::OslSyntax>();
@@ -632,6 +663,9 @@ TEST_CASE("Subgraph Shader Generation", "[shadergen]")
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::creator();
         shaderGenerator->registerSourceCodeSearchPath(searchPath2);
 
+        mx::HwShaderGenerator* hwShaderGenerator = static_cast<mx::HwShaderGenerator*>(shaderGenerator.get());
+        bindLightShaders(doc, *hwShaderGenerator);
+
         for (const std::string& graphName : exampleGraphNames)
         {
             mx::NodeGraphPtr nodeGraph = doc->getNodeGraph(graphName);
@@ -656,6 +690,9 @@ TEST_CASE("Subgraph Shader Generation", "[shadergen]")
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
         shaderGenerator->registerSourceCodeSearchPath(searchPath2);
+
+        mx::HwShaderGenerator* hwShaderGenerator = static_cast<mx::HwShaderGenerator*>(shaderGenerator.get());
+        bindLightShaders(doc, *hwShaderGenerator);
 
         for (const std::string& graphName : exampleGraphNames)
         {

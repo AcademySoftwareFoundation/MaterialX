@@ -16,8 +16,16 @@ public:
     static const size_t VERTEX_STAGE = Shader::NUM_STAGES;
     static const size_t NUM_STAGES = Shader::NUM_STAGES + 1;
 
+    /// Identifier for light data uniform block.
+    static const string LIGHT_DATA_BLOCK;
+
 public:
     HwShader(const string& name);
+
+    /// Initialize the shader before shader generation.
+    /// @param element The root element to generate the shader from. 
+    /// @param shadergen The shader generator instance.
+    void initialize(ElementPtr element, ShaderGenerator& shadergen) override;
 
     /// Return the number of shader stages for this shader.
     size_t numStages() const override { return NUM_STAGES; }

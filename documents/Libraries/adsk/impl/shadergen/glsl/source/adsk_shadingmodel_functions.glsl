@@ -73,41 +73,29 @@ vec3 standardShaderEmission(
 }
 
 // Diffuse computation computation
-vec3 computeDiffuse(float roughness, vec3 normal)
+void computeDiffuse(float roughness, vec3 normal, out vec3 result)
 {
-    vec3 L = vec3(0.0);
-    const int numLights = min(ClampDynamicLights, 3);
-    for (int ActiveLightIndex = 0; ActiveLightIndex < numLights; ++ActiveLightIndex)
+    result = vec3(0.0);
+    int numLights = numActiveLightSources();
+    lightshader lightShader;
+    for (int activeLightIndex = 0; activeLightIndex < numLights; ++activeLightIndex)
     {
-        vec3 LightPos = GetLightPos(ActiveLightIndex);
-        vec3 LightDir = GetLightDir(ActiveLightIndex);
-        vec3 LightVec = GetLightVectorFunction(ActiveLightIndex, LightPos, vd.positionWorld, LightDir);
-        vec3 LightVecNorm = normalize(LightVec);
-
-        vec3 LightContribution = LightContributionFunction(ActiveLightIndex, vd.positionWorld, LightVec);
-        L += standardShaderDiffuse(normal, LightVecNorm, LightContribution);
+        sampleLightSource(u_lightData[activeLightIndex], vd.positionWorld, lightShader);
+        result += standardShaderDiffuse(normal, lightShader.direction, lightShader.intensity);
     }
-    return L;
 }
 
 // Specular contribution computation
 void computeSpecular(float roughness, vec3 normal, vec3 view, out vec3 result)
 {
-    vec3 L = vec3(0.0);
-    const int numLights = min(ClampDynamicLights, 3);
-    for (int ActiveLightIndex = 0; ActiveLightIndex < numLights; ++ActiveLightIndex)
+    result = vec3(0.0);
+    int numLights = numActiveLightSources();
+    lightshader lightShader;
+    for (int activeLightIndex = 0; activeLightIndex < numLights; ++activeLightIndex)
     {
-        vec3 LightPos = GetLightPos(ActiveLightIndex);
-        vec3 LightDir = GetLightDir(ActiveLightIndex);
-        vec3 LightVec = GetLightVectorFunction(ActiveLightIndex, LightPos, vd.positionWorld, LightDir);
-        vec3 LightVecNorm = normalize(LightVec);
-
-        vec3 LightContribution = LightContributionFunction(ActiveLightIndex, vd.positionWorld, LightVec);
-
-        vec3 specular = standardShaderSpecular(normal, LightVecNorm, view, LightContribution, roughness);
-        L += specular;
+        sampleLightSource(u_lightData[activeLightIndex], vd.positionWorld, lightShader);
+        result += standardShaderSpecular(normal, lightShader.direction, view, lightShader.intensity, roughness);
     }
-    result = L;
 }
 
 // Arnold standard shader combiner

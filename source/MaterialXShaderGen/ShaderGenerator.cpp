@@ -157,7 +157,7 @@ bool ShaderGenerator::implementationRegistered(const string& name) const
     return _implFactory.classRegistered(name);
 }
 
-SgImplementationPtr ShaderGenerator::getImplementation(ElementPtr element)
+SgImplementationPtr ShaderGenerator::getImplementation(InterfaceElementPtr element)
 {
     const string& name = element->getName();
 
@@ -174,7 +174,7 @@ SgImplementationPtr ShaderGenerator::getImplementation(ElementPtr element)
         // Use the graph based compound implementation
         impl = Compound::creator();
     }
-    else
+    else if (element->isA<Implementation>())
     {
         // Try creating a new in the factory
         impl = _implFactory.create(name);
@@ -183,6 +183,10 @@ SgImplementationPtr ShaderGenerator::getImplementation(ElementPtr element)
             // Fall back to the data driven source code implementation
             impl = SourceCode::creator();
         }
+    }
+    else
+    {
+        throw ExceptionShaderGenError("Element '" + name + "' is neither an Implementation nor an NodeGraph");
     }
 
     impl->initialize(element, *this);

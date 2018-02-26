@@ -186,6 +186,7 @@ namespace MaterialX
     const string DataType::SURFACE = "surfaceshader";
     const string DataType::VOLUME = "volumeshader";
     const string DataType::DISPLACEMENT = "displacementshader";
+    const string DataType::LIGHT = "lightshader";
 
     const std::set<string> DataType::SCALARS = { DataType::BOOLEAN, DataType::FLOAT, DataType::INTEGER };
     const std::set<string> DataType::TUPLES = { DataType::VECTOR2, DataType::COLOR2 };
