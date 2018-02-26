@@ -100,10 +100,11 @@ def _setParameterValue(self, name, value, typeString = ''):
     method = getattr(self.__class__, "_setParameterValue" + typeToName(value.__class__))
     return method(self, name, value, typeString)
 
-def _getParameterValue(self, name):
-    """Return the typed value of a parameter by its name.  If the given parameter
-       is not present, then None is returned."""
-    value = self._getParameterValue(name)
+def _getParameterValue(self, name, target = ''):
+    """Return the typed value of a parameter by its name.  If the given
+       parameter is not found in either the interface or its declaration,
+       then None is returned."""
+    value = self._getParameterValue(name, target)
     return value.getData() if value else None
 
 def _getParameterValueString(self, name):
@@ -119,10 +120,11 @@ def _setInputValue(self, name, value, typeString = ''):
     method = getattr(self.__class__, "_setInputValue" + typeToName(value.__class__))
     return method(self, name, value, typeString)
 
-def _getInputValue(self, name):
-    """Return the typed value of a parameter by its name.  If the given parameter
-       is not present, then None is returned."""
-    value = self._getInputValue(name)
+def _getInputValue(self, name, target = ''):
+    """Return the typed value of an input by its name.  If the given
+       input is not found in either the interface or its declaration,
+       then None is returned."""
+    value = self._getInputValue(name, target)
     return value.getData() if value else None
 
 InterfaceElement.setParameterValue = _setParameterValue
