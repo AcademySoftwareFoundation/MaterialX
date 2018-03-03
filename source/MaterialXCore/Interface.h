@@ -408,8 +408,8 @@ class InterfaceElement : public TypedElement
                                                      const T& value,
                                                      const string& type = EMPTY_STRING);
 
-    /// Return the typed value of a parameter by its name, with interface
-    /// declarations optionally filtered by the given target string.
+    /// Return the typed value of a parameter by its name, taking both the
+    /// calling element and its declaration into account.
     /// @param name The name of the parameter to be evaluated.
     /// @param target An optional target name, which will be used to filter
     ///    the declarations that are considered.
@@ -424,8 +424,8 @@ class InterfaceElement : public TypedElement
                                              const T& value,
                                              const string& type = EMPTY_STRING);
 
-    /// Return the typed value of an input by its name, with interface
-    /// declarations optionally filtered by the given target string.
+    /// Return the typed value of an input by its name, taking both the calling
+    /// element and its declaration into account.
     /// @param target An optional target name, which will be used to filter
     ///    the declarations that are considered.
     /// @return If the given parameter is found in this interface or its
