@@ -101,15 +101,15 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(image.getParameterValue('file') == file)
 
         # Create a custom nodedef.
-        nodeDef = doc.addNodeDef('nodeDef1', 'float', 'turbulence3d');
-        nodeDef.setParameterValue('octaves', 3);
-        nodeDef.setParameterValue('lacunarity', 2.0);
-        nodeDef.setParameterValue('gain', 0.5);
+        nodeDef = doc.addNodeDef('nodeDef1', 'float', 'turbulence3d')
+        nodeDef.setParameterValue('octaves', 3)
+        nodeDef.setParameterValue('lacunarity', 2.0)
+        nodeDef.setParameterValue('gain', 0.5)
 
         # Reference the custom nodedef.
-        custom = nodeGraph.addNode('turbulence3d', 'turbulence1', 'float');
+        custom = nodeGraph.addNode('turbulence3d', 'turbulence1', 'float')
         self.assertTrue(custom.getParameterValue('octaves') == 3)
-        custom.setParameterValue('octaves', 5);
+        custom.setParameterValue('octaves', 5)
         self.assertTrue(custom.getParameterValue('octaves') == 5)
 
         # Validate the document.
@@ -187,6 +187,14 @@ class TestMaterialX(unittest.TestCase):
         propertyAssign.setValue(True)
         self.assertTrue(propertyAssign.getGeom() == "/robot1")
         self.assertTrue(propertyAssign.getValue() == True)
+
+        # Create a property set assignment.
+        propertySet = doc.addPropertySet()
+        propertySet.setPropertyValue('matte', False)
+        self.assertTrue(propertySet.getPropertyValue('matte') == False)
+        propertySetAssign = look.addPropertySetAssign(propertySet.getName())
+        propertySetAssign.setGeom('/robot1')
+        self.assertTrue(propertySetAssign.getGeom() == '/robot1')
 
         # Generate and verify require string.
         doc.generateRequireString()

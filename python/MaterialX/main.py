@@ -101,9 +101,9 @@ def _setParameterValue(self, name, value, typeString = ''):
     return method(self, name, value, typeString)
 
 def _getParameterValue(self, name, target = ''):
-    """Return the typed value of a parameter by its name.  If the given
-       parameter is not found in either the interface or its declaration,
-       then None is returned."""
+    """Return the typed value of a parameter by its name, taking both the
+       calling element and its declaration into account.  If the given
+       parameter is not found, then None is returned."""
     value = self._getParameterValue(name, target)
     return value.getData() if value else None
 
@@ -121,9 +121,9 @@ def _setInputValue(self, name, value, typeString = ''):
     return method(self, name, value, typeString)
 
 def _getInputValue(self, name, target = ''):
-    """Return the typed value of an input by its name.  If the given
-       input is not found in either the interface or its declaration,
-       then None is returned."""
+    """Return the typed value of an input by its name, taking both the
+       calling element and its declaration into account.  If the given
+       input is not found, then None is returned."""
     value = self._getInputValue(name, target)
     return value.getData() if value else None
 
@@ -196,6 +196,26 @@ def _getReferencedShaderDef(self):
     return self.getNodeDef()
 
 ShaderRef.getReferencedShaderDef = _getReferencedShaderDef
+
+
+#
+# PropertySet
+#
+
+def _setPropertyValue(self, name, value, typeString = ''):
+    """Set the typed value of a property by its name, creating a child element
+       to hold the property if needed."""
+    method = getattr(self.__class__, "_setPropertyValue" + typeToName(value.__class__))
+    return method(self, name, value, typeString)
+
+def _getPropertyValue(self, name, target = ''):
+    """Return the typed value of a property by its name.  If the given property
+       is not found, then None is returned."""
+    value = self._getPropertyValue(name)
+    return value.getData() if value else None
+
+PropertySet.setPropertyValue = _setPropertyValue
+PropertySet.getPropertyValue = _getPropertyValue
 
 
 #

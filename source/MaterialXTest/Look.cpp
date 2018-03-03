@@ -46,13 +46,12 @@ TEST_CASE("Look", "[look]")
 
     // Create a property set assignment.
     mx::PropertySetPtr propertySet = doc->addPropertySet();
-    REQUIRE(doc->getPropertySets().size() == 1);
-    mx::PropertyPtr property = propertySet->addProperty("matte");
-    property->setValue(false);
-    REQUIRE(property->getValue()->isA<bool>());
-    REQUIRE(property->getValue()->asA<bool>() == false);
+    propertySet->setPropertyValue("matte", false);
+    REQUIRE(propertySet->getPropertyValue("matte")->isA<bool>());
+    REQUIRE(propertySet->getPropertyValue("matte")->asA<bool>() == false);
     mx::PropertySetAssignPtr propertySetAssign = look->addPropertySetAssign(propertySet->getName());
-    REQUIRE(look->getPropertySetAssigns().size() == 1);
+    propertySetAssign->setGeom("/robot1");
+    REQUIRE(propertySetAssign->getGeom() == "/robot1");
 
     // Create a visibility element.
     mx::VisibilityPtr visibility = look->addVisibility();
