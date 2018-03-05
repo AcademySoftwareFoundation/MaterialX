@@ -11,6 +11,8 @@ class OslSyntax : public Syntax
 {
 public:
     OslSyntax();
+
+    static SyntaxPtr creator() { return std::make_shared<OslSyntax>(); }
 };
 
 } // namespace MaterialX

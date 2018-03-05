@@ -50,7 +50,7 @@ const string GlslShaderGenerator::TARGET = "glsl_v4.0";
 const string GlslShaderGenerator::VERSION = "400";
 
 GlslShaderGenerator::GlslShaderGenerator()
-    : HwShaderGenerator(std::make_shared<GlslSyntax>())
+    : HwShaderGenerator(GlslSyntax::creator())
 {
     _bsdfNodeArguments.resize(2);
 

@@ -12,6 +12,8 @@ class GlslSyntax : public Syntax
 public:
     GlslSyntax();
 
+    static SyntaxPtr creator() { return std::make_shared<GlslSyntax>(); }
+
     string getValue(const Value& value, bool paramInit = false) const override;
 };
 

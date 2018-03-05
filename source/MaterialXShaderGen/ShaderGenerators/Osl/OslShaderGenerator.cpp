@@ -26,7 +26,7 @@ namespace
 const string OslShaderGenerator::LANGUAGE = "osl";
 
 OslShaderGenerator::OslShaderGenerator()
-    : ShaderGenerator(std::make_shared<OslSyntax>())
+    : ShaderGenerator(OslSyntax::creator())
 {
     // Register build-in implementations
 
