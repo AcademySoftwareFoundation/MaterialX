@@ -1,9 +1,9 @@
-void mx_geomcolor_color4(output color4 out)
+void mx_geomcolor_color4(output color4 result)
 {
     float value[4];
     getattribute("color", value);
-    out.rgb[0] = value[0];
-    out.rgb[1] = value[1];
-    out.rgb[2] = value[2];
-    out.a = value[3];
+    result.r = value[0];
+    result.g = value[1];
+    result.b = value[2];
+    result.a = value[3];
 }
