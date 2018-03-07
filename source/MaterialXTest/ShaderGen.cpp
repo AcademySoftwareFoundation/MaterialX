@@ -143,13 +143,9 @@ void bindLightShaders(mx::DocumentPtr document, mx::HwShaderGenerator& shadergen
 {
     for (auto lightShader : LIGHT_SHADERS)
     {
-        mx::InterfaceElementPtr implElement = findImplementation(document, lightShader.second, shadergen.getLanguage(), shadergen.getTarget());
-        REQUIRE(implElement != nullptr);
-
-        mx::SgImplementationPtr impl = shadergen.getImplementation(implElement);
-        REQUIRE(impl != nullptr);
-
-        shadergen.bindLightShader(lightShader.first, impl);
+        mx::NodeDefPtr nodeDef = document->getNodeDef(lightShader.second);
+        REQUIRE(nodeDef != nullptr);
+        shadergen.bindLightShader(*nodeDef, lightShader.first);
     }
 }
 
