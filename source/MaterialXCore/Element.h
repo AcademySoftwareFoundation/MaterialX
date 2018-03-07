@@ -392,9 +392,9 @@ class Element : public std::enable_shared_from_this<Element>
     /// Set the value of an implicitly typed attribute.  Since an attribute
     /// stores no explicit type, the same type argument must be used in
     /// corresponding calls to getTypedAttribute.
-    template<class T> void setTypedAttribute(const string& attrib, const T& value)
+    template<class T> void setTypedAttribute(const string& attrib, const T& data)
     {
-        setAttribute(attrib, Value::createValue(value)->getValueString());
+        setAttribute(attrib, toValueString(data));
     }
 
     /// Return the the value of an implicitly typed attribute.  If the given
@@ -402,8 +402,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// type, then the zero value for the given data type is returned.
     template<class T> const T getTypedAttribute(const string& attrib) const
     {
-        ValuePtr value = Value::createValueFromStrings(getAttribute(attrib), getTypeString<T>());
-        return value->asA<T>();
+        return fromValueString<T>(getAttribute(attrib));
     }
 
     /// Remove the given attribute, if present.
@@ -853,12 +852,8 @@ class ValueElement : public TypedElement
     /// Set the typed value of an element.
     template<class T> void setValue(const T& value, const string& type = EMPTY_STRING)
     {
-        ValuePtr valuePtr = Value::createValue<T>(value);
-        if (!type.empty())
-            setType(type);
-        else
-            setType(valuePtr->getTypeString());
-        setValueString(valuePtr->getValueString());
+        setType(!type.empty() ? type : getTypeString<T>());
+        setValueString(toValueString(value));
     }
 
     /// Return true if the element possesses a typed value.
@@ -868,11 +863,14 @@ class ValueElement : public TypedElement
     }
 
     /// Return the typed value of an element as a generic value object, which
-    /// may be queried to access its data.  If this element does not possess
-    /// a typed value, then a then a value object containing an empty string
-    /// is returned.
+    /// may be queried to access its data.
+    ///
+    /// @return A shared pointer to the typed value of this element, or an
+    ///    empty shared pointer if no value is present.
     ValuePtr getValue() const
     {
+        if (!hasValue())
+            return ValuePtr();
         return Value::createValueFromStrings(getValueString(), getType());
     }
 
@@ -893,16 +891,15 @@ class ValueElement : public TypedElement
     ///
     /// @param material The material whose data bindings will be applied to
     ///    the evaluation.
-    /// @return A shared pointer to a generic value.
+    /// @return A shared pointer to a typed value, or an empty shared pointer if
+    ///    no bound or default value was found.
     ValuePtr getBoundValue(ConstMaterialPtr material) const;
 
     /// Return the default value for this element, which will be used as its bound
     /// value when no external binding from a material is present.
     ///
-    /// If this element has no default value then an empty shared pointer is
-    /// returned.
-    ///
-    /// @return A shared pointer to a generic value.
+    /// @return A shared pointer to a typed value, or an empty shared pointer if
+    ///    no default value was found.
     ValuePtr getDefaultValue() const;
 
     /// @}
