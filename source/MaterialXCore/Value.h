@@ -33,9 +33,9 @@ class Value
     virtual ~Value() { }
 
     /// Create a new value from an object of any valid MaterialX type.
-    template<class T> static ValuePtr createValue(const T& value)
+    template<class T> static ValuePtr createValue(const T& data)
     {
-        return std::make_shared< TypedValue<T> >(value);
+        return std::make_shared< TypedValue<T> >(data);
     }
 
     /// Create a new value from value and type strings.
@@ -132,6 +132,13 @@ template <class T> class TypedValue : public Value
 
 /// Return the type string associated with the given data type.
 template<class T> const string& getTypeString();
+
+/// Return the value string associated with the given data value.
+template <class T> string toValueString(const T& data);
+
+/// Convert the given value string to a data value of the given type.
+/// @throws Exception if the string cannot be converted to the given type.
+template <class T> T fromValueString(const string& value);
 
 } // namespace MaterialX
 
