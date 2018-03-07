@@ -1,4 +1,4 @@
-void mx_geomattrvalue_float(string attrname, output float out)
+void mx_geomattrvalue_float(string attrname, output float result)
 {
-    getattribute(attrname, out);
+    getattribute(attrname, result);
 }

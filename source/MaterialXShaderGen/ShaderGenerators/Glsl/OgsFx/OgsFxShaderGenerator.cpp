@@ -115,7 +115,7 @@ const string OgsFxShaderGenerator::TARGET = "ogsfx";
 OgsFxShaderGenerator::OgsFxShaderGenerator()
     : GlslShaderGenerator()
 {
-    _syntax = std::make_shared<OgsFxSyntax>();
+    _syntax = OgsFxSyntax::creator();
 }
 
 ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr element)

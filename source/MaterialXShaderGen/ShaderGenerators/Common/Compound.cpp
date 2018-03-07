@@ -100,14 +100,21 @@ void Compound::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shade
     for (SgOutputSocket* outputSocket : _rootGraph->getOutputSockets())
     {
         const string outputVariable = syntax->getVariableName(outputSocket);
-        string finalResult = syntax->getVariableName(outputSocket->connection);
 
-        if (outputSocket->channels != EMPTY_STRING)
+        // Check for the rare case where the output is not internally connected
+        if (!outputSocket->connection)
         {
-            finalResult = syntax->getSwizzledVariable(finalResult, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
+            shader.addLine(outputVariable + " = " + (outputSocket->value ? syntax->getValue(*outputSocket->value) : syntax->getTypeDefault(outputSocket->type)));
         }
-
-        shader.addLine(outputVariable + " = " + finalResult);
+        else
+        {
+            string finalResult = syntax->getVariableName(outputSocket->connection);
+            if (outputSocket->channels != EMPTY_STRING)
+            {
+                finalResult = syntax->getSwizzledVariable(finalResult, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
+            }
+            shader.addLine(outputVariable + " = " + finalResult);
+        }
     }
 
     shader.endScope();

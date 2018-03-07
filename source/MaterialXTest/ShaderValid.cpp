@@ -40,11 +40,12 @@ TEST_CASE("GLSL Validation from Source", "[shadervalid]")
     }
     REQUIRE(initialized);
 
-    std::vector<std::string> shaderNames =
+    const std::vector<std::string> shaderNames =
     {
-        "conditional_test1",
-        "simple_test1_graphoutput",
-        "simple_test1_node",
+        "conditionals",
+        "hello_world_graph",
+        "hello_world_node",
+        "hello_world_shaderref",
         "geometric_nodes",
         "subgraph_ex1",
         //"subgraph_ex2" -- cannot validate as lighting information isn't complete yet.

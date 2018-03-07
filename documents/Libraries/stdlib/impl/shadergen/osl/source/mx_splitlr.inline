@@ -1,0 +1,1 @@
+mix({{valuel}}, {{valuer}}, aastep({{center}}, {{texcoord}}.x))

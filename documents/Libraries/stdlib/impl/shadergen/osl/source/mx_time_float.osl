@@ -1,0 +1,4 @@
+void mx_time_float(output float result)
+{
+    getattribute("time", result);
+}
