@@ -7,6 +7,8 @@
 
 #include <MaterialXCore/Types.h>
 
+#include <MaterialXCore/Value.h>
+
 #include <sstream>
 
 namespace py = pybind11;
@@ -31,13 +33,7 @@ void bindPyTypes(py::module& mod)
         .def("__setitem__", [](mx::Vector2& vec, size_t i, float value) { vec[i] = value; } )
         .def("__iter__", [](const mx::Vector2& vec) { return py::make_iterator(vec.data.begin(), vec.data.end()); },
             py::keep_alive<0, 1>())
-        .def("__str__", [](const mx::Vector2 &vec)
-            {
-                std::ostringstream output;
-                output << vec;
-                return output.str();
-            }
-        )
+        .def("__str__", [](const mx::Vector2& vec) { return mx::toValueString(vec); })
         .def_static("__len__", &mx::Vector2::length);
 
     py::class_<mx::Vector3, mx::VectorBase>(mod, "Vector3")
@@ -55,13 +51,7 @@ void bindPyTypes(py::module& mod)
         .def("__setitem__", [](mx::Vector3& vec, size_t i, float value) { vec[i] = value; } )
         .def("__iter__", [](const mx::Vector3& vec) { return py::make_iterator(vec.data.begin(), vec.data.end()); },
             py::keep_alive<0, 1>())
-        .def("__str__", [](const mx::Vector3 &vec)
-            {
-                std::ostringstream output;
-                output << vec;
-                return output.str();
-            }
-        )
+        .def("__str__", [](const mx::Vector3& vec) { return mx::toValueString(vec); })
         .def_static("__len__", &mx::Vector3::length);
 
     py::class_<mx::Vector4, mx::VectorBase>(mod, "Vector4")
@@ -79,13 +69,7 @@ void bindPyTypes(py::module& mod)
         .def("__setitem__", [](mx::Vector4& vec, size_t i, float value) { vec[i] = value; } )
         .def("__iter__", [](const mx::Vector4& vec) { return py::make_iterator(vec.data.begin(), vec.data.end()); },
             py::keep_alive<0, 1>())
-        .def("__str__", [](const mx::Vector4 &vec)
-            {
-                std::ostringstream output;
-                output << vec;
-                return output.str();
-            }
-        )
+        .def("__str__", [](const mx::Vector4& vec) { return mx::toValueString(vec); })
         .def_static("__len__", &mx::Vector4::length);
 
     py::class_<mx::Matrix3x3, mx::VectorBase>(mod, "Matrix3x3")
@@ -101,13 +85,7 @@ void bindPyTypes(py::module& mod)
         .def("__setitem__", [](mx::Matrix3x3& vec, size_t i, float value) { vec[i] = value; } )
         .def("__iter__", [](const mx::Matrix3x3& vec) { return py::make_iterator(vec.data.begin(), vec.data.end()); },
             py::keep_alive<0, 1>())
-        .def("__str__", [](const mx::Matrix3x3 &vec)
-            {
-                std::ostringstream output;
-                output << vec;
-                return output.str();
-            }
-        )
+        .def("__str__", [](const mx::Matrix3x3& vec) { return mx::toValueString(vec); })
         .def_static("__len__", &mx::Matrix3x3::length);
 
     py::class_<mx::Matrix4x4, mx::VectorBase>(mod, "Matrix4x4")
@@ -123,13 +101,7 @@ void bindPyTypes(py::module& mod)
         .def("__setitem__", [](mx::Matrix4x4& vec, size_t i, float value) { vec[i] = value; } )
         .def("__iter__", [](const mx::Matrix4x4& vec) { return py::make_iterator(vec.data.begin(), vec.data.end()); },
             py::keep_alive<0, 1>())
-        .def("__str__", [](const mx::Matrix4x4 &vec)
-            {
-                std::ostringstream output;
-                output << vec;
-                return output.str();
-            }
-        )
+        .def("__str__", [](const mx::Matrix4x4& vec) { return mx::toValueString(vec); })
         .def_static("__len__", &mx::Matrix4x4::length);
 
     py::class_<mx::Color2, mx::Vector2>(mod, "Color2")
