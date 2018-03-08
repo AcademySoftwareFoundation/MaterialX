@@ -55,7 +55,9 @@ TEST_CASE("Look", "[look]")
 
     // Create a visibility element.
     mx::VisibilityPtr visibility = look->addVisibility();
-    REQUIRE(look->getVisibilities().size() == 1);
+    REQUIRE(visibility->getVisible() == false);
+    visibility->setVisible(true);
+    REQUIRE(visibility->getVisible() == true);
     visibility->setGeom("/robot2");
     REQUIRE(visibility->getGeom() == "/robot2");
     visibility->setCollection(collection);
