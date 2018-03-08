@@ -38,7 +38,9 @@ class Value
         return std::make_shared< TypedValue<T> >(data);
     }
 
-    /// Create a new value from value and type strings.
+    /// Create a new value from value and type strings.  If the given
+    /// conversion cannot be performed, then the zero value for the given
+    /// data type is returned.
     static ValuePtr createValueFromStrings(const string& value, const string& type);
 
     /// Create a deep copy of the value.
@@ -120,7 +122,9 @@ template <class T> class TypedValue : public Value
     // Static helper methods
     //
 
-    /// Create a new value of this type from a value string.
+    /// Create a new value of this type from a value string.  If the given
+    /// conversion cannot be performed, then the zero value for the given
+    /// data type is returned.
     static ValuePtr createFromString(const string& value);
 
   public:
@@ -133,11 +137,14 @@ template <class T> class TypedValue : public Value
 /// Return the type string associated with the given data type.
 template<class T> const string& getTypeString();
 
-/// Return the value string associated with the given data value.
+/// Convert the given data value to a value string.
 template <class T> string toValueString(const T& data);
 
 /// Convert the given value string to a data value of the given type.
-/// @throws Exception if the string cannot be converted to the given type.
+///
+/// @param value The value string to be converted.
+/// @return A data value of the given type.  If the given conversion cannot
+///    be performed, then the zero value for the given data type is returned.
 template <class T> T fromValueString(const string& value);
 
 } // namespace MaterialX
