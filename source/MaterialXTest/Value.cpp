@@ -54,10 +54,10 @@ TEST_CASE("Value strings", "[value]")
     REQUIRE(mx::fromValueString<bool>("true") == true);
     REQUIRE(mx::fromValueString<bool>("false") == false);
     REQUIRE(mx::fromValueString<std::string>("1") == "1");
-    REQUIRE_THROWS_AS(mx::fromValueString<mx::Color3>("1"), mx::Exception);
+    REQUIRE(mx::fromValueString<mx::Color3>("1") == mx::Color3(0.0f));
 
     REQUIRE(mx::fromValueString<std::string>("text") == "text");
-    REQUIRE_THROWS_AS(mx::fromValueString<int>("text"), mx::Exception);
+    REQUIRE(mx::fromValueString<int>("text") == 0);
 }
 
 TEST_CASE("Typed values", "[value]")
