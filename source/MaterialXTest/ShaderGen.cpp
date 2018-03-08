@@ -894,12 +894,12 @@ TEST_CASE("BSDF Layering", "[shadergen]")
     sss_color->setPublicName("sss_color");
     sss_color->setValueString("0.1, 0.1, 0.8");
 
-    // Layer diffuse over sss
-    mx::NodePtr substrate = nodeGraph->addNode("layeredbsdf", "substrate", "BSDF");
+    // Mix diffuse over sss
+    mx::NodePtr substrate = nodeGraph->addNode("mixbsdf", "substrate", "BSDF");
     mx::NodePtr substrate_weight_inv = nodeGraph->addNode("invert", "substrate_weight_inv", "float");
-    substrate->setConnectedNode("top", diffuse);
-    substrate->setConnectedNode("base", sss);
-    substrate->setConnectedNode("weight", substrate_weight_inv);
+    substrate->setConnectedNode("fg", diffuse);
+    substrate->setConnectedNode("bg", sss);
+    substrate->setConnectedNode("mask", substrate_weight_inv);
     mx::InputPtr sss_weight = substrate_weight_inv->addInput("in", "float");
     sss_weight->setPublicName("sss_weight");
     sss_weight->setValueString("0.5");
