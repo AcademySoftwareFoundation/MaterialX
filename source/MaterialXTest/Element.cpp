@@ -30,6 +30,16 @@ TEST_CASE("Element", "[element]")
     REQUIRE(elem1->getActiveFilePrefix() == doc->getFilePrefix());
     REQUIRE(elem2->getActiveColorSpace() == doc->getColorSpace());
 
+    // Set typed attributes.
+    REQUIRE(elem1->getTypedAttribute<bool>("customFlag") == false);
+    REQUIRE(elem1->getTypedAttribute<mx::Color3>("customColor") == mx::Color3(0.0f));
+    elem1->setTypedAttribute<bool>("customFlag", true);
+    elem1->setTypedAttribute<mx::Color3>("customColor", mx::Color3(1.0f));
+    REQUIRE(elem1->getTypedAttribute<bool>("customFlag") == true);
+    REQUIRE(elem1->getTypedAttribute<mx::Color3>("customColor") == mx::Color3(1.0f));
+    REQUIRE(elem1->getTypedAttribute<bool>("customColor") == false);
+    REQUIRE(elem1->getTypedAttribute<mx::Color3>("customFlag") == mx::Color3(0.0f));
+
     // Modify element names.
     elem1->setName("elem1");
     elem2->setName("elem2");

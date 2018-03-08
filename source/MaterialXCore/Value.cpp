@@ -155,7 +155,7 @@ template <> bool fromValueString(const string& value)
         return true;
     if (value == VALUE_STRING_FALSE)
         return false;
-    throw Exception("Type mismatch in boolean fromValueString: " + value);
+    return {};
 }
 
 template <> string fromValueString(const string& value)
@@ -169,7 +169,7 @@ template <class T> T fromValueString(const string& value)
     T data;
     if (ss >> data)
         return data;
-    throw Exception("Type mismatch in fromValueString: " + value);
+    return {};
 }
 
 //
