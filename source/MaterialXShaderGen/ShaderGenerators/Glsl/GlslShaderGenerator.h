@@ -63,6 +63,7 @@ class GlslShaderGenerator : public HwShaderGenerator
 public:
     enum class BsdfDir
     {
+        NORMAL_DIR,
         LIGHT_DIR,
         VIEW_DIR,
         REFL_DIR
@@ -98,6 +99,12 @@ public:
     /// Emit the final output expression
     void emitFinalOutput(Shader& shader) const override;
 
+    /// Get the variable name to use for an input
+    string getVariableName(const SgInput* input) const override;
+
+    /// Get the variable name to use for an output
+    string getVariableName(const SgOutput* output) const override;
+
     /// Query the shader generator if it wants to publish a given port as a
     /// shader uniform. Return the publicName to use if it should be published.
     bool shouldPublish(const ValueElement* port, string& publicName) const override;
@@ -108,13 +115,15 @@ public:
     /// Emit code for all texturing nodes.
     virtual void emitTextureNodes(Shader& shader);
 
-    /// Emit code for calculating the BSDF response given the incident and outgoing light directions.
-    /// The output bsdf will hold the variable name keeping the result.
-    virtual void emitSurfaceBsdf(const SgNode& surfaceShaderNode, BsdfDir wi, BsdfDir wo, Shader& shader, string& bsdf);
+    /// Emit code for calculating BSDF response for a shader, 
+    /// given the incident and outgoing light directions.
+    /// The output 'bsdf' will hold the variable name keeping the result.
+    virtual void emitBsdfNodes(const SgNode& shaderNode, const string& incident, const string& outgoing, Shader& shader, string& bsdf);
 
-    /// Emit code for calculating the emission
-    /// The output emission will hold the variable keeping the result.
-    virtual void emitSurfaceEmission(const SgNode& surfaceShaderNode, Shader& shader, string& emission);
+    /// Emit code for calculating emission for a surface or light shader,
+    /// given the orientation of the EDF and the evaluation direction.
+    /// The output 'edf' will hold the variable keeping the result.
+    virtual void emitEdfNodes(const SgNode& shaderNode, const string& normal, const string& eval, Shader& shader, string& edf);
 
     /// Unique identifyer for the glsl language
     static const string LANGUAGE;
@@ -125,10 +134,24 @@ public:
     /// Version string for the generator target
     static const string VERSION;
 
+    /// String constants for direction vectors
+    static const string LIGHT_DIR;
+    static const string VIEW_DIR;
+
 protected:
+    /// Override the compound implementation creator in order to handle light compounds.
+    SgImplementationPtr createCompoundImplementation(NodeGraphPtr impl) override;
+
     static void toVec4(const string& type, string& variable);
 
     Arguments _bsdfNodeArguments;
+    Arguments _edfNodeArguments;
+
+    /// Internal string constants
+    static const string INCIDENT;
+    static const string OUTGOING;
+    static const string NORMAL;
+    static const string EVAL;
 };
 
 

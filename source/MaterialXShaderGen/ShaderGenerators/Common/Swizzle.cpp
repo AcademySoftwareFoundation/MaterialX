@@ -28,7 +28,7 @@ void Swizzle::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, S
 
     if (in->connection)
     {
-        variableName = syntax->getVariableName(in->connection);
+        variableName = shadergen.getVariableName(in->connection);
         if (!swizzle.empty())
         {
             variableName = syntax->getSwizzledVariable(variableName, node.getOutput()->type, in->connection->type, swizzle);
@@ -41,7 +41,7 @@ void Swizzle::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, S
             throw ExceptionShaderGenError("No connection or value found to swizzle on node '" + node.getName() + "'");
         }
 
-        variableName = syntax->getVariableName(in);
+        variableName = shadergen.getVariableName(in);
 
         shader.beginLine();
         shader.addStr(syntax->getTypeName(in->type) + " " + variableName);

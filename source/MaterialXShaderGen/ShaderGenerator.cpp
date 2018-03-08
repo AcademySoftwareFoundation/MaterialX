@@ -75,7 +75,7 @@ void ShaderGenerator::emitFinalOutput(Shader& shader) const
 {
     SgNodeGraph* graph = shader.getNodeGraph();
     const SgOutputSocket* outputSocket = graph->getOutputSocket();
-    const string outputVariable = _syntax->getVariableName(outputSocket);
+    const string outputVariable = getVariableName(outputSocket);
 
     if (!outputSocket->connection)
     {
@@ -84,7 +84,7 @@ void ShaderGenerator::emitFinalOutput(Shader& shader) const
         return;
     }
 
-    string finalResult = _syntax->getVariableName(outputSocket->connection);
+    string finalResult = getVariableName(outputSocket->connection);
     if (outputSocket->channels != EMPTY_STRING)
     {
         finalResult = _syntax->getSwizzledVariable(finalResult, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
@@ -103,18 +103,16 @@ void ShaderGenerator::emitInput(const SgInput* input, Shader &shader) const
 {
     if (input->connection)
     {
-        string name = _syntax->getVariableName(input->connection);
+        string name = getVariableName(input->connection);
+
         if (input->channels != EMPTY_STRING)
         {
             name = _syntax->getSwizzledVariable(name, input->type, input->connection->type, input->channels);
         }
 
         shader.addStr(name);
-
-        return;
     }
-
-    if (input->value)
+    else if (input->value)
     {
         shader.addStr(_syntax->getValue(*input->value));
     }
@@ -131,7 +129,19 @@ void ShaderGenerator::emitOutput(const SgOutput* output, bool includeType, Shade
     {
         typeStr = _syntax->getTypeName(output->type) + " ";
     }
-    shader.addStr(typeStr + _syntax->getVariableName(output));
+    shader.addStr(typeStr + getVariableName(output));
+}
+
+string ShaderGenerator::getVariableName(const SgInput* input) const
+{
+    // TODO: Improve this to make sure we never get name collisions
+    return input->node->getName() + "_" + input->name;
+}
+
+string ShaderGenerator::getVariableName(const SgOutput* output) const
+{
+    // TODO: Improve this to make sure we never get name collisions
+    return output->node->getName() + "_" + output->name;
 }
 
 bool ShaderGenerator::shouldPublish(const ValueElement* port, string& publicName) const
@@ -171,8 +181,8 @@ SgImplementationPtr ShaderGenerator::getImplementation(InterfaceElementPtr eleme
     SgImplementationPtr impl;
     if (element->isA<NodeGraph>())
     {
-        // Use the graph based compound implementation
-        impl = Compound::creator();
+        // Use a compound implementation
+        impl = createCompoundImplementation(element->asA<NodeGraph>());
     }
     else if (element->isA<Implementation>())
     {
@@ -180,8 +190,8 @@ SgImplementationPtr ShaderGenerator::getImplementation(InterfaceElementPtr eleme
         impl = _implFactory.create(name);
         if (!impl)
         {
-            // Fall back to the data driven source code implementation
-            impl = SourceCode::creator();
+            // Fall back to the default implementation
+            impl = createDefaultImplementation(element->asA<Implementation>());
         }
     }
     else
@@ -204,6 +214,20 @@ void ShaderGenerator::registerSourceCodeSearchPath(const FilePath& path)
 FilePath ShaderGenerator::findSourceCode(const FilePath& filename)
 {
     return _sourceCodeSearchPath.find(filename);
+}
+
+SgImplementationPtr ShaderGenerator::createDefaultImplementation(ImplementationPtr impl)
+{
+    // The data driven source code implementation
+    // is the implementation to use by default
+    return SourceCode::creator();
+}
+
+SgImplementationPtr ShaderGenerator::createCompoundImplementation(NodeGraphPtr impl)
+{
+    // The standard compound implementation
+    // is the compound implementation to us by default
+    return Compound::creator();
 }
 
 }

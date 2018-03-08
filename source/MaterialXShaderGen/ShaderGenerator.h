@@ -60,6 +60,12 @@ public:
     /// Emit the output variable name for an output, optionally including it's type
     virtual void emitOutput(const SgOutput* output, bool includeType, Shader& shader) const;
 
+    /// Get the variable name to use for an input
+    virtual string getVariableName(const SgInput* input) const;
+
+    /// Get the variable name to use for an output
+    virtual string getVariableName(const SgOutput* output) const;
+
     /// Query the shader generator if it wants to publish a given port as a
     /// shader uniform. Return the publicName to use if it should be published.
     virtual bool shouldPublish(const ValueElement* port, string& publicName) const;
@@ -105,6 +111,16 @@ public:
 protected:
     /// Protected constructor
     ShaderGenerator(SyntaxPtr syntax);
+
+    /// Create a default implementation which is the implementation class to use 
+    /// for nodes that has no specific implementation registered for it.
+    /// Derived classes can override this to use custom default implementations.
+    virtual SgImplementationPtr createDefaultImplementation(ImplementationPtr impl);
+
+    /// Create a compound implementation which is the implementation class to use
+    /// for nodes using a nodegraph as their implementation.
+    /// Derived classes can override this to use custom compound implementations.
+    virtual SgImplementationPtr createCompoundImplementation(NodeGraphPtr impl);
 
     SyntaxPtr _syntax;
     Factory<SgImplementation> _implFactory;

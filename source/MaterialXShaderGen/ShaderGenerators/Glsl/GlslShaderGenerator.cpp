@@ -12,6 +12,8 @@
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/AdskSurfaceGlsl.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/SurfaceGlsl.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/LightGlsl.h>
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/LightCompoundGlsl.h>
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/LightShaderGlsl.h>
 #include <MaterialXShaderGen/ShaderGenerators/Common/SourceCode.h>
 #include <MaterialXShaderGen/ShaderGenerators/Common/Swizzle.h>
 #include <MaterialXShaderGen/ShaderGenerators/Common/Switch.h>
@@ -34,25 +36,34 @@ namespace
         "{\n"
         "   result = texcoord;\n"
         "}\n\n";
-
-    // Arguments used to represent BSDF direction vectors
-    Arguments BSDF_DIR_ARGUMENTS =
-    {
-        Argument("vec3", "L"), // BsdfDir::LIGHT_DIR
-        Argument("vec3", "V"), // BsdfDir::VIEW_DIR
-        Argument("vec3", "R")  // BsdfDir::REFL_DIR
-    };
 }
-
 
 const string GlslShaderGenerator::LANGUAGE = "glsl";
 const string GlslShaderGenerator::TARGET = "glsl_v4.0";
 const string GlslShaderGenerator::VERSION = "400";
+const string GlslShaderGenerator::LIGHT_DIR = "L";
+const string GlslShaderGenerator::VIEW_DIR = "V";
+const string GlslShaderGenerator::INCIDENT = "incident";
+const string GlslShaderGenerator::OUTGOING = "outgoing";
+const string GlslShaderGenerator::NORMAL = "normal";
+const string GlslShaderGenerator::EVAL = "eval";
 
 GlslShaderGenerator::GlslShaderGenerator()
     : HwShaderGenerator(GlslSyntax::creator())
 {
-    _bsdfNodeArguments.resize(2);
+    // Direction vector argument for bsdf nodes
+    _bsdfNodeArguments = 
+    { 
+        Argument("vec3", INCIDENT),
+        Argument("vec3", OUTGOING)
+    };
+
+    // Direction vector argument for edf nodes
+    _edfNodeArguments =
+    {
+        Argument("vec3", NORMAL),
+        Argument("vec3", EVAL)
+    };
 
     // <!-- <compare> -->
     registerImplementation("IM_compare__float__glsl", Compare::creator);
@@ -166,11 +177,13 @@ GlslShaderGenerator::GlslShaderGenerator()
     registerImplementation("IM_adskSurface__glsl", AdskSurfaceGlsl::creator);
     // <!-- <surface> -->
     registerImplementation("IM_surface__glsl", SurfaceGlsl::creator);
+    // <!-- <light> -->
+    registerImplementation("IM_light__glsl", LightGlsl::creator);
 
     // <!-- <pointlight> -->
-    registerImplementation("IM_pointlight__glsl", LightGlsl::creator);
+    registerImplementation("IM_pointlight__glsl", LightShaderGlsl::creator);
     // <!-- <directionallight> -->
-    registerImplementation("IM_directionallight__glsl", LightGlsl::creator);
+    registerImplementation("IM_directionallight__glsl", LightShaderGlsl::creator);
 }
 
 ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr element)
@@ -335,7 +348,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     // and upstream connection will be converted to vec4 if needed in emitFinalOutput()
     shader.addComment("Data output by the pixel shader");
     const SgOutputSocket* outputSocket = shader.getNodeGraph()->getOutputSocket();
-    const string variable = _syntax->getVariableName(outputSocket);
+    const string variable = getVariableName(outputSocket);
     shader.addLine("out vec4 " + variable);
     shader.newLine();
 
@@ -360,8 +373,12 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
 void GlslShaderGenerator::emitFunctionDefinitions(Shader& shader)
 {
     // Set BSDF node arguments to the variables used for BSDF direction vectors
-    _bsdfNodeArguments[0] = Argument("vec3", "wi");
-    _bsdfNodeArguments[1] = Argument("vec3", "wo");
+    _bsdfNodeArguments[0].second = INCIDENT;
+    _bsdfNodeArguments[1].second = OUTGOING;
+
+    // Set EDF node arguments to the variables used for orientation and evaluation
+    _edfNodeArguments[0].second = NORMAL;
+    _edfNodeArguments[1].second = EVAL;
 
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
@@ -426,7 +443,6 @@ void GlslShaderGenerator::emitFunctionCalls(Shader &shader)
             // Handle all texturing nodes. These are inputs to any
             // closure/shader nodes and need to be emitted first.
             emitTextureNodes(shader);
-            shader.newLine();
 
             // Emit function calls for all surface shader nodes
             for (SgNode* node : shader.getNodeGraph()->getNodes())
@@ -448,7 +464,7 @@ void GlslShaderGenerator::emitFunctionCalls(Shader &shader)
 void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
 {
     const SgOutputSocket* outputSocket = shader.getNodeGraph()->getOutputSocket();
-    const string& outputVariable = _syntax->getVariableName(outputSocket);
+    const string& outputVariable = getVariableName(outputSocket);
 
     // Early out for the rare case where the whole graph is just a single value
     if (!outputSocket->connection)
@@ -468,7 +484,7 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
         return;
     }
 
-    string finalOutput = _syntax->getVariableName(outputSocket->connection);
+    string finalOutput = getVariableName(outputSocket->connection);
 
     if (shader.hasClassification(SgNode::Classification::SURFACE))
     {
@@ -488,6 +504,23 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
         }
         shader.addLine(outputVariable + " = " + finalOutput);
     }
+}
+
+string GlslShaderGenerator::getVariableName(const SgInput* input) const
+{
+    return ShaderGenerator::getVariableName(input);
+}
+
+string GlslShaderGenerator::getVariableName(const SgOutput* output) const
+{
+    // If this is an interface socket on a light compound we must 
+    // override the name and prepend the light struct instance name
+    // since all light inputs are members of a struct
+    if (output->published && output->node->hasClassification(SgNode::Classification::LIGHT))
+    {
+        return "light." + output->name;
+    }
+    return ShaderGenerator::getVariableName(output);
 }
 
 bool GlslShaderGenerator::shouldPublish(const ValueElement* port, string& publicName) const
@@ -513,20 +546,27 @@ bool GlslShaderGenerator::shouldPublish(const ValueElement* port, string& public
 void GlslShaderGenerator::emitTextureNodes(Shader& shader)
 {
     // Emit function calls for all texturing nodes
+    bool found = false;
     for (SgNode* node : shader.getNodeGraph()->getNodes())
     {
         if (node->hasClassification(SgNode::Classification::TEXTURE) && !node->referencedConditionally())
         {
             shader.addFunctionCall(node, *this);
+            found = true;
         }
+    }
+
+    if (found)
+    {
+        shader.newLine();
     }
 }
 
-void GlslShaderGenerator::emitSurfaceBsdf(const SgNode& surfaceShaderNode, BsdfDir wi, BsdfDir wo, Shader& shader, string& bsdf)
+void GlslShaderGenerator::emitBsdfNodes(const SgNode& shaderNode, const string& incident, const string& outgoing, Shader& shader, string& bsdf)
 {
     // Set BSDF node arguments according to the given directions
-    _bsdfNodeArguments[0] = BSDF_DIR_ARGUMENTS[size_t(wi)];
-    _bsdfNodeArguments[1] = BSDF_DIR_ARGUMENTS[size_t(wo)];
+    _bsdfNodeArguments[0].second = incident;
+    _bsdfNodeArguments[1].second = outgoing;
 
     SgNode* last = nullptr;
 
@@ -534,7 +574,7 @@ void GlslShaderGenerator::emitSurfaceBsdf(const SgNode& surfaceShaderNode, BsdfD
     // The last node will hold the final result
     for (SgNode* node : shader.getNodeGraph()->getNodes())
     {
-        if (node->hasClassification(SgNode::Classification::BSDF) && surfaceShaderNode.isUsedClosure(node))
+        if (node->hasClassification(SgNode::Classification::BSDF) && shaderNode.isUsedClosure(node))
         {
             shader.addFunctionCall(node, *this);
             last = node;
@@ -543,13 +583,17 @@ void GlslShaderGenerator::emitSurfaceBsdf(const SgNode& surfaceShaderNode, BsdfD
 
     if (last)
     {
-        bsdf = _syntax->getVariableName(last->getOutput());
+        bsdf = getVariableName(last->getOutput());
     }
 }
 
-void GlslShaderGenerator::emitSurfaceEmission(const SgNode& surfaceShaderNode, Shader& shader, string& emission)
+void GlslShaderGenerator::emitEdfNodes(const SgNode& shaderNode, const string& normal, const string& eval, Shader& shader, string& edf)
 {
-    emission = "vec3(0.0)";
+    // Set EDF node arguments according to the given directions
+    _edfNodeArguments[0].second = normal;
+    _edfNodeArguments[1].second = eval;
+
+    edf = "vec3(0.0)";
 
     SgNode* last = nullptr;
 
@@ -557,7 +601,7 @@ void GlslShaderGenerator::emitSurfaceEmission(const SgNode& surfaceShaderNode, S
     // The last node will hold the final result
     for (SgNode* node : shader.getNodeGraph()->getNodes())
     {
-        if (node->hasClassification(SgNode::Classification::EDF) && surfaceShaderNode.isUsedClosure(node))
+        if (node->hasClassification(SgNode::Classification::EDF) && shaderNode.isUsedClosure(node))
         {
             shader.addFunctionCall(node, *this);
             last = node;
@@ -566,13 +610,21 @@ void GlslShaderGenerator::emitSurfaceEmission(const SgNode& surfaceShaderNode, S
 
     if (last)
     {
-        emission = _syntax->getVariableName(last->getOutput());
+        edf = getVariableName(last->getOutput());
     }
 }
 
 const Arguments* GlslShaderGenerator::getExtraArguments(const SgNode& node) const
 {
-    return node.hasClassification(SgNode::Classification::BSDF) ? &_bsdfNodeArguments : nullptr;
+    if (node.hasClassification(SgNode::Classification::BSDF))
+    {
+        return &_bsdfNodeArguments;
+    }
+    else if (node.hasClassification(SgNode::Classification::EDF))
+    {
+        return &_edfNodeArguments;
+    }
+    return nullptr;
 }
 
 void GlslShaderGenerator::toVec4(const string& type, string& variable)
@@ -615,6 +667,20 @@ void GlslShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& s
             line += " = " + _syntax->getTypeDefault(uniform.type, true);
         shader.addLine(line);
     }
+}
+
+SgImplementationPtr GlslShaderGenerator::createCompoundImplementation(NodeGraphPtr impl)
+{
+    NodeDefPtr nodeDef = impl->getNodeDef();
+    if (!nodeDef)
+    {
+        throw ExceptionShaderGenError("Error creating compound implementation. Given nodegraph '" + impl->getName() + "' has no nodedef set");
+    }
+    if (nodeDef->getType() == DataType::LIGHT)
+    {
+        return LightCompoundGlsl::creator();
+    }
+    return ShaderGenerator::createCompoundImplementation(impl);
 }
 
 

@@ -125,11 +125,11 @@
     <invert name="subsurface_weight_inv" type="float">
       <input name="in" type="float" interfacename="subsurface_weight" value="0.5" />
     </invert>
-    <layeredbsdf name="layer1" type="BSDF">
-      <input name="top" type="BSDF" nodename="diffuse" />
-      <input name="base" type="BSDF" nodename="subsurface" />
-      <input name="weight" type="float" nodename="subsurface_weight_inv" />
-    </layeredbsdf>
+    <mixbsdf name="layer1" type="BSDF">
+      <input name="fg" type="BSDF" nodename="diffuse" />
+      <input name="bg" type="BSDF" nodename="subsurface" />
+      <input name="mask" type="float" nodename="subsurface_weight_inv" />
+    </mixbsdf>
     <output name="out" type="BSDF" nodename="layer1" />
   </nodegraph>
 

@@ -217,7 +217,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     // and upstream connection will be converted to vec4 if needed in emitFinalOutput()
     shader.addComment("Data output by the pixel shader");
     const SgOutputSocket* outputSocket = shader.getNodeGraph()->getOutputSocket();
-    const string variable = _syntax->getVariableName(outputSocket);
+    const string variable = getVariableName(outputSocket);
     shader.addLine("attribute PixelOutput", false);
     shader.beginScope(Shader::Brackets::BRACES);
     shader.addLine("vec4 " + variable);

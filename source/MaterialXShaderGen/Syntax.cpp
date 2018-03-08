@@ -94,16 +94,6 @@ namespace MaterialX
         return EMPTY_STRING;
     }
 
-    string Syntax::getVariableName(const SgInput* input) const
-    {
-        return input->node->getName() + "_" + input->name;
-    }
-
-    string Syntax::getVariableName(const SgOutput* output) const
-    {
-        return output->node->getName() + "_" + output->name;
-    }
-
     string Syntax::getSwizzledVariable(const string& name, const string& type, const string& fromType, const string& channels) const
     {
         // Get vector component syntax for the from type, if this is a vector type

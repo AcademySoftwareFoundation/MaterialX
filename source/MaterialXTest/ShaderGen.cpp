@@ -127,20 +127,71 @@ bool requiresImplementation(const mx::NodeDefPtr nodeDef)
 enum LightTypes
 {
     DIRECTIONAL_LIGHT,
-    POINT_LIGHT
+    POINT_LIGHT,
+    LIGHT_COMPOUND
 };
 
 // Light shader nodes to bind to each light type.
 const std::vector<std::pair<int, std::string>> LIGHT_SHADERS =
 {
     { DIRECTIONAL_LIGHT, "ND_directionallight" },
-    { POINT_LIGHT, "ND_pointlight" }
+    { POINT_LIGHT, "ND_pointlight" },
+    { LIGHT_COMPOUND, "ND_lightcompound" }
 };
+
+void createLightCompoundExample(mx::DocumentPtr document)
+{
+    const std::string nodeName = "lightcompound";
+    const std::string nodeDefName = "ND_" + nodeName;
+
+    // Make sure it doesn't exists already
+    if (!document->getNodeDef(nodeDefName))
+    {
+        // Create an interface for the light with color and intensity
+        mx::NodeDefPtr nodeDef = document->addNodeDef(nodeDefName, "lightshader", nodeName);
+        nodeDef->addInput("color", "color3");
+        nodeDef->addInput("intensity", "float");
+
+        // Create a graph implementing the light using EDF's
+        mx::NodeGraphPtr nodeGraph = document->addNodeGraph("IMP_" + nodeName);
+        mx::OutputPtr output = nodeGraph->addOutput("out", "lightshader");
+
+        // Add EDF node and connect the EDF's intensity to the 'color' input
+        mx::NodePtr edf = nodeGraph->addNode("uniformedf", "edf1", "EDF");
+        mx::InputPtr edf_intensity = edf->addInput("intensity", "color3");
+        edf_intensity->setInterfaceName("color");
+
+        // Add the light constructor node connect it's intensity to the 'intensity' input
+        mx::NodePtr light = nodeGraph->addNode("light", "light1", "lightshader");
+        mx::InputPtr light_intensity = light->addInput("intensity", "float");
+        light_intensity->setInterfaceName("intensity");
+
+        // Connect the EDF to the light construstor
+        light->setConnectedNode("edf", edf);
+
+        // Add a ramp and connect to exposure on the light constructor
+        mx::NodePtr ramplr = nodeGraph->addNode("ramplr", "ramplr1", "float");
+        ramplr->setParameterValue("valuel", 1.0f);
+        ramplr->setParameterValue("valuer", 3.0f);
+        mx::InputPtr light_exposure = light->addInput("exposure", "float");
+        light_exposure->setConnectedNode(ramplr);
+
+        // Connect the light to the graph output
+        output->setConnectedNode(light);
+
+        // Make this graph become the implementation of our nodedef
+        nodeGraph->setAttribute("nodedef", nodeDef->getName());
+    }
+}
 
 // Bind the supported light types to corresponding light shaders
 // for the given shader generator.
 void bindLightShaders(mx::DocumentPtr document, mx::HwShaderGenerator& shadergen)
 {
+    // Create the light compound example
+    createLightCompoundExample(document);
+
+    // Bind the light shaders
     for (auto lightShader : LIGHT_SHADERS)
     {
         mx::NodeDefPtr nodeDef = document->getNodeDef(lightShader.second);

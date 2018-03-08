@@ -1,17 +1,20 @@
-#ifndef MATERIALX_COMPOUND_H
-#define MATERIALX_COMPOUND_H
+#ifndef MATERIALX_LIGHTCOMPOUNDGLSL_H
+#define MATERIALX_LIGHTCOMPOUNDGLSL_H
 
-#include <MaterialXShaderGen/SgImplementation.h>
-#include <MaterialXShaderGen/SgNode.h>
+#include <MaterialXShaderGen/ShaderGenerators/Common/Compound.h>
 #include <MaterialXShaderGen/Shader.h>
 
 namespace MaterialX
 {
 
-class Compound : public SgImplementation
+/// Implementation of 'light' node for GLSL
+class LightCompoundGlsl : public Compound
 {
 public:
     static SgImplementationPtr creator();
+
+    const string& getLanguage() const override;
+    const string& getTarget() const override;
 
     void initialize(ElementPtr implementation, ShaderGenerator& shadergen) override;
 
@@ -21,11 +24,8 @@ public:
 
     void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 
-    SgNodeGraph* getNodeGraph() const override { return _rootGraph.get(); }
-
 protected:
-    SgNodeGraphPtr _rootGraph;
-    string _functionName;
+    vector<Shader::Variable> _lightUniforms;
 };
 
 } // namespace MaterialX
