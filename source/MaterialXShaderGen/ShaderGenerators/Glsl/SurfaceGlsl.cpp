@@ -25,15 +25,18 @@ SgImplementationPtr SurfaceGlsl::creator()
 void SurfaceGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     // TODO: 
-    // The surface shader needs position, view and light sources. We should solve this by adding some 
-    // dependency mechanism so this implementation can be set to depend on the PositionGlsl,  
+    // The surface shader needs position, normal, view and light sources. We should solve this by adding some 
+    // dependency mechanism so this implementation can be set to depend on the PositionGlsl, NormalGlsl
     // ViewDirectionGlsl and LightGlsl nodes instead? This is where the MaterialX attribute "internalgeomprops" 
     // is needed.
     //
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     shader.createAppData(DataType::VECTOR3, "i_position");
+    shader.createAppData(DataType::VECTOR3, "i_normal");
     shader.createVertexData(DataType::VECTOR3, "positionWorld");
+    shader.createVertexData(DataType::VECTOR3, "normalWorld");
+    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::MATRIX4, "u_worldInverseTransposeMatrix");
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::VECTOR3, "u_viewDirection");
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::INTEGER, "u_numActiveLightSources",
         EMPTY_STRING, Value::createValue<int>(0));
@@ -43,13 +46,19 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
+    const string& blockInstance = shader.getVertexDataBlock().instance;
+    const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
+
     BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
         if (!shader.isCalculated("positionWorld"))
         {
-            const string& blockInstance = shader.getVertexDataBlock().instance;
-            const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
             shader.addLine(blockPrefix + "positionWorld = hPositionWorld.xyz");
             shader.setCalculated("positionWorld");
+        }
+        if (!shader.isCalculated("normalWorld"))
+        {
+            shader.setCalculated("normalWorld");
+            shader.addLine(blockPrefix + "normalWorld = normalize((u_worldInverseTransposeMatrix * vec4(i_normal, 0)).xyz)");
         }
     END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
 
@@ -62,7 +71,10 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
     glslgen.emitOutput(node.getOutput(), true, shader);
     shader.endLine();
 
-    const string outputVariable = glslgen.getSyntax()->getVariableName(node.getOutput());
+    const string normalWorld = blockPrefix + "normalWorld";
+    const string positionWorld = blockPrefix + "positionWorld";
+
+    const string outputVariable = glslgen.getVariableName(node.getOutput());
     const string outColor = outputVariable + ".color";
     const string outTransparency = outputVariable + ".transparency";
 
@@ -95,7 +107,7 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
 
     shader.addComment("Calculate the BSDF response for this light source");
     string bsdf;
-    glslgen.emitSurfaceBsdf(node, GlslShaderGenerator::BsdfDir::LIGHT_DIR, GlslShaderGenerator::BsdfDir::VIEW_DIR, shader, bsdf);
+    glslgen.emitBsdfNodes(node, GlslShaderGenerator::LIGHT_DIR, GlslShaderGenerator::VIEW_DIR, shader, bsdf);
     shader.newLine();
 
     shader.addComment("Accumulate the light's contribution");
@@ -113,7 +125,7 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
     shader.addComment("Add surface emission");
     shader.beginScope();
     string emission;
-    glslgen.emitSurfaceEmission(node, shader, emission);
+    glslgen.emitEdfNodes(node, normalWorld, normalWorld, shader, emission);
     shader.addLine(outColor + " += " + emission);
     shader.endScope();
     shader.newLine();
@@ -122,7 +134,7 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
     //
     shader.addComment("Calculate the BSDF transmission for viewing direction");
     shader.beginScope();
-    glslgen.emitSurfaceBsdf(node, GlslShaderGenerator::BsdfDir::VIEW_DIR, GlslShaderGenerator::BsdfDir::VIEW_DIR, shader, bsdf);
+    glslgen.emitBsdfNodes(node, GlslShaderGenerator::VIEW_DIR, GlslShaderGenerator::VIEW_DIR, shader, bsdf);
     shader.addLine(outTransparency + " = " + bsdf + ".ft");
     shader.endScope();
     shader.newLine();

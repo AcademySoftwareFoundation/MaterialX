@@ -50,7 +50,7 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
     // Create uniforms for the public graph interface
     for (SgInputSocket* inputSocket : _rootGraph->getInputSockets())
     {
-        const string name = shadergen.getSyntax()->getVariableName(inputSocket);
+        const string name = shadergen.getVariableName(inputSocket);
         createUniform(PIXEL_STAGE, PUBLIC_UNIFORMS, inputSocket->type, name, EMPTY_STRING, inputSocket->value);
     }
 }
@@ -83,6 +83,11 @@ void Shader::beginScope(Brackets brackets)
 void Shader::endScope(bool semicolon, bool newline)
 {
     Stage& s = stage();
+
+    if (s.scopes.empty())
+    {
+        throw ExceptionShaderGenError("End scope called with no scope active, please check your beginScope/endScope calls");
+    }
 
     Brackets brackets = s.scopes.back();
     s.scopes.pop();

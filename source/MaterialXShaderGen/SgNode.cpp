@@ -217,6 +217,10 @@ SgNodePtr SgNode::creator(const string& name, const NodeDef& nodeDef, ShaderGene
     {
         newNode->_classification = Classification::SURFACE | Classification::SHADER;
     }
+    else if (nodeDef.getType() == DataType::LIGHT)
+    {
+        newNode->_classification = Classification::LIGHT | Classification::SHADER;
+    }
     else if (nodeDef.getType() == DataType::BSDF)
     {
         newNode->_classification = Classification::BSDF | Classification::CLOSURE;
@@ -537,6 +541,7 @@ SgNode* SgNodeGraph::addNode(const Node& node, ShaderGenerator& shadergen)
                         throw ExceptionShaderGenError("Interface name '" + interfaceName + "' doesn't match an existing input on node graph '" + getName() + "'");
                     }
                     inputSocket->makeConnection(input);
+                    inputSocket->published = input->published = true;
                 }
                 else
                 {

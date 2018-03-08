@@ -157,8 +157,8 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     }
 
     // Emit shader output
+    const string variable = getVariableName(outputSocket);
     const string type = _syntax->getOutputTypeName(outputSocket->type);
-    const string variable = _syntax->getVariableName(outputSocket);
     const string value = _syntax->getTypeDefault(outputSocket->type, true);
     shader.addLine(type + " " + variable + " = " + value, false);
 

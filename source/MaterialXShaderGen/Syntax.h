@@ -85,12 +85,6 @@ public:
     /// Returns the type name in an output context
     virtual const string& getOutputTypeName(const string& type) const;
 
-    /// Get variable name for an input
-    virtual string getVariableName(const SgInput* input) const;
-
-    /// Get variable name for an output
-    virtual string getVariableName(const SgOutput* output) const;
-
     /// Get syntax for a swizzled variable
     virtual string getSwizzledVariable(const string& name, const string& type, const string& fromType, const string& channels) const;
 
