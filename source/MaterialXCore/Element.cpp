@@ -481,7 +481,7 @@ bool ValueElement::validate(string* message) const
     bool res = true;
     if (hasType() && hasValueString())
     {
-        validateRequire(hasValue(), res, message, "Invalid value");
+        validateRequire(getValue() != nullptr, res, message, "Invalid value");
     }
     return TypedElement::validate(message) && res;
 }
