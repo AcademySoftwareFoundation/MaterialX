@@ -24,16 +24,11 @@ template <size_t N> std::istream& operator>>(std::istream& is, VectorN<N>& v)
 {
     string str(std::istreambuf_iterator<char>(is), { });
     vector<string> values = splitString(str, ARRAY_VALID_SEPARATORS);
-    if (values.size() == N)
+    if (values.size() != N)
+        throw ExceptionTypeError("Type mismatch in vector fromValueString: " + str);
+    for (size_t i = 0; i < N; i++)
     {
-        for (size_t i = 0; i < N; i++)
-        {
-            v[i] = fromValueString<float>(values[i]);
-        }
-    }
-    else
-    {
-        is.setstate(std::ios::failbit);
+        v[i] = fromValueString<float>(values[i]);
     }
     return is;
 }
@@ -92,7 +87,14 @@ template <class T> string TypedValue<T>::getValueString() const
 
 template <class T> ValuePtr TypedValue<T>::createFromString(const string& value)
 {
-    return Value::createValue<T>(fromValueString<T>(value));
+    try
+    {
+        return Value::createValue<T>(fromValueString<T>(value));
+    }
+    catch (ExceptionTypeError&)
+    {
+    }
+    return ValuePtr();
 }
 
 //
@@ -110,7 +112,7 @@ ValuePtr Value::createValueFromStrings(const string& value, const string& type)
 
 template<class T> bool Value::isA() const
 {
-    return dynamic_cast<const TypedValue<T>*>(this) != nullptr;    
+    return dynamic_cast<const TypedValue<T>*>(this) != nullptr;
 }
 
 template<class T> T Value::asA() const
@@ -118,7 +120,7 @@ template<class T> T Value::asA() const
     const TypedValue<T>* typedVal = dynamic_cast<const TypedValue<T>*>(this);
     if (!typedVal)
     {
-        throw Exception("Incorrect type specified for value");
+        throw ExceptionTypeError("Incorrect type specified for value");
     }
     return typedVal->getData();
 }
@@ -155,7 +157,7 @@ template <> bool fromValueString(const string& value)
         return true;
     if (value == VALUE_STRING_FALSE)
         return false;
-    return {};
+    throw ExceptionTypeError("Type mismatch in boolean fromValueString: " + value);
 }
 
 template <> string fromValueString(const string& value)
@@ -169,7 +171,7 @@ template <class T> T fromValueString(const string& value)
     T data;
     if (ss >> data)
         return data;
-    return {};
+    throw ExceptionTypeError("Type mismatch in fromValueString: " + value);
 }
 
 //
