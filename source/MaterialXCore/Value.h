@@ -38,9 +38,9 @@ class Value
         return std::make_shared< TypedValue<T> >(data);
     }
 
-    /// Create a new value from value and type strings.  If the given
-    /// conversion cannot be performed, then the zero value for the given
-    /// data type is returned.
+    /// Create a new value instance from value and type strings.
+    /// @return A shared pointer to a typed value, or an empty shared pointer
+    ///    if the conversion to the given data type cannot be performed.
     static ValuePtr createValueFromStrings(const string& value, const string& type);
 
     /// Create a deep copy of the value.
@@ -122,9 +122,9 @@ template <class T> class TypedValue : public Value
     // Static helper methods
     //
 
-    /// Create a new value of this type from a value string.  If the given
-    /// conversion cannot be performed, then the zero value for the given
-    /// data type is returned.
+    /// Create a new value of this type from a value string.
+    /// @return A shared pointer to a typed value, or an empty shared pointer
+    ///    if the conversion to the given data type cannot be performed.
     static ValuePtr createFromString(const string& value);
 
   public:
@@ -134,6 +134,14 @@ template <class T> class TypedValue : public Value
     T _data;
 };
 
+/// @class @ExceptionTypeError
+/// An exception that is thrown when a type mismatch is encountered.
+class ExceptionTypeError : public Exception
+{
+  public:
+    using Exception::Exception;
+};
+
 /// Return the type string associated with the given data type.
 template<class T> const string& getTypeString();
 
@@ -141,10 +149,7 @@ template<class T> const string& getTypeString();
 template <class T> string toValueString(const T& data);
 
 /// Convert the given value string to a data value of the given type.
-///
-/// @param value The value string to be converted.
-/// @return A data value of the given type.  If the given conversion cannot
-///    be performed, then the zero value for the given data type is returned.
+/// @throws ExceptionTypeError if the conversion cannot be performed.
 template <class T> T fromValueString(const string& value);
 
 } // namespace MaterialX

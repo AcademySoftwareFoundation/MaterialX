@@ -42,22 +42,27 @@ template<class T> void testTypedValue(const T& v1, const T& v2)
 
 TEST_CASE("Value strings", "[value]")
 {
+    // Convert from data values to value strings.
     REQUIRE(mx::toValueString(1) == "1");
-    REQUIRE(mx::toValueString(0.0f) == "0");
+    REQUIRE(mx::toValueString(1.0f) == "1");
     REQUIRE(mx::toValueString(true) == "true");
     REQUIRE(mx::toValueString(false) == "false");
     REQUIRE(mx::toValueString(mx::Color3(1.0f)) == "1, 1, 1");
-    REQUIRE(mx::toValueString(mx::Vector4(0.5f)) == "0.5, 0.5, 0.5, 0.5");
+    REQUIRE(mx::toValueString(std::string("text")) == "text");
 
+    // Convert from value strings to data values.
     REQUIRE(mx::fromValueString<int>("1") == 1);
-    REQUIRE(mx::fromValueString<float>("0") == 0.0f);
+    REQUIRE(mx::fromValueString<float>("1") == 1.0f);
     REQUIRE(mx::fromValueString<bool>("true") == true);
     REQUIRE(mx::fromValueString<bool>("false") == false);
-    REQUIRE(mx::fromValueString<std::string>("1") == "1");
-    REQUIRE(mx::fromValueString<mx::Color3>("1") == mx::Color3(0.0f));
-
+    REQUIRE(mx::fromValueString<mx::Color3>("1, 1, 1") == mx::Color3(1.0f));
     REQUIRE(mx::fromValueString<std::string>("text") == "text");
-    REQUIRE(mx::fromValueString<int>("text") == 0);
+
+    // Verify that invalid conversions throw exceptions.
+    REQUIRE_THROWS_AS(mx::fromValueString<int>("text"), mx::ExceptionTypeError);
+    REQUIRE_THROWS_AS(mx::fromValueString<float>("text"), mx::ExceptionTypeError);
+    REQUIRE_THROWS_AS(mx::fromValueString<bool>("1"), mx::ExceptionTypeError);
+    REQUIRE_THROWS_AS(mx::fromValueString<mx::Color3>("1"), mx::ExceptionTypeError);
 }
 
 TEST_CASE("Typed values", "[value]")

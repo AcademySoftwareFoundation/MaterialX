@@ -399,10 +399,17 @@ class Element : public std::enable_shared_from_this<Element>
 
     /// Return the the value of an implicitly typed attribute.  If the given
     /// attribute is not present, or cannot be converted to the given data
-    /// type, then the zero value for the given data type is returned.
+    /// type, then the zero value for the data type is returned.
     template<class T> const T getTypedAttribute(const string& attrib) const
     {
-        return fromValueString<T>(getAttribute(attrib));
+        try
+        {
+            return fromValueString<T>(getAttribute(attrib));
+        }
+        catch (ExceptionTypeError&)
+        {
+        }
+        return {};
     }
 
     /// Remove the given attribute, if present.
