@@ -22,6 +22,15 @@ const string LIBRARY_VERSION_STRING = std::to_string(MAJOR_VERSION) + "." +
                                       std::to_string(BUILD_VERSION);
 const string EMPTY_STRING;
 
+namespace {
+
+bool invalidNameChar(char c)
+{
+     return !isalnum(c) && c != '_';
+}
+
+} // anonymous namespace
+
 //
 // Utility methods
 //
@@ -40,14 +49,14 @@ std::tuple<int, int, int> getVersionIntegers()
 
 string createValidName(string name, char replaceChar)
 {
-    auto replacePred = [](char c) { return !isalnum(c) && c != '_'; };
-    std::replace_if(name.begin(), name.end(), replacePred, replaceChar);
+    std::replace_if(name.begin(), name.end(), invalidNameChar, replaceChar);
     return name;
 }
 
 bool isValidName(const string& name)
 {
-    return name == createValidName(name);
+    auto it = std::find_if(name.begin(), name.end(), invalidNameChar);
+    return it == name.end();
 }
 
 string incrementName(const string& name)
