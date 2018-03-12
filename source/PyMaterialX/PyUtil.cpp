@@ -22,5 +22,4 @@ void bindPyUtil(py::module& mod)
     mod.def("splitString", &mx::splitString);
     mod.def("replaceSubstrings", &mx::replaceSubstrings);
     mod.def("prettyPrint", &mx::prettyPrint);
-    mod.def("printGraphDot", &mx::printGraphDot);
 }
