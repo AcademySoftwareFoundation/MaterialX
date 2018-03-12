@@ -68,12 +68,14 @@ TEST_CASE("Node", "[node]")
 
     // Create a custom nodedef.
     mx::NodeDefPtr nodeDef = doc->addNodeDef("nodeDef1", "float", "turbulence3d");
+    nodeDef->setNodeCategory(mx::PROCEDURAL_NODE_CATEGORY);
     nodeDef->setParameterValue("octaves", 3);
     nodeDef->setParameterValue("lacunarity", 2.0f);
     nodeDef->setParameterValue("gain", 0.5f);
 
     // Reference the custom nodedef.
     mx::NodePtr custom = nodeGraph->addNode("turbulence3d", "turbulence1", "float");
+    REQUIRE(custom->getNodeDef()->getNodeCategory() == mx::PROCEDURAL_NODE_CATEGORY);
     REQUIRE(custom->getParameterValue("octaves")->isA<int>());
     REQUIRE(custom->getParameterValue("octaves")->asA<int>() == 3);
     custom->setParameterValue("octaves", 5);

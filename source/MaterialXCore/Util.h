@@ -51,10 +51,6 @@ string replaceSubstrings(string str, const StringMap& stringMap);
 /// element in depth-first order.
 string prettyPrint(ElementPtr elem);
 
-/// Print the given nodegraph in a DOT language syntax.  This can be used to
-/// visualise the graph using GraphViz (http://www.graphviz.org).
-string printGraphDot(NodeGraphPtr graph);
-
 } // namespace MaterialX
 
 #endif

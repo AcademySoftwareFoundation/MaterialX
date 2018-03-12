@@ -217,9 +217,18 @@ class NodeGraph : public InterfaceElement
     /// node graph, replacing each reference with the equivalent node network.
     void flattenSubgraphs(const string& target = EMPTY_STRING);
 
-    /// Return a vector of all children (nodes and outputs) sorted in topological order.
+    /// Return a vector of all children (nodes and outputs) sorted in
+    /// topological order.
     /// @throws ExceptionFoundCycle if a cycle is encountered.
     vector<ElementPtr> topologicalSort() const;
+
+    /// Convert this graph to a string in the DOT language syntax.  This can be
+    /// used to visualise the graph using GraphViz (http://www.graphviz.org).
+    ///
+    /// If declarations for the contained nodes are provided as nodedefs in
+    /// the owning document, then they will be used to provide additional
+    /// formatting details.
+    string asStringDot() const;
 
     /// @}
 
