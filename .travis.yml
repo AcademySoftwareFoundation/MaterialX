@@ -6,24 +6,28 @@ matrix:
     - os: linux
       compiler: gcc
       env: CONFIG=Debug
+      if: tag IS present
     - os: linux
       compiler: gcc
       env: CONFIG=Release
     - os: linux
       compiler: gcc
       env: CONFIG=RelWithDebInfo
+      if: tag IS present
     - os: linux
       compiler: clang
       env: CONFIG=Release
     - os: osx
       compiler: gcc
       env: CONFIG=Debug
+      if: tag IS present
     - os: osx
       compiler: gcc
       env: CONFIG=Release
     - os: osx
       compiler: gcc
       env: CONFIG=RelWithDebInfo
+      if: tag IS present
     - os: osx
       compiler: clang
       env: CONFIG=Release
