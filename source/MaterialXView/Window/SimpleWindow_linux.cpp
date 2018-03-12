@@ -1,9 +1,11 @@
+#include <MaterialXView/Window/HardwarePlatform.h>
+
 #if defined(OSLinux_)
 
 #include <MaterialXView/Window/SimpleWindow.h>
 
 #include <X11/StringDefs.h>
-#include <X11/Shell.h>
+#include <X11/Shell.h> // for applicationShellWidgetClass
 #include <X11/Xlib.h> // for XEvent definition
 #include <X11/Intrinsic.h> // for XtCallbackProc definition
 
@@ -21,9 +23,9 @@ SimpleWindow::SimpleWindow()
     windowCount++;
 }
 
-bool SimpleWindow::create(char* title,
-                          unsigned int width, unsigned int height,
-                          void *applicationShell)
+bool SimpleWindow::initialize(char* title,
+                              unsigned int width, unsigned int height,
+                              void *applicationShell)
 {
     int n = 0;
 
@@ -69,10 +71,7 @@ bool SimpleWindow::create(char* title,
     }
 
     XtRealizeWidget(widget);
-
     _windowWrapper = WindowWrapper(widget, XtWindow(widget), XtDisplay(widget));
-
-    _active = true;
 
     return true;
 }

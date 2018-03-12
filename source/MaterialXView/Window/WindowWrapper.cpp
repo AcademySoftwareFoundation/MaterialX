@@ -10,7 +10,7 @@ namespace MaterialX
 {
 #if defined(OSUnsupported_)
 //
-// Unsupport platform 
+// Unsupport platform stubs
 //
 WindowWrapper::WindowWrapper() :
     _externalHandle(0),
@@ -18,9 +18,9 @@ WindowWrapper::WindowWrapper() :
 {
 }
 
-WindowWrapper::WindowWrapper(ExternalWindowHandle /*externalHandle*/, 
-                             InternalWindowHandle /*internalHandle*/, 
-                             DisplayHandle /*display*/) :
+WindowWrapper::WindowWrapper(ExternalWindowHandle /*externalHandle*/,
+    InternalWindowHandle /*internalHandle*/,
+    DisplayHandle /*display*/) :
     _externalHandle(0),
     _internalHandle(0)
 {
@@ -52,8 +52,9 @@ WindowWrapper::WindowWrapper() :
 {
 }
 
-WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle, InternalWindowHandle internalHandle,
-    DisplayHandle /*display*/)
+WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle, 
+                             InternalWindowHandle internalHandle,
+                             DisplayHandle /*display*/)
 {
     _externalHandle = externalHandle;
     if (_externalHandle && !internalHandle)
@@ -129,7 +130,9 @@ WindowWrapper::WindowWrapper() :
 {
 }
 
-WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle, InternalWindowHandle internalHandle, DisplayHandle display)
+WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle, 
+                             InternalWindowHandle internalHandle, 
+                             DisplayHandle display)
 {
     _display = display;
     _framebufferWindow = 0;
@@ -183,23 +186,25 @@ WindowWrapper::WindowWrapper() :
 {
 }
 
-WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle, InternalWindowHandle internalHandle, DisplayHandle display)
+WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle, 
+                             InternalWindowHandle internalHandle, 
+                             DisplayHandle display)
 {
     _externalHandle = externalHandle;
     // Cache a pointer to the window.
-    _internalHandle = aglToNSOpenGLGetView(externalHandle);
+    _internalHandle = NSUtilGetView(externalHandle);
 }
 
 WindowWrapper::WindowWrapper(const WindowWrapper& other)
 {
     _externalHandle = other._externalHandle;
-    _internalHandle = aglToNSOpenGLGetView(_externalHandle);
+    _internalHandle = NSUtilGetView(_externalHandle);
 }
 
 const WindowWrapper& WindowWrapper::operator=(const WindowWrapper& other)
 {
     _externalHandle = other._externalHandle;
-    _internalHandle = aglToNSOpenGLGetView(_externalHandle);
+    _internalHandle = NSUtilGetView(_externalHandle);
     return *this;
 }
 

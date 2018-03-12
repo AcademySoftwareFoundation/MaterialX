@@ -4,8 +4,14 @@
 #include <MaterialXView/Window/HardwarePlatform.h>
 #include <MaterialXView/Window/WindowWrapper.h>
 
+#include <memory>
+
 namespace MaterialX
 {
+
+// SimpleWindow shared pointer
+using SimpleWindowPtr = std::shared_ptr<class SimpleWindow>;
+
 ///
 /// @class SimpleWindow
 /// A platform independent window class. Plaform specific resources
@@ -14,14 +20,18 @@ namespace MaterialX
 class SimpleWindow
 {
   public:
+
+    /// Static instance creator
+    static SimpleWindowPtr creator() { return std::make_shared<SimpleWindow>(); }
+
     /// Default constructor
     SimpleWindow();
 
     /// Default destructor
     virtual ~SimpleWindow();
 
-    /// Window creator
-    bool create(char* title, unsigned int width, unsigned int height,
+    /// Window initialization
+    bool initialize(char* title, unsigned int width, unsigned int height,
         void *applicationShell);
 
     /// Return windowing information for the window
@@ -88,7 +98,7 @@ SimpleWindow::~SimpleWindow()
 {
 }
 
-bool SimpleWindow::create(char* /*title*/,
+bool SimpleWindow::initialize(char* /*title*/,
     unsigned int /*width*/,
     unsigned int /*height*/,
     void* /*applicationShell*/)

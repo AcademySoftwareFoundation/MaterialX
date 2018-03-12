@@ -5,10 +5,14 @@
 #include <windows.h> // For Windows calls
 
 #elif defined(OSLinux_)
-#include <X11/Intrinsic.h> // for XtDisplay etc
+#include <dlfcn.h> // For dlopen
+#include <MaterialXView/External/GLew/glxew.h>
+#include <X11/Intrinsic.h> 
 
 #elif defined(OSMac_)
+#include <MaterialXView/External/GLew/glew.h>
 #include <MaterialXView/Window/WindowCocoaWrappers.h>
+#include <MaterialXView/OpenGL/GLCocoaWrappers.h>
 #endif
 
 #include <MaterialXView/External/GLew/glew.h>
@@ -16,10 +20,6 @@
 
 namespace MaterialX
 {
-
-// Global base context 
-GLUtilityContext* GLUtilityContext::_globalGLUtilityContext = nullptr;
-
 // Unsupported
 #if defined(OSUnsupported_)
 
@@ -39,7 +39,7 @@ GLUtilityContext::GLUtilityContext(const WindowWrapper& /*windowWrapper*/, Hardw
 {
     // For windows, we need a HDC to create an OpenGL context.
     // Create a dummy 1x1 window and use it' HDC.
-    _dummyWindow.create("__GL_BASE_CONTEXT_DUMMY_WINDOW__", 1, 1, nullptr);
+    _dummyWindow.initialize("__GL_BASE_CONTEXT_DUMMY_WINDOW__", 1, 1, nullptr);
     WindowWrapper dummyWindowWrapper = _dummyWindow.windowWrapper();
 
     if (dummyWindowWrapper.isValid())
@@ -104,7 +104,7 @@ GLUtilityContext::GLUtilityContext(const WindowWrapper& windowWrapper,
     _windowWrapper = windowWrapper;
 
     // Get connection to X Server
-    _display = windowWrapper.display();
+    _display = windowWrapper.getDisplay();
 
     // Load in OpenGL library
     void *libHandle = dlopen("libGL.so", RTLD_LAZY);
@@ -228,17 +228,9 @@ GLUtilityContext::GLUtilityContext(const WindowWrapper& windowWrapper,
         if (haveOldContext && haveOldDrawable)
         {
             MakeCurrentFuncPtr(_display, oldDrawable, oldContext);
+
         }
     }
-}
-
-GLUtilityContext::GLUtilityContext(const WindowWrapper& /*windowWrapper*/, HardwareContextHandle /*sharedWithContext*/)
-{
-    _dummyWindow = 0;
-    _contextHandle = 0;
-    _display = 0;
-
-    _isValid = false;
 }
 
 //
@@ -261,14 +253,8 @@ GLUtilityContext::GLUtilityContext(const WindowWrapper& /*windowWrapper*/, Hardw
     // (Instead, all other contexts will share against this one.)
     //
     _contextHandle = NSOpenGLCreateContextWrapper(pixelFormat, sharedWithContext);
-
-    aglCheckError();
-
-    aglToNSOpenGLReleasePixelFormat(pixelFormat);
-    aglCheckError();
-
-    aglToNSOpenGLMakeCurrent(_contextHandle);
-    aglCheckError();
+    NSOpenGLReleasePixelFormat(pixelFormat);
+    NSOpenGLMakeCurrent(_contextHandle);
 
     _isValid = true;
 }
@@ -303,12 +289,10 @@ GLUtilityContext::~GLUtilityContext()
         // created with this context are destroyed.
         if (_contextHandle != 0)
         {
-            aglToNSOpenGLDestroyCurrentContext(&_contextHandle);
+            NSOpenGLDestroyCurrentContext(&_contextHandle);
         }
 #endif
     }
-
-    GLUtilityContext::_globalGLUtilityContext = 0;
 }
 
 int GLUtilityContext::makeCurrent()
@@ -324,12 +308,11 @@ int GLUtilityContext::makeCurrent()
 #elif defined(OSLinux_)
     makeCurrentOk = glXMakeCurrent(_display, _dummyWindow, _contextHandle);
 #elif defined(OSMac_)
-    aglToNSOpenGLMakeCurrent(_contextHandle);
-    if (aglToNSOpenGLGetCurrentContextWrapper() == _contextHandle)
+    NSOpenGLMakeCurrent(_contextHandle);
+    if (NSOpenGLGetCurrentContextWrapper() == _contextHandle)
     {
         makeCurrentOk = 1;
     }
-    aglCheckError();
 #else
     ;
 #endif
@@ -337,24 +320,11 @@ int GLUtilityContext::makeCurrent()
 }
 
 //
-// Singleton create/destory methods
+// Creator
 //
-GLUtilityContext* GLUtilityContext::create(const WindowWrapper& windowWrapper, HardwareContextHandle context)
+GLUtilityContextPtr GLUtilityContext::creator(const WindowWrapper& windowWrapper, HardwareContextHandle context)
 {
-    if (!_globalGLUtilityContext)
-    {
-        _globalGLUtilityContext = new GLUtilityContext(windowWrapper, context);
-    }
-    return _globalGLUtilityContext;
-}
-
-void GLUtilityContext::destroy()
-{
-    if (_globalGLUtilityContext)
-    {
-        delete _globalGLUtilityContext;
-        _globalGLUtilityContext = nullptr;
-    }
+    return std::shared_ptr<GLUtilityContext>(new GLUtilityContext(windowWrapper, context));
 }
 
 }

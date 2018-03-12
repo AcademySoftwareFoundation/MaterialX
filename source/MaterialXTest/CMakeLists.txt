@@ -25,9 +25,11 @@ add_custom_command(TARGET MaterialXTest POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${CMAKE_SOURCE_DIR}/documents/Examples ${CMAKE_CURRENT_BINARY_DIR}/documents/Examples)
 
-add_custom_command(TARGET MaterialXTest POST_BUILD
+if (MATERIALX_BUILD_VIEW)
+  add_custom_command(TARGET MaterialXTest POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${CMAKE_SOURCE_DIR}/documents/Images ${CMAKE_CURRENT_BINARY_DIR}/documents/Images)
+endif(MATERIALX_BUILD_VIEW)
                    
 set_target_properties(
     MaterialXTest PROPERTIES

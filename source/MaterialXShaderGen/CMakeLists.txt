@@ -35,18 +35,10 @@ set_target_properties(
     VERSION "${MATERIALX_LIBRARY_VERSION}"
     SOVERSION "${MATERIALX_MAJOR_VERSION}")
 
-if(MSVC)
-    target_link_libraries(
-        MaterialXShaderGen
-        MaterialXCore
-        Opengl32
-        ${CMAKE_DL_LIBS})
-else()
-    target_link_libraries(
-        MaterialXShaderGen
-        MaterialXCore
-        ${CMAKE_DL_LIBS})
-endif()
+target_link_libraries(
+    MaterialXShaderGen
+    MaterialXCore
+    ${CMAKE_DL_LIBS})
 
 install(TARGETS MaterialXShaderGen
     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/

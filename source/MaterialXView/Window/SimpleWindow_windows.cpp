@@ -36,9 +36,9 @@ LRESULT CALLBACK NoOpProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-bool SimpleWindow::create(char* title,
-                            unsigned int width, unsigned int height,
-                            void * /*applicationShell*/)
+bool SimpleWindow::initialize(char* title,
+                              unsigned int width, unsigned int height,
+                              void * /*applicationShell*/)
 {
     HINSTANCE hInstance = GetModuleHandle(NULL);
 

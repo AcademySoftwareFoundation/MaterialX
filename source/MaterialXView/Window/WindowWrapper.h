@@ -8,6 +8,7 @@
 #elif defined(OSLinux_)
 #include <X11/X.h> // for Window 
 #include <X11/Xlib.h> // for Display
+using Widget = struct _WidgetRec*;
 #endif
 
 namespace MaterialX
@@ -57,9 +58,14 @@ class WindowWrapper
     /// Default destructor
     virtual ~WindowWrapper();
 
-    /// Contruct a wrapper using window information
+    /// Construct a wrapper using windowing information
+#if defined(OSLinux_)
+    WindowWrapper(ExternalWindowHandle externalHandle, InternalWindowHandle internalHandle = 0,
+                  DisplayHandle display = 0);
+#else
     WindowWrapper(ExternalWindowHandle externalHandle, InternalWindowHandle internalHandle = nullptr,
-        DisplayHandle display = nullptr);
+                  DisplayHandle display = 0);
+#endif
 
     /// Copy constructor
     WindowWrapper(const WindowWrapper& other);
