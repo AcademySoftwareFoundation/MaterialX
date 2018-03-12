@@ -13,7 +13,14 @@ namespace MaterialX
 const string COLOR_SEMANTIC = "color";
 const string SHADER_SEMANTIC = "shader";
 
+const string TEXTURE_NODE_CATEGORY = "texture";
+const string PROCEDURAL_NODE_CATEGORY = "procedural";
+const string GEOMETRIC_NODE_CATEGORY = "geometric";
+const string ADJUSTMENT_NODE_CATEGORY = "adjustment";
+const string CONDITIONAL_NODE_CATEGORY = "conditional";
+
 const string NodeDef::NODE_ATTRIBUTE = "node";
+const string NodeDef::NODE_CATEGORY_ATTRIBUTE = "nodecategory";
 const string TypeDef::SEMANTIC_ATTRIBUTE = "semantic";
 const string TypeDef::CONTEXT_ATTRIBUTE = "context";
 const string Implementation::NODE_DEF_ATTRIBUTE = "nodedef";
