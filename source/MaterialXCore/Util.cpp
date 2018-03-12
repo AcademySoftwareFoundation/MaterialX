@@ -8,8 +8,6 @@
 #include <MaterialXCore/Element.h>
 #include <MaterialXCore/Node.h>
 
-#include <sstream>
-
 namespace MaterialX
 {
 
@@ -121,49 +119,6 @@ string prettyPrint(ElementPtr elem)
         text += indent + it.getElement()->asString() + "\n";
     }
     return text;
-}
-
-string printGraphDot(NodeGraphPtr graph)
-{
-    std::stringstream dot;
-
-    dot << "digraph {\n";
-
-    // Print the nodes
-    for (NodePtr node : graph->getNodes())
-    {
-        dot << "    \"" << node->getName() << "\" ";
-        const string& category = node->getCategory();
-        if (category == "compare" || category == "switch")
-        {
-            dot << "[shape=diamond];\n";
-        }
-        else
-        {
-            dot << "[shape=box];\n";
-        }
-    }
- 
-    // Print the connections
-    std::set<Edge> processedEdges;
-    for (OutputPtr output : graph->getOutputs())
-    {
-        for (Edge edge : output->traverseGraph())
-        {
-            if (processedEdges.count(edge) == 0)
-            {
-                processedEdges.insert(edge);
-                ElementPtr upstreamElem = edge.getUpstreamElement();
-                ElementPtr downstreamElem = edge.getDownstreamElement();
-                ElementPtr connectingElem = edge.getConnectingElement();
-                dot << "    \"" << upstreamElem->getName() << "\" -> \"" << downstreamElem->getName() << "\" [label=\"" << (connectingElem ? connectingElem->getName() : EMPTY_STRING) << "\"];\n";
-            }
-        }
-    }
-
-    dot << "}\n";
-
-    return dot.str();
 }
 
 } // namespace MaterialX

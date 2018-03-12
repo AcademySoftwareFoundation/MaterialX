@@ -101,7 +101,5 @@ TEST_CASE("Print utilities", "[util]")
         "    \"noise3d\" -> \"mix\" [label=\"mask\"];\n" \
         "}\n";
 
-    const std::string dot = mx::printGraphDot(nodeGraph);
-
-    REQUIRE(dot == blessed);
+    REQUIRE(nodeGraph->asStringDot() == blessed);
 }
