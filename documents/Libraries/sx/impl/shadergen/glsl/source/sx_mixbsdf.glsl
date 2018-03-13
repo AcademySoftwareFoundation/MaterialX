@@ -1,6 +1,6 @@
-void sx_mixbsdf(vec3 L, vec3 V, BSDF fg, BSDF bg, float mask, out BSDF result)
+void sx_mixbsdf(vec3 L, vec3 V, BSDF in1, BSDF in2, float weight, out BSDF result)
 {
-    float weight = clamp(mask, 0.0, 1.0);
-    result.fr = fg.fr * weight + bg.fr * (1.0 - weight);
-    result.ft = fg.ft * weight + bg.ft * (1.0 - weight);
+    weight = clamp(weight, 0.0, 1.0);
+    result.fr = in1.fr * weight + in2.fr * (1.0 - weight);
+    result.ft = in1.ft * weight + in2.ft * (1.0 - weight);
 }

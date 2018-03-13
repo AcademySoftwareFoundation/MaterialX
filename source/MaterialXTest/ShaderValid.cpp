@@ -362,7 +362,7 @@ TEST_CASE("GLSL Validation from HwShader", "[shadervalid]")
         std::string fileName = nodePtr->getName() + ".exr";
         validator.save(fileName);
     }
-#if 0
+
     /////////////////////////////////
     {
         const std::string lightDoc = " \
@@ -370,7 +370,7 @@ TEST_CASE("GLSL Validation from HwShader", "[shadervalid]")
         <materialx version=\"1.35\" require=\"\"> \
           <nodegraph name=\"lighting1\" type=\"\" xpos=\"10.9034\" ypos=\"15.42\" adskDisplayMode=\"1\"> \
             <surface name=\"surface1\" type=\"surfaceshader\" xpos=\"4.08694\" ypos=\"8.7068\" adskDisplayMode=\"2\"> \
-              <input name=\"bsdf\" type=\"BSDF\" value=\"\" nodename=\"layeredbsdf1\" channels=\"\" /> \
+              <input name=\"bsdf\" type=\"BSDF\" value=\"\" nodename=\"mixbsdf1\" channels=\"\" /> \
               <input name=\"edf\" type=\"EDF\" value=\"\" /> \
               <input name=\"opacity\" type=\"float\" value=\"1.0\" /> \
             </surface>  \
@@ -390,11 +390,11 @@ TEST_CASE("GLSL Validation from HwShader", "[shadervalid]")
               <input name=\"distribution\" type=\"string\" value=\"ggx\" /> \
               <input name=\"base\" type=\"BSDF\" value=\"\" /> \
             </coatingbsdf> \
-            <layeredbsdf name=\"layeredbsdf1\" type=\"BSDF\" xpos=\"4.12788\" ypos=\"15.5871\" adskDisplayMode=\"2\"> \
-              <input name=\"top\" type=\"BSDF\" value=\"\" nodename=\"coatingbsdf1\" channels=\"\" /> \
-              <input name=\"base\" type=\"BSDF\" value=\"\" nodename=\"diffusebsdf1\" channels=\"\" /> \
+            <mixbsdf name=\"mixbsdf1\" type=\"BSDF\" xpos=\"4.12788\" ypos=\"15.5871\" adskDisplayMode=\"2\"> \
+              <input name=\"in1\" type=\"BSDF\" value=\"\" nodename=\"coatingbsdf1\" channels=\"\" /> \
+              <input name=\"in2\" type=\"BSDF\" value=\"\" nodename=\"diffusebsdf1\" channels=\"\" /> \
               <input name=\"weight\" type=\"float\" value=\"0.5000\" /> \
-            </layeredbsdf> \
+            </mixbsdf> \
           </nodegraph> \
         </materialx>";
 
@@ -461,7 +461,6 @@ TEST_CASE("GLSL Validation from HwShader", "[shadervalid]")
         std::string fileName = "lighting1.exr";
         validator.save(fileName);
     }
-#endif
 }
 
 #endif

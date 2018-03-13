@@ -625,10 +625,6 @@ const GlslValidator::ProgramInputMap& GlslValidator::updateUniformsList()
                         uniformTypeMismatchFound = true;
                     }
                 }
-                else
-                {
-                    programInput->second->typeString = input->type;
-                }
             }
         }
 

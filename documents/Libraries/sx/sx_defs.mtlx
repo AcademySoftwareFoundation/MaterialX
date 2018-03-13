@@ -85,10 +85,10 @@
     A node for mixing BSDF's.
   -->
   <nodedef name="ND_mixbsdf" node="mixbsdf" type="BSDF" nodecategory="shaderx"
-           doc="A node for mixing BSDF's as: fg * mask + bg * (1 - mask).">
-    <input name="fg" type="BSDF" doc="First BSDF."/>
-    <input name="bg" type="BSDF" doc="Second BSDF."/>
-    <input name="mask" type="float" value="1.0" doc="Mixing weight, range [0, 1]."/>
+           doc="A node for mixing BSDF's as: in1 * weight + in2 * (1 - weight).">
+    <input name="in1" type="BSDF" doc="First BSDF."/>
+    <input name="in2" type="BSDF" doc="Second BSDF."/>
+    <input name="weight" type="float" value="1.0" doc="Mixing weight, range [0, 1]."/>
   </nodedef>
 
   <!--
@@ -96,10 +96,10 @@
     A node for mixing EDF's.
   -->
   <nodedef name="ND_mixedf" node="mixedf" type="EDF" nodecategory="shaderx"
-           doc="A node for mixing EDF's as: fg * mask + bg * (1 - mask).">
-    <input name="fg" type="EDF" doc="First EDF."/>
-    <input name="bg" type="EDF" doc="Second EDF."/>
-    <input name="mask" type="float" value="1.0" doc="Mixing weight, range [0, 1]."/>
+           doc="A node for mixing EDF's as: in1 * weight + in2 * (1 - weight).">
+    <input name="in1" type="EDF" doc="First EDF."/>
+    <input name="in2" type="EDF" doc="Second EDF."/>
+    <input name="weight" type="float" value="1.0" doc="Mixing weight, range [0, 1]."/>
   </nodedef>
 
   <!--
@@ -121,7 +121,7 @@
            doc="A node for layering a surface shader on top of another surface shader.">
     <input name="top" type="surfaceshader" doc="Top layer surface shader."/>
     <input name="base" type="surfaceshader" doc="Base layer surface shader."/>
-    <input name="weight" type="float" value="1.0" doc="Weight for the top layer."/>
+    <input name="weight" type="float" value="1.0" doc="Mixing weight, range [0, 1]."/>
   </nodedef>
 
   <!--
