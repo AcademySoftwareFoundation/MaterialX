@@ -1,5 +1,5 @@
-void sx_mixedf(vec3 N, vec3 L, EDF fg, EDF bg, float mask, out EDF result)
+void sx_mixedf(vec3 N, vec3 L, EDF in1, EDF in2, float weight, out EDF result)
 {
-    float weight = clamp(mask, 0.0, 1.0);
-    result = fg * weight + bg * (1.0 - weight);
+    weight = clamp(weight, 0.0, 1.0);
+    result = in1 * weight + in2 * (1.0 - weight);
 }
