@@ -17,11 +17,13 @@ Value::CreatorMap Value::_creatorMap;
 
 namespace {
 
-template <class T> using enable_if_mx_vector_t = typename std::enable_if<std::is_base_of<VectorBase, T>::value, T>::type;
+template <class T> using enable_if_mx_vector_t =
+    typename std::enable_if<std::is_base_of<VectorBase, T>::value, T>::type;
 
 template <class T> class is_std_vector : public std::false_type { };
-template <class T, class Alloc> class is_std_vector< vector<T, Alloc> > : public std::true_type { };
-template <class T> using enable_if_std_vector_t = typename std::enable_if<is_std_vector<T>::value, T>::type;
+template <class T> class is_std_vector< vector<T> > : public std::true_type { };
+template <class T> using enable_if_std_vector_t =
+    typename std::enable_if<is_std_vector<T>::value, T>::type;
 
 template <class T> void stringToData(const string& str, T& data);
 template <class T> void dataToString(const T& data, string& str);
