@@ -8,6 +8,7 @@
 #include <MaterialXCore/Util.h>
 
 #include <sstream>
+#include <type_traits>
 
 namespace MaterialX
 {
@@ -16,60 +17,131 @@ Value::CreatorMap Value::_creatorMap;
 
 namespace {
 
-//
-// Stream operators
-//
+template <class T> using enable_if_mx_vector_t = typename std::enable_if<std::is_base_of<VectorBase, T>::value, T>::type;
 
-template <size_t N> std::istream& operator>>(std::istream& is, VectorN<N>& v)
+template <class T> class is_std_vector : public std::false_type { };
+template <class T, class Alloc> class is_std_vector< vector<T, Alloc> > : public std::true_type { };
+template <class T> using enable_if_std_vector_t = typename std::enable_if<is_std_vector<T>::value, T>::type;
+
+template <class T> void stringToData(const string& str, T& data);
+template <class T> void dataToString(const T& data, string& str);
+
+template <> void stringToData(const string& str, bool& data)
 {
-    string str(std::istreambuf_iterator<char>(is), { });
-    vector<string> values = splitString(str, ARRAY_VALID_SEPARATORS);
-    if (values.size() != N)
-        throw ExceptionTypeError("Type mismatch in vector fromValueString: " + str);
-    for (size_t i = 0; i < N; i++)
-    {
-        v[i] = fromValueString<float>(values[i]);
-    }
-    return is;
+    if (str == VALUE_STRING_TRUE)
+        data = true;
+    else if (str == VALUE_STRING_FALSE)
+        data = false;
+    else
+        throw ExceptionTypeError("Type mismatch in boolean stringToData: " + str);
 }
 
-template <size_t N> std::ostream& operator<<(std::ostream& os, const VectorN<N>& v)
+template <> void stringToData(const string& str, string& data)
 {
-    for (size_t i = 0; i < N; i++)
+    data = str;
+}
+
+template <class T> void stringToData(const string& str, enable_if_mx_vector_t<T>& data)
+{
+    vector<string> tokens = splitString(str, ARRAY_VALID_SEPARATORS);
+    if (tokens.size() != data.length())
     {
-        os << v[i];
-        if (i + 1 < N)
+        throw ExceptionTypeError("Type mismatch in vector stringToData: " + str);
+    }
+    for (size_t i = 0; i < data.length(); i++)
+    {
+        stringToData(tokens[i], data[i]);
+    }
+}
+
+template <class T> void stringToData(const string& str, enable_if_std_vector_t<T>& data)
+{
+    for (const string& token : splitString(str, ARRAY_VALID_SEPARATORS))
+    {
+        typename T::value_type val;
+        stringToData(token, val);
+        data.push_back(val);
+    }
+}
+
+template <class T> void stringToData(const string& value, T& data)
+{
+    std::stringstream ss(value);
+    if (!(ss >> data))
+    {
+        throw ExceptionTypeError("Type mismatch in generic stringToData: " + value);
+    }
+}
+
+template <> void dataToString(const bool& data, string& str)
+{
+    str = data ? VALUE_STRING_TRUE : VALUE_STRING_FALSE;
+}
+
+template <> void dataToString(const string& data, string& str)
+{
+    str = data;
+}
+
+template <class T> void dataToString(const enable_if_mx_vector_t<T>& data, string& str)
+{
+    for (size_t i = 0; i < data.length(); i++)
+    {
+        string token;
+        dataToString(data[i], token);
+        str += token;
+        if (i + 1 < data.length())
         {
-            os << ARRAY_PREFERRED_SEPARATOR;
+            str += ARRAY_PREFERRED_SEPARATOR;
         }
     }
-    return os;
 }
 
-template <class T> std::istream& operator>>(std::istream& is, vector<T>& v)
+template <class T> void dataToString(const enable_if_std_vector_t<T>& data, string& str)
 {
-    string str(std::istreambuf_iterator<char>(is), { });
-    for (const string& value : splitString(str, ARRAY_VALID_SEPARATORS))
+    for (size_t i = 0; i < data.size(); i++)
     {
-        v.push_back(fromValueString<T>(value));
-    }
-    return is;
-}
-
-template <class T> std::ostream& operator<<(std::ostream& os, const vector<T>& v)
-{
-    for (size_t i = 0; i < v.size(); i++)
-    {
-        os << toValueString<T>(v[i]);
-        if (i + 1 < v.size())
+        string token;
+        dataToString<typename T::value_type>(data[i], token);
+        str += token;
+        if (i + 1 < data.size())
         {
-            os << ARRAY_PREFERRED_SEPARATOR;
+            str += ARRAY_PREFERRED_SEPARATOR;
         }
     }
-    return os;
+}
+
+template <class T> void dataToString(const T& data, string& str)
+{
+    std::stringstream ss;
+    ss << data;
+    str = ss.str();
 }
 
 } // anonymous namespace
+
+//
+// Global functions
+//
+
+template<class T> const string& getTypeString()
+{
+    return TypedValue<T>::TYPE;
+}
+
+template <class T> string toValueString(const T& data)
+{
+    string value;
+    dataToString<T>(data, value);
+    return value;
+}
+
+template <class T> T fromValueString(const string& value)
+{
+    T data;
+    stringToData<T>(value, data);
+    return data;
+}
 
 //
 // TypedValue methods
@@ -123,55 +195,6 @@ template<class T> T Value::asA() const
         throw ExceptionTypeError("Incorrect type specified for value");
     }
     return typedVal->getData();
-}
-
-//
-// Global functions
-//
-
-template<class T> const string& getTypeString()
-{
-    return TypedValue<T>::TYPE;
-}
-
-template <> string toValueString(const bool& data)
-{
-    return data ? VALUE_STRING_TRUE : VALUE_STRING_FALSE;
-}
-
-template <> string toValueString(const string& data)
-{
-    return data;
-}
-
-template <class T> string toValueString(const T& data)
-{
-    std::stringstream ss;
-    ss << data;
-    return ss.str();
-}
-
-template <> bool fromValueString(const string& value)
-{
-    if (value == VALUE_STRING_TRUE)
-        return true;
-    if (value == VALUE_STRING_FALSE)
-        return false;
-    throw ExceptionTypeError("Type mismatch in boolean fromValueString: " + value);
-}
-
-template <> string fromValueString(const string& value)
-{
-    return value;
-}
-
-template <class T> T fromValueString(const string& value)
-{
-    std::stringstream ss(value);
-    T data;
-    if (ss >> data)
-        return data;
-    throw ExceptionTypeError("Type mismatch in fromValueString: " + value);
 }
 
 //
