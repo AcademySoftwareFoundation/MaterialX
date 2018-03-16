@@ -27,6 +27,7 @@ public:
     /// @param height Height of image in pixels
     /// @param channelCount Number of channels per pixel
     /// @param buffer Floating point buffer of pixels.
+    /// @return if save succeeded
     virtual bool saveImage(const std::string& fileName,
                             unsigned int width,
                             unsigned int height,
@@ -39,11 +40,23 @@ public:
     /// @param height Height of image in pixels
     /// @param channelCount Number of channels per pixel
     /// @param buffer Floating point buffer of pixels.
+    /// @return if load succeeded
     virtual bool loadImage(const std::string& fileName,
                             unsigned int& width,
                             unsigned int& height,
                             unsigned int& channelCount,
                             float** buffer) = 0;
+
+    /// Utility to create a default image if a given image cannot be loaded
+    /// The image should contain four channels (RGBA) with each channel
+    /// being unsigned char in size.
+    /// @param width Width of image in pixels
+    /// @param height Height of image in pixels
+    /// @param buffer Unsigned char buffer of pixels. 
+    /// @return if creation succeeded
+    virtual bool createDefaultImage(unsigned int& width,
+                                    unsigned int& height,
+                                    unsigned char** buffer);
 };
 
 } // namespace MaterialX

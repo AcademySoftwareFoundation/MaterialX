@@ -25,7 +25,7 @@
 #endif
 #endif
 
-#include <MaterialXView/Image/TinyEXRImageHandler.h>
+#include <MaterialXView/Handlers/TinyEXRImageHandler.h>
 
 namespace MaterialX
 {

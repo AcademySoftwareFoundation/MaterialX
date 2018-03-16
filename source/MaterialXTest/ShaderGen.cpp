@@ -15,6 +15,8 @@
 #include <MaterialXShaderGen/Util.h>
 #include <MaterialXShaderGen/HwShader.h>
 
+#include <MaterialXView/Handlers/LightHandler.h>
+
 #include <fstream>
 
 namespace mx = MaterialX;
@@ -123,22 +125,6 @@ bool requiresImplementation(const mx::NodeDefPtr nodeDef)
     return !typeAttribute.empty() && typeAttribute != TYPE_NONE;
 }
 
-// Identifiers for supported light types.
-enum LightTypes
-{
-    DIRECTIONAL_LIGHT,
-    POINT_LIGHT,
-    LIGHT_COMPOUND
-};
-
-// Light shader nodes to bind to each light type.
-const std::vector<std::pair<int, std::string>> LIGHT_SHADERS =
-{
-    { DIRECTIONAL_LIGHT, "ND_directionallight" },
-    { POINT_LIGHT, "ND_pointlight" },
-    { LIGHT_COMPOUND, "ND_lightcompound" }
-};
-
 void createLightCompoundExample(mx::DocumentPtr document)
 {
     const std::string nodeName = "lightcompound";
@@ -147,8 +133,9 @@ void createLightCompoundExample(mx::DocumentPtr document)
     // Make sure it doesn't exists already
     if (!document->getNodeDef(nodeDefName))
     {
-        // Create an interface for the light with color and intensity
+        // Create an interface for the light with position, color and intensity
         mx::NodeDefPtr nodeDef = document->addNodeDef(nodeDefName, "lightshader", nodeName);
+        nodeDef->addInput("position", "vector3");
         nodeDef->addInput("color", "color3");
         nodeDef->addInput("intensity", "float");
 
@@ -166,15 +153,8 @@ void createLightCompoundExample(mx::DocumentPtr document)
         mx::InputPtr light_intensity = light->addInput("intensity", "float");
         light_intensity->setInterfaceName("intensity");
 
-        // Connect the EDF to the light construstor
+        // Connect the EDF to the light constructor
         light->setConnectedNode("edf", edf);
-
-        // Add a ramp and connect to exposure on the light constructor
-        mx::NodePtr ramplr = nodeGraph->addNode("ramplr", "ramplr1", "float");
-        ramplr->setParameterValue("valuel", 1.0f);
-        ramplr->setParameterValue("valuer", 3.0f);
-        mx::InputPtr light_exposure = light->addInput("exposure", "float");
-        light_exposure->setConnectedNode(ramplr);
 
         // Connect the light to the graph output
         output->setConnectedNode(light);
@@ -184,20 +164,51 @@ void createLightCompoundExample(mx::DocumentPtr document)
     }
 }
 
-// Bind the supported light types to corresponding light shaders
-// for the given shader generator.
-void bindLightShaders(mx::DocumentPtr document, mx::HwShaderGenerator& shadergen)
+float cosAngle(float degrees)
 {
-    // Create the light compound example
-    createLightCompoundExample(document);
+    static const float PI = 3.14159265f;
+    return cos(degrees * PI / 180.0f);
+}
 
-    // Bind the light shaders
-    for (auto lightShader : LIGHT_SHADERS)
-    {
-        mx::NodeDefPtr nodeDef = document->getNodeDef(lightShader.second);
-        REQUIRE(nodeDef != nullptr);
-        shadergen.bindLightShader(*nodeDef, lightShader.first);
-    }
+void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::HwShaderGenerator& shadergen)
+{
+    createLightCompoundExample(doc);
+
+    mx::NodeDefPtr dirLightNodeDef = doc->getNodeDef("ND_directionallight");
+    mx::NodeDefPtr pointLightNodeDef = doc->getNodeDef("ND_pointlight");
+    mx::NodeDefPtr spotLightNodeDef = doc->getNodeDef("ND_spotlight");
+    mx::NodeDefPtr compoundLightNodeDef = doc->getNodeDef("ND_lightcompound");
+    REQUIRE(dirLightNodeDef != nullptr);
+    REQUIRE(pointLightNodeDef != nullptr);
+    REQUIRE(spotLightNodeDef != nullptr);
+    REQUIRE(compoundLightNodeDef != nullptr);
+
+    mx::LightSourcePtr dirLight = lightHandler.createLightSource(dirLightNodeDef);
+    dirLight->setParameter("direction", mx::Vector3(0, 0, -1));
+    dirLight->setParameter("color", mx::Color3(1, 1, 1));
+    dirLight->setParameter("intensity", 0.4f);
+
+    mx::LightSourcePtr pointLight = lightHandler.createLightSource(pointLightNodeDef);
+    pointLight->setParameter("position", mx::Vector3(200, 200, 50));
+    pointLight->setParameter("color", mx::Color3(1, 1, 0));
+    pointLight->setParameter("intensity", 10000.0f);
+    pointLight->setParameter("decayRate", 2.0f);
+
+    mx::LightSourcePtr spotLight = lightHandler.createLightSource(spotLightNodeDef);
+    spotLight->setParameter("position", mx::Vector3(350, 350, 100));
+    spotLight->setParameter("direction", mx::Vector3(0, 0, -1));
+    spotLight->setParameter("color", mx::Color3(1, 0, 0));
+    spotLight->setParameter("intensity", 10.0f);
+    spotLight->setParameter("decayRate", 0.0f);
+    spotLight->setParameter("innerConeAngle", cosAngle(40.0f));
+    spotLight->setParameter("outerConeAngle", cosAngle(50.0f));
+
+    mx::LightSourcePtr compoundLight = lightHandler.createLightSource(compoundLightNodeDef);
+    compoundLight->setParameter("position", mx::Vector3(200, 400, 50));
+    compoundLight->setParameter("color", mx::Color3(0, 1, 0));
+    compoundLight->setParameter("intensity", 10000.0f);
+
+    lightHandler.bindLightShaders(shadergen);
 }
 
 
@@ -802,8 +813,9 @@ TEST_CASE("Subgraphs", "[shadergen]")
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::creator();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-        mx::HwShaderGenerator* hwShaderGenerator = static_cast<mx::HwShaderGenerator*>(shaderGenerator.get());
-        bindLightShaders(doc, *hwShaderGenerator);
+        // Setup lighting
+        mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
+        createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
         for (const std::string& graphName : exampleGraphNames)
         {
@@ -830,8 +842,9 @@ TEST_CASE("Subgraphs", "[shadergen]")
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-        mx::HwShaderGenerator* hwShaderGenerator = static_cast<mx::HwShaderGenerator*>(shaderGenerator.get());
-        bindLightShaders(doc, *hwShaderGenerator);
+        // Setup lighting
+        mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
+        createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
         for (const std::string& graphName : exampleGraphNames)
         {
@@ -960,8 +973,9 @@ TEST_CASE("BSDF Layering", "[shadergen]")
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::creator();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-        mx::HwShaderGenerator* hwShaderGenerator = static_cast<mx::HwShaderGenerator*>(shaderGenerator.get());
-        bindLightShaders(doc, *hwShaderGenerator);
+        // Setup lighting
+        mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
+        createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef);
         REQUIRE(shader != nullptr);
@@ -979,8 +993,9 @@ TEST_CASE("BSDF Layering", "[shadergen]")
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-        mx::HwShaderGenerator* hwShaderGenerator = static_cast<mx::HwShaderGenerator*>(shaderGenerator.get());
-        bindLightShaders(doc, *hwShaderGenerator);
+        // Setup lighting
+        mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
+        createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef);
         REQUIRE(shader != nullptr);
@@ -1090,8 +1105,9 @@ TEST_CASE("Transparency", "[shadergen]")
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::creator();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-        mx::HwShaderGenerator* hwShaderGenerator = static_cast<mx::HwShaderGenerator*>(shaderGenerator.get());
-        bindLightShaders(doc, *hwShaderGenerator);
+        // Setup lighting
+        mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
+        createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef);
         REQUIRE(shader != nullptr);
@@ -1109,8 +1125,9 @@ TEST_CASE("Transparency", "[shadergen]")
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-        mx::HwShaderGenerator* hwShaderGenerator = static_cast<mx::HwShaderGenerator*>(shaderGenerator.get());
-        bindLightShaders(doc, *hwShaderGenerator);
+        // Setup lighting
+        mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
+        createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef);
         REQUIRE(shader != nullptr);
@@ -1203,8 +1220,9 @@ TEST_CASE("Surface Layering", "[shadergen]")
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::creator();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-        mx::HwShaderGenerator* hwShaderGenerator = static_cast<mx::HwShaderGenerator*>(shaderGenerator.get());
-        bindLightShaders(doc, *hwShaderGenerator);
+        // Setup lighting
+        mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
+        createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef);
         REQUIRE(shader != nullptr);
@@ -1222,8 +1240,9 @@ TEST_CASE("Surface Layering", "[shadergen]")
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-        mx::HwShaderGenerator* hwShaderGenerator = static_cast<mx::HwShaderGenerator*>(shaderGenerator.get());
-        bindLightShaders(doc, *hwShaderGenerator);
+        // Setup lighting
+        mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
+        createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef);
         REQUIRE(shader != nullptr);

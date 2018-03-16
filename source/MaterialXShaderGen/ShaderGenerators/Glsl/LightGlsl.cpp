@@ -57,11 +57,15 @@ void LightGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen_
     shadergen.emitInput(intensity, shader);
     shader.endLine();
 
-    shader.beginLine();
-    shader.addStr("result.intensity *= pow(2, ");
-    shadergen.emitInput(exposure, shader);
-    shader.addStr(")");
-    shader.endLine();
+    // Emit exposure adjustment only if it matters
+    if (exposure->connection || (exposure->value && exposure->value->asA<float>() != 0.0f))
+    {
+        shader.beginLine();
+        shader.addStr("result.intensity *= pow(2, ");
+        shadergen.emitInput(exposure, shader);
+        shader.addStr(")");
+        shader.endLine();
+    }
 
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }

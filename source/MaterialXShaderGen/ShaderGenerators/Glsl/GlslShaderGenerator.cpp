@@ -184,6 +184,8 @@ GlslShaderGenerator::GlslShaderGenerator()
     registerImplementation("IM_pointlight__glsl", LightShaderGlsl::creator);
     // <!-- <directionallight> -->
     registerImplementation("IM_directionallight__glsl", LightShaderGlsl::creator);
+    // <!-- <spotlight> -->
+    registerImplementation("IM_spotlight__glsl", LightShaderGlsl::creator);
 }
 
 ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr element)

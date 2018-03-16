@@ -81,6 +81,18 @@
   </nodedef>
 
   <!--
+    Node: <conicaledf>
+    An EDF node for uniform emission.
+  -->
+  <nodedef name="ND_conicaledf" node="conicaledf" type="EDF" nodecategory="shaderx"
+           doc=" An EDF node for conical emission.">
+    <input name="intensity" type="color3" value="1.0, 1.0, 1.0"/>
+    <input name="innerConeAngle" type="float" value="0.7" doc=""/>
+    <input name="outerConeAngle" type="float" value="0.7" doc=""/>
+    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+  </nodedef>
+
+  <!--
     Node: <mixbsdf>
     A node for mixing BSDF's.
   -->
@@ -154,6 +166,20 @@
     <input name="direction" type="vector3" doc="Light source direction."/>
     <input name="color" type="color3" doc="Light color."/>
     <input name="intensity" type="float" doc="Light intensity."/>
+  </nodedef>
+
+  <!--
+    Node: <spotlight>
+  -->
+  <nodedef name="ND_spotlight" node="spotlight" type="lightshader" nodecategory="shaderx"
+           doc="A light shader node of 'spot' type.">
+    <input name="position" type="vector3" doc="Light source position."/>
+    <input name="direction" type="vector3" doc="Light source direction."/>
+    <input name="color" type="color3" doc="Light color."/>
+    <input name="intensity" type="float" doc="Light intensity."/>
+    <input name="decayRate" type="float" value="2.0" doc="Light decay exponent. Defaults to 2 for quadratic decay."/>
+    <input name="innerConeAngle" type="float" doc="Inner cone angle."/>
+    <input name="outerConeAngle" type="float" doc="Outer cone angle."/>
   </nodedef>
 
 </materialx>

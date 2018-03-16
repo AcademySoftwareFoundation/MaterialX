@@ -19,6 +19,9 @@
   <!-- <uniformedf> -->
   <implementation name="IM_uniformedf__glsl" nodedef="ND_uniformedf" file="sx/impl/shadergen/glsl/source/sx_uniformedf.glsl" function="sx_uniformedf" language="glsl"/>
 
+  <!-- <conicaledf> -->
+  <implementation name="IM_conicaledf__glsl" nodedef="ND_conicaledf" file="sx/impl/shadergen/glsl/source/sx_conicaledf.glsl" function="sx_conicaledf" language="glsl"/>
+
   <!-- <mixbsdf> -->
   <implementation name="IM_mixbsdf__glsl" nodedef="ND_mixbsdf" file="sx/impl/shadergen/glsl/source/sx_mixbsdf.glsl" function="sx_mixbsdf" language="glsl"/>
 
@@ -39,5 +42,8 @@
 
   <!-- <directionallight> -->
   <implementation name="IM_directionallight__glsl" nodedef="ND_directionallight" file="sx/impl/shadergen/glsl/source/sx_directionallight.glsl" function="sx_directionallight" language="glsl"/>
+
+  <!-- <spotlight> -->
+  <implementation name="IM_spotlight__glsl" nodedef="ND_spotlight" file="sx/impl/shadergen/glsl/source/sx_spotlight.glsl" function="sx_spotlight" language="glsl"/>
 
 </materialx>
