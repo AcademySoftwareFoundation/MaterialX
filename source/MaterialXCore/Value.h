@@ -58,11 +58,11 @@ class Value
     /// exception is thrown.
     template<class T> T asA() const;
 
-    /// Return the value string for this value.
-    virtual string getValueString() const = 0;
-
     /// Return the type string for this value.
     virtual const string& getTypeString() const = 0;
+
+    /// Return the value string for this value.
+    virtual string getValueString() const = 0;
 
   protected:
     template <class T> friend class ValueRegistry;
@@ -112,11 +112,11 @@ template <class T> class TypedValue : public Value
         return _data;
     }
 
-    /// Return data string.
-    string getValueString() const override;
-
     /// Return type string.
     const string& getTypeString() const override;
+
+    /// Return value string.
+    string getValueString() const override;
 
     //
     // Static helper methods
