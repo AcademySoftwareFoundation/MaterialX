@@ -25,8 +25,14 @@ template <class T> class is_std_vector< vector<T> > : public std::true_type { };
 template <class T> using enable_if_std_vector_t =
     typename std::enable_if<is_std_vector<T>::value, T>::type;
 
-template <class T> void stringToData(const string& str, T& data);
-template <class T> void dataToString(const T& data, string& str);
+template <class T> void stringToData(const string& value, T& data)
+{
+    std::stringstream ss(value);
+    if (!(ss >> data))
+    {
+        throw ExceptionTypeError("Type mismatch in generic stringToData: " + value);
+    }
+}
 
 template <> void stringToData(const string& str, bool& data)
 {
@@ -66,13 +72,11 @@ template <class T> void stringToData(const string& str, enable_if_std_vector_t<T
     }
 }
 
-template <class T> void stringToData(const string& value, T& data)
+template <class T> void dataToString(const T& data, string& str)
 {
-    std::stringstream ss(value);
-    if (!(ss >> data))
-    {
-        throw ExceptionTypeError("Type mismatch in generic stringToData: " + value);
-    }
+    std::stringstream ss;
+    ss << data;
+    str = ss.str();
 }
 
 template <> void dataToString(const bool& data, string& str)
@@ -111,13 +115,6 @@ template <class T> void dataToString(const enable_if_std_vector_t<T>& data, stri
             str += ARRAY_PREFERRED_SEPARATOR;
         }
     }
-}
-
-template <class T> void dataToString(const T& data, string& str)
-{
-    std::stringstream ss;
-    ss << data;
-    str = ss.str();
 }
 
 } // anonymous namespace
