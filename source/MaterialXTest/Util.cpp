@@ -12,6 +12,10 @@ namespace mx = MaterialX;
 
 TEST_CASE("String utilities", "[util]")
 {
+    std::string invalidName("test.name");
+    REQUIRE(mx::isValidName(invalidName) == false);
+    REQUIRE(mx::isValidName(mx::createValidName(invalidName)) == true);
+
     REQUIRE(mx::createValidName("test.name.1") == "test_name_1");
     REQUIRE(mx::createValidName("test*name>2") == "test_name_2");
     REQUIRE(mx::createValidName("testName...") == "testName___");
@@ -97,7 +101,5 @@ TEST_CASE("Print utilities", "[util]")
         "    \"noise3d\" -> \"mix\" [label=\"mask\"];\n" \
         "}\n";
 
-    const std::string dot = mx::printGraphDot(nodeGraph);
-
-    REQUIRE(dot == blessed);
+    REQUIRE(nodeGraph->asStringDot() == blessed);
 }

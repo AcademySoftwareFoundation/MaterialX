@@ -18,6 +18,10 @@ void bindPyDefinition(py::module& mod)
         .def("setNodeString", &mx::NodeDef::setNodeString)
         .def("hasNodeString", &mx::NodeDef::hasNodeString)
         .def("getNodeString", &mx::NodeDef::getNodeString)
+        .def("setNodeCategory", &mx::NodeDef::setNodeCategory)
+        .def("hasNodeCategory", &mx::NodeDef::hasNodeCategory)
+        .def("getNodeCategory", &mx::NodeDef::getNodeCategory)
+        .def("getImplementation", &mx::NodeDef::getImplementation)
         .def("getImplementation", &mx::NodeDef::getImplementation,
             py::arg("target") = mx::EMPTY_STRING,
             py::arg("language") = mx::EMPTY_STRING)

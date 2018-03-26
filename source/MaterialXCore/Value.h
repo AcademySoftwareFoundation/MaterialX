@@ -33,12 +33,14 @@ class Value
     virtual ~Value() { }
 
     /// Create a new value from an object of any valid MaterialX type.
-    template<class T> static ValuePtr createValue(const T& value)
+    template<class T> static ValuePtr createValue(const T& data)
     {
-        return std::make_shared< TypedValue<T> >(value);
+        return std::make_shared< TypedValue<T> >(data);
     }
 
-    /// Create a new value from value and type strings.
+    /// Create a new value instance from value and type strings.
+    /// @return A shared pointer to a typed value, or an empty shared pointer
+    ///    if the conversion to the given data type cannot be performed.
     static ValuePtr createValueFromStrings(const string& value, const string& type);
 
     /// Create a deep copy of the value.
@@ -56,11 +58,11 @@ class Value
     /// exception is thrown.
     template<class T> T asA() const;
 
-    /// Return the value string for this value.
-    virtual string getValueString() const = 0;
-
     /// Return the type string for this value.
     virtual const string& getTypeString() const = 0;
+
+    /// Return the value string for this value.
+    virtual string getValueString() const = 0;
 
   protected:
     template <class T> friend class ValueRegistry;
@@ -110,17 +112,19 @@ template <class T> class TypedValue : public Value
         return _data;
     }
 
-    /// Return data string.
-    string getValueString() const override;
-
     /// Return type string.
     const string& getTypeString() const override;
+
+    /// Return value string.
+    string getValueString() const override;
 
     //
     // Static helper methods
     //
 
     /// Create a new value of this type from a value string.
+    /// @return A shared pointer to a typed value, or an empty shared pointer
+    ///    if the conversion to the given data type cannot be performed.
     static ValuePtr createFromString(const string& value);
 
   public:
@@ -130,8 +134,23 @@ template <class T> class TypedValue : public Value
     T _data;
 };
 
+/// @class @ExceptionTypeError
+/// An exception that is thrown when a type mismatch is encountered.
+class ExceptionTypeError : public Exception
+{
+  public:
+    using Exception::Exception;
+};
+
 /// Return the type string associated with the given data type.
 template<class T> const string& getTypeString();
+
+/// Convert the given data value to a value string.
+template <class T> string toValueString(const T& data);
+
+/// Convert the given value string to a data value of the given type.
+/// @throws ExceptionTypeError if the conversion cannot be performed.
+template <class T> T fromValueString(const string& value);
 
 } // namespace MaterialX
 
