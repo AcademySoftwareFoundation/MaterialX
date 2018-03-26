@@ -25,14 +25,29 @@ const string Implementation::LANGUAGE_ATTRIBUTE = "language";
 // NodeDef methods
 //
 
-InterfaceElementPtr NodeDef::getImplementation(const string& target) const
+InterfaceElementPtr NodeDef::getImplementation(const string& target, const string& language) const
 {
-    for (InterfaceElementPtr implement : getDocument()->getMatchingImplementations(getName()))
+    for (InterfaceElementPtr element : getDocument()->getMatchingImplementations(getName()))
     {
-        if (targetStringsMatch(implement->getTarget(), target))
+        // Skip if target does not match
+        if (!targetStringsMatch(element->getTarget(), target))
         {
-            return implement;
+            continue;
         }
+
+        // Only check language against implementations. Other elements such
+        // as nodegraphs do not have language specific implementations.
+        //
+        if (!language.empty())
+        {
+            ImplementationPtr implementation = element->asA<Implementation>();
+            if (implementation && implementation->getLanguage() != language)
+            {
+                continue;
+            }
+        }
+
+        return element;
     }
     return InterfaceElementPtr();
 }

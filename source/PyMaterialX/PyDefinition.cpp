@@ -18,9 +18,12 @@ void bindPyDefinition(py::module& mod)
         .def("setNodeString", &mx::NodeDef::setNodeString)
         .def("hasNodeString", &mx::NodeDef::hasNodeString)
         .def("getNodeString", &mx::NodeDef::getNodeString)
-        .def("getImplementation", &mx::NodeDef::getImplementation)
+        .def("getImplementation", &mx::NodeDef::getImplementation,
+            py::arg("target") = mx::EMPTY_STRING,
+            py::arg("language") = mx::EMPTY_STRING)
         .def("getInstantiatingShaderRefs", &mx::NodeDef::getInstantiatingShaderRefs)
-        .def_readonly_static("CATEGORY", &mx::NodeDef::CATEGORY);
+        .def_readonly_static("CATEGORY", &mx::NodeDef::CATEGORY)
+        .def_readonly_static("NODE_ATTRIBUTE", &mx::NodeDef::NODE_ATTRIBUTE);
 
     py::class_<mx::Implementation, mx::ImplementationPtr, mx::InterfaceElement>(mod, "Implementation")
         .def("setNodeDefString", &mx::Implementation::setNodeDefString)
@@ -37,7 +40,11 @@ void bindPyDefinition(py::module& mod)
         .def("setLanguage", &mx::Implementation::setLanguage)
         .def("hasLanguage", &mx::Implementation::hasLanguage)
         .def("getLanguage", &mx::Implementation::getLanguage)
-        .def_readonly_static("CATEGORY", &mx::Implementation::CATEGORY);
+        .def_readonly_static("CATEGORY", &mx::Implementation::CATEGORY)
+        .def_readonly_static("NODE_DEF_ATTRIBUTE", &mx::Implementation::NODE_DEF_ATTRIBUTE)
+        .def_readonly_static("FILE_ATTRIBUTE", &mx::Implementation::FILE_ATTRIBUTE)
+        .def_readonly_static("FUNCTION_ATTRIBUTE", &mx::Implementation::FUNCTION_ATTRIBUTE)
+        .def_readonly_static("LANGUAGE_ATTRIBUTE", &mx::Implementation::LANGUAGE_ATTRIBUTE);
 
     py::class_<mx::TypeDef, mx::TypeDefPtr, mx::Element>(mod, "TypeDef")
         .def("setSemantic", &mx::TypeDef::setSemantic)
@@ -51,7 +58,9 @@ void bindPyDefinition(py::module& mod)
         .def("getMember", &mx::TypeDef::getMember)
         .def("getMembers", &mx::TypeDef::getMembers)
         .def("removeMember", &mx::TypeDef::removeMember)
-        .def_readonly_static("CATEGORY", &mx::TypeDef::CATEGORY);
+        .def_readonly_static("CATEGORY", &mx::TypeDef::CATEGORY)
+        .def_readonly_static("SEMANTIC_ATTRIBUTE", &mx::TypeDef::SEMANTIC_ATTRIBUTE)
+        .def_readonly_static("CONTEXT_ATTRIBUTE", &mx::TypeDef::CONTEXT_ATTRIBUTE);
 
     py::class_<mx::Member, mx::MemberPtr, mx::TypedElement>(mod, "Member")
         .def_readonly_static("CATEGORY", &mx::TypeDef::CATEGORY);

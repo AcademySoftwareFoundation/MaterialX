@@ -20,7 +20,8 @@ void bindPyNode(py::module& mod)
         .def("getNodeDef", &mx::Node::getNodeDef,
             py::arg("target") = mx::EMPTY_STRING)
         .def("getImplementation", &mx::Node::getImplementation,
-            py::arg("target") = mx::EMPTY_STRING)
+            py::arg("target") = mx::EMPTY_STRING,
+            py::arg("language") = mx::EMPTY_STRING)
         .def("getDownstreamPorts", &mx::Node::getDownstreamPorts)
         .def_readonly_static("CATEGORY", &mx::Node::CATEGORY);
 
