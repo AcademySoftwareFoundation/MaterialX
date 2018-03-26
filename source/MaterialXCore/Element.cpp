@@ -104,6 +104,20 @@ string Element::getNamePath(ConstElementPtr relativeTo) const
     return res;
 }
 
+ElementPtr Element::getDescendant(const string& path)
+{
+    const vector<string> elementNames = splitString(path, NAME_PATH_SEPARATOR);
+    ElementPtr currentElement = getSelf();
+    for (const string& elementName : elementNames)
+    {
+        if (!(currentElement = currentElement->getChild(elementName)))
+        {
+            return ElementPtr();
+        }
+    }
+    return currentElement;
+}
+
 void Element::registerChildElement(ElementPtr child)
 {
     DocumentPtr doc = getDocument();

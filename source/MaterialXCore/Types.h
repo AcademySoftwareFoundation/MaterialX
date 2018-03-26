@@ -22,6 +22,7 @@ extern const string GEOMNAME_TYPE_STRING;
 extern const string SURFACE_SHADER_TYPE_STRING;
 extern const string VOLUME_SHADER_TYPE_STRING;
 extern const string MULTI_OUTPUT_TYPE_STRING;
+extern const string NONE_TYPE_STRING;
 extern const string VALUE_STRING_TRUE;
 extern const string VALUE_STRING_FALSE;
 extern const string NAME_PATH_SEPARATOR;
