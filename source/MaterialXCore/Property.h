@@ -119,6 +119,9 @@ class PropertySet : public Element
     }
     virtual ~PropertySet() { }
 
+    /// @name Properties
+    /// @{
+
     /// Add a Property to the set.
     /// @param name The name of the new Property.
     ///     If no name is specified, then a unique name will automatically be
@@ -126,9 +129,6 @@ class PropertySet : public Element
     /// @return A shared pointer to the new Property.
     PropertyPtr addProperty(const string& name)
     {
-        PropertyPtr assignPtr = getChildOfType<Property>(name);
-        if (assignPtr)
-            return assignPtr;
         return addChild<Property>(name);
     }
 
@@ -150,7 +150,36 @@ class PropertySet : public Element
         removeChildOfType<Property>(name);
     }
 
-  public:
+    /// @}
+    /// @name Values
+    /// @{
+
+    /// Set the typed value of a property by its name, creating a child element
+    /// to hold the property if needed.
+    template<class T> PropertyPtr setPropertyValue(const string& name,
+                                                   const T& value,
+                                                   const string& type = EMPTY_STRING)
+    {
+        PropertyPtr property = getChildOfType<Property>(name);
+        if (!property)
+            property = addProperty(name);
+        property->setValue(value, type);
+        return property;
+    }
+
+    /// Return the typed value of a property by its name.
+    /// @param name The name of the property to be evaluated.
+    /// @return If the given property is found, then a shared pointer to its
+    ///    value is returned; otherwise, an empty shared pointer is returned.
+    ValuePtr getPropertyValue(const string& name) const
+    {
+        PropertyPtr property = getProperty(name);
+        return property ? property->getValue() : ValuePtr();
+    }
+
+    /// @}
+
+public:
     static const string CATEGORY;
 };
 

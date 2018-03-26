@@ -12,8 +12,6 @@
 #include <MaterialXCore/Library.h>
 
 #include <array>
-#include <istream>
-#include <ostream>
 
 namespace MaterialX
 {
@@ -24,6 +22,7 @@ extern const string GEOMNAME_TYPE_STRING;
 extern const string SURFACE_SHADER_TYPE_STRING;
 extern const string VOLUME_SHADER_TYPE_STRING;
 extern const string MULTI_OUTPUT_TYPE_STRING;
+extern const string NONE_TYPE_STRING;
 extern const string VALUE_STRING_TRUE;
 extern const string VALUE_STRING_FALSE;
 extern const string NAME_PATH_SEPARATOR;
@@ -116,27 +115,10 @@ class Color4 : public Vector4
     using Vector4::Vector4;
 };
 
-template <std::size_t N> std::istream& operator>>(std::istream& is, VectorN<N>& v)
-{
-    for (size_t i = 0; i < N; i++)
-    {
-        is >> v[i];
-    }
-    return is;
-}
-
-template <std::size_t N> std::ostream& operator<<(std::ostream& os, const VectorN<N>& v)
-{
-    for (size_t i = 0; i < N - (size_t) 1; i++)
-    {
-        os << v[i] << ARRAY_PREFERRED_SEPARATOR;
-    }
-    os << v[N - (size_t) 1];
-    return os;
-}
-
-std::istream& operator>>(std::istream& is, vector<string>& v);
-std::ostream& operator<<(std::ostream& os, const vector<string>& v);
+// Standard vector aliases
+using IntVec = vector<int>;
+using BoolVec = vector<bool>;
+using FloatVec = vector<float>;
 
 } // namespace MaterialX
 

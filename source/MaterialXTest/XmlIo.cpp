@@ -40,6 +40,34 @@ TEST_CASE("Load content", "[xmlio]")
         libs.push_back(lib);
     }
 
+    // Check that there is one implementation per nodedef.
+    mx::DocumentPtr implCheckDocument = mx::createDocument();
+    for (mx::DocumentPtr lib : libs)
+    {
+        implCheckDocument->importLibrary(lib);
+    }
+    const std::string target;
+    const std::string language("osl");
+    std::vector<mx::NodeDefPtr> nodeDefs = implCheckDocument->getNodeDefs();
+    std::set<std::string> nodeDefsFound;
+    for (mx::NodeDefPtr nodeDef : nodeDefs)
+    {
+        const std::string typeAttribute = nodeDef->getAttribute(mx::Element::TYPE_ATTRIBUTE);
+        // Nodedefs which do not have a type do not reqiure an implementation
+        if (typeAttribute != mx::NONE_TYPE_STRING)
+        {
+            if (nodeDef->getImplementation(target, language))
+            {
+                nodeDefsFound.insert(nodeDef->getName());
+            }
+        }
+        else
+        {
+            nodeDefsFound.insert(nodeDef->getName());
+        }
+    }
+    REQUIRE(nodeDefsFound.size() == nodeDefs.size());
+
     // Read and validate each example document.
     for (std::string filename : exampleFilenames)
     {
@@ -131,8 +159,14 @@ TEST_CASE("Load content", "[xmlio]")
             mx::NodePtr node = elem->asA<mx::Node>();
             if (node)
             {
-                REQUIRE(node->getNodeDef());
-                REQUIRE(node->getImplementation());
+                mx::NodeDefPtr nodeDef = node->getNodeDef();
+                REQUIRE(nodeDef);
+                // Check that implementations exist for any nodedefs added by example files
+                if (nodeDefsFound.find(nodeDef->getName()) == nodeDefsFound.end())
+                {
+                    REQUIRE(nodeDef->getImplementation(target, language));
+                    nodeDefsFound.insert(nodeDef->getName());
+                }
             }
         }
 

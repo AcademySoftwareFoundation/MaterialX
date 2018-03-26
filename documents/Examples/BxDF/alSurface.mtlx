@@ -87,7 +87,7 @@
            helptext="Multiplier on the intensity of the transmission."  />
     <input name="transmissionColor" type="color3" value="1.0, 1.0, 1.0" publicname="Transmission/Color"
            helptext="Multiplier on the intensity of the transmission."  />
-    <parameter name="transmissionLinkToSpecular1" type="boolean" value="True" publicname="Transmission/Link to specular 1"
+    <parameter name="transmissionLinkToSpecular1" type="boolean" value="true" publicname="Transmission/Link to specular 1"
            helptext="When this is enabled, the transmission lobe will copy its Roughness and IOR values from the Specular 1 lobe. This is generally what you want for most materials."  />
     <input name="transmissionRoughness" type="float" value="0.0" publicname="Transmission/Roughness" uimax="1"
            helptext="The roughness of the transmission. 0 creates a perfect refracted image like water or highly polished glass. Higher values will give results like frosted glass."  />
@@ -101,7 +101,7 @@
            helptext="A scale factor on the attenuation and scattering effects. Scaller values make the object feel smaller, larger values make the object feel larger."  />
     <input name="ssDirection" type="float" value="0.0" publicname="Transmission/Attenuation/Direction" uimin="-0.99" uimax="0.99"
            helptext="The direction, or anisotropy, or the scattering. Values greater than zero means light tends to travel through the material from one side to the other, while values less than zero mean light tends to bounce back in the direction it came from."  />
-    <parameter name="ssSpecifyCoefficients" type="boolean" value="False" publicname="Transmission/Advanced/Specify attenuation coeffs."
+    <parameter name="ssSpecifyCoefficients" type="boolean" value="false" publicname="Transmission/Advanced/Specify attenuation coeffs."
            helptext="Enable this to directly specify the scattering and absorption parameters rather than use the Color and Scattering controls in the attenutaion section above. This can be useful for inputting measured data."  />
     <input name="ssScattering" type="color3" value="1.0, 1.0, 1.0" publicname="Transmission/Advanced/Scattering"
            helptext="Scattering coefficient"  />

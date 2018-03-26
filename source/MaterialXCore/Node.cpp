@@ -296,4 +296,50 @@ vector<ElementPtr> NodeGraph::topologicalSort() const
     return result;
 }
 
+string NodeGraph::asStringDot() const
+{
+    string dot = "digraph {\n";
+
+    // Print the nodes
+    for (NodePtr node : getNodes())
+    {
+        dot += "    \"" + node->getName() + "\" ";
+        NodeDefPtr nodeDef = node->getNodeDef();
+        const string& nodeCategory = nodeDef ? nodeDef->getNodeCategory() : EMPTY_STRING;
+        if (nodeCategory == CONDITIONAL_NODE_CATEGORY)
+        {
+            dot += "[shape=diamond];\n";
+        }
+        else
+        {
+            dot += "[shape=box];\n";
+        }
+    }
+ 
+    // Print the connections
+    std::set<Edge> processedEdges;
+    for (OutputPtr output : getOutputs())
+    {
+        for (Edge edge : output->traverseGraph())
+        {
+            if (!processedEdges.count(edge))
+            {
+                processedEdges.insert(edge);
+                ElementPtr upstreamElem = edge.getUpstreamElement();
+                ElementPtr downstreamElem = edge.getDownstreamElement();
+                ElementPtr connectingElem = edge.getConnectingElement();
+                dot += "    \"" + upstreamElem->getName();
+                dot += "\" -> \"" + downstreamElem->getName();
+                dot += "\" [label=\"";
+                dot += connectingElem ? connectingElem->getName() : EMPTY_STRING;
+                dot += "\"];\n";
+            }
+        }
+    }
+
+    dot += "}\n";
+
+    return dot;
+}
+
 } // namespace MaterialX

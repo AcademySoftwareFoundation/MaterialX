@@ -77,16 +77,19 @@ class Node : public InterfaceElement
     /// @{
 
     /// Return the first implementation for this node, optionally filtered by
-    /// the given target name.
+    /// the given target and language names.
     /// @param target An optional target name, which will be used to filter
+    ///    the implementations that are considered.
+    /// @param language An optional language name, which will be used to filter
     ///    the implementations that are considered.
     /// @return An implementation for this node, or an empty shared pointer if
     ///    none was found.  Note that a node implementation may be either an
     ///    Implementation element or a NodeGraph element.
-    InterfaceElementPtr getImplementation(const string& target = EMPTY_STRING) const
+    InterfaceElementPtr getImplementation(const string& target = EMPTY_STRING,
+                                          const string& language = EMPTY_STRING) const
     {
         NodeDefPtr nodeDef = getNodeDef(target);
-        return nodeDef ? nodeDef->getImplementation(target) : InterfaceElementPtr();
+        return nodeDef ? nodeDef->getImplementation(target, language) : InterfaceElementPtr();
     }
 
     /// @}
@@ -217,9 +220,18 @@ class NodeGraph : public InterfaceElement
     /// node graph, replacing each reference with the equivalent node network.
     void flattenSubgraphs(const string& target = EMPTY_STRING);
 
-    /// Return a vector of all children (nodes and outputs) sorted in topological order.
+    /// Return a vector of all children (nodes and outputs) sorted in
+    /// topological order.
     /// @throws ExceptionFoundCycle if a cycle is encountered.
     vector<ElementPtr> topologicalSort() const;
+
+    /// Convert this graph to a string in the DOT language syntax.  This can be
+    /// used to visualise the graph using GraphViz (http://www.graphviz.org).
+    ///
+    /// If declarations for the contained nodes are provided as nodedefs in
+    /// the owning document, then they will be used to provide additional
+    /// formatting details.
+    string asStringDot() const;
 
     /// @}
 

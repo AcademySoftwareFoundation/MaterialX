@@ -40,8 +40,34 @@ template<class T> void testTypedValue(const T& v1, const T& v2)
     REQUIRE(newValue2->asA<T>() == v2);
 }
 
+TEST_CASE("Value strings", "[value]")
+{
+    // Convert from data values to value strings.
+    REQUIRE(mx::toValueString(1) == "1");
+    REQUIRE(mx::toValueString(1.0f) == "1");
+    REQUIRE(mx::toValueString(true) == "true");
+    REQUIRE(mx::toValueString(false) == "false");
+    REQUIRE(mx::toValueString(mx::Color3(1.0f)) == "1, 1, 1");
+    REQUIRE(mx::toValueString(std::string("text")) == "text");
+
+    // Convert from value strings to data values.
+    REQUIRE(mx::fromValueString<int>("1") == 1);
+    REQUIRE(mx::fromValueString<float>("1") == 1.0f);
+    REQUIRE(mx::fromValueString<bool>("true") == true);
+    REQUIRE(mx::fromValueString<bool>("false") == false);
+    REQUIRE(mx::fromValueString<mx::Color3>("1, 1, 1") == mx::Color3(1.0f));
+    REQUIRE(mx::fromValueString<std::string>("text") == "text");
+
+    // Verify that invalid conversions throw exceptions.
+    REQUIRE_THROWS_AS(mx::fromValueString<int>("text"), mx::ExceptionTypeError);
+    REQUIRE_THROWS_AS(mx::fromValueString<float>("text"), mx::ExceptionTypeError);
+    REQUIRE_THROWS_AS(mx::fromValueString<bool>("1"), mx::ExceptionTypeError);
+    REQUIRE_THROWS_AS(mx::fromValueString<mx::Color3>("1"), mx::ExceptionTypeError);
+}
+
 TEST_CASE("Typed values", "[value]")
 {
+    // Base types
     testTypedValue<int>(1, 2);
     testTypedValue<bool>(false, true);
     testTypedValue<float>(1.0f, 2.0f);
@@ -63,6 +89,18 @@ TEST_CASE("Typed values", "[value]")
                    mx::Matrix4x4(1.0f));
     testTypedValue(std::string("first_value"),
                    std::string("second_value"));
-    testTypedValue(std::vector<std::string>{"one", "two", "three"},
-                   std::vector<std::string>{"four", "five", "six"});
+
+    // Array types
+    testTypedValue(mx::IntVec{1, 2, 3},
+                   mx::IntVec{4, 5, 6});
+    testTypedValue(mx::BoolVec{false, false, false},
+                   mx::BoolVec{true, true, true});
+    testTypedValue(mx::FloatVec{1.0f, 2.0f, 3.0f},
+                   mx::FloatVec{4.0f, 5.0f, 6.0f});
+    testTypedValue(mx::StringVec{"one", "two", "three"},
+                   mx::StringVec{"four", "five", "six"});
+
+    // Alias types
+    testTypedValue<long>(1l, 2l);
+    testTypedValue<double>(1.0, 2.0);
 }

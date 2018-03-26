@@ -57,6 +57,8 @@ void bindPyInterface(py::module& mod)
         .def("getOutputCount", &mx::InterfaceElement::getOutputCount)
         .def("_getParameterValue", &mx::InterfaceElement::getParameterValue)
         .def("_getInputValue", &mx::InterfaceElement::getInputValue)
+        .def("getDeclaration", &mx::InterfaceElement::getDeclaration,
+            py::arg("target") = mx::EMPTY_STRING)
         .def("isTypeCompatible", &mx::InterfaceElement::isTypeCompatible)
         BIND_INTERFACE_TYPE_INSTANCE(integer, int)
         BIND_INTERFACE_TYPE_INSTANCE(boolean, bool)

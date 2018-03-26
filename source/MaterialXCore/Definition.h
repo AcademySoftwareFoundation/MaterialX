@@ -19,6 +19,12 @@ namespace MaterialX
 extern const string COLOR_SEMANTIC;
 extern const string SHADER_SEMANTIC;
 
+extern const string TEXTURE_NODE_CATEGORY;
+extern const string PROCEDURAL_NODE_CATEGORY;
+extern const string GEOMETRIC_NODE_CATEGORY;
+extern const string ADJUSTMENT_NODE_CATEGORY;
+extern const string CONDITIONAL_NODE_CATEGORY;
+
 /// A shared pointer to a NodeDef
 using NodeDefPtr = shared_ptr<class NodeDef>;
 /// A shared pointer to a const NodeDef
@@ -75,17 +81,42 @@ class NodeDef : public InterfaceElement
     }
 
     /// @}
+    /// @name Node Category
+    /// @{
+
+    /// Set the node category of the NodeDef.
+    void setNodeCategory(const string& category)
+    {
+        setAttribute(NODE_CATEGORY_ATTRIBUTE, category);
+    }
+
+    /// Return true if the given NodeDef has a node category.
+    bool hasNodeCategory() const
+    {
+        return hasAttribute(NODE_CATEGORY_ATTRIBUTE);
+    }
+
+    /// Return the node category of the NodeDef.
+    const string& getNodeCategory() const
+    {
+        return getAttribute(NODE_CATEGORY_ATTRIBUTE);
+    }
+
+    /// @}
     /// @name Implementation References
     /// @{
 
     /// Return the first implementation for this nodedef, optionally filtered
-    /// by the given target name.
+    /// by the given target and language names.
     /// @param target An optional target name, which will be used to filter
+    ///    the implementations that are considered.
+    /// @param language An optional language name, which will be used to filter
     ///    the implementations that are considered.
     /// @return An implementation for this nodedef, or an empty shared pointer
     ///    if none was found.  Note that a node implementation may be either
     ///    an Implementation element or a NodeGraph element.
-    InterfaceElementPtr getImplementation(const string& target = EMPTY_STRING) const;
+    InterfaceElementPtr getImplementation(const string& target = EMPTY_STRING, 
+                                          const string& language = EMPTY_STRING) const;
 
     /// @}
     /// @name Shader References
@@ -107,6 +138,7 @@ class NodeDef : public InterfaceElement
   public:
     static const string CATEGORY;
     static const string NODE_ATTRIBUTE;
+    static const string NODE_CATEGORY_ATTRIBUTE;
 };
 
 /// @class Implementation

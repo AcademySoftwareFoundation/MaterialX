@@ -544,7 +544,7 @@ TEST_CASE("Conditionals", "[shadergen]")
 
     // Write out a .dot file for visualization
     std::ofstream file;
-    std::string dot = mx::printGraphDot(nodeGraph);
+    std::string dot = nodeGraph->asStringDot();
     file.open(nodeGraph->getName() + ".dot");
     file << dot;
     file.close();
