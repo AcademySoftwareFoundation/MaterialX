@@ -69,49 +69,6 @@ bool getShaderSource(mx::ShaderGeneratorPtr generator,
     return false;
 }
 
-//
-// Find the implementation for specific language or target for a given Element.
-// If the Element is a NodeGraph then only the target is checked as NodeGraph have
-// no language specific implementations.
-// Returned is either a reference to a NodeGraph or a Implementation.
-//
-mx::InterfaceElementPtr findImplementation(mx::DocumentPtr document, const std::string& name,
-                                                const std::string& language, const std::string& target)
-{
-    std::vector<mx::InterfaceElementPtr> impllist = document->getMatchingImplementations(name);
-    for (auto element : impllist)
-    {
-        // Check direct implementation
-        mx::ImplementationPtr implementation = element->asA<mx::Implementation>();
-        if (implementation)
-        {
-            // Check for a language match
-            const std::string& lang = implementation->getLanguage();
-            if (lang.length() && lang == language)
-            {
-                // Check target. Note that it may be empty.
-                const std::string& matchingTarget = implementation->getTarget();
-                if (matchingTarget.empty() || matchingTarget == target)
-                {
-                    return implementation;
-                }
-            }
-        }
-
-        // Check for a nodegraph implementation
-        else if (element->isA<mx::NodeGraph>())
-        {
-            mx::NodeGraphPtr implGraph = element->asA<mx::NodeGraph>();
-            const std::string& matchingTarget = implGraph->getTarget();
-            if (matchingTarget.empty() || matchingTarget == target)
-            {
-                return implGraph;
-            }
-        }
-    }
-    return nullptr;
-}
-
 // Check if a nodedef requires an implementation check
 // Untyped nodes do not
 bool requiresImplementation(const mx::NodeDefPtr nodeDef) 
@@ -1319,8 +1276,7 @@ TEST_CASE("Reference Implementation Validity", "[shadergen]")
             continue;
         }
 
-        mx::InterfaceElementPtr inter =
-            findImplementation(doc, nodeDefName, language, target);
+        mx::InterfaceElementPtr inter = nodeDef->getImplementation(language, target);
         if (!inter)
         {
             missing++;
@@ -1456,7 +1412,7 @@ TEST_CASE("Shadergen Implementation Validity", "[shadergen]")
                 continue;
             }
 
-            mx::InterfaceElementPtr inter = findImplementation(doc, nodeDefName, language, target);
+            mx::InterfaceElementPtr inter = nodeDef->getImplementation(language, target);
             if (!inter)
             {
                 missing++;

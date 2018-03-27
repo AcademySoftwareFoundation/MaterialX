@@ -133,32 +133,12 @@ SgNodePtr SgNode::creator(const string& name, const NodeDef& nodeDef, ShaderGene
 {
     SgNodePtr newNode = std::make_shared<SgNode>(name);
 
-    // Find the implementation in the document (graph or implementation element)
-    vector<InterfaceElementPtr> elements = nodeDef.getDocument()->getMatchingImplementations(nodeDef.getName());
-    for (InterfaceElementPtr element : elements)
+    // Find the implementation for this nodedef
+    InterfaceElementPtr impl = nodeDef.getImplementation(shadergen.getTarget(), shadergen.getLanguage());
+    if (impl)
     {
-        if (element->isA<NodeGraph>())
-        {
-            NodeGraphPtr implGraph = element->asA<NodeGraph>();
-            const string& matchingTarget = implGraph->getTarget();
-            if (matchingTarget.empty() || matchingTarget == shadergen.getTarget())
-            {
-                newNode->_impl = shadergen.getImplementation(implGraph);
-                break;
-            }
-        }
-        else
-        {
-            ImplementationPtr implElement = element->asA<Implementation>();
-            const string& matchingTarget = implElement->getTarget();
-            if (implElement->getLanguage() == shadergen.getLanguage() && (matchingTarget.empty() || matchingTarget == shadergen.getTarget()))
-            {
-                newNode->_impl = shadergen.getImplementation(implElement);
-                break;
-            }
-        }
+        newNode->_impl = shadergen.getImplementation(impl);
     }
-
     if (!newNode->_impl)
     {
         throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef.getNodeString() +
