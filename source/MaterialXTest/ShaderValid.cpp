@@ -24,28 +24,19 @@ namespace mx = MaterialX;
 #include <MaterialXView/Handlers/TinyEXRImageHandler.h>
 #include <MaterialXView/Handlers/LightHandler.h>
 
+extern void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc);
 extern void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::HwShaderGenerator& shadergen);
 
 TEST_CASE("GLSL Validation from Source", "[shadervalid]")
 {
-    // Setup lighting
     mx::DocumentPtr doc = mx::createDocument();
-    // Load standard libraries
-    std::vector<std::string> filenames =
-    {
-        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
-        "documents/Libraries/stdlib/impl/shadergen/glsl/impl.mtlx",
-        "documents/Libraries/sx/sx_defs.mtlx",
-        "documents/Libraries/sx/impl/shadergen/glsl/impl.mtlx",
-    };
 
-    for (const std::string& filename : filenames)
-    {
-        mx::readFromXmlFile(doc, filename);
-    }
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+
     mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
     shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
     mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
     createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
@@ -224,21 +215,9 @@ TEST_CASE("GLSL Validation from HwShader", "[shadervalid]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    // Load standard libraries
-    std::vector<std::string> filenames =
-    {
-        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
-        "documents/Libraries/stdlib/impl/shadergen/glsl/impl.mtlx",
-        "documents/Libraries/sx/sx_defs.mtlx",
-        "documents/Libraries/sx/impl/shadergen/glsl/impl.mtlx",
-    };
-
-    for (const std::string& filename : filenames)
-    {
-        mx::readFromXmlFile(doc, filename);
-    }
-
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+
     mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
     shaderGenerator->registerSourceCodeSearchPath(searchPath);
 

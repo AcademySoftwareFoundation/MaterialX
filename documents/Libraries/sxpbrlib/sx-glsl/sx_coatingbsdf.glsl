@@ -1,4 +1,4 @@
-#include "sx/impl/shadergen/glsl/source/shadingmodels.glsl"
+#include "sxpbrlib/sx-glsl/shadingmodels.glsl"
 
 void sx_coatingbsdf(vec3 L, vec3 V, vec3 reflectance, float ior, float roughness, float anisotropy, vec3 normal, vec3 tangent, int distribution, BSDF base, out BSDF result)
 {
