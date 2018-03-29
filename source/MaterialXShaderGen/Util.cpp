@@ -41,7 +41,7 @@ void getDocumentsInDirectory(const std::string& directory, StringVec& files)
     {
         while ((entry = readdir(dir)))
         {
-            if (entry->d_type != DT_DIR && mx::getFileExtension(entry->d_name) == "mtlx")
+            if (entry->d_type != DT_DIR && getFileExtension(entry->d_name) == "mtlx")
             {
                 files.push_back(entry->d_name);
             }
