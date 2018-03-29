@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<materialx version="1.36">
+
+  <!-- <diffusebsdf> -->
+  <implementation name="IM_diffusebsdf__sx_glsl" nodedef="ND_diffusebsdf" file="sxpbrlib/sx-glsl/sx_diffusebsdf.glsl" function="sx_diffusebsdf" language="sx-glsl"/>
+
+  <!-- <translucentbsdf> -->
+  <implementation name="IM_translucentbsdf__sx_glsl" nodedef="ND_translucentbsdf" file="sxpbrlib/sx-glsl/sx_translucentbsdf.glsl" function="sx_translucentbsdf" language="sx-glsl"/>
+
+  <!-- <transparentbsdf> -->
+  <implementation name="IM_transparentbsdf__sx_glsl" nodedef="ND_transparentbsdf" file="sxpbrlib/sx-glsl/sx_transparentbsdf.glsl" function="sx_transparentbsdf" language="sx-glsl"/>
+
+  <!-- <coatingbsdf> -->
+  <implementation name="IM_coatingbsdf__sx_glsl" nodedef="ND_coatingbsdf" file="sxpbrlib/sx-glsl/sx_coatingbsdf.glsl" function="sx_coatingbsdf" language="sx-glsl"/>
+
+  <!-- <refractionbsdf> -->
+  <implementation name="IM_refractionbsdf__sx_glsl" nodedef="ND_refractionbsdf" file="sxpbrlib/sx-glsl/sx_refractionbsdf.glsl" function="sx_refractionbsdf" language="sx-glsl"/>
+
+  <!-- <uniformedf> -->
+  <implementation name="IM_uniformedf__sx_glsl" nodedef="ND_uniformedf" file="sxpbrlib/sx-glsl/sx_uniformedf.glsl" function="sx_uniformedf" language="sx-glsl"/>
+
+  <!-- <conicaledf> -->
+  <implementation name="IM_conicaledf__sx_glsl" nodedef="ND_conicaledf" file="sxpbrlib/sx-glsl/sx_conicaledf.glsl" function="sx_conicaledf" language="sx-glsl"/>
+
+  <!-- <mixbsdf> -->
+  <implementation name="IM_mixbsdf__sx_glsl" nodedef="ND_mixbsdf" file="sxpbrlib/sx-glsl/sx_mixbsdf.glsl" function="sx_mixbsdf" language="sx-glsl"/>
+
+  <!-- <mixedf> -->
+  <implementation name="IM_mixedf__sx_glsl" nodedef="ND_mixedf" file="sxpbrlib/sx-glsl/sx_mixedf.glsl" function="sx_mixedf" language="sx-glsl"/>
+
+  <!-- <surface> -->
+  <implementation name="IM_surface__sx_glsl" nodedef="ND_surface" language="sx-glsl"/>
+
+  <!-- <layeredsurface> -->
+  <implementation name="IM_layeredsurface__sx_glsl" nodedef="ND_layeredsurface" file="sxpbrlib/sx-glsl/sx_layeredsurface.glsl" function="sx_layeredsurface" language="sx-glsl"/>
+
+  <!-- <light> -->
+  <implementation name="IM_light__sx_glsl" nodedef="ND_light" language="sx-glsl"/>
+
+  <!-- <pointlight> -->
+  <implementation name="IM_pointlight__sx_glsl" nodedef="ND_pointlight" file="sxpbrlib/sx-glsl/sx_pointlight.glsl" function="sx_pointlight" language="sx-glsl"/>
+
+  <!-- <directionallight> -->
+  <implementation name="IM_directionallight__sx_glsl" nodedef="ND_directionallight" file="sxpbrlib/sx-glsl/sx_directionallight.glsl" function="sx_directionallight" language="sx-glsl"/>
+
+  <!-- <spotlight> -->
+  <implementation name="IM_spotlight__sx_glsl" nodedef="ND_spotlight" file="sxpbrlib/sx-glsl/sx_spotlight.glsl" function="sx_spotlight" language="sx-glsl"/>
+
+  <!-- <standardsurface> -->
+  <implementation name="IM_standardsurface__sx_glsl" nodedef="ND_standardsurface" file="sxpbrlib/sx-glsl/sx_standardsurface.glsl" function="sx_standardsurface" language="sx-glsl"/>
+
+</materialx>

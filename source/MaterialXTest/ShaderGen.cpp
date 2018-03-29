@@ -21,31 +21,33 @@
 
 namespace mx = MaterialX;
 
-// Observer to add library markers to all nodes. Use the "library" meta-data attribute to do this,
-// until namespace specification is resolved.
-static std::string LIBRARY_ATTRIBUTE("library");
-class LibraryObserver : public mx::Observer
+void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc)
 {
-public:
-    LibraryObserver() {}
-
-    void onAddElement(mx::ElementPtr /*parent*/, mx::ElementPtr element) override
+    for (const std::string& library : libraryNames)
     {
-        if (_libraryRefName.length())
+        mx::FilePath path = searchPath / library;
+        mx::StringVec filenames;
+        mx::getDocumentsInDirectory(path, filenames);
+
+        for (const std::string& filename : filenames)
         {
-            element->setAttribute(LIBRARY_ATTRIBUTE, _libraryRefName);
+            mx::FilePath file = path / filename;
+            mx::readFromXmlFile(doc, file);
         }
     }
+}
 
-    void setLibraryRefName(const std::string& name)
+void loadExamples(const mx::StringVec& exampleNames, const mx::FilePath& searchPath, mx::DocumentPtr doc)
+{
+    mx::StringVec filenames;
+    mx::getDocumentsInDirectory(searchPath, filenames);
+    for (const std::string& filename : exampleNames)
     {
-        _libraryRefName = name;
+        mx::FilePath file = searchPath / filename;
+        mx::readFromXmlFile(doc, file);
     }
+}
 
-protected:
-    // Libraryref name to add
-    std::string _libraryRefName;
-};
 
 //
 // Get source content, source path and resolved paths for
@@ -73,10 +75,10 @@ bool getShaderSource(mx::ShaderGeneratorPtr generator,
 // Untyped nodes do not
 bool requiresImplementation(const mx::NodeDefPtr nodeDef) 
 {
-
     if (!nodeDef)
+    {
         return false;
-
+    }
     static std::string TYPE_NONE("none");
     const std::string typeAttribute = nodeDef->getAttribute(mx::Element::TYPE_ATTRIBUTE);
     return !typeAttribute.empty() && typeAttribute != TYPE_NONE;
@@ -228,18 +230,10 @@ TEST_CASE("OgsFxSyntax", "[shadergen]")
 
 TEST_CASE("Swizzling", "[shadergen]")
 {
-    std::string searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-
     mx::DocumentPtr doc = mx::createDocument();
-    std::vector<std::string> filenames =
-    {
-        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
-        "documents/Libraries/stdlib/impl/shadergen/osl/impl.mtlx"
-    };
-    for (const std::string& filename : filenames)
-    {
-        mx::readFromXmlFile(doc, filename);
-    }
+
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    loadLibraries({"stdlib"}, searchPath, doc);
 
     mx::ArnoldShaderGenerator sg;
     sg.registerSourceCodeSearchPath(searchPath);
@@ -289,17 +283,8 @@ TEST_CASE("Hello World", "[shadergen]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    // Load the standard library and its implementation for OSL and GLSL
-    const std::vector<std::string> filenames =
-    {
-        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
-        "documents/Libraries/stdlib/impl/shadergen/osl/impl.mtlx",
-        "documents/Libraries/stdlib/impl/shadergen/glsl/impl.mtlx"
-    };
-    for (const std::string& filename : filenames)
-    {
-        mx::readFromXmlFile(doc, filename);
-    }
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    loadLibraries({ "stdlib" }, searchPath, doc);
 
     const std::string exampleName = "hello_world";
 
@@ -319,15 +304,13 @@ TEST_CASE("Hello World", "[shadergen]")
     mx::MaterialPtr mtrl = doc->addMaterial(exampleName + "_material");
     mx::ShaderRefPtr shaderRef = mtrl->addShaderRef(exampleName + "_shader", exampleName);
 
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-
     // Arnold OSL
     {
         mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::creator();
         // Add path to find all source code snippets
         shadergen->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
-        shadergen->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/impl/shadergen/osl/source"));
+        shadergen->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
         // Test shader generation from nodegraph
         mx::ShaderPtr shader = shadergen->generate(exampleName, output1);
@@ -452,17 +435,8 @@ TEST_CASE("Conditionals", "[shadergen]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    // Load the standard library and its implementation for OSL and GLSL
-    const std::vector<std::string> filenames =
-    {
-        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
-        "documents/Libraries/stdlib/impl/shadergen/osl/impl.mtlx",
-        "documents/Libraries/stdlib/impl/shadergen/glsl/impl.mtlx"
-    };
-    for (const std::string& filename : filenames)
-    {
-        mx::readFromXmlFile(doc, filename);
-    }
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    loadLibraries({ "stdlib" }, searchPath, doc);
 
     const std::string exampleName = "conditionals";
 
@@ -506,15 +480,13 @@ TEST_CASE("Conditionals", "[shadergen]")
     file << dot;
     file.close();
 
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-
     // Arnold
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::creator();
         // Add path to find all source code snippets
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
-        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/impl/shadergen/osl/source"));
+        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, output1);
         REQUIRE(shader != nullptr);
@@ -583,17 +555,8 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    // Load the standard library and its implementation for OSL and GLSL
-    const std::vector<std::string> filenames =
-    {
-        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
-        "documents/Libraries/stdlib/impl/shadergen/osl/impl.mtlx",
-        "documents/Libraries/stdlib/impl/shadergen/glsl/impl.mtlx"
-    };
-    for (const std::string& filename : filenames)
-    {
-        mx::readFromXmlFile(doc, filename);
-    }
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    loadLibraries({ "stdlib" }, searchPath, doc);
 
     const std::string exampleName = "geometric_nodes";
 
@@ -653,15 +616,13 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
     mx::MaterialPtr mtrl = doc->addMaterial(exampleName + "_material");
     mx::ShaderRefPtr shaderRef = mtrl->addShaderRef(exampleName + "_shader", exampleName);
 
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-
     // Arnold
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::creator();
         // Add path to find all source code snippets
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
-        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/impl/shadergen/osl/source"));
+        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef);
         REQUIRE(shader != nullptr);
@@ -716,25 +677,12 @@ TEST_CASE("Subgraphs", "[shadergen]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    // Load example files
-    const std::vector<std::string> filenames =
-    {
-        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
-        "documents/Libraries/stdlib/impl/shadergen/osl/impl.mtlx",
-        "documents/Libraries/stdlib/impl/shadergen/glsl/impl.mtlx",
-
-        "documents/Libraries/sx/sx_defs.mtlx",
-        "documents/Libraries/sx/impl/shadergen/osl/impl.mtlx",
-        "documents/Libraries/sx/impl/shadergen/glsl/impl.mtlx",
-
-        "documents/Examples/SubGraphs.mtlx",
-    };
-    for (const std::string& filename : filenames)
-    {
-        mx::readFromXmlFile(doc, filename);
-    }
-
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+
+    mx::FilePath examplesSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Examples");
+    loadExamples({ "SubGraphs.mtlx"}, examplesSearchPath, doc);
+
     std::vector<std::string> exampleGraphNames = { "subgraph_ex1" , "subgraph_ex2" };
 
     // Arnold
@@ -743,7 +691,7 @@ TEST_CASE("Subgraphs", "[shadergen]")
         // Add path to find all source code snippets
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
-        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/impl/shadergen/osl/source"));
+        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
         for (const std::string& graphName : exampleGraphNames)
         {
@@ -833,20 +781,8 @@ TEST_CASE("BSDF Layering", "[shadergen]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    // Load standard libraries
-    const std::vector<std::string> filenames =
-    {
-        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
-        "documents/Libraries/stdlib/impl/shadergen/osl/impl.mtlx",
-        "documents/Libraries/stdlib/impl/shadergen/glsl/impl.mtlx",
-        "documents/Libraries/sx/sx_defs.mtlx",
-        "documents/Libraries/sx/impl/shadergen/osl/impl.mtlx",
-        "documents/Libraries/sx/impl/shadergen/glsl/impl.mtlx",
-    };
-    for (const std::string& filename : filenames)
-    {
-        mx::readFromXmlFile(doc, filename);
-    }
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
 
     const std::string exampleName = "layered_bsdf";
 
@@ -903,15 +839,13 @@ TEST_CASE("BSDF Layering", "[shadergen]")
     mx::MaterialPtr mtrl = doc->addMaterial(exampleName + "_material");
     mx::ShaderRefPtr shaderRef = mtrl->addShaderRef(exampleName + "_shader", exampleName);
 
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-
     // Arnold
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::creator();
         // Add path to find all source code snippets
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
-        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/impl/shadergen/osl/source"));
+        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef);
         REQUIRE(shader != nullptr);
@@ -974,20 +908,8 @@ TEST_CASE("Transparency", "[shadergen]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    // Load standard libraries
-    const std::vector<std::string> filenames =
-    {
-        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
-        "documents/Libraries/stdlib/impl/shadergen/osl/impl.mtlx",
-        "documents/Libraries/stdlib/impl/shadergen/glsl/impl.mtlx",
-        "documents/Libraries/sx/sx_defs.mtlx",
-        "documents/Libraries/sx/impl/shadergen/osl/impl.mtlx",
-        "documents/Libraries/sx/impl/shadergen/glsl/impl.mtlx",
-    };
-    for (const std::string& filename : filenames)
-    {
-        mx::readFromXmlFile(doc, filename);
-    }
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
 
     const std::string exampleName = "transparent_surface";
 
@@ -1035,15 +957,13 @@ TEST_CASE("Transparency", "[shadergen]")
     mx::MaterialPtr mtrl = doc->addMaterial(exampleName + "_material");
     mx::ShaderRefPtr shaderRef = mtrl->addShaderRef(exampleName + "_shader", exampleName);
 
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-
     // Arnold
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::creator();
         // Add path to find all source code snippets
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
-        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/impl/shadergen/osl/source"));
+        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef);
         REQUIRE(shader != nullptr);
@@ -1106,23 +1026,8 @@ TEST_CASE("Surface Layering", "[shadergen]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    // Load standard libraries
-    const std::vector<std::string> filenames =
-    {
-        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
-        "documents/Libraries/stdlib/impl/shadergen/osl/impl.mtlx",
-        "documents/Libraries/stdlib/impl/shadergen/glsl/impl.mtlx",
-        "documents/Libraries/sx/sx_defs.mtlx",
-        "documents/Libraries/sx/impl/shadergen/osl/impl.mtlx",
-        "documents/Libraries/sx/impl/shadergen/glsl/impl.mtlx",
-        "documents/Libraries/adsk/adsk_defs.mtlx",
-        "documents/Libraries/adsk/impl/shadergen/osl/impl.mtlx",
-        "documents/Libraries/adsk/impl/shadergen/glsl/impl.mtlx",
-    };
-    for (const std::string& filename : filenames)
-    {
-        mx::readFromXmlFile(doc, filename);
-    }
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
 
     const std::string exampleName = "layered_surface";
 
@@ -1141,8 +1046,8 @@ TEST_CASE("Surface Layering", "[shadergen]")
     mx::NodePtr layer1 = nodeGraph->addNode("surface", "layer1", "surfaceshader");
     layer1->setConnectedNode("bsdf", layer1_specular);
 
-    // Create second surface layer from an uber shader
-    mx::NodePtr layer2 = nodeGraph->addNode("adskSurface", "layer2", "surfaceshader");
+    // Create second surface layer from a standard uber shader
+    mx::NodePtr layer2 = nodeGraph->addNode("standardsurface", "layer2", "surfaceshader");
     mx::InputPtr layer2_diffuse_color = layer2->addInput("base_color", "color3");
     layer2_diffuse_color->setPublicName("layer2_diffuse");
     layer2_diffuse_color->setValueString("0.9, 0.1, 0.2");
@@ -1169,8 +1074,6 @@ TEST_CASE("Surface Layering", "[shadergen]")
     // Create a material with the above node as the shader
     mx::MaterialPtr mtrl = doc->addMaterial(exampleName + "_material");
     mx::ShaderRefPtr shaderRef = mtrl->addShaderRef(exampleName + "_shader", exampleName);
-
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
 
     // OgsFx
     {
@@ -1228,28 +1131,13 @@ TEST_CASE("Reference Implementation Validity", "[shadergen]")
     implDumpStream << "Scanning language: osl. Target: reference" << std::endl;
     implDumpStream << "-----------------------------------------------------------------------" << std::endl;
 
-    mx::ObservedDocumentPtr doc = mx::Document::createDocument<mx::ObservedDocument>();
+    mx::DocumentPtr doc = mx::createDocument();
 
-    std::shared_ptr<LibraryObserver> observer = std::make_shared<LibraryObserver>();
-    observer->setLibraryRefName("stdlib");
-    doc->addObserver("libraryObserver", observer);
-
-    // Load standard libraries implemented by reference implementation
-    // Note that if there are other language implementations this list should be appended to
-    std::vector<std::string> filenames =
-    {
-        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
-        "documents/Libraries/stdlib/impl/reference/osl/impl.mtlx",
-    };
-    for (const std::string& filename : filenames)
-    {
-        implDumpStream << "* Read in implementation file: " << filename << std::endl;
-        mx::readFromXmlFile(doc, filename);
-    }
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    loadLibraries({ "stdlib" }, searchPath, doc);
 
     // Set source code search path
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    mx::FileSearchPath sourceCodeSearchPath; 
+    mx::FileSearchPath sourceCodeSearchPath;
     sourceCodeSearchPath.append(searchPath);
 
     std::string nodeDefNode;
@@ -1271,8 +1159,7 @@ TEST_CASE("Reference Implementation Validity", "[shadergen]")
         std::string nodeName = nodeDef->getNodeString();
         if (!requiresImplementation(nodeDef))
         {
-            found_str += "No implementation required for nodedef: " + nodeDefName + ", Node: "
-                + nodeName + ". Library: " + nodeDef->getAttribute(LIBRARY_ATTRIBUTE) + "\n";
+            found_str += "No implementation required for nodedef: " + nodeDefName + ", Node: " + nodeName + ".\n";
             continue;
         }
 
@@ -1280,8 +1167,7 @@ TEST_CASE("Reference Implementation Validity", "[shadergen]")
         if (!inter)
         {
             missing++;
-            missing_str += "Missing nodeDef implemenation: " + nodeDefName + ", Node: " + nodeName
-                + ". Library: " + nodeDef->getAttribute(LIBRARY_ATTRIBUTE) + "\n";
+            missing_str += "Missing nodeDef implemenation: " + nodeDefName + ", Node: " + nodeName + ".\n";
         }
         else
         {
@@ -1297,19 +1183,19 @@ TEST_CASE("Reference Implementation Validity", "[shadergen]")
                 {
                     missing++;
                     missing_str += "Missing source code: " + sourcePath.asString() + " for nodeDef: "
-                        + nodeDefName + ". Impl: " + impl->getName() + ". Library: " + nodeDef->getAttribute(LIBRARY_ATTRIBUTE) + "\n";
+                        + nodeDefName + ". Impl: " + impl->getName() + ".\n";
                 }
                 else
                 {
                     found_str += "Found impl and src for nodedef: " + nodeDefName + ", Node: "
-                        + nodeName + ". Impl: " + impl->getName() + ". Library: " + nodeDef->getAttribute(LIBRARY_ATTRIBUTE) + "\n";
+                        + nodeName + ". Impl: " + impl->getName() + ".\n";
                 }
             }
             else
             {
                 mx::NodeGraphPtr graph = inter->asA<mx::NodeGraph>();
                 found_str += "Found NodeGraph impl for nodedef: " + nodeDefName + ", Node: "
-                    + nodeName + ". Impl: " + graph->getName() + ". Library: " + nodeDef->getAttribute(LIBRARY_ATTRIBUTE) + "\n";
+                    + nodeName + ". Impl: " + graph->getName() + ".\n";
             }
         }
     }
@@ -1326,45 +1212,12 @@ TEST_CASE("Reference Implementation Validity", "[shadergen]")
     //REQUIRE(missing == 0);
 }
 
-TEST_CASE("Shadergen Implementation Validity", "[shadergen]")
+TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
 {
-    mx::ObservedDocumentPtr doc = mx::Document::createDocument<mx::ObservedDocument>();
+    mx::DocumentPtr doc = mx::createDocument();
 
-    // Load libraries
-    std::vector<std::string> libraryFiles =
-    {
-        "documents/Libraries/stdlib/mx_stdlib_defs.mtlx",
-        "documents/Libraries/sx/sx_defs.mtlx",
-        "documents/Libraries/adsk/adsk_defs.mtlx"
-    };
-    std::vector<std::string> libraryNames =
-    {
-        "stdlib",
-        "sx",
-        "adsk"
-    };
-    std::shared_ptr<LibraryObserver> observer = std::make_shared<LibraryObserver>();
-    doc->addObserver("libraryObserver", observer);
-    for (size_t i=0; i<libraryFiles.size(); i++)
-    {
-        observer->setLibraryRefName(libraryNames[i]);
-        mx::readFromXmlFile(doc, libraryFiles[i]);
-    }
-
-    // Load implementations
-    std::vector<std::string> implementationFiles =
-    {
-        "documents/Libraries/stdlib/impl/shadergen/osl/impl.mtlx",
-        "documents/Libraries/adsk/impl/shadergen/osl/impl.mtlx",
-        "documents/Libraries/sx/impl/shadergen/osl/impl.mtlx",
-        "documents/Libraries/stdlib/impl/shadergen/glsl/impl.mtlx",
-        "documents/Libraries/adsk/impl/shadergen/glsl/impl.mtlx",
-        "documents/Libraries/sx/impl/shadergen/glsl/impl.mtlx"
-    };
-    for (size_t i = 0; i<implementationFiles.size(); i++)
-    {
-        mx::readFromXmlFile(doc, implementationFiles[i]);
-    }
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    loadLibraries({ "stdlib" "sxpbrlib" }, searchPath, doc);
 
     std::vector<mx::ShaderGeneratorPtr> shaderGenerators =
     {
@@ -1372,8 +1225,6 @@ TEST_CASE("Shadergen Implementation Validity", "[shadergen]")
         mx::OgsFxShaderGenerator::creator(),
         mx::GlslShaderGenerator::creator()
     };
-
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
 
     std::filebuf implDumpBuffer;
     std::string fileName = "shadgen_implementation_check.txt";
@@ -1407,8 +1258,7 @@ TEST_CASE("Shadergen Implementation Validity", "[shadergen]")
             std::string nodeName = nodeDef->getNodeString();
             if (!requiresImplementation(nodeDef))
             {
-                found_str += "No implementation requried for nodedef: " + nodeDefName + ", Node: "
-                    + nodeName + ". Library: " + nodeDef->getAttribute(LIBRARY_ATTRIBUTE) + "\n";
+                found_str += "No implementation requried for nodedef: " + nodeDefName + ", Node: " + nodeName + ".\n";
                 continue;
             }
 
@@ -1416,8 +1266,7 @@ TEST_CASE("Shadergen Implementation Validity", "[shadergen]")
             if (!inter)
             {
                 missing++;
-                missing_str += "Missing nodeDef implementation: " + nodeDefName + ", Node: " + nodeName
-                    + ". Library: " + nodeDef->getAttribute(LIBRARY_ATTRIBUTE) + "\n";
+                missing_str += "Missing nodeDef implementation: " + nodeDefName + ", Node: " + nodeName + ".\n";
             }
             else
             {
@@ -1428,7 +1277,7 @@ TEST_CASE("Shadergen Implementation Validity", "[shadergen]")
                     if (generator->implementationRegistered(impl->getName()))
                     {
                         found_str += "Found generator impl for nodedef: " + nodeDefName + ", Node: "
-                            + nodeDefName + ". Impl: " + impl->getName() + ". Library: " + nodeDef->getAttribute(LIBRARY_ATTRIBUTE) + "\n";
+                            + nodeDefName + ". Impl: " + impl->getName() + ".\n";
                     }
 
                     // Check for an implementation explicitly stored
@@ -1440,12 +1289,12 @@ TEST_CASE("Shadergen Implementation Validity", "[shadergen]")
                         {
                             missing++;
                             missing_str += "Missing source code: " + sourcePath.asString() + " for nodeDef: "
-                                + nodeDefName + ". Impl: " + impl->getName() + ". Library: " + nodeDef->getAttribute(LIBRARY_ATTRIBUTE) + "\n";
+                                + nodeDefName + ". Impl: " + impl->getName() + ".\n";
                         }
                         else
                         {
                             found_str += "Found impl and src for nodedef: " + nodeDefName + ", Node: "
-                                + nodeName + +". Impl: " + impl->getName() + ". Library: " + nodeDef->getAttribute(LIBRARY_ATTRIBUTE) + "\n";
+                                + nodeName + +". Impl: " + impl->getName() + ".\n";
                         }
                     }
                 }
@@ -1453,7 +1302,7 @@ TEST_CASE("Shadergen Implementation Validity", "[shadergen]")
                 {
                     mx::NodeGraphPtr graph = inter->asA<mx::NodeGraph>();
                     found_str += "Found NodeGraph impl for nodedef: " + nodeDefName + ", Node: "
-                        + nodeName + ". Impl: " + graph->getName() + ". Library: " + nodeDef->getAttribute(LIBRARY_ATTRIBUTE) + "\n";
+                        + nodeName + ". Impl: " + graph->getName() + ".\n";
                 }
             }
         }

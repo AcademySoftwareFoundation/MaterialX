@@ -1,26 +1,26 @@
-#include <MaterialXShaderGen/ShaderGenerators/Glsl/AdskSurfaceGlsl.h>
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/SurfaceShaderGlsl.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/GlslShaderGenerator.h>
 
 namespace MaterialX
 {
 
-SgImplementationPtr AdskSurfaceGlsl::creator()
+SgImplementationPtr SurfaceShaderGlsl::creator()
 {
-    return std::make_shared<AdskSurfaceGlsl>();
+    return std::make_shared<SurfaceShaderGlsl>();
 }
 
-const string& AdskSurfaceGlsl::getLanguage() const
+const string& SurfaceShaderGlsl::getLanguage() const
 {
     return GlslShaderGenerator::LANGUAGE;
 }
 
-const string& AdskSurfaceGlsl::getTarget() const
+const string& SurfaceShaderGlsl::getTarget() const
 {
     return GlslShaderGenerator::TARGET;
 }
 
 
-void AdskSurfaceGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void SurfaceShaderGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     // TODO: 
     // The surface shader needs position, view and light sources. We should solve this by adding some 
@@ -37,7 +37,7 @@ void AdskSurfaceGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /
         EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void AdskSurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
+void SurfaceShaderGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
@@ -54,8 +54,9 @@ void AdskSurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shad
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
-bool AdskSurfaceGlsl::isTransparent(const SgNode& node) const
+bool SurfaceShaderGlsl::isTransparent(const SgNode& node) const
 {
+    // TODO: Support transparency, refraction, etc.
     if (node.getInput("opacity"))
     {
         MaterialX::ValuePtr value = node.getInput("opacity")->value;

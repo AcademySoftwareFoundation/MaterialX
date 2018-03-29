@@ -8,7 +8,9 @@
 namespace MaterialX
 {
 
-class SgNodeGraph;
+/// Directory scanner utility. Finds all MaterialX document files
+/// in the given directory.
+void getDocumentsInDirectory(const std::string& directory, StringVec& files);
 
 /// Reads the contents of a file into the given string
 bool readFile(const string& filename, string& content);

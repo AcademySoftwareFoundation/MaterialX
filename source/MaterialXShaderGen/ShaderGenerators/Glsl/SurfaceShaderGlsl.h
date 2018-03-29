@@ -1,13 +1,14 @@
-#ifndef MATERIALX_ADSKSURFACEGLSL_H
-#define MATERIALX_ADSKSURFACEGLSL_H
+#ifndef MATERIALX_SURFACESHADERGLSL_H
+#define MATERIALX_SURFACESHADERGLSL_H
 
 #include <MaterialXShaderGen/ShaderGenerators/Common/SourceCode.h>
 
 namespace MaterialX
 {
 
-/// Implementation of 'adskSurface' node for GLSL
-class AdskSurfaceGlsl : public SourceCode
+/// Implementation of surface shaders for GLSL.
+/// Used for all surface shaders implemented in source code.
+class SurfaceShaderGlsl : public SourceCode
 {
   public:
     static SgImplementationPtr creator();

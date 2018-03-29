@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.35">
+<materialx version="1.36">
 
   <!-- D A T A  T Y P E S -->
 
@@ -180,6 +180,50 @@
     <input name="decayRate" type="float" value="2.0" doc="Light decay exponent. Defaults to 2 for quadratic decay."/>
     <input name="innerConeAngle" type="float" doc="Inner cone angle."/>
     <input name="outerConeAngle" type="float" doc="Outer cone angle."/>
+  </nodedef>
+
+  <!-- <standardsurface> -->
+  <nodedef name="ND_standardsurface" node="standardsurface" type="surfaceshader" nodecategory="surfaceshader"
+           doc="A surface uber shader based on the Arnold standard surface shader">
+      <input name="base" type="float" value="0.8" />
+      <input name="base_color" type="color3" value="1, 1, 1" />
+      <input name="diffuse_roughness" type="float" value="0" />
+      <input name="specular" type="float" value="1" />
+      <input name="specular_color" type="color3" value="1, 1, 1" />
+      <input name="specular_roughness" type="float" value="0.1" />
+      <input name="specular_IOR" type="float" value="1.52" />
+      <input name="specular_anisotropy" type="float" value="0" />
+      <input name="specular_rotation" type="float" value="0" />
+      <input name="metalness" type="float" value="0" />
+      <input name="transmission" type="float" value="0" />
+      <input name="transmission_color" type="color3" value="1, 1, 1" />
+      <input name="transmission_depth" type="float" value="0" />
+      <input name="transmission_scatter" type="color3" value="0, 0, 0" />
+      <input name="transmission_scatter_anisotropy" type="float" value="0" />
+      <input name="transmission_dispersion" type="float" value="0" />
+      <input name="transmission_extra_roughness" type="float" value="0" />
+      <input name="subsurface" type="float" value="0" />
+      <input name="subsurface_color" type="color3" value="1, 1, 1" />
+      <input name="subsurface_radius" type="color3" value="1, 1, 1" />
+      <input name="subsurface_scale" type="float" value="1" />
+      <input name="thin_walled" type="boolean" value="false" />
+      <input name="normal" type="vector3" value="0, 0, 0" defaultgeomprop="normal"/>
+      <input name="tangent" type="vector3" value="0, 0, 0" defaultgeomprop="tangent"/>
+      <input name="coat" type="float" value="0" />
+      <input name="coat_color" type="color3" value="1, 1, 1" />
+      <input name="coat_roughness" type="float" value="0.1" />
+      <input name="coat_IOR" type="float" value="1.5" />
+      <input name="coat_normal" type="vector3" value="0, 0, 0" />
+      <input name="thin_film_thickness" type="float" value="0" />
+      <input name="thin_film_IOR" type="float" value="1.5" />
+      <input name="emission" type="float" value="0" />
+      <input name="emission_color" type="color3" value="1, 1, 1" />
+      <input name="opacity" type="color3" value="1, 1, 1" />
+      <input name="caustics" type="boolean" value="false" />
+      <input name="internal_reflections" type="boolean" value="true" />
+      <input name="exit_to_background" type="boolean" value="false" />
+      <input name="indirect_diffuse" type="float" value="1" />
+      <input name="indirect_specular" type="float" value="1" />
   </nodedef>
 
 </materialx>

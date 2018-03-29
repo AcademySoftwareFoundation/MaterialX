@@ -6,12 +6,50 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#if defined(_WIN32)
+
+#ifdef _WIN32
+#include <Windows.h>
 #include <fcntl.h>
+#else
+#include <dirent.h>
+#include <sys/types.h>
 #endif
 
 namespace MaterialX
 {
+
+void getDocumentsInDirectory(const std::string& directory, StringVec& files)
+{
+#ifdef WIN32
+    WIN32_FIND_DATA fd;
+    HANDLE hFind = ::FindFirstFile((directory + "/*.mtlx").c_str(), &fd);
+    if (hFind != INVALID_HANDLE_VALUE)
+    {
+        do
+        {
+            if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+            {
+                files.push_back(fd.cFileName);
+            }
+        } while (::FindNextFile(hFind, &fd));
+        ::FindClose(hFind);
+    }
+#else
+    struct dirent *entry = nullptr;
+    DIR* dir = opendir(directory.c_str());
+    if (dir)
+    {
+        while ((entry = readdir(dir)))
+        {
+            if (entry->d_type != DT_DIR && getFileExtension(entry->d_name) == "mtlx")
+            {
+                files.push_back(entry->d_name);
+            }
+        }
+        closedir(dir);
+    }
+#endif
+}
 
 bool readFile(const string& filename, string& contents)
 {

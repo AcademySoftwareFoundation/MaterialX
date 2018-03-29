@@ -184,7 +184,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.newLine();
 
     // Add global constants and type definitions
-    shader.addInclude("sx/impl/shadergen/glsl/source/defines.glsl", *this);
+    shader.addInclude("sxpbrlib/sx-glsl/defines.glsl", *this);
     shader.addLine("#define MAX_LIGHT_SOURCES " + std::to_string(getMaxActiveLightSources()), false);
     shader.newLine();
     emitTypeDefs(shader);
@@ -292,7 +292,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     // Emit common math functions
     shader.addLine("GLSLShader MathFunctions", false);
     shader.beginScope(Shader::Brackets::BRACES);
-    shader.addInclude("sx/impl/shadergen/glsl/source/math.glsl", *this);
+    shader.addInclude("sxpbrlib/sx-glsl/math.glsl", *this);
     shader.endScope();
     shader.newLine();
 
