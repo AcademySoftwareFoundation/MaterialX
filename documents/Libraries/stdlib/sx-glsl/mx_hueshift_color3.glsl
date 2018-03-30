@@ -1,4 +1,4 @@
-#include "stdlib/impl/shadergen/source/glsl/hsv.glsl"
+#include "stdlib/sx-glsl/hsv.glsl"
 
 void mx_hueshift_color3(vec3 _in, float amount, out vec3 result)
 {

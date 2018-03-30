@@ -1,4 +1,4 @@
-#include "stdlib/impl/shadergen/source/glsl/aastep.glsl"
+#include "stdlib/sx-glsl/aastep.glsl"
 
 void mx_splitlr_vector3(vec3 valuel, vec3 valuer, float center, vec2 texcoord, out vec3 result)
 {
