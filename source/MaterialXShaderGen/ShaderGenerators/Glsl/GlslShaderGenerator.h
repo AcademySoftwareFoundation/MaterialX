@@ -121,9 +121,9 @@ public:
     virtual void emitBsdfNodes(const SgNode& shaderNode, const string& incident, const string& outgoing, Shader& shader, string& bsdf);
 
     /// Emit code for calculating emission for a surface or light shader,
-    /// given the orientation of the EDF and the evaluation direction.
+    /// given the orientation direction of the EDF and the evaluation direction.
     /// The output 'edf' will hold the variable keeping the result.
-    virtual void emitEdfNodes(const SgNode& shaderNode, const string& normal, const string& eval, Shader& shader, string& edf);
+    virtual void emitEdfNodes(const SgNode& shaderNode, const string& orientDir, const string& evalDir, Shader& shader, string& edf);
 
     /// Unique identifyer for the glsl language
     static const string LANGUAGE;

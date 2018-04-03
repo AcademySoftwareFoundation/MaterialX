@@ -589,11 +589,11 @@ void GlslShaderGenerator::emitBsdfNodes(const SgNode& shaderNode, const string& 
     }
 }
 
-void GlslShaderGenerator::emitEdfNodes(const SgNode& shaderNode, const string& normal, const string& eval, Shader& shader, string& edf)
+void GlslShaderGenerator::emitEdfNodes(const SgNode& shaderNode, const string& orientDir, const string& evalDir, Shader& shader, string& edf)
 {
     // Set EDF node arguments according to the given directions
-    _edfNodeArguments[0].second = normal;
-    _edfNodeArguments[1].second = eval;
+    _edfNodeArguments[0].second = orientDir;
+    _edfNodeArguments[1].second = evalDir;
 
     edf = "vec3(0.0)";
 
