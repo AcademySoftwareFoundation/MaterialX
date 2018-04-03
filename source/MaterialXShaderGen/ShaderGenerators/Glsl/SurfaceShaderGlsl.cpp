@@ -19,7 +19,6 @@ const string& SurfaceShaderGlsl::getTarget() const
     return GlslShaderGenerator::TARGET;
 }
 
-
 void SurfaceShaderGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     // TODO: 

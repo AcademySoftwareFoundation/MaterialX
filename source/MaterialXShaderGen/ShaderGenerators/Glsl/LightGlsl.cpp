@@ -21,11 +21,13 @@ void LightGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*shade
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
-    // Create uniform for intensity and exposure
+    // Create uniform for intensity, exposure and direction
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK, DataType::FLOAT, "intensity",
         EMPTY_STRING, Value::createValue<float>(1.0f));
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK, DataType::FLOAT, "exposure",
         EMPTY_STRING, Value::createValue<float>(0.0f));
+    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK, DataType::VECTOR3, "direction",
+        EMPTY_STRING, Value::createValue<Vector3>(Vector3(0.0f,1.0f,0.0f)));
 
     // Create uniform for number of active light sources
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::INTEGER, "u_numActiveLightSources",
