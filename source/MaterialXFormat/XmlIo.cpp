@@ -83,6 +83,10 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, bool writeXIncludes, 
     StringSet writtenSourceFiles;
     for (ElementPtr child : elem->getChildren())
     {
+        if (predicate && !predicate(child))
+        {
+            continue;
+        }
         if (writeXIncludes && child->hasSourceUri())
         {
             string sourceUri = child->getSourceUri();
@@ -97,10 +101,6 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, bool writeXIncludes, 
                 }
                 continue;
             }
-        }
-        if (predicate && !predicate(child))
-        {
-            continue;
         }
         xml_node xmlChild = xmlNode.append_child(child->getCategory().c_str());
         elementToXml(child, xmlChild, writeXIncludes, predicate);
