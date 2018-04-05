@@ -3,6 +3,10 @@
 
 #include <MaterialXShaderGen/HwShader.h>
 #include <MaterialXView/ShaderValidators/ExceptionShaderValidationError.h>
+#include <MaterialXView/Handlers/LightHandler.h>
+#include <MaterialXView/Handlers/ViewHandler.h>
+#include <MaterialXView/Handlers/ImageHandler.h>
+#include <MaterialXView/Handlers/GeometryHandler.h>
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -127,10 +131,49 @@ class GlslProgram
 
     /// Bind the program.
     /// @return False if failed
-    bool bind() const;
+    bool bind();
+
+    /// Bind inputs
+    void bindInputs(ViewHandlerPtr viewHandler,
+                    GeometryHandlerPtr geometryHandler,
+                    ImageHandlerPtr imageHandler,
+                    LightHandlerPtr lightHandler);
+
+    /// Unbind inputs
+    void unbindInputs();
 
     /// Return if there are any active inputs on the program
     bool haveActiveAttributes() const;
+
+    /// Assign a parameter value to a uniform
+    void bindUniform(int location, const Value& value);
+
+    /// Bind attribute buffers to attribute inputs.
+    /// A hardware buffer of the given attribute type is created and bound to the program locations
+    /// for the input attribute.
+    /// @param inputs Attribute inputs to bind to
+    void bindAttribute(const MaterialX::GlslProgram::InputMap& inputs, GeometryHandlerPtr geometryHandler);
+
+    /// Bind input geometry streams
+    void bindGeometry(GeometryHandlerPtr geometryHandler);
+
+    /// Unbind any bound geometry
+    void unbindGeometry();
+
+    /// Bind any input textures
+    void bindTextures(ImageHandlerPtr imageHandler);
+
+    /// Unbind input textures
+    void unbindTextures();
+
+    /// Bind lighting
+    void bindLighting(LightHandlerPtr lightHandler);
+
+    /// Bind view information
+    void bindViewInformation(ViewHandlerPtr viewHandler);
+
+    /// Bind time and frame
+    void bindTimeAndFrame();
 
     /// Unbind the program. Equivalent to binding no program
     void unbind() const;
@@ -171,6 +214,9 @@ class GlslProgram
     /// @name Utilities
     /// @{
 
+    /// Dummy texture for testing with
+    void createDummyTexture(ImageHandlerPtr imageHandler);
+
     /// Internal cleanup of stages and OpenGL constructs
     void cleanup();
 
@@ -201,6 +247,24 @@ class GlslProgram
 
     /// Hardware shader (if any) used for program creation
     HwShaderPtr _hwShader;
+
+    /// Attribute buffer resource handles
+    /// for each attribute identifier in the program
+    std::unordered_map<std::string, unsigned int> _attributeBufferIds;
+
+    /// Attribute indexing buffer handle
+    unsigned int _indexBuffer;
+    /// Size of index buffer
+    size_t _indexBufferSize;
+
+    /// Attribute vertex array handle
+    unsigned int _vertexArray;
+
+    /// Dummy texture
+    unsigned int _dummyTexture;
+
+    /// Program textures
+    std::vector<unsigned int> _programTextures;
 };
 
 } // namespace MaterialX

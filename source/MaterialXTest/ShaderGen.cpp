@@ -145,27 +145,31 @@ void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::HwS
     mx::LightSourcePtr dirLight = lightHandler.createLightSource(dirLightNodeDef);
     dirLight->setParameter("direction", mx::Vector3(0, 0, -1));
     dirLight->setParameter("color", mx::Color3(1, 1, 1));
-    dirLight->setParameter("intensity", 0.4f);
-
+    dirLight->setParameter("intensity", 0.2f);
+    
     mx::LightSourcePtr pointLight = lightHandler.createLightSource(pointLightNodeDef);
-    pointLight->setParameter("position", mx::Vector3(200, 200, 50));
-    pointLight->setParameter("color", mx::Color3(1, 1, 0));
-    pointLight->setParameter("intensity", 10000.0f);
-    pointLight->setParameter("decayRate", 2.0f);
+    pointLight->setParameter("position", mx::Vector3(-2, -2, 2));
+    pointLight->setParameter("color", mx::Color3(0, 0.0, 1));
+    pointLight->setParameter("intensity", 10.0f);
+    pointLight->setParameter("decayRate", 3.0f);
+
+    // Make sure to send over normalized directions
+    const float inv_dir_length = 1.0f / std::sqrt(3.0f);
 
     mx::LightSourcePtr spotLight = lightHandler.createLightSource(spotLightNodeDef);
-    spotLight->setParameter("position", mx::Vector3(350, 350, 100));
-    spotLight->setParameter("direction", mx::Vector3(0, 0, -1));
+    spotLight->setParameter("position", mx::Vector3(3, 3, 3));
+    spotLight->setParameter("direction", mx::Vector3(-inv_dir_length, -inv_dir_length, -inv_dir_length));
     spotLight->setParameter("color", mx::Color3(1, 0, 0));
-    spotLight->setParameter("intensity", 10.0f);
+    spotLight->setParameter("intensity", 1.0f);
     spotLight->setParameter("decayRate", 0.0f);
-    spotLight->setParameter("innerConeAngle", cosAngle(40.0f));
-    spotLight->setParameter("outerConeAngle", cosAngle(50.0f));
+    spotLight->setParameter("innerConeAngle", cosAngle(5.0f));
+    spotLight->setParameter("outerConeAngle", cosAngle(10.0f));
 
     mx::LightSourcePtr compoundLight = lightHandler.createLightSource(compoundLightNodeDef);
-    compoundLight->setParameter("position", mx::Vector3(200, 400, 50));
+    compoundLight->setParameter("position", mx::Vector3(-3, 3, 3));
+    compoundLight->setParameter("direction", mx::Vector3(inv_dir_length, -inv_dir_length, -inv_dir_length));
     compoundLight->setParameter("color", mx::Color3(0, 1, 0));
-    compoundLight->setParameter("intensity", 10000.0f);
+    compoundLight->setParameter("intensity", 10.0f);
 
     lightHandler.bindLightShaders(shadergen);
 }
