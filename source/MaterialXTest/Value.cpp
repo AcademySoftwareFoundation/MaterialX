@@ -91,14 +91,14 @@ TEST_CASE("Typed values", "[value]")
                    std::string("second_value"));
 
     // Array types
-    testTypedValue(mx::IntVec{1, 2, 3},
-                   mx::IntVec{4, 5, 6});
-    testTypedValue(mx::BoolVec{false, false, false},
-                   mx::BoolVec{true, true, true});
-    testTypedValue(mx::FloatVec{1.0f, 2.0f, 3.0f},
-                   mx::FloatVec{4.0f, 5.0f, 6.0f});
-    testTypedValue(mx::StringVec{"one", "two", "three"},
-                   mx::StringVec{"four", "five", "six"});
+    testTypedValue(std::vector<int>{1, 2, 3},
+                   std::vector<int>{4, 5, 6});
+    testTypedValue(std::vector<bool>{false, false, false},
+                   std::vector<bool>{true, true, true});
+    testTypedValue(std::vector<float>{1.0f, 2.0f, 3.0f},
+                   std::vector<float>{4.0f, 5.0f, 6.0f});
+    testTypedValue(std::vector<std::string>{"one", "two", "three"},
+                   std::vector<std::string>{"four", "five", "six"});
 
     // Alias types
     testTypedValue<long>(1l, 2l);
