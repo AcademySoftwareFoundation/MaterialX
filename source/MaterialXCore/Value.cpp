@@ -217,6 +217,10 @@ template <class T> class ValueRegistry
 // Template instantiations
 //
 
+using IntVec = vector<int>;
+using BoolVec = vector<bool>;
+using FloatVec = vector<float>;
+
 #define INSTANTIATE_TYPE(T, name)                       \
 template <> const string TypedValue<T>::TYPE = name;    \
 template bool Value::isA<T>() const;                    \
