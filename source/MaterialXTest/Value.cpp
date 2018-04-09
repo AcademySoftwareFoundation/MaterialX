@@ -83,10 +83,10 @@ TEST_CASE("Typed values", "[value]")
                    mx::Vector3(1.5f, 2.5f, 3.5f));
     testTypedValue(mx::Vector4(1.0f, 2.0f, 3.0f, 4.0f),
                    mx::Vector4(1.5f, 2.5f, 3.5f, 4.5f));
-    testTypedValue(mx::Matrix3x3(0.0f),
-                   mx::Matrix3x3(1.0f));
-    testTypedValue(mx::Matrix4x4(0.0f),
-                   mx::Matrix4x4(1.0f));
+    testTypedValue(mx::Matrix33(0.0f),
+                   mx::Matrix33(1.0f));
+    testTypedValue(mx::Matrix44(0.0f),
+                   mx::Matrix44(1.0f));
     testTypedValue(std::string("first_value"),
                    std::string("second_value"));
 

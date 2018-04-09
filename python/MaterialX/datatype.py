@@ -18,8 +18,8 @@ _nameToType = { 'integer'   : int,
                 'vector2'   : Vector2,
                 'vector3'   : Vector3,
                 'vector4'   : Vector4,
-                'matrix33'  : Matrix3x3,
-                'matrix44'  : Matrix4x4,
+                'matrix33'  : Matrix33,
+                'matrix44'  : Matrix44,
                 'string'    : str }
 _typeToName = dict(reversed(i) for i in _nameToType.items())
 
