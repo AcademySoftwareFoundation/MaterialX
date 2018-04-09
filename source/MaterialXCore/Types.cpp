@@ -21,4 +21,13 @@ const string NAME_PATH_SEPARATOR = "/";
 const string ARRAY_VALID_SEPARATORS = ", ";
 const string ARRAY_PREFERRED_SEPARATOR = ", ";
 
+const Matrix33 Matrix33::IDENTITY{1, 0, 0,
+                                  0, 1, 0,
+                                  0, 0, 1};
+
+const Matrix44 Matrix44::IDENTITY{1, 0, 0, 0,
+                                  0, 1, 0, 0,
+                                  0, 0, 1, 0,
+                                  0, 0, 0, 1};
+
 } // namespace MaterialX

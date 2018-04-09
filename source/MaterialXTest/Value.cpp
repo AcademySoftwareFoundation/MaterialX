@@ -83,22 +83,22 @@ TEST_CASE("Typed values", "[value]")
                    mx::Vector3(1.5f, 2.5f, 3.5f));
     testTypedValue(mx::Vector4(1.0f, 2.0f, 3.0f, 4.0f),
                    mx::Vector4(1.5f, 2.5f, 3.5f, 4.5f));
-    testTypedValue(mx::Matrix3x3(0.0f),
-                   mx::Matrix3x3(1.0f));
-    testTypedValue(mx::Matrix4x4(0.0f),
-                   mx::Matrix4x4(1.0f));
+    testTypedValue(mx::Matrix33(0.0f),
+                   mx::Matrix33(1.0f));
+    testTypedValue(mx::Matrix44(0.0f),
+                   mx::Matrix44(1.0f));
     testTypedValue(std::string("first_value"),
                    std::string("second_value"));
 
     // Array types
-    testTypedValue(mx::IntVec{1, 2, 3},
-                   mx::IntVec{4, 5, 6});
-    testTypedValue(mx::BoolVec{false, false, false},
-                   mx::BoolVec{true, true, true});
-    testTypedValue(mx::FloatVec{1.0f, 2.0f, 3.0f},
-                   mx::FloatVec{4.0f, 5.0f, 6.0f});
-    testTypedValue(mx::StringVec{"one", "two", "three"},
-                   mx::StringVec{"four", "five", "six"});
+    testTypedValue(std::vector<int>{1, 2, 3},
+                   std::vector<int>{4, 5, 6});
+    testTypedValue(std::vector<bool>{false, false, false},
+                   std::vector<bool>{true, true, true});
+    testTypedValue(std::vector<float>{1.0f, 2.0f, 3.0f},
+                   std::vector<float>{4.0f, 5.0f, 6.0f});
+    testTypedValue(std::vector<std::string>{"one", "two", "three"},
+                   std::vector<std::string>{"four", "five", "six"});
 
     // Alias types
     testTypedValue<long>(1l, 2l);

@@ -516,7 +516,7 @@ void Document::upgradeVersion()
             MaterialAssignPtr matAssign = elem->asA<MaterialAssign>();
             if (typedElem && typedElem->getType() == "matrix")
             {
-                typedElem->setType(getTypeString<Matrix4x4>());
+                typedElem->setType(getTypeString<Matrix44>());
             }
             if (valueElem && valueElem->hasAttribute("default"))
             {

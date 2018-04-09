@@ -38,8 +38,8 @@ void bindPyGeom(py::module& mod)
         BIND_GEOMINFO_FUNC_INSTANCE(vector2, mx::Vector2)
         BIND_GEOMINFO_FUNC_INSTANCE(vector3, mx::Vector3)
         BIND_GEOMINFO_FUNC_INSTANCE(vector4, mx::Vector4)
-        BIND_GEOMINFO_FUNC_INSTANCE(matrix33, mx::Matrix3x3)
-        BIND_GEOMINFO_FUNC_INSTANCE(matrix44, mx::Matrix4x4)
+        BIND_GEOMINFO_FUNC_INSTANCE(matrix33, mx::Matrix33)
+        BIND_GEOMINFO_FUNC_INSTANCE(matrix44, mx::Matrix44)
         BIND_GEOMINFO_FUNC_INSTANCE(string, std::string)
         .def_readonly_static("CATEGORY", &mx::GeomInfo::CATEGORY);
 

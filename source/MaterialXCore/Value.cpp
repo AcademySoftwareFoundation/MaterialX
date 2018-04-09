@@ -19,6 +19,8 @@ namespace {
 
 template <class T> using enable_if_mx_vector_t =
     typename std::enable_if<std::is_base_of<VectorBase, T>::value, T>::type;
+template <class T> using enable_if_mx_matrix_t =
+    typename std::enable_if<std::is_base_of<MatrixBase, T>::value, T>::type;
 
 template <class T> class is_std_vector : public std::false_type { };
 template <class T> class is_std_vector< vector<T> > : public std::true_type { };
@@ -62,6 +64,22 @@ template <class T> void stringToData(const string& str, enable_if_mx_vector_t<T>
     }
 }
 
+template <class T> void stringToData(const string& str, enable_if_mx_matrix_t<T>& data)
+{
+    vector<string> tokens = splitString(str, ARRAY_VALID_SEPARATORS);
+    if (tokens.size() != data.numRows() * data.numColumns())
+    {
+        throw ExceptionTypeError("Type mismatch in matrix stringToData: " + str);
+    }
+    for (size_t i = 0; i < data.numRows(); i++)
+    {
+        for (size_t j = 0; j < data.numColumns(); j++)
+        {
+            stringToData(tokens[i * data.numRows() + j], data[i][j]);
+        }
+    }
+}
+
 template <class T> void stringToData(const string& str, enable_if_std_vector_t<T>& data)
 {
     for (const string& token : splitString(str, ARRAY_VALID_SEPARATORS))
@@ -99,6 +117,24 @@ template <class T> void dataToString(const enable_if_mx_vector_t<T>& data, strin
         if (i + 1 < data.length())
         {
             str += ARRAY_PREFERRED_SEPARATOR;
+        }
+    }
+}
+
+template <class T> void dataToString(const enable_if_mx_matrix_t<T>& data, string& str)
+{
+    for (size_t i = 0; i < data.numRows(); i++)
+    {
+        for (size_t j = 0; j < data.numColumns(); j++)
+        {
+            string token;
+            dataToString(data[i][j], token);
+            str += token;
+            if (i + 1 < data.numRows() ||
+                j + 1 < data.numColumns())
+            {
+                str += ARRAY_PREFERRED_SEPARATOR;
+            }
         }
     }
 }
@@ -217,6 +253,10 @@ template <class T> class ValueRegistry
 // Template instantiations
 //
 
+using IntVec = vector<int>;
+using BoolVec = vector<bool>;
+using FloatVec = vector<float>;
+
 #define INSTANTIATE_TYPE(T, name)                       \
 template <> const string TypedValue<T>::TYPE = name;    \
 template bool Value::isA<T>() const;                    \
@@ -234,8 +274,8 @@ INSTANTIATE_TYPE(Color4, "color4")
 INSTANTIATE_TYPE(Vector2, "vector2")
 INSTANTIATE_TYPE(Vector3, "vector3")
 INSTANTIATE_TYPE(Vector4, "vector4")
-INSTANTIATE_TYPE(Matrix3x3, "matrix33")
-INSTANTIATE_TYPE(Matrix4x4, "matrix44")
+INSTANTIATE_TYPE(Matrix33, "matrix33")
+INSTANTIATE_TYPE(Matrix44, "matrix44")
 INSTANTIATE_TYPE(string, "string")
 
 // Array types
