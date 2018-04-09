@@ -83,9 +83,9 @@ OslSyntax::OslSyntax()
         TypeSyntax
         (
             "color4",
-            "color4(color(0,0,0), 0.0)",
-            "color4(color(0,0,0), 0.0)",
-            "",
+            "color4(color(0.0), 0.0)",
+            "color4(color(0.0), 0.0)",
+            "color4 color4_pack(float r, float g, float b, float a) { return color4(color(r,g,b), a); }",
             "output color4"
         )
     );
@@ -289,8 +289,8 @@ OslSyntax::OslSyntax()
         DataType::COLOR4,
         ValueConstructSyntax
         (
-            "pack(", ")",
-            "pack(", ")",
+            "color4_pack(", ")",
+            "color4_pack(", ")",
             {".rgb[0]", ".rgb[1]", ".rgb[2]", ".a"}
         )
     );
@@ -321,8 +321,8 @@ OslSyntax::OslSyntax()
         DataType::VECTOR4,
         ValueConstructSyntax
         (
-            "pack(", ")",
-            "pack(", ")",
+            "vector4(", ")",
+            "vector4(", ")",
             {".x", ".y", ".z", ".w"}
         )
     );

@@ -1,11 +1,14 @@
-void mx_remap_color3(color in, color inlow, color inhigh, float gamma, color outlow, color outhigh, int doclamp, output color result)
+void mx_remap_color3(color in, color inlow, color inhigh, color gamma, color outlow, color outhigh, int doclamp, output color result)
 {
+    color zero = {0.0, 0.0, 0.0};
+    color one = {1.0, 1.0, 1.0};
+
     // remap from [inlow, inhigh] to [0,1]
-    result = remap(in, inlow, inhigh, 0, 1, 0);
+    result = remap(in, inlow, inhigh, zero, one, 0);
 
     // apply gamma
     result = fgamma(result, gamma);
 
     // remap from [0,1] to [outlow, outhigh]
-    result = remap(result, 0, 1, outlow, outhigh, doclamp); 
+    result = remap(result, zero, one, outlow, outhigh, doclamp); 
 }

@@ -24,6 +24,9 @@ public:
     /// Emit the shader body
     void emitFunctionCalls(Shader& shader) override;
 
+    /// Emit the final output expression
+    void emitFinalOutput(Shader& shader) const override;
+
     /// Unique identifyer for the osl language
     static const string LANGUAGE;
 

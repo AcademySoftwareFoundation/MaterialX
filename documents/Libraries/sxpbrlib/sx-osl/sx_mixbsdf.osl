@@ -1,11 +1,5 @@
-void sx_mixbsdf(BSDF in1, float weight1, BSDF in2, float weight2, output BSDF result)
+void sx_mixbsdf(BSDF in1, BSDF in2, float weight, output BSDF result)
 {
-    float ws = weight1 + weight2;
-    if (ws > 1.0)
-    {
-        ws = 1.0 / ws;
-        weight1 *= ws;
-        weight2 *= ws;
-    }
-    result = in1 * weight1 + in2 * weight2;
+    float w = clamp(weight, 0.0, 1.0);
+    result = in1 * w + in2 * (1.0 - w);
 }
