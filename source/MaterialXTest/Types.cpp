@@ -48,7 +48,7 @@ TEST_CASE("Matrix operators", "[types]")
     REQUIRE(trans[3][0] == 4);
     trans[3][0] = 3;
 
-    // Component-wise operators
+    // Matrix operators
     mx::Matrix44 prod1 = trans * scale;
     mx::Matrix44 prod2 = scale * trans;
     REQUIRE(prod1 == mx::Matrix44(2, 0, 0, 0,
