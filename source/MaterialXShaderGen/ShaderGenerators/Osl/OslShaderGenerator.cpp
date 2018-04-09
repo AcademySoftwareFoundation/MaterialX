@@ -21,7 +21,19 @@ namespace
         "{\n"
         "   result = texcoord;\n"
         "}\n\n";
+
+    // Color2/4 and Vector2/4 must be remapped to Color3 and Vector3 when used
+    // as shader outputs since in OSL a custom struct type is not supported as 
+    // shader output.
+    const std::unordered_map<string, std::pair<string,string>> shaderOutputTypeRemap =
+    {
+        { "color2", { "color3","rg0" } },
+        { "color4", { "color3","rgb" } },
+        { "vector2", { "vector3","xy0" } },
+        { "vector4", { "vector3","xyz" } }
+    };
 }
+
 
 const string OslShaderGenerator::LANGUAGE = "sx-osl";
 
@@ -157,9 +169,15 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     }
 
     // Emit shader output
+    string outputType = outputSocket->type;
+    auto it = shaderOutputTypeRemap.find(outputType);
+    if (it != shaderOutputTypeRemap.end())
+    {
+        outputType = it->second.first;
+    }
+    const string type = _syntax->getOutputTypeName(outputType);
     const string variable = getVariableName(outputSocket);
-    const string type = _syntax->getOutputTypeName(outputSocket->type);
-    const string value = _syntax->getTypeDefault(outputSocket->type, true);
+    const string value = _syntax->getTypeDefault(outputType, true);
     shader.addLine(type + " " + variable + " = " + value, false);
 
     shader.endScope();
@@ -215,6 +233,41 @@ void OslShaderGenerator::emitFunctionCalls(Shader &shader)
 
     // Call parent
     ShaderGenerator::emitFunctionCalls(shader);
+}
+
+void OslShaderGenerator::emitFinalOutput(Shader& shader) const
+{
+    SgNodeGraph* graph = shader.getNodeGraph();
+    const SgOutputSocket* outputSocket = graph->getOutputSocket();
+    const string outputVariable = getVariableName(outputSocket);
+
+    if (!outputSocket->connection)
+    {
+        // Early out for the rare case where the whole graph is just a single value
+        shader.addLine(outputVariable + " = " + (outputSocket->value ? _syntax->getValue(*outputSocket->value) : _syntax->getTypeDefault(outputSocket->type)));
+        return;
+    }
+
+    string finalResult = getVariableName(outputSocket->connection);
+
+    // Handle channel swizzling
+    if (outputSocket->channels != EMPTY_STRING)
+    {
+        string finalResultSwizz = finalResult + "_swizzled";
+        finalResult = _syntax->getSwizzledVariable(finalResult, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
+        const string type = _syntax->getTypeName(outputSocket->type);
+        shader.addLine(type + " " + finalResultSwizz + " = " + finalResult);
+        finalResult = finalResultSwizz;
+    }
+
+    // Handle output type remapping
+    auto it = shaderOutputTypeRemap.find(outputSocket->type);
+    if (it != shaderOutputTypeRemap.end())
+    {
+        finalResult = _syntax->getSwizzledVariable(finalResult, it->second.first, outputSocket->type, it->second.second);
+    }
+
+    shader.addLine(outputVariable + " = " + finalResult);
 }
 
 } // namespace MaterialX

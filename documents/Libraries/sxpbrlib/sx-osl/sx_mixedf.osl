@@ -1,4 +1,5 @@
-void sx_mixedf(EDF in1, float weight1, EDF in2, float weight2, output EDF result)
+void sx_mixedf(EDF in1, EDF in2, float weight, output EDF result)
 {
-    result = in1 * weight1 + in2 * weight2;
+    float w = clamp(weight, 0.0, 1.0);
+    result = in1 * w + in2 * (1.0 - w);
 }
