@@ -102,7 +102,35 @@
   <implementation name="IM_splittb__vector4__sx_osl" nodedef="ND_splittb__vector4" file="stdlib/sx-osl/mx_splittb.inline" language="sx-osl"/>
 
   <!-- <noise2d> -->
+  <implementation name="IM_noise2d__float__sx_osl" nodedef="ND_noise2d__float" file="stdlib/sx-osl/mx_noise2d_float.osl" function="mx_noise2d_float" language="sx-osl"/>
+  <implementation name="IM_noise2d__color2__sx_osl" nodedef="ND_noise2d__color2" file="stdlib/sx-osl/mx_noise2d_color2.osl" function="mx_noise2d_color2" language="sx-osl"/>
+  <implementation name="IM_noise2d__color3__sx_osl" nodedef="ND_noise2d__color3" file="stdlib/sx-osl/mx_noise2d_color3.osl" function="mx_noise2d_color3" language="sx-osl"/>
+  <implementation name="IM_noise2d__color4__sx_osl" nodedef="ND_noise2d__color4" file="stdlib/sx-osl/mx_noise2d_color4.osl" function="mx_noise2d_color4" language="sx-osl"/>
+  <implementation name="IM_noise2d__color2FA__sx_osl" nodedef="ND_noise2d__color2FA" file="stdlib/sx-osl/mx_noise2d_fa_color2.osl" function="mx_noise2d_fa_color2" language="sx-osl"/>
+  <implementation name="IM_noise2d__color3FA__sx_osl" nodedef="ND_noise2d__color3FA" file="stdlib/sx-osl/mx_noise2d_fa_color3.osl" function="mx_noise2d_fa_color3" language="sx-osl"/>
+  <implementation name="IM_noise2d__color4FA__sx_osl" nodedef="ND_noise2d__color4FA" file="stdlib/sx-osl/mx_noise2d_fa_color4.osl" function="mx_noise2d_fa_color4" language="sx-osl"/>
+  <implementation name="IM_noise2d__vector2__sx_osl" nodedef="ND_noise2d__vector2" file="stdlib/sx-osl/mx_noise2d_vector2.osl" function="mx_noise2d_vector2" language="sx-osl"/>
+  <implementation name="IM_noise2d__vector2FA__sx_osl" nodedef="ND_noise2d__vector2FA" file="stdlib/sx-osl/mx_noise2d_fa_vector2.osl" function="mx_noise2d_fa_vector2" language="sx-osl"/>
+  <implementation name="IM_noise2d__vector3__sx_osl" nodedef="ND_noise2d__vector3" file="stdlib/sx-osl/mx_noise2d_vector3.osl" function="mx_noise2d_vector3" language="sx-osl"/>
+  <implementation name="IM_noise2d__vector3FA__sx_osl" nodedef="ND_noise2d__vector3FA" file="stdlib/sx-osl/mx_noise2d_fa_vector.osl" function="mx_noise2d_fa_vector" language="sx-osl"/>
+  <implementation name="IM_noise2d__vector4__sx_osl" nodedef="ND_noise2d__vector4" file="stdlib/sx-osl/mx_noise2d_vector4.osl" function="mx_noise2d_vector4" language="sx-osl"/>
+  <implementation name="IM_noise2d__vector4FA__sx_osl" nodedef="ND_noise2d__vector4FA" file="stdlib/sx-osl/mx_noise2d_fa_vector4.osl" function="mx_noise2d_fa_vector4" language="sx-osl"/>
+
   <!-- <noise3d> -->
+  <implementation name="IM_noise3d__float__sx_osl" nodedef="ND_noise3d__float" file="stdlib/sx-osl/mx_noise3d_float.osl" function="mx_noise3d_float" language="sx-osl"/>
+  <implementation name="IM_noise3d__color2__sx_osl" nodedef="ND_noise3d__color2" file="stdlib/sx-osl/mx_noise3d_color2.osl" function="mx_noise3d_color2" language="sx-osl"/>
+  <implementation name="IM_noise3d__color3__sx_osl" nodedef="ND_noise3d__color3" file="stdlib/sx-osl/mx_noise3d_color.osl" function="mx_noise3d_color" language="sx-osl"/>
+  <implementation name="IM_noise3d__color4__sx_osl" nodedef="ND_noise3d__color4" file="stdlib/sx-osl/mx_noise3d_color4.osl" function="mx_noise3d_color4" language="sx-osl"/>
+  <implementation name="IM_noise3d__color2FA__sx_osl" nodedef="ND_noise3d__color2FA" file="stdlib/sx-osl/mx_noise3d_fa_color2.osl" function="mx_noise3d_fa_color2" language="sx-osl"/>
+  <implementation name="IM_noise3d__color3FA__sx_osl" nodedef="ND_noise3d__color3FA" file="stdlib/sx-osl/mx_noise3d_fa_color.osl" function="mx_noise3d_fa_color" language="sx-osl"/>
+  <implementation name="IM_noise3d__color4FA__sx_osl" nodedef="ND_noise3d__color4FA" file="stdlib/sx-osl/mx_noise3d_fa_color4.osl" function="mx_noise3d_fa_color4" language="sx-osl"/>
+  <implementation name="IM_noise3d__vector2__sx_osl" nodedef="ND_noise3d__vector2" file="stdlib/sx-osl/mx_noise3d_vector2.osl" function="mx_noise3d_vector2" language="sx-osl"/>
+  <implementation name="IM_noise3d__vector3__sx_osl" nodedef="ND_noise3d__vector3" file="stdlib/sx-osl/mx_noise3d_vector.osl" function="mx_noise3d_vector" language="sx-osl"/>
+  <implementation name="IM_noise3d__vector4__sx_osl" nodedef="ND_noise3d__vector4" file="stdlib/sx-osl/mx_noise3d_vector4.osl" function="mx_noise3d_vector4" language="sx-osl"/>
+  <implementation name="IM_noise3d__vector2FA__sx_osl" nodedef="ND_noise3d__vector2FA" file="stdlib/sx-osl/mx_noise3d_fa_vector2.osl" function="mx_noise3d_fa_vector2" language="sx-osl"/>
+  <implementation name="IM_noise3d__vector3FA__sx_osl" nodedef="ND_noise3d__vector3FA" file="stdlib/sx-osl/mx_noise3d_fa_vector.osl" function="mx_noise3d_fa_vector" language="sx-osl"/>
+  <implementation name="IM_noise3d__vector4FA__sx_osl" nodedef="ND_noise3d__vector4FA" file="stdlib/sx-osl/mx_noise3d_fa_vector4.osl" function="mx_noise3d_fa_vector4" language="sx-osl"/>
+
   <!-- <fractal3d> -->
   <!-- <cellnoise2d> -->
   <!-- <cellnoise3d> -->
