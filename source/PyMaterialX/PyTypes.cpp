@@ -16,59 +16,47 @@ namespace mx = MaterialX;
 
 using IndexPair = std::pair<size_t, size_t>;
 
-#define BIND_VECTOR_SUBCLASS(T, N)                      \
+#define BIND_VECTOR_SUBCLASS(V, N)                      \
 .def(py::init<>())                                      \
 .def(py::init<float>())                                 \
 .def(py::init<const std::array<float, N>&>())           \
 .def(py::init<const std::vector<float>&>())             \
 .def(py::self == py::self)                              \
 .def(py::self != py::self)                              \
-.def("__add__", [](const T& v1, const T& v2)            \
-    { return T(v1 + v2); } )                            \
-.def("__sub__", [](const T& v1, const T& v2)            \
-    { return T(v1 - v2); } )                            \
-.def("__mul__", [](const T& v1, const T& v2)            \
-    { return T(v1 * v2); } )                            \
-.def("__div__", [](const T& v1, const T& v2)            \
-    { return T(v1 / v2); } )                            \
-.def("__truediv__", [](const T& v1, const T& v2)        \
-    { return T(v1 / v2); } )                            \
-.def("__getitem__", [](T& vec, size_t i)                \
+.def(py::self + py::self)                               \
+.def(py::self - py::self)                               \
+.def(py::self * py::self)                               \
+.def(py::self / py::self)                               \
+.def("__getitem__", [](V& vec, size_t i)                \
     { return vec[i]; } )                                \
-.def("__setitem__", [](T& vec, size_t i, float f)       \
+.def("__setitem__", [](V& vec, size_t i, float f)       \
     { vec[i] = f; } )                                   \
-.def("__str__", [](const T& vec)                        \
+.def("__str__", [](const V& vec)                        \
     { return mx::toValueString(vec); })                 \
-.def("copy", [](const T& vec) { return T(vec); })       \
-.def_static("__len__", &T::length)
+.def("copy", [](const V& vec) { return V(vec); })       \
+.def_static("__len__", &V::length)
 
-#define BIND_MATRIX_SUBCLASS(T, V, N)                   \
+#define BIND_MATRIX_SUBCLASS(M, V, N)                   \
 .def(py::init<>())                                      \
 .def(py::init<float>())                                 \
 .def(py::self == py::self)                              \
 .def(py::self != py::self)                              \
-.def("__add__", [](const T& m1, const T& m2)            \
-    { return T(m1 + m2); } )                            \
-.def("__sub__", [](const T& m1, const T& m2)            \
-    { return T(m1 - m2); } )                            \
-.def("__mul__", [](const T& m1, const T& m2)            \
-    { return T(m1 * m2); } )                            \
-.def("__div__", [](const T& m1, const T& m2)            \
-    { return T(m1 / m2); } )                            \
-.def("__truediv__", [](const T& m1, const T& m2)        \
-    { return T(m1 / m2); } )                            \
-.def("__getitem__", [](const T &mat, IndexPair i)       \
-    { return mat[i.first][i.second]; } )                \
-.def("__setitem__", [](T &mat, IndexPair i, float f)    \
-    { mat[i.first][i.second] = f; })                    \
-.def("__str__", [](const T& mat)                        \
-    { return mx::toValueString(mat); })                 \
-.def("copy", [](const T& mat) { return T(mat); })       \
-.def("getRow", &T::getRow)                              \
-.def("getColumn", &T::getColumn)                        \
-.def_static("numRows", &T::numRows)                     \
-.def_static("numColumns", &T::numColumns)               \
-.def_static("__len__", &T::numRows)
+.def(py::self + py::self)                               \
+.def(py::self - py::self)                               \
+.def(py::self * py::self)                               \
+.def(py::self / py::self)                               \
+.def("__getitem__", [](const M &m, IndexPair i)         \
+    { return m[i.first][i.second]; } )                  \
+.def("__setitem__", [](M &m, IndexPair i, float f)      \
+    { m[i.first][i.second] = f; })                      \
+.def("__str__", [](const M& m)                          \
+    { return mx::toValueString(m); })                   \
+.def("copy", [](const M& m) { return M(m); })           \
+.def("getRow", &M::getRow)                              \
+.def("getColumn", &M::getColumn)                        \
+.def_static("numRows", &M::numRows)                     \
+.def_static("numColumns", &M::numColumns)               \
+.def_static("__len__", &M::numRows)
 
 void bindPyTypes(py::module& mod)
 {

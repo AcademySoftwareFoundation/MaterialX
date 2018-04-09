@@ -92,7 +92,7 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(trans[3, 0] == 4)
         trans[3, 0] = 3
 
-        # Component-wise operators
+        # Matrix operators
         prod1 = trans * scale
         prod2 = scale * trans
         self.assertTrue(prod1 == mx.Matrix44(2, 0, 0, 0,
