@@ -8,11 +8,9 @@
 #include <MaterialXView/Window/SimpleWindow.h>
 #include <MaterialXView/OpenGL/GLUtilityContext.h>
 #include <MaterialXView/ShaderValidators/Glsl/GlslProgram.h>
-#include <MaterialXView/Handlers/GeometryHandler.h>
-#include <MaterialXView/Handlers/LightHandler.h>
 #include <vector>
 #include <string>
-#include <unordered_map>
+#include <map>
 
 namespace MaterialX
 {
@@ -68,7 +66,8 @@ class GlslValidator : public ShaderValidator
 
     /// Perform validation that inputs can be bound to and 
     /// rendered with. Rendering is to an offscreen hardware buffer.
-    void validateRender() override;
+    /// @param orthographicView Render orthographically
+    void validateRender(bool orthographicView=true) override;
 
     /// @}
     /// @name Utilities
@@ -104,71 +103,22 @@ class GlslValidator : public ShaderValidator
     /// Bind or unbind any created offscree target.
     bool bindTarget(bool bind);
 
-    /// Index used to access cached attribute buffers
-    enum AttributeIndex {
-        POSITION3_ATTRIBUTE = 0,/// 3 float position attribute 
-        NORMAL3_ATTRIBUTE,      /// 3 float normal attribute 
-        TANGENT3_ATTRIBUTE,     /// 3 float tangent attribute
-        BITANGENT3_ATTRIBUTE,   /// 3 float bitangent attribute 
-        TEXCOORD2_ATTRIBUTE,    /// 2 float texture coordinate attribute
-        COLOR4_ATTRIBUTE,       /// 4 float color attribute 
-        ATTRIBUTE_COUNT         /// Number of attribute types
-    };
-
-    /// Bind attribute buffers to attribute inputs.
-    /// A hardware buffer of the given attribute type is created and bound to the program location
-    /// for the input attribute.
-    /// @param bufferData Block of buffer data 
-    /// @param bufferSize Size of buffer data.
-    /// @param attributeIndex Indicator for type of buffer to create
-    /// @param floatCount Number of floats per channel in the buffer
-    /// @param inputs Attribute inputs to bind to
-    void bindAttribute(const float* bufferData,
-                       size_t bufferSize,
-                       const GlslValidator::AttributeIndex attributeIndex,
-                       unsigned int floatCount,
-                       const MaterialX::GlslProgram::InputMap& inputs);
-
     /// @}
     /// @name Program bindings
     /// @{
 
-    /// Bind inputs
-    void bindInputs();
-
-    /// Bind viewing information
-    void bindViewInformation();
-
-    /// Bind input geometry streams
-    void bindGeometry();
-
-    /// Unbind any bound geometry
-    void unbindGeometry();
-
-    /// Bind any input textures
-    void bindTextures();
-
-    /// Unbind input textures
-    void unbindTextures();
-
-    /// Bind time and frame uniforms
-    void bindTimeAndFrame();
-
-    /// Bind lighting
-    void bindLighting();
+    /// Update viewing information
+    void updateViewInformation();
+    
+    /// Bind viewing information for fixed function 
+    void bindFixedFunctionViewInformation();
 
   private:
-    /// Dummy texture for testing with
-    void createDummyTexture();
-
     /// Utility to check for OpenGL context errors.
     /// Will throw an ExceptionShaderValidationError exception which will list of the errors found
     /// if any errors encountered.
     void checkErrors();
     
-    /// Assign a parameter value to a uniform
-    void setUniform(int location, const Value& value);
-
     /// GLSL program. 
     GlslProgramPtr _program;
 
@@ -186,20 +136,6 @@ class GlslValidator : public ShaderValidator
     /// Height of the frame buffer / targets to use. 
     unsigned int _frameBufferHeight;
 
-    /// Attribute buffer resource handles
-    std::vector<unsigned int> _attributeBufferIds;
-    
-    /// Attribute indexing buffer handle
-    unsigned int _indexBuffer;
-    /// Size of index buffer
-    size_t _indexBufferSize;
-    
-    /// Attribute vertex array handle
-    unsigned int _vertexArray;
-
-    /// Dummy texture
-    unsigned int _dummyTexture;
-
     /// Flag to indicate if validator has been initialized properly.
     bool _initialized;
     
@@ -208,8 +144,8 @@ class GlslValidator : public ShaderValidator
     /// Dummy OpenGL context for OpenGL usage
     GLUtilityContextPtr _context;
 
-    /// Program textures
-    std::vector<unsigned int> _programTextures;
+    /// Whether to draw a flat quad or use 3d perspective view
+    bool _orthographicView;
 };
 
 } // namespace MaterialX

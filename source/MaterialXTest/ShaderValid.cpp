@@ -27,7 +27,7 @@ namespace mx = MaterialX;
 extern void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc);
 extern void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::HwShaderGenerator& shadergen);
 
-TEST_CASE("GLSL Validation from Source", "[shadervalid]")
+TEST_CASE("GLSL Source", "[shadervalid]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
@@ -46,10 +46,19 @@ TEST_CASE("GLSL Validation from Source", "[shadervalid]")
     mx::GlslValidatorPtr validator = mx::GlslValidator::creator();
     mx::TinyEXRImageHandlerPtr handler = mx::TinyEXRImageHandler::creator();
     bool initialized = false;
+    bool orthographicsView = true;
     try
     {
         validator->initialize();
         validator->setImageHandler(handler);
+        // Set geometry to draw with
+        const std::string geometryFile("documents/sphere.obj");
+        mx::GeometryHandlerPtr geometryHandler = validator->getGeometryHandler();        
+        geometryHandler->setIdentifier(geometryFile);
+        if (geometryHandler->getIdentifier() == geometryFile)
+        {
+            orthographicsView = false;
+        }
         initialized = true;
     }
     catch (mx::ExceptionShaderValidationError e)
@@ -184,7 +193,7 @@ TEST_CASE("GLSL Validation from Source", "[shadervalid]")
         bool renderSucceeded = false;
         try
         {
-            validator->validateRender();
+            validator->validateRender(orthographicsView);
             renderSucceeded = true;
         }
         catch (mx::ExceptionShaderValidationError e)
@@ -211,7 +220,7 @@ TEST_CASE("GLSL Validation from Source", "[shadervalid]")
     }
 }
 
-TEST_CASE("GLSL Validation from HwShader", "[shadervalid]")
+TEST_CASE("GLSL Shader", "[shadervalid]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
@@ -244,9 +253,14 @@ TEST_CASE("GLSL Validation from HwShader", "[shadervalid]")
     attributeList.push_back(position1);
 
     // color output test
-    mx::NodePtr geomcolor1 = nodeGraph->addNode("geomcolor", "geomcolor1", "color3");
+    mx::NodePtr geomcolor1 = nodeGraph->addNode("geomcolor", "geomcolor_set0", "color3");
     geomcolor1->setParameterValue("index", 0, "integer");
     attributeList.push_back(geomcolor1);
+
+    // color output set 2 test
+    mx::NodePtr geomcolor2 = nodeGraph->addNode("geomcolor", "geomcolor_set1", "color3");
+    geomcolor2->setParameterValue("index", 1, "integer");
+    attributeList.push_back(geomcolor2);
 
     // tangent output test
     mx::NodePtr tangent = nodeGraph->addNode("tangent", "tangent1", "vector3");
@@ -261,10 +275,18 @@ TEST_CASE("GLSL Validation from HwShader", "[shadervalid]")
     // uv output test
     mx::NodePtr texcoord1 = nodeGraph->addNode("texcoord", "texcoord1", "vector2");
     texcoord1->setParameterValue("index", 0, "integer");
-    mx::NodePtr swizzle1 = nodeGraph->addNode("swizzle", "swizzle_uv", "vector3");
+    mx::NodePtr swizzle1 = nodeGraph->addNode("swizzle", "uv_set0", "vector3");
     swizzle1->setConnectedNode("in", texcoord1);
     swizzle1->setParameterValue("channels", std::string("xy0"));
     attributeList.push_back(swizzle1);
+
+    // uv set 2 output test
+    mx::NodePtr texcoord2 = nodeGraph->addNode("texcoord", "texcoord2", "vector2");
+    texcoord2->setParameterValue("index", 1, "integer");
+    mx::NodePtr swizzle2 = nodeGraph->addNode("swizzle", "uv_set1", "vector3");
+    swizzle2->setConnectedNode("in", texcoord2);
+    swizzle2->setParameterValue("channels", std::string("xy0"));
+    attributeList.push_back(swizzle2);
 
     // image.
     mx::FilePath imagePath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Images/MaterialXLogo.exr");
@@ -278,9 +300,14 @@ TEST_CASE("GLSL Validation from HwShader", "[shadervalid]")
 
     // Setup lighting
     mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
-    createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
+    mx::HwShaderGenerator& hwGenerator = static_cast<mx::HwShaderGenerator&>(*shaderGenerator);
+    createLightRig(doc, *lightHandler, hwGenerator);
+    // Pre-clamp the number of light sources to the number bound
+    size_t lightSourceCount = lightHandler->getLightSources().size();
+    hwGenerator.setMaxActiveLightSources(lightSourceCount);
 
     bool initialized = false;
+    bool orthographicsView = true;
     mx::GlslValidatorPtr validator = mx::GlslValidator::creator();
     mx::TinyEXRImageHandlerPtr imageHandler = mx::TinyEXRImageHandler::creator();
     try
@@ -288,6 +315,13 @@ TEST_CASE("GLSL Validation from HwShader", "[shadervalid]")
         validator->initialize();
         validator->setImageHandler(imageHandler);
         validator->setLightHandler(lightHandler);
+        const std::string geometryFile("documents/shaderball.obj");
+        mx::GeometryHandlerPtr geometryHandler = validator->getGeometryHandler();
+        geometryHandler->setIdentifier(geometryFile);
+        if (geometryHandler->getIdentifier() == geometryFile)
+        {
+            orthographicsView = false;
+        }
         initialized = true;
     }
     catch (mx::ExceptionShaderValidationError e)
@@ -331,7 +365,7 @@ TEST_CASE("GLSL Validation from HwShader", "[shadervalid]")
             program->printUniforms(std::cout);
             program->printAttributes(std::cout);
 
-            validator->validateRender();
+            validator->validateRender(orthographicsView);
             std::string fileName = nodePtr->getName() + ".exr";
             validator->save(fileName);
 
@@ -368,8 +402,8 @@ TEST_CASE("GLSL Validation from HwShader", "[shadervalid]")
               <input name=\"opacity\" type=\"float\" value=\"1.0\" /> \
             </surface>  \
             <diffusebsdf name=\"diffusebsdf1\" type=\"BSDF\"> \
-              <input name=\"reflectance\" type=\"color3\" value=\"0.9, 0.9, 0.9\" />  \
-              <input name=\"roughness\" type=\"float\" value=\"1.0\" /> \
+              <input name=\"reflectance\" type=\"color3\" value=\"1.0, 1.0, 1.0\" />  \
+              <input name=\"roughness\" type=\"float\" value=\"0.8\" /> \
               <input name=\"normal\" type=\"vector3\" /> \
             </diffusebsdf>  \
             <output name=\"out\" type=\"surfaceshader\" nodename=\"surface1\" /> \
@@ -409,7 +443,7 @@ TEST_CASE("GLSL Validation from HwShader", "[shadervalid]")
             program->printUniforms(std::cout);
             program->printAttributes(std::cout);
 
-            validator->validateRender();
+            validator->validateRender(orthographicsView);
             const std::string fileName = "lighting1.exr";
             validator->save(fileName);
 
