@@ -29,36 +29,50 @@ extern const string NAME_PATH_SEPARATOR;
 extern const string ARRAY_VALID_SEPARATORS;
 extern const string ARRAY_PREFERRED_SEPARATOR;
 
-/// The base class for vectors of floating-point values
+/// The base class for vectors of scalar values
 class VectorBase { };
 
-/// The class template for fixed-length subclasses of VectorBase
-template <size_t N> class VectorN : public VectorBase
+/// The class template for vectors of scalar values.
+///
+/// Template parameter T specifies the scalar element type, and N specifies
+/// the number of scalar elements in the vector.
+template <class T, size_t N> class VectorN : public VectorBase
 {
   public:
     VectorN() : data{} { }
-    explicit VectorN(float f) { data.fill(f); }
+    explicit VectorN(T s) { data.fill(s); }
     explicit VectorN(const std::array<float, N>& arr) : data(arr) { }
     explicit VectorN(const vector<float>& vec) { std::copy_n(vec.begin(), N, data.begin()); }
 
-    //
-    // Equality operators
-    //
+    using ScalarType = T;
 
+    using iterator = typename std::array<T, N>::iterator;
+    using const_iterator = typename std::array<T, N>::const_iterator;
+
+    /// @name Equality operators
+    /// @{
+
+    /// Return true if the given vector is identical to this one.
     bool operator==(const VectorN& rhs) const { return data == rhs.data; }
+
+    /// Return true if the given vector differs from this one.
     bool operator!=(const VectorN& rhs) const { return data != rhs.data; }
 
-    //
-    // Indexing operators
-    //
+    /// @}
+    /// @name Indexing operators
+    /// @{
 
-    float operator[](size_t i) const { return data.at(i); }
-    float& operator[](size_t i) { return data.at(i); }
+    /// Return the scalar value at the given index.
+    T operator[](size_t i) const { return data.at(i); }
 
-    //
-    // Component-wise addition
-    //
+    /// Return a reference to the scalar value at the given index.
+    T& operator[](size_t i) { return data.at(i); }
 
+    /// @}
+    /// @name Component-wise operators
+    /// @{
+
+    /// Component-wise addition, returning a new vector.
     VectorN operator+(const VectorN& rhs) const
     {
         VectorN res;
@@ -66,6 +80,8 @@ template <size_t N> class VectorN : public VectorBase
             res[i] = data[i] + rhs[i];
         return res;
     }
+
+    /// Component-wise addition, modifying this vector in place.
     VectorN& operator+=(const VectorN& rhs)
     {
         for (size_t i = 0; i < N; i++)
@@ -73,10 +89,7 @@ template <size_t N> class VectorN : public VectorBase
         return *this;
     }
 
-    //
-    // Component-wise subtraction
-    //
-
+    /// Component-wise subtraction, returning a new vector.
     VectorN operator-(const VectorN& rhs) const
     {
         VectorN res;
@@ -84,6 +97,8 @@ template <size_t N> class VectorN : public VectorBase
             res[i] = data[i] - rhs[i];
         return res;
     }
+
+    /// Component-wise subtraction, modifying this vector in place.
     VectorN& operator-=(const VectorN& rhs)
     {
         for (size_t i = 0; i < N; i++)
@@ -91,10 +106,7 @@ template <size_t N> class VectorN : public VectorBase
         return *this;
     }
 
-    //
-    // Component-wise multiplication
-    //
-
+    /// Component-wise multiplication, returning a new vector.
     VectorN operator*(const VectorN& rhs) const
     {
         VectorN res;
@@ -102,6 +114,8 @@ template <size_t N> class VectorN : public VectorBase
             res[i] = data[i] * rhs[i];
         return res;
     }
+
+    /// Component-wise multiplication, modifying this vector in place.
     VectorN& operator*=(const VectorN& rhs)
     {
         for (size_t i = 0; i < N; i++)
@@ -109,10 +123,7 @@ template <size_t N> class VectorN : public VectorBase
         return *this;
     }
 
-    //
-    // Component-wise division
-    //
-
+    /// Component-wise division, returning a new vector.
     VectorN operator/(const VectorN& rhs) const
     {
         VectorN res;
@@ -120,6 +131,8 @@ template <size_t N> class VectorN : public VectorBase
             res[i] = data[i] / rhs[i];
         return res;
     }
+
+    /// Component-wise division, modifying this vector in place.
     VectorN& operator/=(const VectorN& rhs)
     {
         for (size_t i = 0; i < N; i++)
@@ -127,12 +140,9 @@ template <size_t N> class VectorN : public VectorBase
         return *this;
     }
 
-    //
-    // Iterators
-    //
-
-    using iterator = typename std::array<float, N>::iterator;
-    using const_iterator = typename std::array<float, N>::const_iterator;
+    /// @}
+    /// @name Iterators
+    /// @{
 
     iterator begin() { return data.begin(); }
     const_iterator begin() const { return data.begin(); }
@@ -140,43 +150,52 @@ template <size_t N> class VectorN : public VectorBase
     iterator end() { return data.end(); }
     const_iterator end() const { return data.end(); }
 
-    //
-    // Static methods
-    //
+    /// @}
+    /// @name Utility
+    /// @{
 
-    static size_t length() { return N; }
+    /// Return the contents of this vector as a standard array.
+    const std::array<T, N>& getArray() const { return data; }
 
-  public:
-    std::array<float, N> data;
+    /// Return the length of this vector.
+    static constexpr size_t length() { return N; }
+
+    /// @}
+
+  protected:
+    std::array<T, N> data;
 };
 
+/// @class Vector2
 /// A vector of two floating-point values
-class Vector2 : public VectorN<2>
+class Vector2 : public VectorN<float, 2>
 {
   public:
-    using VectorN<2>::VectorN;
+    using VectorN<float, 2>::VectorN;
     Vector2() { }
-    Vector2(const VectorN<2>& v) { data = v.data; }
+    Vector2(const VectorN<float, 2>& v) { data = v.getArray(); }
     Vector2(float x, float y) { data = {x, y}; }
 };
 
+/// @class Vector3
 /// A vector of three floating-point values
-class Vector3 : public VectorN<3>
+class Vector3 : public VectorN<float, 3>
 {
   public:
-    using VectorN<3>::VectorN;
+    using VectorN<float, 3>::VectorN;
     Vector3() { }
-    Vector3(const VectorN<3>& v) { data = v.data; }
+    Vector3(const VectorN<float, 3>& v) { data = v.getArray(); }
     Vector3(float x, float y, float z) { data = {x, y, z}; }
 };
 
+/// @class Vector4
 /// A vector of four floating-point values
-class Vector4 : public VectorN<4>
+class Vector4 : public VectorN<float, 4>
 {
   public:
-    using VectorN<4>::VectorN;
+    using VectorN<float, 4>::VectorN;
     Vector4() { }
-    Vector4(const VectorN<4>& v) { data = v.data; }
+    Vector4(const VectorN<float, 4>& v) { data = v.getArray(); }
     Vector4(float x, float y, float z, float w) { data = {x, y, z, w}; }
 };
 
@@ -201,85 +220,204 @@ class Color4 : public Vector4
     using Vector4::Vector4;
 };
 
-/// The class template for square matrix subclasses of VectorBase
-template <size_t N> class MatrixNxN : public VectorN<N*N>
+/// The base class for matrices of scalar values
+class MatrixBase { };
+
+/// The class template for matrices of scalar values
+///
+/// Template parameter V specifies the row vector type, and N specifies the
+/// number of row vector in the matrix.
+template <class V, size_t N> class MatrixN : public MatrixBase
 {
   public:
-    using VectorN<N*N>::VectorN;
+    MatrixN() : data{} { }
+    explicit MatrixN(typename V::ScalarType s) { data.fill(V(s)); }
 
-    //
-    // Matrix indexing
-    //
+    using iterator = typename std::array<V, N>::iterator;
+    using const_iterator = typename std::array<V, N>::const_iterator;
 
-    float& at(size_t row, size_t col)
+    /// @name Equality operators
+    /// @{
+
+    /// Return true if the given matrix is identical to this one.
+    bool operator==(const MatrixN& rhs) const { return data == rhs.data; }
+
+    /// Return true if the given vector differs from this one.
+    bool operator!=(const MatrixN& rhs) const { return data != rhs.data; }
+
+    /// @}
+    /// @name Indexing operators
+    /// @{
+
+    /// Return the vector value at the given index.
+    V operator[](size_t i) const { return data.at(i); }
+
+    /// Return the vector value at the given index as a reference.
+    V& operator[](size_t i) { return data.at(i); }
+
+    /// @}
+    /// @name Component-wise operators
+    /// @{
+
+    /// Component-wise addition, returning a new matrix.
+    MatrixN operator+(const MatrixN& rhs) const
     {
-        return VectorN<N*N>::data[row * N + col];
+        MatrixN res;
+        for (size_t i = 0; i < N; i++)
+            res[i] = data[i] + rhs[i];
+        return res;
     }
-    const float& at(size_t row, size_t col) const
+
+    /// Component-wise addition, modifying this matrix in place.
+    MatrixN& operator+=(const MatrixN& rhs)
     {
-        return VectorN<N*N>::data[row * N + col];
+        for (size_t i = 0; i < N; i++)
+            data[i] += rhs[i];
+        return *this;
     }
 
-    //
-    // Matrix multiplication
-    //
-
-    MatrixNxN operator*(const MatrixNxN& rhs) const
+    /// Component-wise subtraction, returning a new matrix.
+    MatrixN operator-(const MatrixN& rhs) const
     {
-        MatrixNxN res;
+        MatrixN res;
+        for (size_t i = 0; i < N; i++)
+            res[i] = data[i] - rhs[i];
+        return res;
+    }
+
+    /// Component-wise subtraction, modifying this matrix in place.
+    MatrixN& operator-=(const MatrixN& rhs)
+    {
+        for (size_t i = 0; i < N; i++)
+            data[i] -= rhs[i];
+        return *this;
+    }
+
+    /// Matrix multplication, returning a new matrix.
+    MatrixN operator*(const MatrixN& rhs) const
+    {
+        static_assert(numRows() == numColumns(), "Requires a square matrix");
+        MatrixN res;
         for (size_t i = 0; i < N; i++)
             for (size_t j = 0; j < N; j++)
                 for (size_t k = 0; k < N; k++)
-                    res.at(i, j) += at(i, k) * rhs.at(k, j);
+                    res[i][j] += data[i][k] * rhs[k][j];
         return res;
     }
-    MatrixNxN& operator*=(const MatrixNxN& rhs)
+
+    /// Matrix multplication, modifying this matrix in place.
+    MatrixN& operator*=(const MatrixN& rhs)
     {
         *this = *this * rhs;
         return *this;
     }
+
+    /// Component-wise division, returning a new matrix.
+    /// @todo Add support for matrix division.
+    MatrixN operator/(const MatrixN& rhs) const
+    {
+        MatrixN res;
+        for (size_t i = 0; i < N; i++)
+            res[i] = data[i] / rhs[i];
+        return res;
+    }
+
+    /// Component-wise division, modifying this matrix in place.
+    MatrixN& operator/=(const MatrixN& rhs)
+    {
+        for (size_t i = 0; i < N; i++)
+            data[i] /= rhs[i];
+        return *this;
+    }
+
+    /// @}
+    /// @name Iterators
+    /// @{
+
+    iterator begin() { return data.begin(); }
+    const_iterator begin() const { return data.begin(); }
+
+    iterator end() { return data.end(); }
+    const_iterator end() const { return data.end(); }
+
+    /// @}
+    /// @name Utility
+    /// @{
+
+    /// Return the given row as a vector.
+    V getRow(size_t i) const
+    {
+        return data[i];
+    }
+
+    /// Return the given column as a vector.
+    V getColumn(size_t j) const
+    {
+        V v;
+        for (size_t i = 0; i < N; i++)
+        {
+            v[i] = data[i][j];
+        }
+        return v;
+    }
+
+    /// Return the contents of this matrix as a standard array.
+    const std::array<V, N>& getArray() const { return data; }
+
+    /// Return the number of rows in this matrix.
+    static constexpr size_t numRows() { return N; }
+
+    /// Return the number of columns in this matrix.
+    static constexpr size_t numColumns() { return V::length(); }
+
+    /// @}
+
+  protected:
+    std::array<V, N> data;
 };
 
+/// @class Matrix33
 /// A 3x3 matrix of floating-point values
-class Matrix3x3 : public MatrixNxN<3>
+class Matrix33 : public MatrixN<Vector3, 3>
 {
   public:
-    using MatrixNxN<3>::MatrixNxN;
-    Matrix3x3() { }
-    Matrix3x3(const VectorN<9>& m) { data = m.data; }
-    Matrix3x3(float m00, float m01, float m02,
-              float m10, float m11, float m12,
-              float m20, float m21, float m22)
+    using MatrixN<Vector3, 3>::MatrixN;
+    Matrix33() { }
+    Matrix33(const MatrixN<Vector3, 3>& m) { data = m.getArray(); }
+    Matrix33(float m00, float m01, float m02,
+             float m10, float m11, float m12,
+             float m20, float m21, float m22)
     {
-        data = {m00, m01, m02,
-                m10, m11, m12,
-                m20, m21, m22};
+        data = {Vector3(m00, m01, m02),
+                Vector3(m10, m11, m12),
+                Vector3(m20, m21, m22)};
     }
 
   public:
-    static Matrix3x3 IDENTITY;
+    static const Matrix33 IDENTITY;
 };
 
+/// @class Matrix44
 /// A 4x4 matrix of floating-point values
-class Matrix4x4 : public MatrixNxN<4>
+class Matrix44 : public MatrixN<Vector4, 4>
 {
   public:
-    using MatrixNxN<4>::MatrixNxN;
-    Matrix4x4() { }
-    Matrix4x4(const VectorN<16>& m) { data = m.data; }
-    Matrix4x4(float m00, float m01, float m02, float m03,
-              float m10, float m11, float m12, float m13,
-              float m20, float m21, float m22, float m23,
-              float m30, float m31, float m32, float m33)
+    using MatrixN<Vector4, 4>::MatrixN;
+    Matrix44() { }
+    Matrix44(const MatrixN<Vector4, 4>& m) { data = m.getArray(); }
+    Matrix44(float m00, float m01, float m02, float m03,
+             float m10, float m11, float m12, float m13,
+             float m20, float m21, float m22, float m23,
+             float m30, float m31, float m32, float m33)
     {
-        data = {m00, m01, m02, m03,
-                m10, m11, m12, m13,
-                m20, m21, m22, m23,
-                m30, m31, m32, m33};
+        data = {Vector4(m00, m01, m02, m03),
+                Vector4(m10, m11, m12, m13),
+                Vector4(m20, m21, m22, m23),
+                Vector4(m30, m31, m32, m33)};
     }
 
   public:
-    static Matrix4x4 IDENTITY;
+    static const Matrix44 IDENTITY;
 };
 
 } // namespace MaterialX
