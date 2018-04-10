@@ -34,21 +34,35 @@ class VectorBase { };
 
 /// The class template for vectors of scalar values.
 ///
-/// The template parameter V represents the derived vector class, S represents
-/// the scalar element type, and N is the number of scalar elements in the vector.
+/// Template parameter V is the vector subclass (CRTP), S is the scalar element
+/// type, and N is the number of scalar elements in the vector.
 template <class V, class S, size_t N> class VectorN : public VectorBase
 {
   public:
+    using ScalarType = S;
+    using Iterator = typename std::array<S, N>::iterator;
+    using ConstIterator = typename std::array<S, N>::const_iterator;
+
+    /// @name Constructors
+    /// @{
+
+    /// The default constructor, initializing all scalar elements to their
+    /// zero value.
     VectorN() : data{} { }
+
+    /// An explicit constructor, initializing all scalar elements to the given
+    /// value.
     explicit VectorN(S s) { data.fill(s); }
+
+    /// An explicit constructor, initializing the vector from a standard array
+    /// the same length.
     explicit VectorN(const std::array<S, N>& arr) : data(arr) { }
+
+    /// An explicit constructor, initializing the vector from a standard vector
+    /// of the same length.
     explicit VectorN(const vector<float>& vec) { std::copy_n(vec.begin(), N, data.begin()); }
 
-    using ScalarType = S;
-
-    using iterator = typename std::array<S, N>::iterator;
-    using const_iterator = typename std::array<S, N>::const_iterator;
-
+    /// @}
     /// @name Equality operators
     /// @{
 
@@ -144,18 +158,18 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// @name Iterators
     /// @{
 
-    iterator begin() { return data.begin(); }
-    const_iterator begin() const { return data.begin(); }
+    Iterator begin() { return data.begin(); }
+    ConstIterator begin() const { return data.begin(); }
 
-    iterator end() { return data.end(); }
-    const_iterator end() const { return data.end(); }
+    Iterator end() { return data.end(); }
+    ConstIterator end() const { return data.end(); }
 
     /// @}
     /// @name Utility
     /// @{
 
-    /// Return the contents of this vector as a standard array.
-    const std::array<S, N>& getArray() const { return data; }
+    /// Return the internal data for this vector as a standard array.
+    std::array<S, N>& getArray() { return data; }
 
     /// Return the length of this vector.
     static constexpr size_t length() { return N; }
@@ -222,17 +236,27 @@ class MatrixBase { };
 
 /// The class template for matrices of scalar values
 ///
-/// The template parameter M represents the derived matrix class, V represents
-/// the row vector type, and N is the number of row vectors in the matrix.
+/// Template parameter M is the matrix subclass (CRTP), V is the row vector
+/// type, and N is the number of row vectors in the matrix.
 template <class M, class V, size_t N> class MatrixN : public MatrixBase
 {
   public:
+    using VectorType = V;
+    using Iterator = typename std::array<V, N>::iterator;
+    using ConstIterator = typename std::array<V, N>::const_iterator;
+
+    /// @name Constructors
+    /// @{
+
+    /// The default constructor, initializing all scalar elements to their
+    /// zero value.
     MatrixN() : data{} { }
+
+    /// An explicit constructor, initializing all scalar elements to the
+    /// given value.
     explicit MatrixN(typename V::ScalarType s) { data.fill(V(s)); }
 
-    using iterator = typename std::array<V, N>::iterator;
-    using const_iterator = typename std::array<V, N>::const_iterator;
-
+    /// @}
     /// @name Equality operators
     /// @{
 
@@ -331,11 +355,11 @@ template <class M, class V, size_t N> class MatrixN : public MatrixBase
     /// @name Iterators
     /// @{
 
-    iterator begin() { return data.begin(); }
-    const_iterator begin() const { return data.begin(); }
+    Iterator begin() { return data.begin(); }
+    ConstIterator begin() const { return data.begin(); }
 
-    iterator end() { return data.end(); }
-    const_iterator end() const { return data.end(); }
+    Iterator end() { return data.end(); }
+    ConstIterator end() const { return data.end(); }
 
     /// @}
     /// @name Utility
@@ -358,8 +382,8 @@ template <class M, class V, size_t N> class MatrixN : public MatrixBase
         return v;
     }
 
-    /// Return the contents of this matrix as a standard array.
-    const std::array<V, N>& getArray() const { return data; }
+    /// Return the internal data for this matrix as a standard array.
+    std::array<V, N>& getArray() { return data; }
 
     /// Return the number of rows in this matrix.
     static constexpr size_t numRows() { return N; }
