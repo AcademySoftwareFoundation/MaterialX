@@ -694,12 +694,15 @@ TEST_CASE("Noise", "[shadergen]")
 
     // Create a node graph containing a noise node
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph(exampleName);
-    mx::OutputPtr output1 = nodeGraph->addOutput("out", "vector4");
-    mx::NodePtr noise2d = nodeGraph->addNode("noise2d", "noise2d", "vector4");
-    mx::NodePtr noise3d = nodeGraph->addNode("noise3d", "noise3d", "vector4");
-    noise2d->setParameterValue("amplitude", 1.0);
+    mx::OutputPtr output1 = nodeGraph->addOutput("out", "color3");
+    mx::NodePtr noise2d = nodeGraph->addNode("noise2d", "noise2d", "float");
+    mx::NodePtr noise3d = nodeGraph->addNode("noise3d", "noise3d", "float");
+    mx::NodePtr cellnoise2d = nodeGraph->addNode("cellnoise2d", "cellnoise2d", "float");
+    mx::NodePtr cellnoise3d = nodeGraph->addNode("cellnoise3d", "cellnoise3d", "float");
+    mx::NodePtr fractal3d = nodeGraph->addNode("fractal3d", "fractal3d", "float");
+    noise2d->setParameterValue("amplitude", 0.5);
     noise2d->setParameterValue("pivot", 1.0f);
-    noise3d->setParameterValue("amplitude", 1.0);
+    noise3d->setParameterValue("amplitude", 0.5);
     noise3d->setParameterValue("pivot", 1.0f);
 
     // Scale the noise2d uv's
@@ -717,7 +720,11 @@ TEST_CASE("Noise", "[shadergen]")
     posmult1->setInputValue("in2", mx::Vector3(16, 16, 16));
     noise3d->setConnectedNode("position", posmult1);
 
-    output1->setConnectedNode(noise3d);
+    cellnoise2d->setConnectedNode("texcoord", uvmult1);
+    cellnoise3d->setConnectedNode("position", posmult1);
+    fractal3d->setConnectedNode("position", posmult1);
+
+    output1->setConnectedNode(noise2d);
 
     // Arnold OSL
     {
