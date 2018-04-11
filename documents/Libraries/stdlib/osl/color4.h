@@ -105,13 +105,13 @@ color4 __operator__div__(color4 a, color4 b)
 
 color4 __operator__div__(color4 a, int b)
 {
-    float b_inv = 1/b;
+    float b_inv = 1.0/b;
     return a * color4(color(b_inv), b_inv);
 }
 
 color4 __operator__div__(color4 a, float b)
 {
-    float b_inv = 1/b;
+    float b_inv = 1.0/b;
     return a * color4(color(b_inv), b_inv);
 }
 

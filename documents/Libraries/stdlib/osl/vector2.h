@@ -105,13 +105,13 @@ vector2 __operator__div__(vector2 a, vector2 b)
 
 vector2 __operator__div__(vector2 a, int b)
 {
-    float b_inv = 1/b;
+    float b_inv = 1.0/b;
     return a * vector2(b_inv, b_inv);
 }
 
 vector2 __operator__div__(vector2 a, float b)
 {
-    float b_inv = 1/b;
+    float b_inv = 1.0/b;
     return a * vector2(b_inv, b_inv);
 }
 

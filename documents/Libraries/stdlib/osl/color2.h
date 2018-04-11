@@ -27,7 +27,7 @@ color2 __operator__neg__(color2 a)
 
 color2 __operator__add__(color2 a, color2 b)
 {
-    return color2(a.r + a.r, b.a + b.a);
+    return color2(a.r + b.r, a.a + b.a);
 }
 
 color2 __operator__add__(color2 a, int b)
@@ -67,17 +67,17 @@ color2 __operator__sub__(color2 a, float b)
 
 color2 __operator__sub__(int a, color2 b)
 {
-    return b - color2(a, a);
+    return color2(a, a) - b;
 }
 
 color2 __operator__sub__(float a, color2 b)
 {
-    return b - color2(a, a);
+    return color2(a, a) - b;
 }
 
 color2 __operator__mul__(color2 a, color2 b)
 {
-    return color2(a.r * a.r, b.a * b.a);
+    return color2(a.r * b.r, a.a * b.a);
 }
 
 color2 __operator__mul__(color2 a, int b)
@@ -107,13 +107,13 @@ color2 __operator__div__(color2 a, color2 b)
 
 color2 __operator__div__(color2 a, int b)
 {
-    float b_inv = 1/b;
+    float b_inv = 1.0/b;
     return a * color2(b_inv, b_inv);
 }
 
 color2 __operator__div__(color2 a, float b)
 {
-    float b_inv = 1/b;
+    float b_inv = 1.0/b;
     return a * color2(b_inv, b_inv);
 }
 
@@ -129,7 +129,7 @@ color2 __operator__div__(float a, color2 b)
 
 int __operator__eq__(color2 a, color2 b)
 {
-    return (a.r == a.r) && (b.a == b.a);
+    return (a.r == b.r) && (a.a == b.a);
 }
 
 int __operator__ne__(color2 a, color2 b)
@@ -219,8 +219,8 @@ color2 min(color2 a, float b)
 
 color2 fmod(color2 a, color2 b)
 {
-    return color2(fmod(a.r, a.r),
-                  fmod(b.a, b.a));
+    return color2(fmod(a.r, b.r),
+                  fmod(a.a, b.a));
 }
 
 color2 fmod(color2 a, int b)
