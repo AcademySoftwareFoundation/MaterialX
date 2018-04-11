@@ -107,13 +107,13 @@ vector4 __operator__div__(vector4 a, vector4 b)
 
 vector4 __operator__div__(vector4 a, int b)
 {
-    float b_inv = 1/b;
+    float b_inv = 1.0/b;
     return a * vector4(b_inv, b_inv, b_inv, b_inv);
 }
 
 vector4 __operator__div__(vector4 a, float b)
 {
-    float b_inv = 1/b;
+    float b_inv = 1.0/b;
     return a * vector4(b_inv, b_inv, b_inv, b_inv);
 }
 
