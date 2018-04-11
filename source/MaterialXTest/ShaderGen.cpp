@@ -693,17 +693,17 @@ TEST_CASE("Noise", "[shadergen]")
     const std::string exampleName = "noise_test";
 
     // Create a node graph containing a noise node
-    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph(exampleName);
+    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("IMP_" + exampleName);
     mx::OutputPtr output1 = nodeGraph->addOutput("out", "color3");
-    mx::NodePtr noise2d = nodeGraph->addNode("noise2d", "noise2d", "float");
-    mx::NodePtr noise3d = nodeGraph->addNode("noise3d", "noise3d", "float");
+    mx::NodePtr noise2d = nodeGraph->addNode("noise2d", "noise2d", "vector2");
+    mx::NodePtr noise3d = nodeGraph->addNode("noise3d", "noise3d", "vector4");
     mx::NodePtr cellnoise2d = nodeGraph->addNode("cellnoise2d", "cellnoise2d", "float");
     mx::NodePtr cellnoise3d = nodeGraph->addNode("cellnoise3d", "cellnoise3d", "float");
     mx::NodePtr fractal3d = nodeGraph->addNode("fractal3d", "fractal3d", "float");
-    noise2d->setParameterValue("amplitude", 0.5);
-    noise2d->setParameterValue("pivot", 1.0f);
-    noise3d->setParameterValue("amplitude", 0.5);
-    noise3d->setParameterValue("pivot", 1.0f);
+    noise2d->setParameterValue("amplitude", mx::Vector2(1.0,1.0));
+    noise2d->setParameterValue("pivot", 0.0f);
+    noise3d->setParameterValue("amplitude", 1.0);
+    noise3d->setParameterValue("pivot", 0.0f);
 
     // Scale the noise2d uv's
     mx::NodePtr uv1 = nodeGraph->addNode("texcoord", "uv1", "vector2");
@@ -724,7 +724,20 @@ TEST_CASE("Noise", "[shadergen]")
     cellnoise3d->setConnectedNode("position", posmult1);
     fractal3d->setConnectedNode("position", posmult1);
 
-    output1->setConnectedNode(noise2d);
+    mx::NodePtr add1 = nodeGraph->addNode("add", "add1", "float");
+    mx::NodePtr multiply1 = nodeGraph->addNode("multiply", "multiply1", "float");
+    add1->setConnectedNode("in1", noise2d);
+    add1->setInputValue("in2", 1.0f);
+    multiply1->setConnectedNode("in1", add1);
+    multiply1->setInputValue("in2", 0.5f);
+
+    mx::NodePtr mixer = nodeGraph->addNode("mix", "mixer", "color3");
+    mixer->setInputValue("fg", mx::Color3(1, 0, 0));
+    mixer->setInputValue("bg", mx::Color3(1, 1, 0));
+    mixer->setConnectedNode("mask", multiply1);
+
+    output1->setConnectedNode(noise3d);
+    output1->setChannels("www");
 
     // Arnold OSL
     {
@@ -747,7 +760,7 @@ TEST_CASE("Noise", "[shadergen]")
     }
 
     // TODO: Implement the noise in GLSL
-#if 0
+#if 1
     // OgsFx
     {
         mx::ShaderGeneratorPtr shadergen = mx::OgsFxShaderGenerator::creator();
