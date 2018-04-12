@@ -18,6 +18,7 @@
 #include <MaterialXView/Handlers/LightHandler.h>
 
 #include <fstream>
+#include <iostream>
 
 namespace mx = MaterialX;
 
@@ -699,11 +700,12 @@ TEST_CASE("Noise", "[shadergen]")
     mx::NodePtr noise3d = nodeGraph->addNode("noise3d", "noise3d", "vector4");
     mx::NodePtr cellnoise2d = nodeGraph->addNode("cellnoise2d", "cellnoise2d", "float");
     mx::NodePtr cellnoise3d = nodeGraph->addNode("cellnoise3d", "cellnoise3d", "float");
-    mx::NodePtr fractal3d = nodeGraph->addNode("fractal3d", "fractal3d", "float");
+    mx::NodePtr fractal3d = nodeGraph->addNode("fractal3d", "fractal3d", "vector3");
     noise2d->setParameterValue("amplitude", mx::Vector2(1.0,1.0));
     noise2d->setParameterValue("pivot", 0.0f);
     noise3d->setParameterValue("amplitude", 1.0);
     noise3d->setParameterValue("pivot", 0.0f);
+    fractal3d->setParameterValue("amplitude", 1.0f);
 
     // Scale the noise2d uv's
     mx::NodePtr uv1 = nodeGraph->addNode("texcoord", "uv1", "vector2");
@@ -736,8 +738,8 @@ TEST_CASE("Noise", "[shadergen]")
     mixer->setInputValue("bg", mx::Color3(1, 1, 0));
     mixer->setConnectedNode("mask", multiply1);
 
-    output1->setConnectedNode(noise3d);
-    output1->setChannels("www");
+    output1->setConnectedNode(fractal3d);
+    output1->setChannels("xyz");
 
     // Arnold OSL
     {

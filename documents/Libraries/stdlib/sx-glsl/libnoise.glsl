@@ -158,6 +158,12 @@ uint bjfinal(uint a, uint b, uint c /*=0xdeadbeef*/)
     return c;
 }
 
+// Convert a 32 bit integer into a floating point number in [0,1]
+float bits_to_01(uint bits)
+{
+    return float(bits) / float(uint(0xffffffff));
+}
+
 uint inthash(int x, int y)
 {
     uint a, b, c, len = 2;
@@ -284,4 +290,45 @@ vec3 perlin_noise3(float x, float y, float z)
                           grad(hash3(X+1, Y+1, Z+1), fx-1.0f, fy-1.0f, fz-1.0f),
                           u, v, w);
     return scale3(result);
+}
+
+float cell_noise1(float x, float y)
+{
+    int ix = quick_floor(x);
+    int iy = quick_floor(y);
+    return bits_to_01(inthash(ix, iy));
+}
+
+float cell_noise1(vec3 p)
+{
+    int ix = quick_floor(p.x);
+    int iy = quick_floor(p.y);
+    int iz = quick_floor(p.z);
+    return bits_to_01(inthash(ix, iy, iz));
+}
+
+float fractal_noice1(vec3 p, int octaves, float lacunarity, float diminish)
+{
+    float result = 0.0;
+    float amp = 1.0;
+    for (int i = 0;  i < octaves; ++i)
+    {
+        result += amp * perlin_noise1(p.x, p.y, p.z);
+        amp *= diminish;
+        p *= lacunarity;
+    }
+    return result;
+}
+
+vec3 fractal_noice3(vec3 p, int octaves, float lacunarity, float diminish)
+{
+    vec3 result = vec3(0.0);
+    float amp = 1.0;
+    for (int i = 0;  i < octaves; ++i)
+    {
+        result += amp * perlin_noise3(p.x, p.y, p.z);
+        amp *= diminish;
+        p *= lacunarity;
+    }
+    return result;
 }
