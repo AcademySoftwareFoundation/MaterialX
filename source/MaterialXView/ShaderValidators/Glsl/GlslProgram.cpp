@@ -828,11 +828,10 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
         }
     }
 
-    Matrix4x4& worldMatrix = viewHandler->worldMatrix();
-    Matrix4x4& viewMatrix = viewHandler->viewMatrix();
-    Matrix4x4& projectionMatrix = viewHandler->projectionMatrix();
-    Matrix4x4 viewProjection;
-    viewHandler->multiplyMatrix(projectionMatrix, viewMatrix, viewProjection);
+    Matrix44& worldMatrix = viewHandler->worldMatrix();
+    Matrix44& viewMatrix = viewHandler->viewMatrix();
+    Matrix44& projectionMatrix = viewHandler->projectionMatrix();
+    Matrix44 viewProjection = viewMatrix * projectionMatrix;
 
     // Set world related matrices. World matrix is identity so
     // bind the same matrix to all locations
@@ -852,7 +851,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
             location = Input->second->location;
             if (location >= 0)
             {
-                glUniformMatrix4fv(location, 1, false, &worldMatrix[0]);
+                glUniformMatrix4fv(location, 1, false, &(worldMatrix[0][0]));
             }
         }
     }
@@ -866,7 +865,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
         "u_projectionInverseMatrix",
         "u_projectionInverseTransposeMatrix",
     };
-    Matrix4x4 inverseProjection;
+    Matrix44 inverseProjection;
     bool computedInverse = false;
     for (auto projectionMatrixVariable : projectionMatrixVariables)
     {
@@ -883,11 +882,11 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
                     {
                         viewHandler->invertMatrix(projectionMatrix, inverseProjection);
                     }
-                    glUniformMatrix4fv(location, 1, transpose, &inverseProjection[0]);
+                    glUniformMatrix4fv(location, 1, transpose, &(inverseProjection[0][0]));
                 }
                 else
                 {
-                    glUniformMatrix4fv(location, 1, transpose, &projectionMatrix[0]);
+                    glUniformMatrix4fv(location, 1, transpose, &(projectionMatrix[0][0]));
                 }
             }
         }
@@ -901,7 +900,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
         "u_viewInverseMatrix",
         "u_viewInverseTransposeMatrix",
     };
-    Matrix4x4 inverseView;
+    Matrix44 inverseView;
     computedInverse = false;
     for (auto viewMatrixVariable : viewMatrixVariables)
     {
@@ -918,11 +917,11 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
                     {
                         viewHandler->invertMatrix(viewMatrix, inverseView);
                     }
-                    glUniformMatrix4fv(location, 1, transpose, &inverseView[0]);
+                    glUniformMatrix4fv(location, 1, transpose, &(inverseView[0][0]));
                 }
                 else
                 {
-                    glUniformMatrix4fv(location, 1, transpose, &viewMatrix[0]);
+                    glUniformMatrix4fv(location, 1, transpose, &(viewMatrix[0][0]));
                 }
             }
         }
@@ -942,7 +941,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
             location = Input->second->location;
             if (location >= 0)
             {
-                glUniformMatrix4fv(location, 1, GL_FALSE, &viewProjection[0]);
+                glUniformMatrix4fv(location, 1, GL_FALSE, &(viewProjection[0][0]));
             }
         }
     }
@@ -1164,9 +1163,9 @@ int GlslProgram::mapTypeToOpenGLType(const std::string& type)
         return GL_FLOAT_VEC3;
     else if (type == MaterialX::getTypeString<Vector4>() || type == MaterialX::getTypeString<Color4>())
         return GL_FLOAT_VEC4;
-    else if (type == MaterialX::getTypeString<Matrix3x3>())
+    else if (type == MaterialX::getTypeString<Matrix33>())
         return GL_FLOAT_MAT3;
-    else if (type == MaterialX::getTypeString<Matrix4x4>())
+    else if (type == MaterialX::getTypeString<Matrix44>())
         return GL_FLOAT_MAT4;
     else if (type == MaterialX::FILENAME_TYPE_STRING)
     {

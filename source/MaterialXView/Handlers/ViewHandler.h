@@ -50,19 +50,19 @@ class ViewHandler
                                          float farClipPlane);
 
     /// Set the world matrix
-    void setWorldMatrix(Matrix4x4& m)
+    void setWorldMatrix(Matrix44& m)
     {
         _worldMatrix = m;
     }
 
     /// Get the projection matrix
-    Matrix4x4& projectionMatrix()
+    Matrix44& projectionMatrix()
     {
         return _projectionMatrix;
     }
 
     /// Get the view matrix
-    Matrix4x4& viewMatrix()
+    Matrix44& viewMatrix()
     {
         return _viewMatrix;
     }
@@ -80,7 +80,7 @@ class ViewHandler
     }
 
     /// Get the world matrix
-    Matrix4x4& worldMatrix()
+    Matrix44& worldMatrix()
     {
         return _worldMatrix;
     }
@@ -89,31 +89,15 @@ class ViewHandler
     /// @name General utilities
     /// @{
 
-    /// Modify matrix by a given translation amount
-    /// @param m Matrix to modify.
-    /// @param vector Translation amount
-    void translateMatrix(Matrix4x4& m, Vector3 vector) const;
-
-    /// Multiply two matricies and return the result
-    /// @param m1 First matrix 
-    /// @param m2 Second matrix 
-    /// @param result Resulting matrix
-    void multiplyMatrix(const Matrix4x4& m1, const Matrix4x4& m2, Matrix4x4& result) const;
-
-    /// Transpose a matrix
-    /// @param m Input matrix 
-    /// @param tm Transpose of matrix
-    void transposeMatrix(const Matrix4x4& m, Matrix4x4& tm) const;
-
     /// Invert a matrix
     /// @param m Input matrix 
     /// @param tm Inverse of matrix
-    bool invertMatrix(const Matrix4x4& m, Matrix4x4& im) const;
+    bool invertMatrix(const Matrix44& m, Matrix44& im) const;
 
     /// Invert a matrix which is not affine
     /// @param m Input matrix 
     /// @param tm Inverse of matrix
-    bool invertGeneralMatrix(const Matrix4x4& m, Matrix4x4& im) const;
+    bool invertGeneralMatrix(const Matrix44& m, Matrix44& im) const;
 
     /// Convert from degress to radians
     /// @param degrees Degree value
@@ -123,14 +107,6 @@ class ViewHandler
     /// Get lenth of a vector
     float length(const Vector3& vector) const;
 
-    /// Set 4x4 matrix to be identity
-    /// @param m Matrix to modify.
-    void makeIdentityMatrix(Matrix4x4& m) const;
-
-    /// Check if matrix is identity
-    /// @param matrix Matrix to check
-    bool isIdentityMatrix(const Matrix4x4& m) const;
-
     /// PI
     static float PI_VALUE;
 
@@ -138,15 +114,15 @@ class ViewHandler
 
   protected:
     /// World matrix
-    Matrix4x4 _worldMatrix;
+    Matrix44 _worldMatrix;
     /// View matrix
-    Matrix4x4 _viewMatrix;
+    Matrix44 _viewMatrix;
     /// View position
     Vector3 _viewPosition;
     /// View direction
     Vector3 _viewDirection;
     /// Projection matrix
-    Matrix4x4 _projectionMatrix;
+    Matrix44 _projectionMatrix;
 };
 
 } // namespace MaterialX

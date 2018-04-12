@@ -8,8 +8,6 @@
 #include <MaterialXCore/Element.h>
 #include <MaterialXCore/Node.h>
 
-#include <sstream>
-
 namespace MaterialX
 {
 

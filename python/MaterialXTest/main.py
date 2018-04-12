@@ -18,8 +18,8 @@ _testValues = (1,
                mx.Vector2(1.0, 2.0),
                mx.Vector3(1.0, 2.0, 3.0),
                mx.Vector4(1.0, 2.0, 3.0, 4.0),
-               mx.Matrix3x3(0.0),
-               mx.Matrix4x4(1.0),
+               mx.Matrix33(0.0),
+               mx.Matrix44(1.0),
                'value')
 
 _fileDir = os.path.dirname(os.path.abspath(__file__))
@@ -54,20 +54,61 @@ class TestMaterialX(unittest.TestCase):
             newType = mx.nameToType(string)
             self.assertTrue(newType == type(value))
 
-            # Test features of vector subclasses.
-            if isinstance(value, mx.VectorBase):
-                for index, scalar in enumerate(value):
-                    self.assertTrue(scalar == value[index])
+    def test_VectorOperators(self):
+        v1 = mx.Vector3(1, 2, 3)
+        v2 = mx.Vector3(2, 4, 6)
 
-                value2 = value.copy()
-                self.assertTrue(value2 == value)
-                value2[0] += 1.0
-                self.assertTrue(value2 != value)
+        # Indexing operators
+        self.assertTrue(v1[2] == 3)
+        v1[2] = 4
+        self.assertTrue(v1[2] == 4)
+        v1[2] = 3
 
-                tup = tuple(value)
-                self.assertTrue(len(value) == len(tup))
-                for index in range(len(value)):
-                    self.assertTrue(value[index] == tup[index])
+        # Component-wise operators
+        self.assertTrue(v2 + v1 == mx.Vector3(3, 6, 9))
+        self.assertTrue(v2 - v1 == mx.Vector3(1, 2, 3))
+        self.assertTrue(v2 * v1 == mx.Vector3(2, 8, 18))
+        self.assertTrue(v2 / v1 == mx.Vector3(2, 2, 2))
+
+        # Equality operators
+        v3 = v2.copy()
+        self.assertTrue(v3 == v2)
+        v3[0] += 1;
+        self.assertTrue(v3 != v2)
+
+    def test_MatrixOperators(self):
+        trans = mx.Matrix44(1, 0, 0, 0,
+                            0, 1, 0, 0,
+                            0, 0, 1, 0,
+                            3, 0, 0, 1)
+        scale = mx.Matrix44(2, 0, 0, 0,
+                            0, 2, 0, 0,
+                            0, 0, 2, 0,
+                            0, 0, 0, 1)
+
+        # Indexing operators
+        self.assertTrue(trans[3, 0] == 3)
+        trans[3, 0] = 4
+        self.assertTrue(trans[3, 0] == 4)
+        trans[3, 0] = 3
+
+        # Component-wise operators
+        prod1 = trans * scale
+        prod2 = scale * trans
+        self.assertTrue(prod1 == mx.Matrix44(2, 0, 0, 0,
+                                             0, 2, 0, 0,
+                                             0, 0, 2, 0,
+                                             6, 0, 0, 1))
+        self.assertTrue(prod2 == mx.Matrix44(2, 0, 0, 0,
+                                             0, 2, 0, 0,
+                                             0, 0, 2, 0,
+                                             3, 0, 0, 1))
+
+        # Equality operators
+        trans2 = trans.copy()
+        self.assertTrue(trans2 == trans)
+        trans2[0, 0] += 1;
+        self.assertTrue(trans2 != trans)
 
     def test_BuildDocument(self):
         # Create a document.
