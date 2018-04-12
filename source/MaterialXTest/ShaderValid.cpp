@@ -24,11 +24,20 @@ namespace mx = MaterialX;
 #include <MaterialXView/Handlers/TinyEXRImageHandler.h>
 #include <MaterialXView/Handlers/LightHandler.h>
 
+// #define LOG_TO_FILE
+
 extern void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc);
 extern void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::HwShaderGenerator& shadergen);
 
 TEST_CASE("GLSL Source", "[shadervalid]")
 {
+#ifdef LOG_TO_FILE
+    std::ofstream logfile("log_shadervalid_glsl_source.txt");
+    std::ostream& log(logfile);
+#else
+    std::ostream& log(std::cout);
+#endif
+
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
@@ -65,7 +74,7 @@ TEST_CASE("GLSL Source", "[shadervalid]")
     {
         for (auto error : e.errorLog())
         {
-            std::cout << e.what() << " " << error << std::endl;
+            log << e.what() << " " << error << std::endl;
         }
     }
     REQUIRE(initialized);
@@ -80,12 +89,17 @@ TEST_CASE("GLSL Source", "[shadervalid]")
         "hello_world_shaderref",
         "geometric_nodes",
         "subgraph_ex1",
-        "subgraph_ex2"
+        "subgraph_ex2",
+        "test_noise2d",
+        "test_noise3d",
+        "test_cellnoise2d",
+        "test_cellnoise3d",
+        "test_fractal3d",
     };
 
     for (auto shaderName : shaderNames)
     {
-        std::cout << "------------ Validate shader from source: " << shaderName << std::endl;
+        log << "------------ Validate shader from source: " << shaderName << std::endl;
         std::string vertexShaderPath = shaderName + ".vert";
         std::string pixelShaderPath = shaderName + ".frag";
 
@@ -145,15 +159,15 @@ TEST_CASE("GLSL Source", "[shadervalid]")
         {
             for (auto error : e.errorLog())
             {
-                std::cout << e.what() << " " << error << std::endl;
+                log << e.what() << " " << error << std::endl;
             }
 
             std::string stage = program->getStage(mx::HwShader::VERTEX_STAGE);
-            std::cout << ">> Failed vertex stage code:\n";
-            std::cout << stage;
+            log << ">> Failed vertex stage code:\n";
+            log << stage;
             stage = program->getStage(mx::HwShader::PIXEL_STAGE);
-            std::cout << ">> Failed pixel stage code:\n";
-            std::cout << stage;
+            log << ">> Failed pixel stage code:\n";
+            log << stage;
         }
         REQUIRE(programCompiled);
 
@@ -161,14 +175,14 @@ TEST_CASE("GLSL Source", "[shadervalid]")
         bool uniformsParsed = false;
         try 
         {
-            program->printUniforms(std::cout);
+            program->printUniforms(log);
             uniformsParsed = true;
         }
         catch (mx::ExceptionShaderValidationError e)
         {
             for (auto error : e.errorLog())
             {
-                std::cout << e.what() << " " << error << std::endl;
+                log << e.what() << " " << error << std::endl;
             }
         }
         REQUIRE(uniformsParsed);
@@ -177,14 +191,14 @@ TEST_CASE("GLSL Source", "[shadervalid]")
         bool attributesParsed = false;
         try
         {
-            program->printAttributes(std::cout);
+            program->printAttributes(log);
             attributesParsed = true;
         }
         catch (mx::ExceptionShaderValidationError e)
         {
             for (auto error : e.errorLog())
             {
-                std::cout << e.what() << " " << error << std::endl;
+                log << e.what() << " " << error << std::endl;
             }
         }
         REQUIRE(attributesParsed);
@@ -200,7 +214,7 @@ TEST_CASE("GLSL Source", "[shadervalid]")
         {
             for (auto error : e.errorLog())
             {
-                std::cout << e.what() << " " << error << std::endl;
+                log << e.what() << " " << error << std::endl;
             }
         }
         REQUIRE(renderSucceeded);
@@ -214,7 +228,7 @@ TEST_CASE("GLSL Source", "[shadervalid]")
         {
             for (auto error : e.errorLog())
             {
-                std::cout << e.what() << " " << error << std::endl;
+                log << e.what() << " " << error << std::endl;
             }
         }
     }
@@ -222,6 +236,13 @@ TEST_CASE("GLSL Source", "[shadervalid]")
 
 TEST_CASE("GLSL Shader", "[shadervalid]")
 {
+#ifdef LOG_TO_FILE
+    std::ofstream logfile("log_shadervalid_glsl_shader.txt");
+    std::ostream& log(logfile);
+#else
+    std::ostream& log(std::cout);
+#endif
+
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
@@ -328,14 +349,14 @@ TEST_CASE("GLSL Shader", "[shadervalid]")
     {
         for (auto error : e.errorLog())
         {
-            std::cout << e.what() << " " << error << std::endl;
+            log << e.what() << " " << error << std::endl;
         }
     }
     REQUIRE(initialized);
 
     for (auto nodePtr : attributeList)
     {
-        std::cout << "------------ Validate with output node as input: " << nodePtr->getName() << std::endl;
+        log << "------------ Validate with output node as input: " << nodePtr->getName() << std::endl;
         output1->setConnectedNode(nodePtr);
 
         mx::ShaderPtr shader = shaderGenerator->generate(nodeGraph->getName(), output1);
@@ -362,8 +383,8 @@ TEST_CASE("GLSL Shader", "[shadervalid]")
             validator->validateCreation(hwShader);
             validator->validateInputs();
 
-            program->printUniforms(std::cout);
-            program->printAttributes(std::cout);
+            program->printUniforms(log);
+            program->printAttributes(log);
 
             validator->validateRender(orthographicsView);
             std::string fileName = nodePtr->getName() + ".exr";
@@ -375,15 +396,15 @@ TEST_CASE("GLSL Shader", "[shadervalid]")
         {
             for (auto error : e.errorLog())
             {
-                std::cout << e.what() << " " << error << std::endl;
+                log << e.what() << " " << error << std::endl;
             }
             
             std::string stage = program->getStage(mx::HwShader::VERTEX_STAGE);
-            std::cout << ">> Failed vertex stage code:\n";
-            std::cout << stage;
+            log << ">> Failed vertex stage code:\n";
+            log << stage;
             stage = program->getStage(mx::HwShader::PIXEL_STAGE);
-            std::cout << ">> Failed pixel stage code:\n";
-            std::cout << stage;
+            log << ">> Failed pixel stage code:\n";
+            log << stage;
         }
         REQUIRE(validated);
     }
@@ -410,7 +431,7 @@ TEST_CASE("GLSL Shader", "[shadervalid]")
           </nodegraph> \
         </materialx>";
 
-        std::cout << "------------- Validating lighting shader" << std::endl;
+        log << "------------- Validating lighting shader" << std::endl;
 
         MaterialX::readFromXmlBuffer(doc, lightDoc.c_str());
         mx::writeToXmlFile(doc, "lighting.mtlx");
@@ -440,8 +461,8 @@ TEST_CASE("GLSL Shader", "[shadervalid]")
             validator->validateInputs();
 
             MaterialX::GlslProgramPtr program = validator->program();
-            program->printUniforms(std::cout);
-            program->printAttributes(std::cout);
+            program->printUniforms(log);
+            program->printAttributes(log);
 
             validator->validateRender(orthographicsView);
             const std::string fileName = "lighting1.exr";
@@ -453,7 +474,7 @@ TEST_CASE("GLSL Shader", "[shadervalid]")
         {
             for (auto error : e.errorLog())
             {
-                std::cout << e.what() << " " << error << std::endl;
+                log << e.what() << " " << error << std::endl;
             }
         }
         REQUIRE(validated);

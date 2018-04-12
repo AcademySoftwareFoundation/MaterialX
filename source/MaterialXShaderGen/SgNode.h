@@ -21,6 +21,7 @@ using SgInputPtr = shared_ptr<class SgInput>;
 using SgOutputPtr = shared_ptr<class SgOutput>;
 using SgNodePtr = shared_ptr<class SgNode>;
 using SgNodeGraphPtr = shared_ptr<class SgNodeGraph>;
+using SgInputSet = std::set<SgInput*>;
 
 /// An input on an SgNode
 class SgInput
@@ -46,7 +47,7 @@ public:
     string type;
     SgNode* node;
     ValuePtr value;
-    std::set<SgInput*> connections;
+    SgInputSet connections;
     bool published;
 
     void makeConnection(SgInput* dst);
@@ -256,6 +257,11 @@ protected:
 
     /// Optimize the graph, removing redundant paths.
     void optimize();
+
+    /// Bypass a node for a particular input and output,
+    /// effectively connecting the input's upstream connection
+    /// with the output's downstream connections.
+    void bypass(SgNode* node, size_t inputIndex, size_t outputIndex = 0);
 
     /// Sort the nodes in topological order.
     /// @throws ExceptionFoundCycle if a cycle is encountered.

@@ -2,5 +2,5 @@
 
 void mx_cellnoise2d_float(vec2 texcoord, out float result)
 {
-    result = sx_cell_noise_float(texcoord.x, texcoord.y);
+    result = sx_cell_noise_float(texcoord);
 }

@@ -719,11 +719,7 @@ void SgNodeGraph::optimize()
             SgInput* valueInput = node->getInput(0);
             if (!valueInput->connection)
             {
-                for (SgInput* downstream : node->getOutput()->connections)
-                {
-                    downstream->value = valueInput->value;
-                }
-                disconnect(node);
+                bypass(node, 0);
                 ++numEdits;
             }
         }
@@ -733,23 +729,15 @@ void SgNodeGraph::optimize()
             SgInput* intest = node->getInput("intest");
             if (!intest->connection || intest->connection->node->hasClassification(SgNode::Classification::CONSTANT))
             {
+                // Find which branch should be taken
                 SgInput* cutoff = node->getInput("cutoff");
-
                 ValuePtr value = intest->connection ? intest->connection->node->getInput(0)->value : intest->value;
                 const float intestValue = value ? value->asA<float>() : 0.0f;
                 const int branch = (intestValue <= cutoff->value->asA<float>() ? 2 : 3);
 
-                // Re-route downstream connections to the taken branch
-                // and disconnect the conditional node
-                SgOutput* upstream = node->getInput(branch)->connection;
-                if (upstream)
-                {
-                    for (SgInput* downstream : node->getOutput()->connections)
-                    {
-                        downstream->makeConnection(upstream);
-                    }
-                }
-                disconnect(node);
+                // Bypass the conditional using the taken branch
+                bypass(node, branch);
+
                 ++numEdits;
             }
         }
@@ -759,21 +747,14 @@ void SgNodeGraph::optimize()
             SgInput* which = node->getInput("which");
             if (!which->connection || which->connection->node->hasClassification(SgNode::Classification::CONSTANT))
             {
+                // Find which branch should be taken
                 ValuePtr value = which->connection ? which->connection->node->getInput(0)->value : which->value;
                 const float whichValue = value ? value->asA<float>() : 0.0f;
                 const int branch = int(whichValue);
 
-                // Re-route downstream connections to the taken branch
-                // and disconnect the conditional node
-                SgOutput* upstream = node->getInput(branch)->connection;
-                if (upstream)
-                {
-                    for (SgInput* downstream : node->getOutput()->connections)
-                    {
-                        downstream->makeConnection(upstream);
-                    }
-                }
-                disconnect(node);
+                // Bypass the conditional using the taken branch
+                bypass(node, branch);
+
                 ++numEdits;
             }
         }
@@ -800,11 +781,45 @@ void SgNodeGraph::optimize()
         {
             if (usedNodes.count(node) == 0)
             {
+                disconnect(node);
                 _nodeMap.erase(node->getName());
             }
         }
         _nodeOrder.resize(usedNodes.size());
         _nodeOrder.assign(usedNodes.begin(), usedNodes.end());
+    }
+}
+
+void SgNodeGraph::bypass(SgNode* node, size_t inputIndex, size_t outputIndex)
+{
+    SgInput* input = node->getInput(inputIndex);
+    SgOutput* output = node->getOutput(outputIndex);
+
+    SgOutput* upstream = input->connection;
+    if (upstream)
+    {
+        // Re-route the upstream output to the downstream inputs.
+        // Iterate a copy of the connection set since the
+        // original set will change when breaking connections.
+        SgInputSet downstreamConnections = output->connections;
+        for (SgInput* downstream : downstreamConnections)
+        {
+            output->breakConnection(downstream);
+            downstream->makeConnection(upstream);
+        }
+    }
+    else
+    {
+        // No node connected upstream to re-route,
+        // so push the input's value downstream instead.
+        // Iterate a copy of the connection set since the
+        // original set will change when breaking connections.
+        SgInputSet downstreamConnections = output->connections;
+        for (SgInput* downstream : downstreamConnections)
+        {
+            output->breakConnection(downstream);
+            downstream->value = input->value;
+        }
     }
 }
 

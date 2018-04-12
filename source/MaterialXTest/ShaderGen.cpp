@@ -693,114 +693,136 @@ TEST_CASE("Noise", "[shadergen]")
 
     const std::string exampleName = "noise_test";
 
-    // Create a node graph containing a noise node
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("IMP_" + exampleName);
     mx::OutputPtr output1 = nodeGraph->addOutput("out", "color3");
-    mx::NodePtr noise2d = nodeGraph->addNode("noise2d", "noise2d", "vector2");
-    mx::NodePtr noise3d = nodeGraph->addNode("noise3d", "noise3d", "vector4");
+
+    std::vector<mx::NodePtr> noiseNodes;
+    mx::NodePtr noise2d = nodeGraph->addNode("noise2d", "noise2d", "float");
+    noiseNodes.push_back(noise2d);
+    mx::NodePtr noise3d = nodeGraph->addNode("noise3d", "noise3d", "float");
+    noiseNodes.push_back(noise3d);
     mx::NodePtr cellnoise2d = nodeGraph->addNode("cellnoise2d", "cellnoise2d", "float");
+    noiseNodes.push_back(cellnoise2d);
     mx::NodePtr cellnoise3d = nodeGraph->addNode("cellnoise3d", "cellnoise3d", "float");
-    mx::NodePtr fractal3d = nodeGraph->addNode("fractal3d", "fractal3d", "vector3");
-    noise2d->setParameterValue("amplitude", mx::Vector2(1.0,1.0));
+    noiseNodes.push_back(cellnoise3d);
+    mx::NodePtr fractal3d = nodeGraph->addNode("fractal3d", "fractal3d", "float");
+    noiseNodes.push_back(fractal3d);
+
+    noise2d->setParameterValue("amplitude", 1.0);
     noise2d->setParameterValue("pivot", 0.0f);
     noise3d->setParameterValue("amplitude", 1.0);
     noise3d->setParameterValue("pivot", 0.0f);
     fractal3d->setParameterValue("amplitude", 1.0f);
 
-    // Scale the noise2d uv's
+    // Multiplier to scale noise input uv's
     mx::NodePtr uv1 = nodeGraph->addNode("texcoord", "uv1", "vector2");
     mx::NodePtr uvmult1 = nodeGraph->addNode("multiply", "uvmult1", "vector2");
     uvmult1->setConnectedNode("in1", uv1);
     uvmult1->setInputValue("in2", mx::Vector2(16, 16));
-    noise2d->setConnectedNode("texcoord", uvmult1);
 
-    // Scale the noise3d position
+    // Multiplier to scale noise input position
     mx::NodePtr pos1 = nodeGraph->addNode("position", "pos1", "vector3");
     noise3d->setConnectedNode("position", pos1);
     mx::NodePtr posmult1 = nodeGraph->addNode("multiply", "posmult1", "vector3");
     posmult1->setConnectedNode("in1", pos1);
     posmult1->setInputValue("in2", mx::Vector3(16, 16, 16));
-    noise3d->setConnectedNode("position", posmult1);
 
+    noise2d->setConnectedNode("texcoord", uvmult1);
+    noise3d->setConnectedNode("position", posmult1);
     cellnoise2d->setConnectedNode("texcoord", uvmult1);
     cellnoise3d->setConnectedNode("position", posmult1);
     fractal3d->setConnectedNode("position", posmult1);
 
+    // Create a noise selector switch
+    mx::NodePtr switch1 = nodeGraph->addNode("switch", "switch1", "float");
+    switch1->setConnectedNode("in1", noise2d);
+    switch1->setConnectedNode("in2", noise3d);
+    switch1->setConnectedNode("in3", cellnoise2d);
+    switch1->setConnectedNode("in4", cellnoise3d);
+    switch1->setConnectedNode("in5", fractal3d);
+
+    // Remap the noise to [0,1]
     mx::NodePtr add1 = nodeGraph->addNode("add", "add1", "float");
     mx::NodePtr multiply1 = nodeGraph->addNode("multiply", "multiply1", "float");
-    add1->setConnectedNode("in1", noise2d);
+    add1->setConnectedNode("in1", switch1);
     add1->setInputValue("in2", 1.0f);
     multiply1->setConnectedNode("in1", add1);
     multiply1->setInputValue("in2", 0.5f);
 
+    // Blend some colors using the noise
     mx::NodePtr mixer = nodeGraph->addNode("mix", "mixer", "color3");
     mixer->setInputValue("fg", mx::Color3(1, 0, 0));
     mixer->setInputValue("bg", mx::Color3(1, 1, 0));
     mixer->setConnectedNode("mask", multiply1);
 
-    output1->setConnectedNode(noise3d);
-    output1->setChannels("xyz");
+    output1->setConnectedNode(mixer);
 
-    // Arnold OSL
+    const size_t numNoiseType = noiseNodes.size();
+    for (size_t noiseType = 0; noiseType < numNoiseType; ++noiseType)
     {
-        mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::creator();
-        // Add path to find all source code snippets
-        shadergen->registerSourceCodeSearchPath(searchPath);
-        // Add path to find OSL include files
-        shadergen->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+        const std::string shaderName = "test_" + noiseNodes[noiseType]->getName();
+        
+        // Select the noise type
+        switch1->setParameterValue("which", float(noiseType));
 
-        // Test shader generation from nodegraph
-        mx::ShaderPtr shader = shadergen->generate(exampleName, output1);
-        REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode().length() > 0);
-        // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
-        std::ofstream file;
-        file.open(shader->getName() + ".osl");
-        file << shader->getSourceCode();
-        file.close();
+        // Arnold OSL
+        {
+            mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::creator();
+            // Add path to find all source code snippets
+            shadergen->registerSourceCodeSearchPath(searchPath);
+            // Add path to find OSL include files
+            shadergen->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+
+            // Test shader generation from nodegraph
+            mx::ShaderPtr shader = shadergen->generate(shaderName, output1);
+            REQUIRE(shader != nullptr);
+            REQUIRE(shader->getSourceCode().length() > 0);
+            // Write out to file for inspection
+            // TODO: Use validation in MaterialXView library
+            std::ofstream file;
+            file.open(shader->getName() + ".osl");
+            file << shader->getSourceCode();
+            file.close();
+        }
+
+        // OgsFx
+        {
+            mx::ShaderGeneratorPtr shadergen = mx::OgsFxShaderGenerator::creator();
+            shadergen->registerSourceCodeSearchPath(searchPath);
+
+            // Test shader generation from nodegraph
+            mx::ShaderPtr shader = shadergen->generate(shaderName, output1);
+            REQUIRE(shader != nullptr);
+            REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+            // Write out to file for inspection
+            // TODO: Use validation in MaterialXView library
+            std::ofstream file;
+            file.open(shader->getName() + ".ogsfx");
+            file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+            file.close();
+        }
+
+        // Glsl
+        {
+            mx::ShaderGeneratorPtr shadergen = mx::GlslShaderGenerator::creator();
+            shadergen->registerSourceCodeSearchPath(searchPath);
+
+            // Test shader generation from nodegraph
+            mx::ShaderPtr shader = shadergen->generate(shaderName, output1);
+            REQUIRE(shader != nullptr);
+            REQUIRE(shader->getSourceCode(mx::OgsFxShader::VERTEX_STAGE).length() > 0);
+            REQUIRE(shader->getSourceCode(mx::OgsFxShader::PIXEL_STAGE).length() > 0);
+            // Write out to file for inspection
+            // TODO: Use validation in MaterialXView library
+            std::ofstream file;
+            file.open(shader->getName() + ".vert");
+            file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
+            file.close();
+            file.open(shader->getName() + ".frag");
+            file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
+            file.close();
+        }
     }
-
-    // TODO: Implement the noise in GLSL
-#if 1
-    // OgsFx
-    {
-        mx::ShaderGeneratorPtr shadergen = mx::OgsFxShaderGenerator::creator();
-        shadergen->registerSourceCodeSearchPath(searchPath);
-
-        // Test shader generation from nodegraph
-        mx::ShaderPtr shader = shadergen->generate(exampleName, output1);
-        REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
-        // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
-        std::ofstream file;
-        file.open(shader->getName() + ".ogsfx");
-        file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
-        file.close();
-    }
-
-    // Glsl
-    {
-        mx::ShaderGeneratorPtr shadergen = mx::GlslShaderGenerator::creator();
-        shadergen->registerSourceCodeSearchPath(searchPath);
-
-        // Test shader generation from nodegraph
-        mx::ShaderPtr shader = shadergen->generate(exampleName, output1);
-        REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode(mx::OgsFxShader::VERTEX_STAGE).length() > 0);
-        REQUIRE(shader->getSourceCode(mx::OgsFxShader::PIXEL_STAGE).length() > 0);
-        // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
-        std::ofstream file;
-        file.open(shader->getName() + ".vert");
-        file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
-        file.close();
-        file.open(shader->getName() + ".frag");
-        file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
-        file.close();
-    }
-#endif
 }
 
 TEST_CASE("Subgraphs", "[shadergen]")
