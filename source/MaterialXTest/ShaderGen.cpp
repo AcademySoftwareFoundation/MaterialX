@@ -738,7 +738,7 @@ TEST_CASE("Noise", "[shadergen]")
     mixer->setInputValue("bg", mx::Color3(1, 1, 0));
     mixer->setConnectedNode("mask", multiply1);
 
-    output1->setConnectedNode(fractal3d);
+    output1->setConnectedNode(noise3d);
     output1->setChannels("xyz");
 
     // Arnold OSL

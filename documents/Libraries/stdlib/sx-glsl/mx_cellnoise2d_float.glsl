@@ -1,6 +1,6 @@
-#include "stdlib/sx-glsl/libnoise.glsl"
+#include "stdlib/sx-glsl/lib/sxnoise.glsl"
 
 void mx_cellnoise2d_float(vec2 texcoord, out float result)
 {
-    result = cell_noise1(texcoord.x, texcoord.y);
+    result = sx_cell_noise_float(texcoord.x, texcoord.y);
 }

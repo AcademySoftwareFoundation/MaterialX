@@ -1,8 +1,8 @@
-#include "stdlib/sx-glsl/libnoise.glsl"
+#include "stdlib/sx-glsl/lib/sxnoise.glsl"
 
 void mx_noise3d_vector4(vec4 amplitude, float pivot, vec3 position, out vec4 result)
 {
-    vec3 xyz = perlin_noise3(position.x, position.y, position.z);
-    float w = perlin_noise1(position.x + 19, position.y + 73, position.y + 29);
+    vec3 xyz = sx_perlin_noise_vec3(position);
+    float w = sx_perlin_noise_float(position + vec3(19, 73, 29));
     result = vec4(xyz, w) * amplitude + pivot;
 }
