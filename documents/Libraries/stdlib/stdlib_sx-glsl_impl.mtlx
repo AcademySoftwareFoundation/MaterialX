@@ -101,10 +101,55 @@
   <implementation name="IM_splittb__vector4__sx_glsl" nodedef="ND_splittb__vector4" file="stdlib/sx-glsl/mx_splittb_vector4.glsl" function="mx_splittb_vector4" language="sx-glsl"/>
 
   <!-- <noise2d> -->
+  <implementation name="IM_noise2d__float__sx_glsl" nodedef="ND_noise2d__float" file="stdlib/sx-glsl/mx_noise2d_float.glsl" function="mx_noise2d_float" language="sx-glsl"/>
+  <implementation name="IM_noise2d__color2__sx_glsl" nodedef="ND_noise2d__color2" file="stdlib/sx-glsl/mx_noise2d_vector2.glsl" function="mx_noise2d_vector2" language="sx-glsl"/>
+  <implementation name="IM_noise2d__color3__sx_glsl" nodedef="ND_noise2d__color3" file="stdlib/sx-glsl/mx_noise2d_vector3.glsl" function="mx_noise2d_vector3" language="sx-glsl"/>
+  <implementation name="IM_noise2d__color4__sx_glsl" nodedef="ND_noise2d__color4" file="stdlib/sx-glsl/mx_noise2d_vector4.glsl" function="mx_noise2d_vector4" language="sx-glsl"/>
+  <implementation name="IM_noise2d__color2FA__sx_glsl" nodedef="ND_noise2d__color2FA" file="stdlib/sx-glsl/mx_noise2d_fa_vector2.glsl" function="mx_noise2d_fa_vector2" language="sx-glsl"/>
+  <implementation name="IM_noise2d__color3FA__sx_glsl" nodedef="ND_noise2d__color3FA" file="stdlib/sx-glsl/mx_noise2d_fa_vector3.glsl" function="mx_noise2d_fa_vector3" language="sx-glsl"/>
+  <implementation name="IM_noise2d__color4FA__sx_glsl" nodedef="ND_noise2d__color4FA" file="stdlib/sx-glsl/mx_noise2d_fa_vector4.glsl" function="mx_noise2d_fa_vector4" language="sx-glsl"/>
+  <implementation name="IM_noise2d__vector2__sx_glsl" nodedef="ND_noise2d__vector2" file="stdlib/sx-glsl/mx_noise2d_vector2.glsl" function="mx_noise2d_vector2" language="sx-glsl"/>
+  <implementation name="IM_noise2d__vector3__sx_glsl" nodedef="ND_noise2d__vector3" file="stdlib/sx-glsl/mx_noise2d_vector3.glsl" function="mx_noise2d_vector3" language="sx-glsl"/>
+  <implementation name="IM_noise2d__vector4__sx_glsl" nodedef="ND_noise2d__vector4" file="stdlib/sx-glsl/mx_noise2d_vector4.glsl" function="mx_noise2d_vector4" language="sx-glsl"/>
+  <implementation name="IM_noise2d__vector2FA__sx_glsl" nodedef="ND_noise2d__vector2FA" file="stdlib/sx-glsl/mx_noise2d_fa_vector2.glsl" function="mx_noise2d_fa_vector2" language="sx-glsl"/>
+  <implementation name="IM_noise2d__vector3FA__sx_glsl" nodedef="ND_noise2d__vector3FA" file="stdlib/sx-glsl/mx_noise2d_fa_vector3.glsl" function="mx_noise2d_fa_vector3" language="sx-glsl"/>
+  <implementation name="IM_noise2d__vector4FA__sx_glsl" nodedef="ND_noise2d__vector4FA" file="stdlib/sx-glsl/mx_noise2d_fa_vector4.glsl" function="mx_noise2d_fa_vector4" language="sx-glsl"/>
+
   <!-- <noise3d> -->
+  <implementation name="IM_noise3d__float__sx_glsl" nodedef="ND_noise3d__float" file="stdlib/sx-glsl/mx_noise3d_float.glsl" function="mx_noise3d_float" language="sx-glsl"/>
+  <implementation name="IM_noise3d__color2__sx_glsl" nodedef="ND_noise3d__color2" file="stdlib/sx-glsl/mx_noise3d_vector2.glsl" function="mx_noise3d_vector2" language="sx-glsl"/>
+  <implementation name="IM_noise3d__color3__sx_glsl" nodedef="ND_noise3d__color3" file="stdlib/sx-glsl/mx_noise3d_vector3.glsl" function="mx_noise3d_vector3" language="sx-glsl"/>
+  <implementation name="IM_noise3d__color4__sx_glsl" nodedef="ND_noise3d__color4" file="stdlib/sx-glsl/mx_noise3d_vector4.glsl" function="mx_noise3d_vector4" language="sx-glsl"/>
+  <implementation name="IM_noise3d__color2FA__sx_glsl" nodedef="ND_noise3d__color2FA" file="stdlib/sx-glsl/mx_noise3d_fa_vector2.glsl" function="mx_noise3d_fa_vector2" language="sx-glsl"/>
+  <implementation name="IM_noise3d__color3FA__sx_glsl" nodedef="ND_noise3d__color3FA" file="stdlib/sx-glsl/mx_noise3d_fa_vector3.glsl" function="mx_noise3d_fa_vector3" language="sx-glsl"/>
+  <implementation name="IM_noise3d__color4FA__sx_glsl" nodedef="ND_noise3d__color4FA" file="stdlib/sx-glsl/mx_noise3d_fa_vector4.glsl" function="mx_noise3d_fa_vector4" language="sx-glsl"/>
+  <implementation name="IM_noise3d__vector2__sx_glsl" nodedef="ND_noise3d__vector2" file="stdlib/sx-glsl/mx_noise3d_vector2.glsl" function="mx_noise3d_vector2" language="sx-glsl"/>
+  <implementation name="IM_noise3d__vector3__sx_glsl" nodedef="ND_noise3d__vector3" file="stdlib/sx-glsl/mx_noise3d_vector3.glsl" function="mx_noise3d_vector3" language="sx-glsl"/>
+  <implementation name="IM_noise3d__vector4__sx_glsl" nodedef="ND_noise3d__vector4" file="stdlib/sx-glsl/mx_noise3d_vector4.glsl" function="mx_noise3d_vector4" language="sx-glsl"/>
+  <implementation name="IM_noise3d__vector2FA__sx_glsl" nodedef="ND_noise3d__vector2FA" file="stdlib/sx-glsl/mx_noise3d_fa_vector2.glsl" function="mx_noise3d_fa_vector2" language="sx-glsl"/>
+  <implementation name="IM_noise3d__vector3FA__sx_glsl" nodedef="ND_noise3d__vector3FA" file="stdlib/sx-glsl/mx_noise3d_fa_vector3.glsl" function="mx_noise3d_fa_vector3" language="sx-glsl"/>
+  <implementation name="IM_noise3d__vector4FA__sx_glsl" nodedef="ND_noise3d__vector4FA" file="stdlib/sx-glsl/mx_noise3d_fa_vector4.glsl" function="mx_noise3d_fa_vector4" language="sx-glsl"/>
+
   <!-- <fractal3d> -->
+  <implementation name="IM_fractal3d__float__sx_glsl" nodedef="ND_fractal3d__float" file="stdlib/sx-glsl/mx_fractal3d_float.glsl" function="mx_fractal3d_float" language="sx-glsl"/>
+  <implementation name="IM_fractal3d__color2__sx_glsl" nodedef="ND_fractal3d__color2" file="stdlib/sx-glsl/mx_fractal3d_vector2.glsl" function="mx_fractal3d_vector2" language="sx-glsl"/>
+  <implementation name="IM_fractal3d__color3__sx_glsl" nodedef="ND_fractal3d__color3" file="stdlib/sx-glsl/mx_fractal3d_vector3.glsl" function="mx_fractal3d_vector3" language="sx-glsl"/>
+  <implementation name="IM_fractal3d__color4__sx_glsl" nodedef="ND_fractal3d__color4" file="stdlib/sx-glsl/mx_fractal3d_vector4.glsl" function="mx_fractal3d_vector4" language="sx-glsl"/>
+  <implementation name="IM_fractal3d__color2FA__sx_glsl" nodedef="ND_fractal3d__color2FA" file="stdlib/sx-glsl/mx_fractal3d_fa_vector2.glsl" function="mx_fractal3d_fa_vector2" language="sx-glsl"/>
+  <implementation name="IM_fractal3d__color3FA__sx_glsl" nodedef="ND_fractal3d__color3FA" file="stdlib/sx-glsl/mx_fractal3d_fa_vector3.glsl" function="mx_fractal3d_fa_vector3" language="sx-glsl"/>
+  <implementation name="IM_fractal3d__color4FA__sx_glsl" nodedef="ND_fractal3d__color4FA" file="stdlib/sx-glsl/mx_fractal3d_fa_vector4.glsl" function="mx_fractal3d_fa_vector4" language="sx-glsl"/>
+  <implementation name="IM_fractal3d__vector2__sx_glsl" nodedef="ND_fractal3d__vector2" file="stdlib/sx-glsl/mx_fractal3d_vector2.glsl" function="mx_fractal3d_vector2" language="sx-glsl"/>
+  <implementation name="IM_fractal3d__vector3__sx_glsl" nodedef="ND_fractal3d__vector3" file="stdlib/sx-glsl/mx_fractal3d_vector3.glsl" function="mx_fractal3d_vector3" language="sx-glsl"/>
+  <implementation name="IM_fractal3d__vector4__sx_glsl" nodedef="ND_fractal3d__vector4" file="stdlib/sx-glsl/mx_fractal3d_vector4.glsl" function="mx_fractal3d_vector4" language="sx-glsl"/>
+  <implementation name="IM_fractal3d__vector2FA__sx_glsl" nodedef="ND_fractal3d__vector2FA" file="stdlib/sx-glsl/mx_fractal3d_fa_vector2.glsl" function="mx_fractal3d_fa_vector2" language="sx-glsl"/>
+  <implementation name="IM_fractal3d__vector3FA__sx_glsl" nodedef="ND_fractal3d__vector3FA" file="stdlib/sx-glsl/mx_fractal3d_fa_vector3.glsl" function="mx_fractal3d_fa_vector3" language="sx-glsl"/>
+  <implementation name="IM_fractal3d__vector4FA__sx_glsl" nodedef="ND_fractal3d__vector4FA" file="stdlib/sx-glsl/mx_fractal3d_fa_vector4.glsl" function="mx_fractal3d_fa_vector4" language="sx-glsl"/>
+
   <!-- <cellnoise2d> -->
+  <implementation name="IM_cellnoise2d__float__sx_glsl" nodedef="ND_cellnoise2d__float" file="stdlib/sx-glsl/mx_cellnoise2d_float.glsl" function="mx_cellnoise2d_float" language="sx-glsl"/>
+
   <!-- <cellnoise3d> -->
+  <implementation name="IM_cellnoise3d__float__sx_glsl" nodedef="ND_cellnoise3d__float" file="stdlib/sx-glsl/mx_cellnoise3d_float.glsl" function="mx_cellnoise3d_float" language="sx-glsl"/>
 
 
   <!-- ======================================================================== -->
