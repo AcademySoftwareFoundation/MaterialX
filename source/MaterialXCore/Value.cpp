@@ -262,6 +262,8 @@ template <> const string TypedValue<T>::TYPE = name;    \
 template bool Value::isA<T>() const;                    \
 template T Value::asA<T>() const;                       \
 template const string& getTypeString<T>();              \
+template string toValueString(const T& data);           \
+template T fromValueString(const string& value);        \
 ValueRegistry<T> registry##T;
 
 // Base types
