@@ -24,7 +24,7 @@ namespace mx = MaterialX;
 #include <MaterialXView/Handlers/TinyEXRImageHandler.h>
 #include <MaterialXView/Handlers/LightHandler.h>
 
-// #define LOG_TO_FILE
+#define LOG_TO_FILE
 
 extern void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc);
 extern void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::HwShaderGenerator& shadergen);
