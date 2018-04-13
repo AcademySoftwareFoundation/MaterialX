@@ -439,6 +439,54 @@ template <class M, class V, size_t N> class MatrixN : public MatrixBase
     }
 
     /// @}
+    /// @name 3D Transformations
+    /// @{
+
+    /// Transpose matrix
+    MatrixN& transpose()
+    {
+        for (size_t i = 0; i < N; i++)
+        {
+            for (size_t j = 0; j < i; j++)
+            {
+                std::swap(_arr[i][j], _arr[j][i]);
+            }
+        }
+        return *this;
+    }
+
+    /// Translate matrix 
+    MatrixN& translate(const V& v)
+    {
+        for (size_t i = 0; i < N; i++)
+        {
+            for (size_t j = 0; j < N - 1; j++)
+            {
+                _arr[i][j] += _arr[i][N-1] * v[j];
+            }
+        }
+        return *this;
+    }
+
+    // Scale matrix
+    MatrixN& scale(const V& v)
+    {
+        for (size_t i = 0; i < N - 1; i++)
+        {
+            for (size_t j = 0; j < N; j++)
+            {
+                _arr[j][i] *= v[i];
+            }
+        }
+        return *this;
+        /**
+        m[0][0] *= x;   m[1][0] *= x;   m[2][0] *= x;   m[3][0] *= x;
+        m[0][1] *= y;   m[1][1] *= y;   m[2][1] *= y;   m[3][1] *= y;
+        m[0][2] *= z;   m[1][2] *= z;   m[2][2] *= z;   m[3][2] *= z;
+        */
+    }
+
+    /// @}
     /// @name Iterators
     /// @{
 
@@ -504,6 +552,9 @@ class Matrix33 : public MatrixN<Matrix33, Vector3, 3>
                 Vector3(m20, m21, m22)};
     }
 
+    // Rotate matrix
+    Matrix33& rotate(float angle);
+
   public:
     static const Matrix33 IDENTITY;
 };
@@ -525,6 +576,15 @@ class Matrix44 : public MatrixN<Matrix44, Vector4, 4>
                 Vector4(m20, m21, m22, m23),
                 Vector4(m30, m31, m32, m33)};
     }
+
+    // Rotate matrix
+    Matrix44& rotateX(float angle);
+    Matrix44& rotateY(float angle);
+    Matrix44& rotateZ(float angle);
+
+    // Invert matrix
+    Matrix44& invertGeneral();
+    Matrix44& invert();
 
   public:
     static const Matrix44 IDENTITY;
