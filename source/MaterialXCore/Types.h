@@ -468,7 +468,7 @@ template <class M, class V, size_t N> class MatrixN : public MatrixBase
     /// Matrix translation, returning a new matrix.
     MatrixN translate(const V& v) const
     {
-        MatrixN res = data;
+        MatrixN res = _arr;
         res.translate();
         return res;
     }
