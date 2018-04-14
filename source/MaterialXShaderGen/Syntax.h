@@ -70,7 +70,7 @@ public:
     void addValueConstructSyntax(const string& type, const ValueConstructSyntax& syntax);
 
     /// Returns the value string for a given value object
-    virtual string getValue(const Value& value, bool paramInit = false) const;
+    virtual string getValue(const Value& value, const string& type, bool paramInit = false) const;
 
     /// Returns the name syntax of the given type
     virtual const string& getTypeName(const string& type) const;

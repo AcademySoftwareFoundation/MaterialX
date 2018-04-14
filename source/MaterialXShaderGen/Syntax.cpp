@@ -38,7 +38,7 @@ namespace MaterialX
         }
     }
 
-    string Syntax::getValue(const Value& value, bool paramInit) const
+    string Syntax::getValue(const Value& value, const string& /*type*/, bool paramInit) const
     {
         auto it = _valueConstructSyntaxByName.find(value.getTypeString());
         if (it != _valueConstructSyntaxByName.end())

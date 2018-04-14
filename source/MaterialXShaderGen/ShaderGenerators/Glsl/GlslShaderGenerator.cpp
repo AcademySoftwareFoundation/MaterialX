@@ -471,7 +471,9 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
     // Early out for the rare case where the whole graph is just a single value
     if (!outputSocket->connection)
     {
-        string outputValue = outputSocket->value ? _syntax->getValue(*outputSocket->value) : _syntax->getTypeDefault(outputSocket->type);
+        string outputValue = outputSocket->value ? 
+            _syntax->getValue(*outputSocket->value, outputSocket->type) : 
+            _syntax->getTypeDefault(outputSocket->type);
         if (!DataType::isQuadruple(outputSocket->type))
         {
             string finalOutput = outputVariable + "_tmp";
@@ -517,32 +519,12 @@ string GlslShaderGenerator::getVariableName(const SgOutput* output) const
 {
     // If this is an interface socket on a light compound we must 
     // override the name and prepend the light struct instance name
-    // since all light inputs are members of a struct
-    if (output->published && output->node->hasClassification(SgNode::Classification::LIGHT))
+    // since all light inputs are members of a struct  
+    if (output->node->isNodeGraph() && output->node->hasClassification(SgNode::Classification::LIGHT))
     {
         return "light." + output->name;
     }
     return ShaderGenerator::getVariableName(output);
-}
-
-bool GlslShaderGenerator::shouldPublish(const ValueElement* port, string& publicName) const
-{
-    if (!ShaderGenerator::shouldPublish(port, publicName))
-    {
-        // File texture inputs must be published in GLSL
-        static const string IMAGE_NODE_NAME = "image";
-        if (port->getParent()->getCategory() == IMAGE_NODE_NAME &&
-            port->getType() == DataType::FILENAME)
-        {
-            publicName = port->getParent()->getName() + "_" + port->getName();
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    return true;
 }
 
 void GlslShaderGenerator::emitTextureNodes(Shader& shader)
@@ -664,7 +646,7 @@ void GlslShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& s
         if (uniform.semantic.length())
             line += " : " + uniform.semantic;
         if (uniform.value)
-            line += " = " + _syntax->getValue(*uniform.value, true);
+            line += " = " + _syntax->getValue(*uniform.value, uniform.type, true);
         else
             line += " = " + _syntax->getTypeDefault(uniform.type, true);
         shader.addLine(line);

@@ -45,7 +45,7 @@ void Swizzle::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, S
 
         shader.beginLine();
         shader.addStr(syntax->getTypeName(in->type) + " " + variableName);
-        shader.addStr(" = " + syntax->getValue(*in->value));
+        shader.addStr(" = " + syntax->getValue(*in->value, in->type));
         shader.endLine();
 
         if (!swizzle.empty())

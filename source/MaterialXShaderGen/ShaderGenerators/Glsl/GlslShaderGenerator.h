@@ -105,10 +105,6 @@ public:
     /// Get the variable name to use for an output
     string getVariableName(const SgOutput* output) const override;
 
-    /// Query the shader generator if it wants to publish a given port as a
-    /// shader uniform. Return the publicName to use if it should be published.
-    bool shouldPublish(const ValueElement* port, string& publicName) const override;
-
     /// Return any extra arguments if needed for the given node
     const Arguments* getExtraArguments(const SgNode& node) const override;
 

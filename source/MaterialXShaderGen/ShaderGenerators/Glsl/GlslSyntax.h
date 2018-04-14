@@ -14,7 +14,7 @@ public:
 
     static SyntaxPtr creator() { return std::make_shared<GlslSyntax>(); }
 
-    string getValue(const Value& value, bool paramInit = false) const override;
+    string getValue(const Value& value, const string& type, bool paramInit = false) const override;
 };
 
 } // namespace MaterialX
