@@ -244,7 +244,9 @@ void OslShaderGenerator::emitFinalOutput(Shader& shader) const
     if (!outputSocket->connection)
     {
         // Early out for the rare case where the whole graph is just a single value
-        shader.addLine(outputVariable + " = " + (outputSocket->value ? _syntax->getValue(*outputSocket->value) : _syntax->getTypeDefault(outputSocket->type)));
+        shader.addLine(outputVariable + " = " + (outputSocket->value ? 
+            _syntax->getValue(*outputSocket->value, outputSocket->type) : 
+            _syntax->getTypeDefault(outputSocket->type)));
         return;
     }
 

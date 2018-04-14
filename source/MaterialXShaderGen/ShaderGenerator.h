@@ -66,10 +66,6 @@ public:
     /// Get the variable name to use for an output
     virtual string getVariableName(const SgOutput* output) const;
 
-    /// Query the shader generator if it wants to publish a given port as a
-    /// shader uniform. Return the publicName to use if it should be published.
-    virtual bool shouldPublish(const ValueElement* port, string& publicName) const;
-
     /// Query the shader generator if it wants any extra arguments added when 
     /// emiting the function for the given node.
     virtual const Arguments* getExtraArguments(const SgNode& node) const;
@@ -101,12 +97,11 @@ public:
     /// Resolve a source code file using the registered search paths.
     FilePath findSourceCode(const FilePath& filename);
 
-    // Get the search source code path
+    /// Get the source code search path
     const FileSearchPath& sourceCodeSearchPath()
     {
         return _sourceCodeSearchPath;
     }
-
 
 protected:
     /// Protected constructor

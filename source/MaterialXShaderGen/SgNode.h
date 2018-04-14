@@ -33,7 +33,6 @@ public:
     ValuePtr value;
     SgOutput* connection;
     string channels;
-    bool published;
 
     void makeConnection(SgOutput* src);
     void breakConnection();
@@ -48,7 +47,6 @@ public:
     SgNode* node;
     ValuePtr value;
     SgInputSet connections;
-    bool published;
 
     void makeConnection(SgInput* dst);
     void breakConnection(SgInput* dst);
@@ -160,6 +158,10 @@ public:
         return _usedClosures.count(node) > 0;
     }
 
+    /// Add inputs/outputs
+    SgInput* addInput(const string& name, const string& type);
+    SgOutput* addOutput(const string& name, const string& type);
+
     /// Get number of inputs/outputs
     size_t numInputs() const { return _inputOrder.size(); }
     size_t numOutputs() const { return _outputOrder.size(); }
@@ -181,9 +183,6 @@ public:
     const vector<SgOutput*>& getOutputs() const { return _outputOrder; }
 
 protected:
-    SgInput* addInput(const string& name, const string& type);
-    SgOutput* addOutput(const string& name, const string& type);
-
     string _name;
     unsigned int _classification;
 
@@ -245,13 +244,13 @@ public:
     const vector<SgInputSocket*>& getInputSockets() const { return _outputOrder; }
     const vector<SgOutputSocket*>& getOutputSockets() const { return _inputOrder; }
 
-protected:
     SgNode* addNode(const Node& node, ShaderGenerator& shadergen);
     SgNode* addNode(const ShaderRef& shaderRef, ShaderGenerator& shadergen);
 
     SgInputSocket* addInputSocket(const string& name, const string& type);
     SgOutputSocket* addOutputSocket(const string& name, const string& type);
 
+protected:
     /// Perform all post-build operations on the graph.
     void finalize();
 

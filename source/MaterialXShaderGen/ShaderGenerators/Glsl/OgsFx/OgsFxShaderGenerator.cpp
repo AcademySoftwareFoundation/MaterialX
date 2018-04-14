@@ -333,7 +333,9 @@ void OgsFxShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& 
     else
     {
         const string& type = _syntax->getTypeName(uniform.type);
-        const string initStr = (uniform.value ? _syntax->getValue(*uniform.value, true) : _syntax->getTypeDefault(uniform.type, true));
+        const string initStr = (uniform.value ? 
+            _syntax->getValue(*uniform.value, uniform.type, true) : 
+            _syntax->getTypeDefault(uniform.type, true));
         shader.addLine("uniform " + type + " " + uniform.name + (initStr.empty() ? "" : " = " + initStr));
     }
 }

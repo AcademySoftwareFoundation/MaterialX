@@ -145,49 +145,40 @@ SgNodePtr SgNode::creator(const string& name, const NodeDef& nodeDef, ShaderGene
             "' matching language '" + shadergen.getLanguage() + "' and target '" + shadergen.getTarget() + "'");
     }
 
-    if (newNode->_impl->getNodeGraph())
+    // Add inputs from nodedef
+    const vector<ValueElementPtr> nodeDefInputs = nodeDef.getChildrenOfType<ValueElement>();
+    for (const ValueElementPtr& elem : nodeDefInputs)
     {
-        for (SgInputSocket* inputSocket : newNode->_impl->getNodeGraph()->getInputSockets())
+        SgInput* input = newNode->addInput(elem->getName(), elem->getType());
+        if (!elem->getValueString().empty())
         {
-            SgInput* input = newNode->addInput(inputSocket->name, inputSocket->type);
-            input->value = inputSocket->value;
-            input->published = inputSocket->published;
-        }
-    }
-    else
-    {
-        const vector<ValueElementPtr> nodeDefInputs = nodeDef.getChildrenOfType<ValueElement>();
-        for (const ValueElementPtr& elem : nodeDefInputs)
-        {
-            SgInput* input = newNode->addInput(elem->getName(), elem->getType());
-
-            if (!elem->getValueString().empty())
-            {
-                input->value = elem->getValue();
-            }
+            input->value = elem->getValue();
         }
     }
 
+    // Assign input values and channel swizzling from the node instance
     if (nodeInstance)
     {
         const vector<ValueElementPtr> nodeInstanceInputs = nodeInstance->getChildrenOfType<ValueElement>();
         for (const ValueElementPtr& elem : nodeInstanceInputs)
         {
             SgInput* input = newNode->getInput(elem->getName());
-
-            if (!elem->getValueString().empty())
+            if (input)
             {
-                input->value = elem->getValue();
-            }
-
-            InputPtr inputElem = elem->asA<Input>();
-            if (inputElem)
-            {
-                input->channels = inputElem->getChannels();
+                if (!elem->getValueString().empty())
+                {
+                    input->value = elem->getValue();
+                }
+                InputPtr inputElem = elem->asA<Input>();
+                if (inputElem)
+                {
+                    input->channels = inputElem->getChannels();
+                }
             }
         }
     }
 
+    // Add the node output
     // TODO: Support multiple outputs
     newNode->addOutput("out", nodeDef.getType());
 
@@ -270,7 +261,6 @@ SgInput* SgNode::addInput(const string& name, const string& type)
     input->node = this;
     input->value = nullptr;
     input->connection = nullptr;
-    input->published = false;
     _inputMap[name] = input;
     _inputOrder.push_back(input.get());
 
@@ -288,7 +278,6 @@ SgOutput* SgNode::addOutput(const string& name, const string& type)
     output->name = name;
     output->type = type;
     output->node = this;
-    output->published = false;
     _outputMap[name] = output;
     _outputOrder.push_back(output.get());
 
@@ -494,47 +483,21 @@ SgNode* SgNodeGraph::addNode(const Node& node, ShaderGenerator& shadergen)
     _nodeMap[name] = newNode;
     _nodeOrder.push_back(newNode.get());
 
-    // Create and connect input sockets for published inputs.
-    for (SgInput* input : newNode->getInputs())
+    // Check if any of the node inputs should be connected to the graph interface
+    for (ValueElementPtr inputElem : node.getChildrenOfType<ValueElement>())
     {
-        if (input->published)
+        const string& interfaceName = inputElem->getInterfaceName();
+        if (!interfaceName.empty())
         {
-            // It's published already, propagate this to our graph
-            SgInputSocket* inputSocket = addInputSocket(input->node->getName()+"_"+input->name, input->type);
-            inputSocket->makeConnection(input);
-            inputSocket->value = input->value;
-            inputSocket->published = true;
-        }
-        else
-        {
-            // Check if it should be published
-            ValueElementPtr inputElem = node.getChildOfType<ValueElement>(input->name);
-            if (inputElem)
+            SgOutput* inputSocket = getInputSocket(interfaceName);
+            if (!inputSocket)
             {
-                // Check if it's connected to the graph interface
-                const string& interfaceName = inputElem->getInterfaceName();
-                if (!interfaceName.empty())
-                {
-                    SgOutput* inputSocket = getInputSocket(interfaceName);
-                    if (!inputSocket)
-                    {
-                        throw ExceptionShaderGenError("Interface name '" + interfaceName + "' doesn't match an existing input on node graph '" + getName() + "'");
-                    }
-                    inputSocket->makeConnection(input);
-                    inputSocket->published = input->published = true;
-                }
-                else
-                {
-                    // Query shader generator if it should be published as a new input socket
-                    string publicName;
-                    if (shadergen.shouldPublish(inputElem.get(), publicName))
-                    {
-                        SgInputSocket* inputSocket = addInputSocket(publicName, input->type);
-                        inputSocket->makeConnection(input);
-                        inputSocket->value = input->value;
-                        inputSocket->published = input->published = true;
-                    }
-                }
+                throw ExceptionShaderGenError("Interface name '" + interfaceName + "' doesn't match an existing input on nodegraph '" + getName() + "'");
+            }
+            SgInput* input = newNode->getInput(inputElem->getName());
+            if (input)
+            {
+                input->makeConnection(inputSocket);
             }
         }
     }
