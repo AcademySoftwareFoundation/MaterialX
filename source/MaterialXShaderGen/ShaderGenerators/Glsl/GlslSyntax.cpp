@@ -385,16 +385,16 @@ GlslSyntax::GlslSyntax()
     );
 }
 
-string GlslSyntax::getValue(const Value& value, bool paramInit) const
+string GlslSyntax::getValue(const Value& value, const string& type, bool paramInit) const
 {
-    if (value.isA<string>())
+    if (type == DataType::STRING)
     {
         // Since GLSL doesn't support strings we convert
         // to an integrer here
         // TODO: Support options strings by converting to a corresponding enum integer
         return "0";
     }
-    return Syntax::getValue(value, paramInit);
+    return Syntax::getValue(value, type, paramInit);
 }
 
 }

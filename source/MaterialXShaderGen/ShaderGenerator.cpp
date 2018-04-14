@@ -80,7 +80,9 @@ void ShaderGenerator::emitFinalOutput(Shader& shader) const
     if (!outputSocket->connection)
     {
         // Early out for the rare case where the whole graph is just a single value
-        shader.addLine(outputVariable + " = " + (outputSocket->value ? _syntax->getValue(*outputSocket->value) : _syntax->getTypeDefault(outputSocket->type)));
+        shader.addLine(outputVariable + " = " + (outputSocket->value ? 
+            _syntax->getValue(*outputSocket->value, outputSocket->type) : 
+            _syntax->getTypeDefault(outputSocket->type)));
         return;
     }
 
@@ -95,7 +97,9 @@ void ShaderGenerator::emitFinalOutput(Shader& shader) const
 
 void ShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& shader)
 {
-    const string initStr = (uniform.value ? _syntax->getValue(*uniform.value, true) : _syntax->getTypeDefault(uniform.type, true));
+    const string initStr = (uniform.value ? 
+        _syntax->getValue(*uniform.value, uniform.type, true) : 
+        _syntax->getTypeDefault(uniform.type, true));
     shader.addStr(_syntax->getTypeName(uniform.type) + " " + uniform.name + (initStr.empty() ? "" : " = " + initStr));
 }
 
@@ -114,7 +118,7 @@ void ShaderGenerator::emitInput(const SgInput* input, Shader &shader) const
     }
     else if (input->value)
     {
-        shader.addStr(_syntax->getValue(*input->value));
+        shader.addStr(_syntax->getValue(*input->value, input->type));
     }
     else
     {
@@ -144,14 +148,6 @@ string ShaderGenerator::getVariableName(const SgOutput* output) const
     // TODO: Improve this to make sure we never get name collisions
 //    return output->node->getName() + "_" + output->name;
     return output->name;
-}
-
-bool ShaderGenerator::shouldPublish(const ValueElement* port, string& publicName) const
-{
-    ConstInputPtr inputElem = port->asA<Input>();
-    const string& connectedNode = inputElem ? inputElem->getNodeName() : EMPTY_STRING;
-    publicName = connectedNode.empty() ? port->getPublicName() : EMPTY_STRING;
-    return !publicName.empty();
 }
 
 const Arguments* ShaderGenerator::getExtraArguments(const SgNode&) const
