@@ -54,7 +54,7 @@ class TestMaterialX(unittest.TestCase):
             newType = mx.nameToType(string)
             self.assertTrue(newType == type(value))
 
-    def test_VectorOperators(self):
+    def test_Vectors(self):
         v1 = mx.Vector3(1, 2, 3)
         v2 = mx.Vector3(2, 4, 6)
 
@@ -69,6 +69,8 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(v2 - v1 == mx.Vector3(1, 2, 3))
         self.assertTrue(v2 * v1 == mx.Vector3(2, 8, 18))
         self.assertTrue(v2 / v1 == mx.Vector3(2, 2, 2))
+        self.assertTrue(v1 * 2 == v2)
+        self.assertTrue(v2 / 2 == v1)
 
         # Equality operators
         v3 = v2.copy()
@@ -76,7 +78,7 @@ class TestMaterialX(unittest.TestCase):
         v3[0] += 1;
         self.assertTrue(v3 != v2)
 
-    def test_MatrixOperators(self):
+    def test_Matrices(self):
         trans = mx.Matrix44(1, 0, 0, 0,
                             0, 1, 0, 0,
                             0, 0, 1, 0,
@@ -92,9 +94,26 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(trans[3, 0] == 4)
         trans[3, 0] = 3
 
-        # Matrix operators
+        # Matrix methods
+        self.assertTrue(trans.getTranspose() == mx.Matrix44(1, 0, 0, 3,
+                                                            0, 1, 0, 0,
+                                                            0, 0, 1, 0,
+                                                            0, 0, 0, 1))
+        self.assertTrue(scale.getTranspose() == scale)
+        self.assertTrue(trans.getDeterminant() == 1)
+        self.assertTrue(scale.getDeterminant() == 8)
+        self.assertTrue(trans.getInverse() == mx.Matrix44(1, 0, 0, 0,
+                                                          0, 1, 0, 0,
+                                                          0, 0, 1, 0,
+                                                         -3, 0, 0, 1))
+
+        # Matrix product
         prod1 = trans * scale
         prod2 = scale * trans
+        prod3 = trans * 2
+        prod4 = prod3 / 2
+        prod5 = prod1
+        prod5 *= trans
         self.assertTrue(prod1 == mx.Matrix44(2, 0, 0, 0,
                                              0, 2, 0, 0,
                                              0, 0, 2, 0,
@@ -103,6 +122,26 @@ class TestMaterialX(unittest.TestCase):
                                              0, 2, 0, 0,
                                              0, 0, 2, 0,
                                              3, 0, 0, 1))
+        self.assertTrue(prod3 == mx.Matrix44(2, 0, 0, 0,
+                                             0, 2, 0, 0,
+                                             0, 0, 2, 0,
+                                             6, 0, 0, 2))
+        self.assertTrue(prod4 == trans)
+        self.assertTrue(prod5 == mx.Matrix44(2, 0, 0, 0,
+                                             0, 2, 0, 0,
+                                             0, 0, 2, 0,
+                                             9, 0, 0, 1))
+
+        # Matrix division
+        quot1 = prod1 / scale
+        quot2 = prod2 / trans
+        quot3 = prod3 / 2
+        quot4 = quot1
+        quot4 /= trans
+        self.assertTrue(quot1 == trans)
+        self.assertTrue(quot2 == scale)
+        self.assertTrue(quot3 == trans)
+        self.assertTrue(quot4 == mx.Matrix44.IDENTITY)
 
         # Equality operators
         trans2 = trans.copy()
