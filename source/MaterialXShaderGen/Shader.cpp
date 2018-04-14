@@ -12,6 +12,24 @@
 namespace MaterialX
 {
 
+namespace
+{
+    using UniqueNameMap = std::unordered_map<string, size_t>;
+
+    void makeUnique(string& name, UniqueNameMap& uniqueNames)
+    {
+        UniqueNameMap::iterator it = uniqueNames.find(name);
+        if (it != uniqueNames.end())
+        {
+            name += std::to_string(++(it->second));
+        }
+        else
+        {
+            uniqueNames[name] = 0;
+        }
+    }
+}
+
 const string Shader::PRIVATE_UNIFORMS = "PrivateUniforms";
 const string Shader::PUBLIC_UNIFORMS = "PublicUniforms";
 
@@ -45,6 +63,49 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
     {
         SgImplementation* impl = node->getImplementation();
         impl->createVariables(*node, shadergen, *this);
+    }
+
+    // Set unique names on inputs and outputs that require this,
+    // to handle name conflicts when emitting variable names
+
+    const StringSet& restrictedNames = shadergen.getSyntax()->getRestrictedNames();
+    UniqueNameMap globalUniqueNames;
+    for (const string& rname : restrictedNames)
+    {
+        globalUniqueNames[rname] = 0;
+    }
+
+    std::deque<SgNodeGraph*> graphQueue;
+    graphQueue.push_back(_rootGraph.get());
+
+    while (!graphQueue.empty())
+    {
+        SgNodeGraph* graph = graphQueue.front();
+        graphQueue.pop_front();
+
+        UniqueNameMap uniqueNames = globalUniqueNames;
+        for (SgInputSocket* inputSocket : graph->getInputSockets())
+        {
+            makeUnique(inputSocket->name, uniqueNames);
+        }
+        for (SgOutputSocket* outputSocket : graph->getOutputSockets())
+        {
+            makeUnique(outputSocket->name, uniqueNames);
+        }
+        for (SgNode* node : graph->getNodes())
+        {
+            for (SgOutput* output : node->getOutputs())
+            {
+                // Node outputs use long names for better code readability
+                output->name = output->node->getName() + "_" + output->name;
+                makeUnique(output->name, uniqueNames);
+            }
+            SgNodeGraph* subgraph = node->getImplementation()->getNodeGraph();
+            if (subgraph)
+            {
+                graphQueue.push_back(subgraph);
+            }
+        }
     }
 
     // Create uniforms for the public graph interface

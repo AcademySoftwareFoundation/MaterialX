@@ -135,13 +135,15 @@ void ShaderGenerator::emitOutput(const SgOutput* output, bool includeType, Shade
 string ShaderGenerator::getVariableName(const SgInput* input) const
 {
     // TODO: Improve this to make sure we never get name collisions
-    return input->node->getName() + "_" + input->name;
+//    return input->node->getName() + "_" + input->name;
+    return input->name;
 }
 
 string ShaderGenerator::getVariableName(const SgOutput* output) const
 {
     // TODO: Improve this to make sure we never get name collisions
-    return output->node->getName() + "_" + output->name;
+//    return output->node->getName() + "_" + output->name;
+    return output->name;
 }
 
 bool ShaderGenerator::shouldPublish(const ValueElement* port, string& publicName) const

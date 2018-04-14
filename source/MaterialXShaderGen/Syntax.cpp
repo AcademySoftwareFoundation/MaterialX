@@ -38,6 +38,11 @@ namespace MaterialX
         }
     }
 
+    void Syntax::addRestrictedNames(const StringSet& names)
+    {
+        _restrictedNames.insert(names.begin(), names.end());
+    }
+
     string Syntax::getValue(const Value& value, bool paramInit) const
     {
         auto it = _valueConstructSyntaxByName.find(value.getTypeString());
