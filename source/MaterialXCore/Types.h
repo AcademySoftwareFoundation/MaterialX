@@ -32,7 +32,11 @@ extern const string ARRAY_PREFERRED_SEPARATOR;
 /// The base class for vectors of scalar values
 class VectorBase { };
 
-/// The class template for vectors of scalar values
+/// A tag class for constructing vectors and matrices without initialization
+class Uninit { };
+
+/// The class template for vectors of scalar values.  Inherited by Vector2,
+/// Vector3, Vector4, Color2, Color3, and Color4.
 ///
 /// Template parameter V is the vector subclass, S is the scalar element type,
 /// and N is the number of scalar elements in the vector.
@@ -41,11 +45,10 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
   public:
     using Iterator = typename std::array<S, N>::iterator;
     using ConstIterator = typename std::array<S, N>::const_iterator;
-    class Uninit { };
 
   public:
     VectorN() : _arr{} { }
-    VectorN(Uninit) { }
+    explicit VectorN(Uninit) { }
     explicit VectorN(S s) { _arr.fill(s); }
     explicit VectorN(const std::array<S, N>& arr) : _arr(arr) { }
     explicit VectorN(const vector<float>& vec) { std::copy_n(vec.begin(), N, _arr.begin()); }
@@ -259,7 +262,11 @@ class Color4 : public Vector4
 /// The base class for square matrices of scalar values
 class MatrixBase { };
 
-/// The class template for square matrices of scalar values
+/// The class template for square matrices of scalar values.  Inherited by
+/// Matrix33 and Matrix44.
+///
+/// The elements of a MatrixN are stored in row-major order, and may be
+/// accessed using the syntax <c>matrix[row][column]</c>.
 ///
 /// Template parameter M is the matrix subclass, S is the scalar element type,
 /// and N is the number of rows and columns in the matrix.
@@ -269,11 +276,10 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     using RowArray = typename std::array<S, N>;
     using Iterator = typename std::array<RowArray, N>::iterator;
     using ConstIterator = typename std::array<RowArray, N>::const_iterator;
-    class Uninit { };
 
   public:
     MatrixN() : _arr{} { }
-    MatrixN(Uninit) { }
+    explicit MatrixN(Uninit) { }
     explicit MatrixN(S s) { for (RowArray& row : _arr) row.fill(s); }
 
     /// @}
@@ -293,7 +299,7 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     /// Return the row array at the given index.
     RowArray& operator[](size_t i) { return _arr.at(i); }
 
-    /// Return the row array at the given index.
+    /// Return the const row array at the given index.
     const RowArray& operator[](size_t i) const { return _arr.at(i); }
 
     /// @}
@@ -409,7 +415,7 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     M getTranspose() const;
 
     /// Return the determinant of the matrix.
-    float getDeterminant() const;
+    S getDeterminant() const;
 
     /// Return the adjugate of the matrix.
     M getAdjugate() const;
