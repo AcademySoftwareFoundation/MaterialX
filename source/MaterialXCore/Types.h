@@ -189,6 +189,32 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     }
 
     /// @}
+    /// @name Geometric operators
+    /// @{
+
+    /// Magnitude of a vector
+    S magnitude() const
+    {
+        S result = (S)0;
+        for (size_t i = 0; i < N; i++)
+        {
+            result += _arr[i] * _arr[i];
+        }
+        result = std::sqrt(result);
+        return result;
+    }
+
+    /// Normalization
+    void normalize()
+    {
+        S divisor = (S)1 / magnitude();
+        for (size_t i = 0; i < N; i++)
+        {
+            _arr[i] *= divisor;
+        }
+    }
+
+    /// @}
     /// @name Iterators
     /// @{
 
@@ -306,6 +332,23 @@ template <class M, class V, size_t N> class MatrixN : public MatrixBase
 
     /// Return true if the given vector differs from this one.
     bool operator!=(const MatrixN& rhs) const { return _arr != rhs._arr; }
+
+    /// Return true if the given matrix is equivalent to another
+    /// matrix within a given floating point tolerance
+    bool equivalent(const MatrixN& rhs, float tolerance)
+    {
+        for (size_t i = 0; i < N; i++)
+        {
+            for (size_t j = 0; j < N; j++)
+            {
+                if (std::fabs(_arr[i][j] - rhs[i][j]) > tolerance)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
     /// @}
     /// @name Indexing operators
@@ -515,6 +558,20 @@ template <class M, class V, size_t N> class MatrixN : public MatrixBase
     /// Return the internal data for this matrix as a standard array.
     std::array<V, N>& getArray() { return _arr; }
 
+    /// Return as a string
+    string asString() const
+    {
+        string result;
+        for (size_t i = 0; i < N; i++)
+        {
+            for (size_t j = 0; j < N; j++)
+            {
+                result += std::to_string(_arr[i][j]) + " ";
+            }
+        }
+        return result;
+    }
+
     /// @}
     /// @name Static Methods
     /// @{
@@ -548,11 +605,7 @@ class Matrix33 : public MatrixN<Matrix33, Vector3, 3>
     }
 
     // Rotate matrix
-    Matrix33& rotate(float angle);
-
-    // Invert matrix
-    Matrix33& invertGeneral();
-    Matrix33& invert();
+    Matrix33& rotate(float angle); 
 
   public:
     static const Matrix33 IDENTITY;
@@ -580,10 +633,6 @@ class Matrix44 : public MatrixN<Matrix44, Vector4, 4>
     Matrix44& rotateX(float angle);
     Matrix44& rotateY(float angle);
     Matrix44& rotateZ(float angle);
-
-    // Invert matrix
-    Matrix44& invertGeneral();
-    Matrix44& invert();
 
   public:
     static const Matrix44 IDENTITY;
