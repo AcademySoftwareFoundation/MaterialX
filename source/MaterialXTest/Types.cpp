@@ -100,7 +100,6 @@ TEST_CASE("Matrix operators", "[types]")
     mx::Matrix44 trans44(mx::Matrix44::IDENTITY);
     mx::Vector4 amount44(1.0f, 2.0f, 3.0f, 1.0f);
     trans44.translate(amount44);
-    res = trans44.asString();
     REQUIRE(amount44 == trans44.getRow(3));
     amount44 -= 2.0f*amount44;
     trans44.translate(amount44);
