@@ -12,6 +12,7 @@
 #include <MaterialXCore/Library.h>
 
 #include <array>
+#include <cmath>
 
 namespace MaterialX
 {
@@ -341,7 +342,7 @@ template <class M, class V, size_t N> class MatrixN : public MatrixBase
         {
             for (size_t j = 0; j < N; j++)
             {
-                if (std::fabs(_arr[i][j] - rhs[i][j]) > tolerance)
+                if (std::abs(_arr[i][j] - rhs[i][j]) > tolerance)
                 {
                     return false;
                 }
