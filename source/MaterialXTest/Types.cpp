@@ -104,17 +104,14 @@ TEST_CASE("Matrix operators", "[types]")
     REQUIRE(amount44 == trans44.getRow(3));
     amount44 -= 2.0f*amount44;
     trans44.translate(amount44);
-    res = trans44.asString();
     REQUIRE(trans44 == mx::Matrix44::IDENTITY);
 
     mx::Matrix33 trans33(mx::Matrix33::IDENTITY);
     mx::Vector3 amount33(5.0f, 10.0f, 1.0f);
     trans33.translate(amount33);
-    res = trans33.asString();
     REQUIRE(amount33 == trans33.getRow(2));
     amount33 -= 2.0f*amount33;
     trans33.translate(amount33);
-    res = trans33.asString();
     REQUIRE(trans44 == mx::Matrix44::IDENTITY);
 
     // Matrix rotation
