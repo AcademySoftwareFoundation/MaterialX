@@ -34,9 +34,9 @@ TEST_CASE("Vector operators", "[types]")
     
     // Geometric operators
     mx::Vector3 v3(1.0f, 2.0f, 2.0f);
-    REQUIRE(v3.length() == 3.0f);
+    REQUIRE(v3.magnitude() == 3.0f);
     v3.normalize();
-    REQUIRE(v3.length() == 1.0f);
+    REQUIRE(v3.magnitude() == 1.0f);
 }
 
 #include <iostream>

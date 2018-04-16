@@ -193,9 +193,9 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// @{
 
     /// Magnitude of a vector
-    S magnitude() const
+    ScalarType magnitude() const
     {
-        S result = (S)0;
+        ScalarType result = (ScalarType)0;
         for (size_t i = 0; i < N; i++)
         {
             result += _arr[i] * _arr[i];
@@ -207,10 +207,10 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// Normalization
     void normalize()
     {
-        S divisor = (S)1 / magnitude();
+        ScalarType mag1 = (S)1 / magnitude();
         for (size_t i = 0; i < N; i++)
         {
-            _arr[i] *= divisor;
+            _arr[i] *= mag1;
         }
     }
 
