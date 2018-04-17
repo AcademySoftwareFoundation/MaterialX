@@ -32,34 +32,25 @@ extern const string ARRAY_PREFERRED_SEPARATOR;
 /// The base class for vectors of scalar values
 class VectorBase { };
 
-/// The class template for vectors of scalar values.
+/// A tag class for constructing vectors and matrices without initialization
+class Uninit { };
+
+/// The class template for vectors of scalar values.  Inherited by Vector2,
+/// Vector3, Vector4, Color2, Color3, and Color4.
 ///
-/// Template parameter V is the vector subclass (CRTP), S is the scalar element
-/// type, and N is the number of scalar elements in the vector.
+/// Template parameter V is the vector subclass, S is the scalar element type,
+/// and N is the number of scalar elements in the vector.
 template <class V, class S, size_t N> class VectorN : public VectorBase
 {
   public:
-    using ScalarType = S;
     using Iterator = typename std::array<S, N>::iterator;
     using ConstIterator = typename std::array<S, N>::const_iterator;
 
-    /// @name Constructors
-    /// @{
-
-    /// The default constructor, initializing all scalar elements to their
-    /// zero value.
+  public:
     VectorN() : _arr{} { }
-
-    /// An explicit constructor, initializing all scalar elements to the given
-    /// value.
+    explicit VectorN(Uninit) { }
     explicit VectorN(S s) { _arr.fill(s); }
-
-    /// An explicit constructor, initializing the vector from a standard array
-    /// the same length.
     explicit VectorN(const std::array<S, N>& arr) : _arr(arr) { }
-
-    /// An explicit constructor, initializing the vector from a standard vector
-    /// of the same length.
     explicit VectorN(const vector<float>& vec) { std::copy_n(vec.begin(), N, _arr.begin()); }
 
     /// @}
@@ -77,10 +68,10 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// @{
 
     /// Return the scalar value at the given index.
-    S operator[](size_t i) const { return _arr.at(i); }
-
-    /// Return a reference to the scalar value at the given index.
     S& operator[](size_t i) { return _arr.at(i); }
+
+    /// Return the const scalar value at the given index.
+    const S& operator[](size_t i) const { return _arr.at(i); }
 
     /// @}
     /// @name Component-wise operators
@@ -89,7 +80,7 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// Component-wise addition of two vectors.
     V operator+(const VectorN& rhs) const
     {
-        V res;
+        V res(Uninit{});
         for (size_t i = 0; i < N; i++)
             res[i] = _arr[i] + rhs[i];
         return res;
@@ -98,15 +89,14 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// Component-wise addition of two vectors.
     VectorN& operator+=(const VectorN& rhs)
     {
-        for (size_t i = 0; i < N; i++)
-            _arr[i] += rhs[i];
+        *this = *this + rhs;
         return *this;
     }
 
     /// Component-wise subtraction of two vectors.
     V operator-(const VectorN& rhs) const
     {
-        V res;
+        V res(Uninit{});
         for (size_t i = 0; i < N; i++)
             res[i] = _arr[i] - rhs[i];
         return res;
@@ -115,15 +105,14 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// Component-wise subtraction of two vectors.
     VectorN& operator-=(const VectorN& rhs)
     {
-        for (size_t i = 0; i < N; i++)
-            _arr[i] -= rhs[i];
+        *this = *this - rhs;
         return *this;
     }
 
     /// Component-wise multiplication of two vectors.
     V operator*(const VectorN& rhs) const
     {
-        V res;
+        V res(Uninit{});
         for (size_t i = 0; i < N; i++)
             res[i] = _arr[i] * rhs[i];
         return res;
@@ -132,15 +121,14 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// Component-wise multiplication of two vectors.
     VectorN& operator*=(const VectorN& rhs)
     {
-        for (size_t i = 0; i < N; i++)
-            _arr[i] *= rhs[i];
+        *this = *this * rhs;
         return *this;
     }
 
     /// Component-wise division of two vectors.
     V operator/(const VectorN& rhs) const
     {
-        V res;
+        V res(Uninit{});
         for (size_t i = 0; i < N; i++)
             res[i] = _arr[i] / rhs[i];
         return res;
@@ -149,42 +137,39 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// Component-wise division of two vectors.
     VectorN& operator/=(const VectorN& rhs)
     {
-        for (size_t i = 0; i < N; i++)
-            _arr[i] /= rhs[i];
+        *this = *this / rhs;
         return *this;
     }
 
     /// Component-wise multiplication of a vector by a scalar.
-    V operator*(ScalarType s) const
+    V operator*(S s) const
     {
-        V res;
+        V res(Uninit{});
         for (size_t i = 0; i < N; i++)
             res[i] = _arr[i] * s;
         return res;
     }
 
     /// Component-wise multiplication of a vector by a scalar.
-    V& operator*=(ScalarType s)
+    V& operator*=(S s)
     {
-        for (size_t i = 0; i < N; i++)
-            _arr[i] *= s;
+        *this = *this * s;
         return *this;
     }
 
     /// Component-wise division of a vector by a scalar.
-    V operator/(ScalarType s) const
+    V operator/(S s) const
     {
-        V res;
+        V res(Uninit{});
         for (size_t i = 0; i < N; i++)
             res[i] = _arr[i] / s;
         return res;
     }
 
     /// Component-wise division of a vector by a scalar.
-    V& operator/=(ScalarType s)
+    V& operator/=(S s)
     {
-        for (size_t i = 0; i < N; i++)
-            _arr[i] /= s;
+        *this = *this / s;
         return *this;
     }
 
@@ -197,13 +182,6 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
 
     Iterator end() { return _arr.end(); }
     ConstIterator end() const { return _arr.end(); }
-
-    /// @}
-    /// @name Utility
-    /// @{
-
-    /// Return the internal data for this vector as a standard array.
-    std::array<S, N>& getArray() { return _arr; }
 
     /// @}
     /// @name Static Methods
@@ -225,7 +203,10 @@ class Vector2 : public VectorN<Vector2, float, 2>
   public:
     using VectorN<Vector2, float, 2>::VectorN;
     Vector2() { }
-    Vector2(float x, float y) { _arr = {x, y}; }
+    Vector2(float x, float y) : VectorN(Uninit{})
+    {
+        _arr = {x, y};
+    }
 };
 
 /// @class Vector3
@@ -235,7 +216,10 @@ class Vector3 : public VectorN<Vector3, float, 3>
   public:
     using VectorN<Vector3, float, 3>::VectorN;
     Vector3() { }
-    Vector3(float x, float y, float z) { _arr = {x, y, z}; }
+    Vector3(float x, float y, float z) : VectorN(Uninit{})
+    {
+        _arr = {x, y, z};
+    }
 };
 
 /// @class Vector4
@@ -245,7 +229,10 @@ class Vector4 : public VectorN<Vector4, float, 4>
   public:
     using VectorN<Vector4, float, 4>::VectorN;
     Vector4() { }
-    Vector4(float x, float y, float z, float w) { _arr = {x, y, z, w}; }
+    Vector4(float x, float y, float z, float w) : VectorN(Uninit{})
+    {
+        _arr = {x, y, z, w};
+    }
 };
 
 /// @class Color2
@@ -272,30 +259,28 @@ class Color4 : public Vector4
     using Vector4::Vector4;
 };
 
-/// The base class for matrices of scalar values
+/// The base class for square matrices of scalar values
 class MatrixBase { };
 
-/// The class template for matrices of scalar values
+/// The class template for square matrices of scalar values.  Inherited by
+/// Matrix33 and Matrix44.
 ///
-/// Template parameter M is the matrix subclass (CRTP), V is the row vector
-/// type, and N is the number of row vectors in the matrix.
-template <class M, class V, size_t N> class MatrixN : public MatrixBase
+/// The elements of a MatrixN are stored in row-major order, and may be
+/// accessed using the syntax <c>matrix[row][column]</c>.
+///
+/// Template parameter M is the matrix subclass, S is the scalar element type,
+/// and N is the number of rows and columns in the matrix.
+template <class M, class S, size_t N> class MatrixN : public MatrixBase
 {
   public:
-    using ScalarType = typename V::ScalarType;
-    using Iterator = typename std::array<V, N>::iterator;
-    using ConstIterator = typename std::array<V, N>::const_iterator;
+    using RowArray = typename std::array<S, N>;
+    using Iterator = typename std::array<RowArray, N>::iterator;
+    using ConstIterator = typename std::array<RowArray, N>::const_iterator;
 
-    /// @name Constructors
-    /// @{
-
-    /// The default constructor, initializing all scalar elements to their
-    /// zero value.
+  public:
     MatrixN() : _arr{} { }
-
-    /// An explicit constructor, initializing all scalar elements to the
-    /// given value.
-    explicit MatrixN(ScalarType s) { _arr.fill(V(s)); }
+    explicit MatrixN(Uninit) { }
+    explicit MatrixN(S s) { for (RowArray& row : _arr) row.fill(s); }
 
     /// @}
     /// @name Equality operators
@@ -311,11 +296,11 @@ template <class M, class V, size_t N> class MatrixN : public MatrixBase
     /// @name Indexing operators
     /// @{
 
-    /// Return the vector value at the given index.
-    V operator[](size_t i) const { return _arr.at(i); }
+    /// Return the row array at the given index.
+    RowArray& operator[](size_t i) { return _arr.at(i); }
 
-    /// Return the vector value at the given index as a reference.
-    V& operator[](size_t i) { return _arr.at(i); }
+    /// Return the const row array at the given index.
+    const RowArray& operator[](size_t i) const { return _arr.at(i); }
 
     /// @}
     /// @name Component-wise operators
@@ -324,68 +309,68 @@ template <class M, class V, size_t N> class MatrixN : public MatrixBase
     /// Component-wise addition of two matrices.
     M operator+(const MatrixN& rhs) const
     {
-        M res;
+        M res(Uninit{});
         for (size_t i = 0; i < N; i++)
-            res[i] = _arr[i] + rhs[i];
+            for (size_t j = 0; j < N; j++)
+                res[i][j] = _arr[i][j] + rhs[i][j];
         return res;
     }
 
     /// Component-wise addition of two matrices.
     MatrixN& operator+=(const MatrixN& rhs)
     {
-        for (size_t i = 0; i < N; i++)
-            _arr[i] += rhs[i];
+        *this = *this + rhs;
         return *this;
     }
 
     /// Component-wise subtraction of two matrices.
     M operator-(const MatrixN& rhs) const
     {
-        M res;
+        M res(Uninit{});
         for (size_t i = 0; i < N; i++)
-            res[i] = _arr[i] - rhs[i];
+            for (size_t j = 0; j < N; j++)
+                res[i][j] = _arr[i][j] - rhs[i][j];
         return res;
     }
 
     /// Component-wise subtraction of two matrices.
     MatrixN& operator-=(const MatrixN& rhs)
     {
-        for (size_t i = 0; i < N; i++)
-            _arr[i] -= rhs[i];
+        *this = *this - rhs;
         return *this;
     }
 
     /// Component-wise multiplication of a matrix and a scalar.
-    M operator*(ScalarType s) const
+    M operator*(S s) const
     {
-        M res;
+        M res(Uninit{});
         for (size_t i = 0; i < N; i++)
-            res[i] = _arr[i] * s;
+            for (size_t j = 0; j < N; j++)
+                res[i][j] = _arr[i][j] * s;
         return res;
     }
 
     /// Component-wise multiplication of a matrix and a scalar.
-    MatrixN& operator*=(ScalarType s)
+    MatrixN& operator*=(S s)
     {
-        for (size_t i = 0; i < N; i++)
-            _arr[i] *= s;
+        *this = *this * s;
         return *this;
     }
 
     /// Component-wise division of a matrix by a scalar.
-    M operator/(ScalarType s) const
+    M operator/(S s) const
     {
-        M res;
+        M res(Uninit{});
         for (size_t i = 0; i < N; i++)
-            res[i] = _arr[i] / s;
+            for (size_t j = 0; j < N; j++)
+                res[i][j] = _arr[i][j] / s;
         return res;
     }
 
     /// Component-wise division of a matrix by a scalar.
-    MatrixN& operator/=(ScalarType s)
+    MatrixN& operator/=(S s)
     {
-        for (size_t i = 0; i < N; i++)
-            _arr[i] /= s;
+        *this = *this / s;
         return *this;
     }
 
@@ -393,7 +378,7 @@ template <class M, class V, size_t N> class MatrixN : public MatrixBase
     /// @name Matrix Algebra
     /// @{
 
-    /// Multiply the first matrix by the second.
+    /// Compute the matrix product.
     M operator*(const MatrixN& rhs) const
     {
         M res;
@@ -404,7 +389,7 @@ template <class M, class V, size_t N> class MatrixN : public MatrixBase
         return res;
     }
 
-    /// Multiply the first matrix by the second.
+    /// Compute the matrix product.
     MatrixN& operator*=(const MatrixN& rhs)
     {
         *this = *this * rhs;
@@ -426,8 +411,11 @@ template <class M, class V, size_t N> class MatrixN : public MatrixBase
         return *this;
     }
 
+    /// Return the transpose of the matrix.
+    M getTranspose() const;
+
     /// Return the determinant of the matrix.
-    float getDeterminant() const;
+    S getDeterminant() const;
 
     /// Return the adjugate of the matrix.
     M getAdjugate() const;
@@ -449,30 +437,6 @@ template <class M, class V, size_t N> class MatrixN : public MatrixBase
     ConstIterator end() const { return _arr.end(); }
 
     /// @}
-    /// @name Utility
-    /// @{
-
-    /// Return the given row as a vector.
-    V getRow(size_t i) const
-    {
-        return _arr[i];
-    }
-
-    /// Return the given column as a vector.
-    V getColumn(size_t j) const
-    {
-        V v;
-        for (size_t i = 0; i < N; i++)
-        {
-            v[i] = _arr[i][j];
-        }
-        return v;
-    }
-
-    /// Return the internal data for this matrix as a standard array.
-    std::array<V, N>& getArray() { return _arr; }
-
-    /// @}
     /// @name Static Methods
     /// @{
 
@@ -480,28 +444,29 @@ template <class M, class V, size_t N> class MatrixN : public MatrixBase
     static constexpr size_t numRows() { return N; }
 
     /// Return the number of columns in this matrix.
-    static constexpr size_t numColumns() { return V::length(); }
+    static constexpr size_t numColumns() { return N; }
 
     /// @}
 
   protected:
-    std::array<V, N> _arr;
+    std::array<RowArray, N> _arr;
 };
 
 /// @class Matrix33
 /// A 3x3 matrix of floating-point values
-class Matrix33 : public MatrixN<Matrix33, Vector3, 3>
+class Matrix33 : public MatrixN<Matrix33, float, 3>
 {
   public:
-    using MatrixN<Matrix33, Vector3, 3>::MatrixN;
+    using MatrixN<Matrix33, float, 3>::MatrixN;
     Matrix33() { }
     Matrix33(float m00, float m01, float m02,
              float m10, float m11, float m12,
-             float m20, float m21, float m22)
+             float m20, float m21, float m22) :
+        MatrixN(Uninit{})
     {
-        _arr = {Vector3(m00, m01, m02),
-                Vector3(m10, m11, m12),
-                Vector3(m20, m21, m22)};
+        _arr = {m00, m01, m02,
+                m10, m11, m12,
+                m20, m21, m22};
     }
 
   public:
@@ -510,37 +475,26 @@ class Matrix33 : public MatrixN<Matrix33, Vector3, 3>
 
 /// @class Matrix44
 /// A 4x4 matrix of floating-point values
-class Matrix44 : public MatrixN<Matrix44, Vector4, 4>
+class Matrix44 : public MatrixN<Matrix44, float, 4>
 {
   public:
-    using MatrixN<Matrix44, Vector4, 4>::MatrixN;
+    using MatrixN<Matrix44, float, 4>::MatrixN;
     Matrix44() { }
     Matrix44(float m00, float m01, float m02, float m03,
              float m10, float m11, float m12, float m13,
              float m20, float m21, float m22, float m23,
-             float m30, float m31, float m32, float m33)
+             float m30, float m31, float m32, float m33) :
+        MatrixN(Uninit{})
     {
-        _arr = {Vector4(m00, m01, m02, m03),
-                Vector4(m10, m11, m12, m13),
-                Vector4(m20, m21, m22, m23),
-                Vector4(m30, m31, m32, m33)};
+        _arr = {m00, m01, m02, m03,
+                m10, m11, m12, m13,
+                m20, m21, m22, m23,
+                m30, m31, m32, m33};
     }
 
   public:
     static const Matrix44 IDENTITY;
 };
-
-/// Component-wise multiplication of a scalar and a vector.
-template <class V, class S, size_t N> V operator*(typename V::ScalarType s, const VectorN<V, S, N>& v)
-{
-    return v * s;
-}
-
-/// Component-wise multiplication of a scalar and a matrix.
-template <class M, class V, size_t N> M operator*(typename M::ScalarType s, const MatrixN<M, V, N>& m)
-{
-    return m * s;
-}
 
 } // namespace MaterialX
 

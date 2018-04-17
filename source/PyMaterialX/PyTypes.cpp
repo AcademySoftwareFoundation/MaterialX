@@ -27,6 +27,8 @@ using IndexPair = std::pair<size_t, size_t>;
 .def(py::self - py::self)                               \
 .def(py::self * py::self)                               \
 .def(py::self / py::self)                               \
+.def(py::self * float())                                \
+.def(py::self / float())                                \
 .def("__getitem__", [](V& v, size_t i)                  \
     { return v[i]; } )                                  \
 .def("__setitem__", [](V& v, size_t i, float f)         \
@@ -45,6 +47,8 @@ using IndexPair = std::pair<size_t, size_t>;
 .def(py::self - py::self)                               \
 .def(py::self * py::self)                               \
 .def(py::self / py::self)                               \
+.def(py::self * float())                                \
+.def(py::self / float())                                \
 .def("__getitem__", [](const M& m, IndexPair i)         \
     { return m[i.first][i.second]; } )                  \
 .def("__setitem__", [](M& m, IndexPair i, float f)      \
@@ -52,8 +56,10 @@ using IndexPair = std::pair<size_t, size_t>;
 .def("__str__", [](const M& m)                          \
     { return mx::toValueString(m); })                   \
 .def("copy", [](const M& m) { return M(m); })           \
-.def("getRow", &M::getRow)                              \
-.def("getColumn", &M::getColumn)                        \
+.def("getTranspose", &M::getTranspose)                  \
+.def("getDeterminant", &M::getDeterminant)              \
+.def("getAdjugate", &M::getAdjugate)                    \
+.def("getInverse", &M::getInverse)                      \
 .def_static("numRows", &M::numRows)                     \
 .def_static("numColumns", &M::numColumns)               \
 .def_static("__len__", &M::numRows)
