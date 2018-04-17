@@ -160,7 +160,7 @@ void Matrix44::setRotationX(float angle)
     float sine = std::sin(angle);
     float cosine = std::cos(angle);
 
-    *this = Matrix44::IDENTITY;
+    setIdentity();
     _arr[1][1] = cosine;
     _arr[1][2] = -sine;
     _arr[2][1] = sine;
@@ -172,7 +172,7 @@ void Matrix44::setRotationY(float angle)
     float sine = std::sin(angle);
     float cosine = std::cos(angle);
 
-    *this = Matrix44::IDENTITY;
+    setIdentity();
     _arr[0][0] = cosine;
     _arr[0][2] = sine;
     _arr[2][0] = -sine;
@@ -184,7 +184,7 @@ void Matrix44::setRotationZ(float angle)
     float sine = std::sin(angle);
     float cosine = std::cos(angle);
 
-    *this = Matrix44::IDENTITY;
+    setIdentity();
     _arr[0][0] = cosine;
     _arr[0][1] = -sine;
     _arr[1][0] = sine;

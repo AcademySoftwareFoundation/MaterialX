@@ -29,6 +29,8 @@ using IndexPair = std::pair<size_t, size_t>;
 .def(py::self / py::self)                               \
 .def(py::self * float())                                \
 .def(py::self / float())                                \
+.def("magnitude", &V::magnitude)                        \
+.def("normalize", &V::normalize)                        \
 .def("__getitem__", [](V& v, size_t i)                  \
     { return v[i]; } )                                  \
 .def("__setitem__", [](V& v, size_t i, float f)         \
@@ -56,10 +58,14 @@ using IndexPair = std::pair<size_t, size_t>;
 .def("__str__", [](const M& m)                          \
     { return mx::toValueString(m); })                   \
 .def("copy", [](const M& m) { return M(m); })           \
+.def("equivalent", &M::equivalent)                      \
 .def("getTranspose", &M::getTranspose)                  \
 .def("getDeterminant", &M::getDeterminant)              \
 .def("getAdjugate", &M::getAdjugate)                    \
 .def("getInverse", &M::getInverse)                      \
+.def("setIdentity", &M::setIdentity)                    \
+.def("setScale", &M::setScale)                          \
+.def("setTranslation", &M::setTranslation)              \
 .def_static("numRows", &M::numRows)                     \
 .def_static("numColumns", &M::numColumns)               \
 .def_static("__len__", &M::numRows)
@@ -101,6 +107,7 @@ void bindPyTypes(py::module& mod)
         .def(py::init<float, float, float,
                       float, float, float,
                       float, float, float>())
+        .def("setRotation", &mx::Matrix33::setRotation)
         .def_readonly_static("IDENTITY", &mx::Matrix33::IDENTITY);
 
     py::class_<mx::Matrix44, mx::MatrixBase>(mod, "Matrix44")
@@ -109,5 +116,8 @@ void bindPyTypes(py::module& mod)
                       float, float, float, float,
                       float, float, float, float,
                       float, float, float, float>())
+        .def("setRotationX", &mx::Matrix44::setRotationX)
+        .def("setRotationY", &mx::Matrix44::setRotationY)
+        .def("setRotationZ", &mx::Matrix44::setRotationZ)
         .def_readonly_static("IDENTITY", &mx::Matrix44::IDENTITY);
 }

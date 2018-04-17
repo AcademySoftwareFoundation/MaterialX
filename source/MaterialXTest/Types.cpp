@@ -40,7 +40,7 @@ TEST_CASE("Vectors", "[types]")
     REQUIRE(v3.magnitude() == 1.0f);
 }
 
-TEST_CASE("Matrix operators", "[types]")
+TEST_CASE("Matrices", "[types]")
 {
     mx::Matrix44 trans(1, 0, 0, 0,
                        0, 1, 0, 0,
