@@ -194,9 +194,9 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// @{
 
     /// Magnitude of a vector
-    ScalarType magnitude() const
+    S magnitude() const
     {
-        ScalarType result = (ScalarType)0;
+        S result = (S)0;
         for (size_t i = 0; i < N; i++)
         {
             result += _arr[i] * _arr[i];
@@ -208,7 +208,7 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// Normalization
     void normalize()
     {
-        ScalarType mag1 = (S)1 / magnitude();
+        S mag1 = (S)1 / magnitude();
         for (size_t i = 0; i < N; i++)
         {
             _arr[i] *= mag1;
@@ -486,6 +486,38 @@ template <class M, class V, size_t N> class MatrixN : public MatrixBase
     /// @name 3D Transformations
     /// @{
 
+    /// Set matrix to identity
+    void setIdentity()
+    {
+        for (size_t i = 0; i < N; i++)
+        {
+            for (size_t j = 0; j < N; j++)
+            {
+                _arr[i][j] = (i == j) ? (ScalarType)1 : (ScalarType)0;
+            }
+        }
+    }
+
+    /// Set matrix to be a translation. 
+    void setTranslation(const V& v)
+    {
+        setIdentity();
+        for (size_t j = 0; j < N - 1; j++)
+        {
+            _arr[N-1][j] = v[j];
+        }
+    }
+
+    /// Set matrix to be a scale
+    void setScale(const V& v)
+    {
+        setIdentity();
+        for (size_t i = 0; i < N - 1; i++)
+        {
+            _arr[i][i] = v[i];
+        }
+    }
+
     /// Transpose matrix
     MatrixN& transpose()
     {
@@ -494,32 +526,6 @@ template <class M, class V, size_t N> class MatrixN : public MatrixBase
             for (size_t j = 0; j < i; j++)
             {
                 std::swap(_arr[i][j], _arr[j][i]);
-            }
-        }
-        return *this;
-    }
-
-    /// Translate matrix 
-    MatrixN& translate(const V& v)
-    {
-        for (size_t i = 0; i < N; i++)
-        {
-            for (size_t j = 0; j < N - 1; j++)
-            {
-                _arr[i][j] += _arr[i][N-1] * v[j];
-            }
-        }
-        return *this;
-    }
-
-    // Scale matrix
-    MatrixN& scale(const V& v)
-    {
-        for (size_t i = 0; i < N - 1; i++)
-        {
-            for (size_t j = 0; j < N; j++)
-            {
-                _arr[j][i] *= v[i];
             }
         }
         return *this;
@@ -559,20 +565,6 @@ template <class M, class V, size_t N> class MatrixN : public MatrixBase
     /// Return the internal data for this matrix as a standard array.
     std::array<V, N>& getArray() { return _arr; }
 
-    /// Return as a string
-    string asString() const
-    {
-        string result;
-        for (size_t i = 0; i < N; i++)
-        {
-            for (size_t j = 0; j < N; j++)
-            {
-                result += std::to_string(_arr[i][j]) + " ";
-            }
-        }
-        return result;
-    }
-
     /// @}
     /// @name Static Methods
     /// @{
@@ -605,8 +597,8 @@ class Matrix33 : public MatrixN<Matrix33, Vector3, 3>
                 Vector3(m20, m21, m22)};
     }
 
-    // Rotate matrix
-    Matrix33& rotate(float angle); 
+    // Set matrix to a given rotation
+    void setRotation(float angle);
 
   public:
     static const Matrix33 IDENTITY;
@@ -630,10 +622,14 @@ class Matrix44 : public MatrixN<Matrix44, Vector4, 4>
                 Vector4(m30, m31, m32, m33)};
     }
 
-    // Rotate matrix
-    Matrix44& rotateX(float angle);
-    Matrix44& rotateY(float angle);
-    Matrix44& rotateZ(float angle);
+    /// Set matrix to be a given rotation in X
+    void setRotationX(float angle);
+
+    /// Set matrix to be a given rotation in Y
+    void setRotationY(float angle);
+
+    /// Set matrix to be a given rotation in Z
+    void setRotationZ(float angle);
 
   public:
     static const Matrix44 IDENTITY;

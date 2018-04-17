@@ -56,19 +56,20 @@ template <> Matrix33 MatrixN<Matrix33, Vector3, 3>::getAdjugate() const
         _arr[0][0]*_arr[1][1] - _arr[1][0]*_arr[0][1]);
 }
 
-Matrix33& Matrix33::rotate(float angle)
+void Matrix33::setRotation(float angle)
 {
     float sine = std::sin(angle);
     float cosine = std::cos(angle);
 
-    Matrix33 rotation{
-        cosine, -sine, 0.0f,
-        sine, cosine, 0.0f,
-        0.0f, 0.0f, 1.0f
-    };
-    *this = *this * rotation;
-
-    return *this;
+    _arr[0][0] = cosine;
+    _arr[0][1] = -sine;
+    _arr[0][2] = 0.0f;
+    _arr[1][0] = sine;
+    _arr[1][1] = cosine;
+    _arr[1][2] = 0.0f;
+    _arr[2][0] = 0.0f;
+    _arr[2][1] = 0.0f;
+    _arr[2][2] = 1.0f;
 }
 
 //
@@ -139,58 +140,40 @@ template <> Matrix44 MatrixN<Matrix44, Vector4, 4>::getAdjugate() const
         _arr[0][0]*_arr[2][1]*_arr[1][2] - _arr[1][0]*_arr[0][1]*_arr[2][2] - _arr[2][0]*_arr[1][1]*_arr[0][2]);
 }
 
-Matrix44& Matrix44::rotateX(float angle)
+void Matrix44::setRotationX(float angle)
 {
     float sine = std::sin(angle);
     float cosine = std::cos(angle);
-    
-    Matrix44 orig(*this);
-    _arr[0][1] = orig[0][1] * cosine + orig[0][2] * -sine;
-    _arr[0][2] = orig[0][1] * sine + orig[0][2] * cosine;
-    _arr[1][1] = orig[1][1] * cosine + orig[1][2] * -sine;
-    _arr[1][2] = orig[1][1] * sine + orig[1][2] * cosine;
-    _arr[2][1] = orig[2][1] * cosine + orig[2][2] * -sine;
-    _arr[2][2] = orig[2][1] * sine + orig[2][2] * cosine;
-    _arr[3][1] = orig[3][1] * cosine + orig[3][2] * -sine;
-    _arr[3][2] = orig[3][2] * sine + orig[3][2] * cosine;
 
-    return *this;
+    *this = Matrix44::IDENTITY;
+    _arr[1][1] = cosine;
+    _arr[1][2] = -sine;
+    _arr[2][1] = sine;
+    _arr[2][2] = cosine;
 }
 
-Matrix44& Matrix44::rotateY(float angle)
+void Matrix44::setRotationY(float angle)
 {
     float sine = std::sin(angle);
     float cosine = std::cos(angle);
 
-    Matrix44 orig(*this);
-    _arr[0][0] = orig[0][0] * cosine + orig[0][2] * sine;
-    _arr[0][2] = orig[0][0] * -sine + orig[0][2] * cosine;
-    _arr[1][0] = orig[1][0] * cosine + orig[1][2] * sine;
-    _arr[1][2] = orig[1][0] * -sine + orig[1][2] * cosine;
-    _arr[2][0] = orig[2][0] * cosine + orig[2][2] * sine;
-    _arr[2][2] = orig[2][0] * -sine + orig[2][2] * cosine;
-    _arr[3][0] = orig[3][0] * cosine + orig[3][2] * sine;
-    _arr[3][2] = orig[3][0] * -sine + orig[3][2] * cosine;
-
-    return *this;
+    *this = Matrix44::IDENTITY;
+    _arr[0][0] = cosine;
+    _arr[0][2] = sine;
+    _arr[2][0] = -sine;
+    _arr[2][2] = cosine;
 }
 
-Matrix44& Matrix44::rotateZ(float angle)
+void Matrix44::setRotationZ(float angle)
 {
     float sine = std::sin(angle);
     float cosine = std::cos(angle);
 
-    Matrix44 orig(*this);
-    _arr[0][0] = orig[0][0] * cosine + orig[0][1] * sine;
-    _arr[0][1] = orig[0][0] * -sine + orig[0][1] * cosine;
-    _arr[1][0] = orig[1][0] * cosine + orig[1][1] * sine;
-    _arr[1][1] = orig[1][0] * -sine + orig[1][1] * cosine;
-    _arr[2][0] = orig[2][0] * cosine + orig[2][1] * sine;
-    _arr[2][1] = orig[2][0] * -sine + orig[2][1] * cosine;
-    _arr[3][0] = orig[3][0] * cosine + orig[3][1] * sine;
-    _arr[3][1] = orig[3][0] * -sine + orig[3][1] * cosine;
-
-    return *this;
+    *this = Matrix44::IDENTITY;
+    _arr[0][0] = cosine;
+    _arr[0][1] = -sine;
+    _arr[1][0] = sine;
+    _arr[1][1] = cosine;
 }
 
 } // namespace MaterialX
