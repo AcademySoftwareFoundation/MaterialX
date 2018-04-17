@@ -10,7 +10,7 @@
 
 namespace mx = MaterialX;
 
-TEST_CASE("Vector operators", "[types]")
+TEST_CASE("Vectors", "[types]")
 {
     mx::Vector3 v1(1, 2, 3);
     mx::Vector3 v2(2, 4, 6);
@@ -30,8 +30,8 @@ TEST_CASE("Vector operators", "[types]")
     REQUIRE((v2 -= v1) == mx::Vector3(2, 4, 6));
     REQUIRE((v2 *= v1) == mx::Vector3(2, 8, 18));
     REQUIRE((v2 /= v1) == mx::Vector3(2, 4, 6));
-    REQUIRE(v1 * 2 == mx::Vector3(2, 4, 6));
-    REQUIRE(2 * v1 == mx::Vector3(2, 4, 6));
+    REQUIRE(v1 * 2 == v2);
+    REQUIRE(v2 / 2 == v1);
     
     // Geometric operators
     mx::Vector3 v3(1.0f, 2.0f, 2.0f);
@@ -39,8 +39,6 @@ TEST_CASE("Vector operators", "[types]")
     v3.normalize();
     REQUIRE(v3.magnitude() == 1.0f);
 }
-
-#include <iostream>
 
 TEST_CASE("Matrix operators", "[types]")
 {
@@ -59,11 +57,26 @@ TEST_CASE("Matrix operators", "[types]")
     REQUIRE(trans[3][0] == 4);
     trans[3][0] = 3;
 
-    // Matrix multiplication
+    // Matrix methods
+    REQUIRE(trans.getTranspose() == mx::Matrix44(1, 0, 0, 3,
+                                                 0, 1, 0, 0,
+                                                 0, 0, 1, 0,
+                                                 0, 0, 0, 1));
+    REQUIRE(scale.getTranspose() == scale);
+    REQUIRE(trans.getDeterminant() == 1);
+    REQUIRE(scale.getDeterminant() == 8);
+    REQUIRE(trans.getInverse() == mx::Matrix44(1, 0, 0, 0,
+                                               0, 1, 0, 0,
+                                               0, 0, 1, 0,
+                                              -3, 0, 0, 1));
+
+    // Matrix product
     mx::Matrix44 prod1 = trans * scale;
     mx::Matrix44 prod2 = scale * trans;
     mx::Matrix44 prod3 = trans * 2;
-    mx::Matrix44 prod4 = 2 * trans;
+    mx::Matrix44 prod4 = prod3 / 2;
+    mx::Matrix44 prod5 = prod1;
+    prod5 *= trans;
     REQUIRE(prod1 == mx::Matrix44(2, 0, 0, 0,
                                   0, 2, 0, 0,
                                   0, 0, 2, 0,
@@ -76,9 +89,7 @@ TEST_CASE("Matrix operators", "[types]")
                                   0, 2, 0, 0,
                                   0, 0, 2, 0,
                                   6, 0, 0, 2));
-    REQUIRE(prod4 == prod3);
-    mx::Matrix44 prod5 = prod1;
-    prod5 *= trans;
+    REQUIRE(prod4 == trans);
     REQUIRE(prod5 == mx::Matrix44(2, 0, 0, 0,
                                   0, 2, 0, 0,
                                   0, 0, 2, 0,
@@ -88,31 +99,29 @@ TEST_CASE("Matrix operators", "[types]")
     mx::Matrix44 quot1 = prod1 / scale;
     mx::Matrix44 quot2 = prod2 / trans;
     mx::Matrix44 quot3 = prod3 / 2;
+    mx::Matrix44 quot4 = quot1;
+    quot4 /= trans;
     REQUIRE(quot1 == trans);
     REQUIRE(quot2 == scale);
     REQUIRE(quot3 == trans);
-    mx::Matrix44 quot4 = quot1;
-    quot4 /= trans;
     REQUIRE(quot4 == mx::Matrix44::IDENTITY);
-
-    std::string res;
 
     // Matrix translation
     mx::Matrix44 trans44(mx::Matrix44::IDENTITY);
-    mx::Vector4 amount44(1.0f, 2.0f, 3.0f, 1.0f);
+    mx::Matrix44::RowArray amount44 { 1.0f, 2.0f, 3.0f, 1.0f };
     trans44.setTranslation(amount44);
-    REQUIRE(amount44 == trans44.getRow(3));
-    amount44 = { -1.0f, -2.0f, -3.0f, 1.0f };
+    REQUIRE(amount44 == trans44[3]);
+    amount44 = { -1.0f, -2.0f, -3.0f };
     mx::Matrix44 translateBy;
     translateBy.setTranslation(amount44);
     mx::Matrix44 translateResult = trans44 * translateBy;
     REQUIRE(translateResult == mx::Matrix44::IDENTITY);
 
     mx::Matrix33 trans33(mx::Matrix33::IDENTITY);
-    mx::Vector3 amount33(5.0f, 10.0f, 1.0f);
+    mx::Matrix33::RowArray amount33{ 5.0f, 10.0f, 1.0f };
     trans33.setTranslation(amount33);
-    REQUIRE(amount33 == trans33.getRow(2));
-    amount33 -= 2.0f*amount33;
+    REQUIRE(amount33 == trans33[2]);
+    amount33 = { -5.0f, -10.0f, -1.0f };
     mx::Matrix33 translateBy33;
     translateBy33.setTranslation(amount33);
     mx::Matrix33 translateResult33 = trans33 * translateBy33;
@@ -161,7 +170,7 @@ TEST_CASE("Matrix operators", "[types]")
         0, 4, 0, 0,
         0, 0, 6, 0,
         1, 3, 5, 1);
-    mx::Vector4 scalar(8, 7, 6, 1);
+    mx::Matrix44::RowArray scalar{ 8, 7, 6, 1 };
     mx::Matrix44 scaleBy;
     scaleBy.setScale(scalar);
     mx::Matrix44 scaleResult = scale44 * scaleBy;
@@ -174,40 +183,12 @@ TEST_CASE("Matrix operators", "[types]")
     mx::Matrix33 scale33(2, 0, 0,
         0, 4, 0,
         1, 3, 1);
-    mx::Vector3 scalar3(8, 7, 1);
+    mx::Matrix33::RowArray scalar3{ 8, 7, 1 };
     mx::Matrix33 scaleBy33;
     scaleBy33.setScale(scalar3);
     mx::Matrix33 scaleResult33 = scale33 * scaleBy33;
     mx::Matrix33 scaleCheck2(16.0, 0.0f, 0.0f,
         0.0f, 28.0f, 0.0f,
         8.0f, 21.0f, 1.0f);
-    REQUIRE(scaleCheck2.equivalent(scaleResult33, 0.000001f));
-
-    // Matrix transpose
-    mx::Matrix44 transp44(1, 2, 3, 4,
-                          5, 6, 7, 8,
-                          9, 10, 11, 12,
-                          13, 14, 15, 16);
-    mx::Matrix44 after_transp44 (transp44);
-    after_transp44.transpose();
-    for (unsigned int i = 0; i < 4; i++)
-    {
-        for (unsigned int j = 0; j < 4; j++)
-        {
-            REQUIRE(transp44[i][j] == after_transp44[j][i]);
-        }
-    }
-
-    mx::Matrix33 transp33(1, 2, 3,
-        4, 5, 6,
-        7, 8, 9);
-    mx::Matrix33 after_transp33(transp33);
-    after_transp33.transpose();
-    for (unsigned int i = 0; i < 3; i++)
-    {
-        for (unsigned int j = 0; j < 3; j++)
-        {
-            REQUIRE(transp33[i][j] == after_transp33[j][i]);
-        }
-    }
+    REQUIRE(scaleCheck2.equivalent(scaleResult33, 0.000001f));    
 }
