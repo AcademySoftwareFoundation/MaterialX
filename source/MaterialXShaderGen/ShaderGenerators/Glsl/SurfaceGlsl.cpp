@@ -74,9 +74,9 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
     const string normalWorld = blockPrefix + "normalWorld";
     const string positionWorld = blockPrefix + "positionWorld";
 
-    const string outputVariable = glslgen.getVariableName(node.getOutput());
-    const string outColor = outputVariable + ".color";
-    const string outTransparency = outputVariable + ".transparency";
+    const SgOutput* output = node.getOutput();
+    const string outColor = output->name + ".color";
+    const string outTransparency = output->name + ".transparency";
 
     shader.addLine(outColor + " = vec3(0.0)");
     shader.addLine(outTransparency + " = vec3(1.0)");

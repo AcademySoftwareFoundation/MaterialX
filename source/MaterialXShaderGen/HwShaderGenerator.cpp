@@ -37,7 +37,19 @@ void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, size_t lightType
         throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef.getNodeString() +
             "' matching language '" + getLanguage() + "' and target '" + getTarget() + "'");
     }
-    
+
+    // Prepend the light struct instance name on all input sockets, 
+    // since in generated code these inputs will be members of the 
+    // light struct.
+    SgNodeGraph* graph = sgimpl->getNodeGraph();
+    if (graph)
+    {
+        for (SgInputSocket* inputSockets : graph->getInputSockets())
+        {
+            inputSockets->name = "light." + inputSockets->name;
+        }
+    }
+
     _boundLightShaders[lightTypeId] = sgimpl;
 }
 

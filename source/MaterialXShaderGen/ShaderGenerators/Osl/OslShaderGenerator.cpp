@@ -38,7 +38,7 @@ namespace
 const string OslShaderGenerator::LANGUAGE = "sx-osl";
 
 OslShaderGenerator::OslShaderGenerator()
-    : ShaderGenerator(OslSyntax::creator())
+    : ParentClass(OslSyntax::creator())
 {
     // Register build-in implementations
 
@@ -176,9 +176,8 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
         outputType = it->second.first;
     }
     const string type = _syntax->getOutputTypeName(outputType);
-    const string variable = getVariableName(outputSocket);
     const string value = _syntax->getTypeDefault(outputType, true);
-    shader.addLine(type + " " + variable + " = " + value, false);
+    shader.addLine(type + " " + outputSocket->name + " = " + value, false);
 
     shader.endScope();
 
@@ -200,7 +199,7 @@ void OslShaderGenerator::emitFunctionDefinitions(Shader& shader)
     shader.addBlock(shader.getRequestedVDirection() != getTargetVDirection() ? VDIRECTION_FLIP : VDIRECTION_NOOP);
 
     // Call parent to emit all other functions
-    ShaderGenerator::emitFunctionDefinitions(shader);
+    ParentClass::emitFunctionDefinitions(shader);
 }
 
 void OslShaderGenerator::emitIncludes(Shader& shader)
@@ -232,25 +231,24 @@ void OslShaderGenerator::emitFunctionCalls(Shader &shader)
     }
 
     // Call parent
-    ShaderGenerator::emitFunctionCalls(shader);
+    ParentClass::emitFunctionCalls(shader);
 }
 
 void OslShaderGenerator::emitFinalOutput(Shader& shader) const
 {
     SgNodeGraph* graph = shader.getNodeGraph();
     const SgOutputSocket* outputSocket = graph->getOutputSocket();
-    const string outputVariable = getVariableName(outputSocket);
 
     if (!outputSocket->connection)
     {
         // Early out for the rare case where the whole graph is just a single value
-        shader.addLine(outputVariable + " = " + (outputSocket->value ? 
+        shader.addLine(outputSocket->name + " = " + (outputSocket->value ?
             _syntax->getValue(*outputSocket->value, outputSocket->type) : 
             _syntax->getTypeDefault(outputSocket->type)));
         return;
     }
 
-    string finalResult = getVariableName(outputSocket->connection);
+    string finalResult = outputSocket->connection->name;
 
     // Handle channel swizzling
     if (outputSocket->channels != EMPTY_STRING)
@@ -269,7 +267,7 @@ void OslShaderGenerator::emitFinalOutput(Shader& shader) const
         finalResult = _syntax->getSwizzledVariable(finalResult, it->second.first, outputSocket->type, it->second.second);
     }
 
-    shader.addLine(outputVariable + " = " + finalResult);
+    shader.addLine(outputSocket->name + " = " + finalResult);
 }
 
 } // namespace MaterialX

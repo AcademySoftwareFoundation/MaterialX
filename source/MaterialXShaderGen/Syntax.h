@@ -58,6 +58,8 @@ public:
         {}
     };
 
+    using UniqueNameMap = std::unordered_map<string, size_t>;
+
 public:
     virtual ~Syntax() {}
 
@@ -68,6 +70,11 @@ public:
     /// Add value constructor syntax for a data type
     /// Optional and only used if a custom constructor is needed for a value
     void addValueConstructSyntax(const string& type, const ValueConstructSyntax& syntax);
+
+    /// Register names that are restricted to use by a code generator when naming 
+    /// variables and functions. Keywords, types, built-in functions etc. should be 
+    /// added to this set. Multiple calls will add to the internal set of names.
+    void addRestrictedNames(const StringSet& names);
 
     /// Returns the value string for a given value object
     virtual string getValue(const Value& value, const string& type, bool paramInit = false) const;
@@ -88,18 +95,31 @@ public:
     /// Get syntax for a swizzled variable
     virtual string getSwizzledVariable(const string& name, const string& type, const string& fromType, const string& channels) const;
 
-    /// Returnes an array of all registered type syntax objects
+    /// Returns an array of all registered type syntax objects
     const vector<TypeSyntax>& getTypeSyntax() const { return _typeSyntax; }
+
+    /// Returns a set of names that are restricted to use by a code generator
+    const StringSet& getRestrictedNames() const { return _restrictedNames; }
+
+    /// Modify the given name string to make it unique according
+    /// to the given uniqueName record and according to restricted
+    /// names registered for this syntax class.
+    /// A number suffix is added to or increased on the name string 
+    /// if there is a name collision.
+    void makeUnique(string& name, UniqueNameMap& uniqueNames) const;
 
 protected:
     /// Protected constructor
     Syntax();
 
+private:
     vector<TypeSyntax> _typeSyntax;
     std::unordered_map<string, size_t> _typeSyntaxByName;
 
     vector<ValueConstructSyntax> _valueConstructSyntax;
     std::unordered_map<string, size_t> _valueConstructSyntaxByName;
+
+    StringSet _restrictedNames;
 };
 
 

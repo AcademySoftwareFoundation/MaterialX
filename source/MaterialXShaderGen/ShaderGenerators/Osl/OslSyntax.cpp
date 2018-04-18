@@ -5,6 +5,18 @@ namespace MaterialX
 
 OslSyntax::OslSyntax()
 {
+    // Add in all restricted names and keywords in OSL
+    addRestrictedNames(
+    {
+        "and", "break", "closure", "color", "continue", "do", "else", "emit", "float", "for", "if", "illuminance",
+        "illuminate", "int", "matrix", "normal", "not", "or", "output", "point", "public", "return", "string",
+        "struct", "vector", "void", "while",
+        "bool", "case", "catch", "char", "class", "const", "delete", "default", "double", "enum", "extern",
+        "false", "friend", "goto", "inline", "long", "new", "operator", "private", "protected", "short",
+        "signed", "sizeof", "static", "switch", "template", "this", "throw", "true", "try", "typedef", "uniform",
+        "union", "unsigned", "varying", "virtual", "volatile"
+    });
+
     //
     // Add syntax information for each data type.
     //

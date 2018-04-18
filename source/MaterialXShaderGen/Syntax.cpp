@@ -36,6 +36,14 @@ namespace MaterialX
             _typeSyntax.push_back(syntax);
             _typeSyntaxByName[type] = _typeSyntax.size() - 1;
         }
+
+        // Make this type a restricted name
+        addRestrictedNames({ type });
+    }
+
+    void Syntax::addRestrictedNames(const StringSet& names)
+    {
+        _restrictedNames.insert(names.begin(), names.end());
     }
 
     string Syntax::getValue(const Value& value, const string& /*type*/, bool paramInit) const
@@ -78,9 +86,6 @@ namespace MaterialX
         {
             return paramInit ? _typeSyntax[it->second].paramDefaultValue : _typeSyntax[it->second].defaultValue;
         }
-//        const Value* dv = type.getDefaultValue();
-//        return (dv ? getValue(*dv, paramInit) : "");
-        // TODO: Do we need default values for our TypeDef elements?
         return EMPTY_STRING;
     }
 
@@ -155,6 +160,27 @@ namespace MaterialX
         }
 
         return result;
+    }
+
+    void Syntax::makeUnique(string& name, UniqueNameMap& uniqueNames) const
+    {
+        UniqueNameMap::iterator it = uniqueNames.find(name);
+        if (it != uniqueNames.end())
+        {
+            name += std::to_string(++(it->second));
+        }
+        else
+        {
+            if (_restrictedNames.count(name))
+            {
+                uniqueNames[name] = 1;
+                name += "1";
+            }
+            else
+            {
+                uniqueNames[name] = 0;
+            }
+        }
     }
 
     const string DataType::BOOLEAN = "boolean";

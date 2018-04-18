@@ -47,11 +47,56 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
         impl->createVariables(*node, shadergen, *this);
     }
 
+    //
+    // Make sure inputs and outputs have acceptable names, to avoid name conflicts 
+    // when emitting variable names for them.
+    //
+
+    // Start with top level graphs.
+    std::deque<SgNodeGraph*> graphQueue;
+    getTopLevelShaderGraphs(shadergen, graphQueue);
+
+    while (!graphQueue.empty())
+    {
+        SgNodeGraph* graph = graphQueue.front();
+        graphQueue.pop_front();
+
+        // Names in use for the current graph is recorded in 'uniqueNames'.
+        Syntax::UniqueNameMap uniqueNames;
+        for (SgInputSocket* inputSocket : graph->getInputSockets())
+        {
+            string name = inputSocket->name;
+            shadergen.getSyntax()->makeUnique(name, uniqueNames);
+            graph->renameInputSocket(inputSocket->name, name);
+        }
+        for (SgOutputSocket* outputSocket : graph->getOutputSockets())
+        {
+            string name = outputSocket->name;
+            shadergen.getSyntax()->makeUnique(outputSocket->name, uniqueNames);
+            graph->renameInputSocket(outputSocket->name, name);
+        }
+        for (SgNode* node : graph->getNodes())
+        {
+            for (SgOutput* output : node->getOutputs())
+            {
+                // Node outputs use long names for better code readability
+                string name = output->node->getName() + "_" + output->name;
+                shadergen.getSyntax()->makeUnique(name, uniqueNames);
+                node->renameOutput(output->name, name);
+            }
+            // Push subgraphs on the queue to process these as well.
+            SgNodeGraph* subgraph = node->getImplementation()->getNodeGraph();
+            if (subgraph)
+            {
+                graphQueue.push_back(subgraph);
+            }
+        }
+    }
+
     // Create uniforms for the public graph interface
     for (SgInputSocket* inputSocket : _rootGraph->getInputSockets())
     {
-        const string name = shadergen.getVariableName(inputSocket);
-        createUniform(PIXEL_STAGE, PUBLIC_UNIFORMS, inputSocket->type, name, EMPTY_STRING, inputSocket->value);
+        createUniform(PIXEL_STAGE, PUBLIC_UNIFORMS, inputSocket->type, inputSocket->name, EMPTY_STRING, inputSocket->value);
     }
 }
 
@@ -251,6 +296,11 @@ void Shader::createAppData(const string& type, const string& name, const string&
         _appData.variableMap[name] = variable;
         _appData.variableOrder.push_back(variable.get());
     }
+}
+
+void Shader::getTopLevelShaderGraphs(ShaderGenerator& /*shadergen*/, std::deque<SgNodeGraph*>& graphs) const
+{
+    graphs.push_back(_rootGraph.get());
 }
 
 }

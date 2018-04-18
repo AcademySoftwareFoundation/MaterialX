@@ -46,7 +46,7 @@ void Compound::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shade
     // Make the compound root graph the active graph
     shader.pushActiveGraph(_rootGraph.get());
 
-    const Syntax* syntax = shadergen.getSyntax().get();
+    const Syntax* syntax = shadergen.getSyntax();
 
     // Emit functions for all child nodes
     for (SgNode* childNode : _rootGraph->getNodes())
@@ -76,14 +76,14 @@ void Compound::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shade
     // Add all inputs
     for (SgInputSocket* inputSocket : _rootGraph->getInputSockets())
     {
-        shader.addStr(delim + syntax->getTypeName(inputSocket->type) + " " + shadergen.getVariableName(inputSocket));
+        shader.addStr(delim + syntax->getTypeName(inputSocket->type) + " " + inputSocket->name);
         delim = ", ";
     }
 
     // Add all outputs
     for (SgOutputSocket* outputSocket : _rootGraph->getOutputSockets())
     {
-        shader.addStr(delim + syntax->getOutputTypeName(outputSocket->type) + " " + shadergen.getVariableName(outputSocket));
+        shader.addStr(delim + syntax->getOutputTypeName(outputSocket->type) + " " + outputSocket->name);
         delim = ", ";
     }
 
@@ -99,23 +99,21 @@ void Compound::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shade
     // Emit final results
     for (SgOutputSocket* outputSocket : _rootGraph->getOutputSockets())
     {
-        const string outputVariable = shadergen.getVariableName(outputSocket);
-
         // Check for the rare case where the output is not internally connected
         if (!outputSocket->connection)
         {
-            shader.addLine(outputVariable + " = " + (outputSocket->value ? 
+            shader.addLine(outputSocket->name + " = " + (outputSocket->value ?
                 syntax->getValue(*outputSocket->value, outputSocket->type) : 
                 syntax->getTypeDefault(outputSocket->type)));
         }
         else
         {
-            string finalResult = shadergen.getVariableName(outputSocket->connection);
+            string finalResult = outputSocket->connection->name;
             if (outputSocket->channels != EMPTY_STRING)
             {
                 finalResult = syntax->getSwizzledVariable(finalResult, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
             }
-            shader.addLine(outputVariable + " = " + finalResult);
+            shader.addLine(outputSocket->name + " = " + finalResult);
         }
     }
 

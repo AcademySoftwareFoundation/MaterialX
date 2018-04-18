@@ -7,7 +7,7 @@ namespace MaterialX
 const string HwShader::LIGHT_DATA_BLOCK = "LightData";
 
 HwShader::HwShader(const string& name) 
-    : Shader(name)
+    : ParentClass(name)
     , _vertexData("VertexData", "vd")
 {
     _stages.push_back(Stage("Vertex"));
@@ -23,9 +23,7 @@ HwShader::HwShader(const string& name)
 
 void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen)
 {
-    Shader::initialize(element, shadergen);
-
-    HwShaderGenerator& sg = static_cast<HwShaderGenerator&>(shadergen);
+    ParentClass::initialize(element, shadergen);
 
     // For image textures we need to convert filenames into uniforms (texture samplers).
     // Any unconnected filename input on file texture nodes needs to have a corresponding 
@@ -34,17 +32,9 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen)
     const string internalTextureName = "u_internalTexture";
     size_t numInternalTextures = 0;
 
-    // Check root shader graph as well as light shaders
+    // Start with top level graphs.
     std::deque<SgNodeGraph*> graphQueue;
-    graphQueue.push_back(_rootGraph.get());
-    for (auto lightShader : sg.getBoundLightShaders())
-    {
-        SgNodeGraph* lightGraph = lightShader.second->getNodeGraph();
-        if (lightGraph)
-        {
-            graphQueue.push_back(lightGraph);
-        }
-    }
+    getTopLevelShaderGraphs(shadergen, graphQueue);
 
     while (!graphQueue.empty())
     {
@@ -68,7 +58,7 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen)
                     }
                 }
             }
-            // Push subgraphs on the queue to find any internal file texture nodes
+            // Push subgraphs on the queue to process these as well.
             SgNodeGraph* subgraph = node->getImplementation()->getNodeGraph();
             if (subgraph)
             {
@@ -78,6 +68,7 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen)
     }
 
     // For surface shaders we need light shaders
+    HwShaderGenerator& sg = static_cast<HwShaderGenerator&>(shadergen);
     if (_rootGraph->hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE))
     {
         // Create variables for all bound light shaders
@@ -95,6 +86,23 @@ void HwShader::createVertexData(const string& type, const string& name, const st
         VariablePtr variable = std::make_shared<Variable>(type, name, semantic);
         _vertexData.variableMap[name] = variable;
         _vertexData.variableOrder.push_back(variable.get());
+    }
+}
+
+void HwShader::getTopLevelShaderGraphs(ShaderGenerator& shadergen, std::deque<SgNodeGraph*>& graphs) const
+{
+    // Get graphs for base class
+    ParentClass::getTopLevelShaderGraphs(shadergen, graphs);
+
+    // Get light shader graphs
+    HwShaderGenerator& sg = static_cast<HwShaderGenerator&>(shadergen);
+    for (auto lightShader : sg.getBoundLightShaders())
+    {
+        SgNodeGraph* lightGraph = lightShader.second->getNodeGraph();
+        if (lightGraph)
+        {
+            graphs.push_back(lightGraph);
+        }
     }
 }
 

@@ -60,12 +60,6 @@ public:
     /// Emit the output variable name for an output, optionally including it's type
     virtual void emitOutput(const SgOutput* output, bool includeType, Shader& shader) const;
 
-    /// Get the variable name to use for an input
-    virtual string getVariableName(const SgInput* input) const;
-
-    /// Get the variable name to use for an output
-    virtual string getVariableName(const SgOutput* output) const;
-
     /// Query the shader generator if it wants any extra arguments added when 
     /// emiting the function for the given node.
     virtual const Arguments* getExtraArguments(const SgNode& node) const;
@@ -74,7 +68,7 @@ public:
     virtual Shader::VDirection getTargetVDirection() const;
 
     /// Return the syntax object for the language used by the code generator
-    SyntaxPtr getSyntax() const { return _syntax; }
+    const Syntax* getSyntax() const { return _syntax.get(); }
 
     template<class T>
     using CreatorFunc = shared_ptr<T>(*)();

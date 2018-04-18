@@ -182,6 +182,10 @@ public:
     const vector<SgInput*>& getInputs() const { return _inputOrder; }
     const vector<SgOutput*>& getOutputs() const { return _outputOrder; }
 
+    /// Rename inputs/outputs
+    void renameInput(const string& name, const string& newName);
+    void renameOutput(const string& name, const string& newName);
+
 protected:
     string _name;
     unsigned int _classification;
@@ -244,11 +248,19 @@ public:
     const vector<SgInputSocket*>& getInputSockets() const { return _outputOrder; }
     const vector<SgOutputSocket*>& getOutputSockets() const { return _inputOrder; }
 
+    /// Add new node
     SgNode* addNode(const Node& node, ShaderGenerator& shadergen);
+
+    /// Add new node from shaderref
     SgNode* addNode(const ShaderRef& shaderRef, ShaderGenerator& shadergen);
 
+    /// Add input/output sockets
     SgInputSocket* addInputSocket(const string& name, const string& type);
     SgOutputSocket* addOutputSocket(const string& name, const string& type);
+
+    /// Rename input/output sockets
+    void renameInputSocket(const string& name, const string& newName);
+    void renameOutputSocket(const string& name, const string& newName);
 
 protected:
     /// Perform all post-build operations on the graph.

@@ -242,7 +242,7 @@ TEST_CASE("Swizzling", "[shadergen]")
 
     mx::ArnoldShaderGenerator sg;
     sg.registerSourceCodeSearchPath(searchPath);
-    mx::SyntaxPtr syntax = sg.getSyntax();
+    const mx::Syntax* syntax = sg.getSyntax();
 
     // Test swizzle syntax
     std::string var1 = syntax->getSwizzledVariable("foo", "color3", "color3", "bgr");
@@ -274,8 +274,8 @@ TEST_CASE("Swizzling", "[shadergen]")
     mx::SgNode* sgNode = test1.getNodeGraph()->getNode("swizzle1");
     test1.addFunctionCall(sgNode, sg);
     const std::string test1Result =
-        "color swizzle1_in = color(1, 2, 3);\n"
-        "color swizzle1_out = color(swizzle1_in[0], swizzle1_in[0], swizzle1_in[0]);\n";
+        "color in = color(1, 2, 3);\n"
+        "color swizzle1_out = color(in[0], in[0], in[0]);\n";
     REQUIRE(test1.getSourceCode() == test1Result);
 
     // Change swizzle pattern and test again
@@ -285,8 +285,8 @@ TEST_CASE("Swizzling", "[shadergen]")
     sgNode = test2.getNodeGraph()->getNode("swizzle1");
     test2.addFunctionCall(sgNode, sg);
     const std::string test2Result =
-        "color swizzle1_in = color(1, 2, 3);\n"
-        "color swizzle1_out = color(swizzle1_in[2], 0, swizzle1_in[2]);\n";
+        "color in = color(1, 2, 3);\n"
+        "color swizzle1_out = color(in[2], 0, in[2]);\n";
     REQUIRE(test2.getSourceCode() == test2Result);
 }
 
@@ -822,6 +822,112 @@ TEST_CASE("Noise", "[shadergen]")
             file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
             file.close();
         }
+    }
+}
+
+
+TEST_CASE("Unique Names", "[shadergen]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    loadLibraries({ "stdlib" }, searchPath, doc);
+
+    const std::string exampleName = "unique_names";
+
+    // Generate a shade with an internal node having the same name as the shader,
+    // which will result in a name conflict between the shader output and the
+    // internal node output
+    const std::string shaderName = "foo";
+    const std::string nodeName = shaderName;
+
+    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("IMP_" + exampleName);
+    mx::OutputPtr output1 = nodeGraph->addOutput("out", "color3");
+    mx::NodePtr node1 = nodeGraph->addNode("noise2d", nodeName, "color3");
+
+    output1->setConnectedNode(node1);
+
+    // Arnold
+    {
+        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::creator();
+        // Add path to find all source code snippets
+        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+        // Add path to find OSL include files
+        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+
+        // Set the output to a restricted name for OSL
+        output1->setName("output");
+
+        mx::ShaderPtr shader = shaderGenerator->generate(shaderName, output1);
+        REQUIRE(shader != nullptr);
+        REQUIRE(shader->getSourceCode().length() > 0);
+
+        // Make sure the output and internal node output has been renamed
+        mx::SgOutputSocket* sgOutputSocket = shader->getNodeGraph()->getOutputSocket();
+        REQUIRE(sgOutputSocket->name != "output");
+        mx::SgNode* sgNode1 = shader->getNodeGraph()->getNode(node1->getName());
+        REQUIRE(sgNode1->getOutput()->name == "foo_out");
+
+        // Write out to file for inspection
+        // TODO: Use validation in MaterialXView library
+        std::ofstream file;
+        file.open(exampleName + ".osl");
+        file << shader->getSourceCode();
+        file.close();
+    }
+
+    // OgsFx
+    {
+        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::creator();
+        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        // Set the output to a restricted name for OgsFx
+        output1->setName("out");
+
+        mx::ShaderPtr shader = shaderGenerator->generate(shaderName, output1);
+        REQUIRE(shader != nullptr);
+        REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+
+        // Make sure the output and internal node output has been renamed
+        mx::SgOutputSocket* sgOutputSocket = shader->getNodeGraph()->getOutputSocket();
+        REQUIRE(sgOutputSocket->name != "out");
+        mx::SgNode* sgNode1 = shader->getNodeGraph()->getNode(node1->getName());
+        REQUIRE(sgNode1->getOutput()->name == "foo_out");
+
+        // Write out to file for inspection
+        // TODO: Use validation in MaterialXView library
+        std::ofstream file;
+        file.open(exampleName + ".ogsfx");
+        file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+    }
+
+    // Glsl
+    {
+        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
+        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        // Set the output to a restricted name for GLSL
+        output1->setName("vec3");
+
+        mx::ShaderPtr shader = shaderGenerator->generate(shaderName, output1);
+        REQUIRE(shader != nullptr);
+        REQUIRE(shader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
+        REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
+
+        // Make sure the output and internal node output has been renamed
+        mx::SgOutputSocket* sgOutputSocket = shader->getNodeGraph()->getOutputSocket();
+        REQUIRE(sgOutputSocket->name != "vec3");
+        mx::SgNode* sgNode1 = shader->getNodeGraph()->getNode(node1->getName());
+        REQUIRE(sgNode1->getOutput()->name == "foo_out");
+
+        // Write out to file for inspection
+        // TODO: Use validation in MaterialXView library
+        std::ofstream file;
+        file.open(exampleName + ".frag");
+        file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
+        file.close();
+        file.open(exampleName + ".vert");
+        file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
     }
 }
 

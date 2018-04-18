@@ -14,6 +14,8 @@ using OgsFxShaderPtr = shared_ptr<class OgsFxShader>;
 /// composited OsgFx shader.
 class OgsFxShader : public HwShader
 {
+    using ParentClass = HwShader;
+
 public:
     /// Identifier for final effects stage
     static const size_t FINAL_FX_STAGE = HwShader::NUM_STAGES;
@@ -33,6 +35,8 @@ public:
 /// A GLSL shader generator targeting the OgsFX file format
 class OgsFxShaderGenerator : public GlslShaderGenerator
 {
+    using ParentClass = GlslShaderGenerator;
+
 public:
     OgsFxShaderGenerator();
 
