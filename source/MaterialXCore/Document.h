@@ -18,8 +18,6 @@
 namespace MaterialX
 {
 
-extern const string DOCUMENT_VERSION_STRING;
-
 /// A shared pointer to a Document
 using DocumentPtr = shared_ptr<class Document>;
 /// A shared pointer to a const Document
