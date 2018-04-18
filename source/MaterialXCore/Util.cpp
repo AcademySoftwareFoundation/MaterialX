@@ -6,21 +6,21 @@
 #include <MaterialXCore/Util.h>
 
 #include <MaterialXCore/Element.h>
-#include <MaterialXCore/Node.h>
 
 namespace MaterialX
 {
 
-const int MAJOR_VERSION = MATERIALX_MAJOR_VERSION;
-const int MINOR_VERSION = MATERIALX_MINOR_VERSION;
-const int BUILD_VERSION = MATERIALX_BUILD_VERSION;
-
-const string LIBRARY_VERSION_STRING = std::to_string(MAJOR_VERSION) + "." +
-                                      std::to_string(MINOR_VERSION) + "." +
-                                      std::to_string(BUILD_VERSION);
 const string EMPTY_STRING;
 
 namespace {
+
+const string LIBRARY_VERSION_STRING = std::to_string(MATERIALX_MAJOR_VERSION) + "." +
+                                      std::to_string(MATERIALX_MINOR_VERSION) + "." +
+                                      std::to_string(MATERIALX_BUILD_VERSION);
+
+const std::tuple<int, int, int> LIBRARY_VERSION_TUPLE(MATERIALX_MAJOR_VERSION,
+                                                      MATERIALX_MINOR_VERSION,
+                                                      MATERIALX_BUILD_VERSION);
 
 bool invalidNameChar(char c)
 {
@@ -40,9 +40,7 @@ string getVersionString()
 
 std::tuple<int, int, int> getVersionIntegers()
 {
-    return std::make_tuple(MATERIALX_MAJOR_VERSION,
-                           MATERIALX_MINOR_VERSION,
-                           MATERIALX_BUILD_VERSION);
+    return LIBRARY_VERSION_TUPLE;
 }
 
 string createValidName(string name, char replaceChar)

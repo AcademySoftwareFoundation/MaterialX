@@ -12,9 +12,6 @@
 namespace MaterialX
 {
 
-const string DOCUMENT_VERSION_STRING = std::to_string(MAJOR_VERSION) + "." +
-                                       std::to_string(MINOR_VERSION);
-
 const string Document::VERSION_ATTRIBUTE = "version";
 const string Document::REQUIRE_ATTRIBUTE = "require";
 const string Document::CMS_ATTRIBUTE = "cms";
@@ -24,6 +21,9 @@ const string Document::REQUIRE_STRING_MATNODEGRAPH = "matnodegraph";
 const string Document::REQUIRE_STRING_OVERRIDE = "override";
 
 namespace {
+
+const string DOCUMENT_VERSION_STRING = std::to_string(MATERIALX_MAJOR_VERSION) + "." +
+                                       std::to_string(MATERIALX_MINOR_VERSION);
 
 template<class T> shared_ptr<T> updateChildSubclass(ElementPtr parent, ElementPtr origChild)
 {
@@ -182,7 +182,8 @@ std::pair<int, int> Document::getVersionIntegers()
     string versionString = getVersionString();
     if (versionString.empty())
     {
-        return std::pair<int, int>(MAJOR_VERSION, MINOR_VERSION);
+        return std::pair<int, int>(MATERIALX_MAJOR_VERSION,
+                                   MATERIALX_MINOR_VERSION);
     }
 
     vector<string> splitVersion = splitString(versionString, ".");
@@ -323,8 +324,11 @@ void Document::upgradeVersion()
     std::pair<int, int> versions = getVersionIntegers();
     int majorVersion = versions.first;
     int minorVersion = versions.second;
-    if (majorVersion == MAJOR_VERSION && minorVersion == MINOR_VERSION)
+    if (majorVersion == MATERIALX_MAJOR_VERSION &&
+        minorVersion == MATERIALX_MINOR_VERSION)
+    {
         return;
+    }
 
     // Upgrade from v1.22 to v1.23
     if (majorVersion == 1 && minorVersion == 22)
@@ -531,7 +535,8 @@ void Document::upgradeVersion()
         minorVersion = 35;
     }
 
-    if (majorVersion == MAJOR_VERSION && minorVersion == MINOR_VERSION)
+    if (majorVersion == MATERIALX_MAJOR_VERSION &&
+        minorVersion == MATERIALX_MINOR_VERSION)
     {
         setVersionString(DOCUMENT_VERSION_STRING);
     }

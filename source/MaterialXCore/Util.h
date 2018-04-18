@@ -14,11 +14,6 @@
 namespace MaterialX
 {
 
-extern const int MAJOR_VERSION;
-extern const int MINOR_VERSION;
-extern const int BUILD_VERSION;
-
-extern const string LIBRARY_VERSION_STRING;
 extern const string EMPTY_STRING;
 
 using ElementPtr = shared_ptr<class Element>;
