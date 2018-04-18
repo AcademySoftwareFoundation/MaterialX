@@ -63,9 +63,8 @@ using IndexPair = std::pair<size_t, size_t>;
 .def("getDeterminant", &M::getDeterminant)              \
 .def("getAdjugate", &M::getAdjugate)                    \
 .def("getInverse", &M::getInverse)                      \
-.def("setIdentity", &M::setIdentity)                    \
-.def("setScale", &M::setScale)                          \
-.def("setTranslation", &M::setTranslation)              \
+.def_static("createScale", &M::createScale)             \
+.def_static("createTranslation", &M::createTranslation) \
 .def_static("numRows", &M::numRows)                     \
 .def_static("numColumns", &M::numColumns)               \
 .def_static("__len__", &M::numRows)
@@ -107,7 +106,7 @@ void bindPyTypes(py::module& mod)
         .def(py::init<float, float, float,
                       float, float, float,
                       float, float, float>())
-        .def("setRotation", &mx::Matrix33::setRotation)
+        .def_static("createRotation", &mx::Matrix33::createRotation)
         .def_readonly_static("IDENTITY", &mx::Matrix33::IDENTITY);
 
     py::class_<mx::Matrix44, mx::MatrixBase>(mod, "Matrix44")
@@ -116,8 +115,8 @@ void bindPyTypes(py::module& mod)
                       float, float, float, float,
                       float, float, float, float,
                       float, float, float, float>())
-        .def("setRotationX", &mx::Matrix44::setRotationX)
-        .def("setRotationY", &mx::Matrix44::setRotationY)
-        .def("setRotationZ", &mx::Matrix44::setRotationZ)
+        .def_static("createRotationX", &mx::Matrix44::createRotationX)
+        .def_static("createRotationY", &mx::Matrix44::createRotationY)
+        .def_static("createRotationZ", &mx::Matrix44::createRotationZ)
         .def_readonly_static("IDENTITY", &mx::Matrix44::IDENTITY);
 }

@@ -193,11 +193,7 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// Normalization
     void normalize()
     {
-        S mag1 = (S)1 / magnitude();
-        for (size_t i = 0; i < N; i++)
-        {
-            _arr[i] *= mag1;
-        }
+        *this = *this / magnitude();
     }
 
     /// @}
@@ -474,37 +470,11 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     /// @name 3D Transformations
     /// @{
 
-    /// Set matrix to identity
-    void setIdentity()
-    {
-        for (size_t i = 0; i < N; i++)
-        {
-            for (size_t j = 0; j < N; j++)
-            {
-                _arr[i][j] = (i == j) ? (S)1 : (S)0;
-            }
-        }
-    }
+    /// Create a translation matrix 
+    static M createTranslation(RowArray& v);
 
-    /// Set matrix to be a translation. 
-    void setTranslation(RowArray& v)
-    {
-        setIdentity();
-        for (size_t j = 0; j < N - 1; j++)
-        {
-            _arr[N-1][j] = v[j];
-        }
-    }
-
-    /// Set matrix to be a scale
-    void setScale(RowArray& v)
-    {
-        setIdentity();
-        for (size_t i = 0; i < N - 1; i++)
-        {
-            _arr[i][i] = v[i];
-        }
-    }
+    /// Create a scale matrix
+    static M createScale(RowArray& v);
 
     /// @}
     /// @name Iterators
@@ -550,7 +520,7 @@ class Matrix33 : public MatrixN<Matrix33, float, 3>
     }
 
     // Set matrix to a given rotation
-    void setRotation(float angle);
+    static Matrix33 createRotation(float angle);
 
   public:
     static const Matrix33 IDENTITY;
@@ -575,14 +545,14 @@ class Matrix44 : public MatrixN<Matrix44, float, 4>
                 m30, m31, m32, m33};
     }
 
-    /// Set matrix to be a given rotation in X
-    void setRotationX(float angle);
+    /// Create a rotation matrix about the X-axis
+    static Matrix44 createRotationX(float angle);
 
-    /// Set matrix to be a given rotation in Y
-    void setRotationY(float angle);
+    /// Create a rotation matrix about the Y-axis
+    static Matrix44 createRotationY(float angle);
 
-    /// Set matrix to be a given rotation in Z
-    void setRotationZ(float angle);
+    /// Create a rotation matrix about the Z-axis
+    static Matrix44 createRotationZ(float angle);
 
   public:
     static const Matrix44 IDENTITY;

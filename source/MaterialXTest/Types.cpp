@@ -39,6 +39,7 @@ TEST_CASE("Vectors", "[types]")
     v3.normalize();
     REQUIRE(v3.magnitude() == 1.0f);
 }
+#include <iostream>
 
 TEST_CASE("Matrices", "[types]")
 {
@@ -107,23 +108,19 @@ TEST_CASE("Matrices", "[types]")
     REQUIRE(quot4 == mx::Matrix44::IDENTITY);
 
     // Matrix translation
-    mx::Matrix44 trans44(mx::Matrix44::IDENTITY);
-    mx::Matrix44::RowArray amount44 { 1.0f, 2.0f, 3.0f, 1.0f };
-    trans44.setTranslation(amount44);
+    mx::Matrix44::RowArray amount44{ 1.0f, 2.0f, 3.0f, 1.0f };
+    mx::Matrix44 trans44 = mx::Matrix44::createTranslation(amount44);
     REQUIRE(amount44 == trans44[3]);
     amount44 = { -1.0f, -2.0f, -3.0f };
-    mx::Matrix44 translateBy;
-    translateBy.setTranslation(amount44);
+    mx::Matrix44 translateBy = mx::Matrix44::createTranslation(amount44);
     mx::Matrix44 translateResult = trans44 * translateBy;
     REQUIRE(translateResult == mx::Matrix44::IDENTITY);
 
-    mx::Matrix33 trans33(mx::Matrix33::IDENTITY);
     mx::Matrix33::RowArray amount33{ 5.0f, 10.0f, 1.0f };
-    trans33.setTranslation(amount33);
+    mx::Matrix33 trans33 = mx::Matrix33::createTranslation(amount33);
     REQUIRE(amount33 == trans33[2]);
     amount33 = { -5.0f, -10.0f, -1.0f };
-    mx::Matrix33 translateBy33;
-    translateBy33.setTranslation(amount33);
+    mx::Matrix33 translateBy33 = mx::Matrix33::createTranslation(amount33);
     mx::Matrix33 translateResult33 = trans33 * translateBy33;
     REQUIRE(translateResult33 == mx::Matrix33::IDENTITY);
 
@@ -133,24 +130,23 @@ TEST_CASE("Matrices", "[types]")
     const float angleY = 33.0f * DEG_TO_RADIANS;
     const float angleZ = 33.0f * DEG_TO_RADIANS;
     mx::Matrix44 rotate44(mx::Matrix44::IDENTITY);
-    mx::Matrix44 rotateBy;
-    rotateBy.setRotationX(angleX);
+    mx::Matrix44 rotateBy = mx::Matrix44::createRotationX(angleX);
     mx::Matrix44 rotateResult = rotate44 * rotateBy;
     mx::Matrix44 rotcheck1(1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 0.838671f, -0.544639f, 0.0f,
-        0.0f, 0.544639f, 0.838671f, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f);
+                           0.0f, 0.838671f, -0.544639f, 0.0f,
+                           0.0f, 0.544639f, 0.838671f, 0.0f,
+                           0.0f, 0.0f, 0.0f, 1.0f);
     REQUIRE(rotcheck1.equivalent(rotateResult, 0.000001f));
 
-    rotateBy.setRotationY(angleY);
+    rotateBy = mx::Matrix44::createRotationY(angleY);
     rotateResult = rotateResult * rotateBy;
     mx::Matrix44 rotcheck2(0.838671f, 0.0f, 0.544639f, 0.0f,
-                            0.296632f, 0.838671f, -0.456773f, 0.0f,
-                            -0.456773f, 0.544639f, 0.703368f, 0.0f,
-                            0.0f, 0.0f, 0.0f, 1.0f);
+                           0.296632f, 0.838671f, -0.456773f, 0.0f,
+                           -0.456773f, 0.544639f, 0.703368f, 0.0f,
+                           0.0f, 0.0f, 0.0f, 1.0f);
     REQUIRE(rotcheck2.equivalent(rotateResult, 0.000001f));
 
-    rotateBy.setRotationZ(angleZ);
+    rotateBy = mx::Matrix44::createRotationZ(angleZ);
     rotateResult = rotateResult * rotateBy;
     mx::Matrix44 rotcheck3(0.703368f, -0.456773f, 0.544639f, 0.0f,
                             0.705549f, 0.541811f, -0.456773f, 0.0f,
@@ -158,8 +154,7 @@ TEST_CASE("Matrices", "[types]")
                             0.0f, 0.0f, 0.0f, 1.0f);
     REQUIRE(rotcheck3.equivalent(rotateResult, 0.000001f));
 
-    mx::Matrix33 rotate33(mx::Matrix33::IDENTITY);
-    rotate33.setRotation(angleZ);
+    mx::Matrix33 rotate33 = mx::Matrix33::createRotation(angleZ);
     mx::Matrix33 rotcheck4(0.838671f, -0.544639f, 0.0f,
                             0.544639f, 0.838671f, 0.0f,
                             0.0f, 0.0f, 1.0f);
@@ -167,28 +162,26 @@ TEST_CASE("Matrices", "[types]")
 
     // Matrix scale
     mx::Matrix44 scale44(2, 0, 0, 0,
-        0, 4, 0, 0,
-        0, 0, 6, 0,
-        1, 3, 5, 1);
+                         0, 4, 0, 0,
+                         0, 0, 6, 0,
+                         1, 3, 5, 1);
     mx::Matrix44::RowArray scalar{ 8, 7, 6, 1 };
-    mx::Matrix44 scaleBy;
-    scaleBy.setScale(scalar);
+    mx::Matrix44 scaleBy = mx::Matrix44::createScale(scalar);
     mx::Matrix44 scaleResult = scale44 * scaleBy;
     mx::Matrix44 scaleCheck1(16.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 28.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 36.0f, 0.0f,
-        8.0f, 21.0f, 30.0f, 1.0f);
+                             0.0f, 28.0f, 0.0f, 0.0f,
+                             0.0f, 0.0f, 36.0f, 0.0f,
+                             8.0f, 21.0f, 30.0f, 1.0f);
     REQUIRE(scaleCheck1.equivalent(scaleResult, 0.000001f));
 
     mx::Matrix33 scale33(2, 0, 0,
         0, 4, 0,
         1, 3, 1);
     mx::Matrix33::RowArray scalar3{ 8, 7, 1 };
-    mx::Matrix33 scaleBy33;
-    scaleBy33.setScale(scalar3);
+    mx::Matrix33 scaleBy33 = mx::Matrix33::createScale(scalar3);
     mx::Matrix33 scaleResult33 = scale33 * scaleBy33;
-    mx::Matrix33 scaleCheck2(16.0, 0.0f, 0.0f,
-        0.0f, 28.0f, 0.0f,
-        8.0f, 21.0f, 1.0f);
+    mx::Matrix33 scaleCheck2(16.0f, 0.0f, 0.0f,
+                             0.0f, 28.0f, 0.0f,
+                             8.0f, 21.0f, 1.0f);
     REQUIRE(scaleCheck2.equivalent(scaleResult33, 0.000001f));    
 }
