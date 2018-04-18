@@ -58,6 +58,8 @@ public:
         {}
     };
 
+    using UniqueNameMap = std::unordered_map<string, size_t>;
+
 public:
     virtual ~Syntax() {}
 
@@ -98,6 +100,13 @@ public:
 
     /// Returns a set of names that are restricted to use by a code generator
     const StringSet& getRestrictedNames() const { return _restrictedNames; }
+
+    /// Modify the given name string to make it unique according
+    /// to the given uniqueName record and according to restricted
+    /// names registered for this syntax class.
+    /// A number suffix is added to or increased on the name string 
+    /// if there is a name collision.
+    void makeUnique(string& name, UniqueNameMap& uniqueNames) const;
 
 protected:
     /// Protected constructor

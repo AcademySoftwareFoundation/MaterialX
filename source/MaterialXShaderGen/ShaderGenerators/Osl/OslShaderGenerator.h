@@ -10,6 +10,8 @@ namespace MaterialX
 /// A generator for a specific OSL target should be derived from this class.
 class OslShaderGenerator : public ShaderGenerator
 {
+    using ParentClass = ShaderGenerator;
+
 public:
     /// Return a unique identifyer for the language used by this generator
     const string& getLanguage() const override { return LANGUAGE; }

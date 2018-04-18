@@ -284,6 +284,35 @@ SgOutput* SgNode::addOutput(const string& name, const string& type)
     return output.get();
 }
 
+void SgNode::renameInput(const string& name, const string& newName)
+{
+    if (name != newName)
+    {
+        auto it = _inputMap.find(name);
+        if (it != _inputMap.end())
+        {
+            it->second->name = newName;
+            _inputMap[newName] = it->second;
+            _inputMap.erase(it);
+        }
+    }
+}
+
+void SgNode::renameOutput(const string& name, const string& newName)
+{
+    if (name != newName)
+    {
+        auto it = _outputMap.find(name);
+        if (it != _outputMap.end())
+        {
+            it->second->name = newName;
+            _outputMap[newName] = it->second;
+            _outputMap.erase(it);
+        }
+    }
+}
+
+
 SgNodeGraph::SgNodeGraph(const string& name)
     : SgNode(name)
 {
@@ -625,6 +654,17 @@ SgOutputSocket* SgNodeGraph::addOutputSocket(const string& name, const string& t
 {
     return SgNode::addInput(name, type);
 }
+
+void SgNodeGraph::renameInputSocket(const string& name, const string& newName)
+{
+    return SgNode::renameOutput(name, newName);
+}
+
+void SgNodeGraph::renameOutputSocket(const string& name, const string& newName)
+{
+    return SgNode::renameInput(name, newName);
+}
+
 
 SgNode* SgNodeGraph::getNode(const string& name)
 {

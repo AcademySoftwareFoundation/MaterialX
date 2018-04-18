@@ -250,6 +250,9 @@ protected:
     /// Add indentation on current line
     virtual void indent();
 
+    /// Return a container with all top level graphs use by this shader.
+    virtual void getTopLevelShaderGraphs(ShaderGenerator& shadergen, std::deque<SgNodeGraph*>& graphs) const;
+
     string _name;
     SgNodeGraphPtr _rootGraph;
     vector<SgNodeGraph*> _graphStack;

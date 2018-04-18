@@ -49,7 +49,7 @@ const string GlslShaderGenerator::NORMAL = "normal";
 const string GlslShaderGenerator::EVAL = "eval";
 
 GlslShaderGenerator::GlslShaderGenerator()
-    : HwShaderGenerator(GlslSyntax::creator())
+    : ParentClass(GlslSyntax::creator())
 {
     // Direction vector argument for bsdf nodes
     _bsdfNodeArguments = 
@@ -350,8 +350,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     // and upstream connection will be converted to vec4 if needed in emitFinalOutput()
     shader.addComment("Data output by the pixel shader");
     const SgOutputSocket* outputSocket = shader.getNodeGraph()->getOutputSocket();
-    const string variable = getVariableName(outputSocket);
-    shader.addLine("out vec4 " + variable);
+    shader.addLine("out vec4 " + outputSocket->name);
     shader.newLine();
 
     // Emit common math functions
@@ -424,7 +423,7 @@ void GlslShaderGenerator::emitFunctionDefinitions(Shader& shader)
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
     // Call parent to emit all other functions
-    ShaderGenerator::emitFunctionDefinitions(shader);
+    ParentClass::emitFunctionDefinitions(shader);
 }
 
 void GlslShaderGenerator::emitFunctionCalls(Shader &shader)
@@ -458,7 +457,7 @@ void GlslShaderGenerator::emitFunctionCalls(Shader &shader)
         else
         {
             // No surface shader, fallback to base class
-            ShaderGenerator::emitFunctionCalls(shader);
+            ParentClass::emitFunctionCalls(shader);
         }
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
@@ -466,7 +465,6 @@ void GlslShaderGenerator::emitFunctionCalls(Shader &shader)
 void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
 {
     const SgOutputSocket* outputSocket = shader.getNodeGraph()->getOutputSocket();
-    const string& outputVariable = getVariableName(outputSocket);
 
     // Early out for the rare case where the whole graph is just a single value
     if (!outputSocket->connection)
@@ -476,25 +474,25 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
             _syntax->getTypeDefault(outputSocket->type);
         if (!DataType::isQuadruple(outputSocket->type))
         {
-            string finalOutput = outputVariable + "_tmp";
+            string finalOutput = outputSocket->name + "_tmp";
             shader.addLine(_syntax->getTypeName(outputSocket->type) + " " + finalOutput + " = " + outputValue);
             toVec4(outputSocket->type, finalOutput);
-            shader.addLine(outputVariable + " = " + finalOutput);
+            shader.addLine(outputSocket->name + " = " + finalOutput);
         }
         else
         {
-            shader.addLine(outputVariable + " = " + outputValue);
+            shader.addLine(outputSocket->name + " = " + outputValue);
         }
         return;
     }
 
-    string finalOutput = getVariableName(outputSocket->connection);
+    string finalOutput = outputSocket->connection->name;
 
     if (shader.hasClassification(SgNode::Classification::SURFACE))
     {
         shader.addComment("TODO: How should we output transparency?");
         shader.addLine("float outAlpha = 1.0 - maxv(" + finalOutput + ".transparency)");
-        shader.addLine(outputVariable + " = vec4(" + finalOutput + ".color, outAlpha)");
+        shader.addLine(outputSocket->name + " = vec4(" + finalOutput + ".color, outAlpha)");
     }
     else
     {
@@ -506,25 +504,8 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
         {
             toVec4(outputSocket->type, finalOutput);
         }
-        shader.addLine(outputVariable + " = " + finalOutput);
+        shader.addLine(outputSocket->name + " = " + finalOutput);
     }
-}
-
-string GlslShaderGenerator::getVariableName(const SgInput* input) const
-{
-    return ShaderGenerator::getVariableName(input);
-}
-
-string GlslShaderGenerator::getVariableName(const SgOutput* output) const
-{
-    // If this is an interface socket on a light compound we must 
-    // override the name and prepend the light struct instance name
-    // since all light inputs are members of a struct  
-    if (output->node->isNodeGraph() && output->node->hasClassification(SgNode::Classification::LIGHT))
-    {
-        return "light." + output->name;
-    }
-    return ShaderGenerator::getVariableName(output);
 }
 
 void GlslShaderGenerator::emitTextureNodes(Shader& shader)
@@ -567,7 +548,7 @@ void GlslShaderGenerator::emitBsdfNodes(const SgNode& shaderNode, const string& 
 
     if (last)
     {
-        bsdf = getVariableName(last->getOutput());
+        bsdf = last->getOutput()->name;
     }
 }
 
@@ -594,7 +575,7 @@ void GlslShaderGenerator::emitEdfNodes(const SgNode& shaderNode, const string& o
 
     if (last)
     {
-        edf = getVariableName(last->getOutput());
+        edf = last->getOutput()->name;
     }
 }
 
@@ -664,7 +645,7 @@ SgImplementationPtr GlslShaderGenerator::createCompoundImplementation(NodeGraphP
     {
         return LightCompoundGlsl::creator();
     }
-    return ShaderGenerator::createCompoundImplementation(impl);
+    return ParentClass::createCompoundImplementation(impl);
 }
 
 

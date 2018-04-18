@@ -11,6 +11,8 @@ using HwShaderPtr = shared_ptr<class HwShader>;
 /// HwShader class extending the base Shader with a vertex shader stage.
 class HwShader : public Shader
 {
+    using ParentClass = Shader;
+
 public:
     /// Identifier for additional vertex shader stage
     static const size_t VERTEX_STAGE = Shader::NUM_STAGES;
@@ -48,6 +50,10 @@ public:
     {
         _calculatedVertexData.insert(outputName);
     }
+
+protected:
+    /// Return a container with all top level graphs use by this shader.
+    void getTopLevelShaderGraphs(ShaderGenerator& shadergen, std::deque<SgNodeGraph*>& graphs) const override;
 
 private:
     VariableBlock _vertexData;

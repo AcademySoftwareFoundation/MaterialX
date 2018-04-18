@@ -12,24 +12,6 @@
 namespace MaterialX
 {
 
-namespace
-{
-    using UniqueNameMap = std::unordered_map<string, size_t>;
-
-    void makeUnique(string& name, UniqueNameMap& uniqueNames)
-    {
-        UniqueNameMap::iterator it = uniqueNames.find(name);
-        if (it != uniqueNames.end())
-        {
-            name += std::to_string(++(it->second));
-        }
-        else
-        {
-            uniqueNames[name] = 0;
-        }
-    }
-}
-
 const string Shader::PRIVATE_UNIFORMS = "PrivateUniforms";
 const string Shader::PUBLIC_UNIFORMS = "PublicUniforms";
 
@@ -65,41 +47,44 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
         impl->createVariables(*node, shadergen, *this);
     }
 
-    // Set unique names on inputs and outputs that require this,
-    // to handle name conflicts when emitting variable names
+    //
+    // Make sure inputs and outputs have acceptable names, to avoid name conflicts 
+    // when emitting variable names for them.
+    //
 
-    const StringSet& restrictedNames = shadergen.getSyntax()->getRestrictedNames();
-    UniqueNameMap globalUniqueNames;
-    for (const string& rname : restrictedNames)
-    {
-        globalUniqueNames[rname] = 0;
-    }
-
+    // Start with top level graphs.
     std::deque<SgNodeGraph*> graphQueue;
-    graphQueue.push_back(_rootGraph.get());
+    getTopLevelShaderGraphs(shadergen, graphQueue);
 
     while (!graphQueue.empty())
     {
         SgNodeGraph* graph = graphQueue.front();
         graphQueue.pop_front();
 
-        UniqueNameMap uniqueNames = globalUniqueNames;
+        // Names in use for the current graph is recorded in 'uniqueNames'.
+        Syntax::UniqueNameMap uniqueNames;
         for (SgInputSocket* inputSocket : graph->getInputSockets())
         {
-            makeUnique(inputSocket->name, uniqueNames);
+            string name = inputSocket->name;
+            shadergen.getSyntax()->makeUnique(name, uniqueNames);
+            graph->renameInputSocket(inputSocket->name, name);
         }
         for (SgOutputSocket* outputSocket : graph->getOutputSockets())
         {
-            makeUnique(outputSocket->name, uniqueNames);
+            string name = outputSocket->name;
+            shadergen.getSyntax()->makeUnique(outputSocket->name, uniqueNames);
+            graph->renameInputSocket(outputSocket->name, name);
         }
         for (SgNode* node : graph->getNodes())
         {
             for (SgOutput* output : node->getOutputs())
             {
                 // Node outputs use long names for better code readability
-                output->name = output->node->getName() + "_" + output->name;
-                makeUnique(output->name, uniqueNames);
+                string name = output->node->getName() + "_" + output->name;
+                shadergen.getSyntax()->makeUnique(name, uniqueNames);
+                node->renameOutput(output->name, name);
             }
+            // Push subgraphs on the queue to process these as well.
             SgNodeGraph* subgraph = node->getImplementation()->getNodeGraph();
             if (subgraph)
             {
@@ -111,8 +96,7 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
     // Create uniforms for the public graph interface
     for (SgInputSocket* inputSocket : _rootGraph->getInputSockets())
     {
-        const string name = shadergen.getVariableName(inputSocket);
-        createUniform(PIXEL_STAGE, PUBLIC_UNIFORMS, inputSocket->type, name, EMPTY_STRING, inputSocket->value);
+        createUniform(PIXEL_STAGE, PUBLIC_UNIFORMS, inputSocket->type, inputSocket->name, EMPTY_STRING, inputSocket->value);
     }
 }
 
@@ -312,6 +296,11 @@ void Shader::createAppData(const string& type, const string& name, const string&
         _appData.variableMap[name] = variable;
         _appData.variableOrder.push_back(variable.get());
     }
+}
+
+void Shader::getTopLevelShaderGraphs(ShaderGenerator& /*shadergen*/, std::deque<SgNodeGraph*>& graphs) const
+{
+    graphs.push_back(_rootGraph.get());
 }
 
 }

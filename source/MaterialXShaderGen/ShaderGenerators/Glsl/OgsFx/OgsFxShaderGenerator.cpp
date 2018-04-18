@@ -52,7 +52,7 @@ namespace
 }
 
 OgsFxShader::OgsFxShader(const string& name) 
-    : HwShader(name) 
+    : ParentClass(name)
 {
     _stages.push_back(Stage("FinalFx"));
 
@@ -74,7 +74,7 @@ void OgsFxShader::createUniform(size_t stage, const string& block, const string&
             return;
         }
     }
-    HwShader::createUniform(stage, block, type, name, semantic, value);
+    ParentClass::createUniform(stage, block, type, name, semantic, value);
 }
 
 void OgsFxShader::createAppData(const string& type, const string& name, const string& semantic)
@@ -90,7 +90,7 @@ void OgsFxShader::createAppData(const string& type, const string& name, const st
             return;
         }
     }
-    HwShader::createAppData(type, name, semantic);
+    ParentClass::createAppData(type, name, semantic);
 }
 
 void OgsFxShader::createVertexData(const string& type, const string& name, const string& semantic)
@@ -106,14 +106,14 @@ void OgsFxShader::createVertexData(const string& type, const string& name, const
             return;
         }
     }
-    HwShader::createVertexData(type, name, semantic);
+    ParentClass::createVertexData(type, name, semantic);
 }
 
 
 const string OgsFxShaderGenerator::TARGET = "ogsfx";
 
 OgsFxShaderGenerator::OgsFxShaderGenerator()
-    : GlslShaderGenerator()
+    : ParentClass()
 {
     _syntax = OgsFxSyntax::creator();
 }
@@ -217,10 +217,9 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     // and upstream connection will be converted to vec4 if needed in emitFinalOutput()
     shader.addComment("Data output by the pixel shader");
     const SgOutputSocket* outputSocket = shader.getNodeGraph()->getOutputSocket();
-    const string variable = getVariableName(outputSocket);
     shader.addLine("attribute PixelOutput", false);
     shader.beginScope(Shader::Brackets::BRACES);
-    shader.addLine("vec4 " + variable);
+    shader.addLine("vec4 " + outputSocket->name);
     shader.endScope(true);
     shader.newLine();
 

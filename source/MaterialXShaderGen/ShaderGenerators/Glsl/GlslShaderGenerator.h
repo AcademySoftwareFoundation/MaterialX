@@ -60,6 +60,8 @@ namespace MaterialX
 /// A generator for a specific GLSL target should be derived from this class.
 class GlslShaderGenerator : public HwShaderGenerator
 {
+    using ParentClass = HwShaderGenerator;
+
 public:
     enum class BsdfDir
     {
@@ -98,12 +100,6 @@ public:
 
     /// Emit the final output expression
     void emitFinalOutput(Shader& shader) const override;
-
-    /// Get the variable name to use for an input
-    string getVariableName(const SgInput* input) const override;
-
-    /// Get the variable name to use for an output
-    string getVariableName(const SgOutput* output) const override;
 
     /// Return any extra arguments if needed for the given node
     const Arguments* getExtraArguments(const SgNode& node) const override;

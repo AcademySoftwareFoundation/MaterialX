@@ -75,24 +75,23 @@ void ShaderGenerator::emitFinalOutput(Shader& shader) const
 {
     SgNodeGraph* graph = shader.getNodeGraph();
     const SgOutputSocket* outputSocket = graph->getOutputSocket();
-    const string outputVariable = getVariableName(outputSocket);
 
     if (!outputSocket->connection)
     {
         // Early out for the rare case where the whole graph is just a single value
-        shader.addLine(outputVariable + " = " + (outputSocket->value ? 
+        shader.addLine(outputSocket->name + " = " + (outputSocket->value ?
             _syntax->getValue(*outputSocket->value, outputSocket->type) : 
             _syntax->getTypeDefault(outputSocket->type)));
         return;
     }
 
-    string finalResult = getVariableName(outputSocket->connection);
+    string finalResult = outputSocket->connection->name;
     if (outputSocket->channels != EMPTY_STRING)
     {
         finalResult = _syntax->getSwizzledVariable(finalResult, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
     }
 
-    shader.addLine(outputVariable + " = " + finalResult);
+    shader.addLine(outputSocket->name + " = " + finalResult);
 }
 
 void ShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& shader)
@@ -107,14 +106,15 @@ void ShaderGenerator::emitInput(const SgInput* input, Shader &shader) const
 {
     if (input->connection)
     {
-        string name = getVariableName(input->connection);
-
         if (input->channels != EMPTY_STRING)
         {
-            name = _syntax->getSwizzledVariable(name, input->type, input->connection->type, input->channels);
+            const string name = _syntax->getSwizzledVariable(input->connection->name, input->type, input->connection->type, input->channels);
+            shader.addStr(name);
         }
-
-        shader.addStr(name);
+        else
+        {
+            shader.addStr(input->connection->name);
+        }
     }
     else if (input->value)
     {
@@ -133,21 +133,7 @@ void ShaderGenerator::emitOutput(const SgOutput* output, bool includeType, Shade
     {
         typeStr = _syntax->getTypeName(output->type) + " ";
     }
-    shader.addStr(typeStr + getVariableName(output));
-}
-
-string ShaderGenerator::getVariableName(const SgInput* input) const
-{
-    // TODO: Improve this to make sure we never get name collisions
-//    return input->node->getName() + "_" + input->name;
-    return input->name;
-}
-
-string ShaderGenerator::getVariableName(const SgOutput* output) const
-{
-    // TODO: Improve this to make sure we never get name collisions
-//    return output->node->getName() + "_" + output->name;
-    return output->name;
+    shader.addStr(typeStr + output->name);
 }
 
 const Arguments* ShaderGenerator::getExtraArguments(const SgNode&) const
