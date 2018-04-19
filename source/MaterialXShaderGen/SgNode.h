@@ -113,10 +113,13 @@ public:
     static const SgNode NONE;
 
 public:
+    /// Constructor.
     SgNode(const string& name);
 
+    /// Create a new node from a nodedef and an option node instance.
     static SgNodePtr creator(const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, const Node* nodeInstance = nullptr);
 
+    /// Return true if this node is a nodegraph.
     virtual bool isNodeGraph() const { return false; }
 
     /// Return true if this node matches the given classification.
@@ -217,10 +220,15 @@ class SgNodeGraph : public SgNode
 public:
     SgNodeGraph(const string& name);
 
-    static SgNodeGraphPtr creator(const string& name, ElementPtr element, ShaderGenerator& shadergen);
-    static SgNodeGraphPtr creator(NodeGraphPtr nodeGraph, ShaderGenerator& shadergen);
+    /// Create a new shadergen graph from an element.
+    /// Supported elements are outputs and shaderrefs.
+    static SgNodeGraphPtr create(const string& name, ElementPtr element, ShaderGenerator& shadergen);
 
-    virtual bool isNodeGraph() const { return true; }
+    /// Create a new shadergen graph from a nodegraph.
+    static SgNodeGraphPtr create(NodeGraphPtr nodeGraph, ShaderGenerator& shadergen);
+
+    /// Return true if this node is a nodegraph.
+    bool isNodeGraph() const override { return true; }
 
     /// Get an internal node by name
     SgNode* getNode(const string& name);
@@ -251,9 +259,6 @@ public:
     /// Add new node
     SgNode* addNode(const Node& node, ShaderGenerator& shadergen);
 
-    /// Add new node from shaderref
-    SgNode* addNode(const ShaderRef& shaderRef, ShaderGenerator& shadergen);
-
     /// Add input/output sockets
     SgInputSocket* addInputSocket(const string& name, const string& type);
     SgOutputSocket* addOutputSocket(const string& name, const string& type);
@@ -263,6 +268,18 @@ public:
     void renameOutputSocket(const string& name, const string& newName);
 
 protected:
+    /// Add input sockets from an interface element (nodedef, nodegraph or node)
+    void addInputSockets(const InterfaceElement& interface);
+
+    /// Add output sockets from an interface element (nodedef, nodegraph or node)
+    void addOutputSockets(const InterfaceElement& interface);
+
+    /// Traverse from the given root element and add all dependencies upstream.
+    void addUpstreamDependencies(const Element& root, ShaderGenerator& shadergen);
+
+    /// Add a default geometric node and connect to the given input.
+    void addDefaultGeomNode(SgInput* input, const string& geomNode, const Document& doc, ShaderGenerator& shadergen);
+
     /// Perform all post-build operations on the graph.
     void finalize();
 

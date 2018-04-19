@@ -31,7 +31,7 @@ Shader::Shader(const string& name)
 void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
 {
     // Create our shader generation root graph
-    _rootGraph = SgNodeGraph::creator(_name, element, shadergen);
+    _rootGraph = SgNodeGraph::create(_name, element, shadergen);
 
     pushActiveGraph(_rootGraph.get());
 

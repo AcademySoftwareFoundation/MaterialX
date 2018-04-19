@@ -25,7 +25,7 @@ void Compound::initialize(ElementPtr implementation, ShaderGenerator& shadergen)
         throw ExceptionShaderGenError("Element '" + implementation->getName() + "' is not a node graph implementation");
     }
 
-    _rootGraph = SgNodeGraph::creator(graph, shadergen);
+    _rootGraph = SgNodeGraph::create(graph, shadergen);
     _functionName = graph->getName();
 }
 

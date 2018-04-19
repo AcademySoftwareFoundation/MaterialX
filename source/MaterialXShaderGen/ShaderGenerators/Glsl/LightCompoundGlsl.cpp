@@ -30,7 +30,7 @@ void LightCompoundGlsl::initialize(ElementPtr implementation, ShaderGenerator& s
         throw ExceptionShaderGenError("Element '" + implementation->getName() + "' is not a node graph implementation");
     }
 
-    _rootGraph = SgNodeGraph::creator(graph, shadergen);
+    _rootGraph = SgNodeGraph::create(graph, shadergen);
     _functionName = graph->getName();
 
     // Store light uniforms for all inputs and parameters on the interface
