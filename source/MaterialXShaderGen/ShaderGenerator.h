@@ -71,10 +71,10 @@ public:
     const Syntax* getSyntax() const { return _syntax.get(); }
 
     template<class T>
-    using CreatorFunc = shared_ptr<T>(*)();
+    using CreatorFunction = shared_ptr<T>(*)();
 
     /// Register a shader gen implementation for a given implementation element name
-    void registerImplementation(const string& name, CreatorFunc<SgImplementation> creator);
+    void registerImplementation(const string& name, CreatorFunction<SgImplementation> creator);
 
     /// Determine if an implementation has been registered for a given implementation element name
     bool implementationRegistered(const string& name) const;

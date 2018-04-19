@@ -17,8 +17,8 @@ using ViewHandlerPtr = std::shared_ptr<class ViewHandler>;
 class ViewHandler
 {
   public:
-    /// Static instance creator
-    static ViewHandlerPtr creator() { return std::make_shared<ViewHandler>(); }
+    /// Static instance create function
+    static ViewHandlerPtr create() { return std::make_shared<ViewHandler>(); }
 
     /// Default constructor
     ViewHandler() {};

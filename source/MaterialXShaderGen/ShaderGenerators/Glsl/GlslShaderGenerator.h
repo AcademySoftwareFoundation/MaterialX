@@ -74,7 +74,7 @@ public:
 public:
     GlslShaderGenerator();
 
-    static ShaderGeneratorPtr creator() { return std::make_shared<GlslShaderGenerator>(); }
+    static ShaderGeneratorPtr create() { return std::make_shared<GlslShaderGenerator>(); }
 
     /// Generate a shader starting from the given element, translating 
     /// the element and all dependencies upstream into shader code.

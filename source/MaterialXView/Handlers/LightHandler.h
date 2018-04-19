@@ -81,8 +81,8 @@ public:
     using LightShaderMap = std::unordered_map<ConstNodeDefPtr, LightSource::Type>;
 
 public:
-    /// Static instance creator
-    static LightHandlerPtr creator() { return std::make_shared<LightHandler>(); }
+    /// Static instance create function
+    static LightHandlerPtr create() { return std::make_shared<LightHandler>(); }
 
     /// Default constructor
     LightHandler();

@@ -3,7 +3,7 @@
 namespace MaterialX
 {
 
-SgImplementationPtr GeomAttrValueGlsl::creator()
+SgImplementationPtr GeomAttrValueGlsl::create()
 {
     return std::make_shared<GeomAttrValueGlsl>();
 }

@@ -11,7 +11,7 @@ namespace MaterialX
 class LightCompoundGlsl : public Compound
 {
 public:
-    static SgImplementationPtr creator();
+    static SgImplementationPtr create();
 
     const string& getLanguage() const override;
     const string& getTarget() const override;

@@ -322,7 +322,7 @@ int GLUtilityContext::makeCurrent()
 //
 // Creator
 //
-GLUtilityContextPtr GLUtilityContext::creator(const WindowWrapper& windowWrapper, HardwareContextHandle context)
+GLUtilityContextPtr GLUtilityContext::create(const WindowWrapper& windowWrapper, HardwareContextHandle context)
 {
     return std::shared_ptr<GLUtilityContext>(new GLUtilityContext(windowWrapper, context));
 }

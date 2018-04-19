@@ -141,7 +141,7 @@ const Arguments* ShaderGenerator::getExtraArguments(const SgNode&) const
     return nullptr;
 }
 
-void ShaderGenerator::registerImplementation(const string& name, CreatorFunc<SgImplementation> creator)
+void ShaderGenerator::registerImplementation(const string& name, CreatorFunction<SgImplementation> creator)
 {
     _implFactory.registerClass(name, creator);
 }
@@ -204,14 +204,14 @@ SgImplementationPtr ShaderGenerator::createDefaultImplementation(ImplementationP
 {
     // The data driven source code implementation
     // is the implementation to use by default
-    return SourceCode::creator();
+    return SourceCode::create();
 }
 
 SgImplementationPtr ShaderGenerator::createCompoundImplementation(NodeGraphPtr impl)
 {
     // The standard compound implementation
     // is the compound implementation to us by default
-    return Compound::creator();
+    return Compound::create();
 }
 
 }

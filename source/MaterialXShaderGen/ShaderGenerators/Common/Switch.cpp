@@ -7,7 +7,7 @@ namespace MaterialX
 
 const vector<string> Switch::INPUT_NAMES = { "in1", "in2", "in3", "in4", "in5", "which" };
 
-SgImplementationPtr Switch::creator()
+SgImplementationPtr Switch::create()
 {
     return std::make_shared<Switch>();
 }

@@ -30,7 +30,7 @@ class GlslProgram
 {
   public:
     /// Create a GLSL program instance
-    static GlslProgramPtr creator();
+    static GlslProgramPtr create();
 
     /// Destructor
     virtual ~GlslProgram();

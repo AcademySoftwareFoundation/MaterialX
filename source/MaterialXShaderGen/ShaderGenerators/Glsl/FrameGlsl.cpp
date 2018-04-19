@@ -3,7 +3,7 @@
 namespace MaterialX
 {
 
-SgImplementationPtr FrameGlsl::creator()
+SgImplementationPtr FrameGlsl::create()
 {
     return std::make_shared<FrameGlsl>();
 }

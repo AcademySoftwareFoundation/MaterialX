@@ -35,7 +35,7 @@ class GlslValidator : public ShaderValidator
 {
   public:
     /// Create a GLSL validator instance
-    static GlslValidatorPtr creator();
+    static GlslValidatorPtr create();
 
     /// Destructor
     virtual ~GlslValidator();

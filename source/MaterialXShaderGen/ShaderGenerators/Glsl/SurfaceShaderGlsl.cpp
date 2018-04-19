@@ -4,7 +4,7 @@
 namespace MaterialX
 {
 
-SgImplementationPtr SurfaceShaderGlsl::creator()
+SgImplementationPtr SurfaceShaderGlsl::create()
 {
     return std::make_shared<SurfaceShaderGlsl>();
 }

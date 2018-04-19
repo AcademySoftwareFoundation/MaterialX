@@ -12,7 +12,7 @@ namespace MaterialX
 class SourceCode : public SgImplementation
 {
 public:
-    static SgImplementationPtr creator();
+    static SgImplementationPtr create();
 
     void initialize(ElementPtr implementation, ShaderGenerator& shadergen) override;
 

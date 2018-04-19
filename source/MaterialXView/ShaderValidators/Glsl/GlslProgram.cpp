@@ -16,7 +16,7 @@ int GlslProgram::Input::INVALID_OPENGL_TYPE = -1;
 //
 // Creator
 //
-GlslProgramPtr GlslProgram::creator()
+GlslProgramPtr GlslProgram::create()
 {
     return std::shared_ptr<GlslProgram>(new GlslProgram());
 }

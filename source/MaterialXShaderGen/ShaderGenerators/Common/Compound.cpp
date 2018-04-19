@@ -10,7 +10,7 @@
 namespace MaterialX
 {
 
-SgImplementationPtr Compound::creator()
+SgImplementationPtr Compound::create()
 {
     return std::make_shared<Compound>();
 }

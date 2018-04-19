@@ -5,7 +5,7 @@
 namespace MaterialX
 {
 
-SgImplementationPtr LightCompoundGlsl::creator()
+SgImplementationPtr LightCompoundGlsl::create()
 {
     return std::make_shared<LightCompoundGlsl>();
 }

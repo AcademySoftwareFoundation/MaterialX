@@ -3,7 +3,7 @@
 namespace MaterialX
 {
 
-SgImplementationPtr NormalGlsl::creator()
+SgImplementationPtr NormalGlsl::create()
 {
     return std::make_shared<NormalGlsl>();
 }

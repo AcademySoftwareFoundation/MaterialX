@@ -10,7 +10,7 @@ namespace MaterialX
 class Switch : public SgImplementation
 {
 public:
-    static SgImplementationPtr creator();
+    static SgImplementationPtr create();
 
     void emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 

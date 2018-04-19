@@ -117,7 +117,7 @@ public:
     SgNode(const string& name);
 
     /// Create a new node from a nodedef and an option node instance.
-    static SgNodePtr creator(const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, const Node* nodeInstance = nullptr);
+    static SgNodePtr create(const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, const Node* nodeInstance = nullptr);
 
     /// Return true if this node is a nodegraph.
     virtual bool isNodeGraph() const { return false; }

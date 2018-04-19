@@ -20,9 +20,8 @@ using SimpleWindowPtr = std::shared_ptr<class SimpleWindow>;
 class SimpleWindow
 {
   public:
-
-    /// Static instance creator
-    static SimpleWindowPtr creator() { return std::make_shared<SimpleWindow>(); }
+    /// Static instance create function
+    static SimpleWindowPtr create() { return std::make_shared<SimpleWindow>(); }
 
     /// Default constructor
     SimpleWindow();

@@ -3,7 +3,7 @@
 namespace MaterialX
 {
 
-SgImplementationPtr GeomColorGlsl::creator()
+SgImplementationPtr GeomColorGlsl::create()
 {
     return std::make_shared<GeomColorGlsl>();
 }

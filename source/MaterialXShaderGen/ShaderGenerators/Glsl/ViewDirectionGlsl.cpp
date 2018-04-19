@@ -3,7 +3,7 @@
 namespace MaterialX
 {
 
-SgImplementationPtr ViewDirectionGlsl::creator()
+SgImplementationPtr ViewDirectionGlsl::create()
 {
     return std::make_shared<ViewDirectionGlsl>();
 }

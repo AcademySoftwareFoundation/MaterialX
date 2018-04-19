@@ -43,17 +43,17 @@ TEST_CASE("GLSL Source", "[shadervalid]")
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
     loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
 
-    mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
+    mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
     shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-    mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
+    mx::LightHandlerPtr lightHandler = mx::LightHandler::create();
     createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
     // Initialize a GLSL validator and set image handler.
     // Validator initiazation will create a offscreen
     // window and offscreen OpenGL context for usage.
-    mx::GlslValidatorPtr validator = mx::GlslValidator::creator();
-    mx::TinyEXRImageHandlerPtr handler = mx::TinyEXRImageHandler::creator();
+    mx::GlslValidatorPtr validator = mx::GlslValidator::create();
+    mx::TinyEXRImageHandlerPtr handler = mx::TinyEXRImageHandler::create();
     bool initialized = false;
     bool orthographicsView = true;
     try
@@ -248,7 +248,7 @@ TEST_CASE("GLSL Shader", "[shadervalid]")
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
     loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
 
-    mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
+    mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
     shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
     // Create a nonsensical graph testing some geometric nodes
@@ -320,7 +320,7 @@ TEST_CASE("GLSL Shader", "[shadervalid]")
     mx::OutputPtr output1 = nodeGraph->addOutput(mx::EMPTY_STRING, "vector3");
 
     // Setup lighting
-    mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
+    mx::LightHandlerPtr lightHandler = mx::LightHandler::create();
     mx::HwShaderGenerator& hwGenerator = static_cast<mx::HwShaderGenerator&>(*shaderGenerator);
     createLightRig(doc, *lightHandler, hwGenerator);
     // Pre-clamp the number of light sources to the number bound
@@ -329,8 +329,8 @@ TEST_CASE("GLSL Shader", "[shadervalid]")
 
     bool initialized = false;
     bool orthographicsView = true;
-    mx::GlslValidatorPtr validator = mx::GlslValidator::creator();
-    mx::TinyEXRImageHandlerPtr imageHandler = mx::TinyEXRImageHandler::creator();
+    mx::GlslValidatorPtr validator = mx::GlslValidator::create();
+    mx::TinyEXRImageHandlerPtr imageHandler = mx::TinyEXRImageHandler::create();
     try
     {
         validator->initialize();

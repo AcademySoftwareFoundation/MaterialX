@@ -12,7 +12,7 @@ namespace MaterialX
 class LightShaderGlsl : public SourceCode
 {
 public:
-    static SgImplementationPtr creator();
+    static SgImplementationPtr create();
 
     const string& getLanguage() const override;
     const string& getTarget() const override;

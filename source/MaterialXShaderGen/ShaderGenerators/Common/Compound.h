@@ -11,7 +11,7 @@ namespace MaterialX
 class Compound : public SgImplementation
 {
 public:
-    static SgImplementationPtr creator();
+    static SgImplementationPtr create();
 
     void initialize(ElementPtr implementation, ShaderGenerator& shadergen) override;
 

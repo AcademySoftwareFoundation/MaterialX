@@ -3,7 +3,7 @@
 namespace MaterialX
 {
 
-SgImplementationPtr TexCoordGlsl::creator()
+SgImplementationPtr TexCoordGlsl::create()
 {
     return std::make_shared<TexCoordGlsl>();
 }

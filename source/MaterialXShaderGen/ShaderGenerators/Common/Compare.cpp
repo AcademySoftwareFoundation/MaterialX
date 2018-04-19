@@ -8,7 +8,7 @@ namespace MaterialX
 
 const vector<string> Compare::INPUT_NAMES = { "intest", "cutoff", "in1", "in2" };
 
-SgImplementationPtr Compare::creator()
+SgImplementationPtr Compare::create()
 {
     return std::make_shared<Compare>();
 }

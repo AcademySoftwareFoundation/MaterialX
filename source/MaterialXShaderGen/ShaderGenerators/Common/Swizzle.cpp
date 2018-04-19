@@ -5,7 +5,7 @@
 namespace MaterialX
 {
 
-SgImplementationPtr Swizzle::creator()
+SgImplementationPtr Swizzle::create()
 {
     return std::make_shared<Swizzle>();
 }
