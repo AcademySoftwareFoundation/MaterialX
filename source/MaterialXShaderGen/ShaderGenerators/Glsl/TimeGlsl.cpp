@@ -3,7 +3,7 @@
 namespace MaterialX
 {
 
-SgImplementationPtr TimeGlsl::creator()
+SgImplementationPtr TimeGlsl::create()
 {
     return std::make_shared<TimeGlsl>();
 }

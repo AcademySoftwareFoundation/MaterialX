@@ -178,7 +178,7 @@ void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::HwS
 
 TEST_CASE("OslSyntax", "[shadergen]")
 {
-    mx::SyntaxPtr syntax = mx::OslSyntax::creator();
+    mx::SyntaxPtr syntax = mx::OslSyntax::create();
 
     REQUIRE(syntax->getTypeName("float") == "float");
     REQUIRE(syntax->getTypeName("color3") == "color");
@@ -197,7 +197,7 @@ TEST_CASE("OslSyntax", "[shadergen]")
 
 TEST_CASE("GlslSyntax", "[shadergen]")
 {
-    mx::SyntaxPtr syntax = mx::GlslSyntax::creator();
+    mx::SyntaxPtr syntax = mx::GlslSyntax::create();
 
     REQUIRE(syntax->getTypeName("float") == "float");
     REQUIRE(syntax->getTypeName("color3") == "vec3");
@@ -216,7 +216,7 @@ TEST_CASE("GlslSyntax", "[shadergen]")
 
 TEST_CASE("OgsFxSyntax", "[shadergen]")
 {
-    mx::SyntaxPtr syntax = mx::OgsFxSyntax::creator();
+    mx::SyntaxPtr syntax = mx::OgsFxSyntax::create();
 
     REQUIRE(syntax->getTypeName("float") == "float");
     REQUIRE(syntax->getTypeName("color3") == "vec3");
@@ -324,7 +324,7 @@ TEST_CASE("Hello World", "[shadergen]")
 
     // Arnold OSL
     {
-        mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();
         // Add path to find all source code snippets
         shadergen->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
@@ -354,7 +354,7 @@ TEST_CASE("Hello World", "[shadergen]")
 
     // OgsFx
     {
-        mx::ShaderGeneratorPtr shadergen = mx::OgsFxShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shadergen = mx::OgsFxShaderGenerator::create();
         shadergen->registerSourceCodeSearchPath(searchPath);
 
         // Test shader generation from nodegraph
@@ -381,7 +381,7 @@ TEST_CASE("Hello World", "[shadergen]")
 
     // Glsl
     {
-        mx::ShaderGeneratorPtr shadergen = mx::GlslShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shadergen = mx::GlslShaderGenerator::create();
         shadergen->registerSourceCodeSearchPath(searchPath);
 
         // Test shader generation from nodegraph
@@ -466,7 +466,7 @@ TEST_CASE("Conditionals", "[shadergen]")
 
     // Arnold
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
         // Add path to find all source code snippets
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
@@ -490,7 +490,7 @@ TEST_CASE("Conditionals", "[shadergen]")
 
     // OgsFx
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, output1);
@@ -511,7 +511,7 @@ TEST_CASE("Conditionals", "[shadergen]")
 
     // Glsl
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, output1);
@@ -602,7 +602,7 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
 
     // Arnold
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
         // Add path to find all source code snippets
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
@@ -622,7 +622,7 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
 
     // OgsFx
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef);
@@ -638,7 +638,7 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
 
     // Glsl
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef);
@@ -740,7 +740,7 @@ TEST_CASE("Noise", "[shadergen]")
 
         // Arnold OSL
         {
-            mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::creator();
+            mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();
             // Add path to find all source code snippets
             shadergen->registerSourceCodeSearchPath(searchPath);
             // Add path to find OSL include files
@@ -760,7 +760,7 @@ TEST_CASE("Noise", "[shadergen]")
 
         // OgsFx
         {
-            mx::ShaderGeneratorPtr shadergen = mx::OgsFxShaderGenerator::creator();
+            mx::ShaderGeneratorPtr shadergen = mx::OgsFxShaderGenerator::create();
             shadergen->registerSourceCodeSearchPath(searchPath);
 
             // Test shader generation from nodegraph
@@ -777,7 +777,7 @@ TEST_CASE("Noise", "[shadergen]")
 
         // Glsl
         {
-            mx::ShaderGeneratorPtr shadergen = mx::GlslShaderGenerator::creator();
+            mx::ShaderGeneratorPtr shadergen = mx::GlslShaderGenerator::create();
             shadergen->registerSourceCodeSearchPath(searchPath);
 
             // Test shader generation from nodegraph
@@ -822,7 +822,7 @@ TEST_CASE("Unique Names", "[shadergen]")
 
     // Arnold
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
         // Add path to find all source code snippets
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
@@ -851,7 +851,7 @@ TEST_CASE("Unique Names", "[shadergen]")
 
     // OgsFx
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
         // Set the output to a restricted name for OgsFx
@@ -876,7 +876,7 @@ TEST_CASE("Unique Names", "[shadergen]")
 
     // Glsl
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
         // Set the output to a restricted name for GLSL
@@ -918,7 +918,7 @@ TEST_CASE("Subgraphs", "[shadergen]")
 
     // Arnold
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
         // Add path to find all source code snippets
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
@@ -946,11 +946,11 @@ TEST_CASE("Subgraphs", "[shadergen]")
 
     // OgsFx
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
         // Setup lighting
-        mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
+        mx::LightHandlerPtr lightHandler = mx::LightHandler::create();
         createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
         for (const std::string& graphName : exampleGraphNames)
@@ -975,11 +975,11 @@ TEST_CASE("Subgraphs", "[shadergen]")
 
     // Glsl
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
         // Setup lighting
-        mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
+        mx::LightHandlerPtr lightHandler = mx::LightHandler::create();
         createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
         for (const std::string& graphName : exampleGraphNames)
@@ -1072,7 +1072,7 @@ TEST_CASE("BSDF Layering", "[shadergen]")
 
     // Arnold
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
         // Add path to find all source code snippets
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
@@ -1092,11 +1092,11 @@ TEST_CASE("BSDF Layering", "[shadergen]")
 
     // OgsFx
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
         // Setup lighting
-        mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
+        mx::LightHandlerPtr lightHandler = mx::LightHandler::create();
         createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef);
@@ -1112,11 +1112,11 @@ TEST_CASE("BSDF Layering", "[shadergen]")
 
     // Glsl
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
         // Setup lighting
-        mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
+        mx::LightHandlerPtr lightHandler = mx::LightHandler::create();
         createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef);
@@ -1190,7 +1190,7 @@ TEST_CASE("Transparency", "[shadergen]")
 
     // Arnold
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
         // Add path to find all source code snippets
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
@@ -1210,11 +1210,11 @@ TEST_CASE("Transparency", "[shadergen]")
 
     // OgsFx
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
         // Setup lighting
-        mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
+        mx::LightHandlerPtr lightHandler = mx::LightHandler::create();
         createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef);
@@ -1230,11 +1230,11 @@ TEST_CASE("Transparency", "[shadergen]")
 
     // Glsl
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
         // Setup lighting
-        mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
+        mx::LightHandlerPtr lightHandler = mx::LightHandler::create();
         createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef);
@@ -1308,11 +1308,11 @@ TEST_CASE("Surface Layering", "[shadergen]")
 
     // OgsFx
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
         // Setup lighting
-        mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
+        mx::LightHandlerPtr lightHandler = mx::LightHandler::create();
         createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef);
@@ -1328,11 +1328,11 @@ TEST_CASE("Surface Layering", "[shadergen]")
 
     // Glsl
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
         // Setup lighting
-        mx::LightHandlerPtr lightHandler = mx::LightHandler::creator();
+        mx::LightHandlerPtr lightHandler = mx::LightHandler::create();
         createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef);
@@ -1383,7 +1383,7 @@ TEST_CASE("Osl Output Types", "[shadergen]")
     nodeGraph2->setAttribute("nodedef", nodeDef2->getName());
 
     {
-        mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();
         // Add path to find all source code snippets
         shadergen->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
@@ -1424,7 +1424,7 @@ TEST_CASE("Osl Output Types", "[shadergen]")
     output2->setChannels("wzyx");
 
     {
-        mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::creator();
+        mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();
         // Add path to find all source code snippets
         shadergen->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
@@ -1554,9 +1554,9 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
 
     std::vector<mx::ShaderGeneratorPtr> shaderGenerators =
     {
-        mx::ArnoldShaderGenerator::creator(),
-        mx::OgsFxShaderGenerator::creator(),
-        mx::GlslShaderGenerator::creator()
+        mx::ArnoldShaderGenerator::create(),
+        mx::OgsFxShaderGenerator::create(),
+        mx::GlslShaderGenerator::create()
     };
 
     std::filebuf implDumpBuffer;

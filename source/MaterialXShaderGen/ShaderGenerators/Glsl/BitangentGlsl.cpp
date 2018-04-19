@@ -3,7 +3,7 @@
 namespace MaterialX
 {
 
-SgImplementationPtr BitangentGlsl::creator()
+SgImplementationPtr BitangentGlsl::create()
 {
     return std::make_shared<BitangentGlsl>();
 }

@@ -13,7 +13,7 @@
 namespace MaterialX
 {
 
-SgImplementationPtr SourceCode::creator()
+SgImplementationPtr SourceCode::create()
 {
     return std::make_shared<SourceCode>();
 }

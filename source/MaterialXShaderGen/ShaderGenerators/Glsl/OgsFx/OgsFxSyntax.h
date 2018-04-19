@@ -12,7 +12,7 @@ class OgsFxSyntax : public GlslSyntax
 public:
     OgsFxSyntax();
 
-    static SyntaxPtr creator() { return std::make_shared<OgsFxSyntax>(); }
+    static SyntaxPtr create() { return std::make_shared<OgsFxSyntax>(); }
 };
 
 } // namespace MaterialX

@@ -40,7 +40,7 @@ class OgsFxShaderGenerator : public GlslShaderGenerator
 public:
     OgsFxShaderGenerator();
 
-    static ShaderGeneratorPtr creator() { return std::make_shared<OgsFxShaderGenerator>(); }
+    static ShaderGeneratorPtr create() { return std::make_shared<OgsFxShaderGenerator>(); }
 
     /// Return a unique identifyer for the target this generator is for
     const string& getTarget() const override { return TARGET; }

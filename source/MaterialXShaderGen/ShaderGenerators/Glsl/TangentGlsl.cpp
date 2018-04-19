@@ -3,7 +3,7 @@
 namespace MaterialX
 {
 
-SgImplementationPtr TangentGlsl::creator()
+SgImplementationPtr TangentGlsl::create()
 {
     return std::make_shared<TangentGlsl>();
 }

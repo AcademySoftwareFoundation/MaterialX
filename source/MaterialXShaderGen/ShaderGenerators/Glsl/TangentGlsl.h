@@ -10,7 +10,7 @@ namespace MaterialX
 class TangentGlsl : public GlslImplementation
 {
 public:
-    static SgImplementationPtr creator();
+    static SgImplementationPtr create();
 
     void createVariables(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 

@@ -12,7 +12,7 @@ namespace
         "result.direction = L;\n";
 }
 
-SgImplementationPtr LightGlsl::creator()
+SgImplementationPtr LightGlsl::create()
 {
     return std::make_shared<LightGlsl>();
 }

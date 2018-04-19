@@ -4,7 +4,7 @@
 namespace MaterialX
 {
 
-SgImplementationPtr LightShaderGlsl::creator()
+SgImplementationPtr LightShaderGlsl::create()
 {
     return std::make_shared<LightShaderGlsl>();
 }

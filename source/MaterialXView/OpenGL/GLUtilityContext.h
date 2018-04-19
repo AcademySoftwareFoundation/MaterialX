@@ -39,7 +39,7 @@ class GLUtilityContext
   public:
     
     /// Create a utility context 
-    static GLUtilityContextPtr creator(const WindowWrapper& windowWrapper, HardwareContextHandle context = 0);
+    static GLUtilityContextPtr create(const WindowWrapper& windowWrapper, HardwareContextHandle context = 0);
 
     /// Default destructor
     virtual ~GLUtilityContext();

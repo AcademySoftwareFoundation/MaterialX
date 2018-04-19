@@ -3,7 +3,7 @@
 namespace MaterialX
 {
 
-SgImplementationPtr PositionGlsl::creator()
+SgImplementationPtr PositionGlsl::create()
 {
     return std::make_shared<PositionGlsl>();
 }

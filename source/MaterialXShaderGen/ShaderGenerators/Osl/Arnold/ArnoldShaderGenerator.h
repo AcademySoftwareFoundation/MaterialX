@@ -12,7 +12,7 @@ class ArnoldShaderGenerator : public OslShaderGenerator
 public:
     ArnoldShaderGenerator() : OslShaderGenerator() {}
 
-    static ShaderGeneratorPtr creator() { return std::make_shared<ArnoldShaderGenerator>(); }
+    static ShaderGeneratorPtr create() { return std::make_shared<ArnoldShaderGenerator>(); }
 
     /// Return a unique identifyer for the target this generator is for
     const string& getTarget() const override { return TARGET; }

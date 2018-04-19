@@ -17,8 +17,8 @@ using ObjGeometryHandlerPtr = std::shared_ptr<class ObjGeometryHandler>;
 class ObjGeometryHandler : public GeometryHandler
 {
   public:
-    /// Static instance creator
-    static ObjGeometryHandlerPtr creator() { return std::make_shared<ObjGeometryHandler>(); }
+      /// Static instance create function
+      static ObjGeometryHandlerPtr create() { return std::make_shared<ObjGeometryHandler>(); }
 
     /// Default constructor
     ObjGeometryHandler();

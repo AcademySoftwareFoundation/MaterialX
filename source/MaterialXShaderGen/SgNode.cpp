@@ -129,7 +129,7 @@ SgNode::SgNode(const string& name)
 {
 }
 
-SgNodePtr SgNode::creator(const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, const Node* nodeInstance)
+SgNodePtr SgNode::create(const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, const Node* nodeInstance)
 {
     SgNodePtr newNode = std::make_shared<SgNode>(name);
 
@@ -419,7 +419,7 @@ void SgNodeGraph::addDefaultGeomNode(SgInput* input, const string& geomNode, con
                 "' for defaultgeomprop on input '" + input->node->getName() + "." + input->name + "'");
         }
 
-        SgNodePtr geomNodePtr = SgNode::creator(geomNodeName, *geomNodeDef, shadergen);
+        SgNodePtr geomNodePtr = SgNode::create(geomNodeName, *geomNodeDef, shadergen);
         _nodeMap[geomNodeName] = geomNodePtr;
         _nodeOrder.push_back(geomNodePtr.get());
 
@@ -532,7 +532,7 @@ SgNodeGraphPtr SgNodeGraph::create(const string& name, ElementPtr element, Shade
         graph->addOutputSockets(*nodeDef);
 
         // Create this shader node in the graph.
-        SgNodePtr newNode = SgNode::creator(shaderRef->getName(), *nodeDef, shadergen, nullptr);
+        SgNodePtr newNode = SgNode::create(shaderRef->getName(), *nodeDef, shadergen, nullptr);
         graph->_nodeMap[name] = newNode;
         graph->_nodeOrder.push_back(newNode.get());
 
@@ -643,7 +643,7 @@ SgNode* SgNodeGraph::addNode(const Node& node, ShaderGenerator& shadergen)
     
     // Create this node in the graph.
     const string& name = node.getName();
-    SgNodePtr newNode = SgNode::creator(name, *nodeDef, shadergen, &node);
+    SgNodePtr newNode = SgNode::create(name, *nodeDef, shadergen, &node);
     _nodeMap[name] = newNode;
     _nodeOrder.push_back(newNode.get());
 

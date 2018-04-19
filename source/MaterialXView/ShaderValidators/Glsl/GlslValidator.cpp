@@ -18,7 +18,7 @@ const float FAR_PLANE_PERSP = 100.0f;
 //
 // Creator
 //
-GlslValidatorPtr GlslValidator::creator()
+GlslValidatorPtr GlslValidator::create()
 {
     return std::shared_ptr<GlslValidator>(new GlslValidator());
 }
@@ -35,11 +35,11 @@ GlslValidator::GlslValidator() :
     _context(nullptr),
     _orthographicView(true)
 {
-    _program = GlslProgram::creator();
+    _program = GlslProgram::create();
 
-    _geometryHandler = ObjGeometryHandler::creator();
+    _geometryHandler = ObjGeometryHandler::create();
 
-    _viewHandler = ViewHandler::creator();
+    _viewHandler = ViewHandler::create();
 }
 
 GlslValidator::~GlslValidator()
@@ -65,7 +65,7 @@ void GlslValidator::initialize()
     if (!_initialized)
     {
         // Create window
-        _window = SimpleWindow::creator();
+        _window = SimpleWindow::create();
 
         const char* windowName = "Validator Window";
         bool created = _window->initialize(const_cast<char *>(windowName),
@@ -79,7 +79,7 @@ void GlslValidator::initialize()
         else
         {
             // Create offscreen context
-            _context = GLUtilityContext::creator(_window->windowWrapper(), nullptr);
+            _context = GLUtilityContext::create(_window->windowWrapper(), nullptr);
             if (!_context)
             {
                 errors.push_back("Failed to create OpenGL context for testing.");

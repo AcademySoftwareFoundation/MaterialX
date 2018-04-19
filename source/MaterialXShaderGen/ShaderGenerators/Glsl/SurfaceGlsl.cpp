@@ -17,7 +17,7 @@ namespace
         "vec3 L = lightShader.direction;\n";
 }
 
-SgImplementationPtr SurfaceGlsl::creator()
+SgImplementationPtr SurfaceGlsl::create()
 {
     return std::make_shared<SurfaceGlsl>();
 }
