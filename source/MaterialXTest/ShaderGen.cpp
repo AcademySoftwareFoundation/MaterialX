@@ -299,17 +299,24 @@ TEST_CASE("Hello World", "[shadergen]")
 
     const std::string exampleName = "hello_world";
 
-    // Create the simples possible node graph,
-    // containing a single constant node
-    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("IMP_" + exampleName);
-    mx::OutputPtr output1 = nodeGraph->addOutput();
-    mx::NodePtr constant1 = nodeGraph->addNode("constant", "constant1", "color3");
-    constant1->setParameterValue("value", mx::Color3(1, 1, 0));
-    output1->setConnectedNode(constant1);
-
-    // Create a nodedef and make its implementation be the graph above
+    // Create a nodedef taking two color3 and producing another color3
     mx::NodeDefPtr nodeDef = doc->addNodeDef("ND_" + exampleName, "color3", exampleName);
+    mx::InputPtr inputA = nodeDef->addInput("a", "color3");
+    mx::InputPtr inputB = nodeDef->addInput("b", "color3");
+    inputA->setValue(mx::Color3(1.0f, 1.0f, 0.0f));
+    inputB->setValue(mx::Color3(0.8f, 0.1f, 0.1f));
+
+    // Create an implementation graph for the nodedef performing 
+    // a multiplication of the two colors.
+    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("IMP_" + exampleName);
     nodeGraph->setAttribute("nodedef", nodeDef->getName());
+    mx::OutputPtr output1 = nodeGraph->addOutput("out", "color3");
+    mx::NodePtr mult1 = nodeGraph->addNode("multiply", "mult1", "color3");
+    mx::InputPtr in1 = mult1->addInput("in1", "color3");
+    in1->setInterfaceName(inputA->getName());
+    mx::InputPtr in2 = mult1->addInput("in2", "color3");
+    in2->setInterfaceName(inputB->getName());
+    output1->setConnectedNode(mult1);
 
     // Create a material with the above node as the shader
     mx::MaterialPtr mtrl = doc->addMaterial(exampleName + "_material");
@@ -331,16 +338,6 @@ TEST_CASE("Hello World", "[shadergen]")
         // TODO: Use validation in MaterialXView library
         std::ofstream file;
         file.open(shader->getName() + "_graph.osl");
-        file << shader->getSourceCode();
-        file.close();
-
-        // Test shader generation from node
-        shader = shadergen->generate(exampleName, constant1);
-        REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode().length() > 0);
-        // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
-        file.open(shader->getName() + "_node.osl");
         file << shader->getSourceCode();
         file.close();
 
@@ -368,16 +365,6 @@ TEST_CASE("Hello World", "[shadergen]")
         // TODO: Use validation in MaterialXView library
         std::ofstream file;
         file.open(shader->getName() + "_graph.ogsfx");
-        file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
-        file.close();
-
-        // Test shader generation from node
-        shader = shadergen->generate(exampleName, constant1);
-        REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
-        // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
-        file.open(shader->getName() + "_node.ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
         file.close();
 
@@ -412,21 +399,7 @@ TEST_CASE("Hello World", "[shadergen]")
         file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
         file.close();
 
-        // Test shader generation from node
-        shader = shadergen->generate(exampleName, constant1);
-        REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode(mx::OgsFxShader::VERTEX_STAGE).length() > 0);
-        REQUIRE(shader->getSourceCode(mx::OgsFxShader::PIXEL_STAGE).length() > 0);
-        // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
-        file.open(shader->getName() + "_node.vert");
-        file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
-        file.close();
-        file.open(shader->getName() + "_node.frag");
-        file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
-        file.close();
-
-        // Test shader generation from node
+        // Test shader generation from shaderref
         shader = shadergen->generate(exampleName, shaderRef);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::OgsFxShader::VERTEX_STAGE).length() > 0);

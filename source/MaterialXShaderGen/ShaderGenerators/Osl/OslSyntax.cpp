@@ -14,7 +14,8 @@ OslSyntax::OslSyntax()
         "bool", "case", "catch", "char", "class", "const", "delete", "default", "double", "enum", "extern",
         "false", "friend", "goto", "inline", "long", "new", "operator", "private", "protected", "short",
         "signed", "sizeof", "static", "switch", "template", "this", "throw", "true", "try", "typedef", "uniform",
-        "union", "unsigned", "varying", "virtual", "volatile"
+        "union", "unsigned", "varying", "virtual", "volatile",
+        "emission"
     });
 
     //

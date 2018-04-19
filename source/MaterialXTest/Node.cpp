@@ -142,7 +142,7 @@ TEST_CASE("Flatten", "[nodegraph]")
             totalNodeCount++;
         }
     }
-    REQUIRE(totalNodeCount == 7);
+    REQUIRE(totalNodeCount == 4);
 
     // Create a flat version of the graph.
     mx::NodeGraphPtr flatGraph = doc->addNodeGraph();
@@ -163,7 +163,7 @@ TEST_CASE("Flatten", "[nodegraph]")
             REQUIRE(isAtomic);
         }
     }
-    REQUIRE(totalNodeCount == 19); //13
+    REQUIRE(totalNodeCount == 16);
 }
 
 TEST_CASE("Topological sort", "[nodegraph]")
