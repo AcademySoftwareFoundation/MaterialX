@@ -7,7 +7,7 @@ namespace MaterialX
 namespace
 {
     static const string LIGHT_LOOP_BEGIN =
-        "vec3 V = u_viewDirection;\n"
+        "vec3 V = normalize(u_viewPosition - vd.positionWorld);\n"
         "int numLights = numActiveLightSources();\n"
         "lightshader lightShader;\n"
         "for (int activeLightIndex = 0; activeLightIndex < numLights; ++activeLightIndex)\n";
@@ -25,7 +25,7 @@ SgImplementationPtr SurfaceGlsl::create()
 void SurfaceGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     // TODO: 
-    // The surface shader needs position, normal, view and light sources. We should solve this by adding some 
+    // The surface shader needs position, normal, view position and light sources. We should solve this by adding some 
     // dependency mechanism so this implementation can be set to depend on the PositionGlsl, NormalGlsl
     // ViewDirectionGlsl and LightGlsl nodes instead? This is where the MaterialX attribute "internalgeomprops" 
     // is needed.
@@ -37,7 +37,7 @@ void SurfaceGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*sha
     shader.createVertexData(DataType::VECTOR3, "positionWorld");
     shader.createVertexData(DataType::VECTOR3, "normalWorld");
     shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::MATRIX4, "u_worldInverseTransposeMatrix");
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::VECTOR3, "u_viewDirection");
+    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::VECTOR3, "u_viewPosition");
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::INTEGER, "u_numActiveLightSources",
         EMPTY_STRING, Value::createValue<int>(0));
 }

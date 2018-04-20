@@ -285,7 +285,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     shader.newLine();
 
     // Add global constants and type definitions
-    shader.addInclude("sxpbrlib/sx-glsl/defines.glsl", *this);
+    shader.addInclude("sxpbrlib/sx-glsl/lib/sx_defines.glsl", *this);
     shader.addLine("#define MAX_LIGHT_SOURCES " + std::to_string(getMaxActiveLightSources()), false);
     shader.newLine();
     emitTypeDefs(shader);
@@ -314,8 +314,10 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
         shader.newLine();
     }
 
+    bool lighting = shader.hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE);
+
     // Add light data block if needed
-    if (shader.hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE))
+    if (lighting)
     {
         const Shader::VariableBlock& lightData = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK);
         shader.addLine("struct " + lightData.name, false);
@@ -354,8 +356,15 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     shader.newLine();
 
     // Emit common math functions
-    shader.addInclude("sxpbrlib/sx-glsl/math.glsl", *this);
+    shader.addInclude("sxpbrlib/sx-glsl/lib/sx_math.glsl", *this);
     shader.newLine();
+
+    if (lighting)
+    {
+        // Emit lighting functions
+        shader.addInclude("sxpbrlib/sx-glsl/lib/sx_lighting.glsl", *this);
+        shader.newLine();
+    }
 
     // Add all functions for node implementations
     emitFunctionDefinitions(shader);
@@ -491,7 +500,7 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
     if (shader.hasClassification(SgNode::Classification::SURFACE))
     {
         shader.addComment("TODO: How should we output transparency?");
-        shader.addLine("float outAlpha = 1.0 - maxv(" + finalOutput + ".transparency)");
+        shader.addLine("float outAlpha = 1.0 - sx_max_component(" + finalOutput + ".transparency)");
         shader.addLine(outputSocket->name + " = vec4(" + finalOutput + ".color, outAlpha)");
     }
     else

@@ -19,6 +19,10 @@ HwShader::HwShader(const string& name)
     // Create light data uniform block with required field 'type'
     createUniformBlock(PIXEL_STAGE, LIGHT_DATA_BLOCK, "u_lightData[MAX_LIGHT_SOURCES]");
     createUniform(PIXEL_STAGE, LIGHT_DATA_BLOCK, DataType::INTEGER, "type");
+
+    // Create environment texture uniforms
+    createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, DataType::FILENAME, "u_envSpecular");
+    createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, DataType::FILENAME, "u_envIrradiance");
 }
 
 void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen)

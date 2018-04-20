@@ -22,7 +22,7 @@ const string& SurfaceShaderGlsl::getTarget() const
 void SurfaceShaderGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     // TODO: 
-    // The surface shader needs position, view and light sources. We should solve this by adding some 
+    // The surface shader needs position, view position and light sources. We should solve this by adding some 
     // dependency mechanism so this implementation can be set to depend on the PositionGlsl,  
     // ViewDirectionGlsl and LightGlsl nodes instead? This is where the MaterialX attribute "internalgeomprops" 
     // is needed.
@@ -31,7 +31,7 @@ void SurfaceShaderGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator&
 
     shader.createAppData(DataType::VECTOR3, "i_position");
     shader.createVertexData(DataType::VECTOR3, "positionWorld");
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::VECTOR3, "u_viewDirection");
+    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::VECTOR3, "u_viewPosition");
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::INTEGER, "u_numActiveLightSources",
         EMPTY_STRING, Value::createValue<int>(0));
 }

@@ -162,6 +162,10 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.addStr("GLSLShader PS\n");
     shader.beginScope(Shader::Brackets::BRACES);
 
+    // Emit common math functions
+    shader.addInclude("sxpbrlib/sx-glsl/lib/sx_math.glsl", *this);
+    shader.newLine();
+
     emitFunctionDefinitions(shader);
 
     // Add main function
@@ -184,7 +188,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.newLine();
 
     // Add global constants and type definitions
-    shader.addInclude("sxpbrlib/sx-glsl/defines.glsl", *this);
+    shader.addInclude("sxpbrlib/sx-glsl/lib/sx_defines.glsl", *this);
     shader.addLine("#define MAX_LIGHT_SOURCES " + std::to_string(getMaxActiveLightSources()), false);
     shader.newLine();
     emitTypeDefs(shader);
@@ -271,8 +275,10 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
         shader.newLine();
     }
 
+    bool lighting = shader.hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE);
+
     // Add light data block if needed
-    if (shader.hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE))
+    if (lighting)
     {
         const Shader::VariableBlock& lightData = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK);
         shader.addLine("struct " + lightData.name, false);
@@ -288,12 +294,15 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
         shader.newLine();
     }
 
-    // Emit common math functions
-    shader.addLine("GLSLShader MathFunctions", false);
-    shader.beginScope(Shader::Brackets::BRACES);
-    shader.addInclude("sxpbrlib/sx-glsl/math.glsl", *this);
-    shader.endScope();
-    shader.newLine();
+    if (lighting)
+    {
+        // Emit lighting functions
+        shader.addLine("GLSLShader LightingFunctions", false);
+        shader.beginScope(Shader::Brackets::BRACES);
+        shader.addInclude("sxpbrlib/sx-glsl/lib/sx_lighting.glsl", *this);
+        shader.endScope();
+        shader.newLine();
+    }
 
     // Add code blocks from the vertex and pixel shader stages generated above
     shader.addBlock(shader.getSourceCode(OgsFxShader::VERTEX_STAGE));
@@ -304,8 +313,10 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.beginScope(Shader::Brackets::BRACES);
     shader.addLine("pass p0", false);
     shader.beginScope(Shader::Brackets::BRACES);
-    shader.addLine("VertexShader(in AppData, out VertexData vd) = { MathFunctions, VS }");
-    shader.addLine("PixelShader(in VertexData vd, out PixelOutput) = { MathFunctions, PS }");
+    shader.addLine("VertexShader(in AppData, out VertexData vd) = { VS }");
+    shader.addLine(lighting ? 
+        "PixelShader(in VertexData vd, out PixelOutput) = { LightingFunctions, PS }" :
+        "PixelShader(in VertexData vd, out PixelOutput) = { PS }");
     shader.endScope();
     shader.endScope();
     shader.newLine();

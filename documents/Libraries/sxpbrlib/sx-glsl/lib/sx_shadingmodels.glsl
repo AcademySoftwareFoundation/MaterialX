@@ -1,13 +1,13 @@
 float sx_ggx_D(float cosTheta, float alpha)
 {
-    float a2 = square(alpha);
-    return a2 / (M_PI * square( square(cosTheta) * (a2 - 1) + 1 ) );
+    float a2 = sx_square(alpha);
+    return a2 / (M_PI * square( sx_square(cosTheta) * (a2 - 1) + 1 ) );
 }
 
 float sx_smith_G1(float cosTheta, float alpha)
 {
-    float a2 = square(alpha);
-    return 2/(1 + sqrt(1 + a2 * (1 - square(cosTheta)) / square(cosTheta) ));
+    float a2 = sx_square(alpha);
+    return 2/(1 + sqrt(1 + a2 * (1 - sx_square(cosTheta)) / sx_square(cosTheta) ));
 }
 
 float sx_smith_G(float NdotL, float NdotV, float alpha)
