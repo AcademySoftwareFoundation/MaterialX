@@ -22,17 +22,33 @@ extern const string UV_TILE_TOKEN;
 
 /// A shared pointer to a GeomElement
 using GeomElementPtr = shared_ptr<class GeomElement>;
+/// A shared pointer to a const GeomElement
+using ConstGeomElementPtr = shared_ptr<const class GeomElement>;
+
 /// A shared pointer to a GeomAttr
 using GeomAttrPtr = shared_ptr<class GeomAttr>;
+/// A shared pointer to a const GeomAttr
+using ConstGeomAttrPtr = shared_ptr<const class GeomAttr>;
+
 /// A shared pointer to a GeomInfo
 using GeomInfoPtr = shared_ptr<class GeomInfo>;
+/// A shared pointer to a const GeomInfo
+using ConstGeomInfoPtr = shared_ptr<const class GeomInfo>;
 
 /// A shared pointer to a Collection
 using CollectionPtr = shared_ptr<class Collection>;
+/// A shared pointer to a const Collection
+using ConstCollectionPtr = shared_ptr<const class Collection>;
+
 /// A shared pointer to a CollectionAdd
 using CollectionAddPtr = shared_ptr<class CollectionAdd>;
+/// A shared pointer to a const CollectionAdd
+using ConstCollectionAddPtr = shared_ptr<const class CollectionAdd>;
+
 /// A shared pointer to a CollectionRemove
 using CollectionRemovePtr = shared_ptr<class CollectionRemove>;
+/// A shared pointer to a const CollectionRemove
+using ConstCollectionRemovePtr = shared_ptr<const class CollectionRemove>;
 
 /// @class GeomElement
 /// The base class for geometric elements, which support bindings to geometries

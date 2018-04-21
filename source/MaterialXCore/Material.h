@@ -24,14 +24,28 @@ using ConstMaterialPtr = shared_ptr<const class Material>;
 
 /// A shared pointer to a ShaderRef
 using ShaderRefPtr = shared_ptr<class ShaderRef>;
+/// A shared pointer to a const ShaderRef
+using ConstShaderRefPtr = shared_ptr<const class ShaderRef>;
+
 /// A shared pointer to a BindParam
 using BindParamPtr = shared_ptr<class BindParam>;
+/// A shared pointer to a const BindParam
+using ConstBindParamPtr = shared_ptr<const class BindParam>;
+
 /// A shared pointer to a BindInput
 using BindInputPtr = shared_ptr<class BindInput>;
+/// A shared pointer to a const BindInput
+using ConstBindInputPtr = shared_ptr<const class BindInput>;
+
 /// A shared pointer to an Override
 using OverridePtr = shared_ptr<class Override>;
+/// A shared pointer to a const Override
+using ConstOverridePtr = shared_ptr<const class Override>;
+
 /// A shared pointer to a MaterialInherit
 using MaterialInheritPtr = shared_ptr<class MaterialInherit>;
+/// A shared pointer to a const MaterialInherit
+using ConstMaterialInheritPtr = shared_ptr<const class MaterialInherit>;
 
 /// @class Material
 /// A material element within a Document.

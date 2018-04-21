@@ -18,16 +18,28 @@ namespace MaterialX
 
 /// A shared pointer to a Parameter
 using ParameterPtr = shared_ptr<class Parameter>;
+/// A shared pointer to a const Parameter
+using ConstParameterPtr = shared_ptr<const class Parameter>;
+
 /// A shared pointer to a PortElement
 using PortElementPtr = shared_ptr<class PortElement>;
+/// A shared pointer to a const PortElement
+using ConstPortElementPtr = shared_ptr<const class PortElement>;
+
 /// A shared pointer to an Input
 using InputPtr = shared_ptr<class Input>;
-/// A shared pointer to an Input
+/// A shared pointer to a const Input
 using ConstInputPtr = shared_ptr<const class Input>;
+
 /// A shared pointer to an Output
 using OutputPtr = shared_ptr<class Output>;
+/// A shared pointer to a const Output
+using ConstOutputPtr = shared_ptr<const class Output>;
+
 /// A shared pointer to an InterfaceElement
 using InterfaceElementPtr = shared_ptr<class InterfaceElement>;
+/// A shared pointer to a const InterfaceElement
+using ConstInterfaceElementPtr = shared_ptr<const class InterfaceElement>;
 
 /// @class Parameter
 /// A parameter element within a Node or NodeDef.
@@ -426,6 +438,7 @@ class InterfaceElement : public TypedElement
 
     /// Return the typed value of an input by its name, taking both the calling
     /// element and its declaration into account.
+    /// @param name The name of the input to be evaluated.
     /// @param target An optional target name, which will be used to filter
     ///    the declarations that are considered.
     /// @return If the given parameter is found in this interface or its

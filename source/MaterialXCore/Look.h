@@ -19,12 +19,23 @@ namespace MaterialX
 
 /// A shared pointer to a Look
 using LookPtr = shared_ptr<class Look>;
+/// A shared pointer to a const Look
+using ConstLookPtr = shared_ptr<const class Look>;
+
 /// A shared pointer to a LookInherit
 using LookInheritPtr = shared_ptr<class LookInherit>;
+/// A shared pointer to a const LookInherit
+using ConstLookInheritPtr = shared_ptr<const class LookInherit>;
+
 /// A shared pointer to a MaterialAssign
 using MaterialAssignPtr = shared_ptr<class MaterialAssign>;
+/// A shared pointer to a const MaterialAssign
+using ConstMaterialAssignPtr = shared_ptr<const class MaterialAssign>;
+
 /// A shared pointer to a Visibility
 using VisibilityPtr = shared_ptr<class Visibility>;
+/// A shared pointer to a const Visibility
+using ConstVisibilityPtr = shared_ptr<const class Visibility>;
 
 /// @class Look
 /// A look element within a Document.
