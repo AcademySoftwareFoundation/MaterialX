@@ -18,12 +18,23 @@ namespace MaterialX
 
 /// A shared pointer to a Property
 using PropertyPtr = shared_ptr<class Property>;
+/// A shared pointer to a const Property
+using ConstPropertyPtr = shared_ptr<const class Property>;
+
 /// A shared pointer to a PropertyAssign
 using PropertyAssignPtr = shared_ptr<class PropertyAssign>;
+/// A shared pointer to a const PropertyAssign
+using ConstPropertyAssignPtr = shared_ptr<const class PropertyAssign>;
+
 /// A shared pointer to a PropertySet
 using PropertySetPtr = shared_ptr<class PropertySet>;
+/// A shared pointer to a const PropertySet
+using ConstPropertySetPtr = shared_ptr<const class PropertySet>;
+
 /// A shared pointer to a PropertySetAssign
 using PropertySetAssignPtr = shared_ptr<class PropertySetAssign>;
+/// A shared pointer to a const PropertySetAssign
+using ConstPropertySetAssignPtr = shared_ptr<const class PropertySetAssign>;
 
 /// @class Property
 /// A property element within a PropertySet.

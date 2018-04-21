@@ -37,7 +37,7 @@ class XmlReadOptions
     bool readXIncludes;
 };
 
-/// @class @ExceptionParseError
+/// @class ExceptionParseError
 /// An exception that is thrown when a requested document cannot be parsed.
 class ExceptionParseError : public Exception
 {
@@ -45,7 +45,7 @@ class ExceptionParseError : public Exception
     using Exception::Exception;
 };
 
-/// @class @ExceptionFileMissing
+/// @class ExceptionFileMissing
 /// An exception that is thrown when a requested file cannot be opened.
 class ExceptionFileMissing : public Exception
 {

@@ -42,6 +42,8 @@ using ConstTypeDefPtr = shared_ptr<const class TypeDef>;
 
 /// A shared pointer to a Member
 using MemberPtr = shared_ptr<class Member>;
+/// A shared pointer to a const Member
+using ConstMemberPtr = shared_ptr<const class Member>;
 
 /// @class NodeDef
 /// A node definition element within a Document.
