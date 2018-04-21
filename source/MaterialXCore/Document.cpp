@@ -388,15 +388,12 @@ void Document::upgradeVersion()
     {
         for (ElementPtr elem : traverseTree())
         {
-            if (elem->isA<Node>("constant"))
+            if (elem->getCategory() == "constant")
             {
-                NodePtr constant = elem->asA<Node>();
-                ParameterPtr colorParam = constant->getChildOfType<Parameter>("color");
-                if (colorParam)
+                ElementPtr param = elem->getChild("color");
+                if (param)
                 {
-                    ParameterPtr valueParam = constant->addParameter("value");
-                    valueParam->copyContentFrom(colorParam);
-                    constant->removeParameter(colorParam->getName());
+                    param->setName("value");
                 }
             }
         }
