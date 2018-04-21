@@ -134,7 +134,7 @@ template <class T> class TypedValue : public Value
     T _data;
 };
 
-/// @class @ExceptionTypeError
+/// @class ExceptionTypeError
 /// An exception that is thrown when a type mismatch is encountered.
 class ExceptionTypeError : public Exception
 {

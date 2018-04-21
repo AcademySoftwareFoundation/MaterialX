@@ -34,7 +34,7 @@ using StringMap = std::unordered_map<string, string>;
 /// A set of strings.
 using StringSet = std::set<string>;
 
-/// @class @Exception
+/// @class Exception
 /// The base class for exceptions that are propagated from the MaterialX library
 /// to the client application.
 class Exception : public std::exception

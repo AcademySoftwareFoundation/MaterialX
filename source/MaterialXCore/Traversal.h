@@ -184,7 +184,7 @@ class TreeIterator
     size_t _holdCount;
 };
 
-/// @class @GraphIterator
+/// @class GraphIterator
 /// An iterator object representing the state of an upstream graph traversal.
 ///
 /// @sa Element::traverseGraph
@@ -329,7 +329,7 @@ class GraphIterator
     size_t _holdCount;
 };
 
-/// @class @InheritanceIterator
+/// @class InheritanceIterator
 /// An iterator object representing the current state of an inheritance traversal.
 ///
 /// @sa Element::traverseInheritance
@@ -385,7 +385,7 @@ class InheritanceIterator
     size_t _holdCount;
 };
 
-/// @class @AncestorIterator
+/// @class AncestorIterator
 /// An iterator object representing the current state of an ancestor traversal.
 ///
 /// @sa Element::traverseAncestors
@@ -434,7 +434,7 @@ class AncestorIterator
     size_t _holdCount;
 };
 
-/// @class @ExceptionFoundCycle
+/// @class ExceptionFoundCycle
 /// An exception that is thrown when a traversal call encounters a cycle.
 class ExceptionFoundCycle : public Exception
 {

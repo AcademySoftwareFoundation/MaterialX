@@ -555,7 +555,7 @@ class Document : public Element
     std::unique_ptr<Cache> _cache;
 };
 
-/// @class @ScopedUpdate
+/// @class ScopedUpdate
 /// An RAII class for Document updates.
 ///
 /// A ScopedUpdate instance calls Document::onBeginUpdate when created, and
@@ -577,7 +577,7 @@ class ScopedUpdate
     DocumentPtr _doc;
 };
 
-/// @class @ScopedDisableCallbacks
+/// @class ScopedDisableCallbacks
 /// An RAII class for disabling Document callbacks.
 ///
 /// A ScopedDisableCallbacks instance calls Document::disableCallbacks() when
