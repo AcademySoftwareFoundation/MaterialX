@@ -1079,7 +1079,7 @@ class CopyOptions
     bool copySourceUris;
 };
 
-/// @class @ExceptionOrphanedElement
+/// @class ExceptionOrphanedElement
 /// An exception that is thrown when an ElementPtr is used after its owning
 /// Document has gone out of scope.
 class ExceptionOrphanedElement : public Exception
