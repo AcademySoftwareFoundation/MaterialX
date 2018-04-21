@@ -5,10 +5,14 @@
 ### Added
 - Added material inheritance support to graph traversal and the high-level Material API.
 - Added Material methods getActiveShaderRefs and getActiveOverrides.
-- Added Element methods setInheritsFrom, getInheritsFrom, traverseInheritance, and hasInheritanceCycle.
+- Added PropertySet methods setPropertyValue and getPropertyValue.
+- Added Element methods setInheritsFrom, getInheritsFrom, traverseInheritance, hasInheritanceCycle, and getDescendant.
+- Added helper functions MaterialX\:\:fromValueString and MaterialX\:\:toValueString.
+- Added math functionality to the vector and matrix classes.
 - Added support for Visual Studio 2017, GCC 7, and Clang 5.
 
 ### Changed
+- Renamed Matrix3x3 to Matrix33 and Matrix4x4 to Matrix44.
 - Updated Python bindings to PyBind11 2.2.1.
 
 ## [1.35.4] - 2017-12-18
