@@ -31,6 +31,26 @@ const Matrix44 Matrix44::IDENTITY{1, 0, 0, 0,
                                   0, 0, 1, 0,
                                   0, 0, 0, 1};
 
+
+//
+// Vector methods
+//
+template <> float VectorN<Vector2, float, 2>::getMagnitude() const
+{
+    return std::sqrt(_arr[0] * _arr[0] + _arr[1] * _arr[1]);
+}
+
+template <> float VectorN<Vector3, float, 3>::getMagnitude() const
+{
+    return std::sqrt(_arr[0] * _arr[0] + _arr[1] * _arr[1] + _arr[2] * _arr[2]);
+}
+
+template <> float VectorN<Vector4, float, 4>::getMagnitude() const
+{
+    return std::sqrt(_arr[0] * _arr[0] + _arr[1] * _arr[1] + _arr[2] * _arr[2] +
+                     _arr[3] * _arr[3]);
+}
+
 //
 // Matrix33 methods
 //
@@ -63,14 +83,14 @@ template <> Matrix33 MatrixN<Matrix33, float, 3>::getAdjugate() const
         _arr[0][0]*_arr[1][1] - _arr[1][0]*_arr[0][1]);
 }
 
-template <> Matrix33 MatrixN<Matrix33, float, 3>::createTranslation(Matrix33::RowArray& v)
+Matrix33 Matrix33::createTranslation(const Vector2& v)
 {
     return Matrix33(1.0f, 0.0f, 0.0f,
                     0.0f, 1.0f, 0.0f,
                     v[0], v[1], 1.0f);
 }
 
-template <> Matrix33 MatrixN<Matrix33, float, 3>::createScale(Matrix33::RowArray& v)
+Matrix33 Matrix33::createScale(const Vector2& v)
 {
     return Matrix33(v[0], 0.0f, 0.0f,
                     0.0f, v[1], 0.0f,
@@ -163,7 +183,7 @@ template <> Matrix44 MatrixN<Matrix44, float, 4>::getAdjugate() const
         _arr[0][0]*_arr[2][1]*_arr[1][2] - _arr[1][0]*_arr[0][1]*_arr[2][2] - _arr[2][0]*_arr[1][1]*_arr[0][2]);
 }
 
-template <> Matrix44 MatrixN<Matrix44, float, 4>::createTranslation(Matrix44::RowArray& v)
+Matrix44 Matrix44::createTranslation(const Vector3& v)
 {
     return Matrix44(1.0f, 0.0f, 0.0f, 0.0f,
                     0.0f, 1.0f, 0.0f, 0.0f, 
@@ -171,14 +191,13 @@ template <> Matrix44 MatrixN<Matrix44, float, 4>::createTranslation(Matrix44::Ro
                     v[0], v[1], v[2], 1.0f);
 }
 
-template <> Matrix44 MatrixN<Matrix44, float, 4>::createScale(Matrix44::RowArray& v)
+Matrix44 Matrix44::createScale(const Vector3& v)
 {
     return Matrix44(v[0], 0.0f, 0.0f, 0.0f,
                     0.0f, v[1], 0.0f, 0.0f,
                     0.0f, 0.0f, v[2], 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f);
 }
-
 
 Matrix44 Matrix44::createRotationX(float angle)
 {

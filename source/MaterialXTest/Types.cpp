@@ -34,10 +34,10 @@ TEST_CASE("Vectors", "[types]")
     REQUIRE(v2 / 2 == v1);
     
     // Geometric operators
-    mx::Vector3 v3(1.0f, 2.0f, 2.0f);
-    REQUIRE(v3.magnitude() == 3.0f);
-    v3.normalize();
-    REQUIRE(v3.magnitude() == 1.0f);
+    mx::Vector3 v3(1, 2, 2);
+    REQUIRE(v3.getMagnitude() == 3);
+    mx::Vector3 normalized_v3 = v3.getNormalized();
+    REQUIRE(normalized_v3.getMagnitude() == 1);
 }
 #include <iostream>
 
@@ -108,18 +108,20 @@ TEST_CASE("Matrices", "[types]")
     REQUIRE(quot4 == mx::Matrix44::IDENTITY);
 
     // Matrix translation
-    mx::Matrix44::RowArray amount44{ 1.0f, 2.0f, 3.0f, 1.0f };
+    mx::Vector3 amount44{ 1.0f, 2.0f, 3.0f };
     mx::Matrix44 trans44 = mx::Matrix44::createTranslation(amount44);
-    REQUIRE(amount44 == trans44[3]);
+    mx::Vector3 result44(trans44[3][0], trans44[3][1], trans44[3][2]);
+    REQUIRE(amount44 == result44);
     amount44 = { -1.0f, -2.0f, -3.0f };
     mx::Matrix44 translateBy = mx::Matrix44::createTranslation(amount44);
     mx::Matrix44 translateResult = trans44 * translateBy;
     REQUIRE(translateResult == mx::Matrix44::IDENTITY);
 
-    mx::Matrix33::RowArray amount33{ 5.0f, 10.0f, 1.0f };
+    mx::Vector2 amount33{ 5.0f, 10.0f };
     mx::Matrix33 trans33 = mx::Matrix33::createTranslation(amount33);
-    REQUIRE(amount33 == trans33[2]);
-    amount33 = { -5.0f, -10.0f, -1.0f };
+    mx::Vector2 result33(trans33[2][0], trans33[2][1]);
+    REQUIRE(amount33 == result33);
+    amount33 = { -5.0f, -10.0f };
     mx::Matrix33 translateBy33 = mx::Matrix33::createTranslation(amount33);
     mx::Matrix33 translateResult33 = trans33 * translateBy33;
     REQUIRE(translateResult33 == mx::Matrix33::IDENTITY);
@@ -165,7 +167,7 @@ TEST_CASE("Matrices", "[types]")
                          0, 4, 0, 0,
                          0, 0, 6, 0,
                          1, 3, 5, 1);
-    mx::Matrix44::RowArray scalar{ 8, 7, 6, 1 };
+    mx::Vector3 scalar{ 8, 7, 6 };
     mx::Matrix44 scaleBy = mx::Matrix44::createScale(scalar);
     mx::Matrix44 scaleResult = scale44 * scaleBy;
     mx::Matrix44 scaleCheck1(16.0f, 0.0f, 0.0f, 0.0f,
@@ -177,7 +179,7 @@ TEST_CASE("Matrices", "[types]")
     mx::Matrix33 scale33(2, 0, 0,
         0, 4, 0,
         1, 3, 1);
-    mx::Matrix33::RowArray scalar3{ 8, 7, 1 };
+    mx::Vector2 scalar3{ 8, 7 };
     mx::Matrix33 scaleBy33 = mx::Matrix33::createScale(scalar3);
     mx::Matrix33 scaleResult33 = scale33 * scaleBy33;
     mx::Matrix33 scaleCheck2(16.0f, 0.0f, 0.0f,

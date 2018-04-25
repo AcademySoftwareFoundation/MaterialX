@@ -29,8 +29,8 @@ using IndexPair = std::pair<size_t, size_t>;
 .def(py::self / py::self)                               \
 .def(py::self * float())                                \
 .def(py::self / float())                                \
-.def("magnitude", &V::magnitude)                        \
-.def("normalize", &V::normalize)                        \
+.def("getMagnitude", &V::getMagnitude)                  \
+.def("getNormalized", &V::getNormalized)                \
 .def("__getitem__", [](V& v, size_t i)                  \
     { return v[i]; } )                                  \
 .def("__setitem__", [](V& v, size_t i, float f)         \

@@ -12,7 +12,6 @@
 #include <MaterialXCore/Library.h>
 
 #include <array>
-#include <cmath>
 
 namespace MaterialX
 {
@@ -178,22 +177,13 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// @name Geometric operators
     /// @{
 
-    /// Magnitude of a vector
-    S magnitude() const
-    {
-        S result = (S)0;
-        for (size_t i = 0; i < N; i++)
-        {
-            result += _arr[i] * _arr[i];
-        }
-        result = std::sqrt(result);
-        return result;
-    }
+    /// Get the magnitude of a vector
+    S getMagnitude() const;
 
-    /// Normalization
-    void normalize()
+    /// Return a normalized vector
+    V getNormalized() const
     {
-        *this = *this / magnitude();
+        return *this / getMagnitude();
     }
 
     /// @}
@@ -467,16 +457,6 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     }
 
     /// @}
-    /// @name 3D Transformations
-    /// @{
-
-    /// Create a translation matrix 
-    static M createTranslation(RowArray& v);
-
-    /// Create a scale matrix
-    static M createScale(RowArray& v);
-
-    /// @}
     /// @name Iterators
     /// @{
 
@@ -519,8 +499,19 @@ class Matrix33 : public MatrixN<Matrix33, float, 3>
                 m20, m21, m22};
     }
 
+    /// @name 3D Transformations
+    /// @{
+
+    /// Create a translation matrix 
+    static Matrix33 createTranslation(const Vector2& v);
+
+    /// Create a scale matrix
+    static Matrix33 createScale(const Vector2& v);
+
     // Set matrix to a given rotation
     static Matrix33 createRotation(float angle);
+    
+    /// @}
 
   public:
     static const Matrix33 IDENTITY;
@@ -545,6 +536,15 @@ class Matrix44 : public MatrixN<Matrix44, float, 4>
                 m30, m31, m32, m33};
     }
 
+    /// @name 3D Transformations
+    /// @{
+
+    /// Create a translation matrix 
+    static Matrix44 createTranslation(const Vector3& v);
+
+    /// Create a scale matrix
+    static Matrix44 createScale(const Vector3& v);
+
     /// Create a rotation matrix about the X-axis
     static Matrix44 createRotationX(float angle);
 
@@ -553,6 +553,8 @@ class Matrix44 : public MatrixN<Matrix44, float, 4>
 
     /// Create a rotation matrix about the Z-axis
     static Matrix44 createRotationZ(float angle);
+
+    /// @}
 
   public:
     static const Matrix44 IDENTITY;
