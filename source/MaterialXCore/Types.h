@@ -200,8 +200,8 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// @name Static Methods
     /// @{
 
-    /// Return the length of this vector.
-    static constexpr size_t length() { return N; }
+    /// Return the number of scalar elements for the vector.
+    static constexpr size_t numElements() { return N; }
 
     /// @}
 
@@ -307,7 +307,7 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
 
     /// Return true if the given matrix is equivalent to another
     /// matrix within a given floating point tolerance
-    bool equivalent(const MatrixN& rhs, float tolerance)
+    bool isEquivalent(const MatrixN& rhs, float tolerance)
     {
         for (size_t i = 0; i < N; i++)
         {
@@ -509,6 +509,7 @@ class Matrix33 : public MatrixN<Matrix33, float, 3>
     static Matrix33 createScale(const Vector2& v);
 
     // Set matrix to a given rotation
+    // @param angle Angle in radians
     static Matrix33 createRotation(float angle);
     
     /// @}
@@ -546,12 +547,15 @@ class Matrix44 : public MatrixN<Matrix44, float, 4>
     static Matrix44 createScale(const Vector3& v);
 
     /// Create a rotation matrix about the X-axis
+    /// @param angle Angle in radians
     static Matrix44 createRotationX(float angle);
 
     /// Create a rotation matrix about the Y-axis
+    /// @param angle Angle in radians
     static Matrix44 createRotationY(float angle);
 
     /// Create a rotation matrix about the Z-axis
+    /// @param angle Angle in radians
     static Matrix44 createRotationZ(float angle);
 
     /// @}
