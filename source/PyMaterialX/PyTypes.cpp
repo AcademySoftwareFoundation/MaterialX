@@ -38,7 +38,7 @@ using IndexPair = std::pair<size_t, size_t>;
 .def("__str__", [](const V& v)                          \
     { return mx::toValueString(v); })                   \
 .def("copy", [](const V& v) { return V(v); })           \
-.def_static("__len__", &V::length)
+.def_static("__len__", &V::numElements)
 
 #define BIND_MATRIX_SUBCLASS(M, N)                      \
 .def(py::init<>())                                      \
@@ -58,7 +58,7 @@ using IndexPair = std::pair<size_t, size_t>;
 .def("__str__", [](const M& m)                          \
     { return mx::toValueString(m); })                   \
 .def("copy", [](const M& m) { return M(m); })           \
-.def("equivalent", &M::equivalent)                      \
+.def("isEquivalent", &M::isEquivalent)                  \
 .def("getTranspose", &M::getTranspose)                  \
 .def("getDeterminant", &M::getDeterminant)              \
 .def("getAdjugate", &M::getAdjugate)                    \
