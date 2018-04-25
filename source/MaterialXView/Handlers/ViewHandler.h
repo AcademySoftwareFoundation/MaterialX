@@ -89,23 +89,10 @@ class ViewHandler
     /// @name General utilities
     /// @{
 
-    /// Invert a matrix
-    /// @param m Input matrix 
-    /// @param tm Inverse of matrix
-    bool invertMatrix(const Matrix44& m, Matrix44& im) const;
-
-    /// Invert a matrix which is not affine
-    /// @param m Input matrix 
-    /// @param tm Inverse of matrix
-    bool invertGeneralMatrix(const Matrix44& m, Matrix44& im) const;
-
     /// Convert from degress to radians
     /// @param degrees Degree value
     /// @return value converted to radians
     float degreesToRadians(float degrees) const;
-
-    /// Get lenth of a vector
-    float length(const Vector3& vector) const;
 
     /// PI
     static float PI_VALUE;

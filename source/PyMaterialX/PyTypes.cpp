@@ -27,6 +27,10 @@ using IndexPair = std::pair<size_t, size_t>;
 .def(py::self - py::self)                               \
 .def(py::self * py::self)                               \
 .def(py::self / py::self)                               \
+.def(py::self * float())                                \
+.def(py::self / float())                                \
+.def("getMagnitude", &V::getMagnitude)                  \
+.def("getNormalized", &V::getNormalized)                \
 .def("__getitem__", [](V& v, size_t i)                  \
     { return v[i]; } )                                  \
 .def("__setitem__", [](V& v, size_t i, float f)         \
@@ -45,6 +49,8 @@ using IndexPair = std::pair<size_t, size_t>;
 .def(py::self - py::self)                               \
 .def(py::self * py::self)                               \
 .def(py::self / py::self)                               \
+.def(py::self * float())                                \
+.def(py::self / float())                                \
 .def("__getitem__", [](const M& m, IndexPair i)         \
     { return m[i.first][i.second]; } )                  \
 .def("__setitem__", [](M& m, IndexPair i, float f)      \
@@ -52,8 +58,13 @@ using IndexPair = std::pair<size_t, size_t>;
 .def("__str__", [](const M& m)                          \
     { return mx::toValueString(m); })                   \
 .def("copy", [](const M& m) { return M(m); })           \
-.def("getRow", &M::getRow)                              \
-.def("getColumn", &M::getColumn)                        \
+.def("equivalent", &M::equivalent)                      \
+.def("getTranspose", &M::getTranspose)                  \
+.def("getDeterminant", &M::getDeterminant)              \
+.def("getAdjugate", &M::getAdjugate)                    \
+.def("getInverse", &M::getInverse)                      \
+.def_static("createScale", &M::createScale)             \
+.def_static("createTranslation", &M::createTranslation) \
 .def_static("numRows", &M::numRows)                     \
 .def_static("numColumns", &M::numColumns)               \
 .def_static("__len__", &M::numRows)
@@ -95,6 +106,7 @@ void bindPyTypes(py::module& mod)
         .def(py::init<float, float, float,
                       float, float, float,
                       float, float, float>())
+        .def_static("createRotation", &mx::Matrix33::createRotation)
         .def_readonly_static("IDENTITY", &mx::Matrix33::IDENTITY);
 
     py::class_<mx::Matrix44, mx::MatrixBase>(mod, "Matrix44")
@@ -103,5 +115,8 @@ void bindPyTypes(py::module& mod)
                       float, float, float, float,
                       float, float, float, float,
                       float, float, float, float>())
+        .def_static("createRotationX", &mx::Matrix44::createRotationX)
+        .def_static("createRotationY", &mx::Matrix44::createRotationY)
+        .def_static("createRotationZ", &mx::Matrix44::createRotationZ)
         .def_readonly_static("IDENTITY", &mx::Matrix44::IDENTITY);
 }

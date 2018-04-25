@@ -356,13 +356,13 @@ void GlslValidator::updateViewInformation()
 
     // Offset view position a little beyond geometry bounds
     Vector3 minBounds = _geometryHandler->getMinimumBounds();
-    float distance = _viewHandler->length(minBounds) + 0.5f;
+    float distance = minBounds.getMagnitude() + 0.5f;
 
     viewPosition[0] = 0.0f;
     viewPosition[1] = 0.0f;
     viewPosition[2] = -distance;
 
-    viewMatrix.translate(Vector4(viewPosition[0], viewPosition[1], viewPosition[2], 1.0f));
+    viewMatrix = viewMatrix.createTranslation(viewPosition);
 
     // Update projection matrix
     if (_orthographicView)

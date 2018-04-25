@@ -880,7 +880,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
                 {
                     if (!computedInverse)
                     {
-                        viewHandler->invertMatrix(projectionMatrix, inverseProjection);
+                        inverseProjection = projectionMatrix.getInverse();
                     }
                     glUniformMatrix4fv(location, 1, transpose, &(inverseProjection[0][0]));
                 }
@@ -915,7 +915,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
                 {
                     if (!computedInverse)
                     {
-                        viewHandler->invertMatrix(viewMatrix, inverseView);
+                        inverseView = viewMatrix.getInverse();
                     }
                     glUniformMatrix4fv(location, 1, transpose, &(inverseView[0][0]));
                 }

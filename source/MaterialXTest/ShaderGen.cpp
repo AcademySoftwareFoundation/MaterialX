@@ -154,12 +154,11 @@ void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::HwS
     pointLight->setParameter("intensity", 10.0f);
     pointLight->setParameter("decayRate", 3.0f);
 
-    // Make sure to send over normalized directions
-    const float inv_dir_length = 1.0f / std::sqrt(3.0f);
-
     mx::LightSourcePtr spotLight = lightHandler.createLightSource(spotLightNodeDef);
-    spotLight->setParameter("position", mx::Vector3(3, 3, 3));
-    spotLight->setParameter("direction", mx::Vector3(-inv_dir_length, -inv_dir_length, -inv_dir_length));
+    mx::Vector3 position(3, 3, 3);
+    spotLight->setParameter("position", position);
+    mx::Vector3 direction = position.getNormalized() * -1;;
+    spotLight->setParameter("direction", direction);
     spotLight->setParameter("color", mx::Color3(1, 0, 0));
     spotLight->setParameter("intensity", 1.0f);
     spotLight->setParameter("decayRate", 0.0f);
@@ -167,8 +166,10 @@ void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::HwS
     spotLight->setParameter("outerConeAngle", cosAngle(10.0f));
 
     mx::LightSourcePtr compoundLight = lightHandler.createLightSource(compoundLightNodeDef);
-    compoundLight->setParameter("position", mx::Vector3(-3, 3, 3));
-    compoundLight->setParameter("direction", mx::Vector3(inv_dir_length, -inv_dir_length, -inv_dir_length));
+    position = { -3, 3, 3 };
+    direction = position.getNormalized() * -1;
+    compoundLight->setParameter("position", position);
+    compoundLight->setParameter("direction", direction);
     compoundLight->setParameter("color", mx::Color3(0, 1, 0));
     compoundLight->setParameter("intensity", 10.0f);
 
