@@ -14,7 +14,15 @@ int main(int argc, char* const argv[])
     session.configData().showDurations = Catch::ShowDurations::Always;
 #endif
 #ifdef CATCH_PLATFORM_WINDOWS
-    session.configData().outputFilename = "%debug";
+    BOOL inDebugger = IsDebuggerPresent();
+    if (inDebugger)
+    {
+        session.configData().outputFilename = "%debug";
+    }
+    else
+    {
+        session.configData().outputFilename = "";
+    }
 #endif
 
     int returnCode = session.applyCommandLine(argc, argv);

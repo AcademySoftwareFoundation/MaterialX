@@ -54,11 +54,11 @@ template <> void stringToData(const string& str, string& data)
 template <class T> void stringToData(const string& str, enable_if_mx_vector_t<T>& data)
 {
     vector<string> tokens = splitString(str, ARRAY_VALID_SEPARATORS);
-    if (tokens.size() != data.length())
+    if (tokens.size() != data.numElements())
     {
         throw ExceptionTypeError("Type mismatch in vector stringToData: " + str);
     }
-    for (size_t i = 0; i < data.length(); i++)
+    for (size_t i = 0; i < data.numElements(); i++)
     {
         stringToData(tokens[i], data[i]);
     }
@@ -109,12 +109,12 @@ template <> void dataToString(const string& data, string& str)
 
 template <class T> void dataToString(const enable_if_mx_vector_t<T>& data, string& str)
 {
-    for (size_t i = 0; i < data.length(); i++)
+    for (size_t i = 0; i < data.numElements(); i++)
     {
         string token;
         dataToString(data[i], token);
         str += token;
-        if (i + 1 < data.length())
+        if (i + 1 < data.numElements())
         {
             str += ARRAY_PREFERRED_SEPARATOR;
         }
