@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXCore/Types.h>
+#include <cmath>
 
 namespace MaterialX
 {
@@ -29,6 +30,26 @@ const Matrix44 Matrix44::IDENTITY{1, 0, 0, 0,
                                   0, 1, 0, 0,
                                   0, 0, 1, 0,
                                   0, 0, 0, 1};
+
+
+//
+// Vector methods
+//
+template <> float VectorN<Vector2, float, 2>::getMagnitude() const
+{
+    return std::sqrt(_arr[0] * _arr[0] + _arr[1] * _arr[1]);
+}
+
+template <> float VectorN<Vector3, float, 3>::getMagnitude() const
+{
+    return std::sqrt(_arr[0] * _arr[0] + _arr[1] * _arr[1] + _arr[2] * _arr[2]);
+}
+
+template <> float VectorN<Vector4, float, 4>::getMagnitude() const
+{
+    return std::sqrt(_arr[0] * _arr[0] + _arr[1] * _arr[1] + _arr[2] * _arr[2] +
+                     _arr[3] * _arr[3]);
+}
 
 //
 // Matrix33 methods
@@ -60,6 +81,30 @@ template <> Matrix33 MatrixN<Matrix33, float, 3>::getAdjugate() const
         _arr[1][0]*_arr[2][1] - _arr[2][0]*_arr[1][1],
         _arr[2][0]*_arr[0][1] - _arr[0][0]*_arr[2][1],
         _arr[0][0]*_arr[1][1] - _arr[1][0]*_arr[0][1]);
+}
+
+Matrix33 Matrix33::createTranslation(const Vector2& v)
+{
+    return Matrix33(1.0f, 0.0f, 0.0f,
+                    0.0f, 1.0f, 0.0f,
+                    v[0], v[1], 1.0f);
+}
+
+Matrix33 Matrix33::createScale(const Vector2& v)
+{
+    return Matrix33(v[0], 0.0f, 0.0f,
+                    0.0f, v[1], 0.0f,
+                    0.0f, 0.0f, 1.0f);
+}
+
+Matrix33 Matrix33::createRotation(float angle)
+{
+    float sine = std::sin(angle);
+    float cosine = std::cos(angle);
+
+    return Matrix33(cosine, -sine, 0.0f,
+                    sine, cosine, 0.0f,
+                    0.0f, 0.0f, 1.0f);
 }
 
 //
@@ -136,6 +181,55 @@ template <> Matrix44 MatrixN<Matrix44, float, 4>::getAdjugate() const
 
         _arr[0][0]*_arr[1][1]*_arr[2][2] + _arr[2][0]*_arr[0][1]*_arr[1][2] + _arr[1][0]*_arr[2][1]*_arr[0][2] -
         _arr[0][0]*_arr[2][1]*_arr[1][2] - _arr[1][0]*_arr[0][1]*_arr[2][2] - _arr[2][0]*_arr[1][1]*_arr[0][2]);
+}
+
+Matrix44 Matrix44::createTranslation(const Vector3& v)
+{
+    return Matrix44(1.0f, 0.0f, 0.0f, 0.0f,
+                    0.0f, 1.0f, 0.0f, 0.0f, 
+                    0.0f, 0.0f, 1.0f, 0.0f,
+                    v[0], v[1], v[2], 1.0f);
+}
+
+Matrix44 Matrix44::createScale(const Vector3& v)
+{
+    return Matrix44(v[0], 0.0f, 0.0f, 0.0f,
+                    0.0f, v[1], 0.0f, 0.0f,
+                    0.0f, 0.0f, v[2], 0.0f,
+                    0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+Matrix44 Matrix44::createRotationX(float angle)
+{
+    float sine = std::sin(angle);
+    float cosine = std::cos(angle);
+
+    return Matrix44(1.0f, 0.0f, 0.0f, 0.0f,
+                    0.0f, cosine, -sine, 0.0f,
+                    0.0f, sine, cosine, 0.0f,
+                    0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+Matrix44 Matrix44::createRotationY(float angle)
+{
+    float sine = std::sin(angle);
+    float cosine = std::cos(angle);
+
+    return Matrix44(cosine, 0.0f, sine, 0.0f,
+                    0.0f, 1.0f, 0.0f, 0.0f,
+                    -sine, 0.0f, cosine, 0.0f,
+                    0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+Matrix44 Matrix44::createRotationZ(float angle)
+{
+    float sine = std::sin(angle);
+    float cosine = std::cos(angle);
+
+    return Matrix44(cosine, -sine, 0.0f, 0.0f,
+                    sine, cosine, 0.0f, 0.0f,
+                    0.0f, 0.0f, 1.0f, 0.0f,
+                    0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 } // namespace MaterialX
