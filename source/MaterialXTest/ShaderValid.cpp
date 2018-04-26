@@ -95,6 +95,13 @@ TEST_CASE("GLSL Source", "[shadervalid]")
         "test_cellnoise2d",
         "test_cellnoise3d",
         "test_fractal3d",
+        "example1_surface"
+    };
+
+    const std::set<std::string> shadersUseLighting =
+    {
+        "subgraph_ex2",
+        "example1_surface"
     };
 
     for (auto shaderName : shaderNames)
@@ -131,7 +138,7 @@ TEST_CASE("GLSL Source", "[shadervalid]")
             continue;
         }
 
-        if (shaderName == "subgraph_ex2")
+        if (shadersUseLighting.count(shaderName))
         {
             validator->setLightHandler(lightHandler);
         }

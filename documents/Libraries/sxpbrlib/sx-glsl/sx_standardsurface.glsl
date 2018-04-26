@@ -1,8 +1,3 @@
-float SQR(float a)
-{
-    return a * a;
-}
-
 // Arnold standard shader diffuse
 vec3 standardShaderDiffuse(vec3 N, vec3 L, vec3 inDiffuse)
 {
@@ -17,7 +12,7 @@ vec3 standardShaderDiffuse(vec3 N, vec3 L, vec3 inDiffuse)
 vec3 standardShaderSpecular(
     vec3 N,
     vec3 SL, // Same as diffuse for now
-    vec3 V, // u_viewDirection
+    vec3 V,
     vec3 specular,
     float roughness)
 {
@@ -39,23 +34,23 @@ vec3 standardShaderSpecular(
     float MdotN = clamp(dot(microfacet, N), 0.0f, 1.0f);
     if (MdotN == 0.0f) return vec3(0.0f, 0.0f, 0.0f);
 
-    float LdotN2 = SQR(LdotN);
-    float VdotN2 = SQR(VdotN);
-    float MdotN2 = SQR(MdotN);
-    float MdotN4 = SQR(MdotN2);
+    float LdotN2 = sx_square(LdotN);
+    float VdotN2 = sx_square(VdotN);
+    float MdotN2 = sx_square(MdotN);
+    float MdotN4 = sx_square(MdotN2);
 
-    float rx = SQR(clamp(roughness, 0.0f, 1.0f));
+    float rx = sx_square(clamp(roughness, 0.0f, 1.0f));
 
-    float rx2 = SQR(rx);
-    float tanThetaL = sqrt(1.0f - LdotN2) / LdotN;
-    float tanThetaV = sqrt(1.0f - VdotN2) / VdotN;
+    float rx2 = sx_square(rx);
+    float tanThetaL = sx_square(1.0f - LdotN2) / LdotN;
+    float tanThetaV = sx_square(1.0f - VdotN2) / VdotN;
     float tan2ThetaM = (1.0f - MdotN2) / MdotN2;
 
     float a_im = 1.0f / (rx * tanThetaL);
-    float a_im2 = SQR(a_im);
+    float a_im2 = sx_square(a_im);
     float g1im = (a_im < 1.6f) ? (3.535f * a_im + 2.181f * a_im2) / (1.0f + 2.276f * a_im + 2.577f * a_im2) : 1.0f;
     float a_om = 1.0f / (rx * tanThetaV);
-    float a_om2 = SQR(a_om);
+    float a_om2 = sx_square(a_om);
     float g1om = (a_om < 1.6f) ? (3.535f * a_om + 2.181f * a_om2) / (1.0f + 2.276f * a_om + 2.577f * a_om2) : 1.0f;
     float G = g1im * g1om;
 
@@ -163,7 +158,7 @@ void standardShaderCombiner(
     }
 
     // compute the coat color
-    vec3 cc = lerp(vec3(1.0, 1.0, 1.0), coatColor, coat);
+    vec3 cc = mix(vec3(1.0, 1.0, 1.0), coatColor, coat);
 
     // Compute the coat specular color.
     // In Arnold the secondary coat adds white specular highlights.
@@ -174,10 +169,10 @@ void standardShaderCombiner(
 
     // include the sub-surface color
     // TODO: Provide sub-surface scattering
-    diffuse = lerp(diffuse, subsurfaceColor, subsurface * (1.0 - metalness));
+    diffuse = mix(diffuse, subsurfaceColor, subsurface * (1.0 - metalness));
 
     // apply the diffuse roughness
-    diffuse = lerp(diffuse, diffuse * 0.8, diffuseRoughness);
+    diffuse = mix(diffuse, diffuse * 0.8, diffuseRoughness);
 
     // compute the specular.  Specular goes to black as the metalness increases.
     // metalness has its own specularity
@@ -200,20 +195,20 @@ void standardShaderCombiner(
 
     // fake some translucency   
     if (!thinWalled)
-        transp = lerp(transp, 1.0 - abs(transp - 0.5)*2.0, max(clampedIOR, 1.4) - 1.0);
+        transp = mix(transp, 1.0 - abs(transp - 0.5)*2.0, max(clampedIOR, 1.4) - 1.0);
 
     // Compute the transparency amount.  Roughness makes things less transparent.
     vec3 transAmount = (transmissionColor * transp) * (1.0 - 0.85*transmissionRoughness);
 
     // modify the transparent amount so clear is clear no matter what angle you look at it from.
     float shortestAxis = min(min(transmissionColor.x, transmissionColor.y), transmissionColor.z);
-    transAmount = lerp(transAmount, transmissionColor, shortestAxis);
+    transAmount = mix(transAmount, transmissionColor, shortestAxis);
 
     vec3 tt = transmissionColor * transp;
     tt *= (1.0 - transAmount) * clampedIOR;
 
     // apply the affects of transmission
-    diffuse = lerp(diffuse, tt, transmission);
+    diffuse = mix(diffuse, tt, transmission);
 
     // include the secondary coat     
     diffuse *= cc;
@@ -228,7 +223,7 @@ void standardShaderCombiner(
     diffuse *= 1.0 - min(1.0, max(coatFresnel * coat, metalness));
 
     // lower the specular in the straight-on angles when the roughness is low.   
-    specular *= lerp(1.0 - transp, 1.0, transmissionRoughness * (1.0 - transmission));
+    specular *= mix(1.0 - transp, 1.0, transmissionRoughness * (1.0 - transmission));
 
     result.color = diffuse + specular + metalColor + metalSpecular + coatSpecular;
     result.transparency = max((1.0 - metalness) * transmission * transAmount, (1.0 - opacity));
@@ -276,14 +271,14 @@ void sx_standardsurface(
     float indirect_specular,
     out surfaceshader result)
 {
-    vec3 worldNormal = normalize(normal);
+    vec3 worldNormal = sx_front_facing(normal);
+    vec3 worldView = normalize(u_viewPosition - vd.positionWorld);
 
     // Compute diffuse, and texture map with a checker
     vec3 _diffuse = vec3(0.0);
     computeDiffuse(diffuse_roughness, worldNormal, _diffuse);
 
     // Compute specular
-    vec3 worldView = normalize(u_viewDirection); // Not correct. Which one to use
     vec3 _specular = vec3(0.0);
     computeSpecular(specular_roughness, worldNormal, worldView, _specular);
 
@@ -294,8 +289,8 @@ void sx_standardsurface(
     bool FresnelAffectDiffuse = false;
     bool FresnelUseIOR = false;
     float Ksn = 0.0;
-    vec3 IrradianceEnv = IrradianceEnvironment(worldNormal);
-    vec3 SpecularEnv = SpecularEnvironment(worldNormal, worldView, specular_roughness);
+    vec3 IrradianceEnv = sx_environment_irradiance(worldNormal);
+    vec3 SpecularEnv = sx_environment_specular(worldNormal, worldView, specular_roughness);
 
     // Compute total bsdf
     standardShaderCombiner(

@@ -1,9 +1,10 @@
-#include "sxpbrlib/sx-glsl/shadingmodels.glsl"
+#include "sxpbrlib/sx-glsl/lib/sx_shadingmodels.glsl"
 
 void sx_coatingbsdf(vec3 L, vec3 V, vec3 reflectance, float ior, float roughness, float anisotropy, vec3 normal, vec3 tangent, int distribution, BSDF base, out BSDF result)
 {
     result = base;
 
+    normal = sx_front_facing(normal);
     float NdotL = dot(normal,L);
     float NdotV = dot(normal,V);
     if (NdotL < 0 || NdotV < 0)
