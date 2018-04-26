@@ -174,6 +174,19 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     }
 
     /// @}
+    /// @name Geometric operators
+    /// @{
+
+    /// Get the magnitude of a vector
+    S getMagnitude() const;
+
+    /// Return a normalized vector
+    V getNormalized() const
+    {
+        return *this / getMagnitude();
+    }
+
+    /// @}
     /// @name Iterators
     /// @{
 
@@ -187,8 +200,8 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     /// @name Static Methods
     /// @{
 
-    /// Return the length of this vector.
-    static constexpr size_t length() { return N; }
+    /// Return the number of scalar elements for the vector.
+    static constexpr size_t numElements() { return N; }
 
     /// @}
 
@@ -291,6 +304,23 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
 
     /// Return true if the given vector differs from this one.
     bool operator!=(const MatrixN& rhs) const { return _arr != rhs._arr; }
+
+    /// Return true if the given matrix is equivalent to another
+    /// matrix within a given floating point tolerance
+    bool isEquivalent(const MatrixN& rhs, float tolerance)
+    {
+        for (size_t i = 0; i < N; i++)
+        {
+            for (size_t j = 0; j < N; j++)
+            {
+                if (std::abs(_arr[i][j] - rhs[i][j]) > tolerance)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
     /// @}
     /// @name Indexing operators
@@ -469,6 +499,21 @@ class Matrix33 : public MatrixN<Matrix33, float, 3>
                 m20, m21, m22};
     }
 
+    /// @name 3D Transformations
+    /// @{
+
+    /// Create a translation matrix 
+    static Matrix33 createTranslation(const Vector2& v);
+
+    /// Create a scale matrix
+    static Matrix33 createScale(const Vector2& v);
+
+    // Set matrix to a given rotation
+    // @param angle Angle in radians
+    static Matrix33 createRotation(float angle);
+    
+    /// @}
+
   public:
     static const Matrix33 IDENTITY;
 };
@@ -491,6 +536,29 @@ class Matrix44 : public MatrixN<Matrix44, float, 4>
                 m20, m21, m22, m23,
                 m30, m31, m32, m33};
     }
+
+    /// @name 3D Transformations
+    /// @{
+
+    /// Create a translation matrix 
+    static Matrix44 createTranslation(const Vector3& v);
+
+    /// Create a scale matrix
+    static Matrix44 createScale(const Vector3& v);
+
+    /// Create a rotation matrix about the X-axis
+    /// @param angle Angle in radians
+    static Matrix44 createRotationX(float angle);
+
+    /// Create a rotation matrix about the Y-axis
+    /// @param angle Angle in radians
+    static Matrix44 createRotationY(float angle);
+
+    /// Create a rotation matrix about the Z-axis
+    /// @param angle Angle in radians
+    static Matrix44 createRotationZ(float angle);
+
+    /// @}
 
   public:
     static const Matrix44 IDENTITY;
