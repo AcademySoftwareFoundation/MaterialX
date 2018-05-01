@@ -35,7 +35,7 @@ bool geomStringsMatch(const string& geom1, const string& geom2)
     return !matches.empty();
 }
 
-void GeomElement::setCollection(CollectionPtr collection)
+void GeomElement::setCollection(ConstCollectionPtr collection)
 {
     if (collection)
     {
