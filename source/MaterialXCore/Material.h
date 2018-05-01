@@ -362,7 +362,7 @@ class BindInput : public ValueElement
     /// @{
 
     /// Set the output to which the BindInput is connected.
-    void setConnectedOutput(OutputPtr output);
+    void setConnectedOutput(ConstOutputPtr output);
 
     /// Return the output, if any, to which the BindInput is connected.
     OutputPtr getConnectedOutput() const;

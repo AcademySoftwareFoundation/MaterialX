@@ -182,7 +182,7 @@ bool Material::validate(string* message) const
 // BindInput methods
 //
 
-void BindInput::setConnectedOutput(OutputPtr output)
+void BindInput::setConnectedOutput(ConstOutputPtr output)
 {
     if (output)
     {
