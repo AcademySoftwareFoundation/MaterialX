@@ -54,17 +54,17 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     explicit VectorN(const vector<float>& vec) { std::copy_n(vec.begin(), N, _arr.begin()); }
 
     /// @}
-    /// @name Equality operators
+    /// @name Equality Operators
     /// @{
 
     /// Return true if the given vector is identical to this one.
-    bool operator==(const VectorN& rhs) const { return _arr == rhs._arr; }
+    bool operator==(const V& rhs) const { return _arr == rhs._arr; }
 
     /// Return true if the given vector differs from this one.
-    bool operator!=(const VectorN& rhs) const { return _arr != rhs._arr; }
+    bool operator!=(const V& rhs) const { return _arr != rhs._arr; }
 
     /// @}
-    /// @name Indexing operators
+    /// @name Indexing Operators
     /// @{
 
     /// Return the scalar value at the given index.
@@ -74,11 +74,11 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     const S& operator[](size_t i) const { return _arr.at(i); }
 
     /// @}
-    /// @name Component-wise operators
+    /// @name Component-wise Operators
     /// @{
 
     /// Component-wise addition of two vectors.
-    V operator+(const VectorN& rhs) const
+    V operator+(const V& rhs) const
     {
         V res(Uninit{});
         for (size_t i = 0; i < N; i++)
@@ -87,14 +87,14 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     }
 
     /// Component-wise addition of two vectors.
-    VectorN& operator+=(const VectorN& rhs)
+    VectorN& operator+=(const V& rhs)
     {
         *this = *this + rhs;
         return *this;
     }
 
     /// Component-wise subtraction of two vectors.
-    V operator-(const VectorN& rhs) const
+    V operator-(const V& rhs) const
     {
         V res(Uninit{});
         for (size_t i = 0; i < N; i++)
@@ -103,14 +103,14 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     }
 
     /// Component-wise subtraction of two vectors.
-    VectorN& operator-=(const VectorN& rhs)
+    VectorN& operator-=(const V& rhs)
     {
         *this = *this - rhs;
         return *this;
     }
 
     /// Component-wise multiplication of two vectors.
-    V operator*(const VectorN& rhs) const
+    V operator*(const V& rhs) const
     {
         V res(Uninit{});
         for (size_t i = 0; i < N; i++)
@@ -119,14 +119,14 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     }
 
     /// Component-wise multiplication of two vectors.
-    VectorN& operator*=(const VectorN& rhs)
+    VectorN& operator*=(const V& rhs)
     {
         *this = *this * rhs;
         return *this;
     }
 
     /// Component-wise division of two vectors.
-    V operator/(const VectorN& rhs) const
+    V operator/(const V& rhs) const
     {
         V res(Uninit{});
         for (size_t i = 0; i < N; i++)
@@ -135,7 +135,7 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     }
 
     /// Component-wise division of two vectors.
-    VectorN& operator/=(const VectorN& rhs)
+    VectorN& operator/=(const V& rhs)
     {
         *this = *this / rhs;
         return *this;
@@ -174,13 +174,13 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     }
 
     /// @}
-    /// @name Geometric operators
+    /// @name Geometric Methods
     /// @{
 
-    /// Get the magnitude of a vector
+    /// Return the magnitude of the vector.
     S getMagnitude() const;
 
-    /// Return a normalized vector
+    /// Return a normalized vector.
     V getNormalized() const
     {
         return *this / getMagnitude();
@@ -296,18 +296,18 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     explicit MatrixN(S s) { for (RowArray& row : _arr) row.fill(s); }
 
     /// @}
-    /// @name Equality operators
+    /// @name Equality Operators
     /// @{
 
     /// Return true if the given matrix is identical to this one.
-    bool operator==(const MatrixN& rhs) const { return _arr == rhs._arr; }
+    bool operator==(const M& rhs) const { return _arr == rhs._arr; }
 
     /// Return true if the given vector differs from this one.
-    bool operator!=(const MatrixN& rhs) const { return _arr != rhs._arr; }
+    bool operator!=(const M& rhs) const { return _arr != rhs._arr; }
 
     /// Return true if the given matrix is equivalent to another
     /// matrix within a given floating point tolerance
-    bool isEquivalent(const MatrixN& rhs, float tolerance)
+    bool isEquivalent(const M& rhs, S tolerance)
     {
         for (size_t i = 0; i < N; i++)
         {
@@ -323,7 +323,7 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     }
 
     /// @}
-    /// @name Indexing operators
+    /// @name Indexing Operators
     /// @{
 
     /// Return the row array at the given index.
@@ -333,11 +333,11 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     const RowArray& operator[](size_t i) const { return _arr.at(i); }
 
     /// @}
-    /// @name Component-wise operators
+    /// @name Component-wise Operators
     /// @{
 
     /// Component-wise addition of two matrices.
-    M operator+(const MatrixN& rhs) const
+    M operator+(const M& rhs) const
     {
         M res(Uninit{});
         for (size_t i = 0; i < N; i++)
@@ -347,14 +347,14 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     }
 
     /// Component-wise addition of two matrices.
-    MatrixN& operator+=(const MatrixN& rhs)
+    MatrixN& operator+=(const M& rhs)
     {
         *this = *this + rhs;
         return *this;
     }
 
     /// Component-wise subtraction of two matrices.
-    M operator-(const MatrixN& rhs) const
+    M operator-(const M& rhs) const
     {
         M res(Uninit{});
         for (size_t i = 0; i < N; i++)
@@ -364,7 +364,7 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     }
 
     /// Component-wise subtraction of two matrices.
-    MatrixN& operator-=(const MatrixN& rhs)
+    MatrixN& operator-=(const M& rhs)
     {
         *this = *this - rhs;
         return *this;
@@ -409,7 +409,7 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     /// @{
 
     /// Compute the matrix product.
-    M operator*(const MatrixN& rhs) const
+    M operator*(const M& rhs) const
     {
         M res;
         for (size_t i = 0; i < N; i++)
@@ -420,7 +420,7 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     }
 
     /// Compute the matrix product.
-    MatrixN& operator*=(const MatrixN& rhs)
+    MatrixN& operator*=(const M& rhs)
     {
         *this = *this * rhs;
         return *this;
@@ -428,14 +428,14 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
 
     /// Divide the first matrix by the second (computed as the product of the
     /// first matrix and the inverse of the second).
-    M operator/(const MatrixN& rhs) const
+    M operator/(const M& rhs) const
     {
         return *this * rhs.getInverse();
     }
 
     /// Divide the first matrix by the second (computed as the product of the
     /// first matrix and the inverse of the second).
-    MatrixN& operator/=(const MatrixN& rhs)
+    MatrixN& operator/=(const M& rhs)
     {
         *this *= rhs.getInverse();
         return *this;
@@ -499,16 +499,16 @@ class Matrix33 : public MatrixN<Matrix33, float, 3>
                 m20, m21, m22};
     }
 
-    /// @name 3D Transformations
+    /// @name 2D Transformations
     /// @{
 
-    /// Create a translation matrix 
+    /// Create a translation matrix.
     static Matrix33 createTranslation(const Vector2& v);
 
-    /// Create a scale matrix
+    /// Create a scale matrix.
     static Matrix33 createScale(const Vector2& v);
 
-    // Set matrix to a given rotation
+    // Create a rotation matrix.
     // @param angle Angle in radians
     static Matrix33 createRotation(float angle);
     
@@ -540,21 +540,21 @@ class Matrix44 : public MatrixN<Matrix44, float, 4>
     /// @name 3D Transformations
     /// @{
 
-    /// Create a translation matrix 
+    /// Create a translation matrix.
     static Matrix44 createTranslation(const Vector3& v);
 
-    /// Create a scale matrix
+    /// Create a scale matrix.
     static Matrix44 createScale(const Vector3& v);
 
-    /// Create a rotation matrix about the X-axis
+    /// Create a rotation matrix about the X-axis.
     /// @param angle Angle in radians
     static Matrix44 createRotationX(float angle);
 
-    /// Create a rotation matrix about the Y-axis
+    /// Create a rotation matrix about the Y-axis.
     /// @param angle Angle in radians
     static Matrix44 createRotationY(float angle);
 
-    /// Create a rotation matrix about the Z-axis
+    /// Create a rotation matrix about the Z-axis.
     /// @param angle Angle in radians
     static Matrix44 createRotationZ(float angle);
 
