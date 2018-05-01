@@ -147,7 +147,7 @@ class NodeDef : public InterfaceElement
 /// An implementation element within a Document.
 ///
 /// An Implementation is used to associate external source code with a specific
-/// NodeDef, providing a definition for the node that may eiher be universal or
+/// NodeDef, providing a definition for the node that may either be universal or
 /// restricted to a specific target.
 class Implementation : public InterfaceElement
 {
@@ -180,7 +180,7 @@ class Implementation : public InterfaceElement
     }
 
     /// Set the NodeDef element for the Implementation.
-    void setNodeDef(NodeDefPtr nodeDef)
+    void setNodeDef(ConstNodeDefPtr nodeDef)
     {
         if (nodeDef)
         {

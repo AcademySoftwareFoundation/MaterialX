@@ -157,7 +157,7 @@ class NodeGraph : public InterfaceElement
     }
 
     /// Set the NodeDef element for the graph.
-    void setNodeDef(NodeDefPtr nodeDef)
+    void setNodeDef(ConstNodeDefPtr nodeDef)
     {
         if (nodeDef)
         {

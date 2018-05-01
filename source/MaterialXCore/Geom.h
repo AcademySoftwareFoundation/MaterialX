@@ -107,7 +107,7 @@ class GeomElement : public Element
     }
 
     /// Assign a Collection to this element.
-    void setCollection(CollectionPtr collection);
+    void setCollection(ConstCollectionPtr collection);
 
     /// Return the Collection that is assigned to this element.
     CollectionPtr getCollection() const;
