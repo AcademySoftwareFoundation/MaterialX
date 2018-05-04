@@ -24,7 +24,11 @@ using ObservedDocumentPtr = shared_ptr<class ObservedDocument>;
 /// A shared pointer to a const ObservedDocument
 using ConstObservedDocumentPtr = shared_ptr<const class ObservedDocument>;
 
-/// An observer of a MaterialX Document
+/// @class Observer
+/// An observer of a MaterialX Document.
+///
+/// An observer may be registered with a supporting document, and will receive
+/// callbacks when the document is modified.
 class Observer
 {
   public:
@@ -59,12 +63,12 @@ class Observer
     virtual void onEndUpdate() { }
 };
 
+/// @class ObservedDocument
 /// A MaterialX document with support for registering observers
-/// that receive callbacks when the document is modified.
 class ObservedDocument : public Document
 {
   public:
-    ObservedDocument(ElementPtr parent, const string& name) : 
+    ObservedDocument(ElementPtr parent, const string& name) :
         Document(parent, name),
         _updateScope(0),
         _callbacksEnabled(true)
@@ -86,7 +90,7 @@ class ObservedDocument : public Document
         return true;
     }
 
-    /// Remove an observer
+    /// Remove an observer.
     bool removeObserver(const string& name)
     {
         auto it = _observerMap.find(name);
@@ -150,7 +154,7 @@ class ObservedDocument : public Document
 
         if (_callbacksEnabled)
         {
-            for (auto &item : _observerMap)
+            for (auto& item : _observerMap)
             {
                 item.second->onAddElement(parent, elem);
             }
@@ -162,7 +166,7 @@ class ObservedDocument : public Document
         Document::onRemoveElement(parent, elem);
         if (_callbacksEnabled)
         {
-            for (auto &item : _observerMap)
+            for (auto& item : _observerMap)
             {
                 item.second->onRemoveElement(parent, elem);
             }
@@ -174,7 +178,7 @@ class ObservedDocument : public Document
         Document::onSetAttribute(elem, attrib, value);
         if (_callbacksEnabled)
         {
-            for (auto &item : _observerMap)
+            for (auto& item : _observerMap)
             {
                 item.second->onSetAttribute(elem, attrib, value);
             }
@@ -186,7 +190,7 @@ class ObservedDocument : public Document
         Document::onRemoveAttribute(elem, attrib);
         if (_callbacksEnabled)
         {
-            for (auto &item : _observerMap)
+            for (auto& item : _observerMap)
             {
                 item.second->onRemoveAttribute(elem, attrib);
             }
@@ -197,7 +201,7 @@ class ObservedDocument : public Document
     {
         if (_callbacksEnabled)
         {
-            for (auto &item : _observerMap)
+            for (auto& item : _observerMap)
             {
                 item.second->onInitialize();
             }
@@ -208,7 +212,7 @@ class ObservedDocument : public Document
     {
         if (_callbacksEnabled)
         {
-            for (auto &item : _observerMap)
+            for (auto& item : _observerMap)
             {
                 item.second->onRead();
             }
@@ -219,7 +223,7 @@ class ObservedDocument : public Document
     {
         if (_callbacksEnabled)
         {
-            for (auto &item : _observerMap)
+            for (auto& item : _observerMap)
             {
                 item.second->onWrite();
             }
@@ -233,7 +237,7 @@ class ObservedDocument : public Document
         {
             if (_callbacksEnabled)
             {
-                for (auto &item : _observerMap)
+                for (auto& item : _observerMap)
                 {
                     item.second->onBeginUpdate();
                 }
@@ -252,7 +256,7 @@ class ObservedDocument : public Document
         {
             if (_callbacksEnabled)
             {
-                for (auto &item : _observerMap)
+                for (auto& item : _observerMap)
                 {
                     item.second->onEndUpdate();
                 }

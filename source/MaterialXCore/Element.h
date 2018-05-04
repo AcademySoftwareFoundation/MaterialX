@@ -643,7 +643,7 @@ class Element : public std::enable_shared_from_this<Element>
 
     /// Using the input name as a starting point, modify it to create a valid,
     /// unique name for a child element.
-    string createValidChildName(string name)
+    string createValidChildName(string name) const
     {
         name = createValidName(name);
         while (_childMap.count(name))

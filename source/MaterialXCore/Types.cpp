@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXCore/Types.h>
+
 #include <cmath>
 
 namespace MaterialX
