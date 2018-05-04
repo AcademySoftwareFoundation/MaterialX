@@ -47,7 +47,7 @@ void TangentGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
             if (!shader.isCalculated("tangentWorld"))
             {
                 shader.setCalculated("tangentWorld");
-                shader.addLine(blockPrefix + "tangentWorld = normalize(u_worldInverseTransposeMatrix * i_tangent)");
+                shader.addLine(blockPrefix + "tangentWorld = (u_worldInverseTransposeMatrix * vec4(i_tangent,0.0)).xyz");
             }
         }
         else if (space == MODEL)
@@ -73,15 +73,15 @@ void TangentGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
     shadergen.emitOutput(node.getOutput(), true, shader);
     if (space == WORLD)
     {
-        shader.addStr(" = " + blockPrefix + "tangentWorld");
+        shader.addStr(" = normalize(" + blockPrefix + "tangentWorld)");
     }
     else if (space == MODEL)
     {
-        shader.addStr(" = " + blockPrefix + "tangentModel");
+        shader.addStr(" = normalize(" + blockPrefix + "tangentModel)");
     }
     else
     {
-        shader.addStr(" = " + blockPrefix + "tangentObject");
+        shader.addStr(" = normalize(" + blockPrefix + "tangentObject)");
     }
     shader.endLine();
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)

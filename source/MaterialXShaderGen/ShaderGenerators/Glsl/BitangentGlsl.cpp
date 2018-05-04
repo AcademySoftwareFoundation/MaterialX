@@ -47,7 +47,7 @@ void BitangentGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shader
             if (!shader.isCalculated("bitangentWorld"))
             {
                 shader.setCalculated("bitangentWorld");
-                shader.addLine(blockPrefix + "bitangentWorld = normalize(u_worldInverseTransposeMatrix * i_bitangent)");
+                shader.addLine(blockPrefix + "bitangentWorld = (u_worldInverseTransposeMatrix * vec4(i_bitangent,0.0)).xyz");
             }
         }
         else if (space == MODEL)
@@ -73,15 +73,15 @@ void BitangentGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shader
         shadergen.emitOutput(node.getOutput(), true, shader);
         if (space == WORLD)
         {
-            shader.addStr(" = " + blockPrefix + "bitangentWorld");
+            shader.addStr(" = normalize(" + blockPrefix + "bitangentWorld)");
         }
         else if (space == MODEL)
         {
-            shader.addStr(" = " + blockPrefix + "bitangentModel");
+            shader.addStr(" = normalize(" + blockPrefix + "bitangentModel)");
         }
         else
         {
-            shader.addStr(" = " + blockPrefix + "bitangentObject");
+            shader.addStr(" = normalize(" + blockPrefix + "bitangentObject)");
         }
         shader.endLine();
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)

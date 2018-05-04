@@ -1,9 +1,9 @@
 // Arnold standard shader diffuse
-vec3 standardShaderDiffuse(vec3 N, vec3 L, vec3 inDiffuse)
+vec3 standardShaderDiffuse(vec3 N, vec3 L, vec3 diffuse, float roughness)
 {
     float NDL = clamp(dot(N, L), 0.0f, 1.0f);
     if (NDL > 0.0f)
-        return inDiffuse * NDL;
+        return diffuse * NDL;
     else
         return vec3(0.0f, 0.0f, 0.0f);
 }
@@ -24,7 +24,7 @@ vec3 standardShaderSpecular(
     if (VdotN == 0.0f)
         return vec3(0.0f, 0.0f, 0.0f);
 
-    vec3 iPlusO = SL + V;
+    vec3 iPlusO = SL + V; // = lightingData.L + lightingData.V;
     vec3 microfacet = normalize(iPlusO);
 
     float LdotM = clamp(dot(SL, microfacet), 0.0f, 1.0f);
@@ -65,32 +65,6 @@ vec3 standardShaderEmission(
     float emission)
 {
     return emissionColor * emission;
-}
-
-// Diffuse computation computation
-void computeDiffuse(float roughness, vec3 normal, out vec3 result)
-{
-    result = vec3(0.0);
-    int numLights = numActiveLightSources();
-    lightshader lightShader;
-    for (int activeLightIndex = 0; activeLightIndex < numLights; ++activeLightIndex)
-    {
-        sampleLightSource(u_lightData[activeLightIndex], vd.positionWorld, lightShader);
-        result += standardShaderDiffuse(normal, lightShader.direction, lightShader.intensity);
-    }
-}
-
-// Specular contribution computation
-void computeSpecular(float roughness, vec3 normal, vec3 view, out vec3 result)
-{
-    result = vec3(0.0);
-    int numLights = numActiveLightSources();
-    lightshader lightShader;
-    for (int activeLightIndex = 0; activeLightIndex < numLights; ++activeLightIndex)
-    {
-        sampleLightSource(u_lightData[activeLightIndex], vd.positionWorld, lightShader);
-        result += standardShaderSpecular(normal, lightShader.direction, view, lightShader.intensity, roughness);
-    }
 }
 
 // Arnold standard shader combiner
@@ -274,13 +248,17 @@ void sx_standardsurface(
     vec3 worldNormal = sx_front_facing(normal);
     vec3 worldView = normalize(u_viewPosition - vd.positionWorld);
 
-    // Compute diffuse, and texture map with a checker
-    vec3 _diffuse = vec3(0.0);
-    computeDiffuse(diffuse_roughness, worldNormal, _diffuse);
-
-    // Compute specular
-    vec3 _specular = vec3(0.0);
-    computeSpecular(specular_roughness, worldNormal, worldView, _specular);
+    // Compute direct lighting
+    vec3 diffuseResult = vec3(0.0);
+    vec3 specularResult = vec3(0.0);
+    lightshader lightShader;
+    int numLights = numActiveLightSources();
+    for (int activeLightIndex = 0; activeLightIndex < numLights; ++activeLightIndex)
+    {
+        sampleLightSource(u_lightData[activeLightIndex], vd.positionWorld, lightShader);
+        diffuseResult += standardShaderDiffuse(worldNormal, lightShader.direction, lightShader.intensity, diffuse_roughness);
+        specularResult += standardShaderSpecular(worldNormal, lightShader.direction, worldView, lightShader.intensity, specular_roughness);
+    }
 
     // Extra inputs
     float directDiffuse = 1.0;
@@ -294,8 +272,8 @@ void sx_standardsurface(
 
     // Compute total bsdf
     standardShaderCombiner(
-        _diffuse,
-        _specular,
+        diffuseResult,
+        specularResult,
         base_color,
         diffuse_roughness,
         specular_color,

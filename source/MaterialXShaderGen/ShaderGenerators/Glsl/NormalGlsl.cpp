@@ -47,7 +47,7 @@ void NormalGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen
             if (!shader.isCalculated("normalWorld"))
             {
                 shader.setCalculated("normalWorld");
-                shader.addLine(blockPrefix + "normalWorld = normalize((u_worldInverseTransposeMatrix * vec4(i_normal, 0)).xyz)");
+                shader.addLine(blockPrefix + "normalWorld = (u_worldInverseTransposeMatrix * vec4(i_normal,0.0)).xyz");
             }
         }
         else if (space == MODEL)
@@ -73,15 +73,15 @@ void NormalGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen
         shadergen.emitOutput(node.getOutput(), true, shader);
         if (space == WORLD)
         {
-            shader.addStr(" = " + blockPrefix + "normalWorld");
+            shader.addStr(" = normalize(" + blockPrefix + "normalWorld)");
         }
         else if (space == MODEL)
         {
-            shader.addStr(" = " + blockPrefix + "normalModel");
+            shader.addStr(" = normalize(" + blockPrefix + "normalModel)");
         }
         else
         {
-            shader.addStr(" = " + blockPrefix + "normalObject");
+            shader.addStr(" = normalize(" + blockPrefix + "normalObject)");
         }
 
         shader.endLine();
