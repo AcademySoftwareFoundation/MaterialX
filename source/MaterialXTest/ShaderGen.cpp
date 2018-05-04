@@ -130,8 +130,21 @@ float cosAngle(float degrees)
     return cos(degrees * PI / 180.0f);
 }
 
+// Light type id's for common light shaders
+// Using id's matching the OgsFx light sources
+// here which simplifies light binding for OGS.
+// Note that another target systems could use other ids
+// as required by that system.
+enum LightType
+{
+    SPOT = 2,
+    POINT = 3,
+    DIRECTIONAL = 4,
+};
+
 void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::HwShaderGenerator& shadergen)
 {
+    // Create a custom light shader by a graph compound
     createLightCompoundExample(doc);
 
     mx::NodeDefPtr dirLightNodeDef = doc->getNodeDef("ND_directionallight");
@@ -143,18 +156,29 @@ void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::HwS
     REQUIRE(spotLightNodeDef != nullptr);
     REQUIRE(compoundLightNodeDef != nullptr);
 
-    mx::LightSourcePtr dirLight = lightHandler.createLightSource(dirLightNodeDef);
+    // Add the common light shaders
+    lightHandler.addLightShader(LightType::DIRECTIONAL, dirLightNodeDef);
+    lightHandler.addLightShader(LightType::POINT, pointLightNodeDef);
+    lightHandler.addLightShader(LightType::SPOT, spotLightNodeDef);
+
+    // Add our custom coumpund light shader
+    const size_t compoundLightId = 42;
+    lightHandler.addLightShader(compoundLightId, compoundLightNodeDef);
+
+    // Create a light rig with one light source for each light shader
+
+    mx::LightSourcePtr dirLight = lightHandler.createLightSource(LightType::DIRECTIONAL);
     dirLight->setParameter("direction", mx::Vector3(0, 0, -1));
     dirLight->setParameter("color", mx::Color3(1, 1, 1));
     dirLight->setParameter("intensity", 0.2f);
     
-    mx::LightSourcePtr pointLight = lightHandler.createLightSource(pointLightNodeDef);
+    mx::LightSourcePtr pointLight = lightHandler.createLightSource(LightType::POINT);
     pointLight->setParameter("position", mx::Vector3(-2, -2, 2));
     pointLight->setParameter("color", mx::Color3(0, 0.0, 1));
     pointLight->setParameter("intensity", 10.0f);
     pointLight->setParameter("decayRate", 3.0f);
 
-    mx::LightSourcePtr spotLight = lightHandler.createLightSource(spotLightNodeDef);
+    mx::LightSourcePtr spotLight = lightHandler.createLightSource(LightType::SPOT);
     mx::Vector3 position(3, 3, 3);
     spotLight->setParameter("position", position);
     mx::Vector3 direction = position.getNormalized() * -1;;
@@ -165,7 +189,7 @@ void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::HwS
     spotLight->setParameter("innerConeAngle", cosAngle(5.0f));
     spotLight->setParameter("outerConeAngle", cosAngle(10.0f));
 
-    mx::LightSourcePtr compoundLight = lightHandler.createLightSource(compoundLightNodeDef);
+    mx::LightSourcePtr compoundLight = lightHandler.createLightSource(compoundLightId);
     position = { -3, 3, 3 };
     direction = position.getNormalized() * -1;
     compoundLight->setParameter("position", position);
@@ -173,6 +197,7 @@ void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::HwS
     compoundLight->setParameter("color", mx::Color3(0, 1, 0));
     compoundLight->setParameter("intensity", 10.0f);
 
+    // Let the shader generator know of these light shaders
     lightHandler.bindLightShaders(shadergen);
 }
 

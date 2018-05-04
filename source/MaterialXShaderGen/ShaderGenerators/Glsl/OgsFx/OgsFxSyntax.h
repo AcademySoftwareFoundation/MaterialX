@@ -9,10 +9,14 @@ namespace MaterialX
 /// Syntax class for OgsFx
 class OgsFxSyntax : public GlslSyntax
 {
+    using ParentClass = GlslSyntax;
+
 public:
     OgsFxSyntax();
 
     static SyntaxPtr create() { return std::make_shared<OgsFxSyntax>(); }
+
+    void makeUnique(string& name, const string& /*type*/, UniqueNameMap& uniqueNames) const override;
 };
 
 } // namespace MaterialX

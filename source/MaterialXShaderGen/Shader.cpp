@@ -66,14 +66,14 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
         for (SgInputSocket* inputSocket : graph->getInputSockets())
         {
             string name = inputSocket->name;
-            shadergen.getSyntax()->makeUnique(name, uniqueNames);
+            shadergen.getSyntax()->makeUnique(name, inputSocket->type, uniqueNames);
             graph->renameInputSocket(inputSocket->name, name);
         }
         for (SgOutputSocket* outputSocket : graph->getOutputSockets())
         {
             string name = outputSocket->name;
-            shadergen.getSyntax()->makeUnique(outputSocket->name, uniqueNames);
-            graph->renameInputSocket(outputSocket->name, name);
+            shadergen.getSyntax()->makeUnique(outputSocket->name, EMPTY_STRING, uniqueNames);
+            graph->renameOutputSocket(outputSocket->name, name);
         }
         for (SgNode* node : graph->getNodes())
         {
@@ -81,7 +81,7 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
             {
                 // Node outputs use long names for better code readability
                 string name = output->node->getName() + "_" + output->name;
-                shadergen.getSyntax()->makeUnique(name, uniqueNames);
+                shadergen.getSyntax()->makeUnique(name, EMPTY_STRING, uniqueNames);
                 node->renameOutput(output->name, name);
             }
             // Push subgraphs on the queue to process these as well.

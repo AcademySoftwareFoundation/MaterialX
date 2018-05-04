@@ -20,13 +20,12 @@ using LightSourcePtr = std::shared_ptr<class LightSource>;
 class LightSource
 {
 public:
-    using Type = size_t;
     using ParameterMap = std::unordered_map<string, ValuePtr>;
 
     /// Return the light type
-    Type getType() const
+    size_t getType() const
     {
-        return _type;
+        return _typeId;
     }
 
     /// Return the light parameters
@@ -59,9 +58,9 @@ public:
     }
 
 protected:
-    LightSource(Type type, const NodeDef& nodeDef);
+    LightSource(size_t typeId, const NodeDef& nodeDef);
 
-    const Type _type;
+    const size_t _typeId;
     ParameterMap _parameters;
 
     friend class LightHandler;
@@ -78,7 +77,7 @@ using LightHandlerPtr = std::shared_ptr<class LightHandler>;
 class LightHandler
 {
 public:
-    using LightShaderMap = std::unordered_map<ConstNodeDefPtr, LightSource::Type>;
+    using LightShaderMap = std::unordered_map<size_t, ConstNodeDefPtr>;
 
 public:
     /// Static instance create function
@@ -90,14 +89,23 @@ public:
     /// Default destructor
     virtual ~LightHandler();
 
-    void bindLightShaders(HwShaderGenerator& shadergen) const;
+    /// Add a light shader to be used for creting light sources
+    void addLightShader(size_t typeId, ConstNodeDefPtr nodeDef);
 
-    LightSourcePtr createLightSource(ConstNodeDefPtr nodeDef);
+    /// Create a light source of given type. The typeId must match
+    /// a light shader that has been previously added to the handler.
+    LightSourcePtr createLightSource(size_t typeId);
 
+    /// Return a vector of all created light sources.
     const vector<LightSourcePtr>& getLightSources() const
     {
         return _lightSources;
     }
+
+    /// Bind all added light shaders to the given shader generator.
+    /// Only the light shaders bound to the generator will have their
+    /// code emitted during shader generation.
+    void bindLightShaders(HwShaderGenerator& shadergen) const;
 
 private:
     LightShaderMap _lightShaders;

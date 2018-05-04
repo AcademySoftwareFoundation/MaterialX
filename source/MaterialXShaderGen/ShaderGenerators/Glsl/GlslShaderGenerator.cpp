@@ -329,7 +329,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
         }
         shader.endScope(true);
         shader.newLine();
-        shader.addLine("uniform " + lightData.name + " " + lightData.instance);
+        shader.addLine("uniform " + lightData.name + " " + lightData.instance + "[MAX_LIGHT_SOURCES]");
         shader.newLine();
     }
 

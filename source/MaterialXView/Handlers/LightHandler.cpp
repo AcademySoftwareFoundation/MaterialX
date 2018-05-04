@@ -4,8 +4,8 @@
 namespace MaterialX
 { 
 
-LightSource::LightSource(LightSource::Type type, const NodeDef& nodeDef)
-    : _type(type)
+LightSource::LightSource(size_t typeId, const NodeDef& nodeDef)
+    : _typeId(typeId)
 {
     for (auto port : nodeDef.getChildrenOfType<ValueElement>())
     {
@@ -21,23 +21,20 @@ LightHandler::~LightHandler()
 {
 }
 
-LightSourcePtr LightHandler::createLightSource(ConstNodeDefPtr nodeDef)
+void LightHandler::addLightShader(size_t typeId, ConstNodeDefPtr nodeDef)
 {
-    LightSource::Type type;
+    _lightShaders[typeId] = nodeDef;
+}
 
-    LightShaderMap::const_iterator it = _lightShaders.find(nodeDef);
-    if (it != _lightShaders.end())
+LightSourcePtr LightHandler::createLightSource(size_t typeId)
+{
+    LightShaderMap::const_iterator it = _lightShaders.find(typeId);
+    if (it == _lightShaders.end())
     {
-        // Already registed, get the light type id
-        type = it->second;
-    }
-    else
-    {
-        // Register new light shader, and get light type id
-        _lightShaders[nodeDef] = type = _lightShaders.size();
+        throw ExceptionShaderGenError("Not light shader for type id '" + std::to_string(typeId) + "' exists");
     }
 
-    LightSourcePtr light = LightSourcePtr(new LightSource(type, *nodeDef));
+    LightSourcePtr light = LightSourcePtr(new LightSource(typeId, *it->second));
     _lightSources.push_back(light);
 
     return light;
@@ -47,13 +44,8 @@ void LightHandler::bindLightShaders(HwShaderGenerator& shadergen) const
 {
     for (auto shader : _lightShaders)
     {
-        shadergen.bindLightShader(*shader.first, shader.second);
+        shadergen.bindLightShader(*shader.second, shader.first);
     }
-
-    // Extend max lights limit if needed
-    shadergen.setMaxActiveLightSources(
-        std::max(_lightShaders.size(), shadergen.getMaxActiveLightSources())
-    );
 }
 
 }

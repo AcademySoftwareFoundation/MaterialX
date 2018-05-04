@@ -17,7 +17,7 @@ HwShader::HwShader(const string& name)
     createUniformBlock(VERTEX_STAGE, PUBLIC_UNIFORMS, "pub");
 
     // Create light data uniform block with required field 'type'
-    createUniformBlock(PIXEL_STAGE, LIGHT_DATA_BLOCK, "u_lightData[MAX_LIGHT_SOURCES]");
+    createUniformBlock(PIXEL_STAGE, LIGHT_DATA_BLOCK, "u_lightData");
     createUniform(PIXEL_STAGE, LIGHT_DATA_BLOCK, DataType::INTEGER, "type");
 
     // Create environment texture uniforms

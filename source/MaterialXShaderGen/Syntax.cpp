@@ -162,7 +162,7 @@ namespace MaterialX
         return result;
     }
 
-    void Syntax::makeUnique(string& name, UniqueNameMap& uniqueNames) const
+    void Syntax::makeUnique(string& name, const string& /*type*/, UniqueNameMap& uniqueNames) const
     {
         UniqueNameMap::iterator it = uniqueNames.find(name);
         if (it != uniqueNames.end())

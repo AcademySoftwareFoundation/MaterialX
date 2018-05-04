@@ -49,6 +49,17 @@ namespace
         { "u_frame", "Frame" },
         { "u_time", "Time" }
     };
+
+    static const std::unordered_map<string, string> OGSFX_GET_LIGHT_DATA_MAP =
+    {
+        { "type", "getLightType" },
+        { "position", "getLightPos" },
+        { "direction", "getLightDir" },
+        { "color", "getLightColor" },
+        { "intensity", "getLightIntensity" },
+        { "innerConeAngle", "getLightConeAngle" },
+        { "outerConeAngle", "getLightPenumbraAngle" }
+    };
 }
 
 OgsFxShader::OgsFxShader(const string& name) 
@@ -125,6 +136,8 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 
     OgsFxShader& shader = *shaderPtr;
 
+    bool lighting = shader.hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE);
+
     //
     // Emit code for vertex shader stage
     //
@@ -162,6 +175,13 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.addStr("GLSLShader PS\n");
     shader.beginScope(Shader::Brackets::BRACES);
 
+    if (lighting)
+    {
+        const Shader::VariableBlock& lightData = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK);
+        shader.addLine(lightData.name + " " + lightData.instance + "[MAX_LIGHT_SOURCES]");
+        shader.newLine();
+    }
+
     // Emit common math functions
     shader.addInclude("sxpbrlib/sx-glsl/lib/sx_math.glsl", *this);
     shader.newLine();
@@ -171,8 +191,29 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     // Add main function
     shader.addLine("void main()", false);
     shader.beginScope(Shader::Brackets::BRACES);
+
+    if (lighting)
+    {
+        // Add code for retreiving light data from OgsFx light uniforms
+        shader.addLine("int numLights = numActiveLightSources()");
+        shader.addLine("for (int i = 0; i<numLights; ++i)", false);
+        shader.beginScope(Shader::Brackets::BRACES);
+        const Shader::VariableBlock& lightData = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK);
+        for (const Shader::Variable* uniform : lightData.variableOrder)
+        {
+            auto it = OGSFX_GET_LIGHT_DATA_MAP.find(uniform->name);
+            if (it != OGSFX_GET_LIGHT_DATA_MAP.end())
+            {
+                shader.addLine(lightData.instance + "[i]." + uniform->name + " = " + it->second + "(i)");
+            }
+        }
+        shader.endScope();
+        shader.newLine();
+    }
+
     emitFunctionCalls(shader);
     emitFinalOutput(shader);
+
     shader.endScope();
     shader.endScope();
     shader.newLine();
@@ -275,11 +316,9 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
         shader.newLine();
     }
 
-    bool lighting = shader.hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE);
-
-    // Add light data block if needed
     if (lighting)
     {
+        // Add light struct declaration
         const Shader::VariableBlock& lightData = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK);
         shader.addLine("struct " + lightData.name, false);
         shader.beginScope(Shader::Brackets::BRACES);
@@ -290,15 +329,19 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
         }
         shader.endScope(true);
         shader.newLine();
-        shader.addLine("uniform " + lightData.name + " " + lightData.instance);
-        shader.newLine();
     }
 
     if (lighting)
     {
+        // Emit OGS lighting uniforms
+        shader.addInclude("sxpbrlib/sx-glsl/ogsfx/lighting_uniforms.glsl", *this);
+        shader.newLine();
+
         // Emit lighting functions
         shader.addLine("GLSLShader LightingFunctions", false);
         shader.beginScope(Shader::Brackets::BRACES);
+        shader.addInclude("sxpbrlib/sx-glsl/ogsfx/lighting_functions.glsl", *this);
+        shader.newLine();
         shader.addInclude("sxpbrlib/sx-glsl/lib/sx_lighting.glsl", *this);
         shader.endScope();
         shader.newLine();

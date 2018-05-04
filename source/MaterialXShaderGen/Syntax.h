@@ -98,15 +98,16 @@ public:
     /// Returns an array of all registered type syntax objects
     const vector<TypeSyntax>& getTypeSyntax() const { return _typeSyntax; }
 
-    /// Returns a set of names that are restricted to use by a code generator
+    /// Returns a set of names that are restricted to use for this language syntax.
     const StringSet& getRestrictedNames() const { return _restrictedNames; }
 
-    /// Modify the given name string to make it unique according
-    /// to the given uniqueName record and according to restricted
-    /// names registered for this syntax class.
-    /// A number suffix is added to or increased on the name string 
-    /// if there is a name collision.
-    void makeUnique(string& name, UniqueNameMap& uniqueNames) const;
+    /// Modify the given name string to make it unique according to the given uniqueName record 
+    /// and according to restricted names registered for this syntax class.
+    /// The method is used for naming variables (inputs and outputs) in generated code.
+    /// Derived classes can override this method to have a custom naming strategy.
+    /// Default implementation adds a number suffix, or increases an existing number suffix, 
+    /// on the name string if there is a name collision.
+    virtual void makeUnique(string& name, const string& type, UniqueNameMap& uniqueNames) const;
 
 protected:
     /// Protected constructor
