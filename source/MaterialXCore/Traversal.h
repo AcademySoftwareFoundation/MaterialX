@@ -277,7 +277,7 @@ class GraphIterator
     /// @name Pruning
     /// @{
 
-    /// Set the prune subgraph flag, which controls whether the current subgrasph
+    /// Set the prune subgraph flag, which controls whether the current subgraph
     /// is pruned from traversal.
     /// @param prune If set to true, then the current subgraph will be pruned.
     void setPruneSubgraph(bool prune)
