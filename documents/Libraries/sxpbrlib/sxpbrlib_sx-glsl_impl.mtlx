@@ -49,4 +49,7 @@
   <!-- <standardsurface> -->
   <implementation name="IM_standardsurface__sx_glsl" nodedef="ND_standardsurface" file="sxpbrlib/sx-glsl/sx_standardsurface.glsl" function="sx_standardsurface" language="sx-glsl"/>
 
+  <!-- <normalmap> -->
+  <implementation name="ND_normalmap__sx_glsl" nodedef="ND_normalmap" file="sxpbrlib/sx-glsl/sx_normalmap.glsl" function="sx_normalmap" language="sx-glsl"/>
+
 </materialx>

@@ -53,3 +53,5 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXShaderGe
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/documents/Examples" DESTINATION ${CMAKE_INSTALL_PREFIX}/documents)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/documents/Libraries" DESTINATION ${CMAKE_INSTALL_PREFIX}/documents)
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/documents/Geometry" DESTINATION ${CMAKE_INSTALL_PREFIX}/documents)
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/documents/Images" DESTINATION ${CMAKE_INSTALL_PREFIX}/documents)

@@ -275,7 +275,9 @@ protected:
     void addOutputSockets(const InterfaceElement& interface);
 
     /// Traverse from the given root element and add all dependencies upstream.
-    void addUpstreamDependencies(const Element& root, ShaderGenerator& shadergen);
+    /// The traversal is done in the context of a material, if given, to include
+    /// bind input elements in the traversal.
+    void addUpstreamDependencies(const Element& root, ConstMaterialPtr material, ShaderGenerator& shadergen);
 
     /// Add a default geometric node and connect to the given input.
     void addDefaultGeomNode(SgInput* input, const string& geomNode, const Document& doc, ShaderGenerator& shadergen);

@@ -354,9 +354,11 @@ void SgNodeGraph::addOutputSockets(const InterfaceElement& interface)
     }
 }
 
-void SgNodeGraph::addUpstreamDependencies(const Element& root, ShaderGenerator& shadergen)
+void SgNodeGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr material, ShaderGenerator& shadergen)
 {
-    for (Edge edge : root.traverseGraph())
+    SgNode* rootNode = getNode(root.getName());
+
+    for (Edge edge : root.traverseGraph(material))
     {
         ElementPtr upstreamElement = edge.getUpstreamElement();
 
@@ -379,26 +381,47 @@ void SgNodeGraph::addUpstreamDependencies(const Element& root, ShaderGenerator& 
             newNode = addNode(*upstreamNode, shadergen);
         }
 
+        //
         // Make connections
-        NodePtr downstreamNode = edge.getDownstreamElement()->asA<Node>();
-        if (downstreamNode)
+        //
+
+        // First check if this was a bind input connection
+        // In this case we must have a root node as well
+        ElementPtr connectingElement = edge.getConnectingElement();
+        if (rootNode && connectingElement && connectingElement->isA<BindInput>())
         {
-            // We have a node downstream
-            SgNode* downstream = getNode(downstreamNode->getName());
-            ElementPtr connectingElement = edge.getConnectingElement();
-            if (downstream && connectingElement)
+            // Connect to the corresponding input on the root node
+            SgInput* input = rootNode->getInput(connectingElement->getName());
+            if (input)
             {
-                SgInput* input = downstream->getInput(connectingElement->getName());
+                input->breakConnection();
                 input->makeConnection(newNode->getOutput());
             }
         }
         else
         {
-            // Not a node, then it must be an output socket
-            SgOutputSocket* outputSocket = getOutputSocket(edge.getDownstreamElement()->getName());
-            if (outputSocket)
+            ElementPtr downstreamElement = edge.getDownstreamElement();
+
+            // Check if it was a node downstream
+            NodePtr downstreamNode = downstreamElement->asA<Node>();
+            if (downstreamNode)
             {
-                outputSocket->makeConnection(newNode->getOutput());
+                // We have a node downstream
+                SgNode* downstream = getNode(downstreamNode->getName());
+                if (downstream && connectingElement)
+                {
+                    SgInput* input = downstream->getInput(connectingElement->getName());
+                    input->makeConnection(newNode->getOutput());
+                }
+            }
+            else
+            {
+                // Not a node, then it must be an output
+                SgOutputSocket* outputSocket = getOutputSocket(downstreamElement->getName());
+                if (outputSocket && downstreamElement->getParent()->getName() == this->getName())
+                {
+                    outputSocket->makeConnection(newNode->getOutput());
+                }
             }
         }
     }
@@ -458,7 +481,7 @@ SgNodeGraphPtr SgNodeGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shad
     // Traverse all outputs and create all upstream dependencies
     for (OutputPtr graphOutput : nodeGraph->getOutputs())
     {
-        graph->addUpstreamDependencies(*graphOutput, shadergen);
+        graph->addUpstreamDependencies(*graphOutput, nullptr, shadergen);
     }
 
     // Set classification according to last node
@@ -532,8 +555,9 @@ SgNodeGraphPtr SgNodeGraph::create(const string& name, ElementPtr element, Shade
         graph->addOutputSockets(*nodeDef);
 
         // Create this shader node in the graph.
-        SgNodePtr newNode = SgNode::create(shaderRef->getName(), *nodeDef, shadergen, nullptr);
-        graph->_nodeMap[name] = newNode;
+        const string& newNodeName = shaderRef->getName();
+        SgNodePtr newNode = SgNode::create(newNodeName, *nodeDef, shadergen, nullptr);
+        graph->_nodeMap[newNodeName] = newNode;
         graph->_nodeOrder.push_back(newNode.get());
 
         // Connect it to the graph output
@@ -550,8 +574,6 @@ SgNodeGraphPtr SgNodeGraph::create(const string& name, ElementPtr element, Shade
                 throw ExceptionShaderGenError("Shader parameter '" + elem->getName() + "' doesn't match an existing input on graph '" + graph->getName() + "'");
             }
 
-            inputSocket->makeConnection(input);
-
             // Copy value from binding
             BindParamPtr bindParam = shaderRef->getBindParam(elem->getName());
             if (bindParam)
@@ -561,6 +583,9 @@ SgNodeGraphPtr SgNodeGraph::create(const string& name, ElementPtr element, Shade
                     inputSocket->value = bindParam->getValue();
                 }
             }
+
+            // Connect to the graph input
+            inputSocket->makeConnection(input);
         }
 
         // Connect unconnected node inputs to the graph inputs
@@ -574,24 +599,22 @@ SgNodeGraphPtr SgNodeGraph::create(const string& name, ElementPtr element, Shade
             }
 
             BindInputPtr bindInput = shaderRef->getBindInput(elem->getName());
-            const string& explicitConnection = bindInput ? bindInput->getOutputString() : EMPTY_STRING;
-            const string& implicitConnection = elem->getAttribute("defaultgeomprop");
+
+            // Copy value from binding
+            if (bindInput)
+            {
+                if (!bindInput->getValueString().empty())
+                {
+                    inputSocket->value = bindInput->getValue();
+                }
+            }
 
             // If we have no connection, connect to the graph input
+            const string& explicitConnection = bindInput ? bindInput->getOutputString() : EMPTY_STRING;
+            const string& implicitConnection = elem->getAttribute("defaultgeomprop");
             if (explicitConnection.empty() && implicitConnection.empty())
             {
                 inputSocket->makeConnection(input);
-            }
-            else
-            {
-                // Copy value from binding
-                if (bindInput)
-                {
-                    if (!bindInput->getValueString().empty())
-                    {
-                        inputSocket->value = bindInput->getValue();
-                    }
-                }
             }
         }
 
@@ -622,7 +645,7 @@ SgNodeGraphPtr SgNodeGraph::create(const string& name, ElementPtr element, Shade
     }
 
     // Traverse and create all dependencies upstream
-    graph->addUpstreamDependencies(*root, shadergen);
+    graph->addUpstreamDependencies(*root, material, shadergen);
 
     // Set classification according to root node
     SgOutputSocket* outputSocket = graph->getOutputSocket();

@@ -124,6 +124,49 @@ void createLightCompoundExample(mx::DocumentPtr document)
     }
 }
 
+void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& materials)
+{
+    mx::FilePath imagePath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Images");
+
+    // Create a nodegraph for texturing albedo and normal map usage
+    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("nodegraph1");
+    mx::OutputPtr outAlbedo = nodeGraph->addOutput("outAlbedo", "color3");
+    mx::OutputPtr outNormal = nodeGraph->addOutput("outNormal", "vector3");
+
+    mx::NodePtr texcoord1 = nodeGraph->addNode("texcoord", "texcoord1", "vector2");
+    mx::NodePtr uvscale = nodeGraph->addNode("multiply", "uvscale", "vector2");
+    uvscale->setConnectedNode("in1", texcoord1);
+    uvscale->setInputValue("in2", mx::Vector2(2.0, 2.0));
+
+    mx::NodePtr albedoTex = nodeGraph->addNode("image", "albedoTex", "vector3");
+    albedoTex->setParameterValue("file", (imagePath / mx::FilePath("brickwall.jpg")).asString(), "filename");
+    albedoTex->setConnectedNode("texcoord", uvscale);
+    outAlbedo->setConnectedNode(albedoTex);
+
+    mx::NodePtr normalTex = nodeGraph->addNode("image", "normalTex", "vector3");
+    normalTex->setParameterValue("file", (imagePath / mx::FilePath("brickwall_normal.jpg")).asString(), "filename");
+    normalTex->setConnectedNode("texcoord", uvscale);
+    mx::NodePtr normalMap1 = nodeGraph->addNode("normalmap", "normalmap1", "vector3");
+    normalMap1->setConnectedNode("in", normalTex);
+    outNormal->setConnectedNode(normalMap1);
+
+    // Create a material from 'standardsurface' and connect the graph outputs
+    mx::MaterialPtr material1 = doc->addMaterial("example1");
+    mx::ShaderRefPtr shaderRef1 = material1->addShaderRef("surface", "standardsurface");
+    mx::BindInputPtr albedoInput = shaderRef1->addBindInput("base_color", "color3");
+    albedoInput->setConnectedOutput(outAlbedo);
+    mx::BindInputPtr normalInput = shaderRef1->addBindInput("normal", "vector3");
+    normalInput->setConnectedOutput(outNormal);
+
+    mx::BindInputPtr specularRoughnessInput = shaderRef1->addBindInput("specular_roughness", "float");
+    specularRoughnessInput->setValue(0.23f);
+
+    mx::BindInputPtr specularIorInput = shaderRef1->addBindInput("specular_IOR", "float");
+    specularIorInput->setValue(2.0f);
+
+    materials.push_back(material1);
+}
+
 float cosAngle(float degrees)
 {
     static const float PI = 3.14159265f;
@@ -1042,10 +1085,7 @@ TEST_CASE("Materials", "[shadergen]")
     loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
 
     std::vector<mx::MaterialPtr> materials;
-
-    mx::MaterialPtr material1 = doc->addMaterial("example1");
-    material1->addShaderRef("surface", "standardsurface");
-    materials.push_back(material1);
+    createExampleMaterials(doc, materials);
 
     // Arnold
     {

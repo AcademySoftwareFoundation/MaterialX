@@ -183,7 +183,7 @@
   </nodedef>
 
   <!-- <standardsurface> -->
-  <nodedef name="ND_standardsurface" node="standardsurface" type="surfaceshader" nodecategory="surfaceshader"
+  <nodedef name="ND_standardsurface" node="standardsurface" type="surfaceshader" nodecategory="shaderx"
            doc="A surface uber shader based on the Arnold standard surface shader">
       <input name="base" type="float" value="0.8" />
       <input name="base_color" type="color3" value="1, 1, 1" />
@@ -224,6 +224,16 @@
       <input name="exit_to_background" type="boolean" value="false" />
       <input name="indirect_diffuse" type="float" value="1" />
       <input name="indirect_specular" type="float" value="1" />
+  </nodedef>
+
+  <!--
+    Node: <normalmap>
+  -->
+  <nodedef name="ND_normalmap" node="normalmap" type="vector3" nodecategory="shaderx">
+    <input name="in" value="0.5, 0.5, 1.0" type="vector3"/>
+    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="tangent" type="vector3" defaultgeomprop="tangent"/>
+    <input name="bitangent" type="vector3" defaultgeomprop="bitangent"/>
   </nodedef>
 
 </materialx>

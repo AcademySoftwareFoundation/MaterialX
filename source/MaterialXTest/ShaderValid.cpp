@@ -28,6 +28,7 @@ namespace mx = MaterialX;
 
 extern void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc);
 extern void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::HwShaderGenerator& shadergen);
+extern void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& materials);
 
 TEST_CASE("GLSL Source", "[shadervalid]")
 {
@@ -61,7 +62,7 @@ TEST_CASE("GLSL Source", "[shadervalid]")
         validator->initialize();
         validator->setImageHandler(handler);
         // Set geometry to draw with
-        const std::string geometryFile("documents/sphere.obj");
+        const std::string geometryFile("documents/Geometry/sphere.obj");
         mx::GeometryHandlerPtr geometryHandler = validator->getGeometryHandler();        
         geometryHandler->setIdentifier(geometryFile);
         if (geometryHandler->getIdentifier() == geometryFile)
@@ -258,7 +259,7 @@ TEST_CASE("GLSL Shader", "[shadervalid]")
     mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
     shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-    // Create a nonsensical graph testing some geometric nodes
+    // Create a graph testing some geometric nodes
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("geometry_attributes");
 
     std::vector<mx::NodePtr> attributeList;
@@ -343,7 +344,7 @@ TEST_CASE("GLSL Shader", "[shadervalid]")
         validator->initialize();
         validator->setImageHandler(imageHandler);
         validator->setLightHandler(lightHandler);
-        const std::string geometryFile("documents/shaderball.obj");
+        const std::string geometryFile("documents/Geometry/shaderball.obj");
         mx::GeometryHandlerPtr geometryHandler = validator->getGeometryHandler();
         geometryHandler->setIdentifier(geometryFile);
         if (geometryHandler->getIdentifier() == geometryFile)
@@ -486,6 +487,61 @@ TEST_CASE("GLSL Shader", "[shadervalid]")
         }
         REQUIRE(validated);
     }
+
+    //
+    // Materials test
+    //
+    {
+        std::vector<mx::MaterialPtr> materials;
+        createExampleMaterials(doc, materials);
+
+        for (const mx::MaterialPtr& material : materials)
+        {
+            for (mx::ShaderRefPtr shaderRef : material->getShaderRefs())
+            {
+                const std::string name = material->getName() + "_" + shaderRef->getName();
+                mx::ShaderPtr shader = shaderGenerator->generate(name, shaderRef);
+                REQUIRE(shader != nullptr);
+                REQUIRE(shader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
+                REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
+
+                // Validate
+                MaterialX::GlslProgramPtr program = validator->program();
+                bool validated = false;
+                try
+                {
+                    validator->validateCreation(shader);
+                    validator->validateInputs();
+
+                    program->printUniforms(log);
+                    program->printAttributes(log);
+
+                    validator->validateRender(orthographicsView);
+                    std::string fileName = name + ".exr";
+                    validator->save(fileName);
+
+                    validated = true;
+                }
+                catch (mx::ExceptionShaderValidationError e)
+                {
+                    for (auto error : e.errorLog())
+                    {
+                        log << e.what() << " " << error << std::endl;
+                    }
+
+                    std::string stage = program->getStage(mx::HwShader::VERTEX_STAGE);
+                    log << ">> Failed vertex stage code:\n";
+                    log << stage;
+                    stage = program->getStage(mx::HwShader::PIXEL_STAGE);
+                    log << ">> Failed pixel stage code:\n";
+                    log << stage;
+                }
+                REQUIRE(validated);
+            }
+        }
+    }
+
+
 }
 
 #endif

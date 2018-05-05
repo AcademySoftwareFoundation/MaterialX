@@ -12,7 +12,7 @@ namespace
         { "i_position", "POSITION"},
         { "i_normal", "NORMAL" },
         { "i_tangent", "TANGENT" },
-        { "i_bitangent", "BITANGENT" },
+        { "i_bitangent", "BINORMAL" },
 
         { "i_texcoord_0", "TEXCOORD0" },
         { "i_texcoord_1", "TEXCOORD1" },
@@ -57,6 +57,7 @@ namespace
         { "direction", "getLightDir" },
         { "color", "getLightColor" },
         { "intensity", "getLightIntensity" },
+        { "decayRate", "getLightDecayRate" },
         { "innerConeAngle", "getLightConeAngle" },
         { "outerConeAngle", "getLightPenumbraAngle" }
     };
