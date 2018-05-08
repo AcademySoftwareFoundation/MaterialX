@@ -32,3 +32,7 @@ The MaterialX repository consists of the following folders:
                 and graph traversal, while the MaterialXFormat module supports
                 XML serialization.
     python    - Support modules for MaterialX Python.
+
+### Additional Resources
+
+- The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains more detailed documentation and code examples in C++ and Python.

@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.35.5] - Development
+## [1.35.5] - 2018-05-07
 
 ### Added
 - Added material inheritance support to graph traversal and the high-level Material API.
