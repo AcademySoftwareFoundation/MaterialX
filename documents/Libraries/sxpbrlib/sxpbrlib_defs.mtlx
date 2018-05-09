@@ -182,7 +182,9 @@
     <input name="outerConeAngle" type="float" doc="Outer cone angle."/>
   </nodedef>
 
-  <!-- <standardsurface> -->
+  <!--
+    Node: <standardsurface>
+  -->
   <nodedef name="ND_standardsurface" node="standardsurface" type="surfaceshader" nodecategory="shaderx"
            doc="A surface uber shader based on the Arnold standard surface shader">
       <input name="base" type="float" value="0.8" />

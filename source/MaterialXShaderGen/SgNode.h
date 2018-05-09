@@ -269,10 +269,10 @@ public:
 
 protected:
     /// Add input sockets from an interface element (nodedef, nodegraph or node)
-    void addInputSockets(const InterfaceElement& interface);
+    void addInputSockets(const InterfaceElement& elem);
 
     /// Add output sockets from an interface element (nodedef, nodegraph or node)
-    void addOutputSockets(const InterfaceElement& interface);
+    void addOutputSockets(const InterfaceElement& elem);
 
     /// Traverse from the given root element and add all dependencies upstream.
     /// The traversal is done in the context of a material, if given, to include

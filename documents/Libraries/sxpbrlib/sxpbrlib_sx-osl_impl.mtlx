@@ -37,7 +37,4 @@
   <!-- <standardsurface> -->
   <implementation name="IM_standardsurface__sx_osl" nodedef="ND_standardsurface" file="sxpbrlib/sx-osl/sx_standardsurface.osl" function="sx_standardsurface" language="sx-osl"/>
 
-  <!-- <normalmap> -->
-  <implementation name="ND_normalmap__sx_osl" nodedef="ND_normalmap" file="sxpbrlib/sx-glsl/sx_normalmap.glsl" function="sx_normalmap" language="sx-osl"/>
-
 </materialx>

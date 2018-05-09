@@ -7,6 +7,7 @@ vec3 sx_latlong_map_lookup(vec3 dir, float lodBias, sampler2D sampler)
     {
         vec2 uv = vec2(atan(-dir.x, dir.z), asin(-dir.y)) * invAtan + 0.5;
         int levels = 1 + int(floor(log2(max(res.x, res.y))));
+        lodBias = lodBias < 0.25 ? sqrt(lodBias) : 0.5*lodBias + 0.375;
         float lod = lodBias * levels;
         return textureLod(sampler, uv, lod).rgb;
     }

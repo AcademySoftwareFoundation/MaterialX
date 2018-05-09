@@ -129,42 +129,85 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
     mx::FilePath imagePath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Images");
 
     // Create a nodegraph for texturing albedo and normal map usage
-    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("nodegraph1");
-    mx::OutputPtr outAlbedo = nodeGraph->addOutput("outAlbedo", "color3");
-    mx::OutputPtr outNormal = nodeGraph->addOutput("outNormal", "vector3");
+    mx::NodeGraphPtr textureGraph = doc->addNodeGraph("nodegraph1");
+    mx::OutputPtr outAlbedo = textureGraph->addOutput("outAlbedo", "color3");
+    mx::OutputPtr outNormal = textureGraph->addOutput("outNormal", "vector3");
 
-    mx::NodePtr texcoord1 = nodeGraph->addNode("texcoord", "texcoord1", "vector2");
-    mx::NodePtr uvscale = nodeGraph->addNode("multiply", "uvscale", "vector2");
+    mx::NodePtr texcoord1 = textureGraph->addNode("texcoord", "texcoord1", "vector2");
+    mx::NodePtr uvscale = textureGraph->addNode("multiply", "uvscale", "vector2");
     uvscale->setConnectedNode("in1", texcoord1);
     uvscale->setInputValue("in2", mx::Vector2(2.0, 2.0));
 
-    mx::NodePtr albedoTex = nodeGraph->addNode("image", "albedoTex", "vector3");
+    mx::NodePtr albedoTex = textureGraph->addNode("image", "albedoTex", "vector3");
     albedoTex->setParameterValue("file", (imagePath / mx::FilePath("brickwall.jpg")).asString(), "filename");
     albedoTex->setConnectedNode("texcoord", uvscale);
     outAlbedo->setConnectedNode(albedoTex);
 
-    mx::NodePtr normalTex = nodeGraph->addNode("image", "normalTex", "vector3");
+    mx::NodePtr normalTex = textureGraph->addNode("image", "normalTex", "vector3");
     normalTex->setParameterValue("file", (imagePath / mx::FilePath("brickwall_normal.jpg")).asString(), "filename");
+    normalTex->setParameterValue("default", mx::Vector3(0.5f, 0.5f, 1.0f));
     normalTex->setConnectedNode("texcoord", uvscale);
-    mx::NodePtr normalMap1 = nodeGraph->addNode("normalmap", "normalmap1", "vector3");
+    mx::NodePtr normalMap1 = textureGraph->addNode("normalmap", "normalmap1", "vector3");
     normalMap1->setConnectedNode("in", normalTex);
     outNormal->setConnectedNode(normalMap1);
 
     // Create a material from 'standardsurface' and connect the graph outputs
-    mx::MaterialPtr material1 = doc->addMaterial("example1");
-    mx::ShaderRefPtr shaderRef1 = material1->addShaderRef("surface", "standardsurface");
-    mx::BindInputPtr albedoInput = shaderRef1->addBindInput("base_color", "color3");
-    albedoInput->setConnectedOutput(outAlbedo);
-    mx::BindInputPtr normalInput = shaderRef1->addBindInput("normal", "vector3");
-    normalInput->setConnectedOutput(outNormal);
+    {
+        mx::MaterialPtr material = doc->addMaterial("example1");
+        mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "standardsurface");
 
-    mx::BindInputPtr specularRoughnessInput = shaderRef1->addBindInput("specular_roughness", "float");
-    specularRoughnessInput->setValue(0.23f);
+        mx::BindInputPtr albedoInput = shaderRef->addBindInput("base_color", "color3");
+        mx::BindInputPtr normalInput = shaderRef->addBindInput("normal", "vector3");
+        albedoInput->setConnectedOutput(outAlbedo);
+        normalInput->setConnectedOutput(outNormal);
 
-    mx::BindInputPtr specularIorInput = shaderRef1->addBindInput("specular_IOR", "float");
-    specularIorInput->setValue(2.0f);
+        mx::BindInputPtr specularRoughnessInput = shaderRef->addBindInput("specular_roughness", "float");
+        specularRoughnessInput->setValue(0.2f);
 
-    materials.push_back(material1);
+        mx::BindInputPtr specularIorInput = shaderRef->addBindInput("specular_IOR", "float");
+        specularIorInput->setValue(2.0f);
+
+        materials.push_back(material);
+    }
+
+    {
+        // Create a nodedef interface for a surface shader
+        mx::NodeDefPtr nodeDef = doc->addNodeDef("ND_testshader2", "surfaceshader", "testshader2");
+        nodeDef->addInput("specular_roughness", "float");
+        nodeDef->addInput("specular_ior", "float");
+
+        mx::NodeGraphPtr shaderGraph = doc->addNodeGraph("IMP_testshader2");
+        mx::NodePtr coating = shaderGraph->addNode("coatingbsdf", "coating", "BSDF");
+        mx::InputPtr coating_color = coating->addInput("reflectance", "color3");
+        coating_color->setValueString("1.0, 1.0, 1.0");
+        mx::InputPtr coating_roughness = coating->addInput("roughness", "float");
+        coating_roughness->setInterfaceName("specular_roughness");
+        mx::InputPtr coating_ior = coating->addInput("ior", "float");
+        coating_ior->setInterfaceName("specular_ior");
+
+        // Create a surface shader
+        mx::NodePtr surface = shaderGraph->addNode("surface", "surface1", "surfaceshader");
+        surface->setConnectedNode("bsdf", coating);
+
+        // Connect to graph output
+        mx::OutputPtr output = shaderGraph->addOutput("out", "surfaceshader");
+        output->setConnectedNode(surface);
+
+        // Make this graph the implementation of the shader definition
+        shaderGraph->setAttribute("nodedef", nodeDef->getName());
+
+        // Create a material with the above node as the shader ref
+        mx::MaterialPtr material = doc->addMaterial("example2");
+        mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "testshader2");
+
+        mx::BindInputPtr specularRoughnessInput = shaderRef->addBindInput("specular_roughness", "float");
+        specularRoughnessInput->setValue(0.2f);
+
+        mx::BindInputPtr specularIorInput = shaderRef->addBindInput("specular_ior", "float");
+        specularIorInput->setValue(2.0f);
+
+        materials.push_back(material);
+    }
 }
 
 float cosAngle(float degrees)

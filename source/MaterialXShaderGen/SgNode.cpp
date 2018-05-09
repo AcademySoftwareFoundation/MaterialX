@@ -327,30 +327,30 @@ SgNodeGraph::SgNodeGraph(const string& name)
 {
 }
 
-void SgNodeGraph::addInputSockets(const InterfaceElement& interface)
+void SgNodeGraph::addInputSockets(const InterfaceElement& elem)
 {
-    for (ValueElementPtr elem : interface.getChildrenOfType<ValueElement>())
+    for (ValueElementPtr port : elem.getChildrenOfType<ValueElement>())
     {
-        if (!elem->isA<Output>())
+        if (!port->isA<Output>())
         {
-            SgInputSocket* inputSocket = addInputSocket(elem->getName(), elem->getType());
-            if (!elem->getValueString().empty())
+            SgInputSocket* inputSocket = addInputSocket(port->getName(), port->getType());
+            if (!port->getValueString().empty())
             {
-                inputSocket->value = elem->getValue();
+                inputSocket->value = port->getValue();
             }
         }
     }
 }
 
-void SgNodeGraph::addOutputSockets(const InterfaceElement& interface)
+void SgNodeGraph::addOutputSockets(const InterfaceElement& elem)
 {
-    for (const OutputPtr& output : interface.getOutputs())
+    for (const OutputPtr& output : elem.getOutputs())
     {
         addOutputSocket(output->getName(), output->getType());
     }
     if (numOutputSockets() == 0)
     {
-        addOutputSocket("out", interface.getType());
+        addOutputSocket("out", elem.getType());
     }
 }
 
@@ -411,6 +411,11 @@ void SgNodeGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
                 if (downstream && connectingElement)
                 {
                     SgInput* input = downstream->getInput(connectingElement->getName());
+                    if (!input)
+                    {
+                        throw ExceptionShaderGenError("Could not find an input named '" + connectingElement->getName() +
+                            "' on downstream node '" + downstream->getName() + "'");
+                    }
                     input->makeConnection(newNode->getOutput());
                 }
             }
