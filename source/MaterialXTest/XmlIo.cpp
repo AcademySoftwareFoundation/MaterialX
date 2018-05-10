@@ -203,5 +203,5 @@ TEST_CASE("Load content", "[xmlio]")
 
     // Read a non-existent document.
     mx::DocumentPtr doc2 = mx::createDocument();
-    REQUIRE_THROWS_AS(mx::readFromXmlFile(doc2, "NonExistent.mtlx"), mx::ExceptionFileMissing);
+    REQUIRE_THROWS_AS(mx::readFromXmlFile(doc2, "NonExistent.mtlx"), mx::ExceptionFileMissing&);
 }
