@@ -157,7 +157,7 @@ public:
     virtual void addLine(const string& str, bool semicolon = true);
 
     /// Add a block of code to the shader
-    virtual void addBlock(const string& str);
+    virtual void addBlock(const string& str, ShaderGenerator& shadergen);
 
     /// Add the function definition for a node
     virtual void addFunctionDefinition(SgNode* node, ShaderGenerator& shadergen);

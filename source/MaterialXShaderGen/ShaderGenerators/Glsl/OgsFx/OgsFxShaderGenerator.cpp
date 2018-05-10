@@ -349,8 +349,8 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     }
 
     // Add code blocks from the vertex and pixel shader stages generated above
-    shader.addBlock(shader.getSourceCode(OgsFxShader::VERTEX_STAGE));
-    shader.addBlock(shader.getSourceCode(OgsFxShader::PIXEL_STAGE));
+    shader.addBlock(shader.getSourceCode(OgsFxShader::VERTEX_STAGE), *this);
+    shader.addBlock(shader.getSourceCode(OgsFxShader::PIXEL_STAGE), *this);
 
     // Add Main technique block
     shader.addLine("technique Main", false);
@@ -377,7 +377,7 @@ void OgsFxShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& 
         str << "uniform texture2D " << uniform.name << "_texture : SourceTexture;\n";
         str << "uniform sampler2D " << uniform.name << " = sampler_state\n";
         str << "{\n    Texture = <" << uniform.name << "_texture>;\n};\n";
-        shader.addBlock(str.str());
+        shader.addBlock(str.str(), *this);
     }
     else if (!uniform.semantic.empty())
     {

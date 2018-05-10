@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<materialx version="1.36">
+  <nodegraph name="IMP_normalmap" nodedef="ND_normalmap" type="vector3">
+    <multiply name="in_scale" type="vector3">
+      <input name="in1" type="vector3" interfacename="in"/>
+      <input name="in2" type="vector3" value="2.0000, 2.0000, 2.0000" />
+    </multiply>
+    <subtract name="in_subtract" type="vector3">
+      <input name="in1" type="vector3" nodename="in_scale"/>
+      <input name="in2" type="vector3" value="1.0000, 1.0000, 1.0000" />
+    </subtract>
+    <multiply name="tangent_comp" type="vector3">
+      <input name="in1" type="vector3" interfacename="tangent"/>
+      <input name="in2" type="float" nodename="in_subtract" channels="x" />
+    </multiply>
+    <multiply name="bitangent_comp" type="vector3">
+      <input name="in1" type="vector3" interfacename="bitangent"/>
+      <input name="in2" type="float" nodename="in_subtract" channels="y" />
+    </multiply>
+    <multiply name="normal_comp" type="vector3">
+      <input name="in1" type="vector3" interfacename="normal"/>
+      <input name="in2" type="float" nodename="in_subtract" channels="z" />
+    </multiply>
+    <add name="add1" type="vector3">
+      <input name="in1" type="vector3" nodename="tangent_comp"/>
+      <input name="in2" type="vector3" nodename="bitangent_comp"/>
+    </add>
+    <add name="add2" type="vector3">
+      <input name="in1" type="vector3" nodename="normal_comp"/>
+      <input name="in2" type="vector3" nodename="add1"/>
+    </add>
+    <normalize name="normalize1" type="vector3">
+      <input name="in" type="vector3" nodename="add2"/>
+    </normalize>
+    <output name="out" type="vector3" nodename="normalize1"/>
+  </nodegraph>
+</materialx>

@@ -41,7 +41,7 @@ void LightGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen_
 
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
-    shader.addBlock(LIGHT_DIRECTION_BLOCK);
+    shader.addBlock(LIGHT_DIRECTION_BLOCK, shadergen);
     shader.newLine();
 
     string emission;

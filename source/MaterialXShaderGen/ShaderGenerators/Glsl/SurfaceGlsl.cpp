@@ -99,10 +99,10 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
     // Handle direct lighting
     //
     shader.addComment("Light loop");
-    shader.addBlock(LIGHT_LOOP_BEGIN);
+    shader.addBlock(LIGHT_LOOP_BEGIN, shadergen);
     shader.beginScope();
 
-    shader.addBlock(LIGHT_CONTRIBUTION);
+    shader.addBlock(LIGHT_CONTRIBUTION, shadergen);
     shader.newLine();
 
     shader.addComment("Calculate the BSDF response for this light source");

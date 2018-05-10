@@ -29,16 +29,17 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen)
 {
     ParentClass::initialize(element, shadergen);
 
+    //
     // For image textures we need to convert filenames into uniforms (texture samplers).
     // Any unconnected filename input on file texture nodes needs to have a corresponding 
     // uniform.
     //
-    const string internalTextureName = "u_internalTexture";
-    size_t numInternalTextures = 0;
 
     // Start with top level graphs.
     std::deque<SgNodeGraph*> graphQueue;
     getTopLevelShaderGraphs(shadergen, graphQueue);
+
+    Syntax::UniqueNameMap uniqueNames;
 
     while (!graphQueue.empty())
     {
@@ -56,8 +57,9 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen)
                         // Create the uniform and assing the name of the uniform to
                         // the input so we can reference it during code generation.
                         // Using the filename type will make this uniform into a texture sampler.
-                        const string name = internalTextureName + std::to_string(numInternalTextures++);
-                        createUniform(HwShader::PIXEL_STAGE, PRIVATE_UNIFORMS, DataType::FILENAME, name, EMPTY_STRING, input->value);
+                        string name = node->getName() + "_" + input->name;
+                        shadergen.getSyntax()->makeUnique(name, EMPTY_STRING, uniqueNames);
+                        createUniform(HwShader::PIXEL_STAGE, PUBLIC_UNIFORMS, DataType::FILENAME, name, EMPTY_STRING, input->value);
                         input->value = Value::createValue(std::string(name));
                     }
                 }
