@@ -194,14 +194,27 @@ void Shader::addComment(const string& str)
     endLine(false);
 }
 
-void Shader::addBlock(const string& str)
+void Shader::addBlock(const string& str, ShaderGenerator& shadergen)
 {
+    static const string INCLUDE_PATTERN = "#include ";
+
     // Add each line in the block seperatelly
     // to get correct indentation
     std::stringstream stream(str);
     for (string line; std::getline(stream, line); )
     {
-        addLine(line, false);
+        size_t pos = line.find(INCLUDE_PATTERN);
+        if (pos != string::npos)
+        {
+            const size_t start = pos + INCLUDE_PATTERN.size() + 1;
+            const size_t count = line.size() - start - 1;
+            const string filename = line.substr(start, count);
+            addInclude(filename, shadergen);
+        }
+        else
+        {
+            addLine(line, false);
+        }
     }
 }
 
@@ -235,7 +248,7 @@ void Shader::addInclude(const string& file, ShaderGenerator& shadergen)
             throw ExceptionShaderGenError("Could not find include file: '" + file + "'");
         }
         s.includes.insert(path);
-        addBlock(content);
+        addBlock(content, shadergen);
     }
 }
 

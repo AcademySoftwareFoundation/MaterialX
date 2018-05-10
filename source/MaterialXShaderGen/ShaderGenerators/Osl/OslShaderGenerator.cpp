@@ -196,7 +196,7 @@ void OslShaderGenerator::emitFunctionDefinitions(Shader& shader)
 {
     // Emit function for handling texture coords v-flip 
     // as needed by the v-direction set by the user
-    shader.addBlock(shader.getRequestedVDirection() != getTargetVDirection() ? VDIRECTION_FLIP : VDIRECTION_NOOP);
+    shader.addBlock(shader.getRequestedVDirection() != getTargetVDirection() ? VDIRECTION_FLIP : VDIRECTION_NOOP, *this);
 
     // Call parent to emit all other functions
     ParentClass::emitFunctionDefinitions(shader);

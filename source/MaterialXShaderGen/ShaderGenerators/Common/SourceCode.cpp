@@ -63,25 +63,7 @@ void SourceCode::emitFunctionDefinition(const SgNode& /*node*/, ShaderGenerator&
     // Emit function definition for non-inlined functions
     if (!_inlined)
     {
-        static const string INCLUDE_PATTERN = "#include ";
-
-        std::stringstream stream(_functionSource);
-        for (string line; std::getline(stream, line); )
-        {
-            size_t pos = line.find(INCLUDE_PATTERN);
-            if (pos != string::npos)
-            {
-                const size_t start = pos + INCLUDE_PATTERN.size() + 1;
-                const size_t count = line.size() - start - 1;
-                const string filename = line.substr(start, count);
-                shader.addInclude(filename, shadergen);
-            }
-            else
-            {
-                shader.addLine(line, false);
-            }
-        }
-
+        shader.addBlock(_functionSource, shadergen);
         shader.newLine();
     }
 
