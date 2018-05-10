@@ -20,12 +20,12 @@ TEST_CASE("Geom", "[geom]")
     geominfo2->setGeomAttrValue("id", std::string("01"));
     mx::GeomInfoPtr geominfo3 = doc->addGeomInfo("geominfo3", "/robot2");
     geominfo3->setGeomAttrValue("id", std::string("02"));
-    REQUIRE_THROWS_AS(doc->addGeomInfo("geominfo1"), mx::Exception);
+    REQUIRE_THROWS_AS(doc->addGeomInfo("geominfo1"), mx::Exception&);
 
     // Create a node graph with a single image node.
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
     nodeGraph->setFilePrefix("folder/");
-    REQUIRE_THROWS_AS(doc->addNodeGraph(nodeGraph->getName()), mx::Exception);
+    REQUIRE_THROWS_AS(doc->addNodeGraph(nodeGraph->getName()), mx::Exception&);
     mx::NodePtr image = nodeGraph->addNode("image");
     image->setParameterValue("file", std::string("%asset%id_diffuse_%UDIM.tif"), mx::FILENAME_TYPE_STRING);
 

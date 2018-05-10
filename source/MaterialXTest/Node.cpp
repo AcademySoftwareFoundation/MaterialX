@@ -37,7 +37,7 @@ TEST_CASE("Node", "[node]")
 
     // Create a node graph with two source nodes.
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
-    REQUIRE_THROWS_AS(doc->addNodeGraph(nodeGraph->getName()), mx::Exception);
+    REQUIRE_THROWS_AS(doc->addNodeGraph(nodeGraph->getName()), mx::Exception&);
     mx::NodePtr constant = nodeGraph->addNode("constant");
     mx::NodePtr image = nodeGraph->addNode("image");
     REQUIRE(nodeGraph->getNodes().size() == 2);
