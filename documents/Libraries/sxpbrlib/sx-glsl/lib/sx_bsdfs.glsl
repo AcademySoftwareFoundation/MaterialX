@@ -42,6 +42,7 @@ float sx_fresnel_schlick(float cosTheta, float ior)
     if (cosTheta < 0.0)
         return 1.0;
     float F0 = (ior - 1.0) / (ior + 1.0);
+    F0 *= F0;
     float m = 1.0 - cosTheta;
     return F0 + (1.0 - F0) * (m * m) * (m * m) * m;
 }
