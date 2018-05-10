@@ -8,6 +8,8 @@
 #include <MaterialXCore/Types.h>
 #include <MaterialXCore/Value.h>
 
+#include <cmath>
+
 namespace mx = MaterialX;
 
 const float EPSILON = 1e-4f;
