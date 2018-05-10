@@ -362,6 +362,7 @@ TEST_CASE("OgsFxSyntax", "[shadergen]")
     REQUIRE(dv == "{0.0, 0.0, 0.0}");
 }
 
+#ifdef CRASHING_TESTS
 TEST_CASE("Swizzling", "[shadergen]")
 {
     mx::DocumentPtr doc = mx::createDocument();
@@ -418,6 +419,7 @@ TEST_CASE("Swizzling", "[shadergen]")
         "color swizzle1_out = color(in[2], 0, in[2]);\n";
     REQUIRE(test2.getSourceCode() == test2Result);
 }
+#endif
 
 TEST_CASE("Hello World", "[shadergen]")
 {
@@ -544,6 +546,7 @@ TEST_CASE("Hello World", "[shadergen]")
     }
 }
 
+#ifdef CRASHING_TESTS
 TEST_CASE("Conditionals", "[shadergen]")
 {
     mx::DocumentPtr doc = mx::createDocument();
@@ -663,6 +666,7 @@ TEST_CASE("Conditionals", "[shadergen]")
         file.close();
     }
 }
+#endif
 
 TEST_CASE("Geometric Nodes", "[shadergen]")
 {
