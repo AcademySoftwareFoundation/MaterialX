@@ -1,208 +1,8 @@
-// Arnold standard shader diffuse
-vec3 standardShaderDiffuse(vec3 N, vec3 L, vec3 diffuse, float roughness)
-{
-    float NDL = clamp(dot(N, L), 0.0f, 1.0f);
-    if (NDL > 0.0f)
-        return diffuse * NDL;
-    else
-        return vec3(0.0f, 0.0f, 0.0f);
-}
+#include "sxpbrlib/sx-glsl/sx_diffusebsdf.glsl"
+#include "sxpbrlib/sx-glsl/sx_coatingbsdf.glsl"
 
-// Arnold standard shader specular
-vec3 standardShaderSpecular(
-    vec3 N,
-    vec3 SL, // Same as diffuse for now
-    vec3 V,
-    vec3 specular,
-    float roughness)
-{
-
-    float LdotN = clamp(dot(SL, N), 0.0f, 1.0f);
-    if (LdotN == 0.0f)
-        return vec3(0.0f, 0.0f, 0.0f);
-    float VdotN = clamp(dot(V, N), 0.0f, 1.0f);
-    if (VdotN == 0.0f)
-        return vec3(0.0f, 0.0f, 0.0f);
-
-    vec3 iPlusO = SL + V; // = lightingData.L + lightingData.V;
-    vec3 microfacet = normalize(iPlusO);
-
-    float LdotM = clamp(dot(SL, microfacet), 0.0f, 1.0f);
-    if (LdotM == 0.0f) return vec3(0.0f, 0.0f, 0.0f);
-    float VdotM = clamp(dot(V, microfacet), 0.0f, 1.0f);
-    if (VdotM == 0.0f) return vec3(0.0f, 0.0f, 0.0f);
-    float MdotN = clamp(dot(microfacet, N), 0.0f, 1.0f);
-    if (MdotN == 0.0f) return vec3(0.0f, 0.0f, 0.0f);
-
-    float LdotN2 = sx_square(LdotN);
-    float VdotN2 = sx_square(VdotN);
-    float MdotN2 = sx_square(MdotN);
-    float MdotN4 = sx_square(MdotN2);
-
-    float rx = sx_square(clamp(roughness, 0.0f, 1.0f));
-
-    float rx2 = sx_square(rx);
-    float tanThetaL = sx_square(1.0f - LdotN2) / LdotN;
-    float tanThetaV = sx_square(1.0f - VdotN2) / VdotN;
-    float tan2ThetaM = (1.0f - MdotN2) / MdotN2;
-
-    float a_im = 1.0f / (rx * tanThetaL);
-    float a_im2 = sx_square(a_im);
-    float g1im = (a_im < 1.6f) ? (3.535f * a_im + 2.181f * a_im2) / (1.0f + 2.276f * a_im + 2.577f * a_im2) : 1.0f;
-    float a_om = 1.0f / (rx * tanThetaV);
-    float a_om2 = sx_square(a_om);
-    float g1om = (a_om < 1.6f) ? (3.535f * a_om + 2.181f * a_om2) / (1.0f + 2.276f * a_om + 2.577f * a_om2) : 1.0f;
-    float G = g1im * g1om;
-
-    float D = (rx2 > 0.0f) ? exp(-tan2ThetaM / rx2) / (3.14159f * rx2 * MdotN4) : 0.0f;
-
-    return max(vec3(0.0f, 0.0f, 0.0f), ((G * D) / (4.f * LdotN * VdotN)) * specular);
-}
-
-// Arnold standard emission
-vec3 standardShaderEmission(
-    vec3 emissionColor,
-    float emission)
-{
-    return emissionColor * emission;
-}
-
-// Arnold standard shader combiner
-void standardShaderCombiner(
-    vec3 diffuseInput,
-    vec3 specularInput,
-    vec3 color,
-    float diffuseRoughness,
-    vec3 specularColor,
-    float specularRoughness,
-    float metalness,
-    float transmission,
-    vec3 transmissionColor,
-    float transmissionDepth,
-    float transmissionRoughness,
-    bool thinWalled,
-    vec3 opacity,
-    float subsurface,
-    vec3 subsurfaceColor,
-    float coat,
-    vec3 coatColor,
-    float coatIOR,
-    float directDiffuse,
-    float directSpecular,
-    bool specularFresnel,
-    bool FresnelAffectDiffuse,
-    bool FresnelUseIOR,
-    float Ksn,
-    float Ks,
-    float Kd,
-    float IOR,
-    vec3 IrradianceEnv,
-    vec3 SpecularEnv,
-    vec3 N,
-    vec3 V,
-    out surfaceshader result)
-{
-    float fresnel = 1.0;
-    float coatFresnel = 1.0;
-    float transFresnel = 1.0;
-    float coatFresnelWeight = 0.0;
-    float clampedIOR = max(1.0, IOR);
-
-    vec3 specularAmount = (specularInput + SpecularEnv);
-    float NV = dot(N, -V);
-
-    // compute the fresnel factors for the specular, coat, and transmission layers
-    if (NV < 0.0f)
-    {
-        coatFresnelWeight = (coatIOR - 1) / (coatIOR + 1);
-        coatFresnelWeight *= coatFresnelWeight;
-        float fresnelWeight = (clampedIOR - 1) / (clampedIOR + 1);
-        fresnelWeight *= fresnelWeight;
-
-        float temp = 1.0f + NV;
-        transFresnel = fresnelWeight + temp * (1.0f - fresnelWeight);
-
-        float fweight = temp * temp;
-        fweight *= fweight;
-        fweight *= temp;
-
-        fresnel = fresnelWeight + fweight * (1.0f - fresnelWeight);
-        coatFresnel = coatFresnelWeight + fweight * (1.0f - coatFresnelWeight);
-        coatFresnelWeight = fweight;
-    }
-
-    // compute the coat color
-    vec3 cc = mix(vec3(1.0, 1.0, 1.0), coatColor, coat);
-
-    // Compute the coat specular color.
-    // In Arnold the secondary coat adds white specular highlights.
-    vec3 coatSpecular = specularAmount * coatFresnel * coat;
-
-    // compute the diffuse
-    vec3 diffuse = color * Kd;
-
-    // include the sub-surface color
-    // TODO: Provide sub-surface scattering
-    diffuse = mix(diffuse, subsurfaceColor, subsurface * (1.0 - metalness));
-
-    // apply the diffuse roughness
-    diffuse = mix(diffuse, diffuse * 0.8, diffuseRoughness);
-
-    // compute the specular.  Specular goes to black as the metalness increases.
-    // metalness has its own specularity
-    vec3 specular = specularColor * specularAmount * Ks;
-    specular *= 1.0 - metalness;
-
-    // compute the metal color
-    vec3 metalColor = metalness * specularAmount * diffuse * cc * (1.0 - coatFresnelWeight);
-    vec3 metalSpecular = metalness * specularAmount * coatFresnelWeight;
-
-    // energy conservation for the metal color
-    metalColor *= 1.0 - (coatFresnel*coat);
-
-    //adjust the specular using the fresnel factor.
-    specular *= fresnel;
-
-    // compute the transmission  
-    transmissionRoughness = max(transmissionRoughness, specularRoughness);
-    float transp = pow(1.0 - transFresnel, 3.0 + 7.0*(1.0 - transmissionRoughness));
-
-    // fake some translucency   
-    if (!thinWalled)
-        transp = mix(transp, 1.0 - abs(transp - 0.5)*2.0, max(clampedIOR, 1.4) - 1.0);
-
-    // Compute the transparency amount.  Roughness makes things less transparent.
-    vec3 transAmount = (transmissionColor * transp) * (1.0 - 0.85*transmissionRoughness);
-
-    // modify the transparent amount so clear is clear no matter what angle you look at it from.
-    float shortestAxis = min(min(transmissionColor.x, transmissionColor.y), transmissionColor.z);
-    transAmount = mix(transAmount, transmissionColor, shortestAxis);
-
-    vec3 tt = transmissionColor * transp;
-    tt *= (1.0 - transAmount) * clampedIOR;
-
-    // apply the affects of transmission
-    diffuse = mix(diffuse, tt, transmission);
-
-    // include the secondary coat     
-    diffuse *= cc;
-
-    // add the diffuse lighting
-    diffuse *= (diffuseInput + IrradianceEnv);
-
-    // account for opacity (remove color where transparent)
-    diffuse *= opacity;
-
-    // energy conservation for metalness and coat contributions
-    diffuse *= 1.0 - min(1.0, max(coatFresnel * coat, metalness));
-
-    // lower the specular in the straight-on angles when the roughness is low.   
-    specular *= mix(1.0 - transp, 1.0, transmissionRoughness * (1.0 - transmission));
-
-    result.color = diffuse + specular + metalColor + metalSpecular + coatSpecular;
-    result.transparency = max((1.0 - metalness) * transmission * transAmount, (1.0 - opacity));
-}
-
+// TODO: Support more lobes:
+// metal, coat, transmission, SSS, thin film
 void sx_standardsurface(
     float base,
     vec3 base_color,
@@ -245,67 +45,47 @@ void sx_standardsurface(
     float indirect_specular,
     out surfaceshader result)
 {
-    vec3 worldNormal = sx_front_facing(normal);
-    vec3 worldView = normalize(u_viewPosition - vd.positionWorld);
+    vec3 N = sx_front_facing(normal);
+    vec3 V = normalize(u_viewPosition - vd.positionWorld);
 
+    result.color = vec3(0.0);
+    result.transparency = vec3(1.0);
+
+    //
     // Compute direct lighting
-    vec3 diffuseResult = vec3(0.0);
-    vec3 specularResult = vec3(0.0);
+    //
+
     lightshader lightShader;
     int numLights = numActiveLightSources();
     for (int activeLightIndex = 0; activeLightIndex < numLights; ++activeLightIndex)
     {
         sampleLightSource(u_lightData[activeLightIndex], vd.positionWorld, lightShader);
-        diffuseResult += standardShaderDiffuse(worldNormal, lightShader.direction, lightShader.intensity, diffuse_roughness);
-        specularResult += standardShaderSpecular(worldNormal, lightShader.direction, worldView, lightShader.intensity, specular_roughness);
+
+        vec3 L = lightShader.direction;
+
+        BSDF diffuse_bsdf;
+        sx_diffusebsdf(L, V, base * base_color, diffuse_roughness, N, diffuse_bsdf);
+
+        BSDF specular_bsdf;
+        sx_coatingbsdf(L, V, specular_color*specular, specular_IOR, specular_roughness, specular_anisotropy, N, tangent, 0, diffuse_bsdf, specular_bsdf);
+
+        result.color += lightShader.intensity * specular_bsdf.fr;
     }
 
-    // Extra inputs
-    float directDiffuse = 1.0;
-    float directSpecular = 1.0;
-    bool specularFresnel = false;
-    bool FresnelAffectDiffuse = false;
-    bool FresnelUseIOR = false;
-    float Ksn = 0.0;
-    vec3 IrradianceEnv = sx_environment_irradiance(worldNormal);
-    vec3 SpecularEnv = sx_environment_specular(worldNormal, worldView, specular_roughness);
+    //
+    // Compute indirect lighting
+    //
 
-    // Compute total bsdf
-    standardShaderCombiner(
-        diffuseResult,
-        specularResult,
-        base_color,
-        diffuse_roughness,
-        specular_color,
-        specular_roughness,
-        metalness,
-        transmission,
-        transmission_color,
-        transmission_depth,
-        transmission_extra_roughness,
-        thin_walled,
-        opacity,
-        subsurface,
-        subsurface_color,
-        coat,
-        coat_color,
-        coat_IOR,
-        // Extra params
-        directDiffuse,
-        directSpecular,
-        specularFresnel,
-        FresnelAffectDiffuse,
-        FresnelUseIOR,
-        Ksn,
-        specular, // Ks,
-        base, // Kd,
-        specular_IOR, //IOR,
-        IrradianceEnv,
-        SpecularEnv,
-        worldNormal,
-        worldView,
-        result);
+    if (specular > 0.0)
+    {
+        float F = sx_fresnel_schlick_roughness(dot(N, V), specular_IOR, specular_roughness);
+        vec3 specularEnv = sx_environment_specular(N, V, specular_roughness);
+        result.color += specular_color * specular * F * specularEnv;
+    }
 
-    // Compute emission
-    result.color += standardShaderEmission(emission_color, emission);
+    // TODO: Indirect diffuse
+    // vec3 irradianceEnv = sx_environment_irradiance(N);
+
+    // Add emission
+    result.color += emission_color * emission;
 }

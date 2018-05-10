@@ -151,58 +151,75 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
     normalMap1->setConnectedNode("in", normalTex);
     outNormal->setConnectedNode(normalMap1);
 
-    // Create a material from 'standardsurface' and connect the graph outputs
+    // Example1: Create a material from 'standardsurface'
     {
         mx::MaterialPtr material = doc->addMaterial("example1");
         mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "standardsurface");
 
+        // Bind textures for albedo and normal map, from the texturing graph above
         mx::BindInputPtr albedoInput = shaderRef->addBindInput("base_color", "color3");
         mx::BindInputPtr normalInput = shaderRef->addBindInput("normal", "vector3");
         albedoInput->setConnectedOutput(outAlbedo);
         normalInput->setConnectedOutput(outNormal);
 
+        // Bind a couple of shader parameter values
         mx::BindInputPtr specularRoughnessInput = shaderRef->addBindInput("specular_roughness", "float");
         specularRoughnessInput->setValue(0.2f);
-
         mx::BindInputPtr specularIorInput = shaderRef->addBindInput("specular_IOR", "float");
         specularIorInput->setValue(2.0f);
 
         materials.push_back(material);
     }
 
+    // Example2: Create a surface shader by a graph of BSDF nodes
     {
-        // Create a nodedef interface for a surface shader
+        // Create a nodedef interface for the surface shader
         mx::NodeDefPtr nodeDef = doc->addNodeDef("ND_testshader2", "surfaceshader", "testshader2");
+        nodeDef->addInput("diffuse_reflectance", "color3");
+        nodeDef->addInput("diffuse_roughness", "float");
+        nodeDef->addInput("specular_reflectance", "color3");
         nodeDef->addInput("specular_roughness", "float");
-        nodeDef->addInput("specular_ior", "float");
+        nodeDef->addInput("specular_anisotropy", "float");
+        nodeDef->addInput("specular_IOR", "float");
 
+        // Create the shader graph implementing the surface shader
         mx::NodeGraphPtr shaderGraph = doc->addNodeGraph("IMP_testshader2");
-        mx::NodePtr coating = shaderGraph->addNode("coatingbsdf", "coating", "BSDF");
-        mx::InputPtr coating_color = coating->addInput("reflectance", "color3");
-        coating_color->setValueString("1.0, 1.0, 1.0");
-        mx::InputPtr coating_roughness = coating->addInput("roughness", "float");
-        coating_roughness->setInterfaceName("specular_roughness");
-        mx::InputPtr coating_ior = coating->addInput("ior", "float");
-        coating_ior->setInterfaceName("specular_ior");
+        // A diffuse lobe
+        mx::NodePtr diffuse = shaderGraph->addNode("diffusebsdf", "diffuse", "BSDF");
+        mx::InputPtr diffuse_reflectance = diffuse->addInput("reflectance", "color3");
+        diffuse_reflectance->setInterfaceName("diffuse_reflectance");
+        mx::InputPtr diffuse_roughness = diffuse->addInput("roughness", "float");
+        diffuse_roughness->setInterfaceName("diffuse_roughness");
+        // A specular lobe
+        mx::NodePtr specular = shaderGraph->addNode("coatingbsdf", "coating", "BSDF");
+        specular->setConnectedNode("base", diffuse);
+        mx::InputPtr specular_reflectance = specular->addInput("reflectance", "color3");
+        specular_reflectance->setInterfaceName("specular_reflectance");
+        mx::InputPtr specular_roughness = specular->addInput("roughness", "float");
+        specular_roughness->setInterfaceName("specular_roughness");
+        mx::InputPtr specular_anisotropy = specular->addInput("anisotropy", "float");
+        specular_anisotropy->setInterfaceName("specular_anisotropy");
+        mx::InputPtr specular_IOR = specular->addInput("ior", "float");
+        specular_IOR->setInterfaceName("specular_IOR");
 
-        // Create a surface shader
+        // Create a surface shader construction node and connect the final BSDF
         mx::NodePtr surface = shaderGraph->addNode("surface", "surface1", "surfaceshader");
-        surface->setConnectedNode("bsdf", coating);
+        surface->setConnectedNode("bsdf", specular);
 
-        // Connect to graph output
+        // Connect it as the graph output
         mx::OutputPtr output = shaderGraph->addOutput("out", "surfaceshader");
         output->setConnectedNode(surface);
 
-        // Make this graph the implementation of the shader definition
+        // Set this graph to be the implementation of the shader nodedef
         shaderGraph->setAttribute("nodedef", nodeDef->getName());
 
-        // Create a material with the above node as the shader ref
+        // Create a material with the above shader node as the shader ref
         mx::MaterialPtr material = doc->addMaterial("example2");
         mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "testshader2");
 
+        // Bind a couple of shader parameter values
         mx::BindInputPtr specularRoughnessInput = shaderRef->addBindInput("specular_roughness", "float");
         specularRoughnessInput->setValue(0.2f);
-
         mx::BindInputPtr specularIorInput = shaderRef->addBindInput("specular_ior", "float");
         specularIorInput->setValue(2.0f);
 
