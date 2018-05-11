@@ -356,15 +356,32 @@ void SgNodeGraph::addOutputSockets(const InterfaceElement& elem)
 
 void SgNodeGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr material, ShaderGenerator& shadergen)
 {
+    // Keep track of our root node in the graph.
+    // This is needed when the graph is a shader graph and we need 
+    // to make connections for BindInputs during traversal below.
     SgNode* rootNode = getNode(root.getName());
 
+    std::set<ElementPtr> processedOutputs;
     for (Edge edge : root.traverseGraph(material))
     {
         ElementPtr upstreamElement = edge.getUpstreamElement();
+        ElementPtr downstreamElement = edge.getDownstreamElement();
 
-        // If it's an output move on to the actual node connected to the output.
+        // Early out if downstream element is an output that 
+        // we have already processed. This might happen since
+        // we perform jumps over output elements below.
+        if (processedOutputs.count(downstreamElement))
+        {
+            continue;
+        }
+
+        // If upstream is an output jump to the actual node connected to the output.
         if (upstreamElement->isA<Output>())
         {
+            // Record this output so we don't process it again when it
+            // shows up as a downstream element in the next iteration.
+            processedOutputs.insert(upstreamElement);
+
             upstreamElement = upstreamElement->asA<Output>()->getConnectedNode();
             if (!upstreamElement)
             {
@@ -400,8 +417,6 @@ void SgNodeGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
         }
         else
         {
-            ElementPtr downstreamElement = edge.getDownstreamElement();
-
             // Check if it was a node downstream
             NodePtr downstreamNode = downstreamElement->asA<Node>();
             if (downstreamNode)
@@ -423,7 +438,7 @@ void SgNodeGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
             {
                 // Not a node, then it must be an output
                 SgOutputSocket* outputSocket = getOutputSocket(downstreamElement->getName());
-                if (outputSocket && downstreamElement->getParent()->getName() == this->getName())
+                if (outputSocket)
                 {
                     outputSocket->makeConnection(newNode->getOutput());
                 }

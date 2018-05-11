@@ -169,7 +169,7 @@ void OgsFxSyntax::makeUnique(string& name, const string& type, UniqueNameMap& un
         {
             // Remove any existing "color", "Color", "COLOR" suffix
             string suffix = name.substr(name.size() - 5, string::npos);
-            std::transform(suffix.begin(), suffix.end(), suffix.begin(), ::tolower);
+            std::transform(suffix.begin(), suffix.end(), suffix.begin(), [](const unsigned char c) { return (unsigned char)tolower(c); });
             if (suffix == COLOR_LOWER)
             {
                 const size_t n = name.size() - 5;
