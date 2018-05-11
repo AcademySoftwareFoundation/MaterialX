@@ -220,7 +220,7 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         // Bind a couple of shader parameter values
         mx::BindInputPtr specularRoughnessInput = shaderRef->addBindInput("specular_roughness", "float");
         specularRoughnessInput->setValue(0.2f);
-        mx::BindInputPtr specularIorInput = shaderRef->addBindInput("specular_ior", "float");
+        mx::BindInputPtr specularIorInput = shaderRef->addBindInput("specular_IOR", "float");
         specularIorInput->setValue(2.0f);
 
         materials.push_back(material);
@@ -362,7 +362,6 @@ TEST_CASE("OgsFxSyntax", "[shadergen]")
     REQUIRE(dv == "{0.0, 0.0, 0.0}");
 }
 
-#ifdef CRASHING_TESTS
 TEST_CASE("Swizzling", "[shadergen]")
 {
     mx::DocumentPtr doc = mx::createDocument();
@@ -402,6 +401,7 @@ TEST_CASE("Swizzling", "[shadergen]")
     mx::Shader test1("test1");
     test1.initialize(output1, sg);
     mx::SgNode* sgNode = test1.getNodeGraph()->getNode("swizzle1");
+    REQUIRE(sgNode);
     test1.addFunctionCall(sgNode, sg);
     const std::string test1Result =
         "color in = color(1, 2, 3);\n"
@@ -413,13 +413,13 @@ TEST_CASE("Swizzling", "[shadergen]")
     mx::Shader test2("test2");
     test2.initialize(output1, sg);
     sgNode = test2.getNodeGraph()->getNode("swizzle1");
+    REQUIRE(sgNode);
     test2.addFunctionCall(sgNode, sg);
     const std::string test2Result =
         "color in = color(1, 2, 3);\n"
         "color swizzle1_out = color(in[2], 0, in[2]);\n";
     REQUIRE(test2.getSourceCode() == test2Result);
 }
-#endif
 
 TEST_CASE("Hello World", "[shadergen]")
 {
@@ -546,7 +546,6 @@ TEST_CASE("Hello World", "[shadergen]")
     }
 }
 
-#ifdef CRASHING_TESTS
 TEST_CASE("Conditionals", "[shadergen]")
 {
     mx::DocumentPtr doc = mx::createDocument();
@@ -611,6 +610,7 @@ TEST_CASE("Conditionals", "[shadergen]")
         // All of the nodes should have been removed by optimization
         // leaving a graph with a single constant value
         REQUIRE(shader->getNodeGraph()->getNodes().empty());
+        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value != nullptr);
         REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
 
         // Write out to file for inspection
@@ -632,6 +632,7 @@ TEST_CASE("Conditionals", "[shadergen]")
         // All of the nodes should have been removed by optimization
         // leaving a graph with a single constant value
         REQUIRE(shader->getNodeGraph()->getNodes().empty());
+        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value != nullptr);
         REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
 
         // Write out to file for inspection
@@ -654,6 +655,7 @@ TEST_CASE("Conditionals", "[shadergen]")
         // All of the nodes should have been removed by optimization
         // leaving a graph with a single constant value
         REQUIRE(shader->getNodeGraph()->getNodes().empty());
+        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value != nullptr);
         REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
 
         // Write out to file for inspection
@@ -666,7 +668,6 @@ TEST_CASE("Conditionals", "[shadergen]")
         file.close();
     }
 }
-#endif
 
 TEST_CASE("Geometric Nodes", "[shadergen]")
 {
