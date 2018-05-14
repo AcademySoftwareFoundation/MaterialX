@@ -199,15 +199,16 @@ InheritanceIterator& InheritanceIterator::operator++()
     if (_elem)
     {
         ElementPtr super = _elem->getInheritsFrom();
-
-        // Check for cycles.
-        if (_pathElems.count(super))
+        if (super && super->getCategory() == _elem->getCategory())
         {
-            throw ExceptionFoundCycle("Encountered cycle at element: " + super->asString());
+            // Check for cycles.
+            if (_pathElems.count(super))
+            {
+                throw ExceptionFoundCycle("Encountered cycle at element: " + super->asString());
+            }
+            _pathElems.insert(super);
         }
-
         _elem = super;
-        _pathElems.insert(super);
     }
     return *this;
 }
