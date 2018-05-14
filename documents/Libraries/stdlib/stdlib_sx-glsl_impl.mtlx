@@ -208,6 +208,8 @@
   <!-- <time> -->
   <implementation name="IM_time__float__sx_glsl" nodedef="ND_time__float" function="mx_time_float" language="sx-glsl"/>
 
+  <!-- <viewdirection> -->
+  <implementation name="IM_viewdirection__vector3__sx_glsl" nodedef="ND_viewdirection__vector3" language="sx-glsl"/>
 
   <!-- ======================================================================== -->
   <!-- Math nodes                                                               -->
