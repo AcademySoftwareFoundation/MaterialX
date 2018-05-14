@@ -69,7 +69,6 @@ class Document::Cache
         {
             // Clear the existing cache.
             portElementMap.clear();
-            publicElementMap.clear();
             nodeDefMap.clear();
             implementationMap.clear();
 
@@ -87,12 +86,6 @@ class Document::Cache
                     portElementMap.insert(std::pair<string, PortElementPtr>(
                         portElem->getNodeName(),
                         portElem));
-                }
-                if (valueElem && valueElem->hasPublicName())
-                {
-                    publicElementMap.insert(std::pair<string, ValueElementPtr>(
-                        valueElem->getPublicName(),
-                        valueElem));
                 }
                 if (nodeDef && nodeDef->hasNodeString())
                 {
@@ -123,7 +116,6 @@ class Document::Cache
     std::mutex mutex;
     bool valid;
     std::unordered_multimap<string, PortElementPtr> portElementMap;
-    std::unordered_multimap<string, ValueElementPtr> publicElementMap;
     std::unordered_multimap<string, NodeDefPtr> nodeDefMap;
     std::unordered_multimap<string, InterfaceElementPtr> implementationMap;
 };
@@ -247,38 +239,6 @@ vector<InterfaceElementPtr> Document::getMatchingImplementations(const string& n
     return implementations;
 }
 
-ElementPtr Document::getPublicElement(const string& publicName) const
-{
-    // Refresh the cache.
-    _cache->refresh();
-
-    // Return any element with the given public name.
-    auto it = _cache->publicElementMap.find(publicName);
-    if (it != _cache->publicElementMap.end())
-    {
-        return it->second;
-    }
-
-    return ElementPtr();
-}
-
-vector<ElementPtr> Document::getPublicElements(const string& publicName) const
-{
-    // Refresh the cache.
-    _cache->refresh();
-
-    // Find all elements with the given public name.
-    vector<ElementPtr> publicElements;
-    auto keyRange = _cache->publicElementMap.equal_range(publicName);
-    for (auto it = keyRange.first; it != keyRange.second; ++it)
-    {
-        publicElements.push_back(it->second);
-    }
-
-    // Return the matches.
-    return publicElements;
-}
-
 void Document::generateRequireString()
 {
     std::set<string> requireSet;
@@ -291,10 +251,6 @@ void Document::generateRequireString()
             {
                 requireSet.insert(REQUIRE_STRING_MATNODEGRAPH);
             }
-        }
-        else if (elem->isA<Override>())
-        {
-            requireSet.insert(REQUIRE_STRING_OVERRIDE);
         }
     }
 
@@ -533,7 +489,9 @@ void Document::upgradeVersion()
     {
         for (ElementPtr elem : traverseTree())
         {
-            if (elem->isA<Material>() || elem->isA<Look>())
+            MaterialPtr material = elem->asA<Material>();
+            LookPtr look = elem->asA<Look>();
+            if (material || look)
             {
                 vector<ElementPtr> origChildren = elem->getChildren();
                 for (ElementPtr child : origChildren)
@@ -546,6 +504,31 @@ void Document::upgradeVersion()
                     else if (child->getCategory() == "lookinherit")
                     {
                         elem->setInheritString(child->getAttribute("look"));
+                        elem->removeChild(child->getName());
+                    }
+                    else if (material && child->getCategory() == "override")
+                    {
+                        for (ShaderRefPtr shaderRef : material->getShaderRefs())
+                        {
+                            NodeDefPtr nodeDef = shaderRef->getNodeDef();
+                            for (ValueElementPtr valueElem : nodeDef->getActiveValueElements())
+                            {
+                                if (valueElem->getAttribute("publicname") == child->getName() &&
+                                    !shaderRef->getChild(child->getName()))
+                                {
+                                    if (valueElem->isA<Parameter>())
+                                    {
+                                        BindParamPtr bindParam = shaderRef->addBindParam(valueElem->getName(), valueElem->getType());
+                                        bindParam->setValueString(child->getAttribute("value"));
+                                    }
+                                    else if (valueElem->isA<Input>())
+                                    {
+                                        BindInputPtr bindInput = shaderRef->addBindInput(valueElem->getName(), valueElem->getType());
+                                        bindInput->setValueString(child->getAttribute("value"));
+                                    }
+                                }
+                            }
+                        }
                         elem->removeChild(child->getName());
                     }
                 }

@@ -19,7 +19,6 @@ TEST_CASE("Material", "[material]")
     mx::InputPtr diffColor = simpleSrf->setInputValue("diffColor", mx::Color3(1.0f));
     mx::InputPtr specColor = simpleSrf->setInputValue("specColor", mx::Color3(0.0f));
     mx::ParameterPtr roughness = simpleSrf->setParameterValue("roughness", 0.25f);
-    roughness->setPublicName("editRoughness");
     REQUIRE(simpleSrf->getInputValue("diffColor")->asA<mx::Color3>() == mx::Color3(1.0f));
     REQUIRE(simpleSrf->getInputValue("specColor")->asA<mx::Color3>() == mx::Color3(0.0f));
     REQUIRE(simpleSrf->getParameterValue("roughness")->asA<float>() == 0.25f);
@@ -87,18 +86,4 @@ TEST_CASE("Material", "[material]")
     REQUIRE(material->getPrimaryShaderName().empty());
     REQUIRE(material->getPrimaryShaderParameters().empty());
     REQUIRE(material->getPrimaryShaderInputs().empty());
-
-    // Add a valid override.
-    mx::OverridePtr roughOverride = material->setOverrideValue("editRoughness", 0.5f);
-    REQUIRE(roughOverride->getReceiver() == roughness);
-    REQUIRE(roughness->getBoundValue(material)->asA<float>() == 0.5f);
-
-    // Add an invalid override.
-    mx::OverridePtr invalidOverride = material->setOverrideValue("invalid", 0.1f);
-    REQUIRE(!invalidOverride->getReceiver());
-
-    // Remove overrides.
-    material->removeOverride(roughOverride->getName());
-    material->removeOverride(invalidOverride->getName());
-    REQUIRE(roughness->getBoundValue(material)->asA<float>() == 0.25f);
 }

@@ -41,17 +41,6 @@ vector<ShaderRefPtr> Material::getActiveShaderRefs() const
     return activeShaderRefs;
 }
 
-vector<OverridePtr> Material::getActiveOverrides() const
-{
-    vector<OverridePtr> activeOverrides;
-    for (ConstElementPtr elem : traverseInheritance())
-    {
-        vector<OverridePtr> overrides = elem->asA<Material>()->getOverrides();
-        activeOverrides.insert(activeOverrides.end(), overrides.begin(), overrides.end());
-    }
-    return activeOverrides;
-}
-
 vector<NodeDefPtr> Material::getShaderNodeDefs(const string& target, const string& type) const
 {
     vector<NodeDefPtr> nodeDefs;
@@ -235,15 +224,6 @@ Edge ShaderRef::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
     }
 
     return NULL_EDGE;
-}
-
-//
-// Override methods
-//
-
-ConstElementPtr Override::getReceiver() const
-{
-    return getDocument()->getPublicElement(getName());
 }
 
 } // namespace MaterialX

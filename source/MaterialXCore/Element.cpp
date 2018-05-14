@@ -9,8 +9,6 @@
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Util.h>
 
-#include <typeinfo>
-
 namespace MaterialX
 {
 
@@ -22,7 +20,6 @@ const string Element::COLOR_SPACE_ATTRIBUTE = "colorspace";
 const string Element::INHERIT_ATTRIBUTE = "inherit";
 const string Element::TARGET_ATTRIBUTE = "target";
 const string ValueElement::VALUE_ATTRIBUTE = "value";
-const string ValueElement::PUBLIC_NAME_ATTRIBUTE = "publicname";
 const string ValueElement::INTERFACE_NAME_ATTRIBUTE = "interfacename";
 const string ValueElement::IMPLEMENTATION_NAME_ATTRIBUTE = "implname";
 
@@ -291,11 +288,11 @@ ConstElementPtr Element::getRoot() const
     return root;
 }
 
-bool Element::hasInheritedBase(ConstElementPtr elem) const
+bool Element::hasInheritedBase(ConstElementPtr base) const
 {
-    for (ConstElementPtr iterElem : traverseInheritance())
+    for (ConstElementPtr elem : traverseInheritance())
     {
-        if (iterElem == elem)
+        if (elem == base)
         {
             return true;
         }
@@ -619,7 +616,6 @@ INSTANTIATE_CONCRETE_SUBCLASS(Member, "member")
 INSTANTIATE_CONCRETE_SUBCLASS(Node, "node")
 INSTANTIATE_CONCRETE_SUBCLASS(NodeDef, "nodedef")
 INSTANTIATE_CONCRETE_SUBCLASS(NodeGraph, "nodegraph")
-INSTANTIATE_CONCRETE_SUBCLASS(Override, "override")
 INSTANTIATE_CONCRETE_SUBCLASS(Output, "output")
 INSTANTIATE_CONCRETE_SUBCLASS(Parameter, "parameter")
 INSTANTIATE_CONCRETE_SUBCLASS(Property, "property")
