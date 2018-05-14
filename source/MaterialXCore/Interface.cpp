@@ -103,13 +103,6 @@ Edge Parameter::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
                 }
             }
         }
-
-        // Apply Override elements to the Parameter.
-        OverridePtr override = material->getOverride(getPublicName());
-        if (override)
-        {
-            return Edge(getSelfNonConst(), nullptr, override);
-        }
     }
 
     return NULL_EDGE;
@@ -154,13 +147,6 @@ Edge Input::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
                     }
                 }
             }
-        }
-
-        // Apply Override elements to the Input.
-        OverridePtr override = material->getOverride(getPublicName());
-        if (override)
-        {
-            return Edge(getSelfNonConst(), nullptr, override);
         }
     }
 

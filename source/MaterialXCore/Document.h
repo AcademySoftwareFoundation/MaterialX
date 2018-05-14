@@ -407,17 +407,6 @@ class Document : public Element
     vector<InterfaceElementPtr> getMatchingImplementations(const string& nodeDef) const;
 
     /// @}
-    /// @name Public Elements
-    /// @{
-
-    /// Return any element with the given public name.  If multiple matches
-    /// exist, then an arbitrary selection is made.
-    ElementPtr getPublicElement(const string& publicName) const;
-
-    /// Return a vector of all elements with the given public name.
-    vector<ElementPtr> getPublicElements(const string& publicName) const;
-
-    /// @}
     /// @name Require String
     /// @{
 
