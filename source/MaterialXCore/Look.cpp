@@ -74,28 +74,6 @@ vector<VisibilityPtr> Look::getActiveVisibilities() const
     return activeVisibilities;
 }
 
-void Look::setInheritsFrom(ElementPtr look)
-{
-    for (LookInheritPtr inherit : getLookInherits())
-    {
-        removeLookInherit(inherit->getName());
-    }
-    if (look)
-    {
-        addLookInherit(look->getName());
-    }
-}
-
-ElementPtr Look::getInheritsFrom() const
-{
-    vector<LookInheritPtr> inherits = getLookInherits();
-    if (inherits.empty())
-    {
-        return nullptr;
-    }
-    return getRoot()->getChildOfType<Look>(inherits[0]->getName());
-}
-
 //
 // MaterialAssign methods
 //

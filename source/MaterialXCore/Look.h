@@ -22,11 +22,6 @@ using LookPtr = shared_ptr<class Look>;
 /// A shared pointer to a const Look
 using ConstLookPtr = shared_ptr<const class Look>;
 
-/// A shared pointer to a LookInherit
-using LookInheritPtr = shared_ptr<class LookInherit>;
-/// A shared pointer to a const LookInherit
-using ConstLookInheritPtr = shared_ptr<const class LookInherit>;
-
 /// A shared pointer to a MaterialAssign
 using MaterialAssignPtr = shared_ptr<class MaterialAssign>;
 /// A shared pointer to a const MaterialAssign
@@ -193,65 +188,8 @@ class Look : public Element
     }
 
     /// @}
-    /// @name LookInherit Elements
-    /// @{
-
-    /// Add a LookInherit to the look.
-    /// @param name The name of the new LookInherit.
-    ///     If no name is specified, then a unique name will automatically be
-    ///     generated.
-    /// @return A shared pointer to the new LookInherit.
-    LookInheritPtr addLookInherit(const string& name = EMPTY_STRING)
-    {
-        return addChild<LookInherit>(name);
-    }
-
-    /// Return the LookInherit, if any, with the given name.
-    LookInheritPtr getLookInherit(const string& name) const
-    {
-        return getChildOfType<LookInherit>(name);
-    }
-
-    /// Return a vector of all LookInherit elements in the look.
-    vector<LookInheritPtr> getLookInherits() const
-    {
-        return getChildrenOfType<LookInherit>();
-    }
-
-    /// Remove the LookInherit, if any, with the given name.
-    void removeLookInherit(const string& name)
-    {
-        removeChildOfType<LookInherit>(name);
-    }
-
-    /// @}
-    /// @name Inheritance
-    /// @{
-
-    /// Set the look element that this one inherits from.
-    void setInheritsFrom(ElementPtr look) override;
-
-    /// Return the look element, if any, that this one inherits from.
-    ElementPtr getInheritsFrom() const override;
-
-    /// @}
 
   public:
-    static const string CATEGORY;
-};
-
-/// @class LookInherit
-/// A look inheritance element within a Look.
-class LookInherit : public Element
-{
-public:
-    LookInherit(ElementPtr parent, const string& name) :
-        Element(parent, CATEGORY, name)
-    {
-    }
-    virtual ~LookInherit() { }
-
-public:
     static const string CATEGORY;
 };
 

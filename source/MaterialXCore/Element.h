@@ -256,6 +256,54 @@ class Element : public std::enable_shared_from_this<Element>
     }
 
     /// @}
+    /// @name Inheritance
+    /// @{
+
+    /// Set the inherit string of this element.
+    void setInheritString(const string& inherit)
+    {
+        setAttribute(INHERIT_ATTRIBUTE, inherit);
+    }
+
+    /// Return true if this element has an inherit string.
+    bool hasInheritString() const
+    {
+        return hasAttribute(INHERIT_ATTRIBUTE);
+    }
+
+    /// Return the inherit string of this element.
+    const string& getInheritString() const
+    {
+        return getAttribute(INHERIT_ATTRIBUTE);
+    }
+
+    /// Set the element that this one directly inherits from.
+    void setInheritsFrom(ConstElementPtr super)
+    {
+        if (super)
+        {
+            setInheritString(super->getName());
+        }
+        else
+        {
+            removeAttribute(INHERIT_ATTRIBUTE);
+        }
+    }
+
+    /// Return the element, if any, that this one directly inherits from.
+    ElementPtr getInheritsFrom() const
+    {
+        return getRoot()->getChild(getInheritString());
+    }
+
+    /// Return true if this element has the given element as an inherited base,
+    /// taking the full inheritance chain into account.
+    bool hasInheritedBase(ConstElementPtr elem) const;
+
+    /// Return true if the inheritance chain for this element contains a cycle.
+    bool hasInheritanceCycle() const;
+
+    /// @}
     /// @name Subclass
     /// @{
 
@@ -470,23 +518,6 @@ class Element : public std::enable_shared_from_this<Element>
     }
 
     /// @}
-    /// @name Inheritance
-    /// @{
-
-    /// Set the element that this one inherits from, if inheritance is
-    /// supported by this element subclass.
-    virtual void setInheritsFrom(ElementPtr elem) { };
-
-    /// Return the element, if any, that this one inherits from.
-    virtual ElementPtr getInheritsFrom() const
-    {
-        return nullptr;
-    }
-
-    /// Return true if the inheritance chain for this element contains a cycle.
-    bool hasInheritanceCycle() const;
-
-    /// @}
     /// @name Traversal
     /// @{
 
@@ -680,6 +711,7 @@ class Element : public std::enable_shared_from_this<Element>
     static const string FILE_PREFIX_ATTRIBUTE;
     static const string GEOM_PREFIX_ATTRIBUTE;
     static const string COLOR_SPACE_ATTRIBUTE;
+    static const string INHERIT_ATTRIBUTE;
     static const string TARGET_ATTRIBUTE;
 
   protected:
