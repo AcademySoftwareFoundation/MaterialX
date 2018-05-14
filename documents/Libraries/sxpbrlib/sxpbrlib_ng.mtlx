@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.36">
+  <!-- <normalmap> -->
   <nodegraph name="IMP_normalmap" nodedef="ND_normalmap" type="vector3">
     <multiply name="in_scale" type="vector3">
       <input name="in1" type="vector3" interfacename="in"/>
@@ -34,4 +35,29 @@
     </normalize>
     <output name="out" type="vector3" nodename="normalize1"/>
   </nodegraph>
+
+  <!-- <shadingnormal> -->
+  <nodegraph name="IMP_shadingnormal__vector3" nodedef="ND_shadingnormal__vector3" type="vector3">
+    <normal name="Nw" type="vector3">
+      <parameter name="space" type="string" value="world"/>
+    </normal>
+    <backfacing name="bf" type="float"/>
+    <invert name="ff" type="float">
+      <input name="in" type="float" nodename="bf"/>
+    </invert>
+    <multiply name="mul_ff_2" type="float">
+      <input name="in1" type="float" nodename="ff"/>
+      <input name="in2" type="float" value="2.0" />
+    </multiply>
+    <subtract name="sub_ff_1" type="float">
+      <input name="in1" type="float" nodename="mul_ff_2"/>
+      <input name="in2" type="float" value="1.0" />
+    </subtract>
+    <multiply name="flip" type="vector3">
+      <input name="in1" type="vector3" nodename="Nw"/>
+      <input name="in2" type="vector3" nodename="sub_ff_1" />
+    </multiply>
+    <output name="out" type="vector3" nodename="flip"/>
+  </nodegraph>
+
 </materialx>

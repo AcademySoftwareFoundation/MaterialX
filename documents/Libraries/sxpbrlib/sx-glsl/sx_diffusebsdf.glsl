@@ -2,10 +2,7 @@
 
 void sx_diffusebsdf(vec3 L, vec3 V, vec3 reflectance, float roughness, vec3 normal, out BSDF result)
 {
-    result.fr = vec3(0.0);
-    result.ft = vec3(0.0);
-
-    normal = sx_front_facing(normal);
+    result = BSDF(vec3(0.0), vec3(0.0));
     float NdotL = dot(L, normal);
     if (NdotL <= 0.0)
         return;

@@ -13,6 +13,9 @@
   <!-- <coatingbsdf> -->
   <implementation name="IM_coatingbsdf__sx_osl" nodedef="ND_coatingbsdf" file="sxpbrlib/sx-osl/sx_coatingbsdf.osl" function="sx_coatingbsdf" language="sx-osl"/>
 
+  <!-- <metalbsdf> -->
+  <implementation name="IM_metalbsdf__sx_osl" nodedef="ND_metalbsdf" file="sxpbrlib/sx-osl/sx_metalbsdf.osl" function="sx_metalbsdf" language="sx-osl"/>
+
   <!-- <refractionbsdf> -->
   <implementation name="IM_refractionbsdf__sx_osl" nodedef="ND_refractionbsdf" file="sxpbrlib/sx-osl/sx_refractionbsdf.osl" function="sx_refractionbsdf" language="sx-osl"/>
 
@@ -36,5 +39,11 @@
 
   <!-- <standardsurface> -->
   <implementation name="IM_standardsurface__sx_osl" nodedef="ND_standardsurface" file="sxpbrlib/sx-osl/sx_standardsurface.osl" function="sx_standardsurface" language="sx-osl"/>
+
+  <!-- <backfacing> -->
+  <implementation name="IM_backfacing__float__sx_osl" nodedef="ND_backfacing__float" file="sxpbrlib/sx-osl/sx_backfacing.inline" language="sx-osl"/>
+
+  <!-- <complexior> -->
+  <implementation name="IM_complexior__sx_osl" nodedef="ND_complexior" file="sxpbrlib/sx-osl/sx_complexior.osl" language="sx-osl"/>
 
 </materialx>

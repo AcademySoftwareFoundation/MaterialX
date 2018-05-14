@@ -22,5 +22,5 @@ vec3 sx_environment_specular(vec3 normal, vec3 view, float roughness)
 
 vec3 sx_environment_irradiance(vec3 normal)
 {
-    return sx_latlong_map_lookup(normal, 1.0, u_envIrradiance);
+    return sx_latlong_map_lookup(normal, 0.9, u_envIrradiance);
 }

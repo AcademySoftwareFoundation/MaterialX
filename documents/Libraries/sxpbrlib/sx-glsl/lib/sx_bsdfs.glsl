@@ -43,8 +43,10 @@ float sx_fresnel_schlick(float cosTheta, float ior)
         return 1.0;
     float F0 = (ior - 1.0) / (ior + 1.0);
     F0 *= F0;
-    float m = 1.0 - cosTheta;
-    return F0 + (1.0 - F0) * (m * m) * (m * m) * m;
+    float c = 1.0 - cosTheta;
+    float c2 = c*c;
+    float c5 = c2*c2*c;
+    return F0 + (1.0 - F0) * c5;
 }
 
 float sx_fresnel_schlick_roughness(float cosTheta, float ior, float roughness)
@@ -53,6 +55,23 @@ float sx_fresnel_schlick_roughness(float cosTheta, float ior, float roughness)
         return 1.0;
     float F0 = (ior - 1.0) / (ior + 1.0);
     F0 *= F0;
-    float m = 1.0 - cosTheta;
-    return F0 + (max(1.0 - roughness, F0) - F0) * (m * m) * (m * m) * m;
+    float c = 1.0 - cosTheta;
+    float c2 = c*c;
+    float c5 = c2*c2*c;
+    return F0 + (max(1.0 - roughness, F0) - F0) * c5;
 }
+
+vec3 sx_fresnel_conductor(float cosTheta, vec3 n, vec3 k)
+{
+   float c2 = cosTheta*cosTheta;
+   vec3 n2_k2 = n*n + k*k;
+   vec3 nc2 = 2.0 * n * cosTheta;
+
+   vec3 rs_a = n2_k2 + c2;
+   vec3 rp_a = n2_k2 * c2 + 1.0;
+   vec3 rs = (rs_a - nc2) / (rs_a + nc2);
+   vec3 rp = (rp_a - nc2) / (rp_a + nc2);
+
+   return 0.5 * (rs + rp);
+}
+

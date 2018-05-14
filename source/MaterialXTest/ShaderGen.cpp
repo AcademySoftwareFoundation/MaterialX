@@ -128,20 +128,14 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
 {
     mx::FilePath imagePath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Images");
 
-    // Create a nodegraph for texturing albedo and normal map usage
+    // Create a nodegraph for normal mapping
     mx::NodeGraphPtr textureGraph = doc->addNodeGraph("nodegraph1");
-    mx::OutputPtr outAlbedo = textureGraph->addOutput("outAlbedo", "color3");
     mx::OutputPtr outNormal = textureGraph->addOutput("outNormal", "vector3");
 
     mx::NodePtr texcoord1 = textureGraph->addNode("texcoord", "texcoord1", "vector2");
     mx::NodePtr uvscale = textureGraph->addNode("multiply", "uvscale", "vector2");
     uvscale->setConnectedNode("in1", texcoord1);
     uvscale->setInputValue("in2", mx::Vector2(2.0, 2.0));
-
-    mx::NodePtr albedoTex = textureGraph->addNode("image", "albedoTex", "vector3");
-    albedoTex->setParameterValue("file", (imagePath / mx::FilePath("brickwall.jpg")).asString(), "filename");
-    albedoTex->setConnectedNode("texcoord", uvscale);
-    outAlbedo->setConnectedNode(albedoTex);
 
     mx::NodePtr normalTex = textureGraph->addNode("image", "normalTex", "vector3");
     normalTex->setParameterValue("file", (imagePath / mx::FilePath("brickwall_normal.jpg")).asString(), "filename");
@@ -156,10 +150,8 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         mx::MaterialPtr material = doc->addMaterial("example1");
         mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "standardsurface");
 
-        // Bind textures for albedo and normal map, from the texturing graph above
-        mx::BindInputPtr albedoInput = shaderRef->addBindInput("base_color", "color3");
+        // Bind texture for normal map from the graph above
         mx::BindInputPtr normalInput = shaderRef->addBindInput("normal", "vector3");
-        albedoInput->setConnectedOutput(outAlbedo);
         normalInput->setConnectedOutput(outNormal);
 
         // Bind a couple of shader parameter values
@@ -171,7 +163,7 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         materials.push_back(material);
     }
 
-    // Example2: Create a surface shader by a graph of BSDF nodes
+    // Example2: Create a surface shader by a graph of BSDF nodes with diffuse + specular
     {
         // Create a nodedef interface for the surface shader
         mx::NodeDefPtr nodeDef = doc->addNodeDef("ND_testshader2", "surfaceshader", "testshader2");
@@ -184,14 +176,21 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
 
         // Create the shader graph implementing the surface shader
         mx::NodeGraphPtr shaderGraph = doc->addNodeGraph("IMP_testshader2");
+
+        // Get a normal facing our view direction
+        mx::NodePtr shadingnormal = shaderGraph->addNode("shadingnormal", "shadingnormal1", "vector3");
+
         // A diffuse lobe
         mx::NodePtr diffuse = shaderGraph->addNode("diffusebsdf", "diffuse", "BSDF");
+        diffuse->setConnectedNode("normal", shadingnormal);
         mx::InputPtr diffuse_reflectance = diffuse->addInput("reflectance", "color3");
         diffuse_reflectance->setInterfaceName("diffuse_reflectance");
         mx::InputPtr diffuse_roughness = diffuse->addInput("roughness", "float");
         diffuse_roughness->setInterfaceName("diffuse_roughness");
+
         // A specular lobe
         mx::NodePtr specular = shaderGraph->addNode("coatingbsdf", "coating", "BSDF");
+        specular->setConnectedNode("normal", shadingnormal);
         specular->setConnectedNode("base", diffuse);
         mx::InputPtr specular_reflectance = specular->addInput("reflectance", "color3");
         specular_reflectance->setInterfaceName("specular_reflectance");
@@ -222,6 +221,55 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         specularRoughnessInput->setValue(0.2f);
         mx::BindInputPtr specularIorInput = shaderRef->addBindInput("specular_IOR", "float");
         specularIorInput->setValue(2.0f);
+
+        materials.push_back(material);
+    }
+
+    // Example3: Create a metal surface shader by a graph
+    {
+        // Create a nodedef interface for the surface shader
+        mx::NodeDefPtr nodeDef = doc->addNodeDef("ND_testshader3", "surfaceshader", "testshader3");
+        nodeDef->addInput("reflectance", "color3");
+        nodeDef->addInput("edgetint", "color3");
+        nodeDef->addInput("roughness", "float");
+        nodeDef->addInput("anisotropy", "float");
+
+        // Create the shader graph implementing the surface shader
+        mx::NodeGraphPtr shaderGraph = doc->addNodeGraph("IMP_testshader3");
+
+        // Get a normal facing our view direction
+        mx::NodePtr shadingnormal = shaderGraph->addNode("shadingnormal", "shadingnormal1", "vector3");
+
+        // A metal specular lobe
+        mx::NodePtr metal = shaderGraph->addNode("metalbsdf", "metal", "BSDF");
+        metal->setConnectedNode("normal", shadingnormal);
+        mx::InputPtr reflectance = metal->addInput("reflectance", "color3");
+        reflectance->setInterfaceName("reflectance");
+        mx::InputPtr edgetint = metal->addInput("edgetint", "color3");
+        edgetint->setInterfaceName("edgetint");
+        mx::InputPtr roughness = metal->addInput("roughness", "float");
+        roughness->setInterfaceName("roughness");
+        mx::InputPtr anisotropy = metal->addInput("anisotropy", "float");
+        anisotropy->setInterfaceName("anisotropy");
+
+        // Create a surface shader construction node and connect the final BSDF
+        mx::NodePtr surface = shaderGraph->addNode("surface", "surface1", "surfaceshader");
+        surface->setConnectedNode("bsdf", metal);
+
+        // Connect it as the graph output
+        mx::OutputPtr output = shaderGraph->addOutput("out", "surfaceshader");
+        output->setConnectedNode(surface);
+
+        // Set this graph to be the implementation of the shader nodedef
+        shaderGraph->setAttribute("nodedef", nodeDef->getName());
+
+        // Create a material with the above shader node as the shader ref
+        mx::MaterialPtr material = doc->addMaterial("example3");
+        mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "testshader3");
+
+        // Bind a couple of shader parameter values
+        mx::BindInputPtr specularRoughnessInput = shaderRef->addBindInput("roughness", "float");
+        specularRoughnessInput->setValue(0.2f);
 
         materials.push_back(material);
     }
