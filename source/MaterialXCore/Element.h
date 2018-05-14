@@ -298,7 +298,7 @@ class Element : public std::enable_shared_from_this<Element>
 
     /// Return true if this element has the given element as an inherited base,
     /// taking the full inheritance chain into account.
-    bool hasInheritedBase(ConstElementPtr elem) const;
+    bool hasInheritedBase(ConstElementPtr base) const;
 
     /// Return true if the inheritance chain for this element contains a cycle.
     bool hasInheritanceCycle() const;
@@ -543,8 +543,8 @@ class Element : public std::enable_shared_from_this<Element>
 
     /// Traverse the dataflow graph from the given element to each of its
     /// upstream sources in depth-first order, using pre-order visitation.
-    /// @param material An optional material element, whose data bindings and
-    ///    overrides will be applied to the traversal.
+    /// @param material An optional material element, whose data bindings will
+    ///    be applied to the traversal.
     /// @throws ExceptionFoundCycle if a cycle is encountered.
     /// @return A GraphIterator object.
     /// @details Example usage with an implicit iterator:
@@ -570,8 +570,8 @@ class Element : public std::enable_shared_from_this<Element>
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
-    /// @param material An optional material element, whose data bindings and
-    ///    overrides will be applied to the query.
+    /// @param material An optional material element, whose data bindings will
+    ///    be applied to the query.
     /// @param index An optional index of the edge to be returned, where the
     ///    valid index range may be determined with getUpstreamEdgeCount.
     /// @return The upstream Edge, if valid, or an empty Edge object.
@@ -586,8 +586,8 @@ class Element : public std::enable_shared_from_this<Element>
 
     /// Return the Element with the given index that lies directly upstream
     /// from this one in the dataflow graph.
-    /// @param material An optional material element, whose data bindings and
-    ///    overrides will be applied to the query.
+    /// @param material An optional material element, whose data bindings will
+    ///    be applied to the query.
     /// @param index An optional index of the element to be returned, where the
     ///    valid index range may be determined with getUpstreamEdgeCount.
     /// @return The upstream Element, if valid, or an empty ElementPtr.
@@ -825,28 +825,6 @@ class ValueElement : public TypedElement
     ///    apply string substitutions.  By default, a new string resolver
     ///    will be created at this scope and applied to the return value.
     string getResolvedValueString(StringResolverPtr resolver = nullptr) const;
-
-    /// @}
-    /// @name Public Names
-    /// @{
-
-    /// Set the public name of an element.
-    void setPublicName(const string& name)
-    {
-        setAttribute(PUBLIC_NAME_ATTRIBUTE, name);
-    }
-
-    /// Return true if the given element has a public name.
-    bool hasPublicName() const
-    {
-        return hasAttribute(PUBLIC_NAME_ATTRIBUTE);
-    }
-
-    /// Return the public name of an element.
-    const string& getPublicName() const
-    {
-        return getAttribute(PUBLIC_NAME_ATTRIBUTE);
-    }
 
     /// @}
     /// @name Interface Names
