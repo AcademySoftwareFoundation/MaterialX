@@ -327,6 +327,14 @@ class InterfaceElement : public TypedElement
         removeChildOfType<Parameter>(name);
     }
 
+    /// Return the first Parameter with the given name that belongs to this
+    /// interface, taking interface inheritance into account.
+    ParameterPtr getActiveParameter(const string& name) const;
+
+    /// Return a vector of all Parameter elements that belong to this interface,
+    /// taking interface inheritance into account.
+    vector<ParameterPtr> getActiveParameters() const;
+
     /// @}
     /// @name Inputs
     /// @{
@@ -368,8 +376,16 @@ class InterfaceElement : public TypedElement
         removeChildOfType<Input>(name);
     }
 
+    /// Return the first Input with the given name that belongs to this
+    /// interface, taking interface inheritance into account.
+    InputPtr getActiveInput(const string& name) const;
+
+    /// Return a vector of all Input elements that belong to this interface,
+    /// taking inheritance into account.
+    vector<InputPtr> getActiveInputs() const;
+
     /// @}
-    /// @name Output Elements
+    /// @name Outputs
     /// @{
 
     /// Add an Output to this element.
@@ -398,17 +414,39 @@ class InterfaceElement : public TypedElement
         return getChildrenOfType<Output>();
     }
 
+    /// Return the number of Output elements.
+    size_t getOutputCount() const
+    {
+        return _outputCount;
+    }
+
     /// Remove the Output, if any, with the given name.
     void removeOutput(const string& name)
     {
         removeChildOfType<Output>(name);
     }
 
-    /// Return the number of Output elements.
-    size_t getOutputCount() const
-    {
-        return _outputCount;
-    }
+    /// Return the first Output with the given name that belongs to this
+    /// interface, taking interface inheritance into account.
+    OutputPtr getActiveOutput(const string& name) const;
+
+    /// Return a vector of all Output elements that belong to this interface,
+    /// taking inheritance into account.
+    vector<OutputPtr> getActiveOutputs() const;
+
+    /// @}
+    /// @name Value Elements
+    /// @{
+
+    /// Return the first value element with the given name that belongs to this
+    /// interface, taking interface inheritance into account.
+    /// Examples of value elements are Parameter, Input, and Output.
+    ValueElementPtr getActiveValueElement(const string& name) const;
+
+    /// Return a vector of all value elements that belong to this interface,
+    /// taking inheritance into account.
+    /// Examples of value elements are Parameter, Input, and Output.
+    vector<ValueElementPtr> getActiveValueElements() const;
 
     /// @}
     /// @name Values

@@ -9,6 +9,8 @@
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Util.h>
 
+#include <typeinfo>
+
 namespace MaterialX
 {
 
@@ -17,6 +19,7 @@ const string Element::TYPE_ATTRIBUTE = "type";
 const string Element::FILE_PREFIX_ATTRIBUTE = "fileprefix";
 const string Element::GEOM_PREFIX_ATTRIBUTE = "geomprefix";
 const string Element::COLOR_SPACE_ATTRIBUTE = "colorspace";
+const string Element::INHERIT_ATTRIBUTE = "inherit";
 const string Element::TARGET_ATTRIBUTE = "target";
 const string ValueElement::VALUE_ATTRIBUTE = "value";
 const string ValueElement::PUBLIC_NAME_ATTRIBUTE = "publicname";
@@ -288,6 +291,18 @@ ConstElementPtr Element::getRoot() const
     return root;
 }
 
+bool Element::hasInheritedBase(ConstElementPtr elem) const
+{
+    for (ConstElementPtr iterElem : traverseInheritance())
+    {
+        if (iterElem == elem)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool Element::hasInheritanceCycle() const
 {
     try
@@ -375,6 +390,11 @@ bool Element::validate(string* message) const
     if (hasColorSpace())
     {
         validateRequire(getDocument()->hasColorManagementSystem(), res, message, "Colorspace set without color management system");
+    }
+    if (hasInheritString())
+    {
+        bool validInherit = getInheritsFrom() && getInheritsFrom()->getCategory() == getCategory();
+        validateRequire(validInherit, res, message, "Invalid element inheritance");
     }
     for (ElementPtr child : getChildren())
     {
@@ -480,7 +500,7 @@ ValuePtr ValueElement::getDefaultValue() const
         NodeDefPtr decl = getParent()->asA<InterfaceElement>()->getDeclaration();
         if (decl)
         {
-            ValueElementPtr value = decl->getChildOfType<ValueElement>(getName());
+            ValueElementPtr value = decl->getActiveValueElement(getName());
             if (value)
             {
                 return value->getValue();
@@ -593,10 +613,8 @@ INSTANTIATE_CONCRETE_SUBCLASS(GeomInfo, "geominfo")
 INSTANTIATE_CONCRETE_SUBCLASS(Implementation, "implementation")
 INSTANTIATE_CONCRETE_SUBCLASS(Input, "input")
 INSTANTIATE_CONCRETE_SUBCLASS(Look, "look")
-INSTANTIATE_CONCRETE_SUBCLASS(LookInherit, "lookinherit")
 INSTANTIATE_CONCRETE_SUBCLASS(Material, "material")
 INSTANTIATE_CONCRETE_SUBCLASS(MaterialAssign, "materialassign")
-INSTANTIATE_CONCRETE_SUBCLASS(MaterialInherit, "materialinherit")
 INSTANTIATE_CONCRETE_SUBCLASS(Member, "member")
 INSTANTIATE_CONCRETE_SUBCLASS(Node, "node")
 INSTANTIATE_CONCRETE_SUBCLASS(NodeDef, "nodedef")

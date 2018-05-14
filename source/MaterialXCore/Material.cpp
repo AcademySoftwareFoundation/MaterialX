@@ -87,28 +87,6 @@ vector<MaterialAssignPtr> Material::getReferencingMaterialAssigns() const
     return matAssigns;
 }
 
-void Material::setInheritsFrom(ElementPtr mat)
-{
-    for (MaterialInheritPtr inherit : getMaterialInherits())
-    {
-        removeMaterialInherit(inherit->getName());
-    }
-    if (mat)
-    {
-        addMaterialInherit(mat->getName());
-    }
-}
-
-ElementPtr Material::getInheritsFrom() const
-{
-    vector<MaterialInheritPtr> inherits = getMaterialInherits();
-    if (inherits.empty())
-    {
-        return nullptr;
-    }
-    return getRoot()->getChildOfType<Material>(inherits[0]->getName());
-}
-
 vector<ParameterPtr> Material::getPrimaryShaderParameters(const string& target, const string& type) const
 {
     NodeDefPtr nodeDef = getPrimaryShaderNodeDef(target, type);
@@ -116,7 +94,7 @@ vector<ParameterPtr> Material::getPrimaryShaderParameters(const string& target, 
     if (nodeDef)
     {
         InterfaceElementPtr implement = nodeDef->getImplementation();
-        for (ParameterPtr nodeDefParam : nodeDef->getParameters())
+        for (ParameterPtr nodeDefParam : nodeDef->getActiveParameters())
         {
             ParameterPtr implementParam = implement ? implement->getParameter(nodeDefParam->getName()) : nullptr;
             res.push_back(implementParam ? implementParam : nodeDefParam);
@@ -132,7 +110,7 @@ vector<InputPtr> Material::getPrimaryShaderInputs(const string& target, const st
     if (nodeDef)
     {
         InterfaceElementPtr implement = nodeDef->getImplementation();
-        for (InputPtr nodeDefInput : nodeDef->getInputs())
+        for (InputPtr nodeDefInput : nodeDef->getActiveInputs())
         {
             InputPtr implementInput = implement ? implement->getInput(nodeDefInput->getName()) : nullptr;
             res.push_back(implementInput ? implementInput : nodeDefInput);

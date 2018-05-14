@@ -29,11 +29,6 @@ void bindPyMaterial(py::module& mod)
         .def("getOverrides", &mx::Material::getOverrides)
         .def("getActiveOverrides", &mx::Material::getActiveOverrides)
         .def("removeOverride", &mx::Material::removeOverride)
-        .def("addMaterialInherit", &mx::Material::addMaterialInherit,
-            py::arg("name") = mx::EMPTY_STRING)
-        .def("getMaterialInherit", &mx::Material::getMaterialInherit)
-        .def("getMaterialInherits", &mx::Material::getMaterialInherits)
-        .def("removeMaterialInherit", &mx::Material::removeMaterialInherit)
         .def("getShaderNodeDefs", &mx::Material::getShaderNodeDefs,
             py::arg("target") = mx::EMPTY_STRING, py::arg("type") = mx::EMPTY_STRING)
         .def("getReferencingMaterialAssigns", &mx::Material::getReferencingMaterialAssigns)
@@ -97,7 +92,4 @@ void bindPyMaterial(py::module& mod)
     py::class_<mx::Override, mx::OverridePtr, mx::ValueElement>(mod, "Override")
         .def("getReceiver", &mx::Override::getReceiver)
         .def_readonly_static("CATEGORY", &mx::Override::CATEGORY);
-
-    py::class_<mx::MaterialInherit, mx::MaterialInheritPtr, mx::Element>(mod, "MaterialInherit")
-        .def_readonly_static("CATEGORY", &mx::MaterialInherit::CATEGORY);
 }

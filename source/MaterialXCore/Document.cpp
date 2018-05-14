@@ -296,10 +296,6 @@ void Document::generateRequireString()
         {
             requireSet.insert(REQUIRE_STRING_OVERRIDE);
         }
-        else if (elem->isA<MaterialInherit>())
-        {
-            requireSet.insert(REQUIRE_STRING_MATINHERIT);
-        }
     }
 
     string requireStr;
@@ -530,6 +526,32 @@ void Document::upgradeVersion()
             }
         }
         minorVersion = 35;
+    }
+
+    // Upgrade from v1.35 to v1.36
+    if (majorVersion == 1 && minorVersion == 35)
+    {
+        for (ElementPtr elem : traverseTree())
+        {
+            if (elem->isA<Material>() || elem->isA<Look>())
+            {
+                vector<ElementPtr> origChildren = elem->getChildren();
+                for (ElementPtr child : origChildren)
+                {
+                    if (child->getCategory() == "materialinherit")
+                    {
+                        elem->setInheritString(child->getAttribute("material"));
+                        elem->removeChild(child->getName());
+                    }
+                    else if (child->getCategory() == "lookinherit")
+                    {
+                        elem->setInheritString(child->getAttribute("look"));
+                        elem->removeChild(child->getName());
+                    }
+                }
+            }
+        }
+        minorVersion = 36;
     }
 
     if (majorVersion == MATERIALX_MAJOR_VERSION &&

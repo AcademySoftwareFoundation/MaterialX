@@ -42,11 +42,6 @@ using OverridePtr = shared_ptr<class Override>;
 /// A shared pointer to a const Override
 using ConstOverridePtr = shared_ptr<const class Override>;
 
-/// A shared pointer to a MaterialInherit
-using MaterialInheritPtr = shared_ptr<class MaterialInherit>;
-/// A shared pointer to a const MaterialInherit
-using ConstMaterialInheritPtr = shared_ptr<const class MaterialInherit>;
-
 /// @class Material
 /// A material element within a Document.
 /// 
@@ -142,49 +137,6 @@ class Material : public Element
     template<class T> OverridePtr setOverrideValue(const string& name,
                                                    const T& value,
                                                    const string& type = EMPTY_STRING);
-
-    /// @}
-    /// @name MaterialInherit Elements
-    /// @{
-
-    /// Add a MaterialInherit to the material.
-    /// @param name The name of the new MaterialInherit.
-    ///     If no name is specified, then a unique name will automatically be
-    ///     generated.
-    /// @return A shared pointer to the new MaterialInherit.
-    MaterialInheritPtr addMaterialInherit(const string& name = EMPTY_STRING)
-    {
-        MaterialInheritPtr ptr = addChild<MaterialInherit>(name);
-        return ptr;
-    }
-
-    /// Return the MaterialInherit, if any, with the given name.
-    MaterialInheritPtr getMaterialInherit(const string& name) const
-    {
-        return getChildOfType<MaterialInherit>(name);
-    }
-
-    /// Return a vector of all MaterialInherit elements in the material.
-    vector<MaterialInheritPtr> getMaterialInherits() const
-    {
-        return getChildrenOfType<MaterialInherit>();
-    }
-
-    /// Remove the MaterialInherit, if any, with the given name.
-    void removeMaterialInherit(const string& name)
-    {
-        removeChildOfType<MaterialInherit>(name);
-    }
-
-    /// @}
-    /// @name Inheritance
-    /// @{
-
-    /// Set the material element that this one inherits from.
-    void setInheritsFrom(ElementPtr mat) override;
-
-    /// Return the material element, if any, that this one inherits from.
-    ElementPtr getInheritsFrom() const override;
 
     /// @}
     /// @name NodeDef References
@@ -582,21 +534,6 @@ class Override : public ValueElement
     ConstElementPtr getReceiver() const;
 
     /// @}
-
-  public:
-    static const string CATEGORY;
-};
-
-/// @class MaterialInherit
-/// A material inheritance element within a Material.
-class MaterialInherit : public Element
-{
-  public:
-    MaterialInherit(ElementPtr parent, const string& name) :
-        Element(parent, CATEGORY, name)
-    {
-    }
-    virtual ~MaterialInherit() { }
 
   public:
     static const string CATEGORY;
