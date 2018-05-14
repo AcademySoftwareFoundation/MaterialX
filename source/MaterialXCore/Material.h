@@ -37,11 +37,6 @@ using BindInputPtr = shared_ptr<class BindInput>;
 /// A shared pointer to a const BindInput
 using ConstBindInputPtr = shared_ptr<const class BindInput>;
 
-/// A shared pointer to an Override
-using OverridePtr = shared_ptr<class Override>;
-/// A shared pointer to a const Override
-using ConstOverridePtr = shared_ptr<const class Override>;
-
 /// @class Material
 /// A material element within a Document.
 /// 
@@ -95,48 +90,6 @@ class Material : public Element
     {
         removeChildOfType<ShaderRef>(name);
     }
-
-    /// @}
-    /// @name Override Elements
-    /// @{
-
-    /// Add a Override to the material.
-    /// @param name The name of the new Override.
-    ///     If no name is specified, then a unique name will automatically be
-    ///     generated.
-    /// @return A shared pointer to the new Override.
-    OverridePtr addOverride(const string& name)
-    {
-        return addChild<Override>(name);
-    }
-
-    /// Return the Override, if any, with the given name.
-    OverridePtr getOverride(const string& name) const
-    {
-        return getChildOfType<Override>(name);
-    }
-
-    /// Return a vector of all Override elements that belong to this material,
-    /// taking material inheritance into account.
-    vector<OverridePtr> getActiveOverrides() const;
-
-    /// Return a vector of all Override elements 
-    vector<OverridePtr> getOverrides() const
-    {
-        return getChildrenOfType<Override>();
-    }
-
-    /// Remove the Override, if any, with the given name.
-    void removeOverride(const string& name)
-    {
-        removeChildOfType<Override>(name);
-    }
-
-    /// Set the value of an override by its name, creating a child element
-    /// to hold the override if needed.
-    template<class T> OverridePtr setOverrideValue(const string& name,
-                                                   const T& value,
-                                                   const string& type = EMPTY_STRING);
 
     /// @}
     /// @name NodeDef References
@@ -512,43 +465,6 @@ class ShaderRef : public Element
     static const string NODE_ATTRIBUTE;
     static const string NODE_DEF_ATTRIBUTE;
 };
-
-/// @class Override
-/// An override element within a Material.
-///
-/// An Override modifies the uniform value of a public Parameter or Input
-/// within the scope of a Material.
-class Override : public ValueElement
-{
-  public:
-    Override(ElementPtr parent, const string& name) :
-        ValueElement(parent, CATEGORY, name)
-    {
-    }
-    virtual ~Override() { }
-
-    /// @name Connections
-    /// @{
-
-    /// Return the element, if any, that is modified by this override.
-    ConstElementPtr getReceiver() const;
-
-    /// @}
-
-  public:
-    static const string CATEGORY;
-};
-
-template<class T> OverridePtr Material::setOverrideValue(const string& name,
-                                                         const T& value,
-                                                         const string& type)
-{
-    OverridePtr override = getChildOfType<Override>(name);
-    if (!override)
-        override = addChild<Override>(name);
-    override->setValue(value, type);
-    return override;
-}
 
 } // namespace MaterialX
 
