@@ -299,6 +299,12 @@ class TestMaterialX(unittest.TestCase):
         propertySetAssign.setGeom('/robot1')
         self.assertTrue(propertySetAssign.getGeom() == '/robot1')
 
+        # Create a variant set.
+        variantSet = doc.addVariantSet()
+        original = variantSet.addVariant("original")
+        damaged = variantSet.addVariant("damaged")
+        self.assertTrue(len(variantSet.getVariants()) == 2)
+
         # Generate and verify require string.
         doc.generateRequireString()
         self.assertTrue('matnodegraph' in doc.getRequireString())
