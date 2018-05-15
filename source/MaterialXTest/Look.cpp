@@ -52,6 +52,12 @@ TEST_CASE("Look", "[look]")
     mx::PropertySetAssignPtr propertySetAssign = look->addPropertySetAssign(propertySet->getName());
     propertySetAssign->setGeom("/robot1");
     REQUIRE(propertySetAssign->getGeom() == "/robot1");
+    
+    // Create a variant set.
+    mx::VariantSetPtr variantSet = doc->addVariantSet("damageVars");
+    mx::VariantPtr original = variantSet->addVariant("original");
+    mx::VariantPtr damaged = variantSet->addVariant("damaged");
+    REQUIRE(variantSet->getVariants().size() == 2);
 
     // Create a visibility element.
     mx::VisibilityPtr visibility = look->addVisibility();

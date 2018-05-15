@@ -624,6 +624,8 @@ INSTANTIATE_CONCRETE_SUBCLASS(PropertySet, "propertyset")
 INSTANTIATE_CONCRETE_SUBCLASS(PropertySetAssign, "propertysetassign")
 INSTANTIATE_CONCRETE_SUBCLASS(ShaderRef, "shaderref")
 INSTANTIATE_CONCRETE_SUBCLASS(TypeDef, "typedef")
+INSTANTIATE_CONCRETE_SUBCLASS(Variant, "variant")
+INSTANTIATE_CONCRETE_SUBCLASS(VariantSet, "variantset")
 INSTANTIATE_CONCRETE_SUBCLASS(Visibility, "visibility")
 
 } // namespace MaterialX

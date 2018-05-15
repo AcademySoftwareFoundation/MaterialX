@@ -66,6 +66,11 @@ void bindPyDocument(py::module& mod)
         .def("getPropertySet", &mx::Document::getPropertySet)
         .def("getPropertySets", &mx::Document::getPropertySets)
         .def("removePropertySet", &mx::Document::removePropertySet)
+        .def("addVariantSet", &mx::Document::addVariantSet,
+            py::arg("name") = mx::EMPTY_STRING)
+        .def("getVariantSet", &mx::Document::getVariantSet)
+        .def("getVariantSets", &mx::Document::getVariantSets)
+        .def("removeVariantSet", &mx::Document::removeVariantSet)
         .def("addImplementation", &mx::Document::addImplementation,
             py::arg("name") = mx::EMPTY_STRING)
         .def("getImplementation", &mx::Document::getImplementation)
