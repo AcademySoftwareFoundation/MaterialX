@@ -21,6 +21,7 @@ void bindPyTraversal(py::module& mod);
 void bindPyTypes(py::module& mod);
 void bindPyUtil(py::module& mod);
 void bindPyValue(py::module& mod);
+void bindPyVariant(py::module& mod);
 void bindPyXmlIo(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialX, mod)
@@ -37,6 +38,7 @@ PYBIND11_MODULE(PyMaterialX, mod)
     bindPyDefinition(mod);
     bindPyNode(mod);
     bindPyMaterial(mod);
+    bindPyVariant(mod);
     bindPyDocument(mod);
     bindPyTypes(mod);
     bindPyUtil(mod);

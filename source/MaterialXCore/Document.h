@@ -14,6 +14,7 @@
 #include <MaterialXCore/Look.h>
 #include <MaterialXCore/Material.h>
 #include <MaterialXCore/Node.h>
+#include <MaterialXCore/Variant.h>
 
 namespace MaterialX
 {
@@ -367,6 +368,38 @@ class Document : public Element
     void removePropertySet(const string& name)
     {
         removeChildOfType<PropertySet>(name);
+    }
+
+    /// @}
+    /// @name VariantSet Elements
+    /// @{
+
+    /// Add a VariantSet to the document.
+    /// @param name The name of the new VariantSet.
+    ///     If no name is specified, then a unique name will automatically be
+    ///     generated.
+    /// @return A shared pointer to the new VariantSet.
+    VariantSetPtr addVariantSet(const string& name = EMPTY_STRING)
+    {
+        return addChild<VariantSet>(name);
+    }
+
+    /// Return the VariantSet, if any, with the given name.
+    VariantSetPtr getVariantSet(const string& name) const
+    {
+        return getChildOfType<VariantSet>(name);
+    }
+
+    /// Return a vector of all VariantSet elements in the document.
+    vector<VariantSetPtr> getVariantSets() const
+    {
+        return getChildrenOfType<VariantSet>();
+    }
+
+    /// Remove the VariantSet, if any, with the given name.
+    void removeVariantSet(const string& name)
+    {
+        removeChildOfType<VariantSet>(name);
     }
 
     /// @}
