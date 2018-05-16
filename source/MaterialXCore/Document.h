@@ -519,8 +519,6 @@ class Document : public Element
     /// @param message An optional output string, to which a description of
     ///    each error will be appended.
     /// @return True if the document passes all tests, false otherwise.
-    /// @todo This method currently checks only a small subset of the MaterialX
-    ///    rule set, and additional coverage is needed.
     bool validate(string* message = nullptr) const override;
 
     /// @}

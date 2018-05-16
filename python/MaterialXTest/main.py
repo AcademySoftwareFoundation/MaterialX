@@ -277,10 +277,8 @@ class TestMaterialX(unittest.TestCase):
         # Bind the material to a collection.
         matAssign2 = look.addMaterialAssign("matAssign2", material.getName())
         collection = doc.addCollection()
-        collectionAdd = collection.addCollectionAdd()
-        collectionAdd.setGeom("/robot2")
-        collectionRemove = collection.addCollectionRemove()
-        collectionRemove.setGeom("/robot2/left_arm")
+        collection.setIncludeGeom("/robot2")
+        collection.setExcludeGeom("/robot2/left_arm")
         matAssign2.setCollection(collection)
         self.assertTrue(material.getBoundGeomCollections()[0] == collection)
 

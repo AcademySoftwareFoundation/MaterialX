@@ -40,16 +40,6 @@ using CollectionPtr = shared_ptr<class Collection>;
 /// A shared pointer to a const Collection
 using ConstCollectionPtr = shared_ptr<const class Collection>;
 
-/// A shared pointer to a CollectionAdd
-using CollectionAddPtr = shared_ptr<class CollectionAdd>;
-/// A shared pointer to a const CollectionAdd
-using ConstCollectionAddPtr = shared_ptr<const class CollectionAdd>;
-
-/// A shared pointer to a CollectionRemove
-using CollectionRemovePtr = shared_ptr<class CollectionRemove>;
-/// A shared pointer to a const CollectionRemove
-using ConstCollectionRemovePtr = shared_ptr<const class CollectionRemove>;
-
 /// @class GeomElement
 /// The base class for geometric elements, which support bindings to geometries
 /// and geometric collections.
@@ -149,7 +139,7 @@ class GeomInfo : public GeomElement
         return getChildOfType<GeomAttr>(name);
     }
 
-    /// Return a vector of all GeomAttr elements in the element.
+    /// Return a vector of all GeomAttr elements.
     vector<GeomAttrPtr> getGeomAttrs() const
     {
         return getChildrenOfType<GeomAttr>();
@@ -161,11 +151,58 @@ class GeomInfo : public GeomElement
         removeChildOfType<GeomAttr>(name);
     }
 
-    /// Set the value of a geomattr by its name, creating a child element
-    /// to hold the geomattr if needed.
+    /// @}
+    /// @name Tokens
+    /// @{
+
+    /// Add a Token to this element.
+    /// @param name The name of the new Token.
+    ///     If no name is specified, then a unique name will automatically be
+    ///     generated.
+    /// @return A shared pointer to the new Token.
+    TokenPtr addToken(const string& name = EMPTY_STRING)
+    {
+        return addChild<Token>(name);
+    }
+
+    /// Return the Token, if any, with the given name.
+    TokenPtr getToken(const string& name) const
+    {
+        return getChildOfType<Token>(name);
+    }
+
+    /// Return a vector of all Token elements.
+    vector<TokenPtr> getTokens() const
+    {
+        return getChildrenOfType<Token>();
+    }
+
+    /// Remove the Token, if any, with the given name.
+    void removeToken(const string& name)
+    {
+        removeChildOfType<Token>(name);
+    }
+
+    /// @}
+    /// @name Values
+    /// @{
+
+    /// Set the value of a GeomAttr by its name, creating a child element
+    /// to hold the GeomAttr if needed.
     template<class T> GeomAttrPtr setGeomAttrValue(const string& name,
                                                    const T& value,
                                                    const string& type = EMPTY_STRING);
+
+    /// Set the string value of a Token by its name, creating a child element
+    /// to hold the Token if needed.
+    TokenPtr setTokenValue(const string& name, const string& value)
+    {
+        TokenPtr token = getToken(name);
+        if (!token)
+            token = addToken(name);
+        token->setValue<std::string>(value);
+        return token;
+    }
 
     /// @}
 
@@ -201,103 +238,101 @@ class Collection : public Element
     }
     virtual ~Collection() { }
 
-    /// @name CollectionAdd Elements
+    /// @name Include Geometry
     /// @{
 
-    /// Add a CollectionAdd to the collection.
-    /// @param name The name of the new CollectionAdd.
-    ///     If no name is specified, then a unique name will automatically be
-    ///     generated.
-    /// @return A shared pointer to the new CollectionAdd.
-    CollectionAddPtr addCollectionAdd(const string& name = EMPTY_STRING)
+    /// Set the include geometry string of this element.
+    void setIncludeGeom(const string& geom)
     {
-        return addChild<CollectionAdd>(name);
+        setAttribute(INCLUDE_GEOM_ATTRIBUTE, geom);
     }
 
-    /// Return the CollectionAdd, if any, with the given name.
-    CollectionAddPtr getCollectionAdd(const string& name) const
+    /// Return true if this element has an include geometry string.
+    bool hasIncludeGeom()
     {
-        return getChildOfType<CollectionAdd>(name);
+        return hasAttribute(INCLUDE_GEOM_ATTRIBUTE);
     }
 
-    /// Return a vector of all CollectionAdd elements in the collection
-    vector<CollectionAddPtr> getCollectionAdds() const
+    /// Return the include geometry string of this element.
+    const string& getIncludeGeom() const
     {
-        return getChildrenOfType<CollectionAdd>();
-    }
-
-    /// Remove the CollectionAdd, if any, with the given name.
-    void removeCollectionAdd(const string& name)
-    {
-        removeChildOfType<CollectionAdd>(name);
+        return getAttribute(INCLUDE_GEOM_ATTRIBUTE);
     }
 
     /// @}
-    /// @name CollectionRemove Elements
+    /// @name Include Collection
     /// @{
 
-    /// Add a CollectionRemove to the collection.
-    /// @param name The name of the new CollectionRemove.
-    ///     If no name is specified, then a unique name will automatically be
-    ///     generated.
-    /// @return A shared pointer to the new CollectionRemove.
-    CollectionRemovePtr addCollectionRemove(const string& name = EMPTY_STRING)
+    /// Set the include collection string of this element.
+    void setIncludeCollection(const string& collection)
     {
-        return addChild<CollectionRemove>(name);
+        setAttribute(INCLUDE_COLLECTION_ATTRIBUTE, collection);
     }
 
-    /// Return the CollectionRemove, if any, with the given name.
-    CollectionRemovePtr getCollectionRemove(const string& name) const
+    /// Return true if this element has an include collection string.
+    bool hasIncludeCollection()
     {
-        return getChildOfType<CollectionRemove>(name);
+        return hasAttribute(INCLUDE_COLLECTION_ATTRIBUTE);
     }
 
-    /// Return a vector of all CollectionRemove elements in the collection
-    vector<CollectionRemovePtr> getCollectionRemoves() const
+    /// Return the include collection string of this element.
+    const string& getIncludeCollection() const
     {
-        return getChildrenOfType<CollectionRemove>();
+        return getAttribute(INCLUDE_COLLECTION_ATTRIBUTE);
     }
 
-    /// Remove the CollectionRemove, if any, with the given name.
-    void removeCollectionRemove(const string& name)
+    /// @}
+    /// @name Exclude Geometry
+    /// @{
+
+    /// Set the exclude geometry string of this element.
+    void setExcludeGeom(const string& geom)
     {
-        removeChildOfType<CollectionRemove>(name);
+        setAttribute(EXCLUDE_GEOM_ATTRIBUTE, geom);
+    }
+
+    /// Return true if this element has an exclude geometry string.
+    bool hasExcludeGeom()
+    {
+        return hasAttribute(EXCLUDE_GEOM_ATTRIBUTE);
+    }
+
+    /// Return the exclude geometry string of this element.
+    const string& getExcludeGeom() const
+    {
+        return getAttribute(EXCLUDE_GEOM_ATTRIBUTE);
+    }
+
+    /// @}
+    /// @name Exclude Collection
+    /// @{
+
+    /// Set the exclude collection string of this element.
+    void setExcludeCollection(const string& collection)
+    {
+        setAttribute(EXCLUDE_COLLECTION_ATTRIBUTE, collection);
+    }
+
+    /// Return true if this element has an exclude collection string.
+    bool hasExcludeCollection()
+    {
+        return hasAttribute(EXCLUDE_COLLECTION_ATTRIBUTE);
+    }
+
+    /// Return the exclude collection string of this element.
+    const string& getExcludeCollection() const
+    {
+        return getAttribute(EXCLUDE_COLLECTION_ATTRIBUTE);
     }
 
     /// @}
 
   public:
     static const string CATEGORY;
-};
-
-/// @class CollectionAdd
-/// A collection add element within a Collection.
-class CollectionAdd : public GeomElement
-{
-  public:
-    CollectionAdd(ElementPtr parent, const string& name) :
-        GeomElement(parent, CATEGORY, name)
-    {
-    }
-    virtual ~CollectionAdd() { }
-
-  public:
-    static const string CATEGORY;
-};
-
-/// @class CollectionRemove
-/// A collection remove element within a Collection.
-class CollectionRemove : public GeomElement
-{
-  public:
-    CollectionRemove(ElementPtr parent, const string& name) :
-        GeomElement(parent, CATEGORY, name)
-    {
-    }
-    virtual ~CollectionRemove() { }
-
-  public:
-    static const string CATEGORY;
+    static const string INCLUDE_GEOM_ATTRIBUTE;
+    static const string INCLUDE_COLLECTION_ATTRIBUTE;
+    static const string EXCLUDE_GEOM_ATTRIBUTE;
+    static const string EXCLUDE_COLLECTION_ATTRIBUTE;
 };
 
 template<class T> GeomAttrPtr GeomInfo::setGeomAttrValue(const string& name,
