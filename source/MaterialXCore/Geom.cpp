@@ -16,6 +16,10 @@ const string UV_TILE_TOKEN = "%UVTILE";
 
 const string GeomElement::GEOM_ATTRIBUTE = "geom";
 const string GeomElement::COLLECTION_ATTRIBUTE = "collection";
+const string Collection::INCLUDE_GEOM_ATTRIBUTE = "includegeom";
+const string Collection::INCLUDE_COLLECTION_ATTRIBUTE = "includecollection";
+const string Collection::EXCLUDE_GEOM_ATTRIBUTE = "excludegeom";
+const string Collection::EXCLUDE_COLLECTION_ATTRIBUTE = "excludecollection";
 
 bool geomStringsMatch(const string& geom1, const string& geom2)
 {

@@ -33,6 +33,11 @@ using ValueElementPtr = shared_ptr<class ValueElement>;
 /// A shared pointer to a const ValueElement
 using ConstValueElementPtr = shared_ptr<const class ValueElement>;
 
+/// A shared pointer to a Token
+using TokenPtr = shared_ptr<class Token>;
+/// A shared pointer to a const Token
+using ConstTokenPtr = shared_ptr<const class Token>;
+
 /// A shared pointer to a StringResolver
 using StringResolverPtr = shared_ptr<class StringResolver>;
 
@@ -692,6 +697,8 @@ class Element : public std::enable_shared_from_this<Element>
     ///    may be the univeral geometry name "*", which requests that all
     ///    GeomAttr string substitutions be used.
     /// @return A shared pointer to a StringResolver.
+    /// @todo The StringResolver returned by this method doesn't yet take
+    ///    interface tokens into account.
     StringResolverPtr createStringResolver(const string& geom = EMPTY_STRING) const;
 
     /// Return a single-line description of this element, including its category,
@@ -942,6 +949,24 @@ class ValueElement : public TypedElement
     static const string PUBLIC_NAME_ATTRIBUTE;
     static const string INTERFACE_NAME_ATTRIBUTE;
     static const string IMPLEMENTATION_NAME_ATTRIBUTE;
+};
+
+/// @class Token
+/// A token element representing a string value.
+///
+/// Token elements are used to define input and output values for string
+/// substitutions in image filenames.
+class Token : public ValueElement
+{
+  public:
+    Token(ElementPtr parent, const string& name) :
+        ValueElement(parent, CATEGORY, name)
+    {
+    }
+    virtual ~Token() { }
+
+  public:
+    static const string CATEGORY;
 };
 
 /// @class GenericElement
