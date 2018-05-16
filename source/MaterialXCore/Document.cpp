@@ -491,45 +491,53 @@ void Document::upgradeVersion()
         {
             MaterialPtr material = elem->asA<Material>();
             LookPtr look = elem->asA<Look>();
-            if (material || look)
+            GeomInfoPtr geomInfo = elem->asA<GeomInfo>();
+
+            vector<ElementPtr> origChildren = elem->getChildren();
+            for (ElementPtr child : origChildren)
             {
-                vector<ElementPtr> origChildren = elem->getChildren();
-                for (ElementPtr child : origChildren)
+                if (material && child->getCategory() == "override")
                 {
-                    if (child->getCategory() == "materialinherit")
+                    for (ShaderRefPtr shaderRef : material->getShaderRefs())
                     {
-                        elem->setInheritString(child->getAttribute("material"));
-                        elem->removeChild(child->getName());
-                    }
-                    else if (child->getCategory() == "lookinherit")
-                    {
-                        elem->setInheritString(child->getAttribute("look"));
-                        elem->removeChild(child->getName());
-                    }
-                    else if (material && child->getCategory() == "override")
-                    {
-                        for (ShaderRefPtr shaderRef : material->getShaderRefs())
+                        NodeDefPtr nodeDef = shaderRef->getNodeDef();
+                        for (ValueElementPtr valueElem : nodeDef->getActiveValueElements())
                         {
-                            NodeDefPtr nodeDef = shaderRef->getNodeDef();
-                            for (ValueElementPtr valueElem : nodeDef->getActiveValueElements())
+                            if (valueElem->getAttribute("publicname") == child->getName() &&
+                                !shaderRef->getChild(child->getName()))
                             {
-                                if (valueElem->getAttribute("publicname") == child->getName() &&
-                                    !shaderRef->getChild(child->getName()))
+                                if (valueElem->isA<Parameter>())
                                 {
-                                    if (valueElem->isA<Parameter>())
-                                    {
-                                        BindParamPtr bindParam = shaderRef->addBindParam(valueElem->getName(), valueElem->getType());
-                                        bindParam->setValueString(child->getAttribute("value"));
-                                    }
-                                    else if (valueElem->isA<Input>())
-                                    {
-                                        BindInputPtr bindInput = shaderRef->addBindInput(valueElem->getName(), valueElem->getType());
-                                        bindInput->setValueString(child->getAttribute("value"));
-                                    }
+                                    BindParamPtr bindParam = shaderRef->addBindParam(valueElem->getName(), valueElem->getType());
+                                    bindParam->setValueString(child->getAttribute("value"));
+                                }
+                                else if (valueElem->isA<Input>())
+                                {
+                                    BindInputPtr bindInput = shaderRef->addBindInput(valueElem->getName(), valueElem->getType());
+                                    bindInput->setValueString(child->getAttribute("value"));
                                 }
                             }
                         }
-                        elem->removeChild(child->getName());
+                    }
+                    elem->removeChild(child->getName());
+                }
+                else if (material && child->getCategory() == "materialinherit")
+                {
+                    elem->setInheritString(child->getAttribute("material"));
+                    elem->removeChild(child->getName());
+                }
+                else if (look && child->getCategory() == "lookinherit")
+                {
+                    elem->setInheritString(child->getAttribute("look"));
+                    elem->removeChild(child->getName());
+                }
+                else if (geomInfo && child->isA<GeomAttr>())
+                {
+                    GeomAttrPtr geomAttr = child->asA<GeomAttr>();
+                    if (geomAttr->getType() == "string")
+                    {
+                        geomInfo->removeChild(geomAttr->getName());
+                        geomInfo->setTokenValue(geomAttr->getName(), geomAttr->getValueString());
                     }
                 }
             }

@@ -29,10 +29,8 @@ TEST_CASE("Look", "[look]")
     // Bind the material to a geometric collection.
     mx::MaterialAssignPtr matAssign2 = look->addMaterialAssign("matAssign2", material->getName());
     mx::CollectionPtr collection = doc->addCollection();
-    mx::CollectionAddPtr collectionAdd = collection->addCollectionAdd();
-    collectionAdd->setGeom("/robot2");
-    mx::CollectionRemovePtr collectionRemove = collection->addCollectionRemove();
-    collectionRemove->setGeom("/robot2/left_arm");
+    collection->setIncludeGeom("/robot2");
+    collection->setExcludeGeom("/robot2/left_arm");
     matAssign2->setCollection(collection);
     REQUIRE(material->getBoundGeomCollections()[0] == collection);
 

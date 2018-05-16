@@ -263,6 +263,30 @@ vector<OutputPtr> InterfaceElement::getActiveOutputs() const
     return activeOutputs;
 }
 
+TokenPtr InterfaceElement::getActiveToken(const string& name) const
+{
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        TokenPtr token = elem->asA<InterfaceElement>()->getToken(name);
+        if (token)
+        {
+            return token;
+        }
+    }
+    return nullptr;
+}
+
+vector<TokenPtr> InterfaceElement::getActiveTokens() const
+{
+    vector<TokenPtr> activeTokens;
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        vector<TokenPtr> tokens = elem->asA<InterfaceElement>()->getTokens();
+        activeTokens.insert(activeTokens.end(), tokens.begin(), tokens.end());
+    }
+    return activeTokens;
+}
+
 ValueElementPtr InterfaceElement::getActiveValueElement(const string& name) const
 {
     for (ConstElementPtr elem : traverseInheritance())

@@ -418,10 +418,10 @@ StringResolverPtr Element::createStringResolver(const string& geom) const
         {
             if (!geomStringsMatch(geom, geomInfo->getGeom()))
                 continue;
-            for (GeomAttrPtr geomAttr : geomInfo->getGeomAttrs())
+            for (TokenPtr token : geomInfo->getTokens())
             {
-                string key = "%" + geomAttr->getName();
-                string value = geomAttr->getResolvedValueString();
+                string key = "%" + token->getName();
+                string value = token->getResolvedValueString();
                 resolver->setFilenameSubstitution(key, value);
             }
         }
@@ -601,8 +601,6 @@ INSTANTIATE_SUBCLASS(T)
 INSTANTIATE_CONCRETE_SUBCLASS(BindParam, "bindparam")
 INSTANTIATE_CONCRETE_SUBCLASS(BindInput, "bindinput")
 INSTANTIATE_CONCRETE_SUBCLASS(Collection, "collection")
-INSTANTIATE_CONCRETE_SUBCLASS(CollectionAdd, "collectionadd")
-INSTANTIATE_CONCRETE_SUBCLASS(CollectionRemove, "collectionremove")
 INSTANTIATE_CONCRETE_SUBCLASS(Document, "materialx")
 INSTANTIATE_CONCRETE_SUBCLASS(GenericElement, "generic")
 INSTANTIATE_CONCRETE_SUBCLASS(GeomAttr, "geomattr")
@@ -623,6 +621,7 @@ INSTANTIATE_CONCRETE_SUBCLASS(PropertyAssign, "propertyassign")
 INSTANTIATE_CONCRETE_SUBCLASS(PropertySet, "propertyset")
 INSTANTIATE_CONCRETE_SUBCLASS(PropertySetAssign, "propertysetassign")
 INSTANTIATE_CONCRETE_SUBCLASS(ShaderRef, "shaderref")
+INSTANTIATE_CONCRETE_SUBCLASS(Token, "token")
 INSTANTIATE_CONCRETE_SUBCLASS(TypeDef, "typedef")
 INSTANTIATE_CONCRETE_SUBCLASS(Variant, "variant")
 INSTANTIATE_CONCRETE_SUBCLASS(VariantSet, "variantset")

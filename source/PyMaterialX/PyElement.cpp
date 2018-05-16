@@ -107,8 +107,6 @@ void bindPyElement(py::module& mod)
         BIND_ELEMENT_FUNC_INSTANCE(BindParam)
         BIND_ELEMENT_FUNC_INSTANCE(BindInput)
         BIND_ELEMENT_FUNC_INSTANCE(Collection)
-        BIND_ELEMENT_FUNC_INSTANCE(CollectionAdd)
-        BIND_ELEMENT_FUNC_INSTANCE(CollectionRemove)
         BIND_ELEMENT_FUNC_INSTANCE(Document)
         BIND_ELEMENT_FUNC_INSTANCE(GeomAttr)
         BIND_ELEMENT_FUNC_INSTANCE(GeomInfo)
@@ -124,6 +122,7 @@ void bindPyElement(py::module& mod)
         BIND_ELEMENT_FUNC_INSTANCE(PropertySet)
         BIND_ELEMENT_FUNC_INSTANCE(PropertySetAssign)
         BIND_ELEMENT_FUNC_INSTANCE(ShaderRef)
+        BIND_ELEMENT_FUNC_INSTANCE(Token)
         BIND_ELEMENT_FUNC_INSTANCE(TypeDef)
         BIND_ELEMENT_FUNC_INSTANCE(Visibility);
 
@@ -160,7 +159,8 @@ void bindPyElement(py::module& mod)
         BIND_VALUE_ELEMENT_FUNC_INSTANCE(matrix44, mx::Matrix44)
         BIND_VALUE_ELEMENT_FUNC_INSTANCE(string, std::string);
 
-    py::class_<mx::ElementPredicate>(mod, "ElementPredicate");
+    py::class_<mx::Token, mx::TokenPtr, mx::ValueElement>(mod, "Token")
+        .def_readonly_static("CATEGORY", &mx::Token::CATEGORY);
 
     py::class_<mx::StringResolver, mx::StringResolverPtr>(mod, "StringResolver")
         .def("setFilePrefix", &mx::StringResolver::setFilePrefix)
@@ -174,6 +174,8 @@ void bindPyElement(py::module& mod)
         .def("setGeomNameSubstitution", &mx::StringResolver::setGeomNameSubstitution)
         .def("getGeomNameSubstitutions", &mx::StringResolver::getGeomNameSubstitutions)
         .def("resolve", &mx::StringResolver::resolve);
+
+    py::class_<mx::ElementPredicate>(mod, "ElementPredicate");
 
     py::register_exception<mx::ExceptionOrphanedElement>(mod, "ExceptionOrphanedElement");
 
