@@ -14,6 +14,7 @@ TEST_CASE("Geom strings", "[geom]")
     REQUIRE(mx::geomStringsMatch("/", "/robot1"));
     REQUIRE(mx::geomStringsMatch("/robot1", "/robot1/left_arm"));
     REQUIRE(mx::geomStringsMatch("/robot1, /robot2", "/robot2/left_arm"));
+    REQUIRE(!mx::geomStringsMatch("", "/robot1"));
     REQUIRE(!mx::geomStringsMatch("/robot1", "/robot2"));
     REQUIRE(!mx::geomStringsMatch("/robot1, /robot2", "/robot3"));
 }

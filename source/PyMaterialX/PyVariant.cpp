@@ -22,4 +22,13 @@ void bindPyVariant(py::module& mod)
         .def("getVariants", &mx::VariantSet::getVariants)
         .def("removeVariant", &mx::VariantSet::removeVariant)
         .def_readonly_static("CATEGORY", &mx::VariantSet::CATEGORY);
+
+    py::class_<mx::VariantAssign, mx::VariantAssignPtr, mx::Element>(mod, "VariantAssign")
+        .def("setVariantSetString", &mx::VariantAssign::setVariantSetString)
+        .def("hasVariantSetString", &mx::VariantAssign::hasVariantSetString)
+        .def("getVariantSetString", &mx::VariantAssign::getVariantSetString)
+        .def("setVariantString", &mx::VariantAssign::setVariantString)
+        .def("hasVariantString", &mx::VariantAssign::hasVariantString)
+        .def("getVariantString", &mx::VariantAssign::getVariantString)
+        .def_readonly_static("CATEGORY", &mx::VariantAssign::CATEGORY);
 }
