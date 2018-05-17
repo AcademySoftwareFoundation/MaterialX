@@ -162,7 +162,7 @@ namespace MaterialX
         return result;
     }
 
-    void Syntax::makeUnique(string& name, const string& /*type*/, UniqueNameMap& uniqueNames) const
+    void Syntax::makeUnique(string& name, UniqueNameMap& uniqueNames) const
     {
         UniqueNameMap::iterator it = uniqueNames.find(name);
         if (it != uniqueNames.end())
@@ -181,6 +181,11 @@ namespace MaterialX
                 uniqueNames[name] = 0;
             }
         }
+    }
+
+    void Syntax::renamePublicUniform(string& /*name*/, const string& /*type*/) const
+    {
+        // Don't rename by default
     }
 
     const string DataType::BOOLEAN = "boolean";

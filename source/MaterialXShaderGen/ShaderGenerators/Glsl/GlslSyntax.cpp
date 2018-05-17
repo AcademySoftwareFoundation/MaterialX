@@ -383,6 +383,29 @@ GlslSyntax::GlslSyntax()
             { ".x", ".y", ".z", ".w"}
         )
     );
+
+    addValueConstructSyntax
+    (
+        DataType::MATRIX3,
+        ValueConstructSyntax
+        (
+            "mat3(", ")",
+            "mat3(", ")",
+            { }
+        )
+    );
+
+    addValueConstructSyntax
+    (
+        DataType::MATRIX4,
+        ValueConstructSyntax
+        (
+            "mat4(", ")",
+            "mat4(", ")",
+            {}
+        )
+    );
+
 }
 
 string GlslSyntax::getValue(const Value& value, const string& type, bool paramInit) const

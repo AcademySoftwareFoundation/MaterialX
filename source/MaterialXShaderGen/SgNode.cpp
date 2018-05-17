@@ -506,10 +506,12 @@ SgNodeGraphPtr SgNodeGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shad
 
     // Set classification according to last node
     // TODO: What if the graph has multiple outputs?
-    SgOutputSocket* outputSocket = graph->getOutputSocket();
-    graph->_classification = outputSocket->connection ? outputSocket->connection->node->_classification : 0;
+    {
+        SgOutputSocket* outputSocket = graph->getOutputSocket();
+        graph->_classification = outputSocket->connection ? outputSocket->connection->node->_classification : 0;
+    }
 
-    graph->finalize();
+    graph->finalize(shadergen);
 
     return graph;
 }
@@ -671,7 +673,7 @@ SgNodeGraphPtr SgNodeGraph::create(const string& name, ElementPtr element, Shade
     SgOutputSocket* outputSocket = graph->getOutputSocket();
     graph->_classification = outputSocket->connection ? outputSocket->connection->node->_classification : 0;
 
-    graph->finalize();
+    graph->finalize(shadergen);
 
     return graph;
 }
@@ -755,11 +757,12 @@ SgNode* SgNodeGraph::getNode(const string& name)
     return it != _nodeMap.end() ? it->second.get() : nullptr;
 }
 
-void SgNodeGraph::finalize()
+void SgNodeGraph::finalize(ShaderGenerator& shadergen)
 {
     optimize();
     topologicalSort();
     calculateScopes();
+    validateNames(shadergen);
 
     // Track closure nodes used by each surface shader.
     for (SgNode* node : _nodeOrder)
@@ -1042,6 +1045,39 @@ void SgNodeGraph::calculateScopes()
         }
     }
 }
+
+void SgNodeGraph::validateNames(ShaderGenerator& shadergen)
+{
+    // Make sure inputs and outputs have names valid for the 
+    // target shading language, and are unique to avoid name 
+    // conflicts when emitting variable names for them.
+
+    // Names in use for the graph is recorded in 'uniqueNames'.
+    Syntax::UniqueNameMap uniqueNames;
+    for (SgInputSocket* inputSocket : getInputSockets())
+    {
+        string name = inputSocket->name;
+        shadergen.getSyntax()->makeUnique(name, uniqueNames);
+        renameInputSocket(inputSocket->name, name);
+    }
+    for (SgOutputSocket* outputSocket : getOutputSockets())
+    {
+        string name = outputSocket->name;
+        shadergen.getSyntax()->makeUnique(outputSocket->name, uniqueNames);
+        renameOutputSocket(outputSocket->name, name);
+    }
+    for (SgNode* node : getNodes())
+    {
+        for (SgOutput* output : node->getOutputs())
+        {
+            // Node outputs use long names for better code readability
+            string name = output->node->getName() + "_" + output->name;
+            shadergen.getSyntax()->makeUnique(name, uniqueNames);
+            node->renameOutput(output->name, name);
+        }
+    }
+}
+
 
 namespace
 {

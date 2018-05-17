@@ -16,7 +16,7 @@ public:
 
     static SyntaxPtr create() { return std::make_shared<OgsFxSyntax>(); }
 
-    void makeUnique(string& name, const string& /*type*/, UniqueNameMap& uniqueNames) const override;
+    void renamePublicUniform(string& name, const string& type) const override;
 };
 
 } // namespace MaterialX

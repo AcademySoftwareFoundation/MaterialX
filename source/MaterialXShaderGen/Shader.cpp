@@ -47,55 +47,15 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
         impl->createVariables(*node, shadergen, *this);
     }
 
-    //
-    // Make sure inputs and outputs have acceptable names, to avoid name conflicts 
-    // when emitting variable names for them.
-    //
-
-    // Start with top level graphs.
-    std::deque<SgNodeGraph*> graphQueue;
-    getTopLevelShaderGraphs(shadergen, graphQueue);
-
-    while (!graphQueue.empty())
-    {
-        SgNodeGraph* graph = graphQueue.front();
-        graphQueue.pop_front();
-
-        // Names in use for the current graph is recorded in 'uniqueNames'.
-        Syntax::UniqueNameMap uniqueNames;
-        for (SgInputSocket* inputSocket : graph->getInputSockets())
-        {
-            string name = inputSocket->name;
-            shadergen.getSyntax()->makeUnique(name, inputSocket->type, uniqueNames);
-            graph->renameInputSocket(inputSocket->name, name);
-        }
-        for (SgOutputSocket* outputSocket : graph->getOutputSockets())
-        {
-            string name = outputSocket->name;
-            shadergen.getSyntax()->makeUnique(outputSocket->name, EMPTY_STRING, uniqueNames);
-            graph->renameOutputSocket(outputSocket->name, name);
-        }
-        for (SgNode* node : graph->getNodes())
-        {
-            for (SgOutput* output : node->getOutputs())
-            {
-                // Node outputs use long names for better code readability
-                string name = output->node->getName() + "_" + output->name;
-                shadergen.getSyntax()->makeUnique(name, EMPTY_STRING, uniqueNames);
-                node->renameOutput(output->name, name);
-            }
-            // Push subgraphs on the queue to process these as well.
-            SgNodeGraph* subgraph = node->getImplementation()->getNodeGraph();
-            if (subgraph)
-            {
-                graphQueue.push_back(subgraph);
-            }
-        }
-    }
-
     // Create uniforms for the public graph interface
     for (SgInputSocket* inputSocket : _rootGraph->getInputSockets())
     {
+        // Give the syntax class a chance to rename the uniform
+        string name = inputSocket->name;
+        shadergen.getSyntax()->renamePublicUniform(name, inputSocket->type);
+        _rootGraph->renameInputSocket(inputSocket->name, name);
+
+        // Create the uniform
         createUniform(PIXEL_STAGE, PUBLIC_UNIFORMS, inputSocket->type, inputSocket->name, EMPTY_STRING, inputSocket->value);
     }
 }

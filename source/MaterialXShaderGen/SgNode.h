@@ -283,7 +283,7 @@ protected:
     void addDefaultGeomNode(SgInput* input, const string& geomNode, const Document& doc, ShaderGenerator& shadergen);
 
     /// Perform all post-build operations on the graph.
-    void finalize();
+    void finalize(ShaderGenerator& shadergen);
 
     /// Optimize the graph, removing redundant paths.
     void optimize();
@@ -299,6 +299,11 @@ protected:
 
     /// Calculate scopes for all nodes in the graph
     void calculateScopes();
+
+    /// Make sure inputs and outputs on the graph have
+    /// valid and unique names to avoid name collisions
+    /// during shader generation
+    void validateNames(ShaderGenerator& shadergen);
 
     /// Break all connections on a node
     static void disconnect(SgNode* node);

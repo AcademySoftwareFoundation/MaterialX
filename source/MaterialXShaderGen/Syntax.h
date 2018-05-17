@@ -107,7 +107,14 @@ public:
     /// Derived classes can override this method to have a custom naming strategy.
     /// Default implementation adds a number suffix, or increases an existing number suffix, 
     /// on the name string if there is a name collision.
-    virtual void makeUnique(string& name, const string& type, UniqueNameMap& uniqueNames) const;
+    virtual void makeUnique(string& name, UniqueNameMap& uniqueNames) const;
+
+    /// Modify the give name string to make it appropriate as a public shader uniform.
+    /// The shader generator will call this function on all public shader uniforms
+    /// to give the syntax class a chance to modify public names.
+    /// Derived classes can override this method if needed. The default implementation 
+    /// will leave the name unchanged.
+    virtual void renamePublicUniform(string& name, const string& type) const;
 
 protected:
     /// Protected constructor
