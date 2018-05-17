@@ -16,11 +16,14 @@ HwShader::HwShader(const string& name)
     createUniformBlock(VERTEX_STAGE, PRIVATE_UNIFORMS, "prv");
     createUniformBlock(VERTEX_STAGE, PUBLIC_UNIFORMS, "pub");
 
-    // Create light data uniform block with required field 'type'
+    // Create light data uniform block with the required field for light type
     createUniformBlock(PIXEL_STAGE, LIGHT_DATA_BLOCK, "u_lightData");
     createUniform(PIXEL_STAGE, LIGHT_DATA_BLOCK, DataType::INTEGER, "type");
 
-    // Create environment texture uniforms
+    // Create uniforms for environment lighting
+    static const float rotationY = 3.14159265f;
+    createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, DataType::MATRIX4, "u_envMatrix", 
+        EMPTY_STRING, Value::createValue<Matrix44>(Matrix44::createRotationY(rotationY)));
     createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, DataType::FILENAME, "u_envSpecular");
     createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, DataType::FILENAME, "u_envIrradiance");
 }
@@ -58,7 +61,7 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen)
                         // the input so we can reference it during code generation.
                         // Using the filename type will make this uniform into a texture sampler.
                         string name = node->getName() + "_" + input->name;
-                        shadergen.getSyntax()->makeUnique(name, EMPTY_STRING, uniqueNames);
+                        shadergen.getSyntax()->makeUnique(name, uniqueNames);
                         createUniform(HwShader::PIXEL_STAGE, PUBLIC_UNIFORMS, DataType::FILENAME, name, EMPTY_STRING, input->value);
                         input->value = Value::createValue(std::string(name));
                     }
