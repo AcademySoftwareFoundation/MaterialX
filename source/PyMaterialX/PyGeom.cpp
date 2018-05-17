@@ -63,9 +63,6 @@ void bindPyGeom(py::module& mod)
         .def("setExcludeGeom", &mx::Collection::setExcludeGeom)
         .def("hasExcludeGeom", &mx::Collection::hasExcludeGeom)
         .def("getExcludeGeom", &mx::Collection::getExcludeGeom)
-        .def("setExcludeCollection", &mx::Collection::setExcludeCollection)
-        .def("hasExcludeCollection", &mx::Collection::hasExcludeCollection)
-        .def("getExcludeCollection", &mx::Collection::getExcludeCollection)
         .def_readonly_static("CATEGORY", &mx::Collection::CATEGORY);
 
     mod.def("geomStringsMatch", &mx::geomStringsMatch);

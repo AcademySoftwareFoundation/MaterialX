@@ -9,12 +9,21 @@
 
 namespace mx = MaterialX;
 
-TEST_CASE("Geom", "[geom]")
+TEST_CASE("Geom strings", "[geom]")
+{
+    REQUIRE(mx::geomStringsMatch("/", "/robot1"));
+    REQUIRE(mx::geomStringsMatch("/robot1", "/robot1/left_arm"));
+    REQUIRE(mx::geomStringsMatch("/robot1, /robot2", "/robot2/left_arm"));
+    REQUIRE(!mx::geomStringsMatch("/robot1", "/robot2"));
+    REQUIRE(!mx::geomStringsMatch("/robot1, /robot2", "/robot3"));
+}
+
+TEST_CASE("Geom elements", "[geom]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
     // Add geominfos and tokens
-    mx::GeomInfoPtr geominfo1 = doc->addGeomInfo("geominfo1", "/robot1,/robot2");
+    mx::GeomInfoPtr geominfo1 = doc->addGeomInfo("geominfo1", "/robot1, /robot2");
     geominfo1->setTokenValue("asset", std::string("robot"));
     mx::GeomInfoPtr geominfo2 = doc->addGeomInfo("geominfo2", "/robot1");
     geominfo2->setTokenValue("id", std::string("01"));

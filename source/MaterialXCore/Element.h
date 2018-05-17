@@ -692,10 +692,10 @@ class Element : public std::enable_shared_from_this<Element>
     /// Construct a StringResolver at the scope of this element.  The returned
     /// object may be used to apply substring modifiers to data values in the
     /// context of a specific element and geometry.
-    /// @param geom An optional geometry name, which will be used to the
-    ///    applicable set of GeomAttr-based string substitutions.  This name
-    ///    may be the univeral geometry name "*", which requests that all
-    ///    GeomAttr string substitutions be used.
+    /// @param geom An optional geometry name, which will be used to select the
+    ///    applicable set of geometric string substitutions.  By default, no
+    ///    geometric string substitutions are applied.  If the universal geometry
+    ///    name "/" is given, then all geometric string substitutions are applied,
     /// @return A shared pointer to a StringResolver.
     /// @todo The StringResolver returned by this method doesn't yet take
     ///    interface tokens into account.

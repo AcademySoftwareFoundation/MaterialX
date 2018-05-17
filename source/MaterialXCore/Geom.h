@@ -16,6 +16,7 @@
 namespace MaterialX
 {
 
+extern const string GEOM_PATH_SEPARATOR;
 extern const string UNIVERSAL_GEOM_NAME;
 extern const string UDIM_TOKEN;
 extern const string UV_TILE_TOKEN;
@@ -39,6 +40,91 @@ using ConstGeomInfoPtr = shared_ptr<const class GeomInfo>;
 using CollectionPtr = shared_ptr<class Collection>;
 /// A shared pointer to a const Collection
 using ConstCollectionPtr = shared_ptr<const class Collection>;
+
+/// @class GeomPath
+/// A MaterialX geometry path, representing the hierarchical location
+/// expressed by a geometry name.
+class GeomPath
+{
+  public:
+    GeomPath() :
+        _empty(true)
+    {
+    }
+    ~GeomPath() { }
+    
+    bool operator==(const GeomPath& rhs) const
+    {
+        return _vec == rhs._vec &&
+               _empty == rhs._empty;
+    }
+    bool operator!=(const GeomPath& rhs) const
+    {
+        return !(*this == rhs);
+    }
+
+    /// Construct a path from a geometry name string.
+    explicit GeomPath(const string& geom)
+    {
+        _vec = splitString(geom, GEOM_PATH_SEPARATOR);
+        _empty = geom.empty();
+    }
+
+    /// Convert a path to a geometry name string.
+    operator string() const
+    {
+        if (_vec.empty())
+        {
+            return _empty ? EMPTY_STRING : UNIVERSAL_GEOM_NAME;
+        }
+        string geom;
+        for (size_t i = 0; i < _vec.size(); i++)
+        {
+            geom += _vec[i];
+            if (i + 1 < _vec.size())
+            {
+                geom += GEOM_PATH_SEPARATOR;
+            }
+        }
+        return geom;
+    }
+
+    /// Return true if there is any geometry in common between the two paths.
+    bool isMatching(const GeomPath& rhs) const
+    {
+        if (_empty || rhs._empty)
+        {
+            return false;
+        }
+        size_t minSize = std::min(_vec.size(), rhs._vec.size());
+        for (size_t i = 0; i < minSize; i++)
+        {
+            if (_vec[i] != rhs._vec[i])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /// Return true if this geometry path is empty.  An empty path matches
+    /// no other geometry paths.
+    bool isEmpty() const
+    {
+        return _empty;
+    }
+
+    /// Return true if this geometry path is universal.  A universal path
+    /// matches all non-empty geometry paths.
+    bool isUniversal() const
+    {
+        return _vec.empty() && !_empty;
+    }
+
+  private:
+    vector<string> _vec;
+    bool _empty;
+};
 
 /// @class GeomElement
 /// The base class for geometric elements, which support bindings to geometries
@@ -304,28 +390,6 @@ class Collection : public Element
     }
 
     /// @}
-    /// @name Exclude Collection
-    /// @{
-
-    /// Set the exclude collection string of this element.
-    void setExcludeCollection(const string& collection)
-    {
-        setAttribute(EXCLUDE_COLLECTION_ATTRIBUTE, collection);
-    }
-
-    /// Return true if this element has an exclude collection string.
-    bool hasExcludeCollection()
-    {
-        return hasAttribute(EXCLUDE_COLLECTION_ATTRIBUTE);
-    }
-
-    /// Return the exclude collection string of this element.
-    const string& getExcludeCollection() const
-    {
-        return getAttribute(EXCLUDE_COLLECTION_ATTRIBUTE);
-    }
-
-    /// @}
 
   public:
     static const string CATEGORY;
@@ -347,10 +411,12 @@ template<class T> GeomAttrPtr GeomInfo::setGeomAttrValue(const string& name,
 }
 
 /// Given two geometry strings, each containing an array of geom names, return
-/// true if they have any geometries in common.  The universal geom name "*"
-/// matches all geometries.
-/// @todo The full set of pattern matching rules in the specification is not
-///    yet supported, and only the universal geom name is currently handled.
+/// true if they have any geometries in common.
+///
+/// An empty geometry string matches no geometries, while the universal geometry
+/// string "/" matches all non-empty geometries.
+///
+/// @todo Geometry name expressions are not yet supported.
 /// @relates GeomInfo
 bool geomStringsMatch(const string& geom1, const string& geom2);
 
