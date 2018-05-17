@@ -10,7 +10,8 @@
 namespace MaterialX
 {
 
-const string UNIVERSAL_GEOM_NAME = "*";
+const string GEOM_PATH_SEPARATOR = "/";
+const string UNIVERSAL_GEOM_NAME = GEOM_PATH_SEPARATOR;
 const string UDIM_TOKEN = "%UDIM";
 const string UV_TILE_TOKEN = "%UVTILE";
 
@@ -19,24 +20,26 @@ const string GeomElement::COLLECTION_ATTRIBUTE = "collection";
 const string Collection::INCLUDE_GEOM_ATTRIBUTE = "includegeom";
 const string Collection::INCLUDE_COLLECTION_ATTRIBUTE = "includecollection";
 const string Collection::EXCLUDE_GEOM_ATTRIBUTE = "excludegeom";
-const string Collection::EXCLUDE_COLLECTION_ATTRIBUTE = "excludecollection";
 
 bool geomStringsMatch(const string& geom1, const string& geom2)
 {
-    vector<string> vec1 = splitString(geom1, ARRAY_VALID_SEPARATORS);
-    vector<string> vec2 = splitString(geom2, ARRAY_VALID_SEPARATORS);
-    std::set<string> set1(vec1.begin(), vec1.end());
-    std::set<string> set2(vec2.begin(), vec2.end());
-
-    if (set1.empty() || set2.empty())
-        return false;
-    if (set1.count(UNIVERSAL_GEOM_NAME) || set2.count(UNIVERSAL_GEOM_NAME))
-        return true;
-
-    std::set<string> matches;
-    std::set_intersection(set1.begin(), set1.end(), set2.begin(), set2.end(), 
-                          std::inserter(matches, matches.end()));
-    return !matches.empty();
+    vector<GeomPath> paths1;
+    for (const string& name1 : splitString(geom1, ARRAY_VALID_SEPARATORS))
+    {
+        paths1.push_back(GeomPath(name1));
+    }
+    for (const string& name2 : splitString(geom2, ARRAY_VALID_SEPARATORS))
+    {
+        GeomPath path2(name2);
+        for (const GeomPath& path1 : paths1)
+        {
+            if (path2.isMatching(path1))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void GeomElement::setCollection(ConstCollectionPtr collection)
