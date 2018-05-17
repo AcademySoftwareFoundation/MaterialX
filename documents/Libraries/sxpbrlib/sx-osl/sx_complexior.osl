@@ -1,6 +1,6 @@
 // "Artist Friendly Metallic Fresnel", Ole Gulbrandsen, 2014
 // http://jcgt.org/published/0003/04/03/paper.pdf
-void sx_complexior(color reflectivity, color edgetint, out color n, out color k)
+void sx_complexior(color reflectivity, color edgetint, out vector n, out vector k)
 {
    color r = clamp(reflectivity, 0.0, 0.99);
    color g = edgetint;

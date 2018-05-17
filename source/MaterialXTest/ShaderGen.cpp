@@ -126,27 +126,25 @@ void createLightCompoundExample(mx::DocumentPtr document)
 
 void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& materials)
 {
-    mx::FilePath imagePath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Images");
-
-    // Create a nodegraph for normal mapping
-    mx::NodeGraphPtr textureGraph = doc->addNodeGraph("nodegraph1");
-    mx::OutputPtr outNormal = textureGraph->addOutput("outNormal", "vector3");
-
-    mx::NodePtr texcoord1 = textureGraph->addNode("texcoord", "texcoord1", "vector2");
-    mx::NodePtr uvscale = textureGraph->addNode("multiply", "uvscale", "vector2");
-    uvscale->setConnectedNode("in1", texcoord1);
-    uvscale->setInputValue("in2", mx::Vector2(2.0, 2.0));
-
-    mx::NodePtr normalTex = textureGraph->addNode("image", "normalTex", "vector3");
-    normalTex->setParameterValue("file", (imagePath / mx::FilePath("brickwall_normal.jpg")).asString(), "filename");
-    normalTex->setParameterValue("default", mx::Vector3(0.5f, 0.5f, 1.0f));
-    normalTex->setConnectedNode("texcoord", uvscale);
-    mx::NodePtr normalMap1 = textureGraph->addNode("normalmap", "normalmap1", "vector3");
-    normalMap1->setConnectedNode("in", normalTex);
-    outNormal->setConnectedNode(normalMap1);
-
-    // Example1: Create a material from 'standardsurface'
+    // Example1: Create a material from 'standardsurface' with support for normal mapping
     {
+        // Create a nodegraph for normal mapping
+        mx::NodeGraphPtr textureGraph = doc->addNodeGraph("nodegraph1");
+        mx::OutputPtr outNormal = textureGraph->addOutput("outNormal", "vector3");
+
+        mx::NodePtr texcoord1 = textureGraph->addNode("texcoord", "texcoord1", "vector2");
+        mx::NodePtr uvscale = textureGraph->addNode("multiply", "uvscale", "vector2");
+        uvscale->setConnectedNode("in1", texcoord1);
+        uvscale->setInputValue("in2", mx::Vector2(2.0, 2.0));
+
+        mx::NodePtr normalTex = textureGraph->addNode("image", "normalTex", "vector3");
+        normalTex->setParameterValue("file", std::string(""), "filename");
+        normalTex->setParameterValue("default", mx::Vector3(0.5f, 0.5f, 1.0f));
+        normalTex->setConnectedNode("texcoord", uvscale);
+        mx::NodePtr normalMap1 = textureGraph->addNode("normalmap", "normalmap1", "vector3");
+        normalMap1->setConnectedNode("in", normalTex);
+        outNormal->setConnectedNode(normalMap1);
+
         mx::MaterialPtr material = doc->addMaterial("example1");
         mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "standardsurface");
 
@@ -229,8 +227,8 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
     {
         // Create a nodedef interface for the surface shader
         mx::NodeDefPtr nodeDef = doc->addNodeDef("ND_testshader3", "surfaceshader", "testshader3");
-        nodeDef->addInput("reflectance", "color3");
-        nodeDef->addInput("edgetint", "color3");
+        nodeDef->addInput("ior_n", "vector3");
+        nodeDef->addInput("ior_k", "vector3");
         nodeDef->addInput("roughness", "float");
         nodeDef->addInput("anisotropy", "float");
 
@@ -243,10 +241,10 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         // A metal specular lobe
         mx::NodePtr metal = shaderGraph->addNode("metalbsdf", "metal", "BSDF");
         metal->setConnectedNode("normal", shadingnormal);
-        mx::InputPtr reflectance = metal->addInput("reflectance", "color3");
-        reflectance->setInterfaceName("reflectance");
-        mx::InputPtr edgetint = metal->addInput("edgetint", "color3");
-        edgetint->setInterfaceName("edgetint");
+        mx::InputPtr ior_n = metal->addInput("ior_n", "vector3");
+        ior_n->setInterfaceName("ior_n");
+        mx::InputPtr ior_k = metal->addInput("ior_k", "vector3");
+        ior_k->setInterfaceName("ior_k");
         mx::InputPtr roughness = metal->addInput("roughness", "float");
         roughness->setInterfaceName("roughness");
         mx::InputPtr anisotropy = metal->addInput("anisotropy", "float");
@@ -268,8 +266,124 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "testshader3");
 
         // Bind a couple of shader parameter values
-        mx::BindInputPtr specularRoughnessInput = shaderRef->addBindInput("roughness", "float");
-        specularRoughnessInput->setValue(0.2f);
+        mx::BindInputPtr bindIorN = shaderRef->addBindInput("ior_n", "vector3");
+        bindIorN->setValue(mx::Vector3(0.183f, 0.422f, 1.373f));
+        mx::BindInputPtr bindIorK = shaderRef->addBindInput("ior_k", "vector3");
+        bindIorK->setValue(mx::Vector3(3.424f, 2.346f, 1.771f));
+        mx::BindInputPtr bindRoughness = shaderRef->addBindInput("roughness", "float");
+        bindRoughness->setValue(0.2f);
+
+        materials.push_back(material);
+    }
+
+    // Example4: Create a material from 'standardsurface' with helpers for textureable inputs
+    {
+        // Create a node type representing an adapter for texturable float inputs
+        mx::NodeDefPtr texInputFloatDef = doc->addNodeDef("ND_texinput__float", "float", "texinput");
+        texInputFloatDef->addInput("value", "float");
+        texInputFloatDef->addInput("file", "filename");
+        mx::NodeGraphPtr texInputFloatImp = doc->addNodeGraph("IMP_texinput__float");
+        texInputFloatImp->setAttribute("nodedef", texInputFloatDef->getName());
+        {
+            mx::NodePtr image = texInputFloatImp->addNode("image", "image", "float");
+            mx::InputPtr value = image->addInput("default", "float");
+            value->setInterfaceName("value");
+            mx::InputPtr file = image->addInput("file", "filename");
+            file->setInterfaceName("file");
+            mx::OutputPtr output = texInputFloatImp->addOutput("out", "float");
+            output->setConnectedNode(image);
+        }
+
+        // Create a node type representing an adapter for texturable color3 inputs
+        mx::NodeDefPtr texInputColor3Def = doc->addNodeDef("ND_texinput__color3", "color3", "texinput");
+        texInputColor3Def->addInput("value", "color3");
+        texInputColor3Def->addInput("file", "filename");
+        mx::NodeGraphPtr texInputColor3Imp = doc->addNodeGraph("IMP_texinput__color3");
+        texInputColor3Imp->setAttribute("nodedef", texInputColor3Def->getName());
+        {
+            mx::NodePtr image = texInputColor3Imp->addNode("image", "image", "color3");
+            mx::InputPtr value = image->addInput("default", "color3");
+            value->setInterfaceName("value");
+            mx::InputPtr file = image->addInput("file", "filename");
+            file->setInterfaceName("file");
+            mx::OutputPtr output = texInputColor3Imp->addOutput("out", "color3");
+            output->setConnectedNode(image);
+        }
+
+        // Shader parameter listing (<name>, <type>, <texturable>)
+        std::vector<std::tuple<std::string, std::string, bool>> shaderParams =
+        {
+            { "base", "float", false },
+            { "base_color", "color3", true },
+            { "diffuse_roughness", "float", false },
+            { "specular", "float", true },
+            { "specular_color", "color3", true },
+            { "specular_roughness", "float", true },
+            { "specular_IOR", "float", false },
+            { "specular_anisotropy", "float", false },
+            { "metalness","float", true },
+            { "subsurface", "float", false },
+            { "subsurface_color", "color3", false },
+            { "coat", "float", true },
+            { "coat_color", "color3", true },
+            { "coat_roughness", "float", true },
+            { "coat_IOR", "float", false },
+        };
+
+        mx::NodeDefPtr nodeDef = doc->addNodeDef("ND_testshader4", "surfaceshader", "testshader4");
+        mx::NodeGraphPtr shaderGraph = doc->addNodeGraph("IMP_testshader4");
+        shaderGraph->setAttribute("nodedef", nodeDef->getName());
+
+        mx::NodePtr standardSurface = shaderGraph->addNode("standardsurface", "standardsurface1", "surfaceshader");
+        for (auto shaderParam : shaderParams)
+        {
+            if (std::get<2>(shaderParam))
+            {
+                // Texturable, add an input for both a value and a texture
+                nodeDef->addInput(std::get<0>(shaderParam), std::get<1>(shaderParam));
+                nodeDef->addInput(std::get<0>(shaderParam) + "_", "filename");
+
+                // Create the texture input node and connect it to the shader interface
+                mx::NodePtr texInput = shaderGraph->addNode("texinput", std::get<0>(shaderParam), std::get<1>(shaderParam));
+                mx::InputPtr value = texInput->addInput("value", std::get<1>(shaderParam));
+                value->setInterfaceName(std::get<0>(shaderParam));
+                mx::InputPtr file = texInput->addInput("file", "filename");
+                file->setInterfaceName(std::get<0>(shaderParam) + "_");
+
+                // Connect it to the surface shader
+                mx::InputPtr input = standardSurface->addInput(std::get<0>(shaderParam), std::get<1>(shaderParam));
+                input->setConnectedNode(texInput);
+            }
+            else
+            {
+                // Non-Texturable, add a single value input
+                nodeDef->addInput(std::get<0>(shaderParam), std::get<1>(shaderParam));
+                mx::InputPtr input = standardSurface->addInput(std::get<0>(shaderParam), std::get<1>(shaderParam));
+                input->setInterfaceName(std::get<0>(shaderParam));
+            }
+        }
+
+        mx::NodePtr spacularNormalTex = shaderGraph->addNode("image", "normalTex", "vector3");
+        spacularNormalTex->setParameterValue("file", std::string(""), "filename");
+        spacularNormalTex->setParameterValue("default", mx::Vector3(0.5f, 0.5f, 1.0f));
+        mx::NodePtr spacularNormalMap = shaderGraph->addNode("normalmap", "normalmap1", "vector3");
+        spacularNormalMap->setConnectedNode("in", spacularNormalTex);
+
+        mx::NodePtr coatNormalTex = shaderGraph->addNode("image", "coatTex", "vector3");
+        coatNormalTex->setParameterValue("file", std::string(""), "filename");
+        coatNormalTex->setParameterValue("default", mx::Vector3(0.5f, 0.5f, 1.0f));
+        mx::NodePtr coatNormalMap = shaderGraph->addNode("normalmap", "normalmap2", "vector3");
+        coatNormalMap->setConnectedNode("in", coatNormalTex);
+
+        standardSurface->setConnectedNode("normal", spacularNormalMap);
+        standardSurface->setConnectedNode("coat_normal", coatNormalMap);
+
+        mx::OutputPtr output = shaderGraph->addOutput("out", "surfaceshader");
+        output->setConnectedNode(standardSurface);
+
+        // Create a material with the above shader node as the shader ref
+        mx::MaterialPtr material = doc->addMaterial("example4");
+        mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "testshader4");
 
         materials.push_back(material);
     }

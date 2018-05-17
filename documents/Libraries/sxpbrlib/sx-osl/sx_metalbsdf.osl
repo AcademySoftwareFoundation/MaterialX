@@ -1,4 +1,4 @@
-void sx_metalbsdf(color reflectance, color edgetint, float roughness, float anisotropy, normal N, vector U, string distribution, output BSDF result)
+void sx_metalbsdf(vector ior_n, vector ior_k, float roughness, float anisotropy, normal N, vector U, string distribution, output BSDF result)
 {
     // TODO: Implement this!
     result = reflectance;

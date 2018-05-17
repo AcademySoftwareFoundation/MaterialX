@@ -61,8 +61,8 @@
   -->
   <nodedef name="ND_metalbsdf" node="metalbsdf" type="BSDF" nodecategory="shaderx"
            doc="A BSDF node for specular to glossy reflection with conductor fresel.">
-    <input name="ior_n" type="color3" value="1.0, 1.0, 1.0"/>
-    <input name="ior_k" type="color3" value="1.0, 1.0, 1.0"/>
+    <input name="ior_n" type="vector3" value="0.183, 0.422, 1.373"/>
+    <input name="ior_k" type="vector3" value="3.424, 2.346, 1.771"/>
     <input name="roughness" type="float" value="0.2"/>
     <input name="anisotropy" type="float" value="0.0"/>
     <input name="normal" type="vector3" defaultgeomprop="shadingnormal"/>
@@ -248,7 +248,7 @@
   -->
   <nodedef name="ND_normalmap" node="normalmap" type="vector3" nodecategory="shaderx">
     <input name="in" type="vector3" value="0.5, 0.5, 1.0"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="normal" type="vector3" defaultgeomprop="shadingnormal"/>
     <input name="tangent" type="vector3" defaultgeomprop="tangent"/>
     <input name="bitangent" type="vector3" defaultgeomprop="bitangent"/>
   </nodedef>
@@ -267,10 +267,10 @@
     Node: <complexior>
   -->
   <nodedef name="ND_complexior" node="complexior" type="multioutput" nodecategory="shaderx">
-    <input name="reflectivity" type="color3" value="1.0, 1.0, 1.0"/>
-    <input name="edgetint" type="color3" value="1.0, 1.0, 1.0"/>
-    <output name="ior_n" type="color3"/>
-    <output name="ior_k" type="color3"/>
+    <input name="reflectivity" type="color3" value="0.926, 0.721, 0.504"/>
+    <input name="edgetint" type="color3" value="0.996, 0.957, 0.823"/>
+    <output name="ior_n" type="vector3"/>
+    <output name="ior_k" type="vector3"/>
   </nodedef>
 
 </materialx>

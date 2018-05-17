@@ -41,22 +41,16 @@
     <normal name="Nw" type="vector3">
       <parameter name="space" type="string" value="world"/>
     </normal>
-    <backfacing name="bf" type="float"/>
-    <invert name="ff" type="float">
-      <input name="in" type="float" nodename="bf"/>
-    </invert>
-    <multiply name="mul_ff_2" type="float">
-      <input name="in1" type="float" nodename="ff"/>
-      <input name="in2" type="float" value="2.0" />
-    </multiply>
-    <subtract name="sub_ff_1" type="float">
-      <input name="in1" type="float" nodename="mul_ff_2"/>
-      <input name="in2" type="float" value="1.0" />
-    </subtract>
-    <multiply name="flip" type="vector3">
+    <multiply name="Nw_flipped" type="vector3">
       <input name="in1" type="vector3" nodename="Nw"/>
-      <input name="in2" type="vector3" nodename="sub_ff_1" />
+      <input name="in2" type="float" value="-1.0"/>
     </multiply>
+    <backfacing name="backfacing" type="float"/>
+    <mix name="flip" type="vector3">
+      <input name="fg" type="vector3" nodename="Nw_flipped"/>
+      <input name="bg" type="vector3" nodename="Nw"/>
+      <input name="mask" type="float" nodename="backfacing"/>
+    </mix>
     <output name="out" type="vector3" nodename="flip"/>
   </nodegraph>
 

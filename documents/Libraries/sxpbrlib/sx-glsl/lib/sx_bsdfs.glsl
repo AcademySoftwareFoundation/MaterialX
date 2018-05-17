@@ -43,22 +43,40 @@ float sx_fresnel_schlick(float cosTheta, float ior)
         return 1.0;
     float F0 = (ior - 1.0) / (ior + 1.0);
     F0 *= F0;
-    float c = 1.0 - cosTheta;
-    float c2 = c*c;
-    float c5 = c2*c2*c;
-    return F0 + (1.0 - F0) * c5;
+    float x = 1.0 - cosTheta;
+    float x2 = x*x;
+    float x5 = x2*x2*x;
+    return F0 + (1.0 - F0) * x5;
 }
 
 float sx_fresnel_schlick_roughness(float cosTheta, float ior, float roughness)
 {
-    if (cosTheta < 0.0)
-        return 1.0;
+    cosTheta = abs(cosTheta);
     float F0 = (ior - 1.0) / (ior + 1.0);
     F0 *= F0;
-    float c = 1.0 - cosTheta;
-    float c2 = c*c;
-    float c5 = c2*c2*c;
-    return F0 + (max(1.0 - roughness, F0) - F0) * c5;
+    float x = 1.0 - cosTheta;
+    float x2 = x*x;
+    float x5 = x2*x2*x;
+    return F0 + (max(1.0 - roughness, F0) - F0) * x5;
+}
+
+// https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
+float sx_fresnel_dielectric(float cosTheta, float ior)
+{
+    if (cosTheta < 0.0)
+        return 1.0;
+
+    float g =  ior*ior + cosTheta*cosTheta - 1.0;
+    // Check for total internal reflection
+    if (g < 0.0)
+        return 1.0;
+
+    g = sqrt(g);
+    float gmc = g - cosTheta;
+    float gpc = g + cosTheta;
+    float x = gmc / gpc;
+    float y = (gpc * cosTheta - 1.0) / (gmc * cosTheta + 1.0);
+    return 0.5 * x * x * (1.0 + y * y);
 }
 
 vec3 sx_fresnel_conductor(float cosTheta, vec3 n, vec3 k)
@@ -74,4 +92,3 @@ vec3 sx_fresnel_conductor(float cosTheta, vec3 n, vec3 k)
 
    return 0.5 * (rs + rp);
 }
-
