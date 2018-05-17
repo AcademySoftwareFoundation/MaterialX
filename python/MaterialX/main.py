@@ -240,7 +240,7 @@ GeomInfo.setGeomAttrValue = _setGeomAttrValue
 # Document
 #
 
-def _applyStringSubstitutions(self, filename, geom = '*'):
+def _applyStringSubstitutions(self, filename, geom = '/'):
     """(Deprecated) Given an input filename and geom string, apply any string
         substitutions that have been defined for the given geom to the filename,
         returning the modified filename."""
