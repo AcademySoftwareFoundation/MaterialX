@@ -26,6 +26,11 @@ using VariantSetPtr = shared_ptr<class VariantSet>;
 /// A shared pointer to a const VariantSet
 using ConstVariantSetPtr = shared_ptr<const class VariantSet>;
 
+/// A shared pointer to a VariantAssign
+using VariantAssignPtr = shared_ptr<class VariantAssign>;
+/// A shared pointer to a const VariantAssign
+using ConstVariantAssignPtr = shared_ptr<const class VariantAssign>;
+
 /// @class Variant
 /// A variant element within a VariantSet
 class Variant : public InterfaceElement
@@ -37,7 +42,7 @@ class Variant : public InterfaceElement
     }
     virtual ~Variant() { }
 
-public:
+  public:
     static const string CATEGORY;
 };
 
@@ -52,8 +57,7 @@ class VariantSet : public Element
     }
     virtual ~VariantSet() { }
 
-    /// @}
-    /// @name Varient Elements
+    /// @name Variant Elements
     /// @{
 
     /// Add a Variant to the variant set.
@@ -88,6 +92,70 @@ class VariantSet : public Element
 
   public:
     static const string CATEGORY;
+};
+
+/// @class VariantAssign
+/// A variant assignment element within a Look.
+/// @todo Add support for variant assignments in graph traversal and
+///    Element::getBoundValue.
+class VariantAssign : public Element
+{
+  public:
+    VariantAssign(ElementPtr parent, const string& name) :
+        Element(parent, CATEGORY, name)
+    {
+    }
+    virtual ~VariantAssign() { }
+
+    /// @name Variant Set String
+    /// @{
+
+    /// Set the element's variant set string.
+    void setVariantSetString(const string& variantSet)
+    {
+        setAttribute(VARIANT_SET_ATTRIBUTE, variantSet);
+    }
+
+    /// Return true if the given element has a variant set string.
+    bool hasVariantSetString() const
+    {
+        return hasAttribute(VARIANT_SET_ATTRIBUTE);
+    }
+
+    /// Return the element's variant set string.
+    const string& getVariantSetString() const
+    {
+        return getAttribute(VARIANT_SET_ATTRIBUTE);
+    }
+
+    /// @}
+    /// @name Variant String
+    /// @{
+
+    /// Set the element's variant string.
+    void setVariantString(const string& variant)
+    {
+        setAttribute(VARIANT_ATTRIBUTE, variant);
+    }
+
+    /// Return true if the given element has a variant string.
+    bool hasVariantString() const
+    {
+        return hasAttribute(VARIANT_ATTRIBUTE);
+    }
+
+    /// Return the element's variant string.
+    const string& getVariantString() const
+    {
+        return getAttribute(VARIANT_ATTRIBUTE);
+    }
+
+    /// @}
+
+public:
+    static const string CATEGORY;
+    static const string VARIANT_SET_ATTRIBUTE;
+    static const string VARIANT_ATTRIBUTE;
 };
 
 } // namespace MaterialX

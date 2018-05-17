@@ -13,6 +13,7 @@
 
 #include <MaterialXCore/Material.h>
 #include <MaterialXCore/Property.h>
+#include <MaterialXCore/Variant.h>
 
 namespace MaterialX
 {
@@ -149,6 +150,42 @@ class Look : public Element
     void removePropertySetAssign(const string& name)
     {
         removeChildOfType<PropertySetAssign>(name);
+    }
+
+    /// @}
+    /// @name VariantAssign Elements
+    /// @{
+
+    /// Add a VariantAssign to the look.
+    /// @param name The name of the new VariantAssign.
+    ///     If no name is specified, then a unique name will automatically be
+    ///     generated.
+    /// @return A shared pointer to the new VariantAssign.
+    VariantAssignPtr addVariantAssign(const string& name = EMPTY_STRING)
+    {
+        return addChild<VariantAssign>(name);
+    }
+
+    /// Return the VariantAssign, if any, with the given name.
+    VariantAssignPtr getVariantAssign(const string& name) const
+    {
+        return getChildOfType<VariantAssign>(name);
+    }
+
+    /// Return a vector of all VariantAssign elements in the look.
+    vector<VariantAssignPtr> getVariantAssigns() const
+    {
+        return getChildrenOfType<VariantAssign>();
+    }
+
+    /// Return a vector of all VariantAssign elements that belong to this look,
+    /// taking look inheritance into account.
+    vector<VariantAssignPtr> getActiveVariantAssigns() const;
+
+    /// Remove the VariantAssign, if any, with the given name.
+    void removeVariantAssign(const string& name)
+    {
+        removeChildOfType<VariantAssign>(name);
     }
 
     /// @}

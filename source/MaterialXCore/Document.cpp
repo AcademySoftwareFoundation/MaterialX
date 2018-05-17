@@ -489,9 +489,19 @@ void Document::upgradeVersion()
     {
         for (ElementPtr elem : traverseTree())
         {
+            ValueElementPtr valueElem = elem->asA<ValueElement>();
             MaterialPtr material = elem->asA<Material>();
             LookPtr look = elem->asA<Look>();
             GeomInfoPtr geomInfo = elem->asA<GeomInfo>();
+
+            if (valueElem)
+            {
+                if (valueElem->getType() == GEOMNAME_TYPE_STRING &&
+                    valueElem->getValueString() == "*")
+                {
+                    valueElem->setValueString(UNIVERSAL_GEOM_NAME);
+                }
+            }
 
             vector<ElementPtr> origChildren = elem->getChildren();
             for (ElementPtr child : origChildren)
@@ -501,19 +511,19 @@ void Document::upgradeVersion()
                     for (ShaderRefPtr shaderRef : material->getShaderRefs())
                     {
                         NodeDefPtr nodeDef = shaderRef->getNodeDef();
-                        for (ValueElementPtr valueElem : nodeDef->getActiveValueElements())
+                        for (ValueElementPtr activeValue : nodeDef->getActiveValueElements())
                         {
-                            if (valueElem->getAttribute("publicname") == child->getName() &&
+                            if (activeValue->getAttribute("publicname") == child->getName() &&
                                 !shaderRef->getChild(child->getName()))
                             {
-                                if (valueElem->isA<Parameter>())
+                                if (activeValue->isA<Parameter>())
                                 {
-                                    BindParamPtr bindParam = shaderRef->addBindParam(valueElem->getName(), valueElem->getType());
+                                    BindParamPtr bindParam = shaderRef->addBindParam(activeValue->getName(), activeValue->getType());
                                     bindParam->setValueString(child->getAttribute("value"));
                                 }
-                                else if (valueElem->isA<Input>())
+                                else if (activeValue->isA<Input>())
                                 {
-                                    BindInputPtr bindInput = shaderRef->addBindInput(valueElem->getName(), valueElem->getType());
+                                    BindInputPtr bindInput = shaderRef->addBindInput(activeValue->getName(), activeValue->getType());
                                     bindInput->setValueString(child->getAttribute("value"));
                                 }
                             }

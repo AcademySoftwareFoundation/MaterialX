@@ -1054,7 +1054,7 @@ class StringResolver
         _filenameMap[key] = value;
     }
 
-    /// Get list of filename substring substitutions.
+    /// Return the map of filename substring substitutions.
     const StringMap& getFilenameSubstitutions() const
     {
         return _filenameMap;
@@ -1070,7 +1070,7 @@ class StringResolver
         _geomNameMap[key] = value;
     }
 
-    /// Get list of geometry name substring substitutions.
+    /// Return the map of geometry name substring substitutions.
     const StringMap& getGeomNameSubstitutions() const
     {
         return _geomNameMap;
