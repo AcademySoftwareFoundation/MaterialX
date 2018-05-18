@@ -18,10 +18,10 @@ const string UV_TILE_TOKEN = "%UVTILE";
 const string GeomElement::GEOM_ATTRIBUTE = "geom";
 const string GeomElement::COLLECTION_ATTRIBUTE = "collection";
 const string Collection::INCLUDE_GEOM_ATTRIBUTE = "includegeom";
-const string Collection::INCLUDE_COLLECTION_ATTRIBUTE = "includecollection";
 const string Collection::EXCLUDE_GEOM_ATTRIBUTE = "excludegeom";
+const string Collection::INCLUDE_COLLECTION_ATTRIBUTE = "includecollection";
 
-bool geomStringsMatch(const string& geom1, const string& geom2)
+bool geomStringsMatch(const string& geom1, const string& geom2, bool contains)
 {
     vector<GeomPath> paths1;
     for (const string& name1 : splitString(geom1, ARRAY_VALID_SEPARATORS))
@@ -33,7 +33,7 @@ bool geomStringsMatch(const string& geom1, const string& geom2)
         GeomPath path2(name2);
         for (const GeomPath& path1 : paths1)
         {
-            if (path2.isMatching(path1))
+            if (path1.isMatching(path2, contains))
             {
                 return true;
             }
@@ -41,6 +41,10 @@ bool geomStringsMatch(const string& geom1, const string& geom2)
     }
     return false;
 }
+
+//
+// GeomElement methods
+//
 
 void GeomElement::setCollection(ConstCollectionPtr collection)
 {
@@ -57,6 +61,90 @@ void GeomElement::setCollection(ConstCollectionPtr collection)
 CollectionPtr GeomElement::getCollection() const
 {
     return getDocument()->getCollection(getCollectionString());
+}
+
+bool GeomElement::validate(string* message) const
+{
+    bool res = true;
+    if (hasCollectionString())
+    {
+        validateRequire(getCollection() != nullptr, res, message, "Invalid collection string");
+    }
+    return Element::validate(message) && res;
+}
+
+//
+// Collection methods
+//
+
+void Collection::setIncludeCollection(ConstCollectionPtr collection)
+{
+    if (collection)
+    {
+        setIncludeCollectionString(collection->getName());
+    }
+    else
+    {
+        removeAttribute(INCLUDE_COLLECTION_ATTRIBUTE);
+    }
+}
+
+CollectionPtr Collection::getIncludeCollection() const
+{
+    return getDocument()->getCollection(getIncludeCollectionString());
+}
+
+bool Collection::hasIncludeCycle() const
+{
+    try
+    {
+        matchesGeomString(UNIVERSAL_GEOM_NAME);
+    }
+    catch (ExceptionFoundCycle&)
+    {
+        return true;
+    }
+    return false;
+}
+
+bool Collection::matchesGeomString(const string& geom) const
+{
+    if (geomStringsMatch(getActiveExcludeGeom(), geom, true))
+    {
+        return false;
+    }
+    if (geomStringsMatch(getActiveIncludeGeom(), geom))
+    {
+        return true;
+    }
+
+    std::set<ConstCollectionPtr> includedSet;
+    ConstCollectionPtr included = getIncludeCollection();
+    while (included)
+    {
+        if (includedSet.count(included))
+        {
+            throw ExceptionFoundCycle("Encountered a cycle in collection: " + getName());
+        }
+        includedSet.insert(included);
+        included = included->getIncludeCollection();
+    }
+    for (ConstCollectionPtr collection : includedSet)
+    {
+        if (collection->matchesGeomString(geom))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool Collection::validate(string* message) const
+{
+    bool res = true;
+    validateRequire(!hasIncludeCycle(), res, message, "Cycle in collection include chain");
+    return Element::validate(message) && res;
 }
 
 } // namespace MaterialX

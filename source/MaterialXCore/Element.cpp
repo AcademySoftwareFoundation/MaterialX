@@ -416,7 +416,7 @@ StringResolverPtr Element::createStringResolver(const string& geom) const
         ConstDocumentPtr doc = getDocument();
         for (GeomInfoPtr geomInfo : doc->getGeomInfos())
         {
-            if (!geomStringsMatch(geom, geomInfo->getGeom()))
+            if (!geomStringsMatch(geom, geomInfo->getActiveGeom()))
                 continue;
             for (TokenPtr token : geomInfo->getTokens())
             {

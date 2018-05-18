@@ -180,10 +180,16 @@ def _getReferencedShaderDefs(self):
     warnings.warn("This function is deprecated; call Material.getShaderNodeDefs instead.", DeprecationWarning, stacklevel = 2)
     return self.getShaderNodeDefs()
 
+def _getReferencingMaterialAssigns(self):
+    "(Deprecated) Return a list of all material assigns that reference this material."
+    warnings.warn("This function is deprecated; call Material.getGeometryBindings instead.", DeprecationWarning, stacklevel = 2)
+    return self.getGeometryBindings()
+
 Material.addOverride = _addOverride
 Material.setOverrideValue = _setOverrideValue
 Material.addShaderRef = _addShaderRef
 Material.getReferencedShaderDefs = _getReferencedShaderDefs
+Material.getReferencingMaterialAssigns = _getReferencingMaterialAssigns
 
 
 #

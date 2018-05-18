@@ -11,6 +11,7 @@
 
 #include <MaterialXCore/Library.h>
 
+#include <MaterialXCore/Geom.h>
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Value.h>
 
@@ -106,13 +107,6 @@ class Material : public Element
                                          const string& type = EMPTY_STRING) const;
 
     /// @}
-    /// @name MaterialAssign References
-    /// @{
-
-    /// Return all MaterialAssign elements that reference this material.
-    vector<MaterialAssignPtr> getReferencingMaterialAssigns() const;
-
-    /// @}
     /// @name Primary Shader
     /// @{
 
@@ -172,17 +166,12 @@ class Material : public Element
     /// @name Geometry Bindings
     /// @{
 
-    /// Return all geometry strings that are bound to this material by Look
-    /// elements.  Note that this method only considers geometry strings,
-    /// not geometric collections.
-    /// @return A vector of geometry strings, each containing an array of
-    ///    geom names.
-    vector<string> getBoundGeomStrings() const;
-
-    /// Return all geometry collections that are bound to this material by
-    /// Look elements.
-    /// @return A vector of shared pointers to Collection elements.
-    vector<CollectionPtr> getBoundGeomCollections() const;
+    /// Return a vector of all MaterialAssign elements that bind this material
+    /// to the given geometry string.
+    /// @param geom The geometry for which material bindings should be returned.
+    ///    By default, this argument is the universal geometry string "/", and
+    ///    all material bindings are returned.
+    vector<MaterialAssignPtr> getGeometryBindings(const string& geom = UNIVERSAL_GEOM_NAME) const;
 
     /// @}
     /// @name Validation

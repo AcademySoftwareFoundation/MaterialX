@@ -270,9 +270,10 @@ class TestMaterialX(unittest.TestCase):
 
         # Bind the material to a geometry string.
         matAssign1 = look.addMaterialAssign("matAssign1", material.getName())
-        self.assertTrue(material.getReferencingMaterialAssigns()[0] == matAssign1)
         matAssign1.setGeom("/robot1")
-        self.assertTrue(material.getBoundGeomStrings()[0] == "/robot1")
+        self.assertTrue(matAssign1.getReferencedMaterial() == material)
+        self.assertTrue(len(material.getGeometryBindings("/robot1")) == 1)
+        self.assertTrue(len(material.getGeometryBindings("/robot2")) == 0)
 
         # Bind the material to a collection.
         matAssign2 = look.addMaterialAssign("matAssign2", material.getName())
@@ -280,7 +281,9 @@ class TestMaterialX(unittest.TestCase):
         collection.setIncludeGeom("/robot2")
         collection.setExcludeGeom("/robot2/left_arm")
         matAssign2.setCollection(collection)
-        self.assertTrue(material.getBoundGeomCollections()[0] == collection)
+        self.assertTrue(len(material.getGeometryBindings("/robot2")) == 1)
+        self.assertTrue(len(material.getGeometryBindings("/robot2/right_arm")) == 1)
+        self.assertTrue(len(material.getGeometryBindings("/robot2/left_arm")) == 0)
 
         # Create a property assignment.
         propertyAssign = look.addPropertyAssign("twosided")
