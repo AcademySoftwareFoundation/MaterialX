@@ -9,17 +9,14 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #else
-#include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #endif
 
-#if defined(__linux)
-#include <linux/limits.h>
-#endif
-
 #include <cctype>
-#include <sstream>
+#include <cerrno>
+#include <climits>
+#include <cstring>
 
 namespace MaterialX
 {
@@ -65,34 +62,34 @@ void FilePath::assign(const string& str, Format format)
 
 string FilePath::asString(Format format) const
 {
-    std::ostringstream stream;
+    string str;
 
     if (format == FormatPosix && isAbsolute())
     {
-        stream << "/";
+        str += "/";
     }
     else if (format == FormatWindows && _type == TypeNetwork)
     {
-        stream << "\\\\";
+        str += "\\\\";
     }
 
     for (size_t i = 0; i < _vec.size(); i++)
     {
-        stream << _vec[i];
+        str += _vec[i];
         if (i + 1 < _vec.size())
         {
             if (format == FormatPosix)
             {
-                stream << PREFERRED_SEPARATOR_POSIX;
+                str += PREFERRED_SEPARATOR_POSIX;
             }
             else
             {
-                stream << PREFERRED_SEPARATOR_WINDOWS;
+                str += PREFERRED_SEPARATOR_WINDOWS;
             }
         }
     }
 
-    return stream.str();
+    return str;
 }
 
 FilePath FilePath::operator/(const FilePath& rhs) const

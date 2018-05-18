@@ -72,7 +72,7 @@ class PropertyAssign : public ValueElement
     }
 
     /// Return true if this element has a geometry string.
-    bool hasGeom()
+    bool hasGeom() const
     {
         return hasAttribute(GEOM_ATTRIBUTE);
     }
@@ -94,7 +94,7 @@ class PropertyAssign : public ValueElement
     }
 
     /// Return true if this element has a collection string.
-    bool hasCollectionString()
+    bool hasCollectionString() const
     {
         return hasAttribute(COLLECTION_ATTRIBUTE);
     }

@@ -24,7 +24,8 @@ TEST_CASE("Look", "[look]")
     mx::MaterialAssignPtr matAssign1 = look->addMaterialAssign("matAssign1", material->getName());
     matAssign1->setGeom("/robot1");
     REQUIRE(matAssign1->getReferencedMaterial() == material);
-    REQUIRE(material->getBoundGeomStrings()[0] == "/robot1");
+    REQUIRE(material->getGeometryBindings("/robot1").size() == 1);
+    REQUIRE(material->getGeometryBindings("/robot2").size() == 0);
 
     // Bind the material to a geometric collection.
     mx::MaterialAssignPtr matAssign2 = look->addMaterialAssign("matAssign2", material->getName());
@@ -32,7 +33,9 @@ TEST_CASE("Look", "[look]")
     collection->setIncludeGeom("/robot2");
     collection->setExcludeGeom("/robot2/left_arm");
     matAssign2->setCollection(collection);
-    REQUIRE(material->getBoundGeomCollections()[0] == collection);
+    REQUIRE(material->getGeometryBindings("/robot2").size() == 1);
+    REQUIRE(material->getGeometryBindings("/robot2/right_arm").size() == 1);
+    REQUIRE(material->getGeometryBindings("/robot2/left_arm").size() == 0);
 
     // Create a property assignment.
     mx::PropertyAssignPtr propertyAssign = look->addPropertyAssign("twosided");

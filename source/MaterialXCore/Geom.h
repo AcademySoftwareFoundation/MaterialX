@@ -90,9 +90,16 @@ class GeomPath
     }
 
     /// Return true if there is any geometry in common between the two paths.
-    bool isMatching(const GeomPath& rhs) const
+    /// @param rhs A second geometry path to be compared with this one
+    /// @param contains If true, then we require that the first path completely
+    ///    contains the second one.
+    bool isMatching(const GeomPath& rhs, bool contains = false) const
     {
         if (_empty || rhs._empty)
+        {
+            return false;
+        }
+        if (contains && _vec.size() > rhs._vec.size())
         {
             return false;
         }
@@ -149,7 +156,7 @@ class GeomElement : public Element
     }
 
     /// Return true if this element has a geometry string.
-    bool hasGeom()
+    bool hasGeom() const
     {
         return hasAttribute(GEOM_ATTRIBUTE);
     }
@@ -158,6 +165,15 @@ class GeomElement : public Element
     const string& getGeom() const
     {
         return getAttribute(GEOM_ATTRIBUTE);
+    }
+
+    /// Return the active geometry string of this element, taking all geometry
+    /// string substitutions at this scope into account.
+    string getActiveGeom() const
+    {
+        return hasGeom() ?
+               createStringResolver()->resolve(getGeom(), GEOMNAME_TYPE_STRING) :
+               EMPTY_STRING;
     }
 
     /// @}
@@ -171,7 +187,7 @@ class GeomElement : public Element
     }
 
     /// Return true if this element has a collection string.
-    bool hasCollectionString()
+    bool hasCollectionString() const
     {
         return hasAttribute(COLLECTION_ATTRIBUTE);
     }
@@ -187,6 +203,14 @@ class GeomElement : public Element
 
     /// Return the Collection that is assigned to this element.
     CollectionPtr getCollection() const;
+
+    /// @}
+    /// @name Validation
+    /// @{
+
+    /// Validate that the given element tree, including all descendants, is
+    /// consistent with the MaterialX specification.
+    bool validate(string* message = nullptr) const override;
 
     /// @}
 
@@ -313,8 +337,6 @@ class GeomAttr : public ValueElement
 
 /// @class Collection
 /// A collection element within a Document.
-/// @todo Add a Collection::containsGeom method that computes whether the
-///     given Collection contains the specified geometry.
 class Collection : public Element
 {
   public:
@@ -334,7 +356,7 @@ class Collection : public Element
     }
 
     /// Return true if this element has an include geometry string.
-    bool hasIncludeGeom()
+    bool hasIncludeGeom() const
     {
         return hasAttribute(INCLUDE_GEOM_ATTRIBUTE);
     }
@@ -345,26 +367,13 @@ class Collection : public Element
         return getAttribute(INCLUDE_GEOM_ATTRIBUTE);
     }
 
-    /// @}
-    /// @name Include Collection
-    /// @{
-
-    /// Set the include collection string of this element.
-    void setIncludeCollection(const string& collection)
+    /// Return the active include geometry string of this element, taking all
+    /// geometry string substitutions at this scope into account.
+    string getActiveIncludeGeom() const
     {
-        setAttribute(INCLUDE_COLLECTION_ATTRIBUTE, collection);
-    }
-
-    /// Return true if this element has an include collection string.
-    bool hasIncludeCollection()
-    {
-        return hasAttribute(INCLUDE_COLLECTION_ATTRIBUTE);
-    }
-
-    /// Return the include collection string of this element.
-    const string& getIncludeCollection() const
-    {
-        return getAttribute(INCLUDE_COLLECTION_ATTRIBUTE);
+        return hasIncludeGeom() ?
+               createStringResolver()->resolve(getIncludeGeom(), GEOMNAME_TYPE_STRING) :
+               EMPTY_STRING;
     }
 
     /// @}
@@ -378,7 +387,7 @@ class Collection : public Element
     }
 
     /// Return true if this element has an exclude geometry string.
-    bool hasExcludeGeom()
+    bool hasExcludeGeom() const
     {
         return hasAttribute(EXCLUDE_GEOM_ATTRIBUTE);
     }
@@ -389,14 +398,70 @@ class Collection : public Element
         return getAttribute(EXCLUDE_GEOM_ATTRIBUTE);
     }
 
+    /// Return the active exclude geometry string of this element, taking all
+    /// geometry string substitutions at this scope into account.
+    string getActiveExcludeGeom() const
+    {
+        return hasExcludeGeom() ?
+               createStringResolver()->resolve(getExcludeGeom(), GEOMNAME_TYPE_STRING) :
+               EMPTY_STRING;
+    }
+
+    /// @}
+    /// @name Include Collection
+    /// @{
+
+    /// Set the include collection string of this element.
+    void setIncludeCollectionString(const string& collection)
+    {
+        setAttribute(INCLUDE_COLLECTION_ATTRIBUTE, collection);
+    }
+
+    /// Return true if this element has an include collection string.
+    bool hasIncludeCollectionString() const
+    {
+        return hasAttribute(INCLUDE_COLLECTION_ATTRIBUTE);
+    }
+
+    /// Return the include collection string of this element.
+    const string& getIncludeCollectionString() const
+    {
+        return getAttribute(INCLUDE_COLLECTION_ATTRIBUTE);
+    }
+
+     /// Set the include collection for this element.
+    void setIncludeCollection(ConstCollectionPtr collection);
+
+    /// Return the include collection for this element.
+    CollectionPtr getIncludeCollection() const;
+
+    /// Return true if the include chain for this element contains a cycle.
+    bool hasIncludeCycle() const;
+
+    /// @}
+    /// @name Geometry Matching
+    /// @{
+
+    /// Return true if this collection and the given geometry string have any
+    /// geometries in common.
+    /// @throws ExceptionFoundCycle if a cycle is encountered.
+    bool matchesGeomString(const string& geom) const;
+
+    /// @}
+    /// @name Validation
+    /// @{
+
+    /// Validate that the given element tree, including all descendants, is
+    /// consistent with the MaterialX specification.
+    bool validate(string* message = nullptr) const override;
+
     /// @}
 
   public:
     static const string CATEGORY;
     static const string INCLUDE_GEOM_ATTRIBUTE;
-    static const string INCLUDE_COLLECTION_ATTRIBUTE;
     static const string EXCLUDE_GEOM_ATTRIBUTE;
-    static const string EXCLUDE_COLLECTION_ATTRIBUTE;
+    static const string INCLUDE_COLLECTION_ATTRIBUTE;
 };
 
 template<class T> GeomAttrPtr GeomInfo::setGeomAttrValue(const string& name,
@@ -416,9 +481,11 @@ template<class T> GeomAttrPtr GeomInfo::setGeomAttrValue(const string& name,
 /// An empty geometry string matches no geometries, while the universal geometry
 /// string "/" matches all non-empty geometries.
 ///
+/// If the contains argument is set to true, then we require that a geom path
+/// in the first string completely contains a geom path in the second string.
+///
 /// @todo Geometry name expressions are not yet supported.
-/// @relates GeomInfo
-bool geomStringsMatch(const string& geom1, const string& geom2);
+bool geomStringsMatch(const string& geom1, const string& geom2, bool contains = false);
 
 } // namespace MaterialX
 
