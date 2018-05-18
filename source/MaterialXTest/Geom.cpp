@@ -11,12 +11,17 @@ namespace mx = MaterialX;
 
 TEST_CASE("Geom strings", "[geom]")
 {
+    // Test for overlapping paths.
     REQUIRE(mx::geomStringsMatch("/", "/robot1"));
     REQUIRE(mx::geomStringsMatch("/robot1", "/robot1/left_arm"));
     REQUIRE(mx::geomStringsMatch("/robot1, /robot2", "/robot2/left_arm"));
     REQUIRE(!mx::geomStringsMatch("", "/robot1"));
     REQUIRE(!mx::geomStringsMatch("/robot1", "/robot2"));
     REQUIRE(!mx::geomStringsMatch("/robot1, /robot2", "/robot3"));
+
+    // Test that one path contains another.
+    REQUIRE(mx::geomStringsMatch("/", "/robot1", true));
+    REQUIRE(!mx::geomStringsMatch("/robot1", "/", true));
 }
 
 TEST_CASE("Geom elements", "[geom]")
@@ -48,12 +53,27 @@ TEST_CASE("Geom elements", "[geom]")
     REQUIRE(fileParam->getResolvedValueString(resolver1) == "folder/robot01_diffuse_1001.tif");
     REQUIRE(fileParam->getResolvedValueString(resolver2) == "folder/robot02_diffuse_1002.tif");
 
+    // Create a base collection.
+    mx::CollectionPtr collection1 = doc->addCollection("collection1");
+    collection1->setIncludeGeom("/scene1");
+    collection1->setExcludeGeom("/scene1/sphere2");
+    REQUIRE(collection1->matchesGeomString("/scene1/sphere1"));
+    REQUIRE(!collection1->matchesGeomString("/scene1/sphere2"));
+
+    // Create a derived collection.
+    mx::CollectionPtr collection2 = doc->addCollection("collection2");
+    collection2->setIncludeCollection(collection1);
+    REQUIRE(collection2->matchesGeomString("/scene1/sphere1"));
+    REQUIRE(!collection2->matchesGeomString("/scene1/sphere2"));
+
+    // Create and test an include cycle.
+    collection1->setIncludeCollection(collection2);
+    REQUIRE(!doc->validate());
+    collection1->setIncludeCollection(nullptr);
+    REQUIRE(doc->validate());
+
     // Test geometry string substitutions.
-    mx::CollectionPtr collection = doc->addCollection("collection1");
-    collection->setIncludeGeom("/group1/sphere1");
-    collection->setGeomPrefix("/root");
-    mx::StringResolverPtr resolver3 = collection->createStringResolver();
-    resolver3->setGeomNameSubstitution("group1", "group2");
-    std::string resolved = resolver3->resolve(collection->getIncludeGeom(), mx::GEOMNAME_TYPE_STRING);
-    REQUIRE(resolved == "/root/group2/sphere1");
+    collection1->setGeomPrefix("/root");
+    REQUIRE(collection1->matchesGeomString("/root/scene1"));
+    REQUIRE(!collection1->matchesGeomString("/root/scene2"));
 }

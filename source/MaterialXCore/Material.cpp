@@ -60,7 +60,7 @@ vector<NodeDefPtr> Material::getShaderNodeDefs(const string& target, const strin
     return nodeDefs;
 }
 
-vector<MaterialAssignPtr> Material::getReferencingMaterialAssigns() const
+vector<MaterialAssignPtr> Material::getGeometryBindings(const string& geom) const
 {
     vector<MaterialAssignPtr> matAssigns;
     for (LookPtr look : getDocument()->getLooks())
@@ -69,7 +69,17 @@ vector<MaterialAssignPtr> Material::getReferencingMaterialAssigns() const
         {
             if (matAssign->getReferencedMaterial() == getSelf())
             {
-                matAssigns.push_back(matAssign);
+                if (geomStringsMatch(geom, matAssign->getActiveGeom()))
+                {
+                    matAssigns.push_back(matAssign);
+                    continue;
+                }
+                CollectionPtr coll = matAssign->getCollection();
+                if (coll && coll->matchesGeomString(geom))
+                {
+                    matAssigns.push_back(matAssign);
+                    continue;
+                }
             }
         }
     }
@@ -106,33 +116,6 @@ vector<InputPtr> Material::getPrimaryShaderInputs(const string& target, const st
         }
     }
     return res;
-}
-
-vector<string> Material::getBoundGeomStrings() const
-{
-    vector<string> geomStrings;
-    for (MaterialAssignPtr matAssign : getReferencingMaterialAssigns())
-    {
-        if (matAssign->hasGeom())
-        {
-            geomStrings.push_back(matAssign->getGeom());
-        }
-    }
-    return geomStrings;
-}
-
-vector<CollectionPtr> Material::getBoundGeomCollections() const
-{
-    vector<CollectionPtr> collections;
-    for (MaterialAssignPtr matAssign : getReferencingMaterialAssigns())
-    {
-        CollectionPtr collection = matAssign->getCollection();
-        if (collection)
-        {
-            collections.push_back(collection);
-        }
-    }
-    return collections;
 }
 
 bool Material::validate(string* message) const

@@ -23,7 +23,6 @@ void bindPyMaterial(py::module& mod)
         .def("removeShaderRef", &mx::Material::removeShaderRef)
         .def("getShaderNodeDefs", &mx::Material::getShaderNodeDefs,
             py::arg("target") = mx::EMPTY_STRING, py::arg("type") = mx::EMPTY_STRING)
-        .def("getReferencingMaterialAssigns", &mx::Material::getReferencingMaterialAssigns)
         .def("getPrimaryShaderNodeDef", &mx::Material::getPrimaryShaderNodeDef,
             py::arg("target") = mx::EMPTY_STRING, py::arg("type") = mx::EMPTY_STRING)
         .def("getPrimaryShaderName", &mx::Material::getPrimaryShaderName,
@@ -32,8 +31,8 @@ void bindPyMaterial(py::module& mod)
             py::arg("target") = mx::EMPTY_STRING, py::arg("type") = mx::EMPTY_STRING)
         .def("getPrimaryShaderInputs", &mx::Material::getPrimaryShaderInputs,
             py::arg("target") = mx::EMPTY_STRING, py::arg("type") = mx::EMPTY_STRING)
-        .def("getBoundGeomStrings", &mx::Material::getBoundGeomStrings)
-        .def("getBoundGeomCollections", &mx::Material::getBoundGeomCollections)
+        .def("getGeometryBindings", &mx::Material::getGeometryBindings,
+            py::arg("geom") = mx::UNIVERSAL_GEOM_NAME)
         .def_readonly_static("CATEGORY", &mx::Material::CATEGORY);
 
     py::class_<mx::BindParam, mx::BindParamPtr, mx::ValueElement>(mod, "BindParam")
