@@ -70,7 +70,10 @@ string Node::getConnectedNodeName(const string& inputName) const
 
 NodeDefPtr Node::getNodeDef(const string& target) const
 {
-    for (NodeDefPtr nodeDef : getDocument()->getMatchingNodeDefs(getCategory()))
+    vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getCategory()));
+    vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getCategory());
+    nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
+    for (NodeDefPtr nodeDef : nodeDefs)
     {
         if (targetStringsMatch(target, nodeDef->getTarget()) &&
             isTypeCompatible(nodeDef))
@@ -122,7 +125,7 @@ bool Node::validate(string* message) const
 
 NodeDefPtr NodeGraph::getNodeDef() const
 {
-    return getDocument()->getNodeDef(getNodeDefString());
+    return resolveRootNameReference<NodeDef>(getNodeDefString());
 }
 
 void NodeGraph::flattenSubgraphs(const string& target)

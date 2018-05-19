@@ -109,7 +109,6 @@ class Element : public std::enable_shared_from_this<Element>
     void setName(const string& name);
 
     /// Return the element's name string.
-    /// @todo The MaterialX notion of namespaces is not yet supported.
     const string& getName() const
     {
         return _name;
@@ -298,7 +297,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// Return the element, if any, that this one directly inherits from.
     ElementPtr getInheritsFrom() const
     {
-        return getRoot()->getChild(getInheritString());
+        return resolveRootNameReference<Element>(getInheritString());
     }
 
     /// Return true if this element has the given element as an inherited base,
@@ -307,6 +306,51 @@ class Element : public std::enable_shared_from_this<Element>
 
     /// Return true if the inheritance chain for this element contains a cycle.
     bool hasInheritanceCycle() const;
+
+    /// @}
+    /// @name Namespace
+    /// @{
+
+    /// Set the namespace of this element.
+    void setNamespace(const string& inherit)
+    {
+        setAttribute(NAMESPACE_ATTRIBUTE, inherit);
+    }
+
+    /// Return true if this element has a namespace.
+    bool hasNamespace() const
+    {
+        return hasAttribute(NAMESPACE_ATTRIBUTE);
+    }
+
+    /// Return the namespace of this element.
+    const string& getNamespace() const
+    {
+        return getAttribute(NAMESPACE_ATTRIBUTE);
+    }
+
+    /// Return a qualified version of the given name, taking the namespace at the
+    /// scope of this element into account.
+    string getQualifiedName(const string& name) const
+    {
+        for (ConstElementPtr elem : traverseAncestors())
+        {
+            if (elem->getRoot() != elem && elem->hasNamespace())
+            {
+                return elem->getNamespace() + NAME_PREFIX_SEPARATOR + name;
+            }
+        }
+        return name;
+    }
+
+    /// Resolve a reference to a named element at the root scope of this document,
+    /// taking the namespace at the scope of this element into account.
+    template<class T> shared_ptr<T> resolveRootNameReference(const string& name) const
+    {
+        ConstElementPtr root = getRoot();
+        shared_ptr<T> child = root->getChildOfType<T>(getQualifiedName(name));
+        return child ? child : root->getChildOfType<T>(name);
+    }
 
     /// @}
     /// @name Subclass
@@ -718,8 +762,9 @@ class Element : public std::enable_shared_from_this<Element>
     static const string FILE_PREFIX_ATTRIBUTE;
     static const string GEOM_PREFIX_ATTRIBUTE;
     static const string COLOR_SPACE_ATTRIBUTE;
-    static const string INHERIT_ATTRIBUTE;
     static const string TARGET_ATTRIBUTE;
+    static const string INHERIT_ATTRIBUTE;
+    static const string NAMESPACE_ATTRIBUTE;
 
   protected:
     virtual void registerChildElement(ElementPtr child);

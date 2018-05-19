@@ -91,7 +91,7 @@ vector<VisibilityPtr> Look::getActiveVisibilities() const
 
 MaterialPtr MaterialAssign::getReferencedMaterial() const
 {
-    return getRoot()->getChildOfType<Material>(getMaterial());   
+    return resolveRootNameReference<Material>(getMaterial());   
 }
 
 } // namespace MaterialX

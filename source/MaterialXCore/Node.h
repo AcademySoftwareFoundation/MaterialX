@@ -193,6 +193,12 @@ class NodeGraph : public InterfaceElement
         return node;
     }
 
+    /// Add a Node that is an instance of the given NodeDef.
+    NodePtr addNodeInstance(ConstNodeDefPtr nodeDef, const string& name = EMPTY_STRING)
+    {
+        return addNode(nodeDef->getNodeString(), name, nodeDef->getType());
+    }
+
     /// Return the Node, if any, with the given name.
     NodePtr getNode(const string& name) const
     {

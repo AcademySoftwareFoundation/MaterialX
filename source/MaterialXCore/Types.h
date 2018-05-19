@@ -25,6 +25,7 @@ extern const string MULTI_OUTPUT_TYPE_STRING;
 extern const string NONE_TYPE_STRING;
 extern const string VALUE_STRING_TRUE;
 extern const string VALUE_STRING_FALSE;
+extern const string NAME_PREFIX_SEPARATOR;
 extern const string NAME_PATH_SEPARATOR;
 extern const string ARRAY_VALID_SEPARATORS;
 extern const string ARRAY_PREFERRED_SEPARATOR;
