@@ -148,7 +148,7 @@ void BindInput::setConnectedOutput(ConstOutputPtr output)
 
 OutputPtr BindInput::getConnectedOutput() const
 {
-    NodeGraphPtr nodeGraph = getRoot()->getChildOfType<NodeGraph>(getNodeGraphString());
+    NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString());
     if (nodeGraph)
     {
         OutputPtr output = nodeGraph->getOutput(getOutputString());
@@ -168,11 +168,13 @@ NodeDefPtr ShaderRef::getNodeDef() const
 {
     if (hasNodeDefString())
     {
-        return getDocument()->getNodeDef(getNodeDefString());
+        return resolveRootNameReference<NodeDef>(getNodeDefString());
     }
     if (hasNodeString())
     {
-        vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getNodeString());
+        vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getNodeString()));
+        vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getNodeString());
+        nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
         return nodeDefs.empty() ? NodeDefPtr() : nodeDefs[0];
     }
     return NodeDefPtr();
@@ -182,7 +184,7 @@ bool ShaderRef::validate(string* message) const
 {
     bool res = true;
     NodeDefPtr nodeDef = getNodeDef();
-    TypeDefPtr typeDef = nodeDef ? getDocument()->getTypeDef(nodeDef->getType()) : TypeDefPtr();
+    TypeDefPtr typeDef = nodeDef ? resolveRootNameReference<TypeDef>(nodeDef->getType()) : TypeDefPtr();
     if (!nodeDef)
     {
         validateRequire(!hasNodeString() && !hasNodeDefString(), res, message, "Shader reference to a non-existent nodedef");

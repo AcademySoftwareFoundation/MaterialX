@@ -60,7 +60,7 @@ void GeomElement::setCollection(ConstCollectionPtr collection)
 
 CollectionPtr GeomElement::getCollection() const
 {
-    return getDocument()->getCollection(getCollectionString());
+    return resolveRootNameReference<Collection>(getCollectionString());
 }
 
 bool GeomElement::validate(string* message) const
@@ -91,7 +91,7 @@ void Collection::setIncludeCollection(ConstCollectionPtr collection)
 
 CollectionPtr Collection::getIncludeCollection() const
 {
-    return getDocument()->getCollection(getIncludeCollectionString());
+    return resolveRootNameReference<Collection>(getIncludeCollectionString());
 }
 
 bool Collection::hasIncludeCycle() const

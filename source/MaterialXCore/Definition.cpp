@@ -34,7 +34,10 @@ const string Implementation::LANGUAGE_ATTRIBUTE = "language";
 
 InterfaceElementPtr NodeDef::getImplementation(const string& target, const string& language) const
 {
-    for (InterfaceElementPtr interface : getDocument()->getMatchingImplementations(getName()))
+    vector<InterfaceElementPtr> interfaces = getDocument()->getMatchingImplementations(getQualifiedName(getName()));
+    vector<InterfaceElementPtr> secondary = getDocument()->getMatchingImplementations(getName());
+    interfaces.insert(interfaces.end(), secondary.begin(), secondary.end());
+    for (InterfaceElementPtr interface : interfaces)
     {
         if (!targetStringsMatch(interface->getTarget(), target))
         {
@@ -93,7 +96,7 @@ bool NodeDef::validate(string* message) const
 
 NodeDefPtr Implementation::getNodeDef() const
 {
-    return getDocument()->getNodeDef(getNodeDefString());
+    return resolveRootNameReference<NodeDef>(getNodeDefString());
 }
 
 } // namespace MaterialX

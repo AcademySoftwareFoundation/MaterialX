@@ -27,7 +27,7 @@ void PropertyAssign::setCollection(ConstCollectionPtr collection)
 
 CollectionPtr PropertyAssign::getCollection() const
 {
-    return getDocument()->getCollection(getCollectionString());
+    return resolveRootNameReference<Collection>(getCollectionString());
 }
 
 } // namespace MaterialX
