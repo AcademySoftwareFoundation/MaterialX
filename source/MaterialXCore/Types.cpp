@@ -19,6 +19,7 @@ const string MULTI_OUTPUT_TYPE_STRING = "multioutput";
 const string NONE_TYPE_STRING = "none";
 const string VALUE_STRING_TRUE = "true";
 const string VALUE_STRING_FALSE = "false";
+const string NAME_PREFIX_SEPARATOR = ":";
 const string NAME_PATH_SEPARATOR = "/";
 const string ARRAY_VALID_SEPARATORS = ", ";
 const string ARRAY_PREFERRED_SEPARATOR = ", ";

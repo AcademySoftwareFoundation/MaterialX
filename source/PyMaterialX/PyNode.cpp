@@ -33,6 +33,8 @@ void bindPyNode(py::module& mod)
         .def("getNodeDef", &mx::NodeGraph::getNodeDef)
         .def("_addNode", &mx::NodeGraph::addNode,
             py::arg("category"), py::arg("name") = mx::EMPTY_STRING, py::arg("type") = mx::DEFAULT_TYPE_STRING)
+        .def("addNodeInstance", &mx::NodeGraph::addNodeInstance,
+            py::arg("nodeDef"), py::arg("name") = mx::EMPTY_STRING)
         .def("getNode", &mx::NodeGraph::getNode)
         .def("getNodes", &mx::NodeGraph::getNodes,
             py::arg("category") = mx::EMPTY_STRING)
