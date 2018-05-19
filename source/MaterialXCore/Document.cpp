@@ -76,7 +76,6 @@ class Document::Cache
             for (ElementPtr elem : doc.lock()->traverseTree())
             {
                 PortElementPtr portElem = elem->asA<PortElement>();
-                ValueElementPtr valueElem = elem->asA<ValueElement>();
                 NodeDefPtr nodeDef = elem->asA<NodeDef>();
                 NodeGraphPtr nodeGraph = elem->asA<NodeGraph>();
                 ImplementationPtr implementation = elem->asA<Implementation>();
@@ -84,25 +83,25 @@ class Document::Cache
                 if (portElem && portElem->hasNodeName())
                 {
                     portElementMap.insert(std::pair<string, PortElementPtr>(
-                        portElem->getNodeName(),
+                        portElem->getQualifiedName(portElem->getNodeName()),
                         portElem));
                 }
                 if (nodeDef && nodeDef->hasNodeString())
                 {
                     nodeDefMap.insert(std::pair<string, NodeDefPtr>(
-                        nodeDef->getNodeString(),
+                        nodeDef->getQualifiedName(nodeDef->getNodeString()),
                         nodeDef));
                 }
                 if (nodeGraph && nodeGraph->hasNodeDefString())
                 {
                     implementationMap.insert(std::pair<string, InterfaceElementPtr>(
-                        nodeGraph->getNodeDefString(),
+                        nodeGraph->getQualifiedName(nodeGraph->getNodeDefString()),
                         nodeGraph));
                 }
                 if (implementation && implementation->hasNodeDefString())
                 {
                     implementationMap.insert(std::pair<string, InterfaceElementPtr>(
-                        implementation->getNodeDefString(),
+                        implementation->getQualifiedName(implementation->getNodeDefString()),
                         implementation));
                 }
             }
@@ -151,6 +150,9 @@ void Document::initialize()
 
 void Document::importLibrary(ConstDocumentPtr library, const CopyOptions* copyOptions)
 {
+    string libraryPrefix = library->hasNamespace() ?
+                           library->getNamespace() + NAME_PREFIX_SEPARATOR :
+                           EMPTY_STRING;
     bool skipDuplicateElements = copyOptions && copyOptions->skipDuplicateElements;
     bool copySourceUris = copyOptions && copyOptions->copySourceUris;
     for (ElementPtr child : library->getChildren())
@@ -160,8 +162,12 @@ void Document::importLibrary(ConstDocumentPtr library, const CopyOptions* copyOp
         {
             continue;
         }
-        ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName);
+        ElementPtr childCopy = addChildOfCategory(child->getCategory(), libraryPrefix + childName);
         childCopy->copyContentFrom(child, copyOptions);
+        if (!childCopy->hasNamespace() && library->hasNamespace())
+        {
+            childCopy->setNamespace(library->getNamespace());
+        }
         if (copySourceUris && !childCopy->hasSourceUri())
         {
             childCopy->setSourceUri(library->getSourceUri());

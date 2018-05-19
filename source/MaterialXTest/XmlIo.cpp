@@ -40,34 +40,6 @@ TEST_CASE("Load content", "[xmlio]")
         libs.push_back(lib);
     }
 
-    // Check that there is one implementation per nodedef.
-    mx::DocumentPtr implCheckDocument = mx::createDocument();
-    for (mx::DocumentPtr lib : libs)
-    {
-        implCheckDocument->importLibrary(lib);
-    }
-    const std::string target;
-    const std::string language("osl");
-    std::vector<mx::NodeDefPtr> nodeDefs = implCheckDocument->getNodeDefs();
-    std::set<std::string> nodeDefsFound;
-    for (mx::NodeDefPtr nodeDef : nodeDefs)
-    {
-        const std::string typeAttribute = nodeDef->getAttribute(mx::Element::TYPE_ATTRIBUTE);
-        // Nodedefs which do not have a type do not reqiure an implementation
-        if (typeAttribute != mx::NONE_TYPE_STRING)
-        {
-            if (nodeDef->getImplementation(target, language))
-            {
-                nodeDefsFound.insert(nodeDef->getName());
-            }
-        }
-        else
-        {
-            nodeDefsFound.insert(nodeDef->getName());
-        }
-    }
-    REQUIRE(nodeDefsFound.size() == nodeDefs.size());
-
     // Read and validate each example document.
     for (std::string filename : exampleFilenames)
     {
@@ -159,19 +131,33 @@ TEST_CASE("Load content", "[xmlio]")
             mx::NodePtr node = elem->asA<mx::Node>();
             if (node)
             {
-                mx::NodeDefPtr nodeDef = node->getNodeDef();
-                REQUIRE(nodeDef);
-                // Check that implementations exist for any nodedefs added by example files
-                if (nodeDefsFound.find(nodeDef->getName()) == nodeDefsFound.end())
-                {
-                    REQUIRE(nodeDef->getImplementation(target, language));
-                    nodeDefsFound.insert(nodeDef->getName());
-                }
+                REQUIRE(node->getNodeDef());
+                REQUIRE(node->getImplementation());
             }
         }
 
+        // Create a namespaced custom library.
+        mx::DocumentPtr customLibrary = mx::createDocument();
+        customLibrary->setNamespace("custom");
+        mx::NodeGraphPtr customNodeGraph = customLibrary->addNodeGraph("nodegraph1");
+        mx::NodeDefPtr customNodeDef = customLibrary->addNodeDef("shader1", "surfaceshader", "simpleSrf");
+        mx::ImplementationPtr customImpl = customLibrary->addImplementation("impl1");
+        mx::NodePtr customNode = customNodeGraph->addNodeInstance(customNodeDef, "node1");
+        customImpl->setNodeDef(customNodeDef);
+        REQUIRE(customLibrary->validate());
+
+        // Import the custom library.
+        doc2->importLibrary(customLibrary);
+        mx::NodeGraphPtr importedNodeGraph = doc2->getNodeGraph("custom:nodegraph1");
+        mx::NodeDefPtr importedNodeDef = doc2->getNodeDef("custom:shader1");
+        mx::ImplementationPtr importedImpl = doc2->getImplementation("custom:impl1");
+        mx::NodePtr importedNode = importedNodeGraph->getNode("node1");
+        REQUIRE(importedNodeDef != nullptr);
+        REQUIRE(importedNode->getNodeDef() == importedNodeDef);
+        REQUIRE(importedImpl->getNodeDef() == importedNodeDef);
+        REQUIRE(doc2->validate());
+
         // Flatten subgraph references.
-        doc2 = doc->copy();
         for (mx::NodeGraphPtr nodeGraph : doc2->getNodeGraphs())
         {
             nodeGraph->flattenSubgraphs();
@@ -179,16 +165,16 @@ TEST_CASE("Load content", "[xmlio]")
         REQUIRE(doc2->validate());
 
         // Read document without XIncludes.
-        doc2 = mx::createDocument();
+        mx::DocumentPtr doc3 = mx::createDocument();
         mx::XmlReadOptions readOptions;
         readOptions.readXIncludes = false;
-        mx::readFromXmlFile(doc2, filename, searchPath, &readOptions);
-        if (*doc2 != *doc)
+        mx::readFromXmlFile(doc3, filename, searchPath, &readOptions);
+        if (*doc3 != *doc)
         {
             writtenDoc = mx::createDocument();
             xmlString = mx::writeToXmlString(doc);
             mx::readFromXmlString(writtenDoc, xmlString, &readOptions);
-            REQUIRE(*doc2 == *writtenDoc);
+            REQUIRE(*doc3 == *writtenDoc);
         }
     }
 
