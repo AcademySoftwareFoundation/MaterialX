@@ -154,7 +154,7 @@ void Document::importLibrary(ConstDocumentPtr library, const CopyOptions* copyOp
     bool copySourceUris = copyOptions && copyOptions->copySourceUris;
     for (ElementPtr child : library->getChildren())
     {
-        std::string childName = child->getQualifiedName(child->getName());
+        string childName = child->getQualifiedName(child->getName());
         if (skipDuplicateElements && getChild(childName))
         {
             continue;
