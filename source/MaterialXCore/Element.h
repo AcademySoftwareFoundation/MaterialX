@@ -335,7 +335,7 @@ class Element : public std::enable_shared_from_this<Element>
     {
         for (ConstElementPtr elem : traverseAncestors())
         {
-            if (elem->getRoot() != elem && elem->hasNamespace())
+            if (elem->hasNamespace())
             {
                 return elem->getNamespace() + NAME_PREFIX_SEPARATOR + name;
             }
