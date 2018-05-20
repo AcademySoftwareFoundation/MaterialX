@@ -141,8 +141,8 @@ TEST_CASE("Load content", "[xmlio]")
         customLibrary->setNamespace("custom");
         mx::NodeGraphPtr customNodeGraph = customLibrary->addNodeGraph("nodegraph1");
         mx::NodeDefPtr customNodeDef = customLibrary->addNodeDef("shader1", "surfaceshader", "simpleSrf");
-        mx::ImplementationPtr customImpl = customLibrary->addImplementation("impl1");
         mx::NodePtr customNode = customNodeGraph->addNodeInstance(customNodeDef, "node1");
+        mx::ImplementationPtr customImpl = customLibrary->addImplementation("impl1");
         customImpl->setNodeDef(customNodeDef);
         REQUIRE(customLibrary->validate());
 
@@ -150,8 +150,8 @@ TEST_CASE("Load content", "[xmlio]")
         doc2->importLibrary(customLibrary);
         mx::NodeGraphPtr importedNodeGraph = doc2->getNodeGraph("custom:nodegraph1");
         mx::NodeDefPtr importedNodeDef = doc2->getNodeDef("custom:shader1");
-        mx::ImplementationPtr importedImpl = doc2->getImplementation("custom:impl1");
         mx::NodePtr importedNode = importedNodeGraph->getNode("node1");
+        mx::ImplementationPtr importedImpl = doc2->getImplementation("custom:impl1");
         REQUIRE(importedNodeDef != nullptr);
         REQUIRE(importedNode->getNodeDef() == importedNodeDef);
         REQUIRE(importedImpl->getNodeDef() == importedNodeDef);
