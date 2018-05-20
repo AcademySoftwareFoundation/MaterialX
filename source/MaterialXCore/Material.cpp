@@ -173,8 +173,10 @@ NodeDefPtr ShaderRef::getNodeDef() const
     if (hasNodeString())
     {
         vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getNodeString()));
-        vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getNodeString());
-        nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
+        if (nodeDefs.empty())
+        {
+            nodeDefs = getDocument()->getMatchingNodeDefs(getNodeString());
+        }
         return nodeDefs.empty() ? NodeDefPtr() : nodeDefs[0];
     }
     return NodeDefPtr();
