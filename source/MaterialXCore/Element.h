@@ -311,19 +311,19 @@ class Element : public std::enable_shared_from_this<Element>
     /// @name Namespace
     /// @{
 
-    /// Set the namespace of this element.
-    void setNamespace(const string& inherit)
+    /// Set the namespace string of this element.
+    void setNamespace(const string& space)
     {
-        setAttribute(NAMESPACE_ATTRIBUTE, inherit);
+        setAttribute(NAMESPACE_ATTRIBUTE, space);
     }
 
-    /// Return true if this element has a namespace.
+    /// Return true if this element has a namespace string.
     bool hasNamespace() const
     {
         return hasAttribute(NAMESPACE_ATTRIBUTE);
     }
 
-    /// Return the namespace of this element.
+    /// Return the namespace string of this element.
     const string& getNamespace() const
     {
         return getAttribute(NAMESPACE_ATTRIBUTE);
@@ -341,15 +341,6 @@ class Element : public std::enable_shared_from_this<Element>
             }
         }
         return name;
-    }
-
-    /// Resolve a reference to a named element at the root scope of this document,
-    /// taking the namespace at the scope of this element into account.
-    template<class T> shared_ptr<T> resolveRootNameReference(const string& name) const
-    {
-        ConstElementPtr root = getRoot();
-        shared_ptr<T> child = root->getChildOfType<T>(getQualifiedName(name));
-        return child ? child : root->getChildOfType<T>(name);
     }
 
     /// @}
@@ -752,6 +743,15 @@ class Element : public std::enable_shared_from_this<Element>
     /// @}
 
   protected:
+    // Resolve a reference to a named element at the root scope of this document,
+    // taking the namespace at the scope of this element into account.
+    template<class T> shared_ptr<T> resolveRootNameReference(const string& name) const
+    {
+        ConstElementPtr root = getRoot();
+        shared_ptr<T> child = root->getChildOfType<T>(getQualifiedName(name));
+        return child ? child : root->getChildOfType<T>(name);
+    }
+
     // Enforce a requirement within a validate method, updating the validation
     // state and optional output text if the requirement is not met.
     void validateRequire(bool expression, bool& res, string* message, string errorDesc) const;
