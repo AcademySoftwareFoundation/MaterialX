@@ -150,19 +150,16 @@ void Document::initialize()
 
 void Document::importLibrary(ConstDocumentPtr library, const CopyOptions* copyOptions)
 {
-    string libraryPrefix = library->hasNamespace() ?
-                           library->getNamespace() + NAME_PREFIX_SEPARATOR :
-                           EMPTY_STRING;
     bool skipDuplicateElements = copyOptions && copyOptions->skipDuplicateElements;
     bool copySourceUris = copyOptions && copyOptions->copySourceUris;
     for (ElementPtr child : library->getChildren())
     {
-        std::string childName = child->getName();
+        std::string childName = child->getQualifiedName(child->getName());
         if (skipDuplicateElements && getChild(childName))
         {
             continue;
         }
-        ElementPtr childCopy = addChildOfCategory(child->getCategory(), libraryPrefix + childName);
+        ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName);
         childCopy->copyContentFrom(child, copyOptions);
         if (!childCopy->hasNamespace() && library->hasNamespace())
         {
