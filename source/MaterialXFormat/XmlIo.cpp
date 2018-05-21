@@ -130,7 +130,7 @@ void xmlDocumentFromFile(xml_document& xmlDoc, string filename, const string& se
     }
 }
 
-void processXIncludes(xml_node& xmlNode, const string& searchPath, const XmlReadOptions* readOptions)
+void processXIncludes(DocumentPtr doc, xml_node& xmlNode, const string& searchPath, const XmlReadOptions* readOptions)
 {
     xml_node xmlChild = xmlNode.first_child();
     while (xmlChild)
@@ -139,19 +139,15 @@ void processXIncludes(xml_node& xmlNode, const string& searchPath, const XmlRead
         {
             if (!readOptions || readOptions->readXIncludes)
             {
+                // Read the included file into a library document.
                 xml_attribute fileAttr = xmlChild.attribute("href");
-                string filename = fileAttr.value();
+                DocumentPtr library = createDocument();
+                readFromXmlFile(library, fileAttr.value(), searchPath, readOptions);
 
-                xml_document xmlDoc;
-                xmlDocumentFromFile(xmlDoc, filename, searchPath);
-
-                xml_node xmlRoot = xmlDoc.child("materialx");
-                for (const xml_node& sourceChild : xmlRoot.children())
-                {
-                    xml_node destChild = xmlNode.insert_copy_before(sourceChild, xmlChild);
-                    xml_attribute xmlAttr = destChild.append_attribute(SOURCE_URI_ATTRIBUTE.c_str());
-                    xmlAttr.set_value(filename.c_str());
-                }
+                // Import the library.
+                CopyOptions copyOptions = readOptions ? (CopyOptions) *readOptions : CopyOptions();
+                copyOptions.copySourceUris = true;
+                doc->importLibrary(library, &copyOptions);
             }
 
             // Remove include directive.
@@ -177,7 +173,7 @@ void documentFromXml(DocumentPtr doc,
     xml_node xmlRoot = xmlDoc.child(Document::CATEGORY.c_str());
     if (xmlRoot)
     {
-        processXIncludes(xmlRoot, searchPath, readOptions);
+        processXIncludes(doc, xmlRoot, searchPath, readOptions);
         elementFromXml(xmlRoot, doc, readOptions);
     }
 
