@@ -13,12 +13,8 @@ namespace MaterialX
 {
 
 const string Document::VERSION_ATTRIBUTE = "version";
-const string Document::REQUIRE_ATTRIBUTE = "require";
 const string Document::CMS_ATTRIBUTE = "cms";
 const string Document::CMS_CONFIG_ATTRIBUTE = "cmsconfig";
-const string Document::REQUIRE_STRING_MATINHERIT = "matinherit";
-const string Document::REQUIRE_STRING_MATNODEGRAPH = "matnodegraph";
-const string Document::REQUIRE_STRING_OVERRIDE = "override";
 
 namespace {
 
@@ -240,31 +236,6 @@ vector<InterfaceElementPtr> Document::getMatchingImplementations(const string& n
 
     // Return the matches.
     return implementations;
-}
-
-void Document::generateRequireString()
-{
-    std::set<string> requireSet;
-    for (ElementPtr elem : traverseTree())
-    {
-        if (elem->isA<ShaderRef>())
-        {
-            ShaderRefPtr shaderRef = elem->asA<ShaderRef>();
-            if (!shaderRef->getReferencedOutputs().empty())
-            {
-                requireSet.insert(REQUIRE_STRING_MATNODEGRAPH);
-            }
-        }
-    }
-
-    string requireStr;
-    for (string str : requireSet)
-    {
-        if (!requireStr.empty())
-            requireStr += ",";
-        requireStr += str;
-    }
-    setRequireString(requireStr);
 }
 
 bool Document::validate(string* message) const
