@@ -71,10 +71,6 @@ TEST_CASE("Document", "[document]")
     doc->removePropertySet(propertySet->getName());
     REQUIRE(doc->getPropertySets().size() == 0);
 
-    // Generate and verify require string.
-    doc->generateRequireString();
-    REQUIRE(doc->getRequireString().find(mx::Document::REQUIRE_STRING_MATNODEGRAPH) != std::string::npos);
-
     // Validate the document.
     REQUIRE(doc->validate());
 }

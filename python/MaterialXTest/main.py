@@ -306,10 +306,6 @@ class TestMaterialX(unittest.TestCase):
         damaged = variantSet.addVariant("damaged")
         self.assertTrue(len(variantSet.getVariants()) == 2)
 
-        # Generate and verify require string.
-        doc.generateRequireString()
-        self.assertTrue('matnodegraph' in doc.getRequireString())
-
         # Disconnect outputs from sources.
         output1.setConnectedNode(None)
         output2.setConnectedNode(None)
