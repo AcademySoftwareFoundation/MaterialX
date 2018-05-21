@@ -440,33 +440,6 @@ class Document : public Element
     vector<InterfaceElementPtr> getMatchingImplementations(const string& nodeDef) const;
 
     /// @}
-    /// @name Require String
-    /// @{
-
-    /// Set the require string of the document.
-    /// @todo Require strings are not yet automatically generated or validated
-    ///    by the MaterialX library.
-    void setRequireString(const string& require)
-    {
-        setAttribute(REQUIRE_ATTRIBUTE, require);
-    }
-
-    /// Return true if the document has a require string.
-    bool hasRequireString() const
-    {
-        return hasAttribute(REQUIRE_ATTRIBUTE);
-    }
-
-    /// Return the require string of the document.
-    const string& getRequireString() const
-    {
-        return getAttribute(REQUIRE_ATTRIBUTE);
-    }
-
-    /// Check the content of this document and store the appropriate require string.
-    void generateRequireString();
-
-    /// @}
     /// @name Color Management System
     /// @{
 
@@ -563,12 +536,8 @@ class Document : public Element
   public:
     static const string CATEGORY;
     static const string VERSION_ATTRIBUTE;
-    static const string REQUIRE_ATTRIBUTE;
     static const string CMS_ATTRIBUTE;
     static const string CMS_CONFIG_ATTRIBUTE;
-    static const string REQUIRE_STRING_MATINHERIT;
-    static const string REQUIRE_STRING_MATNODEGRAPH;
-    static const string REQUIRE_STRING_OVERRIDE;
 
   private:
     class Cache;
