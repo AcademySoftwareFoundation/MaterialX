@@ -253,7 +253,13 @@ def _applyStringSubstitutions(self, filename, geom = '/'):
     warnings.warn("This function is deprecated; call Element.createStringResolver() instead.", DeprecationWarning, stacklevel = 2)
     return self.createStringResolver(geom).resolve(filename, 'filename')
 
+def _generateRequireString(self):
+    """(Deprecated) Generate the require string for a document."""
+    warnings.warn("Require strings are no longer supported in MaterialX.", DeprecationWarning, stacklevel = 2)
+    pass
+
 Document.applyStringSubstitutions = _applyStringSubstitutions
+Document.generateRequireString = _generateRequireString
 
 
 #
