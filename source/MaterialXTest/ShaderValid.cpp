@@ -90,19 +90,25 @@ TEST_CASE("GLSL Source", "[shadervalid]")
         "hello_world_shaderref",
         "geometric_nodes",
         "subgraph_ex1",
-        "subgraph_ex2",
+//        "subgraph_ex2",
         "test_noise2d",
         "test_noise3d",
         "test_cellnoise2d",
         "test_cellnoise3d",
         "test_fractal3d",
-        "example1_surface"
+        "example1_surface",
+        "example2_surface",
+        "example3_surface",
+        "example4_surface"
     };
 
     const std::set<std::string> shadersUseLighting =
     {
-        "subgraph_ex2",
-        "example1_surface"
+//        "subgraph_ex2",
+        "example1_surface",
+        "example2_surface",
+        "example3_surface",
+        "example4_surface"
     };
 
     for (auto shaderName : shaderNames)

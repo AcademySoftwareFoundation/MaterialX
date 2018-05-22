@@ -58,6 +58,8 @@ void sx_standardsurface(
 
     bool need_specular = !sx_is_tiny(specular_color);
 
+    vec3 coat_attenuation = mix(vec3(1.0), coat_color, coat);
+
     vec3 ior_n, ior_k;
     sx_complexior(base_color, specular_color, ior_n, ior_k);
 
@@ -74,74 +76,60 @@ void sx_standardsurface(
         vec3 L = lightShader.direction;
 
         // Diffuse and dielectric components
-        BSDF substrate_bsdf = BSDF(vec3(0.0), vec3(0.0));
-        if (metalness < 1.0 - M_FLOAT_EPS)
-        {
-            BSDF diffuse_bsdf = BSDF(vec3(0.0), vec3(0.0));
-            if (subsurface < 1.0f - M_FLOAT_EPS)
-            {
-                sx_diffusebsdf(L, V, base_color, diffuse_roughness, normal, diffuse_bsdf);
-            }
-            BSDF sss_bsdf = BSDF(vec3(0.0), vec3(0.0));
-            if (subsurface > M_FLOAT_EPS)
-            {
-                sx_translucentbsdf(L, V, subsurface_color, normal, sss_bsdf);
-            }
-            substrate_bsdf.fr = mix(diffuse_bsdf.fr, sss_bsdf.fr, subsurface);
 
-            if (need_specular)
-            {
-                sx_coatingbsdf(L, V, specular_color, specular_IOR, specular_roughness, specular_anisotropy, normal, tangent, 0, substrate_bsdf, substrate_bsdf);
-            }
-        }
+        BSDF diffuse_bsdf = BSDF(0.0);
+        sx_diffusebsdf(L, V, base_color, diffuse_roughness, normal, diffuse_bsdf);
+
+        BSDF sss_bsdf = BSDF(0.0);
+        sx_translucentbsdf(L, V, subsurface_color, normal, sss_bsdf);
+
+        BSDF substrate_bsdf = BSDF(0.0);
+        substrate_bsdf = mix(sss_bsdf, diffuse_bsdf, subsurface);
+
+        sx_coatingbsdf(L, V, specular_color, specular_IOR, specular_roughness, specular_anisotropy, normal, tangent, 0, substrate_bsdf, substrate_bsdf);
 
         // Metal component
-        BSDF metal_bsdf = BSDF(vec3(0.0), vec3(0.0));
-        if (metalness > M_FLOAT_EPS)
-        {
-           sx_metalbsdf(L, V, ior_n, ior_k, specular_roughness, specular_anisotropy, normal, tangent, 0, metal_bsdf);
-        }
 
-        BSDF total_bsdf = BSDF(vec3(0.0), vec3(0.0));
-        total_bsdf.fr = mix(substrate_bsdf.fr, metal_bsdf.fr, metalness);
+        BSDF metal_bsdf = BSDF(0.0);
+        sx_metalbsdf(L, V, ior_n, ior_k, specular_roughness, specular_anisotropy, normal, tangent, 0, metal_bsdf);
 
-        if (coat > M_FLOAT_EPS)
-        {
-            total_bsdf.fr *= coat_color; // scale by coating "transmission color"
-            sx_coatingbsdf(L, V, vec3(coat), coat_IOR, coat_roughness, 0.0, coat_normal, tangent, 0, total_bsdf, total_bsdf);
-        }
+        BSDF total_bsdf;
+        total_bsdf = mix(substrate_bsdf, metal_bsdf, metalness);
 
-        result.color += lightShader.intensity * total_bsdf.fr;
+        // Clear-coat component
+
+        total_bsdf *= coat_attenuation;
+        sx_coatingbsdf(L, V, vec3(coat), coat_IOR, coat_roughness, 0.0, coat_normal, tangent, 0, total_bsdf, total_bsdf);
+
+        result.color += lightShader.intensity * total_bsdf;
     }
 
     //
     // Compute indirect lighting
     //
-    
-    vec3 coat_attenuation = mix(vec3(1.0), coat_color, coat);
-    float metalness_attenuation = 1.0 - metalness;
 
     // Add emission
     result.color += emission_color * emission * coat_attenuation;
 
-    vec3 Li_diffuse = sx_environment_irradiance(normal) * coat_attenuation * metalness_attenuation;
-    result.color +=  Li_diffuse * base_color;
+    vec3 Li_diffuse_bsdf;
+    sx_diffusebsdf_ibl(V, base_color, diffuse_roughness, normal, Li_diffuse_bsdf);
 
-    vec3 Li_specular = sx_environment_specular(normal, V, specular_roughness) * coat_attenuation;
-    if (need_specular)
-    {
-        vec3 F = specular_color * sx_fresnel_schlick_roughness(dot(normal, V), specular_IOR, specular_roughness);
-        result.color += Li_specular * F * metalness_attenuation;
-    }
-    if (metalness > M_FLOAT_EPS)
-    {
-        vec3 F = sx_fresnel_conductor(dot(normal, V), ior_n, ior_k);
-        result.color += Li_specular * F * metalness;
-    }
-    if (coat > M_FLOAT_EPS)
-    {
-        vec3 Li_coat = sx_environment_specular(coat_normal, V, coat_roughness);
-        float F = sx_fresnel_schlick_roughness(dot(coat_normal, V), coat_IOR, coat_roughness);
-        result.color +=  F * Li_coat * coat;
-    }
+    vec3 Li_sss_bsdf;
+    sx_translucentbsdf_ibl(V, subsurface_color, normal, Li_sss_bsdf);
+
+    vec3 Li_substrate_bsdf;
+    Li_substrate_bsdf = mix(Li_diffuse_bsdf, Li_sss_bsdf, subsurface);
+
+    sx_coatingbsdf_ibl(V, specular_color, specular_IOR, specular_roughness, specular_anisotropy, normal, tangent, 0, Li_substrate_bsdf, Li_substrate_bsdf);
+
+    vec3 Li_metal_bsdf;
+    sx_metalbsdf_ibl(V, ior_n, ior_k, specular_roughness, specular_anisotropy, normal, tangent, 0, Li_metal_bsdf);
+
+    vec3 Li_total_bsdf;
+    Li_total_bsdf = mix(Li_substrate_bsdf, Li_metal_bsdf, metalness);
+
+    Li_total_bsdf *= coat_attenuation;
+    sx_coatingbsdf_ibl(V, vec3(coat), coat_IOR, coat_roughness, 0.0, coat_normal, tangent, 0, Li_total_bsdf, Li_total_bsdf);
+
+    result.color += Li_total_bsdf;
 }

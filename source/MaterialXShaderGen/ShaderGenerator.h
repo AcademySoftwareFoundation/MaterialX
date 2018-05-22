@@ -60,6 +60,10 @@ public:
     /// Emit the output variable name for an output, optionally including it's type
     virtual void emitOutput(const SgOutput* output, bool includeType, Shader& shader) const;
 
+    /// Query the shader generator if it wants a suffix added to the function name when 
+    /// emiting the function for the given node.
+    virtual const string& ShaderGenerator::getFunctionSuffix(const SgNode& node) const;
+
     /// Query the shader generator if it wants any extra arguments added when 
     /// emiting the function for the given node.
     virtual const Arguments* getExtraArguments(const SgNode& node) const;

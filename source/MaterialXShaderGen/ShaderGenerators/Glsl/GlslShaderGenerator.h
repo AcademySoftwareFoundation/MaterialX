@@ -101,6 +101,10 @@ public:
     /// Emit the final output expression
     void emitFinalOutput(Shader& shader) const override;
 
+    /// Query the shader generator if it wants a suffix added to the function name when 
+    /// emiting the function for the given node.
+    const string& getFunctionSuffix(const SgNode& node) const override;
+
     /// Return any extra arguments if needed for the given node
     const Arguments* getExtraArguments(const SgNode& node) const override;
 
@@ -111,6 +115,11 @@ public:
     /// given the incident and outgoing light directions.
     /// The output 'bsdf' will hold the variable name keeping the result.
     virtual void emitBsdfNodes(const SgNode& shaderNode, const string& incident, const string& outgoing, Shader& shader, string& bsdf);
+
+    /// Emit code for calculating indirect (IBL) contributions for a shader, 
+    /// given the outgoing direction.
+    /// The output 'radiance' will hold the variable name keeping the result.
+    virtual void emitBsdfNodesIBL(const SgNode& shaderNode, const string& outgoing, Shader& shader, string& radiance);
 
     /// Emit code for calculating emission for a surface or light shader,
     /// given the orientation direction of the EDF and the evaluation direction.
@@ -136,7 +145,18 @@ protected:
 
     static void toVec4(const string& type, string& variable);
 
+    enum Context
+    {
+        CONTEXT_DEFAULT,
+        CONTEXT_BSDF,
+        CONTEXT_BSDF_IBL,
+        CONTEXT_EDF
+    };
+
+    size_t _context;
+
     Arguments _bsdfNodeArguments;
+    Arguments _bsdfNodeIblArguments;
     Arguments _edfNodeArguments;
 
     /// Internal string constants

@@ -1,0 +1,5 @@
+void sx_scalebsdf(BSDF bsdf, color weight, output BSDF result)
+{
+    color w = clamp(weight, 0.0, 1.0);
+    result = bsdf * w;
+}

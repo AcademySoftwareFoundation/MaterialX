@@ -2,8 +2,7 @@
 
 void sx_metalbsdf(vec3 L, vec3 V, vec3 ior_n, vec3 ior_k, float roughness, float anisotropy, vec3 normal, vec3 tangent, int distribution, out BSDF result)
 {
-    result.fr = vec3(0.0);
-    result.ft = vec3(0.0);
+    result = BSDF(0.0);
 
     float NdotL = dot(normal,L);
     float NdotV = dot(normal,V);
@@ -33,5 +32,12 @@ void sx_metalbsdf(vec3 L, vec3 V, vec3 ior_n, vec3 ior_k, float roughness, float
     vec3 F = sx_fresnel_conductor(VdotH, ior_n, ior_k);
 
     // Note: NdotL is cancelled out
-    result.fr = F * D * G / (4 * NdotV);
+    result = F * D * G / (4 * NdotV);
+}
+
+void sx_metalbsdf_ibl(vec3 V, vec3 ior_n, vec3 ior_k, float roughness, float anisotropy, vec3 normal, vec3 tangent, int distribution, out vec3 result)
+{
+    vec3 Li = sx_environment_specular(normal, V, roughness);
+    vec3 F = sx_fresnel_conductor(dot(normal, V), ior_n, ior_k);
+    result = Li * F;
 }

@@ -119,6 +119,16 @@
   </nodedef>
 
   <!--
+    Node: <scalebsdf>
+    A node for scaling the rectance/transmittance of a BSDF.
+  -->
+  <nodedef name="ND_scalebsdf" node="scalebsdf" type="BSDF" nodecategory="shaderx"
+           doc="A node for scaling the rectance/transmittance of a BSDF.">
+    <input name="in" type="BSDF" doc="The BSDF to scale."/>
+    <input name="weight" type="color3" value="1.0, 1.0, 1.0" doc="Scaling weight."/>
+  </nodedef>
+
+  <!--
     Node: <mixedf>
     A node for mixing EDF's.
   -->
@@ -271,6 +281,22 @@
     <input name="edgetint" type="color3" value="0.996, 0.957, 0.823"/>
     <output name="ior_n" type="vector3"/>
     <output name="ior_k" type="vector3"/>
+  </nodedef>
+
+  <!--
+    Node: <inputmap>
+  -->
+  <nodedef name="ND_inputmap__float" type="float" node="inputmap" nodecategory="shaderx" sxclass="image">
+    <input name="value" type="float" />
+    <input name="file" type="filename" />
+  </nodedef>
+  <nodedef name="ND_inputmap__color3" type="color3" node="inputmap" nodecategory="shaderx" sxclass="image">
+    <input name="value" type="color3" />
+    <input name="file" type="filename" />
+  </nodedef>
+  <nodedef name="ND_inputmap__vector3" type="vector3" node="inputmap" nodecategory="shaderx" sxclass="image">
+    <input name="value" type="vector3" />
+    <input name="file" type="filename" />
   </nodedef>
 
 </materialx>

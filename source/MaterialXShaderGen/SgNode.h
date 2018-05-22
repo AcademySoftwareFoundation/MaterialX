@@ -73,15 +73,17 @@ public:
         static const unsigned int CONSTANT    = 1 << 5;  // A constant node
         // Specific closure types
         static const unsigned int BSDF        = 1 << 6;  // A BDFS node 
-        static const unsigned int EDF         = 1 << 7;  // A EDF node
-        static const unsigned int VDF         = 1 << 8;  // A VDF node 
+        static const unsigned int BSDF_R      = 1 << 7;  // A BDFS node for reflection
+        static const unsigned int BSDF_T      = 1 << 8;  // A BDFS node for transmission
+        static const unsigned int EDF         = 1 << 9;  // A EDF node
+        static const unsigned int VDF         = 1 << 10; // A VDF node 
         // Specific shader types
-        static const unsigned int SURFACE     = 1 << 9;  // A surface shader node
-        static const unsigned int VOLUME      = 1 << 10; // A volume shader node
-        static const unsigned int LIGHT       = 1 << 11; // A light shader node
+        static const unsigned int SURFACE     = 1 << 11;  // A surface shader node
+        static const unsigned int VOLUME      = 1 << 12; // A volume shader node
+        static const unsigned int LIGHT       = 1 << 13; // A light shader node
         // Specific conditional types
-        static const unsigned int IFELSE      = 1 << 12; // An if-else statement
-        static const unsigned int SWITCH      = 1 << 13; // A switch statement
+        static const unsigned int IFELSE      = 1 << 14; // An if-else statement
+        static const unsigned int SWITCH      = 1 << 15; // A switch statement
     };
 
     /// Information on source code scope for the node.
@@ -111,6 +113,12 @@ public:
     };
 
     static const SgNode NONE;
+
+    static const string SXCLASS_ATTRIBUTE;
+    static const string CONSTANT;
+    static const string IMAGE;
+    static const string COMPARE;
+    static const string SWITCH;
 
 public:
     /// Constructor.

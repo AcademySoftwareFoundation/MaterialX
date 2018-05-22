@@ -28,6 +28,9 @@
   <!-- <mixbsdf> -->
   <implementation name="IM_mixbsdf__sx_osl" nodedef="ND_mixbsdf" file="sxpbrlib/sx-osl/sx_mixbsdf.osl" function="sx_mixbsdf" language="sx-osl"/>
 
+  <!-- <scalebsdf> -->
+  <implementation name="IM_scalebsdf__sx_osl" nodedef="ND_scalebsdf" file="sxpbrlib/sx-osl/sx_scalebsdf.glsl" function="sx_scalebsdf" language="sx-osl"/>
+
   <!-- <mixedf> -->
   <implementation name="IM_mixedf__sx_osl" nodedef="ND_mixedf" file="sxpbrlib/sx-osl/sx_mixedf.osl" function="sx_mixedf" language="sx-osl"/>
 

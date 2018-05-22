@@ -59,6 +59,12 @@ SgEdgeIterator SgOutput::traverseUpstream()
 
 const SgNode SgNode::NONE("");
 
+const string SgNode::SXCLASS_ATTRIBUTE = "sxclass";
+const string SgNode::CONSTANT = "constant";
+const string SgNode::IMAGE = "image";
+const string SgNode::COMPARE = "compare";
+const string SgNode::SWITCH = "switch";
+
 bool SgNode::referencedConditionally() const
 {
     if (_scopeInfo.type == SgNode::ScopeInfo::Type::SINGLE)
@@ -213,19 +219,19 @@ SgNodePtr SgNode::create(const string& name, const NodeDef& nodeDef, ShaderGener
     {
         newNode->_classification = Classification::VDF | Classification::CLOSURE;
     }
-    else if (nodeDef.getNodeString() == "constant")
+    else if (nodeDef.getNodeString() == CONSTANT)
     {
         newNode->_classification = Classification::TEXTURE | Classification::CONSTANT;
     }
-    else if (nodeDef.getNodeString() == "image")
+    else if (nodeDef.getNodeString() == IMAGE || nodeDef.getAttribute(SXCLASS_ATTRIBUTE) == IMAGE)
     {
         newNode->_classification = Classification::TEXTURE | Classification::FILETEXTURE;
     }
-    else if (nodeDef.getNodeString() == "compare")
+    else if (nodeDef.getNodeString() == COMPARE)
     {
         newNode->_classification = Classification::TEXTURE | Classification::CONDITIONAL | Classification::IFELSE;
     }
-    else if (nodeDef.getNodeString() == "switch")
+    else if (nodeDef.getNodeString() == SWITCH)
     {
         newNode->_classification = Classification::TEXTURE | Classification::CONDITIONAL | Classification::SWITCH;
     }

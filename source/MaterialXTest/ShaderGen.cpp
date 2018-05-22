@@ -276,41 +276,9 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         materials.push_back(material);
     }
 
-    // Example4: Create a material from 'standardsurface' with helpers for textureable inputs
+    // Example4: Create a material from 'standardsurface' using <inputmap> nodes for mappable inputs
     {
-        // Create a node type representing an adapter for texturable float inputs
-        mx::NodeDefPtr texInputFloatDef = doc->addNodeDef("ND_texinput__float", "float", "texinput");
-        texInputFloatDef->addInput("value", "float");
-        texInputFloatDef->addInput("file", "filename");
-        mx::NodeGraphPtr texInputFloatImp = doc->addNodeGraph("IMP_texinput__float");
-        texInputFloatImp->setAttribute("nodedef", texInputFloatDef->getName());
-        {
-            mx::NodePtr image = texInputFloatImp->addNode("image", "image", "float");
-            mx::InputPtr value = image->addInput("default", "float");
-            value->setInterfaceName("value");
-            mx::InputPtr file = image->addInput("file", "filename");
-            file->setInterfaceName("file");
-            mx::OutputPtr output = texInputFloatImp->addOutput("out", "float");
-            output->setConnectedNode(image);
-        }
-
-        // Create a node type representing an adapter for texturable color3 inputs
-        mx::NodeDefPtr texInputColor3Def = doc->addNodeDef("ND_texinput__color3", "color3", "texinput");
-        texInputColor3Def->addInput("value", "color3");
-        texInputColor3Def->addInput("file", "filename");
-        mx::NodeGraphPtr texInputColor3Imp = doc->addNodeGraph("IMP_texinput__color3");
-        texInputColor3Imp->setAttribute("nodedef", texInputColor3Def->getName());
-        {
-            mx::NodePtr image = texInputColor3Imp->addNode("image", "image", "color3");
-            mx::InputPtr value = image->addInput("default", "color3");
-            value->setInterfaceName("value");
-            mx::InputPtr file = image->addInput("file", "filename");
-            file->setInterfaceName("file");
-            mx::OutputPtr output = texInputColor3Imp->addOutput("out", "color3");
-            output->setConnectedNode(image);
-        }
-
-        // Shader parameter listing (<name>, <type>, <texturable>)
+        // Shader parameter listing (<name>, <type>, <mappable>)
         std::vector<std::tuple<std::string, std::string, bool>> shaderParams =
         {
             { "base", "float", false },
@@ -339,16 +307,16 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         {
             if (std::get<2>(shaderParam))
             {
-                // Texturable, add an input for both a value and a texture
+                // Texturable, add an input for both a value and an image map
                 nodeDef->addInput(std::get<0>(shaderParam), std::get<1>(shaderParam));
-                nodeDef->addInput(std::get<0>(shaderParam) + "_", "filename");
+                nodeDef->addInput(std::get<0>(shaderParam) + "_map", "filename");
 
-                // Create the texture input node and connect it to the shader interface
-                mx::NodePtr texInput = shaderGraph->addNode("texinput", std::get<0>(shaderParam), std::get<1>(shaderParam));
+                // Create the inputmap node and connect it to the shader interface
+                mx::NodePtr texInput = shaderGraph->addNode("inputmap", std::get<0>(shaderParam), std::get<1>(shaderParam));
+                mx::InputPtr file = texInput->addInput("file", "filename");
+                file->setInterfaceName(std::get<0>(shaderParam) + "_map");
                 mx::InputPtr value = texInput->addInput("value", std::get<1>(shaderParam));
                 value->setInterfaceName(std::get<0>(shaderParam));
-                mx::InputPtr file = texInput->addInput("file", "filename");
-                file->setInterfaceName(std::get<0>(shaderParam) + "_");
 
                 // Connect it to the surface shader
                 mx::InputPtr input = standardSurface->addInput(std::get<0>(shaderParam), std::get<1>(shaderParam));
@@ -384,6 +352,11 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         // Create a material with the above shader node as the shader ref
         mx::MaterialPtr material = doc->addMaterial("example4");
         mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "testshader4");
+
+        mx::BindInputPtr bindBase = shaderRef->addBindInput("base", "float");
+        bindBase->setValue(1.0f);
+        mx::BindInputPtr bindBaseColor = shaderRef->addBindInput("base_color", "color3");
+        bindBaseColor->setValue(mx::Color3(0.8f, 0.6f, 0.6f));
 
         materials.push_back(material);
     }

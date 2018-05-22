@@ -51,11 +51,18 @@ const string GlslShaderGenerator::EVAL = "eval";
 
 GlslShaderGenerator::GlslShaderGenerator()
     : ParentClass(GlslSyntax::create())
+    , _context(CONTEXT_DEFAULT)
 {
     // Direction vector argument for bsdf nodes
     _bsdfNodeArguments = 
     { 
         Argument("vec3", INCIDENT),
+        Argument("vec3", OUTGOING)
+    };
+
+    // Direction vector argument for bsdf nodes in IBL context
+    _bsdfNodeIblArguments =
+    {
         Argument("vec3", OUTGOING)
     };
 
@@ -541,6 +548,8 @@ void GlslShaderGenerator::emitTextureNodes(Shader& shader)
 
 void GlslShaderGenerator::emitBsdfNodes(const SgNode& shaderNode, const string& incident, const string& outgoing, Shader& shader, string& bsdf)
 {
+    _context = CONTEXT_BSDF;
+
     // Set BSDF node arguments according to the given directions
     _bsdfNodeArguments[0].second = incident;
     _bsdfNodeArguments[1].second = outgoing;
@@ -562,10 +571,42 @@ void GlslShaderGenerator::emitBsdfNodes(const SgNode& shaderNode, const string& 
     {
         bsdf = last->getOutput()->name;
     }
+
+    _context = CONTEXT_DEFAULT;
+}
+
+void GlslShaderGenerator::emitBsdfNodesIBL(const SgNode& shaderNode, const string& outgoing, Shader& shader, string& radiance)
+{
+    _context = CONTEXT_BSDF_IBL;
+
+    // Set BSDF node arguments according to the given direction
+    _bsdfNodeIblArguments[0].second = outgoing;
+
+    SgNode* last = nullptr;
+
+    // Emit function calls for all BSDF nodes used by this shader
+    // The last node will hold the final result
+    for (SgNode* node : shader.getNodeGraph()->getNodes())
+    {
+        if (node->hasClassification(SgNode::Classification::BSDF) && shaderNode.isUsedClosure(node))
+        {
+            shader.addFunctionCall(node, *this);
+            last = node;
+        }
+    }
+
+    if (last)
+    {
+        radiance = last->getOutput()->name;
+    }
+
+    _context = CONTEXT_DEFAULT;
 }
 
 void GlslShaderGenerator::emitEdfNodes(const SgNode& shaderNode, const string& orientDir, const string& evalDir, Shader& shader, string& edf)
 {
+    _context = CONTEXT_EDF;
+
     // Set EDF node arguments according to the given directions
     _edfNodeArguments[0].second = orientDir;
     _edfNodeArguments[1].second = evalDir;
@@ -589,13 +630,25 @@ void GlslShaderGenerator::emitEdfNodes(const SgNode& shaderNode, const string& o
     {
         edf = last->getOutput()->name;
     }
+
+    _context = CONTEXT_DEFAULT;
+}
+
+const string& GlslShaderGenerator::getFunctionSuffix(const SgNode& node) const
+{
+    if (node.hasClassification(SgNode::Classification::BSDF) && _context == CONTEXT_BSDF_IBL)
+    {
+        static const string IBL_SUFFIX = "_ibl";
+        return IBL_SUFFIX;
+    }
+    return EMPTY_STRING;
 }
 
 const Arguments* GlslShaderGenerator::getExtraArguments(const SgNode& node) const
 {
     if (node.hasClassification(SgNode::Classification::BSDF))
     {
-        return &_bsdfNodeArguments;
+        return _context == CONTEXT_BSDF_IBL ? &_bsdfNodeIblArguments : &_bsdfNodeArguments;
     }
     else if (node.hasClassification(SgNode::Classification::EDF))
     {

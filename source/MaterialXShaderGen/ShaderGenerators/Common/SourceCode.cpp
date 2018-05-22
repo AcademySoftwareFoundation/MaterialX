@@ -121,7 +121,7 @@ void SourceCode::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen
         shader.beginLine();
 
         // Emit function name
-        shader.addStr(_functionName + "(");
+        shader.addStr(_functionName + shadergen.getFunctionSuffix(node) + "(");
 
         // Emit function inputs
         string delim = "";

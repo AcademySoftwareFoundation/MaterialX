@@ -136,6 +136,11 @@ void ShaderGenerator::emitOutput(const SgOutput* output, bool includeType, Shade
     shader.addStr(typeStr + output->name);
 }
 
+const string& ShaderGenerator::getFunctionSuffix(const SgNode&) const
+{
+    return EMPTY_STRING;
+}
+
 const Arguments* ShaderGenerator::getExtraArguments(const SgNode&) const
 {
     return nullptr;

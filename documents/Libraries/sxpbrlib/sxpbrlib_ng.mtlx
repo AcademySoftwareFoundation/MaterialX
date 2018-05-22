@@ -54,4 +54,27 @@
     <output name="out" type="vector3" nodename="flip"/>
   </nodegraph>
 
+  <!-- <inputmap> -->
+  <nodegraph name="IMP_inputmap__float" nodedef="ND_inputmap__float">
+    <image name="image" type="float">
+      <input name="file" type="filename" interfacename="file" />
+      <input name="default" type="float" interfacename="value" />
+    </image>
+    <output name="out" type="float" nodename="image" />
+  </nodegraph>
+  <nodegraph name="IMP_inputmap__color3" nodedef="ND_inputmap__color3">
+    <image name="image" type="color3">
+      <input name="file" type="filename" interfacename="file" />
+      <input name="default" type="color3" interfacename="value" />
+    </image>
+    <output name="out" type="color3" nodename="image" />
+  </nodegraph>
+  <nodegraph name="IMP_inputmap__vector3" nodedef="ND_inputmap__vector3">
+    <image name="image" type="vector3">
+      <input name="file" type="filename" interfacename="file" />
+      <input name="default" type="vector3" interfacename="value" />
+    </image>
+    <output name="out" type="vector3" nodename="image" />
+  </nodegraph>
+
 </materialx>
