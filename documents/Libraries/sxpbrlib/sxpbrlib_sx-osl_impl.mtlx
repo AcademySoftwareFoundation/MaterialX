@@ -29,7 +29,7 @@
   <implementation name="IM_mixbsdf__sx_osl" nodedef="ND_mixbsdf" file="sxpbrlib/sx-osl/sx_mixbsdf.osl" function="sx_mixbsdf" language="sx-osl"/>
 
   <!-- <scalebsdf> -->
-  <implementation name="IM_scalebsdf__sx_osl" nodedef="ND_scalebsdf" file="sxpbrlib/sx-osl/sx_scalebsdf.glsl" function="sx_scalebsdf" language="sx-osl"/>
+  <implementation name="IM_scalebsdf__sx_osl" nodedef="ND_scalebsdf" file="sxpbrlib/sx-osl/sx_scalebsdf.osl" function="sx_scalebsdf" language="sx-osl"/>
 
   <!-- <mixedf> -->
   <implementation name="IM_mixedf__sx_osl" nodedef="ND_mixedf" file="sxpbrlib/sx-osl/sx_mixedf.osl" function="sx_mixedf" language="sx-osl"/>
@@ -39,9 +39,6 @@
 
   <!-- <layeredsurface> -->
   <implementation name="IM_layeredsurface__sx_osl" nodedef="ND_layeredsurface" file="sxpbrlib/sx-osl/sx_layeredsurface.osl" function="sx_layeredsurface" language="sx-osl"/>
-
-  <!-- <standardsurface> -->
-  <implementation name="IM_standardsurface__sx_osl" nodedef="ND_standardsurface" file="sxpbrlib/sx-osl/sx_standardsurface.osl" function="sx_standardsurface" language="sx-osl"/>
 
   <!-- <backfacing> -->
   <implementation name="IM_backfacing__float__sx_osl" nodedef="ND_backfacing__float" file="sxpbrlib/sx-osl/sx_backfacing.inline" language="sx-osl"/>

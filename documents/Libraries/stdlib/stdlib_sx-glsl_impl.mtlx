@@ -438,7 +438,12 @@
   <implementation name="IM_hueshift__color4__sx_glsl" nodedef="ND_hueshift__color4" file="stdlib/sx-glsl/mx_hueshift_color4.glsl" function="mx_hueshift_color4" language="sx-glsl"/>
 
   <!-- <saturate> -->
+  <implementation name="IM_saturate__color3__sx_glsl" nodedef="ND_saturate__color3" file="stdlib/sx-glsl/mx_saturate_color3.glsl" function="mx_saturate_color3" language="sx-glsl"/>
+  <implementation name="IM_saturate__color4__sx_glsl" nodedef="ND_saturate__color4" file="stdlib/sx-glsl/mx_saturate_color4.glsl" function="mx_saturate_color4" language="sx-glsl"/>
+
   <!-- <luminance> -->
+  <implementation name="IM_luminance__color3__sx_glsl" nodedef="ND_luminance__color3" file="stdlib/sx-glsl/mx_luminance_color3.glsl" function="mx_luminance_color3" language="sx-glsl"/>
+  <implementation name="IM_luminance__color4__sx_glsl" nodedef="ND_luminance__color4" file="stdlib/sx-glsl/mx_luminance_color4.glsl" function="mx_luminance_color4" language="sx-glsl"/>
 
 
   <!-- ======================================================================== -->

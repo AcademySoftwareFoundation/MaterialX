@@ -52,9 +52,6 @@
   <!-- <spotlight> -->
   <implementation name="IM_spotlight__sx_glsl" nodedef="ND_spotlight" file="sxpbrlib/sx-glsl/sx_spotlight.glsl" function="sx_spotlight" language="sx-glsl"/>
 
-  <!-- <standardsurface> -->
-  <implementation name="IM_standardsurface__sx_glsl" nodedef="ND_standardsurface" file="sxpbrlib/sx-glsl/sx_standardsurface.glsl" function="sx_standardsurface" language="sx-glsl"/>
-
   <!-- <backfacing> -->
   <implementation name="IM_backfacing__float__sx_glsl" nodedef="ND_backfacing__float" file="sxpbrlib/sx-glsl/sx_backfacing.inline" language="sx-glsl"/>
 
