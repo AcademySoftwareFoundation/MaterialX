@@ -130,10 +130,10 @@ OgsFxShaderGenerator::OgsFxShaderGenerator()
     _syntax = OgsFxSyntax::create();
 }
 
-ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr element)
+ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr element, const SgOptions& options)
 {
     OgsFxShaderPtr shaderPtr = std::make_shared<OgsFxShader>(shaderName);
-    shaderPtr->initialize(element, *this);
+    shaderPtr->initialize(element, *this, options);
 
     OgsFxShader& shader = *shaderPtr;
 
@@ -164,7 +164,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.beginScope(Shader::Brackets::BRACES);
     shader.addLine("vec4 hPositionWorld = u_worldMatrix * vec4(i_position, 1.0)");
     shader.addLine("gl_Position = u_viewProjectionMatrix * hPositionWorld");
-    emitFunctionCalls(shader);
+    emitFunctionCalls(*_defaultNodeContext, shader);
     shader.endScope();
     shader.endScope();
     shader.newLine();
@@ -215,7 +215,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
         shader.newLine();
     }
 
-    emitFunctionCalls(shader);
+    emitFunctionCalls(*_defaultNodeContext, shader);
     emitFinalOutput(shader);
 
     shader.endScope();

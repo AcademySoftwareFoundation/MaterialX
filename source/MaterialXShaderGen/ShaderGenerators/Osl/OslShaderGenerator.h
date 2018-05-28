@@ -18,13 +18,13 @@ public:
 
     /// Generate a shader starting from the given element, translating 
     /// the element and all dependencies upstream into shader code.
-    ShaderPtr generate(const string& shaderName, ElementPtr element) override;
+    ShaderPtr generate(const string& shaderName, ElementPtr element, const SgOptions& options) override;
 
     /// Emit function definitions for all nodes
     void emitFunctionDefinitions(Shader& shader) override;
 
     /// Emit the shader body
-    void emitFunctionCalls(Shader& shader) override;
+    void emitFunctionCalls(const SgNodeContext& context, Shader& shader) override;
 
     /// Emit the final output expression
     void emitFinalOutput(Shader& shader) const override;

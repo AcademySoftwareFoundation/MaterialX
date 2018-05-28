@@ -112,7 +112,7 @@ public:
         uint32_t fullConditionMask;
     };
 
-    static const SgNode NONE;
+    static const SgNodePtr NONE;
 
     static const string SXCLASS_ATTRIBUTE;
     static const string CONSTANT;
@@ -197,6 +197,12 @@ public:
     void renameInput(const string& name, const string& newName);
     void renameOutput(const string& name, const string& newName);
 
+    /// Add the given contex id to the set of contexts used for this node.
+    void addContextID(int id) { _contextIDs.insert(id); }
+
+    /// Return the set of contexts id's for the contexts used for this node.
+    const std::set<int>& getContextIDs() const { return _contextIDs; }
+
 protected:
     string _name;
     unsigned int _classification;
@@ -210,6 +216,7 @@ protected:
     SgImplementationPtr _impl;
     ScopeInfo _scopeInfo;
     std::set<const SgNode*> _usedClosures;
+    std::set<int> _contextIDs;
 
     friend class SgNodeGraph;
 };
@@ -318,6 +325,54 @@ protected:
 
     std::unordered_map<string, SgNodePtr> _nodeMap;
     std::vector<SgNode*> _nodeOrder;
+};
+
+/// A function argument for node implementation functions.
+/// A argument is a pair of strings holding the 'type' and 'name' of the argument.
+using Argument = std::pair<string, string>;
+using Arguments = vector<Argument>;
+
+using SgNodeContextPtr = std::shared_ptr<class SgNodeContext>;
+
+/// Class representing an implementation context for a node.
+///
+/// For some shader generators a node might need customization to it's implementation 
+/// depending on in which context the node is used. This class handles customizations
+/// in the form of adding extra arguments to the node's implementation function as well
+/// as a suffix to the function name to distinguish between the functions for different
+/// contexts.
+///
+/// An example of where this is required if for BSDF and EDF nodes for HW targets 
+/// where extra arguments are needed to give directions vectors for evaluation. 
+/// For BSDF nodes another use-case is to distinguish between evaluation in a direct lighting
+/// context and an indirect lighting context where different versions of the nodes' function
+/// is required.
+/// 
+class SgNodeContext
+{
+public:
+    /// Constructor, set the identifier for this context.
+    SgNodeContext(int id) : _id(id) {}
+
+    /// Return the identifier for this context.
+    int id() const { return _id; }
+
+    /// Add an extra argument to be used for the node function in this context.
+    void addArgument(const Argument& arg) { _arguments.push_back(arg); }
+
+    /// Return a list of extra argument to be used for the node function in this context.
+    const Arguments& getArguments() const { return _arguments; }
+
+    /// Set a function name suffix to be used for the node function in this context.
+    void setFunctionSuffix(const string& suffix) { _functionSuffix = suffix; }
+
+    /// Return the function name suffix to be used for the node function in this context.
+    const string& getFunctionSuffix() const { return _functionSuffix; }
+
+private:
+    const int _id;
+    Arguments _arguments;
+    string _functionSuffix;
 };
 
 /// An edge returned during SgNode traversal

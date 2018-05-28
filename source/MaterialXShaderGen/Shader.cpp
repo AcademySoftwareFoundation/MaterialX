@@ -28,7 +28,7 @@ Shader::Shader(const string& name)
     createUniformBlock(PIXEL_STAGE, PUBLIC_UNIFORMS, "pub");
 }
 
-void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen)
+void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const SgOptions& /*options*/)
 {
     // Create our shader generation root graph
     _rootGraph = SgNodeGraph::create(_name, element, shadergen);
@@ -189,10 +189,10 @@ void Shader::addFunctionDefinition(SgNode* node, ShaderGenerator& shadergen)
     }
 }
 
-void Shader::addFunctionCall(SgNode* node, ShaderGenerator& shadergen)
+void Shader::addFunctionCall(SgNode* node, const SgNodeContext& context, ShaderGenerator& shadergen)
 {
     SgImplementation* impl = node->getImplementation();
-    impl->emitFunctionCall(*node, shadergen, *this);
+    impl->emitFunctionCall(*node, context, shadergen, *this);
 }
 
 void Shader::addInclude(const string& file, ShaderGenerator& shadergen)

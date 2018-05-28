@@ -17,6 +17,9 @@ namespace MaterialX
 ShaderGenerator::ShaderGenerator(SyntaxPtr syntax) 
     : _syntax(syntax) 
 {
+    // Create a default node context to be used by all nodes
+    // that have no specific context assigned
+    _defaultNodeContext = createNodeContext(NODE_CONTEXT_DEFAULT);
 }
 
 Shader::VDirection ShaderGenerator::getTargetVDirection() const
@@ -40,14 +43,14 @@ void ShaderGenerator::emitTypeDefs(Shader& shader)
 
 void ShaderGenerator::emitFunctionDefinitions(Shader& shader)
 {
-    // Emit funtion definitions for all nodes
+    // Emit function definitions for all nodes
     for (SgNode* node : shader.getNodeGraph()->getNodes())
     {
         shader.addFunctionDefinition(node, *this);
     }
 }
 
-void ShaderGenerator::emitFunctionCalls(Shader &shader)
+void ShaderGenerator::emitFunctionCalls(const SgNodeContext& context, Shader &shader)
 {
     const bool debugOutput = true;
 
@@ -67,7 +70,17 @@ void ShaderGenerator::emitFunctionCalls(Shader &shader)
             continue;
         }
 
-        shader.addFunctionCall(node, *this);
+        // Check if this node has the given context defined
+        if (node->getContextIDs().count(context.id()))
+        {
+            // Node has this context id defined so make the function call for this context
+            shader.addFunctionCall(node, context, *this);
+        }
+        else if (node->getContextIDs().count(NODE_CONTEXT_DEFAULT))
+        {
+            // Node is defined in the default context so make the function call for default context
+            shader.addFunctionCall(node, *_defaultNodeContext, *this);
+        }
     }
 }
 
@@ -136,14 +149,15 @@ void ShaderGenerator::emitOutput(const SgOutput* output, bool includeType, Shade
     shader.addStr(typeStr + output->name);
 }
 
-const string& ShaderGenerator::getFunctionSuffix(const SgNode&) const
+void ShaderGenerator::addNodeContextIDs(SgNode* node) const
 {
-    return EMPTY_STRING;
+    node->addContextID(NODE_CONTEXT_DEFAULT);
 }
 
-const Arguments* ShaderGenerator::getExtraArguments(const SgNode&) const
+const SgNodeContext* ShaderGenerator::getNodeContext(int id) const
 {
-    return nullptr;
+    auto it = _nodeContexts.find(id);
+    return it != _nodeContexts.end() ? it->second.get() : nullptr;
 }
 
 void ShaderGenerator::registerImplementation(const string& name, CreatorFunction<SgImplementation> creator)
@@ -217,6 +231,13 @@ SgImplementationPtr ShaderGenerator::createCompoundImplementation(NodeGraphPtr i
     // The standard compound implementation
     // is the compound implementation to us by default
     return Compound::create();
+}
+
+SgNodeContextPtr ShaderGenerator::createNodeContext(int id)
+{
+    SgNodeContextPtr context = std::make_shared<SgNodeContext>(id);
+    _nodeContexts[id] = context;
+    return context;
 }
 
 }

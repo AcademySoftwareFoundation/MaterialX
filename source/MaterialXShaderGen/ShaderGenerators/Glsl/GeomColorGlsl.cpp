@@ -19,7 +19,7 @@ void GeomColorGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shade
     shader.createVertexData(DataType::COLOR4, "color_" + index);
 }
 
-void GeomColorGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
+void GeomColorGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*context*/, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 

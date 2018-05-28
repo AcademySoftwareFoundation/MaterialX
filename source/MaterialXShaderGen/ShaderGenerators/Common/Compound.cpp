@@ -54,71 +54,77 @@ void Compound::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shade
         shader.addFunctionDefinition(childNode, shadergen);
     }
 
-    // Emit function name
-    shader.beginLine();
-    shader.addStr("void " + _functionName + "(");
-
-    // Emit function inputs
-    string delim = "";
-
-    // Add any extra argument inputs first
-    const Arguments* args = shadergen.getExtraArguments(node);
-    if (args)
+    // Emit function definitions for each context used by this compound node
+    for (int id : node.getContextIDs())
     {
-        for (size_t i = 0; i < args->size(); ++i)
+        const SgNodeContext* context = shadergen.getNodeContext(id);
+        if (!context)
         {
-            const Argument& arg = (*args)[i];
+            throw ExceptionShaderGenError("Node '" + node.getName() + "' has an implementation context that is undefined for shader generator '" + 
+                shadergen.getLanguage() + "/" +shadergen.getTarget() + "´");
+        }
+
+        // Emit function name
+        shader.beginLine();
+        shader.addStr("void " + _functionName + context->getFunctionSuffix() + "(");
+
+        // Emit function inputs
+        string delim = "";
+
+        // Add any extra argument inputs first
+        for (const Argument& arg : context->getArguments())
+        {
             shader.addStr(delim + arg.first + " " + arg.second);
             delim = ", ";
         }
-    }
 
-    // Add all inputs
-    for (SgInputSocket* inputSocket : _rootGraph->getInputSockets())
-    {
-        shader.addStr(delim + syntax->getTypeName(inputSocket->type) + " " + inputSocket->name);
-        delim = ", ";
-    }
-
-    // Add all outputs
-    for (SgOutputSocket* outputSocket : _rootGraph->getOutputSockets())
-    {
-        shader.addStr(delim + syntax->getOutputTypeName(outputSocket->type) + " " + outputSocket->name);
-        delim = ", ";
-    }
-
-    // End function call
-    shader.addStr(")");
-    shader.endLine(false);
-
-    shader.beginScope();
-
-    // Add function body, with all child node function calls
-    shadergen.emitFunctionCalls(shader);
-
-    // Emit final results
-    for (SgOutputSocket* outputSocket : _rootGraph->getOutputSockets())
-    {
-        // Check for the rare case where the output is not internally connected
-        if (!outputSocket->connection)
+        // Add all inputs
+        for (SgInputSocket* inputSocket : _rootGraph->getInputSockets())
         {
-            shader.addLine(outputSocket->name + " = " + (outputSocket->value ?
-                syntax->getValue(*outputSocket->value, outputSocket->type) : 
-                syntax->getTypeDefault(outputSocket->type)));
+            shader.addStr(delim + syntax->getTypeName(inputSocket->type) + " " + inputSocket->name);
+            delim = ", ";
         }
-        else
+
+        // Add all outputs
+        for (SgOutputSocket* outputSocket : _rootGraph->getOutputSockets())
         {
-            string finalResult = outputSocket->connection->name;
-            if (outputSocket->channels != EMPTY_STRING)
+            shader.addStr(delim + syntax->getOutputTypeName(outputSocket->type) + " " + outputSocket->name);
+            delim = ", ";
+        }
+
+        // End function call
+        shader.addStr(")");
+        shader.endLine(false);
+
+        shader.beginScope();
+
+        // Add function body, with all child node function calls
+        shadergen.emitFunctionCalls(*context, shader);
+
+        // Emit final results
+        for (SgOutputSocket* outputSocket : _rootGraph->getOutputSockets())
+        {
+            // Check for the rare case where the output is not internally connected
+            if (!outputSocket->connection)
             {
-                finalResult = syntax->getSwizzledVariable(finalResult, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
+                shader.addLine(outputSocket->name + " = " + (outputSocket->value ?
+                    syntax->getValue(*outputSocket->value, outputSocket->type) :
+                    syntax->getTypeDefault(outputSocket->type)));
             }
-            shader.addLine(outputSocket->name + " = " + finalResult);
+            else
+            {
+                string finalResult = outputSocket->connection->name;
+                if (outputSocket->channels != EMPTY_STRING)
+                {
+                    finalResult = syntax->getSwizzledVariable(finalResult, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
+                }
+                shader.addLine(outputSocket->name + " = " + finalResult);
+            }
         }
-    }
 
-    shader.endScope();
-    shader.newLine();
+        shader.endScope();
+        shader.newLine();
+    }
 
     // Restore active graph
     shader.popActiveGraph();
@@ -126,14 +132,14 @@ void Compound::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shade
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
-void Compound::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
+void Compound::emitFunctionCall(const SgNode& node, const SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
 
     // Emit function calls for all child nodes to the vertex shader stage
     for (SgNode* childNode : _rootGraph->getNodes())
     {
-        shader.addFunctionCall(childNode, shadergen);
+        shader.addFunctionCall(childNode, context, shadergen);
     }
 
     END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
@@ -148,21 +154,16 @@ void Compound::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, 
     shader.beginLine();
 
     // Emit function name
-    shader.addStr(_functionName + shadergen.getFunctionSuffix(node) + "(");
+    shader.addStr(_functionName + context.getFunctionSuffix() + "(");
 
     // Emit function inputs
     string delim = "";
 
     // Add any extra argument inputs first...
-    const Arguments* args = shadergen.getExtraArguments(node);
-    if (args)
+    for (const Argument& arg : context.getArguments())
     {
-        for (size_t i = 0; i < args->size(); ++i)
-        {
-            const Argument& arg = (*args)[i];
-            shader.addStr(delim + arg.second);
-            delim = ", ";
-        }
+        shader.addStr(delim + arg.second);
+        delim = ", ";
     }
 
     // ...and then all inputs on the node

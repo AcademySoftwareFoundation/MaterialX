@@ -27,7 +27,7 @@ public:
     /// Initialize the shader before shader generation.
     /// @param element The root element to generate the shader from. 
     /// @param shadergen The shader generator instance.
-    void initialize(ElementPtr element, ShaderGenerator& shadergen) override;
+    void initialize(ElementPtr element, ShaderGenerator& shadergen, const SgOptions& options) override;
 
     /// Return the number of shader stages for this shader.
     size_t numStages() const override { return NUM_STAGES; }

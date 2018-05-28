@@ -69,7 +69,7 @@ void LightCompoundGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator&
         EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void LightCompoundGlsl::emitFunctionDefinition(const SgNode& /*node*/, ShaderGenerator& shadergen_, Shader& shader_)
+void LightCompoundGlsl::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shadergen_, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
     GlslShaderGenerator shadergen = static_cast<GlslShaderGenerator&>(shadergen_);
@@ -85,25 +85,36 @@ void LightCompoundGlsl::emitFunctionDefinition(const SgNode& /*node*/, ShaderGen
         shader.addFunctionDefinition(childNode, shadergen);
     }
 
-    // Emit function signature
-    shader.addLine("void " + _functionName + "(LightData light, vec3 position, out lightshader result)", false);
-    shader.beginScope();
-
-    // Handle all texturing nodes. These are inputs to any
-    // closure/shader nodes and need to be emitted first.
-    shadergen.emitTextureNodes(shader);
-
-    // Emit function calls for all light shader nodes
-    for (SgNode* node : shader.getNodeGraph()->getNodes())
+    // Emit function definitions for each context used by this compound node
+    for (int id : node.getContextIDs())
     {
-        if (node->hasClassification(SgNode::Classification::SHADER | SgNode::Classification::LIGHT))
+        const SgNodeContext* context = shadergen.getNodeContext(id);
+        if (!context)
         {
-            shader.addFunctionCall(node, shadergen);
+            throw ExceptionShaderGenError("Node '" + node.getName() + "' has an implementation context that is undefined for shader generator '" +
+                shadergen.getLanguage() + "/" + shadergen.getTarget() + "´");
         }
+
+        // Emit function signature
+        shader.addLine("void " + _functionName + context->getFunctionSuffix() + "(LightData light, vec3 position, out lightshader result)", false);
+        shader.beginScope();
+
+        // Handle all texturing nodes. These are inputs to any
+        // closure/shader nodes and need to be emitted first.
+        shadergen.emitTextureNodes(shader);
+
+        // Emit function calls for all light shader nodes
+        for (SgNode* childNode : shader.getNodeGraph()->getNodes())
+        {
+            if (childNode->hasClassification(SgNode::Classification::SHADER | SgNode::Classification::LIGHT))
+            {
+                shader.addFunctionCall(childNode, *context, shadergen);
+            }
+        }
+
+        shader.endScope();
+        shader.newLine();
     }
-    
-    shader.endScope();
-    shader.newLine();
 
     // Restore active graph
     shader.popActiveGraph();
@@ -111,7 +122,7 @@ void LightCompoundGlsl::emitFunctionDefinition(const SgNode& /*node*/, ShaderGen
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
-void LightCompoundGlsl::emitFunctionCall(const SgNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void LightCompoundGlsl::emitFunctionCall(const SgNode& /*node*/, const SgNodeContext& /*context*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 

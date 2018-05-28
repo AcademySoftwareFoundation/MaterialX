@@ -13,7 +13,7 @@ SgImplementationPtr Compare::create()
     return std::make_shared<Compare>();
 }
 
-void Compare::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
+void Compare::emitFunctionCall(const SgNode& node, const SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
@@ -53,7 +53,7 @@ void Compare::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, S
             const SgNode::ScopeInfo& scope = otherNode->getScopeInfo();
             if (scope.conditionalNode == &node && scope.usedByBranch(branch))
             {
-                shader.addFunctionCall(otherNode, shadergen);
+                shader.addFunctionCall(otherNode, context, shadergen);
             }
         }
 

@@ -4,6 +4,7 @@
 #include <MaterialXCore/Library.h>
 #include <MaterialXCore/Node.h>
 #include <MaterialXShaderGen/SgNode.h>
+#include <MaterialXShaderGen/SgOptions.h>
 
 #include <queue>
 #include <sstream>
@@ -102,7 +103,7 @@ public:
     /// Initialize the shader before shader generation.
     /// @param element The root element to generate the shader from. 
     /// @param shadergen The shader generator instance.
-    virtual void initialize(ElementPtr element, ShaderGenerator& shadergen);
+    virtual void initialize(ElementPtr element, ShaderGenerator& shadergen, const SgOptions& options);
 
     /// Return the number of shader stages for this shader.
     /// Defaults to a single stage, derived classes can override this.
@@ -163,7 +164,7 @@ public:
     virtual void addFunctionDefinition(SgNode* node, ShaderGenerator& shadergen);
 
     /// Add the function call for a node
-    virtual void addFunctionCall(SgNode* node, ShaderGenerator& shadergen);
+    virtual void addFunctionCall(SgNode* node, const SgNodeContext& context, ShaderGenerator& shadergen);
 
     /// Add the contents of an include file
     /// Making sure it is only included once

@@ -28,9 +28,9 @@ HwShader::HwShader(const string& name)
     createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, DataType::FILENAME, "u_envIrradiance");
 }
 
-void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen)
+void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen, const SgOptions& options)
 {
-    ParentClass::initialize(element, shadergen);
+    ParentClass::initialize(element, shadergen, options);
 
     //
     // For image textures we need to convert filenames into uniforms (texture samplers).
@@ -83,7 +83,7 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen)
         // Create variables for all bound light shaders
         for (auto lightShader : sg.getBoundLightShaders())
         {
-            lightShader.second->createVariables(SgNode::NONE, shadergen, *this);
+            lightShader.second->createVariables(*SgNode::NONE, shadergen, *this);
         }
     }
 }

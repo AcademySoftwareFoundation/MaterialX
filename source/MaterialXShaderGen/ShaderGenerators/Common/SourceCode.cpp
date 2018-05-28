@@ -70,7 +70,7 @@ void SourceCode::emitFunctionDefinition(const SgNode& /*node*/, ShaderGenerator&
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
-void SourceCode::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
+void SourceCode::emitFunctionCall(const SgNode& node, const SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
@@ -121,21 +121,16 @@ void SourceCode::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen
         shader.beginLine();
 
         // Emit function name
-        shader.addStr(_functionName + shadergen.getFunctionSuffix(node) + "(");
+        shader.addStr(_functionName + context.getFunctionSuffix() + "(");
 
         // Emit function inputs
         string delim = "";
 
         // Add any extra argument inputs first...
-        const Arguments* args = shadergen.getExtraArguments(node);
-        if (args)
+        for (const Argument& arg : context.getArguments())
         {
-            for (size_t i = 0; i < args->size(); ++i)
-            {
-                const Argument& arg = (*args)[i];
-                shader.addStr(delim + arg.second);
-                delim = ", ";
-            }
+            shader.addStr(delim + arg.second);
+            delim = ", ";
         }
 
         // ...and then all inputs on the node

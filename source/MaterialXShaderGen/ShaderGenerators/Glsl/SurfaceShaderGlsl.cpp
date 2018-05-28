@@ -36,7 +36,7 @@ void SurfaceShaderGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator&
         EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void SurfaceShaderGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
+void SurfaceShaderGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
@@ -49,7 +49,7 @@ void SurfaceShaderGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& sh
     END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
 
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-        SourceCode::emitFunctionCall(node, shadergen, shader_);
+        SourceCode::emitFunctionCall(node, context, shadergen, shader_);
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
