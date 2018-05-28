@@ -49,11 +49,11 @@ build_script:
 before_deploy:
     # Go to install directory and zip it up.  Currently marked as pre-release
     - cd C:\Projects\MaterialX\build\installed
-    - 7z a -r C:\Projects\MaterialX\MaterialX-Windows-%APPVEYOR_REPO_BRANCH%-%VS_PLATFORM%-%VS_COMPILER%-%CONFIGURATION%-%APPVEYOR_BUILD_NUMBER%.zip .
+    - 7z a -r C:\Projects\MaterialX\MaterialX-Windows-%APPVEYOR_REPO_TAG_NAME%-%VS_PLATFORM%-%VS_COMPILER%-%CONFIGURATION%.zip .
 
 artifacts:
     # Set artifact to be created zip.  Currently marked as pre-release
-    - path: MaterialX-Windows-%APPVEYOR_REPO_BRANCH%-%VS_PLATFORM%-%VS_COMPILER%-%CONFIGURATION%-%APPVEYOR_BUILD_NUMBER%.zip
+    - path: MaterialX-Windows-%APPVEYOR_REPO_TAG_NAME%-%VS_PLATFORM%-%VS_COMPILER%-%CONFIGURATION%.zip
       name: MaterialX_ADSK
 
 deploy:
