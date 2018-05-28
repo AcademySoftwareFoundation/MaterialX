@@ -1,14 +1,40 @@
 # Change Log
 
-## [1.35.5] - Development
+## [1.36.0] - Development
+
+Updating the MaterialX library to the v1.36 specification.
+
+### Added
+- Added support for Element namespaces.
+- Added support for NodeDef inheritance.
+- Added support for inheritance attributes on MaterialX\:\:Material and MaterialX\:\:Look.
+- Added support for include and exclude attributes on MaterialX\:\:Collection.
+- Added the MaterialX\:\:Token class for string substitutions.
+- Added the MaterialX\:\:Variant, MaterialX\:\:VariantSet, and MaterialX\:\:VariantAssign classes.
+- Added the MaterialX\:\:GeomPath class for geometry name comparisons.
+- Added the Collection\:\:matchesGeomString method, for testing matches between collections and geometries.
+- Added the Material\:\:getGeometryBindings method, for finding the bindings of a material to specific geometries.
+
+### Changed
+- Removed the MaterialX\:\:MaterialInherit and MaterialX\:\:LookInherit classes.
+- Removed the MaterialX\:\:CollectionAdd and MaterialX\:\:CollectionRemove classes.
+- Removed the MaterialX\:\:Override class and support for public names.
+- Removed the Material::getReferencingMaterialAssigns method (deprecated in Python).
+
+## [1.35.5] - 2018-05-07
 
 ### Added
 - Added material inheritance support to graph traversal and the high-level Material API.
 - Added Material methods getActiveShaderRefs and getActiveOverrides.
-- Added Element methods setInheritsFrom, getInheritsFrom, traverseInheritance, and hasInheritanceCycle.
+- Added PropertySet methods setPropertyValue and getPropertyValue.
+- Added Element methods setInheritsFrom, getInheritsFrom, traverseInheritance, hasInheritanceCycle, and getDescendant.
+- Added function templates MaterialX\:\:fromValueString and MaterialX\:\:toValueString.
+- Added math functionality to the vector and matrix classes.
 - Added support for Visual Studio 2017, GCC 7, and Clang 5.
 
 ### Changed
+- Renamed Matrix3x3 to Matrix33 and Matrix4x4 to Matrix44.
+- Renamed VectorN\:\:length to VectorN\:\:numElements.
 - Updated Python bindings to PyBind11 2.2.1.
 
 ## [1.35.4] - 2017-12-18

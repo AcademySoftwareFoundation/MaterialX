@@ -13,7 +13,7 @@ namespace MaterialX
 const string PropertyAssign::GEOM_ATTRIBUTE = "geom";
 const string PropertyAssign::COLLECTION_ATTRIBUTE = "collection";
 
-void PropertyAssign::setCollection(CollectionPtr collection)
+void PropertyAssign::setCollection(ConstCollectionPtr collection)
 {
     if (collection)
     {
@@ -27,7 +27,7 @@ void PropertyAssign::setCollection(CollectionPtr collection)
 
 CollectionPtr PropertyAssign::getCollection() const
 {
-    return getDocument()->getCollection(getCollectionString());
+    return resolveRootNameReference<Collection>(getCollectionString());
 }
 
 } // namespace MaterialX

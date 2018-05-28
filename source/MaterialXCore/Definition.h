@@ -42,6 +42,8 @@ using ConstTypeDefPtr = shared_ptr<const class TypeDef>;
 
 /// A shared pointer to a Member
 using MemberPtr = shared_ptr<class Member>;
+/// A shared pointer to a const Member
+using ConstMemberPtr = shared_ptr<const class Member>;
 
 /// @class NodeDef
 /// A node definition element within a Document.
@@ -145,7 +147,7 @@ class NodeDef : public InterfaceElement
 /// An implementation element within a Document.
 ///
 /// An Implementation is used to associate external source code with a specific
-/// NodeDef, providing a definition for the node that may eiher be universal or
+/// NodeDef, providing a definition for the node that may either be universal or
 /// restricted to a specific target.
 class Implementation : public InterfaceElement
 {
@@ -178,7 +180,7 @@ class Implementation : public InterfaceElement
     }
 
     /// Set the NodeDef element for the Implementation.
-    void setNodeDef(NodeDefPtr nodeDef)
+    void setNodeDef(ConstNodeDefPtr nodeDef)
     {
         if (nodeDef)
         {

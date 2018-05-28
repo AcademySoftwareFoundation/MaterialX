@@ -184,7 +184,7 @@ class TreeIterator
     size_t _holdCount;
 };
 
-/// @class @GraphIterator
+/// @class GraphIterator
 /// An iterator object representing the state of an upstream graph traversal.
 ///
 /// @sa Element::traverseGraph
@@ -277,7 +277,7 @@ class GraphIterator
     /// @name Pruning
     /// @{
 
-    /// Set the prune subgraph flag, which controls whether the current subgrasph
+    /// Set the prune subgraph flag, which controls whether the current subgraph
     /// is pruned from traversal.
     /// @param prune If set to true, then the current subgraph will be pruned.
     void setPruneSubgraph(bool prune)
@@ -329,7 +329,7 @@ class GraphIterator
     size_t _holdCount;
 };
 
-/// @class @InheritanceIterator
+/// @class InheritanceIterator
 /// An iterator object representing the current state of an inheritance traversal.
 ///
 /// @sa Element::traverseInheritance
@@ -385,7 +385,7 @@ class InheritanceIterator
     size_t _holdCount;
 };
 
-/// @class @AncestorIterator
+/// @class AncestorIterator
 /// An iterator object representing the current state of an ancestor traversal.
 ///
 /// @sa Element::traverseAncestors
@@ -434,7 +434,7 @@ class AncestorIterator
     size_t _holdCount;
 };
 
-/// @class @ExceptionFoundCycle
+/// @class ExceptionFoundCycle
 /// An exception that is thrown when a traversal call encounters a cycle.
 class ExceptionFoundCycle : public Exception
 {

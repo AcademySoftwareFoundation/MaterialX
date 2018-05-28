@@ -1,3 +1,4 @@
+import math
 import os
 import unittest
 
@@ -39,6 +40,8 @@ _exampleFilenames = ('CustomNode.mtlx',
                      'BxDF/Disney_BRDF_2012.mtlx',
                      'BxDF/Disney_BSDF_2015.mtlx')
 
+_epsilon = 1e-4
+
 
 #--------------------------------------------------------------------------------
 class TestMaterialX(unittest.TestCase):
@@ -72,65 +75,66 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(v1 * 2 == v2)
         self.assertTrue(v2 / 2 == v1)
 
-        # Equality operators
-        v3 = v2.copy()
-        self.assertTrue(v3 == v2)
-        v3[0] += 1;
-        self.assertTrue(v3 != v2)
+        # Geometric methods
+        v3 = mx.Vector4(4)
+        self.assertTrue(v3.getMagnitude() == 8)
+        self.assertTrue(v3.getNormalized().getMagnitude() == 1)
+
+        # Vector copy
+        v4 = v2.copy()
+        self.assertTrue(v4 == v2)
+        v4[0] += 1;
+        self.assertTrue(v4 != v2)
 
     def test_Matrices(self):
-        trans = mx.Matrix44(1, 0, 0, 0,
-                            0, 1, 0, 0,
-                            0, 0, 1, 0,
-                            3, 0, 0, 1)
-        scale = mx.Matrix44(2, 0, 0, 0,
-                            0, 2, 0, 0,
-                            0, 0, 2, 0,
-                            0, 0, 0, 1)
+        # Translation and scale
+        trans = mx.Matrix44.createTranslation(mx.Vector3(1, 2, 3))
+        scale = mx.Matrix44.createScale(mx.Vector3(2))
+        self.assertTrue(trans == mx.Matrix44(1, 0, 0, 0,
+                                             0, 1, 0, 0,
+                                             0, 0, 1, 0,
+                                             1, 2, 3, 1))
+        self.assertTrue(scale == mx.Matrix44(2, 0, 0, 0,
+                                             0, 2, 0, 0,
+                                             0, 0, 2, 0,
+                                             0, 0, 0, 1))
 
         # Indexing operators
-        self.assertTrue(trans[3, 0] == 3)
-        trans[3, 0] = 4
-        self.assertTrue(trans[3, 0] == 4)
-        trans[3, 0] = 3
+        self.assertTrue(trans[3, 2] == 3)
+        trans[3, 2] = 4
+        self.assertTrue(trans[3, 2] == 4)
+        trans[3, 2] = 3
 
         # Matrix methods
-        self.assertTrue(trans.getTranspose() == mx.Matrix44(1, 0, 0, 3,
-                                                            0, 1, 0, 0,
-                                                            0, 0, 1, 0,
+        self.assertTrue(trans.getTranspose() == mx.Matrix44(1, 0, 0, 1,
+                                                            0, 1, 0, 2,
+                                                            0, 0, 1, 3,
                                                             0, 0, 0, 1))
         self.assertTrue(scale.getTranspose() == scale)
         self.assertTrue(trans.getDeterminant() == 1)
         self.assertTrue(scale.getDeterminant() == 8)
-        self.assertTrue(trans.getInverse() == mx.Matrix44(1, 0, 0, 0,
-                                                          0, 1, 0, 0,
-                                                          0, 0, 1, 0,
-                                                         -3, 0, 0, 1))
+        self.assertTrue(trans.getInverse() ==
+                        mx.Matrix44.createTranslation(mx.Vector3(-1, -2, -3)))
 
         # Matrix product
         prod1 = trans * scale
         prod2 = scale * trans
         prod3 = trans * 2
-        prod4 = prod3 / 2
-        prod5 = prod1
-        prod5 *= trans
+        prod4 = trans
+        prod4 *= scale
         self.assertTrue(prod1 == mx.Matrix44(2, 0, 0, 0,
                                              0, 2, 0, 0,
                                              0, 0, 2, 0,
-                                             6, 0, 0, 1))
+                                             2, 4, 6, 1))
         self.assertTrue(prod2 == mx.Matrix44(2, 0, 0, 0,
                                              0, 2, 0, 0,
                                              0, 0, 2, 0,
-                                             3, 0, 0, 1))
+                                             1, 2, 3, 1))
         self.assertTrue(prod3 == mx.Matrix44(2, 0, 0, 0,
                                              0, 2, 0, 0,
                                              0, 0, 2, 0,
-                                             6, 0, 0, 2))
-        self.assertTrue(prod4 == trans)
-        self.assertTrue(prod5 == mx.Matrix44(2, 0, 0, 0,
-                                             0, 2, 0, 0,
-                                             0, 0, 2, 0,
-                                             9, 0, 0, 1))
+                                             2, 4, 6, 2))
+        self.assertTrue(prod4 == prod1)
 
         # Matrix division
         quot1 = prod1 / scale
@@ -143,7 +147,26 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(quot3 == trans)
         self.assertTrue(quot4 == mx.Matrix44.IDENTITY)
 
-        # Equality operators
+        # 2D rotation
+        rot1 = mx.Matrix33.createRotation(math.pi / 2)
+        rot2 = mx.Matrix33.createRotation(math.pi)
+        self.assertTrue((rot1 * rot1).isEquivalent(rot2, _epsilon))
+        self.assertTrue(rot2.isEquivalent(
+            mx.Matrix33.createScale(mx.Vector2(-1)), _epsilon))
+        self.assertTrue((rot2 * rot2).isEquivalent(mx.Matrix33.IDENTITY, _epsilon))
+
+        # 3D rotation
+        rotX = mx.Matrix44.createRotationX(math.pi)
+        rotY = mx.Matrix44.createRotationY(math.pi)
+        rotZ = mx.Matrix44.createRotationZ(math.pi)
+        self.assertTrue((rotX * rotY).isEquivalent(
+            mx.Matrix44.createScale(mx.Vector3(-1, -1, 1)), _epsilon))
+        self.assertTrue((rotX * rotZ).isEquivalent(
+            mx.Matrix44.createScale(mx.Vector3(-1, 1, -1)), _epsilon))
+        self.assertTrue((rotY * rotZ).isEquivalent(
+            mx.Matrix44.createScale(mx.Vector3(1, -1, -1)), _epsilon))
+
+        # Matrix copy
         trans2 = trans.copy()
         self.assertTrue(trans2 == trans)
         trans2[0, 0] += 1;
@@ -247,19 +270,20 @@ class TestMaterialX(unittest.TestCase):
 
         # Bind the material to a geometry string.
         matAssign1 = look.addMaterialAssign("matAssign1", material.getName())
-        self.assertTrue(material.getReferencingMaterialAssigns()[0] == matAssign1)
         matAssign1.setGeom("/robot1")
-        self.assertTrue(material.getBoundGeomStrings()[0] == "/robot1")
+        self.assertTrue(matAssign1.getReferencedMaterial() == material)
+        self.assertTrue(len(material.getGeometryBindings("/robot1")) == 1)
+        self.assertTrue(len(material.getGeometryBindings("/robot2")) == 0)
 
         # Bind the material to a collection.
         matAssign2 = look.addMaterialAssign("matAssign2", material.getName())
         collection = doc.addCollection()
-        collectionAdd = collection.addCollectionAdd()
-        collectionAdd.setGeom("/robot2")
-        collectionRemove = collection.addCollectionRemove()
-        collectionRemove.setGeom("/robot2/left_arm")
+        collection.setIncludeGeom("/robot2")
+        collection.setExcludeGeom("/robot2/left_arm")
         matAssign2.setCollection(collection)
-        self.assertTrue(material.getBoundGeomCollections()[0] == collection)
+        self.assertTrue(len(material.getGeometryBindings("/robot2")) == 1)
+        self.assertTrue(len(material.getGeometryBindings("/robot2/right_arm")) == 1)
+        self.assertTrue(len(material.getGeometryBindings("/robot2/left_arm")) == 0)
 
         # Create a property assignment.
         propertyAssign = look.addPropertyAssign("twosided")
@@ -276,9 +300,11 @@ class TestMaterialX(unittest.TestCase):
         propertySetAssign.setGeom('/robot1')
         self.assertTrue(propertySetAssign.getGeom() == '/robot1')
 
-        # Generate and verify require string.
-        doc.generateRequireString()
-        self.assertTrue('matnodegraph' in doc.getRequireString())
+        # Create a variant set.
+        variantSet = doc.addVariantSet()
+        original = variantSet.addVariant("original")
+        damaged = variantSet.addVariant("damaged")
+        self.assertTrue(len(variantSet.getVariants()) == 2)
 
         # Disconnect outputs from sources.
         output1.setConnectedNode(None)

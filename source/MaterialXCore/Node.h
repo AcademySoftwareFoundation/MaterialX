@@ -157,7 +157,7 @@ class NodeGraph : public InterfaceElement
     }
 
     /// Set the NodeDef element for the graph.
-    void setNodeDef(NodeDefPtr nodeDef)
+    void setNodeDef(ConstNodeDefPtr nodeDef)
     {
         if (nodeDef)
         {
@@ -191,6 +191,12 @@ class NodeGraph : public InterfaceElement
         node->setCategory(category);
         node->setType(type);
         return node;
+    }
+
+    /// Add a Node that is an instance of the given NodeDef.
+    NodePtr addNodeInstance(ConstNodeDefPtr nodeDef, const string& name = EMPTY_STRING)
+    {
+        return addNode(nodeDef->getNodeString(), name, nodeDef->getType());
     }
 
     /// Return the Node, if any, with the given name.

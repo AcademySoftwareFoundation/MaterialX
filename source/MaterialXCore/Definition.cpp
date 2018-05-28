@@ -34,28 +34,28 @@ const string Implementation::LANGUAGE_ATTRIBUTE = "language";
 
 InterfaceElementPtr NodeDef::getImplementation(const string& target, const string& language) const
 {
-    for (InterfaceElementPtr element : getDocument()->getMatchingImplementations(getName()))
+    vector<InterfaceElementPtr> interfaces = getDocument()->getMatchingImplementations(getQualifiedName(getName()));
+    vector<InterfaceElementPtr> secondary = getDocument()->getMatchingImplementations(getName());
+    interfaces.insert(interfaces.end(), secondary.begin(), secondary.end());
+    for (InterfaceElementPtr interface : interfaces)
     {
-        // Skip if target does not match
-        if (!targetStringsMatch(element->getTarget(), target))
+        if (!targetStringsMatch(interface->getTarget(), target))
         {
             continue;
         }
-
-        // Only check language against implementations. Other elements such
-        // as nodegraphs do not have language specific implementations.
-        //
         if (!language.empty())
         {
-            ImplementationPtr implementation = element->asA<Implementation>();
-            if (implementation && implementation->getLanguage() != language)
+            // If the given interface is an implementation element, as opposed to
+            // a node graph, then check for a language string match.
+            ImplementationPtr implement = interface->asA<Implementation>();
+            if (implement && implement->getLanguage() != language)
             {
                 continue;
             }
         }
-
-        return element;
+        return interface;
     }
+
     return InterfaceElementPtr();
 }
 
@@ -66,7 +66,7 @@ vector<ShaderRefPtr> NodeDef::getInstantiatingShaderRefs() const
     {
         for (ShaderRefPtr shaderRef : mat->getShaderRefs())
         {
-            if (shaderRef->getNodeDef() == getSelf())
+            if (shaderRef->getNodeDef()->hasInheritedBase(getSelf()))
             {
                 shaderRefs.push_back(shaderRef);
             }
@@ -96,7 +96,7 @@ bool NodeDef::validate(string* message) const
 
 NodeDefPtr Implementation::getNodeDef() const
 {
-    return getDocument()->getNodeDef(getNodeDefString());
+    return resolveRootNameReference<NodeDef>(getNodeDefString());
 }
 
 } // namespace MaterialX

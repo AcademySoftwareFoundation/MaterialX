@@ -18,12 +18,23 @@ namespace MaterialX
 
 /// A shared pointer to a Property
 using PropertyPtr = shared_ptr<class Property>;
+/// A shared pointer to a const Property
+using ConstPropertyPtr = shared_ptr<const class Property>;
+
 /// A shared pointer to a PropertyAssign
 using PropertyAssignPtr = shared_ptr<class PropertyAssign>;
+/// A shared pointer to a const PropertyAssign
+using ConstPropertyAssignPtr = shared_ptr<const class PropertyAssign>;
+
 /// A shared pointer to a PropertySet
 using PropertySetPtr = shared_ptr<class PropertySet>;
+/// A shared pointer to a const PropertySet
+using ConstPropertySetPtr = shared_ptr<const class PropertySet>;
+
 /// A shared pointer to a PropertySetAssign
 using PropertySetAssignPtr = shared_ptr<class PropertySetAssign>;
+/// A shared pointer to a const PropertySetAssign
+using ConstPropertySetAssignPtr = shared_ptr<const class PropertySetAssign>;
 
 /// @class Property
 /// A property element within a PropertySet.
@@ -61,7 +72,7 @@ class PropertyAssign : public ValueElement
     }
 
     /// Return true if this element has a geometry string.
-    bool hasGeom()
+    bool hasGeom() const
     {
         return hasAttribute(GEOM_ATTRIBUTE);
     }
@@ -83,7 +94,7 @@ class PropertyAssign : public ValueElement
     }
 
     /// Return true if this element has a collection string.
-    bool hasCollectionString()
+    bool hasCollectionString() const
     {
         return hasAttribute(COLLECTION_ATTRIBUTE);
     }
@@ -95,7 +106,7 @@ class PropertyAssign : public ValueElement
     }
 
     /// Assign a Collection to this element.
-    void setCollection(CollectionPtr collection);
+    void setCollection(ConstCollectionPtr collection);
 
     /// Return the Collection that is assigned to this element.
     CollectionPtr getCollection() const;
