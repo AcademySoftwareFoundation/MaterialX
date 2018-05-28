@@ -91,7 +91,7 @@ Edge Parameter::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
             // Apply BindParam elements to the Parameter.
             for (ShaderRefPtr shaderRef : material->getActiveShaderRefs())
             {
-                if (shaderRef->getNodeDef() == nodeDef)
+                if (shaderRef->getNodeDef()->hasInheritedBase(nodeDef))
                 {
                     for (BindParamPtr bindParam : shaderRef->getBindParams())
                     {
@@ -102,13 +102,6 @@ Edge Parameter::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
                     }
                 }
             }
-        }
-
-        // Apply Override elements to the Parameter.
-        OverridePtr override = material->getOverride(getPublicName());
-        if (override)
-        {
-            return Edge(getSelfNonConst(), nullptr, override);
         }
     }
 
@@ -133,7 +126,7 @@ Edge Input::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
                 // Apply BindInput elements to the Input.
                 for (ShaderRefPtr shaderRef : material->getActiveShaderRefs())
                 {
-                    if (shaderRef->getNodeDef() == nodeDef)
+                    if (shaderRef->getNodeDef()->hasInheritedBase(nodeDef))
                     {
                         for (BindInputPtr bindInput : shaderRef->getBindInputs())
                         {
@@ -154,13 +147,6 @@ Edge Input::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
                     }
                 }
             }
-        }
-
-        // Apply Override elements to the Input.
-        OverridePtr override = material->getOverride(getPublicName());
-        if (override)
-        {
-            return Edge(getSelfNonConst(), nullptr, override);
         }
     }
 
@@ -204,6 +190,126 @@ bool Output::validate(string* message) const
 //
 // InterfaceElement methods
 //
+
+ParameterPtr InterfaceElement::getActiveParameter(const string& name) const
+{
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        ParameterPtr param = elem->asA<InterfaceElement>()->getParameter(name);
+        if (param)
+        {
+            return param;
+        }
+    }
+    return nullptr;
+}
+
+vector<ParameterPtr> InterfaceElement::getActiveParameters() const
+{
+    vector<ParameterPtr> activeParams;
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        vector<ParameterPtr> params = elem->asA<InterfaceElement>()->getParameters();
+        activeParams.insert(activeParams.end(), params.begin(), params.end());
+    }
+    return activeParams;
+}
+
+InputPtr InterfaceElement::getActiveInput(const string& name) const
+{
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        InputPtr input = elem->asA<InterfaceElement>()->getInput(name);
+        if (input)
+        {
+            return input;
+        }
+    }
+    return nullptr;
+}
+
+vector<InputPtr> InterfaceElement::getActiveInputs() const
+{
+    vector<InputPtr> activeInputs;
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        vector<InputPtr> inputs = elem->asA<InterfaceElement>()->getInputs();
+        activeInputs.insert(activeInputs.end(), inputs.begin(), inputs.end());
+    }
+    return activeInputs;
+}
+
+OutputPtr InterfaceElement::getActiveOutput(const string& name) const
+{
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        OutputPtr output = elem->asA<InterfaceElement>()->getOutput(name);
+        if (output)
+        {
+            return output;
+        }
+    }
+    return nullptr;
+}
+
+vector<OutputPtr> InterfaceElement::getActiveOutputs() const
+{
+    vector<OutputPtr> activeOutputs;
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        vector<OutputPtr> outputs = elem->asA<InterfaceElement>()->getOutputs();
+        activeOutputs.insert(activeOutputs.end(), outputs.begin(), outputs.end());
+    }
+    return activeOutputs;
+}
+
+TokenPtr InterfaceElement::getActiveToken(const string& name) const
+{
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        TokenPtr token = elem->asA<InterfaceElement>()->getToken(name);
+        if (token)
+        {
+            return token;
+        }
+    }
+    return nullptr;
+}
+
+vector<TokenPtr> InterfaceElement::getActiveTokens() const
+{
+    vector<TokenPtr> activeTokens;
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        vector<TokenPtr> tokens = elem->asA<InterfaceElement>()->getTokens();
+        activeTokens.insert(activeTokens.end(), tokens.begin(), tokens.end());
+    }
+    return activeTokens;
+}
+
+ValueElementPtr InterfaceElement::getActiveValueElement(const string& name) const
+{
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+       ValueElementPtr valueElem = elem->asA<InterfaceElement>()->getChildOfType<ValueElement>(name);
+        if (valueElem)
+        {
+            return valueElem;
+        }
+    }
+    return nullptr;
+}
+
+vector<ValueElementPtr> InterfaceElement::getActiveValueElements() const
+{
+    vector<ValueElementPtr> activeValueElems;
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        vector<ValueElementPtr> valueElems = elem->asA<InterfaceElement>()->getChildrenOfType<ValueElement>();
+        activeValueElems.insert(activeValueElems.end(), valueElems.begin(), valueElems.end());
+    }
+    return activeValueElems;
+}
 
 ValuePtr InterfaceElement::getParameterValue(const string& name, const string& target) const
 {
@@ -307,17 +413,17 @@ bool InterfaceElement::isTypeCompatible(InterfaceElementPtr rhs) const
     {
         return false;
     }
-    for (ParameterPtr param : getParameters())
+    for (ParameterPtr param : getActiveParameters())
     {
-        ParameterPtr matchingParam = rhs->getParameter(param->getName());
+        ParameterPtr matchingParam = rhs->getActiveParameter(param->getName());
         if (matchingParam && matchingParam->getType() != param->getType())
         {
             return false;
         }
     }
-    for (InputPtr input : getInputs())
+    for (InputPtr input : getActiveInputs())
     {
-        InputPtr matchingInput = rhs->getInput(input->getName());
+        InputPtr matchingInput = rhs->getActiveInput(input->getName());
         if (matchingInput && matchingInput->getType() != input->getType())
         {
             return false;

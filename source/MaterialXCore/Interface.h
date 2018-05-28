@@ -18,16 +18,28 @@ namespace MaterialX
 
 /// A shared pointer to a Parameter
 using ParameterPtr = shared_ptr<class Parameter>;
+/// A shared pointer to a const Parameter
+using ConstParameterPtr = shared_ptr<const class Parameter>;
+
 /// A shared pointer to a PortElement
 using PortElementPtr = shared_ptr<class PortElement>;
+/// A shared pointer to a const PortElement
+using ConstPortElementPtr = shared_ptr<const class PortElement>;
+
 /// A shared pointer to an Input
 using InputPtr = shared_ptr<class Input>;
-/// A shared pointer to an Input
+/// A shared pointer to a const Input
 using ConstInputPtr = shared_ptr<const class Input>;
+
 /// A shared pointer to an Output
 using OutputPtr = shared_ptr<class Output>;
+/// A shared pointer to a const Output
+using ConstOutputPtr = shared_ptr<const class Output>;
+
 /// A shared pointer to an InterfaceElement
 using InterfaceElementPtr = shared_ptr<class InterfaceElement>;
+/// A shared pointer to a const InterfaceElement
+using ConstInterfaceElementPtr = shared_ptr<const class InterfaceElement>;
 
 /// @class Parameter
 /// A parameter element within a Node or NodeDef.
@@ -278,13 +290,14 @@ class InterfaceElement : public TypedElement
     /// @name Parameters
     /// @{
     
-    /// Add a Parameter to this element.
+    /// Add a Parameter to this interface.
     /// @param name The name of the new Parameter.
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
     /// @param type An optional type string.
     /// @return A shared pointer to the new Parameter.
-    ParameterPtr addParameter(const string& name, const string& type = DEFAULT_TYPE_STRING)
+    ParameterPtr addParameter(const string& name = DEFAULT_TYPE_STRING,
+                              const string& type = DEFAULT_TYPE_STRING)
     {
         ParameterPtr child = addChild<Parameter>(name);
         child->setType(type);
@@ -315,17 +328,26 @@ class InterfaceElement : public TypedElement
         removeChildOfType<Parameter>(name);
     }
 
+    /// Return the first Parameter with the given name that belongs to this
+    /// interface, taking interface inheritance into account.
+    ParameterPtr getActiveParameter(const string& name) const;
+
+    /// Return a vector of all Parameter elements that belong to this interface,
+    /// taking interface inheritance into account.
+    vector<ParameterPtr> getActiveParameters() const;
+
     /// @}
     /// @name Inputs
     /// @{
 
-    /// Add an Input to this element.
+    /// Add an Input to this interface.
     /// @param name The name of the new Input.
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
     /// @param type An optional type string.
     /// @return A shared pointer to the new Input.
-    InputPtr addInput(const string& name, const string& type = DEFAULT_TYPE_STRING)
+    InputPtr addInput(const string& name = DEFAULT_TYPE_STRING,
+                      const string& type = DEFAULT_TYPE_STRING)
     {
         InputPtr child = addChild<Input>(name);
         child->setType(type);
@@ -356,11 +378,19 @@ class InterfaceElement : public TypedElement
         removeChildOfType<Input>(name);
     }
 
+    /// Return the first Input with the given name that belongs to this
+    /// interface, taking interface inheritance into account.
+    InputPtr getActiveInput(const string& name) const;
+
+    /// Return a vector of all Input elements that belong to this interface,
+    /// taking inheritance into account.
+    vector<InputPtr> getActiveInputs() const;
+
     /// @}
-    /// @name Output Elements
+    /// @name Outputs
     /// @{
 
-    /// Add an Output to this element.
+    /// Add an Output to this interface.
     /// @param name The name of the new Output.
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
@@ -386,17 +416,79 @@ class InterfaceElement : public TypedElement
         return getChildrenOfType<Output>();
     }
 
+    /// Return the number of Output elements.
+    size_t getOutputCount() const
+    {
+        return _outputCount;
+    }
+
     /// Remove the Output, if any, with the given name.
     void removeOutput(const string& name)
     {
         removeChildOfType<Output>(name);
     }
 
-    /// Return the number of Output elements.
-    size_t getOutputCount() const
+    /// Return the first Output with the given name that belongs to this
+    /// interface, taking interface inheritance into account.
+    OutputPtr getActiveOutput(const string& name) const;
+
+    /// Return a vector of all Output elements that belong to this interface,
+    /// taking inheritance into account.
+    vector<OutputPtr> getActiveOutputs() const;
+
+    /// @}
+    /// @name Tokens
+    /// @{
+
+    /// Add a Token to this interface.
+    /// @param name The name of the new Token.
+    ///     If no name is specified, then a unique name will automatically be
+    ///     generated.
+    /// @return A shared pointer to the new Token.
+    TokenPtr addToken(const string& name = EMPTY_STRING)
     {
-        return _outputCount;
+        return addChild<Token>(name);
     }
+
+    /// Return the Token, if any, with the given name.
+    TokenPtr getToken(const string& name) const
+    {
+        return getChildOfType<Token>(name);
+    }
+
+    /// Return a vector of all Token elements.
+    vector<TokenPtr> getTokens() const
+    {
+        return getChildrenOfType<Token>();
+    }
+
+    /// Remove the Token, if any, with the given name.
+    void removeToken(const string& name)
+    {
+        removeChildOfType<Token>(name);
+    }
+
+    /// Return the first Token with the given name that belongs to this
+    /// interface, taking interface inheritance into account.
+    TokenPtr getActiveToken(const string& name) const;
+
+    /// Return a vector of all Token elements that belong to this interface,
+    /// taking inheritance into account.
+    vector<TokenPtr> getActiveTokens() const;
+
+    /// @}
+    /// @name Value Elements
+    /// @{
+
+    /// Return the first value element with the given name that belongs to this
+    /// interface, taking interface inheritance into account.
+    /// Examples of value elements are Parameter, Input, Output, and Token.
+    ValueElementPtr getActiveValueElement(const string& name) const;
+
+    /// Return a vector of all value elements that belong to this interface,
+    /// taking inheritance into account.
+    /// Examples of value elements are Parameter, Input, Output, and Token.
+    vector<ValueElementPtr> getActiveValueElements() const;
 
     /// @}
     /// @name Values
@@ -426,12 +518,32 @@ class InterfaceElement : public TypedElement
 
     /// Return the typed value of an input by its name, taking both the calling
     /// element and its declaration into account.
+    /// @param name The name of the input to be evaluated.
     /// @param target An optional target name, which will be used to filter
     ///    the declarations that are considered.
     /// @return If the given parameter is found in this interface or its
     ///    declaration, then a shared pointer to its value is returned;
     ///    otherwise, an empty shared pointer is returned.
     ValuePtr getInputValue(const string& name, const string& target = EMPTY_STRING) const;
+
+    /// Set the string value of a Token by its name, creating a child element
+    /// to hold the Token if needed.
+    TokenPtr setTokenValue(const string& name, const string& value)
+    {
+        TokenPtr token = getToken(name);
+        if (!token)
+            token = addToken(name);
+        token->setValue<std::string>(value);
+        return token;
+    }
+
+    /// Return the string value of a Token by its name, or an empty string if
+    /// the given Token is not present.
+    string getTokenValue(const string& name)
+    {
+        TokenPtr token = getToken(name);
+        return token ? token->getValueString() : EMPTY_STRING;
+    }
 
     /// @}
     /// @name Utility

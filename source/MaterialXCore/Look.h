@@ -13,18 +13,25 @@
 
 #include <MaterialXCore/Material.h>
 #include <MaterialXCore/Property.h>
+#include <MaterialXCore/Variant.h>
 
 namespace MaterialX
 {
 
 /// A shared pointer to a Look
 using LookPtr = shared_ptr<class Look>;
-/// A shared pointer to a LookInherit
-using LookInheritPtr = shared_ptr<class LookInherit>;
+/// A shared pointer to a const Look
+using ConstLookPtr = shared_ptr<const class Look>;
+
 /// A shared pointer to a MaterialAssign
 using MaterialAssignPtr = shared_ptr<class MaterialAssign>;
+/// A shared pointer to a const MaterialAssign
+using ConstMaterialAssignPtr = shared_ptr<const class MaterialAssign>;
+
 /// A shared pointer to a Visibility
 using VisibilityPtr = shared_ptr<class Visibility>;
+/// A shared pointer to a const Visibility
+using ConstVisibilityPtr = shared_ptr<const class Visibility>;
 
 /// @class Look
 /// A look element within a Document.
@@ -146,6 +153,42 @@ class Look : public Element
     }
 
     /// @}
+    /// @name VariantAssign Elements
+    /// @{
+
+    /// Add a VariantAssign to the look.
+    /// @param name The name of the new VariantAssign.
+    ///     If no name is specified, then a unique name will automatically be
+    ///     generated.
+    /// @return A shared pointer to the new VariantAssign.
+    VariantAssignPtr addVariantAssign(const string& name = EMPTY_STRING)
+    {
+        return addChild<VariantAssign>(name);
+    }
+
+    /// Return the VariantAssign, if any, with the given name.
+    VariantAssignPtr getVariantAssign(const string& name) const
+    {
+        return getChildOfType<VariantAssign>(name);
+    }
+
+    /// Return a vector of all VariantAssign elements in the look.
+    vector<VariantAssignPtr> getVariantAssigns() const
+    {
+        return getChildrenOfType<VariantAssign>();
+    }
+
+    /// Return a vector of all VariantAssign elements that belong to this look,
+    /// taking look inheritance into account.
+    vector<VariantAssignPtr> getActiveVariantAssigns() const;
+
+    /// Remove the VariantAssign, if any, with the given name.
+    void removeVariantAssign(const string& name)
+    {
+        removeChildOfType<VariantAssign>(name);
+    }
+
+    /// @}
     /// @name Visibility Elements
     /// @{
 
@@ -182,65 +225,8 @@ class Look : public Element
     }
 
     /// @}
-    /// @name LookInherit Elements
-    /// @{
-
-    /// Add a LookInherit to the look.
-    /// @param name The name of the new LookInherit.
-    ///     If no name is specified, then a unique name will automatically be
-    ///     generated.
-    /// @return A shared pointer to the new LookInherit.
-    LookInheritPtr addLookInherit(const string& name = EMPTY_STRING)
-    {
-        return addChild<LookInherit>(name);
-    }
-
-    /// Return the LookInherit, if any, with the given name.
-    LookInheritPtr getLookInherit(const string& name) const
-    {
-        return getChildOfType<LookInherit>(name);
-    }
-
-    /// Return a vector of all LookInherit elements in the look.
-    vector<LookInheritPtr> getLookInherits() const
-    {
-        return getChildrenOfType<LookInherit>();
-    }
-
-    /// Remove the LookInherit, if any, with the given name.
-    void removeLookInherit(const string& name)
-    {
-        removeChildOfType<LookInherit>(name);
-    }
-
-    /// @}
-    /// @name Inheritance
-    /// @{
-
-    /// Set the look element that this one inherits from.
-    void setInheritsFrom(ElementPtr look) override;
-
-    /// Return the look element, if any, that this one inherits from.
-    ElementPtr getInheritsFrom() const override;
-
-    /// @}
 
   public:
-    static const string CATEGORY;
-};
-
-/// @class LookInherit
-/// A look inheritance element within a Look.
-class LookInherit : public Element
-{
-public:
-    LookInherit(ElementPtr parent, const string& name) :
-        Element(parent, CATEGORY, name)
-    {
-    }
-    virtual ~LookInherit() { }
-
-public:
     static const string CATEGORY;
 };
 

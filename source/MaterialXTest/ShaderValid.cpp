@@ -61,8 +61,8 @@ TEST_CASE("GLSL Source", "[shadervalid]")
     {
         validator->initialize();
         validator->setImageHandler(handler);
-        // Set geometry to draw with
-        const std::string geometryFile("documents/Geometry/sphere.obj");
+        // Set geometry to draw with        
+        const std::string geometryFile(mx::FilePath::getCurrentPath().asString() + "/documents/Geometry/sphere.obj");
         mx::GeometryHandlerPtr geometryHandler = validator->getGeometryHandler();        
         geometryHandler->setIdentifier(geometryFile);
         if (geometryHandler->getIdentifier() == geometryFile)
@@ -344,7 +344,7 @@ TEST_CASE("GLSL Shader", "[shadervalid]")
         validator->initialize();
         validator->setImageHandler(imageHandler);
         validator->setLightHandler(lightHandler);
-        const std::string geometryFile("documents/Geometry/shaderball.obj");
+        const std::string geometryFile(mx::FilePath::getCurrentPath().asString() + "/documents/Geometry/shaderball.obj");
         mx::GeometryHandlerPtr geometryHandler = validator->getGeometryHandler();
         geometryHandler->setIdentifier(geometryFile);
         if (geometryHandler->getIdentifier() == geometryFile)

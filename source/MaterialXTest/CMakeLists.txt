@@ -31,7 +31,7 @@ if (MATERIALX_BUILD_VIEW)
                    ${CMAKE_SOURCE_DIR}/documents/Images ${CMAKE_CURRENT_BINARY_DIR}/documents/Images)
   add_custom_command(TARGET MaterialXTest POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_SOURCE_DIR}/documents/Geometry ${CMAKE_CURRENT_BINARY_DIR}/documents)
+                   ${CMAKE_SOURCE_DIR}/documents/Geometry ${CMAKE_CURRENT_BINARY_DIR}/documents/Geometry)
 endif(MATERIALX_BUILD_VIEW)
                    
 set_target_properties(

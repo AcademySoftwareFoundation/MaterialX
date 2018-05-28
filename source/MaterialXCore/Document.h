@@ -14,11 +14,10 @@
 #include <MaterialXCore/Look.h>
 #include <MaterialXCore/Material.h>
 #include <MaterialXCore/Node.h>
+#include <MaterialXCore/Variant.h>
 
 namespace MaterialX
 {
-
-extern const string DOCUMENT_VERSION_STRING;
 
 /// A shared pointer to a Document
 using DocumentPtr = shared_ptr<class Document>;
@@ -372,6 +371,38 @@ class Document : public Element
     }
 
     /// @}
+    /// @name VariantSet Elements
+    /// @{
+
+    /// Add a VariantSet to the document.
+    /// @param name The name of the new VariantSet.
+    ///     If no name is specified, then a unique name will automatically be
+    ///     generated.
+    /// @return A shared pointer to the new VariantSet.
+    VariantSetPtr addVariantSet(const string& name = EMPTY_STRING)
+    {
+        return addChild<VariantSet>(name);
+    }
+
+    /// Return the VariantSet, if any, with the given name.
+    VariantSetPtr getVariantSet(const string& name) const
+    {
+        return getChildOfType<VariantSet>(name);
+    }
+
+    /// Return a vector of all VariantSet elements in the document.
+    vector<VariantSetPtr> getVariantSets() const
+    {
+        return getChildrenOfType<VariantSet>();
+    }
+
+    /// Remove the VariantSet, if any, with the given name.
+    void removeVariantSet(const string& name)
+    {
+        removeChildOfType<VariantSet>(name);
+    }
+
+    /// @}
     /// @name Implementation Elements
     /// @{
 
@@ -407,44 +438,6 @@ class Document : public Element
     /// NodeDef string.  Note that a node implementation may be either an
     /// Implementation element or NodeGraph element.
     vector<InterfaceElementPtr> getMatchingImplementations(const string& nodeDef) const;
-
-    /// @}
-    /// @name Public Elements
-    /// @{
-
-    /// Return any element with the given public name.  If multiple matches
-    /// exist, then an arbitrary selection is made.
-    ElementPtr getPublicElement(const string& publicName) const;
-
-    /// Return a vector of all elements with the given public name.
-    vector<ElementPtr> getPublicElements(const string& publicName) const;
-
-    /// @}
-    /// @name Require String
-    /// @{
-
-    /// Set the require string of the document.
-    /// @todo Require strings are not yet automatically generated or validated
-    ///    by the MaterialX library.
-    void setRequireString(const string& require)
-    {
-        setAttribute(REQUIRE_ATTRIBUTE, require);
-    }
-
-    /// Return true if the document has a require string.
-    bool hasRequireString() const
-    {
-        return hasAttribute(REQUIRE_ATTRIBUTE);
-    }
-
-    /// Return the require string of the document.
-    const string& getRequireString() const
-    {
-        return getAttribute(REQUIRE_ATTRIBUTE);
-    }
-
-    /// Check the content of this document and store the appropriate require string.
-    void generateRequireString();
 
     /// @}
     /// @name Color Management System
@@ -499,8 +492,6 @@ class Document : public Element
     /// @param message An optional output string, to which a description of
     ///    each error will be appended.
     /// @return True if the document passes all tests, false otherwise.
-    /// @todo This method currently checks only a small subset of the MaterialX
-    ///    rule set, and additional coverage is needed.
     bool validate(string* message = nullptr) const override;
 
     /// @}
@@ -545,19 +536,15 @@ class Document : public Element
   public:
     static const string CATEGORY;
     static const string VERSION_ATTRIBUTE;
-    static const string REQUIRE_ATTRIBUTE;
     static const string CMS_ATTRIBUTE;
     static const string CMS_CONFIG_ATTRIBUTE;
-    static const string REQUIRE_STRING_MATINHERIT;
-    static const string REQUIRE_STRING_MATNODEGRAPH;
-    static const string REQUIRE_STRING_OVERRIDE;
 
   private:
     class Cache;
     std::unique_ptr<Cache> _cache;
 };
 
-/// @class @ScopedUpdate
+/// @class ScopedUpdate
 /// An RAII class for Document updates.
 ///
 /// A ScopedUpdate instance calls Document::onBeginUpdate when created, and
@@ -579,7 +566,7 @@ class ScopedUpdate
     DocumentPtr _doc;
 };
 
-/// @class @ScopedDisableCallbacks
+/// @class ScopedDisableCallbacks
 /// An RAII class for disabling Document callbacks.
 ///
 /// A ScopedDisableCallbacks instance calls Document::disableCallbacks() when

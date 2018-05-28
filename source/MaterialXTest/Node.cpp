@@ -37,7 +37,7 @@ TEST_CASE("Node", "[node]")
 
     // Create a node graph with two source nodes.
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
-    REQUIRE_THROWS_AS(doc->addNodeGraph(nodeGraph->getName()), mx::Exception);
+    REQUIRE_THROWS_AS(doc->addNodeGraph(nodeGraph->getName()), mx::Exception&);
     mx::NodePtr constant = nodeGraph->addNode("constant");
     mx::NodePtr image = nodeGraph->addNode("image");
     REQUIRE(nodeGraph->getNodes().size() == 2);
@@ -67,14 +67,14 @@ TEST_CASE("Node", "[node]")
     REQUIRE(image->getDownstreamPorts()[0] == output2);
 
     // Create a custom nodedef.
-    mx::NodeDefPtr nodeDef = doc->addNodeDef("nodeDef1", "float", "turbulence3d");
-    nodeDef->setNodeCategory(mx::PROCEDURAL_NODE_CATEGORY);
-    nodeDef->setParameterValue("octaves", 3);
-    nodeDef->setParameterValue("lacunarity", 2.0f);
-    nodeDef->setParameterValue("gain", 0.5f);
+    mx::NodeDefPtr customNodeDef = doc->addNodeDef("nodeDef1", "float", "turbulence3d");
+    customNodeDef->setNodeCategory(mx::PROCEDURAL_NODE_CATEGORY);
+    customNodeDef->setParameterValue("octaves", 3);
+    customNodeDef->setParameterValue("lacunarity", 2.0f);
+    customNodeDef->setParameterValue("gain", 0.5f);
 
     // Reference the custom nodedef.
-    mx::NodePtr custom = nodeGraph->addNode("turbulence3d", "turbulence1", "float");
+    mx::NodePtr custom = nodeGraph->addNodeInstance(customNodeDef);
     REQUIRE(custom->getNodeDef()->getNodeCategory() == mx::PROCEDURAL_NODE_CATEGORY);
     REQUIRE(custom->getParameterValue("octaves")->isA<int>());
     REQUIRE(custom->getParameterValue("octaves")->asA<int>() == 3);
@@ -130,7 +130,7 @@ TEST_CASE("Flatten", "[nodegraph]")
     mx::readFromXmlFile(doc, "SubGraphs.mtlx", "documents/Examples;documents/Libraries/stdlib");
 
     // Find the example graph.
-    mx::NodeGraphPtr graph = doc->getChildOfType<mx::NodeGraph>("subgraph_ex1");
+    mx::NodeGraphPtr graph = doc->getNodeGraph("subgraph_ex1");
     REQUIRE(graph);
 
     // Traverse the graph and count nodes.

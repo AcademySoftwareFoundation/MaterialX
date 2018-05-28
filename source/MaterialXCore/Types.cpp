@@ -6,6 +6,8 @@
 #include <MaterialXCore/Types.h>
 #include <cmath>
 
+#include <cmath>
+
 namespace MaterialX
 {
 
@@ -18,18 +20,19 @@ const string MULTI_OUTPUT_TYPE_STRING = "multioutput";
 const string NONE_TYPE_STRING = "none";
 const string VALUE_STRING_TRUE = "true";
 const string VALUE_STRING_FALSE = "false";
+const string NAME_PREFIX_SEPARATOR = ":";
 const string NAME_PATH_SEPARATOR = "/";
 const string ARRAY_VALID_SEPARATORS = ", ";
 const string ARRAY_PREFERRED_SEPARATOR = ", ";
 
-const Matrix33 Matrix33::IDENTITY{1, 0, 0,
+const Matrix33 Matrix33::IDENTITY(1, 0, 0,
                                   0, 1, 0,
-                                  0, 0, 1};
+                                  0, 0, 1);
 
-const Matrix44 Matrix44::IDENTITY{1, 0, 0, 0,
+const Matrix44 Matrix44::IDENTITY(1, 0, 0, 0,
                                   0, 1, 0, 0,
                                   0, 0, 1, 0,
-                                  0, 0, 0, 1};
+                                  0, 0, 0, 1);
 
 
 //
@@ -37,18 +40,18 @@ const Matrix44 Matrix44::IDENTITY{1, 0, 0, 0,
 //
 template <> float VectorN<Vector2, float, 2>::getMagnitude() const
 {
-    return std::sqrt(_arr[0] * _arr[0] + _arr[1] * _arr[1]);
+    return std::sqrt(_arr[0]*_arr[0] + _arr[1]*_arr[1]);
 }
 
 template <> float VectorN<Vector3, float, 3>::getMagnitude() const
 {
-    return std::sqrt(_arr[0] * _arr[0] + _arr[1] * _arr[1] + _arr[2] * _arr[2]);
+    return std::sqrt(_arr[0]*_arr[0] + _arr[1]*_arr[1] + _arr[2]*_arr[2]);
 }
 
 template <> float VectorN<Vector4, float, 4>::getMagnitude() const
 {
-    return std::sqrt(_arr[0] * _arr[0] + _arr[1] * _arr[1] + _arr[2] * _arr[2] +
-                     _arr[3] * _arr[3]);
+    return std::sqrt(_arr[0]*_arr[0] + _arr[1]*_arr[1] +
+                     _arr[2]*_arr[2] + _arr[3]*_arr[3]);
 }
 
 //
