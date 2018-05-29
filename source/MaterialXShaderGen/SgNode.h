@@ -73,15 +73,17 @@ public:
         static const unsigned int CONSTANT    = 1 << 5;  // A constant node
         // Specific closure types
         static const unsigned int BSDF        = 1 << 6;  // A BDFS node 
-        static const unsigned int EDF         = 1 << 7;  // A EDF node
-        static const unsigned int VDF         = 1 << 8;  // A VDF node 
+        static const unsigned int BSDF_R      = 1 << 7;  // A BDFS node for reflection
+        static const unsigned int BSDF_T      = 1 << 8;  // A BDFS node for transmission
+        static const unsigned int EDF         = 1 << 9;  // A EDF node
+        static const unsigned int VDF         = 1 << 10; // A VDF node 
         // Specific shader types
-        static const unsigned int SURFACE     = 1 << 9;  // A surface shader node
-        static const unsigned int VOLUME      = 1 << 10; // A volume shader node
-        static const unsigned int LIGHT       = 1 << 11; // A light shader node
+        static const unsigned int SURFACE     = 1 << 11;  // A surface shader node
+        static const unsigned int VOLUME      = 1 << 12; // A volume shader node
+        static const unsigned int LIGHT       = 1 << 13; // A light shader node
         // Specific conditional types
-        static const unsigned int IFELSE      = 1 << 12; // An if-else statement
-        static const unsigned int SWITCH      = 1 << 13; // A switch statement
+        static const unsigned int IFELSE      = 1 << 14; // An if-else statement
+        static const unsigned int SWITCH      = 1 << 15; // A switch statement
     };
 
     /// Information on source code scope for the node.
@@ -110,7 +112,13 @@ public:
         uint32_t fullConditionMask;
     };
 
-    static const SgNode NONE;
+    static const SgNodePtr NONE;
+
+    static const string SXCLASS_ATTRIBUTE;
+    static const string CONSTANT;
+    static const string IMAGE;
+    static const string COMPARE;
+    static const string SWITCH;
 
 public:
     /// Constructor.
@@ -189,6 +197,12 @@ public:
     void renameInput(const string& name, const string& newName);
     void renameOutput(const string& name, const string& newName);
 
+    /// Add the given contex id to the set of contexts used for this node.
+    void addContextID(int id) { _contextIDs.insert(id); }
+
+    /// Return the set of contexts id's for the contexts used for this node.
+    const std::set<int>& getContextIDs() const { return _contextIDs; }
+
 protected:
     string _name;
     unsigned int _classification;
@@ -202,6 +216,7 @@ protected:
     SgImplementationPtr _impl;
     ScopeInfo _scopeInfo;
     std::set<const SgNode*> _usedClosures;
+    std::set<int> _contextIDs;
 
     friend class SgNodeGraph;
 };
@@ -283,7 +298,7 @@ protected:
     void addDefaultGeomNode(SgInput* input, const string& geomNode, const Document& doc, ShaderGenerator& shadergen);
 
     /// Perform all post-build operations on the graph.
-    void finalize();
+    void finalize(ShaderGenerator& shadergen);
 
     /// Optimize the graph, removing redundant paths.
     void optimize();
@@ -300,11 +315,64 @@ protected:
     /// Calculate scopes for all nodes in the graph
     void calculateScopes();
 
+    /// Make sure inputs and outputs on the graph have
+    /// valid and unique names to avoid name collisions
+    /// during shader generation
+    void validateNames(ShaderGenerator& shadergen);
+
     /// Break all connections on a node
     static void disconnect(SgNode* node);
 
     std::unordered_map<string, SgNodePtr> _nodeMap;
     std::vector<SgNode*> _nodeOrder;
+};
+
+/// A function argument for node implementation functions.
+/// A argument is a pair of strings holding the 'type' and 'name' of the argument.
+using Argument = std::pair<string, string>;
+using Arguments = vector<Argument>;
+
+using SgNodeContextPtr = std::shared_ptr<class SgNodeContext>;
+
+/// Class representing an implementation context for a node.
+///
+/// For some shader generators a node might need customization to it's implementation 
+/// depending on in which context the node is used. This class handles customizations
+/// in the form of adding extra arguments to the node's implementation function as well
+/// as a suffix to the function name to distinguish between the functions for different
+/// contexts.
+///
+/// An example of where this is required if for BSDF and EDF nodes for HW targets 
+/// where extra arguments are needed to give directions vectors for evaluation. 
+/// For BSDF nodes another use-case is to distinguish between evaluation in a direct lighting
+/// context and an indirect lighting context where different versions of the nodes' function
+/// is required.
+/// 
+class SgNodeContext
+{
+public:
+    /// Constructor, set the identifier for this context.
+    SgNodeContext(int id) : _id(id) {}
+
+    /// Return the identifier for this context.
+    int id() const { return _id; }
+
+    /// Add an extra argument to be used for the node function in this context.
+    void addArgument(const Argument& arg) { _arguments.push_back(arg); }
+
+    /// Return a list of extra argument to be used for the node function in this context.
+    const Arguments& getArguments() const { return _arguments; }
+
+    /// Set a function name suffix to be used for the node function in this context.
+    void setFunctionSuffix(const string& suffix) { _functionSuffix = suffix; }
+
+    /// Return the function name suffix to be used for the node function in this context.
+    const string& getFunctionSuffix() const { return _functionSuffix; }
+
+private:
+    const int _id;
+    Arguments _arguments;
+    string _functionSuffix;
 };
 
 /// An edge returned during SgNode traversal

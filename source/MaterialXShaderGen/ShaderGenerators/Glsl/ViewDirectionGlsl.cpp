@@ -17,7 +17,7 @@ void ViewDirectionGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator&
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::VECTOR3, "u_viewPosition");
 }
 
-void ViewDirectionGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
+void ViewDirectionGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*context*/, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
@@ -32,7 +32,7 @@ void ViewDirectionGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& sh
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
         shader.beginLine();
         shadergen.emitOutput(node.getOutput(), true, shader);
-        shader.addStr(" = normalize(u_viewPosition - vd.positionWorld)");
+        shader.addStr(" = normalize(vd.positionWorld - u_viewPosition)");
         shader.endLine();
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }

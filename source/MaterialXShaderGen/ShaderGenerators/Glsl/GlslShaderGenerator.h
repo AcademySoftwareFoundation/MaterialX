@@ -63,6 +63,13 @@ class GlslShaderGenerator : public HwShaderGenerator
     using ParentClass = HwShaderGenerator;
 
 public:
+    enum NodeContext
+    {
+        NODE_CONTEXT_BSDF = NODE_CONTEXT_DEFAULT + 1,
+        NODE_CONTEXT_BSDF_IBL,
+        NODE_CONTEXT_EDF
+    };
+
     enum class BsdfDir
     {
         NORMAL_DIR,
@@ -78,7 +85,7 @@ public:
 
     /// Generate a shader starting from the given element, translating 
     /// the element and all dependencies upstream into shader code.
-    ShaderPtr generate(const string& shaderName, ElementPtr element) override;
+    ShaderPtr generate(const string& shaderName, ElementPtr element, const SgOptions& options) override;
 
     /// Return a unique identifyer for the language used by this generator
     const string& getLanguage() const override { return LANGUAGE; }
@@ -93,7 +100,7 @@ public:
     void emitFunctionDefinitions(Shader& shader) override;
 
     /// Emit all functon calls constructing the shader body
-    void emitFunctionCalls(Shader &shader) override;
+    void emitFunctionCalls(const SgNodeContext& context, Shader &shader) override;
 
     /// Emit a shader uniform input variable
     void emitUniform(const Shader::Variable& uniform, Shader& shader) override;
@@ -101,8 +108,9 @@ public:
     /// Emit the final output expression
     void emitFinalOutput(Shader& shader) const override;
 
-    /// Return any extra arguments if needed for the given node
-    const Arguments* getExtraArguments(const SgNode& node) const override;
+    /// Add node contexts id's to the given node to control 
+    /// in which contexts this node should be used
+    void addNodeContextIDs(SgNode* node) const override;
 
     /// Emit code for all texturing nodes.
     virtual void emitTextureNodes(Shader& shader);
@@ -111,6 +119,11 @@ public:
     /// given the incident and outgoing light directions.
     /// The output 'bsdf' will hold the variable name keeping the result.
     virtual void emitBsdfNodes(const SgNode& shaderNode, const string& incident, const string& outgoing, Shader& shader, string& bsdf);
+
+    /// Emit code for calculating indirect (IBL) contributions for a shader, 
+    /// given the outgoing direction.
+    /// The output 'radiance' will hold the variable name keeping the result.
+    virtual void emitBsdfNodesIBL(const SgNode& shaderNode, const string& outgoing, Shader& shader, string& radiance);
 
     /// Emit code for calculating emission for a surface or light shader,
     /// given the orientation direction of the EDF and the evaluation direction.
@@ -136,9 +149,6 @@ protected:
 
     static void toVec4(const string& type, string& variable);
 
-    Arguments _bsdfNodeArguments;
-    Arguments _edfNodeArguments;
-
     /// Internal string constants
     static const string INCIDENT;
     static const string OUTGOING;
@@ -157,6 +167,7 @@ public:
 protected:
     GlslImplementation() {}
 
+    /// Internal string constants
     static const string SPACE;
     static const string WORLD;
     static const string OBJECT;

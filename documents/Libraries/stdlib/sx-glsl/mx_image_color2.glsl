@@ -5,6 +5,7 @@ void mx_image_color2(sampler2D tex_sampler, int layer, vec2 defaultval, vec2 tex
     {
         vdirection(texcoord, texcoord);
         result = texture(tex_sampler, texcoord).rg;
+        result = pow(result, vec2(2.2));
     }
     else
     {

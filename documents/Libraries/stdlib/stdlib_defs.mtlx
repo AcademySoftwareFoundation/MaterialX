@@ -906,6 +906,13 @@
     <parameter name="fps" type="float" value="24.0"/>
   </nodedef>
 
+  <!--
+    Node: <viewdirection>
+    The current view direction. Returns a normalized direction vector incident to the point being shaded.
+  -->
+  <nodedef name="ND_viewdirection__vector3" node="viewdirection" type="vector3" nodecategory="application">
+    <parameter name="space" type="string" value="world"/>
+  </nodedef>
 
   <!-- ======================================================================== -->
   <!-- Math nodes                                                               -->

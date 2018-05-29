@@ -118,10 +118,10 @@ OslShaderGenerator::OslShaderGenerator()
     registerImplementation("IM_swizzle__vector4_vector4__sx_osl", Swizzle::create);
 }
 
-ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr element)
+ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr element, const SgOptions& options)
 {
     ShaderPtr shaderPtr = std::make_shared<Shader>(shaderName);
-    shaderPtr->initialize(element, *this);
+    shaderPtr->initialize(element, *this, options);
 
     Shader& shader = *shaderPtr;
 
@@ -131,11 +131,11 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
 
     // Emit shader type
     const SgOutputSocket* outputSocket = shader.getNodeGraph()->getOutputSocket();
-    if (outputSocket->type == "surfaceshader")
+    if (outputSocket->type == DataType::SURFACE)
     {
         shader.addStr("surface ");
     }
-    else if (outputSocket->type == "volumeshader")
+    else if (outputSocket->type == DataType::VOLUME)
     {
         shader.addStr("volume ");
     }
@@ -184,7 +184,7 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     // Emit shader body
     shader.beginScope(Shader::Brackets::BRACES);
 
-    emitFunctionCalls(shader);
+    emitFunctionCalls(*_defaultNodeContext, shader);
     emitFinalOutput(shader);
 
     shader.endScope();
@@ -222,7 +222,7 @@ void OslShaderGenerator::emitIncludes(Shader& shader)
     shader.newLine();
 }
 
-void OslShaderGenerator::emitFunctionCalls(Shader &shader)
+void OslShaderGenerator::emitFunctionCalls(const SgNodeContext& context, Shader &shader)
 {
     // Emit needed globals
     if (!shader.getNodeGraph()->hasClassification(SgNode::Classification::TEXTURE))
@@ -231,7 +231,7 @@ void OslShaderGenerator::emitFunctionCalls(Shader &shader)
     }
 
     // Call parent
-    ParentClass::emitFunctionCalls(shader);
+    ParentClass::emitFunctionCalls(context, shader);
 }
 
 void OslShaderGenerator::emitFinalOutput(Shader& shader) const

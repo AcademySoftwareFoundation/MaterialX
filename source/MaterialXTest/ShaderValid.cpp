@@ -96,13 +96,19 @@ TEST_CASE("GLSL Source", "[shadervalid]")
         "test_cellnoise2d",
         "test_cellnoise3d",
         "test_fractal3d",
-        "example1_surface"
+        "example1_surface",
+        "example2_surface",
+        "example3_surface",
+        "example4_surface"
     };
 
     const std::set<std::string> shadersUseLighting =
     {
         "subgraph_ex2",
-        "example1_surface"
+        "example1_surface",
+        "example2_surface",
+        "example3_surface",
+        "example4_surface"
     };
 
     for (auto shaderName : shaderNames)
@@ -362,12 +368,14 @@ TEST_CASE("GLSL Shader", "[shadervalid]")
     }
     REQUIRE(initialized);
 
+    mx::SgOptions options;
+
     for (auto nodePtr : attributeList)
     {
         log << "------------ Validate with output node as input: " << nodePtr->getName() << std::endl;
         output1->setConnectedNode(nodePtr);
 
-        mx::ShaderPtr shader = shaderGenerator->generate(nodeGraph->getName(), output1);
+        mx::ShaderPtr shader = shaderGenerator->generate(nodeGraph->getName(), output1, options);
         mx::HwShaderPtr hwShader = std::dynamic_pointer_cast<mx::HwShader>(shader);
         REQUIRE(hwShader != nullptr);
         REQUIRE(hwShader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
@@ -447,7 +455,7 @@ TEST_CASE("GLSL Shader", "[shadervalid]")
         mx::ElementPtr output = nodeGraph->getChild("out");
 
         // Test shader generation from nodegraph output
-        mx::ShaderPtr shader = shaderGenerator->generate(nodeGraph->getName(), output);
+        mx::ShaderPtr shader = shaderGenerator->generate(nodeGraph->getName(), output, options);
         mx::HwShaderPtr hwShader = std::dynamic_pointer_cast<mx::HwShader>(shader);
         REQUIRE(hwShader != nullptr);
         REQUIRE(hwShader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
@@ -500,7 +508,7 @@ TEST_CASE("GLSL Shader", "[shadervalid]")
             for (mx::ShaderRefPtr shaderRef : material->getShaderRefs())
             {
                 const std::string name = material->getName() + "_" + shaderRef->getName();
-                mx::ShaderPtr shader = shaderGenerator->generate(name, shaderRef);
+                mx::ShaderPtr shader = shaderGenerator->generate(name, shaderRef, options);
                 REQUIRE(shader != nullptr);
                 REQUIRE(shader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
                 REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);

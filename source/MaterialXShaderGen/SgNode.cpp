@@ -56,8 +56,23 @@ SgEdgeIterator SgOutput::traverseUpstream()
     return SgEdgeIterator(this);
 }
 
+namespace
+{
+    SgNodePtr createEmptyNode()
+    {
+        SgNodePtr node = std::make_shared<SgNode>("");
+        node->addContextID(ShaderGenerator::NODE_CONTEXT_DEFAULT);
+        return node;
+    }
+}
 
-const SgNode SgNode::NONE("");
+const SgNodePtr SgNode::NONE = createEmptyNode();
+
+const string SgNode::SXCLASS_ATTRIBUTE = "sxclass";
+const string SgNode::CONSTANT = "constant";
+const string SgNode::IMAGE = "image";
+const string SgNode::COMPARE = "compare";
+const string SgNode::SWITCH = "switch";
 
 bool SgNode::referencedConditionally() const
 {
@@ -213,22 +228,25 @@ SgNodePtr SgNode::create(const string& name, const NodeDef& nodeDef, ShaderGener
     {
         newNode->_classification = Classification::VDF | Classification::CLOSURE;
     }
-    else if (nodeDef.getNodeString() == "constant")
+    else if (nodeDef.getNodeString() == CONSTANT)
     {
         newNode->_classification = Classification::TEXTURE | Classification::CONSTANT;
     }
-    else if (nodeDef.getNodeString() == "image")
+    else if (nodeDef.getNodeString() == IMAGE || nodeDef.getAttribute(SXCLASS_ATTRIBUTE) == IMAGE)
     {
         newNode->_classification = Classification::TEXTURE | Classification::FILETEXTURE;
     }
-    else if (nodeDef.getNodeString() == "compare")
+    else if (nodeDef.getNodeString() == COMPARE)
     {
         newNode->_classification = Classification::TEXTURE | Classification::CONDITIONAL | Classification::IFELSE;
     }
-    else if (nodeDef.getNodeString() == "switch")
+    else if (nodeDef.getNodeString() == SWITCH)
     {
         newNode->_classification = Classification::TEXTURE | Classification::CONDITIONAL | Classification::SWITCH;
     }
+
+    // Let the generator assign in which contexts to use this node
+    shadergen.addNodeContextIDs(newNode.get());
 
     return newNode;
 }
@@ -506,10 +524,12 @@ SgNodeGraphPtr SgNodeGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shad
 
     // Set classification according to last node
     // TODO: What if the graph has multiple outputs?
-    SgOutputSocket* outputSocket = graph->getOutputSocket();
-    graph->_classification = outputSocket->connection ? outputSocket->connection->node->_classification : 0;
+    {
+        SgOutputSocket* outputSocket = graph->getOutputSocket();
+        graph->_classification = outputSocket->connection ? outputSocket->connection->node->_classification : 0;
+    }
 
-    graph->finalize();
+    graph->finalize(shadergen);
 
     return graph;
 }
@@ -671,7 +691,7 @@ SgNodeGraphPtr SgNodeGraph::create(const string& name, ElementPtr element, Shade
     SgOutputSocket* outputSocket = graph->getOutputSocket();
     graph->_classification = outputSocket->connection ? outputSocket->connection->node->_classification : 0;
 
-    graph->finalize();
+    graph->finalize(shadergen);
 
     return graph;
 }
@@ -681,6 +701,9 @@ SgNode* SgNodeGraph::addNode(const Node& node, ShaderGenerator& shadergen)
     NodeDefPtr nodeDef = node.getNodeDef();
     if (!nodeDef)
     {
+
+        nodeDef = node.getNodeDef();
+
         throw ExceptionShaderGenError("Could not find a nodedef for node '" + node.getName() + "'");
     }
     
@@ -755,11 +778,12 @@ SgNode* SgNodeGraph::getNode(const string& name)
     return it != _nodeMap.end() ? it->second.get() : nullptr;
 }
 
-void SgNodeGraph::finalize()
+void SgNodeGraph::finalize(ShaderGenerator& shadergen)
 {
     optimize();
     topologicalSort();
     calculateScopes();
+    validateNames(shadergen);
 
     // Track closure nodes used by each surface shader.
     for (SgNode* node : _nodeOrder)
@@ -1042,6 +1066,39 @@ void SgNodeGraph::calculateScopes()
         }
     }
 }
+
+void SgNodeGraph::validateNames(ShaderGenerator& shadergen)
+{
+    // Make sure inputs and outputs have names valid for the 
+    // target shading language, and are unique to avoid name 
+    // conflicts when emitting variable names for them.
+
+    // Names in use for the graph is recorded in 'uniqueNames'.
+    Syntax::UniqueNameMap uniqueNames;
+    for (SgInputSocket* inputSocket : getInputSockets())
+    {
+        string name = inputSocket->name;
+        shadergen.getSyntax()->makeUnique(name, uniqueNames);
+        renameInputSocket(inputSocket->name, name);
+    }
+    for (SgOutputSocket* outputSocket : getOutputSockets())
+    {
+        string name = outputSocket->name;
+        shadergen.getSyntax()->makeUnique(outputSocket->name, uniqueNames);
+        renameOutputSocket(outputSocket->name, name);
+    }
+    for (SgNode* node : getNodes())
+    {
+        for (SgOutput* output : node->getOutputs())
+        {
+            // Node outputs use long names for better code readability
+            string name = output->node->getName() + "_" + output->name;
+            shadergen.getSyntax()->makeUnique(name, uniqueNames);
+            node->renameOutput(output->name, name);
+        }
+    }
+}
+
 
 namespace
 {

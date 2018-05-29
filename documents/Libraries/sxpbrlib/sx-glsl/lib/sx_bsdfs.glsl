@@ -37,22 +37,68 @@ float sx_microfacet_ggx_smith_G(float NdotL, float NdotV, float alpha)
     return sx_microfacet_ggx_G1(NdotL, alpha) * sx_microfacet_ggx_G1(NdotV, alpha);
 }
 
+vec3 sx_fresnel_schlick(float cosTheta, vec3 F0)
+{
+    if (cosTheta < 0.0)
+        return vec3(1.0);
+    float x = 1.0 - cosTheta;
+    float x2 = x*x;
+    float x5 = x2*x2*x;
+    return F0 + (1.0 - F0) * x5;
+}
+
 float sx_fresnel_schlick(float cosTheta, float ior)
 {
     if (cosTheta < 0.0)
         return 1.0;
     float F0 = (ior - 1.0) / (ior + 1.0);
     F0 *= F0;
-    float m = 1.0 - cosTheta;
-    return F0 + (1.0 - F0) * (m * m) * (m * m) * m;
+    float x = 1.0 - cosTheta;
+    float x2 = x*x;
+    float x5 = x2*x2*x;
+    return F0 + (1.0 - F0) * x5;
 }
 
 float sx_fresnel_schlick_roughness(float cosTheta, float ior, float roughness)
 {
-    if (cosTheta < 0.0)
-        return 1.0;
+    cosTheta = abs(cosTheta);
     float F0 = (ior - 1.0) / (ior + 1.0);
     F0 *= F0;
-    float m = 1.0 - cosTheta;
-    return F0 + (max(1.0 - roughness, F0) - F0) * (m * m) * (m * m) * m;
+    float x = 1.0 - cosTheta;
+    float x2 = x*x;
+    float x5 = x2*x2*x;
+    return F0 + (max(1.0 - roughness, F0) - F0) * x5;
+}
+
+// https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
+float sx_fresnel_dielectric(float cosTheta, float ior)
+{
+    if (cosTheta < 0.0)
+        return 1.0;
+
+    float g =  ior*ior + cosTheta*cosTheta - 1.0;
+    // Check for total internal reflection
+    if (g < 0.0)
+        return 1.0;
+
+    g = sqrt(g);
+    float gmc = g - cosTheta;
+    float gpc = g + cosTheta;
+    float x = gmc / gpc;
+    float y = (gpc * cosTheta - 1.0) / (gmc * cosTheta + 1.0);
+    return 0.5 * x * x * (1.0 + y * y);
+}
+
+vec3 sx_fresnel_conductor(float cosTheta, vec3 n, vec3 k)
+{
+   float c2 = cosTheta*cosTheta;
+   vec3 n2_k2 = n*n + k*k;
+   vec3 nc2 = 2.0 * n * cosTheta;
+
+   vec3 rs_a = n2_k2 + c2;
+   vec3 rp_a = n2_k2 * c2 + 1.0;
+   vec3 rs = (rs_a - nc2) / (rs_a + nc2);
+   vec3 rp = (rp_a - nc2) / (rp_a + nc2);
+
+   return 0.5 * (rs + rp);
 }

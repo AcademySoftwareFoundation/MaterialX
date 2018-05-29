@@ -17,7 +17,7 @@
            doc="A BSDF node for pure diffuse reflections.">
     <input name="reflectance" type="color3" value="0.8, 0.8, 0.8"/>
     <input name="roughness" type="float" value="1.0"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="normal" type="vector3" defaultgeomprop="shadingnormal"/>
   </nodedef>
 
   <!--
@@ -27,7 +27,7 @@
   <nodedef name="ND_translucentbsdf" node="translucentbsdf" type="BSDF" nodecategory="shaderx"
            doc="A BSDF node for pure diffuse transmission.">
     <input name="transmittance" type="color3" value="0.8, 0.8, 0.8"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="normal" type="vector3" defaultgeomprop="shadingnormal"/>
   </nodedef>
 
   <!--
@@ -41,18 +41,53 @@
 
   <!--
     Node: <coatingbsdf>
-    A BSDF node for specular to glossy reflection.
+    A BSDF node for specular to glossy reflection with dielectric fresel.
   -->
   <nodedef name="ND_coatingbsdf" node="coatingbsdf" type="BSDF" nodecategory="shaderx"
-           doc="A BSDF node for specular to glossy reflection.">
+           doc="A BSDF node for specular to glossy reflection with dielectric fresel.">
     <input name="reflectance" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="ior" type="float" value="1.52"/>
     <input name="roughness" type="float" value="0.2"/>
     <input name="anisotropy" type="float" value="0.0"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="normal" type="vector3" defaultgeomprop="shadingnormal"/>
     <input name="tangent" type="vector3" defaultgeomprop="tangent"/>
     <input name="distribution" type="string" value="ggx"/>
     <input name="base" type="BSDF"/>
+  </nodedef>
+
+  <!--
+    Node: <metalbsdf>
+    A BSDF node for specular to glossy reflection with conductor fresel.
+  -->
+  <nodedef name="ND_metalbsdf" node="metalbsdf" type="BSDF" nodecategory="shaderx"
+           doc="A BSDF node for specular to glossy reflection with conductor fresel.">
+    <input name="reflectivity" type="color3" value="0.944 0.776 0.373"/>
+    <input name="edgetint" type="color3" value="0.998 0.981 0.751"/>
+    <input name="roughness" type="float" value="0.2"/>
+    <input name="anisotropy" type="float" value="0.0"/>
+    <input name="normal" type="vector3" defaultgeomprop="shadingnormal"/>
+    <input name="tangent" type="vector3" defaultgeomprop="tangent"/>
+    <input name="distribution" type="string" value="ggx"/>
+  </nodedef>
+
+  <!--
+    Node: <reflectivity>
+    A node calculating reflectivity from complex refraction index.
+  -->
+  <nodedef name="ND_reflectivity" node="reflectivity" type="color3" nodecategory="shaderx"
+           doc="A node calculating reflectivity from complex refraction index.">
+    <input name="ior_n" type="vector3"/>
+    <input name="ior_k" type="vector3"/>
+  </nodedef>
+
+  <!--
+    Node: <edgetint>
+    A node calculating edgetint from refraction index and reflectivity.
+  -->
+  <nodedef name="ND_edgetint" node="edgetint" type="color3" nodecategory="shaderx"
+           doc="A node calculating edgetint from refraction index and reflectivity.">
+    <input name="ior_n" type="vector3"/>
+    <input name="reflectivity" type="color3"/>
   </nodedef>
 
   <!--
@@ -65,7 +100,7 @@
     <input name="ior" type="float" value="1.52"/>
     <input name="roughness" type="float" value="0.2"/>
     <input name="anisotropy" type="float" value="0.0"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="normal" type="vector3" defaultgeomprop="shadingnormal"/>
     <input name="tangent" type="vector3" defaultgeomprop="tangent"/>
     <input name="distribution" type="string" value="ggx"/>
     <input name="interior" type="VDF"/>
@@ -101,6 +136,16 @@
     <input name="in1" type="BSDF" doc="First BSDF."/>
     <input name="in2" type="BSDF" doc="Second BSDF."/>
     <input name="weight" type="float" value="1.0" doc="Mixing weight, range [0, 1]."/>
+  </nodedef>
+
+  <!--
+    Node: <scalebsdf>
+    A node for scaling the rectance/transmittance of a BSDF.
+  -->
+  <nodedef name="ND_scalebsdf" node="scalebsdf" type="BSDF" nodecategory="shaderx"
+           doc="A node for scaling the rectance/transmittance of a BSDF.">
+    <input name="in" type="BSDF" doc="The BSDF to scale."/>
+    <input name="weight" type="color3" value="1.0, 1.0, 1.0" doc="Scaling weight."/>
   </nodedef>
 
   <!--
@@ -209,13 +254,13 @@
       <input name="subsurface_radius" type="color3" value="1, 1, 1" />
       <input name="subsurface_scale" type="float" value="1" />
       <input name="thin_walled" type="boolean" value="false" />
-      <input name="normal" type="vector3" value="0, 0, 0" defaultgeomprop="normal"/>
-      <input name="tangent" type="vector3" value="0, 0, 0" defaultgeomprop="tangent"/>
+      <input name="normal" type="vector3" defaultgeomprop="shadingnormal"/>
+      <input name="tangent" type="vector3" defaultgeomprop="tangent"/>
       <input name="coat" type="float" value="0" />
       <input name="coat_color" type="color3" value="1, 1, 1" />
       <input name="coat_roughness" type="float" value="0.1" />
       <input name="coat_IOR" type="float" value="1.5" />
-      <input name="coat_normal" type="vector3" value="0, 0, 0" />
+      <input name="coat_normal" type="vector3" defaultgeomprop="shadingnormal"/>
       <input name="thin_film_thickness" type="float" value="0" />
       <input name="thin_film_IOR" type="float" value="1.5" />
       <input name="emission" type="float" value="0" />
@@ -232,10 +277,36 @@
     Node: <normalmap>
   -->
   <nodedef name="ND_normalmap" node="normalmap" type="vector3" nodecategory="shaderx">
-    <input name="in" value="0.5, 0.5, 1.0" type="vector3"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="in" type="vector3" value="0.5, 0.5, 1.0"/>
+    <input name="normal" type="vector3" defaultgeomprop="shadingnormal"/>
     <input name="tangent" type="vector3" defaultgeomprop="tangent"/>
     <input name="bitangent" type="vector3" defaultgeomprop="bitangent"/>
+  </nodedef>
+
+  <!--
+    Node: <backfacing>
+  -->
+  <nodedef name="ND_backfacing__float" node="backfacing" type="float" nodecategory="shaderx"/>
+
+  <!--
+    Node: <shadingnormal>
+  -->
+  <nodedef name="ND_shadingnormal__vector3" node="shadingnormal" type="vector3" nodecategory="shaderx"/>
+
+  <!--
+    Node: <inputmap>
+  -->
+  <nodedef name="ND_inputmap__float" type="float" node="inputmap" nodecategory="shaderx" sxclass="image">
+    <input name="value" type="float" />
+    <input name="file" type="filename" />
+  </nodedef>
+  <nodedef name="ND_inputmap__color3" type="color3" node="inputmap" nodecategory="shaderx" sxclass="image">
+    <input name="value" type="color3" />
+    <input name="file" type="filename" />
+  </nodedef>
+  <nodedef name="ND_inputmap__vector3" type="vector3" node="inputmap" nodecategory="shaderx" sxclass="image">
+    <input name="value" type="vector3" />
+    <input name="file" type="filename" />
   </nodedef>
 
 </materialx>

@@ -10,7 +10,7 @@ SgImplementationPtr Swizzle::create()
     return std::make_shared<Swizzle>();
 }
 
-void Swizzle::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
+void Swizzle::emitFunctionCall(const SgNode& node, const SgNodeContext& /*context*/, ShaderGenerator& shadergen, Shader& shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 

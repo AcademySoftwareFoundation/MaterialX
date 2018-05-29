@@ -15,7 +15,7 @@ void TimeGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*shader
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::FLOAT, "u_time");
 }
 
-void TimeGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
+void TimeGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*context*/, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 

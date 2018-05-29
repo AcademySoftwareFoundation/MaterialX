@@ -31,7 +31,7 @@ void TangentGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shaderg
     }
 }
 
-void TangentGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
+void TangentGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*context*/, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 

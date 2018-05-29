@@ -9,6 +9,7 @@
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/GeomAttrValueGlsl.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/FrameGlsl.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/TimeGlsl.h>
+#include <MaterialXShaderGen/ShaderGenerators/Glsl/ViewDirectionGlsl.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/SurfaceGlsl.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/SurfaceShaderGlsl.h>
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/LightGlsl.h>
@@ -51,19 +52,28 @@ const string GlslShaderGenerator::EVAL = "eval";
 GlslShaderGenerator::GlslShaderGenerator()
     : ParentClass(GlslSyntax::create())
 {
-    // Direction vector argument for bsdf nodes
-    _bsdfNodeArguments = 
-    { 
-        Argument("vec3", INCIDENT),
-        Argument("vec3", OUTGOING)
-    };
+    //
+    // Create the node contexts used by this generator
+    //
 
-    // Direction vector argument for edf nodes
-    _edfNodeArguments =
-    {
-        Argument("vec3", NORMAL),
-        Argument("vec3", EVAL)
-    };
+    // BSDF context
+    SgNodeContextPtr ctxBsdf = createNodeContext(NODE_CONTEXT_BSDF);
+    ctxBsdf->addArgument(Argument("vec3", INCIDENT));
+    ctxBsdf->addArgument(Argument("vec3", OUTGOING));
+
+    // BSDF-IBL context
+    SgNodeContextPtr ctxBsdfIbl = createNodeContext(NODE_CONTEXT_BSDF_IBL);
+    ctxBsdfIbl->addArgument(Argument("vec3", OUTGOING));
+    ctxBsdfIbl->setFunctionSuffix("_ibl");
+
+    // EDF context
+    SgNodeContextPtr ctxEdf = createNodeContext(NODE_CONTEXT_EDF);
+    ctxEdf->addArgument(Argument("vec3", NORMAL));
+    ctxEdf->addArgument(Argument("vec3", EVAL));
+
+    //
+    // Register all custom node implementation classes
+    //
 
     // <!-- <compare> -->
     registerImplementation("IM_compare__float__sx_glsl", Compare::create);
@@ -172,6 +182,8 @@ GlslShaderGenerator::GlslShaderGenerator()
     registerImplementation("IM_frame__float__sx_glsl", FrameGlsl::create);
     // <!-- <time> -->
     registerImplementation("IM_time__float__sx_glsl", TimeGlsl::create);
+    // <!-- <viewdirection> -->
+    registerImplementation("IM_viewdirection__vector3__sx_glsl", ViewDirectionGlsl::create);
 
     // <!-- <surface> -->
     registerImplementation("IM_surface__sx_glsl", SurfaceGlsl::create);
@@ -188,10 +200,10 @@ GlslShaderGenerator::GlslShaderGenerator()
     registerImplementation("IM_spotlight__sx_glsl", LightShaderGlsl::create);
 }
 
-ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr element)
+ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr element, const SgOptions& options)
 {
     HwShaderPtr shaderPtr = std::make_shared<HwShader>(shaderName);
-    shaderPtr->initialize(element, *this);
+    shaderPtr->initialize(element, *this, options);
 
     HwShader& shader = *shaderPtr;
 
@@ -270,7 +282,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     shader.beginScope(Shader::Brackets::BRACES);
     shader.addLine("vec4 hPositionWorld = u_worldMatrix * vec4(i_position, 1.0)");
     shader.addLine("gl_Position = u_viewProjectionMatrix * hPositionWorld");
-    emitFunctionCalls(shader);
+    emitFunctionCalls(*_defaultNodeContext, shader);
     shader.endScope();
     shader.newLine();
 
@@ -372,7 +384,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     // Add main function
     shader.addLine("void main()", false);
     shader.beginScope(Shader::Brackets::BRACES);
-    emitFunctionCalls(shader);
+    emitFunctionCalls(*_defaultNodeContext, shader);
     emitFinalOutput(shader);
     shader.endScope();
     shader.newLine();
@@ -382,14 +394,6 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
 
 void GlslShaderGenerator::emitFunctionDefinitions(Shader& shader)
 {
-    // Set BSDF node arguments to the variables used for BSDF direction vectors
-    _bsdfNodeArguments[0].second = INCIDENT;
-    _bsdfNodeArguments[1].second = OUTGOING;
-
-    // Set EDF node arguments to the variables used for orientation and evaluation
-    _edfNodeArguments[0].second = NORMAL;
-    _edfNodeArguments[1].second = EVAL;
-
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
         // Emit function for handling texture coords v-flip 
@@ -402,7 +406,7 @@ void GlslShaderGenerator::emitFunctionDefinitions(Shader& shader)
             // Emit functions for all bound light shaders
             for (auto lightShader : getBoundLightShaders())
             {
-                lightShader.second->emitFunctionDefinition(SgNode::NONE, *this, shader);
+                lightShader.second->emitFunctionDefinition(*SgNode::NONE, *this, shader);
             }
 
             // Emit active light count function
@@ -421,7 +425,7 @@ void GlslShaderGenerator::emitFunctionDefinitions(Shader& shader)
             {
                 shader.addLine(ifstatement + "(light.type == " + std::to_string(lightShader.first) + ")", false);
                 shader.beginScope(Shader::Brackets::BRACES);
-                lightShader.second->emitFunctionCall(SgNode::NONE, *this, shader);
+                lightShader.second->emitFunctionCall(*SgNode::NONE, *_defaultNodeContext, *this, shader);
                 shader.endScope();
                 ifstatement = "else if ";
             }
@@ -435,14 +439,14 @@ void GlslShaderGenerator::emitFunctionDefinitions(Shader& shader)
     ParentClass::emitFunctionDefinitions(shader);
 }
 
-void GlslShaderGenerator::emitFunctionCalls(Shader &shader)
+void GlslShaderGenerator::emitFunctionCalls(const SgNodeContext& context, Shader &shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
         // For vertex stage just emit all function calls in order
         // and ignore conditional scope.
         for (SgNode* node : shader.getNodeGraph()->getNodes())
         {
-            shader.addFunctionCall(node, *this);
+            shader.addFunctionCall(node, context, *this);
         }
     END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
 
@@ -459,14 +463,14 @@ void GlslShaderGenerator::emitFunctionCalls(Shader &shader)
             {
                 if (node->hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE))
                 {
-                    shader.addFunctionCall(node, *this);
+                    shader.addFunctionCall(node, context, *this);
                 }
             }
         }
         else
         {
-            // No surface shader, fallback to base class
-            ParentClass::emitFunctionCalls(shader);
+            // No surface shader, fallback to parent class
+            ParentClass::emitFunctionCalls(context, shader);
         }
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
@@ -517,6 +521,23 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
     }
 }
 
+void GlslShaderGenerator::addNodeContextIDs(SgNode* node) const
+{
+    if (node->hasClassification(SgNode::Classification::BSDF))
+    {
+        node->addContextID(NODE_CONTEXT_BSDF);
+        node->addContextID(NODE_CONTEXT_BSDF_IBL);
+    }
+    else if (node->hasClassification(SgNode::Classification::BSDF))
+    {
+        node->addContextID(NODE_CONTEXT_EDF);
+    }
+    else
+    {
+        ParentClass::addNodeContextIDs(node);
+    }
+}
+
 void GlslShaderGenerator::emitTextureNodes(Shader& shader)
 {
     // Emit function calls for all texturing nodes
@@ -525,7 +546,7 @@ void GlslShaderGenerator::emitTextureNodes(Shader& shader)
     {
         if (node->hasClassification(SgNode::Classification::TEXTURE) && !node->referencedConditionally())
         {
-            shader.addFunctionCall(node, *this);
+            shader.addFunctionCall(node, *_defaultNodeContext, *this);
             found = true;
         }
     }
@@ -538,9 +559,11 @@ void GlslShaderGenerator::emitTextureNodes(Shader& shader)
 
 void GlslShaderGenerator::emitBsdfNodes(const SgNode& shaderNode, const string& incident, const string& outgoing, Shader& shader, string& bsdf)
 {
-    // Set BSDF node arguments according to the given directions
-    _bsdfNodeArguments[0].second = incident;
-    _bsdfNodeArguments[1].second = outgoing;
+    SgNodeContext context(NODE_CONTEXT_BSDF);
+
+    // Set extra arguments according to the given directions
+    context.addArgument(Argument("vec3", incident));
+    context.addArgument(Argument("vec3", outgoing));
 
     SgNode* last = nullptr;
 
@@ -550,7 +573,7 @@ void GlslShaderGenerator::emitBsdfNodes(const SgNode& shaderNode, const string& 
     {
         if (node->hasClassification(SgNode::Classification::BSDF) && shaderNode.isUsedClosure(node))
         {
-            shader.addFunctionCall(node, *this);
+            shader.addFunctionCall(node, context, *this);
             last = node;
         }
     }
@@ -561,11 +584,40 @@ void GlslShaderGenerator::emitBsdfNodes(const SgNode& shaderNode, const string& 
     }
 }
 
+void GlslShaderGenerator::emitBsdfNodesIBL(const SgNode& shaderNode, const string& outgoing, Shader& shader, string& radiance)
+{
+    SgNodeContext context(NODE_CONTEXT_BSDF_IBL);
+
+    // Set extra arguments according to the given directions
+    context.addArgument(Argument("vec3", outgoing));
+    context.setFunctionSuffix("_ibl");
+
+    SgNode* last = nullptr;
+
+    // Emit function calls for all BSDF nodes used by this shader
+    // The last node will hold the final result
+    for (SgNode* node : shader.getNodeGraph()->getNodes())
+    {
+        if (node->hasClassification(SgNode::Classification::BSDF) && shaderNode.isUsedClosure(node))
+        {
+            shader.addFunctionCall(node, context, *this);
+            last = node;
+        }
+    }
+
+    if (last)
+    {
+        radiance = last->getOutput()->name;
+    }
+}
+
 void GlslShaderGenerator::emitEdfNodes(const SgNode& shaderNode, const string& orientDir, const string& evalDir, Shader& shader, string& edf)
 {
-    // Set EDF node arguments according to the given directions
-    _edfNodeArguments[0].second = orientDir;
-    _edfNodeArguments[1].second = evalDir;
+    SgNodeContext context(NODE_CONTEXT_EDF);
+
+    // Set extra arguments according to the given directions
+    context.addArgument(Argument("vec3", orientDir));
+    context.addArgument(Argument("vec3", evalDir));
 
     edf = "vec3(0.0)";
 
@@ -577,7 +629,7 @@ void GlslShaderGenerator::emitEdfNodes(const SgNode& shaderNode, const string& o
     {
         if (node->hasClassification(SgNode::Classification::EDF) && shaderNode.isUsedClosure(node))
         {
-            shader.addFunctionCall(node, *this);
+            shader.addFunctionCall(node, context, *this);
             last = node;
         }
     }
@@ -586,19 +638,6 @@ void GlslShaderGenerator::emitEdfNodes(const SgNode& shaderNode, const string& o
     {
         edf = last->getOutput()->name;
     }
-}
-
-const Arguments* GlslShaderGenerator::getExtraArguments(const SgNode& node) const
-{
-    if (node.hasClassification(SgNode::Classification::BSDF))
-    {
-        return &_bsdfNodeArguments;
-    }
-    else if (node.hasClassification(SgNode::Classification::EDF))
-    {
-        return &_edfNodeArguments;
-    }
-    return nullptr;
 }
 
 void GlslShaderGenerator::toVec4(const string& type, string& variable)

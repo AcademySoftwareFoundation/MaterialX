@@ -4,6 +4,8 @@
 #include <MaterialXShaderGen/Shader.h>
 #include <MaterialXShaderGen/Syntax.h>
 #include <MaterialXShaderGen/Factory.h>
+#include <MaterialXShaderGen/SgNode.h>
+#include <MaterialXShaderGen/SgOptions.h>
 
 #include <MaterialXCore/Util.h>
 
@@ -13,10 +15,6 @@ namespace MaterialX
 {
 
 using ShaderGeneratorPtr = shared_ptr<class ShaderGenerator>;
-
-/// An argument is a pair of strings holding the 'type' and 'name' of the argument.
-using Argument = std::pair<string, string>;
-using Arguments = vector<Argument>;
 
 /// Base class for shader generators
 /// All 3rd party shader generators should derive from this class.
@@ -36,7 +34,7 @@ public:
 
     /// Generate a shader starting from the given element, translating 
     /// the element and all dependencies upstream into shader code.
-    virtual ShaderPtr generate(const string& shaderName, ElementPtr element) = 0;
+    virtual ShaderPtr generate(const string& shaderName, ElementPtr element, const SgOptions& options) = 0;
 
     /// Emit typedefs for all data types that needs it
     virtual void emitTypeDefs(Shader& shader);
@@ -45,7 +43,7 @@ public:
     virtual void emitFunctionDefinitions(Shader& shader);
 
     /// Emit all functon calls constructing the shader body
-    virtual void emitFunctionCalls(Shader& shader);
+    virtual void emitFunctionCalls(const SgNodeContext& context, Shader& shader);
 
     /// Emit the final output expression
     virtual void emitFinalOutput(Shader& shader) const;
@@ -60,15 +58,19 @@ public:
     /// Emit the output variable name for an output, optionally including it's type
     virtual void emitOutput(const SgOutput* output, bool includeType, Shader& shader) const;
 
-    /// Query the shader generator if it wants any extra arguments added when 
-    /// emiting the function for the given node.
-    virtual const Arguments* getExtraArguments(const SgNode& node) const;
-
     /// Return the v-direction used by the target system
     virtual Shader::VDirection getTargetVDirection() const;
 
     /// Return the syntax object for the language used by the code generator
     const Syntax* getSyntax() const { return _syntax.get(); }
+
+    /// Add node contexts id's to the given node to control 
+    /// in which contexts this node should be used.
+    virtual void addNodeContextIDs(SgNode* node) const;
+
+    /// Return the node context corresponding to the given id,
+    /// or nullptr if no such context is found.
+    const SgNodeContext* getNodeContext(int id) const;
 
     template<class T>
     using CreatorFunction = shared_ptr<T>(*)();
@@ -97,6 +99,12 @@ public:
         return _sourceCodeSearchPath;
     }
 
+public:
+    enum NodeContext
+    {
+        NODE_CONTEXT_DEFAULT = 0
+    };
+
 protected:
     /// Protected constructor
     ShaderGenerator(SyntaxPtr syntax);
@@ -111,11 +119,18 @@ protected:
     /// Derived classes can override this to use custom compound implementations.
     virtual SgImplementationPtr createCompoundImplementation(NodeGraphPtr impl);
 
+    /// Create a new node context with the given id. The context is added to the 
+    /// shader generators node context storage and returned.
+    SgNodeContextPtr createNodeContext(int id);
+
     SyntaxPtr _syntax;
     Factory<SgImplementation> _implFactory;
     std::unordered_map<string, SgImplementationPtr> _cachedImpls;
 
     FileSearchPath _sourceCodeSearchPath;
+
+    std::unordered_map<int, SgNodeContextPtr> _nodeContexts;
+    SgNodeContextPtr _defaultNodeContext;
 };
 
 } // namespace MaterialX

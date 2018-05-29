@@ -89,6 +89,31 @@ OgsFxSyntax::OgsFxSyntax()
         )
     );
 
+    addTypeSyntax
+    (
+        DataType::MATRIX3,
+        TypeSyntax
+        (
+            "mat3",
+            "mat3(1.0)",
+            "{1, 0, 0, 0, 1, 0, 0, 0, 1}",
+            "",
+            "out mat3"
+        )
+    );
+
+    addTypeSyntax
+    (
+        DataType::MATRIX4,
+        TypeSyntax
+        (
+            "mat4",
+            "mat4(1.0)",
+            "{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1}",
+            "",
+            "out mat4"
+        )
+    );
 
     addValueConstructSyntax(
         DataType::COLOR2,
@@ -152,9 +177,31 @@ OgsFxSyntax::OgsFxSyntax()
             { ".x", ".y", ".z", ".w"}
         )
     );
+
+    addValueConstructSyntax
+    (
+        DataType::MATRIX3,
+        ValueConstructSyntax
+        (
+            "mat3(", ")",
+            "{", "}",
+            {}
+        )
+    );
+
+    addValueConstructSyntax
+    (
+        DataType::MATRIX4,
+        ValueConstructSyntax
+        (
+            "mat4(", ")",
+            "{", "}",
+            {}
+        )
+    );
 }
 
-void OgsFxSyntax::makeUnique(string& name, const string& type, UniqueNameMap& uniqueNames) const
+void OgsFxSyntax::renamePublicUniform(string& name, const string& type) const
 {
     // In OGS if a color parameter is suffixed with "Color"
     // it automatically gets a color picker widgets in UI.
@@ -174,7 +221,7 @@ void OgsFxSyntax::makeUnique(string& name, const string& type, UniqueNameMap& un
             {
                 const size_t n = name.size() - 5;
                 name = name.substr(0, n);
-                if (name.back() == '_')
+                if (!name.empty() && name.back() == '_')
                 {
                     name.pop_back();
                 }
@@ -183,7 +230,6 @@ void OgsFxSyntax::makeUnique(string& name, const string& type, UniqueNameMap& un
         // Add the right suffix
         name += COLOR_CAMEL;
     }
-    ParentClass::makeUnique(name, type, uniqueNames);
 }
 
 }

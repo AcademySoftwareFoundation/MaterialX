@@ -42,7 +42,7 @@ void SurfaceGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*sha
         EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void SurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
+void SurfaceGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*context*/, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
@@ -86,18 +86,21 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
     //
     shader.beginLine();
 
-    // Check for 100% transparency
-    //
     string surfaceOpacity = node.getName() + "_opacity";
     shader.addStr("float " + surfaceOpacity + " = ");
     glslgen.emitInput(node.getInput("opacity"), shader);
 
     shader.endLine();
+
+    // Check for 100% transparency
+    //
     shader.addLine("if (" + surfaceOpacity + " > 0.001)", false);
     shader.beginScope();
 
+    //
     // Handle direct lighting
     //
+
     shader.addComment("Light loop");
     shader.addBlock(LIGHT_LOOP_BEGIN, shadergen);
     shader.beginScope();
@@ -111,17 +114,15 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
     shader.newLine();
 
     shader.addComment("Accumulate the light's contribution");
-    shader.addLine(outColor + " += lightShader.intensity * " + bsdf + ".fr");
+    shader.addLine(outColor + " += lightShader.intensity * " + bsdf);
 
     shader.endScope();
     shader.newLine();
 
     //
-    // TODO: Handle indirect lighting. Implement environment lighting for diffuse & specular BSDF's
+    // Handle indirect lighting.
     //
 
-    // Handle surface emission
-    //
     shader.addComment("Add surface emission");
     shader.beginScope();
     string emission;
@@ -130,19 +131,27 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shaderge
     shader.endScope();
     shader.newLine();
 
+    shader.addComment("Add IBL contribution");
+    string radianceIBL;
+    glslgen.emitBsdfNodesIBL(node, GlslShaderGenerator::VIEW_DIR, shader, radianceIBL);
+    shader.newLine();
+    shader.addLine(outColor + " += " + radianceIBL);
+    shader.newLine();
+
+/*
     // Handle surface transparency
     //
     shader.addComment("Calculate the BSDF transmission for viewing direction");
     shader.beginScope();
     glslgen.emitBsdfNodes(node, GlslShaderGenerator::VIEW_DIR, GlslShaderGenerator::VIEW_DIR, shader, bsdf);
-    shader.addLine(outTransparency + " = " + bsdf + ".ft");
+    shader.addLine(outTransparency + " = " + bsdf);
     shader.endScope();
     shader.newLine();
+*/
 
-    // Mix in opacity which affect the total result
-    //
+    shader.addComment("Mix in opacity which affect the total result");
     shader.addLine(outColor + " *= " + surfaceOpacity);
-    shader.addLine(outTransparency + " = mix(vec3(1.0), " + outTransparency + ", " + surfaceOpacity + ")");
+//    shader.addLine(outTransparency + " = mix(vec3(1.0), " + outTransparency + ", " + surfaceOpacity + ")");
 
     shader.endScope();
 

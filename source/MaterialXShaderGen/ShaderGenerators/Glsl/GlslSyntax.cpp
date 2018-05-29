@@ -232,9 +232,9 @@ GlslSyntax::GlslSyntax()
         TypeSyntax
         (
             "BSDF",
-            "BSDF(vec3(0.0),vec3(0.0))",
+            "BSDF(0.0)",
             "",
-            "struct BSDF { vec3 fr; vec3 ft; };",
+            "#define BSDF vec3",
             "out BSDF"
         )
     );
@@ -284,9 +284,9 @@ GlslSyntax::GlslSyntax()
         TypeSyntax
         (
             "volumeshader", 
-            "volumeshader(VDF(vec3(0.0),vec3(0.0)),vec3(0.0))",
+            "volumeshader(VDF(vec3(0.0),vec3(0.0)),EDF(0.0))",
             "",
-            "struct volumeshader { VDF vdf; vec3 edf; };",
+            "struct volumeshader { VDF vdf; EDF edf; };",
             "out volumeshader"
         )
     );
@@ -383,6 +383,29 @@ GlslSyntax::GlslSyntax()
             { ".x", ".y", ".z", ".w"}
         )
     );
+
+    addValueConstructSyntax
+    (
+        DataType::MATRIX3,
+        ValueConstructSyntax
+        (
+            "mat3(", ")",
+            "mat3(", ")",
+            { }
+        )
+    );
+
+    addValueConstructSyntax
+    (
+        DataType::MATRIX4,
+        ValueConstructSyntax
+        (
+            "mat4(", ")",
+            "mat4(", ")",
+            {}
+        )
+    );
+
 }
 
 string GlslSyntax::getValue(const Value& value, const string& type, bool paramInit) const

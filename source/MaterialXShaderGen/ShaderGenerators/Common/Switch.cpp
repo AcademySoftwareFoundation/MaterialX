@@ -12,7 +12,7 @@ SgImplementationPtr Switch::create()
     return std::make_shared<Switch>();
 }
 
-void Switch::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
+void Switch::emitFunctionCall(const SgNode& node, const SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
@@ -47,7 +47,7 @@ void Switch::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Sh
             const SgNode::ScopeInfo& scope = otherNode->getScopeInfo();
             if (scope.conditionalNode == &node && scope.usedByBranch(branch))
             {
-                shader.addFunctionCall(otherNode, shadergen);
+                shader.addFunctionCall(otherNode, context, shadergen);
             }
         }
 

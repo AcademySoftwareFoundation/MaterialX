@@ -31,7 +31,7 @@ void BitangentGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shade
     }
 }
 
-void BitangentGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
+void BitangentGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*context*/, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 

@@ -4,7 +4,6 @@ void sx_coatingbsdf(vec3 L, vec3 V, vec3 reflectance, float ior, float roughness
 {
     result = base;
 
-    normal = sx_front_facing(normal);
     float NdotL = dot(normal,L);
     float NdotV = dot(normal,V);
     if (NdotL <= 0.0 || NdotV <= 0.0)
@@ -30,9 +29,18 @@ void sx_coatingbsdf(vec3 L, vec3 V, vec3 reflectance, float ior, float roughness
     float G = sx_microfacet_ggx_smith_G(NdotL, NdotV, alpha);
 
     float VdotH = dot(V, H);
-    float F = sx_fresnel_schlick(VdotH, ior);
+    vec3 F = sx_fresnel_schlick(VdotH, ior) * reflectance;
 
     // Note: NdotL is cancelled out
-    result.fr = reflectance * D * G * F / (4 * NdotV) + base.fr * (1.0 - F);
-    result.ft = base.ft * (1.0 - F);
+    result = D * G * F / (4 * NdotV)  // Specular coating component
+           + base * (1.0 - F);        // Base component attenuated by coating
+}
+
+void sx_coatingbsdf_ibl(vec3 V, vec3 reflectance, float ior, float roughness, float anisotropy, vec3 normal, vec3 tangent, int distribution, vec3 base, out vec3 result)
+{
+    vec3 Li = sx_environment_specular(normal, V, roughness);
+    vec3 F = sx_fresnel_schlick_roughness(dot(normal, V), ior, roughness) * reflectance;
+
+    result = Li * F            // Specular coating component
+           + base * (1.0 - F); // Base component attenuated by coating
 }

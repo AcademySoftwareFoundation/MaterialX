@@ -31,7 +31,7 @@ void NormalGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shaderge
     }
 }
 
-void NormalGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen, Shader& shader_)
+void NormalGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*context*/, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 

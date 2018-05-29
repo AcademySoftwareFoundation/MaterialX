@@ -50,7 +50,7 @@ public:
 
     /// Generate a shader starting from the given element, translating 
     /// the element and all dependencies upstream into shader code.
-    ShaderPtr generate(const string& shaderName, ElementPtr element) override;
+    ShaderPtr generate(const string& shaderName, ElementPtr element, const SgOptions& options) override;
 
     /// Emit a shader uniform input variable
     void emitUniform(const Shader::Variable& uniform, Shader& shader) override;

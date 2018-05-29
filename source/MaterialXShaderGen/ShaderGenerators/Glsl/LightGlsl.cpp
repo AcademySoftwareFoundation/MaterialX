@@ -34,7 +34,7 @@ void LightGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*shade
         EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void LightGlsl::emitFunctionCall(const SgNode& node, ShaderGenerator& shadergen_, Shader& shader_)
+void LightGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*context*/, ShaderGenerator& shadergen_, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
     GlslShaderGenerator& shadergen = static_cast<GlslShaderGenerator&>(shadergen_);
