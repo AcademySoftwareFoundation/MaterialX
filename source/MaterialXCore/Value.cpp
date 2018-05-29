@@ -97,7 +97,7 @@ template <class T> void dataToString(const T& data, string& str)
 {
     std::stringstream ss;
     ss.precision(Value::getFloatPrecision());
-    ss.setf(Value::getFloatFormat(), std::ios_base::floatfield);
+    ss.setf((std::ios_base::fmtflags)Value::getFloatFormat(), std::ios_base::floatfield);
     ss << data;
     str = ss.str();
 }
