@@ -315,24 +315,25 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
 
     // Example4: Create a material from 'standardsurface' using <inputmap> nodes for mappable inputs
     {
-        // Shader parameter listing (<name>, <type>, <mappable>)
-        std::vector<std::tuple<std::string, std::string, bool>> shaderParams =
+        // Shader parameter listing (<name>, <type>, <mappable
+        using StringPair = std::pair<std::string, std::string>;
+        const std::vector< std::pair<StringPair, bool> > shaderParams =
         {
-            { "base", "float", false },
-            { "base_color", "color3", true },
-            { "diffuse_roughness", "float", false },
-            { "specular", "float", true },
-            { "specular_color", "color3", true },
-            { "specular_roughness", "float", true },
-            { "specular_IOR", "float", false },
-            { "specular_anisotropy", "float", false },
-            { "metalness","float", true },
-            { "subsurface", "float", false },
-            { "subsurface_color", "color3", false },
-            { "coat", "float", true },
-            { "coat_color", "color3", true },
-            { "coat_roughness", "float", true },
-            { "coat_IOR", "float", false },
+            { {"base", "float"}, false },
+            { { "base_color", "color3" }, true },
+            { { "diffuse_roughness", "float" }, false },
+            { { "specular", "float" }, true },
+            { { "specular_color", "color3" }, true },
+            { { "specular_roughness", "float" }, true },
+            { { "specular_IOR", "float" }, false },
+            { { "specular_anisotropy", "float" }, false },
+            { { "metalness","float" }, true },
+            { { "subsurface", "float" }, false },
+            { { "subsurface_color", "color3" }, false },
+            { { "coat", "float" }, true },
+            { { "coat_color", "color3" }, true },
+            { { "coat_roughness", "float" }, true },
+            { { "coat_IOR", "float" }, false },
         };
 
         mx::NodeDefPtr nodeDef = doc->addNodeDef("ND_testshader4", "surfaceshader", "testshader4");
@@ -342,29 +343,33 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         mx::NodePtr standardSurface = shaderGraph->addNode("standardsurface", "standardsurface1", "surfaceshader");
         for (auto shaderParam : shaderParams)
         {
-            if (std::get<2>(shaderParam))
+            const std::string& name = shaderParam.first.first;
+            const std::string& type = shaderParam.first.second;
+            const bool mappable = shaderParam.second;
+
+            if (mappable)
             {
                 // Texturable, add an input for both a value and an image map
-                nodeDef->addInput(std::get<0>(shaderParam), std::get<1>(shaderParam));
-                nodeDef->addInput(std::get<0>(shaderParam) + "_map", "filename");
+                nodeDef->addInput(name, type);
+                nodeDef->addInput(name + "_map", "filename");
 
                 // Create the inputmap node and connect it to the shader interface
-                mx::NodePtr texInput = shaderGraph->addNode("inputmap", std::get<0>(shaderParam), std::get<1>(shaderParam));
+                mx::NodePtr texInput = shaderGraph->addNode("inputmap", name, type);
                 mx::InputPtr file = texInput->addInput("file", "filename");
-                file->setInterfaceName(std::get<0>(shaderParam) + "_map");
-                mx::InputPtr value = texInput->addInput("value", std::get<1>(shaderParam));
-                value->setInterfaceName(std::get<0>(shaderParam));
+                file->setInterfaceName(name + "_map");
+                mx::InputPtr value = texInput->addInput("value", type);
+                value->setInterfaceName(name);
 
                 // Connect it to the surface shader
-                mx::InputPtr input = standardSurface->addInput(std::get<0>(shaderParam), std::get<1>(shaderParam));
+                mx::InputPtr input = standardSurface->addInput(name, type);
                 input->setConnectedNode(texInput);
             }
             else
             {
                 // Non-Texturable, add a single value input
-                nodeDef->addInput(std::get<0>(shaderParam), std::get<1>(shaderParam));
-                mx::InputPtr input = standardSurface->addInput(std::get<0>(shaderParam), std::get<1>(shaderParam));
-                input->setInterfaceName(std::get<0>(shaderParam));
+                nodeDef->addInput(name, type);
+                mx::InputPtr input = standardSurface->addInput(name, type);
+                input->setInterfaceName(name);
             }
         }
 
