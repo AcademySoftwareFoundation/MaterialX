@@ -43,7 +43,10 @@
   <!-- <backfacing> -->
   <implementation name="IM_backfacing__float__sx_osl" nodedef="ND_backfacing__float" file="sxpbrlib/sx-osl/sx_backfacing.inline" language="sx-osl"/>
 
-  <!-- <complexior> -->
-  <implementation name="IM_complexior__sx_osl" nodedef="ND_complexior" file="sxpbrlib/sx-osl/sx_complexior.osl" language="sx-osl"/>
+  <!-- <reflectivity> -->
+  <implementation name="IM_reflectivity__sx_osl" nodedef="ND_reflectivity" file="sxpbrlib/sx-osl/sx_reflectivity.osl" function="sx_reflectivity" language="sx-osl"/>
+
+  <!-- <edgetint> -->
+  <implementation name="IM_edgetint__sx_osl" nodedef="ND_edgetint" file="sxpbrlib/sx-osl/sx_edgetint.osl" function="sx_edgetint" language="sx-osl"/>
 
 </materialx>

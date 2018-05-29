@@ -160,8 +160,8 @@
     </coatingbsdf>
     <!-- Metal component -->
     <metalbsdf name="Metal_BSDF" type="BSDF">
-      <input name="ior_n" type="vector3" value="0.183, 0.422, 1.373" />
-      <input name="ior_k" type="vector3" value="3.424, 2.346, 1.771" />
+      <input name="reflectivity" type="color3" nodename="multiply1"/>
+      <input name="edgetint" type="color3" nodename="multiply2"/>
       <input name="roughness" type="float" nodename="invert3" />
       <input name="anisotropy" type="float" interfacename="specular_anisotropy" />
       <input name="normal" type="vector3" interfacename="normal" />

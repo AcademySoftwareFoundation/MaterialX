@@ -227,8 +227,11 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
     {
         // Create a nodedef interface for the surface shader
         mx::NodeDefPtr nodeDef = doc->addNodeDef("ND_testshader3", "surfaceshader", "testshader3");
+        nodeDef->addInput("reflectivity", "color3");
+        nodeDef->addInput("edgetint", "color3");
         nodeDef->addInput("ior_n", "vector3");
         nodeDef->addInput("ior_k", "vector3");
+        nodeDef->addInput("artistic_vs_complex", "float");
         nodeDef->addInput("roughness", "float");
         nodeDef->addInput("anisotropy", "float");
 
@@ -238,21 +241,46 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         // Get a normal facing our view direction
         mx::NodePtr shadingnormal = shaderGraph->addNode("shadingnormal", "shadingnormal1", "vector3");
 
-        // A metal specular lobe
-        mx::NodePtr metal = shaderGraph->addNode("metalbsdf", "metal", "BSDF");
-        metal->setConnectedNode("normal", shadingnormal);
-        mx::InputPtr ior_n = metal->addInput("ior_n", "vector3");
-        ior_n->setInterfaceName("ior_n");
-        mx::InputPtr ior_k = metal->addInput("ior_k", "vector3");
-        ior_k->setInterfaceName("ior_k");
-        mx::InputPtr roughness = metal->addInput("roughness", "float");
-        roughness->setInterfaceName("roughness");
-        mx::InputPtr anisotropy = metal->addInput("anisotropy", "float");
-        anisotropy->setInterfaceName("anisotropy");
+        // A metal lobe with artistic fresnel
+        mx::NodePtr metal1 = shaderGraph->addNode("metalbsdf", "metal1", "BSDF");
+        metal1->setConnectedNode("normal", shadingnormal);
+        mx::InputPtr reflectivity = metal1->addInput("reflectivity", "color3");
+        reflectivity->setInterfaceName("reflectivity");
+        mx::InputPtr edgetint = metal1->addInput("edgetint", "color3");
+        edgetint->setInterfaceName("edgetint");
+        mx::InputPtr roughness1 = metal1->addInput("roughness", "float");
+        roughness1->setInterfaceName("roughness");
+        mx::InputPtr anisotropy1 = metal1->addInput("anisotropy", "float");
+        anisotropy1->setInterfaceName("anisotropy");
 
+        // A metal lobe with complex fresnel
+        mx::NodePtr metal2 = shaderGraph->addNode("metalbsdf", "metal2", "BSDF");
+        mx::NodePtr reflectivity1 = shaderGraph->addNode("reflectivity", "reflectivity1", "color3");
+        mx::InputPtr reflectivity1_ior_n = reflectivity1->addInput("ior_n", "vector3");
+        reflectivity1_ior_n->setInterfaceName("ior_n");
+        mx::InputPtr reflectivity1_ior_k = reflectivity1->addInput("ior_k", "vector3");
+        reflectivity1_ior_k->setInterfaceName("ior_k");
+        mx::NodePtr edgetint1 = shaderGraph->addNode("edgetint", "edgetint1", "color3");
+        mx::InputPtr edgetint1_ior_n = edgetint1->addInput("ior_n", "vector3");
+        edgetint1_ior_n->setInterfaceName("ior_n");
+        edgetint1->setConnectedNode("reflectivity", reflectivity1);
+        metal2->setConnectedNode("normal", shadingnormal);
+        metal2->setConnectedNode("reflectivity", reflectivity1);
+        metal2->setConnectedNode("edgetint", edgetint1);
+        mx::InputPtr roughness2 = metal2->addInput("roughness", "float");
+        roughness2->setInterfaceName("roughness");
+        mx::InputPtr anisotropy2 = metal2->addInput("anisotropy", "float");
+        anisotropy2->setInterfaceName("anisotropy");
+
+        mx::NodePtr mix = shaderGraph->addNode("mixbsdf", "mix", "BSDF");
+        mx::InputPtr weight = mix->addInput("weight", "float");
+        weight->setInterfaceName("artistic_vs_complex");
+        mix->setConnectedNode("in1", metal2);
+        mix->setConnectedNode("in2", metal1);
+        
         // Create a surface shader construction node and connect the final BSDF
         mx::NodePtr surface = shaderGraph->addNode("surface", "surface1", "surfaceshader");
-        surface->setConnectedNode("bsdf", metal);
+        surface->setConnectedNode("bsdf", mix);
 
         // Connect it as the graph output
         mx::OutputPtr output = shaderGraph->addOutput("out", "surfaceshader");
@@ -265,13 +293,18 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         mx::MaterialPtr material = doc->addMaterial("example3");
         mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "testshader3");
 
-        // Bind a couple of shader parameter values
-        mx::BindInputPtr bindIorN = shaderRef->addBindInput("ior_n", "vector3");
-        bindIorN->setValue(mx::Vector3(0.183f, 0.422f, 1.373f));
-        mx::BindInputPtr bindIorK = shaderRef->addBindInput("ior_k", "vector3");
-        bindIorK->setValue(mx::Vector3(3.424f, 2.346f, 1.771f));
-        mx::BindInputPtr bindRoughness = shaderRef->addBindInput("roughness", "float");
-        bindRoughness->setValue(0.2f);
+        // Bind values setting both reflectivity/edgetint and ior_n/ior_k to represent gold,
+        // so both metals should give the same result.
+        mx::BindInputPtr reflectivity_input = shaderRef->addBindInput("reflectivity", "color3");
+        reflectivity_input->setValue(mx::Color3(0.944f, 0.776f, 0.373f));
+        mx::BindInputPtr edgetint_input = shaderRef->addBindInput("edgetint", "color3");
+        edgetint_input->setValue(mx::Color3(0.998f, 0.981f, 0.751f));
+        mx::BindInputPtr ior_n_input = shaderRef->addBindInput("ior_n", "vector3");
+        ior_n_input->setValue(mx::Vector3(0.183f, 0.422f, 1.373f));
+        mx::BindInputPtr ior_k_input = shaderRef->addBindInput("ior_k", "vector3");
+        ior_k_input->setValue(mx::Vector3(3.424f, 2.346f, 1.771f));
+        mx::BindInputPtr roughness_input = shaderRef->addBindInput("roughness", "float");
+        roughness_input->setValue(0.2f);
 
         materials.push_back(material);
     }

@@ -61,13 +61,33 @@
   -->
   <nodedef name="ND_metalbsdf" node="metalbsdf" type="BSDF" nodecategory="shaderx"
            doc="A BSDF node for specular to glossy reflection with conductor fresel.">
-    <input name="ior_n" type="vector3" value="0.183, 0.422, 1.373"/>
-    <input name="ior_k" type="vector3" value="3.424, 2.346, 1.771"/>
+    <input name="reflectivity" type="color3" value="0.944 0.776 0.373"/>
+    <input name="edgetint" type="color3" value="0.998 0.981 0.751"/>
     <input name="roughness" type="float" value="0.2"/>
     <input name="anisotropy" type="float" value="0.0"/>
     <input name="normal" type="vector3" defaultgeomprop="shadingnormal"/>
     <input name="tangent" type="vector3" defaultgeomprop="tangent"/>
     <input name="distribution" type="string" value="ggx"/>
+  </nodedef>
+
+  <!--
+    Node: <reflectivity>
+    A node calculating reflectivity from complex refraction index.
+  -->
+  <nodedef name="ND_reflectivity" node="reflectivity" type="color3" nodecategory="shaderx"
+           doc="A node calculating reflectivity from complex refraction index.">
+    <input name="ior_n" type="vector3"/>
+    <input name="ior_k" type="vector3"/>
+  </nodedef>
+
+  <!--
+    Node: <edgetint>
+    A node calculating edgetint from refraction index and reflectivity.
+  -->
+  <nodedef name="ND_edgetint" node="edgetint" type="color3" nodecategory="shaderx"
+           doc="A node calculating edgetint from refraction index and reflectivity.">
+    <input name="ior_n" type="vector3"/>
+    <input name="reflectivity" type="color3"/>
   </nodedef>
 
   <!--
@@ -272,16 +292,6 @@
     Node: <shadingnormal>
   -->
   <nodedef name="ND_shadingnormal__vector3" node="shadingnormal" type="vector3" nodecategory="shaderx"/>
-
-  <!--
-    Node: <complexior>
-  -->
-  <nodedef name="ND_complexior" node="complexior" type="multioutput" nodecategory="shaderx">
-    <input name="reflectivity" type="color3" value="0.926, 0.721, 0.504"/>
-    <input name="edgetint" type="color3" value="0.996, 0.957, 0.823"/>
-    <output name="ior_n" type="vector3"/>
-    <output name="ior_k" type="vector3"/>
-  </nodedef>
 
   <!--
     Node: <inputmap>

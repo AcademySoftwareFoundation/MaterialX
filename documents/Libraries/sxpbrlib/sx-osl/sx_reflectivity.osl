@@ -1,0 +1,6 @@
+#include "sxpbrlib/sx-osl/lib/sx_complexior.osl"
+
+void sx_reflectivity(vector ior_n, vector ior_k, output color result)
+{
+    result = sx_get_reflectivity(ior_n, ior_k);
+}

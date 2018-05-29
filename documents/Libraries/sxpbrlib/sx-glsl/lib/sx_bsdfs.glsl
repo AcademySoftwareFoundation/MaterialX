@@ -37,6 +37,16 @@ float sx_microfacet_ggx_smith_G(float NdotL, float NdotV, float alpha)
     return sx_microfacet_ggx_G1(NdotL, alpha) * sx_microfacet_ggx_G1(NdotV, alpha);
 }
 
+vec3 sx_fresnel_schlick(float cosTheta, vec3 F0)
+{
+    if (cosTheta < 0.0)
+        return vec3(1.0);
+    float x = 1.0 - cosTheta;
+    float x2 = x*x;
+    float x5 = x2*x2*x;
+    return F0 + (1.0 - F0) * x5;
+}
+
 float sx_fresnel_schlick(float cosTheta, float ior)
 {
     if (cosTheta < 0.0)

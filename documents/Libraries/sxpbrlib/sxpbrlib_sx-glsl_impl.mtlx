@@ -55,7 +55,10 @@
   <!-- <backfacing> -->
   <implementation name="IM_backfacing__float__sx_glsl" nodedef="ND_backfacing__float" file="sxpbrlib/sx-glsl/sx_backfacing.inline" language="sx-glsl"/>
 
-  <!-- <complexior> -->
-  <implementation name="IM_complexior__sx_glsl" nodedef="ND_complexior" file="sxpbrlib/sx-glsl/sx_complexior.glsl" language="sx-glsl"/>
+  <!-- <reflectivity> -->
+  <implementation name="IM_reflectivity__sx_glsl" nodedef="ND_reflectivity" file="sxpbrlib/sx-glsl/sx_reflectivity.glsl" function="sx_reflectivity" language="sx-glsl"/>
+
+  <!-- <edgetint> -->
+  <implementation name="IM_edgetint__sx_glsl" nodedef="ND_edgetint" file="sxpbrlib/sx-glsl/sx_edgetint.glsl" function="sx_edgetint" language="sx-glsl"/>
 
 </materialx>
