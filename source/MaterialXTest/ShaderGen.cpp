@@ -153,10 +153,10 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         normalInput->setConnectedOutput(outNormal);
 
         // Bind a couple of shader parameter values
-        mx::BindInputPtr specularRoughnessInput = shaderRef->addBindInput("specular_roughness", "float");
-        specularRoughnessInput->setValue(0.2f);
-        mx::BindInputPtr specularIorInput = shaderRef->addBindInput("specular_IOR", "float");
-        specularIorInput->setValue(2.0f);
+        mx::BindInputPtr specular_roughness_input = shaderRef->addBindInput("specular_roughness", "float");
+        specular_roughness_input->setValue(0.2f);
+        mx::BindInputPtr specular_IOR_input = shaderRef->addBindInput("specular_IOR", "float");
+        specular_IOR_input->setValue(2.0f);
 
         materials.push_back(material);
     }
@@ -215,10 +215,14 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "testshader2");
 
         // Bind a couple of shader parameter values
-        mx::BindInputPtr specularRoughnessInput = shaderRef->addBindInput("specular_roughness", "float");
-        specularRoughnessInput->setValue(0.2f);
-        mx::BindInputPtr specularIorInput = shaderRef->addBindInput("specular_IOR", "float");
-        specularIorInput->setValue(2.0f);
+        mx::BindInputPtr diffuse_reflectance_input = shaderRef->addBindInput("diffuse_reflectance", "color3");
+        diffuse_reflectance_input->setValue(mx::Color3(0.8f, 0.2f, 0.8f));
+        mx::BindInputPtr specular_reflectance_input = shaderRef->addBindInput("specular_reflectance", "color3");
+        specular_reflectance_input->setValue(mx::Color3(1.0f, 1.0f, 1.0f));
+        mx::BindInputPtr specular_roughness_input = shaderRef->addBindInput("specular_roughness", "float");
+        specular_roughness_input->setValue(0.2f);
+        mx::BindInputPtr specular_IOR_input = shaderRef->addBindInput("specular_IOR", "float");
+        specular_IOR_input->setValue(2.0f);
 
         materials.push_back(material);
     }
