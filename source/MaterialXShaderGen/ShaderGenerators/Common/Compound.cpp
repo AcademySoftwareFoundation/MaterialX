@@ -61,7 +61,7 @@ void Compound::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shade
         if (!context)
         {
             throw ExceptionShaderGenError("Node '" + node.getName() + "' has an implementation context that is undefined for shader generator '" + 
-                shadergen.getLanguage() + "/" +shadergen.getTarget() + "´");
+                shadergen.getLanguage() + "/" +shadergen.getTarget() + "'");
         }
 
         // Emit function name

@@ -92,7 +92,7 @@ void LightCompoundGlsl::emitFunctionDefinition(const SgNode& node, ShaderGenerat
         if (!context)
         {
             throw ExceptionShaderGenError("Node '" + node.getName() + "' has an implementation context that is undefined for shader generator '" +
-                shadergen.getLanguage() + "/" + shadergen.getTarget() + "´");
+                shadergen.getLanguage() + "/" + shadergen.getTarget() + "'");
         }
 
         // Emit function signature
