@@ -53,23 +53,23 @@ before_deploy:
 
 artifacts:
     # Set artifact to be created zip.  Currently marked as pre-release
-    - path: materialx-%APPVEYOR_REPO_TAG_NAME%-%VS_PLATFORM%-%CONFIGURATION%.zip
+    - path: materialx-%APPVEYOR_REPO_TAG_NAME%-%VS_PLATFORM%-%CONFIGURATION%.zip 
       name: MaterialX_ADSK
 
 deploy:
     # Deploy on main working branch
-    - provider: GitHub
-      prerelease: true
-      on:
-        VS_PLATFORM: Windows
-        branch: adsk_contrib/shaderx
-      auth_token:
-        secure: qg4BvNKremS4OMcbGZEjaXrumrQ+8/pJvr3WrNqM1ZQDyzvNpmUEA0ZMRkUJzeOh
+    #- provider: GitHub
+    #  prerelease: true
+    #  on:
+    #    VS_PLATFORM: Windows
+    #    branch: adsk_contrib/shaderx
+    #  auth_token:
+    #    secure: qg4BvNKremS4OMcbGZEjaXrumrQ+8/pJvr3WrNqM1ZQDyzvNpmUEA0ZMRkUJzeOh
 
     # Deploy on tags
     - provider: GitHub
       prerelease: true
-      tag: $(APPVEYOR_REPO_TAG_NAME)
+      #tag: $(APPVEYOR_REPO_TAG_NAME)
       on:
         VS_PLATFORM: Windows
         appveyor_repo_tag: true 
