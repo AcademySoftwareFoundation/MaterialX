@@ -6,32 +6,32 @@ environment:
   matrix:
     - CMAKE_PLATFORM: "Visual Studio 14 2015"
       PYTHON: C:\Python26
-      VS_PLATFORM: x86
+      VS_PLATFORM: Windows_x86
       VS_COMPILER: vs2015
       configuration: Release
     - CMAKE_PLATFORM: "Visual Studio 14 2015 Win64"
       PYTHON: C:\Python27-x64
-      VS_PLATFORM: x64
+      VS_PLATFORM: Windows
       VS_COMPILER: vs2015
       configuration: Debug
     - CMAKE_PLATFORM: "Visual Studio 14 2015 Win64"
       PYTHON: C:\Python27-x64
-      VS_PLATFORM: x64
+      VS_PLATFORM: Windows
       VS_COMPILER: vs2015
       configuration: Release
     - CMAKE_PLATFORM: "Visual Studio 14 2015 Win64"
       PYTHON: C:\Python27-x64
-      VS_PLATFORM: x64
+      VS_PLATFORM: Windows
       VS_COMPILER: vs2015
       configuration: RelWithDebInfo
     - CMAKE_PLATFORM: "Visual Studio 15 2017"
       PYTHON: C:\Python35
-      VS_PLATFORM: x86
+      VS_PLATFORM: Windows_x86
       VS_COMPILER: vs2017
       configuration: Release
     - CMAKE_PLATFORM: "Visual Studio 15 2017 Win64"
       PYTHON: C:\Python36-x64
-      VS_PLATFORM: x64
+      VS_PLATFORM: Windows
       VS_COMPILER: vs2017
       configuration: Release
 
@@ -49,29 +49,29 @@ build_script:
 before_deploy:
     # Go to install directory and zip it up.  Currently marked as pre-release
     - cd C:\Projects\MaterialX\build\installed
-    - 7z a -r C:\Projects\MaterialX\MaterialX-Windows-%APPVEYOR_REPO_TAG_NAME%-%VS_PLATFORM%-%VS_COMPILER%-%CONFIGURATION%.zip .
+    - 7z a -r C:\Projects\MaterialX\materialx-%APPVEYOR_REPO_TAG_NAME%-%VS_PLATFORM%-%CONFIGURATION%.zip .
 
 artifacts:
     # Set artifact to be created zip.  Currently marked as pre-release
-    - path: MaterialX-Windows-%APPVEYOR_REPO_TAG_NAME%-%VS_PLATFORM%-%VS_COMPILER%-%CONFIGURATION%.zip
+    - path: materialx-%APPVEYOR_REPO_TAG_NAME%-%VS_PLATFORM%-%CONFIGURATION%.zip
       name: MaterialX_ADSK
 
 deploy:
     # Deploy on main working branch
-    #- provider: GitHub
-    #  prerelease: true
-    #  on:
-    #    VS_PLATFORM: x64
-    #    # Choose branch
-    #    branch: adsk_update
-    #  auth_token:
-    #    secure: qg4BvNKremS4OMcbGZEjaXrumrQ+8/pJvr3WrNqM1ZQDyzvNpmUEA0ZMRkUJzeOh
+    - provider: GitHub
+      prerelease: true
+      on:
+        VS_PLATFORM: Windows
+        branch: adsk_contrib/shaderx
+      auth_token:
+        secure: qg4BvNKremS4OMcbGZEjaXrumrQ+8/pJvr3WrNqM1ZQDyzvNpmUEA0ZMRkUJzeOh
 
     # Deploy on tags
     - provider: GitHub
       prerelease: true
+      tag: $(APPVEYOR_REPO_TAG_NAME)
       on:
-        VS_PLATFORM: x64
-        appveyor_repo_tag: true
+        VS_PLATFORM: Windows
+        appveyor_repo_tag: true 
       auth_token:
         secure: qg4BvNKremS4OMcbGZEjaXrumrQ+8/pJvr3WrNqM1ZQDyzvNpmUEA0ZMRkUJzeOh

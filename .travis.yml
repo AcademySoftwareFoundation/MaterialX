@@ -63,30 +63,32 @@ script:
 before_deploy:
     # Go to install directory and zip up to create artifact
     - cd ${TRAVIS_BUILD_DIR}/build/installed
-    - zip -r ${TRAVIS_BUILD_DIR}/MaterialX-${TRAVIS_OS_NAME}-${TRAVIS_BRANCH}-${CC}-${CONFIG}-${TRAVIS_BUILD_NUMBER}.zip .
+    - zip -r ${TRAVIS_BUILD_DIR}/materialx-${TRAVIS_BRANCH}-${TRAVIS_OS_NAME}-${CONFIG}.zip .
+
 deploy:
     # Deploy on main branch. Currently marked as pre-release
     #- provider: releases
     #  api_key:
     #    secure: c9kZbgxrcgNFmTh/TYn+aL4Yqww122YlGNVWaIcKdLpLlRyyrejlyOhnFF1VTnytU6CQGeH580I6IQ21auV1PCAMoD7anWT5sJa5vGo7pCAMFrEKk4PSSSF8LNWw1lHVMw96exI0JHywGx7t2fOYX0COSJab4XK8cM/0FEoJ2/rQYNVXz1oG+4F5B39Jl4zuBfI+oEeD+Q1B6LRMY52uFn1dpRIujYhihBJ3jMwKFzOB0rS/pbKSczQaa4M/HNUvCEupNLKQmnTiHv72JwXRzGsIsqbFJ7e0n6jz2Cv9eGdbVDT2fyEz7Kq8faRPB34wo4PP1DBJAkzpbvejdNvUCXHe+l0MsHbBDe6avjrR7IK1+nu5rT/HzPIqzidPunwKxABfQguYLOE2CZs4hqpwCULGdQ1GR/Hy9vCy7I6MpTw5K9VMRTyt/7MbnVlN/tDy8095Sh9GkJBZPzig7eyw37ylLibXDkmmWx+HrDLV9bP/re+NYk2bXWSHOEr8jgZyxeNJwli2p2WZaMFgfYS0AVdEoujq2b4jWawepkLm1U3UOK71NZLGVjY8tElo3j5NbB6Qbvyr9NNTQbj4BJadiGCfsp57QA1/G4UPXaWSvGWjHUnHkDyUl6AtglB9iciTc6mxxWGS57aPNCsbE+NRRV4E9abBycTeJd2nrLlej1I=
-    #  file: ${TRAVIS_BUILD_DIR}/MaterialX-${TRAVIS_OS_NAME}-${TRAVIS_BRANCH}-${CC}-${CONFIG}-${TRAVIS_BUILD_NUMBER}.zip
+    #  file: ${TRAVIS_BUILD_DIR}/materialx-${TRAVIS_BRANCH}-${TRAVIS_OS_NAME}-${CONFIG}.zip
     #  prerelease: true
     #  skip_cleanup: true
     #  on:
     #    repo: autodesk-forks/MaterialX
     #    # Pick a branch to use.
-    #    branch: adsk_update_shadergen
+    #    branch: adsk_config/shaderx
     #    condition: "$CC = gcc"
 
     # Deploy on tags. Currently marked as pre-release
     - provider: releases
       api_key:
         secure: c9kZbgxrcgNFmTh/TYn+aL4Yqww122YlGNVWaIcKdLpLlRyyrejlyOhnFF1VTnytU6CQGeH580I6IQ21auV1PCAMoD7anWT5sJa5vGo7pCAMFrEKk4PSSSF8LNWw1lHVMw96exI0JHywGx7t2fOYX0COSJab4XK8cM/0FEoJ2/rQYNVXz1oG+4F5B39Jl4zuBfI+oEeD+Q1B6LRMY52uFn1dpRIujYhihBJ3jMwKFzOB0rS/pbKSczQaa4M/HNUvCEupNLKQmnTiHv72JwXRzGsIsqbFJ7e0n6jz2Cv9eGdbVDT2fyEz7Kq8faRPB34wo4PP1DBJAkzpbvejdNvUCXHe+l0MsHbBDe6avjrR7IK1+nu5rT/HzPIqzidPunwKxABfQguYLOE2CZs4hqpwCULGdQ1GR/Hy9vCy7I6MpTw5K9VMRTyt/7MbnVlN/tDy8095Sh9GkJBZPzig7eyw37ylLibXDkmmWx+HrDLV9bP/re+NYk2bXWSHOEr8jgZyxeNJwli2p2WZaMFgfYS0AVdEoujq2b4jWawepkLm1U3UOK71NZLGVjY8tElo3j5NbB6Qbvyr9NNTQbj4BJadiGCfsp57QA1/G4UPXaWSvGWjHUnHkDyUl6AtglB9iciTc6mxxWGS57aPNCsbE+NRRV4E9abBycTeJd2nrLlej1I=
-      file: ${TRAVIS_BUILD_DIR}/MaterialX-${TRAVIS_OS_NAME}-${TRAVIS_BRANCH}-${CC}-${CONFIG}-${TRAVIS_BUILD_NUMBER}.zip
+      file: ${TRAVIS_BUILD_DIR}/materialx-${TRAVIS_BRANCH}-${TRAVIS_OS_NAME}-${CONFIG}.zip
       prerelease: true
       skip_cleanup: true
       on:
         repo: autodesk-forks/MaterialX
-        all_branches: true
+        #all_branches: true
+        branch: adsk_config/shaderx
         tags: true
         condition: "$CC = gcc"
