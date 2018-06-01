@@ -8,10 +8,15 @@ namespace MaterialX
 class SgOptions
 {
 public:
+	SgOptions();
+
     // TODO: Add options for:
     //  - shader gen optimization level
     //  - graph flattening or not
     //  - etc.
+
+	// Dummy data to prevent empty class
+    int dummy;
 };
 
 } // namespace MaterialX
