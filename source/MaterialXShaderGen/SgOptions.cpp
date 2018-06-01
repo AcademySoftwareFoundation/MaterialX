@@ -3,4 +3,9 @@
 namespace MaterialX
 {
 
+SgOptions::SgOptions()
+	: dummy(0)
+{
+}
+
 }
