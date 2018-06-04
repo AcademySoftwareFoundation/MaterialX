@@ -2,8 +2,8 @@
 #define MATERIALX_GLSLPROGRAM_H
 
 #include <MaterialXShaderGen/HwShader.h>
+#include <MaterialXShaderGen/HwLightHandler.h>
 #include <MaterialXView/ShaderValidators/ExceptionShaderValidationError.h>
-#include <MaterialXView/Handlers/LightHandler.h>
 #include <MaterialXView/Handlers/ViewHandler.h>
 #include <MaterialXView/Handlers/ImageHandler.h>
 #include <MaterialXView/Handlers/GeometryHandler.h>
@@ -137,7 +137,7 @@ class GlslProgram
     void bindInputs(ViewHandlerPtr viewHandler,
                     GeometryHandlerPtr geometryHandler,
                     ImageHandlerPtr imageHandler,
-                    LightHandlerPtr lightHandler);
+                    HwLightHandlerPtr lightHandler);
 
     /// Unbind inputs
     void unbindInputs();
@@ -167,7 +167,7 @@ class GlslProgram
     void unbindTextures();
 
     /// Bind lighting
-    void bindLighting(LightHandlerPtr lightHandler);
+    void bindLighting(HwLightHandlerPtr lightHandler);
 
     /// Bind view information
     void bindViewInformation(ViewHandlerPtr viewHandler);

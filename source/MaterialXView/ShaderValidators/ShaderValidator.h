@@ -2,10 +2,10 @@
 #define MATERIALX_SHADERVALIDATOR_H
 
 #include <MaterialXShaderGen/Shader.h>
+#include <MaterialXShaderGen/HwLightHandler.h>
 #include <MaterialXView/ShaderValidators/ExceptionShaderValidationError.h>
 #include <MaterialXView/Handlers/ImageHandler.h>
 #include <MaterialXView/Handlers/GeometryHandler.h>
-#include <MaterialXView/Handlers/LightHandler.h>
 #include <MaterialXView/Handlers/ViewHandler.h>
 #include <vector>
 #include <string>
@@ -46,14 +46,14 @@ class ShaderValidator
 
     /// Set light handler to use for light bindings
     /// @param imageHandler Handler used for lights
-    void setLightHandler(const LightHandlerPtr lightHandler)
+    void setLightHandler(const HwLightHandlerPtr lightHandler)
     {
         _lightHandler = lightHandler;
     }
 
     /// Get light handler
     /// @return Shared pointer to a light handler
-    const LightHandlerPtr getLightHandler() const
+    const HwLightHandlerPtr getLightHandler() const
     {
         return _lightHandler;
     }
@@ -130,7 +130,7 @@ class ShaderValidator
     GeometryHandlerPtr _geometryHandler;
 
     /// Utility light handler
-    LightHandlerPtr _lightHandler;
+    HwLightHandlerPtr _lightHandler;
 
     /// Viewing utilities handler
     ViewHandlerPtr _viewHandler;

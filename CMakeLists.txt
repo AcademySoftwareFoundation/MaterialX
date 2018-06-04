@@ -15,7 +15,7 @@ option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindi
 option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
 option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
 option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors." OFF)
-option(MATERIALX_BUILD_VIEW "Build the MaterialX View module. " ON)
+option(MATERIALX_BUILD_VIEW "Build the MaterialX View module. " OFF)
 option(MATERIALX_TEST_VIEW "Run tests for MaterialX View module. Requires a valid GPU setup." OFF)
 
 set(MATERIALX_PYTHON_EXECUTABLE "" CACHE FILEPATH

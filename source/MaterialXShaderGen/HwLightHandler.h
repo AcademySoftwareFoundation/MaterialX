@@ -1,5 +1,5 @@
-#ifndef MATERIALX_LIGHTHANDLER_H
-#define MATERIALX_LIGHTHANDLER_H
+#ifndef MATERIALX_HWLIGHTHANDLER_H
+#define MATERIALX_HWLIGHTHANDLER_H
 
 #include <MaterialXCore/Definition.h>
 
@@ -63,31 +63,31 @@ protected:
     const size_t _typeId;
     ParameterMap _parameters;
 
-    friend class LightHandler;
+    friend class HwLightHandler;
 };
 
 
 /// Shared pointer to a LightHandler
-using LightHandlerPtr = std::shared_ptr<class LightHandler>;
+using HwLightHandlerPtr = std::shared_ptr<class HwLightHandler>;
 
-/// @class @LightHandler
+/// @class @HwLightHandler
 /// Utility light handler for creating and providing 
 /// light data for shader binding.
 ///
-class LightHandler
+class HwLightHandler
 {
 public:
     using LightShaderMap = std::unordered_map<size_t, ConstNodeDefPtr>;
 
 public:
     /// Static instance create function
-    static LightHandlerPtr create() { return std::make_shared<LightHandler>(); }
+    static HwLightHandlerPtr create() { return std::make_shared<HwLightHandler>(); }
 
     /// Default constructor
-    LightHandler();
+    HwLightHandler();
     
     /// Default destructor
-    virtual ~LightHandler();
+    virtual ~HwLightHandler();
 
     /// Add a light shader to be used for creting light sources
     void addLightShader(size_t typeId, ConstNodeDefPtr nodeDef);
