@@ -278,7 +278,7 @@ bool GlslProgram::bind()
 void GlslProgram::bindInputs(ViewHandlerPtr viewHandler,
                             GeometryHandlerPtr geometryHandler,
                             ImageHandlerPtr imageHandler,
-                            LightHandlerPtr lightHandler)
+                            HwLightHandlerPtr lightHandler)
 {
     // Bind the program to use
     if (!bind())
@@ -640,7 +640,7 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
 }
 
 
-void GlslProgram::bindLighting(LightHandlerPtr lightHandler)
+void GlslProgram::bindLighting(HwLightHandlerPtr lightHandler)
 {
     if (!lightHandler)
     {

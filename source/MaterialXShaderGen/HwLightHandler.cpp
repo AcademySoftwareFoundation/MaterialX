@@ -1,4 +1,4 @@
-#include <MaterialXView/Handlers/LightHandler.h>
+#include <MaterialXShaderGen/HwLightHandler.h>
 #include <MaterialXShaderGen/HwShaderGenerator.h>
 
 namespace MaterialX
@@ -13,20 +13,20 @@ LightSource::LightSource(size_t typeId, const NodeDef& nodeDef)
     }
 }
 
-LightHandler::LightHandler()
+HwLightHandler::HwLightHandler()
 {
 }
 
-LightHandler::~LightHandler()
+HwLightHandler::~HwLightHandler()
 {
 }
 
-void LightHandler::addLightShader(size_t typeId, ConstNodeDefPtr nodeDef)
+void HwLightHandler::addLightShader(size_t typeId, ConstNodeDefPtr nodeDef)
 {
     _lightShaders[typeId] = nodeDef;
 }
 
-LightSourcePtr LightHandler::createLightSource(size_t typeId)
+LightSourcePtr HwLightHandler::createLightSource(size_t typeId)
 {
     LightShaderMap::const_iterator it = _lightShaders.find(typeId);
     if (it == _lightShaders.end())
@@ -40,7 +40,7 @@ LightSourcePtr LightHandler::createLightSource(size_t typeId)
     return light;
 }
 
-void LightHandler::bindLightShaders(HwShaderGenerator& shadergen) const
+void HwLightHandler::bindLightShaders(HwShaderGenerator& shadergen) const
 {
     for (auto shader : _lightShaders)
     {

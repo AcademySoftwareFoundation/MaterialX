@@ -14,6 +14,7 @@
 #include <MaterialXShaderGen/Util.h>
 #include <MaterialXShaderGen/ShaderGenerators/Common/Swizzle.h>
 #include <MaterialXShaderGen/HwShader.h>
+#include <MaterialXShaderGen/HwLightHandler.h>
 
 #include <fstream>
 
@@ -22,12 +23,11 @@ namespace mx = MaterialX;
 #include <iostream>
 #include <MaterialXView/ShaderValidators/Glsl/GlslValidator.h>
 #include <MaterialXView/Handlers/TinyEXRImageHandler.h>
-#include <MaterialXView/Handlers/LightHandler.h>
 
 #define LOG_TO_FILE
 
 extern void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc);
-extern void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::HwShaderGenerator& shadergen);
+extern void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::HwShaderGenerator& shadergen);
 extern void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& materials);
 
 TEST_CASE("GLSL Source", "[shadervalid]")
@@ -47,7 +47,7 @@ TEST_CASE("GLSL Source", "[shadervalid]")
     mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
     shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-    mx::LightHandlerPtr lightHandler = mx::LightHandler::create();
+    mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
     createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
     // Initialize a GLSL validator and set image handler.
@@ -334,7 +334,7 @@ TEST_CASE("GLSL Shader", "[shadervalid]")
     mx::OutputPtr output1 = nodeGraph->addOutput(mx::EMPTY_STRING, "vector3");
 
     // Setup lighting
-    mx::LightHandlerPtr lightHandler = mx::LightHandler::create();
+    mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
     mx::HwShaderGenerator& hwGenerator = static_cast<mx::HwShaderGenerator&>(*shaderGenerator);
     createLightRig(doc, *lightHandler, hwGenerator);
     // Pre-clamp the number of light sources to the number bound
