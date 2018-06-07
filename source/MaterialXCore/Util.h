@@ -36,7 +36,7 @@ string incrementName(const string& name);
 
 /// Split a string into a vector of substrings using the given set of
 /// separator characters.
-vector<string> splitString(const string& str, const string& sep);
+StringVec splitString(const string& str, const string& sep);
 
 /// Apply the given substring substitutions to the input string.
 string replaceSubstrings(string str, const StringMap& stringMap);

@@ -107,7 +107,7 @@ string Element::getNamePath(ConstElementPtr relativeTo) const
 
 ElementPtr Element::getDescendant(const string& path)
 {
-    const vector<string> elementNames = splitString(path, NAME_PATH_SEPARATOR);
+    const StringVec elementNames = splitString(path, NAME_PATH_SEPARATOR);
     ElementPtr currentElement = getSelf();
     for (const string& elementName : elementNames)
     {
@@ -369,7 +369,7 @@ void Element::copyContentFrom(ConstElementPtr source, const CopyOptions* copyOpt
 void Element::clearContent()
 {
     _sourceUri = EMPTY_STRING;
-    vector<string> attributeNames = getAttributeNames();
+    StringVec attributeNames = getAttributeNames();
     vector<ElementPtr> children = getChildren();
     for (const string& attr : attributeNames)
     {
@@ -554,8 +554,8 @@ bool targetStringsMatch(const string& target1, const string& target2)
     if (target1.empty() || target2.empty())
         return true;
 
-    vector<string> vec1 = splitString(target1, ARRAY_VALID_SEPARATORS);
-    vector<string> vec2 = splitString(target2, ARRAY_VALID_SEPARATORS);
+    StringVec vec1 = splitString(target1, ARRAY_VALID_SEPARATORS);
+    StringVec vec2 = splitString(target2, ARRAY_VALID_SEPARATORS);
     std::set<string> set1(vec1.begin(), vec1.end());
     std::set<string> set2(vec2.begin(), vec2.end());
 
@@ -589,6 +589,7 @@ template shared_ptr<const T> Element::asA<T>() const;
 
 INSTANTIATE_SUBCLASS(Element)
 INSTANTIATE_SUBCLASS(GeomElement)
+INSTANTIATE_SUBCLASS(GraphElement)
 INSTANTIATE_SUBCLASS(InterfaceElement)
 INSTANTIATE_SUBCLASS(PortElement)
 INSTANTIATE_SUBCLASS(TypedElement)

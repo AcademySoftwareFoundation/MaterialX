@@ -13,7 +13,6 @@ namespace MaterialX
 
 const string PortElement::NODE_NAME_ATTRIBUTE = "nodename";
 const string PortElement::OUTPUT_ATTRIBUTE = "output";
-const string PortElement::CHANNELS_ATTRIBUTE = "channels";
 
 //
 // PortElement methods
@@ -35,7 +34,7 @@ NodePtr PortElement::getConnectedNode() const
 {
     for (ConstElementPtr elem : traverseAncestors())
     {
-        ConstNodeGraphPtr graph = elem->asA<NodeGraph>();
+        ConstGraphElementPtr graph = elem->asA<GraphElement>();
         if (graph)
         {
             return graph->getNode(getNodeName());
@@ -61,13 +60,13 @@ bool PortElement::validate(string* message) const
             {
                 OutputPtr output = connectedNodeDef->getOutput(getOutputString());
                 validateRequire(output != nullptr, res, message, "Invalid output in port connection");
-                if (output && !hasChannels())
+                if (output)
                 {
                     validateRequire(getType() == output->getType(), res, message, "Mismatched output type in port connection");
                 }
             }
         }
-        else if (!hasChannels())
+        else
         {
             validateRequire(getType() == getConnectedNode()->getType(), res, message, "Mismatched types in port connection");
         }
