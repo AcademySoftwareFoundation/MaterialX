@@ -24,8 +24,6 @@ void bindPyInterface(py::module& mod)
     py::class_<mx::PortElement, mx::PortElementPtr, mx::ValueElement>(mod, "PortElement")
         .def("setNodeName", &mx::PortElement::setNodeName)
         .def("getNodeName", &mx::PortElement::getNodeName)
-        .def("setChannels", &mx::PortElement::setChannels)
-        .def("getChannels", &mx::PortElement::getChannels)
         .def("setConnectedNode", &mx::PortElement::setConnectedNode)
         .def("getConnectedNode", &mx::PortElement::getConnectedNode);
 

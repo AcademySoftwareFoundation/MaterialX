@@ -129,7 +129,7 @@ class GeomPath
     }
 
   private:
-    vector<string> _vec;
+    StringVec _vec;
     bool _empty;
 };
 
@@ -429,11 +429,16 @@ class Collection : public Element
         return getAttribute(INCLUDE_COLLECTION_ATTRIBUTE);
     }
 
-     /// Set the include collection for this element.
+    /// Set the collection that is directly included by this element.
     void setIncludeCollection(ConstCollectionPtr collection);
 
-    /// Return the include collection for this element.
-    CollectionPtr getIncludeCollection() const;
+    /// Set the vector of collections that are directly included by
+    /// this element.
+    void setIncludeCollections(vector<ConstCollectionPtr> collections);
+
+    /// Return the vector of collections that are directly included by
+    /// this element.
+    vector<CollectionPtr> getIncludeCollections() const;
 
     /// Return true if the include chain for this element contains a cycle.
     bool hasIncludeCycle() const;

@@ -136,28 +136,32 @@ void BindInput::setConnectedOutput(ConstOutputPtr output)
 {
     if (output)
     {
-        setNodeGraphString(output->getParent()->getName());
         setOutputString(output->getName());
+        ConstElementPtr parent = output->getParent();
+        if (parent->isA<NodeGraph>())
+        {
+            setNodeGraphString(parent->getName());
+        }
+        else
+        {
+            removeAttribute(NODE_GRAPH_ATTRIBUTE);
+        }
     }
     else
     {
-        removeAttribute(NODE_GRAPH_ATTRIBUTE);
         removeAttribute(OUTPUT_ATTRIBUTE);
+        removeAttribute(NODE_GRAPH_ATTRIBUTE);
     }
 }
 
 OutputPtr BindInput::getConnectedOutput() const
 {
-    NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString());
-    if (nodeGraph)
+    if (hasNodeGraphString())
     {
-        OutputPtr output = nodeGraph->getOutput(getOutputString());
-        if (output)
-        {
-            return output;
-        }
+        NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString());
+        return nodeGraph ? nodeGraph->getOutput(getOutputString()) : OutputPtr();
     }
-    return OutputPtr();
+    return getDocument()->getOutput(getOutputString());
 }
 
 //

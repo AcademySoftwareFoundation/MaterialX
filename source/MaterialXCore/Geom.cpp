@@ -89,9 +89,35 @@ void Collection::setIncludeCollection(ConstCollectionPtr collection)
     }
 }
 
-CollectionPtr Collection::getIncludeCollection() const
+void Collection::setIncludeCollections(vector<ConstCollectionPtr> collections)
 {
-    return resolveRootNameReference<Collection>(getIncludeCollectionString());
+    if (!collections.empty())
+    {
+        StringVec stringVec;
+        for (ConstCollectionPtr collection : collections)
+        {
+            stringVec.push_back(collection->getName());
+        }
+        setTypedAttribute(INCLUDE_COLLECTION_ATTRIBUTE, stringVec);
+    }
+    else
+    {
+        removeAttribute(INCLUDE_COLLECTION_ATTRIBUTE);
+    }
+}
+
+vector<CollectionPtr> Collection::getIncludeCollections() const
+{
+    vector<CollectionPtr> vec;
+    for (const string& str : getTypedAttribute<StringVec>(INCLUDE_COLLECTION_ATTRIBUTE))
+    {
+        CollectionPtr collection = resolveRootNameReference<Collection>(str);
+        if (collection)
+        {
+            vec.push_back(collection);
+        }
+    }
+    return vec;
 }
 
 bool Collection::hasIncludeCycle() const
@@ -118,16 +144,18 @@ bool Collection::matchesGeomString(const string& geom) const
         return true;
     }
 
-    std::set<ConstCollectionPtr> includedSet;
-    ConstCollectionPtr included = getIncludeCollection();
-    while (included)
+    std::set<CollectionPtr> includedSet;
+    vector<CollectionPtr> includedVec = getIncludeCollections();
+    for (size_t i = 0; i < includedVec.size(); i++)
     {
-        if (includedSet.count(included))
+        CollectionPtr collection = includedVec[i];
+        if (includedSet.count(collection))
         {
             throw ExceptionFoundCycle("Encountered a cycle in collection: " + getName());
         }
-        includedSet.insert(included);
-        included = included->getIncludeCollection();
+        includedSet.insert(collection);
+        vector<CollectionPtr> appendVec = collection->getIncludeCollections();
+        includedVec.insert(includedVec.end(), appendVec.begin(), appendVec.end());
     }
     for (ConstCollectionPtr collection : includedSet)
     {
