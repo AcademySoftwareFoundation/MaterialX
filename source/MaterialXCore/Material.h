@@ -223,13 +223,19 @@ class BindInput : public ValueElement
     /// @name NodeGraph String
     /// @{
 
-    /// Set the node graph string of the BindInput.
+    /// Set the node graph string of this element.
     void setNodeGraphString(const string& graph)
     {
         setAttribute(NODE_GRAPH_ATTRIBUTE, graph);
     }
 
-    /// Return the node graph string of the BindInput.
+    /// Return true if this element has a node graph string.
+    bool hasNodeGraphString() const
+    {
+        return hasAttribute(NODE_GRAPH_ATTRIBUTE);
+    }
+
+    /// Return the node graph string of this element.
     const string& getNodeGraphString() const
     {
         return getAttribute(NODE_GRAPH_ATTRIBUTE);
@@ -239,13 +245,19 @@ class BindInput : public ValueElement
     /// @name Output String
     /// @{
 
-    /// Set the output string of the BindInput.
+    /// Set the output string of this element.
     void setOutputString(const string& output)
     {
         setAttribute(OUTPUT_ATTRIBUTE, output);
     }
 
-    /// Return the output string of the BindInput.
+    /// Return true if this element has an output string.
+    bool hasOutputString() const
+    {
+        return hasAttribute(OUTPUT_ATTRIBUTE);
+    }
+
+    /// Return the output string of this element.
     const string& getOutputString() const
     {
         return getAttribute(OUTPUT_ATTRIBUTE);

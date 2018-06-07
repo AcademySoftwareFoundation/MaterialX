@@ -120,7 +120,7 @@ class Document::Cache
 //
 
 Document::Document(ElementPtr parent, const string& name) :
-    Element(parent, CATEGORY, name),
+    GraphElement(parent, CATEGORY, name),
     _cache(std::unique_ptr<Cache>(new Cache))
 {
 }
@@ -155,8 +155,21 @@ void Document::importLibrary(ConstDocumentPtr library, const CopyOptions* copyOp
         {
             continue;
         }
+
         ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName);
         childCopy->copyContentFrom(child, copyOptions);
+        if (!childCopy->hasFilePrefix() && library->hasFilePrefix())
+        {
+            childCopy->setFilePrefix(library->getFilePrefix());
+        }
+        if (!childCopy->hasGeomPrefix() && library->hasGeomPrefix())
+        {
+            childCopy->setGeomPrefix(library->getGeomPrefix());
+        }
+        if (!childCopy->hasColorSpace() && library->hasColorSpace())
+        {
+            childCopy->setColorSpace(library->getColorSpace());
+        }
         if (!childCopy->hasNamespace() && library->hasNamespace())
         {
             childCopy->setNamespace(library->getNamespace());
@@ -177,7 +190,7 @@ std::pair<int, int> Document::getVersionIntegers()
                                    MATERIALX_MINOR_VERSION);
     }
 
-    vector<string> splitVersion = splitString(versionString, ".");
+    StringVec splitVersion = splitString(versionString, ".");
     if (splitVersion.size() == 2)
     {
         return std::pair<int, int>(std::stoi(splitVersion[0]),
@@ -514,15 +527,6 @@ void Document::upgradeVersion()
                 {
                     elem->setInheritString(child->getAttribute("look"));
                     elem->removeChild(child->getName());
-                }
-                else if (geomInfo && child->isA<GeomAttr>())
-                {
-                    GeomAttrPtr geomAttr = child->asA<GeomAttr>();
-                    if (geomAttr->getType() == "string")
-                    {
-                        geomInfo->removeChild(geomAttr->getName());
-                        geomInfo->setTokenValue(geomAttr->getName(), geomAttr->getValueString());
-                    }
                 }
             }
         }

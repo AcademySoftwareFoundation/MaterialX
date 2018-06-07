@@ -120,15 +120,10 @@ bool Node::validate(string* message) const
 }
 
 //
-// NodeGraph methods
+// GraphElement methods
 //
 
-NodeDefPtr NodeGraph::getNodeDef() const
-{
-    return resolveRootNameReference<NodeDef>(getNodeDefString());
-}
-
-void NodeGraph::flattenSubgraphs(const string& target)
+void GraphElement::flattenSubgraphs(const string& target)
 {
     vector<NodePtr> initialNodes = getNodes();
     std::deque<NodePtr> nodeQueue(initialNodes.begin(), initialNodes.end());
@@ -144,7 +139,7 @@ void NodeGraph::flattenSubgraphs(const string& target)
             continue;
         }
 
-        NodeGraphPtr origSubGraph = implement->asA<NodeGraph>();
+        GraphElementPtr origSubGraph = implement->asA<GraphElement>();
         std::unordered_map<NodePtr, NodePtr> subNodeMap;
 
         // Create a new instance of each original subnode.
@@ -226,7 +221,7 @@ void NodeGraph::flattenSubgraphs(const string& target)
     }
 }
 
-vector<ElementPtr> NodeGraph::topologicalSort() const
+vector<ElementPtr> GraphElement::topologicalSort() const
 {
     // Calculate a topological order of the children, using Kahn's algorithm
     // to avoid recursion.
@@ -299,7 +294,7 @@ vector<ElementPtr> NodeGraph::topologicalSort() const
     return result;
 }
 
-string NodeGraph::asStringDot() const
+string GraphElement::asStringDot() const
 {
     string dot = "digraph {\n";
 
@@ -343,6 +338,15 @@ string NodeGraph::asStringDot() const
     dot += "}\n";
 
     return dot;
+}
+
+//
+// NodeGraph methods
+//
+
+NodeDefPtr NodeGraph::getNodeDef() const
+{
+    return resolveRootNameReference<NodeDef>(getNodeDefString());
 }
 
 } // namespace MaterialX

@@ -74,9 +74,9 @@ string incrementName(const string& name)
     return name + "2";
 }
 
-vector<string> splitString(const string& str, const string& sep)
+StringVec splitString(const string& str, const string& sep)
 {
-    vector<string> split;
+    StringVec split;
 
     string::size_type lastPos = str.find_first_not_of(sep, 0);
     string::size_type pos = str.find_first_of(sep, lastPos);

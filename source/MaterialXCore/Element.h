@@ -480,7 +480,7 @@ class Element : public std::enable_shared_from_this<Element>
     }
 
     /// Return a vector of stored attribute names, in the order they were set.
-    const vector<string>& getAttributeNames() const
+    const StringVec& getAttributeNames() const
     {
         return _attributeOrder;
     }
@@ -786,7 +786,7 @@ class Element : public std::enable_shared_from_this<Element>
     vector<ElementPtr> _childOrder;
 
     StringMap _attributeMap;
-    vector<string> _attributeOrder;
+    StringVec _attributeOrder;
 
     weak_ptr<Element> _parent;
     weak_ptr<Element> _root;

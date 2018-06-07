@@ -29,7 +29,7 @@ using ConstDocumentPtr = shared_ptr<const class Document>;
 /// MaterialX ownership hierarchy.
 ///
 /// Use the factory function createDocument() to create a Document instance.
-class Document : public Element
+class Document : public GraphElement
 {
   public:
     Document(ElementPtr parent, const string& name);
