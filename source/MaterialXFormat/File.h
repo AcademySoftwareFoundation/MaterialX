@@ -117,7 +117,7 @@ class FilePath
     static FilePath getCurrentPath();
 
   private:
-    vector<string> _vec;
+    StringVec _vec;
     Type _type;
     Format _format;
 };
