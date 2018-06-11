@@ -76,6 +76,7 @@ NodeDefPtr Node::getNodeDef(const string& target) const
     for (NodeDefPtr nodeDef : nodeDefs)
     {
         if (targetStringsMatch(target, nodeDef->getTarget()) &&
+            isVersionCompatible(nodeDef) &&
             isTypeCompatible(nodeDef))
         {
             return nodeDef;

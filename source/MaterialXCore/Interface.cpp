@@ -5,6 +5,7 @@
 
 #include <MaterialXCore/Interface.h>
 
+#include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Material.h>
 #include <MaterialXCore/Node.h>
 
@@ -13,6 +14,8 @@ namespace MaterialX
 
 const string PortElement::NODE_NAME_ATTRIBUTE = "nodename";
 const string PortElement::OUTPUT_ATTRIBUTE = "output";
+const string InterfaceElement::VERSION_ATTRIBUTE = "version";
+const string InterfaceElement::DEFAULT_VERSION_ATTRIBUTE = "isdefaultversion";
 
 //
 // PortElement methods
@@ -286,6 +289,30 @@ vector<TokenPtr> InterfaceElement::getActiveTokens() const
     return activeTokens;
 }
 
+std::pair<int, int> InterfaceElement::getVersionIntegers() const
+{
+    string versionString = getVersionString();
+    StringVec splitVersion = splitString(versionString, ".");
+    try
+    {
+        if (splitVersion.size() == 2)
+        {
+            return {std::stoi(splitVersion[0]), std::stoi(splitVersion[1])};
+        }
+        else if (splitVersion.size() == 1)
+        {
+            return {std::stoi(splitVersion[0]), 0};
+        }
+    }
+    catch (std::invalid_argument&)
+    {
+    }
+    catch (std::out_of_range&)
+    {
+    }
+    return {0, 0};
+}
+
 ValueElementPtr InterfaceElement::getActiveValueElement(const string& name) const
 {
     for (ConstElementPtr elem : traverseInheritance())
@@ -406,7 +433,7 @@ NodeDefPtr InterfaceElement::getDeclaration(const string& target) const
     return NodeDefPtr();
 }
 
-bool InterfaceElement::isTypeCompatible(InterfaceElementPtr rhs) const
+bool InterfaceElement::isTypeCompatible(ConstInterfaceElementPtr rhs) const
 {
     if (getType() != rhs->getType())
     {
@@ -429,6 +456,19 @@ bool InterfaceElement::isTypeCompatible(InterfaceElementPtr rhs) const
         }
     }
     return true;
+}
+
+bool InterfaceElement::isVersionCompatible(ConstNodeDefPtr nodeDef) const
+{
+    if (getVersionIntegers() == nodeDef->getVersionIntegers())
+    {
+        return true;
+    }
+    if (!hasVersionString() && nodeDef->getDefaultVersion())
+    {
+        return true;
+    }
+    return false;
 }
 
 } // namespace MaterialX
