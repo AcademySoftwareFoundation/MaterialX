@@ -12,7 +12,6 @@
 namespace MaterialX
 {
 
-const string Document::VERSION_ATTRIBUTE = "version";
 const string Document::CMS_ATTRIBUTE = "cms";
 const string Document::CMS_CONFIG_ATTRIBUTE = "cmsconfig";
 
@@ -181,23 +180,13 @@ void Document::importLibrary(ConstDocumentPtr library, const CopyOptions* copyOp
     }
 }
 
-std::pair<int, int> Document::getVersionIntegers()
+std::pair<int, int> Document::getVersionIntegers() const
 {
-    string versionString = getVersionString();
-    if (versionString.empty())
+    if (!hasVersionString())
     {
-        return std::pair<int, int>(MATERIALX_MAJOR_VERSION,
-                                   MATERIALX_MINOR_VERSION);
+        return {MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION};
     }
-
-    StringVec splitVersion = splitString(versionString, ".");
-    if (splitVersion.size() == 2)
-    {
-        return std::pair<int, int>(std::stoi(splitVersion[0]),
-                                   std::stoi(splitVersion[1]));
-    }
-
-    return std::pair<int, int>(0, 0);
+    return InterfaceElement::getVersionIntegers();
 }
 
 vector<PortElementPtr> Document::getMatchingPorts(const string& nodeName) const

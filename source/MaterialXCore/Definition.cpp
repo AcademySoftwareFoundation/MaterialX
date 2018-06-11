@@ -39,7 +39,8 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target, const strin
     interfaces.insert(interfaces.end(), secondary.begin(), secondary.end());
     for (InterfaceElementPtr interface : interfaces)
     {
-        if (!targetStringsMatch(interface->getTarget(), target))
+        if (!targetStringsMatch(interface->getTarget(), target) ||
+            !interface->isVersionCompatible(getSelf()->asA<NodeDef>()))
         {
             continue;
         }
