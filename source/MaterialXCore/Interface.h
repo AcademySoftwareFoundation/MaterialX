@@ -261,8 +261,50 @@ class InterfaceElement : public TypedElement
 
   protected:
     using NodeDefPtr = shared_ptr<class NodeDef>;
+    using ConstNodeDefPtr = shared_ptr<const class NodeDef>;
 
   public:
+    /// @name Version
+    /// @{
+
+    /// Set the version string of the interface.
+    void setVersionString(const string& version)
+    {
+        setAttribute(VERSION_ATTRIBUTE, version);
+    }
+
+    /// Return true if the given interface has a version string.
+    bool hasVersionString() const
+    {
+        return hasAttribute(VERSION_ATTRIBUTE);
+    }
+
+    /// Return the version string of the interface.
+    const string& getVersionString() const
+    {
+        return getAttribute(VERSION_ATTRIBUTE);
+    }
+
+    /// Return the major and minor versions as an integer pair.
+    virtual std::pair<int, int> getVersionIntegers() const;
+
+    /// @}
+    /// @name Default Version
+    /// @{
+
+    /// Set the default version flag of the interface.
+    void setDefaultVersion(bool defaultVersion)
+    {
+        setTypedAttribute<bool>(DEFAULT_VERSION_ATTRIBUTE, defaultVersion);
+    }
+
+    /// Return the default version flag of the interface.
+    bool getDefaultVersion() const
+    {
+        return getTypedAttribute<bool>(DEFAULT_VERSION_ATTRIBUTE);
+    }
+
+    /// @}
     /// @name Parameters
     /// @{
     
@@ -544,9 +586,18 @@ class InterfaceElement : public TypedElement
     /// with identical names but different types, then false is returned.  Note
     /// that a Parameter or Input that is present in only one of the two
     /// interfaces does not affect their type compatibility.
-    bool isTypeCompatible(InterfaceElementPtr rhs) const;
+    bool isTypeCompatible(ConstInterfaceElementPtr rhs) const;
+
+    /// Return true if the given NodeDef is version compatible with this
+    /// interface element.  This may be used to test, for example, whether
+    /// a NodeDef and Implementation may be used together.
+    bool isVersionCompatible(ConstNodeDefPtr nodeDef) const;
 
     /// @}
+
+  public:
+    static const string VERSION_ATTRIBUTE;
+    static const string DEFAULT_VERSION_ATTRIBUTE;
 
   protected:
     void registerChildElement(ElementPtr child) override;
