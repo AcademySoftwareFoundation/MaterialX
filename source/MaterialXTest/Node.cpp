@@ -79,6 +79,16 @@ TEST_CASE("Node", "[node]")
     custom->setParameterValue("octaves", 5);
     REQUIRE(custom->getParameterValue("octaves")->asA<int>() == 5);
 
+    // Set nodedef and node version strings.
+    customNodeDef->setVersionString("2.0");
+    REQUIRE(custom->getNodeDef() == nullptr);
+    customNodeDef->setDefaultVersion(true);
+    REQUIRE(custom->getNodeDef() == customNodeDef);
+    custom->setVersionString("1");
+    REQUIRE(custom->getNodeDef() == nullptr);
+    custom->setVersionString("2");
+    REQUIRE(custom->getNodeDef() == customNodeDef);
+
     // Define a custom type.
     mx::TypeDefPtr typeDef = doc->addTypeDef("spectrum");
     const int scalarCount = 10;

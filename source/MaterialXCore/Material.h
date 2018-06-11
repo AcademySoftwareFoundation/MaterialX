@@ -421,8 +421,8 @@ class ShaderRef : public Element
     /// @name Output References
     /// @{
 
-    /// Return the set of outputs that this element references.
-    std::set<OutputPtr> getReferencedOutputs() const
+    /// Return a vector of all outputs that this element references.
+    vector<OutputPtr> getReferencedOutputs() const
     {
         std::set<OutputPtr> outputs;
         for (BindInputPtr bindInput : getBindInputs())
@@ -433,7 +433,7 @@ class ShaderRef : public Element
                 outputs.insert(output);
             }
         }
-        return outputs;
+        return vector<OutputPtr>(outputs.begin(), outputs.end());
     }
 
     /// @}
