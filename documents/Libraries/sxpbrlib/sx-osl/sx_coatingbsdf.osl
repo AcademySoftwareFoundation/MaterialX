@@ -1,7 +1,13 @@
 #include "sxpbrlib/sx-osl/lib/sx_fresnel.osl"
 
-void sx_coatingbsdf(color reflectance, float ior, float roughness, float anisotropy, normal N, vector U, string distribution, BSDF base, output BSDF result)
+void sx_coatingbsdf(float weight, color reflectance, float ior, float roughness, float anisotropy, normal N, vector U, string distribution, BSDF base, output BSDF result)
 {
+    if (weight < M_FLOAT_EPS)
+    {
+        result = base;
+        return;
+    }
+
     float alpha = clamp(roughness*roughness, M_FLOAT_EPS, 1.0);
     float alphaX = alpha;
     float alphaY = alpha;
@@ -13,9 +19,7 @@ void sx_coatingbsdf(color reflectance, float ior, float roughness, float anisotr
         alphaY = alpha * aspect;
     }
 
-    float eta = backfacing() ? 1.0 / ior : ior;
-
-    // Calculate fresnel outside the microfacet closure since we need 
+    // Calculate fresnel since we need 
     // to attenuate the base layer according to fresnel
     //
     // Fresnel should be based on microfacet normal
@@ -23,8 +27,9 @@ void sx_coatingbsdf(color reflectance, float ior, float roughness, float anisotr
     // view direction and surface normal instead
     //
     float NdotV = fabs(dot(N,-I));
-    color F = reflectance * sx_fresnel_dielectric(NdotV, eta);
+    float F = sx_fresnel_dielectric(NdotV, ior);
+    F *= weight;
 
-    // Set ior to 0.0 to disable the internal dielectric fresnel
-    result = F * microfacet(distribution, N, U, alphaX, alphaY, 0.0, false) + base * (1.0 - F);
+    result = reflectance * microfacet(distribution, N, U, alphaX, alphaY, ior, false)
+             + base * (1.0 - F);
 }

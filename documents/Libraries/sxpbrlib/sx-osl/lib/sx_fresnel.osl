@@ -1,6 +1,6 @@
 float sx_fresnel_dielectric(float cosTheta, float ior)
 {
-    if (cosTheta < 0.0)
+    if (cosTheta < 0.0 || ior == 0.0)
         return 1.0;
 
     float g =  ior*ior + cosTheta*cosTheta - 1.0;

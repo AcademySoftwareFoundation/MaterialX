@@ -1,8 +1,14 @@
 #include "sxpbrlib/sx-osl/lib/sx_complexior.osl"
 #include "sxpbrlib/sx-osl/lib/sx_fresnel.osl"
 
-void sx_metalbsdf(color reflectivity, color edgetint, float roughness, float anisotropy, normal N, vector U, string distribution, output BSDF result)
+void sx_metalbsdf(float weight, color reflectivity, color edgetint, float roughness, float anisotropy, normal N, vector U, string distribution, output BSDF result)
 {
+    if (weight < M_FLOAT_EPS)
+    {
+        result = 0;
+        return;
+    }
+
     float alpha = clamp(roughness*roughness, M_FLOAT_EPS, 1.0);
     float alphaX = alpha;
     float alphaY = alpha;
@@ -24,6 +30,7 @@ void sx_metalbsdf(color reflectivity, color edgetint, float roughness, float ani
     vector ior_n, ior_k;
     sx_complexior(reflectivity, edgetint, ior_n, ior_k);
     color F = sx_fresnel_conductor(NdotV, ior_n, ior_k);
+    F *= weight;
 
     // Set ior to 0.0 to disable the internal dielectric fresnel
     result = F * microfacet(distribution, N, U, alphaX, alphaY, 0.0, false);

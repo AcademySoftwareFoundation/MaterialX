@@ -1,9 +1,13 @@
 #include "sxpbrlib/sx-glsl/lib/sx_bsdfs.glsl"
 #include "sxpbrlib/sx-glsl/lib/sx_complexior.glsl"
 
-void sx_metalbsdf(vec3 L, vec3 V, vec3 reflectivity, vec3 edgetint, float roughness, float anisotropy, vec3 normal, vec3 tangent, int distribution, out BSDF result)
+void sx_metalbsdf(vec3 L, vec3 V, float weight, vec3 reflectivity, vec3 edgetint, float roughness, float anisotropy, vec3 normal, vec3 tangent, int distribution, out BSDF result)
 {
-    result = BSDF(0.0);
+    if (weight < M_FLOAT_EPS)
+    {
+        result = BSDF(0.0);
+        return;
+    }
 
     float NdotL = dot(normal,L);
     float NdotV = dot(normal,V);
@@ -34,17 +38,25 @@ void sx_metalbsdf(vec3 L, vec3 V, vec3 reflectivity, vec3 edgetint, float roughn
 
     float VdotH = dot(V, H);
     vec3 F = sx_fresnel_conductor(VdotH, ior_n, ior_k);
+    F *= weight;
 
     // Note: NdotL is cancelled out
     result = F * D * G / (4 * NdotV);
 }
 
-void sx_metalbsdf_ibl(vec3 V, vec3 reflectivity, vec3 edgetint, float roughness, float anisotropy, vec3 normal, vec3 tangent, int distribution, out vec3 result)
+void sx_metalbsdf_ibl(vec3 V, float weight, vec3 reflectivity, vec3 edgetint, float roughness, float anisotropy, vec3 normal, vec3 tangent, int distribution, out vec3 result)
 {
+    if (weight < M_FLOAT_EPS)
+    {
+        result = vec3(0.0);
+        return;
+    }
+
     vec3 ior_n, ior_k;
     sx_complexior(reflectivity, edgetint, ior_n, ior_k);
 
     vec3 Li = sx_environment_specular(normal, V, roughness);
     vec3 F = sx_fresnel_conductor(dot(normal, V), ior_n, ior_k);
+    F *= weight;
     result = Li * F;
 }

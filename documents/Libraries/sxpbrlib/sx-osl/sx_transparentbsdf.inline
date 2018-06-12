@@ -1,1 +1,1 @@
-{{transmittance}} * transparent()
+{{transmittance}} * {{weight}} * transparent()

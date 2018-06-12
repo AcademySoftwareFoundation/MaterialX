@@ -61,4 +61,7 @@
   <!-- <edgetint> -->
   <implementation name="IM_edgetint__sx_glsl" nodedef="ND_edgetint" file="sxpbrlib/sx-glsl/sx_edgetint.glsl" function="sx_edgetint" language="sx-glsl"/>
 
+  <!-- <normalmap> -->
+  <implementation name="IM_normalmap__sx_glsl" nodedef="ND_normalmap" file="sxpbrlib/sx-glsl/sx_normalmap.glsl" function="sx_normalmap" language="sx-glsl"/>
+
 </materialx>

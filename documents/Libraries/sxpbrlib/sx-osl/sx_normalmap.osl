@@ -1,0 +1,7 @@
+void sx_normalmap(vector value, vector N, vector U, output vector result)
+{
+    vector v = value * 2.0 - 1.0;
+    vector T = normalize(U - dot(U, N) * N);
+    vector B = normalize(cross(N, T));
+    result = normalize(T * v[0] + B * v[1] + N * v[2]);
+}

@@ -329,6 +329,9 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
             { { "specular_IOR", "float" }, false },
             { { "specular_anisotropy", "float" }, false },
             { { "metalness","float" }, true },
+            { { "transmission", "float" }, true },
+            { { "transmission_color", "color3" }, true },
+            { { "transmission_extra_roughness", "float" }, true },
             { { "subsurface", "float" }, false },
             { { "subsurface_color", "color3" }, false },
             { { "coat", "float" }, true },
@@ -374,19 +377,24 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
             }
         }
 
-        mx::NodePtr spacularNormalTex = shaderGraph->addNode("image", "normalTex", "vector3");
-        spacularNormalTex->setParameterValue("file", std::string(""), "filename");
-        spacularNormalTex->setParameterValue("default", mx::Vector3(0.5f, 0.5f, 1.0f));
-        mx::NodePtr spacularNormalMap = shaderGraph->addNode("normalmap", "normalmap1", "vector3");
-        spacularNormalMap->setConnectedNode("in", spacularNormalTex);
+        nodeDef->addInput("normalmap", "filename");
+        nodeDef->addInput("coat_normalmap", "filename");
+
+        mx::NodePtr specularNormalTex = shaderGraph->addNode("image", "normalTex", "vector3");
+        mx::ParameterPtr specularNormalTexFile = specularNormalTex->addParameter("file", "filename");
+        specularNormalTexFile->setInterfaceName("normalmap");
+        specularNormalTex->setParameterValue("default", mx::Vector3(0.5f, 0.5f, 1.0f));
+        mx::NodePtr specularNormalMap = shaderGraph->addNode("normalmap", "normalmap1", "vector3");
+        specularNormalMap->setConnectedNode("in", specularNormalTex);
 
         mx::NodePtr coatNormalTex = shaderGraph->addNode("image", "coatTex", "vector3");
-        coatNormalTex->setParameterValue("file", std::string(""), "filename");
+        mx::ParameterPtr coatNormalTexFile = coatNormalTex->addParameter("file", "filename");
+        coatNormalTexFile->setInterfaceName("coat_normalmap");
         coatNormalTex->setParameterValue("default", mx::Vector3(0.5f, 0.5f, 1.0f));
         mx::NodePtr coatNormalMap = shaderGraph->addNode("normalmap", "normalmap2", "vector3");
         coatNormalMap->setConnectedNode("in", coatNormalTex);
 
-        standardSurface->setConnectedNode("normal", spacularNormalMap);
+        standardSurface->setConnectedNode("normal", specularNormalMap);
         standardSurface->setConnectedNode("coat_normal", coatNormalMap);
 
         mx::OutputPtr output = shaderGraph->addOutput("out", "surfaceshader");

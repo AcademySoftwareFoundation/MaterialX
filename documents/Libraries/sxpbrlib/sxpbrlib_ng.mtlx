@@ -1,41 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.36">
-  <!-- <normalmap> -->
-  <nodegraph name="IMP_normalmap" nodedef="ND_normalmap" type="vector3">
-    <multiply name="in_scale" type="vector3">
-      <input name="in1" type="vector3" interfacename="in"/>
-      <input name="in2" type="vector3" value="2.0000, 2.0000, 2.0000" />
-    </multiply>
-    <subtract name="in_subtract" type="vector3">
-      <input name="in1" type="vector3" nodename="in_scale"/>
-      <input name="in2" type="vector3" value="1.0000, 1.0000, 1.0000" />
-    </subtract>
-    <multiply name="tangent_comp" type="vector3">
-      <input name="in1" type="vector3" interfacename="tangent"/>
-      <input name="in2" type="float" nodename="in_subtract" channels="x" />
-    </multiply>
-    <multiply name="bitangent_comp" type="vector3">
-      <input name="in1" type="vector3" interfacename="bitangent"/>
-      <input name="in2" type="float" nodename="in_subtract" channels="y" />
-    </multiply>
-    <multiply name="normal_comp" type="vector3">
-      <input name="in1" type="vector3" interfacename="normal"/>
-      <input name="in2" type="float" nodename="in_subtract" channels="z" />
-    </multiply>
-    <add name="add1" type="vector3">
-      <input name="in1" type="vector3" nodename="tangent_comp"/>
-      <input name="in2" type="vector3" nodename="bitangent_comp"/>
-    </add>
-    <add name="add2" type="vector3">
-      <input name="in1" type="vector3" nodename="normal_comp"/>
-      <input name="in2" type="vector3" nodename="add1"/>
-    </add>
-    <normalize name="normalize1" type="vector3">
-      <input name="in" type="vector3" nodename="add2"/>
-    </normalize>
-    <output name="out" type="vector3" nodename="normalize1"/>
-  </nodegraph>
-
   <!-- <shadingnormal> -->
   <nodegraph name="IMP_shadingnormal__vector3" nodedef="ND_shadingnormal__vector3" type="vector3">
     <normal name="Nw" type="vector3">
@@ -108,17 +72,15 @@
       <parameter name="amount" type="float" value="1.0" />
     </invert>
     <!-- Diffuse component -->
-    <multiply name="multiply1" type="color3">
-      <input name="in1" type="color3" interfacename="base_color" />
-      <input name="in2" type="float" interfacename="base" />
-    </multiply>
     <diffusebsdf name="Diffuse_BSDF" type="BSDF">
-      <input name="reflectance" type="color3" nodename="multiply1" />
+      <input name="weight" type="float" interfacename="base" />
+      <input name="reflectance" type="color3" interfacename="base_color" />
       <input name="roughness" type="float" interfacename="diffuse_roughness" />
       <input name="normal" type="vector3" interfacename="normal" />
     </diffusebsdf>
     <!-- SSS component -->
     <translucentbsdf name="SSS_BSDF" type="BSDF">
+      <input name="weight" type="float" value="1.0" />
       <input name="transmittance" type="color3" interfacename="subsurface_color" />
       <input name="normal" type="vector3" interfacename="normal" />
     </translucentbsdf>
@@ -129,6 +91,7 @@
     </mixbsdf>
     <!-- Transmission component -->
     <refractionbsdf name="Transmission_BSDF" type="BSDF">
+      <input name="weight" type="float" value="1.0" />
       <input name="transmittance" type="color3" interfacename="transmission_color" />
       <input name="ior" type="float" interfacename="specular_IOR" />
       <input name="roughness" type="float" nodename="invert3" />
@@ -144,12 +107,9 @@
       <input name="weight" type="float" interfacename="transmission" />
     </mixbsdf>
     <!-- Specular component -->
-    <multiply name="multiply2" type="color3">
-      <input name="in1" type="color3" interfacename="specular_color" />
-      <input name="in2" type="float" interfacename="specular" />
-    </multiply>
     <coatingbsdf name="Specular_BSDF" type="BSDF">
-      <input name="reflectance" type="color3" nodename="multiply2" />
+      <input name="weight" type="float" interfacename="specular" />
+      <input name="reflectance" type="color3" interfacename="specular_color" />
       <input name="ior" type="float" interfacename="specular_IOR" />
       <input name="roughness" type="float" nodename="invert3" />
       <input name="anisotropy" type="float" interfacename="specular_anisotropy" />
@@ -160,8 +120,9 @@
     </coatingbsdf>
     <!-- Metal component -->
     <metalbsdf name="Metal_BSDF" type="BSDF">
-      <input name="reflectivity" type="color3" nodename="multiply1"/>
-      <input name="edgetint" type="color3" nodename="multiply2"/>
+      <input name="weight" type="float" interfacename="base" />
+      <input name="reflectivity" type="color3" interfacename="base_color"/>
+      <input name="edgetint" type="color3" interfacename="specular_color"/>
       <input name="roughness" type="float" nodename="invert3" />
       <input name="anisotropy" type="float" interfacename="specular_anisotropy" />
       <input name="normal" type="vector3" interfacename="normal" />
@@ -184,7 +145,8 @@
       <input name="weight" type="color3" nodename="coat_attenuation" />
     </scalebsdf>
     <coatingbsdf name="Coat_BSDF" type="BSDF">
-      <input name="reflectance" type="color3" interfacename="coat" channels="xxx" />
+      <input name="weight" type="float" interfacename="coat" />
+      <input name="reflectance" type="color3" value="1.0, 1.0, 1.0" />
       <input name="ior" type="float" interfacename="coat_IOR" />
       <input name="roughness" type="float" interfacename="coat_roughness" />
       <input name="anisotropy" type="float" value="0.0" />
