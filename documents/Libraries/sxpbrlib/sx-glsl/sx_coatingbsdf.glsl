@@ -1,8 +1,12 @@
 #include "sxpbrlib/sx-glsl/lib/sx_bsdfs.glsl"
 
-void sx_coatingbsdf(vec3 L, vec3 V, vec3 reflectance, float ior, float roughness, float anisotropy, vec3 normal, vec3 tangent, int distribution, BSDF base, out BSDF result)
+void sx_coatingbsdf(vec3 L, vec3 V, float weight, vec3 reflectance, float ior, float roughness, float anisotropy, vec3 normal, vec3 tangent, int distribution, BSDF base, out BSDF result)
 {
-    result = base;
+    if (weight < M_FLOAT_EPS)
+    {
+        result = base;
+        return;
+    }
 
     float NdotL = dot(normal,L);
     float NdotV = dot(normal,V);
@@ -29,18 +33,24 @@ void sx_coatingbsdf(vec3 L, vec3 V, vec3 reflectance, float ior, float roughness
     float G = sx_microfacet_ggx_smith_G(NdotL, NdotV, alpha);
 
     float VdotH = dot(V, H);
-    vec3 F = sx_fresnel_schlick(VdotH, ior) * reflectance;
+    float F = sx_fresnel_schlick(VdotH, ior);
+    F *= weight;
 
     // Note: NdotL is cancelled out
-    result = D * G * F / (4 * NdotV)  // Specular coating component
-           + base * (1.0 - F);        // Base component attenuated by coating
+    result = reflectance * D * G * F / (4 * NdotV)  // Specular coating component
+           + base * (1.0 - F);                      // Base component attenuated by coating fresnel
 }
 
-void sx_coatingbsdf_ibl(vec3 V, vec3 reflectance, float ior, float roughness, float anisotropy, vec3 normal, vec3 tangent, int distribution, vec3 base, out vec3 result)
+void sx_coatingbsdf_ibl(vec3 V, float weight, vec3 reflectance, float ior, float roughness, float anisotropy, vec3 normal, vec3 tangent, int distribution, vec3 base, out vec3 result)
 {
-    vec3 Li = sx_environment_specular(normal, V, roughness);
-    vec3 F = sx_fresnel_schlick_roughness(dot(normal, V), ior, roughness) * reflectance;
+    result = base;
+    if (weight < M_FLOAT_EPS)
+        return;
 
-    result = Li * F            // Specular coating component
-           + base * (1.0 - F); // Base component attenuated by coating
+    vec3 Li = sx_environment_specular(normal, V, roughness);
+    float F = sx_fresnel_schlick_roughness(dot(normal, V), ior, roughness);
+    F *= weight;
+
+    result = Li * reflectance * F // Specular coating component
+           + base * (1.0 - F);    // Base component attenuated by coating fresnel
 }

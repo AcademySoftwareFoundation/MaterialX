@@ -126,6 +126,9 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     Shader& shader = *shaderPtr;
 
     emitIncludes(shader);
+
+    shader.addLine("#define M_FLOAT_EPS 0.000001", false);
+
     emitTypeDefs(shader);
     emitFunctionDefinitions(shader);
 
@@ -149,13 +152,15 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
 
     shader.beginScope(Shader::Brackets::PARENTHESES);
 
+    shader.addLine("float dummy = 0.0,", false);
+
     // Emit all app data inputs
     const Shader::VariableBlock& appDataBlock = shader.getAppDataBlock();
     for (const Shader::Variable* input : appDataBlock.variableOrder)
     {
         const string& type = _syntax->getTypeName(input->type);
         const string value = _syntax->getTypeDefault(input->type, true);
-        shader.addLine(type + " " + input->name + " = " + value + " [[ int lockgeom=0 ]],");
+        shader.addLine(type + " " + input->name + " = " + value + " [[ int lockgeom=0 ]],", false);
     }
 
     // Emit all public inputs

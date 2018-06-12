@@ -1,1 +1,1 @@
-{{reflectance}} * oren_nayar({{normal}}, {{roughness}})
+{{reflectance}} * {{weight}} * oren_nayar({{normal}}, {{roughness}})

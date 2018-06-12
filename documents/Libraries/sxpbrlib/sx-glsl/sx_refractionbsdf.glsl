@@ -1,10 +1,10 @@
-void sx_refractionbsdf(vec3 L, vec3 V, vec3 transmittance, float ior, float roughness, float anisotropy, vec3 normal, vec3 tangent, int distribution, VDF interior, out BSDF result)
+void sx_refractionbsdf(vec3 L, vec3 V, float weight, vec3 transmittance, float ior, float roughness, float anisotropy, vec3 normal, vec3 tangent, int distribution, VDF interior, out BSDF result)
 {
     // TODO: Attenuate the transmission based on roughness and interior VDF
-    result = transmittance;
+    result = transmittance * weight;
 }
 
-void sx_refractionbsdf_ibl(vec3 V, vec3 transmittance, float ior, float roughness, float anisotropy, vec3 normal, vec3 tangent, int distribution, VDF interior, out vec3 result)
+void sx_refractionbsdf_ibl(vec3 V, float weight, vec3 transmittance, float ior, float roughness, float anisotropy, vec3 normal, vec3 tangent, int distribution, VDF interior, out vec3 result)
 {
     result = vec3(0.0);
 }

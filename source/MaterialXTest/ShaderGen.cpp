@@ -226,7 +226,8 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         materials.push_back(material);
     }
 
-    // Example3: Create a metal surface shader by a graph
+    // Example3: Create a metal surface shader by a graph, using both the complex and
+    // the artistic refraction index description, to test that they give equal results.
     {
         // Create a nodedef interface for the surface shader
         mx::NodeDefPtr nodeDef = doc->addNodeDef("ND_testshader3", "surfaceshader", "testshader3");
@@ -327,6 +328,9 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
             { { "specular_IOR", "float" }, false },
             { { "specular_anisotropy", "float" }, false },
             { { "metalness","float" }, true },
+            { { "transmission", "float" }, true },
+            { { "transmission_color", "color3" }, true },
+            { { "transmission_extra_roughness", "float" }, true },
             { { "subsurface", "float" }, false },
             { { "subsurface_color", "color3" }, false },
             { { "coat", "float" }, true },
@@ -372,19 +376,24 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
             }
         }
 
-        mx::NodePtr spacularNormalTex = shaderGraph->addNode("image", "normalTex", "vector3");
-        spacularNormalTex->setParameterValue("file", std::string(""), "filename");
-        spacularNormalTex->setParameterValue("default", mx::Vector3(0.5f, 0.5f, 1.0f));
-        mx::NodePtr spacularNormalMap = shaderGraph->addNode("normalmap", "normalmap1", "vector3");
-        spacularNormalMap->setConnectedNode("in", spacularNormalTex);
+        nodeDef->addInput("normalmap", "filename");
+        nodeDef->addInput("coat_normalmap", "filename");
+
+        mx::NodePtr specularNormalTex = shaderGraph->addNode("image", "normalTex", "vector3");
+        mx::ParameterPtr specularNormalTexFile = specularNormalTex->addParameter("file", "filename");
+        specularNormalTexFile->setInterfaceName("normalmap");
+        specularNormalTex->setParameterValue("default", mx::Vector3(0.5f, 0.5f, 1.0f));
+        mx::NodePtr specularNormalMap = shaderGraph->addNode("normalmap", "normalmap1", "vector3");
+        specularNormalMap->setConnectedNode("in", specularNormalTex);
 
         mx::NodePtr coatNormalTex = shaderGraph->addNode("image", "coatTex", "vector3");
-        coatNormalTex->setParameterValue("file", std::string(""), "filename");
+        mx::ParameterPtr coatNormalTexFile = coatNormalTex->addParameter("file", "filename");
+        coatNormalTexFile->setInterfaceName("coat_normalmap");
         coatNormalTex->setParameterValue("default", mx::Vector3(0.5f, 0.5f, 1.0f));
         mx::NodePtr coatNormalMap = shaderGraph->addNode("normalmap", "normalmap2", "vector3");
         coatNormalMap->setConnectedNode("in", coatNormalTex);
 
-        standardSurface->setConnectedNode("normal", spacularNormalMap);
+        standardSurface->setConnectedNode("normal", specularNormalMap);
         standardSurface->setConnectedNode("coat_normal", coatNormalMap);
 
         mx::OutputPtr output = shaderGraph->addOutput("out", "surfaceshader");
@@ -394,10 +403,21 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         mx::MaterialPtr material = doc->addMaterial("example4");
         mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "testshader4");
 
-        mx::BindInputPtr bindBase = shaderRef->addBindInput("base", "float");
-        bindBase->setValue(1.0f);
-        mx::BindInputPtr bindBaseColor = shaderRef->addBindInput("base_color", "color3");
-        bindBaseColor->setValue(mx::Color3(0.8f, 0.6f, 0.6f));
+        // Bind a couple of shader parameter values
+        mx::BindInputPtr base_input = shaderRef->addBindInput("base", "float");
+        base_input->setValue(0.8f);
+        mx::BindInputPtr base_color_input = shaderRef->addBindInput("base_color", "color3");
+        base_color_input->setValue(mx::Color3(1.0f, 1.0f, 1.0f));
+        mx::BindInputPtr specular_input = shaderRef->addBindInput("specular", "float");
+        specular_input->setValue(1.0f);
+        mx::BindInputPtr specular_color_input = shaderRef->addBindInput("specular_color", "color3");
+        specular_color_input->setValue(mx::Color3(1.0f, 1.0f, 1.0f));
+        mx::BindInputPtr specular_IOR_input = shaderRef->addBindInput("specular_IOR", "float");
+        specular_IOR_input->setValue(1.52f);
+        mx::BindInputPtr specular_roughness_input = shaderRef->addBindInput("specular_roughness", "float");
+        specular_roughness_input->setValue(0.1f);
+        mx::BindInputPtr coat_IOR_input = shaderRef->addBindInput("coat_IOR", "float");
+        coat_IOR_input->setValue(3.0);
 
         materials.push_back(material);
     }

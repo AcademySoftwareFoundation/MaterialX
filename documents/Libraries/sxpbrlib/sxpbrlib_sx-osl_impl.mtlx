@@ -49,4 +49,7 @@
   <!-- <edgetint> -->
   <implementation name="IM_edgetint__sx_osl" nodedef="ND_edgetint" file="sxpbrlib/sx-osl/sx_edgetint.osl" function="sx_edgetint" language="sx-osl"/>
 
+  <!-- <normalmap> -->
+  <implementation name="IM_normalmap__sx_osl" nodedef="ND_normalmap" file="sxpbrlib/sx-osl/sx_normalmap.osl" function="sx_normalmap" language="sx-osl"/>
+
 </materialx>

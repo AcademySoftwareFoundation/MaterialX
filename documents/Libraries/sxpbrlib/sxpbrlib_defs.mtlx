@@ -15,6 +15,7 @@
   -->
   <nodedef name="ND_diffusebsdf" node="diffusebsdf" type="BSDF" nodecategory="shaderx"
            doc="A BSDF node for pure diffuse reflections.">
+    <input name="weight" type="float" value="1.0"/>
     <input name="reflectance" type="color3" value="0.8, 0.8, 0.8"/>
     <input name="roughness" type="float" value="1.0"/>
     <input name="normal" type="vector3" defaultgeomprop="shadingnormal"/>
@@ -26,6 +27,7 @@
   -->
   <nodedef name="ND_translucentbsdf" node="translucentbsdf" type="BSDF" nodecategory="shaderx"
            doc="A BSDF node for pure diffuse transmission.">
+    <input name="weight" type="float" value="1.0"/>
     <input name="transmittance" type="color3" value="0.8, 0.8, 0.8"/>
     <input name="normal" type="vector3" defaultgeomprop="shadingnormal"/>
   </nodedef>
@@ -36,7 +38,8 @@
   -->
   <nodedef name="ND_transparentbsdf" node="transparentbsdf" type="BSDF" nodecategory="shaderx"
            doc="A BSDF node for straight transmission.">
-    <input name="transmittance" type="color3"/>
+    <input name="weight" type="float" value="1.0"/>
+    <input name="transmittance" type="color3" value="1.0, 1.0, 1.0"/>
   </nodedef>
 
   <!--
@@ -45,6 +48,7 @@
   -->
   <nodedef name="ND_coatingbsdf" node="coatingbsdf" type="BSDF" nodecategory="shaderx"
            doc="A BSDF node for specular to glossy reflection with dielectric fresel.">
+    <input name="weight" type="float" value="1.0"/>
     <input name="reflectance" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="ior" type="float" value="1.52"/>
     <input name="roughness" type="float" value="0.2"/>
@@ -61,6 +65,7 @@
   -->
   <nodedef name="ND_metalbsdf" node="metalbsdf" type="BSDF" nodecategory="shaderx"
            doc="A BSDF node for specular to glossy reflection with conductor fresel.">
+    <input name="weight" type="float" value="1.0"/>
     <input name="reflectivity" type="color3" value="0.944 0.776 0.373"/>
     <input name="edgetint" type="color3" value="0.998 0.981 0.751"/>
     <input name="roughness" type="float" value="0.2"/>
@@ -96,6 +101,7 @@
   -->
   <nodedef name="ND_refractionbsdf" node="refractionbsdf" type="BSDF" nodecategory="shaderx" 
            doc="A BSDF node for specular to glossy transmission.">
+    <input name="weight" type="float" value="1.0"/>
     <input name="transmittance" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="ior" type="float" value="1.52"/>
     <input name="roughness" type="float" value="0.2"/>
@@ -280,7 +286,6 @@
     <input name="in" type="vector3" value="0.5, 0.5, 1.0"/>
     <input name="normal" type="vector3" defaultgeomprop="shadingnormal"/>
     <input name="tangent" type="vector3" defaultgeomprop="tangent"/>
-    <input name="bitangent" type="vector3" defaultgeomprop="bitangent"/>
   </nodedef>
 
   <!--
