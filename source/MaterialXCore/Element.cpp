@@ -13,13 +13,13 @@ namespace MaterialX
 {
 
 const string Element::NAME_ATTRIBUTE = "name";
-const string Element::TYPE_ATTRIBUTE = "type";
 const string Element::FILE_PREFIX_ATTRIBUTE = "fileprefix";
 const string Element::GEOM_PREFIX_ATTRIBUTE = "geomprefix";
 const string Element::COLOR_SPACE_ATTRIBUTE = "colorspace";
 const string Element::TARGET_ATTRIBUTE = "target";
 const string Element::INHERIT_ATTRIBUTE = "inherit";
 const string Element::NAMESPACE_ATTRIBUTE = "namespace";
+const string TypedElement::TYPE_ATTRIBUTE = "type";
 const string ValueElement::VALUE_ATTRIBUTE = "value";
 const string ValueElement::INTERFACE_NAME_ATTRIBUTE = "interfacename";
 const string ValueElement::IMPLEMENTATION_NAME_ATTRIBUTE = "implname";
@@ -105,18 +105,19 @@ string Element::getNamePath(ConstElementPtr relativeTo) const
     return res;
 }
 
-ElementPtr Element::getDescendant(const string& path)
+ElementPtr Element::getDescendant(const string& namePath)
 {
-    const StringVec elementNames = splitString(path, NAME_PATH_SEPARATOR);
-    ElementPtr currentElement = getSelf();
-    for (const string& elementName : elementNames)
+    const StringVec nameVec = splitString(namePath, NAME_PATH_SEPARATOR);
+    ElementPtr elem = getSelf();
+    for (const string& name : nameVec)
     {
-        if (!(currentElement = currentElement->getChild(elementName)))
+        elem = elem->getChild(name);
+        if (!elem)
         {
             return ElementPtr();
         }
     }
-    return currentElement;
+    return elem;
 }
 
 void Element::registerChildElement(ElementPtr child)
@@ -456,6 +457,15 @@ void Element::validateRequire(bool expression, bool& res, string* message, strin
             *message += errorDesc + ": " + asString() + "\n";
         }
     }
+}
+
+//
+// TypedElement methods
+//
+
+TypeDefPtr TypedElement::getTypeDef() const
+{
+    return resolveRootNameReference<TypeDef>(getType());
 }
 
 //

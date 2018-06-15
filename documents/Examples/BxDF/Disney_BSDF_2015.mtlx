@@ -15,7 +15,7 @@
     <input name="scatterDistance" type="vector3" value="0, 0, 0"/>
     <input name="flatness" type="float" value="0"/>
     <input name="diffTrans" type="float" value="0"/>
-    <parameter name="thin" type="bool" value="false"/>
+    <parameter name="thin" type="boolean" value="false"/>
   </nodedef>
   <implementation name="im_d2015" nodedef="nd_d2015" target="pbrt" language="c++" file="https://github.com/mmp/pbrt-v3/blob/master/src/materials/disney.cpp" function="DisneyMaterial::DisneyMaterial">
     <input name="baseColor" type="color3" implname="color"/>
