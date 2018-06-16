@@ -49,7 +49,7 @@
            helptext="Controls how much the specular highlight is stretched along its axis. The default value of 0.5 produces a round highlight. Higher values will stretch the highlight along the V axis, lower values stretch along the U axis. The axis of the highlight is controlled by the UVs of the object. For best results, give your object a single UV shell with as few seams as possible."  />
     <input name="specular1Rotation" type="float" value="0.0" publicname="Specular 1/Rotation" uimax="1"
            helptext="Rotates the axis of specular anisotropy around the surface normal. 0 gives no rotation, 0.5 gives 90 degree rotation, 1 gives 180 degree rotation."  />
-    <parameter name="specular1FresnelMode" type="int" value="0" publicname="Specular 1/Fresnel/Mode"
+    <parameter name="specular1FresnelMode" type="integer" value="0" publicname="Specular 1/Fresnel/Mode"
            helptext="Selects which mode to use for the fresnel. Dielectric is appropriate for non-conductive materials such as most organics, plastic, glass and water etc. and gives dark reflections at normal incidence and bright reflections at glancing angles. Metallic is appropriate for metals and gives colored reflections that vary less strongly with angle."  />
     <input name="specular1Ior" type="float" value="1.4" publicname="Specular 1/Fresnel/IOR"
            helptext="The index of refraction for the dielectric fresnel mode."  />
@@ -71,7 +71,7 @@
            helptext="Controls how much the specular highlight is stretched along its axis. The default value of 0.5 produces a round highlight. Higher values will stretch the highlight along the V axis, lower values stretch along the U axis. The axis of the highlight is controlled by the UVs of the object. For best results, give your object a single UV shell with as few seams as possible."  />
     <input name="specular2Rotation" type="float" value="0.0" publicname="Specular 2/Rotation" uimax="1"
            helptext="Rotates the axis of specular anisotropy around the surface normal. 0 gives no rotation, 0.5 gives 90 degree rotation, 1 gives 180 degree rotation."  />
-    <parameter name="specular2FresnelMode" type="int" value="0" publicname="Specular 2/Fresnel/Mode"
+    <parameter name="specular2FresnelMode" type="integer" value="0" publicname="Specular 2/Fresnel/Mode"
            helptext="Selects which mode to use for the fresnel. Dielectric is appropriate for non-conductive materials such as most organics, plastic, glass and water etc. and gives dark reflections at normal incidence and bright reflections at glancing angles. Metallic is appropriate for metals and gives colored reflections that vary less strongly with angle."  />
     <input name="specular2Ior" type="float" value="1.4" publicname="Specular 2/Fresnel/IOR"
            helptext="The index of refraction for the dielectric fresnel mode."  />

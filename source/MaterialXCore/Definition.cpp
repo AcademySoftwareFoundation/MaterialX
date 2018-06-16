@@ -80,7 +80,7 @@ bool NodeDef::validate(string* message) const
 {
     bool res = true;
     validateRequire(hasType(), res, message, "Missing type");
-    if (getType() == MULTI_OUTPUT_TYPE_STRING)
+    if (isMultiOutputType())
     {
         validateRequire(getOutputCount() >= 2, res, message, "Multioutput nodedefs must have two or more output ports");
     }

@@ -133,7 +133,9 @@ void bindPyElement(py::module& mod)
     py::class_<mx::TypedElement, mx::TypedElementPtr, mx::Element>(mod, "TypedElement")
         .def("setType", &mx::TypedElement::setType)
         .def("hasType", &mx::TypedElement::hasType)
-        .def("getType", &mx::TypedElement::getType);
+        .def("getType", &mx::TypedElement::getType)
+        .def("isMultiOutputType", &mx::TypedElement::isMultiOutputType)
+        .def("getTypeDef", &mx::TypedElement::getTypeDef);
 
     py::class_<mx::ValueElement, mx::ValueElementPtr, mx::TypedElement>(mod, "ValueElement")
         .def("setValueString", &mx::ValueElement::setValueString)
