@@ -125,10 +125,16 @@ TEST_CASE("Load content", "[xmlio]")
         }
         REQUIRE(doc2->validate());
 
-        // Verify that all referenced nodes are declared and implemented.
+        // Verify that all referenced types and nodes are declared, and that
+        // referenced node declarations are implemented.
         for (mx::ElementPtr elem : doc2->traverseTree())
         {
+            mx::TypedElementPtr typedElem = elem->asA<mx::TypedElement>();
             mx::NodePtr node = elem->asA<mx::Node>();
+            if (typedElem && typedElem->hasType() && !typedElem->isMultiOutputType())
+            {
+                REQUIRE(typedElem->getTypeDef());
+            }
             if (node)
             {
                 REQUIRE(node->getNodeDef());
