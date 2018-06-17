@@ -177,11 +177,17 @@ NodeDefPtr ShaderRef::getNodeDef() const
     if (hasNodeString())
     {
         vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getNodeString()));
-        if (nodeDefs.empty())
+        vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getNodeString());
+        nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
+        for (NodeDefPtr nodeDef : nodeDefs)
         {
-            nodeDefs = getDocument()->getMatchingNodeDefs(getNodeString());
+            if (targetStringsMatch(nodeDef->getTarget(), getTarget()) &&
+                nodeDef->isVersionCompatible(getSelf()) &&
+                (!hasType() || nodeDef->getType() == getType()))
+            {
+                return nodeDef;
+            }
         }
-        return nodeDefs.empty() ? NodeDefPtr() : nodeDefs[0];
     }
     return NodeDefPtr();
 }
@@ -199,7 +205,7 @@ bool ShaderRef::validate(string* message) const
     {
         validateRequire(typeDef->getSemantic() == SHADER_SEMANTIC, res, message, "Shader reference to a non-shader nodedef");
     }
-    return Element::validate(message) && res;
+    return TypedElement::validate(message) && res;
 }
 
 Edge ShaderRef::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
