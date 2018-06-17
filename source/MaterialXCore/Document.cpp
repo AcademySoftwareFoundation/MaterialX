@@ -186,7 +186,7 @@ std::pair<int, int> Document::getVersionIntegers() const
     {
         return {MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION};
     }
-    return InterfaceElement::getVersionIntegers();
+    return Element::getVersionIntegers();
 }
 
 vector<PortElementPtr> Document::getMatchingPorts(const string& nodeName) const
@@ -244,7 +244,7 @@ bool Document::validate(string* message) const
 {
     bool res = true;
     validateRequire(hasVersionString(), res, message, "Missing version string");
-    return Element::validate(message) && res;
+    return GraphElement::validate(message) && res;
 }
 
 void Document::upgradeVersion()
