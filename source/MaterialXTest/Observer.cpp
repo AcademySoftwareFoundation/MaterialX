@@ -118,7 +118,7 @@ TEST_CASE("Observer", "[observer]")
     output->setConnectedNode(constant);
 
     // Create a simple shader interface.
-    mx::NodeDefPtr shader = doc->addNodeDef("shader1", "surfaceshader", "simpleSrf");
+    mx::NodeDefPtr shader = doc->addNodeDef("ND_simpleSrf", "surfaceshader", "simpleSrf");
     shader->addInput("diffColor", "color3");
     shader->addInput("specColor", "color3");
     shader->addParameter("roughness", "float");

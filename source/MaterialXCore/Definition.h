@@ -136,6 +136,15 @@ class NodeDef : public InterfaceElement
     bool validate(string* message = nullptr) const override;
 
     /// @}
+    /// @name Utility
+    /// @{
+
+    /// Return true if the given element is version compatible with this
+    /// NodeDef.  This may be used to test, for example, whether a NodeDef
+    /// and Node may be used together.
+    bool isVersionCompatible(ConstElementPtr elem) const;
+
+    /// @}
 
   public:
     static const string CATEGORY;

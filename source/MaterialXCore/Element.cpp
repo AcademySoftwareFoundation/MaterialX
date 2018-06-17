@@ -17,6 +17,8 @@ const string Element::FILE_PREFIX_ATTRIBUTE = "fileprefix";
 const string Element::GEOM_PREFIX_ATTRIBUTE = "geomprefix";
 const string Element::COLOR_SPACE_ATTRIBUTE = "colorspace";
 const string Element::TARGET_ATTRIBUTE = "target";
+const string Element::VERSION_ATTRIBUTE = "version";
+const string Element::DEFAULT_VERSION_ATTRIBUTE = "isdefaultversion";
 const string Element::INHERIT_ATTRIBUTE = "inherit";
 const string Element::NAMESPACE_ATTRIBUTE = "namespace";
 const string TypedElement::TYPE_ATTRIBUTE = "type";
@@ -118,6 +120,30 @@ ElementPtr Element::getDescendant(const string& namePath)
         }
     }
     return elem;
+}
+
+std::pair<int, int> Element::getVersionIntegers() const
+{
+    string versionString = getVersionString();
+    StringVec splitVersion = splitString(versionString, ".");
+    try
+    {
+        if (splitVersion.size() == 2)
+        {
+            return {std::stoi(splitVersion[0]), std::stoi(splitVersion[1])};
+        }
+        else if (splitVersion.size() == 1)
+        {
+            return {std::stoi(splitVersion[0]), 0};
+        }
+    }
+    catch (std::invalid_argument&)
+    {
+    }
+    catch (std::out_of_range&)
+    {
+    }
+    return {0, 0};
 }
 
 void Element::registerChildElement(ElementPtr child)

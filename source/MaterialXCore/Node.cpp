@@ -75,8 +75,8 @@ NodeDefPtr Node::getNodeDef(const string& target) const
     nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
     for (NodeDefPtr nodeDef : nodeDefs)
     {
-        if (targetStringsMatch(target, nodeDef->getTarget()) &&
-            isVersionCompatible(nodeDef) &&
+        if (targetStringsMatch(nodeDef->getTarget(), target) &&
+            nodeDef->isVersionCompatible(getSelf()) &&
             isTypeCompatible(nodeDef))
         {
             return nodeDef;
