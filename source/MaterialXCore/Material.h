@@ -285,11 +285,11 @@ class BindInput : public ValueElement
 /// A shader reference element within a Material.
 ///
 /// A ShaderRef instantiates a shader NodeDef within the context of a Material.
-class ShaderRef : public Element
+class ShaderRef : public TypedElement
 {
   public:
     ShaderRef(ElementPtr parent, const string& name) :
-        Element(parent, CATEGORY, name)
+        TypedElement(parent, CATEGORY, name)
     {
     }
     virtual ~ShaderRef() { }
