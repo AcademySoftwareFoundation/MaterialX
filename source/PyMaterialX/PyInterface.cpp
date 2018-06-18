@@ -24,8 +24,6 @@ void bindPyInterface(py::module& mod)
     py::class_<mx::PortElement, mx::PortElementPtr, mx::ValueElement>(mod, "PortElement")
         .def("setNodeName", &mx::PortElement::setNodeName)
         .def("getNodeName", &mx::PortElement::getNodeName)
-        .def("setChannels", &mx::PortElement::setChannels)
-        .def("getChannels", &mx::PortElement::getChannels)
         .def("setConnectedNode", &mx::PortElement::setConnectedNode)
         .def("getConnectedNode", &mx::PortElement::getConnectedNode);
 
@@ -37,6 +35,12 @@ void bindPyInterface(py::module& mod)
         .def_readonly_static("CATEGORY", &mx::Output::CATEGORY);
 
     py::class_<mx::InterfaceElement, mx::InterfaceElementPtr, mx::TypedElement>(mod, "InterfaceElement")
+        .def("setVersionString", &mx::InterfaceElement::setVersionString)
+        .def("hasVersionString", &mx::InterfaceElement::hasVersionString)
+        .def("getVersionString", &mx::InterfaceElement::getVersionString)
+        .def("getVersionIntegers", &mx::InterfaceElement::getVersionIntegers)
+        .def("setDefaultVersion", &mx::InterfaceElement::setDefaultVersion)
+        .def("getDefaultVersion", &mx::InterfaceElement::getDefaultVersion)
         .def("addParameter", &mx::InterfaceElement::addParameter,
             py::arg("name") = mx::EMPTY_STRING, py::arg("type") = mx::DEFAULT_TYPE_STRING)
         .def("getParameter", &mx::InterfaceElement::getParameter)
@@ -77,6 +81,7 @@ void bindPyInterface(py::module& mod)
         .def("getDeclaration", &mx::InterfaceElement::getDeclaration,
             py::arg("target") = mx::EMPTY_STRING)
         .def("isTypeCompatible", &mx::InterfaceElement::isTypeCompatible)
+        .def("isVersionCompatible", &mx::InterfaceElement::isVersionCompatible)
         BIND_INTERFACE_TYPE_INSTANCE(integer, int)
         BIND_INTERFACE_TYPE_INSTANCE(boolean, bool)
         BIND_INTERFACE_TYPE_INSTANCE(float, float)

@@ -14,15 +14,11 @@ void bindPyDocument(py::module& mod)
 {
     mod.def("createDocument", &mx::createDocument);
 
-    py::class_<mx::Document, mx::DocumentPtr, mx::Element>(mod, "Document")
+    py::class_<mx::Document, mx::DocumentPtr, mx::GraphElement>(mod, "Document")
         .def("initialize", &mx::Document::initialize)
         .def("copy", &mx::Document::copy)
         .def("importLibrary", &mx::Document::importLibrary, 
             py::arg("library"), py::arg("copyOptions") = (const mx::CopyOptions*) nullptr)
-        .def("setVersionString", &mx::Document::setVersionString)
-        .def("hasVersionString", &mx::Document::hasVersionString)
-        .def("getVersionString", &mx::Document::getVersionString)
-        .def("getVersionIntegers", &mx::Document::getVersionIntegers)
         .def("addNodeGraph", &mx::Document::addNodeGraph,
             py::arg("name") = mx::EMPTY_STRING)
         .def("getNodeGraph", &mx::Document::getNodeGraph)
@@ -76,6 +72,7 @@ void bindPyDocument(py::module& mod)
         .def("getImplementation", &mx::Document::getImplementation)
         .def("getImplementations", &mx::Document::getImplementations)
         .def("removeImplementation", &mx::Document::removeImplementation)
+        .def("upgradeVersion", &mx::Document::upgradeVersion)
         .def("setColorManagementSystem", &mx::Document::setColorManagementSystem)
         .def("hasColorManagementSystem", &mx::Document::hasColorManagementSystem)
         .def("getColorManagementSystem", &mx::Document::getColorManagementSystem)

@@ -98,12 +98,9 @@ if (MATERIALX_BUILD_VIEW)
 endif(MATERIALX_BUILD_VIEW)
 
 add_subdirectory(source/MaterialXTest)
+add_subdirectory(documents)
 
 if(MATERIALX_BUILD_PYTHON)
     add_subdirectory(source/PyMaterialX)
     add_subdirectory(python)
 endif(MATERIALX_BUILD_PYTHON)
-
-if(MATERIALX_BUILD_DOCS)
-    add_subdirectory(documents)
-endif(MATERIALX_BUILD_DOCS)

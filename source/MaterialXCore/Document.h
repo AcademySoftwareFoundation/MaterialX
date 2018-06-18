@@ -29,7 +29,7 @@ using ConstDocumentPtr = shared_ptr<const class Document>;
 /// MaterialX ownership hierarchy.
 ///
 /// Use the factory function createDocument() to create a Document instance.
-class Document : public Element
+class Document : public GraphElement
 {
   public:
     Document(ElementPtr parent, const string& name);
@@ -64,34 +64,6 @@ class Document : public Element
     ///    If provided, then the given options will affect the behavior of the
     ///    import function.  Defaults to a null pointer.
     void importLibrary(ConstDocumentPtr library, const class CopyOptions* copyOptions = nullptr);
-
-    /// @name Document Versions
-    /// @{
-
-    /// Set the version string of the document.
-    void setVersionString(const string& version)
-    {
-        setAttribute(VERSION_ATTRIBUTE, version);
-    }
-
-    /// Return true if the given element has a version string.
-    bool hasVersionString() const
-    {
-        return hasAttribute(VERSION_ATTRIBUTE);
-    }
-
-    /// Return the version string of the document.
-    const string& getVersionString() const
-    {
-        return getAttribute(VERSION_ATTRIBUTE);
-    }
-
-    /// Return the major and minor versions as an integer pair.
-    std::pair<int, int> getVersionIntegers();
-
-    /// Upgrade the content of this document from earlier supported versions to
-    /// the library version.  Documents from future versions are left unmodified.
-    void upgradeVersion();
 
     /// @}
     /// @name NodeGraph Elements
@@ -440,6 +412,17 @@ class Document : public Element
     vector<InterfaceElementPtr> getMatchingImplementations(const string& nodeDef) const;
 
     /// @}
+    /// @name Version
+    /// @{
+
+    /// Return the major and minor versions as an integer pair.
+    std::pair<int, int> getVersionIntegers() const override;
+
+    /// Upgrade the content of this document from earlier supported versions to
+    /// the library version.  Documents from future versions are left unmodified.
+    void upgradeVersion();
+
+    /// @}
     /// @name Color Management System
     /// @{
 
@@ -535,7 +518,6 @@ class Document : public Element
 
   public:
     static const string CATEGORY;
-    static const string VERSION_ATTRIBUTE;
     static const string CMS_ATTRIBUTE;
     static const string CMS_CONFIG_ATTRIBUTE;
 

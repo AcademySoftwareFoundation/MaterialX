@@ -56,7 +56,7 @@ template <> void stringToData(const string& str, string& data)
 
 template <class T> void stringToData(const string& str, enable_if_mx_vector_t<T>& data)
 {
-    vector<string> tokens = splitString(str, ARRAY_VALID_SEPARATORS);
+    StringVec tokens = splitString(str, ARRAY_VALID_SEPARATORS);
     if (tokens.size() != data.numElements())
     {
         throw ExceptionTypeError("Type mismatch in vector stringToData: " + str);
@@ -69,7 +69,7 @@ template <class T> void stringToData(const string& str, enable_if_mx_vector_t<T>
 
 template <class T> void stringToData(const string& str, enable_if_mx_matrix_t<T>& data)
 {
-    vector<string> tokens = splitString(str, ARRAY_VALID_SEPARATORS);
+    StringVec tokens = splitString(str, ARRAY_VALID_SEPARATORS);
     if (tokens.size() != data.numRows() * data.numColumns())
     {
         throw ExceptionTypeError("Type mismatch in matrix stringToData: " + str);
@@ -96,8 +96,6 @@ template <class T> void stringToData(const string& str, enable_if_std_vector_t<T
 template <class T> void dataToString(const T& data, string& str)
 {
     std::stringstream ss;
-    ss.precision(Value::getFloatPrecision());
-    ss.setf((std::ios_base::fmtflags)Value::getFloatFormat(), std::ios_base::floatfield);
     ss << data;
     str = ss.str();
 }

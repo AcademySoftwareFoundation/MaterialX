@@ -35,14 +35,12 @@ TEST_CASE("Node", "[node]")
     // Create a document.
     mx::DocumentPtr doc = mx::createDocument();
 
-    // Create a node graph with two source nodes.
-    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
-    REQUIRE_THROWS_AS(doc->addNodeGraph(nodeGraph->getName()), mx::Exception&);
-    mx::NodePtr constant = nodeGraph->addNode("constant");
-    mx::NodePtr image = nodeGraph->addNode("image");
-    REQUIRE(nodeGraph->getNodes().size() == 2);
-    REQUIRE(nodeGraph->getNodes("constant").size() == 1);
-    REQUIRE(nodeGraph->getNodes("image").size() == 1);
+    // Create a graph with two source nodes.
+    mx::NodePtr constant = doc->addNode("constant");
+    mx::NodePtr image = doc->addNode("image");
+    REQUIRE(doc->getNodes().size() == 2);
+    REQUIRE(doc->getNodes("constant").size() == 1);
+    REQUIRE(doc->getNodes("image").size() == 1);
 
     // Set constant node color.
     mx::Color3 color(0.1f, 0.2f, 0.3f);
@@ -57,8 +55,8 @@ TEST_CASE("Node", "[node]")
     REQUIRE(image->getParameterValue("file")->asA<std::string>() == file);
 
     // Create connected outputs.
-    mx::OutputPtr output1 = nodeGraph->addOutput();
-    mx::OutputPtr output2 = nodeGraph->addOutput();
+    mx::OutputPtr output1 = doc->addOutput();
+    mx::OutputPtr output2 = doc->addOutput();
     output1->setConnectedNode(constant);
     output2->setConnectedNode(image);
     REQUIRE(output1->getUpstreamElement() == constant);
@@ -74,12 +72,22 @@ TEST_CASE("Node", "[node]")
     customNodeDef->setParameterValue("gain", 0.5f);
 
     // Reference the custom nodedef.
-    mx::NodePtr custom = nodeGraph->addNodeInstance(customNodeDef);
+    mx::NodePtr custom = doc->addNodeInstance(customNodeDef);
     REQUIRE(custom->getNodeDef()->getNodeCategory() == mx::PROCEDURAL_NODE_CATEGORY);
     REQUIRE(custom->getParameterValue("octaves")->isA<int>());
     REQUIRE(custom->getParameterValue("octaves")->asA<int>() == 3);
     custom->setParameterValue("octaves", 5);
     REQUIRE(custom->getParameterValue("octaves")->asA<int>() == 5);
+
+    // Set nodedef and node version strings.
+    customNodeDef->setVersionString("2.0");
+    REQUIRE(custom->getNodeDef() == nullptr);
+    customNodeDef->setDefaultVersion(true);
+    REQUIRE(custom->getNodeDef() == customNodeDef);
+    custom->setVersionString("1");
+    REQUIRE(custom->getNodeDef() == nullptr);
+    custom->setVersionString("2");
+    REQUIRE(custom->getNodeDef() == customNodeDef);
 
     // Define a custom type.
     mx::TypeDefPtr typeDef = doc->addTypeDef("spectrum");
@@ -111,23 +119,20 @@ TEST_CASE("Node", "[node]")
     REQUIRE(image->getDownstreamPorts().empty());
 
     // Remove nodes and outputs.
-    nodeGraph->removeNode(image->getName());
-    nodeGraph->removeNode(constant->getName());
-    nodeGraph->removeNode(custom->getName());
-    nodeGraph->removeOutput(output1->getName());
-    nodeGraph->removeOutput(output2->getName());
-    REQUIRE(nodeGraph->getChildren().empty());
-
-    // Remove node graph.
-    doc->removeNodeGraph(nodeGraph->getName());
-    REQUIRE(doc->getNodeGraphs().empty());
+    doc->removeNode(image->getName());
+    doc->removeNode(constant->getName());
+    doc->removeNode(custom->getName());
+    doc->removeOutput(output1->getName());
+    doc->removeOutput(output2->getName());
+    REQUIRE(doc->getNodes().empty());
+    REQUIRE(doc->getOutputs().empty());
 }
 
 TEST_CASE("Flatten", "[nodegraph]")
 {
     // Read the example file.
     mx::DocumentPtr doc = mx::createDocument();
-    mx::readFromXmlFile(doc, "SubGraphs.mtlx", "documents/Examples;documents/Libraries/stdlib");
+    mx::readFromXmlFile(doc, "SubGraphs.mtlx", "documents/Examples;documents/Libraries");
 
     // Find the example graph.
     mx::NodeGraphPtr graph = doc->getNodeGraph("subgraph_ex1");
@@ -142,7 +147,9 @@ TEST_CASE("Flatten", "[nodegraph]")
             totalNodeCount++;
         }
     }
+    // Not sure why this is 4 vs 7. Used to be 4 before.
     REQUIRE(totalNodeCount == 4);
+    //REQUIRE(totalNodeCount == 7);
 
     // Create a flat version of the graph.
     mx::NodeGraphPtr flatGraph = doc->addNodeGraph();
@@ -163,6 +170,8 @@ TEST_CASE("Flatten", "[nodegraph]")
             REQUIRE(isAtomic);
         }
     }
+    // Not sure why this is 16 vs 19. Used to be 16 before.
+    //REQUIRE(totalNodeCount == 19);
     REQUIRE(totalNodeCount == 16);
 }
 

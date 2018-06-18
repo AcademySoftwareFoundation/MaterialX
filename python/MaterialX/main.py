@@ -147,14 +147,14 @@ Node.getReferencedNodeDef = _getReferencedNodeDef
 
 
 #
-# NodeGraph
+# GraphElement
 #
 
 def _addNode(self, category, name = '', typeString = 'color3'):
     "Add an opgraph node."
     return self._addNode(category, name, typeString)
 
-NodeGraph.addNode = _addNode
+GraphElement.addNode = _addNode
 
 
 #

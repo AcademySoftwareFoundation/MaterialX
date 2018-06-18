@@ -8,6 +8,8 @@
 
 #include <cmath>
 
+#include <cmath>
+
 namespace MaterialX
 {
 
