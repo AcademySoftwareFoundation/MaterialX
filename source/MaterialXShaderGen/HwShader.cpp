@@ -21,9 +21,16 @@ HwShader::HwShader(const string& name)
     createUniform(PIXEL_STAGE, LIGHT_DATA_BLOCK, DataType::INTEGER, "type");
 
     // Create uniforms for environment lighting
-    static const float rotationY = 3.14159265f;
+    // Note: Generation of the rotation matrix using floating point math can result
+    // in values which when output can't be consumed by a h/w shader, so
+    // just setting explicit values here for now since the matrix is simple.
+    // In general the values will need to be "sanitized" for hardware.
+    const Matrix44 yRotationPI(-1, 0, 0, 0,
+                                0, 1, 0, 0,
+                                0, 0, -1, 0,
+                                0, 0, 0, 1);
     createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, DataType::MATRIX4, "u_envMatrix", 
-        EMPTY_STRING, Value::createValue<Matrix44>(Matrix44::createRotationY(rotationY)));
+        EMPTY_STRING, Value::createValue<Matrix44>(yRotationPI));
     createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, DataType::FILENAME, "u_envSpecular");
     createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, DataType::FILENAME, "u_envIrradiance");
 }
