@@ -6,7 +6,7 @@
 namespace MaterialX
 {
 
-using HwShaderGeneratorPtr = shared_ptr<class HwShader>;
+using HwShaderGeneratorPtr = shared_ptr<class HwShaderGenerator>;
 
 /// Base class for shader generators targeting HW rendering.
 class HwShaderGenerator : public ShaderGenerator
