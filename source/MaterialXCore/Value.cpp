@@ -96,6 +96,8 @@ template <class T> void stringToData(const string& str, enable_if_std_vector_t<T
 template <class T> void dataToString(const T& data, string& str)
 {
     std::stringstream ss;
+    ss.precision(Value::getFloatPrecision());
+    ss.setf((std::ios_base::fmtflags)Value::getFloatFormat(), std::ios_base::floatfield);
     ss << data;
     str = ss.str();
 }
