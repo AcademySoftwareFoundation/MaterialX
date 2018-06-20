@@ -2,11 +2,9 @@
 
 void sx_coatingbsdf(vec3 L, vec3 V, float weight, vec3 reflectance, float ior, float roughness, float anisotropy, vec3 normal, vec3 tangent, int distribution, BSDF base, out BSDF result)
 {
+    result = base;
     if (weight < M_FLOAT_EPS)
-    {
-        result = base;
         return;
-    }
 
     float NdotL = dot(normal,L);
     float NdotV = dot(normal,V);
