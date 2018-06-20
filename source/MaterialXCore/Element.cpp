@@ -277,7 +277,7 @@ ElementPtr Element::addChildOfCategory(const string& category,
     }
 
     // Check for a node within a graph.
-    if (!child && getCategory() == NodeGraph::CATEGORY)
+    if (!child && isA<GraphElement>())
     {
         child = createElement<Node>(getSelf(), childName);
         child->setCategory(category);
