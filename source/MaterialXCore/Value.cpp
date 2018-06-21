@@ -99,8 +99,9 @@ template <class T> void dataToString(const T& data, string& str)
 
     // Set float format and precision for the stream
     const Value::FloatFormat fmt = Value::getFloatFormat();
-    ss.setf(fmt == Value::FloatFormatFixed ? std::ios_base::fixed :
-        (fmt == Value::FloatFormatScientific ? std::ios_base::scientific : 0),
+    ss.setf(std::ios_base::fmtflags(
+            (fmt == Value::FloatFormatFixed ? std::ios_base::fixed :
+            (fmt == Value::FloatFormatScientific ? std::ios_base::scientific : 0))),
         std::ios_base::floatfield);
     ss.precision(Value::getFloatPrecision());
 
