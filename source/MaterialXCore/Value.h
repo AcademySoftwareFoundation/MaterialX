@@ -27,6 +27,15 @@ template <class T> class TypedValue;
 class Value
 {
   public:
+    /// Float formats to use when converting values to strings.
+    enum FloatFormat
+    {
+        FloatFormatDefault = 0,
+        FloatFormatFixed = 1,
+        FloatFormatScientific = 2
+    };
+
+  public:
     Value()
     {
     }
@@ -65,9 +74,9 @@ class Value
     virtual string getValueString() const = 0;
 
     /// Set float formatting for converting values to strings.
-    /// Formats to use are 'std::ios_base::fixed', 'std::ios_base::scientific' 
-    /// or '0' to set default format.
-    static void setFloatFormat(int format)
+    /// Formats to use are FloatFormatFixed, FloatFormatScientific 
+    /// or FloatFormatDefault to set default format.
+    static void setFloatFormat(FloatFormat format)
     {
         _floatFormat = format;
     }
@@ -79,7 +88,7 @@ class Value
     }
 
     /// Return the current float format.
-    static int getFloatFormat()
+    static FloatFormat getFloatFormat()
     {
         return _floatFormat;
     }
@@ -95,10 +104,10 @@ class Value
     class ScopedFloatFormatting
     {
       public:
-        ScopedFloatFormatting(int format, int precision = 6);
+        ScopedFloatFormatting(FloatFormat format, int precision = 6);
         ~ScopedFloatFormatting();
       private:
-          int _format;
+          FloatFormat _format;
           int _precision;
     };
 
@@ -110,7 +119,7 @@ class Value
 
   private:
     static CreatorMap _creatorMap;
-    static int _floatFormat;
+    static FloatFormat _floatFormat;
     static int _floatPrecision;
 };
 
