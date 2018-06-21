@@ -41,8 +41,8 @@
     <output name="out" type="vector3" nodename="image" />
   </nodegraph>
 
-  <!-- <standardsurface> -->
-  <nodegraph name="IMP_standardsurface" type="" nodedef="ND_standardsurface">
+  <!-- <standard_surface> -->
+  <nodegraph name="IMP_standard_surface" type="" nodedef="ND_standard_surface">
     <!-- Roughness influence by coat-->
     <constant name="coat_affect_roughness" type="float">
       <parameter name="value" type="float" value="0.0" />

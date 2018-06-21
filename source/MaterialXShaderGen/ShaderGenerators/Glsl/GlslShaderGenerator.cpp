@@ -189,8 +189,6 @@ GlslShaderGenerator::GlslShaderGenerator()
     registerImplementation("IM_surface__sx_glsl", SurfaceGlsl::create);
     // <!-- <light> -->
     registerImplementation("IM_light__sx_glsl", LightGlsl::create);
-    // <!-- <standardsurface> -->
-    registerImplementation("IM_standardsurface__sx_glsl", SurfaceShaderGlsl::create);
 
     // <!-- <pointlight> -->
     registerImplementation("IM_pointlight__sx_glsl", LightShaderGlsl::create);

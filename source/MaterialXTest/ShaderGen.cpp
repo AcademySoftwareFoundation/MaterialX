@@ -125,7 +125,7 @@ void createLightCompoundExample(mx::DocumentPtr document)
 
 void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& materials)
 {
-    // Example1: Create a material from 'standardsurface' with support for normal mapping
+    // Example1: Create a material from 'standard_surface' with support for normal mapping
     {
         // Create a nodegraph for normal mapping
         mx::NodeGraphPtr textureGraph = doc->addNodeGraph("nodegraph1");
@@ -145,7 +145,7 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         outNormal->setConnectedNode(normalMap1);
 
         mx::MaterialPtr material = doc->addMaterial("example1");
-        mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "standardsurface");
+        mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "standard_surface");
 
         // Bind texture for normal map from the graph above
         mx::BindInputPtr normalInput = shaderRef->addBindInput("normal", "vector3");
@@ -313,7 +313,7 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         materials.push_back(material);
     }
 
-    // Example4: Create a material from 'standardsurface' using <inputmap> nodes for mappable inputs
+    // Example4: Create a material from 'standard_surface' using <inputmap> nodes for mappable inputs
     {
         // Shader parameter listing (<name>, <type>, <mappable
         using StringPair = std::pair<std::string, std::string>;
@@ -343,7 +343,7 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         mx::NodeGraphPtr shaderGraph = doc->addNodeGraph("IMP_testshader4");
         shaderGraph->setAttribute("nodedef", nodeDef->getName());
 
-        mx::NodePtr standardSurface = shaderGraph->addNode("standardsurface", "standardsurface1", "surfaceshader");
+        mx::NodePtr standardSurface = shaderGraph->addNode("standard_surface", "standardsurface1", "surfaceshader");
         for (auto shaderParam : shaderParams)
         {
             const std::string& name = shaderParam.first.first;
@@ -418,6 +418,20 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         specular_roughness_input->setValue(0.1f);
         mx::BindInputPtr coat_IOR_input = shaderRef->addBindInput("coat_IOR", "float");
         coat_IOR_input->setValue(3.0);
+
+        materials.push_back(material);
+    }
+
+    // Example5: Create a material directly from 'standard_surface'
+    {
+        mx::MaterialPtr material = doc->addMaterial("example5");
+        mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "standard_surface");
+
+        // Bind a couple of shader parameter values
+        mx::BindInputPtr specular_roughness_input = shaderRef->addBindInput("specular_roughness", "float");
+        specular_roughness_input->setValue(0.123f);
+        mx::BindInputPtr specular_IOR_input = shaderRef->addBindInput("specular_IOR", "float");
+        specular_IOR_input->setValue(2.0f);
 
         materials.push_back(material);
     }
@@ -1758,7 +1772,7 @@ TEST_CASE("Surface Layering", "[shadergen]")
     layer1->setConnectedNode("bsdf", layer1_specular);
 
     // Create second surface layer from a standard uber shader
-    mx::NodePtr layer2 = nodeGraph->addNode("standardsurface", "layer2", "surfaceshader");
+    mx::NodePtr layer2 = nodeGraph->addNode("standard_surface", "layer2", "surfaceshader");
     mx::InputPtr layer2_diffuse_color = layer2->addInput("base_color", "color3");
     layer2_diffuse_color->setInterfaceName("layer2_diffuse");
     mx::InputPtr layer2_specular_color = layer2->addInput("specular_color", "color3");
