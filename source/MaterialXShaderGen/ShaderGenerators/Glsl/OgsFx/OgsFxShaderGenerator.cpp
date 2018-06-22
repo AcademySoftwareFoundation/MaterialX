@@ -45,7 +45,7 @@ namespace
         { "u_worldViewProjectionMatrix", "WorldViewProjection" },
 
         { "u_viewDirection", "ViewDirection" },
-        { "u_viewPosition", "ViewPosition" },
+        { "u_viewPosition", "WorldCameraPosition" },
         { "u_frame", "Frame" },
         { "u_time", "Time" }
     };
