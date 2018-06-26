@@ -106,9 +106,10 @@ class Value
       public:
         ScopedFloatFormatting(FloatFormat format, int precision = 6);
         ~ScopedFloatFormatting();
+
       private:
-          FloatFormat _format;
-          int _precision;
+        FloatFormat _format;
+        int _precision;
     };
 
   protected:
