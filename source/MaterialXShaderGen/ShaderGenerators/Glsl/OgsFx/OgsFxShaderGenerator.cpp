@@ -45,7 +45,7 @@ namespace
         { "u_worldViewProjectionMatrix", "WorldViewProjection" },
 
         { "u_viewDirection", "ViewDirection" },
-        { "u_viewPosition", "ViewPosition" },
+        { "u_viewPosition", "WorldCameraPosition" },
         { "u_frame", "Frame" },
         { "u_time", "Time" }
     };
@@ -140,7 +140,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     bool lighting = shader.hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE);
 
     // Turn on fixed formatting since OgsFx doesn't support scientific values
-    Value::ScopedFloatFormatting fmt((int)std::ios_base::fixed);
+    Value::ScopedFloatFormatting fmt(Value::FloatFormatFixed);
 
     //
     // Emit code for vertex shader stage
