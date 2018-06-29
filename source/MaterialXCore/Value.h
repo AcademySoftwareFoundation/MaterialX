@@ -27,6 +27,15 @@ template <class T> class TypedValue;
 class Value
 {
   public:
+    /// Float formats to use when converting values to strings.
+    enum FloatFormat
+    {
+        FloatFormatDefault = 0,
+        FloatFormatFixed = 1,
+        FloatFormatScientific = 2
+    };
+
+  public:
     Value()
     {
     }
@@ -64,6 +73,45 @@ class Value
     /// Return the value string for this value.
     virtual string getValueString() const = 0;
 
+    /// Set float formatting for converting values to strings.
+    /// Formats to use are FloatFormatFixed, FloatFormatScientific 
+    /// or FloatFormatDefault to set default format.
+    static void setFloatFormat(FloatFormat format)
+    {
+        _floatFormat = format;
+    }
+
+    /// Set float precision for converting values to strings.
+    static void setFloatPrecision(int precision)
+    {
+        _floatPrecision = precision;
+    }
+
+    /// Return the current float format.
+    static FloatFormat getFloatFormat()
+    {
+        return _floatFormat;
+    }
+
+    /// Return the current float precision.
+    static int getFloatPrecision()
+    {
+        return _floatPrecision;
+    }
+
+    /// RAII class for scoped setting of float formatting.
+    /// Flags are reset when the object goes out of scope.
+    class ScopedFloatFormatting
+    {
+      public:
+        ScopedFloatFormatting(FloatFormat format, int precision = 6);
+        ~ScopedFloatFormatting();
+
+      private:
+        FloatFormat _format;
+        int _precision;
+    };
+
   protected:
     template <class T> friend class ValueRegistry;
 
@@ -72,6 +120,8 @@ class Value
 
   private:
     static CreatorMap _creatorMap;
+    static FloatFormat _floatFormat;
+    static int _floatPrecision;
 };
 
 /// The class template for typed subclasses of Value
