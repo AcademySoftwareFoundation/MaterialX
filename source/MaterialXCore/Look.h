@@ -17,6 +17,11 @@
 namespace MaterialX
 {
 
+class Look;
+class LookInherit;
+class MaterialAssign;
+class Visibility;
+
 /// A shared pointer to a Look
 using LookPtr = shared_ptr<class Look>;
 /// A shared pointer to a const Look

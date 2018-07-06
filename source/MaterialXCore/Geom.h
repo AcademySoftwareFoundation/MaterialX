@@ -20,6 +20,13 @@ extern const string UNIVERSAL_GEOM_NAME;
 extern const string UDIM_TOKEN;
 extern const string UV_TILE_TOKEN;
 
+class GeomElement;
+class GeomAttr;
+class GeomInfo;
+class Collection;
+class CollectionAdd;
+class CollectionRemove;
+
 /// A shared pointer to a GeomElement
 using GeomElementPtr = shared_ptr<class GeomElement>;
 /// A shared pointer to a const GeomElement

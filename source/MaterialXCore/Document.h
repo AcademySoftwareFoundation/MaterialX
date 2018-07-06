@@ -18,6 +18,8 @@
 namespace MaterialX
 {
 
+class Document;
+
 /// A shared pointer to a Document
 using DocumentPtr = shared_ptr<class Document>;
 /// A shared pointer to a const Document

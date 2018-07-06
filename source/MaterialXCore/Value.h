@@ -16,6 +16,8 @@
 namespace MaterialX
 {
 
+class Value;
+
 /// A shared pointer to a Value
 using ValuePtr = shared_ptr<class Value>;
 /// A shared pointer to a const Value

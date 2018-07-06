@@ -16,6 +16,9 @@
 namespace MaterialX
 {
 
+class Node;
+class NodeGraph;
+
 /// A shared pointer to a Node
 using NodePtr = shared_ptr<class Node>;
 /// A shared pointer to a const Node

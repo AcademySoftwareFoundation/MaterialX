@@ -14,6 +14,9 @@
 namespace MaterialX
 {
 
+class Element;
+class Material;
+
 using ElementPtr = shared_ptr<class Element>;
 using ConstElementPtr = shared_ptr<const class Element>;
 using ConstMaterialPtr = shared_ptr<const class Material>;

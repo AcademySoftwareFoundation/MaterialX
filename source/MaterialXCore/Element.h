@@ -18,6 +18,13 @@
 namespace MaterialX
 {
 
+class Element;
+class TypedElement;
+class ValueElement;
+class StringResolver;
+class Document;
+class Material;
+
 /// A shared pointer to an Element
 using ElementPtr = shared_ptr<class Element>;
 /// A shared pointer to a const Element

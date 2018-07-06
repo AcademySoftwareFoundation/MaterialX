@@ -16,6 +16,9 @@ namespace MaterialX
 
 extern const string EMPTY_STRING;
 
+class Element;
+class NodeGraph;
+
 using ElementPtr = shared_ptr<class Element>;
 using NodeGraphPtr = shared_ptr<class NodeGraph>;
 

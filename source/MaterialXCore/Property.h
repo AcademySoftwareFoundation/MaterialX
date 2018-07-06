@@ -16,6 +16,11 @@
 namespace MaterialX
 {
 
+class Property;
+class PropertyAssign;
+class PropertySet;
+class PropertySetAssign;
+
 /// A shared pointer to a Property
 using PropertyPtr = shared_ptr<class Property>;
 /// A shared pointer to a const Property

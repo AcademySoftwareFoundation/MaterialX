@@ -25,6 +25,12 @@ extern const string GEOMETRIC_NODE_CATEGORY;
 extern const string ADJUSTMENT_NODE_CATEGORY;
 extern const string CONDITIONAL_NODE_CATEGORY;
 
+class NodeDef;
+class Implementation;
+class TypeDef;
+class Member;
+class ShaderRef;
+
 /// A shared pointer to a NodeDef
 using NodeDefPtr = shared_ptr<class NodeDef>;
 /// A shared pointer to a const NodeDef

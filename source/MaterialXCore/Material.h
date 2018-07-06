@@ -17,6 +17,15 @@
 namespace MaterialX
 {
 
+class Material;
+class ShaderRef;
+class BindParam;
+class BindInput;
+class Override;
+class MaterialInherit;
+class MaterialAssign;
+class Collection;
+
 /// A shared pointer to a Material
 using MaterialPtr = shared_ptr<class Material>;
 /// A shared pointer to a const Material

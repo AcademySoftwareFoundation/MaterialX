@@ -16,6 +16,14 @@
 namespace MaterialX
 {
 
+class Parameter;
+class PortElement;
+class Input;
+class Output;
+class InterfaceElement;
+class Node;
+class NodeDef;
+
 /// A shared pointer to a Parameter
 using ParameterPtr = shared_ptr<class Parameter>;
 /// A shared pointer to a const Parameter
