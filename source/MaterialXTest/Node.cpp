@@ -65,7 +65,7 @@ TEST_CASE("Node", "[node]")
     REQUIRE(image->getDownstreamPorts()[0] == output2);
 
     // Create a custom nodedef.
-    mx::NodeDefPtr customNodeDef = doc->addNodeDef("nodeDef1", "float", "turbulence3d");
+    mx::NodeDefPtr customNodeDef = doc->addNodeDef("ND_turbulence3d", "float", "turbulence3d");
     customNodeDef->setNodeCategory(mx::PROCEDURAL_NODE_CATEGORY);
     customNodeDef->setParameterValue("octaves", 3);
     customNodeDef->setParameterValue("lacunarity", 2.0f);
@@ -147,9 +147,7 @@ TEST_CASE("Flatten", "[nodegraph]")
             totalNodeCount++;
         }
     }
-    // Not sure why this is 4 vs 7. Used to be 4 before.
     REQUIRE(totalNodeCount == 4);
-    //REQUIRE(totalNodeCount == 7);
 
     // Create a flat version of the graph.
     mx::NodeGraphPtr flatGraph = doc->addNodeGraph();
@@ -170,8 +168,6 @@ TEST_CASE("Flatten", "[nodegraph]")
             REQUIRE(isAtomic);
         }
     }
-    // Not sure why this is 16 vs 19. Used to be 16 before.
-    //REQUIRE(totalNodeCount == 19);
     REQUIRE(totalNodeCount == 16);
 }
 

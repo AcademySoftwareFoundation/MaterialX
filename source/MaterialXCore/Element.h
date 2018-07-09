@@ -121,13 +121,12 @@ class Element : public std::enable_shared_from_this<Element>
     ///    the returned path will be relative to this ancestor.
     string getNamePath(ConstElementPtr relativeTo = nullptr) const;
 
-    /// Return the descendant referred to by the hierarchical path relative
-    /// to the current element. If an empty string is provided as the path
-    /// then a shared pointer to the current element is returned. If the
-    /// path cannot be found then an empty shared pointer is returned.
-    /// @param path The hierarchical path to use to find a descendant
-    ///    relative to the current element.
-    ElementPtr getDescendant(const string& path);
+    /// Return the element specified by the given hierarchical name path,
+    /// relative to the current element.  If the name path is empty then the
+    /// current element is returned.  If no element is found at the given path,
+    /// then an empty shared pointer is returned.
+    /// @param namePath The relative name path of the specified element.
+    ElementPtr getDescendant(const string& namePath);
 
     /// @}
     /// @name File Prefix
@@ -341,6 +340,47 @@ class Element : public std::enable_shared_from_this<Element>
             }
         }
         return name;
+    }
+
+    /// @}
+    /// @name Version
+    /// @{
+
+    /// Set the version string of this element.
+    void setVersionString(const string& version)
+    {
+        setAttribute(VERSION_ATTRIBUTE, version);
+    }
+
+    /// Return true if this element has a version string.
+    bool hasVersionString() const
+    {
+        return hasAttribute(VERSION_ATTRIBUTE);
+    }
+
+    /// Return the version string of this element.
+    const string& getVersionString() const
+    {
+        return getAttribute(VERSION_ATTRIBUTE);
+    }
+
+    /// Return the major and minor versions as an integer pair.
+    virtual std::pair<int, int> getVersionIntegers() const;
+
+    /// @}
+    /// @name Default Version
+    /// @{
+
+    /// Set the default version flag of this element.
+    void setDefaultVersion(bool defaultVersion)
+    {
+        setTypedAttribute<bool>(DEFAULT_VERSION_ATTRIBUTE, defaultVersion);
+    }
+
+    /// Return the default version flag of this element.
+    bool getDefaultVersion() const
+    {
+        return getTypedAttribute<bool>(DEFAULT_VERSION_ATTRIBUTE);
     }
 
     /// @}
@@ -758,11 +798,12 @@ class Element : public std::enable_shared_from_this<Element>
 
   public:
     static const string NAME_ATTRIBUTE;
-    static const string TYPE_ATTRIBUTE;
     static const string FILE_PREFIX_ATTRIBUTE;
     static const string GEOM_PREFIX_ATTRIBUTE;
     static const string COLOR_SPACE_ATTRIBUTE;
     static const string TARGET_ATTRIBUTE;
+    static const string VERSION_ATTRIBUTE;
+    static const string DEFAULT_VERSION_ATTRIBUTE;
     static const string INHERIT_ATTRIBUTE;
     static const string NAMESPACE_ATTRIBUTE;
 
@@ -819,6 +860,13 @@ class TypedElement : public Element
   public:
     virtual ~TypedElement() { }
 
+  protected:
+    using TypeDefPtr = shared_ptr<class TypeDef>;
+
+  public:
+    /// @}
+    /// @name Type String
+
     /// Set the element's type string.
     void setType(const string& type)
     {
@@ -836,6 +884,25 @@ class TypedElement : public Element
     {
         return getAttribute(TYPE_ATTRIBUTE);
     }
+
+    /// Return true if the element is of multi-output type.
+    bool isMultiOutputType() const
+    {
+        return getType() == MULTI_OUTPUT_TYPE_STRING;
+    }
+
+    /// @}
+    /// @name TypeDef References
+    /// @{
+
+    /// Return the TypeDef declaring the type string of this element.  If no
+    /// matching TypeDef is found, then an empty shared pointer is returned.
+    TypeDefPtr getTypeDef() const;
+
+    /// @}
+
+public:
+    static const string TYPE_ATTRIBUTE;
 };
 
 /// @class ValueElement

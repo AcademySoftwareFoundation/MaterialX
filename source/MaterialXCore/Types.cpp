@@ -4,9 +4,6 @@
 //
 
 #include <MaterialXCore/Types.h>
-#include <cmath>
-
-#include <cmath>
 
 #include <cmath>
 
