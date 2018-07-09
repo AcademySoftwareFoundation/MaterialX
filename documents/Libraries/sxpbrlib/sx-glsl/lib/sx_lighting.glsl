@@ -44,9 +44,5 @@ vec3 sx_environment_specular(vec3 normal, vec3 view, float roughness)
 vec3 sx_environment_irradiance(vec3 normal)
 {
     vec3 result = sx_latlong_map_lookup(normal, u_envMatrix, u_envIrradiance);
-
-    // TODO: remove when we have HDR irradiance maps
-    result = pow(result, vec3(2.2));
-
     return result;
 }

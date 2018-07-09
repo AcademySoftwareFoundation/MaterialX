@@ -80,7 +80,7 @@ bool requiresImplementation(const mx::NodeDefPtr nodeDef)
         return false;
     }
     static std::string TYPE_NONE("none");
-    const std::string typeAttribute = nodeDef->getAttribute(mx::Element::TYPE_ATTRIBUTE);
+    const std::string typeAttribute = nodeDef->getAttribute(mx::TypedElement::TYPE_ATTRIBUTE);
     return !typeAttribute.empty() && typeAttribute != TYPE_NONE;
 }
 

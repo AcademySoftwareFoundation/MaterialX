@@ -125,10 +125,16 @@ TEST_CASE("Load content", "[xmlio]")
         }
         REQUIRE(doc2->validate());
 
-        // Verify that all referenced nodes are declared and implemented.
+        // Verify that all referenced types and nodes are declared, and that
+        // referenced node declarations are implemented.
         for (mx::ElementPtr elem : doc2->traverseTree())
         {
+            mx::TypedElementPtr typedElem = elem->asA<mx::TypedElement>();
             mx::NodePtr node = elem->asA<mx::Node>();
+            if (typedElem && typedElem->hasType() && !typedElem->isMultiOutputType())
+            {
+                REQUIRE(typedElem->getTypeDef());
+            }
             if (node)
             {
                 REQUIRE(node->getNodeDef());
@@ -139,19 +145,19 @@ TEST_CASE("Load content", "[xmlio]")
         // Create a namespaced custom library.
         mx::DocumentPtr customLibrary = mx::createDocument();
         customLibrary->setNamespace("custom");
-        mx::NodeGraphPtr customNodeGraph = customLibrary->addNodeGraph("nodegraph1");
-        mx::NodeDefPtr customNodeDef = customLibrary->addNodeDef("shader1", "surfaceshader", "simpleSrf");
-        mx::NodePtr customNode = customNodeGraph->addNodeInstance(customNodeDef, "node1");
-        mx::ImplementationPtr customImpl = customLibrary->addImplementation("impl1");
+        mx::NodeGraphPtr customNodeGraph = customLibrary->addNodeGraph("NG_custom");
+        mx::NodeDefPtr customNodeDef = customLibrary->addNodeDef("ND_simpleSrf", "surfaceshader", "simpleSrf");
+        mx::ImplementationPtr customImpl = customLibrary->addImplementation("IM_custom");
+        mx::NodePtr customNode = customNodeGraph->addNodeInstance(customNodeDef, "custom1");
         customImpl->setNodeDef(customNodeDef);
         REQUIRE(customLibrary->validate());
 
         // Import the custom library.
         doc2->importLibrary(customLibrary);
-        mx::NodeGraphPtr importedNodeGraph = doc2->getNodeGraph("custom:nodegraph1");
-        mx::NodeDefPtr importedNodeDef = doc2->getNodeDef("custom:shader1");
-        mx::NodePtr importedNode = importedNodeGraph->getNode("node1");
-        mx::ImplementationPtr importedImpl = doc2->getImplementation("custom:impl1");
+        mx::NodeGraphPtr importedNodeGraph = doc2->getNodeGraph("custom:NG_custom");
+        mx::NodeDefPtr importedNodeDef = doc2->getNodeDef("custom:ND_simpleSrf");
+        mx::ImplementationPtr importedImpl = doc2->getImplementation("custom:IM_custom");
+        mx::NodePtr importedNode = importedNodeGraph->getNode("custom1");
         REQUIRE(importedNodeDef != nullptr);
         REQUIRE(importedNode->getNodeDef() == importedNodeDef);
         REQUIRE(importedImpl->getNodeDef() == importedNodeDef);

@@ -49,7 +49,7 @@ void bindPyMaterial(py::module& mod)
         .def("getConnectedOutput", &mx::BindInput::getConnectedOutput)
         .def_readonly_static("CATEGORY", &mx::BindInput::CATEGORY);
 
-    py::class_<mx::ShaderRef, mx::ShaderRefPtr, mx::Element>(mod, "ShaderRef")
+    py::class_<mx::ShaderRef, mx::ShaderRefPtr, mx::TypedElement>(mod, "ShaderRef")
         .def("setNodeString", &mx::ShaderRef::setNodeString)
         .def("hasNodeString", &mx::ShaderRef::hasNodeString)
         .def("getNodeString", &mx::ShaderRef::getNodeString)

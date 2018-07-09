@@ -79,7 +79,7 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*co
     const string outTransparency = output->name + ".transparency";
 
     shader.addLine(outColor + " = vec3(0.0)");
-    shader.addLine(outTransparency + " = vec3(1.0)");
+    shader.addLine(outTransparency + " = vec3(0.0)");
     shader.newLine();
 
     // Calculate opacity

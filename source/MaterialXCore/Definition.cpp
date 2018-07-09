@@ -40,7 +40,7 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target, const strin
     for (InterfaceElementPtr interface : interfaces)
     {
         if (!targetStringsMatch(interface->getTarget(), target) ||
-            !interface->isVersionCompatible(getSelf()->asA<NodeDef>()))
+            !isVersionCompatible(interface))
         {
             continue;
         }
@@ -80,7 +80,7 @@ bool NodeDef::validate(string* message) const
 {
     bool res = true;
     validateRequire(hasType(), res, message, "Missing type");
-    if (getType() == MULTI_OUTPUT_TYPE_STRING)
+    if (isMultiOutputType())
     {
         validateRequire(getOutputCount() >= 2, res, message, "Multioutput nodedefs must have two or more output ports");
     }
@@ -89,6 +89,19 @@ bool NodeDef::validate(string* message) const
         validateRequire(getOutputCount() == 0, res, message, "Only multioutput nodedefs support output ports");
     }
     return InterfaceElement::validate(message) && res;
+}
+
+bool NodeDef::isVersionCompatible(ConstElementPtr elem) const
+{
+    if (getVersionIntegers() == elem->getVersionIntegers())
+    {
+        return true;
+    }
+    if (getDefaultVersion() && !elem->hasVersionString())
+    {
+        return true;
+    }
+    return false;
 }
 
 //

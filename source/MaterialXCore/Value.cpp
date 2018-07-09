@@ -7,8 +7,8 @@
 
 #include <MaterialXCore/Util.h>
 
-#include <sstream>
 #include <iomanip>
+#include <sstream>
 #include <type_traits>
 
 namespace MaterialX
@@ -244,9 +244,9 @@ template<class T> T Value::asA() const
     return typedVal->getData();
 }
 
-Value::ScopedFloatFormatting::ScopedFloatFormatting(FloatFormat format, int precision)
-    : _format(Value::getFloatFormat())
-    , _precision(Value::getFloatPrecision())
+Value::ScopedFloatFormatting::ScopedFloatFormatting(FloatFormat format, int precision) :
+    _format(Value::getFloatFormat()),
+    _precision(Value::getFloatPrecision())
 {
     Value::setFloatFormat(format);
     Value::setFloatPrecision(precision);
