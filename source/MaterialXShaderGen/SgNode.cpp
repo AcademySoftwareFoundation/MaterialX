@@ -722,6 +722,14 @@ SgNode* SgNodeGraph::addNode(const Node& node, ShaderGenerator& shadergen)
             SgInputSocket* inputSocket = getInputSocket(interfaceName);
             if (!inputSocket)
             {
+                inputSocket = addInputSocket(interfaceName, elem->getType());
+                if (!elem->getValueString().empty())
+                {
+                    inputSocket->value = elem->getValue();
+                }
+            }
+            if (!inputSocket)
+            {
                 throw ExceptionShaderGenError("Interface name '" + interfaceName + "' doesn't match an existing input on nodegraph '" + getName() + "'");
             }
             SgInput* input = newNode->getInput(elem->getName());

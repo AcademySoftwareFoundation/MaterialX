@@ -435,6 +435,8 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
 
         materials.push_back(material);
     }
+
+    mx::writeToXmlFile(doc, "example_materials.mtlx");
 }
 
 float cosAngle(float degrees)
