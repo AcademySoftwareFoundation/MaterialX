@@ -28,8 +28,8 @@ void TexCoordGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*c
     const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
 
     const SgInput* indexInput = node.getInput(INDEX);
-    string index = indexInput ? indexInput->value->getValueString() : "0";
-    string variable = "texcoord_" + index;
+    const string index = indexInput ? indexInput->value->getValueString() : "0";
+    const string variable = "texcoord_" + index;
 
     BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
         if (!shader.isCalculated(variable))
