@@ -314,4 +314,15 @@
     <input name="file" type="filename" />
   </nodedef>
 
+  <!--
+    Node: <range>
+  -->
+  <nodedef name="ND_range__color3" node="range" type="color3" nodecategory="shaderx">
+    <input name="in" type="color3" value="0, 0, 0"/>
+    <input name="inMin" type="float" value="0"/>
+    <input name="inMax" type="float" value="1"/>
+    <input name="outMin" type="float" value="0"/>
+    <input name="outMax" type="float" value="1"/>
+  </nodedef>
+
 </materialx>
