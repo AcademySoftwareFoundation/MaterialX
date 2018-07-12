@@ -17,9 +17,9 @@ namespace MaterialX
 class Element;
 class Material;
 
-using ElementPtr = shared_ptr<class Element>;
-using ConstElementPtr = shared_ptr<const class Element>;
-using ConstMaterialPtr = shared_ptr<const class Material>;
+using ElementPtr = shared_ptr<Element>;
+using ConstElementPtr = shared_ptr<const Element>;
+using ConstMaterialPtr = shared_ptr<const Material>;
 
 /// @class Edge
 /// An edge between two connected Elements, returned during graph traversal.

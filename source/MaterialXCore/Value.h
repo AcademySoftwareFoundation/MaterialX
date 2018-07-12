@@ -19,9 +19,9 @@ namespace MaterialX
 class Value;
 
 /// A shared pointer to a Value
-using ValuePtr = shared_ptr<class Value>;
+using ValuePtr = shared_ptr<Value>;
 /// A shared pointer to a const Value
-using ConstValuePtr = shared_ptr<const class Value>;
+using ConstValuePtr = shared_ptr<const Value>;
 
 template <class T> class TypedValue;
 
