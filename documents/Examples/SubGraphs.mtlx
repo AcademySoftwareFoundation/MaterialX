@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.35" cms="ocio" colorspace="lin_rec709" require="matnodegraph">
+<materialx version="1.36" cms="ocio" colorspace="lin_rec709">
   <xi:include href="mx_stdlib_defs.mtlx"/>
 
   <!-- Define a node that implements a checker board pattern -->
   <!-- Using a graph for the implementation.                 -->
-  <nodedef name="ND_checker" node="checker" type="float">
+  <nodedef name="ND_checker_float" node="checker" type="float">
     <input name="scale" type="vector2" value="8.0, 8.0"/>
   </nodedef>
-  <nodegraph name="IMP_checker" nodedef="ND_checker">
+  <nodegraph name="IM_checker_float" nodedef="ND_checker_float">
     <texcoord name="texcoord1" type="vector2">
       <parameter name="index" type="integer" value="0"/>
     </texcoord>
@@ -61,12 +61,12 @@
 
   <!-- Define a node that uses the checker pattern for mixing two colors.  -->
   <!-- Using a graph for the implementation. checker1 becomes a sub-graph. -->
-  <nodedef name="ND_color_checker" node="color_checker" type="color3">
+  <nodedef name="ND_color_checker_color3" node="color_checker" type="color3">
     <input name="color1" type="color3" value="0.8, 0.2, 0.1"/>
     <input name="color2" type="color3" value="0.1, 0.1, 0.8"/>
     <input name="scale" type="vector2" value="8.0, 8.0"/>
   </nodedef>
-  <nodegraph name="IMP_color_checker" nodedef="ND_color_checker">
+  <nodegraph name="IM_color_checker_color3" nodedef="ND_color_checker_color3">
     <checker name="checker1" type="float">
       <input name="scale" type="vector2" interfacename="scale"/>
     </checker>
@@ -82,13 +82,13 @@
   <!-- Showing subgraphs with multiple levels.                         -->
   <nodegraph name="subgraph_ex1">
     <constant name="c1" type="color3">
-      <parameter name="value" type="color3" value="1.0,0.0,0.0" publicname="color1"/>
+      <parameter name="value" type="color3" value="1.0,0.0,0.0"/>
     </constant>
     <constant name="c2" type="color3">
-      <parameter name="value" type="color3" value="0.0,1.0,0.0" publicname="color2"/>
+      <parameter name="value" type="color3" value="0.0,1.0,0.0"/>
     </constant>
     <constant name="scale1" type="float">
-      <parameter name="value" type="float" value="8.0" publicname="scale"/>
+      <parameter name="value" type="float" value="8.0"/>
     </constant>
     <texcoord name="texcoord2" type="vector2">
       <parameter name="index" type="integer" value="0"/>
