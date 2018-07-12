@@ -32,7 +32,7 @@ _libraryFilenames = ('mx_stdlib_defs.mtlx',
                      'mx_stdlib_impl_osl.mtlx')
 _exampleFilenames = ('CustomNode.mtlx',
                      'Looks.mtlx',
-                     'MaterialGraphs.mtlx',
+                     'MaterialBasic.mtlx',
                      'MultiOutput.mtlx',
                      'PaintMaterials.mtlx',
                      'PreShaderComposite.mtlx',
