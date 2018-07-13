@@ -16,30 +16,38 @@
 namespace MaterialX
 {
 
+class Parameter;
+class PortElement;
+class Input;
+class Output;
+class InterfaceElement;
+class Node;
+class NodeDef;
+
 /// A shared pointer to a Parameter
-using ParameterPtr = shared_ptr<class Parameter>;
+using ParameterPtr = shared_ptr<Parameter>;
 /// A shared pointer to a const Parameter
-using ConstParameterPtr = shared_ptr<const class Parameter>;
+using ConstParameterPtr = shared_ptr<const Parameter>;
 
 /// A shared pointer to a PortElement
-using PortElementPtr = shared_ptr<class PortElement>;
+using PortElementPtr = shared_ptr<PortElement>;
 /// A shared pointer to a const PortElement
-using ConstPortElementPtr = shared_ptr<const class PortElement>;
+using ConstPortElementPtr = shared_ptr<const PortElement>;
 
 /// A shared pointer to an Input
-using InputPtr = shared_ptr<class Input>;
+using InputPtr = shared_ptr<Input>;
 /// A shared pointer to a const Input
-using ConstInputPtr = shared_ptr<const class Input>;
+using ConstInputPtr = shared_ptr<const Input>;
 
 /// A shared pointer to an Output
-using OutputPtr = shared_ptr<class Output>;
+using OutputPtr = shared_ptr<Output>;
 /// A shared pointer to a const Output
-using ConstOutputPtr = shared_ptr<const class Output>;
+using ConstOutputPtr = shared_ptr<const Output>;
 
 /// A shared pointer to an InterfaceElement
-using InterfaceElementPtr = shared_ptr<class InterfaceElement>;
+using InterfaceElementPtr = shared_ptr<InterfaceElement>;
 /// A shared pointer to a const InterfaceElement
-using ConstInterfaceElementPtr = shared_ptr<const class InterfaceElement>;
+using ConstInterfaceElementPtr = shared_ptr<const InterfaceElement>;
 
 /// @class Parameter
 /// A parameter element within a Node or NodeDef.
@@ -90,7 +98,7 @@ class PortElement : public ValueElement
     virtual ~PortElement() { }
 
   protected:
-    using NodePtr = shared_ptr<class Node>;
+    using NodePtr = shared_ptr<Node>;
 
   public:
     /// @name Node Name
@@ -284,7 +292,7 @@ class InterfaceElement : public TypedElement
     virtual ~InterfaceElement() { }
 
   protected:
-    using NodeDefPtr = shared_ptr<class NodeDef>;
+    using NodeDefPtr = shared_ptr<NodeDef>;
 
   public:
     /// @name Parameters

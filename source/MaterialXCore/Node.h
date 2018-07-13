@@ -16,15 +16,18 @@
 namespace MaterialX
 {
 
+class Node;
+class NodeGraph;
+
 /// A shared pointer to a Node
-using NodePtr = shared_ptr<class Node>;
+using NodePtr = shared_ptr<Node>;
 /// A shared pointer to a const Node
-using ConstNodePtr = shared_ptr<const class Node>;
+using ConstNodePtr = shared_ptr<const Node>;
 
 /// A shared pointer to a NodeGraph
-using NodeGraphPtr = shared_ptr<class NodeGraph>;
+using NodeGraphPtr = shared_ptr<NodeGraph>;
 /// A shared pointer to a const NodeGraph
-using ConstNodeGraphPtr = shared_ptr<const class NodeGraph>;
+using ConstNodeGraphPtr = shared_ptr<const NodeGraph>;
 
 /// @class Node
 /// A node element within a NodeGraph.

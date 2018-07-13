@@ -18,23 +18,30 @@
 namespace MaterialX
 {
 
+class Element;
+class TypedElement;
+class ValueElement;
+class StringResolver;
+class Document;
+class Material;
+
 /// A shared pointer to an Element
-using ElementPtr = shared_ptr<class Element>;
+using ElementPtr = shared_ptr<Element>;
 /// A shared pointer to a const Element
-using ConstElementPtr = shared_ptr<const class Element>;
+using ConstElementPtr = shared_ptr<const Element>;
 
 /// A shared pointer to a TypedElement
-using TypedElementPtr = shared_ptr<class TypedElement>;
+using TypedElementPtr = shared_ptr<TypedElement>;
 /// A shared pointer to a const TypedElement
-using ConstTypedElementPtr = shared_ptr<const class TypedElement>;
+using ConstTypedElementPtr = shared_ptr<const TypedElement>;
 
 /// A shared pointer to a ValueElement
-using ValueElementPtr = shared_ptr<class ValueElement>;
+using ValueElementPtr = shared_ptr<ValueElement>;
 /// A shared pointer to a const ValueElement
-using ConstValueElementPtr = shared_ptr<const class ValueElement>;
+using ConstValueElementPtr = shared_ptr<const ValueElement>;
 
 /// A shared pointer to a StringResolver
-using StringResolverPtr = shared_ptr<class StringResolver>;
+using StringResolverPtr = shared_ptr<StringResolver>;
 
 /// A hash map from strings to elements
 using ElementMap = std::unordered_map<string, ElementPtr>;
@@ -61,9 +68,9 @@ class Element : public std::enable_shared_from_this<Element>
     virtual ~Element() { }
 
   protected:
-    using DocumentPtr = shared_ptr<class Document>;
-    using ConstDocumentPtr = shared_ptr<const class Document>;
-    using ConstMaterialPtr = shared_ptr<const class Material>;
+    using DocumentPtr = shared_ptr<Document>;
+    using ConstDocumentPtr = shared_ptr<const Document>;
+    using ConstMaterialPtr = shared_ptr<const Material>;
 
     template <class T> friend class ElementRegistry;
 
