@@ -16,7 +16,9 @@ namespace MaterialX
 
 extern const string EMPTY_STRING;
 
-using ElementPtr = shared_ptr<class Element>;
+class Element;
+
+using ElementPtr = shared_ptr<Element>;
 
 /// Return the version of the MaterialX library as a string.
 string getVersionString();

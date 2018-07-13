@@ -21,25 +21,32 @@ extern const string UNIVERSAL_GEOM_NAME;
 extern const string UDIM_TOKEN;
 extern const string UV_TILE_TOKEN;
 
+class GeomElement;
+class GeomAttr;
+class GeomInfo;
+class Collection;
+class CollectionAdd;
+class CollectionRemove;
+
 /// A shared pointer to a GeomElement
-using GeomElementPtr = shared_ptr<class GeomElement>;
+using GeomElementPtr = shared_ptr<GeomElement>;
 /// A shared pointer to a const GeomElement
-using ConstGeomElementPtr = shared_ptr<const class GeomElement>;
+using ConstGeomElementPtr = shared_ptr<const GeomElement>;
 
 /// A shared pointer to a GeomAttr
-using GeomAttrPtr = shared_ptr<class GeomAttr>;
+using GeomAttrPtr = shared_ptr<GeomAttr>;
 /// A shared pointer to a const GeomAttr
-using ConstGeomAttrPtr = shared_ptr<const class GeomAttr>;
+using ConstGeomAttrPtr = shared_ptr<const GeomAttr>;
 
 /// A shared pointer to a GeomInfo
-using GeomInfoPtr = shared_ptr<class GeomInfo>;
+using GeomInfoPtr = shared_ptr<GeomInfo>;
 /// A shared pointer to a const GeomInfo
-using ConstGeomInfoPtr = shared_ptr<const class GeomInfo>;
+using ConstGeomInfoPtr = shared_ptr<const GeomInfo>;
 
 /// A shared pointer to a Collection
-using CollectionPtr = shared_ptr<class Collection>;
+using CollectionPtr = shared_ptr<Collection>;
 /// A shared pointer to a const Collection
-using ConstCollectionPtr = shared_ptr<const class Collection>;
+using ConstCollectionPtr = shared_ptr<const Collection>;
 
 /// @class GeomPath
 /// A MaterialX geometry path, representing the hierarchical location
