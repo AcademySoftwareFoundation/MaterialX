@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.35" cms="ocio" colorspace="lin_rec709" require="multioutput">
+<materialx version="1.36">
 
   <!-- Declare a multi-output node with an external OSL implementation -->
-  <nodedef name="dblclr3" node="doublecolor" type="multioutput">
+  <nodedef name="ND_doublecolor_c3c3" node="doublecolor" type="multioutput">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
     <parameter name="seed" type="float" value="1.0"/>
     <output name="c1" type="color3" default="1.0, 1.0, 1.0"/>
     <output name="c2" type="color3" defaultinput="in1"/>
   </nodedef>
-  <implementation name="osl_dc3" nodedef="dblclr3" file="lib/mtlx_funcs.osl" language="osl"/>
+  <implementation name="IM_doublecolor_c3c3_osl" nodedef="ND_doublecolor_c3c3" file="lib/mtlx_funcs.osl" language="osl"/>
 
   <!-- Use the multi-output node in a nodegraph -->
   <nodegraph name="nodegraph1">

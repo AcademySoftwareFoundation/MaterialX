@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.35" cms="ocio" colorspace="lin_rec709">
-  <nodedef name="nd_d2012" type="surfaceshader" node="Disney_BRDF_2012">
+<materialx version="1.36" cms="ocio" colorspace="lin_rec709">
+  <nodedef name="ND_DisneyBRDF2012_surface" type="surfaceshader" node="Disney_BRDF_2012">
     <input name="baseColor" type="color3" value="0.16, 0.16, 0.16"/>
     <input name="metallic" type="float" value="0"/>
     <input name="subsurface" type="float" value="0"/>
@@ -13,5 +13,6 @@
     <input name="clearcoat" type="float" value="0"/>
     <input name="clearcoatGloss" type="float" value="1"/>
   </nodedef>
-  <implementation name="im_d2012" nodedef="nd_d2012" target="BRDF_Explorer" language="glsl" file="https://github.com/wdas/brdf/blob/master/src/brdfs/disney.brdf"/>
+  <implementation name="IM_DisneyBRDF2012_surface_brdfExplorer" nodedef="ND_DisneyBRDF2012_surface"
+        target="BRDF_Explorer" language="glsl" file="https://github.com/wdas/brdf/blob/master/src/brdfs/disney.brdf"/>
 </materialx>

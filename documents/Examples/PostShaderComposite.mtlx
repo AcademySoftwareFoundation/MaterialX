@@ -1,33 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.35" cms="ocio" colorspace="lin_rec709" require="shadernode">
-  <!-- Assume an external file defines nodegraph "shaderparams", with outputs -->
+<materialx version="1.36">
+  <!-- Assume an external file defines node graphs with outputs -->
   <!-- "o_diffcolor1", "o_diffcolor2", "o_speccolor1" and "o_speccolor2". -->
-  <!-- Define external "alSurface" shader -->
-  <nodedef name="alSurfaceDef" type="surfaceshader" node="alSurface">
-    <input name="DiffuseColor" type="color3" value="0.2,0.2,0.2"/>
-    <input name="Specular1Color" type="color3" value="1,1,1"/>
-    <parameter name="Specular1Roughness" type="float" value="0.3"/>
-  </nodedef>
 
-  <nodedef name="twolayersrfdef" type="surfaceshader" node="twoLayerSurface">
-    <input name="diff1" type="color3" value="0.1,0.1,0.1"/>
-    <input name="spec1" type="color3" value="1,1,1"/>
+  <!-- Include external externally-defined "alSurface" shader -->
+  <xi:include href="BxDF/alSurface.mtlx">
+
+  <!-- Define interface and shading network for "twoLayerSurface" node -->
+  <nodedef name="ND_twolayersurface_surface" type="surfaceshader" node="twoLayerSurface">
+    <input name="diffmult1" type="color3" value="1,1,1"/>
+    <token name="color1" type="string" value="color"/>
+    <token name="spec1" type="string" value="spec"/>
     <parameter name="roughness1" type="float" value="0.5"/>
-    <input name="diff2" type="color3" value="0.1,0.1,0.1"/>
-    <input name="spec2" type="color3" value="1,1,1"/>
+    <input name="diffmult2" type="color3" value="0.1,0.1,0.1"/>
+    <token name="color2" type="string" value="coloralt"/>
+    <token name="spec2" type="string" value="specalt"/>
     <parameter name="roughness2" type="float" value="0.5"/>
     <input name="mixamt" type="float" value="0"/>
   </nodedef>
-  <nodegraph name="ng_twolayersrf" nodedef="twolayersrfdef">
+  <nodegraph name="NG_twolayersurface_srf" nodedef="ND_twolayersurface_srf">
+    <image name="i_diff1" type="color3">
+      <parameter name="file" type="filename" value="txt/[color1]/[color1].<UDIM>.tif"/>
+    </image>
+    <multiply name="mult1" type="color3">
+      <input name="in1" type="color3" nodename="i_diff1"/>
+      <input name="in2" type="color3" interfacename="diffmult1"/>
+    </multiply>
+    <image name="i_diff2" type="color3">
+      <parameter name="file" type="filename" value="txt/[color2]/[color2].<UDIM>.tif"/>
+    </image>
+    <multiply name="mult2" type="color3">
+      <input name="in1" type="color3" nodename="i_diff2"/>
+      <input name="in2" type="color3" interfacename="diffmult2"/>
+    </multiply>
+    <image name="i_spec1" type="color3">
+      <parameter name="file" type="filename" value="txt/[spec1]/[spec1].<UDIM>.tif"/>
+    </image>
+    <image name="i_spec2" type="color3">
+      <parameter name="file" type="filename" value="txt/[spec2]/[spec2].<UDIM>.tif"/>
+    </image>
+
     <alSurface name="als1" type="surfaceshader">
-      <input name="DiffuseColor" type="color3" interfacename="diff1"/>
-      <input name="Specular1Color" type="color3" interfacename="spec1"/>
-      <parameter name="Specular1Roughness" type="float" interfacename="roughness1"/>
+      <input name="diffuseColor" type="color3" nodename="mult1"/>
+      <input name="specular1Color" type="color3" nodename="i_spec1"/>
+      <input name="specular1Roughness" type="float" interfacename="roughness1"/>
     </alSurface>
     <alSurface name="als2" type="surfaceshader">
-      <input name="DiffuseColor" type="color3" interfacename="diff2"/>
-      <input name="Specular1Color" type="color3" interfacename="spec2"/>
-      <parameter name="Specular1Roughness" type="float" interfacename="roughness2"/>
+      <input name="diffuseColor" type="color3" nodename="mult2"/>
+      <input name="specular1Color" type="color3" nodename="i_spec2"/>
+      <input name="specular1Roughness" type="float" interfacename="roughness2"/>
     </alSurface>
     <mix name="srfmix" type="surfaceshader">
       <input name="bg" type="surfaceshader" nodename="als1"/>
@@ -37,15 +58,21 @@
     <output name="o_out" type="surfaceshader" nodename="srfmix"/>
   </nodegraph>
 
+  <image name="i_mixamt" type="float">
+    <parameter name="file" type="filename" value="txt/rustmix/rustmix.<UDIM>.tif"/>
+  </image>
+  <output name="o_mixamt" type="float" nodename="i_mixamt"/>
+
   <material name="mblended1">
     <shaderref name="sr6" node="twoLayerSurface">
-      <bindinput name="diff1" type="color3" nodegraph="shaderparams" output="o_diffcolor1"/>
-      <bindinput name="spec1" type="color3" nodegraph="shaderparams" output="o_speccolor1"/>
-      <bindparameter name="roughness1" type="color3" value="0.34"/>
-      <bindinput name="diff2" type="color3" nodegraph="shaderparams" output="o_diffcolor2"/>
-      <bindinput name="spec2" type="color3" nodegraph="shaderparams" output="o_speccolor2"/>
-      <bindparameter name="roughness2" type="color3" value="0.6"/>
-      <bindinput name="mixamt" type="float" nodegraph="shaderparams" output="o_mixamt"/>
+      <bindtoken name="color1" type="string" value="basecolor"/>
+      <bindtoken name="spec1" type="string" value="basespec"/>
+      <bindparam name="roughness1" type="color3" value="0.34"/>
+      <bindinput name="diffmult2" type="color3" value="0.8,0.82,0.79"/>
+      <bindtoken name="color2" type="string" value="rustcolor"/>
+      <bindtoken name="spec2" type="string" value="rustspec"/>
+      <bindparam name="roughness2" type="color3" value="0.6"/>
+      <bindinput name="mixamt" type="float" output="o_mixamt"/>
     </shaderref>
   </material>
 </materialx>

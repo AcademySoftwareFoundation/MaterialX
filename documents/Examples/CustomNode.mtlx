@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.35" cms="ocio" colorspace="lin_rec709">
+<materialx version="1.36">
 
   <!-- Parameter interface for a simple custom node -->
   <!-- The "bg" input is required, while the "fg" input and "fgamt" parameter are optional. -->
-  <nodedef name="bladdc3" node="blend_add" type="color3" defaultinput="bg">
+  <nodedef name="ND_blend_add_color3" node="blend_add" type="color3" defaultinput="bg">
     <input name="fg" type="color3" value="0,0,0"/>
     <input name="bg" type="color3"/>
     <parameter name="fgamt" type="float" value="1.0"/>
@@ -11,7 +11,7 @@
 
   <!-- Define the functionality of the color3-type "blend_add" node using a nodegraph -->
   <!--      out = (fg * fgamt) + bg        -->
-  <nodegraph name="blend_add_ng" nodedef="bladdc3">
+  <nodegraph name="NG_blend_add_color3" nodedef="ND_blend_add_color3">
     <multiply name="n1" type="color3">
       <input name="in1" type="color3" interfacename="fg"/>
       <input name="in2" type="float" interfacename="fgamt"/>
