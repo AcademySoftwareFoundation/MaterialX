@@ -18,20 +18,25 @@
 namespace MaterialX
 {
 
+class Look;
+class LookInherit;
+class MaterialAssign;
+class Visibility;
+
 /// A shared pointer to a Look
-using LookPtr = shared_ptr<class Look>;
+using LookPtr = shared_ptr<Look>;
 /// A shared pointer to a const Look
-using ConstLookPtr = shared_ptr<const class Look>;
+using ConstLookPtr = shared_ptr<const Look>;
 
 /// A shared pointer to a MaterialAssign
-using MaterialAssignPtr = shared_ptr<class MaterialAssign>;
+using MaterialAssignPtr = shared_ptr<MaterialAssign>;
 /// A shared pointer to a const MaterialAssign
-using ConstMaterialAssignPtr = shared_ptr<const class MaterialAssign>;
+using ConstMaterialAssignPtr = shared_ptr<const MaterialAssign>;
 
 /// A shared pointer to a Visibility
-using VisibilityPtr = shared_ptr<class Visibility>;
+using VisibilityPtr = shared_ptr<Visibility>;
 /// A shared pointer to a const Visibility
-using ConstVisibilityPtr = shared_ptr<const class Visibility>;
+using ConstVisibilityPtr = shared_ptr<const Visibility>;
 
 /// @class Look
 /// A look element within a Document.
@@ -393,7 +398,7 @@ class Visibility : public GeomElement
 
     /// @}
 
-public:
+  public:
     static const string CATEGORY;
     static const string VIEWER_GEOM_ATTRIBUTE;
     static const string VIEWER_COLLECTION_ATTRIBUTE;
