@@ -17,6 +17,7 @@ namespace MaterialX
 {
 
 class Node;
+class GraphElement;
 class NodeGraph;
 
 /// A shared pointer to a Node
@@ -25,9 +26,9 @@ using NodePtr = shared_ptr<Node>;
 using ConstNodePtr = shared_ptr<const Node>;
 
 /// A shared pointer to a GraphElement
-using GraphElementPtr = shared_ptr<class GraphElement>;
+using GraphElementPtr = shared_ptr<GraphElement>;
 /// A shared pointer to a const GraphElement
-using ConstGraphElementPtr = shared_ptr<const class GraphElement>;
+using ConstGraphElementPtr = shared_ptr<const GraphElement>;
 
 /// A shared pointer to a NodeGraph
 using NodeGraphPtr = shared_ptr<NodeGraph>;
