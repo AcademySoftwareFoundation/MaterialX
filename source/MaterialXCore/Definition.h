@@ -25,25 +25,31 @@ extern const string GEOMETRIC_NODE_CATEGORY;
 extern const string ADJUSTMENT_NODE_CATEGORY;
 extern const string CONDITIONAL_NODE_CATEGORY;
 
+class NodeDef;
+class Implementation;
+class TypeDef;
+class Member;
+class ShaderRef;
+
 /// A shared pointer to a NodeDef
-using NodeDefPtr = shared_ptr<class NodeDef>;
+using NodeDefPtr = shared_ptr<NodeDef>;
 /// A shared pointer to a const NodeDef
-using ConstNodeDefPtr = shared_ptr<const class NodeDef>;
+using ConstNodeDefPtr = shared_ptr<const NodeDef>;
 
 /// A shared pointer to an Implementation
-using ImplementationPtr = shared_ptr<class Implementation>;
+using ImplementationPtr = shared_ptr<Implementation>;
 /// A shared pointer to a const Implementation
-using ConstImplementationPtr = shared_ptr<const class Implementation>;
+using ConstImplementationPtr = shared_ptr<const Implementation>;
 
 /// A shared pointer to a TypeDef
-using TypeDefPtr = shared_ptr<class TypeDef>;
+using TypeDefPtr = shared_ptr<TypeDef>;
 /// A shared pointer to a const TypeDef
-using ConstTypeDefPtr = shared_ptr<const class TypeDef>;
+using ConstTypeDefPtr = shared_ptr<const TypeDef>;
 
 /// A shared pointer to a Member
-using MemberPtr = shared_ptr<class Member>;
+using MemberPtr = shared_ptr<Member>;
 /// A shared pointer to a const Member
-using ConstMemberPtr = shared_ptr<const class Member>;
+using ConstMemberPtr = shared_ptr<const Member>;
 
 /// @class NodeDef
 /// A node definition element within a Document.
@@ -59,7 +65,7 @@ class NodeDef : public InterfaceElement
     }
     virtual ~NodeDef() { }
 
-    using ShaderRefPtr = shared_ptr<class ShaderRef>;
+    using ShaderRefPtr = shared_ptr<ShaderRef>;
 
     /// @name Node String
     /// @{

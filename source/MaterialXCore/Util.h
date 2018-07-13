@@ -16,8 +16,11 @@ namespace MaterialX
 
 extern const string EMPTY_STRING;
 
-using ElementPtr = shared_ptr<class Element>;
-using NodeGraphPtr = shared_ptr<class NodeGraph>;
+class Element;
+class NodeGraph;
+
+using ElementPtr = shared_ptr<Element>;
+using NodeGraphPtr = shared_ptr<NodeGraph>;
 
 /// Return the version of the MaterialX library as a string.
 string getVersionString();

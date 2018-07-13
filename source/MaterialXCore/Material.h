@@ -17,35 +17,44 @@
 namespace MaterialX
 {
 
+class Material;
+class ShaderRef;
+class BindParam;
+class BindInput;
+class Override;
+class MaterialInherit;
+class MaterialAssign;
+class Collection;
+
 /// A shared pointer to a Material
-using MaterialPtr = shared_ptr<class Material>;
+using MaterialPtr = shared_ptr<Material>;
 /// A shared pointer to a const Material
-using ConstMaterialPtr = shared_ptr<const class Material>;
+using ConstMaterialPtr = shared_ptr<const Material>;
 
 /// A shared pointer to a ShaderRef
-using ShaderRefPtr = shared_ptr<class ShaderRef>;
+using ShaderRefPtr = shared_ptr<ShaderRef>;
 /// A shared pointer to a const ShaderRef
-using ConstShaderRefPtr = shared_ptr<const class ShaderRef>;
+using ConstShaderRefPtr = shared_ptr<const ShaderRef>;
 
 /// A shared pointer to a BindParam
-using BindParamPtr = shared_ptr<class BindParam>;
+using BindParamPtr = shared_ptr<BindParam>;
 /// A shared pointer to a const BindParam
-using ConstBindParamPtr = shared_ptr<const class BindParam>;
+using ConstBindParamPtr = shared_ptr<const BindParam>;
 
 /// A shared pointer to a BindInput
-using BindInputPtr = shared_ptr<class BindInput>;
+using BindInputPtr = shared_ptr<BindInput>;
 /// A shared pointer to a const BindInput
-using ConstBindInputPtr = shared_ptr<const class BindInput>;
+using ConstBindInputPtr = shared_ptr<const BindInput>;
 
 /// A shared pointer to an Override
-using OverridePtr = shared_ptr<class Override>;
+using OverridePtr = shared_ptr<Override>;
 /// A shared pointer to a const Override
-using ConstOverridePtr = shared_ptr<const class Override>;
+using ConstOverridePtr = shared_ptr<const Override>;
 
 /// A shared pointer to a MaterialInherit
-using MaterialInheritPtr = shared_ptr<class MaterialInherit>;
+using MaterialInheritPtr = shared_ptr<MaterialInherit>;
 /// A shared pointer to a const MaterialInherit
-using ConstMaterialInheritPtr = shared_ptr<const class MaterialInherit>;
+using ConstMaterialInheritPtr = shared_ptr<const MaterialInherit>;
 
 /// @class Material
 /// A material element within a Document.
@@ -62,8 +71,8 @@ class Material : public Element
     virtual ~Material() { }
 
   protected:
-    using MaterialAssignPtr = shared_ptr<class MaterialAssign>;
-    using CollectionPtr = shared_ptr<class Collection>;
+    using MaterialAssignPtr = shared_ptr<MaterialAssign>;
+    using CollectionPtr = shared_ptr<Collection>;
 
   public:
     /// @name ShaderRef Elements

@@ -18,10 +18,12 @@
 namespace MaterialX
 {
 
+class Document;
+
 /// A shared pointer to a Document
-using DocumentPtr = shared_ptr<class Document>;
+using DocumentPtr = shared_ptr<Document>;
 /// A shared pointer to a const Document
-using ConstDocumentPtr = shared_ptr<const class Document>;
+using ConstDocumentPtr = shared_ptr<const Document>;
 
 /// @class Document
 /// A MaterialX document, which represents the top-level element in the
