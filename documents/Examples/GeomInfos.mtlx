@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.35" cms="ocio" colorspace="lin_rec709">
-  <collection name="col1">
-    <collectionadd name="col1_1" geom="/root/world/geo/g[123]"/>
-  </collection>
-  <collection name="col2">
-    <collectionadd name="col2_1" geom="/root/world/geo/g[4567]"/>
-  </collection>
-  <collection name="col3">
-    <collectionadd name="col3_1" geom="/root/world/geo/g[89]"/>
-  </collection>
+<materialx version="1.36">
+  <collection name="col1" includegeom="/root/world/geo/g[123]"/>
+  <collection name="col2" includegeom="/root/world/geo/g[4567]"/>
+  <collection name="col3" includegeom="/root/world/geo/g[89]"/>
 
   <geominfo name="gi1" collection="col1">
     <geomattr name="diffalbedo" type="string" value="txt/albedo/albedo.1001.tif"/>

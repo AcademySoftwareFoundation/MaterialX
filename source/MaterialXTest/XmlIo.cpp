@@ -20,7 +20,7 @@ TEST_CASE("Load content", "[xmlio]")
     {
         "CustomNode.mtlx",
         "Looks.mtlx",
-        "MaterialGraphs.mtlx",
+        "MaterialBasic.mtlx",
         "MultiOutput.mtlx",
         "PaintMaterials.mtlx",
         "PreShaderComposite.mtlx",
