@@ -21,6 +21,7 @@ namespace MaterialX
 class Element;
 class TypedElement;
 class ValueElement;
+class Token;
 class StringResolver;
 class Document;
 class Material;
@@ -41,9 +42,9 @@ using ValueElementPtr = shared_ptr<ValueElement>;
 using ConstValueElementPtr = shared_ptr<const ValueElement>;
 
 /// A shared pointer to a Token
-using TokenPtr = shared_ptr<class Token>;
+using TokenPtr = shared_ptr<Token>;
 /// A shared pointer to a const Token
-using ConstTokenPtr = shared_ptr<const class Token>;
+using ConstTokenPtr = shared_ptr<const Token>;
 
 /// A shared pointer to a StringResolver
 using StringResolverPtr = shared_ptr<StringResolver>;

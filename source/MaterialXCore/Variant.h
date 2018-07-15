@@ -16,20 +16,24 @@
 namespace MaterialX
 {
 
+class Variant;
+class VariantSet;
+class VariantAssign;
+
 /// A shared pointer to a Variant
-using VariantPtr = shared_ptr<class Variant>;
+using VariantPtr = shared_ptr<Variant>;
 /// A shared pointer to a const Variant
-using ConstVariantPtr = shared_ptr<const class Variant>;
+using ConstVariantPtr = shared_ptr<const Variant>;
 
 /// A shared pointer to a VariantSet
-using VariantSetPtr = shared_ptr<class VariantSet>;
+using VariantSetPtr = shared_ptr<VariantSet>;
 /// A shared pointer to a const VariantSet
-using ConstVariantSetPtr = shared_ptr<const class VariantSet>;
+using ConstVariantSetPtr = shared_ptr<const VariantSet>;
 
 /// A shared pointer to a VariantAssign
-using VariantAssignPtr = shared_ptr<class VariantAssign>;
+using VariantAssignPtr = shared_ptr<VariantAssign>;
 /// A shared pointer to a const VariantAssign
-using ConstVariantAssignPtr = shared_ptr<const class VariantAssign>;
+using ConstVariantAssignPtr = shared_ptr<const VariantAssign>;
 
 /// @class Variant
 /// A variant element within a VariantSet
