@@ -738,6 +738,20 @@ class Element : public std::enable_shared_from_this<Element>
         return _sourceUri;
     }
 
+    /// Return the source URI that is active at the scope of this
+    /// element, taking all ancestor elements into account.
+    const string& getActiveSourceUri() const
+    {
+        for (ConstElementPtr elem : traverseAncestors())
+        {
+            if (elem->hasSourceUri())
+            {
+                return elem->getSourceUri();
+            }
+        }
+        return EMPTY_STRING;
+    }
+
     /// @}
     /// @name Validation
     /// @{
@@ -1219,8 +1233,7 @@ class CopyOptions
 {
   public:
     CopyOptions() :
-        skipDuplicateElements(false),
-        copySourceUris(false)
+        skipDuplicateElements(false)
     {
     }
     ~CopyOptions() { }
@@ -1228,10 +1241,6 @@ class CopyOptions
     /// If true, elements at the same scope with duplicate names will be skipped;
     /// otherwise, they will trigger an exception.  Defaults to false.
     bool skipDuplicateElements;
-
-    /// If true, then source URIs from the given element
-    /// and its descendants are also copied.  Defaults to false.
-    bool copySourceUris;
 };
 
 /// @class ExceptionOrphanedElement
