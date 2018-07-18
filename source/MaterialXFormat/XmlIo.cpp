@@ -125,7 +125,10 @@ void xmlDocumentFromFile(xml_document& xmlDoc, string filename, const string& se
         }
         else
         {
-            throw ExceptionParseError("XML parse error in file: " + filename + " (" + result.description() + ")");
+            string desc = result.description();
+            string offset = std::to_string(result.offset);
+            throw ExceptionParseError("XML parse error in file: " + filename +
+                                      " (" + desc + " at character " + offset + ")");
         }
     }
 }
@@ -145,9 +148,7 @@ void processXIncludes(DocumentPtr doc, xml_node& xmlNode, const string& searchPa
                 readFromXmlFile(library, fileAttr.value(), searchPath, readOptions);
 
                 // Import the library.
-                CopyOptions copyOptions = readOptions ? (CopyOptions) *readOptions : CopyOptions();
-                copyOptions.copySourceUris = true;
-                doc->importLibrary(library, &copyOptions);
+                doc->importLibrary(library, readOptions);
             }
 
             // Remove include directive.

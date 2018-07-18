@@ -19,11 +19,11 @@ namespace MaterialX
 extern const string COLOR_SEMANTIC;
 extern const string SHADER_SEMANTIC;
 
-extern const string TEXTURE_NODE_CATEGORY;
-extern const string PROCEDURAL_NODE_CATEGORY;
-extern const string GEOMETRIC_NODE_CATEGORY;
-extern const string ADJUSTMENT_NODE_CATEGORY;
-extern const string CONDITIONAL_NODE_CATEGORY;
+extern const string TEXTURE_NODE_GROUP;
+extern const string PROCEDURAL_NODE_GROUP;
+extern const string GEOMETRIC_NODE_GROUP;
+extern const string ADJUSTMENT_NODE_GROUP;
+extern const string CONDITIONAL_NODE_GROUP;
 
 class NodeDef;
 class Implementation;
@@ -89,25 +89,25 @@ class NodeDef : public InterfaceElement
     }
 
     /// @}
-    /// @name Node Category
+    /// @name Node Group
     /// @{
 
-    /// Set the node category of the NodeDef.
-    void setNodeCategory(const string& category)
+    /// Set the node group of the NodeDef.
+    void setNodeGroup(const string& category)
     {
-        setAttribute(NODE_CATEGORY_ATTRIBUTE, category);
+        setAttribute(NODE_GROUP_ATTRIBUTE, category);
     }
 
-    /// Return true if the given NodeDef has a node category.
-    bool hasNodeCategory() const
+    /// Return true if the given NodeDef has a node group.
+    bool hasNodeGroup() const
     {
-        return hasAttribute(NODE_CATEGORY_ATTRIBUTE);
+        return hasAttribute(NODE_GROUP_ATTRIBUTE);
     }
 
-    /// Return the node category of the NodeDef.
-    const string& getNodeCategory() const
+    /// Return the node group of the NodeDef.
+    const string& getNodeGroup() const
     {
-        return getAttribute(NODE_CATEGORY_ATTRIBUTE);
+        return getAttribute(NODE_GROUP_ATTRIBUTE);
     }
 
     /// @}
@@ -155,7 +155,7 @@ class NodeDef : public InterfaceElement
   public:
     static const string CATEGORY;
     static const string NODE_ATTRIBUTE;
-    static const string NODE_CATEGORY_ATTRIBUTE;
+    static const string NODE_GROUP_ATTRIBUTE;
 };
 
 /// @class Implementation

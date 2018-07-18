@@ -146,7 +146,6 @@ void Document::initialize()
 void Document::importLibrary(ConstDocumentPtr library, const CopyOptions* copyOptions)
 {
     bool skipDuplicateElements = copyOptions && copyOptions->skipDuplicateElements;
-    bool copySourceUris = copyOptions && copyOptions->copySourceUris;
     for (ElementPtr child : library->getChildren())
     {
         string childName = child->getQualifiedName(child->getName());
@@ -173,7 +172,7 @@ void Document::importLibrary(ConstDocumentPtr library, const CopyOptions* copyOp
         {
             childCopy->setNamespace(library->getNamespace());
         }
-        if (copySourceUris && !childCopy->hasSourceUri())
+        if (!childCopy->hasSourceUri() && library->hasSourceUri())
         {
             childCopy->setSourceUri(library->getSourceUri());
         }
