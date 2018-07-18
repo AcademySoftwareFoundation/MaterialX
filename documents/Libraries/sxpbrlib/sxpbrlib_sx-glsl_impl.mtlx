@@ -67,4 +67,7 @@
   <!-- <range> -->
   <implementation name="IM_range__color3__sx_glsl" nodedef="ND_range__color3" file="sxpbrlib/sx-glsl/sx_range.glsl" function="sx_range" language="sx-glsl"/>
 
+  <!-- <colorcorrect> -->
+  <implementation name="IM_colorcorrect__color3__sx_glsl" nodedef="ND_colorcorrect__color3" file="sxpbrlib/sx-glsl/sx_colorcorrect.glsl" function="sx_colorcorrect" language="sx-glsl"/>
+
 </materialx>
