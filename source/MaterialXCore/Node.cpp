@@ -160,7 +160,7 @@ void GraphElement::flattenSubgraphs(const string& target)
                 }
 
                 ValueElementPtr refValue = refNode->getChildOfType<ValueElement>(newValue->getInterfaceName());
-                if (refNode)
+                if (refValue)
                 {
                     if (refValue->hasValueString())
                     {
@@ -304,8 +304,8 @@ string GraphElement::asStringDot() const
     {
         dot += "    \"" + node->getName() + "\" ";
         NodeDefPtr nodeDef = node->getNodeDef();
-        const string& nodeCategory = nodeDef ? nodeDef->getNodeCategory() : EMPTY_STRING;
-        if (nodeCategory == CONDITIONAL_NODE_CATEGORY)
+        const string& nodeGroup = nodeDef ? nodeDef->getNodeGroup() : EMPTY_STRING;
+        if (nodeGroup == CONDITIONAL_NODE_GROUP)
         {
             dot += "[shape=diamond];\n";
         }
