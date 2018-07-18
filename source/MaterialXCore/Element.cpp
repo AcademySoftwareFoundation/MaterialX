@@ -373,10 +373,7 @@ AncestorIterator Element::traverseAncestors() const
 
 void Element::copyContentFrom(ConstElementPtr source, const CopyOptions* copyOptions)
 {
-    if (copyOptions && copyOptions->copySourceUris)
-    {
-        _sourceUri = source->_sourceUri;
-    }
+    _sourceUri = source->_sourceUri;
     for (const string& attr : source->getAttributeNames())
     {
         setAttribute(attr, source->getAttribute(attr));

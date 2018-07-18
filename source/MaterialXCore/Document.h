@@ -52,9 +52,7 @@ class Document : public GraphElement
     virtual DocumentPtr copy()
     {
         DocumentPtr doc = createDocument<Document>();
-        CopyOptions copyOptions;
-        copyOptions.copySourceUris = true;
-        doc->copyContentFrom(getSelf(), &copyOptions);
+        doc->copyContentFrom(getSelf());
         return doc;
     }
 
