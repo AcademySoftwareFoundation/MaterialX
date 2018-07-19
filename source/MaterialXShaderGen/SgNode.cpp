@@ -701,9 +701,6 @@ SgNode* SgNodeGraph::addNode(const Node& node, ShaderGenerator& shadergen)
     NodeDefPtr nodeDef = node.getNodeDef();
     if (!nodeDef)
     {
-
-        nodeDef = node.getNodeDef();
-
         throw ExceptionShaderGenError("Could not find a nodedef for node '" + node.getName() + "'");
     }
     
@@ -720,14 +717,6 @@ SgNode* SgNodeGraph::addNode(const Node& node, ShaderGenerator& shadergen)
         if (!interfaceName.empty())
         {
             SgInputSocket* inputSocket = getInputSocket(interfaceName);
-            if (!inputSocket)
-            {
-                inputSocket = addInputSocket(interfaceName, elem->getType());
-                if (!elem->getValueString().empty())
-                {
-                    inputSocket->value = elem->getValue();
-                }
-            }
             if (!inputSocket)
             {
                 throw ExceptionShaderGenError("Interface name '" + interfaceName + "' doesn't match an existing input on nodegraph '" + getName() + "'");

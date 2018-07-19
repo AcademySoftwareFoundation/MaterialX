@@ -28,7 +28,7 @@ Shader::Shader(const string& name)
     createUniformBlock(PIXEL_STAGE, PUBLIC_UNIFORMS, "pub");
 }
 
-void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const SgOptions& /*options*/)
+void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const SgOptions& options)
 {
     // Create our shader generation root graph
     _rootGraph = SgNodeGraph::create(_name, element, shadergen);
@@ -50,13 +50,47 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const Sg
     // Create uniforms for the public graph interface
     for (SgInputSocket* inputSocket : _rootGraph->getInputSockets())
     {
-        // Give the syntax class a chance to rename the uniform
-        string name = inputSocket->name;
-        shadergen.getSyntax()->renamePublicUniform(name, inputSocket->type);
-        _rootGraph->renameInputSocket(inputSocket->name, name);
+        // Only for inputs that are connected/used internally
+        if (inputSocket->connections.size())
+        {
+            // Give the syntax class a chance to rename the uniform
+            string name = inputSocket->name;
+            shadergen.getSyntax()->renamePublicUniform(name, inputSocket->type);
+            _rootGraph->renameInputSocket(inputSocket->name, name);
 
-        // Create the uniform
-        createUniform(PIXEL_STAGE, PUBLIC_UNIFORMS, inputSocket->type, inputSocket->name, EMPTY_STRING, inputSocket->value);
+            // Create the uniform
+            createUniform(PIXEL_STAGE, PUBLIC_UNIFORMS, inputSocket->type, inputSocket->name, EMPTY_STRING, inputSocket->value);
+        }
+    }
+    
+    // Check if a complete interface is requested
+    if (options.shaderInterfaceType == ShaderInterfaceType::COMPLETE)
+    {
+        // Create uniforms for all node inputs that has not been connected already
+        for (SgNode* node : _rootGraph->getNodes())
+        {
+            for (SgInput* input : node->getInputs())
+            {
+                if (!input->connection)
+                {
+                    // Use a consistent naming convention: <nodename>_<inputname>
+                    // so application side can figure out what uniforms to set
+                    // when node inputs change on application side.
+                    const string interfaceName = node->getName() + "_" + input->name;
+                    
+                    SgInputSocket* inputSocket = _rootGraph->getInputSocket(interfaceName);
+                    if (!inputSocket)
+                    {
+                        inputSocket = _rootGraph->addInputSocket(interfaceName, input->type);
+                        inputSocket->value = input->value;
+                    }
+                    inputSocket->makeConnection(input);
+                    
+                    // Create the uniform
+                    createUniform(PIXEL_STAGE, PUBLIC_UNIFORMS, inputSocket->type, inputSocket->name, EMPTY_STRING, inputSocket->value);
+                }
+            }
+        }
     }
 }
 
