@@ -423,7 +423,7 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         mx::BindInputPtr specular_IOR_input = shaderRef->addBindInput("specular_IOR", "float");
         specular_IOR_input->setValue(2.0f);
     }
-
+    
     // Get all materials created
     for (const mx::MaterialPtr& material : doc->getMaterials())
     {
@@ -612,9 +612,7 @@ TEST_CASE("Swizzling", "[shadergen]")
     mx::SgNode* sgNode = test1.getNodeGraph()->getNode("swizzle1");
     REQUIRE(sgNode);
     test1.addFunctionCall(sgNode, context, sg);
-    const std::string test1Result =
-        "color in = color(1, 2, 3);\n"
-        "color swizzle1_out = color(in[0], in[0], in[0]);\n";
+    const std::string test1Result = "color swizzle1_out = color(swizzle1_in[0], swizzle1_in[0], swizzle1_in[0]);\n";
     REQUIRE(test1.getSourceCode() == test1Result);
 
     // Change swizzle pattern and test again
@@ -624,9 +622,7 @@ TEST_CASE("Swizzling", "[shadergen]")
     sgNode = test2.getNodeGraph()->getNode("swizzle1");
     REQUIRE(sgNode);
     test2.addFunctionCall(sgNode, context, sg);
-    const std::string test2Result =
-        "color in = color(1, 2, 3);\n"
-        "color swizzle1_out = color(in[2], 0, in[2]);\n";
+    const std::string test2Result = "color swizzle1_out = color(swizzle1_in[2], 0, swizzle1_in[2]);\n";
     REQUIRE(test2.getSourceCode() == test2Result);
 }
 

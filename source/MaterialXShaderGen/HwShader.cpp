@@ -62,24 +62,15 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen, const 
             {
                 for (SgInput* input : node->getInputs())
                 {
-                    if (!input->connection)
+                    if (!input->connection && input->type == DataType::FILENAME)
                     {
-                        if (input->type == DataType::FILENAME)
-                        {
-                            // Create the uniform and assing the name of the uniform to
-                            // the input so we can reference it during code generation.
-                            // Using the filename type will make this uniform into a texture sampler.
-                            string name = node->getName() + "_" + input->name;
-                            shadergen.getSyntax()->makeUnique(name, uniqueNames);
-                            createUniform(HwShader::PIXEL_STAGE, PUBLIC_UNIFORMS, DataType::FILENAME, name, EMPTY_STRING, input->value);
-                            input->value = Value::createValue(std::string(name));
-                        }
-                        else if (input->name == "default")
-                        {
-                            string name = node->getName() + "_" + input->name;
-                            shadergen.getSyntax()->makeUnique(name, uniqueNames);
-                            createUniform(HwShader::PIXEL_STAGE, PUBLIC_UNIFORMS, input->type, name, EMPTY_STRING, input->value);
-                        }
+                        // Create the uniform and assing the name of the uniform to
+                        // the input so we can reference it during code generation.
+                        // Using the filename type will make this uniform into a texture sampler.
+                        string name = node->getName() + "_" + input->name;
+                        shadergen.getSyntax()->makeUnique(name, uniqueNames);
+                        createUniform(HwShader::PIXEL_STAGE, PUBLIC_UNIFORMS, DataType::FILENAME, name, EMPTY_STRING, input->value);
+                        input->value = Value::createValue(std::string(name));
                     }
                 }
             }

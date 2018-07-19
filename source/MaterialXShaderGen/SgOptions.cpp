@@ -4,7 +4,7 @@ namespace MaterialX
 {
 
 SgOptions::SgOptions()
-	: dummy(0)
+    : shaderInterfaceType(ShaderInterfaceType::COMPLETE)
 {
 }
 
