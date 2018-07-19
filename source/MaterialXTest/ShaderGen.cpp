@@ -127,37 +127,33 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
 {
     // Example1: Create a material from 'standard_surface' with support for normal mapping
     {
-        // Create a nodegraph for normal mapping
-        mx::NodeGraphPtr textureGraph = doc->addNodeGraph("nodegraph1");
-        mx::OutputPtr outNormal = textureGraph->addOutput("outNormal", "vector3");
-
-        mx::NodePtr texcoord1 = textureGraph->addNode("texcoord", "texcoord1", "vector2");
-        mx::NodePtr uvscale = textureGraph->addNode("multiply", "uvscale", "vector2");
-        uvscale->setConnectedNode("in1", texcoord1);
-        uvscale->setInputValue("in2", mx::Vector2(2.0, 2.0));
-
-        mx::NodePtr normalTex = textureGraph->addNode("image", "normalTex", "vector3");
-        normalTex->setParameterValue("file", std::string(""), "filename");
-        normalTex->setParameterValue("default", mx::Vector3(0.5f, 0.5f, 1.0f));
-        normalTex->setConnectedNode("texcoord", uvscale);
-        mx::NodePtr normalMap1 = textureGraph->addNode("normalmap", "normalmap1", "vector3");
-        normalMap1->setConnectedNode("in", normalTex);
-        outNormal->setConnectedNode(normalMap1);
-
         mx::MaterialPtr material = doc->addMaterial("example1");
         mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "standard_surface");
 
-        // Bind texture for normal map from the graph above
+        // Create nodes to handle normal mapping and bind it to the shader's normal input
+        mx::NodePtr texcoord1 = doc->addNode("texcoord", "texcoord1", "vector2");
+        mx::NodePtr uvscale = doc->addNode("multiply", "uvscale", "vector2");
+        uvscale->setConnectedNode("in1", texcoord1);
+        uvscale->setInputValue("in2", mx::Vector2(2.0, 2.0));
+
+        mx::NodePtr normalTex = doc->addNode("image", "normalTex", "vector3");
+        normalTex->setParameterValue("file", std::string(""), "filename");
+        normalTex->setParameterValue("default", mx::Vector3(0.5f, 0.5f, 1.0f));
+        normalTex->setConnectedNode("texcoord", uvscale);
+        mx::NodePtr normalMap1 = doc->addNode("normalmap", "normalmap1", "vector3");
+        normalMap1->setConnectedNode("in", normalTex);
+
+        mx::OutputPtr outNormal = doc->addOutput("outNormal", "vector3");
+        outNormal->setConnectedNode(normalMap1);
+
         mx::BindInputPtr normalInput = shaderRef->addBindInput("normal", "vector3");
         normalInput->setConnectedOutput(outNormal);
 
-        // Bind a couple of shader parameter values
+        // Bind a couple of other shader parameter values
         mx::BindInputPtr specular_roughness_input = shaderRef->addBindInput("specular_roughness", "float");
         specular_roughness_input->setValue(0.2f);
         mx::BindInputPtr specular_IOR_input = shaderRef->addBindInput("specular_IOR", "float");
         specular_IOR_input->setValue(2.0f);
-
-        materials.push_back(material);
     }
 
     // Example2: Create a surface shader by a graph of BSDF nodes with diffuse + specular
@@ -222,8 +218,6 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         specular_roughness_input->setValue(0.2f);
         mx::BindInputPtr specular_IOR_input = shaderRef->addBindInput("specular_IOR", "float");
         specular_IOR_input->setValue(2.0f);
-
-        materials.push_back(material);
     }
 
     // Example3: Create a metal surface shader by a graph, using both the complex and
@@ -309,8 +303,6 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         ior_k_input->setValue(mx::Vector3(3.424f, 2.346f, 1.771f));
         mx::BindInputPtr roughness_input = shaderRef->addBindInput("roughness", "float");
         roughness_input->setValue(0.2f);
-
-        materials.push_back(material);
     }
 
     // Example4: Create a material from 'standard_surface' using <inputmap> nodes for mappable inputs
@@ -418,8 +410,6 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         specular_roughness_input->setValue(0.1f);
         mx::BindInputPtr coat_IOR_input = shaderRef->addBindInput("coat_IOR", "float");
         coat_IOR_input->setValue(3.0);
-
-        materials.push_back(material);
     }
 
     // Example5: Create a material directly from 'standard_surface'
@@ -432,7 +422,11 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
         specular_roughness_input->setValue(0.123f);
         mx::BindInputPtr specular_IOR_input = shaderRef->addBindInput("specular_IOR", "float");
         specular_IOR_input->setValue(2.0f);
+    }
 
+    // Get all materials created
+    for (const mx::MaterialPtr& material : doc->getMaterials())
+    {
         materials.push_back(material);
     }
 
