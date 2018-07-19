@@ -140,77 +140,85 @@ void GraphElement::flattenSubgraphs(const string& target)
             continue;
         }
 
-        GraphElementPtr origSubGraph = implement->asA<GraphElement>();
+        NodeGraphPtr sourceSubGraph = implement->asA<NodeGraph>();
         std::unordered_map<NodePtr, NodePtr> subNodeMap;
 
-        // Create a new instance of each original subnode.
-        for (NodePtr origSubNode : origSubGraph->getNodes())
+        // Precompute downstream ports for efficiency.
+        using PortElementVec = vector<PortElementPtr>;
+        PortElementVec outerPorts = refNode->getDownstreamPorts();
+        std::unordered_map<NodePtr, PortElementVec> sourcePortsMap;
+        for (NodePtr sourceSubNode : sourceSubGraph->getNodes())
         {
-            string newName = createValidChildName(implement->getName() + "_" + origSubNode->getName());
-            NodePtr newSubNode = addNode(origSubNode->getCategory(), newName);
-            newSubNode->copyContentFrom(origSubNode);
-            setChildIndex(newSubNode->getName(), getChildIndex(refNode->getName()));
+            sourcePortsMap[sourceSubNode] = sourceSubNode->getDownstreamPorts();
+        }
+       
+        // Create a new instance of each original subnode.
+        for (NodePtr sourceSubNode : sourceSubGraph->getNodes())
+        {
+            string destName = createValidChildName(implement->getName() + "_" + sourceSubNode->getName());
+            NodePtr destSubNode = addNode(sourceSubNode->getCategory(), destName);
+            destSubNode->copyContentFrom(sourceSubNode);
+            setChildIndex(destSubNode->getName(), getChildIndex(refNode->getName()));
 
             // Transfer interface properties from the reference node to the new subnode.
-            for (ValueElementPtr newValue : newSubNode->getChildrenOfType<ValueElement>())
+            for (ValueElementPtr destValue : destSubNode->getChildrenOfType<ValueElement>())
             {
-                if (!newValue->hasInterfaceName())
+                if (!destValue->hasInterfaceName())
                 {
                     continue;
                 }
 
-                ValueElementPtr refValue = refNode->getChildOfType<ValueElement>(newValue->getInterfaceName());
+                ValueElementPtr refValue = refNode->getChildOfType<ValueElement>(destValue->getInterfaceName());
                 if (refValue)
                 {
                     if (refValue->hasValueString())
                     {
-                        newValue->setValueString(refValue->getValueString());
+                        destValue->setValueString(refValue->getValueString());
                     }
-                    if (newValue->isA<Input>() && refValue->isA<Input>())
+                    if (destValue->isA<Input>() && refValue->isA<Input>())
                     {
                         InputPtr refInput = refValue->asA<Input>();
-                        InputPtr newInput = newValue->asA<Input>();
+                        InputPtr newInput = destValue->asA<Input>();
                         if (refInput->hasNodeName())
                         {
                             newInput->setNodeName(refInput->getNodeName());
                         }
+                        if (refInput->hasOutputString())
+                        {
+                            newInput->setOutputString(refInput->getOutputString());
+                        }
                     }
                 }
-                newValue->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                destValue->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
             }
 
             // Store the mapping between subgraphs.
-            subNodeMap[origSubNode] = newSubNode;
+            subNodeMap[sourceSubNode] = destSubNode;
 
-            // Check if the new subnode has a graph implementation.
-            // If so this subgraph will need to be flattened as well.
-            InterfaceElementPtr subNodeImplement = newSubNode->getImplementation(target);
-            if (subNodeImplement && subNodeImplement->isA<NodeGraph>())
-            {
-                nodeQueue.push_back(newSubNode);
-            }
+            // Add the subnode to the queue, allowing processing of nested subgraphs.
+            nodeQueue.push_back(destSubNode);
         }
 
         // Transfer internal connections between subgraphs.
         for (auto subNodePair : subNodeMap)
         {
-            NodePtr origSubNode = subNodePair.first;
-            NodePtr newSubNode = subNodePair.second;
-            for (PortElementPtr origPort : origSubNode->getDownstreamPorts())
+            NodePtr sourceSubNode = subNodePair.first;
+            NodePtr destSubNode = subNodePair.second;
+            for (PortElementPtr origPort : sourcePortsMap[sourceSubNode])
             {
                 if (origPort->isA<Input>())
                 {
                     auto it = subNodeMap.find(origPort->getParent()->asA<Node>());
                     if (it != subNodeMap.end())
                     {
-                        it->second->setConnectedNode(origPort->getName(), newSubNode);
+                        it->second->setConnectedNode(origPort->getName(), destSubNode);
                     }
                 }
                 else if (origPort->isA<Output>())
                 {
-                    for (PortElementPtr outerPort : refNode->getDownstreamPorts())
+                    for (PortElementPtr outerPort : outerPorts)
                     {
-                        outerPort->setConnectedNode(newSubNode);
+                        outerPort->setConnectedNode(destSubNode);
                     }
                 }
             }
