@@ -13,8 +13,6 @@
 namespace MaterialX
 {
 
-const string NodeGraph::NODE_DEF_ATTRIBUTE = "nodedef";
-
 //
 // Node methods
 //
@@ -126,107 +124,112 @@ bool Node::validate(string* message) const
 
 void GraphElement::flattenSubgraphs(const string& target)
 {
-    vector<NodePtr> initialNodes = getNodes();
-    std::deque<NodePtr> nodeQueue(initialNodes.begin(), initialNodes.end());
-
-    while (!nodeQueue.empty())
+    vector<NodePtr> processNodeVec = getNodes();
+    while (!processNodeVec.empty())
     {
-        NodePtr refNode = nodeQueue.front();
-        nodeQueue.pop_front();
-
-        InterfaceElementPtr implement = refNode->getImplementation(target);
-        if (!implement || !implement->isA<NodeGraph>())
-        {
-            continue;
-        }
-
-        NodeGraphPtr sourceSubGraph = implement->asA<NodeGraph>();
-        std::unordered_map<NodePtr, NodePtr> subNodeMap;
-
-        // Precompute downstream ports for efficiency.
+        // Precompute graph implementations and downstream ports for this node vector.
         using PortElementVec = vector<PortElementPtr>;
-        PortElementVec outerPorts = refNode->getDownstreamPorts();
-        std::unordered_map<NodePtr, PortElementVec> sourcePortsMap;
-        for (NodePtr sourceSubNode : sourceSubGraph->getNodes())
+        std::unordered_map<NodePtr, NodeGraphPtr> graphImplMap;
+        std::unordered_map<NodePtr, PortElementVec> downstreamPortMap;
+        for (NodePtr cacheNode : processNodeVec)
         {
-            sourcePortsMap[sourceSubNode] = sourceSubNode->getDownstreamPorts();
-        }
-       
-        // Create a new instance of each original subnode.
-        for (NodePtr sourceSubNode : sourceSubGraph->getNodes())
-        {
-            string destName = createValidChildName(implement->getName() + "_" + sourceSubNode->getName());
-            NodePtr destSubNode = addNode(sourceSubNode->getCategory(), destName);
-            destSubNode->copyContentFrom(sourceSubNode);
-            setChildIndex(destSubNode->getName(), getChildIndex(refNode->getName()));
-
-            // Transfer interface properties from the reference node to the new subnode.
-            for (ValueElementPtr destValue : destSubNode->getChildrenOfType<ValueElement>())
+            InterfaceElementPtr implement = cacheNode->getImplementation(target);
+            if (!implement || !implement->isA<NodeGraph>())
             {
-                if (!destValue->hasInterfaceName())
-                {
-                    continue;
-                }
-
-                ValueElementPtr refValue = refNode->getChildOfType<ValueElement>(destValue->getInterfaceName());
-                if (refValue)
-                {
-                    if (refValue->hasValueString())
-                    {
-                        destValue->setValueString(refValue->getValueString());
-                    }
-                    if (destValue->isA<Input>() && refValue->isA<Input>())
-                    {
-                        InputPtr refInput = refValue->asA<Input>();
-                        InputPtr newInput = destValue->asA<Input>();
-                        if (refInput->hasNodeName())
-                        {
-                            newInput->setNodeName(refInput->getNodeName());
-                        }
-                        if (refInput->hasOutputString())
-                        {
-                            newInput->setOutputString(refInput->getOutputString());
-                        }
-                    }
-                }
-                destValue->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                continue;
             }
-
-            // Store the mapping between subgraphs.
-            subNodeMap[sourceSubNode] = destSubNode;
-
-            // Add the subnode to the queue, allowing processing of nested subgraphs.
-            nodeQueue.push_back(destSubNode);
-        }
-
-        // Transfer internal connections between subgraphs.
-        for (auto subNodePair : subNodeMap)
-        {
-            NodePtr sourceSubNode = subNodePair.first;
-            NodePtr destSubNode = subNodePair.second;
-            for (PortElementPtr origPort : sourcePortsMap[sourceSubNode])
+            NodeGraphPtr subNodeGraph = implement->asA<NodeGraph>();
+            graphImplMap[cacheNode] = subNodeGraph;
+            downstreamPortMap[cacheNode] = cacheNode->getDownstreamPorts();
+            for (NodePtr subNode : subNodeGraph->getNodes())
             {
-                if (origPort->isA<Input>())
-                {
-                    auto it = subNodeMap.find(origPort->getParent()->asA<Node>());
-                    if (it != subNodeMap.end())
-                    {
-                        it->second->setConnectedNode(origPort->getName(), destSubNode);
-                    }
-                }
-                else if (origPort->isA<Output>())
-                {
-                    for (PortElementPtr outerPort : outerPorts)
-                    {
-                        outerPort->setConnectedNode(destSubNode);
-                    }
-                }
+                downstreamPortMap[subNode] = subNode->getDownstreamPorts();
             }
         }
+        processNodeVec.clear();
 
-        // The original referencing node has been replaced, so remove it from
-        // the graph.
-        removeNode(refNode->getName());
+        // Iterate through nodes with graph implementations.
+        for (auto pair : graphImplMap)
+        {
+            NodePtr processNode = pair.first;
+            NodeGraphPtr sourceSubGraph = pair.second;
+            std::unordered_map<NodePtr, NodePtr> subNodeMap;
+
+            // Create a new instance of each original subnode.
+            for (NodePtr sourceSubNode : sourceSubGraph->getNodes())
+            {
+                string destName = createValidChildName(sourceSubGraph->getName() + "_" + sourceSubNode->getName());
+                NodePtr destSubNode = addNode(sourceSubNode->getCategory(), destName);
+                destSubNode->copyContentFrom(sourceSubNode);
+                setChildIndex(destSubNode->getName(), getChildIndex(processNode->getName()));
+
+                // Transfer interface properties from the reference node to the new subnode.
+                for (ValueElementPtr destValue : destSubNode->getChildrenOfType<ValueElement>())
+                {
+                    if (!destValue->hasInterfaceName())
+                    {
+                        continue;
+                    }
+
+                    ValueElementPtr refValue = processNode->getChildOfType<ValueElement>(destValue->getInterfaceName());
+                    if (refValue)
+                    {
+                        if (refValue->hasValueString())
+                        {
+                            destValue->setValueString(refValue->getValueString());
+                        }
+                        if (destValue->isA<Input>() && refValue->isA<Input>())
+                        {
+                            InputPtr refInput = refValue->asA<Input>();
+                            InputPtr newInput = destValue->asA<Input>();
+                            if (refInput->hasNodeName())
+                            {
+                                newInput->setNodeName(refInput->getNodeName());
+                            }
+                            if (refInput->hasOutputString())
+                            {
+                                newInput->setOutputString(refInput->getOutputString());
+                            }
+                        }
+                    }
+                    destValue->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                }
+
+                // Store the mapping between subgraphs.
+                subNodeMap[sourceSubNode] = destSubNode;
+
+                // Add the subnode to the queue, allowing processing of nested subgraphs.
+                processNodeVec.push_back(destSubNode);
+            }
+
+            // Transfer internal connections between subgraphs.
+            for (auto subNodePair : subNodeMap)
+            {
+                NodePtr sourceSubNode = subNodePair.first;
+                NodePtr destSubNode = subNodePair.second;
+                for (PortElementPtr sourcePort : downstreamPortMap[sourceSubNode])
+                {
+                    if (sourcePort->isA<Input>())
+                    {
+                        auto it = subNodeMap.find(sourcePort->getParent()->asA<Node>());
+                        if (it != subNodeMap.end())
+                        {
+                            it->second->setConnectedNode(sourcePort->getName(), destSubNode);
+                        }
+                    }
+                    else if (sourcePort->isA<Output>())
+                    {
+                        for (PortElementPtr processNodePort : downstreamPortMap[processNode])
+                        {
+                            processNodePort->setConnectedNode(destSubNode);
+                        }
+                    }
+                }
+            }
+
+            // The processed node has been replaced, so remove it from the graph.
+            removeNode(processNode->getName());
+        }
     }
 }
 
@@ -347,15 +350,6 @@ string GraphElement::asStringDot() const
     dot += "}\n";
 
     return dot;
-}
-
-//
-// NodeGraph methods
-//
-
-NodeDefPtr NodeGraph::getNodeDef() const
-{
-    return resolveRootNameReference<NodeDef>(getNodeDefString());
 }
 
 } // namespace MaterialX

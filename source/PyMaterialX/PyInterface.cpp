@@ -35,6 +35,11 @@ void bindPyInterface(py::module& mod)
         .def_readonly_static("CATEGORY", &mx::Output::CATEGORY);
 
     py::class_<mx::InterfaceElement, mx::InterfaceElementPtr, mx::TypedElement>(mod, "InterfaceElement")
+        .def("setNodeDefString", &mx::InterfaceElement::setNodeDefString)
+        .def("hasNodeDefString", &mx::InterfaceElement::hasNodeDefString)
+        .def("getNodeDefString", &mx::InterfaceElement::getNodeDefString)
+        .def("setNodeDef", &mx::InterfaceElement::setNodeDef)
+        .def("getNodeDef", &mx::InterfaceElement::getNodeDef)
         .def("addParameter", &mx::InterfaceElement::addParameter,
             py::arg("name") = mx::EMPTY_STRING, py::arg("type") = mx::DEFAULT_TYPE_STRING)
         .def("getParameter", &mx::InterfaceElement::getParameter)
@@ -86,5 +91,6 @@ void bindPyInterface(py::module& mod)
         BIND_INTERFACE_TYPE_INSTANCE(vector4, mx::Vector4)
         BIND_INTERFACE_TYPE_INSTANCE(matrix33, mx::Matrix33)
         BIND_INTERFACE_TYPE_INSTANCE(matrix44, mx::Matrix44)
-        BIND_INTERFACE_TYPE_INSTANCE(string, std::string);
+        BIND_INTERFACE_TYPE_INSTANCE(string, std::string)
+        .def_readonly_static("NODE_DEF_ATTRIBUTE", &mx::InterfaceElement::NODE_DEF_ATTRIBUTE);
 }
