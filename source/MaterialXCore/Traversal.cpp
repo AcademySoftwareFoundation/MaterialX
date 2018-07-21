@@ -15,7 +15,6 @@ const Edge NULL_EDGE(nullptr, nullptr, nullptr);
 const TreeIterator NULL_TREE_ITERATOR(nullptr);
 const GraphIterator NULL_GRAPH_ITERATOR(nullptr, nullptr);
 const InheritanceIterator NULL_INHERITANCE_ITERATOR(nullptr);
-const AncestorIterator NULL_ANCESTOR_ITERATOR(nullptr);
 
 //
 // Edge methods
@@ -209,30 +208,6 @@ InheritanceIterator& InheritanceIterator::operator++()
             _pathElems.insert(super);
         }
         _elem = super;
-    }
-    return *this;
-}
-
-//
-// AncestorIterator methods
-//
-
-const AncestorIterator& AncestorIterator::end()
-{
-    return NULL_ANCESTOR_ITERATOR;
-}
-
-AncestorIterator& AncestorIterator::operator++()
-{
-    if (_holdCount)
-    {
-        _holdCount--;
-        return *this;
-    }
-
-    if (_elem)
-    {
-        _elem = _elem->getParent();
     }
     return *this;
 }

@@ -23,7 +23,6 @@ const string NodeDef::NODE_ATTRIBUTE = "node";
 const string NodeDef::NODE_GROUP_ATTRIBUTE = "nodegroup";
 const string TypeDef::SEMANTIC_ATTRIBUTE = "semantic";
 const string TypeDef::CONTEXT_ATTRIBUTE = "context";
-const string Implementation::NODE_DEF_ATTRIBUTE = "nodedef";
 const string Implementation::FILE_ATTRIBUTE = "file";
 const string Implementation::FUNCTION_ATTRIBUTE = "function";
 const string Implementation::LANGUAGE_ATTRIBUTE = "language";
@@ -102,15 +101,6 @@ bool NodeDef::isVersionCompatible(ConstElementPtr elem) const
         return true;
     }
     return false;
-}
-
-//
-// Implementation methods
-//
-
-NodeDefPtr Implementation::getNodeDef() const
-{
-    return resolveRootNameReference<NodeDef>(getNodeDefString());
 }
 
 } // namespace MaterialX
