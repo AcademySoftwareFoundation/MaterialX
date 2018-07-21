@@ -173,44 +173,6 @@ class Implementation : public InterfaceElement
     }
     virtual ~Implementation() { }
 
-    /// @name NodeDef
-    /// @{
-
-    /// Set the NodeDef string for the Implementation.
-    void setNodeDefString(const string& nodeDef)
-    {
-        setAttribute(NODE_DEF_ATTRIBUTE, nodeDef);
-    }
-
-    /// Return true if the given Implementation has a NodeDef string.
-    bool hasNodeDefString() const
-    {
-        return hasAttribute(NODE_DEF_ATTRIBUTE);
-    }
-
-    /// Return the NodeDef string for the Implementation.
-    const string& getNodeDefString() const
-    {
-        return getAttribute(NODE_DEF_ATTRIBUTE);
-    }
-
-    /// Set the NodeDef element for the Implementation.
-    void setNodeDef(ConstNodeDefPtr nodeDef)
-    {
-        if (nodeDef)
-        {
-            setNodeDefString(nodeDef->getName());
-        }
-        else
-        {
-            removeAttribute(NODE_DEF_ATTRIBUTE);
-        }
-    }
-
-    /// Return the NodeDef element for the Implementation.
-    NodeDefPtr getNodeDef() const;
-
-    /// @}
     /// @name File String
     /// @{
 

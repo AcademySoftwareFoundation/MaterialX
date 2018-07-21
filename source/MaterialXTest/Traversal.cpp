@@ -14,16 +14,12 @@ TEST_CASE("Traversal", "[traversal]")
     // Test null iterators.
     mx::TreeIterator nullTree = mx::NULL_TREE_ITERATOR;
     mx::GraphIterator nullGraph = mx::NULL_GRAPH_ITERATOR;
-    mx::AncestorIterator nullAncestor = mx::NULL_ANCESTOR_ITERATOR;
     REQUIRE(*nullTree == nullptr);
     REQUIRE(*nullGraph == mx::NULL_EDGE);
-    REQUIRE(*nullAncestor == nullptr);
     ++nullTree;
     ++nullGraph;
-    ++nullAncestor;
     REQUIRE(nullTree == mx::NULL_TREE_ITERATOR);
     REQUIRE(nullGraph == mx::NULL_GRAPH_ITERATOR);
-    REQUIRE(nullAncestor == mx::NULL_ANCESTOR_ITERATOR);
 
     // Create a document.
     mx::DocumentPtr doc = mx::createDocument();
