@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.36" cms="ocio" colorspace="lin_rec709">
-  <xi:include href="mx_stdlib_defs.mtlx"/>
+  <xi:include href="stdlib_defs.mtlx"/>
 
   <!-- Define a node that implements a checker board pattern -->
   <!-- Using a graph for the implementation.                 -->
@@ -73,7 +73,7 @@
     <mix name="mix1" type="color3">
       <input name="fg" type="color3" interfacename="color1"/>
       <input name="bg" type="color3" interfacename="color2"/>
-      <input name="mask" type="float" nodename="checker1"/>
+      <input name="mix" type="float" nodename="checker1"/>
     </mix>
     <output name="out" type="color3" nodename="mix1"/>
   </nodegraph>

@@ -28,13 +28,15 @@ _libraryDir = os.path.join(_fileDir, '../../documents/Libraries/')
 _exampleDir = os.path.join(_fileDir, '../../documents/Examples/')
 _searchPath = _libraryDir + ';' + _exampleDir
 
-_libraryFilenames = ('mx_stdlib_defs.mtlx',
-                     'mx_stdlib_impl_osl.mtlx')
+_libraryFilenames = ('stdlib_defs.mtlx',
+                     'stdlib_ng.mtlx',
+                     'stdlib_osl_impl.mtlx')
 _exampleFilenames = ('CustomNode.mtlx',
                      'Looks.mtlx',
                      'MaterialBasic.mtlx',
                      'MultiOutput.mtlx',
                      'PaintMaterials.mtlx',
+                     'PostShaderComposite.mtlx',
                      'PreShaderComposite.mtlx',
                      'BxDF/alSurface.mtlx',
                      'BxDF/Disney_BRDF_2012.mtlx',
