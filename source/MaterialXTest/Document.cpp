@@ -73,4 +73,27 @@ TEST_CASE("Document", "[document]")
 
     // Validate the document.
     REQUIRE(doc->validate());
+
+    // Create a namespaced custom library.
+    mx::DocumentPtr customLibrary = mx::createDocument();
+    customLibrary->setNamespace("custom");
+    mx::NodeGraphPtr customNodeGraph = customLibrary->addNodeGraph("NG_custom");
+    mx::NodeDefPtr customNodeDef = customLibrary->addNodeDef("ND_simpleSrf", "surfaceshader", "simpleSrf");
+    mx::ImplementationPtr customImpl = customLibrary->addImplementation("IM_custom");
+    mx::NodePtr customNode = customNodeGraph->addNodeInstance(customNodeDef, "custom1");
+    customImpl->setNodeDef(customNodeDef);
+    REQUIRE(customLibrary->validate());
+
+    // Import the custom library.
+    doc->importLibrary(customLibrary);
+    mx::NodeGraphPtr importedNodeGraph = doc->getNodeGraph("custom:NG_custom");
+    mx::NodeDefPtr importedNodeDef = doc->getNodeDef("custom:ND_simpleSrf");
+    mx::ImplementationPtr importedImpl = doc->getImplementation("custom:IM_custom");
+    mx::NodePtr importedNode = importedNodeGraph->getNode("custom1");
+    REQUIRE(importedNodeDef != nullptr);
+    REQUIRE(importedNode->getNodeDef() == importedNodeDef);
+    REQUIRE(importedImpl->getNodeDef() == importedNodeDef);
+
+    // Validate the combined document.
+    REQUIRE(doc->validate());
 }
