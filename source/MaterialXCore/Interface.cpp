@@ -14,6 +14,7 @@ namespace MaterialX
 
 const string PortElement::NODE_NAME_ATTRIBUTE = "nodename";
 const string PortElement::OUTPUT_ATTRIBUTE = "output";
+const string InterfaceElement::NODE_DEF_ATTRIBUTE = "nodedef";
 
 //
 // PortElement methods
@@ -33,7 +34,7 @@ void PortElement::setConnectedNode(NodePtr node)
 
 NodePtr PortElement::getConnectedNode() const
 {
-    for (ConstElementPtr elem : traverseAncestors())
+    for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
     {
         ConstGraphElementPtr graph = elem->asA<GraphElement>();
         if (graph)
@@ -190,6 +191,23 @@ bool Output::validate(string* message) const
 //
 // InterfaceElement methods
 //
+
+void InterfaceElement::setNodeDef(ConstNodeDefPtr nodeDef)
+{
+    if (nodeDef)
+    {
+        setNodeDefString(nodeDef->getName());
+    }
+    else
+    {
+        removeAttribute(NODE_DEF_ATTRIBUTE);
+    }
+}
+
+NodeDefPtr InterfaceElement::getNodeDef() const
+{
+    return resolveRootNameReference<NodeDef>(getNodeDefString());
+}
 
 ParameterPtr InterfaceElement::getActiveParameter(const string& name) const
 {
@@ -395,13 +413,9 @@ NodeDefPtr InterfaceElement::getDeclaration(const string& target) const
     {
         return asA<Node>()->getNodeDef(target);
     }
-    else if (isA<NodeGraph>())
+    else if (isA<InterfaceElement>())
     {
-        return asA<NodeGraph>()->getNodeDef();
-    }
-    else if (isA<Implementation>())
-    {
-        return asA<Implementation>()->getNodeDef();
+        return asA<InterfaceElement>()->getNodeDef();
     }
 
     return NodeDefPtr();

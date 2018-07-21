@@ -272,7 +272,33 @@ class InterfaceElement : public TypedElement
     using ConstNodeDefPtr = shared_ptr<const NodeDef>;
 
   public:
-    /// @}
+    /// @name NodeDef String
+    /// @{
+
+    /// Set the NodeDef string for the interface.
+    void setNodeDefString(const string& nodeDef)
+    {
+        setAttribute(NODE_DEF_ATTRIBUTE, nodeDef);
+    }
+
+    /// Return true if the given interface has a NodeDef string.
+    bool hasNodeDefString() const
+    {
+        return hasAttribute(NODE_DEF_ATTRIBUTE);
+    }
+
+    /// Return the NodeDef string for the interface.
+    const string& getNodeDefString() const
+    {
+        return getAttribute(NODE_DEF_ATTRIBUTE);
+    }
+
+    /// Set the NodeDef element for the interface.
+    void setNodeDef(ConstNodeDefPtr nodeDef);
+
+    /// Return the NodeDef element for the interface.
+    NodeDefPtr getNodeDef() const;
+
     /// @name Parameters
     /// @{
     
@@ -557,6 +583,9 @@ class InterfaceElement : public TypedElement
     bool isTypeCompatible(ConstInterfaceElementPtr rhs) const;
 
     /// @}
+
+  public:
+    static const string NODE_DEF_ATTRIBUTE;
 
   protected:
     void registerChildElement(ElementPtr child) override;

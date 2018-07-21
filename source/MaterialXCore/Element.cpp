@@ -96,7 +96,7 @@ string Element::getNamePath(ConstElementPtr relativeTo) const
     }
 
     string res;
-    for (ConstElementPtr elem : traverseAncestors())
+    for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
     {
         if (elem == relativeTo)
         {
@@ -364,11 +364,6 @@ ElementPtr Element::getUpstreamElement(ConstMaterialPtr material, size_t index) 
 InheritanceIterator Element::traverseInheritance() const
 {
     return InheritanceIterator(getSelf());
-}
-
-AncestorIterator Element::traverseAncestors() const
-{
-    return AncestorIterator(getSelf());
 }
 
 void Element::copyContentFrom(ConstElementPtr source, const CopyOptions* copyOptions)

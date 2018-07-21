@@ -40,10 +40,5 @@ void bindPyNode(py::module& mod)
         .def("asStringDot", &mx::NodeGraph::asStringDot);
 
     py::class_<mx::NodeGraph, mx::NodeGraphPtr, mx::GraphElement>(mod, "NodeGraph")
-        .def("setNodeDefString", &mx::NodeGraph::setNodeDefString)
-        .def("hasNodeDefString", &mx::NodeGraph::hasNodeDefString)
-        .def("getNodeDefString", &mx::NodeGraph::getNodeDefString)
-        .def("setNodeDef", &mx::NodeGraph::setNodeDef)
-        .def("getNodeDef", &mx::NodeGraph::getNodeDef)
         .def_readonly_static("CATEGORY", &mx::NodeGraph::CATEGORY);
 }
