@@ -20,24 +20,24 @@
   </nodedef>
   <nodegraph name="NG_twolayersurface_srf" nodedef="ND_twolayersurface_srf">
     <image name="i_diff1" type="color3">
-      <parameter name="file" type="filename" value="txt/[color1]/[color1].UDIM.tif"/>
+      <parameter name="file" type="filename" value="txt/[color1]/[color1].<UDIM>.tif"/>
     </image>
     <multiply name="mult1" type="color3">
       <input name="in1" type="color3" nodename="i_diff1"/>
       <input name="in2" type="color3" interfacename="diffmult1"/>
     </multiply>
     <image name="i_diff2" type="color3">
-      <parameter name="file" type="filename" value="txt/[color2]/[color2].UDIM.tif"/>
+      <parameter name="file" type="filename" value="txt/[color2]/[color2].<UDIM>.tif"/>
     </image>
     <multiply name="mult2" type="color3">
       <input name="in1" type="color3" nodename="i_diff2"/>
       <input name="in2" type="color3" interfacename="diffmult2"/>
     </multiply>
     <image name="i_spec1" type="color3">
-      <parameter name="file" type="filename" value="txt/[spec1]/[spec1].UDIM.tif"/>
+      <parameter name="file" type="filename" value="txt/[spec1]/[spec1].<UDIM>.tif"/>
     </image>
     <image name="i_spec2" type="color3">
-      <parameter name="file" type="filename" value="txt/[spec2]/[spec2].UDIM.tif"/>
+      <parameter name="file" type="filename" value="txt/[spec2]/[spec2].<UDIM>.tif"/>
     </image>
 
     <alSurface name="als1" type="surfaceshader">
@@ -59,7 +59,7 @@
   </nodegraph>
 
   <image name="i_mixamt" type="float">
-    <parameter name="file" type="filename" value="txt/rustmix/rustmix.UDIM.tif"/>
+    <parameter name="file" type="filename" value="txt/rustmix/rustmix.<UDIM>.tif"/>
   </image>
   <output name="o_mixamt" type="float" nodename="i_mixamt"/>
 
