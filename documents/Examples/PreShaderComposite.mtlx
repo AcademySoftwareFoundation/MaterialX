@@ -77,34 +77,34 @@
     <mix name="mix_diff1" type="color3">
       <input name="bg" type="color3" nodename="steel_diffc"/>
       <input name="fg" type="color3" nodename="paint_diffc"/>
-      <input name="mask" type="float" nodename="mask_paint"/>
+      <input name="mix" type="float" nodename="mask_paint"/>
     </mix>
     <mix name="mix_diff2" type="color3">
       <input name="bg" type="color3" nodename="mix_diff1"/>
       <input name="fg" type="color3" nodename="rust_diffc"/>
-      <input name="mask" type="float" nodename="mask_rust"/>
+      <input name="mix" type="float" nodename="mask_rust"/>
     </mix>
 
     <mix name="mix_spec1" type="color3">
       <input name="bg" type="color3" nodename="steel_specc"/>
       <input name="fg" type="color3" nodename="paint_specc"/>
-      <input name="mask" type="float" nodename="mask_paint"/>
+      <input name="mix" type="float" nodename="mask_paint"/>
     </mix>
     <mix name="mix_spec2" type="color3">
       <input name="bg" type="color3" nodename="mix_spec1"/>
       <input name="fg" type="color3" nodename="rust_specc"/>
-      <input name="mask" type="float" nodename="mask_rust"/>
+      <input name="mix" type="float" nodename="mask_rust"/>
     </mix>
 
     <mix name="mix_rough1" type="float">
       <input name="bg" type="float" nodename="steel_roughf"/>
       <input name="fg" type="float" nodename="paint_roughf"/>
-      <input name="mask" type="float" nodename="mask_paint"/>
+      <input name="mix" type="float" nodename="mask_paint"/>
     </mix>
     <mix name="mix_rough2" type="float">
       <input name="bg" type="float" nodename="mix_rough1"/>
       <input name="fg" type="float" nodename="rust_roughf"/>
-      <input name="mask" type="float" nodename="mask_rust"/>
+      <input name="mix" type="float" nodename="mask_rust"/>
     </mix>
 
     <!-- Basic_Surface shader, connected to above blended values -->
@@ -127,4 +127,3 @@
   </material>
 
 </materialx>
-

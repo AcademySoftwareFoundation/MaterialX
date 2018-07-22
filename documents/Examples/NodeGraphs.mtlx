@@ -13,7 +13,7 @@
   <mix name="n0" type="color3">
     <input name="fg" type="color3" nodename="img1"/>
     <input name="bg" type="color3" nodename="img2"/>
-    <input name="mask" type="float" nodename="img3"/>
+    <input name="mix" type="float" nodename="img3"/>
   </mix>
   <multiply name="n1" type="color3">
     <input name="in1" type="color3" nodename="n0"/>
@@ -37,7 +37,7 @@
   <mix name="n3" type="color3">
     <input name="fg" type="color3" nodename="img1"/>
     <input name="bg" type="color3" nodename="img2"/>
-    <input name="mask" type="float" nodename="img3"/>
+    <input name="mix" type="float" nodename="img3"/>
   </mix>
   <multiply name="n4" type="color3">
     <input name="in1" type="color3" nodename="n3"/>
@@ -75,7 +75,7 @@
   <mix name="n8" type="color3">
     <input name="fg" type="color3" nodename="n7"/>
     <input name="bg" type="color3" nodename="n6"/>
-    <input name="mask" type="float" nodename="img3"/>
+    <input name="mix" type="float" nodename="img3"/>
   </mix>
   <texcoord name="t1" type="vector2"/>
   <multiply name="m1" type="vector2">
