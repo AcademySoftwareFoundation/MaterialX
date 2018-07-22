@@ -73,21 +73,29 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const Sg
             {
                 if (!input->connection)
                 {
-                    // Use a consistent naming convention: <nodename>_<inputname>
-                    // so application side can figure out what uniforms to set
-                    // when node inputs change on application side.
-                    const string interfaceName = node->getName() + "_" + input->name;
-                    
-                    SgInputSocket* inputSocket = _rootGraph->getInputSocket(interfaceName);
-                    if (!inputSocket)
+                    // Check if the data type has a valid default value,
+                    // otherwise we can't assign user values to it anyway. 
+                    // This is the case for BSDF, EDF, VDF, and shader types 
+                    // which we never want to publish as editable uniforms.
+                    const string& typeDefault = shadergen.getSyntax()->getTypeDefault(input->type, true);
+                    if (!typeDefault.empty())
                     {
-                        inputSocket = _rootGraph->addInputSocket(interfaceName, input->type);
-                        inputSocket->value = input->value;
+                        // Use a consistent naming convention: <nodename>_<inputname>
+                        // so application side can figure out what uniforms to set
+                        // when node inputs change on application side.
+                        const string interfaceName = node->getName() + "_" + input->name;
+
+                        SgInputSocket* inputSocket = _rootGraph->getInputSocket(interfaceName);
+                        if (!inputSocket)
+                        {
+                            inputSocket = _rootGraph->addInputSocket(interfaceName, input->type);
+                            inputSocket->value = input->value;
+                        }
+                        inputSocket->makeConnection(input);
+
+                        // Create the uniform
+                        createUniform(PIXEL_STAGE, PUBLIC_UNIFORMS, inputSocket->type, inputSocket->name, EMPTY_STRING, inputSocket->value);
                     }
-                    inputSocket->makeConnection(input);
-                    
-                    // Create the uniform
-                    createUniform(PIXEL_STAGE, PUBLIC_UNIFORMS, inputSocket->type, inputSocket->name, EMPTY_STRING, inputSocket->value);
                 }
             }
         }

@@ -504,8 +504,7 @@ TEST_CASE("GLSL Shader", "[shadervalid]")
                 log << stage;
             }
         }
-        // Disabled for now as it's currently failing due to compilation failure EDF is defined as "= ;" in the fragment.
-        //REQUIRE(validated);
+        REQUIRE(validated);
     }
 
     //
