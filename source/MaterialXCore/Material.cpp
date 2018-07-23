@@ -41,17 +41,6 @@ vector<ShaderRefPtr> Material::getActiveShaderRefs() const
     return activeShaderRefs;
 }
 
-vector<OverridePtr> Material::getActiveOverrides() const
-{
-    vector<OverridePtr> activeOverrides;
-    for (ConstElementPtr elem : traverseInheritance())
-    {
-        vector<OverridePtr> overrides = elem->asA<Material>()->getOverrides();
-        activeOverrides.insert(activeOverrides.end(), overrides.begin(), overrides.end());
-    }
-    return activeOverrides;
-}
-
 vector<NodeDefPtr> Material::getShaderNodeDefs(const string& target, const string& type) const
 {
     vector<NodeDefPtr> nodeDefs;
@@ -71,7 +60,7 @@ vector<NodeDefPtr> Material::getShaderNodeDefs(const string& target, const strin
     return nodeDefs;
 }
 
-vector<MaterialAssignPtr> Material::getReferencingMaterialAssigns() const
+vector<MaterialAssignPtr> Material::getGeometryBindings(const string& geom) const
 {
     vector<MaterialAssignPtr> matAssigns;
     for (LookPtr look : getDocument()->getLooks())
@@ -80,33 +69,21 @@ vector<MaterialAssignPtr> Material::getReferencingMaterialAssigns() const
         {
             if (matAssign->getReferencedMaterial() == getSelf())
             {
-                matAssigns.push_back(matAssign);
+                if (geomStringsMatch(geom, matAssign->getActiveGeom()))
+                {
+                    matAssigns.push_back(matAssign);
+                    continue;
+                }
+                CollectionPtr coll = matAssign->getCollection();
+                if (coll && coll->matchesGeomString(geom))
+                {
+                    matAssigns.push_back(matAssign);
+                    continue;
+                }
             }
         }
     }
     return matAssigns;
-}
-
-void Material::setInheritsFrom(ElementPtr mat)
-{
-    for (MaterialInheritPtr inherit : getMaterialInherits())
-    {
-        removeMaterialInherit(inherit->getName());
-    }
-    if (mat)
-    {
-        addMaterialInherit(mat->getName());
-    }
-}
-
-ElementPtr Material::getInheritsFrom() const
-{
-    vector<MaterialInheritPtr> inherits = getMaterialInherits();
-    if (inherits.empty())
-    {
-        return nullptr;
-    }
-    return getRoot()->getChildOfType<Material>(inherits[0]->getName());
 }
 
 vector<ParameterPtr> Material::getPrimaryShaderParameters(const string& target, const string& type) const
@@ -116,7 +93,7 @@ vector<ParameterPtr> Material::getPrimaryShaderParameters(const string& target, 
     if (nodeDef)
     {
         InterfaceElementPtr implement = nodeDef->getImplementation();
-        for (ParameterPtr nodeDefParam : nodeDef->getParameters())
+        for (ParameterPtr nodeDefParam : nodeDef->getActiveParameters())
         {
             ParameterPtr implementParam = implement ? implement->getParameter(nodeDefParam->getName()) : nullptr;
             res.push_back(implementParam ? implementParam : nodeDefParam);
@@ -132,40 +109,13 @@ vector<InputPtr> Material::getPrimaryShaderInputs(const string& target, const st
     if (nodeDef)
     {
         InterfaceElementPtr implement = nodeDef->getImplementation();
-        for (InputPtr nodeDefInput : nodeDef->getInputs())
+        for (InputPtr nodeDefInput : nodeDef->getActiveInputs())
         {
             InputPtr implementInput = implement ? implement->getInput(nodeDefInput->getName()) : nullptr;
             res.push_back(implementInput ? implementInput : nodeDefInput);
         }
     }
     return res;
-}
-
-vector<string> Material::getBoundGeomStrings() const
-{
-    vector<string> geomStrings;
-    for (MaterialAssignPtr matAssign : getReferencingMaterialAssigns())
-    {
-        if (matAssign->hasGeom())
-        {
-            geomStrings.push_back(matAssign->getGeom());
-        }
-    }
-    return geomStrings;
-}
-
-vector<CollectionPtr> Material::getBoundGeomCollections() const
-{
-    vector<CollectionPtr> collections;
-    for (MaterialAssignPtr matAssign : getReferencingMaterialAssigns())
-    {
-        CollectionPtr collection = matAssign->getCollection();
-        if (collection)
-        {
-            collections.push_back(collection);
-        }
-    }
-    return collections;
 }
 
 bool Material::validate(string* message) const
@@ -186,28 +136,32 @@ void BindInput::setConnectedOutput(ConstOutputPtr output)
 {
     if (output)
     {
-        setNodeGraphString(output->getParent()->getName());
         setOutputString(output->getName());
+        ConstElementPtr parent = output->getParent();
+        if (parent->isA<NodeGraph>())
+        {
+            setNodeGraphString(parent->getName());
+        }
+        else
+        {
+            removeAttribute(NODE_GRAPH_ATTRIBUTE);
+        }
     }
     else
     {
-        removeAttribute(NODE_GRAPH_ATTRIBUTE);
         removeAttribute(OUTPUT_ATTRIBUTE);
+        removeAttribute(NODE_GRAPH_ATTRIBUTE);
     }
 }
 
 OutputPtr BindInput::getConnectedOutput() const
 {
-    NodeGraphPtr nodeGraph = getRoot()->getChildOfType<NodeGraph>(getNodeGraphString());
-    if (nodeGraph)
+    if (hasNodeGraphString())
     {
-        OutputPtr output = nodeGraph->getOutput(getOutputString());
-        if (output)
-        {
-            return output;
-        }
+        NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString());
+        return nodeGraph ? nodeGraph->getOutput(getOutputString()) : OutputPtr();
     }
-    return OutputPtr();
+    return getDocument()->getOutput(getOutputString());
 }
 
 //
@@ -218,12 +172,22 @@ NodeDefPtr ShaderRef::getNodeDef() const
 {
     if (hasNodeDefString())
     {
-        return getDocument()->getNodeDef(getNodeDefString());
+        return resolveRootNameReference<NodeDef>(getNodeDefString());
     }
     if (hasNodeString())
     {
-        vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getNodeString());
-        return nodeDefs.empty() ? NodeDefPtr() : nodeDefs[0];
+        vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getNodeString()));
+        vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getNodeString());
+        nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
+        for (NodeDefPtr nodeDef : nodeDefs)
+        {
+            if (targetStringsMatch(nodeDef->getTarget(), getTarget()) &&
+                nodeDef->isVersionCompatible(getSelf()) &&
+                (!hasType() || nodeDef->getType() == getType()))
+            {
+                return nodeDef;
+            }
+        }
     }
     return NodeDefPtr();
 }
@@ -232,7 +196,7 @@ bool ShaderRef::validate(string* message) const
 {
     bool res = true;
     NodeDefPtr nodeDef = getNodeDef();
-    TypeDefPtr typeDef = nodeDef ? getDocument()->getTypeDef(nodeDef->getType()) : TypeDefPtr();
+    TypeDefPtr typeDef = nodeDef ? resolveRootNameReference<TypeDef>(nodeDef->getType()) : TypeDefPtr();
     if (!nodeDef)
     {
         validateRequire(!hasNodeString() && !hasNodeDefString(), res, message, "Shader reference to a non-existent nodedef");
@@ -241,7 +205,7 @@ bool ShaderRef::validate(string* message) const
     {
         validateRequire(typeDef->getSemantic() == SHADER_SEMANTIC, res, message, "Shader reference to a non-shader nodedef");
     }
-    return Element::validate(message) && res;
+    return TypedElement::validate(message) && res;
 }
 
 Edge ShaderRef::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
@@ -257,15 +221,6 @@ Edge ShaderRef::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
     }
 
     return NULL_EDGE;
-}
-
-//
-// Override methods
-//
-
-ConstElementPtr Override::getReceiver() const
-{
-    return getDocument()->getPublicElement(getName());
 }
 
 } // namespace MaterialX

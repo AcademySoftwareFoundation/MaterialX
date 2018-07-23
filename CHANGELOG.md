@@ -1,5 +1,28 @@
 # Change Log
 
+## [1.36.0] - 2018-07-23
+
+Updated the MaterialX library to the v1.36 specification.
+
+### Added
+- Added support for Element namespaces.
+- Added support for NodeDef inheritance.
+- Added support for root-level node elements.
+- Added support for inheritance attributes on MaterialX\:\:Material and MaterialX\:\:Look.
+- Added support for include and exclude attributes on MaterialX\:\:Collection.
+- Added the MaterialX\:\:Token class for string substitutions.
+- Added the MaterialX\:\:Variant, MaterialX\:\:VariantSet, and MaterialX\:\:VariantAssign classes.
+- Added the MaterialX\:\:GeomPath class for geometry name comparisons.
+- Added the Collection\:\:matchesGeomString method, for testing matches between collections and geometries.
+- Added the Material\:\:getGeometryBindings method, for finding the bindings of a material to specific geometries.
+
+### Removed
+- Removed the MaterialX\:\:MaterialInherit and MaterialX\:\:LookInherit classes.
+- Removed the MaterialX\:\:CollectionAdd and MaterialX\:\:CollectionRemove classes.
+- Removed the MaterialX\:\:Override class and support for public names.
+- Removed the 'channels' attribute from MaterialX\:\:InterfaceElement.
+- Removed the Material::getReferencingMaterialAssigns method (deprecated in Python).
+
 ## [1.35.5] - 2018-05-07
 
 ### Added

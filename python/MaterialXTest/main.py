@@ -28,13 +28,16 @@ _libraryDir = os.path.join(_fileDir, '../../documents/Libraries/')
 _exampleDir = os.path.join(_fileDir, '../../documents/Examples/')
 _searchPath = _libraryDir + ';' + _exampleDir
 
-_libraryFilenames = ('mx_stdlib_defs.mtlx',
-                     'mx_stdlib_impl_osl.mtlx')
+_libraryFilenames = ('stdlib_defs.mtlx',
+                     'stdlib_ng.mtlx',
+                     'stdlib_osl_impl.mtlx')
 _exampleFilenames = ('CustomNode.mtlx',
                      'Looks.mtlx',
-                     'MaterialGraphs.mtlx',
+                     'MaterialBasic.mtlx',
                      'MultiOutput.mtlx',
+                     'NodeGraphs.mtlx',
                      'PaintMaterials.mtlx',
+                     'PostShaderComposite.mtlx',
                      'PreShaderComposite.mtlx',
                      'BxDF/alSurface.mtlx',
                      'BxDF/Disney_BRDF_2012.mtlx',
@@ -270,19 +273,20 @@ class TestMaterialX(unittest.TestCase):
 
         # Bind the material to a geometry string.
         matAssign1 = look.addMaterialAssign("matAssign1", material.getName())
-        self.assertTrue(material.getReferencingMaterialAssigns()[0] == matAssign1)
         matAssign1.setGeom("/robot1")
-        self.assertTrue(material.getBoundGeomStrings()[0] == "/robot1")
+        self.assertTrue(matAssign1.getReferencedMaterial() == material)
+        self.assertTrue(len(material.getGeometryBindings("/robot1")) == 1)
+        self.assertTrue(len(material.getGeometryBindings("/robot2")) == 0)
 
         # Bind the material to a collection.
         matAssign2 = look.addMaterialAssign("matAssign2", material.getName())
         collection = doc.addCollection()
-        collectionAdd = collection.addCollectionAdd()
-        collectionAdd.setGeom("/robot2")
-        collectionRemove = collection.addCollectionRemove()
-        collectionRemove.setGeom("/robot2/left_arm")
+        collection.setIncludeGeom("/robot2")
+        collection.setExcludeGeom("/robot2/left_arm")
         matAssign2.setCollection(collection)
-        self.assertTrue(material.getBoundGeomCollections()[0] == collection)
+        self.assertTrue(len(material.getGeometryBindings("/robot2")) == 1)
+        self.assertTrue(len(material.getGeometryBindings("/robot2/right_arm")) == 1)
+        self.assertTrue(len(material.getGeometryBindings("/robot2/left_arm")) == 0)
 
         # Create a property assignment.
         propertyAssign = look.addPropertyAssign("twosided")
@@ -299,9 +303,11 @@ class TestMaterialX(unittest.TestCase):
         propertySetAssign.setGeom('/robot1')
         self.assertTrue(propertySetAssign.getGeom() == '/robot1')
 
-        # Generate and verify require string.
-        doc.generateRequireString()
-        self.assertTrue('matnodegraph' in doc.getRequireString())
+        # Create a variant set.
+        variantSet = doc.addVariantSet()
+        original = variantSet.addVariant("original")
+        damaged = variantSet.addVariant("damaged")
+        self.assertTrue(len(variantSet.getVariants()) == 2)
 
         # Disconnect outputs from sources.
         output1.setConnectedNode(None)
@@ -488,17 +494,11 @@ class TestMaterialX(unittest.TestCase):
                 doc2.importLibrary(lib)
             self.assertTrue(doc2.validate()[0])
 
-            # Verify that all referenced nodes are declared and implemented.
-            for elem in doc2.traverseTree():
-                if elem.isA(mx.Node):
-                    self.assertTrue(elem.getNodeDef())
-                    self.assertTrue(elem.getImplementation())
-
         # Read the same document twice with duplicate elements skipped.
         doc = mx.createDocument()
         readOptions = mx.XmlReadOptions()
         readOptions.skipDuplicateElements = True
-        filename = 'PaintMaterials.mtlx'
+        filename = 'PostShaderComposite.mtlx'
         mx.readFromXmlFile(doc, filename, _searchPath, readOptions)
         mx.readFromXmlFile(doc, filename, _searchPath, readOptions)
         self.assertTrue(doc.validate()[0])

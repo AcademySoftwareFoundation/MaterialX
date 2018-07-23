@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.35" cms="ocio" colorspace="acescg">
+<materialx version="1.36" cms="ocio" colorspace="lin_rec709">
   <xi:include href="SimpleSrf.mtlx"/>
   <material name="Mplastic1">
     <shaderref name="sr_mp1" node="simple_srf">
@@ -30,20 +30,12 @@
     </shaderref>
   </material>
 
-  <collection name="c_plastic">
-    <collectionadd name="ca1" geom="/a/g1,/a/g2,/a/g5"/>
-  </collection>
-  <collection name="c_metal">
-    <collectionadd name="ca2" geom="/a/g3,/a/g4"/>
-  </collection>
-  <collection name="c_lamphouse">
-    <collectionadd name="ca3" geom="/a/lamp1/housing*Mesh"/>
-  </collection>
-  <collection name="c_setgeom">
-    <collectionadd name="ca4" geom="/b//*"/>
-  </collection>
+  <collection name="c_plastic" includegeom="/a/g1,/a/g2,/a/g5"/>
+  <collection name="c_metal" includegeom="/a/g3,/a/g4"/>
+  <collection name="c_lamphouse" includegeom="/a/lamp1/housing*Mesh"/>
+  <collection name="c_setgeom" includegeom="/b"/>
 
-  <nodedef name="nd_headlight1" type="lightshader" node="disk_lgt">
+  <nodedef name="ND_disk_lgt_light" type="lightshader" node="disk_lgt">
     <parameter name="emissionmap" type="filename" value=""/>
     <parameter name="gain" type="float" value="2000.0"/>
   </nodedef>
@@ -62,14 +54,14 @@
     <materialassign name="ma1" material="Mplastic1" collection="c_plastic"/>
     <materialassign name="ma2" material="Mmetal1" collection="c_metal"/>
     <materialassign name="ma3" material="mheadlight" geom="/a/b/headlight"/>
-    <visibility name="v1" viewergeom="/a/b/headlight" vistype="shadow" geom="//*" visible="false"/>
+    <visibility name="v1" viewergeom="/a/b/headlight" vistype="shadow" geom="/" visible="false"/>
     <visibility name="v2" viewergeom="/a/b/headlight" vistype="shadow" collection="c_lamphouse"/>
-    <propertysetassign name="psa1" propertysetname="standard" geom="//*"/>
+    <propertysetassign name="psa1" propertysetname="standard" geom="/"/>
   </look>
   <look name="lookB">
     <materialassign name="ma4" material="Mplastic2" collection="c_plastic"/>
     <materialassign name="ma5" material="Mmetal2" collection="c_metal"/>
-    <propertysetassign name="psa2" propertysetname="standard" geom="//*"/>
+    <propertysetassign name="psa2" propertysetname="standard" geom="/"/>
     <!-- make the setgeom invisible to camera but still visible to shadows and reflections -->
     <visibility name="v3" vistype="camera" collection="c_setgeom" visible="false"/>
   </look>

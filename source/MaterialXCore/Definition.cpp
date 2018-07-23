@@ -13,17 +13,16 @@ namespace MaterialX
 const string COLOR_SEMANTIC = "color";
 const string SHADER_SEMANTIC = "shader";
 
-const string TEXTURE_NODE_CATEGORY = "texture";
-const string PROCEDURAL_NODE_CATEGORY = "procedural";
-const string GEOMETRIC_NODE_CATEGORY = "geometric";
-const string ADJUSTMENT_NODE_CATEGORY = "adjustment";
-const string CONDITIONAL_NODE_CATEGORY = "conditional";
+const string TEXTURE_NODE_GROUP = "texture";
+const string PROCEDURAL_NODE_GROUP = "procedural";
+const string GEOMETRIC_NODE_GROUP = "geometric";
+const string ADJUSTMENT_NODE_GROUP = "adjustment";
+const string CONDITIONAL_NODE_GROUP = "conditional";
 
 const string NodeDef::NODE_ATTRIBUTE = "node";
-const string NodeDef::NODE_CATEGORY_ATTRIBUTE = "nodecategory";
+const string NodeDef::NODE_GROUP_ATTRIBUTE = "nodegroup";
 const string TypeDef::SEMANTIC_ATTRIBUTE = "semantic";
 const string TypeDef::CONTEXT_ATTRIBUTE = "context";
-const string Implementation::NODE_DEF_ATTRIBUTE = "nodedef";
 const string Implementation::FILE_ATTRIBUTE = "file";
 const string Implementation::FUNCTION_ATTRIBUTE = "function";
 const string Implementation::LANGUAGE_ATTRIBUTE = "language";
@@ -34,28 +33,29 @@ const string Implementation::LANGUAGE_ATTRIBUTE = "language";
 
 InterfaceElementPtr NodeDef::getImplementation(const string& target, const string& language) const
 {
-    for (InterfaceElementPtr element : getDocument()->getMatchingImplementations(getName()))
+    vector<InterfaceElementPtr> interfaces = getDocument()->getMatchingImplementations(getQualifiedName(getName()));
+    vector<InterfaceElementPtr> secondary = getDocument()->getMatchingImplementations(getName());
+    interfaces.insert(interfaces.end(), secondary.begin(), secondary.end());
+    for (InterfaceElementPtr interface : interfaces)
     {
-        // Skip if target does not match
-        if (!targetStringsMatch(element->getTarget(), target))
+        if (!targetStringsMatch(interface->getTarget(), target) ||
+            !isVersionCompatible(interface))
         {
             continue;
         }
-
-        // Only check language against implementations. Other elements such
-        // as nodegraphs do not have language specific implementations.
-        //
         if (!language.empty())
         {
-            ImplementationPtr implementation = element->asA<Implementation>();
-            if (implementation && implementation->getLanguage() != language)
+            // If the given interface is an implementation element, as opposed to
+            // a node graph, then check for a language string match.
+            ImplementationPtr implement = interface->asA<Implementation>();
+            if (implement && implement->getLanguage() != language)
             {
                 continue;
             }
         }
-
-        return element;
+        return interface;
     }
+
     return InterfaceElementPtr();
 }
 
@@ -66,7 +66,7 @@ vector<ShaderRefPtr> NodeDef::getInstantiatingShaderRefs() const
     {
         for (ShaderRefPtr shaderRef : mat->getShaderRefs())
         {
-            if (shaderRef->getNodeDef() == getSelf())
+            if (shaderRef->getNodeDef()->hasInheritedBase(getSelf()))
             {
                 shaderRefs.push_back(shaderRef);
             }
@@ -79,7 +79,7 @@ bool NodeDef::validate(string* message) const
 {
     bool res = true;
     validateRequire(hasType(), res, message, "Missing type");
-    if (getType() == MULTI_OUTPUT_TYPE_STRING)
+    if (isMultiOutputType())
     {
         validateRequire(getOutputCount() >= 2, res, message, "Multioutput nodedefs must have two or more output ports");
     }
@@ -90,13 +90,17 @@ bool NodeDef::validate(string* message) const
     return InterfaceElement::validate(message) && res;
 }
 
-//
-// Implementation methods
-//
-
-NodeDefPtr Implementation::getNodeDef() const
+bool NodeDef::isVersionCompatible(ConstElementPtr elem) const
 {
-    return getDocument()->getNodeDef(getNodeDefString());
+    if (getVersionIntegers() == elem->getVersionIntegers())
+    {
+        return true;
+    }
+    if (getDefaultVersion() && !elem->hasVersionString())
+    {
+        return true;
+    }
+    return false;
 }
 
 } // namespace MaterialX

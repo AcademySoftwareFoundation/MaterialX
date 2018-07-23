@@ -27,8 +27,15 @@ void bindPyGeom(py::module& mod)
 
     py::class_<mx::GeomInfo, mx::GeomInfoPtr, mx::GeomElement>(mod, "GeomInfo")
         .def("_addGeomAttr", &mx::GeomInfo::addGeomAttr)
+        .def("getGeomAttr", &mx::GeomInfo::getGeomAttr)
         .def("getGeomAttrs", &mx::GeomInfo::getGeomAttrs)
         .def("removeGeomAttr", &mx::GeomInfo::removeGeomAttr)
+        .def("addToken", &mx::GeomInfo::addToken,
+            py::arg("name") = mx::DEFAULT_TYPE_STRING)
+        .def("getToken", &mx::GeomInfo::getToken)
+        .def("getTokens", &mx::GeomInfo::getTokens)
+        .def("removeToken", &mx::GeomInfo::removeToken)
+        .def("setTokenValue", &mx::GeomInfo::setTokenValue)
         BIND_GEOMINFO_FUNC_INSTANCE(integer, int)
         BIND_GEOMINFO_FUNC_INSTANCE(boolean, bool)
         BIND_GEOMINFO_FUNC_INSTANCE(float, float)
@@ -47,23 +54,21 @@ void bindPyGeom(py::module& mod)
         .def_readonly_static("CATEGORY", &mx::GeomAttr::CATEGORY);
 
     py::class_<mx::Collection, mx::CollectionPtr, mx::Element>(mod, "Collection")
-        .def("addCollectionAdd", &mx::Collection::addCollectionAdd,
-            py::arg("name") = mx::EMPTY_STRING)
-        .def("getCollectionAdd", &mx::Collection::getCollectionAdd)
-        .def("getCollectionAdds", &mx::Collection::getCollectionAdds)
-        .def("removeCollectionAdd", &mx::Collection::removeCollectionAdd)
-        .def("addCollectionRemove", &mx::Collection::addCollectionRemove,
-            py::arg("name") = mx::EMPTY_STRING)
-        .def("getCollectionRemove", &mx::Collection::getCollectionRemove)
-        .def("getCollectionRemoves", &mx::Collection::getCollectionRemoves)
-        .def("removeCollectionRemove", &mx::Collection::removeCollectionRemove)
+        .def("setIncludeGeom", &mx::Collection::setIncludeGeom)
+        .def("hasIncludeGeom", &mx::Collection::hasIncludeGeom)
+        .def("getIncludeGeom", &mx::Collection::getIncludeGeom)
+        .def("setExcludeGeom", &mx::Collection::setExcludeGeom)
+        .def("hasExcludeGeom", &mx::Collection::hasExcludeGeom)
+        .def("getExcludeGeom", &mx::Collection::getExcludeGeom)
+        .def("setIncludeCollectionString", &mx::Collection::setIncludeCollectionString)
+        .def("hasIncludeCollectionString", &mx::Collection::hasIncludeCollectionString)
+        .def("getIncludeCollectionString", &mx::Collection::getIncludeCollectionString)
+        .def("setIncludeCollection", &mx::Collection::setIncludeCollection)
+        .def("setIncludeCollections", &mx::Collection::setIncludeCollections)
+        .def("getIncludeCollections", &mx::Collection::getIncludeCollections)
+        .def("hasIncludeCycle", &mx::Collection::hasIncludeCycle)
+        .def("matchesGeomString", &mx::Collection::matchesGeomString)
         .def_readonly_static("CATEGORY", &mx::Collection::CATEGORY);
-
-    py::class_<mx::CollectionAdd, mx::CollectionAddPtr, mx::GeomElement>(mod, "CollectionAdd")
-        .def_readonly_static("CATEGORY", &mx::CollectionAdd::CATEGORY);
-
-    py::class_<mx::CollectionRemove, mx::CollectionRemovePtr, mx::GeomElement>(mod, "CollectionRemove")
-        .def_readonly_static("CATEGORY", &mx::CollectionRemove::CATEGORY);
 
     mod.def("geomStringsMatch", &mx::geomStringsMatch);
 }

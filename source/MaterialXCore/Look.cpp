@@ -63,6 +63,17 @@ vector<PropertySetAssignPtr> Look::getActivePropertySetAssigns() const
     return activeAssigns;
 }
 
+vector<VariantAssignPtr> Look::getActiveVariantAssigns() const
+{
+    vector<VariantAssignPtr> activeAssigns;
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        vector<VariantAssignPtr> assigns = elem->asA<Look>()->getVariantAssigns();
+        activeAssigns.insert(activeAssigns.end(), assigns.begin(), assigns.end());
+    }
+    return activeAssigns;
+}
+
 vector<VisibilityPtr> Look::getActiveVisibilities() const
 {
     vector<VisibilityPtr> activeVisibilities;
@@ -74,35 +85,13 @@ vector<VisibilityPtr> Look::getActiveVisibilities() const
     return activeVisibilities;
 }
 
-void Look::setInheritsFrom(ElementPtr look)
-{
-    for (LookInheritPtr inherit : getLookInherits())
-    {
-        removeLookInherit(inherit->getName());
-    }
-    if (look)
-    {
-        addLookInherit(look->getName());
-    }
-}
-
-ElementPtr Look::getInheritsFrom() const
-{
-    vector<LookInheritPtr> inherits = getLookInherits();
-    if (inherits.empty())
-    {
-        return nullptr;
-    }
-    return getRoot()->getChildOfType<Look>(inherits[0]->getName());
-}
-
 //
 // MaterialAssign methods
 //
 
 MaterialPtr MaterialAssign::getReferencedMaterial() const
 {
-    return getRoot()->getChildOfType<Material>(getMaterial());   
+    return resolveRootNameReference<Material>(getMaterial());   
 }
 
 } // namespace MaterialX

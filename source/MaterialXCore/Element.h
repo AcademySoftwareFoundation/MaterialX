@@ -21,6 +21,7 @@ namespace MaterialX
 class Element;
 class TypedElement;
 class ValueElement;
+class Token;
 class StringResolver;
 class Document;
 class Material;
@@ -39,6 +40,11 @@ using ConstTypedElementPtr = shared_ptr<const TypedElement>;
 using ValueElementPtr = shared_ptr<ValueElement>;
 /// A shared pointer to a const ValueElement
 using ConstValueElementPtr = shared_ptr<const ValueElement>;
+
+/// A shared pointer to a Token
+using TokenPtr = shared_ptr<Token>;
+/// A shared pointer to a const Token
+using ConstTokenPtr = shared_ptr<const Token>;
 
 /// A shared pointer to a StringResolver
 using StringResolverPtr = shared_ptr<StringResolver>;
@@ -111,7 +117,6 @@ class Element : public std::enable_shared_from_this<Element>
     void setName(const string& name);
 
     /// Return the element's name string.
-    /// @todo The MaterialX notion of namespaces is not yet supported.
     const string& getName() const
     {
         return _name;
@@ -124,13 +129,12 @@ class Element : public std::enable_shared_from_this<Element>
     ///    the returned path will be relative to this ancestor.
     string getNamePath(ConstElementPtr relativeTo = nullptr) const;
 
-    /// Return the descendant referred to by the hierarchical path relative
-    /// to the current element. If an empty string is provided as the path
-    /// then a shared pointer to the current element is returned. If the
-    /// path cannot be found then an empty shared pointer is returned.
-    /// @param path The hierarchical path to use to find a descendant
-    ///    relative to the current element.
-    ElementPtr getDescendant(const string& path);
+    /// Return the element specified by the given hierarchical name path,
+    /// relative to the current element.  If the name path is empty then the
+    /// current element is returned.  If no element is found at the given path,
+    /// then an empty shared pointer is returned.
+    /// @param namePath The relative name path of the specified element.
+    ElementPtr getDescendant(const string& namePath);
 
     /// @}
     /// @name File Prefix
@@ -158,7 +162,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// element, taking all ancestor elements into account.
     const string& getActiveFilePrefix() const
     {
-        for (ConstElementPtr elem : traverseAncestors())
+        for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
         {
             if (elem->hasFilePrefix())
             {
@@ -194,7 +198,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// element, taking all ancestor elements into account.
     const string& getActiveGeomPrefix() const
     {
-        for (ConstElementPtr elem : traverseAncestors())
+        for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
         {
             if (elem->hasGeomPrefix())
             {
@@ -230,7 +234,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// element, taking all ancestor elements into account.
     const string& getActiveColorSpace() const
     {
-        for (ConstElementPtr elem : traverseAncestors())
+        for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
         {
             if (elem->hasColorSpace())
             {
@@ -260,6 +264,131 @@ class Element : public std::enable_shared_from_this<Element>
     const string& getTarget() const
     {
         return getAttribute(TARGET_ATTRIBUTE);
+    }
+
+    /// @}
+    /// @name Inheritance
+    /// @{
+
+    /// Set the inherit string of this element.
+    void setInheritString(const string& inherit)
+    {
+        setAttribute(INHERIT_ATTRIBUTE, inherit);
+    }
+
+    /// Return true if this element has an inherit string.
+    bool hasInheritString() const
+    {
+        return hasAttribute(INHERIT_ATTRIBUTE);
+    }
+
+    /// Return the inherit string of this element.
+    const string& getInheritString() const
+    {
+        return getAttribute(INHERIT_ATTRIBUTE);
+    }
+
+    /// Set the element that this one directly inherits from.
+    void setInheritsFrom(ConstElementPtr super)
+    {
+        if (super)
+        {
+            setInheritString(super->getName());
+        }
+        else
+        {
+            removeAttribute(INHERIT_ATTRIBUTE);
+        }
+    }
+
+    /// Return the element, if any, that this one directly inherits from.
+    ElementPtr getInheritsFrom() const
+    {
+        return resolveRootNameReference<Element>(getInheritString());
+    }
+
+    /// Return true if this element has the given element as an inherited base,
+    /// taking the full inheritance chain into account.
+    bool hasInheritedBase(ConstElementPtr base) const;
+
+    /// Return true if the inheritance chain for this element contains a cycle.
+    bool hasInheritanceCycle() const;
+
+    /// @}
+    /// @name Namespace
+    /// @{
+
+    /// Set the namespace string of this element.
+    void setNamespace(const string& space)
+    {
+        setAttribute(NAMESPACE_ATTRIBUTE, space);
+    }
+
+    /// Return true if this element has a namespace string.
+    bool hasNamespace() const
+    {
+        return hasAttribute(NAMESPACE_ATTRIBUTE);
+    }
+
+    /// Return the namespace string of this element.
+    const string& getNamespace() const
+    {
+        return getAttribute(NAMESPACE_ATTRIBUTE);
+    }
+
+    /// Return a qualified version of the given name, taking the namespace at the
+    /// scope of this element into account.
+    string getQualifiedName(const string& name) const
+    {
+        for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
+        {
+            if (elem->hasNamespace())
+            {
+                return elem->getNamespace() + NAME_PREFIX_SEPARATOR + name;
+            }
+        }
+        return name;
+    }
+
+    /// @}
+    /// @name Version
+    /// @{
+
+    /// Set the version string of this element.
+    void setVersionString(const string& version)
+    {
+        setAttribute(VERSION_ATTRIBUTE, version);
+    }
+
+    /// Return true if this element has a version string.
+    bool hasVersionString() const
+    {
+        return hasAttribute(VERSION_ATTRIBUTE);
+    }
+
+    /// Return the version string of this element.
+    const string& getVersionString() const
+    {
+        return getAttribute(VERSION_ATTRIBUTE);
+    }
+
+    /// Return the major and minor versions as an integer pair.
+    virtual std::pair<int, int> getVersionIntegers() const;
+
+    /// @}
+    /// @name Default Version
+    /// @{
+
+    /// Set the default version flag of this element.
+    void setDefaultVersion(bool defaultVersion)
+    {
+        setTypedAttribute<bool>(DEFAULT_VERSION_ATTRIBUTE, defaultVersion);
+    }
+
+    /// Return the default version flag of this element.
+    bool getDefaultVersion() const
+    {
+        return getTypedAttribute<bool>(DEFAULT_VERSION_ATTRIBUTE);
     }
 
     /// @}
@@ -399,7 +528,7 @@ class Element : public std::enable_shared_from_this<Element>
     }
 
     /// Return a vector of stored attribute names, in the order they were set.
-    const vector<string>& getAttributeNames() const
+    const StringVec& getAttributeNames() const
     {
         return _attributeOrder;
     }
@@ -477,23 +606,6 @@ class Element : public std::enable_shared_from_this<Element>
     }
 
     /// @}
-    /// @name Inheritance
-    /// @{
-
-    /// Set the element that this one inherits from, if inheritance is
-    /// supported by this element subclass.
-    virtual void setInheritsFrom(ElementPtr elem) { };
-
-    /// Return the element, if any, that this one inherits from.
-    virtual ElementPtr getInheritsFrom() const
-    {
-        return nullptr;
-    }
-
-    /// Return true if the inheritance chain for this element contains a cycle.
-    bool hasInheritanceCycle() const;
-
-    /// @}
     /// @name Traversal
     /// @{
 
@@ -519,8 +631,8 @@ class Element : public std::enable_shared_from_this<Element>
 
     /// Traverse the dataflow graph from the given element to each of its
     /// upstream sources in depth-first order, using pre-order visitation.
-    /// @param material An optional material element, whose data bindings and
-    ///    overrides will be applied to the traversal.
+    /// @param material An optional material element, whose data bindings will
+    ///    be applied to the traversal.
     /// @throws ExceptionFoundCycle if a cycle is encountered.
     /// @return A GraphIterator object.
     /// @details Example usage with an implicit iterator:
@@ -546,8 +658,8 @@ class Element : public std::enable_shared_from_this<Element>
 
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
-    /// @param material An optional material element, whose data bindings and
-    ///    overrides will be applied to the query.
+    /// @param material An optional material element, whose data bindings will
+    ///    be applied to the query.
     /// @param index An optional index of the edge to be returned, where the
     ///    valid index range may be determined with getUpstreamEdgeCount.
     /// @return The upstream Edge, if valid, or an empty Edge object.
@@ -562,8 +674,8 @@ class Element : public std::enable_shared_from_this<Element>
 
     /// Return the Element with the given index that lies directly upstream
     /// from this one in the dataflow graph.
-    /// @param material An optional material element, whose data bindings and
-    ///    overrides will be applied to the query.
+    /// @param material An optional material element, whose data bindings will
+    ///    be applied to the query.
     /// @param index An optional index of the element to be returned, where the
     ///    valid index range may be determined with getUpstreamEdgeCount.
     /// @return The upstream Element, if valid, or an empty ElementPtr.
@@ -585,20 +697,6 @@ class Element : public std::enable_shared_from_this<Element>
     /// }
     /// @endcode
     InheritanceIterator traverseInheritance() const;
-
-    /// Traverse the tree from the given element to each of its ancestors.
-    /// @return An AncestorIterator object.
-    /// @details Example usage:
-    /// @code
-    /// ConstElementPtr childElem;
-    /// for (ConstElementPtr elem : inputElem->traverseAncestors())
-    /// {
-    ///     if (childElem)
-    ///         cout << childElem->asString() << " is a child of " << elem->asString() << endl;
-    ///     childElem = elem;
-    /// }
-    /// @endcode
-    AncestorIterator traverseAncestors() const;
 
     /// @}
     /// @name Source URI
@@ -624,6 +722,20 @@ class Element : public std::enable_shared_from_this<Element>
     const string& getSourceUri() const
     {
         return _sourceUri;
+    }
+
+    /// Return the source URI that is active at the scope of this
+    /// element, taking all ancestor elements into account.
+    const string& getActiveSourceUri() const
+    {
+        for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
+        {
+            if (elem->hasSourceUri())
+            {
+                return elem->getSourceUri();
+            }
+        }
+        return EMPTY_STRING;
     }
 
     /// @}
@@ -663,11 +775,13 @@ class Element : public std::enable_shared_from_this<Element>
     /// Construct a StringResolver at the scope of this element.  The returned
     /// object may be used to apply substring modifiers to data values in the
     /// context of a specific element and geometry.
-    /// @param geom An optional geometry name, which will be used to the
-    ///    applicable set of GeomAttr-based string substitutions.  This name
-    ///    may be the univeral geometry name "*", which requests that all
-    ///    GeomAttr string substitutions be used.
+    /// @param geom An optional geometry name, which will be used to select the
+    ///    applicable set of geometric string substitutions.  By default, no
+    ///    geometric string substitutions are applied.  If the universal geometry
+    ///    name "/" is given, then all geometric string substitutions are applied,
     /// @return A shared pointer to a StringResolver.
+    /// @todo The StringResolver returned by this method doesn't yet take
+    ///    interface tokens into account.
     StringResolverPtr createStringResolver(const string& geom = EMPTY_STRING) const;
 
     /// Return a single-line description of this element, including its category,
@@ -677,17 +791,29 @@ class Element : public std::enable_shared_from_this<Element>
     /// @}
 
   protected:
+    // Resolve a reference to a named element at the root scope of this document,
+    // taking the namespace at the scope of this element into account.
+    template<class T> shared_ptr<T> resolveRootNameReference(const string& name) const
+    {
+        ConstElementPtr root = getRoot();
+        shared_ptr<T> child = root->getChildOfType<T>(getQualifiedName(name));
+        return child ? child : root->getChildOfType<T>(name);
+    }
+
     // Enforce a requirement within a validate method, updating the validation
     // state and optional output text if the requirement is not met.
     void validateRequire(bool expression, bool& res, string* message, string errorDesc) const;
 
   public:
     static const string NAME_ATTRIBUTE;
-    static const string TYPE_ATTRIBUTE;
     static const string FILE_PREFIX_ATTRIBUTE;
     static const string GEOM_PREFIX_ATTRIBUTE;
     static const string COLOR_SPACE_ATTRIBUTE;
     static const string TARGET_ATTRIBUTE;
+    static const string VERSION_ATTRIBUTE;
+    static const string DEFAULT_VERSION_ATTRIBUTE;
+    static const string INHERIT_ATTRIBUTE;
+    static const string NAMESPACE_ATTRIBUTE;
 
   protected:
     virtual void registerChildElement(ElementPtr child);
@@ -709,7 +835,7 @@ class Element : public std::enable_shared_from_this<Element>
     vector<ElementPtr> _childOrder;
 
     StringMap _attributeMap;
-    vector<string> _attributeOrder;
+    StringVec _attributeOrder;
 
     weak_ptr<Element> _parent;
     weak_ptr<Element> _root;
@@ -742,6 +868,13 @@ class TypedElement : public Element
   public:
     virtual ~TypedElement() { }
 
+  protected:
+    using TypeDefPtr = shared_ptr<class TypeDef>;
+
+  public:
+    /// @}
+    /// @name Type String
+
     /// Set the element's type string.
     void setType(const string& type)
     {
@@ -759,6 +892,25 @@ class TypedElement : public Element
     {
         return getAttribute(TYPE_ATTRIBUTE);
     }
+
+    /// Return true if the element is of multi-output type.
+    bool isMultiOutputType() const
+    {
+        return getType() == MULTI_OUTPUT_TYPE_STRING;
+    }
+
+    /// @}
+    /// @name TypeDef References
+    /// @{
+
+    /// Return the TypeDef declaring the type string of this element.  If no
+    /// matching TypeDef is found, then an empty shared pointer is returned.
+    TypeDefPtr getTypeDef() const;
+
+    /// @}
+
+public:
+    static const string TYPE_ATTRIBUTE;
 };
 
 /// @class ValueElement
@@ -800,28 +952,6 @@ class ValueElement : public TypedElement
     ///    apply string substitutions.  By default, a new string resolver
     ///    will be created at this scope and applied to the return value.
     string getResolvedValueString(StringResolverPtr resolver = nullptr) const;
-
-    /// @}
-    /// @name Public Names
-    /// @{
-
-    /// Set the public name of an element.
-    void setPublicName(const string& name)
-    {
-        setAttribute(PUBLIC_NAME_ATTRIBUTE, name);
-    }
-
-    /// Return true if the given element has a public name.
-    bool hasPublicName() const
-    {
-        return hasAttribute(PUBLIC_NAME_ATTRIBUTE);
-    }
-
-    /// Return the public name of an element.
-    const string& getPublicName() const
-    {
-        return getAttribute(PUBLIC_NAME_ATTRIBUTE);
-    }
 
     /// @}
     /// @name Interface Names
@@ -941,6 +1071,24 @@ class ValueElement : public TypedElement
     static const string IMPLEMENTATION_NAME_ATTRIBUTE;
 };
 
+/// @class Token
+/// A token element representing a string value.
+///
+/// Token elements are used to define input and output values for string
+/// substitutions in image filenames.
+class Token : public ValueElement
+{
+  public:
+    Token(ElementPtr parent, const string& name) :
+        ValueElement(parent, CATEGORY, name)
+    {
+    }
+    virtual ~Token() { }
+
+  public:
+    static const string CATEGORY;
+};
+
 /// @class GenericElement
 /// A generic element subclass, for instantiating elements with unrecognized categories.
 class GenericElement : public Element
@@ -1026,7 +1174,7 @@ class StringResolver
         _filenameMap[key] = value;
     }
 
-    /// Get list of filename substring substitutions.
+    /// Return the map of filename substring substitutions.
     const StringMap& getFilenameSubstitutions() const
     {
         return _filenameMap;
@@ -1042,7 +1190,7 @@ class StringResolver
         _geomNameMap[key] = value;
     }
 
-    /// Get list of geometry name substring substitutions.
+    /// Return the map of geometry name substring substitutions.
     const StringMap& getGeomNameSubstitutions() const
     {
         return _geomNameMap;
@@ -1071,8 +1219,7 @@ class CopyOptions
 {
   public:
     CopyOptions() :
-        skipDuplicateElements(false),
-        copySourceUris(false)
+        skipDuplicateElements(false)
     {
     }
     ~CopyOptions() { }
@@ -1080,10 +1227,6 @@ class CopyOptions
     /// If true, elements at the same scope with duplicate names will be skipped;
     /// otherwise, they will trigger an exception.  Defaults to false.
     bool skipDuplicateElements;
-
-    /// If true, then source URIs from the given element
-    /// and its descendants are also copied.  Defaults to false.
-    bool copySourceUris;
 };
 
 /// @class ExceptionOrphanedElement
