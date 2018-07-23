@@ -35,6 +35,7 @@ _exampleFilenames = ('CustomNode.mtlx',
                      'Looks.mtlx',
                      'MaterialBasic.mtlx',
                      'MultiOutput.mtlx',
+                     'NodeGraphs.mtlx',
                      'PaintMaterials.mtlx',
                      'PostShaderComposite.mtlx',
                      'PreShaderComposite.mtlx',
@@ -493,17 +494,11 @@ class TestMaterialX(unittest.TestCase):
                 doc2.importLibrary(lib)
             self.assertTrue(doc2.validate()[0])
 
-            # Verify that all referenced nodes are declared and implemented.
-            for elem in doc2.traverseTree():
-                if elem.isA(mx.Node):
-                    self.assertTrue(elem.getNodeDef())
-                    self.assertTrue(elem.getImplementation())
-
         # Read the same document twice with duplicate elements skipped.
         doc = mx.createDocument()
         readOptions = mx.XmlReadOptions()
         readOptions.skipDuplicateElements = True
-        filename = 'PaintMaterials.mtlx'
+        filename = 'PostShaderComposite.mtlx'
         mx.readFromXmlFile(doc, filename, _searchPath, readOptions)
         mx.readFromXmlFile(doc, filename, _searchPath, readOptions)
         self.assertTrue(doc.validate()[0])

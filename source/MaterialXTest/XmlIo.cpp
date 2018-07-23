@@ -23,6 +23,7 @@ TEST_CASE("Load content", "[xmlio]")
         "Looks.mtlx",
         "MaterialBasic.mtlx",
         "MultiOutput.mtlx",
+        "NodeGraphs.mtlx",
         "PaintMaterials.mtlx",
         "PostShaderComposite.mtlx",
         "PreShaderComposite.mtlx",
@@ -107,6 +108,17 @@ TEST_CASE("Load content", "[xmlio]")
         }
         REQUIRE(doc->validate());
 
+        // Flatten subgraph references.
+        for (mx::NodeGraphPtr nodeGraph : doc->getNodeGraphs())
+        {
+            if (!firstExample && nodeGraph->getActiveSourceUri() != doc->getSourceUri())
+            {
+                continue;
+            }
+            nodeGraph->flattenSubgraphs();
+            REQUIRE(nodeGraph->validate());
+        }
+
         // Verify that all referenced types and nodes are declared, and that
         // referenced node declarations are implemented.
         bool referencesValid = true;
@@ -143,17 +155,6 @@ TEST_CASE("Load content", "[xmlio]")
         }
         REQUIRE(referencesValid);
 
-        // Flatten subgraph references.
-        for (mx::NodeGraphPtr nodeGraph : doc->getNodeGraphs())
-        {
-            if (!firstExample && nodeGraph->getActiveSourceUri() != doc->getSourceUri())
-            {
-                continue;
-            }
-            nodeGraph->flattenSubgraphs();
-        }
-        REQUIRE(doc->validate());
-
         firstExample = false;
     }
 
@@ -167,30 +168,25 @@ TEST_CASE("Load content", "[xmlio]")
     REQUIRE(doc->validate());
 
     // Read document without XIncludes.
-    mx::DocumentPtr doc2 = mx::createDocument();
-    mx::XmlReadOptions readOptions2;
-    readOptions2.readXIncludes = false;
-    mx::readFromXmlFile(doc2, filename, searchPath, &readOptions2);
-    REQUIRE(*doc2 != *doc);
-
-    // Serialize to XML and reconstruct.
-    std::string xmlString = mx::writeToXmlString(doc2);
-    mx::DocumentPtr doc3 = mx::createDocument();
-    mx::readFromXmlString(doc3, xmlString, &readOptions2);
-    REQUIRE(*doc3 == *doc2);
+    mx::DocumentPtr flatDoc = mx::createDocument();
+    readOptions = mx::XmlReadOptions();
+    readOptions.readXIncludes = false;
+    mx::readFromXmlFile(flatDoc, filename, searchPath, &readOptions);
+    REQUIRE(*flatDoc != *doc);
 
     // Serialize to XML with a custom predicate that skips images.
     auto skipImages = [](mx::ElementPtr elem)
     {
         return !elem->isA<mx::Node>("image");
     };
-    xmlString = mx::writeToXmlString(doc, false, skipImages);
+    std::string xmlString = mx::writeToXmlString(doc, false, skipImages);
         
     // Reconstruct and verify that the document contains no images.
-    mx::DocumentPtr doc4 = mx::createDocument();
-    mx::readFromXmlString(doc4, xmlString);
+    mx::DocumentPtr writtenDoc = mx::createDocument();
+    mx::readFromXmlString(writtenDoc, xmlString);
+    REQUIRE(*writtenDoc != *doc);
     unsigned imageElementCount = 0;
-    for (mx::ElementPtr elem : doc4->traverseTree())
+    for (mx::ElementPtr elem : writtenDoc->traverseTree())
     {
         if (elem->isA<mx::Node>("image"))
         {
@@ -200,6 +196,6 @@ TEST_CASE("Load content", "[xmlio]")
     REQUIRE(imageElementCount == 0);
 
     // Read a non-existent document.
-    mx::DocumentPtr doc5 = mx::createDocument();
-    REQUIRE_THROWS_AS(mx::readFromXmlFile(doc5, "NonExistent.mtlx"), mx::ExceptionFileMissing&);
+    mx::DocumentPtr nonExistentDoc = mx::createDocument();
+    REQUIRE_THROWS_AS(mx::readFromXmlFile(nonExistentDoc, "NonExistent.mtlx"), mx::ExceptionFileMissing&);
 }
