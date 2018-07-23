@@ -1,15 +1,15 @@
 # Change Log
 
-## [1.36.0] - Development
+## [1.36.0] - 2018-07-23
 
-Updating the MaterialX library to the v1.36 specification.
+Updated the MaterialX library to the v1.36 specification.
 
 ### Added
 - Added support for Element namespaces.
 - Added support for NodeDef inheritance.
+- Added support for root-level node elements.
 - Added support for inheritance attributes on MaterialX\:\:Material and MaterialX\:\:Look.
 - Added support for include and exclude attributes on MaterialX\:\:Collection.
-- Added support for root-level node elements.
 - Added the MaterialX\:\:Token class for string substitutions.
 - Added the MaterialX\:\:Variant, MaterialX\:\:VariantSet, and MaterialX\:\:VariantAssign classes.
 - Added the MaterialX\:\:GeomPath class for geometry name comparisons.
