@@ -16,11 +16,6 @@ namespace mx = MaterialX;
 void bindPyLook(py::module& mod)
 {
     py::class_<mx::Look, mx::LookPtr, mx::Element>(mod, "Look")
-        .def("addLookInherit", &mx::Look::addLookInherit,
-            py::arg("name") = mx::EMPTY_STRING)
-        .def("getLookInherit", &mx::Look::getLookInherit)
-        .def("getLookInherits", &mx::Look::getLookInherits)
-        .def("removeLookInherit", &mx::Look::removeLookInherit)
         .def("addMaterialAssign", &mx::Look::addMaterialAssign,
             py::arg("name") = mx::EMPTY_STRING, py::arg("material") = mx::EMPTY_STRING)
         .def("getMaterialAssign", &mx::Look::getMaterialAssign)
@@ -37,16 +32,20 @@ void bindPyLook(py::module& mod)
             py::arg("name") = mx::EMPTY_STRING)
         .def("getPropertySetAssign", &mx::Look::getPropertySetAssign)
         .def("getPropertySetAssigns", &mx::Look::getPropertySetAssigns)
+        .def("getActivePropertySetAssigns", &mx::Look::getActivePropertySetAssigns)
         .def("removePropertySetAssign", &mx::Look::removePropertySetAssign)
+        .def("addVariantAssign", &mx::Look::addVariantAssign,
+            py::arg("name") = mx::EMPTY_STRING)
+        .def("getVariantAssign", &mx::Look::getVariantAssign)
+        .def("getVariantAssigns", &mx::Look::getVariantAssigns)
+        .def("getActiveVariantAssigns", &mx::Look::getActiveVariantAssigns)
+        .def("removeVariantAssign", &mx::Look::removeVariantAssign)
         .def("addVisibility", &mx::Look::addVisibility,
             py::arg("name") = mx::EMPTY_STRING)
         .def("getVisibility", &mx::Look::getVisibility)
         .def("getVisibilities", &mx::Look::getVisibilities)
         .def("getActiveVisibilities", &mx::Look::getActiveVisibilities)
         .def("removeVisibility", &mx::Look::removeVisibility)
-        .def_readonly_static("CATEGORY", &mx::Look::CATEGORY);
-
-    py::class_<mx::LookInherit, mx::LookInheritPtr, mx::Element>(mod, "LookInherit")
         .def_readonly_static("CATEGORY", &mx::Look::CATEGORY);
 
     py::class_<mx::MaterialAssign, mx::MaterialAssignPtr, mx::GeomElement>(mod, "MaterialAssign")

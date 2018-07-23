@@ -28,8 +28,7 @@ void bindPyElement(py::module& mod)
 {
     py::class_<mx::CopyOptions>(mod, "CopyOptions")
         .def(py::init())
-        .def_readwrite("skipDuplicateElements", &mx::CopyOptions::skipDuplicateElements)
-        .def_readwrite("copySourceUris", &mx::CopyOptions::copySourceUris);
+        .def_readwrite("skipDuplicateElements", &mx::CopyOptions::skipDuplicateElements);
 
     py::class_<mx::Element, mx::ElementPtr>(mod, "Element")
         .def(py::self == py::self)
@@ -55,6 +54,23 @@ void bindPyElement(py::module& mod)
         .def("setTarget", &mx::Element::setTarget)
         .def("hasTarget", &mx::Element::hasTarget)
         .def("getTarget", &mx::Element::getTarget)
+        .def("setInheritString", &mx::Element::setInheritString)
+        .def("hasInheritString", &mx::Element::hasInheritString)
+        .def("getInheritString", &mx::Element::getInheritString)
+        .def("setInheritsFrom", &mx::Element::setInheritsFrom)
+        .def("getInheritsFrom", &mx::Element::getInheritsFrom)
+        .def("hasInheritedBase", &mx::Element::hasInheritedBase)
+        .def("hasInheritanceCycle", &mx::Element::hasInheritanceCycle)
+        .def("setNamespace", &mx::Element::setNamespace)
+        .def("hasNamespace", &mx::Element::hasNamespace)
+        .def("getNamespace", &mx::Element::getNamespace)
+        .def("getQualifiedName", &mx::Element::getQualifiedName)
+        .def("setVersionString", &mx::Element::setVersionString)
+        .def("hasVersionString", &mx::Element::hasVersionString)
+        .def("getVersionString", &mx::Element::getVersionString)
+        .def("getVersionIntegers", &mx::Element::getVersionIntegers)
+        .def("setDefaultVersion", &mx::Element::setDefaultVersion)
+        .def("getDefaultVersion", &mx::Element::getDefaultVersion)
         .def("addChildOfCategory", &mx::Element::addChildOfCategory)
         .def("_getChild", &mx::Element::getChild)
         .def("getChildren", &mx::Element::getChildren)
@@ -70,9 +86,6 @@ void bindPyElement(py::module& mod)
         .def("getParent", static_cast<mx::ElementPtr(mx::Element::*)()>(&mx::Element::getParent))
         .def("getRoot", static_cast<mx::ElementPtr(mx::Element::*)()>(&mx::Element::getRoot))
         .def("getDocument", static_cast<mx::DocumentPtr(mx::Element::*)()>(&mx::Element::getDocument))
-        .def("setInheritsFrom", &mx::Element::setInheritsFrom)
-        .def("getInheritsFrom", &mx::Element::getInheritsFrom)
-        .def("hasInheritanceCycle", &mx::Element::hasInheritanceCycle)
         .def("traverseTree", &mx::Element::traverseTree)
         .def("traverseGraph", &mx::Element::traverseGraph,
             py::arg("material") = nullptr)
@@ -82,10 +95,10 @@ void bindPyElement(py::module& mod)
         .def("getUpstreamElement", &mx::Element::getUpstreamElement,
             py::arg("material") = nullptr, py::arg("index") = 0)
         .def("traverseInheritance", &mx::Element::traverseInheritance)
-        .def("traverseAncestors", &mx::Element::traverseAncestors)
         .def("setSourceUri", &mx::Element::setSourceUri)
         .def("hasSourceUri", &mx::Element::hasSourceUri)
         .def("getSourceUri", &mx::Element::getSourceUri)
+        .def("getActiveSourceUri", &mx::Element::getActiveSourceUri)
         .def("validate", [](mx::Element& elem)
             {
                 std::string message;
@@ -103,8 +116,6 @@ void bindPyElement(py::module& mod)
         BIND_ELEMENT_FUNC_INSTANCE(BindParam)
         BIND_ELEMENT_FUNC_INSTANCE(BindInput)
         BIND_ELEMENT_FUNC_INSTANCE(Collection)
-        BIND_ELEMENT_FUNC_INSTANCE(CollectionAdd)
-        BIND_ELEMENT_FUNC_INSTANCE(CollectionRemove)
         BIND_ELEMENT_FUNC_INSTANCE(Document)
         BIND_ELEMENT_FUNC_INSTANCE(GeomAttr)
         BIND_ELEMENT_FUNC_INSTANCE(GeomInfo)
@@ -112,23 +123,24 @@ void bindPyElement(py::module& mod)
         BIND_ELEMENT_FUNC_INSTANCE(Look)
         BIND_ELEMENT_FUNC_INSTANCE(Material)
         BIND_ELEMENT_FUNC_INSTANCE(MaterialAssign)
-        BIND_ELEMENT_FUNC_INSTANCE(MaterialInherit)
         BIND_ELEMENT_FUNC_INSTANCE(Node)
         BIND_ELEMENT_FUNC_INSTANCE(NodeDef)
         BIND_ELEMENT_FUNC_INSTANCE(NodeGraph)
-        BIND_ELEMENT_FUNC_INSTANCE(Override)
         BIND_ELEMENT_FUNC_INSTANCE(Parameter)
         BIND_ELEMENT_FUNC_INSTANCE(Property)
         BIND_ELEMENT_FUNC_INSTANCE(PropertySet)
         BIND_ELEMENT_FUNC_INSTANCE(PropertySetAssign)
         BIND_ELEMENT_FUNC_INSTANCE(ShaderRef)
+        BIND_ELEMENT_FUNC_INSTANCE(Token)
         BIND_ELEMENT_FUNC_INSTANCE(TypeDef)
         BIND_ELEMENT_FUNC_INSTANCE(Visibility);
 
     py::class_<mx::TypedElement, mx::TypedElementPtr, mx::Element>(mod, "TypedElement")
         .def("setType", &mx::TypedElement::setType)
         .def("hasType", &mx::TypedElement::hasType)
-        .def("getType", &mx::TypedElement::getType);
+        .def("getType", &mx::TypedElement::getType)
+        .def("isMultiOutputType", &mx::TypedElement::isMultiOutputType)
+        .def("getTypeDef", &mx::TypedElement::getTypeDef);
 
     py::class_<mx::ValueElement, mx::ValueElementPtr, mx::TypedElement>(mod, "ValueElement")
         .def("setValueString", &mx::ValueElement::setValueString)
@@ -136,9 +148,6 @@ void bindPyElement(py::module& mod)
         .def("getValueString", &mx::ValueElement::getValueString)
         .def("getResolvedValueString", &mx::ValueElement::getResolvedValueString,
             py::arg("resolver") = nullptr)
-        .def("setPublicName", &mx::ValueElement::setPublicName)
-        .def("hasPublicName", &mx::ValueElement::hasPublicName)
-        .def("getPublicName", &mx::ValueElement::getPublicName)
         .def("setInterfaceName", &mx::ValueElement::setInterfaceName)
         .def("hasInterfaceName", &mx::ValueElement::hasInterfaceName)
         .def("getInterfaceName", &mx::ValueElement::getInterfaceName)
@@ -161,7 +170,8 @@ void bindPyElement(py::module& mod)
         BIND_VALUE_ELEMENT_FUNC_INSTANCE(matrix44, mx::Matrix44)
         BIND_VALUE_ELEMENT_FUNC_INSTANCE(string, std::string);
 
-    py::class_<mx::ElementPredicate>(mod, "ElementPredicate");
+    py::class_<mx::Token, mx::TokenPtr, mx::ValueElement>(mod, "Token")
+        .def_readonly_static("CATEGORY", &mx::Token::CATEGORY);
 
     py::class_<mx::StringResolver, mx::StringResolverPtr>(mod, "StringResolver")
         .def("setFilePrefix", &mx::StringResolver::setFilePrefix)
@@ -175,6 +185,8 @@ void bindPyElement(py::module& mod)
         .def("setGeomNameSubstitution", &mx::StringResolver::setGeomNameSubstitution)
         .def("getGeomNameSubstitutions", &mx::StringResolver::getGeomNameSubstitutions)
         .def("resolve", &mx::StringResolver::resolve);
+
+    py::class_<mx::ElementPredicate>(mod, "ElementPredicate");
 
     py::register_exception<mx::ExceptionOrphanedElement>(mod, "ExceptionOrphanedElement");
 

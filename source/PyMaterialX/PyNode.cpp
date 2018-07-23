@@ -25,14 +25,11 @@ void bindPyNode(py::module& mod)
         .def("getDownstreamPorts", &mx::Node::getDownstreamPorts)
         .def_readonly_static("CATEGORY", &mx::Node::CATEGORY);
 
-    py::class_<mx::NodeGraph, mx::NodeGraphPtr, mx::InterfaceElement>(mod, "NodeGraph")
-        .def("setNodeDefString", &mx::NodeGraph::setNodeDefString)
-        .def("hasNodeDefString", &mx::NodeGraph::hasNodeDefString)
-        .def("getNodeDefString", &mx::NodeGraph::getNodeDefString)
-        .def("setNodeDef", &mx::NodeGraph::setNodeDef)
-        .def("getNodeDef", &mx::NodeGraph::getNodeDef)
+    py::class_<mx::GraphElement, mx::GraphElementPtr, mx::InterfaceElement>(mod, "GraphElement")
         .def("_addNode", &mx::NodeGraph::addNode,
             py::arg("category"), py::arg("name") = mx::EMPTY_STRING, py::arg("type") = mx::DEFAULT_TYPE_STRING)
+        .def("addNodeInstance", &mx::NodeGraph::addNodeInstance,
+            py::arg("nodeDef"), py::arg("name") = mx::EMPTY_STRING)
         .def("getNode", &mx::NodeGraph::getNode)
         .def("getNodes", &mx::NodeGraph::getNodes,
             py::arg("category") = mx::EMPTY_STRING)
@@ -40,6 +37,8 @@ void bindPyNode(py::module& mod)
         .def("flattenSubgraphs", &mx::NodeGraph::flattenSubgraphs,
             py::arg("target") = mx::EMPTY_STRING)
         .def("topologicalSort", &mx::NodeGraph::topologicalSort)
-        .def("asStringDot", &mx::NodeGraph::asStringDot)
+        .def("asStringDot", &mx::NodeGraph::asStringDot);
+
+    py::class_<mx::NodeGraph, mx::NodeGraphPtr, mx::GraphElement>(mod, "NodeGraph")
         .def_readonly_static("CATEGORY", &mx::NodeGraph::CATEGORY);
 }

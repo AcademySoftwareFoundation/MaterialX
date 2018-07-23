@@ -13,13 +13,16 @@ namespace MaterialX
 {
 
 const string Element::NAME_ATTRIBUTE = "name";
-const string Element::TYPE_ATTRIBUTE = "type";
 const string Element::FILE_PREFIX_ATTRIBUTE = "fileprefix";
 const string Element::GEOM_PREFIX_ATTRIBUTE = "geomprefix";
 const string Element::COLOR_SPACE_ATTRIBUTE = "colorspace";
 const string Element::TARGET_ATTRIBUTE = "target";
+const string Element::VERSION_ATTRIBUTE = "version";
+const string Element::DEFAULT_VERSION_ATTRIBUTE = "isdefaultversion";
+const string Element::INHERIT_ATTRIBUTE = "inherit";
+const string Element::NAMESPACE_ATTRIBUTE = "namespace";
+const string TypedElement::TYPE_ATTRIBUTE = "type";
 const string ValueElement::VALUE_ATTRIBUTE = "value";
-const string ValueElement::PUBLIC_NAME_ATTRIBUTE = "publicname";
 const string ValueElement::INTERFACE_NAME_ATTRIBUTE = "interfacename";
 const string ValueElement::IMPLEMENTATION_NAME_ATTRIBUTE = "implname";
 
@@ -93,7 +96,7 @@ string Element::getNamePath(ConstElementPtr relativeTo) const
     }
 
     string res;
-    for (ConstElementPtr elem : traverseAncestors())
+    for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
     {
         if (elem == relativeTo)
         {
@@ -104,18 +107,43 @@ string Element::getNamePath(ConstElementPtr relativeTo) const
     return res;
 }
 
-ElementPtr Element::getDescendant(const string& path)
+ElementPtr Element::getDescendant(const string& namePath)
 {
-    const vector<string> elementNames = splitString(path, NAME_PATH_SEPARATOR);
-    ElementPtr currentElement = getSelf();
-    for (const string& elementName : elementNames)
+    const StringVec nameVec = splitString(namePath, NAME_PATH_SEPARATOR);
+    ElementPtr elem = getSelf();
+    for (const string& name : nameVec)
     {
-        if (!(currentElement = currentElement->getChild(elementName)))
+        elem = elem->getChild(name);
+        if (!elem)
         {
             return ElementPtr();
         }
     }
-    return currentElement;
+    return elem;
+}
+
+std::pair<int, int> Element::getVersionIntegers() const
+{
+    string versionString = getVersionString();
+    StringVec splitVersion = splitString(versionString, ".");
+    try
+    {
+        if (splitVersion.size() == 2)
+        {
+            return {std::stoi(splitVersion[0]), std::stoi(splitVersion[1])};
+        }
+        else if (splitVersion.size() == 1)
+        {
+            return {std::stoi(splitVersion[0]), 0};
+        }
+    }
+    catch (std::invalid_argument&)
+    {
+    }
+    catch (std::out_of_range&)
+    {
+    }
+    return {0, 0};
 }
 
 void Element::registerChildElement(ElementPtr child)
@@ -249,7 +277,7 @@ ElementPtr Element::addChildOfCategory(const string& category,
     }
 
     // Check for a node within a graph.
-    if (!child && getCategory() == NodeGraph::CATEGORY)
+    if (!child && isA<GraphElement>())
     {
         child = createElement<Node>(getSelf(), childName);
         child->setCategory(category);
@@ -286,6 +314,18 @@ ConstElementPtr Element::getRoot() const
         throw ExceptionOrphanedElement("Requested root of orphaned element: " + asString());
     }
     return root;
+}
+
+bool Element::hasInheritedBase(ConstElementPtr base) const
+{
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        if (elem == base)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool Element::hasInheritanceCycle() const
@@ -326,17 +366,9 @@ InheritanceIterator Element::traverseInheritance() const
     return InheritanceIterator(getSelf());
 }
 
-AncestorIterator Element::traverseAncestors() const
-{
-    return AncestorIterator(getSelf());
-}
-
 void Element::copyContentFrom(ConstElementPtr source, const CopyOptions* copyOptions)
 {
-    if (copyOptions && copyOptions->copySourceUris)
-    {
-        _sourceUri = source->_sourceUri;
-    }
+    _sourceUri = source->_sourceUri;
     for (const string& attr : source->getAttributeNames())
     {
         setAttribute(attr, source->getAttribute(attr));
@@ -356,7 +388,7 @@ void Element::copyContentFrom(ConstElementPtr source, const CopyOptions* copyOpt
 void Element::clearContent()
 {
     _sourceUri = EMPTY_STRING;
-    vector<string> attributeNames = getAttributeNames();
+    StringVec attributeNames = getAttributeNames();
     vector<ElementPtr> children = getChildren();
     for (const string& attr : attributeNames)
     {
@@ -375,6 +407,11 @@ bool Element::validate(string* message) const
     if (hasColorSpace())
     {
         validateRequire(getDocument()->hasColorManagementSystem(), res, message, "Colorspace set without color management system");
+    }
+    if (hasInheritString())
+    {
+        bool validInherit = getInheritsFrom() && getInheritsFrom()->getCategory() == getCategory();
+        validateRequire(validInherit, res, message, "Invalid element inheritance");
     }
     for (ElementPtr child : getChildren())
     {
@@ -399,12 +436,12 @@ StringResolverPtr Element::createStringResolver(const string& geom) const
         ConstDocumentPtr doc = getDocument();
         for (GeomInfoPtr geomInfo : doc->getGeomInfos())
         {
-            if (!geomStringsMatch(geom, geomInfo->getGeom()))
+            if (!geomStringsMatch(geom, geomInfo->getActiveGeom()))
                 continue;
-            for (GeomAttrPtr geomAttr : geomInfo->getGeomAttrs())
+            for (TokenPtr token : geomInfo->getTokens())
             {
-                string key = "%" + geomAttr->getName();
-                string value = geomAttr->getResolvedValueString();
+                string key = "%" + token->getName();
+                string value = token->getResolvedValueString();
                 resolver->setFilenameSubstitution(key, value);
             }
         }
@@ -438,6 +475,15 @@ void Element::validateRequire(bool expression, bool& res, string* message, strin
             *message += errorDesc + ": " + asString() + "\n";
         }
     }
+}
+
+//
+// TypedElement methods
+//
+
+TypeDefPtr TypedElement::getTypeDef() const
+{
+    return resolveRootNameReference<TypeDef>(getType());
 }
 
 //
@@ -480,7 +526,7 @@ ValuePtr ValueElement::getDefaultValue() const
         NodeDefPtr decl = getParent()->asA<InterfaceElement>()->getDeclaration();
         if (decl)
         {
-            ValueElementPtr value = decl->getChildOfType<ValueElement>(getName());
+            ValueElementPtr value = decl->getActiveValueElement(getName());
             if (value)
             {
                 return value->getValue();
@@ -536,8 +582,8 @@ bool targetStringsMatch(const string& target1, const string& target2)
     if (target1.empty() || target2.empty())
         return true;
 
-    vector<string> vec1 = splitString(target1, ARRAY_VALID_SEPARATORS);
-    vector<string> vec2 = splitString(target2, ARRAY_VALID_SEPARATORS);
+    StringVec vec1 = splitString(target1, ARRAY_VALID_SEPARATORS);
+    StringVec vec2 = splitString(target2, ARRAY_VALID_SEPARATORS);
     std::set<string> set1(vec1.begin(), vec1.end());
     std::set<string> set2(vec2.begin(), vec2.end());
 
@@ -571,6 +617,7 @@ template shared_ptr<const T> Element::asA<T>() const;
 
 INSTANTIATE_SUBCLASS(Element)
 INSTANTIATE_SUBCLASS(GeomElement)
+INSTANTIATE_SUBCLASS(GraphElement)
 INSTANTIATE_SUBCLASS(InterfaceElement)
 INSTANTIATE_SUBCLASS(PortElement)
 INSTANTIATE_SUBCLASS(TypedElement)
@@ -584,8 +631,6 @@ INSTANTIATE_SUBCLASS(T)
 INSTANTIATE_CONCRETE_SUBCLASS(BindParam, "bindparam")
 INSTANTIATE_CONCRETE_SUBCLASS(BindInput, "bindinput")
 INSTANTIATE_CONCRETE_SUBCLASS(Collection, "collection")
-INSTANTIATE_CONCRETE_SUBCLASS(CollectionAdd, "collectionadd")
-INSTANTIATE_CONCRETE_SUBCLASS(CollectionRemove, "collectionremove")
 INSTANTIATE_CONCRETE_SUBCLASS(Document, "materialx")
 INSTANTIATE_CONCRETE_SUBCLASS(GenericElement, "generic")
 INSTANTIATE_CONCRETE_SUBCLASS(GeomAttr, "geomattr")
@@ -593,15 +638,12 @@ INSTANTIATE_CONCRETE_SUBCLASS(GeomInfo, "geominfo")
 INSTANTIATE_CONCRETE_SUBCLASS(Implementation, "implementation")
 INSTANTIATE_CONCRETE_SUBCLASS(Input, "input")
 INSTANTIATE_CONCRETE_SUBCLASS(Look, "look")
-INSTANTIATE_CONCRETE_SUBCLASS(LookInherit, "lookinherit")
 INSTANTIATE_CONCRETE_SUBCLASS(Material, "material")
 INSTANTIATE_CONCRETE_SUBCLASS(MaterialAssign, "materialassign")
-INSTANTIATE_CONCRETE_SUBCLASS(MaterialInherit, "materialinherit")
 INSTANTIATE_CONCRETE_SUBCLASS(Member, "member")
 INSTANTIATE_CONCRETE_SUBCLASS(Node, "node")
 INSTANTIATE_CONCRETE_SUBCLASS(NodeDef, "nodedef")
 INSTANTIATE_CONCRETE_SUBCLASS(NodeGraph, "nodegraph")
-INSTANTIATE_CONCRETE_SUBCLASS(Override, "override")
 INSTANTIATE_CONCRETE_SUBCLASS(Output, "output")
 INSTANTIATE_CONCRETE_SUBCLASS(Parameter, "parameter")
 INSTANTIATE_CONCRETE_SUBCLASS(Property, "property")
@@ -609,7 +651,11 @@ INSTANTIATE_CONCRETE_SUBCLASS(PropertyAssign, "propertyassign")
 INSTANTIATE_CONCRETE_SUBCLASS(PropertySet, "propertyset")
 INSTANTIATE_CONCRETE_SUBCLASS(PropertySetAssign, "propertysetassign")
 INSTANTIATE_CONCRETE_SUBCLASS(ShaderRef, "shaderref")
+INSTANTIATE_CONCRETE_SUBCLASS(Token, "token")
 INSTANTIATE_CONCRETE_SUBCLASS(TypeDef, "typedef")
+INSTANTIATE_CONCRETE_SUBCLASS(Variant, "variant")
+INSTANTIATE_CONCRETE_SUBCLASS(VariantAssign, "variantassign")
+INSTANTIATE_CONCRETE_SUBCLASS(VariantSet, "variantset")
 INSTANTIATE_CONCRETE_SUBCLASS(Visibility, "visibility")
 
 } // namespace MaterialX

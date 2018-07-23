@@ -146,29 +146,6 @@ class PortElement : public ValueElement
     }
 
     /// @}
-    /// @name Channels
-    /// @{
-
-    /// Set the channels string of this element, defining a channel swizzle
-    /// that will be applied to this port.
-    void setChannels(const string& channels)
-    {
-        setAttribute(CHANNELS_ATTRIBUTE, channels);
-    }
-
-    /// Return true if this element has a channels string.
-    bool hasChannels() const
-    {
-        return hasAttribute(CHANNELS_ATTRIBUTE);
-    }
-
-    /// Return the channels string of this element.
-    const string& getChannels() const
-    {
-        return getAttribute(CHANNELS_ATTRIBUTE);
-    }
-
-    /// @}
     /// @name Connections
     /// @{
 
@@ -192,7 +169,6 @@ class PortElement : public ValueElement
   public:
     static const string NODE_NAME_ATTRIBUTE;
     static const string OUTPUT_ATTRIBUTE;
-    static const string CHANNELS_ATTRIBUTE;
 };
 
 /// @class Input
@@ -293,18 +269,47 @@ class InterfaceElement : public TypedElement
 
   protected:
     using NodeDefPtr = shared_ptr<NodeDef>;
+    using ConstNodeDefPtr = shared_ptr<const NodeDef>;
 
   public:
+    /// @name NodeDef String
+    /// @{
+
+    /// Set the NodeDef string for the interface.
+    void setNodeDefString(const string& nodeDef)
+    {
+        setAttribute(NODE_DEF_ATTRIBUTE, nodeDef);
+    }
+
+    /// Return true if the given interface has a NodeDef string.
+    bool hasNodeDefString() const
+    {
+        return hasAttribute(NODE_DEF_ATTRIBUTE);
+    }
+
+    /// Return the NodeDef string for the interface.
+    const string& getNodeDefString() const
+    {
+        return getAttribute(NODE_DEF_ATTRIBUTE);
+    }
+
+    /// Set the NodeDef element for the interface.
+    void setNodeDef(ConstNodeDefPtr nodeDef);
+
+    /// Return the NodeDef element for the interface.
+    NodeDefPtr getNodeDef() const;
+
     /// @name Parameters
     /// @{
     
-    /// Add a Parameter to this element.
+    /// Add a Parameter to this interface.
     /// @param name The name of the new Parameter.
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
     /// @param type An optional type string.
     /// @return A shared pointer to the new Parameter.
-    ParameterPtr addParameter(const string& name, const string& type = DEFAULT_TYPE_STRING)
+    ParameterPtr addParameter(const string& name = DEFAULT_TYPE_STRING,
+                              const string& type = DEFAULT_TYPE_STRING)
     {
         ParameterPtr child = addChild<Parameter>(name);
         child->setType(type);
@@ -335,17 +340,26 @@ class InterfaceElement : public TypedElement
         removeChildOfType<Parameter>(name);
     }
 
+    /// Return the first Parameter with the given name that belongs to this
+    /// interface, taking interface inheritance into account.
+    ParameterPtr getActiveParameter(const string& name) const;
+
+    /// Return a vector of all Parameter elements that belong to this interface,
+    /// taking interface inheritance into account.
+    vector<ParameterPtr> getActiveParameters() const;
+
     /// @}
     /// @name Inputs
     /// @{
 
-    /// Add an Input to this element.
+    /// Add an Input to this interface.
     /// @param name The name of the new Input.
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
     /// @param type An optional type string.
     /// @return A shared pointer to the new Input.
-    InputPtr addInput(const string& name, const string& type = DEFAULT_TYPE_STRING)
+    InputPtr addInput(const string& name = DEFAULT_TYPE_STRING,
+                      const string& type = DEFAULT_TYPE_STRING)
     {
         InputPtr child = addChild<Input>(name);
         child->setType(type);
@@ -376,11 +390,19 @@ class InterfaceElement : public TypedElement
         removeChildOfType<Input>(name);
     }
 
+    /// Return the first Input with the given name that belongs to this
+    /// interface, taking interface inheritance into account.
+    InputPtr getActiveInput(const string& name) const;
+
+    /// Return a vector of all Input elements that belong to this interface,
+    /// taking inheritance into account.
+    vector<InputPtr> getActiveInputs() const;
+
     /// @}
-    /// @name Output Elements
+    /// @name Outputs
     /// @{
 
-    /// Add an Output to this element.
+    /// Add an Output to this interface.
     /// @param name The name of the new Output.
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
@@ -406,17 +428,79 @@ class InterfaceElement : public TypedElement
         return getChildrenOfType<Output>();
     }
 
+    /// Return the number of Output elements.
+    size_t getOutputCount() const
+    {
+        return _outputCount;
+    }
+
     /// Remove the Output, if any, with the given name.
     void removeOutput(const string& name)
     {
         removeChildOfType<Output>(name);
     }
 
-    /// Return the number of Output elements.
-    size_t getOutputCount() const
+    /// Return the first Output with the given name that belongs to this
+    /// interface, taking interface inheritance into account.
+    OutputPtr getActiveOutput(const string& name) const;
+
+    /// Return a vector of all Output elements that belong to this interface,
+    /// taking inheritance into account.
+    vector<OutputPtr> getActiveOutputs() const;
+
+    /// @}
+    /// @name Tokens
+    /// @{
+
+    /// Add a Token to this interface.
+    /// @param name The name of the new Token.
+    ///     If no name is specified, then a unique name will automatically be
+    ///     generated.
+    /// @return A shared pointer to the new Token.
+    TokenPtr addToken(const string& name = EMPTY_STRING)
     {
-        return _outputCount;
+        return addChild<Token>(name);
     }
+
+    /// Return the Token, if any, with the given name.
+    TokenPtr getToken(const string& name) const
+    {
+        return getChildOfType<Token>(name);
+    }
+
+    /// Return a vector of all Token elements.
+    vector<TokenPtr> getTokens() const
+    {
+        return getChildrenOfType<Token>();
+    }
+
+    /// Remove the Token, if any, with the given name.
+    void removeToken(const string& name)
+    {
+        removeChildOfType<Token>(name);
+    }
+
+    /// Return the first Token with the given name that belongs to this
+    /// interface, taking interface inheritance into account.
+    TokenPtr getActiveToken(const string& name) const;
+
+    /// Return a vector of all Token elements that belong to this interface,
+    /// taking inheritance into account.
+    vector<TokenPtr> getActiveTokens() const;
+
+    /// @}
+    /// @name Value Elements
+    /// @{
+
+    /// Return the first value element with the given name that belongs to this
+    /// interface, taking interface inheritance into account.
+    /// Examples of value elements are Parameter, Input, Output, and Token.
+    ValueElementPtr getActiveValueElement(const string& name) const;
+
+    /// Return a vector of all value elements that belong to this interface,
+    /// taking inheritance into account.
+    /// Examples of value elements are Parameter, Input, Output, and Token.
+    vector<ValueElementPtr> getActiveValueElements() const;
 
     /// @}
     /// @name Values
@@ -454,6 +538,25 @@ class InterfaceElement : public TypedElement
     ///    otherwise, an empty shared pointer is returned.
     ValuePtr getInputValue(const string& name, const string& target = EMPTY_STRING) const;
 
+    /// Set the string value of a Token by its name, creating a child element
+    /// to hold the Token if needed.
+    TokenPtr setTokenValue(const string& name, const string& value)
+    {
+        TokenPtr token = getToken(name);
+        if (!token)
+            token = addToken(name);
+        token->setValue<std::string>(value);
+        return token;
+    }
+
+    /// Return the string value of a Token by its name, or an empty string if
+    /// the given Token is not present.
+    string getTokenValue(const string& name)
+    {
+        TokenPtr token = getToken(name);
+        return token ? token->getValueString() : EMPTY_STRING;
+    }
+
     /// @}
     /// @name Utility
     /// @{
@@ -468,7 +571,7 @@ class InterfaceElement : public TypedElement
 
     /// Return true if the given interface element is type compatible with
     /// this one.  This may be used to test, for example, whether a NodeDef
-    /// and Implementation may be used together.
+    /// and Node may be used together.
     ///
     /// If the type string of the given interface element differs from this
     /// one, then false is returned.
@@ -477,9 +580,12 @@ class InterfaceElement : public TypedElement
     /// with identical names but different types, then false is returned.  Note
     /// that a Parameter or Input that is present in only one of the two
     /// interfaces does not affect their type compatibility.
-    bool isTypeCompatible(InterfaceElementPtr rhs) const;
+    bool isTypeCompatible(ConstInterfaceElementPtr rhs) const;
 
     /// @}
+
+  public:
+    static const string NODE_DEF_ATTRIBUTE;
 
   protected:
     void registerChildElement(ElementPtr child) override;

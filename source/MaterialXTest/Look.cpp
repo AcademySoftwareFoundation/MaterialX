@@ -24,17 +24,18 @@ TEST_CASE("Look", "[look]")
     mx::MaterialAssignPtr matAssign1 = look->addMaterialAssign("matAssign1", material->getName());
     matAssign1->setGeom("/robot1");
     REQUIRE(matAssign1->getReferencedMaterial() == material);
-    REQUIRE(material->getBoundGeomStrings()[0] == "/robot1");
+    REQUIRE(material->getGeometryBindings("/robot1").size() == 1);
+    REQUIRE(material->getGeometryBindings("/robot2").size() == 0);
 
     // Bind the material to a geometric collection.
     mx::MaterialAssignPtr matAssign2 = look->addMaterialAssign("matAssign2", material->getName());
     mx::CollectionPtr collection = doc->addCollection();
-    mx::CollectionAddPtr collectionAdd = collection->addCollectionAdd();
-    collectionAdd->setGeom("/robot2");
-    mx::CollectionRemovePtr collectionRemove = collection->addCollectionRemove();
-    collectionRemove->setGeom("/robot2/left_arm");
+    collection->setIncludeGeom("/robot2");
+    collection->setExcludeGeom("/robot2/left_arm");
     matAssign2->setCollection(collection);
-    REQUIRE(material->getBoundGeomCollections()[0] == collection);
+    REQUIRE(material->getGeometryBindings("/robot2").size() == 1);
+    REQUIRE(material->getGeometryBindings("/robot2/right_arm").size() == 1);
+    REQUIRE(material->getGeometryBindings("/robot2/left_arm").size() == 0);
 
     // Create a property assignment.
     mx::PropertyAssignPtr propertyAssign = look->addPropertyAssign("twosided");
@@ -52,6 +53,12 @@ TEST_CASE("Look", "[look]")
     mx::PropertySetAssignPtr propertySetAssign = look->addPropertySetAssign(propertySet->getName());
     propertySetAssign->setGeom("/robot1");
     REQUIRE(propertySetAssign->getGeom() == "/robot1");
+    
+    // Create a variant set.
+    mx::VariantSetPtr variantSet = doc->addVariantSet("damageVars");
+    mx::VariantPtr original = variantSet->addVariant("original");
+    mx::VariantPtr damaged = variantSet->addVariant("damaged");
+    REQUIRE(variantSet->getVariants().size() == 2);
 
     // Create a visibility element.
     mx::VisibilityPtr visibility = look->addVisibility();

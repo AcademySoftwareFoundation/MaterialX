@@ -12,13 +12,8 @@
 namespace MaterialX
 {
 
-const string Document::VERSION_ATTRIBUTE = "version";
-const string Document::REQUIRE_ATTRIBUTE = "require";
 const string Document::CMS_ATTRIBUTE = "cms";
 const string Document::CMS_CONFIG_ATTRIBUTE = "cmsconfig";
-const string Document::REQUIRE_STRING_MATINHERIT = "matinherit";
-const string Document::REQUIRE_STRING_MATNODEGRAPH = "matnodegraph";
-const string Document::REQUIRE_STRING_OVERRIDE = "override";
 
 namespace {
 
@@ -69,48 +64,45 @@ class Document::Cache
         {
             // Clear the existing cache.
             portElementMap.clear();
-            publicElementMap.clear();
             nodeDefMap.clear();
             implementationMap.clear();
 
             // Traverse the document to build a new cache.
             for (ElementPtr elem : doc.lock()->traverseTree())
             {
-                PortElementPtr portElem = elem->asA<PortElement>();
-                ValueElementPtr valueElem = elem->asA<ValueElement>();
-                NodeDefPtr nodeDef = elem->asA<NodeDef>();
-                NodeGraphPtr nodeGraph = elem->asA<NodeGraph>();
-                ImplementationPtr implementation = elem->asA<Implementation>();
+                string nodeName = elem->getAttribute(PortElement::NODE_NAME_ATTRIBUTE);
+                string nodeString = elem->getAttribute(NodeDef::NODE_ATTRIBUTE);
+                string nodeDefString = elem->getAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
 
-                if (portElem && portElem->hasNodeName())
+                if (!nodeName.empty())
                 {
-                    portElementMap.insert(std::pair<string, PortElementPtr>(
-                        portElem->getNodeName(),
-                        portElem));
+                    PortElementPtr portElem = elem->asA<PortElement>();
+                    if (portElem)
+                    {
+                        portElementMap.insert(std::pair<string, PortElementPtr>(
+                            portElem->getQualifiedName(nodeName),
+                            portElem));
+                    }
                 }
-                if (valueElem && valueElem->hasPublicName())
+                if (!nodeString.empty())
                 {
-                    publicElementMap.insert(std::pair<string, ValueElementPtr>(
-                        valueElem->getPublicName(),
-                        valueElem));
+                    NodeDefPtr nodeDef = elem->asA<NodeDef>();
+                    if (nodeDef)
+                    {
+                        nodeDefMap.insert(std::pair<string, NodeDefPtr>(
+                            nodeDef->getQualifiedName(nodeString),
+                            nodeDef));
+                    }
                 }
-                if (nodeDef && nodeDef->hasNodeString())
+                if (!nodeDefString.empty())
                 {
-                    nodeDefMap.insert(std::pair<string, NodeDefPtr>(
-                        nodeDef->getNodeString(),
-                        nodeDef));
-                }
-                if (nodeGraph && nodeGraph->hasNodeDefString())
-                {
-                    implementationMap.insert(std::pair<string, InterfaceElementPtr>(
-                        nodeGraph->getNodeDefString(),
-                        nodeGraph));
-                }
-                if (implementation && implementation->hasNodeDefString())
-                {
-                    implementationMap.insert(std::pair<string, InterfaceElementPtr>(
-                        implementation->getNodeDefString(),
-                        implementation));
+                    InterfaceElementPtr interface = elem->asA<InterfaceElement>();
+                    if (interface)
+                    {
+                        implementationMap.insert(std::pair<string, InterfaceElementPtr>(
+                            interface->getQualifiedName(nodeDefString),
+                            interface));
+                    }
                 }
             }
 
@@ -123,7 +115,6 @@ class Document::Cache
     std::mutex mutex;
     bool valid;
     std::unordered_multimap<string, PortElementPtr> portElementMap;
-    std::unordered_multimap<string, ValueElementPtr> publicElementMap;
     std::unordered_multimap<string, NodeDefPtr> nodeDefMap;
     std::unordered_multimap<string, InterfaceElementPtr> implementationMap;
 };
@@ -133,7 +124,7 @@ class Document::Cache
 //
 
 Document::Document(ElementPtr parent, const string& name) :
-    Element(parent, CATEGORY, name),
+    GraphElement(parent, CATEGORY, name),
     _cache(std::unique_ptr<Cache>(new Cache))
 {
 }
@@ -160,40 +151,46 @@ void Document::initialize()
 void Document::importLibrary(ConstDocumentPtr library, const CopyOptions* copyOptions)
 {
     bool skipDuplicateElements = copyOptions && copyOptions->skipDuplicateElements;
-    bool copySourceUris = copyOptions && copyOptions->copySourceUris;
     for (ElementPtr child : library->getChildren())
     {
-        std::string childName = child->getName();
+        string childName = child->getQualifiedName(child->getName());
         if (skipDuplicateElements && getChild(childName))
         {
             continue;
         }
+
         ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName);
         childCopy->copyContentFrom(child, copyOptions);
-        if (copySourceUris && !childCopy->hasSourceUri())
+        if (!childCopy->hasFilePrefix() && library->hasFilePrefix())
+        {
+            childCopy->setFilePrefix(library->getFilePrefix());
+        }
+        if (!childCopy->hasGeomPrefix() && library->hasGeomPrefix())
+        {
+            childCopy->setGeomPrefix(library->getGeomPrefix());
+        }
+        if (!childCopy->hasColorSpace() && library->hasColorSpace())
+        {
+            childCopy->setColorSpace(library->getColorSpace());
+        }
+        if (!childCopy->hasNamespace() && library->hasNamespace())
+        {
+            childCopy->setNamespace(library->getNamespace());
+        }
+        if (!childCopy->hasSourceUri() && library->hasSourceUri())
         {
             childCopy->setSourceUri(library->getSourceUri());
         }
     }
 }
 
-std::pair<int, int> Document::getVersionIntegers()
+std::pair<int, int> Document::getVersionIntegers() const
 {
-    string versionString = getVersionString();
-    if (versionString.empty())
+    if (!hasVersionString())
     {
-        return std::pair<int, int>(MATERIALX_MAJOR_VERSION,
-                                   MATERIALX_MINOR_VERSION);
+        return {MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION};
     }
-
-    vector<string> splitVersion = splitString(versionString, ".");
-    if (splitVersion.size() == 2)
-    {
-        return std::pair<int, int>(std::stoi(splitVersion[0]),
-                                   std::stoi(splitVersion[1]));
-    }
-
-    return std::pair<int, int>(0, 0);
+    return Element::getVersionIntegers();
 }
 
 vector<PortElementPtr> Document::getMatchingPorts(const string& nodeName) const
@@ -247,76 +244,11 @@ vector<InterfaceElementPtr> Document::getMatchingImplementations(const string& n
     return implementations;
 }
 
-ElementPtr Document::getPublicElement(const string& publicName) const
-{
-    // Refresh the cache.
-    _cache->refresh();
-
-    // Return any element with the given public name.
-    auto it = _cache->publicElementMap.find(publicName);
-    if (it != _cache->publicElementMap.end())
-    {
-        return it->second;
-    }
-
-    return ElementPtr();
-}
-
-vector<ElementPtr> Document::getPublicElements(const string& publicName) const
-{
-    // Refresh the cache.
-    _cache->refresh();
-
-    // Find all elements with the given public name.
-    vector<ElementPtr> publicElements;
-    auto keyRange = _cache->publicElementMap.equal_range(publicName);
-    for (auto it = keyRange.first; it != keyRange.second; ++it)
-    {
-        publicElements.push_back(it->second);
-    }
-
-    // Return the matches.
-    return publicElements;
-}
-
-void Document::generateRequireString()
-{
-    std::set<string> requireSet;
-    for (ElementPtr elem : traverseTree())
-    {
-        if (elem->isA<ShaderRef>())
-        {
-            ShaderRefPtr shaderRef = elem->asA<ShaderRef>();
-            if (!shaderRef->getReferencedOutputs().empty())
-            {
-                requireSet.insert(REQUIRE_STRING_MATNODEGRAPH);
-            }
-        }
-        else if (elem->isA<Override>())
-        {
-            requireSet.insert(REQUIRE_STRING_OVERRIDE);
-        }
-        else if (elem->isA<MaterialInherit>())
-        {
-            requireSet.insert(REQUIRE_STRING_MATINHERIT);
-        }
-    }
-
-    string requireStr;
-    for (string str : requireSet)
-    {
-        if (!requireStr.empty())
-            requireStr += ",";
-        requireStr += str;
-    }
-    setRequireString(requireStr);
-}
-
 bool Document::validate(string* message) const
 {
     bool res = true;
     validateRequire(hasVersionString(), res, message, "Missing version string");
-    return Element::validate(message) && res;
+    return GraphElement::validate(message) && res;
 }
 
 void Document::upgradeVersion()
@@ -530,6 +462,68 @@ void Document::upgradeVersion()
             }
         }
         minorVersion = 35;
+    }
+
+    // Upgrade from v1.35 to v1.36
+    if (majorVersion == 1 && minorVersion == 35)
+    {
+        for (ElementPtr elem : traverseTree())
+        {
+            ValueElementPtr valueElem = elem->asA<ValueElement>();
+            MaterialPtr material = elem->asA<Material>();
+            LookPtr look = elem->asA<Look>();
+            GeomInfoPtr geomInfo = elem->asA<GeomInfo>();
+
+            if (valueElem)
+            {
+                if (valueElem->getType() == GEOMNAME_TYPE_STRING &&
+                    valueElem->getValueString() == "*")
+                {
+                    valueElem->setValueString(UNIVERSAL_GEOM_NAME);
+                }
+            }
+
+            vector<ElementPtr> origChildren = elem->getChildren();
+            for (ElementPtr child : origChildren)
+            {
+                if (material && child->getCategory() == "override")
+                {
+                    for (ShaderRefPtr shaderRef : material->getShaderRefs())
+                    {
+                        NodeDefPtr nodeDef = shaderRef->getNodeDef();
+                        for (ValueElementPtr activeValue : nodeDef->getActiveValueElements())
+                        {
+                            if (activeValue->getAttribute("publicname") == child->getName() &&
+                                !shaderRef->getChild(child->getName()))
+                            {
+                                if (activeValue->isA<Parameter>())
+                                {
+                                    BindParamPtr bindParam = shaderRef->addBindParam(activeValue->getName(), activeValue->getType());
+                                    bindParam->setValueString(child->getAttribute("value"));
+                                }
+                                else if (activeValue->isA<Input>())
+                                {
+                                    BindInputPtr bindInput = shaderRef->addBindInput(activeValue->getName(), activeValue->getType());
+                                    bindInput->setValueString(child->getAttribute("value"));
+                                }
+                            }
+                        }
+                    }
+                    elem->removeChild(child->getName());
+                }
+                else if (material && child->getCategory() == "materialinherit")
+                {
+                    elem->setInheritString(child->getAttribute("material"));
+                    elem->removeChild(child->getName());
+                }
+                else if (look && child->getCategory() == "lookinherit")
+                {
+                    elem->setInheritString(child->getAttribute("look"));
+                    elem->removeChild(child->getName());
+                }
+            }
+        }
+        minorVersion = 36;
     }
 
     if (majorVersion == MATERIALX_MAJOR_VERSION &&

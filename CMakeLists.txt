@@ -1,7 +1,7 @@
 project(MaterialX)
 set(MATERIALX_MAJOR_VERSION 1)
-set(MATERIALX_MINOR_VERSION 35)
-set(MATERIALX_BUILD_VERSION 5)
+set(MATERIALX_MINOR_VERSION 36)
+set(MATERIALX_BUILD_VERSION 0)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
 
 cmake_minimum_required(VERSION 3.1)
@@ -68,12 +68,9 @@ endif()
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
 add_subdirectory(source/MaterialXTest)
+add_subdirectory(documents)
 
 if(MATERIALX_BUILD_PYTHON)
     add_subdirectory(source/PyMaterialX)
     add_subdirectory(python)
 endif(MATERIALX_BUILD_PYTHON)
-
-if(MATERIALX_BUILD_DOCS)
-    add_subdirectory(documents)
-endif(MATERIALX_BUILD_DOCS)

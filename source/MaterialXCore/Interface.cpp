@@ -5,6 +5,7 @@
 
 #include <MaterialXCore/Interface.h>
 
+#include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Material.h>
 #include <MaterialXCore/Node.h>
 
@@ -13,7 +14,7 @@ namespace MaterialX
 
 const string PortElement::NODE_NAME_ATTRIBUTE = "nodename";
 const string PortElement::OUTPUT_ATTRIBUTE = "output";
-const string PortElement::CHANNELS_ATTRIBUTE = "channels";
+const string InterfaceElement::NODE_DEF_ATTRIBUTE = "nodedef";
 
 //
 // PortElement methods
@@ -33,9 +34,9 @@ void PortElement::setConnectedNode(NodePtr node)
 
 NodePtr PortElement::getConnectedNode() const
 {
-    for (ConstElementPtr elem : traverseAncestors())
+    for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
     {
-        ConstNodeGraphPtr graph = elem->asA<NodeGraph>();
+        ConstGraphElementPtr graph = elem->asA<GraphElement>();
         if (graph)
         {
             return graph->getNode(getNodeName());
@@ -61,13 +62,13 @@ bool PortElement::validate(string* message) const
             {
                 OutputPtr output = connectedNodeDef->getOutput(getOutputString());
                 validateRequire(output != nullptr, res, message, "Invalid output in port connection");
-                if (output && !hasChannels())
+                if (output)
                 {
                     validateRequire(getType() == output->getType(), res, message, "Mismatched output type in port connection");
                 }
             }
         }
-        else if (!hasChannels())
+        else
         {
             validateRequire(getType() == getConnectedNode()->getType(), res, message, "Mismatched types in port connection");
         }
@@ -91,7 +92,7 @@ Edge Parameter::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
             // Apply BindParam elements to the Parameter.
             for (ShaderRefPtr shaderRef : material->getActiveShaderRefs())
             {
-                if (shaderRef->getNodeDef() == nodeDef)
+                if (shaderRef->getNodeDef()->hasInheritedBase(nodeDef))
                 {
                     for (BindParamPtr bindParam : shaderRef->getBindParams())
                     {
@@ -102,13 +103,6 @@ Edge Parameter::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
                     }
                 }
             }
-        }
-
-        // Apply Override elements to the Parameter.
-        OverridePtr override = material->getOverride(getPublicName());
-        if (override)
-        {
-            return Edge(getSelfNonConst(), nullptr, override);
         }
     }
 
@@ -133,7 +127,7 @@ Edge Input::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
                 // Apply BindInput elements to the Input.
                 for (ShaderRefPtr shaderRef : material->getActiveShaderRefs())
                 {
-                    if (shaderRef->getNodeDef() == nodeDef)
+                    if (shaderRef->getNodeDef()->hasInheritedBase(nodeDef))
                     {
                         for (BindInputPtr bindInput : shaderRef->getBindInputs())
                         {
@@ -154,13 +148,6 @@ Edge Input::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
                     }
                 }
             }
-        }
-
-        // Apply Override elements to the Input.
-        OverridePtr override = material->getOverride(getPublicName());
-        if (override)
-        {
-            return Edge(getSelfNonConst(), nullptr, override);
         }
     }
 
@@ -204,6 +191,143 @@ bool Output::validate(string* message) const
 //
 // InterfaceElement methods
 //
+
+void InterfaceElement::setNodeDef(ConstNodeDefPtr nodeDef)
+{
+    if (nodeDef)
+    {
+        setNodeDefString(nodeDef->getName());
+    }
+    else
+    {
+        removeAttribute(NODE_DEF_ATTRIBUTE);
+    }
+}
+
+NodeDefPtr InterfaceElement::getNodeDef() const
+{
+    return resolveRootNameReference<NodeDef>(getNodeDefString());
+}
+
+ParameterPtr InterfaceElement::getActiveParameter(const string& name) const
+{
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        ParameterPtr param = elem->asA<InterfaceElement>()->getParameter(name);
+        if (param)
+        {
+            return param;
+        }
+    }
+    return nullptr;
+}
+
+vector<ParameterPtr> InterfaceElement::getActiveParameters() const
+{
+    vector<ParameterPtr> activeParams;
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        vector<ParameterPtr> params = elem->asA<InterfaceElement>()->getParameters();
+        activeParams.insert(activeParams.end(), params.begin(), params.end());
+    }
+    return activeParams;
+}
+
+InputPtr InterfaceElement::getActiveInput(const string& name) const
+{
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        InputPtr input = elem->asA<InterfaceElement>()->getInput(name);
+        if (input)
+        {
+            return input;
+        }
+    }
+    return nullptr;
+}
+
+vector<InputPtr> InterfaceElement::getActiveInputs() const
+{
+    vector<InputPtr> activeInputs;
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        vector<InputPtr> inputs = elem->asA<InterfaceElement>()->getInputs();
+        activeInputs.insert(activeInputs.end(), inputs.begin(), inputs.end());
+    }
+    return activeInputs;
+}
+
+OutputPtr InterfaceElement::getActiveOutput(const string& name) const
+{
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        OutputPtr output = elem->asA<InterfaceElement>()->getOutput(name);
+        if (output)
+        {
+            return output;
+        }
+    }
+    return nullptr;
+}
+
+vector<OutputPtr> InterfaceElement::getActiveOutputs() const
+{
+    vector<OutputPtr> activeOutputs;
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        vector<OutputPtr> outputs = elem->asA<InterfaceElement>()->getOutputs();
+        activeOutputs.insert(activeOutputs.end(), outputs.begin(), outputs.end());
+    }
+    return activeOutputs;
+}
+
+TokenPtr InterfaceElement::getActiveToken(const string& name) const
+{
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        TokenPtr token = elem->asA<InterfaceElement>()->getToken(name);
+        if (token)
+        {
+            return token;
+        }
+    }
+    return nullptr;
+}
+
+vector<TokenPtr> InterfaceElement::getActiveTokens() const
+{
+    vector<TokenPtr> activeTokens;
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        vector<TokenPtr> tokens = elem->asA<InterfaceElement>()->getTokens();
+        activeTokens.insert(activeTokens.end(), tokens.begin(), tokens.end());
+    }
+    return activeTokens;
+}
+
+ValueElementPtr InterfaceElement::getActiveValueElement(const string& name) const
+{
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+       ValueElementPtr valueElem = elem->asA<InterfaceElement>()->getChildOfType<ValueElement>(name);
+        if (valueElem)
+        {
+            return valueElem;
+        }
+    }
+    return nullptr;
+}
+
+vector<ValueElementPtr> InterfaceElement::getActiveValueElements() const
+{
+    vector<ValueElementPtr> activeValueElems;
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        vector<ValueElementPtr> valueElems = elem->asA<InterfaceElement>()->getChildrenOfType<ValueElement>();
+        activeValueElems.insert(activeValueElems.end(), valueElems.begin(), valueElems.end());
+    }
+    return activeValueElems;
+}
 
 ValuePtr InterfaceElement::getParameterValue(const string& name, const string& target) const
 {
@@ -289,35 +413,31 @@ NodeDefPtr InterfaceElement::getDeclaration(const string& target) const
     {
         return asA<Node>()->getNodeDef(target);
     }
-    else if (isA<NodeGraph>())
+    else if (isA<InterfaceElement>())
     {
-        return asA<NodeGraph>()->getNodeDef();
-    }
-    else if (isA<Implementation>())
-    {
-        return asA<Implementation>()->getNodeDef();
+        return asA<InterfaceElement>()->getNodeDef();
     }
 
     return NodeDefPtr();
 }
 
-bool InterfaceElement::isTypeCompatible(InterfaceElementPtr rhs) const
+bool InterfaceElement::isTypeCompatible(ConstInterfaceElementPtr rhs) const
 {
     if (getType() != rhs->getType())
     {
         return false;
     }
-    for (ParameterPtr param : getParameters())
+    for (ParameterPtr param : getActiveParameters())
     {
-        ParameterPtr matchingParam = rhs->getParameter(param->getName());
+        ParameterPtr matchingParam = rhs->getActiveParameter(param->getName());
         if (matchingParam && matchingParam->getType() != param->getType())
         {
             return false;
         }
     }
-    for (InputPtr input : getInputs())
+    for (InputPtr input : getActiveInputs())
     {
-        InputPtr matchingInput = rhs->getInput(input->getName());
+        InputPtr matchingInput = rhs->getActiveInput(input->getName());
         if (matchingInput && matchingInput->getType() != input->getType())
         {
             return false;

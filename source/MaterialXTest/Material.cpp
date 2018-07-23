@@ -14,51 +14,66 @@ TEST_CASE("Material", "[material]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    // Create a shader nodedef.
-    mx::NodeDefPtr shaderDef = doc->addNodeDef("shader1", "surfaceshader", "simpleSrf");
-    mx::InputPtr diffColor = shaderDef->setInputValue("diffColor", mx::Color3(1.0f));
-    mx::InputPtr specColor = shaderDef->setInputValue("specColor", mx::Color3(0.0f));
-    mx::ParameterPtr roughness = shaderDef->setParameterValue("roughness", 0.25f);
-    roughness->setPublicName("editRoughness");
-    REQUIRE(shaderDef->getInputValue("diffColor")->asA<mx::Color3>() == mx::Color3(1.0f));
-    REQUIRE(shaderDef->getInputValue("specColor")->asA<mx::Color3>() == mx::Color3(0.0f));
-    REQUIRE(shaderDef->getParameterValue("roughness")->asA<float>() == 0.25f);
+    // Create a base shader nodedef.
+    mx::NodeDefPtr simpleSrf = doc->addNodeDef("ND_simpleSrf", "surfaceshader", "simpleSrf");
+    mx::InputPtr diffColor = simpleSrf->setInputValue("diffColor", mx::Color3(1.0f));
+    mx::InputPtr specColor = simpleSrf->setInputValue("specColor", mx::Color3(0.0f));
+    mx::ParameterPtr roughness = simpleSrf->setParameterValue("roughness", 0.25f);
+    REQUIRE(simpleSrf->getInputValue("diffColor")->asA<mx::Color3>() == mx::Color3(1.0f));
+    REQUIRE(simpleSrf->getInputValue("specColor")->asA<mx::Color3>() == mx::Color3(0.0f));
+    REQUIRE(simpleSrf->getParameterValue("roughness")->asA<float>() == 0.25f);
+
+    // Create an inherited shader nodedef.
+    mx::NodeDefPtr anisoSrf = doc->addNodeDef("ND_anisoSrf", "surfaceshader", "anisoSrf");
+    anisoSrf->setInheritsFrom(simpleSrf);
+    mx::ParameterPtr anisotropy = anisoSrf->setParameterValue("anisotropy", 0.0f);
+    REQUIRE(anisoSrf->getInheritsFrom() == simpleSrf);
 
     // Create a material.
     mx::MaterialPtr material = doc->addMaterial();
     REQUIRE(material->getPrimaryShaderName().empty());
 
     // Add a shader reference.
-    mx::ShaderRefPtr shaderRef = material->addShaderRef("shaderRef1", "simpleSrf");
-    REQUIRE(shaderDef->getInstantiatingShaderRefs()[0] == shaderRef);
-    REQUIRE(shaderRef->getNodeDef() == shaderDef);
-    REQUIRE(material->getPrimaryShaderName() == shaderRef->getNodeString());
-    REQUIRE(material->getPrimaryShaderParameters().size() == 1);
+    mx::ShaderRefPtr refAnisoSrf = material->addShaderRef("SR_anisoSrf", "anisoSrf");
+    REQUIRE(anisoSrf->getInstantiatingShaderRefs()[0] == refAnisoSrf);
+    REQUIRE(refAnisoSrf->getNodeDef() == anisoSrf);
+    REQUIRE(material->getPrimaryShaderName() == refAnisoSrf->getNodeString());
+    REQUIRE(material->getPrimaryShaderParameters().size() == 2);
     REQUIRE(material->getPrimaryShaderInputs().size() == 2);
 
+    // Set nodedef and shader reference qualifiers.
+    refAnisoSrf->setVersionString("2.0");
+    REQUIRE(refAnisoSrf->getNodeDef() == nullptr);
+    anisoSrf->setVersionString("2");
+    REQUIRE(refAnisoSrf->getNodeDef() == anisoSrf);
+    refAnisoSrf->setType("volumeshader");
+    REQUIRE(refAnisoSrf->getNodeDef() == nullptr);
+    refAnisoSrf->setType("surfaceshader");
+    REQUIRE(refAnisoSrf->getNodeDef() == anisoSrf);
+
     // Bind a shader input to a value.
-    mx::BindInputPtr bindInput = shaderRef->addBindInput("specColor");
+    mx::BindInputPtr bindInput = refAnisoSrf->addBindInput("specColor");
     bindInput->setValue(mx::Color3(0.5f));
     REQUIRE(specColor->getBoundValue(material)->asA<mx::Color3>() == mx::Color3(0.5f));
     REQUIRE(specColor->getDefaultValue()->asA<mx::Color3>() == mx::Color3(0.0f));
 
     // Bind a shader parameter to a value.
-    mx::BindParamPtr bindParam = shaderRef->addBindParam("roughness");
+    mx::BindParamPtr bindParam = refAnisoSrf->addBindParam("roughness");
     bindParam->setValue(0.5f);
     REQUIRE(roughness->getBoundValue(material)->asA<float>() == 0.5f);
     REQUIRE(roughness->getDefaultValue()->asA<float>() == 0.25f);
 
     // Add an invalid shader reference.
-    mx::ShaderRefPtr shaderRef2 = material->addShaderRef("shaderRef2", "invalidSrf");
+    mx::ShaderRefPtr refInvalid = material->addShaderRef("SR_invalidSrf", "invalidSrf");
     REQUIRE(!doc->validate());
-    material->removeShaderRef("shaderRef2");
+    material->removeShaderRef("SR_invalidSrf");
     REQUIRE(doc->validate());
 
     // Create an inherited material.
     mx::MaterialPtr material2 = doc->addMaterial();
     material2->setInheritsFrom(material);
-    REQUIRE(material2->getPrimaryShaderName() == shaderRef->getNodeString());
-    REQUIRE(material2->getPrimaryShaderParameters().size() == 1);
+    REQUIRE(material2->getPrimaryShaderName() == refAnisoSrf->getNodeString());
+    REQUIRE(material2->getPrimaryShaderParameters().size() == 2);
     REQUIRE(material2->getPrimaryShaderInputs().size() == 2);
     REQUIRE(roughness->getBoundValue(material2)->asA<float>() == 0.5f);
 
@@ -75,25 +90,10 @@ TEST_CASE("Material", "[material]")
     REQUIRE(material2->getPrimaryShaderInputs().empty());
     REQUIRE(roughness->getBoundValue(material2)->asA<float>() == 0.25f);
 
-    // Remove shader references.
-    material->removeShaderRef(shaderRef->getName());
-    material->removeShaderRef(shaderRef2->getName());
-    REQUIRE(shaderDef->getInstantiatingShaderRefs().empty());
+    // Remove shader reference.
+    material->removeShaderRef(refAnisoSrf->getName());
+    REQUIRE(anisoSrf->getInstantiatingShaderRefs().empty());
     REQUIRE(material->getPrimaryShaderName().empty());
     REQUIRE(material->getPrimaryShaderParameters().empty());
     REQUIRE(material->getPrimaryShaderInputs().empty());
-
-    // Add a valid override.
-    mx::OverridePtr roughOverride = material->setOverrideValue("editRoughness", 0.5f);
-    REQUIRE(roughOverride->getReceiver() == roughness);
-    REQUIRE(roughness->getBoundValue(material)->asA<float>() == 0.5f);
-
-    // Add an invalid override.
-    mx::OverridePtr anisoOverride = material->setOverrideValue("anisotropic", 0.1f);
-    REQUIRE(!anisoOverride->getReceiver());
-
-    // Remove overrides.
-    material->removeOverride(roughOverride->getName());
-    material->removeOverride(anisoOverride->getName());
-    REQUIRE(roughness->getBoundValue(material)->asA<float>() == 0.25f);
 }

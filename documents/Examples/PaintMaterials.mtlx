@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.35" cms="ocio" colorspace="lin_rec709">
+<materialx version="1.36" cms="ocio" colorspace="lin_rec709">
   <xi:include href="SimpleSrf.mtlx"/>
 
   <material name="paint_flat">
@@ -10,16 +10,14 @@
     </shaderref>
   </material>
 
-  <material name="paint_semigloss">
-    <materialinherit name="mi_ps" material="paint_flat"/>
+  <material name="paint_semigloss" inherit="paint_flat">
     <shaderref name="sr_ps" node="simple_srf">
       <bindinput name="specColor" type="color3" value="0.05, 0.05, 0.05"/>
       <bindinput name="specRoughness" type="float" value="0.14"/>
     </shaderref>
   </material>
 
-  <material name="paint_gloss">
-    <materialinherit name="mi_pg" material="paint_flat"/>
+  <material name="paint_gloss" inherit="paint_flat">
     <shaderref name="sr_pg" node="simple_srf">
       <bindinput name="specColor" type="color3" value="0.26, 0.265, 0.27"/>
       <bindinput name="specRoughness" type="float" value="0.03"/>

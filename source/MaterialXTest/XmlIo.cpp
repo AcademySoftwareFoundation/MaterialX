@@ -13,16 +13,19 @@ TEST_CASE("Load content", "[xmlio]")
 {
     std::string libraryFilenames[] =
     {
-        "mx_stdlib_defs.mtlx",
-        "mx_stdlib_impl_osl.mtlx"
+        "stdlib_defs.mtlx",
+        "stdlib_ng.mtlx",
+        "stdlib_osl_impl.mtlx"
     };
     std::string exampleFilenames[] =
     {
         "CustomNode.mtlx",
         "Looks.mtlx",
-        "MaterialGraphs.mtlx",
+        "MaterialBasic.mtlx",
         "MultiOutput.mtlx",
+        "NodeGraphs.mtlx",
         "PaintMaterials.mtlx",
+        "PostShaderComposite.mtlx",
         "PreShaderComposite.mtlx",
         "BxDF/alSurface.mtlx",
         "BxDF/Disney_BRDF_2012.mtlx",
@@ -40,35 +43,8 @@ TEST_CASE("Load content", "[xmlio]")
         libs.push_back(lib);
     }
 
-    // Check that there is one implementation per nodedef.
-    mx::DocumentPtr implCheckDocument = mx::createDocument();
-    for (mx::DocumentPtr lib : libs)
-    {
-        implCheckDocument->importLibrary(lib);
-    }
-    const std::string target;
-    const std::string language("osl");
-    std::vector<mx::NodeDefPtr> nodeDefs = implCheckDocument->getNodeDefs();
-    std::set<std::string> nodeDefsFound;
-    for (mx::NodeDefPtr nodeDef : nodeDefs)
-    {
-        const std::string typeAttribute = nodeDef->getAttribute(mx::Element::TYPE_ATTRIBUTE);
-        // Nodedefs which do not have a type do not reqiure an implementation
-        if (typeAttribute != mx::NONE_TYPE_STRING)
-        {
-            if (nodeDef->getImplementation(target, language))
-            {
-                nodeDefsFound.insert(nodeDef->getName());
-            }
-        }
-        else
-        {
-            nodeDefsFound.insert(nodeDef->getName());
-        }
-    }
-    REQUIRE(nodeDefsFound.size() == nodeDefs.size());
-
     // Read and validate each example document.
+    bool firstExample = true;
     for (std::string filename : exampleFilenames)
     {
         mx::DocumentPtr doc = mx::createDocument();
@@ -125,83 +101,101 @@ TEST_CASE("Load content", "[xmlio]")
         mx::readFromXmlString(writtenDoc, xmlString);
         REQUIRE(*writtenDoc == *doc);
 
-        // Serialize to XML with a custom predicate that skips images.
-        auto skipImages = [](mx::ElementPtr elem)
-        {
-            return !elem->isA<mx::Node>("image");
-        };
-        xmlString = mx::writeToXmlString(doc, false, skipImages);
-        
-        // Verify that the serialized document contains no images.
-        writtenDoc = mx::createDocument();
-        mx::readFromXmlString(writtenDoc, xmlString);
-        unsigned imageElementCount = 0;
-        for (mx::ElementPtr elem : writtenDoc->traverseTree())
-        {
-            if (elem->isA<mx::Node>("image"))
-            {
-                imageElementCount++;
-            }
-        }
-        REQUIRE(imageElementCount == 0);
-
         // Combine document with the standard library.
-        mx::DocumentPtr doc2 = doc->copy();
         for (mx::DocumentPtr lib : libs)
         {
-            doc2->importLibrary(lib);
+            doc->importLibrary(lib);
         }
-        REQUIRE(doc2->validate());
+        REQUIRE(doc->validate());
 
-        // Verify that all referenced nodes are declared and implemented.
-        for (mx::ElementPtr elem : doc2->traverseTree())
+        // Flatten subgraph references.
+        for (mx::NodeGraphPtr nodeGraph : doc->getNodeGraphs())
         {
+            if (!firstExample && nodeGraph->getActiveSourceUri() != doc->getSourceUri())
+            {
+                continue;
+            }
+            nodeGraph->flattenSubgraphs();
+            REQUIRE(nodeGraph->validate());
+        }
+
+        // Verify that all referenced types and nodes are declared, and that
+        // referenced node declarations are implemented.
+        bool referencesValid = true;
+        for (mx::ElementPtr elem : doc->traverseTree())
+        {
+            if (!firstExample && elem->getActiveSourceUri() != doc->getSourceUri())
+            {
+                continue;
+            }
+
+            mx::TypedElementPtr typedElem = elem->asA<mx::TypedElement>();
             mx::NodePtr node = elem->asA<mx::Node>();
+            if (typedElem && typedElem->hasType() && !typedElem->isMultiOutputType())
+            {
+                if (!typedElem->getTypeDef())
+                {
+                    WARN("[" + node->getActiveSourceUri() + "] TypedElement " + node->getName() + " has no matching TypeDef");
+                    referencesValid = false;
+                }
+            }
             if (node)
             {
-                mx::NodeDefPtr nodeDef = node->getNodeDef();
-                REQUIRE(nodeDef);
-                // Check that implementations exist for any nodedefs added by example files
-                if (nodeDefsFound.find(nodeDef->getName()) == nodeDefsFound.end())
+                if (!node->getNodeDef())
                 {
-                    REQUIRE(nodeDef->getImplementation(target, language));
-                    nodeDefsFound.insert(nodeDef->getName());
+                    WARN("[" + node->getActiveSourceUri() + "] Node " + node->getName() + " has no matching NodeDef");
+                    referencesValid = false;
+                }
+                if (!node->getImplementation())
+                {
+                    WARN("[" + node->getActiveSourceUri() + "] Node " + node->getName() + " has no matching Implementation");
+                    referencesValid = false;
                 }
             }
         }
+        REQUIRE(referencesValid);
 
-        // Flatten subgraph references.
-        doc2 = doc->copy();
-        for (mx::NodeGraphPtr nodeGraph : doc2->getNodeGraphs())
-        {
-            nodeGraph->flattenSubgraphs();
-        }
-        REQUIRE(doc2->validate());
-
-        // Read document without XIncludes.
-        doc2 = mx::createDocument();
-        mx::XmlReadOptions readOptions;
-        readOptions.readXIncludes = false;
-        mx::readFromXmlFile(doc2, filename, searchPath, &readOptions);
-        if (*doc2 != *doc)
-        {
-            writtenDoc = mx::createDocument();
-            xmlString = mx::writeToXmlString(doc);
-            mx::readFromXmlString(writtenDoc, xmlString, &readOptions);
-            REQUIRE(*doc2 == *writtenDoc);
-        }
+        firstExample = false;
     }
 
     // Read the same document twice with duplicate elements skipped.
     mx::DocumentPtr doc = mx::createDocument();
     mx::XmlReadOptions readOptions;
     readOptions.skipDuplicateElements = true;
-    std::string filename = "PaintMaterials.mtlx";
+    std::string filename = "PostShaderComposite.mtlx";
     mx::readFromXmlFile(doc, filename, searchPath, &readOptions);
     mx::readFromXmlFile(doc, filename, searchPath, &readOptions);
     REQUIRE(doc->validate());
 
+    // Read document without XIncludes.
+    mx::DocumentPtr flatDoc = mx::createDocument();
+    readOptions = mx::XmlReadOptions();
+    readOptions.readXIncludes = false;
+    mx::readFromXmlFile(flatDoc, filename, searchPath, &readOptions);
+    REQUIRE(*flatDoc != *doc);
+
+    // Serialize to XML with a custom predicate that skips images.
+    auto skipImages = [](mx::ElementPtr elem)
+    {
+        return !elem->isA<mx::Node>("image");
+    };
+    std::string xmlString = mx::writeToXmlString(doc, false, skipImages);
+        
+    // Reconstruct and verify that the document contains no images.
+    mx::DocumentPtr writtenDoc = mx::createDocument();
+    mx::readFromXmlString(writtenDoc, xmlString);
+    REQUIRE(*writtenDoc != *doc);
+    unsigned imageElementCount = 0;
+    for (mx::ElementPtr elem : writtenDoc->traverseTree())
+    {
+        if (elem->isA<mx::Node>("image"))
+        {
+            imageElementCount++;
+        }
+    }
+    REQUIRE(imageElementCount == 0);
+
     // Read a non-existent document.
-    mx::DocumentPtr doc2 = mx::createDocument();
-    REQUIRE_THROWS_AS(mx::readFromXmlFile(doc2, "NonExistent.mtlx"), mx::ExceptionFileMissing&);
+    mx::DocumentPtr nonExistentDoc = mx::createDocument();
+    REQUIRE_THROWS_AS(mx::readFromXmlFile(nonExistentDoc, "NonExistent.mtlx"), mx::ExceptionFileMissing&);
 }

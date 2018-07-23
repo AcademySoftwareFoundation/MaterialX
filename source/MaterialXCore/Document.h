@@ -14,6 +14,7 @@
 #include <MaterialXCore/Look.h>
 #include <MaterialXCore/Material.h>
 #include <MaterialXCore/Node.h>
+#include <MaterialXCore/Variant.h>
 
 namespace MaterialX
 {
@@ -30,7 +31,7 @@ using ConstDocumentPtr = shared_ptr<const Document>;
 /// MaterialX ownership hierarchy.
 ///
 /// Use the factory function createDocument() to create a Document instance.
-class Document : public Element
+class Document : public GraphElement
 {
   public:
     Document(ElementPtr parent, const string& name);
@@ -51,9 +52,7 @@ class Document : public Element
     virtual DocumentPtr copy()
     {
         DocumentPtr doc = createDocument<Document>();
-        CopyOptions copyOptions;
-        copyOptions.copySourceUris = true;
-        doc->copyContentFrom(getSelf(), &copyOptions);
+        doc->copyContentFrom(getSelf());
         return doc;
     }
 
@@ -65,34 +64,6 @@ class Document : public Element
     ///    If provided, then the given options will affect the behavior of the
     ///    import function.  Defaults to a null pointer.
     void importLibrary(ConstDocumentPtr library, const class CopyOptions* copyOptions = nullptr);
-
-    /// @name Document Versions
-    /// @{
-
-    /// Set the version string of the document.
-    void setVersionString(const string& version)
-    {
-        setAttribute(VERSION_ATTRIBUTE, version);
-    }
-
-    /// Return true if the given element has a version string.
-    bool hasVersionString() const
-    {
-        return hasAttribute(VERSION_ATTRIBUTE);
-    }
-
-    /// Return the version string of the document.
-    const string& getVersionString() const
-    {
-        return getAttribute(VERSION_ATTRIBUTE);
-    }
-
-    /// Return the major and minor versions as an integer pair.
-    std::pair<int, int> getVersionIntegers();
-
-    /// Upgrade the content of this document from earlier supported versions to
-    /// the library version.  Documents from future versions are left unmodified.
-    void upgradeVersion();
 
     /// @}
     /// @name NodeGraph Elements
@@ -372,6 +343,38 @@ class Document : public Element
     }
 
     /// @}
+    /// @name VariantSet Elements
+    /// @{
+
+    /// Add a VariantSet to the document.
+    /// @param name The name of the new VariantSet.
+    ///     If no name is specified, then a unique name will automatically be
+    ///     generated.
+    /// @return A shared pointer to the new VariantSet.
+    VariantSetPtr addVariantSet(const string& name = EMPTY_STRING)
+    {
+        return addChild<VariantSet>(name);
+    }
+
+    /// Return the VariantSet, if any, with the given name.
+    VariantSetPtr getVariantSet(const string& name) const
+    {
+        return getChildOfType<VariantSet>(name);
+    }
+
+    /// Return a vector of all VariantSet elements in the document.
+    vector<VariantSetPtr> getVariantSets() const
+    {
+        return getChildrenOfType<VariantSet>();
+    }
+
+    /// Remove the VariantSet, if any, with the given name.
+    void removeVariantSet(const string& name)
+    {
+        removeChildOfType<VariantSet>(name);
+    }
+
+    /// @}
     /// @name Implementation Elements
     /// @{
 
@@ -409,42 +412,15 @@ class Document : public Element
     vector<InterfaceElementPtr> getMatchingImplementations(const string& nodeDef) const;
 
     /// @}
-    /// @name Public Elements
+    /// @name Version
     /// @{
 
-    /// Return any element with the given public name.  If multiple matches
-    /// exist, then an arbitrary selection is made.
-    ElementPtr getPublicElement(const string& publicName) const;
+    /// Return the major and minor versions as an integer pair.
+    std::pair<int, int> getVersionIntegers() const override;
 
-    /// Return a vector of all elements with the given public name.
-    vector<ElementPtr> getPublicElements(const string& publicName) const;
-
-    /// @}
-    /// @name Require String
-    /// @{
-
-    /// Set the require string of the document.
-    /// @todo Require strings are not yet automatically generated or validated
-    ///    by the MaterialX library.
-    void setRequireString(const string& require)
-    {
-        setAttribute(REQUIRE_ATTRIBUTE, require);
-    }
-
-    /// Return true if the document has a require string.
-    bool hasRequireString() const
-    {
-        return hasAttribute(REQUIRE_ATTRIBUTE);
-    }
-
-    /// Return the require string of the document.
-    const string& getRequireString() const
-    {
-        return getAttribute(REQUIRE_ATTRIBUTE);
-    }
-
-    /// Check the content of this document and store the appropriate require string.
-    void generateRequireString();
+    /// Upgrade the content of this document from earlier supported versions to
+    /// the library version.  Documents from future versions are left unmodified.
+    void upgradeVersion();
 
     /// @}
     /// @name Color Management System
@@ -499,8 +475,6 @@ class Document : public Element
     /// @param message An optional output string, to which a description of
     ///    each error will be appended.
     /// @return True if the document passes all tests, false otherwise.
-    /// @todo This method currently checks only a small subset of the MaterialX
-    ///    rule set, and additional coverage is needed.
     bool validate(string* message = nullptr) const override;
 
     /// @}
@@ -544,13 +518,8 @@ class Document : public Element
 
   public:
     static const string CATEGORY;
-    static const string VERSION_ATTRIBUTE;
-    static const string REQUIRE_ATTRIBUTE;
     static const string CMS_ATTRIBUTE;
     static const string CMS_CONFIG_ATTRIBUTE;
-    static const string REQUIRE_STRING_MATINHERIT;
-    static const string REQUIRE_STRING_MATNODEGRAPH;
-    static const string REQUIRE_STRING_OVERRIDE;
 
   private:
     class Cache;

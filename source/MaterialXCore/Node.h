@@ -17,6 +17,7 @@ namespace MaterialX
 {
 
 class Node;
+class GraphElement;
 class NodeGraph;
 
 /// A shared pointer to a Node
@@ -24,13 +25,18 @@ using NodePtr = shared_ptr<Node>;
 /// A shared pointer to a const Node
 using ConstNodePtr = shared_ptr<const Node>;
 
+/// A shared pointer to a GraphElement
+using GraphElementPtr = shared_ptr<GraphElement>;
+/// A shared pointer to a const GraphElement
+using ConstGraphElementPtr = shared_ptr<const GraphElement>;
+
 /// A shared pointer to a NodeGraph
 using NodeGraphPtr = shared_ptr<NodeGraph>;
 /// A shared pointer to a const NodeGraph
 using ConstNodeGraphPtr = shared_ptr<const NodeGraph>;
 
 /// @class Node
-/// A node element within a NodeGraph.
+/// A node element within a NodeGraph or Document.
 ///
 /// A Node represents an instance of a NodeDef within a graph, and its Parameter
 /// and Input elements apply specific values and connections to that instance.
@@ -127,55 +133,18 @@ class Node : public InterfaceElement
     static const string CATEGORY;
 };
 
-/// @class NodeGraph
-/// A node graph element within a Document.
-class NodeGraph : public InterfaceElement
+/// @class GraphElement
+/// The base class for graph elements such as NodeGraph and Document.
+class GraphElement : public InterfaceElement
 {
+  protected:
+    GraphElement(ElementPtr parent, const string& category, const string& name) :
+        InterfaceElement(parent, category, name)
+    {
+    }
   public:
-    NodeGraph(ElementPtr parent, const string& name) :
-        InterfaceElement(parent, CATEGORY, name)
-    {
-    }
-    virtual ~NodeGraph() { }
+    virtual ~GraphElement() { }
 
-    /// @name NodeDef
-    /// @{
-
-    /// Set the NodeDef string for the graph.
-    void setNodeDefString(const string& nodeDef)
-    {
-        setAttribute(NODE_DEF_ATTRIBUTE, nodeDef);
-    }
-
-    /// Return true if the given graph has a NodeDef string.
-    bool hasNodeDefString() const
-    {
-        return hasAttribute(NODE_DEF_ATTRIBUTE);
-    }
-
-    /// Return the NodeDef string for the graph.
-    const string& getNodeDefString() const
-    {
-        return getAttribute(NODE_DEF_ATTRIBUTE);
-    }
-
-    /// Set the NodeDef element for the graph.
-    void setNodeDef(ConstNodeDefPtr nodeDef)
-    {
-        if (nodeDef)
-        {
-            setNodeDefString(nodeDef->getName());
-        }
-        else
-        {
-            removeAttribute(NODE_DEF_ATTRIBUTE);
-        }
-    }
-
-    /// Return the NodeDef element for the graph.
-    NodeDefPtr getNodeDef() const;
-
-    /// @}
     /// @name Node Elements
     /// @{
 
@@ -194,6 +163,12 @@ class NodeGraph : public InterfaceElement
         node->setCategory(category);
         node->setType(type);
         return node;
+    }
+
+    /// Add a Node that is an instance of the given NodeDef.
+    NodePtr addNodeInstance(ConstNodeDefPtr nodeDef, const string& name = EMPTY_STRING)
+    {
+        return addNode(nodeDef->getNodeString(), name, nodeDef->getType());
     }
 
     /// Return the Node, if any, with the given name.
@@ -237,10 +212,21 @@ class NodeGraph : public InterfaceElement
     string asStringDot() const;
 
     /// @}
+};
+
+/// @class NodeGraph
+/// A node graph element within a Document.
+class NodeGraph : public GraphElement
+{
+  public:
+    NodeGraph(ElementPtr parent, const string& name) :
+        GraphElement(parent, CATEGORY, name)
+    {
+    }
+    virtual ~NodeGraph() { }
 
   public:
     static const string CATEGORY;
-    static const string NODE_DEF_ATTRIBUTE;
 };
 
 } // namespace MaterialX
