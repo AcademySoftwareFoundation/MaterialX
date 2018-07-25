@@ -1456,6 +1456,95 @@ TEST_CASE("Materials", "[shadergen]")
     }
 }
 
+TEST_CASE("Color Spaces", "[shadergen]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+
+    mx::MaterialPtr material = doc->addMaterial("color_spaces");
+    mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "standard_surface");
+
+    // Bind an image texture to the base_color input, with sRGB color space
+    mx::NodePtr baseColorTex = doc->addNode("image", "base_color_tex", "color3");
+    mx::ParameterPtr baseColorTexFileParam = baseColorTex->setParameterValue("file", std::string("image1.png"), "filename");
+    baseColorTexFileParam->setAttribute("colorspace", "sRGB");
+    mx::OutputPtr baseColorOutput = doc->addOutput("baseColorOutput", "color3");
+    baseColorOutput->setConnectedNode(baseColorTex);
+    mx::BindInputPtr baseColorBind = shaderRef->addBindInput("base_color", "color3");
+    baseColorBind->setConnectedOutput(baseColorOutput);
+
+    // Bind an image texture to the specular_roughness input, with sRGB color space
+    // This color spaces transform should be ignored since it's a float data type
+    mx::NodePtr rougnessTex = doc->addNode("image", "specular_roughness_tex", "float");
+    mx::ParameterPtr rougnessTexFileParam = rougnessTex->setParameterValue("file", std::string("image2.png"), "filename");
+    rougnessTexFileParam->setAttribute("colorspace", "sRGB");
+    mx::OutputPtr roughnessOutput = doc->addOutput("roughnessOutput", "float");
+    roughnessOutput->setConnectedNode(rougnessTex);
+    mx::BindInputPtr rougnessBind = shaderRef->addBindInput("specular_roughness", "float");
+    rougnessBind->setConnectedOutput(roughnessOutput);
+
+    mx::SgOptions options;
+
+    // Arnold
+    {
+        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
+        // Add path to find all source code snippets
+        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+        // Add path to find OSL include files
+        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+
+        mx::ShaderPtr shader = shaderGenerator->generate(material->getName(), shaderRef, options);
+        REQUIRE(shader != nullptr);
+        REQUIRE(shader->getSourceCode().length() > 0);
+
+        // Write out to file for inspection
+        // TODO: Use validation in MaterialXView library
+        std::ofstream file;
+        file.open(shader->getName() + ".osl");
+        file << shader->getSourceCode();
+        file.close();
+    }
+
+    // OgsFx
+    {
+        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
+        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        mx::ShaderPtr shader = shaderGenerator->generate(material->getName(), shaderRef, options);
+        REQUIRE(shader != nullptr);
+        REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+
+        // Write out to file for inspection
+        // TODO: Use validation in MaterialXView library
+        std::ofstream file;
+        file.open(shader->getName() + ".ogsfx");
+        file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+    }
+
+    // Glsl
+    {
+        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
+        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        mx::ShaderPtr shader = shaderGenerator->generate(material->getName(), shaderRef, options);
+        REQUIRE(shader != nullptr);
+        REQUIRE(shader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
+        REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
+
+        // Write out to file for inspection
+        // TODO: Use validation in MaterialXView library
+        std::ofstream file;
+        file.open(shader->getName() + ".frag");
+        file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
+        file.close();
+        file.open(shader->getName() + ".vert");
+        file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
+    }
+}
+
+
 TEST_CASE("BSDF Layering", "[shadergen]")
 {
     mx::DocumentPtr doc = mx::createDocument();

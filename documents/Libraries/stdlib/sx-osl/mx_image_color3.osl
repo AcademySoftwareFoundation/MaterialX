@@ -9,6 +9,4 @@ void mx_image_color3(string file, string layer, color default_value, vector2 tex
     vdirection(texcoord, texcoord);
     color missingColor = default_value;
     out = texture(file, texcoord.x, texcoord.y, "subimage", layer, "missingcolor", missingColor, "wrap", uaddressmode);
-
-    out = pow(out, 2.2);
 }
