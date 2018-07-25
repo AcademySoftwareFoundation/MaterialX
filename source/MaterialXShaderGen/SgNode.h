@@ -2,6 +2,7 @@
 #define MATERIALX_SGNODE_H
 
 #include <MaterialXCore/Node.h>
+#include <MaterialXCore/Document.h>
 
 #include <MaterialXShaderGen/SgImplementation.h>
 
@@ -233,7 +234,7 @@ using SgOutputSocket = SgInput;
 class SgNodeGraph : public SgNode
 {
 public:
-    SgNodeGraph(const string& name);
+    SgNodeGraph(const string& name, DocumentPtr document);
 
     /// Create a new shadergen graph from an element.
     /// Supported elements are outputs and shaderrefs.
@@ -295,7 +296,10 @@ protected:
     void addUpstreamDependencies(const Element& root, ConstMaterialPtr material, ShaderGenerator& shadergen);
 
     /// Add a default geometric node and connect to the given input.
-    void addDefaultGeomNode(SgInput* input, const string& geomNode, const Document& doc, ShaderGenerator& shadergen);
+    void addDefaultGeomNode(SgInput* input, const string& geomNode, ShaderGenerator& shadergen);
+
+    /// Add a color transform node and connect to the given output.
+    void addColorTransformNode(SgOutput* output, const string& colorTransform, ShaderGenerator& shadergen);
 
     /// Perform all post-build operations on the graph.
     void finalize(ShaderGenerator& shadergen);
@@ -323,8 +327,12 @@ protected:
     /// Break all connections on a node
     static void disconnect(SgNode* node);
 
+    DocumentPtr _document;
     std::unordered_map<string, SgNodePtr> _nodeMap;
     std::vector<SgNode*> _nodeOrder;
+
+    // Temporary storage for nodes that require color transformations
+    std::unordered_map<SgNode*, string> _colorTransformMap;
 };
 
 /// A function argument for node implementation functions.

@@ -340,8 +340,9 @@ void SgNode::renameOutput(const string& name, const string& newName)
 }
 
 
-SgNodeGraph::SgNodeGraph(const string& name)
+SgNodeGraph::SgNodeGraph(const string& name, DocumentPtr document)
     : SgNode(name)
+    , _document(document)
 {
 }
 
@@ -465,7 +466,7 @@ void SgNodeGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
     }
 }
 
-void SgNodeGraph::addDefaultGeomNode(SgInput* input, const string& geomNode, const Document& doc, ShaderGenerator& shadergen)
+void SgNodeGraph::addDefaultGeomNode(SgInput* input, const string& geomNode, ShaderGenerator& shadergen)
 {
     const string geomNodeName = "default_" + geomNode;
     SgNode* node = getNode(geomNodeName);
@@ -473,7 +474,7 @@ void SgNodeGraph::addDefaultGeomNode(SgInput* input, const string& geomNode, con
     if (!node)
     {
         string geomNodeDefName = "ND_" + geomNode + "__" + input->type;
-        NodeDefPtr geomNodeDef = doc.getNodeDef(geomNodeDefName);
+        NodeDefPtr geomNodeDef = _document->getNodeDef(geomNodeDefName);
         if (!geomNodeDef)
         {
             throw ExceptionShaderGenError("Could not find a nodedef named '" + geomNodeDefName +
@@ -490,6 +491,40 @@ void SgNodeGraph::addDefaultGeomNode(SgInput* input, const string& geomNode, con
     input->makeConnection(node->getOutput());
 }
 
+void SgNodeGraph::addColorTransformNode(SgOutput* output, const string& colorTransform, ShaderGenerator& shadergen)
+{
+    const string nodeDefName = "ND_" + colorTransform + "__" + output->type;
+    NodeDefPtr nodeDef = _document->getNodeDef(nodeDefName);
+    if (!nodeDef)
+    {
+        // Color transformations are by design not defined for all data types, only for color types.
+        // So if a nodedef for the given output type is not found we just ignore this transform.
+        return;
+    }
+
+    const string nodeName = output->node->getName() + "_" + colorTransform;
+    SgNodePtr nodePtr = SgNode::create(nodeName, *nodeDef, shadergen);
+    _nodeMap[nodeName] = nodePtr;
+    _nodeOrder.push_back(nodePtr.get());
+
+    SgNode* node = nodePtr.get();
+    SgOutput* nodeOutput = node->getOutput(0);
+
+    // Connect the node to the downstream inputs
+    // Iterate a copy of the connection set since the original
+    // set will change when breaking the old connections
+    SgInputSet downstreamConnections = output->connections;
+    for (SgInput* downstreamInput : downstreamConnections)
+    {
+        downstreamInput->breakConnection();
+        downstreamInput->makeConnection(nodeOutput);
+    }
+
+    // Connect the node to the upstream output
+    SgInput* nodeInput = node->getInput(0);
+    nodeInput->makeConnection(output);
+}
+
 SgNodeGraphPtr SgNodeGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shadergen)
 {
     NodeDefPtr nodeDef = nodeGraph->getNodeDef();
@@ -498,7 +533,7 @@ SgNodeGraphPtr SgNodeGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shad
         throw ExceptionShaderGenError("Can't find nodedef '" + nodeGraph->getNodeDefString() + "' referenced by nodegraph '" + nodeGraph->getName() + "'");
     }
 
-    SgNodeGraphPtr graph = std::make_shared<SgNodeGraph>(nodeGraph->getName());
+    SgNodeGraphPtr graph = std::make_shared<SgNodeGraph>(nodeGraph->getName(), nodeGraph->getDocument());
 
     // Create input sockets from the nodedef
     graph->addInputSockets(*nodeDef);
@@ -565,7 +600,7 @@ SgNodeGraphPtr SgNodeGraph::create(const string& name, ElementPtr element, Shade
             }
         }
 
-        graph = std::make_shared<SgNodeGraph>(name);
+        graph = std::make_shared<SgNodeGraph>(name, element->getDocument());
 
         // Create input sockets
         graph->addInputSockets(*interface);
@@ -586,7 +621,7 @@ SgNodeGraphPtr SgNodeGraph::create(const string& name, ElementPtr element, Shade
             throw ExceptionShaderGenError("Could not find a nodedef for shader '" + shaderRef->getName() + "'");
         }
 
-        graph = std::make_shared<SgNodeGraph>(name);
+        graph = std::make_shared<SgNodeGraph>(name, element->getDocument());
 
         // Create input sockets
         graph->addInputSockets(*nodeDef);
@@ -670,7 +705,7 @@ SgNodeGraphPtr SgNodeGraph::create(const string& name, ElementPtr element, Shade
             if (!defaultGeomNode.empty())
             {
                 SgInput* input = newNode->getInput(nodeDefInput->getName());
-                graph->addDefaultGeomNode(input, defaultGeomNode, *shaderRef->getDocument(), shadergen);
+                graph->addDefaultGeomNode(input, defaultGeomNode, shadergen);
             }
         }
 
@@ -741,7 +776,22 @@ SgNode* SgNodeGraph::addNode(const Node& node, ShaderGenerator& shadergen)
 
         if (!defaultGeomNode.empty())
         {
-            addDefaultGeomNode(input, defaultGeomNode, *node.getDocument(), shadergen);
+            addDefaultGeomNode(input, defaultGeomNode, shadergen);
+        }
+    }
+
+    // Check if this is a file texture node that requires color transformation.
+    if (newNode->hasClassification(SgNode::Classification::FILETEXTURE))
+    {
+        ParameterPtr file = node.getParameter("file");
+        const string& colorSpace = file ? file->getAttribute("colorspace") : EMPTY_STRING;
+
+        // TODO: Handle more color transforms
+        if (colorSpace == "sRGB")
+        {
+            // Store the node and it's color transform so we can create this
+            // color transformation later when finalizing the graph.
+            _colorTransformMap[newNode.get()] = "srgb_linear";
         }
     }
 
@@ -768,7 +818,6 @@ void SgNodeGraph::renameOutputSocket(const string& name, const string& newName)
     return SgNode::renameInput(name, newName);
 }
 
-
 SgNode* SgNodeGraph::getNode(const string& name)
 {
     auto it = _nodeMap.find(name);
@@ -777,9 +826,25 @@ SgNode* SgNodeGraph::getNode(const string& name)
 
 void SgNodeGraph::finalize(ShaderGenerator& shadergen)
 {
+    // Optimize the graph, removing redundant paths.
     optimize();
+
+    // Insert color transformation nodes where needed
+    for (auto it : _colorTransformMap)
+    {
+        addColorTransformNode(it.first->getOutput(), it.second, shadergen);
+    }
+    _colorTransformMap.clear();
+
+    // Sort the nodes in topological order.
     topologicalSort();
+
+    // Calculate scopes for all nodes in the graph
     calculateScopes();
+
+    // Make sure inputs and outputs on the graph have
+    // valid and unique names to avoid name collisions
+    // during shader generation
     validateNames(shadergen);
 
     // Track closure nodes used by each surface shader.
@@ -888,7 +953,13 @@ void SgNodeGraph::optimize()
         {
             if (usedNodes.count(node) == 0)
             {
+                // Break all connections
                 disconnect(node);
+
+                // Erase from temporary records
+                _colorTransformMap.erase(node);
+
+                // Erase from storage
                 _nodeMap.erase(node->getName());
             }
         }

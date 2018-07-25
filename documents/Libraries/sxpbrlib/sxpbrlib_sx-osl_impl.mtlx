@@ -52,4 +52,9 @@
   <!-- <normalmap> -->
   <implementation name="IM_normalmap__sx_osl" nodedef="ND_normalmap" file="sxpbrlib/sx-osl/sx_normalmap.osl" function="sx_normalmap" language="sx-osl"/>
 
+  <!-- <srgb_linear> -->
+  <implementation name="IM_srgb_linear__color2__sx_osl" nodedef="ND_srgb_linear__color2" file="sxpbrlib/sx-osl/sx_srgb_linear_color2.osl" function="sx_srgb_linear_color2" language="sx-osl"/>
+  <implementation name="IM_srgb_linear__color3__sx_osl" nodedef="ND_srgb_linear__color3" file="sxpbrlib/sx-osl/sx_srgb_linear_color3.osl" function="sx_srgb_linear_color3" language="sx-osl"/>
+  <implementation name="IM_srgb_linear__color4__sx_osl" nodedef="ND_srgb_linear__color4" file="sxpbrlib/sx-osl/sx_srgb_linear_color4.osl" function="sx_srgb_linear_color4" language="sx-osl"/>
+
 </materialx>
