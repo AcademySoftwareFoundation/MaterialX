@@ -30,6 +30,6 @@ void sx_coatingbsdf(float weight, color reflectance, float ior, float roughness,
     float F = sx_fresnel_dielectric(NdotV, ior);
     F *= weight;
 
-    result = reflectance * microfacet(distribution, N, U, alphaX, alphaY, ior, false)
+    result = reflectance * weight * microfacet(distribution, N, U, alphaX, alphaY, ior, false)
              + base * (1.0 - F);
 }
