@@ -100,6 +100,11 @@ void SourceCode::emitFunctionCall(const SgNode& node, const SgNodeContext& conte
 
             const string variable = _functionSource.substr(i + 2, j - i - 2);
             const SgInput* input = node.getInput(variable);
+            if (!input)
+            {
+                throw ExceptionShaderGenError("Could not find an input named '" + variable +
+                    "' on node '" + node.getName() + "'");
+            }
             shadergen.emitInput(input, shader);
 
             pos = j + 2;

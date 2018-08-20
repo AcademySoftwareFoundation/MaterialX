@@ -14,15 +14,18 @@
 namespace MaterialX
 {
 
+class Observer;
+class ObservedDocument;
+
 /// A shared pointer to an Observer
-using ObserverPtr = shared_ptr<class Observer>;
+using ObserverPtr = shared_ptr<Observer>;
 /// A shared pointer to a const Observer
-using ConstObserverPtr = shared_ptr<const class Observer>;
+using ConstObserverPtr = shared_ptr<const Observer>;
 
 /// A shared pointer to an ObservedDocument
-using ObservedDocumentPtr = shared_ptr<class ObservedDocument>;
+using ObservedDocumentPtr = shared_ptr<ObservedDocument>;
 /// A shared pointer to a const ObservedDocument
-using ConstObservedDocumentPtr = shared_ptr<const class ObservedDocument>;
+using ConstObservedDocumentPtr = shared_ptr<const ObservedDocument>;
 
 /// @class Observer
 /// An observer of a MaterialX Document.

@@ -1,1 +1,1 @@
-mix({{bg}}, {{fg}}, {{mask}})
+mix({{bg}}, {{fg}}, {{mix}})

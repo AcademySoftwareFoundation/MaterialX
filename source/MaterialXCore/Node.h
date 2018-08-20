@@ -16,20 +16,24 @@
 namespace MaterialX
 {
 
+class Node;
+class GraphElement;
+class NodeGraph;
+
 /// A shared pointer to a Node
-using NodePtr = shared_ptr<class Node>;
+using NodePtr = shared_ptr<Node>;
 /// A shared pointer to a const Node
-using ConstNodePtr = shared_ptr<const class Node>;
+using ConstNodePtr = shared_ptr<const Node>;
 
 /// A shared pointer to a GraphElement
-using GraphElementPtr = shared_ptr<class GraphElement>;
+using GraphElementPtr = shared_ptr<GraphElement>;
 /// A shared pointer to a const GraphElement
-using ConstGraphElementPtr = shared_ptr<const class GraphElement>;
+using ConstGraphElementPtr = shared_ptr<const GraphElement>;
 
 /// A shared pointer to a NodeGraph
-using NodeGraphPtr = shared_ptr<class NodeGraph>;
+using NodeGraphPtr = shared_ptr<NodeGraph>;
 /// A shared pointer to a const NodeGraph
-using ConstNodeGraphPtr = shared_ptr<const class NodeGraph>;
+using ConstNodeGraphPtr = shared_ptr<const NodeGraph>;
 
 /// @class Node
 /// A node element within a NodeGraph or Document.
@@ -221,48 +225,8 @@ class NodeGraph : public GraphElement
     }
     virtual ~NodeGraph() { }
 
-    /// @name NodeDef
-    /// @{
-
-    /// Set the NodeDef string for the graph.
-    void setNodeDefString(const string& nodeDef)
-    {
-        setAttribute(NODE_DEF_ATTRIBUTE, nodeDef);
-    }
-
-    /// Return true if the given graph has a NodeDef string.
-    bool hasNodeDefString() const
-    {
-        return hasAttribute(NODE_DEF_ATTRIBUTE);
-    }
-
-    /// Return the NodeDef string for the graph.
-    const string& getNodeDefString() const
-    {
-        return getAttribute(NODE_DEF_ATTRIBUTE);
-    }
-
-    /// Set the NodeDef element for the graph.
-    void setNodeDef(ConstNodeDefPtr nodeDef)
-    {
-        if (nodeDef)
-        {
-            setNodeDefString(nodeDef->getName());
-        }
-        else
-        {
-            removeAttribute(NODE_DEF_ATTRIBUTE);
-        }
-    }
-
-    /// Return the NodeDef element for the graph.
-    NodeDefPtr getNodeDef() const;
-
-    /// @}
-
   public:
     static const string CATEGORY;
-    static const string NODE_DEF_ATTRIBUTE;
 };
 
 } // namespace MaterialX

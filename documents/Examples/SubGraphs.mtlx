@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.35" cms="ocio" colorspace="lin_rec709" require="matnodegraph">
-
+<materialx version="1.36" cms="ocio" colorspace="lin_rec709">
+   
   <!-- Define a node that implements a checker board pattern -->
   <!-- Using a graph for the implementation.                 -->
-  <nodedef name="ND_checker" node="checker" type="float">
+  <nodedef name="ND_checker_float" node="checker" type="float">
     <input name="scale" type="vector2" value="8.0, 8.0"/>
   </nodedef>
-  <nodegraph name="IMP_checker" nodedef="ND_checker">
+  <nodegraph name="IM_checker_float" nodedef="ND_checker_float">
     <texcoord name="texcoord1" type="vector2">
       <parameter name="index" type="integer" value="0"/>
     </texcoord>
@@ -60,31 +60,35 @@
 
   <!-- Define a node that uses the checker pattern for mixing two colors.  -->
   <!-- Using a graph for the implementation. checker1 becomes a sub-graph. -->
-  <nodedef name="ND_color_checker" node="color_checker" type="color3">
+  <nodedef name="ND_color_checker_color3" node="color_checker" type="color3">
     <input name="color1" type="color3" value="0.8, 0.2, 0.1"/>
     <input name="color2" type="color3" value="0.1, 0.1, 0.8"/>
     <input name="scale" type="vector2" value="8.0, 8.0"/>
   </nodedef>
-  <nodegraph name="IMP_color_checker" nodedef="ND_color_checker">
+  <nodegraph name="IM_color_checker_color3" nodedef="ND_color_checker_color3">
     <checker name="checker1" type="float">
       <input name="scale" type="vector2" interfacename="scale"/>
     </checker>
     <mix name="mix1" type="color3">
       <input name="fg" type="color3" interfacename="color1"/>
       <input name="bg" type="color3" interfacename="color2"/>
-      <input name="mask" type="float" nodename="checker1"/>
+      <input name="mix" type="float" nodename="checker1"/>
     </mix>
     <output name="out" type="color3" nodename="mix1"/>
   </nodegraph>
 
   <!-- Example1: Applying a color checker pattern to an image texture. -->
   <!-- Showing subgraphs with multiple levels.                         -->
-  <nodedef name="ND_subgraph_ex1" node="subgraph_ex1" type="color3">
-    <input name="colorA" type="color3" value="1.0, 0.0, 0.0"/>
-    <input name="colorB" type="color3" value="0.0, 1.0, 0.0"/>
-    <input name="scale" type="vector2" value="8.0, 8.0"/>
-  </nodedef>
-  <nodegraph name="subgraph_ex1" nodedef="ND_subgraph_ex1">
+  <nodegraph name="subgraph_ex1">
+    <constant name="c1" type="color3">
+      <parameter name="value" type="color3" value="1.0,0.0,0.0"/>
+    </constant>
+    <constant name="c2" type="color3">
+      <parameter name="value" type="color3" value="0.0,1.0,0.0"/>
+    </constant>
+    <constant name="scale1" type="vector2">
+      <parameter name="value" type="vector2" value="8.0, 8.0"/>
+    </constant>
     <texcoord name="texcoord2" type="vector2">
       <parameter name="index" type="integer" value="0"/>
     </texcoord>
@@ -93,9 +97,9 @@
       <input name="texcoord" type="vector2" nodename="texcoord2"/>
     </image>
     <color_checker name="checker1" type="color3">
-      <input name="color1" type="color3" interfacename="colorA"/>
-      <input name="color2" type="color3" interfacename="colorB"/>
-      <input name="scale" type="vector2" interfacename="scale"/>
+      <input name="color1" type="color3" nodename="c1"/>
+      <input name="color2" type="color3" nodename="c2"/>
+      <input name="scale" type="vector2" nodename="scale1"/>
     </color_checker>
     <multiply name="multiply1" type="color3">
       <input name="in1" type="color3" nodename="image1"/>
@@ -104,55 +108,55 @@
     <output name="out" type="color3" nodename="multiply1"/>
   </nodegraph>
 
-  <!-- Define a node that represents a BSDF with a diffuse component layered    -->
-  <!-- on top of a translucent component. Using a graph for the implementation. -->
-  <nodedef name="ND_substratebsdf" node="substratebsdf" type="BSDF">
-    <input name="albedo" type="color3" value="0.8, 0.2, 0.1"/>
-    <input name="subsurface" type="color3" value="0.1, 0.1, 0.8"/>
-    <input name="subsurface_weight" type="float" value="0.0"/>
-  </nodedef>
-  <nodegraph name="IMP_substratebsdf" nodedef="ND_substratebsdf">
-    <diffusebsdf name="diffuse" type="BSDF">
-      <input name="reflectance" type="color3" interfacename="albedo" value="0.9, 0.1, 0.1" />
-    </diffusebsdf>
-    <translucentbsdf name="subsurface" type="BSDF">
-      <input name="transmittance" type="color3" interfacename="subsurface" value="0.1, 0.1, 0.8" />
-    </translucentbsdf>
-    <invert name="subsurface_weight_inv" type="float">
-      <input name="in" type="float" interfacename="subsurface_weight" value="0.5" />
-    </invert>
-    <mixbsdf name="layer1" type="BSDF">
-      <input name="in1" type="BSDF" nodename="diffuse" />
-      <input name="in2" type="BSDF" nodename="subsurface" />
-      <input name="weight" type="float" nodename="subsurface_weight_inv" />
-    </mixbsdf>
-    <output name="out" type="BSDF" nodename="layer1" />
-  </nodegraph>
+   <!-- Define a node that represents a BSDF with a diffuse component layered    -->
+   <!-- on top of a translucent component. Using a graph for the implementation. -->
+   <nodedef name="ND_substratebsdf" node="substratebsdf" type="BSDF">
+      <input name="albedo" type="color3" value="0.8, 0.2, 0.1"/>
+      <input name="subsurface" type="color3" value="0.1, 0.1, 0.8"/>
+      <input name="subsurface_weight" type="float" value="0.0"/>
+   </nodedef>
+   <nodegraph name="IMP_substratebsdf" nodedef="ND_substratebsdf">
+      <diffusebsdf name="diffuse" type="BSDF">
+         <input name="reflectance" type="color3" interfacename="albedo" value="0.9, 0.1, 0.1" />
+      </diffusebsdf>
+      <translucentbsdf name="subsurface" type="BSDF">
+         <input name="transmittance" type="color3" interfacename="subsurface" value="0.1, 0.1, 0.8" />
+      </translucentbsdf>
+      <invert name="subsurface_weight_inv" type="float">
+         <input name="in" type="float" interfacename="subsurface_weight" value="0.5" />
+      </invert>
+      <mixbsdf name="layer1" type="BSDF">
+         <input name="in1" type="BSDF" nodename="diffuse" />
+         <input name="in2" type="BSDF" nodename="subsurface" />
+         <input name="weight" type="float" nodename="subsurface_weight_inv" />
+      </mixbsdf>
+      <output name="out" type="BSDF" nodename="layer1" />
+   </nodegraph>
 
-  <!-- Example2: Using the graph based BSDF node above to create a -->
-  <!-- surfaceshader. Showing a two level subgraphs.               -->
-  <nodedef name="ND_subgraph_ex2" node="subgraph_ex2" type="color3">
-    <input name="albedo" type="color3" value="0.8, 0.2, 0.1"/>
-    <input name="subsurface" type="color3" value="0.1, 0.1, 0.8"/>
-    <input name="subsurface_weight" type="float" value="0.0"/>
-    <input name="emission" type="color3" value="0.0, 0.0, 0.0"/>
-    <input name="opacity" type="float" value="1.0"/>
-  </nodedef>
-  <nodegraph name="subgraph_ex2" nodedef="ND_subgraph_ex2">
-    <substratebsdf name="substrate1" type="BSDF">
-      <input name="albedo" type="color3" value="0.8, 0.2, 0.1" interfacename="albedo"/>
-      <input name="subsurface" type="color3" value="0.1, 0.1, 0.8" interfacename="subsurface"/>
-      <input name="subsurface_weight" type="float" value="0.0" interfacename="subsurface_weight"/>
-    </substratebsdf>
-    <uniformedf name="edf1" type="EDF">
-      <input name="intensity" type="color3" value="0.0, 0.0, 0.0" interfacename="emission" />
-    </uniformedf>
-    <surface name="surface1" type="surfaceshader">
-      <input name="bsdf" type="BSDF" nodename="substrate1" />
-      <input name="edf" type="EDF" nodename="edf1" />
-      <input name="opacity" type="float" value="1.0" interfacename="opacity" />
-    </surface>
-    <output name="out" type="surfaceshader" nodename="surface1"/>
-  </nodegraph>
-
+   <!-- Example2: Using the graph based BSDF node above to create a -->
+   <!-- surfaceshader. Showing a two level subgraphs.               -->
+   <nodedef name="ND_subgraph_ex2" node="subgraph_ex2" type="color3">
+      <input name="albedo" type="color3" value="0.8, 0.2, 0.1"/>
+      <input name="subsurface" type="color3" value="0.1, 0.1, 0.8"/>
+      <input name="subsurface_weight" type="float" value="0.0"/>
+      <input name="emission" type="color3" value="0.0, 0.0, 0.0"/>
+      <input name="opacity" type="float" value="1.0"/>
+   </nodedef>
+   <nodegraph name="subgraph_ex2" nodedef="ND_subgraph_ex2">
+      <substratebsdf name="substrate1" type="BSDF">
+         <input name="albedo" type="color3" value="0.8, 0.2, 0.1" interfacename="albedo"/>
+         <input name="subsurface" type="color3" value="0.1, 0.1, 0.8" interfacename="subsurface"/>
+         <input name="subsurface_weight" type="float" value="0.0" interfacename="subsurface_weight"/>
+      </substratebsdf>
+      <uniformedf name="edf1" type="EDF">
+         <input name="intensity" type="color3" value="0.0, 0.0, 0.0" interfacename="emission" />
+      </uniformedf>
+      <surface name="surface1" type="surfaceshader">
+         <input name="bsdf" type="BSDF" nodename="substrate1" />
+         <input name="edf" type="EDF" nodename="edf1" />
+         <input name="opacity" type="float" value="1.0" interfacename="opacity" />
+      </surface>
+      <output name="out" type="surfaceshader" nodename="surface1"/>
+   </nodegraph>
+   
 </materialx>

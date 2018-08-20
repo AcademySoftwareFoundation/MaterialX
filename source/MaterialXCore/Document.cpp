@@ -70,34 +70,39 @@ class Document::Cache
             // Traverse the document to build a new cache.
             for (ElementPtr elem : doc.lock()->traverseTree())
             {
-                PortElementPtr portElem = elem->asA<PortElement>();
-                NodeDefPtr nodeDef = elem->asA<NodeDef>();
-                NodeGraphPtr nodeGraph = elem->asA<NodeGraph>();
-                ImplementationPtr implementation = elem->asA<Implementation>();
+                string nodeName = elem->getAttribute(PortElement::NODE_NAME_ATTRIBUTE);
+                string nodeString = elem->getAttribute(NodeDef::NODE_ATTRIBUTE);
+                string nodeDefString = elem->getAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
 
-                if (portElem && portElem->hasNodeName())
+                if (!nodeName.empty())
                 {
-                    portElementMap.insert(std::pair<string, PortElementPtr>(
-                        portElem->getQualifiedName(portElem->getNodeName()),
-                        portElem));
+                    PortElementPtr portElem = elem->asA<PortElement>();
+                    if (portElem)
+                    {
+                        portElementMap.insert(std::pair<string, PortElementPtr>(
+                            portElem->getQualifiedName(nodeName),
+                            portElem));
+                    }
                 }
-                if (nodeDef && nodeDef->hasNodeString())
+                if (!nodeString.empty())
                 {
-                    nodeDefMap.insert(std::pair<string, NodeDefPtr>(
-                        nodeDef->getQualifiedName(nodeDef->getNodeString()),
-                        nodeDef));
+                    NodeDefPtr nodeDef = elem->asA<NodeDef>();
+                    if (nodeDef)
+                    {
+                        nodeDefMap.insert(std::pair<string, NodeDefPtr>(
+                            nodeDef->getQualifiedName(nodeString),
+                            nodeDef));
+                    }
                 }
-                if (nodeGraph && nodeGraph->hasNodeDefString())
+                if (!nodeDefString.empty())
                 {
-                    implementationMap.insert(std::pair<string, InterfaceElementPtr>(
-                        nodeGraph->getQualifiedName(nodeGraph->getNodeDefString()),
-                        nodeGraph));
-                }
-                if (implementation && implementation->hasNodeDefString())
-                {
-                    implementationMap.insert(std::pair<string, InterfaceElementPtr>(
-                        implementation->getQualifiedName(implementation->getNodeDefString()),
-                        implementation));
+                    InterfaceElementPtr interface = elem->asA<InterfaceElement>();
+                    if (interface)
+                    {
+                        implementationMap.insert(std::pair<string, InterfaceElementPtr>(
+                            interface->getQualifiedName(nodeDefString),
+                            interface));
+                    }
                 }
             }
 
@@ -146,7 +151,6 @@ void Document::initialize()
 void Document::importLibrary(ConstDocumentPtr library, const CopyOptions* copyOptions)
 {
     bool skipDuplicateElements = copyOptions && copyOptions->skipDuplicateElements;
-    bool copySourceUris = copyOptions && copyOptions->copySourceUris;
     for (ElementPtr child : library->getChildren())
     {
         string childName = child->getQualifiedName(child->getName());
@@ -173,7 +177,7 @@ void Document::importLibrary(ConstDocumentPtr library, const CopyOptions* copyOp
         {
             childCopy->setNamespace(library->getNamespace());
         }
-        if (copySourceUris && !childCopy->hasSourceUri())
+        if (!childCopy->hasSourceUri() && library->hasSourceUri())
         {
             childCopy->setSourceUri(library->getSourceUri());
         }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.36">
   <!-- <shadingnormal> -->
-  <nodegraph name="IMP_shadingnormal__vector3" nodedef="ND_shadingnormal__vector3" type="vector3">
+  <nodegraph name="IMP_shadingnormal_vector3" nodedef="ND_shadingnormal_vector3" type="vector3">
     <normal name="Nw" type="vector3">
       <parameter name="space" type="string" value="world"/>
     </normal>
@@ -13,27 +13,27 @@
     <mix name="flip" type="vector3">
       <input name="fg" type="vector3" nodename="Nw_flipped"/>
       <input name="bg" type="vector3" nodename="Nw"/>
-      <input name="mask" type="float" nodename="backfacing"/>
+      <input name="mix" type="float" nodename="backfacing"/>
     </mix>
     <output name="out" type="vector3" nodename="flip"/>
   </nodegraph>
 
   <!-- <inputmap> -->
-  <nodegraph name="IMP_inputmap__float" nodedef="ND_inputmap__float">
+  <nodegraph name="IMP_inputmap_float" nodedef="ND_inputmap_float">
     <image name="image" type="float">
       <input name="file" type="filename" interfacename="file" />
       <input name="default" type="float" interfacename="value" />
     </image>
     <output name="out" type="float" nodename="image" />
   </nodegraph>
-  <nodegraph name="IMP_inputmap__color3" nodedef="ND_inputmap__color3">
+  <nodegraph name="IMP_inputmap_color3" nodedef="ND_inputmap_color3">
     <image name="image" type="color3">
       <input name="file" type="filename" interfacename="file" />
       <input name="default" type="color3" interfacename="value" />
     </image>
     <output name="out" type="color3" nodename="image" />
   </nodegraph>
-  <nodegraph name="IMP_inputmap__vector3" nodedef="ND_inputmap__vector3">
+  <nodegraph name="IMP_inputmap_vector3" nodedef="ND_inputmap_vector3">
     <image name="image" type="vector3">
       <input name="file" type="filename" interfacename="file" />
       <input name="default" type="vector3" interfacename="value" />
@@ -42,7 +42,7 @@
   </nodegraph>
 
   <!-- <standard_surface> -->
-  <nodegraph name="IMPL_standard_surface__surfaceshader" type="" nodedef="ND_standard_surface__surfaceshader">
+  <nodegraph name="IMPL_standard_surface_surfaceshader" type="" nodedef="ND_standard_surface_surfaceshader">
     <!-- Roughness influence by coat-->
     <constant name="coat_affect_roughness" type="float">
       <parameter name="value" type="float" value="0.0" />
@@ -138,7 +138,7 @@
     <mix name="coat_attenuation" type="color3" >
       <input name="fg" type="color3" interfacename="coat_color" />
       <input name="bg" type="color3" value="1.0, 1.0, 1.0" />
-      <input name="mask" type="float" nodename="coat" />
+      <input name="mix" type="float" nodename="coat" />
     </mix>
     <scalebsdf name="scalebsdf1" type="BSDF">
       <input name="in" type="BSDF" nodename="mixbsdf2" />
@@ -166,14 +166,18 @@
     <uniformedf name="Emission_EDF" type="EDF">
       <input name="intensity" type="color3" nodename="multiply4" />
     </uniformedf>
-    <!-- Final surface output -->
+    <!-- Opacity -->
     <luminance name="luminance1" type="color3">
       <input name="in" type="color3" interfacename="opacity" />
     </luminance>
+    <swizzle name="luminance1_x" type="float">
+      <input name="in" type="color3" nodename="luminance1"/>/>
+      <parameter name="channels" type="string" value="r"/>
+    </swizzle>
     <surface name="Surface_Constructor" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="Coat_BSDF" />
       <input name="edf" type="EDF" nodename="Emission_EDF"  />
-      <input name="opacity" type="float" nodename="luminance1" channels="x"/>
+      <input name="opacity" type="float" nodename="luminance1_x"/>
     </surface>
     <!-- Output -->
     <output name="out" type="surfaceshader" nodename="Surface_Constructor" />

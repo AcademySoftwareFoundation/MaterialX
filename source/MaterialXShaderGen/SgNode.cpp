@@ -200,7 +200,7 @@ SgNodePtr SgNode::create(const string& name, const NodeDef& nodeDef, ShaderGener
                 InputPtr inputElem = elem->asA<Input>();
                 if (inputElem)
                 {
-                    input->channels = inputElem->getChannels();
+                    input->channels.clear(); // inputElem->getChannels();
                 }
             }
         }
@@ -473,7 +473,7 @@ void SgNodeGraph::addDefaultGeomNode(SgInput* input, const string& geomNode, Sha
 
     if (!node)
     {
-        string geomNodeDefName = "ND_" + geomNode + "__" + input->type;
+        string geomNodeDefName = "ND_" + geomNode + "_" + input->type;
         NodeDefPtr geomNodeDef = _document->getNodeDef(geomNodeDefName);
         if (!geomNodeDef)
         {
@@ -493,7 +493,7 @@ void SgNodeGraph::addDefaultGeomNode(SgInput* input, const string& geomNode, Sha
 
 void SgNodeGraph::addColorTransformNode(SgOutput* output, const string& colorTransform, ShaderGenerator& shadergen)
 {
-    const string nodeDefName = "ND_" + colorTransform + "__" + output->type;
+    const string nodeDefName = "ND_" + colorTransform + "_" + output->type;
     NodeDefPtr nodeDef = _document->getNodeDef(nodeDefName);
     if (!nodeDef)
     {
@@ -547,7 +547,7 @@ SgNodeGraphPtr SgNodeGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shad
         SgOutputSocket* outputSocket = graph->getOutputSocket(graphOutput->getName());
         if (outputSocket)
         {
-            outputSocket->channels = graphOutput->getChannels();
+            outputSocket->channels.clear(); // = graphOutput->getChannels();
         }
     }
 

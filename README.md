@@ -1,10 +1,8 @@
 # MaterialX
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/materialx/MaterialX/blob/master/LICENSE.txt)
-[![Travis Build Status](https://travis-ci.org/autodesk-forks/MaterialX.svg?branch=adsk_update_shadergen)](https://travis-ci.org/autodesk-forks/MaterialX) 
-[![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/13103i35tqr8mb81?svg=true)](https://ci.appveyor.com/project/MaterialxAdmin/materialx)
-
-
+[![Travis Build Status](https://travis-ci.org/materialx/MaterialX.svg?branch=master)](https://travis-ci.org/materialx/MaterialX)
+[![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/pmlxnp5m1fve11k0?svg=true)](https://ci.appveyor.com/project/jstone-lucasfilm/materialx)
 
 MaterialX is an open standard for transfer of rich material and look-development content between applications and renderers.  Originated at Lucasfilm in 2012, MaterialX has been used by Industrial Light & Magic (ILM) in feature films such as _Star Wars: The Force Awakens_ and real-time experiences such as _Trials on Tatooine_, and it remains the central material format for new ILM productions.
 
@@ -39,6 +37,6 @@ The MaterialX repository consists of the following folders:
 
 Use of this code is subject to the terms of the Autodesk license agreement provided at the time of installation or download, or which otherwise accompanies this software in either electronic or hard copy form.
 
-## Additional Resources
+### Additional Resources
 
 - The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains more detailed documentation and code examples in C++ and Python.

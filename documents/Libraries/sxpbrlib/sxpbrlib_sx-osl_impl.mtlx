@@ -2,59 +2,59 @@
 <materialx version="1.35">
 
   <!-- <diffusebsdf> -->
-  <implementation name="IM_diffusebsdf__sx_osl" nodedef="ND_diffusebsdf" file="sxpbrlib/sx-osl/sx_diffusebsdf.inline" function="sx_diffusebsdf" language="sx-osl"/>
+  <implementation name="IM_diffusebsdf_sx_osl" nodedef="ND_diffusebsdf" file="sxpbrlib/sx-osl/sx_diffusebsdf.inline" function="sx_diffusebsdf" language="sx-osl"/>
 
   <!-- <translucentbsdf> -->
-  <implementation name="IM_translucentbsdf__sx_osl" nodedef="ND_translucentbsdf" file="sxpbrlib/sx-osl/sx_translucentbsdf.inline" function="sx_translucentbsdf" language="sx-osl"/>
+  <implementation name="IM_translucentbsdf_sx_osl" nodedef="ND_translucentbsdf" file="sxpbrlib/sx-osl/sx_translucentbsdf.inline" function="sx_translucentbsdf" language="sx-osl"/>
 
   <!-- <transparentbsdf> -->
-  <implementation name="IM_transparentbsdf__sx_osl" nodedef="ND_transparentbsdf" file="sxpbrlib/sx-osl/sx_transparentbsdf.inline" function="sx_transparentbsdf" language="sx-osl"/>
+  <implementation name="IM_transparentbsdf_sx_osl" nodedef="ND_transparentbsdf" file="sxpbrlib/sx-osl/sx_transparentbsdf.inline" function="sx_transparentbsdf" language="sx-osl"/>
 
   <!-- <coatingbsdf> -->
-  <implementation name="IM_coatingbsdf__sx_osl" nodedef="ND_coatingbsdf" file="sxpbrlib/sx-osl/sx_coatingbsdf.osl" function="sx_coatingbsdf" language="sx-osl"/>
+  <implementation name="IM_coatingbsdf_sx_osl" nodedef="ND_coatingbsdf" file="sxpbrlib/sx-osl/sx_coatingbsdf.osl" function="sx_coatingbsdf" language="sx-osl"/>
 
   <!-- <metalbsdf> -->
-  <implementation name="IM_metalbsdf__sx_osl" nodedef="ND_metalbsdf" file="sxpbrlib/sx-osl/sx_metalbsdf.osl" function="sx_metalbsdf" language="sx-osl"/>
+  <implementation name="IM_metalbsdf_sx_osl" nodedef="ND_metalbsdf" file="sxpbrlib/sx-osl/sx_metalbsdf.osl" function="sx_metalbsdf" language="sx-osl"/>
 
   <!-- <refractionbsdf> -->
-  <implementation name="IM_refractionbsdf__sx_osl" nodedef="ND_refractionbsdf" file="sxpbrlib/sx-osl/sx_refractionbsdf.osl" function="sx_refractionbsdf" language="sx-osl"/>
+  <implementation name="IM_refractionbsdf_sx_osl" nodedef="ND_refractionbsdf" file="sxpbrlib/sx-osl/sx_refractionbsdf.osl" function="sx_refractionbsdf" language="sx-osl"/>
 
   <!-- <layeredbsdf> -->
-  <implementation name="IM_layeredbsdf__sx_osl" nodedef="ND_layeredbsdf" file="sxpbrlib/sx-osl/sx_layeredbsdf.osl" function="sx_layeredbsdf" language="sx-osl"/>
+  <implementation name="IM_layeredbsdf_sx_osl" nodedef="ND_layeredbsdf" file="sxpbrlib/sx-osl/sx_layeredbsdf.osl" function="sx_layeredbsdf" language="sx-osl"/>
 
   <!-- <uniformedf> -->
-  <implementation name="IM_uniformedf__sx_osl" nodedef="ND_uniformedf" file="sxpbrlib/sx-osl/sx_uniformedf.inline" function="sx_uniformedf" language="sx-osl"/>
+  <implementation name="IM_uniformedf_sx_osl" nodedef="ND_uniformedf" file="sxpbrlib/sx-osl/sx_uniformedf.inline" function="sx_uniformedf" language="sx-osl"/>
 
   <!-- <mixbsdf> -->
-  <implementation name="IM_mixbsdf__sx_osl" nodedef="ND_mixbsdf" file="sxpbrlib/sx-osl/sx_mixbsdf.osl" function="sx_mixbsdf" language="sx-osl"/>
+  <implementation name="IM_mixbsdf_sx_osl" nodedef="ND_mixbsdf" file="sxpbrlib/sx-osl/sx_mixbsdf.osl" function="sx_mixbsdf" language="sx-osl"/>
 
   <!-- <scalebsdf> -->
-  <implementation name="IM_scalebsdf__sx_osl" nodedef="ND_scalebsdf" file="sxpbrlib/sx-osl/sx_scalebsdf.osl" function="sx_scalebsdf" language="sx-osl"/>
+  <implementation name="IM_scalebsdf_sx_osl" nodedef="ND_scalebsdf" file="sxpbrlib/sx-osl/sx_scalebsdf.osl" function="sx_scalebsdf" language="sx-osl"/>
 
   <!-- <mixedf> -->
-  <implementation name="IM_mixedf__sx_osl" nodedef="ND_mixedf" file="sxpbrlib/sx-osl/sx_mixedf.osl" function="sx_mixedf" language="sx-osl"/>
+  <implementation name="IM_mixedf_sx_osl" nodedef="ND_mixedf" file="sxpbrlib/sx-osl/sx_mixedf.osl" function="sx_mixedf" language="sx-osl"/>
 
   <!-- <surface> -->
-  <implementation name="IM_surface__sx_osl" nodedef="ND_surface" file="sxpbrlib/sx-osl/sx_surface.osl" function="sx_surface" language="sx-osl"/>
+  <implementation name="IM_surface_sx_osl" nodedef="ND_surface" file="sxpbrlib/sx-osl/sx_surface.osl" function="sx_surface" language="sx-osl"/>
 
   <!-- <layeredsurface> -->
-  <implementation name="IM_layeredsurface__sx_osl" nodedef="ND_layeredsurface" file="sxpbrlib/sx-osl/sx_layeredsurface.osl" function="sx_layeredsurface" language="sx-osl"/>
+  <implementation name="IM_layeredsurface_sx_osl" nodedef="ND_layeredsurface" file="sxpbrlib/sx-osl/sx_layeredsurface.osl" function="sx_layeredsurface" language="sx-osl"/>
 
   <!-- <backfacing> -->
-  <implementation name="IM_backfacing__float__sx_osl" nodedef="ND_backfacing__float" file="sxpbrlib/sx-osl/sx_backfacing.inline" language="sx-osl"/>
+  <implementation name="IM_backfacing_float_sx_osl" nodedef="ND_backfacing_float" file="sxpbrlib/sx-osl/sx_backfacing.inline" language="sx-osl"/>
 
   <!-- <reflectivity> -->
-  <implementation name="IM_reflectivity__sx_osl" nodedef="ND_reflectivity" file="sxpbrlib/sx-osl/sx_reflectivity.osl" function="sx_reflectivity" language="sx-osl"/>
+  <implementation name="IM_reflectivity_sx_osl" nodedef="ND_reflectivity" file="sxpbrlib/sx-osl/sx_reflectivity.osl" function="sx_reflectivity" language="sx-osl"/>
 
   <!-- <edgetint> -->
-  <implementation name="IM_edgetint__sx_osl" nodedef="ND_edgetint" file="sxpbrlib/sx-osl/sx_edgetint.osl" function="sx_edgetint" language="sx-osl"/>
+  <implementation name="IM_edgetint_sx_osl" nodedef="ND_edgetint" file="sxpbrlib/sx-osl/sx_edgetint.osl" function="sx_edgetint" language="sx-osl"/>
 
   <!-- <normalmap> -->
-  <implementation name="IM_normalmap__sx_osl" nodedef="ND_normalmap" file="sxpbrlib/sx-osl/sx_normalmap.osl" function="sx_normalmap" language="sx-osl"/>
+  <implementation name="IM_normalmap_sx_osl" nodedef="ND_normalmap" file="sxpbrlib/sx-osl/sx_normalmap.osl" function="sx_normalmap" language="sx-osl"/>
 
   <!-- <srgb_linear> -->
-  <implementation name="IM_srgb_linear__color2__sx_osl" nodedef="ND_srgb_linear__color2" file="sxpbrlib/sx-osl/sx_srgb_linear_color2.osl" function="sx_srgb_linear_color2" language="sx-osl"/>
-  <implementation name="IM_srgb_linear__color3__sx_osl" nodedef="ND_srgb_linear__color3" file="sxpbrlib/sx-osl/sx_srgb_linear_color3.osl" function="sx_srgb_linear_color3" language="sx-osl"/>
-  <implementation name="IM_srgb_linear__color4__sx_osl" nodedef="ND_srgb_linear__color4" file="sxpbrlib/sx-osl/sx_srgb_linear_color4.osl" function="sx_srgb_linear_color4" language="sx-osl"/>
+  <implementation name="IM_srgb_linear_color2_sx_osl" nodedef="ND_srgb_linear_color2" file="sxpbrlib/sx-osl/sx_srgb_linear_color2.osl" function="sx_srgb_linear_color2" language="sx-osl"/>
+  <implementation name="IM_srgb_linear_color3_sx_osl" nodedef="ND_srgb_linear_color3" file="sxpbrlib/sx-osl/sx_srgb_linear_color3.osl" function="sx_srgb_linear_color3" language="sx-osl"/>
+  <implementation name="IM_srgb_linear_color4_sx_osl" nodedef="ND_srgb_linear_color4" file="sxpbrlib/sx-osl/sx_srgb_linear_color4.osl" function="sx_srgb_linear_color4" language="sx-osl"/>
 
 </materialx>

@@ -19,31 +19,37 @@ namespace MaterialX
 extern const string COLOR_SEMANTIC;
 extern const string SHADER_SEMANTIC;
 
-extern const string TEXTURE_NODE_CATEGORY;
-extern const string PROCEDURAL_NODE_CATEGORY;
-extern const string GEOMETRIC_NODE_CATEGORY;
-extern const string ADJUSTMENT_NODE_CATEGORY;
-extern const string CONDITIONAL_NODE_CATEGORY;
+extern const string TEXTURE_NODE_GROUP;
+extern const string PROCEDURAL_NODE_GROUP;
+extern const string GEOMETRIC_NODE_GROUP;
+extern const string ADJUSTMENT_NODE_GROUP;
+extern const string CONDITIONAL_NODE_GROUP;
+
+class NodeDef;
+class Implementation;
+class TypeDef;
+class Member;
+class ShaderRef;
 
 /// A shared pointer to a NodeDef
-using NodeDefPtr = shared_ptr<class NodeDef>;
+using NodeDefPtr = shared_ptr<NodeDef>;
 /// A shared pointer to a const NodeDef
-using ConstNodeDefPtr = shared_ptr<const class NodeDef>;
+using ConstNodeDefPtr = shared_ptr<const NodeDef>;
 
 /// A shared pointer to an Implementation
-using ImplementationPtr = shared_ptr<class Implementation>;
+using ImplementationPtr = shared_ptr<Implementation>;
 /// A shared pointer to a const Implementation
-using ConstImplementationPtr = shared_ptr<const class Implementation>;
+using ConstImplementationPtr = shared_ptr<const Implementation>;
 
 /// A shared pointer to a TypeDef
-using TypeDefPtr = shared_ptr<class TypeDef>;
+using TypeDefPtr = shared_ptr<TypeDef>;
 /// A shared pointer to a const TypeDef
-using ConstTypeDefPtr = shared_ptr<const class TypeDef>;
+using ConstTypeDefPtr = shared_ptr<const TypeDef>;
 
 /// A shared pointer to a Member
-using MemberPtr = shared_ptr<class Member>;
+using MemberPtr = shared_ptr<Member>;
 /// A shared pointer to a const Member
-using ConstMemberPtr = shared_ptr<const class Member>;
+using ConstMemberPtr = shared_ptr<const Member>;
 
 /// @class NodeDef
 /// A node definition element within a Document.
@@ -59,7 +65,7 @@ class NodeDef : public InterfaceElement
     }
     virtual ~NodeDef() { }
 
-    using ShaderRefPtr = shared_ptr<class ShaderRef>;
+    using ShaderRefPtr = shared_ptr<ShaderRef>;
 
     /// @name Node String
     /// @{
@@ -83,25 +89,25 @@ class NodeDef : public InterfaceElement
     }
 
     /// @}
-    /// @name Node Category
+    /// @name Node Group
     /// @{
 
-    /// Set the node category of the NodeDef.
-    void setNodeCategory(const string& category)
+    /// Set the node group of the NodeDef.
+    void setNodeGroup(const string& category)
     {
-        setAttribute(NODE_CATEGORY_ATTRIBUTE, category);
+        setAttribute(NODE_GROUP_ATTRIBUTE, category);
     }
 
-    /// Return true if the given NodeDef has a node category.
-    bool hasNodeCategory() const
+    /// Return true if the given NodeDef has a node group.
+    bool hasNodeGroup() const
     {
-        return hasAttribute(NODE_CATEGORY_ATTRIBUTE);
+        return hasAttribute(NODE_GROUP_ATTRIBUTE);
     }
 
-    /// Return the node category of the NodeDef.
-    const string& getNodeCategory() const
+    /// Return the node group of the NodeDef.
+    const string& getNodeGroup() const
     {
-        return getAttribute(NODE_CATEGORY_ATTRIBUTE);
+        return getAttribute(NODE_GROUP_ATTRIBUTE);
     }
 
     /// @}
@@ -149,7 +155,7 @@ class NodeDef : public InterfaceElement
   public:
     static const string CATEGORY;
     static const string NODE_ATTRIBUTE;
-    static const string NODE_CATEGORY_ATTRIBUTE;
+    static const string NODE_GROUP_ATTRIBUTE;
 };
 
 /// @class Implementation
@@ -167,44 +173,6 @@ class Implementation : public InterfaceElement
     }
     virtual ~Implementation() { }
 
-    /// @name NodeDef
-    /// @{
-
-    /// Set the NodeDef string for the Implementation.
-    void setNodeDefString(const string& nodeDef)
-    {
-        setAttribute(NODE_DEF_ATTRIBUTE, nodeDef);
-    }
-
-    /// Return true if the given Implementation has a NodeDef string.
-    bool hasNodeDefString() const
-    {
-        return hasAttribute(NODE_DEF_ATTRIBUTE);
-    }
-
-    /// Return the NodeDef string for the Implementation.
-    const string& getNodeDefString() const
-    {
-        return getAttribute(NODE_DEF_ATTRIBUTE);
-    }
-
-    /// Set the NodeDef element for the Implementation.
-    void setNodeDef(ConstNodeDefPtr nodeDef)
-    {
-        if (nodeDef)
-        {
-            setNodeDefString(nodeDef->getName());
-        }
-        else
-        {
-            removeAttribute(NODE_DEF_ATTRIBUTE);
-        }
-    }
-
-    /// Return the NodeDef element for the Implementation.
-    NodeDefPtr getNodeDef() const;
-
-    /// @}
     /// @name File String
     /// @{
 

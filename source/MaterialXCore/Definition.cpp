@@ -13,17 +13,16 @@ namespace MaterialX
 const string COLOR_SEMANTIC = "color";
 const string SHADER_SEMANTIC = "shader";
 
-const string TEXTURE_NODE_CATEGORY = "texture";
-const string PROCEDURAL_NODE_CATEGORY = "procedural";
-const string GEOMETRIC_NODE_CATEGORY = "geometric";
-const string ADJUSTMENT_NODE_CATEGORY = "adjustment";
-const string CONDITIONAL_NODE_CATEGORY = "conditional";
+const string TEXTURE_NODE_GROUP = "texture";
+const string PROCEDURAL_NODE_GROUP = "procedural";
+const string GEOMETRIC_NODE_GROUP = "geometric";
+const string ADJUSTMENT_NODE_GROUP = "adjustment";
+const string CONDITIONAL_NODE_GROUP = "conditional";
 
 const string NodeDef::NODE_ATTRIBUTE = "node";
-const string NodeDef::NODE_CATEGORY_ATTRIBUTE = "nodecategory";
+const string NodeDef::NODE_GROUP_ATTRIBUTE = "nodegroup";
 const string TypeDef::SEMANTIC_ATTRIBUTE = "semantic";
 const string TypeDef::CONTEXT_ATTRIBUTE = "context";
-const string Implementation::NODE_DEF_ATTRIBUTE = "nodedef";
 const string Implementation::FILE_ATTRIBUTE = "file";
 const string Implementation::FUNCTION_ATTRIBUTE = "function";
 const string Implementation::LANGUAGE_ATTRIBUTE = "language";
@@ -102,15 +101,6 @@ bool NodeDef::isVersionCompatible(ConstElementPtr elem) const
         return true;
     }
     return false;
-}
-
-//
-// Implementation methods
-//
-
-NodeDefPtr Implementation::getNodeDef() const
-{
-    return resolveRootNameReference<NodeDef>(getNodeDefString());
 }
 
 } // namespace MaterialX

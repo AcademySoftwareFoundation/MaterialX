@@ -24,17 +24,20 @@ _testValues = (1,
                'value')
 
 _fileDir = os.path.dirname(os.path.abspath(__file__))
-_libraryDir = os.path.join(_fileDir, '../../documents/Libraries/stdlib')
+_libraryDir = os.path.join(_fileDir, '../../documents/Libraries/stdlib/')
 _exampleDir = os.path.join(_fileDir, '../../documents/Examples/')
 _searchPath = _libraryDir + ';' + _exampleDir
 
 _libraryFilenames = ('stdlib_defs.mtlx',
+                     'stdlib_ng.mtlx',
                      'stdlib_osl_impl.mtlx')
 _exampleFilenames = ('CustomNode.mtlx',
                      'Looks.mtlx',
-                     'MaterialGraphs.mtlx',
+                     'MaterialBasic.mtlx',
                      'MultiOutput.mtlx',
+                     'NodeGraphs.mtlx',
                      'PaintMaterials.mtlx',
+                     'PostShaderComposite.mtlx',
                      'PreShaderComposite.mtlx',
                      'BxDF/alSurface.mtlx',
                      'BxDF/Disney_BRDF_2012.mtlx',
@@ -491,17 +494,11 @@ class TestMaterialX(unittest.TestCase):
                 doc2.importLibrary(lib)
             self.assertTrue(doc2.validate()[0])
 
-            # Verify that all referenced nodes are declared and implemented.
-            for elem in doc2.traverseTree():
-                if elem.isA(mx.Node):
-                    self.assertTrue(elem.getNodeDef())
-                    self.assertTrue(elem.getImplementation())
-
         # Read the same document twice with duplicate elements skipped.
         doc = mx.createDocument()
         readOptions = mx.XmlReadOptions()
         readOptions.skipDuplicateElements = True
-        filename = 'PaintMaterials.mtlx'
+        filename = 'PostShaderComposite.mtlx'
         mx.readFromXmlFile(doc, filename, _searchPath, readOptions)
         mx.readFromXmlFile(doc, filename, _searchPath, readOptions)
         self.assertTrue(doc.validate()[0])

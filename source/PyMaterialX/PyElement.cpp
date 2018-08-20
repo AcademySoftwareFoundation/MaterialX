@@ -28,8 +28,7 @@ void bindPyElement(py::module& mod)
 {
     py::class_<mx::CopyOptions>(mod, "CopyOptions")
         .def(py::init())
-        .def_readwrite("skipDuplicateElements", &mx::CopyOptions::skipDuplicateElements)
-        .def_readwrite("copySourceUris", &mx::CopyOptions::copySourceUris);
+        .def_readwrite("skipDuplicateElements", &mx::CopyOptions::skipDuplicateElements);
 
     py::class_<mx::Element, mx::ElementPtr>(mod, "Element")
         .def(py::self == py::self)
@@ -96,10 +95,10 @@ void bindPyElement(py::module& mod)
         .def("getUpstreamElement", &mx::Element::getUpstreamElement,
             py::arg("material") = nullptr, py::arg("index") = 0)
         .def("traverseInheritance", &mx::Element::traverseInheritance)
-        .def("traverseAncestors", &mx::Element::traverseAncestors)
         .def("setSourceUri", &mx::Element::setSourceUri)
         .def("hasSourceUri", &mx::Element::hasSourceUri)
         .def("getSourceUri", &mx::Element::getSourceUri)
+        .def("getActiveSourceUri", &mx::Element::getActiveSourceUri)
         .def("validate", [](mx::Element& elem)
             {
                 std::string message;

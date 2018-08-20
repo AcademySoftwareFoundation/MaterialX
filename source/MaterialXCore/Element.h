@@ -18,28 +18,36 @@
 namespace MaterialX
 {
 
+class Element;
+class TypedElement;
+class ValueElement;
+class Token;
+class StringResolver;
+class Document;
+class Material;
+
 /// A shared pointer to an Element
-using ElementPtr = shared_ptr<class Element>;
+using ElementPtr = shared_ptr<Element>;
 /// A shared pointer to a const Element
-using ConstElementPtr = shared_ptr<const class Element>;
+using ConstElementPtr = shared_ptr<const Element>;
 
 /// A shared pointer to a TypedElement
-using TypedElementPtr = shared_ptr<class TypedElement>;
+using TypedElementPtr = shared_ptr<TypedElement>;
 /// A shared pointer to a const TypedElement
-using ConstTypedElementPtr = shared_ptr<const class TypedElement>;
+using ConstTypedElementPtr = shared_ptr<const TypedElement>;
 
 /// A shared pointer to a ValueElement
-using ValueElementPtr = shared_ptr<class ValueElement>;
+using ValueElementPtr = shared_ptr<ValueElement>;
 /// A shared pointer to a const ValueElement
-using ConstValueElementPtr = shared_ptr<const class ValueElement>;
+using ConstValueElementPtr = shared_ptr<const ValueElement>;
 
 /// A shared pointer to a Token
-using TokenPtr = shared_ptr<class Token>;
+using TokenPtr = shared_ptr<Token>;
 /// A shared pointer to a const Token
-using ConstTokenPtr = shared_ptr<const class Token>;
+using ConstTokenPtr = shared_ptr<const Token>;
 
 /// A shared pointer to a StringResolver
-using StringResolverPtr = shared_ptr<class StringResolver>;
+using StringResolverPtr = shared_ptr<StringResolver>;
 
 /// A hash map from strings to elements
 using ElementMap = std::unordered_map<string, ElementPtr>;
@@ -66,9 +74,9 @@ class Element : public std::enable_shared_from_this<Element>
     virtual ~Element() { }
 
   protected:
-    using DocumentPtr = shared_ptr<class Document>;
-    using ConstDocumentPtr = shared_ptr<const class Document>;
-    using ConstMaterialPtr = shared_ptr<const class Material>;
+    using DocumentPtr = shared_ptr<Document>;
+    using ConstDocumentPtr = shared_ptr<const Document>;
+    using ConstMaterialPtr = shared_ptr<const Material>;
 
     template <class T> friend class ElementRegistry;
 
@@ -154,7 +162,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// element, taking all ancestor elements into account.
     const string& getActiveFilePrefix() const
     {
-        for (ConstElementPtr elem : traverseAncestors())
+        for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
         {
             if (elem->hasFilePrefix())
             {
@@ -190,7 +198,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// element, taking all ancestor elements into account.
     const string& getActiveGeomPrefix() const
     {
-        for (ConstElementPtr elem : traverseAncestors())
+        for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
         {
             if (elem->hasGeomPrefix())
             {
@@ -226,7 +234,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// element, taking all ancestor elements into account.
     const string& getActiveColorSpace() const
     {
-        for (ConstElementPtr elem : traverseAncestors())
+        for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
         {
             if (elem->hasColorSpace())
             {
@@ -332,7 +340,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// scope of this element into account.
     string getQualifiedName(const string& name) const
     {
-        for (ConstElementPtr elem : traverseAncestors())
+        for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
         {
             if (elem->hasNamespace())
             {
@@ -690,20 +698,6 @@ class Element : public std::enable_shared_from_this<Element>
     /// @endcode
     InheritanceIterator traverseInheritance() const;
 
-    /// Traverse the tree from the given element to each of its ancestors.
-    /// @return An AncestorIterator object.
-    /// @details Example usage:
-    /// @code
-    /// ConstElementPtr childElem;
-    /// for (ConstElementPtr elem : inputElem->traverseAncestors())
-    /// {
-    ///     if (childElem)
-    ///         cout << childElem->asString() << " is a child of " << elem->asString() << endl;
-    ///     childElem = elem;
-    /// }
-    /// @endcode
-    AncestorIterator traverseAncestors() const;
-
     /// @}
     /// @name Source URI
     /// @{
@@ -728,6 +722,20 @@ class Element : public std::enable_shared_from_this<Element>
     const string& getSourceUri() const
     {
         return _sourceUri;
+    }
+
+    /// Return the source URI that is active at the scope of this
+    /// element, taking all ancestor elements into account.
+    const string& getActiveSourceUri() const
+    {
+        for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
+        {
+            if (elem->hasSourceUri())
+            {
+                return elem->getSourceUri();
+            }
+        }
+        return EMPTY_STRING;
     }
 
     /// @}
@@ -1211,8 +1219,7 @@ class CopyOptions
 {
   public:
     CopyOptions() :
-        skipDuplicateElements(false),
-        copySourceUris(false)
+        skipDuplicateElements(false)
     {
     }
     ~CopyOptions() { }
@@ -1220,10 +1227,6 @@ class CopyOptions
     /// If true, elements at the same scope with duplicate names will be skipped;
     /// otherwise, they will trigger an exception.  Defaults to false.
     bool skipDuplicateElements;
-
-    /// If true, then source URIs from the given element
-    /// and its descendants are also copied.  Defaults to false.
-    bool copySourceUris;
 };
 
 /// @class ExceptionOrphanedElement

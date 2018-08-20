@@ -431,7 +431,7 @@ TEST_CASE("GLSL Shader", "[shadervalid]")
     {
         const std::string lightDoc = " \
         <?xml version=\"1.0\"?> \
-        <materialx version=\"1.35\" require=\"\"> \
+        <materialx version=\"1.36\" require=\"\"> \
           <nodegraph name=\"lighting1\"> \
             <surface name=\"surface1\" type=\"surfaceshader\"> \
               <input name=\"bsdf\" type=\"BSDF\" value=\"\" nodename=\"diffusebsdf1\" /> \

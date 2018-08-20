@@ -14,15 +14,18 @@ TEST_CASE("Load content", "[xmlio]")
     std::string libraryFilenames[] =
     {
         "stdlib_defs.mtlx",
+        "stdlib_ng.mtlx",
         "stdlib_osl_impl.mtlx"
     };
     std::string exampleFilenames[] =
     {
         "CustomNode.mtlx",
         "Looks.mtlx",
-        "MaterialGraphs.mtlx",
+        "MaterialBasic.mtlx",
         "MultiOutput.mtlx",
+        "NodeGraphs.mtlx",
         "PaintMaterials.mtlx",
+        "PostShaderComposite.mtlx",
         "PreShaderComposite.mtlx",
         "BxDF/alSurface.mtlx",
         "BxDF/Disney_BRDF_2012.mtlx",
@@ -41,6 +44,7 @@ TEST_CASE("Load content", "[xmlio]")
     }
 
     // Read and validate each example document.
+    bool firstExample = true;
     for (std::string filename : exampleFilenames)
     {
         mx::DocumentPtr doc = mx::createDocument();
@@ -97,103 +101,101 @@ TEST_CASE("Load content", "[xmlio]")
         mx::readFromXmlString(writtenDoc, xmlString);
         REQUIRE(*writtenDoc == *doc);
 
-        // Serialize to XML with a custom predicate that skips images.
-        auto skipImages = [](mx::ElementPtr elem)
-        {
-            return !elem->isA<mx::Node>("image");
-        };
-        xmlString = mx::writeToXmlString(doc, false, skipImages);
-        
-        // Verify that the serialized document contains no images.
-        writtenDoc = mx::createDocument();
-        mx::readFromXmlString(writtenDoc, xmlString);
-        unsigned imageElementCount = 0;
-        for (mx::ElementPtr elem : writtenDoc->traverseTree())
-        {
-            if (elem->isA<mx::Node>("image"))
-            {
-                imageElementCount++;
-            }
-        }
-        REQUIRE(imageElementCount == 0);
-
         // Combine document with the standard library.
-        mx::DocumentPtr doc2 = doc->copy();
         for (mx::DocumentPtr lib : libs)
         {
-            doc2->importLibrary(lib);
+            doc->importLibrary(lib);
         }
-        REQUIRE(doc2->validate());
+        REQUIRE(doc->validate());
+
+        // Flatten subgraph references.
+        for (mx::NodeGraphPtr nodeGraph : doc->getNodeGraphs())
+        {
+            if (!firstExample && nodeGraph->getActiveSourceUri() != doc->getSourceUri())
+            {
+                continue;
+            }
+            nodeGraph->flattenSubgraphs();
+            REQUIRE(nodeGraph->validate());
+        }
 
         // Verify that all referenced types and nodes are declared, and that
         // referenced node declarations are implemented.
-        for (mx::ElementPtr elem : doc2->traverseTree())
+        bool referencesValid = true;
+        for (mx::ElementPtr elem : doc->traverseTree())
         {
+            if (!firstExample && elem->getActiveSourceUri() != doc->getSourceUri())
+            {
+                continue;
+            }
+
             mx::TypedElementPtr typedElem = elem->asA<mx::TypedElement>();
             mx::NodePtr node = elem->asA<mx::Node>();
             if (typedElem && typedElem->hasType() && !typedElem->isMultiOutputType())
             {
-                REQUIRE(typedElem->getTypeDef());
+                if (!typedElem->getTypeDef())
+                {
+                    WARN("[" + node->getActiveSourceUri() + "] TypedElement " + node->getName() + " has no matching TypeDef");
+                    referencesValid = false;
+                }
             }
             if (node)
             {
-                REQUIRE(node->getNodeDef());
-                REQUIRE(node->getImplementation());
+                if (!node->getNodeDef())
+                {
+                    WARN("[" + node->getActiveSourceUri() + "] Node " + node->getName() + " has no matching NodeDef");
+                    referencesValid = false;
+                }
+                if (!node->getImplementation())
+                {
+                    WARN("[" + node->getActiveSourceUri() + "] Node " + node->getName() + " has no matching Implementation");
+                    referencesValid = false;
+                }
             }
         }
+        REQUIRE(referencesValid);
 
-        // Create a namespaced custom library.
-        mx::DocumentPtr customLibrary = mx::createDocument();
-        customLibrary->setNamespace("custom");
-        mx::NodeGraphPtr customNodeGraph = customLibrary->addNodeGraph("NG_custom");
-        mx::NodeDefPtr customNodeDef = customLibrary->addNodeDef("ND_simpleSrf", "surfaceshader", "simpleSrf");
-        mx::ImplementationPtr customImpl = customLibrary->addImplementation("IM_custom");
-        mx::NodePtr customNode = customNodeGraph->addNodeInstance(customNodeDef, "custom1");
-        customImpl->setNodeDef(customNodeDef);
-        REQUIRE(customLibrary->validate());
-
-        // Import the custom library.
-        doc2->importLibrary(customLibrary);
-        mx::NodeGraphPtr importedNodeGraph = doc2->getNodeGraph("custom:NG_custom");
-        mx::NodeDefPtr importedNodeDef = doc2->getNodeDef("custom:ND_simpleSrf");
-        mx::ImplementationPtr importedImpl = doc2->getImplementation("custom:IM_custom");
-        mx::NodePtr importedNode = importedNodeGraph->getNode("custom1");
-        REQUIRE(importedNodeDef != nullptr);
-        REQUIRE(importedNode->getNodeDef() == importedNodeDef);
-        REQUIRE(importedImpl->getNodeDef() == importedNodeDef);
-        REQUIRE(doc2->validate());
-
-        // Flatten subgraph references.
-        for (mx::NodeGraphPtr nodeGraph : doc2->getNodeGraphs())
-        {
-            nodeGraph->flattenSubgraphs();
-        }
-        REQUIRE(doc2->validate());
-
-        // Read document without XIncludes.
-        mx::DocumentPtr doc3 = mx::createDocument();
-        mx::XmlReadOptions readOptions;
-        readOptions.readXIncludes = false;
-        mx::readFromXmlFile(doc3, filename, searchPath, &readOptions);
-        if (*doc3 != *doc)
-        {
-            writtenDoc = mx::createDocument();
-            xmlString = mx::writeToXmlString(doc);
-            mx::readFromXmlString(writtenDoc, xmlString, &readOptions);
-            REQUIRE(*doc3 == *writtenDoc);
-        }
+        firstExample = false;
     }
 
     // Read the same document twice with duplicate elements skipped.
     mx::DocumentPtr doc = mx::createDocument();
     mx::XmlReadOptions readOptions;
     readOptions.skipDuplicateElements = true;
-    std::string filename = "PaintMaterials.mtlx";
+    std::string filename = "PostShaderComposite.mtlx";
     mx::readFromXmlFile(doc, filename, searchPath, &readOptions);
     mx::readFromXmlFile(doc, filename, searchPath, &readOptions);
     REQUIRE(doc->validate());
 
+    // Read document without XIncludes.
+    mx::DocumentPtr flatDoc = mx::createDocument();
+    readOptions = mx::XmlReadOptions();
+    readOptions.readXIncludes = false;
+    mx::readFromXmlFile(flatDoc, filename, searchPath, &readOptions);
+    REQUIRE(*flatDoc != *doc);
+
+    // Serialize to XML with a custom predicate that skips images.
+    auto skipImages = [](mx::ElementPtr elem)
+    {
+        return !elem->isA<mx::Node>("image");
+    };
+    std::string xmlString = mx::writeToXmlString(doc, false, skipImages);
+        
+    // Reconstruct and verify that the document contains no images.
+    mx::DocumentPtr writtenDoc = mx::createDocument();
+    mx::readFromXmlString(writtenDoc, xmlString);
+    REQUIRE(*writtenDoc != *doc);
+    unsigned imageElementCount = 0;
+    for (mx::ElementPtr elem : writtenDoc->traverseTree())
+    {
+        if (elem->isA<mx::Node>("image"))
+        {
+            imageElementCount++;
+        }
+    }
+    REQUIRE(imageElementCount == 0);
+
     // Read a non-existent document.
-    mx::DocumentPtr doc2 = mx::createDocument();
-    REQUIRE_THROWS_AS(mx::readFromXmlFile(doc2, "NonExistent.mtlx"), mx::ExceptionFileMissing&);
+    mx::DocumentPtr nonExistentDoc = mx::createDocument();
+    REQUIRE_THROWS_AS(mx::readFromXmlFile(nonExistentDoc, "NonExistent.mtlx"), mx::ExceptionFileMissing&);
 }

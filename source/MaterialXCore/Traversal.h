@@ -14,9 +14,12 @@
 namespace MaterialX
 {
 
-using ElementPtr = shared_ptr<class Element>;
-using ConstElementPtr = shared_ptr<const class Element>;
-using ConstMaterialPtr = shared_ptr<const class Material>;
+class Element;
+class Material;
+
+using ElementPtr = shared_ptr<Element>;
+using ConstElementPtr = shared_ptr<const Element>;
+using ConstMaterialPtr = shared_ptr<const Material>;
 
 /// @class Edge
 /// An edge between two connected Elements, returned during graph traversal.
@@ -385,55 +388,6 @@ class InheritanceIterator
     size_t _holdCount;
 };
 
-/// @class AncestorIterator
-/// An iterator object representing the current state of an ancestor traversal.
-///
-/// @sa Element::traverseAncestors
-class AncestorIterator
-{
-  public:
-    explicit AncestorIterator(ConstElementPtr elem) :
-        _elem(elem),
-        _holdCount(0)
-    {
-    }
-    ~AncestorIterator() { }
-
-    bool operator==(const AncestorIterator& rhs) const
-    {
-        return _elem == rhs._elem;
-    }
-    bool operator!=(const AncestorIterator& rhs) const
-    {
-        return !(*this == rhs);
-    }
-
-    /// Dereference this iterator, returning the current element in the
-    /// traversal.
-    ConstElementPtr operator*() const
-    {
-        return _elem;
-    }
-
-    /// Iterate to the next element in the traversal.
-    AncestorIterator& operator++();
-
-    /// Interpret this object as an iteration range, and return its begin
-    /// iterator.
-    AncestorIterator& begin(size_t holdCount = 0)
-    {
-        _holdCount = holdCount;
-        return *this;
-    }
-
-    /// Return the sentinel end iterator for this class.
-    static const AncestorIterator& end();
-
-  private:
-    ConstElementPtr _elem;
-    size_t _holdCount;
-};
-
 /// @class ExceptionFoundCycle
 /// An exception that is thrown when a traversal call encounters a cycle.
 class ExceptionFoundCycle : public Exception
@@ -447,7 +401,6 @@ extern const Edge NULL_EDGE;
 extern const TreeIterator NULL_TREE_ITERATOR;
 extern const GraphIterator NULL_GRAPH_ITERATOR;
 extern const InheritanceIterator NULL_INHERITANCE_ITERATOR;
-extern const AncestorIterator NULL_ANCESTOR_ITERATOR;
 
 } // namespace MaterialX
 
