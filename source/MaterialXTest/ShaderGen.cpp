@@ -134,7 +134,7 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
     // Example1: Create a material from 'standard_surface' with support for normal mapping
     {
         mx::MaterialPtr material = doc->addMaterial("example1");
-        mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "standard_surface");
+        mx::ShaderRefPtr shaderRef = material->addShaderRef("example1_surface", "standard_surface");
 
         // Create nodes to handle normal mapping and bind it to the shader's normal input
         mx::NodePtr texcoord1 = doc->addNode("texcoord", "texcoord1", "vector2");
@@ -213,7 +213,7 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
 
         // Create a material with the above shader node as the shader ref
         mx::MaterialPtr material = doc->addMaterial("example2");
-        mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "testshader2");
+        mx::ShaderRefPtr shaderRef = material->addShaderRef("example2_surface", "testshader2");
 
         // Bind a couple of shader parameter values
         mx::BindInputPtr diffuse_reflectance_input = shaderRef->addBindInput("diffuse_reflectance", "color3");
@@ -295,7 +295,7 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
 
         // Create a material with the above shader node as the shader ref
         mx::MaterialPtr material = doc->addMaterial("example3");
-        mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "testshader3");
+        mx::ShaderRefPtr shaderRef = material->addShaderRef("example3_surface", "testshader3");
 
         // Bind values setting both reflectivity/edgetint and ior_n/ior_k to represent gold,
         // so both metals should give the same result.
@@ -399,7 +399,7 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
 
         // Create a material with the above shader node as the shader ref
         mx::MaterialPtr material = doc->addMaterial("example4");
-        mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "testshader4");
+        mx::ShaderRefPtr shaderRef = material->addShaderRef("example4_surface", "testshader4");
 
         // Bind a couple of shader parameter values
         mx::BindInputPtr base_input = shaderRef->addBindInput("base", "float");
@@ -421,7 +421,7 @@ void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& m
     // Example5: Create a material directly from 'standard_surface'
     {
         mx::MaterialPtr material = doc->addMaterial("example5");
-        mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "standard_surface");
+        mx::ShaderRefPtr shaderRef = material->addShaderRef("example5_surface", "standard_surface");
 
         // Bind a couple of shader parameter values
         mx::BindInputPtr specular_roughness_input = shaderRef->addBindInput("specular_roughness", "float");
@@ -1743,7 +1743,7 @@ TEST_CASE("Color Spaces", "[shadergen]")
     loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
 
     mx::MaterialPtr material = doc->addMaterial("color_spaces");
-    mx::ShaderRefPtr shaderRef = material->addShaderRef("surface", "standard_surface");
+    mx::ShaderRefPtr shaderRef = material->addShaderRef("color_spaces_surface", "standard_surface");
 
     // Bind an image texture to the base_color input, with sRGB color space
     mx::NodePtr baseColorTex = doc->addNode("image", "base_color_tex", "color3");
