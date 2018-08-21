@@ -553,6 +553,24 @@
   <implementation name="IM_unpremult_color3_sx_osl" nodedef="ND_unpremult_color3" file="stdlib/sx-osl/mx_unpremult_color3.osl" function="mx_unpremult_color3" language="sx-osl"/>
   <implementation name="IM_unpremult_color4_sx_osl" nodedef="ND_unpremult_color4" file="stdlib/sx-osl/mx_unpremult_color4.osl" function="mx_unpremult_color4" language="sx-osl"/>
 
+  <!-- <plus> -->
+  <implementation name="IM_plus_float_sx_osl" nodedef="ND_plus_float" file="stdlib/sx-osl/mx_plus.inline" language="sx-osl"/>
+  <implementation name="IM_plus_color2_sx_osl" nodedef="ND_plus_color2" file="stdlib/sx-osl/mx_plus.inline" language="sx-osl"/>
+  <implementation name="IM_plus_color3_sx_osl" nodedef="ND_plus_color3" file="stdlib/sx-osl/mx_plus.inline" language="sx-osl"/>
+  <implementation name="IM_plus_color4_sx_osl" nodedef="ND_plus_color4" file="stdlib/sx-osl/mx_plus.inline" language="sx-osl"/>
+
+  <!-- <minus> -->
+  <implementation name="IM_minus_float_sx_osl" nodedef="ND_minus_float" file="stdlib/sx-osl/mx_minus.inline" language="sx-osl"/>
+  <implementation name="IM_minus_color2_sx_osl" nodedef="ND_minus_color2" file="stdlib/sx-osl/mx_minus.inline" language="sx-osl"/>
+  <implementation name="IM_minus_color3_sx_osl" nodedef="ND_minus_color3" file="stdlib/sx-osl/mx_minus.inline" language="sx-osl"/>
+  <implementation name="IM_minus_color4_sx_osl" nodedef="ND_minus_color4" file="stdlib/sx-osl/mx_minus.inline" language="sx-osl"/>
+
+  <!-- <difference> -->
+  <implementation name="IM_difference_float_sx_osl" nodedef="ND_difference_float" file="stdlib/sx-osl/mx_difference.inline" language="sx-osl"/>
+  <implementation name="IM_difference_color2_sx_osl" nodedef="ND_difference_color2" file="stdlib/sx-osl/mx_difference.inline" language="sx-osl"/>
+  <implementation name="IM_difference_color3_sx_osl" nodedef="ND_difference_color3" file="stdlib/sx-osl/mx_difference.inline" language="sx-osl"/>
+  <implementation name="IM_difference_color4_sx_osl" nodedef="ND_difference_color4" file="stdlib/sx-osl/mx_difference.inline" language="sx-osl"/>
+
   <!-- <burn> -->
   <implementation name="IM_burn_float_sx_osl" nodedef="ND_burn_float" file="stdlib/sx-osl/mx_burn.inline" language="sx-osl"/>
   <implementation name="IM_burn_color2_sx_osl" nodedef="ND_burn_color2" file="stdlib/sx-osl/mx_burn.inline" language="sx-osl"/>
@@ -566,15 +584,48 @@
   <implementation name="IM_dodge_color4_sx_osl" nodedef="ND_dodge_color4" file="stdlib/sx-osl/mx_dodge.inline" language="sx-osl"/>
 
   <!-- <screen> -->
+  <implementation name="IM_screen_float_sx_osl" nodedef="ND_screen_float" file="stdlib/sx-osl/mx_screen.inline" language="sx-osl"/>
+  <implementation name="IM_screen_color2_sx_osl" nodedef="ND_screen_color2" file="stdlib/sx-osl/mx_screen.inline" language="sx-osl"/>
+  <implementation name="IM_screen_color3_sx_osl" nodedef="ND_screen_color3" file="stdlib/sx-osl/mx_screen.inline" language="sx-osl"/>
+  <implementation name="IM_screen_color4_sx_osl" nodedef="ND_screen_color4" file="stdlib/sx-osl/mx_screen.inline" language="sx-osl"/>
+
   <!-- <overlay> -->
+  <implementation name="IM_overlay_float_sx_osl" nodedef="ND_overlay_float" file="stdlib/sx-osl/mx_overlay.inline" language="sx-osl"/>
+  <implementation name="IM_overlay_color2_sx_osl" nodedef="ND_overlay_color2" file="stdlib/sx-osl/mx_overlay.inline" language="sx-osl"/>
+  <implementation name="IM_overlay_color3_sx_osl" nodedef="ND_overlay_color3" file="stdlib/sx-osl/mx_overlay.inline" language="sx-osl"/>
+  <implementation name="IM_overlay_color4_sx_osl" nodedef="ND_overlay_color4" file="stdlib/sx-osl/mx_overlay.inline" language="sx-osl"/>
+
   <!-- <disjointover> -->
+  <implementation name="IM_disjointover_color2_sx_osl" nodedef="ND_disjointover_color2" file="stdlib/sx-osl/mx_disjointover_color2.inline" language="sx-osl"/>
+  <implementation name="IM_disjointover_color4_sx_osl" nodedef="ND_disjointover_color4" file="stdlib/sx-osl/mx_disjointover_color4.inline" language="sx-osl"/>
+
   <!-- <in> -->
+  <implementation name="IM_in_color2_sx_osl" nodedef="ND_in_color2" file="stdlib/sx-osl/mx_in.inline" language="sx-osl"/>
+  <implementation name="IM_in_color4_sx_osl" nodedef="ND_in_color4" file="stdlib/sx-osl/mx_in.inline" language="sx-osl"/>
+
   <!-- <mask> -->
+  <implementation name="IM_mask_color2_sx_osl" nodedef="ND_mask_color2" file="stdlib/sx-osl/mx_mask.inline" language="sx-osl"/>
+  <implementation name="IM_mask_color4_sx_osl" nodedef="ND_mask_color4" file="stdlib/sx-osl/mx_mask.inline" language="sx-osl"/>
+
   <!-- <matte> -->
+  <implementation name="IM_matte_color2_sx_osl" nodedef="ND_matte_color2" file="stdlib/sx-osl/mx_matte_color2.inline" language="sx-osl"/>
+  <implementation name="IM_matte_color4_sx_osl" nodedef="ND_matte_color4" file="stdlib/sx-osl/mx_matte_color4.inline" language="sx-osl"/>
+
   <!-- <out> -->
+  <implementation name="IM_out_color2_sx_osl" nodedef="ND_out_color2" file="stdlib/sx-osl/mx_out.inline" language="sx-osl"/>
+  <implementation name="IM_out_color4_sx_osl" nodedef="ND_out_color4" file="stdlib/sx-osl/mx_out.inline" language="sx-osl"/>
+
   <!-- <over> -->
+  <implementation name="IM_over_color2_sx_osl" nodedef="ND_over_color2" file="stdlib/sx-osl/mx_over.inline" language="sx-osl"/>
+  <implementation name="IM_over_color4_sx_osl" nodedef="ND_over_color4" file="stdlib/sx-osl/mx_over.inline" language="sx-osl"/>
+
   <!-- <inside> -->
+  <implementation name="IM_inside_color2_sx_osl" nodedef="ND_inside_color2" file="stdlib/sx-osl/mx_multiply.inline" language="sx-osl"/>
+  <implementation name="IM_inside_color4_sx_osl" nodedef="ND_inside_color4" file="stdlib/sx-osl/mx_multiply.inline" language="sx-osl"/>
+
   <!-- <outside> -->
+  <implementation name="IM_outside_color2_sx_osl" nodedef="ND_outside_color2" file="stdlib/sx-osl/mx_outside.inline" language="sx-osl"/>
+  <implementation name="IM_outside_color4_sx_osl" nodedef="ND_outside_color4" file="stdlib/sx-osl/mx_outside.inline" language="sx-osl"/>
 
   <!-- <mix> -->
   <implementation name="IM_mix_float_sx_osl" nodedef="ND_mix_float" file="stdlib/sx-osl/mx_mix.inline" language="sx-osl"/>

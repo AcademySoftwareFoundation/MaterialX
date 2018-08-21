@@ -527,15 +527,68 @@
 
   <!-- <premult> -->
   <!-- <unpremult> -->
+
+  <!-- <plus> -->
+  <implementation name="IM_plus_float_sx_glsl" nodedef="ND_plus_float" file="stdlib/sx-glsl/mx_plus.inline" language="sx-glsl"/>
+  <implementation name="IM_plus_color2_sx_glsl" nodedef="ND_plus_color2" file="stdlib/sx-glsl/mx_plus.inline" language="sx-glsl"/>
+  <implementation name="IM_plus_color3_sx_glsl" nodedef="ND_plus_color3" file="stdlib/sx-glsl/mx_plus.inline" language="sx-glsl"/>
+  <implementation name="IM_plus_color4_sx_glsl" nodedef="ND_plus_color4" file="stdlib/sx-glsl/mx_plus.inline" language="sx-glsl"/>
+
+  <!-- <minus> -->
+  <implementation name="IM_minus_float_sx_glsl" nodedef="ND_minus_float" file="stdlib/sx-glsl/mx_minus.inline" language="sx-glsl"/>
+  <implementation name="IM_minus_color2_sx_glsl" nodedef="ND_minus_color2" file="stdlib/sx-glsl/mx_minus.inline" language="sx-glsl"/>
+  <implementation name="IM_minus_color3_sx_glsl" nodedef="ND_minus_color3" file="stdlib/sx-glsl/mx_minus.inline" language="sx-glsl"/>
+  <implementation name="IM_minus_color4_sx_glsl" nodedef="ND_minus_color4" file="stdlib/sx-glsl/mx_minus.inline" language="sx-glsl"/>
+
+  <!-- <difference> -->
+  <implementation name="IM_difference_float_sx_glsl" nodedef="ND_difference_float" file="stdlib/sx-glsl/mx_difference.inline" language="sx-glsl"/>
+  <implementation name="IM_difference_color2_sx_glsl" nodedef="ND_difference_color2" file="stdlib/sx-glsl/mx_difference.inline" language="sx-glsl"/>
+  <implementation name="IM_difference_color3_sx_glsl" nodedef="ND_difference_color3" file="stdlib/sx-glsl/mx_difference.inline" language="sx-glsl"/>
+  <implementation name="IM_difference_color4_sx_glsl" nodedef="ND_difference_color4" file="stdlib/sx-glsl/mx_difference.inline" language="sx-glsl"/>
+
   <!-- <burn> -->
+  <implementation name="IM_burn_float_sx_glsl" nodedef="ND_burn_float" file="stdlib/sx-glsl/mx_burn.inline" language="sx-glsl"/>
+  <implementation name="IM_burn_color2_sx_glsl" nodedef="ND_burn_color2" file="stdlib/sx-glsl/mx_burn.inline" language="sx-glsl"/>
+  <implementation name="IM_burn_color3_sx_glsl" nodedef="ND_burn_color3" file="stdlib/sx-glsl/mx_burn.inline" language="sx-glsl"/>
+  <implementation name="IM_burn_color4_sx_glsl" nodedef="ND_burn_color4" file="stdlib/sx-glsl/mx_burn.inline" language="sx-glsl"/>
+
   <!-- <dodge> -->
+  <implementation name="IM_dodge_float_sx_glsl" nodedef="ND_dodge_float" file="stdlib/sx-glsl/mx_dodge.inline" language="sx-glsl"/>
+  <implementation name="IM_dodge_color2_sx_glsl" nodedef="ND_dodge_color2" file="stdlib/sx-glsl/mx_dodge.inline" language="sx-glsl"/>
+  <implementation name="IM_dodge_color3_sx_glsl" nodedef="ND_dodge_color3" file="stdlib/sx-glsl/mx_dodge.inline" language="sx-glsl"/>
+  <implementation name="IM_dodge_color4_sx_glsl" nodedef="ND_dodge_color4" file="stdlib/sx-glsl/mx_dodge.inline" language="sx-glsl"/>
+
   <!-- <screen> -->
+  <implementation name="IM_screen_float_sx_glsl" nodedef="ND_screen_float" file="stdlib/sx-glsl/mx_screen.inline" language="sx-glsl"/>
+  <implementation name="IM_screen_color2_sx_glsl" nodedef="ND_screen_color2" file="stdlib/sx-glsl/mx_screen.inline" language="sx-glsl"/>
+  <implementation name="IM_screen_color3_sx_glsl" nodedef="ND_screen_color3" file="stdlib/sx-glsl/mx_screen.inline" language="sx-glsl"/>
+  <implementation name="IM_screen_color4_sx_glsl" nodedef="ND_screen_color4" file="stdlib/sx-glsl/mx_screen.inline" language="sx-glsl"/>
+
   <!-- <overlay> -->
+  <implementation name="IM_overlay_float_sx_glsl" nodedef="ND_overlay_float" file="stdlib/sx-glsl/mx_overlay.inline" language="sx-glsl"/>
+  <implementation name="IM_overlay_color2_sx_glsl" nodedef="ND_overlay_color2" file="stdlib/sx-glsl/mx_overlay.inline" language="sx-glsl"/>
+  <implementation name="IM_overlay_color3_sx_glsl" nodedef="ND_overlay_color3" file="stdlib/sx-glsl/mx_overlay.inline" language="sx-glsl"/>
+  <implementation name="IM_overlay_color4_sx_glsl" nodedef="ND_overlay_color4" file="stdlib/sx-glsl/mx_overlay.inline" language="sx-glsl"/>
+
   <!-- <disjointover> -->
+  <implementation name="IM_disjointover_color2_sx_glsl" nodedef="ND_disjointover_color2" file="stdlib/sx-glsl/mx_disjointover_color2.inline" language="sx-glsl"/>
+  <implementation name="IM_disjointover_color4_sx_glsl" nodedef="ND_disjointover_color4" file="stdlib/sx-glsl/mx_disjointover_color4.inline" language="sx-glsl"/>
+
   <!-- <in> -->
+  <implementation name="IM_in_color2_sx_glsl" nodedef="ND_in_color2" file="stdlib/sx-glsl/mx_in.inline" language="sx-glsl"/>
+  <implementation name="IM_in_color4_sx_glsl" nodedef="ND_in_color4" file="stdlib/sx-glsl/mx_in.inline" language="sx-glsl"/>
+
   <!-- <mask> -->
+  <implementation name="IM_mask_color2_sx_glsl" nodedef="ND_mask_color2" file="stdlib/sx-glsl/mx_mask.inline" language="sx-glsl"/>
+  <implementation name="IM_mask_color4_sx_glsl" nodedef="ND_mask_color4" file="stdlib/sx-glsl/mx_mask.inline" language="sx-glsl"/>
+
   <!-- <matte> -->
+  <implementation name="IM_matte_color2_sx_glsl" nodedef="ND_matte_color2" file="stdlib/sx-glsl/mx_matte_color2.inline" language="sx-glsl"/>
+  <implementation name="IM_matte_color4_sx_glsl" nodedef="ND_matte_color4" file="stdlib/sx-glsl/mx_matte_color4.inline" language="sx-glsl"/>
+
   <!-- <out> -->
+  <implementation name="IM_out_color2_sx_glsl" nodedef="ND_out_color2" file="stdlib/sx-glsl/mx_out.inline" language="sx-glsl"/>
+  <implementation name="IM_out_color4_sx_glsl" nodedef="ND_out_color4" file="stdlib/sx-glsl/mx_out.inline" language="sx-glsl"/>
 
   <!-- <over> -->
   <implementation name="IM_over_color2_sx_glsl" nodedef="ND_over_color2" file="stdlib/sx-glsl/mx_over_color2.inline" language="sx-glsl"/>
