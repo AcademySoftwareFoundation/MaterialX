@@ -538,6 +538,13 @@
   <implementation name="IM_luminance_color3_sx_glsl" nodedef="ND_luminance_color3" file="stdlib/sx-glsl/mx_luminance_color3.glsl" function="mx_luminance_color3" language="sx-glsl"/>
   <implementation name="IM_luminance_color4_sx_glsl" nodedef="ND_luminance_color4" file="stdlib/sx-glsl/mx_luminance_color4.glsl" function="mx_luminance_color4" language="sx-glsl"/>
 
+  <!-- <rgbtohsv> -->
+  <implementation name="IM_rgbtohsv_color3_sx_glsl" nodedef="ND_rgbtohsv_color3" file="stdlib/sx-glsl/mx_rgbtohsv_color3.glsl" function="mx_rgbtohsv_color3" language="sx-glsl"/>
+  <implementation name="IM_rgbtohsv_color4_sx_glsl" nodedef="ND_rgbtohsv_color4" file="stdlib/sx-glsl/mx_rgbtohsv_color4.glsl" function="mx_rgbtohsv_color4" language="sx-glsl"/>
+
+  <!-- <hsvtorgb> -->
+  <implementation name="IM_hsvtorgb_color3_sx_glsl" nodedef="ND_hsvtorgb_color3" file="stdlib/sx-glsl/mx_hsvtorgb_color3.glsl" function="mx_hsvtorgb_color3" language="sx-glsl"/>
+  <implementation name="IM_hsvtorgb_color4_sx_glsl" nodedef="ND_hsvtorgb_color4" file="stdlib/sx-glsl/mx_hsvtorgb_color4.glsl" function="mx_hsvtorgb_color4" language="sx-glsl"/>
 
   <!-- ======================================================================== -->
   <!-- Compositing nodes                                                        -->
