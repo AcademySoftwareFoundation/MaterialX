@@ -64,9 +64,6 @@
   <!-- <normalmap> -->
   <implementation name="IM_normalmap_sx_glsl" nodedef="ND_normalmap" file="sxpbrlib/sx-glsl/sx_normalmap.glsl" function="sx_normalmap" language="sx-glsl"/>
 
-  <!-- <range> -->
-  <implementation name="IM_range_color3_sx_glsl" nodedef="ND_range_color3" file="sxpbrlib/sx-glsl/sx_range.glsl" function="sx_range" language="sx-glsl"/>
-
   <!-- <colorcorrect> -->
   <implementation name="IM_colorcorrect_color3_sx_glsl" nodedef="ND_colorcorrect_color3" file="sxpbrlib/sx-glsl/sx_colorcorrect.glsl" function="sx_colorcorrect" language="sx-glsl"/>
 
