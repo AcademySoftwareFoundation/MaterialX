@@ -455,6 +455,24 @@
   <!-- <crossproduct> -->
   <implementation name="IM_crossproduct_vector3_sx_osl" nodedef="ND_crossproduct_vector3" file="stdlib/sx-osl/mx_crossproduct.inline" language="sx-osl"/>
 
+  <!-- <transformpoint> -->
+  <implementation name="IM_transformpoint_vector3_sx_osl" nodedef="ND_transformpoint_vector3"  file="stdlib/sx-osl/mx_transformpoint.inline" language="sx-osl"/>
+  <implementation name="IM_transformpoint_vector3M_sx_osl" nodedef="ND_transformpoint_vector3M"  file="stdlib/sx-osl/mx_transformpointM.inline" language="sx-osl"/>
+  <implementation name="IM_transformpoint_vector4_sx_osl" nodedef="ND_transformpoint_vector4"  file="stdlib/sx-osl/mx_transformpoint.inline" language="sx-osl"/>
+  <implementation name="IM_transformpoint_vector4M_sx_osl" nodedef="ND_transformpoint_vector4M"  file="stdlib/sx-osl/mx_transformpointM.inline" language="sx-osl"/>
+
+  <!-- <transformvector> -->
+  <implementation name="IM_transformvector_vector3_sx_osl" nodedef="ND_transformvector_vector3"  file="stdlib/sx-osl/mx_transformvector.inline" language="sx-osl"/>
+  <implementation name="IM_transformvector_vector3M_sx_osl" nodedef="ND_transformvector_vector3M"  file="stdlib/sx-osl/mx_transformvectorM.inline" language="sx-osl"/>
+  <implementation name="IM_transformvector_vector4_sx_osl" nodedef="ND_transformvector_vector4"  file="stdlib/sx-osl/mx_transformvector.inline" language="sx-osl"/>
+  <implementation name="IM_transformvector_vector4M_sx_osl" nodedef="ND_transformvector_vector4M"  file="stdlib/sx-osl/mx_transformvectorM.inline" language="sx-osl"/>
+
+  <!-- <transformnormal> -->
+  <implementation name="IM_transformnormal_vector3_sx_osl" nodedef="ND_transformnormal_vector3"  file="stdlib/sx-osl/mx_transformnormal.inline" language="sx-osl"/>
+  <implementation name="IM_transformnormal_vector3M_sx_osl" nodedef="ND_transformnormal_vector3M"  file="stdlib/sx-osl/mx_transformnormalM.inline" language="sx-osl"/>
+  <implementation name="IM_transformnormal_vector4_sx_osl" nodedef="ND_transformnormal_vector4"  file="stdlib/sx-osl/mx_transformnormal.inline" language="sx-osl"/>
+  <implementation name="IM_transformnormal_vector4M_sx_osl" nodedef="ND_transformnormal_vector4M"  file="stdlib/sx-osl/mx_transformnormalM.inline" language="sx-osl"/>
+
   <!-- <transpose> -->
   <implementation name="IM_transpose_matrix33_sx_osl" nodedef="ND_transpose_matrix33" file="stdlib/sx-osl/mx_transpose.inline" language="sx-osl"/>
   <implementation name="IM_transpose_matrix44_sx_osl" nodedef="ND_transpose_matrix44" file="stdlib/sx-osl/mx_transpose.inline" language="sx-osl"/>

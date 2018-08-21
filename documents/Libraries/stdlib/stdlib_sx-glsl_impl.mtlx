@@ -450,6 +450,24 @@
   <!-- <crossproduct> -->
   <implementation name="IM_crossproduct_vector3_sx_glsl" nodedef="ND_crossproduct_vector3" file="stdlib/sx-glsl/mx_crossproduct.inline" language="sx-glsl"/>
 
+  <!-- <transformpoint> -->
+  <implementation name="IM_transformpoint_vector3_sx_glsl" nodedef="ND_transformpoint_vector3"  file="stdlib/sx-glsl/mx_transformpoint.inline" language="sx-glsl"/>
+  <implementation name="IM_transformpoint_vector3M_sx_glsl" nodedef="ND_transformpoint_vector3M"  file="stdlib/sx-glsl/mx_transformpointM.inline" language="sx-glsl"/>
+  <implementation name="IM_transformpoint_vector4_sx_glsl" nodedef="ND_transformpoint_vector4"  file="stdlib/sx-glsl/mx_transformpoint.inline" language="sx-glsl"/>
+  <implementation name="IM_transformpoint_vector4M_sx_glsl" nodedef="ND_transformpoint_vector4M"  file="stdlib/sx-glsl/mx_transformpointM.inline" language="sx-glsl"/>
+
+  <!-- <transformvector> -->
+  <implementation name="IM_transformvector_vector3_sx_glsl" nodedef="ND_transformvector_vector3"  file="stdlib/sx-glsl/mx_transformvector.inline" language="sx-glsl"/>
+  <implementation name="IM_transformvector_vector3M_sx_glsl" nodedef="ND_transformvector_vector3M"  file="stdlib/sx-glsl/mx_transformvectorM.inline" language="sx-glsl"/>
+  <implementation name="IM_transformvector_vector4_sx_glsl" nodedef="ND_transformvector_vector4"  file="stdlib/sx-glsl/mx_transformvector.inline" language="sx-glsl"/>
+  <implementation name="IM_transformvector_vector4M_sx_glsl" nodedef="ND_transformvector_vector4M"  file="stdlib/sx-glsl/mx_transformvectorM.inline" language="sx-glsl"/>
+
+  <!-- <transformnormal> -->
+  <implementation name="IM_transformnormal_vector3_sx_glsl" nodedef="ND_transformnormal_vector3"  file="stdlib/sx-glsl/mx_transformnormal.inline" language="sx-glsl"/>
+  <implementation name="IM_transformnormal_vector3M_sx_glsl" nodedef="ND_transformnormal_vector3M"  file="stdlib/sx-glsl/mx_transformnormalM.inline" language="sx-glsl"/>
+  <implementation name="IM_transformnormal_vector4_sx_glsl" nodedef="ND_transformnormal_vector4"  file="stdlib/sx-glsl/mx_transformnormal.inline" language="sx-glsl"/>
+  <implementation name="IM_transformnormal_vector4M_sx_glsl" nodedef="ND_transformnormal_vector4M"  file="stdlib/sx-glsl/mx_transformnormalM.inline" language="sx-glsl"/>
+
   <!-- <transpose> -->
   <implementation name="IM_transpose_matrix33_sx_glsl" nodedef="ND_transpose_matrix33" file="stdlib/sx-glsl/mx_transpose.inline" language="sx-glsl"/>
   <implementation name="IM_transpose_matrix44_sx_glsl" nodedef="ND_transpose_matrix44" file="stdlib/sx-glsl/mx_transpose.inline" language="sx-glsl"/>
