@@ -416,7 +416,21 @@
   <!-- ======================================================================== -->
 
   <!-- <contrast> -->
+
   <!-- <remap> -->
+  <implementation name="IM_remap_float_sx_glsl" nodedef="ND_remap_float" file="stdlib/sx-glsl/mx_remap.inline" language="sx-glsl"/>
+  <implementation name="IM_remap_color2_sx_glsl" nodedef="ND_remap_color2" file="stdlib/sx-glsl/mx_remap.inline" language="sx-glsl"/>
+  <implementation name="IM_remap_color2FA_sx_glsl" nodedef="ND_remap_color2FA" file="stdlib/sx-glsl/mx_remap.inline" language="sx-glsl"/>
+  <implementation name="IM_remap_color3_sx_glsl" nodedef="ND_remap_color3" file="stdlib/sx-glsl/mx_remap.inline" language="sx-glsl"/>
+  <implementation name="IM_remap_color3FA_sx_glsl" nodedef="ND_remap_color3FA" file="stdlib/sx-glsl/mx_remap.inline" language="sx-glsl"/>
+  <implementation name="IM_remap_color4_sx_glsl" nodedef="ND_remap_color4" file="stdlib/sx-glsl/mx_remap.inline" language="sx-glsl"/>
+  <implementation name="IM_remap_color4FA_sx_glsl" nodedef="ND_remap_color4FA" file="stdlib/sx-glsl/mx_remap.inline" language="sx-glsl"/>
+  <implementation name="IM_remap_vector2_sx_glsl" nodedef="ND_remap_vector2" file="stdlib/sx-glsl/mx_remap.inline" language="sx-glsl"/>
+  <implementation name="IM_remap_vector2FA_sx_glsl" nodedef="ND_remap_vector2FA" file="stdlib/sx-glsl/mx_remap.inline" language="sx-glsl"/>
+  <implementation name="IM_remap_vector3_sx_glsl" nodedef="ND_remap_vector3" file="stdlib/sx-glsl/mx_remap.inline" language="sx-glsl"/>
+  <implementation name="IM_remap_vector3FA_sx_glsl" nodedef="ND_remap_vector3FA" file="stdlib/sx-glsl/mx_remap.inline" language="sx-glsl"/>
+  <implementation name="IM_remap_vector4_sx_glsl" nodedef="ND_remap_vector4" file="stdlib/sx-glsl/mx_remap.inline" language="sx-glsl"/>
+  <implementation name="IM_remap_vector4FA_sx_glsl" nodedef="ND_remap_vector4FA" file="stdlib/sx-glsl/mx_remap.inline" language="sx-glsl"/>
 
   <!-- <smoothstep> -->
   <implementation name="IM_smoothstep_float_sx_glsl" nodedef="ND_smoothstep_float" file="stdlib/sx-glsl/mx_smoothstep.inline" language="sx-glsl"/>
