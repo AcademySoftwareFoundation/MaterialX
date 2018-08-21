@@ -543,8 +543,8 @@
   <implementation name="IM_overlay_color4_sx_osl" nodedef="ND_overlay_color4" file="stdlib/sx-osl/mx_overlay.inline" language="sx-osl"/>
 
   <!-- <disjointover> -->
-  <implementation name="IM_disjointover_color2_sx_osl" nodedef="ND_disjointover_color2" file="stdlib/sx-osl/mx_disjointover.inline" language="sx-osl"/>
-  <implementation name="IM_disjointover_color4_sx_osl" nodedef="ND_disjointover_color4" file="stdlib/sx-osl/mx_disjointover.inline" language="sx-osl"/>
+  <implementation name="IM_disjointover_color2_sx_osl" nodedef="ND_disjointover_color2" file="stdlib/sx-osl/mx_disjointover_color2.inline" language="sx-osl"/>
+  <implementation name="IM_disjointover_color4_sx_osl" nodedef="ND_disjointover_color4" file="stdlib/sx-osl/mx_disjointover_color4.inline" language="sx-osl"/>
 
   <!-- <in> -->
   <implementation name="IM_in_color2_sx_osl" nodedef="ND_in_color2" file="stdlib/sx-osl/mx_in.inline" language="sx-osl"/>
@@ -555,8 +555,8 @@
   <implementation name="IM_mask_color4_sx_osl" nodedef="ND_mask_color4" file="stdlib/sx-osl/mx_mask.inline" language="sx-osl"/>
 
   <!-- <matte> -->
-  <implementation name="IM_matte_color2_sx_osl" nodedef="ND_matte_color2" file="stdlib/sx-osl/mx_matte.inline" language="sx-osl"/>
-  <implementation name="IM_matte_color4_sx_osl" nodedef="ND_matte_color4" file="stdlib/sx-osl/mx_matte.inline" language="sx-osl"/>
+  <implementation name="IM_matte_color2_sx_osl" nodedef="ND_matte_color2" file="stdlib/sx-osl/mx_matte_color2.inline" language="sx-osl"/>
+  <implementation name="IM_matte_color4_sx_osl" nodedef="ND_matte_color4" file="stdlib/sx-osl/mx_matte_color4.inline" language="sx-osl"/>
 
   <!-- <out> -->
   <implementation name="IM_out_color2_sx_osl" nodedef="ND_out_color2" file="stdlib/sx-osl/mx_out.inline" language="sx-osl"/>
