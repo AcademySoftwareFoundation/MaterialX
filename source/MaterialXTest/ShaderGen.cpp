@@ -1067,7 +1067,7 @@ TEST_CASE("Conditionals", "[shadergen]")
     switch1->setConnectedNode("in2", constant5);
     switch1->setConnectedNode("in3", constant6);
     switch1->setConnectedNode("in4", compare1);
-    switch1->setParameterValue<float>("which", 3);
+    switch1->setParameterValue<int>("which", 3);
 
     // Connected to output.
     mx::OutputPtr output1 = nodeGraph->addOutput();
@@ -1094,17 +1094,17 @@ TEST_CASE("Conditionals", "[shadergen]")
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
 
-        // All of the nodes should have been removed by optimization
-        // leaving a graph with a single constant value
-        REQUIRE(shader->getNodeGraph()->getNodes().empty());
-        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value != nullptr);
-        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
-
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
         file.open(shader->getName() + ".osl");
         file << shader->getSourceCode();
         file.close();
+
+        // All of the nodes should have been removed by optimization
+        // leaving a graph with a single constant value
+        REQUIRE(shader->getNodeGraph()->getNodes().empty());
+        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value != nullptr);
+        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
     }
 
     // OgsFx
@@ -1116,17 +1116,17 @@ TEST_CASE("Conditionals", "[shadergen]")
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
 
-        // All of the nodes should have been removed by optimization
-        // leaving a graph with a single constant value
-        REQUIRE(shader->getNodeGraph()->getNodes().empty());
-        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value != nullptr);
-        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
-
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
         file.open(shader->getName() + ".ogsfx");
         file << shader->getSourceCode();
         file.close();
+
+        // All of the nodes should have been removed by optimization
+        // leaving a graph with a single constant value
+        REQUIRE(shader->getNodeGraph()->getNodes().empty());
+        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value != nullptr);
+        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
     }
 
     // Glsl
@@ -1139,12 +1139,6 @@ TEST_CASE("Conditionals", "[shadergen]")
         REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
         REQUIRE(shader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
 
-        // All of the nodes should have been removed by optimization
-        // leaving a graph with a single constant value
-        REQUIRE(shader->getNodeGraph()->getNodes().empty());
-        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value != nullptr);
-        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
-
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
         file.open(shader->getName() + ".vert");
@@ -1153,6 +1147,12 @@ TEST_CASE("Conditionals", "[shadergen]")
         file.open(shader->getName() + ".frag");
         file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
         file.close();
+
+        // All of the nodes should have been removed by optimization
+        // leaving a graph with a single constant value
+        REQUIRE(shader->getNodeGraph()->getNodes().empty());
+        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value != nullptr);
+        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
     }
 }
 

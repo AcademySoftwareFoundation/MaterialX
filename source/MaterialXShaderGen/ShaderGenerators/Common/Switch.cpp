@@ -23,10 +23,16 @@ void Switch::emitFunctionCall(const SgNode& node, const SgNodeContext& context, 
 
     const SgInput* which = node.getInput(INPUT_NAMES[5]);
 
-    // Process the five branches of the switch node
+    // Process the branches of the switch node
     for (int branch = 0; branch < 5; ++branch)
     {
         const SgInput* input = node.getInput(INPUT_NAMES[branch]);
+        if (!input)
+        {
+            // The boolean version only has two inputs
+            // so break if the input doesn't exist
+            break;
+        }
 
         shader.beginLine();
         if (branch > 0)
@@ -35,7 +41,9 @@ void Switch::emitFunctionCall(const SgNode& node, const SgNodeContext& context, 
         }
         if (branch < 5)
         {
-            shader.addStr("if ("); shadergen.emitInput(which, shader); shader.addStr(" < "); shader.addValue(float(branch+1));  shader.addStr(")");
+            // 'which' can be float, integer or boolean, 
+            // so always convert to float to make sure the comparison is valid
+            shader.addStr("if (float("); shadergen.emitInput(which, shader); shader.addStr(") < "); shader.addValue(float(branch + 1));  shader.addStr(")");
         }
         shader.endLine(false);
 
@@ -59,7 +67,7 @@ void Switch::emitFunctionCall(const SgNode& node, const SgNodeContext& context, 
 
         shader.endScope();
     }
- 
+
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
