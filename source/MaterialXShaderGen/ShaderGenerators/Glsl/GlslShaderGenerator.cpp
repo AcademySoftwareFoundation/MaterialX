@@ -85,6 +85,7 @@ GlslShaderGenerator::GlslShaderGenerator()
     registerImplementation("IM_compare_vector4_sx_glsl", Compare::create);
 
     // <!-- <switch> -->
+    // <!-- 'which' type : float -->
     registerImplementation("IM_switch_float_sx_glsl", Switch::create);
     registerImplementation("IM_switch_color2_sx_glsl", Switch::create);
     registerImplementation("IM_switch_color3_sx_glsl", Switch::create);
@@ -92,6 +93,22 @@ GlslShaderGenerator::GlslShaderGenerator()
     registerImplementation("IM_switch_vector2_sx_glsl", Switch::create);
     registerImplementation("IM_switch_vector3_sx_glsl", Switch::create);
     registerImplementation("IM_switch_vector4_sx_glsl", Switch::create);
+    // <!-- 'which' type : integer -->
+    registerImplementation("IM_switch_floatI_sx_glsl", Switch::create);
+    registerImplementation("IM_switch_color2I_sx_glsl", Switch::create);
+    registerImplementation("IM_switch_color3I_sx_glsl", Switch::create);
+    registerImplementation("IM_switch_color4I_sx_glsl", Switch::create);
+    registerImplementation("IM_switch_vector2I_sx_glsl", Switch::create);
+    registerImplementation("IM_switch_vector3I_sx_glsl", Switch::create);
+    registerImplementation("IM_switch_vector4I_sx_glsl", Switch::create);
+    // <!-- 'which' type : boolean -->
+    registerImplementation("IM_switch_floatB_sx_glsl", Switch::create);
+    registerImplementation("IM_switch_color2B_sx_glsl", Switch::create);
+    registerImplementation("IM_switch_color3B_sx_glsl", Switch::create);
+    registerImplementation("IM_switch_color4B_sx_glsl", Switch::create);
+    registerImplementation("IM_switch_vector2B_sx_glsl", Switch::create);
+    registerImplementation("IM_switch_vector3B_sx_glsl", Switch::create);
+    registerImplementation("IM_switch_vector4B_sx_glsl", Switch::create);
 
     // <!-- <swizzle> -->
     // <!-- from type : float -->

@@ -921,8 +921,9 @@ void SgNodeGraph::optimize()
             {
                 // Find which branch should be taken
                 ValuePtr value = which->connection ? which->connection->node->getInput(0)->value : which->value;
-                const float whichValue = value ? value->asA<float>() : 0.0f;
-                const int branch = int(whichValue);
+                const int branch = int(value==nullptr ? 0 :
+                    (which->type == DataType::BOOLEAN ? value->asA<bool>() :
+                    (which->type == DataType::FLOAT ? value->asA<float>() : value->asA<int>())));
 
                 // Bypass the conditional using the taken branch
                 bypass(node, branch);

@@ -651,6 +651,7 @@
   <implementation name="IM_compare_vector4_sx_osl" nodedef="ND_compare_vector4" language="sx-osl"/>
 
   <!-- <switch> -->
+  <!-- 'which' type : float -->
   <implementation name="IM_switch_float_sx_osl" nodedef="ND_switch_float" language="sx-osl"/>
   <implementation name="IM_switch_color2_sx_osl" nodedef="ND_switch_color2" language="sx-osl"/>
   <implementation name="IM_switch_color3_sx_osl" nodedef="ND_switch_color3" language="sx-osl"/>
@@ -658,6 +659,22 @@
   <implementation name="IM_switch_vector2_sx_osl" nodedef="ND_switch_vector2" language="sx-osl"/>
   <implementation name="IM_switch_vector3_sx_osl" nodedef="ND_switch_vector3" language="sx-osl"/>
   <implementation name="IM_switch_vector4_sx_osl" nodedef="ND_switch_vector4" language="sx-osl"/>
+  <!-- 'which' type : integer -->
+  <implementation name="IM_switch_floatI_sx_osl" nodedef="ND_switch_floatI" language="sx-osl"/>
+  <implementation name="IM_switch_color2I_sx_osl" nodedef="ND_switch_color2I" language="sx-osl"/>
+  <implementation name="IM_switch_color3I_sx_osl" nodedef="ND_switch_color3I" language="sx-osl"/>
+  <implementation name="IM_switch_color4I_sx_osl" nodedef="ND_switch_color4I" language="sx-osl"/>
+  <implementation name="IM_switch_vector2I_sx_osl" nodedef="ND_switch_vector2I" language="sx-osl"/>
+  <implementation name="IM_switch_vector3I_sx_osl" nodedef="ND_switch_vector3I" language="sx-osl"/>
+  <implementation name="IM_switch_vector4I_sx_osl" nodedef="ND_switch_vector4I" language="sx-osl"/>
+  <!-- 'which' type : boolean -->
+  <implementation name="IM_switch_floatB_sx_osl" nodedef="ND_switch_floatB" language="sx-osl"/>
+  <implementation name="IM_switch_color2B_sx_osl" nodedef="ND_switch_color2B" language="sx-osl"/>
+  <implementation name="IM_switch_color3B_sx_osl" nodedef="ND_switch_color3B" language="sx-osl"/>
+  <implementation name="IM_switch_color4B_sx_osl" nodedef="ND_switch_color4B" language="sx-osl"/>
+  <implementation name="IM_switch_vector2B_sx_osl" nodedef="ND_switch_vector2B" language="sx-osl"/>
+  <implementation name="IM_switch_vector3B_sx_osl" nodedef="ND_switch_vector3B" language="sx-osl"/>
+  <implementation name="IM_switch_vector4B_sx_osl" nodedef="ND_switch_vector4B" language="sx-osl"/>
 
 
   <!-- ======================================================================== -->
