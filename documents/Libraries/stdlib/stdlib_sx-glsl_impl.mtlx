@@ -323,6 +323,14 @@
   <implementation name="IM_floor_vector3_sx_glsl" nodedef="ND_floor_vector3" file="stdlib/sx-glsl/mx_floor.inline" language="sx-glsl"/>
   <implementation name="IM_floor_vector4_sx_glsl" nodedef="ND_floor_vector4" file="stdlib/sx-glsl/mx_floor.inline" language="sx-glsl"/>
 
+  <!-- <sin>, <cos>, <tan>, <asin>, <acos>, <atan2> -->
+  <implementation name="IM_sin_float_sx_glsl" nodedef="ND_sin_float" file="stdlib/sx-glsl/mx_sin.inline" language="sx-glsl"/>
+  <implementation name="IM_cos_float_sx_glsl" nodedef="ND_cos_float" file="stdlib/sx-glsl/mx_cos.inline" language="sx-glsl"/>
+  <implementation name="IM_tan_float_sx_glsl" nodedef="ND_tan_float" file="stdlib/sx-glsl/mx_tan.inline" language="sx-glsl"/>
+  <implementation name="IM_asin_float_sx_glsl" nodedef="ND_asin_float" file="stdlib/sx-glsl/mx_asin.inline" language="sx-glsl"/>
+  <implementation name="IM_acos_float_sx_glsl" nodedef="ND_acos_float" file="stdlib/sx-glsl/mx_acos.inline" language="sx-glsl"/>
+  <implementation name="IM_atan2_float_sx_glsl" nodedef="ND_atan2_float" file="stdlib/sx-glsl/mx_atan2.inline" language="sx-glsl"/>
+
   <!-- <power> -->
   <implementation name="IM_power_float_sx_glsl" nodedef="ND_power_float" file="stdlib/sx-glsl/mx_power.inline" language="sx-glsl"/>
   <implementation name="IM_power_color2_sx_glsl" nodedef="ND_power_color2" file="stdlib/sx-glsl/mx_power.inline"  language="sx-glsl"/>
@@ -527,6 +535,22 @@
   <!-- ======================================================================== -->
   <!-- Channel nodes                                                            -->
   <!-- ======================================================================== -->
+
+  <!-- <convert> -->
+  <implementation name="IM_convert_float_color2_sx_glsl" nodedef="ND_convert_float_color2" file="stdlib/sx-glsl/mx_convert_float_color2.inline" language="sx-glsl"/>
+  <implementation name="IM_convert_float_color3_sx_glsl" nodedef="ND_convert_float_color3" file="stdlib/sx-glsl/mx_convert_float_color.inline" language="sx-glsl"/>
+  <implementation name="IM_convert_float_color4_sx_glsl" nodedef="ND_convert_float_color4" file="stdlib/sx-glsl/mx_convert_float_color4.inline" language="sx-glsl"/>
+  <implementation name="IM_convert_float_vector2_sx_glsl" nodedef="ND_convert_float_vector2" file="stdlib/sx-glsl/mx_convert_float_vector2.inline" language="sx-glsl"/>
+  <implementation name="IM_convert_float_vector3_sx_glsl" nodedef="ND_convert_float_vector3" file="stdlib/sx-glsl/mx_convert_float_vector.inline" language="sx-glsl"/>
+  <implementation name="IM_convert_float_vector4_sx_glsl" nodedef="ND_convert_float_vector4" file="stdlib/sx-glsl/mx_convert_float_vector4.inline" language="sx-glsl"/>
+  <implementation name="IM_convert_vector2_color2_sx_glsl" nodedef="ND_convert_vector2_color2" file="stdlib/sx-glsl/mx_convert_vector2_color2.inline" language="sx-glsl"/>
+  <implementation name="IM_convert_vector3_color3_sx_glsl" nodedef="ND_convert_vector3_color3" file="stdlib/sx-glsl/mx_convert_vector_color.inline"  language="sx-glsl"/>
+  <implementation name="IM_convert_vector4_color4_sx_glsl" nodedef="ND_convert_vector4_color4" file="stdlib/sx-glsl/mx_convert_vector4_color4.inline" language="sx-glsl"/>
+  <implementation name="IM_convert_color2_vector2_sx_glsl" nodedef="ND_convert_color2_vector2" file="stdlib/sx-glsl/mx_convert_color2_vector2.inline" language="sx-glsl"/>
+  <implementation name="IM_convert_color3_vector3_sx_glsl" nodedef="ND_convert_color3_vector3" file="stdlib/sx-glsl/mx_convert_color_vector.inline" language="sx-glsl"/>
+  <implementation name="IM_convert_color4_vector4_sx_glsl" nodedef="ND_convert_color4_vector4" file="stdlib/sx-glsl/mx_convert_color4_vector4.inline" language="sx-glsl"/>
+  <implementation name="IM_convert_color3_color4_sx_glsl" nodedef="ND_convert_color3_color4" file="stdlib/sx-glsl/mx_convert_color_color4.inline" language="sx-glsl"/>
+  <implementation name="IM_convert_color4_color3_sx_glsl" nodedef="ND_convert_color4_color3" file="stdlib/sx-glsl/mx_convert_color4_color.inline" language="sx-glsl"/>
 
   <!-- <swizzle> -->
   <!-- from type: float -->

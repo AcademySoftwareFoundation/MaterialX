@@ -343,6 +343,14 @@
   <implementation name="IM_power_vector4_sx_osl" nodedef="ND_power_vector4" file="stdlib/sx-osl/mx_power.inline" language="sx-osl"/>
   <implementation name="IM_power_vector4FA_sx_osl" nodedef="ND_power_vector4FA" file="stdlib/sx-osl/mx_power.inline" language="sx-osl"/>
 
+  <!-- <sin>, <cos>, <tan>, <asin>, <acos>, <atan2> -->
+  <implementation name="IM_sin_float_sx_osl" nodedef="ND_sin_float" file="stdlib/sx-osl/mx_sin.inline" function="mx_sin_float" language="sx-osl"/>
+  <implementation name="IM_cos_float_sx_osl" nodedef="ND_cos_float" file="stdlib/sx-osl/mx_cos.inline" function="mx_cos_float" language="sx-osl"/>
+  <implementation name="IM_tan_float_sx_osl" nodedef="ND_tan_float" file="stdlib/sx-osl/mx_tan.inline" function="mx_tan_float" language="sx-osl"/>
+  <implementation name="IM_asin_float_sx_osl" nodedef="ND_asin_float" file="stdlib/sx-osl/mx_asin.inline" function="mx_asin_float" language="sx-osl"/>
+  <implementation name="IM_acos_float_sx_osl" nodedef="ND_acos_float" file="stdlib/sx-osl/mx_acos.inline" function="mx_acos_float" language="sx-osl"/>
+  <implementation name="IM_atan2_float_sx_osl" nodedef="ND_atan2_float" file="stdlib/sx-osl/mx_atan2.inline" function="mx_atan2_float" language="sx-osl"/>
+
   <!-- <clamp> -->
   <implementation name="IM_clamp_float_sx_osl" nodedef="ND_clamp_float" file="stdlib/sx-osl/mx_clamp.inline" language="sx-osl"/>
   <implementation name="IM_clamp_color2_sx_osl" nodedef="ND_clamp_color2" file="stdlib/sx-osl/mx_clamp.inline"  language="sx-osl"/>
@@ -551,6 +559,22 @@
   <!-- ======================================================================== -->
   <!-- Channel nodes                                                            -->
   <!-- ======================================================================== -->
+
+  <!-- <convert> -->
+  <implementation name="IM_convert_float_color2_sx_osl" nodedef="ND_convert_float_color2" file="stdlib/sx-osl/mx_convert_float_color2.inline" language="sx-osl"/>
+  <implementation name="IM_convert_float_color3_sx_osl" nodedef="ND_convert_float_color3" file="stdlib/sx-osl/mx_convert_float_color.inline" language="sx-osl"/>
+  <implementation name="IM_convert_float_color4_sx_osl" nodedef="ND_convert_float_color4" file="stdlib/sx-osl/mx_convert_float_color4.inline" language="sx-osl"/>
+  <implementation name="IM_convert_float_vector2_sx_osl" nodedef="ND_convert_float_vector2" file="stdlib/sx-osl/mx_convert_float_vector2.inline" language="sx-osl"/>
+  <implementation name="IM_convert_float_vector3_sx_osl" nodedef="ND_convert_float_vector3" file="stdlib/sx-osl/mx_convert_float_vector.inline" language="sx-osl"/>
+  <implementation name="IM_convert_float_vector4_sx_osl" nodedef="ND_convert_float_vector4" file="stdlib/sx-osl/mx_convert_float_vector4.inline" language="sx-osl"/>
+  <implementation name="IM_convert_vector2_color2_sx_osl" nodedef="ND_convert_vector2_color2" file="stdlib/sx-osl/mx_convert_vector2_color2.inline" language="sx-osl"/>
+  <implementation name="IM_convert_vector3_color3_sx_osl" nodedef="ND_convert_vector3_color3" file="stdlib/sx-osl/mx_convert_vector_color.inline"  language="sx-osl"/>
+  <implementation name="IM_convert_vector4_color4_sx_osl" nodedef="ND_convert_vector4_color4" file="stdlib/sx-osl/mx_convert_vector4_color4.inline" language="sx-osl"/>
+  <implementation name="IM_convert_color2_vector2_sx_osl" nodedef="ND_convert_color2_vector2" file="stdlib/sx-osl/mx_convert_color2_vector2.inline" language="sx-osl"/>
+  <implementation name="IM_convert_color3_vector3_sx_osl" nodedef="ND_convert_color3_vector3" file="stdlib/sx-osl/mx_convert_color_vector.inline" language="sx-osl"/>
+  <implementation name="IM_convert_color4_vector4_sx_osl" nodedef="ND_convert_color4_vector4" file="stdlib/sx-osl/mx_convert_color4_vector4.inline" language="sx-osl"/>
+  <implementation name="IM_convert_color3_color4_sx_osl" nodedef="ND_convert_color3_color4" file="stdlib/sx-osl/mx_convert_color_color4.inline" language="sx-osl"/>
+  <implementation name="IM_convert_color4_color3_sx_osl" nodedef="ND_convert_color4_color3" file="stdlib/sx-osl/mx_convert_color4_color.inline" language="sx-osl"/>
 
   <!-- <swizzle> -->
   <!-- from type: float -->
