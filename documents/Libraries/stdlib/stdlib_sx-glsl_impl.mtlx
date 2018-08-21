@@ -229,6 +229,10 @@
   <implementation name="IM_add_vector3FA_sx_glsl" nodedef="ND_add_vector3FA" file="stdlib/sx-glsl/mx_add.inline" language="sx-glsl"/>
   <implementation name="IM_add_vector4_sx_glsl" nodedef="ND_add_vector4" file="stdlib/sx-glsl/mx_add.inline" language="sx-glsl"/>
   <implementation name="IM_add_vector4FA_sx_glsl" nodedef="ND_add_vector4FA" file="stdlib/sx-glsl/mx_add.inline" language="sx-glsl"/>
+  <implementation name="IM_add_matrix33_sx_glsl" nodedef="ND_add_matrix33" file="stdlib/sx-glsl/mx_add.inline" language="sx-glsl"/>
+  <implementation name="IM_add_matrix33FA_sx_glsl" nodedef="ND_add_matrix33FA" file="stdlib/sx-glsl/mx_add.inline" language="sx-glsl"/>
+  <implementation name="IM_add_matrix44_sx_glsl" nodedef="ND_add_matrix44" file="stdlib/sx-glsl/mx_add.inline" language="sx-glsl"/>
+  <implementation name="IM_add_matrix44FA_sx_glsl" nodedef="ND_add_matrix44FA" file="stdlib/sx-glsl/mx_add.inline" language="sx-glsl"/>
 
   <!-- <subtract> -->
   <implementation name="IM_subtract_float_sx_glsl" nodedef="ND_subtract_float" file="stdlib/sx-glsl/mx_subtract.inline" language="sx-glsl"/>
@@ -244,6 +248,10 @@
   <implementation name="IM_subtract_vector3FA_sx_glsl" nodedef="ND_subtract_vector3FA" file="stdlib/sx-glsl/mx_subtract.inline" language="sx-glsl"/>
   <implementation name="IM_subtract_vector4_sx_glsl" nodedef="ND_subtract_vector4" file="stdlib/sx-glsl/mx_subtract.inline" language="sx-glsl"/>
   <implementation name="IM_subtract_vector4FA_sx_glsl" nodedef="ND_subtract_vector4FA" file="stdlib/sx-glsl/mx_subtract.inline" language="sx-glsl"/>
+  <implementation name="IM_subtract_matrix33_sx_glsl" nodedef="ND_subtract_matrix33" file="stdlib/sx-glsl/mx_subtract.inline" language="sx-glsl"/>
+  <implementation name="IM_subtract_matrix33FA_sx_glsl" nodedef="ND_subtract_matrix33FA" file="stdlib/sx-glsl/mx_subtract.inline" language="sx-glsl"/>
+  <implementation name="IM_subtract_matrix44_sx_glsl" nodedef="ND_subtract_matrix44" file="stdlib/sx-glsl/mx_subtract.inline" language="sx-glsl"/>
+  <implementation name="IM_subtract_matrix44FA_sx_glsl" nodedef="ND_subtract_matrix44FA" file="stdlib/sx-glsl/mx_subtract.inline" language="sx-glsl"/>
 
   <!-- <multiply> -->
   <implementation name="IM_multiply_float_sx_glsl" nodedef="ND_multiply_float" file="stdlib/sx-glsl/mx_multiply.inline" language="sx-glsl"/>
@@ -259,6 +267,8 @@
   <implementation name="IM_multiply_vector3FA_sx_glsl" nodedef="ND_multiply_vector3FA" file="stdlib/sx-glsl/mx_multiply.inline" language="sx-glsl"/>
   <implementation name="IM_multiply_vector4_sx_glsl" nodedef="ND_multiply_vector4" file="stdlib/sx-glsl/mx_multiply.inline" language="sx-glsl"/>
   <implementation name="IM_multiply_vector4FA_sx_glsl" nodedef="ND_multiply_vector4FA" file="stdlib/sx-glsl/mx_multiply.inline" language="sx-glsl"/>
+  <implementation name="IM_multiply_matrix33_sx_glsl" nodedef="ND_multiply_matrix33" file="stdlib/sx-glsl/mx_multiply.inline" language="sx-glsl"/>
+  <implementation name="IM_multiply_matrix44_sx_glsl" nodedef="ND_multiply_matrix44" file="stdlib/sx-glsl/mx_multiply.inline" language="sx-glsl"/>
 
   <!-- <divide> -->
   <implementation name="IM_divide_float_sx_glsl" nodedef="ND_divide_float" file="stdlib/sx-glsl/mx_divide.inline" language="sx-glsl"/>
@@ -274,6 +284,8 @@
   <implementation name="IM_divide_vector3FA_sx_glsl" nodedef="ND_divide_vector3FA" file="stdlib/sx-glsl/mx_divide.inline" language="sx-glsl"/>
   <implementation name="IM_divide_vector4_sx_glsl" nodedef="ND_divide_vector4" file="stdlib/sx-glsl/mx_divide.inline" language="sx-glsl"/>
   <implementation name="IM_divide_vector4FA_sx_glsl" nodedef="ND_divide_vector4FA" file="stdlib/sx-glsl/mx_divide.inline" language="sx-glsl"/>
+  <implementation name="IM_divide_matrix33_sx_glsl" nodedef="ND_divide_matrix33" file="stdlib/sx-glsl/mx_divide.inline" language="sx-glsl"/>
+  <implementation name="IM_divide_matrix44_sx_glsl" nodedef="ND_divide_matrix44" file="stdlib/sx-glsl/mx_divide.inline" language="sx-glsl"/>
 
   <!-- <modulo> -->
   <implementation name="IM_modulo_float_sx_glsl" nodedef="ND_modulo_float" file="stdlib/sx-glsl/mx_modulo.inline" language="sx-glsl"/>
@@ -304,6 +316,8 @@
   <implementation name="IM_invert_vector3FA_sx_glsl" nodedef="ND_invert_vector3FA" file="stdlib/sx-glsl/mx_invert.inline" language="sx-glsl"/>
   <implementation name="IM_invert_vector4_sx_glsl" nodedef="ND_invert_vector4" file="stdlib/sx-glsl/mx_invert.inline" language="sx-glsl"/>
   <implementation name="IM_invert_vector4FA_sx_glsl" nodedef="ND_invert_vector4FA" file="stdlib/sx-glsl/mx_invert.inline" language="sx-glsl"/>
+  <implementation name="IM_invert_matrix33_sx_glsl" nodedef="ND_invert_matrix33" file="stdlib/sx-glsl/mx_invert.inline" language="sx-glsl"/>
+  <implementation name="IM_invert_matrix44_sx_glsl" nodedef="ND_invert_matrix44" file="stdlib/sx-glsl/mx_invert.inline" language="sx-glsl"/>
 
   <!-- <absval> -->
   <implementation name="IM_absval_float_sx_glsl" nodedef="ND_absval_float" file="stdlib/sx-glsl/mx_absval.inline" language="sx-glsl"/>
@@ -323,13 +337,14 @@
   <implementation name="IM_floor_vector3_sx_glsl" nodedef="ND_floor_vector3" file="stdlib/sx-glsl/mx_floor.inline" language="sx-glsl"/>
   <implementation name="IM_floor_vector4_sx_glsl" nodedef="ND_floor_vector4" file="stdlib/sx-glsl/mx_floor.inline" language="sx-glsl"/>
 
-  <!-- <sin>, <cos>, <tan>, <asin>, <acos>, <atan2> -->
-  <implementation name="IM_sin_float_sx_glsl" nodedef="ND_sin_float" file="stdlib/sx-glsl/mx_sin.inline" language="sx-glsl"/>
-  <implementation name="IM_cos_float_sx_glsl" nodedef="ND_cos_float" file="stdlib/sx-glsl/mx_cos.inline" language="sx-glsl"/>
-  <implementation name="IM_tan_float_sx_glsl" nodedef="ND_tan_float" file="stdlib/sx-glsl/mx_tan.inline" language="sx-glsl"/>
-  <implementation name="IM_asin_float_sx_glsl" nodedef="ND_asin_float" file="stdlib/sx-glsl/mx_asin.inline" language="sx-glsl"/>
-  <implementation name="IM_acos_float_sx_glsl" nodedef="ND_acos_float" file="stdlib/sx-glsl/mx_acos.inline" language="sx-glsl"/>
-  <implementation name="IM_atan2_float_sx_glsl" nodedef="ND_atan2_float" file="stdlib/sx-glsl/mx_atan2.inline" language="sx-glsl"/>
+  <!-- <ceil> -->
+  <implementation name="IM_ceil_float_sx_glsl" nodedef="ND_ceil_float" file="stdlib/sx-glsl/mx_ceil.inline" language="sx-glsl"/>
+  <implementation name="IM_ceil_color2_sx_glsl" nodedef="ND_ceil_color2" file="stdlib/sx-glsl/mx_ceil.inline" language="sx-glsl"/>
+  <implementation name="IM_ceil_color3_sx_glsl" nodedef="ND_ceil_color3" file="stdlib/sx-glsl/mx_ceil.inline" language="sx-glsl"/>
+  <implementation name="IM_ceil_color4_sx_glsl" nodedef="ND_ceil_color4" file="stdlib/sx-glsl/mx_ceil.inline" language="sx-glsl"/>
+  <implementation name="IM_ceil_vector2_sx_glsl" nodedef="ND_ceil_vector2" file="stdlib/sx-glsl/mx_ceil.inline" language="sx-glsl"/>
+  <implementation name="IM_ceil_vector3_sx_glsl" nodedef="ND_ceil_vector3" file="stdlib/sx-glsl/mx_ceil.inline" language="sx-glsl"/>
+  <implementation name="IM_ceil_vector4_sx_glsl" nodedef="ND_ceil_vector4" file="stdlib/sx-glsl/mx_ceil.inline" language="sx-glsl"/>
 
   <!-- <power> -->
   <implementation name="IM_power_float_sx_glsl" nodedef="ND_power_float" file="stdlib/sx-glsl/mx_power.inline" language="sx-glsl"/>
@@ -345,6 +360,32 @@
   <implementation name="IM_power_vector3FA_sx_glsl" nodedef="ND_power_vector3FA" file="stdlib/sx-glsl/mx_power.inline" language="sx-glsl"/>
   <implementation name="IM_power_vector4_sx_glsl" nodedef="ND_power_vector4" file="stdlib/sx-glsl/mx_power.inline" language="sx-glsl"/>
   <implementation name="IM_power_vector4FA_sx_glsl" nodedef="ND_power_vector4FA" file="stdlib/sx-glsl/mx_power.inline" language="sx-glsl"/>
+
+  <!-- <sin>, <cos>, <tan>, <asin>, <acos>, <atan2> -->
+  <implementation name="IM_sin_float_sx_glsl" nodedef="ND_sin_float" file="stdlib/sx-glsl/mx_sin.inline" language="sx-glsl"/>
+  <implementation name="IM_cos_float_sx_glsl" nodedef="ND_cos_float" file="stdlib/sx-glsl/mx_cos.inline" language="sx-glsl"/>
+  <implementation name="IM_tan_float_sx_glsl" nodedef="ND_tan_float" file="stdlib/sx-glsl/mx_tan.inline" language="sx-glsl"/>
+  <implementation name="IM_asin_float_sx_glsl" nodedef="ND_asin_float" file="stdlib/sx-glsl/mx_asin.inline" language="sx-glsl"/>
+  <implementation name="IM_acos_float_sx_glsl" nodedef="ND_acos_float" file="stdlib/sx-glsl/mx_acos.inline" language="sx-glsl"/>
+  <implementation name="IM_atan2_float_sx_glsl" nodedef="ND_atan2_float" file="stdlib/sx-glsl/mx_atan2.inline" language="sx-glsl"/>
+
+  <!-- <sqrt> -->
+  <implementation name="IM_sqrt_float_sx_glsl" nodedef="ND_sqrt_float" file="stdlib/sx-glsl/mx_sqrt.inline" language="sx-glsl"/>
+
+  <!-- <ln> -->
+  <implementation name="IM_ln_float_sx_glsl" nodedef="ND_ln_float" file="stdlib/sx-glsl/mx_ln.inline" language="sx-glsl"/>
+
+  <!-- <exp> -->
+  <implementation name="IM_exp_float_sx_glsl" nodedef="ND_exp_float" file="stdlib/sx-glsl/mx_exp.inline" language="sx-glsl"/>
+
+  <!-- sign -->
+  <implementation name="IM_sign_float_sx_glsl" nodedef="ND_sign_float" file="stdlib/sx-glsl/mx_sign.inline" language="sx-glsl"/>
+  <implementation name="IM_sign_color2_sx_glsl" nodedef="ND_sign_color2" file="stdlib/sx-glsl/mx_sign.inline" language="sx-glsl"/>
+  <implementation name="IM_sign_color3_sx_glsl" nodedef="ND_sign_color3" file="stdlib/sx-glsl/mx_sign.inline" language="sx-glsl"/>
+  <implementation name="IM_sign_color4_sx_glsl" nodedef="ND_sign_color4" file="stdlib/sx-glsl/mx_sign.inline" language="sx-glsl"/>
+  <implementation name="IM_sign_vector2_sx_glsl" nodedef="ND_sign_vector2" file="stdlib/sx-glsl/mx_sign.inline" language="sx-glsl"/>
+  <implementation name="IM_sign_vector3_sx_glsl" nodedef="ND_sign_vector3" file="stdlib/sx-glsl/mx_sign.inline" language="sx-glsl"/>
+  <implementation name="IM_sign_vector4_sx_glsl" nodedef="ND_sign_vector4" file="stdlib/sx-glsl/mx_sign.inline" language="sx-glsl"/>
 
   <!-- <clamp> -->
   <implementation name="IM_clamp_float_sx_glsl" nodedef="ND_clamp_float" file="stdlib/sx-glsl/mx_clamp.inline" language="sx-glsl"/>
@@ -408,6 +449,18 @@
 
   <!-- <crossproduct> -->
   <implementation name="IM_crossproduct_vector3_sx_glsl" nodedef="ND_crossproduct_vector3" file="stdlib/sx-glsl/mx_crossproduct.inline" language="sx-glsl"/>
+
+  <!-- <transpose> -->
+  <implementation name="IM_transpose_matrix33_sx_glsl" nodedef="ND_transpose_matrix33" file="stdlib/sx-glsl/mx_transpose.inline" language="sx-glsl"/>
+  <implementation name="IM_transpose_matrix44_sx_glsl" nodedef="ND_transpose_matrix44" file="stdlib/sx-glsl/mx_transpose.inline" language="sx-glsl"/>
+
+  <!-- <determinant> -->
+  <implementation name="IM_determinant_matrix33_sx_glsl" nodedef="ND_determinant_matrix33" file="stdlib/sx-glsl/mx_determinant.inline" language="sx-glsl"/>
+  <implementation name="IM_determinant_matrix44_sx_glsl" nodedef="ND_determinant_matrix44" file="stdlib/sx-glsl/mx_determinant.inline" language="sx-glsl"/>
+
+  <!-- <rotate> -->
+  <implementation name="IM_rotate_vector2_sx_glsl" nodedef="ND_rotate_vector2" file="stdlib/sx-glsl/mx_rotate_vector2.glsl" function="mx_rotate_vector2" language="sx-glsl"/>
+  <implementation name="IM_rotate_vector3_sx_glsl" nodedef="ND_rotate_vector3" file="stdlib/sx-glsl/mx_rotate_vector3.glsl" function="mx_rotate_vector3" language="sx-glsl"/>
 
   <!-- <scale> -->
   <implementation name="IM_scale_vector2_sx_glsl" nodedef="ND_scale_vector2" file="stdlib/sx-glsl/mx_scale.inline" language="sx-glsl"/>

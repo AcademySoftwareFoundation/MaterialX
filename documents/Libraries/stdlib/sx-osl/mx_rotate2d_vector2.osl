@@ -1,4 +1,4 @@
-void mx_rotate2d_vector2(vector2 in, float amount, vector2 center, out vector2 result)
+void mx_rotate2d_vector2(vector2 in, float amount, vector2 center, output vector2 result)
 {
     float rotationRadians = radians(amount);
     float sa = sin(rotationRadians);

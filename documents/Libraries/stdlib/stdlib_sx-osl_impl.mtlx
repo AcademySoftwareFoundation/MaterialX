@@ -231,6 +231,10 @@
   <implementation name="IM_add_vector3FA_sx_osl" nodedef="ND_add_vector3FA" file="stdlib/sx-osl/mx_add.inline" language="sx-osl"/>
   <implementation name="IM_add_vector4_sx_osl" nodedef="ND_add_vector4" file="stdlib/sx-osl/mx_add.inline" language="sx-osl"/>
   <implementation name="IM_add_vector4FA_sx_osl" nodedef="ND_add_vector4FA" file="stdlib/sx-osl/mx_add.inline" language="sx-osl"/>
+  <implementation name="IM_add_matrix33_sx_osl" nodedef="ND_add_matrix33" file="stdlib/sx-osl/mx_add.inline" language="sx-osl"/>
+  <implementation name="IM_add_matrix33FA_sx_osl" nodedef="ND_add_matrix33FA" file="stdlib/sx-osl/mx_add.inline" language="sx-osl"/>
+  <implementation name="IM_add_matrix44_sx_osl" nodedef="ND_add_matrix44" file="stdlib/sx-osl/mx_add.inline" language="sx-osl"/>
+  <implementation name="IM_add_matrix44FA_sx_osl" nodedef="ND_add_matrix44FA" file="stdlib/sx-osl/mx_add.inline" language="sx-osl"/>
   <implementation name="IM_add_surfaceshader_sx_osl" nodedef="ND_add_surfaceshader" file="stdlib/sx-osl/mx_add.inline" language="sx-osl"/>
 
   <!-- <subtract> -->
@@ -247,6 +251,10 @@
   <implementation name="IM_subtract_vector3FA_sx_osl" nodedef="ND_subtract_vector3FA" file="stdlib/sx-osl/mx_subtract.inline" language="sx-osl"/>
   <implementation name="IM_subtract_vector4_sx_osl" nodedef="ND_subtract_vector4" file="stdlib/sx-osl/mx_subtract.inline" language="sx-osl"/>
   <implementation name="IM_subtract_vector4FA_sx_osl" nodedef="ND_subtract_vector4FA" file="stdlib/sx-osl/mx_subtract.inline" language="sx-osl"/>
+  <implementation name="IM_subtract_matrix33_sx_osl" nodedef="ND_subtract_matrix33" file="stdlib/sx-osl/mx_subtract.inline" language="sx-osl"/>
+  <implementation name="IM_subtract_matrix33FA_sx_osl" nodedef="ND_subtract_matrix33FA" file="stdlib/sx-osl/mx_subtract.inline" language="sx-osl"/>
+  <implementation name="IM_subtract_matrix44_sx_osl" nodedef="ND_subtract_matrix44" file="stdlib/sx-osl/mx_subtract.inline" language="sx-osl"/>
+  <implementation name="IM_subtract_matrix44FA_sx_osl" nodedef="ND_subtract_matrix44FA" file="stdlib/sx-osl/mx_subtract.inline" language="sx-osl"/>
 
   <!-- <multiply> -->
   <implementation name="IM_multiply_float_sx_osl" nodedef="ND_multiply_float" file="stdlib/sx-osl/mx_multiply.inline" language="sx-osl"/>
@@ -264,6 +272,8 @@
   <implementation name="IM_multiply_vector4FA_sx_osl" nodedef="ND_multiply_vector4FA" file="stdlib/sx-osl/mx_multiply.inline" language="sx-osl"/>
   <implementation name="IM_multiply_surfaceshaderF_sx_osl" nodedef="ND_multiply_surfaceshaderF" file="stdlib/sx-osl/mx_multiply.inline" language="sx-osl"/>
   <implementation name="IM_multiply_surfaceshaderC_sx_osl" nodedef="ND_multiply_surfaceshaderC" file="stdlib/sx-osl/mx_multiply.inline" language="sx-osl"/>
+  <implementation name="IM_multiply_matrix33_sx_osl" nodedef="ND_multiply_matrix33" file="stdlib/sx-osl/mx_multiply.inline" language="sx-osl"/>
+  <implementation name="IM_multiply_matrix44_sx_osl" nodedef="ND_multiply_matrix44" file="stdlib/sx-osl/mx_multiply.inline" language="sx-osl"/>
 
   <!-- <divide> -->
   <implementation name="IM_divide_float_sx_osl" nodedef="ND_divide_float" file="stdlib/sx-osl/mx_divide.inline" language="sx-osl"/>
@@ -279,6 +289,8 @@
   <implementation name="IM_divide_vector3FA_sx_osl" nodedef="ND_divide_vector3FA" file="stdlib/sx-osl/mx_divide.inline" language="sx-osl"/>
   <implementation name="IM_divide_vector4_sx_osl" nodedef="ND_divide_vector4" file="stdlib/sx-osl/mx_divide.inline" language="sx-osl"/>
   <implementation name="IM_divide_vector4FA_sx_osl" nodedef="ND_divide_vector4FA" file="stdlib/sx-osl/mx_divide.inline" language="sx-osl"/>
+  <implementation name="IM_divide_matrix33_sx_osl" nodedef="ND_divide_matrix33" file="stdlib/sx-osl/mx_divide.inline" language="sx-osl"/>
+  <implementation name="IM_divide_matrix44_sx_osl" nodedef="ND_divide_matrix44" file="stdlib/sx-osl/mx_divide.inline" language="sx-osl"/>
 
   <!-- <modulo> -->
   <implementation name="IM_modulo_float_sx_osl" nodedef="ND_modulo_float" file="stdlib/sx-osl/mx_modulo.inline" language="sx-osl"/>
@@ -309,6 +321,8 @@
   <implementation name="IM_invert_vector3FA_sx_osl" nodedef="ND_invert_vector3FA" file="stdlib/sx-osl/mx_invert.inline" language="sx-osl"/>
   <implementation name="IM_invert_vector4_sx_osl" nodedef="ND_invert_vector4" file="stdlib/sx-osl/mx_invert.inline" language="sx-osl"/>
   <implementation name="IM_invert_vector4FA_sx_osl" nodedef="ND_invert_vector4FA" file="stdlib/sx-osl/mx_invert.inline" language="sx-osl"/>
+  <implementation name="IM_invert_matrix33_sx_osl" nodedef="ND_invert_matrix33" file="stdlib/sx-osl/mx_invert.inline" language="sx-osl"/>
+  <implementation name="IM_invert_matrix44_sx_osl" nodedef="ND_invert_matrix44" file="stdlib/sx-osl/mx_invert.inline" language="sx-osl"/>
 
   <!-- <absval> -->
   <implementation name="IM_absval_float_sx_osl" nodedef="ND_absval_float" file="stdlib/sx-osl/mx_absval.inline" language="sx-osl"/>
@@ -327,6 +341,15 @@
   <implementation name="IM_floor_vector2_sx_osl" nodedef="ND_floor_vector2" file="stdlib/sx-osl/mx_floor.inline" language="sx-osl"/>
   <implementation name="IM_floor_vector3_sx_osl" nodedef="ND_floor_vector3" file="stdlib/sx-osl/mx_floor.inline" language="sx-osl"/>
   <implementation name="IM_floor_vector4_sx_osl" nodedef="ND_floor_vector4" file="stdlib/sx-osl/mx_floor.inline" language="sx-osl"/>
+
+  <!-- <ceil> -->
+  <implementation name="IM_ceil_float_sx_osl" nodedef="ND_ceil_float" file="stdlib/sx-osl/mx_ceil.inline" language="sx-osl"/>
+  <implementation name="IM_ceil_color2_sx_osl" nodedef="ND_ceil_color2" file="stdlib/sx-osl/mx_ceil.inline" language="sx-osl"/>
+  <implementation name="IM_ceil_color3_sx_osl" nodedef="ND_ceil_color3" file="stdlib/sx-osl/mx_ceil.inline" language="sx-osl"/>
+  <implementation name="IM_ceil_color4_sx_osl" nodedef="ND_ceil_color4" file="stdlib/sx-osl/mx_ceil.inline" language="sx-osl"/>
+  <implementation name="IM_ceil_vector2_sx_osl" nodedef="ND_ceil_vector2" file="stdlib/sx-osl/mx_ceil.inline" language="sx-osl"/>
+  <implementation name="IM_ceil_vector3_sx_osl" nodedef="ND_ceil_vector3" file="stdlib/sx-osl/mx_ceil.inline" language="sx-osl"/>
+  <implementation name="IM_ceil_vector4_sx_osl" nodedef="ND_ceil_vector4" file="stdlib/sx-osl/mx_ceil.inline" language="sx-osl"/>
 
   <!-- <power> -->
   <implementation name="IM_power_float_sx_osl" nodedef="ND_power_float" file="stdlib/sx-osl/mx_power.inline" language="sx-osl"/>
@@ -350,6 +373,24 @@
   <implementation name="IM_asin_float_sx_osl" nodedef="ND_asin_float" file="stdlib/sx-osl/mx_asin.inline" function="mx_asin_float" language="sx-osl"/>
   <implementation name="IM_acos_float_sx_osl" nodedef="ND_acos_float" file="stdlib/sx-osl/mx_acos.inline" function="mx_acos_float" language="sx-osl"/>
   <implementation name="IM_atan2_float_sx_osl" nodedef="ND_atan2_float" file="stdlib/sx-osl/mx_atan2.inline" function="mx_atan2_float" language="sx-osl"/>
+
+  <!-- <sqrt> -->
+  <implementation name="IM_sqrt_float_sx_osl" nodedef="ND_sqrt_float" file="stdlib/sx-osl/mx_sqrt.inline" language="sx-osl"/>
+
+  <!-- <ln> -->
+  <implementation name="IM_ln_float_sx_osl" nodedef="ND_ln_float" file="stdlib/sx-osl/mx_ln.inline" language="sx-osl"/>
+
+  <!-- <exp> -->
+  <implementation name="IM_exp_float_sx_osl" nodedef="ND_exp_float" file="stdlib/sx-osl/mx_exp.inline" language="sx-osl"/>
+
+  <!-- sign -->
+  <implementation name="IM_sign_float_sx_osl" nodedef="ND_sign_float" file="stdlib/sx-osl/mx_sign.inline" language="sx-osl"/>
+  <implementation name="IM_sign_color2_sx_osl" nodedef="ND_sign_color2" file="stdlib/sx-osl/mx_sign.inline" language="sx-osl"/>
+  <implementation name="IM_sign_color3_sx_osl" nodedef="ND_sign_color3" file="stdlib/sx-osl/mx_sign.inline" language="sx-osl"/>
+  <implementation name="IM_sign_color4_sx_osl" nodedef="ND_sign_color4" file="stdlib/sx-osl/mx_sign.inline" language="sx-osl"/>
+  <implementation name="IM_sign_vector2_sx_osl" nodedef="ND_sign_vector2" file="stdlib/sx-osl/mx_sign.inline" language="sx-osl"/>
+  <implementation name="IM_sign_vector3_sx_osl" nodedef="ND_sign_vector3" file="stdlib/sx-osl/mx_sign.inline" language="sx-osl"/>
+  <implementation name="IM_sign_vector4_sx_osl" nodedef="ND_sign_vector4" file="stdlib/sx-osl/mx_sign.inline" language="sx-osl"/>
 
   <!-- <clamp> -->
   <implementation name="IM_clamp_float_sx_osl" nodedef="ND_clamp_float" file="stdlib/sx-osl/mx_clamp.inline" language="sx-osl"/>
@@ -413,6 +454,18 @@
 
   <!-- <crossproduct> -->
   <implementation name="IM_crossproduct_vector3_sx_osl" nodedef="ND_crossproduct_vector3" file="stdlib/sx-osl/mx_crossproduct.inline" language="sx-osl"/>
+
+  <!-- <transpose> -->
+  <implementation name="IM_transpose_matrix33_sx_osl" nodedef="ND_transpose_matrix33" file="stdlib/sx-osl/mx_transpose.inline" language="sx-osl"/>
+  <implementation name="IM_transpose_matrix44_sx_osl" nodedef="ND_transpose_matrix44" file="stdlib/sx-osl/mx_transpose.inline" language="sx-osl"/>
+
+  <!-- <determinant> -->
+  <implementation name="IM_determinant_matrix33_sx_osl" nodedef="ND_determinant_matrix33" file="stdlib/sx-osl/mx_determinant.inline" language="sx-osl"/>
+  <implementation name="IM_determinant_matrix44_sx_osl" nodedef="ND_determinant_matrix44" file="stdlib/sx-osl/mx_determinant.inline" language="sx-osl"/>
+
+  <!-- <rotate> -->
+  <implementation name="IM_rotate_vector2_sx_osl" nodedef="ND_rotate_vector2" file="stdlib/sx-osl/mx_rotate_vector2.osl" function="mx_rotate_vector2" language="sx-osl"/>
+  <implementation name="IM_rotate_vector3_sx_osl" nodedef="ND_rotate_vector3" file="stdlib/sx-osl/mx_rotate_vector3.osl" function="mx_rotate_vector3" language="sx-osl"/>
 
   <!-- <scale> -->
   <implementation name="IM_scale_vector2_sx_osl" nodedef="ND_scale_vector2" file="stdlib/sx-osl/mx_scale.inline" language="sx-osl"/>
