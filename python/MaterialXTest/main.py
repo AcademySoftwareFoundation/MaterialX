@@ -232,6 +232,7 @@ class TestMaterialX(unittest.TestCase):
         diffColor = shaderDef.setInputValue('diffColor', mx.Color3(1.0))
         specColor = shaderDef.setInputValue('specColor', mx.Color3(0.0))
         roughness = shaderDef.setParameterValue('roughness', 0.25)
+        texId = shaderDef.setTokenValue('texId', '01')
         self.assertTrue(roughness.getValue() == 0.25)
 
         # Create a material that instantiates the shader.
@@ -240,13 +241,8 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(material.getPrimaryShaderName() == 'simpleSrf')
         self.assertTrue(len(material.getPrimaryShaderParameters()) == 1)
         self.assertTrue(len(material.getPrimaryShaderInputs()) == 2)
+        self.assertTrue(len(material.getPrimaryShaderTokens()) == 1)
         self.assertTrue(roughness.getBoundValue(material) == 0.25)
-
-        # Bind a shader input to a value.
-        bindInput = shaderRef.addBindInput('specColor')
-        bindInput.setValue(mx.Color3(0.5))
-        self.assertTrue(specColor.getBoundValue(material) == mx.Color3(0.5))
-        self.assertTrue(specColor.getDefaultValue() == mx.Color3(0.0))
 
         # Bind a shader parameter to a value.
         bindParam = shaderRef.addBindParam('roughness')
@@ -254,12 +250,24 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(roughness.getBoundValue(material) == 0.5)
         self.assertTrue(roughness.getDefaultValue() == 0.25)
 
+        # Bind a shader input to a value.
+        bindInput = shaderRef.addBindInput('specColor')
+        bindInput.setValue(mx.Color3(0.5))
+        self.assertTrue(specColor.getBoundValue(material) == mx.Color3(0.5))
+        self.assertTrue(specColor.getDefaultValue() == mx.Color3(0.0))
+
         # Bind a shader input to a graph output.
         bindInput = shaderRef.addBindInput('diffColor')
         bindInput.setConnectedOutput(output2)
         self.assertTrue(diffColor.getUpstreamElement(material) == output2)
         self.assertTrue(diffColor.getBoundValue(material) is None)
         self.assertTrue(diffColor.getDefaultValue() == mx.Color3(1.0))
+
+        # Bind a shader token to a value.
+        bindToken = shaderRef.addBindToken('texId')
+        bindToken.setValue('02')
+        self.assertTrue(texId.getBoundValue(material) == '02')
+        self.assertTrue(texId.getDefaultValue() == '01')
 
         # Create an inherited material.
         material2 = doc.addMaterial()

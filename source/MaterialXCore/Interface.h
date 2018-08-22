@@ -293,12 +293,7 @@ class InterfaceElement : public TypedElement
         return getAttribute(NODE_DEF_ATTRIBUTE);
     }
 
-    /// Set the NodeDef element for the interface.
-    void setNodeDef(ConstNodeDefPtr nodeDef);
-
-    /// Return the NodeDef element for the interface.
-    NodeDefPtr getNodeDef() const;
-
+    /// @}
     /// @name Parameters
     /// @{
     
@@ -567,7 +562,7 @@ class InterfaceElement : public TypedElement
     ///    the declarations that are considered.
     /// @return A shared pointer to nodedef, or an empty shared pointer if
     ///    no declaration was found.
-    NodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const;
+    virtual ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const;
 
     /// Return true if the given interface element is type compatible with
     /// this one.  This may be used to test, for example, whether a NodeDef

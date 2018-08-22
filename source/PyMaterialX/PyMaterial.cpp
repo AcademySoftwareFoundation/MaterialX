@@ -31,6 +31,8 @@ void bindPyMaterial(py::module& mod)
             py::arg("target") = mx::EMPTY_STRING, py::arg("type") = mx::EMPTY_STRING)
         .def("getPrimaryShaderInputs", &mx::Material::getPrimaryShaderInputs,
             py::arg("target") = mx::EMPTY_STRING, py::arg("type") = mx::EMPTY_STRING)
+        .def("getPrimaryShaderTokens", &mx::Material::getPrimaryShaderTokens,
+            py::arg("target") = mx::EMPTY_STRING, py::arg("type") = mx::EMPTY_STRING)
         .def("getGeometryBindings", &mx::Material::getGeometryBindings,
             py::arg("geom") = mx::UNIVERSAL_GEOM_NAME)
         .def_readonly_static("CATEGORY", &mx::Material::CATEGORY);
@@ -48,6 +50,9 @@ void bindPyMaterial(py::module& mod)
         .def("setConnectedOutput", &mx::BindInput::setConnectedOutput)
         .def("getConnectedOutput", &mx::BindInput::getConnectedOutput)
         .def_readonly_static("CATEGORY", &mx::BindInput::CATEGORY);
+
+    py::class_<mx::BindToken, mx::BindTokenPtr, mx::ValueElement>(mod, "BindToken")
+        .def_readonly_static("CATEGORY", &mx::BindToken::CATEGORY);
 
     py::class_<mx::ShaderRef, mx::ShaderRefPtr, mx::TypedElement>(mod, "ShaderRef")
         .def("setNodeString", &mx::ShaderRef::setNodeString)
@@ -67,6 +72,10 @@ void bindPyMaterial(py::module& mod)
         .def("getBindInput", &mx::ShaderRef::getBindInput)
         .def("getBindInputs", &mx::ShaderRef::getBindInputs)
         .def("removeBindInput", &mx::ShaderRef::removeBindInput)
+        .def("addBindToken", &mx::ShaderRef::addBindToken)
+        .def("getBindToken", &mx::ShaderRef::getBindToken)
+        .def("getBindTokens", &mx::ShaderRef::getBindTokens)
+        .def("removeBindToken", &mx::ShaderRef::removeBindToken)
         .def("getReferencedOutputs", &mx::ShaderRef::getReferencedOutputs)
         .def_readonly_static("CATEGORY", &mx::ShaderRef::CATEGORY);
 }

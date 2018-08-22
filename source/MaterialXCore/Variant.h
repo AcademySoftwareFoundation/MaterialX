@@ -101,7 +101,7 @@ class VariantSet : public Element
 /// @class VariantAssign
 /// A variant assignment element within a Look.
 /// @todo Add support for variant assignments in graph traversal and
-///    Element::getBoundValue.
+///    string resolution.
 class VariantAssign : public Element
 {
   public:

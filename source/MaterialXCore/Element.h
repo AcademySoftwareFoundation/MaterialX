@@ -774,15 +774,25 @@ class Element : public std::enable_shared_from_this<Element>
 
     /// Construct a StringResolver at the scope of this element.  The returned
     /// object may be used to apply substring modifiers to data values in the
-    /// context of a specific element and geometry.
+    /// context of a specific element, geometry, and material.
     /// @param geom An optional geometry name, which will be used to select the
-    ///    applicable set of geometric string substitutions.  By default, no
-    ///    geometric string substitutions are applied.  If the universal geometry
-    ///    name "/" is given, then all geometric string substitutions are applied,
+    ///    applicable set of geometry token substitutions.  By default, no
+    ///    geometry token substitutions are applied.  If the universal geometry
+    ///    name "/" is given, then all geometry token substitutions are applied,
+    /// @param material An optional material element, which will be used to
+    ///    select the applicable set of interface token substitutions.
+    /// @param target An optional target name, which will be used to filter
+    ///    the shader references within the material that are considered.
+    /// @param type An optional shader type (e.g. "surfaceshader"), which will
+    ///    be used to filter the shader references within the material that are
+    ///    considered.
     /// @return A shared pointer to a StringResolver.
     /// @todo The StringResolver returned by this method doesn't yet take
-    ///    interface tokens into account.
-    StringResolverPtr createStringResolver(const string& geom = EMPTY_STRING) const;
+    ///    variant assignments into account.
+    StringResolverPtr createStringResolver(const string& geom = EMPTY_STRING,
+                                           ConstMaterialPtr material = nullptr,
+                                           const string& target = EMPTY_STRING,
+                                           const string& type = EMPTY_STRING) const;
 
     /// Return a single-line description of this element, including its category,
     /// name, type, and value.
@@ -1085,6 +1095,21 @@ class Token : public ValueElement
     }
     virtual ~Token() { }
 
+    /// @name Traversal
+    /// @{
+
+    /// Return the Edge with the given index that lies directly upstream from
+    /// this element in the dataflow graph.
+    Edge getUpstreamEdge(ConstMaterialPtr material = nullptr,
+                         size_t index = 0) const override;
+
+    /// Return the number of queriable upstream edges for this element.
+    size_t getUpstreamEdgeCount() const override
+    {
+        return 1;
+    }
+
+    /// @}
   public:
     static const string CATEGORY;
 };
@@ -1109,10 +1134,8 @@ class GenericElement : public Element
 /// of a specific element and geometry.
 ///
 /// A StringResolver may be constructed through the Element::createStringResolver
-/// method, which initializes it in the context of a specific element and
-/// geometry.  The given element is used to select element-specific modifiers
-/// such as filename and geomname prefixes, while the geometry is used to select
-/// GeomAttr-based string substitutions.
+/// method, which initializes it in the context of a specific element, geometry,
+/// and material.
 ///
 /// Calling the StringResolver::resolve method applies all modifiers to a
 /// particular string value.
@@ -1161,11 +1184,11 @@ class StringResolver
     /// @{
 
     /// Set the UDIM substring substitution for filename data values.
-    /// This string will be used to replace the standard %UDIM token.
+    /// This string will be used to replace the standard <UDIM> token.
     void setUdimString(const string& udim);
 
     /// Set the UV-tile substring substitution for filename data values.
-    /// This string will be used to replace the standard %UVTILE token.
+    /// This string will be used to replace the standard <UVTILE> token.
     void setUvTileString(const string& uvTile);
 
     /// Set an arbitrary substring substitution for filename data values.

@@ -38,8 +38,6 @@ void bindPyInterface(py::module& mod)
         .def("setNodeDefString", &mx::InterfaceElement::setNodeDefString)
         .def("hasNodeDefString", &mx::InterfaceElement::hasNodeDefString)
         .def("getNodeDefString", &mx::InterfaceElement::getNodeDefString)
-        .def("setNodeDef", &mx::InterfaceElement::setNodeDef)
-        .def("getNodeDef", &mx::InterfaceElement::getNodeDef)
         .def("addParameter", &mx::InterfaceElement::addParameter,
             py::arg("name") = mx::EMPTY_STRING, py::arg("type") = mx::DEFAULT_TYPE_STRING)
         .def("getParameter", &mx::InterfaceElement::getParameter)

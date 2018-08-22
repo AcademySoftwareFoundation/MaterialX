@@ -84,9 +84,8 @@ Edge Parameter::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
 {
     if (material && index < getUpstreamEdgeCount())
     {
-        ConstNodeDefPtr nodeDef = getParent()->isA<Implementation>() ?
-                                  getParent()->asA<Implementation>()->getNodeDef() :
-                                  getParent()->asA<NodeDef>();
+        ConstInterfaceElementPtr interface = getParent()->asA<InterfaceElement>();
+        ConstNodeDefPtr nodeDef = interface ? interface->getDeclaration() : nullptr;
         if (nodeDef)
         {
             // Apply BindParam elements to the Parameter.
@@ -117,9 +116,8 @@ Edge Input::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
 {
     if (material && index < getUpstreamEdgeCount())
     {
-        ConstNodeDefPtr nodeDef = getParent()->isA<Implementation>() ?
-                                  getParent()->asA<Implementation>()->getNodeDef() :
-                                  getParent()->asA<NodeDef>();
+        ConstInterfaceElementPtr interface = getParent()->asA<InterfaceElement>();
+        ConstNodeDefPtr nodeDef = interface ? interface->getDeclaration() : nullptr;
         if (nodeDef)
         {
             if (material)
@@ -191,23 +189,6 @@ bool Output::validate(string* message) const
 //
 // InterfaceElement methods
 //
-
-void InterfaceElement::setNodeDef(ConstNodeDefPtr nodeDef)
-{
-    if (nodeDef)
-    {
-        setNodeDefString(nodeDef->getName());
-    }
-    else
-    {
-        removeAttribute(NODE_DEF_ATTRIBUTE);
-    }
-}
-
-NodeDefPtr InterfaceElement::getNodeDef() const
-{
-    return resolveRootNameReference<NodeDef>(getNodeDefString());
-}
 
 ParameterPtr InterfaceElement::getActiveParameter(const string& name) const
 {
@@ -338,7 +319,7 @@ ValuePtr InterfaceElement::getParameterValue(const string& name, const string& t
     }
 
     // Return the value, if any, stored in our declaration.
-    NodeDefPtr decl = getDeclaration(target);
+    ConstNodeDefPtr decl = getDeclaration(target);
     if (decl)
     {
         param = decl->getParameter(name);
@@ -360,7 +341,7 @@ ValuePtr InterfaceElement::getInputValue(const string& name, const string& targe
     }
 
     // Return the value, if any, stored in our declaration.
-    NodeDefPtr decl = getDeclaration(target);
+    ConstNodeDefPtr decl = getDeclaration(target);
     if (decl)
     {
         input = decl->getInput(name);
@@ -407,17 +388,8 @@ void InterfaceElement::unregisterChildElement(ElementPtr child)
     }
 }
 
-NodeDefPtr InterfaceElement::getDeclaration(const string& target) const
+ConstNodeDefPtr InterfaceElement::getDeclaration(const string&) const
 {
-    if (isA<Node>())
-    {
-        return asA<Node>()->getNodeDef(target);
-    }
-    else if (isA<InterfaceElement>())
-    {
-        return asA<InterfaceElement>()->getNodeDef();
-    }
-
     return NodeDefPtr();
 }
 

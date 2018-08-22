@@ -120,6 +120,17 @@ class Node : public InterfaceElement
     vector<PortElementPtr> getDownstreamPorts() const;
 
     /// @}
+    /// @name Utility
+    /// @{
+
+    /// Return the first declaration of this interface, optionally filtered
+    ///    by the given target name.
+    ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const override
+    {
+        return getNodeDef(target);
+    }
+
+    /// @}
     /// @name Validation
     /// @{
 
@@ -224,6 +235,25 @@ class NodeGraph : public GraphElement
     {
     }
     virtual ~NodeGraph() { }
+
+    /// @name NodeDef References
+    /// @{
+
+    /// Set the NodeDef element referenced by this NodeGraph.
+    void setNodeDef(ConstNodeDefPtr nodeDef);
+
+    /// Return the NodeDef element referenced by this NodeGraph.
+    NodeDefPtr getNodeDef() const;
+
+    /// @}
+    /// @name Utility
+    /// @{
+
+    /// Return the first declaration of this interface, optionally filtered
+    ///    by the given target name.
+    ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const override;
+
+    /// @}
 
   public:
     static const string CATEGORY;
