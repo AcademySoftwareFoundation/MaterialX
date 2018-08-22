@@ -151,7 +151,7 @@ Node.getReferencedNodeDef = _getReferencedNodeDef
 #
 
 def _addNode(self, category, name = '', typeString = 'color3'):
-    "Add an opgraph node."
+    "Add a node to the graph."
     return self._addNode(category, name, typeString)
 
 GraphElement.addNode = _addNode
