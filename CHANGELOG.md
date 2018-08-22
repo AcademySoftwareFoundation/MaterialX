@@ -1,5 +1,13 @@
 # Change Log
 
+## [1.36.1] - Development
+
+### Added
+- Added support for BindToken elements.
+
+### Changed
+- Updated geometry token syntax from %TOKEN to <TOKEN>.
+
 ## [1.36.0] - 2018-07-23
 
 Updated the MaterialX library to the v1.36 specification.

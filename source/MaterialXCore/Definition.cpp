@@ -103,4 +103,35 @@ bool NodeDef::isVersionCompatible(ConstElementPtr elem) const
     return false;
 }
 
+ConstNodeDefPtr NodeDef::getDeclaration(const string&) const
+{
+    return getSelf()->asA<NodeDef>();
+}
+
+//
+// Implementation methods
+//
+
+void Implementation::setNodeDef(ConstNodeDefPtr nodeDef)
+{
+    if (nodeDef)
+    {
+        setNodeDefString(nodeDef->getName());
+    }
+    else
+    {
+        removeAttribute(NODE_DEF_ATTRIBUTE);
+    }
+}
+
+NodeDefPtr Implementation::getNodeDef() const
+{
+    return resolveRootNameReference<NodeDef>(getNodeDefString());
+}
+
+ConstNodeDefPtr Implementation::getDeclaration(const string&) const
+{
+    return getNodeDef();
+}
+
 } // namespace MaterialX
