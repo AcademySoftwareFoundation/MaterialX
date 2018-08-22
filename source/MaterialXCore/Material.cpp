@@ -118,6 +118,22 @@ vector<InputPtr> Material::getPrimaryShaderInputs(const string& target, const st
     return res;
 }
 
+vector<TokenPtr> Material::getPrimaryShaderTokens(const string& target, const string& type) const
+{
+    NodeDefPtr nodeDef = getPrimaryShaderNodeDef(target, type);
+    vector<TokenPtr> res;
+    if (nodeDef)
+    {
+        InterfaceElementPtr implement = nodeDef->getImplementation();
+        for (TokenPtr nodeDefToken : nodeDef->getActiveTokens())
+        {
+            TokenPtr implementToken = implement ? implement->getToken(nodeDefToken->getName()) : nullptr;
+            res.push_back(implementToken ? implementToken : nodeDefToken);
+        }
+    }
+    return res;
+}
+
 bool Material::validate(string* message) const
 {
     bool res = true;

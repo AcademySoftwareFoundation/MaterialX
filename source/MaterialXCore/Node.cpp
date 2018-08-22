@@ -352,4 +352,30 @@ string GraphElement::asStringDot() const
     return dot;
 }
 
+//
+// NodeGraph methods
+//
+
+void NodeGraph::setNodeDef(ConstNodeDefPtr nodeDef)
+{
+    if (nodeDef)
+    {
+        setNodeDefString(nodeDef->getName());
+    }
+    else
+    {
+        removeAttribute(NODE_DEF_ATTRIBUTE);
+    }
+}
+
+NodeDefPtr NodeGraph::getNodeDef() const
+{
+    return resolveRootNameReference<NodeDef>(getNodeDefString());
+}
+
+ConstNodeDefPtr NodeGraph::getDeclaration(const string&) const
+{
+    return getNodeDef();
+}
+
 } // namespace MaterialX

@@ -421,7 +421,10 @@ bool Element::validate(string* message) const
     return res;
 }
 
-StringResolverPtr Element::createStringResolver(const string& geom) const
+StringResolverPtr Element::createStringResolver(const string& geom,
+                                                ConstMaterialPtr material,
+                                                const string& target,
+                                                const string& type) const
 {
     StringResolverPtr resolver = std::make_shared<StringResolver>();
     StringMap stringMap;
@@ -430,18 +433,32 @@ StringResolverPtr Element::createStringResolver(const string& geom) const
     resolver->setFilePrefix(getActiveFilePrefix());
     resolver->setGeomPrefix(getActiveGeomPrefix());
 
-    // If a geometry name is specified, then use it to initialize the filename map.
+    // If a geometry name is specified, then apply it to the filename map.
     if (!geom.empty())
     {
-        ConstDocumentPtr doc = getDocument();
-        for (GeomInfoPtr geomInfo : doc->getGeomInfos())
+        for (GeomInfoPtr geomInfo : getDocument()->getGeomInfos())
         {
             if (!geomStringsMatch(geom, geomInfo->getActiveGeom()))
                 continue;
             for (TokenPtr token : geomInfo->getTokens())
             {
-                string key = "%" + token->getName();
+                string key = "<" + token->getName() + ">";
                 string value = token->getResolvedValueString();
+                resolver->setFilenameSubstitution(key, value);
+            }
+        }
+    }
+
+    // If a material is specified, then apply it to the filename map.
+    if (material)
+    {
+        for (TokenPtr token : material->getPrimaryShaderTokens(target, type))
+        {
+            ValuePtr boundValue = token->getBoundValue(material);
+            if (boundValue->isA<string>())
+            {
+                string key = "[" + token->getName() + "]";
+                string value = boundValue->asA<string>();
                 resolver->setFilenameSubstitution(key, value);
             }
         }
@@ -523,7 +540,7 @@ ValuePtr ValueElement::getDefaultValue() const
     // Return the value, if any, stored in our declaration.
     if (getParent()->isA<InterfaceElement>())
     {
-        NodeDefPtr decl = getParent()->asA<InterfaceElement>()->getDeclaration();
+        ConstNodeDefPtr decl = getParent()->asA<InterfaceElement>()->getDeclaration();
         if (decl)
         {
             ValueElementPtr value = decl->getActiveValueElement(getName());
@@ -544,6 +561,38 @@ bool ValueElement::validate(string* message) const
         validateRequire(getValue() != nullptr, res, message, "Invalid value");
     }
     return TypedElement::validate(message) && res;
+}
+
+//
+// Token methods
+//
+
+Edge Token::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
+{
+    if (material && index < getUpstreamEdgeCount())
+    {
+        ConstInterfaceElementPtr interface = getParent()->asA<InterfaceElement>();
+        ConstNodeDefPtr nodeDef = interface ? interface->getDeclaration() : nullptr;
+        if (nodeDef)
+        {
+            // Apply BindToken elements to the Token.
+            for (ShaderRefPtr shaderRef : material->getActiveShaderRefs())
+            {
+                if (shaderRef->getNodeDef()->hasInheritedBase(nodeDef))
+                {
+                    for (BindTokenPtr bindToken : shaderRef->getBindTokens())
+                    {
+                        if (bindToken->getName() == getName() && bindToken->hasValue())
+                        {
+                            return Edge(getSelfNonConst(), nullptr, bindToken);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return NULL_EDGE;
 }
 
 //
@@ -630,6 +679,7 @@ INSTANTIATE_SUBCLASS(T)
 
 INSTANTIATE_CONCRETE_SUBCLASS(BindParam, "bindparam")
 INSTANTIATE_CONCRETE_SUBCLASS(BindInput, "bindinput")
+INSTANTIATE_CONCRETE_SUBCLASS(BindToken, "bindtoken")
 INSTANTIATE_CONCRETE_SUBCLASS(Collection, "collection")
 INSTANTIATE_CONCRETE_SUBCLASS(Document, "materialx")
 INSTANTIATE_CONCRETE_SUBCLASS(GenericElement, "generic")

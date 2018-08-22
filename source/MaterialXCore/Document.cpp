@@ -481,6 +481,13 @@ void Document::upgradeVersion()
                 {
                     valueElem->setValueString(UNIVERSAL_GEOM_NAME);
                 }
+                if (valueElem->getType() == FILENAME_TYPE_STRING)
+                {
+                    StringMap stringMap;
+                    stringMap["%UDIM"] = UDIM_TOKEN;
+                    stringMap["%UVTILE"] = UV_TILE_TOKEN;
+                    valueElem->setValueString(replaceSubstrings(valueElem->getValueString(), stringMap));
+                }
             }
 
             vector<ElementPtr> origChildren = elem->getChildren();

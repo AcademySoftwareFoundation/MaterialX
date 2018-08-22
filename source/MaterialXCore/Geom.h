@@ -71,10 +71,10 @@ class GeomPath
     }
 
     /// Construct a path from a geometry name string.
-    explicit GeomPath(const string& geom)
+    explicit GeomPath(const string& geom) :
+        _vec(splitString(geom, GEOM_PATH_SEPARATOR)),
+        _empty(geom.empty())
     {
-        _vec = splitString(geom, GEOM_PATH_SEPARATOR);
-        _empty = geom.empty();
     }
 
     /// Convert a path to a geometry name string.
