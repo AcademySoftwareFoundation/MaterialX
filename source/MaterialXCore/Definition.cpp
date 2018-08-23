@@ -62,7 +62,7 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target, const strin
 vector<ShaderRefPtr> NodeDef::getInstantiatingShaderRefs() const
 {
     vector<ShaderRefPtr> shaderRefs;
-    for (MaterialPtr mat : getRoot()->getChildrenOfType<Material>())
+    for (MaterialPtr mat : getDocument()->getMaterials())
     {
         for (ShaderRefPtr shaderRef : mat->getShaderRefs())
         {

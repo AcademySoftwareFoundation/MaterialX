@@ -89,7 +89,7 @@ void Collection::setIncludeCollection(ConstCollectionPtr collection)
     }
 }
 
-void Collection::setIncludeCollections(vector<ConstCollectionPtr> collections)
+void Collection::setIncludeCollections(const vector<ConstCollectionPtr>& collections)
 {
     if (!collections.empty())
     {

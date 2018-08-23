@@ -418,12 +418,8 @@ void Document::upgradeVersion()
                     {
                         for (ShaderRefPtr shaderRef : mat->getShaderRefs())
                         {
-                            if (nodeDef == shaderRef->getNodeDef())
+                            if (shaderRef->getNodeDef() == nodeDef && !shaderRef->getChild(input->getName()))
                             {
-                                if (shaderRef->getChild(input->getName()))
-                                {
-                                    shaderRef = shaderRef;
-                                }
                                 BindInputPtr bind = shaderRef->addBindInput(input->getName(), input->getType());
                                 bind->setNodeGraphString(input->getAttribute("opgraph"));
                                 bind->setOutputString(input->getAttribute("graphoutput"));
