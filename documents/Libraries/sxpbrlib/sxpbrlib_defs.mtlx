@@ -315,27 +315,6 @@
   </nodedef>
 
   <!--
-    Node: <colorcorrect>
-  -->
-  <nodedef name="ND_colorcorrect_color3" node="colorcorrect" type="color3" nodecategory="shaderx">
-    <input name="in" type="color3" value="0, 0, 0" />
-    <input name="mask" type="float" value="1" />
-    <input name="gamma" type="float" value="1" />
-    <input name="hueShift" type="float" value="0" />
-    <input name="saturation" type="float" value="1" />
-    <input name="contrast" type="float" value="1" />
-    <input name="contrastPivot" type="float" value="0.180" />
-    <input name="exposure" type="float" value="0" />
-    <input name="multiply" type="color3" value="1, 1, 1" />
-    <input name="add" type="color3" value="0, 0, 0" />
-    <input name="invert" type="boolean" value="false" />
-    <input name="alphaIsLuminance" type="boolean" value="false" />
-    <input name="alphaMultiply" type="float" value="1" />
-    <input name="alphaAdd" type="float" value="0" />
-    <input name="invertAlpha" type="boolean" value="false" />
-  </nodedef>
-
-  <!--
     Node: <srgb_linear>
   -->
   <nodedef name="ND_srgb_linear_color2" node="srgb_linear" type="color2" nodecategory="shaderx">
