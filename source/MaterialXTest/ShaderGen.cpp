@@ -704,12 +704,29 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
     implDumpBuffer.open(fileName, std::ios::out);
     std::ostream implDumpStream(&implDumpBuffer);
 
+    // Node types to explicitly skip temporarily.
+    std::list<std::string> skipNodeTypes;
+    skipNodeTypes.push_back("ambientocclusion");
+    skipNodeTypes.push_back("arrayappend");
+    skipNodeTypes.push_back("blur");
+    skipNodeTypes.push_back("curveadjust");
+
     for (auto generator : shaderGenerators)
     {
         generator->registerSourceCodeSearchPath(searchPath);
 
         const std::string& language = generator->getLanguage();
         const std::string& target = generator->getTarget();
+
+        // Skip lights for OSL for now
+        if (language == "sx-osl")
+        {
+            skipNodeTypes.push_back("light");
+        }
+        else
+        {
+            skipNodeTypes.remove("light");
+        }
 
         implDumpStream << "-----------------------------------------------------------------------" << std::endl;
         implDumpStream << "Scanning language: " << language << ". Target: " << target << std::endl;
@@ -753,6 +770,14 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
 
             std::string nodeDefName = nodeDef->getName();
             std::string nodeName = nodeDef->getNodeString();
+
+            std::list<std::string>::iterator it = std::find(skipNodeTypes.begin(), skipNodeTypes.end(), nodeName);
+            if (it != skipNodeTypes.end())
+            {
+                found_str += "Temporarily skipping implementation requried for nodedef: " + nodeDefName + ", Node : " + nodeName + ".\n";
+                continue;
+            }
+
             if (!requiresImplementation(nodeDef))
             {
                 found_str += "No implementation requried for nodedef: " + nodeDefName + ", Node: " + nodeName + ".\n";

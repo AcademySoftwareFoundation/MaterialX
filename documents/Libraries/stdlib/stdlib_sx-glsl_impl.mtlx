@@ -551,9 +551,16 @@
   <!-- ======================================================================== -->
 
   <!-- <premult> -->
-  <!-- <unpremult> -->
+  <implementation name="IM_premult_color2_sx_glsl" nodedef="ND_premult_color2" file="stdlib/sx-glsl/mx_premult_color2.glsl" function="mx_premult_color2" language="sx-glsl"/>
+  <implementation name="IM_premult_color3_sx_glsl" nodedef="ND_premult_color3" file="stdlib/sx-glsl/mx_premult_color3.glsl" function="mx_premult_color3" language="sx-glsl"/>
+  <implementation name="IM_premult_color4_sx_glsl" nodedef="ND_premult_color4" file="stdlib/sx-glsl/mx_premult_color4.glsl" function="mx_premult_color4" language="sx-glsl"/>
 
-  <!-- <plus> -->
+  <!-- <unpremult> -->
+  <implementation name="IM_unpremult_color2_sx_glsl" nodedef="ND_unpremult_color2" file="stdlib/sx-glsl/mx_unpremult_color2.glsl" function="mx_unpremult_color2" language="sx-glsl"/>
+  <implementation name="IM_unpremult_color3_sx_glsl" nodedef="ND_unpremult_color3" file="stdlib/sx-glsl/mx_unpremult_color3.glsl" function="mx_unpremult_color3" language="sx-glsl"/>
+  <implementation name="IM_unpremult_color4_sx_glsl" nodedef="ND_unpremult_color4" file="stdlib/sx-glsl/mx_unpremult_color4.glsl" function="mx_unpremult_color4" language="sx-glsl"/>
+
+   <!-- <plus> -->
   <implementation name="IM_plus_float_sx_glsl" nodedef="ND_plus_float" file="stdlib/sx-glsl/mx_plus.inline" language="sx-glsl"/>
   <implementation name="IM_plus_color2_sx_glsl" nodedef="ND_plus_color2" file="stdlib/sx-glsl/mx_plus.inline" language="sx-glsl"/>
   <implementation name="IM_plus_color3_sx_glsl" nodedef="ND_plus_color3" file="stdlib/sx-glsl/mx_plus.inline" language="sx-glsl"/>
