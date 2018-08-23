@@ -19,6 +19,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <set>
 
 namespace mx = MaterialX;
 
@@ -704,13 +705,6 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
     implDumpBuffer.open(fileName, std::ios::out);
     std::ostream implDumpStream(&implDumpBuffer);
 
-    // Node types to explicitly skip temporarily.
-    std::list<std::string> skipNodeTypes;
-    skipNodeTypes.push_back("ambientocclusion");
-    skipNodeTypes.push_back("arrayappend");
-    skipNodeTypes.push_back("blur");
-    skipNodeTypes.push_back("curveadjust");
-
     for (auto generator : shaderGenerators)
     {
         generator->registerSourceCodeSearchPath(searchPath);
@@ -718,14 +712,19 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
         const std::string& language = generator->getLanguage();
         const std::string& target = generator->getTarget();
 
+        // Node types to explicitly skip temporarily.
+        std::set<std::string> skipNodeTypes = 
+        {
+            "ambientocclusion",
+            "arrayappend",
+            "blur",
+            "curveadjust",
+        };
+
         // Skip lights for OSL for now
         if (language == "sx-osl")
         {
-            skipNodeTypes.push_back("light");
-        }
-        else
-        {
-            skipNodeTypes.remove("light");
+            skipNodeTypes.insert("light");
         }
 
         implDumpStream << "-----------------------------------------------------------------------" << std::endl;
@@ -768,11 +767,10 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
         {
             count++;
 
-            std::string nodeDefName = nodeDef->getName();
-            std::string nodeName = nodeDef->getNodeString();
+            const std::string& nodeDefName = nodeDef->getName();
+            const std::string& nodeName = nodeDef->getNodeString();
 
-            std::list<std::string>::iterator it = std::find(skipNodeTypes.begin(), skipNodeTypes.end(), nodeName);
-            if (it != skipNodeTypes.end())
+            if (skipNodeTypes.count(nodeName))
             {
                 found_str += "Temporarily skipping implementation requried for nodedef: " + nodeDefName + ", Node : " + nodeName + ".\n";
                 continue;
