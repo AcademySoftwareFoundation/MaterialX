@@ -120,28 +120,25 @@ Edge Input::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
         ConstNodeDefPtr nodeDef = interface ? interface->getDeclaration() : nullptr;
         if (nodeDef)
         {
-            if (material)
+            // Apply BindInput elements to the Input.
+            for (ShaderRefPtr shaderRef : material->getActiveShaderRefs())
             {
-                // Apply BindInput elements to the Input.
-                for (ShaderRefPtr shaderRef : material->getActiveShaderRefs())
+                if (shaderRef->getNodeDef()->hasInheritedBase(nodeDef))
                 {
-                    if (shaderRef->getNodeDef()->hasInheritedBase(nodeDef))
+                    for (BindInputPtr bindInput : shaderRef->getBindInputs())
                     {
-                        for (BindInputPtr bindInput : shaderRef->getBindInputs())
+                        if (bindInput->getName() != getName())
                         {
-                            if (bindInput->getName() != getName())
-                            {
-                                continue;
-                            }
-                            OutputPtr output = bindInput->getConnectedOutput();
-                            if (output)
-                            {
-                                return Edge(getSelfNonConst(), bindInput, output);
-                            }
-                            if (bindInput->hasValue())
-                            {
-                                return Edge(getSelfNonConst(), nullptr, bindInput);
-                            }
+                            continue;
+                        }
+                        OutputPtr output = bindInput->getConnectedOutput();
+                        if (output)
+                        {
+                            return Edge(getSelfNonConst(), bindInput, output);
+                        }
+                        if (bindInput->hasValue())
+                        {
+                            return Edge(getSelfNonConst(), nullptr, bindInput);
                         }
                     }
                 }

@@ -441,7 +441,7 @@ class Collection : public Element
 
     /// Set the vector of collections that are directly included by
     /// this element.
-    void setIncludeCollections(vector<ConstCollectionPtr> collections);
+    void setIncludeCollections(const vector<ConstCollectionPtr>& collections);
 
     /// Return the vector of collections that are directly included by
     /// this element.
