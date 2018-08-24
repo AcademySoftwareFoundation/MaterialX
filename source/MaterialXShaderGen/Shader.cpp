@@ -53,11 +53,6 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const Sg
         // Only for inputs that are connected/used internally
         if (inputSocket->connections.size())
         {
-            // Give the syntax class a chance to rename the uniform
-            string name = inputSocket->name;
-            shadergen.getSyntax()->renamePublicUniform(name, inputSocket->type);
-            _rootGraph->renameInputSocket(inputSocket->name, name);
-
             // Create the uniform
             createUniform(PIXEL_STAGE, PUBLIC_UNIFORMS, inputSocket->type, inputSocket->name, EMPTY_STRING, inputSocket->value);
         }
