@@ -627,10 +627,10 @@
   <implementation name="IM_over_color4_sx_glsl" nodedef="ND_over_color4" file="stdlib/sx-glsl/mx_over_color4.inline" language="sx-glsl"/>
 
   <!-- <inside> -->
-  <implementation name="IM_inside_float_sx_glsl" nodedef="ND_inside_float" file="stdlib/sx-glsl/mx_multiply.inline" language="sx-glsl"/>
-  <implementation name="IM_inside_color2_sx_glsl" nodedef="ND_inside_color2" file="stdlib/sx-glsl/mx_multiply.inline" language="sx-glsl"/>
-  <implementation name="IM_inside_color3_sx_glsl" nodedef="ND_inside_color3" file="stdlib/sx-glsl/mx_multiply.inline" language="sx-glsl"/>
-  <implementation name="IM_inside_color4_sx_glsl" nodedef="ND_inside_color4" file="stdlib/sx-glsl/mx_multiply.inline" language="sx-glsl"/>
+  <implementation name="IM_inside_float_sx_glsl" nodedef="ND_inside_float" file="stdlib/sx-glsl/mx_inside.inline" language="sx-glsl"/>
+  <implementation name="IM_inside_color2_sx_glsl" nodedef="ND_inside_color2" file="stdlib/sx-glsl/mx_inside.inline" language="sx-glsl"/>
+  <implementation name="IM_inside_color3_sx_glsl" nodedef="ND_inside_color3" file="stdlib/sx-glsl/mx_inside.inline" language="sx-glsl"/>
+  <implementation name="IM_inside_color4_sx_glsl" nodedef="ND_inside_color4" file="stdlib/sx-glsl/mx_inside.inline" language="sx-glsl"/>
 
   <!-- <outside> -->
   <implementation name="IM_outside_float_sx_glsl" nodedef="ND_outside_float" file="stdlib/sx-glsl/mx_outside.inline" language="sx-glsl"/>
