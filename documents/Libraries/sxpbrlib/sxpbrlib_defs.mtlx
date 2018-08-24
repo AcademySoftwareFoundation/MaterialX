@@ -122,18 +122,6 @@
   </nodedef>
 
   <!--
-    Node: <conicaledf>
-    An EDF node for uniform emission.
-  -->
-  <nodedef name="ND_conicaledf" node="conicaledf" type="EDF" nodecategory="shaderx"
-           doc=" An EDF node for conical emission.">
-    <input name="intensity" type="color3" value="1.0, 1.0, 1.0"/>
-    <input name="innerConeAngle" type="float" value="0.7" doc=""/>
-    <input name="outerConeAngle" type="float" value="0.7" doc=""/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
-  </nodedef>
-
-  <!--
     Node: <mixbsdf>
     A node for mixing BSDF's.
   -->
