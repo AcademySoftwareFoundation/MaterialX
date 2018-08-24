@@ -183,11 +183,6 @@ namespace MaterialX
         }
     }
 
-    void Syntax::renamePublicUniform(string& /*name*/, const string& /*type*/) const
-    {
-        // Don't rename by default
-    }
-
     const string DataType::BOOLEAN = "boolean";
     const string DataType::INTEGER = "integer";
     const string DataType::FLOAT = "float";

@@ -201,35 +201,4 @@ OgsFxSyntax::OgsFxSyntax()
     );
 }
 
-void OgsFxSyntax::renamePublicUniform(string& name, const string& type) const
-{
-    // In OGS if a color parameter is suffixed with "Color"
-    // it automatically gets a color picker widgets in UI.
-    // So for color parameters we renamed them accordingly 
-    // to use this feature.
-    if (type == DataType::COLOR3)
-    {
-        static const string COLOR_CAMEL = "Color";
-        static const string COLOR_LOWER = "color";
-
-        if (name.size() >= 5)
-        {
-            // Remove any existing "color", "Color", "COLOR" suffix
-            string suffix = name.substr(name.size() - 5, string::npos);
-            std::transform(suffix.begin(), suffix.end(), suffix.begin(), [](const unsigned char c) { return (unsigned char)tolower(c); });
-            if (suffix == COLOR_LOWER)
-            {
-                const size_t n = name.size() - 5;
-                name = name.substr(0, n);
-                if (!name.empty() && name.back() == '_')
-                {
-                    name.pop_back();
-                }
-            }
-        }
-        // Add the right suffix
-        name += COLOR_CAMEL;
-    }
-}
-
 }
