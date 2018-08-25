@@ -489,7 +489,9 @@ class TestMaterialX(unittest.TestCase):
                 self.assertTrue(edgeCount > 0)
 
             # Serialize to XML.
-            xmlString = mx.writeToXmlString(doc, False)
+            writeOptions = mx.XmlWriteOptions()
+            writeOptions.writeXIncludeEnable = False
+            xmlString = mx.writeToXmlString(doc, writeOptions)
 
             # Verify that the serialized document is identical.
             writtenDoc = mx.createDocument()

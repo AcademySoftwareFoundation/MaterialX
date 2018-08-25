@@ -16,20 +16,44 @@
 namespace MaterialX
 {
 
+class XmlReadOptions;
+
+/// A standard function that reads from an XML file into a Document, with
+/// optional search path and read options.
+using XmlReadFunction = std::function<void(DocumentPtr, string, string, const XmlReadOptions*)>;
+
 /// @class XmlReadOptions
 /// A set of options for controlling the behavior of XML read functions.
 class XmlReadOptions : public CopyOptions
 {
   public:
-    XmlReadOptions() :
-        readXIncludes(true)
-    {
-    }
+    XmlReadOptions();
     ~XmlReadOptions() { }
     
-    /// If true, XInclude references will be read from disk and included in the
-    /// document.  Defaults to true.
-    bool readXIncludes;
+    /// If provided, this function will be invoked when an XInclude reference
+    /// needs to be read into a document.  Defaults to readFromXmlFile.
+    XmlReadFunction readXIncludeFunction;
+
+    /// The set of parent filenames at the scope of the current document.
+    /// Defaults to an empty set.
+    std::set<string> parentFilenames;
+};
+
+/// @class XmlWriteOptions
+/// A set of options for controlling the behavior of XML write functions.
+class XmlWriteOptions
+{
+  public:
+    XmlWriteOptions();
+    ~XmlWriteOptions() { }
+
+    /// If true, elements with source file markings will be written as
+    /// XIncludes rather than explicit data.  Defaults to true.
+    bool writeXIncludeEnable;
+    
+    /// If provided, this function will be used to exclude specific elements
+    /// (those returning false) from the write operation.  Defaults to nullptr.
+    ElementPredicate elementPredicate;
 };
 
 /// @class ExceptionParseError
@@ -101,32 +125,26 @@ void readFromXmlString(DocumentPtr doc, const string& str, const XmlReadOptions*
 /// Write a Document as XML to the given output stream.
 /// @param doc The Document to be written.
 /// @param stream The output stream to which data is written
-/// @param writeXIncludes If true, elements with source file markings will be written
-///    as XIncludes rather than explicit data.  Defaults to true.
-/// @param predicate If provided, this function will be used to exclude specific elements
-///    (those returning false) from the write operation.
-void writeToXmlStream(DocumentPtr doc, std::ostream& stream, bool writeXIncludes = true,
-                      const ElementPredicate& predicate = ElementPredicate());
+/// @param writeOptions An optional pointer to an XmlWriteOptions object.
+///    If provided, then the given options will affect the behavior of the
+///    write function.  Defaults to a null pointer.
+void writeToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlWriteOptions* writeOptions = nullptr);
 
 /// Write a Document as XML to the given filename.
 /// @param doc The Document to be written.
 /// @param filename The filename to which data is written
-/// @param writeXIncludes If true, elements with source file markings will be written
-///    as XIncludes rather than explicit data.  Defaults to true.
-/// @param predicate If provided, this function will be used to exclude specific elements
-///    (those returning false) from the write operation.
-void writeToXmlFile(DocumentPtr doc, const string& filename, bool writeXIncludes = true,
-                    const ElementPredicate& predicate = ElementPredicate());
+/// @param writeOptions An optional pointer to an XmlWriteOptions object.
+///    If provided, then the given options will affect the behavior of the
+///    write function.  Defaults to a null pointer.
+void writeToXmlFile(DocumentPtr doc, const string& filename, const XmlWriteOptions* writeOptions = nullptr);
 
 /// Write a Document as XML to a new string, returned by value.
 /// @param doc The Document to be written.
-/// @param writeXIncludes If true, elements with source file markings will be written
-///    as XIncludes rather than explicit data.  Defaults to true.
-/// @param predicate If provided, this function will be used to exclude specific elements
-///    (those returning false) from the write operation.
+/// @param writeOptions An optional pointer to an XmlWriteOptions object.
+///    If provided, then the given options will affect the behavior of the
+///    write function.  Defaults to a null pointer.
 /// @return The output string, returned by value
-string writeToXmlString(DocumentPtr doc, bool writeXIncludes = true,
-                        const ElementPredicate& predicate = ElementPredicate());
+string writeToXmlString(DocumentPtr doc, const XmlWriteOptions* writeOptions = nullptr);
 
 /// @}
 /// @name Edit Functions
