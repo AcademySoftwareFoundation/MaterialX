@@ -799,10 +799,34 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
             "curveadjust",
         };
 
-        // Skip lights for OSL for now
-        if (language == "sx-osl")
+        // Skip light types in OSL for now
+        if (language == mx::OslShaderGenerator::LANGUAGE)
         {
             skipNodeTypes.insert("light");
+            skipNodeTypes.insert("pointlight");
+            skipNodeTypes.insert("directionallight");
+            skipNodeTypes.insert("spotlight");
+        }
+
+        // Explicit set of node defs to skip temporarily
+        std::set<std::string> skipNodeDefs =
+        {
+            "ND_add_displacementshader",
+            "ND_add_volumeshader",
+            "ND_multiply_displacementshaderF",
+            "ND_multiply_displacementshaderV",
+            "ND_multiply_volumeshaderF",
+            "ND_multiply_volumeshaderC",
+            "ND_mix_displacementshader",
+            "ND_mix_volumeshader"
+        };
+        // Skip some shader math in GLSL for now
+        if (language == mx::GlslShaderGenerator::LANGUAGE)
+        {
+            skipNodeDefs.insert("ND_add_surfaceshader");
+            skipNodeDefs.insert("ND_multiply_surfaceshaderF");
+            skipNodeDefs.insert("ND_multiply_surfaceshaderC");
+            skipNodeDefs.insert("ND_mix_surfaceshader");
         }
 
         implDumpStream << "-----------------------------------------------------------------------" << std::endl;
@@ -837,6 +861,7 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
         std::string nodeDefType;
         unsigned int count = 0;
         unsigned int missing = 0;
+        unsigned int skipped = 0;
         std::string missing_str;
         std::string found_str;
 
@@ -850,17 +875,24 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
 
             if (skipNodeTypes.count(nodeName))
             {
-                found_str += "Temporarily skipping implementation requried for nodedef: " + nodeDefName + ", Node : " + nodeName + ".\n";
+                found_str += "Temporarily skipping implementation required for nodedef: " + nodeDefName + ", Node : " + nodeName + ".\n";
+                skipped++;
+                continue;
+            }
+            if (skipNodeDefs.count(nodeDefName))
+            {
+                found_str += "Temporarily skipping implementation required for nodedef: " + nodeDefName + ", Node : " + nodeName + ".\n";
+                skipped++;
                 continue;
             }
 
             if (!requiresImplementation(nodeDef))
             {
-                found_str += "No implementation requried for nodedef: " + nodeDefName + ", Node: " + nodeName + ".\n";
+                found_str += "No implementation required for nodedef: " + nodeDefName + ", Node: " + nodeName + ".\n";
                 continue;
             }
 
-            mx::InterfaceElementPtr inter = nodeDef->getImplementation(""/*target*/, language);
+            mx::InterfaceElementPtr inter = nodeDef->getImplementation(target, language);
             if (!inter)
             {
                 missing++;
@@ -935,13 +967,14 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
         }
 
         implDumpStream << "-----------------------------------------------------------------------" << std::endl;
-        implDumpStream << "Missing: " << missing << " implementations out of: " << count << " nodedefs\n";
+        implDumpStream << "Missing: " << missing << " implementations out of: " << count << " nodedefs. Skipped: " << skipped << std::endl;
         implDumpStream << missing_str << std::endl;
         implDumpStream << found_str << std::endl;
         implDumpStream << "-----------------------------------------------------------------------" << std::endl;
 
-        // To enable once this is true
-        //REQUIRE(missing == 0);
+        // Should have 0 missing including skipped
+        REQUIRE(missing == 0);
+        REQUIRE(skipped == 45);
     }
 
     implDumpBuffer.close();
