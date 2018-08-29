@@ -22,9 +22,8 @@ The Python bindings for MaterialX are based on [PyBind11](https://github.com/pyb
 
 By default, the `MATERIALX_BUILD_PYTHON` option will use the active version of Python in the developer's path.  To select a specific version of Python, use the following advanced options:
 
+- `MATERIALX_PYTHON_VERSION`: Python version to build with (e.g. `2.7`)
 - `MATERIALX_PYTHON_EXECUTABLE`: Path to the Python executable (e.g. `C:/Python27/python.exe`)
-- `MATERIALX_PYTHON_INCLUDE_DIR`: Path to the headers of the Python installation (e.g. `C:/Python27/include`)
-- `MATERIALX_PYTHON_LIBRARY`: Path to the Python library file (e.g. `C:/Python27/libs/python27.lib`)
 
 To request that a specific OpenColorIO configuration be packaged with MaterialX Python, set the location of this configuration with the following option:
 
