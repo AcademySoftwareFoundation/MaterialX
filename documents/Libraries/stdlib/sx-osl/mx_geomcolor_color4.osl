@@ -1,4 +1,4 @@
-void mx_geomcolor_color4(output color4 result)
+void mx_geomcolor_color4(int index, output color4 result)
 {
     float value[4];
     getattribute("color", value);

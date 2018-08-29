@@ -1,4 +1,6 @@
-void mx_time_float(output float result)
+void mx_time_float(float fps, output float result)
 {
-    getattribute("time", result);
+    float frame;
+    getattribute("frame", frame);    
+    result = frame / fps;
 }

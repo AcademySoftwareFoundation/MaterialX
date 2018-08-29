@@ -1486,7 +1486,7 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
         // TODO: Use validation in MaterialXView library
         std::string errorResult;
         validateOSL(fileName, errorResult);
-        //REQUIRE(errorResult.size() == 0); TODO: Currently failing. Uncomment when fixed.
+        REQUIRE(errorResult.size() == 0); 
     }
 
     // OgsFx
@@ -1632,7 +1632,7 @@ TEST_CASE("Noise", "[shadergen]")
             // TODO: Use validation in MaterialXView library
             std::string errorResult;
             validateOSL(fileName, errorResult);
-            //REQUIRE(errorResult.size() == 0); TODO: Currently failing. Uncomment when fixed.
+            REQUIRE(errorResult.size() == 0); 
         }
 
         // OgsFx
@@ -1688,7 +1688,7 @@ TEST_CASE("Unique Names", "[shadergen]")
     // Generate a shade with an internal node having the same name as the shader,
     // which will result in a name conflict between the shader output and the
     // internal node output
-    const std::string shaderName = "foo";
+    const std::string shaderName = "unique_names";
     const std::string nodeName = shaderName;
 
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("IMP_" + exampleName);
@@ -1718,7 +1718,7 @@ TEST_CASE("Unique Names", "[shadergen]")
         mx::SgOutputSocket* sgOutputSocket = shader->getNodeGraph()->getOutputSocket();
         REQUIRE(sgOutputSocket->name != "output");
         mx::SgNode* sgNode1 = shader->getNodeGraph()->getNode(node1->getName());
-        REQUIRE(sgNode1->getOutput()->name == "foo_out");
+        REQUIRE(sgNode1->getOutput()->name == "unique_names_out");
 
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
@@ -1750,7 +1750,7 @@ TEST_CASE("Unique Names", "[shadergen]")
         mx::SgOutputSocket* sgOutputSocket = shader->getNodeGraph()->getOutputSocket();
         REQUIRE(sgOutputSocket->name != "out");
         mx::SgNode* sgNode1 = shader->getNodeGraph()->getNode(node1->getName());
-        REQUIRE(sgNode1->getOutput()->name == "foo_out");
+        REQUIRE(sgNode1->getOutput()->name == "unique_names_out");
 
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
@@ -1776,7 +1776,7 @@ TEST_CASE("Unique Names", "[shadergen]")
         mx::SgOutputSocket* sgOutputSocket = shader->getNodeGraph()->getOutputSocket();
         REQUIRE(sgOutputSocket->name != "vec3");
         mx::SgNode* sgNode1 = shader->getNodeGraph()->getNode(node1->getName());
-        REQUIRE(sgNode1->getOutput()->name == "foo_out");
+        REQUIRE(sgNode1->getOutput()->name == "unique_names_out");
 
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
@@ -1829,11 +1829,12 @@ TEST_CASE("Subgraphs", "[shadergen]")
             const std::string fileName(shader->getName() + ".osl");
             file.open(fileName);
             file << shader->getSourceCode();
+            file.close();
 
             // TODO: Use validation in MaterialXView library
             std::string errorResult;
             validateOSL(fileName, errorResult);
-            //REQUIRE(errorResult.size() == 0); TODO: Currently failing. Uncomment when fixed.
+            REQUIRE(errorResult.size() == 0); 
         }
     }
 
@@ -1935,11 +1936,12 @@ TEST_CASE("Materials", "[shadergen]")
                 const std::string fileName(shader->getName() + ".osl");
                 file.open(fileName);
                 file << shader->getSourceCode();
+                file.close();
 
                 // TODO: Use validation in MaterialXView library
                 std::string errorResult;
                 validateOSL(fileName, errorResult);
-                //REQUIRE(errorResult.size() == 0); TODO: Currently failing. Uncomment when fixed.
+                REQUIRE(errorResult.size() == 0); 
             }
         }
     }
@@ -2552,7 +2554,7 @@ TEST_CASE("Osl Output Types", "[shadergen]")
         // TODO: Use validation in MaterialXView library
         std::string errorResult;
         validateOSL(fileName, errorResult);
-        //REQUIRE(errorResult.size() == 0); TODO: Currently failing. Uncomment when fixed.
+        REQUIRE(errorResult.size() == 0); 
 
         // Test shader generation from color4 type graph
         shader = shadergen->generate(exampleName + "_color4", output2, options);
@@ -2566,7 +2568,7 @@ TEST_CASE("Osl Output Types", "[shadergen]")
 
         // TODO: Use validation in MaterialXView library
         validateOSL(fileName, errorResult);
-        //REQUIRE(errorResult.size() == 0); TODO: Currently failing. Uncomment when fixed.
+        REQUIRE(errorResult.size() == 0); 
     }
 
     // Change to vector2/vector4 types
@@ -2602,7 +2604,7 @@ TEST_CASE("Osl Output Types", "[shadergen]")
         // TODO: Use validation in MaterialXView library
         std::string errorResult;
         validateOSL(fileName, errorResult);
-        //REQUIRE(errorResult.size() == 0); TODO: Currently failing. Uncomment when fixed.
+        REQUIRE(errorResult.size() == 0); 
 
         // Test shader generation from color4 type graph
         shader = shadergen->generate(exampleName + "_vector4", output2, options);
@@ -2616,7 +2618,7 @@ TEST_CASE("Osl Output Types", "[shadergen]")
 
         // TODO: Use validation in MaterialXView library
         validateOSL(fileName, errorResult);
-        //REQUIRE(errorResult.size() == 0); TODO: Currently failing. Uncomment when fixed.
+        REQUIRE(errorResult.size() == 0); 
     }
 }
 

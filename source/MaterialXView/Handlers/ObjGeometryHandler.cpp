@@ -331,13 +331,21 @@ void ObjGeometryHandler::readData()
         _normalData.push_back(norm[vertexIndex + 2]);
 
         // Fake some tangent, bitangent data
-        _tangentData[0].push_back(norm[vertexIndex]);
-        _tangentData[0].push_back(norm[vertexIndex + 1]);
         _tangentData[0].push_back(norm[vertexIndex + 2]);
+        _tangentData[0].push_back(norm[vertexIndex + 1]);
+        _tangentData[0].push_back(norm[vertexIndex]);
 
+        _tangentData[1].push_back(norm[vertexIndex + 1]);
+        _tangentData[1].push_back(norm[vertexIndex + 2]);
+        _tangentData[1].push_back(norm[vertexIndex]);
+
+        _bitangentData[0].push_back(norm[vertexIndex + 2]);
+        _bitangentData[0].push_back(norm[vertexIndex + 1]);
         _bitangentData[0].push_back(norm[vertexIndex]);
+
         _bitangentData[0].push_back(norm[vertexIndex + 1]);
         _bitangentData[0].push_back(norm[vertexIndex + 2]);
+        _bitangentData[0].push_back(norm[vertexIndex]);
     }
 
     // Set up flattened indexing
