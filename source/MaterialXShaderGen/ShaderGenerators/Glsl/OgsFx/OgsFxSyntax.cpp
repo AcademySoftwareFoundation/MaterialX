@@ -19,7 +19,7 @@ namespace
             : AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeDefStatement, members)
         {}
 
-        string OgsFxAggregateTypeSyntax::getValue(const Value& value, bool uniform) const override
+        string getValue(const Value& value, bool uniform) const override
         {
             if (uniform)
             {
@@ -31,7 +31,7 @@ namespace
             }
         }
 
-        string OgsFxAggregateTypeSyntax::getValue(const vector<string>& values, bool uniform) const override
+        string getValue(const vector<string>& values, bool uniform) const override
         {
             if (values.empty())
             {
