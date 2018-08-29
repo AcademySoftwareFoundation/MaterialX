@@ -137,7 +137,7 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         DataType::FLOAT,
-        std::make_unique<ScalarTypeSyntax>(
+        std::make_shared<ScalarTypeSyntax>(
             "float", 
             "0.0", 
             "0.0")
@@ -146,7 +146,7 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         DataType::INTEGER,
-        std::make_unique<ScalarTypeSyntax>(
+        std::make_shared<ScalarTypeSyntax>(
             "int", 
             "0", 
             "0")
@@ -155,7 +155,7 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         DataType::BOOLEAN,
-        std::make_unique<ScalarTypeSyntax>(
+        std::make_shared<ScalarTypeSyntax>(
             "int", 
             "0", 
             "0", 
@@ -165,7 +165,7 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         DataType::COLOR2,
-        std::make_unique<OslStructTypeSyntax>(
+        std::make_shared<OslStructTypeSyntax>(
             "color2", 
             "color2(0.0, 0.0)", 
             "{0.0, 0.0}", 
@@ -178,7 +178,7 @@ OslSyntax::OslSyntax()
         // Note: the color type in OSL is a built in type and 
         // should not use the custom OslStructTypeSyntax.
         DataType::COLOR3,
-        std::make_unique<AggregateTypeSyntax>(
+        std::make_shared<AggregateTypeSyntax>(
             "color", 
             "color(0.0)", 
             "color(0.0)",
@@ -189,13 +189,13 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         DataType::COLOR4,
-        std::make_unique<OslColor4TypeSyntax>()
+        std::make_shared<OslColor4TypeSyntax>()
     );
 
     registerTypeSyntax
     (
         DataType::VECTOR2,
-        std::make_unique<OslStructTypeSyntax>(
+        std::make_shared<OslStructTypeSyntax>(
             "vector2", 
             "vector2(0.0, 0.0)", 
             "{0.0, 0.0}",
@@ -208,7 +208,7 @@ OslSyntax::OslSyntax()
         // Note: the vector type in OSL is a built in type and 
         // should not use the custom OslStructTypeSyntax.
         DataType::VECTOR3,
-        std::make_unique<AggregateTypeSyntax>(
+        std::make_shared<AggregateTypeSyntax>(
             "vector", 
             "vector(0.0)", 
             "vector(0.0)",
@@ -219,7 +219,7 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         DataType::VECTOR4,
-        std::make_unique<OslStructTypeSyntax>(
+        std::make_shared<OslStructTypeSyntax>(
             "vector4", 
             "vector4(0.0, 0.0, 0.0, 0.0)", 
             "{0.0, 0.0, 0.0, 0.0}",
@@ -230,7 +230,7 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         DataType::MATRIX3,
-        std::make_unique<AggregateTypeSyntax>(
+        std::make_shared<AggregateTypeSyntax>(
             "matrix", 
             "matrix(1.0)", 
             "matrix(1.0)")
@@ -239,7 +239,7 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         DataType::MATRIX4,
-        std::make_unique<AggregateTypeSyntax>(
+        std::make_shared<AggregateTypeSyntax>(
             "matrix", 
             "matrix(1.0)", 
             "matrix(1.0)")
@@ -248,7 +248,7 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         DataType::STRING,
-        std::make_unique<StringTypeSyntax>(
+        std::make_shared<StringTypeSyntax>(
             "string", 
             "\"\"", 
             "\"\"")
@@ -257,7 +257,7 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         DataType::FILENAME,
-        std::make_unique<StringTypeSyntax>(
+        std::make_shared<StringTypeSyntax>(
             "string", 
             "\"\"", 
             "\"\"")
@@ -266,7 +266,7 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         DataType::BSDF,
-        std::make_unique<ScalarTypeSyntax>(
+        std::make_shared<ScalarTypeSyntax>(
             "BSDF", 
             "null_closure", 
             "0", 
@@ -276,7 +276,7 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         DataType::EDF,
-        std::make_unique<ScalarTypeSyntax>(
+        std::make_shared<ScalarTypeSyntax>(
             "EDF", 
             "null_closure", 
             "0", 
@@ -286,7 +286,7 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         DataType::VDF,
-        std::make_unique<ScalarTypeSyntax>(
+        std::make_shared<ScalarTypeSyntax>(
             "VDF", 
             "null_closure", 
             "0", 
@@ -296,7 +296,7 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         DataType::SURFACE,
-        std::make_unique<ScalarTypeSyntax>(
+        std::make_shared<ScalarTypeSyntax>(
             "surfaceshader", 
             "null_closure", 
             "0", 
@@ -306,7 +306,7 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         DataType::VOLUME,
-        std::make_unique<ScalarTypeSyntax>(
+        std::make_shared<ScalarTypeSyntax>(
             "volumeshader", 
             "null_closure", 
             "0", 
@@ -316,7 +316,7 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         DataType::DISPLACEMENT, 
-        std::make_unique<OslStructTypeSyntax>(
+        std::make_shared<OslStructTypeSyntax>(
             "displacementshader", 
             "{vector(0.0), 0.0}", 
             "{vector(0.0), 0.0}", 
@@ -326,7 +326,7 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         DataType::LIGHT,
-        std::make_unique<ScalarTypeSyntax>(
+        std::make_shared<ScalarTypeSyntax>(
             "lightshader", 
             "null_closure", 
             "0", 

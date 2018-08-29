@@ -59,7 +59,7 @@ OgsFxSyntax::OgsFxSyntax()
     registerTypeSyntax
     (
         DataType::COLOR2,
-        std::make_unique<OgsFxAggregateTypeSyntax>(
+        std::make_shared<OgsFxAggregateTypeSyntax>(
             "vec2", 
             "vec2(0.0)", 
             "{0.0, 0.0}", 
@@ -70,7 +70,7 @@ OgsFxSyntax::OgsFxSyntax()
     registerTypeSyntax
     (
         DataType::COLOR3,
-        std::make_unique<OgsFxAggregateTypeSyntax>(
+        std::make_shared<OgsFxAggregateTypeSyntax>(
             "vec3", 
             "vec3(0.0)", 
             "{0.0, 0.0, 0.0}", 
@@ -81,7 +81,7 @@ OgsFxSyntax::OgsFxSyntax()
     registerTypeSyntax
     (
         DataType::COLOR4,
-        std::make_unique<OgsFxAggregateTypeSyntax>(
+        std::make_shared<OgsFxAggregateTypeSyntax>(
             "vec4", 
             "vec4(0.0)", 
             "{0.0, 0.0, 0.0, 0.0}", 
@@ -92,7 +92,7 @@ OgsFxSyntax::OgsFxSyntax()
     registerTypeSyntax
     (
         DataType::VECTOR2,
-        std::make_unique<OgsFxAggregateTypeSyntax>(
+        std::make_shared<OgsFxAggregateTypeSyntax>(
             "vec2", 
             "vec2(0.0)", 
             "{0.0, 0.0}", 
@@ -103,7 +103,7 @@ OgsFxSyntax::OgsFxSyntax()
     registerTypeSyntax
     (
         DataType::VECTOR3,
-        std::make_unique<OgsFxAggregateTypeSyntax>(
+        std::make_shared<OgsFxAggregateTypeSyntax>(
             "vec3", 
             "vec3(0.0)", 
             "{0.0, 0.0, 0.0}", 
@@ -114,7 +114,7 @@ OgsFxSyntax::OgsFxSyntax()
     registerTypeSyntax
     (
         DataType::VECTOR4,
-        std::make_unique<OgsFxAggregateTypeSyntax>(
+        std::make_shared<OgsFxAggregateTypeSyntax>(
             "vec4", 
             "vec4(0.0)", 
             "{0.0, 0.0, 0.0, 0.0}", 
@@ -125,7 +125,7 @@ OgsFxSyntax::OgsFxSyntax()
     registerTypeSyntax
     (
         DataType::MATRIX3,
-        std::make_unique<OgsFxAggregateTypeSyntax>(
+        std::make_shared<OgsFxAggregateTypeSyntax>(
             "mat3", 
             "mat3(1.0)", 
             "{1, 0, 0, 0, 1, 0, 0, 0, 1}")
@@ -134,7 +134,7 @@ OgsFxSyntax::OgsFxSyntax()
     registerTypeSyntax
     (
         DataType::MATRIX4,
-        std::make_unique<OgsFxAggregateTypeSyntax>(
+        std::make_shared<OgsFxAggregateTypeSyntax>(
             "mat4", 
             "mat4(1.0)", 
             "{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1}")
