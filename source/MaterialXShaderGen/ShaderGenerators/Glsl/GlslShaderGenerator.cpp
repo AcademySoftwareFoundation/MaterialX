@@ -497,9 +497,7 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
     // Early out for the rare case where the whole graph is just a single value
     if (!outputSocket->connection)
     {
-        string outputValue = outputSocket->value ? 
-            _syntax->getValue(*outputSocket->value, outputSocket->type) : 
-            _syntax->getTypeDefault(outputSocket->type);
+        string outputValue = outputSocket->value ? _syntax->getValue(outputSocket->type, *outputSocket->value) : _syntax->getDefaultValue(outputSocket->type);
         if (!DataType::isQuadruple(outputSocket->type))
         {
             string finalOutput = outputSocket->name + "_tmp";
@@ -524,10 +522,6 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
     }
     else
     {
-        if (outputSocket->channels != EMPTY_STRING)
-        {
-            finalOutput = _syntax->getSwizzledVariable(finalOutput, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
-        }
         if (!DataType::isQuadruple(outputSocket->type))
         {
             toVec4(outputSocket->type, finalOutput);
@@ -690,9 +684,9 @@ void GlslShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& s
         if (uniform.semantic.length())
             line += " : " + uniform.semantic;
         if (uniform.value)
-            line += " = " + _syntax->getValue(*uniform.value, uniform.type, true);
+            line += " = " + _syntax->getValue(uniform.type, *uniform.value, true);
         else
-            line += " = " + _syntax->getTypeDefault(uniform.type, true);
+            line += " = " + _syntax->getDefaultValue(uniform.type, true);
         shader.addLine(line);
     }
 }

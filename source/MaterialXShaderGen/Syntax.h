@@ -12,94 +12,61 @@
 namespace MaterialX
 {
 
-class SgInput;
-class SgOutput;
-
 using SyntaxPtr = shared_ptr<class Syntax>;
+using TypeSyntaxPtr = shared_ptr<class TypeSyntax>;
 
-/// Base class for syntax objects used by code generators
-/// to emit code with correcy syntax for each language
+/// Base class for syntax objects used by shader generators
+/// to emit code with correcy syntax for each language.
 class Syntax
 {
 public:
-    /// Struct holding information on syntax to be used for data types
-    /// Required to be set for each data type
-    struct TypeSyntax
-    {
-        string name;                // type name
-        string defaultValue;        // default value
-        string paramDefaultValue;   // default value in a shader param initialization context
-        string typeDef;             // custom typedef if needed in source code
-        string outputName;          // type name in output context
-
-        TypeSyntax() {}
-        TypeSyntax(const string& n, const string& dv, const string& pdv, const string& dn, const string& on)
-            : name(n)
-            , defaultValue(dv)
-            , paramDefaultValue(pdv)
-            , typeDef(dn)
-            , outputName(on)
-        {}
-    };
-
-    /// Struct holding information on syntax needed to construct values and swizzle patterns for data types
-    /// Optional and only used if a custom constructor and/or swizzling is needed for a data type
-    struct ValueConstructSyntax
-    {
-        std::pair<string, string> valueConstructor;      // value constructor prefix/post fix
-        std::pair<string, string> paramValueConstructor; // value constructor prefix/post fix in a shader param initialization context
-        vector<string> vectorComponents;            // syntax for each vector component if swizzling is supported
-
-        ValueConstructSyntax() {}
-        ValueConstructSyntax(const string& pre, const string& post, const string& paramPre, const string& paramPost, const vector<string>& vecComponents)
-            : valueConstructor(pre,post)
-            , paramValueConstructor(paramPre, paramPost)
-            , vectorComponents(vecComponents)
-        {}
-    };
-
     using UniqueNameMap = std::unordered_map<string, size_t>;
 
 public:
     virtual ~Syntax() {}
 
-    /// Add syntax information for a data type
-    /// Required to be set for each data type
-    void addTypeSyntax(const string& type, const TypeSyntax& syntax);
-
-    /// Add value constructor syntax for a data type
-    /// Optional and only used if a custom constructor is needed for a value
-    void addValueConstructSyntax(const string& type, const ValueConstructSyntax& syntax);
+    /// Register syntax handling for a data type.
+    /// Required to be set for all supported data types.
+    void registerTypeSyntax(const string& type, TypeSyntaxPtr syntax);
 
     /// Register names that are restricted to use by a code generator when naming 
     /// variables and functions. Keywords, types, built-in functions etc. should be 
     /// added to this set. Multiple calls will add to the internal set of names.
-    void addRestrictedNames(const StringSet& names);
+    void registerRestrictedNames(const StringSet& names);
 
-    /// Returns the value string for a given value object
-    virtual string getValue(const Value& value, const string& type, bool paramInit = false) const;
+    /// Returns the type syntax object for a named type.
+    /// Throws an exception if a type syntax is not defined for the given type.
+    const TypeSyntax& getTypeSyntax(const string& type) const;
+
+    /// Returns an array of all registered type syntax objects
+    const vector<TypeSyntaxPtr>& getTypeSyntaxs() const { return _typeSyntaxs; }
 
     /// Returns the name syntax of the given type
-    virtual const string& getTypeName(const string& type) const;
+    const string& getTypeName(const string& type) const;
 
-    /// Returns the default value of the given type
-    virtual const string& getTypeDefault(const string& type, bool paramInit = false) const;
+    /// Returns the type name in an output context
+    string getOutputTypeName(const string& type) const;
 
     /// Returns the custom typedef syntax for the given data type
     /// If not used returns an empty string
-    virtual const string& getTypeDef(const string& type) const;
+    const string& getTypeDefStatement(const string& type) const;
 
-    /// Returns the type name in an output context
-    virtual const string& getOutputTypeName(const string& type) const;
+    /// Returns the default value string for the given type
+    const string& getDefaultValue(const string& type, bool uniform = false) const;
+
+    /// Returns the value string for a given type and value object
+    string getValue(const string& type, const Value& value, bool uniform = false) const;
 
     /// Get syntax for a swizzled variable
-    virtual string getSwizzledVariable(const string& name, const string& type, const string& fromType, const string& channels) const;
-
-    /// Returns an array of all registered type syntax objects
-    const vector<TypeSyntax>& getTypeSyntax() const { return _typeSyntax; }
+    string getSwizzledVariable(const string& srcName, const string& srcType, const string& channels, const string& dstType) const;
 
     /// Returns a set of names that are restricted to use for this language syntax.
     const StringSet& getRestrictedNames() const { return _restrictedNames; }
+
+    /// Returns a type qualifier to be used when declaring types for output variables.
+    /// Default implementation returns empty string and derived syntax classes should
+    /// override  this method.
+    virtual const string& getOutputQualifier() const { return EMPTY_STRING; };
 
     /// Modify the given name string to make it unique according to the given uniqueName record 
     /// and according to restricted names registered for this syntax class.
@@ -114,13 +81,84 @@ protected:
     Syntax();
 
 private:
-    vector<TypeSyntax> _typeSyntax;
+    vector<TypeSyntaxPtr> _typeSyntaxs;
     std::unordered_map<string, size_t> _typeSyntaxByName;
 
-    vector<ValueConstructSyntax> _valueConstructSyntax;
-    std::unordered_map<string, size_t> _valueConstructSyntaxByName;
-
     StringSet _restrictedNames;
+};
+
+/// Base class for syntax handling of types.
+class TypeSyntax
+{
+public:
+    virtual ~TypeSyntax() {}
+
+    /// Returns the type name.
+    const string& getName() const { return _name; }
+
+    /// Returns a typedef string if needed to define the type in the target language.
+    const string& getTypeDefStatement() const { return _typeDefStatement; }
+
+    /// Returns the default value for this type.
+    const string& getDefaultValue(bool uniform) const { return uniform ? _uniformDefaultValue : _defaultValue; }
+
+    /// Returns the syntax for accessing type members if the type 
+    /// can be swizzled.
+    const vector<string>& getMembers() const { return _members; }
+
+    /// Returns a value formatted according to this type syntax.
+    /// The value is constructed from the given value object.
+    virtual string getValue(const Value& value, bool uniform) const = 0;
+
+    /// Returns a value formatted according to this type syntax.
+    /// The value is constructed from the given list of value entries
+    /// with one entry for each member of the type.
+    virtual string getValue(const vector<string>& values, bool uniform) const = 0;
+
+protected:
+    /// Protected constructor
+    TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, 
+        const string& typeDefStatement, const vector<string>& members);
+
+    string _name;                // type name
+    string _defaultValue;        // default value syntax
+    string _uniformDefaultValue; // default value syntax when assigned to uniforms
+    string _typeDefStatement;    // custom typedef statement if needed in source code
+    vector<string> _members;     // syntax for member access
+
+    static const vector<string> EMPTY_MEMBERS;
+};
+
+/// Syntax class for scalar types.
+class ScalarTypeSyntax : public TypeSyntax
+{
+public:
+    ScalarTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, 
+        const string& typeDefStatement = EMPTY_STRING);
+
+    string getValue(const Value& value, bool uniform) const override;
+    string getValue(const vector<string>& values, bool uniform) const override;
+};
+
+/// Syntax class for string types.
+class StringTypeSyntax : public ScalarTypeSyntax
+{
+public:
+    StringTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
+        const string& typeDefStatement = EMPTY_STRING);
+
+    string getValue(const Value& value, bool uniform) const override;
+};
+
+/// Syntax class for aggregate types.
+class AggregateTypeSyntax : public TypeSyntax
+{
+public:
+    AggregateTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
+        const string& typeDefStatement = EMPTY_STRING, const vector<string>& members = EMPTY_MEMBERS);
+
+    string getValue(const Value& value, bool uniform) const override;
+    string getValue(const vector<string>& values, bool uniform) const override;
 };
 
 

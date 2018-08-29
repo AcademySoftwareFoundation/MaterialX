@@ -528,12 +528,38 @@ TEST_CASE("OslSyntax", "[shadergen]")
     REQUIRE(syntax->getTypeName("BSDF") == "BSDF");
     REQUIRE(syntax->getOutputTypeName("BSDF") == "output BSDF");
 
-    std::string dv = syntax->getTypeDefault("float");
-    REQUIRE(dv == "0.0");
-    dv = syntax->getTypeDefault("color3", false);
-    REQUIRE(dv == "color(0.0, 0.0, 0.0)");
-    dv = syntax->getTypeDefault("color3", true);
-    REQUIRE(dv == "color(0.0, 0.0, 0.0)");
+    // Set fixed precision with one digit
+    mx::Value::ScopedFloatFormatting format(mx::Value::FloatFormatFixed, 1);
+
+    std::string value;
+    value = syntax->getDefaultValue("float");
+    REQUIRE(value == "0.0");
+    value = syntax->getDefaultValue("color3");
+    REQUIRE(value == "color(0.0)");
+    value = syntax->getDefaultValue("color3", true);
+    REQUIRE(value == "color(0.0)");
+    value = syntax->getDefaultValue("color4");
+    REQUIRE(value == "color4(color(0.0), 0.0)");
+    value = syntax->getDefaultValue("color4", true);
+    REQUIRE(value == "{color(0.0), 0.0}");
+
+    mx::ValuePtr floatValue = mx::Value::createValue<float>(42.0f);
+    value = syntax->getValue(mx::DataType::FLOAT, *floatValue);
+    REQUIRE(value == "42.0");
+    value = syntax->getValue(mx::DataType::FLOAT, *floatValue, true);
+    REQUIRE(value == "42.0");
+
+    mx::ValuePtr color3Value = mx::Value::createValue<mx::Color3>(mx::Color3(1.0f, 2.0f, 3.0f));
+    value = syntax->getValue(mx::DataType::COLOR3, *color3Value);
+    REQUIRE(value == "color(1.0, 2.0, 3.0)");
+    value = syntax->getValue(mx::DataType::COLOR3, *color3Value, true);
+    REQUIRE(value == "color(1.0, 2.0, 3.0)");
+
+    mx::ValuePtr color4Value = mx::Value::createValue<mx::Color4>(mx::Color4(1.0f, 2.0f, 3.0f, 4.0f));
+    value = syntax->getValue(mx::DataType::COLOR4, *color4Value);
+    REQUIRE(value == "color4(color(1.0, 2.0, 3.0), 4.0)");
+    value = syntax->getValue(mx::DataType::COLOR4, *color4Value, true);
+    REQUIRE(value == "{color(1.0, 2.0, 3.0), 4.0}");
 }
 
 TEST_CASE("GlslSyntax", "[shadergen]")
@@ -547,12 +573,38 @@ TEST_CASE("GlslSyntax", "[shadergen]")
     REQUIRE(syntax->getTypeName("BSDF") == "BSDF");
     REQUIRE(syntax->getOutputTypeName("BSDF") == "out BSDF");
 
-    std::string dv = syntax->getTypeDefault("float");
-    REQUIRE(dv == "0.0");
-    dv = syntax->getTypeDefault("color3", false);
-    REQUIRE(dv == "vec3(0.0)");
-    dv = syntax->getTypeDefault("color3", true);
-    REQUIRE(dv == "vec3(0.0)");
+    // Set fixed precision with one digit
+    mx::Value::ScopedFloatFormatting format(mx::Value::FloatFormatFixed, 1);
+
+    std::string value;
+    value = syntax->getDefaultValue("float");
+    REQUIRE(value == "0.0");
+    value = syntax->getDefaultValue("color3");
+    REQUIRE(value == "vec3(0.0)");
+    value = syntax->getDefaultValue("color3", true);
+    REQUIRE(value == "vec3(0.0)");
+    value = syntax->getDefaultValue("color4");
+    REQUIRE(value == "vec4(0.0)");
+    value = syntax->getDefaultValue("color4", true);
+    REQUIRE(value == "vec4(0.0)");
+
+    mx::ValuePtr floatValue = mx::Value::createValue<float>(42.0f);
+    value = syntax->getValue(mx::DataType::FLOAT, *floatValue);
+    REQUIRE(value == "42.0");
+    value = syntax->getValue(mx::DataType::FLOAT, *floatValue, true);
+    REQUIRE(value == "42.0");
+
+    mx::ValuePtr color3Value = mx::Value::createValue<mx::Color3>(mx::Color3(1.0f, 2.0f, 3.0f));
+    value = syntax->getValue(mx::DataType::COLOR3, *color3Value);
+    REQUIRE(value == "vec3(1.0, 2.0, 3.0)");
+    value = syntax->getValue(mx::DataType::COLOR3, *color3Value, true);
+    REQUIRE(value == "vec3(1.0, 2.0, 3.0)");
+
+    mx::ValuePtr color4Value = mx::Value::createValue<mx::Color4>(mx::Color4(1.0f, 2.0f, 3.0f, 4.0f));
+    value = syntax->getValue(mx::DataType::COLOR4, *color4Value);
+    REQUIRE(value == "vec4(1.0, 2.0, 3.0, 4.0)");
+    value = syntax->getValue(mx::DataType::COLOR4, *color4Value, true);
+    REQUIRE(value == "vec4(1.0, 2.0, 3.0, 4.0)");
 }
 
 TEST_CASE("OgsFxSyntax", "[shadergen]")
@@ -566,12 +618,38 @@ TEST_CASE("OgsFxSyntax", "[shadergen]")
     REQUIRE(syntax->getTypeName("BSDF") == "BSDF");
     REQUIRE(syntax->getOutputTypeName("BSDF") == "out BSDF");
 
-    std::string dv = syntax->getTypeDefault("float");
-    REQUIRE(dv == "0.0");
-    dv = syntax->getTypeDefault("color3", false);
-    REQUIRE(dv == "vec3(0.0)");
-    dv = syntax->getTypeDefault("color3", true);
-    REQUIRE(dv == "{0.0, 0.0, 0.0}");
+    // Set fixed precision with one digit
+    mx::Value::ScopedFloatFormatting format(mx::Value::FloatFormatFixed, 1);
+
+    std::string value;
+    value = syntax->getDefaultValue("float");
+    REQUIRE(value == "0.0");
+    value = syntax->getDefaultValue("color3");
+    REQUIRE(value == "vec3(0.0)");
+    value = syntax->getDefaultValue("color3", true);
+    REQUIRE(value == "{0.0, 0.0, 0.0}");
+    value = syntax->getDefaultValue("color4");
+    REQUIRE(value == "vec4(0.0)");
+    value = syntax->getDefaultValue("color4", true);
+    REQUIRE(value == "{0.0, 0.0, 0.0, 0.0}");
+
+    mx::ValuePtr floatValue = mx::Value::createValue<float>(42.0f);
+    value = syntax->getValue(mx::DataType::FLOAT, *floatValue);
+    REQUIRE(value == "42.0");
+    value = syntax->getValue(mx::DataType::FLOAT, *floatValue, true);
+    REQUIRE(value == "42.0");
+
+    mx::ValuePtr color3Value = mx::Value::createValue<mx::Color3>(mx::Color3(1.0f, 2.0f, 3.0f));
+    value = syntax->getValue(mx::DataType::COLOR3, *color3Value);
+    REQUIRE(value == "vec3(1.0, 2.0, 3.0)");
+    value = syntax->getValue(mx::DataType::COLOR3, *color3Value, true);
+    REQUIRE(value == "{1.0, 2.0, 3.0}");
+
+    mx::ValuePtr color4Value = mx::Value::createValue<mx::Color4>(mx::Color4(1.0f, 2.0f, 3.0f, 4.0f));
+    value = syntax->getValue(mx::DataType::COLOR4, *color4Value);
+    REQUIRE(value == "vec4(1.0, 2.0, 3.0, 4.0)");
+    value = syntax->getValue(mx::DataType::COLOR4, *color4Value, true);
+    REQUIRE(value == "{1.0, 2.0, 3.0, 4.0}");
 }
 
 TEST_CASE("Reference Implementation Validity", "[shadergen]")
@@ -879,52 +957,103 @@ TEST_CASE("Swizzling", "[shadergen]")
     mx::SgOptions options;
     mx::SgNodeContext context(mx::ShaderGenerator::NODE_CONTEXT_DEFAULT);
 
-    mx::ArnoldShaderGenerator sg;
-    sg.registerSourceCodeSearchPath(searchPath);
-    const mx::Syntax* syntax = sg.getSyntax();
+    {
+        mx::ArnoldShaderGenerator sg;
+        sg.registerSourceCodeSearchPath(searchPath);
+        const mx::Syntax* syntax = sg.getSyntax();
 
-    // Test swizzle syntax
-    std::string var1 = syntax->getSwizzledVariable("foo", "color3", "color3", "bgr");
-    REQUIRE(var1 == "color(foo[2], foo[1], foo[0])");
-    std::string var2 = syntax->getSwizzledVariable("foo", "color2", "vector2", "xy");
-    REQUIRE(var2 == "color2(foo.x, foo.y)");
-    std::string var3 = syntax->getSwizzledVariable("foo", "color4", "float", "rr01");
-    REQUIRE(var3 == "color4_pack(foo, foo, 0, 1)");
-    std::string var4 = syntax->getSwizzledVariable("foo", "vector3", "vector3", "zyx");
-    REQUIRE(var4 == "vector(foo[2], foo[1], foo[0])");
-    std::string var5 = syntax->getSwizzledVariable("foo", "vector2", "vector4", "yy");
-    REQUIRE(var5 == "vector2(foo.y, foo.y)");
-    std::string var6 = syntax->getSwizzledVariable("foo", "vector4", "color2", "rrgg");
-    REQUIRE(var6 == "vector4(foo.r, foo.r, foo.a, foo.a)");
+        // Test swizzle syntax
+        std::string var1 = syntax->getSwizzledVariable("foo", "color3", "bgr", "color3");
+        REQUIRE(var1 == "color(foo[2], foo[1], foo[0])");
+        std::string var2 = syntax->getSwizzledVariable("foo", "vector2", "xy", "color2");
+        REQUIRE(var2 == "color2(foo.x, foo.y)");
+        std::string var3 = syntax->getSwizzledVariable("foo", "float", "rr01", "color4");
+        REQUIRE(var3 == "color4(color(foo, foo, 0), 1)");
+        std::string var4 = syntax->getSwizzledVariable("foo", "vector3", "zyx", "vector3");
+        REQUIRE(var4 == "vector(foo[2], foo[1], foo[0])");
+        std::string var5 = syntax->getSwizzledVariable("foo", "vector4", "yy", "vector2");
+        REQUIRE(var5 == "vector2(foo.y, foo.y)");
+        std::string var6 = syntax->getSwizzledVariable("foo", "color2", "rrgg", "vector4");
+        REQUIRE(var6 == "vector4(foo.r, foo.r, foo.a, foo.a)");
 
-    // Create a simple test graph
-    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
-    mx::NodePtr constant1 = nodeGraph->addNode("constant", "constant1", "color3");
-    constant1->setParameterValue("value", mx::Color3(1, 2, 3));
-    mx::NodePtr swizzle1 = nodeGraph->addNode("swizzle", "swizzle1", "color3");
-    swizzle1->setConnectedNode("in", constant1);
-    swizzle1->setParameterValue("channels", std::string("rrr"));
-    mx::OutputPtr output1 = nodeGraph->addOutput();
-    output1->setConnectedNode(swizzle1);
+        // Create a simple test graph
+        mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
+        mx::NodePtr constant1 = nodeGraph->addNode("constant", "constant1", "color3");
+        constant1->setParameterValue("value", mx::Color3(1, 2, 3));
+        mx::NodePtr swizzle1 = nodeGraph->addNode("swizzle", "swizzle1", "color3");
+        swizzle1->setConnectedNode("in", constant1);
+        swizzle1->setParameterValue("channels", std::string("rrr"));
+        mx::OutputPtr output1 = nodeGraph->addOutput();
+        output1->setConnectedNode(swizzle1);
 
-    // Test swizzle node implementation
-    mx::Shader test1("test1");
-    test1.initialize(output1, sg, options);
-    mx::SgNode* sgNode = test1.getNodeGraph()->getNode("swizzle1");
-    REQUIRE(sgNode);
-    test1.addFunctionCall(sgNode, context, sg);
-    const std::string test1Result = "color swizzle1_out = color(swizzle1_in[0], swizzle1_in[0], swizzle1_in[0]);\n";
-    REQUIRE(test1.getSourceCode() == test1Result);
+        // Test swizzle node implementation
+        mx::Shader test1("test1");
+        test1.initialize(output1, sg, options);
+        mx::SgNode* sgNode = test1.getNodeGraph()->getNode("swizzle1");
+        REQUIRE(sgNode);
+        test1.addFunctionCall(sgNode, context, sg);
+        const std::string test1Result = "color swizzle1_out = color(swizzle1_in[0], swizzle1_in[0], swizzle1_in[0]);\n";
+        REQUIRE(test1.getSourceCode() == test1Result);
 
-    // Change swizzle pattern and test again
-    swizzle1->setParameterValue("channels", std::string("b0b"));
-    mx::Shader test2("test2");
-    test2.initialize(output1, sg, options);
-    sgNode = test2.getNodeGraph()->getNode("swizzle1");
-    REQUIRE(sgNode);
-    test2.addFunctionCall(sgNode, context, sg);
-    const std::string test2Result = "color swizzle1_out = color(swizzle1_in[2], 0, swizzle1_in[2]);\n";
-    REQUIRE(test2.getSourceCode() == test2Result);
+        // Change swizzle pattern and test again
+        swizzle1->setParameterValue("channels", std::string("b0b"));
+        mx::Shader test2("test2");
+        test2.initialize(output1, sg, options);
+        sgNode = test2.getNodeGraph()->getNode("swizzle1");
+        REQUIRE(sgNode);
+        test2.addFunctionCall(sgNode, context, sg);
+        const std::string test2Result = "color swizzle1_out = color(swizzle1_in[2], 0, swizzle1_in[2]);\n";
+        REQUIRE(test2.getSourceCode() == test2Result);
+    }
+
+    {
+        mx::GlslShaderGenerator sg;
+        sg.registerSourceCodeSearchPath(searchPath);
+        const mx::Syntax* syntax = sg.getSyntax();
+
+        // Test swizzle syntax
+        std::string var1 = syntax->getSwizzledVariable("foo", "color3", "bgr", "color3");
+        REQUIRE(var1 == "vec3(foo.z, foo.y, foo.x)");
+        std::string var2 = syntax->getSwizzledVariable("foo", "vector2", "xy", "color2");
+        REQUIRE(var2 == "vec2(foo.x, foo.y)");
+        std::string var3 = syntax->getSwizzledVariable("foo", "float", "rr01", "color4");
+        REQUIRE(var3 == "vec4(foo, foo, 0, 1)");
+        std::string var4 = syntax->getSwizzledVariable("foo", "vector3", "zyx", "vector3");
+        REQUIRE(var4 == "vec3(foo.z, foo.y, foo.x)");
+        std::string var5 = syntax->getSwizzledVariable("foo", "vector4", "yy", "vector2");
+        REQUIRE(var5 == "vec2(foo.y, foo.y)");
+        std::string var6 = syntax->getSwizzledVariable("foo", "color2", "rrgg", "vector4");
+        REQUIRE(var6 == "vec4(foo.x, foo.x, foo.y, foo.y)");
+
+        // Create a simple test graph
+        mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
+        mx::NodePtr constant1 = nodeGraph->addNode("constant", "constant1", "color3");
+        constant1->setParameterValue("value", mx::Color3(1, 2, 3));
+        mx::NodePtr swizzle1 = nodeGraph->addNode("swizzle", "swizzle1", "color3");
+        swizzle1->setConnectedNode("in", constant1);
+        swizzle1->setParameterValue("channels", std::string("rrr"));
+        mx::OutputPtr output1 = nodeGraph->addOutput();
+        output1->setConnectedNode(swizzle1);
+
+        // Test swizzle node implementation
+        mx::Shader test1("test1");
+        test1.initialize(output1, sg, options);
+        mx::SgNode* sgNode = test1.getNodeGraph()->getNode("swizzle1");
+        REQUIRE(sgNode);
+        test1.addFunctionCall(sgNode, context, sg);
+        const std::string test1Result = "vec3 swizzle1_out = vec3(swizzle1_in.x, swizzle1_in.x, swizzle1_in.x);\n";
+        REQUIRE(test1.getSourceCode() == test1Result);
+
+        // Change swizzle pattern and test again
+        swizzle1->setParameterValue("channels", std::string("b0b"));
+        mx::Shader test2("test2");
+        test2.initialize(output1, sg, options);
+        sgNode = test2.getNodeGraph()->getNode("swizzle1");
+        REQUIRE(sgNode);
+        test2.addFunctionCall(sgNode, context, sg);
+        const std::string test2Result = "vec3 swizzle1_out = vec3(swizzle1_in.z, 0, swizzle1_in.z);\n";
+        REQUIRE(test2.getSourceCode() == test2Result);
+    }
 }
 
 TEST_CASE("Hello World", "[shadergen]")

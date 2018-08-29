@@ -33,7 +33,6 @@ public:
     SgNode* node;
     ValuePtr value;
     SgOutput* connection;
-    string channels;
 
     void makeConnection(SgOutput* src);
     void breakConnection();

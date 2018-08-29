@@ -30,12 +30,12 @@ Shader::VDirection ShaderGenerator::getTargetVDirection() const
 
 void ShaderGenerator::emitTypeDefs(Shader& shader)
 {
-    // Emit typedefs for all data types that needs it
-    for (auto syntax : _syntax->getTypeSyntax())
+    // Emit typedef statements for all data types that needs it
+    for (auto syntax : _syntax->getTypeSyntaxs())
     {
-        if (syntax.typeDef.length())
+        if (syntax->getTypeDefStatement().length())
         {
-            shader.addLine(syntax.typeDef, false);
+            shader.addLine(syntax->getTypeDefStatement(), false);
         }
     }
     shader.newLine();
@@ -93,25 +93,17 @@ void ShaderGenerator::emitFinalOutput(Shader& shader) const
     {
         // Early out for the rare case where the whole graph is just a single value
         shader.addLine(outputSocket->name + " = " + (outputSocket->value ?
-            _syntax->getValue(*outputSocket->value, outputSocket->type) : 
-            _syntax->getTypeDefault(outputSocket->type)));
+            _syntax->getValue(outputSocket->type, *outputSocket->value) :
+            _syntax->getDefaultValue(outputSocket->type)));
         return;
     }
 
-    string finalResult = outputSocket->connection->name;
-    if (outputSocket->channels != EMPTY_STRING)
-    {
-        finalResult = _syntax->getSwizzledVariable(finalResult, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
-    }
-
-    shader.addLine(outputSocket->name + " = " + finalResult);
+    shader.addLine(outputSocket->name + " = " + outputSocket->connection->name);
 }
 
 void ShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& shader)
 {
-    const string initStr = (uniform.value ? 
-        _syntax->getValue(*uniform.value, uniform.type, true) : 
-        _syntax->getTypeDefault(uniform.type, true));
+    const string initStr = (uniform.value ? _syntax->getValue(uniform.type, *uniform.value, true) : _syntax->getDefaultValue(uniform.type, true));
     shader.addStr(_syntax->getTypeName(uniform.type) + " " + uniform.name + (initStr.empty() ? "" : " = " + initStr));
 }
 
@@ -119,23 +111,15 @@ void ShaderGenerator::emitInput(const SgInput* input, Shader &shader) const
 {
     if (input->connection)
     {
-        if (input->channels != EMPTY_STRING)
-        {
-            const string name = _syntax->getSwizzledVariable(input->connection->name, input->type, input->connection->type, input->channels);
-            shader.addStr(name);
-        }
-        else
-        {
-            shader.addStr(input->connection->name);
-        }
+        shader.addStr(input->connection->name);
     }
     else if (input->value)
     {
-        shader.addStr(_syntax->getValue(*input->value, input->type));
+        shader.addStr(_syntax->getValue(input->type, *input->value));
     }
     else
     {
-        shader.addStr(_syntax->getTypeDefault(input->type));
+        shader.addStr(_syntax->getDefaultValue(input->type));
     }
 }
 
