@@ -9,116 +9,73 @@ namespace MaterialX
     {
     }
 
-    void Syntax::addValueConstructSyntax(const string& type, const ValueConstructSyntax& syntax)
-    {
-        auto it = _valueConstructSyntaxByName.find(type);
-        if (it != _valueConstructSyntaxByName.end())
-        {
-            _valueConstructSyntax[it->second] = syntax;
-        }
-        else
-        {
-            // Type already exists so override with new value
-            _valueConstructSyntax.push_back(syntax);
-            _valueConstructSyntaxByName[type] = _valueConstructSyntax.size() - 1;
-        }
-    }
-
-    void Syntax::addTypeSyntax(const string& type, const TypeSyntax& syntax)
+    void Syntax::registerTypeSyntax(const string& type, TypeSyntaxPtr syntax)
     {
         auto it = _typeSyntaxByName.find(type);
         if (it != _typeSyntaxByName.end())
         {
-            _typeSyntax[it->second] = syntax;
+            _typeSyntaxs[it->second] = syntax;
         }
         else
         {
-            _typeSyntax.push_back(syntax);
-            _typeSyntaxByName[type] = _typeSyntax.size() - 1;
+            _typeSyntaxs.push_back(syntax);
+            _typeSyntaxByName[type] = _typeSyntaxs.size() - 1;
         }
 
         // Make this type a restricted name
-        addRestrictedNames({ type });
+        registerRestrictedNames({ type });
     }
 
-    void Syntax::addRestrictedNames(const StringSet& names)
+    void Syntax::registerRestrictedNames(const StringSet& names)
     {
         _restrictedNames.insert(names.begin(), names.end());
     }
 
-    string Syntax::getValue(const Value& value, const string& /*type*/, bool paramInit) const
+    /// Returns the type syntax object for a named type.
+    /// Throws an exception if a type syntax is not defined for the given type.
+    const TypeSyntax& Syntax::getTypeSyntax(const string& type) const
     {
-        auto it = _valueConstructSyntaxByName.find(value.getTypeString());
-        if (it != _valueConstructSyntaxByName.end())
+        auto it = _typeSyntaxByName.find(type);
+        if (it == _typeSyntaxByName.end())
         {
-            const ValueConstructSyntax& def = _valueConstructSyntax[it->second];
-            return paramInit ?
-                def.paramValueConstructor.first + value.getValueString() + def.paramValueConstructor.second :
-                def.valueConstructor.first + value.getValueString() + def.valueConstructor.second;
+            throw ExceptionShaderGenError("No syntax is defined for the given type '" + type + "'.");
         }
-        return value.getValueString();
+        return *_typeSyntaxs[it->second];
+    }
+
+    string Syntax::getValue(const string& type, const Value& value, bool uniform) const
+    {
+        const TypeSyntax& syntax = getTypeSyntax(type);
+        return syntax.getValue(value, uniform);
+    }
+
+    const string& Syntax::getDefaultValue(const string& type, bool uniform) const
+    {
+        const TypeSyntax& syntax = getTypeSyntax(type);
+        return syntax.getDefaultValue(uniform);
     }
 
     const string& Syntax::getTypeName(const string& type) const
     {
-        auto it = _typeSyntaxByName.find(type);
-        if (it != _typeSyntaxByName.end())
-        {
-            return _typeSyntax[it->second].name;
-        }
-        return type;
+        const TypeSyntax& syntax = getTypeSyntax(type);
+        return syntax.getName();
     }
 
-    const string& Syntax::getTypeDef(const string& type) const
+    string Syntax::getOutputTypeName(const string& type) const
     {
-        auto it = _typeSyntaxByName.find(type);
-        if (it != _typeSyntaxByName.end())
-        {
-            return _typeSyntax[it->second].typeDef;
-        }
-        return EMPTY_STRING;
+        const TypeSyntax& syntax = getTypeSyntax(type);
+        const string& outputModifier = getOutputQualifier();
+        return outputModifier.size() ? outputModifier + " " + syntax.getName() : syntax.getName();
     }
 
-    const string& Syntax::getTypeDefault(const string& type, bool paramInit) const
+    const string& Syntax::getTypeDefStatement(const string& type) const
     {
-        auto it = _typeSyntaxByName.find(type);
-        if (it != _typeSyntaxByName.end())
-        {
-            return paramInit ? _typeSyntax[it->second].paramDefaultValue : _typeSyntax[it->second].defaultValue;
-        }
-        return EMPTY_STRING;
+        const TypeSyntax& syntax = getTypeSyntax(type);
+        return syntax.getTypeDefStatement();
     }
 
-    const string& Syntax::getOutputTypeName(const string& type) const
+    string Syntax::getSwizzledVariable(const string& srcName, const string& srcType, const string& channels, const string& dstType) const
     {
-        auto it = _typeSyntaxByName.find(type);
-        if (it != _typeSyntaxByName.end())
-        {
-            return _typeSyntax[it->second].outputName;
-        }
-        return EMPTY_STRING;
-    }
-
-    string Syntax::getSwizzledVariable(const string& name, const string& type, const string& fromType, const string& channels) const
-    {
-        // Get vector component syntax for the from type, if this is a vector type
-        const vector<string>* vectorComponents = nullptr;
-        auto it = _valueConstructSyntaxByName.find(fromType);
-        if (it != _valueConstructSyntaxByName.end())
-        {
-            vectorComponents = &(_valueConstructSyntax[it->second].vectorComponents);
-        }
-
-        string result;
-
-        const std::pair<string, string>* constructorSyntax = nullptr;
-        it = _valueConstructSyntaxByName.find(type);
-        if (it != _valueConstructSyntaxByName.end())
-        {
-            constructorSyntax = &(_valueConstructSyntax[it->second].valueConstructor);
-            result = constructorSyntax->first;
-        }
-
         static const std::unordered_map<char, size_t> s_channelsMapping =
         {
             { 'r', 0 },{ 'x', 0 },
@@ -127,39 +84,43 @@ namespace MaterialX
             { 'a', 3 },{ 'w', 3 }
         };
 
-        string delim = "";
+        const TypeSyntax& srcSyntax = getTypeSyntax(srcType);
+        const TypeSyntax& dstSyntax = getTypeSyntax(dstType);
+
+        const vector<string>& srcMembers = srcSyntax.getMembers();
+
+        vector<string> membersSwizzled;
+
         for (size_t i = 0; i < channels.size(); ++i)
         {
             const char ch = channels[i];
-            auto it2 = s_channelsMapping.find(ch);
-            if (it2 == s_channelsMapping.end())
+            if (ch == '0' || ch == '1')
             {
-                // Not a vector component so just return the character.
-                // '0' and '1' is allowed in the channels syntax for example.
-                result += delim + ch;
+                membersSwizzled.push_back(string(1,ch));
+                continue;
             }
-            else if (vectorComponents)
+
+            auto it = s_channelsMapping.find(ch);
+            if (it == s_channelsMapping.end())
             {
-                size_t index = it2->second;
-                if (index >= vectorComponents->size())
-                {
-                    throw ExceptionShaderGenError("Given vector component in channels pattern is incorrect for type '" + fromType + "'.");
-                }
-                result += delim + name + (*vectorComponents)[index];
+                throw ExceptionShaderGenError("Invalid channel pattern '" + channels + "'.");
+            }
+
+            if (srcMembers.empty())
+            {
+                membersSwizzled.push_back(srcName);
             }
             else
             {
-                result += delim + name;
+                if (it->second >= srcMembers.size())
+                {
+                    throw ExceptionShaderGenError("Given member in channels pattern is incorrect for type '" + srcType + "'.");
+                }
+                membersSwizzled.push_back(srcName + srcMembers[it->second]);
             }
-            delim = ", ";
         }
 
-        if (constructorSyntax)
-        {
-            result += constructorSyntax->second;
-        }
-
-        return result;
+        return dstSyntax.getValue(membersSwizzled, false);
     }
 
     void Syntax::makeUnique(string& name, UniqueNameMap& uniqueNames) const
@@ -182,6 +143,80 @@ namespace MaterialX
             }
         }
     }
+
+
+    const vector<string> TypeSyntax::EMPTY_MEMBERS;
+
+    TypeSyntax::TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, 
+        const string& typeDefStatement, const vector<string>& members)
+        : _name(name)
+        , _defaultValue(defaultValue)
+        , _uniformDefaultValue(uniformDefaultValue)
+        , _typeDefStatement(typeDefStatement)
+        , _members(members)
+    {
+    }
+
+
+    ScalarTypeSyntax::ScalarTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, const string& typeDefStatement)
+        : TypeSyntax(name, defaultValue, uniformDefaultValue, typeDefStatement, EMPTY_MEMBERS)
+    {
+    }
+
+    string ScalarTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
+    {
+        return value.getValueString();
+    }
+
+    string ScalarTypeSyntax::getValue(const vector<string>& values, bool /*uniform*/) const
+    {
+        if (values.empty())
+        {
+            throw ExceptionShaderGenError("No values given to construct a value");
+        }
+        return values[0];
+    }
+
+
+    StringTypeSyntax::StringTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, const string& typeDefStatement)
+        : ScalarTypeSyntax(name, defaultValue, uniformDefaultValue, typeDefStatement)
+    {
+    }
+
+    string StringTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
+    {
+        return "\"" + value.getValueString() + "\"";
+    }
+
+
+    AggregateTypeSyntax::AggregateTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, 
+        const string& typeDefStatement, const vector<string>& members)
+        : TypeSyntax(name, defaultValue, uniformDefaultValue, typeDefStatement, members)
+    {
+    }
+
+    string AggregateTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
+    {
+        return getName() + "(" + value.getValueString() + ")";
+    }
+
+    string AggregateTypeSyntax::getValue(const vector<string>& values, bool /*uniform*/) const
+    {
+        if (values.empty())
+        {
+            throw ExceptionShaderGenError("No values given to construct a value");
+        }
+
+        string result = getName() + "(" + values[0];
+        for (size_t i=1; i<values.size(); ++i)
+        {
+            result += ", " + values[i];
+        }
+        result += ")";
+
+        return result;
+    }
+
 
     const string DataType::BOOLEAN = "boolean";
     const string DataType::INTEGER = "integer";

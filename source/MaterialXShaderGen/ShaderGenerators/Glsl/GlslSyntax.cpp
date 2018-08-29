@@ -1,12 +1,36 @@
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/GlslSyntax.h>
 
+#include <memory>
+
 namespace MaterialX
 {
+
+namespace
+{
+    // Since GLSL doesn't support strings we use integers instead.
+    // TODO: Support options strings by converting to a corresponding enum integer
+    class GlslStringTypeSyntax : public StringTypeSyntax
+    {
+    public:
+        GlslStringTypeSyntax() : StringTypeSyntax("int", "0", "0") {}
+
+        string getValue(const Value& /*value*/, bool /*uniform*/) const override
+        {
+            return "0";
+        }
+    };
+}
+
+
+const string GlslSyntax::OUTPUT_QUALIFIER = "out";
+const vector<string> GlslSyntax::VEC2_MEMBERS = { ".x", ".y" };
+const vector<string> GlslSyntax::VEC3_MEMBERS = { ".x", ".y", ".z" };
+const vector<string> GlslSyntax::VEC4_MEMBERS = { ".x", ".y", ".z", ".w" };
 
 GlslSyntax::GlslSyntax()
 {
     // Add in all restricted names and keywords in GLSL
-    addRestrictedNames(
+    registerRestrictedNames(
     {
         "centroid", "flat", "smooth", "noperspective", "patch", "sample",
         "break", "continue", "do", "for", "while", "switch", "case", "default",
@@ -51,373 +75,209 @@ GlslSyntax::GlslSyntax()
     });
 
     //
-    // Add syntax information for each data type.
-    //
-    // TODO: Make this setup data driven (e.g read from a json file),
-    //       to support new types without requiring a rebuild.
+    // Register syntax handlers for each data type.
     //
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::FLOAT,
-        TypeSyntax
-        (
-            "float",     // type name
-            "0.0",       // default value
-            "0.0",       // default value in a shader param initialization context
-            "",          // custom type definition to add in source code
-            "out float"  // type name in output context
-        )
+        std::make_shared<ScalarTypeSyntax>(
+            "float", 
+            "0.0", 
+            "0.0")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::INTEGER,
-        TypeSyntax
-        (
+        std::make_shared<ScalarTypeSyntax>(
             "int", 
             "0", 
-            "0",
-            "",
-            "out int"
-        )
+            "0")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::BOOLEAN,
-        TypeSyntax
-        (
+        std::make_shared<ScalarTypeSyntax>(
             "bool", 
             "false", 
-            "false",
-            "",
-            "out bool"
-        )
+            "false")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::COLOR2,
-        TypeSyntax
-        (
+        std::make_shared<AggregateTypeSyntax>(
             "vec2", 
-            "vec2(0.0)",
-            "vec2(0.0)",
-            "",
-            "out vec2"
-        )
+            "vec2(0.0)", 
+            "vec2(0.0)", 
+            EMPTY_STRING, 
+            VEC2_MEMBERS)
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::COLOR3,
-        TypeSyntax
-        (
+        std::make_shared<AggregateTypeSyntax>(
             "vec3", 
-            "vec3(0.0)",
-            "vec3(0.0)",
-            "",
-            "out vec3"
-        )
+            "vec3(0.0)", 
+            "vec3(0.0)", 
+            EMPTY_STRING, 
+            VEC3_MEMBERS)
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::COLOR4,
-        TypeSyntax
-        (
-            "vec4",
-            "vec4(0.0)",
-            "vec4(0.0)",
-            "",
-            "out vec4"
-        )
+        std::make_shared<AggregateTypeSyntax>(
+            "vec4", 
+            "vec4(0.0)", 
+            "vec4(0.0)", 
+            EMPTY_STRING, 
+            VEC4_MEMBERS)
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::VECTOR2,
-        TypeSyntax
-        (
-            "vec2",
-            "vec2(0.0)",
-            "vec2(0.0)",
-            "",
-            "out vec2"
-        )
+        std::make_shared<AggregateTypeSyntax>(
+            "vec2", 
+            "vec2(0.0)", 
+            "vec2(0.0)", 
+            EMPTY_STRING, 
+            VEC2_MEMBERS)
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::VECTOR3,
-        TypeSyntax
-        (
-            "vec3",
-            "vec3(0.0)",
-            "vec3(0.0)",
-            "",
-            "out vec3"
-        )
+        std::make_shared<AggregateTypeSyntax>(
+            "vec3", 
+            "vec3(0.0)", 
+            "vec3(0.0)", 
+            EMPTY_STRING, 
+            VEC3_MEMBERS)
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::VECTOR4,
-        TypeSyntax
-        (
-            "vec4",
-            "vec4(0.0)",
-            "vec4(0.0)",
-            "",
-            "out vec4"
-        )
+        std::make_shared<AggregateTypeSyntax>(
+            "vec4", 
+            "vec4(0.0)", 
+            "vec4(0.0)", 
+            EMPTY_STRING, 
+            VEC4_MEMBERS)
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::MATRIX3,
-        TypeSyntax
-        (
-            "mat3",
-            "mat3(1.0)",
-            "mat3(1.0)",
-            "",
-            "out mat3"
-        )
+        std::make_shared<AggregateTypeSyntax>(
+            "mat3", 
+            "mat3(1.0)", 
+            "mat3(1.0)")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::MATRIX4,
-        TypeSyntax
-        (
-            "mat4",
-            "mat4(1.0)",
-            "mat4(1.0)",
-            "",
-            "out mat4"
-        )
+        std::make_shared<AggregateTypeSyntax>(
+            "mat4", 
+            "mat4(1.0)", 
+            "mat4(1.0)")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::STRING,
-        TypeSyntax
-        (
-            "int", 
-            "0", 
-            "0",
-            "",
-            "out int"
-        )
+        std::make_shared<GlslStringTypeSyntax>()
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::FILENAME,
-        TypeSyntax
-        (
+        std::make_shared<ScalarTypeSyntax>(
             "sampler2D", 
-            "", 
-            "",
-            "",
-            "out sampler2D"
-        )
+            EMPTY_STRING, 
+            EMPTY_STRING)
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::BSDF,
-        TypeSyntax
-        (
-            "BSDF",
-            "BSDF(0.0)",
-            "",
-            "#define BSDF vec3",
-            "out BSDF"
-        )
+        std::make_shared<AggregateTypeSyntax>(
+            "BSDF", 
+            "BSDF(0.0)", 
+            "BSDF(0.0)", 
+            "#define BSDF vec3")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::EDF,
-        TypeSyntax
-        (
-            "EDF",
-            "EDF(0.0)",
-            "",
-            "#define EDF vec3",
-            "out EDF"
-        )
+        std::make_shared<AggregateTypeSyntax>(
+            "EDF", 
+            "EDF(0.0)", 
+            "EDF(0.0)", 
+            "#define EDF vec3")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::VDF,
-        TypeSyntax
-        (
-            "VDF",
-            "VDF(vec3(0.0),vec3(0.0))",
-            "",
-            "struct VDF { vec3 absorption; vec3 scattering; };",
-            "out VDF"
-        )
+        std::make_shared<AggregateTypeSyntax>(
+            "VDF", 
+            "VDF(vec3(0.0),vec3(0.0))", 
+            EMPTY_STRING, 
+            "struct VDF { vec3 absorption; vec3 scattering; };")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::SURFACE,
-        TypeSyntax
-        (
-            "surfaceshader",
-            "surfaceshader(vec3(0.0),vec3(0.0))",
-            "",
-            "struct surfaceshader { vec3 color; vec3 transparency; };",
-            "out surfaceshader"
-        )
+        std::make_shared<AggregateTypeSyntax>(
+            "surfaceshader", 
+            "surfaceshader(vec3(0.0),vec3(0.0))", 
+            EMPTY_STRING,
+            "struct surfaceshader { vec3 color; vec3 transparency; };")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::VOLUME,
-        TypeSyntax
-        (
-            "volumeshader", 
+        std::make_shared<AggregateTypeSyntax>(
+            "volumeshader",
             "volumeshader(VDF(vec3(0.0),vec3(0.0)),EDF(0.0))",
-            "",
-            "struct volumeshader { VDF vdf; EDF edf; };",
-            "out volumeshader"
-        )
+            EMPTY_STRING,
+            "struct volumeshader { VDF vdf; EDF edf; };")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::DISPLACEMENT,
-        TypeSyntax
-        (
-            "displacementshader", 
+        std::make_shared<AggregateTypeSyntax>(
+            "displacementshader",
             "displacementshader(vec3(0.0),1.0)",
-            "",
-            "struct displacementshader { vec3 offset; float scale; };",
-            "out displacementshader"
-        )
+            EMPTY_STRING,
+            "struct displacementshader { vec3 offset; float scale; };")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::LIGHT,
-        TypeSyntax
-        (
-            "lightshader",
-            "lightshader(vec3(0.0),vec3(0.0))",
-            "",
-            "struct lightshader { vec3 intensity; vec3 direction; };",
-            "out lightshader"
-        )
+        std::make_shared<AggregateTypeSyntax>(
+            "lightshader", 
+            "lightshader(vec3(0.0),vec3(0.0))", 
+            EMPTY_STRING, 
+            "struct lightshader { vec3 intensity; vec3 direction; };")
     );
-
-    //
-    // Add value constructor syntax for data types that needs this
-    //
-
-    addValueConstructSyntax(
-        DataType::COLOR2,
-        ValueConstructSyntax(
-            "vec2(", ")", // Value constructor syntax
-            "vec2(", ")", // Value constructor syntax in a shader param initialization context
-            {".r", ".g"}  // Syntax for each vector component
-        )
-    );
-
-    addValueConstructSyntax
-    (
-        DataType::COLOR3,
-        ValueConstructSyntax
-        (
-            "vec3(", ")",
-            "vec3(", ")",
-            {".r", ".g", ".b"}
-    )
-    );
-
-    addValueConstructSyntax
-    (
-        DataType::COLOR4,
-        ValueConstructSyntax
-        (
-            "vec4(", ")",
-            "vec4(", ")",
-            {".r", ".g", ".b", ".a"}
-    )
-    );
-
-    addValueConstructSyntax(
-        DataType::VECTOR2,
-        ValueConstructSyntax
-        (
-            "vec2(", ")",
-            "vec2(", ")",
-            { ".x", ".y"}
-        )
-    );
-
-    addValueConstructSyntax
-    (
-        DataType::VECTOR3,
-        ValueConstructSyntax
-        (
-            "vec3(", ")",
-            "vec3(", ")",
-            { ".x", ".y", ".z"}
-        )
-    );
-
-    addValueConstructSyntax
-    (
-        DataType::VECTOR4,
-        ValueConstructSyntax
-        (
-            "vec4(", ")",
-            "vec4(", ")",
-            { ".x", ".y", ".z", ".w"}
-        )
-    );
-
-    addValueConstructSyntax
-    (
-        DataType::MATRIX3,
-        ValueConstructSyntax
-        (
-            "mat3(", ")",
-            "mat3(", ")",
-            { }
-        )
-    );
-
-    addValueConstructSyntax
-    (
-        DataType::MATRIX4,
-        ValueConstructSyntax
-        (
-            "mat4(", ")",
-            "mat4(", ")",
-            {}
-        )
-    );
-
 }
 
-string GlslSyntax::getValue(const Value& value, const string& type, bool paramInit) const
+const string& GlslSyntax::getOutputQualifier() const
 {
-    if (type == DataType::STRING)
-    {
-        // Since GLSL doesn't support strings we convert
-        // to an integrer here
-        // TODO: Support options strings by converting to a corresponding enum integer
-        return "0";
-    }
-    return Syntax::getValue(value, type, paramInit);
+    return OUTPUT_QUALIFIER;
 }
 
 }

@@ -31,7 +31,7 @@ void Swizzle::emitFunctionCall(const SgNode& node, const SgNodeContext& /*contex
         variableName = in->connection->name;
         if (!swizzle.empty())
         {
-            variableName = syntax->getSwizzledVariable(variableName, node.getOutput()->type, in->connection->type, swizzle);
+            variableName = syntax->getSwizzledVariable(variableName, in->connection->type, swizzle, node.getOutput()->type);
         }
     }
     else
@@ -45,12 +45,12 @@ void Swizzle::emitFunctionCall(const SgNode& node, const SgNodeContext& /*contex
 
         shader.beginLine();
         shader.addStr(syntax->getTypeName(in->type) + " " + variableName);
-        shader.addStr(" = " + syntax->getValue(*in->value, in->type));
+        shader.addStr(" = " + syntax->getValue(in->type, *in->value));
         shader.endLine();
 
         if (!swizzle.empty())
         {
-            variableName = syntax->getSwizzledVariable(variableName, node.getOutput()->type, in->type, swizzle);
+            variableName = syntax->getSwizzledVariable(variableName, in->type, swizzle, node.getOutput()->type);
         }
     }
 

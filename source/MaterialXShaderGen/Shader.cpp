@@ -72,7 +72,7 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const Sg
                     // otherwise we can't assign user values to it anyway. 
                     // This is the case for BSDF, EDF, VDF, and shader types 
                     // which we never want to publish as editable uniforms.
-                    const string& typeDefault = shadergen.getSyntax()->getTypeDefault(input->type, true);
+                    const string& typeDefault = shadergen.getSyntax()->getDefaultValue(input->type, true);
                     if (!typeDefault.empty())
                     {
                         // Use a consistent naming convention: <nodename>_<inputname>

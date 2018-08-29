@@ -176,7 +176,7 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     for (const Shader::Variable* input : appDataBlock.variableOrder)
     {
         const string& type = _syntax->getTypeName(input->type);
-        const string value = _syntax->getTypeDefault(input->type, true);
+        const string value = _syntax->getDefaultValue(input->type, true);
         shader.addLine(type + " " + input->name + " = " + value + " [[ int lockgeom=0 ]],", false);
     }
 
@@ -198,7 +198,7 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
         outputType = it->second.first;
     }
     const string type = _syntax->getOutputTypeName(outputType);
-    const string value = _syntax->getTypeDefault(outputType, true);
+    const string value = _syntax->getDefaultValue(outputType, true);
     shader.addLine(type + " " + outputSocket->name + " = " + value, false);
 
     shader.endScope();
@@ -265,28 +265,18 @@ void OslShaderGenerator::emitFinalOutput(Shader& shader) const
     {
         // Early out for the rare case where the whole graph is just a single value
         shader.addLine(outputSocket->name + " = " + (outputSocket->value ?
-            _syntax->getValue(*outputSocket->value, outputSocket->type) : 
-            _syntax->getTypeDefault(outputSocket->type)));
+            _syntax->getValue(outputSocket->type, *outputSocket->value) :
+            _syntax->getDefaultValue(outputSocket->type)));
         return;
     }
 
     string finalResult = outputSocket->connection->name;
 
-    // Handle channel swizzling
-    if (outputSocket->channels != EMPTY_STRING)
-    {
-        string finalResultSwizz = finalResult + "_swizzled";
-        finalResult = _syntax->getSwizzledVariable(finalResult, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
-        const string type = _syntax->getTypeName(outputSocket->type);
-        shader.addLine(type + " " + finalResultSwizz + " = " + finalResult);
-        finalResult = finalResultSwizz;
-    }
-
     // Handle output type remapping
     auto it = shaderOutputTypeRemap.find(outputSocket->type);
     if (it != shaderOutputTypeRemap.end())
     {
-        finalResult = _syntax->getSwizzledVariable(finalResult, it->second.first, outputSocket->type, it->second.second);
+        finalResult = _syntax->getSwizzledVariable(finalResult, outputSocket->type, it->second.second, it->second.first);
     }
 
     shader.addLine(outputSocket->name + " = " + finalResult);

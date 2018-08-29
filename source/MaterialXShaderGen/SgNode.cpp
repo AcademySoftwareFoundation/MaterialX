@@ -184,23 +184,18 @@ SgNodePtr SgNode::create(const string& name, const NodeDef& nodeDef, ShaderGener
         newNode->addOutput("out", nodeDef.getType());
     }
 
-    // Assign input values and channel swizzling from the node instance
+    // Assign input values from the node instance
     if (nodeInstance)
     {
         const vector<ValueElementPtr> nodeInstanceInputs = nodeInstance->getChildrenOfType<ValueElement>();
         for (const ValueElementPtr& elem : nodeInstanceInputs)
         {
-            SgInput* input = newNode->getInput(elem->getName());
-            if (input)
+            if (!elem->getValueString().empty())
             {
-                if (!elem->getValueString().empty())
+                SgInput* input = newNode->getInput(elem->getName());
+                if (input)
                 {
                     input->value = elem->getValue();
-                }
-                InputPtr inputElem = elem->asA<Input>();
-                if (inputElem)
-                {
-                    input->channels.clear(); // inputElem->getChannels();
                 }
             }
         }
@@ -540,16 +535,6 @@ SgNodeGraphPtr SgNodeGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shad
 
     // Create output sockets from the nodegraph
     graph->addOutputSockets(*nodeGraph);
-
-    // Copy channel/swizzling information
-    for (const OutputPtr& graphOutput : nodeGraph->getOutputs())
-    {
-        SgOutputSocket* outputSocket = graph->getOutputSocket(graphOutput->getName());
-        if (outputSocket)
-        {
-            outputSocket->channels.clear(); // = graphOutput->getChannels();
-        }
-    }
 
     // Traverse all outputs and create all upstream dependencies
     for (OutputPtr graphOutput : nodeGraph->getOutputs())

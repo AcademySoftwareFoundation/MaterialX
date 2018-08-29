@@ -1,12 +1,124 @@
 #include <MaterialXShaderGen/ShaderGenerators/Osl/OslSyntax.h>
+#include <MaterialXShaderGen/Shader.h>
+
+#include <memory>
+#include <sstream>
 
 namespace MaterialX
 {
 
+namespace
+{
+    // In OSL vector2, vector4, color2 and color4 are custom struct types and require a different 
+    // value syntax for uniforms. So override the aggregate type syntax to support this.
+    class OslStructTypeSyntax : public AggregateTypeSyntax
+    {
+    public:
+        OslStructTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
+            const string& typeDefStatement = EMPTY_STRING, const vector<string>& members = EMPTY_MEMBERS)
+            : AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeDefStatement, members)
+        {}
+
+        string getValue(const Value& value, bool uniform) const override
+        {
+            if (uniform)
+            {
+                return "{" + value.getValueString() + "}";
+            }
+            else
+            {
+                return getName() + "(" + value.getValueString() + ")";
+            }
+        }
+
+        string getValue(const vector<string>& values, bool uniform) const override
+        {
+            if (values.empty())
+            {
+                throw ExceptionShaderGenError("No values given to construct a value");
+            }
+
+            string result = uniform ? "{" : getName() + "(" + values[0];
+            for (size_t i = 1; i<values.size(); ++i)
+            {
+                result += ", " + values[i];
+            }
+            result += uniform ? "}" : ")";
+
+            return result;
+        }
+    };
+
+    // For the color4 type we need even more specialization since it's a struct of a struct:
+    //
+    // struct color4 {
+    //    color rgb;
+    //    float a;
+    // }
+    //
+    class OslColor4TypeSyntax : public OslStructTypeSyntax
+    {
+    public:
+        OslColor4TypeSyntax() 
+            : OslStructTypeSyntax("color4", "color4(color(0.0), 0.0)", "{color(0.0), 0.0}", EMPTY_STRING, OslSyntax::COLOR4_MEMBERS)
+        {}
+
+        string getValue(const Value& value, bool uniform) const override
+        {
+            std::stringstream ss;
+
+            // Set float format and precision for the stream
+            const Value::FloatFormat fmt = Value::getFloatFormat();
+            ss.setf(std::ios_base::fmtflags(
+                (fmt == Value::FloatFormatFixed ? std::ios_base::fixed :
+                (fmt == Value::FloatFormatScientific ? std::ios_base::scientific : 0))),
+                std::ios_base::floatfield);
+            ss.precision(Value::getFloatPrecision());
+
+            const Color4 c = value.asA<Color4>();
+
+            if (uniform)
+            {
+                ss << "{color(" << c[0] << ", " << c[1] << ", " << c[2] << "), " << c[3] << "}";
+            }
+            else
+            {
+                ss << "color4(color(" << c[0] << ", " << c[1] << ", " << c[2] << "), " << c[3] << ")";
+            }
+
+            return ss.str();
+        }
+
+        string getValue(const vector<string>& values, bool uniform) const override
+        {
+            if (values.size() < 4)
+            {
+                throw ExceptionShaderGenError("Too few values given to construct a color4 value");
+            }
+
+            if (uniform)
+            {
+                return "{color(" + values[0] + ", " + values[1] + ", " + values[2] + "), " + values[3] + "}";
+            }
+            else
+            {
+                return "color4(color(" + values[0] + ", " + values[1] + ", " + values[2] + "), " + values[3] + ")";
+            }
+        }
+    };
+}
+
+const string OslSyntax::OUTPUT_QUALIFIER = "output";
+const vector<string> OslSyntax::VECTOR_MEMBERS  = { "[0]", "[1]", "[2]" };
+const vector<string> OslSyntax::VECTOR2_MEMBERS = { ".x", ".y" };
+const vector<string> OslSyntax::VECTOR4_MEMBERS = { ".x", ".y", ".z", ".w" };
+const vector<string> OslSyntax::COLOR2_MEMBERS  = { ".r", ".a" };
+const vector<string> OslSyntax::COLOR4_MEMBERS  = { ".rgb[0]", ".rgb[1]", ".rgb[2]", ".a" };
+
 OslSyntax::OslSyntax()
 {
     // Add in all restricted names and keywords in OSL
-    addRestrictedNames(
+    registerRestrictedNames(
     {
         "and", "break", "closure", "color", "continue", "do", "else", "emit", "float", "for", "if", "illuminance",
         "illuminate", "int", "matrix", "normal", "not", "or", "output", "point", "public", "return", "string",
@@ -19,348 +131,212 @@ OslSyntax::OslSyntax()
     });
 
     //
-    // Add syntax information for each data type.
-    //
-    // TODO: Make this setup data driven (e.g read from a config file),
-    //       to support new types without requiring a rebuild.
+    // Register type syntax handlers for each data type.
     //
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::FLOAT,
-        TypeSyntax
-        (
-            "float",        // type name
-            "0.0",          // default value
-            "0.0",          // default value in a shader param initialization context
-            "",             // custom type definition to add in source code
-            "output float"  // type name in output context
-        )
+        std::make_shared<ScalarTypeSyntax>(
+            "float", 
+            "0.0", 
+            "0.0")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::INTEGER,
-        TypeSyntax
-        (
+        std::make_shared<ScalarTypeSyntax>(
             "int", 
             "0", 
-            "0",
-            "",
-            "output int" 
-        )
+            "0")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::BOOLEAN,
-        TypeSyntax
-        (
+        std::make_shared<ScalarTypeSyntax>(
             "int", 
             "0", 
-            "0",
-            "#define true 1\n#define false 0",
-            "output int"
-        )
+            "0", 
+            "#define true 1\n#define false 0")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::COLOR2,
-        TypeSyntax
-        (
+        std::make_shared<OslStructTypeSyntax>(
             "color2", 
             "color2(0.0, 0.0)", 
-            "color2(0.0, 0.0)",
-            "",
-            "output color2"
-        )
+            "{0.0, 0.0}", 
+            EMPTY_STRING,
+            COLOR2_MEMBERS)
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
+        // Note: the color type in OSL is a built in type and 
+        // should not use the custom OslStructTypeSyntax.
         DataType::COLOR3,
-        TypeSyntax
-        (
+        std::make_shared<AggregateTypeSyntax>(
             "color", 
-            "color(0.0, 0.0, 0.0)", 
-            "color(0.0, 0.0, 0.0)",
-            "",
-            "output color"
-        )
+            "color(0.0)", 
+            "color(0.0)",
+            EMPTY_STRING,
+            VECTOR_MEMBERS)
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::COLOR4,
-        TypeSyntax
-        (
-            "color4",
-            "color4(color(0.0), 0.0)",
-            "color4(color(0.0), 0.0)",
-            "color4 color4_pack(float r, float g, float b, float a) { return color4(color(r,g,b), a); }",
-            "output color4"
-        )
+        std::make_shared<OslColor4TypeSyntax>()
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::VECTOR2,
-        TypeSyntax
-        (
+        std::make_shared<OslStructTypeSyntax>(
             "vector2", 
             "vector2(0.0, 0.0)", 
-            "vector2(0.0, 0.0)",
-            "",
-            "output vector2"
-        )
+            "{0.0, 0.0}",
+            EMPTY_STRING,
+            VECTOR2_MEMBERS)
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
+        // Note: the vector type in OSL is a built in type and 
+        // should not use the custom OslStructTypeSyntax.
         DataType::VECTOR3,
-        TypeSyntax
-        (
+        std::make_shared<AggregateTypeSyntax>(
             "vector", 
-            "vector(0.0, 0.0, 0.0)", 
-            "vector(0.0, 0.0, 0.0)",
-            "",
-            "output vector"
-        )
+            "vector(0.0)", 
+            "vector(0.0)",
+            EMPTY_STRING,
+            VECTOR_MEMBERS)
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::VECTOR4,
-        TypeSyntax
-        (
+        std::make_shared<OslStructTypeSyntax>(
             "vector4", 
-            "vector4(0.0, 0.0, 0.0, 0.0)",
-            "vector4(0.0, 0.0, 0.0, 0.0)",
-            "",
-            "output vector4"
-        )
+            "vector4(0.0, 0.0, 0.0, 0.0)", 
+            "{0.0, 0.0, 0.0, 0.0}",
+            EMPTY_STRING,
+            VECTOR4_MEMBERS)
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::MATRIX3,
-        TypeSyntax
-        (
-            "matrix",
-            "1",
-            "1",
-            "",
-            "out matrix"
-        )
+        std::make_shared<AggregateTypeSyntax>(
+            "matrix", 
+            "matrix(1.0)", 
+            "matrix(1.0)")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::MATRIX4,
-        TypeSyntax
-        (
-            "matrix",
-            "1",
-            "1",
-            "",
-            "out matrix"
-        )
+        std::make_shared<AggregateTypeSyntax>(
+            "matrix", 
+            "matrix(1.0)", 
+            "matrix(1.0)")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::STRING,
-        TypeSyntax
-        (
+        std::make_shared<StringTypeSyntax>(
             "string", 
             "\"\"", 
-            "\"\"",
-            "",
-            "output string"
-        )
+            "\"\"")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::FILENAME,
-        TypeSyntax
-        (
+        std::make_shared<StringTypeSyntax>(
             "string", 
             "\"\"", 
-            "\"\"",
-            "",
-            "output string"
-        )
+            "\"\"")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::BSDF,
-        TypeSyntax
-        (
+        std::make_shared<ScalarTypeSyntax>(
             "BSDF", 
             "null_closure", 
-            "0",
-            "#define BSDF closure color",
-            "output BSDF"
-        )
+            "0", 
+            "#define BSDF closure color")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::EDF,
-        TypeSyntax
-        (
+        std::make_shared<ScalarTypeSyntax>(
             "EDF", 
             "null_closure", 
-            "0",
-            "#define EDF closure color",
-            "output EDF"
-        )
+            "0", 
+            "#define EDF closure color")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::VDF,
-        TypeSyntax
-        (
+        std::make_shared<ScalarTypeSyntax>(
             "VDF", 
             "null_closure", 
-            "0",
-            "#define VDF closure color",
-            "output VDF"
-        )
+            "0", 
+            "#define VDF closure color")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::SURFACE,
-        TypeSyntax
-        (
+        std::make_shared<ScalarTypeSyntax>(
             "surfaceshader", 
             "null_closure", 
-            "0",
-            "#define surfaceshader closure color",
-            "output surfaceshader" 
-        )
+            "0", 
+            "#define surfaceshader closure color")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
         DataType::VOLUME,
-        TypeSyntax
-        (
+        std::make_shared<ScalarTypeSyntax>(
             "volumeshader", 
-            "{0,0,0}", 
-            "0",
-            "struct volumeshader { VDF vdf; EDF edf; color absorption; };",
-            "output volumeshader" 
-        )
+            "null_closure", 
+            "0", 
+            "#define volumeshader closure color")
     );
 
-    addTypeSyntax
+    registerTypeSyntax
     (
-        DataType::DISPLACEMENT,
-        TypeSyntax
-        (
+        DataType::DISPLACEMENT, 
+        std::make_shared<OslStructTypeSyntax>(
             "displacementshader", 
-            "{0,0}", 
-            "0",
-            "struct displacementshader { vector offset; float scale; };",
-            "output displacementshader"
-        )
+            "{vector(0.0), 0.0}", 
+            "{vector(0.0), 0.0}", 
+            "struct displacementshader { vector offset; float scale; };")
     );
 
-
-    //
-    // Add value constructor syntax for data types that needs this
-    //
-
-    addValueConstructSyntax(
-        DataType::COLOR2,
-        ValueConstructSyntax(
-            "color2(", ")", // Value constructor syntax
-            "color2(", ")", // Value constructor syntax in a shader param initialization context
-            {".r", ".a"}    // Syntax for each vector component
-        )
-    );
-
-    addValueConstructSyntax
+    registerTypeSyntax
     (
-        DataType::COLOR3,
-        ValueConstructSyntax
-        (
-            "color(", ")",
-            "color(", ")",
-            {"[0]", "[1]", "[2]"}
-    )
+        DataType::LIGHT,
+        std::make_shared<ScalarTypeSyntax>(
+            "lightshader", 
+            "null_closure", 
+            "0", 
+            "#define lightshader closure color")
     );
+}
 
-    addValueConstructSyntax
-    (
-        DataType::COLOR4,
-        ValueConstructSyntax
-        (
-            "color4_pack(", ")",
-            "color4_pack(", ")",
-            {".rgb[0]", ".rgb[1]", ".rgb[2]", ".a"}
-        )
-    );
-
-    addValueConstructSyntax(
-        DataType::VECTOR2,
-        ValueConstructSyntax
-        (
-            "vector2(", ")",
-            "vector2(", ")",
-            {".x", ".y"}
-        )
-    );
-
-    addValueConstructSyntax
-    (
-        DataType::VECTOR3,
-        ValueConstructSyntax
-        (
-            "vector(", ")",
-            "vector(", ")",
-            {"[0]", "[1]", "[2]"}
-        )
-    );
-
-    addValueConstructSyntax
-    (
-        DataType::VECTOR4,
-        ValueConstructSyntax
-        (
-            "vector4(", ")",
-            "vector4(", ")",
-            {".x", ".y", ".z", ".w"}
-        )
-    );
-
-    addValueConstructSyntax
-    (
-        DataType::STRING,
-        ValueConstructSyntax
-        (
-            "\"", "\"",
-            "\"", "\"",
-            {}
-        )
-    );
-
-    addValueConstructSyntax
-    (
-        DataType::FILENAME,
-        ValueConstructSyntax
-        (
-            "\"", "\"",
-            "\"", "\"",
-            {}
-        )
-    );
+const string& OslSyntax::getOutputQualifier() const
+{
+    return OUTPUT_QUALIFIER;
 }
 
 } // namespace MaterialX

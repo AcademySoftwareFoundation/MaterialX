@@ -108,17 +108,12 @@ void Compound::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shade
             if (!outputSocket->connection)
             {
                 shader.addLine(outputSocket->name + " = " + (outputSocket->value ?
-                    syntax->getValue(*outputSocket->value, outputSocket->type) :
-                    syntax->getTypeDefault(outputSocket->type)));
+                    syntax->getValue(outputSocket->type, *outputSocket->value) :
+                    syntax->getDefaultValue(outputSocket->type)));
             }
             else
             {
-                string finalResult = outputSocket->connection->name;
-                if (outputSocket->channels != EMPTY_STRING)
-                {
-                    finalResult = syntax->getSwizzledVariable(finalResult, outputSocket->type, outputSocket->connection->type, outputSocket->channels);
-                }
-                shader.addLine(outputSocket->name + " = " + finalResult);
+                shader.addLine(outputSocket->name + " = " + outputSocket->connection->name);
             }
         }
 

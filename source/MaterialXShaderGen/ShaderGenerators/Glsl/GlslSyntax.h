@@ -9,12 +9,19 @@ namespace MaterialX
 /// Syntax class for GLSL (OpenGL Shading Language)
 class GlslSyntax : public Syntax
 {
+    using ParentClass = Syntax;
+
 public:
     GlslSyntax();
 
     static SyntaxPtr create() { return std::make_shared<GlslSyntax>(); }
 
-    string getValue(const Value& value, const string& type, bool paramInit = false) const override;
+    const string& getOutputQualifier() const override;
+
+    static const string OUTPUT_QUALIFIER;
+    static const vector<string> VEC2_MEMBERS;
+    static const vector<string> VEC3_MEMBERS;
+    static const vector<string> VEC4_MEMBERS;
 };
 
 } // namespace MaterialX
