@@ -17,6 +17,10 @@ option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third
 option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors." OFF)
 option(MATERIALX_BUILD_VIEW "Build the MaterialX View module. " ON)
 option(MATERIALX_TEST_VIEW "Run tests for MaterialX View module. Requires a valid GPU setup." OFF)
+set(MATERIALX_OSLC_EXECUTABLE "" CACHE FILEPATH 
+    "Full path to the oslc binary.")
+set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH
+    "Full path to osl include paths. e.g. location of stdosl.h")
 
 set(MATERIALX_PYTHON_EXECUTABLE "" CACHE FILEPATH
     "Path to the Python executable (e.g. 'C:/Python27/python.exe').")
@@ -36,9 +40,14 @@ mark_as_advanced(MATERIALX_INSTALL_PYTHON)
 mark_as_advanced(MATERIALX_WARNINGS_AS_ERRORS)
 mark_as_advanced(MATERIALX_BUILD_VIEW)
 mark_as_advanced(MATERIALX_TEST_VIEW)
+mark_as_advanced(MATERIALX_OSLC_EXECUTABLE)
+mark_as_advanced(MATERIALX_OSL_INCLUDE_PATH)
 
 set(PYTHON_INCLUDE_DIR ${MATERIALX_PYTHON_INCLUDE_DIR})
 set(PYTHON_LIBRARY ${MATERIALX_PYTHON_LIBRARY})
+
+add_definitions(-DMATERIALX_OSLC_EXECUTABLE=\"${MATERIALX_OSLC_EXECUTABLE}\")
+add_definitions(-DMATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\")
 
 # Adjust the default installation path
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
