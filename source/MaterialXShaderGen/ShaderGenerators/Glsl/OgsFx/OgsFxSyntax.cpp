@@ -1,6 +1,8 @@
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/OgsFx/OgsFxSyntax.h>
 #include <MaterialXShaderGen/Shader.h>
 
+#include <memory>
+
 namespace MaterialX
 {
 

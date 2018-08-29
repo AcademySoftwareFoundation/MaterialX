@@ -1,6 +1,7 @@
 #include <MaterialXShaderGen/ShaderGenerators/Osl/OslSyntax.h>
 #include <MaterialXShaderGen/Shader.h>
 
+#include <memory>
 #include <sstream>
 
 namespace MaterialX

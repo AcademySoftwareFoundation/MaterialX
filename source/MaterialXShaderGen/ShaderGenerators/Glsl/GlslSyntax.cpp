@@ -1,5 +1,7 @@
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/GlslSyntax.h>
 
+#include <memory>
+
 namespace MaterialX
 {
 
