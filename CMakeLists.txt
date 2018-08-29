@@ -16,25 +16,22 @@ option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires t
 option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
 option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors." OFF)
 
+set(MATERIALX_PYTHON_VERSION "" CACHE STRING
+    "Python version to build with (e.g. '2.7').")
 set(MATERIALX_PYTHON_EXECUTABLE "" CACHE FILEPATH
     "Path to the Python executable (e.g. 'C:/Python27/python.exe').")
-set(MATERIALX_PYTHON_INCLUDE_DIR "" CACHE PATH 
-    "Path to the headers of the Python installation (e.g. 'C:/Python27/include').")
-set(MATERIALX_PYTHON_LIBRARY "" CACHE FILEPATH
-    "Path to the Python library file (e.g. 'C:/Python27/libs/python27.lib').")
 set(MATERIALX_PYTHON_OCIO_DIR "" CACHE PATH
     "Path to a folder containing the default OCIO configuration to be packaged with MaterialX Python (e.g. 'D:/Projects/OpenColorIO-Configs/aces_1.0.3').")
 
 mark_as_advanced(MATERIALX_BUILD_DOCS)
+mark_as_advanced(MATERIALX_PYTHON_VERSION)
 mark_as_advanced(MATERIALX_PYTHON_EXECUTABLE)
-mark_as_advanced(MATERIALX_PYTHON_INCLUDE_DIR)
-mark_as_advanced(MATERIALX_PYTHON_LIBRARY)
 mark_as_advanced(MATERIALX_PYTHON_OCIO_DIR)
 mark_as_advanced(MATERIALX_INSTALL_PYTHON)
 mark_as_advanced(MATERIALX_WARNINGS_AS_ERRORS)
 
-set(PYTHON_INCLUDE_DIR ${MATERIALX_PYTHON_INCLUDE_DIR})
-set(PYTHON_LIBRARY ${MATERIALX_PYTHON_LIBRARY})
+set(PYBIND11_PYTHON_VERSION ${MATERIALX_PYTHON_VERSION})
+set(PYTHON_EXECUTABLE ${MATERIALX_PYTHON_EXECUTABLE})
 
 # Adjust the default installation path
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
