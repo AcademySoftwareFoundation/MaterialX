@@ -1,196 +1,155 @@
-# A helper module for building MaterialX Python with PyBind11, based on pybind11Tools.cmake.
+# CMakeLists.txt -- Build system for the pybind11 modules
+#
+# Copyright (c) 2015 Wenzel Jakob <wenzel@inf.ethz.ch>
+#
+# All rights reserved. Use of this source code is governed by a
+# BSD-style license that can be found in the LICENSE file.
 
-if(MATERIALX_PYTHON_EXECUTABLE)
-  set(PYTHON_EXECUTABLE ${MATERIALX_PYTHON_EXECUTABLE})
+cmake_minimum_required(VERSION 2.8.12)
+
+if (POLICY CMP0048)
+  # cmake warns if loaded from a min-3.0-required parent dir, so silence the warning:
+  cmake_policy(SET CMP0048 NEW)
+endif()
+
+# CMake versions < 3.4.0 do not support try_compile/pthread checks without C as active language.
+if(CMAKE_VERSION VERSION_LESS 3.4.0)
+  project(pybind11)
 else()
-  find_package(PythonInterp)
-endif()
-find_package(PythonLibs)
-
-include(CheckCXXCompilerFlag)
-include(CMakeParseArguments)
-
-if(NOT PYBIND11_CPP_STANDARD AND NOT CMAKE_CXX_STANDARD)
-  if(NOT MSVC)
-    check_cxx_compiler_flag("-std=c++14" HAS_CPP14_FLAG)
-
-    if (HAS_CPP14_FLAG)
-      set(PYBIND11_CPP_STANDARD -std=c++14)
-    else()
-      check_cxx_compiler_flag("-std=c++11" HAS_CPP11_FLAG)
-      if (HAS_CPP11_FLAG)
-        set(PYBIND11_CPP_STANDARD -std=c++11)
-      else()
-        message(FATAL_ERROR "Unsupported compiler -- pybind11 requires C++11 support!")
-      endif()
-    endif()
-  elseif(MSVC)
-    set(PYBIND11_CPP_STANDARD /std:c++14)
-  endif()
-
-  set(PYBIND11_CPP_STANDARD ${PYBIND11_CPP_STANDARD} CACHE STRING
-      "C++ standard flag, e.g. -std=c++11, -std=c++14, /std:c++14.  Defaults to C++14 mode." FORCE)
+  project(pybind11 CXX)
 endif()
 
-# Checks whether the given CXX/linker flags can compile and link a cxx file.  cxxflags and
-# linkerflags are lists of flags to use.  The result variable is a unique variable name for each set
-# of flags: the compilation result will be cached base on the result variable.  If the flags work,
-# sets them in cxxflags_out/linkerflags_out internal cache variables (in addition to ${result}).
-function(_pybind11_return_if_cxx_and_linker_flags_work result cxxflags linkerflags cxxflags_out linkerflags_out)
-  set(CMAKE_REQUIRED_LIBRARIES ${linkerflags})
-  check_cxx_compiler_flag("${cxxflags}" ${result})
-  if (${result})
-    set(${cxxflags_out} "${cxxflags}" CACHE INTERNAL "" FORCE)
-    set(${linkerflags_out} "${linkerflags}" CACHE INTERNAL "" FORCE)
-  endif()
-endfunction()
+# Check if pybind11 is being used directly or via add_subdirectory
+set(PYBIND11_MASTER_PROJECT OFF)
+if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+  set(PYBIND11_MASTER_PROJECT ON)
+endif()
 
-# Internal: find the appropriate link time optimization flags for this compiler
-function(_pybind11_add_lto_flags target_name prefer_thin_lto)
-  if (NOT DEFINED PYBIND11_LTO_CXX_FLAGS)
-    set(PYBIND11_LTO_CXX_FLAGS "" CACHE INTERNAL "")
-    set(PYBIND11_LTO_LINKER_FLAGS "" CACHE INTERNAL "")
+#option(PYBIND11_INSTALL "Install pybind11 header files?" ${PYBIND11_MASTER_PROJECT})
+#option(PYBIND11_TEST    "Build pybind11 test suite?"     ${PYBIND11_MASTER_PROJECT})
 
-    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-      set(cxx_append "")
-      set(linker_append "")
-      if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT APPLE)
-        # Clang Gold plugin does not support -Os; append -O3 to MinSizeRel builds to override it
-        set(linker_append ";$<$<CONFIG:MinSizeRel>:-O3>")
-      elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-        set(cxx_append ";-fno-fat-lto-objects")
-      endif()
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/tools")
 
-      if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND prefer_thin_lto)
-        _pybind11_return_if_cxx_and_linker_flags_work(HAS_FLTO_THIN
-          "-flto=thin${cxx_append}" "-flto=thin${linker_append}"
-          PYBIND11_LTO_CXX_FLAGS PYBIND11_LTO_LINKER_FLAGS)
-      endif()
-
-      if (NOT HAS_FLTO_THIN)
-        _pybind11_return_if_cxx_and_linker_flags_work(HAS_FLTO
-          "-flto${cxx_append}" "-flto${linker_append}"
-          PYBIND11_LTO_CXX_FLAGS PYBIND11_LTO_LINKER_FLAGS)
-      endif()
-    elseif (CMAKE_CXX_COMPILER_ID MATCHES "Intel")
-      # Intel equivalent to LTO is called IPO
-      _pybind11_return_if_cxx_and_linker_flags_work(HAS_INTEL_IPO
-      "-ipo" "-ipo" PYBIND11_LTO_CXX_FLAGS PYBIND11_LTO_LINKER_FLAGS)
-    elseif(MSVC)
-      # cmake only interprets libraries as linker flags when they start with a - (otherwise it
-      # converts /LTCG to \LTCG as if it was a Windows path).  Luckily MSVC supports passing flags
-      # with - instead of /, even if it is a bit non-standard:
-      _pybind11_return_if_cxx_and_linker_flags_work(HAS_MSVC_GL_LTCG
-        "/GL" "-LTCG" PYBIND11_LTO_CXX_FLAGS PYBIND11_LTO_LINKER_FLAGS)
-    endif()
-
-    if (PYBIND11_LTO_CXX_FLAGS)
-      message(STATUS "LTO enabled")
-    else()
-      message(STATUS "LTO disabled (not supported by the compiler and/or linker)")
-    endif()
-  endif()
-
-  # Enable LTO flags if found, except for Debug builds
-  if (PYBIND11_LTO_CXX_FLAGS)
-    target_compile_options(${target_name} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:${PYBIND11_LTO_CXX_FLAGS}>")
-  endif()
-  if (PYBIND11_LTO_LINKER_FLAGS)
-    target_link_libraries(${target_name} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:${PYBIND11_LTO_LINKER_FLAGS}>")
-  endif()
-endfunction()
+include(pybind11Tools)
 
 # Cache variables so pybind11_add_module can be used in parent projects
 set(PYBIND11_INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/include" CACHE INTERNAL "")
-set(PYTHON_EXECUTABLE ${PYTHON_EXECUTABLE} CACHE INTERNAL "")
 set(PYTHON_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS} CACHE INTERNAL "")
 set(PYTHON_LIBRARIES ${PYTHON_LIBRARIES} CACHE INTERNAL "")
+set(PYTHON_MODULE_PREFIX ${PYTHON_MODULE_PREFIX} CACHE INTERNAL "")
+set(PYTHON_MODULE_EXTENSION ${PYTHON_MODULE_EXTENSION} CACHE INTERNAL "")
 
-# Build a Python extension module:
-# pybind11_add_module(<name> [MODULE | SHARED] [EXCLUDE_FROM_ALL]
-#                     [NO_EXTRAS] [THIN_LTO] source1 [source2 ...])
-#
-function(pybind11_add_module target_name)
-  set(options MODULE SHARED EXCLUDE_FROM_ALL NO_EXTRAS THIN_LTO)
-  cmake_parse_arguments(ARG "${options}" "" "" ${ARGN})
+# NB: when adding a header don't forget to also add it to setup.py
+set(PYBIND11_HEADERS
+  include/pybind11/detail/class.h
+  include/pybind11/detail/common.h
+  include/pybind11/detail/descr.h
+  include/pybind11/detail/init.h
+  include/pybind11/detail/internals.h
+  include/pybind11/detail/typeid.h
+  include/pybind11/attr.h
+  include/pybind11/buffer_info.h
+  include/pybind11/cast.h
+  include/pybind11/chrono.h
+  include/pybind11/common.h
+  include/pybind11/complex.h
+  include/pybind11/options.h
+  include/pybind11/eigen.h
+  include/pybind11/embed.h
+  include/pybind11/eval.h
+  include/pybind11/functional.h
+  include/pybind11/numpy.h
+  include/pybind11/operators.h
+  include/pybind11/pybind11.h
+  include/pybind11/pytypes.h
+  include/pybind11/stl.h
+  include/pybind11/stl_bind.h
+)
+string(REPLACE "include/" "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+       PYBIND11_HEADERS "${PYBIND11_HEADERS}")
 
-  if(ARG_MODULE AND ARG_SHARED)
-    message(FATAL_ERROR "Can't be both MODULE and SHARED")
-  elseif(ARG_SHARED)
-    set(lib_type SHARED)
-  else()
-    set(lib_type MODULE)
+if (PYBIND11_TEST)
+  add_subdirectory(tests)
+endif()
+
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+# extract project version from source
+file(STRINGS "${PYBIND11_INCLUDE_DIR}/pybind11/detail/common.h" pybind11_version_defines
+     REGEX "#define PYBIND11_VERSION_(MAJOR|MINOR|PATCH) ")
+foreach(ver ${pybind11_version_defines})
+  if (ver MATCHES "#define PYBIND11_VERSION_(MAJOR|MINOR|PATCH) +([^ ]+)$")
+    set(PYBIND11_VERSION_${CMAKE_MATCH_1} "${CMAKE_MATCH_2}" CACHE INTERNAL "")
   endif()
+endforeach()
+set(${PROJECT_NAME}_VERSION ${PYBIND11_VERSION_MAJOR}.${PYBIND11_VERSION_MINOR}.${PYBIND11_VERSION_PATCH})
+message(STATUS "pybind11 v${${PROJECT_NAME}_VERSION}")
 
-  if(ARG_EXCLUDE_FROM_ALL)
-    set(exclude_from_all EXCLUDE_FROM_ALL)
+#option (USE_PYTHON_INCLUDE_DIR "Install pybind11 headers in Python include directory instead of default installation prefix" OFF)
+if (USE_PYTHON_INCLUDE_DIR)
+    file(RELATIVE_PATH CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_PREFIX} ${PYTHON_INCLUDE_DIRS})
+endif()
+
+if(NOT (CMAKE_VERSION VERSION_LESS 3.0))  # CMake >= 3.0
+  # Build an interface library target:
+  add_library(pybind11 INTERFACE)
+  add_library(pybind11::pybind11 ALIAS pybind11)  # to match exported target
+  target_include_directories(pybind11 INTERFACE $<BUILD_INTERFACE:${PYBIND11_INCLUDE_DIR}>
+                                                $<BUILD_INTERFACE:${PYTHON_INCLUDE_DIRS}>
+                                                $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+  target_compile_options(pybind11 INTERFACE $<BUILD_INTERFACE:${PYBIND11_CPP_STANDARD}>)
+
+  add_library(module INTERFACE)
+  add_library(pybind11::module ALIAS module)
+  if(NOT MSVC)
+    target_compile_options(module INTERFACE -fvisibility=hidden)
   endif()
-
-  add_library(${target_name} ${lib_type} ${exclude_from_all} ${ARG_UNPARSED_ARGUMENTS})
-
-  target_include_directories(${target_name}
-    PRIVATE ${PYBIND11_INCLUDE_DIR}  # from project CMakeLists.txt
-    PRIVATE ${pybind11_INCLUDE_DIR}  # from pybind11Config
-    PRIVATE ${PYTHON_INCLUDE_DIRS})
-
-  set_target_properties(${target_name} PROPERTIES PREFIX "")
-  if(WIN32)
-    set_target_properties(${target_name} PROPERTIES SUFFIX ".pyd")
-  elseif(APPLE)
-    set_target_properties(${target_name} PROPERTIES SUFFIX ".so")
-  endif()
-
+  target_link_libraries(module INTERFACE pybind11::pybind11)
   if(WIN32 OR CYGWIN)
-    # Link against the Python shared library on Windows
-    target_link_libraries(${target_name} PRIVATE ${PYTHON_LIBRARIES})
+    target_link_libraries(module INTERFACE $<BUILD_INTERFACE:${PYTHON_LIBRARIES}>)
   elseif(APPLE)
-    # It's quite common to have multiple copies of the same Python version
-    # installed on one's system. E.g.: one copy from the OS and another copy
-    # that's statically linked into an application like Blender or Maya.
-    # If we link our plugin library against the OS Python here and import it
-    # into Blender or Maya later on, this will cause segfaults when multiple
-    # conflicting Python instances are active at the same time (even when they
-    # are of the same version).
+    target_link_libraries(module INTERFACE "-undefined dynamic_lookup")
+  endif()
 
-    # Windows is not affected by this issue since it handles DLL imports
-    # differently. The solution for Linux and Mac OS is simple: we just don't
-    # link against the Python library. The resulting shared library will have
-    # missing symbols, but that's perfectly fine -- they will be resolved at
-    # import time.
+  add_library(embed INTERFACE)
+  add_library(pybind11::embed ALIAS embed)
+  target_link_libraries(embed INTERFACE pybind11::pybind11 $<BUILD_INTERFACE:${PYTHON_LIBRARIES}>)
+endif()
 
-    target_link_libraries(${target_name} PRIVATE "-undefined dynamic_lookup")
+if (PYBIND11_INSTALL)
+  install(DIRECTORY ${PYBIND11_INCLUDE_DIR}/pybind11 DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+  # GNUInstallDirs "DATADIR" wrong here; CMake search path wants "share".
+  set(PYBIND11_CMAKECONFIG_INSTALL_DIR "share/cmake/${PROJECT_NAME}" CACHE STRING "install path for pybind11Config.cmake")
 
-    if(ARG_SHARED)
-      # Suppress CMake >= 3.0 warning for shared libraries
-      set_target_properties(${target_name} PROPERTIES MACOSX_RPATH ON)
+  configure_package_config_file(tools/${PROJECT_NAME}Config.cmake.in
+                                "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+                                INSTALL_DESTINATION ${PYBIND11_CMAKECONFIG_INSTALL_DIR})
+  # Remove CMAKE_SIZEOF_VOID_P from ConfigVersion.cmake since the library does
+  # not depend on architecture specific settings or libraries.
+  set(_PYBIND11_CMAKE_SIZEOF_VOID_P ${CMAKE_SIZEOF_VOID_P})
+  unset(CMAKE_SIZEOF_VOID_P)
+  write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+                                   VERSION ${${PROJECT_NAME}_VERSION}
+                                   COMPATIBILITY AnyNewerVersion)
+  set(CMAKE_SIZEOF_VOID_P ${_PYBIND11_CMAKE_SIZEOF_VOID_P})
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+                ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+                tools/FindPythonLibsNew.cmake
+                tools/pybind11Tools.cmake
+          DESTINATION ${PYBIND11_CMAKECONFIG_INSTALL_DIR})
+
+  if(NOT (CMAKE_VERSION VERSION_LESS 3.0))
+    if(NOT PYBIND11_EXPORT_NAME)
+      set(PYBIND11_EXPORT_NAME "${PROJECT_NAME}Targets")
+    endif()
+
+    install(TARGETS pybind11 module embed
+            EXPORT "${PYBIND11_EXPORT_NAME}")
+    if(PYBIND11_MASTER_PROJECT)
+      install(EXPORT "${PYBIND11_EXPORT_NAME}"
+              NAMESPACE "${PROJECT_NAME}::"
+              DESTINATION ${PYBIND11_CMAKECONFIG_INSTALL_DIR})
     endif()
   endif()
-
-  # Make sure C++11/14 are enabled
-  target_compile_options(${target_name} PUBLIC ${PYBIND11_CPP_STANDARD})
-
-  if(ARG_NO_EXTRAS)
-    return()
-  endif()
-
-  _pybind11_add_lto_flags(${target_name} ${ARG_THIN_LTO})
-
-  if (NOT MSVC AND NOT ${CMAKE_BUILD_TYPE} MATCHES Debug)
-    # Strip unnecessary sections of the binary on Linux/Mac OS
-    if(CMAKE_STRIP)
-      if(APPLE)
-        add_custom_command(TARGET ${target_name} POST_BUILD
-                           COMMAND ${CMAKE_STRIP} -x $<TARGET_FILE:${target_name}>)
-      else()
-        add_custom_command(TARGET ${target_name} POST_BUILD
-                           COMMAND ${CMAKE_STRIP} $<TARGET_FILE:${target_name}>)
-      endif()
-    endif()
-  endif()
-
-  if(MSVC)
-    # /MP enables multithreaded builds (relevant when there are many files), /bigobj is
-    # needed for bigger binding projects due to the limit to 64k addressable sections
-    target_compile_options(${target_name} PRIVATE /MP /bigobj)
-  endif()
-endfunction()
+endif()
