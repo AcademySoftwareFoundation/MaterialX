@@ -12,21 +12,21 @@ void PositionGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shader
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
-    shader.createAppData(DataType::VECTOR3, "i_position");
+    shader.createAppData(Type::VECTOR3, "i_position");
 
     const SgInput* spaceInput = node.getInput(SPACE);
     string space = spaceInput ? spaceInput->value->getValueString() : EMPTY_STRING;
     if (space == WORLD)
     {
-        shader.createVertexData(DataType::VECTOR3, "positionWorld");
+        shader.createVertexData(Type::VECTOR3, "positionWorld");
     }
     else if (space == MODEL)
     {
-        shader.createVertexData(DataType::VECTOR3, "positionModel");
+        shader.createVertexData(Type::VECTOR3, "positionModel");
     }
     else
     {
-        shader.createVertexData(DataType::VECTOR3, "positionObject");
+        shader.createVertexData(Type::VECTOR3, "positionObject");
     }
 }
 

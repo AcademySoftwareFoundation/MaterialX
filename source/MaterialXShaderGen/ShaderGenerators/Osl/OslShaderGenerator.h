@@ -38,6 +38,8 @@ protected:
 
     /// Emit include headers needed by the generated shader code.
     void emitIncludes(Shader& shader);
+
+    std::unordered_map<const TypeDesc*, std::pair<const TypeDesc*, string>> _shaderOutputTypeRemap;
 };
 
 } // namespace MaterialX

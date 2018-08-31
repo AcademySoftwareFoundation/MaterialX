@@ -147,7 +147,7 @@ protected:
     /// Override the compound implementation creator in order to handle light compounds.
     SgImplementationPtr createCompoundImplementation(NodeGraphPtr impl) override;
 
-    static void toVec4(const string& type, string& variable);
+    static void toVec4(const TypeDesc* type, string& variable);
 
     /// Internal string constants
     static const string INCIDENT;

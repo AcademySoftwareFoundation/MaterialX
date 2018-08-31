@@ -12,22 +12,22 @@ void BitangentGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shade
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
-    shader.createAppData(DataType::VECTOR3, "i_bitangent");
+    shader.createAppData(Type::VECTOR3, "i_bitangent");
 
     const SgInput* spaceInput = node.getInput(SPACE);
     string space = spaceInput ? spaceInput->value->getValueString() : EMPTY_STRING;
     if (space == WORLD)
     {
-        shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::MATRIX4, "u_worldInverseTransposeMatrix");
-        shader.createVertexData(DataType::VECTOR3, "bitangentWorld");
+        shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix");
+        shader.createVertexData(Type::VECTOR3, "bitangentWorld");
     }
     else if (space == MODEL)
     {
-        shader.createVertexData(DataType::VECTOR3, "bitangentModel");
+        shader.createVertexData(Type::VECTOR3, "bitangentModel");
     }
     else
     {
-        shader.createVertexData(DataType::VECTOR3, "bitangentObject");
+        shader.createVertexData(Type::VECTOR3, "bitangentObject");
     }
 }
 

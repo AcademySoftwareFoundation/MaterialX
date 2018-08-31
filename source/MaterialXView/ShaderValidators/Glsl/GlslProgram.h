@@ -205,10 +205,10 @@ class GlslProgram
     /// Clear out any cached input lists
     void clearInputLists();   
 
-    /// Utility to map a syntax type to an OpenGL type
-    /// @param type Syntax type
+    /// Utility to map a MaterialX type to an OpenGL type
+    /// @param type MaterialX type
     /// @return OpenGL type. INVALID_OPENGL_TYPE is returned if no mapping exists. For example strings have no OpenGL type.
-    static int mapTypeToOpenGLType(const std::string& type);
+    static int mapTypeToOpenGLType(const TypeDesc* type);
 
     /// @}
     /// @name Utilities

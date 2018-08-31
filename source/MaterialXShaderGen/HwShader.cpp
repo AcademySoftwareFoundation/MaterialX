@@ -18,7 +18,7 @@ HwShader::HwShader(const string& name)
 
     // Create light data uniform block with the required field for light type
     createUniformBlock(PIXEL_STAGE, LIGHT_DATA_BLOCK, "u_lightData");
-    createUniform(PIXEL_STAGE, LIGHT_DATA_BLOCK, DataType::INTEGER, "type");
+    createUniform(PIXEL_STAGE, LIGHT_DATA_BLOCK, Type::INTEGER, "type");
 
     // Create uniforms for environment lighting
     // Note: Generation of the rotation matrix using floating point math can result
@@ -29,10 +29,10 @@ HwShader::HwShader(const string& name)
                                 0, 1, 0, 0,
                                 0, 0, -1, 0,
                                 0, 0, 0, 1);
-    createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, DataType::MATRIX4, "u_envMatrix", 
+    createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, Type::MATRIX44, "u_envMatrix", 
         EMPTY_STRING, Value::createValue<Matrix44>(yRotationPI));
-    createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, DataType::FILENAME, "u_envSpecular");
-    createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, DataType::FILENAME, "u_envIrradiance");
+    createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, Type::FILENAME, "u_envSpecular");
+    createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, Type::FILENAME, "u_envIrradiance");
 }
 
 void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen, const SgOptions& options)
@@ -62,14 +62,14 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen, const 
             {
                 for (SgInput* input : node->getInputs())
                 {
-                    if (!input->connection && input->type == DataType::FILENAME)
+                    if (!input->connection && input->type == Type::FILENAME)
                     {
                         // Create the uniform and assing the name of the uniform to
                         // the input so we can reference it during code generation.
                         // Using the filename type will make this uniform into a texture sampler.
                         string name = node->getName() + "_" + input->name;
                         shadergen.getSyntax()->makeUnique(name, uniqueNames);
-                        createUniform(HwShader::PIXEL_STAGE, PUBLIC_UNIFORMS, DataType::FILENAME, name, EMPTY_STRING, input->value);
+                        createUniform(HwShader::PIXEL_STAGE, PUBLIC_UNIFORMS, Type::FILENAME, name, EMPTY_STRING, input->value);
                         input->value = Value::createValue(std::string(name));
                     }
                 }
@@ -95,7 +95,7 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen, const 
     }
 }
 
-void HwShader::createVertexData(const string& type, const string& name, const string& semantic)
+void HwShader::createVertexData(const TypeDesc* type, const string& name, const string& semantic)
 {
     if (_vertexData.variableMap.find(name) == _vertexData.variableMap.end())
     {

@@ -1,6 +1,7 @@
 #include <MaterialXShaderGen/SgNode.h>
 #include <MaterialXShaderGen/ShaderGenerator.h>
 #include <MaterialXShaderGen/SgImplementation.h>
+#include <MaterialXShaderGen/TypeDesc.h>
 #include <MaterialXShaderGen/Util.h>
 
 #include <MaterialXCore/Document.h>
@@ -166,11 +167,11 @@ SgNodePtr SgNode::create(const string& name, const NodeDef& nodeDef, ShaderGener
     {
         if (elem->isA<Output>())
         {
-            newNode->addOutput(elem->getName(), elem->getType());
+            newNode->addOutput(elem->getName(), TypeDesc::get(elem->getType()));
         }
         else
         {
-            SgInput* input = newNode->addInput(elem->getName(), elem->getType());
+            SgInput* input = newNode->addInput(elem->getName(), TypeDesc::get(elem->getType()));
             if (!elem->getValueString().empty())
             {
                 input->value = elem->getValue();
@@ -181,7 +182,7 @@ SgNodePtr SgNode::create(const string& name, const NodeDef& nodeDef, ShaderGener
     // Add a default output if needed
     if (newNode->numOutputs() == 0)
     {
-        newNode->addOutput("out", nodeDef.getType());
+        newNode->addOutput("out", TypeDesc::get(nodeDef.getType()));
     }
 
     // Assign input values from the node instance
@@ -201,28 +202,34 @@ SgNodePtr SgNode::create(const string& name, const NodeDef& nodeDef, ShaderGener
         }
     }
 
-    // Set node classification
+    //
+    // Set node classification, defaulting to texture node
+    //
     newNode->_classification = Classification::TEXTURE;
-    if (nodeDef.getType() == DataType::SURFACE)
+
+    // First, check for specific output types
+    const SgOutput* primaryOutput = newNode->getOutput();
+    if (primaryOutput->type == Type::SURFACESHADER)
     {
         newNode->_classification = Classification::SURFACE | Classification::SHADER;
     }
-    else if (nodeDef.getType() == DataType::LIGHT)
+    else if (primaryOutput->type == Type::LIGHTSHADER)
     {
         newNode->_classification = Classification::LIGHT | Classification::SHADER;
     }
-    else if (nodeDef.getType() == DataType::BSDF)
+    else if (primaryOutput->type == Type::BSDF)
     {
         newNode->_classification = Classification::BSDF | Classification::CLOSURE;
     }
-    else if (nodeDef.getType() == DataType::EDF)
+    else if (primaryOutput->type == Type::EDF)
     {
         newNode->_classification = Classification::EDF | Classification::CLOSURE;
     }
-    else if (nodeDef.getType() == DataType::VDF)
+    else if (primaryOutput->type == Type::VDF)
     {
         newNode->_classification = Classification::VDF | Classification::CLOSURE;
     }
+    // Second, check for specific nodes types
     else if (nodeDef.getNodeString() == CONSTANT)
     {
         newNode->_classification = Classification::TEXTURE | Classification::CONSTANT;
@@ -240,7 +247,7 @@ SgNodePtr SgNode::create(const string& name, const NodeDef& nodeDef, ShaderGener
         newNode->_classification = Classification::TEXTURE | Classification::CONDITIONAL | Classification::SWITCH;
     }
 
-    // Let the generator assign in which contexts to use this node
+    // Let the shader generator assign in which contexts to use this node
     shadergen.addNodeContextIDs(newNode.get());
 
     return newNode;
@@ -270,7 +277,7 @@ const SgOutput* SgNode::getOutput(const string& name) const
     return it != _outputMap.end() ? it->second.get() : nullptr;
 }
 
-SgInput* SgNode::addInput(const string& name, const string& type)
+SgInput* SgNode::addInput(const string& name, const TypeDesc* type)
 {
     if (getInput(name))
     {
@@ -289,7 +296,7 @@ SgInput* SgNode::addInput(const string& name, const string& type)
     return input.get();
 }
 
-SgOutput* SgNode::addOutput(const string& name, const string& type)
+SgOutput* SgNode::addOutput(const string& name, const TypeDesc* type)
 {
     if (getOutput(name))
     {
@@ -347,7 +354,7 @@ void SgNodeGraph::addInputSockets(const InterfaceElement& elem)
     {
         if (!port->isA<Output>())
         {
-            SgInputSocket* inputSocket = addInputSocket(port->getName(), port->getType());
+            SgInputSocket* inputSocket = addInputSocket(port->getName(), TypeDesc::get(port->getType()));
             if (!port->getValueString().empty())
             {
                 inputSocket->value = port->getValue();
@@ -360,11 +367,11 @@ void SgNodeGraph::addOutputSockets(const InterfaceElement& elem)
 {
     for (const OutputPtr& output : elem.getOutputs())
     {
-        addOutputSocket(output->getName(), output->getType());
+        addOutputSocket(output->getName(), TypeDesc::get(output->getType()));
     }
     if (numOutputSockets() == 0)
     {
-        addOutputSocket("out", elem.getType());
+        addOutputSocket("out", TypeDesc::get(elem.getType()));
     }
 }
 
@@ -468,7 +475,7 @@ void SgNodeGraph::addDefaultGeomNode(SgInput* input, const string& geomNode, Sha
 
     if (!node)
     {
-        string geomNodeDefName = "ND_" + geomNode + "_" + input->type;
+        string geomNodeDefName = "ND_" + geomNode + "_" + input->type->getName();
         NodeDefPtr geomNodeDef = _document->getNodeDef(geomNodeDefName);
         if (!geomNodeDef)
         {
@@ -488,7 +495,7 @@ void SgNodeGraph::addDefaultGeomNode(SgInput* input, const string& geomNode, Sha
 
 void SgNodeGraph::addColorTransformNode(SgOutput* output, const string& colorTransform, ShaderGenerator& shadergen)
 {
-    const string nodeDefName = "ND_" + colorTransform + "_" + output->type;
+    const string nodeDefName = "ND_" + colorTransform + "_" + output->type->getName();
     NodeDefPtr nodeDef = _document->getNodeDef(nodeDefName);
     if (!nodeDef)
     {
@@ -591,7 +598,7 @@ SgNodeGraphPtr SgNodeGraph::create(const string& name, ElementPtr element, Shade
         graph->addInputSockets(*interface);
 
         // Create the given output socket
-        graph->addOutputSocket(output->getName(), output->getType());
+        graph->addOutputSocket(output->getName(), TypeDesc::get(output->getType()));
 
         // Start traversal from this output
         root = output;
@@ -783,12 +790,12 @@ SgNode* SgNodeGraph::addNode(const Node& node, ShaderGenerator& shadergen)
     return newNode.get();
 }
 
-SgInputSocket* SgNodeGraph::addInputSocket(const string& name, const string& type)
+SgInputSocket* SgNodeGraph::addInputSocket(const string& name, const TypeDesc* type)
 {
     return SgNode::addOutput(name, type);
 }
 
-SgOutputSocket* SgNodeGraph::addOutputSocket(const string& name, const string& type)
+SgOutputSocket* SgNodeGraph::addOutputSocket(const string& name, const TypeDesc* type)
 {
     return SgNode::addInput(name, type);
 }
@@ -907,8 +914,8 @@ void SgNodeGraph::optimize()
                 // Find which branch should be taken
                 ValuePtr value = which->connection ? which->connection->node->getInput(0)->value : which->value;
                 const int branch = int(value==nullptr ? 0 :
-                    (which->type == DataType::BOOLEAN ? value->asA<bool>() :
-                    (which->type == DataType::FLOAT ? value->asA<float>() : value->asA<int>())));
+                    (which->type == Type::BOOLEAN ? value->asA<bool>() :
+                    (which->type == Type::FLOAT ? value->asA<float>() : value->asA<int>())));
 
                 // Bypass the conditional using the taken branch
                 bypass(node, branch);

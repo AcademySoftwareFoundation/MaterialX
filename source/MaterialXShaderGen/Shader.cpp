@@ -270,7 +270,7 @@ void Shader::createUniformBlock(size_t stage, const string& block, const string&
     }
 }
 
-void Shader::createUniform(size_t stage, const string& block, const string& type, const string& name, const string& semantic, ValuePtr value)
+void Shader::createUniform(size_t stage, const string& block, const TypeDesc* type, const string& name, const string& semantic, ValuePtr value)
 {
     const Stage& s = _stages[stage];
     auto it = s.uniforms.find(block);
@@ -298,7 +298,7 @@ const Shader::VariableBlock& Shader::getUniformBlock(size_t stage, const string&
     return *it->second;
 }
 
-void Shader::createAppData(const string& type, const string& name, const string& semantic)
+void Shader::createAppData(const TypeDesc* type, const string& name, const string& semantic)
 {
     if (_appData.variableMap.find(name) == _appData.variableMap.end())
     {

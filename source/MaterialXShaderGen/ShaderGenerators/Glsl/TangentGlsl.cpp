@@ -12,22 +12,22 @@ void TangentGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shaderg
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
-    shader.createAppData(DataType::VECTOR3, "i_tangent");
+    shader.createAppData(Type::VECTOR3, "i_tangent");
 
     const SgInput* spaceInput = node.getInput(SPACE);
     string space = spaceInput ? spaceInput->value->getValueString() : EMPTY_STRING;
     if (space == WORLD)
     {
-        shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::MATRIX4, "u_worldInverseTransposeMatrix");
-        shader.createVertexData(DataType::VECTOR3, "tangentWorld");
+        shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix");
+        shader.createVertexData(Type::VECTOR3, "tangentWorld");
     }
     else if (space == MODEL)
     {
-        shader.createVertexData(DataType::VECTOR3, "tangentModel");
+        shader.createVertexData(Type::VECTOR3, "tangentModel");
     }
     else
     {
-        shader.createVertexData(DataType::VECTOR3, "tangentObject");
+        shader.createVertexData(Type::VECTOR3, "tangentObject");
     }
 }
 

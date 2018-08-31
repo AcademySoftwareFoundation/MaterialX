@@ -34,7 +34,7 @@ public:
 
     /// Create a new variable for vertex data. This creates an 
     /// output from the vertex stage and and input to the pixel stage.
-    virtual void createVertexData(const string& type, const string& name, const string& semantic = EMPTY_STRING);
+    virtual void createVertexData(const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING);
 
     /// Return the block of a vertex data variables.
     const VariableBlock& getVertexDataBlock() const { return _vertexData; }

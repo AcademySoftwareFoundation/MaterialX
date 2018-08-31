@@ -4,6 +4,7 @@
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Document.h>
 
+#include <MaterialXShaderGen/TypeDesc.h>
 #include <MaterialXShaderGen/SgImplementation.h>
 
 #include <set>
@@ -28,8 +29,8 @@ using SgInputSet = std::set<SgInput*>;
 class SgInput
 {
 public:
+    const TypeDesc* type;
     string name;
-    string type;
     SgNode* node;
     ValuePtr value;
     SgOutput* connection;
@@ -42,8 +43,8 @@ public:
 class SgOutput
 {
 public:
+    const TypeDesc* type;
     string name;
-    string type;
     SgNode* node;
     ValuePtr value;
     SgInputSet connections;
@@ -170,8 +171,8 @@ public:
     }
 
     /// Add inputs/outputs
-    SgInput* addInput(const string& name, const string& type);
-    SgOutput* addOutput(const string& name, const string& type);
+    SgInput* addInput(const string& name, const TypeDesc* type);
+    SgOutput* addOutput(const string& name, const TypeDesc* type);
 
     /// Get number of inputs/outputs
     size_t numInputs() const { return _inputOrder.size(); }
@@ -275,8 +276,8 @@ public:
     SgNode* addNode(const Node& node, ShaderGenerator& shadergen);
 
     /// Add input/output sockets
-    SgInputSocket* addInputSocket(const string& name, const string& type);
-    SgOutputSocket* addOutputSocket(const string& name, const string& type);
+    SgInputSocket* addInputSocket(const string& name, const TypeDesc* type);
+    SgOutputSocket* addOutputSocket(const string& name, const TypeDesc* type);
 
     /// Rename input/output sockets
     void renameInputSocket(const string& name, const string& newName);
