@@ -60,8 +60,8 @@ public:
 
     /// Return the number of elements the type is composed of.
     /// Will return 1 for scalar types and a size greater than 1 for aggregate type.
-    /// For array types 0 is returned since the number of elements not defined by 
-    /// the type but rather the array variable instance.
+    /// For array types 0 is returned since the number of elements is undefined
+    /// until an array is instantiated.
     size_t getSize() const { return _size; }
 
     /// Return true if the type is a scalar type.
@@ -95,6 +95,9 @@ namespace Type
 {
     /// Type descriptors for all standard types.
     /// These are always registered by default.
+    /// 
+    /// TODO: Add support for the standard array types.
+    ///
     extern const TypeDesc* NONE;
     extern const TypeDesc* BOOLEAN;
     extern const TypeDesc* INTEGER;

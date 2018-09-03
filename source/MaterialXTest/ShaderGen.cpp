@@ -688,6 +688,9 @@ TEST_CASE("TypeDesc", "[shadergen]")
 
     // Make sure we can't use a name already take
     REQUIRE_THROWS(mx::TypeDesc::registerType("color3", mx::TypeDesc::BASETYPE_FLOAT));
+
+    // Make sure we can't request an unknown type
+    REQUIRE_THROWS(mx::TypeDesc::get("bar"));
 }
 
 TEST_CASE("Reference Implementation Validity", "[shadergen]")
