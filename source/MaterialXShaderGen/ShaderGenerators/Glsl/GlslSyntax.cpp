@@ -1,4 +1,5 @@
 #include <MaterialXShaderGen/ShaderGenerators/Glsl/GlslSyntax.h>
+#include <MaterialXShaderGen/TypeDesc.h>
 
 #include <memory>
 
@@ -80,7 +81,7 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        DataType::FLOAT,
+        Type::FLOAT,
         std::make_shared<ScalarTypeSyntax>(
             "float", 
             "0.0", 
@@ -89,7 +90,7 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        DataType::INTEGER,
+        Type::INTEGER,
         std::make_shared<ScalarTypeSyntax>(
             "int", 
             "0", 
@@ -98,7 +99,7 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        DataType::BOOLEAN,
+        Type::BOOLEAN,
         std::make_shared<ScalarTypeSyntax>(
             "bool", 
             "false", 
@@ -107,7 +108,7 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        DataType::COLOR2,
+        Type::COLOR2,
         std::make_shared<AggregateTypeSyntax>(
             "vec2", 
             "vec2(0.0)", 
@@ -118,7 +119,7 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        DataType::COLOR3,
+        Type::COLOR3,
         std::make_shared<AggregateTypeSyntax>(
             "vec3", 
             "vec3(0.0)", 
@@ -129,7 +130,7 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        DataType::COLOR4,
+        Type::COLOR4,
         std::make_shared<AggregateTypeSyntax>(
             "vec4", 
             "vec4(0.0)", 
@@ -140,7 +141,7 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        DataType::VECTOR2,
+        Type::VECTOR2,
         std::make_shared<AggregateTypeSyntax>(
             "vec2", 
             "vec2(0.0)", 
@@ -151,7 +152,7 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        DataType::VECTOR3,
+        Type::VECTOR3,
         std::make_shared<AggregateTypeSyntax>(
             "vec3", 
             "vec3(0.0)", 
@@ -162,7 +163,7 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        DataType::VECTOR4,
+        Type::VECTOR4,
         std::make_shared<AggregateTypeSyntax>(
             "vec4", 
             "vec4(0.0)", 
@@ -173,7 +174,7 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        DataType::MATRIX3,
+        Type::MATRIX33,
         std::make_shared<AggregateTypeSyntax>(
             "mat3", 
             "mat3(1.0)", 
@@ -182,7 +183,7 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        DataType::MATRIX4,
+        Type::MATRIX44,
         std::make_shared<AggregateTypeSyntax>(
             "mat4", 
             "mat4(1.0)", 
@@ -191,13 +192,13 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        DataType::STRING,
+        Type::STRING,
         std::make_shared<GlslStringTypeSyntax>()
     );
 
     registerTypeSyntax
     (
-        DataType::FILENAME,
+        Type::FILENAME,
         std::make_shared<ScalarTypeSyntax>(
             "sampler2D", 
             EMPTY_STRING, 
@@ -206,7 +207,7 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        DataType::BSDF,
+        Type::BSDF,
         std::make_shared<AggregateTypeSyntax>(
             "BSDF", 
             "BSDF(0.0)", 
@@ -216,7 +217,7 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        DataType::EDF,
+        Type::EDF,
         std::make_shared<AggregateTypeSyntax>(
             "EDF", 
             "EDF(0.0)", 
@@ -226,7 +227,7 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        DataType::VDF,
+        Type::VDF,
         std::make_shared<AggregateTypeSyntax>(
             "VDF", 
             "VDF(vec3(0.0),vec3(0.0))", 
@@ -236,7 +237,7 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        DataType::SURFACE,
+        Type::SURFACESHADER,
         std::make_shared<AggregateTypeSyntax>(
             "surfaceshader", 
             "surfaceshader(vec3(0.0),vec3(0.0))", 
@@ -246,7 +247,7 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        DataType::VOLUME,
+        Type::VOLUMESHADER,
         std::make_shared<AggregateTypeSyntax>(
             "volumeshader",
             "volumeshader(VDF(vec3(0.0),vec3(0.0)),EDF(0.0))",
@@ -256,7 +257,7 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        DataType::DISPLACEMENT,
+        Type::DISPLACEMENTSHADER,
         std::make_shared<AggregateTypeSyntax>(
             "displacementshader",
             "displacementshader(vec3(0.0),1.0)",
@@ -266,7 +267,7 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        DataType::LIGHT,
+        Type::LIGHTSHADER,
         std::make_shared<AggregateTypeSyntax>(
             "lightshader", 
             "lightshader(vec3(0.0),vec3(0.0))", 

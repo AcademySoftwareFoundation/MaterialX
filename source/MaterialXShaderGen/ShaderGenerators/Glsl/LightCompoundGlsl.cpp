@@ -39,11 +39,11 @@ void LightCompoundGlsl::initialize(ElementPtr implementation, ShaderGenerator& s
     size_t index = 0;
     for (InputPtr input : nodeDef->getInputs())
     {
-        _lightUniforms[index++] = Shader::Variable(input->getType(), input->getName());
+        _lightUniforms[index++] = Shader::Variable(TypeDesc::get(input->getType()), input->getName());
     }
     for (ParameterPtr param : nodeDef->getParameters())
     {
-        _lightUniforms[index++] = Shader::Variable(param->getType(), param->getName());
+        _lightUniforms[index++] = Shader::Variable(TypeDesc::get(param->getType()), param->getName());
     }
 }
 
@@ -65,7 +65,7 @@ void LightCompoundGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator&
     }
 
     // Create uniform for number of active light sources
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::INTEGER, "u_numActiveLightSources",
+    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources",
         EMPTY_STRING, Value::createValue<int>(0));
 }
 

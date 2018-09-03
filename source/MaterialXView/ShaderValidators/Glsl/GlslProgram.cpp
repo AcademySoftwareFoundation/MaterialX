@@ -1090,14 +1090,14 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                     }
                     if (Input->second->gltype == mapTypeToOpenGLType(input->type))
                     {
-                        Input->second->typeString = input->type;
+                        Input->second->typeString = input->type->getName();
                     }
                     else
                     {
                         errors.push_back(
                             "Pixel shader uniform block type mismatch[" + uniforms.first + "]. "
                             + "Name: \"" + input->name
-                            + "\". Type: \"" + input->type
+                            + "\". Type: \"" + input->type->getName()
                             + "\". Semantic: \"" + input->semantic
                             + "\". Value: \"" + (input->value ? input->value->getValueString() : "<none>")
                             + "\". GLType: " + std::to_string(mapTypeToOpenGLType(input->type))
@@ -1119,16 +1119,15 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                 {
                     if (Input->second->gltype == mapTypeToOpenGLType(input->type))
                     {
-                        Input->second->typeString = input->type;
+                        Input->second->typeString = input->type->getName();
                         Input->second->value = input->value;
-                        Input->second->typeString = input->type;
                     }
                     else
                     {
                         errors.push_back(
                             "Vertex shader uniform block type mismatch[" + uniforms.first + "]. "
                             + "Name: \"" + input->name
-                            + "\". Type: \"" + input->type
+                            + "\". Type: \"" + input->type->getName()
                             + "\". Semantic: \"" + input->semantic
                             + "\". Value: \"" + (input->value ? input->value->getValueString() : "<none>")
                             + "\". GLType: " + std::to_string(mapTypeToOpenGLType(input->type))
@@ -1149,25 +1148,25 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
     return _uniformList;
 }
 
-int GlslProgram::mapTypeToOpenGLType(const std::string& type)
+int GlslProgram::mapTypeToOpenGLType(const TypeDesc* type)
 {
-    if (type == MaterialX::getTypeString<int>())
+    if (type == Type::INTEGER)
         return GL_INT;
-    else if (type == MaterialX::getTypeString<bool>())
+    else if (type == Type::BOOLEAN)
         return GL_BOOL;
-    else if (type == MaterialX::getTypeString<float>())
+    else if (type == Type::FLOAT)
         return GL_FLOAT;
-    else if (type == MaterialX::getTypeString<Vector2>() || type == MaterialX::getTypeString<Color2>())
+    else if (type->isFloat2())
         return GL_FLOAT_VEC2;
-    else if (type == MaterialX::getTypeString<Vector3>() || type == MaterialX::getTypeString<Color3>())
+    else if (type->isFloat3())
         return GL_FLOAT_VEC3;
-    else if (type == MaterialX::getTypeString<Vector4>() || type == MaterialX::getTypeString<Color4>())
+    else if (type->isFloat4())
         return GL_FLOAT_VEC4;
-    else if (type == MaterialX::getTypeString<Matrix33>())
+    else if (type == Type::MATRIX33)
         return GL_FLOAT_MAT3;
-    else if (type == MaterialX::getTypeString<Matrix44>())
+    else if (type == Type::MATRIX44)
         return GL_FLOAT_MAT4;
-    else if (type == MaterialX::FILENAME_TYPE_STRING)
+    else if (type == Type::FILENAME)
     {
         // A "filename" is not indicative of type, so just return a 2d sampler.
         return GL_SAMPLER_2D;
@@ -1249,13 +1248,13 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
 
                     if (Input->second->gltype == mapTypeToOpenGLType(input->type))
                     {
-                        Input->second->typeString = input->type;
+                        Input->second->typeString = input->type->getName();
                     }
                     else
                     {
                         errors.push_back(
                             "Application uniform type mismatch in block. Name: \"" + input->name
-                            + "\". Type: \"" + input->type
+                            + "\". Type: \"" + input->type->getName()
                             + "\". Semantic: \"" + input->semantic
                             + "\". Value: \"" + (input->value ? input->value->getValueString() : "<none>")
                             + "\". GLType: " + std::to_string(mapTypeToOpenGLType(input->type))

@@ -4,13 +4,14 @@
 #include <MaterialXCore/Library.h>
 #include <MaterialXCore/Value.h>
 #include <MaterialXCore/Definition.h>
-#include <MaterialXCore/Node.h>
 
 #include <utility>
 #include <set>
 
 namespace MaterialX
 {
+
+class TypeDesc;
 
 using SyntaxPtr = shared_ptr<class Syntax>;
 using TypeSyntaxPtr = shared_ptr<class TypeSyntax>;
@@ -27,7 +28,7 @@ public:
 
     /// Register syntax handling for a data type.
     /// Required to be set for all supported data types.
-    void registerTypeSyntax(const string& type, TypeSyntaxPtr syntax);
+    void registerTypeSyntax(const TypeDesc* type, TypeSyntaxPtr syntax);
 
     /// Register names that are restricted to use by a code generator when naming 
     /// variables and functions. Keywords, types, built-in functions etc. should be 
@@ -36,29 +37,29 @@ public:
 
     /// Returns the type syntax object for a named type.
     /// Throws an exception if a type syntax is not defined for the given type.
-    const TypeSyntax& getTypeSyntax(const string& type) const;
+    const TypeSyntax& getTypeSyntax(const TypeDesc* type) const;
 
     /// Returns an array of all registered type syntax objects
     const vector<TypeSyntaxPtr>& getTypeSyntaxs() const { return _typeSyntaxs; }
 
     /// Returns the name syntax of the given type
-    const string& getTypeName(const string& type) const;
+    const string& getTypeName(const TypeDesc* type) const;
 
     /// Returns the type name in an output context
-    string getOutputTypeName(const string& type) const;
+    string getOutputTypeName(const TypeDesc* type) const;
 
     /// Returns the custom typedef syntax for the given data type
     /// If not used returns an empty string
-    const string& getTypeDefStatement(const string& type) const;
+    const string& getTypeDefStatement(const TypeDesc* type) const;
 
     /// Returns the default value string for the given type
-    const string& getDefaultValue(const string& type, bool uniform = false) const;
+    const string& getDefaultValue(const TypeDesc* type, bool uniform = false) const;
 
     /// Returns the value string for a given type and value object
-    string getValue(const string& type, const Value& value, bool uniform = false) const;
+    string getValue(const TypeDesc* type, const Value& value, bool uniform = false) const;
 
     /// Get syntax for a swizzled variable
-    string getSwizzledVariable(const string& srcName, const string& srcType, const string& channels, const string& dstType) const;
+    string getSwizzledVariable(const string& srcName, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const;
 
     /// Returns a set of names that are restricted to use for this language syntax.
     const StringSet& getRestrictedNames() const { return _restrictedNames; }
@@ -82,7 +83,7 @@ protected:
 
 private:
     vector<TypeSyntaxPtr> _typeSyntaxs;
-    std::unordered_map<string, size_t> _typeSyntaxByName;
+    std::unordered_map<const TypeDesc*, size_t> _typeSyntaxByType;
 
     StringSet _restrictedNames;
 };
@@ -159,43 +160,6 @@ public:
 
     string getValue(const Value& value, bool uniform) const override;
     string getValue(const vector<string>& values, bool uniform) const override;
-};
-
-
-/// Built in data types
-class DataType
-{
-public:
-    static const string BOOLEAN;
-    static const string INTEGER;
-    static const string FLOAT;
-    static const string VECTOR2;
-    static const string VECTOR3;
-    static const string VECTOR4;
-    static const string COLOR2;
-    static const string COLOR3;
-    static const string COLOR4;
-    static const string MATRIX3;
-    static const string MATRIX4;
-    static const string STRING;
-    static const string FILENAME;
-    static const string BSDF;
-    static const string EDF;
-    static const string VDF;
-    static const string SURFACE;
-    static const string VOLUME;
-    static const string DISPLACEMENT;
-    static const string LIGHT;
-
-    static const std::set<string> SCALARS;
-    static const std::set<string> TUPLES;
-    static const std::set<string> TRIPLES;
-    static const std::set<string> QUADRUPLES;
-
-    static bool isScalar(const string& type) { return SCALARS.count(type) > 0; }
-    static bool isTuple(const string& type) { return TUPLES.count(type) > 0; }
-    static bool isTriple(const string& type) { return TRIPLES.count(type) > 0; }
-    static bool isQuadruple(const string& type) { return QUADRUPLES.count(type) > 0; }
 };
 
 } // namespace MaterialX

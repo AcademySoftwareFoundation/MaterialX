@@ -32,13 +32,13 @@ void SurfaceGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*sha
     //
     HwShader& shader = static_cast<HwShader&>(shader_);
 
-    shader.createAppData(DataType::VECTOR3, "i_position");
-    shader.createAppData(DataType::VECTOR3, "i_normal");
-    shader.createVertexData(DataType::VECTOR3, "positionWorld");
-    shader.createVertexData(DataType::VECTOR3, "normalWorld");
-    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::MATRIX4, "u_worldInverseTransposeMatrix");
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::VECTOR3, "u_viewPosition");
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::INTEGER, "u_numActiveLightSources",
+    shader.createAppData(Type::VECTOR3, "i_position");
+    shader.createAppData(Type::VECTOR3, "i_normal");
+    shader.createVertexData(Type::VECTOR3, "positionWorld");
+    shader.createVertexData(Type::VECTOR3, "normalWorld");
+    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix");
+    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::VECTOR3, "u_viewPosition");
+    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources",
         EMPTY_STRING, Value::createValue<int>(0));
 }
 

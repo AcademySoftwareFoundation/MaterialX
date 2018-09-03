@@ -229,9 +229,9 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     shader.setActiveStage(HwShader::VERTEX_STAGE);
 
     // Create required variables for vertex stage
-    shader.createAppData(DataType::VECTOR3, "i_position");
-    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::MATRIX4, "u_worldMatrix");
-    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::MATRIX4, "u_viewProjectionMatrix");
+    shader.createAppData(Type::VECTOR3, "i_position");
+    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldMatrix");
+    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, Type::MATRIX44, "u_viewProjectionMatrix");
 
     // Add version directive
     shader.addLine("#version " + getVersion(), false);
@@ -498,7 +498,7 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
     if (!outputSocket->connection)
     {
         string outputValue = outputSocket->value ? _syntax->getValue(outputSocket->type, *outputSocket->value) : _syntax->getDefaultValue(outputSocket->type);
-        if (!DataType::isQuadruple(outputSocket->type))
+        if (!outputSocket->type->isFloat4())
         {
             string finalOutput = outputSocket->name + "_tmp";
             shader.addLine(_syntax->getTypeName(outputSocket->type) + " " + finalOutput + " = " + outputValue);
@@ -522,7 +522,7 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
     }
     else
     {
-        if (!DataType::isQuadruple(outputSocket->type))
+        if (!outputSocket->type->isFloat4())
         {
             toVec4(outputSocket->type, finalOutput);
         }
@@ -649,31 +649,31 @@ void GlslShaderGenerator::emitEdfNodes(const SgNode& shaderNode, const string& o
     }
 }
 
-void GlslShaderGenerator::toVec4(const string& type, string& variable)
+void GlslShaderGenerator::toVec4(const TypeDesc* type, string& variable)
 {
-    if (DataType::isScalar(type))
+    if (type->isFloat3())
     {
-        variable = "vec4(" + variable + ", " + variable + ", " + variable + ", 1.0)";
+        variable = "vec4(" + variable + ", 1.0)";
     }
-    else if (DataType::isTuple(type))
+    else if (type->isFloat2())
     {
         variable = "vec4(" + variable + ", 0.0, 1.0)";
     }
-    else if (DataType::isTriple(type))
+    else if (type == Type::FLOAT || type == Type::INTEGER)
     {
-        variable = "vec4(" + variable + ", 1.0)";
+        variable = "vec4(" + variable + ", " + variable + ", " + variable + ", 1.0)";
     }
     else
     {
         // Can't understand other types. Just return black.
-        variable = "vec4(0.0,0.0,0.0,1.0)";
+        variable = "vec4(0.0, 0.0, 0.0, 1.0)";
     }
 }
 
 void GlslShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& shader)
 {
     // A file texture input needs special handling on GLSL
-    if (uniform.type == DataType::FILENAME)
+    if (uniform.type == Type::FILENAME)
     {
         shader.addLine("uniform sampler2D " + uniform.name);
     }
@@ -698,7 +698,7 @@ SgImplementationPtr GlslShaderGenerator::createCompoundImplementation(NodeGraphP
     {
         throw ExceptionShaderGenError("Error creating compound implementation. Given nodegraph '" + impl->getName() + "' has no nodedef set");
     }
-    if (nodeDef->getType() == DataType::LIGHT)
+    if (TypeDesc::get(nodeDef->getType()) == Type::LIGHTSHADER)
     {
         return LightCompoundGlsl::create();
     }

@@ -15,8 +15,8 @@ void GeomColorGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shade
     const SgInput* indexInput = node.getInput(INDEX);
     const string index = indexInput ? indexInput->value->getValueString() : "0";
 
-    shader.createAppData(DataType::COLOR4, "i_color_" + index);
-    shader.createVertexData(DataType::COLOR4, "color_" + index);
+    shader.createAppData(Type::COLOR4, "i_color_" + index);
+    shader.createVertexData(Type::COLOR4, "color_" + index);
 }
 
 void GeomColorGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*context*/, ShaderGenerator& shadergen, Shader& shader_)
@@ -41,15 +41,15 @@ void GeomColorGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*
 
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
         string suffix = "";
-        if (output->type == DataType::FLOAT)
+        if (output->type == Type::FLOAT)
         {
             suffix = ".r";
         }
-        else if (output->type == DataType::COLOR2)
+        else if (output->type == Type::COLOR2)
         {
             suffix = ".rg";
         }
-        else if (output->type == DataType::COLOR3)
+        else if (output->type == Type::COLOR3)
         {
             suffix = ".rgb";
         }

@@ -50,12 +50,12 @@ public:
 
     struct Variable
     {
-        string type;
+        const TypeDesc* type;
         string name;
         string semantic;
         ValuePtr value;
 
-        Variable(const string& t = EMPTY_STRING, const string& n = EMPTY_STRING, const string& s = EMPTY_STRING, ValuePtr v = nullptr)
+        Variable(const TypeDesc* t = nullptr, const string& n = EMPTY_STRING, const string& s = EMPTY_STRING, ValuePtr v = nullptr)
             : type(t)
             , name(n)
             , semantic(s)
@@ -120,11 +120,11 @@ public:
 
     /// Create a new variable for uniform data in the given block for a stage.
     /// The block must be previously created with createUniformBlock.
-    virtual void createUniform(size_t stage, const string& block, const string& type, const string& name,
+    virtual void createUniform(size_t stage, const string& block, const TypeDesc* type, const string& name,
         const string& semantic = EMPTY_STRING, ValuePtr value = nullptr);
 
     /// Create a new variable for application/geometric data (primvars).
-    virtual void createAppData(const string& type, const string& name, const string& semantic = EMPTY_STRING);
+    virtual void createAppData(const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING);
 
     /// Return all blocks of uniform variables for a stage.
     const VariableBlockMap& getUniformBlocks(size_t stage) const { return _stages[stage].uniforms; }

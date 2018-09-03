@@ -73,7 +73,7 @@ OgsFxShader::OgsFxShader(const string& name)
     createUniformBlock(FINAL_FX_STAGE, PUBLIC_UNIFORMS, "pub");
 }
 
-void OgsFxShader::createUniform(size_t stage, const string& block, const string& type, const string& name, const string& semantic, ValuePtr value)
+void OgsFxShader::createUniform(size_t stage, const string& block, const TypeDesc* type, const string& name, const string& semantic, ValuePtr value)
 {
     // If no semantic is given check if we have 
     // an OgsFx semantic that should be used
@@ -89,7 +89,7 @@ void OgsFxShader::createUniform(size_t stage, const string& block, const string&
     ParentClass::createUniform(stage, block, type, name, semantic, value);
 }
 
-void OgsFxShader::createAppData(const string& type, const string& name, const string& semantic)
+void OgsFxShader::createAppData(const TypeDesc* type, const string& name, const string& semantic)
 {
     // If no semantic is given check if we have 
     // an OgsFx semantic that should be used
@@ -105,7 +105,7 @@ void OgsFxShader::createAppData(const string& type, const string& name, const st
     ParentClass::createAppData(type, name, semantic);
 }
 
-void OgsFxShader::createVertexData(const string& type, const string& name, const string& semantic)
+void OgsFxShader::createVertexData(const TypeDesc* type, const string& name, const string& semantic)
 {
     // If no semantic is given check if we have 
     // an OgsFx semantic that should be used
@@ -149,9 +149,9 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.setActiveStage(OgsFxShader::VERTEX_STAGE);
 
     // Create required variables
-    shader.createAppData(DataType::VECTOR3, "i_position");
-    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::MATRIX4, "u_worldMatrix");
-    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::MATRIX4, "u_viewProjectionMatrix");
+    shader.createAppData(Type::VECTOR3, "i_position");
+    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldMatrix");
+    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, Type::MATRIX44, "u_viewProjectionMatrix");
 
     shader.addComment("---------------------------------- Vertex shader ----------------------------------------\n");
     shader.addLine("GLSLShader VS", false);
@@ -374,7 +374,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 void OgsFxShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& shader)
 {
     // A file texture input needs special handling on GLSL
-    if (uniform.type == DataType::FILENAME)
+    if (uniform.type == Type::FILENAME)
     {
         std::stringstream str;
         str << "uniform texture2D " << uniform.name << "_texture : SourceTexture;\n";

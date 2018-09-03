@@ -14,7 +14,7 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax)
 
 void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, size_t lightTypeId)
 {
-    if (nodeDef.getType() != DataType::LIGHT)
+    if (TypeDesc::get(nodeDef.getType()) != Type::LIGHTSHADER)
     {
         throw ExceptionShaderGenError("Error binding light shader. Given nodedef '" + nodeDef.getName() + "' is not of lightshader type");
     }

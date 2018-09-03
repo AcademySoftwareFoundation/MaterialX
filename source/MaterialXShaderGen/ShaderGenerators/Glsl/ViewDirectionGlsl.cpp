@@ -12,9 +12,9 @@ void ViewDirectionGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator&
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
-    shader.createAppData(DataType::VECTOR3, "i_position");
-    shader.createVertexData(DataType::VECTOR3, "positionWorld");
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::VECTOR3, "u_viewPosition");
+    shader.createAppData(Type::VECTOR3, "i_position");
+    shader.createVertexData(Type::VECTOR3, "positionWorld");
+    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::VECTOR3, "u_viewPosition");
 }
 
 void ViewDirectionGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*context*/, ShaderGenerator& shadergen, Shader& shader_)

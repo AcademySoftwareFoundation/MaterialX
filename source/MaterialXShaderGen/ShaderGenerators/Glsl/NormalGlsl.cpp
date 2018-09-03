@@ -12,22 +12,22 @@ void NormalGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shaderge
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
-    shader.createAppData(DataType::VECTOR3, "i_normal");
+    shader.createAppData(Type::VECTOR3, "i_normal");
 
     const SgInput* spaceInput = node.getInput(SPACE);
     string space = spaceInput ? spaceInput->value->getValueString() : EMPTY_STRING;
     if (space == WORLD)
     {
-        shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, DataType::MATRIX4, "u_worldInverseTransposeMatrix");
-        shader.createVertexData(DataType::VECTOR3, "normalWorld");
+        shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix");
+        shader.createVertexData(Type::VECTOR3, "normalWorld");
     }
     else if (space == MODEL)
     {
-        shader.createVertexData(DataType::VECTOR3, "normalModel");
+        shader.createVertexData(Type::VECTOR3, "normalModel");
     }
     else
     {
-        shader.createVertexData(DataType::VECTOR3, "normalObject");
+        shader.createVertexData(Type::VECTOR3, "normalObject");
     }
 }
 
