@@ -12,6 +12,7 @@
 #include <MaterialXShaderGen/ShaderGenerators/Osl/Arnold/ArnoldShaderGenerator.h>
 #include <MaterialXShaderGen/ShaderGenerators/Osl/OslSyntax.h>
 #include <MaterialXShaderGen/ShaderGenerators/Common/Swizzle.h>
+#include <MaterialXShaderGen/TypeDesc.h>
 #include <MaterialXShaderGen/Util.h>
 #include <MaterialXShaderGen/HwShader.h>
 #include <MaterialXShaderGen/HwLightHandler.h>
@@ -518,139 +519,175 @@ void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::H
     lightHandler.bindLightShaders(shadergen);
 }
 
-TEST_CASE("OslSyntax", "[shadergen]")
+TEST_CASE("Syntax", "[shadergen]")
 {
-    mx::SyntaxPtr syntax = mx::OslSyntax::create();
+    {
+        mx::SyntaxPtr syntax = mx::OslSyntax::create();
 
-    REQUIRE(syntax->getTypeName(mx::Type::FLOAT) == "float");
-    REQUIRE(syntax->getTypeName(mx::Type::COLOR3) == "color");
-    REQUIRE(syntax->getTypeName(mx::Type::VECTOR3) == "vector");
+        REQUIRE(syntax->getTypeName(mx::Type::FLOAT) == "float");
+        REQUIRE(syntax->getTypeName(mx::Type::COLOR3) == "color");
+        REQUIRE(syntax->getTypeName(mx::Type::VECTOR3) == "vector");
 
-    REQUIRE(syntax->getTypeName(mx::Type::BSDF) == "BSDF");
-    REQUIRE(syntax->getOutputTypeName(mx::Type::BSDF) == "output BSDF");
+        REQUIRE(syntax->getTypeName(mx::Type::BSDF) == "BSDF");
+        REQUIRE(syntax->getOutputTypeName(mx::Type::BSDF) == "output BSDF");
 
-    // Set fixed precision with one digit
-    mx::Value::ScopedFloatFormatting format(mx::Value::FloatFormatFixed, 1);
+        // Set fixed precision with one digit
+        mx::Value::ScopedFloatFormatting format(mx::Value::FloatFormatFixed, 1);
 
-    std::string value;
-    value = syntax->getDefaultValue(mx::Type::FLOAT);
-    REQUIRE(value == "0.0");
-    value = syntax->getDefaultValue(mx::Type::COLOR3);
-    REQUIRE(value == "color(0.0)");
-    value = syntax->getDefaultValue(mx::Type::COLOR3, true);
-    REQUIRE(value == "color(0.0)");
-    value = syntax->getDefaultValue(mx::Type::COLOR4);
-    REQUIRE(value == "color4(color(0.0), 0.0)");
-    value = syntax->getDefaultValue(mx::Type::COLOR4, true);
-    REQUIRE(value == "{color(0.0), 0.0}");
+        std::string value;
+        value = syntax->getDefaultValue(mx::Type::FLOAT);
+        REQUIRE(value == "0.0");
+        value = syntax->getDefaultValue(mx::Type::COLOR3);
+        REQUIRE(value == "color(0.0)");
+        value = syntax->getDefaultValue(mx::Type::COLOR3, true);
+        REQUIRE(value == "color(0.0)");
+        value = syntax->getDefaultValue(mx::Type::COLOR4);
+        REQUIRE(value == "color4(color(0.0), 0.0)");
+        value = syntax->getDefaultValue(mx::Type::COLOR4, true);
+        REQUIRE(value == "{color(0.0), 0.0}");
 
-    mx::ValuePtr floatValue = mx::Value::createValue<float>(42.0f);
-    value = syntax->getValue(mx::Type::FLOAT, *floatValue);
-    REQUIRE(value == "42.0");
-    value = syntax->getValue(mx::Type::FLOAT, *floatValue, true);
-    REQUIRE(value == "42.0");
+        mx::ValuePtr floatValue = mx::Value::createValue<float>(42.0f);
+        value = syntax->getValue(mx::Type::FLOAT, *floatValue);
+        REQUIRE(value == "42.0");
+        value = syntax->getValue(mx::Type::FLOAT, *floatValue, true);
+        REQUIRE(value == "42.0");
 
-    mx::ValuePtr color3Value = mx::Value::createValue<mx::Color3>(mx::Color3(1.0f, 2.0f, 3.0f));
-    value = syntax->getValue(mx::Type::COLOR3, *color3Value);
-    REQUIRE(value == "color(1.0, 2.0, 3.0)");
-    value = syntax->getValue(mx::Type::COLOR3, *color3Value, true);
-    REQUIRE(value == "color(1.0, 2.0, 3.0)");
+        mx::ValuePtr color3Value = mx::Value::createValue<mx::Color3>(mx::Color3(1.0f, 2.0f, 3.0f));
+        value = syntax->getValue(mx::Type::COLOR3, *color3Value);
+        REQUIRE(value == "color(1.0, 2.0, 3.0)");
+        value = syntax->getValue(mx::Type::COLOR3, *color3Value, true);
+        REQUIRE(value == "color(1.0, 2.0, 3.0)");
 
-    mx::ValuePtr color4Value = mx::Value::createValue<mx::Color4>(mx::Color4(1.0f, 2.0f, 3.0f, 4.0f));
-    value = syntax->getValue(mx::Type::COLOR4, *color4Value);
-    REQUIRE(value == "color4(color(1.0, 2.0, 3.0), 4.0)");
-    value = syntax->getValue(mx::Type::COLOR4, *color4Value, true);
-    REQUIRE(value == "{color(1.0, 2.0, 3.0), 4.0}");
+        mx::ValuePtr color4Value = mx::Value::createValue<mx::Color4>(mx::Color4(1.0f, 2.0f, 3.0f, 4.0f));
+        value = syntax->getValue(mx::Type::COLOR4, *color4Value);
+        REQUIRE(value == "color4(color(1.0, 2.0, 3.0), 4.0)");
+        value = syntax->getValue(mx::Type::COLOR4, *color4Value, true);
+        REQUIRE(value == "{color(1.0, 2.0, 3.0), 4.0}");
+    }
+
+    {
+        mx::SyntaxPtr syntax = mx::GlslSyntax::create();
+
+        REQUIRE(syntax->getTypeName(mx::Type::FLOAT) == "float");
+        REQUIRE(syntax->getTypeName(mx::Type::COLOR3) == "vec3");
+        REQUIRE(syntax->getTypeName(mx::Type::VECTOR3) == "vec3");
+
+        REQUIRE(syntax->getTypeName(mx::Type::BSDF) == "BSDF");
+        REQUIRE(syntax->getOutputTypeName(mx::Type::BSDF) == "out BSDF");
+
+        // Set fixed precision with one digit
+        mx::Value::ScopedFloatFormatting format(mx::Value::FloatFormatFixed, 1);
+
+        std::string value;
+        value = syntax->getDefaultValue(mx::Type::FLOAT);
+        REQUIRE(value == "0.0");
+        value = syntax->getDefaultValue(mx::Type::COLOR3);
+        REQUIRE(value == "vec3(0.0)");
+        value = syntax->getDefaultValue(mx::Type::COLOR3, true);
+        REQUIRE(value == "vec3(0.0)");
+        value = syntax->getDefaultValue(mx::Type::COLOR4);
+        REQUIRE(value == "vec4(0.0)");
+        value = syntax->getDefaultValue(mx::Type::COLOR4, true);
+        REQUIRE(value == "vec4(0.0)");
+
+        mx::ValuePtr floatValue = mx::Value::createValue<float>(42.0f);
+        value = syntax->getValue(mx::Type::FLOAT, *floatValue);
+        REQUIRE(value == "42.0");
+        value = syntax->getValue(mx::Type::FLOAT, *floatValue, true);
+        REQUIRE(value == "42.0");
+
+        mx::ValuePtr color3Value = mx::Value::createValue<mx::Color3>(mx::Color3(1.0f, 2.0f, 3.0f));
+        value = syntax->getValue(mx::Type::COLOR3, *color3Value);
+        REQUIRE(value == "vec3(1.0, 2.0, 3.0)");
+        value = syntax->getValue(mx::Type::COLOR3, *color3Value, true);
+        REQUIRE(value == "vec3(1.0, 2.0, 3.0)");
+
+        mx::ValuePtr color4Value = mx::Value::createValue<mx::Color4>(mx::Color4(1.0f, 2.0f, 3.0f, 4.0f));
+        value = syntax->getValue(mx::Type::COLOR4, *color4Value);
+        REQUIRE(value == "vec4(1.0, 2.0, 3.0, 4.0)");
+        value = syntax->getValue(mx::Type::COLOR4, *color4Value, true);
+        REQUIRE(value == "vec4(1.0, 2.0, 3.0, 4.0)");
+    }
+
+    {
+        mx::SyntaxPtr syntax = mx::OgsFxSyntax::create();
+
+        REQUIRE(syntax->getTypeName(mx::Type::FLOAT) == "float");
+        REQUIRE(syntax->getTypeName(mx::Type::COLOR3) == "vec3");
+        REQUIRE(syntax->getTypeName(mx::Type::VECTOR3) == "vec3");
+
+        REQUIRE(syntax->getTypeName(mx::Type::BSDF) == "BSDF");
+        REQUIRE(syntax->getOutputTypeName(mx::Type::BSDF) == "out BSDF");
+
+        // Set fixed precision with one digit
+        mx::Value::ScopedFloatFormatting format(mx::Value::FloatFormatFixed, 1);
+
+        std::string value;
+        value = syntax->getDefaultValue(mx::Type::FLOAT);
+        REQUIRE(value == "0.0");
+        value = syntax->getDefaultValue(mx::Type::COLOR3);
+        REQUIRE(value == "vec3(0.0)");
+        value = syntax->getDefaultValue(mx::Type::COLOR3, true);
+        REQUIRE(value == "{0.0, 0.0, 0.0}");
+        value = syntax->getDefaultValue(mx::Type::COLOR4);
+        REQUIRE(value == "vec4(0.0)");
+        value = syntax->getDefaultValue(mx::Type::COLOR4, true);
+        REQUIRE(value == "{0.0, 0.0, 0.0, 0.0}");
+
+        mx::ValuePtr floatValue = mx::Value::createValue<float>(42.0f);
+        value = syntax->getValue(mx::Type::FLOAT, *floatValue);
+        REQUIRE(value == "42.0");
+        value = syntax->getValue(mx::Type::FLOAT, *floatValue, true);
+        REQUIRE(value == "42.0");
+
+        mx::ValuePtr color3Value = mx::Value::createValue<mx::Color3>(mx::Color3(1.0f, 2.0f, 3.0f));
+        value = syntax->getValue(mx::Type::COLOR3, *color3Value);
+        REQUIRE(value == "vec3(1.0, 2.0, 3.0)");
+        value = syntax->getValue(mx::Type::COLOR3, *color3Value, true);
+        REQUIRE(value == "{1.0, 2.0, 3.0}");
+
+        mx::ValuePtr color4Value = mx::Value::createValue<mx::Color4>(mx::Color4(1.0f, 2.0f, 3.0f, 4.0f));
+        value = syntax->getValue(mx::Type::COLOR4, *color4Value);
+        REQUIRE(value == "vec4(1.0, 2.0, 3.0, 4.0)");
+        value = syntax->getValue(mx::Type::COLOR4, *color4Value, true);
+        REQUIRE(value == "{1.0, 2.0, 3.0, 4.0}");
+    }
 }
 
-TEST_CASE("GlslSyntax", "[shadergen]")
+TEST_CASE("TypeDesc", "[shadergen]")
 {
-    mx::SyntaxPtr syntax = mx::GlslSyntax::create();
+    // Make sure the standard types are registered
+    const mx::TypeDesc* floatType = mx::TypeDesc::get("float");
+    REQUIRE(floatType != nullptr);
+    REQUIRE(floatType->getBaseType() == mx::TypeDesc::BASETYPE_FLOAT);
+    const mx::TypeDesc* integerType = mx::TypeDesc::get("integer");
+    REQUIRE(integerType != nullptr);
+    REQUIRE(integerType->getBaseType() == mx::TypeDesc::BASETYPE_INTEGER);
+    const mx::TypeDesc* booleanType = mx::TypeDesc::get("boolean");
+    REQUIRE(booleanType != nullptr);
+    REQUIRE(booleanType->getBaseType() == mx::TypeDesc::BASETYPE_BOOLEAN);
+    const mx::TypeDesc* color2Type = mx::TypeDesc::get("color2");
+    REQUIRE(color2Type != nullptr);
+    REQUIRE(color2Type->getBaseType() == mx::TypeDesc::BASETYPE_FLOAT);
+    REQUIRE(color2Type->getSemantic() == mx::TypeDesc::SEMATIC_COLOR);
+    REQUIRE(color2Type->isFloat2());
+    const mx::TypeDesc* color3Type = mx::TypeDesc::get("color3");
+    REQUIRE(color3Type != nullptr);
+    REQUIRE(color3Type->getBaseType() == mx::TypeDesc::BASETYPE_FLOAT);
+    REQUIRE(color3Type->getSemantic() == mx::TypeDesc::SEMATIC_COLOR);
+    REQUIRE(color3Type->isFloat3());
+    const mx::TypeDesc* color4Type = mx::TypeDesc::get("color4");
+    REQUIRE(color4Type != nullptr);
+    REQUIRE(color4Type->getBaseType() == mx::TypeDesc::BASETYPE_FLOAT);
+    REQUIRE(color4Type->getSemantic() == mx::TypeDesc::SEMATIC_COLOR);
+    REQUIRE(color4Type->isFloat4());
 
-    REQUIRE(syntax->getTypeName(mx::Type::FLOAT) == "float");
-    REQUIRE(syntax->getTypeName(mx::Type::COLOR3) == "vec3");
-    REQUIRE(syntax->getTypeName(mx::Type::VECTOR3) == "vec3");
+    // Make sure we can register a new sutom type
+    const mx::TypeDesc* fooType = mx::TypeDesc::registerType("foo", mx::TypeDesc::BASETYPE_FLOAT, mx::TypeDesc::SEMATIC_COLOR, 5);
+    REQUIRE(fooType != nullptr);
 
-    REQUIRE(syntax->getTypeName(mx::Type::BSDF) == "BSDF");
-    REQUIRE(syntax->getOutputTypeName(mx::Type::BSDF) == "out BSDF");
-
-    // Set fixed precision with one digit
-    mx::Value::ScopedFloatFormatting format(mx::Value::FloatFormatFixed, 1);
-
-    std::string value;
-    value = syntax->getDefaultValue(mx::Type::FLOAT);
-    REQUIRE(value == "0.0");
-    value = syntax->getDefaultValue(mx::Type::COLOR3);
-    REQUIRE(value == "vec3(0.0)");
-    value = syntax->getDefaultValue(mx::Type::COLOR3, true);
-    REQUIRE(value == "vec3(0.0)");
-    value = syntax->getDefaultValue(mx::Type::COLOR4);
-    REQUIRE(value == "vec4(0.0)");
-    value = syntax->getDefaultValue(mx::Type::COLOR4, true);
-    REQUIRE(value == "vec4(0.0)");
-
-    mx::ValuePtr floatValue = mx::Value::createValue<float>(42.0f);
-    value = syntax->getValue(mx::Type::FLOAT, *floatValue);
-    REQUIRE(value == "42.0");
-    value = syntax->getValue(mx::Type::FLOAT, *floatValue, true);
-    REQUIRE(value == "42.0");
-
-    mx::ValuePtr color3Value = mx::Value::createValue<mx::Color3>(mx::Color3(1.0f, 2.0f, 3.0f));
-    value = syntax->getValue(mx::Type::COLOR3, *color3Value);
-    REQUIRE(value == "vec3(1.0, 2.0, 3.0)");
-    value = syntax->getValue(mx::Type::COLOR3, *color3Value, true);
-    REQUIRE(value == "vec3(1.0, 2.0, 3.0)");
-
-    mx::ValuePtr color4Value = mx::Value::createValue<mx::Color4>(mx::Color4(1.0f, 2.0f, 3.0f, 4.0f));
-    value = syntax->getValue(mx::Type::COLOR4, *color4Value);
-    REQUIRE(value == "vec4(1.0, 2.0, 3.0, 4.0)");
-    value = syntax->getValue(mx::Type::COLOR4, *color4Value, true);
-    REQUIRE(value == "vec4(1.0, 2.0, 3.0, 4.0)");
-}
-
-TEST_CASE("OgsFxSyntax", "[shadergen]")
-{
-    mx::SyntaxPtr syntax = mx::OgsFxSyntax::create();
-
-    REQUIRE(syntax->getTypeName(mx::Type::FLOAT) == "float");
-    REQUIRE(syntax->getTypeName(mx::Type::COLOR3) == "vec3");
-    REQUIRE(syntax->getTypeName(mx::Type::VECTOR3) == "vec3");
-
-    REQUIRE(syntax->getTypeName(mx::Type::BSDF) == "BSDF");
-    REQUIRE(syntax->getOutputTypeName(mx::Type::BSDF) == "out BSDF");
-
-    // Set fixed precision with one digit
-    mx::Value::ScopedFloatFormatting format(mx::Value::FloatFormatFixed, 1);
-
-    std::string value;
-    value = syntax->getDefaultValue(mx::Type::FLOAT);
-    REQUIRE(value == "0.0");
-    value = syntax->getDefaultValue(mx::Type::COLOR3);
-    REQUIRE(value == "vec3(0.0)");
-    value = syntax->getDefaultValue(mx::Type::COLOR3, true);
-    REQUIRE(value == "{0.0, 0.0, 0.0}");
-    value = syntax->getDefaultValue(mx::Type::COLOR4);
-    REQUIRE(value == "vec4(0.0)");
-    value = syntax->getDefaultValue(mx::Type::COLOR4, true);
-    REQUIRE(value == "{0.0, 0.0, 0.0, 0.0}");
-
-    mx::ValuePtr floatValue = mx::Value::createValue<float>(42.0f);
-    value = syntax->getValue(mx::Type::FLOAT, *floatValue);
-    REQUIRE(value == "42.0");
-    value = syntax->getValue(mx::Type::FLOAT, *floatValue, true);
-    REQUIRE(value == "42.0");
-
-    mx::ValuePtr color3Value = mx::Value::createValue<mx::Color3>(mx::Color3(1.0f, 2.0f, 3.0f));
-    value = syntax->getValue(mx::Type::COLOR3, *color3Value);
-    REQUIRE(value == "vec3(1.0, 2.0, 3.0)");
-    value = syntax->getValue(mx::Type::COLOR3, *color3Value, true);
-    REQUIRE(value == "{1.0, 2.0, 3.0}");
-
-    mx::ValuePtr color4Value = mx::Value::createValue<mx::Color4>(mx::Color4(1.0f, 2.0f, 3.0f, 4.0f));
-    value = syntax->getValue(mx::Type::COLOR4, *color4Value);
-    REQUIRE(value == "vec4(1.0, 2.0, 3.0, 4.0)");
-    value = syntax->getValue(mx::Type::COLOR4, *color4Value, true);
-    REQUIRE(value == "{1.0, 2.0, 3.0, 4.0}");
+    // Make sure we can't use a name already take
+    REQUIRE_THROWS(mx::TypeDesc::registerType("color3", mx::TypeDesc::BASETYPE_FLOAT));
 }
 
 TEST_CASE("Reference Implementation Validity", "[shadergen]")
