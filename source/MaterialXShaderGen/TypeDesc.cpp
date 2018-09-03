@@ -55,27 +55,27 @@ namespace Type
 {
     // Register all standard types and save their pointers
     // for quick access and type comparisons later.
-    extern const TypeDesc* NONE               = TypeDesc::registerType("none", TypeDesc::BASETYPE_NONE);
-    extern const TypeDesc* BOOLEAN            = TypeDesc::registerType("boolean", TypeDesc::BASETYPE_BOOLEAN);
-    extern const TypeDesc* INTEGER            = TypeDesc::registerType("integer", TypeDesc::BASETYPE_INTEGER);
-    extern const TypeDesc* FLOAT              = TypeDesc::registerType("float", TypeDesc::BASETYPE_FLOAT);
-    extern const TypeDesc* VECTOR2            = TypeDesc::registerType("vector2", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMATIC_VECTOR, 2);
-    extern const TypeDesc* VECTOR3            = TypeDesc::registerType("vector3", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMATIC_VECTOR, 3);
-    extern const TypeDesc* VECTOR4            = TypeDesc::registerType("vector4", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMATIC_VECTOR, 4);
-    extern const TypeDesc* COLOR2             = TypeDesc::registerType("color2", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMATIC_COLOR, 2);
-    extern const TypeDesc* COLOR3             = TypeDesc::registerType("color3", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMATIC_COLOR, 3);
-    extern const TypeDesc* COLOR4             = TypeDesc::registerType("color4", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMATIC_COLOR, 4);
-    extern const TypeDesc* MATRIX33           = TypeDesc::registerType("matrix33", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMATIC_MATRIX, 9);
-    extern const TypeDesc* MATRIX44           = TypeDesc::registerType("matrix44", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMATIC_MATRIX, 16);
-    extern const TypeDesc* STRING             = TypeDesc::registerType("string", TypeDesc::BASETYPE_STRING);
-    extern const TypeDesc* FILENAME           = TypeDesc::registerType("filename", TypeDesc::BASETYPE_STRING, TypeDesc::SEMATIC_FILENAME);
-    extern const TypeDesc* BSDF               = TypeDesc::registerType("BSDF", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_CLOSURE);
-    extern const TypeDesc* EDF                = TypeDesc::registerType("EDF", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_CLOSURE);
-    extern const TypeDesc* VDF                = TypeDesc::registerType("VDF", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_CLOSURE);
-    extern const TypeDesc* SURFACESHADER      = TypeDesc::registerType("surfaceshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_SHADER);
-    extern const TypeDesc* VOLUMESHADER       = TypeDesc::registerType("volumeshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_SHADER);
-    extern const TypeDesc* DISPLACEMENTSHADER = TypeDesc::registerType("displacementshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_SHADER);
-    extern const TypeDesc* LIGHTSHADER        = TypeDesc::registerType("lightshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_SHADER);
+    const TypeDesc* NONE               = TypeDesc::registerType("none", TypeDesc::BASETYPE_NONE);
+    const TypeDesc* BOOLEAN            = TypeDesc::registerType("boolean", TypeDesc::BASETYPE_BOOLEAN);
+    const TypeDesc* INTEGER            = TypeDesc::registerType("integer", TypeDesc::BASETYPE_INTEGER);
+    const TypeDesc* FLOAT              = TypeDesc::registerType("float", TypeDesc::BASETYPE_FLOAT);
+    const TypeDesc* VECTOR2            = TypeDesc::registerType("vector2", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMATIC_VECTOR, 2);
+    const TypeDesc* VECTOR3            = TypeDesc::registerType("vector3", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMATIC_VECTOR, 3);
+    const TypeDesc* VECTOR4            = TypeDesc::registerType("vector4", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMATIC_VECTOR, 4);
+    const TypeDesc* COLOR2             = TypeDesc::registerType("color2", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMATIC_COLOR, 2);
+    const TypeDesc* COLOR3             = TypeDesc::registerType("color3", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMATIC_COLOR, 3);
+    const TypeDesc* COLOR4             = TypeDesc::registerType("color4", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMATIC_COLOR, 4);
+    const TypeDesc* MATRIX33           = TypeDesc::registerType("matrix33", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMATIC_MATRIX, 9);
+    const TypeDesc* MATRIX44           = TypeDesc::registerType("matrix44", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMATIC_MATRIX, 16);
+    const TypeDesc* STRING             = TypeDesc::registerType("string", TypeDesc::BASETYPE_STRING);
+    const TypeDesc* FILENAME           = TypeDesc::registerType("filename", TypeDesc::BASETYPE_STRING, TypeDesc::SEMATIC_FILENAME);
+    const TypeDesc* BSDF               = TypeDesc::registerType("BSDF", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_CLOSURE);
+    const TypeDesc* EDF                = TypeDesc::registerType("EDF", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_CLOSURE);
+    const TypeDesc* VDF                = TypeDesc::registerType("VDF", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_CLOSURE);
+    const TypeDesc* SURFACESHADER      = TypeDesc::registerType("surfaceshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_SHADER);
+    const TypeDesc* VOLUMESHADER       = TypeDesc::registerType("volumeshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_SHADER);
+    const TypeDesc* DISPLACEMENTSHADER = TypeDesc::registerType("displacementshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_SHADER);
+    const TypeDesc* LIGHTSHADER        = TypeDesc::registerType("lightshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_SHADER);
 }
 
 }
