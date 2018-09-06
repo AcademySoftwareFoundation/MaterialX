@@ -18,6 +18,11 @@
 
 #include <fstream>
 
+#ifndef _WIN32
+#include <dirent.h>
+#include <sys/types.h>
+#endif
+
 namespace mx = MaterialX;
 
 #include <iostream>
@@ -313,7 +318,7 @@ static void runValidation(const std::string& outputPath, const std::string& shad
     {
         log << "------------ Run validation with element: " << element->getName() << std::endl;
 
-        std::string shaderPath =  outputPath + "/" + shaderName;
+        std::string shaderPath =  mx::FilePath(outputPath) / shaderName;
         mx::ShaderPtr shader = shaderGenerator->generate(shaderName, element, options);
         mx::HwShaderPtr hwShader = std::dynamic_pointer_cast<mx::HwShader>(shader);
         REQUIRE(hwShader != nullptr);
@@ -498,67 +503,100 @@ TEST_CASE("GLSL geometry", "[shadervalid]")
     nodeGraph->removeNode(image1->getName());
 }
 
-bool endsWithCaseInsensitive(std::string str, std::string toMatch)
+void getSubDirectories(std::string& baseDirectory, mx::StringVec& relativePaths)
 {
-    auto it = toMatch.begin();
-	  return str.size() >= toMatch.size() && std::all_of(std::next(str.begin(),str.size() - toMatch.size()), str.end(),
-        [&it](const char & c)
+    relativePaths.push_back(baseDirectory);
+
+#ifdef WIN32
+    WIN32_FIND_DATA fd;
+    HANDLE hFind = ::FindFirstFile((baseDirectory + "\\*").c_str(), &fd);
+    if (hFind != INVALID_HANDLE_VALUE)
+    {
+        do
         {
-            return ::tolower(c) == ::tolower(*(it++))  ;
-        });
+            std::string filename = fd.cFileName;
+            if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (filename !=  "." && filename != ".."))
+            {
+                std::string newBaseDirectory = baseDirectory + "\\" + filename;
+                getSubDirectories(newBaseDirectory, relativePaths);
+            }
+        } while (::FindNextFile(hFind, &fd));
+        ::FindClose(hFind);
+    }
+#else
+    struct dirent *entry = nullptr;
+    DIR* dir = opendir(baseDirectory.c_str());
+    if (dir)
+    {
+        while ((entry = readdir(dir)))
+        {
+            std::string filename = entry->d_name;
+            if (entry->d_type == DT_DIR && (filename !=  "." && filename != ".."))
+            {
+                std::string newBaseDirectory = baseDirectory + "/" + filename;
+                getSubDirectories(newBaseDirectory, relativePaths);
+            }
+        }
+        closedir(dir);
+    }
+#endif
 }
 
 TEST_CASE("GLSL MaterialX documents", "[shadervalid]")
 {
-  #ifdef LOG_TO_FILE
-      std::ofstream logfile("log_shadervalid_glsl_materialx_documents.txt");
-      std::ostream& log(logfile);
-  #else
-      std::ostream& log(std::cout);
-  #endif
+#ifdef LOG_TO_FILE
+    std::ofstream logfile("log_shadervalid_glsl_materialx_documents.txt");
+    std::ostream& log(logfile);
+#else
+    std::ostream& log(std::cout);
+#endif
 
-      // Library search path
-      mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    // Library search path
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
 
-      // Create a validator
-      bool orthographicView = true;
-      mx::GlslValidatorPtr validator = createValidator(orthographicView, "", log);
+    // Create a validator
+    bool orthographicView = true;
+    mx::GlslValidatorPtr validator = createValidator(orthographicView, "", log);
 
-      // Set up shader generator
-      mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
-      shaderGenerator->registerSourceCodeSearchPath(searchPath);
+    // Set up shader generator
+    mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
+    shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-      mx::FilePath path = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Tests");
-      mx::StringVec files;
-      mx::getDocumentsInDirectory(path, files);
-      for (std::string file : files)
-      {
-          std::string filename = path / file;
-          if (endsWithCaseInsensitive(filename, ".mtlx"))
-          {
-              log << "MTLX Filename: " << filename << std::endl;
-              mx::DocumentPtr doc = mx::createDocument();
-              readFromXmlFile(doc, filename);
+    mx::FilePath path = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Tests");
+    mx::StringVec dirs;
+    std::string baseDirectory = path;
+    getSubDirectories(baseDirectory, dirs);
+    for (auto dir : dirs)
+    {
+        mx::StringVec files;
+        mx::getDocumentsInDirectory(dir, files);
+        for (std::string file : files)
+        {
+            mx::FilePath filePath = path / mx::FilePath(file);
+            std::string filename = filePath;
+            log << "MTLX Filename: " << filename << std::endl;
+            mx::DocumentPtr doc = mx::createDocument();
+            readFromXmlFile(doc, filename);
 
-              std::vector<mx::NodeGraphPtr> nodeGraphs = doc->getNodeGraphs();
-              std::vector<mx::OutputPtr> outputList;
-              for (mx::NodeGraphPtr nodeGraph : nodeGraphs)
-              {
-                  log << "NodeGraph: " << nodeGraph->getName() << std::endl;
-                  std::vector<mx::OutputPtr> nodeGraphOutputs = nodeGraph->getOutputs();
-                  for (mx::OutputPtr output : nodeGraphOutputs)
-                  {
-                      outputList.push_back(output);
-                  }
-              }
-              loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
-              for (mx::OutputPtr output : outputList)
-              {
-                  log << "Output: " << output->getName() << std::endl;
-                  runValidation(path, output->getName(), output, validator, shaderGenerator, orthographicView, doc, log);
-              }
-          }
-      }
+            std::vector<mx::NodeGraphPtr> nodeGraphs = doc->getNodeGraphs();
+            std::vector<mx::OutputPtr> outputList;
+            for (mx::NodeGraphPtr nodeGraph : nodeGraphs)
+            {
+                log << "NodeGraph: " << nodeGraph->getName() << std::endl;
+                std::vector<mx::OutputPtr> nodeGraphOutputs = nodeGraph->getOutputs();
+                for (mx::OutputPtr output : nodeGraphOutputs)
+                {
+                    outputList.push_back(output);
+                }
+            }
+            loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+            for (mx::OutputPtr output : outputList)
+            {
+                log << "Output: " << output->getName() << std::endl;
+                runValidation(dir, output->getName(), output, validator, shaderGenerator, orthographicView, doc, log);
+            }
+        }
+    }
 }
 
 TEST_CASE("GLSL shading", "[shadervalid]")
