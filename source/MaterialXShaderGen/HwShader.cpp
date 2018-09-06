@@ -1,5 +1,5 @@
 #include <MaterialXShaderGen/HwShader.h>
-#include <MaterialXShaderGen/ShaderGenerators/Glsl/GlslShaderGenerator.h>
+#include <MaterialXShaderGen/HwShaderGenerator.h>
 
 namespace MaterialX
 {
