@@ -2322,7 +2322,7 @@ TEST_CASE("BSDF Layering", "[shadergen]")
         file.open(shader->getName() + ".ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
     }
-#endif MATERIALX_BUILD_OGSFX
+#endif // MATERIALX_BUILD_OGSFX
 
 #ifdef MATERIALX_BUILD_GLSL
     {
