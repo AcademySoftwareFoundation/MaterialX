@@ -7,8 +7,10 @@
 
 namespace MaterialX
 {
+/// Directory scanner utility. Finds all subdirectories in the given directory
+void getSubDirectories(std::string& baseDirectory, StringVec& relativePaths);
 
-/// Directory scanner utility. Finds all MaterialX document files
+/// Directory document scanner utility. Finds all MaterialX document files
 /// in the given directory.
 void getDocumentsInDirectory(const std::string& directory, StringVec& files);
 

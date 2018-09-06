@@ -17,6 +17,44 @@
 
 namespace MaterialX
 {
+void getSubDirectories(std::string& baseDirectory, StringVec& relativePaths)
+{
+    relativePaths.push_back(baseDirectory);
+
+#ifdef WIN32
+    WIN32_FIND_DATA fd;
+    HANDLE hFind = ::FindFirstFile((baseDirectory + "\\*").c_str(), &fd);
+    if (hFind != INVALID_HANDLE_VALUE)
+    {
+        do
+        {
+            std::string filename = fd.cFileName;
+            if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (filename != "." && filename != ".."))
+            {
+                std::string newBaseDirectory = baseDirectory + "\\" + filename;
+                getSubDirectories(newBaseDirectory, relativePaths);
+            }
+        } while (::FindNextFile(hFind, &fd));
+        ::FindClose(hFind);
+    }
+#else
+    struct dirent *entry = nullptr;
+    DIR* dir = opendir(baseDirectory.c_str());
+    if (dir)
+    {
+        while ((entry = readdir(dir)))
+        {
+            std::string filename = entry->d_name;
+            if (entry->d_type == DT_DIR && (filename != "." && filename != ".."))
+            {
+                std::string newBaseDirectory = baseDirectory + "/" + filename;
+                getSubDirectories(newBaseDirectory, relativePaths);
+            }
+        }
+        closedir(dir);
+    }
+#endif
+}
 
 void getDocumentsInDirectory(const std::string& directory, StringVec& files)
 {

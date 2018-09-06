@@ -18,11 +18,6 @@
 
 #include <fstream>
 
-#ifndef _WIN32
-#include <dirent.h>
-#include <sys/types.h>
-#endif
-
 namespace mx = MaterialX;
 
 #include <iostream>
@@ -373,10 +368,10 @@ static void runValidation(const std::string& outputPath, const std::string& shad
     }
 }
 
-TEST_CASE("GLSL geometry", "[shadervalid]")
+TEST_CASE("GLSL image", "[shadervalid]")
 {
 #ifdef LOG_TO_FILE
-    std::ofstream logfile("log_shadervalid_glsl_geometry.txt");
+    std::ofstream logfile("log_shadervalid_glsl_image.txt");
     std::ostream& log(logfile);
 #else
     std::ostream& log(std::cout);
@@ -402,95 +397,7 @@ TEST_CASE("GLSL geometry", "[shadervalid]")
     mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
     shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-    // Normal stream test
-    nodeGraph->setName("normal_nodegraph");
-    mx::NodePtr normal1 = nodeGraph->addNode("normal", "normal1", "vector3");
-    normal1->setParameterValue("space", std::string("world"));
-    output->setName("normal_output");
-    output->setType("vector3");
-    output->setConnectedNode(normal1);
-    runValidation(".", "normal_attributes", output, validator, shaderGenerator, orthographicView, doc, log, true);
-    nodeGraph->removeNode(normal1->getName());
-
-    // Position stream test
-    nodeGraph->setName("position_nodegraph");
-    mx::NodePtr position1 = nodeGraph->addNode("position", "position1", "vector3");
-    position1->setParameterValue("space", std::string("world"));
-    output->setName("position_output");
-    output->setType("vector3");
-    output->setConnectedNode(position1);
-    runValidation(".", "position_attributes", output, validator, shaderGenerator, orthographicView, doc, log, true);
-    nodeGraph->removeNode(position1->getName());
-
-    // Color stream test
-    nodeGraph->setName("geomcolor_nodegraph");
-    mx::NodePtr geomcolor1 = nodeGraph->addNode("geomcolor", "geomcolor_set0", "color3");
-    geomcolor1->setParameterValue("index", 0, "integer");
-    output->setName("geomcolor_output");
-    output->setType("color3");
-    output->setConnectedNode(geomcolor1);
-    runValidation(".", "geomcolor_attributes", output, validator, shaderGenerator, orthographicView, doc, log, true);
-    nodeGraph->removeNode(geomcolor1->getName());
-
-    // Second color stream test
-    nodeGraph->setName("geomcolor2_nodegraph");
-    mx::NodePtr geomcolor2 = nodeGraph->addNode("geomcolor", "geomcolor_set1", "color3");
-    geomcolor2->setParameterValue("index", 1, "integer");
-    output->setName("geomcolor2_output");
-    output->setType("color3");
-    output->setConnectedNode(geomcolor2);
-    runValidation(".", "geomcolor2_attributes", output, validator, shaderGenerator, orthographicView, doc, log, true);
-    nodeGraph->removeNode(geomcolor2->getName());
-
-    // Tangent stream test.
-    nodeGraph->setName("tangent_nodegraph");
-    mx::NodePtr tangent1 = nodeGraph->addNode("tangent", "tangent1", "vector3");
-    tangent1->setParameterValue("index", 0, "integer");
-    output->setName("tangent_output");
-    output->setType("vector3");
-    output->setConnectedNode(tangent1);
-    runValidation(".", "tangent_attributes", output, validator, shaderGenerator, orthographicView, doc, log, true);
-    nodeGraph->removeNode(tangent1->getName());
-
-    // Bitangent stream test
-    nodeGraph->setName("bitangent_nodegraph");
-    mx::NodePtr bitangent1 = nodeGraph->addNode("bitangent", "bitangent1", "vector3");
-    tangent1->setParameterValue("index", 0, "integer");
-    output->setName("bitangent_output");
-    output->setType("vector3");
-    output->setConnectedNode(bitangent1);
-    runValidation(".", "bitangent_attributes", output, validator, shaderGenerator, orthographicView, doc, log, true);
-    nodeGraph->removeNode(bitangent1->getName());
-
-    // UV stream test
-    nodeGraph->setName("texcoord1_nodegraph");
-    mx::NodePtr texcoord1 = nodeGraph->addNode("texcoord", "texcoord1", "vector2");
-    texcoord1->setParameterValue("index", 0, "integer");
-    mx::NodePtr swizzle1 = nodeGraph->addNode("swizzle", "uv_set0", "vector3");
-    swizzle1->setConnectedNode("in", texcoord1);
-    swizzle1->setParameterValue("channels", std::string("xy0"));
-    output->setName("texcoord1_output");
-    output->setType("vector3");
-    output->setConnectedNode(swizzle1);
-    runValidation(".", "texcoord1_attributes", output, validator, shaderGenerator, orthographicView, doc, log, true);
-    nodeGraph->removeNode(texcoord1->getName());
-    nodeGraph->removeNode(swizzle1->getName());
-
-    // Second UV stream test
-    nodeGraph->setName("texcoord2_nodegraph");
-    mx::NodePtr texcoord2 = nodeGraph->addNode("texcoord", "texcoord2", "vector2");
-    texcoord2->setParameterValue("index", 1, "integer");
-    mx::NodePtr swizzle2 = nodeGraph->addNode("swizzle", "uv_set1", "vector3");
-    swizzle2->setConnectedNode("in", texcoord2);
-    swizzle2->setParameterValue("channels", std::string("xy0"));
-    output->setName("texcoord2_output");
-    output->setType("vector3");
-    output->setConnectedNode(swizzle2);
-    runValidation(".", "texcoord2_attributes", output, validator, shaderGenerator, orthographicView, doc, log, true);
-    nodeGraph->removeNode(texcoord2->getName());
-    nodeGraph->removeNode(swizzle2->getName());
-
-    // Image test
+    // Image test - TODO make this driven by input data file
     nodeGraph->setName("image_nodegraph");
     mx::NodePtr image1 = nodeGraph->addNode("image", "image1", "color3");
     mx::FilePath imagePath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Images/MaterialXLogo.exr");
@@ -501,45 +408,6 @@ TEST_CASE("GLSL geometry", "[shadervalid]")
     output->setConnectedNode(image1);
     runValidation(".", "image_attributes", output, validator, shaderGenerator, orthographicView, doc, log, true);
     nodeGraph->removeNode(image1->getName());
-}
-
-void getSubDirectories(std::string& baseDirectory, mx::StringVec& relativePaths)
-{
-    relativePaths.push_back(baseDirectory);
-
-#ifdef WIN32
-    WIN32_FIND_DATA fd;
-    HANDLE hFind = ::FindFirstFile((baseDirectory + "\\*").c_str(), &fd);
-    if (hFind != INVALID_HANDLE_VALUE)
-    {
-        do
-        {
-            std::string filename = fd.cFileName;
-            if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (filename !=  "." && filename != ".."))
-            {
-                std::string newBaseDirectory = baseDirectory + "\\" + filename;
-                getSubDirectories(newBaseDirectory, relativePaths);
-            }
-        } while (::FindNextFile(hFind, &fd));
-        ::FindClose(hFind);
-    }
-#else
-    struct dirent *entry = nullptr;
-    DIR* dir = opendir(baseDirectory.c_str());
-    if (dir)
-    {
-        while ((entry = readdir(dir)))
-        {
-            std::string filename = entry->d_name;
-            if (entry->d_type == DT_DIR && (filename !=  "." && filename != ".."))
-            {
-                std::string newBaseDirectory = baseDirectory + "/" + filename;
-                getSubDirectories(newBaseDirectory, relativePaths);
-            }
-        }
-        closedir(dir);
-    }
-#endif
 }
 
 TEST_CASE("GLSL MaterialX documents", "[shadervalid]")
@@ -562,38 +430,49 @@ TEST_CASE("GLSL MaterialX documents", "[shadervalid]")
     mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
     shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-    mx::FilePath path = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Tests");
+    mx::FilePath path = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite");
     mx::StringVec dirs;
     std::string baseDirectory = path;
-    getSubDirectories(baseDirectory, dirs);
+    mx::getSubDirectories(baseDirectory, dirs);
     for (auto dir : dirs)
     {
         mx::StringVec files;
         mx::getDocumentsInDirectory(dir, files);
         for (std::string file : files)
         {
-            mx::FilePath filePath = path / mx::FilePath(file);
-            std::string filename = filePath;
-            log << "MTLX Filename: " << filename << std::endl;
             mx::DocumentPtr doc = mx::createDocument();
+            loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+
+            mx::FilePath filePath = mx::FilePath(dir) / mx::FilePath(file);
+            std::string filename = filePath;
             readFromXmlFile(doc, filename);
 
             std::vector<mx::NodeGraphPtr> nodeGraphs = doc->getNodeGraphs();
-            std::vector<mx::OutputPtr> outputList;
-            for (mx::NodeGraphPtr nodeGraph : nodeGraphs)
+            std::vector<mx::OutputPtr> outputList = doc->getOutputs();
+            // TO ADD: Checking for shaders to validate
+            if (!nodeGraphs.empty() || !outputList.empty())
             {
-                log << "NodeGraph: " << nodeGraph->getName() << std::endl;
-                std::vector<mx::OutputPtr> nodeGraphOutputs = nodeGraph->getOutputs();
-                for (mx::OutputPtr output : nodeGraphOutputs)
+                log << "MTLX Filename: " << filename << std::endl;
+                for (mx::NodeGraphPtr nodeGraph : nodeGraphs)
                 {
-                    outputList.push_back(output);
+                    // Skip anything from an include file including libraries
+                    if (!nodeGraph->hasSourceUri())
+                    {
+                        std::vector<mx::OutputPtr> nodeGraphOutputs = nodeGraph->getOutputs();
+                        for (mx::OutputPtr output : nodeGraphOutputs)
+                        {
+                            outputList.push_back(output);
+                        }
+                    }
                 }
-            }
-            loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
-            for (mx::OutputPtr output : outputList)
-            {
-                log << "Output: " << output->getName() << std::endl;
-                runValidation(dir, output->getName(), output, validator, shaderGenerator, orthographicView, doc, log);
+                for (mx::OutputPtr output : outputList)
+                {
+                    // Skip anything from an include file including libraries
+                    if (!output->hasSourceUri())
+                    {
+                        runValidation(dir, output->getName(), output, validator, shaderGenerator, orthographicView, doc, log);
+                    }
+                }
             }
         }
     }
