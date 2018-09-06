@@ -14,48 +14,29 @@
       <input name="in1" type="vector2" nodename="texcoord1"/>
       <input name="in2" type="vector2" interfacename="scale"/>
     </multiply>
-    <floor name="floor1" type="vector2">
-      <input name="in" type="vector2" nodename="mult1"/>
-    </floor>
-    <modulo name="mod1" type="vector2">
-      <input name="in1" type="vector2" nodename="floor1"/>
-      <input name="in2" type="vector2" value="2.0, 2.0"/>
-    </modulo>
     <swizzle name="swizz_x" type="float">
-      <input name="in" type="vector2" nodename="mod1"/>
+      <input name="in" type="vector2" nodename="mult1"/>
       <parameter name="channels" type="string" value="x"/>
     </swizzle>
     <swizzle name="swizz_y" type="float">
-      <input name="in" type="vector2" nodename="mod1"/>
+      <input name="in" type="vector2" nodename="mult1"/>
       <parameter name="channels" type="string" value="y"/>
     </swizzle>
+    <floor name="floor1" type="float">
+      <input name="in" type="float" nodename="swizz_x"/>
+    </floor>
+    <floor name="floor2" type="float">
+      <input name="in" type="float" nodename="swizz_y"/>
+    </floor>
     <add name="add1" type="float">
-      <input name="in1" type="float" nodename="swizz_x"/>
-      <input name="in2" type="float" nodename="swizz_y"/>
+      <input name="in1" type="float" nodename="floor1"/>
+      <input name="in2" type="float" nodename="floor2"/>
     </add>
-    <clamp name="clamp1" type="float">
-      <input name="in" type="float" nodename="add1"/>
-      <parameter name="low" type="float" value="0.0"/>
-      <parameter name="high" type="float" value="1.0"/>
-    </clamp>
-    <smoothstep name="smoothstep1" adskDisplayName="smoothstep1" type="float">
-        <input name="in" type="float" value="1.5000" />
-        <input name="low" type="float" nodename="add1" />
-        <input name="high" type="float" nodename="add1" />
-    </smoothstep>
-    <invert name="invert1" type="float">
-      <input name="in" type="float" nodename="smoothstep1"/>
-      <parameter name="amount" type="float" value="1.0"/>
-    </invert>
-    <subtract name="sub1" type="float">
-      <input name="in1" type="float" nodename="clamp1"/>
-      <input name="in2" type="float" nodename="invert1"/>
-    </subtract>
-    <invert name="invert2" type="float">
-      <input name="in" type="float" nodename="sub1"/>
-      <parameter name="amount" type="float" value="1.0"/>
-    </invert>
-    <output name="out" type="float" nodename="invert2"/>
+    <modulo name="mod1" type="float">
+      <input name="in1" type="float" nodename="add1"/>
+      <input name="in2" type="float" value="2.0"/>
+    </modulo>
+    <output name="out" type="float" nodename="mod1"/>
   </nodegraph>
 
   <!-- Define a node that uses the checker pattern for mixing two colors.  -->
