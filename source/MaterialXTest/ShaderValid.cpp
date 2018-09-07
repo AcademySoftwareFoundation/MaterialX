@@ -483,7 +483,11 @@ TEST_CASE("GLSL MaterialX documents", "[shadervalid]")
                             // Find all bindinputs which reference outputs and outputgraphs
                             for (auto bindInput : shaderRef->getBindInputs())
                             {
-                                shaderrefOutputs.insert(bindInput->getConnectedOutput());
+                                mx::OutputPtr outputPtr = bindInput->getConnectedOutput();
+                                if (outputPtr)
+                                {
+                                    shaderrefOutputs.insert(outputPtr);
+                                }
                             }
                         }
                     }
@@ -512,7 +516,10 @@ TEST_CASE("GLSL MaterialX documents", "[shadervalid]")
                 // to also validate them.
                 if (shaderrefOutputs.size())
                 {
-                    outputSet.erase(shaderrefOutputs.begin(), shaderrefOutputs.end());
+                    for (auto ref : shaderrefOutputs)
+                    {
+                        outputSet.erase(ref);
+                    }
                 }
 
                 // Validate top level outputs
