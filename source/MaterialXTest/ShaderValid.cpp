@@ -359,13 +359,7 @@ static void runValidation(const std::string& outputPath, const std::string& shad
             {
                 log << e.what() << " " << error << std::endl;
             }
-
-            std::string stage = program->getStage(mx::HwShader::VERTEX_STAGE);
-            log << ">> Failed vertex stage code:\n";
-            log << stage;
-            stage = program->getStage(mx::HwShader::PIXEL_STAGE);
-            log << ">> Failed pixel stage code:\n";
-            log << stage;
+            log << ">> Refer to shader code in dump files: " << shaderPath << "(.vert, .frag) files" << std::endl;
         }
         CHECK(validated);
     }

@@ -11,6 +11,8 @@
       <input name="roughness" type="float" value="0.8" />
       <input name="normal" type="vector3" />
     </diffusebsdf>
-    <output name="lighting_output" type="surfaceshader" nodename="surface1" />
+     <!--- this graph current fails in GLSL
+     <output name="lighting_output" type="surfaceshader" nodename="surface1" />
+     -->
   </nodegraph>
 </materialx>

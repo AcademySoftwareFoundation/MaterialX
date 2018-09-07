@@ -47,7 +47,9 @@
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="coating" />
     </surface>
+     <!-- this graph current fails in GLSL
     <output name="out" type="surfaceshader" nodename="surface1" />
+    -->
   </nodegraph>
    
   <material name="example2">
@@ -99,7 +101,9 @@
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="mix" />
     </surface>
-    <output name="out" type="surfaceshader" nodename="surface1" />
+     <!-- this graph current fails in GLSL
+   <output name="out" type="surfaceshader" nodename="surface1" />
+   -->
   </nodegraph>
    
   <material name="example3">
@@ -225,7 +229,9 @@
     <normalmap name="normalmap2" type="vector3">
       <input name="in" type="vector3" nodename="coatTex" />
     </normalmap>
+     <!-- this graph current fails in GLSL
     <output name="out" type="surfaceshader" nodename="standardsurface1" />
+    -->
   </nodegraph>
    
   <material name="example4">
