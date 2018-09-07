@@ -17,10 +17,11 @@
 #include <MaterialXShaderGen/HwLightHandler.h>
 
 #include <fstream>
+#include <iostream>
+#include <unordered_set>
 
 namespace mx = MaterialX;
 
-#include <iostream>
 #include <MaterialXView/ShaderValidators/Glsl/GlslValidator.h>
 #include <MaterialXView/Handlers/TinyEXRImageHandler.h>
 
@@ -424,11 +425,12 @@ TEST_CASE("GLSL MaterialX documents", "[shadervalid]")
 
     // Create a validator
     bool orthographicView = true;
-    mx::GlslValidatorPtr validator = createValidator(orthographicView, "", log);
+    mx::GlslValidatorPtr validator = createValidator(orthographicView, "shaderball.obj", log);
 
-    // Set up shader generator
-    mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
-    shaderGenerator->registerSourceCodeSearchPath(searchPath);
+    // Set up GLSL shader generator.
+    // TODO : Need to add in other generators
+    mx::ShaderGeneratorPtr glslShaderGenerator = mx::GlslShaderGenerator::create();
+    glslShaderGenerator->registerSourceCodeSearchPath(searchPath);
 
     mx::FilePath path = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite");
     mx::StringVec dirs;
@@ -449,28 +451,78 @@ TEST_CASE("GLSL MaterialX documents", "[shadervalid]")
 
             std::vector<mx::NodeGraphPtr> nodeGraphs = doc->getNodeGraphs();
             std::vector<mx::OutputPtr> outputList = doc->getOutputs();
-            // TO ADD: Checking for shaders to validate
-            if (!nodeGraphs.empty() || !outputList.empty())
+            std::unordered_set<mx::OutputPtr> outputSet(outputList.begin(), outputList.end());
+            std::vector<mx::MaterialPtr> materials = doc->getMaterials();
+            bool initializedLights = false;
+
+            if (!materials.empty() || !nodeGraphs.empty() || !outputList.empty())
             {
                 log << "MTLX Filename: " << filename << std::endl;
+
+                // Test all shader refs for each material found
+                std::unordered_set<mx::OutputPtr> shaderrefOutputs;
+                for (auto material : materials)
+                {
+                    for (auto shaderRef : material->getShaderRefs())
+                    {
+                        if (!shaderRef->hasSourceUri())
+                        {
+                            mx::HwShaderGenerator& hwGenerator = static_cast<mx::HwShaderGenerator&>(*glslShaderGenerator);
+                            if (!initializedLights)
+                            {
+                                // Set up lighting
+                                mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
+                                createLightRig(doc, *lightHandler, hwGenerator);
+                                // Pre-clamp the number of light sources to the number bound
+                                size_t lightSourceCount = lightHandler->getLightSources().size();
+                                hwGenerator.setMaxActiveLightSources(lightSourceCount);
+                            }
+
+                            runValidation(dir, shaderRef->getName(), shaderRef, validator, glslShaderGenerator, orthographicView, doc, log);
+
+                            // Find all bindinputs which reference outputs and outputgraphs
+                            for (auto bindInput : shaderRef->getBindInputs())
+                            {
+                                shaderrefOutputs.insert(bindInput->getConnectedOutput());
+                            }
+                        }
+                    }
+                }
+
+                // Assume no lighting required here
+                mx::HwShaderGenerator& hwGenerator = dynamic_cast<mx::HwShaderGenerator&>(*glslShaderGenerator);
+                hwGenerator.setMaxActiveLightSources(0);
+
+                // Validate node graph outputs
+                // - Skip anything from an include file including libraries.
+                // - Skip graphs connected to shaders.
                 for (mx::NodeGraphPtr nodeGraph : nodeGraphs)
                 {
-                    // Skip anything from an include file including libraries
                     if (!nodeGraph->hasSourceUri())
                     {
                         std::vector<mx::OutputPtr> nodeGraphOutputs = nodeGraph->getOutputs();
                         for (mx::OutputPtr output : nodeGraphOutputs)
                         {
-                            outputList.push_back(output);
+                            outputSet.insert(output);
                         }
                     }
                 }
+
+                // For now we skip any outputs which are referenced elsewhere. This could be an option 
+                // to also validate them.
+                if (shaderrefOutputs.size())
+                {
+                    outputSet.erase(shaderrefOutputs.begin(), shaderrefOutputs.end());
+                }
+
+                // Validate top level outputs
+                // Skip anything from an include file including libraries
+                // Skip outputs connected to shaders.
                 for (mx::OutputPtr output : outputList)
                 {
-                    // Skip anything from an include file including libraries
                     if (!output->hasSourceUri())
                     {
-                        runValidation(dir, output->getName(), output, validator, shaderGenerator, orthographicView, doc, log);
+                        runValidation(dir, output->getName(), output, validator, glslShaderGenerator, orthographicView, doc, log);
                     }
                 }
             }
@@ -478,6 +530,7 @@ TEST_CASE("GLSL MaterialX documents", "[shadervalid]")
     }
 }
 
+#if 0
 TEST_CASE("GLSL shading", "[shadervalid]")
 {
 #ifdef LOG_TO_FILE
@@ -546,6 +599,7 @@ TEST_CASE("GLSL shading", "[shadervalid]")
         }
     }
 }
+#endif
 
 #endif
 #endif
