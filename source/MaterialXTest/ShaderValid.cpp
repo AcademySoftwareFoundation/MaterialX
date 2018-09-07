@@ -31,7 +31,6 @@ extern void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath&
 extern void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::HwShaderGenerator& shadergen);
 extern void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& materials);
 
-#if 0
 TEST_CASE("GLSL Source", "[shadervalid]")
 {
 #ifdef LOG_TO_FILE
@@ -249,7 +248,6 @@ TEST_CASE("GLSL Source", "[shadervalid]")
         }
     }
 }
-#endif
 
 //
 // Create a validator with an image and geometry handler
