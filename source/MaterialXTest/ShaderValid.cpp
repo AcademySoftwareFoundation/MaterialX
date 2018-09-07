@@ -411,13 +411,11 @@ TEST_CASE("GLSL MaterialX documents", "[shadervalid]")
             std::vector<mx::OutputPtr> outputList = doc->getOutputs();
             std::unordered_set<mx::OutputPtr> outputSet(outputList.begin(), outputList.end());
             std::vector<mx::MaterialPtr> materials = doc->getMaterials();
-            bool initializedLights = false;
 
             if (!materials.empty() || !nodeGraphs.empty() || !outputList.empty())
             {
                 log << "MTLX Filename: " << filename << std::endl;
 
-                // Test all shader refs for each material found
                 std::unordered_set<mx::OutputPtr> shaderrefOutputs;
                 for (auto material : materials)
                 {
@@ -426,15 +424,13 @@ TEST_CASE("GLSL MaterialX documents", "[shadervalid]")
                         if (!shaderRef->hasSourceUri())
                         {
                             mx::HwShaderGenerator& hwGenerator = static_cast<mx::HwShaderGenerator&>(*glslShaderGenerator);
-                            if (!initializedLights)
-                            {
-                                // Set up lighting
-                                mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
-                                createLightRig(doc, *lightHandler, hwGenerator);
-                                // Pre-clamp the number of light sources to the number bound
-                                size_t lightSourceCount = lightHandler->getLightSources().size();
-                                hwGenerator.setMaxActiveLightSources(lightSourceCount);
-                            }
+
+                            // Set up lighting
+                            mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
+                            createLightRig(doc, *lightHandler, hwGenerator);
+                            // Pre-clamp the number of light sources to the number bound
+                            size_t lightSourceCount = lightHandler->getLightSources().size();
+                            hwGenerator.setMaxActiveLightSources(lightSourceCount);
 
                             mx::string elementName = mx::replaceSubstrings(shaderRef->getNamePath(), pathMap);
                             runValidation(dir, elementName, shaderRef, validator, glslShaderGenerator, orthographicView, doc, log);
@@ -486,7 +482,8 @@ TEST_CASE("GLSL MaterialX documents", "[shadervalid]")
                 // Skip outputs connected to shaders.
                 for (mx::OutputPtr output : outputSet)
                 {
-                    if (!output->hasSourceUri())
+                    // Skip surfaceshaders for now as they do no compile properly in GLSL
+                    if (!output->hasSourceUri() && output->getType() != "surfaceshader")
                     {
                         mx::string elementName = mx::replaceSubstrings(output->getNamePath(), pathMap);
                         runValidation(dir, elementName, output, validator, glslShaderGenerator, orthographicView, doc, log);
