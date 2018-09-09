@@ -1,7 +1,11 @@
 set(PYBIND11_INCLUDE_DIR "${MATERIALX_PYTHON_PYBIND11_DIR}/include")
-set(PYBIND11_TOOLS_DIR "${MATERIALX_PYTHON_PYBIND11_DIR}/tools")
+set(PYBIND11_COMMON_H "${PYBIND11_INCLUDE_DIR}/pybind11/detail/common.h")
 
-file(STRINGS "${PYBIND11_INCLUDE_DIR}/pybind11/detail/common.h" pybind11_version_defines
+if(NOT EXISTS "${PYBIND11_COMMON_H}")
+message(FATAL_ERROR "PyBind11 source file not found: ${PYBIND11_COMMON_H}")
+endif()
+
+file(STRINGS "${PYBIND11_COMMON_H}" pybind11_version_defines
      REGEX "#define PYBIND11_VERSION_(MAJOR|MINOR|PATCH) ")
 foreach(ver ${pybind11_version_defines})
   if (ver MATCHES "#define PYBIND11_VERSION_(MAJOR|MINOR|PATCH) +([^ ]+)$")
@@ -15,13 +19,12 @@ include_directories(
     ${EXTERNAL_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/../
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${PYBIND11_INCLUDE_DIR}
-)
+    ${PYBIND11_INCLUDE_DIR})
 
 file(GLOB pymaterialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB pymaterialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
-list(APPEND CMAKE_MODULE_PATH "${PYBIND11_TOOLS_DIR}")
+list(APPEND CMAKE_MODULE_PATH "${MATERIALX_PYTHON_PYBIND11_DIR}/tools")
 include(pybind11Tools)
 pybind11_add_module(PyMaterialX SHARED ${pymaterialx_source} ${pymaterialx_headers})
 
@@ -37,9 +40,7 @@ set_target_properties(
 target_link_libraries(
     PyMaterialX
     PUBLIC MaterialXFormat
-    PRIVATE ${CMAKE_DL_LIBS}
-)
+    PRIVATE ${CMAKE_DL_LIBS})
 
 install(TARGETS PyMaterialX
-        DESTINATION "${CMAKE_INSTALL_PREFIX}/python/MaterialX"
-)
+        DESTINATION "${CMAKE_INSTALL_PREFIX}/python/MaterialX")
