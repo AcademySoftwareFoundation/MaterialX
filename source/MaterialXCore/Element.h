@@ -1185,11 +1185,11 @@ class StringResolver
     /// @{
 
     /// Set the UDIM substring substitution for filename data values.
-    /// This string will be used to replace the standard <UDIM> token.
+    /// This string will be used to replace the standard \<UDIM\> token.
     void setUdimString(const string& udim);
 
     /// Set the UV-tile substring substitution for filename data values.
-    /// This string will be used to replace the standard <UVTILE> token.
+    /// This string will be used to replace the standard \<UVTILE\> token.
     void setUvTileString(const string& uvTile);
 
     /// Set an arbitrary substring substitution for filename data values.
