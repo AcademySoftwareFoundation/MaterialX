@@ -4,9 +4,12 @@
 
 ### Added
 - Added support for BindToken elements.
+- Added support for Clang 6.
 
 ### Changed
-- Updated geometry token syntax from %TOKEN to <TOKEN>.
+- Updated geometry token syntax from %TOKEN to \<TOKEN\>.
+- Replaced readXIncludes boolean with a readXIncludeFunction callback in the XmlReadOptions structure.
+- Combined individual options into an XmlWriteOptions argument for the XML write functions.
 
 ## [1.36.0] - 2018-07-23
 
