@@ -2201,12 +2201,12 @@ TEST_CASE("BSDF Layering", "[shadergen]")
     surface->setConnectedNode("bsdf", coating);
 
     // Connect to graph output
-    mx::OutputPtr output = nodeGraph->addOutput("out", "surfaceshader");
+    mx::OutputPtr output = nodeGraph->addOutput("output", "surfaceshader");
     output->setConnectedNode(surface);
 
     // Create a material with the above node as the shader
     mx::MaterialPtr mtrl = doc->addMaterial(exampleName + "_material");
-    mx::ShaderRefPtr shaderRef = mtrl->addShaderRef(exampleName + "_shader", exampleName);
+    mx::ShaderRefPtr shaderRef = mtrl->addShaderRef("shaderref", exampleName);
 
     // Bind shader parameter values
     mx::BindInputPtr diffuse_color_input = shaderRef->addBindInput("diffuse_color", "color3");
@@ -2224,74 +2224,81 @@ TEST_CASE("BSDF Layering", "[shadergen]")
 
     mx::SgOptions options;
 
-    // Arnold
+    // Test generation from both graph ouput and shaderref
+    std::vector<mx::ElementPtr> elements = { output, shaderRef };
+    for (mx::ElementPtr elem : elements)
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
-        // Add path to find all source code snippets
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
-        // Add path to find OSL include files
-        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+        const std::string shaderName = exampleName + "_" + elem->getName();
 
-        mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, options);
-        REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode().length() > 0);
+        // Arnold
+        {
+            mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
+            // Add path to find all source code snippets
+            shaderGenerator->registerSourceCodeSearchPath(searchPath);
+            // Add path to find OSL include files
+            shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
-        // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
-        std::ofstream file;
-        const std::string fileName(shader->getName() + ".osl");
-        file.open(fileName);
-        file << shader->getSourceCode();
-        file.close();
+            mx::ShaderPtr shader = shaderGenerator->generate(shaderName, elem, options);
+            REQUIRE(shader != nullptr);
+            REQUIRE(shader->getSourceCode().length() > 0);
 
-        // TODO: Use validation in MaterialXView library
-        std::string errorResult;
-        validateOSL(fileName, errorResult);
-        REQUIRE(errorResult.size() == 0);
-    }
+            // Write out to file for inspection
+            // TODO: Use validation in MaterialXView library
+            std::ofstream file;
+            const std::string fileName(shader->getName() + ".osl");
+            file.open(fileName);
+            file << shader->getSourceCode();
+            file.close();
 
-    // OgsFx
-    {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+            // TODO: Use validation in MaterialXView library
+            std::string errorResult;
+            validateOSL(fileName, errorResult);
+            REQUIRE(errorResult.size() == 0);
+        }
 
-        // Setup lighting
-        mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
-        createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
+        // OgsFx
+        {
+            mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
+            shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-        mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, options);
-        REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+            // Setup lighting
+            mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
+            createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
-        // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
-        std::ofstream file;
-        file.open(shader->getName() + ".ogsfx");
-        file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
-    }
+            mx::ShaderPtr shader = shaderGenerator->generate(shaderName, elem, options);
+            REQUIRE(shader != nullptr);
+            REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
 
-    // Glsl
-    {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+            // Write out to file for inspection
+            // TODO: Use validation in MaterialXView library
+            std::ofstream file;
+            file.open(shader->getName() + ".ogsfx");
+            file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+        }
 
-        // Setup lighting
-        mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
-        createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
+        // Glsl
+        {
+            mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
+            shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-        mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, options);
-        REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
-        REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
+            // Setup lighting
+            mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
+            createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
-        // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
-        std::ofstream file;
-        file.open(shader->getName() + ".frag");
-        file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
-        file.close();
-        file.open(shader->getName() + ".vert");
-        file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
+            mx::ShaderPtr shader = shaderGenerator->generate(shaderName, elem, options);
+            REQUIRE(shader != nullptr);
+            REQUIRE(shader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
+            REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
+
+            // Write out to file for inspection
+            // TODO: Use validation in MaterialXView library
+            std::ofstream file;
+            file.open(shader->getName() + ".frag");
+            file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
+            file.close();
+            file.open(shader->getName() + ".vert");
+            file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
+        }
     }
 }
 
