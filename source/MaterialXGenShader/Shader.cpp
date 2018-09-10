@@ -68,12 +68,9 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const Sg
             {
                 if (!input->connection)
                 {
-                    // Check if the data type has a valid default value,
-                    // otherwise we can't assign user values to it anyway. 
-                    // This is the case for BSDF, EDF, VDF, and shader types 
-                    // which we never want to publish as editable uniforms.
-                    const string& typeDefault = shadergen.getSyntax()->getDefaultValue(input->type, true);
-                    if (!typeDefault.empty())
+                    // Check if the type is editable otherwise we can't 
+                    // publish the input as an editable uniform.
+                    if (input->type->isEditable())
                     {
                         // Use a consistent naming convention: <nodename>_<inputname>
                         // so application side can figure out what uniforms to set
