@@ -43,8 +43,9 @@ public:
 
     /// Register a type descriptor for a MaterialX data type.
     /// Throws an exception if a type with the same name is already registered.
-    static const TypeDesc* registerType(const string& name, unsigned char basetype, unsigned char semantic = SEMATIC_NONE, int size = 1);
-    
+    static const TypeDesc* registerType(const string& name, unsigned char basetype, 
+        unsigned char semantic = SEMATIC_NONE, int size = 1, bool editable = true);
+
     /// Get a type descriptor for given name.
     /// Throws an exception if no type with that name is found.
     static const TypeDesc* get(const string& name);
@@ -63,6 +64,11 @@ public:
     /// For array types 0 is returned since the number of elements is undefined
     /// until an array is instantiated.
     size_t getSize() const { return _size; }
+
+    /// Returns true if the type is editable by users.
+    /// Editable types are allowed to be published as shader uniforms
+    /// and hence must be presentable in a user interface.
+    bool isEditable() const { return _editable; }
 
     /// Return true if the type is a scalar type.
     bool isScalar() const { return _size == 1; }
@@ -83,12 +89,14 @@ public:
     bool isFloat4() const { return _size == 4 && (_semantic == SEMATIC_COLOR || _semantic == SEMATIC_VECTOR); }
 
 private:
-    TypeDesc(const string& name, unsigned char basetype, unsigned char semantic, int size);
+    TypeDesc(const string& name, unsigned char basetype, 
+        unsigned char semantic, int size, bool editable);
 
     const string _name;
     const unsigned char _basetype;
     const unsigned char _semantic;
     const int _size;
+    const bool _editable;
 };
 
 namespace Type
