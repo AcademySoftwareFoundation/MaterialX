@@ -47,7 +47,12 @@ void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& search
         for (const std::string& filename : filenames)
         {
             mx::FilePath file = path / filename;
-            mx::readFromXmlFile(doc, file);
+            mx::DocumentPtr libDoc = mx::createDocument();
+            mx::readFromXmlFile(libDoc, file);
+            libDoc->setSourceUri(file);
+            mx::CopyOptions copyOptions;
+            copyOptions.skipDuplicateElements = true;
+            doc->importLibrary(libDoc, &copyOptions);
         }
     }
     REQUIRE(doc->getNodeDefs().size() > 0);

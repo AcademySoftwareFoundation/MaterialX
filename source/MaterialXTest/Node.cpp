@@ -168,7 +168,7 @@ TEST_CASE("Flatten", "[nodegraph]")
             REQUIRE(isAtomic);
         }
     }
-    REQUIRE(totalNodeCount == 19);
+    REQUIRE(totalNodeCount == 15);
 }
 
 TEST_CASE("Topological sort", "[nodegraph]")
