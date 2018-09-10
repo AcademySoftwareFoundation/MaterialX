@@ -21,7 +21,7 @@ void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, size_t lightType
 
     if (getBoundLightShader(lightTypeId))
     {
-        return;
+        throw ExceptionShaderGenError("Error binding light shader. Light type id '" + std::to_string(lightTypeId) + "' has already been bound");
     }
 
     SgImplementationPtr sgimpl;
