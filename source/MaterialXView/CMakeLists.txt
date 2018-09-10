@@ -61,14 +61,14 @@ add_library(MaterialXView STATIC
 if(MSVC)
     target_link_libraries(
         MaterialXView
-        MaterialXShaderGen
+        MaterialXGenShader
         MaterialXCore
         Opengl32
         ${CMAKE_DL_LIBS})
 elseif (APPLE)
     target_link_libraries(
         MaterialXView
-        MaterialXShaderGen
+        MaterialXGenShader
         MaterialXCore
         ${CMAKE_DL_LIBS}
         ${OPENGL_LIBRARIES}
@@ -78,7 +78,7 @@ elseif (APPLE)
 elseif (UNIX AND NOT APPLE)
     target_link_libraries(
         MaterialXView
-        MaterialXShaderGen
+        MaterialXGenShader
         MaterialXCore
         ${CMAKE_DL_LIBS}
         ${OPENGL_LIBRARIES}

@@ -4,18 +4,29 @@
 #include <MaterialXCore/Observer.h>
 
 #include <MaterialXFormat/XmlIo.h>
+#include <MaterialXFormat/File.h>
 
-#include <MaterialXShaderGen/ShaderGenerators/Glsl/GlslShaderGenerator.h>
-#include <MaterialXShaderGen/ShaderGenerators/Glsl/GlslSyntax.h>
-#include <MaterialXShaderGen/ShaderGenerators/Glsl/OgsFx/OgsFxShaderGenerator.h>
-#include <MaterialXShaderGen/ShaderGenerators/Glsl/OgsFx/OgsFxSyntax.h>
-#include <MaterialXShaderGen/ShaderGenerators/Osl/Arnold/ArnoldShaderGenerator.h>
-#include <MaterialXShaderGen/ShaderGenerators/Osl/OslSyntax.h>
-#include <MaterialXShaderGen/ShaderGenerators/Common/Swizzle.h>
-#include <MaterialXShaderGen/TypeDesc.h>
-#include <MaterialXShaderGen/Util.h>
-#include <MaterialXShaderGen/HwShader.h>
-#include <MaterialXShaderGen/HwLightHandler.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/Nodes/Swizzle.h>
+#include <MaterialXGenShader/TypeDesc.h>
+#include <MaterialXGenShader/Util.h>
+#include <MaterialXGenShader/HwShader.h>
+#include <MaterialXGenShader/HwLightHandler.h>
+
+#ifdef MATERIALX_BUILD_GEN_GLSL
+#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#include <MaterialXGenGlsl/GlslSyntax.h>
+#endif
+
+#ifdef MATERIALX_BUILD_GEN_OGSFX
+#include <MaterialXGenOgsFx/OgsFxShaderGenerator.h>
+#include <MaterialXGenOgsFx/OgsFxSyntax.h>
+#endif
+
+#ifdef MATERIALX_BUILD_GEN_OSL
+#include <MaterialXGenOsl/ArnoldShaderGenerator.h>
+#include <MaterialXGenOsl/OslSyntax.h>
+#endif
 
 #include <cstdlib>
 #include <fstream>
@@ -526,6 +537,7 @@ void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::H
 
 TEST_CASE("Syntax", "[shadergen]")
 {
+#ifdef MATERIALX_BUILD_GEN_OSL
     {
         mx::SyntaxPtr syntax = mx::OslSyntax::create();
 
@@ -569,7 +581,9 @@ TEST_CASE("Syntax", "[shadergen]")
         value = syntax->getValue(mx::Type::COLOR4, *color4Value, true);
         REQUIRE(value == "{color(1.0, 2.0, 3.0), 4.0}");
     }
+#endif // MATERIALX_BUILD_GEN_OSL
 
+#ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::SyntaxPtr syntax = mx::GlslSyntax::create();
 
@@ -613,7 +627,9 @@ TEST_CASE("Syntax", "[shadergen]")
         value = syntax->getValue(mx::Type::COLOR4, *color4Value, true);
         REQUIRE(value == "vec4(1.0, 2.0, 3.0, 4.0)");
     }
+#endif // MATERIALX_BUILD_GEN_GLSL
 
+#ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::SyntaxPtr syntax = mx::OgsFxSyntax::create();
 
@@ -657,6 +673,7 @@ TEST_CASE("Syntax", "[shadergen]")
         value = syntax->getValue(mx::Type::COLOR4, *color4Value, true);
         REQUIRE(value == "{1.0, 2.0, 3.0, 4.0}");
     }
+#endif // MATERIALX_BUILD_GEN_OGSFX
 }
 
 TEST_CASE("TypeDesc", "[shadergen]")
@@ -819,9 +836,15 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
 
     std::vector<mx::ShaderGeneratorPtr> shaderGenerators =
     {
+#ifdef MATERIALX_BUILD_GEN_OSL
         mx::ArnoldShaderGenerator::create(),
-        mx::OgsFxShaderGenerator::create(),
-        mx::GlslShaderGenerator::create()
+#endif
+#ifdef MATERIALX_BUILD_GEN_GLSL
+        mx::GlslShaderGenerator::create(),
+#endif
+#ifdef MATERIALX_BUILD_GEN_OGSFX
+        mx::OgsFxShaderGenerator::create()
+#endif
     };
 
     std::filebuf implDumpBuffer;
@@ -845,6 +868,7 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
             "curveadjust",
         };
 
+#ifdef MATERIALX_BUILD_GEN_OSL
         // Skip light types in OSL for now
         if (language == mx::OslShaderGenerator::LANGUAGE)
         {
@@ -853,6 +877,7 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
             skipNodeTypes.insert("directionallight");
             skipNodeTypes.insert("spotlight");
         }
+#endif // MATERIALX_BUILD_GEN_OSL
 
         // Explicit set of node defs to skip temporarily
         std::set<std::string> skipNodeDefs =
@@ -866,6 +891,8 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
             "ND_mix_displacementshader",
             "ND_mix_volumeshader"
         };
+
+#ifdef MATERIALX_BUILD_GEN_GLSL
         // Skip some shader math in GLSL for now
         if (language == mx::GlslShaderGenerator::LANGUAGE)
         {
@@ -874,6 +901,7 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
             skipNodeDefs.insert("ND_multiply_surfaceshaderC");
             skipNodeDefs.insert("ND_mix_surfaceshader");
         }
+#endif // MATERIALX_BUILD_GEN_GLSL
 
         implDumpStream << "-----------------------------------------------------------------------" << std::endl;
         implDumpStream << "Scanning language: " << language << ". Target: " << target << std::endl;
@@ -1036,6 +1064,7 @@ TEST_CASE("Swizzling", "[shadergen]")
     mx::SgOptions options;
     mx::SgNodeContext context(mx::ShaderGenerator::NODE_CONTEXT_DEFAULT);
 
+#ifdef MATERIALX_BUILD_GEN_OSL
     {
         mx::ArnoldShaderGenerator sg;
         sg.registerSourceCodeSearchPath(searchPath);
@@ -1084,7 +1113,9 @@ TEST_CASE("Swizzling", "[shadergen]")
         const std::string test2Result = "color swizzle1_out = color(swizzle1_in[2], 0, swizzle1_in[2]);\n";
         REQUIRE(test2.getSourceCode() == test2Result);
     }
+#endif // MATERIALX_BUILD_GEN_OSL
 
+#ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::GlslShaderGenerator sg;
         sg.registerSourceCodeSearchPath(searchPath);
@@ -1133,8 +1164,10 @@ TEST_CASE("Swizzling", "[shadergen]")
         const std::string test2Result = "vec3 swizzle1_out = vec3(swizzle1_in.z, 0, swizzle1_in.z);\n";
         REQUIRE(test2.getSourceCode() == test2Result);
     }
+#endif // MATERIALX_BUILD_GEN_GLSL
 }
 
+#ifdef MATERIALX_BUILD_GEN_OSL
 //
 // Utility to call validate OSL. 
 // For now only call into oslc to compile an OSL file and get the results.
@@ -1173,6 +1206,7 @@ static void validateOSL(const std::string oslFileName, std::string& errorResult)
             << errorResult << std::endl;
     }
 }
+#endif // MATERIALX_BUILD_GEN_OSL
 
 TEST_CASE("Hello World", "[shadergen]")
 {
@@ -1208,7 +1242,7 @@ TEST_CASE("Hello World", "[shadergen]")
 
     mx::SgOptions options;
 
-    // Arnold OSL
+#ifdef MATERIALX_BUILD_GEN_OSL
     {
         mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();
         // Add path to find all source code snippets
@@ -1248,8 +1282,9 @@ TEST_CASE("Hello World", "[shadergen]")
         validateOSL(fileName, errorResult);
         REQUIRE(errorResult.size() == 0);
     }
+#endif // MATERIALX_BUILD_GEN_GLSL
 
-    // OgsFx
+#ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shadergen = mx::OgsFxShaderGenerator::create();
         shadergen->registerSourceCodeSearchPath(searchPath);
@@ -1275,8 +1310,9 @@ TEST_CASE("Hello World", "[shadergen]")
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
         file.close();
     }
+#endif // MATERIALX_BUILD_GEN_OGSFX
 
-    // Glsl
+#ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::ShaderGeneratorPtr shadergen = mx::GlslShaderGenerator::create();
         shadergen->registerSourceCodeSearchPath(searchPath);
@@ -1284,8 +1320,8 @@ TEST_CASE("Hello World", "[shadergen]")
         // Test shader generation from nodegraph
         mx::ShaderPtr shader = shadergen->generate(exampleName, output1, options);
         REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode(mx::OgsFxShader::VERTEX_STAGE).length() > 0);
-        REQUIRE(shader->getSourceCode(mx::OgsFxShader::PIXEL_STAGE).length() > 0);
+        REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
+        REQUIRE(shader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
         std::ofstream file;
@@ -1299,8 +1335,8 @@ TEST_CASE("Hello World", "[shadergen]")
         // Test shader generation from shaderref
         shader = shadergen->generate(exampleName, shaderRef, options);
         REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode(mx::OgsFxShader::VERTEX_STAGE).length() > 0);
-        REQUIRE(shader->getSourceCode(mx::OgsFxShader::PIXEL_STAGE).length() > 0);
+        REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
+        REQUIRE(shader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
         file.open(shader->getName() + "_shaderref.vert");
@@ -1310,6 +1346,7 @@ TEST_CASE("Hello World", "[shadergen]")
         file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
         file.close();
     }
+#endif // MATERIALX_BUILD_GEN_GLSL
 }
 
 TEST_CASE("Conditionals", "[shadergen]")
@@ -1363,7 +1400,7 @@ TEST_CASE("Conditionals", "[shadergen]")
 
     mx::SgOptions options;
 
-    // Arnold
+#ifdef MATERIALX_BUILD_GEN_OSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
         // Add path to find all source code snippets
@@ -1392,8 +1429,9 @@ TEST_CASE("Conditionals", "[shadergen]")
         validateOSL(fileName, errorResult);
         REQUIRE(errorResult.size() == 0);
     }
+#endif // MATERIALX_BUILD_GEN_OSL
 
-    // OgsFx
+#ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
@@ -1414,8 +1452,9 @@ TEST_CASE("Conditionals", "[shadergen]")
         REQUIRE(shader->getNodeGraph()->getOutputSocket()->value != nullptr);
         REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
     }
+#endif // MATERIALX_BUILD_GEN_OGSFX
 
-    // Glsl
+#ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
@@ -1440,6 +1479,7 @@ TEST_CASE("Conditionals", "[shadergen]")
         REQUIRE(shader->getNodeGraph()->getOutputSocket()->value != nullptr);
         REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
     }
+#endif // MATERIALX_BUILD_GEN_GLSL
 }
 
 TEST_CASE("Geometric Nodes", "[shadergen]")
@@ -1509,7 +1549,7 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
 
     mx::SgOptions options;
 
-    // Arnold
+#ifdef MATERIALX_BUILD_GEN_OSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
         // Add path to find all source code snippets
@@ -1533,8 +1573,9 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
         validateOSL(fileName, errorResult);
         REQUIRE(errorResult.size() == 0); 
     }
+#endif // MATERIALX_BUILD_GEN_OSL
 
-    // OgsFx
+#ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
@@ -1549,8 +1590,9 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
         file.open(shader->getName() + ".ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
     }
+#endif // MATERIALX_BUILD_GEN_OGSFX
 
-    // Glsl
+#ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
@@ -1569,6 +1611,7 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
         file.open(shader->getName() + ".vert");
         file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
     }
+#endif // MATERIALX_BUILD_GEN_GLSL
 }
 
 TEST_CASE("Noise", "[shadergen]")
@@ -1654,7 +1697,7 @@ TEST_CASE("Noise", "[shadergen]")
         // Select the noise type
         switch1->setParameterValue("which", float(noiseType));
 
-        // Arnold OSL
+#ifdef MATERIALX_BUILD_GEN_OSL
         {
             mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();
             // Add path to find all source code snippets
@@ -1679,8 +1722,9 @@ TEST_CASE("Noise", "[shadergen]")
             validateOSL(fileName, errorResult);
             REQUIRE(errorResult.size() == 0); 
         }
+#endif // MATERIALX_BUILD_GEN_OSL
 
-        // OgsFx
+#ifdef MATERIALX_BUILD_GEN_OGSFX
         {
             mx::ShaderGeneratorPtr shadergen = mx::OgsFxShaderGenerator::create();
             shadergen->registerSourceCodeSearchPath(searchPath);
@@ -1696,8 +1740,9 @@ TEST_CASE("Noise", "[shadergen]")
             file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
             file.close();
         }
+#endif // MATERIALX_BUILD_GEN_OGSFX
 
-        // Glsl
+#ifdef MATERIALX_BUILD_GEN_GLSL
         {
             mx::ShaderGeneratorPtr shadergen = mx::GlslShaderGenerator::create();
             shadergen->registerSourceCodeSearchPath(searchPath);
@@ -1705,8 +1750,8 @@ TEST_CASE("Noise", "[shadergen]")
             // Test shader generation from nodegraph
             mx::ShaderPtr shader = shadergen->generate(shaderName, output1, options);
             REQUIRE(shader != nullptr);
-            REQUIRE(shader->getSourceCode(mx::OgsFxShader::VERTEX_STAGE).length() > 0);
-            REQUIRE(shader->getSourceCode(mx::OgsFxShader::PIXEL_STAGE).length() > 0);
+            REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
+            REQUIRE(shader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
             // Write out to file for inspection
             // TODO: Use validation in MaterialXView library
             std::ofstream file;
@@ -1717,6 +1762,7 @@ TEST_CASE("Noise", "[shadergen]")
             file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
             file.close();
         }
+#endif // MATERIALX_BUILD_GEN_GLSL
     }
 }
 
@@ -1744,7 +1790,7 @@ TEST_CASE("Unique Names", "[shadergen]")
 
     mx::SgOptions options;
 
-    // Arnold
+#ifdef MATERIALX_BUILD_GEN_OSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
         // Add path to find all source code snippets
@@ -1778,8 +1824,9 @@ TEST_CASE("Unique Names", "[shadergen]")
         validateOSL(fileName, errorResult);
         REQUIRE(errorResult.size() == 0);
     }
+#endif // MATERIALX_BUILD_GEN_OSL
 
-    // OgsFx
+#ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
@@ -1803,8 +1850,9 @@ TEST_CASE("Unique Names", "[shadergen]")
         file.open(exampleName + ".ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
     }
+#endif // MATERIALX_BUILD_GEN_OGSFX
 
-    // Glsl
+#ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
@@ -1832,6 +1880,7 @@ TEST_CASE("Unique Names", "[shadergen]")
         file.open(exampleName + ".vert");
         file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
     }
+#endif // MATERIALX_BUILD_GEN_GLSL
 }
 
 TEST_CASE("Subgraphs", "[shadergen]")
@@ -1848,7 +1897,7 @@ TEST_CASE("Subgraphs", "[shadergen]")
 
     mx::SgOptions options;
 
-    // Arnold
+#ifdef MATERIALX_BUILD_GEN_OSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
         // Add path to find all source code snippets
@@ -1882,8 +1931,9 @@ TEST_CASE("Subgraphs", "[shadergen]")
             REQUIRE(errorResult.size() == 0); 
         }
     }
+#endif // MATERIALX_BUILD_GEN_OSL
 
-    // OgsFx
+#ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
@@ -1911,8 +1961,9 @@ TEST_CASE("Subgraphs", "[shadergen]")
             file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
         }
     }
+#endif // MATERIALX_BUILD_OGSX
 
-    // Glsl
+#ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
@@ -1945,6 +1996,7 @@ TEST_CASE("Subgraphs", "[shadergen]")
             file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
         }
     }
+#endif // MATERIALX_BUILD_GEN_GLSL
 }
 
 TEST_CASE("Materials", "[shadergen]")
@@ -1959,7 +2011,7 @@ TEST_CASE("Materials", "[shadergen]")
 
     mx::SgOptions options;
 
-    // Arnold
+#ifdef MATERIALX_BUILD_GEN_OSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
         // Add path to find all source code snippets
@@ -1990,8 +2042,9 @@ TEST_CASE("Materials", "[shadergen]")
             }
         }
     }
+#endif // MATERIALX_BUILD_GEN_OSL
 
-    // OgsFx
+#ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
@@ -2017,8 +2070,9 @@ TEST_CASE("Materials", "[shadergen]")
             }
         }
     }
+#endif // MATERIALX_BUILD_GEN_OGSFX
 
-    // Glsl
+#ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
@@ -2048,6 +2102,7 @@ TEST_CASE("Materials", "[shadergen]")
             }
         }
     }
+#endif // MATERIALX_BUILD_GEN_GLSL
 }
 
 TEST_CASE("Color Spaces", "[shadergen]")
@@ -2082,7 +2137,7 @@ TEST_CASE("Color Spaces", "[shadergen]")
 
     mx::SgOptions options;
 
-    // Arnold
+#ifdef MATERIALX_BUILD_GEN_OSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
         // Add path to find all source code snippets
@@ -2106,8 +2161,9 @@ TEST_CASE("Color Spaces", "[shadergen]")
         validateOSL(fileName, errorResult);
         REQUIRE(errorResult.size() == 0);
     }
+#endif // MATERIALX_BUILD_GEN_OSL
 
-    // OgsFx
+#ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
@@ -2122,8 +2178,9 @@ TEST_CASE("Color Spaces", "[shadergen]")
         file.open(shader->getName() + ".ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
     }
+#endif // MATERIALX_BUILD_GEN_OGSFX
 
-    // Glsl
+#ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
@@ -2142,8 +2199,8 @@ TEST_CASE("Color Spaces", "[shadergen]")
         file.open(shader->getName() + ".vert");
         file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
     }
+#endif // MATERIALX_BUILD_GEN_GLSL
 }
-
 
 TEST_CASE("BSDF Layering", "[shadergen]")
 {
@@ -2230,7 +2287,7 @@ TEST_CASE("BSDF Layering", "[shadergen]")
     {
         const std::string shaderName = exampleName + "_" + elem->getName();
 
-        // Arnold
+#ifdef MATERIALX_BUILD_GEN_OSL
         {
             mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
             // Add path to find all source code snippets
@@ -2255,8 +2312,9 @@ TEST_CASE("BSDF Layering", "[shadergen]")
             validateOSL(fileName, errorResult);
             REQUIRE(errorResult.size() == 0);
         }
+#endif // MATERIALX_BUILD_GEN_OSL
 
-        // OgsFx
+#ifdef MATERIALX_BUILD_GEN_OGSFX
         {
             mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
             shaderGenerator->registerSourceCodeSearchPath(searchPath);
@@ -2275,8 +2333,9 @@ TEST_CASE("BSDF Layering", "[shadergen]")
             file.open(shader->getName() + ".ogsfx");
             file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
         }
+#endif // MATERIALX_BUILD_GEN_OGSFX
 
-        // Glsl
+#ifdef MATERIALX_BUILD_GEN_GLSL
         {
             mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
             shaderGenerator->registerSourceCodeSearchPath(searchPath);
@@ -2299,6 +2358,7 @@ TEST_CASE("BSDF Layering", "[shadergen]")
             file.open(shader->getName() + ".vert");
             file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
         }
+#endif // MATERIALX_BUILD_GEN_GLSL
     }
 }
 
@@ -2369,7 +2429,7 @@ TEST_CASE("Transparency", "[shadergen]")
 
     mx::SgOptions options;
 
-    // Arnold
+#ifdef MATERIALX_BUILD_GEN_OSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
         // Add path to find all source code snippets
@@ -2394,8 +2454,9 @@ TEST_CASE("Transparency", "[shadergen]")
         validateOSL(fileName, errorResult);
         REQUIRE(errorResult.size() == 0);
     }
+#endif // MATERIALX_BUILD_GEN_OSL
 
-    // OgsFx
+#ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
@@ -2414,8 +2475,9 @@ TEST_CASE("Transparency", "[shadergen]")
         file.open(shader->getName() + ".ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
     }
+#endif // MATERIALX_BUILD_GEN_OGSFX
 
-    // Glsl
+#ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
@@ -2438,6 +2500,7 @@ TEST_CASE("Transparency", "[shadergen]")
         file.open(shader->getName() + ".vert");
         file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
     }
+#endif // MATERIALX_BUILD_GEN_GLSL
 }
 
 TEST_CASE("Surface Layering", "[shadergen]")
@@ -2507,7 +2570,7 @@ TEST_CASE("Surface Layering", "[shadergen]")
 
     mx::SgOptions options;
 
-    // OgsFx
+#ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
@@ -2526,8 +2589,9 @@ TEST_CASE("Surface Layering", "[shadergen]")
         file.open(shader->getName() + ".ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
     }
+#endif // MATERIALX_BUILD_GEN_OGSFX
 
-    // Glsl
+#ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
@@ -2550,8 +2614,10 @@ TEST_CASE("Surface Layering", "[shadergen]")
         file.open(shader->getName() + ".vert");
         file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
     }
+#endif // MATERIALX_BUILD_GEN_GLSL
 }
 
+#ifdef MATERIALX_BUILD_GEN_OSL
 TEST_CASE("Osl Output Types", "[shadergen]")
 {
     // OSL doesn't support having color2/color4 as shader output types.
@@ -2673,4 +2739,4 @@ TEST_CASE("Osl Output Types", "[shadergen]")
         REQUIRE(errorResult.size() == 0); 
     }
 }
-
+#endif // MATERIALX_BUILD_GEN_OSL

@@ -1,0 +1,220 @@
+#include <MaterialXGenShader/Syntax.h>
+#include <MaterialXGenShader/Shader.h>
+#include <MaterialXCore/Value.h>
+
+namespace MaterialX
+{
+
+Syntax::Syntax()
+{
+}
+
+void Syntax::registerTypeSyntax(const TypeDesc* type, TypeSyntaxPtr syntax)
+{
+    auto it = _typeSyntaxByType.find(type);
+    if (it != _typeSyntaxByType.end())
+    {
+        _typeSyntaxs[it->second] = syntax;
+    }
+    else
+    {
+        _typeSyntaxs.push_back(syntax);
+        _typeSyntaxByType[type] = _typeSyntaxs.size() - 1;
+    }
+
+    // Make this type a restricted name
+    registerRestrictedNames({ syntax->getName() });
+}
+
+void Syntax::registerRestrictedNames(const StringSet& names)
+{
+    _restrictedNames.insert(names.begin(), names.end());
+}
+
+/// Returns the type syntax object for a named type.
+/// Throws an exception if a type syntax is not defined for the given type.
+const TypeSyntax& Syntax::getTypeSyntax(const TypeDesc* type) const
+{
+    auto it = _typeSyntaxByType.find(type);
+    if (it == _typeSyntaxByType.end())
+    {
+        throw ExceptionShaderGenError("No syntax is defined for the given type '" + type->getName() + "'.");
+    }
+    return *_typeSyntaxs[it->second];
+}
+
+string Syntax::getValue(const TypeDesc* type, const Value& value, bool uniform) const
+{
+    const TypeSyntax& syntax = getTypeSyntax(type);
+    return syntax.getValue(value, uniform);
+}
+
+const string& Syntax::getDefaultValue(const TypeDesc* type, bool uniform) const
+{
+    const TypeSyntax& syntax = getTypeSyntax(type);
+    return syntax.getDefaultValue(uniform);
+}
+
+const string& Syntax::getTypeName(const TypeDesc* type) const
+{
+    const TypeSyntax& syntax = getTypeSyntax(type);
+    return syntax.getName();
+}
+
+string Syntax::getOutputTypeName(const TypeDesc* type) const
+{
+    const TypeSyntax& syntax = getTypeSyntax(type);
+    const string& outputModifier = getOutputQualifier();
+    return outputModifier.size() ? outputModifier + " " + syntax.getName() : syntax.getName();
+}
+
+const string& Syntax::getTypeDefStatement(const TypeDesc* type) const
+{
+    const TypeSyntax& syntax = getTypeSyntax(type);
+    return syntax.getTypeDefStatement();
+}
+
+string Syntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const
+{
+    static const std::unordered_map<char, size_t> s_channelsMapping =
+    {
+        { 'r', 0 },{ 'x', 0 },
+        { 'g', 1 },{ 'y', 1 },
+        { 'b', 2 },{ 'z', 2 },
+        { 'a', 3 },{ 'w', 3 }
+    };
+
+    const TypeSyntax& srcSyntax = getTypeSyntax(srcType);
+    const TypeSyntax& dstSyntax = getTypeSyntax(dstType);
+
+    const vector<string>& srcMembers = srcSyntax.getMembers();
+
+    vector<string> membersSwizzled;
+
+    for (size_t i = 0; i < channels.size(); ++i)
+    {
+        const char ch = channels[i];
+        if (ch == '0' || ch == '1')
+        {
+            membersSwizzled.push_back(string(1,ch));
+            continue;
+        }
+
+        auto it = s_channelsMapping.find(ch);
+        if (it == s_channelsMapping.end())
+        {
+            throw ExceptionShaderGenError("Invalid channel pattern '" + channels + "'.");
+        }
+
+        if (srcMembers.empty())
+        {
+            membersSwizzled.push_back(srcName);
+        }
+        else
+        {
+            if (it->second >= srcMembers.size())
+            {
+                throw ExceptionShaderGenError("Given member in channels pattern is incorrect for type '" + srcType->getName() + "'.");
+            }
+            membersSwizzled.push_back(srcName + srcMembers[it->second]);
+        }
+    }
+
+    return dstSyntax.getValue(membersSwizzled, false);
+}
+
+void Syntax::makeUnique(string& name, UniqueNameMap& uniqueNames) const
+{
+    UniqueNameMap::iterator it = uniqueNames.find(name);
+    if (it != uniqueNames.end())
+    {
+        name += std::to_string(++(it->second));
+    }
+    else
+    {
+        if (_restrictedNames.count(name))
+        {
+            uniqueNames[name] = 1;
+            name += "1";
+        }
+        else
+        {
+            uniqueNames[name] = 0;
+        }
+    }
+}
+
+
+const vector<string> TypeSyntax::EMPTY_MEMBERS;
+
+TypeSyntax::TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, 
+    const string& typeDefStatement, const vector<string>& members)
+    : _name(name)
+    , _defaultValue(defaultValue)
+    , _uniformDefaultValue(uniformDefaultValue)
+    , _typeDefStatement(typeDefStatement)
+    , _members(members)
+{
+}
+
+
+ScalarTypeSyntax::ScalarTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, const string& typeDefStatement)
+    : TypeSyntax(name, defaultValue, uniformDefaultValue, typeDefStatement, EMPTY_MEMBERS)
+{
+}
+
+string ScalarTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
+{
+    return value.getValueString();
+}
+
+string ScalarTypeSyntax::getValue(const vector<string>& values, bool /*uniform*/) const
+{
+    if (values.empty())
+    {
+        throw ExceptionShaderGenError("No values given to construct a value");
+    }
+    return values[0];
+}
+
+
+StringTypeSyntax::StringTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, const string& typeDefStatement)
+    : ScalarTypeSyntax(name, defaultValue, uniformDefaultValue, typeDefStatement)
+{
+}
+
+string StringTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
+{
+    return "\"" + value.getValueString() + "\"";
+}
+
+
+AggregateTypeSyntax::AggregateTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, 
+    const string& typeDefStatement, const vector<string>& members)
+    : TypeSyntax(name, defaultValue, uniformDefaultValue, typeDefStatement, members)
+{
+}
+
+string AggregateTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
+{
+    return getName() + "(" + value.getValueString() + ")";
+}
+
+string AggregateTypeSyntax::getValue(const vector<string>& values, bool /*uniform*/) const
+{
+    if (values.empty())
+    {
+        throw ExceptionShaderGenError("No values given to construct a value");
+    }
+
+    string result = getName() + "(" + values[0];
+    for (size_t i=1; i<values.size(); ++i)
+    {
+        result += ", " + values[i];
+    }
+    result += ")";
+
+    return result;
+}
+
+}

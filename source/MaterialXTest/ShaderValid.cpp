@@ -1,5 +1,5 @@
 // Compile if module flags were set
-#if defined(MATERIALX_TEST_VIEW) && defined(MATERIALX_BUILD_VIEW)
+#if defined(MATERIALX_TEST_VIEW) && defined(MATERIALX_BUILD_VIEW) && defined(MATERIALX_BUILD_GEN_GLSL)
 
 // Run only on supported platforms
 #include <MaterialXView/Window/HardwarePlatform.h>
@@ -8,22 +8,24 @@
 #include <MaterialXTest/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
+
 #include <MaterialXFormat/XmlIo.h>
 
-#include <MaterialXShaderGen/ShaderGenerators/Glsl/GlslShaderGenerator.h>
-#include <MaterialXShaderGen/Util.h>
-#include <MaterialXShaderGen/ShaderGenerators/Common/Swizzle.h>
-#include <MaterialXShaderGen/HwShader.h>
-#include <MaterialXShaderGen/HwLightHandler.h>
+#include <MaterialXGenShader/Util.h>
+#include <MaterialXGenShader/Nodes/Swizzle.h>
+#include <MaterialXGenShader/HwShader.h>
+#include <MaterialXGenShader/HwLightHandler.h>
+
+#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+
+#include <MaterialXView/ShaderValidators/Glsl/GlslValidator.h>
+#include <MaterialXView/Handlers/TinyEXRImageHandler.h>
 
 #include <fstream>
 #include <iostream>
 #include <unordered_set>
 
 namespace mx = MaterialX;
-
-#include <MaterialXView/ShaderValidators/Glsl/GlslValidator.h>
-#include <MaterialXView/Handlers/TinyEXRImageHandler.h>
 
 #define LOG_TO_FILE
 

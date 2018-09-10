@@ -48,8 +48,17 @@ set_target_properties(
 set (LIBS 
     MaterialXCore 
     MaterialXFormat 
-    MaterialXShaderGen
+    MaterialXGenShader
 )
+if (MATERIALX_BUILD_GEN_OSL)
+    LIST(APPEND LIBS "MaterialXGenOsl")
+endif(MATERIALX_BUILD_GEN_OSL)
+if (MATERIALX_BUILD_GEN_GLSL)
+    LIST(APPEND LIBS "MaterialXGenGlsl")
+endif(MATERIALX_BUILD_GEN_GLSL)
+if (MATERIALX_BUILD_GEN_OGSFX)
+    LIST(APPEND LIBS "MaterialXGenOgsFx")
+endif(MATERIALX_BUILD_GEN_OGSFX)
 if (MATERIALX_BUILD_VIEW)
     LIST(APPEND LIBS "MaterialXView")
 endif(MATERIALX_BUILD_VIEW)

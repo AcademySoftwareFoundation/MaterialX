@@ -1,8 +1,8 @@
 #ifndef MATERIALX_SHADERVALIDATOR_H
 #define MATERIALX_SHADERVALIDATOR_H
 
-#include <MaterialXShaderGen/Shader.h>
-#include <MaterialXShaderGen/HwLightHandler.h>
+#include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/HwLightHandler.h>
 #include <MaterialXView/ShaderValidators/ExceptionShaderValidationError.h>
 #include <MaterialXView/Handlers/ImageHandler.h>
 #include <MaterialXView/Handlers/GeometryHandler.h>

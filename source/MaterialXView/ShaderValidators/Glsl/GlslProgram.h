@@ -1,8 +1,8 @@
 #ifndef MATERIALX_GLSLPROGRAM_H
 #define MATERIALX_GLSLPROGRAM_H
 
-#include <MaterialXShaderGen/HwShader.h>
-#include <MaterialXShaderGen/HwLightHandler.h>
+#include <MaterialXGenShader/HwShader.h>
+#include <MaterialXGenShader/HwLightHandler.h>
 #include <MaterialXView/ShaderValidators/ExceptionShaderValidationError.h>
 #include <MaterialXView/Handlers/ViewHandler.h>
 #include <MaterialXView/Handlers/ImageHandler.h>
