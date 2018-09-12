@@ -1,23 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.36">
 
-  <!-- <diffusebsdf> -->
-  <implementation name="IM_diffusebsdf_sx_glsl" nodedef="ND_diffusebsdf" file="sxpbrlib/sx-glsl/sx_diffusebsdf.glsl" function="sx_diffusebsdf" language="sx-glsl"/>
+  <!-- <diffusebrdf> -->
+  <implementation name="IM_diffusebrdf_sx_glsl" nodedef="ND_diffusebrdf" file="sxpbrlib/sx-glsl/sx_diffusebrdf.glsl" function="sx_diffusebrdf" language="sx-glsl"/>
 
-  <!-- <translucentbsdf> -->
-  <implementation name="IM_translucentbsdf_sx_glsl" nodedef="ND_translucentbsdf" file="sxpbrlib/sx-glsl/sx_translucentbsdf.glsl" function="sx_translucentbsdf" language="sx-glsl"/>
+  <!-- <diffusebtdf> -->
+  <implementation name="IM_diffusebtdf_sx_glsl" nodedef="ND_diffusebtdf" file="sxpbrlib/sx-glsl/sx_diffusebtdf.glsl" function="sx_diffusebtdf" language="sx-glsl"/>
 
-  <!-- <transparentbsdf> -->
-  <implementation name="IM_transparentbsdf_sx_glsl" nodedef="ND_transparentbsdf" file="sxpbrlib/sx-glsl/sx_transparentbsdf.glsl" function="sx_transparentbsdf" language="sx-glsl"/>
+  <!-- <dielectricbrdf> -->
+  <implementation name="IM_dielectricbrdf_sx_glsl" nodedef="ND_dielectricbrdf" file="sxpbrlib/sx-glsl/sx_dielectricbrdf.glsl" function="sx_dielectricbrdf" language="sx-glsl"/>
 
-  <!-- <coatingbsdf> -->
-  <implementation name="IM_coatingbsdf_sx_glsl" nodedef="ND_coatingbsdf" file="sxpbrlib/sx-glsl/sx_coatingbsdf.glsl" function="sx_coatingbsdf" language="sx-glsl"/>
+  <!-- <conductorbrdf> -->
+  <implementation name="IM_conductorbrdf_sx_glsl" nodedef="ND_conductorbrdf" file="sxpbrlib/sx-glsl/sx_conductorbrdf.glsl" function="sx_conductorbrdf" language="sx-glsl"/>
 
-  <!-- <metalbsdf> -->
-  <implementation name="IM_metalbsdf_sx_glsl" nodedef="ND_metalbsdf" file="sxpbrlib/sx-glsl/sx_metalbsdf.glsl" function="sx_metalbsdf" language="sx-glsl"/>
+  <!-- <dielectricbtdf> -->
+  <implementation name="IM_dielectricbtdf_sx_glsl" nodedef="ND_dielectricbtdf" file="sxpbrlib/sx-glsl/sx_dielectricbtdf.glsl" function="sx_dielectricbtdf" language="sx-glsl"/>
 
-  <!-- <refractionbsdf> -->
-  <implementation name="IM_refractionbsdf_sx_glsl" nodedef="ND_refractionbsdf" file="sxpbrlib/sx-glsl/sx_refractionbsdf.glsl" function="sx_refractionbsdf" language="sx-glsl"/>
+  <!-- <subsurfacebrdf> -->
+  <implementation name="IM_subsurfacebrdf_sx_glsl" nodedef="ND_subsurfacebrdf" file="sxpbrlib/sx-glsl/sx_subsurfacebrdf.glsl" function="sx_subsurfacebrdf" language="sx-glsl"/>
+
+  <!-- <sheenbrdf> -->
+  <implementation name="IM_sheenbrdf_sx_glsl" nodedef="ND_sheenbrdf" file="sxpbrlib/sx-glsl/sx_sheenbrdf.glsl" function="sx_sheenbrdf" language="sx-glsl"/>
 
   <!-- <uniformedf> -->
   <implementation name="IM_uniformedf_sx_glsl" nodedef="ND_uniformedf" file="sxpbrlib/sx-glsl/sx_uniformedf.glsl" function="sx_uniformedf" language="sx-glsl"/>
@@ -37,8 +40,8 @@
   <!-- <surface> -->
   <implementation name="IM_surface_sx_glsl" nodedef="ND_surface" language="sx-glsl"/>
 
-  <!-- <layeredsurface> -->
-  <implementation name="IM_layeredsurface_sx_glsl" nodedef="ND_layeredsurface" file="sxpbrlib/sx-glsl/sx_layeredsurface.glsl" function="sx_layeredsurface" language="sx-glsl"/>
+  <!-- <mixsurface> -->
+  <implementation name="IM_mixsurface_sx_glsl" nodedef="ND_mixsurface" file="sxpbrlib/sx-glsl/sx_mixsurface.glsl" function="sx_mixsurface" language="sx-glsl"/>
 
   <!-- <light> -->
   <implementation name="IM_light_sx_glsl" nodedef="ND_light" language="sx-glsl"/>
@@ -53,7 +56,12 @@
   <implementation name="IM_spotlight_sx_glsl" nodedef="ND_spotlight" file="sxpbrlib/sx-glsl/sx_spotlight.glsl" function="sx_spotlight" language="sx-glsl"/>
 
   <!-- <backfacing> -->
-  <implementation name="IM_backfacing_float_sx_glsl" nodedef="ND_backfacing_float" file="sxpbrlib/sx-glsl/sx_backfacing.inline" language="sx-glsl"/>
+  <implementation name="IM_backfacing_boolean_sx_glsl" nodedef="ND_backfacing_boolean" file="sxpbrlib/sx-glsl/sx_backfacing_boolean.inline" language="sx-glsl"/>
+  <implementation name="IM_backfacing_integer_sx_glsl" nodedef="ND_backfacing_integer" file="sxpbrlib/sx-glsl/sx_backfacing_integer.inline" language="sx-glsl"/>
+  <implementation name="IM_backfacing_float_sx_glsl" nodedef="ND_backfacing_float" file="sxpbrlib/sx-glsl/sx_backfacing_float.inline" language="sx-glsl"/>
+
+  <!-- <roughness> -->
+  <implementation name="IM_roughness_vector2_sx_glsl" nodedef="ND_roughness_vector2" file="sxpbrlib/sx-glsl/sx_roughness_vector2.glsl" function="sx_roughness_vector2" language="sx-glsl"/>
 
   <!-- <reflectivity> -->
   <implementation name="IM_reflectivity_sx_glsl" nodedef="ND_reflectivity" file="sxpbrlib/sx-glsl/sx_reflectivity.glsl" function="sx_reflectivity" language="sx-glsl"/>

@@ -1,5 +1,0 @@
-void sx_layeredbsdf(BSDF top, BSDF base, float weight, output BSDF result)
-{
-    float w = clamp(weight, 0.0, 1.0);
-    result = top * w + base * (1.0 - w);
-}

@@ -97,19 +97,16 @@
       <input name="subsurface_weight" type="float" value="0.0"/>
    </nodedef>
    <nodegraph name="IMP_substratebsdf" nodedef="ND_substratebsdf">
-      <diffusebsdf name="diffuse" type="BSDF">
-         <input name="reflectance" type="color3" interfacename="albedo" value="0.9, 0.1, 0.1" />
-      </diffusebsdf>
-      <translucentbsdf name="subsurface" type="BSDF">
-         <input name="transmittance" type="color3" interfacename="subsurface" value="0.1, 0.1, 0.8" />
-      </translucentbsdf>
-      <invert name="subsurface_weight_inv" type="float">
-         <input name="in" type="float" interfacename="subsurface_weight" value="0.5" />
-      </invert>
+      <diffusebrdf name="diffuse" type="BSDF">
+         <input name="color" type="color3" interfacename="albedo" value="0.9, 0.1, 0.1" />
+      </diffusebrdf>
+      <diffusebtdf name="subsurface" type="BSDF">
+         <input name="color" type="color3" interfacename="subsurface" value="0.1, 0.1, 0.8" />
+      </diffusebtdf>
       <mixbsdf name="layer1" type="BSDF">
          <input name="in1" type="BSDF" nodename="diffuse" />
          <input name="in2" type="BSDF" nodename="subsurface" />
-         <input name="weight" type="float" nodename="subsurface_weight_inv" />
+         <input name="weight" type="float" interfacename="subsurface_weight" />
       </mixbsdf>
       <output name="out" type="BSDF" nodename="layer1" />
    </nodegraph>

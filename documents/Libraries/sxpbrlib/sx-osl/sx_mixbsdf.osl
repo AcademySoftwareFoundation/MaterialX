@@ -1,5 +1,5 @@
 void sx_mixbsdf(BSDF in1, BSDF in2, float weight, output BSDF result)
 {
     float w = clamp(weight, 0.0, 1.0);
-    result = in1 * w + in2 * (1.0 - w);
+    result = in1 * (1.0 - w) + in2 * w;
 }

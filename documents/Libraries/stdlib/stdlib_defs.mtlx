@@ -3218,6 +3218,12 @@
   <nodedef name="ND_convert_color4_color3" node="convert" type="color3" nodegroup="channel" defaultinput="in">
     <input name="in" type="color4"/>
   </nodedef>
+  <nodedef name="ND_convert_boolean_float" node="convert" type="float" nodegroup="channel" defaultinput="in">
+    <input name="in" type="boolean"/>
+  </nodedef>
+  <nodedef name="ND_convert_integer_float" node="convert" type="float" nodegroup="channel" defaultinput="in">
+    <input name="in" type="integer"/>
+  </nodedef>
 
   <!--
     Node: <swizzle>
