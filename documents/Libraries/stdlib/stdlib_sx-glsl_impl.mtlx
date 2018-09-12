@@ -706,6 +706,8 @@
   <implementation name="IM_convert_color4_vector4_sx_glsl" nodedef="ND_convert_color4_vector4" file="stdlib/sx-glsl/mx_convert_color4_vector4.inline" language="sx-glsl"/>
   <implementation name="IM_convert_color3_color4_sx_glsl" nodedef="ND_convert_color3_color4" file="stdlib/sx-glsl/mx_convert_color_color4.inline" language="sx-glsl"/>
   <implementation name="IM_convert_color4_color3_sx_glsl" nodedef="ND_convert_color4_color3" file="stdlib/sx-glsl/mx_convert_color4_color.inline" language="sx-glsl"/>
+  <implementation name="IM_convert_boolean_float_sx_glsl" nodedef="ND_convert_boolean_float" file="stdlib/sx-glsl/mx_convert_boolean_float.inline" language="sx-glsl"/>
+  <implementation name="IM_convert_integer_float_sx_glsl" nodedef="ND_convert_integer_float" file="stdlib/sx-glsl/mx_convert_integer_float.inline" language="sx-glsl"/>
 
   <!-- <swizzle> -->
   <!-- from type: float -->

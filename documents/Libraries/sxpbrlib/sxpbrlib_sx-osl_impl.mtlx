@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.35">
 
-  <!-- <diffusebsdf> -->
-  <implementation name="IM_diffusebsdf_sx_osl" nodedef="ND_diffusebsdf" file="sxpbrlib/sx-osl/sx_diffusebsdf.inline" function="sx_diffusebsdf" language="sx-osl"/>
+  <!-- <diffusebrdf> -->
+  <implementation name="IM_diffusebrdf_sx_osl" nodedef="ND_diffusebrdf" file="sxpbrlib/sx-osl/sx_diffusebrdf.inline" function="sx_diffusebrdf" language="sx-osl"/>
 
-  <!-- <translucentbsdf> -->
-  <implementation name="IM_translucentbsdf_sx_osl" nodedef="ND_translucentbsdf" file="sxpbrlib/sx-osl/sx_translucentbsdf.inline" function="sx_translucentbsdf" language="sx-osl"/>
+  <!-- <diffusebtdf> -->
+  <implementation name="IM_diffusebtdf_sx_osl" nodedef="ND_diffusebtdf" file="sxpbrlib/sx-osl/sx_diffusebtdf.inline" function="sx_diffusebtdf" language="sx-osl"/>
 
-  <!-- <transparentbsdf> -->
-  <implementation name="IM_transparentbsdf_sx_osl" nodedef="ND_transparentbsdf" file="sxpbrlib/sx-osl/sx_transparentbsdf.inline" function="sx_transparentbsdf" language="sx-osl"/>
+  <!-- <dielectricbrdf> -->
+  <implementation name="IM_dielectricbrdf_sx_osl" nodedef="ND_dielectricbrdf" file="sxpbrlib/sx-osl/sx_dielectricbrdf.osl" function="sx_dielectricbrdf" language="sx-osl"/>
 
-  <!-- <coatingbsdf> -->
-  <implementation name="IM_coatingbsdf_sx_osl" nodedef="ND_coatingbsdf" file="sxpbrlib/sx-osl/sx_coatingbsdf.osl" function="sx_coatingbsdf" language="sx-osl"/>
+  <!-- <conductorbrdf> -->
+  <implementation name="IM_conductorbrdf_sx_osl" nodedef="ND_conductorbrdf" file="sxpbrlib/sx-osl/sx_conductorbrdf.osl" function="sx_conductorbrdf" language="sx-osl"/>
 
-  <!-- <metalbsdf> -->
-  <implementation name="IM_metalbsdf_sx_osl" nodedef="ND_metalbsdf" file="sxpbrlib/sx-osl/sx_metalbsdf.osl" function="sx_metalbsdf" language="sx-osl"/>
+  <!-- <dielectricbtdf> -->
+  <implementation name="IM_dielectricbtdf_sx_osl" nodedef="ND_dielectricbtdf" file="sxpbrlib/sx-osl/sx_dielectricbtdf.osl" function="sx_dielectricbtdf" language="sx-osl"/>
 
-  <!-- <refractionbsdf> -->
-  <implementation name="IM_refractionbsdf_sx_osl" nodedef="ND_refractionbsdf" file="sxpbrlib/sx-osl/sx_refractionbsdf.osl" function="sx_refractionbsdf" language="sx-osl"/>
+  <!-- <subsurfacebrdf> -->
+  <implementation name="IM_subsurfacebrdf_sx_osl" nodedef="ND_subsurfacebrdf" file="sxpbrlib/sx-osl/sx_subsurfacebrdf.osl" function="sx_subsurfacebrdf" language="sx-osl"/>
 
-  <!-- <layeredbsdf> -->
-  <implementation name="IM_layeredbsdf_sx_osl" nodedef="ND_layeredbsdf" file="sxpbrlib/sx-osl/sx_layeredbsdf.osl" function="sx_layeredbsdf" language="sx-osl"/>
+  <!-- <sheenbrdf> -->
+  <implementation name="IM_sheenbrdf_sx_osl" nodedef="ND_sheenbrdf" file="sxpbrlib/sx-osl/sx_sheenbrdf.osl" function="sx_sheenbrdf" language="sx-osl"/>
 
   <!-- <uniformedf> -->
   <implementation name="IM_uniformedf_sx_osl" nodedef="ND_uniformedf" file="sxpbrlib/sx-osl/sx_uniformedf.inline" function="sx_uniformedf" language="sx-osl"/>
@@ -37,11 +37,16 @@
   <!-- <surface> -->
   <implementation name="IM_surface_sx_osl" nodedef="ND_surface" file="sxpbrlib/sx-osl/sx_surface.osl" function="sx_surface" language="sx-osl"/>
 
-  <!-- <layeredsurface> -->
-  <implementation name="IM_layeredsurface_sx_osl" nodedef="ND_layeredsurface" file="sxpbrlib/sx-osl/sx_layeredsurface.osl" function="sx_layeredsurface" language="sx-osl"/>
+  <!-- <mixsurface> -->
+  <implementation name="IM_mixsurface_sx_osl" nodedef="ND_mixsurface" file="sxpbrlib/sx-osl/sx_mixsurface.osl" function="sx_mixsurface" language="sx-osl"/>
 
   <!-- <backfacing> -->
-  <implementation name="IM_backfacing_float_sx_osl" nodedef="ND_backfacing_float" file="sxpbrlib/sx-osl/sx_backfacing.inline" language="sx-osl"/>
+  <implementation name="IM_backfacing_boolean_sx_osl" nodedef="ND_backfacing_boolean" file="sxpbrlib/sx-osl/sx_backfacing_boolean.inline" language="sx-osl"/>
+  <implementation name="IM_backfacing_integer_sx_osl" nodedef="ND_backfacing_integer" file="sxpbrlib/sx-osl/sx_backfacing_integer.inline" language="sx-osl"/>
+  <implementation name="IM_backfacing_float_sx_osl" nodedef="ND_backfacing_float" file="sxpbrlib/sx-osl/sx_backfacing_float.inline" language="sx-osl"/>
+
+  <!-- <roughness> -->
+  <implementation name="IM_roughness_vector2_sx_osl" nodedef="ND_roughness_vector2" file="sxpbrlib/sx-osl/sx_roughness_vector2.osl" function="sx_roughness_vector2" language="sx-osl"/>
 
   <!-- <reflectivity> -->
   <implementation name="IM_reflectivity_sx_osl" nodedef="ND_reflectivity" file="sxpbrlib/sx-osl/sx_reflectivity.osl" function="sx_reflectivity" language="sx-osl"/>

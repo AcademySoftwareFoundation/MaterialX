@@ -1,4 +1,4 @@
-void sx_translucentbsdf(vec3 L, vec3 V, float weight, vec3 transmittance, vec3 normal, out BSDF result)
+void sx_diffusebtdf(vec3 L, vec3 V, float weight, vec3 color, vec3 normal, out BSDF result)
 {
     // Invert normal since we're transmitting light from the other side
     float NdotL = dot(L, -normal);
@@ -8,10 +8,10 @@ void sx_translucentbsdf(vec3 L, vec3 V, float weight, vec3 transmittance, vec3 n
         return;
     }
 
-    result = transmittance * weight * NdotL * M_PI_INV;
+    result = color * weight * NdotL * M_PI_INV;
 }
 
-void sx_translucentbsdf_ibl(vec3 V, float weight, vec3 transmittance, vec3 normal, out vec3 result)
+void sx_diffusebtdf_ibl(vec3 V, float weight, vec3 color, vec3 normal, out vec3 result)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -21,5 +21,5 @@ void sx_translucentbsdf_ibl(vec3 V, float weight, vec3 transmittance, vec3 norma
 
     // Invert normal since we're transmitting light from the other side
     vec3 Li = sx_environment_irradiance(-normal);
-    result = Li * transmittance * weight;
+    result = Li * color * weight;
 }
