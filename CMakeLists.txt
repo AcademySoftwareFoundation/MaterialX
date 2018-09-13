@@ -17,13 +17,13 @@ option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third
 option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors." OFF)
 
 set(MATERIALX_PYTHON_VERSION "" CACHE STRING
-    "Python version to be used in building MaterialX Python (e.g. '2.7').")
+    "Python version to be used in building the MaterialX Python package (e.g. '2.7').")
 set(MATERIALX_PYTHON_EXECUTABLE "" CACHE FILEPATH
-    "Python executable to be used in building MaterialX Python (e.g. 'C:/Python27/python.exe').")
+    "Python executable to be used in building the MaterialX Python package (e.g. 'C:/Python27/python.exe').")
 set(MATERIALX_PYTHON_OCIO_DIR "" CACHE PATH
     "Path to a folder containing the default OCIO configuration to be packaged with MaterialX Python (e.g. 'D:/Projects/OpenColorIO-Configs/aces_1.0.3').")
 set(MATERIALX_PYTHON_PYBIND11_DIR "${CMAKE_CURRENT_SOURCE_DIR}/source/PyMaterialX/PyBind11" CACHE PATH
-    "Path to the PyBind11 source folder. Defaults to the included PyBind11 source, which has been extended to support Python 2.6.")
+    "Path to a folder containing the PyBind11 source. Defaults to the included PyBind11 source, which has been extended to support Python 2.6.")
 
 mark_as_advanced(MATERIALX_BUILD_DOCS)
 mark_as_advanced(MATERIALX_PYTHON_VERSION)
