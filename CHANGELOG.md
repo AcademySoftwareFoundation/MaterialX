@@ -3,7 +3,7 @@
 ## [1.36.1] - Development
 
 ### Added
-- Added support for BindToken elements.
+- Added support for interface tokens, including the MaterialX\:\:BindToken class and [TOKEN] syntax in filenames.
 - Added support for Clang 6.
 
 ### Changed
