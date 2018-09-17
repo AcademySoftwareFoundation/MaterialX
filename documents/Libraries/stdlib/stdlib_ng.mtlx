@@ -2094,6 +2094,7 @@
     <switch name="N_sw_color2" type="float">
       <input name="in1" type="float" nodename="N_r_color2"/>
       <input name="in2" type="float" nodename="N_g_color2"/>
+      <parameter name="which" type="float" interfacename="index"/>
     </switch>
     <output name="N_out_color2" type="float" nodename="N_sw_color2"/>
   </nodegraph>
@@ -2110,6 +2111,7 @@
     <switch name="N_sw_vector2" type="float">
       <input name="in1" type="float" nodename="N_r_vector2"/>
       <input name="in2" type="float" nodename="N_g_vector2"/>
+      <parameter name="which" type="float" interfacename="index"/>
     </switch>
     <output name="N_out_vector2" type="float" nodename="N_sw_vector2"/>
   </nodegraph>
@@ -2131,6 +2133,7 @@
       <input name="in1" type="float" nodename="N_r_color3"/>
       <input name="in2" type="float" nodename="N_g_color3"/>
       <input name="in3" type="float" nodename="N_b_color3"/>
+      <parameter name="which" type="float" interfacename="index"/>
     </switch>
     <output name="N_out_color3" type="float" nodename="N_sw_color3"/>
   </nodegraph>
@@ -2152,6 +2155,7 @@
       <input name="in1" type="float" nodename="N_r_vector3"/>
       <input name="in2" type="float" nodename="N_g_vector3"/>
       <input name="in3" type="float" nodename="N_b_vector3"/>
+      <parameter name="which" type="float" interfacename="index"/>
     </switch>
     <output name="N_out_vector3" type="float" nodename="N_sw_vector3"/>
   </nodegraph>
@@ -2178,6 +2182,7 @@
       <input name="in2" type="float" nodename="N_g_color4"/>
       <input name="in3" type="float" nodename="N_b_color4"/>
       <input name="in4" type="float" nodename="N_a_color4"/>
+      <parameter name="which" type="float" interfacename="index"/>
     </switch>
     <output name="N_out_color4" type="float" nodename="N_sw_color4"/>
   </nodegraph>
@@ -2204,6 +2209,7 @@
       <input name="in2" type="float" nodename="N_g_vector4"/>
       <input name="in3" type="float" nodename="N_b_vector4"/>
       <input name="in4" type="float" nodename="N_a_vector4"/>
+      <parameter name="which" type="float" interfacename="index"/>
     </switch>
     <output name="N_out_vector4" type="float" nodename="N_sw_vector4"/>
   </nodegraph>
