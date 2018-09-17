@@ -54,7 +54,8 @@ void OslValidator::compileOSL(const std::string& oslFileName)
     if (!result.empty())
     {
         const std::string errorType("OSL compilation error.");
-        ShaderValidationErrorList errors;  
+        ShaderValidationErrorList errors;
+        errors.push_back("Command string: " + command);
         errors.push_back("Command return code: " + std::to_string(returnValue));
         errors.push_back("Shader failed to compile:");
         errors.push_back(result);
@@ -95,8 +96,7 @@ void OslValidator::validateCreation(const std::vector<std::string>& stages)
     file.close();
 
     // Try compiling the code
-    std::string oslFileName;
-    compileOSL(oslFileName);
+    compileOSL(fileName);
 }
 
 void OslValidator::validateInputs()

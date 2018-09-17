@@ -17,8 +17,10 @@
 #include <MaterialXGenShader/HwLightHandler.h>
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#include <MaterialXGenOsl/ArnoldShaderGenerator.h>
 
 #include <MaterialXView/ShaderValidators/Glsl/GlslValidator.h>
+#include <MaterialXView/ShaderValidators/Osl/OslValidator.h>
 #include <MaterialXView/Handlers/TinyEXRImageHandler.h>
 
 #include <fstream>
@@ -257,8 +259,8 @@ TEST_CASE("GLSL Source", "[shadervalid]")
 // By default if the file can be loaded it is assumed that rendering is done using a perspective
 // view vs an orthographic view. This flag argument is updated and returned.
 //
-static mx::GlslValidatorPtr createValidator(bool& orthographicView, const std::string& fileName,
-                                            std::ostream& log)
+static mx::GlslValidatorPtr createGLSLValidator(bool& orthographicView, const std::string& fileName,
+                                                std::ostream& log)
 {
     bool initialized = false;
     orthographicView = true;
@@ -294,6 +296,32 @@ static mx::GlslValidatorPtr createValidator(bool& orthographicView, const std::s
     return validator;
 }
 
+static mx::OslValidatorPtr createOSLValidator(bool& orthographicView, std::ostream& log)
+{
+    bool initialized = false;
+    orthographicView = true;
+    mx::OslValidatorPtr validator = mx::OslValidator::create();
+    validator->setOslCompilerExecutable(MATERIALX_OSLC_EXECUTABLE);
+    validator->setOslIncludePath(MATERIALX_OSL_INCLUDE_PATH);
+    mx::TinyEXRImageHandlerPtr imageHandler = mx::TinyEXRImageHandler::create();
+    try
+    {
+        validator->initialize();
+        validator->setImageHandler(imageHandler);
+        validator->setLightHandler(nullptr);
+        initialized = true;
+    }
+    catch(mx::ExceptionShaderValidationError e)
+    {
+        for (auto error : e.errorLog())
+        {
+            log << e.what() << " " << error << std::endl;
+        }
+    }
+    REQUIRE(initialized);
+
+    return validator;
+}
 
 // Test by connecting it to a supplied element
 // 1. Create the shader and checks for source generation
@@ -306,9 +334,9 @@ static mx::GlslValidatorPtr createValidator(bool& orthographicView, const std::s
 //
 // Outputs error log if validation fails
 //
-static void runValidation(const std::string& shaderName, mx::ElementPtr element, mx::GlslValidator& validator,
-                          mx::GlslShaderGenerator& shaderGenerator, bool orthographicView, mx::DocumentPtr doc,
-                          std::ostream& log, bool outputMtlxDoc=true, const std::string& outputPath=".")
+static void runGLSLValidation(const std::string& shaderName, mx::ElementPtr element, mx::GlslValidator& validator,
+                              mx::GlslShaderGenerator& shaderGenerator, bool orthographicView, mx::DocumentPtr doc,
+                              std::ostream& log, bool outputMtlxDoc=true, const std::string& outputPath=".")
 {
     mx::SgOptions options;
 
@@ -373,13 +401,71 @@ static void runValidation(const std::string& shaderName, mx::ElementPtr element,
     }
 }
 
+static void runOSLValidation(const std::string& shaderName, mx::ElementPtr element, mx::OslValidator& validator,
+                             mx::ArnoldShaderGenerator& shaderGenerator, mx::DocumentPtr doc, std::ostream& log,
+                             bool outputMtlxDoc=true, const std::string& outputPath=".")
+{
+    mx::SgOptions options;
+
+    if(element && doc)
+    {
+        log << "------------ Run validation with element: " << element->getNamePath() << "-------------------" << std::endl;
+
+        std::string shaderPath;
+        // Note: mkdir will fail if the directory already exists which is ok.
+        mx::makeDirectory(outputPath);
+        shaderPath = mx::FilePath(outputPath) / mx::FilePath(shaderName);
+
+        mx::ShaderPtr shader = shaderGenerator.generate(shaderName, element, options);
+        CHECK(shader != nullptr);
+        if (shader == nullptr)
+        {
+            log << ">> Failed to generate shader\n";
+            return;
+        }
+        CHECK(shader->getSourceCode().length() > 0);
+
+        if (outputMtlxDoc)
+        {
+            mx::writeToXmlFile(doc, shaderPath + ".mtlx");
+        }
+
+        std::ofstream file;
+        file.open(shaderPath + ".osl");
+        file << shader->getSourceCode();
+        file.close();
+
+        // Validate
+        validator.initialize();
+        bool validated = false;
+        try
+        {
+            validator.validateCreation(shader);
+            // TODO: Call additional validation routines here when they are available
+            validated = true;
+        }
+        catch(mx::ExceptionShaderValidationError e)
+        {
+            for (auto error : e.errorLog())
+            {
+                log << e.what() << " " << error << std::endl;
+            }
+            log << ">> Refer to shader code in dump file: " << shaderPath << ".osl file" << std::endl;
+        }
+        CHECK(validated);
+    }
+}
+
 TEST_CASE("GLSL MaterialX documents", "[shadervalid]")
 {
 #ifdef LOG_TO_FILE
-    std::ofstream logfile("log_shadervalid_glsl_materialx_documents.txt");
-    std::ostream& log(logfile);
+    std::ofstream glslLogfile("log_shadervalid_glsl_materialx_documents.txt");
+    std::ofstream oslLogfile("log_shadervalid_osl_materialx_documents.txt");
+    std::ostream& glslLog(glslLogfile);
+    std::ostream& oslLog(oslLogfile);
 #else
-    std::ostream& log(std::cout);
+    std::ostream& glslLog(std::cout);
+    std::ostream& oslLog(std::cout);
 #endif
 
     // Library search path
@@ -387,12 +473,16 @@ TEST_CASE("GLSL MaterialX documents", "[shadervalid]")
 
     // Create a validator
     bool orthographicView = true;
-    mx::GlslValidatorPtr validator = createValidator(orthographicView, "shaderball.obj", log);
+    mx::GlslValidatorPtr glslValidator = createGLSLValidator(orthographicView, "shaderball.obj", glslLog);
+    mx::OslValidatorPtr oslValidator = createOSLValidator(orthographicView, oslLog);
 
     // Set up GLSL shader generator.
     // TODO : Need to add in other generators
     mx::GlslShaderGeneratorPtr glslShaderGenerator = std::static_pointer_cast<mx::GlslShaderGenerator>(mx::GlslShaderGenerator::create());
     glslShaderGenerator->registerSourceCodeSearchPath(searchPath);
+    mx::ArnoldShaderGeneratorPtr oslShaderGenerator = std::static_pointer_cast<mx::ArnoldShaderGenerator>(mx::ArnoldShaderGenerator::create());
+    oslShaderGenerator->registerSourceCodeSearchPath(searchPath);
+    oslShaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
     // Load in the library dependencies once
     // This will be imported in each test document below
@@ -438,7 +528,8 @@ TEST_CASE("GLSL MaterialX documents", "[shadervalid]")
 
             if (!materials.empty() || !nodeGraphs.empty() || !outputList.empty())
             {
-                log << "MTLX Filename: " << filename << std::endl;
+                glslLog << "MTLX Filename: " << filename << std::endl;
+                oslLog << "MTLX Filename: " << filename << std::endl;
 
                 doc->importLibrary(dependLib, &importOptions);
 
@@ -451,7 +542,8 @@ TEST_CASE("GLSL MaterialX documents", "[shadervalid]")
                         {
                             std::string outputPath = mx::FilePath(dir) / mx::FilePath(mx::removeExtension(file));
                             mx::string elementName = mx::replaceSubstrings(shaderRef->getNamePath(), pathMap);
-                            runValidation(elementName, shaderRef, *validator, *glslShaderGenerator, orthographicView, doc, log, false, outputPath);
+                            runGLSLValidation(elementName, shaderRef, *glslValidator, *glslShaderGenerator, orthographicView, doc, glslLog, false, outputPath);
+                            runOSLValidation(elementName, shaderRef, *oslValidator, *oslShaderGenerator, doc, oslLog, false, outputPath);
 
                             // Find all bindinputs which reference outputs and outputgraphs
                             for (auto bindInput : shaderRef->getBindInputs())
@@ -493,7 +585,8 @@ TEST_CASE("GLSL MaterialX documents", "[shadervalid]")
                     {
                         std::string outputPath = mx::FilePath(dir) / mx::FilePath(mx::removeExtension(file));
                         mx::string elementName = mx::replaceSubstrings(output->getNamePath(), pathMap);
-                        runValidation(elementName, output, *validator, *glslShaderGenerator, orthographicView, doc, log, false, outputPath);
+                        runGLSLValidation(elementName, output, *glslValidator, *glslShaderGenerator, orthographicView, doc, glslLog, false, outputPath);
+                        runOSLValidation(elementName, output, *oslValidator, *oslShaderGenerator, doc, oslLog, false, outputPath);
                     }
                 }
             }
