@@ -2,6 +2,12 @@
 
 Basic trig function tests with one or more constants connected to each trig node in a separate
 graph per trig function.
+- sin
+- cos
+- tan
+- asin
+- acos
+- atan2
 
 -->
 <?xml version="1.0"?>

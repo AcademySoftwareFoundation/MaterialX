@@ -1,0 +1,185 @@
+<!--
+
+Basic adjustment function tests each test is in a separate graph for each variation in input type.
+- rgbtohsv
+- hsvtorgb
+- remap
+
+-->
+<?xml version="1.0"?>
+<materialx version="1.36">
+  <nodegraph name="rgbtohsv_color3" type="" xpos="5.94774" ypos="15.1966" adskDisplayMode="1">
+    <rgbtohsv name="rgbtohsv1" type="color3" xpos="5.90819" ypos="6.67748" adskDisplayMode="2">
+      <input name="in" type="color3" value="0.0, 0.0, 0.0" nodename="noise3d1" />
+    </rgbtohsv>
+    <output name="out" type="color3" nodename="rgbtohsv1" />
+    <noise3d name="noise3d1" type="color3" xpos="4.74597" ypos="7.02586" adskDisplayMode="2">
+      <parameter name="amplitude" type="vector3" value="1.0, 1.0, 1.0" />
+      <parameter name="pivot" type="float" value="0.0" />
+      <input name="position" type="vector3" value="0.0, 0.0, 0.0" />
+    </noise3d>
+  </nodegraph>
+  <nodegraph name="rgbtohsv_color4" type="" xpos="5.94042" ypos="16.3012" adskDisplayMode="1">
+    <rgbtohsv name="rgbtohsv1" type="color4" xpos="6.39423" ypos="5.84506" adskDisplayMode="2">
+      <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" nodename="noise3d1" />
+    </rgbtohsv>
+    <noise3d name="noise3d1" type="color4" xpos="5.12814" ypos="5.89268" adskDisplayMode="2">
+      <parameter name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+      <parameter name="pivot" type="float" value="0.0" />
+      <input name="position" type="vector3" value="0.0, 0.0, 0.0" />
+    </noise3d>
+    <output name="out" type="color4" nodename="rgbtohsv1" />
+  </nodegraph>
+  <nodegraph name="hsvtorgb_color3" type="" xpos="5.92536" ypos="17.4316" adskDisplayMode="1">
+    <hsvtorgb name="hsvtorgb1" type="color3" xpos="4.42069" ypos="7.5" adskDisplayMode="2">
+      <input name="in" type="color3" value="0.0, 0.0, 0.0" nodename="noise3d1" />
+    </hsvtorgb>
+    <output name="out" type="color3" nodename="hsvtorgb1" />
+    <noise3d name="noise3d1" type="color3" xpos="3.24372" ypos="7.445" adskDisplayMode="2">
+      <parameter name="amplitude" type="vector3" value="1.0, 1.0, 1.0" />
+      <parameter name="pivot" type="float" value="0.0" />
+      <input name="position" type="vector3" value="0.0, 0.0, 0.0" />
+    </noise3d>
+  </nodegraph>
+  <nodegraph name="hsvtorgb_color4" type="" xpos="5.92536" ypos="18.5175" adskDisplayMode="1">
+    <hsvtorgb name="hsvtorgb1" type="color4" xpos="6.00513" ypos="6.8723" adskDisplayMode="2">
+      <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" nodename="noise3d1" />
+    </hsvtorgb>
+    <noise3d name="noise3d1" type="color4" xpos="4.81417" ypos="6.80024" adskDisplayMode="2">
+      <parameter name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+      <parameter name="pivot" type="float" value="0.0" />
+      <input name="position" type="vector3" value="0.0, 0.0, 0.0" />
+    </noise3d>
+    <output name="out" type="color4" nodename="hsvtorgb1" />
+  </nodegraph>
+  <nodegraph name="remap_float" type="" xpos="5.92389" ypos="19.7619" adskDisplayMode="1">
+    <remap name="remap1" type="float" xpos="5.74483" ypos="4.74" adskDisplayMode="2">
+      <input name="in" type="float" value="0.2000" />
+      <parameter name="inlow" type="float" value="0.1000" />
+      <parameter name="inhigh" type="float" value="0.9000" />
+      <parameter name="outlow" type="float" value="0.4000" />
+      <parameter name="outhigh" type="float" value="0.6000" />
+    </remap>
+    <output name="out" type="float" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_color2" type="" xpos="6.93489" ypos="19.7685" adskDisplayMode="1">
+    <remap name="remap1" type="color2" xpos="5.74483" ypos="4.74" adskDisplayMode="2">
+      <input name="in" type="color2" value="0.2000, 0.5000" />
+      <parameter name="inlow" type="color2" value="0.1000, -0.2000" />
+      <parameter name="inhigh" type="color2" value="0.9000, 1.2000" />
+      <parameter name="outlow" type="color2" value="0.4000, 0.2000" />
+      <parameter name="outhigh" type="color2" value="0.6000, 0.8000" />
+    </remap>
+    <output name="out" type="color2" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_color2FA" type="" xpos="7.92081" ypos="19.7596" adskDisplayMode="1">
+    <remap name="remap1" type="color2" xpos="5.74483" ypos="4.74" adskDisplayMode="2">
+      <input name="in" type="color2" value="0.2000, 0.5000" />
+      <parameter name="inlow" type="float" value="0.1000" />
+      <parameter name="inhigh" type="float" value="0.9000" />
+      <parameter name="outlow" type="float" value="0.4000" />
+      <parameter name="outhigh" type="float" value="0.6000" />
+    </remap>
+    <output name="out" type="color2" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_color3" type="" xpos="8.90942" ypos="19.7637" adskDisplayMode="1">
+    <remap name="remap1" type="vector3" xpos="5.74483" ypos="4.74" adskDisplayMode="2">
+      <input name="in" type="vector3" value="0.2000, 0.6000, 0.8000" />
+      <parameter name="inlow" type="vector3" value="0.1000, -0.2000, 0.4000" />
+      <parameter name="inhigh" type="vector3" value="0.9000, 1.2000, 0.6000" />
+      <parameter name="outlow" type="vector3" value="0.4000, 0.2000, 0.3000" />
+      <parameter name="outhigh" type="vector3" value="0.6000, 0.8000, 0.7000" />
+    </remap>
+    <output name="out" type="vector3" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_color3FA" type="" xpos="6.93409" ypos="20.9357" adskDisplayMode="1">
+    <remap name="remap1" type="color3" xpos="5.74483" ypos="5.56" adskDisplayMode="2">
+      <input name="in" type="color3" value="0.2000, 0.6000, 0.8000" />
+      <parameter name="inlow" type="float" value="0.1000" />
+      <parameter name="inhigh" type="float" value="0.9000" />
+      <parameter name="outlow" type="float" value="0.4000" />
+      <parameter name="outhigh" type="float" value="0.6000" />
+    </remap>
+    <output name="out" type="color3" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_color4" type="" xpos="7.93395" ypos="20.8992" adskDisplayMode="1">
+    <remap name="remap1" type="color4" xpos="5.74483" ypos="5.56" adskDisplayMode="2">
+      <input name="in" type="color4" value="0.2000, 0.6000, 0.8000, 1.0" />
+      <parameter name="inlow" type="color4" value="0.1000, -0.2000, 0.4000, 0.0" />
+      <parameter name="inhigh" type="color4" value="0.9000, 1.2000, 0.6000, 1.0" />
+      <parameter name="outlow" type="color4" value="0.4000, 0.2000, 0.3000, 0.0" />
+      <parameter name="outhigh" type="color4" value="0.6000, 0.8000, 0.7000, 1.0" />
+    </remap>
+    <output name="out" type="color4" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_color4FA" type="" xpos="8.95123" ypos="20.8891" adskDisplayMode="1">
+    <remap name="remap1" type="color4" xpos="5.74483" ypos="5.56" adskDisplayMode="2">
+      <input name="in" type="color4" value="0.2000, 0.6000, 0.8000, 1.0000" />
+      <parameter name="inlow" type="float" value="0.1000" />
+      <parameter name="inhigh" type="float" value="0.9000" />
+      <parameter name="outlow" type="float" value="0.4000" />
+      <parameter name="outhigh" type="float" value="0.6000" />
+    </remap>
+    <output name="out" type="color4" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_vector2" type="" xpos="6.92712" ypos="22.2126" adskDisplayMode="1">
+    <remap name="remap1" type="vector2" xpos="5.74483" ypos="4.74" adskDisplayMode="2">
+      <input name="in" type="vector2" value="0.2000, 0.5000" />
+      <parameter name="inlow" type="vector2" value="0.1000, -0.2000" />
+      <parameter name="inhigh" type="vector2" value="0.9000, 1.2000" />
+      <parameter name="outlow" type="vector2" value="0.4000, 0.2000" />
+      <parameter name="outhigh" type="vector2" value="0.6000, 0.8000" />
+    </remap>
+    <output name="out" type="vector2" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_vector2FA" type="" xpos="7.94881" ypos="22.1701" adskDisplayMode="1">
+    <remap name="remap1" type="vector2" xpos="6.2069" ypos="7.14" adskDisplayMode="2">
+      <input name="in" type="vector2" value="0.2000, 0.5000" />
+      <parameter name="inlow" type="float" value="0.1000" />
+      <parameter name="inhigh" type="float" value="0.9000" />
+      <parameter name="outlow" type="float" value="0.4000" />
+      <parameter name="outhigh" type="float" value="0.6000" />
+    </remap>
+    <output name="out" type="vector2" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_vector3" type="" xpos="8.96538" ypos="22.1681" adskDisplayMode="1">
+    <remap name="remap1" type="vector3" xpos="5.74483" ypos="5.56" adskDisplayMode="2">
+      <input name="in" type="vector3" value="0.2000, 0.6000, 0.8000" />
+      <parameter name="inlow" type="vector3" value="0.1000, -0.2000, 0.4000" />
+      <parameter name="inhigh" type="vector3" value="0.9000, 1.2000, 0.6000" />
+      <parameter name="outlow" type="vector3" value="0.4000, 0.2000, 0.3000" />
+      <parameter name="outhigh" type="vector3" value="0.6000, 0.8000, 0.7000" />
+    </remap>
+    <output name="out" type="vector3" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_vector3FA" type="" xpos="6.90714" ypos="23.4027" adskDisplayMode="1">
+    <remap name="remap1" type="vector3" xpos="5.74483" ypos="5.56" adskDisplayMode="2">
+      <input name="in" type="vector3" value="0.2000, 0.6000, 0.8000" />
+      <parameter name="inlow" type="float" value="0.1000" />
+      <parameter name="inhigh" type="float" value="0.9000" />
+      <parameter name="outlow" type="float" value="0.4000" />
+      <parameter name="outhigh" type="float" value="0.6000" />
+    </remap>
+    <output name="out" type="vector3" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_vector4" type="" xpos="7.96623" ypos="23.3522" adskDisplayMode="1">
+    <remap name="remap1" type="vector4" xpos="5.74483" ypos="5.56" adskDisplayMode="2">
+      <input name="in" type="vector4" value="0.2000, 0.6000, 0.8000, 1.0" />
+      <parameter name="inlow" type="vector4" value="0.1000, -0.2000, 0.4000, 0.0" />
+      <parameter name="inhigh" type="vector4" value="0.9000, 1.2000, 0.6000, 1.0" />
+      <parameter name="outlow" type="vector4" value="0.4000, 0.2000, 0.3000, 0.0" />
+      <parameter name="outhigh" type="vector4" value="0.6000, 0.8000, 0.7000, 1.0" />
+    </remap>
+    <output name="out" type="vector4" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="remap_vector4FA" type="" xpos="8.98629" ypos="23.3805" adskDisplayMode="1">
+    <remap name="remap1" type="vector4" xpos="5.74483" ypos="5.56" adskDisplayMode="2">
+      <input name="in" type="vector4" value="0.2000, 0.6000, 0.8000, 1.0" />
+      <parameter name="inlow" type="float" value="0.1000" />
+      <parameter name="inhigh" type="float" value="0.9000" />
+      <parameter name="outlow" type="float" value="0.4000" />
+      <parameter name="outhigh" type="float" value="0.6000" />
+    </remap>
+    <output name="out" type="vector4" nodename="remap1" />
+  </nodegraph>
+</materialx>

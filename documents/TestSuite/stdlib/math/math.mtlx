@@ -2,6 +2,11 @@
 
 Basic math function tests with one or more constants connected to each math node in a separate
 graph per math function for each variation in input type.
+- ln
+- exp
+- sqrt
+- ceil
+- floor
 
 -->
 <?xml version="1.0"?>
