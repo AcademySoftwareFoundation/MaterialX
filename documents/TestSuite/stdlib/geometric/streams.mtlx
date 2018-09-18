@@ -50,7 +50,7 @@
    <geomcolor name="color4_set0" type="color4">
       <parameter name="index" type="integer" value="0" />
    </geomcolor>
-   <output name="color4_output0" type="vector4" nodename="color4_set0" />
+   <output name="color4_output0" type="color4" nodename="color4_set0" />
 
    <geomcolor name="color3_set1" type="color3">
       <parameter name="index" type="integer" value="1" />

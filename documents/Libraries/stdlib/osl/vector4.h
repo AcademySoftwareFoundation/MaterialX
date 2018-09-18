@@ -152,6 +152,14 @@ vector4 abs(vector4 in)
                     abs(in.w));
 }
 
+vector4 ceil(vector4 in)
+{
+    return vector4 (ceil(in.x),
+                    ceil(in.y),
+                    ceil(in.z),
+                    ceil(in.w));
+}
+
 vector4 floor(vector4 in)
 {
     return vector4 (floor(in.x),

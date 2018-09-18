@@ -148,6 +148,11 @@ color2 abs(color2 a)
     return color2(abs(a.r), abs(a.a));
 }
 
+color2 ceil(color2 a)
+{
+    return color2(ceil(a.r), ceil(a.a));
+}
+
 color2 floor(color2 a)
 {
     return color2(floor(a.r), floor(a.a));
