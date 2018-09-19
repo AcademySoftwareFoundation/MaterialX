@@ -346,14 +346,13 @@ using SgNodeContextPtr = std::shared_ptr<class SgNodeContext>;
 ///
 /// For some shader generators a node might need customization to it's implementation 
 /// depending on in which context the node is used. This class handles customizations
-/// in the form of adding extra arguments to the node's implementation function as well
-/// as a suffix to the function name to distinguish between the functions for different
-/// contexts.
+/// by adding a suffix to the function name to distinguish between the functions for 
+/// different contexts. I also supports adding extra arguments to the node's function.
 ///
 /// An example of where this is required if for BSDF and EDF nodes for HW targets 
 /// where extra arguments are needed to give directions vectors for evaluation. 
 /// For BSDF nodes another use-case is to distinguish between evaluation in a direct lighting
-/// context and an indirect lighting context where different versions of the nodes' function
+/// context and an indirect lighting context where different versions of the node's function
 /// is required.
 /// 
 class SgNodeContext

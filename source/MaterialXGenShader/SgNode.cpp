@@ -248,7 +248,7 @@ SgNodePtr SgNode::create(const string& name, const NodeDef& nodeDef, ShaderGener
     }
 
     // Let the shader generator assign in which contexts to use this node
-    shadergen.addNodeContextIDs(newNode.get());
+    shadergen.addNodeContextIDs(impl.get(), newNode.get());
 
     return newNode;
 }

@@ -57,17 +57,23 @@ GlslShaderGenerator::GlslShaderGenerator()
     // Create the node contexts used by this generator
     //
 
-    // BSDF context
-    SgNodeContextPtr ctxBsdf = createNodeContext(NODE_CONTEXT_BSDF);
-    ctxBsdf->addArgument(Argument("vec3", INCIDENT));
-    ctxBsdf->addArgument(Argument("vec3", OUTGOING));
+    // BSDF reflection context
+    SgNodeContextPtr ctxBsdfReflection = createNodeContext(NODE_CONTEXT_BSDF_REFLECTION);
+    ctxBsdfReflection->addArgument(Argument("vec3", INCIDENT));
+    ctxBsdfReflection->addArgument(Argument("vec3", OUTGOING));
+    ctxBsdfReflection->setFunctionSuffix("_reflection");
 
-    // BSDF-IBL context
-    SgNodeContextPtr ctxBsdfIbl = createNodeContext(NODE_CONTEXT_BSDF_IBL);
-    ctxBsdfIbl->addArgument(Argument("vec3", OUTGOING));
-    ctxBsdfIbl->setFunctionSuffix("_ibl");
+    // BSDF transmission context
+    SgNodeContextPtr ctxBsdfTransmission = createNodeContext(NODE_CONTEXT_BSDF_TRANSMISSION);
+    ctxBsdfTransmission->addArgument(Argument("vec3", OUTGOING));
+    ctxBsdfTransmission->setFunctionSuffix("_transmission");
 
-    // EDF context
+    // BSDF reflection IBL context
+    SgNodeContextPtr ctxBsdfIndirect = createNodeContext(NODE_CONTEXT_BSDF_INDIRECT);
+    ctxBsdfIndirect->addArgument(Argument("vec3", OUTGOING));
+    ctxBsdfIndirect->setFunctionSuffix("_indirect");
+
+    // EDF emission context
     SgNodeContextPtr ctxEdf = createNodeContext(NODE_CONTEXT_EDF);
     ctxEdf->addArgument(Argument("vec3", NORMAL));
     ctxEdf->addArgument(Argument("vec3", EVAL));
@@ -517,8 +523,7 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
 
     if (shader.hasClassification(SgNode::Classification::SURFACE))
     {
-        shader.addComment("TODO: How should we output transparency?");
-        shader.addLine("float outAlpha = 1.0 - sx_max_component(" + finalOutput + ".transparency)");
+        shader.addLine("float outAlpha = clamp(1.0 - dot(" + finalOutput + ".transparency, vec3(0.3333)), 0.0, 1.0)");
         shader.addLine(outputSocket->name + " = vec4(" + finalOutput + ".color, outAlpha)");
     }
     else
@@ -531,20 +536,37 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
     }
 }
 
-void GlslShaderGenerator::addNodeContextIDs(SgNode* node) const
+void GlslShaderGenerator::addNodeContextIDs(const InterfaceElement* elem, SgNode* node) const
 {
     if (node->hasClassification(SgNode::Classification::BSDF))
     {
-        node->addContextID(NODE_CONTEXT_BSDF);
-        node->addContextID(NODE_CONTEXT_BSDF_IBL);
+        const string& bsdfcontext = elem->getAttribute("bsdfcontext");
+        if (bsdfcontext == "R")
+        {
+            node->addContextID(NODE_CONTEXT_BSDF_REFLECTION);
+            node->addContextID(NODE_CONTEXT_BSDF_INDIRECT);
+        }
+        else if (bsdfcontext == "T")
+        {
+            node->addContextID(NODE_CONTEXT_BSDF_TRANSMISSION);
+        }
+        else
+        {
+            // Default case. 
+            // If no context is specified the node
+            // is used in all three bsdf contexts.
+            node->addContextID(NODE_CONTEXT_BSDF_REFLECTION);
+            node->addContextID(NODE_CONTEXT_BSDF_TRANSMISSION);
+            node->addContextID(NODE_CONTEXT_BSDF_INDIRECT);
+        }
     }
-    else if (node->hasClassification(SgNode::Classification::BSDF))
+    else if (node->hasClassification(SgNode::Classification::EDF))
     {
         node->addContextID(NODE_CONTEXT_EDF);
     }
     else
     {
-        ParentClass::addNodeContextIDs(node);
+        ParentClass::addNodeContextIDs(elem, node);
     }
 }
 
@@ -567,23 +589,50 @@ void GlslShaderGenerator::emitTextureNodes(Shader& shader)
     }
 }
 
-void GlslShaderGenerator::emitBsdfNodes(const SgNode& shaderNode, const string& incident, const string& outgoing, Shader& shader, string& bsdf)
+void GlslShaderGenerator::emitBsdfNodes(const SgNode& shaderNode, int bsdfContext, const string& incident, const string& outgoing, Shader& shader, string& bsdf)
 {
-    SgNodeContext context(NODE_CONTEXT_BSDF);
+    SgNodeContext context(bsdfContext);
 
-    // Set extra arguments according to the given directions
-    context.addArgument(Argument("vec3", incident));
-    context.addArgument(Argument("vec3", outgoing));
+    switch (bsdfContext)
+    {
+    case NODE_CONTEXT_BSDF_REFLECTION:
+        context.addArgument(Argument("vec3", incident));
+        context.addArgument(Argument("vec3", outgoing));
+        context.setFunctionSuffix("_reflection");
+        break;
+    case NODE_CONTEXT_BSDF_TRANSMISSION:
+        context.addArgument(Argument("vec3", outgoing));
+        context.setFunctionSuffix("_transmission");
+        break;
+    case NODE_CONTEXT_BSDF_INDIRECT:
+        context.addArgument(Argument("vec3", outgoing));
+        context.setFunctionSuffix("_indirect");
+        break;
+    default:
+        throw ExceptionShaderGenError("Unknown bsdf context id given when generating bsdf node function calls");
+    }
 
     SgNode* last = nullptr;
 
-    // Emit function calls for all BSDF nodes used by this shader
-    // The last node will hold the final result
+    // Emit function calls for all BSDF nodes used by this shader.
+    // The last node will hold the final result.
     for (SgNode* node : shader.getNodeGraph()->getNodes())
     {
         if (node->hasClassification(SgNode::Classification::BSDF) && shaderNode.isUsedClosure(node))
         {
-            shader.addFunctionCall(node, context, *this);
+            // Check if the node is defined in this context.
+            if (node->getContextIDs().count(bsdfContext))
+            {
+                shader.addFunctionCall(node, context, *this);
+            }
+            else
+            {
+                // Node is not defined in this context so just 
+                // emit the output variable set to default value.
+                shader.beginLine();
+                emitOutput(node->getOutput(), true, true, shader);
+                shader.endLine();
+            }
             last = node;
         }
     }
@@ -594,42 +643,15 @@ void GlslShaderGenerator::emitBsdfNodes(const SgNode& shaderNode, const string& 
     }
 }
 
-void GlslShaderGenerator::emitBsdfNodesIBL(const SgNode& shaderNode, const string& outgoing, Shader& shader, string& radiance)
-{
-    SgNodeContext context(NODE_CONTEXT_BSDF_IBL);
-
-    // Set extra arguments according to the given directions
-    context.addArgument(Argument("vec3", outgoing));
-    context.setFunctionSuffix("_ibl");
-
-    SgNode* last = nullptr;
-
-    // Emit function calls for all BSDF nodes used by this shader
-    // The last node will hold the final result
-    for (SgNode* node : shader.getNodeGraph()->getNodes())
-    {
-        if (node->hasClassification(SgNode::Classification::BSDF) && shaderNode.isUsedClosure(node))
-        {
-            shader.addFunctionCall(node, context, *this);
-            last = node;
-        }
-    }
-
-    if (last)
-    {
-        radiance = last->getOutput()->name;
-    }
-}
-
-void GlslShaderGenerator::emitEdfNodes(const SgNode& shaderNode, const string& orientDir, const string& evalDir, Shader& shader, string& edf)
+void GlslShaderGenerator::emitEdfNodes(const SgNode& shaderNode, const string& normalDir, const string& evalDir, Shader& shader, string& edf)
 {
     SgNodeContext context(NODE_CONTEXT_EDF);
 
     // Set extra arguments according to the given directions
-    context.addArgument(Argument("vec3", orientDir));
+    context.addArgument(Argument("vec3", normalDir));
     context.addArgument(Argument("vec3", evalDir));
 
-    edf = "vec3(0.0)";
+    edf = "EDF(0.0)";
 
     SgNode* last = nullptr;
 

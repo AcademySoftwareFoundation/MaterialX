@@ -1,23 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.36">
-  <!-- <shadingnormal> -->
-  <nodegraph name="IMP_shadingnormal_vector3" nodedef="ND_shadingnormal_vector3" type="vector3">
-    <normal name="Nw" type="vector3">
-      <parameter name="space" type="string" value="world"/>
-    </normal>
-    <multiply name="Nw_flipped" type="vector3">
-      <input name="in1" type="vector3" nodename="Nw"/>
-      <input name="in2" type="float" value="-1.0"/>
-    </multiply>
-    <backfacing name="backfacing" type="float"/>
-    <mix name="flip" type="vector3">
-      <input name="fg" type="vector3" nodename="Nw_flipped"/>
-      <input name="bg" type="vector3" nodename="Nw"/>
-      <input name="mix" type="float" nodename="backfacing"/>
-    </mix>
-    <output name="out" type="vector3" nodename="flip"/>
-  </nodegraph>
-
   <!-- <inputmap> -->
   <nodegraph name="IMP_inputmap_float" nodedef="ND_inputmap_float">
     <image name="image" type="float">

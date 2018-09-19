@@ -19,7 +19,7 @@ void Compare::emitFunctionCall(const SgNode& node, const SgNodeContext& context,
 
     // Declare the output variable
     shader.beginLine();
-    shadergen.emitOutput(node.getOutput(), true, shader);
+    shadergen.emitOutput(node.getOutput(), true, true, shader);
     shader.endLine();
 
     const SgInput* intest = node.getInput(INPUT_NAMES[0]);
@@ -58,7 +58,7 @@ void Compare::emitFunctionCall(const SgNode& node, const SgNodeContext& context,
         }
 
         shader.beginLine();
-        shadergen.emitOutput(node.getOutput(), false, shader);
+        shadergen.emitOutput(node.getOutput(), false, false, shader);
         shader.addStr(" = ");
         shadergen.emitInput(input, shader);
         shader.endLine();

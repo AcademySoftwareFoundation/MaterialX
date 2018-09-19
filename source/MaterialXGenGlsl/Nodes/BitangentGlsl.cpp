@@ -70,7 +70,7 @@ void BitangentGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*
 
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
         shader.beginLine();
-        shadergen.emitOutput(node.getOutput(), true, shader);
+        shadergen.emitOutput(node.getOutput(), true, false, shader);
         if (space == WORLD)
         {
             shader.addStr(" = normalize(" + blockPrefix + "bitangentWorld)");

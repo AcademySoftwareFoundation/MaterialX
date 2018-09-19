@@ -2,37 +2,37 @@
 <materialx version="1.36">
 
   <!-- <diffusebrdf> -->
-  <implementation name="IM_diffusebrdf_sx_glsl" nodedef="ND_diffusebrdf" file="sxpbrlib/sx-glsl/sx_diffusebrdf.glsl" function="sx_diffusebrdf" language="sx-glsl"/>
+  <implementation name="IM_diffusebrdf_sx_glsl" nodedef="ND_diffusebrdf" file="sxpbrlib/sx-glsl/sx_diffusebrdf.glsl" function="sx_diffusebrdf" language="sx-glsl" bsdfcontext="R"/>
 
   <!-- <diffusebtdf> -->
-  <implementation name="IM_diffusebtdf_sx_glsl" nodedef="ND_diffusebtdf" file="sxpbrlib/sx-glsl/sx_diffusebtdf.glsl" function="sx_diffusebtdf" language="sx-glsl"/>
+  <implementation name="IM_diffusebtdf_sx_glsl" nodedef="ND_diffusebtdf" file="sxpbrlib/sx-glsl/sx_diffusebtdf.glsl" function="sx_diffusebtdf" language="sx-glsl" bsdfcontext="R"/>
 
   <!-- <dielectricbrdf> -->
   <implementation name="IM_dielectricbrdf_sx_glsl" nodedef="ND_dielectricbrdf" file="sxpbrlib/sx-glsl/sx_dielectricbrdf.glsl" function="sx_dielectricbrdf" language="sx-glsl"/>
 
-  <!-- <conductorbrdf> -->
-  <implementation name="IM_conductorbrdf_sx_glsl" nodedef="ND_conductorbrdf" file="sxpbrlib/sx-glsl/sx_conductorbrdf.glsl" function="sx_conductorbrdf" language="sx-glsl"/>
-
   <!-- <dielectricbtdf> -->
-  <implementation name="IM_dielectricbtdf_sx_glsl" nodedef="ND_dielectricbtdf" file="sxpbrlib/sx-glsl/sx_dielectricbtdf.glsl" function="sx_dielectricbtdf" language="sx-glsl"/>
+  <implementation name="IM_dielectricbtdf_sx_glsl" nodedef="ND_dielectricbtdf" file="sxpbrlib/sx-glsl/sx_dielectricbtdf.glsl" function="sx_dielectricbtdf" language="sx-glsl" bsdfcontext="T"/>
+
+  <!-- <conductorbrdf> -->
+  <implementation name="IM_conductorbrdf_sx_glsl" nodedef="ND_conductorbrdf" file="sxpbrlib/sx-glsl/sx_conductorbrdf.glsl" function="sx_conductorbrdf" language="sx-glsl" bsdfcontext="R"/>
 
   <!-- <subsurfacebrdf> -->
-  <implementation name="IM_subsurfacebrdf_sx_glsl" nodedef="ND_subsurfacebrdf" file="sxpbrlib/sx-glsl/sx_subsurfacebrdf.glsl" function="sx_subsurfacebrdf" language="sx-glsl"/>
+  <implementation name="IM_subsurfacebrdf_sx_glsl" nodedef="ND_subsurfacebrdf" file="sxpbrlib/sx-glsl/sx_subsurfacebrdf.glsl" function="sx_subsurfacebrdf" language="sx-glsl" bsdfcontext="R"/>
 
   <!-- <sheenbrdf> -->
-  <implementation name="IM_sheenbrdf_sx_glsl" nodedef="ND_sheenbrdf" file="sxpbrlib/sx-glsl/sx_sheenbrdf.glsl" function="sx_sheenbrdf" language="sx-glsl"/>
-
-  <!-- <uniformedf> -->
-  <implementation name="IM_uniformedf_sx_glsl" nodedef="ND_uniformedf" file="sxpbrlib/sx-glsl/sx_uniformedf.glsl" function="sx_uniformedf" language="sx-glsl"/>
-
-  <!-- <conicaledf> -->
-  <implementation name="IM_conicaledf_sx_glsl" nodedef="ND_conicaledf" file="sxpbrlib/sx-glsl/sx_conicaledf.glsl" function="sx_conicaledf" language="sx-glsl"/>
+  <implementation name="IM_sheenbrdf_sx_glsl" nodedef="ND_sheenbrdf" file="sxpbrlib/sx-glsl/sx_sheenbrdf.glsl" function="sx_sheenbrdf" language="sx-glsl" bsdfcontext="R"/>
 
   <!-- <mixbsdf> -->
   <implementation name="IM_mixbsdf_sx_glsl" nodedef="ND_mixbsdf" file="sxpbrlib/sx-glsl/sx_mixbsdf.glsl" function="sx_mixbsdf" language="sx-glsl"/>
 
   <!-- <scalebsdf> -->
   <implementation name="IM_scalebsdf_sx_glsl" nodedef="ND_scalebsdf" file="sxpbrlib/sx-glsl/sx_scalebsdf.glsl" function="sx_scalebsdf" language="sx-glsl"/>
+
+  <!-- <uniformedf> -->
+  <implementation name="IM_uniformedf_sx_glsl" nodedef="ND_uniformedf" file="sxpbrlib/sx-glsl/sx_uniformedf.glsl" function="sx_uniformedf" language="sx-glsl"/>
+
+  <!-- <conicaledf> -->
+  <implementation name="IM_conicaledf_sx_glsl" nodedef="ND_conicaledf" file="sxpbrlib/sx-glsl/sx_conicaledf.glsl" function="sx_conicaledf" language="sx-glsl"/>
 
   <!-- <mixedf> -->
   <implementation name="IM_mixedf_sx_glsl" nodedef="ND_mixedf" file="sxpbrlib/sx-glsl/sx_mixedf.glsl" function="sx_mixedf" language="sx-glsl"/>

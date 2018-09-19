@@ -45,7 +45,9 @@ namespace
         { "u_worldViewProjectionMatrix", "WorldViewProjection" },
 
         { "u_viewDirection", "ViewDirection" },
-        { "u_viewPosition", "WorldCameraPosition" },
+//        { "u_viewPosition", "WorldCameraPosition" },
+        { "u_viewPosition", "ViewPosition" },
+
         { "u_frame", "Frame" },
         { "u_time", "Time" }
     };
@@ -356,7 +358,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.addBlock(shader.getSourceCode(OgsFxShader::PIXEL_STAGE), *this);
 
     // Add Main technique block
-    shader.addLine("technique Main", false);
+    shader.addLine("technique Main< string transparency = \"transparent\"; >", false);
     shader.beginScope(Shader::Brackets::BRACES);
     shader.addLine("pass p0", false);
     shader.beginScope(Shader::Brackets::BRACES);

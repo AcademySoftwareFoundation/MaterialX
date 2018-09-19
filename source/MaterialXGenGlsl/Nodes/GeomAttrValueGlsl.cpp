@@ -34,7 +34,7 @@ void GeomAttrValueGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext
         const string attrName = attrNameInput->value->getValueString();
 
         shader.beginLine();
-        shadergen.emitOutput(node.getOutput(), true, shader);
+        shadergen.emitOutput(node.getOutput(), true, false, shader);
         shader.addStr(" = u_geomattr_" + attrName);
         shader.endLine();
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)

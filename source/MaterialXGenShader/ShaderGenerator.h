@@ -56,7 +56,8 @@ public:
     virtual void emitInput(const SgInput* input, Shader& shader) const;
 
     /// Emit the output variable name for an output, optionally including it's type
-    virtual void emitOutput(const SgOutput* output, bool includeType, Shader& shader) const;
+    /// and default value assignment.
+    virtual void emitOutput(const SgOutput* output, bool includeType, bool assignDefault, Shader& shader) const;
 
     /// Return the v-direction used by the target system
     virtual Shader::VDirection getTargetVDirection() const;
@@ -66,7 +67,7 @@ public:
 
     /// Add node contexts id's to the given node to control 
     /// in which contexts this node should be used.
-    virtual void addNodeContextIDs(SgNode* node) const;
+    virtual void addNodeContextIDs(const InterfaceElement* elem, SgNode* node) const;
 
     /// Return the node context corresponding to the given id,
     /// or nullptr if no such context is found.

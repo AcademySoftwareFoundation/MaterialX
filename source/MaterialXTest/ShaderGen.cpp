@@ -924,7 +924,10 @@ TEST_CASE("Hello World", "[shadergen]")
     in1->setInterfaceName(inputA->getName());
     mx::InputPtr in2 = mult1->addInput("in2", "color3");
     in2->setInterfaceName(inputB->getName());
-    output1->setConnectedNode(mult1);
+
+
+    mx::NodePtr ramp4 = nodeGraph->addNode("ramp4", "ramp4_1", "color3");
+    output1->setConnectedNode(ramp4);
 
     // Create a material with the above node as the shader
     mx::MaterialPtr mtrl = doc->addMaterial(exampleName + "_material");
@@ -2066,16 +2069,27 @@ TEST_CASE("Transparency", "[shadergen]")
 
     // Create a nodedef interface for the surface shader
     mx::NodeDefPtr nodeDef = doc->addNodeDef("ND_" + exampleName, "surfaceshader", exampleName);
+    nodeDef->addInput("reflection", "float");
+    nodeDef->addInput("reflection_color", "color3");
     nodeDef->addInput("transmission", "float");
-    nodeDef->addInput("coating_color", "color3");
+    nodeDef->addInput("transmission_tint", "color3");
     nodeDef->addInput("roughness", "vector2");
     nodeDef->addInput("ior", "float");
     nodeDef->addInput("opacity", "float");
 
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("IMP_" + exampleName);
     nodeGraph->setAttribute("nodedef", nodeDef->getName());
+    
+    mx::NodePtr worldNormal = nodeGraph->addNode("normal", "worldNormal", "vector3");
+    worldNormal->setParameterValue<std::string>("space", "world");
+    mx::NodePtr worldTangent = nodeGraph->addNode("tangent", "worldTangent", "vector3");
+    worldTangent->setParameterValue<std::string>("space", "world");
 
     mx::NodePtr transmission = nodeGraph->addNode("dielectricbtdf", "transmission", "BSDF");
+    transmission->setConnectedNode("normal", worldNormal);
+    transmission->setConnectedNode("tangent", worldTangent);
+    mx::InputPtr transmission_tint = transmission->addInput("tint", "color3");
+    transmission_tint->setInterfaceName("transmission_tint");
     mx::InputPtr transmission_weight = transmission->addInput("weight", "float");
     transmission_weight->setInterfaceName("transmission");
     mx::InputPtr transmission_roughness = transmission->addInput("roughness", "vector2");
@@ -2083,17 +2097,22 @@ TEST_CASE("Transparency", "[shadergen]")
     mx::InputPtr transmission_ior = transmission->addInput("ior", "float");
     transmission_ior->setInterfaceName("ior");
 
-    mx::NodePtr coating = nodeGraph->addNode("dielectricbrdf", "coating", "BSDF");
-    coating->setConnectedNode("base", transmission);
-    mx::InputPtr coating_color = coating->addInput("color", "color3");
-    coating_color->setInterfaceName("coating_color");
-    mx::InputPtr coating_roughness = coating->addInput("roughness", "vector2");
-    coating_roughness->setInterfaceName("roughness");
-    mx::InputPtr coating_ior = coating->addInput("ior", "float");
-    coating_ior->setInterfaceName("ior");
+    mx::NodePtr reflection = nodeGraph->addNode("dielectricbrdf", "reflection", "BSDF");
+    reflection->setConnectedNode("normal", worldNormal);
+    reflection->setConnectedNode("tangent", worldTangent);
+    reflection->setConnectedNode("base", transmission);
+    mx::InputPtr reflection_color = reflection->addInput("tint", "color3");
+    reflection_color->setInterfaceName("reflection_color");
+    mx::InputPtr reflection_weight = reflection->addInput("weight", "float");
+    reflection_weight->setInterfaceName("reflection");
+    mx::InputPtr reflection_roughness = reflection->addInput("roughness", "vector2");
+    reflection_roughness->setInterfaceName("roughness");
+    mx::InputPtr reflection_ior = reflection->addInput("ior", "float");
+    reflection_ior->setInterfaceName("ior");
 
     mx::NodePtr surface = nodeGraph->addNode("surface", "surface1", "surfaceshader");
-    surface->setConnectedNode("bsdf", coating);
+    surface->setConnectedNode("bsdf", reflection);
+
     mx::InputPtr opacity = surface->addInput("opacity", "float");
     opacity->setInterfaceName("opacity");
 
@@ -2105,10 +2124,10 @@ TEST_CASE("Transparency", "[shadergen]")
     mx::ShaderRefPtr shaderRef = mtrl->addShaderRef(exampleName + "_shader", exampleName);
 
     // Bind shader parameter values
+    mx::BindInputPtr reflection_input = shaderRef->addBindInput("reflection", "float");
+    reflection_input->setValue(1.0f);
     mx::BindInputPtr transmission_input = shaderRef->addBindInput("transmission", "float");
-    transmission_input->setValue(0.0f);
-    mx::BindInputPtr coating_color_input = shaderRef->addBindInput("coating_color", "color3");
-    coating_color_input->setValue(mx::Color3(1.0f, 1.0f, 1.0f));
+    transmission_input->setValue(1.0f);
     mx::BindInputPtr roughness_input = shaderRef->addBindInput("roughness", "vector2");
     roughness_input->setValue(mx::Vector2(0.1f, 0.1f));
     mx::BindInputPtr ior_input = shaderRef->addBindInput("ior", "float");

@@ -143,7 +143,7 @@ void Compound::emitFunctionCall(const SgNode& node, const SgNodeContext& context
 
     // Declare the output variable
     shader.beginLine();
-    shadergen.emitOutput(node.getOutput(), true, shader);
+    shadergen.emitOutput(node.getOutput(), true, true, shader);
     shader.endLine();
 
     shader.beginLine();
@@ -171,7 +171,7 @@ void Compound::emitFunctionCall(const SgNode& node, const SgNodeContext& context
 
     // Emit function output
     shader.addStr(delim);
-    shadergen.emitOutput(node.getOutput(), false, shader);
+    shadergen.emitOutput(node.getOutput(), false, false, shader);
 
     // End function call
     shader.addStr(")");

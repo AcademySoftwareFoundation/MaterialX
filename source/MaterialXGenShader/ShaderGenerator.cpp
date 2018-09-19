@@ -123,17 +123,20 @@ void ShaderGenerator::emitInput(const SgInput* input, Shader &shader) const
     }
 }
 
-void ShaderGenerator::emitOutput(const SgOutput* output, bool includeType, Shader& shader) const
+void ShaderGenerator::emitOutput(const SgOutput* output, bool includeType, bool assignDefault, Shader& shader) const
 {
-    string typeStr;
-    if (includeType)
+    shader.addStr(includeType ? _syntax->getTypeName(output->type) + " " + output->name : output->name);
+    if (assignDefault)
     {
-        typeStr = _syntax->getTypeName(output->type) + " ";
+        const string& value =_syntax->getDefaultValue(output->type);
+        if (!value.empty())
+        {
+            shader.addStr(" = " + value);
+        }
     }
-    shader.addStr(typeStr + output->name);
 }
 
-void ShaderGenerator::addNodeContextIDs(SgNode* node) const
+void ShaderGenerator::addNodeContextIDs(const InterfaceElement* /*elem*/, SgNode* node) const
 {
     node->addContextID(NODE_CONTEXT_DEFAULT);
 }

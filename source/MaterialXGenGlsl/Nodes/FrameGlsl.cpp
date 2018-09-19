@@ -21,7 +21,7 @@ void FrameGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*cont
 
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
         shader.beginLine();
-        shadergen.emitOutput(node.getOutput(), true, shader);
+        shadergen.emitOutput(node.getOutput(), true, false, shader);
         shader.addStr(" = u_frame");
         shader.endLine();
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
