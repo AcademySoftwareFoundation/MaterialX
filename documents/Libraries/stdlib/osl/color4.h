@@ -156,6 +156,11 @@ color4 floor(color4 a)
     return color4(floor(a.rgb), floor(a.a));
 }
 
+color4 sign(color4 a)
+{
+    return color4(sign(a.rgb), sign(a.a));
+}
+
 color4 mix(color4 a, color4 b, float x )
 {
     return color4(mix(a.rgb, b.rgb, x),

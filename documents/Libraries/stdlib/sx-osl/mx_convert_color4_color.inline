@@ -1,1 +1,1 @@
-color({{in}}.x, {{in}}.y, {{in}}.z)
+color({{in}}.rgb[0], {{in}}.rgb[1], {{in}}.rgb[2])

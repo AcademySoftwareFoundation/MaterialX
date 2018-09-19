@@ -168,6 +168,14 @@ vector4 floor(vector4 in)
                     floor(in.w));
 }
 
+vector4 sign(vector4 in)
+{
+    return vector4 (sign(in.x),
+		    sign(in.y),
+		    sign(in.z),
+		    sign(in.w));
+}
+
 vector4 mix(vector4 value1, vector4 value2, float x )
 {
     return vector4 (mix( value1.x, value2.x, x),

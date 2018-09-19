@@ -158,6 +158,11 @@ color2 floor(color2 a)
     return color2(floor(a.r), floor(a.a));
 }
 
+color2 sign(color2 a)
+{
+    return color2(sign(a.r), sign(a.a));
+}
+
 color2 mix(color2 a, color2 b, float x )
 {
     return color2(mix(a.r, b.r, x),

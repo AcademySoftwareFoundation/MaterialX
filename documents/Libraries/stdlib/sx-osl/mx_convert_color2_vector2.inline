@@ -1,1 +1,1 @@
-vector2({{in}})
+vector2({{in}}.r, {{in}}.a)

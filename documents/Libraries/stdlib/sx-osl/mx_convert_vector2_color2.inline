@@ -1,1 +1,1 @@
-color2({{in}})
+color2({{in}}.x, {{in}}.y)
