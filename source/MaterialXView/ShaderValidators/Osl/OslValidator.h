@@ -89,6 +89,15 @@ class OslValidator : public ShaderValidator
         _oslIncludePathString = includePathString;
     }
 
+    /// Set OSL output name, excluding any extension.
+    /// During compiler checking an OSL file of the given output name will be used if it
+    /// is not empty. If temp then OSL will be written to a temporary file.
+    /// @param filePathString Full path name
+    void setOslOutputFilePath(const std::string filePathString)
+    {
+        _oslOutputFilePathString = filePathString;
+    }
+
     /// @}
 
   protected:
@@ -103,6 +112,7 @@ class OslValidator : public ShaderValidator
   private:
     std::string _oslCompilerExecutable;
     std::string _oslIncludePathString;
+    std::string _oslOutputFilePathString;
 };
 
 } // namespace MaterialX

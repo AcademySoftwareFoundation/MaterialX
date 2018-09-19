@@ -1,5 +1,6 @@
 #include <MaterialXView/ShaderValidators/Osl/OslValidator.h>
 #include <MaterialXView/Handlers/ObjGeometryHandler.h>
+#include <MaterialXGenShader/Util.h>
 
 #include <fstream>
 #include <iostream>
@@ -36,12 +37,16 @@ void OslValidator::compileOSL(const std::string& oslFileName)
         return;
     }
 
+    // Remove .osl and add .oso extension for output. 
+    std::string outputFileName = removeExtension(oslFileName);
+    outputFileName += ".oso";
+
     // Use a known error file name to check
     std::string errorFile(oslFileName + "_errors.txt");
     const std::string redirectString(" 2>&1");
 
     // Run the command and get back the result. If non-empty string throw exception with error
-    std::string command = _oslCompilerExecutable + " -q -I\"" + _oslIncludePathString + "\" " + oslFileName + " > " +
+    std::string command = _oslCompilerExecutable + " -q -I\"" + _oslIncludePathString + "\" " + oslFileName + " -o " + outputFileName + " > " +
         errorFile + redirectString;
 
     int returnValue = std::system(command.c_str());
@@ -89,7 +94,15 @@ void OslValidator::validateCreation(const std::vector<std::string>& stages)
     }
 
     // Dump string to disk. For OSL assume shader is in stage 0 slot.
-    const std::string fileName("_osl_temp.osl");
+    std::string fileName = _oslOutputFilePathString;
+    if (fileName.empty())
+    {
+        fileName = "_osl_temp.osl";
+    }
+    else
+    {
+        fileName += ".osl";
+    }
     std::ofstream file;
     file.open(fileName);
     file << stages[0];

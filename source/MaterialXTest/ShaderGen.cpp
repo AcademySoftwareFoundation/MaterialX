@@ -225,6 +225,13 @@ void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::H
     lightHandler.bindLightShaders(shadergen);
 }
 
+static std::string RESULT_DIRECTORY("results/");
+TEST_CASE("Bootstrap", "[shadergen]")
+{
+    // This must always come first
+    mx::makeDirectory(RESULT_DIRECTORY);
+}
+
 TEST_CASE("Syntax", "[shadergen]")
 {
 #ifdef MATERIALX_BUILD_GEN_OSL
@@ -874,12 +881,16 @@ static void validateOSL(const std::string oslFileName, std::string& errorResult)
         return;
     }
 
+    // Set oso output name
+    std::string osoFileName = mx::removeExtension(oslFileName);
+    osoFileName += ".oso";
+
     // Use a known error file name to check
     std::string errorFile(oslFileName + "_errors.txt");
     const std::string redirectString(" 2>&1");
 
     // Run the command and get back the result. If non-empty string throw exception with error
-    std::string command = oslcCommand + " -q -I\"" + oslIncludePath + "\" " + oslFileName + " > " +
+    std::string command = oslcCommand + " -o " + osoFileName + " -q -I\"" + oslIncludePath + "\" " + oslFileName + " > " +
         errorFile + redirectString;
 
     int returnValue = std::system(command.c_str());
@@ -946,7 +957,7 @@ TEST_CASE("Hello World", "[shadergen]")
         REQUIRE(shader->getSourceCode().length() > 0);
         // Write out to file for inspection
         std::ofstream file;
-        std::string fileName(shader->getName() + "_graph.osl");
+        std::string fileName(RESULT_DIRECTORY + shader->getName() + "_graph.osl");
         file.open(fileName);
         file << shader->getSourceCode();
         file.close();
@@ -962,7 +973,7 @@ TEST_CASE("Hello World", "[shadergen]")
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
         // Write out to file for inspection
-        fileName.assign(shader->getName() + "_shaderref.osl");
+        fileName.assign(RESULT_DIRECTORY + shader->getName() + "_shaderref.osl");
         file.open(fileName);
         file << shader->getSourceCode();
         file.close();
@@ -986,7 +997,7 @@ TEST_CASE("Hello World", "[shadergen]")
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
         std::ofstream file;
-        file.open(shader->getName() + "_graph.ogsfx");
+        file.open(RESULT_DIRECTORY + shader->getName() + "_graph.ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
         file.close();
 
@@ -996,7 +1007,7 @@ TEST_CASE("Hello World", "[shadergen]")
         REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
-        file.open(shader->getName() + "_shaderref.ogsfx");
+        file.open(RESULT_DIRECTORY + shader->getName() + "_shaderref.ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
         file.close();
     }
@@ -1015,10 +1026,10 @@ TEST_CASE("Hello World", "[shadergen]")
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
         std::ofstream file;
-        file.open(shader->getName() + "_graph.vert");
+        file.open(RESULT_DIRECTORY + shader->getName() + "_graph.vert");
         file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
         file.close();
-        file.open(shader->getName() + "_graph.frag");
+        file.open(RESULT_DIRECTORY + shader->getName() + "_graph.frag");
         file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
         file.close();
 
@@ -1029,10 +1040,10 @@ TEST_CASE("Hello World", "[shadergen]")
         REQUIRE(shader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
-        file.open(shader->getName() + "_shaderref.vert");
+        file.open(RESULT_DIRECTORY + shader->getName() + "_shaderref.vert");
         file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
         file.close();
-        file.open(shader->getName() + "_shaderref.frag");
+        file.open(RESULT_DIRECTORY + shader->getName() + "_shaderref.frag");
         file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
         file.close();
     }
@@ -1084,7 +1095,7 @@ TEST_CASE("Conditionals", "[shadergen]")
     // Write out a .dot file for visualization
     std::ofstream file;
     std::string dot = nodeGraph->asStringDot();
-    file.open(nodeGraph->getName() + ".dot");
+    file.open(RESULT_DIRECTORY + nodeGraph->getName() + ".dot");
     file << dot;
     file.close();
 
@@ -1109,7 +1120,7 @@ TEST_CASE("Conditionals", "[shadergen]")
         REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
 
         // Write out to file for inspection
-        const std::string fileName(shader->getName() + ".osl");
+        const std::string fileName(RESULT_DIRECTORY + shader->getName() + ".osl");
         file.open(fileName);
         file << shader->getSourceCode();
         file.close();
@@ -1132,7 +1143,7 @@ TEST_CASE("Conditionals", "[shadergen]")
 
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
-        file.open(shader->getName() + ".ogsfx");
+        file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
         file << shader->getSourceCode();
         file.close();
 
@@ -1156,10 +1167,10 @@ TEST_CASE("Conditionals", "[shadergen]")
 
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
-        file.open(shader->getName() + ".vert");
+        file.open(RESULT_DIRECTORY + shader->getName() + ".vert");
         file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
         file.close();
-        file.open(shader->getName() + ".frag");
+        file.open(RESULT_DIRECTORY + shader->getName() + ".frag");
         file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
         file.close();
 
@@ -1253,7 +1264,7 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
 
         // Write out to file for inspection
         std::ofstream file;
-        const std::string fileName(shader->getName() + ".osl");
+        const std::string fileName(RESULT_DIRECTORY + shader->getName() + ".osl");
         file.open(fileName);
         file << shader->getSourceCode();
         file.close();
@@ -1277,7 +1288,7 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
         std::ofstream file;
-        file.open(shader->getName() + ".ogsfx");
+        file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
     }
 #endif // MATERIALX_BUILD_GEN_OGSFX
@@ -1295,10 +1306,10 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
         std::ofstream file;
-        file.open(shader->getName() + ".frag");
+        file.open(RESULT_DIRECTORY + shader->getName() + ".frag");
         file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
         file.close();
-        file.open(shader->getName() + ".vert");
+        file.open(RESULT_DIRECTORY + shader->getName() + ".vert");
         file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
     }
 #endif // MATERIALX_BUILD_GEN_GLSL
@@ -1402,7 +1413,7 @@ TEST_CASE("Noise", "[shadergen]")
 
             // Write out to file for inspection
             std::ofstream file;
-            const std::string fileName(shader->getName() + ".osl");
+            const std::string fileName(RESULT_DIRECTORY + shader->getName() + ".osl");
             file.open(fileName);
             file << shader->getSourceCode();
             file.close();
@@ -1426,7 +1437,7 @@ TEST_CASE("Noise", "[shadergen]")
             // Write out to file for inspection
             // TODO: Use validation in MaterialXView library
             std::ofstream file;
-            file.open(shader->getName() + ".ogsfx");
+            file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
             file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
             file.close();
         }
@@ -1445,10 +1456,10 @@ TEST_CASE("Noise", "[shadergen]")
             // Write out to file for inspection
             // TODO: Use validation in MaterialXView library
             std::ofstream file;
-            file.open(shader->getName() + ".vert");
+            file.open(RESULT_DIRECTORY + shader->getName() + ".vert");
             file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
             file.close();
-            file.open(shader->getName() + ".frag");
+            file.open(RESULT_DIRECTORY + shader->getName() + ".frag");
             file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
             file.close();
         }
@@ -1504,7 +1515,7 @@ TEST_CASE("Unique Names", "[shadergen]")
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
         std::ofstream file;
-        const std::string fileName(exampleName + ".osl");
+        const std::string fileName(RESULT_DIRECTORY + exampleName + ".osl");
         file.open(fileName);
         file << shader->getSourceCode();
         file.close();
@@ -1537,7 +1548,7 @@ TEST_CASE("Unique Names", "[shadergen]")
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
         std::ofstream file;
-        file.open(exampleName + ".ogsfx");
+        file.open(RESULT_DIRECTORY + exampleName + ".ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
     }
 #endif // MATERIALX_BUILD_GEN_OGSFX
@@ -1564,10 +1575,10 @@ TEST_CASE("Unique Names", "[shadergen]")
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
         std::ofstream file;
-        file.open(exampleName + ".frag");
+        file.open(RESULT_DIRECTORY + exampleName + ".frag");
         file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
         file.close();
-        file.open(exampleName + ".vert");
+        file.open(RESULT_DIRECTORY + exampleName + ".vert");
         file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
     }
 #endif // MATERIALX_BUILD_GEN_GLSL
@@ -1610,7 +1621,7 @@ TEST_CASE("Subgraphs", "[shadergen]")
             // Write out to file for inspection
             // TODO: Use validation in MaterialXView library
             std::ofstream file;
-            const std::string fileName(shader->getName() + ".osl");
+            const std::string fileName(RESULT_DIRECTORY + shader->getName() + ".osl");
             file.open(fileName);
             file << shader->getSourceCode();
             file.close();
@@ -1647,7 +1658,7 @@ TEST_CASE("Subgraphs", "[shadergen]")
             // Write out to file for inspection
             // TODO: Use validation in MaterialXView library
             std::ofstream file;
-            file.open(shader->getName() + ".ogsfx");
+            file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
             file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
         }
     }
@@ -1679,10 +1690,10 @@ TEST_CASE("Subgraphs", "[shadergen]")
             // Write out to file for inspection
             // TODO: Use validation in MaterialXView library
             std::ofstream file;
-            file.open(shader->getName() + ".frag");
+            file.open(RESULT_DIRECTORY + shader->getName() + ".frag");
             file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
             file.close();
-            file.open(shader->getName() + ".vert");
+            file.open(RESULT_DIRECTORY + shader->getName() + ".vert");
             file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
         }
     }
@@ -1723,7 +1734,7 @@ TEST_CASE("Materials", "[shadergen]")
 
                 // Write out to file for inspection
                 std::ofstream file;
-                const std::string fileName(shader->getName() + ".osl");
+                const std::string fileName(RESULT_DIRECTORY + shader->getName() + ".osl");
                 file.open(fileName);
                 file << shader->getSourceCode();
                 file.close();
@@ -1758,7 +1769,7 @@ TEST_CASE("Materials", "[shadergen]")
                 // Write out to file for inspection
                 // TODO: Use validation in MaterialXView library
                 std::ofstream file;
-                file.open(shader->getName() + ".ogsfx");
+                file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
                 file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
             }
         }
@@ -1787,10 +1798,10 @@ TEST_CASE("Materials", "[shadergen]")
                 // Write out to file for inspection
                 // TODO: Use validation in MaterialXView library
                 std::ofstream file;
-                file.open(shader->getName() + ".frag");
+                file.open(RESULT_DIRECTORY + shader->getName() + ".frag");
                 file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
                 file.close();
-                file.open(shader->getName() + ".vert");
+                file.open(RESULT_DIRECTORY + shader->getName() + ".vert");
                 file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
             }
         }
@@ -1844,7 +1855,7 @@ TEST_CASE("Color Spaces", "[shadergen]")
 
         // Write out to file for inspection
         std::ofstream file;
-        const std::string fileName(shader->getName() + ".osl");
+        const std::string fileName(RESULT_DIRECTORY + shader->getName() + ".osl");
         file.open(fileName);
         file << shader->getSourceCode();
         file.close();
@@ -1868,7 +1879,7 @@ TEST_CASE("Color Spaces", "[shadergen]")
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
         std::ofstream file;
-        file.open(shader->getName() + ".ogsfx");
+        file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
     }
 #endif // MATERIALX_BUILD_GEN_OGSFX
@@ -1886,10 +1897,10 @@ TEST_CASE("Color Spaces", "[shadergen]")
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
         std::ofstream file;
-        file.open(shader->getName() + ".frag");
+        file.open(RESULT_DIRECTORY + shader->getName() + ".frag");
         file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
         file.close();
-        file.open(shader->getName() + ".vert");
+        file.open(RESULT_DIRECTORY + shader->getName() + ".vert");
         file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
     }
 #endif // MATERIALX_BUILD_GEN_GLSL
@@ -1995,7 +2006,7 @@ TEST_CASE("BSDF Layering", "[shadergen]")
             // Write out to file for inspection
             // TODO: Use validation in MaterialXView library
             std::ofstream file;
-            const std::string fileName(shader->getName() + ".osl");
+            const std::string fileName(RESULT_DIRECTORY + shader->getName() + ".osl");
             file.open(fileName);
             file << shader->getSourceCode();
             file.close();
@@ -2023,7 +2034,7 @@ TEST_CASE("BSDF Layering", "[shadergen]")
             // Write out to file for inspection
             // TODO: Use validation in MaterialXView library
             std::ofstream file;
-            file.open(shader->getName() + ".ogsfx");
+            file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
             file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
         }
 #endif // MATERIALX_BUILD_GEN_OGSFX
@@ -2045,10 +2056,10 @@ TEST_CASE("BSDF Layering", "[shadergen]")
             // Write out to file for inspection
             // TODO: Use validation in MaterialXView library
             std::ofstream file;
-            file.open(shader->getName() + ".frag");
+            file.open(RESULT_DIRECTORY + shader->getName() + ".frag");
             file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
             file.close();
-            file.open(shader->getName() + ".vert");
+            file.open(RESULT_DIRECTORY + shader->getName() + ".vert");
             file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
         }
 #endif // MATERIALX_BUILD_GEN_GLSL
@@ -2133,7 +2144,7 @@ TEST_CASE("Transparency", "[shadergen]")
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
         std::ofstream file;
-        const std::string fileName(shader->getName() + ".osl");
+        const std::string fileName(RESULT_DIRECTORY + shader->getName() + ".osl");
         file.open(fileName);
         file << shader->getSourceCode();
         file.close();
@@ -2161,7 +2172,7 @@ TEST_CASE("Transparency", "[shadergen]")
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
         std::ofstream file;
-        file.open(shader->getName() + ".ogsfx");
+        file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
     }
 #endif // MATERIALX_BUILD_GEN_OGSFX
@@ -2183,10 +2194,10 @@ TEST_CASE("Transparency", "[shadergen]")
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
         std::ofstream file;
-        file.open(shader->getName() + ".frag");
+        file.open(RESULT_DIRECTORY + shader->getName() + ".frag");
         file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
         file.close();
-        file.open(shader->getName() + ".vert");
+        file.open(RESULT_DIRECTORY + shader->getName() + ".vert");
         file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
     }
 #endif // MATERIALX_BUILD_GEN_GLSL
@@ -2275,7 +2286,7 @@ TEST_CASE("Surface Layering", "[shadergen]")
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
         std::ofstream file;
-        file.open(shader->getName() + ".ogsfx");
+        file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
     }
 #endif // MATERIALX_BUILD_GEN_OGSFX
@@ -2297,10 +2308,10 @@ TEST_CASE("Surface Layering", "[shadergen]")
         // Write out to file for inspection
         // TODO: Use validation in MaterialXView library
         std::ofstream file;
-        file.open(shader->getName() + ".frag");
+        file.open(RESULT_DIRECTORY + shader->getName() + ".frag");
         file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
         file.close();
-        file.open(shader->getName() + ".vert");
+        file.open(RESULT_DIRECTORY + shader->getName() + ".vert");
         file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
     }
 #endif // MATERIALX_BUILD_GEN_GLSL
@@ -2353,7 +2364,7 @@ TEST_CASE("Osl Output Types", "[shadergen]")
         REQUIRE(shader->getSourceCode().length() > 0);
         // Write out to file for inspection
         std::ofstream file;
-        std::string fileName(exampleName + "_color2.osl");
+        std::string fileName(RESULT_DIRECTORY + exampleName + "_color2.osl");
         file.open(fileName);
         file << shader->getSourceCode();
         file.close();
@@ -2368,7 +2379,7 @@ TEST_CASE("Osl Output Types", "[shadergen]")
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
         // Write out to file for inspection
-        fileName.assign(exampleName + "_color4.osl");
+        fileName.assign(RESULT_DIRECTORY + exampleName + "_color4.osl");
         file.open(fileName);
         file << shader->getSourceCode();
         file.close();
@@ -2403,7 +2414,7 @@ TEST_CASE("Osl Output Types", "[shadergen]")
         REQUIRE(shader->getSourceCode().length() > 0);
         // Write out to file for inspection
         std::ofstream file;
-        std::string fileName(exampleName + "_vector2.osl");
+        std::string fileName(RESULT_DIRECTORY + exampleName + "_vector2.osl");
         file.open(fileName);
         file << shader->getSourceCode();
         file.close();
@@ -2418,7 +2429,7 @@ TEST_CASE("Osl Output Types", "[shadergen]")
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
         // Write out to file for inspection
-        fileName.assign(exampleName + "_vector4.osl");
+        fileName.assign(RESULT_DIRECTORY + exampleName + "_vector4.osl");
         file.open(fileName);
         file << shader->getSourceCode();
         file.close();

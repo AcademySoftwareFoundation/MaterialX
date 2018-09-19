@@ -12,7 +12,7 @@ using ArnoldShaderGeneratorPtr = shared_ptr<class ArnoldShaderGenerator>;
 class ArnoldShaderGenerator : public OslShaderGenerator
 {
 public:
-    ArnoldShaderGenerator() : OslShaderGenerator() {}
+    ArnoldShaderGenerator();
 
     static ShaderGeneratorPtr create() { return std::make_shared<ArnoldShaderGenerator>(); }
 
