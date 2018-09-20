@@ -24,6 +24,10 @@ cmake_dependent_option(MATERIALX_BUILD_GEN_OGSFX "Build the OGSFX shader generat
 
 set(MATERIALX_OSLC_EXECUTABLE "" CACHE FILEPATH 
     "Full path to the oslc binary.")
+set(MATERIALX_TESTSHADE_EXECUTABLE "" CACHE FILEPATH 
+    "Full path to the testshade binary.")
+set(MATERIALX_TESTRENDER_EXECUTABLE "" CACHE FILEPATH 
+    "Full path to the testrender binary.")
 set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH
     "Full path to osl include paths. e.g. location of stdosl.h")
 
@@ -46,6 +50,8 @@ mark_as_advanced(MATERIALX_WARNINGS_AS_ERRORS)
 mark_as_advanced(MATERIALX_BUILD_VIEW)
 mark_as_advanced(MATERIALX_TEST_VIEW)
 mark_as_advanced(MATERIALX_OSLC_EXECUTABLE)
+mark_as_advanced(MATERIALX_TESTSHADE_EXECUTABLE)
+mark_as_advanced(MATERIALX_TESTRENDER_EXECUTABLE)
 mark_as_advanced(MATERIALX_OSL_INCLUDE_PATH)
 mark_as_advanced(MATERIALX_BUILD_GEN_OSL)
 mark_as_advanced(MATERIALX_BUILD_GEN_GLSL)
@@ -55,6 +61,8 @@ set(PYTHON_INCLUDE_DIR ${MATERIALX_PYTHON_INCLUDE_DIR})
 set(PYTHON_LIBRARY ${MATERIALX_PYTHON_LIBRARY})
 
 add_definitions(-DMATERIALX_OSLC_EXECUTABLE=\"${MATERIALX_OSLC_EXECUTABLE}\")
+add_definitions(-DMATERIALX_TESTSHADE_EXECUTABLE=\"${MATERIALX_TESTSHADE_EXECUTABLE}\")
+add_definitions(-DMATERIALX_TESTRENDER_EXECUTABLE=\"${MATERIALX_TESTRENDER_EXECUTABLE}\")
 add_definitions(-DMATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\")
 
 # Adjust the default installation path
