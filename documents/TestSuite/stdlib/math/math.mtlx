@@ -8,8 +8,10 @@ graph per math function for each variation in input type.
 - ceil
 - floor
 - sign
+- absval
+- invert
 
---->
+-->
 
 <?xml version="1.0"?>
 <materialx version="1.36">
@@ -20,7 +22,7 @@ graph per math function for each variation in input type.
     <constant name="constant1" type="float" xpos="4.64779" ypos="5.0614">
       <parameter name="value" type="float" value="1.5000" />
     </constant>
-    <output name="ln_out" type="float" nodename="ln1" />
+    <output name="out" type="float" nodename="ln1" />
   </nodegraph>
   <nodegraph name="exp_nodegraph" type="" xpos="5.8768" ypos="16.0483">
     <exp name="exp1" type="float" xpos="5.74483" ypos="4.74">
@@ -29,34 +31,34 @@ graph per math function for each variation in input type.
     <constant name="constant1" type="float" xpos="4.63706" ypos="5.0147">
       <parameter name="value" type="float" value="-1.0000" />
     </constant>
-    <output name="exp_out" type="float" nodename="exp1" />
+    <output name="out" type="float" nodename="exp1" />
   </nodegraph>
   <nodegraph name="sqrt_nodegraph" type="" xpos="5.85492" ypos="17.4359">
     <sqrt name="sqrt1" type="float" xpos="5.74483" ypos="4.74">
       <input name="in" type="float" value="0.0" nodename="constant1" />
     </sqrt>
-    <output name="sqrt_out" type="float" nodename="sqrt1" />
+    <output name="out" type="float" nodename="sqrt1" />
     <constant name="constant1" type="float" xpos="4.56729" ypos="4.92132">
       <parameter name="value" type="float" value="0.2500" />
     </constant>
   </nodegraph>
-  <nodegraph name="ceil_float_nodegraph" type="" xpos="5.84754" ypos="18.8117">
+  <nodegraph name="ceil_float_nodegraph" type="" xpos="5.85517" ypos="18.7675">
     <ceil name="ceil1" type="float" xpos="5.74483" ypos="4.74">
       <input name="in" type="float" value="0.0" nodename="constant1" />
     </ceil>
     <constant name="constant1" type="float" xpos="4.67999" ypos="4.99914">
       <parameter name="value" type="float" value="0.5000" />
     </constant>
-    <output name="ceil_float_out" type="float" nodename="ceil1" />
+    <output name="out" type="float" nodename="ceil1" />
   </nodegraph>
-  <nodegraph name="floor_float_nodegraph" type="" xpos="5.85985" ypos="20.7763">
-    <floor name="floor1" type="float" xpos="5.74483" ypos="4.74">
+  <nodegraph name="floor_float_nodegraph" type="" xpos="5.86524" ypos="21.3863">
+    <floor name="floor1" type="float" xpos="5.74483" ypos="10.24">
       <input name="in" type="float" value="0.0" nodename="constant1" />
     </floor>
-    <constant name="constant1" type="float" xpos="4.67999" ypos="4.99914">
+    <constant name="constant1" type="float" xpos="4.26207" ypos="10.54">
       <parameter name="value" type="float" value="0.5000" />
     </constant>
-    <output name="floor_float_out" type="float" nodename="floor1" />
+    <output name="out" type="float" nodename="floor1" />
   </nodegraph>
   <nodegraph name="ceil_vector2_nodegraph" type="" xpos="6.85754" ypos="18.8117">
     <ceil name="ceil1" type="vector2" xpos="5.74483" ypos="4.74">
@@ -65,13 +67,13 @@ graph per math function for each variation in input type.
     <constant name="constant1" type="vector2" xpos="4.72025" ypos="5.06918">
       <parameter name="value" type="vector2" value="-0.5000, 0.5000" />
     </constant>
-    <output name="ceil_vector2_out" type="vector2" nodename="ceil1" />
+    <output name="out" type="vector2" nodename="ceil1" />
   </nodegraph>
   <nodegraph name="ceil_vector3_nodegraph" type="" xpos="7.82105" ypos="18.7959">
     <constant name="constant1" type="vector3" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="vector3" value="-0.5000, 0.5000, 0.0000" />
     </constant>
-    <output name="ceil_vector3_out" type="vector3" nodename="ceil1" />
+    <output name="out" type="vector3" nodename="ceil1" />
     <ceil name="ceil1" type="vector3" xpos="6.77989" ypos="4.50184">
       <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="constant1" />
     </ceil>
@@ -83,90 +85,90 @@ graph per math function for each variation in input type.
     <constant name="constant1" type="vector4" xpos="4.7283" ypos="5.0225">
       <parameter name="value" type="vector4" value="-0.5000, 0.5000, 0.0, 1.0" />
     </constant>
-    <output name="ceil_vector4_out" type="vector4" nodename="ceil1" />
+    <output name="out" type="vector4" nodename="ceil1" />
   </nodegraph>
-  <nodegraph name="ceil_color2_nodegraph" type="" xpos="6.86335" ypos="19.8106">
+  <nodegraph name="ceil_color2_nodegraph" type="" xpos="6.87414" ypos="20.1078">
     <constant name="constant1" type="color2" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="color2" value="-0.5000, 0.5000" />
     </constant>
     <ceil name="ceil1" type="color2" xpos="6.8195" ypos="4.55544">
       <input name="in" type="color2" value="0.0, 1.0" nodename="constant1" />
     </ceil>
-    <output name="ceil_color2_out" type="color2" nodename="ceil1" />
+    <output name="out" type="color2" nodename="ceil1" />
   </nodegraph>
-  <nodegraph name="ceil_color3_nodegraph" type="" xpos="7.83641" ypos="19.7892">
+  <nodegraph name="ceil_color3_nodegraph" type="" xpos="7.84719" ypos="20.0864">
     <constant name="constant1" type="color3" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="color3" value="-0.5000, 0.5000, 0.0" />
     </constant>
     <ceil name="ceil1" type="color3" xpos="6.83007" ypos="4.60904">
       <input name="in" type="color3" value="0.0, 0.0, 0.0" nodename="constant1" />
     </ceil>
-    <output name="ceil_color3_out" type="color3" nodename="ceil1" />
+    <output name="out" type="color3" nodename="ceil1" />
   </nodegraph>
-  <nodegraph name="ceil_color4_nodegraph" type="" xpos="8.79961" ypos="19.7678">
+  <nodegraph name="ceil_color4_nodegraph" type="" xpos="8.8104" ypos="20.065">
     <constant name="constant1" type="color4" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="color4" value="-0.5000, 0.5000, 0.0, 1.0" />
     </constant>
     <ceil name="ceil1" type="color4" xpos="6.85383" ypos="4.57842">
       <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
     </ceil>
-    <output name="ceil_color4_out" type="color4" nodename="ceil1" />
+    <output name="out" type="color4" nodename="ceil1" />
   </nodegraph>
-  <nodegraph name="floor_vector2_nodegraph" type="" xpos="6.85842" ypos="20.7822">
+  <nodegraph name="floor_vector2_nodegraph" type="" xpos="6.86381" ypos="21.3922">
     <floor name="floor1" type="vector2" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector2" value="0.0, 0.0" nodename="constant1" />
     </floor>
     <constant name="constant1" type="vector2" xpos="4.65852" ypos="5.03028">
       <parameter name="value" type="vector2" value="0.5000, 1.5000" />
     </constant>
-    <output name="floor_vector2_out" type="vector2" nodename="floor1" />
+    <output name="out" type="vector2" nodename="floor1" />
   </nodegraph>
-  <nodegraph name="floor_vector3_nodegraph" type="" xpos="7.82901" ypos="20.7751">
+  <nodegraph name="floor_vector3_nodegraph" type="" xpos="7.8344" ypos="21.3851">
     <floor name="floor1" type="vector3" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="constant1" />
     </floor>
     <constant name="constant1" type="vector3" xpos="4.71488" ypos="5.03806">
       <parameter name="value" type="vector3" value="0.5000, 1.5000, 0.0" />
     </constant>
-    <output name="floor_vector3_out" type="vector3" nodename="floor1" />
+    <output name="out" type="vector3" nodename="floor1" />
   </nodegraph>
-  <nodegraph name="floor_vector4_nodegraph" type="" xpos="8.807" ypos="20.7536">
+  <nodegraph name="floor_vector4_nodegraph" type="" xpos="8.81239" ypos="21.3636">
     <floor name="floor1" type="vector4" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
     </floor>
     <constant name="constant1" type="vector4" xpos="4.74172" ypos="5.0225">
       <parameter name="value" type="vector4" value="0.5000, 1.5000, 0.0, 1.0" />
     </constant>
-    <output name="floor_vector4_out" type="vector4" nodename="floor1" />
+    <output name="out" type="vector4" nodename="floor1" />
   </nodegraph>
-  <nodegraph name="floor_color2_nodegraph" type="" xpos="6.86285" ypos="21.7523">
+  <nodegraph name="floor_color2_nodegraph" type="" xpos="6.86285" ypos="22.7221">
     <constant name="constant1" type="color2" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="color2" value="0.5000, 1.5000" />
     </constant>
     <floor name="floor1" type="color2" xpos="6.88816" ypos="4.57842">
       <input name="in" type="color2" value="0.0, 1.0" nodename="constant1" />
     </floor>
-    <output name="floor_color2_out" type="color2" nodename="floor1" />
+    <output name="out" type="color2" nodename="floor1" />
   </nodegraph>
-  <nodegraph name="floor_color3_nodegraph" type="" xpos="7.82606" ypos="21.7595">
+  <nodegraph name="floor_color3_nodegraph" type="" xpos="7.82606" ypos="22.7293">
     <constant name="constant1" type="color3" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="color3" value="0.5000, 1.5000, 0.0" />
     </constant>
     <floor name="floor1" type="color3" xpos="6.79838" ypos="4.58608">
       <input name="in" type="color3" value="0.0, 0.0, 0.0" nodename="constant1" />
     </floor>
-    <output name="floor_color3_out" type="color3" nodename="floor1" />
+    <output name="out" type="color3" nodename="floor1" />
   </nodegraph>
-  <nodegraph name="floor_color4_nodegraph" type="" xpos="8.81636" ypos="21.7381">
+  <nodegraph name="floor_color4_nodegraph" type="" xpos="8.81636" ypos="22.7079">
     <constant name="constant1" type="color4" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="color4" value="0.5000, 1.5000, 0.0, 1.0" />
     </constant>
     <floor name="floor1" type="color4" xpos="6.84855" ypos="4.58608">
       <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
     </floor>
-    <output name="floor_color4_out" type="color4" nodename="floor1" />
+    <output name="out" type="color4" nodename="floor1" />
   </nodegraph>
-  <nodegraph name="sign_float" type="" xpos="5.86582" ypos="22.7918">
+  <nodegraph name="sign_float" type="" xpos="5.84964" ypos="24.0275">
     <constant name="constant1" type="float" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="float" value="1.0000" />
     </constant>
@@ -175,7 +177,7 @@ graph per math function for each variation in input type.
     </sign>
     <output name="out" type="float" nodename="sign1" />
   </nodegraph>
-  <nodegraph name="sign_color2" type="" xpos="6.8901" ypos="22.8115">
+  <nodegraph name="sign_color2" type="" xpos="6.87392" ypos="24.0472">
     <constant name="constant1" type="color2" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="color2" value="0.0, 1.0" />
     </constant>
@@ -184,7 +186,7 @@ graph per math function for each variation in input type.
     </sign>
     <output name="out" type="color2" nodename="sign1" />
   </nodegraph>
-  <nodegraph name="sign_color3" type="" xpos="7.86834" ypos="22.8">
+  <nodegraph name="sign_color3" type="" xpos="7.85216" ypos="24.0357">
     <constant name="constant1" type="color3" xpos="5.20088" ypos="6.50044">
       <parameter name="value" type="color3" value="-0.5000, 0.0, 0.5000" />
     </constant>
@@ -200,7 +202,7 @@ graph per math function for each variation in input type.
       <parameter name="outhigh" type="float" value="1.0" />
     </remap>
   </nodegraph>
-  <nodegraph name="sign_color4" type="" xpos="8.83411" ypos="22.7838">
+  <nodegraph name="sign_color4" type="" xpos="8.81793" ypos="24.0195">
     <sign name="sign1" type="color4" xpos="6.676" ypos="7.51822">
       <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
     </sign>
@@ -216,7 +218,7 @@ graph per math function for each variation in input type.
       <parameter name="outhigh" type="float" value="1.0" />
     </remap>
   </nodegraph>
-  <nodegraph name="sign_vector2" type="" xpos="6.88862" ypos="23.8361">
+  <nodegraph name="sign_vector2" type="" xpos="6.88323" ypos="25.3534">
     <constant name="constant1" type="vector2" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="vector2" value="0.0, 1.0000" />
     </constant>
@@ -225,7 +227,7 @@ graph per math function for each variation in input type.
     </sign>
     <output name="out" type="vector2" nodename="sign1" />
   </nodegraph>
-  <nodegraph name="sign_vector3" type="" xpos="7.86834" ypos="23.8037">
+  <nodegraph name="sign_vector3" type="" xpos="7.86294" ypos="25.321">
     <constant name="constant1" type="vector3" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="vector3" value="-0.5000, 0.0, 0.5000" />
     </constant>
@@ -241,7 +243,7 @@ graph per math function for each variation in input type.
     </sign>
     <output name="out" type="vector3" nodename="remap1" />
   </nodegraph>
-  <nodegraph name="sign_vector4" type="" xpos="8.8369" ypos="23.7875">
+  <nodegraph name="sign_vector4" type="" xpos="8.8315" ypos="25.3048">
     <constant name="constant1" type="vector4" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="vector4" value="-0.5000, 0.0, 0.5000, 1.0" />
     </constant>
@@ -256,5 +258,138 @@ graph per math function for each variation in input type.
       <parameter name="outhigh" type="float" value="1.0" />
     </remap>
     <output name="out" type="vector4" nodename="remap1" />
+  </nodegraph>
+  <nodegraph name="absval_float" type="" xpos="5.86539" ypos="26.6098">
+    <absval name="absval1" type="float" xpos="5.74483" ypos="4.74">
+      <input name="in" type="float" value="-0.5000" />
+    </absval>
+    <output name="out" type="float" nodename="absval1" />
+  </nodegraph>
+  <nodegraph name="absval_color2" type="" xpos="6.88909" ypos="26.6401">
+    <absval name="absval1" type="color2" xpos="5.74483" ypos="4.74">
+      <input name="in" type="color2" value="-0.5000, -0.2500" />
+    </absval>
+    <output name="out" type="color2" nodename="absval1" />
+  </nodegraph>
+  <nodegraph name="absval_color3" type="" xpos="7.89772" ypos="26.621">
+    <absval name="absval1" type="color3" xpos="5.74483" ypos="4.74">
+      <input name="in" type="color3" value="-0.5000, -0.2500, 0.5000" />
+    </absval>
+    <output name="out" type="color3" nodename="absval1" />
+  </nodegraph>
+  <nodegraph name="absval_color4" type="" xpos="8.88479" ypos="26.6054">
+    <absval name="absval1" type="color4" xpos="5.74483" ypos="4.74">
+      <input name="in" type="color4" value="-0.5000, -0.2500, 0.5000, -1.0000" />
+    </absval>
+    <output name="out" type="color4" nodename="absval1" />
+  </nodegraph>
+  <nodegraph name="absval_vector2" type="" xpos="6.89519" ypos="27.9595">
+    <absval name="absval1" type="vector2" xpos="5.74483" ypos="4.74">
+      <input name="in" type="vector2" value="-0.5000, -0.2500" />
+    </absval>
+    <output name="out" type="vector2" nodename="absval1" />
+  </nodegraph>
+  <nodegraph name="absval_vector3" type="" xpos="7.90381" ypos="27.8999">
+    <absval name="absval1" type="vector3" xpos="5.74483" ypos="4.74">
+      <input name="in" type="vector3" value="-0.5000, -0.2500, 0.5000" />
+    </absval>
+    <output name="out" type="vector3" nodename="absval1" />
+  </nodegraph>
+  <nodegraph name="absval_vector4" type="" xpos="8.90707" ypos="27.8764">
+    <absval name="absval1" type="vector4" xpos="5.74483" ypos="4.74">
+      <input name="in" type="vector4" value="-0.5000, -0.2500, 0.5000, -1.0000" />
+    </absval>
+    <output name="out" type="vector4" nodename="absval1" />
+  </nodegraph>
+  <nodegraph name="invert_float" type="" xpos="5.90796" ypos="29.4446">
+    <invert name="invert1" type="float" xpos="5.74483" ypos="4.74">
+      <input name="in" type="float" value="0.5000" />
+      <parameter name="amount" type="float" value="1.0" />
+    </invert>
+    <output name="out" type="float" nodename="invert1" />
+  </nodegraph>
+  <nodegraph name="invert_vector2" type="" xpos="6.92069" ypos="32.23">
+    <invert name="invert1" type="vector2" xpos="5.75172" ypos="4.74">
+      <input name="in" type="vector2" value="0.5000, 0.5000" />
+      <parameter name="amount" type="vector2" value="1.0, 0.5000" />
+    </invert>
+    <output name="out" type="vector2" nodename="invert1" />
+  </nodegraph>
+  <nodegraph name="invert_vector2FA" type="" xpos="7.98966" ypos="32.23">
+    <invert name="invert1" type="vector2" xpos="5.75172" ypos="4.74">
+      <input name="in" type="vector2" value="0.5000, 1.0000" />
+      <parameter name="amount" type="float" value="1.0" />
+    </invert>
+    <output name="out" type="vector2" nodename="invert1" />
+  </nodegraph>
+  <nodegraph name="invert_vector3" type="" xpos="9.03793" ypos="32.21">
+    <invert name="invert1" type="vector3" xpos="5.75172" ypos="4.74">
+      <input name="in" type="vector3" value="0.5000, 0.5000, 0.0" />
+      <parameter name="amount" type="vector3" value="1.0, 0.5000, 0.0000" />
+    </invert>
+    <output name="out" type="vector3" nodename="invert1" />
+  </nodegraph>
+  <nodegraph name="invert_vector3FA" type="" xpos="6.92069" ypos="33.54">
+    <invert name="invert1" type="vector3" xpos="5.75172" ypos="4.74">
+      <input name="in" type="vector3" value="0.5000, 1.0000, 0.0" />
+      <parameter name="amount" type="float" value="1.0" />
+    </invert>
+    <output name="out" type="vector3" nodename="invert1" />
+  </nodegraph>
+  <nodegraph name="invert_vector4" type="" xpos="8.00345" ypos="33.53">
+    <invert name="invert1" type="vector4" xpos="5.75172" ypos="4.74">
+      <input name="in" type="vector4" value="0.5000, 0.5000, 0.0, 1.0" />
+      <parameter name="amount" type="vector4" value="1.0, 0.5000, 0.0000, 2.0000" />
+    </invert>
+    <output name="out" type="vector4" nodename="invert1" />
+  </nodegraph>
+  <nodegraph name="invert_vector4FA" type="" xpos="9.05517" ypos="33.53">
+    <invert name="invert1" type="vector4" xpos="5.75172" ypos="4.74">
+      <input name="in" type="vector4" value="0.5000, 1.0000, 0.0, 0.2500" />
+      <parameter name="amount" type="float" value="1.0" />
+    </invert>
+    <output name="out" type="vector4" nodename="invert1" />
+  </nodegraph>
+  <nodegraph name="invert_color2" type="" xpos="6.91379" ypos="29.43">
+    <invert name="invert1" type="color2" xpos="5.74483" ypos="4.74">
+      <input name="in" type="color2" value="0.5000, 0.5000" />
+      <parameter name="amount" type="color2" value="1.0, 0.5000" />
+    </invert>
+    <output name="out" type="color2" nodename="invert1" />
+  </nodegraph>
+  <nodegraph name="invert_color2FA" type="" xpos="7.95862" ypos="29.41">
+    <invert name="invert1" type="color2" xpos="5.74483" ypos="4.74">
+      <input name="in" type="color2" value="0.5000, 1.0" />
+      <parameter name="amount" type="float" value="1.0" />
+    </invert>
+    <output name="out" type="color2" nodename="invert1" />
+  </nodegraph>
+  <nodegraph name="invert_color3" type="" xpos="8.98276" ypos="29.38">
+    <invert name="invert1" type="color3" xpos="5.74483" ypos="4.74">
+      <input name="in" type="color3" value="0.5000, 0.5000, 0.0" />
+      <parameter name="amount" type="color3" value="1.0, 0.5000, 0.0000" />
+    </invert>
+    <output name="out" type="color3" nodename="invert1" />
+  </nodegraph>
+  <nodegraph name="invert_color3FA" type="" xpos="6.91379" ypos="30.86">
+    <invert name="invert1" type="color3" xpos="5.74483" ypos="4.74">
+      <input name="in" type="color3" value="0.5000, 1.0000, 0.0" />
+      <parameter name="amount" type="float" value="1.0" />
+    </invert>
+    <output name="out" type="color3" nodename="invert1" />
+  </nodegraph>
+  <nodegraph name="invert_color4" type="" xpos="7.98621" ypos="30.83">
+    <invert name="invert1" type="color4" xpos="5.74483" ypos="4.74">
+      <input name="in" type="color4" value="0.5000, 0.5000, 0.0, 1.0000" />
+      <parameter name="amount" type="color4" value="1.0, 0.5000, 0.0000, 2.0000" />
+    </invert>
+    <output name="out" type="color4" nodename="invert1" />
+  </nodegraph>
+  <nodegraph name="invert_color4FA" type="" xpos="9.02069" ypos="30.8">
+    <invert name="invert1" type="color4" xpos="5.74751" ypos="4.74778">
+      <input name="in" type="color4" value="0.5000, 1.0000, 0.0, 0.2500" />
+      <parameter name="amount" type="float" value="1.0" />
+    </invert>
+    <output name="out" type="color4" nodename="invert1" />
   </nodegraph>
 </materialx>
