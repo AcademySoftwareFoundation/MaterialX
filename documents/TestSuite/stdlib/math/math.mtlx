@@ -13,186 +13,186 @@ graph per math function for each variation in input type.
 
 <?xml version="1.0"?>
 <materialx version="1.36">
-  <nodegraph name="ln_nodegraph" type="" xpos="5.88123" ypos="14.6822" adskDisplayMode="1">
-    <ln name="ln1" type="float" xpos="5.74483" ypos="4.74" adskDisplayMode="2">
+  <nodegraph name="ln_nodegraph" type="" xpos="5.88123" ypos="14.6822">
+    <ln name="ln1" type="float" xpos="5.74483" ypos="4.74">
       <input name="in" type="float" value="0.0" nodename="constant1" />
     </ln>
-    <constant name="constant1" type="float" xpos="4.64779" ypos="5.0614" adskDisplayMode="2">
+    <constant name="constant1" type="float" xpos="4.64779" ypos="5.0614">
       <parameter name="value" type="float" value="1.5000" />
     </constant>
     <output name="ln_out" type="float" nodename="ln1" />
   </nodegraph>
-  <nodegraph name="exp_nodegraph" type="" xpos="5.8768" ypos="16.0483" adskDisplayMode="1">
-    <exp name="exp1" type="float" xpos="5.74483" ypos="4.74" adskDisplayMode="2">
+  <nodegraph name="exp_nodegraph" type="" xpos="5.8768" ypos="16.0483">
+    <exp name="exp1" type="float" xpos="5.74483" ypos="4.74">
       <input name="in" type="float" value="0.0" nodename="constant1" />
     </exp>
-    <constant name="constant1" type="float" xpos="4.63706" ypos="5.0147" adskDisplayMode="2">
+    <constant name="constant1" type="float" xpos="4.63706" ypos="5.0147">
       <parameter name="value" type="float" value="-1.0000" />
     </constant>
     <output name="exp_out" type="float" nodename="exp1" />
   </nodegraph>
-  <nodegraph name="sqrt_nodegraph" type="" xpos="5.85492" ypos="17.4359" adskDisplayMode="1">
-    <sqrt name="sqrt1" type="float" xpos="5.74483" ypos="4.74" adskDisplayMode="2">
+  <nodegraph name="sqrt_nodegraph" type="" xpos="5.85492" ypos="17.4359">
+    <sqrt name="sqrt1" type="float" xpos="5.74483" ypos="4.74">
       <input name="in" type="float" value="0.0" nodename="constant1" />
     </sqrt>
     <output name="sqrt_out" type="float" nodename="sqrt1" />
-    <constant name="constant1" type="float" xpos="4.56729" ypos="4.92132" adskDisplayMode="2">
+    <constant name="constant1" type="float" xpos="4.56729" ypos="4.92132">
       <parameter name="value" type="float" value="0.2500" />
     </constant>
   </nodegraph>
-  <nodegraph name="ceil_float_nodegraph" type="" xpos="5.84754" ypos="18.8117" adskDisplayMode="1">
-    <ceil name="ceil1" type="float" xpos="5.74483" ypos="4.74" adskDisplayMode="2">
+  <nodegraph name="ceil_float_nodegraph" type="" xpos="5.84754" ypos="18.8117">
+    <ceil name="ceil1" type="float" xpos="5.74483" ypos="4.74">
       <input name="in" type="float" value="0.0" nodename="constant1" />
     </ceil>
-    <constant name="constant1" type="float" xpos="4.67999" ypos="4.99914" adskDisplayMode="2">
+    <constant name="constant1" type="float" xpos="4.67999" ypos="4.99914">
       <parameter name="value" type="float" value="0.5000" />
     </constant>
     <output name="ceil_float_out" type="float" nodename="ceil1" />
   </nodegraph>
-  <nodegraph name="floor_float_nodegraph" type="" xpos="5.85985" ypos="20.7763" adskDisplayMode="1">
-    <floor name="floor1" type="float" xpos="5.74483" ypos="4.74" adskDisplayMode="2">
+  <nodegraph name="floor_float_nodegraph" type="" xpos="5.85985" ypos="20.7763">
+    <floor name="floor1" type="float" xpos="5.74483" ypos="4.74">
       <input name="in" type="float" value="0.0" nodename="constant1" />
     </floor>
-    <constant name="constant1" type="float" xpos="4.67999" ypos="4.99914" adskDisplayMode="2">
+    <constant name="constant1" type="float" xpos="4.67999" ypos="4.99914">
       <parameter name="value" type="float" value="0.5000" />
     </constant>
     <output name="floor_float_out" type="float" nodename="floor1" />
   </nodegraph>
-  <nodegraph name="ceil_vector2_nodegraph" type="" xpos="6.85754" ypos="18.8117" adskDisplayMode="1">
-    <ceil name="ceil1" type="vector2" xpos="5.74483" ypos="4.74" adskDisplayMode="2">
+  <nodegraph name="ceil_vector2_nodegraph" type="" xpos="6.85754" ypos="18.8117">
+    <ceil name="ceil1" type="vector2" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector2" value="0.0, 0.0" nodename="constant1" />
     </ceil>
-    <constant name="constant1" type="vector2" xpos="4.72025" ypos="5.06918" adskDisplayMode="2">
+    <constant name="constant1" type="vector2" xpos="4.72025" ypos="5.06918">
       <parameter name="value" type="vector2" value="-0.5000, 0.5000" />
     </constant>
     <output name="ceil_vector2_out" type="vector2" nodename="ceil1" />
   </nodegraph>
-  <nodegraph name="ceil_vector3_nodegraph" type="" xpos="7.82105" ypos="18.7959" adskDisplayMode="1">
-    <constant name="constant1" type="vector3" xpos="5.74483" ypos="4.9" adskDisplayMode="2">
+  <nodegraph name="ceil_vector3_nodegraph" type="" xpos="7.82105" ypos="18.7959">
+    <constant name="constant1" type="vector3" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="vector3" value="-0.5000, 0.5000, 0.0000" />
     </constant>
     <output name="ceil_vector3_out" type="vector3" nodename="ceil1" />
-    <ceil name="ceil1" type="vector3" xpos="6.77989" ypos="4.50184" adskDisplayMode="2">
+    <ceil name="ceil1" type="vector3" xpos="6.77989" ypos="4.50184">
       <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="constant1" />
     </ceil>
   </nodegraph>
-  <nodegraph name="ceil_vector4_nodegraph" type="" xpos="8.77251" ypos="18.7891" adskDisplayMode="1">
-    <ceil name="ceil1" type="vector4" xpos="5.74483" ypos="4.74" adskDisplayMode="2">
+  <nodegraph name="ceil_vector4_nodegraph" type="" xpos="8.77251" ypos="18.7891">
+    <ceil name="ceil1" type="vector4" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
     </ceil>
-    <constant name="constant1" type="vector4" xpos="4.7283" ypos="5.0225" adskDisplayMode="2">
+    <constant name="constant1" type="vector4" xpos="4.7283" ypos="5.0225">
       <parameter name="value" type="vector4" value="-0.5000, 0.5000, 0.0, 1.0" />
     </constant>
     <output name="ceil_vector4_out" type="vector4" nodename="ceil1" />
   </nodegraph>
-  <nodegraph name="ceil_color2_nodegraph" type="" xpos="6.86335" ypos="19.8106" adskDisplayMode="1">
-    <constant name="constant1" type="color2" xpos="5.74483" ypos="4.9" adskDisplayMode="2">
+  <nodegraph name="ceil_color2_nodegraph" type="" xpos="6.86335" ypos="19.8106">
+    <constant name="constant1" type="color2" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="color2" value="-0.5000, 0.5000" />
     </constant>
-    <ceil name="ceil1" type="color2" xpos="6.8195" ypos="4.55544" adskDisplayMode="2">
+    <ceil name="ceil1" type="color2" xpos="6.8195" ypos="4.55544">
       <input name="in" type="color2" value="0.0, 1.0" nodename="constant1" />
     </ceil>
     <output name="ceil_color2_out" type="color2" nodename="ceil1" />
   </nodegraph>
-  <nodegraph name="ceil_color3_nodegraph" type="" xpos="7.83641" ypos="19.7892" adskDisplayMode="1">
-    <constant name="constant1" type="color3" xpos="5.74483" ypos="4.9" adskDisplayMode="2">
+  <nodegraph name="ceil_color3_nodegraph" type="" xpos="7.83641" ypos="19.7892">
+    <constant name="constant1" type="color3" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="color3" value="-0.5000, 0.5000, 0.0" />
     </constant>
-    <ceil name="ceil1" type="color3" xpos="6.83007" ypos="4.60904" adskDisplayMode="2">
+    <ceil name="ceil1" type="color3" xpos="6.83007" ypos="4.60904">
       <input name="in" type="color3" value="0.0, 0.0, 0.0" nodename="constant1" />
     </ceil>
     <output name="ceil_color3_out" type="color3" nodename="ceil1" />
   </nodegraph>
-  <nodegraph name="ceil_color4_nodegraph" type="" xpos="8.79961" ypos="19.7678" adskDisplayMode="1">
-    <constant name="constant1" type="color4" xpos="5.74483" ypos="4.9" adskDisplayMode="2">
+  <nodegraph name="ceil_color4_nodegraph" type="" xpos="8.79961" ypos="19.7678">
+    <constant name="constant1" type="color4" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="color4" value="-0.5000, 0.5000, 0.0, 1.0" />
     </constant>
-    <ceil name="ceil1" type="color4" xpos="6.85383" ypos="4.57842" adskDisplayMode="2">
+    <ceil name="ceil1" type="color4" xpos="6.85383" ypos="4.57842">
       <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
     </ceil>
     <output name="ceil_color4_out" type="color4" nodename="ceil1" />
   </nodegraph>
-  <nodegraph name="floor_vector2_nodegraph" type="" xpos="6.85842" ypos="20.7822" adskDisplayMode="1">
-    <floor name="floor1" type="vector2" xpos="5.74483" ypos="4.74" adskDisplayMode="2">
+  <nodegraph name="floor_vector2_nodegraph" type="" xpos="6.85842" ypos="20.7822">
+    <floor name="floor1" type="vector2" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector2" value="0.0, 0.0" nodename="constant1" />
     </floor>
-    <constant name="constant1" type="vector2" xpos="4.65852" ypos="5.03028" adskDisplayMode="2">
+    <constant name="constant1" type="vector2" xpos="4.65852" ypos="5.03028">
       <parameter name="value" type="vector2" value="0.5000, 1.5000" />
     </constant>
     <output name="floor_vector2_out" type="vector2" nodename="floor1" />
   </nodegraph>
-  <nodegraph name="floor_vector3_nodegraph" type="" xpos="7.82901" ypos="20.7751" adskDisplayMode="1">
-    <floor name="floor1" type="vector3" xpos="5.74483" ypos="4.74" adskDisplayMode="2">
+  <nodegraph name="floor_vector3_nodegraph" type="" xpos="7.82901" ypos="20.7751">
+    <floor name="floor1" type="vector3" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="constant1" />
     </floor>
-    <constant name="constant1" type="vector3" xpos="4.71488" ypos="5.03806" adskDisplayMode="2">
+    <constant name="constant1" type="vector3" xpos="4.71488" ypos="5.03806">
       <parameter name="value" type="vector3" value="0.5000, 1.5000, 0.0" />
     </constant>
     <output name="floor_vector3_out" type="vector3" nodename="floor1" />
   </nodegraph>
-  <nodegraph name="floor_vector4_nodegraph" type="" xpos="8.807" ypos="20.7536" adskDisplayMode="1">
-    <floor name="floor1" type="vector4" xpos="5.74483" ypos="4.74" adskDisplayMode="2">
+  <nodegraph name="floor_vector4_nodegraph" type="" xpos="8.807" ypos="20.7536">
+    <floor name="floor1" type="vector4" xpos="5.74483" ypos="4.74">
       <input name="in" type="vector4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
     </floor>
-    <constant name="constant1" type="vector4" xpos="4.74172" ypos="5.0225" adskDisplayMode="2">
+    <constant name="constant1" type="vector4" xpos="4.74172" ypos="5.0225">
       <parameter name="value" type="vector4" value="0.5000, 1.5000, 0.0, 1.0" />
     </constant>
     <output name="floor_vector4_out" type="vector4" nodename="floor1" />
   </nodegraph>
-  <nodegraph name="floor_color2_nodegraph" type="" xpos="6.86285" ypos="21.7523" adskDisplayMode="1">
-    <constant name="constant1" type="color2" xpos="5.74483" ypos="4.9" adskDisplayMode="2">
+  <nodegraph name="floor_color2_nodegraph" type="" xpos="6.86285" ypos="21.7523">
+    <constant name="constant1" type="color2" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="color2" value="0.5000, 1.5000" />
     </constant>
-    <floor name="floor1" type="color2" xpos="6.88816" ypos="4.57842" adskDisplayMode="2">
+    <floor name="floor1" type="color2" xpos="6.88816" ypos="4.57842">
       <input name="in" type="color2" value="0.0, 1.0" nodename="constant1" />
     </floor>
     <output name="floor_color2_out" type="color2" nodename="floor1" />
   </nodegraph>
-  <nodegraph name="floor_color3_nodegraph" type="" xpos="7.82606" ypos="21.7595" adskDisplayMode="1">
-    <constant name="constant1" type="color3" xpos="5.74483" ypos="4.9" adskDisplayMode="2">
+  <nodegraph name="floor_color3_nodegraph" type="" xpos="7.82606" ypos="21.7595">
+    <constant name="constant1" type="color3" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="color3" value="0.5000, 1.5000, 0.0" />
     </constant>
-    <floor name="floor1" type="color3" xpos="6.79838" ypos="4.58608" adskDisplayMode="2">
+    <floor name="floor1" type="color3" xpos="6.79838" ypos="4.58608">
       <input name="in" type="color3" value="0.0, 0.0, 0.0" nodename="constant1" />
     </floor>
     <output name="floor_color3_out" type="color3" nodename="floor1" />
   </nodegraph>
-  <nodegraph name="floor_color4_nodegraph" type="" xpos="8.81636" ypos="21.7381" adskDisplayMode="1">
-    <constant name="constant1" type="color4" xpos="5.74483" ypos="4.9" adskDisplayMode="2">
+  <nodegraph name="floor_color4_nodegraph" type="" xpos="8.81636" ypos="21.7381">
+    <constant name="constant1" type="color4" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="color4" value="0.5000, 1.5000, 0.0, 1.0" />
     </constant>
-    <floor name="floor1" type="color4" xpos="6.84855" ypos="4.58608" adskDisplayMode="2">
+    <floor name="floor1" type="color4" xpos="6.84855" ypos="4.58608">
       <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
     </floor>
     <output name="floor_color4_out" type="color4" nodename="floor1" />
   </nodegraph>
-  <nodegraph name="sign_float" type="" xpos="5.86582" ypos="22.7918" adskDisplayMode="1">
-    <constant name="constant1" type="float" xpos="5.74483" ypos="4.9" adskDisplayMode="2">
+  <nodegraph name="sign_float" type="" xpos="5.86582" ypos="22.7918">
+    <constant name="constant1" type="float" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="float" value="1.0000" />
     </constant>
-    <sign name="sign1" type="float" xpos="6.90928" ypos="4.80814" adskDisplayMode="2">
+    <sign name="sign1" type="float" xpos="6.90928" ypos="4.80814">
       <input name="in" type="float" value="0.0" nodename="constant1" />
     </sign>
     <output name="out" type="float" nodename="sign1" />
   </nodegraph>
-  <nodegraph name="sign_color2" type="" xpos="6.8901" ypos="22.8115" adskDisplayMode="1">
-    <constant name="constant1" type="color2" xpos="5.74483" ypos="4.9" adskDisplayMode="2">
+  <nodegraph name="sign_color2" type="" xpos="6.8901" ypos="22.8115">
+    <constant name="constant1" type="color2" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="color2" value="0.0, 1.0" />
     </constant>
-    <sign name="sign1" type="color2" xpos="6.93041" ypos="5.6275" adskDisplayMode="2">
+    <sign name="sign1" type="color2" xpos="6.93041" ypos="5.6275">
       <input name="in" type="color2" value="0.0, 1.0" nodename="constant1" />
     </sign>
     <output name="out" type="color2" nodename="sign1" />
   </nodegraph>
-  <nodegraph name="sign_color3" type="" xpos="7.86834" ypos="22.8" adskDisplayMode="1">
-    <constant name="constant1" type="color3" xpos="5.20088" ypos="6.50044" adskDisplayMode="2">
+  <nodegraph name="sign_color3" type="" xpos="7.86834" ypos="22.8">
+    <constant name="constant1" type="color3" xpos="5.20088" ypos="6.50044">
       <parameter name="value" type="color3" value="-0.5000, 0.0, 0.5000" />
     </constant>
-    <sign name="sign1" type="color3" xpos="6.34949" ypos="6.36264" adskDisplayMode="2">
+    <sign name="sign1" type="color3" xpos="6.34949" ypos="6.36264">
       <input name="in" type="color3" value="0.0, 0.0, 0.0" nodename="constant1" />
     </sign>
     <output name="out" type="color3" nodename="remap1" />
-    <remap name="remap1" type="color3" xpos="7.6809" ypos="6.4775" adskDisplayMode="2">
+    <remap name="remap1" type="color3" xpos="7.6809" ypos="6.4775">
       <input name="in" type="color3" value="0.0, 0.0, 0.0" nodename="sign1" />
       <parameter name="inlow" type="float" value="-1.0000" />
       <parameter name="inhigh" type="float" value="1.0" />
@@ -200,15 +200,15 @@ graph per math function for each variation in input type.
       <parameter name="outhigh" type="float" value="1.0" />
     </remap>
   </nodegraph>
-  <nodegraph name="sign_color4" type="" xpos="8.83411" ypos="22.7838" adskDisplayMode="1">
-    <sign name="sign1" type="color4" xpos="6.676" ypos="7.51822" adskDisplayMode="2">
+  <nodegraph name="sign_color4" type="" xpos="8.83411" ypos="22.7838">
+    <sign name="sign1" type="color4" xpos="6.676" ypos="7.51822">
       <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
     </sign>
-    <constant name="constant1" type="color4" xpos="6.67876" ypos="5.75136" adskDisplayMode="2">
+    <constant name="constant1" type="color4" xpos="6.67876" ypos="5.75136">
       <parameter name="value" type="color4" value="-0.5000, 0.0, 0.5000, 1.0" />
     </constant>
     <output name="out" type="color4" nodename="remap2" />
-    <remap name="remap2" type="color4" xpos="6.71728" ypos="9.94476" adskDisplayMode="2">
+    <remap name="remap2" type="color4" xpos="6.71728" ypos="9.94476">
       <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" nodename="sign1" />
       <parameter name="inlow" type="float" value="-1.0000" />
       <parameter name="inhigh" type="float" value="1.0" />
@@ -216,39 +216,39 @@ graph per math function for each variation in input type.
       <parameter name="outhigh" type="float" value="1.0" />
     </remap>
   </nodegraph>
-  <nodegraph name="sign_vector2" type="" xpos="6.88862" ypos="23.8361" adskDisplayMode="1">
-    <constant name="constant1" type="vector2" xpos="5.74483" ypos="4.9" adskDisplayMode="2">
+  <nodegraph name="sign_vector2" type="" xpos="6.88862" ypos="23.8361">
+    <constant name="constant1" type="vector2" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="vector2" value="0.0, 1.0000" />
     </constant>
-    <sign name="sign1" type="vector2" xpos="6.2069" ypos="8.3" adskDisplayMode="2">
+    <sign name="sign1" type="vector2" xpos="6.2069" ypos="8.3">
       <input name="in" type="vector2" value="0.0, 0.0" nodename="constant1" />
     </sign>
     <output name="out" type="vector2" nodename="sign1" />
   </nodegraph>
-  <nodegraph name="sign_vector3" type="" xpos="7.86834" ypos="23.8037" adskDisplayMode="1">
-    <constant name="constant1" type="vector3" xpos="5.74483" ypos="4.9" adskDisplayMode="2">
+  <nodegraph name="sign_vector3" type="" xpos="7.86834" ypos="23.8037">
+    <constant name="constant1" type="vector3" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="vector3" value="-0.5000, 0.0, 0.5000" />
     </constant>
-    <remap name="remap1" type="vector3" xpos="6.2069" ypos="8.3" adskDisplayMode="2">
+    <remap name="remap1" type="vector3" xpos="6.2069" ypos="8.3">
       <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="sign1" />
       <parameter name="inlow" type="float" value="-1.0000" />
       <parameter name="inhigh" type="float" value="1.0" />
       <parameter name="outlow" type="float" value="0.0" />
       <parameter name="outhigh" type="float" value="1.0" />
     </remap>
-    <sign name="sign1" type="vector3" xpos="7.02703" ypos="5.49704" adskDisplayMode="2">
+    <sign name="sign1" type="vector3" xpos="7.02703" ypos="5.49704">
       <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="constant1" />
     </sign>
     <output name="out" type="vector3" nodename="remap1" />
   </nodegraph>
-  <nodegraph name="sign_vector4" type="" xpos="8.8369" ypos="23.7875" adskDisplayMode="1">
-    <constant name="constant1" type="vector4" xpos="5.74483" ypos="4.9" adskDisplayMode="2">
+  <nodegraph name="sign_vector4" type="" xpos="8.8369" ypos="23.7875">
+    <constant name="constant1" type="vector4" xpos="5.74483" ypos="4.9">
       <parameter name="value" type="vector4" value="-0.5000, 0.0, 0.5000, 1.0" />
     </constant>
-    <sign name="sign1" type="vector4" xpos="5.75536" ypos="6.56938" adskDisplayMode="2">
+    <sign name="sign1" type="vector4" xpos="5.75536" ypos="6.56938">
       <input name="in" type="vector4" value="0.0, 0.0, 0.0, 1.0" nodename="constant1" />
     </sign>
-    <remap name="remap1" type="vector4" xpos="5.81452" ypos="8.63666" adskDisplayMode="2">
+    <remap name="remap1" type="vector4" xpos="5.81452" ypos="8.63666">
       <input name="in" type="vector4" value="0.0, 0.0, 0.0, 1.0" nodename="sign1" />
       <parameter name="inlow" type="float" value="-1.0000" />
       <parameter name="inhigh" type="float" value="1.0" />
