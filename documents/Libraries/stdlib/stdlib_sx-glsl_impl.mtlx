@@ -349,17 +349,17 @@
   <!-- <power> -->
   <implementation name="IM_power_float_sx_glsl" nodedef="ND_power_float" file="stdlib/sx-glsl/mx_power.inline" language="sx-glsl"/>
   <implementation name="IM_power_color2_sx_glsl" nodedef="ND_power_color2" file="stdlib/sx-glsl/mx_power.inline"  language="sx-glsl"/>
-  <implementation name="IM_power_color2FA_sx_glsl" nodedef="ND_power_color2FA" file="stdlib/sx-glsl/mx_power.inline" language="sx-glsl"/>
+  <implementation name="IM_power_color2FA_sx_glsl" nodedef="ND_power_color2FA" file="stdlib/sx-glsl/mx_power_color2_float.inline" language="sx-glsl"/>
   <implementation name="IM_power_color3_sx_glsl" nodedef="ND_power_color3" file="stdlib/sx-glsl/mx_power.inline" language="sx-glsl"/>
-  <implementation name="IM_power_color3FA_sx_glsl" nodedef="ND_power_color3FA" file="stdlib/sx-glsl/mx_power.inline" language="sx-glsl"/>
+  <implementation name="IM_power_color3FA_sx_glsl" nodedef="ND_power_color3FA" file="stdlib/sx-glsl/mx_power_color3_float.inline" language="sx-glsl"/>
   <implementation name="IM_power_color4_sx_glsl" nodedef="ND_power_color4" file="stdlib/sx-glsl/mx_power.inline" language="sx-glsl"/>
-  <implementation name="IM_power_color4FA_sx_glsl" nodedef="ND_power_color4FA" file="stdlib/sx-glsl/mx_power.inline" language="sx-glsl"/>
+  <implementation name="IM_power_color4FA_sx_glsl" nodedef="ND_power_color4FA" file="stdlib/sx-glsl/mx_power_color4_float.inline" language="sx-glsl"/>
   <implementation name="IM_power_vector2_sx_glsl" nodedef="ND_power_vector2" file="stdlib/sx-glsl/mx_power.inline" language="sx-glsl"/>
-  <implementation name="IM_power_vector2FA_sx_glsl" nodedef="ND_power_vector2FA" file="stdlib/sx-glsl/mx_power.inline" language="sx-glsl"/>
+  <implementation name="IM_power_vector2FA_sx_glsl" nodedef="ND_power_vector2FA" file="stdlib/sx-glsl/mx_power_vector2_float.inline" language="sx-glsl"/>
   <implementation name="IM_power_vector3_sx_glsl" nodedef="ND_power_vector3" file="stdlib/sx-glsl/mx_power.inline" language="sx-glsl"/>
-  <implementation name="IM_power_vector3FA_sx_glsl" nodedef="ND_power_vector3FA" file="stdlib/sx-glsl/mx_power.inline" language="sx-glsl"/>
+  <implementation name="IM_power_vector3FA_sx_glsl" nodedef="ND_power_vector3FA" file="stdlib/sx-glsl/mx_power_vector3_float.inline" language="sx-glsl"/>
   <implementation name="IM_power_vector4_sx_glsl" nodedef="ND_power_vector4" file="stdlib/sx-glsl/mx_power.inline" language="sx-glsl"/>
-  <implementation name="IM_power_vector4FA_sx_glsl" nodedef="ND_power_vector4FA" file="stdlib/sx-glsl/mx_power.inline" language="sx-glsl"/>
+  <implementation name="IM_power_vector4FA_sx_glsl" nodedef="ND_power_vector4FA" file="stdlib/sx-glsl/mx_power_vector4_float.inline" language="sx-glsl"/>
 
   <!-- <sin>, <cos>, <tan>, <asin>, <acos>, <atan2> -->
   <implementation name="IM_sin_float_sx_glsl" nodedef="ND_sin_float" file="stdlib/sx-glsl/mx_sin.inline" language="sx-glsl"/>

@@ -6,7 +6,8 @@ Basic math operator function tests each test is in a separate graph for each var
 - multiply
 - divide
 - modulo
--
+- power
+
 -->
 
 <?xml version="1.0"?>
@@ -465,5 +466,96 @@ Basic math operator function tests each test is in a separate graph for each var
       <input name="in2" type="float" value="1.0000" />
     </modulo>
     <output name="out" type="vector4" nodename="modulo1" />
+  </nodegraph>
+  <nodegraph name="power_float" type="" xpos="5.0745" ypos="40.7844">
+    <power name="power1" type="float" xpos="5.74483" ypos="4.58">
+      <input name="in1" type="float" value="0.5000" />
+      <input name="in2" type="float" value="2.0000" />
+    </power>
+    <output name="out" type="float" nodename="power1" />
+  </nodegraph>
+  <nodegraph name="power_color2" type="" xpos="6.10347" ypos="40.7878">
+    <power name="power1" type="color2" xpos="5.74483" ypos="4.58">
+      <input name="in1" type="color2" value="0.5000, 1.0" />
+      <input name="in2" type="color2" value="2.0000, 1.0" />
+    </power>
+    <output name="out" type="color2" nodename="power1" />
+  </nodegraph>
+  <nodegraph name="power_color2FA" type="" xpos="7.13288" ypos="40.7668">
+    <power name="power1" type="color2" xpos="5.74483" ypos="4.58">
+      <input name="in1" type="color2" value="0.5000, 1.0000" />
+      <input name="in2" type="float" value="2.0000" />
+    </power>
+    <output name="out" type="color2" nodename="power1" />
+  </nodegraph>
+  <nodegraph name="power_color3" type="" xpos="8.17625" ypos="40.7566">
+    <power name="power1" type="color3" xpos="5.74483" ypos="4.56">
+      <input name="in1" type="color3" value="0.5000, 1.0000, 1.0000" />
+      <input name="in2" type="color3" value="2.0000, 1.0000, 0.0" />
+    </power>
+    <output name="out" type="color3" nodename="power1" />
+  </nodegraph>
+  <nodegraph name="power_color3FA" type="" xpos="6.11045" ypos="42.1414">
+    <power name="power1" type="color3" xpos="5.74483" ypos="4.58">
+      <input name="in1" type="color3" value="0.5000, 1.0000, 0.0000" />
+      <input name="in2" type="float" value="2.0000" />
+    </power>
+    <output name="out" type="color3" nodename="power1" />
+  </nodegraph>
+  <nodegraph name="power_color4" type="" xpos="7.13986" ypos="42.0842">
+    <power name="power1" type="color4" xpos="5.74483" ypos="4.58">
+      <input name="in1" type="color4" value="0.5000, 1.0000, 1.0000, 1.0000" />
+      <input name="in2" type="color4" value="2.0000, 1.0000, 0.0000, 3.0000" />
+    </power>
+    <output name="out" type="color4" nodename="power1" />
+  </nodegraph>
+  <nodegraph name="power_color4FA" type="" xpos="8.18323" ypos="42.054">
+    <power name="power1" type="color4" xpos="5.74483" ypos="4.58">
+      <input name="in1" type="color4" value="0.5000, 1.0000, 0.0, -0.5000" />
+      <input name="in2" type="float" value="2.0000" />
+    </power>
+    <output name="out" type="color4" nodename="power1" />
+  </nodegraph>
+  <nodegraph name="power_vector2" type="" xpos="6.09998" ypos="43.4606">
+    <power name="power1" type="vector2" xpos="5.74483" ypos="4.58">
+      <input name="in1" type="vector2" value="0.5000, 1.0000" />
+      <input name="in2" type="vector2" value="2.0000, 1.0000" />
+    </power>
+    <output name="out" type="vector2" nodename="power1" />
+  </nodegraph>
+  <nodegraph name="power_vector2FA" type="" xpos="7.1467" ypos="43.4286">
+    <power name="power1" type="vector2" xpos="5.74483" ypos="4.58">
+      <input name="in1" type="vector2" value="0.5000, 1.0000" />
+      <input name="in2" type="float" value="2.0000" />
+    </power>
+    <output name="out" type="vector2" nodename="power1" />
+  </nodegraph>
+  <nodegraph name="power_vector3" type="" xpos="8.20053" ypos="43.3982">
+    <power name="power1" type="vector3" xpos="5.74483" ypos="4.58">
+      <input name="in1" type="vector3" value="0.5000, 1.0000, 1.0000" />
+      <input name="in2" type="vector3" value="2.0000, 1.0000, 0.0" />
+    </power>
+    <output name="out" type="vector3" nodename="power1" />
+  </nodegraph>
+  <nodegraph name="power_vector3FA" type="" xpos="6.09765" ypos="44.8046">
+    <power name="power1" type="vector3" xpos="5.74483" ypos="4.58">
+      <input name="in1" type="vector3" value="0.5000, 1.0000, 0.0" />
+      <input name="in2" type="float" value="2.0000" />
+    </power>
+    <output name="out" type="vector3" nodename="power1" />
+  </nodegraph>
+  <nodegraph name="power_vector4" type="" xpos="7.15425" ypos="44.7904">
+    <power name="power1" type="vector4" xpos="5.74483" ypos="4.58">
+      <input name="in1" type="vector4" value="0.5000, 1.0000, 1.0000, 1.0" />
+      <input name="in2" type="vector4" value="2.0000, 1.0000, 0.0, 3.0000" />
+    </power>
+    <output name="out" type="vector4" nodename="power1" />
+  </nodegraph>
+  <nodegraph name="power_vector4FA" type="" xpos="8.22205" ypos="44.76">
+    <power name="power1" type="vector4" xpos="5.74483" ypos="4.58">
+      <input name="in1" type="vector4" value="0.5000, 1.0000, 0.0, -0.5000" />
+      <input name="in2" type="float" value="2.0000" />
+    </power>
+    <output name="out" type="vector4" nodename="power1" />
   </nodegraph>
 </materialx>
