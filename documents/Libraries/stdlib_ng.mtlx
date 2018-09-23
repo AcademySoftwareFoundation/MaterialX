@@ -950,12 +950,15 @@
     A 4-corner bilinear value ramp.
   -->
   <nodegraph name="NG_ramp4_float" nodedef="ND_ramp4_float">
-    <extract name="N_s_float" type="float">
+    <clamp name="N_txclamp_float" type="vector2">
       <input name="in" type="vector2" interfacename="texcoord"/>
+    </clamp>
+    <extract name="N_s_float" type="float">
+      <input name="in" type="vector2" nodename="N_txclamp_float"/>
       <parameter name="index" type="integer" value="0"/>
     </extract>
     <extract name="N_t_float" type="float">
-      <input name="in" type="vector2" interfacename="texcoord"/>
+      <input name="in" type="vector2" nodename="N_txclamp_float"/>
       <parameter name="index" type="integer" value="1"/>
     </extract>
     <mix name="N_mixtop_float" type="float">
@@ -977,12 +980,15 @@
   </nodegraph>
 
   <nodegraph name="NG_ramp4_color2" nodedef="ND_ramp4_color2">
-    <extract name="N_s_color2" type="float">
+    <clamp name="N_txclamp_color2" type="vector2">
       <input name="in" type="vector2" interfacename="texcoord"/>
+    </clamp>
+    <extract name="N_s_color2" type="float">
+      <input name="in" type="vector2" nodename="N_txclamp_color2"/>
       <parameter name="index" type="integer" value="0"/>
     </extract>
     <extract name="N_t_color2" type="float">
-      <input name="in" type="vector2" interfacename="texcoord"/>
+      <input name="in" type="vector2" nodename="N_txclamp_color2"/>
       <parameter name="index" type="integer" value="1"/>
     </extract>
     <mix name="N_mixtop_color2" type="color2">
@@ -1004,12 +1010,15 @@
   </nodegraph>
 
   <nodegraph name="NG_ramp4_color3" nodedef="ND_ramp4_color3">
-    <extract name="N_s_color3" type="float">
+    <clamp name="N_txclamp_color3" type="vector2">
       <input name="in" type="vector2" interfacename="texcoord"/>
+    </clamp>
+    <extract name="N_s_color3" type="float">
+      <input name="in" type="vector2" nodename="N_txclamp_color3"/>
       <parameter name="index" type="integer" value="0"/>
     </extract>
     <extract name="N_t_color3" type="float">
-      <input name="in" type="vector2" interfacename="texcoord"/>
+      <input name="in" type="vector2" nodename="N_txclamp_color3"/>
       <parameter name="index" type="integer" value="1"/>
     </extract>
     <mix name="N_mixtop_color3" type="color3">
@@ -1031,12 +1040,15 @@
   </nodegraph>
 
   <nodegraph name="NG_ramp4_color4" nodedef="ND_ramp4_color4">
-    <extract name="N_s_color4" type="float">
+    <clamp name="N_txclamp_color4" type="vector2">
       <input name="in" type="vector2" interfacename="texcoord"/>
+    </clamp>
+    <extract name="N_s_color4" type="float">
+      <input name="in" type="vector2" nodename="N_txclamp_color4"/>
       <parameter name="index" type="integer" value="0"/>
     </extract>
     <extract name="N_t_color4" type="float">
-      <input name="in" type="vector2" interfacename="texcoord"/>
+      <input name="in" type="vector2" nodename="N_txclamp_color4"/>
       <parameter name="index" type="integer" value="1"/>
     </extract>
     <mix name="N_mixtop_color4" type="color4">
@@ -1058,12 +1070,15 @@
   </nodegraph>
 
   <nodegraph name="NG_ramp4_vector2" nodedef="ND_ramp4_vector2">
-    <extract name="N_s_vector2" type="float">
+    <clamp name="N_txclamp_vector2" type="vector2">
       <input name="in" type="vector2" interfacename="texcoord"/>
+    </clamp>
+    <extract name="N_s_vector2" type="float">
+      <input name="in" type="vector2" nodename="N_txclamp_vector2"/>
       <parameter name="index" type="integer" value="0"/>
     </extract>
     <extract name="N_t_vector2" type="float">
-      <input name="in" type="vector2" interfacename="texcoord"/>
+      <input name="in" type="vector2" nodename="N_txclamp_vector2"/>
       <parameter name="index" type="integer" value="1"/>
     </extract>
     <mix name="N_mixtop_vector2" type="vector2">
@@ -1085,12 +1100,15 @@
   </nodegraph>
 
   <nodegraph name="NG_ramp4_vector3" nodedef="ND_ramp4_vector3">
-    <extract name="N_s_vector3" type="float">
+    <clamp name="N_txclamp_vector3" type="vector2">
       <input name="in" type="vector2" interfacename="texcoord"/>
+    </clamp>
+    <extract name="N_s_vector3" type="float">
+      <input name="in" type="vector2" nodename="N_txclamp_vector3"/>
       <parameter name="index" type="integer" value="0"/>
     </extract>
     <extract name="N_t_vector3" type="float">
-      <input name="in" type="vector2" interfacename="texcoord"/>
+      <input name="in" type="vector2" nodename="N_txclamp_vector3"/>
       <parameter name="index" type="integer" value="1"/>
     </extract>
     <mix name="N_mixtop_vector3" type="vector3">
@@ -1112,12 +1130,15 @@
   </nodegraph>
 
   <nodegraph name="NG_ramp4_vector4" nodedef="ND_ramp4_vector4">
-    <extract name="N_s_vector4" type="float">
+    <clamp name="N_txclamp_vector4" type="vector2">
       <input name="in" type="vector2" interfacename="texcoord"/>
+    </clamp>
+    <extract name="N_s_vector4" type="float">
+      <input name="in" type="vector2" nodename="N_txclamp_vector4"/>
       <parameter name="index" type="integer" value="0"/>
     </extract>
     <extract name="N_t_vector4" type="float">
-      <input name="in" type="vector2" interfacename="texcoord"/>
+      <input name="in" type="vector2" nodename="N_txclamp_vector4"/>
       <parameter name="index" type="integer" value="1"/>
     </extract>
     <mix name="N_mixtop_vector4" type="vector4">
@@ -2094,6 +2115,7 @@
     <switch name="N_sw_color2" type="float">
       <input name="in1" type="float" nodename="N_r_color2"/>
       <input name="in2" type="float" nodename="N_g_color2"/>
+      <parameter name="which" type="float" interfacename="index"/>
     </switch>
     <output name="N_out_color2" type="float" nodename="N_sw_color2"/>
   </nodegraph>
@@ -2110,6 +2132,7 @@
     <switch name="N_sw_vector2" type="float">
       <input name="in1" type="float" nodename="N_r_vector2"/>
       <input name="in2" type="float" nodename="N_g_vector2"/>
+      <parameter name="which" type="float" interfacename="index"/>
     </switch>
     <output name="N_out_vector2" type="float" nodename="N_sw_vector2"/>
   </nodegraph>
@@ -2131,6 +2154,7 @@
       <input name="in1" type="float" nodename="N_r_color3"/>
       <input name="in2" type="float" nodename="N_g_color3"/>
       <input name="in3" type="float" nodename="N_b_color3"/>
+      <parameter name="which" type="float" interfacename="index"/>
     </switch>
     <output name="N_out_color3" type="float" nodename="N_sw_color3"/>
   </nodegraph>
@@ -2152,6 +2176,7 @@
       <input name="in1" type="float" nodename="N_r_vector3"/>
       <input name="in2" type="float" nodename="N_g_vector3"/>
       <input name="in3" type="float" nodename="N_b_vector3"/>
+      <parameter name="which" type="float" interfacename="index"/>
     </switch>
     <output name="N_out_vector3" type="float" nodename="N_sw_vector3"/>
   </nodegraph>
@@ -2178,6 +2203,7 @@
       <input name="in2" type="float" nodename="N_g_color4"/>
       <input name="in3" type="float" nodename="N_b_color4"/>
       <input name="in4" type="float" nodename="N_a_color4"/>
+      <parameter name="which" type="float" interfacename="index"/>
     </switch>
     <output name="N_out_color4" type="float" nodename="N_sw_color4"/>
   </nodegraph>
@@ -2204,6 +2230,7 @@
       <input name="in2" type="float" nodename="N_g_vector4"/>
       <input name="in3" type="float" nodename="N_b_vector4"/>
       <input name="in4" type="float" nodename="N_a_vector4"/>
+      <parameter name="which" type="float" interfacename="index"/>
     </switch>
     <output name="N_out_vector4" type="float" nodename="N_sw_vector4"/>
   </nodegraph>
