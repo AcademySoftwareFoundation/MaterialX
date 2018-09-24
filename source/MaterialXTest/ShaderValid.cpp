@@ -308,6 +308,7 @@ static mx::OslValidatorPtr createOSLValidator(bool& orthographicView, std::ostre
 {
     bool initialized = false;
     orthographicView = true;
+    bool initializeTestRender = false;
 
     mx::OslValidatorPtr validator = mx::OslValidator::create();
 #ifdef MATERIALX_OSLC_EXECUTABLE
@@ -318,6 +319,7 @@ static mx::OslValidatorPtr createOSLValidator(bool& orthographicView, std::ostre
 #endif
 #ifdef MATERIALX_TESTRENDER_EXECUTABLE
     validator->setOslTestRenderExecutable(MATERIALX_TESTRENDER_EXECUTABLE);
+    initializeTestRender = true;
 #endif
 #ifdef MATERIALX_OSL_INCLUDE_PATH
     validator->setOslIncludePath(MATERIALX_OSL_INCLUDE_PATH);
@@ -326,9 +328,28 @@ static mx::OslValidatorPtr createOSLValidator(bool& orthographicView, std::ostre
     try
     {
         validator->initialize();
-        validator->setImageHandler(imageHandler);
+        validator->setImageHandler(nullptr);
         validator->setLightHandler(nullptr);
         initialized = true;
+
+        // Pre-compile some required shaders for testrender
+        if (initializeTestRender)
+        {
+            mx::FilePath shaderPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/util/");
+            validator->setOslOutputFilePath(shaderPath);
+
+            mx::StringVec files;
+            const std::string OSL_EXTENSION("osl");
+            mx::getFilesInDirectory(shaderPath.asString(), files, OSL_EXTENSION);
+            for (std::string file : files)
+            {
+                mx::FilePath filePath = shaderPath / file;
+                validator->compileOSL(filePath.asString());
+            }
+
+            // Set the search path for these compiled shaders.
+            validator->setOslUtilityOSOPath(shaderPath);
+        }
     }
     catch(mx::ExceptionShaderValidationError e)
     {
@@ -435,11 +456,6 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
     {
         log << "------------ Run validation with element: " << element->getNamePath() << "-------------------" << std::endl;
 
-        std::string shaderPath;
-        // Note: mkdir will fail if the directory already exists which is ok.
-        mx::makeDirectory(outputPath);
-        shaderPath = mx::FilePath(outputPath) / mx::FilePath(shaderName);
-
         mx::ShaderPtr shader = shaderGenerator.generate(shaderName, element, options);
         CHECK(shader != nullptr);
         if (shader == nullptr)
@@ -449,11 +465,17 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
         }
         CHECK(shader->getSourceCode().length() > 0);
 
+        std::string shaderPath;
+        // Note: mkdir will fail if the directory already exists which is ok.
+        mx::makeDirectory(outputPath);
+        shaderPath = mx::FilePath(outputPath) / mx::FilePath(shaderName);
+
         if (outputMtlxDoc)
         {
             mx::writeToXmlFile(doc, shaderPath + ".mtlx");
         }
 
+        // Write out osl file
         std::ofstream file;
         file.open(shaderPath + ".osl");
         file << shader->getSourceCode();
@@ -464,23 +486,27 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
         bool validated = false;
         try
         {
-            validator.setOslOutputFilePath(shaderPath);
+            // Set output path and shader name
+            validator.setOslOutputFilePath(outputPath);
+            validator.setOslShaderName(shaderName);
 
             // Validate compilation
             validator.validateCreation(shader);
 
-            bool isShader = element->isA<mx::ShaderRef>();
+            const std::string SURFACE_SHADER("surfaceshader");
+            bool isShader = element->isA<mx::ShaderRef>() ||
+                element->getType() == SURFACE_SHADER;
 
-            // TODO: When testrender validation is available
-            // we can choose to use that for shaders.
-            // Both paths are the same until then
+            // TODO: testrender is the default, except for shaders
+            // which do not have an appropriate scene setup currently.
+            // All others use a constant output to redirect shader output to.
             if (isShader)
             {
                 validator.useTestRender(false);
             }
             else
             {
-                validator.useTestRender(false);
+                validator.useTestRender(true);
             }
 
             // Set shader output name to use
@@ -494,6 +520,12 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
                 outputName = "out";
             }
             validator.setOslShaderOutputName(outputName);
+
+            // Set scene template file. For now we only have the constant color scene file
+            const std::string CONSTANT_COLOR_SCENE_XML_FILE("constant_color_scene.xml");
+            mx::FilePath sceneTemplatePath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/util/");
+            sceneTemplatePath = sceneTemplatePath / CONSTANT_COLOR_SCENE_XML_FILE;
+            validator.setOslTestRenderSceneTemplateFile(sceneTemplatePath.asString());
 
             // Validate rendering
             validator.validateRender();
@@ -553,7 +585,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
     // Create validators and generators
     bool orthographicView = true;
 #ifdef MATERIALX_BUILD_GEN_GLSL
-    mx::GlslValidatorPtr glslValidator = createGLSLValidator(orthographicView, "shaderball.obj", glslLog);
+    mx::GlslValidatorPtr glslValidator = createGLSLValidator(orthographicView, "sphere.obj", glslLog);
     mx::GlslShaderGeneratorPtr glslShaderGenerator = std::static_pointer_cast<mx::GlslShaderGenerator>(mx::GlslShaderGenerator::create());
     glslShaderGenerator->registerSourceCodeSearchPath(searchPath);
 #endif
@@ -589,10 +621,11 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
     std::string baseDirectory = path;
     mx::getSubDirectories(baseDirectory, dirs);
 
+    const std::string MTLX_EXTENSION("mtlx");
     for (auto dir : dirs)
     {
         mx::StringVec files;
-        mx::getDocumentsInDirectory(dir, files);
+        mx::getFilesInDirectory(dir, files, MTLX_EXTENSION);
         for (std::string file : files)
         {
             const mx::FilePath filePath = mx::FilePath(dir) / mx::FilePath(file);

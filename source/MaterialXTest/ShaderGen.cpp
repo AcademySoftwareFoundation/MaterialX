@@ -38,11 +38,12 @@ namespace mx = MaterialX;
 
 void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc)
 {
+    const std::string MTLX_EXTENSION("mtlx");
     for (const std::string& library : libraryNames)
     {
         mx::FilePath path = searchPath / library;
         mx::StringVec filenames;
-        mx::getDocumentsInDirectory(path, filenames);
+        mx::getFilesInDirectory(path.asString(), filenames, MTLX_EXTENSION);
 
         for (const std::string& filename : filenames)
         {

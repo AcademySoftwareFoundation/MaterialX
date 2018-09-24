@@ -75,11 +75,11 @@ void getSubDirectories(const std::string& baseDirectory, StringVec& relativePath
 #endif
 }
 
-void getDocumentsInDirectory(const std::string& directory, StringVec& files)
+void getFilesInDirectory(const std::string& directory, StringVec& files, const std::string& extension)
 {
 #ifdef WIN32
     WIN32_FIND_DATA fd;
-    HANDLE hFind = ::FindFirstFile((directory + "/*.mtlx").c_str(), &fd);
+    HANDLE hFind = ::FindFirstFile((directory + "/*." + extension).c_str(), &fd);
     if (hFind != INVALID_HANDLE_VALUE)
     {
         do

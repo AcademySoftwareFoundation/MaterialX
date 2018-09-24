@@ -1,0 +1,30 @@
+<!-- Template for taking an input color shader and rendering without lighting -->
+<World>
+   <Camera eye="0, 3, 3" look_at="0,0,0" fov="70" />
+
+   <!-- Background clear 
+   %background_color% : is the background color
+   -->
+   <ShaderGroup>
+      color Cin %background_color%;
+      shader constant_color_background layer1;
+   </ShaderGroup>
+   <Background resolution="1024" />
+
+   <!-- Constant shaded input:
+   constant_color: "constant" color shader used to render without lighting
+   Cin : "constant" shader's default color (red). This color will be use if the connected
+   input shader fails to route properly.
+   %shader% : Is the name of an input color shader to feed into the "constant" shader.
+   %shader_output% : Is the name of the input shader's color output. This is connected to the color 
+   input (Cin) of the "constant" shader.
+   -->
+   <ShaderGroup>
+      shader %shader% constant_input;
+      color Cin 1.0 0.0 0.0;
+      shader constant_color layer1;
+      connect constant_input.%shader_output% layer1.Cin;
+   </ShaderGroup>
+   <Sphere center="0,0,0" radius="1" />
+</World>
+

@@ -17,9 +17,9 @@ std::string removeExtension(const std::string& filename);
 /// Directory scanner utility. Finds all subdirectories in the given directory
 void getSubDirectories(const std::string& baseDirectory, StringVec& relativePaths);
 
-/// Directory document scanner utility. Finds all MaterialX document files
+/// Directory file scanner utility. Finds all files with a given extension
 /// in the given directory.
-void getDocumentsInDirectory(const std::string& directory, StringVec& files);
+void getFilesInDirectory(const std::string& directory, StringVec& files, const std::string& extension);
 
 /// Reads the contents of a file into the given string
 bool readFile(const string& filename, string& content);
