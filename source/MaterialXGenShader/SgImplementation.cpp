@@ -22,11 +22,6 @@ void SgImplementation::emitFunctionCall(const SgNode&, const SgNodeContext&, Sha
     // default implementation has no source code
 }
 
-bool SgImplementation::isTransparent(const SgNode&) const
-{
-    return false;
-}
-
 SgNodeGraph* SgImplementation::getNodeGraph() const
 {
     return nullptr;

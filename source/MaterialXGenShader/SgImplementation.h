@@ -49,11 +49,6 @@ public:
     /// Emit the function call or inline source code for given node instance in the given context.
     virtual void emitFunctionCall(const SgNode& node, const SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader);
 
-    /// Return true if this implementation for the given node instance is transparent.
-    /// False is returned by default. Only override this if your node represents
-    /// a surface shader with transparency.
-    virtual bool isTransparent(const SgNode& node) const;
-
     /// Return a pointer to the node graph if this implementation is using a graph,
     /// or returns nullptr otherwise.
     virtual SgNodeGraph* getNodeGraph() const;

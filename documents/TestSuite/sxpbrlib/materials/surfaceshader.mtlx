@@ -29,7 +29,7 @@
     <input name="specular_IOR" type="float" />
   </nodedef>
   <nodegraph name="IMP_testshader2" nodedef="ND_testshader2">
-    <shadingnormal name="shadingnormal1" type="vector3" />
+    <normal name="shadingnormal1" type="vector3" />
     <diffusebrdf name="diffuse" type="BSDF">
       <input name="normal" type="vector3" nodename="shadingnormal1" />
       <input name="color" type="color3" interfacename="diffuse_reflectance" />
@@ -65,7 +65,7 @@
     <input name="roughness" type="vector2" />
   </nodedef>
   <nodegraph name="IMP_testshader3" nodedef="ND_testshader3">
-    <shadingnormal name="shadingnormal1" type="vector3" />
+    <normal name="shadingnormal1" type="vector3" />
     <conductorbrdf name="metal1" type="BSDF">
       <input name="normal" type="vector3" nodename="shadingnormal1" />
       <input name="reflectivity" type="color3" interfacename="reflectivity" />

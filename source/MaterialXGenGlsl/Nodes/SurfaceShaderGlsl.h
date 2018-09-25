@@ -19,8 +19,6 @@ class SurfaceShaderGlsl : public SourceCode
     void createVariables(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 
     void emitFunctionCall(const SgNode& node, const SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader) override;
-
-    bool isTransparent(const SgNode& node) const override;
 };
 
 } // namespace MaterialX

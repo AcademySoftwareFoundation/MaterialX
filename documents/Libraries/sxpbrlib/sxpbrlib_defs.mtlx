@@ -13,7 +13,7 @@
     Node: <diffusebrdf>
     A BSDF node for diffuse reflection.
   -->
-  <nodedef name="ND_diffusebrdf" node="diffusebrdf" type="BSDF" nodecategory="shaderx"
+  <nodedef name="ND_diffusebrdf" node="diffusebrdf" type="BSDF" bsdf="R" nodecategory="shaderx"
            doc="A BSDF node for diffuse reflections.">
     <input name="weight" type="float" value="1.0"/>
     <input name="color" type="color3" value="0.18, 0.18, 0.18"/>
@@ -25,7 +25,7 @@
     Node: <diffusebtdf>
     A BSDF node for diffuse transmission.
   -->
-  <nodedef name="ND_diffusebtdf" node="diffusebtdf" type="BSDF" nodecategory="shaderx"
+  <nodedef name="ND_diffusebtdf" node="diffusebtdf" type="BSDF" bsdf="R" nodecategory="shaderx"
            doc="A BSDF node for pure diffuse transmission.">
     <input name="weight" type="float" value="1.0"/>
     <input name="color" type="color3" value="1.0, 1.0, 1.0"/>
@@ -36,7 +36,7 @@
     Node: <conductorbrdf>
     A reflection BSDF node based on a microfacet model and a Fresnel curve for conductors/metals.
   -->
-  <nodedef name="ND_conductorbrdf" node="conductorbrdf" type="BSDF" nodecategory="shaderx"
+  <nodedef name="ND_conductorbrdf" node="conductorbrdf" type="BSDF" bsdf="R" nodecategory="shaderx"
            doc="A reflection BSDF node based on a microfacet model and a Fresnel curve for conductors/metals.">
     <input name="weight" type="float" value="1.0"/>
     <input name="reflectivity" type="color3" value="0.944 0.776 0.373"/>
@@ -67,7 +67,7 @@
     Node: <dielectricbtdf>
     A transmission BSDF node based on a microfacet model and a Fresnel curve for dielectrics.
   -->
-  <nodedef name="ND_dielectricbtdf" node="dielectricbtdf" type="BSDF" nodecategory="shaderx"
+  <nodedef name="ND_dielectricbtdf" node="dielectricbtdf" type="BSDF" bsdf="T" nodecategory="shaderx"
            doc="A BSDF node for specular to glossy transmission.">
     <input name="weight" type="float" value="1.0"/>
     <input name="tint" type="color3" value="1.0, 1.0, 1.0"/>
@@ -83,7 +83,7 @@
     Node: <subsurfacebrdf>
     A subsurface scattering BSDF for true subsurface scattering.
   -->
-  <nodedef name="ND_subsurfacebrdf" node="subsurfacebrdf" type="BSDF" nodecategory="shaderx"
+  <nodedef name="ND_subsurfacebrdf" node="subsurfacebrdf" type="BSDF" bsdf="R" nodecategory="shaderx"
            doc="A subsurface scattering BSDF for true subsurface scattering.">
     <input name="weight" type="float" value="1.0"/>
     <input name="color" type="color3" value="0.18, 0.18, 0.18"/>
@@ -96,22 +96,13 @@
     Node: <sheenbrdf>
     A microfacet BSDF for the back-scattering properties of cloth-like materials.
   -->
-  <nodedef name="ND_sheenbrdf" node="sheenbrdf" type="BSDF" nodecategory="shaderx"
+  <nodedef name="ND_sheenbrdf" node="sheenbrdf" type="BSDF" bsdf="R" nodecategory="shaderx"
            doc="A microfacet BSDF for the back-scattering properties of cloth-like materials.">
     <input name="weight" type="float" value="1.0"/>
     <input name="color" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="roughness" type="float" value="0.3"/>
     <input name="normal" type="vector3" defaultgeomprop="normal"/>
     <input name="base" type="BSDF"/>
-  </nodedef>
-
-  <!--
-    Node: <uniformedf>
-    An EDF node for uniform emission.
-  -->
-  <nodedef name="ND_uniformedf" node="uniformedf" type="EDF" nodecategory="shaderx"
-           doc=" An EDF node for uniform emission.">
-    <input name="intensity" type="color3" value="1.0, 1.0, 1.0"/>
   </nodedef>
 
   <!--
@@ -133,6 +124,15 @@
            doc="A node for adjusting the contribution of a BSDF with a weight.">
     <input name="in" type="BSDF" doc="The BSDF to scale."/>
     <input name="weight" type="color3" value="1.0, 1.0, 1.0" doc="Scaling weight."/>
+  </nodedef>
+
+  <!--
+    Node: <uniformedf>
+    An EDF node for uniform emission.
+  -->
+  <nodedef name="ND_uniformedf" node="uniformedf" type="EDF" nodecategory="shaderx"
+           doc=" An EDF node for uniform emission.">
+    <input name="intensity" type="color3" value="1.0, 1.0, 1.0"/>
   </nodedef>
 
   <!--

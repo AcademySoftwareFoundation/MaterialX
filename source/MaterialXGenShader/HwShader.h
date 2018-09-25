@@ -51,6 +51,13 @@ public:
         _calculatedVertexData.insert(outputName);
     }
 
+    /// Returns the transparency method used for this shader.
+    /// Will return TRANSPARENCY_NONE if the shader is opaque
+    int getTransparencyMethod() const
+    {
+        return _transparencyMethod;
+    }
+
 protected:
     /// Return a container with all top level graphs use by this shader.
     void getTopLevelShaderGraphs(ShaderGenerator& shadergen, std::deque<SgNodeGraph*>& graphs) const override;
@@ -58,6 +65,7 @@ protected:
 private:
     VariableBlock _vertexData;
     std::set<string> _calculatedVertexData;
+    int _transparencyMethod;
 };
 
 } // namespace MaterialX

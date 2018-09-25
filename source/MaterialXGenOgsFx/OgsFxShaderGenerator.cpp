@@ -45,8 +45,7 @@ namespace
         { "u_worldViewProjectionMatrix", "WorldViewProjection" },
 
         { "u_viewDirection", "ViewDirection" },
-//        { "u_viewPosition", "WorldCameraPosition" },
-        { "u_viewPosition", "ViewPosition" },
+        { "u_viewPosition", "WorldCameraPosition" },
 
         { "u_frame", "Frame" },
         { "u_time", "Time" }
@@ -134,7 +133,7 @@ OgsFxShaderGenerator::OgsFxShaderGenerator()
 
 ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr element, const SgOptions& options)
 {
-    OgsFxShaderPtr shaderPtr = std::make_shared<OgsFxShader>(shaderName);
+    OgsFxShaderPtr shaderPtr = createShader(shaderName);
     shaderPtr->initialize(element, *this, options);
 
     OgsFxShader& shader = *shaderPtr;
@@ -201,6 +200,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     if (lighting)
     {
         // Add code for retreiving light data from OgsFx light uniforms
+        shader.beginScope();
         shader.addLine("int numLights = numActiveLightSources()");
         shader.addLine("for (int i = 0; i<numLights; ++i)", false);
         shader.beginScope(Shader::Brackets::BRACES);
@@ -213,6 +213,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
                 shader.addLine(lightData.instance + "[i]." + uniform->name + " = " + it->second + "(i)");
             }
         }
+        shader.endScope();
         shader.endScope();
         shader.newLine();
     }
@@ -358,7 +359,16 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.addBlock(shader.getSourceCode(OgsFxShader::PIXEL_STAGE), *this);
 
     // Add Main technique block
-    shader.addLine("technique Main< string transparency = \"transparent\"; >", false);
+    string techniqueParams;
+    getTechniqueParams(shader, techniqueParams);
+    if (techniqueParams.size())
+    {
+        shader.addLine("technique Main< " + techniqueParams + " >", false);
+    }
+    else
+    {
+        shader.addLine("technique Main", false);
+    }
     shader.beginScope(Shader::Brackets::BRACES);
     shader.addLine("pass p0", false);
     shader.beginScope(Shader::Brackets::BRACES);
@@ -395,6 +405,16 @@ void OgsFxShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& 
         const string initStr = (uniform.value ? _syntax->getValue(uniform.type, *uniform.value, true) : _syntax->getDefaultValue(uniform.type, true));
         shader.addLine("uniform " + type + " " + uniform.name + (initStr.empty() ? "" : " = " + initStr));
     }
+}
+
+OgsFxShaderPtr OgsFxShaderGenerator::createShader(const string& name)
+{
+    return std::make_shared<OgsFxShader>(name);
+}
+
+void OgsFxShaderGenerator::getTechniqueParams(const Shader& /*shader*/, string& /*params*/)
+{
+    // Default implementation doesn't use any technique parameters
 }
 
 } // namespace MaterialX

@@ -374,6 +374,11 @@ TEST_CASE("GLSL MaterialX documents", "[shadervalid]")
     std::ostream& log(std::cout);
 #endif
 
+    // For debugging, add files to this set to override 
+    // which files in the test suite are being tested.
+    // Add only the test suite filename not the full path.
+    std::set<std::string> testfileOverride;
+
     // Library search path
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
 
@@ -417,8 +422,15 @@ TEST_CASE("GLSL MaterialX documents", "[shadervalid]")
     {
         mx::StringVec files;
         mx::getDocumentsInDirectory(dir, files);
-        for (std::string file : files)
+        for (const std::string& file : files)
         {
+            // Check if a file override set is used and ignore all files
+            // not part of the override set
+            if (testfileOverride.size() && testfileOverride.count(file) == 0)
+            {
+                continue;
+            }
+
             const mx::FilePath filePath = mx::FilePath(dir) / mx::FilePath(file);
             const std::string filename = filePath;
 

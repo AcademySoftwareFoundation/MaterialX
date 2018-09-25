@@ -96,7 +96,7 @@ public:
 
     /// Add node contexts id's to the given node to control 
     /// in which contexts this node should be used
-    void addNodeContextIDs(const InterfaceElement* elem, SgNode* node) const override;
+    void addNodeContextIDs(SgNode* node) const override;
 
     /// Emit code for all texturing nodes.
     virtual void emitTextureNodes(Shader& shader);

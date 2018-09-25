@@ -57,6 +57,13 @@ public:
 
     /// Unique identifyer for this generator target
     static const string TARGET;
+
+protected:
+    /// Create a new shader instance
+    virtual OgsFxShaderPtr createShader(const string& name);
+
+    /// Get parameters for the technique block
+    virtual void getTechniqueParams(const Shader& shader, string& params);
 };
 
 }

@@ -74,8 +74,8 @@ public:
         static const unsigned int CONSTANT    = 1 << 5;  // A constant node
         // Specific closure types
         static const unsigned int BSDF        = 1 << 6;  // A BDFS node 
-        static const unsigned int BSDF_R      = 1 << 7;  // A BDFS node for reflection
-        static const unsigned int BSDF_T      = 1 << 8;  // A BDFS node for transmission
+        static const unsigned int BSDF_R      = 1 << 7;  // A BDFS node only for reflection
+        static const unsigned int BSDF_T      = 1 << 8;  // A BDFS node only for transmission
         static const unsigned int EDF         = 1 << 9;  // A EDF node
         static const unsigned int VDF         = 1 << 10; // A VDF node 
         // Specific shader types
@@ -120,6 +120,8 @@ public:
     static const string IMAGE;
     static const string COMPARE;
     static const string SWITCH;
+    static const string BSDF_R;
+    static const string BSDF_T;
 
 public:
     /// Constructor.

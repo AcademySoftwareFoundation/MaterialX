@@ -67,7 +67,7 @@ public:
 
     /// Add node contexts id's to the given node to control 
     /// in which contexts this node should be used.
-    virtual void addNodeContextIDs(const InterfaceElement* elem, SgNode* node) const;
+    virtual void addNodeContextIDs(SgNode* node) const;
 
     /// Return the node context corresponding to the given id,
     /// or nullptr if no such context is found.

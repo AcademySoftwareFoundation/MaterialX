@@ -9,6 +9,7 @@ const string HwShader::LIGHT_DATA_BLOCK = "LightData";
 HwShader::HwShader(const string& name) 
     : ParentClass(name)
     , _vertexData("VertexData", "vd")
+    , _transparencyMethod(TRANSPARENCY_NONE)
 {
     _stages.push_back(Stage("Vertex"));
 
@@ -38,6 +39,11 @@ HwShader::HwShader(const string& name)
 void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen, const SgOptions& options)
 {
     ParentClass::initialize(element, shadergen, options);
+
+    HwShaderGenerator& sg = static_cast<HwShaderGenerator&>(shadergen);
+
+    // Find out if transparency should be used
+    _transparencyMethod = options.hwTransparencyMethod;
 
     //
     // For image textures we need to convert filenames into uniforms (texture samplers).
@@ -84,7 +90,6 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen, const 
     }
 
     // For surface shaders we need light shaders
-    HwShaderGenerator& sg = static_cast<HwShaderGenerator&>(shadergen);
     if (_rootGraph->hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE))
     {
         // Create variables for all bound light shaders

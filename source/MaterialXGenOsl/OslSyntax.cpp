@@ -127,7 +127,7 @@ OslSyntax::OslSyntax()
         "false", "friend", "goto", "inline", "long", "new", "operator", "private", "protected", "short",
         "signed", "sizeof", "static", "switch", "template", "this", "throw", "true", "try", "typedef", "uniform",
         "union", "unsigned", "varying", "virtual", "volatile",
-        "emission"
+        "emission", "reflection"
     });
 
     //

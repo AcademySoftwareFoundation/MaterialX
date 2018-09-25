@@ -348,7 +348,8 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
         shader.newLine();
     }
 
-    bool lighting = shader.hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE);
+    bool lighting = shader.hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE) ||
+                    shader.hasClassification(SgNode::Classification::BSDF);
 
     // Add light data block if needed
     if (lighting)
@@ -523,8 +524,16 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
 
     if (shader.hasClassification(SgNode::Classification::SURFACE))
     {
-        shader.addLine("float outAlpha = clamp(1.0 - dot(" + finalOutput + ".transparency, vec3(0.3333)), 0.0, 1.0)");
-        shader.addLine(outputSocket->name + " = vec4(" + finalOutput + ".color, outAlpha)");
+        const HwShader& hwShader = static_cast<const HwShader&>(shader);
+        if (hwShader.getTransparencyMethod() != TRANSPARENCY_NONE)
+        {
+            shader.addLine("float outAlpha = clamp(1.0 - dot(" + finalOutput + ".transparency, vec3(0.3333)), 0.0, 1.0)");
+            shader.addLine(outputSocket->name + " = vec4(" + finalOutput + ".color, outAlpha)");
+        }
+        else
+        {
+            shader.addLine(outputSocket->name + " = vec4(" + finalOutput + ".color, 1.0)");
+        }
     }
     else
     {
@@ -536,25 +545,24 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
     }
 }
 
-void GlslShaderGenerator::addNodeContextIDs(const InterfaceElement* elem, SgNode* node) const
+void GlslShaderGenerator::addNodeContextIDs(SgNode* node) const
 {
     if (node->hasClassification(SgNode::Classification::BSDF))
     {
-        const string& bsdfcontext = elem->getAttribute("bsdfcontext");
-        if (bsdfcontext == "R")
+        if (node->hasClassification(SgNode::Classification::BSDF_R))
         {
+            // A BSDF for reflection only
             node->addContextID(NODE_CONTEXT_BSDF_REFLECTION);
             node->addContextID(NODE_CONTEXT_BSDF_INDIRECT);
         }
-        else if (bsdfcontext == "T")
+        else if (node->hasClassification(SgNode::Classification::BSDF_T))
         {
+            // A BSDF for transmission only
             node->addContextID(NODE_CONTEXT_BSDF_TRANSMISSION);
         }
         else
         {
-            // Default case. 
-            // If no context is specified the node
-            // is used in all three bsdf contexts.
+            // A general BSDF handling both reflection and transmission
             node->addContextID(NODE_CONTEXT_BSDF_REFLECTION);
             node->addContextID(NODE_CONTEXT_BSDF_TRANSMISSION);
             node->addContextID(NODE_CONTEXT_BSDF_INDIRECT);
@@ -566,7 +574,7 @@ void GlslShaderGenerator::addNodeContextIDs(const InterfaceElement* elem, SgNode
     }
     else
     {
-        ParentClass::addNodeContextIDs(elem, node);
+        ParentClass::addNodeContextIDs(node);
     }
 }
 
