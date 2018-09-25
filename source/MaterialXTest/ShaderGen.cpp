@@ -963,7 +963,7 @@ TEST_CASE("Hello World", "[shadergen]")
         file << shader->getSourceCode();
         file.close();
 
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         // For now only use externally specified oslc to check code.
         std::string errorResult;
         validateOSL(fileName, errorResult);
@@ -979,7 +979,7 @@ TEST_CASE("Hello World", "[shadergen]")
         file << shader->getSourceCode();
         file.close();
 
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         // For now only use externally specified oslc to check code.
         validateOSL(fileName, errorResult);
         REQUIRE(errorResult.size() == 0);
@@ -996,7 +996,7 @@ TEST_CASE("Hello World", "[shadergen]")
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
         // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::ofstream file;
         file.open(RESULT_DIRECTORY + shader->getName() + "_graph.ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
@@ -1007,7 +1007,7 @@ TEST_CASE("Hello World", "[shadergen]")
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
         // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         file.open(RESULT_DIRECTORY + shader->getName() + "_shaderref.ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
         file.close();
@@ -1025,7 +1025,7 @@ TEST_CASE("Hello World", "[shadergen]")
         REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
         REQUIRE(shader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
         // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::ofstream file;
         file.open(RESULT_DIRECTORY + shader->getName() + "_graph.vert");
         file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
@@ -1040,7 +1040,7 @@ TEST_CASE("Hello World", "[shadergen]")
         REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
         REQUIRE(shader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
         // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         file.open(RESULT_DIRECTORY + shader->getName() + "_shaderref.vert");
         file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
         file.close();
@@ -1126,7 +1126,7 @@ TEST_CASE("Conditionals", "[shadergen]")
         file << shader->getSourceCode();
         file.close();
 
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::string errorResult;
         validateOSL(fileName, errorResult);
         REQUIRE(errorResult.size() == 0);
@@ -1143,7 +1143,7 @@ TEST_CASE("Conditionals", "[shadergen]")
         REQUIRE(shader->getSourceCode().length() > 0);
 
         // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
         file << shader->getSourceCode();
         file.close();
@@ -1167,7 +1167,7 @@ TEST_CASE("Conditionals", "[shadergen]")
         REQUIRE(shader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
 
         // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         file.open(RESULT_DIRECTORY + shader->getName() + ".vert");
         file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
         file.close();
@@ -1270,7 +1270,7 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
         file << shader->getSourceCode();
         file.close();
 
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::string errorResult;
         validateOSL(fileName, errorResult);
         REQUIRE(errorResult.size() == 0); 
@@ -1287,7 +1287,7 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
         REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
 
         // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::ofstream file;
         file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
@@ -1305,7 +1305,7 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
         REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
 
         // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::ofstream file;
         file.open(RESULT_DIRECTORY + shader->getName() + ".frag");
         file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
@@ -1419,7 +1419,7 @@ TEST_CASE("Noise", "[shadergen]")
             file << shader->getSourceCode();
             file.close();
 
-            // TODO: Use validation in MaterialXView library
+            // TODO: Use validation in MaterialXRender library
             std::string errorResult;
             validateOSL(fileName, errorResult);
             REQUIRE(errorResult.size() == 0); 
@@ -1436,7 +1436,7 @@ TEST_CASE("Noise", "[shadergen]")
             REQUIRE(shader != nullptr);
             REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
             // Write out to file for inspection
-            // TODO: Use validation in MaterialXView library
+            // TODO: Use validation in MaterialXRender library
             std::ofstream file;
             file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
             file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
@@ -1455,7 +1455,7 @@ TEST_CASE("Noise", "[shadergen]")
             REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
             REQUIRE(shader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
             // Write out to file for inspection
-            // TODO: Use validation in MaterialXView library
+            // TODO: Use validation in MaterialXRender library
             std::ofstream file;
             file.open(RESULT_DIRECTORY + shader->getName() + ".vert");
             file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
@@ -1514,14 +1514,14 @@ TEST_CASE("Unique Names", "[shadergen]")
         REQUIRE(sgNode1->getOutput()->name == "unique_names_out");
 
         // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::ofstream file;
         const std::string fileName(RESULT_DIRECTORY + exampleName + ".osl");
         file.open(fileName);
         file << shader->getSourceCode();
         file.close();
 
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::string errorResult;
         validateOSL(fileName, errorResult);
         REQUIRE(errorResult.size() == 0);
@@ -1547,7 +1547,7 @@ TEST_CASE("Unique Names", "[shadergen]")
         REQUIRE(sgNode1->getOutput()->name == "unique_names_out");
 
         // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::ofstream file;
         file.open(RESULT_DIRECTORY + exampleName + ".ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
@@ -1574,7 +1574,7 @@ TEST_CASE("Unique Names", "[shadergen]")
         REQUIRE(sgNode1->getOutput()->name == "unique_names_out");
 
         // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::ofstream file;
         file.open(RESULT_DIRECTORY + exampleName + ".frag");
         file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
@@ -1620,14 +1620,14 @@ TEST_CASE("Subgraphs", "[shadergen]")
             REQUIRE(shader->getSourceCode().length() > 0);
 
             // Write out to file for inspection
-            // TODO: Use validation in MaterialXView library
+            // TODO: Use validation in MaterialXRender library
             std::ofstream file;
             const std::string fileName(RESULT_DIRECTORY + shader->getName() + ".osl");
             file.open(fileName);
             file << shader->getSourceCode();
             file.close();
 
-            // TODO: Use validation in MaterialXView library
+            // TODO: Use validation in MaterialXRender library
             std::string errorResult;
             validateOSL(fileName, errorResult);
             REQUIRE(errorResult.size() == 0); 
@@ -1657,7 +1657,7 @@ TEST_CASE("Subgraphs", "[shadergen]")
             REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
 
             // Write out to file for inspection
-            // TODO: Use validation in MaterialXView library
+            // TODO: Use validation in MaterialXRender library
             std::ofstream file;
             file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
             file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
@@ -1689,7 +1689,7 @@ TEST_CASE("Subgraphs", "[shadergen]")
             REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
 
             // Write out to file for inspection
-            // TODO: Use validation in MaterialXView library
+            // TODO: Use validation in MaterialXRender library
             std::ofstream file;
             file.open(RESULT_DIRECTORY + shader->getName() + ".frag");
             file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
@@ -1740,7 +1740,7 @@ TEST_CASE("Materials", "[shadergen]")
                 file << shader->getSourceCode();
                 file.close();
 
-                // TODO: Use validation in MaterialXView library
+                // TODO: Use validation in MaterialXRender library
                 std::string errorResult;
                 validateOSL(fileName, errorResult);
                 REQUIRE(errorResult.size() == 0); 
@@ -1768,7 +1768,7 @@ TEST_CASE("Materials", "[shadergen]")
                 REQUIRE(shader->getSourceCode().length() > 0);
 
                 // Write out to file for inspection
-                // TODO: Use validation in MaterialXView library
+                // TODO: Use validation in MaterialXRender library
                 std::ofstream file;
                 file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
                 file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
@@ -1797,7 +1797,7 @@ TEST_CASE("Materials", "[shadergen]")
                 REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
 
                 // Write out to file for inspection
-                // TODO: Use validation in MaterialXView library
+                // TODO: Use validation in MaterialXRender library
                 std::ofstream file;
                 file.open(RESULT_DIRECTORY + shader->getName() + ".frag");
                 file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
@@ -1861,7 +1861,7 @@ TEST_CASE("Color Spaces", "[shadergen]")
         file << shader->getSourceCode();
         file.close();
 
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::string errorResult;
         validateOSL(fileName, errorResult);
         REQUIRE(errorResult.size() == 0);
@@ -1878,7 +1878,7 @@ TEST_CASE("Color Spaces", "[shadergen]")
         REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
 
         // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::ofstream file;
         file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
@@ -1896,7 +1896,7 @@ TEST_CASE("Color Spaces", "[shadergen]")
         REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
 
         // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::ofstream file;
         file.open(RESULT_DIRECTORY + shader->getName() + ".frag");
         file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
@@ -2005,14 +2005,14 @@ TEST_CASE("BSDF Layering", "[shadergen]")
             REQUIRE(shader->getSourceCode().length() > 0);
 
             // Write out to file for inspection
-            // TODO: Use validation in MaterialXView library
+            // TODO: Use validation in MaterialXRender library
             std::ofstream file;
             const std::string fileName(RESULT_DIRECTORY + shader->getName() + ".osl");
             file.open(fileName);
             file << shader->getSourceCode();
             file.close();
 
-            // TODO: Use validation in MaterialXView library
+            // TODO: Use validation in MaterialXRender library
             std::string errorResult;
             validateOSL(fileName, errorResult);
             REQUIRE(errorResult.size() == 0);
@@ -2033,7 +2033,7 @@ TEST_CASE("BSDF Layering", "[shadergen]")
             REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
 
             // Write out to file for inspection
-            // TODO: Use validation in MaterialXView library
+            // TODO: Use validation in MaterialXRender library
             std::ofstream file;
             file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
             file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
@@ -2055,7 +2055,7 @@ TEST_CASE("BSDF Layering", "[shadergen]")
             REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
 
             // Write out to file for inspection
-            // TODO: Use validation in MaterialXView library
+            // TODO: Use validation in MaterialXRender library
             std::ofstream file;
             file.open(RESULT_DIRECTORY + shader->getName() + ".frag");
             file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
@@ -2143,14 +2143,14 @@ TEST_CASE("Transparency", "[shadergen]")
         REQUIRE(shader->getSourceCode().length() > 0);
 
         // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::ofstream file;
         const std::string fileName(RESULT_DIRECTORY + shader->getName() + ".osl");
         file.open(fileName);
         file << shader->getSourceCode();
         file.close();
 
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::string errorResult;
         validateOSL(fileName, errorResult);
         REQUIRE(errorResult.size() == 0);
@@ -2171,7 +2171,7 @@ TEST_CASE("Transparency", "[shadergen]")
         REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
 
         // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::ofstream file;
         file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
@@ -2193,7 +2193,7 @@ TEST_CASE("Transparency", "[shadergen]")
         REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
 
         // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::ofstream file;
         file.open(RESULT_DIRECTORY + shader->getName() + ".frag");
         file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
@@ -2285,7 +2285,7 @@ TEST_CASE("Surface Layering", "[shadergen]")
         REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
 
         // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::ofstream file;
         file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
         file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
@@ -2307,7 +2307,7 @@ TEST_CASE("Surface Layering", "[shadergen]")
         REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
 
         // Write out to file for inspection
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::ofstream file;
         file.open(RESULT_DIRECTORY + shader->getName() + ".frag");
         file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
@@ -2370,7 +2370,7 @@ TEST_CASE("Osl Output Types", "[shadergen]")
         file << shader->getSourceCode();
         file.close();
 
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::string errorResult;
         validateOSL(fileName, errorResult);
         REQUIRE(errorResult.size() == 0); 
@@ -2385,7 +2385,7 @@ TEST_CASE("Osl Output Types", "[shadergen]")
         file << shader->getSourceCode();
         file.close();
 
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         validateOSL(fileName, errorResult);
         REQUIRE(errorResult.size() == 0); 
     }
@@ -2420,7 +2420,7 @@ TEST_CASE("Osl Output Types", "[shadergen]")
         file << shader->getSourceCode();
         file.close();
 
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         std::string errorResult;
         validateOSL(fileName, errorResult);
         REQUIRE(errorResult.size() == 0); 
@@ -2435,7 +2435,7 @@ TEST_CASE("Osl Output Types", "[shadergen]")
         file << shader->getSourceCode();
         file.close();
 
-        // TODO: Use validation in MaterialXView library
+        // TODO: Use validation in MaterialXRender library
         validateOSL(fileName, errorResult);
         REQUIRE(errorResult.size() == 0); 
     }

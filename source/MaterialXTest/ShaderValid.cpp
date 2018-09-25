@@ -1,8 +1,8 @@
 // Compile if module flags were set
-#if defined(MATERIALX_TEST_VIEW) && defined(MATERIALX_BUILD_VIEW) && defined(MATERIALX_BUILD_GEN_GLSL)
+#if defined(MATERIALX_TEST_RENDER) && defined(MATERIALX_BUILD_RENDER) && defined(MATERIALX_BUILD_GEN_GLSL)
 
 // Run only on supported platforms
-#include <MaterialXView/Window/HardwarePlatform.h>
+#include <MaterialXRender/Window/HardwarePlatform.h>
 #if defined(OSWin_) || defined(OSLinux_) || defined(OSMac_)
 
 #include <MaterialXTest/Catch/catch.hpp>
@@ -18,15 +18,15 @@
 
 #ifdef MATERIALX_BUILD_GEN_GLSL
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
-#include <MaterialXView/ShaderValidators/Glsl/GlslValidator.h>
+#include <MaterialXRender/ShaderValidators/Glsl/GlslValidator.h>
 #endif
 
 #ifdef MATERIALX_BUILD_GEN_OSL
 #include <MaterialXGenOsl/ArnoldShaderGenerator.h>
-#include <MaterialXView/ShaderValidators/Osl/OslValidator.h>
+#include <MaterialXRender/ShaderValidators/Osl/OslValidator.h>
 #endif
 
-#include <MaterialXView/Handlers/TinyEXRImageHandler.h>
+#include <MaterialXRender/Handlers/TinyEXRImageHandler.h>
 
 #include <fstream>
 #include <iostream>
