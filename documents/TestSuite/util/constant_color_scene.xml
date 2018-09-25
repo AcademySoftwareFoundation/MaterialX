@@ -11,19 +11,16 @@
    </ShaderGroup>
    <Background resolution="1024" />
 
-   <!-- Constant shaded input:
-   constant_color: "constant" color shader used to render without lighting
-   Cin : "constant" shader's default color (red). This color will be use if the connected
-   input shader fails to route properly.
-   %shader% : Is the name of an input color shader to feed into the "constant" shader.
-   %shader_output% : Is the name of the input shader's color output. This is connected to the color 
-   input (Cin) of the "constant" shader.
+   <!-- Shader graph for routing to output layer:
+   %input_shader_type% : type of an input shader to feed into the output shader.
+   %input_shader_output% : name of output argument on input shader.
+   %output_shader_type%: type of the output shader used to render with
+   %output_shader_input% : name of input argument on output shader.
    -->
    <ShaderGroup>
-      shader %shader% constant_input;
-      color Cin 1.0 0.0 0.0;
-      shader constant_color layer1;
-      connect constant_input.%shader_output% layer1.Cin;
+      shader %input_shader_type% inputShader;
+      shader %output_shader_type% outputShader;
+      connect inputShader.%input_shader_output% outputShader.%output_shader_input%;
    </ShaderGroup>
    <Sphere center="0,0,0" radius="1" />
 </World>

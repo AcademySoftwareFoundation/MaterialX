@@ -28,6 +28,7 @@ const string OslShaderGenerator::LANGUAGE = "sx-osl";
 
 OslShaderGenerator::OslShaderGenerator()
     : ParentClass(OslSyntax::create())
+    , _remapShaderOutput(false)
 {
     // Register build-in implementations
 
@@ -193,10 +194,15 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
 
     // Emit shader output
     const TypeDesc* outputType = outputSocket->type;
-    auto it = _shaderOutputTypeRemap.find(outputType);
-    if (it != _shaderOutputTypeRemap.end())
+
+    // Remap shader output as needed
+    if (_remapShaderOutput)
     {
-        outputType = it->second.first;
+        auto it = _shaderOutputTypeRemap.find(outputType);
+        if (it != _shaderOutputTypeRemap.end())
+        {
+            outputType = it->second.first;
+        }
     }
     const string type = _syntax->getOutputTypeName(outputType);
     const string value = _syntax->getDefaultValue(outputType, true);
@@ -273,11 +279,14 @@ void OslShaderGenerator::emitFinalOutput(Shader& shader) const
 
     string finalResult = outputSocket->connection->name;
 
-    // Handle output type remapping
-    auto it = _shaderOutputTypeRemap.find(outputSocket->type);
-    if (it != _shaderOutputTypeRemap.end())
+    // Handle output type remapping as needed
+    if (_remapShaderOutput)
     {
-        finalResult = _syntax->getSwizzledVariable(finalResult, outputSocket->type, it->second.second, it->second.first);
+        auto it = _shaderOutputTypeRemap.find(outputSocket->type);
+        if (it != _shaderOutputTypeRemap.end())
+        {
+            finalResult = _syntax->getSwizzledVariable(finalResult, outputSocket->type, it->second.second, it->second.first);
+        }
     }
 
     shader.addLine(outputSocket->name + " = " + finalResult);

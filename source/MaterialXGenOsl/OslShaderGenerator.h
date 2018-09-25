@@ -32,6 +32,12 @@ public:
     /// Unique identifyer for the osl language
     static const string LANGUAGE;
 
+    /// Has color and vector shader output been remapped to 3-channel color
+    bool remappedShaderOutput() const
+    {
+        return _remapShaderOutput;
+    }
+
 protected:
     /// Protected constructor.
     OslShaderGenerator();
@@ -39,6 +45,7 @@ protected:
     /// Emit include headers needed by the generated shader code.
     void emitIncludes(Shader& shader);
 
+    bool _remapShaderOutput;
     std::unordered_map<const TypeDesc*, std::pair<const TypeDesc*, string>> _shaderOutputTypeRemap;
 };
 
