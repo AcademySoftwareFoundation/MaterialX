@@ -1,4 +1,2 @@
-({{fg}}.w+{{bg}}.w < 1.0) ?
-( vec2( {{fg}}.xyz + {{bg}}.xyz, min({{fg}}.w + {{bg}}.w, 1.0) ) * {{mix}} :
-  vec2( {{fg}}.xyz + ({{bg}}.xyz * (1.0-{{fg}}.w)/{{bg}}.w ), min({{fg}}.w + {{bg}}.w, 1.0) ) * {{mix}} )
-+ ({{bg}} * (1.0-{{mix}}));
+color4((({{fg}}.a+{{bg}}.a < 1.0) ? {{fg}}.rgb + {{bg}}.rgb : {{fg}}.rgb + ({{bg}}.rgb * (1.0-{{fg}}.a)/{{bg}}.a )),
+  ({{fg}}.a+{{bg}}.a < 1.0) ? min({{fg}}.a + {{bg}}.a, 1.0) : min({{fg}}.a + {{bg}}.a, 1.0)) * {{mix}} + ({{bg}} * (1.0-{{mix}}))

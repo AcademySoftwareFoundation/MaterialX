@@ -597,10 +597,10 @@
   <implementation name="IM_screen_color4_sx_glsl" nodedef="ND_screen_color4" file="stdlib/sx-glsl/mx_screen.inline" language="sx-glsl"/>
 
   <!-- <overlay> -->
-  <implementation name="IM_overlay_float_sx_glsl" nodedef="ND_overlay_float" file="stdlib/sx-glsl/mx_overlay.inline" language="sx-glsl"/>
-  <implementation name="IM_overlay_color2_sx_glsl" nodedef="ND_overlay_color2" file="stdlib/sx-glsl/mx_overlay.inline" language="sx-glsl"/>
-  <implementation name="IM_overlay_color3_sx_glsl" nodedef="ND_overlay_color3" file="stdlib/sx-glsl/mx_overlay.inline" language="sx-glsl"/>
-  <implementation name="IM_overlay_color4_sx_glsl" nodedef="ND_overlay_color4" file="stdlib/sx-glsl/mx_overlay.inline" language="sx-glsl"/>
+  <implementation name="IM_overlay_float_sx_glsl" nodedef="ND_overlay_float" file="stdlib/sx-glsl/mx_overlay_float.inline" language="sx-glsl"/>
+  <implementation name="IM_overlay_color2_sx_glsl" nodedef="ND_overlay_color2" file="stdlib/sx-glsl/mx_overlay_color2.glsl" function="mx_overlay_color2" language="sx-glsl"/>
+  <implementation name="IM_overlay_color3_sx_glsl" nodedef="ND_overlay_color3" file="stdlib/sx-glsl/mx_overlay_color3.glsl" function="mx_overlay_color3" language="sx-glsl"/>
+  <implementation name="IM_overlay_color4_sx_glsl" nodedef="ND_overlay_color4" file="stdlib/sx-glsl/mx_overlay_color4.glsl" function="mx_overlay_color4" language="sx-glsl"/>
 
   <!-- <disjointover> -->
   <implementation name="IM_disjointover_color2_sx_glsl" nodedef="ND_disjointover_color2" file="stdlib/sx-glsl/mx_disjointover_color2.inline" language="sx-glsl"/>

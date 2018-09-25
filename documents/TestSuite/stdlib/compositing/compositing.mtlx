@@ -1,0 +1,257 @@
+<!--
+
+Basic compositing function tests each test is in a separate graph for each variation in input type.
+- plus
+- minus
+- difference
+- burn
+- dodge
+- screen
+- overlay
+- disjointover
+
+-->
+
+<?xml version="1.0"?>
+<materialx version="1.36">
+  <nodegraph name="plus_float" type="" xpos="6.21379" ypos="18.74">
+    <plus name="plus1" type="float" xpos="5.4762" ypos="4.59668">
+      <input name="fg" type="float" value="0.2000" />
+      <input name="bg" type="float" value="0.3000" />
+      <input name="mix" type="float" value="0.5000" />
+    </plus>
+    <output name="out" type="float" nodename="plus1" />
+  </nodegraph>
+  <nodegraph name="plus_color2" type="" xpos="7.23892" ypos="18.728">
+    <plus name="plus1" type="color2" xpos="5.74483" ypos="4.42">
+      <input name="fg" type="color2" value="0.2000, 0.4000" />
+      <input name="bg" type="color2" value="0.3000, 0.3000" />
+      <input name="mix" type="float" value="0.5000" />
+    </plus>
+    <output name="out" type="color2" nodename="plus1" />
+  </nodegraph>
+  <nodegraph name="plus_color3" type="" xpos="8.21937" ypos="18.7209">
+    <plus name="plus1" type="color3" xpos="5.74483" ypos="4.42">
+      <input name="fg" type="color3" value="0.2000, 0.4000, 0.0" />
+      <input name="bg" type="color3" value="0.3000, 0.3000, 1.0000" />
+      <input name="mix" type="float" value="0.5000" />
+    </plus>
+    <output name="out" type="color3" nodename="plus1" />
+  </nodegraph>
+  <nodegraph name="plus_color4" type="" xpos="9.19125" ypos="18.7399">
+    <plus name="plus1" type="color4" xpos="5.74483" ypos="4.42">
+      <input name="fg" type="color4" value="0.2000, 0.4000, 0.0000, -1.0000" />
+      <input name="bg" type="color4" value="0.3000, 0.3000, 1.0000, 1.0" />
+      <input name="mix" type="float" value="0.5000" />
+    </plus>
+    <output name="out" type="color4" nodename="plus1" />
+  </nodegraph>
+  <nodegraph name="minus_float" type="" xpos="6.20862" ypos="20.0354">
+    <minus name="minus1" type="float" xpos="5.74483" ypos="4.42">
+      <input name="fg" type="float" value="1.0000" />
+      <input name="bg" type="float" value="1.0000" />
+      <input name="mix" type="float" value="0.5000" />
+    </minus>
+    <output name="out" type="float" nodename="minus1" />
+  </nodegraph>
+  <nodegraph name="minus_color2" type="" xpos="7.24081" ypos="20.0539">
+    <minus name="minus1" type="color2" xpos="5.75172" ypos="4.42">
+      <input name="fg" type="color2" value="1.0000, 0.0000" />
+      <input name="bg" type="color2" value="1.0000, 1.0" />
+      <input name="mix" type="float" value="0.5000" />
+    </minus>
+    <output name="out" type="color2" nodename="minus1" />
+  </nodegraph>
+  <nodegraph name="minus_color3" type="" xpos="8.22864" ypos="20.0396">
+    <minus name="minus1" type="color3" xpos="5.75172" ypos="4.42">
+      <input name="fg" type="color3" value="1.0000, 0.0, 0.0" />
+      <input name="bg" type="color3" value="1.0000, 1.0000, 0.0" />
+      <input name="mix" type="float" value="0.5000" />
+    </minus>
+    <output name="out" type="color3" nodename="minus1" />
+  </nodegraph>
+  <nodegraph name="minus_color4" type="" xpos="9.20663" ypos="20.0253">
+    <minus name="minus1" type="color4" xpos="5.75172" ypos="4.42">
+      <input name="fg" type="color4" value="1.0000, 0.0, 0.0, 0.2500" />
+      <input name="bg" type="color4" value="1.0000, 1.0000, 0.0, 1.0" />
+      <input name="mix" type="float" value="0.5000" />
+    </minus>
+    <output name="out" type="color4" nodename="minus1" />
+  </nodegraph>
+  <nodegraph name="difference_float" type="" xpos="6.21607" ypos="21.3854">
+    <difference name="difference1" type="float" xpos="5.75172" ypos="4.42">
+      <input name="fg" type="float" value="1.0000" />
+      <input name="bg" type="float" value="0.5000" />
+      <input name="mix" type="float" value="0.5000" />
+    </difference>
+    <output name="out" type="float" nodename="difference1" />
+  </nodegraph>
+  <nodegraph name="difference_color2" type="" xpos="7.22638" ypos="21.36">
+    <difference name="difference1" type="color2" xpos="5.75172" ypos="4.42">
+      <input name="fg" type="color2" value="1.0000, 1.0000" />
+      <input name="bg" type="color2" value="0.5000, 0.0000" />
+      <input name="mix" type="float" value="0.5000" />
+    </difference>
+    <output name="out" type="color2" nodename="difference1" />
+  </nodegraph>
+  <nodegraph name="difference_color3" type="" xpos="8.22972" ypos="21.3398">
+    <difference name="difference1" type="color3" xpos="5.75862" ypos="4.44">
+      <input name="fg" type="color3" value="1.0000, 1.0000, 0.0" />
+      <input name="bg" type="color3" value="0.5000, 0.0000, 0.0" />
+      <input name="mix" type="float" value="0.5000" />
+    </difference>
+    <output name="out" type="color3" nodename="difference1" />
+  </nodegraph>
+  <nodegraph name="difference_color4" type="" xpos="9.23654" ypos="21.3095">
+    <difference name="difference1" type="color4" xpos="5.75172" ypos="4.42">
+      <input name="fg" type="color4" value="1.0000, 1.0000, 0.0, 0.0000" />
+      <input name="bg" type="color4" value="0.5000, 0.0, 0.0, 1.0" />
+      <input name="mix" type="float" value="0.5000" />
+    </difference>
+    <output name="out" type="color4" nodename="difference1" />
+  </nodegraph>
+  <nodegraph name="burn_float" type="" xpos="6.20562" ypos="22.7021">
+    <burn name="burn1" type="float" xpos="5.75172" ypos="4.42">
+      <input name="fg" type="float" value="0.5000" />
+      <input name="bg" type="float" value="0.5000" />
+      <input name="mix" type="float" value="0.5000" />
+    </burn>
+    <output name="out" type="float" nodename="burn1" />
+  </nodegraph>
+  <nodegraph name="burn_color2" type="" xpos="7.22638" ypos="22.6889">
+    <burn name="burn1" type="color2" xpos="5.75172" ypos="4.42">
+      <input name="fg" type="color2" value="0.5000, 0.7500" />
+      <input name="bg" type="color2" value="0.5000, 0.7500" />
+      <input name="mix" type="float" value="0.5000" />
+    </burn>
+    <output name="out" type="color2" nodename="burn1" />
+  </nodegraph>
+  <nodegraph name="burn_color3" type="" xpos="8.24017" ypos="22.6586">
+    <burn name="burn1" type="color3" xpos="5.75172" ypos="4.42">
+      <input name="fg" type="color3" value="0.5000, 0.7500, 1.0000" />
+      <input name="bg" type="color3" value="0.5000, 0.7500, 0.0000" />
+      <input name="mix" type="float" value="0.5000" />
+    </burn>
+    <output name="out" type="color3" nodename="burn1" />
+  </nodegraph>
+  <nodegraph name="burn_color4" type="" xpos="9.247" ypos="22.6485">
+    <burn name="burn1" type="color4" xpos="5.75172" ypos="4.42">
+      <input name="fg" type="color4" value="0.5000, 0.7500, 1.0000, 0.0000" />
+      <input name="bg" type="color4" value="0.5000, 0.7500, 0.0, 1.0" />
+      <input name="mix" type="float" value="0.5000" />
+    </burn>
+    <output name="out" type="color4" nodename="burn1" />
+  </nodegraph>
+  <nodegraph name="dodge_float" type="" xpos="6.21607" ypos="24.0124">
+    <dodge name="dodge1" type="float" xpos="5.75172" ypos="4.42">
+      <input name="fg" type="float" value="0.0000" />
+      <input name="bg" type="float" value="0.5000" />
+      <input name="mix" type="float" value="0.5000" />
+    </dodge>
+    <output name="out" type="float" nodename="dodge1" />
+  </nodegraph>
+  <nodegraph name="dodge_color2" type="" xpos="7.2229" ypos="24.0124">
+    <dodge name="dodge1" type="color2" xpos="5.75172" ypos="4.42">
+      <input name="fg" type="color2" value="0.0, 0.2000" />
+      <input name="bg" type="color2" value="0.5000, 0.8000" />
+      <input name="mix" type="float" value="0.5000" />
+    </dodge>
+    <output name="out" type="color2" nodename="dodge1" />
+  </nodegraph>
+  <nodegraph name="dodge_color3" type="" xpos="8.25062" ypos="24.0124">
+    <dodge name="dodge1" type="color3" xpos="5.75172" ypos="4.42">
+      <input name="fg" type="color3" value="0.0, 0.2000, 0.0" />
+      <input name="bg" type="color3" value="0.5000, 0.8000, 0.0" />
+      <input name="mix" type="float" value="0.5000" />
+    </dodge>
+    <output name="out" type="color3" nodename="dodge1" />
+  </nodegraph>
+  <nodegraph name="dodge_color4" type="" xpos="9.26441" ypos="24.0023">
+    <dodge name="dodge1" type="color4" xpos="5.75172" ypos="4.42">
+      <input name="fg" type="color4" value="0.0, 0.2000, 0.0, 1.0" />
+      <input name="bg" type="color4" value="0.5000, 0.8000, 0.0, 1.0" />
+      <input name="mix" type="float" value="0.5000" />
+    </dodge>
+    <output name="out" type="color4" nodename="dodge1" />
+  </nodegraph>
+  <nodegraph name="screen_float" type="" xpos="6.21955" ypos="25.2955">
+    <screen name="screen1" type="float" xpos="5" ypos="9.92">
+      <input name="fg" type="float" value="0.5000" />
+      <input name="bg" type="float" value="0.5000" />
+      <input name="mix" type="float" value="0.5000" />
+    </screen>
+    <output name="out" type="float" nodename="screen1" />
+  </nodegraph>
+  <nodegraph name="screen_color2" type="" xpos="7.2229" ypos="25.2854">
+    <screen name="screen1" type="color2" xpos="5" ypos="9.92">
+      <input name="fg" type="color2" value="0.5000, 0.0000" />
+      <input name="bg" type="color2" value="0.5000, 1.0000" />
+      <input name="mix" type="float" value="0.5000" />
+    </screen>
+    <output name="out" type="color2" nodename="screen1" />
+  </nodegraph>
+  <nodegraph name="screen_color3" type="" xpos="8.2541" ypos="25.2753">
+    <screen name="screen1" type="color3" xpos="5" ypos="9.92">
+      <input name="fg" type="color3" value="0.5000, 0.0, 0.0000" />
+      <input name="bg" type="color3" value="0.5000, 1.0000, 0.0" />
+      <input name="mix" type="float" value="0.5000" />
+    </screen>
+    <output name="out" type="color3" nodename="screen1" />
+  </nodegraph>
+  <nodegraph name="screen_color4" type="" xpos="9.2679" ypos="25.2753">
+    <screen name="screen1" type="color4" xpos="5" ypos="9.92">
+      <input name="fg" type="color4" value="0.5000, 0.0, 0.0, 1.0" />
+      <input name="bg" type="color4" value="0.5000, 1.0000, 0.0, 0.0000" />
+      <input name="mix" type="float" value="0.5000" />
+    </screen>
+    <output name="out" type="color4" nodename="screen1" />
+  </nodegraph>
+  <nodegraph name="overlay_float" type="" xpos="6.22133" ypos="26.5621">
+    <overlay name="overlay1" type="float" xpos="5" ypos="9.92">
+      <input name="fg" type="float" value="0.5000" />
+      <input name="bg" type="float" value="0.5000" />
+      <input name="mix" type="float" value="0.5000" />
+    </overlay>
+    <output name="out" type="float" nodename="overlay1" />
+  </nodegraph>
+  <nodegraph name="disjointover_color2" type="" xpos="6.2204" ypos="27.9159">
+    <output name="out" type="color2" nodename="disjointover1" />
+    <disjointover name="disjointover1" type="color2" xpos="5" ypos="9.92">
+      <input name="fg" type="color2" value="0.5000, 1.0" />
+      <input name="bg" type="color2" value="0.5000, 1.0" />
+      <input name="mix" type="float" value="0.5000" />
+    </disjointover>
+  </nodegraph>
+  <nodegraph name="overlay_color2" type="" xpos="7.2342" ypos="26.5419">
+    <overlay name="overlay1" type="color2" xpos="5" ypos="9.92">
+      <input name="fg" type="color2" value="0.5000, 0.0000" />
+      <input name="bg" type="color2" value="0.5000, 1.0" />
+      <input name="mix" type="float" value="0.5000" />
+    </overlay>
+    <output name="out" type="color2" nodename="overlay1" />
+  </nodegraph>
+  <nodegraph name="overlay_color3" type="" xpos="8.25148" ypos="26.5369">
+    <overlay name="overlay1" type="color3" xpos="5" ypos="9.92">
+      <input name="fg" type="color3" value="0.5000, 0.0, 0.0" />
+      <input name="bg" type="color3" value="0.5000, 1.0000, 0.0" />
+      <input name="mix" type="float" value="0.5000" />
+    </overlay>
+    <output name="out" type="color3" nodename="overlay1" />
+  </nodegraph>
+  <nodegraph name="overlay_color4" type="" xpos="9.26875" ypos="26.5268">
+    <overlay name="overlay1" type="color4" xpos="5" ypos="9.92">
+      <input name="fg" type="color4" value="0.5000, 0.0, 0.0, 1.0" />
+      <input name="bg" type="color4" value="0.5000, 1.0000, 0.0, 0.0000" />
+      <input name="mix" type="float" value="0.5000" />
+    </overlay>
+    <output name="out" type="color4" nodename="overlay1" />
+  </nodegraph>
+  <nodegraph name="disjointover_color4" type="" xpos="7.24117" ypos="27.9109">
+    <disjointover name="disjointover1" type="color4" xpos="5" ypos="9.92">
+      <input name="fg" type="color4" value="0.5000, 1.0000, 0.0, 1.0" />
+      <input name="bg" type="color4" value="0.5000, 1.0000, 1.0000, 0.0000" />
+      <input name="mix" type="float" value="0.5000" />
+    </disjointover>
+    <output name="out" type="color4" nodename="disjointover1" />
+  </nodegraph>
+</materialx>
