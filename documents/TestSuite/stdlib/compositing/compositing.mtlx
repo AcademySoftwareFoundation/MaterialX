@@ -9,6 +9,13 @@ Basic compositing function tests each test is in a separate graph for each varia
 - screen
 - overlay
 - disjointover
+- mask
+- out
+- over
+- inside
+- mix
+- premult
+- unpremult
 
 -->
 
@@ -253,5 +260,175 @@ Basic compositing function tests each test is in a separate graph for each varia
       <input name="mix" type="float" value="0.5000" />
     </disjointover>
     <output name="out" type="color4" nodename="disjointover1" />
+  </nodegraph>
+  <nodegraph name="mask_color2" type="" xpos="6.22388" ypos="29.2927">
+    <mask name="mask1" type="color2" xpos="5.74483" ypos="4.42">
+      <input name="fg" type="color2" value="1.0000, 0.5000" />
+      <input name="bg" type="color2" value="0.5000, 0.5000" />
+      <input name="mix" type="float" value="0.5000" />
+    </mask>
+    <output name="out" type="color2" nodename="mask1" />
+  </nodegraph>
+  <nodegraph name="mask_color4" type="" xpos="7.22892" ypos="29.2733">
+    <mask name="mask1" type="color4" xpos="5.74483" ypos="4.42">
+      <input name="fg" type="color4" value="1.0000, 1.0000, 1.0000, 0.5000" />
+      <input name="bg" type="color4" value="0.5000, 0.7500, 0.0, 0.5000" />
+      <input name="mix" type="float" value="0.5000" />
+    </mask>
+    <output name="out" type="color4" nodename="mask1" />
+  </nodegraph>
+  <nodegraph name="out_color2" type="" xpos="6.20908" ypos="30.5742">
+    <out name="out1" type="color2" xpos="5.74483" ypos="4.42">
+      <input name="fg" type="color2" value="1.0000, 0.5000" />
+      <input name="bg" type="color2" value="0.5000, 0.5000" />
+      <input name="mix" type="float" value="0.5000" />
+    </out>
+    <output name="out" type="color2" nodename="out1" />
+  </nodegraph>
+  <nodegraph name="out_color4" type="" xpos="7.22457" ypos="30.5572">
+    <out name="out1" type="color4" xpos="5.74483" ypos="4.42">
+      <input name="fg" type="color4" value="1.0000, 1.0000, 1.0000, 0.5000" />
+      <input name="bg" type="color4" value="1.0000, 1.0000, 0.0, 0.5000" />
+      <input name="mix" type="float" value="0.5000" />
+    </out>
+    <output name="out" type="color4" nodename="out1" />
+  </nodegraph>
+  <nodegraph name="over_color2" type="" xpos="6.2137" ypos="31.9102">
+    <over name="over1" type="color2" xpos="5.74483" ypos="4.42">
+      <input name="fg" type="color2" value="1.0000, 0.5000" />
+      <input name="bg" type="color2" value="0.5000, 0.5000" />
+      <input name="mix" type="float" value="0.5000" />
+    </over>
+    <output name="out" type="color2" nodename="over1" />
+  </nodegraph>
+  <nodegraph name="over_color4" type="" xpos="7.22158" ypos="31.8841">
+    <over name="over1" type="color4" xpos="5.74483" ypos="4.42">
+      <input name="fg" type="color4" value="1.0000, 1.0000, 1.0000, 0.5000" />
+      <input name="bg" type="color4" value="1.0000, 1.0000, 0.0, 0.5000" />
+      <input name="mix" type="float" value="0.5000" />
+    </over>
+    <output name="out" type="color4" nodename="over1" />
+  </nodegraph>
+  <nodegraph name="inside_float" type="" xpos="6.19846" ypos="33.3686">
+    <inside name="inside1" type="float" xpos="5.74483" ypos="4.58">
+      <input name="in" type="float" value="1.0000" />
+      <input name="mask" type="float" value="0.5000" />
+    </inside>
+    <output name="out" type="float" nodename="inside1" />
+  </nodegraph>
+  <nodegraph name="inside_color2" type="" xpos="7.20932" ypos="33.3686">
+    <inside name="inside1" type="color2" xpos="5.74483" ypos="4.58">
+      <input name="in" type="color2" value="0.5000, 0.8000" />
+      <input name="mask" type="float" value="0.5000" />
+    </inside>
+    <output name="out" type="color2" nodename="inside1" />
+  </nodegraph>
+  <nodegraph name="mix_float" type="" xpos="6.18649" ypos="34.6956">
+    <mix name="mix1" type="float" xpos="5.74483" ypos="4.42">
+      <input name="fg" type="float" value="1.0000" />
+      <input name="bg" type="float" value="0.0" />
+      <input name="mix" type="float" value="0.5000" />
+    </mix>
+    <output name="out" type="float" nodename="mix1" />
+  </nodegraph>
+  <nodegraph name="mix_color2" type="" xpos="7.21232" ypos="34.6956">
+    <mix name="mix1" type="color2" xpos="5.74483" ypos="4.42">
+      <input name="fg" type="color2" value="1.0000, 0.0000" />
+      <input name="bg" type="color2" value="0.0, 1.0" />
+      <input name="mix" type="float" value="0.5000" />
+    </mix>
+    <output name="out" type="color2" nodename="mix1" />
+  </nodegraph>
+  <nodegraph name="inside_color3" type="" xpos="8.22917" ypos="33.3426">
+    <inside name="inside1" type="color3" xpos="5.74483" ypos="4.58">
+      <input name="in" type="color3" value="0.5000, 0.8000, 0.0000" />
+      <input name="mask" type="float" value="0.5000" />
+    </inside>
+    <output name="out" type="color3" nodename="inside1" />
+  </nodegraph>
+  <nodegraph name="inside_color4" type="" xpos="9.26223" ypos="33.3512">
+    <inside name="inside1" type="color4" xpos="5.74483" ypos="4.58">
+      <input name="in" type="color4" value="0.5000, 0.8000, 0.0, 1.0" />
+      <input name="mask" type="float" value="0.5000" />
+    </inside>
+    <output name="out" type="color4" nodename="inside1" />
+  </nodegraph>
+  <nodegraph name="mix_color3" type="" xpos="8.23216" ypos="34.6854">
+    <mix name="mix1" type="color3" xpos="5.74483" ypos="4.42">
+      <input name="fg" type="color3" value="1.0000, 0.0, 0.0" />
+      <input name="bg" type="color3" value="0.0, 1.0000, 0.0" />
+      <input name="mix" type="float" value="0.5000" />
+    </mix>
+    <output name="out" type="color3" nodename="mix1" />
+  </nodegraph>
+  <nodegraph name="mix_color4" type="" xpos="9.29088" ypos="34.6768">
+    <mix name="mix1" type="color4" xpos="5.74483" ypos="4.42">
+      <input name="fg" type="color4" value="1.0000, 0.0, 0.0, 1.0" />
+      <input name="bg" type="color4" value="0.0000, 1.0000, 0.0, 1.0" />
+      <input name="mix" type="float" value="0.5000" />
+    </mix>
+    <output name="out" type="color4" nodename="mix1" />
+  </nodegraph>
+  <nodegraph name="mix_vector2" type="" xpos="7.19221" ypos="36.147">
+    <mix name="mix1" type="vector2" xpos="5.74483" ypos="4.42">
+      <input name="fg" type="vector2" value="1.0000, 0.0" />
+      <input name="bg" type="vector2" value="0.0, 1.0000" />
+      <input name="mix" type="float" value="0.5000" />
+    </mix>
+    <output name="out" type="vector2" nodename="mix1" />
+  </nodegraph>
+  <nodegraph name="mix_vector3" type="" xpos="8.24012" ypos="36.1306">
+    <mix name="mix1" type="vector3" xpos="5.74483" ypos="4.42">
+      <input name="fg" type="vector3" value="1.0000, 0.0, 0.0" />
+      <input name="bg" type="vector3" value="0.0, 1.0000, 0.0" />
+      <input name="mix" type="float" value="0.5000" />
+    </mix>
+    <output name="out" type="vector3" nodename="mix1" />
+  </nodegraph>
+  <nodegraph name="mix_vector4" type="" xpos="9.30868" ypos="36.0818">
+    <mix name="mix1" type="vector4" xpos="5.74483" ypos="4.42">
+      <input name="fg" type="vector4" value="1.0000, 0.0, 0.0, 1.0" />
+      <input name="bg" type="vector4" value="0.0, 1.0000, 0.0, 1.0" />
+      <input name="mix" type="float" value="0.5000" />
+    </mix>
+    <output name="out" type="vector4" nodename="mix1" />
+  </nodegraph>
+  <nodegraph name="premult_color2" type="" xpos="6.19276" ypos="37.6716">
+    <premult name="premult1" type="color2" xpos="5.74483" ypos="4.74">
+      <input name="in" type="color2" value="1.0000, 0.5000" />
+    </premult>
+    <output name="out" type="color2" nodename="premult1" />
+  </nodegraph>
+  <nodegraph name="premult_color3" type="" xpos="7.19167" ypos="37.6542">
+    <premult name="premult1" type="color3" xpos="5.74483" ypos="4.58">
+      <input name="in" type="color3" value="1.0000, 0.0, 0.5000" />
+      <input name="alpha" type="float" value="0.5000" />
+    </premult>
+    <output name="out" type="color3" nodename="premult1" />
+  </nodegraph>
+  <nodegraph name="premult_color4" type="" xpos="8.23843" ypos="37.637">
+    <premult name="premult1" type="color4" xpos="5.74483" ypos="4.74">
+      <input name="in" type="color4" value="1.0000, 0.0, 0.5000, 0.5000" />
+    </premult>
+    <output name="out" type="color4" nodename="premult1" />
+  </nodegraph>
+  <nodegraph name="unpremult_color2" type="" xpos="6.17482" ypos="39.2502">
+    <unpremult name="unpremult1" type="color2" xpos="5.74483" ypos="4.74">
+      <input name="in" type="color2" value="1.0000, 0.5000" />
+    </unpremult>
+    <output name="out" type="color2" nodename="unpremult1" />
+  </nodegraph>
+  <nodegraph name="unpremult_color3" type="" xpos="7.21559" ypos="39.198">
+    <unpremult name="unpremult1" type="color3" xpos="5.74483" ypos="4.58">
+      <input name="in" type="color3" value="1.0000, 0.0, 0.5000" />
+      <input name="alpha" type="float" value="0.5000" />
+    </unpremult>
+    <output name="out" type="color3" nodename="unpremult1" />
+  </nodegraph>
+  <nodegraph name="unpremult_color4" type="" xpos="8.25637" ypos="39.1634">
+    <unpremult name="unpremult1" type="color4" xpos="5.74483" ypos="4.58">
+      <input name="in" type="color4" value="1.0000, 0.0, 0.5000, 0.5000" />
+    </unpremult>
+    <output name="out" type="color4" nodename="unpremult1" />
   </nodegraph>
 </materialx>
