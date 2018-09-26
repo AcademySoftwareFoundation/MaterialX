@@ -537,9 +537,11 @@ ValuePtr ValueElement::getDefaultValue() const
     }
 
     // Return the value, if any, stored in our declaration.
-    if (getParent()->isA<InterfaceElement>())
+    ConstElementPtr parent = getParent();
+    ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
+    if (interface)
     {
-        ConstNodeDefPtr decl = getParent()->asA<InterfaceElement>()->getDeclaration();
+        ConstNodeDefPtr decl = interface->getDeclaration();
         if (decl)
         {
             ValueElementPtr value = decl->getActiveValueElement(getName());
@@ -570,7 +572,8 @@ Edge Token::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
 {
     if (material && index < getUpstreamEdgeCount())
     {
-        ConstInterfaceElementPtr interface = getParent()->asA<InterfaceElement>();
+        ConstElementPtr parent = getParent();
+        ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
         ConstNodeDefPtr nodeDef = interface ? interface->getDeclaration() : nullptr;
         if (nodeDef)
         {

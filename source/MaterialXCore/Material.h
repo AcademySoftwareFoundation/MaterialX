@@ -227,6 +227,15 @@ class BindParam : public ValueElement
     }
     virtual ~BindParam() { }
 
+    /// @name Validation
+    /// @{
+
+    /// Validate that the given element tree, including all descendants, is
+    /// consistent with the MaterialX specification.
+    bool validate(string* message = nullptr) const override;
+
+    /// @}
+
   public:
     static const string CATEGORY;
 };
@@ -298,6 +307,14 @@ class BindInput : public ValueElement
 
     /// Return the output, if any, to which the BindInput is connected.
     OutputPtr getConnectedOutput() const;
+
+    /// @}
+    /// @name Validation
+    /// @{
+
+    /// Validate that the given element tree, including all descendants, is
+    /// consistent with the MaterialX specification.
+    bool validate(string* message = nullptr) const override;
 
     /// @}
 
