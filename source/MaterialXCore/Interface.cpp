@@ -84,7 +84,8 @@ Edge Parameter::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
 {
     if (material && index < getUpstreamEdgeCount())
     {
-        ConstInterfaceElementPtr interface = getParent()->asA<InterfaceElement>();
+        ConstElementPtr parent = getParent();
+        ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
         ConstNodeDefPtr nodeDef = interface ? interface->getDeclaration() : nullptr;
         if (nodeDef)
         {
@@ -116,7 +117,8 @@ Edge Input::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
 {
     if (material && index < getUpstreamEdgeCount())
     {
-        ConstInterfaceElementPtr interface = getParent()->asA<InterfaceElement>();
+        ConstElementPtr parent = getParent();
+        ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
         ConstNodeDefPtr nodeDef = interface ? interface->getDeclaration() : nullptr;
         if (nodeDef)
         {

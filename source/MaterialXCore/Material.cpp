@@ -145,6 +145,28 @@ bool Material::validate(string* message) const
 }
 
 //
+// BindParam methods
+//
+
+bool BindParam::validate(string* message) const
+{
+    bool res = true;
+    ConstElementPtr parent = getParent();
+    ConstShaderRefPtr shaderRef = parent ? parent->asA<ShaderRef>() : nullptr;
+    NodeDefPtr nodeDef = shaderRef ? shaderRef->getNodeDef() : nullptr;
+    if (nodeDef)
+    {
+        ParameterPtr param = nodeDef->getActiveParameter(getName());
+        validateRequire(param != nullptr, res, message, "BindParam does not match an Parameter in the referenced NodeDef");
+        if (param)
+        {
+            validateRequire(getType() == param->getType(), res, message, "Type mismatch between BindParam and Parameter");
+        }
+    }
+    return ValueElement::validate(message) && res;
+}
+
+//
 // BindInput methods
 //
 
@@ -178,6 +200,24 @@ OutputPtr BindInput::getConnectedOutput() const
         return nodeGraph ? nodeGraph->getOutput(getOutputString()) : OutputPtr();
     }
     return getDocument()->getOutput(getOutputString());
+}
+
+bool BindInput::validate(string* message) const
+{
+    bool res = true;
+    ConstElementPtr parent = getParent();
+    ConstShaderRefPtr shaderRef = parent ? parent->asA<ShaderRef>() : nullptr;
+    NodeDefPtr nodeDef = shaderRef ? shaderRef->getNodeDef() : nullptr;
+    if (nodeDef)
+    {
+        InputPtr input = nodeDef->getActiveInput(getName());
+        validateRequire(input != nullptr, res, message, "BindInput does not match an Input in the referenced NodeDef");
+        if (input)
+        {
+            validateRequire(getType() == input->getType(), res, message, "Type mismatch between BindInput and Input");
+        }
+    }
+    return ValueElement::validate(message) && res;
 }
 
 //
