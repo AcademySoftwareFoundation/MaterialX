@@ -1,6 +1,6 @@
 <!-- Template for taking an input color shader and rendering without lighting -->
 <World>
-   <Camera eye="0, 3, 3" look_at="0,0,0" fov="70" />
+   <Camera eye="0, 2.3, 2.3" look_at="0,0,0" fov="70" />
 
    <!-- Background clear 
    %background_color% : is the background color

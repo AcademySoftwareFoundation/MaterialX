@@ -10,6 +10,10 @@
 
 namespace MaterialX
 {
+
+// Statics
+std::string OslValidator::OSL_CLOSURE_COLOR_STRING("closure color");
+
 //
 // Creator
 //
@@ -20,7 +24,7 @@ OslValidatorPtr OslValidator::create()
 
 OslValidator::OslValidator() :
     ShaderValidator(),
-    _useTestRender(false) // By default use testshade
+    _useTestRender(true) // By default use testrender
 {
 }
 
@@ -58,14 +62,15 @@ void OslValidator::renderOSL(const std::string& outputPath, const std::string& s
     }
 
     // If the output type is not which can be supported for rendering then skip testing.
-    bool requiresTypeMapping = (_oslShaderOutputType == getTypeString<Color2>() ||
+    bool remappableTuple = (_oslShaderOutputType == getTypeString<Color2>() ||
         _oslShaderOutputType == getTypeString<Color4>() ||
         _oslShaderOutputType == getTypeString<Vector2>() ||
         _oslShaderOutputType == getTypeString<Vector4>());
-    bool directlyConnectable = (_oslShaderOutputType == getTypeString<float>() ||
+    bool directTuple = (_oslShaderOutputType == getTypeString<float>() ||
         _oslShaderOutputType == getTypeString<Color3>() ||
         _oslShaderOutputType == getTypeString<Vector3>());
-    if (!(requiresTypeMapping || directlyConnectable))
+    bool isColorClosure = (_oslShaderOutputType == OSL_CLOSURE_COLOR_STRING);
+    if (!(remappableTuple || directTuple || isColorClosure))
     {
         errors.push_back("Output type to render is not supported: " + _oslShaderOutputType);
         throw ExceptionShaderValidationError(errorType, errors);
@@ -73,6 +78,7 @@ void OslValidator::renderOSL(const std::string& outputPath, const std::string& s
 
     // The original output type has been renamed to color3 so don't need to
     // remap during validation.
+    bool requiresTypeMapping = remappableTuple;
     if (requiresTypeMapping && _remappedShaderOutput)
     {
         requiresTypeMapping = false;
@@ -90,9 +96,8 @@ void OslValidator::renderOSL(const std::string& outputPath, const std::string& s
     std::string errorFile(shaderPath + "_render_errors.txt");
     const std::string redirectString(" 2>&1");
 
-    // Read in scene template and replace "%shader%" 
-    // "%shader_output%" string siwht shader name and shader output
-    // respectively. Write to local file to use as input for rendering.
+    // Read in scene template and replace the applicable tokens to have a valid ShaderGroup.
+    // Write to local file to use as input for rendering.
     //
     std::ifstream sceneTemplateStream(_oslTestRenderSceneTemplateFile);
     std::string sceneTemplateString;
@@ -100,22 +105,48 @@ void OslValidator::renderOSL(const std::string& outputPath, const std::string& s
         std::istreambuf_iterator<char>());
 
     StringMap replacementMap;
-    std::string outputShader("constant_color");
-    if (requiresTypeMapping)
+    std::string outputShader;
+    const std::string CLOSURE_PASSTHROUGH_SHADER_STRING("closure_passthrough");
+    const std::string CONSTANT_COLOR_SHADER_STRING("constant_color");
+    const std::string CONSTANT_COLOR_SHADER_PREFIX_STRING("constant_");
+    if (isColorClosure)
     {
-        outputShader = "constant_" + _oslShaderOutputType;
+        // Want a closure color passthrough shader
+        outputShader = CLOSURE_PASSTHROUGH_SHADER_STRING;
     }
-    replacementMap["%output_shader_type%"] = outputShader; 
-    replacementMap["%output_shader_input%"] = "Cin";
-    replacementMap["%input_shader_type%"] = shaderName;
-    replacementMap["%input_shader_output%"] = outputName;
+    else
+    {
+        if (!requiresTypeMapping)
+        {
+            // Want a constant color3/vector3 shader
+            outputShader = CONSTANT_COLOR_SHADER_STRING;
+        }
+        else
+        {
+            // Want a specific 2 or 4 shader
+            outputShader = CONSTANT_COLOR_SHADER_PREFIX_STRING + _oslShaderOutputType;
+        }
+    }
+
+    // Perform token replacement
+    const std::string OUTPUT_SHADER_TYPE_STRING("%output_shader_type%");
+    const std::string OUTPUT_SHADER_INPUT_STRING("%output_shader_input%");
+    const std::string OUTPUT_SHADER_INPUT_VALUE_STRING("Cin");
+    const std::string INPUT_SHADER_TYPE_STRING("%input_shader_type%");
+    const std::string INPUT_SHADER_OUTPUT_STRING("%input_shader_output%");
+    const std::string BACKGROUND_COLOR_STRING("%background_color%");    
     const string backgroundColor("0.5 0.6 0.7"); // TODO: Make this a user input
-    replacementMap["%background_color%"] = backgroundColor;
+
+    replacementMap[OUTPUT_SHADER_TYPE_STRING] = outputShader;
+    replacementMap[OUTPUT_SHADER_INPUT_STRING] = OUTPUT_SHADER_INPUT_VALUE_STRING;
+    replacementMap[INPUT_SHADER_TYPE_STRING] = shaderName;
+    replacementMap[INPUT_SHADER_OUTPUT_STRING] = outputName;
+    replacementMap[BACKGROUND_COLOR_STRING] = backgroundColor;
     std::string sceneString = replaceSubstrings(sceneTemplateString, replacementMap);
     if ((sceneString == sceneTemplateString) || sceneTemplateString.empty())
     {
         errors.push_back("Scene template file: " + _oslTestRenderSceneTemplateFile + 
-                         "does not include proper tokens for rendering");
+                         " does not include proper tokens for rendering.");
         throw ExceptionShaderValidationError(errorType, errors);
     }
 
@@ -139,6 +170,10 @@ void OslValidator::renderOSL(const std::string& outputPath, const std::string& s
     command += " " + sceneFileName;
     command += " " + outputFileName;
     command += " --path " + osoPaths;
+    if (isColorClosure)
+    {
+        command += " -aa 4 "; // Images are very noisy without anti-aliasing
+    }
     command += " > " + errorFile + redirectString;
 
     int returnValue = std::system(command.c_str());
@@ -300,7 +335,7 @@ void OslValidator::validateCreation(const std::vector<std::string>& stages)
     // TODO: Seems testrender will crash currently when trying to convert to "object" space.
     // Thus we replace all instances of "object" with "world" to avoid issues.
     StringMap spaceMap;
-    spaceMap["= \"object\""] = "= \"world\"";    
+    spaceMap["\"object\""] = "\"world\"";    
     std::string oslCode = replaceSubstrings(stages[0], spaceMap);
 
     std::ofstream file;

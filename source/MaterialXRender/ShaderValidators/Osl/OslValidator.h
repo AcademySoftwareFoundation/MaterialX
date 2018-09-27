@@ -32,6 +32,9 @@ class OslValidator : public ShaderValidator
     /// Destructor
     virtual ~OslValidator();
 
+    /// Color closure OSL string
+    static std::string OSL_CLOSURE_COLOR_STRING;
+
     /// @name Setup
     /// @{
 

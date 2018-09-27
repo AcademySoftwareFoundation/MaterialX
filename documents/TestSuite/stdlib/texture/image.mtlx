@@ -7,36 +7,36 @@ Basic image unit test with one image node for each variation in input type.
 <materialx version="1.36">
    <output name="image4_output" type="color4" nodename="image4" />
    <image name="image4" type="color4">
-      <parameter name="file" type="filename" value="documents/Images/MaterialXLogo.exr" />
+      <parameter name="file" type="filename" value="documents/TestSuite/Images/MaterialXLogo.exr" />
    </image>
 
    <output name="image3_output" type="color3" nodename="image3" />
    <image name="image3" type="color3">
-   <parameter name="file" type="filename" value="documents/Images/MaterialXLogo.exr" />
+   <parameter name="file" type="filename" value="documents/TestSuite/Images/MaterialXLogo.exr" />
    </image>
 
    <output name="image2_output" type="color2" nodename="image2" />
    <image name="image2" type="color2">
-      <parameter name="file" type="filename" value="documents/Images/MaterialXLogo.exr" />
+      <parameter name="file" type="filename" value="documents/TestSuite/Images/MaterialXLogo.exr" />
    </image>
 
    <output name="image1_output" type="float" nodename="image1" />
    <image name="image1" type="float">
-      <parameter name="file" type="filename" value="documents/Images/MaterialXLogo.exr" />
+      <parameter name="file" type="filename" value="documents/TestSuite/Images/MaterialXLogo.exr" />
    </image>
 
    <output name="image4v_output" type="vector4" nodename="image4v" />
    <image name="image4v" type="vector4">
-      <parameter name="file" type="filename" value="documents/Images/MaterialXLogo.exr" />
+      <parameter name="file" type="filename" value="documents/TestSuite/Images/MaterialXLogo.exr" />
    </image>
 
    <output name="image3v_output" type="vector3" nodename="image3v" />
    <image name="image3v" type="vector3">
-      <parameter name="file" type="filename" value="documents/Images/MaterialXLogo.exr" />
+      <parameter name="file" type="filename" value="documents/TestSuite/Images/MaterialXLogo.exr" />
    </image>
 
    <output name="image2v_output" type="vector2" nodename="image2v" />
    <image name="image2v" type="vector2">
-      <parameter name="file" type="filename" value="documents/Images/MaterialXLogo.exr" />
+      <parameter name="file" type="filename" value="documents/TestSuite/Images/MaterialXLogo.exr" />
    </image>
 </materialx>
