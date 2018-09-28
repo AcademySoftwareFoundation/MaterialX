@@ -391,7 +391,15 @@ static void runGLSLValidation(const std::string& shaderName, mx::ElementPtr elem
         mx::makeDirectory(outputPath);
         shaderPath = mx::FilePath(outputPath) / mx::FilePath(shaderName);
 
-        mx::ShaderPtr shader = shaderGenerator.generate(shaderName, element, options);
+        mx::ShaderPtr shader;
+        try
+        {
+            shader = shaderGenerator.generate(shaderName, element, options);
+        }
+        catch(std::exception)
+        {
+            shader = nullptr;
+        }
         CHECK(shader != nullptr);
         if (shader == nullptr)
         {
@@ -456,7 +464,15 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
     {
         log << "------------ Run validation with element: " << element->getNamePath() << "-------------------" << std::endl;
 
-        mx::ShaderPtr shader = shaderGenerator.generate(shaderName, element, options);
+        mx::ShaderPtr shader;
+        try
+        {
+            shader = shaderGenerator.generate(shaderName, element, options);
+        }
+        catch(std::exception)
+        {
+            shader = nullptr;
+        }
         CHECK(shader != nullptr);
         if (shader == nullptr)
         {
@@ -499,7 +515,7 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
             const std::string SURFACE_SHADER("surfaceshader");
             bool isShader = element->isA<mx::ShaderRef>() ||
                 elementType == SURFACE_SHADER;
-            std::string sceneTemplateFile; 
+            std::string sceneTemplateFile;
 
             if (isShader)
             {
