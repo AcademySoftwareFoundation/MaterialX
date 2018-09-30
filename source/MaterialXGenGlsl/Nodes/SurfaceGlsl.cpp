@@ -74,9 +74,7 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*co
 
     shader.beginScope();
 
-    const bool needTransparency = shader.getTransparencyMethod() != TRANSPARENCY_NONE;
-
-    if (needTransparency)
+    if (shader.hasTransparency())
     {
         shader.beginLine();
         shader.addStr("float surfaceOpacity = ");
@@ -143,7 +141,7 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*co
 
     // Handle surface transparency
     //
-    if (needTransparency)
+    if (shader.hasTransparency())
     {
         shader.addComment("Calculate the BSDF transmission for viewing direction");
         shader.beginScope();

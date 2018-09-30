@@ -9,7 +9,7 @@ const string HwShader::LIGHT_DATA_BLOCK = "LightData";
 HwShader::HwShader(const string& name) 
     : ParentClass(name)
     , _vertexData("VertexData", "vd")
-    , _transparencyMethod(TRANSPARENCY_NONE)
+    , _transparency(false)
 {
     _stages.push_back(Stage("Vertex"));
 
@@ -43,7 +43,7 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen, const 
     HwShaderGenerator& sg = static_cast<HwShaderGenerator&>(shadergen);
 
     // Find out if transparency should be used
-    _transparencyMethod = options.hwTransparencyMethod;
+    _transparency = options.hwTransparency;
 
     //
     // For image textures we need to convert filenames into uniforms (texture samplers).

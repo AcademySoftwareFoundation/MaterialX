@@ -68,7 +68,7 @@ GlslShaderGenerator::GlslShaderGenerator()
     ctxBsdfTransmission->addArgument(Argument("vec3", OUTGOING));
     ctxBsdfTransmission->setFunctionSuffix("_transmission");
 
-    // BSDF reflection IBL context
+    // BSDF indirect context
     SgNodeContextPtr ctxBsdfIndirect = createNodeContext(NODE_CONTEXT_BSDF_INDIRECT);
     ctxBsdfIndirect->addArgument(Argument("vec3", OUTGOING));
     ctxBsdfIndirect->setFunctionSuffix("_indirect");
@@ -525,7 +525,7 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
     if (shader.hasClassification(SgNode::Classification::SURFACE))
     {
         const HwShader& hwShader = static_cast<const HwShader&>(shader);
-        if (hwShader.getTransparencyMethod() != TRANSPARENCY_NONE)
+        if (hwShader.hasTransparency())
         {
             shader.addLine("float outAlpha = clamp(1.0 - dot(" + finalOutput + ".transparency, vec3(0.3333)), 0.0, 1.0)");
             shader.addLine(outputSocket->name + " = vec4(" + finalOutput + ".color, outAlpha)");

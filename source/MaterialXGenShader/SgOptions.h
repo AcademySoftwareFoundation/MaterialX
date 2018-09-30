@@ -21,16 +21,6 @@ enum ShaderInterfaceType
     SHADER_INTERFACE_REDUCED
 };
 
-enum HwTransparencyMethod
-{
-    /// No transparency will be used.
-    /// The surface will appear fully opaque
-    TRANSPARENCY_NONE,
-
-    /// Alpha blending will be used for transparency.
-    TRANSPARENCY_ALPHA_BLENDING
-};
-
 /// Class holding options to configure shader generation.
 class SgOptions
 {
@@ -46,11 +36,12 @@ public:
     // Sets the type of shader interface to be generated
     int shaderInterfaceType;
 
-    // Sets the transparency method to use for HW shaders
+    // Sets if transparency is needed or not for HW shaders.
     // If a surface shader has potential of being transparent
-    // this option must be set, otherwise the surface will be
-    // fully opaque.
-    int hwTransparencyMethod;
+    // this must be set to true, otherwise no transparency
+    // code fragments will be generated for the shader and 
+    // the surface will be fully opaque.
+    bool hwTransparency;
 };
 
 } // namespace MaterialX

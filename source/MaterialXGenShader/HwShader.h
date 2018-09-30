@@ -51,11 +51,11 @@ public:
         _calculatedVertexData.insert(outputName);
     }
 
-    /// Returns the transparency method used for this shader.
-    /// Will return TRANSPARENCY_NONE if the shader is opaque
-    int getTransparencyMethod() const
+    /// Returns true if the shader has transparency fragments.
+    /// Will return false if the shader is opaque.
+    bool hasTransparency() const
     {
-        return _transparencyMethod;
+        return _transparency;
     }
 
 protected:
@@ -65,7 +65,7 @@ protected:
 private:
     VariableBlock _vertexData;
     std::set<string> _calculatedVertexData;
-    int _transparencyMethod;
+    bool _transparency;
 };
 
 } // namespace MaterialX

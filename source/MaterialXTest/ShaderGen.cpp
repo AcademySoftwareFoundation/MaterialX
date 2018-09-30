@@ -2126,7 +2126,7 @@ TEST_CASE("Transparency", "[shadergen]")
 
     // Create a material with the above node as the shader
     mx::MaterialPtr mtrl = doc->addMaterial(exampleName + "_material");
-    mx::ShaderRefPtr shaderRef = mtrl->addShaderRef(exampleName + "_shader", exampleName);
+    mx::ShaderRefPtr shaderRef = mtrl->addShaderRef(exampleName + "_shader", "standard_surface");
 
     // Bind shader parameter values
     mx::BindInputPtr reflection_input = shaderRef->addBindInput("reflection", "float");
@@ -2135,16 +2135,10 @@ TEST_CASE("Transparency", "[shadergen]")
     transmission_input->setValue(1.0f);
     mx::BindInputPtr ior_input = shaderRef->addBindInput("ior", "float");
     ior_input->setValue(1.50f);
-    mx::BindInputPtr opacity_input = shaderRef->addBindInput("opacity", "float");
-    opacity_input->setValue(1.0f);
-
-    // Set meta data for this shader to use transparency
-    shaderRef->setAttribute("transparency", "false");
+    mx::BindInputPtr opacity_input = shaderRef->addBindInput("opacity", "color3");
+    opacity_input->setValue(mx::Color3(1.0f, 1, 1));
 
     mx::SgOptions options;
-
-    // Specify that this shader needs to handle transparency
-    options.hwTransparencyMethod = mx::TRANSPARENCY_ALPHA_BLENDING;
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
@@ -2190,6 +2184,14 @@ TEST_CASE("Transparency", "[shadergen]")
             mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
             createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
+            // Test the transparency tracking 
+            transmission_input->setValue(0.0f);
+            options.hwTransparency = isTransparentSurface(shaderRef, *shaderGenerator);
+            REQUIRE(!options.hwTransparency);
+            transmission_input->setValue(1.0f);
+            options.hwTransparency = isTransparentSurface(shaderRef, *shaderGenerator);
+            REQUIRE(options.hwTransparency);
+
             mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, options);
             REQUIRE(shader != nullptr);
             REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
@@ -2211,6 +2213,9 @@ TEST_CASE("Transparency", "[shadergen]")
         // Setup lighting
         mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
         createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
+
+        // Specify if this shader needs to handle transparency
+        options.hwTransparency = isTransparentSurface(shaderRef, *shaderGenerator);
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, options);
         REQUIRE(shader != nullptr);
@@ -2305,6 +2310,9 @@ TEST_CASE("Surface Layering", "[shadergen]")
         mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
         createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
+        // Specify if this shader needs to handle transparency
+        options.hwTransparency = isTransparentSurface(shaderRef, *shaderGenerator);
+
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, options);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
@@ -2325,6 +2333,9 @@ TEST_CASE("Surface Layering", "[shadergen]")
         // Setup lighting
         mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
         createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
+
+        // Specify if this shader needs to handle transparency
+        options.hwTransparency = isTransparentSurface(shaderRef, *shaderGenerator);
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, options);
         REQUIRE(shader != nullptr);

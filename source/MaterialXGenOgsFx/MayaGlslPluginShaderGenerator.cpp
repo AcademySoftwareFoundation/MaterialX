@@ -62,7 +62,7 @@ OgsFxShaderPtr MayaGlslPluginShaderGenerator::createShader(const string& name)
 void MayaGlslPluginShaderGenerator::getTechniqueParams(const Shader& shader, string& params)
 {
     const HwShader& hwShader = static_cast<const HwShader&>(shader);
-    if (hwShader.getTransparencyMethod() == TRANSPARENCY_ALPHA_BLENDING)
+    if (hwShader.hasTransparency())
     {
         params = "string transparency = \"transparent\";";
     }
