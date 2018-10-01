@@ -468,24 +468,53 @@ void SgNodeGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
     }
 }
 
-void SgNodeGraph::addDefaultGeomNode(SgInput* input, const string& geomNode, ShaderGenerator& shadergen)
+void SgNodeGraph::addDefaultGeomNode(SgInput* input, const GeomProp& geomprop, ShaderGenerator& shadergen)
 {
-    const string geomNodeName = "default_" + geomNode;
+    const string geomNodeName = "default_" + geomprop.getName();
     SgNode* node = getNode(geomNodeName);
 
     if (!node)
     {
-        string geomNodeDefName = "ND_" + geomNode + "_" + input->type->getName();
+        string geomNodeDefName = "ND_" + geomprop.getName() + "_" + input->type->getName();
         NodeDefPtr geomNodeDef = _document->getNodeDef(geomNodeDefName);
         if (!geomNodeDef)
         {
             throw ExceptionShaderGenError("Could not find a nodedef named '" + geomNodeDefName +
-                "' for defaultgeomprop on input '" + input->node->getName() + "." + input->name + "'");
+                "' for geomprop on input '" + input->node->getName() + "." + input->name + "'");
         }
 
         SgNodePtr geomNodePtr = SgNode::create(geomNodeName, *geomNodeDef, shadergen);
         _nodeMap[geomNodeName] = geomNodePtr;
         _nodeOrder.push_back(geomNodePtr.get());
+
+        // Set node inputs if given.
+        const string& space = geomprop.getSpace();
+        if (!space.empty())
+        {
+            SgInput* spaceInput = geomNodePtr->getInput("space");
+            if (spaceInput)
+            {
+                spaceInput->value = Value::createValue<string>(space);
+            }
+        }
+        const string& index = geomprop.getIndex();
+        if (!index.empty())
+        {
+            SgInput* indexInput = geomNodePtr->getInput("index");
+            if (indexInput)
+            {
+                indexInput->value = Value::createValue<string>(index);
+            }
+        }
+        const string& attrname = geomprop.getAttrName();
+        if (!attrname.empty())
+        {
+            SgInput* attrnameInput = geomNodePtr->getInput("attrname");
+            if (attrnameInput)
+            {
+                attrnameInput->value = Value::createValue<string>(attrname);
+            }
+        }
 
         node = geomNodePtr.get();
     }
@@ -631,7 +660,7 @@ SgNodeGraphPtr SgNodeGraph::create(const string& name, ElementPtr element, Shade
         SgOutputSocket* outputSocket = graph->getOutputSocket();
         outputSocket->makeConnection(newNode->getOutput());
 
-        // Connect node parameters to the graph inputs
+        // Handle node parameters
         for (ParameterPtr elem : nodeDef->getParameters())
         {
             SgInputSocket* inputSocket = graph->getInputSocket(elem->getName());
@@ -641,10 +670,10 @@ SgNodeGraphPtr SgNodeGraph::create(const string& name, ElementPtr element, Shade
                 throw ExceptionShaderGenError("Shader parameter '" + elem->getName() + "' doesn't match an existing input on graph '" + graph->getName() + "'");
             }
 
-            // Copy value from binding
             BindParamPtr bindParam = shaderRef->getBindParam(elem->getName());
             if (bindParam)
             {
+                // Copy value from binding
                 if (!bindParam->getValueString().empty())
                 {
                     inputSocket->value = bindParam->getValue();
@@ -655,49 +684,41 @@ SgNodeGraphPtr SgNodeGraph::create(const string& name, ElementPtr element, Shade
             inputSocket->makeConnection(input);
         }
 
-        // Connect unconnected node inputs to the graph inputs
-        for (InputPtr elem : nodeDef->getInputs())
+        // Handle node inputs
+        for (const InputPtr& nodeDefInput : nodeDef->getInputs())
         {
-            SgInputSocket* inputSocket = graph->getInputSocket(elem->getName());
-            SgInput* input = newNode->getInput(elem->getName());
+            SgInputSocket* inputSocket = graph->getInputSocket(nodeDefInput->getName());
+            SgInput* input = newNode->getInput(nodeDefInput->getName());
             if (!inputSocket || !input)
             {
-                throw ExceptionShaderGenError("Shader input '" + elem->getName() + "' doesn't match an existing input on graph '" + graph->getName() + "'");
+                throw ExceptionShaderGenError("Shader input '" + nodeDefInput->getName() + "' doesn't match an existing input on graph '" + graph->getName() + "'");
             }
 
-            BindInputPtr bindInput = shaderRef->getBindInput(elem->getName());
+            BindInputPtr bindInput = shaderRef->getBindInput(nodeDefInput->getName());
 
-            // Copy value from binding
             if (bindInput)
             {
+                // Copy value from binding
                 if (!bindInput->getValueString().empty())
                 {
                     inputSocket->value = bindInput->getValue();
                 }
             }
 
-            // If we have no connection, connect to the graph input
-            const string& explicitConnection = bindInput ? bindInput->getOutputString() : EMPTY_STRING;
-            const string& implicitConnection = elem->getAttribute("defaultgeomprop");
-            if (explicitConnection.empty() && implicitConnection.empty())
-            {
-                inputSocket->makeConnection(input);
-            }
-        }
-
-        // Handle the "defaultgeomprop" directives on the nodedef inputs.
-        // Create and connect default geometric nodes on unconnected inputs.
-        for (const InputPtr& nodeDefInput : nodeDef->getInputs())
-        {
-            BindInputPtr bindInput = shaderRef->getBindInput(nodeDefInput->getName());
-
+            // If no explicit connection, connect to geometric node if geomprop is used
+            // or otherwise to the graph interface.
             const string& connection = bindInput ? bindInput->getOutputString() : EMPTY_STRING;
-            const string& defaultGeomNode = connection.empty() ? nodeDefInput->getAttribute("defaultgeomprop") : EMPTY_STRING;
-
-            if (!defaultGeomNode.empty())
+            if (connection.empty())
             {
-                SgInput* input = newNode->getInput(nodeDefInput->getName());
-                graph->addDefaultGeomNode(input, defaultGeomNode, shadergen);
+                GeomPropPtr geomprop = nodeDefInput->getGeomProp();
+                if (geomprop)
+                {
+                    graph->addDefaultGeomNode(input, *geomprop, shadergen);
+                }
+                else
+                {
+                    inputSocket->makeConnection(input);
+                }
             }
         }
 
@@ -756,19 +777,21 @@ SgNode* SgNodeGraph::addNode(const Node& node, ShaderGenerator& shadergen)
         }
     }
 
-    // Handle the "defaultgeomprop" directives on the nodedef inputs.
+    // Handle the "geomprop" directives on the nodedef inputs.
     // Create and connect default geometric nodes on unconnected inputs.
     for (const InputPtr& nodeDefInput : nodeDef->getInputs())
     {
         SgInput* input = newNode->getInput(nodeDefInput->getName());
         InputPtr nodeInput = node.getInput(nodeDefInput->getName());
 
-        const string& connectedNode = nodeInput ? nodeInput->getNodeName() : EMPTY_STRING;
-        const string& defaultGeomNode = connectedNode.empty() && !input->connection ? nodeDefInput->getAttribute("defaultgeomprop") : EMPTY_STRING;
-
-        if (!defaultGeomNode.empty())
+        const string& connection = nodeInput ? nodeInput->getNodeName() : EMPTY_STRING;
+        if (connection.empty() && !input->connection)
         {
-            addDefaultGeomNode(input, defaultGeomNode, shadergen);
+            GeomPropPtr geomprop = nodeDefInput->getGeomProp();
+            if (geomprop)
+            {
+                addDefaultGeomNode(input, *geomprop, shadergen);
+            }
         }
     }
 

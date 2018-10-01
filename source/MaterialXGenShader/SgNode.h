@@ -296,7 +296,7 @@ protected:
     void addUpstreamDependencies(const Element& root, ConstMaterialPtr material, ShaderGenerator& shadergen);
 
     /// Add a default geometric node and connect to the given input.
-    void addDefaultGeomNode(SgInput* input, const string& geomNode, ShaderGenerator& shadergen);
+    void addDefaultGeomNode(SgInput* input, const GeomProp& geomprop, ShaderGenerator& shadergen);
 
     /// Add a color transform node and connect to the given output.
     void addColorTransformNode(SgOutput* output, const string& colorTransform, ShaderGenerator& shadergen);
