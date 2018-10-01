@@ -55,7 +55,7 @@ void Swizzle::emitFunctionCall(const SgNode& node, const SgNodeContext& /*contex
     }
 
     shader.beginLine();
-    shadergen.emitOutput(node.getOutput(), true, shader);
+    shadergen.emitOutput(node.getOutput(), true, false, shader);
     shader.addStr(" = " + variableName);
     shader.endLine();
 

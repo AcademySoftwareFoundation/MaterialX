@@ -74,6 +74,8 @@ const string SgNode::CONSTANT = "constant";
 const string SgNode::IMAGE = "image";
 const string SgNode::COMPARE = "compare";
 const string SgNode::SWITCH = "switch";
+const string SgNode::BSDF_R = "R";
+const string SgNode::BSDF_T = "T";
 
 bool SgNode::referencedConditionally() const
 {
@@ -220,6 +222,18 @@ SgNodePtr SgNode::create(const string& name, const NodeDef& nodeDef, ShaderGener
     else if (primaryOutput->type == Type::BSDF)
     {
         newNode->_classification = Classification::BSDF | Classification::CLOSURE;
+
+        // Add additional classifications if the BSDF is restricted to
+        // only reflection or transmission
+        const string& bsdfType = nodeDef.getAttribute("bsdf");
+        if (bsdfType == BSDF_R)
+        {
+            newNode->_classification |= Classification::BSDF_R;
+        }
+        else if (bsdfType == BSDF_T)
+        {
+            newNode->_classification |= Classification::BSDF_T;
+        }
     }
     else if (primaryOutput->type == Type::EDF)
     {

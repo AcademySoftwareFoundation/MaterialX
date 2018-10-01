@@ -205,25 +205,6 @@ public:
     /// Return the final shader source code for a given shader stage
     const string& getSourceCode(size_t stage = PIXEL_STAGE) const { return _stages[stage].code; }
 
-    bool isTransparent() const
-    {
-        if (getNodeGraph()->hasClassification(SgNode::Classification::SHADER))
-        {
-            for (SgNode* node : getNodeGraph()->getNodes())
-            {
-                if (node && node->hasClassification(SgNode::Classification::SHADER))
-                {
-                    MaterialX::SgImplementation* implementation = node->getImplementation();
-                    if (implementation)
-                    {
-                        return implementation->isTransparent(*node);
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
 protected:
 
     /// A shader stage, containing the state and 

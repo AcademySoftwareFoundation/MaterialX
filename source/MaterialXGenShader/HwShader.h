@@ -51,6 +51,13 @@ public:
         _calculatedVertexData.insert(outputName);
     }
 
+    /// Returns true if the shader has transparency fragments.
+    /// Will return false if the shader is opaque.
+    bool hasTransparency() const
+    {
+        return _transparency;
+    }
+
 protected:
     /// Return a container with all top level graphs use by this shader.
     void getTopLevelShaderGraphs(ShaderGenerator& shadergen, std::deque<SgNodeGraph*>& graphs) const override;
@@ -58,6 +65,7 @@ protected:
 private:
     VariableBlock _vertexData;
     std::set<string> _calculatedVertexData;
+    bool _transparency;
 };
 
 } // namespace MaterialX

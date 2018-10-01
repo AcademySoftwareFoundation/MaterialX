@@ -74,8 +74,8 @@ public:
         static const unsigned int CONSTANT    = 1 << 5;  // A constant node
         // Specific closure types
         static const unsigned int BSDF        = 1 << 6;  // A BDFS node 
-        static const unsigned int BSDF_R      = 1 << 7;  // A BDFS node for reflection
-        static const unsigned int BSDF_T      = 1 << 8;  // A BDFS node for transmission
+        static const unsigned int BSDF_R      = 1 << 7;  // A BDFS node only for reflection
+        static const unsigned int BSDF_T      = 1 << 8;  // A BDFS node only for transmission
         static const unsigned int EDF         = 1 << 9;  // A EDF node
         static const unsigned int VDF         = 1 << 10; // A VDF node 
         // Specific shader types
@@ -120,6 +120,8 @@ public:
     static const string IMAGE;
     static const string COMPARE;
     static const string SWITCH;
+    static const string BSDF_R;
+    static const string BSDF_T;
 
 public:
     /// Constructor.
@@ -346,14 +348,13 @@ using SgNodeContextPtr = std::shared_ptr<class SgNodeContext>;
 ///
 /// For some shader generators a node might need customization to it's implementation 
 /// depending on in which context the node is used. This class handles customizations
-/// in the form of adding extra arguments to the node's implementation function as well
-/// as a suffix to the function name to distinguish between the functions for different
-/// contexts.
+/// by adding a suffix to the function name to distinguish between the functions for 
+/// different contexts. I also supports adding extra arguments to the node's function.
 ///
 /// An example of where this is required if for BSDF and EDF nodes for HW targets 
 /// where extra arguments are needed to give directions vectors for evaluation. 
 /// For BSDF nodes another use-case is to distinguish between evaluation in a direct lighting
-/// context and an indirect lighting context where different versions of the nodes' function
+/// context and an indirect lighting context where different versions of the node's function
 /// is required.
 /// 
 class SgNodeContext

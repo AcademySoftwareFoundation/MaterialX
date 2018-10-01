@@ -4,7 +4,8 @@ namespace MaterialX
 {
 
 SgOptions::SgOptions()
-    : shaderInterfaceType(ShaderInterfaceType::COMPLETE)
+    : shaderInterfaceType(SHADER_INTERFACE_COMPLETE)
+    , hwTransparency(false)
 {
 }
 

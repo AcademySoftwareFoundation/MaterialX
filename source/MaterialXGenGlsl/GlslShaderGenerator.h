@@ -65,22 +65,6 @@ class GlslShaderGenerator : public HwShaderGenerator
     using ParentClass = HwShaderGenerator;
 
 public:
-    enum NodeContext
-    {
-        NODE_CONTEXT_BSDF = NODE_CONTEXT_DEFAULT + 1,
-        NODE_CONTEXT_BSDF_IBL,
-        NODE_CONTEXT_EDF
-    };
-
-    enum class BsdfDir
-    {
-        NORMAL_DIR,
-        LIGHT_DIR,
-        VIEW_DIR,
-        REFL_DIR
-    };
-
-public:
     GlslShaderGenerator();
 
     static ShaderGeneratorPtr create() { return std::make_shared<GlslShaderGenerator>(); }
@@ -120,18 +104,14 @@ public:
     /// Emit code for calculating BSDF response for a shader, 
     /// given the incident and outgoing light directions.
     /// The output 'bsdf' will hold the variable name keeping the result.
-    virtual void emitBsdfNodes(const SgNode& shaderNode, const string& incident, const string& outgoing, Shader& shader, string& bsdf);
-
-    /// Emit code for calculating indirect (IBL) contributions for a shader, 
-    /// given the outgoing direction.
-    /// The output 'radiance' will hold the variable name keeping the result.
-    virtual void emitBsdfNodesIBL(const SgNode& shaderNode, const string& outgoing, Shader& shader, string& radiance);
+    virtual void emitBsdfNodes(const SgNode& shaderNode, int bsdfContext, const string& incident, const string& outgoing, Shader& shader, string& bsdf);
 
     /// Emit code for calculating emission for a surface or light shader,
-    /// given the orientation direction of the EDF and the evaluation direction.
+    /// given the normal direction of the EDF and the evaluation direction.
     /// The output 'edf' will hold the variable keeping the result.
-    virtual void emitEdfNodes(const SgNode& shaderNode, const string& orientDir, const string& evalDir, Shader& shader, string& edf);
+    virtual void emitEdfNodes(const SgNode& shaderNode, const string& normalDir, const string& evalDir, Shader& shader, string& edf);
 
+public:
     /// Unique identifyer for the glsl language
     static const string LANGUAGE;
 
@@ -144,6 +124,24 @@ public:
     /// String constants for direction vectors
     static const string LIGHT_DIR;
     static const string VIEW_DIR;
+
+    /// String constants for node context ids
+    enum NodeContext
+    {
+        NODE_CONTEXT_BSDF_REFLECTION = NODE_CONTEXT_DEFAULT + 1,
+        NODE_CONTEXT_BSDF_TRANSMISSION,
+        NODE_CONTEXT_BSDF_INDIRECT,
+        NODE_CONTEXT_EDF,
+    };
+
+    /// Enum to identify common BSDF direction vectors
+    enum class BsdfDir
+    {
+        NORMAL_DIR,
+        LIGHT_DIR,
+        VIEW_DIR,
+        REFL_DIR
+    };
 
 protected:
     /// Override the compound implementation creator in order to handle light compounds.

@@ -54,7 +54,7 @@ void GeomColorGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*
             suffix = ".rgb";
         }
         shader.beginLine();
-        shadergen.emitOutput(node.getOutput(), true, shader);
+        shadergen.emitOutput(node.getOutput(), true, false, shader);
         shader.addStr(" = " + blockPrefix + variable + suffix);
         shader.endLine();
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)

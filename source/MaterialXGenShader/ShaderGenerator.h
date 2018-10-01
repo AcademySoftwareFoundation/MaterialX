@@ -56,7 +56,8 @@ public:
     virtual void emitInput(const SgInput* input, Shader& shader) const;
 
     /// Emit the output variable name for an output, optionally including it's type
-    virtual void emitOutput(const SgOutput* output, bool includeType, Shader& shader) const;
+    /// and default value assignment.
+    virtual void emitOutput(const SgOutput* output, bool includeType, bool assignDefault, Shader& shader) const;
 
     /// Return the v-direction used by the target system
     virtual Shader::VDirection getTargetVDirection() const;

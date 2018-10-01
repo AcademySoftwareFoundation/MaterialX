@@ -81,6 +81,15 @@ void ShaderGenerator::emitFunctionCalls(const SgNodeContext& context, Shader &sh
             // Node is defined in the default context so make the function call for default context
             shader.addFunctionCall(node, *_defaultNodeContext, *this);
         }
+        else
+        {
+            // Node is not defined in either this context or default context 
+            // Just emit the output variable set to default value, in case it
+            // is referenced by another node in this context.
+            shader.beginLine();
+            emitOutput(node->getOutput(), true, true, shader);
+            shader.endLine();
+        }
     }
 }
 
@@ -123,14 +132,17 @@ void ShaderGenerator::emitInput(const SgInput* input, Shader &shader) const
     }
 }
 
-void ShaderGenerator::emitOutput(const SgOutput* output, bool includeType, Shader& shader) const
+void ShaderGenerator::emitOutput(const SgOutput* output, bool includeType, bool assignDefault, Shader& shader) const
 {
-    string typeStr;
-    if (includeType)
+    shader.addStr(includeType ? _syntax->getTypeName(output->type) + " " + output->name : output->name);
+    if (assignDefault)
     {
-        typeStr = _syntax->getTypeName(output->type) + " ";
+        const string& value =_syntax->getDefaultValue(output->type);
+        if (!value.empty())
+        {
+            shader.addStr(" = " + value);
+        }
     }
-    shader.addStr(typeStr + output->name);
 }
 
 void ShaderGenerator::addNodeContextIDs(SgNode* node) const
