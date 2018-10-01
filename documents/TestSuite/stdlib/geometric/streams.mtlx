@@ -50,7 +50,7 @@
    <geomcolor name="color4_set0" type="color4">
       <parameter name="index" type="integer" value="0" />
    </geomcolor>
-   <output name="color4_output0" type="vector4" nodename="color4_set0" />
+   <output name="color4_output0" type="color4" nodename="color4_set0" />
 
    <geomcolor name="color3_set1" type="color3">
       <parameter name="index" type="integer" value="1" />
@@ -59,16 +59,19 @@
       
    <tangent name="tangent0" type="vector3">
       <parameter name="index" type="integer" value="1" />
+      <parameter name="space" type="string" value="world" />
    </tangent>
    <output name="tangent0_output" type="vector3" nodename="tangent0" />
    
    <tangent name="tangent1" type="vector3">
       <parameter name="index" type="integer" value="1" />
+      <parameter name="space" type="string" value="world" />
    </tangent>
    <output name="tangent1_output" type="vector3" nodename="tangent1" />
    
    <bitangent name="bitangent0" type="vector3">
       <parameter name="index" type="integer" value="0" />
+      <parameter name="space" type="string" value="world" />
    </bitangent>
    <output name="bitangent0_output" type="vector3" nodename="bitangent0" />
    

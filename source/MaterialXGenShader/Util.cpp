@@ -12,15 +12,34 @@
 
 #ifdef _WIN32
 #include <Windows.h>
+#include <direct.h>
 #include <fcntl.h>
 #else
 #include <dirent.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #endif
 
 namespace MaterialX
 {
-void getSubDirectories(std::string& baseDirectory, StringVec& relativePaths)
+
+void makeDirectory(const std::string& directoryPath)
+{
+#ifdef _WIN32
+    _mkdir(directoryPath.c_str());
+#else
+    mkdir(directoryPath.c_str(), 0777);
+#endif
+}
+
+std::string removeExtension(const std::string& filename)
+{
+    size_t lastDot = filename.find_last_of(".");
+    if (lastDot == std::string::npos) return filename;
+    return filename.substr(0, lastDot);
+}
+
+void getSubDirectories(const std::string& baseDirectory, StringVec& relativePaths)
 {
     relativePaths.push_back(baseDirectory);
 
@@ -59,11 +78,11 @@ void getSubDirectories(std::string& baseDirectory, StringVec& relativePaths)
 #endif
 }
 
-void getDocumentsInDirectory(const std::string& directory, StringVec& files)
+void getFilesInDirectory(const std::string& directory, StringVec& files, const std::string& extension)
 {
 #ifdef WIN32
     WIN32_FIND_DATA fd;
-    HANDLE hFind = ::FindFirstFile((directory + "/*.mtlx").c_str(), &fd);
+    HANDLE hFind = ::FindFirstFile((directory + "/*." + extension).c_str(), &fd);
     if (hFind != INVALID_HANDLE_VALUE)
     {
         do
@@ -102,7 +121,7 @@ bool readFile(const string& filename, string& contents)
 #endif
 
     bool result = false;
-    
+
     std::ifstream file(filename, std::ios::in );
     if (file)
     {

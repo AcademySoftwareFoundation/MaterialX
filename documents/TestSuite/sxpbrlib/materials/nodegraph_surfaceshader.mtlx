@@ -7,10 +7,10 @@
       <input name="opacity" type="float" value="1.0" />
     </surface>
     <diffusebrdf name="diffusebsdf1" type="BSDF">
-      <input name="color" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="color" type="color3" value="0.3, 0.3, 1.0" />
       <input name="roughness" type="float" value="0.8" />
       <input name="normal" type="vector3" />
     </diffusebrdf>
-    <output name="lighting_output" type="surfaceshader" nodename="surface1" />
+    <output name="out" type="surfaceshader" nodename="surface1" />
   </nodegraph>
 </materialx>

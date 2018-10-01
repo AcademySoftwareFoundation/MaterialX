@@ -6,11 +6,13 @@
 namespace MaterialX
 {
 
+using ArnoldShaderGeneratorPtr = shared_ptr<class ArnoldShaderGenerator>;
+
 /// An OSL shader generator targeting the Arnold renderer
 class ArnoldShaderGenerator : public OslShaderGenerator
 {
 public:
-    ArnoldShaderGenerator() : OslShaderGenerator() {}
+    ArnoldShaderGenerator();
 
     static ShaderGeneratorPtr create() { return std::make_shared<ArnoldShaderGenerator>(); }
 

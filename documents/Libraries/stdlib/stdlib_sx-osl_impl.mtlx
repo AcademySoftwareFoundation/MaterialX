@@ -297,13 +297,13 @@
   <implementation name="IM_modulo_color2_sx_osl" nodedef="ND_modulo_color2" file="stdlib/sx-osl/mx_modulo.inline"  language="sx-osl"/>
   <implementation name="IM_modulo_color2FA_sx_osl" nodedef="ND_modulo_color2FA" file="stdlib/sx-osl/mx_modulo.inline" language="sx-osl"/>
   <implementation name="IM_modulo_color3_sx_osl" nodedef="ND_modulo_color3" file="stdlib/sx-osl/mx_modulo.inline" language="sx-osl"/>
-  <implementation name="IM_modulo_color3FA_sx_osl" nodedef="ND_modulo_color3FA" file="stdlib/sx-osl/mx_modulo.inline" language="sx-osl"/>
+  <implementation name="IM_modulo_color3FA_sx_osl" nodedef="ND_modulo_color3FA" file="stdlib/sx-osl/mx_modulo_color3FA.inline" language="sx-osl"/>
   <implementation name="IM_modulo_color4_sx_osl" nodedef="ND_modulo_color4" file="stdlib/sx-osl/mx_modulo.inline" language="sx-osl"/>
   <implementation name="IM_modulo_color4FA_sx_osl" nodedef="ND_modulo_color4FA" file="stdlib/sx-osl/mx_modulo.inline" language="sx-osl"/>
   <implementation name="IM_modulo_vector2_sx_osl" nodedef="ND_modulo_vector2" file="stdlib/sx-osl/mx_modulo.inline" language="sx-osl"/>
   <implementation name="IM_modulo_vector2FA_sx_osl" nodedef="ND_modulo_vector2FA" file="stdlib/sx-osl/mx_modulo.inline" language="sx-osl"/>
   <implementation name="IM_modulo_vector3_sx_osl" nodedef="ND_modulo_vector3" file="stdlib/sx-osl/mx_modulo.inline" language="sx-osl"/>
-  <implementation name="IM_modulo_vector3FA_sx_osl" nodedef="ND_modulo_vector3FA" file="stdlib/sx-osl/mx_modulo.inline" language="sx-osl"/>
+  <implementation name="IM_modulo_vector3FA_sx_osl" nodedef="ND_modulo_vector3FA" file="stdlib/sx-osl/mx_modulo_vector3FA.inline" language="sx-osl"/>
   <implementation name="IM_modulo_vector4_sx_osl" nodedef="ND_modulo_vector4" file="stdlib/sx-osl/mx_modulo.inline" language="sx-osl"/>
   <implementation name="IM_modulo_vector4FA_sx_osl" nodedef="ND_modulo_vector4FA" file="stdlib/sx-osl/mx_modulo.inline" language="sx-osl"/>
 
@@ -616,9 +616,9 @@
 
   <!-- <overlay> -->
   <implementation name="IM_overlay_float_sx_osl" nodedef="ND_overlay_float" file="stdlib/sx-osl/mx_overlay.inline" language="sx-osl"/>
-  <implementation name="IM_overlay_color2_sx_osl" nodedef="ND_overlay_color2" file="stdlib/sx-osl/mx_overlay.inline" language="sx-osl"/>
-  <implementation name="IM_overlay_color3_sx_osl" nodedef="ND_overlay_color3" file="stdlib/sx-osl/mx_overlay.inline" language="sx-osl"/>
-  <implementation name="IM_overlay_color4_sx_osl" nodedef="ND_overlay_color4" file="stdlib/sx-osl/mx_overlay.inline" language="sx-osl"/>
+  <implementation name="IM_overlay_color2_sx_osl" nodedef="ND_overlay_color2" file="stdlib/sx-osl/mx_overlay_color2.osl" function="mx_overlay_color2" language="sx-osl"/>
+  <implementation name="IM_overlay_color3_sx_osl" nodedef="ND_overlay_color3" file="stdlib/sx-osl/mx_overlay_color3.osl" function="mx_overlay_color3" language="sx-osl"/>
+  <implementation name="IM_overlay_color4_sx_osl" nodedef="ND_overlay_color4" file="stdlib/sx-osl/mx_overlay_color4.osl" function="mx_overlay_color4" language="sx-osl"/>
 
   <!-- <disjointover> -->
   <implementation name="IM_disjointover_color2_sx_osl" nodedef="ND_disjointover_color2" file="stdlib/sx-osl/mx_disjointover_color2.inline" language="sx-osl"/>

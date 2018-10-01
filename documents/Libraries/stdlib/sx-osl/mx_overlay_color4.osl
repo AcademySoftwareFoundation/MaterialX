@@ -1,0 +1,28 @@
+float overlay(float fg, float bg)
+{
+    return (fg < 0.5) ? (2 * fg * bg) : (1 - (1 - fg) * (1 - bg));
+}
+
+color overlay(color fg, color bg)
+{
+    return color(overlay(fg[0], bg[0]),
+                 overlay(fg[1], bg[1]),
+                 overlay(fg[2], bg[2]));
+}
+
+color2 overlay(color2 fg, color2 bg)
+{
+    return color2(overlay(fg.r, bg.r),
+                  overlay(fg.a, bg.a));
+}
+
+color4 overlay(color4 fg, color4 bg)
+{
+    return color4(overlay(fg.rgb, bg.rgb),
+                  overlay(fg.a, bg.a));
+}
+
+void mx_overlay_color4(color4 fg, color4 bg, float mix, output color4 out)
+{
+    out = mix * overlay(fg, bg) + (1-mix) * bg;
+}

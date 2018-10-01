@@ -147,9 +147,19 @@ vector2 abs(vector2 a)
     return vector2 (abs(a.x), abs(a.y));
 }
 
+vector2 ceil(vector2 a)
+{
+    return vector2 (ceil(a.x), ceil(a.y));
+}
+
 vector2 floor(vector2 a)
 {
     return vector2 (floor(a.x), floor(a.y));
+}
+
+vector2 sign(vector2 a)
+{
+    return vector2 (sign(a.x), sign(a.y));
 }
 
 vector2 mix(vector2 a, vector2 b, float x )

@@ -1,0 +1,16 @@
+float overlay(float fg, float bg)
+{
+    return (fg < 0.5) ? (2 * fg * bg) : (1 - (1 - fg) * (1 - bg));
+}
+
+color overlay(color fg, color bg)
+{
+    return color(overlay(fg[0], bg[0]),
+                 overlay(fg[1], bg[1]),
+                 overlay(fg[2], bg[2]));
+}
+
+void mx_overlay_color3(color fg, color bg, float mix, output color out)
+{
+    out = mix * overlay(fg, bg) + (1-mix) * bg;
+}

@@ -4,9 +4,9 @@ include_directories(
 )
 
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-if(NOT MATERIALX_BUILD_VIEW)
+if(NOT MATERIALX_BUILD_RENDER)
     list(REMOVE_ITEM materialx_source "MaterialXValid.cpp")
-endif(NOT MATERIALX_BUILD_VIEW)
+endif(NOT MATERIALX_BUILD_RENDER)
 file(GLOB_RECURSE catch_headers "${CMAKE_CURRENT_SOURCE_DIR}/Catch/*.hpp")
 
 source_group("Header Files\\Catch" FILES ${catch_headers})
@@ -25,17 +25,14 @@ add_custom_command(TARGET MaterialXTest POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${CMAKE_SOURCE_DIR}/documents/Examples ${CMAKE_CURRENT_BINARY_DIR}/documents/Examples)
 
-if (MATERIALX_BUILD_VIEW)
+if (MATERIALX_BUILD_RENDER)
   add_custom_command(TARGET MaterialXTest POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${CMAKE_SOURCE_DIR}/documents/Images ${CMAKE_CURRENT_BINARY_DIR}/documents/Images)
   add_custom_command(TARGET MaterialXTest POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_SOURCE_DIR}/documents/Geometry ${CMAKE_CURRENT_BINARY_DIR}/documents/Geometry)
-  add_custom_command(TARGET MaterialXTest POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${CMAKE_SOURCE_DIR}/documents/TestSuite ${CMAKE_CURRENT_BINARY_DIR}/documents/TestSuite)
-endif(MATERIALX_BUILD_VIEW)
+endif(MATERIALX_BUILD_RENDER)
                    
 set_target_properties(
     MaterialXTest PROPERTIES
@@ -59,9 +56,9 @@ endif(MATERIALX_BUILD_GEN_GLSL)
 if (MATERIALX_BUILD_GEN_OGSFX)
     LIST(APPEND LIBS "MaterialXGenOgsFx")
 endif(MATERIALX_BUILD_GEN_OGSFX)
-if (MATERIALX_BUILD_VIEW)
-    LIST(APPEND LIBS "MaterialXView")
-endif(MATERIALX_BUILD_VIEW)
+if (MATERIALX_BUILD_RENDER)
+    LIST(APPEND LIBS "MaterialXRender")
+endif(MATERIALX_BUILD_RENDER)
 target_link_libraries(
     MaterialXTest ${LIBS}    
     ${CMAKE_DL_LIBS}

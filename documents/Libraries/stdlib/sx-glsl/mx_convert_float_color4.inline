@@ -1,1 +1,1 @@
-vec4(color({{in}}, {{in}}, {{in}}), {{in}})
+vec4({{in}}, {{in}}, {{in}}, {{in}})
