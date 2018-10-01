@@ -226,7 +226,7 @@ void Shader::addFunctionDefinition(SgNode* node, ShaderGenerator& shadergen)
 void Shader::addFunctionCall(SgNode* node, const SgNodeContext& context, ShaderGenerator& shadergen)
 {
     SgImplementation* impl = node->getImplementation();
-    impl->emitFunctionCall(*node, context, shadergen, *this);
+    impl->emitFunctionCall(*node, *(const_cast<SgNodeContext*>(&context)), shadergen, *this);
 }
 
 void Shader::addInclude(const string& file, ShaderGenerator& shadergen)

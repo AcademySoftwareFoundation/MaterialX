@@ -127,7 +127,7 @@ void Compound::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shade
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
-void Compound::emitFunctionCall(const SgNode& node, const SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader)
+void Compound::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
 
@@ -143,7 +143,7 @@ void Compound::emitFunctionCall(const SgNode& node, const SgNodeContext& context
 
     // Declare the output variable
     shader.beginLine();
-    shadergen.emitOutput(node.getOutput(), true, true, shader);
+    shadergen.emitOutput(context, node.getOutput(), true, true, shader);
     shader.endLine();
 
     shader.beginLine();
@@ -165,13 +165,13 @@ void Compound::emitFunctionCall(const SgNode& node, const SgNodeContext& context
     for (SgInput* input : node.getInputs())
     {
         shader.addStr(delim);
-        shadergen.emitInput(input, shader);
+        shadergen.emitInput(context, input, shader);
         delim = ", ";
     }
 
     // Emit function output
     shader.addStr(delim);
-    shadergen.emitOutput(node.getOutput(), false, false, shader);
+    shadergen.emitOutput(context, node.getOutput(), false, false, shader);
 
     // End function call
     shader.addStr(")");

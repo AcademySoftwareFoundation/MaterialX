@@ -53,11 +53,11 @@ public:
 
     /// Emit the connected variable name for an input,
     /// or constant value if the port is not connected
-    virtual void emitInput(const SgInput* input, Shader& shader) const;
+    virtual void emitInput(const SgNodeContext& context, const SgInput* input, Shader& shader) const;
 
     /// Emit the output variable name for an output, optionally including it's type
     /// and default value assignment.
-    virtual void emitOutput(const SgOutput* output, bool includeType, bool assignDefault, Shader& shader) const;
+    virtual void emitOutput(const SgNodeContext& context, const SgOutput* output, bool includeType, bool assignDefault, Shader& shader) const;
 
     /// Return the v-direction used by the target system
     virtual Shader::VDirection getTargetVDirection() const;

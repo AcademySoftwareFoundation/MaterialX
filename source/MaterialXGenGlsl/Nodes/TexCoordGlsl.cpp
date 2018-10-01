@@ -20,7 +20,7 @@ void TexCoordGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shader
     shader.createVertexData(output->type, "texcoord_" + index);
 }
 
-void TexCoordGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*context*/, ShaderGenerator& shadergen, Shader& shader_)
+void TexCoordGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
@@ -41,7 +41,7 @@ void TexCoordGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*c
 
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
         shader.beginLine();
-        shadergen.emitOutput(node.getOutput(), true, false, shader);
+        shadergen.emitOutput(context, node.getOutput(), true, false, shader);
         shader.addStr(" = " + blockPrefix + variable);
         shader.endLine();
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)

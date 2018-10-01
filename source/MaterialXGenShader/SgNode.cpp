@@ -804,6 +804,47 @@ SgNode* SgNodeGraph::addNode(const Node& node, ShaderGenerator& shadergen)
     return newNode.get();
 }
 
+
+void SgNodeContext::addInputSuffix(SgInput* input, const string& suffix)
+{
+    _inputSuffix[input] = suffix;
+}
+
+void SgNodeContext::removeInputSuffix(SgInput* input)
+{
+    _inputSuffix.erase(input);
+}
+
+void SgNodeContext::getInputSuffix(SgInput* input, string& suffix) const
+{
+    suffix.clear();
+    std::unordered_map<SgInput*, string>::const_iterator iter = _inputSuffix.find(input);
+    if (iter != _inputSuffix.end())
+    {
+        suffix = iter->second;
+    }
+}
+
+void SgNodeContext::addOutputSuffix(SgOutput* output, const string& suffix)
+{
+    _outputSuffix[output] = suffix;
+}
+
+void SgNodeContext::removeOutputSuffix(SgOutput* output)
+{
+    _outputSuffix.erase(output);
+}
+
+void SgNodeContext::getOutputSuffix(SgOutput* output, string& suffix) const
+{
+    suffix.clear();
+    std::unordered_map<SgOutput*, string>::const_iterator iter = _outputSuffix.find(output);
+    if (iter != _outputSuffix.end())
+    {
+        suffix = iter->second;
+    }
+}
+
 SgInputSocket* SgNodeGraph::addInputSocket(const string& name, const TypeDesc* type)
 {
     return SgNode::addOutput(name, type);

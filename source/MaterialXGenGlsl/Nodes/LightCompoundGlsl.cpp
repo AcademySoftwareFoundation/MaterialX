@@ -123,7 +123,7 @@ void LightCompoundGlsl::emitFunctionDefinition(const SgNode& node, ShaderGenerat
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
-void LightCompoundGlsl::emitFunctionCall(const SgNode& /*node*/, const SgNodeContext& /*context*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void LightCompoundGlsl::emitFunctionCall(const SgNode& /*node*/, SgNodeContext& /*context*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 

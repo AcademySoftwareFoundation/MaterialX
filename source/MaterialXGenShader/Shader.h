@@ -103,6 +103,7 @@ public:
     /// Initialize the shader before shader generation.
     /// @param element The root element to generate the shader from. 
     /// @param shadergen The shader generator instance.
+    /// @param options Generation options
     virtual void initialize(ElementPtr element, ShaderGenerator& shadergen, const SgOptions& options);
 
     /// Return the number of shader stages for this shader.

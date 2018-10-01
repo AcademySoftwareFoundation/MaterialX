@@ -34,7 +34,7 @@ void LightGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*shade
         EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void LightGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*context*/, ShaderGenerator& shadergen_, Shader& shader_)
+void LightGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen_, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
     GlslShaderGenerator& shadergen = static_cast<GlslShaderGenerator&>(shadergen_);
@@ -56,7 +56,7 @@ void LightGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*cont
 
     shader.beginLine();
     shader.addStr("result.intensity *= ");
-    shadergen.emitInput(intensity, shader);
+    shadergen.emitInput(context, intensity, shader);
     shader.endLine();
 
     // Emit exposure adjustment only if it matters
@@ -64,7 +64,7 @@ void LightGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*cont
     {
         shader.beginLine();
         shader.addStr("result.intensity *= pow(2, ");
-        shadergen.emitInput(exposure, shader);
+        shadergen.emitInput(context, exposure, shader);
         shader.addStr(")");
         shader.endLine();
     }

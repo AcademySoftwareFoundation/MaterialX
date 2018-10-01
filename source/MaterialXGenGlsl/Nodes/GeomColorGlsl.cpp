@@ -19,7 +19,7 @@ void GeomColorGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shade
     shader.createVertexData(Type::COLOR4, "color_" + index);
 }
 
-void GeomColorGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*context*/, ShaderGenerator& shadergen, Shader& shader_)
+void GeomColorGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
@@ -54,7 +54,7 @@ void GeomColorGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*
             suffix = ".rgb";
         }
         shader.beginLine();
-        shadergen.emitOutput(node.getOutput(), true, false, shader);
+        shadergen.emitOutput(context, node.getOutput(), true, false, shader);
         shader.addStr(" = " + blockPrefix + variable + suffix);
         shader.endLine();
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)

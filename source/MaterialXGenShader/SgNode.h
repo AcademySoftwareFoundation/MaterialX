@@ -378,10 +378,44 @@ public:
     /// Return the function name suffix to be used for the node function in this context.
     const string& getFunctionSuffix() const { return _functionSuffix; }
 
+    /// Add an input suffix to be used for the node function in this context.
+    /// @param input Node input
+    /// @param suffix Suffix string
+    void addInputSuffix(SgInput* input, const string& suffix);
+
+    /// Remove an input suffix to be used for the node function in this context.
+    /// @param input Node input
+    void removeInputSuffix(SgInput* input);
+
+    /// Get an input suffix to be used for the node function in this context.
+    /// @param input Node input
+    /// @param suffix Suffix string returned. Is empty if not found.
+    void getInputSuffix(SgInput* input, string& suffix) const;
+
+    /// Add an output suffix to be used for the node function in this context.
+    /// @param input Node output
+    /// @param suffix Suffix string
+    void addOutputSuffix(SgOutput* output, const string& suffix);
+
+    /// Remove an output suffix to be used for the node function in this context.
+    /// @param output Node output
+    void removeOutputSuffix(SgOutput* output);
+
+    /// Get an output suffix to be used for the node function in this context.
+    /// @param output Node output
+    /// @param suffix Suffix string returned. Is empty if not found.
+    void getOutputSuffix(SgOutput* output, string& suffix) const;
+
 private:
     const int _id;
     Arguments _arguments;
     string _functionSuffix;
+
+    // List of input suffixes
+    std::unordered_map<SgInput*, string> _inputSuffix;
+
+    // List of output suffixes
+    std::unordered_map<SgOutput*, string> _outputSuffix;
 };
 
 /// An edge returned during SgNode traversal

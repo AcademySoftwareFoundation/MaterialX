@@ -87,7 +87,7 @@ void ShaderGenerator::emitFunctionCalls(const SgNodeContext& context, Shader &sh
             // Just emit the output variable set to default value, in case it
             // is referenced by another node in this context.
             shader.beginLine();
-            emitOutput(node->getOutput(), true, true, shader);
+            emitOutput(context, node->getOutput(), true, true, shader);
             shader.endLine();
         }
     }
@@ -116,7 +116,7 @@ void ShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& shade
     shader.addStr(_syntax->getTypeName(uniform.type) + " " + uniform.name + (initStr.empty() ? "" : " = " + initStr));
 }
 
-void ShaderGenerator::emitInput(const SgInput* input, Shader &shader) const
+void ShaderGenerator::emitInput(const SgNodeContext& context, const SgInput* input, Shader &shader) const
 {
     if (input->connection)
     {
@@ -130,14 +130,31 @@ void ShaderGenerator::emitInput(const SgInput* input, Shader &shader) const
     {
         shader.addStr(_syntax->getDefaultValue(input->type));
     }
+
+    // Look for any additional suffix to append
+    string suffix;
+    context.getInputSuffix(const_cast<SgInput*>(input), suffix);
+    if (!suffix.empty())
+    {
+        shader.addStr(suffix);
+    }
 }
 
-void ShaderGenerator::emitOutput(const SgOutput* output, bool includeType, bool assignDefault, Shader& shader) const
+void ShaderGenerator::emitOutput(const SgNodeContext& context, const SgOutput* output, bool includeType, bool assignDefault, Shader& shader) const
 {
     shader.addStr(includeType ? _syntax->getTypeName(output->type) + " " + output->name : output->name);
+
+    // Look for any additional suffix to append
+    string suffix;
+    context.getOutputSuffix(const_cast<SgOutput*>(output), suffix);
+    if (!suffix.empty())
+    {
+        shader.addStr(suffix);
+    }
+
     if (assignDefault)
     {
-        const string& value =_syntax->getDefaultValue(output->type);
+        const string& value = _syntax->getDefaultValue(output->type);
         if (!value.empty())
         {
             shader.addStr(" = " + value);

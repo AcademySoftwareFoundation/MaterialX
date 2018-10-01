@@ -14,7 +14,7 @@ class LightGlsl : public GlslImplementation
 
     void createVariables(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 
-    void emitFunctionCall(const SgNode& node, const SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader) override;
 };
 
 } // namespace MaterialX

@@ -15,6 +15,7 @@
 #include <MaterialXGenGlsl/Nodes/LightGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightCompoundGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightShaderGlsl.h>
+#include <MaterialXGenGlsl/Nodes/HeightToNormalGlsl.h>
 
 #include <MaterialXGenShader/Nodes/SourceCode.h>
 #include <MaterialXGenShader/Nodes/Swizzle.h>
@@ -220,6 +221,9 @@ GlslShaderGenerator::GlslShaderGenerator()
     registerImplementation("IM_directionallight_sx_glsl", LightShaderGlsl::create);
     // <!-- <spotlight> -->
     registerImplementation("IM_spotlight_sx_glsl", LightShaderGlsl::create);
+
+    // <!-- <heighttonormal> -->
+    registerImplementation("IM_heighttonormal_vector3_sx_glsl", HeightToNormalGlsl::create);
 }
 
 ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr element, const SgOptions& options)
@@ -638,7 +642,7 @@ void GlslShaderGenerator::emitBsdfNodes(const SgNode& shaderNode, int bsdfContex
                 // Node is not defined in this context so just 
                 // emit the output variable set to default value.
                 shader.beginLine();
-                emitOutput(node->getOutput(), true, true, shader);
+                emitOutput(context, node->getOutput(), true, true, shader);
                 shader.endLine();
             }
             last = node;

@@ -37,7 +37,7 @@ void SurfaceShaderGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator&
         EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void SurfaceShaderGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void SurfaceShaderGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
