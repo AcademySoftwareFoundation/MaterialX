@@ -1430,7 +1430,7 @@
       <input name="in2" type="float" nodename="N_sign_float"/>
     </multiply>
     <remap name="N_remap2_float" type="float">
-      <input name="N_gamma_float" type="float" nodename="N_gamma_float"/>
+      <input name="in" type="float" nodename="N_gamma_float"/>
       <parameter name="inlow" type="float" value="0.0"/>
       <parameter name="inhigh" type="float" value="1.0"/>
       <parameter name="outlow" type="float" interfacename="outlow"/>
@@ -1474,7 +1474,7 @@
       <input name="in2" type="color2" nodename="N_sign_color2"/>
     </multiply>
     <remap name="N_remap2_color2" type="color2">
-      <input name="N_gamma_color2" type="color2" nodename="N_gamma_color2"/>
+      <input name="in" type="color2" nodename="N_gamma_color2"/>
       <parameter name="inlow" type="color2" value="0.0, 0.0"/>
       <parameter name="inhigh" type="color2" value="1.0, 1.0"/>
       <parameter name="outlow" type="color2" interfacename="outlow"/>
@@ -1518,7 +1518,7 @@
       <input name="in2" type="color3" nodename="N_sign_color3"/>
     </multiply>
     <remap name="N_remap2_color3" type="color3">
-      <input name="N_gamma_color3" type="color3" nodename="N_gamma_color3"/>
+      <input name="in" type="color3" nodename="N_gamma_color3"/>
       <parameter name="inlow" type="color3" value="0.0, 0.0, 0.0"/>
       <parameter name="inhigh" type="color3" value="1.0, 1.0, 1.0"/>
       <parameter name="outlow" type="color3" interfacename="outlow"/>
@@ -1562,7 +1562,7 @@
       <input name="in2" type="color4" nodename="N_sign_color4"/>
     </multiply>
     <remap name="N_remap2_color4" type="color4">
-      <input name="N_gamma_color4" type="color4" nodename="N_gamma_color4"/>
+      <input name="in" type="color4" nodename="N_gamma_color4"/>
       <parameter name="inlow" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
       <parameter name="inhigh" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
       <parameter name="outlow" type="color4" interfacename="outlow"/>
@@ -1606,7 +1606,7 @@
       <input name="in2" type="vector2" nodename="N_sign_vector2"/>
     </multiply>
     <remap name="N_remap2_vector2" type="vector2">
-      <input name="N_gamma_vector2" type="vector2" nodename="N_gamma_vector2"/>
+      <input name="in" type="vector2" nodename="N_gamma_vector2"/>
       <parameter name="inlow" type="vector2" value="0.0, 0.0"/>
       <parameter name="inhigh" type="vector2" value="1.0, 1.0"/>
       <parameter name="outlow" type="vector2" interfacename="outlow"/>
@@ -1650,7 +1650,7 @@
       <input name="in2" type="vector3" nodename="N_sign_vector3"/>
     </multiply>
     <remap name="N_remap2_vector3" type="vector3">
-      <input name="N_gamma_vector3" type="vector3" nodename="N_gamma_vector3"/>
+      <input name="in" type="vector3" nodename="N_gamma_vector3"/>
       <parameter name="inlow" type="vector3" value="0.0, 0.0, 0.0"/>
       <parameter name="inhigh" type="vector3" value="1.0, 1.0, 1.0"/>
       <parameter name="outlow" type="vector3" interfacename="outlow"/>
@@ -1694,7 +1694,7 @@
       <input name="in2" type="vector4" nodename="N_sign_vector4"/>
     </multiply>
     <remap name="N_remap2_vector4" type="vector4">
-      <input name="N_gamma_vector4" type="vector4" nodename="N_gamma_vector4"/>
+      <input name="in" type="vector4" nodename="N_gamma_vector4"/>
       <parameter name="inlow" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
       <parameter name="inhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
       <parameter name="outlow" type="vector4" interfacename="outlow"/>
@@ -1738,7 +1738,7 @@
       <input name="in2" type="color2" nodename="N_sign_color2FA"/>
     </multiply>
     <remap name="N_remap2_color2FA" type="color2">
-      <input name="N_gamma_color2" type="color2" nodename="N_gamma_color2FA"/>
+      <input name="in" type="color2" nodename="N_gamma_color2FA"/>
       <parameter name="inlow" type="float" value="0.0"/>
       <parameter name="inhigh" type="float" value="1.0"/>
       <parameter name="outlow" type="float" interfacename="outlow"/>
@@ -1782,7 +1782,7 @@
       <input name="in2" type="color3" nodename="N_sign_color3FA"/>
     </multiply>
     <remap name="N_remap2_color3FA" type="color3">
-      <input name="N_gamma_color3" type="color3" nodename="N_gamma_color3FA"/>
+      <input name="in" type="color3" nodename="N_gamma_color3FA"/>
       <parameter name="inlow" type="float" value="0.0"/>
       <parameter name="inhigh" type="float" value="1.0"/>
       <parameter name="outlow" type="float" interfacename="outlow"/>
@@ -1826,7 +1826,7 @@
       <input name="in2" type="color4" nodename="N_sign_color4FA"/>
     </multiply>
     <remap name="N_remap2_color4FA" type="color4">
-      <input name="N_gamma_color4" type="color4" nodename="N_gamma_color4FA"/>
+      <input name="in" type="color4" nodename="N_gamma_color4FA"/>
       <parameter name="inlow" type="float" value="0.0"/>
       <parameter name="inhigh" type="float" value="1.0"/>
       <parameter name="outlow" type="float" interfacename="outlow"/>
@@ -1870,7 +1870,7 @@
       <input name="in2" type="vector2" nodename="N_sign_vector2FA"/>
     </multiply>
     <remap name="N_remap2_vector2FA" type="vector2">
-      <input name="N_gamma_vector2" type="vector2" nodename="N_gamma_vector2FA"/>
+      <input name="in" type="vector2" nodename="N_gamma_vector2FA"/>
       <parameter name="inlow" type="float" value="0.0"/>
       <parameter name="inhigh" type="float" value="1.0"/>
       <parameter name="outlow" type="float" interfacename="outlow"/>
@@ -1914,7 +1914,7 @@
       <input name="in2" type="vector3" nodename="N_sign_vector3FA"/>
     </multiply>
     <remap name="N_remap2_vector3FA" type="vector3">
-      <input name="N_gamma_vector3" type="vector3" nodename="N_gamma_vector3FA"/>
+      <input name="in" type="vector3" nodename="N_gamma_vector3FA"/>
       <parameter name="inlow" type="float" value="0.0"/>
       <parameter name="inhigh" type="float" value="1.0"/>
       <parameter name="outlow" type="float" interfacename="outlow"/>
@@ -1958,7 +1958,7 @@
       <input name="in2" type="vector4" nodename="N_sign_vector4FA"/>
     </multiply>
     <remap name="N_remap2_vector4FA" type="vector4">
-      <input name="N_gamma_vector4" type="vector4" nodename="N_gamma_vector4FA"/>
+      <input name="in" type="vector4" nodename="N_gamma_vector4FA"/>
       <parameter name="inlow" type="float" value="0.0"/>
       <parameter name="inhigh" type="float" value="1.0"/>
       <parameter name="outlow" type="float" interfacename="outlow"/>
