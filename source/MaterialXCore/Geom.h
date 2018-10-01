@@ -24,6 +24,7 @@ extern const string UV_TILE_TOKEN;
 class GeomElement;
 class GeomAttr;
 class GeomInfo;
+class GeomProp;
 class Collection;
 class CollectionAdd;
 class CollectionRemove;
@@ -42,6 +43,11 @@ using ConstGeomAttrPtr = shared_ptr<const GeomAttr>;
 using GeomInfoPtr = shared_ptr<GeomInfo>;
 /// A shared pointer to a const GeomInfo
 using ConstGeomInfoPtr = shared_ptr<const GeomInfo>;
+
+/// A shared pointer to a GeomProp
+using GeomPropPtr = shared_ptr<GeomProp>;
+/// A shared pointer to a const GeomProp
+using ConstGeomPropPtr = shared_ptr<const GeomProp>;
 
 /// A shared pointer to a Collection
 using CollectionPtr = shared_ptr<Collection>;
@@ -341,6 +347,97 @@ class GeomAttr : public ValueElement
   public:
     static const string CATEGORY;
 };
+
+/// @class GeomProp
+/// An element representing a declaration of geometric input data.
+/// Can be used as a child to Input elements to declare a geometric node
+/// to be used if no explicit connection is set.
+/// Can also be used as children to NodeDef elements to declare internal
+/// geometric requirements for a node. That is: required geometric input
+/// data that are not published as ordinary user editable inputs.
+class GeomProp : public Element
+{
+public:
+    GeomProp(ElementPtr parent, const string& name) :
+        Element(parent, CATEGORY, name)
+    {
+    }
+    virtual ~GeomProp() { }
+
+    /// @name Geometric Space
+    /// @{
+
+    /// Set the geometric space string of this element.
+    void setSpace(const string& space)
+    {
+        setAttribute(SPACE_ATTRIBUTE, space);
+    }
+
+    /// Return true if this element has a geometric space string.
+    bool hasSpace() const
+    {
+        return hasAttribute(SPACE_ATTRIBUTE);
+    }
+
+    /// Return the geometric space string of this element.
+    const string& getSpace() const
+    {
+        return getAttribute(SPACE_ATTRIBUTE);
+    }
+
+    /// @}
+    /// @name Geometric Index
+    /// @{
+
+    /// Set the index string of this element.
+    void setIndex(const string& space)
+    {
+        setAttribute(INDEX_ATTRIBUTE, space);
+    }
+
+    /// Return true if this element has an index string.
+    bool hasIndex() const
+    {
+        return hasAttribute(INDEX_ATTRIBUTE);
+    }
+
+    /// Return the index string of this element.
+    const string& getIndex() const
+    {
+        return getAttribute(INDEX_ATTRIBUTE);
+    }
+
+    /// @}
+    /// @name Geometric Attr Name
+    /// @{
+
+    /// Set the attrname string of this element.
+    void setAttrName(const string& space)
+    {
+        setAttribute(ATTR_NAME_ATTRIBUTE, space);
+    }
+
+    /// Return true if this element has an attrname string.
+    bool hasAttrName() const
+    {
+        return hasAttribute(ATTR_NAME_ATTRIBUTE);
+    }
+
+    /// Return the attrname string of this element.
+    const string& getAttrName() const
+    {
+        return getAttribute(ATTR_NAME_ATTRIBUTE);
+    }
+
+    /// @}
+
+public:
+    static const string CATEGORY;
+    static const string SPACE_ATTRIBUTE;
+    static const string INDEX_ATTRIBUTE;
+    static const string ATTR_NAME_ATTRIBUTE;
+};
+
 
 /// @class Collection
 /// A collection element within a Document.
