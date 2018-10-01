@@ -54,26 +54,4 @@ void SurfaceShaderGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
-bool SurfaceShaderGlsl::isTransparent(const SgNode& node) const
-{
-    // TODO: Support transparency, refraction, etc.
-    if (node.getInput("opacity"))
-    {
-        MaterialX::ValuePtr value = node.getInput("opacity")->value;
-        if (value)
-        {
-            try
-            {
-                MaterialX::Color3 color3Value = value->asA<MaterialX::Color3>();
-                return color3Value[0] < 1.0 || color3Value[1] < 1.0 || color3Value[2] < 1.0;
-            }
-            catch(Exception)
-            {
-                return false;
-            }
-        }
-    }
-    return false;
-}
-
 } // namespace MaterialX

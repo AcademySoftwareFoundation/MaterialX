@@ -21,6 +21,7 @@
 #ifdef MATERIALX_BUILD_GEN_OGSFX
 #include <MaterialXGenOgsFx/OgsFxShaderGenerator.h>
 #include <MaterialXGenOgsFx/OgsFxSyntax.h>
+#include <MaterialXGenOgsFx/MayaGlslPluginShaderGenerator.h>
 #endif
 
 #ifdef MATERIALX_BUILD_GEN_OSL
@@ -2078,16 +2079,34 @@ TEST_CASE("Transparency", "[shadergen]")
 
     // Create a nodedef interface for the surface shader
     mx::NodeDefPtr nodeDef = doc->addNodeDef("ND_" + exampleName, "surfaceshader", exampleName);
-    nodeDef->addInput("transmission", "float");
-    nodeDef->addInput("coating_color", "color3");
-    nodeDef->addInput("roughness", "vector2");
-    nodeDef->addInput("ior", "float");
-    nodeDef->addInput("opacity", "float");
+    mx::InputPtr in = nodeDef->addInput("reflection", "float");
+    in->setValue(1.0f);
+    in = nodeDef->addInput("reflection_color", "color3");
+    in->setValue(mx::Color3(1.0f, 1.0f, 1.0f));
+    in = nodeDef->addInput("transmission", "float");
+    in->setValue(1.0f);
+    in = nodeDef->addInput("transmission_tint", "color3");
+    in->setValue(mx::Color3(1.0f, 1.0f, 1.0f));
+    in = nodeDef->addInput("roughness", "vector2");
+    in->setValue(mx::Vector2(0.0f, 0.0f));
+    in = nodeDef->addInput("ior", "float");
+    in->setValue(1.5f);
+    in = nodeDef->addInput("opacity", "float");
+    in->setValue(1.0f);
 
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("IMP_" + exampleName);
     nodeGraph->setAttribute("nodedef", nodeDef->getName());
+    
+    mx::NodePtr worldNormal = nodeGraph->addNode("normal", "worldNormal", "vector3");
+    worldNormal->setParameterValue<std::string>("space", "world");
+    mx::NodePtr worldTangent = nodeGraph->addNode("tangent", "worldTangent", "vector3");
+    worldTangent->setParameterValue<std::string>("space", "world");
 
     mx::NodePtr transmission = nodeGraph->addNode("dielectricbtdf", "transmission", "BSDF");
+    transmission->setConnectedNode("normal", worldNormal);
+    transmission->setConnectedNode("tangent", worldTangent);
+    mx::InputPtr transmission_tint = transmission->addInput("tint", "color3");
+    transmission_tint->setInterfaceName("transmission_tint");
     mx::InputPtr transmission_weight = transmission->addInput("weight", "float");
     transmission_weight->setInterfaceName("transmission");
     mx::InputPtr transmission_roughness = transmission->addInput("roughness", "vector2");
@@ -2095,17 +2114,22 @@ TEST_CASE("Transparency", "[shadergen]")
     mx::InputPtr transmission_ior = transmission->addInput("ior", "float");
     transmission_ior->setInterfaceName("ior");
 
-    mx::NodePtr coating = nodeGraph->addNode("dielectricbrdf", "coating", "BSDF");
-    coating->setConnectedNode("base", transmission);
-    mx::InputPtr coating_color = coating->addInput("color", "color3");
-    coating_color->setInterfaceName("coating_color");
-    mx::InputPtr coating_roughness = coating->addInput("roughness", "vector2");
-    coating_roughness->setInterfaceName("roughness");
-    mx::InputPtr coating_ior = coating->addInput("ior", "float");
-    coating_ior->setInterfaceName("ior");
+    mx::NodePtr reflection = nodeGraph->addNode("dielectricbrdf", "reflection", "BSDF");
+    reflection->setConnectedNode("normal", worldNormal);
+    reflection->setConnectedNode("tangent", worldTangent);
+    reflection->setConnectedNode("base", transmission);
+    mx::InputPtr reflection_color = reflection->addInput("tint", "color3");
+    reflection_color->setInterfaceName("reflection_color");
+    mx::InputPtr reflection_weight = reflection->addInput("weight", "float");
+    reflection_weight->setInterfaceName("reflection");
+    mx::InputPtr reflection_roughness = reflection->addInput("roughness", "vector2");
+    reflection_roughness->setInterfaceName("roughness");
+    mx::InputPtr reflection_ior = reflection->addInput("ior", "float");
+    reflection_ior->setInterfaceName("ior");
 
     mx::NodePtr surface = nodeGraph->addNode("surface", "surface1", "surfaceshader");
-    surface->setConnectedNode("bsdf", coating);
+    surface->setConnectedNode("bsdf", reflection);
+
     mx::InputPtr opacity = surface->addInput("opacity", "float");
     opacity->setInterfaceName("opacity");
 
@@ -2114,19 +2138,17 @@ TEST_CASE("Transparency", "[shadergen]")
 
     // Create a material with the above node as the shader
     mx::MaterialPtr mtrl = doc->addMaterial(exampleName + "_material");
-    mx::ShaderRefPtr shaderRef = mtrl->addShaderRef(exampleName + "_shader", exampleName);
+    mx::ShaderRefPtr shaderRef = mtrl->addShaderRef(exampleName + "_shader", "standard_surface");
 
     // Bind shader parameter values
+    mx::BindInputPtr reflection_input = shaderRef->addBindInput("reflection", "float");
+    reflection_input->setValue(1.0f);
     mx::BindInputPtr transmission_input = shaderRef->addBindInput("transmission", "float");
-    transmission_input->setValue(0.0f);
-    mx::BindInputPtr coating_color_input = shaderRef->addBindInput("coating_color", "color3");
-    coating_color_input->setValue(mx::Color3(1.0f, 1.0f, 1.0f));
-    mx::BindInputPtr roughness_input = shaderRef->addBindInput("roughness", "vector2");
-    roughness_input->setValue(mx::Vector2(0.1f, 0.1f));
+    transmission_input->setValue(1.0f);
     mx::BindInputPtr ior_input = shaderRef->addBindInput("ior", "float");
-    ior_input->setValue(1.52f);
-    mx::BindInputPtr opacity_input = shaderRef->addBindInput("opacity", "float");
-    opacity_input->setValue(1.0f);
+    ior_input->setValue(1.50f);
+    mx::BindInputPtr opacity_input = shaderRef->addBindInput("opacity", "color3");
+    opacity_input->setValue(mx::Color3(1.0f, 1, 1));
 
     mx::SgOptions options;
 
@@ -2159,22 +2181,39 @@ TEST_CASE("Transparency", "[shadergen]")
 
 #ifdef MATERIALX_BUILD_GEN_OGSFX
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+        std::unordered_map<std::string, mx::ShaderGeneratorPtr> shaderGenerators = 
+        {
+            {".ogsfx", mx::OgsFxShaderGenerator::create()},
+            {".glslplugin.ogsfx", mx::MayaGlslPluginShaderGenerator::create()}
+        };
 
-        // Setup lighting
-        mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
-        createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
+        for (auto it : shaderGenerators)
+        {
+            mx::ShaderGeneratorPtr shaderGenerator = it.second;
+            shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-        mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, options);
-        REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+            // Setup lighting
+            mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
+            createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
-        // Write out to file for inspection
-        // TODO: Use validation in MaterialXRender library
-        std::ofstream file;
-        file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
-        file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+            // Test the transparency tracking 
+            transmission_input->setValue(0.0f);
+            options.hwTransparency = isTransparentSurface(shaderRef, *shaderGenerator);
+            REQUIRE(!options.hwTransparency);
+            transmission_input->setValue(1.0f);
+            options.hwTransparency = isTransparentSurface(shaderRef, *shaderGenerator);
+            REQUIRE(options.hwTransparency);
+
+            mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, options);
+            REQUIRE(shader != nullptr);
+            REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+
+            // Write out to file for inspection
+            // TODO: Use validation in MaterialXView library
+            std::ofstream file;
+            file.open(RESULT_DIRECTORY + shader->getName() + it.first);
+            file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+        }
     }
 #endif // MATERIALX_BUILD_GEN_OGSFX
 
@@ -2186,6 +2225,9 @@ TEST_CASE("Transparency", "[shadergen]")
         // Setup lighting
         mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
         createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
+
+        // Specify if this shader needs to handle transparency
+        options.hwTransparency = isTransparentSurface(shaderRef, *shaderGenerator);
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, options);
         REQUIRE(shader != nullptr);
@@ -2280,6 +2322,9 @@ TEST_CASE("Surface Layering", "[shadergen]")
         mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
         createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
+        // Specify if this shader needs to handle transparency
+        options.hwTransparency = isTransparentSurface(shaderRef, *shaderGenerator);
+
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, options);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
@@ -2300,6 +2345,9 @@ TEST_CASE("Surface Layering", "[shadergen]")
         // Setup lighting
         mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
         createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
+
+        // Specify if this shader needs to handle transparency
+        options.hwTransparency = isTransparentSurface(shaderRef, *shaderGenerator);
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, options);
         REQUIRE(shader != nullptr);

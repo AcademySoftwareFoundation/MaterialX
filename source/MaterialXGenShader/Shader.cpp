@@ -59,7 +59,7 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const Sg
     }
     
     // Check if a complete interface is requested
-    if (options.shaderInterfaceType == ShaderInterfaceType::COMPLETE)
+    if (options.shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
     {
         // Create uniforms for all node inputs that has not been connected already
         for (SgNode* node : _rootGraph->getNodes())

@@ -83,7 +83,7 @@ void SourceCode::emitFunctionCall(const SgNode& node, const SgNodeContext& conte
 
         // Inline expressions can only have a single output
         shader.beginLine();
-        shadergen.emitOutput(node.getOutput(), true, shader);
+        shadergen.emitOutput(node.getOutput(), true, false, shader);
         shader.addStr(" = ");
 
         size_t pos = 0;
@@ -120,7 +120,7 @@ void SourceCode::emitFunctionCall(const SgNode& node, const SgNodeContext& conte
 
         // Declare the output variable
         shader.beginLine();
-        shadergen.emitOutput(node.getOutput(), true, shader);
+        shadergen.emitOutput(node.getOutput(), true, true, shader);
         shader.endLine();
 
         shader.beginLine();
@@ -148,7 +148,7 @@ void SourceCode::emitFunctionCall(const SgNode& node, const SgNodeContext& conte
 
         // Emit function output
         shader.addStr(delim);
-        shadergen.emitOutput(node.getOutput(), false, shader);
+        shadergen.emitOutput(node.getOutput(), false, false, shader);
 
         // End function call
         shader.addStr(")");

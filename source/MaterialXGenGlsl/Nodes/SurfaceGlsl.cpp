@@ -69,38 +69,35 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*co
 
     // Declare the output variable
     shader.beginLine();
-    glslgen.emitOutput(node.getOutput(), true, shader);
+    glslgen.emitOutput(node.getOutput(), true, true, shader);
     shader.endLine();
 
-    const string normalWorld = blockPrefix + "normalWorld";
-    const string positionWorld = blockPrefix + "positionWorld";
+    shader.beginScope();
+
+    if (shader.hasTransparency())
+    {
+        shader.beginLine();
+        shader.addStr("float surfaceOpacity = ");
+        glslgen.emitInput(node.getInput("opacity"), shader);
+        shader.endLine();
+        // Early out for 100% cutout transparency
+        shader.addLine("if (surfaceOpacity < 0.001)", false);
+        shader.beginScope();
+        shader.addLine("discard");
+        shader.endScope();
+        shader.newLine();
+    }
 
     const SgOutput* output = node.getOutput();
     const string outColor = output->name + ".color";
     const string outTransparency = output->name + ".transparency";
 
-    shader.addLine(outColor + " = vec3(0.0)");
-    shader.addLine(outTransparency + " = vec3(0.0)");
-    shader.newLine();
-
-    // Calculate opacity
-    //
-    shader.beginLine();
-
-    string surfaceOpacity = node.getName() + "_opacity";
-    shader.addStr("float " + surfaceOpacity + " = ");
-    glslgen.emitInput(node.getInput("opacity"), shader);
-
-    shader.endLine();
-
-    // Check for 100% transparency
-    //
-    shader.addLine("if (" + surfaceOpacity + " > 0.001)", false);
-    shader.beginScope();
-
     //
     // Handle direct lighting
     //
+
+    const string normalWorld = blockPrefix + "normalWorld";
+    const string positionWorld = blockPrefix + "positionWorld";
 
     shader.addComment("Light loop");
     shader.addBlock(LIGHT_LOOP_BEGIN, shadergen);
@@ -111,7 +108,8 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*co
 
     shader.addComment("Calculate the BSDF response for this light source");
     string bsdf;
-    glslgen.emitBsdfNodes(node, GlslShaderGenerator::LIGHT_DIR, GlslShaderGenerator::VIEW_DIR, shader, bsdf);
+    glslgen.emitBsdfNodes(node, GlslShaderGenerator::NODE_CONTEXT_BSDF_REFLECTION, 
+        GlslShaderGenerator::LIGHT_DIR, GlslShaderGenerator::VIEW_DIR, shader, bsdf);
     shader.newLine();
 
     shader.addComment("Accumulate the light's contribution");
@@ -132,52 +130,40 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*co
     shader.endScope();
     shader.newLine();
 
-    shader.addComment("Add IBL contribution");
-    string radianceIBL;
-    glslgen.emitBsdfNodesIBL(node, GlslShaderGenerator::VIEW_DIR, shader, radianceIBL);
+    shader.addComment("Add indirect contribution");
+    shader.beginScope();
+    glslgen.emitBsdfNodes(node, GlslShaderGenerator::NODE_CONTEXT_BSDF_INDIRECT, 
+        GlslShaderGenerator::VIEW_DIR, GlslShaderGenerator::VIEW_DIR, shader, bsdf);
     shader.newLine();
-    shader.addLine(outColor + " += " + radianceIBL);
+    shader.addLine(outColor + " += " + bsdf);
+    shader.endScope();
     shader.newLine();
 
-/*
     // Handle surface transparency
     //
-    shader.addComment("Calculate the BSDF transmission for viewing direction");
-    shader.beginScope();
-    glslgen.emitBsdfNodes(node, GlslShaderGenerator::VIEW_DIR, GlslShaderGenerator::VIEW_DIR, shader, bsdf);
-    shader.addLine(outTransparency + " = " + bsdf);
+    if (shader.hasTransparency())
+    {
+        shader.addComment("Calculate the BSDF transmission for viewing direction");
+        shader.beginScope();
+        glslgen.emitBsdfNodes(node, GlslShaderGenerator::NODE_CONTEXT_BSDF_TRANSMISSION,
+            GlslShaderGenerator::VIEW_DIR, GlslShaderGenerator::VIEW_DIR, shader, bsdf);
+        shader.addLine(outTransparency + " = " + bsdf);
+        shader.endScope();
+        shader.newLine();
+
+        shader.addComment("Mix in opacity which affect the total result");
+        shader.addLine(outColor + " *= surfaceOpacity");
+        shader.addLine(outTransparency + " = mix(vec3(1.0), " + outTransparency + ", surfaceOpacity)");
+    }
+    else
+    {
+        shader.addLine(outTransparency + " = vec3(0.0)");
+    }
+
     shader.endScope();
     shader.newLine();
-*/
-
-    shader.addComment("Mix in opacity which affect the total result");
-    shader.addLine(outColor + " *= " + surfaceOpacity);
-//    shader.addLine(outTransparency + " = mix(vec3(1.0), " + outTransparency + ", " + surfaceOpacity + ")");
-
-    shader.endScope();
 
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-}
-
-bool SurfaceGlsl::isTransparent(const SgNode& node) const
-{
-    if (node.getInput("opacity"))
-    {
-        MaterialX::ValuePtr value = node.getInput("opacity")->value;
-        if (value)
-        {
-            try
-            {
-                float opacityValue = value->asA<float>();
-                return (opacityValue < 1.0);
-            }
-            catch(Exception)
-            {
-                return false;
-            }
-        }
-    }
-    return false;
 }
 
 } // namespace MaterialX
