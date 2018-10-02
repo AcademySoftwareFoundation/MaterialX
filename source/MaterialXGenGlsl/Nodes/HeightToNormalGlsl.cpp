@@ -34,7 +34,7 @@ namespace MaterialX
             "   float nx = S[0] - S[2] + (2.0*S[3]) - (2.0*S[5]) + S[6] - S[8];\n"
             "   float ny = S[0] + (2.0*S[1]) + S[2] - S[6] - (2.0*S[7]) - S[8];\n"
             "   float nz = _scale * sqrt(1.0 - nx*nx - ny*ny);\n"
-            "   return vec3(nx, ny, nz);\n"
+            "   return normalize(vec3(nx, ny, nz));\n"
             "}\n\n";
 
         shader.addBlock(SOBEL_FILTER_SOURCE, shadergen);
