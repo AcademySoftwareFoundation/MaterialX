@@ -176,7 +176,7 @@ namespace
         return isOne(c[0]) && isOne(c[1]) && isOne(c[0]);
     }
 
-    bool isTransparentShaderGraph(OutputPtr output)
+    bool isTransparentShaderGraph(OutputPtr output, const ShaderGenerator& shadergen)
     {
         // Track how many nodes has the potential of being transparent
         // and how many of these we can say for sure are 100% opaque.
@@ -313,6 +313,32 @@ namespace
                         ++numOpaque;
                     }
                 }
+                else
+                {
+                    // If node is nodedef which references a node graph.
+                    // If so, then try to examine that node graph.
+                    NodeDefPtr nodeDef = node->getNodeDef();
+                    const TypeDesc* nodeDefType = TypeDesc::get(nodeDef->getType());
+                    if (nodeDefType == Type::BSDF)
+                    {
+                        InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget(), shadergen.getLanguage());
+                        if (impl && impl->isA<NodeGraph>())
+                        {
+                            NodeGraphPtr graph = impl->asA<NodeGraph>();
+
+                            vector<OutputPtr> outputs = graph->getActiveOutputs();
+                            if (outputs.size() > 0)
+                            {
+                                const OutputPtr& graphOutput = outputs[0];
+                                bool isTransparent = isTransparentShaderGraph(graphOutput, shadergen);
+                                if (isTransparent)
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
 
                 if (numOpaque != numCandidates)
                 {
@@ -403,7 +429,7 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
                     const OutputPtr& output = outputs[0];
                     if (TypeDesc::get(output->getType()) == Type::SURFACESHADER)
                     {
-                        return isTransparentShaderGraph(output);
+                        return isTransparentShaderGraph(output, shadergen);
                     }
                 }
             }
@@ -412,7 +438,7 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
     else if (element->isA<Output>())
     {
         OutputPtr output = element->asA<Output>();
-        return isTransparentShaderGraph(output);
+        return isTransparentShaderGraph(output, shadergen);
     }
 
     return false;
