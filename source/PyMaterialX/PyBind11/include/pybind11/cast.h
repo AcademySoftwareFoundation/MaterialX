@@ -1224,6 +1224,7 @@ template <typename CharT> struct type_caster<CharT, enable_if_t<is_std_char_type
     using StringCaster = type_caster<StringType>;
     StringCaster str_caster;
     bool none = false;
+    CharT one_char = 0;
 public:
     bool load(handle src, bool convert) {
         if (!src) return false;
@@ -1251,7 +1252,7 @@ public:
     }
 
     operator CharT*() { return none ? nullptr : const_cast<CharT *>(static_cast<StringType &>(str_caster).c_str()); }
-    operator CharT() {
+    operator CharT&() {
         if (none)
             throw value_error("Cannot convert None to a character");
 
@@ -1275,7 +1276,8 @@ public:
             if (char0_bytes == str_len) {
                 // If we have a 128-255 value, we can decode it into a single char:
                 if (char0_bytes == 2 && (v0 & 0xFC) == 0xC0) { // 0x110000xx 0x10xxxxxx
-                    return static_cast<CharT>(((v0 & 3) << 6) + (static_cast<unsigned char>(value[1]) & 0x3F));
+                    one_char = static_cast<CharT>(((v0 & 3) << 6) + (static_cast<unsigned char>(value[1]) & 0x3F));
+                    return one_char;
                 }
                 // Otherwise we have a single character, but it's > U+00FF
                 throw value_error("Character code point not in range(0x100)");
@@ -1286,19 +1288,20 @@ public:
         // surrogate pair with total length 2 instantly indicates a range error (but not a "your
         // string was too long" error).
         else if (StringCaster::UTF_N == 16 && str_len == 2) {
-            char16_t v0 = static_cast<char16_t>(value[0]);
-            if (v0 >= 0xD800 && v0 < 0xE000)
+            one_char = static_cast<CharT>(value[0]);
+            if (one_char >= 0xD800 && one_char < 0xE000)
                 throw value_error("Character code point not in range(0x10000)");
         }
 
         if (str_len != 1)
             throw value_error("Expected a character, but multi-character string found");
 
-        return value[0];
+        one_char = value[0];
+        return one_char;
     }
 
     static PYBIND11_DESCR name() { return type_descr(_(PYBIND11_STRING_NAME)); }
-    template <typename _T> using cast_op_type = remove_reference_t<pybind11::detail::cast_op_type<_T>>;
+    template <typename _T> using cast_op_type = pybind11::detail::cast_op_type<_T>;
 };
 
 // Base implementation for std::tuple and std::pair
@@ -1422,7 +1425,7 @@ protected:
     bool load_value(value_and_holder &&v_h) {
         if (v_h.holder_constructed()) {
             value = v_h.value_ptr();
-            holder = v_h.holder<holder_type>();
+            holder = v_h.template holder<holder_type>();
             return true;
         } else {
             throw cast_error("Unable to cast from non-held to held instance (T& to Holder<T>) "
@@ -1582,7 +1585,7 @@ template <typename T, typename SFINAE> type_caster<T, SFINAE> &load_type(type_ca
         throw cast_error("Unable to cast Python instance to C++ type (compile in debug mode for details)");
 #else
         throw cast_error("Unable to cast Python instance of type " +
-            (std::string) str(handle.get_type()) + " to C++ type '" + type_id<T>() + "''");
+            (std::string) str(handle.get_type()) + " to C++ type '" + type_id<T>() + "'");
 #endif
     }
     return conv;
@@ -1690,6 +1693,9 @@ template <typename T> enable_if_t<cast_is_temporary_value_reference<T>::value, T
 template <> inline void cast_safe<void>(object &&) {}
 
 NAMESPACE_END(detail)
+
+template <return_value_policy policy = return_value_policy::automatic_reference>
+tuple make_tuple() { return tuple(0); }
 
 template <return_value_policy policy = return_value_policy::automatic_reference,
           typename... Args> tuple make_tuple(Args&&... args_) {
@@ -1806,6 +1812,10 @@ struct function_call {
 
     /// The `convert` value the arguments should be loaded with
     std::vector<bool> args_convert;
+
+    /// Extra references for the optional `py::args` and/or `py::kwargs` arguments (which, if
+    /// present, are also in `args` but without a reference).
+    object args_ref, kwargs_ref;
 
     /// The parent, if any
     handle parent;
