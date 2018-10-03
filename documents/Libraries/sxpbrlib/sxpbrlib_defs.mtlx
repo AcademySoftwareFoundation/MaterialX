@@ -18,7 +18,9 @@
     <input name="weight" type="float" value="1.0"/>
     <input name="color" type="color3" value="0.18, 0.18, 0.18"/>
     <input name="roughness" type="float" value="1.0"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="normal" type="vector3">
+      <geomprop name="normal" space="world"/>
+    </input>
   </nodedef>
 
   <!--
@@ -29,7 +31,9 @@
            doc="A BSDF node for pure diffuse transmission.">
     <input name="weight" type="float" value="1.0"/>
     <input name="color" type="color3" value="1.0, 1.0, 1.0"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="normal" type="vector3">
+      <geomprop name="normal" space="world"/>
+    </input>
   </nodedef>
 
   <!--
@@ -42,8 +46,12 @@
     <input name="reflectivity" type="color3" value="0.944 0.776 0.373"/>
     <input name="edgecolor" type="color3" value="0.998 0.981 0.751"/>
     <input name="roughness" type="vector2" value="0.1, 0.1"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
-    <input name="tangent" type="vector3" defaultgeomprop="tangent"/>
+    <input name="normal" type="vector3">
+      <geomprop name="normal" space="world"/>
+    </input>
+    <input name="tangent" type="vector3">
+      <geomprop name="tangent" space="world"/>
+    </input>
     <input name="distribution" type="string" value="ggx"/>
   </nodedef>
 
@@ -57,8 +65,12 @@
     <input name="tint" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="ior" type="float" value="1.52"/>
     <input name="roughness" type="vector2" value="0.1, 0.1"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
-    <input name="tangent" type="vector3" defaultgeomprop="tangent"/>
+    <input name="normal" type="vector3">
+      <geomprop name="normal" space="world"/>
+    </input>
+    <input name="tangent" type="vector3">
+      <geomprop name="tangent" space="world"/>
+    </input>
     <input name="distribution" type="string" value="ggx"/>
     <input name="base" type="BSDF"/>
   </nodedef>
@@ -73,8 +85,12 @@
     <input name="tint" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="ior" type="float" value="1.52"/>
     <input name="roughness" type="vector2" value="0.1, 0.1"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
-    <input name="tangent" type="vector3" defaultgeomprop="tangent"/>
+    <input name="normal" type="vector3">
+      <geomprop name="normal" space="world"/>
+    </input>
+    <input name="tangent" type="vector3">
+      <geomprop name="tangent" space="world"/>
+    </input>
     <input name="distribution" type="string" value="ggx"/>
     <input name="interior" type="VDF"/>
   </nodedef>
@@ -89,7 +105,9 @@
     <input name="color" type="color3" value="0.18, 0.18, 0.18"/>
     <input name="radius" type="vector3" value="1.0, 1.0, 1.0"/>
     <input name="anisotropy" type="float" value="0.0"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="normal" type="vector3">
+      <geomprop name="normal" space="world"/>
+    </input>
   </nodedef>
 
   <!--
@@ -101,7 +119,9 @@
     <input name="weight" type="float" value="1.0"/>
     <input name="color" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="roughness" type="float" value="0.3"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="normal" type="vector3">
+      <geomprop name="normal" space="world"/>
+    </input>
     <input name="base" type="BSDF"/>
   </nodedef>
 
@@ -241,13 +261,19 @@
       <input name="subsurface_radius" type="color3" value="1, 1, 1" />
       <input name="subsurface_scale" type="float" value="1" />
       <input name="thin_walled" type="boolean" value="false" />
-      <input name="normal" type="vector3" defaultgeomprop="normal"/>
-      <input name="tangent" type="vector3" defaultgeomprop="tangent"/>
+      <input name="normal" type="vector3">
+        <geomprop name="normal" space="world"/>
+      </input>
+      <input name="tangent" type="vector3">
+        <geomprop name="tangent" space="world"/>
+      </input>
       <input name="coat" type="float" value="0" />
       <input name="coat_color" type="color3" value="1, 1, 1" />
       <input name="coat_roughness" type="float" value="0.1" />
       <input name="coat_IOR" type="float" value="1.5" />
-      <input name="coat_normal" type="vector3" defaultgeomprop="normal"/>
+      <input name="coat_normal" type="vector3">
+        <geomprop name="normal" space="world"/>
+      </input>
       <input name="sheen" type="float" value="0" />
       <input name="sheen_color" type="color3" value="1, 1, 1" />
       <input name="sheen_roughness" type="float" value="0.3" />
@@ -305,8 +331,12 @@
   -->
   <nodedef name="ND_normalmap" node="normalmap" type="vector3" nodecategory="shaderx">
     <input name="in" type="vector3" value="0.5, 0.5, 1.0"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
-    <input name="tangent" type="vector3" defaultgeomprop="tangent"/>
+    <input name="normal" type="vector3">
+      <geomprop name="normal" space="world"/>
+    </input>
+    <input name="tangent" type="vector3">
+      <geomprop name="tangent" space="world"/>
+    </input>
   </nodedef>
 
   <!--
