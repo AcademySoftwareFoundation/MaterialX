@@ -138,7 +138,8 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 
     OgsFxShader& shader = *shaderPtr;
 
-    bool lighting = shader.hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE);
+    bool lighting = shader.hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE) ||
+        shader.hasClassification(SgNode::Classification::BSDF);
 
     // Turn on fixed formatting since OgsFx doesn't support scientific values
     Value::ScopedFloatFormatting fmt(Value::FloatFormatFixed);
