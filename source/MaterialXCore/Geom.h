@@ -353,13 +353,13 @@ class GeomAttr : public ValueElement
 /// Can be used as a child to Input elements to declare a geometric node
 /// to be used if no explicit connection is set.
 /// Can also be used as children to NodeDef elements to declare internal
-/// geometric requirements for a node. That is: required geometric input
+/// geometric requirements for a node. That is, required geometric input
 /// data that are not published as ordinary user editable inputs.
-class GeomProp : public Element
+class GeomProp : public TypedElement
 {
 public:
     GeomProp(ElementPtr parent, const string& name) :
-        Element(parent, CATEGORY, name)
+        TypedElement(parent, CATEGORY, name)
     {
     }
     virtual ~GeomProp() { }

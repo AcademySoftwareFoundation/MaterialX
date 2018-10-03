@@ -53,7 +53,7 @@ void bindPyGeom(py::module& mod)
     py::class_<mx::GeomAttr, mx::GeomAttrPtr, mx::ValueElement>(mod, "GeomAttr")
         .def_readonly_static("CATEGORY", &mx::GeomAttr::CATEGORY);
 
-    py::class_<mx::GeomProp, mx::GeomPropPtr, mx::Element>(mod, "GeomProp")
+    py::class_<mx::GeomProp, mx::GeomPropPtr, mx::TypedElement>(mod, "GeomProp")
         .def("setSpace", &mx::GeomProp::setSpace)
         .def("hasSpace", &mx::GeomProp::hasSpace)
         .def("getSpace", &mx::GeomProp::getSpace)

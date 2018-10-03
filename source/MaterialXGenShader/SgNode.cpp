@@ -489,6 +489,8 @@ void SgNodeGraph::addDefaultGeomNode(SgInput* input, const GeomProp& geomprop, S
 
     if (!node)
     {
+        // Find the nodedef for the geometric node referenced by the geomprop. Use the type of the 
+        // input here and ignore the type of the geomprop. They are required to have the same type.
         string geomNodeDefName = "ND_" + geomprop.getName() + "_" + input->type->getName();
         NodeDefPtr geomNodeDef = _document->getNodeDef(geomNodeDefName);
         if (!geomNodeDef)
