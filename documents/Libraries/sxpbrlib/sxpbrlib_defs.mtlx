@@ -305,6 +305,7 @@
   -->
   <nodedef name="ND_normalmap" node="normalmap" type="vector3" nodecategory="shaderx">
     <input name="in" type="vector3" value="0.5, 0.5, 1.0"/>
+    <parameter name="tangentSpace" type="integer" value="1"/>
     <input name="normal" type="vector3" defaultgeomprop="normal"/>
     <input name="tangent" type="vector3" defaultgeomprop="tangent"/>
   </nodedef>

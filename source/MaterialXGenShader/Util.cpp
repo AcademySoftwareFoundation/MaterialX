@@ -318,22 +318,25 @@ namespace
                     // If node is nodedef which references a node graph.
                     // If so, then try to examine that node graph.
                     NodeDefPtr nodeDef = node->getNodeDef();
-                    const TypeDesc* nodeDefType = TypeDesc::get(nodeDef->getType());
-                    if (nodeDefType == Type::BSDF)
+                    if (nodeDef)
                     {
-                        InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget(), shadergen.getLanguage());
-                        if (impl && impl->isA<NodeGraph>())
+                        const TypeDesc* nodeDefType = TypeDesc::get(nodeDef->getType());
+                        if (nodeDefType == Type::BSDF)
                         {
-                            NodeGraphPtr graph = impl->asA<NodeGraph>();
-
-                            vector<OutputPtr> outputs = graph->getActiveOutputs();
-                            if (outputs.size() > 0)
+                            InterfaceElementPtr impl = nodeDef->getImplementation(shadergen.getTarget(), shadergen.getLanguage());
+                            if (impl && impl->isA<NodeGraph>())
                             {
-                                const OutputPtr& graphOutput = outputs[0];
-                                bool isTransparent = isTransparentShaderGraph(graphOutput, shadergen);
-                                if (isTransparent)
+                                NodeGraphPtr graph = impl->asA<NodeGraph>();
+
+                                vector<OutputPtr> outputs = graph->getActiveOutputs();
+                                if (outputs.size() > 0)
                                 {
-                                    return true;
+                                    const OutputPtr& graphOutput = outputs[0];
+                                    bool isTransparent = isTransparentShaderGraph(graphOutput, shadergen);
+                                    if (isTransparent)
+                                    {
+                                        return true;
+                                    }
                                 }
                             }
                         }

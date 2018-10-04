@@ -55,6 +55,10 @@ public:
     /// or constant value if the port is not connected
     virtual void emitInput(const SgNodeContext& context, const SgInput* input, Shader& shader) const;
 
+    /// Get the connected variable name for an input,
+    /// or constant value if the port is not connected
+    virtual void getInput(const SgNodeContext& context, const SgInput* input, string& result) const;
+
     /// Emit the output variable name for an output, optionally including it's type
     /// and default value assignment.
     virtual void emitOutput(const SgNodeContext& context, const SgOutput* output, bool includeType, bool assignDefault, Shader& shader) const;

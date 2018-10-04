@@ -20,6 +20,9 @@ class HeightToNormalGlsl : public SgImplementation
     void emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader) override;
 
   private:
+    void emitInputSamples(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, HwShader& shader,
+                          const unsigned int sampleCount, StringVec& sampleStrings) const;
+
     // TODO: Add kernal option
 };
 

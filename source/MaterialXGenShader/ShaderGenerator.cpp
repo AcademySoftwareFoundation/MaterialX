@@ -116,19 +116,19 @@ void ShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& shade
     shader.addStr(_syntax->getTypeName(uniform.type) + " " + uniform.name + (initStr.empty() ? "" : " = " + initStr));
 }
 
-void ShaderGenerator::emitInput(const SgNodeContext& context, const SgInput* input, Shader &shader) const
+void ShaderGenerator::getInput(const SgNodeContext& context, const SgInput* input, string& result) const
 {
     if (input->connection)
     {
-        shader.addStr(input->connection->name);
+        result = input->connection->name;
     }
     else if (input->value)
     {
-        shader.addStr(_syntax->getValue(input->type, *input->value));
+        result = _syntax->getValue(input->type, *input->value);
     }
     else
     {
-        shader.addStr(_syntax->getDefaultValue(input->type));
+        result = _syntax->getDefaultValue(input->type);
     }
 
     // Look for any additional suffix to append
@@ -136,8 +136,16 @@ void ShaderGenerator::emitInput(const SgNodeContext& context, const SgInput* inp
     context.getInputSuffix(const_cast<SgInput*>(input), suffix);
     if (!suffix.empty())
     {
-        shader.addStr(suffix);
+        result += suffix;
     }
+}
+
+
+void ShaderGenerator::emitInput(const SgNodeContext& context, const SgInput* input, Shader &shader) const
+{
+    string result;
+    getInput(context, input, result);
+    shader.addStr(result);
 }
 
 void ShaderGenerator::emitOutput(const SgNodeContext& context, const SgOutput* output, bool includeType, bool assignDefault, Shader& shader) const
