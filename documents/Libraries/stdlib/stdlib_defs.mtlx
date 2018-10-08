@@ -56,7 +56,9 @@
     <parameter name="file" type="filename"/>
     <parameter name="layer" type="string" value=""/>
     <parameter name="default" type="float" value="0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
     <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
     <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
@@ -68,7 +70,9 @@
     <parameter name="file" type="filename"/>
     <parameter name="layer" type="string" value=""/>
     <parameter name="default" type="color2" value="0.0, 0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
     <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
     <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
@@ -80,7 +84,9 @@
     <parameter name="file" type="filename"/>
     <parameter name="layer" type="string" value=""/>
     <parameter name="default" type="color3" value="0.0, 0.0, 0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
     <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
     <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
@@ -92,7 +98,9 @@
     <parameter name="file" type="filename"/>
     <parameter name="layer" type="string" value=""/>
     <parameter name="default" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
     <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
     <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
@@ -104,7 +112,9 @@
     <parameter name="file" type="filename"/>
     <parameter name="layer" type="string" value=""/>
     <parameter name="default" type="vector2" value="0.0, 0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
     <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
     <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
@@ -116,7 +126,9 @@
     <parameter name="file" type="filename"/>
     <parameter name="layer" type="string" value=""/>
     <parameter name="default" type="vector3" value="0.0, 0.0, 0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
     <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
     <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
@@ -128,7 +140,9 @@
     <parameter name="file" type="filename"/>
     <parameter name="layer" type="string" value=""/>
     <parameter name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
     <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
     <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
@@ -145,7 +159,9 @@
   <nodedef name="ND_tiledimage_float" node="tiledimage" type="float" nodegroup="texture" default="0.0">
     <parameter name="file" type="filename"/>
     <parameter name="default" type="float" value="0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
     <parameter name="uvtiling" type="vector2" value="1.0, 1.0"/>
     <parameter name="uvoffset" type="vector2" value="0.0, 0.0"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
@@ -156,7 +172,9 @@
   <nodedef name="ND_tiledimage_color2" node="tiledimage" type="color2" nodegroup="texture" default="0.0, 0.0">
     <parameter name="file" type="filename"/>
     <parameter name="default" type="color2" value="0.0, 0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
     <parameter name="uvtiling" type="vector2" value="1.0, 1.0"/>
     <parameter name="uvoffset" type="vector2" value="0.0, 0.0"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
@@ -167,7 +185,9 @@
   <nodedef name="ND_tiledimage_color3" node="tiledimage" type="color3" nodegroup="texture" default="0.0, 0.0, 0.0">
     <parameter name="file" type="filename"/>
     <parameter name="default" type="color3" value="0.0, 0.0, 0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
     <parameter name="uvtiling" type="vector2" value="1.0, 1.0"/>
     <parameter name="uvoffset" type="vector2" value="0.0, 0.0"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
@@ -178,7 +198,9 @@
   <nodedef name="ND_tiledimage_color4" node="tiledimage" type="color4" nodegroup="texture" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="file" type="filename"/>
     <parameter name="default" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
     <parameter name="uvtiling" type="vector2" value="1.0, 1.0"/>
     <parameter name="uvoffset" type="vector2" value="0.0, 0.0"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
@@ -189,7 +211,9 @@
   <nodedef name="ND_tiledimage_vector2" node="tiledimage" type="vector2" nodegroup="texture" default="0.0, 0.0">
     <parameter name="file" type="filename"/>
     <parameter name="default" type="vector2" value="0.0, 0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
     <parameter name="uvtiling" type="vector2" value="1.0, 1.0"/>
     <parameter name="uvoffset" type="vector2" value="0.0, 0.0"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
@@ -200,7 +224,9 @@
   <nodedef name="ND_tiledimage_vector3" node="tiledimage" type="vector3" nodegroup="texture" default="0.0, 0.0, 0.0">
     <parameter name="file" type="filename"/>
     <parameter name="default" type="vector3" value="0.0, 0.0, 0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
     <parameter name="uvtiling" type="vector2" value="1.0, 1.0"/>
     <parameter name="uvoffset" type="vector2" value="0.0, 0.0"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
@@ -211,7 +237,9 @@
   <nodedef name="ND_tiledimage_vector4" node="tiledimage" type="vector4" nodegroup="texture" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="file" type="filename"/>
     <parameter name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
     <parameter name="uvtiling" type="vector2" value="1.0, 1.0"/>
     <parameter name="uvoffset" type="vector2" value="0.0, 0.0"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
@@ -234,8 +262,12 @@
     <parameter name="layery" type="string" value=""/>
     <parameter name="layerz" type="string" value=""/>
     <parameter name="default" type="float" value="0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
+    <input name="normal" type="vector3">
+      <geomprop name="normal" type="vector3"/>
+    </input>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
@@ -249,8 +281,12 @@
     <parameter name="layery" type="string" value=""/>
     <parameter name="layerz" type="string" value=""/>
     <parameter name="default" type="color2" value="0.0, 0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
+    <input name="normal" type="vector3">
+      <geomprop name="normal" type="vector3"/>
+    </input>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
@@ -264,8 +300,12 @@
     <parameter name="layery" type="string" value=""/>
     <parameter name="layerz" type="string" value=""/>
     <parameter name="default" type="color3" value="0.0, 0.0, 0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
+    <input name="normal" type="vector3">
+      <geomprop name="normal" type="vector3"/>
+    </input>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
@@ -279,8 +319,12 @@
     <parameter name="layery" type="string" value=""/>
     <parameter name="layerz" type="string" value=""/>
     <parameter name="default" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
+    <input name="normal" type="vector3">
+      <geomprop name="normal" type="vector3"/>
+    </input>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
@@ -294,8 +338,12 @@
     <parameter name="layery" type="string" value=""/>
     <parameter name="layerz" type="string" value=""/>
     <parameter name="default" type="vector2" value="0.0, 0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
+    <input name="normal" type="vector3">
+      <geomprop name="normal" type="vector3"/>
+    </input>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
@@ -309,8 +357,12 @@
     <parameter name="layery" type="string" value=""/>
     <parameter name="layerz" type="string" value=""/>
     <parameter name="default" type="vector3" value="0.0, 0.0, 0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
+    <input name="normal" type="vector3">
+      <geomprop name="normal" type="vector3"/>
+    </input>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
@@ -324,8 +376,12 @@
     <parameter name="layery" type="string" value=""/>
     <parameter name="layerz" type="string" value=""/>
     <parameter name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
-    <input name="normal" type="vector3" defaultgeomprop="normal"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
+    <input name="normal" type="vector3">
+      <geomprop name="normal" type="vector3"/>
+    </input>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
@@ -389,37 +445,51 @@
   <nodedef name="ND_ramplr_float" node="ramplr" type="float" nodegroup="procedural" default="0.0">
     <parameter name="valuel" type="float"/>
     <parameter name="valuer" type="float"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_ramplr_color2" node="ramplr" type="color2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="valuel" type="color2"/>
     <parameter name="valuer" type="color2"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_ramplr_color3" node="ramplr" type="color3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="valuel" type="color3"/>
     <parameter name="valuer" type="color3"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_ramplr_color4" node="ramplr" type="color4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="valuel" type="color4"/>
     <parameter name="valuer" type="color4"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_ramplr_vector2" node="ramplr" type="vector2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="valuel" type="vector2"/>
     <parameter name="valuer" type="vector2"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_ramplr_vector3" node="ramplr" type="vector3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="valuel" type="vector3"/>
     <parameter name="valuer" type="vector3"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_ramplr_vector4" node="ramplr" type="vector4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="valuel" type="vector4"/>
     <parameter name="valuer" type="vector4"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
 
   <!--
@@ -429,37 +499,51 @@
   <nodedef name="ND_ramptb_float" node="ramptb" type="float" nodegroup="procedural" default="0.0">
     <parameter name="valuet" type="float"/>
     <parameter name="valueb" type="float"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_ramptb_color2" node="ramptb" type="color2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="valuet" type="color2"/>
     <parameter name="valueb" type="color2"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_ramptb_color3" node="ramptb" type="color3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="valuet" type="color3"/>
     <parameter name="valueb" type="color3"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_ramptb_color4" node="ramptb" type="color4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="valuet" type="color4"/>
     <parameter name="valueb" type="color4"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_ramptb_vector2" node="ramptb" type="vector2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="valuet" type="vector2"/>
     <parameter name="valueb" type="vector2"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_ramptb_vector3" node="ramptb" type="vector3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="valuet" type="vector3"/>
     <parameter name="valueb" type="vector3"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_ramptb_vector4" node="ramptb" type="vector4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="valuet" type="vector4"/>
     <parameter name="valueb" type="vector4"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
 
   <!--
@@ -471,49 +555,63 @@
     <parameter name="valuetr" type="float"/>
     <parameter name="valuebl" type="float"/>
     <parameter name="valuebr" type="float"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_ramp4_color2" node="ramp4" type="color2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="valuetl" type="color2"/>
     <parameter name="valuetr" type="color2"/>
     <parameter name="valuebl" type="color2"/>
     <parameter name="valuebr" type="color2"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_ramp4_color3" node="ramp4" type="color3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="valuetl" type="color3"/>
     <parameter name="valuetr" type="color3"/>
     <parameter name="valuebl" type="color3"/>
     <parameter name="valuebr" type="color3"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_ramp4_color4" node="ramp4" type="color4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="valuetl" type="color4"/>
     <parameter name="valuetr" type="color4"/>
     <parameter name="valuebl" type="color4"/>
     <parameter name="valuebr" type="color4"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_ramp4_vector2" node="ramp4" type="vector2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="valuetl" type="vector2"/>
     <parameter name="valuetr" type="vector2"/>
     <parameter name="valuebl" type="vector2"/>
     <parameter name="valuebr" type="vector2"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_ramp4_vector3" node="ramp4" type="vector3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="valuetl" type="vector3"/>
     <parameter name="valuetr" type="vector3"/>
     <parameter name="valuebl" type="vector3"/>
     <parameter name="valuebr" type="vector3"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_ramp4_vector4" node="ramp4" type="vector4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="valuetl" type="vector4"/>
     <parameter name="valuetr" type="vector4"/>
     <parameter name="valuebl" type="vector4"/>
     <parameter name="valuebr" type="vector4"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
 
   <!--
@@ -524,43 +622,57 @@
     <parameter name="valuel" type="float"/>
     <parameter name="valuer" type="float"/>
     <parameter name="center" type="float" value="0.5"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_splitlr_color2" node="splitlr" type="color2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="valuel" type="color2"/>
     <parameter name="valuer" type="color2"/>
     <parameter name="center" type="float" value="0.5"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_splitlr_color3" node="splitlr" type="color3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="valuel" type="color3"/>
     <parameter name="valuer" type="color3"/>
     <parameter name="center" type="float" value="0.5"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_splitlr_color4" node="splitlr" type="color4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="valuel" type="color4"/>
     <parameter name="valuer" type="color4"/>
     <parameter name="center" type="float" value="0.5"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_splitlr_vector2" node="splitlr" type="vector2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="valuel" type="vector2"/>
     <parameter name="valuer" type="vector2"/>
     <parameter name="center" type="float" value="0.5"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_splitlr_vector3" node="splitlr" type="vector3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="valuel" type="vector3"/>
     <parameter name="valuer" type="vector3"/>
     <parameter name="center" type="float" value="0.5"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_splitlr_vector4" node="splitlr" type="vector4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="valuel" type="vector4"/>
     <parameter name="valuer" type="vector4"/>
     <parameter name="center" type="float" value="0.5"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
 
   <!--
@@ -571,43 +683,57 @@
     <parameter name="valuet" type="float"/>
     <parameter name="valueb" type="float"/>
     <parameter name="center" type="float" value="0.5"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_splittb_color2" node="splittb" type="color2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="valuet" type="color2"/>
     <parameter name="valueb" type="color2"/>
     <parameter name="center" type="float" value="0.5"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_splittb_color3" node="splittb" type="color3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="valuet" type="color3"/>
     <parameter name="valueb" type="color3"/>
     <parameter name="center" type="float" value="0.5"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_splittb_color4" node="splittb" type="color4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="valuet" type="color4"/>
     <parameter name="valueb" type="color4"/>
     <parameter name="center" type="float" value="0.5"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_splittb_vector2" node="splittb" type="vector2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="valuet" type="vector2"/>
     <parameter name="valueb" type="vector2"/>
     <parameter name="center" type="float" value="0.5"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_splittb_vector3" node="splittb" type="vector3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="valuet" type="vector3"/>
     <parameter name="valueb" type="vector3"/>
     <parameter name="center" type="float" value="0.5"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_splittb_vector4" node="splittb" type="vector4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="valuet" type="vector4"/>
     <parameter name="valueb" type="vector4"/>
     <parameter name="center" type="float" value="0.5"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
 
   <!--
@@ -617,67 +743,93 @@
   <nodedef name="ND_noise2d_float" node="noise2d" type="float" nodegroup="procedural" default="0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise2d_color2" node="noise2d" type="color2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="amplitude" type="vector2" value="1.0, 1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise2d_color2FA" node="noise2d" type="color2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise2d_color3" node="noise2d" type="color3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="amplitude" type="vector3" value="1.0, 1.0, 1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise2d_color3FA" node="noise2d" type="color3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise2d_color4" node="noise2d" type="color4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise2d_color4FA" node="noise2d" type="color4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise2d_vector2" node="noise2d" type="vector2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="amplitude" type="vector2" value="1.0, 1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise2d_vector2FA" node="noise2d" type="vector2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise2d_vector3" node="noise2d" type="vector3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="amplitude" type="vector3" value="1.0, 1.0, 1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise2d_vector3FA" node="noise2d" type="vector3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise2d_vector4" node="noise2d" type="vector4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise2d_vector4FA" node="noise2d" type="vector4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
 
   <!--
@@ -687,67 +839,93 @@
   <nodedef name="ND_noise3d_float" node="noise3d" type="float" nodegroup="procedural" default="0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise3d_color2" node="noise3d" type="color2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="amplitude" type="vector2" value="1.0, 1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise3d_color2FA" node="noise3d" type="color2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise3d_color3" node="noise3d" type="color3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="amplitude" type="vector3" value="1.0, 1.0, 1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise3d_color3FA" node="noise3d" type="color3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise3d_color4" node="noise3d" type="color4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise3d_color4FA" node="noise3d" type="color4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise3d_vector2" node="noise3d" type="vector2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="amplitude" type="vector2" value="1.0, 1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise3d_vector2FA" node="noise3d" type="vector2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise3d_vector3" node="noise3d" type="vector3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="amplitude" type="vector3" value="1.0, 1.0, 1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise3d_vector3FA" node="noise3d" type="vector3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise3d_vector4" node="noise3d" type="vector4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_noise3d_vector4FA" node="noise3d" type="vector4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.0"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
 
   <!--
@@ -759,91 +937,117 @@
     <parameter name="octaves" type="integer" value="3"/>
     <parameter name="lacunarity" type="float" value="2.0"/>
     <parameter name="diminish" type="float" value="0.5"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_fractal3d_color2" node="fractal3d" type="color2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="amplitude" type="vector2" value="1.0, 1.0"/>
     <parameter name="octaves" type="integer" value="3"/>
     <parameter name="lacunarity" type="float" value="2.0"/>
     <parameter name="diminish" type="float" value="0.5"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_fractal3d_color2FA" node="fractal3d" type="color2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="octaves" type="integer" value="3"/>
     <parameter name="lacunarity" type="float" value="2.0"/>
     <parameter name="diminish" type="float" value="0.5"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_fractal3d_color3" node="fractal3d" type="color3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="amplitude" type="vector3" value="1.0, 1.0, 1.0"/>
     <parameter name="octaves" type="integer" value="3"/>
     <parameter name="lacunarity" type="float" value="2.0"/>
     <parameter name="diminish" type="float" value="0.5"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_fractal3d_color3FA" node="fractal3d" type="color3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="octaves" type="integer" value="3"/>
     <parameter name="lacunarity" type="float" value="2.0"/>
     <parameter name="diminish" type="float" value="0.5"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_fractal3d_color4" node="fractal3d" type="color4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
     <parameter name="octaves" type="integer" value="3"/>
     <parameter name="lacunarity" type="float" value="2.0"/>
     <parameter name="diminish" type="float" value="0.5"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_fractal3d_color4FA" node="fractal3d" type="color4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="octaves" type="integer" value="3"/>
     <parameter name="lacunarity" type="float" value="2.0"/>
     <parameter name="diminish" type="float" value="0.5"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_fractal3d_vector2" node="fractal3d" type="vector2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="amplitude" type="vector2" value="1.0, 1.0"/>
     <parameter name="octaves" type="integer" value="3"/>
     <parameter name="lacunarity" type="float" value="2.0"/>
     <parameter name="diminish" type="float" value="0.5"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_fractal3d_vector2FA" node="fractal3d" type="vector2" nodegroup="procedural" default="0.0, 0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="octaves" type="integer" value="3"/>
     <parameter name="lacunarity" type="float" value="2.0"/>
     <parameter name="diminish" type="float" value="0.5"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_fractal3d_vector3" node="fractal3d" type="vector3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="amplitude" type="vector3" value="1.0, 1.0, 1.0"/>
     <parameter name="octaves" type="integer" value="3"/>
     <parameter name="lacunarity" type="float" value="2.0"/>
     <parameter name="diminish" type="float" value="0.5"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_fractal3d_vector3FA" node="fractal3d" type="vector3" nodegroup="procedural" default="0.0, 0.0, 0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="octaves" type="integer" value="3"/>
     <parameter name="lacunarity" type="float" value="2.0"/>
     <parameter name="diminish" type="float" value="0.5"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_fractal3d_vector4" node="fractal3d" type="vector4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
     <parameter name="octaves" type="integer" value="3"/>
     <parameter name="lacunarity" type="float" value="2.0"/>
     <parameter name="diminish" type="float" value="0.5"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
   <nodedef name="ND_fractal3d_vector4FA" node="fractal3d" type="vector4" nodegroup="procedural" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="amplitude" type="float" value="1.0"/>
     <parameter name="octaves" type="integer" value="3"/>
     <parameter name="lacunarity" type="float" value="2.0"/>
     <parameter name="diminish" type="float" value="0.5"/>
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
 
   <!--
@@ -851,7 +1055,9 @@
     2D cellular noise in 1 channel.
   -->
   <nodedef name="ND_cellnoise2d_float" node="cellnoise2d" type="float" nodegroup="procedural" default="0.0">
-    <input name="texcoord" type="vector2" defaultgeomprop="texcoord"/>
+    <input name="texcoord" type="vector2">
+      <geomprop name="texcoord" type="vector2"/>
+    </input>
   </nodedef>
 
   <!--
@@ -859,7 +1065,9 @@
     3D cellular noise in 1 channel.
   -->
   <nodedef name="ND_cellnoise3d_float" node="cellnoise3d" type="float" nodegroup="procedural" default="0.0">
-    <input name="position" type="vector3" defaultgeomprop="position"/>
+    <input name="position" type="vector3">
+      <geomprop name="position" type="vector3"/>
+    </input>
   </nodedef>
 
 

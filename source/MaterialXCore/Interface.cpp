@@ -154,6 +154,21 @@ Edge Input::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
     return NULL_EDGE;
 }
 
+GeomPropPtr Input::getGeomProp() const
+{
+    // An input can only have a single geomprop,
+    // so return the first one found.
+    for (ElementPtr child : _childOrder)
+    {
+        GeomPropPtr geomprop = child->asA<GeomProp>();
+        if (geomprop)
+        {
+            return geomprop;
+        }
+    }
+    return nullptr;
+}
+
 //
 // Output methods
 //
