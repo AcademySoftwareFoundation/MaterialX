@@ -13,13 +13,13 @@ SgImplementationPtr Compare::create()
     return std::make_shared<Compare>();
 }
 
-void Compare::emitFunctionCall(const SgNode& node, const SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader)
+void Compare::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
     // Declare the output variable
     shader.beginLine();
-    shadergen.emitOutput(node.getOutput(), true, true, shader);
+    shadergen.emitOutput(context, node.getOutput(), true, true, shader);
     shader.endLine();
 
     const SgInput* intest = node.getInput(INPUT_NAMES[0]);
@@ -38,9 +38,9 @@ void Compare::emitFunctionCall(const SgNode& node, const SgNodeContext& context,
         {
             shader.beginLine();
             shader.addStr("if (");
-            shadergen.emitInput(intest, shader);
+            shadergen.emitInput(context, intest, shader);
             shader.addStr(" <= ");
-            shadergen.emitInput(cutoff, shader);
+            shadergen.emitInput(context, cutoff, shader);
             shader.addStr(")");
             shader.endLine(false);
         }
@@ -58,9 +58,9 @@ void Compare::emitFunctionCall(const SgNode& node, const SgNodeContext& context,
         }
 
         shader.beginLine();
-        shadergen.emitOutput(node.getOutput(), false, false, shader);
+        shadergen.emitOutput(context, node.getOutput(), false, false, shader);
         shader.addStr(" = ");
-        shadergen.emitInput(input, shader);
+        shadergen.emitInput(context, input, shader);
         shader.endLine();
 
         shader.endScope();

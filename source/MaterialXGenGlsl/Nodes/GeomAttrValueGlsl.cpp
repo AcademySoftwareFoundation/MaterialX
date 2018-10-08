@@ -21,7 +21,7 @@ void GeomAttrValueGlsl::createVariables(const SgNode& node, ShaderGenerator& /*s
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, node.getOutput()->type, "u_geomattr_" + attrName);
 }
 
-void GeomAttrValueGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*context*/, ShaderGenerator& shadergen, Shader& shader_)
+void GeomAttrValueGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
@@ -34,7 +34,7 @@ void GeomAttrValueGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext
         const string attrName = attrNameInput->value->getValueString();
 
         shader.beginLine();
-        shadergen.emitOutput(node.getOutput(), true, false, shader);
+        shadergen.emitOutput(context, node.getOutput(), true, false, shader);
         shader.addStr(" = u_geomattr_" + attrName);
         shader.endLine();
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)

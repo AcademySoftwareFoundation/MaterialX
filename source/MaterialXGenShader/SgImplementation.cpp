@@ -17,7 +17,7 @@ void SgImplementation::emitFunctionDefinition(const SgNode&, ShaderGenerator&, S
     // default implementation has no function definition
 }
 
-void SgImplementation::emitFunctionCall(const SgNode&, const SgNodeContext&, ShaderGenerator&, Shader&)
+void SgImplementation::emitFunctionCall(const SgNode&, SgNodeContext&, ShaderGenerator&, Shader&)
 {
     // default implementation has no source code
 }

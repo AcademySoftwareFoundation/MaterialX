@@ -70,7 +70,7 @@ void SourceCode::emitFunctionDefinition(const SgNode& /*node*/, ShaderGenerator&
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
-void SourceCode::emitFunctionCall(const SgNode& node, const SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader)
+void SourceCode::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
@@ -83,7 +83,7 @@ void SourceCode::emitFunctionCall(const SgNode& node, const SgNodeContext& conte
 
         // Inline expressions can only have a single output
         shader.beginLine();
-        shadergen.emitOutput(node.getOutput(), true, false, shader);
+        shadergen.emitOutput(context, node.getOutput(), true, false, shader);
         shader.addStr(" = ");
 
         size_t pos = 0;
@@ -105,7 +105,7 @@ void SourceCode::emitFunctionCall(const SgNode& node, const SgNodeContext& conte
                 throw ExceptionShaderGenError("Could not find an input named '" + variable +
                     "' on node '" + node.getName() + "'");
             }
-            shadergen.emitInput(input, shader);
+            shadergen.emitInput(context, input, shader);
 
             pos = j + 2;
             i = _functionSource.find_first_of(prefix, pos);
@@ -120,7 +120,7 @@ void SourceCode::emitFunctionCall(const SgNode& node, const SgNodeContext& conte
 
         // Declare the output variable
         shader.beginLine();
-        shadergen.emitOutput(node.getOutput(), true, true, shader);
+        shadergen.emitOutput(context, node.getOutput(), true, true, shader);
         shader.endLine();
 
         shader.beginLine();
@@ -142,13 +142,13 @@ void SourceCode::emitFunctionCall(const SgNode& node, const SgNodeContext& conte
         for (SgInput* input : node.getInputs())
         {
             shader.addStr(delim);
-            shadergen.emitInput(input, shader);
+            shadergen.emitInput(context, input, shader);
             delim = ", ";
         }
 
         // Emit function output
         shader.addStr(delim);
-        shadergen.emitOutput(node.getOutput(), false, false, shader);
+        shadergen.emitOutput(context, node.getOutput(), false, false, shader);
 
         // End function call
         shader.addStr(")");

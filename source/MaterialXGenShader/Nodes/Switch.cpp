@@ -12,13 +12,13 @@ SgImplementationPtr Switch::create()
     return std::make_shared<Switch>();
 }
 
-void Switch::emitFunctionCall(const SgNode& node, const SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader)
+void Switch::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
     // Declare the output variable
     shader.beginLine();
-    shadergen.emitOutput(node.getOutput(), true, true, shader);
+    shadergen.emitOutput(context, node.getOutput(), true, true, shader);
     shader.endLine();
 
     const SgInput* which = node.getInput(INPUT_NAMES[5]);
@@ -43,7 +43,7 @@ void Switch::emitFunctionCall(const SgNode& node, const SgNodeContext& context, 
         {
             // 'which' can be float, integer or boolean, 
             // so always convert to float to make sure the comparison is valid
-            shader.addStr("if (float("); shadergen.emitInput(which, shader); shader.addStr(") < "); shader.addValue(float(branch + 1));  shader.addStr(")");
+            shader.addStr("if (float("); shadergen.emitInput(context, which, shader); shader.addStr(") < "); shader.addValue(float(branch + 1));  shader.addStr(")");
         }
         shader.endLine(false);
 
@@ -60,9 +60,9 @@ void Switch::emitFunctionCall(const SgNode& node, const SgNodeContext& context, 
         }
 
         shader.beginLine();
-        shadergen.emitOutput(node.getOutput(), false, false, shader);
+        shadergen.emitOutput(context, node.getOutput(), false, false, shader);
         shader.addStr(" = ");
-        shadergen.emitInput(input, shader);
+        shadergen.emitInput(context, input, shader);
         shader.endLine();
 
         shader.endScope();

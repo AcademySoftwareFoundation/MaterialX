@@ -87,7 +87,7 @@ void ShaderGenerator::emitFunctionCalls(const SgNodeContext& context, Shader &sh
             // Just emit the output variable set to default value, in case it
             // is referenced by another node in this context.
             shader.beginLine();
-            emitOutput(node->getOutput(), true, true, shader);
+            emitOutput(context, node->getOutput(), true, true, shader);
             shader.endLine();
         }
     }
@@ -116,28 +116,53 @@ void ShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& shade
     shader.addStr(_syntax->getTypeName(uniform.type) + " " + uniform.name + (initStr.empty() ? "" : " = " + initStr));
 }
 
-void ShaderGenerator::emitInput(const SgInput* input, Shader &shader) const
+void ShaderGenerator::getInput(const SgNodeContext& context, const SgInput* input, string& result) const
 {
     if (input->connection)
     {
-        shader.addStr(input->connection->name);
+        result = input->connection->name;
     }
     else if (input->value)
     {
-        shader.addStr(_syntax->getValue(input->type, *input->value));
+        result = _syntax->getValue(input->type, *input->value);
     }
     else
     {
-        shader.addStr(_syntax->getDefaultValue(input->type));
+        result = _syntax->getDefaultValue(input->type);
+    }
+
+    // Look for any additional suffix to append
+    string suffix;
+    context.getInputSuffix(const_cast<SgInput*>(input), suffix);
+    if (!suffix.empty())
+    {
+        result += suffix;
     }
 }
 
-void ShaderGenerator::emitOutput(const SgOutput* output, bool includeType, bool assignDefault, Shader& shader) const
+
+void ShaderGenerator::emitInput(const SgNodeContext& context, const SgInput* input, Shader &shader) const
+{
+    string result;
+    getInput(context, input, result);
+    shader.addStr(result);
+}
+
+void ShaderGenerator::emitOutput(const SgNodeContext& context, const SgOutput* output, bool includeType, bool assignDefault, Shader& shader) const
 {
     shader.addStr(includeType ? _syntax->getTypeName(output->type) + " " + output->name : output->name);
+
+    // Look for any additional suffix to append
+    string suffix;
+    context.getOutputSuffix(const_cast<SgOutput*>(output), suffix);
+    if (!suffix.empty())
+    {
+        shader.addStr(suffix);
+    }
+
     if (assignDefault)
     {
-        const string& value =_syntax->getDefaultValue(output->type);
+        const string& value = _syntax->getDefaultValue(output->type);
         if (!value.empty())
         {
             shader.addStr(" = " + value);

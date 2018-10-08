@@ -512,9 +512,14 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
             std::string elementType(element->getType());
             mx::string outputName = element->getName();
 
-            const std::string SURFACE_SHADER("surfaceshader");
+            std::set<std::string> colorClosures =
+            {
+                "surfaceshader", "volumeshader", "lightshader",
+                "BSDF", "EDF", "VDF"
+            };
             bool isShader = element->isA<mx::ShaderRef>() ||
-                elementType == SURFACE_SHADER;
+                colorClosures.count(elementType) > 0;
+            
             std::string sceneTemplateFile;
 
             if (isShader)

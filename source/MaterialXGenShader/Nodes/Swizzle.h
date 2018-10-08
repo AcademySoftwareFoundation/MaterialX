@@ -12,7 +12,7 @@ class Swizzle : public SgImplementation
 public:
     static SgImplementationPtr create();
 
-    void emitFunctionCall(const SgNode& node, const SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader) override;
 };
 
 } // namespace MaterialX

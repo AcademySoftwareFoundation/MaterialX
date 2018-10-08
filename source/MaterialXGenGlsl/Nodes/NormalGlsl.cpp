@@ -31,7 +31,7 @@ void NormalGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shaderge
     }
 }
 
-void NormalGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*context*/, ShaderGenerator& shadergen, Shader& shader_)
+void NormalGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
@@ -70,7 +70,7 @@ void NormalGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*con
 
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
         shader.beginLine();
-        shadergen.emitOutput(node.getOutput(), true, false, shader);
+        shadergen.emitOutput(context, node.getOutput(), true, false, shader);
         if (space == WORLD)
         {
             shader.addStr(" = normalize(" + blockPrefix + "normalWorld)");

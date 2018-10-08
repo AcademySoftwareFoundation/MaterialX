@@ -31,7 +31,7 @@ void TangentGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shaderg
     }
 }
 
-void TangentGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*context*/, ShaderGenerator& shadergen, Shader& shader_)
+void TangentGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
@@ -70,7 +70,7 @@ void TangentGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*co
 
         BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
         shader.beginLine();
-    shadergen.emitOutput(node.getOutput(), true, false, shader);
+    shadergen.emitOutput(context, node.getOutput(), true, false, shader);
     if (space == WORLD)
     {
         shader.addStr(" = normalize(" + blockPrefix + "tangentWorld)");

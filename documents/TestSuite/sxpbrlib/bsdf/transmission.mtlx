@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <materialx version="1.36">
   <nodedef name="ND_mysurface" type="surfaceshader" node="mysurface">
-    <input name="diffuse" type="float" />
-    <input name="diffuseColor" type="color3" />
-    <input name="transmission" type="float" />
-    <input name="transmissionColor" type="color3" />
+    <input name="diffuse" type="float" value="1.0"/>
+    <input name="diffuseColor" type="color3" value="0.8, 0.8, 0.8"/>
+    <input name="transmission" type="float" value="0.6"/>
+    <input name="transmissionColor" type="color3" value="1.0, 1.0, 1.0"/>
   </nodedef>
   <nodegraph name="IMP_mysurface" nodedef="ND_mysurface">
     <output name="out" type="surfaceshader" nodename="surface3" />

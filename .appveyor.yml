@@ -4,11 +4,6 @@ clone_folder: C:\Projects\MaterialX
 
 environment:
   matrix:
-    - CMAKE_PLATFORM: "Visual Studio 14 2015"
-      PYTHON: C:\Python26
-      VS_PLATFORM: Windows_x86
-      VS_COMPILER: vs2015
-      configuration: Release
     - CMAKE_PLATFORM: "Visual Studio 14 2015 Win64"
       PYTHON: C:\Python27-x64
       VS_PLATFORM: Windows
@@ -18,16 +13,6 @@ environment:
       PYTHON: C:\Python27-x64
       VS_PLATFORM: Windows
       VS_COMPILER: vs2015
-      configuration: Release
-    - CMAKE_PLATFORM: "Visual Studio 14 2015 Win64"
-      PYTHON: C:\Python27-x64
-      VS_PLATFORM: Windows
-      VS_COMPILER: vs2015
-      configuration: RelWithDebInfo
-    - CMAKE_PLATFORM: "Visual Studio 15 2017"
-      PYTHON: C:\Python35
-      VS_PLATFORM: Windows_x86
-      VS_COMPILER: vs2017
       configuration: Release
     - CMAKE_PLATFORM: "Visual Studio 15 2017 Win64"
       PYTHON: C:\Python36-x64

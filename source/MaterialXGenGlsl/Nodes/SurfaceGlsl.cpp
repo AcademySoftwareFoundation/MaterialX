@@ -43,7 +43,7 @@ void SurfaceGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*sha
         EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void SurfaceGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*context*/, ShaderGenerator& shadergen, Shader& shader_)
+void SurfaceGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
@@ -69,7 +69,7 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*co
 
     // Declare the output variable
     shader.beginLine();
-    glslgen.emitOutput(node.getOutput(), true, true, shader);
+    glslgen.emitOutput(context, node.getOutput(), true, true, shader);
     shader.endLine();
 
     shader.beginScope();
@@ -78,7 +78,7 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, const SgNodeContext& /*co
     {
         shader.beginLine();
         shader.addStr("float surfaceOpacity = ");
-        glslgen.emitInput(node.getInput("opacity"), shader);
+        glslgen.emitInput(context, node.getInput("opacity"), shader);
         shader.endLine();
         // Early out for 100% cutout transparency
         shader.addLine("if (surfaceOpacity < 0.001)", false);

@@ -47,7 +47,7 @@ public:
     virtual void emitFunctionDefinition(const SgNode& node, ShaderGenerator& shadergen, Shader& shader);
 
     /// Emit the function call or inline source code for given node instance in the given context.
-    virtual void emitFunctionCall(const SgNode& node, const SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader);
+    virtual void emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader);
 
     /// Return a pointer to the node graph if this implementation is using a graph,
     /// or returns nullptr otherwise.
