@@ -25,7 +25,7 @@
     <input name="diffuse_reflectance" type="color3" />
     <input name="diffuse_roughness" type="float" />
     <input name="specular_reflectance" type="color3" />
-    <input name="specular_roughness" type="vector2" />
+    <input name="specular_roughness" type="float" />
     <input name="specular_IOR" type="float" />
   </nodedef>
   <nodegraph name="IMP_testshader2" nodedef="ND_testshader2">
@@ -35,11 +35,15 @@
       <input name="color" type="color3" interfacename="diffuse_reflectance" />
       <input name="roughness" type="float" interfacename="diffuse_roughness" />
     </diffusebrdf>
+    <roughness name="roughness1" type="roughnessinfo">
+      <input name="roughness" type="float" interfacename="specular_roughness" />
+      <input name="anisotropy" type="float" value="0.0" />
+    </roughness>
     <dielectricbrdf name="coating" type="BSDF">
       <input name="normal" type="vector3" nodename="shadingnormal1" />
       <input name="base" type="BSDF" nodename="diffuse" />
       <input name="tint" type="color3" interfacename="specular_reflectance" />
-      <input name="roughness" type="vector2" interfacename="specular_roughness" />
+      <input name="roughness" type="roughnessinfo" nodename="roughness1" />
       <input name="ior" type="float" interfacename="specular_IOR" />
     </dielectricbrdf>
     <surface name="surface1" type="surfaceshader">
@@ -62,21 +66,25 @@
     <input name="ior_n" type="vector3" />
     <input name="ior_k" type="vector3" />
     <input name="artistic_vs_complex" type="float" />
-    <input name="roughness" type="vector2" />
+    <input name="roughness" type="float" />
   </nodedef>
   <nodegraph name="IMP_testshader3" nodedef="ND_testshader3">
     <normal name="shadingnormal1" type="vector3" />
+    <roughness name="roughness1" type="roughnessinfo">
+      <input name="roughness" type="float" interfacename="roughness" />
+      <input name="anisotropy" type="float" value="0.0" />
+    </roughness>
     <conductorbrdf name="metal1" type="BSDF">
       <input name="normal" type="vector3" nodename="shadingnormal1" />
       <input name="reflectivity" type="color3" interfacename="reflectivity" />
       <input name="edgecolor" type="color3" interfacename="edgetint" />
-      <input name="roughness" type="vector2" interfacename="roughness" />
+      <input name="roughness" type="roughnessinfo" nodename="roughness1" />
     </conductorbrdf>
     <conductorbrdf name="metal2" type="BSDF">
       <input name="normal" type="vector3" nodename="shadingnormal1" />
       <input name="reflectivity" type="color3" nodename="reflectivity1" />
       <input name="edgecolor" type="color3" nodename="edgetint1" />
-      <input name="roughness" type="vector2" interfacename="roughness" />
+      <input name="roughness" type="roughnessinfo" nodename="roughness1" />
     </conductorbrdf>
     <reflectivity name="reflectivity1" type="color3">
       <input name="ior_n" type="vector3" interfacename="ior_n" />
@@ -102,7 +110,7 @@
       <bindinput name="edgetint" type="color3" value="0.998, 0.981, 0.751" />
       <bindinput name="ior_n" type="vector3" value="0.183, 0.422, 1.373" />
       <bindinput name="ior_k" type="vector3" value="3.424, 2.346, 1.771" />
-      <bindinput name="roughness" type="vector2" value="0.2, 0.2" />
+      <bindinput name="roughness" type="float" value="0.2" />
     </shaderref>
   </material>
 

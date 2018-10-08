@@ -73,6 +73,7 @@ namespace Type
     const TypeDesc* BSDF               = TypeDesc::registerType("BSDF", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_CLOSURE, 1, false);
     const TypeDesc* EDF                = TypeDesc::registerType("EDF", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_CLOSURE, 1, false);
     const TypeDesc* VDF                = TypeDesc::registerType("VDF", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_CLOSURE, 1, false);
+    const TypeDesc* ROUGHNESSINFO      = TypeDesc::registerType("roughnessinfo", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_NONE, 1, false);
     const TypeDesc* SURFACESHADER      = TypeDesc::registerType("surfaceshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_SHADER, 1, false);
     const TypeDesc* VOLUMESHADER       = TypeDesc::registerType("volumeshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_SHADER, 1, false);
     const TypeDesc* DISPLACEMENTSHADER = TypeDesc::registerType("displacementshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_SHADER, 1, false);
