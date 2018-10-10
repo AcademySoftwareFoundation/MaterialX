@@ -84,7 +84,7 @@ bool getShaderSource(mx::ShaderGeneratorPtr generator,
                     const mx::ImplementationPtr implementation,
                     mx::FilePath& sourcePath,
                     mx::FilePath& resolvedPath,
-                    std::string& sourceContents) 
+                    std::string& sourceContents)
 {
     if (implementation)
     {
@@ -100,7 +100,7 @@ bool getShaderSource(mx::ShaderGeneratorPtr generator,
 
 // Check if a nodedef requires an implementation check
 // Untyped nodes do not
-bool requiresImplementation(const mx::NodeDefPtr nodeDef) 
+bool requiresImplementation(const mx::NodeDefPtr nodeDef)
 {
     if (!nodeDef)
     {
@@ -197,7 +197,7 @@ void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::H
     dirLight->setParameter("direction", mx::Vector3(0, 0, -1));
     dirLight->setParameter("color", mx::Color3(1, 1, 1));
     dirLight->setParameter("intensity", 0.2f);
-    
+
     mx::LightSourcePtr pointLight = lightHandler.createLightSource(LightType::POINT);
     pointLight->setParameter("position", mx::Vector3(-2, -2, 2));
     pointLight->setParameter("color", mx::Color3(0, 0.0, 1));
@@ -415,7 +415,7 @@ TEST_CASE("TypeDesc", "[shadergen]")
 }
 
 TEST_CASE("Reference Implementation Validity", "[shadergen]")
-{   
+{
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
@@ -559,7 +559,7 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
         const std::string& target = generator->getTarget();
 
         // Node types to explicitly skip temporarily.
-        std::set<std::string> skipNodeTypes = 
+        std::set<std::string> skipNodeTypes =
         {
             "ambientocclusion",
             "arrayappend",
@@ -780,7 +780,7 @@ TEST_CASE("Swizzling", "[shadergen]")
         REQUIRE(var4 == "vector(foo[2], foo[1], foo[0])");
         std::string var5 = syntax->getSwizzledVariable("foo", mx::Type::VECTOR4, "yy", mx::Type::VECTOR2);
         REQUIRE(var5 == "vector2(foo.y, foo.y)");
-        std::string var6 = syntax->getSwizzledVariable("foo", mx::Type::COLOR2, "rrgg", mx::Type::VECTOR4);
+        std::string var6 = syntax->getSwizzledVariable("foo", mx::Type::COLOR2, "rraa", mx::Type::VECTOR4);
         REQUIRE(var6 == "vector4(foo.r, foo.r, foo.a, foo.a)");
 
         // Create a simple test graph
@@ -831,7 +831,7 @@ TEST_CASE("Swizzling", "[shadergen]")
         REQUIRE(var4 == "vec3(foo.z, foo.y, foo.x)");
         std::string var5 = syntax->getSwizzledVariable("foo", mx::Type::VECTOR4, "yy", mx::Type::VECTOR2);
         REQUIRE(var5 == "vec2(foo.y, foo.y)");
-        std::string var6 = syntax->getSwizzledVariable("foo", mx::Type::COLOR2, "rrgg", mx::Type::VECTOR4);
+        std::string var6 = syntax->getSwizzledVariable("foo", mx::Type::COLOR2, "rraa", mx::Type::VECTOR4);
         REQUIRE(var6 == "vec4(foo.x, foo.x, foo.y, foo.y)");
 
         // Create a simple test graph
@@ -868,7 +868,7 @@ TEST_CASE("Swizzling", "[shadergen]")
 
 #ifdef MATERIALX_BUILD_GEN_OSL
 //
-// Utility to call validate OSL. 
+// Utility to call validate OSL.
 // For now only call into oslc to compile an OSL file and get the results.
 //
 static void validateOSL(const std::string oslFileName, std::string& errorResult)
@@ -927,7 +927,7 @@ TEST_CASE("Hello World", "[shadergen]")
     inputA->setValue(mx::Color3(1.0f, 1.0f, 0.0f));
     inputB->setValue(mx::Color3(0.8f, 0.1f, 0.1f));
 
-    // Create an implementation graph for the nodedef performing 
+    // Create an implementation graph for the nodedef performing
     // a multiplication of the two colors.
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("IMP_" + exampleName);
     nodeGraph->setAttribute("nodedef", nodeDef->getName());
@@ -1274,7 +1274,7 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
         // TODO: Use validation in MaterialXRender library
         std::string errorResult;
         validateOSL(fileName, errorResult);
-        REQUIRE(errorResult.size() == 0); 
+        REQUIRE(errorResult.size() == 0);
     }
 #endif // MATERIALX_BUILD_GEN_OSL
 
@@ -1396,7 +1396,7 @@ TEST_CASE("Noise", "[shadergen]")
     for (size_t noiseType = 0; noiseType < numNoiseType; ++noiseType)
     {
         const std::string shaderName = "test_" + noiseNodes[noiseType]->getName();
-        
+
         // Select the noise type
         switch1->setParameterValue("which", float(noiseType));
 
@@ -1423,7 +1423,7 @@ TEST_CASE("Noise", "[shadergen]")
             // TODO: Use validation in MaterialXRender library
             std::string errorResult;
             validateOSL(fileName, errorResult);
-            REQUIRE(errorResult.size() == 0); 
+            REQUIRE(errorResult.size() == 0);
         }
 #endif // MATERIALX_BUILD_GEN_OSL
 
@@ -1631,7 +1631,7 @@ TEST_CASE("Subgraphs", "[shadergen]")
             // TODO: Use validation in MaterialXRender library
             std::string errorResult;
             validateOSL(fileName, errorResult);
-            REQUIRE(errorResult.size() == 0); 
+            REQUIRE(errorResult.size() == 0);
         }
     }
 #endif // MATERIALX_BUILD_GEN_OSL
@@ -1744,7 +1744,7 @@ TEST_CASE("Materials", "[shadergen]")
                 // TODO: Use validation in MaterialXRender library
                 std::string errorResult;
                 validateOSL(fileName, errorResult);
-                REQUIRE(errorResult.size() == 0); 
+                REQUIRE(errorResult.size() == 0);
             }
         }
     }
@@ -2096,7 +2096,7 @@ TEST_CASE("Transparency", "[shadergen]")
 
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("IMP_" + exampleName);
     nodeGraph->setAttribute("nodedef", nodeDef->getName());
-    
+
     mx::NodePtr worldNormal = nodeGraph->addNode("normal", "worldNormal", "vector3");
     worldNormal->setParameterValue<std::string>("space", "world");
     mx::NodePtr worldTangent = nodeGraph->addNode("tangent", "worldTangent", "vector3");
@@ -2181,7 +2181,7 @@ TEST_CASE("Transparency", "[shadergen]")
 
 #ifdef MATERIALX_BUILD_GEN_OGSFX
     {
-        std::unordered_map<std::string, mx::ShaderGeneratorPtr> shaderGenerators = 
+        std::unordered_map<std::string, mx::ShaderGeneratorPtr> shaderGenerators =
         {
             {".ogsfx", mx::OgsFxShaderGenerator::create()},
             {".glslplugin.ogsfx", mx::MayaGlslPluginShaderGenerator::create()}
@@ -2196,7 +2196,7 @@ TEST_CASE("Transparency", "[shadergen]")
             mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
             createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator));
 
-            // Test the transparency tracking 
+            // Test the transparency tracking
             transmission_input->setValue(0.0f);
             options.hwTransparency = isTransparentSurface(shaderRef, *shaderGenerator);
             REQUIRE(!options.hwTransparency);
@@ -2421,7 +2421,7 @@ TEST_CASE("Osl Output Types", "[shadergen]")
         // TODO: Use validation in MaterialXRender library
         std::string errorResult;
         validateOSL(fileName, errorResult);
-        REQUIRE(errorResult.size() == 0); 
+        REQUIRE(errorResult.size() == 0);
 
         // Test shader generation from color4 type graph
         shader = shadergen->generate(exampleName + "_color4", output2, options);
@@ -2435,7 +2435,7 @@ TEST_CASE("Osl Output Types", "[shadergen]")
 
         // TODO: Use validation in MaterialXRender library
         validateOSL(fileName, errorResult);
-        REQUIRE(errorResult.size() == 0); 
+        REQUIRE(errorResult.size() == 0);
     }
 
     // Change to vector2/vector4 types
@@ -2471,7 +2471,7 @@ TEST_CASE("Osl Output Types", "[shadergen]")
         // TODO: Use validation in MaterialXRender library
         std::string errorResult;
         validateOSL(fileName, errorResult);
-        REQUIRE(errorResult.size() == 0); 
+        REQUIRE(errorResult.size() == 0);
 
         // Test shader generation from color4 type graph
         shader = shadergen->generate(exampleName + "_vector4", output2, options);
@@ -2485,7 +2485,7 @@ TEST_CASE("Osl Output Types", "[shadergen]")
 
         // TODO: Use validation in MaterialXRender library
         validateOSL(fileName, errorResult);
-        REQUIRE(errorResult.size() == 0); 
+        REQUIRE(errorResult.size() == 0);
     }
 }
 #endif // MATERIALX_BUILD_GEN_OSL

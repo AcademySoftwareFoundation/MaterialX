@@ -396,8 +396,9 @@ static void runGLSLValidation(const std::string& shaderName, mx::ElementPtr elem
         {
             shader = shaderGenerator.generate(shaderName, element, options);
         }
-        catch(std::exception)
+        catch(mx::ExceptionShaderGenError e)
         {
+            log << ">> " << e.what() << "\n";
             shader = nullptr;
         }
         CHECK(shader != nullptr);
@@ -469,8 +470,9 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
         {
             shader = shaderGenerator.generate(shaderName, element, options);
         }
-        catch(std::exception)
+        catch(mx::ExceptionShaderGenError e)
         {
+            log << ">> " << e.what() << "\n";
             shader = nullptr;
         }
         CHECK(shader != nullptr);
@@ -519,7 +521,7 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
             };
             bool isShader = element->isA<mx::ShaderRef>() ||
                 colorClosures.count(elementType) > 0;
-            
+
             std::string sceneTemplateFile;
 
             if (isShader)
@@ -603,7 +605,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
     #endif
 #endif
 
-    // For debugging, add files to this set to override 
+    // For debugging, add files to this set to override
     // which files in the test suite are being tested.
     // Add only the test suite filename not the full path.
     std::set<std::string> testfileOverride;
@@ -621,6 +623,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
 #ifdef MATERIALX_BUILD_GEN_OSL
     mx::OslValidatorPtr oslValidator = createOSLValidator(orthographicView, oslLog);
     mx::ArnoldShaderGeneratorPtr oslShaderGenerator = std::static_pointer_cast<mx::ArnoldShaderGenerator>(mx::ArnoldShaderGenerator::create());
+    oslShaderGenerator->setRemappedShaderOutput(false);
     oslShaderGenerator->registerSourceCodeSearchPath(searchPath);
     oslShaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 #endif

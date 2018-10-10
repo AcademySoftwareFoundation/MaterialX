@@ -16,7 +16,7 @@ public:
     /// Return a unique identifyer for the language used by this generator
     const string& getLanguage() const override { return LANGUAGE; }
 
-    /// Generate a shader starting from the given element, translating 
+    /// Generate a shader starting from the given element, translating
     /// the element and all dependencies upstream into shader code.
     ShaderPtr generate(const string& shaderName, ElementPtr element, const SgOptions& options) override;
 
@@ -36,6 +36,12 @@ public:
     bool remappedShaderOutput() const
     {
         return _remapShaderOutput;
+    }
+
+    // Setter for remapping shader output.
+    void setRemappedShaderOutput(bool remapShaderOutput)
+    {
+        _remapShaderOutput = remapShaderOutput;
     }
 
 protected:

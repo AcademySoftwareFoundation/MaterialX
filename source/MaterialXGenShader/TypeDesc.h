@@ -6,12 +6,14 @@
 namespace MaterialX
 {
 
+using ChannelMap = std::unordered_map<char, int>;
+
 /// @class TypeDesc
 /// A type descriptor for MaterialX data types.
-/// All types needs to have a type descriptor registered in order for shader generators 
+/// All types need to have a type descriptor registered in order for shader generators
 /// to know about the type. A unique type descriptor pointer is the identifier used for
 /// types, and can be used for type comparisons as well as getting more information
-/// about the type. All standard library data types are registered by default and their 
+/// about the type. All standard library data types are registered by default and their
 /// type descriptors can be accessed from the Type namespace, e.g. MaterialX::Type::FLOAT.
 /// If custom types are used they must be registered by calling TypeDesc::registerType().
 /// Descriptors for registered types can be retreived using TypeDesc::get(), see below.
@@ -43,8 +45,9 @@ public:
 
     /// Register a type descriptor for a MaterialX data type.
     /// Throws an exception if a type with the same name is already registered.
-    static const TypeDesc* registerType(const string& name, unsigned char basetype, 
-        unsigned char semantic = SEMATIC_NONE, int size = 1, bool editable = true);
+    static const TypeDesc* registerType(const string& name, unsigned char basetype,
+        unsigned char semantic = SEMATIC_NONE, int size = 1, bool editable = true,
+        const ChannelMap& channelMapping = ChannelMap());
 
     /// Get a type descriptor for given name.
     /// Throws an exception if no type with that name is found.
@@ -55,6 +58,10 @@ public:
 
     /// Return the basetype for the type.
     unsigned char getBaseType() const { return _basetype; }
+
+    /// Returns the channel index for the supplied channel name.
+    /// Will return -1 on failure to find a matching index.
+    int getChannelIndex(char channel) const;
 
     /// Return the semantic for the type.
     unsigned char getSemantic() const { return _semantic; }
@@ -89,21 +96,23 @@ public:
     bool isFloat4() const { return _size == 4 && (_semantic == SEMATIC_COLOR || _semantic == SEMATIC_VECTOR); }
 
 private:
-    TypeDesc(const string& name, unsigned char basetype, 
-        unsigned char semantic, int size, bool editable);
+    TypeDesc(const string& name, unsigned char basetype,
+      unsigned char semantic, int size, bool editable,
+      const ChannelMap& channelMapping);
 
     const string _name;
     const unsigned char _basetype;
     const unsigned char _semantic;
     const int _size;
     const bool _editable;
+    const ChannelMap _channelMapping;
 };
 
 namespace Type
 {
     /// Type descriptors for all standard types.
     /// These are always registered by default.
-    /// 
+    ///
     /// TODO: Add support for the standard array types.
     ///
     extern const TypeDesc* NONE;

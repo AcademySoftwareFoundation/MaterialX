@@ -112,11 +112,12 @@ string Syntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcTyp
         }
         else
         {
-            if (it->second >= srcMembers.size())
+            int channelIndex = srcType->getChannelIndex(ch);
+            if (channelIndex < 0 || channelIndex >= static_cast<int>(srcMembers.size()))
             {
-                throw ExceptionShaderGenError("Given member in channels pattern is incorrect for type '" + srcType->getName() + "'.");
+                throw ExceptionShaderGenError("Given channel index: '" + string(1,ch) + "' in channels pattern is incorrect for type '" + srcType->getName() + "'.");
             }
-            membersSwizzled.push_back(srcName + srcMembers[it->second]);
+            membersSwizzled.push_back(srcName + srcMembers[channelIndex]);
         }
     }
 
@@ -147,7 +148,7 @@ void Syntax::makeUnique(string& name, UniqueNameMap& uniqueNames) const
 
 const vector<string> TypeSyntax::EMPTY_MEMBERS;
 
-TypeSyntax::TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, 
+TypeSyntax::TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
     const string& typeDefStatement, const vector<string>& members)
     : _name(name)
     , _defaultValue(defaultValue)
@@ -189,7 +190,7 @@ string StringTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
 }
 
 
-AggregateTypeSyntax::AggregateTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, 
+AggregateTypeSyntax::AggregateTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
     const string& typeDefStatement, const vector<string>& members)
     : TypeSyntax(name, defaultValue, uniformDefaultValue, typeDefStatement, members)
 {

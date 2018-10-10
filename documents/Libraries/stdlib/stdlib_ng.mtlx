@@ -2108,13 +2108,13 @@
       <input name="in" type="color2" interfacename="in"/>
       <parameter name="channels" type="string" value="r"/>
     </swizzle>
-    <swizzle name="N_g_color2" type="float">
+    <swizzle name="N_a_color2" type="float">
       <input name="in" type="color2" interfacename="in"/>
-      <parameter name="channels" type="string" value="g"/>
+      <parameter name="channels" type="string" value="a"/>
     </swizzle>
     <switch name="N_sw_color2" type="float">
       <input name="in1" type="float" nodename="N_r_color2"/>
-      <input name="in2" type="float" nodename="N_g_color2"/>
+      <input name="in2" type="float" nodename="N_a_color2"/>
       <parameter name="which" type="float" interfacename="index"/>
     </switch>
     <output name="N_out_color2" type="float" nodename="N_sw_color2"/>

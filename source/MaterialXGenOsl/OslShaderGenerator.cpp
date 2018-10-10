@@ -126,11 +126,14 @@ OslShaderGenerator::OslShaderGenerator()
 
 
     // Color2/4 and Vector2/4 must be remapped to Color3 and Vector3 when used
-    // as shader outputs since in OSL a custom struct type is not supported as 
+    // as shader outputs since in OSL a custom struct type is not supported as
     // shader output.
+    //
+    // Note: this mapping is directly impacted by code that lives in TypeDesc::getChannelIndex(),
+    // so if it changes also change this. (Or vice-versa).
     _shaderOutputTypeRemap =
     {
-        { Type::COLOR2,  { Type::COLOR3, "rg0" } },
+        { Type::COLOR2,  { Type::COLOR3, "ra0" } },
         { Type::COLOR4,  { Type::COLOR3, "rgb" } },
         { Type::VECTOR2, { Type::COLOR3, "xy0" } },
         { Type::VECTOR4, { Type::COLOR3, "xyz" } }
@@ -223,7 +226,7 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
 
 void OslShaderGenerator::emitFunctionDefinitions(Shader& shader)
 {
-    // Emit function for handling texture coords v-flip 
+    // Emit function for handling texture coords v-flip
     // as needed by the v-direction set by the user
     shader.addBlock(shader.getRequestedVDirection() != getTargetVDirection() ? VDIRECTION_FLIP : VDIRECTION_NOOP, *this);
 
