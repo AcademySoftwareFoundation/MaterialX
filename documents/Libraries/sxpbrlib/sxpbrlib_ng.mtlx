@@ -23,6 +23,18 @@
     <output name="out" type="vector3" nodename="image" />
   </nodegraph>
 
+  <!-- <glossiness> -->
+  <nodegraph name="IMP_glossiness" nodedef="ND_glossiness">
+    <invert name="invert1" type="float">
+      <input name="in" type="float" interfacename="glossiness" />
+    </invert>
+    <roughness name="roughness1" type="roughnessinfo">
+      <input name="roughness" type="float" nodename="invert1" />
+      <input name="anisotropy" type="float" interfacename="anisotropy" />
+    </roughness>
+    <output name="out" type="roughnessinfo" nodename="roughness1" />
+  </nodegraph>
+
   <!-- <standard_surface> -->
   <nodegraph name="IMPL_standard_surface_surfaceshader" type="" nodedef="ND_standard_surface_surfaceshader">
     <!-- Roughness influence by coat-->

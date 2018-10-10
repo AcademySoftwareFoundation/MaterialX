@@ -299,12 +299,22 @@
 
   <!--
     Node: <roughness>
-    Calculates an anisotropic roughness from a scalar rougness and anisotropy parameterization.
+    Calculates anisotropic surface roughness from a scalar rougness and anisotropy parameterization.
   -->
   <nodedef name="ND_roughness" node="roughness" type="roughnessinfo" nodecategory="shaderx"
-           doc="Calculates an anisotropic roughness from a scalar rougness and anisotropy parameterization.">
+           doc="Calculates anisotropic surface roughness from a scalar rougness/anisotropy parameterization.">
     <input name="roughness" type="float" value="0.0"/>
-    <input name="anisotropy " type="float" value="0.0"/>
+    <input name="anisotropy" type="float" value="0.0"/>
+  </nodedef>
+
+  <!--
+    Node: <glossiness>
+    Calculates anisotropic surface roughness from a scalar glossiness and anisotropy parameterization.
+  -->
+  <nodedef name="ND_glossiness" node="glossiness" type="roughnessinfo" nodecategory="shaderx"
+           doc="Calculates anisotropic surface roughness from a scalar glossiness/anisotropy parameterization.">
+    <input name="glossiness" type="float" value="1.0"/>
+    <input name="anisotropy" type="float" value="0.0"/>
   </nodedef>
 
   <!--
