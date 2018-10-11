@@ -82,6 +82,8 @@ class TestMaterialX(unittest.TestCase):
         v3 = mx.Vector4(4)
         self.assertTrue(v3.getMagnitude() == 8)
         self.assertTrue(v3.getNormalized().getMagnitude() == 1)
+        self.assertTrue(v1.dot(v2) == 28)
+        self.assertTrue(v1.cross(v2) == mx.Vector3())
 
         # Vector copy
         v4 = v2.copy()
