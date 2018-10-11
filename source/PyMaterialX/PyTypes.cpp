@@ -31,6 +31,7 @@ using IndexPair = std::pair<size_t, size_t>;
 .def(py::self / float())                                \
 .def("getMagnitude", &V::getMagnitude)                  \
 .def("getNormalized", &V::getNormalized)                \
+.def("dot", &V::dot)                                    \
 .def("__getitem__", [](V& v, size_t i)                  \
     { return v[i]; } )                                  \
 .def("__setitem__", [](V& v, size_t i, float f)         \
@@ -77,11 +78,13 @@ void bindPyTypes(py::module& mod)
     py::class_<mx::Vector2, mx::VectorBase>(mod, "Vector2")
         BIND_VECTOR_SUBCLASS(mx::Vector2, 2)
         .def(py::init<float, float>())
+        .def("cross", &mx::Vector2::cross)
         .def("asTuple", [](const mx::Vector2& v) { return std::make_tuple(v[0], v[1]); });
 
     py::class_<mx::Vector3, mx::VectorBase>(mod, "Vector3")
         BIND_VECTOR_SUBCLASS(mx::Vector3, 3)
         .def(py::init<float, float, float>())
+        .def("cross", &mx::Vector3::cross)
         .def("asTuple", [](const mx::Vector3& v) { return std::make_tuple(v[0], v[1], v[2]); });
 
     py::class_<mx::Vector4, mx::VectorBase>(mod, "Vector4")
