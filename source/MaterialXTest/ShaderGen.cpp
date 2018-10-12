@@ -1939,7 +1939,7 @@ TEST_CASE("BSDF Layering", "[shadergen]")
     nodeDef->addInput("sss_color", "color3");
     nodeDef->addInput("sss_weight", "float");
     nodeDef->addInput("coating_color", "color3");
-    nodeDef->addInput("coating_roughness", "vector2");
+    nodeDef->addInput("coating_roughness", "float");
     nodeDef->addInput("coating_ior", "float");
 
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("IMP_" + exampleName);
@@ -1969,9 +1969,10 @@ TEST_CASE("BSDF Layering", "[shadergen]")
     coating->setConnectedNode("base", substrate);
     mx::InputPtr coating_color = coating->addInput("color", "color3");
     coating_color->setInterfaceName("coating_color");
-
-    mx::InputPtr coating_roughness = coating->addInput("roughness", "vector2");
-    coating_roughness->setInterfaceName("coating_roughness");
+    mx::NodePtr coating_roughness = nodeGraph->addNode("roughness", "coating_roughness", "roughnessinfo");
+    mx::InputPtr roughness = coating_roughness->addInput("roughness", "float");
+    roughness->setInterfaceName("coating_roughness");
+    coating->setConnectedNode("roughness", coating_roughness);
     mx::InputPtr coating_ior = coating->addInput("ior", "float");
     coating_ior->setInterfaceName("coating_ior");
 
@@ -1997,7 +1998,7 @@ TEST_CASE("BSDF Layering", "[shadergen]")
     mx::BindInputPtr coating_color_input = shaderRef->addBindInput("coating_color", "color3");
     coating_color_input->setValue(mx::Color3(1.0f, 1.0f, 1.0f));
     mx::BindInputPtr coating_roughness_input = shaderRef->addBindInput("coating_roughness", "float");
-    coating_roughness_input->setValue(mx::Vector2(0.2f, 0.2f));
+    coating_roughness_input->setValue(0.2f);
     mx::BindInputPtr coating_ior_input = shaderRef->addBindInput("coating_ior", "float");
     coating_ior_input->setValue(1.52f);
 

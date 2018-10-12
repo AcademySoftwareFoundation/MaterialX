@@ -1,6 +1,6 @@
 #include "sxpbrlib/sx-osl/lib/sx_fresnel.osl"
 
-void sx_dielectricbrdf(float weight, color reflectance, float ior, vector2 roughness, normal N, vector U, string distribution, BSDF base, output BSDF result)
+void sx_dielectricbrdf(float weight, color reflectance, float ior, roughnessinfo roughness, normal N, vector U, string distribution, BSDF base, output BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -19,6 +19,6 @@ void sx_dielectricbrdf(float weight, color reflectance, float ior, vector2 rough
     float F = sx_fresnel_dielectric(NdotV, ior);
     F *= weight;
 
-    result = reflectance * weight * microfacet(distribution, N, U, roughness.x, roughness.y, ior, false)
+    result = reflectance * weight * microfacet(distribution, N, U, roughness.alphaX, roughness.alphaY, ior, false)
              + base * (1.0 - F);
 }

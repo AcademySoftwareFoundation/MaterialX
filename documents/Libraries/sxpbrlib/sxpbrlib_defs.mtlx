@@ -6,6 +6,7 @@
   <typedef name="BSDF" doc="Bidirectional scattering distribution function"/>
   <typedef name="EDF" doc="Emission distribution function"/>
   <typedef name="VDF" doc="Volume distribution function"/>
+  <typedef name="roughnessinfo" doc="Surface rougness information for microfacet BDSFs"/>
 
   <!-- N O D E S -->
 
@@ -17,7 +18,7 @@
            doc="A BSDF node for diffuse reflections.">
     <input name="weight" type="float" value="1.0"/>
     <input name="color" type="color3" value="0.18, 0.18, 0.18"/>
-    <input name="roughness" type="float" value="1.0"/>
+    <input name="roughness" type="float" value="0.0"/>
     <input name="normal" type="vector3">
       <geomprop name="normal" type="vector3" space="world"/>
     </input>
@@ -45,7 +46,7 @@
     <input name="weight" type="float" value="1.0"/>
     <input name="reflectivity" type="color3" value="0.944 0.776 0.373"/>
     <input name="edgecolor" type="color3" value="0.998 0.981 0.751"/>
-    <input name="roughness" type="vector2" value="0.1, 0.1"/>
+    <input name="roughness" type="roughnessinfo"/>
     <input name="normal" type="vector3">
       <geomprop name="normal" type="vector3" space="world"/>
     </input>
@@ -64,7 +65,7 @@
     <input name="weight" type="float" value="1.0"/>
     <input name="tint" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="ior" type="float" value="1.52"/>
-    <input name="roughness" type="vector2" value="0.1, 0.1"/>
+    <input name="roughness" type="roughnessinfo"/>
     <input name="normal" type="vector3">
       <geomprop name="normal" type="vector3" space="world"/>
     </input>
@@ -84,7 +85,7 @@
     <input name="weight" type="float" value="1.0"/>
     <input name="tint" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="ior" type="float" value="1.52"/>
-    <input name="roughness" type="vector2" value="0.1, 0.1"/>
+    <input name="roughness" type="roughnessinfo"/>
     <input name="normal" type="vector3">
       <geomprop name="normal" type="vector3" space="world"/>
     </input>
@@ -298,11 +299,21 @@
 
   <!--
     Node: <roughness>
-    Calculates an anisotropic roughness value from a scalar rougness and anisotropy parameterization.
+    Calculates anisotropic surface roughness from a scalar rougness and anisotropy parameterization.
   -->
-  <nodedef name="ND_roughness_vector2" node="roughness" type="vector2" nodecategory="shaderx"
-           doc="Calculates an anisotropic roughness value from a scalar rougness and anisotropy parameterization.">
+  <nodedef name="ND_roughness" node="roughness" type="roughnessinfo" nodecategory="shaderx"
+           doc="Calculates anisotropic surface roughness from a scalar rougness/anisotropy parameterization.">
     <input name="roughness" type="float" value="0.0"/>
+    <input name="anisotropy" type="float" value="0.0"/>
+  </nodedef>
+
+  <!--
+    Node: <glossiness>
+    Calculates anisotropic surface roughness from a scalar glossiness and anisotropy parameterization.
+  -->
+  <nodedef name="ND_glossiness" node="glossiness" type="roughnessinfo" nodecategory="shaderx"
+           doc="Calculates anisotropic surface roughness from a scalar glossiness/anisotropy parameterization.">
+    <input name="glossiness" type="float" value="1.0"/>
     <input name="anisotropy" type="float" value="0.0"/>
   </nodedef>
 

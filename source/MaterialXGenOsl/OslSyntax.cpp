@@ -297,6 +297,16 @@ OslSyntax::OslSyntax()
 
     registerTypeSyntax
     (
+        Type::ROUGHNESSINFO,
+        std::make_shared<OslStructTypeSyntax>(
+            "roughnessinfo",
+            "{0.0, 0.0, 0.0, 0.0}",
+            "{0.0, 0.0, 0.0, 0.0}",
+            "struct roughnessinfo { float roughness; float alpha; float alphaX; float alphaY; };")
+    );
+
+    registerTypeSyntax
+    (
         Type::SURFACESHADER,
         std::make_shared<ScalarTypeSyntax>(
             "surfaceshader", 
@@ -319,9 +329,9 @@ OslSyntax::OslSyntax()
     (
         Type::DISPLACEMENTSHADER,
         std::make_shared<OslStructTypeSyntax>(
-            "displacementshader", 
-            "{vector(0.0), 0.0}", 
-            "{vector(0.0), 0.0}", 
+            "displacementshader",
+            "{vector(0.0), 0.0}",
+            "{vector(0.0), 0.0}",
             "struct displacementshader { vector offset; float scale; };")
     );
 
