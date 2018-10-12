@@ -121,7 +121,7 @@
     <mix name="coat_attenuation" type="color3" >
       <input name="fg" type="color3" interfacename="coat_color" />
       <input name="bg" type="color3" value="1.0, 1.0, 1.0" />
-      <input name="mix" type="float" nodename="coat" />
+      <input name="mix" type="float" interfacename="coat" />
     </mix>
     <scalebsdf name="scalebsdf1" type="BSDF">
       <input name="in" type="BSDF" nodename="mixbsdf2" />

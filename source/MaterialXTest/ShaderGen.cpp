@@ -234,6 +234,22 @@ TEST_CASE("Bootstrap", "[shadergen]")
     mx::makeDirectory(RESULT_DIRECTORY);
 }
 
+TEST_CASE("Valid Libraries", "[shadergen]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+
+    std::string validationErrors;
+    bool valid = doc->validate(&validationErrors);
+    if (!valid)
+    {
+        std::cout << validationErrors << std::endl;
+    }
+    REQUIRE(valid);
+}
+
 TEST_CASE("Syntax", "[shadergen]")
 {
 #ifdef MATERIALX_BUILD_GEN_OSL

@@ -673,6 +673,15 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
             mx::DocumentPtr doc = mx::createDocument();
             readFromXmlFile(doc, filename);
 
+            // Validate the test document
+            std::string validationErrors;
+            bool validDoc = doc->validate(&validationErrors);
+            if (!validDoc)
+            {
+                std::cout << validationErrors << std::endl;
+            }
+            CHECK(validDoc);
+
             std::vector<mx::NodeGraphPtr> nodeGraphs = doc->getNodeGraphs();
             std::vector<mx::OutputPtr> outputList = doc->getOutputs();
             std::unordered_set<mx::OutputPtr> outputSet(outputList.begin(), outputList.end());

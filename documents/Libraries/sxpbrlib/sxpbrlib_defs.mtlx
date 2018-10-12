@@ -303,7 +303,7 @@
   <nodedef name="ND_roughness_vector2" node="roughness" type="vector2" nodecategory="shaderx"
            doc="Calculates an anisotropic roughness value from a scalar rougness and anisotropy parameterization.">
     <input name="roughness" type="float" value="0.0"/>
-    <input name="anisotropy " type="float" value="0.0"/>
+    <input name="anisotropy" type="float" value="0.0"/>
   </nodedef>
 
   <!--
@@ -313,7 +313,7 @@
   <nodedef name="ND_reflectivity" node="reflectivity" type="color3" nodecategory="shaderx"
            doc="A node calculating reflectivity from complex refraction index.">
     <input name="ior" type="vector3"/>
-    <input name="extinction " type="vector3"/>
+    <input name="extinction" type="vector3"/>
   </nodedef>
 
   <!--
