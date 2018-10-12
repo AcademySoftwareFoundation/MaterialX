@@ -85,6 +85,10 @@ public:
         // Specific conditional types
         static const unsigned int IFELSE      = 1 << 14; // An if-else statement
         static const unsigned int SWITCH      = 1 << 15; // A switch statement
+        // Types based on nodegroup
+        static const unsigned int SAMPLE2D    = 1 << 16; // Can be sampled in 2D (uv space)
+        static const unsigned int SAMPLE3D    = 1 << 17; // Can be sampled in 3D (position)
+        static const unsigned int CONVOLUTION2D = 1 << 18; // Performs a convolution in 2D (uv space)
     };
 
     /// Information on source code scope for the node.
@@ -200,6 +204,13 @@ public:
     void renameInput(const string& name, const string& newName);
     void renameOutput(const string& name, const string& newName);
 
+    /// Get input which is used for sampling. If there is none
+    /// then a null pointer is returned.
+    SgInput* getSamplingInput() const
+    {
+        return _samplingInput;
+    }
+
     /// Add the given contex id to the set of contexts used for this node.
     void addContextID(int id) { _contextIDs.insert(id); }
 
@@ -215,6 +226,8 @@ protected:
 
     std::unordered_map<string, SgOutputPtr> _outputMap;
     vector<SgOutput*> _outputOrder;
+
+    SgInput* _samplingInput;
 
     SgImplementationPtr _impl;
     ScopeInfo _scopeInfo;

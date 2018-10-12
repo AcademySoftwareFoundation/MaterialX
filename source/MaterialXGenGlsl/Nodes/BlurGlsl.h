@@ -1,13 +1,13 @@
-#ifndef MATERIALX_HEIGHTTONORMALGLSL_H
-#define MATERIALX_HEIGHTTONORMALGLSL_H
+#ifndef MATERIALX_BLURGLSL_H
+#define MATERIALX_BLURGLSL_H
 
 #include <MaterialXGenGlsl/Nodes/ConvolutionGlsl.h>
 
 namespace MaterialX
 {
 
-/// Implementation of height-field to normal for GLSL
-class HeightToNormalGlsl : public ConvolutionGlsl
+/// Implementation of blur for GLSL
+class BlurGlsl : public ConvolutionGlsl
 {
   public:
     using ParentClass = ConvolutionGlsl;
@@ -18,16 +18,22 @@ class HeightToNormalGlsl : public ConvolutionGlsl
 
   protected:
     /// Constructor
-    HeightToNormalGlsl();
+    BlurGlsl();
 
     /// Return if given type is an acceptible input
     bool acceptsInputType(const TypeDesc* type) override;
-
+    
     /// Compute offset strings for sampling
     void computeSampleOffsetStrings(const string& sampleSizeName, StringVec& offsetStrings) override;
 
     /// Name of filter function to call to compute normals from input samples
-    string _filterFunctionName;
+    std::string _filterFunctionName;
+
+    /// Type of filter 
+    string _filterType;
+
+    /// Language dependent input type string
+    string _inputTypeString;
 };
 
 } // namespace MaterialX

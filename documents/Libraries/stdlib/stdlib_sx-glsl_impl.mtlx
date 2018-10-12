@@ -784,9 +784,16 @@
   <!-- ======================================================================== -->
 
   <!-- <blur> -->
+  <implementation name="IM_blur_float_sx_glsl" nodedef="ND_blur_float" function="mx_blur_float" language="sx-glsl"/>
+  <implementation name="IM_blur_color2_sx_glsl" nodedef="ND_blur_color2" function="mx_blur_color2" language="sx-glsl"/>
+  <implementation name="IM_blur_color3_sx_glsl" nodedef="ND_blur_color3" function="mx_blur_color3" language="sx-glsl"/>
+  <implementation name="IM_blur_color4_sx_glsl" nodedef="ND_blur_color4" function="mx_blur_color4" language="sx-glsl"/>
+  <implementation name="IM_blur_vector2_sx_glsl" nodedef="ND_blur_vector2" function="mx_blur_vector2" language="sx-glsl"/>
+  <implementation name="IM_blur_vector3_sx_glsl" nodedef="ND_blur_vector3" function="mx_blur_vector3" language="sx-glsl"/>
+  <implementation name="IM_blur_vector4_sx_glsl" nodedef="ND_blur_vector4" function="mx_blur_vector4" language="sx-glsl"/>
+
   <!-- <heighttonormal> -->
   <implementation name="IM_heighttonormal_vector3_sx_glsl" nodedef="ND_heighttonormal_vector3" file="stdlib/sx-glsl/mx_heighttonormal_vector3.glsl" function="mx_heighttonormal_vector3" language="sx-glsl"/>
-
 
   <!-- ======================================================================== -->
   <!-- Organization nodes                                                       -->

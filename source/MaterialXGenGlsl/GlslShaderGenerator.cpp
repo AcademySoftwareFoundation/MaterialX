@@ -16,6 +16,7 @@
 #include <MaterialXGenGlsl/Nodes/LightCompoundGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightShaderGlsl.h>
 #include <MaterialXGenGlsl/Nodes/HeightToNormalGlsl.h>
+#include <MaterialXGenGlsl/Nodes/BlurGlsl.h>
 
 #include <MaterialXGenShader/Nodes/SourceCode.h>
 #include <MaterialXGenShader/Nodes/Swizzle.h>
@@ -224,6 +225,15 @@ GlslShaderGenerator::GlslShaderGenerator()
 
     // <!-- <heighttonormal> -->
     registerImplementation("IM_heighttonormal_vector3_sx_glsl", HeightToNormalGlsl::create);
+
+    // <!-- <blur> -->
+    registerImplementation("IM_blur_float_sx_glsl", BlurGlsl::create);
+    registerImplementation("IM_blur_color2_sx_glsl", BlurGlsl::create);
+    registerImplementation("IM_blur_color3_sx_glsl", BlurGlsl::create);
+    registerImplementation("IM_blur_color4_sx_glsl", BlurGlsl::create);
+    registerImplementation("IM_blur_vector2_sx_glsl", BlurGlsl::create);
+    registerImplementation("IM_blur_vector3_sx_glsl", BlurGlsl::create);
+    registerImplementation("IM_blur_vector4_sx_glsl", BlurGlsl::create);
 }
 
 ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr element, const SgOptions& options)
@@ -398,10 +408,18 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     shader.addInclude("sxpbrlib/sx-glsl/lib/sx_math.glsl", *this);
     shader.newLine();
 
+    // Emit lighting functions
     if (lighting)
     {
-        // Emit lighting functions
         shader.addInclude("sxpbrlib/sx-glsl/lib/sx_lighting.glsl", *this);
+        shader.newLine();
+    }
+
+    // Emit sampling code if needed
+    if (shader.hasClassification(SgNode::Classification::CONVOLUTION2D))
+    {
+        // Emit sampling functions
+        shader.addInclude("stdlib/sx-glsl/lib/sx_sampling.glsl", *this);
         shader.newLine();
     }
 
