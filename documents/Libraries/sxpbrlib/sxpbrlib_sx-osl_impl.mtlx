@@ -46,7 +46,7 @@
   <implementation name="IM_backfacing_float_sx_osl" nodedef="ND_backfacing_float" file="sxpbrlib/sx-osl/sx_backfacing_float.inline" language="sx-osl"/>
 
   <!-- <roughness> -->
-  <implementation name="IM_roughness_vector2_sx_osl" nodedef="ND_roughness_vector2" file="sxpbrlib/sx-osl/sx_roughness_vector2.osl" function="sx_roughness_vector2" language="sx-osl"/>
+  <implementation name="IM_roughness_sx_osl" nodedef="ND_roughness" file="sxpbrlib/sx-osl/sx_roughness.osl" function="sx_roughness" language="sx-osl"/>
 
   <!-- <reflectivity> -->
   <implementation name="IM_reflectivity_sx_osl" nodedef="ND_reflectivity" file="sxpbrlib/sx-osl/sx_reflectivity.osl" function="sx_reflectivity" language="sx-osl"/>

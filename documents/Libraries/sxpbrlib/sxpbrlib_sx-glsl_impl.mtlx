@@ -61,7 +61,7 @@
   <implementation name="IM_backfacing_float_sx_glsl" nodedef="ND_backfacing_float" file="sxpbrlib/sx-glsl/sx_backfacing_float.inline" language="sx-glsl"/>
 
   <!-- <roughness> -->
-  <implementation name="IM_roughness_vector2_sx_glsl" nodedef="ND_roughness_vector2" file="sxpbrlib/sx-glsl/sx_roughness_vector2.glsl" function="sx_roughness_vector2" language="sx-glsl"/>
+  <implementation name="IM_roughness_sx_glsl" nodedef="ND_roughness" file="sxpbrlib/sx-glsl/sx_roughness.glsl" function="sx_roughness" language="sx-glsl"/>
 
   <!-- <reflectivity> -->
   <implementation name="IM_reflectivity_sx_glsl" nodedef="ND_reflectivity" file="sxpbrlib/sx-glsl/sx_reflectivity.glsl" function="sx_reflectivity" language="sx-glsl"/>
