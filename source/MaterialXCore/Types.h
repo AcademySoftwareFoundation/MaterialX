@@ -52,8 +52,8 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     explicit VectorN(Uninit) { }
     explicit VectorN(S s) { _arr.fill(s); }
     explicit VectorN(const std::array<S, N>& arr) : _arr(arr) { }
-    explicit VectorN(const vector<float>& vec) { std::copy_n(vec.begin(), N, _arr.begin()); }
-    explicit VectorN(const S* buf) { std::copy_n(buf, N, _arr.begin()); }
+    explicit VectorN(const vector<float>& vec) { std::copy(vec.begin(), vec.end(), _arr.begin()); }
+    explicit VectorN(const S* begin, const S* end) { std::copy(begin, end, _arr.begin()); }
 
     /// @}
     /// @name Equality Operators
@@ -319,7 +319,7 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     MatrixN() : _arr{} { }
     explicit MatrixN(Uninit) { }
     explicit MatrixN(S s) { std::fill_n(&_arr[0][0], N * N, s); }
-    explicit MatrixN(const S* buf) { std::copy_n(buf, N * N, &_arr[0][0]); }
+    explicit MatrixN(const S* begin, const S* end) { std::copy(begin, end, &_arr[0][0]); }
 
     /// @}
     /// @name Equality Operators
