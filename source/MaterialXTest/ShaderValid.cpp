@@ -596,6 +596,8 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
     std::ofstream oslLogfile("log_shadervalid_osl_materialx_documents.txt");
     std::ostream& oslLog(oslLogfile);
     #endif
+    std::ofstream docValidLogfile("log_docvalid_materialx_documents.txt");
+    std::ostream& docValidLog(docValidLogfile);
 #else
     #ifdef MATERIALX_BUILD_GEN_GLSL
     std::ostream& glslLog(std::cout);
@@ -603,6 +605,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
     #ifdef MATERIALX_BUILD_GEN_OSL
     std::ostream& oslLog(std::cout);
     #endif
+    std::ostream& docValidLog(std::cout);
 #endif
 
     // For debugging, add files to this set to override
@@ -673,15 +676,6 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
             mx::DocumentPtr doc = mx::createDocument();
             readFromXmlFile(doc, filename);
 
-            // Validate the test document
-            std::string validationErrors;
-            bool validDoc = doc->validate(&validationErrors);
-            if (!validDoc)
-            {
-                std::cout << validationErrors << std::endl;
-            }
-            CHECK(validDoc);
-
             std::vector<mx::NodeGraphPtr> nodeGraphs = doc->getNodeGraphs();
             std::vector<mx::OutputPtr> outputList = doc->getOutputs();
             std::unordered_set<mx::OutputPtr> outputSet(outputList.begin(), outputList.end());
@@ -697,6 +691,15 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
 #endif
 
                 doc->importLibrary(dependLib, &importOptions);
+
+                // Validate the test document
+                std::string validationErrors;
+                bool validDoc = doc->validate(&validationErrors);
+                if (!validDoc)
+                {
+                    docValidLog << validationErrors << std::endl;
+                }
+                CHECK(validDoc);
 
                 std::unordered_set<mx::OutputPtr> shaderrefOutputs;
                 for (auto material : materials)

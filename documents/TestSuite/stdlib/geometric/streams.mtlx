@@ -45,7 +45,7 @@
    <geomcolor name="color3_set0" type="color3">
       <parameter name="index" type="integer" value="0" />
    </geomcolor>
-   <output name="color3_output0" type="vector3" nodename="color3_set0" />
+   <output name="color3_output0" type="color3" nodename="color3_set0" />
 
    <geomcolor name="color4_set0" type="color4">
       <parameter name="index" type="integer" value="0" />
@@ -55,7 +55,7 @@
    <geomcolor name="color3_set1" type="color3">
       <parameter name="index" type="integer" value="1" />
    </geomcolor>
-   <output name="color3_output1" type="vector3" nodename="color3_set1" />
+   <output name="color3_output1" type="color3" nodename="color3_set1" />
       
    <tangent name="tangent0" type="vector3">
       <parameter name="index" type="integer" value="1" />
