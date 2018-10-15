@@ -196,79 +196,66 @@ Texture coordinates are scaled up to be able to see the noise.
    <output name="fractal3d_1_output" type="float" nodename="fractal3d_1" />
    <fractal3d name="fractal3d_1" type="float">
       <parameter name="amplitude" type="float" value="1.0000" />
-      <parameter name="pivot" type="float" value="0.4000" />
    </fractal3d>
 
    <output name="fractal3d_2_output" type="color2" nodename="fractal3d_2" />
    <fractal3d name="fractal3d_2" type="color2">
       <parameter name="amplitude" type="vector2" value="1.0, 1.0"/>
-      <parameter name="pivot" type="float" value="0.0"/>
    </fractal3d>
 
    <output name="fractal3d_2FA_output" type="color2" nodename="fractal3d_2FA" />
    <fractal3d name="fractal3d_2FA" type="color2">
       <parameter name="amplitude" type="float" value="1.0"/>
-      <parameter name="pivot" type="float" value="0.0"/>
    </fractal3d>
 
    <output name="fractal3d_3_output" type="color3" nodename="fractal3d_3" />
    <fractal3d name="fractal3d_3" type="color3">
       <parameter name="amplitude" type="vector3" value="1.0, 1.0, 1.0"/>
-      <parameter name="pivot" type="float" value="0.0"/>
    </fractal3d>
 
    <output name="fractal3d_3FA_output" type="color3" nodename="fractal3d_3FA" />
    <fractal3d name="fractal3d_3FA" type="color3">
       <parameter name="amplitude" type="float" value="1.0"/>
-      <parameter name="pivot" type="float" value="0.0"/>
    </fractal3d>
 
    <output name="fractal3d_4_output" type="color4" nodename="fractal3d_4" />
    <fractal3d name="fractal3d_4" type="color4">
       <parameter name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
-      <parameter name="pivot" type="float" value="0.0"/>
    </fractal3d>
 
    <output name="fractal3d_4FA_output" type="color4" nodename="fractal3d_4FA" />
    <fractal3d name="fractal3d_4FA" type="color4">
       <parameter name="amplitude" type="float" value="1.0"/>
-      <parameter name="pivot" type="float" value="0.0"/>
    </fractal3d>
 
    <output name="fractal3d_2v_output" type="vector2" nodename="fractal3d_2v" />
    <fractal3d name="fractal3d_2v" type="vector2">
       <parameter name="amplitude" type="vector2" value="1.0, 1.0"/>
-      <parameter name="pivot" type="float" value="0.0"/>
    </fractal3d>
 
    <output name="fractal3d_2FAv_output" type="vector2" nodename="fractal3d_2FAv" />
    <fractal3d name="fractal3d_2FAv" type="vector2">
       <parameter name="amplitude" type="float" value="1.0"/>
-      <parameter name="pivot" type="float" value="0.0"/>
    </fractal3d>
 
    <output name="fractal3d_3v_output" type="vector3" nodename="fractal3d_3v" />
    <fractal3d name="fractal3d_3v" type="vector3">
       <parameter name="amplitude" type="vector3" value="1.0, 1.0, 1.0"/>
-      <parameter name="pivot" type="float" value="0.0"/>
    </fractal3d>
 
    <output name="fractal3d_3FAv_output" type="vector3" nodename="fractal3d_3FAv" />
    <fractal3d name="fractal3d_3FAv" type="vector3">
       <parameter name="amplitude" type="float" value="1.0"/>
-      <parameter name="pivot" type="float" value="0.0"/>
    </fractal3d>
 
    <output name="fractal3d_4v_output" type="vector4" nodename="fractal3d_4v" />
    <fractal3d name="fractal3d_4v" type="vector4">
       <parameter name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
-      <parameter name="pivot" type="float" value="0.0"/>
    </fractal3d>
 
    <output name="fractal3d_4FAv_output" type="vector4" nodename="fractal3d_4FAv" />
    <fractal3d name="fractal3d_4FAv" type="vector4">
       <parameter name="amplitude" type="float" value="1.0"/>
-      <parameter name="pivot" type="float" value="0.0"/>
    </fractal3d>
    
    <!-- Cell noise 2D and 3D -->
