@@ -6,7 +6,7 @@
 
 #include "mx_funcs.h"
 
-shader mx_blur_color3
+shader mx_blur_color
     [[ string help = "A gaussian-falloff blur." ]]
   (
     color in = 0,

@@ -7,7 +7,7 @@
 #include "mx_funcs.h"
 
 shader mx_power_color4
-    [[ string help = "Color4"" Raise incoming float/color/vector values to the in2 exponent value/stream" ]]
+    [[ string help = "Color4"" Raise incoming float/color/vector values to the in2 power value/stream" ]]
   (
     color4 in1 = {color(0,0,0), 0},
     color4 in2 = {color(1,1,1), 1},

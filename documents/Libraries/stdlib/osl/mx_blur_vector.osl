@@ -6,7 +6,7 @@
 
 #include "mx_funcs.h"
 
-shader mx_blur_vector3
+shader mx_blur_vector
     [[ string help = "A gaussian-falloff blur." ]]
   (
     vector in = 0,
