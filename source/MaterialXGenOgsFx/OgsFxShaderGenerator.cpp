@@ -192,6 +192,14 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.addInclude("sxpbrlib/sx-glsl/lib/sx_math.glsl", *this);
     shader.newLine();
 
+    // Emit sampling code if needed
+    if (shader.hasClassification(SgNode::Classification::CONVOLUTION2D))
+    {
+        // Emit sampling functions
+        shader.addInclude("stdlib/sx-glsl/lib/sx_sampling.glsl", *this);
+        shader.newLine();
+    }
+
     emitFunctionDefinitions(shader);
 
     // Add main function

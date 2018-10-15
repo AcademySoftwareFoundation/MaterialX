@@ -300,8 +300,8 @@ OslSyntax::OslSyntax()
         Type::ROUGHNESSINFO,
         std::make_shared<OslStructTypeSyntax>(
             "roughnessinfo",
-            "{0.0, 0.0, 0.0, 0.0}",
-            "{0.0, 0.0, 0.0, 0.0}",
+            "roughnessinfo(0.0, 0.0, 0.0, 0.0)",
+            "roughnessinfo(0.0, 0.0, 0.0, 0.0)",
             "struct roughnessinfo { float roughness; float alpha; float alphaX; float alphaY; };")
     );
 

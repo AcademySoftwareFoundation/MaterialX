@@ -143,8 +143,21 @@ void SgNode::ScopeInfo::merge(const ScopeInfo &fromScope)
 SgNode::SgNode(const string& name)
     : _name(name)
     , _classification(0)
+    , _samplingInput(nullptr)
     , _impl(nullptr)
 {
+}
+
+static bool elementCanBeSampled2D(const Element& element)
+{
+    const string TEXCOORD_NAME("texcoord");
+    return (element.getName() == TEXCOORD_NAME);
+}
+
+static bool elementCanBeSampled3D(const Element& element)
+{
+    const string POSITION_NAME("position");
+    return (element.getName() == POSITION_NAME);
 }
 
 SgNodePtr SgNode::create(const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, const Node* nodeInstance)
@@ -163,6 +176,31 @@ SgNodePtr SgNode::create(const string& name, const NodeDef& nodeDef, ShaderGener
             "' matching language '" + shadergen.getLanguage() + "' and target '" + shadergen.getTarget() + "'");
     }
 
+    // Check for classification based on group name
+    unsigned int groupClassification = 0;
+    const string TEXTURE2D_GROUPNAME("texture2d");
+    const string TEXTURE3D_GROUPNAME("texture3d");
+    const string PROCEDURAL2D_GROUPNAME("procedural2d");
+    const string PROCEDURAL3D_GROUPNAME("procedural3d");
+    const string CONVOLUTION2D_GROUPNAME("convolution2d");
+    string groupName = nodeDef.getNodeGroup();
+    if (!groupName.empty())
+    {
+        if (groupName == TEXTURE2D_GROUPNAME || groupName == PROCEDURAL2D_GROUPNAME)
+        {
+            groupClassification = Classification::SAMPLE2D;
+        }
+        else if (groupName == TEXTURE3D_GROUPNAME || groupName == PROCEDURAL3D_GROUPNAME)
+        {
+            groupClassification = Classification::SAMPLE3D;
+        }
+        else if (groupName == CONVOLUTION2D_GROUPNAME)
+        {
+            groupClassification = Classification::CONVOLUTION2D;
+        }
+    }
+    newNode->_samplingInput = nullptr;
+
     // Create interface from nodedef
     const vector<ValueElementPtr> nodeDefInputs = nodeDef.getChildrenOfType<ValueElement>();
     for (const ValueElementPtr& elem : nodeDefInputs)
@@ -177,6 +215,13 @@ SgNodePtr SgNode::create(const string& name, const NodeDef& nodeDef, ShaderGener
             if (!elem->getValueString().empty())
             {
                 input->value = elem->getValue();
+            }
+
+            // Determine if this input can be sampled
+            if ((groupClassification == Classification::SAMPLE2D && elementCanBeSampled2D(*elem)) ||
+                (groupClassification == Classification::SAMPLE3D && elementCanBeSampled3D(*elem)))
+            {
+                newNode->_samplingInput = input;
             }
         }
     }
@@ -197,7 +242,7 @@ SgNodePtr SgNode::create(const string& name, const NodeDef& nodeDef, ShaderGener
             {
                 SgInput* input = newNode->getInput(elem->getName());
                 if (input)
-                {
+                {       
                     input->value = elem->getValue();
                 }
             }
@@ -260,6 +305,9 @@ SgNodePtr SgNode::create(const string& name, const NodeDef& nodeDef, ShaderGener
     {
         newNode->_classification = Classification::TEXTURE | Classification::CONDITIONAL | Classification::SWITCH;
     }
+
+    // Add in group classification
+    newNode->_classification |= groupClassification;
 
     // Let the shader generator assign in which contexts to use this node
     shadergen.addNodeContextIDs(newNode.get());
@@ -354,7 +402,6 @@ void SgNode::renameOutput(const string& name, const string& newName)
         }
     }
 }
-
 
 SgNodeGraph::SgNodeGraph(const string& name, DocumentPtr document)
     : SgNode(name)
@@ -582,6 +629,9 @@ SgNodeGraphPtr SgNodeGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shad
 
     SgNodeGraphPtr graph = std::make_shared<SgNodeGraph>(nodeGraph->getName(), nodeGraph->getDocument());
 
+    // Clear classification
+    graph->_classification = 0;
+
     // Create input sockets from the nodedef
     graph->addInputSockets(*nodeDef);
 
@@ -594,11 +644,11 @@ SgNodeGraphPtr SgNodeGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shad
         graph->addUpstreamDependencies(*graphOutput, nullptr, shadergen);
     }
 
-    // Set classification according to last node
+    // Add classification according to last node
     // TODO: What if the graph has multiple outputs?
     {
         SgOutputSocket* outputSocket = graph->getOutputSocket();
-        graph->_classification = outputSocket->connection ? outputSocket->connection->node->_classification : 0;
+        graph->_classification |= outputSocket->connection ? outputSocket->connection->node->_classification : 0;
     }
 
     graph->finalize(shadergen);
@@ -638,6 +688,9 @@ SgNodeGraphPtr SgNodeGraph::create(const string& name, ElementPtr element, Shade
         }
 
         graph = std::make_shared<SgNodeGraph>(name, element->getDocument());
+
+        // Clear classification
+        graph->_classification = 0;
 
         // Create input sockets
         graph->addInputSockets(*interface);
@@ -751,9 +804,9 @@ SgNodeGraphPtr SgNodeGraph::create(const string& name, ElementPtr element, Shade
     // Traverse and create all dependencies upstream
     graph->addUpstreamDependencies(*root, material, shadergen);
 
-    // Set classification according to root node
+    // Add classification according to root node
     SgOutputSocket* outputSocket = graph->getOutputSocket();
-    graph->_classification = outputSocket->connection ? outputSocket->connection->node->_classification : 0;
+    graph->_classification |= outputSocket->connection ? outputSocket->connection->node->_classification : 0;
 
     graph->finalize(shadergen);
 
@@ -773,6 +826,12 @@ SgNode* SgNodeGraph::addNode(const Node& node, ShaderGenerator& shadergen)
     SgNodePtr newNode = SgNode::create(name, *nodeDef, shadergen, &node);
     _nodeMap[name] = newNode;
     _nodeOrder.push_back(newNode.get());
+
+    // Check if the node is a convotion. If so mark that the graph has a convolution
+    if (newNode->hasClassification(Classification::CONVOLUTION2D))
+    {
+        _classification |= Classification::CONVOLUTION2D;
+    }
 
     // Check if any of the node inputs should be connected to the graph interface
     for (ValueElementPtr elem : node.getChildrenOfType<ValueElement>())

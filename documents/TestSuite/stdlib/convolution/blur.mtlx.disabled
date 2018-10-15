@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<materialx version="1.36">
+   <nodegraph name="blur_float" type="" xpos="6.51646" ypos="17.6015">
+      <image name="image1" type="float" xpos="5.02376" ypos="12.6609">
+         <parameter name="file" type="filename" value="documents/TestSuite/Images/MaterialXLogo.exr" />
+         <parameter name="default" type="float" value="0.0" />
+         <input name="texcoord" type="vector2" value="0.0, 0.0" />
+      </image>
+      <blur name="blur1" type="float" xpos="6.69372" ypos="12.5555">
+         <input name="in" type="float" value="0.0" nodename="image1" />
+         <parameter name="size" type="float" value="3.0000" />
+         <parameter name="filtertype" type="string" value="box" />
+      </blur>
+      <output name="out" type="float" nodename="blur1" />
+   </nodegraph>
+   <nodegraph name="blur_color3" type="" xpos="6.54973" ypos="14.9722">
+      <image name="image2" type="color3" xpos="4.56716" ypos="8.26224">
+         <parameter name="file" type="filename" value="documents/TestSuite/Images/MaterialXLogo.exr" />
+         <parameter name="default" type="color3" value="0.0, 0.0, 0.0" />
+         <input name="texcoord" type="vector2" value="0.0, 0.0" />
+      </image>
+      <blur name="blur2" type="color3" xpos="6.21311" ypos="9.39516">
+         <input name="in" type="color3" value="0.0, 0.0, 0.0" nodename="image2" />
+         <parameter name="size" type="float" value="0.0" />
+         <parameter name="filtertype" type="string" value="box" />
+      </blur>
+      <output name="out" type="color3" nodename="blur2" />
+   </nodegraph>
+   <nodegraph name="blur_float_cellnoise" type="" xpos="6.57468" ypos="19.5916">
+      <cellnoise2d name="cellnoise2d1" type="float" xpos="6.17108" ypos="8.46774">
+         <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="multiply1" />
+      </cellnoise2d>
+      <blur name="blur3" type="float" xpos="6.2348" ypos="11.7803">
+         <input name="in" type="float" value="0.0" nodename="cellnoise2d1" />
+         <parameter name="size" type="float" value="3.0000" />
+         <parameter name="filtertype" type="string" value="box" />
+      </blur>
+      <output name="out" type="float" nodename="blur3" />
+      <texcoord name="texcoord1" type="vector2" xpos="4.03426" ypos="10.7604">
+         <parameter name="index" type="integer" value="0" />
+      </texcoord>
+      <multiply name="multiply1" type="vector2" xpos="5.0711" ypos="7.28348">
+         <input name="in1" type="vector2" value="0.0, 0.0" nodename="texcoord1" />
+         <input name="in2" type="vector2" value="100.0000, 100.0000" />
+      </multiply>
+   </nodegraph>
+   <nodegraph name="blur_noise" type="" xpos="5.15862" ypos="18.7">
+      <blur name="blur1" type="color2" xpos="6.68392" ypos="10.7123">
+         <input name="in" type="color2" value="0.0, 1.0" nodename="noise2d1" />
+         <parameter name="size" type="float" value="1.0000" />
+         <parameter name="filtertype" type="string" value="box" />
+      </blur>
+      <noise2d name="noise2d1" type="color2" xpos="5.76499" ypos="7.69638">
+         <parameter name="amplitude" type="vector2" value="1.0000, 1.0000" />
+         <parameter name="pivot" type="float" value="0.0" />
+         <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="multiply1" />
+      </noise2d>
+      <output name="out" type="color2" nodename="blur1" />
+      <texcoord name="texcoord1" type="vector2" xpos="4.77706" ypos="10.1835">
+         <parameter name="index" type="integer" value="0" />
+      </texcoord>
+      <multiply name="multiply1" type="vector2" xpos="5.53793" ypos="14.7171">
+         <input name="in1" type="vector2" value="0.0, 0.0" nodename="texcoord1" />
+         <input name="in2" type="vector2" value="600.0000, 1.0000" />
+      </multiply>
+   </nodegraph>
+</materialx>
