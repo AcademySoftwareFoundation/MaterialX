@@ -20,6 +20,16 @@ class BlurGlsl : public ConvolutionGlsl
     /// Constructor
     BlurGlsl();
 
+    /// Box filter option on blur
+    static string BOX_FILTER;
+    /// Box filter weight computation function
+    static string BOX_WEIGHT_FUNCTION;
+
+    /// Gaussian filter option on blur
+    static string GAUSSIAN_FILTER;
+    /// Gaussian filter filter computation function
+    static string GAUSSIAN_WEIGHT_FUNCTION;
+
     /// Return if given type is an acceptible input
     bool acceptsInputType(const TypeDesc* type) override;
     
@@ -31,6 +41,9 @@ class BlurGlsl : public ConvolutionGlsl
 
     /// Type of filter 
     string _filterType;
+
+    /// Width of filter
+    unsigned int _filterWidth;
 
     /// Language dependent input type string
     string _inputTypeString;

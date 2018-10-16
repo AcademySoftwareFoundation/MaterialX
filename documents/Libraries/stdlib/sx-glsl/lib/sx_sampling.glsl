@@ -1,3 +1,6 @@
+// Restrict to 7x7 kernel size for performance reasons
+#define SX_MAX_SAMPLE_COUNT 49
+
 //
 // Function to compute the sample size relative to a texture coordinate
 //
@@ -29,70 +32,102 @@ vec3 sx_normal_from_samples_sobel(float S[9], float _scale)
    return (norm + 1.0) * 0.5;
 };
 
-//
-// Blur using box filter for float samples
-//
-float sx_blur_box_float(float S[9])
+// Kernal weights for box filter
+void sx_get_box_weights(inout float W[SX_MAX_SAMPLE_COUNT], int filterSize)
 {
-    return (S[0] + S[1] + S[2] + S[3] + S[4] + S[5] + S[6] + S[7] + S[8]) / 9.0;
+    int sampleCount = filterSize*filterSize;
+    float value = 1.0 / float(sampleCount);
+    for (int i=0; i<sampleCount; i++)
+    {
+        W[i] = value;
+    }
+}
+
+// Kernel weights for Gaussian filter. Sigma is assumed to be 1.
+void sx_get_gaussian_weights(inout float W[SX_MAX_SAMPLE_COUNT], int filterSize)
+{
+    if (filterSize >= 7)
+    {
+        W[0] = 0.000036;  W[1] = 0.000363;  W[2] = 0.001446;  W[3] = 0.002291;  W[4] = 0.001446;  W[5] = 0.000363;  W[6] = 0.000036; 
+        W[7] = 0.000363;  W[8] = 0.003676;  W[9] = 0.014662;  W[10] = 0.023226; W[11] = 0.014662; W[12] = 0.003676; W[13] = 0.000363; 
+        W[14] = 0.001446; W[15] = 0.014662; W[16] = 0.058488; W[17] = 0.092651; W[18] = 0.058488; W[19] = 0.014662; W[20] = 0.001446; 
+        W[21] = 0.002291; W[22] = 0.023226; W[23] = 0.092651; W[24] = 0.146768; W[25] = 0.092651; W[26] = 0.023226; W[27] = 0.002291; 
+        W[28] = 0.001446; W[29] = 0.014662; W[30] = 0.058488; W[31] = 0.092651; W[32] = 0.058488; W[33] = 0.014662; W[34] = 0.001446; 
+        W[35] = 0.000363; W[36] = 0.003676; W[37] = 0.014662; W[38] = 0.023226; W[39] = 0.014662; W[40] = 0.003676; W[41] = 0.000363; 
+        W[42] = 0.000036; W[43] = 0.000363; W[44] = 0.001446; W[45] = 0.002291; W[46] = 0.001446; W[47] = 0.000363; W[48] = 0.000036;
+    }
+    else if (filterSize >= 5)
+    {
+        W[0] = 0.003765;  W[1] = 0.015019;  W[2] = 0.023792;  W[3] = 0.015019;  W[4] = 0.003765;
+        W[5] = 0.015019;  W[6] = 0.059912;  W[7] = 0.094907;  W[8] = 0.059912;  W[9] = 0.015019;
+        W[10] = 0.023792; W[11] = 0.094907; W[12] = 0.150342; W[13] = 0.094907; W[14] = 0.023792;
+        W[15] = 0.015019; W[16] = 0.059912; W[17] = 0.094907; W[18] = 0.059912; W[19] = 0.015019;
+        W[20] = 0.003765; W[21] = 0.015019; W[22] = 0.023792; W[23] = 0.015019; W[24] = 0.003765;
+    }
+    else if (filterSize >= 3)
+    {
+        W[0] = 0.0625; W[1] = 0.125; W[2] = 0.0625;
+        W[3] = 0.125;  W[4] = 0.25;  W[5] = 0.125;
+        W[6] = 0.0625; W[7] = 0.125; W[8] = 0.0625;
+    }
+    else
+    {
+        W[0] = 1.0;
+    }
 }
 
 //
-// Blur using box filter for vec2 samples
+// Apply filter for float samples S, using weights W.
+// sampleCount should be a square of a odd number in the range { 1, 3, 5, 7 }
 //
-vec2 sx_blur_box_vec2(vec2 S[9])
+float sx_convolution_float(float S[SX_MAX_SAMPLE_COUNT], float W[SX_MAX_SAMPLE_COUNT], int sampleCount)
 {
-    return (S[0] + S[1] + S[2] + S[3] + S[4] + S[5] + S[6] + S[7] + S[8]) / 9.0;
+    float result = 0.0;
+    for (int i = 0;  i < sampleCount; i++)
+    {
+        result += S[i]*W[i];
+    }
+    return result;
 }
 
 //
-// Blur using box filter for vec3 samples
+// Apply filter for vec2 samples S, using weights W.
+// sampleCount should be a square of a odd number in the range { 1, 3, 5, 7 }
 //
-vec3 sx_blur_box_vec3(vec3 S[9])
+vec2 sx_convolution_vec2(vec2 S[SX_MAX_SAMPLE_COUNT], float W[SX_MAX_SAMPLE_COUNT], int sampleCount)
 {
-    return (S[0] + S[1] + S[2] + S[3] + S[4] + S[5] + S[6] + S[7] + S[8]) / 9.0;
+    vec2 result = vec2(0.0);
+    for (int i=0;  i<sampleCount; i++)
+    {
+        result += S[i]*W[i];
+    }
+    return result;
 }
 
 //
-// Blur using box filter for vec4 samples
+// Apply filter for vec3 samples S, using weights W.
+// sampleCount should be a square of a odd number in the range { 1, 3, 5, 7 }
 //
-vec4 sx_blur_box_vec4(vec4 S[9])
+vec3 sx_convolution_vec3(vec3 S[SX_MAX_SAMPLE_COUNT], float W[SX_MAX_SAMPLE_COUNT], int sampleCount)
 {
-    return (S[0] + S[1] + S[2] + S[3] + S[4] + S[5] + S[6] + S[7] + S[8]) / 9.0;
+    vec3 result = vec3(0.0);
+    for (int i=0;  i<sampleCount; i++)
+    {
+        result += S[i]*W[i];
+    }
+    return result;
 }
 
 //
-// Blur using box filter for float samples
+// Apply filter for vec4 samples S, using weights W.
+// sampleCount should be a square of a odd number { 1, 3, 5, 7 }
 //
-float sx_blur_gaussian_float(float S[9])
+vec4 sx_convolution_vec4(vec4 S[SX_MAX_SAMPLE_COUNT], float W[SX_MAX_SAMPLE_COUNT], int sampleCount)
 {
-    float W[9] = { 0.0625, 0.125, 0.0625, 0.125, 0.25, 0.125, 0.0625, 0.125, 0.0625 };
-    return (S[0]*W[0] + S[1]*W[1] + S[2]*W[2] + S[3]*W[3] + S[4]*W[4] + S[5]*W[5] + S[6]*W[6] + S[7]*W[7] + S[8]*W[8]);
-}
-
-//
-// Blur using gaussian filter for vec2 samples
-//
-vec2 sx_blur_gaussian_vec2(vec2 S[9])
-{
-    float W[9] = { 0.0625, 0.125, 0.0625, 0.125, 0.25, 0.125, 0.0625, 0.125, 0.0625 };
-    return (S[0]*W[0] + S[1]*W[1] + S[2]*W[2] + S[3]*W[3] + S[4]*W[4] + S[5]*W[5] + S[6]*W[6] + S[7]*W[7] + S[8]*W[8]);
-}
-
-//
-// Blur using gaussian filter for vec3 samples
-//
-vec3 sx_blur_gaussian_vec3(vec3 S[9])
-{
-    float W[9] = { 0.0625, 0.125, 0.0625, 0.125, 0.25, 0.125, 0.0625, 0.125, 0.0625 };
-    return (S[0]*W[0] + S[1]*W[1] + S[2]*W[2] + S[3]*W[3] + S[4]*W[4] + S[5]*W[5] + S[6]*W[6] + S[7]*W[7] + S[8]*W[8]);
-}
-
-//
-// Blur using gaussian filter for vec4 samples
-//
-vec4 sx_blur_gaussian_vec4(vec4 S[9])
-{
-    float W[9] = { 0.0625, 0.125, 0.0625, 0.125, 0.25, 0.125, 0.0625, 0.125, 0.0625 };
-    return (S[0]*W[0] + S[1]*W[1] + S[2]*W[2] + S[3]*W[3] + S[4]*W[4] + S[5]*W[5] + S[6]*W[6] + S[7]*W[7] + S[8]*W[8]);
+    vec4 result = vec4(0.0);
+    for (int i=0;  i<sampleCount; i++)
+    {
+        result += S[i]*W[i];
+    }
+    return result;
 }
