@@ -4,7 +4,6 @@
 #pragma once
 #define VECTOR2_H
 
-
 // vector2 is a 2D vector
 struct vector2
 {
@@ -157,9 +156,24 @@ vector2 floor(vector2 a)
     return vector2 (floor(a.x), floor(a.y));
 }
 
-vector2 sign(vector2 a)
+vector2 sqrt(vector2 a)
 {
-    return vector2 (sign(a.x), sign(a.y));
+    return vector2 (sqrt(a.x), sqrt(a.y));
+}
+
+vector2 exp(vector2 a)
+{
+    return vector2 (exp(a.x), exp(a.y));
+}
+
+vector2 log(vector2 a)
+{
+    return vector2 (log(a.x), log(a.y));
+}
+
+vector2 log2(vector2 a)
+{
+    return vector2 (log2(a.x), log2(a.y));
 }
 
 vector2 mix(vector2 a, vector2 b, float x )
@@ -238,17 +252,6 @@ vector2 fmod(vector2 a, float b)
     return fmod(a, vector2(b, b));
 }
 
-vector2 rotate2d(vector2 in, float amount, vector2 center)
-{
-    vector2 out = in - center;
-    float sine, cosine;
-    sincos(amount, sine, cosine);
-    out.x = in.x * cosine - in.y * sine;
-    out.y = in.y * cosine + in.x * sine;
-    out = out + center;
-    return out;
-}
-
 vector2 pow (vector2 in, vector2 amount)
 {
     return vector2 (pow(in.x, amount.x), pow(in.y, amount.y));
@@ -258,3 +261,53 @@ vector2 pow (vector2 in, float amount)
 {
     return pow(in, vector2(amount, amount));
 }
+
+vector2 sign(vector2 a)
+{
+    return vector2(sign(a.x),
+                   sign(a.y));
+}
+
+vector2 sin(vector2 a)
+{
+    return vector2(sin(a.x),
+                   sin(a.y));
+}
+
+vector2 cos(vector2 a)
+{
+    return vector2(cos(a.x),
+                   cos(a.y));
+}
+
+vector2 tan(vector2 a)
+{
+    return vector2(tan(a.x),
+                   tan(a.y));
+}
+
+vector2 asin(vector2 a)
+{
+    return vector2(asin(a.x),
+                   asin(a.y));
+}
+
+vector2 acos(vector2 a)
+{
+    return vector2(acos(a.x),
+                   acos(a.y));
+}
+
+vector2 atan2(vector2 a, float f)
+{
+    return vector2(atan2(a.x, f),
+                  atan2(a.y, f));
+}
+
+vector2 atan2(vector2 a, vector2 b)
+{
+    return vector2(atan2(a.x, b.x),
+                  atan2(a.y, b.y));
+}
+
+

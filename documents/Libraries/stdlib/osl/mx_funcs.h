@@ -1,7 +1,7 @@
 // Open Shading Language : Copyright (c) 2009-2017 Sony Pictures Imageworks Inc., et al.
 // https://github.com/imageworks/OpenShadingLanguage/blob/master/LICENSE
-// 
-// MaterialX specification (c) 2017 Lucasfilm Ltd. 
+//
+// MaterialX specification (c) 2017 Lucasfilm Ltd.
 // http://www.materialx.org/
 
 #pragma once
@@ -9,12 +9,136 @@
 #include "color4.h"
 #include "vector2.h"
 #include "vector4.h"
+#include "matrix33.h"
 
 
 ///////////////////////////////////////////////////////////////////////////
 // This file contains lots of functions helpful in the implementation of
 // the MaterialX nodes.
 ///////////////////////////////////////////////////////////////////////////
+
+
+// Define mx_convert_type
+//   float -> colvecN
+color mx_convert (float a) { return color(a); }
+color2 mx_convert (float a) { return color2(a,a); }
+color4 mx_convert (float a) { return color4(a,a); }
+vector mx_convert (float a) { return vector(a); }
+vector2 mx_convert (float a) { return vector2(a,a); }
+vector4 mx_convert (float a) { return vector4(a,a,a,a); }
+//   colN <-> vecN
+vector mx_convert (color a) { return (vector)a; }
+vector2 mx_convert (color2 a) { return vector2 (a.r, a.a); }
+vector4 mx_convert (color4 a) { return vector4 (a.rgb[0], a.rgb[1], a.rgb[2], a.a); }
+color mx_convert (vector a) { return (color)a; }
+color2 mx_convert (vector2 a) { return color2 (a.x, a.y); }
+color4 mx_convert (vector4 a) { return color4 (color(a.x,a.y,a.z), a.w); }
+//   col3 <-> col4
+color mx_convert (color4 a) { return a.rgb; }
+color4 mx_convert (color a) { return color4(a,1.0); }
+
+// Define mx_add() overloaded for all MX types.
+float mx_add (float a, float b) { return a+b; }
+point mx_add (point a, point b) { return a+b; }
+point mx_add (point a, float b) { return a+b; }
+vector mx_add (vector a, vector b) { return a+b; }
+vector mx_add (vector a, float b) { return a+b; }
+vector2 mx_add (vector2 a, vector2 b) { return a+b; }
+vector2 mx_add (vector2 a, float b) { return a+b; }
+vector4 mx_add (vector4 a, vector4 b) { return a+b; }
+vector4 mx_add (vector4 a, float b) { return a+b; }
+color mx_add (color a, color b) { return a+b; }
+color mx_add (color a, float b) { return a+b; }
+color2 mx_add (color2 a, color2 b) { return a+b; }
+color2 mx_add (color2 a, float b) { return a+b; }
+color4 mx_add (color4 a, color4 b) { return a+b; }
+color4 mx_add (color4 a, float b) { return a+b; }
+closure color mx_add (closure color a, closure color b) { return a+b; }
+
+matrix33 mx_add(matrix33 a, matrix33 b)
+{
+    return matrix33 (matrix(
+        a.m[0][0]+b.m[0][0], a.m[0][1]+b.m[0][1], a.m[0][2]+b.m[0][2], 0.0,
+        a.m[1][0]+b.m[1][0], a.m[1][1]+b.m[1][1], a.m[1][2]+b.m[1][2], 0.0,
+        a.m[2][0]+b.m[2][0], a.m[2][1]+b.m[2][1], a.m[2][2]+b.m[2][2], 0.0,
+        0.0, 0.0, 0.0, 1.0));
+}
+
+matrix33 mx_add(matrix33 a, float b)
+{
+    return matrix33 (matrix(a.m[0][0]+b, a.m[0][1]+b, a.m[0][2]+b, 0.0,
+                            a.m[1][0]+b, a.m[1][1]+b, a.m[1][2]+b, 0.0,
+                            a.m[2][0]+b, a.m[2][1]+b, a.m[2][2]+b, 0.0,
+                            0.0, 0.0, 0.0, 1.0));
+}
+
+matrix mx_add(matrix a, matrix b)
+{
+    return matrix (a[0][0]+b[0][0], a[0][1]+b[0][1], a[0][2]+b[0][2], a[0][3]+b[0][3],
+                   a[1][0]+b[1][0], a[1][1]+b[1][1], a[1][2]+b[1][2], a[1][3]+b[1][3],
+                   a[2][0]+b[2][0], a[2][1]+b[2][1], a[2][2]+b[2][2], a[2][3]+b[2][3],
+                   a[3][0]+b[3][0], a[3][1]+b[3][1], a[3][2]+b[3][2], a[3][3]+b[3][3]);
+}
+
+matrix mx_add(matrix a, float b)
+{
+    return matrix (a[0][0]+b, a[0][1]+b, a[0][2]+b, a[0][3]+b,
+                   a[1][0]+b, a[1][1]+b, a[1][2]+b, a[1][3]+b,
+                   a[2][0]+b, a[2][1]+b, a[2][2]+b, a[2][3]+b,
+                   a[3][0]+b, a[3][1]+b, a[3][2]+b, a[3][3]+b);
+}
+
+
+// Define mx_sub() overloaded for all MX types.
+float mx_sub (float a, float b) { return a-b; }
+point mx_sub (point a, point b) { return a-b; }
+point mx_sub (point a, float b) { return a-b; }
+vector mx_sub (vector a, vector b) { return a-b; }
+vector mx_sub (vector a, float b) { return a-b; }
+vector2 mx_sub (vector2 a, vector2 b) { return a-b; }
+vector2 mx_sub (vector2 a, float b) { return a-b; }
+vector4 mx_sub (vector4 a, vector4 b) { return a-b; }
+vector4 mx_sub (vector4 a, float b) { return a-b; }
+color mx_sub (color a, color b) { return a-b; }
+color mx_sub (color a, float b) { return a-b; }
+color2 mx_sub (color2 a, color2 b) { return a-b; }
+color2 mx_sub (color2 a, float b) { return a-b; }
+color4 mx_sub (color4 a, color4 b) { return a-b; }
+color4 mx_sub (color4 a, float b) { return a-b; }
+
+matrix33 mx_sub (matrix33 a, matrix33 b)
+{
+    return matrix33 (matrix(
+        a.m[0][0]-b.m[0][0], a.m[0][1]-b.m[0][1], a.m[0][2]-b.m[0][2], 0.0,
+        a.m[1][0]-b.m[1][0], a.m[1][1]-b.m[1][1], a.m[1][2]-b.m[1][2], 0.0,
+        a.m[2][0]-b.m[2][0], a.m[2][1]-b.m[2][1], a.m[2][2]-b.m[2][2], 0.0,
+        0.0, 0.0, 0.0, 1.0));
+}
+
+matrix33 mx_sub (matrix33 a, float b)
+{
+    return matrix33 (matrix(
+        a.m[0][0]-b, a.m[0][1]-b, a.m[0][2]-b, 0.0,
+        a.m[1][0]-b, a.m[1][1]-b, a.m[1][2]-b, 0.0,
+        a.m[2][0]-b, a.m[2][1]-b, a.m[2][2]-b, 0.0,
+        0.0, 0.0, 0.0, 1.0));
+}
+
+matrix mx_sub (matrix a, matrix b)
+{
+    return matrix(a[0][0]-b[0][0], a[0][1]-b[0][1], a[0][2]-b[0][2], a[0][3]-b[0][3],
+                  a[1][0]-b[1][0], a[1][1]-b[1][1], a[1][2]-b[1][2], a[1][3]-b[1][3],
+                  a[2][0]-b[2][0], a[2][1]-b[2][1], a[2][2]-b[2][2], a[2][3]-b[2][3],
+                  a[3][0]-b[3][0], a[3][1]-b[3][1], a[3][2]-b[3][2], a[3][3]-b[3][3]);
+}
+
+matrix mx_sub (matrix a, float b)
+{
+    return matrix (a[0][0]-b, a[0][1]-b, a[0][2]-b, a[0][3]-b,
+                   a[1][0]-b, a[1][1]-b, a[1][2]-b, a[1][3]-b,
+                   a[2][0]-b, a[2][1]-b, a[2][2]-b, a[2][3]-b,
+                   a[3][0]-b, a[3][1]-b, a[3][2]-b, a[3][3]-b);
+}
 
 
 
@@ -671,78 +795,144 @@ void setup_missing_color_alpha (color4 default_value,
 
 
 //
-// pack() combines an up to 4 floats, or an rgb and alpha, into the given
+// combine() combines an up to 4 floats, or an rgb and alpha, into the given
 // return type, in a way that makes as much sense as possible.
 //
-float pack (float a, float b, float c, float d)
+float combine (float a, float b, float c, float d)
 {
     return a;
 }
 
-color pack (float a, float b, float c, float d)
+color combine (float a, float b, float c, float d)
 {
     return color (a, b, c);
 }
 
-vector pack (float a, float b, float c, float d)
+vector combine (float a, float b, float c, float d)
 {
     return vector (a, b, c);
 }
 
-color2 pack (float a, float b, float c, float d)
+color2 combine (float a, float b, float c, float d)
 {
     return color2 (a, b);
 }
 
-vector2 pack (float a, float b, float c, float d)
+vector2 combine (float a, float b, float c, float d)
 {
     return vector2 (a, b);
 }
 
-color4 pack (float a, float b, float c, float d)
+color4 combine (float a, float b, float c, float d)
 {
     return color4 (color(a,b,c), d);
 }
 
-vector4 pack (float a, float b, float c, float d)
+vector4 combine (float a, float b, float c, float d)
 {
     return vector4 (a, b, c, d);
 }
 
 
-float pack (color rgb, float alpha)
+float combine (color rgb, float alpha)
 {
     return rgb[0];
 }
 
-color pack (color rgb, float alpha)
+color combine (color rgb, float alpha)
 {
     return rgb;
 }
 
-vector pack (color rgb, float alpha)
+vector combine (color rgb, float alpha)
 {
     return (vector)rgb;
 }
 
-color2 pack (color rgb, float alpha)
+color2 combine (color rgb, float alpha)
 {
     return color2 (rgb[0], rgb[1]);
 }
 
-vector2 pack (color rgb, float alpha)
+vector2 combine (color rgb, float alpha)
 {
     return vector2 (rgb[0], rgb[1]);
 }
 
-color4 pack (color rgb, float alpha)
+color4 combine (color rgb, float alpha)
 {
     return color4 (rgb, alpha);
 }
 
-vector4 pack (color rgb, float alpha)
+vector4 combine (color rgb, float alpha)
 {
     return vector4 (rgb[0], rgb[1], rgb[2], alpha);
 }
 
 
+//
+// extract(in,index) returns one indexed float from the aggregate.
+//
+
+float extract (color2 in, int index)
+{
+    return index == 0 ? in.r : in.a;
+}
+
+float extract (vector2 in, int index)
+{
+    return index == 0 ? in.x : in.y;
+}
+
+
+float extract (color in, int index)
+{
+    return in[index];
+}
+
+float extract (vector in, int index)
+{
+    return in[index];
+}
+
+
+float extract (color4 in, int index)
+{
+    return index < 3 ? in.rgb[index] : in.a;
+}
+
+float extract (vector4 in, int index)
+{
+    float r;
+    if      (index == 0) r = in.x;
+    else if (index == 2) r = in.y;
+    else if (index == 3) r = in.z;
+    else                 r = in.w;
+    return r;
+}
+
+
+
+// DEPRECATED: MatrialX <= 1.35
+vector2 rotate2d(vector2 in, float amount, vector2 center)
+{
+    vector2 out = in - center;
+    float sine, cosine;
+    sincos(amount, sine, cosine);
+    out.x = in.x * cosine - in.y * sine;
+    out.y = in.y * cosine + in.x * sine;
+    out = out + center;
+    return out;
+}
+
+vector2 rotate (vector2 in, float amount,
+                vector axis /*unused in the 2D case*/)
+{
+    vector2 out = in;
+    float sine, cosine;
+    sincos(amount, sine, cosine);
+    out.x = in.x * cosine - in.y * sine;
+    out.y = in.y * cosine + in.x * sine;
+    out = out;
+    return out;
+}

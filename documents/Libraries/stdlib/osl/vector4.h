@@ -168,12 +168,36 @@ vector4 floor(vector4 in)
                     floor(in.w));
 }
 
-vector4 sign(vector4 in)
+vector4 sqrt(vector4 in)
 {
-    return vector4 (sign(in.x),
-		    sign(in.y),
-		    sign(in.z),
-		    sign(in.w));
+    return vector4 (sqrt(in.x),
+                    sqrt(in.y),
+                    sqrt(in.z),
+                    sqrt(in.w));
+}
+
+vector4 exp(vector4 in)
+{
+    return vector4 (exp(in.x),
+                    exp(in.y),
+                    exp(in.z),
+                    exp(in.w));
+}
+
+vector4 log(vector4 in)
+{
+    return vector4 (log(in.x),
+                    log(in.y),
+                    log(in.z),
+                    log(in.w));
+}
+
+vector4 log2(vector4 in)
+{
+    return vector4 (log2(in.x),
+                    log2(in.y),
+                    log2(in.z),
+                    log2(in.w));
 }
 
 vector4 mix(vector4 value1, vector4 value2, float x )
@@ -289,4 +313,82 @@ vector4 pow(vector4 in, float amount)
                     pow(in.y, amount),
                     pow(in.z, amount),
                     pow(in.w, amount));
+}
+
+vector4 sign(vector4 a)
+{
+    return vector4(sign(a.x),
+                   sign(a.y),
+                   sign(a.z),
+                   sign(a.w));
+}
+
+vector4 sin(vector4 a)
+{
+    return vector4(sin(a.x),
+                   sin(a.y),
+                   sin(a.z),
+                   sin(a.w));
+}
+
+vector4 cos(vector4 a)
+{
+    return vector4(cos(a.x),
+                   cos(a.y),
+                   cos(a.z),
+                   cos(a.w));
+}
+
+vector4 tan(vector4 a)
+{
+    return vector4(tan(a.x),
+                   tan(a.y),
+                   tan(a.z),
+                   tan(a.w));
+}
+
+vector4 asin(vector4 a)
+{
+    return vector4(asin(a.x),
+                   asin(a.y),
+                   asin(a.z),
+                   asin(a.w));
+}
+
+vector4 acos(vector4 a)
+{
+    return vector4(acos(a.x),
+                   acos(a.y),
+                   acos(a.z),
+                   acos(a.w));
+}
+
+vector4 atan2(vector4 a, float f)
+{
+    return vector4(atan2(a.x, f),
+                   atan2(a.y, f),
+                   atan2(a.z, f),
+                   atan2(a.w, f));
+}
+
+vector4 atan2(vector4 a, vector4 b)
+{
+    return vector4(atan2(a.x, b.x),
+                   atan2(a.y, b.y),
+                   atan2(a.z, b.z),
+                   atan2(a.w, b.w));
+}
+
+
+vector4 transform (matrix M, vector4 p)
+{
+    return vector4 (M[0][0]*p.x + M[0][1]*p.y + M[0][2]*p.z + M[0][2]*p.w,
+                    M[1][0]*p.x + M[1][1]*p.y + M[1][2]*p.z + M[1][2]*p.w,
+                    M[2][0]*p.x + M[2][1]*p.y + M[2][2]*p.z + M[2][2]*p.w,
+                    M[3][0]*p.x + M[3][1]*p.y + M[3][2]*p.z + M[3][2]*p.w);
+}
+
+vector4 transform (string fromspace, string tospace, vector4 p)
+{
+    return transform (matrix(fromspace,tospace), p);
 }

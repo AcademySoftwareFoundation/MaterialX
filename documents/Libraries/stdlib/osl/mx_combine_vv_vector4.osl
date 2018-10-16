@@ -7,7 +7,7 @@
 #include "mx_funcs.h"
 
 shader mx_combine_vv_vector4
-    [[ string help = "Pack the channels from two, three or four streams into the same number of channels of a \
+    [[ string help = "Combine the channels from two, three or four streams into the same number of channels of a \
                       single stream of a specified compatible type;" ]]
   (
     vector2 in1 = {0,0},
