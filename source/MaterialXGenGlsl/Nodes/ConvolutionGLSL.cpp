@@ -33,7 +33,9 @@ void ConvolutionGlsl::emitInputSamplesUV(const SgNode& node, SgNodeContext& cont
                     string outputName = upstreamOutput->name;
 
                     // Find out which input needs to be sampled multiple times
-                    SgInput* samplingInput = upstreamNode->getSamplingInput();
+                    // If the sample count is 1 then the sample code has already been emitted
+                    SgInput* samplingInput = (_sampleCount > 1) ? upstreamNode->getSamplingInput() : nullptr;
+
                     // TODO: For now we only support uv space sampling
                     if (samplingInput && samplingInput->type != Type::VECTOR2)
                     {
@@ -93,7 +95,7 @@ void ConvolutionGlsl::emitInputSamplesUV(const SgNode& node, SgNodeContext& cont
                         // the output variable.
                         for (unsigned int i = 0; i < _sampleCount; i++)
                         {
-                            // On failure just call the unmodified function
+                            // Call the unmodified function
                             sampleStrings.push_back(outputName);
                         }
                     }

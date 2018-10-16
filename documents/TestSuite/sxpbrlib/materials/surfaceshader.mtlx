@@ -87,11 +87,11 @@
       <input name="roughness" type="roughnessinfo" nodename="roughness1" />
     </conductorbrdf>
     <reflectivity name="reflectivity1" type="color3">
-      <input name="ior_n" type="vector3" interfacename="ior_n" />
-      <input name="ior_k" type="vector3" interfacename="ior_k" />
+      <input name="ior" type="vector3" interfacename="ior_n" />
+      <input name="extinction" type="vector3" interfacename="ior_k" />
     </reflectivity>
     <edgetint name="edgetint1" type="color3">
-      <input name="ior_n" type="vector3" interfacename="ior_n" />
+      <input name="ior" type="vector3" interfacename="ior_n" />
       <input name="reflectivity" type="color3" nodename="reflectivity1" />
     </edgetint>
     <mixbsdf name="mix" type="BSDF">

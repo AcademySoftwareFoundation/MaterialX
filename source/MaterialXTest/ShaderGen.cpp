@@ -1938,7 +1938,7 @@ TEST_CASE("BSDF Layering", "[shadergen]")
     nodeDef->addInput("diffuse_color", "color3");
     nodeDef->addInput("sss_color", "color3");
     nodeDef->addInput("sss_weight", "float");
-    nodeDef->addInput("coating_color", "color3");
+    nodeDef->addInput("coating_tint", "color3");
     nodeDef->addInput("coating_roughness", "float");
     nodeDef->addInput("coating_ior", "float");
 
@@ -1967,8 +1967,8 @@ TEST_CASE("BSDF Layering", "[shadergen]")
     // Add a coating specular component on top
     mx::NodePtr coating = nodeGraph->addNode("dielectricbrdf", "coating", "BSDF");
     coating->setConnectedNode("base", substrate);
-    mx::InputPtr coating_color = coating->addInput("color", "color3");
-    coating_color->setInterfaceName("coating_color");
+    mx::InputPtr coating_tint = coating->addInput("tint", "color3");
+    coating_tint->setInterfaceName("coating_tint");
     mx::NodePtr coating_roughness = nodeGraph->addNode("roughness", "coating_roughness", "roughnessinfo");
     mx::InputPtr roughness = coating_roughness->addInput("roughness", "float");
     roughness->setInterfaceName("coating_roughness");

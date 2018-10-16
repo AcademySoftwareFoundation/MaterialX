@@ -3,22 +3,22 @@
   <!-- <inputmap> -->
   <nodegraph name="IMP_inputmap_float" nodedef="ND_inputmap_float">
     <image name="image" type="float">
-      <input name="file" type="filename" interfacename="file" />
-      <input name="default" type="float" interfacename="value" />
+      <parameter name="file" type="filename" interfacename="file" />
+      <parameter name="default" type="float" interfacename="value" />
     </image>
     <output name="out" type="float" nodename="image" />
   </nodegraph>
   <nodegraph name="IMP_inputmap_color3" nodedef="ND_inputmap_color3">
     <image name="image" type="color3">
-      <input name="file" type="filename" interfacename="file" />
-      <input name="default" type="color3" interfacename="value" />
+      <parameter name="file" type="filename" interfacename="file" />
+      <parameter name="default" type="color3" interfacename="value" />
     </image>
     <output name="out" type="color3" nodename="image" />
   </nodegraph>
   <nodegraph name="IMP_inputmap_vector3" nodedef="ND_inputmap_vector3">
     <image name="image" type="vector3">
-      <input name="file" type="filename" interfacename="file" />
-      <input name="default" type="vector3" interfacename="value" />
+      <parameter name="file" type="filename" interfacename="file" />
+      <parameter name="default" type="vector3" interfacename="value" />
     </image>
     <output name="out" type="vector3" nodename="image" />
   </nodegraph>
@@ -90,7 +90,7 @@
     <!-- Transmission layer -->
     <dielectricbtdf name="Transmission_BSDF" type="BSDF">
       <input name="weight" type="float" value="1.0" />
-      <input name="color" type="color3" interfacename="transmission_color" />
+      <input name="tint" type="color3" interfacename="transmission_color" />
       <input name="ior" type="float" interfacename="specular_IOR" />
       <input name="roughness" type="roughnessinfo" nodename="rougness2" />
       <input name="normal" type="vector3" interfacename="normal" />
