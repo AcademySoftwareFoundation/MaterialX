@@ -5,6 +5,9 @@ Basic vector math function tests each test is in a separate graph for each varia
 - magnitude
 - dotproduct
 - crossproduct
+- rotate
+- determinant
+- transpose
 
 -->
 
@@ -73,5 +76,76 @@ Basic vector math function tests each test is in a separate graph for each varia
       <input name="in2" type="vector3" value="0.0, 1.0000, 1.0000" />
     </crossproduct>
     <output name="out" type="vector3" nodename="crossproduct1" />
+  </nodegraph>
+  <nodegraph name="rotate_vector2" type="" xpos="6.24941" ypos="23.8081">
+    <position name="position1" type="vector3" xpos="3.04828" ypos="6.34">
+      <parameter name="space" type="string" value="object" />
+    </position>
+    <output name="out" type="vector2" nodename="rotate1" />
+    <rotate name="rotate1" type="vector2" xpos="5.62998" ypos="7.07692">
+      <input name="in" type="vector2" value="0.0, 0.0" nodename="swizzle1" />
+      <parameter name="amount" type="float" value="90.0000" />
+    </rotate>
+    <swizzle name="swizzle1" type="vector2" xpos="4.31739" ypos="5.3662">
+      <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="position1" />
+      <parameter name="channels" type="string" value="xy" />
+    </swizzle>
+  </nodegraph>
+  <nodegraph name="rotate_vector3" type="" xpos="7.24435" ypos="23.808">
+    <position name="position1" type="vector3" xpos="3.53793" ypos="5.42">
+      <parameter name="space" type="string" value="object" />
+    </position>
+    <rotate name="rotate1" type="vector3" xpos="5.19248" ypos="5.306">
+      <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="position1" />
+      <parameter name="amount" type="float" value="180.0000" />
+      <parameter name="axis" type="vector3" value="0.0, 1.0000, 1.0000" />
+    </rotate>
+    <output name="out" type="vector3" nodename="rotate1" />
+  </nodegraph>
+  <!--
+  <nodegraph name="determinant_matrix33" type="" xpos="6.26251" ypos="25.1022">
+    <determinant name="determinant1" type="float" xpos="5.74835" ypos="6.41022">
+      <input name="in" type="matrix33" value="1.0,0.0,0.5, 0.0,1.0,0.0, 1.0,0.0,1.0" />
+    </determinant>
+    <output name="out" type="float" nodename="determinant1" />
+  </nodegraph>
+  -->
+  <nodegraph name="determinant_matrix44" type="" xpos="7.26465" ypos="25.0919">
+    <determinant name="determinant1" type="float" xpos="5.75172" ypos="6.42">
+      <input name="in" type="matrix44" value="1.0,0.0,0.0,1.0, 0.0,1.0,1.0,0.0, 0.0,0.5.0,1.0,0.0, 1.0,0.0,0.0,1.0" />
+    </determinant>
+    <output name="out" type="float" nodename="determinant1" />
+  </nodegraph>
+  <!--
+  <nodegraph name="transpose_matrix33" type="" xpos="6.27714" ypos="26.3972">
+    <transpose name="transpose1" type="matrix33" xpos="5.02637" ypos="8.34744">
+      <input name="in" type="matrix33" value="1.0,1.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0" />
+    </transpose>
+    <position name="position1" type="vector3" xpos="4.87243" ypos="6.7323">
+      <parameter name="space" type="string" value="object" />
+    </position>
+    <transformvector name="transformvector1" type="vector3" xpos="6.25413" ypos="7.13256">
+      <input name="in" type="vector3" nodename="position1" />
+      <input name="mat" type="matrix33" nodename="transpose1" />
+    </transformvector>
+    <output name="out" type="vector3" nodename="transformvector1" />
+  </nodegraph>
+  -->
+  <nodegraph name="transpose_matrix44" type="" xpos="7.2764" ypos="26.383">
+    <position name="position1" type="vector3" xpos="3.41379" ypos="6.94">
+      <parameter name="space" type="string" value="object" />
+    </position>
+    <swizzle name="swizzle1" type="vector4" xpos="4.61194" ypos="6.66496">
+      <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="position1" />
+      <parameter name="channels" type="string" value="xyz1" />
+    </swizzle>
+    <transformvector name="transformvector1" type="vector4" xpos="5.83715" ypos="6.95826">
+      <input name="in" type="vector4" nodename="swizzle1" />
+      <input name="mat" type="matrix44" nodename="transpose1" />
+    </transformvector>
+    <transpose name="transpose1" type="matrix44" xpos="4.7123" ypos="8.70598">
+      <input name="in" type="matrix44" value="1.0,1.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0" />
+    </transpose>
+    <output name="out" type="vector4" nodename="transformvector1" />
   </nodegraph>
 </materialx>

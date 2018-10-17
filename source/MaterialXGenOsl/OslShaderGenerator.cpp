@@ -258,6 +258,7 @@ void OslShaderGenerator::emitIncludes(Shader& shader)
     {
         "color2.h",
         "color4.h",
+        "matrix33.h",
         "vector2.h",
         "vector4.h",
         "mx_funcs.h"
