@@ -66,6 +66,15 @@ string Node::getConnectedNodeName(const string& inputName) const
     return input->getNodeName();
 }
 
+bool Node::requiresInputCompatibility(ConstInterfaceElementPtr rhs) const
+{
+    if (rhs->isA<NodeDef>())
+    {
+        return true;
+    }
+    return false;
+}
+
 NodeDefPtr Node::getNodeDef(const string& target) const
 {
     vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getCategory()));

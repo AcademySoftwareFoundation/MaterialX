@@ -436,16 +436,23 @@ NodeDefPtr InterfaceElement::getDeclaration(const string& target) const
     return NodeDefPtr();
 }
 
+bool InterfaceElement::requiresInputCompatibility(ConstInterfaceElementPtr rhs) const
+{
+    return false;
+}
+
 bool InterfaceElement::isTypeCompatible(ConstInterfaceElementPtr rhs) const
 {
     if (getType() != rhs->getType())
     {
         return false;
     }
+    bool requiresInputs = requiresInputCompatibility(rhs);
+
     for (ParameterPtr param : getActiveParameters())
     {
         ParameterPtr matchingParam = rhs->getActiveParameter(param->getName());
-        if (matchingParam && matchingParam->getType() != param->getType())
+        if ((!matchingParam && requiresInputs) || (matchingParam && matchingParam->getType() != param->getType()))
         {
             return false;
         }
@@ -453,7 +460,7 @@ bool InterfaceElement::isTypeCompatible(ConstInterfaceElementPtr rhs) const
     for (InputPtr input : getActiveInputs())
     {
         InputPtr matchingInput = rhs->getActiveInput(input->getName());
-        if (matchingInput && matchingInput->getType() != input->getType())
+        if ((!matchingInput && requiresInputs) || (matchingInput && matchingInput->getType() != input->getType()))
         {
             return false;
         }
