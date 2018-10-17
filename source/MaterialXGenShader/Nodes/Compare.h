@@ -1,18 +1,18 @@
 #ifndef MATERIALX_COMPARE_H
 #define MATERIALX_COMPARE_H
 
-#include <MaterialXGenShader/SgImplementation.h>
+#include <MaterialXGenShader/GenImplementation.h>
 
 namespace MaterialX
 {
 
 /// Implementation of compare node
-class Compare : public SgImplementation
+class Compare : public GenImplementation
 {
 public:
-    static SgImplementationPtr create();
+    static GenImplementationPtr create();
 
-    void emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(const DagNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader) override;
 
 public:
     static const vector<string> INPUT_NAMES;

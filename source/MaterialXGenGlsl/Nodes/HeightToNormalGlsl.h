@@ -12,9 +12,9 @@ class HeightToNormalGlsl : public ConvolutionGlsl
   public:
     using ParentClass = ConvolutionGlsl;
 
-    static SgImplementationPtr create();
+    static GenImplementationPtr create();
 
-    void emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(const DagNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader) override;
 
   protected:
     /// Constructor

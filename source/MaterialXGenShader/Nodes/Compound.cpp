@@ -10,14 +10,14 @@
 namespace MaterialX
 {
 
-SgImplementationPtr Compound::create()
+GenImplementationPtr Compound::create()
 {
     return std::make_shared<Compound>();
 }
 
 void Compound::initialize(ElementPtr implementation, ShaderGenerator& shadergen)
 {
-    SgImplementation::initialize(implementation, shadergen);
+    GenImplementation::initialize(implementation, shadergen);
 
     NodeGraphPtr graph = implementation->asA<NodeGraph>();
     if (!graph)
@@ -25,31 +25,31 @@ void Compound::initialize(ElementPtr implementation, ShaderGenerator& shadergen)
         throw ExceptionShaderGenError("Element '" + implementation->getName() + "' is not a node graph implementation");
     }
 
-    _rootGraph = SgNodeGraph::create(graph, shadergen);
+    _dag = Dag::create(graph, shadergen);
     _functionName = graph->getName();
 }
 
-void Compound::createVariables(const SgNode& /*node*/, ShaderGenerator& shadergen, Shader& shader)
+void Compound::createVariables(const DagNode& /*node*/, ShaderGenerator& shadergen, Shader& shader)
 {
     // Gather shader inputs from all child nodes
-    for (SgNode* childNode : _rootGraph->getNodes())
+    for (DagNode* childNode : _dag->getNodes())
     {
-        SgImplementation* impl = childNode->getImplementation();
+        GenImplementation* impl = childNode->getImplementation();
         impl->createVariables(*childNode, shadergen, shader);
     }
 }
 
-void Compound::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shadergen, Shader& shader)
+void Compound::emitFunctionDefinition(const DagNode& node, ShaderGenerator& shadergen, Shader& shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
     // Make the compound root graph the active graph
-    shader.pushActiveGraph(_rootGraph.get());
+    shader.pushActiveDag(_dag.get());
 
     const Syntax* syntax = shadergen.getSyntax();
 
     // Emit functions for all child nodes
-    for (SgNode* childNode : _rootGraph->getNodes())
+    for (DagNode* childNode : _dag->getNodes())
     {
         shader.addFunctionDefinition(childNode, shadergen);
     }
@@ -57,7 +57,7 @@ void Compound::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shade
     // Emit function definitions for each context used by this compound node
     for (int id : node.getContextIDs())
     {
-        const SgNodeContext* context = shadergen.getNodeContext(id);
+        const GenContext* context = shadergen.getNodeContext(id);
         if (!context)
         {
             throw ExceptionShaderGenError("Node '" + node.getName() + "' has an implementation context that is undefined for shader generator '" + 
@@ -79,14 +79,14 @@ void Compound::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shade
         }
 
         // Add all inputs
-        for (SgInputSocket* inputSocket : _rootGraph->getInputSockets())
+        for (DagInputSocket* inputSocket : _dag->getInputSockets())
         {
             shader.addStr(delim + syntax->getTypeName(inputSocket->type) + " " + inputSocket->name);
             delim = ", ";
         }
 
         // Add all outputs
-        for (SgOutputSocket* outputSocket : _rootGraph->getOutputSockets())
+        for (DagOutputSocket* outputSocket : _dag->getOutputSockets())
         {
             shader.addStr(delim + syntax->getOutputTypeName(outputSocket->type) + " " + outputSocket->name);
             delim = ", ";
@@ -102,7 +102,7 @@ void Compound::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shade
         shadergen.emitFunctionCalls(*context, shader);
 
         // Emit final results
-        for (SgOutputSocket* outputSocket : _rootGraph->getOutputSockets())
+        for (DagOutputSocket* outputSocket : _dag->getOutputSockets())
         {
             // Check for the rare case where the output is not internally connected
             if (!outputSocket->connection)
@@ -122,17 +122,17 @@ void Compound::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shade
     }
 
     // Restore active graph
-    shader.popActiveGraph();
+    shader.popActiveDag();
 
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
-void Compound::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader)
+void Compound::emitFunctionCall(const DagNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
 
     // Emit function calls for all child nodes to the vertex shader stage
-    for (SgNode* childNode : _rootGraph->getNodes())
+    for (DagNode* childNode : _dag->getNodes())
     {
         shader.addFunctionCall(childNode, context, shadergen);
     }
@@ -162,7 +162,7 @@ void Compound::emitFunctionCall(const SgNode& node, SgNodeContext& context, Shad
     }
 
     // ...and then all inputs on the node
-    for (SgInput* input : node.getInputs())
+    for (DagInput* input : node.getInputs())
     {
         shader.addStr(delim);
         shadergen.emitInput(context, input, shader);

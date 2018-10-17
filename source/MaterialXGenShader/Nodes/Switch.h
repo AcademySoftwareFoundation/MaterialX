@@ -1,18 +1,18 @@
 #ifndef MATERIALX_SWITCH_H
 #define MATERIALX_SWITCH_H
 
-#include <MaterialXGenShader/SgImplementation.h>
+#include <MaterialXGenShader/GenImplementation.h>
 
 namespace MaterialX
 {
 
 /// Implementation of switch node
-class Switch : public SgImplementation
+class Switch : public GenImplementation
 {
 public:
-    static SgImplementationPtr create();
+    static GenImplementationPtr create();
 
-    void emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(const DagNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader) override;
 
 public:
     static const vector<string> INPUT_NAMES;

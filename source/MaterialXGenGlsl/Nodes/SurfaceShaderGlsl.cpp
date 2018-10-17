@@ -5,7 +5,7 @@
 namespace MaterialX
 {
 
-SgImplementationPtr SurfaceShaderGlsl::create()
+GenImplementationPtr SurfaceShaderGlsl::create()
 {
     return std::make_shared<SurfaceShaderGlsl>();
 }
@@ -20,7 +20,7 @@ const string& SurfaceShaderGlsl::getTarget() const
     return GlslShaderGenerator::TARGET;
 }
 
-void SurfaceShaderGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void SurfaceShaderGlsl::createVariables(const DagNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     // TODO: 
     // The surface shader needs position, view position and light sources. We should solve this by adding some 
@@ -37,7 +37,7 @@ void SurfaceShaderGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator&
         EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void SurfaceShaderGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void SurfaceShaderGlsl::emitFunctionCall(const DagNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 

@@ -10,11 +10,11 @@ namespace MaterialX
 class PositionGlsl : public GlslImplementation
 {
 public:
-    static SgImplementationPtr create();
+    static GenImplementationPtr create();
 
-    void createVariables(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
+    void createVariables(const DagNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 
-    void emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(const DagNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader) override;
 };
 
 } // namespace MaterialX

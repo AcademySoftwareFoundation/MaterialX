@@ -380,7 +380,7 @@ static void runGLSLValidation(const std::string& shaderName, mx::ElementPtr elem
                               mx::GlslShaderGenerator& shaderGenerator, bool orthographicView, mx::DocumentPtr doc,
                               std::ostream& log, bool outputMtlxDoc=true, const std::string& outputPath=".")
 {
-    mx::SgOptions options;
+    mx::GenOptions options;
 
     if(element && doc)
     {
@@ -459,7 +459,7 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
                              mx::ArnoldShaderGenerator& shaderGenerator, mx::DocumentPtr doc, std::ostream& log,
                              bool outputMtlxDoc=true, const std::string& outputPath=".")
 {
-    mx::SgOptions options;
+    mx::GenOptions options;
 
     if(element && doc)
     {

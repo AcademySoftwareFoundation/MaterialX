@@ -13,14 +13,14 @@
 namespace MaterialX
 {
 
-SgImplementationPtr SourceCode::create()
+GenImplementationPtr SourceCode::create()
 {
     return std::make_shared<SourceCode>();
 }
 
 void SourceCode::initialize(ElementPtr implementation, ShaderGenerator& shadergen)
 {
-    SgImplementation::initialize(implementation, shadergen);
+    GenImplementation::initialize(implementation, shadergen);
 
     ImplementationPtr impl = implementation->asA<Implementation>();
     if (!impl)
@@ -56,7 +56,7 @@ void SourceCode::initialize(ElementPtr implementation, ShaderGenerator& shaderge
     }
 }
 
-void SourceCode::emitFunctionDefinition(const SgNode& /*node*/, ShaderGenerator& shadergen, Shader& shader)
+void SourceCode::emitFunctionDefinition(const DagNode& /*node*/, ShaderGenerator& shadergen, Shader& shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
@@ -70,7 +70,7 @@ void SourceCode::emitFunctionDefinition(const SgNode& /*node*/, ShaderGenerator&
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
-void SourceCode::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader)
+void SourceCode::emitFunctionCall(const DagNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
@@ -99,7 +99,7 @@ void SourceCode::emitFunctionCall(const SgNode& node, SgNodeContext& context, Sh
             }
 
             const string variable = _functionSource.substr(i + 2, j - i - 2);
-            const SgInput* input = node.getInput(variable);
+            const DagInput* input = node.getInput(variable);
             if (!input)
             {
                 throw ExceptionShaderGenError("Could not find an input named '" + variable +
@@ -139,7 +139,7 @@ void SourceCode::emitFunctionCall(const SgNode& node, SgNodeContext& context, Sh
         }
 
         // ...and then all inputs on the node
-        for (SgInput* input : node.getInputs())
+        for (DagInput* input : node.getInputs())
         {
             shader.addStr(delim);
             shadergen.emitInput(context, input, shader);

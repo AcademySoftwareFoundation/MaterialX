@@ -12,7 +12,7 @@ using HwShaderGeneratorPtr = shared_ptr<class HwShaderGenerator>;
 class HwShaderGenerator : public ShaderGenerator
 {
 public:
-    using LightShaderMap = std::unordered_map<size_t, SgImplementationPtr>;
+    using LightShaderMap = std::unordered_map<size_t, GenImplementationPtr>;
 
 public:
     /// Set the maximum number of light sources that can be active at once.
@@ -34,7 +34,7 @@ public:
     /// Return the light shader implementation for the given light type id.
     /// If no light shader with that light type has been bound a nullptr is 
     /// returned instead.
-    SgImplementation* getBoundLightShader(size_t lightTypeId);
+    GenImplementation* getBoundLightShader(size_t lightTypeId);
 
 protected:
     HwShaderGenerator(SyntaxPtr syntax);

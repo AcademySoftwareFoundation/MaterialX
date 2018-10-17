@@ -1,9 +1,9 @@
-#include <MaterialXGenShader/SgOptions.h>
+#include <MaterialXGenShader/GenOptions.h>
 
 namespace MaterialX
 {
 
-SgOptions::SgOptions()
+GenOptions::GenOptions()
     : shaderInterfaceType(SHADER_INTERFACE_COMPLETE)
     , hwTransparency(false)
 {

@@ -18,12 +18,12 @@ namespace
         "vec3 L = lightShader.direction;\n";
 }
 
-SgImplementationPtr SurfaceGlsl::create()
+GenImplementationPtr SurfaceGlsl::create()
 {
     return std::make_shared<SurfaceGlsl>();
 }
 
-void SurfaceGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void SurfaceGlsl::createVariables(const DagNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     // TODO: 
     // The surface shader needs position, normal, view position and light sources. We should solve this by adding some 
@@ -43,7 +43,7 @@ void SurfaceGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*sha
         EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void SurfaceGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void SurfaceGlsl::emitFunctionCall(const DagNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
@@ -88,7 +88,7 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, S
         shader.newLine();
     }
 
-    const SgOutput* output = node.getOutput();
+    const DagOutput* output = node.getOutput();
     const string outColor = output->name + ".color";
     const string outTransparency = output->name + ".transparency";
 
@@ -108,7 +108,7 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, S
 
     shader.addComment("Calculate the BSDF response for this light source");
     string bsdf;
-    glslgen.emitBsdfNodes(node, GlslShaderGenerator::NODE_CONTEXT_BSDF_REFLECTION, 
+    glslgen.emitBsdfNodes(node, GlslShaderGenerator::CONTEXT_BSDF_REFLECTION, 
         GlslShaderGenerator::LIGHT_DIR, GlslShaderGenerator::VIEW_DIR, shader, bsdf);
     shader.newLine();
 
@@ -132,7 +132,7 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, S
 
     shader.addComment("Add indirect contribution");
     shader.beginScope();
-    glslgen.emitBsdfNodes(node, GlslShaderGenerator::NODE_CONTEXT_BSDF_INDIRECT, 
+    glslgen.emitBsdfNodes(node, GlslShaderGenerator::CONTEXT_BSDF_INDIRECT, 
         GlslShaderGenerator::VIEW_DIR, GlslShaderGenerator::VIEW_DIR, shader, bsdf);
     shader.newLine();
     shader.addLine(outColor + " += " + bsdf);
@@ -145,7 +145,7 @@ void SurfaceGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, S
     {
         shader.addComment("Calculate the BSDF transmission for viewing direction");
         shader.beginScope();
-        glslgen.emitBsdfNodes(node, GlslShaderGenerator::NODE_CONTEXT_BSDF_TRANSMISSION,
+        glslgen.emitBsdfNodes(node, GlslShaderGenerator::CONTEXT_BSDF_TRANSMISSION,
             GlslShaderGenerator::VIEW_DIR, GlslShaderGenerator::VIEW_DIR, shader, bsdf);
         shader.addLine(outTransparency + " = " + bsdf);
         shader.endScope();

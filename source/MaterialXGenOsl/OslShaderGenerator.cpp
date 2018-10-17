@@ -140,7 +140,7 @@ OslShaderGenerator::OslShaderGenerator()
     };
 }
 
-ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr element, const SgOptions& options)
+ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr element, const GenOptions& options)
 {
     ShaderPtr shaderPtr = std::make_shared<Shader>(shaderName);
     shaderPtr->initialize(element, *this, options);
@@ -155,7 +155,7 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     emitFunctionDefinitions(shader);
 
     // Emit shader type
-    const SgOutputSocket* outputSocket = shader.getNodeGraph()->getOutputSocket();
+    const DagOutputSocket* outputSocket = shader.getDag()->getOutputSocket();
     if (outputSocket->type == Type::SURFACESHADER)
     {
         shader.addStr("surface ");
@@ -216,7 +216,7 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     // Emit shader body
     shader.beginScope(Shader::Brackets::BRACES);
 
-    emitFunctionCalls(*_defaultNodeContext, shader);
+    emitFunctionCalls(*_defaultContext, shader);
     emitFinalOutput(shader);
 
     shader.endScope();
@@ -254,10 +254,10 @@ void OslShaderGenerator::emitIncludes(Shader& shader)
     shader.newLine();
 }
 
-void OslShaderGenerator::emitFunctionCalls(const SgNodeContext& context, Shader &shader)
+void OslShaderGenerator::emitFunctionCalls(const GenContext& context, Shader &shader)
 {
     // Emit needed globals
-    if (!shader.getNodeGraph()->hasClassification(SgNode::Classification::TEXTURE))
+    if (!shader.getDag()->hasClassification(DagNode::Classification::TEXTURE))
     {
         shader.addLine("closure color null_closure = 0");
     }
@@ -268,8 +268,8 @@ void OslShaderGenerator::emitFunctionCalls(const SgNodeContext& context, Shader 
 
 void OslShaderGenerator::emitFinalOutput(Shader& shader) const
 {
-    SgNodeGraph* graph = shader.getNodeGraph();
-    const SgOutputSocket* outputSocket = graph->getOutputSocket();
+    Dag* graph = shader.getDag();
+    const DagOutputSocket* outputSocket = graph->getOutputSocket();
 
     if (!outputSocket->connection)
     {

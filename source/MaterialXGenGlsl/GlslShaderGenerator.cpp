@@ -60,23 +60,23 @@ GlslShaderGenerator::GlslShaderGenerator()
     //
 
     // BSDF reflection context
-    SgNodeContextPtr ctxBsdfReflection = createNodeContext(NODE_CONTEXT_BSDF_REFLECTION);
+    GenContextPtr ctxBsdfReflection = createContext(CONTEXT_BSDF_REFLECTION);
     ctxBsdfReflection->addArgument(Argument("vec3", INCIDENT));
     ctxBsdfReflection->addArgument(Argument("vec3", OUTGOING));
     ctxBsdfReflection->setFunctionSuffix("_reflection");
 
     // BSDF transmission context
-    SgNodeContextPtr ctxBsdfTransmission = createNodeContext(NODE_CONTEXT_BSDF_TRANSMISSION);
+    GenContextPtr ctxBsdfTransmission = createContext(CONTEXT_BSDF_TRANSMISSION);
     ctxBsdfTransmission->addArgument(Argument("vec3", OUTGOING));
     ctxBsdfTransmission->setFunctionSuffix("_transmission");
 
     // BSDF indirect context
-    SgNodeContextPtr ctxBsdfIndirect = createNodeContext(NODE_CONTEXT_BSDF_INDIRECT);
+    GenContextPtr ctxBsdfIndirect = createContext(CONTEXT_BSDF_INDIRECT);
     ctxBsdfIndirect->addArgument(Argument("vec3", OUTGOING));
     ctxBsdfIndirect->setFunctionSuffix("_indirect");
 
     // EDF emission context
-    SgNodeContextPtr ctxEdf = createNodeContext(NODE_CONTEXT_EDF);
+    GenContextPtr ctxEdf = createContext(CONTEXT_EDF);
     ctxEdf->addArgument(Argument("vec3", NORMAL));
     ctxEdf->addArgument(Argument("vec3", EVAL));
 
@@ -236,7 +236,7 @@ GlslShaderGenerator::GlslShaderGenerator()
     registerImplementation("IM_blur_vector4_sx_glsl", BlurGlsl::create);
 }
 
-ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr element, const SgOptions& options)
+ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr element, const GenOptions& options)
 {
     HwShaderPtr shaderPtr = std::make_shared<HwShader>(shaderName);
     shaderPtr->initialize(element, *this, options);
@@ -318,7 +318,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     shader.beginScope(Shader::Brackets::BRACES);
     shader.addLine("vec4 hPositionWorld = u_worldMatrix * vec4(i_position, 1.0)");
     shader.addLine("gl_Position = u_viewProjectionMatrix * hPositionWorld");
-    emitFunctionCalls(*_defaultNodeContext, shader);
+    emitFunctionCalls(*_defaultContext, shader);
     shader.endScope();
     shader.newLine();
 
@@ -362,8 +362,8 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
         shader.newLine();
     }
 
-    bool lighting = shader.hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE) ||
-                    shader.hasClassification(SgNode::Classification::BSDF);
+    bool lighting = shader.hasClassification(DagNode::Classification::SHADER | DagNode::Classification::SURFACE) ||
+                    shader.hasClassification(DagNode::Classification::BSDF);
 
     // Add light data block if needed
     if (lighting)
@@ -400,7 +400,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     // Add the pixel shader output. This needs to be a vec4 for rendering
     // and upstream connection will be converted to vec4 if needed in emitFinalOutput()
     shader.addComment("Data output by the pixel shader");
-    const SgOutputSocket* outputSocket = shader.getNodeGraph()->getOutputSocket();
+    const DagOutputSocket* outputSocket = shader.getDag()->getOutputSocket();
     shader.addLine("out vec4 " + outputSocket->name);
     shader.newLine();
 
@@ -416,7 +416,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     }
 
     // Emit sampling code if needed
-    if (shader.hasClassification(SgNode::Classification::CONVOLUTION2D))
+    if (shader.hasClassification(DagNode::Classification::CONVOLUTION2D))
     {
         // Emit sampling functions
         shader.addInclude("stdlib/sx-glsl/lib/sx_sampling.glsl", *this);
@@ -429,7 +429,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     // Add main function
     shader.addLine("void main()", false);
     shader.beginScope(Shader::Brackets::BRACES);
-    emitFunctionCalls(*_defaultNodeContext, shader);
+    emitFunctionCalls(*_defaultContext, shader);
     emitFinalOutput(shader);
     shader.endScope();
     shader.newLine();
@@ -446,12 +446,12 @@ void GlslShaderGenerator::emitFunctionDefinitions(Shader& shader)
         shader.addBlock(shader.getRequestedVDirection() != getTargetVDirection() ? VDIRECTION_FLIP : VDIRECTION_NOOP, *this);
 
         // For surface shaders we need light shaders
-        if (shader.hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE))
+        if (shader.hasClassification(DagNode::Classification::SHADER | DagNode::Classification::SURFACE))
         {
             // Emit functions for all bound light shaders
             for (auto lightShader : getBoundLightShaders())
             {
-                lightShader.second->emitFunctionDefinition(*SgNode::NONE, *this, shader);
+                lightShader.second->emitFunctionDefinition(*DagNode::NONE, *this, shader);
             }
 
             // Emit active light count function
@@ -470,7 +470,7 @@ void GlslShaderGenerator::emitFunctionDefinitions(Shader& shader)
             {
                 shader.addLine(ifstatement + "(light.type == " + std::to_string(lightShader.first) + ")", false);
                 shader.beginScope(Shader::Brackets::BRACES);
-                lightShader.second->emitFunctionCall(*SgNode::NONE, *_defaultNodeContext, *this, shader);
+                lightShader.second->emitFunctionCall(*DagNode::NONE, *_defaultContext, *this, shader);
                 shader.endScope();
                 ifstatement = "else if ";
             }
@@ -484,12 +484,12 @@ void GlslShaderGenerator::emitFunctionDefinitions(Shader& shader)
     ParentClass::emitFunctionDefinitions(shader);
 }
 
-void GlslShaderGenerator::emitFunctionCalls(const SgNodeContext& context, Shader &shader)
+void GlslShaderGenerator::emitFunctionCalls(const GenContext& context, Shader &shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
         // For vertex stage just emit all function calls in order
         // and ignore conditional scope.
-        for (SgNode* node : shader.getNodeGraph()->getNodes())
+        for (DagNode* node : shader.getDag()->getNodes())
         {
             shader.addFunctionCall(node, context, *this);
         }
@@ -497,16 +497,16 @@ void GlslShaderGenerator::emitFunctionCalls(const SgNodeContext& context, Shader
 
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
         // For pixel stage surface shaders need special handling
-        if (shader.hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE))
+        if (shader.hasClassification(DagNode::Classification::SHADER | DagNode::Classification::SURFACE))
         {
             // Handle all texturing nodes. These are inputs to any
             // closure/shader nodes and need to be emitted first.
             emitTextureNodes(shader);
 
             // Emit function calls for all surface shader nodes
-            for (SgNode* node : shader.getNodeGraph()->getNodes())
+            for (DagNode* node : shader.getDag()->getNodes())
             {
-                if (node->hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE))
+                if (node->hasClassification(DagNode::Classification::SHADER | DagNode::Classification::SURFACE))
                 {
                     shader.addFunctionCall(node, context, *this);
                 }
@@ -522,7 +522,7 @@ void GlslShaderGenerator::emitFunctionCalls(const SgNodeContext& context, Shader
 
 void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
 {
-    const SgOutputSocket* outputSocket = shader.getNodeGraph()->getOutputSocket();
+    const DagOutputSocket* outputSocket = shader.getDag()->getOutputSocket();
 
     // Early out for the rare case where the whole graph is just a single value
     if (!outputSocket->connection)
@@ -544,7 +544,7 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
 
     string finalOutput = outputSocket->connection->name;
 
-    if (shader.hasClassification(SgNode::Classification::SURFACE))
+    if (shader.hasClassification(DagNode::Classification::SURFACE))
     {
         const HwShader& hwShader = static_cast<const HwShader&>(shader);
         if (hwShader.hasTransparency())
@@ -567,32 +567,32 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
     }
 }
 
-void GlslShaderGenerator::addNodeContextIDs(SgNode* node) const
+void GlslShaderGenerator::addNodeContextIDs(DagNode* node) const
 {
-    if (node->hasClassification(SgNode::Classification::BSDF))
+    if (node->hasClassification(DagNode::Classification::BSDF))
     {
-        if (node->hasClassification(SgNode::Classification::BSDF_R))
+        if (node->hasClassification(DagNode::Classification::BSDF_R))
         {
             // A BSDF for reflection only
-            node->addContextID(NODE_CONTEXT_BSDF_REFLECTION);
-            node->addContextID(NODE_CONTEXT_BSDF_INDIRECT);
+            node->addContextID(CONTEXT_BSDF_REFLECTION);
+            node->addContextID(CONTEXT_BSDF_INDIRECT);
         }
-        else if (node->hasClassification(SgNode::Classification::BSDF_T))
+        else if (node->hasClassification(DagNode::Classification::BSDF_T))
         {
             // A BSDF for transmission only
-            node->addContextID(NODE_CONTEXT_BSDF_TRANSMISSION);
+            node->addContextID(CONTEXT_BSDF_TRANSMISSION);
         }
         else
         {
             // A general BSDF handling both reflection and transmission
-            node->addContextID(NODE_CONTEXT_BSDF_REFLECTION);
-            node->addContextID(NODE_CONTEXT_BSDF_TRANSMISSION);
-            node->addContextID(NODE_CONTEXT_BSDF_INDIRECT);
+            node->addContextID(CONTEXT_BSDF_REFLECTION);
+            node->addContextID(CONTEXT_BSDF_TRANSMISSION);
+            node->addContextID(CONTEXT_BSDF_INDIRECT);
         }
     }
-    else if (node->hasClassification(SgNode::Classification::EDF))
+    else if (node->hasClassification(DagNode::Classification::EDF))
     {
-        node->addContextID(NODE_CONTEXT_EDF);
+        node->addContextID(CONTEXT_EDF);
     }
     else
     {
@@ -604,11 +604,11 @@ void GlslShaderGenerator::emitTextureNodes(Shader& shader)
 {
     // Emit function calls for all texturing nodes
     bool found = false;
-    for (SgNode* node : shader.getNodeGraph()->getNodes())
+    for (DagNode* node : shader.getDag()->getNodes())
     {
-        if (node->hasClassification(SgNode::Classification::TEXTURE) && !node->referencedConditionally())
+        if (node->hasClassification(DagNode::Classification::TEXTURE) && !node->referencedConditionally())
         {
-            shader.addFunctionCall(node, *_defaultNodeContext, *this);
+            shader.addFunctionCall(node, *_defaultContext, *this);
             found = true;
         }
     }
@@ -619,22 +619,22 @@ void GlslShaderGenerator::emitTextureNodes(Shader& shader)
     }
 }
 
-void GlslShaderGenerator::emitBsdfNodes(const SgNode& shaderNode, int bsdfContext, const string& incident, const string& outgoing, Shader& shader, string& bsdf)
+void GlslShaderGenerator::emitBsdfNodes(const DagNode& shaderNode, int bsdfContext, const string& incident, const string& outgoing, Shader& shader, string& bsdf)
 {
-    SgNodeContext context(bsdfContext);
+    GenContext context(bsdfContext);
 
     switch (bsdfContext)
     {
-    case NODE_CONTEXT_BSDF_REFLECTION:
+    case CONTEXT_BSDF_REFLECTION:
         context.addArgument(Argument("vec3", incident));
         context.addArgument(Argument("vec3", outgoing));
         context.setFunctionSuffix("_reflection");
         break;
-    case NODE_CONTEXT_BSDF_TRANSMISSION:
+    case CONTEXT_BSDF_TRANSMISSION:
         context.addArgument(Argument("vec3", outgoing));
         context.setFunctionSuffix("_transmission");
         break;
-    case NODE_CONTEXT_BSDF_INDIRECT:
+    case CONTEXT_BSDF_INDIRECT:
         context.addArgument(Argument("vec3", outgoing));
         context.setFunctionSuffix("_indirect");
         break;
@@ -642,13 +642,13 @@ void GlslShaderGenerator::emitBsdfNodes(const SgNode& shaderNode, int bsdfContex
         throw ExceptionShaderGenError("Unknown bsdf context id given when generating bsdf node function calls");
     }
 
-    SgNode* last = nullptr;
+    DagNode* last = nullptr;
 
     // Emit function calls for all BSDF nodes used by this shader.
     // The last node will hold the final result.
-    for (SgNode* node : shader.getNodeGraph()->getNodes())
+    for (DagNode* node : shader.getDag()->getNodes())
     {
-        if (node->hasClassification(SgNode::Classification::BSDF) && shaderNode.isUsedClosure(node))
+        if (node->hasClassification(DagNode::Classification::BSDF) && shaderNode.isUsedClosure(node))
         {
             // Check if the node is defined in this context.
             if (node->getContextIDs().count(bsdfContext))
@@ -673,9 +673,9 @@ void GlslShaderGenerator::emitBsdfNodes(const SgNode& shaderNode, int bsdfContex
     }
 }
 
-void GlslShaderGenerator::emitEdfNodes(const SgNode& shaderNode, const string& normalDir, const string& evalDir, Shader& shader, string& edf)
+void GlslShaderGenerator::emitEdfNodes(const DagNode& shaderNode, const string& normalDir, const string& evalDir, Shader& shader, string& edf)
 {
-    SgNodeContext context(NODE_CONTEXT_EDF);
+    GenContext context(CONTEXT_EDF);
 
     // Set extra arguments according to the given directions
     context.addArgument(Argument("vec3", normalDir));
@@ -683,13 +683,13 @@ void GlslShaderGenerator::emitEdfNodes(const SgNode& shaderNode, const string& n
 
     edf = "EDF(0.0)";
 
-    SgNode* last = nullptr;
+    DagNode* last = nullptr;
 
     // Emit function calls for all EDF nodes used by this shader
     // The last node will hold the final result
-    for (SgNode* node : shader.getNodeGraph()->getNodes())
+    for (DagNode* node : shader.getDag()->getNodes())
     {
-        if (node->hasClassification(SgNode::Classification::EDF) && shaderNode.isUsedClosure(node))
+        if (node->hasClassification(DagNode::Classification::EDF) && shaderNode.isUsedClosure(node))
         {
             shader.addFunctionCall(node, context, *this);
             last = node;
@@ -744,7 +744,7 @@ void GlslShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& s
     }
 }
 
-SgImplementationPtr GlslShaderGenerator::createCompoundImplementation(NodeGraphPtr impl)
+GenImplementationPtr GlslShaderGenerator::createCompoundImplementation(NodeGraphPtr impl)
 {
     NodeDefPtr nodeDef = impl->getNodeDef();
     if (!nodeDef)

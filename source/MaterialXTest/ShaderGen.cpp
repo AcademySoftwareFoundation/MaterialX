@@ -776,8 +776,8 @@ TEST_CASE("Swizzling", "[shadergen]")
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
     loadLibraries({"stdlib"}, searchPath, doc);
 
-    mx::SgOptions options;
-    mx::SgNodeContext context(mx::ShaderGenerator::NODE_CONTEXT_DEFAULT);
+    mx::GenOptions options;
+    mx::GenContext context(mx::ShaderGenerator::CONTEXT_DEFAULT);
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
@@ -812,7 +812,7 @@ TEST_CASE("Swizzling", "[shadergen]")
         // Test swizzle node implementation
         mx::Shader test1("test1");
         test1.initialize(output1, sg, options);
-        mx::SgNode* sgNode = test1.getNodeGraph()->getNode("swizzle1");
+        mx::DagNode* sgNode = test1.getDag()->getNode("swizzle1");
         REQUIRE(sgNode);
         test1.addFunctionCall(sgNode, context, sg);
         const std::string test1Result = "color swizzle1_out = color(swizzle1_in[0], swizzle1_in[0], swizzle1_in[0]);\n";
@@ -822,7 +822,7 @@ TEST_CASE("Swizzling", "[shadergen]")
         swizzle1->setParameterValue("channels", std::string("b0b"));
         mx::Shader test2("test2");
         test2.initialize(output1, sg, options);
-        sgNode = test2.getNodeGraph()->getNode("swizzle1");
+        sgNode = test2.getDag()->getNode("swizzle1");
         REQUIRE(sgNode);
         test2.addFunctionCall(sgNode, context, sg);
         const std::string test2Result = "color swizzle1_out = color(swizzle1_in[2], 0, swizzle1_in[2]);\n";
@@ -863,7 +863,7 @@ TEST_CASE("Swizzling", "[shadergen]")
         // Test swizzle node implementation
         mx::Shader test1("test1");
         test1.initialize(output1, sg, options);
-        mx::SgNode* sgNode = test1.getNodeGraph()->getNode("swizzle1");
+        mx::DagNode* sgNode = test1.getDag()->getNode("swizzle1");
         REQUIRE(sgNode);
         test1.addFunctionCall(sgNode, context, sg);
         const std::string test1Result = "vec3 swizzle1_out = vec3(swizzle1_in.x, swizzle1_in.x, swizzle1_in.x);\n";
@@ -873,7 +873,7 @@ TEST_CASE("Swizzling", "[shadergen]")
         swizzle1->setParameterValue("channels", std::string("b0b"));
         mx::Shader test2("test2");
         test2.initialize(output1, sg, options);
-        sgNode = test2.getNodeGraph()->getNode("swizzle1");
+        sgNode = test2.getDag()->getNode("swizzle1");
         REQUIRE(sgNode);
         test2.addFunctionCall(sgNode, context, sg);
         const std::string test2Result = "vec3 swizzle1_out = vec3(swizzle1_in.z, 0, swizzle1_in.z);\n";
@@ -959,7 +959,7 @@ TEST_CASE("Hello World", "[shadergen]")
     mx::MaterialPtr mtrl = doc->addMaterial(exampleName + "_material");
     mx::ShaderRefPtr shaderRef = mtrl->addShaderRef(exampleName + "_shader", exampleName);
 
-    mx::SgOptions options;
+    mx::GenOptions options;
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
@@ -1117,7 +1117,7 @@ TEST_CASE("Conditionals", "[shadergen]")
     file << dot;
     file.close();
 
-    mx::SgOptions options;
+    mx::GenOptions options;
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
@@ -1133,9 +1133,9 @@ TEST_CASE("Conditionals", "[shadergen]")
 
         // All of the nodes should have been removed by optimization
         // leaving a graph with a single constant value
-        REQUIRE(shader->getNodeGraph()->getNodes().empty());
-        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value != nullptr);
-        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
+        REQUIRE(shader->getDag()->getNodes().empty());
+        REQUIRE(shader->getDag()->getOutputSocket()->value != nullptr);
+        REQUIRE(shader->getDag()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
 
         // Write out to file for inspection
         const std::string fileName(RESULT_DIRECTORY + shader->getName() + ".osl");
@@ -1167,9 +1167,9 @@ TEST_CASE("Conditionals", "[shadergen]")
 
         // All of the nodes should have been removed by optimization
         // leaving a graph with a single constant value
-        REQUIRE(shader->getNodeGraph()->getNodes().empty());
-        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value != nullptr);
-        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
+        REQUIRE(shader->getDag()->getNodes().empty());
+        REQUIRE(shader->getDag()->getOutputSocket()->value != nullptr);
+        REQUIRE(shader->getDag()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
     }
 #endif // MATERIALX_BUILD_GEN_OGSFX
 
@@ -1194,9 +1194,9 @@ TEST_CASE("Conditionals", "[shadergen]")
 
         // All of the nodes should have been removed by optimization
         // leaving a graph with a single constant value
-        REQUIRE(shader->getNodeGraph()->getNodes().empty());
-        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value != nullptr);
-        REQUIRE(shader->getNodeGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
+        REQUIRE(shader->getDag()->getNodes().empty());
+        REQUIRE(shader->getDag()->getOutputSocket()->value != nullptr);
+        REQUIRE(shader->getDag()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
     }
 #endif // MATERIALX_BUILD_GEN_GLSL
 }
@@ -1266,7 +1266,7 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
     mx::MaterialPtr mtrl = doc->addMaterial(exampleName + "_material");
     mx::ShaderRefPtr shaderRef = mtrl->addShaderRef(exampleName + "_shader", exampleName);
 
-    mx::SgOptions options;
+    mx::GenOptions options;
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
@@ -1406,7 +1406,7 @@ TEST_CASE("Noise", "[shadergen]")
 
     output1->setConnectedNode(mixer);
 
-    mx::SgOptions options;
+    mx::GenOptions options;
 
     const size_t numNoiseType = noiseNodes.size();
     for (size_t noiseType = 0; noiseType < numNoiseType; ++noiseType)
@@ -1507,7 +1507,7 @@ TEST_CASE("Unique Names", "[shadergen]")
 
     output1->setConnectedNode(node1);
 
-    mx::SgOptions options;
+    mx::GenOptions options;
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
@@ -1525,9 +1525,9 @@ TEST_CASE("Unique Names", "[shadergen]")
         REQUIRE(shader->getSourceCode().length() > 0);
 
         // Make sure the output and internal node output has been renamed
-        mx::SgOutputSocket* sgOutputSocket = shader->getNodeGraph()->getOutputSocket();
+        mx::DagOutputSocket* sgOutputSocket = shader->getDag()->getOutputSocket();
         REQUIRE(sgOutputSocket->name != "output");
-        mx::SgNode* sgNode1 = shader->getNodeGraph()->getNode(node1->getName());
+        mx::DagNode* sgNode1 = shader->getDag()->getNode(node1->getName());
         REQUIRE(sgNode1->getOutput()->name == "unique_names_out");
 
         // Write out to file for inspection
@@ -1558,9 +1558,9 @@ TEST_CASE("Unique Names", "[shadergen]")
         REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
 
         // Make sure the output and internal node output has been renamed
-        mx::SgOutputSocket* sgOutputSocket = shader->getNodeGraph()->getOutputSocket();
+        mx::DagOutputSocket* sgOutputSocket = shader->getDag()->getOutputSocket();
         REQUIRE(sgOutputSocket->name != "out");
-        mx::SgNode* sgNode1 = shader->getNodeGraph()->getNode(node1->getName());
+        mx::DagNode* sgNode1 = shader->getDag()->getNode(node1->getName());
         REQUIRE(sgNode1->getOutput()->name == "unique_names_out");
 
         // Write out to file for inspection
@@ -1585,9 +1585,9 @@ TEST_CASE("Unique Names", "[shadergen]")
         REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
 
         // Make sure the output and internal node output has been renamed
-        mx::SgOutputSocket* sgOutputSocket = shader->getNodeGraph()->getOutputSocket();
+        mx::DagOutputSocket* sgOutputSocket = shader->getDag()->getOutputSocket();
         REQUIRE(sgOutputSocket->name != "vec3");
-        mx::SgNode* sgNode1 = shader->getNodeGraph()->getNode(node1->getName());
+        mx::DagNode* sgNode1 = shader->getDag()->getNode(node1->getName());
         REQUIRE(sgNode1->getOutput()->name == "unique_names_out");
 
         // Write out to file for inspection
@@ -1614,7 +1614,7 @@ TEST_CASE("Subgraphs", "[shadergen]")
 
     std::vector<std::string> exampleGraphNames = { "subgraph_ex1" , "subgraph_ex2" };
 
-    mx::SgOptions options;
+    mx::GenOptions options;
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
@@ -1731,7 +1731,7 @@ TEST_CASE("Materials", "[shadergen]")
     // Get all materials
     std::vector<mx::MaterialPtr> materials = doc->getMaterials();
 
-    mx::SgOptions options;
+    mx::GenOptions options;
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
@@ -1857,7 +1857,7 @@ TEST_CASE("Color Spaces", "[shadergen]")
     mx::BindInputPtr rougnessBind = shaderRef->addBindInput("specular_roughness", "float");
     rougnessBind->setConnectedOutput(roughnessOutput);
 
-    mx::SgOptions options;
+    mx::GenOptions options;
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
@@ -2002,7 +2002,7 @@ TEST_CASE("BSDF Layering", "[shadergen]")
     mx::BindInputPtr coating_ior_input = shaderRef->addBindInput("coating_ior", "float");
     coating_ior_input->setValue(1.52f);
 
-    mx::SgOptions options;
+    mx::GenOptions options;
 
     // Test generation from both graph ouput and shaderref
     std::vector<mx::ElementPtr> elements = { output, shaderRef };
@@ -2167,7 +2167,7 @@ TEST_CASE("Transparency", "[shadergen]")
     mx::BindInputPtr opacity_input = shaderRef->addBindInput("opacity", "color3");
     opacity_input->setValue(mx::Color3(1.0f, 1, 1));
 
-    mx::SgOptions options;
+    mx::GenOptions options;
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
@@ -2328,7 +2328,7 @@ TEST_CASE("Surface Layering", "[shadergen]")
     mx::BindInputPtr mix_weight_input = shaderRef->addBindInput("mix_weight", "float");
     mix_weight_input->setValue(0.5f);
 
-    mx::SgOptions options;
+    mx::GenOptions options;
 
 #ifdef MATERIALX_BUILD_GEN_OGSFX
     {
@@ -2415,7 +2415,7 @@ TEST_CASE("Osl Output Types", "[shadergen]")
     mx::NodeDefPtr nodeDef2 = doc->addNodeDef(mx::EMPTY_STRING, "color4", exampleName + "_color4");
     nodeGraph2->setAttribute("nodedef", nodeDef2->getName());
 
-    mx::SgOptions options;
+    mx::GenOptions options;
 
     {
         mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();

@@ -1,5 +1,5 @@
-#ifndef MATERIALX_SGIMPLEMENTATION_H
-#define MATERIALX_SGIMPLEMENTATION_H
+#ifndef MATERIALX_GENIMPLEMENTATION_H
+#define MATERIALX_GENIMPLEMENTATION_H
 
 #include <MaterialXCore/Library.h>
 #include <MaterialXCore/Util.h>
@@ -7,22 +7,21 @@
 namespace MaterialX
 {
 
-class Implementation;
 class Shader;
 class ShaderGenerator;
-class SgNode;
-class SgNodeGraph;
-class SgNodeContext;
+class DagNode;
+class Dag;
+class GenContext;
 
-using SgImplementationPtr = shared_ptr<class SgImplementation>;
+using GenImplementationPtr = shared_ptr<class GenImplementation>;
 
 /// Class handling the shader generation implementation for a node.
 /// Responsible for emitting the function definition and function call 
 /// that is the node implementation.
-class SgImplementation
+class GenImplementation
 {
 public:
-    virtual ~SgImplementation() {}
+    virtual ~GenImplementation() {}
 
     /// Return an identifyer for the language used by this implementation.
     /// By default an empty string is returned, representing any language.
@@ -41,21 +40,21 @@ public:
 
     /// Create shader variables needed for the implementation of this node (e.g. uniforms, inputs and outputs).
     /// Used if the node requires input data from the application.
-    virtual void createVariables(const SgNode& node, ShaderGenerator& shadergen, Shader& shader);
+    virtual void createVariables(const DagNode& node, ShaderGenerator& shadergen, Shader& shader);
 
     /// Emit function definition for the given node instance.
-    virtual void emitFunctionDefinition(const SgNode& node, ShaderGenerator& shadergen, Shader& shader);
+    virtual void emitFunctionDefinition(const DagNode& node, ShaderGenerator& shadergen, Shader& shader);
 
     /// Emit the function call or inline source code for given node instance in the given context.
-    virtual void emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader);
+    virtual void emitFunctionCall(const DagNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader);
 
-    /// Return a pointer to the node graph if this implementation is using a graph,
+    /// Return a pointer to the DAG if this implementation is using a graph,
     /// or returns nullptr otherwise.
-    virtual SgNodeGraph* getNodeGraph() const;
+    virtual Dag* getDag() const;
 
 protected:
     /// Protected constructor
-    SgImplementation() {}
+    GenImplementation() {}
 };
 
 } // namespace MaterialX

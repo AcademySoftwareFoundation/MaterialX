@@ -11,30 +11,30 @@ ConvolutionGlsl::ConvolutionGlsl()
 {
 }
 
-void ConvolutionGlsl::emitInputSamplesUV(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, HwShader& shader, StringVec& sampleStrings)
+void ConvolutionGlsl::emitInputSamplesUV(const DagNode& node, GenContext& context, ShaderGenerator& shadergen, HwShader& shader, StringVec& sampleStrings)
 {
     sampleStrings.clear();
 
     // Check for an upstream node to sample
-    const SgInput* inInput = node.getInput("in");
-    SgOutput* inConnection = inInput ? inInput->connection : nullptr;
+    const DagInput* inInput = node.getInput("in");
+    DagOutput* inConnection = inInput ? inInput->connection : nullptr;
 
     if (inConnection && inConnection->type && acceptsInputType(inConnection->type))
     {
-        SgNode* upstreamNode = inConnection->node;
-        if (upstreamNode && upstreamNode->hasClassification(SgNode::Classification::SAMPLE2D))
+        DagNode* upstreamNode = inConnection->node;
+        if (upstreamNode && upstreamNode->hasClassification(DagNode::Classification::SAMPLE2D))
         {
-            SgImplementation *impl = upstreamNode->getImplementation();
+            GenImplementation *impl = upstreamNode->getImplementation();
             if (impl)
             {
-                SgOutput* upstreamOutput = upstreamNode->getOutput();
+                DagOutput* upstreamOutput = upstreamNode->getOutput();
                 if (upstreamOutput)
                 {
                     string outputName = upstreamOutput->name;
 
                     // Find out which input needs to be sampled multiple times
                     // If the sample count is 1 then the sample code has already been emitted
-                    SgInput* samplingInput = (_sampleCount > 1) ? upstreamNode->getSamplingInput() : nullptr;
+                    DagInput* samplingInput = (_sampleCount > 1) ? upstreamNode->getSamplingInput() : nullptr;
 
                     // TODO: For now we only support uv space sampling
                     if (samplingInput && samplingInput->type != Type::VECTOR2)

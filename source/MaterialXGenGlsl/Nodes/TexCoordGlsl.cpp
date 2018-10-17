@@ -3,31 +3,31 @@
 namespace MaterialX
 {
 
-SgImplementationPtr TexCoordGlsl::create()
+GenImplementationPtr TexCoordGlsl::create()
 {
     return std::make_shared<TexCoordGlsl>();
 }
 
-void TexCoordGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void TexCoordGlsl::createVariables(const DagNode& node, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
-    const SgOutput* output = node.getOutput();
-    const SgInput* indexInput = node.getInput(INDEX);
+    const DagOutput* output = node.getOutput();
+    const DagInput* indexInput = node.getInput(INDEX);
     const string index = indexInput ? indexInput->value->getValueString() : "0";
 
     shader.createAppData(output->type, "i_texcoord_" + index);
     shader.createVertexData(output->type, "texcoord_" + index);
 }
 
-void TexCoordGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void TexCoordGlsl::emitFunctionCall(const DagNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     const string& blockInstance = shader.getVertexDataBlock().instance;
     const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
 
-    const SgInput* indexInput = node.getInput(INDEX);
+    const DagInput* indexInput = node.getInput(INDEX);
     const string index = indexInput ? indexInput->value->getValueString() : "0";
     const string variable = "texcoord_" + index;
 
