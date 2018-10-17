@@ -1,30 +1,30 @@
-#ifndef MATERIALX_CONVOLUTIONGLSL_H
-#define MATERIALX_CONVOLUTIONGLSL_H
+#ifndef MATERIALX_CONVOLUTION_H
+#define MATERIALX_CONVOLUTION_H
 
-#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Nodes/Compound.h>
 
 namespace MaterialX
 {
 
-/// GLSL utility class for implementations of nodes which perform convolutions
+/// Utility class for implementations of nodes which perform convolutions
 ///
-class ConvolutionGlsl : public SgImplementation
+class Convolution : public SgImplementation
 {
   protected:
     /// Constructor
-    ConvolutionGlsl();
+    Convolution();
 
     /// Derived classes are responsible for returning if a given type is an acceptable input.
     virtual bool acceptsInputType(const TypeDesc* type) = 0;
 
     // Derived classes are responsible for computing offset strings relative to the center sample
-    // The sample size is passed over.
-    virtual void computeSampleOffsetStrings(const string& sampleSizeName, StringVec& offsetStrings) = 0;
+    // The sample size and offset type are passed in as arguments.
+    virtual void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings) = 0;
 
     /// Generate upstream / input sampling code in uv space and cache the output variable names which 
     /// will hold the sample values after execution.
-    void emitInputSamplesUV(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, HwShader& shader,
+    void emitInputSamplesUV(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader,
                             StringVec& sampleStrings);
     
     /// Number of samples.

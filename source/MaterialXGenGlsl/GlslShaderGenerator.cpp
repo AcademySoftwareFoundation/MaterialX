@@ -16,12 +16,12 @@
 #include <MaterialXGenGlsl/Nodes/LightCompoundGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightShaderGlsl.h>
 #include <MaterialXGenGlsl/Nodes/HeightToNormalGlsl.h>
-#include <MaterialXGenGlsl/Nodes/BlurGlsl.h>
 
 #include <MaterialXGenShader/Nodes/SourceCode.h>
 #include <MaterialXGenShader/Nodes/Swizzle.h>
 #include <MaterialXGenShader/Nodes/Switch.h>
 #include <MaterialXGenShader/Nodes/Compare.h>
+#include <MaterialXGenShader/Nodes/Blur.h>
 
 namespace MaterialX
 {
@@ -227,13 +227,13 @@ GlslShaderGenerator::GlslShaderGenerator()
     registerImplementation("IM_heighttonormal_vector3_sx_glsl", HeightToNormalGlsl::create);
 
     // <!-- <blur> -->
-    registerImplementation("IM_blur_float_sx_glsl", BlurGlsl::create);
-    registerImplementation("IM_blur_color2_sx_glsl", BlurGlsl::create);
-    registerImplementation("IM_blur_color3_sx_glsl", BlurGlsl::create);
-    registerImplementation("IM_blur_color4_sx_glsl", BlurGlsl::create);
-    registerImplementation("IM_blur_vector2_sx_glsl", BlurGlsl::create);
-    registerImplementation("IM_blur_vector3_sx_glsl", BlurGlsl::create);
-    registerImplementation("IM_blur_vector4_sx_glsl", BlurGlsl::create);
+    registerImplementation("IM_blur_float_sx_glsl", Blur::create);
+    registerImplementation("IM_blur_color2_sx_glsl", Blur::create);
+    registerImplementation("IM_blur_color3_sx_glsl", Blur::create);
+    registerImplementation("IM_blur_color4_sx_glsl", Blur::create);
+    registerImplementation("IM_blur_vector2_sx_glsl", Blur::create);
+    registerImplementation("IM_blur_vector3_sx_glsl", Blur::create);
+    registerImplementation("IM_blur_vector4_sx_glsl", Blur::create);
 }
 
 ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr element, const SgOptions& options)

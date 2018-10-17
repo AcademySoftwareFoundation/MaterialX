@@ -1,4 +1,4 @@
-#include <MaterialXGenGlsl/Nodes/BlurGlsl.h>
+#include <MaterialXGenShader/Nodes/Blur.h>
 #include <MaterialXGenShader/HwShader.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
@@ -7,12 +7,12 @@
 namespace MaterialX
 {
 
-string BlurGlsl::BOX_FILTER = "box";
-string BlurGlsl::GAUSSIAN_FILTER = "gaussian";
-string BlurGlsl::BOX_WEIGHT_FUNCTION = "sx_get_box_weights";
-string BlurGlsl::GAUSSIAN_WEIGHT_FUNCTION = "sx_get_gaussian_weights";
+string Blur::BOX_FILTER = "box";
+string Blur::GAUSSIAN_FILTER = "gaussian";
+string Blur::BOX_WEIGHT_FUNCTION = "sx_get_box_weights";
+string Blur::GAUSSIAN_WEIGHT_FUNCTION = "sx_get_gaussian_weights";
 
-BlurGlsl::BlurGlsl()
+Blur::Blur()
     : ParentClass()
     , _filterFunctionName(BOX_WEIGHT_FUNCTION)
     , _filterType(BOX_FILTER)
@@ -23,12 +23,12 @@ BlurGlsl::BlurGlsl()
     _sampleSizeFunctionUV.assign("sx_compute_sample_size_uv");
 }
 
-SgImplementationPtr BlurGlsl::create()
+SgImplementationPtr Blur::create()
 {
-    return std::shared_ptr<BlurGlsl>(new BlurGlsl());
+    return std::shared_ptr<Blur>(new Blur());
 }
 
-void BlurGlsl::computeSampleOffsetStrings(const string& sampleSizeName, StringVec& offsetStrings)
+void Blur::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings)
 {
     offsetStrings.clear();
  
@@ -40,7 +40,7 @@ void BlurGlsl::computeSampleOffsetStrings(const string& sampleSizeName, StringVe
         {
             for (int col = -w; col <= w; col++)
             {
-                offsetStrings.push_back(" + " + sampleSizeName + " * vec2(" + std::to_string(float(col)) + "," + std::to_string(float(row)) + ")");
+                offsetStrings.push_back(" + " + sampleSizeName + " * " + offsetTypeString + "(" + std::to_string(float(col)) + "," + std::to_string(float(row)) + ")");
             }
         }
     }
@@ -50,14 +50,14 @@ void BlurGlsl::computeSampleOffsetStrings(const string& sampleSizeName, StringVe
     }
 }
 
-bool BlurGlsl::acceptsInputType(const TypeDesc* type)
+bool Blur::acceptsInputType(const TypeDesc* type)
 {
     // Float 1-4 is acceptable as input
     return ((type == Type::FLOAT && type->isScalar()) ||
             type->isFloat2() || type->isFloat3() || type->isFloat4());
 }
 
-void BlurGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void Blur::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader)
 {
     const string IN_STRING("in");
     const SgInput* inInput = node.getInput(IN_STRING);
@@ -126,9 +126,7 @@ void BlurGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, Shad
         }
     }
 
-    HwShader& shader = static_cast<HwShader&>(shader_);
-
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(shader, Shader::PIXEL_STAGE)
     {
         // Emit samples
         // Note: The maximum sample count SX_MAX_SAMPLE_COUNT is defined in the shader code and 
@@ -188,7 +186,7 @@ void BlurGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, Shad
             shader.endLine();
         }
     }
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+    END_SHADER_STAGE(shader, Shader::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

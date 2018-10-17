@@ -1,16 +1,16 @@
 #ifndef MATERIALX_HEIGHTTONORMALGLSL_H
 #define MATERIALX_HEIGHTTONORMALGLSL_H
 
-#include <MaterialXGenGlsl/Nodes/ConvolutionGlsl.h>
+#include <MaterialXGenShader/Nodes/Convolution.h>
 
 namespace MaterialX
 {
 
 /// Implementation of height-field to normal for GLSL
-class HeightToNormalGlsl : public ConvolutionGlsl
+class HeightToNormalGlsl : public Convolution
 {
   public:
-    using ParentClass = ConvolutionGlsl;
+    using ParentClass = Convolution;
 
     static SgImplementationPtr create();
 
@@ -24,7 +24,7 @@ class HeightToNormalGlsl : public ConvolutionGlsl
     bool acceptsInputType(const TypeDesc* type) override;
 
     /// Compute offset strings for sampling
-    void computeSampleOffsetStrings(const string& sampleSizeName, StringVec& offsetStrings) override;
+    void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings) override;
 
     /// Name of filter function to call to compute normals from input samples
     string _filterFunctionName;
