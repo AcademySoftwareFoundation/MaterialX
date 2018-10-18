@@ -18,7 +18,7 @@ ShaderImplementationPtr HeightToNormalGlsl::create()
     return std::shared_ptr<HeightToNormalGlsl>(new HeightToNormalGlsl());
 }
 
-void HeightToNormalGlsl::computeSampleOffsetStrings(const string& sampleSizeName, StringVec& offsetStrings)
+void HeightToNormalGlsl::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings)
 {
     // Build a 3x3 grid of samples that are offset by the provided sample size
     offsetStrings.clear();
@@ -26,7 +26,7 @@ void HeightToNormalGlsl::computeSampleOffsetStrings(const string& sampleSizeName
     {
         for (int col = -1; col <= 1; col++)
         {
-            offsetStrings.push_back(" + " + sampleSizeName + " * vec2(" + std::to_string(float(col)) + "," + std::to_string(float(row)) + ")");
+            offsetStrings.push_back(" + " + sampleSizeName + " * " + offsetTypeString +  "(" + std::to_string(float(col)) + "," + std::to_string(float(row)) + ")");
         }
     }
 }

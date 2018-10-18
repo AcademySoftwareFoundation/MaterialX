@@ -1,17 +1,17 @@
-#include <MaterialXGenGlsl/Nodes/ConvolutionGlsl.h>
-#include <MaterialXGenShader/HwShader.h>
+#include <MaterialXGenShader/Nodes/Convolution.h>
+#include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
 namespace MaterialX
 {
-ConvolutionGlsl::ConvolutionGlsl()
+Convolution::Convolution()
     : _sampleCount(1)
     , _filterSize(1.0f)
     , _filterOffset(0.0f)
 {
 }
 
-void ConvolutionGlsl::emitInputSamplesUV(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, HwShader& shader, StringVec& sampleStrings)
+void Convolution::emitInputSamplesUV(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader, StringVec& sampleStrings)
 {
     sampleStrings.clear();
 
@@ -52,7 +52,8 @@ void ConvolutionGlsl::emitInputSamplesUV(const ShaderNode& node, GenContext& con
                         shadergen.getInput(context, samplingInput, sampleInputValue);
 
                         const string sampleSizeName(node.getOutput()->name + "_sample_size");
-                        string sampleCall("vec2 " + sampleSizeName + " = " +
+                        const string vec2TypeString = shadergen.getSyntax()->getTypeName(Type::VECTOR2);
+                        string sampleCall(vec2TypeString + " " + sampleSizeName + " = " +
                             _sampleSizeFunctionUV + "(" +
                             sampleInputValue + "," +
                             std::to_string(_filterSize) + "," +
@@ -66,7 +67,7 @@ void ConvolutionGlsl::emitInputSamplesUV(const ShaderNode& node, GenContext& con
                         // sample. The sample size is passed over.
                         //
                         StringVec inputVec2Suffix;
-                        computeSampleOffsetStrings(sampleSizeName, inputVec2Suffix);
+                        computeSampleOffsetStrings(sampleSizeName, vec2TypeString, inputVec2Suffix);
 
                         // Emit outputs for sample input 
                         for (unsigned int i = 0; i < _sampleCount; i++)

@@ -131,6 +131,9 @@ class Node : public InterfaceElement
 
   public:
     static const string CATEGORY;
+
+  protected:
+      bool requiresInputCompatibility(ConstInterfaceElementPtr rhs) const override;
 };
 
 /// @class GraphElement

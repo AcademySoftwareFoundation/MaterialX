@@ -803,13 +803,13 @@
   <!-- ======================================================================== -->
 
   <!-- <blur> -->
-  <implementation name="IM_blur_float_sx_osl" nodedef="ND_blur_float" file="stdlib/osl/mx_blur_float.osl" function="mx_blur_float" language="sx-osl"/>
-  <implementation name="IM_blur_color2_sx_osl" nodedef="ND_blur_color2" file="stdlib/osl/mx_blur_color2.osl" function="mx_blur_color2" language="sx-osl"/>
-  <implementation name="IM_blur_color3_sx_osl" nodedef="ND_blur_color3" file="stdlib/osl/mx_blur_color.osl" function="mx_blur_color3" language="sx-osl"/>
-  <implementation name="IM_blur_color4_sx_osl" nodedef="ND_blur_color4" file="stdlib/osl/mx_blur_color4.osl" function="mx_blur_color4" language="sx-osl"/>
-  <implementation name="IM_blur_vector2_sx_osl" nodedef="ND_blur_vector2" file="stdlib/osl/mx_blur_vector2.osl" function="mx_blur_vector2" language="sx-osl"/>
-  <implementation name="IM_blur_vector3_sx_osl" nodedef="ND_blur_vector3" file="stdlib/osl/mx_blur_vector3.osl" function="mx_blur_vector3" language="sx-osl"/>
-  <implementation name="IM_blur_vector4_sx_osl" nodedef="ND_blur_vector4" file="stdlib/osl/mx_blur_vector4.osl" function="mx_blur_vector4" language="sx-osl"/>
+  <implementation name="IM_blur_float_sx_osl" nodedef="ND_blur_float" language="sx-osl"/>
+  <implementation name="IM_blur_color2_sx_osl" nodedef="ND_blur_color2" language="sx-osl"/>
+  <implementation name="IM_blur_color3_sx_osl" nodedef="ND_blur_color3" language="sx-osl"/>
+  <implementation name="IM_blur_color4_sx_osl" nodedef="ND_blur_color4" language="sx-osl"/>
+  <implementation name="IM_blur_vector2_sx_osl" nodedef="ND_blur_vector2" language="sx-osl"/>
+  <implementation name="IM_blur_vector3_sx_osl" nodedef="ND_blur_vector3" language="sx-osl"/>
+  <implementation name="IM_blur_vector4_sx_osl" nodedef="ND_blur_vector4" language="sx-osl"/>
 
   <!-- <heighttonormal> -->
   <implementation name="IM_heighttonormal_vector3_sx_osl" nodedef="ND_heighttonormal_vector3" file="stdlib/sx-osl/mx_heighttonormal_vector3.osl" function="mx_heighttonormal_vector3" language="sx-osl"/>

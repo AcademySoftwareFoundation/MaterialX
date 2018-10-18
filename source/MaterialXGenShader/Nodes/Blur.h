@@ -1,16 +1,16 @@
-#ifndef MATERIALX_BLURGLSL_H
-#define MATERIALX_BLURGLSL_H
+#ifndef MATERIALX_BLUR_H
+#define MATERIALX_BLUR_H
 
-#include <MaterialXGenGlsl/Nodes/ConvolutionGlsl.h>
+#include <MaterialXGenShader/Nodes/Convolution.h>
 
 namespace MaterialX
 {
 
-/// Implementation of blur for GLSL
-class BlurGlsl : public ConvolutionGlsl
+/// Implementation of blur convolution
+class Blur : public Convolution
 {
   public:
-    using ParentClass = ConvolutionGlsl;
+    using ParentClass = Convolution;
 
     static ShaderImplementationPtr create();
 
@@ -18,7 +18,7 @@ class BlurGlsl : public ConvolutionGlsl
 
   protected:
     /// Constructor
-    BlurGlsl();
+    Blur();
 
     /// Box filter option on blur
     static string BOX_FILTER;
@@ -34,7 +34,7 @@ class BlurGlsl : public ConvolutionGlsl
     bool acceptsInputType(const TypeDesc* type) override;
     
     /// Compute offset strings for sampling
-    void computeSampleOffsetStrings(const string& sampleSizeName, StringVec& offsetStrings) override;
+    void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings) override;
 
     /// Name of filter function to call to compute normals from input samples
     std::string _filterFunctionName;

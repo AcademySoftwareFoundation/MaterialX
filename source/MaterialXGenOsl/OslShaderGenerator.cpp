@@ -3,6 +3,7 @@
 #include <MaterialXGenShader/Nodes/Swizzle.h>
 #include <MaterialXGenShader/Nodes/Switch.h>
 #include <MaterialXGenShader/Nodes/Compare.h>
+#include <MaterialXGenShader/Nodes/Blur.h>
 
 namespace MaterialX
 {
@@ -124,6 +125,14 @@ OslShaderGenerator::OslShaderGenerator()
     registerImplementation("IM_swizzle_vector4_vector3_sx_osl", Swizzle::create);
     registerImplementation("IM_swizzle_vector4_vector4_sx_osl", Swizzle::create);
 
+    // <!-- <blur> -->
+    registerImplementation("IM_blur_float_sx_osl", Blur::create);
+    registerImplementation("IM_blur_color2_sx_osl", Blur::create);
+    registerImplementation("IM_blur_color3_sx_osl", Blur::create);
+    registerImplementation("IM_blur_color4_sx_osl", Blur::create);
+    registerImplementation("IM_blur_vector2_sx_osl", Blur::create);
+    registerImplementation("IM_blur_vector3_sx_osl", Blur::create);
+    registerImplementation("IM_blur_vector4_sx_osl", Blur::create);
 
     // Color2/4 and Vector2/4 must be remapped to Color3 and Vector3 when used
     // as shader outputs since in OSL a custom struct type is not supported as
@@ -152,6 +161,15 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     shader.addLine("#define M_FLOAT_EPS 0.000001", false);
 
     emitTypeDefs(shader);
+
+    // Emit sampling code if needed
+    if (shader.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
+    {
+        // Emit sampling functions
+        shader.addInclude("stdlib/sx-osl/lib/sx_sampling.osl", *this);
+        shader.newLine();
+    }
+
     emitFunctionDefinitions(shader);
 
     // Emit shader type
@@ -240,6 +258,7 @@ void OslShaderGenerator::emitIncludes(Shader& shader)
     {
         "color2.h",
         "color4.h",
+        "matrix33.h",
         "vector2.h",
         "vector4.h",
         "mx_funcs.h"
