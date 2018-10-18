@@ -12,12 +12,12 @@ namespace
         "result.direction = L;\n";
 }
 
-GenImplementationPtr LightGlsl::create()
+ShaderImplementationPtr LightGlsl::create()
 {
     return std::make_shared<LightGlsl>();
 }
 
-void LightGlsl::createVariables(const DagNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void LightGlsl::createVariables(const ShaderNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
@@ -34,7 +34,7 @@ void LightGlsl::createVariables(const DagNode& /*node*/, ShaderGenerator& /*shad
         EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void LightGlsl::emitFunctionCall(const DagNode& node, GenContext& context, ShaderGenerator& shadergen_, Shader& shader_)
+void LightGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen_, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
     GlslShaderGenerator& shadergen = static_cast<GlslShaderGenerator&>(shadergen_);
@@ -51,8 +51,8 @@ void LightGlsl::emitFunctionCall(const DagNode& node, GenContext& context, Shade
     shader.addComment("Apply quadratic falloff and adjust intensity");
     shader.addLine("result.intensity = " + emission + " / (distance * distance)");
 
-    const DagInput* intensity = node.getInput("intensity");
-    const DagInput* exposure = node.getInput("exposure");
+    const ShaderInput* intensity = node.getInput("intensity");
+    const ShaderInput* exposure = node.getInput("exposure");
 
     shader.beginLine();
     shader.addStr("result.intensity *= ");

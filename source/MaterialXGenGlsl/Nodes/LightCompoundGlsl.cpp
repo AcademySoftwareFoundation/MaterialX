@@ -6,7 +6,7 @@
 namespace MaterialX
 {
 
-GenImplementationPtr LightCompoundGlsl::create()
+ShaderImplementationPtr LightCompoundGlsl::create()
 {
     return std::make_shared<LightCompoundGlsl>();
 }
@@ -23,7 +23,7 @@ const string& LightCompoundGlsl::getTarget() const
 
 void LightCompoundGlsl::initialize(ElementPtr implementation, ShaderGenerator& shadergen)
 {
-    GenImplementation::initialize(implementation, shadergen);
+    ShaderImplementation::initialize(implementation, shadergen);
 
     NodeGraphPtr graph = implementation->asA<NodeGraph>();
     if (!graph)
@@ -31,7 +31,7 @@ void LightCompoundGlsl::initialize(ElementPtr implementation, ShaderGenerator& s
         throw ExceptionShaderGenError("Element '" + implementation->getName() + "' is not a node graph implementation");
     }
 
-    _dag = Dag::create(graph, shadergen);
+    _rootGraph = ShaderGraph::create(graph, shadergen);
     _functionName = graph->getName();
 
     // Store light uniforms for all inputs and parameters on the interface
@@ -48,14 +48,14 @@ void LightCompoundGlsl::initialize(ElementPtr implementation, ShaderGenerator& s
     }
 }
 
-void LightCompoundGlsl::createVariables(const DagNode& /*node*/, ShaderGenerator& shadergen, Shader& shader_)
+void LightCompoundGlsl::createVariables(const ShaderNode& /*node*/, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     // Create variables for all child nodes
-    for (DagNode* childNode : _dag->getNodes())
+    for (ShaderNode* childNode : _rootGraph->getNodes())
     {
-        GenImplementation* impl = childNode->getImplementation();
+        ShaderImplementation* impl = childNode->getImplementation();
         impl->createVariables(*childNode, shadergen, shader);
     }
 
@@ -70,7 +70,7 @@ void LightCompoundGlsl::createVariables(const DagNode& /*node*/, ShaderGenerator
         EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void LightCompoundGlsl::emitFunctionDefinition(const DagNode& node, ShaderGenerator& shadergen_, Shader& shader_)
+void LightCompoundGlsl::emitFunctionDefinition(const ShaderNode& node, ShaderGenerator& shadergen_, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
     GlslShaderGenerator shadergen = static_cast<GlslShaderGenerator&>(shadergen_);
@@ -78,10 +78,10 @@ void LightCompoundGlsl::emitFunctionDefinition(const DagNode& node, ShaderGenera
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
     // Make the compound root graph the active graph
-    shader.pushActiveDag(_dag.get());
+    shader.pushActiveGraph(_rootGraph.get());
 
     // Emit functions for all child nodes
-    for (DagNode* childNode : _dag->getNodes())
+    for (ShaderNode* childNode : _rootGraph->getNodes())
     {
         shader.addFunctionDefinition(childNode, shadergen);
     }
@@ -105,9 +105,9 @@ void LightCompoundGlsl::emitFunctionDefinition(const DagNode& node, ShaderGenera
         shadergen.emitTextureNodes(shader);
 
         // Emit function calls for all light shader nodes
-        for (DagNode* childNode : shader.getDag()->getNodes())
+        for (ShaderNode* childNode : shader.getGraph()->getNodes())
         {
-            if (childNode->hasClassification(DagNode::Classification::SHADER | DagNode::Classification::LIGHT))
+            if (childNode->hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::LIGHT))
             {
                 shader.addFunctionCall(childNode, *context, shadergen);
             }
@@ -118,12 +118,12 @@ void LightCompoundGlsl::emitFunctionDefinition(const DagNode& node, ShaderGenera
     }
 
     // Restore active graph
-    shader.popActiveDag();
+    shader.popActiveGraph();
 
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
-void LightCompoundGlsl::emitFunctionCall(const DagNode& /*node*/, GenContext& /*context*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void LightCompoundGlsl::emitFunctionCall(const ShaderNode& /*node*/, GenContext& /*context*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 

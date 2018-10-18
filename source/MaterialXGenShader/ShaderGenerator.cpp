@@ -1,5 +1,5 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/GenImplementation.h>
+#include <MaterialXGenShader/ShaderImplementation.h>
 #include <MaterialXGenShader/Nodes/SourceCode.h>
 #include <MaterialXGenShader/Nodes/Compound.h>
 
@@ -44,7 +44,7 @@ void ShaderGenerator::emitTypeDefs(Shader& shader)
 void ShaderGenerator::emitFunctionDefinitions(Shader& shader)
 {
     // Emit function definitions for all nodes
-    for (DagNode* node : shader.getDag()->getNodes())
+    for (ShaderNode* node : shader.getGraph()->getNodes())
     {
         shader.addFunctionDefinition(node, *this);
     }
@@ -55,7 +55,7 @@ void ShaderGenerator::emitFunctionCalls(const GenContext& context, Shader &shade
     const bool debugOutput = true;
 
     // Emit function calls for all nodes
-    for (DagNode* node : shader.getDag()->getNodes())
+    for (ShaderNode* node : shader.getGraph()->getNodes())
     {
         // Omit node if it's only used inside a conditional branch
         if (node->referencedConditionally())
@@ -95,8 +95,8 @@ void ShaderGenerator::emitFunctionCalls(const GenContext& context, Shader &shade
 
 void ShaderGenerator::emitFinalOutput(Shader& shader) const
 {
-    Dag* graph = shader.getDag();
-    const DagOutputSocket* outputSocket = graph->getOutputSocket();
+    ShaderGraph* graph = shader.getGraph();
+    const ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
 
     if (!outputSocket->connection)
     {
@@ -116,7 +116,7 @@ void ShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& shade
     shader.addStr(_syntax->getTypeName(uniform.type) + " " + uniform.name + (initStr.empty() ? "" : " = " + initStr));
 }
 
-void ShaderGenerator::getInput(const GenContext& context, const DagInput* input, string& result) const
+void ShaderGenerator::getInput(const GenContext& context, const ShaderInput* input, string& result) const
 {
     if (input->connection)
     {
@@ -133,7 +133,7 @@ void ShaderGenerator::getInput(const GenContext& context, const DagInput* input,
 
     // Look for any additional suffix to append
     string suffix;
-    context.getInputSuffix(const_cast<DagInput*>(input), suffix);
+    context.getInputSuffix(const_cast<ShaderInput*>(input), suffix);
     if (!suffix.empty())
     {
         result += suffix;
@@ -141,20 +141,20 @@ void ShaderGenerator::getInput(const GenContext& context, const DagInput* input,
 }
 
 
-void ShaderGenerator::emitInput(const GenContext& context, const DagInput* input, Shader &shader) const
+void ShaderGenerator::emitInput(const GenContext& context, const ShaderInput* input, Shader &shader) const
 {
     string result;
     getInput(context, input, result);
     shader.addStr(result);
 }
 
-void ShaderGenerator::emitOutput(const GenContext& context, const DagOutput* output, bool includeType, bool assignDefault, Shader& shader) const
+void ShaderGenerator::emitOutput(const GenContext& context, const ShaderOutput* output, bool includeType, bool assignDefault, Shader& shader) const
 {
     shader.addStr(includeType ? _syntax->getTypeName(output->type) + " " + output->name : output->name);
 
     // Look for any additional suffix to append
     string suffix;
-    context.getOutputSuffix(const_cast<DagOutput*>(output), suffix);
+    context.getOutputSuffix(const_cast<ShaderOutput*>(output), suffix);
     if (!suffix.empty())
     {
         shader.addStr(suffix);
@@ -170,7 +170,7 @@ void ShaderGenerator::emitOutput(const GenContext& context, const DagOutput* out
     }
 }
 
-void ShaderGenerator::addNodeContextIDs(DagNode* node) const
+void ShaderGenerator::addNodeContextIDs(ShaderNode* node) const
 {
     node->addContextID(CONTEXT_DEFAULT);
 }
@@ -181,7 +181,7 @@ const GenContext* ShaderGenerator::getNodeContext(int id) const
     return it != _contexts.end() ? it->second.get() : nullptr;
 }
 
-void ShaderGenerator::registerImplementation(const string& name, CreatorFunction<GenImplementation> creator)
+void ShaderGenerator::registerImplementation(const string& name, CreatorFunction<ShaderImplementation> creator)
 {
     _implFactory.registerClass(name, creator);
 }
@@ -191,7 +191,7 @@ bool ShaderGenerator::implementationRegistered(const string& name) const
     return _implFactory.classRegistered(name);
 }
 
-GenImplementationPtr ShaderGenerator::getImplementation(InterfaceElementPtr element)
+ShaderImplementationPtr ShaderGenerator::getImplementation(InterfaceElementPtr element)
 {
     const string& name = element->getName();
 
@@ -202,7 +202,7 @@ GenImplementationPtr ShaderGenerator::getImplementation(InterfaceElementPtr elem
         return it->second;
     }
 
-    GenImplementationPtr impl;
+    ShaderImplementationPtr impl;
     if (element->isA<NodeGraph>())
     {
         // Use a compound implementation
@@ -240,14 +240,14 @@ FilePath ShaderGenerator::findSourceCode(const FilePath& filename)
     return _sourceCodeSearchPath.find(filename);
 }
 
-GenImplementationPtr ShaderGenerator::createDefaultImplementation(ImplementationPtr impl)
+ShaderImplementationPtr ShaderGenerator::createDefaultImplementation(ImplementationPtr impl)
 {
     // The data driven source code implementation
     // is the implementation to use by default
     return SourceCode::create();
 }
 
-GenImplementationPtr ShaderGenerator::createCompoundImplementation(NodeGraphPtr impl)
+ShaderImplementationPtr ShaderGenerator::createCompoundImplementation(NodeGraphPtr impl)
 {
     // The standard compound implementation
     // is the compound implementation to us by default

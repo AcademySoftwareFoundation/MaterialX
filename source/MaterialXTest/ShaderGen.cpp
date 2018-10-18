@@ -812,7 +812,7 @@ TEST_CASE("Swizzling", "[shadergen]")
         // Test swizzle node implementation
         mx::Shader test1("test1");
         test1.initialize(output1, sg, options);
-        mx::DagNode* sgNode = test1.getDag()->getNode("swizzle1");
+        mx::ShaderNode* sgNode = test1.getGraph()->getNode("swizzle1");
         REQUIRE(sgNode);
         test1.addFunctionCall(sgNode, context, sg);
         const std::string test1Result = "color swizzle1_out = color(swizzle1_in[0], swizzle1_in[0], swizzle1_in[0]);\n";
@@ -822,7 +822,7 @@ TEST_CASE("Swizzling", "[shadergen]")
         swizzle1->setParameterValue("channels", std::string("b0b"));
         mx::Shader test2("test2");
         test2.initialize(output1, sg, options);
-        sgNode = test2.getDag()->getNode("swizzle1");
+        sgNode = test2.getGraph()->getNode("swizzle1");
         REQUIRE(sgNode);
         test2.addFunctionCall(sgNode, context, sg);
         const std::string test2Result = "color swizzle1_out = color(swizzle1_in[2], 0, swizzle1_in[2]);\n";
@@ -863,7 +863,7 @@ TEST_CASE("Swizzling", "[shadergen]")
         // Test swizzle node implementation
         mx::Shader test1("test1");
         test1.initialize(output1, sg, options);
-        mx::DagNode* sgNode = test1.getDag()->getNode("swizzle1");
+        mx::ShaderNode* sgNode = test1.getGraph()->getNode("swizzle1");
         REQUIRE(sgNode);
         test1.addFunctionCall(sgNode, context, sg);
         const std::string test1Result = "vec3 swizzle1_out = vec3(swizzle1_in.x, swizzle1_in.x, swizzle1_in.x);\n";
@@ -873,7 +873,7 @@ TEST_CASE("Swizzling", "[shadergen]")
         swizzle1->setParameterValue("channels", std::string("b0b"));
         mx::Shader test2("test2");
         test2.initialize(output1, sg, options);
-        sgNode = test2.getDag()->getNode("swizzle1");
+        sgNode = test2.getGraph()->getNode("swizzle1");
         REQUIRE(sgNode);
         test2.addFunctionCall(sgNode, context, sg);
         const std::string test2Result = "vec3 swizzle1_out = vec3(swizzle1_in.z, 0, swizzle1_in.z);\n";
@@ -1133,9 +1133,9 @@ TEST_CASE("Conditionals", "[shadergen]")
 
         // All of the nodes should have been removed by optimization
         // leaving a graph with a single constant value
-        REQUIRE(shader->getDag()->getNodes().empty());
-        REQUIRE(shader->getDag()->getOutputSocket()->value != nullptr);
-        REQUIRE(shader->getDag()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
+        REQUIRE(shader->getGraph()->getNodes().empty());
+        REQUIRE(shader->getGraph()->getOutputSocket()->value != nullptr);
+        REQUIRE(shader->getGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
 
         // Write out to file for inspection
         const std::string fileName(RESULT_DIRECTORY + shader->getName() + ".osl");
@@ -1167,9 +1167,9 @@ TEST_CASE("Conditionals", "[shadergen]")
 
         // All of the nodes should have been removed by optimization
         // leaving a graph with a single constant value
-        REQUIRE(shader->getDag()->getNodes().empty());
-        REQUIRE(shader->getDag()->getOutputSocket()->value != nullptr);
-        REQUIRE(shader->getDag()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
+        REQUIRE(shader->getGraph()->getNodes().empty());
+        REQUIRE(shader->getGraph()->getOutputSocket()->value != nullptr);
+        REQUIRE(shader->getGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
     }
 #endif // MATERIALX_BUILD_GEN_OGSFX
 
@@ -1194,9 +1194,9 @@ TEST_CASE("Conditionals", "[shadergen]")
 
         // All of the nodes should have been removed by optimization
         // leaving a graph with a single constant value
-        REQUIRE(shader->getDag()->getNodes().empty());
-        REQUIRE(shader->getDag()->getOutputSocket()->value != nullptr);
-        REQUIRE(shader->getDag()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
+        REQUIRE(shader->getGraph()->getNodes().empty());
+        REQUIRE(shader->getGraph()->getOutputSocket()->value != nullptr);
+        REQUIRE(shader->getGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
     }
 #endif // MATERIALX_BUILD_GEN_GLSL
 }
@@ -1525,9 +1525,9 @@ TEST_CASE("Unique Names", "[shadergen]")
         REQUIRE(shader->getSourceCode().length() > 0);
 
         // Make sure the output and internal node output has been renamed
-        mx::DagOutputSocket* sgOutputSocket = shader->getDag()->getOutputSocket();
+        mx::ShaderGraphOutputSocket* sgOutputSocket = shader->getGraph()->getOutputSocket();
         REQUIRE(sgOutputSocket->name != "output");
-        mx::DagNode* sgNode1 = shader->getDag()->getNode(node1->getName());
+        mx::ShaderNode* sgNode1 = shader->getGraph()->getNode(node1->getName());
         REQUIRE(sgNode1->getOutput()->name == "unique_names_out");
 
         // Write out to file for inspection
@@ -1558,9 +1558,9 @@ TEST_CASE("Unique Names", "[shadergen]")
         REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
 
         // Make sure the output and internal node output has been renamed
-        mx::DagOutputSocket* sgOutputSocket = shader->getDag()->getOutputSocket();
+        mx::ShaderGraphOutputSocket* sgOutputSocket = shader->getGraph()->getOutputSocket();
         REQUIRE(sgOutputSocket->name != "out");
-        mx::DagNode* sgNode1 = shader->getDag()->getNode(node1->getName());
+        mx::ShaderNode* sgNode1 = shader->getGraph()->getNode(node1->getName());
         REQUIRE(sgNode1->getOutput()->name == "unique_names_out");
 
         // Write out to file for inspection
@@ -1585,9 +1585,9 @@ TEST_CASE("Unique Names", "[shadergen]")
         REQUIRE(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
 
         // Make sure the output and internal node output has been renamed
-        mx::DagOutputSocket* sgOutputSocket = shader->getDag()->getOutputSocket();
+        mx::ShaderGraphOutputSocket* sgOutputSocket = shader->getGraph()->getOutputSocket();
         REQUIRE(sgOutputSocket->name != "vec3");
-        mx::DagNode* sgNode1 = shader->getDag()->getNode(node1->getName());
+        mx::ShaderNode* sgNode1 = shader->getGraph()->getNode(node1->getName());
         REQUIRE(sgNode1->getOutput()->name == "unique_names_out");
 
         // Write out to file for inspection

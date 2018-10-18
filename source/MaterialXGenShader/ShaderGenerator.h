@@ -4,7 +4,7 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Syntax.h>
 #include <MaterialXGenShader/Factory.h>
-#include <MaterialXGenShader/DagNode.h>
+#include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/GenOptions.h>
 #include <MaterialXGenShader/GenContext.h>
 
@@ -54,15 +54,15 @@ public:
 
     /// Emit the connected variable name for an input,
     /// or constant value if the port is not connected
-    virtual void emitInput(const GenContext& context, const DagInput* input, Shader& shader) const;
+    virtual void emitInput(const GenContext& context, const ShaderInput* input, Shader& shader) const;
 
     /// Get the connected variable name for an input,
     /// or constant value if the port is not connected
-    virtual void getInput(const GenContext& context, const DagInput* input, string& result) const;
+    virtual void getInput(const GenContext& context, const ShaderInput* input, string& result) const;
 
     /// Emit the output variable name for an output, optionally including it's type
     /// and default value assignment.
-    virtual void emitOutput(const GenContext& context, const DagOutput* output, bool includeType, bool assignDefault, Shader& shader) const;
+    virtual void emitOutput(const GenContext& context, const ShaderOutput* output, bool includeType, bool assignDefault, Shader& shader) const;
 
     /// Return the v-direction used by the target system
     virtual Shader::VDirection getTargetVDirection() const;
@@ -72,7 +72,7 @@ public:
 
     /// Add node contexts id's to the given node to control 
     /// in which contexts this node should be used.
-    virtual void addNodeContextIDs(DagNode* node) const;
+    virtual void addNodeContextIDs(ShaderNode* node) const;
 
     /// Return the node context corresponding to the given id,
     /// or nullptr if no such context is found.
@@ -82,7 +82,7 @@ public:
     using CreatorFunction = shared_ptr<T>(*)();
 
     /// Register a shader gen implementation for a given implementation element name
-    void registerImplementation(const string& name, CreatorFunction<GenImplementation> creator);
+    void registerImplementation(const string& name, CreatorFunction<ShaderImplementation> creator);
 
     /// Determine if an implementation has been registered for a given implementation element name
     bool implementationRegistered(const string& name) const;
@@ -91,7 +91,7 @@ public:
     /// The element must be an Implementation or a NodeGraph acting as implementation.
     /// If no registered implementation is found a 'default' implementation instance 
     /// will be returned, as created by the 
-    GenImplementationPtr getImplementation(InterfaceElementPtr element);
+    ShaderImplementationPtr getImplementation(InterfaceElementPtr element);
 
     /// Add to the search path used for finding source code.
     void registerSourceCodeSearchPath(const FilePath& path);
@@ -119,20 +119,20 @@ protected:
     /// Create a default implementation which is the implementation class to use 
     /// for nodes that has no specific implementation registered for it.
     /// Derived classes can override this to use custom default implementations.
-    virtual GenImplementationPtr createDefaultImplementation(ImplementationPtr impl);
+    virtual ShaderImplementationPtr createDefaultImplementation(ImplementationPtr impl);
 
     /// Create a compound implementation which is the implementation class to use
     /// for nodes using a nodegraph as their implementation.
     /// Derived classes can override this to use custom compound implementations.
-    virtual GenImplementationPtr createCompoundImplementation(NodeGraphPtr impl);
+    virtual ShaderImplementationPtr createCompoundImplementation(NodeGraphPtr impl);
 
     /// Create a new node context with the given id. The context is added to the 
     /// shader generators node context storage and returned.
     GenContextPtr createContext(int id);
 
     SyntaxPtr _syntax;
-    Factory<GenImplementation> _implFactory;
-    std::unordered_map<string, GenImplementationPtr> _cachedImpls;
+    Factory<ShaderImplementation> _implFactory;
+    std::unordered_map<string, ShaderImplementationPtr> _cachedImpls;
 
     FileSearchPath _sourceCodeSearchPath;
 

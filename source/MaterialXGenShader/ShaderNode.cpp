@@ -1,6 +1,6 @@
-#include <MaterialXGenShader/DagNode.h>
+#include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/GenImplementation.h>
+#include <MaterialXGenShader/ShaderImplementation.h>
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/Util.h>
 
@@ -16,13 +16,13 @@
 namespace MaterialX
 {
 
-void DagInput::makeConnection(DagOutput* src)
+void ShaderInput::makeConnection(ShaderOutput* src)
 {
     this->connection = src;
     src->connections.insert(this);
 }
 
-void DagInput::breakConnection()
+void ShaderInput::breakConnection()
 {
     if (this->connection)
     {
@@ -31,55 +31,50 @@ void DagInput::breakConnection()
     }
 }
 
-void DagOutput::makeConnection(DagInput* dst)
+void ShaderOutput::makeConnection(ShaderInput* dst)
 {
     dst->connection = this;
     this->connections.insert(dst);
 }
 
-void DagOutput::breakConnection(DagInput* dst)
+void ShaderOutput::breakConnection(ShaderInput* dst)
 {
     this->connections.erase(dst);
     dst->connection = nullptr;
 }
 
-void DagOutput::breakConnection()
+void ShaderOutput::breakConnection()
 {
-    for (DagInput* input : this->connections)
+    for (ShaderInput* input : this->connections)
     {
         input->connection = nullptr;
     }
     this->connections.clear();
 }
 
-DagEdgeIterator DagOutput::traverseUpstream()
-{
-    return DagEdgeIterator(this);
-}
-
 namespace
 {
-    DagNodePtr createEmptyNode()
+    ShaderNodePtr createEmptyNode()
     {
-        DagNodePtr node = std::make_shared<DagNode>("");
+        ShaderNodePtr node = std::make_shared<ShaderNode>("");
         node->addContextID(ShaderGenerator::CONTEXT_DEFAULT);
         return node;
     }
 }
 
-const DagNodePtr DagNode::NONE = createEmptyNode();
+const ShaderNodePtr ShaderNode::NONE = createEmptyNode();
 
-const string DagNode::SXCLASS_ATTRIBUTE = "sxclass";
-const string DagNode::CONSTANT = "constant";
-const string DagNode::IMAGE = "image";
-const string DagNode::COMPARE = "compare";
-const string DagNode::SWITCH = "switch";
-const string DagNode::BSDF_R = "R";
-const string DagNode::BSDF_T = "T";
+const string ShaderNode::SXCLASS_ATTRIBUTE = "sxclass";
+const string ShaderNode::CONSTANT = "constant";
+const string ShaderNode::IMAGE = "image";
+const string ShaderNode::COMPARE = "compare";
+const string ShaderNode::SWITCH = "switch";
+const string ShaderNode::BSDF_R = "R";
+const string ShaderNode::BSDF_T = "T";
 
-bool DagNode::referencedConditionally() const
+bool ShaderNode::referencedConditionally() const
 {
-    if (_scopeInfo.type == DagNode::ScopeInfo::Type::SINGLE)
+    if (_scopeInfo.type == ShaderNode::ScopeInfo::Type::SINGLE)
     {
         int numBranches = 0;
         uint32_t mask = _scopeInfo.conditionBitmask;
@@ -95,7 +90,7 @@ bool DagNode::referencedConditionally() const
     return false;
 }
 
-void DagNode::ScopeInfo::adjustAtConditionalInput(DagNode* condNode, int branch, const uint32_t fullMask)
+void ShaderNode::ScopeInfo::adjustAtConditionalInput(ShaderNode* condNode, int branch, const uint32_t fullMask)
 {
     if (type == ScopeInfo::Type::GLOBAL || (type == ScopeInfo::Type::SINGLE && conditionBitmask == fullConditionMask))
     {
@@ -111,7 +106,7 @@ void DagNode::ScopeInfo::adjustAtConditionalInput(DagNode* condNode, int branch,
     }
 }
 
-void DagNode::ScopeInfo::merge(const ScopeInfo &fromScope)
+void ShaderNode::ScopeInfo::merge(const ScopeInfo &fromScope)
 {
     if (type == ScopeInfo::Type::UNKNOWN || fromScope.type == ScopeInfo::Type::GLOBAL)
     {
@@ -140,7 +135,7 @@ void DagNode::ScopeInfo::merge(const ScopeInfo &fromScope)
     }
 }
 
-DagNode::DagNode(const string& name)
+ShaderNode::ShaderNode(const string& name)
     : _name(name)
     , _classification(0)
     , _samplingInput(nullptr)
@@ -160,9 +155,9 @@ static bool elementCanBeSampled3D(const Element& element)
     return (element.getName() == POSITION_NAME);
 }
 
-DagNodePtr DagNode::create(const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, const Node* nodeInstance)
+ShaderNodePtr ShaderNode::create(const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, const Node* nodeInstance)
 {
-    DagNodePtr newNode = std::make_shared<DagNode>(name);
+    ShaderNodePtr newNode = std::make_shared<ShaderNode>(name);
 
     // Find the implementation for this nodedef
     InterfaceElementPtr impl = nodeDef.getImplementation(shadergen.getTarget(), shadergen.getLanguage());
@@ -211,7 +206,7 @@ DagNodePtr DagNode::create(const string& name, const NodeDef& nodeDef, ShaderGen
         }
         else
         {
-            DagInput* input = newNode->addInput(elem->getName(), TypeDesc::get(elem->getType()));
+            ShaderInput* input = newNode->addInput(elem->getName(), TypeDesc::get(elem->getType()));
             if (!elem->getValueString().empty())
             {
                 input->value = elem->getValue();
@@ -240,7 +235,7 @@ DagNodePtr DagNode::create(const string& name, const NodeDef& nodeDef, ShaderGen
         {
             if (!elem->getValueString().empty())
             {
-                DagInput* input = newNode->getInput(elem->getName());
+                ShaderInput* input = newNode->getInput(elem->getName());
                 if (input)
                 {       
                     input->value = elem->getValue();
@@ -255,7 +250,7 @@ DagNodePtr DagNode::create(const string& name, const NodeDef& nodeDef, ShaderGen
     newNode->_classification = Classification::TEXTURE;
 
     // First, check for specific output types
-    const DagOutput* primaryOutput = newNode->getOutput();
+    const ShaderOutput* primaryOutput = newNode->getOutput();
     if (primaryOutput->type == Type::SURFACESHADER)
     {
         newNode->_classification = Classification::SURFACE | Classification::SHADER;
@@ -315,38 +310,38 @@ DagNodePtr DagNode::create(const string& name, const NodeDef& nodeDef, ShaderGen
     return newNode;
 }
 
-DagInput* DagNode::getInput(const string& name)
+ShaderInput* ShaderNode::getInput(const string& name)
 {
     auto it = _inputMap.find(name);
     return it != _inputMap.end() ? it->second.get() : nullptr;
 }
 
-DagOutput* DagNode::getOutput(const string& name)
+ShaderOutput* ShaderNode::getOutput(const string& name)
 {
     auto it = _outputMap.find(name);
     return it != _outputMap.end() ? it->second.get() : nullptr;
 }
 
-const DagInput* DagNode::getInput(const string& name) const
+const ShaderInput* ShaderNode::getInput(const string& name) const
 {
     auto it = _inputMap.find(name);
     return it != _inputMap.end() ? it->second.get() : nullptr;
 }
 
-const DagOutput* DagNode::getOutput(const string& name) const
+const ShaderOutput* ShaderNode::getOutput(const string& name) const
 {
     auto it = _outputMap.find(name);
     return it != _outputMap.end() ? it->second.get() : nullptr;
 }
 
-DagInput* DagNode::addInput(const string& name, const TypeDesc* type)
+ShaderInput* ShaderNode::addInput(const string& name, const TypeDesc* type)
 {
     if (getInput(name))
     {
         throw ExceptionShaderGenError("An input named '" + name + "' already exists on node '" + _name + "'");
     }
 
-    DagInputPtr input = std::make_shared<DagInput>();
+    ShaderInputPtr input = std::make_shared<ShaderInput>();
     input->name = name;
     input->type = type;
     input->node = this;
@@ -358,14 +353,14 @@ DagInput* DagNode::addInput(const string& name, const TypeDesc* type)
     return input.get();
 }
 
-DagOutput* DagNode::addOutput(const string& name, const TypeDesc* type)
+ShaderOutput* ShaderNode::addOutput(const string& name, const TypeDesc* type)
 {
     if (getOutput(name))
     {
         throw ExceptionShaderGenError("An output named '" + name + "' already exists on node '" + _name + "'");
     }
 
-    DagOutputPtr output = std::make_shared<DagOutput>();
+    ShaderOutputPtr output = std::make_shared<ShaderOutput>();
     output->name = name;
     output->type = type;
     output->node = this;
@@ -375,7 +370,7 @@ DagOutput* DagNode::addOutput(const string& name, const TypeDesc* type)
     return output.get();
 }
 
-void DagNode::renameInput(const string& name, const string& newName)
+void ShaderNode::renameInput(const string& name, const string& newName)
 {
     if (name != newName)
     {
@@ -389,7 +384,7 @@ void DagNode::renameInput(const string& name, const string& newName)
     }
 }
 
-void DagNode::renameOutput(const string& name, const string& newName)
+void ShaderNode::renameOutput(const string& name, const string& newName)
 {
     if (name != newName)
     {
@@ -401,96 +396,6 @@ void DagNode::renameOutput(const string& name, const string& newName)
             _outputMap.erase(it);
         }
     }
-}
-
-namespace
-{
-    static const DagEdgeIterator NULL_EDGE_ITERATOR(nullptr);
-}
-
-DagEdgeIterator::DagEdgeIterator(DagOutput* output)
-    : _upstream(output)
-    , _downstream(nullptr)
-{
-}
-
-DagEdgeIterator& DagEdgeIterator::operator++()
-{
-    if (_upstream && _upstream->node->numInputs())
-    {
-        // Traverse to the first upstream edge of this element.
-        _stack.push_back(StackFrame(_upstream, 0));
-
-        DagInput* input = _upstream->node->getInput(0);
-        DagOutput* output = input->connection;
-
-        if (output && !output->node->isAGraph())
-        {
-            extendPathUpstream(output, input);
-            return *this;
-        }
-    }
-
-    while (true)
-    {
-        if (_upstream)
-        {
-            returnPathDownstream(_upstream);
-        }
-
-        if (_stack.empty())
-        {
-            // Traversal is complete.
-            *this = DagEdgeIterator::end();
-            return *this;
-        }
-
-        // Traverse to our siblings.
-        StackFrame& parentFrame = _stack.back();
-        while (parentFrame.second + 1 < parentFrame.first->node->numInputs())
-        {
-            DagInput* input = parentFrame.first->node->getInput(++parentFrame.second);
-            DagOutput* output = input->connection;
-
-            if (output && !output->node->isAGraph())
-            {
-                extendPathUpstream(output, input);
-                return *this;
-            }
-        }
-
-        // Traverse to our parent's siblings.
-        returnPathDownstream(parentFrame.first);
-        _stack.pop_back();
-    }
-
-    return *this;
-}
-
-const DagEdgeIterator& DagEdgeIterator::end()
-{
-    return NULL_EDGE_ITERATOR;
-}
-
-void DagEdgeIterator::extendPathUpstream(DagOutput* upstream, DagInput* downstream)
-{
-    // Check for cycles.
-    if (_path.count(upstream))
-    {
-        throw ExceptionFoundCycle("Encountered cycle at element: " + upstream->node->getName() + "." + upstream->name);
-    }
-
-    // Extend the current path to the new element.
-    _path.insert(upstream);
-    _upstream = upstream;
-    _downstream = downstream;
-}
-
-void DagEdgeIterator::returnPathDownstream(DagOutput* upstream)
-{
-    _path.erase(upstream);
-    _upstream = nullptr;
-    _downstream = nullptr;
 }
 
 } // namespace MaterialX

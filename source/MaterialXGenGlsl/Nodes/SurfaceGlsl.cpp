@@ -18,12 +18,12 @@ namespace
         "vec3 L = lightShader.direction;\n";
 }
 
-GenImplementationPtr SurfaceGlsl::create()
+ShaderImplementationPtr SurfaceGlsl::create()
 {
     return std::make_shared<SurfaceGlsl>();
 }
 
-void SurfaceGlsl::createVariables(const DagNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void SurfaceGlsl::createVariables(const ShaderNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     // TODO: 
     // The surface shader needs position, normal, view position and light sources. We should solve this by adding some 
@@ -43,7 +43,7 @@ void SurfaceGlsl::createVariables(const DagNode& /*node*/, ShaderGenerator& /*sh
         EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void SurfaceGlsl::emitFunctionCall(const DagNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void SurfaceGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
@@ -88,7 +88,7 @@ void SurfaceGlsl::emitFunctionCall(const DagNode& node, GenContext& context, Sha
         shader.newLine();
     }
 
-    const DagOutput* output = node.getOutput();
+    const ShaderOutput* output = node.getOutput();
     const string outColor = output->name + ".color";
     const string outTransparency = output->name + ".transparency";
 

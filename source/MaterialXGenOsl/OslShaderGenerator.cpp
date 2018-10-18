@@ -155,7 +155,7 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     emitFunctionDefinitions(shader);
 
     // Emit shader type
-    const DagOutputSocket* outputSocket = shader.getDag()->getOutputSocket();
+    const ShaderGraphOutputSocket* outputSocket = shader.getGraph()->getOutputSocket();
     if (outputSocket->type == Type::SURFACESHADER)
     {
         shader.addStr("surface ");
@@ -257,7 +257,7 @@ void OslShaderGenerator::emitIncludes(Shader& shader)
 void OslShaderGenerator::emitFunctionCalls(const GenContext& context, Shader &shader)
 {
     // Emit needed globals
-    if (!shader.getDag()->hasClassification(DagNode::Classification::TEXTURE))
+    if (!shader.getGraph()->hasClassification(ShaderNode::Classification::TEXTURE))
     {
         shader.addLine("closure color null_closure = 0");
     }
@@ -268,8 +268,8 @@ void OslShaderGenerator::emitFunctionCalls(const GenContext& context, Shader &sh
 
 void OslShaderGenerator::emitFinalOutput(Shader& shader) const
 {
-    Dag* graph = shader.getDag();
-    const DagOutputSocket* outputSocket = graph->getOutputSocket();
+    ShaderGraph* graph = shader.getGraph();
+    const ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
 
     if (!outputSocket->connection)
     {

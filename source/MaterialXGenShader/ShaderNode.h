@@ -1,61 +1,65 @@
-#ifndef MATERIALX_DAGNODE_H
-#define MATERIALX_DAGNODE_H
+#ifndef MATERIALX_SHADERNODE_H
+#define MATERIALX_SHADERNODE_H
 
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Document.h>
 
 #include <MaterialXGenShader/TypeDesc.h>
-#include <MaterialXGenShader/GenImplementation.h>
+#include <MaterialXGenShader/ShaderImplementation.h>
 
 #include <set>
 
 namespace MaterialX
 {
 
-class DagInput;
-class DagOutput;
-class DagEdge;
-class DagEdgeIterator;
-class DagNode;
+class ShaderNode;
+class ShaderInput;
+class ShaderOutput;
 
-using DagInputPtr = shared_ptr<class DagInput>;
-using DagOutputPtr = shared_ptr<class DagOutput>;
-using DagNodePtr = shared_ptr<class DagNode>;
-using DagInputSet = std::set<DagInput*>;
+using ShaderInputPtr = shared_ptr<class ShaderInput>;
+using ShaderOutputPtr = shared_ptr<class ShaderOutput>;
+using ShaderNodePtr = shared_ptr<class ShaderNode>;
+using ShaderInputSet = std::set<ShaderInput*>;
 
-/// An input on a DagNode
-class DagInput
+/// An input on a ShaderNode
+class ShaderInput
 {
 public:
     const TypeDesc* type;
     string name;
-    DagNode* node;
+    ShaderNode* node;
     ValuePtr value;
-    DagOutput* connection;
+    ShaderOutput* connection;
 
-    void makeConnection(DagOutput* src);
+    /// Make a connection from the given source output to this input
+    void makeConnection(ShaderOutput* src);
+
+    /// Break any connection to this input
     void breakConnection();
 };
 
-/// An output on a DagNode
-class DagOutput
+/// An output on a ShaderNode
+class ShaderOutput
 {
 public:
     const TypeDesc* type;
     string name;
-    DagNode* node;
+    ShaderNode* node;
     ValuePtr value;
-    DagInputSet connections;
+    ShaderInputSet connections;
 
-    void makeConnection(DagInput* dst);
-    void breakConnection(DagInput* dst);
+    /// Make a connection from this output to the given input
+    void makeConnection(ShaderInput* dst);
+
+    /// Break a connection from this output to the given input
+    void breakConnection(ShaderInput* dst);
+
+    /// Break all connections from this output
     void breakConnection();
-
-    DagEdgeIterator traverseUpstream();
 };
 
 /// Class representing a node in the shader generation DAG
-class DagNode
+class ShaderNode
 {
 public:
     /// Flags for classifying nodes into different categories.
@@ -106,16 +110,16 @@ public:
         ScopeInfo() : type(Type::UNKNOWN), conditionalNode(nullptr), conditionBitmask(0), fullConditionMask(0) {}
 
         void merge(const ScopeInfo& fromScope);
-        void adjustAtConditionalInput(DagNode* condNode, int branch, const uint32_t condMask);
+        void adjustAtConditionalInput(ShaderNode* condNode, int branch, const uint32_t condMask);
         bool usedByBranch(int branchIndex) const { return (conditionBitmask & (1 << branchIndex)) != 0; }
 
         Type type;
-        DagNode* conditionalNode;
+        ShaderNode* conditionalNode;
         uint32_t conditionBitmask;
         uint32_t fullConditionMask;
     };
 
-    static const DagNodePtr NONE;
+    static const ShaderNodePtr NONE;
 
     static const string SXCLASS_ATTRIBUTE;
     static const string CONSTANT;
@@ -127,10 +131,10 @@ public:
 
 public:
     /// Constructor.
-    DagNode(const string& name);
+    ShaderNode(const string& name);
 
     /// Create a new node from a nodedef and an option node instance.
-    static DagNodePtr create(const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, const Node* nodeInstance = nullptr);
+    static ShaderNodePtr create(const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, const Node* nodeInstance = nullptr);
 
     /// Return true if this node is a graph.
     virtual bool isAGraph() const { return false; }
@@ -148,7 +152,7 @@ public:
     }
 
     /// Return the implementation used for this node.
-    GenImplementation* getImplementation()
+    ShaderImplementation* getImplementation()
     {
         return _impl.get();
     }
@@ -169,34 +173,34 @@ public:
     bool referencedConditionally() const;
 
     /// Returns true if the given node is a closure used by this node.
-    bool isUsedClosure(const DagNode* node) const
+    bool isUsedClosure(const ShaderNode* node) const
     {
         return _usedClosures.count(node) > 0;
     }
 
     /// Add inputs/outputs
-    DagInput* addInput(const string& name, const TypeDesc* type);
-    DagOutput* addOutput(const string& name, const TypeDesc* type);
+    ShaderInput* addInput(const string& name, const TypeDesc* type);
+    ShaderOutput* addOutput(const string& name, const TypeDesc* type);
 
     /// Get number of inputs/outputs
     size_t numInputs() const { return _inputOrder.size(); }
     size_t numOutputs() const { return _outputOrder.size(); }
 
     /// Get inputs/outputs by index
-    DagInput* getInput(size_t index) { return _inputOrder[index]; }
-    DagOutput* getOutput(size_t index = 0) { return _outputOrder[index]; }
-    const DagInput* getInput(size_t index) const { return _inputOrder[index]; }
-    const DagOutput* getOutput(size_t index = 0) const { return _outputOrder[index]; }
+    ShaderInput* getInput(size_t index) { return _inputOrder[index]; }
+    ShaderOutput* getOutput(size_t index = 0) { return _outputOrder[index]; }
+    const ShaderInput* getInput(size_t index) const { return _inputOrder[index]; }
+    const ShaderOutput* getOutput(size_t index = 0) const { return _outputOrder[index]; }
 
     /// Get inputs/outputs by name
-    DagInput* getInput(const string& name);
-    DagOutput* getOutput(const string& name);
-    const DagInput* getInput(const string& name) const;
-    const DagOutput* getOutput(const string& name) const;
+    ShaderInput* getInput(const string& name);
+    ShaderOutput* getOutput(const string& name);
+    const ShaderInput* getInput(const string& name) const;
+    const ShaderOutput* getOutput(const string& name) const;
 
     /// Get vector of inputs/outputs
-    const vector<DagInput*>& getInputs() const { return _inputOrder; }
-    const vector<DagOutput*>& getOutputs() const { return _outputOrder; }
+    const vector<ShaderInput*>& getInputs() const { return _inputOrder; }
+    const vector<ShaderOutput*>& getOutputs() const { return _outputOrder; }
 
     /// Rename inputs/outputs
     void renameInput(const string& name, const string& newName);
@@ -204,7 +208,7 @@ public:
 
     /// Get input which is used for sampling. If there is none
     /// then a null pointer is returned.
-    DagInput* getSamplingInput() const
+    ShaderInput* getSamplingInput() const
     {
         return _samplingInput;
     }
@@ -219,78 +223,20 @@ protected:
     string _name;
     unsigned int _classification;
 
-    std::unordered_map<string, DagInputPtr> _inputMap;
-    vector<DagInput*> _inputOrder;
+    std::unordered_map<string, ShaderInputPtr> _inputMap;
+    vector<ShaderInput*> _inputOrder;
 
-    std::unordered_map<string, DagOutputPtr> _outputMap;
-    vector<DagOutput*> _outputOrder;
+    std::unordered_map<string, ShaderOutputPtr> _outputMap;
+    vector<ShaderOutput*> _outputOrder;
 
-    DagInput* _samplingInput;
+    ShaderInput* _samplingInput;
 
-    GenImplementationPtr _impl;
+    ShaderImplementationPtr _impl;
     ScopeInfo _scopeInfo;
-    std::set<const DagNode*> _usedClosures;
+    std::set<const ShaderNode*> _usedClosures;
     std::set<int> _contextIDs;
 
-    friend class Dag;
-};
-
-/// An edge returned during DagNode traversal
-class DagEdge
-{
-public:
-    DagEdge(DagOutput* up, DagInput* down)
-        : upstream(up)
-        , downstream(down)
-    {}
-    DagOutput* upstream;
-    DagInput* downstream;
-};
-
-/// Iterator class for traversing edges between DagNodes
-class DagEdgeIterator
-{
-public:
-    DagEdgeIterator(DagOutput* output);
-    ~DagEdgeIterator() { }
-
-    bool operator==(const DagEdgeIterator& rhs) const
-    {
-        return _upstream == rhs._upstream &&
-            _downstream == rhs._downstream &&
-            _stack == rhs._stack;
-    }
-    bool operator!=(const DagEdgeIterator& rhs) const
-    {
-        return !(*this == rhs);
-    }
-
-    /// Dereference this iterator, returning the current output in the traversal.
-    DagEdge operator*() const
-    {
-        return DagEdge(_upstream, _downstream);
-    }
-
-    /// Iterate to the next edge in the traversal.
-    /// @throws ExceptionFoundCycle if a cycle is encountered.
-    DagEdgeIterator& operator++();
-
-    DagEdgeIterator& begin()
-    {
-        return *this;
-    }
-
-    static const DagEdgeIterator& end();
-
-private:
-    void extendPathUpstream(DagOutput* upstream, DagInput* downstream);
-    void returnPathDownstream(DagOutput* upstream);
-
-    DagOutput* _upstream;
-    DagInput* _downstream;
-    using StackFrame = std::pair<DagOutput*, size_t>;
-    std::vector<StackFrame> _stack;
-    std::set<DagOutput*> _path;
+    friend class ShaderGraph;
 };
 
 } // namespace MaterialX

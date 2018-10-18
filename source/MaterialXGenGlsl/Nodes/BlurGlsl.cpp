@@ -23,7 +23,7 @@ BlurGlsl::BlurGlsl()
     _sampleSizeFunctionUV.assign("sx_compute_sample_size_uv");
 }
 
-GenImplementationPtr BlurGlsl::create()
+ShaderImplementationPtr BlurGlsl::create()
 {
     return std::shared_ptr<BlurGlsl>(new BlurGlsl());
 }
@@ -57,10 +57,10 @@ bool BlurGlsl::acceptsInputType(const TypeDesc* type)
             type->isFloat2() || type->isFloat3() || type->isFloat4());
 }
 
-void BlurGlsl::emitFunctionCall(const DagNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void BlurGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
 {
     const string IN_STRING("in");
-    const DagInput* inInput = node.getInput(IN_STRING);
+    const ShaderInput* inInput = node.getInput(IN_STRING);
 
     // Get intput type name string
     _inputTypeString.clear();
@@ -70,7 +70,7 @@ void BlurGlsl::emitFunctionCall(const DagNode& node, GenContext& context, Shader
     }
 
     const string FILTER_TYPE_STRING("filtertype");
-    const DagInput* filterTypeInput = node.getInput(FILTER_TYPE_STRING);
+    const ShaderInput* filterTypeInput = node.getInput(FILTER_TYPE_STRING);
     if (!inInput || !filterTypeInput || _inputTypeString.empty())
     {
         throw ExceptionShaderGenError("Node '" + node.getName() + "' is not a valid Blur node");
@@ -78,7 +78,7 @@ void BlurGlsl::emitFunctionCall(const DagNode& node, GenContext& context, Shader
 
     // Compute width of filter. Default is 1 which just means one 1x1 upstream samples
     const string FILTER_SIZE_STRING("size");
-    const DagInput* sizeInput = node.getInput(FILTER_SIZE_STRING);
+    const ShaderInput* sizeInput = node.getInput(FILTER_SIZE_STRING);
     _filterWidth = 1;
     if (sizeInput)
     {

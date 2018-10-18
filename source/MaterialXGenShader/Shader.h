@@ -3,7 +3,7 @@
 
 #include <MaterialXCore/Library.h>
 #include <MaterialXCore/Node.h>
-#include <MaterialXGenShader/Dag.h>
+#include <MaterialXGenShader/ShaderGraph.h>
 #include <MaterialXGenShader/GenOptions.h>
 
 #include <queue>
@@ -162,10 +162,10 @@ public:
     virtual void addBlock(const string& str, ShaderGenerator& shadergen);
 
     /// Add the function definition for a node
-    virtual void addFunctionDefinition(DagNode* node, ShaderGenerator& shadergen);
+    virtual void addFunctionDefinition(ShaderNode* node, ShaderGenerator& shadergen);
 
     /// Add the function call for a node
-    virtual void addFunctionCall(DagNode* node, const GenContext& context, ShaderGenerator& shadergen);
+    virtual void addFunctionCall(ShaderNode* node, const GenContext& context, ShaderGenerator& shadergen);
 
     /// Add the contents of an include file
     /// Making sure it is only included once
@@ -188,17 +188,17 @@ public:
     const string& getName() const { return _name; }
 
     /// Return the active shader graph.
-    Dag* getDag() const { return _dagStack.back(); }
+    ShaderGraph* getGraph() const { return _graphStack.back(); }
 
     /// Push a new active shader graph.
     /// Used when emitting code for compounds / subgraphs.
-    void pushActiveDag(Dag* dag) { _dagStack.push_back(dag); }
+    void pushActiveGraph(ShaderGraph* graph) { _graphStack.push_back(graph); }
 
     /// Reactivate the previously last used shader graph.
-    void popActiveDag() { _dagStack.pop_back(); }
+    void popActiveGraph() { _graphStack.pop_back(); }
 
     /// Return true if this shader matches the given classification.
-    bool hasClassification(unsigned int c) const { return getDag()->hasClassification(c); }
+    bool hasClassification(unsigned int c) const { return getGraph()->hasClassification(c); }
 
     /// Return the vdirection requested in the current document.
     VDirection getRequestedVDirection() const { return _vdirection; }
@@ -216,7 +216,7 @@ protected:
         int indentations;
         std::queue<Brackets> scopes;
         std::set<string> includes;
-        std::set<GenImplementation*> definedFunctions;
+        std::set<ShaderImplementation*> definedFunctions;
         
         // Blocks holding uniform variables for this stage
         VariableBlockMap uniforms;
@@ -234,11 +234,11 @@ protected:
     virtual void indent();
 
     /// Return a container with all top level graphs use by this shader.
-    virtual void getTopLevelShaderGraphs(ShaderGenerator& shadergen, std::deque<Dag*>& graphs) const;
+    virtual void getTopLevelShaderGraphs(ShaderGenerator& shadergen, std::deque<ShaderGraph*>& graphs) const;
 
     string _name;
-    DagPtr _dag;
-    vector<Dag*> _dagStack;
+    ShaderGraphPtr _rootGraph;
+    vector<ShaderGraph*> _graphStack;
     VDirection _vdirection;
 
     size_t _activeStage;

@@ -17,7 +17,7 @@ const string Shader::PUBLIC_UNIFORMS = "PublicUniforms";
 
 Shader::Shader(const string& name)
     : _name(name)
-    , _dag(nullptr)
+    , _rootGraph(nullptr)
     , _activeStage(PIXEL_STAGE)
     , _appData("AppData", "ad")
 {
@@ -30,10 +30,11 @@ Shader::Shader(const string& name)
 
 void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const GenOptions& options)
 {
-    // Create our shader generation root DAG
-    _dag = Dag::create(_name, element, shadergen);
+    // Create our shader generation root graph
+    _rootGraph = ShaderGraph::create(_name, element, shadergen);
 
-    pushActiveDag(_dag.get());
+    // Make it active
+    pushActiveGraph(_rootGraph.get());
 
     // Set the vdirection to use for texture nodes
     // Default is to use direction UP
@@ -41,14 +42,14 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const Ge
     _vdirection = vdir == "down" ? VDirection::DOWN : VDirection::UP;
 
     // Create shader variables for all nodes that need this (geometric nodes / input streams)
-    for (DagNode* node : _dag->getNodes())
+    for (ShaderNode* node : _rootGraph->getNodes())
     {
-        GenImplementation* impl = node->getImplementation();
+        ShaderImplementation* impl = node->getImplementation();
         impl->createVariables(*node, shadergen, *this);
     }
 
     // Create uniforms for the public graph interface
-    for (DagInputSocket* inputSocket : _dag->getInputSockets())
+    for (ShaderGraphInputSocket* inputSocket : _rootGraph->getInputSockets())
     {
         // Only for inputs that are connected/used internally
         if (inputSocket->connections.size())
@@ -62,9 +63,9 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const Ge
     if (options.shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
     {
         // Create uniforms for all node inputs that has not been connected already
-        for (DagNode* node : _dag->getNodes())
+        for (ShaderNode* node : _rootGraph->getNodes())
         {
-            for (DagInput* input : node->getInputs())
+            for (ShaderInput* input : node->getInputs())
             {
                 if (!input->connection)
                 {
@@ -77,10 +78,10 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const Ge
                         // when node inputs change on application side.
                         const string interfaceName = node->getName() + "_" + input->name;
 
-                        DagInputSocket* inputSocket = _dag->getInputSocket(interfaceName);
+                        ShaderGraphInputSocket* inputSocket = _rootGraph->getInputSocket(interfaceName);
                         if (!inputSocket)
                         {
-                            inputSocket = _dag->addInputSocket(interfaceName, input->type);
+                            inputSocket = _rootGraph->addInputSocket(interfaceName, input->type);
                             inputSocket->value = input->value;
                         }
                         inputSocket->makeConnection(input);
@@ -212,10 +213,10 @@ void Shader::addBlock(const string& str, ShaderGenerator& shadergen)
     }
 }
 
-void Shader::addFunctionDefinition(DagNode* node, ShaderGenerator& shadergen)
+void Shader::addFunctionDefinition(ShaderNode* node, ShaderGenerator& shadergen)
 {
     Stage& s = stage();
-    GenImplementation* impl = node->getImplementation();
+    ShaderImplementation* impl = node->getImplementation();
     if (s.definedFunctions.find(impl) == s.definedFunctions.end())
     {
         s.definedFunctions.insert(impl);
@@ -223,9 +224,9 @@ void Shader::addFunctionDefinition(DagNode* node, ShaderGenerator& shadergen)
     }
 }
 
-void Shader::addFunctionCall(DagNode* node, const GenContext& context, ShaderGenerator& shadergen)
+void Shader::addFunctionCall(ShaderNode* node, const GenContext& context, ShaderGenerator& shadergen)
 {
-    GenImplementation* impl = node->getImplementation();
+    ShaderImplementation* impl = node->getImplementation();
     impl->emitFunctionCall(*node, *(const_cast<GenContext*>(&context)), shadergen, *this);
 }
 
@@ -305,9 +306,9 @@ void Shader::createAppData(const TypeDesc* type, const string& name, const strin
     }
 }
 
-void Shader::getTopLevelShaderGraphs(ShaderGenerator& /*shadergen*/, std::deque<Dag*>& graphs) const
+void Shader::getTopLevelShaderGraphs(ShaderGenerator& /*shadergen*/, std::deque<ShaderGraph*>& graphs) const
 {
-    graphs.push_back(_dag.get());
+    graphs.push_back(_rootGraph.get());
 }
 
 }

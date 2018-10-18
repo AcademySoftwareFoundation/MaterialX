@@ -52,21 +52,21 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen, const 
     //
 
     // Start with top level graphs.
-    std::deque<Dag*> graphQueue;
+    std::deque<ShaderGraph*> graphQueue;
     getTopLevelShaderGraphs(shadergen, graphQueue);
 
     Syntax::UniqueNameMap uniqueNames;
 
     while (!graphQueue.empty())
     {
-        Dag* graph = graphQueue.back();
+        ShaderGraph* graph = graphQueue.back();
         graphQueue.pop_back();
 
-        for (DagNode* node : graph->getNodes())
+        for (ShaderNode* node : graph->getNodes())
         {
-            if (node->hasClassification(DagNode::Classification::FILETEXTURE))
+            if (node->hasClassification(ShaderNode::Classification::FILETEXTURE))
             {
-                for (DagInput* input : node->getInputs())
+                for (ShaderInput* input : node->getInputs())
                 {
                     if (!input->connection && input->type == Type::FILENAME)
                     {
@@ -81,7 +81,7 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen, const 
                 }
             }
             // Push subgraphs on the queue to process these as well.
-            Dag* subgraph = node->getImplementation()->getDag();
+            ShaderGraph* subgraph = node->getImplementation()->getGraph();
             if (subgraph)
             {
                 graphQueue.push_back(subgraph);
@@ -90,12 +90,12 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen, const 
     }
 
     // For surface shaders we need light shaders
-    if (_dag->hasClassification(DagNode::Classification::SHADER | DagNode::Classification::SURFACE))
+    if (_rootGraph->hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
     {
         // Create variables for all bound light shaders
         for (auto lightShader : sg.getBoundLightShaders())
         {
-            lightShader.second->createVariables(*DagNode::NONE, shadergen, *this);
+            lightShader.second->createVariables(*ShaderNode::NONE, shadergen, *this);
         }
     }
 }
@@ -110,7 +110,7 @@ void HwShader::createVertexData(const TypeDesc* type, const string& name, const 
     }
 }
 
-void HwShader::getTopLevelShaderGraphs(ShaderGenerator& shadergen, std::deque<Dag*>& graphs) const
+void HwShader::getTopLevelShaderGraphs(ShaderGenerator& shadergen, std::deque<ShaderGraph*>& graphs) const
 {
     // Get graphs for base class
     ParentClass::getTopLevelShaderGraphs(shadergen, graphs);
@@ -119,7 +119,7 @@ void HwShader::getTopLevelShaderGraphs(ShaderGenerator& shadergen, std::deque<Da
     HwShaderGenerator& sg = static_cast<HwShaderGenerator&>(shadergen);
     for (auto lightShader : sg.getBoundLightShaders())
     {
-        Dag* lightGraph = lightShader.second->getDag();
+        ShaderGraph* lightGraph = lightShader.second->getGraph();
         if (lightGraph)
         {
             graphs.push_back(lightGraph);

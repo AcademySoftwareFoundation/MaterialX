@@ -3,18 +3,18 @@
 namespace MaterialX
 {
 
-GenImplementationPtr PositionGlsl::create()
+ShaderImplementationPtr PositionGlsl::create()
 {
     return std::make_shared<PositionGlsl>();
 }
 
-void PositionGlsl::createVariables(const DagNode& node, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void PositionGlsl::createVariables(const ShaderNode& node, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     shader.createAppData(Type::VECTOR3, "i_position");
 
-    const DagInput* spaceInput = node.getInput(SPACE);
+    const ShaderInput* spaceInput = node.getInput(SPACE);
     string space = spaceInput ? spaceInput->value->getValueString() : EMPTY_STRING;
     if (space == WORLD)
     {
@@ -30,14 +30,14 @@ void PositionGlsl::createVariables(const DagNode& node, ShaderGenerator& /*shade
     }
 }
 
-void PositionGlsl::emitFunctionCall(const DagNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void PositionGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     const string& blockInstance = shader.getVertexDataBlock().instance;
     const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
 
-    const DagInput* spaceInput = node.getInput(SPACE);
+    const ShaderInput* spaceInput = node.getInput(SPACE);
     string space = spaceInput ? spaceInput->value->getValueString() : EMPTY_STRING;
 
     BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)

@@ -96,7 +96,7 @@ public:
 
     /// Add node contexts id's to the given node to control 
     /// in which contexts this node should be used
-    void addNodeContextIDs(DagNode* node) const override;
+    void addNodeContextIDs(ShaderNode* node) const override;
 
     /// Emit code for all texturing nodes.
     virtual void emitTextureNodes(Shader& shader);
@@ -104,12 +104,12 @@ public:
     /// Emit code for calculating BSDF response for a shader, 
     /// given the incident and outgoing light directions.
     /// The output 'bsdf' will hold the variable name keeping the result.
-    virtual void emitBsdfNodes(const DagNode& shaderNode, int bsdfContext, const string& incident, const string& outgoing, Shader& shader, string& bsdf);
+    virtual void emitBsdfNodes(const ShaderNode& shaderNode, int bsdfContext, const string& incident, const string& outgoing, Shader& shader, string& bsdf);
 
     /// Emit code for calculating emission for a surface or light shader,
     /// given the normal direction of the EDF and the evaluation direction.
     /// The output 'edf' will hold the variable keeping the result.
-    virtual void emitEdfNodes(const DagNode& shaderNode, const string& normalDir, const string& evalDir, Shader& shader, string& edf);
+    virtual void emitEdfNodes(const ShaderNode& shaderNode, const string& normalDir, const string& evalDir, Shader& shader, string& edf);
 
 public:
     /// Unique identifyer for the glsl language
@@ -145,7 +145,7 @@ public:
 
 protected:
     /// Override the compound implementation creator in order to handle light compounds.
-    GenImplementationPtr createCompoundImplementation(NodeGraphPtr impl) override;
+    ShaderImplementationPtr createCompoundImplementation(NodeGraphPtr impl) override;
 
     static void toVec4(const TypeDesc* type, string& variable);
 
@@ -158,7 +158,7 @@ protected:
 
 
 /// Base class for common GLSL node implementations
-class GlslImplementation : public GenImplementation
+class GlslImplementation : public ShaderImplementation
 {
 public:
     const string& getLanguage() const override;

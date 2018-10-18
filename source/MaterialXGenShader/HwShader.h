@@ -61,7 +61,7 @@ public:
 
 protected:
     /// Return a container with all top level graphs use by this shader.
-    void getTopLevelShaderGraphs(ShaderGenerator& shadergen, std::deque<Dag*>& graphs) const override;
+    void getTopLevelShaderGraphs(ShaderGenerator& shadergen, std::deque<ShaderGraph*>& graphs) const override;
 
 private:
     VariableBlock _vertexData;

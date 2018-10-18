@@ -138,8 +138,8 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 
     OgsFxShader& shader = *shaderPtr;
 
-    bool lighting = shader.hasClassification(DagNode::Classification::SHADER | DagNode::Classification::SURFACE) ||
-        shader.hasClassification(DagNode::Classification::BSDF);
+    bool lighting = shader.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE) ||
+        shader.hasClassification(ShaderNode::Classification::BSDF);
 
     // Turn on fixed formatting since OgsFx doesn't support scientific values
     Value::ScopedFloatFormatting fmt(Value::FloatFormatFixed);
@@ -193,7 +193,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.newLine();
 
     // Emit sampling code if needed
-    if (shader.hasClassification(DagNode::Classification::CONVOLUTION2D))
+    if (shader.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
     {
         // Emit sampling functions
         shader.addInclude("stdlib/sx-glsl/lib/sx_sampling.glsl", *this);
@@ -277,7 +277,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     // Add the pixel shader output. This needs to be a vec4 for rendering
     // and upstream connection will be converted to vec4 if needed in emitFinalOutput()
     shader.addComment("Data output by the pixel shader");
-    const DagOutputSocket* outputSocket = shader.getDag()->getOutputSocket();
+    const ShaderGraphOutputSocket* outputSocket = shader.getGraph()->getOutputSocket();
     shader.addLine("attribute PixelOutput", false);
     shader.beginScope(Shader::Brackets::BRACES);
     shader.addLine("vec4 " + outputSocket->name);

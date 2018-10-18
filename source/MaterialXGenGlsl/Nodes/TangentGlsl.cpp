@@ -3,18 +3,18 @@
 namespace MaterialX
 {
 
-GenImplementationPtr TangentGlsl::create()
+ShaderImplementationPtr TangentGlsl::create()
 {
     return std::make_shared<TangentGlsl>();
 }
 
-void TangentGlsl::createVariables(const DagNode& node, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void TangentGlsl::createVariables(const ShaderNode& node, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     shader.createAppData(Type::VECTOR3, "i_tangent");
 
-    const DagInput* spaceInput = node.getInput(SPACE);
+    const ShaderInput* spaceInput = node.getInput(SPACE);
     string space = spaceInput ? spaceInput->value->getValueString() : EMPTY_STRING;
     if (space == WORLD)
     {
@@ -31,14 +31,14 @@ void TangentGlsl::createVariables(const DagNode& node, ShaderGenerator& /*shader
     }
 }
 
-void TangentGlsl::emitFunctionCall(const DagNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void TangentGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     const string& blockInstance = shader.getVertexDataBlock().instance;
     const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
 
-    const DagInput* spaceInput = node.getInput(SPACE);
+    const ShaderInput* spaceInput = node.getInput(SPACE);
     string space = spaceInput ? spaceInput->value->getValueString() : EMPTY_STRING;
 
     BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
