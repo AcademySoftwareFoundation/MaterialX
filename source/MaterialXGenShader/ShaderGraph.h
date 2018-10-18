@@ -18,7 +18,7 @@ class ShaderGraphEdgeIterator;
 /// used for connecting internal nodes to the outside
 using ShaderGraphInputSocket = ShaderOutput;
 
-/// An internal input socket in a shader graph,
+/// An internal output socket in a shader graph,
 /// used for connecting internal nodes to the outside
 using ShaderGraphOutputSocket = ShaderInput;
 
@@ -27,7 +27,7 @@ using ShaderGraphPtr = shared_ptr<class ShaderGraph>;
 /// Class representing a graph (DAG) for shader generation
 class ShaderGraph : public ShaderNode
 {
-public:
+  public:
     ShaderGraph(const string& name, DocumentPtr document);
 
     /// Create a new shader graph from an element.
@@ -82,7 +82,7 @@ public:
     /// Return an iterator for traversal upstream from the given output
     static ShaderGraphEdgeIterator traverseUpstream(ShaderOutput* output);
 
-protected:
+  protected:
     /// Add input sockets from an interface element (nodedef, nodegraph or node)
     void addInputSockets(const InterfaceElement& elem);
 
@@ -137,7 +137,7 @@ protected:
 /// An edge returned during shader graph traversal.
 class ShaderGraphEdge
 {
-public:
+  public:
     ShaderGraphEdge(ShaderOutput* up, ShaderInput* down)
         : upstream(up)
         , downstream(down)
@@ -149,7 +149,7 @@ public:
 /// Iterator class for traversing edges between nodes in a shader graph.
 class ShaderGraphEdgeIterator
 {
-public:
+  public:
     ShaderGraphEdgeIterator(ShaderOutput* output);
     ~ShaderGraphEdgeIterator() { }
 
@@ -183,7 +183,7 @@ public:
     /// Return the end iterator.
     static const ShaderGraphEdgeIterator& end();
 
-private:
+  private:
     void extendPathUpstream(ShaderOutput* upstream, ShaderInput* downstream);
     void returnPathDownstream(ShaderOutput* upstream);
 

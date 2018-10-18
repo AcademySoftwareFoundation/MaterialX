@@ -30,7 +30,7 @@ using GenContextPtr = std::shared_ptr<class GenContext>;
 /// 
 class GenContext
 {
-public:
+  public:
     /// Constructor, set the identifier for this context.
     GenContext(int id) : _id(id) {}
 
@@ -77,7 +77,7 @@ public:
     /// @param suffix Suffix string returned. Is empty if not found.
     void getOutputSuffix(ShaderOutput* output, string& suffix) const;
 
-private:
+  private:
     const int _id;
     Arguments _arguments;
     string _functionSuffix;

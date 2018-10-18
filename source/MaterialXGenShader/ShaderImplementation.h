@@ -20,7 +20,7 @@ using ShaderImplementationPtr = shared_ptr<class ShaderImplementation>;
 /// that is the node implementation.
 class ShaderImplementation
 {
-public:
+  public:
     virtual ~ShaderImplementation() {}
 
     /// Return an identifyer for the language used by this implementation.
@@ -52,7 +52,7 @@ public:
     /// or returns nullptr otherwise.
     virtual ShaderGraph* getGraph() const;
 
-protected:
+  protected:
     /// Protected constructor
     ShaderImplementation() {}
 };

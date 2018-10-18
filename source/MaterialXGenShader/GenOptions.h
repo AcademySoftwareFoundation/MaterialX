@@ -24,7 +24,7 @@ enum ShaderInterfaceType
 /// Class holding options to configure shader generation.
 class GenOptions
 {
-public:
+  public:
     GenOptions();
 
     virtual ~GenOptions() {}

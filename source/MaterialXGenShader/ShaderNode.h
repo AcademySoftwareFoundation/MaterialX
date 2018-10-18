@@ -24,7 +24,7 @@ using ShaderInputSet = std::set<ShaderInput*>;
 /// An input on a ShaderNode
 class ShaderInput
 {
-public:
+  public:
     const TypeDesc* type;
     string name;
     ShaderNode* node;
@@ -41,7 +41,7 @@ public:
 /// An output on a ShaderNode
 class ShaderOutput
 {
-public:
+  public:
     const TypeDesc* type;
     string name;
     ShaderNode* node;
@@ -61,7 +61,7 @@ public:
 /// Class representing a node in the shader generation DAG
 class ShaderNode
 {
-public:
+  public:
     /// Flags for classifying nodes into different categories.
     class Classification
     {
@@ -129,7 +129,7 @@ public:
     static const string BSDF_R;
     static const string BSDF_T;
 
-public:
+  public:
     /// Constructor.
     ShaderNode(const string& name);
 
@@ -219,7 +219,7 @@ public:
     /// Return the set of contexts id's for the contexts used for this node.
     const std::set<int>& getContextIDs() const { return _contextIDs; }
 
-protected:
+  protected:
     string _name;
     unsigned int _classification;
 
