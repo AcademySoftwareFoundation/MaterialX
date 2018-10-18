@@ -1,5 +1,5 @@
 #include <MaterialXGenShader/Util.h>
-#include <MaterialXGenShader/SgNode.h>
+#include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 

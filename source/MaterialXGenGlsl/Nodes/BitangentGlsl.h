@@ -10,11 +10,11 @@ namespace MaterialX
 class BitangentGlsl : public GlslImplementation
 {
 public:
-    static SgImplementationPtr create();
+    static ShaderImplementationPtr create();
 
-    void createVariables(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
+    void createVariables(const ShaderNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 
-    void emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader) override;
 };
 
 } // namespace MaterialX

@@ -4,8 +4,9 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Syntax.h>
 #include <MaterialXGenShader/Factory.h>
-#include <MaterialXGenShader/SgNode.h>
-#include <MaterialXGenShader/SgOptions.h>
+#include <MaterialXGenShader/ShaderNode.h>
+#include <MaterialXGenShader/GenOptions.h>
+#include <MaterialXGenShader/GenContext.h>
 
 #include <MaterialXCore/Util.h>
 
@@ -34,7 +35,7 @@ public:
 
     /// Generate a shader starting from the given element, translating 
     /// the element and all dependencies upstream into shader code.
-    virtual ShaderPtr generate(const string& shaderName, ElementPtr element, const SgOptions& options) = 0;
+    virtual ShaderPtr generate(const string& shaderName, ElementPtr element, const GenOptions& options) = 0;
 
     /// Emit typedefs for all data types that needs it
     virtual void emitTypeDefs(Shader& shader);
@@ -43,7 +44,7 @@ public:
     virtual void emitFunctionDefinitions(Shader& shader);
 
     /// Emit all functon calls constructing the shader body
-    virtual void emitFunctionCalls(const SgNodeContext& context, Shader& shader);
+    virtual void emitFunctionCalls(const GenContext& context, Shader& shader);
 
     /// Emit the final output expression
     virtual void emitFinalOutput(Shader& shader) const;
@@ -53,15 +54,15 @@ public:
 
     /// Emit the connected variable name for an input,
     /// or constant value if the port is not connected
-    virtual void emitInput(const SgNodeContext& context, const SgInput* input, Shader& shader) const;
+    virtual void emitInput(const GenContext& context, const ShaderInput* input, Shader& shader) const;
 
     /// Get the connected variable name for an input,
     /// or constant value if the port is not connected
-    virtual void getInput(const SgNodeContext& context, const SgInput* input, string& result) const;
+    virtual void getInput(const GenContext& context, const ShaderInput* input, string& result) const;
 
     /// Emit the output variable name for an output, optionally including it's type
     /// and default value assignment.
-    virtual void emitOutput(const SgNodeContext& context, const SgOutput* output, bool includeType, bool assignDefault, Shader& shader) const;
+    virtual void emitOutput(const GenContext& context, const ShaderOutput* output, bool includeType, bool assignDefault, Shader& shader) const;
 
     /// Return the v-direction used by the target system
     virtual Shader::VDirection getTargetVDirection() const;
@@ -71,17 +72,17 @@ public:
 
     /// Add node contexts id's to the given node to control 
     /// in which contexts this node should be used.
-    virtual void addNodeContextIDs(SgNode* node) const;
+    virtual void addNodeContextIDs(ShaderNode* node) const;
 
     /// Return the node context corresponding to the given id,
     /// or nullptr if no such context is found.
-    const SgNodeContext* getNodeContext(int id) const;
+    const GenContext* getNodeContext(int id) const;
 
     template<class T>
     using CreatorFunction = shared_ptr<T>(*)();
 
     /// Register a shader gen implementation for a given implementation element name
-    void registerImplementation(const string& name, CreatorFunction<SgImplementation> creator);
+    void registerImplementation(const string& name, CreatorFunction<ShaderImplementation> creator);
 
     /// Determine if an implementation has been registered for a given implementation element name
     bool implementationRegistered(const string& name) const;
@@ -90,7 +91,7 @@ public:
     /// The element must be an Implementation or a NodeGraph acting as implementation.
     /// If no registered implementation is found a 'default' implementation instance 
     /// will be returned, as created by the 
-    SgImplementationPtr getImplementation(InterfaceElementPtr element);
+    ShaderImplementationPtr getImplementation(InterfaceElementPtr element);
 
     /// Add to the search path used for finding source code.
     void registerSourceCodeSearchPath(const FilePath& path);
@@ -105,9 +106,10 @@ public:
     }
 
 public:
-    enum NodeContext
+    /// Identifiers for contexts
+    enum Context
     {
-        NODE_CONTEXT_DEFAULT = 0
+        CONTEXT_DEFAULT = 0
     };
 
 protected:
@@ -117,25 +119,25 @@ protected:
     /// Create a default implementation which is the implementation class to use 
     /// for nodes that has no specific implementation registered for it.
     /// Derived classes can override this to use custom default implementations.
-    virtual SgImplementationPtr createDefaultImplementation(ImplementationPtr impl);
+    virtual ShaderImplementationPtr createDefaultImplementation(ImplementationPtr impl);
 
     /// Create a compound implementation which is the implementation class to use
     /// for nodes using a nodegraph as their implementation.
     /// Derived classes can override this to use custom compound implementations.
-    virtual SgImplementationPtr createCompoundImplementation(NodeGraphPtr impl);
+    virtual ShaderImplementationPtr createCompoundImplementation(NodeGraphPtr impl);
 
     /// Create a new node context with the given id. The context is added to the 
     /// shader generators node context storage and returned.
-    SgNodeContextPtr createNodeContext(int id);
+    GenContextPtr createContext(int id);
 
     SyntaxPtr _syntax;
-    Factory<SgImplementation> _implFactory;
-    std::unordered_map<string, SgImplementationPtr> _cachedImpls;
+    Factory<ShaderImplementation> _implFactory;
+    std::unordered_map<string, ShaderImplementationPtr> _cachedImpls;
 
     FileSearchPath _sourceCodeSearchPath;
 
-    std::unordered_map<int, SgNodeContextPtr> _nodeContexts;
-    SgNodeContextPtr _defaultNodeContext;
+    std::unordered_map<int, GenContextPtr> _contexts;
+    GenContextPtr _defaultContext;
 };
 
 } // namespace MaterialX

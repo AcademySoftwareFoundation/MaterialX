@@ -1,19 +1,19 @@
 #include <MaterialXGenShader/Nodes/Compare.h>
 #include <MaterialXGenShader/HwShader.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/SgNode.h>
+#include <MaterialXGenShader/ShaderNode.h>
 
 namespace MaterialX
 {
 
 const vector<string> Compare::INPUT_NAMES = { "intest", "cutoff", "in1", "in2" };
 
-SgImplementationPtr Compare::create()
+ShaderImplementationPtr Compare::create()
 {
     return std::make_shared<Compare>();
 }
 
-void Compare::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader)
+void Compare::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
@@ -22,13 +22,13 @@ void Compare::emitFunctionCall(const SgNode& node, SgNodeContext& context, Shade
     shadergen.emitOutput(context, node.getOutput(), true, true, shader);
     shader.endLine();
 
-    const SgInput* intest = node.getInput(INPUT_NAMES[0]);
-    const SgInput* cutoff = node.getInput(INPUT_NAMES[1]);
+    const ShaderInput* intest = node.getInput(INPUT_NAMES[0]);
+    const ShaderInput* cutoff = node.getInput(INPUT_NAMES[1]);
 
     // Process the if and else branches of the conditional
     for (int branch = 2; branch <= 3; ++branch)
     {
-        const SgInput* input = node.getInput(INPUT_NAMES[branch]);
+        const ShaderInput* input = node.getInput(INPUT_NAMES[branch]);
 
         if (branch > 2)
         {
@@ -48,9 +48,9 @@ void Compare::emitFunctionCall(const SgNode& node, SgNodeContext& context, Shade
         shader.beginScope();
 
         // Emit nodes that are ONLY needed in this scope
-        for (SgNode* otherNode : shader.getNodeGraph()->getNodes())
+        for (ShaderNode* otherNode : shader.getGraph()->getNodes())
         {
-            const SgNode::ScopeInfo& scope = otherNode->getScopeInfo();
+            const ShaderNode::ScopeInfo& scope = otherNode->getScopeInfo();
             if (scope.conditionalNode == &node && scope.usedByBranch(branch))
             {
                 shader.addFunctionCall(otherNode, context, shadergen);

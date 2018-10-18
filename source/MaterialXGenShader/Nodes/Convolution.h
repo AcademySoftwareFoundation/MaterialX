@@ -9,7 +9,7 @@ namespace MaterialX
 
 /// Utility class for implementations of nodes which perform convolutions
 ///
-class Convolution : public SgImplementation
+class Convolution : public ShaderImplementation
 {
   protected:
     /// Constructor
@@ -24,7 +24,7 @@ class Convolution : public SgImplementation
 
     /// Generate upstream / input sampling code in uv space and cache the output variable names which 
     /// will hold the sample values after execution.
-    void emitInputSamplesUV(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader,
+    void emitInputSamplesUV(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader,
                             StringVec& sampleStrings);
     
     /// Number of samples.

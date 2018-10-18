@@ -12,16 +12,16 @@ namespace MaterialX
 class LightShaderGlsl : public SourceCode
 {
 public:
-    static SgImplementationPtr create();
+    static ShaderImplementationPtr create();
 
     const string& getLanguage() const override;
     const string& getTarget() const override;
 
     void initialize(ElementPtr implementation, ShaderGenerator& shadergen) override;
 
-    void createVariables(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
+    void createVariables(const ShaderNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 
-    void emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader) override;
 
 protected:
     vector<Shader::Variable> _lightUniforms;

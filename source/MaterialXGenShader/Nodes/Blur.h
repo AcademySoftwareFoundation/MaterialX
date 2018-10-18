@@ -12,9 +12,9 @@ class Blur : public Convolution
   public:
     using ParentClass = Convolution;
 
-    static SgImplementationPtr create();
+    static ShaderImplementationPtr create();
 
-    void emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader) override;
 
   protected:
     /// Constructor

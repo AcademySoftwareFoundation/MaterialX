@@ -131,15 +131,15 @@ OgsFxShaderGenerator::OgsFxShaderGenerator()
     _syntax = OgsFxSyntax::create();
 }
 
-ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr element, const SgOptions& options)
+ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr element, const GenOptions& options)
 {
     OgsFxShaderPtr shaderPtr = createShader(shaderName);
     shaderPtr->initialize(element, *this, options);
 
     OgsFxShader& shader = *shaderPtr;
 
-    bool lighting = shader.hasClassification(SgNode::Classification::SHADER | SgNode::Classification::SURFACE) ||
-        shader.hasClassification(SgNode::Classification::BSDF);
+    bool lighting = shader.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE) ||
+        shader.hasClassification(ShaderNode::Classification::BSDF);
 
     // Turn on fixed formatting since OgsFx doesn't support scientific values
     Value::ScopedFloatFormatting fmt(Value::FloatFormatFixed);
@@ -166,7 +166,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.beginScope(Shader::Brackets::BRACES);
     shader.addLine("vec4 hPositionWorld = u_worldMatrix * vec4(i_position, 1.0)");
     shader.addLine("gl_Position = u_viewProjectionMatrix * hPositionWorld");
-    emitFunctionCalls(*_defaultNodeContext, shader);
+    emitFunctionCalls(*_defaultContext, shader);
     shader.endScope();
     shader.endScope();
     shader.newLine();
@@ -193,7 +193,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.newLine();
 
     // Emit sampling code if needed
-    if (shader.hasClassification(SgNode::Classification::CONVOLUTION2D))
+    if (shader.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
     {
         // Emit sampling functions
         shader.addInclude("stdlib/sx-glsl/lib/sx_sampling.glsl", *this);
@@ -227,7 +227,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
         shader.newLine();
     }
 
-    emitFunctionCalls(*_defaultNodeContext, shader);
+    emitFunctionCalls(*_defaultContext, shader);
     emitFinalOutput(shader);
 
     shader.endScope();
@@ -277,7 +277,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     // Add the pixel shader output. This needs to be a vec4 for rendering
     // and upstream connection will be converted to vec4 if needed in emitFinalOutput()
     shader.addComment("Data output by the pixel shader");
-    const SgOutputSocket* outputSocket = shader.getNodeGraph()->getOutputSocket();
+    const ShaderGraphOutputSocket* outputSocket = shader.getGraph()->getOutputSocket();
     shader.addLine("attribute PixelOutput", false);
     shader.beginScope(Shader::Brackets::BRACES);
     shader.addLine("vec4 " + outputSocket->name);

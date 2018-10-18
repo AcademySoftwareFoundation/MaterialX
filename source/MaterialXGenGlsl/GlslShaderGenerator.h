@@ -71,7 +71,7 @@ public:
 
     /// Generate a shader starting from the given element, translating 
     /// the element and all dependencies upstream into shader code.
-    ShaderPtr generate(const string& shaderName, ElementPtr element, const SgOptions& options) override;
+    ShaderPtr generate(const string& shaderName, ElementPtr element, const GenOptions& options) override;
 
     /// Return a unique identifyer for the language used by this generator
     const string& getLanguage() const override { return LANGUAGE; }
@@ -86,7 +86,7 @@ public:
     void emitFunctionDefinitions(Shader& shader) override;
 
     /// Emit all functon calls constructing the shader body
-    void emitFunctionCalls(const SgNodeContext& context, Shader &shader) override;
+    void emitFunctionCalls(const GenContext& context, Shader &shader) override;
 
     /// Emit a shader uniform input variable
     void emitUniform(const Shader::Variable& uniform, Shader& shader) override;
@@ -96,7 +96,7 @@ public:
 
     /// Add node contexts id's to the given node to control 
     /// in which contexts this node should be used
-    void addNodeContextIDs(SgNode* node) const override;
+    void addNodeContextIDs(ShaderNode* node) const override;
 
     /// Emit code for all texturing nodes.
     virtual void emitTextureNodes(Shader& shader);
@@ -104,12 +104,12 @@ public:
     /// Emit code for calculating BSDF response for a shader, 
     /// given the incident and outgoing light directions.
     /// The output 'bsdf' will hold the variable name keeping the result.
-    virtual void emitBsdfNodes(const SgNode& shaderNode, int bsdfContext, const string& incident, const string& outgoing, Shader& shader, string& bsdf);
+    virtual void emitBsdfNodes(const ShaderNode& shaderNode, int bsdfContext, const string& incident, const string& outgoing, Shader& shader, string& bsdf);
 
     /// Emit code for calculating emission for a surface or light shader,
     /// given the normal direction of the EDF and the evaluation direction.
     /// The output 'edf' will hold the variable keeping the result.
-    virtual void emitEdfNodes(const SgNode& shaderNode, const string& normalDir, const string& evalDir, Shader& shader, string& edf);
+    virtual void emitEdfNodes(const ShaderNode& shaderNode, const string& normalDir, const string& evalDir, Shader& shader, string& edf);
 
 public:
     /// Unique identifyer for the glsl language
@@ -125,13 +125,13 @@ public:
     static const string LIGHT_DIR;
     static const string VIEW_DIR;
 
-    /// String constants for node context ids
-    enum NodeContext
+    /// Identifiers for contexts
+    enum Context
     {
-        NODE_CONTEXT_BSDF_REFLECTION = NODE_CONTEXT_DEFAULT + 1,
-        NODE_CONTEXT_BSDF_TRANSMISSION,
-        NODE_CONTEXT_BSDF_INDIRECT,
-        NODE_CONTEXT_EDF,
+        CONTEXT_BSDF_REFLECTION = CONTEXT_DEFAULT + 1,
+        CONTEXT_BSDF_TRANSMISSION,
+        CONTEXT_BSDF_INDIRECT,
+        CONTEXT_EDF,
     };
 
     /// Enum to identify common BSDF direction vectors
@@ -145,7 +145,7 @@ public:
 
 protected:
     /// Override the compound implementation creator in order to handle light compounds.
-    SgImplementationPtr createCompoundImplementation(NodeGraphPtr impl) override;
+    ShaderImplementationPtr createCompoundImplementation(NodeGraphPtr impl) override;
 
     static void toVec4(const TypeDesc* type, string& variable);
 
@@ -158,7 +158,7 @@ protected:
 
 
 /// Base class for common GLSL node implementations
-class GlslImplementation : public SgImplementation
+class GlslImplementation : public ShaderImplementation
 {
 public:
     const string& getLanguage() const override;

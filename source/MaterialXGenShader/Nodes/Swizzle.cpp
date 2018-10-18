@@ -5,17 +5,17 @@
 namespace MaterialX
 {
 
-SgImplementationPtr Swizzle::create()
+ShaderImplementationPtr Swizzle::create()
 {
     return std::make_shared<Swizzle>();
 }
 
-void Swizzle::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader)
+void Swizzle::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
-    const SgInput* in = node.getInput("in");
-    const SgInput* channels = node.getInput("channels");
+    const ShaderInput* in = node.getInput("in");
+    const ShaderInput* channels = node.getInput("channels");
     if (!in || !channels)
     {
         throw ExceptionShaderGenError("Node '" + node.getName() +"' is not a valid swizzle node");

@@ -24,7 +24,7 @@ void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, size_t lightType
         throw ExceptionShaderGenError("Error binding light shader. Light type id '" + std::to_string(lightTypeId) + "' has already been bound");
     }
 
-    SgImplementationPtr sgimpl;
+    ShaderImplementationPtr sgimpl;
 
     // Find the implementation for this nodedef
     InterfaceElementPtr impl = nodeDef.getImplementation(getTarget(), getLanguage());
@@ -41,10 +41,10 @@ void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, size_t lightType
     // Prepend the light struct instance name on all input sockets, 
     // since in generated code these inputs will be members of the 
     // light struct.
-    SgNodeGraph* graph = sgimpl->getNodeGraph();
+    ShaderGraph* graph = sgimpl->getGraph();
     if (graph)
     {
-        for (SgInputSocket* inputSockets : graph->getInputSockets())
+        for (ShaderGraphInputSocket* inputSockets : graph->getInputSockets())
         {
             inputSockets->name = "light." + inputSockets->name;
         }
@@ -53,7 +53,7 @@ void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, size_t lightType
     _boundLightShaders[lightTypeId] = sgimpl;
 }
 
-SgImplementation* HwShaderGenerator::getBoundLightShader(size_t lightTypeId)
+ShaderImplementation* HwShaderGenerator::getBoundLightShader(size_t lightTypeId)
 {
     auto it = _boundLightShaders.find(lightTypeId);
     return it != _boundLightShaders.end() ? it->second.get() : nullptr;

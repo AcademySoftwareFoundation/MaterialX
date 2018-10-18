@@ -3,12 +3,12 @@
 namespace MaterialX
 {
 
-SgImplementationPtr ViewDirectionGlsl::create()
+ShaderImplementationPtr ViewDirectionGlsl::create()
 {
     return std::make_shared<ViewDirectionGlsl>();
 }
 
-void ViewDirectionGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void ViewDirectionGlsl::createVariables(const ShaderNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
@@ -17,7 +17,7 @@ void ViewDirectionGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator&
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::VECTOR3, "u_viewPosition");
 }
 
-void ViewDirectionGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void ViewDirectionGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 

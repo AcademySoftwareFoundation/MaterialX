@@ -1,5 +1,5 @@
-#ifndef MATERIALX_SGOPTIONS_H
-#define MATERIALX_SGOPTIONS_H
+#ifndef MATERIALX_GENOPTIONS_H
+#define MATERIALX_GENOPTIONS_H
 
 namespace MaterialX
 {
@@ -22,12 +22,12 @@ enum ShaderInterfaceType
 };
 
 /// Class holding options to configure shader generation.
-class SgOptions
+class GenOptions
 {
-public:
-    SgOptions();
+  public:
+    GenOptions();
 
-    virtual ~SgOptions() {}
+    virtual ~GenOptions() {}
 
     // TODO: Add options for:
     //  - shader gen optimization level

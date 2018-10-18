@@ -1,5 +1,5 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/SgImplementation.h>
+#include <MaterialXGenShader/ShaderImplementation.h>
 #include <MaterialXGenShader/Nodes/SourceCode.h>
 #include <MaterialXGenShader/Nodes/Compound.h>
 
@@ -17,9 +17,9 @@ namespace MaterialX
 ShaderGenerator::ShaderGenerator(SyntaxPtr syntax) 
     : _syntax(syntax) 
 {
-    // Create a default node context to be used by all nodes
+    // Create a default context to be used by all nodes
     // that have no specific context assigned
-    _defaultNodeContext = createNodeContext(NODE_CONTEXT_DEFAULT);
+    _defaultContext = createContext(CONTEXT_DEFAULT);
 }
 
 Shader::VDirection ShaderGenerator::getTargetVDirection() const
@@ -44,18 +44,18 @@ void ShaderGenerator::emitTypeDefs(Shader& shader)
 void ShaderGenerator::emitFunctionDefinitions(Shader& shader)
 {
     // Emit function definitions for all nodes
-    for (SgNode* node : shader.getNodeGraph()->getNodes())
+    for (ShaderNode* node : shader.getGraph()->getNodes())
     {
         shader.addFunctionDefinition(node, *this);
     }
 }
 
-void ShaderGenerator::emitFunctionCalls(const SgNodeContext& context, Shader &shader)
+void ShaderGenerator::emitFunctionCalls(const GenContext& context, Shader &shader)
 {
     const bool debugOutput = true;
 
     // Emit function calls for all nodes
-    for (SgNode* node : shader.getNodeGraph()->getNodes())
+    for (ShaderNode* node : shader.getGraph()->getNodes())
     {
         // Omit node if it's only used inside a conditional branch
         if (node->referencedConditionally())
@@ -76,10 +76,10 @@ void ShaderGenerator::emitFunctionCalls(const SgNodeContext& context, Shader &sh
             // Node has this context id defined so make the function call for this context
             shader.addFunctionCall(node, context, *this);
         }
-        else if (node->getContextIDs().count(NODE_CONTEXT_DEFAULT))
+        else if (node->getContextIDs().count(CONTEXT_DEFAULT))
         {
             // Node is defined in the default context so make the function call for default context
-            shader.addFunctionCall(node, *_defaultNodeContext, *this);
+            shader.addFunctionCall(node, *_defaultContext, *this);
         }
         else
         {
@@ -95,8 +95,8 @@ void ShaderGenerator::emitFunctionCalls(const SgNodeContext& context, Shader &sh
 
 void ShaderGenerator::emitFinalOutput(Shader& shader) const
 {
-    SgNodeGraph* graph = shader.getNodeGraph();
-    const SgOutputSocket* outputSocket = graph->getOutputSocket();
+    ShaderGraph* graph = shader.getGraph();
+    const ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
 
     if (!outputSocket->connection)
     {
@@ -116,7 +116,7 @@ void ShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& shade
     shader.addStr(_syntax->getTypeName(uniform.type) + " " + uniform.name + (initStr.empty() ? "" : " = " + initStr));
 }
 
-void ShaderGenerator::getInput(const SgNodeContext& context, const SgInput* input, string& result) const
+void ShaderGenerator::getInput(const GenContext& context, const ShaderInput* input, string& result) const
 {
     if (input->connection)
     {
@@ -133,7 +133,7 @@ void ShaderGenerator::getInput(const SgNodeContext& context, const SgInput* inpu
 
     // Look for any additional suffix to append
     string suffix;
-    context.getInputSuffix(const_cast<SgInput*>(input), suffix);
+    context.getInputSuffix(const_cast<ShaderInput*>(input), suffix);
     if (!suffix.empty())
     {
         result += suffix;
@@ -141,20 +141,20 @@ void ShaderGenerator::getInput(const SgNodeContext& context, const SgInput* inpu
 }
 
 
-void ShaderGenerator::emitInput(const SgNodeContext& context, const SgInput* input, Shader &shader) const
+void ShaderGenerator::emitInput(const GenContext& context, const ShaderInput* input, Shader &shader) const
 {
     string result;
     getInput(context, input, result);
     shader.addStr(result);
 }
 
-void ShaderGenerator::emitOutput(const SgNodeContext& context, const SgOutput* output, bool includeType, bool assignDefault, Shader& shader) const
+void ShaderGenerator::emitOutput(const GenContext& context, const ShaderOutput* output, bool includeType, bool assignDefault, Shader& shader) const
 {
     shader.addStr(includeType ? _syntax->getTypeName(output->type) + " " + output->name : output->name);
 
     // Look for any additional suffix to append
     string suffix;
-    context.getOutputSuffix(const_cast<SgOutput*>(output), suffix);
+    context.getOutputSuffix(const_cast<ShaderOutput*>(output), suffix);
     if (!suffix.empty())
     {
         shader.addStr(suffix);
@@ -170,18 +170,18 @@ void ShaderGenerator::emitOutput(const SgNodeContext& context, const SgOutput* o
     }
 }
 
-void ShaderGenerator::addNodeContextIDs(SgNode* node) const
+void ShaderGenerator::addNodeContextIDs(ShaderNode* node) const
 {
-    node->addContextID(NODE_CONTEXT_DEFAULT);
+    node->addContextID(CONTEXT_DEFAULT);
 }
 
-const SgNodeContext* ShaderGenerator::getNodeContext(int id) const
+const GenContext* ShaderGenerator::getNodeContext(int id) const
 {
-    auto it = _nodeContexts.find(id);
-    return it != _nodeContexts.end() ? it->second.get() : nullptr;
+    auto it = _contexts.find(id);
+    return it != _contexts.end() ? it->second.get() : nullptr;
 }
 
-void ShaderGenerator::registerImplementation(const string& name, CreatorFunction<SgImplementation> creator)
+void ShaderGenerator::registerImplementation(const string& name, CreatorFunction<ShaderImplementation> creator)
 {
     _implFactory.registerClass(name, creator);
 }
@@ -191,7 +191,7 @@ bool ShaderGenerator::implementationRegistered(const string& name) const
     return _implFactory.classRegistered(name);
 }
 
-SgImplementationPtr ShaderGenerator::getImplementation(InterfaceElementPtr element)
+ShaderImplementationPtr ShaderGenerator::getImplementation(InterfaceElementPtr element)
 {
     const string& name = element->getName();
 
@@ -202,7 +202,7 @@ SgImplementationPtr ShaderGenerator::getImplementation(InterfaceElementPtr eleme
         return it->second;
     }
 
-    SgImplementationPtr impl;
+    ShaderImplementationPtr impl;
     if (element->isA<NodeGraph>())
     {
         // Use a compound implementation
@@ -240,24 +240,24 @@ FilePath ShaderGenerator::findSourceCode(const FilePath& filename)
     return _sourceCodeSearchPath.find(filename);
 }
 
-SgImplementationPtr ShaderGenerator::createDefaultImplementation(ImplementationPtr impl)
+ShaderImplementationPtr ShaderGenerator::createDefaultImplementation(ImplementationPtr impl)
 {
     // The data driven source code implementation
     // is the implementation to use by default
     return SourceCode::create();
 }
 
-SgImplementationPtr ShaderGenerator::createCompoundImplementation(NodeGraphPtr impl)
+ShaderImplementationPtr ShaderGenerator::createCompoundImplementation(NodeGraphPtr impl)
 {
     // The standard compound implementation
     // is the compound implementation to us by default
     return Compound::create();
 }
 
-SgNodeContextPtr ShaderGenerator::createNodeContext(int id)
+GenContextPtr ShaderGenerator::createContext(int id)
 {
-    SgNodeContextPtr context = std::make_shared<SgNodeContext>(id);
-    _nodeContexts[id] = context;
+    GenContextPtr context = std::make_shared<GenContext>(id);
+    _contexts[id] = context;
     return context;
 }
 

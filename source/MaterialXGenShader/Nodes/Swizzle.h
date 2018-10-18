@@ -1,18 +1,18 @@
 #ifndef MATERIALX_SWIZZLE_H
 #define MATERIALX_SWIZZLE_H
 
-#include <MaterialXGenShader/SgImplementation.h>
+#include <MaterialXGenShader/ShaderImplementation.h>
 
 namespace MaterialX
 {
 
 /// Implementation of swizzle node
-class Swizzle : public SgImplementation
+class Swizzle : public ShaderImplementation
 {
 public:
-    static SgImplementationPtr create();
+    static ShaderImplementationPtr create();
 
-    void emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader) override;
 };
 
 } // namespace MaterialX

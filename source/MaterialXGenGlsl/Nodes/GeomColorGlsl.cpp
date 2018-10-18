@@ -3,31 +3,31 @@
 namespace MaterialX
 {
 
-SgImplementationPtr GeomColorGlsl::create()
+ShaderImplementationPtr GeomColorGlsl::create()
 {
     return std::make_shared<GeomColorGlsl>();
 }
 
-void GeomColorGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void GeomColorGlsl::createVariables(const ShaderNode& node, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
-    const SgInput* indexInput = node.getInput(INDEX);
+    const ShaderInput* indexInput = node.getInput(INDEX);
     const string index = indexInput ? indexInput->value->getValueString() : "0";
 
     shader.createAppData(Type::COLOR4, "i_color_" + index);
     shader.createVertexData(Type::COLOR4, "color_" + index);
 }
 
-void GeomColorGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void GeomColorGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     const string& blockInstance = shader.getVertexDataBlock().instance;
     const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
 
-    const SgOutput* output = node.getOutput();
-    const SgInput* indexInput = node.getInput(INDEX);
+    const ShaderOutput* output = node.getOutput();
+    const ShaderInput* indexInput = node.getInput(INDEX);
     string index = indexInput ? indexInput->value->getValueString() : "0";
     string variable = "color_" + index;
 

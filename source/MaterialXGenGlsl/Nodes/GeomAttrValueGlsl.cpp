@@ -3,16 +3,16 @@
 namespace MaterialX
 {
 
-SgImplementationPtr GeomAttrValueGlsl::create()
+ShaderImplementationPtr GeomAttrValueGlsl::create()
 {
     return std::make_shared<GeomAttrValueGlsl>();
 }
 
-void GeomAttrValueGlsl::createVariables(const SgNode& node, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void GeomAttrValueGlsl::createVariables(const ShaderNode& node, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
-    const SgInput* attrNameInput = node.getInput(ATTRNAME);
+    const ShaderInput* attrNameInput = node.getInput(ATTRNAME);
     if (!attrNameInput)
     {
         throw ExceptionShaderGenError("No 'attrname' parameter found on geomattrvalue node '" + node.getName() + "', don't know what attribute to bind");
@@ -21,12 +21,12 @@ void GeomAttrValueGlsl::createVariables(const SgNode& node, ShaderGenerator& /*s
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, node.getOutput()->type, "u_geomattr_" + attrName);
 }
 
-void GeomAttrValueGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void GeomAttrValueGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-        const SgInput* attrNameInput = node.getInput(ATTRNAME);
+        const ShaderInput* attrNameInput = node.getInput(ATTRNAME);
         if (!attrNameInput)
         {
             throw ExceptionShaderGenError("No 'attrname' parameter found on geomattrvalue node '" + node.getName() + "', don't know what attribute to bind");

@@ -6,7 +6,7 @@
 namespace MaterialX
 {
 
-SgImplementationPtr LightCompoundGlsl::create()
+ShaderImplementationPtr LightCompoundGlsl::create()
 {
     return std::make_shared<LightCompoundGlsl>();
 }
@@ -23,7 +23,7 @@ const string& LightCompoundGlsl::getTarget() const
 
 void LightCompoundGlsl::initialize(ElementPtr implementation, ShaderGenerator& shadergen)
 {
-    SgImplementation::initialize(implementation, shadergen);
+    ShaderImplementation::initialize(implementation, shadergen);
 
     NodeGraphPtr graph = implementation->asA<NodeGraph>();
     if (!graph)
@@ -31,7 +31,7 @@ void LightCompoundGlsl::initialize(ElementPtr implementation, ShaderGenerator& s
         throw ExceptionShaderGenError("Element '" + implementation->getName() + "' is not a node graph implementation");
     }
 
-    _rootGraph = SgNodeGraph::create(graph, shadergen);
+    _rootGraph = ShaderGraph::create(graph, shadergen);
     _functionName = graph->getName();
 
     // Store light uniforms for all inputs and parameters on the interface
@@ -48,14 +48,14 @@ void LightCompoundGlsl::initialize(ElementPtr implementation, ShaderGenerator& s
     }
 }
 
-void LightCompoundGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& shadergen, Shader& shader_)
+void LightCompoundGlsl::createVariables(const ShaderNode& /*node*/, ShaderGenerator& shadergen, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     // Create variables for all child nodes
-    for (SgNode* childNode : _rootGraph->getNodes())
+    for (ShaderNode* childNode : _rootGraph->getNodes())
     {
-        SgImplementation* impl = childNode->getImplementation();
+        ShaderImplementation* impl = childNode->getImplementation();
         impl->createVariables(*childNode, shadergen, shader);
     }
 
@@ -70,7 +70,7 @@ void LightCompoundGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator&
         EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void LightCompoundGlsl::emitFunctionDefinition(const SgNode& node, ShaderGenerator& shadergen_, Shader& shader_)
+void LightCompoundGlsl::emitFunctionDefinition(const ShaderNode& node, ShaderGenerator& shadergen_, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
     GlslShaderGenerator shadergen = static_cast<GlslShaderGenerator&>(shadergen_);
@@ -81,7 +81,7 @@ void LightCompoundGlsl::emitFunctionDefinition(const SgNode& node, ShaderGenerat
     shader.pushActiveGraph(_rootGraph.get());
 
     // Emit functions for all child nodes
-    for (SgNode* childNode : _rootGraph->getNodes())
+    for (ShaderNode* childNode : _rootGraph->getNodes())
     {
         shader.addFunctionDefinition(childNode, shadergen);
     }
@@ -89,7 +89,7 @@ void LightCompoundGlsl::emitFunctionDefinition(const SgNode& node, ShaderGenerat
     // Emit function definitions for each context used by this compound node
     for (int id : node.getContextIDs())
     {
-        const SgNodeContext* context = shadergen.getNodeContext(id);
+        const GenContext* context = shadergen.getNodeContext(id);
         if (!context)
         {
             throw ExceptionShaderGenError("Node '" + node.getName() + "' has an implementation context that is undefined for shader generator '" +
@@ -105,9 +105,9 @@ void LightCompoundGlsl::emitFunctionDefinition(const SgNode& node, ShaderGenerat
         shadergen.emitTextureNodes(shader);
 
         // Emit function calls for all light shader nodes
-        for (SgNode* childNode : shader.getNodeGraph()->getNodes())
+        for (ShaderNode* childNode : shader.getGraph()->getNodes())
         {
-            if (childNode->hasClassification(SgNode::Classification::SHADER | SgNode::Classification::LIGHT))
+            if (childNode->hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::LIGHT))
             {
                 shader.addFunctionCall(childNode, *context, shadergen);
             }
@@ -123,7 +123,7 @@ void LightCompoundGlsl::emitFunctionDefinition(const SgNode& node, ShaderGenerat
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 }
 
-void LightCompoundGlsl::emitFunctionCall(const SgNode& /*node*/, SgNodeContext& /*context*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void LightCompoundGlsl::emitFunctionCall(const ShaderNode& /*node*/, GenContext& /*context*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 

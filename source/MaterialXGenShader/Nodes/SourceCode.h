@@ -1,24 +1,24 @@
 #ifndef MATERIALX_SOURCECODE_H
 #define MATERIALX_SOURCECODE_H
 
-#include <MaterialXGenShader/SgImplementation.h>
+#include <MaterialXGenShader/ShaderImplementation.h>
 
 namespace MaterialX
 {
 
 /// Implementation using data driven static source code.
 /// This is the defaul implementation used for all nodes that 
-/// does not have a custom SgImplementation class.
-class SourceCode : public SgImplementation
+/// does not have a custom ShaderImplementation class.
+class SourceCode : public ShaderImplementation
 {
 public:
-    static SgImplementationPtr create();
+    static ShaderImplementationPtr create();
 
     void initialize(ElementPtr implementation, ShaderGenerator& shadergen) override;
 
-    void emitFunctionDefinition(const SgNode& node, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionDefinition(const ShaderNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 
-    void emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader) override;
 
 protected:
     bool _inlined;

@@ -3,8 +3,8 @@
 
 #include <MaterialXCore/Library.h>
 #include <MaterialXCore/Node.h>
-#include <MaterialXGenShader/SgNode.h>
-#include <MaterialXGenShader/SgOptions.h>
+#include <MaterialXGenShader/ShaderGraph.h>
+#include <MaterialXGenShader/GenOptions.h>
 
 #include <queue>
 #include <sstream>
@@ -104,7 +104,7 @@ public:
     /// @param element The root element to generate the shader from. 
     /// @param shadergen The shader generator instance.
     /// @param options Generation options
-    virtual void initialize(ElementPtr element, ShaderGenerator& shadergen, const SgOptions& options);
+    virtual void initialize(ElementPtr element, ShaderGenerator& shadergen, const GenOptions& options);
 
     /// Return the number of shader stages for this shader.
     /// Defaults to a single stage, derived classes can override this.
@@ -162,10 +162,10 @@ public:
     virtual void addBlock(const string& str, ShaderGenerator& shadergen);
 
     /// Add the function definition for a node
-    virtual void addFunctionDefinition(SgNode* node, ShaderGenerator& shadergen);
+    virtual void addFunctionDefinition(ShaderNode* node, ShaderGenerator& shadergen);
 
     /// Add the function call for a node
-    virtual void addFunctionCall(SgNode* node, const SgNodeContext& context, ShaderGenerator& shadergen);
+    virtual void addFunctionCall(ShaderNode* node, const GenContext& context, ShaderGenerator& shadergen);
 
     /// Add the contents of an include file
     /// Making sure it is only included once
@@ -188,17 +188,17 @@ public:
     const string& getName() const { return _name; }
 
     /// Return the active shader graph.
-    SgNodeGraph* getNodeGraph() const { return _graphStack.back(); }
+    ShaderGraph* getGraph() const { return _graphStack.back(); }
 
     /// Push a new active shader graph.
     /// Used when emitting code for compounds / subgraphs.
-    void pushActiveGraph(SgNodeGraph* graph) { _graphStack.push_back(graph); }
+    void pushActiveGraph(ShaderGraph* graph) { _graphStack.push_back(graph); }
 
     /// Reactivate the previously last used shader graph.
     void popActiveGraph() { _graphStack.pop_back(); }
 
     /// Return true if this shader matches the given classification.
-    bool hasClassification(unsigned int c) const { return getNodeGraph()->hasClassification(c); }
+    bool hasClassification(unsigned int c) const { return getGraph()->hasClassification(c); }
 
     /// Return the vdirection requested in the current document.
     VDirection getRequestedVDirection() const { return _vdirection; }
@@ -216,7 +216,7 @@ protected:
         int indentations;
         std::queue<Brackets> scopes;
         std::set<string> includes;
-        std::set<SgImplementation*> definedFunctions;
+        std::set<ShaderImplementation*> definedFunctions;
         
         // Blocks holding uniform variables for this stage
         VariableBlockMap uniforms;
@@ -234,11 +234,11 @@ protected:
     virtual void indent();
 
     /// Return a container with all top level graphs use by this shader.
-    virtual void getTopLevelShaderGraphs(ShaderGenerator& shadergen, std::deque<SgNodeGraph*>& graphs) const;
+    virtual void getTopLevelShaderGraphs(ShaderGenerator& shadergen, std::deque<ShaderGraph*>& graphs) const;
 
     string _name;
-    SgNodeGraphPtr _rootGraph;
-    vector<SgNodeGraph*> _graphStack;
+    ShaderGraphPtr _rootGraph;
+    vector<ShaderGraph*> _graphStack;
     VDirection _vdirection;
 
     size_t _activeStage;

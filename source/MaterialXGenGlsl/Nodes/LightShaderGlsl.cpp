@@ -5,7 +5,7 @@
 namespace MaterialX
 {
 
-SgImplementationPtr LightShaderGlsl::create()
+ShaderImplementationPtr LightShaderGlsl::create()
 {
     return std::make_shared<LightShaderGlsl>();
 }
@@ -49,7 +49,7 @@ void LightShaderGlsl::initialize(ElementPtr implementation, ShaderGenerator& sha
     }
 }
 
-void LightShaderGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void LightShaderGlsl::createVariables(const ShaderNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 
@@ -64,7 +64,7 @@ void LightShaderGlsl::createVariables(const SgNode& /*node*/, ShaderGenerator& /
         EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void LightShaderGlsl::emitFunctionCall(const SgNode& /*node*/, SgNodeContext& /*context*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void LightShaderGlsl::emitFunctionCall(const ShaderNode& /*node*/, GenContext& /*context*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
 {
     HwShader& shader = static_cast<HwShader&>(shader_);
 

@@ -13,7 +13,7 @@ HeightToNormalGlsl::HeightToNormalGlsl()
     _filterFunctionName.assign("sx_normal_from_samples_sobel");
 }
 
-SgImplementationPtr HeightToNormalGlsl::create()
+ShaderImplementationPtr HeightToNormalGlsl::create()
 {
     return std::shared_ptr<HeightToNormalGlsl>(new HeightToNormalGlsl());
 }
@@ -37,10 +37,10 @@ bool HeightToNormalGlsl::acceptsInputType(const TypeDesc* type)
     return (type == Type::FLOAT && type->isScalar());
 }
 
-void HeightToNormalGlsl::emitFunctionCall(const SgNode& node, SgNodeContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void HeightToNormalGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
 {
-    const SgInput* inInput = node.getInput("in");
-    const SgInput* scaleInput = node.getInput("scale");
+    const ShaderInput* inInput = node.getInput("in");
+    const ShaderInput* scaleInput = node.getInput("scale");
 
     if (!inInput || !scaleInput)
     {
