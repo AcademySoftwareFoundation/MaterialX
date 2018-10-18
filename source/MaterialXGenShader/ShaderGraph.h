@@ -30,11 +30,11 @@ class ShaderGraph : public ShaderNode
 public:
     ShaderGraph(const string& name, DocumentPtr document);
 
-    /// Create a new DAG from an element.
+    /// Create a new shader graph from an element.
     /// Supported elements are outputs and shaderrefs.
     static ShaderGraphPtr create(const string& name, ElementPtr element, ShaderGenerator& shadergen);
 
-    /// Create a new DAG from a nodegraph.
+    /// Create a new shader graph from a nodegraph.
     static ShaderGraphPtr create(NodeGraphPtr nodeGraph, ShaderGenerator& shadergen);
 
     /// Return true if this node is a graph.
@@ -134,7 +134,7 @@ protected:
     std::unordered_map<ShaderNode*, string> _colorTransformMap;
 };
 
-/// An edge returned during ShaderNode traversal
+/// An edge returned during shader graph traversal.
 class ShaderGraphEdge
 {
 public:
@@ -146,7 +146,7 @@ public:
     ShaderInput* downstream;
 };
 
-/// Iterator class for traversing edges between DagNodes
+/// Iterator class for traversing edges between nodes in a shader graph.
 class ShaderGraphEdgeIterator
 {
 public:
@@ -174,12 +174,13 @@ public:
     /// @throws ExceptionFoundCycle if a cycle is encountered.
     ShaderGraphEdgeIterator& operator++();
 
+    /// Return a reference to this iterator to begin traversal
     ShaderGraphEdgeIterator& begin()
     {
         return *this;
     }
 
-    /// Return the end iterator
+    /// Return the end iterator.
     static const ShaderGraphEdgeIterator& end();
 
 private:

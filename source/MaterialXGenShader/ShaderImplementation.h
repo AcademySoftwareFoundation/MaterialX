@@ -48,7 +48,7 @@ public:
     /// Emit the function call or inline source code for given node instance in the given context.
     virtual void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader);
 
-    /// Return a pointer to the DAG if this implementation is using a graph,
+    /// Return a pointer to the graph if this implementation is using a graph,
     /// or returns nullptr otherwise.
     virtual ShaderGraph* getGraph() const;
 
