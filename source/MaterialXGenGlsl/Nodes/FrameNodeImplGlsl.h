@@ -1,5 +1,5 @@
-#ifndef MATERIALX_FRAMEGLSL_H
-#define MATERIALX_FRAMEGLSL_H
+#ifndef MATERIALX_FRAMENODEIMPLGLSL_H
+#define MATERIALX_FRAMENODEIMPLGLSL_H
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 

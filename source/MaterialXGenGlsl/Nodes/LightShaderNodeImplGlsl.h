@@ -1,5 +1,5 @@
-#ifndef MATERIALX_LIGHTSHADERGLSL_H
-#define MATERIALX_LIGHTSHADERGLSL_H
+#ifndef MATERIALX_LIGHTSHADERNODEIMPLGLSL_H
+#define MATERIALX_LIGHTSHADERNODEIMPLGLSL_H
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNodeImpl.h>

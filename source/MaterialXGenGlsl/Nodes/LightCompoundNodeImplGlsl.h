@@ -1,5 +1,5 @@
-#ifndef MATERIALX_LIGHTCOMPOUNDGLSL_H
-#define MATERIALX_LIGHTCOMPOUNDGLSL_H
+#ifndef MATERIALX_LIGHTCOMPOUNDNODEIMPLGLSL_H
+#define MATERIALX_LIGHTCOMPOUNDNODEIMPLGLSL_H
 
 #include <MaterialXGenShader/Nodes/CompoundNodeImpl.h>
 #include <MaterialXGenShader/Shader.h>

@@ -1,5 +1,5 @@
-#ifndef MATERIALX_NORMALGLSL_H
-#define MATERIALX_NORMALGLSL_H
+#ifndef MATERIALX_NORMALNODEIMPLGLSL_H
+#define MATERIALX_NORMALNODEIMPLGLSL_H
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 

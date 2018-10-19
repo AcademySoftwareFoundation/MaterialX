@@ -1,5 +1,5 @@
-#ifndef MATERIALX_TIMEGLSL_H
-#define MATERIALX_TIMEGLSL_H
+#ifndef MATERIALX_TIMENODEIMPLGLSL_H
+#define MATERIALX_TIMENODEIMPLGLSL_H
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
