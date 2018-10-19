@@ -145,7 +145,7 @@ public:
 
 protected:
     /// Override the compound implementation creator in order to handle light compounds.
-    ShaderImplementationPtr createCompoundImplementation(NodeGraphPtr impl) override;
+    ShaderNodeImplPtr createCompoundImplementation(NodeGraphPtr impl) override;
 
     static void toVec4(const TypeDesc* type, string& variable);
 
@@ -158,7 +158,7 @@ protected:
 
 
 /// Base class for common GLSL node implementations
-class GlslImplementation : public ShaderImplementation
+class GlslImplementation : public ShaderNodeImpl
 {
 public:
     const string& getLanguage() const override;

@@ -2,8 +2,8 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Syntax.h>
 #include <MaterialXGenShader/Util.h>
-#include <MaterialXGenShader/Nodes/Compare.h>
-#include <MaterialXGenShader/Nodes/Switch.h>
+#include <MaterialXGenShader/Nodes/CompareNodeImpl.h>
+#include <MaterialXGenShader/Nodes/SwitchNodeImpl.h>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Node.h>
@@ -44,7 +44,7 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const Ge
     // Create shader variables for all nodes that need this (geometric nodes / input streams)
     for (ShaderNode* node : _rootGraph->getNodes())
     {
-        ShaderImplementation* impl = node->getImplementation();
+        ShaderNodeImpl* impl = node->getImplementation();
         impl->createVariables(*node, shadergen, *this);
     }
 
@@ -216,7 +216,7 @@ void Shader::addBlock(const string& str, ShaderGenerator& shadergen)
 void Shader::addFunctionDefinition(ShaderNode* node, ShaderGenerator& shadergen)
 {
     Stage& s = stage();
-    ShaderImplementation* impl = node->getImplementation();
+    ShaderNodeImpl* impl = node->getImplementation();
     if (s.definedFunctions.find(impl) == s.definedFunctions.end())
     {
         s.definedFunctions.insert(impl);
@@ -226,7 +226,7 @@ void Shader::addFunctionDefinition(ShaderNode* node, ShaderGenerator& shadergen)
 
 void Shader::addFunctionCall(ShaderNode* node, const GenContext& context, ShaderGenerator& shadergen)
 {
-    ShaderImplementation* impl = node->getImplementation();
+    ShaderNodeImpl* impl = node->getImplementation();
     impl->emitFunctionCall(*node, *(const_cast<GenContext*>(&context)), shadergen, *this);
 }
 

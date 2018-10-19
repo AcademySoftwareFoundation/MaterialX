@@ -1,27 +1,27 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenGlsl/GlslSyntax.h>
-#include <MaterialXGenGlsl/Nodes/PositionGlsl.h>
-#include <MaterialXGenGlsl/Nodes/NormalGlsl.h>
-#include <MaterialXGenGlsl/Nodes/TangentGlsl.h>
-#include <MaterialXGenGlsl/Nodes/BitangentGlsl.h>
-#include <MaterialXGenGlsl/Nodes/TexCoordGlsl.h>
-#include <MaterialXGenGlsl/Nodes/GeomColorGlsl.h>
-#include <MaterialXGenGlsl/Nodes/GeomAttrValueGlsl.h>
-#include <MaterialXGenGlsl/Nodes/FrameGlsl.h>
-#include <MaterialXGenGlsl/Nodes/TimeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/ViewDirectionGlsl.h>
-#include <MaterialXGenGlsl/Nodes/SurfaceGlsl.h>
-#include <MaterialXGenGlsl/Nodes/SurfaceShaderGlsl.h>
-#include <MaterialXGenGlsl/Nodes/LightGlsl.h>
-#include <MaterialXGenGlsl/Nodes/LightCompoundGlsl.h>
-#include <MaterialXGenGlsl/Nodes/LightShaderGlsl.h>
-#include <MaterialXGenGlsl/Nodes/HeightToNormalGlsl.h>
+#include <MaterialXGenGlsl/Nodes/PositionNodeImplGlsl.h>
+#include <MaterialXGenGlsl/Nodes/NormalNodeImplGlsl.h>
+#include <MaterialXGenGlsl/Nodes/TangentNodeImplGlsl.h>
+#include <MaterialXGenGlsl/Nodes/BitangentNodeImplGlsl.h>
+#include <MaterialXGenGlsl/Nodes/TexCoordNodeImplGlsl.h>
+#include <MaterialXGenGlsl/Nodes/GeomColorNodeImplGlsl.h>
+#include <MaterialXGenGlsl/Nodes/GeomAttrValueNodeImplGlsl.h>
+#include <MaterialXGenGlsl/Nodes/FrameNodeImplGlsl.h>
+#include <MaterialXGenGlsl/Nodes/TimeNodeImplGlsl.h>
+#include <MaterialXGenGlsl/Nodes/ViewDirectionNodeImplGlsl.h>
+#include <MaterialXGenGlsl/Nodes/SurfaceNodeImplGlsl.h>
+#include <MaterialXGenGlsl/Nodes/SurfaceShaderNodeImplGlsl.h>
+#include <MaterialXGenGlsl/Nodes/LightNodeImplGlsl.h>
+#include <MaterialXGenGlsl/Nodes/LightCompoundNodeImplGlsl.h>
+#include <MaterialXGenGlsl/Nodes/LightShaderNodeImplGlsl.h>
+#include <MaterialXGenGlsl/Nodes/HeightToNormalNodeImplGlsl.h>
 
-#include <MaterialXGenShader/Nodes/SourceCode.h>
-#include <MaterialXGenShader/Nodes/Swizzle.h>
-#include <MaterialXGenShader/Nodes/Switch.h>
-#include <MaterialXGenShader/Nodes/Compare.h>
-#include <MaterialXGenShader/Nodes/Blur.h>
+#include <MaterialXGenShader/Nodes/SourceCodeNodeImpl.h>
+#include <MaterialXGenShader/Nodes/SwizzleNodeImpl.h>
+#include <MaterialXGenShader/Nodes/SwitchNodeImpl.h>
+#include <MaterialXGenShader/Nodes/CompareNodeImpl.h>
+#include <MaterialXGenShader/Nodes/BlurNodeImpl.h>
 
 namespace MaterialX
 {
@@ -85,155 +85,155 @@ GlslShaderGenerator::GlslShaderGenerator()
     //
 
     // <!-- <compare> -->
-    registerImplementation("IM_compare_float_sx_glsl", Compare::create);
-    registerImplementation("IM_compare_color2_sx_glsl", Compare::create);
-    registerImplementation("IM_compare_color3_sx_glsl", Compare::create);
-    registerImplementation("IM_compare_color4_sx_glsl", Compare::create);
-    registerImplementation("IM_compare_vector2_sx_glsl", Compare::create);
-    registerImplementation("IM_compare_vector3_sx_glsl", Compare::create);
-    registerImplementation("IM_compare_vector4_sx_glsl", Compare::create);
+    registerImplementation("IM_compare_float_sx_glsl", CompareNodeImpl::create);
+    registerImplementation("IM_compare_color2_sx_glsl", CompareNodeImpl::create);
+    registerImplementation("IM_compare_color3_sx_glsl", CompareNodeImpl::create);
+    registerImplementation("IM_compare_color4_sx_glsl", CompareNodeImpl::create);
+    registerImplementation("IM_compare_vector2_sx_glsl", CompareNodeImpl::create);
+    registerImplementation("IM_compare_vector3_sx_glsl", CompareNodeImpl::create);
+    registerImplementation("IM_compare_vector4_sx_glsl", CompareNodeImpl::create);
 
     // <!-- <switch> -->
     // <!-- 'which' type : float -->
-    registerImplementation("IM_switch_float_sx_glsl", Switch::create);
-    registerImplementation("IM_switch_color2_sx_glsl", Switch::create);
-    registerImplementation("IM_switch_color3_sx_glsl", Switch::create);
-    registerImplementation("IM_switch_color4_sx_glsl", Switch::create);
-    registerImplementation("IM_switch_vector2_sx_glsl", Switch::create);
-    registerImplementation("IM_switch_vector3_sx_glsl", Switch::create);
-    registerImplementation("IM_switch_vector4_sx_glsl", Switch::create);
+    registerImplementation("IM_switch_float_sx_glsl", SwitchNodeImpl::create);
+    registerImplementation("IM_switch_color2_sx_glsl", SwitchNodeImpl::create);
+    registerImplementation("IM_switch_color3_sx_glsl", SwitchNodeImpl::create);
+    registerImplementation("IM_switch_color4_sx_glsl", SwitchNodeImpl::create);
+    registerImplementation("IM_switch_vector2_sx_glsl", SwitchNodeImpl::create);
+    registerImplementation("IM_switch_vector3_sx_glsl", SwitchNodeImpl::create);
+    registerImplementation("IM_switch_vector4_sx_glsl", SwitchNodeImpl::create);
     // <!-- 'which' type : integer -->
-    registerImplementation("IM_switch_floatI_sx_glsl", Switch::create);
-    registerImplementation("IM_switch_color2I_sx_glsl", Switch::create);
-    registerImplementation("IM_switch_color3I_sx_glsl", Switch::create);
-    registerImplementation("IM_switch_color4I_sx_glsl", Switch::create);
-    registerImplementation("IM_switch_vector2I_sx_glsl", Switch::create);
-    registerImplementation("IM_switch_vector3I_sx_glsl", Switch::create);
-    registerImplementation("IM_switch_vector4I_sx_glsl", Switch::create);
+    registerImplementation("IM_switch_floatI_sx_glsl", SwitchNodeImpl::create);
+    registerImplementation("IM_switch_color2I_sx_glsl", SwitchNodeImpl::create);
+    registerImplementation("IM_switch_color3I_sx_glsl", SwitchNodeImpl::create);
+    registerImplementation("IM_switch_color4I_sx_glsl", SwitchNodeImpl::create);
+    registerImplementation("IM_switch_vector2I_sx_glsl", SwitchNodeImpl::create);
+    registerImplementation("IM_switch_vector3I_sx_glsl", SwitchNodeImpl::create);
+    registerImplementation("IM_switch_vector4I_sx_glsl", SwitchNodeImpl::create);
     // <!-- 'which' type : boolean -->
-    registerImplementation("IM_switch_floatB_sx_glsl", Switch::create);
-    registerImplementation("IM_switch_color2B_sx_glsl", Switch::create);
-    registerImplementation("IM_switch_color3B_sx_glsl", Switch::create);
-    registerImplementation("IM_switch_color4B_sx_glsl", Switch::create);
-    registerImplementation("IM_switch_vector2B_sx_glsl", Switch::create);
-    registerImplementation("IM_switch_vector3B_sx_glsl", Switch::create);
-    registerImplementation("IM_switch_vector4B_sx_glsl", Switch::create);
+    registerImplementation("IM_switch_floatB_sx_glsl", SwitchNodeImpl::create);
+    registerImplementation("IM_switch_color2B_sx_glsl", SwitchNodeImpl::create);
+    registerImplementation("IM_switch_color3B_sx_glsl", SwitchNodeImpl::create);
+    registerImplementation("IM_switch_color4B_sx_glsl", SwitchNodeImpl::create);
+    registerImplementation("IM_switch_vector2B_sx_glsl", SwitchNodeImpl::create);
+    registerImplementation("IM_switch_vector3B_sx_glsl", SwitchNodeImpl::create);
+    registerImplementation("IM_switch_vector4B_sx_glsl", SwitchNodeImpl::create);
 
     // <!-- <swizzle> -->
     // <!-- from type : float -->
-    registerImplementation("IM_swizzle_float_color2_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_float_color3_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_float_color4_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_float_vector2_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_float_vector3_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_float_vector4_sx_glsl", Swizzle::create);
+    registerImplementation("IM_swizzle_float_color2_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_float_color3_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_float_color4_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_float_vector2_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_float_vector3_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_float_vector4_sx_glsl", SwizzleNodeImpl::create);
     // <!-- from type : color2 -->
-    registerImplementation("IM_swizzle_color2_float_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_color2_color2_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_color2_color3_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_color2_color4_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_color2_vector2_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_color2_vector3_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_color2_vector4_sx_glsl", Swizzle::create);
+    registerImplementation("IM_swizzle_color2_float_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_color2_color2_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_color2_color3_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_color2_color4_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_color2_vector2_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_color2_vector3_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_color2_vector4_sx_glsl", SwizzleNodeImpl::create);
     // <!-- from type : color3 -->
-    registerImplementation("IM_swizzle_color3_float_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_color3_color2_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_color3_color3_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_color3_color4_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_color3_vector2_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_color3_vector3_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_color3_vector4_sx_glsl", Swizzle::create);
+    registerImplementation("IM_swizzle_color3_float_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_color3_color2_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_color3_color3_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_color3_color4_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_color3_vector2_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_color3_vector3_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_color3_vector4_sx_glsl", SwizzleNodeImpl::create);
     // <!-- from type : color4 -->
-    registerImplementation("IM_swizzle_color4_float_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_color4_color2_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_color4_color3_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_color4_color4_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_color4_vector2_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_color4_vector3_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_color4_vector4_sx_glsl", Swizzle::create);
+    registerImplementation("IM_swizzle_color4_float_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_color4_color2_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_color4_color3_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_color4_color4_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_color4_vector2_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_color4_vector3_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_color4_vector4_sx_glsl", SwizzleNodeImpl::create);
     // <!-- from type : vector2 -->
-    registerImplementation("IM_swizzle_vector2_float_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_vector2_color2_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_vector2_color3_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_vector2_color4_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_vector2_vector2_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_vector2_vector3_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_vector2_vector4_sx_glsl", Swizzle::create);
+    registerImplementation("IM_swizzle_vector2_float_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_vector2_color2_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_vector2_color3_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_vector2_color4_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_vector2_vector2_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_vector2_vector3_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_vector2_vector4_sx_glsl", SwizzleNodeImpl::create);
     // <!-- from type : vector3 -->
-    registerImplementation("IM_swizzle_vector3_float_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_vector3_color2_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_vector3_color3_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_vector3_color4_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_vector3_vector2_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_vector3_vector3_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_vector3_vector4_sx_glsl", Swizzle::create);
+    registerImplementation("IM_swizzle_vector3_float_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_vector3_color2_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_vector3_color3_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_vector3_color4_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_vector3_vector2_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_vector3_vector3_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_vector3_vector4_sx_glsl", SwizzleNodeImpl::create);
     // <!-- from type : vector4 -->
-    registerImplementation("IM_swizzle_vector4_float_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_vector4_color2_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_vector4_color3_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_vector4_color4_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_vector4_vector2_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_vector4_vector3_sx_glsl", Swizzle::create);
-    registerImplementation("IM_swizzle_vector4_vector4_sx_glsl", Swizzle::create);
+    registerImplementation("IM_swizzle_vector4_float_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_vector4_color2_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_vector4_color3_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_vector4_color4_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_vector4_vector2_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_vector4_vector3_sx_glsl", SwizzleNodeImpl::create);
+    registerImplementation("IM_swizzle_vector4_vector4_sx_glsl", SwizzleNodeImpl::create);
 
     // <!-- <position> -->
-    registerImplementation("IM_position_vector3_sx_glsl", PositionGlsl::create);
+    registerImplementation("IM_position_vector3_sx_glsl", PositionNodeImplGlsl::create);
     // <!-- <normal> -->
-    registerImplementation("IM_normal_vector3_sx_glsl", NormalGlsl::create);
+    registerImplementation("IM_normal_vector3_sx_glsl", NormalNodeImplGlsl::create);
     // <!-- <tangent> -->
-    registerImplementation("IM_tangent_vector3_sx_glsl", TangentGlsl::create);
+    registerImplementation("IM_tangent_vector3_sx_glsl", TangentNodeImplGlsl::create);
     // <!-- <bitangent> -->
-    registerImplementation("IM_bitangent_vector3_sx_glsl", BitangentGlsl::create);
+    registerImplementation("IM_bitangent_vector3_sx_glsl", BitangentNodeImplGlsl::create);
     // <!-- <texcoord> -->
-    registerImplementation("IM_texcoord_vector2_sx_glsl", TexCoordGlsl::create);
-    registerImplementation("IM_texcoord_vector3_sx_glsl", TexCoordGlsl::create);
+    registerImplementation("IM_texcoord_vector2_sx_glsl", TexCoordNodeImplGlsl::create);
+    registerImplementation("IM_texcoord_vector3_sx_glsl", TexCoordNodeImplGlsl::create);
     // <!-- <geomcolor> -->
-    registerImplementation("IM_geomcolor_float_sx_glsl", GeomColorGlsl::create);
-    registerImplementation("IM_geomcolor_color2_sx_glsl", GeomColorGlsl::create);
-    registerImplementation("IM_geomcolor_color3_sx_glsl", GeomColorGlsl::create);
-    registerImplementation("IM_geomcolor_color4_sx_glsl", GeomColorGlsl::create);
+    registerImplementation("IM_geomcolor_float_sx_glsl", GeomColorNodeImplGlsl::create);
+    registerImplementation("IM_geomcolor_color2_sx_glsl", GeomColorNodeImplGlsl::create);
+    registerImplementation("IM_geomcolor_color3_sx_glsl", GeomColorNodeImplGlsl::create);
+    registerImplementation("IM_geomcolor_color4_sx_glsl", GeomColorNodeImplGlsl::create);
     // <!-- <geomattrvalue> -->
-    registerImplementation("IM_geomattrvalue_integer_sx_glsl", GeomAttrValueGlsl::create);
-    registerImplementation("IM_geomattrvalue_boolean_sx_glsl", GeomAttrValueGlsl::create);
-    registerImplementation("IM_geomattrvalue_string_sx_glsl", GeomAttrValueGlsl::create);
-    registerImplementation("IM_geomattrvalue_float_sx_glsl", GeomAttrValueGlsl::create);
-    registerImplementation("IM_geomattrvalue_color2_sx_glsl", GeomAttrValueGlsl::create);
-    registerImplementation("IM_geomattrvalue_color3_sx_glsl", GeomAttrValueGlsl::create);
-    registerImplementation("IM_geomattrvalue_color4_sx_glsl", GeomAttrValueGlsl::create);
-    registerImplementation("IM_geomattrvalue_vector2_sx_glsl", GeomAttrValueGlsl::create);
-    registerImplementation("IM_geomattrvalue_vector3_sx_glsl", GeomAttrValueGlsl::create);
-    registerImplementation("IM_geomattrvalue_vector4_sx_glsl", GeomAttrValueGlsl::create);
+    registerImplementation("IM_geomattrvalue_integer_sx_glsl", GeomAttrValueNodeImplGlsl::create);
+    registerImplementation("IM_geomattrvalue_boolean_sx_glsl", GeomAttrValueNodeImplGlsl::create);
+    registerImplementation("IM_geomattrvalue_string_sx_glsl", GeomAttrValueNodeImplGlsl::create);
+    registerImplementation("IM_geomattrvalue_float_sx_glsl", GeomAttrValueNodeImplGlsl::create);
+    registerImplementation("IM_geomattrvalue_color2_sx_glsl", GeomAttrValueNodeImplGlsl::create);
+    registerImplementation("IM_geomattrvalue_color3_sx_glsl", GeomAttrValueNodeImplGlsl::create);
+    registerImplementation("IM_geomattrvalue_color4_sx_glsl", GeomAttrValueNodeImplGlsl::create);
+    registerImplementation("IM_geomattrvalue_vector2_sx_glsl", GeomAttrValueNodeImplGlsl::create);
+    registerImplementation("IM_geomattrvalue_vector3_sx_glsl", GeomAttrValueNodeImplGlsl::create);
+    registerImplementation("IM_geomattrvalue_vector4_sx_glsl", GeomAttrValueNodeImplGlsl::create);
 
     // <!-- <frame> -->
-    registerImplementation("IM_frame_float_sx_glsl", FrameGlsl::create);
+    registerImplementation("IM_frame_float_sx_glsl", FrameNodeImplGlsl::create);
     // <!-- <time> -->
-    registerImplementation("IM_time_float_sx_glsl", TimeGlsl::create);
+    registerImplementation("IM_time_float_sx_glsl", TimeNodeImplGlsl::create);
     // <!-- <viewdirection> -->
-    registerImplementation("IM_viewdirection_vector3_sx_glsl", ViewDirectionGlsl::create);
+    registerImplementation("IM_viewdirection_vector3_sx_glsl", ViewDirectionNodeImplGlsl::create);
 
     // <!-- <surface> -->
-    registerImplementation("IM_surface_sx_glsl", SurfaceGlsl::create);
+    registerImplementation("IM_surface_sx_glsl", SurfaceNodeImplGlsl::create);
     // <!-- <light> -->
-    registerImplementation("IM_light_sx_glsl", LightGlsl::create);
+    registerImplementation("IM_light_sx_glsl", LightNodeImplGlsl::create);
 
     // <!-- <pointlight> -->
-    registerImplementation("IM_pointlight_sx_glsl", LightShaderGlsl::create);
+    registerImplementation("IM_pointlight_sx_glsl", LightShaderNodeImplGlsl::create);
     // <!-- <directionallight> -->
-    registerImplementation("IM_directionallight_sx_glsl", LightShaderGlsl::create);
+    registerImplementation("IM_directionallight_sx_glsl", LightShaderNodeImplGlsl::create);
     // <!-- <spotlight> -->
-    registerImplementation("IM_spotlight_sx_glsl", LightShaderGlsl::create);
+    registerImplementation("IM_spotlight_sx_glsl", LightShaderNodeImplGlsl::create);
 
     // <!-- <heighttonormal> -->
-    registerImplementation("IM_heighttonormal_vector3_sx_glsl", HeightToNormalGlsl::create);
+    registerImplementation("IM_heighttonormal_vector3_sx_glsl", HeightToNormalNodeImplGlsl::create);
 
     // <!-- <blur> -->
-    registerImplementation("IM_blur_float_sx_glsl", Blur::create);
-    registerImplementation("IM_blur_color2_sx_glsl", Blur::create);
-    registerImplementation("IM_blur_color3_sx_glsl", Blur::create);
-    registerImplementation("IM_blur_color4_sx_glsl", Blur::create);
-    registerImplementation("IM_blur_vector2_sx_glsl", Blur::create);
-    registerImplementation("IM_blur_vector3_sx_glsl", Blur::create);
-    registerImplementation("IM_blur_vector4_sx_glsl", Blur::create);
+    registerImplementation("IM_blur_float_sx_glsl", BlurNodeImpl::create);
+    registerImplementation("IM_blur_color2_sx_glsl", BlurNodeImpl::create);
+    registerImplementation("IM_blur_color3_sx_glsl", BlurNodeImpl::create);
+    registerImplementation("IM_blur_color4_sx_glsl", BlurNodeImpl::create);
+    registerImplementation("IM_blur_vector2_sx_glsl", BlurNodeImpl::create);
+    registerImplementation("IM_blur_vector3_sx_glsl", BlurNodeImpl::create);
+    registerImplementation("IM_blur_vector4_sx_glsl", BlurNodeImpl::create);
 }
 
 ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr element, const GenOptions& options)
@@ -744,7 +744,7 @@ void GlslShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& s
     }
 }
 
-ShaderImplementationPtr GlslShaderGenerator::createCompoundImplementation(NodeGraphPtr impl)
+ShaderNodeImplPtr GlslShaderGenerator::createCompoundImplementation(NodeGraphPtr impl)
 {
     NodeDefPtr nodeDef = impl->getNodeDef();
     if (!nodeDef)
@@ -753,7 +753,7 @@ ShaderImplementationPtr GlslShaderGenerator::createCompoundImplementation(NodeGr
     }
     if (TypeDesc::get(nodeDef->getType()) == Type::LIGHTSHADER)
     {
-        return LightCompoundGlsl::create();
+        return LightCompoundNodeImplGlsl::create();
     }
     return ParentClass::createCompoundImplementation(impl);
 }

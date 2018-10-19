@@ -5,7 +5,7 @@
 #include <MaterialXCore/Document.h>
 
 #include <MaterialXGenShader/TypeDesc.h>
-#include <MaterialXGenShader/ShaderImplementation.h>
+#include <MaterialXGenShader/ShaderNodeImpl.h>
 
 #include <set>
 
@@ -152,7 +152,7 @@ class ShaderNode
     }
 
     /// Return the implementation used for this node.
-    ShaderImplementation* getImplementation()
+    ShaderNodeImpl* getImplementation()
     {
         return _impl.get();
     }
@@ -231,7 +231,7 @@ class ShaderNode
 
     ShaderInput* _samplingInput;
 
-    ShaderImplementationPtr _impl;
+    ShaderNodeImplPtr _impl;
     ScopeInfo _scopeInfo;
     std::set<const ShaderNode*> _usedClosures;
     std::set<int> _contextIDs;
