@@ -1,6 +1,6 @@
 #include <MaterialXGenShader/ShaderGraph.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/ShaderImplementation.h>
+#include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/Util.h>
 

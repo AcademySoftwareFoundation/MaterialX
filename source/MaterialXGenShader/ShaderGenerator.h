@@ -81,17 +81,17 @@ public:
     template<class T>
     using CreatorFunction = shared_ptr<T>(*)();
 
-    /// Register a shader gen implementation for a given implementation element name
-    void registerImplementation(const string& name, CreatorFunction<ShaderImplementation> creator);
+    /// Register a shader node implementation for a given implementation element name
+    void registerImplementation(const string& name, CreatorFunction<ShaderNodeImpl> creator);
 
-    /// Determine if an implementation has been registered for a given implementation element name
+    /// Determine if a shader node implementation has been registered for a given implementation element name
     bool implementationRegistered(const string& name) const;
 
-    /// Return a registered shader gen implementation given an implementation element.
+    /// Return a registered shader node implementation given an implementation element.
     /// The element must be an Implementation or a NodeGraph acting as implementation.
     /// If no registered implementation is found a 'default' implementation instance 
-    /// will be returned, as created by the 
-    ShaderImplementationPtr getImplementation(InterfaceElementPtr element);
+    /// will be returned, as defined by the createDefaultImplementation method.
+    ShaderNodeImplPtr getImplementation(InterfaceElementPtr element);
 
     /// Add to the search path used for finding source code.
     void registerSourceCodeSearchPath(const FilePath& path);
@@ -119,20 +119,20 @@ protected:
     /// Create a default implementation which is the implementation class to use 
     /// for nodes that has no specific implementation registered for it.
     /// Derived classes can override this to use custom default implementations.
-    virtual ShaderImplementationPtr createDefaultImplementation(ImplementationPtr impl);
+    virtual ShaderNodeImplPtr createDefaultImplementation(ImplementationPtr impl);
 
     /// Create a compound implementation which is the implementation class to use
     /// for nodes using a nodegraph as their implementation.
     /// Derived classes can override this to use custom compound implementations.
-    virtual ShaderImplementationPtr createCompoundImplementation(NodeGraphPtr impl);
+    virtual ShaderNodeImplPtr createCompoundImplementation(NodeGraphPtr impl);
 
     /// Create a new node context with the given id. The context is added to the 
     /// shader generators node context storage and returned.
     GenContextPtr createContext(int id);
 
     SyntaxPtr _syntax;
-    Factory<ShaderImplementation> _implFactory;
-    std::unordered_map<string, ShaderImplementationPtr> _cachedImpls;
+    Factory<ShaderNodeImpl> _implFactory;
+    std::unordered_map<string, ShaderNodeImplPtr> _cachedImpls;
 
     FileSearchPath _sourceCodeSearchPath;
 

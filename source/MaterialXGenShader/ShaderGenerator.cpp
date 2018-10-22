@@ -1,7 +1,7 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/ShaderImplementation.h>
-#include <MaterialXGenShader/Nodes/SourceCode.h>
-#include <MaterialXGenShader/Nodes/Compound.h>
+#include <MaterialXGenShader/ShaderNodeImpl.h>
+#include <MaterialXGenShader/Nodes/SourceCodeNode.h>
+#include <MaterialXGenShader/Nodes/CompoundNode.h>
 
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Document.h>
@@ -181,7 +181,7 @@ const GenContext* ShaderGenerator::getNodeContext(int id) const
     return it != _contexts.end() ? it->second.get() : nullptr;
 }
 
-void ShaderGenerator::registerImplementation(const string& name, CreatorFunction<ShaderImplementation> creator)
+void ShaderGenerator::registerImplementation(const string& name, CreatorFunction<ShaderNodeImpl> creator)
 {
     _implFactory.registerClass(name, creator);
 }
@@ -191,7 +191,7 @@ bool ShaderGenerator::implementationRegistered(const string& name) const
     return _implFactory.classRegistered(name);
 }
 
-ShaderImplementationPtr ShaderGenerator::getImplementation(InterfaceElementPtr element)
+ShaderNodeImplPtr ShaderGenerator::getImplementation(InterfaceElementPtr element)
 {
     const string& name = element->getName();
 
@@ -202,7 +202,7 @@ ShaderImplementationPtr ShaderGenerator::getImplementation(InterfaceElementPtr e
         return it->second;
     }
 
-    ShaderImplementationPtr impl;
+    ShaderNodeImplPtr impl;
     if (element->isA<NodeGraph>())
     {
         // Use a compound implementation
@@ -240,18 +240,18 @@ FilePath ShaderGenerator::findSourceCode(const FilePath& filename)
     return _sourceCodeSearchPath.find(filename);
 }
 
-ShaderImplementationPtr ShaderGenerator::createDefaultImplementation(ImplementationPtr impl)
+ShaderNodeImplPtr ShaderGenerator::createDefaultImplementation(ImplementationPtr impl)
 {
     // The data driven source code implementation
     // is the implementation to use by default
-    return SourceCode::create();
+    return SourceCodeNode::create();
 }
 
-ShaderImplementationPtr ShaderGenerator::createCompoundImplementation(NodeGraphPtr impl)
+ShaderNodeImplPtr ShaderGenerator::createCompoundImplementation(NodeGraphPtr impl)
 {
     // The standard compound implementation
     // is the compound implementation to us by default
-    return Compound::create();
+    return CompoundNode::create();
 }
 
 GenContextPtr ShaderGenerator::createContext(int id)

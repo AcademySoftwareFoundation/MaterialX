@@ -216,7 +216,7 @@ protected:
         int indentations;
         std::queue<Brackets> scopes;
         std::set<string> includes;
-        std::set<ShaderImplementation*> definedFunctions;
+        std::set<ShaderNodeImpl*> definedFunctions;
         
         // Blocks holding uniform variables for this stage
         VariableBlockMap uniforms;
