@@ -2,8 +2,8 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Syntax.h>
 #include <MaterialXGenShader/Util.h>
-#include <MaterialXGenShader/Nodes/CompareNodeImpl.h>
-#include <MaterialXGenShader/Nodes/SwitchNodeImpl.h>
+#include <MaterialXGenShader/Nodes/CompareNode.h>
+#include <MaterialXGenShader/Nodes/SwitchNode.h>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Node.h>

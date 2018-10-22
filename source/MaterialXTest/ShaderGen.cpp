@@ -7,7 +7,7 @@
 #include <MaterialXFormat/File.h>
 
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/Nodes/SwizzleNodeImpl.h>
+#include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/HwShader.h>

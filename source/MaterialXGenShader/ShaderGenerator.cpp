@@ -1,7 +1,7 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
-#include <MaterialXGenShader/Nodes/SourceCodeNodeImpl.h>
-#include <MaterialXGenShader/Nodes/CompoundNodeImpl.h>
+#include <MaterialXGenShader/Nodes/SourceCodeNode.h>
+#include <MaterialXGenShader/Nodes/CompoundNode.h>
 
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Document.h>
@@ -244,14 +244,14 @@ ShaderNodeImplPtr ShaderGenerator::createDefaultImplementation(ImplementationPtr
 {
     // The data driven source code implementation
     // is the implementation to use by default
-    return SourceCodeNodeImpl::create();
+    return SourceCodeNode::create();
 }
 
 ShaderNodeImplPtr ShaderGenerator::createCompoundImplementation(NodeGraphPtr impl)
 {
     // The standard compound implementation
     // is the compound implementation to us by default
-    return CompoundNodeImpl::create();
+    return CompoundNode::create();
 }
 
 GenContextPtr ShaderGenerator::createContext(int id)

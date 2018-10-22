@@ -12,7 +12,7 @@
 #include <MaterialXFormat/XmlIo.h>
 
 #include <MaterialXGenShader/Util.h>
-#include <MaterialXGenShader/Nodes/SwizzleNodeImpl.h>
+#include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/HwShader.h>
 #include <MaterialXGenShader/HwLightHandler.h>
 
