@@ -15,6 +15,7 @@ public:
     static SyntaxPtr create() { return std::make_shared<OslSyntax>(); }
 
     const string& getOutputQualifier() const override;
+    const string& getConstantQualifier() const override { return EMPTY_STRING; };
 
     static const string OUTPUT_QUALIFIER;
     static const vector<string> VECTOR_MEMBERS;

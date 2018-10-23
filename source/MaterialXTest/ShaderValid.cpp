@@ -683,6 +683,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
 
             if (!materials.empty() || !nodeGraphs.empty() || !outputList.empty())
             {
+                std::cout << "Validating MTLX file: " << filename << std::endl;
 #ifdef MATERIALX_BUILD_GEN_GLSL
                 glslLog << "MTLX Filename: " << filename << std::endl;
 #endif

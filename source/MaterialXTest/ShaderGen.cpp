@@ -259,6 +259,10 @@ TEST_CASE("Syntax", "[shadergen]")
         REQUIRE(syntax->getTypeName(mx::Type::FLOAT) == "float");
         REQUIRE(syntax->getTypeName(mx::Type::COLOR3) == "color");
         REQUIRE(syntax->getTypeName(mx::Type::VECTOR3) == "vector");
+        REQUIRE(syntax->getTypeName(mx::Type::FLOATARRAY) == "float");
+        REQUIRE(syntax->getTypeName(mx::Type::INTEGERARRAY) == "int");
+        REQUIRE(mx::Type::FLOATARRAY->isArray());
+        REQUIRE(mx::Type::INTEGERARRAY->isArray());
 
         REQUIRE(syntax->getTypeName(mx::Type::BSDF) == "BSDF");
         REQUIRE(syntax->getOutputTypeName(mx::Type::BSDF) == "output BSDF");
@@ -277,6 +281,10 @@ TEST_CASE("Syntax", "[shadergen]")
         REQUIRE(value == "color4(color(0.0), 0.0)");
         value = syntax->getDefaultValue(mx::Type::COLOR4, true);
         REQUIRE(value == "{color(0.0), 0.0}");
+        value = syntax->getDefaultValue(mx::Type::FLOATARRAY, true);
+        REQUIRE(value.empty());
+        value = syntax->getDefaultValue(mx::Type::INTEGERARRAY, true);
+        REQUIRE(value.empty());
 
         mx::ValuePtr floatValue = mx::Value::createValue<float>(42.0f);
         value = syntax->getValue(mx::Type::FLOAT, *floatValue);
@@ -295,6 +303,16 @@ TEST_CASE("Syntax", "[shadergen]")
         REQUIRE(value == "color4(color(1.0, 2.0, 3.0), 4.0)");
         value = syntax->getValue(mx::Type::COLOR4, *color4Value, true);
         REQUIRE(value == "{color(1.0, 2.0, 3.0), 4.0}");
+
+        std::vector<float> floatArray = { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f };
+        mx::ValuePtr floatArrayValue = mx::Value::createValue<std::vector<float>>(floatArray);
+        value = syntax->getValue(mx::Type::FLOATARRAY, *floatArrayValue);
+        REQUIRE(value == "{0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7}");
+
+        std::vector<int> intArray = { 1, 2, 3, 4, 5, 6, 7 };
+        mx::ValuePtr intArrayValue = mx::Value::createValue<std::vector<int>>(intArray);
+        value = syntax->getValue(mx::Type::INTEGERARRAY, *intArrayValue);
+        REQUIRE(value == "{1, 2, 3, 4, 5, 6, 7}");
     }
 #endif // MATERIALX_BUILD_GEN_OSL
 
@@ -323,6 +341,10 @@ TEST_CASE("Syntax", "[shadergen]")
         REQUIRE(value == "vec4(0.0)");
         value = syntax->getDefaultValue(mx::Type::COLOR4, true);
         REQUIRE(value == "vec4(0.0)");
+        value = syntax->getDefaultValue(mx::Type::FLOATARRAY, true);
+        REQUIRE(value.empty());
+        value = syntax->getDefaultValue(mx::Type::INTEGERARRAY, true);
+        REQUIRE(value.empty());
 
         mx::ValuePtr floatValue = mx::Value::createValue<float>(42.0f);
         value = syntax->getValue(mx::Type::FLOAT, *floatValue);
@@ -341,6 +363,16 @@ TEST_CASE("Syntax", "[shadergen]")
         REQUIRE(value == "vec4(1.0, 2.0, 3.0, 4.0)");
         value = syntax->getValue(mx::Type::COLOR4, *color4Value, true);
         REQUIRE(value == "vec4(1.0, 2.0, 3.0, 4.0)");
+
+        std::vector<float> floatArray = { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f };
+        mx::ValuePtr floatArrayValue = mx::Value::createValue<std::vector<float>>(floatArray);
+        value = syntax->getValue(mx::Type::FLOATARRAY, *floatArrayValue);
+        REQUIRE(value == "float[7](0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7)");
+
+        std::vector<int> intArray = { 1, 2, 3, 4, 5, 6, 7 };
+        mx::ValuePtr intArrayValue = mx::Value::createValue<std::vector<int>>(intArray);
+        value = syntax->getValue(mx::Type::INTEGERARRAY, *intArrayValue);
+        REQUIRE(value == "int[7](1, 2, 3, 4, 5, 6, 7)");
     }
 #endif // MATERIALX_BUILD_GEN_GLSL
 
@@ -579,7 +611,6 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
         {
             "ambientocclusion",
             "arrayappend",
-            "blur",
             "curveadjust",
         };
 
@@ -763,7 +794,7 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
 
         // Should have 0 missing including skipped
         REQUIRE(missing == 0);
-        REQUIRE(skipped == 45);
+        REQUIRE(skipped == 38);
     }
 
     implDumpBuffer.close();

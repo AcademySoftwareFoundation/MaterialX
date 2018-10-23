@@ -60,8 +60,6 @@ void HeightToNormalNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext
 
         // Emit code to evaluate samples.
         //
-        string scaleValueString = scaleInput->value ? scaleInput->value->getValueString() : "1.0";
-
         string sampleName(node.getOutput()->name + "_samples");
         shader.addLine("float " + sampleName + "[" + std::to_string(_sampleCount) + "]");
         for (unsigned int i = 0; i < _sampleCount; i++)
@@ -71,7 +69,9 @@ void HeightToNormalNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext
         shader.beginLine();
         shadergen.emitOutput(context, node.getOutput(), true, false, shader);
         shader.addStr(" = " + _filterFunctionName);
-        shader.addStr("(" + sampleName + ", " + scaleValueString + ")");
+        shader.addStr("(" + sampleName + ", ");
+        shadergen.emitInput(context, scaleInput, shader);
+        shader.addStr(")");
         shader.endLine();
     }
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)

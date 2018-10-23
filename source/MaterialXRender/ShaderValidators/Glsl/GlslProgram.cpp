@@ -1234,7 +1234,7 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
         
         bool uniformTypeMismatchFound = false;
 
-        if (appDataBlock.variableOrder.size())
+        if (!appDataBlock.empty())
         { 
             for (const MaterialX::Shader::Variable* input : appDataBlock.variableOrder)
             {

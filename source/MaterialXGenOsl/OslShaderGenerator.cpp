@@ -234,6 +234,17 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     // Emit shader body
     shader.beginScope(Shader::Brackets::BRACES);
 
+    // Emit private constants. Must be within the shader body.
+    const Shader::VariableBlock& psConstants = shader.getConstantBlock(Shader::PIXEL_STAGE);
+    shader.addComment("Private Constants: ");
+    for (const Shader::Variable* constant : psConstants.variableOrder)
+    {
+        shader.beginLine();
+        emitConstant(*constant, shader);
+        shader.endLine();
+    }
+    shader.newLine();
+
     emitFunctionCalls(*_defaultContext, shader);
     emitFinalOutput(shader);
 
@@ -312,6 +323,20 @@ void OslShaderGenerator::emitFinalOutput(Shader& shader) const
     }
 
     shader.addLine(outputSocket->name + " = " + finalResult);
+}
+
+void OslShaderGenerator::emitVariable(const Shader::Variable& uniform, const string& /*qualifier*/, Shader& shader)
+{
+    const string initStr = (uniform.value ? _syntax->getValue(uniform.type, *uniform.value, true) : _syntax->getDefaultValue(uniform.type, true));
+    string line = _syntax->getTypeName(uniform.type) + " " + uniform.name;
+
+    // If an arrays we need an array qualifier (suffix) for the variable name
+    string arraySuffix;
+    uniform.getArraySuffix(arraySuffix);
+    line += arraySuffix;
+
+    line += initStr.empty() ? "" : " = " + initStr;
+    shader.addStr(line);
 }
 
 } // namespace MaterialX

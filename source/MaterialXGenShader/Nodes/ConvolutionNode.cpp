@@ -2,6 +2,32 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
+namespace
+{
+    const std::vector<float> GAUSSIAN_WEIGHT_ARRAY = {
+        // 1x1
+        1.0,
+        // 3x3
+        0.077847f,	0.123317f,	0.077847f,
+        0.123317f,	0.195346f,	0.123317f,
+        0.077847f,	0.123317f,	0.077847f,
+        // 5x5
+        0.003765f,	0.015019f,	0.023792f,	0.015019f,	0.003765f,
+        0.015019f,	0.059912f,	0.094907f,	0.059912f,	0.015019f,
+        0.023792f,	0.094907f,	0.150342f,	0.094907f,	0.023792f,
+        0.015019f,	0.059912f,	0.094907f,	0.059912f,	0.015019f,
+        0.003765f,	0.015019f,	0.023792f,	0.015019f,	0.003765f,
+        // 7x7
+        0.000036f,	0.000363f,	0.001446f,	0.002291f,	0.001446f,	0.000363f,	0.000036f,
+        0.000363f,	0.003676f,	0.014662f,	0.023226f,	0.014662f,	0.003676f,	0.000363f,
+        0.001446f,	0.014662f,	0.058488f,	0.092651f,	0.058488f,	0.014662f,	0.001446f,
+        0.002291f,	0.023226f,	0.092651f,	0.146768f,	0.092651f,	0.023226f,	0.002291f,
+        0.001446f,	0.014662f,	0.058488f,	0.092651f,	0.058488f,	0.014662f,	0.001446f,
+        0.000363f,	0.003676f,	0.014662f,	0.023226f,	0.014662f,	0.003676f,	0.000363f,
+        0.000036f,	0.000363f,	0.001446f,	0.002291f,	0.001446f,	0.000363f,	0.000036f
+    };
+}
+
 namespace MaterialX
 {
 ConvolutionNode::ConvolutionNode()
@@ -9,6 +35,35 @@ ConvolutionNode::ConvolutionNode()
     , _filterSize(1.0f)
     , _filterOffset(0.0f)
 {
+}
+
+void ConvolutionNode::createVariables(const ShaderNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader)
+{
+    // Create constant for box weights
+    const float boxWeight3x3 = 1.0f / 9.0f;
+    const float boxWeight5x5 = 1.0f / 25.0f;
+    const float boxWeight7x7 = 1.0f / 49.0f;
+    vector<float> boxWeightArray;
+    boxWeightArray.push_back(1.0f);
+    for (unsigned int i = 0; i < 9; i++)
+    {
+        boxWeightArray.push_back(boxWeight3x3);
+    }
+    for (unsigned int i = 0; i < 25; i++)
+    {
+        boxWeightArray.push_back(boxWeight5x5);
+    }
+    for (unsigned int i = 0; i < 49; i++)
+    {
+        boxWeightArray.push_back(boxWeight7x7);
+    }
+    shader.createConstant(Shader::PIXEL_STAGE, 
+        Type::FLOATARRAY, "c_box_filter_weights", EMPTY_STRING, Value::createValue<vector<float>>(boxWeightArray));
+
+    // Create constant for Gaussian weights
+ 
+    shader.createConstant(Shader::PIXEL_STAGE,
+        Type::FLOATARRAY, "c_gaussian_filter_weights", EMPTY_STRING, Value::createValue<vector<float>>(GAUSSIAN_WEIGHT_ARRAY));
 }
 
 void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader, StringVec& sampleStrings)

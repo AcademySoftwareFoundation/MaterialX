@@ -258,33 +258,33 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     shader.addLine("#version " + getVersion(), false);
     shader.newLine();
 
+    // Add all constants
+    const Shader::VariableBlock& vsConstants = shader.getConstantBlock(HwShader::VERTEX_STAGE);
+    if (!vsConstants.empty())
+    {
+        shader.addComment("Constant block: " + vsConstants.name);
+        emitVariableBlock(vsConstants, _syntax->getConstantQualifier(), shader);
+    }
+
     // Add all private uniforms
     const Shader::VariableBlock& vsPrivateUniforms = shader.getUniformBlock(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS);
-    if (vsPrivateUniforms.variableOrder.size())
+    if (!vsPrivateUniforms.empty())
     {
         shader.addComment("Uniform block: " + vsPrivateUniforms.name);
-        for (const Shader::Variable* uniform : vsPrivateUniforms.variableOrder)
-        {
-            emitUniform(*uniform, shader);
-        }
-        shader.newLine();
+        emitVariableBlock(vsPrivateUniforms, _syntax->getUniformQualifier(), shader);
     }
 
     // Add any public uniforms
     const Shader::VariableBlock& vsPublicUniforms = shader.getUniformBlock(HwShader::VERTEX_STAGE, HwShader::PUBLIC_UNIFORMS);
-    if (vsPublicUniforms.variableOrder.size())
+    if (!vsPublicUniforms.empty())
     {
         shader.addComment("Uniform block: " + vsPublicUniforms.name);
-        for (const Shader::Variable* uniform : vsPublicUniforms.variableOrder)
-        {
-            emitUniform(*uniform, shader);
-        }
-        shader.newLine();
+        emitVariableBlock(vsPublicUniforms, _syntax->getUniformQualifier(), shader);
     }
 
     // Add all app data inputs
     const Shader::VariableBlock& appDataBlock = shader.getAppDataBlock();
-    if (appDataBlock.variableOrder.size())
+    if (!appDataBlock.empty())
     {
         shader.addComment("Application data block: " + appDataBlock.name);
         for (const Shader::Variable* input : appDataBlock.variableOrder)
@@ -297,7 +297,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
 
     // Add vertex data block
     const Shader::VariableBlock& vertexDataBlock = shader.getVertexDataBlock();
-    if (vertexDataBlock.variableOrder.size())
+    if (!vertexDataBlock.empty())
     {
         shader.addLine("out VertexData", false);
         shader.beginScope(Shader::Brackets::BRACES);
@@ -338,28 +338,28 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     shader.newLine();
     emitTypeDefs(shader);
 
+    // Add constants
+    const Shader::VariableBlock& psConstants = shader.getConstantBlock(HwShader::PIXEL_STAGE);
+    if (!psConstants.empty())
+    {
+        shader.addComment("Constant block: " + psConstants.name);
+        emitVariableBlock(psConstants, _syntax->getConstantQualifier(), shader);
+    }
+
     // Add all private uniforms
     const Shader::VariableBlock& psPrivateUniforms = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS);
-    if (psPrivateUniforms.variableOrder.size())
+    if (!psPrivateUniforms.empty())
     {
         shader.addComment("Uniform block: " + psPrivateUniforms.name);
-        for (const Shader::Variable* uniform : psPrivateUniforms.variableOrder)
-        {
-            emitUniform(*uniform, shader);
-        }
-        shader.newLine();
+        emitVariableBlock(psPrivateUniforms, _syntax->getUniformQualifier(), shader);
     }
 
     // Add all public uniforms
     const Shader::VariableBlock& psPublicUniforms = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::PUBLIC_UNIFORMS);
-    if (psPublicUniforms.variableOrder.size())
+    if (!psPublicUniforms.empty())
     {
         shader.addComment("Uniform block: " + psPublicUniforms.name);
-        for (const Shader::Variable* uniform : psPublicUniforms.variableOrder)
-        {
-            emitUniform(*uniform, shader);
-        }
-        shader.newLine();
+        emitVariableBlock(psPublicUniforms, _syntax->getUniformQualifier(), shader);
     }
 
     bool lighting = shader.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE) ||
@@ -383,7 +383,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     }
 
     // Add vertex data block
-    if (vertexDataBlock.variableOrder.size())
+    if (!vertexDataBlock.empty())
     {
         shader.addLine("in VertexData", false);
         shader.beginScope(Shader::Brackets::BRACES);
@@ -723,23 +723,34 @@ void GlslShaderGenerator::toVec4(const TypeDesc* type, string& variable)
     }
 }
 
-void GlslShaderGenerator::emitUniform(const Shader::Variable& uniform, Shader& shader)
+void GlslShaderGenerator::emitVariable(const Shader::Variable& variable, const string& qualifier, Shader& shader)
 {
     // A file texture input needs special handling on GLSL
-    if (uniform.type == Type::FILENAME)
+    if (variable.type == Type::FILENAME)
     {
-        shader.addLine("uniform sampler2D " + uniform.name);
+        // Samplers must always be uniforms
+        shader.addLine("uniform sampler2D " + variable.name);
     }
     else
     {
-        const string& type = _syntax->getTypeName(uniform.type);
-        string line = "uniform " + type + " " + uniform.name;
-        if (uniform.semantic.length())
-            line += " : " + uniform.semantic;
-        if (uniform.value)
-            line += " = " + _syntax->getValue(uniform.type, *uniform.value, true);
+        const string& type = _syntax->getTypeName(variable.type);
+
+        string line = qualifier + " " + type + " " + variable.name;
+        if (variable.semantic.length())
+            line += " : " + variable.semantic;
+        if (variable.value)
+        {
+            // If an arrays we need an array qualifier (suffix) for the variable name
+            string arraySuffix;
+            variable.getArraySuffix(arraySuffix);
+            line += arraySuffix;
+
+            line += " = " + _syntax->getValue(variable.type, *variable.value, true);
+        }
         else
-            line += " = " + _syntax->getDefaultValue(uniform.type, true);
+        {
+            line += " = " + _syntax->getDefaultValue(variable.type, true);
+        }
         shader.addLine(line);
     }
 }

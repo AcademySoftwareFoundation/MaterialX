@@ -51,6 +51,9 @@ protected:
     /// Emit include headers needed by the generated shader code.
     void emitIncludes(Shader& shader);
 
+    /// Emit a shader input variable
+    void emitVariable(const Shader::Variable& variable, const string& qualifier, Shader& shader) override;
+
     bool _remapShaderOutput;
     std::unordered_map<const TypeDesc*, std::pair<const TypeDesc*, string>> _shaderOutputTypeRemap;
 };

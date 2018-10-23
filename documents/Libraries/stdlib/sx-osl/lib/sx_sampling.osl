@@ -1,5 +1,7 @@
 // Restrict to 7x7 kernel size for performance reasons
 #define SX_MAX_SAMPLE_COUNT 49
+// Size of all weights for all levels (including level 1)
+#define SX_WEIGHT_ARRAY_SIZE 84
 
 //
 // Function to compute the sample size relative to a texture coordinate
@@ -10,10 +12,10 @@ vector2 sx_compute_sample_size_uv(vector2 uv, float filterSize, float filterOffs
    vector derivUVy = Dy(vector(uv.x, uv.y, 0.0)) * 0.5;
    float derivX = abs(derivUVx[0]) + abs(derivUVy[0]);
    float derivY = abs(derivUVx[1]) + abs(derivUVy[1]);
-   float sampleSizeU = 2.0 * filterSize * derivX + filterOffset;
+   float sampleSizeU = filterSize * derivX + filterOffset;
    if (sampleSizeU < 1.0E-05)
        sampleSizeU = 1.0E-05;
-   float sampleSizeV = 2.0 * filterSize * derivY + filterOffset;
+   float sampleSizeV = filterSize * derivY + filterOffset;
    if (sampleSizeV < 1.0E-05)
        sampleSizeV = 1.0E-05;
    return vector2(sampleSizeU, sampleSizeV);
@@ -67,12 +69,12 @@ void sx_get_gaussian_weights(output float W[SX_MAX_SAMPLE_COUNT], int filterSize
 // Apply filter for float samples S, using weights W.
 // sampleCount should be a square of a odd number in the range { 1, 3, 5, 7 }
 //
-float sx_convolution_float(float S[SX_MAX_SAMPLE_COUNT], float W[SX_MAX_SAMPLE_COUNT], int sampleCount)
+float sx_convolution_float(float S[SX_MAX_SAMPLE_COUNT], float W[SX_WEIGHT_ARRAY_SIZE], int offset, int sampleCount)
 {
     float result = 0.0;
     for (int i = 0;  i < sampleCount; i++)
     {
-        result += S[i]*W[i];
+        result += S[i]*W[i+offset];
     }
     return result;
 }
@@ -81,12 +83,12 @@ float sx_convolution_float(float S[SX_MAX_SAMPLE_COUNT], float W[SX_MAX_SAMPLE_C
 // Apply filter for vector2 samples S, using weights W.
 // sampleCount should be a square of a odd number in the range { 1, 3, 5, 7 }
 //
-vector2 sx_convolution_vector2(vector2 S[SX_MAX_SAMPLE_COUNT], float W[SX_MAX_SAMPLE_COUNT], int sampleCount)
+vector2 sx_convolution_vector2(vector2 S[SX_MAX_SAMPLE_COUNT], float W[SX_WEIGHT_ARRAY_SIZE], int offset, int sampleCount)
 {
     vector2 result = vector2(0.0, 0.0);
     for (int i=0;  i<sampleCount; i++)
     {
-        result += S[i]*W[i];
+        result += S[i]*W[i+offset];
     }
     return result;
 }
@@ -95,12 +97,12 @@ vector2 sx_convolution_vector2(vector2 S[SX_MAX_SAMPLE_COUNT], float W[SX_MAX_SA
 // Apply filter for vector samples S, using weights W.
 // sampleCount should be a square of a odd number in the range { 1, 3, 5, 7 }
 //
-vector sx_convolution_vector(vector S[SX_MAX_SAMPLE_COUNT], float W[SX_MAX_SAMPLE_COUNT], int sampleCount)
+vector sx_convolution_vector(vector S[SX_MAX_SAMPLE_COUNT], float W[SX_WEIGHT_ARRAY_SIZE], int offset, int sampleCount)
 {
     vector result = vector(0.0, 0.0, 0.0);
     for (int i=0;  i<sampleCount; i++)
     {
-        result += S[i]*W[i];
+        result += S[i]*W[i+offset];
     }
     return result;
 }
@@ -109,12 +111,12 @@ vector sx_convolution_vector(vector S[SX_MAX_SAMPLE_COUNT], float W[SX_MAX_SAMPL
 // Apply filter for vector4 samples S, using weights W.
 // sampleCount should be a square of a odd number { 1, 3, 5, 7 }
 //
-vector4 sx_convolution_vector4(vector4 S[SX_MAX_SAMPLE_COUNT], float W[SX_MAX_SAMPLE_COUNT], int sampleCount)
+vector4 sx_convolution_vector4(vector4 S[SX_MAX_SAMPLE_COUNT], float W[SX_WEIGHT_ARRAY_SIZE], int offset, int sampleCount)
 {
     vector4 result = vector4(0.0, 0.0, 0.0, 0.0);
     for (int i=0;  i<sampleCount; i++)
     {
-        result += S[i]*W[i];
+        result += S[i]*W[i+offset];
     }
     return result;
 }
@@ -123,12 +125,12 @@ vector4 sx_convolution_vector4(vector4 S[SX_MAX_SAMPLE_COUNT], float W[SX_MAX_SA
 // Apply filter for color2 samples S, using weights W.
 // sampleCount should be a square of a odd number in the range { 1, 3, 5, 7 }
 //
-color2 sx_convolution_color2(color2 S[SX_MAX_SAMPLE_COUNT], float W[SX_MAX_SAMPLE_COUNT], int sampleCount)
+color2 sx_convolution_color2(color2 S[SX_MAX_SAMPLE_COUNT], float W[SX_WEIGHT_ARRAY_SIZE], int offset, int sampleCount)
 {
     color2 result = color2(0.0, 0.0);
     for (int i=0;  i<sampleCount; i++)
     {
-        result += S[i]*W[i];
+        result += S[i]*W[i+offset];
     }
     return result;
 }
@@ -137,12 +139,12 @@ color2 sx_convolution_color2(color2 S[SX_MAX_SAMPLE_COUNT], float W[SX_MAX_SAMPL
 // Apply filter for color samples S, using weights W.
 // sampleCount should be a square of a odd number in the range { 1, 3, 5, 7 }
 //
-color sx_convolution_color(color S[SX_MAX_SAMPLE_COUNT], float W[SX_MAX_SAMPLE_COUNT], int sampleCount)
+color sx_convolution_color(color S[SX_MAX_SAMPLE_COUNT], float W[SX_WEIGHT_ARRAY_SIZE], int offset, int sampleCount)
 {
     color result = color(0.0);
     for (int i=0;  i<sampleCount; i++)
     {
-        result += S[i]*W[i];
+        result += S[i]*W[i+offset];
     }
     return result;
 }
@@ -151,12 +153,12 @@ color sx_convolution_color(color S[SX_MAX_SAMPLE_COUNT], float W[SX_MAX_SAMPLE_C
 // Apply filter for color4 samples S, using weights W.
 // sampleCount should be a square of a odd number { 1, 3, 5, 7 }
 //
-color4 sx_convolution_color4(color4 S[SX_MAX_SAMPLE_COUNT], float W[SX_MAX_SAMPLE_COUNT], int sampleCount)
+color4 sx_convolution_color4(color4 S[SX_MAX_SAMPLE_COUNT], float W[SX_WEIGHT_ARRAY_SIZE], int offset, int sampleCount)
 {
     color4 result = color4(color(0.0, 0.0, 0.0), 0.0);
     for (int i=0;  i<sampleCount; i++)
     {
-        result += S[i]*W[i];
+        result += S[i]*W[i+offset];
     }
     return result;
 }
