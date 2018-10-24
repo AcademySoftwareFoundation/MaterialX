@@ -215,7 +215,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     if (!psConstants.empty())
     {
         shader.addComment("Constant block: " + psConstants.name);
-        emitVariableBlock(psConstants, _syntax->getUniformQualifier(), shader);
+        emitVariableBlock(psConstants, _syntax->getConstantQualifier(), shader);
     }
 
     // Add main function
