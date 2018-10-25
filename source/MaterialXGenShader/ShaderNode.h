@@ -219,7 +219,7 @@ class ShaderNode
     /// Return the set of contexts id's for the contexts used for this node.
     const std::set<int>& getContextIDs() const { return _contextIDs; }
 
-  protected:
+  protected:      
     string _name;
     unsigned int _classification;
 

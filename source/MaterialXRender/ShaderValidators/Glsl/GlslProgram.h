@@ -90,13 +90,16 @@ class GlslProgram
         /// Input value. Will only be non-empty if initialized stages with a HwShader and a value was set during
         /// shader generation.
         MaterialX::ValuePtr value;
+        /// Is this a constant
+        bool isConstant;
 
         /// Program input constructor
         Input(int inputLocation, int inputType, int inputSize)
             : location(inputLocation)
             , gltype(inputType)
             , size(inputSize)
-        {}
+            , isConstant(false)
+        { }
     };
     /// Program input structure shared pointer type
     using InputPtr = std::shared_ptr<Input>;

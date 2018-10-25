@@ -206,10 +206,24 @@ ShaderNodePtr ShaderNode::create(const string& name, const NodeDef& nodeDef, Sha
         }
         else
         {
-            ShaderInput* input = newNode->addInput(elem->getName(), TypeDesc::get(elem->getType()));
-            if (!elem->getValueString().empty())
+            ShaderInput* input = nullptr;
+            const string& elemType = elem->getType();
+            string implType = elemType;
+            ValuePtr implValue = getImplementationValue(elem, impl, nodeDef, implType);
+            if (implValue)
             {
-                input->value = elem->getValue();
+                const TypeDesc* implTypeDesc = TypeDesc::get(implType);
+                input = newNode->addInput(elem->getName(), implTypeDesc);
+                input->value = implValue;
+            }
+            else
+            {
+                const TypeDesc* elemeTypeDesc = TypeDesc::get(elemType);
+                input = newNode->addInput(elem->getName(), elemeTypeDesc);
+                if (!elem->getValueString().empty())
+                {
+                    input->value = elem->getValue();
+                }
             }
 
             // Determine if this input can be sampled
@@ -233,12 +247,22 @@ ShaderNodePtr ShaderNode::create(const string& name, const NodeDef& nodeDef, Sha
         const vector<ValueElementPtr> nodeInstanceInputs = nodeInstance->getChildrenOfType<ValueElement>();
         for (const ValueElementPtr& elem : nodeInstanceInputs)
         {
-            if (!elem->getValueString().empty())
+            const string& elemValueString = elem->getValueString();
+            if (!elemValueString.empty())
             {
                 ShaderInput* input = newNode->getInput(elem->getName());
                 if (input)
-                {       
-                    input->value = elem->getValue();
+                {
+                    string implType;
+                    ValuePtr value = getImplementationValue(elem, impl, nodeDef, implType);
+                    if (value)
+                    {
+                        input->value = value;
+                    }
+                    else if (!elemValueString.empty())
+                    {
+                        input->value = elem->getValue();
+                    }
                 }
             }
         }

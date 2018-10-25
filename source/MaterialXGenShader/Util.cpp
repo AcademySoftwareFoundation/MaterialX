@@ -447,4 +447,80 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
     return false;
 }
 
+ValuePtr getImplementationValue(const ValueElementPtr& elem, const InterfaceElementPtr impl, const NodeDef& nodeDef,
+                                string& implType) 
+{
+    const string& valueElementName = elem->getName();
+    const string& valueString = elem->getValueString();
+
+    ParameterPtr implParam = impl->getParameter(valueElementName);
+    if (!implParam)
+    {
+        return nullptr;
+    }
+
+    ValueElementPtr nodedefElem = nodeDef.getChildOfType<ValueElement>(valueElementName);
+    if (!nodedefElem)
+    {
+        return nullptr;
+    }
+
+    const string& elemType = elem->getType();
+    implType = implParam->getAttribute(ValueElement::IMPLEMENTATION_TYPE_ATTRIBUTE);
+    if (implType.empty())
+    {
+        implType = elemType;
+    }
+    const TypeDesc* implTypeDesc = TypeDesc::get(implType);
+    if (implTypeDesc->isArray())
+    {
+        return nullptr;
+    }
+    const string& implEnums = implParam->getAttribute(ValueElement::ENUM_VALUES_ATTRIBUTE);
+    if (implType.empty() || implEnums.empty())
+    {
+        return nullptr;
+    }
+
+    const string nodedefElemEnums = nodedefElem->getAttribute(ValueElement::ENUM_ATTRIBUTE);
+    if (nodedefElemEnums.empty())
+    {
+        return nullptr;
+    }
+
+    // Find the list index of the Value string in list fo nodedef enums.
+    // Use this index to lookup the implementation list value.
+    int implIndex = -1;
+    StringVec implEnumsVec = splitString(implEnums, ",");
+    size_t implTypeDescSize = implTypeDesc->getSize();
+    size_t implEnumsVecCount = implEnumsVec.size() / implTypeDescSize;
+
+    StringVec nodedefElemEnumsVec = splitString(nodedefElemEnums, ",");
+    const TypeDesc* elemTypeDesc = TypeDesc::get(elemType);
+    size_t nodedefElemEnumVecCount = nodedefElemEnumsVec.size() / elemTypeDesc->getSize();
+
+    if (implEnumsVecCount == nodedefElemEnumVecCount)
+    {
+        auto pos = std::find(nodedefElemEnumsVec.begin(), nodedefElemEnumsVec.end(), valueString);
+        if (pos != nodedefElemEnumsVec.end())
+        {
+            implIndex = static_cast<int>(std::distance(nodedefElemEnumsVec.begin(), pos));
+        }
+    }
+    // There is no mapping or no value string so just choose the first implementation list string.
+    if (implIndex < 0)
+    {
+        implIndex = 0;
+    }
+
+    // Build a string out to create a value from
+    size_t startIndex = implIndex * implTypeDescSize;
+    string newValueString(implEnumsVec[startIndex]);
+    for (size_t i = 1; i < implTypeDescSize; i++)
+    {
+        newValueString.append("," + implEnumsVec[startIndex + i]);
+    }
+    return Value::createValueFromStrings(newValueString, implType);
+}
+
 } // namespace MaterialX

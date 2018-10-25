@@ -5,6 +5,7 @@
 
 #include <MaterialXCore/Library.h>
 #include <MaterialXCore/Element.h>
+#include <MaterialXCore/Interface.h>
 
 namespace MaterialX
 {
@@ -43,6 +44,26 @@ string getFileExtension(const string& filename);
 /// target application.
 ///
 bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen);
+
+///
+/// Given a nodedef and corresponding implementation, return the
+/// implementation value if any for a value.
+///
+/// An implementation value will be returned if:
+/// - There is a implementation Parametner with the same name as the input Value 
+/// - There is a nodedef Value with the same name as the input Value 
+/// - There is a enumeration and type specified on the implementation Parameter 
+/// - There is a enumeration and type specified on the nodedef Value
+///
+/// @param elem Value element input
+/// @param impl Implementation to use
+/// @param nodeDef Node definition to use
+/// @param implType Implementation type (if any) specified.
+/// @return Implementation value. Null if could not be evaluated
+///
+ValuePtr getImplementationValue(const ValueElementPtr& elem, const InterfaceElementPtr impl, const NodeDef& nodeDef,
+                                string& implType);
+
 
 } // namespace MaterialX
 

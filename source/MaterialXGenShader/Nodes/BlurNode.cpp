@@ -28,34 +28,6 @@ namespace MaterialX
         return std::shared_ptr<BlurNode>(new BlurNode());
     }
 
-    void BlurNode::createVariables(const ShaderNode& node, ShaderGenerator& shadergen, Shader& shader)
-    {
-        ParentClass::createVariables(node, shadergen, shader);
-
-        if (!shadergen.getSyntax()->typeSupported(Type::STRING))
-        {
-            // Map the filter type string to a filter type int
-            const string FILTER_TYPE_STRING("filtertype");
-            const ShaderInput* filterTypeInput = node.getInput(FILTER_TYPE_STRING);
-            if (!filterTypeInput)
-            {
-                throw ExceptionShaderGenError("Node '" + node.getName() + "' is not a valid Blur node");
-            }
-            int filterTypeInt = 0;
-            if (filterTypeInput->value)
-            {
-                // Use Gaussian filter.
-                if (filterTypeInput->value->getValueString() == GAUSSIAN_FILTER)
-                {
-                    filterTypeInt = 1;
-                }
-            }
-            const string uniformName = node.getName() + "_" + "filtertypeInt";
-            shader.createUniform(Shader::PIXEL_STAGE, Shader::PUBLIC_UNIFORMS, Type::INTEGER, uniformName, EMPTY_STRING, Value::createValue<int>(filterTypeInt));
-        }
-    }
-
-
     void BlurNode::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings)
     {
         offsetStrings.clear();
@@ -208,7 +180,8 @@ namespace MaterialX
                 }
                 else
                 {
-                    shader.addStr(node.getName() + "_" + "filtertypeInt == 1)");
+                    shadergen.emitInput(context, filterTypeInput, shader);
+                    shader.addStr(" == 1)");
                 }
                 shader.endLine(false);
 

@@ -1061,6 +1061,26 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
         // i.e the type indicated by the HwShader does not match what was generated.
         bool uniformTypeMismatchFound = false;
 
+        /// Return constant block of variables for a stage.
+        const MaterialX::Shader::VariableBlock& pixelShaderConstants = _hwShader->getConstantBlock(HwShader::PIXEL_STAGE);
+        for (const MaterialX::Shader::Variable* input : pixelShaderConstants.variableOrder)
+        {
+            // There is no way to match with an unnamed variable
+            if (input->name.empty())
+            {
+                continue;
+            }
+
+            InputPtr inputPtr = std::make_shared<Input>(-1, -1, static_cast<int>(input->type->getSize()));
+            _uniformList[input->name] = inputPtr;
+            inputPtr->isConstant = true;
+            if (input->value)
+            {
+                inputPtr->value = input->value;
+            }
+            inputPtr->typeString = input->type->getName();
+        }
+
         /// Return all blocks of uniform variables for a stage.
         const std::string LIGHT_DATA_STRING("LightData");
         const MaterialX::Shader::VariableBlockMap& pixelShaderUniforms = _hwShader->getUniformBlocks(HwShader::PIXEL_STAGE);
@@ -1321,12 +1341,14 @@ void GlslProgram::printUniforms(std::ostream& outputStream)
         int size = input.second->size;
         std::string type = input.second->typeString;
         std::string value = input.second->value ? input.second->value->getValueString() : "<none>";
+        bool isConstant = input.second->isConstant;
         outputStream << "Program Uniform: \"" << input.first
             << "\". Location:" << location
             << ". GLtype: " << std::hex << gltype
             << ". Size: " << std::dec << size
             << ". TypeString:" << type
-            << ". Value: " << value << "."
+            << ". Value: " << value 
+            << ". Is constant: " << isConstant << "."
             << std::endl;
     }
 }
