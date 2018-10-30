@@ -10,6 +10,8 @@ Basic triplanar mapping unit test.
       <parameter name="filex" type="filename" value="documents/Images/MaterialXLogo.exr" />
       <parameter name="filey" type="filename" value="documents/Images/MaterialXLogo.exr" />
       <parameter name="filez" type="filename" value="documents/Images/MaterialXLogo.exr" />
+      <parameter name="filtertype" type="string" value="cubic"/>
+      <parameter name="frameendaction" type="string" value="clamp"/>
    </triplanarprojection>
 
    <output name="triplanarprojection_3_output" type="color3" nodename="triplanarprojection_3" />
@@ -17,6 +19,8 @@ Basic triplanar mapping unit test.
       <parameter name="filex" type="filename" value="documents/Images/MaterialXLogo.exr" />
       <parameter name="filey" type="filename" value="documents/Images/MaterialXLogo.exr" />
       <parameter name="filez" type="filename" value="documents/Images/MaterialXLogo.exr" />
+      <parameter name="filtertype" type="string" value="cubic"/>
+      <parameter name="frameendaction" type="string" value="clamp"/>
    </triplanarprojection>
 
    <output name="triplanarprojection_2_output" type="color2" nodename="triplanarprojection_2" />
@@ -24,6 +28,8 @@ Basic triplanar mapping unit test.
       <parameter name="filex" type="filename" value="documents/Images/MaterialXLogo.exr" />
       <parameter name="filey" type="filename" value="documents/Images/MaterialXLogo.exr" />
       <parameter name="filez" type="filename" value="documents/Images/MaterialXLogo.exr" />
+      <parameter name="filtertype" type="string" value="cubic"/>
+      <parameter name="frameendaction" type="string" value="clamp"/>
    </triplanarprojection>
 
    <output name="triplanarprojection_1_output" type="float" nodename="triplanarprojection_1" />
@@ -31,6 +37,8 @@ Basic triplanar mapping unit test.
       <parameter name="filex" type="filename" value="documents/Images/MaterialXLogo.exr" />
       <parameter name="filey" type="filename" value="documents/Images/MaterialXLogo.exr" />
       <parameter name="filez" type="filename" value="documents/Images/MaterialXLogo.exr" />
+      <parameter name="filtertype" type="string" value="cubic"/>
+      <parameter name="frameendaction" type="string" value="clamp"/>
    </triplanarprojection>
 
    <output name="triplanarprojection_4v_output" type="vector4" nodename="triplanarprojection_4v" />
@@ -38,6 +46,8 @@ Basic triplanar mapping unit test.
       <parameter name="filex" type="filename" value="documents/Images/MaterialXLogo.exr" />
       <parameter name="filey" type="filename" value="documents/Images/MaterialXLogo.exr" />
       <parameter name="filez" type="filename" value="documents/Images/MaterialXLogo.exr" />
+      <parameter name="filtertype" type="string" value="cubic"/>
+      <parameter name="frameendaction" type="string" value="clamp"/>
    </triplanarprojection>
 
    <output name="triplanarprojection_3v_output" type="vector3" nodename="triplanarprojection_3v" />
@@ -45,6 +55,8 @@ Basic triplanar mapping unit test.
       <parameter name="filex" type="filename" value="documents/Images/MaterialXLogo.exr" />
       <parameter name="filey" type="filename" value="documents/Images/MaterialXLogo.exr" />
       <parameter name="filez" type="filename" value="documents/Images/MaterialXLogo.exr" />
+      <parameter name="filtertype" type="string" value="cubic"/>
+      <parameter name="frameendaction" type="string" value="clamp"/>
    </triplanarprojection>
 
    <output name="triplanarprojection_2v_output" type="vector2" nodename="triplanarprojection_2v" />
@@ -52,5 +64,7 @@ Basic triplanar mapping unit test.
       <parameter name="filex" type="filename" value="documents/Images/MaterialXLogo.exr" />
       <parameter name="filey" type="filename" value="documents/Images/MaterialXLogo.exr" />
       <parameter name="filez" type="filename" value="documents/Images/MaterialXLogo.exr" />
+      <parameter name="filtertype" type="string" value="cubic"/>
+      <parameter name="frameendaction" type="string" value="clamp"/>
    </triplanarprojection>
 </materialx>

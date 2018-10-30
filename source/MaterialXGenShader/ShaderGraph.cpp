@@ -22,16 +22,31 @@ ShaderGraph::ShaderGraph(const string& name, DocumentPtr document)
 {
 }
 
-void ShaderGraph::addInputSockets(const InterfaceElement& elem)
+void ShaderGraph::addInputSockets(const InterfaceElement& elem, ShaderGenerator& shadergen)
 {
     for (ValueElementPtr port : elem.getChildrenOfType<ValueElement>())
     {
         if (!port->isA<Output>())
         {
-            ShaderGraphInputSocket* inputSocket = addInputSocket(port->getName(), TypeDesc::get(port->getType()));
-            if (!port->getValueString().empty())
+            ShaderGraphInputSocket* inputSocket = nullptr;
+            const TypeDesc* enumerationType = nullptr;
+            ValuePtr enumValue = shadergen.remapEnumeration(port, elem, enumerationType);
+            if (enumerationType)
             {
-                inputSocket->value = port->getValue();
+                inputSocket = addInputSocket(port->getName(), enumerationType);
+                if (enumValue)
+                {
+                    inputSocket->value = enumValue;
+                }
+            }
+            else
+            {
+                const string& elemType = port->getType();
+                inputSocket = addInputSocket(port->getName(), TypeDesc::get(elemType));
+                if (!port->getValueString().empty())
+                {
+                    inputSocket->value = port->getValue();
+                }
             }
         }
     }
@@ -170,7 +185,18 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomProp& geompro
             ShaderInput* spaceInput = geomNodePtr->getInput("space");
             if (spaceInput)
             {
-                spaceInput->value = Value::createValue<string>(space);
+                const TypeDesc* enumerationType = nullptr;
+                const string& inputName("space");
+                const string& inputType("string");
+                ValuePtr value = shadergen.remapEnumeration(inputName, space, inputType, *geomNodeDef, enumerationType);
+                if (value)
+                {
+                    spaceInput->value = value;
+                }
+                else
+                {
+                    spaceInput->value = Value::createValue<string>(space);
+                }
             }
         }
         const string& index = geomprop.getIndex();
@@ -246,7 +272,7 @@ ShaderGraphPtr ShaderGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shad
     graph->_classification = 0;
 
     // Create input sockets from the nodedef
-    graph->addInputSockets(*nodeDef);
+    graph->addInputSockets(*nodeDef, shadergen);
 
     // Create output sockets from the nodegraph
     graph->addOutputSockets(*nodeGraph);
@@ -306,7 +332,7 @@ ShaderGraphPtr ShaderGraph::create(const string& name, ElementPtr element, Shade
         graph->_classification = 0;
 
         // Create input sockets
-        graph->addInputSockets(*interface);
+        graph->addInputSockets(*interface, shadergen);
 
         // Create the given output socket
         graph->addOutputSocket(output->getName(), TypeDesc::get(output->getType()));
@@ -327,7 +353,7 @@ ShaderGraphPtr ShaderGraph::create(const string& name, ElementPtr element, Shade
         graph = std::make_shared<ShaderGraph>(name, element->getDocument());
 
         // Create input sockets
-        graph->addInputSockets(*nodeDef);
+        graph->addInputSockets(*nodeDef, shadergen);
 
         // Create output sockets
         graph->addOutputSockets(*nodeDef);
@@ -458,6 +484,7 @@ ShaderNode* ShaderGraph::addNode(const Node& node, ShaderGenerator& shadergen)
                 throw ExceptionShaderGenError("Interface name '" + interfaceName + "' doesn't match an existing input on nodegraph '" + getName() + "'");
             }
             ShaderInput* input = newNode->getInput(elem->getName());
+
             if (input)
             {
                 input->makeConnection(inputSocket);

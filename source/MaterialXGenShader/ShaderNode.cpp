@@ -207,19 +207,20 @@ ShaderNodePtr ShaderNode::create(const string& name, const NodeDef& nodeDef, Sha
         else
         {
             ShaderInput* input = nullptr;
-            const string& elemType = elem->getType();
-            string implType = elemType;
-            ValuePtr implValue = getImplementationValue(elem, impl, nodeDef, implType);
-            if (implValue)
+            const TypeDesc* enumerationType = nullptr;
+            ValuePtr enumValue = shadergen.remapEnumeration(elem, nodeDef, enumerationType);
+            if (enumerationType)
             {
-                const TypeDesc* implTypeDesc = TypeDesc::get(implType);
-                input = newNode->addInput(elem->getName(), implTypeDesc);
-                input->value = implValue;
+                input = newNode->addInput(elem->getName(), enumerationType);
+                if (enumValue)
+                {
+                    input->value = enumValue;
+                }
             }
             else
             {
-                const TypeDesc* elemeTypeDesc = TypeDesc::get(elemType);
-                input = newNode->addInput(elem->getName(), elemeTypeDesc);
+                const TypeDesc* elemTypeDesc = TypeDesc::get(elem->getType());
+                input = newNode->addInput(elem->getName(), elemTypeDesc);
                 if (!elem->getValueString().empty())
                 {
                     input->value = elem->getValue();
@@ -248,21 +249,18 @@ ShaderNodePtr ShaderNode::create(const string& name, const NodeDef& nodeDef, Sha
         for (const ValueElementPtr& elem : nodeInstanceInputs)
         {
             const string& elemValueString = elem->getValueString();
-            if (!elemValueString.empty())
+            ShaderInput* input = newNode->getInput(elem->getName());
+            if (input)
             {
-                ShaderInput* input = newNode->getInput(elem->getName());
-                if (input)
+                const TypeDesc* enumerationType = nullptr;
+                ValuePtr value = shadergen.remapEnumeration(elem, nodeDef, enumerationType);
+                if (value)
                 {
-                    string implType;
-                    ValuePtr value = getImplementationValue(elem, impl, nodeDef, implType);
-                    if (value)
-                    {
-                        input->value = value;
-                    }
-                    else if (!elemValueString.empty())
-                    {
-                        input->value = elem->getValue();
-                    }
+                    input->value = value;
+                }
+                else if (!elemValueString.empty())
+                {
+                    input->value = elem->getValue();
                 }
             }
         }

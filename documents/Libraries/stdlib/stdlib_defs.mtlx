@@ -1081,7 +1081,7 @@
     as defined in a specific coordinate space.
   -->
   <nodedef name="ND_position_vector3" node="position" type="vector3" nodegroup="geometric" default="0.0, 0.0, 0.0">
-    <parameter name="space" type="string" value="object"/>
+    <parameter name="space" type="string" value="object" enum="model,object,world"/>
   </nodedef>
 
   <!--
@@ -1090,7 +1090,7 @@
     as defined in a specific coordinate space.
   -->
   <nodedef name="ND_normal_vector3" node="normal" type="vector3" nodegroup="geometric" default="0.0, 1.0, 0.0">
-    <parameter name="space" type="string" value="object"/>
+    <parameter name="space" type="string" value="object" enum="model,object,world"/>
   </nodedef>
 
   <!--
@@ -1099,7 +1099,7 @@
     as defined in a specific coordinate space.
   -->
   <nodedef name="ND_tangent_vector3" node="tangent" type="vector3" nodegroup="geometric" default="1.0, 0.0, 0.0">
-    <parameter name="space" type="string" value="object"/>
+    <parameter name="space" type="string" value="object" enum="model,object,world"/>
     <parameter name="index" type="integer" value="0"/>
   </nodedef>
 
@@ -1109,7 +1109,7 @@
     as defined in a specific coordinate space.
   -->
   <nodedef name="ND_bitangent_vector3" node="bitangent" type="vector3" nodegroup="geometric" default="0.0, 0.0, 1.0">
-    <parameter name="space" type="string" value="object"/>
+    <parameter name="space" type="string" value="object" enum="model,object,world"/>
     <parameter name="index" type="integer" value="0"/>
   </nodedef>
 
@@ -1218,7 +1218,7 @@
     The current scene view direction, as defined by the shading environment.
   -->
   <nodedef name="ND_viewdirection_vector3" node="viewdirection" type="vector3" nodegroup="application" default="0.0, 0.0, 1.0">
-    <parameter name="space" type="string" value="world"/>
+    <parameter name="space" type="string" value="world" name="space"/>
   </nodedef>
 
 

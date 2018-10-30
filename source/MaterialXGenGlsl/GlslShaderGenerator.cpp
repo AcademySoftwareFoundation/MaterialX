@@ -770,6 +770,66 @@ ShaderNodeImplPtr GlslShaderGenerator::createCompoundImplementation(NodeGraphPtr
 }
 
 
+ValuePtr GlslShaderGenerator::remapEnumeration(const ValueElementPtr& input, const InterfaceElement& mappingElement, const TypeDesc*& enumerationType)
+{
+    const string& inputName = input->getName();
+    const string& inputValue = input->getValueString();
+    const string& inputType = input->getType();
+
+    return remapEnumeration(inputName, inputValue, inputType, mappingElement, enumerationType);
+}
+
+ValuePtr GlslShaderGenerator::remapEnumeration(const string& inputName, const string& inputValue, const string& inputType, const InterfaceElement& mappingElement, const TypeDesc*& enumerationType)
+{
+
+    enumerationType = nullptr;
+
+    ValueElementPtr valueElem = mappingElement.getChildOfType<ValueElement>(inputName);
+    if (!valueElem)
+    {
+        return nullptr;
+    }
+
+    // Don't convert file names and arrays to integers
+    const TypeDesc* inputTypeDesc = TypeDesc::get(inputType);
+    if (inputTypeDesc->isArray() || inputTypeDesc == Type::FILENAME)
+    {
+        return nullptr;
+    }
+    // Don't convert supported types
+    if (getSyntax()->typeSupported(inputTypeDesc))
+    {
+        return nullptr;
+    }
+
+    // Skip any elements which have no enumerations
+    const string valueElemEnums = valueElem->getAttribute(ValueElement::ENUM_ATTRIBUTE);
+    if (valueElemEnums.empty())
+    {
+        return nullptr;
+    }
+
+    // Always update the type. For GLSL we always convert to integers,
+    // with the integer value being an index into the enumeration.
+    enumerationType = TypeDesc::get(TypedValue<int>::TYPE);
+
+    // Update the return value if any was specified. If the value
+    // cannot be found always return a default value of 0 to provide some mapping.
+    ValuePtr returnValue = nullptr;
+    if (inputValue.size())
+    {
+        int integerValue = 0;
+        StringVec valueElemEnumsVec = splitString(valueElemEnums, ",");
+        auto pos = std::find(valueElemEnumsVec.begin(), valueElemEnumsVec.end(), inputValue);
+        if (pos != valueElemEnumsVec.end())
+        {
+            integerValue = static_cast<int>(std::distance(valueElemEnumsVec.begin(), pos));
+        }
+        returnValue = Value::createValue<int>(integerValue);
+    }
+    return returnValue;
+}
+
 const string GlslImplementation::SPACE = "space";
 const string GlslImplementation::WORLD = "world";
 const string GlslImplementation::OBJECT = "object";
