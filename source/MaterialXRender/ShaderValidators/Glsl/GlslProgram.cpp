@@ -13,6 +13,10 @@ unsigned int GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID = 0;
 int GlslProgram::UNDEFINED_OPENGL_PROGRAM_LOCATION = -1;
 int GlslProgram::Input::INVALID_OPENGL_TYPE = -1;
 
+// Shader constants
+static string RADIANCE_ENV_UNIFORM_NAME("u_envSpecular");
+static string IRRADIANCE_ENV_UNIFORM_NAME("u_envIrradiance");
+
 //
 // Creator
 //
@@ -27,7 +31,9 @@ GlslProgram::GlslProgram() :
     _indexBuffer(0),
     _indexBufferSize(0),
     _vertexArray(0),
-    _dummyTexture(0)
+    _dummyTexture(0),
+    _maxImageUnits(-1),
+    _textureUnitsInUse(0)
 {
 }
 
@@ -300,13 +306,30 @@ void GlslProgram::bindInputs(ViewHandlerPtr viewHandler,
     bindGeometry(geometryHandler);
     bindTextures(imageHandler);
     bindTimeAndFrame();
-    bindLighting(lightHandler);
+    bindLighting(lightHandler, imageHandler);
+
+    // Set up raster state for transparency as needed
+    if (_hwShader->hasTransparency())
+    {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+    else
+    {
+        glDisable(GL_BLEND);
+    }
 }
 
 void GlslProgram::unbindInputs()
 {
     unbindTextures();
     unbindGeometry();
+
+    // Clean up raster state if transparency was set in bindInputs()
+    if (_hwShader->hasTransparency())
+    {
+        glDisable(GL_BLEND);
+    }
 }
 
 void GlslProgram::bindAttribute(const MaterialX::GlslProgram::InputMap& inputs, GeometryHandlerPtr geometryHandler)
@@ -491,29 +514,14 @@ void GlslProgram::unbindGeometry()
 
 void GlslProgram::unbindTextures()
 {
-    int textureUnit = 0;
-    GLint maxImageUnits = -1;
-    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxImageUnits);
-    const MaterialX::GlslProgram::InputMap& uniformList = getUniformsList();
-    for (auto uniform : uniformList)
-    {
-        GLenum uniformType = uniform.second->gltype;
-        GLint uniformLocation = uniform.second->location;
-        if (uniformLocation >= 0 &&
-            uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
-        {
-            if (textureUnit >= maxImageUnits)
-            {
-                break;
-            }
-
-            // Unbind a texture to that unit
-            glActiveTexture(GL_TEXTURE0 + textureUnit);
-            glBindTexture(GL_TEXTURE_2D, MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
-            checkErrors();
-            textureUnit++;
-        }
+    for (GLint i=0; i<_textureUnitsInUse; i++)
+    { 
+        // Unbind a texture to that unit
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
+        checkErrors();
     }
+    _textureUnitsInUse = 0;
 
     // Delete any allocated textures
     if (_dummyTexture != MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
@@ -521,11 +529,11 @@ void GlslProgram::unbindTextures()
         glDeleteTextures(1, &_dummyTexture);
         _dummyTexture = MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
     }
-    for (auto id : _programTextures)
+    for (auto iter : _programTextures)
     {
-        if (id != MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
+        if (iter.second != MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
         {
-            glDeleteTextures(1, &id);
+            glDeleteTextures(1, &iter.second);
         }
     }
     _programTextures.clear();
@@ -560,6 +568,85 @@ void GlslProgram::createDummyTexture(ImageHandlerPtr imageHandler)
     }
 }
 
+bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, const string& fileName,  
+                              ImageHandlerPtr imageHandler, bool generateMipMaps)
+{
+    bool textureBound = false;
+
+    if (uniformLocation >= 0 &&
+        uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
+    {
+        // Use next available slot
+        if (_maxImageUnits < 0)
+        {
+            glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_maxImageUnits);
+        }
+        if (_textureUnitsInUse >= _maxImageUnits)
+        {
+            return false;
+        }
+        
+        // Map location to a texture unit
+        glUniform1i(uniformLocation, _textureUnitsInUse);
+        // Bind a texture to that unit
+        glActiveTexture(GL_TEXTURE0 + _textureUnitsInUse);
+
+        if (!fileName.empty() && imageHandler)
+        {
+            // Check to see if we have already loaded in the texture.
+            // If so, reuse the existing texture id
+            auto it = _programTextures.find(fileName);
+            if (it != _programTextures.end())
+            {
+                glBindTexture(GL_TEXTURE_2D, it->second);
+            }
+            else
+            { 
+                unsigned int width = 0;
+                unsigned int height = 0;
+                unsigned int channelCount = 0;
+                float* buffer = nullptr;
+                if (imageHandler->loadImage(fileName, width, height, channelCount, &buffer) &&
+                    (channelCount == 3 || channelCount == 4))
+                {
+                    unsigned int newTexture = MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
+                    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+                    glGenTextures(1, &newTexture);
+                    glBindTexture(GL_TEXTURE_2D, newTexture);
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height,
+                        0, (channelCount == 4 ? GL_RGBA : GL_RGB), GL_FLOAT, buffer);
+                    if (generateMipMaps)
+                    {
+                        glGenerateMipmap(GL_TEXTURE_2D);
+                    }
+
+                    free(buffer);
+                    buffer = nullptr;
+
+                    // Keep track of texture created using file name as the unique key
+                    _programTextures[fileName] = newTexture;
+
+                    textureBound = true;
+                }
+            }
+        }
+
+        if (!textureBound)
+        {
+            createDummyTexture(imageHandler);
+            glBindTexture(GL_TEXTURE_2D, _dummyTexture); // Bind a dummy texture
+            textureBound = true;
+        }
+    }
+
+    if (textureBound)
+    {
+        _textureUnitsInUse++;
+    }
+
+    return textureBound;
+}
+
 void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
 {
     ShaderValidationErrorList errors;
@@ -577,11 +664,6 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
     }
 
     // Bind textures based on uniforms found in the program
-    int textureUnit = 0;
-    GLint maxImageUnits = -1;
-    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxImageUnits);
-    // Keep track of all textures read in
-    _programTextures.clear();
     const MaterialX::GlslProgram::InputMap& uniformList = getUniformsList();
     for (auto uniform : uniformList)
     {
@@ -590,49 +672,16 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
         if (uniformLocation >= 0 &&
             uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
         {
-            if (textureUnit >= maxImageUnits)
+            const std::string fileName(uniform.second->value ? uniform.second->value->getValueString() : "");
+            
+            // Skip binding if nothing to bind or if is a lighting texture.
+            // Lighting textures are handled in the bindLighting() call
+            if (!fileName.empty() &&
+                fileName != RADIANCE_ENV_UNIFORM_NAME &&
+                fileName != IRRADIANCE_ENV_UNIFORM_NAME)
             {
-                break;
+                bindTexture(uniformType, uniformLocation, fileName, imageHandler, true);
             }
-
-            // Map location to a texture unit incrementally
-            glUniform1i(uniformLocation, textureUnit);
-            // Bind a texture to that unit
-            glActiveTexture(GL_TEXTURE0 + textureUnit);
-
-            bool textureBound = false;
-            std::string fileName(uniform.second->value ? uniform.second->value->getValueString() : "");
-            if (!fileName.empty() && imageHandler)
-            {
-                unsigned int width = 0;
-                unsigned int height = 0;
-                unsigned int channelCount = 0;
-                float* buffer = nullptr;
-                if (imageHandler->loadImage(fileName, width, height, channelCount, &buffer) &&
-                    (channelCount == 3 || channelCount == 4))
-                {
-                    unsigned int newTexture = MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
-                    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-                    glGenTextures(1, &newTexture);
-                    // Keep track of texture created
-                    _programTextures.push_back(newTexture);
-
-                    glBindTexture(GL_TEXTURE_2D, newTexture);
-                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height,
-                        0, (channelCount == 4 ? GL_RGBA : GL_RGB), GL_FLOAT, buffer);
-                    glGenerateMipmap(GL_TEXTURE_2D);
-
-                    textureBound = true;
-                }
-            }
-
-            if (!textureBound)
-            {
-                createDummyTexture(imageHandler);
-                glBindTexture(GL_TEXTURE_2D, _dummyTexture); // Bind a dummy texture
-            }
-
-            textureUnit++;
         }
     }
 
@@ -640,7 +689,7 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
 }
 
 
-void GlslProgram::bindLighting(HwLightHandlerPtr lightHandler)
+void GlslProgram::bindLighting(HwLightHandlerPtr lightHandler, ImageHandlerPtr imageHandler)
 {
     if (!lightHandler)
     {
@@ -659,12 +708,13 @@ void GlslProgram::bindLighting(HwLightHandlerPtr lightHandler)
         throw ExceptionShaderValidationError(errorType, errors);
     }
 
+    const MaterialX::GlslProgram::InputMap& uniformList = getUniformsList();
+
     // Bind a couple of lights if can find the light information
     GLint location = MaterialX::GlslProgram::UNDEFINED_OPENGL_PROGRAM_LOCATION;
 
     // Set the number of active light sources
     size_t lightCount = lightHandler->getLightSources().size();
-    const MaterialX::GlslProgram::InputMap& uniformList = getUniformsList();
     auto input = uniformList.find("u_numActiveLightSources");
     if (input != uniformList.end())
     {
@@ -683,6 +733,31 @@ void GlslProgram::bindLighting(HwLightHandlerPtr lightHandler)
     if (lightCount == 0)
     {
         return;
+    }
+
+    // Bind any IBL textures specified
+    MaterialX::StringMap iblList;
+    iblList[RADIANCE_ENV_UNIFORM_NAME] = lightHandler->getLightEnvRadiancePath();
+    iblList[IRRADIANCE_ENV_UNIFORM_NAME] = lightHandler->getLightEnvIrradiancePath();
+    for (auto ibl : iblList)
+    {
+        MaterialX::GlslProgram::InputPtr inputPtr = nullptr;
+        auto it = uniformList.find(ibl.first);
+        if (it != uniformList.end())
+        {
+            inputPtr = it->second;
+        }
+        if (inputPtr)
+        {
+            GLenum uniformType = inputPtr->gltype;
+            GLint uniformLocation = inputPtr->location;
+            std::string fileName(inputPtr->value ? inputPtr->value->getValueString() : "");
+            if (fileName.empty())
+            {
+                fileName = ibl.second;
+            }
+            bindTexture(uniformType, uniformLocation, fileName, imageHandler, true);
+        }
     }
 
     size_t index = 0;

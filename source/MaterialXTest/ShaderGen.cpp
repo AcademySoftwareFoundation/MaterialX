@@ -225,6 +225,10 @@ void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::H
 
     // Let the shader generator know of these light shaders
     lightHandler.bindLightShaders(shadergen);
+
+    // Set up IBL inputs
+    lightHandler.setLightEnvIrradiancePath("documents/TestSuite/Images/san_giuseppe_bridge_diffuse.exr");
+    lightHandler.setLightEnvRadiancePath("documents/TestSuite/Images/san_giuseppe_bridge.exr");
 }
 
 static std::string RESULT_DIRECTORY("results/");

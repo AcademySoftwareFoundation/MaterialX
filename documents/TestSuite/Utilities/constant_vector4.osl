@@ -1,6 +1,6 @@
 #include "vector4.h"
 
-surface 
+surface
 constant_vector4
     [[ string description = "Simple closure for constant color surface rendering" ]]
 (
@@ -8,5 +8,5 @@ constant_vector4
         [[  string description = "Input color to modulate emission with" ]]
 )
 {
-	Ci = color(Cin.x, Cin.y, Cin.z) * emission(); 
+	Ci = color(Cin.x, Cin.y, Cin.z) * Cin.w * emission(); 
 }
