@@ -442,8 +442,8 @@ void GlslShaderGenerator::emitFunctionDefinitions(Shader& shader)
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
         // Emit function for handling texture coords v-flip 
-        // as needed by the v-direction set by the user
-        shader.addBlock(shader.getRequestedVDirection() != getTargetVDirection() ? VDIRECTION_FLIP : VDIRECTION_NOOP, *this);
+        // as needed relative to the default v-direction 
+        shader.addBlock(Shader::getDefaultVDirection() != getTargetVDirection() ? VDIRECTION_FLIP : VDIRECTION_NOOP, *this);
 
         // For surface shaders we need light shaders
         if (shader.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))

@@ -36,11 +36,6 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const Ge
     // Make it active
     pushActiveGraph(_rootGraph.get());
 
-    // Set the vdirection to use for texture nodes
-    // Default is to use direction UP
-    const string& vdir = element->getRoot()->getAttribute("vdirection");
-    _vdirection = vdir == "down" ? VDirection::DOWN : VDirection::UP;
-
     // Create shader variables for all nodes that need this (geometric nodes / input streams)
     for (ShaderNode* node : _rootGraph->getNodes())
     {

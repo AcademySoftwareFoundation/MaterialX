@@ -224,8 +224,8 @@ public:
     /// Return true if this shader matches the given classification.
     bool hasClassification(unsigned int c) const { return getGraph()->hasClassification(c); }
 
-    /// Return the vdirection requested in the current document.
-    VDirection getRequestedVDirection() const { return _vdirection; }
+    /// Return the default vdirection which is up.
+    static VDirection getDefaultVDirection() { return VDirection::UP; }
 
     /// Return the final shader source code for a given shader stage
     const string& getSourceCode(size_t stage = PIXEL_STAGE) const { return _stages[stage].code; }
