@@ -121,7 +121,6 @@ class ShaderNode
 
     static const ShaderNodePtr NONE;
 
-    static const string SXCLASS_ATTRIBUTE;
     static const string CONSTANT;
     static const string IMAGE;
     static const string COMPARE;
@@ -133,7 +132,7 @@ class ShaderNode
     /// Constructor.
     ShaderNode(const string& name);
 
-    /// Create a new node from a nodedef and an option node instance.
+    /// Create a new node from a nodedef and an optional node instance.
     static ShaderNodePtr create(const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, const Node* nodeInstance = nullptr);
 
     /// Return true if this node is a graph.

@@ -1,9 +1,0 @@
-void mx_hueshift_color4(color4 in, float amount, output color4 result)
-{
-    color hsv3 = transformc("rgb","hsv", in);
-    hsv3[0] += amount;
-    hsv3[0] = fmod(hsv3[0], 1.0);
-    color out = transformc("hsv","rgb", hsv3);
-    result.rgb = out;
-    result.a = in.a;
-}
