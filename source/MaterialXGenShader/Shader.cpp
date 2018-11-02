@@ -49,8 +49,11 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const Ge
         // Only for inputs that are connected/used internally
         if (inputSocket->connections.size())
         {
-            // Create the uniform
-            createUniform(PIXEL_STAGE, PUBLIC_UNIFORMS, inputSocket->type, inputSocket->name, EMPTY_STRING, inputSocket->value);
+            if (_rootGraph->isEditable(*inputSocket))
+            {
+                // Create the uniform
+                createUniform(PIXEL_STAGE, PUBLIC_UNIFORMS, inputSocket->type, inputSocket->name, EMPTY_STRING, inputSocket->value);
+            }
         }
     }
     
@@ -66,7 +69,7 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const Ge
                 {
                     // Check if the type is editable otherwise we can't 
                     // publish the input as an editable uniform.
-                    if (input->type->isEditable())
+                    if (input->type->isEditable() && node->isEditable(*input))
                     {
                         // Use a consistent naming convention: <nodename>_<inputname>
                         // so application side can figure out what uniforms to set

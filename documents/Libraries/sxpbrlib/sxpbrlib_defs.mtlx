@@ -14,7 +14,7 @@
     Node: <diffusebrdf>
     A BSDF node for diffuse reflection.
   -->
-  <nodedef name="ND_diffusebrdf" node="diffusebrdf" type="BSDF" bsdf="R" nodecategory="shaderx"
+  <nodedef name="ND_diffusebrdf" node="diffusebrdf" type="BSDF" bsdf="R" nodegroup="pbr"
            doc="A BSDF node for diffuse reflections.">
     <input name="weight" type="float" value="1.0"/>
     <input name="color" type="color3" value="0.18, 0.18, 0.18"/>
@@ -28,7 +28,7 @@
     Node: <diffusebtdf>
     A BSDF node for diffuse transmission.
   -->
-  <nodedef name="ND_diffusebtdf" node="diffusebtdf" type="BSDF" bsdf="R" nodecategory="shaderx"
+  <nodedef name="ND_diffusebtdf" node="diffusebtdf" type="BSDF" bsdf="R" nodegroup="pbr"
            doc="A BSDF node for pure diffuse transmission.">
     <input name="weight" type="float" value="1.0"/>
     <input name="color" type="color3" value="1.0, 1.0, 1.0"/>
@@ -41,7 +41,7 @@
     Node: <conductorbrdf>
     A reflection BSDF node based on a microfacet model and a Fresnel curve for conductors/metals.
   -->
-  <nodedef name="ND_conductorbrdf" node="conductorbrdf" type="BSDF" bsdf="R" nodecategory="shaderx"
+  <nodedef name="ND_conductorbrdf" node="conductorbrdf" type="BSDF" bsdf="R" nodegroup="pbr"
            doc="A reflection BSDF node based on a microfacet model and a Fresnel curve for conductors/metals.">
     <input name="weight" type="float" value="1.0"/>
     <input name="reflectivity" type="color3" value="0.944 0.776 0.373"/>
@@ -60,7 +60,7 @@
     Node: <dielectricbrdf>
     A reflection BSDF node based on a microfacet model and a Fresnel curve for dielectrics.
   -->
-  <nodedef name="ND_dielectricbrdf" node="dielectricbrdf" type="BSDF" nodecategory="shaderx"
+  <nodedef name="ND_dielectricbrdf" node="dielectricbrdf" type="BSDF" nodegroup="pbr"
            doc="A reflection BSDF node based on a microfacet model and a Fresnel curve for dielectrics.">
     <input name="weight" type="float" value="1.0"/>
     <input name="tint" type="color3" value="1.0, 1.0, 1.0"/>
@@ -80,7 +80,7 @@
     Node: <dielectricbtdf>
     A transmission BSDF node based on a microfacet model and a Fresnel curve for dielectrics.
   -->
-  <nodedef name="ND_dielectricbtdf" node="dielectricbtdf" type="BSDF" bsdf="T" nodecategory="shaderx"
+  <nodedef name="ND_dielectricbtdf" node="dielectricbtdf" type="BSDF" bsdf="T" nodegroup="pbr"
            doc="A BSDF node for specular to glossy transmission.">
     <input name="weight" type="float" value="1.0"/>
     <input name="tint" type="color3" value="1.0, 1.0, 1.0"/>
@@ -100,7 +100,7 @@
     Node: <subsurfacebrdf>
     A subsurface scattering BSDF for true subsurface scattering.
   -->
-  <nodedef name="ND_subsurfacebrdf" node="subsurfacebrdf" type="BSDF" bsdf="R" nodecategory="shaderx"
+  <nodedef name="ND_subsurfacebrdf" node="subsurfacebrdf" type="BSDF" bsdf="R" nodegroup="pbr"
            doc="A subsurface scattering BSDF for true subsurface scattering.">
     <input name="weight" type="float" value="1.0"/>
     <input name="color" type="color3" value="0.18, 0.18, 0.18"/>
@@ -115,7 +115,7 @@
     Node: <sheenbrdf>
     A microfacet BSDF for the back-scattering properties of cloth-like materials.
   -->
-  <nodedef name="ND_sheenbrdf" node="sheenbrdf" type="BSDF" bsdf="R" nodecategory="shaderx"
+  <nodedef name="ND_sheenbrdf" node="sheenbrdf" type="BSDF" bsdf="R" nodegroup="pbr"
            doc="A microfacet BSDF for the back-scattering properties of cloth-like materials.">
     <input name="weight" type="float" value="1.0"/>
     <input name="color" type="color3" value="1.0, 1.0, 1.0"/>
@@ -130,7 +130,7 @@
     Node: <mixbsdf>
     A node for mixing BSDF's as: in1 * (1 − weight) + in2 * weight.
   -->
-  <nodedef name="ND_mixbsdf" node="mixbsdf" type="BSDF" nodecategory="shaderx"
+  <nodedef name="ND_mixbsdf" node="mixbsdf" type="BSDF" nodegroup="pbr"
            doc="A node for mixing BSDF's as: in1 * (1 − weight) + in2 * weight.">
     <input name="in1" type="BSDF" doc="First BSDF."/>
     <input name="in2" type="BSDF" doc="Second BSDF."/>
@@ -141,7 +141,7 @@
     Node: <scalebsdf>
     A node for adjusting the contribution of a BSDF with a weight.
   -->
-  <nodedef name="ND_scalebsdf" node="scalebsdf" type="BSDF" nodecategory="shaderx"
+  <nodedef name="ND_scalebsdf" node="scalebsdf" type="BSDF" nodegroup="pbr"
            doc="A node for adjusting the contribution of a BSDF with a weight.">
     <input name="in" type="BSDF" doc="The BSDF to scale."/>
     <input name="weight" type="color3" value="1.0, 1.0, 1.0" doc="Scaling weight."/>
@@ -151,7 +151,7 @@
     Node: <uniformedf>
     An EDF node for uniform emission.
   -->
-  <nodedef name="ND_uniformedf" node="uniformedf" type="EDF" nodecategory="shaderx"
+  <nodedef name="ND_uniformedf" node="uniformedf" type="EDF" nodegroup="pbr"
            doc=" An EDF node for uniform emission.">
     <input name="intensity" type="color3" value="1.0, 1.0, 1.0"/>
   </nodedef>
@@ -160,7 +160,7 @@
     Node: <mixedf>
     A node for mixing EDF's as: in1 * (1 − weight) + in2 * weight.
   -->
-  <nodedef name="ND_mixedf" node="mixedf" type="EDF" nodecategory="shaderx"
+  <nodedef name="ND_mixedf" node="mixedf" type="EDF" nodegroup="pbr"
            doc="A node for mixing EDF's as:  in1 * (1 − weight) + in2 * weight.">
     <input name="in1" type="EDF" doc="First EDF."/>
     <input name="in2" type="EDF" doc="Second EDF."/>
@@ -171,7 +171,7 @@
     Node: <surface>
     Construct a surface shader from scattering and emission distribution functions.
   -->
-  <nodedef name="ND_surface" node="surface" type="surfaceshader" nodecategory="shaderx"
+  <nodedef name="ND_surface" node="surface" type="surfaceshader" nodegroup="pbr"
            doc="A constructor node for the surfaceshader type.">
     <input name="bsdf" type="BSDF" doc="Distribution function for surface scattering."/>
     <input name="edf" type="EDF" doc="Distribution function for surface emission."/>
@@ -182,7 +182,7 @@
     Node: <mixsurface>
     Mix two surface shaders according to a weight
   -->
-  <nodedef name="ND_mixsurface" node="mixsurface" type="surfaceshader" nodecategory="shaderx"
+  <nodedef name="ND_mixsurface" node="mixsurface" type="surfaceshader" nodegroup="pbr"
            doc="Mix two surface shaders according to a weight.">
     <input name="in1" type="surfaceshader" doc="The first surface shader."/>
     <input name="in2" type="surfaceshader" doc="The second surface shader."/>
@@ -193,7 +193,7 @@
     Node: <light>
     Construct a light shader from emission distribution functions.
   -->
-  <nodedef name="ND_light" node="light" type="lightshader" nodecategory="shaderx"
+  <nodedef name="ND_light" node="light" type="lightshader" nodegroup="pbr"
            doc="A constructor node for the lightshader type.">
     <input name="edf" type="EDF" doc="Distribution function for light emission."/>
     <input name="intensity" type="float" value="1.0" doc="Multiplier for the light intensity"/>
@@ -203,7 +203,7 @@
   <!--
     Node: <pointlight>
   -->
-  <nodedef name="ND_pointlight" node="pointlight" type="lightshader" nodecategory="shaderx"
+  <nodedef name="ND_pointlight" node="pointlight" type="lightshader" nodegroup="pbr"
            doc="A light shader node of 'point' type.">
     <input name="position" type="vector3" doc="Light source position."/>
     <input name="color" type="color3" doc="Light color."/>
@@ -214,7 +214,7 @@
   <!--
     Node: <directionallight>
   -->
-  <nodedef name="ND_directionallight" node="directionallight" type="lightshader" nodecategory="shaderx"
+  <nodedef name="ND_directionallight" node="directionallight" type="lightshader" nodegroup="pbr"
            doc="A light shader node of 'directional' type.">
     <input name="direction" type="vector3" doc="Light source direction."/>
     <input name="color" type="color3" doc="Light color."/>
@@ -224,7 +224,7 @@
   <!--
     Node: <spotlight>
   -->
-  <nodedef name="ND_spotlight" node="spotlight" type="lightshader" nodecategory="shaderx"
+  <nodedef name="ND_spotlight" node="spotlight" type="lightshader" nodegroup="pbr"
            doc="A light shader node of 'spot' type.">
     <input name="position" type="vector3" doc="Light source position."/>
     <input name="direction" type="vector3" doc="Light source direction."/>
@@ -238,7 +238,7 @@
   <!--
     Node: <standard_surface>
   -->
-  <nodedef name="ND_standard_surface_surfaceshader" node="standard_surface" type="surfaceshader" nodecategory="shaderx"
+  <nodedef name="ND_standard_surface_surfaceshader" node="standard_surface" type="surfaceshader" nodegroup="pbr"
            doc="A surface uber shader based on the Arnold standard surface shader">
       <input name="base" type="float" value="0.8" />
       <input name="base_color" type="color3" value="1, 1, 1" />
@@ -293,15 +293,15 @@
   <!--
     Node: <backfacing>
   -->
-  <nodedef name="ND_backfacing_boolean" node="backfacing" type="boolean" nodecategory="shaderx"/>
-  <nodedef name="ND_backfacing_integer" node="backfacing" type="integer" nodecategory="shaderx"/>
-  <nodedef name="ND_backfacing_float" node="backfacing" type="float" nodecategory="shaderx"/>
+  <nodedef name="ND_backfacing_boolean" node="backfacing" type="boolean" nodegroup="pbr"/>
+  <nodedef name="ND_backfacing_integer" node="backfacing" type="integer" nodegroup="pbr"/>
+  <nodedef name="ND_backfacing_float" node="backfacing" type="float" nodegroup="pbr"/>
 
   <!--
     Node: <roughness>
     Calculates anisotropic surface roughness from a scalar rougness and anisotropy parameterization.
   -->
-  <nodedef name="ND_roughness" node="roughness" type="roughnessinfo" nodecategory="shaderx"
+  <nodedef name="ND_roughness" node="roughness" type="roughnessinfo" nodegroup="pbr"
            doc="Calculates anisotropic surface roughness from a scalar rougness/anisotropy parameterization.">
     <input name="roughness" type="float" value="0.0"/>
     <input name="anisotropy" type="float" value="0.0"/>
@@ -311,7 +311,7 @@
     Node: <glossiness>
     Calculates anisotropic surface roughness from a scalar glossiness and anisotropy parameterization.
   -->
-  <nodedef name="ND_glossiness" node="glossiness" type="roughnessinfo" nodecategory="shaderx"
+  <nodedef name="ND_glossiness" node="glossiness" type="roughnessinfo" nodegroup="pbr"
            doc="Calculates anisotropic surface roughness from a scalar glossiness/anisotropy parameterization.">
     <input name="glossiness" type="float" value="1.0"/>
     <input name="anisotropy" type="float" value="0.0"/>
@@ -332,7 +332,7 @@
   <!--
     Node: <normalmap>
   -->
-  <nodedef name="ND_normalmap" node="normalmap" type="vector3" nodecategory="shaderx">
+  <nodedef name="ND_normalmap" node="normalmap" type="vector3" nodegroup="pbr">
     <input name="in" type="vector3" value="0.5, 0.5, 1.0"/>
     <parameter name="tangentSpace" type="integer" value="1"/>
     <input name="normal" type="vector3">
@@ -346,15 +346,15 @@
   <!--
     Node: <inputmap>
   -->
-  <nodedef name="ND_inputmap_float" type="float" node="inputmap" nodecategory="shaderx" sxclass="image">
+  <nodedef name="ND_inputmap_float" type="float" node="inputmap" nodegroup="pbr" sxclass="image">
     <input name="value" type="float" />
     <input name="file" type="filename" />
   </nodedef>
-  <nodedef name="ND_inputmap_color3" type="color3" node="inputmap" nodecategory="shaderx" sxclass="image">
+  <nodedef name="ND_inputmap_color3" type="color3" node="inputmap" nodegroup="pbr" sxclass="image">
     <input name="value" type="color3" />
     <input name="file" type="filename" />
   </nodedef>
-  <nodedef name="ND_inputmap_vector3" type="vector3" node="inputmap" nodecategory="shaderx" sxclass="image">
+  <nodedef name="ND_inputmap_vector3" type="vector3" node="inputmap" nodegroup="pbr" sxclass="image">
     <input name="value" type="vector3" />
     <input name="file" type="filename" />
   </nodedef>
@@ -362,13 +362,13 @@
   <!--
     Node: <srgb_linear>
   -->
-  <nodedef name="ND_srgb_linear_color2" node="srgb_linear" type="color2" nodecategory="shaderx">
+  <nodedef name="ND_srgb_linear_color2" node="srgb_linear" type="color2" nodegroup="pbr">
     <input name="in" type="color2" />
   </nodedef>
-  <nodedef name="ND_srgb_linear_color3" node="srgb_linear" type="color3" nodecategory="shaderx">
+  <nodedef name="ND_srgb_linear_color3" node="srgb_linear" type="color3" nodegroup="pbr">
     <input name="in" type="color3" />
   </nodedef>
-  <nodedef name="ND_srgb_linear_color4" node="srgb_linear" type="color4" nodecategory="shaderx">
+  <nodedef name="ND_srgb_linear_color4" node="srgb_linear" type="color4" nodegroup="pbr">
     <input name="in" type="color4" />
   </nodedef>
 

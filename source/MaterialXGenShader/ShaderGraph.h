@@ -6,7 +6,6 @@
 
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/TypeDesc.h>
-#include <MaterialXGenShader/ShaderNodeImpl.h>
 
 namespace MaterialX
 {
