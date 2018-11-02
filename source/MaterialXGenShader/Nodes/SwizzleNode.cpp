@@ -5,6 +5,9 @@
 namespace MaterialX
 {
 
+static const string IN_STRING("in");
+static const string CHANNELS_STRING("channels");
+
 ShaderNodeImplPtr SwizzleNode::create()
 {
     return std::make_shared<SwizzleNode>();
@@ -14,8 +17,8 @@ void SwizzleNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
 {
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
-    const ShaderInput* in = node.getInput("in");
-    const ShaderInput* channels = node.getInput("channels");
+    const ShaderInput* in = node.getInput(IN_STRING);
+    const ShaderInput* channels = node.getInput(CHANNELS_STRING);
     if (!in || !channels)
     {
         throw ExceptionShaderGenError("Node '" + node.getName() +"' is not a valid swizzle node");
@@ -60,6 +63,11 @@ void SwizzleNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
     shader.endLine();
 
     END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+}
+
+bool SwizzleNode::isEditable(const ShaderInput& input) const
+{
+    return (input.name != CHANNELS_STRING);
 }
 
 } // namespace MaterialX

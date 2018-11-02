@@ -213,6 +213,22 @@ class ShaderNode
         return _samplingInput;
     }
 
+    /// Returns true if an input is editable by users.
+    /// Editable inputs are allowed to be published as shader uniforms
+    /// and hence must be presentable in a user interface.
+    bool isEditable(const ShaderInput& input) const
+    {
+        return (!_impl || _impl->isEditable(input));
+    }
+
+    /// Returns true if a graph input is accessible by users.
+    /// Editable inputs are allowed to be published as shader uniforms
+    /// and hence must be presentable in a user interface.
+    bool isEditable(const ShaderGraphInputSocket& input) const
+    {
+        return (!_impl || _impl->isEditable(input));
+    }
+
     /// Add the given contex id to the set of contexts used for this node.
     void addContextID(int id) { _contextIDs.insert(id); }
 
