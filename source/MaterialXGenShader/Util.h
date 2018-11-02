@@ -5,6 +5,7 @@
 
 #include <MaterialXCore/Library.h>
 #include <MaterialXCore/Element.h>
+#include <MaterialXCore/Interface.h>
 
 namespace MaterialX
 {

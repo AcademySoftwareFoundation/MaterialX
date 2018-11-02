@@ -64,7 +64,7 @@ class GlslShaderGenerator : public HwShaderGenerator
 {
     using ParentClass = HwShaderGenerator;
 
-public:
+  public:
     GlslShaderGenerator();
 
     static ShaderGeneratorPtr create() { return std::make_shared<GlslShaderGenerator>(); }
@@ -88,15 +88,21 @@ public:
     /// Emit all functon calls constructing the shader body
     void emitFunctionCalls(const GenContext& context, Shader &shader) override;
 
-    /// Emit a shader uniform input variable
-    void emitUniform(const Shader::Variable& uniform, Shader& shader) override;
-
     /// Emit the final output expression
     void emitFinalOutput(Shader& shader) const override;
 
     /// Add node contexts id's to the given node to control 
     /// in which contexts this node should be used
     void addNodeContextIDs(ShaderNode* node) const override;
+
+    /// Given a element attempt to remap a value to an enumeration which is accepted by
+    /// the shader generator.
+    ValuePtr remapEnumeration(const ValueElementPtr& input, const InterfaceElement& mappingElement, const TypeDesc*& enumerationType) override;
+
+    /// Given a input specification (name, value, type) attempt to remap a value to an enumeration 
+    /// which is accepted by the shader generator.
+    ValuePtr remapEnumeration(const string& inputName, const string& inputValue, const string& inputType, 
+                              const InterfaceElement& mappingElement, const TypeDesc*& enumerationType) override;
 
     /// Emit code for all texturing nodes.
     virtual void emitTextureNodes(Shader& shader);
@@ -111,7 +117,7 @@ public:
     /// The output 'edf' will hold the variable keeping the result.
     virtual void emitEdfNodes(const ShaderNode& shaderNode, const string& normalDir, const string& evalDir, Shader& shader, string& edf);
 
-public:
+  public:
     /// Unique identifyer for the glsl language
     static const string LANGUAGE;
 
@@ -143,7 +149,9 @@ public:
         REFL_DIR
     };
 
-protected:
+  protected:   
+    void emitVariable(const Shader::Variable& variable, const string& qualifier, Shader& shader) override;
+
     /// Override the compound implementation creator in order to handle light compounds.
     ShaderNodeImplPtr createCompoundImplementation(NodeGraphPtr impl) override;
 
@@ -160,11 +168,11 @@ protected:
 /// Base class for common GLSL node implementations
 class GlslImplementation : public ShaderNodeImpl
 {
-public:
+  public:
     const string& getLanguage() const override;
     const string& getTarget() const override;
 
-protected:
+  protected:
     GlslImplementation() {}
 
     /// Internal string constants

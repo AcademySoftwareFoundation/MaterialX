@@ -24,7 +24,10 @@ const string Element::NAMESPACE_ATTRIBUTE = "namespace";
 const string TypedElement::TYPE_ATTRIBUTE = "type";
 const string ValueElement::VALUE_ATTRIBUTE = "value";
 const string ValueElement::INTERFACE_NAME_ATTRIBUTE = "interfacename";
+const string ValueElement::ENUM_ATTRIBUTE = "enum";
 const string ValueElement::IMPLEMENTATION_NAME_ATTRIBUTE = "implname";
+const string ValueElement::IMPLEMENTATION_TYPE_ATTRIBUTE = "impltype";
+const string ValueElement::ENUM_VALUES_ATTRIBUTE = "enumvalues";
 
 Element::CreatorMap Element::_creatorMap;
 

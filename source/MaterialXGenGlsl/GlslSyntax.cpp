@@ -1,4 +1,5 @@
 #include <MaterialXGenGlsl/GlslSyntax.h>
+#include <MaterialXGenShader/Shader.h>
 
 #include <MaterialXGenShader/TypeDesc.h>
 
@@ -21,10 +22,81 @@ namespace
             return "0";
         }
     };
+
+    class GlslArrayTypeSyntax : public ScalarTypeSyntax
+    {
+    public:
+        GlslArrayTypeSyntax(const string& name)
+            : ScalarTypeSyntax(name, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING)
+        {}
+
+        string getValue(const Value& value, bool /*uniform*/) const override
+        {
+            size_t arraySize = getSize(value);
+            if (arraySize > 0)
+            {
+                return _name + "[" + std::to_string(arraySize) + "](" + value.getValueString() + ")";
+            }
+            return EMPTY_STRING;
+        }
+
+        string getValue(const vector<string>& values, bool /*uniform*/) const override
+        {
+            if (values.empty())
+            {
+                throw ExceptionShaderGenError("No values given to construct an array value");
+            }
+
+            string result = _name + "[" + std::to_string(values.size()) + "](" + values[0];
+            for (size_t i = 1; i<values.size(); ++i)
+            {
+                result += ", " + values[i];
+            }
+            result += ")";
+
+            return result;
+        }
+
+    protected:
+        virtual size_t getSize(const Value& value) const = 0;
+    };
+
+    class GlslFloatArrayTypeSyntax : public GlslArrayTypeSyntax
+    {
+    public:
+        GlslFloatArrayTypeSyntax(const string& name)
+            : GlslArrayTypeSyntax(name)
+        {}        
+
+    protected:
+        size_t getSize(const Value& value) const override
+        {
+            vector<float> valueArray = value.asA<vector<float>>();
+            return valueArray.size();
+        }
+
+    };
+
+    class GlslIntegerArrayTypeSyntax : public GlslArrayTypeSyntax
+    {
+    public:
+        GlslIntegerArrayTypeSyntax(const string& name)
+            : GlslArrayTypeSyntax(name)
+        {}        
+
+    protected:
+        size_t getSize(const Value& value) const override
+        {
+            vector<int> valueArray = value.asA<vector<int>>();
+            return valueArray.size();
+        }
+
+    };
 }
 
-
 const string GlslSyntax::OUTPUT_QUALIFIER = "out";
+const string GlslSyntax::UNIFORM_QUALIFIER = "uniform";
+const string GlslSyntax::CONSTANT_QUALIFIER = "const";
 const vector<string> GlslSyntax::VEC2_MEMBERS = { ".x", ".y" };
 const vector<string> GlslSyntax::VEC3_MEMBERS = { ".x", ".y", ".z" };
 const vector<string> GlslSyntax::VEC4_MEMBERS = { ".x", ".y", ".z", ".w" };
@@ -91,11 +163,25 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
+        Type::FLOATARRAY,
+        std::make_shared<GlslFloatArrayTypeSyntax>(
+            "float")
+    );
+
+    registerTypeSyntax
+    (
         Type::INTEGER,
         std::make_shared<ScalarTypeSyntax>(
             "int", 
             "0", 
             "0")
+    );
+
+    registerTypeSyntax
+    (
+        Type::INTEGERARRAY,
+        std::make_shared<GlslIntegerArrayTypeSyntax>(
+            "int")
     );
 
     registerTypeSyntax
@@ -290,6 +376,11 @@ GlslSyntax::GlslSyntax()
 const string& GlslSyntax::getOutputQualifier() const
 {
     return OUTPUT_QUALIFIER;
+}
+
+bool GlslSyntax::typeSupported(const TypeDesc* type) const
+{ 
+    return type != Type::STRING; 
 }
 
 }

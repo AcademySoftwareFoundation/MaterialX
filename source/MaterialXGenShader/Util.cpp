@@ -189,7 +189,8 @@ namespace
 
             const string& typeName = upstreamElem->asA<TypedElement>()->getType();
             const TypeDesc* type = TypeDesc::get(typeName);
-            if (type != Type::SURFACESHADER && type != Type::BSDF)
+            bool isFourChannelOutput = type == Type::COLOR4 || type == Type::VECTOR4;
+            if (type != Type::SURFACESHADER && type != Type::BSDF && !isFourChannelOutput)
             {
                 it.setPruneSubgraph(true);
                 continue;
@@ -339,6 +340,10 @@ namespace
                                     }
                                 }
                             }
+                        }
+                        else if (isFourChannelOutput)
+                        {
+                            ++numCandidates;
                         }
                     }
                 }

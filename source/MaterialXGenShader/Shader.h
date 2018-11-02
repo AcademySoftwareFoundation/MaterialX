@@ -61,6 +61,21 @@ public:
             , semantic(s)
             , value(v)
         {}
+
+        void getArraySuffix(string& result) const
+        {
+            result.clear();
+            if (value && value->isA<vector<float>>())
+            {
+                vector<float> valueArray = value->asA<vector<float>>();
+                result = "[" + std::to_string(valueArray.size()) + "]";
+            }
+            else if (value && value->isA<vector<int>>())
+            {
+                vector<int> valueArray = value->asA<vector<int>>();
+                result = "[" + std::to_string(valueArray.size()) + "]";
+            }
+        }
     };
 
     using VariablePtr = std::shared_ptr<Variable>;
@@ -72,7 +87,9 @@ public:
         string instance;
         std::unordered_map<string, VariablePtr> variableMap;
         vector<Variable*> variableOrder;
-        VariableBlock(const string& n, const string& i) : name(n), instance(i) {}
+
+        VariableBlock(const string& n, const string& i) : name(n), instance(i) {}    
+        bool empty() const { return variableOrder.empty(); }
     };
 
     using VariableBlockPtr = std::shared_ptr<VariableBlock>;
@@ -116,6 +133,10 @@ public:
     /// Return the active stage
     virtual size_t getActiveStage() const { return _activeStage; }
 
+    /// Create a new constant variable for a stage.
+    virtual void createConstant(size_t stage, const TypeDesc* type, const string& name,
+        const string& semantic = EMPTY_STRING, ValuePtr value = nullptr);
+
     /// Create a new variable block for uniform inputs in a stage.
     virtual void createUniformBlock(size_t stage, const string& block, const string& instance = EMPTY_STRING);
 
@@ -126,6 +147,9 @@ public:
 
     /// Create a new variable for application/geometric data (primvars).
     virtual void createAppData(const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING);
+
+    /// Return the block of constant variables for a stage.
+    const VariableBlock& getConstantBlock(size_t stage) const;
 
     /// Return all blocks of uniform variables for a stage.
     const VariableBlockMap& getUniformBlocks(size_t stage) const { return _stages[stage].uniforms; }
@@ -200,8 +224,8 @@ public:
     /// Return true if this shader matches the given classification.
     bool hasClassification(unsigned int c) const { return getGraph()->hasClassification(c); }
 
-    /// Return the vdirection requested in the current document.
-    VDirection getRequestedVDirection() const { return _vdirection; }
+    /// Return the default vdirection which is up.
+    static VDirection getDefaultVDirection() { return VDirection::UP; }
 
     /// Return the final shader source code for a given shader stage
     const string& getSourceCode(size_t stage = PIXEL_STAGE) const { return _stages[stage].code; }
@@ -217,14 +241,17 @@ protected:
         std::queue<Brackets> scopes;
         std::set<string> includes;
         std::set<ShaderNodeImpl*> definedFunctions;
-        
+
+        // Block holding constant variables for this stage
+        VariableBlock constants;
+
         // Blocks holding uniform variables for this stage
         VariableBlockMap uniforms;
 
         // Resulting source code for this stage
         string code;
 
-        Stage(const string& n) : name(n), indentations(0) {}
+        Stage(const string& n) : name(n), indentations(0), constants("Constants", "cn") {}
     };
 
     /// Return the currently active stage

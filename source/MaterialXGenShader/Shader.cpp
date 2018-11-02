@@ -2,8 +2,8 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Syntax.h>
 #include <MaterialXGenShader/Util.h>
-#include <MaterialXGenShader/Nodes/CompareNodeImpl.h>
-#include <MaterialXGenShader/Nodes/SwitchNodeImpl.h>
+#include <MaterialXGenShader/Nodes/CompareNode.h>
+#include <MaterialXGenShader/Nodes/SwitchNode.h>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Node.h>
@@ -24,8 +24,8 @@ Shader::Shader(const string& name)
     _stages.push_back(Stage("Pixel"));
 
     // Create default uniform blocks for pixel stage
-    createUniformBlock(PIXEL_STAGE, PRIVATE_UNIFORMS, "prv");
-    createUniformBlock(PIXEL_STAGE, PUBLIC_UNIFORMS, "pub");
+    createUniformBlock(PIXEL_STAGE, PRIVATE_UNIFORMS, "prvUniform");
+    createUniformBlock(PIXEL_STAGE, PUBLIC_UNIFORMS, "pubUniform");
 }
 
 void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const GenOptions& options)
@@ -35,11 +35,6 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const Ge
 
     // Make it active
     pushActiveGraph(_rootGraph.get());
-
-    // Set the vdirection to use for texture nodes
-    // Default is to use direction UP
-    const string& vdir = element->getRoot()->getAttribute("vdirection");
-    _vdirection = vdir == "down" ? VDirection::DOWN : VDirection::UP;
 
     // Create shader variables for all nodes that need this (geometric nodes / input streams)
     for (ShaderNode* node : _rootGraph->getNodes())
@@ -256,6 +251,23 @@ void Shader::indent()
     {
         s.code += INDENTATION;
     }
+}
+
+void Shader::createConstant(size_t stage, const TypeDesc* type, const string& name, const string& semantic, ValuePtr value)
+{
+    Stage& s = _stages[stage];
+    if (s.constants.variableMap.find(name) == s.constants.variableMap.end())
+    {
+        VariablePtr variablePtr = std::make_shared<Variable>(type, name, semantic, value);
+        s.constants.variableMap[name] = variablePtr;
+        s.constants.variableOrder.push_back(variablePtr.get());
+    }
+}
+
+const Shader::VariableBlock& Shader::getConstantBlock(size_t stage) const
+{
+    const Stage& s = _stages[stage];
+    return s.constants;
 }
 
 void Shader::createUniformBlock(size_t stage, const string& block, const string& instance)

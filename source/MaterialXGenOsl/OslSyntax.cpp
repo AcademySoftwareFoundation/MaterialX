@@ -9,6 +9,78 @@ namespace MaterialX
 
 namespace
 {
+    class OslArrayTypeSyntax : public ScalarTypeSyntax
+    {
+    public:
+        OslArrayTypeSyntax(const string& name)
+            : ScalarTypeSyntax(name, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING)
+        {}
+
+        string getValue(const Value& value, bool uniform) const override
+        {
+            if (!isEmpty(value))
+            {
+                return "{" + value.getValueString() + "}";
+            }
+            // OSL disallows arrays without initialization when specified as input uniform
+            else if (uniform)
+            {
+                throw ExceptionShaderGenError("Uniform array cannot initialize to a empty value.");
+            }
+            return EMPTY_STRING;
+        }
+
+        string getValue(const vector<string>& values, bool /*uniform*/) const override
+        {
+            if (values.empty())
+            {
+                throw ExceptionShaderGenError("No values given to construct an array value");
+            }
+
+            string result = "{" + values[0];
+            for (size_t i = 1; i<values.size(); ++i)
+            {
+                result += ", " + values[i];
+            }
+            result += "}";
+
+            return result;
+        }
+       
+    protected:
+        virtual bool isEmpty(const Value& value) const = 0;
+    };
+
+    class OslFloatArrayTypeSyntax : public OslArrayTypeSyntax
+    {
+    public:
+        OslFloatArrayTypeSyntax(const string& name)
+            : OslArrayTypeSyntax(name)
+        {}
+
+    protected:
+        bool isEmpty(const Value& value) const override
+        {
+            vector<float> valueArray = value.asA<vector<float>>();
+            return valueArray.empty();
+        }
+    };
+
+    class OslIntegerArrayTypeSyntax : public OslArrayTypeSyntax
+    {
+    public:
+        OslIntegerArrayTypeSyntax(const string& name)
+            : OslArrayTypeSyntax(name)
+        {}
+
+    protected:
+        bool isEmpty(const Value& value) const override
+        {
+            vector<int> valueArray = value.asA<vector<int>>();
+            return valueArray.empty();
+        }
+    };
+
     // In OSL vector2, vector4, color2 and color4 are custom struct types and require a different 
     // value syntax for uniforms. So override the aggregate type syntax to support this.
     class OslStructTypeSyntax : public AggregateTypeSyntax
@@ -147,11 +219,25 @@ OslSyntax::OslSyntax()
 
     registerTypeSyntax
     (
+        Type::FLOATARRAY,
+        std::make_shared<OslFloatArrayTypeSyntax>(
+            "float")
+    );
+
+    registerTypeSyntax
+    (
         Type::INTEGER,
         std::make_shared<ScalarTypeSyntax>(
             "int", 
-            "0", 
+            "0",
             "0")
+    );
+
+    registerTypeSyntax
+    (
+        Type::INTEGERARRAY,
+        std::make_shared<OslIntegerArrayTypeSyntax>(
+            "int")
     );
 
     registerTypeSyntax

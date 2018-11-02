@@ -14,8 +14,8 @@ HwShader::HwShader(const string& name)
     _stages.push_back(Stage("Vertex"));
 
     // Create default uniform blocks for vertex stage
-    createUniformBlock(VERTEX_STAGE, PRIVATE_UNIFORMS, "prv");
-    createUniformBlock(VERTEX_STAGE, PUBLIC_UNIFORMS, "pub");
+    createUniformBlock(VERTEX_STAGE, PRIVATE_UNIFORMS, "prvUniform");
+    createUniformBlock(VERTEX_STAGE, PUBLIC_UNIFORMS, "pubUniform");
 
     // Create light data uniform block with the required field for light type
     createUniformBlock(PIXEL_STAGE, LIGHT_DATA_BLOCK, "u_lightData");

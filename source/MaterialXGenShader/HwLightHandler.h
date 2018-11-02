@@ -107,9 +107,35 @@ public:
     /// code emitted during shader generation.
     void bindLightShaders(HwShaderGenerator& shadergen) const;
 
+    /// Set path to irradiance IBL image
+    void setLightEnvIrradiancePath(const string& path)
+    {
+        _lightEnvIrradiancePath = path;
+    }
+
+    /// Get path to irradiance IBL image
+    const string& getLightEnvIrradiancePath() const
+    {
+        return _lightEnvIrradiancePath;
+    }
+
+    /// Set path to radiance IBL image
+    void setLightEnvRadiancePath(const string& path)
+    {
+        _lightEnvRadiancePath = path;
+    }
+
+    /// Get path to radiance IBL image
+    const string& getLightEnvRadiancePath() const
+    {
+        return _lightEnvRadiancePath;
+    }
+
 private:
     LightShaderMap _lightShaders;
     vector<LightSourcePtr> _lightSources;
+    string _lightEnvIrradiancePath;
+    string _lightEnvRadiancePath;
 };
 
 } // namespace MaterialX

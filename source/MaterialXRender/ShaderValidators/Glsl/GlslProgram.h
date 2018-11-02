@@ -90,13 +90,16 @@ class GlslProgram
         /// Input value. Will only be non-empty if initialized stages with a HwShader and a value was set during
         /// shader generation.
         MaterialX::ValuePtr value;
+        /// Is this a constant
+        bool isConstant;
 
         /// Program input constructor
         Input(int inputLocation, int inputType, int inputSize)
             : location(inputLocation)
             , gltype(inputType)
             , size(inputSize)
-        {}
+            , isConstant(false)
+        { }
     };
     /// Program input structure shared pointer type
     using InputPtr = std::shared_ptr<Input>;
@@ -167,7 +170,7 @@ class GlslProgram
     void unbindTextures();
 
     /// Bind lighting
-    void bindLighting(HwLightHandlerPtr lightHandler);
+    void bindLighting(HwLightHandlerPtr lightHandler, ImageHandlerPtr imageHandler);
 
     /// Bind view information
     void bindViewInformation(ViewHandlerPtr viewHandler);
@@ -213,6 +216,10 @@ class GlslProgram
     /// @}
     /// @name Utilities
     /// @{
+
+    /// Bind an individual texture to a program uniform location
+    bool bindTexture(unsigned int uniformType, int uniformLocation, const string& fileName,
+                     ImageHandlerPtr imageHandler, bool generateMipMaps);
 
     /// Dummy texture for testing with
     void createDummyTexture(ImageHandlerPtr imageHandler);
@@ -263,8 +270,13 @@ class GlslProgram
     /// Dummy texture
     unsigned int _dummyTexture;
 
-    /// Program textures
-    std::vector<unsigned int> _programTextures;
+    /// Program texture map
+    std::unordered_map<std::string, unsigned int> _programTextures;
+
+    /// Maximum image units
+    int _maxImageUnits;
+    /// Active texture units used
+    int _textureUnitsInUse;
 };
 
 } // namespace MaterialX

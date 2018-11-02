@@ -49,7 +49,10 @@ public:
     /// Emit the final output expression
     virtual void emitFinalOutput(Shader& shader) const;
 
-    /// Emit a shader uniform input variable
+    /// Emit a shader constant input variable 
+    virtual void emitConstant(const Shader::Variable& uniform, Shader& shader);
+
+    /// Emit a shader uniform input variable 
     virtual void emitUniform(const Shader::Variable& uniform, Shader& shader);
 
     /// Emit the connected variable name for an input,
@@ -105,6 +108,32 @@ public:
         return _sourceCodeSearchPath;
     }
 
+    /// Given a input element attempt to remap this to an enumeration which is accepted by
+    /// the shader generator. The enumeration may be of a different type than the input value type.
+    /// @param input Input value element to test.
+    /// @param mappingElement Element which provides enumeration information for mapping.
+    /// @param enumerationType Enumeration type description (returned). 
+    /// @return Enumeration value. Null if no remapping is performed.
+    virtual ValuePtr remapEnumeration(const ValueElementPtr& /*input*/, const InterfaceElement& /*mappingElement*/, const TypeDesc*& /*enumerationType*/)
+    {
+        return nullptr;
+    }
+
+    /// Given a input specification (name, value, type) attempt to remap this to an enumeration which is accepted by
+    /// the shader generator. The enumeration may be of a different type than the input value type.
+    /// which is accepted by the shader generator.
+    /// @param inputName Name of input parameter.
+    /// @param inputValue Input value to test.
+    /// @param inputType Input type.
+    /// @param mappingElement Element which provides enumeration information for mapping.
+    /// @param enumerationType Enumeration type description (returned). 
+    /// @return Enumeration value. Null if no remapping is performed.    
+    virtual ValuePtr remapEnumeration(const string& /*inputName*/, const string& /*inputValue*/, const string& /*inputType*/,
+                                      const InterfaceElement& /*mappingElement*/, const TypeDesc*& /*enumerationType*/)
+    {
+        return nullptr;
+    }
+
 public:
     /// Identifiers for contexts
     enum Context
@@ -129,6 +158,20 @@ protected:
     /// Create a new node context with the given id. The context is added to the 
     /// shader generators node context storage and returned.
     GenContextPtr createContext(int id);
+
+    /// Utility to emit a block of either uniform or constant variables
+    /// @param block Block to emit.
+    /// @param qualifier Optional qualifier to add before the variable declaration.
+    /// Qualifiers are specified by the syntax for the generator.
+    /// @param shader Shader to emit to.
+    virtual void emitVariableBlock(const Shader::VariableBlock& block, const string& qualifier, Shader& shader);
+
+    /// Emit a shader input variable
+    /// @param variable Variable to emit
+    /// @param qualifier Optional qualifier to add before the variable declaration.
+    /// Qualifiers are specified by the syntax for the generator.
+    /// @shader Shader source to emit output to
+    virtual void emitVariable(const Shader::Variable& variable, const string& qualifier, Shader& shader);
 
     SyntaxPtr _syntax;
     Factory<ShaderNodeImpl> _implFactory;

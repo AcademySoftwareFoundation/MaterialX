@@ -84,7 +84,7 @@ class ShaderGraph : public ShaderNode
 
   protected:
     /// Add input sockets from an interface element (nodedef, nodegraph or node)
-    void addInputSockets(const InterfaceElement& elem);
+    void addInputSockets(const InterfaceElement& elem, ShaderGenerator& shadergen);
 
     /// Add output sockets from an interface element (nodedef, nodegraph or node)
     void addOutputSockets(const InterfaceElement& elem);
