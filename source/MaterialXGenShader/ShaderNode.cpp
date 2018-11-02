@@ -64,7 +64,6 @@ namespace
 
 const ShaderNodePtr ShaderNode::NONE = createEmptyNode();
 
-const string ShaderNode::SXCLASS_ATTRIBUTE = "sxclass";
 const string ShaderNode::CONSTANT = "constant";
 const string ShaderNode::IMAGE = "image";
 const string ShaderNode::COMPARE = "compare";
@@ -310,10 +309,6 @@ ShaderNodePtr ShaderNode::create(const string& name, const NodeDef& nodeDef, Sha
     {
         newNode->_classification = Classification::TEXTURE | Classification::CONSTANT;
     }
-    else if (nodeDef.getNodeString() == IMAGE || nodeDef.getAttribute(SXCLASS_ATTRIBUTE) == IMAGE)
-    {
-        newNode->_classification = Classification::TEXTURE | Classification::FILETEXTURE;
-    }
     else if (nodeDef.getNodeString() == COMPARE)
     {
         newNode->_classification = Classification::TEXTURE | Classification::CONDITIONAL | Classification::IFELSE;
@@ -321,6 +316,11 @@ ShaderNodePtr ShaderNode::create(const string& name, const NodeDef& nodeDef, Sha
     else if (nodeDef.getNodeString() == SWITCH)
     {
         newNode->_classification = Classification::TEXTURE | Classification::CONDITIONAL | Classification::SWITCH;
+    }
+    // Third, check for file texture classification by group name
+    else if (groupName == TEXTURE2D_GROUPNAME || groupName == TEXTURE3D_GROUPNAME)
+    {
+        newNode->_classification = Classification::TEXTURE | Classification::FILETEXTURE;
     }
 
     // Add in group classification

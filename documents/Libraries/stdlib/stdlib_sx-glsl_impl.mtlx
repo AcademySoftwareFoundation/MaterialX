@@ -480,15 +480,6 @@
   <implementation name="IM_rotate_vector2_sx_glsl" nodedef="ND_rotate_vector2" file="stdlib/sx-glsl/mx_rotate_vector2.glsl" function="mx_rotate_vector2" language="sx-glsl"/>
   <implementation name="IM_rotate_vector3_sx_glsl" nodedef="ND_rotate_vector3" file="stdlib/sx-glsl/mx_rotate_vector3.glsl" function="mx_rotate_vector3" language="sx-glsl"/>
 
-  <!-- <scale> -->
-  <implementation name="IM_scale_vector2_sx_glsl" nodedef="ND_scale_vector2" file="stdlib/sx-glsl/mx_scale.inline" language="sx-glsl"/>
-  <implementation name="IM_scale_vector2FA_sx_glsl" nodedef="ND_scale_vector2FA" file="stdlib/sx-glsl/mx_scale.inline" language="sx-glsl"/>
-  <implementation name="IM_scale_vector3_sx_glsl" nodedef="ND_scale_vector3" file="stdlib/sx-glsl/mx_scale.inline" language="sx-glsl"/>
-  <implementation name="IM_scale_vector3FA_sx_glsl" nodedef="ND_scale_vector3FA" file="stdlib/sx-glsl/mx_scale.inline" language="sx-glsl"/>
-
-  <!-- <rotate2d> -->
-  <implementation name="IM_rotate2d_vector2_sx_glsl" nodedef="ND_rotate2d_vector2" file="stdlib/sx-glsl/mx_rotate2d_vector2.glsl" function="mx_rotate2d_vector2" language="sx-glsl"/>
-
 
   <!-- ======================================================================== -->
   <!-- Adjustment nodes                                                         -->
@@ -525,10 +516,6 @@
   <implementation name="IM_smoothstep_vector3FA_sx_glsl" nodedef="ND_smoothstep_vector3FA" file="stdlib/sx-glsl/mx_smoothstep.inline" language="sx-glsl"/>
   <implementation name="IM_smoothstep_vector4_sx_glsl" nodedef="ND_smoothstep_vector4" file="stdlib/sx-glsl/mx_smoothstep.inline" language="sx-glsl"/>
   <implementation name="IM_smoothstep_vector4FA_sx_glsl" nodedef="ND_smoothstep_vector4FA" file="stdlib/sx-glsl/mx_smoothstep.inline" language="sx-glsl"/>
-
-  <!-- <hueshift> -->
-  <implementation name="IM_hueshift_color3_sx_glsl" nodedef="ND_hueshift_color3" file="stdlib/sx-glsl/mx_hueshift_color3.glsl" function="mx_hueshift_color3" language="sx-glsl"/>
-  <implementation name="IM_hueshift_color4_sx_glsl" nodedef="ND_hueshift_color4" file="stdlib/sx-glsl/mx_hueshift_color4.glsl" function="mx_hueshift_color4" language="sx-glsl"/>
 
   <!-- <saturate> -->
   <implementation name="IM_saturate_color3_sx_glsl" nodedef="ND_saturate_color3" file="stdlib/sx-glsl/mx_saturate_color3.glsl" function="mx_saturate_color3" language="sx-glsl"/>
