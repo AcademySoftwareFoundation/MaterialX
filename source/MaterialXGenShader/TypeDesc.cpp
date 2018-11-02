@@ -64,6 +64,7 @@ namespace Type
     // Register all standard types and save their pointers
     // for quick access and type comparisons later.
     const TypeDesc* NONE               = TypeDesc::registerType("none", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_NONE, 1, false);
+    const TypeDesc* MULTIOUTPUT        = TypeDesc::registerType("multioutput", TypeDesc::BASETYPE_NONE, TypeDesc::SEMATIC_NONE, 1, false);
     const TypeDesc* BOOLEAN            = TypeDesc::registerType("boolean", TypeDesc::BASETYPE_BOOLEAN);
     const TypeDesc* INTEGER            = TypeDesc::registerType("integer", TypeDesc::BASETYPE_INTEGER);
     const TypeDesc* INTEGERARRAY       = TypeDesc::registerType("integerarray", TypeDesc::BASETYPE_INTEGER, TypeDesc::SEMATIC_NONE, 0);
