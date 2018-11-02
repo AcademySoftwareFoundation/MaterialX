@@ -1,24 +1,24 @@
 <?xml version="1.0"?>
 <materialx version="1.36">
   <nodegraph name="multioutput_test1">
-    <complexior name="complexior1" type="multioutput">
+    <complex_ior name="complex_ior1" type="multioutput">
       <input name="ior" type="vector3" value="0.1556, 0.4242, 1.3831" />
       <input name="extinction" type="vector3" value="3.6024, 2.4721, 1.9155" />
       <output name="reflectivity" type="color3" />
       <output name="edgecolor" type="color3" />
-    </complexior>
-    <output name="reflectivity" type="color3" nodename="complexior1" output="reflectivity" />
+    </complex_ior>
+    <output name="reflectivity" type="color3" nodename="complex_ior1" output="reflectivity" />
   </nodegraph>
   <nodegraph name="multioutput_test2">
-    <complexior name="complexior1" type="multioutput">
+    <complex_ior name="complex_ior1" type="multioutput">
       <input name="ior" type="vector3" value="0.1556, 0.4242, 1.3831" />
       <input name="extinction" type="vector3" value="3.6024, 2.4721, 1.9155" />
       <output name="reflectivity" type="color3" />
       <output name="edgecolor" type="color3" />
-    </complexior>
+    </complex_ior>
     <multiply name="multiply1" type="color3">
-        <input name="in1" type="color3" nodename="complexior1" output="reflectivity" />
-        <input name="in2" type="color3" nodename="complexior1" output="edgecolor" />
+        <input name="in1" type="color3" nodename="complex_ior1" output="reflectivity" />
+        <input name="in2" type="color3" nodename="complex_ior1" output="edgecolor" />
     </multiply>
     <output name="out" type="color3" nodename="multiply1" />
   </nodegraph>

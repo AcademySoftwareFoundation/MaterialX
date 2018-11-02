@@ -82,14 +82,14 @@
     </conductorbrdf>
     <conductorbrdf name="metal2" type="BSDF">
       <input name="normal" type="vector3" nodename="shadingnormal1" />
-      <input name="reflectivity" type="color3" nodename="complexior1" output="reflectivity" />
-      <input name="edgecolor" type="color3" nodename="complexior1" output="edgecolor" />
+      <input name="reflectivity" type="color3" nodename="complex_ior1" output="reflectivity" />
+      <input name="edgecolor" type="color3" nodename="complex_ior1" output="edgecolor" />
       <input name="roughness" type="roughnessinfo" nodename="roughness1" />
     </conductorbrdf>
-    <complexior name="complexior1" type="multioutput">
+    <complex_ior name="complex_ior1" type="multioutput">
       <input name="ior" type="vector3" interfacename="ior_n" />
       <input name="extinction" type="vector3" interfacename="ior_k" />
-    </complexior>
+    </complex_ior>
     <mixbsdf name="mix" type="BSDF">
       <input name="weight" type="float" interfacename="artistic_vs_complex" />
       <input name="in1" type="BSDF" nodename="metal1" />

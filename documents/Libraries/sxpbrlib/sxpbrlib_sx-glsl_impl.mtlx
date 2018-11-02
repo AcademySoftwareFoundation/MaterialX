@@ -63,8 +63,8 @@
   <!-- <roughness> -->
   <implementation name="IM_roughness_sx_glsl" nodedef="ND_roughness" file="sxpbrlib/sx-glsl/sx_roughness.glsl" function="sx_roughness" language="sx-glsl"/>
 
-  <!-- <complexior> -->
-  <implementation name="IM_complexior_sx_glsl" nodedef="ND_complexior" file="sxpbrlib/sx-glsl/sx_complexior.glsl" function="sx_complexior" language="sx-glsl"/>
+  <!-- <complex_ior> -->
+  <implementation name="IM_complex_ior_sx_glsl" nodedef="ND_complex_ior" file="sxpbrlib/sx-glsl/sx_complex_ior.glsl" function="sx_complex_ior" language="sx-glsl"/>
 
   <!-- <normalmap> -->
   <implementation name="IM_normalmap_sx_glsl" nodedef="ND_normalmap" file="sxpbrlib/sx-glsl/sx_normalmap.glsl" function="sx_normalmap" language="sx-glsl"/>

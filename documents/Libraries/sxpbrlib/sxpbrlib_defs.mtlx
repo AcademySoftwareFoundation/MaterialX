@@ -318,11 +318,11 @@
   </nodedef>
 
   <!--
-    Node: <complexior>
-    A node converting scientific/complex IOR to the artistic IOR used by the conductorbsdf node.
+    Node: <complex_ior>
+    A node for converting scientific/complex IOR to the artistic IOR used by the conductorbsdf node.
   -->
-  <nodedef name="ND_complexior" node="complexior" type="multioutput" nodecategory="shaderx"
-           doc="A node converting scientific/complex IOR to the artistic IOR used by the conductorbsdf node.">
+  <nodedef name="ND_complex_ior" node="complex_ior" type="multioutput" nodecategory="shaderx"
+           doc="A node for converting scientific/complex IOR to the artistic IOR used by the conductorbsdf node.">
     <input name="ior" type="vector3"/>
     <input name="extinction" type="vector3"/>
     <output name="reflectivity" type="color3"/>
