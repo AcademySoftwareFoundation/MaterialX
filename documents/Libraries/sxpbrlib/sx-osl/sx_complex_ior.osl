@@ -1,0 +1,6 @@
+#include "sxpbrlib/sx-osl/lib/sx_refractionindex.osl"
+
+void sx_complex_ior(vector ior, vector extinction, output color reflectivity, output color edgecolor)
+{
+    sx_complex_to_artistic_ior(ior, extinction, reflectivity, edgecolor);
+}

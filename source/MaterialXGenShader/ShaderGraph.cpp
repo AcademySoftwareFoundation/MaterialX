@@ -112,6 +112,15 @@ void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
         // Make connections
         //
 
+        // Find the output to connect to
+        OutputPtr nodeDefOutput = upstreamNode->getNodeDefOutput(edge);
+        ShaderOutput* output = nodeDefOutput ? newNode->getOutput(nodeDefOutput->getName()) : newNode->getOutput();
+        if (!output)
+        {
+            throw ExceptionShaderGenError("Could not find an output named '" + (nodeDefOutput ? nodeDefOutput->getName() : string("out")) +
+                "' on upstream node '" + upstreamNode->getName() + "'");
+        }
+
         // First check if this was a bind input connection
         // In this case we must have a root node as well
         ElementPtr connectingElement = edge.getConnectingElement();
@@ -122,7 +131,7 @@ void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
             if (input)
             {
                 input->breakConnection();
-                input->makeConnection(newNode->getOutput());
+                input->makeConnection(output);
             }
         }
         else
@@ -141,7 +150,7 @@ void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
                         throw ExceptionShaderGenError("Could not find an input named '" + connectingElement->getName() +
                             "' on downstream node '" + downstream->getName() + "'");
                     }
-                    input->makeConnection(newNode->getOutput());
+                    input->makeConnection(output);
                 }
             }
             else
@@ -150,7 +159,7 @@ void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
                 ShaderGraphOutputSocket* outputSocket = getOutputSocket(downstreamElement->getName());
                 if (outputSocket)
                 {
-                    outputSocket->makeConnection(newNode->getOutput());
+                    outputSocket->makeConnection(output);
                 }
             }
         }
@@ -466,7 +475,7 @@ ShaderNode* ShaderGraph::addNode(const Node& node, ShaderGenerator& shadergen)
     _nodeMap[name] = newNode;
     _nodeOrder.push_back(newNode.get());
 
-    // Check if the node is a convotion. If so mark that the graph has a convolution
+    // Check if the node is a convolution. If so mark that the graph has a convolution
     if (newNode->hasClassification(Classification::CONVOLUTION2D))
     {
         _classification |= Classification::CONVOLUTION2D;

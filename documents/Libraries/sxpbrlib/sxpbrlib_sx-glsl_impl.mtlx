@@ -63,11 +63,8 @@
   <!-- <roughness> -->
   <implementation name="IM_roughness_sx_glsl" nodedef="ND_roughness" file="sxpbrlib/sx-glsl/sx_roughness.glsl" function="sx_roughness" language="sx-glsl"/>
 
-  <!-- <reflectivity> -->
-  <implementation name="IM_reflectivity_sx_glsl" nodedef="ND_reflectivity" file="sxpbrlib/sx-glsl/sx_reflectivity.glsl" function="sx_reflectivity" language="sx-glsl"/>
-
-  <!-- <edgetint> -->
-  <implementation name="IM_edgetint_sx_glsl" nodedef="ND_edgetint" file="sxpbrlib/sx-glsl/sx_edgetint.glsl" function="sx_edgetint" language="sx-glsl"/>
+  <!-- <complex_ior> -->
+  <implementation name="IM_complex_ior_sx_glsl" nodedef="ND_complex_ior" file="sxpbrlib/sx-glsl/sx_complex_ior.glsl" function="sx_complex_ior" language="sx-glsl"/>
 
   <!-- <normalmap> -->
   <implementation name="IM_normalmap_sx_glsl" nodedef="ND_normalmap" file="sxpbrlib/sx-glsl/sx_normalmap.glsl" function="sx_normalmap" language="sx-glsl"/>

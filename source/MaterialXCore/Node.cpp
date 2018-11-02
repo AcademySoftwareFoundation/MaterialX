@@ -107,6 +107,21 @@ Edge Node::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
     return NULL_EDGE;
 }
 
+OutputPtr Node::getNodeDefOutput(const Edge& edge)
+{
+    const ElementPtr connectingElement = edge.getConnectingElement();
+    const PortElementPtr input = connectingElement ? connectingElement->asA<PortElement>() : nullptr;
+    if (input)
+    {
+        NodeDefPtr nodeDef = getNodeDef();
+        if (nodeDef)
+        {
+            return nodeDef->getOutput(input->getOutputString());
+        }
+    }
+    return OutputPtr();
+}
+
 vector<PortElementPtr> Node::getDownstreamPorts() const
 {
     vector<PortElementPtr> downstreamPorts;
