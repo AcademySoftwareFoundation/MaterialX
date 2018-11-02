@@ -1,6 +1,0 @@
-#include "sxpbrlib/sx-osl/lib/sx_complexior.osl"
-
-void sx_edgetint(vector ior_n, color reflectivity, output color result)
-{
-    result = sx_get_edgetint(ior_n, reflectivity);
-}

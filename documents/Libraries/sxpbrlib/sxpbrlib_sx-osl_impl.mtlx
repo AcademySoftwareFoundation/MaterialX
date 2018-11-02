@@ -48,11 +48,8 @@
   <!-- <roughness> -->
   <implementation name="IM_roughness_sx_osl" nodedef="ND_roughness" file="sxpbrlib/sx-osl/sx_roughness.osl" function="sx_roughness" language="sx-osl"/>
 
-  <!-- <reflectivity> -->
-  <implementation name="IM_reflectivity_sx_osl" nodedef="ND_reflectivity" file="sxpbrlib/sx-osl/sx_reflectivity.osl" function="sx_reflectivity" language="sx-osl"/>
-
-  <!-- <edgetint> -->
-  <implementation name="IM_edgetint_sx_osl" nodedef="ND_edgetint" file="sxpbrlib/sx-osl/sx_edgetint.osl" function="sx_edgetint" language="sx-osl"/>
+  <!-- <complexior> -->
+  <implementation name="IM_complexior_sx_osl" nodedef="ND_complexior" file="sxpbrlib/sx-osl/sx_complexior.osl" function="sx_complexior" language="sx-osl"/>
 
   <!-- <normalmap> -->
   <implementation name="IM_normalmap_sx_osl" nodedef="ND_normalmap" file="sxpbrlib/sx-osl/sx_normalmap.osl" function="sx_normalmap" language="sx-osl"/>

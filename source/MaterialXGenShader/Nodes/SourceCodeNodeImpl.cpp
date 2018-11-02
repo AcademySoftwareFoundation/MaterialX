@@ -116,12 +116,14 @@ void SourceCodeNodeImpl::emitFunctionCall(const ShaderNode& node, GenContext& co
     else
     {
         // An ordinary source code function call
-        // TODO: Support multiple outputs
 
-        // Declare the output variable
-        shader.beginLine();
-        shadergen.emitOutput(context, node.getOutput(), true, true, shader);
-        shader.endLine();
+        // Declare the output variables
+        for (size_t i = 0; i < node.numOutputs(); ++i)
+        {
+            shader.beginLine();
+            shadergen.emitOutput(context, node.getOutput(i), true, true, shader);
+            shader.endLine();
+        }
 
         shader.beginLine();
 
@@ -146,9 +148,13 @@ void SourceCodeNodeImpl::emitFunctionCall(const ShaderNode& node, GenContext& co
             delim = ", ";
         }
 
-        // Emit function output
-        shader.addStr(delim);
-        shadergen.emitOutput(context, node.getOutput(), false, false, shader);
+        // Emit function outputs
+        for (size_t i = 0; i < node.numOutputs(); ++i)
+        {
+            shader.addStr(delim);
+            shadergen.emitOutput(context, node.getOutput(i), false, false, shader);
+            delim = ", ";
+        }
 
         // End function call
         shader.addStr(")");

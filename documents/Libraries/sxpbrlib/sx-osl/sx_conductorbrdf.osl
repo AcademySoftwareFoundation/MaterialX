@@ -1,4 +1,4 @@
-#include "sxpbrlib/sx-osl/lib/sx_complexior.osl"
+#include "sxpbrlib/sx-osl/lib/sx_refractionindex.osl"
 #include "sxpbrlib/sx-osl/lib/sx_fresnel.osl"
 
 void sx_conductorbrdf(float weight, color reflectivity, color edgecolor, roughnessinfo roughness, normal N, vector U, string distribution, output BSDF result)
@@ -17,7 +17,7 @@ void sx_conductorbrdf(float weight, color reflectivity, color edgecolor, roughne
     //
     float NdotV = fabs(dot(N,-I));
     vector ior_n, ior_k;
-    sx_complexior(reflectivity, edgecolor, ior_n, ior_k);
+    sx_artistic_to_complex_ior(reflectivity, edgecolor, ior_n, ior_k);
     color F = sx_fresnel_conductor(NdotV, ior_n, ior_k);
     F *= weight;
 

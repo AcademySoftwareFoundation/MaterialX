@@ -318,23 +318,15 @@
   </nodedef>
 
   <!--
-    Node: <reflectivity>
-    A node calculating reflectivity from complex refraction index.
+    Node: <complexior>
+    A node converting scientific/complex IOR to the artistic IOR used by the conductorbsdf node.
   -->
-  <nodedef name="ND_reflectivity" node="reflectivity" type="color3" nodecategory="shaderx"
-           doc="A node calculating reflectivity from complex refraction index.">
+  <nodedef name="ND_complexior" node="complexior" type="multioutput" nodecategory="shaderx"
+           doc="A node converting scientific/complex IOR to the artistic IOR used by the conductorbsdf node.">
     <input name="ior" type="vector3"/>
     <input name="extinction" type="vector3"/>
-  </nodedef>
-
-  <!--
-    Node: <edgetint>
-    A node calculating edgetint from refraction index and reflectivity.
-  -->
-  <nodedef name="ND_edgetint" node="edgetint" type="color3" nodecategory="shaderx"
-           doc="A node calculating edgetint from refraction index and reflectivity.">
-    <input name="ior" type="vector3"/>
-    <input name="reflectivity" type="color3"/>
+    <output name="reflectivity" type="color3"/>
+    <output name="edgecolor" type="color3"/>
   </nodedef>
 
   <!--
