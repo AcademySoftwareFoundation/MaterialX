@@ -141,10 +141,13 @@ void CompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
 
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
-    // Declare the output variable
-    shader.beginLine();
-    shadergen.emitOutput(context, node.getOutput(), true, true, shader);
-    shader.endLine();
+	// Declare the output variables
+	for (size_t i = 0; i < node.numOutputs(); ++i)
+	{
+		shader.beginLine();
+		shadergen.emitOutput(context, node.getOutput(i), true, true, shader);
+		shader.endLine();
+	}
 
     shader.beginLine();
 
@@ -169,9 +172,13 @@ void CompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
         delim = ", ";
     }
 
-    // Emit function output
-    shader.addStr(delim);
-    shadergen.emitOutput(context, node.getOutput(), false, false, shader);
+	// Emit function outputs
+	for (size_t i = 0; i < node.numOutputs(); ++i)
+	{
+		shader.addStr(delim);
+		shadergen.emitOutput(context, node.getOutput(i), false, false, shader);
+		delim = ", ";
+	}
 
     // End function call
     shader.addStr(")");
