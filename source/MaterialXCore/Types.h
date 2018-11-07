@@ -208,6 +208,16 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     ConstIterator end() const { return _arr.end(); }
 
     /// @}
+    /// @name Data Pointers
+    /// @{
+
+    /// Return a pointer to the underlying data array.
+    S* data() { return _arr.data(); }
+
+    /// Return a const pointer to the underlying data array.
+    const S* data() const { return _arr.data(); }
+
+    /// @}
     /// @name Static Methods
     /// @{
 
@@ -491,6 +501,16 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
 
     Iterator end() { return _arr.end(); }
     ConstIterator end() const { return _arr.end(); }
+
+    /// @}
+    /// @name Data Pointers
+    /// @{
+
+    /// Return a pointer to the underlying data array.
+    S* data() { return _arr.front().data(); }
+
+    /// Return a const pointer to the underlying data array.
+    const S* data() const { return _arr.front().data(); }
 
     /// @}
     /// @name Static Methods
