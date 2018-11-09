@@ -454,7 +454,7 @@ void GlslValidator::validateRender(bool orthographicView)
 
                 // Unbind resources
                 _program->unbind();
-                _program->unbindInputs();
+                _program->unbindInputs(_imageHandler);
             }
         }
 
@@ -548,7 +548,12 @@ void GlslValidator::save(const std::string& fileName)
     }
 
     // Save using the handler
-    bool saved = _imageHandler->saveImage(fileName, _frameBufferWidth, _frameBufferHeight, 4, buffer);
+    ImageDesc desc;
+    desc.width = _frameBufferWidth;
+    desc.height = _frameBufferHeight;
+    desc.channelCount = 4;
+    desc.resourceBuffer = buffer;
+    bool saved = _imageHandler->saveImage(fileName, desc);
     delete[] buffer;
 
     if (!saved)

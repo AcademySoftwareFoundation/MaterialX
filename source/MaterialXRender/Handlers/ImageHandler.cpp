@@ -1,38 +1,102 @@
+#include <MaterialXCore/Types.h>
+#include <MaterialXGenShader/Util.h>
 #include <MaterialXRender/Handlers/ImageHandler.h>
 #include <cmath>
 
 namespace MaterialX
 {
-
-bool ImageHandler::createDefaultImage(unsigned int& width,
-                                      unsigned int& height,
-                                      unsigned char** buffer)
+ImageHandler::ImageHandler(ImageLoaderPtr imageLoader)
 {
-    // Create a ramp texture as the default
-    //
-    const unsigned int imageSize = 256;
-    unsigned int middle = imageSize / 2;
-    *buffer = new unsigned char[imageSize * imageSize * 4];
-    unsigned char* pixel = *buffer;
-    for (unsigned int i = 0; i<imageSize; i++)
-    {
-        for (unsigned int j = 0; j<imageSize; j++)
-        {
-            float fi = (float)i;
-            float fj = (float)j;
-            float dist = std::sqrt(std::pow((middle - fj), 2) + std::pow((middle - fi), 2));
-            dist /= imageSize;
-            float mdist = (1.0f - dist);
+    addLoader(imageLoader);
+}
 
-            *pixel++ = (unsigned char)(65.0f * dist + 255.0f * mdist);
-            *pixel++ = (unsigned char)(205.0f * dist + 147.0f * mdist);
-            *pixel++ = (unsigned char)(255.0f * dist + 75.0f * mdist);
-            *pixel++ = 255;
+void ImageHandler::addLoader(ImageLoaderPtr loader)
+{
+    const StringVec& extensions = loader->supportedExtensions();
+    for (auto extension : extensions)
+    {
+        _imageLoaders.insert(std::pair<std::string, ImageLoaderPtr>(extension, loader));
+    }
+}
+
+bool ImageHandler::saveImage(const std::string& fileName,
+                            const ImageDesc &imageDesc)
+{
+    std::pair <ImageLoaderMap::iterator, ImageLoaderMap::iterator> range;
+    string extension = MaterialX::getFileExtension(fileName);
+    range = _imageLoaders.equal_range(extension);
+    ImageLoaderMap::iterator first = --range.second;
+    ImageLoaderMap::iterator last = --range.first;
+    for (auto it = first; it != last; --it)
+    {
+        bool saved = it->second->saveImage(fileName, imageDesc);
+        if (saved)
+        {
+            return true;
         }
     }
-    width = imageSize;
-    height = imageSize;
+    return false;
+}
+
+bool ImageHandler::acquireImage(std::string& fileName, ImageDesc &imageDesc, bool generateMipMaps)
+{
+    std::pair <ImageLoaderMap::iterator, ImageLoaderMap::iterator> range;
+    string extension = MaterialX::getFileExtension(fileName);
+    range = _imageLoaders.equal_range(extension);
+    ImageLoaderMap::iterator first = --range.second;
+    ImageLoaderMap::iterator last= --range.first;
+    for (auto it = first; it != last; --it)
+    {
+        bool acquired = it->second->acquireImage(fileName, imageDesc, generateMipMaps);
+        if (acquired)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool ImageHandler::createColorImage(float color[4],
+                                    ImageDesc& desc)
+{
+    // Create a solid color image
+    //
+    desc.resourceBuffer = new float[desc.width * desc.height * desc.channelCount];
+    float* pixel = desc.resourceBuffer;
+    for (size_t i = 0; i<desc.width; i++)
+    {
+        for (size_t j = 0; j<desc.height; j++)
+        {
+            for (unsigned int c = 0; c < desc.channelCount; c++)
+            {
+                *pixel++ = color[c];
+            }
+        }
+    }
+    desc.computeMipCount();
     return true;
+}
+
+void ImageHandler::cacheImage(const std::string& identifier, const ImageDesc& desc)
+{
+    if (!_imageCache.count(identifier))
+    {
+        _imageCache[identifier] = desc;
+    }
+}
+
+void ImageHandler::uncacheImage(const std::string& identifier)
+{
+    _imageCache.erase(identifier);
+}
+
+const ImageDesc* ImageHandler::getCachedImage(const std::string& identifier)
+{
+    if (_imageCache.count(identifier))
+    {
+        return &(_imageCache[identifier]);
+    }
+    return nullptr;
 }
 
 }

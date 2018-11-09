@@ -143,7 +143,7 @@ class GlslProgram
                     HwLightHandlerPtr lightHandler);
 
     /// Unbind inputs
-    void unbindInputs();
+    void unbindInputs(ImageHandlerPtr imageHandler);
 
     /// Return if there are any active inputs on the program
     bool haveActiveAttributes() const;
@@ -155,7 +155,7 @@ class GlslProgram
     /// A hardware buffer of the given attribute type is created and bound to the program locations
     /// for the input attribute.
     /// @param inputs Attribute inputs to bind to
-    void bindAttribute(const MaterialX::GlslProgram::InputMap& inputs, GeometryHandlerPtr geometryHandler);
+    void bindAttribute(const GlslProgram::InputMap& inputs, GeometryHandlerPtr geometryHandler);
 
     /// Bind input geometry streams
     void bindGeometry(GeometryHandlerPtr geometryHandler);
@@ -167,7 +167,7 @@ class GlslProgram
     void bindTextures(ImageHandlerPtr imageHandler);
 
     /// Unbind input textures
-    void unbindTextures();
+    void unbindTextures(ImageHandlerPtr imageHandler);
 
     /// Bind lighting
     void bindLighting(HwLightHandlerPtr lightHandler, ImageHandlerPtr imageHandler);
@@ -213,16 +213,17 @@ class GlslProgram
     /// @return OpenGL type. INVALID_OPENGL_TYPE is returned if no mapping exists. For example strings have no OpenGL type.
     static int mapTypeToOpenGLType(const TypeDesc* type);
 
+    /// Utility to find a uniform value in an uniform list.
+    /// If uniform cannot be found a null pointer will be return.
+    MaterialX::ValuePtr findUniformValue(const std::string& uniformName, const InputMap& uniformList);
+
     /// @}
     /// @name Utilities
     /// @{
 
     /// Bind an individual texture to a program uniform location
     bool bindTexture(unsigned int uniformType, int uniformLocation, const string& fileName,
-                     ImageHandlerPtr imageHandler, bool generateMipMaps);
-
-    /// Dummy texture for testing with
-    void createDummyTexture(ImageHandlerPtr imageHandler);
+                     ImageHandlerPtr imageHandler, bool generateMipMaps, const ImageSamplingProperties& imageProperties);
 
     /// Internal cleanup of stages and OpenGL constructs
     void cleanup();
@@ -267,16 +268,8 @@ class GlslProgram
     /// Attribute vertex array handle
     unsigned int _vertexArray;
 
-    /// Dummy texture
-    unsigned int _dummyTexture;
-
     /// Program texture map
     std::unordered_map<std::string, unsigned int> _programTextures;
-
-    /// Maximum image units
-    int _maxImageUnits;
-    /// Active texture units used
-    int _textureUnitsInUse;
 };
 
 } // namespace MaterialX

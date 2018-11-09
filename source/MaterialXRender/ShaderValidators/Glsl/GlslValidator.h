@@ -7,7 +7,7 @@
 #include <MaterialXRender/Handlers/ImageHandler.h>
 #include <MaterialXRender/Window/SimpleWindow.h>
 #include <MaterialXRender/OpenGL/GLUtilityContext.h>
-#include <MaterialXRender/ShaderValidators/Glsl/GlslProgram.h>
+#include <MaterialXRender/OpenGL/GlslProgram.h>
 #include <vector>
 #include <string>
 #include <map>

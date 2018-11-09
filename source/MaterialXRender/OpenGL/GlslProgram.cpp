@@ -1,6 +1,7 @@
 
 #include <MaterialXRender/External/GLew/glew.h>
-#include <MaterialXRender/ShaderValidators/Glsl/GlslProgram.h>
+#include <MaterialXRender/OpenGL/GlslProgram.h>
+#include <MaterialXGenShader/Util.h>
 
 #include <iostream>
 #include <algorithm>
@@ -17,6 +18,13 @@ int GlslProgram::Input::INVALID_OPENGL_TYPE = -1;
 static string RADIANCE_ENV_UNIFORM_NAME("u_envSpecular");
 static string IRRADIANCE_ENV_UNIFORM_NAME("u_envIrradiance");
 
+/// Sampling constants
+static string UADDRESS_MODE_POST_FIX("_uaddressmode");
+static string VADDRESS_MODE_POST_FIX("_vaddressmode");
+static string FILTER_TYPE_POST_FIX("_filterType");
+static string DEFAULT_COLOR_POST_FIX("_default");
+
+
 //
 // Creator
 //
@@ -30,10 +38,7 @@ GlslProgram::GlslProgram() :
     _hwShader(nullptr),
     _indexBuffer(0),
     _indexBufferSize(0),
-    _vertexArray(0),
-    _dummyTexture(0),
-    _maxImageUnits(-1),
-    _textureUnitsInUse(0)
+    _vertexArray(0)
 {
 }
 
@@ -320,9 +325,9 @@ void GlslProgram::bindInputs(ViewHandlerPtr viewHandler,
     }
 }
 
-void GlslProgram::unbindInputs()
+void GlslProgram::unbindInputs(ImageHandlerPtr imageHandler)
 {
-    unbindTextures();
+    unbindTextures(imageHandler);
     unbindGeometry();
 
     // Clean up raster state if transparency was set in bindInputs()
@@ -512,139 +517,47 @@ void GlslProgram::unbindGeometry()
     checkErrors();
 }
 
-void GlslProgram::unbindTextures()
+void GlslProgram::unbindTextures(ImageHandlerPtr imageHandler)
 {
-    for (GLint i=0; i<_textureUnitsInUse; i++)
-    { 
-        // Unbind a texture to that unit
-        glActiveTexture(GL_TEXTURE0 + i);
-        glBindTexture(GL_TEXTURE_2D, MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
-        checkErrors();
-    }
-    _textureUnitsInUse = 0;
-
-    // Delete any allocated textures
-    if (_dummyTexture != MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
-    {
-        glDeleteTextures(1, &_dummyTexture);
-        _dummyTexture = MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
-    }
-    for (auto iter : _programTextures)
-    {
-        if (iter.second != MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
-        {
-            glDeleteTextures(1, &iter.second);
-        }
-    }
-    _programTextures.clear();
-
+    imageHandler->clearImageCache();
     checkErrors();
 }
 
-void GlslProgram::createDummyTexture(ImageHandlerPtr imageHandler)
-{
-    if (_dummyTexture == MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
-    {
-        unsigned int width = 0;
-        unsigned int height = 0;
-        unsigned char* pixels = nullptr;
-        if (imageHandler)
-        {
-            imageHandler->createDefaultImage(width, height, &pixels);
-        }
-
-        if ((width * height > 0) && pixels)
-        {
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glGenTextures(1, &_dummyTexture);
-
-            glBindTexture(GL_TEXTURE_2D, _dummyTexture);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height,
-                0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-            // Note: Must do this for default sampling to lookup properly.
-            glGenerateMipmap(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
-        }
-    }
-}
-
 bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, const string& fileName,  
-                              ImageHandlerPtr imageHandler, bool generateMipMaps)
+                              ImageHandlerPtr imageHandler, bool generateMipMaps,
+                              const ImageSamplingProperties& samplingProperties)
 {
     bool textureBound = false;
-
     if (uniformLocation >= 0 &&
         uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
-    {
-        // Use next available slot
-        if (_maxImageUnits < 0)
+    {        
+        ImageDesc imageDesc;
+        string identifier(fileName);
+        bool haveImage = imageHandler->acquireImage(identifier, imageDesc, generateMipMaps);
+
+        if (haveImage)
         {
-            glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_maxImageUnits);
+            // Map location to a texture unit
+            glUniform1i(uniformLocation, imageDesc.resourceId);
+            textureBound = imageHandler->bindImage(identifier, samplingProperties);
         }
-        if (_textureUnitsInUse >= _maxImageUnits)
-        {
-            return false;
-        }
-        
-        // Map location to a texture unit
-        glUniform1i(uniformLocation, _textureUnitsInUse);
-        // Bind a texture to that unit
-        glActiveTexture(GL_TEXTURE0 + _textureUnitsInUse);
-
-        if (!fileName.empty() && imageHandler)
-        {
-            // Check to see if we have already loaded in the texture.
-            // If so, reuse the existing texture id
-            auto it = _programTextures.find(fileName);
-            if (it != _programTextures.end())
-            {
-                glBindTexture(GL_TEXTURE_2D, it->second);
-            }
-            else
-            { 
-                unsigned int width = 0;
-                unsigned int height = 0;
-                unsigned int channelCount = 0;
-                float* buffer = nullptr;
-                if (imageHandler->loadImage(fileName, width, height, channelCount, &buffer) &&
-                    (channelCount == 3 || channelCount == 4))
-                {
-                    unsigned int newTexture = MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
-                    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-                    glGenTextures(1, &newTexture);
-                    glBindTexture(GL_TEXTURE_2D, newTexture);
-                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height,
-                        0, (channelCount == 4 ? GL_RGBA : GL_RGB), GL_FLOAT, buffer);
-                    if (generateMipMaps)
-                    {
-                        glGenerateMipmap(GL_TEXTURE_2D);
-                    }
-
-                    free(buffer);
-                    buffer = nullptr;
-
-                    // Keep track of texture created using file name as the unique key
-                    _programTextures[fileName] = newTexture;
-
-                    textureBound = true;
-                }
-            }
-        }
-
-        if (!textureBound)
-        {
-            createDummyTexture(imageHandler);
-            glBindTexture(GL_TEXTURE_2D, _dummyTexture); // Bind a dummy texture
-            textureBound = true;
-        }
+        checkErrors();
     }
-
-    if (textureBound)
-    {
-        _textureUnitsInUse++;
-    }
-
     return textureBound;
+}
+
+MaterialX::ValuePtr GlslProgram::findUniformValue(const std::string& uniformName, const MaterialX::GlslProgram::InputMap& uniformList)
+{
+    auto uniform = uniformList.find(uniformName);
+    if (uniform != uniformList.end())
+    {
+        int location = uniform->second->location;
+        if (location >= 0)
+        {
+            return uniform->second->value;         
+        }
+    }
+    return nullptr;
 }
 
 void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
@@ -665,6 +578,7 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
 
     // Bind textures based on uniforms found in the program
     const MaterialX::GlslProgram::InputMap& uniformList = getUniformsList();
+    const std::string IMAGE_SEPERATOR("_");
     for (auto uniform : uniformList)
     {
         GLenum uniformType = uniform.second->gltype;
@@ -680,11 +594,36 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
                 fileName != RADIANCE_ENV_UNIFORM_NAME &&
                 fileName != IRRADIANCE_ENV_UNIFORM_NAME)
             {
-                bindTexture(uniformType, uniformLocation, fileName, imageHandler, true);
+                // Get the additional texture parameters based on image uniform name
+                MaterialX::StringVec root = MaterialX::splitString(uniform.first, IMAGE_SEPERATOR);
+
+                ImageSamplingProperties samplingProperties;
+
+                const int INVALID_MAPPED_INT_VALUE = -1; // Any value < 0 is not considered to be invalid
+                const std::string uaddressModeStr = root[0] + UADDRESS_MODE_POST_FIX;
+                ValuePtr intValue = findUniformValue(uaddressModeStr, uniformList);
+                samplingProperties.uaddressMode = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
+                
+                const std::string vaddressmodeStr = root[0] + VADDRESS_MODE_POST_FIX;
+                intValue = findUniformValue(vaddressmodeStr, uniformList);
+                samplingProperties.vaddressMode = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
+                
+                const std::string filtertypeStr = root[0] + FILTER_TYPE_POST_FIX;
+                intValue = findUniformValue(filtertypeStr, uniformList);
+                samplingProperties.filterType = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
+
+                const std::string defaultColorStr = root[0] + DEFAULT_COLOR_POST_FIX;
+                ValuePtr colorValue = findUniformValue(defaultColorStr, uniformList);
+                Color4 defaultColor;
+                mapValueToColor(colorValue, defaultColor);
+                samplingProperties.defaultColor[0] = defaultColor[0];
+                samplingProperties.defaultColor[1] = defaultColor[1];
+                samplingProperties.defaultColor[2] = defaultColor[2];
+                samplingProperties.defaultColor[3] = defaultColor[3];
+                bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, samplingProperties);
             }
         }
     }
-
     checkErrors();
 }
 
@@ -756,7 +695,8 @@ void GlslProgram::bindLighting(HwLightHandlerPtr lightHandler, ImageHandlerPtr i
             {
                 fileName = ibl.second;
             }
-            bindTexture(uniformType, uniformLocation, fileName, imageHandler, true);
+            ImageSamplingProperties desc;
+            bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, desc);
         }
     }
 
