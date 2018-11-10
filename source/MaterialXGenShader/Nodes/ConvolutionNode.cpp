@@ -173,7 +173,7 @@ void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node, GenContext& con
 
         if (inInput->type->isScalar())
         {
-            string scalarValueString = inInput->value->getValueString();
+            string scalarValueString = inInput->value ? inInput->value->getValueString() : "1";
             for (unsigned int i = 0; i < _sampleCount; i++)
             {
                 sampleStrings.push_back(scalarValueString);
