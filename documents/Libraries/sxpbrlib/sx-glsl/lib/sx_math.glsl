@@ -35,10 +35,10 @@ float sx_max_component(vec4 v)
 
 bool sx_is_tiny(float v)
 {
-    return v < M_FLOAT_EPS;
+    return abs(v) < M_FLOAT_EPS;
 }
 
 bool sx_is_tiny(vec3 v)
 {
-    return v.x < M_FLOAT_EPS && v.y < M_FLOAT_EPS && v.z < M_FLOAT_EPS;
+    return all(lessThan(abs(v), vec3(M_FLOAT_EPS)));
 }

@@ -126,8 +126,8 @@ TEST_CASE("GLSL Source", "[shadervalid]")
     for (auto shaderName : shaderNames)
     {
         log << "------------ Validate shader from source: " << shaderName << std::endl;
-        std::string vertexShaderPath = shaderName + ".vert";
-        std::string pixelShaderPath = shaderName + ".frag";
+        std::string vertexShaderPath = shaderName + "_vs.glsl";
+        std::string pixelShaderPath = shaderName + "_ps.glsl";
 
         unsigned int stagesFound = 0;
         std::stringstream vertexShaderStream;
@@ -396,7 +396,7 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
         mx::ShaderPtr shader;
         try
         {
-            options.hwTransparency = mx::isTransparentSurface(element, shaderGenerator);
+			options.hwTransparency = mx::isTransparentSurface(element, shaderGenerator);
             shader = shaderGenerator.generate(shaderName, element, options);
         }
         catch(mx::ExceptionShaderGenError e)
@@ -462,10 +462,10 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
         {
             // Dump shader stages on error
             std::ofstream file;
-            file.open(shaderPath + ".vert");
+            file.open(shaderPath + "_vs.glsl");
             file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
             file.close();
-            file.open(shaderPath + ".frag");
+            file.open(shaderPath + "_ps.glsl");
             file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
             file.close();
 
@@ -473,7 +473,7 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
             {
                 log << e.what() << " " << error << std::endl;
             }
-            log << ">> Refer to shader code in dump files: " << shaderPath << "(.vert, .frag) files" << std::endl;
+            log << ">> Refer to shader code in dump files: " << shaderPath << "(_vs.glsl, _ps.glsl) files" << std::endl;
         }
         CHECK(validated);
     }
