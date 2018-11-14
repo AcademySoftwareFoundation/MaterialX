@@ -1,6 +1,7 @@
 #ifndef MATERIALX_IMAGEHANDLER_H
 #define MATERIALX_IMAGEHANDLER_H
 
+#include <algorithm>
 #include <string>
 #include <memory>
 #include <cmath>
@@ -24,7 +25,9 @@ class ImageDesc
     /// Number of mip map levels
     unsigned int mipCount = 0;
     /// CPU buffer. May be empty
-    float* resourceBuffer = nullptr;
+    void* resourceBuffer = nullptr;
+    /// Is buffer floating point
+    bool floatingPoint = true;
     /// Hardware target dependent resource identifier. May be empty
     unsigned int resourceId = 0;
 
@@ -67,6 +70,18 @@ class ImageLoader
 
     /// Default destructor
     virtual ~ImageLoader() {}
+
+    /// Stock extension names
+    static std::string BMP_EXTENSION;
+    static std::string EXR_EXTENSION;
+    static std::string GIF_EXTENSION;
+    static std::string HDR_EXTENSION;
+    static std::string JPG_EXTENSION;
+    static std::string JPEG_EXTENSION;
+    static std::string PIC_EXTENSION;
+    static std::string PNG_EXTENSION;
+    static std::string PSD_EXTENSION;
+    static std::string TGA_EXTENSION;
 
     /// Returns a list of supported extensions
     /// @return List of support extensions

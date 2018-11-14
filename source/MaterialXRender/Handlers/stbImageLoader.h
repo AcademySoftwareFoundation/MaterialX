@@ -1,31 +1,38 @@
-#ifndef MATERIALX_TINYEXRIMAGELOADER_H
-#define MATERIALX_TINYEXRIMAGELOADER_H
+#ifndef MATERIALX_STBIMAGELOADER_H
+#define MATERIALX_STBIMAGELOADER_H
 
 #include <MaterialXRender/Handlers/ImageHandler.h>
 
 namespace MaterialX
 {
-/// Shared pointer to an TinyEXRImageLoader
-using TinyEXRImageLoaderPtr = std::shared_ptr<class TinyEXRImageLoader>;
+/// Shared pointer to an stbImageLoader
+using stbImageLoaderPtr = std::shared_ptr<class stbImageLoader>;
 
-/// @class @TinyEXRImageLoader
-/// Disk image loader wrapper using TinyEXR
+/// @class @stbImageLoader
+/// Disk image loader wrapper using stb library
 ///
-class TinyEXRImageLoader : public ImageLoader
+class stbImageLoader : public ImageLoader
 {
 public:
     /// Static instance create function
-    static TinyEXRImageLoaderPtr create() { return std::make_shared<TinyEXRImageLoader>(); }
+    static stbImageLoaderPtr create() { return std::make_shared<stbImageLoader>(); }
 
-    /// Default constructor
-    TinyEXRImageLoader() 
+    /// Default constructor. Set all extensions supported by stb
+    stbImageLoader() 
     {
-        // Add EXR to list of supported extension
-        _extensions.push_back(EXR_EXTENSION);
+        _extensions.push_back(BMP_EXTENSION);
+        _extensions.push_back(GIF_EXTENSION);
+        _extensions.push_back(HDR_EXTENSION);
+        _extensions.push_back(JPG_EXTENSION);
+        _extensions.push_back(JPEG_EXTENSION);
+        _extensions.push_back(PIC_EXTENSION);
+        _extensions.push_back(PNG_EXTENSION);
+        _extensions.push_back(PSD_EXTENSION);
+        _extensions.push_back(TGA_EXTENSION);
     }
 
     /// Default destructor
-    virtual ~TinyEXRImageLoader() {}    
+    virtual ~stbImageLoader() {}    
 
     /// Save image to disk. This method must be implemented by derived classes.
     /// @param fileName Name of file to save image to

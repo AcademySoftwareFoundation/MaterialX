@@ -28,6 +28,7 @@
 #endif
 
 #include <MaterialXRender/Handlers/TinyEXRImageLoader.h>
+#include <MaterialXRender/Handlers/stbImageLoader.h>
 
 #include <fstream>
 #include <iostream>
@@ -65,8 +66,10 @@ TEST_CASE("GLSL Source", "[shadervalid]")
     // Validator initiazation will create a offscreen
     // window and offscreen OpenGL context for usage.
     mx::GlslValidatorPtr validator = mx::GlslValidator::create();
-    mx::TinyEXRImageLoaderPtr loader = mx::TinyEXRImageLoader::create();
-    mx::GLTextureHandlerPtr handler = mx::GLTextureHandler::create(loader);
+    mx::TinyEXRImageLoaderPtr exrLoader = mx::TinyEXRImageLoader::create();
+    mx::GLTextureHandlerPtr handler = mx::GLTextureHandler::create(exrLoader);
+    mx::stbImageLoaderPtr stbLoader = mx::stbImageLoader::create();
+    handler->addLoader(stbLoader);
     bool initialized = false;
     bool orthographicsView = true;
     try
@@ -275,6 +278,8 @@ static mx::GlslValidatorPtr createGLSLValidator(bool& orthographicView, const st
     mx::GlslValidatorPtr validator = mx::GlslValidator::create();
     mx::TinyEXRImageLoaderPtr imageLoader = mx::TinyEXRImageLoader::create();
     mx::GLTextureHandlerPtr imageHandler = mx::GLTextureHandler::create(imageLoader);
+    mx::stbImageLoaderPtr stbLoader = mx::stbImageLoader::create();
+    imageHandler->addLoader(stbLoader);
     try
     {
         validator->initialize();

@@ -5,6 +5,17 @@
 
 namespace MaterialX
 {
+std::string ImageLoader::BMP_EXTENSION = "bmp";
+std::string ImageLoader::EXR_EXTENSION = "exr";
+std::string ImageLoader::GIF_EXTENSION = "gif";
+std::string ImageLoader::HDR_EXTENSION = "hdr";
+std::string ImageLoader::JPG_EXTENSION = "jpg";
+std::string ImageLoader::JPEG_EXTENSION = "jpeg";
+std::string ImageLoader::PIC_EXTENSION = "pic";
+std::string ImageLoader::PNG_EXTENSION = "png";
+std::string ImageLoader::PSD_EXTENSION = "psd";
+std::string ImageLoader::TGA_EXTENSION = "tga";
+
 ImageHandler::ImageHandler(ImageLoaderPtr imageLoader)
 {
     addLoader(imageLoader);
@@ -62,7 +73,7 @@ bool ImageHandler::createColorImage(float color[4],
     // Create a solid color image
     //
     desc.resourceBuffer = new float[desc.width * desc.height * desc.channelCount];
-    float* pixel = desc.resourceBuffer;
+    float* pixel = static_cast<float*>(desc.resourceBuffer);
     for (size_t i = 0; i<desc.width; i++)
     {
         for (size_t j = 0; j<desc.height; j++)
