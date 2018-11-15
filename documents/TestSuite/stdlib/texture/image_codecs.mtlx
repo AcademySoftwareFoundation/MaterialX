@@ -1,0 +1,48 @@
+<!--
+
+Basic image unit test with one image node and variations in input image types
+
+-->
+<?xml version="1.0"?>
+<materialx version="1.36">
+   <output name="image4_output_bmp" type="color4" nodename="image4_bmp" />
+   <image name="image4_bmp" type="color4">
+      <parameter name="file" type="filename" value="documents/TestSuite/Images/cloth.bmp" />
+      <parameter name="uaddressmode" type="string" value="black"/>
+      <parameter name="vaddressmode" type="string" value="clamp"/>
+      <parameter name="filtertype" type="string" value="linear"/>
+      <parameter name="frameendaction" type="string" value="periodic"/>
+   </image>
+   <output name="image4_output_gif" type="color4" nodename="image4_gif" />
+   <image name="image4_gif" type="color4">
+      <parameter name="file" type="filename" value="documents/TestSuite/Images/cloth.gif" />
+      <parameter name="uaddressmode" type="string" value="black"/>
+      <parameter name="vaddressmode" type="string" value="clamp"/>
+      <parameter name="filtertype" type="string" value="linear"/>
+      <parameter name="frameendaction" type="string" value="periodic"/>
+   </image>
+   <output name="image4_output_jpg" type="color4" nodename="image4_jpg" />
+   <image name="image4_jpg" type="color4">
+      <parameter name="file" type="filename" value="documents/TestSuite/Images/cloth.jpg" />
+      <parameter name="uaddressmode" type="string" value="black"/>
+      <parameter name="vaddressmode" type="string" value="clamp"/>
+      <parameter name="filtertype" type="string" value="linear"/>
+      <parameter name="frameendaction" type="string" value="periodic"/>
+   </image>
+   <output name="image4_output_png" type="color4" nodename="image4_png" />
+   <image name="image4_png" type="color4">
+      <parameter name="file" type="filename" value="documents/TestSuite/Images/cloth.png" />
+      <parameter name="uaddressmode" type="string" value="black"/>
+      <parameter name="vaddressmode" type="string" value="clamp"/>
+      <parameter name="filtertype" type="string" value="linear"/>
+      <parameter name="frameendaction" type="string" value="periodic"/>
+   </image>
+   <output name="image4_output_tga" type="color4" nodename="image4_tga" />
+   <image name="image4_tga" type="color4">
+      <parameter name="file" type="filename" value="documents/TestSuite/Images/cloth.tga" />
+      <parameter name="uaddressmode" type="string" value="black"/>
+      <parameter name="vaddressmode" type="string" value="clamp"/>
+      <parameter name="filtertype" type="string" value="linear"/>
+      <parameter name="frameendaction" type="string" value="periodic"/>
+   </image>
+</materialx>
