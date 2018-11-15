@@ -98,19 +98,6 @@ bool getShaderSource(mx::ShaderGeneratorPtr generator,
     return false;
 }
 
-// Check if a nodedef requires an implementation check
-// Untyped nodes do not
-bool requiresImplementation(const mx::NodeDefPtr nodeDef)
-{
-    if (!nodeDef)
-    {
-        return false;
-    }
-    static std::string TYPE_NONE("none");
-    const std::string typeAttribute = nodeDef->getAttribute(mx::TypedElement::TYPE_ATTRIBUTE);
-    return !typeAttribute.empty() && typeAttribute != TYPE_NONE;
-}
-
 void createLightCompoundExample(mx::DocumentPtr document)
 {
     const std::string nodeName = "lightcompound";
@@ -523,7 +510,7 @@ TEST_CASE("Reference Implementation Validity", "[shadergen]")
 
         std::string nodeDefName = nodeDef->getName();
         std::string nodeName = nodeDef->getNodeString();
-        if (!requiresImplementation(nodeDef))
+        if (!mx::requiresImplementation(nodeDef))
         {
             found_str += "No implementation required for nodedef: " + nodeDefName + ", Node: " + nodeName + ".\n";
             continue;

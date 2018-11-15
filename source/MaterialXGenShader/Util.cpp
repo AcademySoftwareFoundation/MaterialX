@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <unordered_set>
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -505,6 +506,105 @@ void mapValueToColor(const ValuePtr value, Color4& color)
         color[1] = v[1];
         color[2] = v[2];
         color[3] = v[3];
+    }
+}
+
+bool requiresImplementation(const NodeDefPtr nodeDef)
+{
+    if (!nodeDef)
+    {
+        return false;
+    }
+    static std::string TYPE_NONE("none");
+    const std::string& typeAttribute = nodeDef->getType();
+    return !typeAttribute.empty() && typeAttribute != TYPE_NONE;
+}
+
+bool elementRequiresShading(const TypedElementPtr element)
+{
+    std::string elementType(element->getType());
+    static std::set<std::string> colorClosures =
+    {
+        "surfaceshader", "volumeshader", "lightshader",
+        "BSDF", "EDF", "VDF"
+    };
+    return (element->isA<ShaderRef>() ||
+            colorClosures.count(elementType) > 0);
+}
+
+void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>& elements)
+{
+    std::vector<NodeGraphPtr> nodeGraphs = doc->getNodeGraphs();
+    std::vector<OutputPtr> outputList = doc->getOutputs();
+    std::unordered_set<OutputPtr> outputSet(outputList.begin(), outputList.end());
+    std::vector<MaterialPtr> materials = doc->getMaterials();
+
+    if (!materials.empty() || !nodeGraphs.empty() || !outputList.empty())
+    {
+        std::unordered_set<OutputPtr> shaderrefOutputs;
+        for (auto material : materials)
+        {
+            for (auto shaderRef : material->getShaderRefs())
+            {
+                if (!shaderRef->hasSourceUri())
+                {
+                    // Add in all shader references which are not part of a node definition library
+                    NodeDefPtr nodeDef = shaderRef->getNodeDef();
+                    if (nodeDef && 
+                        requiresImplementation(nodeDef))
+                    {
+                        elements.push_back(shaderRef);
+                    }
+
+                    // Find all bindinputs which reference outputs and outputgraphs
+                    for (auto bindInput : shaderRef->getBindInputs())
+                    {
+                        OutputPtr outputPtr = bindInput->getConnectedOutput();
+                        if (outputPtr)
+                        {
+                            shaderrefOutputs.insert(outputPtr);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Find node graph outputs. Skip any light shaders
+        const std::string LIGHT_SHADER("lightshader");
+        for (NodeGraphPtr nodeGraph : nodeGraphs)
+        {
+            // Skip anything from an include file including libraries.
+            if (!nodeGraph->hasSourceUri())
+            {
+                std::vector<OutputPtr> nodeGraphOutputs = nodeGraph->getOutputs();
+                for (OutputPtr output : nodeGraphOutputs)
+                {
+                    NodePtr outputNode = output->getConnectedNode();
+
+                    // For now we skip any outputs which are referenced elsewhere.
+                    if (outputNode && 
+                        outputNode->getType() != LIGHT_SHADER &&
+                        shaderrefOutputs.count(output) == 0)
+                    {                        
+                        NodeDefPtr nodeDef = outputNode->getNodeDef();
+                        if (nodeDef &&
+                            requiresImplementation(nodeDef))
+                        {
+                            outputSet.insert(output);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Add in all outputs which are not part of a library
+        for (OutputPtr output : outputSet)
+        {
+            if (!output->hasSourceUri())
+            {
+                elements.push_back(output);
+            }
+        }
     }
 }
 

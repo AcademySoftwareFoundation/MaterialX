@@ -428,16 +428,9 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
         bool validated = false;
         try
         {
-            std::string elementType(element->getType());
-            std::set<std::string> colorClosures =
-            {
-                "surfaceshader", "volumeshader", "lightshader",
-                "BSDF", "EDF", "VDF"
-            };
-            bool isShader = element->isA<mx::ShaderRef>() ||
-                colorClosures.count(elementType) > 0;
-
             mx::GeometryHandlerPtr geomHandler = validator.getGeometryHandler();
+
+            bool isShader = mx::elementRequiresShading(element);
             if (isShader)
             {
                 const std::string shaderBallFile(mx::FilePath::getCurrentPath().asString() + "/documents/TestSuite/Geometry/shaderball.obj");
@@ -542,19 +535,11 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
             // Validate compilation
             validator.validateCreation(shader);
 
-            std::string elementType(element->getType());
+            std::string elementType;
+            std::string sceneTemplateFile;
             mx::string outputName = element->getName();
 
-            std::set<std::string> colorClosures =
-            {
-                "surfaceshader", "volumeshader", "lightshader",
-                "BSDF", "EDF", "VDF"
-            };
-            bool isShader = element->isA<mx::ShaderRef>() ||
-                colorClosures.count(elementType) > 0;
-
-            std::string sceneTemplateFile;
-
+            bool isShader = mx::elementRequiresShading(element);
             if (isShader)
             {
                 // TODO: Assume name is "out". This is the default value.
@@ -570,6 +555,7 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
             }
             else
             {
+                elementType.assign(element->getType());
                 sceneTemplateFile.assign("constant_color_scene.xml");
             }
 
@@ -706,97 +692,56 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
 
             mx::DocumentPtr doc = mx::createDocument();
             readFromXmlFile(doc, filename);
+            doc->importLibrary(dependLib, &importOptions);
 
-            std::vector<mx::NodeGraphPtr> nodeGraphs = doc->getNodeGraphs();
-            std::vector<mx::OutputPtr> outputList = doc->getOutputs();
-            std::unordered_set<mx::OutputPtr> outputSet(outputList.begin(), outputList.end());
-            std::vector<mx::MaterialPtr> materials = doc->getMaterials();
-
-            if (!materials.empty() || !nodeGraphs.empty() || !outputList.empty())
+            std::cout << "Validating MTLX file: " << filename << std::endl;
+#ifdef MATERIALX_BUILD_GEN_GLSL
+            glslLog << "MTLX Filename: " << filename << std::endl;
+#endif
+#ifdef MATERIALX_BUILD_GEN_OSL
+            oslLog << "MTLX Filename: " << filename << std::endl;
+#endif
+            // Validate the test document
+            std::string validationErrors;
+            bool validDoc = doc->validate(&validationErrors);
+            if (!validDoc)
             {
-                std::cout << "Validating MTLX file: " << filename << std::endl;
+                docValidLog << validationErrors << std::endl;
+            }
+            CHECK(validDoc);
+
+            std::vector<mx::TypedElementPtr> elements;
+            mx::findRenderableElements(doc, elements);
+
+            std::string outputPath = mx::FilePath(dir) / mx::FilePath(mx::removeExtension(file));
+            for (auto element : elements)
+            { 
+                mx::OutputPtr output = element->asA<mx::Output>();
+                mx::ShaderRefPtr shaderRef = element->asA<mx::ShaderRef>();
+                mx::NodeDefPtr nodeDef = nullptr;
+                if (output)
+                {
+                    nodeDef = output->getConnectedNode()->getNodeDef();
+                }
+                else if (shaderRef)
+                {
+                    nodeDef = shaderRef->getNodeDef();
+                }
+                if (nodeDef)
+                {
+                    mx::string elementName = mx::replaceSubstrings(element->getNamePath(), pathMap);
 #ifdef MATERIALX_BUILD_GEN_GLSL
-                glslLog << "MTLX Filename: " << filename << std::endl;
+                    if (nodeDef->getImplementation(glslShaderGenerator->getTarget(), glslShaderGenerator->getLanguage()))
+                    {
+                        runGLSLValidation(elementName, element, *glslValidator, *glslShaderGenerator, lightHandler, doc, glslLog, false, outputPath);
+                    }
 #endif
 #ifdef MATERIALX_BUILD_GEN_OSL
-                oslLog << "MTLX Filename: " << filename << std::endl;
-#endif
-
-                doc->importLibrary(dependLib, &importOptions);
-
-                // Validate the test document
-                std::string validationErrors;
-                bool validDoc = doc->validate(&validationErrors);
-                if (!validDoc)
-                {
-                    docValidLog << validationErrors << std::endl;
-                }
-                CHECK(validDoc);
-
-                std::unordered_set<mx::OutputPtr> shaderrefOutputs;
-                for (auto material : materials)
-                {
-                    for (auto shaderRef : material->getShaderRefs())
+                    if (nodeDef->getImplementation(oslShaderGenerator->getTarget(), oslShaderGenerator->getLanguage()))
                     {
-                        if (!shaderRef->hasSourceUri())
-                        {
-                            std::string outputPath = mx::FilePath(dir) / mx::FilePath(mx::removeExtension(file));
-                            mx::string elementName = mx::replaceSubstrings(shaderRef->getNamePath(), pathMap);
-#ifdef MATERIALX_BUILD_GEN_GLSL
-                            runGLSLValidation(elementName, shaderRef, *glslValidator, *glslShaderGenerator, lightHandler, doc, glslLog, false, outputPath);
-#endif
-#ifdef MATERIALX_BUILD_GEN_OSL
-                            runOSLValidation(elementName, shaderRef, *oslValidator, *oslShaderGenerator, doc, oslLog, false, outputPath);
-#endif
-
-                            // Find all bindinputs which reference outputs and outputgraphs
-                            for (auto bindInput : shaderRef->getBindInputs())
-                            {
-                                mx::OutputPtr outputPtr = bindInput->getConnectedOutput();
-                                if (outputPtr)
-                                {
-                                    shaderrefOutputs.insert(outputPtr);
-                                }
-                            }
-                        }
+                        runOSLValidation(elementName, element, *oslValidator, *oslShaderGenerator, doc, oslLog, false, outputPath);
                     }
-                }
-
-                // Find node graph outputs
-                for (mx::NodeGraphPtr nodeGraph : nodeGraphs)
-                {
-                    // Skip anything from an include file including libraries.
-                    if (!nodeGraph->hasSourceUri())
-                    {
-                        std::vector<mx::OutputPtr> nodeGraphOutputs = nodeGraph->getOutputs();
-                        for (mx::OutputPtr output : nodeGraphOutputs)
-                        {
-                            // For now we skip any outputs which are referenced elsewhere.
-                            // TODO: We could add an option to also validate them.
-                            if (shaderrefOutputs.count(output) == 0)
-                            {
-                                outputSet.insert(output);
-                            }
-                        }
-                    }
-                }
-
-                // Run validation on the outputs
-                for (mx::OutputPtr output : outputSet)
-                {
-                    // Skip anything from include files
-                    if (!output->hasSourceUri())
-                    {
-                        std::string outputPath = mx::FilePath(dir) / mx::FilePath(mx::removeExtension(file));
-                        mx::string elementName = mx::replaceSubstrings(output->getNamePath(), pathMap);
-
-#ifdef MATERIALX_BUILD_GEN_GLSL
-                        runGLSLValidation(elementName, output, *glslValidator, *glslShaderGenerator, lightHandler, doc, glslLog, false, outputPath);
 #endif
-#ifdef MATERIALX_BUILD_GEN_OSL
-                        runOSLValidation(elementName, output, *oslValidator, *oslShaderGenerator, doc, oslLog, false, outputPath);
-#endif
-                    }
                 }
             }
         }
