@@ -15,9 +15,9 @@ ShaderNodeImplPtr CompoundNode::create()
     return std::make_shared<CompoundNode>();
 }
 
-void CompoundNode::initialize(ElementPtr implementation, ShaderGenerator& shadergen)
+void CompoundNode::initialize(ElementPtr implementation, ShaderGenerator& shadergen, const GenOptions& options)
 {
-    ShaderNodeImpl::initialize(implementation, shadergen);
+    ShaderNodeImpl::initialize(implementation, shadergen, options);
 
     NodeGraphPtr graph = implementation->asA<NodeGraph>();
     if (!graph)
@@ -25,7 +25,12 @@ void CompoundNode::initialize(ElementPtr implementation, ShaderGenerator& shader
         throw ExceptionShaderGenError("Element '" + implementation->getName() + "' is not a node graph implementation");
     }
 
-    _rootGraph = ShaderGraph::create(graph, shadergen);
+	// For compounds we do not want to publish all internal inputs
+	// so always use the reduced interface for this graph.
+	GenOptions compoundOptions(options);
+	compoundOptions.shaderInterfaceType = SHADER_INTERFACE_REDUCED;
+
+    _rootGraph = ShaderGraph::create(graph, shadergen, compoundOptions);
     _functionName = graph->getName();
 }
 
@@ -81,14 +86,14 @@ void CompoundNode::emitFunctionDefinition(const ShaderNode& node, ShaderGenerato
         // Add all inputs
         for (ShaderGraphInputSocket* inputSocket : _rootGraph->getInputSockets())
         {
-            shader.addStr(delim + syntax->getTypeName(inputSocket->type) + " " + inputSocket->name);
+            shader.addStr(delim + syntax->getTypeName(inputSocket->type) + " " + inputSocket->variable);
             delim = ", ";
         }
 
         // Add all outputs
         for (ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
         {
-            shader.addStr(delim + syntax->getOutputTypeName(outputSocket->type) + " " + outputSocket->name);
+            shader.addStr(delim + syntax->getOutputTypeName(outputSocket->type) + " " + outputSocket->variable);
             delim = ", ";
         }
 
@@ -107,13 +112,13 @@ void CompoundNode::emitFunctionDefinition(const ShaderNode& node, ShaderGenerato
             // Check for the rare case where the output is not internally connected
             if (!outputSocket->connection)
             {
-                shader.addLine(outputSocket->name + " = " + (outputSocket->value ?
+                shader.addLine(outputSocket->variable + " = " + (outputSocket->value ?
                     syntax->getValue(outputSocket->type, *outputSocket->value) :
                     syntax->getDefaultValue(outputSocket->type)));
             }
             else
             {
-                shader.addLine(outputSocket->name + " = " + outputSocket->connection->name);
+                shader.addLine(outputSocket->variable + " = " + outputSocket->connection->variable);
             }
         }
 

@@ -38,7 +38,7 @@ namespace mx = MaterialX;
 #define LOG_TO_FILE
 
 extern void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc);
-extern void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::HwShaderGenerator& shadergen);
+extern void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::HwShaderGenerator& shadergen, const mx::GenOptions& options);
 extern void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& materials);
 
 TEST_CASE("GLSL Source", "[shadervalid]")
@@ -58,8 +58,10 @@ TEST_CASE("GLSL Source", "[shadervalid]")
     mx::GlslShaderGeneratorPtr glslShaderGenerator = std::static_pointer_cast<mx::GlslShaderGenerator>(mx::GlslShaderGenerator::create());
     glslShaderGenerator->registerSourceCodeSearchPath(searchPath);
 
+	mx::GenOptions options;
+
     mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
-    createLightRig(doc, *lightHandler, *glslShaderGenerator);
+    createLightRig(doc, *lightHandler, *glslShaderGenerator, options);
 
     // Initialize a GLSL validator and set image handler.
     // Validator initiazation will create a offscreen
@@ -418,6 +420,15 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
             mx::writeToXmlFile(doc, shaderPath + ".mtlx");
         }
 
+		// Write out glsl files
+		std::ofstream file;
+		file.open(shaderPath + "_vs.glsl");
+		file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
+		file.close();
+		file.open(shaderPath + "_ps.glsl");
+		file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
+		file.close();
+
         // Validate
         MaterialX::GlslProgramPtr program = validator.program();
         bool validated = false;
@@ -460,15 +471,6 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
         }
         catch (mx::ExceptionShaderValidationError e)
         {
-            // Dump shader stages on error
-            std::ofstream file;
-            file.open(shaderPath + "_vs.glsl");
-            file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
-            file.close();
-            file.open(shaderPath + "_ps.glsl");
-            file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
-            file.close();
-
             for (auto error : e.errorLog())
             {
                 log << e.what() << " " << error << std::endl;
@@ -666,8 +668,9 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
     importOptions.skipDuplicateElements = true;
 
     // Add lights as a dependency
-    mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
-    createLightRig(dependLib, *lightHandler, *glslShaderGenerator);
+	mx::GenOptions options;
+	mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
+    createLightRig(dependLib, *lightHandler, *glslShaderGenerator, options);
 
     // Clamp the number of light sources to the number bound
     size_t lightSourceCount = lightHandler->getLightSources().size();

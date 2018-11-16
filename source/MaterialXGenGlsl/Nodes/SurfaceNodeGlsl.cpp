@@ -89,8 +89,8 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
     }
 
     const ShaderOutput* output = node.getOutput();
-    const string outColor = output->name + ".color";
-    const string outTransparency = output->name + ".transparency";
+    const string outColor = output->variable + ".color";
+    const string outTransparency = output->variable + ".transparency";
 
     //
     // Handle direct lighting

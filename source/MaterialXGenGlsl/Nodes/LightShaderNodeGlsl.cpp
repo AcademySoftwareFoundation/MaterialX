@@ -20,9 +20,9 @@ const string& LightShaderNodeGlsl::getTarget() const
     return GlslShaderGenerator::TARGET;
 }
 
-void LightShaderNodeGlsl::initialize(ElementPtr implementation, ShaderGenerator& shadergen)
+void LightShaderNodeGlsl::initialize(ElementPtr implementation, ShaderGenerator& shadergen, const GenOptions& options)
 {
-    SourceCodeNode::initialize(implementation, shadergen);
+    SourceCodeNode::initialize(implementation, shadergen, options);
 
     if (_inlined)
     {

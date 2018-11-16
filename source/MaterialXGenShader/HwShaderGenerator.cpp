@@ -12,7 +12,7 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax)
 {
 }
 
-void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, size_t lightTypeId)
+void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, size_t lightTypeId, const GenOptions& options)
 {
     if (TypeDesc::get(nodeDef.getType()) != Type::LIGHTSHADER)
     {
@@ -30,7 +30,7 @@ void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, size_t lightType
     InterfaceElementPtr impl = nodeDef.getImplementation(getTarget(), getLanguage());
     if (impl)
     {
-        sgimpl = getImplementation(impl);
+        sgimpl = getImplementation(impl, options);
     }
     if (!sgimpl)
     {
@@ -38,15 +38,14 @@ void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, size_t lightType
             "' matching language '" + getLanguage() + "' and target '" + getTarget() + "'");
     }
 
-    // Prepend the light struct instance name on all input sockets, 
-    // since in generated code these inputs will be members of the 
-    // light struct.
+    // Prepend the light struct instance name on all input socket variables, 
+    // since in generated code these inputs will be members of the light struct.
     ShaderGraph* graph = sgimpl->getGraph();
     if (graph)
     {
         for (ShaderGraphInputSocket* inputSockets : graph->getInputSockets())
         {
-            inputSockets->name = "light." + inputSockets->name;
+            inputSockets->variable = "light." + inputSockets->variable;
         }
     }
 

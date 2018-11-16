@@ -25,7 +25,7 @@ public:
     /// by the generator. The lightTypeId should be a unique identifier for the light 
     /// type and the same id should be used when setting light parameters on a 
     /// generated surface shader.
-    void bindLightShader(const NodeDef& nodeDef, size_t lightTypeId);
+    void bindLightShader(const NodeDef& nodeDef, size_t lightTypeId, const GenOptions& options);
 
     /// Return a map of all light shaders that has been bound. The map contains the 
     /// light shader implementations with their bound light type id's.

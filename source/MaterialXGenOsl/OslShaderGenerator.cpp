@@ -227,7 +227,7 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     }
     const string type = _syntax->getOutputTypeName(outputType);
     const string value = _syntax->getDefaultValue(outputType, true);
-    shader.addLine(type + " " + outputSocket->name + " = " + value, false);
+    shader.addLine(type + " " + outputSocket->variable + " = " + value, false);
 
     shader.endScope();
 
@@ -304,13 +304,13 @@ void OslShaderGenerator::emitFinalOutput(Shader& shader) const
     if (!outputSocket->connection)
     {
         // Early out for the rare case where the whole graph is just a single value
-        shader.addLine(outputSocket->name + " = " + (outputSocket->value ?
+        shader.addLine(outputSocket->variable + " = " + (outputSocket->value ?
             _syntax->getValue(outputSocket->type, *outputSocket->value) :
             _syntax->getDefaultValue(outputSocket->type)));
         return;
     }
 
-    string finalResult = outputSocket->connection->name;
+    string finalResult = outputSocket->connection->variable;
 
     // Handle output type remapping as needed
     if (_remapShaderOutput)
@@ -322,7 +322,7 @@ void OslShaderGenerator::emitFinalOutput(Shader& shader) const
         }
     }
 
-    shader.addLine(outputSocket->name + " = " + finalResult);
+    shader.addLine(outputSocket->variable + " = " + finalResult);
 }
 
 void OslShaderGenerator::emitVariable(const Shader::Variable& uniform, const string& /*qualifier*/, Shader& shader)

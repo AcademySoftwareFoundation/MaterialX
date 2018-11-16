@@ -10,6 +10,7 @@ namespace MaterialX
 {
 
 class HwShaderGenerator;
+class GenOptions;
 
 /// Shared pointer to a LightSource
 using LightSourcePtr = std::shared_ptr<class LightSource>;
@@ -105,7 +106,7 @@ public:
     /// Bind all added light shaders to the given shader generator.
     /// Only the light shaders bound to the generator will have their
     /// code emitted during shader generation.
-    void bindLightShaders(HwShaderGenerator& shadergen) const;
+    void bindLightShaders(HwShaderGenerator& shadergen, const GenOptions& options) const;
 
     /// Set path to irradiance IBL image
     void setLightEnvIrradiancePath(const string& path)

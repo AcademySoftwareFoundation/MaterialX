@@ -18,9 +18,9 @@ ShaderNodeImplPtr SourceCodeNode::create()
     return std::make_shared<SourceCodeNode>();
 }
 
-void SourceCodeNode::initialize(ElementPtr implementation, ShaderGenerator& shadergen)
+void SourceCodeNode::initialize(ElementPtr implementation, ShaderGenerator& shadergen, const GenOptions& options)
 {
-    ShaderNodeImpl::initialize(implementation, shadergen);
+    ShaderNodeImpl::initialize(implementation, shadergen, options);
 
     ImplementationPtr impl = implementation->asA<Implementation>();
     if (!impl)
@@ -118,12 +118,12 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
         // An ordinary source code function call
 
         // Declare the output variables
-        for (size_t i = 0; i < node.numOutputs(); ++i)
-        {
-            shader.beginLine();
-            shadergen.emitOutput(context, node.getOutput(i), true, true, shader);
-            shader.endLine();
-        }
+		for (size_t i = 0; i < node.numOutputs(); ++i)
+		{
+			shader.beginLine();
+			shadergen.emitOutput(context, node.getOutput(i), true, true, shader);
+			shader.endLine();
+		}
 
         shader.beginLine();
 

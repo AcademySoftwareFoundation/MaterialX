@@ -154,7 +154,7 @@ static bool elementCanBeSampled3D(const Element& element)
     return (element.getName() == POSITION_NAME);
 }
 
-ShaderNodePtr ShaderNode::create(const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, const Node* nodeInstance)
+ShaderNodePtr ShaderNode::create(const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, const GenOptions& options)
 {
     ShaderNodePtr newNode = std::make_shared<ShaderNode>(name);
 
@@ -162,7 +162,7 @@ ShaderNodePtr ShaderNode::create(const string& name, const NodeDef& nodeDef, Sha
     InterfaceElementPtr impl = nodeDef.getImplementation(shadergen.getTarget(), shadergen.getLanguage());
     if (impl)
     {
-        newNode->_impl = shadergen.getImplementation(impl);
+        newNode->_impl = shadergen.getImplementation(impl, options);
     }
     if (!newNode->_impl)
     {
@@ -241,30 +241,6 @@ ShaderNodePtr ShaderNode::create(const string& name, const NodeDef& nodeDef, Sha
         newNode->addOutput("out", TypeDesc::get(nodeDef.getType()));
     }
 
-    // Assign input values from the node instance
-    if (nodeInstance)
-    {
-        const vector<ValueElementPtr> nodeInstanceInputs = nodeInstance->getChildrenOfType<ValueElement>();
-        for (const ValueElementPtr& elem : nodeInstanceInputs)
-        {
-            const string& elemValueString = elem->getValueString();
-            ShaderInput* input = newNode->getInput(elem->getName());
-            if (input)
-            {
-                const TypeDesc* enumerationType = nullptr;
-                ValuePtr value = shadergen.remapEnumeration(elem, nodeDef, enumerationType);
-                if (value)
-                {
-                    input->value = value;
-                }
-                else if (!elemValueString.empty())
-                {
-                    input->value = elem->getValue();
-                }
-            }
-        }
-    }
-
     //
     // Set node classification, defaulting to texture node
     //
@@ -332,6 +308,30 @@ ShaderNodePtr ShaderNode::create(const string& name, const NodeDef& nodeDef, Sha
     return newNode;
 }
 
+void ShaderNode::setValues(const Node& node, const NodeDef& nodeDef, ShaderGenerator& shadergen)
+{
+	// Copy input values from the given node
+	const vector<ValueElementPtr> nodeInputs = node.getChildrenOfType<ValueElement>();
+	for (const ValueElementPtr& nodeInput : nodeInputs)
+	{
+		const string& valueString = nodeInput->getValueString();
+		ShaderInput* input = getInput(nodeInput->getName());
+		if (input)
+		{
+			const TypeDesc* enumerationType = nullptr;
+			ValuePtr value = shadergen.remapEnumeration(nodeInput, nodeDef, enumerationType);
+			if (value)
+			{
+				input->value = value;
+			}
+			else if (!valueString.empty())
+			{
+				input->value = nodeInput->getValue();
+			}
+		}
+	}
+}
+
 ShaderInput* ShaderNode::getInput(const string& name)
 {
     auto it = _inputMap.find(name);
@@ -364,8 +364,9 @@ ShaderInput* ShaderNode::addInput(const string& name, const TypeDesc* type)
     }
 
     ShaderInputPtr input = std::make_shared<ShaderInput>();
-    input->name = name;
-    input->type = type;
+    input->_name = name;
+//	input->variable = name;
+	input->type = type;
     input->node = this;
     input->value = nullptr;
     input->connection = nullptr;
@@ -383,41 +384,14 @@ ShaderOutput* ShaderNode::addOutput(const string& name, const TypeDesc* type)
     }
 
     ShaderOutputPtr output = std::make_shared<ShaderOutput>();
-    output->name = name;
-    output->type = type;
+	output->_name = name;
+//	output->variable = name;
+	output->type = type;
     output->node = this;
     _outputMap[name] = output;
     _outputOrder.push_back(output.get());
 
     return output.get();
-}
-
-void ShaderNode::renameInput(const string& name, const string& newName)
-{
-    if (name != newName)
-    {
-        auto it = _inputMap.find(name);
-        if (it != _inputMap.end())
-        {
-            it->second->name = newName;
-            _inputMap[newName] = it->second;
-            _inputMap.erase(it);
-        }
-    }
-}
-
-void ShaderNode::renameOutput(const string& name, const string& newName)
-{
-    if (name != newName)
-    {
-        auto it = _outputMap.find(name);
-        if (it != _outputMap.end())
-        {
-            it->second->name = newName;
-            _outputMap[newName] = it->second;
-            _outputMap.erase(it);
-        }
-    }
 }
 
 } // namespace MaterialX

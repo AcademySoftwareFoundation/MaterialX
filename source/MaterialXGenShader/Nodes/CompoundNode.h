@@ -13,7 +13,7 @@ class CompoundNode : public ShaderNodeImpl
 public:
     static ShaderNodeImplPtr create();
 
-    void initialize(ElementPtr implementation, ShaderGenerator& shadergen) override;
+    void initialize(ElementPtr implementation, ShaderGenerator& shadergen, const GenOptions& options) override;
 
     void createVariables(const ShaderNode& node, ShaderGenerator& shadergen, Shader& shader) override;
 

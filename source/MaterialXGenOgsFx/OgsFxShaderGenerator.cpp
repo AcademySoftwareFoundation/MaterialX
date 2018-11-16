@@ -296,7 +296,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     const ShaderGraphOutputSocket* outputSocket = shader.getGraph()->getOutputSocket();
     shader.addLine("attribute PixelOutput", false);
     shader.beginScope(Shader::Brackets::BRACES);
-    shader.addLine("vec4 " + outputSocket->name);
+    shader.addLine("vec4 " + outputSocket->variable);
     shader.endScope(true);
     shader.newLine();
 

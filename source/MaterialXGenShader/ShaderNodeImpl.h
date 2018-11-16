@@ -12,6 +12,7 @@ class ShaderGenerator;
 class ShaderNode;
 class ShaderGraph;
 class GenContext;
+class GenOptions;
 class ShaderInput;
 class ShaderOutput;
 using ShaderGraphInputSocket = ShaderOutput;
@@ -39,7 +40,7 @@ class ShaderNodeImpl
     virtual const string& getTarget() const { return EMPTY_STRING; }
 
     /// Initialize with the given implementation element.
-    virtual void initialize(ElementPtr implementation, ShaderGenerator& shadergen);
+    virtual void initialize(ElementPtr implementation, ShaderGenerator& shadergen, const GenOptions& options);
 
     /// Create shader variables needed for the implementation of this node (e.g. uniforms, inputs and outputs).
     /// Used if the node requires input data from the application.
