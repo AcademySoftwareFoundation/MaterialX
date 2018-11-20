@@ -49,7 +49,7 @@ bool ImageHandler::saveImage(const std::string& fileName,
     return false;
 }
 
-bool ImageHandler::acquireImage(std::string& fileName, ImageDesc &imageDesc, bool generateMipMaps)
+bool ImageHandler::acquireImage(const std::string& fileName, ImageDesc &imageDesc, bool generateMipMaps, const std::array<float, 4>* /*fallbackColor*/)
 {
     std::pair <ImageLoaderMap::iterator, ImageLoaderMap::iterator> range;
     string extension = MaterialX::getFileExtension(fileName);
@@ -67,7 +67,7 @@ bool ImageHandler::acquireImage(std::string& fileName, ImageDesc &imageDesc, boo
     return false;
 }
 
-bool ImageHandler::createColorImage(float color[4],
+bool ImageHandler::createColorImage(const std::array<float,4>& color,
                                     ImageDesc& desc)
 {
     // Create a solid color image

@@ -533,7 +533,7 @@ bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, con
     {        
         ImageDesc imageDesc;
         string identifier(fileName);
-        bool haveImage = imageHandler->acquireImage(identifier, imageDesc, generateMipMaps);
+        bool haveImage = imageHandler->acquireImage(identifier, imageDesc, generateMipMaps, &(samplingProperties.defaultColor));
 
         if (haveImage)
         {

@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <vector>
 #include <map>
+#include <array>
 
 namespace MaterialX
 {
@@ -44,13 +45,13 @@ class ImageSamplingProperties
 {
   public:
     /// Address mode in U
-    int uaddressMode;
+    int uaddressMode = -1;
     /// Address mode in V
-    int vaddressMode;
+    int vaddressMode = -1;
     /// Filter type
-    int filterType;
+    int filterType = -1;
     /// Default color
-    float defaultColor[4];
+    std::array<float, 4> defaultColor = { { 0.0f, 0.0f, 0.0f, 1.0f } };
 };
 
 /// Image description cache
@@ -148,14 +149,16 @@ class ImageHandler
     /// @param fileName Name of file to load image from.
     /// @param imageDesc Description of image updated during load.
     /// @param generateMipMaps Generate mip maps if supported.
-    /// @return if load succeeded
-    virtual bool acquireImage(std::string& fileName, ImageDesc& desc, bool generateMipMaps);
+    /// @param fallbackColor Color of fallback image to use if failed to load.  If null is specified then
+    /// no fallback image will be acquired.
+    /// @return if load succeeded in loading image or created fallback image.
+    virtual bool acquireImage(const std::string& fileName, ImageDesc& desc, bool generateMipMaps, const std::array<float, 4>* fallbackColor);
 
     /// Utility to create a solid color color image 
     /// @param color Color to set
     /// @param imageDesc Description of image updated during load.
     /// @return if creation succeeded
-    virtual bool createColorImage(float color[4],
+    virtual bool createColorImage(const std::array<float,4>& color,
                                   ImageDesc& imageDesc);
  
     /// Bind an image. Derived classes must implement this method
