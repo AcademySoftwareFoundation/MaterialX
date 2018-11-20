@@ -10,6 +10,12 @@
 - Updated geometry token syntax from %TOKEN to \<TOKEN\>.
 - Replaced readXIncludes boolean with a readXIncludeFunction callback in the XmlReadOptions structure.
 - Combined individual options into an XmlWriteOptions argument for the XML write functions.
+- Extended functionality of the vector and matrix classes.
+- Updated PyBind11 library to version 2.2.3.
+- Updated PugiXML library to version 1.9.
+
+### Fixed
+- Fixed graph implementations of range, extract, and ramp4 nodes.
 
 ## [1.36.0] - 2018-07-23
 
