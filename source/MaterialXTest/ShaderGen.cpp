@@ -658,6 +658,10 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
                 {
                     msg += ", target: " + targetName;
                 }
+                else
+                {
+                    msg += ", target: NONE ";
+                }
                 mx::NodeDefPtr nodedef = impl->getNodeDef();
                 if (!nodedef)
                 {
@@ -764,7 +768,7 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
                         else
                         {
                             found_str += "Found impl and src for nodedef: " + nodeDefName + ", Node: "
-                                + nodeName + +". Impl: " + impl->getName() + ".\n";
+                                + nodeName + +". Impl: " + impl->getName() + "Path: " + resolvedPath.asString() + ".\n";
                         }
                     }
                 }
