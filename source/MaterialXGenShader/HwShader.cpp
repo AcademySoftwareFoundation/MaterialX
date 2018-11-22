@@ -71,9 +71,9 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen, const 
                         // Create the uniform using the filename type to make this uniform into a texture sampler.
                         createUniform(HwShader::PIXEL_STAGE, PUBLIC_UNIFORMS, Type::FILENAME, input->variable, EMPTY_STRING, input->value);
 
-						// Assing the uniform name to the input value
-						// so we can reference it duing code generation.
-						input->value = Value::createValue(input->variable);
+                        // Assing the uniform name to the input value
+                        // so we can reference it duing code generation.
+                        input->value = Value::createValue(input->variable);
                     }
                 }
             }

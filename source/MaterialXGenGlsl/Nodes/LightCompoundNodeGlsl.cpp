@@ -31,10 +31,10 @@ void LightCompoundNodeGlsl::initialize(ElementPtr implementation, ShaderGenerato
         throw ExceptionShaderGenError("Element '" + implementation->getName() + "' is not a node graph implementation");
     }
 
-	// For compounds we do not want to publish all internal inputs
-	// so always use the reduced interface for this graph.
-	GenOptions compoundOptions(options);
-	compoundOptions.shaderInterfaceType = SHADER_INTERFACE_REDUCED;
+    // For compounds we do not want to publish all internal inputs
+    // so always use the reduced interface for this graph.
+    GenOptions compoundOptions(options);
+    compoundOptions.shaderInterfaceType = SHADER_INTERFACE_REDUCED;
 
     _rootGraph = ShaderGraph::create(graph, shadergen, compoundOptions);
     _functionName = graph->getName();

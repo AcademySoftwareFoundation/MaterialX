@@ -799,8 +799,8 @@ TEST_CASE("Swizzling", "[shadergen]")
     loadLibraries({"stdlib"}, searchPath, doc);
 
     mx::GenOptions options;
-	options.shaderInterfaceType = mx::SHADER_INTERFACE_COMPLETE;
-	mx::GenContext context(mx::ShaderGenerator::CONTEXT_DEFAULT);
+    options.shaderInterfaceType = mx::SHADER_INTERFACE_COMPLETE;
+    mx::GenContext context(mx::ShaderGenerator::CONTEXT_DEFAULT);
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {

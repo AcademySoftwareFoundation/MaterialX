@@ -299,11 +299,7 @@ ShaderGraphPtr ShaderGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shad
         graph->_classification |= outputSocket->connection ? outputSocket->connection->node->_classification : 0;
     }
 
-	// Finalize the graph with a reduced interface
-	// we don't want to publish internal inputs for
-	// sub-graphs.
-//	GenOptions options;
-//	options.shaderInterfaceType = SHADER_INTERFACE_REDUCED;
+    // Finalize the graph
     graph->finalize(shadergen, options);
 
     return graph;
@@ -477,8 +473,8 @@ ShaderNode* ShaderGraph::addNode(const Node& node, ShaderGenerator& shadergen, c
     // Create this node in the graph.
     const string& name = node.getName();
     ShaderNodePtr newNode = ShaderNode::create(name, *nodeDef, shadergen, options);
-	newNode->setValues(node, *nodeDef, shadergen);
-	_nodeMap[name] = newNode;
+    newNode->setValues(node, *nodeDef, shadergen);
+    _nodeMap[name] = newNode;
     _nodeOrder.push_back(newNode.get());
 
     // Check if the node is a convolution. If so mark that the graph has a convolution
@@ -569,36 +565,36 @@ void ShaderGraph::finalize(ShaderGenerator& shadergen, const GenOptions& options
     // Optimize the graph, removing redundant paths.
     optimize();
 
-	if (options.shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
-	{
-		// Create uniforms for all node inputs that has not been connected already
-		for (ShaderNode* node : getNodes())
-		{
-			for (ShaderInput* input : node->getInputs())
-			{
-				if (!input->connection)
-				{
-					// Check if the type is editable otherwise we can't 
-					// publish the input as an editable uniform.
-					if (input->type->isEditable() && node->isEditable(*input))
-					{
-						// Use a consistent naming convention: <nodename>_<inputname>
-						// so application side can figure out what uniforms to set
-						// when node inputs change on application side.
-						const string interfaceName = node->getName() + "_" + input->name;
+    if (options.shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
+    {
+        // Create uniforms for all node inputs that has not been connected already
+        for (ShaderNode* node : getNodes())
+        {
+            for (ShaderInput* input : node->getInputs())
+            {
+                if (!input->connection)
+                {
+                    // Check if the type is editable otherwise we can't 
+                    // publish the input as an editable uniform.
+                    if (input->type->isEditable() && node->isEditable(*input))
+                    {
+                        // Use a consistent naming convention: <nodename>_<inputname>
+                        // so application side can figure out what uniforms to set
+                        // when node inputs change on application side.
+                        const string interfaceName = node->getName() + "_" + input->name;
 
-						ShaderGraphInputSocket* inputSocket = getInputSocket(interfaceName);
-						if (!inputSocket)
-						{
-							inputSocket = addInputSocket(interfaceName, input->type);
-							inputSocket->value = input->value;
-						}
-						inputSocket->makeConnection(input);
-					}
-				}
-			}
-		}
-	}
+                        ShaderGraphInputSocket* inputSocket = getInputSocket(interfaceName);
+                        if (!inputSocket)
+                        {
+                            inputSocket = addInputSocket(interfaceName, input->type);
+                            inputSocket->value = input->value;
+                        }
+                        inputSocket->makeConnection(input);
+                    }
+                }
+            }
+        }
+    }
 
     // Insert color transformation nodes where needed
     for (auto it : _colorTransformMap)
@@ -914,26 +910,26 @@ void ShaderGraph::setVariableNames(ShaderGenerator& shadergen)
     Syntax::UniqueNameMap uniqueNames;
     for (ShaderGraphInputSocket* inputSocket : getInputSockets())
     {
-		inputSocket->variable = inputSocket->name;
+        inputSocket->variable = inputSocket->name;
         shadergen.getSyntax()->makeUnique(inputSocket->variable, uniqueNames);
     }
     for (ShaderGraphOutputSocket* outputSocket : getOutputSockets())
     {
-		outputSocket->variable = outputSocket->name;
-		shadergen.getSyntax()->makeUnique(outputSocket->variable, uniqueNames);
+        outputSocket->variable = outputSocket->name;
+        shadergen.getSyntax()->makeUnique(outputSocket->variable, uniqueNames);
     }
     for (ShaderNode* node : getNodes())
     {
-		for (ShaderInput* input : node->getInputs())
-		{
-			// Node outputs use long names for better code readability
-			input->variable = input->node->getName() + "_" + input->name;
-			shadergen.getSyntax()->makeUnique(input->variable, uniqueNames);
-		}
-		for (ShaderOutput* output : node->getOutputs())
+        for (ShaderInput* input : node->getInputs())
         {
             // Node outputs use long names for better code readability
-			output->variable = output->node->getName() + "_" + output->name;
+            input->variable = input->node->getName() + "_" + input->name;
+            shadergen.getSyntax()->makeUnique(input->variable, uniqueNames);
+        }
+        for (ShaderOutput* output : node->getOutputs())
+        {
+            // Node outputs use long names for better code readability
+            output->variable = output->node->getName() + "_" + output->name;
             shadergen.getSyntax()->makeUnique(output->variable, uniqueNames);
         }
     }

@@ -59,7 +59,7 @@ TEST_CASE("GLSL Source", "[shadervalid]")
     mx::GlslShaderGeneratorPtr glslShaderGenerator = std::static_pointer_cast<mx::GlslShaderGenerator>(mx::GlslShaderGenerator::create());
     glslShaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-	mx::GenOptions options;
+    mx::GenOptions options;
 
     mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
     createLightRig(doc, *lightHandler, *glslShaderGenerator, options);
@@ -403,7 +403,7 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
         mx::ShaderPtr shader;
         try
         {
-			options.hwTransparency = mx::isTransparentSurface(element, shaderGenerator);
+            options.hwTransparency = mx::isTransparentSurface(element, shaderGenerator);
             shader = shaderGenerator.generate(shaderName, element, options);
         }
         catch(mx::ExceptionShaderGenError e)
@@ -425,14 +425,14 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
             mx::writeToXmlFile(doc, shaderPath + ".mtlx");
         }
 
-		// Write out glsl files
-		std::ofstream file;
-		file.open(shaderPath + "_vs.glsl");
-		file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
-		file.close();
-		file.open(shaderPath + "_ps.glsl");
-		file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
-		file.close();
+        // Write out glsl files
+        std::ofstream file;
+        file.open(shaderPath + "_vs.glsl");
+        file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
+        file.close();
+        file.open(shaderPath + "_ps.glsl");
+        file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
+        file.close();
 
         // Validate
         MaterialX::GlslProgramPtr program = validator.program();
@@ -659,8 +659,8 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
     importOptions.skipDuplicateElements = true;
 
     // Add lights as a dependency
-	mx::GenOptions options;
-	mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
+    mx::GenOptions options;
+    mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
     createLightRig(dependLib, *lightHandler, *glslShaderGenerator, options);
 
     // Clamp the number of light sources to the number bound

@@ -58,7 +58,7 @@ void HeightToNormalNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext
         StringVec sampleStrings;
         emitInputSamplesUV(node, context, shadergen, shader, sampleStrings);
 
-		const ShaderOutput* output = node.getOutput();
+        const ShaderOutput* output = node.getOutput();
 
         // Emit code to evaluate samples.
         //

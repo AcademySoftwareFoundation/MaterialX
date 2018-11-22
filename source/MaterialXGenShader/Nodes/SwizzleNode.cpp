@@ -23,25 +23,25 @@ void SwizzleNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
     {
         throw ExceptionShaderGenError("Node '" + node.getName() +"' is not a valid swizzle node");
     }
-	if (!in->connection && !in->value)
-	{
-		throw ExceptionShaderGenError("No connection or value found to swizzle on node '" + node.getName() + "'");
-	}
+    if (!in->connection && !in->value)
+    {
+        throw ExceptionShaderGenError("No connection or value found to swizzle on node '" + node.getName() + "'");
+    }
 
     const string& swizzle = channels->value ? channels->value->getValueString() : EMPTY_STRING;
-	string variableName = in->connection ? in->connection->variable : in->variable;
+    string variableName = in->connection ? in->connection->variable : in->variable;
 
     if (!swizzle.empty())
     {
-		// If the input is unconnected we must declare a variable
-		// for it first, in order to swizzle it below.
-		if (!in->connection)
-		{
-			string variableValue = in->value ? shadergen.getSyntax()->getValue(in->type, *in->value) : shadergen.getSyntax()->getDefaultValue(in->type);
-			shader.addLine(shadergen.getSyntax()->getTypeName(in->type) + " " + variableName + " = " + variableValue);
-		}
-		const TypeDesc* type = in->connection ? in->connection->type : in->type;
-		variableName = shadergen.getSyntax()->getSwizzledVariable(variableName, type, swizzle, node.getOutput()->type);
+        // If the input is unconnected we must declare a variable
+        // for it first, in order to swizzle it below.
+        if (!in->connection)
+        {
+            string variableValue = in->value ? shadergen.getSyntax()->getValue(in->type, *in->value) : shadergen.getSyntax()->getDefaultValue(in->type);
+            shader.addLine(shadergen.getSyntax()->getTypeName(in->type) + " " + variableName + " = " + variableValue);
+        }
+        const TypeDesc* type = in->connection ? in->connection->type : in->type;
+        variableName = shadergen.getSyntax()->getSwizzledVariable(variableName, type, swizzle, node.getOutput()->type);
     }
 
     shader.beginLine();

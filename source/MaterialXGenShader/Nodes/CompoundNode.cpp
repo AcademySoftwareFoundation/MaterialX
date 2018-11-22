@@ -25,10 +25,10 @@ void CompoundNode::initialize(ElementPtr implementation, ShaderGenerator& shader
         throw ExceptionShaderGenError("Element '" + implementation->getName() + "' is not a node graph implementation");
     }
 
-	// For compounds we do not want to publish all internal inputs
-	// so always use the reduced interface for this graph.
-	GenOptions compoundOptions(options);
-	compoundOptions.shaderInterfaceType = SHADER_INTERFACE_REDUCED;
+    // For compounds we do not want to publish all internal inputs
+    // so always use the reduced interface for this graph.
+    GenOptions compoundOptions(options);
+    compoundOptions.shaderInterfaceType = SHADER_INTERFACE_REDUCED;
 
     _rootGraph = ShaderGraph::create(graph, shadergen, compoundOptions);
     _functionName = graph->getName();
@@ -146,13 +146,13 @@ void CompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
 
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
 
-	// Declare the output variables
-	for (size_t i = 0; i < node.numOutputs(); ++i)
-	{
-		shader.beginLine();
-		shadergen.emitOutput(context, node.getOutput(i), true, true, shader);
-		shader.endLine();
-	}
+    // Declare the output variables
+    for (size_t i = 0; i < node.numOutputs(); ++i)
+    {
+        shader.beginLine();
+        shadergen.emitOutput(context, node.getOutput(i), true, true, shader);
+        shader.endLine();
+    }
 
     shader.beginLine();
 
@@ -177,13 +177,13 @@ void CompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
         delim = ", ";
     }
 
-	// Emit function outputs
-	for (size_t i = 0; i < node.numOutputs(); ++i)
-	{
-		shader.addStr(delim);
-		shadergen.emitOutput(context, node.getOutput(i), false, false, shader);
-		delim = ", ";
-	}
+    // Emit function outputs
+    for (size_t i = 0; i < node.numOutputs(); ++i)
+    {
+        shader.addStr(delim);
+        shadergen.emitOutput(context, node.getOutput(i), false, false, shader);
+        delim = ", ";
+    }
 
     // End function call
     shader.addStr(")");

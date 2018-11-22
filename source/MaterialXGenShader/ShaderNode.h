@@ -25,23 +25,23 @@ using ShaderInputSet = std::set<ShaderInput*>;
 class ShaderInput
 {
   public:
-	/// Input type.
+    /// Input type.
     const TypeDesc* type;
 
-	/// Input name.
-	string name;
+    /// Input name.
+    string name;
 
-	/// Variable name as used in generated code.
-	string variable;
+    /// Variable name as used in generated code.
+    string variable;
 
-	/// Parent node.
-	ShaderNode* node;
+    /// Parent node.
+    ShaderNode* node;
 
-	/// A value, or nullptr if not assigned.
-	ValuePtr value;
+    /// A value, or nullptr if not assigned.
+    ValuePtr value;
 
-	/// A connection to an upstream node output, or nullptr if not connected.
-	ShaderOutput* connection;
+    /// A connection to an upstream node output, or nullptr if not connected.
+    ShaderOutput* connection;
 
     /// Make a connection from the given source output to this input.
     void makeConnection(ShaderOutput* src);
@@ -54,23 +54,23 @@ class ShaderInput
 class ShaderOutput
 {
   public:
-	/// Output type.
-	const TypeDesc* type;
+    /// Output type.
+    const TypeDesc* type;
 
-	/// Output name.
-	string name;
+    /// Output name.
+    string name;
 
-	/// Variable name as used in generated code.
-	string variable;
+    /// Variable name as used in generated code.
+    string variable;
 
-	/// Parent node.
-	ShaderNode* node;
+    /// Parent node.
+    ShaderNode* node;
 
-	/// A value, or nullptr if not assigned.
-	ValuePtr value;
-    
-	/// A set of connections to downstream node inputs, empty if not connected.
-	ShaderInputSet connections;
+    /// A value, or nullptr if not assigned.
+    ValuePtr value;
+
+    /// A set of connections to downstream node inputs, empty if not connected.
+    ShaderInputSet connections;
 
     /// Make a connection from this output to the given input
     void makeConnection(ShaderInput* dst);
@@ -201,8 +201,8 @@ class ShaderNode
         return _usedClosures.count(node) > 0;
     }
 
-	/// Set input values from the given node and nodedef.
-	void setValues(const Node& node, const NodeDef& nodeDef, ShaderGenerator& shadergen);
+    /// Set input values from the given node and nodedef.
+    void setValues(const Node& node, const NodeDef& nodeDef, ShaderGenerator& shadergen);
 
     /// Add inputs/outputs
     ShaderInput* addInput(const string& name, const TypeDesc* type);

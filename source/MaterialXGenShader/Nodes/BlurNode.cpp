@@ -146,7 +146,7 @@ namespace MaterialX
                 throw ExceptionShaderGenError("Node '" + node.getName() + "' cannot compute upstream samples");
             }
 
-			const ShaderOutput* output = node.getOutput();
+            const ShaderOutput* output = node.getOutput();
 
             if (_sampleCount > 1)
             {

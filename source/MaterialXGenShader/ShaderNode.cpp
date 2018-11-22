@@ -310,26 +310,26 @@ ShaderNodePtr ShaderNode::create(const string& name, const NodeDef& nodeDef, Sha
 
 void ShaderNode::setValues(const Node& node, const NodeDef& nodeDef, ShaderGenerator& shadergen)
 {
-	// Copy input values from the given node
-	const vector<ValueElementPtr> nodeInputs = node.getChildrenOfType<ValueElement>();
-	for (const ValueElementPtr& nodeInput : nodeInputs)
-	{
-		const string& valueString = nodeInput->getValueString();
-		ShaderInput* input = getInput(nodeInput->getName());
-		if (input)
-		{
-			const TypeDesc* enumerationType = nullptr;
-			ValuePtr value = shadergen.remapEnumeration(nodeInput, nodeDef, enumerationType);
-			if (value)
-			{
-				input->value = value;
-			}
-			else if (!valueString.empty())
-			{
-				input->value = nodeInput->getValue();
-			}
-		}
-	}
+    // Copy input values from the given node
+    const vector<ValueElementPtr> nodeInputs = node.getChildrenOfType<ValueElement>();
+    for (const ValueElementPtr& nodeInput : nodeInputs)
+    {
+        const string& valueString = nodeInput->getValueString();
+        ShaderInput* input = getInput(nodeInput->getName());
+        if (input)
+        {
+            const TypeDesc* enumerationType = nullptr;
+            ValuePtr value = shadergen.remapEnumeration(nodeInput, nodeDef, enumerationType);
+            if (value)
+            {
+                input->value = value;
+            }
+            else if (!valueString.empty())
+            {
+                input->value = nodeInput->getValue();
+            }
+        }
+    }
 }
 
 ShaderInput* ShaderNode::getInput(const string& name)
@@ -365,8 +365,8 @@ ShaderInput* ShaderNode::addInput(const string& name, const TypeDesc* type)
 
     ShaderInputPtr input = std::make_shared<ShaderInput>();
     input->name = name;
-	input->variable = name;
-	input->type = type;
+    input->variable = name;
+    input->type = type;
     input->node = this;
     input->value = nullptr;
     input->connection = nullptr;
@@ -384,9 +384,9 @@ ShaderOutput* ShaderNode::addOutput(const string& name, const TypeDesc* type)
     }
 
     ShaderOutputPtr output = std::make_shared<ShaderOutput>();
-	output->name = name;
-	output->variable = name;
-	output->type = type;
+    output->name = name;
+    output->variable = name;
+    output->type = type;
     output->node = this;
     _outputMap[name] = output;
     _outputOrder.push_back(output.get());

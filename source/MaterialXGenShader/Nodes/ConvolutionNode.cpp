@@ -99,7 +99,7 @@ void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node, GenContext& con
                     {
                         // This is not exposed. Assume a filter size of 1 with no offset
 
-						const ShaderOutput* output = node.getOutput();
+                        const ShaderOutput* output = node.getOutput();
 
                         // Emit code to compute sample size
                         //

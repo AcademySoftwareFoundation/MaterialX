@@ -140,28 +140,28 @@ void ShaderGenerator::emitVariableBlock(const Shader::VariableBlock& block, cons
 
 void ShaderGenerator::getInput(const GenContext& context, const ShaderInput* input, string& result) const
 {
-	if (input->connection)
-	{
-		result = input->connection->variable;
+    if (input->connection)
+    {
+        result = input->connection->variable;
 
-		// Look for any additional suffix to append
-		string suffix;
-		context.getInputSuffix(input, suffix);
-		if (!suffix.empty())
-		{
-			result += suffix;
-		}
-	}
-	else
-	{
-		result = input->value ? _syntax->getValue(input->type, *input->value) : _syntax->getDefaultValue(input->type);
-	}
+        // Look for any additional suffix to append
+        string suffix;
+        context.getInputSuffix(input, suffix);
+        if (!suffix.empty())
+        {
+            result += suffix;
+        }
+    }
+    else
+    {
+        result = input->value ? _syntax->getValue(input->type, *input->value) : _syntax->getDefaultValue(input->type);
+    }
 }
 
 void ShaderGenerator::emitInput(const GenContext& context, const ShaderInput* input, Shader &shader) const
 {
     string result;
-	getInput(context, input, result);
+    getInput(context, input, result);
     shader.addStr(result);
 }
 

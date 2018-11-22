@@ -116,7 +116,7 @@ class ShaderGraph : public ShaderNode
 
     /// For inputs and outputs in the graph set the variable names to be used
     /// in generated code. Making sure variable names are valid and unique 
-	/// to avoid name conflicts during shader generation.
+    /// to avoid name conflicts during shader generation.
     void setVariableNames(ShaderGenerator& shadergen);
 
     /// Break all connections on a node
