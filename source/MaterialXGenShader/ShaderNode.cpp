@@ -364,8 +364,8 @@ ShaderInput* ShaderNode::addInput(const string& name, const TypeDesc* type)
     }
 
     ShaderInputPtr input = std::make_shared<ShaderInput>();
-    input->_name = name;
-//	input->variable = name;
+    input->name = name;
+	input->variable = name;
 	input->type = type;
     input->node = this;
     input->value = nullptr;
@@ -384,8 +384,8 @@ ShaderOutput* ShaderNode::addOutput(const string& name, const TypeDesc* type)
     }
 
     ShaderOutputPtr output = std::make_shared<ShaderOutput>();
-	output->_name = name;
-//	output->variable = name;
+	output->name = name;
+	output->variable = name;
 	output->type = type;
     output->node = this;
     _outputMap[name] = output;

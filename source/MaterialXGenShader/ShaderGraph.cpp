@@ -180,7 +180,7 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomProp& geompro
         if (!geomNodeDef)
         {
             throw ExceptionShaderGenError("Could not find a nodedef named '" + geomNodeDefName +
-                "' for geomprop on input '" + input->node->getName() + "." + input->_name + "'");
+                "' for geomprop on input '" + input->node->getName() + "." + input->name + "'");
         }
 
         ShaderNodePtr geomNodePtr = ShaderNode::create(geomNodeName, *geomNodeDef, shadergen, options);
@@ -585,7 +585,7 @@ void ShaderGraph::finalize(ShaderGenerator& shadergen, const GenOptions& options
 						// Use a consistent naming convention: <nodename>_<inputname>
 						// so application side can figure out what uniforms to set
 						// when node inputs change on application side.
-						const string interfaceName = node->getName() + "_" + input->_name;
+						const string interfaceName = node->getName() + "_" + input->name;
 
 						ShaderGraphInputSocket* inputSocket = getInputSocket(interfaceName);
 						if (!inputSocket)
@@ -914,12 +914,12 @@ void ShaderGraph::setVariableNames(ShaderGenerator& shadergen)
     Syntax::UniqueNameMap uniqueNames;
     for (ShaderGraphInputSocket* inputSocket : getInputSockets())
     {
-		inputSocket->variable = inputSocket->_name;
+		inputSocket->variable = inputSocket->name;
         shadergen.getSyntax()->makeUnique(inputSocket->variable, uniqueNames);
     }
     for (ShaderGraphOutputSocket* outputSocket : getOutputSockets())
     {
-		outputSocket->variable = outputSocket->_name;
+		outputSocket->variable = outputSocket->name;
 		shadergen.getSyntax()->makeUnique(outputSocket->variable, uniqueNames);
     }
     for (ShaderNode* node : getNodes())
@@ -927,13 +927,13 @@ void ShaderGraph::setVariableNames(ShaderGenerator& shadergen)
 		for (ShaderInput* input : node->getInputs())
 		{
 			// Node outputs use long names for better code readability
-			input->variable = input->node->getName() + "_" + input->_name;
+			input->variable = input->node->getName() + "_" + input->name;
 			shadergen.getSyntax()->makeUnique(input->variable, uniqueNames);
 		}
 		for (ShaderOutput* output : node->getOutputs())
         {
             // Node outputs use long names for better code readability
-			output->variable = output->node->getName() + "_" + output->_name;
+			output->variable = output->node->getName() + "_" + output->name;
             shadergen.getSyntax()->makeUnique(output->variable, uniqueNames);
         }
     }
@@ -1014,7 +1014,7 @@ void ShaderGraphEdgeIterator::extendPathUpstream(ShaderOutput* upstream, ShaderI
     // Check for cycles.
     if (_path.count(upstream))
     {
-        throw ExceptionFoundCycle("Encountered cycle at element: " + upstream->node->getName() + "." + upstream->_name);
+        throw ExceptionFoundCycle("Encountered cycle at element: " + upstream->node->getName() + "." + upstream->name);
     }
 
     // Extend the current path to the new element.

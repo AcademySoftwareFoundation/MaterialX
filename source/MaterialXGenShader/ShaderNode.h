@@ -29,7 +29,7 @@ class ShaderInput
     const TypeDesc* type;
 
 	/// Input name.
-	string _name;
+	string name;
 
 	/// Variable name as used in generated code.
 	string variable;
@@ -58,7 +58,7 @@ class ShaderOutput
 	const TypeDesc* type;
 
 	/// Output name.
-	string _name;
+	string name;
 
 	/// Variable name as used in generated code.
 	string variable;

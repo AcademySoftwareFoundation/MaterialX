@@ -54,7 +54,7 @@ void SwizzleNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
 
 bool SwizzleNode::isEditable(const ShaderInput& input) const
 {
-    return (input._name != CHANNELS_STRING);
+    return (input.name != CHANNELS_STRING);
 }
 
 } // namespace MaterialX
