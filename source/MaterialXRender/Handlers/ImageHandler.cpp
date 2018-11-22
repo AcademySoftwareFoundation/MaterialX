@@ -5,6 +5,17 @@
 
 namespace MaterialX
 {
+std::string ImageLoader::BMP_EXTENSION = "bmp";
+std::string ImageLoader::EXR_EXTENSION = "exr";
+std::string ImageLoader::GIF_EXTENSION = "gif";
+std::string ImageLoader::HDR_EXTENSION = "hdr";
+std::string ImageLoader::JPG_EXTENSION = "jpg";
+std::string ImageLoader::JPEG_EXTENSION = "jpeg";
+std::string ImageLoader::PIC_EXTENSION = "pic";
+std::string ImageLoader::PNG_EXTENSION = "png";
+std::string ImageLoader::PSD_EXTENSION = "psd";
+std::string ImageLoader::TGA_EXTENSION = "tga";
+
 ImageHandler::ImageHandler(ImageLoaderPtr imageLoader)
 {
     addLoader(imageLoader);
@@ -38,7 +49,7 @@ bool ImageHandler::saveImage(const std::string& fileName,
     return false;
 }
 
-bool ImageHandler::acquireImage(std::string& fileName, ImageDesc &imageDesc, bool generateMipMaps)
+bool ImageHandler::acquireImage(const std::string& fileName, ImageDesc &imageDesc, bool generateMipMaps, const std::array<float, 4>* /*fallbackColor*/)
 {
     std::pair <ImageLoaderMap::iterator, ImageLoaderMap::iterator> range;
     string extension = MaterialX::getFileExtension(fileName);
@@ -56,13 +67,13 @@ bool ImageHandler::acquireImage(std::string& fileName, ImageDesc &imageDesc, boo
     return false;
 }
 
-bool ImageHandler::createColorImage(float color[4],
+bool ImageHandler::createColorImage(const std::array<float,4>& color,
                                     ImageDesc& desc)
 {
     // Create a solid color image
     //
     desc.resourceBuffer = new float[desc.width * desc.height * desc.channelCount];
-    float* pixel = desc.resourceBuffer;
+    float* pixel = static_cast<float*>(desc.resourceBuffer);
     for (size_t i = 0; i<desc.width; i++)
     {
         for (size_t j = 0; j<desc.height; j++)

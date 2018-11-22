@@ -6,6 +6,7 @@
 #include <MaterialXCore/Library.h>
 #include <MaterialXCore/Element.h>
 #include <MaterialXCore/Interface.h>
+#include <MaterialXCore/Document.h>
 
 namespace MaterialX
 {
@@ -51,6 +52,17 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen);
 /// maps to alpha. If not mapping is possible the color value is
 /// set to opaque black.
 void mapValueToColor(const ValuePtr value, Color4& color);
+
+/// Return whether a nodedef requires an implementation
+bool requiresImplementation(const NodeDefPtr nodeDef);
+
+/// Determine if a given element requires shading / lighting for rendering
+bool elementRequiresShading(const TypedElementPtr element);
+
+/// Find any elements which may be renderable from within a document.
+/// This includes all outputs on node graphs and shader references which are not
+/// part of any included library. Light shaders are not considered to be renderable.
+void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>& elements);
 
 } // namespace MaterialX
 

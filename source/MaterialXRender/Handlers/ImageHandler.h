@@ -1,12 +1,14 @@
 #ifndef MATERIALX_IMAGEHANDLER_H
 #define MATERIALX_IMAGEHANDLER_H
 
+#include <algorithm>
 #include <string>
 #include <memory>
 #include <cmath>
 #include <unordered_map>
 #include <vector>
 #include <map>
+#include <array>
 
 namespace MaterialX
 {
@@ -24,7 +26,9 @@ class ImageDesc
     /// Number of mip map levels
     unsigned int mipCount = 0;
     /// CPU buffer. May be empty
-    float* resourceBuffer = nullptr;
+    void* resourceBuffer = nullptr;
+    /// Is buffer floating point
+    bool floatingPoint = true;
     /// Hardware target dependent resource identifier. May be empty
     unsigned int resourceId = 0;
 
@@ -41,13 +45,13 @@ class ImageSamplingProperties
 {
   public:
     /// Address mode in U
-    int uaddressMode;
+    int uaddressMode = -1;
     /// Address mode in V
-    int vaddressMode;
+    int vaddressMode = -1;
     /// Filter type
-    int filterType;
+    int filterType = -1;
     /// Default color
-    float defaultColor[4];
+    std::array<float, 4> defaultColor = { { 0.0f, 0.0f, 0.0f, 1.0f } };
 };
 
 /// Image description cache
@@ -67,6 +71,18 @@ class ImageLoader
 
     /// Default destructor
     virtual ~ImageLoader() {}
+
+    /// Stock extension names
+    static std::string BMP_EXTENSION;
+    static std::string EXR_EXTENSION;
+    static std::string GIF_EXTENSION;
+    static std::string HDR_EXTENSION;
+    static std::string JPG_EXTENSION;
+    static std::string JPEG_EXTENSION;
+    static std::string PIC_EXTENSION;
+    static std::string PNG_EXTENSION;
+    static std::string PSD_EXTENSION;
+    static std::string TGA_EXTENSION;
 
     /// Returns a list of supported extensions
     /// @return List of support extensions
@@ -133,14 +149,16 @@ class ImageHandler
     /// @param fileName Name of file to load image from.
     /// @param imageDesc Description of image updated during load.
     /// @param generateMipMaps Generate mip maps if supported.
-    /// @return if load succeeded
-    virtual bool acquireImage(std::string& fileName, ImageDesc& desc, bool generateMipMaps);
+    /// @param fallbackColor Color of fallback image to use if failed to load.  If null is specified then
+    /// no fallback image will be acquired.
+    /// @return if load succeeded in loading image or created fallback image.
+    virtual bool acquireImage(const std::string& fileName, ImageDesc& desc, bool generateMipMaps, const std::array<float, 4>* fallbackColor);
 
     /// Utility to create a solid color color image 
     /// @param color Color to set
     /// @param imageDesc Description of image updated during load.
     /// @return if creation succeeded
-    virtual bool createColorImage(float color[4],
+    virtual bool createColorImage(const std::array<float,4>& color,
                                   ImageDesc& imageDesc);
  
     /// Bind an image. Derived classes must implement this method

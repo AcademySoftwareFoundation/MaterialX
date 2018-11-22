@@ -2,7 +2,7 @@
 <!-- 
   TM & (c) 2018 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
   All rights reserved.  See LICENSE.txt for license.
-  
+
   Declarations for OSL implementations of standard nodes included in the MaterialX specification.
 -->
 
@@ -622,21 +622,6 @@
   <implementation name="IM_contrast_vector4_osl" nodedef="ND_contrast_vector4" file="stdlib/osl/mx_contrast_vector4.osl" function="mx_contrast_vector4" language="osl"/>
   <implementation name="IM_contrast_vector4FA_osl" nodedef="ND_contrast_vector4FA" file="stdlib/osl/mx_contrast_float_vector4.osl" function="mx_contrast_float_vector4" language="osl"/>
 
-  <!-- <range> Supplemental Node -->
-  <implementation name="IM_range_float_osl" nodedef="ND_range_float" file="stdlib/osl/mx_range_float.osl" function="mx_range_float" language="osl"/>
-  <implementation name="IM_range_color2_osl" nodedef="ND_range_color2" file="stdlib/osl/mx_range_color2.osl" function="mx_range_color2" language="osl"/>
-  <implementation name="IM_range_color2FA_osl" nodedef="ND_range_color2FA" file="stdlib/osl/mx_range_float_color2.osl" function="mx_range_float_color2" language="osl"/>
-  <implementation name="IM_range_color3_osl" nodedef="ND_range_color3" file="stdlib/osl/mx_range_color.osl" function="mx_range_color" language="osl"/>
-  <implementation name="IM_range_color3FA_osl" nodedef="ND_range_color3FA" file="stdlib/osl/mx_range_float_color.osl" function="mx_range_float_color" language="osl"/>
-  <implementation name="IM_range_color4_osl" nodedef="ND_range_color4" file="stdlib/osl/mx_range_color4.osl" function="mx_range_color4" language="osl"/>
-  <implementation name="IM_range_color4FA_osl" nodedef="ND_range_color4FA" file="stdlib/osl/mx_range_float_color4.osl" function="mx_range_float_color4" language="osl"/>
-  <implementation name="IM_range_vector2_osl" nodedef="ND_range_vector2" file="stdlib/osl/mx_range_vector2.osl" function="mx_range_vector2" language="osl"/>
-  <implementation name="IM_range_vector2FA_osl" nodedef="ND_range_vector2FA" file="stdlib/osl/mx_range_float_vector2.osl" function="mx_range_float_vector2" language="osl"/>
-  <implementation name="IM_range_vector3_osl" nodedef="ND_range_vector3" file="stdlib/osl/mx_range_vector.osl" function="mx_range_vector" language="osl"/>
-  <implementation name="IM_range_vector3FA_osl" nodedef="ND_range_vector3FA" file="stdlib/osl/mx_range_float_vector.osl" function="mx_range_float_vector" language="osl"/>
-  <implementation name="IM_range_vector4_osl" nodedef="ND_range_vector4" file="stdlib/osl/mx_range_vector4.osl" function="mx_range_vector4" language="osl"/>
-  <implementation name="IM_range_vector4FA_osl" nodedef="ND_range_vector4FA" file="stdlib/osl/mx_range_float_vector4.osl" function="mx_range_float_vector4" language="osl"/>
-
   <!-- <hsvadjust> Supplemental Node -->
   <implementation name="IM_hsvadjust_color3_osl" nodedef="ND_hsvadjust_color3" file="stdlib/osl/mx_hsvadjust_color.osl" function="mx_hsvadjust_color" language="osl"/>
   <implementation name="IM_hsvadjust_color4_osl" nodedef="ND_hsvadjust_color4" file="stdlib/osl/mx_hsvadjust_color4.osl" function="mx_hsvadjust_color4" language="osl"/>
@@ -876,14 +861,6 @@
   <implementation name="IM_combine_vector4VF_osl" nodedef="ND_combine_vector4VF" file="stdlib/osl/mx_combine_vf_vector4.osl" function="mx_combine_vf_vector4" language="osl"/>
   <implementation name="IM_combine_color4CC_osl" nodedef="ND_combine_color4CC" file="stdlib/osl/mx_combine_cc_color4.osl" function="mx_combine_cc_color4" language="osl"/>
   <implementation name="IM_combine_vector4VV_osl" nodedef="ND_combine_vector4VV" file="stdlib/osl/mx_combine_vv_vector4.osl" function="mx_combine_vv_vector4" language="osl"/>
-
-  <!-- <extract> Supplemental Node -->
-  <implementation name="IM_extract_color2_osl" nodedef="ND_extract_color2" file="stdlib/osl/mx_extract2_color2.osl" function="mx_extract_color2" language="osl"/>
-  <implementation name="IM_extract_color3_osl" nodedef="ND_extract_color3" file="stdlib/osl/mx_extract3_color.osl" function="mx_extract_color" language="osl"/>
-  <implementation name="IM_extract_color4_osl" nodedef="ND_extract_color4" file="stdlib/osl/mx_extract4_color4.osl" function="mx_extract_color4" language="osl"/>
-  <implementation name="IM_extract_vector2_osl" nodedef="ND_extract_vector2" file="stdlib/osl/mx_extract2_vector2.osl" function="mx_extract_vector2" language="osl"/>
-  <implementation name="IM_extract_vector3_osl" nodedef="ND_extract_vector3" file="stdlib/osl/mx_extract3_vector.osl" function="mx_extract_vector" language="osl"/>
-  <implementation name="IM_extract_vector4_osl" nodedef="ND_extract_vector4" file="stdlib/osl/mx_extract4_vector4.osl" function="mx_extract_vector4" language="osl"/>
 
   <!-- <separate> Supplemental Node -->
   <!-- OSL does not currently support multioutput nodes -->

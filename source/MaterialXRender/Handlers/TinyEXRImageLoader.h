@@ -17,9 +17,6 @@ public:
     /// Static instance create function
     static TinyEXRImageLoaderPtr create() { return std::make_shared<TinyEXRImageLoader>(); }
 
-    /// Exr extension string
-    static std::string EXR_EXTENSION;
-
     /// Default constructor
     TinyEXRImageLoader() 
     {
