@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Test suite options file which is parsed when the "shadervalid" category units tests are executed.
+-->
+<materialx version="1.36">
+    <nodedef name="ShaderValidTestOptions">
+
+        <!-- List of comma separated file names acts as a filter to only test documents with these names -->
+        <parameter name="overrideFiles" type="string" value="" />
+
+        <!-- Set to false to disable execution of OSL tests. Default is true. -->
+        <parameter name="runOSLTests" type="boolean" value="true" />
+
+        <!-- Set to false to disable execution of GLSL tests. Default is true. -->
+        <parameter name="runGLSLTests" type="boolean" value="true" />
+
+        <!-- Run using a given set of shader interface generation options. Default value is 2 where:
+            - 3 = run complete + reduced.
+            - 2 = run complete only.
+            - 1 = run reduced only.
+        -->
+        <parameter name="shaderInterfaces" type="integer" value="2" />
+
+        <!-- Set this to be true if it is desired to always dump out GLSL source files to disk instead of just on compile errors -->
+        <parameter name="dumpGlslFiles" type="boolean" value="false" />
+
+        <!-- Geometry file to use for rendering non-shader elements in GLSL.
+        A relative path specifier is relative to the folder "/documents/TestSuite/Geometry/" -->
+        <parameter name="glslNonShaderGeometry" type="string" value="sphere.obj" />
+
+        <!-- Geometry file to use for rendering shader elements in GLSL -->
+        <parameter name="glslShaderGeometry" type="string" value="shaderball.obj" />
+
+    </nodedef>
+</materialx>
