@@ -40,7 +40,6 @@ namespace mx = MaterialX;
 
 extern void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc);
 extern void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::HwShaderGenerator& shadergen, const mx::GenOptions& options);
-extern void createExampleMaterials(mx::DocumentPtr doc, std::vector<mx::MaterialPtr>& materials);
 
 TEST_CASE("GLSL Source", "[shadervalid]")
 {
@@ -59,10 +58,9 @@ TEST_CASE("GLSL Source", "[shadervalid]")
     mx::GlslShaderGeneratorPtr glslShaderGenerator = std::static_pointer_cast<mx::GlslShaderGenerator>(mx::GlslShaderGenerator::create());
     glslShaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-    mx::GenOptions options;
-
+    mx::GenOptions genOptions;
     mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
-    createLightRig(doc, *lightHandler, *glslShaderGenerator, options);
+    createLightRig(doc, *lightHandler, *glslShaderGenerator, genOptions);
 
     // Initialize a GLSL validator and set image handler.
     // Validator initiazation will create a offscreen
@@ -821,9 +819,9 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
     importOptions.skipDuplicateElements = true;
 
     // Add lights as a dependency
-    mx::GenOptions options;
+    mx::GenOptions genOptions;
     mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
-    createLightRig(dependLib, *lightHandler, *glslShaderGenerator, options);
+    createLightRig(dependLib, *lightHandler, *glslShaderGenerator, genOptions);
 
     // Clamp the number of light sources to the number bound
     size_t lightSourceCount = lightHandler->getLightSources().size();
