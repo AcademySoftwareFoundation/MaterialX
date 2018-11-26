@@ -21,6 +21,18 @@
         -->
         <parameter name="shaderInterfaces" type="integer" value="2" />
 
+        <!-- Perform source code compilation validation test -->
+        <parameter name="compileCode" type="boolean" value="true" />
+
+       <!-- Perform rendering validation test -->
+       <parameter name="renderImages" type="boolean" value="true" />
+
+       <!-- Perform saving of image. Can only be disabled for GLSL tests -->
+       <parameter name="saveImages" type="boolean" value="true" />
+
+       <!-- Set this to be true if it is desired to dump out GLSL uniform and attribut information to the logging file -->
+       <parameter name="dumpGlslUniformsAndAttributes" type="boolean" value="true" />
+
         <!-- Set this to be true if it is desired to always dump out GLSL source files to disk instead of just on compile errors -->
         <parameter name="dumpGlslFiles" type="boolean" value="false" />
 

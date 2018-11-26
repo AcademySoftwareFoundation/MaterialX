@@ -88,7 +88,8 @@ class OslValidator : public ShaderValidator
     /// does not perform any action as validateRender() produces images as part if it's
     /// execution.
     /// @param fileName Name of file to save rendered image to.
-    void save(const std::string& fileName) override;
+    /// @param floatingPoint Format of output image is floating point.
+    void save(const std::string& fileName, bool floatingPoint) override;
     
     /// @}
     /// @name Compilation settings
