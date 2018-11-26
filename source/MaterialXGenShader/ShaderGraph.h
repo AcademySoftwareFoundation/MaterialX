@@ -4,6 +4,7 @@
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Document.h>
 
+#include <MaterialXGenShader/ColorManagementSystem.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/TypeDesc.h>
 
@@ -96,8 +97,11 @@ class ShaderGraph : public ShaderNode
     /// Add a default geometric node and connect to the given input.
     void addDefaultGeomNode(ShaderInput* input, const GeomProp& geomprop, ShaderGenerator& shadergen);
 
+    /// Add a color transform node and connect to the given input.
+    void addColorTransformNode(ShaderInput* input, const ColorSpaceTransform& transform, ShaderGenerator& shadergen);
+
     /// Add a color transform node and connect to the given output.
-    void addColorTransformNode(ShaderOutput* output, const string& colorTransform, ShaderGenerator& shadergen);
+    void addColorTransformNode(ShaderOutput* input, const ColorSpaceTransform& transform, ShaderGenerator& shadergen);
 
     /// Perform all post-build operations on the graph.
     void finalize(ShaderGenerator& shadergen);
@@ -122,6 +126,10 @@ class ShaderGraph : public ShaderNode
     /// during shader generation
     void validateNames(ShaderGenerator& shadergen);
 
+    /// Populates the input color transform map if the provided input/parameter
+    /// has a color space attribute and has a type of color3 or color4.
+    void populateInputColorTransformMap(ColorManagementSystemPtr colorManagementSystem, const Node& node, ShaderNodePtr shaderNode, ValueElementPtr input, const string& targetColorSpace);
+
     /// Break all connections on a node
     static void disconnect(ShaderNode* node);
 
@@ -129,8 +137,11 @@ class ShaderGraph : public ShaderNode
     std::unordered_map<string, ShaderNodePtr> _nodeMap;
     std::vector<ShaderNode*> _nodeOrder;
 
-    // Temporary storage for nodes that require color transformations
-    std::unordered_map<ShaderNode*, string> _colorTransformMap;
+    // Temporary storage for inputs that require color transformations
+    std::unordered_map<ShaderInput*, ColorSpaceTransform> _inputColorTransformMap;
+
+    // Temporary storage for outputs that require color transformations
+    std::unordered_map<ShaderOutput*, ColorSpaceTransform> _outputColorTransformMap;
 };
 
 /// An edge returned during shader graph traversal.

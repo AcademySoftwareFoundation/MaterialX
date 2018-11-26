@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<materialx version="1.36">
+
+  <!-- ======================================================================== -->
+  <!-- Color Management System Implementations
+  <!-- ======================================================================== -->
+
+  <implementation name="IM_gamma24_to_lin_rec709_color3_sx_glsl" file="stdlib/sx-glsl/mx_gamma24_to_linear_color3.glsl" function="mx_gamma24_to_linear_color3" language="sx-glsl" />
+  <implementation name="IM_gamma24_to_lin_rec709_color4_sx_glsl" file="stdlib/sx-glsl/mx_gamma24_to_linear_color4.glsl" function="mx_gamma24_to_linear_color4" language="sx-glsl" />
+
+</materialx>

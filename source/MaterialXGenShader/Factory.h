@@ -40,6 +40,14 @@ public:
         }
     }
 
+    static void unregisterClasses(vector<string>& registeredImplNames)
+    {
+        for (string registeredImplName : registeredImplNames)
+        {
+            unregisterClass(registeredImplName);
+        }
+    }
+
     /// Create a new instance of the class with given type name.
     /// Returns nullptr if no class with given name is registered.
     static Ptr create(const string& typeName)

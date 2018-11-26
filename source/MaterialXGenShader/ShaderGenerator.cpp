@@ -14,8 +14,8 @@
 namespace MaterialX
 {
 
-ShaderGenerator::ShaderGenerator(SyntaxPtr syntax) 
-    : _syntax(syntax) 
+ShaderGenerator::ShaderGenerator(SyntaxPtr syntax)
+    : _syntax(syntax)
 {
     // Create a default context to be used by all nodes
     // that have no specific context assigned
@@ -83,7 +83,7 @@ void ShaderGenerator::emitFunctionCalls(const GenContext& context, Shader &shade
         }
         else
         {
-            // Node is not defined in either this context or default context 
+            // Node is not defined in either this context or default context
             // Just emit the output variable set to default value, in case it
             // is referenced by another node in this context.
             shader.beginLine();
