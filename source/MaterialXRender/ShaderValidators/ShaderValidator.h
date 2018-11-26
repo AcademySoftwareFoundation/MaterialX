@@ -114,8 +114,8 @@ class ShaderValidator
 
     /// Save the current contents the offscreen hardware buffer to disk.
     /// @param fileName Name of file to save rendered image to.
-    /// @return true if successful
-    virtual void save(const std::string& fileName) = 0;
+    /// @param floatingPoint Format of output image is floating point.
+    virtual void save(const std::string& fileName, bool floatingPoint) = 0;
     
     /// @}
 

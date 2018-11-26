@@ -11,7 +11,7 @@ namespace MaterialX
 // View information
 const float NEAR_PLANE_ORTHO = 0.01f;
 const float FAR_PLANE_ORTHO = 100.0f;
-const float FOV_PERSP = 60.0f; // degrees
+const float FOV_PERSP = 70.0f; // degrees
 const float NEAR_PLANE_PERSP = 0.01f;
 const float FAR_PLANE_PERSP = 100.0f;
 
@@ -102,7 +102,7 @@ void GlslValidator::initialize()
 
                     if (initializedFunctions)
                     {
-                        glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
+                        glClearColor(0.4f, 0.4f, 0.4f, 0.0f);
                         glClearStencil(0);
 
                         _initialized = true;
@@ -510,7 +510,7 @@ void GlslValidator::validateRender(bool orthographicView)
     bindTarget(false);
 }
 
-void GlslValidator::save(const std::string& fileName)
+void GlslValidator::save(const std::string& fileName, bool floatingPoint)
 {
     ShaderValidationErrorList errors;
     const std::string errorType("GLSL image save error.");
@@ -533,7 +533,7 @@ void GlslValidator::save(const std::string& fileName)
     bindTarget(true);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
     glReadBuffer(GL_COLOR_ATTACHMENT0);
-    glReadPixels(0, 0, _frameBufferWidth, _frameBufferHeight, GL_RGBA, GL_FLOAT, buffer);
+    glReadPixels(0, 0, _frameBufferWidth, _frameBufferHeight, GL_RGBA, floatingPoint ? GL_FLOAT : GL_UNSIGNED_BYTE, buffer);
     bindTarget(false);
     try
     {
