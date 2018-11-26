@@ -350,7 +350,7 @@ void Document::upgradeVersion()
                     NodeDefPtr nodeDef = updateChildSubclass<NodeDef>(elem, child);
                     if (nodeDef->hasAttribute("shadertype"))
                     {
-                        nodeDef->setType(nodeDef->getAttribute("shadertype") + "shader");
+                        nodeDef->setType(SURFACE_SHADER_TYPE_STRING);
                         nodeDef->removeAttribute("shadertype");
                     }
                     if (nodeDef->hasAttribute("shaderprogram"))
