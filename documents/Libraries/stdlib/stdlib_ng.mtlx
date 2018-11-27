@@ -2110,7 +2110,7 @@
     </swizzle>
     <swizzle name="N_a_color2" type="float">
       <input name="in" type="color2" interfacename="in"/>
-      <parameter name="channels" type="string" value="a"/>
+      <parameter name="channels" type="string" value="g"/>
     </swizzle>
     <switch name="N_sw_color2" type="float">
       <input name="in1" type="float" nodename="N_r_color2"/>
