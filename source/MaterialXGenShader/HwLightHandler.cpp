@@ -40,11 +40,11 @@ LightSourcePtr HwLightHandler::createLightSource(size_t typeId)
     return light;
 }
 
-void HwLightHandler::bindLightShaders(HwShaderGenerator& shadergen) const
+void HwLightHandler::bindLightShaders(HwShaderGenerator& shadergen, const GenOptions& options) const
 {
     for (auto shader : _lightShaders)
     {
-        shadergen.bindLightShader(*shader.second, shader.first);
+        shadergen.bindLightShader(*shader.second, shader.first, options);
     }
 }
 

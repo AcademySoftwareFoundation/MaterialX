@@ -64,7 +64,7 @@ void ShaderGraph::addOutputSockets(const InterfaceElement& elem)
     }
 }
 
-void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr material, ShaderGenerator& shadergen)
+void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr material, ShaderGenerator& shadergen, const GenOptions& options)
 {
     // Keep track of our root node in the graph.
     // This is needed when the graph is a shader graph and we need
@@ -105,7 +105,7 @@ void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
         ShaderNode* newNode = getNode(newNodeName);
         if (!newNode)
         {
-            newNode = addNode(*upstreamNode, shadergen);
+            newNode = addNode(*upstreamNode, shadergen, options);
         }
 
         //
@@ -166,7 +166,7 @@ void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
     }
 }
 
-void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomProp& geomprop, ShaderGenerator& shadergen)
+void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomProp& geomprop, ShaderGenerator& shadergen, const GenOptions& options)
 {
     const string geomNodeName = "default_" + geomprop.getName();
     ShaderNode* node = getNode(geomNodeName);
@@ -183,7 +183,7 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomProp& geompro
                 "' for geomprop on input '" + input->node->getName() + "." + input->name + "'");
         }
 
-        ShaderNodePtr geomNodePtr = ShaderNode::create(geomNodeName, *geomNodeDef, shadergen);
+        ShaderNodePtr geomNodePtr = ShaderNode::create(geomNodeName, *geomNodeDef, shadergen, options);
         _nodeMap[geomNodeName] = geomNodePtr;
         _nodeOrder.push_back(geomNodePtr.get());
 
@@ -233,16 +233,15 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomProp& geompro
     input->makeConnection(node->getOutput());
 }
 
-void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTransform& transform, ShaderGenerator& shadergen)
+void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTransform& transform, ShaderGenerator& shadergen, const GenOptions& options)
 {
     ColorManagementSystemPtr colorManagementSystem = shadergen.getColorManagementSystem();
     if (!colorManagementSystem)
     {
         return;
     }
-
     string colorTransformNodeName = input->node->getName() + "_" + input->name + "_cm";
-    ShaderNodePtr colorTransformNodePtr = colorManagementSystem->createNode(transform, colorTransformNodeName);
+    ShaderNodePtr colorTransformNodePtr = colorManagementSystem->createNode(transform, colorTransformNodeName, shadergen, options);
 
     if (colorTransformNodePtr)
     {
@@ -266,7 +265,7 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
     }
 }
 
-void ShaderGraph::addColorTransformNode(ShaderOutput* output, const ColorSpaceTransform& transform, ShaderGenerator& shadergen)
+void ShaderGraph::addColorTransformNode(ShaderOutput* output, const ColorSpaceTransform& transform, ShaderGenerator& shadergen, const GenOptions& options)
 {
     ColorManagementSystemPtr colorManagementSystem = shadergen.getColorManagementSystem();
     if (!colorManagementSystem)
@@ -274,7 +273,7 @@ void ShaderGraph::addColorTransformNode(ShaderOutput* output, const ColorSpaceTr
         return;
     }
     string colorTransformNodeName = output->node->getName() + "_" + output->name + "_cm";
-    ShaderNodePtr colorTransformNodePtr = colorManagementSystem->createNode(transform, colorTransformNodeName);
+    ShaderNodePtr colorTransformNodePtr = colorManagementSystem->createNode(transform, colorTransformNodeName, shadergen, options);
 
     if (colorTransformNodePtr)
     {
@@ -297,7 +296,7 @@ void ShaderGraph::addColorTransformNode(ShaderOutput* output, const ColorSpaceTr
     }
 }
 
-ShaderGraphPtr ShaderGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shadergen)
+ShaderGraphPtr ShaderGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shadergen, const GenOptions& options)
 {
     NodeDefPtr nodeDef = nodeGraph->getNodeDef();
     if (!nodeDef)
@@ -319,7 +318,7 @@ ShaderGraphPtr ShaderGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shad
     // Traverse all outputs and create all upstream dependencies
     for (OutputPtr graphOutput : nodeGraph->getOutputs())
     {
-        graph->addUpstreamDependencies(*graphOutput, nullptr, shadergen);
+        graph->addUpstreamDependencies(*graphOutput, nullptr, shadergen, options);
     }
 
     // Add classification according to last node
@@ -329,12 +328,13 @@ ShaderGraphPtr ShaderGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shad
         graph->_classification |= outputSocket->connection ? outputSocket->connection->node->_classification : 0;
     }
 
-    graph->finalize(shadergen);
+    // Finalize the graph
+    graph->finalize(shadergen, options);
 
     return graph;
 }
 
-ShaderGraphPtr ShaderGraph::create(const string& name, ElementPtr element, ShaderGenerator& shadergen)
+ShaderGraphPtr ShaderGraph::create(const string& name, ElementPtr element, ShaderGenerator& shadergen, const GenOptions& options)
 {
     ShaderGraphPtr graph;
     ElementPtr root;
@@ -399,7 +399,7 @@ ShaderGraphPtr ShaderGraph::create(const string& name, ElementPtr element, Shade
 
         // Create this shader node in the graph.
         const string& newNodeName = shaderRef->getName();
-        ShaderNodePtr newNode = ShaderNode::create(newNodeName, *nodeDef, shadergen, nullptr);
+        ShaderNodePtr newNode = ShaderNode::create(newNodeName, *nodeDef, shadergen, options);
         graph->_nodeMap[newNodeName] = newNode;
         graph->_nodeOrder.push_back(newNode.get());
 
@@ -460,7 +460,7 @@ ShaderGraphPtr ShaderGraph::create(const string& name, ElementPtr element, Shade
                 GeomPropPtr geomprop = nodeDefInput->getGeomProp();
                 if (geomprop)
                 {
-                    graph->addDefaultGeomNode(input, *geomprop, shadergen);
+                    graph->addDefaultGeomNode(input, *geomprop, shadergen, options);
                 }
                 else
                 {
@@ -480,18 +480,18 @@ ShaderGraphPtr ShaderGraph::create(const string& name, ElementPtr element, Shade
     }
 
     // Traverse and create all dependencies upstream
-    graph->addUpstreamDependencies(*root, material, shadergen);
+    graph->addUpstreamDependencies(*root, material, shadergen, options);
 
     // Add classification according to root node
     ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
     graph->_classification |= outputSocket->connection ? outputSocket->connection->node->_classification : 0;
 
-    graph->finalize(shadergen);
+    graph->finalize(shadergen, options);
 
     return graph;
 }
 
-ShaderNode* ShaderGraph::addNode(const Node& node, ShaderGenerator& shadergen)
+ShaderNode* ShaderGraph::addNode(const Node& node, ShaderGenerator& shadergen, const GenOptions& options)
 {
     NodeDefPtr nodeDef = node.getNodeDef();
     if (!nodeDef)
@@ -501,7 +501,8 @@ ShaderNode* ShaderGraph::addNode(const Node& node, ShaderGenerator& shadergen)
 
     // Create this node in the graph.
     const string& name = node.getName();
-    ShaderNodePtr newNode = ShaderNode::create(name, *nodeDef, shadergen, &node);
+    ShaderNodePtr newNode = ShaderNode::create(name, *nodeDef, shadergen, options);
+    newNode->setValues(node, *nodeDef, shadergen);
     _nodeMap[name] = newNode;
     _nodeOrder.push_back(newNode.get());
 
@@ -544,7 +545,7 @@ ShaderNode* ShaderGraph::addNode(const Node& node, ShaderGenerator& shadergen)
             GeomPropPtr geomprop = nodeDefInput->getGeomProp();
             if (geomprop)
             {
-                addDefaultGeomNode(input, *geomprop, shadergen);
+                addDefaultGeomNode(input, *geomprop, shadergen, options);
             }
         }
     }
@@ -608,16 +609,6 @@ ShaderGraphOutputSocket* ShaderGraph::addOutputSocket(const string& name, const 
     return ShaderNode::addInput(name, type);
 }
 
-void ShaderGraph::renameInputSocket(const string& name, const string& newName)
-{
-    return ShaderNode::renameOutput(name, newName);
-}
-
-void ShaderGraph::renameOutputSocket(const string& name, const string& newName)
-{
-    return ShaderNode::renameInput(name, newName);
-}
-
 ShaderGraphEdgeIterator ShaderGraph::traverseUpstream(ShaderOutput* output)
 {
     return ShaderGraphEdgeIterator(output);
@@ -629,33 +620,62 @@ ShaderNode* ShaderGraph::getNode(const string& name)
     return it != _nodeMap.end() ? it->second.get() : nullptr;
 }
 
-void ShaderGraph::finalize(ShaderGenerator& shadergen)
+void ShaderGraph::finalize(ShaderGenerator& shadergen, const GenOptions& options)
 {
+    // Optimize the graph, removing redundant paths.
+    optimize();
+
+    if (options.shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
+    {
+        // Create uniforms for all node inputs that has not been connected already
+        for (ShaderNode* node : getNodes())
+        {
+            for (ShaderInput* input : node->getInputs())
+            {
+                if (!input->connection)
+                {
+                    // Check if the type is editable otherwise we can't 
+                    // publish the input as an editable uniform.
+                    if (input->type->isEditable() && node->isEditable(*input))
+                    {
+                        // Use a consistent naming convention: <nodename>_<inputname>
+                        // so application side can figure out what uniforms to set
+                        // when node inputs change on application side.
+                        const string interfaceName = node->getName() + "_" + input->name;
+
+                        ShaderGraphInputSocket* inputSocket = getInputSocket(interfaceName);
+                        if (!inputSocket)
+                        {
+                            inputSocket = addInputSocket(interfaceName, input->type);
+                            inputSocket->value = input->value;
+                        }
+                        inputSocket->makeConnection(input);
+                    }
+                }
+            }
+        }
+    }
+
     // Insert color transformation nodes where needed
     for (auto it : _inputColorTransformMap)
     {
-        addColorTransformNode(it.first, it.second, shadergen);
+        addColorTransformNode(it.first, it.second, shadergen, options);
     }
     for (auto it : _outputColorTransformMap)
     {
-        addColorTransformNode(it.first, it.second, shadergen);
+        addColorTransformNode(it.first, it.second, shadergen, options);
     }
     _inputColorTransformMap.clear();
     _outputColorTransformMap.clear();
 
-    // Optimize the graph, removing redundant paths.
-    optimize();
-
     // Sort the nodes in topological order.
     topologicalSort();
 
-    // Calculate scopes for all nodes in the graph
+    // Calculate scopes for all nodes in the graph.
     calculateScopes();
 
-    // Make sure inputs and outputs on the graph have
-    // valid and unique names to avoid name collisions
-    // during shader generation
-    validateNames(shadergen);
+    // Set variable names for inputs and outputs in the graph.
+    setVariableNames(shadergen);
 
     // Track closure nodes used by each surface shader.
     for (ShaderNode* node : _nodeOrder)
@@ -944,34 +964,36 @@ void ShaderGraph::calculateScopes()
     }
 }
 
-void ShaderGraph::validateNames(ShaderGenerator& shadergen)
+void ShaderGraph::setVariableNames(ShaderGenerator& shadergen)
 {
-    // Make sure inputs and outputs have names valid for the
-    // target shading language, and are unique to avoid name
-    // conflicts when emitting variable names for them.
+    // Make sure inputs and outputs have variable names valid for the 
+    // target shading language, and are unique to avoid name conflicts.
 
     // Names in use for the graph is recorded in 'uniqueNames'.
     Syntax::UniqueNameMap uniqueNames;
     for (ShaderGraphInputSocket* inputSocket : getInputSockets())
     {
-        string name = inputSocket->name;
-        shadergen.getSyntax()->makeUnique(name, uniqueNames);
-        renameInputSocket(inputSocket->name, name);
+        inputSocket->variable = inputSocket->name;
+        shadergen.getSyntax()->makeUnique(inputSocket->variable, uniqueNames);
     }
     for (ShaderGraphOutputSocket* outputSocket : getOutputSockets())
     {
-        string name = outputSocket->name;
-        shadergen.getSyntax()->makeUnique(outputSocket->name, uniqueNames);
-        renameOutputSocket(outputSocket->name, name);
+        outputSocket->variable = outputSocket->name;
+        shadergen.getSyntax()->makeUnique(outputSocket->variable, uniqueNames);
     }
     for (ShaderNode* node : getNodes())
     {
+        for (ShaderInput* input : node->getInputs())
+        {
+            // Node outputs use long names for better code readability
+            input->variable = input->node->getName() + "_" + input->name;
+            shadergen.getSyntax()->makeUnique(input->variable, uniqueNames);
+        }
         for (ShaderOutput* output : node->getOutputs())
         {
             // Node outputs use long names for better code readability
-            string name = output->node->getName() + "_" + output->name;
-            shadergen.getSyntax()->makeUnique(name, uniqueNames);
-            node->renameOutput(output->name, name);
+            output->variable = output->node->getName() + "_" + output->name;
+            shadergen.getSyntax()->makeUnique(output->variable, uniqueNames);
         }
     }
 }

@@ -18,7 +18,7 @@ class DefaultColorManagementSystem : public ColorManagementSystem
 {
   public:
     /// Create a new DefaultColorManagementSystem
-    static DefaultColorManagementSystemPtr create(ShaderGenerator& shadergen);
+    static DefaultColorManagementSystemPtr create(const string& language);
 
     /// Return the DefaultColorManagementSystem name
     const string& getName() const override
@@ -33,7 +33,7 @@ class DefaultColorManagementSystem : public ColorManagementSystem
 
   private:
     /// Protected constructor
-    DefaultColorManagementSystem(ShaderGenerator& shadergen);
+    DefaultColorManagementSystem(const string& language);
 
     string _language;
 };

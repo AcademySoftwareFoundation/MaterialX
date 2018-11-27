@@ -58,16 +58,18 @@ void HeightToNormalNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext
         StringVec sampleStrings;
         emitInputSamplesUV(node, context, shadergen, shader, sampleStrings);
 
+        const ShaderOutput* output = node.getOutput();
+
         // Emit code to evaluate samples.
         //
-        string sampleName(node.getOutput()->name + "_samples");
+        string sampleName(output->variable + "_samples");
         shader.addLine("float " + sampleName + "[" + std::to_string(_sampleCount) + "]");
         for (unsigned int i = 0; i < _sampleCount; i++)
         {
             shader.addLine(sampleName + "[" + std::to_string(i) + "] = " + sampleStrings[i]);
         }
         shader.beginLine();
-        shadergen.emitOutput(context, node.getOutput(), true, false, shader);
+        shadergen.emitOutput(context, output, true, false, shader);
         shader.addStr(" = " + _filterFunctionName);
         shader.addStr("(" + sampleName + ", ");
         shadergen.emitInput(context, scaleInput, shader);

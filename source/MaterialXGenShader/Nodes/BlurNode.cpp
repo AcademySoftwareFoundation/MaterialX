@@ -146,6 +146,8 @@ namespace MaterialX
                 throw ExceptionShaderGenError("Node '" + node.getName() + "' cannot compute upstream samples");
             }
 
+            const ShaderOutput* output = node.getOutput();
+
             if (_sampleCount > 1)
             {
                 const string SX_MAX_SAMPLE_COUNT_STRING("SX_MAX_SAMPLE_COUNT");
@@ -155,7 +157,7 @@ namespace MaterialX
                 const string WEIGHT_POSTFIX_STRING("_weights");
 
                 // Set up sample array
-                string sampleName(node.getOutput()->name + SAMPLES_POSTFIX_STRING);
+                string sampleName(output->variable + SAMPLES_POSTFIX_STRING);
                 shader.addLine(_inputTypeString + " " + sampleName + "[" + SX_MAX_SAMPLE_COUNT_STRING + "]");
                 for (unsigned int i = 0; i < _sampleCount; i++)
                 {
@@ -166,7 +168,7 @@ namespace MaterialX
                 // The function to call depends on input type.
                 //
                 shader.beginLine();
-                shadergen.emitOutput(context, node.getOutput(), true, false, shader);
+                shadergen.emitOutput(context, output, true, false, shader);
                 shader.endLine();
 
                 shader.beginLine();
@@ -189,7 +191,7 @@ namespace MaterialX
                 {
                     string filterFunctionName = SX_CONVOLUTION_PREFIX_STRING + _inputTypeString;
                     shader.beginLine();
-                    shader.addStr(node.getOutput()->name);
+                    shader.addStr(output->variable);
                     shader.addStr(" = " + filterFunctionName);
                     shader.addStr("(" + sampleName + ", " +
                         GAUSSIAN_WEIGHTS_VARIABLE + ", " +
@@ -204,7 +206,7 @@ namespace MaterialX
                 {
                     string filterFunctionName = SX_CONVOLUTION_PREFIX_STRING + _inputTypeString;
                     shader.beginLine();
-                    shader.addStr(node.getOutput()->name);
+                    shader.addStr(output->variable);
                     shader.addStr(" = " + filterFunctionName);
                     shader.addStr("(" + sampleName + ", " +
                         BOX_WEIGHTS_VARIABLE + ", " +
@@ -221,7 +223,7 @@ namespace MaterialX
                 // or the constant value on the node.
                 //
                 shader.beginLine();
-                shadergen.emitOutput(context, node.getOutput(), true, false, shader);
+                shadergen.emitOutput(context, output, true, false, shader);
                 shader.addStr(" = " + sampleStrings[0]);
                 shader.endLine();
             }

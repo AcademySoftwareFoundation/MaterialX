@@ -31,7 +31,7 @@ Shader::Shader(const string& name)
 void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const GenOptions& options)
 {
     // Create our shader generation root graph
-    _rootGraph = ShaderGraph::create(_name, element, shadergen);
+    _rootGraph = ShaderGraph::create(_name, element, shadergen, options);
 
     // Make it active
     pushActiveGraph(_rootGraph.get());
@@ -43,7 +43,7 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const Ge
         impl->createVariables(*node, shadergen, *this);
     }
 
-    // Create uniforms for the public graph interface
+    // Create uniforms for the published graph interface
     for (ShaderGraphInputSocket* inputSocket : _rootGraph->getInputSockets())
     {
         // Only for inputs that are connected/used internally
@@ -52,42 +52,7 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const Ge
             if (_rootGraph->isEditable(*inputSocket))
             {
                 // Create the uniform
-                createUniform(PIXEL_STAGE, PUBLIC_UNIFORMS, inputSocket->type, inputSocket->name, EMPTY_STRING, inputSocket->value);
-            }
-        }
-    }
-    
-    // Check if a complete interface is requested
-    if (options.shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
-    {
-        // Create uniforms for all node inputs that has not been connected already
-        for (ShaderNode* node : _rootGraph->getNodes())
-        {
-            for (ShaderInput* input : node->getInputs())
-            {
-                if (!input->connection)
-                {
-                    // Check if the type is editable otherwise we can't 
-                    // publish the input as an editable uniform.
-                    if (input->type->isEditable() && node->isEditable(*input))
-                    {
-                        // Use a consistent naming convention: <nodename>_<inputname>
-                        // so application side can figure out what uniforms to set
-                        // when node inputs change on application side.
-                        const string interfaceName = node->getName() + "_" + input->name;
-
-                        ShaderGraphInputSocket* inputSocket = _rootGraph->getInputSocket(interfaceName);
-                        if (!inputSocket)
-                        {
-                            inputSocket = _rootGraph->addInputSocket(interfaceName, input->type);
-                            inputSocket->value = input->value;
-                        }
-                        inputSocket->makeConnection(input);
-
-                        // Create the uniform
-                        createUniform(PIXEL_STAGE, PUBLIC_UNIFORMS, inputSocket->type, inputSocket->name, EMPTY_STRING, inputSocket->value);
-                    }
-                }
+                createUniform(PIXEL_STAGE, PUBLIC_UNIFORMS, inputSocket->type, inputSocket->variable, EMPTY_STRING, inputSocket->value);
             }
         }
     }
@@ -225,7 +190,7 @@ void Shader::addFunctionDefinition(ShaderNode* node, ShaderGenerator& shadergen)
 void Shader::addFunctionCall(ShaderNode* node, const GenContext& context, ShaderGenerator& shadergen)
 {
     ShaderNodeImpl* impl = node->getImplementation();
-    impl->emitFunctionCall(*node, *(const_cast<GenContext*>(&context)), shadergen, *this);
+    impl->emitFunctionCall(*node, const_cast<GenContext&>(context), shadergen, *this);
 }
 
 void Shader::addInclude(const string& file, ShaderGenerator& shadergen)

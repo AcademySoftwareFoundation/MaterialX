@@ -63,14 +63,15 @@ class ColorManagementSystem
     /// Sets the config file.
     void setConfigFile(const string& configFile);
 
-    /// Load the library of implementations from the provided document. Will also replace any previously loaded content.
+    /// Load a library of implementations from the provided document,
+    /// replacing any previously loaded content.
     virtual void loadLibrary(DocumentPtr document);
 
     /// Returns whether this color management system supports a provided transform
     bool supportsTransform(const ColorSpaceTransform& transform);
 
     /// Create a node to use to perform the given color space transformation.
-    ShaderNodePtr createNode(const ColorSpaceTransform& transform, const string& name);
+    ShaderNodePtr createNode(const ColorSpaceTransform& transform, const string& name, ShaderGenerator& shadergen, const GenOptions& options);
 
   protected:
     template<class T>
@@ -83,13 +84,12 @@ class ColorManagementSystem
     void registerImplementation(const ColorSpaceTransform& transform, CreatorFunction<ShaderNodeImpl> creator);
 
     /// Protected constructor
-    ColorManagementSystem(ShaderGenerator& shadergen, const string& configFile);
+    ColorManagementSystem(const string& configFile);
 
     Factory<ShaderNodeImpl> _implFactory;
     std::unordered_map<ColorSpaceTransform, ShaderNodeImplPtr, ColorSpaceTransformHash> _cachedImpls;
     vector<string> _registeredImplNames;
     string _configFile;
-    ShaderGenerator& _shadergen;
     DocumentPtr _document;
 };
 

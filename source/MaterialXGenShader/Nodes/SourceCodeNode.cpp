@@ -18,9 +18,9 @@ ShaderNodeImplPtr SourceCodeNode::create()
     return std::make_shared<SourceCodeNode>();
 }
 
-void SourceCodeNode::initialize(ElementPtr implementation, ShaderGenerator& shadergen)
+void SourceCodeNode::initialize(ElementPtr implementation, ShaderGenerator& shadergen, const GenOptions& options)
 {
-    ShaderNodeImpl::initialize(implementation, shadergen);
+    ShaderNodeImpl::initialize(implementation, shadergen, options);
 
     ImplementationPtr impl = implementation->asA<Implementation>();
     if (!impl)

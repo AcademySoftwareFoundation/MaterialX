@@ -55,8 +55,6 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen, const 
     std::deque<ShaderGraph*> graphQueue;
     getTopLevelShaderGraphs(shadergen, graphQueue);
 
-    Syntax::UniqueNameMap uniqueNames;
-
     while (!graphQueue.empty())
     {
         ShaderGraph* graph = graphQueue.back();
@@ -70,13 +68,12 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen, const 
                 {
                     if (!input->connection && input->type == Type::FILENAME)
                     {
-                        // Create the uniform and assing the name of the uniform to
-                        // the input so we can reference it during code generation.
-                        // Using the filename type will make this uniform into a texture sampler.
-                        string name = node->getName() + "_" + input->name;
-                        shadergen.getSyntax()->makeUnique(name, uniqueNames);
-                        createUniform(HwShader::PIXEL_STAGE, PUBLIC_UNIFORMS, Type::FILENAME, name, EMPTY_STRING, input->value);
-                        input->value = Value::createValue(std::string(name));
+                        // Create the uniform using the filename type to make this uniform into a texture sampler.
+                        createUniform(HwShader::PIXEL_STAGE, PUBLIC_UNIFORMS, Type::FILENAME, input->variable, EMPTY_STRING, input->value);
+
+                        // Assing the uniform name to the input value
+                        // so we can reference it duing code generation.
+                        input->value = Value::createValue(input->variable);
                     }
                 }
             }

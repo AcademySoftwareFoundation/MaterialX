@@ -42,7 +42,7 @@ namespace mx = MaterialX;
 #define LOG_TO_FILE
 
 extern void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc);
-extern void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::HwShaderGenerator& shadergen);
+extern void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::HwShaderGenerator& shadergen, const mx::GenOptions& options);
 
 #ifdef MATERIALX_BUILD_GEN_GLSL
 //
@@ -851,7 +851,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
         glslValidator = createGLSLValidator(orthographicView, "sphere.obj", glslLog);
         glslShaderGenerator = std::static_pointer_cast<mx::GlslShaderGenerator>(mx::GlslShaderGenerator::create());
         glslShaderGenerator->registerSourceCodeSearchPath(searchPath);
-        glslColorManagementSystem = mx::DefaultColorManagementSystem::create(*glslShaderGenerator);
+        glslColorManagementSystem = mx::DefaultColorManagementSystem::create(glslShaderGenerator->getLanguage());
         glslShaderGenerator->setColorManagementSystem(glslColorManagementSystem);
         glslSetupTime.endTimer();
     }
@@ -894,8 +894,9 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
         AdditiveScopedTimer glslSetupLightingTimer(profileTimes.glslTimes.setupTime, "GLSL setup lighting time");
 
         // Add lights as a dependency
+        mx::GenOptions genOptions;
         lightHandler = mx::HwLightHandler::create();
-        createLightRig(dependLib, *lightHandler, *glslShaderGenerator);
+        createLightRig(dependLib, *lightHandler, *glslShaderGenerator, genOptions);
 
         // Clamp the number of light sources to the number bound
         size_t lightSourceCount = lightHandler->getLightSources().size();

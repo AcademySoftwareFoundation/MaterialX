@@ -68,11 +68,11 @@ public:
     /// and default value assignment.
     virtual void emitOutput(const GenContext& context, const ShaderOutput* output, bool includeType, bool assignDefault, Shader& shader) const;
 
-    /// Return the v-direction used by the target system
-    virtual Shader::VDirection getTargetVDirection() const;
-
     /// Return the syntax object for the language used by the code generator
     const Syntax* getSyntax() const { return _syntax.get(); }
+
+    /// Return the v-direction used by the target system
+    virtual Shader::VDirection getTargetVDirection() const;
 
     /// Add node contexts id's to the given node to control
     /// in which contexts this node should be used.
@@ -107,7 +107,7 @@ public:
     /// The element must be an Implementation or a NodeGraph acting as implementation.
     /// If no registered implementation is found a 'default' implementation instance
     /// will be returned, as defined by the createDefaultImplementation method.
-    ShaderNodeImplPtr getImplementation(InterfaceElementPtr element);
+    ShaderNodeImplPtr getImplementation(InterfaceElementPtr element, const GenOptions& options);
 
     /// Add to the search path used for finding source code.
     void registerSourceCodeSearchPath(const FilePath& path);

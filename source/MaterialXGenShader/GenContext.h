@@ -52,30 +52,30 @@ class GenContext
     /// Add an input suffix to be used for the node function in this context.
     /// @param input Node input
     /// @param suffix Suffix string
-    void addInputSuffix(ShaderInput* input, const string& suffix);
+    void addInputSuffix(const ShaderInput* input, const string& suffix);
 
     /// Remove an input suffix to be used for the node function in this context.
     /// @param input Node input
-    void removeInputSuffix(ShaderInput* input);
+    void removeInputSuffix(const ShaderInput* input);
 
     /// Get an input suffix to be used for the node function in this context.
     /// @param input Node input
     /// @param suffix Suffix string returned. Is empty if not found.
-    void getInputSuffix(ShaderInput* input, string& suffix) const;
+    void getInputSuffix(const ShaderInput* input, string& suffix) const;
 
     /// Add an output suffix to be used for the node function in this context.
     /// @param input Node output
     /// @param suffix Suffix string
-    void addOutputSuffix(ShaderOutput* output, const string& suffix);
+    void addOutputSuffix(const ShaderOutput* output, const string& suffix);
 
     /// Remove an output suffix to be used for the node function in this context.
     /// @param output Node output
-    void removeOutputSuffix(ShaderOutput* output);
+    void removeOutputSuffix(const ShaderOutput* output);
 
     /// Get an output suffix to be used for the node function in this context.
     /// @param output Node output
     /// @param suffix Suffix string returned. Is empty if not found.
-    void getOutputSuffix(ShaderOutput* output, string& suffix) const;
+    void getOutputSuffix(const ShaderOutput* output, string& suffix) const;
 
   private:
     const int _id;
@@ -83,10 +83,10 @@ class GenContext
     string _functionSuffix;
 
     // List of input suffixes
-    std::unordered_map<ShaderInput*, string> _inputSuffix;
+    std::unordered_map<const ShaderInput*, string> _inputSuffix;
 
     // List of output suffixes
-    std::unordered_map<ShaderOutput*, string> _outputSuffix;
+    std::unordered_map<const ShaderOutput*, string> _outputSuffix;
 };
 
 } // namespace MaterialX

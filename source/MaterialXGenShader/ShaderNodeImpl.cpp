@@ -1,10 +1,13 @@
 #include <MaterialXCore/Library.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
+#include <MaterialXGenShader/ShaderNode.h>
+#include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 
 namespace MaterialX
 {
 
-void ShaderNodeImpl::initialize(ElementPtr, ShaderGenerator&)
+void ShaderNodeImpl::initialize(ElementPtr /*implementation*/, ShaderGenerator& /*shadergen*/, const GenOptions& /*options*/)
 {
 }
 

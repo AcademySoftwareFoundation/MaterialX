@@ -18,9 +18,8 @@ ColorSpaceTransform::ColorSpaceTransform(const string& ss, const string& ts, con
 }
 
 
-ColorManagementSystem::ColorManagementSystem(ShaderGenerator& shadergen, const string& configFile)
+ColorManagementSystem::ColorManagementSystem(const string& configFile)
     : _configFile(configFile)
-    , _shadergen(shadergen)
 {
 }
 
@@ -54,7 +53,7 @@ bool ColorManagementSystem::supportsTransform(const ColorSpaceTransform& transfo
     return impl != nullptr;
 }
 
-ShaderNodePtr ColorManagementSystem::createNode(const ColorSpaceTransform& transform, const string& name)
+ShaderNodePtr ColorManagementSystem::createNode(const ColorSpaceTransform& transform, const string& name, ShaderGenerator& shadergen, const GenOptions& options)
 {
     string implName = getImplementationName(transform);
     ImplementationPtr impl = _document->getImplementation(implName);
@@ -80,10 +79,10 @@ ShaderNodePtr ColorManagementSystem::createNode(const ColorSpaceTransform& trans
     {
         shaderImpl = SourceCodeNode::create();
     }
-    shaderImpl->initialize(impl, _shadergen);
+    shaderImpl->initialize(impl, shadergen, options);
 
     _cachedImpls[transform] = shaderImpl;
-    ShaderNodePtr shaderNode = ShaderNode::createColorTransformNode(name, shaderImpl, transform.type, _shadergen);
+    ShaderNodePtr shaderNode = ShaderNode::createColorTransformNode(name, shaderImpl, transform.type, shadergen);
 
     return shaderNode;
 }

@@ -401,7 +401,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     // and upstream connection will be converted to vec4 if needed in emitFinalOutput()
     shader.addComment("Data output by the pixel shader");
     const ShaderGraphOutputSocket* outputSocket = shader.getGraph()->getOutputSocket();
-    shader.addLine("out vec4 " + outputSocket->name);
+    shader.addLine("out vec4 " + outputSocket->variable);
     shader.newLine();
 
     // Emit common math functions
@@ -530,19 +530,19 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
         string outputValue = outputSocket->value ? _syntax->getValue(outputSocket->type, *outputSocket->value) : _syntax->getDefaultValue(outputSocket->type);
         if (!outputSocket->type->isFloat4())
         {
-            string finalOutput = outputSocket->name + "_tmp";
+            string finalOutput = outputSocket->variable + "_tmp";
             shader.addLine(_syntax->getTypeName(outputSocket->type) + " " + finalOutput + " = " + outputValue);
             toVec4(outputSocket->type, finalOutput);
-            shader.addLine(outputSocket->name + " = " + finalOutput);
+            shader.addLine(outputSocket->variable + " = " + finalOutput);
         }
         else
         {
-            shader.addLine(outputSocket->name + " = " + outputValue);
+            shader.addLine(outputSocket->variable + " = " + outputValue);
         }
         return;
     }
 
-    string finalOutput = outputSocket->connection->name;
+    string finalOutput = outputSocket->connection->variable;
 
     if (shader.hasClassification(ShaderNode::Classification::SURFACE))
     {
@@ -550,11 +550,11 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
         if (hwShader.hasTransparency())
         {
             shader.addLine("float outAlpha = clamp(1.0 - dot(" + finalOutput + ".transparency, vec3(0.3333)), 0.0, 1.0)");
-            shader.addLine(outputSocket->name + " = vec4(" + finalOutput + ".color, outAlpha)");
+            shader.addLine(outputSocket->variable + " = vec4(" + finalOutput + ".color, outAlpha)");
         }
         else
         {
-            shader.addLine(outputSocket->name + " = vec4(" + finalOutput + ".color, 1.0)");
+            shader.addLine(outputSocket->variable + " = vec4(" + finalOutput + ".color, 1.0)");
         }
     }
     else
@@ -563,7 +563,7 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
         {
             toVec4(outputSocket->type, finalOutput);
         }
-        shader.addLine(outputSocket->name + " = " + finalOutput);
+        shader.addLine(outputSocket->variable + " = " + finalOutput);
     }
 }
 
@@ -669,7 +669,7 @@ void GlslShaderGenerator::emitBsdfNodes(const ShaderNode& shaderNode, int bsdfCo
 
     if (last)
     {
-        bsdf = last->getOutput()->name;
+        bsdf = last->getOutput()->variable;
     }
 }
 
@@ -698,7 +698,7 @@ void GlslShaderGenerator::emitEdfNodes(const ShaderNode& shaderNode, const strin
 
     if (last)
     {
-        edf = last->getOutput()->name;
+        edf = last->getOutput()->variable;
     }
 }
 
@@ -740,7 +740,7 @@ void GlslShaderGenerator::emitVariable(const Shader::Variable& variable, const s
             line += " : " + variable.semantic;
         if (variable.value)
         {
-            // If an arrays we need an array qualifier (suffix) for the variable name
+            // If an array we need an array qualifier (suffix) for the variable name
             string arraySuffix;
             variable.getArraySuffix(arraySuffix);
             line += arraySuffix;

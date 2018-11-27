@@ -21,9 +21,9 @@ const string& LightCompoundNodeGlsl::getTarget() const
     return GlslShaderGenerator::TARGET;
 }
 
-void LightCompoundNodeGlsl::initialize(ElementPtr implementation, ShaderGenerator& shadergen)
+void LightCompoundNodeGlsl::initialize(ElementPtr implementation, ShaderGenerator& shadergen, const GenOptions& options)
 {
-    ShaderNodeImpl::initialize(implementation, shadergen);
+    ShaderNodeImpl::initialize(implementation, shadergen, options);
 
     NodeGraphPtr graph = implementation->asA<NodeGraph>();
     if (!graph)
@@ -31,7 +31,12 @@ void LightCompoundNodeGlsl::initialize(ElementPtr implementation, ShaderGenerato
         throw ExceptionShaderGenError("Element '" + implementation->getName() + "' is not a node graph implementation");
     }
 
-    _rootGraph = ShaderGraph::create(graph, shadergen);
+    // For compounds we do not want to publish all internal inputs
+    // so always use the reduced interface for this graph.
+    GenOptions compoundOptions(options);
+    compoundOptions.shaderInterfaceType = SHADER_INTERFACE_REDUCED;
+
+    _rootGraph = ShaderGraph::create(graph, shadergen, compoundOptions);
     _functionName = graph->getName();
 
     // Store light uniforms for all inputs and parameters on the interface
