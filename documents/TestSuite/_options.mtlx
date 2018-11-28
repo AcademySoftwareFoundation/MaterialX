@@ -15,9 +15,9 @@
         <parameter name="runGLSLTests" type="boolean" value="true" />
 
         <!-- Run using a given set of shader interface generation options. Default value is 2 where:
-            - 3 = run complete + reduced.
-            - 2 = run complete only.
             - 1 = run reduced only.
+            - 2 = run complete only.
+            - 3 = run complete + reduced.
         -->
         <parameter name="shaderInterfaces" type="integer" value="2" />
 

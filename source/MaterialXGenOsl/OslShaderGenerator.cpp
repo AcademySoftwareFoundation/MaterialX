@@ -2,6 +2,7 @@
 #include <MaterialXGenOsl/OslSyntax.h>
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
+#include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/CompareNode.h>
 #include <MaterialXGenShader/Nodes/BlurNode.h>
@@ -143,6 +144,18 @@ OslShaderGenerator::OslShaderGenerator()
     registerImplementation("IM_convert_color4_color3_sx_osl", ConvertNode::create);
     registerImplementation("IM_convert_boolean_float_sx_osl", ConvertNode::create);
     registerImplementation("IM_convert_integer_float_sx_osl", ConvertNode::create);
+
+    // <!-- <combine> -->
+    registerImplementation("IM_combine_color2_sx_osl", CombineNode::create);
+    registerImplementation("IM_combine_vector2_sx_osl", CombineNode::create);
+    registerImplementation("IM_combine_color3_sx_osl", CombineNode::create);
+    registerImplementation("IM_combine_vector3_sx_osl", CombineNode::create);
+    registerImplementation("IM_combine_color4_sx_osl", CombineNode::create);
+    registerImplementation("IM_combine_vector4_sx_osl", CombineNode::create);
+    registerImplementation("IM_combine_color4CF_sx_osl", CombineNode::create);
+    registerImplementation("IM_combine_vector4VF_sx_osl", CombineNode::create);
+    registerImplementation("IM_combine_color4CC_sx_osl", CombineNode::create);
+    registerImplementation("IM_combine_vector4VV_sx_osl", CombineNode::create);
 
     // <!-- <blur> -->
     registerImplementation("IM_blur_float_sx_osl", BlurNode::create);

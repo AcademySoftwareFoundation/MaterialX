@@ -13,8 +13,7 @@ namespace
         { 
             Type::COLOR2,
             {
-                { Type::VECTOR2, std::string("rg") },
-                { Type::VECTOR3, std::string("rgb") }
+                { Type::VECTOR2, std::string("ra") }
             }
         },
         {
@@ -87,16 +86,16 @@ void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
 
     string result;
 
-    // Handle supported scalar type conversions
+    // Handle supported scalar type conversions.
     if ((in->type == Type::BOOLEAN || in->type == Type::INTEGER) && out->type == Type::FLOAT)
     {
         shadergen.getInput(context, in, result);
         result = shadergen.getSyntax()->getTypeName(out->type) + "(" + result + ")";
     }
-    // Handle supported vector type conversions
+    // Handle supported vector type conversions.
     else
     {
-        // Search the conversion table for a swizzle pattern to use
+        // Search the conversion table for a swizzle pattern to use.
         const string* swizzle = nullptr;
         auto i = CONVERT_TABLE.find(in->type);
         if (i != CONVERT_TABLE.end())
@@ -114,7 +113,7 @@ void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
 
         string variableName = in->connection ? in->connection->variable : in->variable;
 
-        // If the input is unconnected we must declare a variable
+        // If the input is unconnected we must declare a local variable
         // for it first, in order to swizzle it below.
         if (!in->connection)
         {
