@@ -235,6 +235,11 @@ class NodeGraph : public GraphElement
     }
     virtual ~NodeGraph() { }
 
+    /// Return the first implementation for this node graph
+    /// @return An implementation for this node, or an empty shared pointer if
+    ///    none was found.  
+    InterfaceElementPtr getImplementation() const;
+
   public:
     static const string CATEGORY;
 };

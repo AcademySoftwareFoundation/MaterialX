@@ -147,6 +147,17 @@ public:
         return nullptr;
     }
 
+    /// Return a cached implementation if used during shader generation
+    const ShaderNodeImplPtr getCachedImplementation(const string& name) const
+    {
+        auto it = _cachedImpls.find(name);
+        if (it != _cachedImpls.end())
+        {
+            return it->second;
+        }
+        return nullptr;
+    }
+
 public:
     /// Identifiers for contexts
     enum Context
