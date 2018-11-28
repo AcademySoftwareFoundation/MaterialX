@@ -9,7 +9,7 @@
         <parameter name="overrideFiles" type="string" value="" />
 
         <!-- List of comma separated file names which require color management  -->
-        <parameter name="cmsFiles" type="string" value="" />
+        <parameter name="cmsFiles" type="string" value="color_management.mtlx" />
 
         <!-- Set to false to disable execution of OSL tests. Default is true. -->
         <parameter name="runOSLTests" type="boolean" value="true" />

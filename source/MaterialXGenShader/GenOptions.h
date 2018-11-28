@@ -1,6 +1,8 @@
 #ifndef MATERIALX_GENOPTIONS_H
 #define MATERIALX_GENOPTIONS_H
 
+#include <string>
+
 namespace MaterialX
 {
 
@@ -39,9 +41,12 @@ class GenOptions
     // Sets if transparency is needed or not for HW shaders.
     // If a surface shader has potential of being transparent
     // this must be set to true, otherwise no transparency
-    // code fragments will be generated for the shader and 
+    // code fragments will be generated for the shader and
     // the surface will be fully opaque.
     bool hwTransparency;
+
+    /// An optional override for the target color space
+    std::string targetColorSpaceOverride;
 };
 
 } // namespace MaterialX

@@ -551,7 +551,15 @@ ShaderNode* ShaderGraph::addNode(const Node& node, ShaderGenerator& shadergen, c
     }
 
     ColorManagementSystemPtr colorManagementSystem = shadergen.getColorManagementSystem();
-    const string& targetColorSpace = _document ? _document->getAttribute(Element::COLOR_SPACE_ATTRIBUTE) : EMPTY_STRING;
+    string targetColorSpace;
+    if (options.targetColorSpaceOverride.empty())
+    {
+        targetColorSpace = _document ? _document->getActiveColorSpace() : EMPTY_STRING;
+    }
+    else
+    {
+        targetColorSpace = options.targetColorSpaceOverride;
+    }
     if (colorManagementSystem && !targetColorSpace.empty())
     {
         for (InputPtr input : node.getInputs())
@@ -574,7 +582,7 @@ ShaderNode* ShaderGraph::addNode(const Node& node, ShaderGenerator& shadergen, c
                 // Only color3 and color4 textures require color transformation.
                 if (fileType == Type::COLOR3 || fileType == Type::COLOR4)
                 {
-                    const string& sourceColorSpace = file->getAttribute(Element::COLOR_SPACE_ATTRIBUTE);
+                    const string& sourceColorSpace = file->getActiveColorSpace();
 
                     // If we're converting between two identical color spaces than we have no work to do.
                     if (!sourceColorSpace.empty() && sourceColorSpace != targetColorSpace)
@@ -622,6 +630,18 @@ ShaderNode* ShaderGraph::getNode(const string& name)
 
 void ShaderGraph::finalize(ShaderGenerator& shadergen, const GenOptions& options)
 {
+    // Insert color transformation nodes where needed
+    for (auto it : _inputColorTransformMap)
+    {
+        addColorTransformNode(it.first, it.second, shadergen, options);
+    }
+    for (auto it : _outputColorTransformMap)
+    {
+        addColorTransformNode(it.first, it.second, shadergen, options);
+    }
+    _inputColorTransformMap.clear();
+    _outputColorTransformMap.clear();
+
     // Optimize the graph, removing redundant paths.
     optimize();
 
@@ -634,7 +654,7 @@ void ShaderGraph::finalize(ShaderGenerator& shadergen, const GenOptions& options
             {
                 if (!input->connection)
                 {
-                    // Check if the type is editable otherwise we can't 
+                    // Check if the type is editable otherwise we can't
                     // publish the input as an editable uniform.
                     if (input->type->isEditable() && node->isEditable(*input))
                     {
@@ -655,18 +675,6 @@ void ShaderGraph::finalize(ShaderGenerator& shadergen, const GenOptions& options
             }
         }
     }
-
-    // Insert color transformation nodes where needed
-    for (auto it : _inputColorTransformMap)
-    {
-        addColorTransformNode(it.first, it.second, shadergen, options);
-    }
-    for (auto it : _outputColorTransformMap)
-    {
-        addColorTransformNode(it.first, it.second, shadergen, options);
-    }
-    _inputColorTransformMap.clear();
-    _outputColorTransformMap.clear();
 
     // Sort the nodes in topological order.
     topologicalSort();
@@ -966,7 +974,7 @@ void ShaderGraph::calculateScopes()
 
 void ShaderGraph::setVariableNames(ShaderGenerator& shadergen)
 {
-    // Make sure inputs and outputs have variable names valid for the 
+    // Make sure inputs and outputs have variable names valid for the
     // target shading language, and are unique to avoid name conflicts.
 
     // Names in use for the graph is recorded in 'uniqueNames'.
@@ -1001,7 +1009,7 @@ void ShaderGraph::setVariableNames(ShaderGenerator& shadergen)
 void ShaderGraph::populateInputColorTransformMap(ColorManagementSystemPtr colorManagementSystem, const Node& node, ShaderNodePtr shaderNode, ValueElementPtr input, const string& targetColorSpace)
 {
     ShaderInput* shaderInput = shaderNode->getInput(input->getName());
-    const string& sourceColorSpace = input->getAttribute(Element::COLOR_SPACE_ATTRIBUTE);
+    const string& sourceColorSpace = input->getActiveColorSpace();
     if (shaderInput && !sourceColorSpace.empty())
     {
         // Can skip inputs with connections as they are not legally allowed to have colorspaces specified.
