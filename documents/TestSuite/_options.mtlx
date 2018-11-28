@@ -33,8 +33,8 @@
        <!-- Set this to be true if it is desired to dump out GLSL uniform and attribut information to the logging file -->
        <parameter name="dumpGlslUniformsAndAttributes" type="boolean" value="true" />
 
-        <!-- Set this to be true if it is desired to always dump out GLSL source files to disk instead of just on compile errors -->
-        <parameter name="dumpGlslFiles" type="boolean" value="false" />
+        <!-- Set this to be true if it is desired to always dump out generated source code to disk instead of just on compile errors -->
+        <parameter name="dumpGeneratedCode" type="boolean" value="true" />
 
         <!-- Geometry file to use for rendering non-shader elements in GLSL.
         A relative path specifier is relative to the folder "/documents/TestSuite/Geometry/" -->
