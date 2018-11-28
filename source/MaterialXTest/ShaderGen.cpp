@@ -823,7 +823,7 @@ TEST_CASE("Swizzling", "[shadergen]")
         REQUIRE(var4 == "vector(foo[2], foo[1], foo[0])");
         std::string var5 = syntax->getSwizzledVariable("foo", mx::Type::VECTOR4, "yy", mx::Type::VECTOR2);
         REQUIRE(var5 == "vector2(foo.y, foo.y)");
-        std::string var6 = syntax->getSwizzledVariable("foo", mx::Type::COLOR2, "rrgg", mx::Type::VECTOR4);
+        std::string var6 = syntax->getSwizzledVariable("foo", mx::Type::COLOR2, "rraa", mx::Type::VECTOR4);
         REQUIRE(var6 == "vector4(foo.r, foo.r, foo.a, foo.a)");
 
         // Create a simple test graph
@@ -874,7 +874,7 @@ TEST_CASE("Swizzling", "[shadergen]")
         REQUIRE(var4 == "vec3(foo.z, foo.y, foo.x)");
         std::string var5 = syntax->getSwizzledVariable("foo", mx::Type::VECTOR4, "yy", mx::Type::VECTOR2);
         REQUIRE(var5 == "vec2(foo.y, foo.y)");
-        std::string var6 = syntax->getSwizzledVariable("foo", mx::Type::COLOR2, "rrgg", mx::Type::VECTOR4);
+        std::string var6 = syntax->getSwizzledVariable("foo", mx::Type::COLOR2, "rraa", mx::Type::VECTOR4);
         REQUIRE(var6 == "vec4(foo.x, foo.x, foo.y, foo.y)");
 
         // Create a simple test graph

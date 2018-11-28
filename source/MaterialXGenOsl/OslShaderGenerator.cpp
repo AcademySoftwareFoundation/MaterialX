@@ -142,7 +142,7 @@ OslShaderGenerator::OslShaderGenerator()
     // so if it changes also change this. (Or vice-versa).
     _shaderOutputTypeRemap =
     {
-        { Type::COLOR2,  { Type::COLOR3, "rg0" } },
+        { Type::COLOR2,  { Type::COLOR3, "ra0" } },
         { Type::COLOR4,  { Type::COLOR3, "rgb" } },
         { Type::VECTOR2, { Type::COLOR3, "xy0" } },
         { Type::VECTOR4, { Type::COLOR3, "xyz" } }
