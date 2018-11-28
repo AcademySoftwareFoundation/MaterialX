@@ -1,6 +1,7 @@
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslSyntax.h>
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
+#include <MaterialXGenShader/Nodes/ConvertNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/CompareNode.h>
 #include <MaterialXGenShader/Nodes/BlurNode.h>
@@ -124,6 +125,24 @@ OslShaderGenerator::OslShaderGenerator()
     registerImplementation("IM_swizzle_vector4_vector2_sx_osl", SwizzleNode::create);
     registerImplementation("IM_swizzle_vector4_vector3_sx_osl", SwizzleNode::create);
     registerImplementation("IM_swizzle_vector4_vector4_sx_osl", SwizzleNode::create);
+
+    // <!-- <convert> -->
+    registerImplementation("IM_convert_float_color2_sx_osl", ConvertNode::create);
+    registerImplementation("IM_convert_float_color3_sx_osl", ConvertNode::create);
+    registerImplementation("IM_convert_float_color4_sx_osl", ConvertNode::create);
+    registerImplementation("IM_convert_float_vector2_sx_osl", ConvertNode::create);
+    registerImplementation("IM_convert_float_vector3_sx_osl", ConvertNode::create);
+    registerImplementation("IM_convert_float_vector4_sx_osl", ConvertNode::create);
+    registerImplementation("IM_convert_vector2_color2_sx_osl", ConvertNode::create);
+    registerImplementation("IM_convert_vector3_color3_sx_osl", ConvertNode::create);
+    registerImplementation("IM_convert_vector4_color4_sx_osl", ConvertNode::create);
+    registerImplementation("IM_convert_color2_vector2_sx_osl", ConvertNode::create);
+    registerImplementation("IM_convert_color3_vector3_sx_osl", ConvertNode::create);
+    registerImplementation("IM_convert_color4_vector4_sx_osl", ConvertNode::create);
+    registerImplementation("IM_convert_color3_color4_sx_osl", ConvertNode::create);
+    registerImplementation("IM_convert_color4_color3_sx_osl", ConvertNode::create);
+    registerImplementation("IM_convert_boolean_float_sx_osl", ConvertNode::create);
+    registerImplementation("IM_convert_integer_float_sx_osl", ConvertNode::create);
 
     // <!-- <blur> -->
     registerImplementation("IM_blur_float_sx_osl", BlurNode::create);
