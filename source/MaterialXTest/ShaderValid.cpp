@@ -914,15 +914,18 @@ void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidT
 
         mx::ColorManagementSystemPtr oslCms = nullptr;
 #ifdef MATERIALX_BUILD_GEN_GLSL
-        oslCms = oslShaderGenerator->getColorManagementSystem();
+        if (oslShaderGenerator)
+            oslCms = oslShaderGenerator->getColorManagementSystem();
 #endif
         mx::ColorManagementSystemPtr glslCms = nullptr;
 #ifdef MATERIALX_BUILD_GEN_OSL
-        glslCms = glslShaderGenerator->getColorManagementSystem();
+        if (glslShaderGenerator)
+            glslCms = glslShaderGenerator->getColorManagementSystem();
 #endif
         mx::ColorManagementSystemPtr ogsfxCms = nullptr;
 #ifdef MATERIALX_BUILD_GEN_OGSFX
-        ogsfxCms = ogsfxShaderGenerator->getColorManagementSystem();
+        if (ogsfxShaderGenerator)
+            ogsfxCms = ogsfxShaderGenerator->getColorManagementSystem();
 #endif
         size_t skipCount = 0;
         profilingLog << "-- Possibly missed implementations ----" << std::endl;
@@ -977,7 +980,8 @@ void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidT
                 implementationUseCount++;
                 continue;
             }
-            if (glslCms && glslCms->getCachedImplementation(implName))
+            if (glslCms && glslCms->getCachedImplementation(implName) ||
+                ogsfxCms && ogsfxCms->getCachedImplementation(implName))
             {
                 implementationUseCount++;
                 continue;
@@ -1332,7 +1336,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
                     if (options.runOSLTests)
                     {
                         // Skip files using CMS for OSL assuming there is no support available
-                        if (options.cmsFiles.size() && options.cmsFiles.count(filename))
+                        if (options.cmsFiles.size() && options.cmsFiles.count(file))
                         {
                             continue;
                         }
