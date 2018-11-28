@@ -169,7 +169,7 @@ public:
         output << std::endl;
         output << "\tRun GLSL Tests: " << runGLSLTests << std::endl;
         output << "\tRun OSL Tests: " << runOSLTests << std::endl;
-        output << "\tDump GLSL Files: " << dumpGlslFiles << std::endl;
+        output << "\tDump Generated Code: " << dumpGeneratedCode << std::endl;
         output << "\tShader Interfaces: " << shaderInterfaces << std::endl;
         output << "\tCompile code: " << compileCode << std::endl;
         output << "\tRender Images: " << renderImages << std::endl;
@@ -182,8 +182,8 @@ public:
     // Filter list of files to only run validation on.
     MaterialX::StringVec overrideFiles;
 
-    // Set to true to always dump glsl generated files to disk
-    bool dumpGlslFiles = false;
+    // Set to true to always dump generated code to disk
+    bool dumpGeneratedCode = false;
 
     // Execute GLSL tests
     bool runGLSLTests = true;
@@ -499,7 +499,7 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                     }
                 }
 
-                if (testOptions.dumpGlslFiles)
+                if (testOptions.dumpGeneratedCode)
                 {
                     AdditiveScopedTimer dumpTimer(profileTimes.glslTimes.ioTime, "GLSL io time");
                     std::ofstream file;
@@ -514,17 +514,14 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
             }
             catch (mx::ExceptionShaderValidationError e)
             {
-                if (!testOptions.dumpGlslFiles)
-                {
-                    // Dump shader stages on error
-                    std::ofstream file;
-                    file.open(shaderPath + "_vs.glsl");
-                    file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
-                    file.close();
-                    file.open(shaderPath + "_ps.glsl");
-                    file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
-                    file.close();
-                }
+                // Always dump shader stages on error
+                std::ofstream file;
+                file.open(shaderPath + "_vs.glsl");
+                file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
+                file.close();
+                file.open(shaderPath + "_ps.glsl");
+                file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
+                file.close();
 
                 for (auto error : e.errorLog())
                 {
@@ -597,6 +594,7 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
             shaderPath = mx::FilePath(outputFilePath) / mx::FilePath(shaderName);
 
             // Write out osl file
+            if (testOptions.dumpGeneratedCode)
             {
                 AdditiveScopedTimer ioTimer(profileTimes.oslTimes.ioTime, "OSL io time");
                 std::ofstream file;
@@ -667,6 +665,12 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
             }
             catch (mx::ExceptionShaderValidationError e)
             {
+                // Always dump shader on error
+                std::ofstream file;
+                file.open(shaderPath + ".osl");
+                file << shader->getSourceCode();
+                file.close();
+
                 for (auto error : e.errorLog())
                 {
                     log << e.what() << " " << error << std::endl;
@@ -682,7 +686,7 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
 bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& options)
 {
     options.overrideFiles.clear();
-    options.dumpGlslFiles = false;
+    options.dumpGeneratedCode = false;
 
     MaterialX::DocumentPtr doc = MaterialX::createDocument();            
     try {
@@ -729,9 +733,9 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
                     {
                         options.runGLSLTests = val->asA<bool>();
                     }
-                    else if (name == "dumpGlslFiles")
+                    else if (name == "dumpGeneratedCode")
                     {
-                        options.dumpGlslFiles = val->asA<bool>();
+                        options.dumpGeneratedCode = val->asA<bool>();
                     }
                     else if (name == "glslNonShaderGeometry")
                     {
