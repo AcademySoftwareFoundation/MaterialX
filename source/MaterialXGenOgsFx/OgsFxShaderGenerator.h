@@ -31,6 +31,7 @@ public:
     void createVertexData(const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING) override;
 };
 
+using OgsFxShaderGeneratorPtr = shared_ptr<class OgsFxShaderGenerator>;
 
 /// A GLSL shader generator targeting the OgsFX file format
 class OgsFxShaderGenerator : public GlslShaderGenerator
