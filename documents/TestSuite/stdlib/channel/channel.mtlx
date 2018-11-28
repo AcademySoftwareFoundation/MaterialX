@@ -200,49 +200,49 @@ Basic channel function tests each test is in a separate graph for each variation
   <nodegraph name="swizzle_color2_float" type="" xpos="9.24226" ypos="26.5139">
     <swizzle name="swizzle1" type="float" xpos="5.74483" ypos="4.74">
       <input name="in" type="color2" value="0.0, 1.0" />
-      <parameter name="channels" type="string" value="r" />
+      <parameter name="channels" type="string" value="a" />
     </swizzle>
     <output name="out" type="float" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color2_color2" type="" xpos="7.2118" ypos="28.0137">
     <swizzle name="swizzle1" type="color2" xpos="5.74483" ypos="4.74">
       <input name="in" type="color2" value="0.0, 1.0" />
-      <parameter name="channels" type="string" value="gr" />
+      <parameter name="channels" type="string" value="ar" />
     </swizzle>
     <output name="out" type="color2" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color2_color3" type="" xpos="8.23801" ypos="27.9999">
     <swizzle name="swizzle1" type="color3" xpos="5.74483" ypos="4.74">
       <input name="in" type="color2" value="0.0, 1.0" />
-      <parameter name="channels" type="string" value="grg" />
+      <parameter name="channels" type="string" value="ara" />
     </swizzle>
     <output name="out" type="color3" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color2_color4" type="" xpos="9.26083" ypos="27.9705">
     <swizzle name="swizzle1" type="color4" xpos="5.74483" ypos="4.74">
       <input name="in" type="color2" value="0.0, 1.0" />
-      <parameter name="channels" type="string" value="rgrg" />
+      <parameter name="channels" type="string" value="rara" />
     </swizzle>
     <output name="out" type="color4" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color2_vector2" type="" xpos="7.21855" ypos="29.5494">
     <swizzle name="swizzle1" type="vector2" xpos="5.74483" ypos="4.74">
       <input name="in" type="color2" value="0.0, 1.0" />
-      <parameter name="channels" type="string" value="gr" />
+      <parameter name="channels" type="string" value="ar" />
     </swizzle>
     <output name="out" type="vector2" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color2_vector3" type="" xpos="8.25449" ypos="29.5396">
     <swizzle name="swizzle1" type="vector3" xpos="5.74483" ypos="4.74">
       <input name="in" type="color2" value="0.0, 1.0" />
-      <parameter name="channels" type="string" value="grg" />
+      <parameter name="channels" type="string" value="ara" />
     </swizzle>
     <output name="out" type="vector3" nodename="swizzle1" />
   </nodegraph>
   <nodegraph name="swizzle_color2_vector4" type="" xpos="9.27394" ypos="29.52">
     <swizzle name="swizzle1" type="vector4" xpos="5.74483" ypos="4.74">
       <input name="in" type="color2" value="0.0, 1.0" />
-      <parameter name="channels" type="string" value="rgrg" />
+      <parameter name="channels" type="string" value="rara" />
     </swizzle>
     <output name="out" type="vector4" nodename="swizzle1" />
   </nodegraph>
@@ -614,7 +614,7 @@ Basic channel function tests each test is in a separate graph for each variation
       <input name="in" type="color2" value="0.42, 0.77" />
     </separate>
     <combine name="combine1" type="color2">
-      <input name="in1" type="float" nodename="separate1" output="outg" />
+      <input name="in1" type="float" nodename="separate1" output="outa" />
       <input name="in2" type="float" nodename="separate1" output="outr" />
     </combine>
     <output name="out" type="color2" nodename="combine1" />

@@ -38,7 +38,7 @@
    </geomcolor>
    <swizzle name="swizzle_color2_set0" type="vector3">
       <input name="in" type="color2" nodename="color2_set0" />
-      <parameter name="channels" type="string" value="rg0" />
+      <parameter name="channels" type="string" value="ra0" />
    </swizzle>
    <output name="color2_output0" type="vector3" nodename="swizzle_color2_set0" />
 
