@@ -965,6 +965,97 @@ static void validateOSL(const std::string oslFileName, std::string& errorResult)
 }
 #endif // MATERIALX_BUILD_GEN_OSL
 
+TEST_CASE("Shader Interface", "[shadergen]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    loadLibraries({ "stdlib" }, searchPath, doc);
+
+    const std::string exampleName = "shader_interface";
+
+    // Create a nodedef taking three color3 and producing another color3
+    mx::NodeDefPtr nodeDef = doc->addNodeDef("ND_foo", "color3", "foo");
+    mx::InputPtr fooInputA = nodeDef->addInput("a", "color3");
+    mx::InputPtr fooInputB = nodeDef->addInput("b", "color3");
+    mx::OutputPtr fooOutput = nodeDef->addOutput("o", "color3");
+    fooInputA->setValue(mx::Color3(1.0f, 1.0f, 0.0f));
+    fooInputB->setValue(mx::Color3(0.8f, 0.1f, 0.1f));
+
+    // Create an implementation graph for the nodedef performing
+    // a multiplication of the three colors.
+    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("IMP_foo");
+    nodeGraph->setAttribute("nodedef", nodeDef->getName());
+    {
+        mx::OutputPtr output = nodeGraph->addOutput(fooOutput->getName(), "color3");
+        mx::NodePtr mult1 = nodeGraph->addNode("multiply", "mult1", "color3");
+        mx::InputPtr in1 = mult1->addInput("in1", "color3");
+        in1->setInterfaceName(fooInputA->getName());
+        mx::InputPtr in2 = mult1->addInput("in2", "color3");
+        in2->setInterfaceName(fooInputB->getName());
+        output->setConnectedNode(mult1);
+    }
+
+    mx::NodePtr foo = doc->addNode("foo", "foo1", "color3");
+    mx::OutputPtr output = doc->addOutput("foo_test", "color3");
+    output->setNodeName("foo1");
+    output->setOutputString("o");
+
+    mx::GenOptions options;
+
+#ifdef MATERIALX_BUILD_GEN_OSL
+    {
+        mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();
+        // Add path to find all source code snippets
+        shadergen->registerSourceCodeSearchPath(searchPath);
+        // Add path to find OSL include files
+        shadergen->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+
+        {
+            options.shaderInterfaceType = mx::SHADER_INTERFACE_COMPLETE;
+            mx::ShaderPtr shader = shadergen->generate(exampleName, output, options);
+            REQUIRE(shader != nullptr);
+            REQUIRE(shader->getSourceCode().length() > 0);
+
+            const mx::Shader::VariableBlock& uniforms = shader->getUniformBlock(mx::Shader::PIXEL_STAGE, mx::Shader::PUBLIC_UNIFORMS);
+            REQUIRE(uniforms.variableOrder.size() == 2);
+
+            const mx::Shader::VariableBlock& outputs = shader->getOutputBlock();
+            REQUIRE(outputs.variableOrder.size() == 1);
+            REQUIRE(outputs.variableOrder[0]->name == output->getName());
+
+            // Write out to file for inspection
+            std::ofstream file;
+            const std::string filename(RESULT_DIRECTORY + shader->getName() + "_complete.osl");
+            file.open(filename);
+            file << shader->getSourceCode();
+            file.close();
+        }
+
+        {
+            options.shaderInterfaceType = mx::SHADER_INTERFACE_REDUCED;
+            mx::ShaderPtr shader = shadergen->generate(exampleName, output, options);
+            REQUIRE(shader != nullptr);
+            REQUIRE(shader->getSourceCode().length() > 0);
+
+            const mx::Shader::VariableBlock& uniforms = shader->getUniformBlock(mx::Shader::PIXEL_STAGE, mx::Shader::PUBLIC_UNIFORMS);
+            REQUIRE(uniforms.variableOrder.size() == 0);
+
+            const mx::Shader::VariableBlock& outputs = shader->getOutputBlock();
+            REQUIRE(outputs.variableOrder.size() == 1);
+            REQUIRE(outputs.variableOrder[0]->name == output->getName());
+
+            // Write out to file for inspection
+            std::ofstream file;
+            const std::string filename(RESULT_DIRECTORY + shader->getName() + "_reduced.osl");
+            file.open(filename);
+            file << shader->getSourceCode();
+            file.close();
+        }
+    }
+#endif
+}
+
 TEST_CASE("Hello World", "[shadergen]")
 {
     mx::DocumentPtr doc = mx::createDocument();

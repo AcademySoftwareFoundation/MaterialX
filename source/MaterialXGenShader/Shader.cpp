@@ -20,6 +20,7 @@ Shader::Shader(const string& name)
     , _rootGraph(nullptr)
     , _activeStage(PIXEL_STAGE)
     , _appData("AppData", "ad")
+    , _outputs("Outputs", "op")
 {
     _stages.push_back(Stage("Pixel"));
 
@@ -53,6 +54,22 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const Ge
             {
                 // Create the uniform
                 createUniform(PIXEL_STAGE, PUBLIC_UNIFORMS, inputSocket->type, inputSocket->variable, EMPTY_STRING, inputSocket->value);
+            }
+        }
+    }
+
+    // Create outputs from the graph interface
+    for (ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
+    {
+        // Only for outputs that are connected/used internally
+        if (outputSocket->connection)
+        {
+            // Create the output
+            if (_outputs.variableMap.find(outputSocket->name) == _outputs.variableMap.end())
+            {
+                VariablePtr variable = std::make_shared<Variable>(outputSocket->type, outputSocket->name);
+                _outputs.variableMap[outputSocket->name] = variable;
+                _outputs.variableOrder.push_back(variable.get());
             }
         }
     }

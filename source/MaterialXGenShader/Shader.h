@@ -160,6 +160,9 @@ public:
     /// Return the block of application data variables.
     const VariableBlock& getAppDataBlock() const { return _appData; }
 
+    /// Return the block of output variables.
+    const VariableBlock& getOutputBlock() const { return _outputs; }
+
     /// Start a new scope in the shader, using the given bracket type
     virtual void beginScope(Brackets brackets = Brackets::BRACES);
 
@@ -273,6 +276,9 @@ protected:
 
     // Block holding application/geometric input variables
     VariableBlock _appData;
+
+    // Block holding output variables
+    VariableBlock _outputs;
 };
 
 /// @class @ExceptionShaderGenError
