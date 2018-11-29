@@ -55,7 +55,7 @@
         <parameter name="glslNonShaderGeometry" type="string" value="sphere.obj" />
 
         <!-- Geometry file to use for rendering shader elements in GLSL -->
-        <parameter name="glslShaderGeometry" type="string" value="shaderball.obj" />
+        <parameter name="glslShaderGeometry" type="string" value="sphere.obj" />
 
     </nodedef>
 </materialx>
