@@ -3727,7 +3727,7 @@
   <nodedef name="ND_separate_color2" node="separate" type="multioutput" nodegroup="channel">
     <input name="in" type="color2"/>
     <output name="outr" type="float" default="0.0"/>
-    <output name="outg" type="float" default="0.0"/>
+    <output name="outa" type="float" default="0.0"/>
   </nodedef>
   <nodedef name="ND_separate_color3" node="separate" type="multioutput" nodegroup="channel">
     <input name="in" type="color3"/>

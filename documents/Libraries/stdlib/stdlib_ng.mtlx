@@ -2245,12 +2245,12 @@
       <input name="in" type="color2" interfacename="in"/>
       <parameter name="channels" type="string" value="r"/>
     </swizzle>
-    <swizzle name="N_g_color2" type="float">
+    <swizzle name="N_a_color2" type="float">
       <input name="in" type="color2" interfacename="in"/>
-      <parameter name="channels" type="string" value="g"/>
+      <parameter name="channels" type="string" value="a"/>
     </swizzle>
     <output name="outr" type="float" nodename="N_r_color2"/>
-    <output name="outg" type="float" nodename="N_g_color2"/>
+    <output name="outa" type="float" nodename="N_a_color2"/>
   </nodegraph>
 
   <nodegraph name="NG_separate_vector2" nodedef="ND_separate_vector2">
