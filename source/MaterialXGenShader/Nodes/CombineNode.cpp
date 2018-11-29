@@ -5,65 +5,6 @@
 namespace MaterialX
 {
 
-namespace
-{
-    using ConvertTable = std::unordered_map<const TypeDesc*, std::unordered_map<const TypeDesc*, std::string> >;
-
-    static const ConvertTable CONVERT_TABLE({
-        { 
-            Type::COLOR2,
-            {
-                { Type::VECTOR2, std::string("ra") }
-            }
-        },
-        {
-            Type::COLOR3,
-            {
-                { Type::VECTOR3, std::string("rgb") },
-                { Type::COLOR4, std::string("rgb1") }
-            }
-        },
-        {
-            Type::COLOR4,
-            {
-                { Type::VECTOR4, std::string("rgba") },
-                { Type::COLOR3, std::string("rgb") }
-            }
-        },
-        {
-            Type::VECTOR2,
-            {
-                { Type::COLOR2, std::string("xy") }
-            }
-        },
-        {
-            Type::VECTOR3,
-            {
-                { Type::COLOR3, std::string("xyz") }
-            }
-        },
-        {
-            Type::VECTOR4,
-            {
-                { Type::COLOR4, std::string("xyzw") }
-            }
-        },
-        {
-            Type::FLOAT,
-            {
-                { Type::COLOR2, std::string("rr") },
-                { Type::COLOR3, std::string("rrr") },
-                { Type::COLOR4, std::string("rrrr") },
-                { Type::VECTOR2, std::string("rr") },
-                { Type::VECTOR3, std::string("rrr") },
-                { Type::VECTOR4, std::string("rrrr") },
-            }
-        }
-    });
-
-    static const string IN_STRING("in");
-}
-
 ShaderNodeImplPtr CombineNode::create()
 {
     return std::make_shared<CombineNode>();
