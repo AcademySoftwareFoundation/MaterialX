@@ -13,7 +13,7 @@ void GeomAttrValueNodeGlsl::createVariables(const ShaderNode& node, ShaderGenera
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     const ShaderInput* attrNameInput = node.getInput(ATTRNAME);
-    if (!attrNameInput)
+    if (!attrNameInput || !attrNameInput->value)
     {
         throw ExceptionShaderGenError("No 'attrname' parameter found on geomattrvalue node '" + node.getName() + "', don't know what attribute to bind");
     }

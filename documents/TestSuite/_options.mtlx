@@ -8,11 +8,25 @@
         <!-- List of comma separated file names acts as a filter to only test documents with these names -->
         <parameter name="overrideFiles" type="string" value="" />
 
+        <!-- List of comma separated file names which require color management  -->
+        <parameter name="cmsFiles" type="string" value="color_management.mtlx" />
+
         <!-- Set to false to disable execution of OSL tests. Default is true. -->
         <parameter name="runOSLTests" type="boolean" value="true" />
 
         <!-- Set to false to disable execution of GLSL tests. Default is true. -->
         <parameter name="runGLSLTests" type="boolean" value="true" />
+
+        <!-- Set to true to enable execution of OGSFX tests. Default is false.
+             Currently only shader generation testing is performed.
+        -->
+        <parameter name="runOGSFXTests" type="boolean" value="false" />
+
+        <!-- Check the count of number of implementations used. Default is true.
+             If this option si set then runOSLTests and runGLSLTests will also
+             be enabled to ensure a proper set of implementations to check.
+        -->
+        <parameter name="checkImplCount" type="boolean" value="true" />
 
         <!-- Run using a given set of shader interface generation options. Default value is 2 where:
             - 1 = run reduced only.

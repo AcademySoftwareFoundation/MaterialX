@@ -37,7 +37,8 @@
 
 namespace mx = MaterialX;
 
-void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc)
+void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc,
+                   const std::set<std::string>* excludeFiles = nullptr)
 {
     const std::string MTLX_EXTENSION("mtlx");
     for (const std::string& library : libraryNames)
@@ -48,6 +49,10 @@ void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& search
 
         for (const std::string& filename : filenames)
         {
+            if (excludeFiles && excludeFiles->count(filename))
+            {
+                continue;
+            }
             mx::FilePath file = path / filename;
             mx::DocumentPtr libDoc = mx::createDocument();
             mx::readFromXmlFile(libDoc, file);
@@ -776,7 +781,13 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
                 {
                     mx::NodeGraphPtr graph = inter->asA<mx::NodeGraph>();
                     found_str += "Found NodeGraph impl for nodedef: " + nodeDefName + ", Node: "
-                        + nodeName + ". Impl: " + graph->getName() + ".\n";
+                        + nodeName + ". Graph Impl: " + graph->getName();
+                    mx::InterfaceElementPtr graphNodeDefImpl = graph->getImplementation();
+                    if (graphNodeDefImpl)
+                    {
+                        found_str += ". Graph Nodedef Impl: " + graphNodeDefImpl->getName();
+                    }
+                    found_str += ".\n";
                 }
             }
         }
