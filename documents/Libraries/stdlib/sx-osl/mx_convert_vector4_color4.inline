@@ -1,1 +1,0 @@
-color4(color({{in}}.x, {{in}}.y, {{in}}.z), {{in}}.w)
