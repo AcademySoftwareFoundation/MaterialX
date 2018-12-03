@@ -261,11 +261,10 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
         ShaderNode* colorTransformNode = colorTransformNodePtr.get();
         ShaderOutput* colorTransformNodeOutput = colorTransformNode->getOutput(0);
 
-        // TODO: For now copy the value of the input to the transform node. In the future we don't want to do things
-        // this way. Instead we want to set the color transform uniform to be equal to the input uniform. 
         ShaderInput* shaderInput = colorTransformNode->getInput(0);
+        shaderInput->variable = input->node->getName() + "_" + input->name;
         shaderInput->value = input->value;
-        // Copy over the downstream path as that is the actual controlling input.
+        shaderInput->flags |= VARIABLE_NOT_RENAMABLE_FLAG;
         shaderInput->path = input->path;
 
         input->makeConnection(colorTransformNodeOutput);
@@ -612,11 +611,11 @@ ShaderNode* ShaderGraph::addNode(const Node& node, ShaderGenerator& shadergen, c
     {
         for (InputPtr input : node.getInputs())
         {
-            populateInputColorTransformMap(colorManagementSystem, node, newNode, input, targetColorSpace);
+            populateInputColorTransformMap(colorManagementSystem, newNode, input, targetColorSpace);
         }
         for (ParameterPtr parameter : node.getParameters())
         {
-            populateInputColorTransformMap(colorManagementSystem, node, newNode, parameter, targetColorSpace);
+            populateInputColorTransformMap(colorManagementSystem, newNode, parameter, targetColorSpace);
         }
 
         // Check if this is a file texture node that requires color transformation.
@@ -718,6 +717,11 @@ void ShaderGraph::finalize(ShaderGenerator& shadergen, const GenOptions& options
                             // Copy value and path from the internal input to the published socket
                             inputSocket->value = input->value;
                             inputSocket->path = input->path;
+                            if (VARIABLE_NOT_RENAMABLE_FLAG & input->flags)
+                            {
+                                inputSocket->variable = input->variable;
+                                inputSocket->flags |= VARIABLE_NOT_RENAMABLE_FLAG;
+                            }
                         }
                         inputSocket->makeConnection(input);
                     }
@@ -1032,7 +1036,10 @@ void ShaderGraph::setVariableNames(ShaderGenerator& shadergen)
     Syntax::UniqueNameMap uniqueNames;
     for (ShaderGraphInputSocket* inputSocket : getInputSockets())
     {
-        inputSocket->variable = inputSocket->name;
+        if (VARIABLE_NOT_RENAMABLE_FLAG & inputSocket->flags)
+        {
+            inputSocket->variable = inputSocket->name;
+        }
         shadergen.getSyntax()->makeUnique(inputSocket->variable, uniqueNames);
     }
     for (ShaderGraphOutputSocket* outputSocket : getOutputSockets())
@@ -1045,7 +1052,10 @@ void ShaderGraph::setVariableNames(ShaderGenerator& shadergen)
         for (ShaderInput* input : node->getInputs())
         {
             // Node outputs use long names for better code readability
-            input->variable = input->node->getName() + "_" + input->name;
+            if (VARIABLE_NOT_RENAMABLE_FLAG & input->flags)
+            {
+                input->variable = input->node->getName() + "_" + input->name;
+            }
             shadergen.getSyntax()->makeUnique(input->variable, uniqueNames);
         }
         for (ShaderOutput* output : node->getOutputs())
@@ -1057,7 +1067,7 @@ void ShaderGraph::setVariableNames(ShaderGenerator& shadergen)
     }
 }
 
-void ShaderGraph::populateInputColorTransformMap(ColorManagementSystemPtr colorManagementSystem, const Node& /*node*/, ShaderNodePtr shaderNode, ValueElementPtr input, const string& targetColorSpace)
+void ShaderGraph::populateInputColorTransformMap(ColorManagementSystemPtr colorManagementSystem, ShaderNodePtr shaderNode, ValueElementPtr input, const string& targetColorSpace)
 {
     ShaderInput* shaderInput = shaderNode->getInput(input->getName());
     const string& sourceColorSpace = input->getActiveColorSpace();

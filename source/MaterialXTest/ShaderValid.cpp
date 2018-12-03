@@ -45,7 +45,7 @@ namespace mx = MaterialX;
 
 #define LOG_TO_FILE
 
-extern void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc, 
+extern void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc,
                           const std::set<std::string>* excludeFiles = nullptr);
 extern void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::HwShaderGenerator& shadergen, const mx::GenOptions& options);
 
@@ -244,7 +244,7 @@ class LanguageProfileTimes
 public:
     void print(const std::string& label, std::ostream& output) const
     {
-        output << label << std::endl; 
+        output << label << std::endl;
         output << "\tTotal: " << totalTime << " seconds" << std::endl;;
         output << "\tSetup: " << setupTime << " seconds" << std::endl;;
         output << "\tTransparency: " << transparencyTime << " seconds" << std::endl;;
@@ -647,7 +647,7 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
 
     std::vector<mx::GenOptions> optionsList;
     getGenerationOptions(testOptions, optionsList);
-    
+
     if(element && doc)
     {
         log << "------------ Run OSL validation with element: " << element->getNamePath() << "-------------------" << std::endl;
@@ -784,7 +784,7 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
     options.overrideFiles.clear();
     options.cmsFiles.clear();
 
-    MaterialX::DocumentPtr doc = MaterialX::createDocument();            
+    MaterialX::DocumentPtr doc = MaterialX::createDocument();
     try {
         MaterialX::readFromXmlFile(doc, optionFile);
 
@@ -828,7 +828,7 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
                     else if (name == "dumpGlslUniformsAndAttributes")
                     {
                         options.dumpGlslUniformsAndAttributes = val->asA<bool>();
-                    }                    
+                    }
                     else if (name == "runOSLTests")
                     {
                         options.runOSLTests = val->asA<bool>();
@@ -844,7 +844,7 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
                     else if (name == "checkImplCount")
                     {
                         options.checkImplCount = val->asA<bool>();
-                    }                    
+                    }
                     else if (name == "dumpGlslFiles")
                     {
                         options.dumpGlslFiles = val->asA<bool>();
@@ -890,7 +890,7 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
 
 void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidTestOptions& options,
     std::set<std::string>& usedImpls, std::ostream& profilingLog, mx::DocumentPtr dependLib,
-    mx::ArnoldShaderGeneratorPtr oslShaderGenerator, mx::GlslShaderGeneratorPtr glslShaderGenerator, 
+    mx::ArnoldShaderGeneratorPtr oslShaderGenerator, mx::GlslShaderGeneratorPtr glslShaderGenerator,
     mx::OgsFxShaderGeneratorPtr ogsfxShaderGenerator)
 {
     profileTimes.print(profilingLog);

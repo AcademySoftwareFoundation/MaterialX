@@ -21,6 +21,9 @@ using ShaderOutputPtr = shared_ptr<class ShaderOutput>;
 using ShaderNodePtr = shared_ptr<class ShaderNode>;
 using ShaderInputSet = std::set<ShaderInput*>;
 
+// List of possible Flags
+static const unsigned int VARIABLE_NOT_RENAMABLE_FLAG = 1 << 0;
+
 /// An input on a ShaderNode
 class ShaderInput
 {
@@ -31,8 +34,8 @@ class ShaderInput
     /// Input name.
     string name;
 
-    // Path to the origin (input/parameter element) for this shader input. 
-    // Can be used to map client side node inputs to uniforms on the generated shader, 
+    // Path to the origin (input/parameter element) for this shader input.
+    // Can be used to map client side node inputs to uniforms on the generated shader,
     // if input values change during rendering.
     string path;
 
@@ -47,6 +50,8 @@ class ShaderInput
 
     /// A connection to an upstream node output, or nullptr if not connected.
     ShaderOutput* connection;
+
+    unsigned int flags;
 
     /// Make a connection from the given source output to this input.
     void makeConnection(ShaderOutput* src);
@@ -79,6 +84,8 @@ class ShaderOutput
 
     /// A set of connections to downstream node inputs, empty if not connected.
     ShaderInputSet connections;
+
+    unsigned int flags;
 
     /// Make a connection from this output to the given input
     void makeConnection(ShaderInput* dst);
