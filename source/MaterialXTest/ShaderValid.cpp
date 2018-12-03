@@ -404,15 +404,6 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
                 AdditiveScopedTimer generationTimer(profileTimes.ogsfxTimes.generationTime, "OGSFX generation time");
                 shader = shaderGenerator.generate(shaderName, element, options);
                 generationTimer.endTimer();
-
-                if (shader && testOptions.dumpGlslFiles)
-                {
-                    AdditiveScopedTimer dumpTimer(profileTimes.ogsfxTimes.ioTime, "OGSFX io time");
-                    std::ofstream file;
-                    file.open(shaderPath + ".ogsfx");
-                    file << shader->getSourceCode(MaterialX::OgsFxShader::FINAL_FX_STAGE);
-                    file.close();
-                }
             }
             catch (mx::ExceptionShaderGenError e)
             {
@@ -426,8 +417,17 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
                 log << ">> Failed to generate shader\n";
                 return;
             }
+
             const std::string& sourceCode = shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
             validated = sourceCode.length() > 0;
+            if (validated && testOptions.dumpGlslFiles)
+            {
+                AdditiveScopedTimer dumpTimer(profileTimes.ogsfxTimes.ioTime, "OGSFX io time");
+                std::ofstream file;
+                file.open(shaderPath + ".ogsfx");
+                file << sourceCode;
+                file.close();
+            }
             CHECK(validated);          
         }
     }
@@ -500,8 +500,22 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                 log << ">> Failed to generate shader\n";
                 return;
             }
-            CHECK(shader->getSourceCode(mx::HwShader::PIXEL_STAGE).length() > 0);
-            CHECK(shader->getSourceCode(mx::HwShader::VERTEX_STAGE).length() > 0);
+            const std::string& vertexSourceCode = shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
+            const std::string& pixelSourceCode = shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
+            CHECK(vertexSourceCode.length() > 0);
+            CHECK(pixelSourceCode.length() > 0);
+
+            if (testOptions.dumpGlslFiles)
+            {
+                AdditiveScopedTimer dumpTimer(profileTimes.glslTimes.ioTime, "GLSL io time");
+                std::ofstream file;
+                file.open(shaderPath + "_vs.glsl");
+                file << vertexSourceCode;
+                file.close();
+                file.open(shaderPath + "_ps.glsl");
+                file << pixelSourceCode;
+                file.close();
+            }
 
             if (!testOptions.compileCode)
             {
@@ -596,17 +610,6 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                     }
                 }
 
-                if (testOptions.dumpGlslFiles)
-                {
-                    AdditiveScopedTimer dumpTimer(profileTimes.glslTimes.ioTime, "GLSL io time");
-                    std::ofstream file;
-                    file.open(shaderPath + "_vs.glsl");
-                    file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
-                    file.close();
-                    file.open(shaderPath + "_ps.glsl");
-                    file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
-                    file.close();
-                }
                 validated = true;
             }
             catch (mx::ExceptionShaderValidationError e)
@@ -672,11 +675,6 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
             }
             CHECK(shader->getSourceCode().length() > 0);
 
-            if (!testOptions.compileCode)
-            {
-                return;
-            }
-
             std::string shaderPath;
             mx::FilePath outputFilePath = outputPath;
             // Use separate directory for reduced output
@@ -700,6 +698,11 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
                 file.open(shaderPath + ".osl");
                 file << shader->getSourceCode();
                 file.close();
+            }
+
+            if (!testOptions.compileCode)
+            {
+                return;
             }
 
             // Validate
@@ -1231,7 +1234,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
             mx::DocumentPtr doc = mx::createDocument();
             readFromXmlFile(doc, filename);
 
-            if (options.cmsFiles.size() && options.cmsFiles.count(filename))
+            if (options.cmsFiles.size() && options.cmsFiles.count(file))
             {
 #if defined(MATERIALX_BUILD_GEN_GLSL) || defined(MATERIALX_BUILD_GEN_OGSFX)
                 // Load CMS system on demand if there is a file requiring color transforms

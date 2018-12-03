@@ -1064,7 +1064,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
         GLint uniformLocation = glGetUniformLocation(_programId, uniformName);
         if (uniformLocation >= 0)
         {
-            InputPtr inputPtr = std::make_shared<Input>(uniformLocation, uniformType, uniformSize);
+            InputPtr inputPtr = std::make_shared<Input>(uniformLocation, uniformType, uniformSize, EMPTY_STRING);
             _uniformList[std::string(uniformName)] = inputPtr;
         }
     }
@@ -1086,7 +1086,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                 continue;
             }
 
-            InputPtr inputPtr = std::make_shared<Input>(-1, -1, static_cast<int>(input->type->getSize()));
+            InputPtr inputPtr = std::make_shared<Input>(-1, -1, static_cast<int>(input->type->getSize()), EMPTY_STRING);
             _uniformList[input->name] = inputPtr;
             inputPtr->isConstant = true;
             if (input->value)
@@ -1094,6 +1094,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                 inputPtr->value = input->value;
             }
             inputPtr->typeString = input->type->getName();
+            inputPtr->path = input->path;
         }
 
         /// Return all blocks of uniform variables for a stage.
@@ -1119,6 +1120,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                 auto Input = _uniformList.find(input->name);
                 if (Input != _uniformList.end())
                 {
+                    Input->second->path = input->path;
                     if (input->value)
                     {
                         Input->second->value = input->value;
@@ -1156,6 +1158,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                     {
                         Input->second->typeString = input->type->getName();
                         Input->second->value = input->value;
+                        Input->second->path = input->path;
                     }
                     else
                     {
@@ -1240,7 +1243,7 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
         GLint attributeLocation = glGetAttribLocation(_programId, attributeName);
         if (attributeLocation >= 0)
         {
-            InputPtr inputPtr = std::make_shared<Input>(attributeLocation, attributeType, attributeSize);
+            InputPtr inputPtr = std::make_shared<Input>(attributeLocation, attributeType, attributeSize, EMPTY_STRING);
 
             // Attempt to pull out the set number for specific attributes 
             //
@@ -1363,7 +1366,9 @@ void GlslProgram::printUniforms(std::ostream& outputStream)
             << ". Size: " << std::dec << size
             << ". TypeString:" << type
             << ". Value: " << value 
-            << ". Is constant: " << isConstant << "."
+            << ". Is constant: " << isConstant 
+            << ". Element Path: " << input.second->path
+            << "."
             << std::endl;
     }
 }

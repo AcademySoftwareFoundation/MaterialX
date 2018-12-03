@@ -17,7 +17,7 @@ class MayaGlslPluginShader : public OgsFxShader
 public:
     MayaGlslPluginShader(const string& name);
 
-    void createUniform(size_t stage, const string& block, const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING, ValuePtr value = nullptr) override;
+    void createUniform(size_t stage, const string& block, const TypeDesc* type, const string& name, const string& path = EMPTY_STRING, const string& semantic = EMPTY_STRING, ValuePtr value = nullptr) override;
     void createAppData(const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING) override;
     void createVertexData(const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING) override;
 };
