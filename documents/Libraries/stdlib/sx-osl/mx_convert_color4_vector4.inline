@@ -1,1 +1,0 @@
-vector4({{in}}.rgb[0], {{in}}.rgb[1], {{in}}.rgb[2], {{in}}.a)

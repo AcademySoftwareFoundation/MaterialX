@@ -698,22 +698,22 @@
   <!-- ======================================================================== -->
 
   <!-- <convert> -->
-  <implementation name="IM_convert_float_color2_sx_osl" nodedef="ND_convert_float_color2" file="stdlib/sx-osl/mx_convert_float_color2.inline" language="sx-osl"/>
-  <implementation name="IM_convert_float_color3_sx_osl" nodedef="ND_convert_float_color3" file="stdlib/sx-osl/mx_convert_float_color.inline" language="sx-osl"/>
-  <implementation name="IM_convert_float_color4_sx_osl" nodedef="ND_convert_float_color4" file="stdlib/sx-osl/mx_convert_float_color4.inline" language="sx-osl"/>
-  <implementation name="IM_convert_float_vector2_sx_osl" nodedef="ND_convert_float_vector2" file="stdlib/sx-osl/mx_convert_float_vector2.inline" language="sx-osl"/>
-  <implementation name="IM_convert_float_vector3_sx_osl" nodedef="ND_convert_float_vector3" file="stdlib/sx-osl/mx_convert_float_vector.inline" language="sx-osl"/>
-  <implementation name="IM_convert_float_vector4_sx_osl" nodedef="ND_convert_float_vector4" file="stdlib/sx-osl/mx_convert_float_vector4.inline" language="sx-osl"/>
-  <implementation name="IM_convert_vector2_color2_sx_osl" nodedef="ND_convert_vector2_color2" file="stdlib/sx-osl/mx_convert_vector2_color2.inline" language="sx-osl"/>
-  <implementation name="IM_convert_vector3_color3_sx_osl" nodedef="ND_convert_vector3_color3" file="stdlib/sx-osl/mx_convert_vector_color.inline"  language="sx-osl"/>
-  <implementation name="IM_convert_vector4_color4_sx_osl" nodedef="ND_convert_vector4_color4" file="stdlib/sx-osl/mx_convert_vector4_color4.inline" language="sx-osl"/>
-  <implementation name="IM_convert_color2_vector2_sx_osl" nodedef="ND_convert_color2_vector2" file="stdlib/sx-osl/mx_convert_color2_vector2.inline" language="sx-osl"/>
-  <implementation name="IM_convert_color3_vector3_sx_osl" nodedef="ND_convert_color3_vector3" file="stdlib/sx-osl/mx_convert_color_vector.inline" language="sx-osl"/>
-  <implementation name="IM_convert_color4_vector4_sx_osl" nodedef="ND_convert_color4_vector4" file="stdlib/sx-osl/mx_convert_color4_vector4.inline" language="sx-osl"/>
-  <implementation name="IM_convert_color3_color4_sx_osl" nodedef="ND_convert_color3_color4" file="stdlib/sx-osl/mx_convert_color_color4.inline" language="sx-osl"/>
-  <implementation name="IM_convert_color4_color3_sx_osl" nodedef="ND_convert_color4_color3" file="stdlib/sx-osl/mx_convert_color4_color.inline" language="sx-osl"/>
-  <implementation name="IM_convert_boolean_float_sx_osl" nodedef="ND_convert_boolean_float" file="stdlib/sx-osl/mx_convert_boolean_float.inline" language="sx-osl"/>
-  <implementation name="IM_convert_integer_float_sx_osl" nodedef="ND_convert_integer_float" file="stdlib/sx-osl/mx_convert_integer_float.inline" language="sx-osl"/>
+  <implementation name="IM_convert_float_color2_sx_osl" nodedef="ND_convert_float_color2" language="sx-osl"/>
+  <implementation name="IM_convert_float_color3_sx_osl" nodedef="ND_convert_float_color3" language="sx-osl"/>
+  <implementation name="IM_convert_float_color4_sx_osl" nodedef="ND_convert_float_color4" language="sx-osl"/>
+  <implementation name="IM_convert_float_vector2_sx_osl" nodedef="ND_convert_float_vector2" language="sx-osl"/>
+  <implementation name="IM_convert_float_vector3_sx_osl" nodedef="ND_convert_float_vector3" language="sx-osl"/>
+  <implementation name="IM_convert_float_vector4_sx_osl" nodedef="ND_convert_float_vector4" language="sx-osl"/>
+  <implementation name="IM_convert_vector2_color2_sx_osl" nodedef="ND_convert_vector2_color2" language="sx-osl"/>
+  <implementation name="IM_convert_vector3_color3_sx_osl" nodedef="ND_convert_vector3_color3" language="sx-osl"/>
+  <implementation name="IM_convert_vector4_color4_sx_osl" nodedef="ND_convert_vector4_color4" language="sx-osl"/>
+  <implementation name="IM_convert_color2_vector2_sx_osl" nodedef="ND_convert_color2_vector2" language="sx-osl"/>
+  <implementation name="IM_convert_color3_vector3_sx_osl" nodedef="ND_convert_color3_vector3" language="sx-osl"/>
+  <implementation name="IM_convert_color4_vector4_sx_osl" nodedef="ND_convert_color4_vector4" language="sx-osl"/>
+  <implementation name="IM_convert_color3_color4_sx_osl" nodedef="ND_convert_color3_color4" language="sx-osl"/>
+  <implementation name="IM_convert_color4_color3_sx_osl" nodedef="ND_convert_color4_color3" language="sx-osl"/>
+  <implementation name="IM_convert_boolean_float_sx_osl" nodedef="ND_convert_boolean_float" language="sx-osl"/>
+  <implementation name="IM_convert_integer_float_sx_osl" nodedef="ND_convert_integer_float" language="sx-osl"/>
 
   <!-- <swizzle> -->
   <!-- from type: float -->
@@ -773,16 +773,16 @@
   <implementation name="IM_swizzle_vector4_vector4_sx_osl" nodedef="ND_swizzle_vector4_vector4" language="sx-osl"/>
 
   <!-- <combine> -->
-  <implementation name="IM_combine_color2_sx_osl" nodedef="ND_combine_color2" file="stdlib/sx-osl/mx_combine_color2.inline" language="sx-osl"/>
-  <implementation name="IM_combine_vector2_sx_osl" nodedef="ND_combine_vector2" file="stdlib/sx-osl/mx_combine_vector2.inline" language="sx-osl"/>
-  <implementation name="IM_combine_color3_sx_osl" nodedef="ND_combine_color3" file="stdlib/sx-osl/mx_combine_color3.inline" language="sx-osl"/>
-  <implementation name="IM_combine_vector3_sx_osl" nodedef="ND_combine_vector3" file="stdlib/sx-osl/mx_combine_vector3.inline" language="sx-osl"/>
-  <implementation name="IM_combine_color4_sx_osl" nodedef="ND_combine_color4" file="stdlib/sx-osl/mx_combine_color4.inline" language="sx-osl"/>
-  <implementation name="IM_combine_vector4_sx_osl" nodedef="ND_combine_vector4" file="stdlib/sx-osl/mx_combine_vector4.inline" language="sx-osl"/>
-  <implementation name="IM_combine_color4CF_sx_osl" nodedef="ND_combine_color4CF" file="stdlib/sx-osl/mx_combine_cf_color4.inline" language="sx-osl"/>
-  <implementation name="IM_combine_vector4VF_sx_osl" nodedef="ND_combine_vector4VF" file="stdlib/sx-osl/mx_combine_vf_vector4.inline" language="sx-osl"/>
-  <implementation name="IM_combine_color4CC_sx_osl" nodedef="ND_combine_color4CC" file="stdlib/sx-osl/mx_combine_cc_color4.inline" language="sx-osl"/>
-  <implementation name="IM_combine_vector4VV_sx_osl" nodedef="ND_combine_vector4VV" file="stdlib/sx-osl/mx_combine_vv_vector4.inline" language="sx-osl"/>
+  <implementation name="IM_combine_color2_sx_osl" nodedef="ND_combine_color2" language="sx-osl"/>
+  <implementation name="IM_combine_vector2_sx_osl" nodedef="ND_combine_vector2" language="sx-osl"/>
+  <implementation name="IM_combine_color3_sx_osl" nodedef="ND_combine_color3" language="sx-osl"/>
+  <implementation name="IM_combine_vector3_sx_osl" nodedef="ND_combine_vector3" language="sx-osl"/>
+  <implementation name="IM_combine_color4_sx_osl" nodedef="ND_combine_color4" language="sx-osl"/>
+  <implementation name="IM_combine_vector4_sx_osl" nodedef="ND_combine_vector4" language="sx-osl"/>
+  <implementation name="IM_combine_color4CF_sx_osl" nodedef="ND_combine_color4CF" language="sx-osl"/>
+  <implementation name="IM_combine_vector4VF_sx_osl" nodedef="ND_combine_vector4VF" language="sx-osl"/>
+  <implementation name="IM_combine_color4CC_sx_osl" nodedef="ND_combine_color4CC" language="sx-osl"/>
+  <implementation name="IM_combine_vector4VV_sx_osl" nodedef="ND_combine_vector4VV" language="sx-osl"/>
 
 
   <!-- ======================================================================== -->

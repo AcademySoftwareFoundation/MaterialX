@@ -48,19 +48,39 @@ public:
         DOWN
     };
 
+    struct Variable;
+    using VariablePtr = std::shared_ptr<Variable>;
+
     struct Variable
     {
         const TypeDesc* type;
         string name;
+        string path;
         string semantic;
         ValuePtr value;
 
-        Variable(const TypeDesc* t = nullptr, const string& n = EMPTY_STRING, const string& s = EMPTY_STRING, ValuePtr v = nullptr)
+        static VariablePtr create(const TypeDesc* t, const string& n, const string& e, const string& s, ValuePtr v)
+        {
+            return std::make_shared<Variable>(t, n, e, s, v);
+        }
+
+        Variable()
+            : type(nullptr)
+            , name(EMPTY_STRING)
+            , path(EMPTY_STRING)
+            , semantic(EMPTY_STRING)
+            , value(nullptr)
+        {
+        }
+
+        Variable(const TypeDesc* t, const string& n, const string& e, const string& s, ValuePtr v)
             : type(t)
             , name(n)
+            , path(e)
             , semantic(s)
             , value(v)
-        {}
+        {
+        }
 
         void getArraySuffix(string& result) const
         {
@@ -77,8 +97,6 @@ public:
             }
         }
     };
-
-    using VariablePtr = std::shared_ptr<Variable>;
 
     /// A block of variables for a shader stage
     struct VariableBlock
@@ -138,7 +156,7 @@ public:
 
     /// Create a new constant variable for a stage.
     virtual void createConstant(size_t stage, const TypeDesc* type, const string& name,
-        const string& semantic = EMPTY_STRING, ValuePtr value = nullptr);
+                                const string& path = EMPTY_STRING, const string& semantic = EMPTY_STRING, ValuePtr value = nullptr);
 
     /// Create a new variable block for uniform inputs in a stage.
     virtual void createUniformBlock(size_t stage, const string& block, const string& instance = EMPTY_STRING);
@@ -146,7 +164,7 @@ public:
     /// Create a new variable for uniform data in the given block for a stage.
     /// The block must be previously created with createUniformBlock.
     virtual void createUniform(size_t stage, const string& block, const TypeDesc* type, const string& name,
-        const string& semantic = EMPTY_STRING, ValuePtr value = nullptr);
+                               const string& path = EMPTY_STRING, const string& semantic = EMPTY_STRING, ValuePtr value = nullptr);
 
     /// Create a new variable for application/geometric data (primvars).
     virtual void createAppData(const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING);

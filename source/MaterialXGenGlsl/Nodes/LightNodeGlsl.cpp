@@ -22,15 +22,15 @@ void LightNodeGlsl::createVariables(const ShaderNode& /*node*/, ShaderGenerator&
     HwShader& shader = static_cast<HwShader&>(shader_);
 
     // Create uniform for intensity, exposure and direction
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK, Type::FLOAT, "intensity",
+    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK, Type::FLOAT, "intensity", EMPTY_STRING,
         EMPTY_STRING, Value::createValue<float>(1.0f));
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK, Type::FLOAT, "exposure",
+    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK, Type::FLOAT, "exposure", EMPTY_STRING,
         EMPTY_STRING, Value::createValue<float>(0.0f));
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK, Type::VECTOR3, "direction",
+    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK, Type::VECTOR3, "direction", EMPTY_STRING,
         EMPTY_STRING, Value::createValue<Vector3>(Vector3(0.0f,1.0f,0.0f)));
 
     // Create uniform for number of active light sources
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources",
+    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", EMPTY_STRING,
         EMPTY_STRING, Value::createValue<int>(0));
 }
 

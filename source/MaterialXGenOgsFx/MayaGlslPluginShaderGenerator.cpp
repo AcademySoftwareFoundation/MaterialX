@@ -15,16 +15,16 @@ MayaGlslPluginShader::MayaGlslPluginShader(const string& name)
 {
 }
 
-void MayaGlslPluginShader::createUniform(size_t stage, const string& block, const TypeDesc* type, const string& name, const string& semantic, ValuePtr value)
+void MayaGlslPluginShader::createUniform(size_t stage, const string& block, const TypeDesc* type, const string& name, const string& path, const string& semantic, ValuePtr value)
 {
     // If no semantic is given and this is the view position uniform
     // we need to override its default semantic
     if (semantic.empty() && name == VIEW_POSITON_UNIFORM_NAME)
     {
-        HwShader::createUniform(stage, block, type, name, VIEW_POSITON_SEMATIC, value);
+        HwShader::createUniform(stage, block, type, name, path, VIEW_POSITON_SEMATIC, value);
         return;
     }
-    ParentClass::createUniform(stage, block, type, name, semantic, value);
+    ParentClass::createUniform(stage, block, type, name, path, semantic, value);
 }
 
 void MayaGlslPluginShader::createAppData(const TypeDesc* type, const string& name, const string& semantic)

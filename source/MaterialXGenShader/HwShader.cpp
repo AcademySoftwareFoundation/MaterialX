@@ -30,7 +30,7 @@ HwShader::HwShader(const string& name)
                                 0, 1, 0, 0,
                                 0, 0, -1, 0,
                                 0, 0, 0, 1);
-    createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, Type::MATRIX44, "u_envMatrix", 
+    createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, Type::MATRIX44, "u_envMatrix", EMPTY_STRING, 
         EMPTY_STRING, Value::createValue<Matrix44>(yRotationPI));
     createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, Type::FILENAME, "u_envSpecular");
     createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, Type::FILENAME, "u_envIrradiance");
@@ -69,7 +69,7 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen, const 
                     if (!input->connection && input->type == Type::FILENAME)
                     {
                         // Create the uniform using the filename type to make this uniform into a texture sampler.
-                        createUniform(HwShader::PIXEL_STAGE, PUBLIC_UNIFORMS, Type::FILENAME, input->variable, EMPTY_STRING, input->value);
+                        createUniform(HwShader::PIXEL_STAGE, PUBLIC_UNIFORMS, Type::FILENAME, input->variable, input->path, EMPTY_STRING, input->value);
 
                         // Assing the uniform name to the input value
                         // so we can reference it duing code generation.
@@ -101,7 +101,7 @@ void HwShader::createVertexData(const TypeDesc* type, const string& name, const 
 {
     if (_vertexData.variableMap.find(name) == _vertexData.variableMap.end())
     {
-        VariablePtr variable = std::make_shared<Variable>(type, name, semantic);
+        VariablePtr variable = Variable::create(type, name, EMPTY_STRING, semantic, nullptr);
         _vertexData.variableMap[name] = variable;
         _vertexData.variableOrder.push_back(variable.get());
     }

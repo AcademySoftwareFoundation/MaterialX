@@ -21,6 +21,9 @@ using ShaderOutputPtr = shared_ptr<class ShaderOutput>;
 using ShaderNodePtr = shared_ptr<class ShaderNode>;
 using ShaderInputSet = std::set<ShaderInput*>;
 
+// List of possible Flags
+static const unsigned int VARIABLE_NOT_RENAMABLE_FLAG = 1 << 0;
+
 /// An input on a ShaderNode
 class ShaderInput
 {
@@ -30,6 +33,11 @@ class ShaderInput
 
     /// Input name.
     string name;
+
+    // Path to the origin (input/parameter element) for this shader input.
+    // Can be used to map client side node inputs to uniforms on the generated shader,
+    // if input values change during rendering.
+    string path;
 
     /// Variable name as used in generated code.
     string variable;
@@ -42,6 +50,8 @@ class ShaderInput
 
     /// A connection to an upstream node output, or nullptr if not connected.
     ShaderOutput* connection;
+
+    unsigned int flags;
 
     /// Make a connection from the given source output to this input.
     void makeConnection(ShaderOutput* src);
@@ -63,6 +73,9 @@ class ShaderOutput
     /// Variable name as used in generated code.
     string variable;
 
+    /// Element path. Is non-empty there is a correspondance with a MaterialX element
+    string path;
+
     /// Parent node.
     ShaderNode* node;
 
@@ -71,6 +84,8 @@ class ShaderOutput
 
     /// A set of connections to downstream node inputs, empty if not connected.
     ShaderInputSet connections;
+
+    unsigned int flags;
 
     /// Make a connection from this output to the given input
     void makeConnection(ShaderInput* dst);
@@ -210,6 +225,9 @@ class ShaderNode
 
     /// Set input values from the given node and nodedef.
     void setValues(const Node& node, const NodeDef& nodeDef, ShaderGenerator& shadergen);
+
+    /// Set input element paths for the given node and nodedef.
+    void setPaths(const Node& node, const NodeDef& nodeDef, bool includeNodeDefInputs=true);
 
     /// Add inputs/outputs
     ShaderInput* addInput(const string& name, const TypeDesc* type);

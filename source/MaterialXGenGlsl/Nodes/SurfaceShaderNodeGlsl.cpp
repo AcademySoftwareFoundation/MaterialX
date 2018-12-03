@@ -33,7 +33,7 @@ void SurfaceShaderNodeGlsl::createVariables(const ShaderNode& /*node*/, ShaderGe
     shader.createAppData(Type::VECTOR3, "i_position");
     shader.createVertexData(Type::VECTOR3, "positionWorld");
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::VECTOR3, "u_viewPosition");
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources",
+    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", EMPTY_STRING,
         EMPTY_STRING, Value::createValue<int>(0));
 }
 

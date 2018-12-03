@@ -308,28 +308,71 @@ ShaderNodePtr ShaderNode::create(const string& name, const NodeDef& nodeDef, Sha
     return newNode;
 }
 
+void ShaderNode::setPaths(const Node& node, const NodeDef& nodeDef, bool includeNodeDefInputs)
+{
+    // Set element paths for children on the node
+    const vector<ValueElementPtr> nodeValues = node.getChildrenOfType<ValueElement>();
+    for (const ValueElementPtr& nodeValue : nodeValues)
+    {
+        ShaderInput* input = getInput(nodeValue->getName());
+        if (input)
+        {
+            input->path = nodeValue->getNamePath();
+        }
+    }
+
+    if (!includeNodeDefInputs)
+    {
+        return;
+    }
+
+    // Set element paths based on the node definition. Note that these
+    // paths don't actually exist at time of shader generation since there
+    // are no inputs/parameters specified on the node itself
+    //
+    const vector<InputPtr> nodeInputs = nodeDef.getChildrenOfType<Input>();
+    const string& nodePath = node.getNamePath();
+    for (const ValueElementPtr& nodeInput : nodeInputs)
+    {
+        ShaderInput* input = getInput(nodeInput->getName());
+        if (input && input->path.empty())
+        {
+            input->path = nodePath + NAME_PATH_SEPARATOR + nodeInput->getName();
+        }
+    }
+    const vector<ParameterPtr> nodeParameters = nodeDef.getChildrenOfType<Parameter>();
+    for (const ParameterPtr& nodeParameter : nodeParameters)
+    {
+        ShaderInput* input = getInput(nodeParameter->getName());
+        if (input && input->path.empty())
+        {
+            input->path = nodePath + NAME_PATH_SEPARATOR + nodeParameter->getName();
+        }
+    }
+}
+
 void ShaderNode::setValues(const Node& node, const NodeDef& nodeDef, ShaderGenerator& shadergen)
 {
     // Copy input values from the given node
-    const vector<ValueElementPtr> nodeInputs = node.getChildrenOfType<ValueElement>();
-    for (const ValueElementPtr& nodeInput : nodeInputs)
+    const vector<ValueElementPtr> nodeValues = node.getChildrenOfType<ValueElement>();
+    for (const ValueElementPtr& nodeValue : nodeValues)
     {
-        const string& valueString = nodeInput->getValueString();
-        ShaderInput* input = getInput(nodeInput->getName());
+        const string& valueString = nodeValue->getValueString();
+        ShaderInput* input = getInput(nodeValue->getName());
         if (input)
         {
             const TypeDesc* enumerationType = nullptr;
-            ValuePtr value = shadergen.remapEnumeration(nodeInput, nodeDef, enumerationType);
+            ValuePtr value = shadergen.remapEnumeration(nodeValue, nodeDef, enumerationType);
             if (value)
             {
                 input->value = value;
             }
             else if (!valueString.empty())
             {
-                input->value = nodeInput->getValue();
+                input->value = nodeValue->getValue();
             }
         }
-    }
+    } 
 }
 
 ShaderNodePtr ShaderNode::createColorTransformNode(const string& name, ShaderNodeImplPtr shaderImpl, const TypeDesc* type, ShaderGenerator& shadergen)
@@ -389,6 +432,7 @@ ShaderInput* ShaderNode::addInput(const string& name, const TypeDesc* type)
 
     ShaderInputPtr input = std::make_shared<ShaderInput>();
     input->name = name;
+    input->path = EMPTY_STRING;
     input->variable = name;
     input->type = type;
     input->node = this;
