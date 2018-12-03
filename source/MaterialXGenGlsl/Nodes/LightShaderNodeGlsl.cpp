@@ -41,11 +41,11 @@ void LightShaderNodeGlsl::initialize(ElementPtr implementation, ShaderGenerator&
     size_t index = 0;
     for (InputPtr input : nodeDef->getInputs())
     {
-        _lightUniforms[index++] = Shader::Variable(TypeDesc::get(input->getType()), input->getName(), EMPTY_STRING, input->getValue());
+        _lightUniforms[index++] = Shader::Variable(TypeDesc::get(input->getType()), input->getName(), input->getNamePath(), EMPTY_STRING, input->getValue());
     }
     for (ParameterPtr param : nodeDef->getParameters())
     {
-        _lightUniforms[index++] = Shader::Variable(TypeDesc::get(param->getType()), param->getName(), EMPTY_STRING, param->getValue());
+        _lightUniforms[index++] = Shader::Variable(TypeDesc::get(param->getType()), param->getName(), param->getNamePath(), EMPTY_STRING, param->getValue());
     }
 }
 
@@ -56,12 +56,12 @@ void LightShaderNodeGlsl::createVariables(const ShaderNode& /*node*/, ShaderGene
     // Create variables used by this shader
     for (const Shader::Variable& uniform : _lightUniforms)
     {
-        shader.createUniform(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK, uniform.type, uniform.name, uniform.semantic, uniform.value);
+        shader.createUniform(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK, uniform.type, uniform.name, EMPTY_STRING, uniform.semantic, uniform.value);
     }
 
     // Create uniform for number of active light sources
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources",
-        EMPTY_STRING, Value::createValue<int>(0));
+        EMPTY_STRING, EMPTY_STRING, Value::createValue<int>(0));
 }
 
 void LightShaderNodeGlsl::emitFunctionCall(const ShaderNode& /*node*/, GenContext& /*context*/, ShaderGenerator& /*shadergen*/, Shader& shader_)

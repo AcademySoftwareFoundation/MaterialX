@@ -1,5 +1,5 @@
 <World>
-   <Camera eye="0, 100, 300" look_at="0,0,0" fov="70" />
+   <Camera eye="2.1, 0, 0" look_at="0,0,0" fov="70" />
 
    <!-- Background clear. Uncomment this use flat color 
    %background_color% : is the background color
@@ -36,6 +36,6 @@
       shader %output_shader_type% outputShader;
       connect inputShader.%input_shader_output% outputShader.%output_shader_input%;
    </ShaderGroup>
-   <Sphere center="0,40,120" radius="60" />
+   <Sphere center="0,0,0" radius="0.5" />
 </World>
 
