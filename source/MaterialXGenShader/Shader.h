@@ -59,9 +59,9 @@ public:
         string semantic;
         ValuePtr value;
 
-        static VariablePtr create(const TypeDesc* t, const string& n, const string& e, const string& s, ValuePtr v)
+        static VariablePtr create(const TypeDesc* t, const string& n, const string& p, const string& s, ValuePtr v)
         {
-            return std::make_shared<Variable>(t, n, e, s, v);
+            return std::make_shared<Variable>(t, n, p, s, v);
         }
 
         Variable()
@@ -73,10 +73,10 @@ public:
         {
         }
 
-        Variable(const TypeDesc* t, const string& n, const string& e, const string& s, ValuePtr v)
+        Variable(const TypeDesc* t, const string& n, const string& p, const string& s, ValuePtr v)
             : type(t)
             , name(n)
-            , path(e)
+            , path(p)
             , semantic(s)
             , value(v)
         {

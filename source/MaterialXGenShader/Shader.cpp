@@ -64,7 +64,7 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const Ge
         // Create the output
         if (_outputs.variableMap.find(outputSocket->name) == _outputs.variableMap.end())
         {
-            VariablePtr variable = std::make_shared<Variable>(outputSocket->type, outputSocket->name);
+            VariablePtr variable = Variable::create(outputSocket->type, outputSocket->name, EMPTY_STRING, EMPTY_STRING, nullptr);
             _outputs.variableMap[outputSocket->name] = variable;
             _outputs.variableOrder.push_back(variable.get());
         }
