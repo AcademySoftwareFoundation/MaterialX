@@ -38,8 +38,8 @@ public:
     /// the element and all dependencies upstream into shader code.
     virtual ShaderPtr generate(const string& shaderName, ElementPtr element, const GenOptions& options) = 0;
 
-    /// Emit typedefs for all data types that needs it
-    virtual void emitTypeDefs(Shader& shader);
+    /// Emit type definitions for all data types that needs it.
+    virtual void emitTypeDefinitions(Shader& shader);
 
     /// Emit function definitions for all nodes
     virtual void emitFunctionDefinitions(Shader& shader);

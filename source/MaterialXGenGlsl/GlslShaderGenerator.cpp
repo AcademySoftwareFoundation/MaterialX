@@ -336,7 +336,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     shader.addInclude("sxpbrlib/sx-glsl/lib/sx_defines.glsl", *this);
     shader.addLine("#define MAX_LIGHT_SOURCES " + std::to_string(getMaxActiveLightSources()), false);
     shader.newLine();
-    emitTypeDefs(shader);
+    emitTypeDefinitions(shader);
 
     // Add constants
     const Shader::VariableBlock& psConstants = shader.getConstantBlock(HwShader::PIXEL_STAGE);

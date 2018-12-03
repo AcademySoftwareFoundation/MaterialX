@@ -718,45 +718,36 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
 
                 if (testOptions.renderImages)
                 {
-                    std::string elementType;
-                    std::string sceneTemplateFile;
-                    mx::string outputName = element->getName();
-
-                    bool isShader = mx::elementRequiresShading(element);
-                    if (isShader)
+                    if (shader->getOutputBlock().size() > 0)
                     {
-                        // TODO: Assume name is "out". This is the default value.
-                        // We require shader generation to provide us an output name
-                        // to the actual name.
-                        outputName = "out";
+                        const mx::Shader::Variable* output = shader->getOutputBlock()[0];
+                        const mx::TypeSyntax& syntax = shaderGenerator.getSyntax()->getTypeSyntax(output->type);
 
-                        // TODO: Asume type is closure color until we can
-                        // get the actual output type from code generation
-                        elementType = mx::OslValidator::OSL_CLOSURE_COLOR_STRING;
+                        const std::string& outputName = output->name;
+                        const std::string& outputType = syntax.getTypeAlias().empty() ? syntax.getName() : syntax.getTypeAlias();
 
-                        sceneTemplateFile.assign("closure_color_scene.xml");
+                        static const std::string SHADING_SCENE_FILE = "closure_color_scene.xml";
+                        static const std::string NON_SHADING_SCENE_FILE = "constant_color_scene.xml";
+                        const std::string& sceneTemplateFile = mx::elementRequiresShading(element) ? SHADING_SCENE_FILE : NON_SHADING_SCENE_FILE;
+
+                        // Set shader output name and type to use
+                        validator.setOslShaderOutput(outputName, outputType);
+
+                        // Set scene template file. For now we only have the constant color scene file
+                        mx::FilePath sceneTemplatePath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/");
+                        sceneTemplatePath = sceneTemplatePath / sceneTemplateFile;
+                        validator.setOslTestRenderSceneTemplateFile(sceneTemplatePath.asString());
+
+                        // Validate rendering
+                        {
+                            AdditiveScopedTimer renderTimer(profileTimes.oslTimes.renderTime, "OSL render time");
+                            validator.validateRender();
+                        }
                     }
                     else
                     {
-                        elementType.assign(element->getType());
-                        sceneTemplateFile.assign("constant_color_scene.xml");
-                    }
-
-                    // Set shader output name and type to use
-                    //
-                    // If the generator has already remapped the output type then indicate to
-                    // not do so again during validation.
-                    validator.setOslShaderOutputNameAndType(outputName, elementType, shaderGenerator.remappedShaderOutput());
-
-                    // Set scene template file. For now we only have the constant color scene file
-                    mx::FilePath sceneTemplatePath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/");
-                    sceneTemplatePath = sceneTemplatePath / sceneTemplateFile;
-                    validator.setOslTestRenderSceneTemplateFile(sceneTemplatePath.asString());
-
-                    // Validate rendering
-                    {
-                        AdditiveScopedTimer renderTimer(profileTimes.oslTimes.renderTime, "OSL render time");
-                        validator.validateRender();
+                        CHECK(false);
+                        log << ">> Shader has no output to render from\n";
                     }
                 }
 
@@ -1136,7 +1127,6 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
         AdditiveScopedTimer oslSetupTime(profileTimes.oslTimes.setupTime, "OSL setup time");
         oslValidator = createOSLValidator(orthographicView, oslLog);
         oslShaderGenerator = std::static_pointer_cast<mx::ArnoldShaderGenerator>(mx::ArnoldShaderGenerator::create());
-        oslShaderGenerator->setRemappedShaderOutput(false);
         oslShaderGenerator->registerSourceCodeSearchPath(searchPath);
         oslShaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
         oslSetupTime.endTimer();

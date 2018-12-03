@@ -1018,11 +1018,11 @@ TEST_CASE("Shader Interface", "[shadergen]")
             REQUIRE(shader->getSourceCode().length() > 0);
 
             const mx::Shader::VariableBlock& uniforms = shader->getUniformBlock(mx::Shader::PIXEL_STAGE, mx::Shader::PUBLIC_UNIFORMS);
-            REQUIRE(uniforms.variableOrder.size() == 2);
+            REQUIRE(uniforms.size() == 2);
 
             const mx::Shader::VariableBlock& outputs = shader->getOutputBlock();
-            REQUIRE(outputs.variableOrder.size() == 1);
-            REQUIRE(outputs.variableOrder[0]->name == output->getName());
+            REQUIRE(outputs.size() == 1);
+            REQUIRE(outputs[0]->name == output->getName());
 
             // Write out to file for inspection
             std::ofstream file;
@@ -1039,11 +1039,11 @@ TEST_CASE("Shader Interface", "[shadergen]")
             REQUIRE(shader->getSourceCode().length() > 0);
 
             const mx::Shader::VariableBlock& uniforms = shader->getUniformBlock(mx::Shader::PIXEL_STAGE, mx::Shader::PUBLIC_UNIFORMS);
-            REQUIRE(uniforms.variableOrder.size() == 0);
+            REQUIRE(uniforms.size() == 0);
 
             const mx::Shader::VariableBlock& outputs = shader->getOutputBlock();
-            REQUIRE(outputs.variableOrder.size() == 1);
-            REQUIRE(outputs.variableOrder[0]->name == output->getName());
+            REQUIRE(outputs.size() == 1);
+            REQUIRE(outputs[0]->name == output->getName());
 
             // Write out to file for inspection
             std::ofstream file;
@@ -2511,127 +2511,3 @@ TEST_CASE("Surface Layering", "[shadergen]")
     }
 #endif // MATERIALX_BUILD_GEN_GLSL
 }
-
-#ifdef MATERIALX_BUILD_GEN_OSL
-TEST_CASE("Osl Output Types", "[shadergen]")
-{
-    // OSL doesn't support having color2/color4 as shader output types.
-    // The color2/color4 types are custom struct types added by MaterialX.
-    // It's actually crashing the OSL compiler right now.
-    // TODO: Report this problem to the OSL team.
-    //
-    // This test makes sure that color2/color4/vector2/vector4 gets converted
-    // to color/vector when used as shader outputs.
-
-    mx::DocumentPtr doc = mx::createDocument();
-
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    loadLibraries({ "stdlib" }, searchPath, doc);
-
-    const std::string exampleName = "osl_output";
-
-    mx::NodeGraphPtr nodeGraph1 = doc->addNodeGraph();
-    mx::OutputPtr output1 = nodeGraph1->addOutput(mx::EMPTY_STRING, "color2");
-    mx::NodePtr node1 = nodeGraph1->addNode("remap", mx::EMPTY_STRING, "color2");
-    output1->setConnectedNode(node1);
-    mx::NodeDefPtr nodeDef1 = doc->addNodeDef(mx::EMPTY_STRING, "color2", exampleName + "_color2");
-    nodeGraph1->setAttribute("nodedef", nodeDef1->getName());
-
-    mx::NodeGraphPtr nodeGraph2 = doc->addNodeGraph();
-    mx::OutputPtr output2 = nodeGraph2->addOutput(mx::EMPTY_STRING, "color4");
-    mx::NodePtr node2 = nodeGraph2->addNode("remap", mx::EMPTY_STRING, "color4");
-    output2->setConnectedNode(node2);
-    mx::NodeDefPtr nodeDef2 = doc->addNodeDef(mx::EMPTY_STRING, "color4", exampleName + "_color4");
-    nodeGraph2->setAttribute("nodedef", nodeDef2->getName());
-
-    mx::GenOptions options;
-
-    {
-        mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();
-        // Add path to find all source code snippets
-        shadergen->registerSourceCodeSearchPath(searchPath);
-        // Add path to find OSL include files
-        shadergen->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
-
-        // Test shader generation from color2 type graph
-        mx::ShaderPtr shader = shadergen->generate(exampleName + "_color2", output1, options);
-        REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode().length() > 0);
-        // Write out to file for inspection
-        std::ofstream file;
-        std::string fileName(RESULT_DIRECTORY + exampleName + "_color2.osl");
-        file.open(fileName);
-        file << shader->getSourceCode();
-        file.close();
-
-        // TODO: Use validation in MaterialXRender library
-        std::string errorResult;
-        validateOSL(fileName, errorResult);
-        REQUIRE(errorResult.size() == 0);
-
-        // Test shader generation from color4 type graph
-        shader = shadergen->generate(exampleName + "_color4", output2, options);
-        REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode().length() > 0);
-        // Write out to file for inspection
-        fileName.assign(RESULT_DIRECTORY + exampleName + "_color4.osl");
-        file.open(fileName);
-        file << shader->getSourceCode();
-        file.close();
-
-        // TODO: Use validation in MaterialXRender library
-        validateOSL(fileName, errorResult);
-        REQUIRE(errorResult.size() == 0);
-    }
-
-    // Change to vector2/vector4 types
-    output1->setType("vector2");
-    node1->setType("vector2");
-    nodeDef1->setType("vector2");
-    output2->setType("vector4");
-    node2->setType("vector4");
-    nodeDef2->setType("vector4");
-
-    // Add swizzling to make sure type remapping works with swizzling
-    //output1->setChannels("yx");
-    //output2->setChannels("wzyx");
-
-    {
-        mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();
-        // Add path to find all source code snippets
-        shadergen->registerSourceCodeSearchPath(searchPath);
-        // Add path to find OSL include files
-        shadergen->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
-
-        // Test shader generation from color2 type graph
-        mx::ShaderPtr shader = shadergen->generate(exampleName + "_vector2", output1, options);
-        REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode().length() > 0);
-        // Write out to file for inspection
-        std::ofstream file;
-        std::string fileName(RESULT_DIRECTORY + exampleName + "_vector2.osl");
-        file.open(fileName);
-        file << shader->getSourceCode();
-        file.close();
-
-        // TODO: Use validation in MaterialXRender library
-        std::string errorResult;
-        validateOSL(fileName, errorResult);
-        REQUIRE(errorResult.size() == 0);
-
-        // Test shader generation from color4 type graph
-        shader = shadergen->generate(exampleName + "_vector4", output2, options);
-        REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode().length() > 0);
-        // Write out to file for inspection
-        fileName.assign(RESULT_DIRECTORY + exampleName + "_vector4.osl");
-        file.open(fileName);
-        file << shader->getSourceCode();
-        file.close();
-
-        // TODO: Use validation in MaterialXRender library
-        validateOSL(fileName, errorResult);
-        REQUIRE(errorResult.size() == 0);
-    }
-}
-#endif // MATERIALX_BUILD_GEN_OSL

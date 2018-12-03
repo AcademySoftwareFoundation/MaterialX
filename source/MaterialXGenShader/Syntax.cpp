@@ -68,10 +68,16 @@ string Syntax::getOutputTypeName(const TypeDesc* type) const
     return outputModifier.size() ? outputModifier + " " + syntax.getName() : syntax.getName();
 }
 
-const string& Syntax::getTypeDefStatement(const TypeDesc* type) const
+const string& Syntax::getTypeAlias(const TypeDesc* type) const
 {
     const TypeSyntax& syntax = getTypeSyntax(type);
-    return syntax.getTypeDefStatement();
+    return syntax.getTypeAlias();
+}
+
+const string& Syntax::getTypeDefinition(const TypeDesc* type) const
+{
+    const TypeSyntax& syntax = getTypeSyntax(type);
+    return syntax.getTypeDefinition();
 }
 
 string Syntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const
@@ -149,18 +155,19 @@ void Syntax::makeUnique(string& name, UniqueNameMap& uniqueNames) const
 const vector<string> TypeSyntax::EMPTY_MEMBERS;
 
 TypeSyntax::TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
-    const string& typeDefStatement, const vector<string>& members)
+    const string& typeAlias, const string& typeDefinition, const vector<string>& members)
     : _name(name)
     , _defaultValue(defaultValue)
     , _uniformDefaultValue(uniformDefaultValue)
-    , _typeDefStatement(typeDefStatement)
+    , _typeAlias(typeAlias)
+    , _typeDefinition(typeDefinition)
     , _members(members)
 {
 }
 
 
-ScalarTypeSyntax::ScalarTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, const string& typeDefStatement)
-    : TypeSyntax(name, defaultValue, uniformDefaultValue, typeDefStatement, EMPTY_MEMBERS)
+ScalarTypeSyntax::ScalarTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, const string& typeAlias, const string& typeDefinition)
+    : TypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, EMPTY_MEMBERS)
 {
 }
 
@@ -179,8 +186,8 @@ string ScalarTypeSyntax::getValue(const vector<string>& values, bool /*uniform*/
 }
 
 
-StringTypeSyntax::StringTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, const string& typeDefStatement)
-    : ScalarTypeSyntax(name, defaultValue, uniformDefaultValue, typeDefStatement)
+StringTypeSyntax::StringTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, const string& typeAlias, const string& typeDefinition)
+    : ScalarTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition)
 {
 }
 
@@ -191,8 +198,8 @@ string StringTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
 
 
 AggregateTypeSyntax::AggregateTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
-    const string& typeDefStatement, const vector<string>& members)
-    : TypeSyntax(name, defaultValue, uniformDefaultValue, typeDefStatement, members)
+    const string& typeAlias, const string& typeDefinition, const vector<string>& members)
+    : TypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
 {
 }
 

@@ -90,6 +90,9 @@ public:
 
         VariableBlock(const string& n, const string& i) : name(n), instance(i) {}    
         bool empty() const { return variableOrder.empty(); }
+        size_t size() const { return variableOrder.size(); }
+        Variable* operator[](size_t i) { return variableOrder[i]; }
+        const Variable* operator[](size_t i) const { return variableOrder[i]; }
     };
 
     using VariableBlockPtr = std::shared_ptr<VariableBlock>;

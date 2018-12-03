@@ -32,18 +32,6 @@ public:
     /// Unique identifyer for the osl language
     static const string LANGUAGE;
 
-    /// Has color and vector shader output been remapped to 3-channel color
-    bool remappedShaderOutput() const
-    {
-        return _remapShaderOutput;
-    }
-
-    // Setter for remapping shader output.
-    void setRemappedShaderOutput(bool remapShaderOutput)
-    {
-        _remapShaderOutput = remapShaderOutput;
-    }
-
 protected:
     /// Protected constructor.
     OslShaderGenerator();
@@ -53,9 +41,6 @@ protected:
 
     /// Emit a shader input variable
     void emitVariable(const Shader::Variable& variable, const string& qualifier, Shader& shader) override;
-
-    bool _remapShaderOutput;
-    std::unordered_map<const TypeDesc*, std::pair<const TypeDesc*, string>> _shaderOutputTypeRemap;
 };
 
 } // namespace MaterialX

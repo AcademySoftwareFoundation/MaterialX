@@ -16,8 +16,9 @@ namespace
     {
     public:
         OgsFxAggregateTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
-            const string& typeDefStatement = EMPTY_STRING, const vector<string>& members = EMPTY_MEMBERS)
-            : AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeDefStatement, members)
+            const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
+            const vector<string>& members = EMPTY_MEMBERS)
+            : AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
         {}
 
         string getValue(const Value& value, bool uniform) const override
@@ -65,6 +66,7 @@ OgsFxSyntax::OgsFxSyntax()
             "vec2(0.0)", 
             "{0.0, 0.0}", 
             EMPTY_STRING,
+            EMPTY_STRING,
             VEC2_MEMBERS)
     );
 
@@ -75,6 +77,7 @@ OgsFxSyntax::OgsFxSyntax()
             "vec3", 
             "vec3(0.0)", 
             "{0.0, 0.0, 0.0}", 
+            EMPTY_STRING,
             EMPTY_STRING,
             VEC3_MEMBERS)
     );
@@ -87,6 +90,7 @@ OgsFxSyntax::OgsFxSyntax()
             "vec4(0.0)", 
             "{0.0, 0.0, 0.0, 0.0}", 
             EMPTY_STRING,
+            EMPTY_STRING,
             VEC4_MEMBERS)
     );
 
@@ -97,6 +101,7 @@ OgsFxSyntax::OgsFxSyntax()
             "vec2", 
             "vec2(0.0)", 
             "{0.0, 0.0}", 
+            EMPTY_STRING,
             EMPTY_STRING,
             VEC2_MEMBERS)
     );
@@ -109,6 +114,7 @@ OgsFxSyntax::OgsFxSyntax()
             "vec3(0.0)", 
             "{0.0, 0.0, 0.0}", 
             EMPTY_STRING,
+            EMPTY_STRING,
             VEC3_MEMBERS)
     );
 
@@ -119,6 +125,7 @@ OgsFxSyntax::OgsFxSyntax()
             "vec4", 
             "vec4(0.0)", 
             "{0.0, 0.0, 0.0, 0.0}", 
+            EMPTY_STRING,
             EMPTY_STRING,
             VEC4_MEMBERS)
     );

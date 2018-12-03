@@ -61,28 +61,18 @@ void OslValidator::renderOSL(const std::string& outputPath, const std::string& s
         throw ExceptionShaderValidationError(errorType, errors);
     }
 
+    static const StringSet RENDERABLE_TYPES = { "float", "color", "vector", "closure color", "color2", "color4", "vector2", "vector4" };
+    static const StringSet REMAPPABLE_TYPES = { "color2", "color4", "vector2", "vector4" };
+
     // If the output type is not which can be supported for rendering then skip testing.
-    bool remappableTuple = (_oslShaderOutputType == getTypeString<Color2>() ||
-        _oslShaderOutputType == getTypeString<Color4>() ||
-        _oslShaderOutputType == getTypeString<Vector2>() ||
-        _oslShaderOutputType == getTypeString<Vector4>());
-    bool directTuple = (_oslShaderOutputType == getTypeString<float>() ||
-        _oslShaderOutputType == getTypeString<Color3>() ||
-        _oslShaderOutputType == getTypeString<Vector3>());
-    bool isColorClosure = (_oslShaderOutputType == OSL_CLOSURE_COLOR_STRING);
-    if (!(remappableTuple || directTuple || isColorClosure))
+    if (RENDERABLE_TYPES.count(_oslShaderOutputType) == 0)
     {
         errors.push_back("Output type to render is not supported: " + _oslShaderOutputType);
         throw ExceptionShaderValidationError(errorType, errors);
     }
 
-    // The original output type has been renamed to color3 so don't need to
-    // remap during validation.
-    bool requiresTypeMapping = remappableTuple;
-    if (requiresTypeMapping && _remappedShaderOutput)
-    {
-        requiresTypeMapping = false;
-    }
+    const bool isColorClosure = _oslShaderOutputType == "closure color";
+    const bool isRemappable = REMAPPABLE_TYPES.count(_oslShaderOutputType) != 0;
 
     // Determine the shader path from output path and shader name
     FilePath shaderFilePath(outputPath);
@@ -104,29 +94,12 @@ void OslValidator::renderOSL(const std::string& outputPath, const std::string& s
     sceneTemplateString.assign(std::istreambuf_iterator<char>(sceneTemplateStream),
         std::istreambuf_iterator<char>());
 
-    StringMap replacementMap;
-    std::string outputShader;
+    // Get final output to use in the shader
     const std::string CLOSURE_PASSTHROUGH_SHADER_STRING("closure_passthrough");
     const std::string CONSTANT_COLOR_SHADER_STRING("constant_color");
     const std::string CONSTANT_COLOR_SHADER_PREFIX_STRING("constant_");
-    if (isColorClosure)
-    {
-        // Want a closure color passthrough shader
-        outputShader = CLOSURE_PASSTHROUGH_SHADER_STRING;
-    }
-    else
-    {
-        if (!requiresTypeMapping)
-        {
-            // Want a constant color3/vector3 shader
-            outputShader = CONSTANT_COLOR_SHADER_STRING;
-        }
-        else
-        {
-            // Want a specific 2 or 4 shader
-            outputShader = CONSTANT_COLOR_SHADER_PREFIX_STRING + _oslShaderOutputType;
-        }
-    }
+    std::string outputShader = isColorClosure ? CLOSURE_PASSTHROUGH_SHADER_STRING :
+        (isRemappable ? CONSTANT_COLOR_SHADER_PREFIX_STRING + _oslShaderOutputType : CONSTANT_COLOR_SHADER_STRING);
     
     // Perform token replacement
     const std::string OUTPUT_SHADER_TYPE_STRING("%output_shader_type%");
@@ -137,6 +110,7 @@ void OslValidator::renderOSL(const std::string& outputPath, const std::string& s
     const std::string BACKGROUND_COLOR_STRING("%background_color%");    
     const string backgroundColor("0.2 0.2 0.2"); // TODO: Make this a user input
 
+    StringMap replacementMap;
     replacementMap[OUTPUT_SHADER_TYPE_STRING] = outputShader;
     replacementMap[OUTPUT_SHADER_INPUT_STRING] = OUTPUT_SHADER_INPUT_VALUE_STRING;
     replacementMap[INPUT_SHADER_TYPE_STRING] = shaderName;
