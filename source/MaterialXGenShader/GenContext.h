@@ -64,7 +64,7 @@ class GenContext
     void getInputSuffix(const ShaderInput* input, string& suffix) const;
 
     /// Add an output suffix to be used for the node function in this context.
-    /// @param input Node output
+    /// @param output Node output
     /// @param suffix Suffix string
     void addOutputSuffix(const ShaderOutput* output, const string& suffix);
 
