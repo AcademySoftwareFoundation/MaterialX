@@ -264,7 +264,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.addInclude("sxpbrlib/sx-glsl/lib/sx_defines.glsl", *this);
     shader.addLine("#define MAX_LIGHT_SOURCES " + std::to_string(getMaxActiveLightSources()), false);
     shader.newLine();
-    emitTypeDefs(shader);
+    emitTypeDefinitions(shader);
 
     shader.addComment("Data from application to vertex shader");
     shader.addLine("attribute AppData", false);

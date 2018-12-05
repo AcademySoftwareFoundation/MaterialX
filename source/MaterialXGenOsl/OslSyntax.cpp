@@ -87,8 +87,9 @@ namespace
     {
     public:
         OslStructTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
-            const string& typeDefStatement = EMPTY_STRING, const vector<string>& members = EMPTY_MEMBERS)
-            : AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeDefStatement, members)
+            const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING, 
+            const vector<string>& members = EMPTY_MEMBERS)
+            : AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
         {}
 
         string getValue(const Value& value, bool uniform) const override
@@ -132,7 +133,7 @@ namespace
     {
     public:
         OslColor4TypeSyntax() 
-            : OslStructTypeSyntax("color4", "color4(color(0.0), 0.0)", "{color(0.0), 0.0}", EMPTY_STRING, OslSyntax::COLOR4_MEMBERS)
+            : OslStructTypeSyntax("color4", "color4(color(0.0), 0.0)", "{color(0.0), 0.0}", EMPTY_STRING, EMPTY_STRING, OslSyntax::COLOR4_MEMBERS)
         {}
 
         string getValue(const Value& value, bool uniform) const override
@@ -247,6 +248,7 @@ OslSyntax::OslSyntax()
             "int", 
             "0", 
             "0", 
+            EMPTY_STRING,
             "#define true 1\n#define false 0")
     );
 
@@ -257,6 +259,7 @@ OslSyntax::OslSyntax()
             "color2", 
             "color2(0.0, 0.0)", 
             "{0.0, 0.0}", 
+            EMPTY_STRING,
             EMPTY_STRING,
             COLOR2_MEMBERS)
     );
@@ -270,6 +273,7 @@ OslSyntax::OslSyntax()
             "color", 
             "color(0.0)", 
             "color(0.0)",
+            EMPTY_STRING,
             EMPTY_STRING,
             VECTOR_MEMBERS)
     );
@@ -288,6 +292,7 @@ OslSyntax::OslSyntax()
             "vector2(0.0, 0.0)", 
             "{0.0, 0.0}",
             EMPTY_STRING,
+            EMPTY_STRING,
             VECTOR2_MEMBERS)
     );
 
@@ -301,6 +306,7 @@ OslSyntax::OslSyntax()
             "vector(0.0)", 
             "vector(0.0)",
             EMPTY_STRING,
+            EMPTY_STRING,
             VECTOR_MEMBERS)
     );
 
@@ -311,6 +317,7 @@ OslSyntax::OslSyntax()
             "vector4", 
             "vector4(0.0, 0.0, 0.0, 0.0)", 
             "{0.0, 0.0, 0.0, 0.0}",
+            EMPTY_STRING,
             EMPTY_STRING,
             VECTOR4_MEMBERS)
     );
@@ -358,7 +365,7 @@ OslSyntax::OslSyntax()
             "BSDF", 
             "null_closure", 
             "0", 
-            "#define BSDF closure color")
+            "closure color")
     );
 
     registerTypeSyntax
@@ -368,7 +375,7 @@ OslSyntax::OslSyntax()
             "EDF", 
             "null_closure", 
             "0", 
-            "#define EDF closure color")
+            "closure color")
     );
 
     registerTypeSyntax
@@ -378,7 +385,7 @@ OslSyntax::OslSyntax()
             "VDF", 
             "null_closure", 
             "0", 
-            "#define VDF closure color")
+            "closure color")
     );
 
     registerTypeSyntax
@@ -388,6 +395,7 @@ OslSyntax::OslSyntax()
             "roughnessinfo",
             "roughnessinfo(0.0, 0.0, 0.0, 0.0)",
             "roughnessinfo(0.0, 0.0, 0.0, 0.0)",
+            EMPTY_STRING,
             "struct roughnessinfo { float roughness; float alpha; float alphaX; float alphaY; };")
     );
 
@@ -398,7 +406,7 @@ OslSyntax::OslSyntax()
             "surfaceshader", 
             "null_closure", 
             "0", 
-            "#define surfaceshader closure color")
+            "closure color")
     );
 
     registerTypeSyntax
@@ -408,7 +416,7 @@ OslSyntax::OslSyntax()
             "volumeshader", 
             "null_closure", 
             "0", 
-            "#define volumeshader closure color")
+            "closure color")
     );
 
     registerTypeSyntax
@@ -418,6 +426,7 @@ OslSyntax::OslSyntax()
             "displacementshader",
             "{vector(0.0), 0.0}",
             "{vector(0.0), 0.0}",
+            EMPTY_STRING,
             "struct displacementshader { vector offset; float scale; };")
     );
 
@@ -428,7 +437,7 @@ OslSyntax::OslSyntax()
             "lightshader", 
             "null_closure", 
             "0", 
-            "#define lightshader closure color")
+            "closure color")
     );
 }
 

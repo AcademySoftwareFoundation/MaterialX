@@ -75,6 +75,11 @@ void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
     for (Edge edge : root.traverseGraph(material))
     {
         ElementPtr upstreamElement = edge.getUpstreamElement();
+        if (!upstreamElement)
+        {
+            continue;
+        }
+
         ElementPtr downstreamElement = edge.getDownstreamElement();
 
         // Early out if downstream element is an output that

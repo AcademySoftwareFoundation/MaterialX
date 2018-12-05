@@ -31,7 +31,6 @@ const string OslShaderGenerator::LANGUAGE = "sx-osl";
 
 OslShaderGenerator::OslShaderGenerator()
     : ParentClass(OslSyntax::create())
-    , _remapShaderOutput(false)
 {
     // Register build-in implementations
 
@@ -165,20 +164,6 @@ OslShaderGenerator::OslShaderGenerator()
     registerImplementation("IM_blur_vector2_sx_osl", BlurNode::create);
     registerImplementation("IM_blur_vector3_sx_osl", BlurNode::create);
     registerImplementation("IM_blur_vector4_sx_osl", BlurNode::create);
-
-    // Color2/4 and Vector2/4 must be remapped to Color3 and Vector3 when used
-    // as shader outputs since in OSL a custom struct type is not supported as
-    // shader output.
-    //
-    // Note: this mapping is directly impacted by code that lives in TypeDesc::getChannelIndex(),
-    // so if it changes also change this. (Or vice-versa).
-    _shaderOutputTypeRemap =
-    {
-        { Type::COLOR2,  { Type::COLOR3, "ra0" } },
-        { Type::COLOR4,  { Type::COLOR3, "rgb" } },
-        { Type::VECTOR2, { Type::COLOR3, "xy0" } },
-        { Type::VECTOR4, { Type::COLOR3, "xyz" } }
-    };
 }
 
 ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr element, const GenOptions& options)
@@ -190,9 +175,9 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
 
     emitIncludes(shader);
 
+    // Add global constants and type definitions
     shader.addLine("#define M_FLOAT_EPS 0.000001", false);
-
-    emitTypeDefs(shader);
+    emitTypeDefinitions(shader);
 
     // Emit sampling code if needed
     if (shader.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
@@ -247,16 +232,6 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
 
     // Emit shader output
     const TypeDesc* outputType = outputSocket->type;
-
-    // Remap shader output as needed
-    if (_remapShaderOutput)
-    {
-        auto it = _shaderOutputTypeRemap.find(outputType);
-        if (it != _shaderOutputTypeRemap.end())
-        {
-            outputType = it->second.first;
-        }
-    }
     const string type = _syntax->getOutputTypeName(outputType);
     const string value = _syntax->getDefaultValue(outputType, true);
     shader.addLine(type + " " + outputSocket->variable + " = " + value, false);
@@ -343,17 +318,6 @@ void OslShaderGenerator::emitFinalOutput(Shader& shader) const
     }
 
     string finalResult = outputSocket->connection->variable;
-
-    // Handle output type remapping as needed
-    if (_remapShaderOutput)
-    {
-        auto it = _shaderOutputTypeRemap.find(outputSocket->type);
-        if (it != _shaderOutputTypeRemap.end())
-        {
-            finalResult = _syntax->getSwizzledVariable(finalResult, outputSocket->type, it->second.second, it->second.first);
-        }
-    }
-
     shader.addLine(outputSocket->variable + " = " + finalResult);
 }
 

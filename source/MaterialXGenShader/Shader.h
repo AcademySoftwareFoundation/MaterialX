@@ -59,9 +59,9 @@ public:
         string semantic;
         ValuePtr value;
 
-        static VariablePtr create(const TypeDesc* t, const string& n, const string& e, const string& s, ValuePtr v)
+        static VariablePtr create(const TypeDesc* t, const string& n, const string& p, const string& s, ValuePtr v)
         {
-            return std::make_shared<Variable>(t, n, e, s, v);
+            return std::make_shared<Variable>(t, n, p, s, v);
         }
 
         Variable()
@@ -73,10 +73,10 @@ public:
         {
         }
 
-        Variable(const TypeDesc* t, const string& n, const string& e, const string& s, ValuePtr v)
+        Variable(const TypeDesc* t, const string& n, const string& p, const string& s, ValuePtr v)
             : type(t)
             , name(n)
-            , path(e)
+            , path(p)
             , semantic(s)
             , value(v)
         {
@@ -108,6 +108,9 @@ public:
 
         VariableBlock(const string& n, const string& i) : name(n), instance(i) {}    
         bool empty() const { return variableOrder.empty(); }
+        size_t size() const { return variableOrder.size(); }
+        Variable* operator[](size_t i) { return variableOrder[i]; }
+        const Variable* operator[](size_t i) const { return variableOrder[i]; }
     };
 
     using VariableBlockPtr = std::shared_ptr<VariableBlock>;
@@ -177,6 +180,9 @@ public:
 
     /// Return the block of application data variables.
     const VariableBlock& getAppDataBlock() const { return _appData; }
+
+    /// Return the block of output variables.
+    const VariableBlock& getOutputBlock() const { return _outputs; }
 
     /// Start a new scope in the shader, using the given bracket type
     virtual void beginScope(Brackets brackets = Brackets::BRACES);
@@ -291,6 +297,9 @@ protected:
 
     // Block holding application/geometric input variables
     VariableBlock _appData;
+
+    // Block holding output variables
+    VariableBlock _outputs;
 };
 
 /// @class @ExceptionShaderGenError

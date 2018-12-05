@@ -965,6 +965,97 @@ static void validateOSL(const std::string oslFileName, std::string& errorResult)
 }
 #endif // MATERIALX_BUILD_GEN_OSL
 
+TEST_CASE("Shader Interface", "[shadergen]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    loadLibraries({ "stdlib" }, searchPath, doc);
+
+    const std::string exampleName = "shader_interface";
+
+    // Create a nodedef taking three color3 and producing another color3
+    mx::NodeDefPtr nodeDef = doc->addNodeDef("ND_foo", "color3", "foo");
+    mx::InputPtr fooInputA = nodeDef->addInput("a", "color3");
+    mx::InputPtr fooInputB = nodeDef->addInput("b", "color3");
+    mx::OutputPtr fooOutput = nodeDef->addOutput("o", "color3");
+    fooInputA->setValue(mx::Color3(1.0f, 1.0f, 0.0f));
+    fooInputB->setValue(mx::Color3(0.8f, 0.1f, 0.1f));
+
+    // Create an implementation graph for the nodedef performing
+    // a multiplication of the three colors.
+    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("IMP_foo");
+    nodeGraph->setAttribute("nodedef", nodeDef->getName());
+    {
+        mx::OutputPtr output = nodeGraph->addOutput(fooOutput->getName(), "color3");
+        mx::NodePtr mult1 = nodeGraph->addNode("multiply", "mult1", "color3");
+        mx::InputPtr in1 = mult1->addInput("in1", "color3");
+        in1->setInterfaceName(fooInputA->getName());
+        mx::InputPtr in2 = mult1->addInput("in2", "color3");
+        in2->setInterfaceName(fooInputB->getName());
+        output->setConnectedNode(mult1);
+    }
+
+    mx::NodePtr foo = doc->addNode("foo", "foo1", "color3");
+    mx::OutputPtr output = doc->addOutput("foo_test", "color3");
+    output->setNodeName("foo1");
+    output->setOutputString("o");
+
+    mx::GenOptions options;
+
+#ifdef MATERIALX_BUILD_GEN_OSL
+    {
+        mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();
+        // Add path to find all source code snippets
+        shadergen->registerSourceCodeSearchPath(searchPath);
+        // Add path to find OSL include files
+        shadergen->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+
+        {
+            options.shaderInterfaceType = mx::SHADER_INTERFACE_COMPLETE;
+            mx::ShaderPtr shader = shadergen->generate(exampleName, output, options);
+            REQUIRE(shader != nullptr);
+            REQUIRE(shader->getSourceCode().length() > 0);
+
+            const mx::Shader::VariableBlock& uniforms = shader->getUniformBlock(mx::Shader::PIXEL_STAGE, mx::Shader::PUBLIC_UNIFORMS);
+            REQUIRE(uniforms.size() == 2);
+
+            const mx::Shader::VariableBlock& outputs = shader->getOutputBlock();
+            REQUIRE(outputs.size() == 1);
+            REQUIRE(outputs[0]->name == output->getName());
+
+            // Write out to file for inspection
+            std::ofstream file;
+            const std::string filename(RESULT_DIRECTORY + shader->getName() + "_complete.osl");
+            file.open(filename);
+            file << shader->getSourceCode();
+            file.close();
+        }
+
+        {
+            options.shaderInterfaceType = mx::SHADER_INTERFACE_REDUCED;
+            mx::ShaderPtr shader = shadergen->generate(exampleName, output, options);
+            REQUIRE(shader != nullptr);
+            REQUIRE(shader->getSourceCode().length() > 0);
+
+            const mx::Shader::VariableBlock& uniforms = shader->getUniformBlock(mx::Shader::PIXEL_STAGE, mx::Shader::PUBLIC_UNIFORMS);
+            REQUIRE(uniforms.size() == 0);
+
+            const mx::Shader::VariableBlock& outputs = shader->getOutputBlock();
+            REQUIRE(outputs.size() == 1);
+            REQUIRE(outputs[0]->name == output->getName());
+
+            // Write out to file for inspection
+            std::ofstream file;
+            const std::string filename(RESULT_DIRECTORY + shader->getName() + "_reduced.osl");
+            file.open(filename);
+            file << shader->getSourceCode();
+            file.close();
+        }
+    }
+#endif
+}
+
 TEST_CASE("Hello World", "[shadergen]")
 {
     mx::DocumentPtr doc = mx::createDocument();
@@ -2420,127 +2511,3 @@ TEST_CASE("Surface Layering", "[shadergen]")
     }
 #endif // MATERIALX_BUILD_GEN_GLSL
 }
-
-#ifdef MATERIALX_BUILD_GEN_OSL
-TEST_CASE("Osl Output Types", "[shadergen]")
-{
-    // OSL doesn't support having color2/color4 as shader output types.
-    // The color2/color4 types are custom struct types added by MaterialX.
-    // It's actually crashing the OSL compiler right now.
-    // TODO: Report this problem to the OSL team.
-    //
-    // This test makes sure that color2/color4/vector2/vector4 gets converted
-    // to color/vector when used as shader outputs.
-
-    mx::DocumentPtr doc = mx::createDocument();
-
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    loadLibraries({ "stdlib" }, searchPath, doc);
-
-    const std::string exampleName = "osl_output";
-
-    mx::NodeGraphPtr nodeGraph1 = doc->addNodeGraph();
-    mx::OutputPtr output1 = nodeGraph1->addOutput(mx::EMPTY_STRING, "color2");
-    mx::NodePtr node1 = nodeGraph1->addNode("remap", mx::EMPTY_STRING, "color2");
-    output1->setConnectedNode(node1);
-    mx::NodeDefPtr nodeDef1 = doc->addNodeDef(mx::EMPTY_STRING, "color2", exampleName + "_color2");
-    nodeGraph1->setAttribute("nodedef", nodeDef1->getName());
-
-    mx::NodeGraphPtr nodeGraph2 = doc->addNodeGraph();
-    mx::OutputPtr output2 = nodeGraph2->addOutput(mx::EMPTY_STRING, "color4");
-    mx::NodePtr node2 = nodeGraph2->addNode("remap", mx::EMPTY_STRING, "color4");
-    output2->setConnectedNode(node2);
-    mx::NodeDefPtr nodeDef2 = doc->addNodeDef(mx::EMPTY_STRING, "color4", exampleName + "_color4");
-    nodeGraph2->setAttribute("nodedef", nodeDef2->getName());
-
-    mx::GenOptions options;
-
-    {
-        mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();
-        // Add path to find all source code snippets
-        shadergen->registerSourceCodeSearchPath(searchPath);
-        // Add path to find OSL include files
-        shadergen->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
-
-        // Test shader generation from color2 type graph
-        mx::ShaderPtr shader = shadergen->generate(exampleName + "_color2", output1, options);
-        REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode().length() > 0);
-        // Write out to file for inspection
-        std::ofstream file;
-        std::string fileName(RESULT_DIRECTORY + exampleName + "_color2.osl");
-        file.open(fileName);
-        file << shader->getSourceCode();
-        file.close();
-
-        // TODO: Use validation in MaterialXRender library
-        std::string errorResult;
-        validateOSL(fileName, errorResult);
-        REQUIRE(errorResult.size() == 0);
-
-        // Test shader generation from color4 type graph
-        shader = shadergen->generate(exampleName + "_color4", output2, options);
-        REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode().length() > 0);
-        // Write out to file for inspection
-        fileName.assign(RESULT_DIRECTORY + exampleName + "_color4.osl");
-        file.open(fileName);
-        file << shader->getSourceCode();
-        file.close();
-
-        // TODO: Use validation in MaterialXRender library
-        validateOSL(fileName, errorResult);
-        REQUIRE(errorResult.size() == 0);
-    }
-
-    // Change to vector2/vector4 types
-    output1->setType("vector2");
-    node1->setType("vector2");
-    nodeDef1->setType("vector2");
-    output2->setType("vector4");
-    node2->setType("vector4");
-    nodeDef2->setType("vector4");
-
-    // Add swizzling to make sure type remapping works with swizzling
-    //output1->setChannels("yx");
-    //output2->setChannels("wzyx");
-
-    {
-        mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();
-        // Add path to find all source code snippets
-        shadergen->registerSourceCodeSearchPath(searchPath);
-        // Add path to find OSL include files
-        shadergen->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
-
-        // Test shader generation from color2 type graph
-        mx::ShaderPtr shader = shadergen->generate(exampleName + "_vector2", output1, options);
-        REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode().length() > 0);
-        // Write out to file for inspection
-        std::ofstream file;
-        std::string fileName(RESULT_DIRECTORY + exampleName + "_vector2.osl");
-        file.open(fileName);
-        file << shader->getSourceCode();
-        file.close();
-
-        // TODO: Use validation in MaterialXRender library
-        std::string errorResult;
-        validateOSL(fileName, errorResult);
-        REQUIRE(errorResult.size() == 0);
-
-        // Test shader generation from color4 type graph
-        shader = shadergen->generate(exampleName + "_vector4", output2, options);
-        REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode().length() > 0);
-        // Write out to file for inspection
-        fileName.assign(RESULT_DIRECTORY + exampleName + "_vector4.osl");
-        file.open(fileName);
-        file << shader->getSourceCode();
-        file.close();
-
-        // TODO: Use validation in MaterialXRender library
-        validateOSL(fileName, errorResult);
-        REQUIRE(errorResult.size() == 0);
-    }
-}
-#endif // MATERIALX_BUILD_GEN_OSL

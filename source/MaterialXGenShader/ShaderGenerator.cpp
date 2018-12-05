@@ -28,14 +28,18 @@ Shader::VDirection ShaderGenerator::getTargetVDirection() const
     return Shader::VDirection::UP;
 }
 
-void ShaderGenerator::emitTypeDefs(Shader& shader)
+void ShaderGenerator::emitTypeDefinitions(Shader& shader)
 {
-    // Emit typedef statements for all data types that needs it
+    // Emit typedef statements for all data types that have an alias
     for (auto syntax : _syntax->getTypeSyntaxs())
     {
-        if (syntax->getTypeDefStatement().length())
+        if (!syntax->getTypeAlias().empty())
         {
-            shader.addLine(syntax->getTypeDefStatement(), false);
+            shader.addLine("#define " + syntax->getName() + " " + syntax->getTypeAlias(), false);
+        }
+        if (!syntax->getTypeDefinition().empty())
+        {
+            shader.addLine(syntax->getTypeDefinition(), false);
         }
     }
     shader.newLine();

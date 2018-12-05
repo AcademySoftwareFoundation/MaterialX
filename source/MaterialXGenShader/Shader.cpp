@@ -20,6 +20,7 @@ Shader::Shader(const string& name)
     , _rootGraph(nullptr)
     , _activeStage(PIXEL_STAGE)
     , _appData("AppData", "ad")
+    , _outputs("Outputs", "op")
 {
     _stages.push_back(Stage("Pixel"));
 
@@ -54,6 +55,18 @@ void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const Ge
                 // Create the uniform
                 createUniform(PIXEL_STAGE, PUBLIC_UNIFORMS, inputSocket->type, inputSocket->variable, inputSocket->path, EMPTY_STRING, inputSocket->value);
             }
+        }
+    }
+
+    // Create outputs from the graph interface
+    for (ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
+    {
+        // Create the output
+        if (_outputs.variableMap.find(outputSocket->name) == _outputs.variableMap.end())
+        {
+            VariablePtr variable = Variable::create(outputSocket->type, outputSocket->name, EMPTY_STRING, EMPTY_STRING, nullptr);
+            _outputs.variableMap[outputSocket->name] = variable;
+            _outputs.variableOrder.push_back(variable.get());
         }
     }
 }

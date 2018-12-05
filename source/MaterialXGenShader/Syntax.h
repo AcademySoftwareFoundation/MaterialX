@@ -48,9 +48,13 @@ public:
     /// Returns the type name in an output context
     string getOutputTypeName(const TypeDesc* type) const;
 
-    /// Returns the custom typedef syntax for the given data type
-    /// If not used returns an empty string
-    const string& getTypeDefStatement(const TypeDesc* type) const;
+    /// Returns a type alias for the given data type.
+    /// If not used returns an empty string.
+    const string& getTypeAlias(const TypeDesc* type) const;
+
+    /// Returns a custom type definition if needed for the given data type.
+    /// If not used returns an empty string.
+    const string& getTypeDefinition(const TypeDesc* type) const;
 
     /// Returns the default value string for the given type
     const string& getDefaultValue(const TypeDesc* type, bool uniform = false) const;
@@ -110,8 +114,11 @@ public:
     /// Returns the type name.
     const string& getName() const { return _name; }
 
-    /// Returns a typedef string if needed to define the type in the target language.
-    const string& getTypeDefStatement() const { return _typeDefStatement; }
+    /// Returns a type alias if needed to define the type in the target language.
+    const string& getTypeAlias() const { return _typeAlias; }
+
+    /// Returns a type definition if needed to define the type in the target language.
+    const string& getTypeDefinition() const { return _typeDefinition; }
 
     /// Returns the default value for this type.
     const string& getDefaultValue(bool uniform) const { return uniform ? _uniformDefaultValue : _defaultValue; }
@@ -132,12 +139,13 @@ public:
 protected:
     /// Protected constructor
     TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, 
-        const string& typeDefStatement, const vector<string>& members);
+        const string& typeAlias, const string& typeDefinition, const vector<string>& members);
 
     string _name;                // type name
     string _defaultValue;        // default value syntax
     string _uniformDefaultValue; // default value syntax when assigned to uniforms
-    string _typeDefStatement;    // custom typedef statement if needed in source code
+    string _typeAlias;           // type alias if needed in source code
+    string _typeDefinition;      // custom type definition if needed in source code
     vector<string> _members;     // syntax for member access
 
     static const vector<string> EMPTY_MEMBERS;
@@ -148,7 +156,7 @@ class ScalarTypeSyntax : public TypeSyntax
 {
 public:
     ScalarTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, 
-        const string& typeDefStatement = EMPTY_STRING);
+        const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING);
 
     string getValue(const Value& value, bool uniform) const override;
     string getValue(const vector<string>& values, bool uniform) const override;
@@ -159,7 +167,7 @@ class StringTypeSyntax : public ScalarTypeSyntax
 {
 public:
     StringTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
-        const string& typeDefStatement = EMPTY_STRING);
+        const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING);
 
     string getValue(const Value& value, bool uniform) const override;
 };
@@ -169,7 +177,8 @@ class AggregateTypeSyntax : public TypeSyntax
 {
 public:
     AggregateTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
-        const string& typeDefStatement = EMPTY_STRING, const vector<string>& members = EMPTY_MEMBERS);
+        const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING, 
+        const vector<string>& members = EMPTY_MEMBERS);
 
     string getValue(const Value& value, bool uniform) const override;
     string getValue(const vector<string>& values, bool uniform) const override;
