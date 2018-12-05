@@ -138,6 +138,16 @@
   </nodedef>
 
   <!--
+    Node: <addbsdf>
+    A node for additive blending of BSDF's.
+  -->
+  <nodedef name="ND_addbsdf" node="addbsdf" type="BSDF" nodegroup="pbr"
+           doc="A node for additive blending of BSDF's.">
+    <input name="in1" type="BSDF" doc="First BSDF."/>
+    <input name="in2" type="BSDF" doc="Second BSDF."/>
+  </nodedef>
+
+  <!--
     Node: <scalebsdf>
     A node for adjusting the contribution of a BSDF with a weight.
   -->
