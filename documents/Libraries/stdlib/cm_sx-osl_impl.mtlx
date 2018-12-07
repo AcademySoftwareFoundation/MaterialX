@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<materialx version="1.36">
+
+  <!-- ======================================================================== -->
+  <!-- Color Management System Implementations
+  <!-- ======================================================================== -->
+
+  <implementation name="IM_gamma18_to_lin_rec709_color3_sx_osl" file="stdlib/sx-osl/mx_gamma18_to_linear_color3.osl" function="mx_gamma18_to_linear_color3" language="sx-osl" />
+  <implementation name="IM_gamma18_to_lin_rec709_color4_sx_osl" file="stdlib/sx-osl/mx_gamma18_to_linear_color4.osl" function="mx_gamma18_to_linear_color4" language="sx-osl" />
+  <implementation name="IM_gamma22_to_lin_rec709_color3_sx_osl" file="stdlib/sx-osl/mx_gamma22_to_linear_color3.osl" function="mx_gamma22_to_linear_color3" language="sx-osl" />
+  <implementation name="IM_gamma22_to_lin_rec709_color4_sx_osl" file="stdlib/sx-osl/mx_gamma22_to_linear_color4.osl" function="mx_gamma22_to_linear_color4" language="sx-osl" />
+  <implementation name="IM_gamma24_to_lin_rec709_color3_sx_osl" file="stdlib/sx-osl/mx_gamma24_to_linear_color3.osl" function="mx_gamma24_to_linear_color3" language="sx-osl" />
+  <implementation name="IM_gamma24_to_lin_rec709_color4_sx_osl" file="stdlib/sx-osl/mx_gamma24_to_linear_color4.osl" function="mx_gamma24_to_linear_color4" language="sx-osl" />
+
+  <implementation name="IM_ACEScg_to_lin_rec709_color3_sx_osl" file="stdlib/sx-osl/mx_acescg_to_linear_color3.osl" function="mx_acescg_to_linear_color3" language="sx-osl" />
+  <implementation name="IM_ACEScg_to_lin_rec709_color4_sx_osl" file="stdlib/sx-osl/mx_acescg_to_linear_color4.osl" function="mx_acescg_to_linear_color4" language="sx-osl" />
+
+  <implementation name="IM_sRGB_to_lin_rec709_color3_sx_osl" file="stdlib/sx-osl/mx_srgb_to_linear_color3.osl" function="mx_srgb_to_linear_color3" language="sx-osl" />
+  <implementation name="IM_sRGB_to_lin_rec709_color4_sx_osl" file="stdlib/sx-osl/mx_srgb_to_linear_color4.osl" function="mx_srgb_to_linear_color4" language="sx-osl" />
+
+</materialx>

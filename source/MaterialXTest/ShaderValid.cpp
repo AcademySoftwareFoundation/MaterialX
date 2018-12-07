@@ -849,7 +849,7 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
                     else if (name == "checkImplCount")
                     {
                         options.checkImplCount = val->asA<bool>();
-                    }                    
+                    }
                     else if (name == "dumpGeneratedCode")
                     {
                         options.dumpGeneratedCode = val->asA<bool>();
@@ -1139,6 +1139,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
 #ifdef MATERIALX_BUILD_GEN_OSL
     mx::OslValidatorPtr oslValidator = nullptr;
     mx::ArnoldShaderGeneratorPtr oslShaderGenerator = nullptr;
+    mx::DefaultColorManagementSystemPtr oslColorManagementSystem = nullptr;
     if (options.runOSLTests)
     {
         AdditiveScopedTimer oslSetupTime(profileTimes.oslTimes.setupTime, "OSL setup time");
@@ -1252,6 +1253,15 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
                     glslColorManagementSystem->loadLibrary(dependLib);
                 }
 #endif
+#ifdef MATERIALX_BUILD_GEN_OSL
+                if ((options.runOSLTests) && !oslColorManagementSystem)
+                {
+                    oslColorManagementSystem = mx::DefaultColorManagementSystem::create(oslShaderGenerator->getLanguage());
+                    if (oslShaderGenerator)
+                        oslShaderGenerator->setColorManagementSystem(oslColorManagementSystem);
+                    oslColorManagementSystem->loadLibrary(dependLib);
+                }
+#endif
             }
             doc->importLibrary(dependLib, &importOptions);
             ioTimer.endTimer();
@@ -1342,11 +1352,6 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
 #ifdef MATERIALX_BUILD_GEN_OSL
                     if (options.runOSLTests)
                     {
-                        // Skip files using CMS for OSL assuming there is no support available
-                        if (options.cmsFiles.size() && options.cmsFiles.count(file))
-                        {
-                            continue;
-                        }
                         renderableSearchTimer.startTimer();
                         mx::InterfaceElementPtr impl2 = nodeDef->getImplementation(oslShaderGenerator->getTarget(), oslShaderGenerator->getLanguage());
                         renderableSearchTimer.endTimer();
