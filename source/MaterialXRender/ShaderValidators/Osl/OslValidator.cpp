@@ -54,7 +54,7 @@ void OslValidator::renderOSL(const std::string& outputPath, const std::string& s
     const std::string errorType("OSL rendering error.");
 
     // If command options missing, skip testing.
-    if (_oslTestRenderExecutable.empty() || _oslIncludePathString.empty() || 
+    if (_oslTestRenderExecutable.empty() || _oslIncludePathString.empty() ||
         _oslTestRenderSceneTemplateFile.empty() || _oslUtilityOSOPath.empty())
     {
         errors.push_back("Command input arguments are missing");
@@ -79,7 +79,7 @@ void OslValidator::renderOSL(const std::string& outputPath, const std::string& s
     shaderFilePath = shaderFilePath / shaderName;
     std::string shaderPath = shaderFilePath.asString();
 
-    // Set output image name. 
+    // Set output image name.
     std::string outputFileName = shaderPath + "_osl.png";
 
     // Use a known error file name to check
@@ -100,15 +100,15 @@ void OslValidator::renderOSL(const std::string& outputPath, const std::string& s
     const std::string CONSTANT_COLOR_SHADER_PREFIX_STRING("constant_");
     std::string outputShader = isColorClosure ? CLOSURE_PASSTHROUGH_SHADER_STRING :
         (isRemappable ? CONSTANT_COLOR_SHADER_PREFIX_STRING + _oslShaderOutputType : CONSTANT_COLOR_SHADER_STRING);
-    
+
     // Perform token replacement
     const std::string OUTPUT_SHADER_TYPE_STRING("%output_shader_type%");
     const std::string OUTPUT_SHADER_INPUT_STRING("%output_shader_input%");
     const std::string OUTPUT_SHADER_INPUT_VALUE_STRING("Cin");
     const std::string INPUT_SHADER_TYPE_STRING("%input_shader_type%");
     const std::string INPUT_SHADER_OUTPUT_STRING("%input_shader_output%");
-    const std::string BACKGROUND_COLOR_STRING("%background_color%");    
-    const string backgroundColor("0.2 0.2 0.2"); // TODO: Make this a user input
+    const std::string BACKGROUND_COLOR_STRING("%background_color%");
+    const string backgroundColor("0.0 0.0 0.0"); // TODO: Make this a user input
 
     StringMap replacementMap;
     replacementMap[OUTPUT_SHADER_TYPE_STRING] = outputShader;
@@ -119,7 +119,7 @@ void OslValidator::renderOSL(const std::string& outputPath, const std::string& s
     std::string sceneString = replaceSubstrings(sceneTemplateString, replacementMap);
     if ((sceneString == sceneTemplateString) || sceneTemplateString.empty())
     {
-        errors.push_back("Scene template file: " + _oslTestRenderSceneTemplateFile + 
+        errors.push_back("Scene template file: " + _oslTestRenderSceneTemplateFile +
                          " does not include proper tokens for rendering.");
         throw ExceptionShaderValidationError(errorType, errors);
     }
@@ -179,7 +179,7 @@ void OslValidator::shadeOSL(const std::string& outputPath, const std::string& sh
     shaderFilePath = shaderFilePath / shaderName;
     std::string shaderPath = shaderFilePath.asString();
 
-    // Set output image name. 
+    // Set output image name.
     std::string outputFileName = shaderPath + ".testshade.png";
 
     // Use a known error file name to check
@@ -203,7 +203,7 @@ void OslValidator::shadeOSL(const std::string& outputPath, const std::string& sh
     std::string result;
     std::vector<std::string> results;
     std::string line;
-    std::string successfulOutputSubString("Output " + outputName + " to " + 
+    std::string successfulOutputSubString("Output " + outputName + " to " +
                                            outputFileName);
     while (std::getline(errorStream, line))
     {
@@ -237,7 +237,7 @@ void OslValidator::compileOSL(const std::string& oslFileName)
         return;
     }
 
-    // Remove .osl and add .oso extension for output. 
+    // Remove .osl and add .oso extension for output.
     std::string outputFileName = removeExtension(oslFileName);
     outputFileName += ".oso";
 
@@ -309,7 +309,7 @@ void OslValidator::validateCreation(const std::vector<std::string>& stages)
     // TODO: Seems testrender will crash currently when trying to convert to "object" space.
     // Thus we replace all instances of "object" with "world" to avoid issues.
     StringMap spaceMap;
-    spaceMap["\"object\""] = "\"world\"";    
+    spaceMap["\"object\""] = "\"world\"";
     std::string oslCode = replaceSubstrings(stages[0], spaceMap);
 
     std::ofstream file;

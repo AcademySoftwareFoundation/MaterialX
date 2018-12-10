@@ -269,7 +269,7 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
         ShaderInput* shaderInput = colorTransformNode->getInput(0);
         shaderInput->variable = input->node->getName() + "_" + input->name;
         shaderInput->value = input->value;
-        shaderInput->flags |= VARIABLE_NOT_RENAMABLE_FLAG;
+        shaderInput->flags |= ShaderPort::VARIABLE_NOT_RENAMABLE;
         shaderInput->path = input->path;
 
         input->makeConnection(colorTransformNodeOutput);
@@ -722,10 +722,10 @@ void ShaderGraph::finalize(ShaderGenerator& shadergen, const GenOptions& options
                             // Copy value and path from the internal input to the published socket
                             inputSocket->value = input->value;
                             inputSocket->path = input->path;
-                            if (VARIABLE_NOT_RENAMABLE_FLAG & input->flags)
+                            if (ShaderPort::VARIABLE_NOT_RENAMABLE & input->flags)
                             {
                                 inputSocket->variable = input->variable;
-                                inputSocket->flags |= VARIABLE_NOT_RENAMABLE_FLAG;
+                                inputSocket->flags |= ShaderPort::VARIABLE_NOT_RENAMABLE;
                             }
                         }
                         inputSocket->makeConnection(input);
@@ -1041,7 +1041,7 @@ void ShaderGraph::setVariableNames(ShaderGenerator& shadergen)
     Syntax::UniqueNameMap uniqueNames;
     for (ShaderGraphInputSocket* inputSocket : getInputSockets())
     {
-        if (VARIABLE_NOT_RENAMABLE_FLAG & inputSocket->flags)
+        if (ShaderPort::VARIABLE_NOT_RENAMABLE & inputSocket->flags)
         {
             inputSocket->variable = inputSocket->name;
         }
@@ -1057,7 +1057,7 @@ void ShaderGraph::setVariableNames(ShaderGenerator& shadergen)
         for (ShaderInput* input : node->getInputs())
         {
             // Node outputs use long names for better code readability
-            if (VARIABLE_NOT_RENAMABLE_FLAG & input->flags)
+            if (ShaderPort::VARIABLE_NOT_RENAMABLE & input->flags)
             {
                 input->variable = input->node->getName() + "_" + input->name;
             }

@@ -194,7 +194,7 @@ protected:
     /// @param variable Variable to emit
     /// @param qualifier Optional qualifier to add before the variable declaration.
     /// Qualifiers are specified by the syntax for the generator.
-    /// @shader Shader source to emit output to
+    /// @param shader Shader source to emit output to
     virtual void emitVariable(const Shader::Variable& variable, const string& qualifier, Shader& shader);
 
     SyntaxPtr _syntax;
