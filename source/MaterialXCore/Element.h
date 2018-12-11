@@ -1072,7 +1072,10 @@ class ValueElement : public TypedElement
     static const string ENUM_ATTRIBUTE;
     static const string IMPLEMENTATION_TYPE_ATTRIBUTE;
     static const string ENUM_VALUES_ATTRIBUTE;
-
+    static const string UI_NAME_ATTRIBUTE;
+    static const string UI_FOLDER_ATTRIBUTE;
+    static const string UI_MIN_ATTRIBUTE;
+    static const string UI_MAX_ATTRIBUTE;
 };
 
 /// @class Token

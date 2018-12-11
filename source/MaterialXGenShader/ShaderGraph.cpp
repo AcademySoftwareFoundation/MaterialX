@@ -719,14 +719,8 @@ void ShaderGraph::finalize(ShaderGenerator& shadergen, const GenOptions& options
                         if (!inputSocket)
                         {
                             inputSocket = addInputSocket(interfaceName, input->type);
-                            // Copy value and path from the internal input to the published socket
-                            inputSocket->value = input->value;
-                            inputSocket->path = input->path;
-                            if (ShaderPort::VARIABLE_NOT_RENAMABLE & input->flags)
-                            {
-                                inputSocket->variable = input->variable;
-                                inputSocket->flags |= ShaderPort::VARIABLE_NOT_RENAMABLE;
-                            }
+                            // Copy relevant data from internal input to the published socket
+                            inputSocket->copyData(*input);
                         }
                         inputSocket->makeConnection(input);
                     }
@@ -892,8 +886,7 @@ void ShaderGraph::bypass(ShaderNode* node, size_t inputIndex, size_t outputIndex
         for (ShaderInput* downstream : downstreamConnections)
         {
             output->breakConnection(downstream);
-            downstream->value = input->value;
-            downstream->path = input->path;
+            downstream->copyData(*input);
         }
     }
 }

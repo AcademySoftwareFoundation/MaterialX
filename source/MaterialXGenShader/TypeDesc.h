@@ -33,20 +33,20 @@ public:
 
     enum Semantic
     {
-        SEMATIC_NONE,
-        SEMATIC_COLOR,
-        SEMATIC_VECTOR,
-        SEMATIC_MATRIX,
-        SEMATIC_FILENAME,
-        SEMATIC_CLOSURE,
-        SEMATIC_SHADER,
-        SEMATIC_LAST
+        SEMANTIC_NONE,
+        SEMANTIC_COLOR,
+        SEMANTIC_VECTOR,
+        SEMANTIC_MATRIX,
+        SEMANTIC_FILENAME,
+        SEMANTIC_CLOSURE,
+        SEMANTIC_SHADER,
+        SEMANTIC_LAST
     };
 
     /// Register a type descriptor for a MaterialX data type.
     /// Throws an exception if a type with the same name is already registered.
     static const TypeDesc* registerType(const string& name, unsigned char basetype,
-        unsigned char semantic = SEMATIC_NONE, int size = 1, bool editable = true,
+        unsigned char semantic = SEMANTIC_NONE, int size = 1, bool editable = true,
         const ChannelMap& channelMapping = ChannelMap());
 
     /// Get a type descriptor for given name.
@@ -87,13 +87,13 @@ public:
     bool isArray() const { return _size == 0; }
 
     /// Return true if the type is an aggregate of 2 floats.
-    bool isFloat2() const { return _size == 2 && (_semantic == SEMATIC_COLOR || _semantic == SEMATIC_VECTOR); }
+    bool isFloat2() const { return _size == 2 && (_semantic == SEMANTIC_COLOR || _semantic == SEMANTIC_VECTOR); }
 
     /// Return true if the type is an aggregate of 3 floats.
-    bool isFloat3() const { return _size == 3 && (_semantic == SEMATIC_COLOR || _semantic == SEMATIC_VECTOR); }
+    bool isFloat3() const { return _size == 3 && (_semantic == SEMANTIC_COLOR || _semantic == SEMANTIC_VECTOR); }
 
     /// Return true if the type is an aggregate of 4 floats.
-    bool isFloat4() const { return _size == 4 && (_semantic == SEMATIC_COLOR || _semantic == SEMATIC_VECTOR); }
+    bool isFloat4() const { return _size == 4 && (_semantic == SEMANTIC_COLOR || _semantic == SEMANTIC_VECTOR); }
 
 private:
     TypeDesc(const string& name, unsigned char basetype,
