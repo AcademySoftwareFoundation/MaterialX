@@ -27,6 +27,19 @@ class ShaderPort
   public:
     static const unsigned int VARIABLE_NOT_RENAMABLE = 1 << 0; // Variable should not be automatically named
 
+    /// Copy data from another port to this port
+    void copyData(const ShaderPort& other)
+    {
+        value = other.value;
+        path = other.path;
+
+        if (ShaderPort::VARIABLE_NOT_RENAMABLE & other.flags)
+        {
+            variable = other.variable;
+            flags |= ShaderPort::VARIABLE_NOT_RENAMABLE;
+        }
+    }
+
     /// Port type.
     const TypeDesc* type;
 

@@ -64,6 +64,42 @@ bool elementRequiresShading(const TypedElementPtr element);
 /// part of any included library. Light shaders are not considered to be renderable.
 void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>& elements);
 
+/// Given a path to a element, find the corresponding element with the same name
+/// on an associated nodedef if it exists. A target string should be provided
+/// if the path is to a Node as definitions for Nodes can be target specific.
+ValueElementPtr findNodeDefChild(const string& path, DocumentPtr doc, const string& target);
+
+/// Set of possible UI properties for an element 
+struct UIProperties
+{
+    /// UI name
+    string uiName;
+
+    /// UI folder
+    string uiFolder;
+
+    /// Enumeration
+    StringVec enumeration;
+
+    /// Enumeration Values
+    vector<ValuePtr> enumerationValues;
+
+    /// UI minimum value
+    ValuePtr uiMin;
+
+    /// UI maximum value
+    ValuePtr uiMax;
+};
+
+/// Get the UI properties for a given nodedef element.
+/// Returns the number of properties found.
+unsigned int getUIProperties(const ValueElementPtr nodeDefElement, UIProperties& uiProperties);
+
+/// Get the UI properties for a given element path. If the path is to a node, a target
+/// identifier can be provided.
+/// Returns the number of properties found.
+unsigned int getUIProperties(const string& path, DocumentPtr doc, const string& target, UIProperties& uiProperties);
+
 } // namespace MaterialX
 
 #endif

@@ -835,7 +835,7 @@ ValuePtr GlslShaderGenerator::remapEnumeration(const string& inputName, const st
     }
 
     // Skip any elements which have no enumerations
-    const string valueElemEnums = valueElem->getAttribute(ValueElement::ENUM_ATTRIBUTE);
+    const string& valueElemEnums = valueElem->getAttribute(ValueElement::ENUM_ATTRIBUTE);
     if (valueElemEnums.empty())
     {
         return nullptr;

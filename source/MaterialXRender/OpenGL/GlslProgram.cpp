@@ -1358,18 +1358,20 @@ void GlslProgram::printUniforms(std::ostream& outputStream)
         int location = input.second->location;
         int size = input.second->size;
         std::string type = input.second->typeString;
-        std::string value = input.second->value ? input.second->value->getValueString() : "<none>";
+        std::string value = input.second->value ? input.second->value->getValueString() : EMPTY_STRING;
         bool isConstant = input.second->isConstant;
         outputStream << "Program Uniform: \"" << input.first
             << "\". Location:" << location
             << ". GLtype: " << std::hex << gltype
-            << ". Size: " << std::dec << size
-            << ". TypeString:" << type
-            << ". Value: " << value 
-            << ". Is constant: " << isConstant 
-            << ". Element Path: " << input.second->path
-            << "."
-            << std::endl;
+            << ". Size: " << std::dec << size;
+        if (!type.empty())
+            outputStream << ". TypeString: \"" << type << "\"";
+        if (!value.empty())
+            outputStream << ". Value: " << value;
+        outputStream << ". Is constant: " << isConstant;
+        if (!input.second->path.empty())
+            outputStream << ". Element Path: \"" << input.second->path << "\"";
+        outputStream << "." << std::endl;
     }
 }
 
@@ -1383,14 +1385,16 @@ void GlslProgram::printAttributes(std::ostream& outputStream)
         int location = input.second->location;
         int size = input.second->size;
         std::string type = input.second->typeString;
-        std::string value = input.second->value ? input.second->value->getValueString() : "<none>";
+        std::string value = input.second->value ? input.second->value->getValueString() : EMPTY_STRING;
         outputStream << "Program Attribute: \"" << input.first
-            << "\". Location=" << location
-            << ". Type=" << std::hex << gltype
-            << ". Size=" << std::dec << size
-            << ". TypeString=" << type
-            << ". Value=" << value << "."
-            << std::endl;
+            << "\". Location:" << location
+            << ". GLtype: " << std::hex << gltype
+            << ". Size: " << std::dec << size;
+        if (!type.empty())
+            outputStream << ". TypeString: \"" << type << "\"";
+        if (!value.empty())
+            outputStream << ". Value: " << value;
+        outputStream << "." << std::endl;
     }
 }
 

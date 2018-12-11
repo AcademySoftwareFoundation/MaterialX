@@ -28,6 +28,10 @@ const string ValueElement::ENUM_ATTRIBUTE = "enum";
 const string ValueElement::IMPLEMENTATION_NAME_ATTRIBUTE = "implname";
 const string ValueElement::IMPLEMENTATION_TYPE_ATTRIBUTE = "impltype";
 const string ValueElement::ENUM_VALUES_ATTRIBUTE = "enumvalues";
+const string ValueElement::UI_NAME_ATTRIBUTE = "uiname";
+const string ValueElement::UI_FOLDER_ATTRIBUTE = "uifolder";
+const string ValueElement::UI_MIN_ATTRIBUTE = "uimin";
+const string ValueElement::UI_MAX_ATTRIBUTE = "uimax";
 
 Element::CreatorMap Element::_creatorMap;
 

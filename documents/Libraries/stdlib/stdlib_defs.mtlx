@@ -53,102 +53,102 @@
     Samples data from a single image, or from a layer within a multi-layer image.
   -->
   <nodedef name="ND_image_float" node="image" type="float" nodegroup="texture2d" default="0.0">
-    <parameter name="file" type="filename"/>
-    <parameter name="layer" type="string" value=""/>
-    <parameter name="default" type="float" value="0.0"/>
-    <input name="texcoord" type="vector2">
+    <parameter name="file" type="filename" uiname="Filename"/>
+    <parameter name="layer" type="string" value="" uiname="Layer"/>
+    <parameter name="default" type="float" value="0.0" uiname="Default Color"/>
+    <input name="texcoord" type="vector2" uiname="Texture Coordinates">
       <geomprop name="texcoord" type="vector2"/>
     </input>
-    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
-    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
-    <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
-    <parameter name="framerange" type="string" value=""/>
-    <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode U"/>
+    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode V"/>
+    <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
+    <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
+    <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic" uiname="Frame End Action"/>
   </nodedef>
   <nodedef name="ND_image_color2" node="image" type="color2" nodegroup="texture2d" default="0.0, 0.0">
-    <parameter name="file" type="filename"/>
-    <parameter name="layer" type="string" value=""/>
-    <parameter name="default" type="color2" value="0.0, 0.0"/>
-    <input name="texcoord" type="vector2">
+    <parameter name="file" type="filename" uiname="Filename"/>
+    <parameter name="layer" type="string" value="" uiname="Layer"/>
+    <parameter name="default" type="color2" value="0.0, 0.0" uiname="Default Color"/>
+    <input name="texcoord" type="vector2" uiname="Texture Coordinates">
       <geomprop name="texcoord" type="vector2"/>
     </input>
-    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
-    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
-    <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
-    <parameter name="framerange" type="string" value=""/>
-    <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode U"/>
+    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode V"/>
+    <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
+    <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
+    <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic" uiname="Frame End Action"/>
   </nodedef>
   <nodedef name="ND_image_color3" node="image" type="color3" nodegroup="texture2d" default="0.0, 0.0, 0.0">
-    <parameter name="file" type="filename"/>
-    <parameter name="layer" type="string" value=""/>
-    <parameter name="default" type="color3" value="0.0, 0.0, 0.0"/>
-    <input name="texcoord" type="vector2">
+    <parameter name="file" type="filename" uiname="Filename"/>
+    <parameter name="layer" type="string" value="" uiname="Layer"/>
+    <parameter name="default" type="color3" value="0.0, 0.0, 0.0" uiname="Default Color"/>
+    <input name="texcoord" type="vector2" uiname="Texture Coordinates">
       <geomprop name="texcoord" type="vector2"/>
     </input>
-    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
-    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
-    <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
-    <parameter name="framerange" type="string" value=""/>
-    <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode U"/>
+    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode V"/>
+    <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
+    <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
+    <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic" uiname="Frame End Action"/>
   </nodedef>
   <nodedef name="ND_image_color4" node="image" type="color4" nodegroup="texture2d" default="0.0, 0.0, 0.0, 0.0">
-    <parameter name="file" type="filename"/>
-    <parameter name="layer" type="string" value=""/>
-    <parameter name="default" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <input name="texcoord" type="vector2">
+    <parameter name="file" type="filename" uiname="Filename"/>
+    <parameter name="layer" type="string" value="" uiname="Layer"/>
+    <parameter name="default" type="color4" value="0.0, 0.0, 0.0, 0.0" uiname="Default Color"/>
+    <input name="texcoord" type="vector2" uiname="Texture Coordinates">
       <geomprop name="texcoord" type="vector2"/>
     </input>
-    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
-    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
-    <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
-    <parameter name="framerange" type="string" value=""/>
-    <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode U"/>
+    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode V"/>
+    <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
+    <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
+    <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic" uiname="Frame End Action"/>
   </nodedef>
   <nodedef name="ND_image_vector2" node="image" type="vector2" nodegroup="texture2d" default="0.0, 0.0">
-    <parameter name="file" type="filename"/>
-    <parameter name="layer" type="string" value=""/>
-    <parameter name="default" type="vector2" value="0.0, 0.0"/>
-    <input name="texcoord" type="vector2">
+    <parameter name="file" type="filename" uiname="Filename"/>
+    <parameter name="layer" type="string" value="" uiname="Layer"/>
+    <parameter name="default" type="vector2" value="0.0, 0.0" uiname="Default Color"/>
+    <input name="texcoord" type="vector2" uiname="Texture Coordinates">
       <geomprop name="texcoord" type="vector2"/>
     </input>
-    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
-    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
-    <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
-    <parameter name="framerange" type="string" value=""/>
-    <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode U"/>
+    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode V"/>
+    <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
+    <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
+    <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic" uiname="Frame End Action"/>
   </nodedef>
   <nodedef name="ND_image_vector3" node="image" type="vector3" nodegroup="texture2d" default="0.0, 0.0, 0.0">
-    <parameter name="file" type="filename"/>
-    <parameter name="layer" type="string" value=""/>
-    <parameter name="default" type="vector3" value="0.0, 0.0, 0.0"/>
+    <parameter name="file" type="filename" uiname="Filename"/>
+    <parameter name="layer" type="string" value="" uiname="Layer"/>
+    <parameter name="default" type="vector3" value="0.0, 0.0, 0.0" uiname="Default Color"/>
     <input name="texcoord" type="vector2">
-      <geomprop name="texcoord" type="vector2"/>
+      <geomprop name="texcoord" type="vector2" uiname="Texture Coordinates"/>
     </input>
-    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
-    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
-    <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
-    <parameter name="framerange" type="string" value=""/>
-    <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode U"/>
+    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode V"/>
+    <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
+    <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
+    <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic" uiname="Frame End Action"/>
   </nodedef>
   <nodedef name="ND_image_vector4" node="image" type="vector4" nodegroup="texture2d" default="0.0, 0.0, 0.0, 0.0">
-    <parameter name="file" type="filename"/>
-    <parameter name="layer" type="string" value=""/>
-    <parameter name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+    <parameter name="file" type="filename" uiname="Filename"/>
+    <parameter name="layer" type="string" value="" uiname="Layer"/>
+    <parameter name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0" uiname="Default Color"/>
     <input name="texcoord" type="vector2">
-      <geomprop name="texcoord" type="vector2"/>
+      <geomprop name="texcoord" type="vector2" uiname="Texture Coordinates"/>
     </input>
-    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
-    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic"/>
-    <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
-    <parameter name="framerange" type="string" value=""/>
-    <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode U"/>
+    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode V"/>
+    <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
+    <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
+    <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic" uiname="Frame End Action"/>
   </nodedef>
 
   <!--
@@ -619,57 +619,57 @@
     A left-right split matte, split at a specified u value.
   -->
   <nodedef name="ND_splitlr_float" node="splitlr" type="float" nodegroup="procedural2d" default="0.0">
-    <parameter name="valuel" type="float"/>
-    <parameter name="valuer" type="float"/>
-    <parameter name="center" type="float" value="0.5"/>
+    <parameter name="valuel" type="float" uiname="Left"/>
+    <parameter name="valuer" type="float" uiname="Right"/>
+    <parameter name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0"/>
     <input name="texcoord" type="vector2">
       <geomprop name="texcoord" type="vector2"/>
     </input>
   </nodedef>
   <nodedef name="ND_splitlr_color2" node="splitlr" type="color2" nodegroup="procedural2d" default="0.0, 0.0">
-    <parameter name="valuel" type="color2"/>
-    <parameter name="valuer" type="color2"/>
-    <parameter name="center" type="float" value="0.5"/>
+    <parameter name="valuel" type="color2" uiname="Left"/>
+    <parameter name="valuer" type="color2" uiname="Right"/>
+    <parameter name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0"/>
     <input name="texcoord" type="vector2">
       <geomprop name="texcoord" type="vector2"/>
     </input>
   </nodedef>
   <nodedef name="ND_splitlr_color3" node="splitlr" type="color3" nodegroup="procedural2d" default="0.0, 0.0, 0.0">
-    <parameter name="valuel" type="color3"/>
-    <parameter name="valuer" type="color3"/>
-    <parameter name="center" type="float" value="0.5"/>
+    <parameter name="valuel" type="color3" uiname="Left"/>
+    <parameter name="valuer" type="color3" uiname="Right"/>
+    <parameter name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0"/>
     <input name="texcoord" type="vector2">
       <geomprop name="texcoord" type="vector2"/>
     </input>
   </nodedef>
   <nodedef name="ND_splitlr_color4" node="splitlr" type="color4" nodegroup="procedural2d" default="0.0, 0.0, 0.0, 0.0">
-    <parameter name="valuel" type="color4"/>
-    <parameter name="valuer" type="color4"/>
-    <parameter name="center" type="float" value="0.5"/>
+    <parameter name="valuel" type="color4" uiname="Left"/>
+    <parameter name="valuer" type="color4" uiname="Right"/>
+    <parameter name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0"/>
     <input name="texcoord" type="vector2">
       <geomprop name="texcoord" type="vector2"/>
     </input>
   </nodedef>
   <nodedef name="ND_splitlr_vector2" node="splitlr" type="vector2" nodegroup="procedural2d" default="0.0, 0.0">
-    <parameter name="valuel" type="vector2"/>
-    <parameter name="valuer" type="vector2"/>
-    <parameter name="center" type="float" value="0.5"/>
+    <parameter name="valuel" type="vector2" uiname="Left"/>
+    <parameter name="valuer" type="vector2" uiname="Right"/>
+    <parameter name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0"/>
     <input name="texcoord" type="vector2">
       <geomprop name="texcoord" type="vector2"/>
     </input>
   </nodedef>
   <nodedef name="ND_splitlr_vector3" node="splitlr" type="vector3" nodegroup="procedural2d" default="0.0, 0.0, 0.0">
-    <parameter name="valuel" type="vector3"/>
-    <parameter name="valuer" type="vector3"/>
-    <parameter name="center" type="float" value="0.5"/>
+    <parameter name="valuel" type="vector3" uiname="Left"/>
+    <parameter name="valuer" type="vector3" uiname="Right"/>
+    <parameter name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0"/>
     <input name="texcoord" type="vector2">
       <geomprop name="texcoord" type="vector2"/>
     </input>
   </nodedef>
   <nodedef name="ND_splitlr_vector4" node="splitlr" type="vector4" nodegroup="procedural2d" default="0.0, 0.0, 0.0, 0.0">
-    <parameter name="valuel" type="vector4"/>
-    <parameter name="valuer" type="vector4"/>
-    <parameter name="center" type="float" value="0.5"/>
+    <parameter name="valuel" type="vector4" uiname="Left"/>
+    <parameter name="valuer" type="vector4" uiname="Right"/>
+    <parameter name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0"/>
     <input name="texcoord" type="vector2">
       <geomprop name="texcoord" type="vector2"/>
     </input>
@@ -680,57 +680,57 @@
     A top-bottom split matte, split at a specified v value.
   -->
   <nodedef name="ND_splittb_float" node="splittb" type="float" nodegroup="procedural2d" default="0.0">
-    <parameter name="valuet" type="float"/>
-    <parameter name="valueb" type="float"/>
-    <parameter name="center" type="float" value="0.5"/>
+    <parameter name="valuet" type="float" uiname="Top"/>
+    <parameter name="valueb" type="float" uiname="Bottom"/>
+    <parameter name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0"/>
     <input name="texcoord" type="vector2">
       <geomprop name="texcoord" type="vector2"/>
     </input>
   </nodedef>
   <nodedef name="ND_splittb_color2" node="splittb" type="color2" nodegroup="procedural2d" default="0.0, 0.0">
-    <parameter name="valuet" type="color2"/>
-    <parameter name="valueb" type="color2"/>
-    <parameter name="center" type="float" value="0.5"/>
+    <parameter name="valuet" type="color2" uiname="Top"/>
+    <parameter name="valueb" type="color2" uiname="Bottom"/>
+    <parameter name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0"/>
     <input name="texcoord" type="vector2">
       <geomprop name="texcoord" type="vector2"/>
     </input>
   </nodedef>
   <nodedef name="ND_splittb_color3" node="splittb" type="color3" nodegroup="procedural2d" default="0.0, 0.0, 0.0">
-    <parameter name="valuet" type="color3"/>
-    <parameter name="valueb" type="color3"/>
-    <parameter name="center" type="float" value="0.5"/>
+    <parameter name="valuet" type="color3" uiname="Top"/>
+    <parameter name="valueb" type="color3" uiname="Bottom"/>
+    <parameter name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0"/>
     <input name="texcoord" type="vector2">
       <geomprop name="texcoord" type="vector2"/>
     </input>
   </nodedef>
   <nodedef name="ND_splittb_color4" node="splittb" type="color4" nodegroup="procedural2d" default="0.0, 0.0, 0.0, 0.0">
-    <parameter name="valuet" type="color4"/>
-    <parameter name="valueb" type="color4"/>
-    <parameter name="center" type="float" value="0.5"/>
+    <parameter name="valuet" type="color4" uiname="Top"/>
+    <parameter name="valueb" type="color4" uiname="Bottom"/>
+    <parameter name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0"/>
     <input name="texcoord" type="vector2">
       <geomprop name="texcoord" type="vector2"/>
     </input>
   </nodedef>
   <nodedef name="ND_splittb_vector2" node="splittb" type="vector2" nodegroup="procedural2d" default="0.0, 0.0">
-    <parameter name="valuet" type="vector2"/>
-    <parameter name="valueb" type="vector2"/>
-    <parameter name="center" type="float" value="0.5"/>
+    <parameter name="valuet" type="vector2"  uiname="Top"/>
+    <parameter name="valueb" type="vector2"  uiname="Bottom"/>
+    <parameter name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0"/>
     <input name="texcoord" type="vector2">
       <geomprop name="texcoord" type="vector2"/>
     </input>
   </nodedef>
   <nodedef name="ND_splittb_vector3" node="splittb" type="vector3" nodegroup="procedural2d" default="0.0, 0.0, 0.0">
-    <parameter name="valuet" type="vector3"/>
-    <parameter name="valueb" type="vector3"/>
-    <parameter name="center" type="float" value="0.5"/>
+    <parameter name="valuet" type="vector3"  uiname="Top"/>
+    <parameter name="valueb" type="vector3"  uiname="Bottom"/>
+    <parameter name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0"/>
     <input name="texcoord" type="vector2">
       <geomprop name="texcoord" type="vector2"/>
     </input>
   </nodedef>
   <nodedef name="ND_splittb_vector4" node="splittb" type="vector4" nodegroup="procedural2d" default="0.0, 0.0, 0.0, 0.0">
-    <parameter name="valuet" type="vector4"/>
-    <parameter name="valueb" type="vector4"/>
-    <parameter name="center" type="float" value="0.5"/>
+    <parameter name="valuet" type="vector4" uiname="Top"/>
+    <parameter name="valueb" type="vector4"  uiname="Bottom"/>
+    <parameter name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0"/>
     <input name="texcoord" type="vector2">
       <geomprop name="texcoord" type="vector2"/>
     </input>
@@ -1218,7 +1218,7 @@
     The current scene view direction, as defined by the shading environment.
   -->
   <nodedef name="ND_viewdirection_vector3" node="viewdirection" type="vector3" nodegroup="application" default="0.0, 0.0, 1.0">
-    <parameter name="space" type="string" value="world" name="space"/>
+    <parameter name="space" type="string" value="world" enum="model,object,world"/>
   </nodedef>
 
 
