@@ -37,6 +37,23 @@
 
 namespace mx = MaterialX;
 
+static const std::string LIGHT_SHADER = "lightshader";
+static const std::string DIRECTIONAL_LIGHT = "directionallight";
+static const std::string POINT_LIGHT = "pointlight";
+static const std::string SPOT_LIGHT = "spotlight";
+static const std::string LIGHT_COMPOUND = "lightcompoundtest";
+static const size_t LIGHT_COMPOUND_ID = 42;
+
+void loadLibrary(const mx::FilePath& file, mx::DocumentPtr doc)
+{
+    mx::DocumentPtr libDoc = mx::createDocument();
+    mx::readFromXmlFile(libDoc, file);
+    libDoc->setSourceUri(file);
+    mx::CopyOptions copyOptions;
+    copyOptions.skipDuplicateElements = true;
+    doc->importLibrary(libDoc, &copyOptions);
+}
+
 void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc,
                    const std::set<std::string>* excludeFiles = nullptr)
 {
@@ -53,13 +70,7 @@ void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& search
             {
                 continue;
             }
-            mx::FilePath file = path / filename;
-            mx::DocumentPtr libDoc = mx::createDocument();
-            mx::readFromXmlFile(libDoc, file);
-            libDoc->setSourceUri(file);
-            mx::CopyOptions copyOptions;
-            copyOptions.skipDuplicateElements = true;
-            doc->importLibrary(libDoc, &copyOptions);
+            loadLibrary(path / filename, doc);
         }
     }
     REQUIRE(doc->getNodeDefs().size() > 0);
@@ -103,51 +114,6 @@ bool getShaderSource(mx::ShaderGeneratorPtr generator,
     return false;
 }
 
-void createLightCompoundExample(mx::DocumentPtr document)
-{
-    const std::string nodeName = "lightcompound";
-    const std::string nodeDefName = "ND_" + nodeName;
-
-    // Make sure it doesn't exists already
-    if (!document->getNodeDef(nodeDefName))
-    {
-        // Create an interface for the light with position, color and intensity
-        mx::NodeDefPtr nodeDef = document->addNodeDef(nodeDefName, "lightshader", nodeName);
-        nodeDef->addInput("position", "vector3");
-        nodeDef->addInput("color", "color3");
-        nodeDef->addInput("intensity", "float");
-
-        // Create a graph implementing the light using EDF's
-        mx::NodeGraphPtr nodeGraph = document->addNodeGraph("IMP_" + nodeName);
-        mx::OutputPtr output = nodeGraph->addOutput("out", "lightshader");
-
-        // Add EDF node and connect the EDF's intensity to the 'color' input
-        mx::NodePtr edf = nodeGraph->addNode("uniformedf", "edf1", "EDF");
-        mx::InputPtr edf_intensity = edf->addInput("intensity", "color3");
-        edf_intensity->setInterfaceName("color");
-
-        // Add the light constructor node connect it's intensity to the 'intensity' input
-        mx::NodePtr light = nodeGraph->addNode("light", "light1", "lightshader");
-        mx::InputPtr light_intensity = light->addInput("intensity", "float");
-        light_intensity->setInterfaceName("intensity");
-
-        // Connect the EDF to the light constructor
-        light->setConnectedNode("edf", edf);
-
-        // Connect the light to the graph output
-        output->setConnectedNode(light);
-
-        // Make this graph become the implementation of our nodedef
-        nodeGraph->setAttribute("nodedef", nodeDef->getName());
-    }
-}
-
-float cosAngle(float degrees)
-{
-    static const float PI = 3.14159265f;
-    return cos(degrees * PI / 180.0f);
-}
-
 // Light type id's for common light shaders
 // Using id's matching the OgsFx light sources
 // here which simplifies light binding for OGS.
@@ -160,60 +126,48 @@ enum LightType
     DIRECTIONAL = 4,
 };
 
+void createLights(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler)
+{
+    for (mx::NodePtr node : doc->getNodes())
+    {
+        if (node->getType() == LIGHT_SHADER)
+        {
+            mx::LightSourcePtr light;
+            if (node->getCategory() == DIRECTIONAL_LIGHT)
+            {
+                lightHandler.addLightShader(LightType::DIRECTIONAL, node->getNodeDef());
+                light = lightHandler.createLightSource(DIRECTIONAL);
+            }
+            else if (node->getCategory() == POINT_LIGHT)
+            {
+                lightHandler.addLightShader(LightType::POINT, node->getNodeDef());
+                light = lightHandler.createLightSource(POINT);
+            }
+            else if (node->getCategory() == SPOT_LIGHT)
+            {
+                lightHandler.addLightShader(LightType::SPOT, node->getNodeDef());
+                light = lightHandler.createLightSource(SPOT);
+            }
+            else if (node->getCategory() == LIGHT_COMPOUND)
+            {
+                lightHandler.addLightShader(LIGHT_COMPOUND_ID, node->getNodeDef());
+                light = lightHandler.createLightSource(LIGHT_COMPOUND_ID);
+            }
+            if (light)
+            {
+                for (mx::InputPtr input : node->getInputs())
+                {
+                    light->setParameter(input->getName(), input->getValue());
+                }
+            }
+        }
+    }
+}
+
 void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::HwShaderGenerator& shadergen, const mx::GenOptions& options)
 {
-    // Create a custom light shader by a graph compound
-    createLightCompoundExample(doc);
-
-    mx::NodeDefPtr dirLightNodeDef = doc->getNodeDef("ND_directionallight");
-    mx::NodeDefPtr pointLightNodeDef = doc->getNodeDef("ND_pointlight");
-    mx::NodeDefPtr spotLightNodeDef = doc->getNodeDef("ND_spotlight");
-    mx::NodeDefPtr compoundLightNodeDef = doc->getNodeDef("ND_lightcompound");
-    REQUIRE(dirLightNodeDef != nullptr);
-    REQUIRE(pointLightNodeDef != nullptr);
-    REQUIRE(spotLightNodeDef != nullptr);
-    REQUIRE(compoundLightNodeDef != nullptr);
-
-    // Add the common light shaders
-    lightHandler.addLightShader(LightType::DIRECTIONAL, dirLightNodeDef);
-    lightHandler.addLightShader(LightType::POINT, pointLightNodeDef);
-    lightHandler.addLightShader(LightType::SPOT, spotLightNodeDef);
-
-    // Add our custom coumpund light shader
-    const size_t compoundLightId = 42;
-    lightHandler.addLightShader(compoundLightId, compoundLightNodeDef);
-
-    // Create a light rig with one light source for each light shader
-
-    mx::LightSourcePtr dirLight = lightHandler.createLightSource(LightType::DIRECTIONAL);
-    dirLight->setParameter("direction", mx::Vector3(0, 0, -1));
-    dirLight->setParameter("color", mx::Color3(1, 1, 1));
-    dirLight->setParameter("intensity", 0.2f);
-
-    mx::LightSourcePtr pointLight = lightHandler.createLightSource(LightType::POINT);
-    pointLight->setParameter("position", mx::Vector3(-2, -2, 2));
-    pointLight->setParameter("color", mx::Color3(0, 0.0, 1));
-    pointLight->setParameter("intensity", 10.0f);
-    pointLight->setParameter("decayRate", 3.0f);
-
-    mx::LightSourcePtr spotLight = lightHandler.createLightSource(LightType::SPOT);
-    mx::Vector3 position(3, 3, 3);
-    spotLight->setParameter("position", position);
-    mx::Vector3 direction = position.getNormalized() * -1;;
-    spotLight->setParameter("direction", direction);
-    spotLight->setParameter("color", mx::Color3(1, 0, 0));
-    spotLight->setParameter("intensity", 1.0f);
-    spotLight->setParameter("decayRate", 0.0f);
-    spotLight->setParameter("innerConeAngle", cosAngle(5.0f));
-    spotLight->setParameter("outerConeAngle", cosAngle(10.0f));
-
-    mx::LightSourcePtr compoundLight = lightHandler.createLightSource(compoundLightId);
-    position = { -3, 3, 3 };
-    direction = position.getNormalized() * -1;
-    compoundLight->setParameter("position", position);
-    compoundLight->setParameter("direction", direction);
-    compoundLight->setParameter("color", mx::Color3(0, 1, 0));
-    compoundLight->setParameter("intensity", 10.0f);
+    // Create the light rig
+    createLights(doc, lightHandler);
 
     // Let the shader generator know of these light shaders
     lightHandler.bindLightShaders(shadergen, options);
@@ -1737,6 +1691,10 @@ TEST_CASE("Subgraphs", "[shadergen]")
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
     loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
+    loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), doc);
+    loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), doc);
+    loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), doc);
 
     mx::FilePath examplesSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Examples");
     loadExamples({ "SubGraphs.mtlx"}, examplesSearchPath, searchPath,  doc);
@@ -1853,6 +1811,10 @@ TEST_CASE("Materials", "[shadergen]")
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
     loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
+    loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), doc);
+    loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), doc);
+    loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), doc);
 
     mx::FilePath materialsFile = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/sxpbrlib/materials/surfaceshader.mtlx");
     mx::readFromXmlFile(doc, materialsFile.asString());
@@ -2059,6 +2021,10 @@ TEST_CASE("BSDF Layering", "[shadergen]")
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
     loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
+    loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), doc);
+    loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), doc);
+    loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), doc);
 
     const std::string exampleName = "layered_bsdf";
 
@@ -2220,6 +2186,10 @@ TEST_CASE("Transparency", "[shadergen]")
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
     loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
+    loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), doc);
+    loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), doc);
+    loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), doc);
 
     const std::string exampleName = "transparent_surface";
 
@@ -2398,6 +2368,10 @@ TEST_CASE("Surface Layering", "[shadergen]")
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
     loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
+    loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), doc);
+    loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), doc);
+    loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), doc);
 
     const std::string exampleName = "layered_surface";
 

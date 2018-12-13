@@ -36,26 +36,9 @@ public:
     }
 
     /// Set a light parameter value
-    template<typename T>
-    void setParameter(const string& name, const T& value)
+    void setParameter(const string& name, const ValuePtr value)
     {
-        ParameterMap::iterator it = _parameters.find(name);
-        if (it != _parameters.end())
-        {
-            if (!it->second)
-            {
-                it->second = Value::createValue<T>(value);
-            }
-            else
-            {
-                TypedValue<T>* typedVal = dynamic_cast<TypedValue<T>*>(it->second.get());
-                if (!typedVal)
-                {
-                    throw Exception("Incorrect type when setting light paramater");
-                }
-                typedVal->setData(value);
-            }
-        }
+        _parameters[name] = value;
     }
 
 protected:
@@ -72,7 +55,7 @@ protected:
 using HwLightHandlerPtr = std::shared_ptr<class HwLightHandler>;
 
 /// @class @HwLightHandler
-/// Utility light handler for creating and providing 
+/// Utility light handler for creating and providing
 /// light data for shader binding.
 ///
 class HwLightHandler
@@ -86,7 +69,7 @@ public:
 
     /// Default constructor
     HwLightHandler();
-    
+
     /// Default destructor
     virtual ~HwLightHandler();
 
