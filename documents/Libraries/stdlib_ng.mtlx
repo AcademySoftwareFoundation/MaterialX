@@ -16,12 +16,12 @@
     <tiledimage>
   -->
   <nodegraph name="NG_tiledimage_float" nodedef="ND_tiledimage_float">
-    <divide name="N_div_float" type="vector2">
+    <multiply name="N_mult_float" type="vector2">
       <input name="in1" type="vector2" interfacename="texcoord"/>
       <input name="in2" type="vector2" interfacename="uvtiling"/>
-    </divide>
+    </multiply>
     <subtract name="N_sub_float" type="vector2">
-      <input name="in1" type="vector2" nodename="N_div_float"/>
+      <input name="in1" type="vector2" nodename="N_mult_float"/>
       <input name="in2" type="vector2" interfacename="uvoffset"/>
     </subtract>
     <image name="N_img_float" type="float">
@@ -39,12 +39,12 @@
   </nodegraph>
 
   <nodegraph name="NG_tiledimage_color2" nodedef="ND_tiledimage_color2">
-    <divide name="N_div_color2" type="vector2">
+    <multiply name="N_mult_color2" type="vector2">
       <input name="in1" type="vector2" interfacename="texcoord"/>
       <input name="in2" type="vector2" interfacename="uvtiling"/>
-    </divide>
+    </multiply>
     <subtract name="N_sub_color2" type="vector2">
-      <input name="in1" type="vector2" nodename="N_div_color2"/>
+      <input name="in1" type="vector2" nodename="N_mult_color2"/>
       <input name="in2" type="vector2" interfacename="uvoffset"/>
     </subtract>
     <image name="N_img_color2" type="color2">
@@ -62,12 +62,12 @@
   </nodegraph>
 
   <nodegraph name="NG_tiledimage_color3" nodedef="ND_tiledimage_color3">
-    <divide name="N_div_color3" type="vector2">
+    <multiply name="N_mult_color3" type="vector2">
       <input name="in1" type="vector2" interfacename="texcoord"/>
       <input name="in2" type="vector2" interfacename="uvtiling"/>
-    </divide>
+    </multiply>
     <subtract name="N_sub_color3" type="vector2">
-      <input name="in1" type="vector2" nodename="N_div_color3"/>
+      <input name="in1" type="vector2" nodename="N_mult_color3"/>
       <input name="in2" type="vector2" interfacename="uvoffset"/>
     </subtract>
     <image name="N_img_color3" type="color3">
@@ -85,12 +85,12 @@
   </nodegraph>
 
   <nodegraph name="NG_tiledimage_color4" nodedef="ND_tiledimage_color4">
-    <divide name="N_div_color4" type="vector2">
+    <multiply name="N_mult_color4" type="vector2">
       <input name="in1" type="vector2" interfacename="texcoord"/>
       <input name="in2" type="vector2" interfacename="uvtiling"/>
-    </divide>
+    </multiply>
     <subtract name="N_sub_color4" type="vector2">
-      <input name="in1" type="vector2" nodename="N_div_color4"/>
+      <input name="in1" type="vector2" nodename="N_mult_color4"/>
       <input name="in2" type="vector2" interfacename="uvoffset"/>
     </subtract>
     <image name="N_img_color4" type="color4">
@@ -108,12 +108,12 @@
   </nodegraph>
 
   <nodegraph name="NG_tiledimage_vector2" nodedef="ND_tiledimage_vector2">
-    <divide name="N_div_vector2" type="vector2">
+    <multiply name="N_mult_vector2" type="vector2">
       <input name="in1" type="vector2" interfacename="texcoord"/>
       <input name="in2" type="vector2" interfacename="uvtiling"/>
-    </divide>
+    </multiply>
     <subtract name="N_sub_vector2" type="vector2">
-      <input name="in1" type="vector2" nodename="N_div_vector2"/>
+      <input name="in1" type="vector2" nodename="N_mult_vector2"/>
       <input name="in2" type="vector2" interfacename="uvoffset"/>
     </subtract>
     <image name="N_img_vector2" type="vector2">
@@ -131,12 +131,12 @@
   </nodegraph>
 
   <nodegraph name="NG_tiledimage_vector3" nodedef="ND_tiledimage_vector3">
-    <divide name="N_div_vector3" type="vector2">
+    <multiply name="N_mult_vector3" type="vector2">
       <input name="in1" type="vector2" interfacename="texcoord"/>
       <input name="in2" type="vector2" interfacename="uvtiling"/>
-    </divide>
+    </multiply>
     <subtract name="N_sub_vector3" type="vector2">
-      <input name="in1" type="vector2" nodename="N_div_vector3"/>
+      <input name="in1" type="vector2" nodename="N_mult_vector3"/>
       <input name="in2" type="vector2" interfacename="uvoffset"/>
     </subtract>
     <image name="N_img_vector3" type="vector3">
@@ -154,12 +154,12 @@
   </nodegraph>
 
   <nodegraph name="NG_tiledimage_vector4" nodedef="ND_tiledimage_vector4">
-    <divide name="N_div_vector4" type="vector2">
+    <multiply name="N_mult_vector4" type="vector2">
       <input name="in1" type="vector2" interfacename="texcoord"/>
       <input name="in2" type="vector2" interfacename="uvtiling"/>
-    </divide>
+    </multiply>
     <subtract name="N_sub_vector4" type="vector2">
-      <input name="in1" type="vector2" nodename="N_div_vector4"/>
+      <input name="in1" type="vector2" nodename="N_mult_vector4"/>
       <input name="in2" type="vector2" interfacename="uvoffset"/>
     </subtract>
     <image name="N_img_vector4" type="vector4">
