@@ -35,6 +35,9 @@
         -->
         <parameter name="shaderInterfaces" type="integer" value="2" />
 
+        <!-- Validate element before attempting to generate code. Default is false  -->
+        <parameter name="validateElementToRender" type="boolean" value="false" />
+
         <!-- Perform source code compilation validation test -->
         <parameter name="compileCode" type="boolean" value="true" />
 

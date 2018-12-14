@@ -35,18 +35,21 @@ class GenOptions
     //  - shader gen optimization level
     //  - graph flattening or not
 
-    // Sets the type of shader interface to be generated
+    /// Sets the type of shader interface to be generated
     int shaderInterfaceType;
 
-    // Sets if transparency is needed or not for HW shaders.
-    // If a surface shader has potential of being transparent
-    // this must be set to true, otherwise no transparency
-    // code fragments will be generated for the shader and
-    // the surface will be fully opaque.
+    /// Sets if transparency is needed or not for HW shaders.
+    /// If a surface shader has potential of being transparent
+    /// this must be set to true, otherwise no transparency
+    /// code fragments will be generated for the shader and
+    /// the surface will be fully opaque.
     bool hwTransparency;
 
     /// An optional override for the target color space
     std::string targetColorSpaceOverride;
+
+    /// Sets whether to perform a validation check before generation
+    bool validate;
 };
 
 } // namespace MaterialX

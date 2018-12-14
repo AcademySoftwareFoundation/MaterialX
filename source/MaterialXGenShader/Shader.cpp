@@ -31,6 +31,17 @@ Shader::Shader(const string& name)
 
 void Shader::initialize(ElementPtr element, ShaderGenerator& shadergen, const GenOptions& options)
 {
+    // Check if validation step should be performed
+    if (options.validate)
+    {
+        string message;
+        bool valid = element->validate(&message);
+        if (!valid)
+        {
+            throw ExceptionShaderGenError("Element is invalid: " + message);
+        }
+    }
+
     // Create our shader generation root graph
     _rootGraph = ShaderGraph::create(_name, element, shadergen, options);
 
