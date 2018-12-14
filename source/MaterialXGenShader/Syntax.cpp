@@ -31,6 +31,11 @@ void Syntax::registerRestrictedNames(const StringSet& names)
     _restrictedNames.insert(names.begin(), names.end());
 }
 
+void Syntax::registerInvalidTokens(const StringMap& tokens)
+{
+    _invalidTokens.insert(tokens.begin(), tokens.end());
+}
+
 /// Returns the type syntax object for a named type.
 /// Throws an exception if a type syntax is not defined for the given type.
 const TypeSyntax& Syntax::getTypeSyntax(const TypeDesc* type) const
@@ -132,6 +137,10 @@ string Syntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcTyp
 
 void Syntax::makeUnique(string& name, UniqueNameMap& uniqueNames) const
 {
+    if (_invalidTokens.size())
+    {
+        name = replaceSubstrings(name, _invalidTokens);
+    }
     UniqueNameMap::iterator it = uniqueNames.find(name);
     if (it != uniqueNames.end())
     {

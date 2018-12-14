@@ -35,6 +35,11 @@ public:
     /// added to this set. Multiple calls will add to the internal set of names.
     void registerRestrictedNames(const StringSet& names);
 
+    /// Register a set string replacements for disallowed tokens 
+    /// for a code generator when naming variables and functions. 
+    /// Multiple calls will add to the internal set of tokens.
+    void registerInvalidTokens(const StringMap& tokens);
+
     /// Returns the type syntax object for a named type.
     /// Throws an exception if a type syntax is not defined for the given type.
     const TypeSyntax& getTypeSyntax(const TypeDesc* type) const;
@@ -67,6 +72,9 @@ public:
 
     /// Returns a set of names that are restricted to use for this language syntax.
     const StringSet& getRestrictedNames() const { return _restrictedNames; }
+
+    /// Returns a mapping from disallowed tokens to replacement strings for this language syntax.
+    const StringMap& getInvalidTokens() const { return _invalidTokens; }
 
     /// Returns a type qualifier to be used when declaring types for output variables.
     /// Default implementation returns empty string and derived syntax classes should
@@ -103,6 +111,7 @@ private:
     std::unordered_map<const TypeDesc*, size_t> _typeSyntaxByType;
 
     StringSet _restrictedNames;
+    StringMap _invalidTokens;
 };
 
 /// Base class for syntax handling of types.

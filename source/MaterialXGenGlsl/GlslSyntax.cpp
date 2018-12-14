@@ -148,6 +148,14 @@ GlslSyntax::GlslSyntax()
         "sizeof", "cast", "namespace", "using", "row_major"
     });
 
+    // Register regstricted tokens in GLSL
+    StringMap tokens;
+    tokens["__"] = "_";
+    tokens["gl_"] = "gll";
+    tokens["webgl_"] = "webgll";
+    tokens["_webgl"] = "wwebgl";
+    registerInvalidTokens(tokens);
+    
     //
     // Register syntax handlers for each data type.
     //
