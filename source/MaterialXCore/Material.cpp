@@ -157,7 +157,7 @@ bool BindParam::validate(string* message) const
     if (nodeDef)
     {
         ParameterPtr param = nodeDef->getActiveParameter(getName());
-        validateRequire(param != nullptr, res, message, "BindParam does not match an Parameter in the referenced NodeDef");
+        validateRequire(param != nullptr, res, message, "BindParam does not match a Parameter in the referenced NodeDef");
         if (param)
         {
             validateRequire(getType() == param->getType(), res, message, "Type mismatch between BindParam and Parameter");
@@ -216,6 +216,24 @@ bool BindInput::validate(string* message) const
         {
             validateRequire(getType() == input->getType(), res, message, "Type mismatch between BindInput and Input");
         }
+    }
+    return ValueElement::validate(message) && res;
+}
+
+//
+// BindToken methods
+//
+
+bool BindToken::validate(string* message) const
+{
+    bool res = true;
+    ConstElementPtr parent = getParent();
+    ConstShaderRefPtr shaderRef = parent ? parent->asA<ShaderRef>() : nullptr;
+    NodeDefPtr nodeDef = shaderRef ? shaderRef->getNodeDef() : nullptr;
+    if (nodeDef)
+    {
+        TokenPtr token = nodeDef->getActiveToken(getName());
+        validateRequire(token != nullptr, res, message, "BindToken does not match a Token in the referenced NodeDef");
     }
     return ValueElement::validate(message) && res;
 }
