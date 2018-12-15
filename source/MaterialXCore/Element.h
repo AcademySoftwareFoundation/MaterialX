@@ -796,7 +796,7 @@ class Element : public std::enable_shared_from_this<Element>
                                            const string& type = EMPTY_STRING) const;
 
     /// Return a single-line description of this element, including its category,
-    /// name, type, and value.
+    /// name, and attributes.
     string asString() const;
 
     /// @}
