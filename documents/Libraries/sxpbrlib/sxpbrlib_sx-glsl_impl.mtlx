@@ -63,8 +63,11 @@
   <implementation name="IM_backfacing_integer_sx_glsl" nodedef="ND_backfacing_integer" file="sxpbrlib/sx-glsl/sx_backfacing_integer.inline" language="sx-glsl"/>
   <implementation name="IM_backfacing_float_sx_glsl" nodedef="ND_backfacing_float" file="sxpbrlib/sx-glsl/sx_backfacing_float.inline" language="sx-glsl"/>
 
-  <!-- <roughness> -->
-  <implementation name="IM_roughness_sx_glsl" nodedef="ND_roughness" file="sxpbrlib/sx-glsl/sx_roughness.glsl" function="sx_roughness" language="sx-glsl"/>
+  <!-- <roughness_anisotropy> -->
+  <implementation name="IM_roughness_anisotropy_sx_glsl" nodedef="ND_roughness_anisotropy" file="sxpbrlib/sx-glsl/sx_roughness_anisotropy.glsl" function="sx_roughness_anisotropy" language="sx-glsl"/>
+
+   <!-- <roughness_dual> -->
+  <implementation name="IM_roughness_dual_sx_glsl" nodedef="ND_roughness_dual" file="sxpbrlib/sx-glsl/sx_roughness_dual.glsl" function="sx_roughness_dual" language="sx-glsl"/>
 
   <!-- <complex_ior> -->
   <implementation name="IM_complex_ior_sx_glsl" nodedef="ND_complex_ior" file="sxpbrlib/sx-glsl/sx_complex_ior.glsl" function="sx_complex_ior" language="sx-glsl"/>

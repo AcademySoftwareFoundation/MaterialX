@@ -1,4 +1,4 @@
-void sx_roughness(float roughness, float anisotropy, out roughnessinfo result)
+void sx_roughness_anisotropy(float roughness, float anisotropy, out roughnessinfo result)
 {
     result.roughness = roughness;
     result.alpha = clamp(roughness*roughness, M_FLOAT_EPS, 1.0);

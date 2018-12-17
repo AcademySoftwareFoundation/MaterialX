@@ -48,8 +48,11 @@
   <implementation name="IM_backfacing_integer_sx_osl" nodedef="ND_backfacing_integer" file="sxpbrlib/sx-osl/sx_backfacing_integer.inline" language="sx-osl"/>
   <implementation name="IM_backfacing_float_sx_osl" nodedef="ND_backfacing_float" file="sxpbrlib/sx-osl/sx_backfacing_float.inline" language="sx-osl"/>
 
-  <!-- <roughness> -->
-  <implementation name="IM_roughness_sx_osl" nodedef="ND_roughness" file="sxpbrlib/sx-osl/sx_roughness.osl" function="sx_roughness" language="sx-osl"/>
+  <!-- <roughness_anisotropy> -->
+  <implementation name="IM_roughness_anisotropy_sx_osl" nodedef="ND_roughness_anisotropy" file="sxpbrlib/sx-osl/sx_roughness_anisotropy.osl" function="sx_roughness_anisotropy" language="sx-osl"/>
+
+   <!-- <roughness_dual> -->
+  <implementation name="IM_roughness_dual_sx_osl" nodedef="ND_roughness_dual" file="sxpbrlib/sx-osl/sx_roughness_dual.osl" function="sx_roughness_dual" language="sx-osl"/>
 
   <!-- <complex_ior> -->
   <implementation name="IM_complex_ior_sx_osl" nodedef="ND_complex_ior" file="sxpbrlib/sx-osl/sx_complex_ior.osl" function="sx_complex_ior" language="sx-osl"/>

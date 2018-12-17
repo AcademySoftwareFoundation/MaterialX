@@ -35,10 +35,10 @@
       <input name="color" type="color3" interfacename="diffuse_reflectance" />
       <input name="roughness" type="float" interfacename="diffuse_roughness" />
     </diffusebrdf>
-    <roughness name="roughness1" type="roughnessinfo">
+    <roughness_anisotropy name="roughness1" type="roughnessinfo">
       <input name="roughness" type="float" interfacename="specular_roughness" />
       <input name="anisotropy" type="float" value="0.0" />
-    </roughness>
+    </roughness_anisotropy>
     <dielectricbrdf name="coating" type="BSDF">
       <input name="normal" type="vector3" nodename="shadingnormal1" />
       <input name="base" type="BSDF" nodename="diffuse" />
@@ -70,10 +70,10 @@
   </nodedef>
   <nodegraph name="IMP_testshader3" nodedef="ND_testshader3">
     <normal name="shadingnormal1" type="vector3" />
-    <roughness name="roughness1" type="roughnessinfo">
+    <roughness_anisotropy name="roughness1" type="roughnessinfo">
       <input name="roughness" type="float" interfacename="roughness" />
       <input name="anisotropy" type="float" value="0.0" />
-    </roughness>
+    </roughness_anisotropy>
     <conductorbrdf name="metal1" type="BSDF">
       <input name="normal" type="vector3" nodename="shadingnormal1" />
       <input name="reflectivity" type="color3" interfacename="reflectivity" />
