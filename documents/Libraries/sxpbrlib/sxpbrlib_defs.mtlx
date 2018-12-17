@@ -308,20 +308,30 @@
   <nodedef name="ND_backfacing_float" node="backfacing" type="float" nodegroup="pbr"/>
 
   <!--
-    Node: <roughness>
-    Calculates anisotropic surface roughness from a scalar rougness and anisotropy parameterization.
+    Node: <roughness_anisotropy>
+    Calculates anisotropic surface roughness from a scalar roughness and anisotropy parameterization.
   -->
-  <nodedef name="ND_roughness" node="roughness" type="roughnessinfo" nodegroup="pbr"
+  <nodedef name="ND_roughness_anisotropy" node="roughness_anisotropy" type="roughnessinfo" nodegroup="pbr"
            doc="Calculates anisotropic surface roughness from a scalar rougness/anisotropy parameterization.">
     <input name="roughness" type="float" value="0.0"/>
     <input name="anisotropy" type="float" value="0.0"/>
   </nodedef>
 
   <!--
-    Node: <glossiness>
+    Node: <roughness_dual>
+    Calculates anisotropic surface roughness from a dual surface roughness parameterization.
+  -->
+  <nodedef name="ND_roughness_dual" node="roughness_dual" type="roughnessinfo" nodegroup="pbr"
+           doc="Calculates anisotropic surface roughness from a dual surface roughness parameterization.">
+    <input name="roughnessX" type="float" value="0.0"/>
+    <input name="roughnessY" type="float" value="0.0"/>
+  </nodedef>
+
+  <!--
+    Node: <glossiness_anisotropy>
     Calculates anisotropic surface roughness from a scalar glossiness and anisotropy parameterization.
   -->
-  <nodedef name="ND_glossiness" node="glossiness" type="roughnessinfo" nodegroup="pbr"
+  <nodedef name="ND_glossiness_anisotropy" node="glossiness_anisotropy" type="roughnessinfo" nodegroup="pbr"
            doc="Calculates anisotropic surface roughness from a scalar glossiness/anisotropy parameterization.">
     <input name="glossiness" type="float" value="1.0"/>
     <input name="anisotropy" type="float" value="0.0"/>

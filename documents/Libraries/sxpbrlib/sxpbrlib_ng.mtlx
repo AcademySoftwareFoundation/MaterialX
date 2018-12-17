@@ -23,15 +23,15 @@
     <output name="out" type="vector3" nodename="image" />
   </nodegraph>
 
-  <!-- <glossiness> -->
-  <nodegraph name="IMP_glossiness" nodedef="ND_glossiness">
+  <!-- <glossiness_anisotropy> -->
+  <nodegraph name="IMP_glossiness_anisotropy" nodedef="ND_glossiness_anisotropy">
     <invert name="invert1" type="float">
       <input name="in" type="float" interfacename="glossiness" />
     </invert>
-    <roughness name="roughness1" type="roughnessinfo">
+    <roughness_anisotropy name="roughness1" type="roughnessinfo">
       <input name="roughness" type="float" nodename="invert1" />
       <input name="anisotropy" type="float" interfacename="anisotropy" />
-    </roughness>
+    </roughness_anisotropy>
     <output name="out" type="roughnessinfo" nodename="roughness1" />
   </nodegraph>
 
@@ -65,10 +65,10 @@
       <input name="in" type="float" nodename="multiply7" />
       <parameter name="amount" type="float" value="1.0" />
     </invert>
-    <roughness name="rougness2" type="roughnessinfo">
+    <roughness_anisotropy name="rougness2" type="roughnessinfo">
       <input name="roughness" type="float" nodename="invert3" />
       <input name="anisotropy" type="float" interfacename="specular_anisotropy" />
-    </roughness>
+    </roughness_anisotropy>
     <!-- Diffuse layer -->
     <diffusebrdf name="Diffuse_BSDF" type="BSDF">
       <input name="weight" type="float" interfacename="base" />
@@ -139,10 +139,10 @@
       <input name="in" type="BSDF" nodename="mixbsdf2" />
       <input name="weight" type="color3" nodename="coat_attenuation" />
     </scalebsdf>
-    <roughness name="coat_roughness2" type="roughnessinfo">
+    <roughness_anisotropy name="coat_roughness2" type="roughnessinfo">
       <input name="roughness" type="float" interfacename="coat_roughness" />
       <input name="anisotropy" type="float" value="0.0" />
-    </roughness>
+    </roughness_anisotropy>
     <dielectricbrdf name="Coat_BSDF" type="BSDF">
       <input name="weight" type="float" interfacename="coat" />
       <input name="tint" type="color3" value="1.0, 1.0, 1.0" />
