@@ -173,7 +173,13 @@ public:
             output << overrideFile << " ";
         }
         output << std::endl;
+        output << "\tLight Setup Files: ";
+        for (auto lightFile : lightFiles)
+        {
+            output << lightFile << " ";
+        }
         output << "\tColor Management Files: ";
+        output << std::endl;
         for (auto cmsFile : cmsFiles)
         {
             output << cmsFile << " ";
@@ -196,6 +202,9 @@ public:
 
     // Filter list of files to only run validation on.
     MaterialX::StringVec overrideFiles;
+
+    // Comma separated list of light setup files
+    std::vector<std::string> lightFiles;
 
     // List of comma separated file names which require color management.
     std::set<std::string> cmsFiles;
@@ -838,7 +847,8 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
 {
     const std::string SHADER_VALID_TEST_OPTIONS_STRING("ShaderValidTestOptions");
     const std::string OVERRIDE_FILES_STRING("overrideFiles");
-    const std::string CMS_FILES_STRING("cmsFiles");
+    const std::string LIGHT_FILES_STRING("lightFiles");
+    const std::string CMS_FILES_STRING("cmsFiles");    
     const std::string SHADER_INTERFACES_STRING("shaderInterfaces");
     const std::string VALIDATE_ELEMENT_TO_RENDER_STRING("validateElementToRender");
     const std::string COMPILE_CODE_STRING("compileCode");
@@ -873,6 +883,10 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
                     if (name == OVERRIDE_FILES_STRING)
                     {
                         options.overrideFiles = MaterialX::splitString(p->getValueString(), ",");
+                    }
+                    if (name == LIGHT_FILES_STRING)
+                    {
+                        options.lightFiles  = MaterialX::splitString(p->getValueString(), ",");
                     }
                     if (name == CMS_FILES_STRING)
                     {
@@ -1241,12 +1255,23 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
     {
         excludeFiles.insert("cm_impl.mtlx");
     }
+    
     const mx::StringVec libraries = { "stdlib", "sxpbrlib" };
     loadLibraries(libraries, searchPath, dependLib, &excludeFiles);
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
-    loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), dependLib);
-    loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), dependLib);
-    loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), dependLib);
+    if (options.lightFiles.size() == 0)
+    {
+        loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), dependLib);
+        loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), dependLib);
+        loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), dependLib);
+    }
+    else
+    {
+        for (auto lightFile : options.lightFiles)
+        {
+            loadLibrary(lightDir / mx::FilePath(lightFile), dependLib);
+        }
+    }
     ioTimer.endTimer();
 
     mx::CopyOptions importOptions;

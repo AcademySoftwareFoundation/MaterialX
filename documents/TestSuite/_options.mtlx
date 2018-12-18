@@ -11,6 +11,10 @@
         <!-- List of comma separated file names which require color management  -->
         <parameter name="cmsFiles" type="string" value="color_management.mtlx" />
 
+        <!-- Comma separated list of light setup files -->
+        <parameter name="lightFiles" type="string" value=
+            "lightcompoundtest_ng.mtlx,lightcompoundtest.mtlx,light_rig.mtlx" />
+
         <!-- Set to false to disable execution of OSL tests. Default is true. -->
         <parameter name="runOSLTests" type="boolean" value="true" />
 
