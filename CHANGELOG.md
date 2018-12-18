@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.36.1] - Development
+## [1.36.1] - 2018-12-18
 
 ### Added
 - Added support for interface tokens, including the MaterialX\:\:BindToken class and [TOKEN] syntax in filenames.
@@ -15,7 +15,7 @@
 - Updated PugiXML library to version 1.9.
 
 ### Fixed
-- Fixed graph implementations of range, extract, and ramp4 nodes.
+- Fixed graph implementations of range, extract, tiledimage, and ramp4 nodes.
 
 ## [1.36.0] - 2018-07-23
 
