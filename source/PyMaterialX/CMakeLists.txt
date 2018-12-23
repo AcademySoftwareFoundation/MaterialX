@@ -26,7 +26,12 @@ file(GLOB pymaterialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 list(APPEND CMAKE_MODULE_PATH "${MATERIALX_PYTHON_PYBIND11_DIR}/tools")
 include(pybind11Tools)
-pybind11_add_module(PyMaterialX SHARED ${pymaterialx_source} ${pymaterialx_headers})
+
+if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+    set(PYBIND11_PLATFORM_FLAGS "NO_EXTRAS")
+endif()
+
+pybind11_add_module(PyMaterialX SHARED ${PYBIND11_PLATFORM_FLAGS} ${pymaterialx_source} ${pymaterialx_headers})
 
 set_target_properties(
     PyMaterialX
