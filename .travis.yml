@@ -15,28 +15,31 @@ matrix:
     # Custom builds
     - os: linux
       compiler: gcc
-      env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-      addons:
-        apt:
-          sources: ubuntu-toolchain-r-test
-          packages: g++-7
-    - os: linux
-      compiler: clang
-      env: MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
+      env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
       addons:
         apt:
           sources:
-            - llvm-toolchain-trusty-6.0
             - ubuntu-toolchain-r-test
-          packages: clang-6.0
+          packages:
+            - g++-8
+    - os: linux
+      compiler: clang
+      env: MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
+      addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-7
+            - ubuntu-toolchain-r-test
+          packages:
+            - clang-7
 
 before_install:
-    - eval "${MATRIX_EVAL}"
+  - eval "${MATRIX_EVAL}"
 
 script:
   - mkdir build
   - cd build
-  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_PYTHON_VERSION=2.7 -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ..
+  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ..
   - cmake --build . --target install -- -j4
   - ctest --output-on-failure
   - export PYTHONPATH=$PYTHONPATH:$PWD/installed/python
