@@ -1,13 +1,18 @@
 # Change Log
 
+## [1.36.2] - Development
+
+### Added
+- Added support for GCC 8 and Clang 7.
+
 ## [1.36.1] - 2018-12-18
 
 ### Added
-- Added support for interface tokens, including the MaterialX\:\:BindToken class and [TOKEN] syntax in filenames.
+- Added support for interface tokens, including the MaterialX\:\:BindToken class and '[TOKEN]' syntax in filenames.
 - Added support for Clang 6.
 
 ### Changed
-- Updated geometry token syntax from %TOKEN to \<TOKEN\>.
+- Updated geometry token syntax from '%TOKEN' to '\<TOKEN\>'.
 - Replaced readXIncludes boolean with a readXIncludeFunction callback in the XmlReadOptions structure.
 - Combined individual options into an XmlWriteOptions argument for the XML write functions.
 - Extended functionality of the vector and matrix classes.
