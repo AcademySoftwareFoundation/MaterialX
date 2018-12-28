@@ -2060,7 +2060,7 @@
   <nodegraph name="NG_saturate_color3" nodedef="ND_saturate_color3">
     <luminance name="N_gray_color3" type="color3">
       <input name="in" type="color3" interfacename="in"/>
-      <input name="lumacoeffs" type="color3" interfacename="lumacoeffs"/>
+      <parameter name="lumacoeffs" type="color3" interfacename="lumacoeffs"/>
     </luminance>
     <mix name="N_mix_color3" type="color3">
       <input name="bg" type="color3" nodename="N_gray_color3"/>
@@ -2073,7 +2073,7 @@
   <nodegraph name="NG_saturate_color4" nodedef="ND_saturate_color4">
     <luminance name="N_gray_color4" type="color4">
       <input name="in" type="color4" interfacename="in"/>
-      <input name="lumacoeffs" type="color3" interfacename="lumacoeffs"/>
+      <parameter name="lumacoeffs" type="color3" interfacename="lumacoeffs"/>
     </luminance>
     <mix name="N_mix_color4" type="color4">
       <input name="bg" type="color4" nodename="N_gray_color4"/>
