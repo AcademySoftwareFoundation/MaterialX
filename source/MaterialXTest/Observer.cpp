@@ -22,7 +22,8 @@ TEST_CASE("Observer", "[observer]")
             _removeElementCount(0),
             _setAttributeCount(0),
             _removeAttributeCount(0),
-            _initializeCount(0),
+            _copyContentCount(0),
+            _clearContentCount(0),
             _readCount(0),
             _writeCount(0)
         {
@@ -34,7 +35,8 @@ TEST_CASE("Observer", "[observer]")
         void onRemoveElement(mx::ElementPtr parent, mx::ElementPtr elem) override { _removeElementCount++; }
         void onSetAttribute(mx::ElementPtr elem, const std::string&, const std::string&) override { _setAttributeCount++; }
         void onRemoveAttribute(mx::ElementPtr elem, const std::string&) override { _removeAttributeCount++; }
-        void onInitialize() override { _initializeCount++; }
+        void onCopyContent(mx::ElementPtr elem) override { _copyContentCount++; }
+        void onClearContent(mx::ElementPtr elem) override { _clearContentCount++; }
         void onRead() override { _readCount++; }
         void onWrite() override { _writeCount++; }
 
@@ -46,7 +48,8 @@ TEST_CASE("Observer", "[observer]")
             _setAttributeCount = 0;
             _removeElementCount = 0;
             _removeAttributeCount = 0;
-            _initializeCount = 0;
+            _copyContentCount = 0;
+            _clearContentCount = 0;
             _readCount = 0;
             _writeCount = 0;
         }
@@ -59,20 +62,22 @@ TEST_CASE("Observer", "[observer]")
             REQUIRE(_setAttributeCount == 12);
             REQUIRE(_removeElementCount == 0);
             REQUIRE(_removeAttributeCount == 0);
-            REQUIRE(_initializeCount == 0);
+            REQUIRE(_copyContentCount == 0);
+            REQUIRE(_clearContentCount == 0);
             REQUIRE(_readCount == 0);
             REQUIRE(_writeCount == 0);
         }
 
         void verifyCountsPostRead()
         {
-            REQUIRE(_beginUpdateCount == 3);
-            REQUIRE(_endUpdateCount == 3);
+            REQUIRE(_beginUpdateCount == 4);
+            REQUIRE(_endUpdateCount == 4);
             REQUIRE(_addElementCount == 10);
             REQUIRE(_setAttributeCount == 13);
             REQUIRE(_removeElementCount == 3);
-            REQUIRE(_removeAttributeCount == 1);
-            REQUIRE(_initializeCount == 1);
+            REQUIRE(_removeAttributeCount == 0);
+            REQUIRE(_copyContentCount == 0);
+            REQUIRE(_clearContentCount == 1);
             REQUIRE(_readCount == 1);
             REQUIRE(_writeCount == 1);
         }
@@ -85,7 +90,8 @@ TEST_CASE("Observer", "[observer]")
             REQUIRE(_setAttributeCount == 0);
             REQUIRE(_removeElementCount == 0);
             REQUIRE(_removeAttributeCount == 0);
-            REQUIRE(_initializeCount == 0);
+            REQUIRE(_copyContentCount == 0);
+            REQUIRE(_clearContentCount == 0);
             REQUIRE(_readCount == 0);
             REQUIRE(_writeCount == 0);
         }
@@ -98,7 +104,8 @@ TEST_CASE("Observer", "[observer]")
         unsigned int _removeElementCount;
         unsigned int _setAttributeCount;
         unsigned int _removeAttributeCount;
-        unsigned int _initializeCount;
+        unsigned int _copyContentCount;
+        unsigned int _clearContentCount;
         unsigned int _readCount;
         unsigned int _writeCount;
     };

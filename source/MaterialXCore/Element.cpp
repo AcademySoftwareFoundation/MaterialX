@@ -368,32 +368,42 @@ InheritanceIterator Element::traverseInheritance() const
 
 void Element::copyContentFrom(ConstElementPtr source, const CopyOptions* copyOptions)
 {
-    _sourceUri = source->_sourceUri;
-    for (const string& attr : source->getAttributeNames())
-    {
-        setAttribute(attr, source->getAttribute(attr));
-    }
+    DocumentPtr doc = getDocument();
     bool skipDuplicateElements = copyOptions && copyOptions->skipDuplicateElements;
+
+    // Handle change notifications.
+    ScopedUpdate update(doc);
+    doc->onCopyContent(getSelf());
+
+    _sourceUri = source->_sourceUri;
+    _attributeMap = source->_attributeMap;
+    _attributeOrder = source->_attributeOrder;
+
     for (ElementPtr child : source->getChildren())
     {
-        std::string childName = child->getName();
-        if (skipDuplicateElements && getChild(childName))
+        const string& name = child->getName();
+        if (skipDuplicateElements && getChild(name))
         {
             continue;
         }
-        addChildOfCategory(child->getCategory(), childName)->copyContentFrom(child);
+        ElementPtr childCopy = addChildOfCategory(child->getCategory(), name);
+        childCopy->copyContentFrom(child);
     }
 }
 
 void Element::clearContent()
 {
+    DocumentPtr doc = getDocument();
+
+    // Handle change notifications.
+    ScopedUpdate update(doc);
+    doc->onClearContent(getSelf());
+
     _sourceUri = EMPTY_STRING;
-    StringVec attributeNames = getAttributeNames();
+    _attributeMap.clear();
+    _attributeOrder.clear();
+
     vector<ElementPtr> children = getChildren();
-    for (const string& attr : attributeNames)
-    {
-        removeAttribute(attr);
-    }
     for (ElementPtr child : children)
     {
         removeChild(child->getName());
@@ -635,10 +645,10 @@ bool targetStringsMatch(const string& target1, const string& target2)
 
     StringVec vec1 = splitString(target1, ARRAY_VALID_SEPARATORS);
     StringVec vec2 = splitString(target2, ARRAY_VALID_SEPARATORS);
-    std::set<string> set1(vec1.begin(), vec1.end());
-    std::set<string> set2(vec2.begin(), vec2.end());
+    StringSet set1(vec1.begin(), vec1.end());
+    StringSet set2(vec2.begin(), vec2.end());
 
-    std::set<string> matches;
+    StringSet matches;
     std::set_intersection(set1.begin(), set1.end(), set2.begin(), set2.end(), 
                           std::inserter(matches, matches.end()));
     return !matches.empty();

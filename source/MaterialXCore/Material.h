@@ -526,16 +526,18 @@ class ShaderRef : public TypedElement
     /// Return a vector of all outputs that this element references.
     vector<OutputPtr> getReferencedOutputs() const
     {
-        std::set<OutputPtr> outputs;
+        vector<OutputPtr> outputVec;
+        std::set<OutputPtr> outputSet;
         for (BindInputPtr bindInput : getBindInputs())
         {
             OutputPtr output = bindInput->getConnectedOutput();
-            if (output)
+            if (output && !outputSet.count(output))
             {
-                outputs.insert(output);
+                outputVec.push_back(output);
+                outputSet.insert(output);
             }
         }
-        return vector<OutputPtr>(outputs.begin(), outputs.end());
+        return outputVec;
     }
 
     /// @}
