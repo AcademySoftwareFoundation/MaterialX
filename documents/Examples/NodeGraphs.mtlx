@@ -84,8 +84,8 @@
     </mix>
     <texcoord name="t1" type="vector2"/>
     <multiply name="m1" type="vector2">
-      <input name="in" type="vector2" nodename="t1"/>
-      <parameter name="amount" type="float" value="0.003"/>
+      <input name="in1" type="vector2" nodename="t1"/>
+      <input name="in2" type="float" value="0.003"/>
     </multiply>
     <noise2d name="n9" type="color3">
       <input name="texcoord" type="vector2" nodename="m1"/>
