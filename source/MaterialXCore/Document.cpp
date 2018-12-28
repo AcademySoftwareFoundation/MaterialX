@@ -70,9 +70,9 @@ class Document::Cache
             // Traverse the document to build a new cache.
             for (ElementPtr elem : doc.lock()->traverseTree())
             {
-                string nodeName = elem->getAttribute(PortElement::NODE_NAME_ATTRIBUTE);
-                string nodeString = elem->getAttribute(NodeDef::NODE_ATTRIBUTE);
-                string nodeDefString = elem->getAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
+                const string& nodeName = elem->getAttribute(PortElement::NODE_NAME_ATTRIBUTE);
+                const string& nodeString = elem->getAttribute(NodeDef::NODE_ATTRIBUTE);
+                const string& nodeDefString = elem->getAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
 
                 if (!nodeName.empty())
                 {
@@ -139,10 +139,6 @@ void Document::initialize()
 
     DocumentPtr doc = getDocument();
     _cache->doc = doc;
-
-    // Handle change notifications.
-    ScopedUpdate update(doc);
-    onInitialize();
 
     clearContent();
     setVersionString(DOCUMENT_VERSION_STRING);
@@ -552,6 +548,16 @@ void Document::onSetAttribute(ElementPtr, const string&, const string&)
 }
 
 void Document::onRemoveAttribute(ElementPtr, const string&)
+{
+    _cache->valid = false;
+}
+
+void Document::onCopyContent(ElementPtr)
+{
+    _cache->valid = false;
+}
+
+void Document::onClearContent(ElementPtr)
 {
     _cache->valid = false;
 }
