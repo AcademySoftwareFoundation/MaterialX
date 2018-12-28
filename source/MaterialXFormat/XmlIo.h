@@ -36,7 +36,7 @@ class XmlReadOptions : public CopyOptions
 
     /// The set of parent filenames at the scope of the current document.
     /// Defaults to an empty set.
-    std::set<string> parentFilenames;
+    StringSet parentFilenames;
 };
 
 /// @class XmlWriteOptions
