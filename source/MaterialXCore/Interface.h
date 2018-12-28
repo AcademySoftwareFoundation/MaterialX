@@ -540,7 +540,7 @@ class InterfaceElement : public TypedElement
         TokenPtr token = getToken(name);
         if (!token)
             token = addToken(name);
-        token->setValue<std::string>(value);
+        token->setValue<string>(value);
         return token;
     }
 
@@ -564,18 +564,15 @@ class InterfaceElement : public TypedElement
     ///    no declaration was found.
     virtual ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const;
 
-    /// Return true if the given interface element is type compatible with
-    /// this one.  This may be used to test, for example, whether a NodeDef
-    /// and Node may be used together.
+    /// Return true if this interface instance is type compatible with the given
+    /// interface declaration.  This may be used to test, for example, whether a
+    /// Node is an instantiation of a given NodeDef.
     ///
-    /// If the type string of the given interface element differs from this
-    /// one, then false is returned.
-    ///
-    /// If the two interface elements have child Parameter or Input elements
-    /// with identical names but different types, then false is returned.  Note
-    /// that a Parameter or Input that is present in only one of the two
-    /// interfaces does not affect their type compatibility.
-    bool isTypeCompatible(ConstInterfaceElementPtr rhs) const;
+    /// If the type string of the instance differs from that of the declaration,
+    /// then false is returned.  If the instance possesses a Parameter or Input
+    /// with no Parameter or Input of matching type in the declaration, then
+    /// false is returned.
+    bool isTypeCompatible(ConstInterfaceElementPtr declaration) const;
 
     /// @}
 
