@@ -179,7 +179,9 @@ class GraphElement : public InterfaceElement
     /// Add a Node that is an instance of the given NodeDef.
     NodePtr addNodeInstance(ConstNodeDefPtr nodeDef, const string& name = EMPTY_STRING)
     {
-        return addNode(nodeDef->getNodeString(), name, nodeDef->getType());
+        NodePtr node = addNode(nodeDef->getNodeString(), name, nodeDef->getType());
+        node->setNodeDefString(nodeDef->getName());
+        return node;
     }
 
     /// Return the Node, if any, with the given name.

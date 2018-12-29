@@ -3,7 +3,11 @@
 ## [1.36.2] - Development
 
 ### Added
+- Added support for 'nodedef' attributes on MaterialX\:\:Node, integrating this usage into GraphElement\:\:addNodeInstance.
 - Added support for GCC 8 and Clang 7.
+
+### Changed
+- Added callbacks Observer\:\:onCopyContent and Observer\:\:onClearContent, and removed callback Observer::onInitialize.
 
 ## [1.36.1] - 2018-12-18
 

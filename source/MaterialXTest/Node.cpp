@@ -73,11 +73,17 @@ TEST_CASE("Node", "[node]")
 
     // Reference the custom nodedef.
     mx::NodePtr custom = doc->addNodeInstance(customNodeDef);
+    REQUIRE(custom->getNodeDefString() == customNodeDef->getName());
     REQUIRE(custom->getNodeDef()->getNodeGroup() == mx::PROCEDURAL_NODE_GROUP);
     REQUIRE(custom->getParameterValue("octaves")->isA<int>());
     REQUIRE(custom->getParameterValue("octaves")->asA<int>() == 3);
     custom->setParameterValue("octaves", 5);
     REQUIRE(custom->getParameterValue("octaves")->asA<int>() == 5);
+
+    // Remove the nodedef attribute from the node, requiring that it fall back
+    // to type and version matching.
+    custom->removeAttribute(mx::NodeDef::NODE_DEF_ATTRIBUTE);
+    REQUIRE(custom->getNodeDef() == customNodeDef);
 
     // Set nodedef and node version strings.
     customNodeDef->setVersionString("2.0");
