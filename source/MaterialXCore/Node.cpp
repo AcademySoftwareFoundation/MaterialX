@@ -68,6 +68,10 @@ string Node::getConnectedNodeName(const string& inputName) const
 
 NodeDefPtr Node::getNodeDef(const string& target) const
 {
+    if (hasNodeDefString())
+    {
+        return resolveRootNameReference<NodeDef>(getNodeDefString());
+    }
     vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getCategory()));
     vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getCategory());
     nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
