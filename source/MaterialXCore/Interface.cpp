@@ -287,9 +287,9 @@ vector<TokenPtr> InterfaceElement::getActiveTokens() const
 
 ValueElementPtr InterfaceElement::getActiveValueElement(const string& name) const
 {
-    for (ConstElementPtr elem : traverseInheritance())
+    for (ConstElementPtr interface : traverseInheritance())
     {
-       ValueElementPtr valueElem = elem->asA<InterfaceElement>()->getChildOfType<ValueElement>(name);
+        ValueElementPtr valueElem = interface->getChildOfType<ValueElement>(name);
         if (valueElem)
         {
             return valueElem;
@@ -301,9 +301,9 @@ ValueElementPtr InterfaceElement::getActiveValueElement(const string& name) cons
 vector<ValueElementPtr> InterfaceElement::getActiveValueElements() const
 {
     vector<ValueElementPtr> activeValueElems;
-    for (ConstElementPtr elem : traverseInheritance())
+    for (ConstElementPtr interface : traverseInheritance())
     {
-        vector<ValueElementPtr> valueElems = elem->asA<InterfaceElement>()->getChildrenOfType<ValueElement>();
+        vector<ValueElementPtr> valueElems = interface->getChildrenOfType<ValueElement>();
         activeValueElems.insert(activeValueElems.end(), valueElems.begin(), valueElems.end());
     }
     return activeValueElems;

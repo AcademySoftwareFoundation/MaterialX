@@ -97,7 +97,7 @@ class Document::Cache
                 if (!nodeDefString.empty())
                 {
                     InterfaceElementPtr interface = elem->asA<InterfaceElement>();
-                    if (interface)
+                    if (interface && (interface->isA<Implementation>() || interface->isA<NodeGraph>()))
                     {
                         implementationMap.insert(std::pair<string, InterfaceElementPtr>(
                             interface->getQualifiedName(nodeDefString),
