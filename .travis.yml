@@ -15,7 +15,16 @@ matrix:
     # Custom builds
     - os: linux
       compiler: gcc
-      env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+      env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+    - os: linux
+      compiler: gcc
+      env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8 && CMAKE_EXTRA_ARGS='-DMATERIALX_PYTHON_LTO=OFF'"
       addons:
         apt:
           sources:
@@ -39,7 +48,7 @@ before_install:
 script:
   - mkdir build
   - cd build
-  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ..
+  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${CMAKE_EXTRA_ARGS} ..
   - cmake --build . --target install -- -j4
   - ctest --output-on-failure
   - export PYTHONPATH=$PYTHONPATH:$PWD/installed/python
