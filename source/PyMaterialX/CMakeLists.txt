@@ -1,5 +1,7 @@
 set(PYBIND11_INCLUDE_DIR "${MATERIALX_PYTHON_PYBIND11_DIR}/include")
 set(PYBIND11_COMMON_H "${PYBIND11_INCLUDE_DIR}/pybind11/detail/common.h")
+set(PYBIND11_PYTHON_VERSION ${MATERIALX_PYTHON_VERSION})
+set(PYTHON_EXECUTABLE ${MATERIALX_PYTHON_EXECUTABLE})
 
 if(NOT EXISTS "${PYBIND11_COMMON_H}")
 message(FATAL_ERROR "PyBind11 source file not found: ${PYBIND11_COMMON_H}")
@@ -27,11 +29,15 @@ file(GLOB pymaterialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 list(APPEND CMAKE_MODULE_PATH "${MATERIALX_PYTHON_PYBIND11_DIR}/tools")
 include(pybind11Tools)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
-    set(PYBIND11_PLATFORM_FLAGS "NO_EXTRAS")
+if(NOT MATERIALX_PYTHON_LTO)
+    set(PYBIND11_MODULE_FLAGS "NO_EXTRAS")
 endif()
 
-pybind11_add_module(PyMaterialX SHARED ${PYBIND11_PLATFORM_FLAGS} ${pymaterialx_source} ${pymaterialx_headers})
+pybind11_add_module(PyMaterialX SHARED ${PYBIND11_MODULE_FLAGS} ${pymaterialx_source} ${pymaterialx_headers})
+
+if(APPLE)
+    set_target_properties(PyMaterialX PROPERTIES CXX_VISIBILITY_PRESET "default")
+endif()
 
 set_target_properties(
     PyMaterialX
