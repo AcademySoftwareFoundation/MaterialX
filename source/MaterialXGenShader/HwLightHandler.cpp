@@ -2,14 +2,23 @@
 #include <MaterialXGenShader/HwShaderGenerator.h>
 
 namespace MaterialX
-{ 
-
-LightSource::LightSource(size_t typeId, const NodeDef& nodeDef)
-    : _typeId(typeId)
 {
-    for (auto port : nodeDef.getChildrenOfType<ValueElement>())
+
+unsigned int HwLightHandler::getLightType(NodePtr node)
+{
+    size_t hash = std::hash<std::string>{}(node->getCategory());
+
+    // If we're on a 64-bit platform, convert to 32-bits
+    bool on64BitPlatform = sizeof(hash) == 8;
+    if (on64BitPlatform)
     {
-        _parameters[port->getName()] = port->getValue();
+        // Convert hash to 32-bits
+        return static_cast<unsigned int>(hash & 0xFFFFFFFF) ^
+               static_cast<unsigned int>((static_cast<unsigned long long>(hash) >> 32) & 0xFFFFFFFF);
+    }
+    else
+    {
+        return static_cast<unsigned int>(hash);
     }
 }
 
@@ -21,30 +30,16 @@ HwLightHandler::~HwLightHandler()
 {
 }
 
-void HwLightHandler::addLightShader(size_t typeId, ConstNodeDefPtr nodeDef)
+void HwLightHandler::addLightSource(NodePtr node)
 {
-    _lightShaders[typeId] = nodeDef;
-}
-
-LightSourcePtr HwLightHandler::createLightSource(size_t typeId)
-{
-    LightShaderMap::const_iterator it = _lightShaders.find(typeId);
-    if (it == _lightShaders.end())
-    {
-        throw ExceptionShaderGenError("Not light shader for type id '" + std::to_string(typeId) + "' exists");
-    }
-
-    LightSourcePtr light = LightSourcePtr(new LightSource(typeId, *it->second));
-    _lightSources.push_back(light);
-
-    return light;
+    _lightSources.push_back(node);
 }
 
 void HwLightHandler::bindLightShaders(HwShaderGenerator& shadergen, const GenOptions& options) const
 {
-    for (auto shader : _lightShaders)
+    for (auto lightSource : _lightSources)
     {
-        shadergen.bindLightShader(*shader.second, shader.first, options);
+        shadergen.bindLightShader(*lightSource->getNodeDef(), getLightType(lightSource), options);
     }
 }
 

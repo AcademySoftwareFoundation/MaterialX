@@ -132,34 +132,7 @@ void createLights(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler)
     {
         if (node->getType() == LIGHT_SHADER)
         {
-            mx::LightSourcePtr light;
-            if (node->getCategory() == DIRECTIONAL_LIGHT)
-            {
-                lightHandler.addLightShader(LightType::DIRECTIONAL, node->getNodeDef());
-                light = lightHandler.createLightSource(DIRECTIONAL);
-            }
-            else if (node->getCategory() == POINT_LIGHT)
-            {
-                lightHandler.addLightShader(LightType::POINT, node->getNodeDef());
-                light = lightHandler.createLightSource(POINT);
-            }
-            else if (node->getCategory() == SPOT_LIGHT)
-            {
-                lightHandler.addLightShader(LightType::SPOT, node->getNodeDef());
-                light = lightHandler.createLightSource(SPOT);
-            }
-            else if (node->getCategory() == LIGHT_COMPOUND)
-            {
-                lightHandler.addLightShader(LIGHT_COMPOUND_ID, node->getNodeDef());
-                light = lightHandler.createLightSource(LIGHT_COMPOUND_ID);
-            }
-            if (light)
-            {
-                for (mx::InputPtr input : node->getInputs())
-                {
-                    light->setParameter(input->getName(), input->getValue());
-                }
-            }
+            lightHandler.addLightSource(node);
         }
     }
 }
