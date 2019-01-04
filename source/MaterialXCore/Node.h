@@ -116,6 +116,13 @@ class Node : public InterfaceElement
         return getInputCount();
     }
 
+    /// Given an edge connection return the NodeDef output corresponding to the 
+    /// output the edge is connected to. This is only valid if the NodeDef has
+    /// explicit outputs defined, e.g. multiple outputs or an explicitly named 
+    /// output. If this is not the case, nulltptr is returned, which implies 
+    /// the node is a standard node with a single implicit output.
+    OutputPtr getNodeDefOutput(const Edge& edge);
+
     /// Return a vector of all downstream ports that connect to this node.
     vector<PortElementPtr> getDownstreamPorts() const;
 
@@ -246,6 +253,11 @@ class NodeGraph : public GraphElement
 
     /// Return the NodeDef element referenced by this NodeGraph.
     NodeDefPtr getNodeDef() const;
+
+    /// Return the first implementation for this node graph
+    /// @return An implementation for this node, or an empty shared pointer if
+    ///    none was found.  
+    InterfaceElementPtr getImplementation() const;
 
     /// @}
     /// @name Utility
