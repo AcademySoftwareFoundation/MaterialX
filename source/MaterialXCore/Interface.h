@@ -13,6 +13,8 @@
 
 #include <MaterialXCore/Element.h>
 
+#include <MaterialXCore/Geom.h>
+
 namespace MaterialX
 {
 
@@ -199,6 +201,15 @@ class Input : public PortElement
     {
         return 1;
     }
+
+    /// @}
+
+    /// @}
+    /// @name GeomProp
+    /// @{
+
+    /// Return the GeomProp element, if defined, for this input.
+    GeomPropPtr getGeomProp() const;
 
     /// @}
 

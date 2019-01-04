@@ -17,6 +17,9 @@ const string UV_TILE_TOKEN = "<UVTILE>";
 
 const string GeomElement::GEOM_ATTRIBUTE = "geom";
 const string GeomElement::COLLECTION_ATTRIBUTE = "collection";
+const string GeomProp::SPACE_ATTRIBUTE = "space";
+const string GeomProp::INDEX_ATTRIBUTE = "index";
+const string GeomProp::ATTR_NAME_ATTRIBUTE = "attrname";
 const string Collection::INCLUDE_GEOM_ATTRIBUTE = "includegeom";
 const string Collection::EXCLUDE_GEOM_ATTRIBUTE = "excludegeom";
 const string Collection::INCLUDE_COLLECTION_ATTRIBUTE = "includecollection";
