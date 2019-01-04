@@ -52,7 +52,8 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     explicit VectorN(Uninit) { }
     explicit VectorN(S s) { _arr.fill(s); }
     explicit VectorN(const std::array<S, N>& arr) : _arr(arr) { }
-    explicit VectorN(const vector<float>& vec) { std::copy_n(vec.begin(), N, _arr.begin()); }
+    explicit VectorN(const vector<float>& vec) { std::copy(vec.begin(), vec.end(), _arr.begin()); }
+    explicit VectorN(const S* begin, const S* end) { std::copy(begin, end, _arr.begin()); }
 
     /// @}
     /// @name Equality Operators
@@ -187,6 +188,15 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
         return *this / getMagnitude();
     }
 
+    /// Return the dot product of two vectors.
+    S dot(const V& rhs) const
+    {
+        S res{};
+        for (size_t i = 0; i < N; i++)
+            res += _arr[i] * rhs[i];
+        return res;
+    }
+
     /// @}
     /// @name Iterators
     /// @{
@@ -196,6 +206,16 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
 
     Iterator end() { return _arr.end(); }
     ConstIterator end() const { return _arr.end(); }
+
+    /// @}
+    /// @name Data Pointers
+    /// @{
+
+    /// Return a pointer to the underlying data array.
+    S* data() { return _arr.data(); }
+
+    /// Return a const pointer to the underlying data array.
+    const S* data() const { return _arr.data(); }
 
     /// @}
     /// @name Static Methods
@@ -221,6 +241,12 @@ class Vector2 : public VectorN<Vector2, float, 2>
     {
         _arr = {x, y};
     }
+
+    /// Return the cross product of two vectors.
+    float cross(const Vector2& rhs) const
+    {
+        return _arr[0] * rhs[1] - _arr[1] * rhs[0];
+    }
 };
 
 /// @class Vector3
@@ -233,6 +259,14 @@ class Vector3 : public VectorN<Vector3, float, 3>
     Vector3(float x, float y, float z) : VectorN(Uninit{})
     {
         _arr = {x, y, z};
+    }
+
+    /// Return the cross product of two vectors.
+    Vector3 cross(const Vector3& rhs) const
+    {
+        return Vector3(_arr[1] * rhs[2] - _arr[2] * rhs[1],
+                       _arr[2] * rhs[0] - _arr[0] * rhs[2],
+                       _arr[0] * rhs[1] - _arr[1] * rhs[0]);
     }
 };
 
@@ -294,7 +328,8 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
   public:
     MatrixN() : _arr{} { }
     explicit MatrixN(Uninit) { }
-    explicit MatrixN(S s) { for (RowArray& row : _arr) row.fill(s); }
+    explicit MatrixN(S s) { std::fill_n(&_arr[0][0], N * N, s); }
+    explicit MatrixN(const S* begin, const S* end) { std::copy(begin, end, &_arr[0][0]); }
 
     /// @}
     /// @name Equality Operators
@@ -466,6 +501,16 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
 
     Iterator end() { return _arr.end(); }
     ConstIterator end() const { return _arr.end(); }
+
+    /// @}
+    /// @name Data Pointers
+    /// @{
+
+    /// Return a pointer to the underlying data array.
+    S* data() { return _arr.front().data(); }
+
+    /// Return a const pointer to the underlying data array.
+    const S* data() const { return _arr.front().data(); }
 
     /// @}
     /// @name Static Methods

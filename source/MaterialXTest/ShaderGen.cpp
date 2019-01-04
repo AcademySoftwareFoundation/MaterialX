@@ -86,8 +86,9 @@ void loadExamples(const mx::StringVec& exampleNames, const mx::FilePath& example
             mx::readFromXmlFile(doc, file, searchPath);
         }
     }
-    catch (mx::Exception e)
+    catch (mx::Exception& e)
     {
+        std::cout << e.what();
     }
 }
 

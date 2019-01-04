@@ -77,10 +77,10 @@ class GeomPath
     }
 
     /// Construct a path from a geometry name string.
-    explicit GeomPath(const string& geom)
+    explicit GeomPath(const string& geom) :
+        _vec(splitString(geom, GEOM_PATH_SEPARATOR)),
+        _empty(geom.empty())
     {
-        _vec = splitString(geom, GEOM_PATH_SEPARATOR);
-        _empty = geom.empty();
     }
 
     /// Convert a path to a geometry name string.
@@ -323,7 +323,7 @@ class GeomInfo : public GeomElement
         TokenPtr token = getToken(name);
         if (!token)
             token = addToken(name);
-        token->setValue<std::string>(value);
+        token->setValue<string>(value);
         return token;
     }
 
@@ -357,7 +357,7 @@ class GeomAttr : public ValueElement
 /// data that are not published as ordinary user editable inputs.
 class GeomProp : public TypedElement
 {
-public:
+  public:
     GeomProp(ElementPtr parent, const string& name) :
         TypedElement(parent, CATEGORY, name)
     {
@@ -431,7 +431,7 @@ public:
 
     /// @}
 
-public:
+  public:
     static const string CATEGORY;
     static const string SPACE_ATTRIBUTE;
     static const string INDEX_ATTRIBUTE;
@@ -538,7 +538,7 @@ class Collection : public Element
 
     /// Set the vector of collections that are directly included by
     /// this element.
-    void setIncludeCollections(vector<ConstCollectionPtr> collections);
+    void setIncludeCollections(const vector<ConstCollectionPtr>& collections);
 
     /// Return the vector of collections that are directly included by
     /// this element.

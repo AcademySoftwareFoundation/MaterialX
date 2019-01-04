@@ -1,4 +1,4 @@
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Libraries/
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/documents/Libraries/
         DESTINATION "${CMAKE_INSTALL_PREFIX}/documents/Libraries")
 
 if(MATERIALX_BUILD_DOCS)

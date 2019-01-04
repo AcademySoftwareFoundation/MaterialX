@@ -28,6 +28,8 @@ const string XINCLUDE_TAG = "xi:include";
 
 void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptions* readOptions)
 {
+    bool skipDuplicateElements = readOptions && readOptions->skipDuplicateElements;
+
     // Store attributes in element.
     for (const xml_attribute& xmlAttr : xmlNode.attributes())
     {
@@ -56,7 +58,7 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
         }
 
         // If requested, skip elements with duplicate names.
-        if (readOptions && readOptions->skipDuplicateElements && elem->getChild(name))
+        if (skipDuplicateElements && elem->getChild(name))
         {
             continue;
         }
@@ -66,8 +68,11 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
     }
 }
 
-void elementToXml(ConstElementPtr elem, xml_node& xmlNode, bool writeXIncludes, const ElementPredicate& predicate)
+void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions* writeOptions)
 {
+    bool writeXIncludeEnable = writeOptions ? writeOptions->writeXIncludeEnable : true;
+    ElementPredicate elementPredicate = writeOptions ? writeOptions->elementPredicate : nullptr;
+
     // Store attributes in XML.
     if (!elem->getName().empty())
     {
@@ -83,11 +88,13 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, bool writeXIncludes, 
     StringSet writtenSourceFiles;
     for (ElementPtr child : elem->getChildren())
     {
-        if (predicate && !predicate(child))
+        if (elementPredicate && !elementPredicate(child))
         {
             continue;
         }
-        if (writeXIncludes && child->hasSourceUri())
+
+        // Write XInclude references if requested.
+        if (writeXIncludeEnable && child->hasSourceUri())
         {
             string sourceUri = child->getSourceUri();
             if (sourceUri != elem->getDocument()->getSourceUri())
@@ -102,8 +109,9 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, bool writeXIncludes, 
                 continue;
             }
         }
+
         xml_node xmlChild = xmlNode.append_child(child->getCategory().c_str());
-        elementToXml(child, xmlChild, writeXIncludes, predicate);
+        elementToXml(child, xmlChild, writeOptions);
     }
 }
 
@@ -135,19 +143,30 @@ void xmlDocumentFromFile(xml_document& xmlDoc, string filename, const string& se
 
 void processXIncludes(DocumentPtr doc, xml_node& xmlNode, const string& searchPath, const XmlReadOptions* readOptions)
 {
+    XmlReadFunction readXIncludeFunction = readOptions ? readOptions->readXIncludeFunction : readFromXmlFile;
     xml_node xmlChild = xmlNode.first_child();
     while (xmlChild)
     {
         if (xmlChild.name() == XINCLUDE_TAG)
         {
-            if (!readOptions || readOptions->readXIncludes)
+            // Read XInclude references if requested.
+            if (readXIncludeFunction)
             {
-                // Read the included file into a library document.
-                xml_attribute fileAttr = xmlChild.attribute("href");
-                DocumentPtr library = createDocument();
-                readFromXmlFile(library, fileAttr.value(), searchPath, readOptions);
+                string filename = xmlChild.attribute("href").value();
 
-                // Import the library.
+                // Check for XInclude cycles.
+                if (readOptions && readOptions->parentFilenames.count(filename))
+                {
+                    throw ExceptionParseError("XInclude cycle detected.");
+                }
+
+                // Read the included file into a library document.
+                DocumentPtr library = createDocument();
+                XmlReadOptions xiReadOptions = readOptions ? *readOptions : XmlReadOptions();
+                xiReadOptions.parentFilenames.insert(filename);
+                readXIncludeFunction(library, filename, searchPath, &xiReadOptions);
+
+                // Import the library document.
                 doc->importLibrary(library, readOptions);
             }
 
@@ -182,6 +201,24 @@ void documentFromXml(DocumentPtr doc,
 }
 
 } // anonymous namespace
+
+//
+// XmlReadOptions methods
+//
+
+XmlReadOptions::XmlReadOptions() :
+    readXIncludeFunction(readFromXmlFile)
+{
+}
+
+//
+// XmlWriteOptions methods
+//
+
+XmlWriteOptions::XmlWriteOptions() :
+    writeXIncludeEnable(true)
+{
+}
 
 //
 // Reading
@@ -230,27 +267,27 @@ void readFromXmlString(DocumentPtr doc, const string& str, const XmlReadOptions*
 // Writing
 //
 
-void writeToXmlStream(DocumentPtr doc, std::ostream& stream, bool writeXIncludes, const ElementPredicate& predicate)
+void writeToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlWriteOptions* writeOptions)
 {
     ScopedUpdate update(doc);
     doc->onWrite();
 
     xml_document xmlDoc;
     xml_node xmlRoot = xmlDoc.append_child("materialx");
-    elementToXml(doc, xmlRoot, writeXIncludes, predicate);
+    elementToXml(doc, xmlRoot, writeOptions);
     xmlDoc.save(stream, "  ");
 }
 
-void writeToXmlFile(DocumentPtr doc, const string& filename, bool writeXIncludes, const ElementPredicate& predicate)
+void writeToXmlFile(DocumentPtr doc, const string& filename, const XmlWriteOptions* writeOptions)
 {
     std::ofstream ofs(filename);
-    writeToXmlStream(doc, ofs, writeXIncludes, predicate);
+    writeToXmlStream(doc, ofs, writeOptions);
 }
 
-string writeToXmlString(DocumentPtr doc, bool writeXIncludes, const ElementPredicate& predicate)
+string writeToXmlString(DocumentPtr doc, const XmlWriteOptions* writeOptions)
 {
     std::ostringstream stream;
-    writeToXmlStream(doc, stream, writeXIncludes, predicate);
+    writeToXmlStream(doc, stream, writeOptions);
     return stream.str();
 }
 

@@ -70,9 +70,9 @@ class Document::Cache
             // Traverse the document to build a new cache.
             for (ElementPtr elem : doc.lock()->traverseTree())
             {
-                string nodeName = elem->getAttribute(PortElement::NODE_NAME_ATTRIBUTE);
-                string nodeString = elem->getAttribute(NodeDef::NODE_ATTRIBUTE);
-                string nodeDefString = elem->getAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
+                const string& nodeName = elem->getAttribute(PortElement::NODE_NAME_ATTRIBUTE);
+                const string& nodeString = elem->getAttribute(NodeDef::NODE_ATTRIBUTE);
+                const string& nodeDefString = elem->getAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
 
                 if (!nodeName.empty())
                 {
@@ -97,7 +97,7 @@ class Document::Cache
                 if (!nodeDefString.empty())
                 {
                     InterfaceElementPtr interface = elem->asA<InterfaceElement>();
-                    if (interface)
+                    if (interface && (interface->isA<Implementation>() || interface->isA<NodeGraph>()))
                     {
                         implementationMap.insert(std::pair<string, InterfaceElementPtr>(
                             interface->getQualifiedName(nodeDefString),
@@ -139,10 +139,6 @@ void Document::initialize()
 
     DocumentPtr doc = getDocument();
     _cache->doc = doc;
-
-    // Handle change notifications.
-    ScopedUpdate update(doc);
-    onInitialize();
 
     clearContent();
     setVersionString(DOCUMENT_VERSION_STRING);
@@ -350,7 +346,7 @@ void Document::upgradeVersion()
                     NodeDefPtr nodeDef = updateChildSubclass<NodeDef>(elem, child);
                     if (nodeDef->hasAttribute("shadertype"))
                     {
-                        nodeDef->setType(nodeDef->getAttribute("shadertype") + "shader");
+                        nodeDef->setType(SURFACE_SHADER_TYPE_STRING);
                         nodeDef->removeAttribute("shadertype");
                     }
                     if (nodeDef->hasAttribute("shaderprogram"))
@@ -418,12 +414,8 @@ void Document::upgradeVersion()
                     {
                         for (ShaderRefPtr shaderRef : mat->getShaderRefs())
                         {
-                            if (nodeDef == shaderRef->getNodeDef())
+                            if (shaderRef->getNodeDef() == nodeDef && !shaderRef->getChild(input->getName()))
                             {
-                                if (shaderRef->getChild(input->getName()))
-                                {
-                                    shaderRef = shaderRef;
-                                }
                                 BindInputPtr bind = shaderRef->addBindInput(input->getName(), input->getType());
                                 bind->setNodeGraphString(input->getAttribute("opgraph"));
                                 bind->setOutputString(input->getAttribute("graphoutput"));
@@ -480,6 +472,13 @@ void Document::upgradeVersion()
                     valueElem->getValueString() == "*")
                 {
                     valueElem->setValueString(UNIVERSAL_GEOM_NAME);
+                }
+                if (valueElem->getType() == FILENAME_TYPE_STRING)
+                {
+                    StringMap stringMap;
+                    stringMap["%UDIM"] = UDIM_TOKEN;
+                    stringMap["%UVTILE"] = UV_TILE_TOKEN;
+                    valueElem->setValueString(replaceSubstrings(valueElem->getValueString(), stringMap));
                 }
             }
 
@@ -549,6 +548,16 @@ void Document::onSetAttribute(ElementPtr, const string&, const string&)
 }
 
 void Document::onRemoveAttribute(ElementPtr, const string&)
+{
+    _cache->valid = false;
+}
+
+void Document::onCopyContent(ElementPtr)
+{
+    _cache->valid = false;
+}
+
+void Document::onClearContent(ElementPtr)
 {
     _cache->valid = false;
 }

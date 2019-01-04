@@ -198,7 +198,11 @@ InheritanceIterator& InheritanceIterator::operator++()
     if (_elem)
     {
         ElementPtr super = _elem->getInheritsFrom();
-        if (super && super->getCategory() == _elem->getCategory())
+        if (super && super->getCategory() != _elem->getCategory())
+        {
+            super = nullptr;
+        }
+        if (super)
         {
             // Check for cycles.
             if (_pathElems.count(super))

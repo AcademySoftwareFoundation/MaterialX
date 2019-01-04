@@ -127,6 +127,17 @@ class Node : public InterfaceElement
     vector<PortElementPtr> getDownstreamPorts() const;
 
     /// @}
+    /// @name Utility
+    /// @{
+
+    /// Return the first declaration of this interface, optionally filtered
+    ///    by the given target name.
+    ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const override
+    {
+        return getNodeDef(target);
+    }
+
+    /// @}
     /// @name Validation
     /// @{
 
@@ -138,9 +149,6 @@ class Node : public InterfaceElement
 
   public:
     static const string CATEGORY;
-
-  protected:
-      bool requiresInputCompatibility(ConstInterfaceElementPtr rhs) const override;
 };
 
 /// @class GraphElement
@@ -178,7 +186,9 @@ class GraphElement : public InterfaceElement
     /// Add a Node that is an instance of the given NodeDef.
     NodePtr addNodeInstance(ConstNodeDefPtr nodeDef, const string& name = EMPTY_STRING)
     {
-        return addNode(nodeDef->getNodeString(), name, nodeDef->getType());
+        NodePtr node = addNode(nodeDef->getNodeString(), name, nodeDef->getType());
+        node->setNodeDefString(nodeDef->getName());
+        return node;
     }
 
     /// Return the Node, if any, with the given name.
@@ -235,10 +245,29 @@ class NodeGraph : public GraphElement
     }
     virtual ~NodeGraph() { }
 
+    /// @name NodeDef References
+    /// @{
+
+    /// Set the NodeDef element referenced by this NodeGraph.
+    void setNodeDef(ConstNodeDefPtr nodeDef);
+
+    /// Return the NodeDef element referenced by this NodeGraph.
+    NodeDefPtr getNodeDef() const;
+
     /// Return the first implementation for this node graph
     /// @return An implementation for this node, or an empty shared pointer if
     ///    none was found.  
     InterfaceElementPtr getImplementation() const;
+
+    /// @}
+    /// @name Utility
+    /// @{
+
+    /// Return the first declaration of this interface, optionally filtered
+    ///    by the given target name.
+    ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const override;
+
+    /// @}
 
   public:
     static const string CATEGORY;

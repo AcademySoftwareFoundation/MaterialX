@@ -1,11 +1,20 @@
-# A helper module for building MaterialX Python with PyBind11, based on pybind11Tools.cmake.
+# tools/pybind11Tools.cmake -- Build system for the pybind11 modules
+#
+# Copyright (c) 2015 Wenzel Jakob <wenzel@inf.ethz.ch>
+#
+# All rights reserved. Use of this source code is governed by a
+# BSD-style license that can be found in the LICENSE file.
 
-if(MATERIALX_PYTHON_EXECUTABLE)
-  set(PYTHON_EXECUTABLE ${MATERIALX_PYTHON_EXECUTABLE})
-else()
-  find_package(PythonInterp)
+cmake_minimum_required(VERSION 2.8.12)
+
+# Add a CMake parameter for choosing a desired Python version
+if(NOT PYBIND11_PYTHON_VERSION)
+  set(PYBIND11_PYTHON_VERSION "" CACHE STRING "Python version to use for compiling modules")
+  mark_as_advanced(PYBIND11_PYTHON_VERSION)
 endif()
-find_package(PythonLibs)
+
+set(Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5 3.4)
+find_package(PythonLibsNew ${PYBIND11_PYTHON_VERSION} REQUIRED)
 
 include(CheckCXXCompilerFlag)
 include(CMakeParseArguments)
@@ -100,12 +109,6 @@ function(_pybind11_add_lto_flags target_name prefer_thin_lto)
   endif()
 endfunction()
 
-# Cache variables so pybind11_add_module can be used in parent projects
-set(PYBIND11_INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/include" CACHE INTERNAL "")
-set(PYTHON_EXECUTABLE ${PYTHON_EXECUTABLE} CACHE INTERNAL "")
-set(PYTHON_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS} CACHE INTERNAL "")
-set(PYTHON_LIBRARIES ${PYTHON_LIBRARIES} CACHE INTERNAL "")
-
 # Build a Python extension module:
 # pybind11_add_module(<name> [MODULE | SHARED] [EXCLUDE_FROM_ALL]
 #                     [NO_EXTRAS] [THIN_LTO] source1 [source2 ...])
@@ -133,12 +136,16 @@ function(pybind11_add_module target_name)
     PRIVATE ${pybind11_INCLUDE_DIR}  # from pybind11Config
     PRIVATE ${PYTHON_INCLUDE_DIRS})
 
-  set_target_properties(${target_name} PROPERTIES PREFIX "")
-  if(WIN32)
-    set_target_properties(${target_name} PROPERTIES SUFFIX ".pyd")
-  elseif(APPLE)
-    set_target_properties(${target_name} PROPERTIES SUFFIX ".so")
-  endif()
+  # The prefix and extension are provided by FindPythonLibsNew.cmake
+  set_target_properties(${target_name} PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}")
+  set_target_properties(${target_name} PROPERTIES SUFFIX "${PYTHON_MODULE_EXTENSION}")
+
+  # -fvisibility=hidden is required to allow multiple modules compiled against
+  # different pybind versions to work properly, and for some features (e.g.
+  # py::module_local).  We force it on everything inside the `pybind11`
+  # namespace; also turning it on for a pybind module compilation here avoids
+  # potential warnings or issues from having mixed hidden/non-hidden types.
+  set_target_properties(${target_name} PROPERTIES CXX_VISIBILITY_PRESET "hidden")
 
   if(WIN32 OR CYGWIN)
     # Link against the Python shared library on Windows

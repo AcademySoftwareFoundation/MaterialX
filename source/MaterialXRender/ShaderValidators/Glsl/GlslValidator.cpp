@@ -500,7 +500,7 @@ void GlslValidator::validateRender(bool orthographicView)
             checkErrors();
         }
     }
-    catch (ExceptionShaderValidationError e)
+    catch (ExceptionShaderValidationError& e)
     {
         bindTarget(false);
         throw e;
@@ -539,7 +539,7 @@ void GlslValidator::save(const std::string& fileName, bool floatingPoint)
     {
         checkErrors();
     }
-    catch (ExceptionShaderValidationError e)
+    catch (ExceptionShaderValidationError& e)
     {
         delete[] buffer;
         errors.push_back("Failed to read color buffer back.");

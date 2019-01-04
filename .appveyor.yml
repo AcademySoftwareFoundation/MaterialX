@@ -1,4 +1,4 @@
-version: 1.36.0.{build}
+version: 1.36.2.{build}
 os: Visual Studio 2017
 clone_folder: C:\Projects\MaterialX
 
@@ -14,8 +14,13 @@ environment:
       VS_PLATFORM: Windows
       VS_COMPILER: vs2015
       configuration: Release
+    - CMAKE_PLATFORM: "Visual Studio 15 2017"
+      PYTHON: C:\Python36
+      VS_PLATFORM: Windows_x86
+      VS_COMPILER: vs2017
+      configuration: Release
     - CMAKE_PLATFORM: "Visual Studio 15 2017 Win64"
-      PYTHON: C:\Python36-x64
+      PYTHON: C:\Python37-x64
       VS_PLATFORM: Windows
       VS_COMPILER: vs2017
       configuration: Release

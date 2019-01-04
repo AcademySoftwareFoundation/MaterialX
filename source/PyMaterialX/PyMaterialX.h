@@ -20,7 +20,7 @@
 #define HAVE_HYPOT
 #endif
 
-#include <PyBind11/operators.h>
-#include <PyBind11/stl.h>
+#include <pybind11/operators.h>
+#include <pybind11/stl.h>
 
 #endif

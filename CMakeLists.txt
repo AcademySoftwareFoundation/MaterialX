@@ -1,7 +1,7 @@
 project(MaterialX)
 set(MATERIALX_MAJOR_VERSION 1)
 set(MATERIALX_MINOR_VERSION 36)
-set(MATERIALX_BUILD_VERSION 0)
+set(MATERIALX_BUILD_VERSION 2)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
 
 cmake_minimum_required(VERSION 3.1)
@@ -14,6 +14,7 @@ enable_testing()
 
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 2.6 or greater." OFF)
 option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
+option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)
 option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
 option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors." OFF)
 option(MATERIALX_BUILD_RENDER "Build the MaterialX Render module. " ON)
@@ -31,22 +32,24 @@ set(MATERIALX_TESTRENDER_EXECUTABLE "" CACHE FILEPATH
 set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH
     "Full path to osl include paths. e.g. location of stdosl.h")
 
+set(MATERIALX_PYTHON_VERSION "" CACHE STRING
+    "Python version to be used in building the MaterialX Python package (e.g. '2.7').")
 set(MATERIALX_PYTHON_EXECUTABLE "" CACHE FILEPATH
-    "Path to the Python executable (e.g. 'C:/Python27/python.exe').")
-set(MATERIALX_PYTHON_INCLUDE_DIR "" CACHE PATH 
-    "Path to the headers of the Python installation (e.g. 'C:/Python27/include').")
-set(MATERIALX_PYTHON_LIBRARY "" CACHE FILEPATH
-    "Path to the Python library file (e.g. 'C:/Python27/libs/python27.lib').")
+    "Python executable to be used in building the MaterialX Python package (e.g. 'C:/Python27/python.exe').")
 set(MATERIALX_PYTHON_OCIO_DIR "" CACHE PATH
     "Path to a folder containing the default OCIO configuration to be packaged with MaterialX Python (e.g. 'D:/Projects/OpenColorIO-Configs/aces_1.0.3').")
+set(MATERIALX_PYTHON_PYBIND11_DIR "${CMAKE_CURRENT_SOURCE_DIR}/source/PyMaterialX/PyBind11" CACHE PATH
+    "Path to a folder containing the PyBind11 source. Defaults to the included PyBind11 source, which has been extended to support Python 2.6.")
 
 mark_as_advanced(MATERIALX_BUILD_DOCS)
-mark_as_advanced(MATERIALX_PYTHON_EXECUTABLE)
-mark_as_advanced(MATERIALX_PYTHON_INCLUDE_DIR)
-mark_as_advanced(MATERIALX_PYTHON_LIBRARY)
-mark_as_advanced(MATERIALX_PYTHON_OCIO_DIR)
+mark_as_advanced(MATERIALX_PYTHON_LTO)
 mark_as_advanced(MATERIALX_INSTALL_PYTHON)
 mark_as_advanced(MATERIALX_WARNINGS_AS_ERRORS)
+mark_as_advanced(MATERIALX_PYTHON_VERSION)
+mark_as_advanced(MATERIALX_PYTHON_EXECUTABLE)
+mark_as_advanced(MATERIALX_PYTHON_OCIO_DIR)
+mark_as_advanced(MATERIALX_PYTHON_PYBIND11_DIR)
+
 mark_as_advanced(MATERIALX_BUILD_RENDER)
 mark_as_advanced(MATERIALX_TEST_RENDER)
 mark_as_advanced(MATERIALX_OSLC_EXECUTABLE)
@@ -56,9 +59,6 @@ mark_as_advanced(MATERIALX_OSL_INCLUDE_PATH)
 mark_as_advanced(MATERIALX_BUILD_GEN_OSL)
 mark_as_advanced(MATERIALX_BUILD_GEN_GLSL)
 mark_as_advanced(MATERIALX_BUILD_GEN_OGSFX)
-
-set(PYTHON_INCLUDE_DIR ${MATERIALX_PYTHON_INCLUDE_DIR})
-set(PYTHON_LIBRARY ${MATERIALX_PYTHON_LIBRARY})
 
 add_definitions(-DMATERIALX_OSLC_EXECUTABLE=\"${MATERIALX_OSLC_EXECUTABLE}\")
 add_definitions(-DMATERIALX_TESTSHADE_EXECUTABLE=\"${MATERIALX_TESTSHADE_EXECUTABLE}\")
@@ -103,6 +103,7 @@ else()
         add_compile_options(-Werror)
     endif()
     if(CMAKE_CXX_COMPILER_ID MATCHES Clang)
+        add_compile_options(-Wno-deprecated-register)
         CHECK_CXX_COMPILER_FLAG(-Wno-undefined-var-template UNDEFINED_VAR_TEMPLATE_FLAG)
         if(UNDEFINED_VAR_TEMPLATE_FLAG)
             add_compile_options(-Wno-undefined-var-template)

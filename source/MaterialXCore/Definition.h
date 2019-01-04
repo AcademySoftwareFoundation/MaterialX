@@ -150,6 +150,10 @@ class NodeDef : public InterfaceElement
     /// and Node may be used together.
     bool isVersionCompatible(ConstElementPtr elem) const;
 
+    /// Return the first declaration of this interface, optionally filtered
+    ///    by the given target name.
+    ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const override;
+
     /// @}
 
   public:
@@ -239,10 +243,27 @@ class Implementation : public InterfaceElement
     }
 
     /// @}
+    /// @name NodeDef References
+    /// @{
 
-public:
+    /// Set the NodeDef element referenced by the Implementation.
+    void setNodeDef(ConstNodeDefPtr nodeDef);
+
+    /// Return the NodeDef element referenced by the Implementation.
+    NodeDefPtr getNodeDef() const;
+
+    /// @}
+    /// @name Utility
+    /// @{
+
+    /// Return the first declaration of this interface, optionally filtered
+    ///    by the given target name.
+    ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const override;
+
+    /// @}
+
+  public:
     static const string CATEGORY;
-    static const string NODE_DEF_ATTRIBUTE;
     static const string FILE_ATTRIBUTE;
     static const string FUNCTION_ATTRIBUTE;
     static const string LANGUAGE_ATTRIBUTE;

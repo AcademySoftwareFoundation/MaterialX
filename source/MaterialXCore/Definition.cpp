@@ -75,7 +75,7 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target, const strin
 vector<ShaderRefPtr> NodeDef::getInstantiatingShaderRefs() const
 {
     vector<ShaderRefPtr> shaderRefs;
-    for (MaterialPtr mat : getRoot()->getChildrenOfType<Material>())
+    for (MaterialPtr mat : getDocument()->getMaterials())
     {
         for (ShaderRefPtr shaderRef : mat->getShaderRefs())
         {
@@ -114,6 +114,37 @@ bool NodeDef::isVersionCompatible(ConstElementPtr elem) const
         return true;
     }
     return false;
+}
+
+ConstNodeDefPtr NodeDef::getDeclaration(const string&) const
+{
+    return getSelf()->asA<NodeDef>();
+}
+
+//
+// Implementation methods
+//
+
+void Implementation::setNodeDef(ConstNodeDefPtr nodeDef)
+{
+    if (nodeDef)
+    {
+        setNodeDefString(nodeDef->getName());
+    }
+    else
+    {
+        removeAttribute(NODE_DEF_ATTRIBUTE);
+    }
+}
+
+NodeDefPtr Implementation::getNodeDef() const
+{
+    return resolveRootNameReference<NodeDef>(getNodeDefString());
+}
+
+ConstNodeDefPtr Implementation::getDeclaration(const string&) const
+{
+    return getNodeDef();
 }
 
 } // namespace MaterialX

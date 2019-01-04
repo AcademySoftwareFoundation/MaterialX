@@ -63,7 +63,7 @@ class Document : public GraphElement
     /// @param copyOptions An optional pointer to a CopyOptions object.
     ///    If provided, then the given options will affect the behavior of the
     ///    import function.  Defaults to a null pointer.
-    void importLibrary(ConstDocumentPtr library, const class CopyOptions* copyOptions = nullptr);
+    void importLibrary(ConstDocumentPtr library, const CopyOptions* copyOptions = nullptr);
 
     /// @}
     /// @name NodeGraph Elements
@@ -481,12 +481,6 @@ class Document : public GraphElement
     /// @name Callbacks
     /// @{
 
-    /// Enable all observer callbacks		
-    virtual void enableCallbacks() { }
-    
-    /// Disable all observer callbacks
-    virtual void disableCallbacks() { }
-
     /// Called when an element is added to the element tree.
     virtual void onAddElement(ElementPtr parent, ElementPtr elem);
 
@@ -499,8 +493,11 @@ class Document : public GraphElement
     /// Called when an attribute of an element is removed.
     virtual void onRemoveAttribute(ElementPtr elem, const string& attrib);
 
-    /// Called when a document is initialized.
-    virtual void onInitialize() { }
+    /// Called when content is copied into an element.
+    virtual void onCopyContent(ElementPtr elem);
+
+    /// Called when content is cleared from an element.
+    virtual void onClearContent(ElementPtr elem);
 
     /// Called when data is read into the current document.
     virtual void onRead() { }
@@ -513,6 +510,12 @@ class Document : public GraphElement
 
     /// Called after a set of document updates is performed.
     virtual void onEndUpdate() { }
+
+    /// Enable observer callbacks		
+    virtual void enableCallbacks() { }
+    
+    /// Disable observer callbacks
+    virtual void disableCallbacks() { }
 
     /// @}
 

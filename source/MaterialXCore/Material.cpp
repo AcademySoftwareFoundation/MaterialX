@@ -118,6 +118,22 @@ vector<InputPtr> Material::getPrimaryShaderInputs(const string& target, const st
     return res;
 }
 
+vector<TokenPtr> Material::getPrimaryShaderTokens(const string& target, const string& type) const
+{
+    NodeDefPtr nodeDef = getPrimaryShaderNodeDef(target, type);
+    vector<TokenPtr> res;
+    if (nodeDef)
+    {
+        InterfaceElementPtr implement = nodeDef->getImplementation();
+        for (TokenPtr nodeDefToken : nodeDef->getActiveTokens())
+        {
+            TokenPtr implementToken = implement ? implement->getToken(nodeDefToken->getName()) : nullptr;
+            res.push_back(implementToken ? implementToken : nodeDefToken);
+        }
+    }
+    return res;
+}
+
 bool Material::validate(string* message) const
 {
     bool res = true;
@@ -126,6 +142,28 @@ bool Material::validate(string* message) const
         validateRequire(!getActiveShaderRefs().empty(), res, message, "Missing shader reference");
     }
     return Element::validate(message) && res;
+}
+
+//
+// BindParam methods
+//
+
+bool BindParam::validate(string* message) const
+{
+    bool res = true;
+    ConstElementPtr parent = getParent();
+    ConstShaderRefPtr shaderRef = parent ? parent->asA<ShaderRef>() : nullptr;
+    NodeDefPtr nodeDef = shaderRef ? shaderRef->getNodeDef() : nullptr;
+    if (nodeDef)
+    {
+        ParameterPtr param = nodeDef->getActiveParameter(getName());
+        validateRequire(param != nullptr, res, message, "BindParam does not match a Parameter in the referenced NodeDef");
+        if (param)
+        {
+            validateRequire(getType() == param->getType(), res, message, "Type mismatch between BindParam and Parameter");
+        }
+    }
+    return ValueElement::validate(message) && res;
 }
 
 //
@@ -162,6 +200,42 @@ OutputPtr BindInput::getConnectedOutput() const
         return nodeGraph ? nodeGraph->getOutput(getOutputString()) : OutputPtr();
     }
     return getDocument()->getOutput(getOutputString());
+}
+
+bool BindInput::validate(string* message) const
+{
+    bool res = true;
+    ConstElementPtr parent = getParent();
+    ConstShaderRefPtr shaderRef = parent ? parent->asA<ShaderRef>() : nullptr;
+    NodeDefPtr nodeDef = shaderRef ? shaderRef->getNodeDef() : nullptr;
+    if (nodeDef)
+    {
+        InputPtr input = nodeDef->getActiveInput(getName());
+        validateRequire(input != nullptr, res, message, "BindInput does not match an Input in the referenced NodeDef");
+        if (input)
+        {
+            validateRequire(getType() == input->getType(), res, message, "Type mismatch between BindInput and Input");
+        }
+    }
+    return ValueElement::validate(message) && res;
+}
+
+//
+// BindToken methods
+//
+
+bool BindToken::validate(string* message) const
+{
+    bool res = true;
+    ConstElementPtr parent = getParent();
+    ConstShaderRefPtr shaderRef = parent ? parent->asA<ShaderRef>() : nullptr;
+    NodeDefPtr nodeDef = shaderRef ? shaderRef->getNodeDef() : nullptr;
+    if (nodeDef)
+    {
+        TokenPtr token = nodeDef->getActiveToken(getName());
+        validateRequire(token != nullptr, res, message, "BindToken does not match a Token in the referenced NodeDef");
+    }
+    return ValueElement::validate(message) && res;
 }
 
 //

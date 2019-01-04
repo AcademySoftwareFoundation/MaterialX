@@ -35,26 +35,40 @@ matrix:
     # Custom builds
     - os: linux
       compiler: gcc
-      env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+      env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
       addons:
         apt:
-          sources: ubuntu-toolchain-r-test
-          packages: g++-7
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+    - os: linux
+      compiler: gcc
+      env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8 && CMAKE_EXTRA_ARGS='-DMATERIALX_PYTHON_LTO=OFF'"
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
     - os: linux
       compiler: clang
-      env: CONFIG=Release MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+      env: MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
       addons:
         apt:
-          sources: llvm-toolchain-trusty-5.0
-          packages: clang-5.0
+          sources:
+            - llvm-toolchain-trusty-7
+            - ubuntu-toolchain-r-test
+          packages:
+            - clang-7
 
 before_install:
-    - eval "${MATRIX_EVAL}"
+  - eval "${MATRIX_EVAL}"
 
 script:
   - mkdir build
   - cd build
-  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -DCMAKE_BUILD_TYPE="${CONFIG}" ..
+  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -DCMAKE_BUILD_TYPE="${CONFIG}" ${CMAKE_EXTRA_ARGS} ..
   - cmake --build . --target install --config "${CONFIG}" -- -j4
   - ctest --output-on-failure --build-config "${CONFIG}"
   - export PYTHONPATH=$PYTHONPATH:$PWD/installed/python

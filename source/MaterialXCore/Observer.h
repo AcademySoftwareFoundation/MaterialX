@@ -39,19 +39,22 @@ class Observer
     virtual ~Observer() { }
 
     /// Called when an element is added to the element tree.
-    virtual void onAddElement(ElementPtr /*parent*/, ElementPtr /*elem*/) { }
+    virtual void onAddElement(ElementPtr, ElementPtr) { }
 
     /// Called when an element is removed from the element tree.
-    virtual void onRemoveElement(ElementPtr /*parent*/, ElementPtr /*elem*/) { }
+    virtual void onRemoveElement(ElementPtr, ElementPtr) { }
 
     /// Called when an attribute of an element is set to a new value.
-    virtual void onSetAttribute(ElementPtr /*elem*/, const string& /*attrib*/, const string& /*value*/) { }
+    virtual void onSetAttribute(ElementPtr, const string&, const string&) { }
 
     /// Called when an attribute of an element is removed.
-    virtual void onRemoveAttribute(ElementPtr /*elem*/, const string& /*attrib*/) { }
+    virtual void onRemoveAttribute(ElementPtr, const string&) { }
 
-    /// Called when a document is initialized.
-    virtual void onInitialize() { }
+    /// Called when content is copied into an element.
+    virtual void onCopyContent(ElementPtr) { }
+
+    /// Called when content is cleared from an element.
+    virtual void onClearContent(ElementPtr) { }
 
     /// Called when data is read into the current document.
     virtual void onRead() { }
@@ -134,16 +137,6 @@ class ObservedDocument : public Document
         _updateScope = 0;
     }
 
-    void enableCallbacks() override
-    {
-        _callbacksEnabled = true;
-    }
-
-    void disableCallbacks() override
-    {
-        _callbacksEnabled = false;
-    }
-
     DocumentPtr copy() override
     {
         DocumentPtr doc = createDocument<ObservedDocument>();
@@ -200,13 +193,24 @@ class ObservedDocument : public Document
         }
     }
 
-    void onInitialize() override
+    void onCopyContent(ElementPtr elem) override
     {
         if (_callbacksEnabled)
         {
             for (auto& item : _observerMap)
             {
-                item.second->onInitialize();
+                item.second->onCopyContent(elem);
+            }
+        }
+    }
+
+    void onClearContent(ElementPtr elem) override
+    {
+        if (_callbacksEnabled)
+        {
+            for (auto& item : _observerMap)
+            {
+                item.second->onClearContent(elem);
             }
         }
     }
@@ -265,6 +269,16 @@ class ObservedDocument : public Document
                 }
             }
         }
+    }
+
+    void enableCallbacks() override
+    {
+        _callbacksEnabled = true;
+    }
+
+    void disableCallbacks() override
+    {
+        _callbacksEnabled = false;
     }
 
     /// @}

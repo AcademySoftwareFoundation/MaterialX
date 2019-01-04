@@ -94,7 +94,9 @@ TEST_CASE("Load content", "[xmlio]")
         }
 
         // Serialize to XML.
-        std::string xmlString = mx::writeToXmlString(doc, false);
+        mx::XmlWriteOptions writeOptions;
+        writeOptions.writeXIncludeEnable = false;
+        std::string xmlString = mx::writeToXmlString(doc, &writeOptions);
 
         // Verify that the serialized document is identical.
         mx::DocumentPtr writtenDoc = mx::createDocument();
@@ -170,7 +172,7 @@ TEST_CASE("Load content", "[xmlio]")
     // Read document without XIncludes.
     mx::DocumentPtr flatDoc = mx::createDocument();
     readOptions = mx::XmlReadOptions();
-    readOptions.readXIncludes = false;
+    readOptions.readXIncludeFunction = nullptr;
     mx::readFromXmlFile(flatDoc, filename, searchPath, &readOptions);
     REQUIRE(*flatDoc != *doc);
 
@@ -179,7 +181,10 @@ TEST_CASE("Load content", "[xmlio]")
     {
         return !elem->isA<mx::Node>("image");
     };
-    std::string xmlString = mx::writeToXmlString(doc, false, skipImages);
+    mx::XmlWriteOptions writeOptions;
+    writeOptions.writeXIncludeEnable = false;
+    writeOptions.elementPredicate = skipImages;
+    std::string xmlString = mx::writeToXmlString(doc, &writeOptions);
         
     // Reconstruct and verify that the document contains no images.
     mx::DocumentPtr writtenDoc = mx::createDocument();

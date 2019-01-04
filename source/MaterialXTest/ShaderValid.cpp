@@ -85,7 +85,7 @@ static mx::GlslValidatorPtr createGLSLValidator(bool& orthographicView, const st
         }
         initialized = true;
     }
-    catch (mx::ExceptionShaderValidationError e)
+    catch (mx::ExceptionShaderValidationError& e)
     {
         for (auto error : e.errorLog())
         {
@@ -429,7 +429,7 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
                     file.close();
                 }
             }
-            catch (mx::ExceptionShaderGenError e)
+            catch (mx::ExceptionShaderGenError& e)
             {
                 log << ">> " << e.what() << "\n";
 
@@ -513,7 +513,7 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                 shader = shaderGenerator.generate(shaderName, element, options);
                 generationTimer.endTimer();
             }
-            catch (mx::ExceptionShaderGenError e)
+            catch (mx::ExceptionShaderGenError& e)
             {
                 log << ">> " << e.what() << "\n";
                 shader = nullptr;
@@ -680,7 +680,7 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
 
                 validated = true;
             }
-            catch (mx::ExceptionShaderValidationError e)
+            catch (mx::ExceptionShaderValidationError& e)
             {
                 // Always dump shader stages on error
                 std::ofstream file;
@@ -727,7 +727,7 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
                 AdditiveScopedTimer genTimer(profileTimes.oslTimes.generationTime, "OSL generation time");
                 shader = shaderGenerator.generate(shaderName, element, options);
             }
-            catch (mx::ExceptionShaderGenError e)
+            catch (mx::ExceptionShaderGenError& e)
             {
                 log << ">> " << e.what() << "\n";
                 shader = nullptr;
@@ -822,7 +822,7 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
 
                 validated = true;
             }
-            catch (mx::ExceptionShaderValidationError e)
+            catch (mx::ExceptionShaderValidationError& e)
             {
                 // Always dump shader on error
                 std::ofstream file;
@@ -973,8 +973,9 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
         }
         return true;
     }
-    catch (mx::Exception e)
+    catch (mx::Exception& e)
     {
+        std::cout << e.what();
     }
     return false;
 }
