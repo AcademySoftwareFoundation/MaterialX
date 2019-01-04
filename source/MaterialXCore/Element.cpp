@@ -24,7 +24,14 @@ const string Element::NAMESPACE_ATTRIBUTE = "namespace";
 const string TypedElement::TYPE_ATTRIBUTE = "type";
 const string ValueElement::VALUE_ATTRIBUTE = "value";
 const string ValueElement::INTERFACE_NAME_ATTRIBUTE = "interfacename";
+const string ValueElement::ENUM_ATTRIBUTE = "enum";
 const string ValueElement::IMPLEMENTATION_NAME_ATTRIBUTE = "implname";
+const string ValueElement::IMPLEMENTATION_TYPE_ATTRIBUTE = "impltype";
+const string ValueElement::ENUM_VALUES_ATTRIBUTE = "enumvalues";
+const string ValueElement::UI_NAME_ATTRIBUTE = "uiname";
+const string ValueElement::UI_FOLDER_ATTRIBUTE = "uifolder";
+const string ValueElement::UI_MIN_ATTRIBUTE = "uimin";
+const string ValueElement::UI_MAX_ATTRIBUTE = "uimax";
 
 Element::CreatorMap Element::_creatorMap;
 
@@ -697,6 +704,7 @@ INSTANTIATE_CONCRETE_SUBCLASS(Document, "materialx")
 INSTANTIATE_CONCRETE_SUBCLASS(GenericElement, "generic")
 INSTANTIATE_CONCRETE_SUBCLASS(GeomAttr, "geomattr")
 INSTANTIATE_CONCRETE_SUBCLASS(GeomInfo, "geominfo")
+INSTANTIATE_CONCRETE_SUBCLASS(GeomProp, "geomprop")
 INSTANTIATE_CONCRETE_SUBCLASS(Implementation, "implementation")
 INSTANTIATE_CONCRETE_SUBCLASS(Input, "input")
 INSTANTIATE_CONCRETE_SUBCLASS(Look, "look")
