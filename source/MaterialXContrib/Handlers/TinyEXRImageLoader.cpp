@@ -19,13 +19,13 @@
 #define max_cache max
 #undef max
 #endif
-#include <MaterialXRender/External/tinyexr/tinyexr.h>
+#include <MaterialXContrib/External/tinyexr/tinyexr.h>
 #ifdef max_cache 
 #define max max_cache
 #endif
 #endif
 
-#include <MaterialXRender/Handlers/TinyEXRImageLoader.h>
+#include <MaterialXContrib/Handlers/TinyEXRImageLoader.h>
 
 namespace MaterialX
 {
@@ -91,5 +91,6 @@ bool TinyEXRImageLoader::acquireImage(const std::string& /*fileName*/,
 }
 
 #endif
-} 
+}
+
 

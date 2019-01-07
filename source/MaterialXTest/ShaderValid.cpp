@@ -32,7 +32,9 @@
 #include <MaterialXRender/ShaderValidators/Osl/OslValidator.h>
 #endif
 
-#include <MaterialXRender/Handlers/TinyEXRImageLoader.h>
+#ifdef MATERIALX_BUILD_CONTRIB
+#include <MaterialXContrib/Handlers/TinyEXRImageLoader.h>
+#endif
 #include <MaterialXRender/Handlers/stbImageLoader.h>
 
 #include <fstream>
@@ -63,10 +65,12 @@ static mx::GlslValidatorPtr createGLSLValidator(bool& orthographicView, const st
     bool initialized = false;
     orthographicView = true;
     mx::GlslValidatorPtr validator = mx::GlslValidator::create();
-    mx::TinyEXRImageLoaderPtr imageLoader = mx::TinyEXRImageLoader::create();
-    mx::GLTextureHandlerPtr imageHandler = mx::GLTextureHandler::create(imageLoader);
     mx::stbImageLoaderPtr stbLoader = mx::stbImageLoader::create();
-    imageHandler->addLoader(stbLoader);
+    mx::GLTextureHandlerPtr imageHandler = mx::GLTextureHandler::create(stbLoader);
+#ifdef MATERIALX_BUILD_CONTRIB
+    mx::TinyEXRImageLoaderPtr exrLoader = mx::TinyEXRImageLoader::create();
+    imageHandler->addLoader(exrLoader);
+#endif
     try
     {
         validator->initialize();

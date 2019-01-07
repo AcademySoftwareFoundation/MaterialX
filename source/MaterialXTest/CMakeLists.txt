@@ -59,6 +59,9 @@ endif(MATERIALX_BUILD_GEN_OGSFX)
 if (MATERIALX_BUILD_RENDER)
     LIST(APPEND LIBS "MaterialXRender")
 endif(MATERIALX_BUILD_RENDER)
+if (MATERIALX_BUILD_CONTRIB)
+    LIST(APPEND LIBS "MaterialXContrib")
+endif(MATERIALX_BUILD_CONTRIB)
 target_link_libraries(
     MaterialXTest ${LIBS}    
     ${CMAKE_DL_LIBS}
