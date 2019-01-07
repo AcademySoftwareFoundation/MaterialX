@@ -1,0 +1,25 @@
+#include "sxpbrlib/sx-osl/lib/sx_fresnel.osl"
+
+void sx_glossybrdf(float weight, vec3 color0, vec3 color90, float exponent, roughnessinfo roughness, normal N, vector U, string distribution, BSDF base, output BSDF result)
+{
+    if (weight < M_FLOAT_EPS)
+    {
+        result = base;
+        return;
+    }
+
+    // Calculate fresnel since we need 
+    // to attenuate the base layer according to fresnel
+    //
+    // Fresnel should be based on microfacet normal
+    // but we have no access to that from here, so just use
+    // view direction and surface normal instead
+    //
+    float NdotV = fabs(dot(N,-I));
+    float F = sx_fresnel_schlick(NdotV, color0, color90, exponent);
+    F *= weight;
+    float avgF = dot(F, vec3(1.0));
+
+    result = F * microfacet(distribution, N, U, roughness.alphaX, roughness.alphaY, 0.0, false)
+             + base * (1.0 - avgF);
+}

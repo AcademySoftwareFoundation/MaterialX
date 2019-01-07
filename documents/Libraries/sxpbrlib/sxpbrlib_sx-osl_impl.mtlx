@@ -13,6 +13,9 @@
   <!-- <conductorbrdf> -->
   <implementation name="IM_conductorbrdf_sx_osl" nodedef="ND_conductorbrdf" file="sxpbrlib/sx-osl/sx_conductorbrdf.osl" function="sx_conductorbrdf" language="sx-osl"/>
 
+  <!-- <glossybrdf> -->
+  <implementation name="IM_glossybrdf_sx_osl" nodedef="ND_glossybrdf" file="sxpbrlib/sx-osl/sx_glossybrdf.osl" function="sx_glossybrdf" language="sx-osl"/>
+
   <!-- <dielectricbtdf> -->
   <implementation name="IM_dielectricbtdf_sx_osl" nodedef="ND_dielectricbtdf" file="sxpbrlib/sx-osl/sx_dielectricbtdf.osl" function="sx_dielectricbtdf" language="sx-osl"/>
 

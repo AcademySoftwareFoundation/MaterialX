@@ -16,6 +16,9 @@
   <!-- <conductorbrdf> -->
   <implementation name="IM_conductorbrdf_sx_glsl" nodedef="ND_conductorbrdf" file="sxpbrlib/sx-glsl/sx_conductorbrdf.glsl" function="sx_conductorbrdf" language="sx-glsl"/>
 
+  <!-- <glossybrdf> -->
+  <implementation name="IM_glossybrdf_sx_glsl" nodedef="ND_glossybrdf" file="sxpbrlib/sx-glsl/sx_glossybrdf.glsl" function="sx_glossybrdf" language="sx-glsl"/>
+
   <!-- <subsurfacebrdf> -->
   <implementation name="IM_subsurfacebrdf_sx_glsl" nodedef="ND_subsurfacebrdf" file="sxpbrlib/sx-glsl/sx_subsurfacebrdf.glsl" function="sx_subsurfacebrdf" language="sx-glsl"/>
 

@@ -29,3 +29,9 @@ color sx_fresnel_conductor(float cosTheta, vector n, vector k)
 
    return 0.5 * (rs + rp);
 }
+
+color sx_fresnel_schlick(float cosTheta, color f0, color f90, float exponent)
+{
+    float x = clamp(1.0 - cosTheta, 0.0, 1.0);
+    return mix(F0, F90, pow(x, exponent));
+}
