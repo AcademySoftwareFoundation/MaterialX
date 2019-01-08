@@ -24,7 +24,7 @@ extern const string UV_TILE_TOKEN;
 class GeomElement;
 class GeomAttr;
 class GeomInfo;
-class GeomProp;
+class GeomPropDef;
 class Collection;
 class CollectionAdd;
 class CollectionRemove;
@@ -44,10 +44,10 @@ using GeomInfoPtr = shared_ptr<GeomInfo>;
 /// A shared pointer to a const GeomInfo
 using ConstGeomInfoPtr = shared_ptr<const GeomInfo>;
 
-/// A shared pointer to a GeomProp
-using GeomPropPtr = shared_ptr<GeomProp>;
-/// A shared pointer to a const GeomProp
-using ConstGeomPropPtr = shared_ptr<const GeomProp>;
+/// A shared pointer to a GeomPropDef
+using GeomPropDefPtr = shared_ptr<GeomPropDef>;
+/// A shared pointer to a const GeomPropDef
+using ConstGeomPropDefPtr = shared_ptr<const GeomPropDef>;
 
 /// A shared pointer to a Collection
 using CollectionPtr = shared_ptr<Collection>;
@@ -348,22 +348,47 @@ class GeomAttr : public ValueElement
     static const string CATEGORY;
 };
 
-/// @class GeomProp
+/// @class GeomPropDef
 /// An element representing a declaration of geometric input data.
-/// Can be used as a child to Input elements to declare a geometric node
-/// to be used if no explicit connection is set.
-/// Can also be used as children to NodeDef elements to declare internal
-/// geometric requirements for a node. That is, required geometric input
-/// data that are not published as ordinary user editable inputs.
-class GeomProp : public TypedElement
+/// Can be used to declare a geometric property with specific modifiers set,
+/// and assing this a name to be referenced elsewhere in a document. 
+/// For example assigning the name "Nworld" to world space normal, or the name
+/// "UV1" for texcoords of set index 1. The geometric property is defined
+/// by a geometric node and modifiers on this node.
+/// Once a GeomPropDef has been defined it can be referenced by defaultgeomprop
+/// and internalgeomprop attributes by using its name.
+class GeomPropDef : public TypedElement
 {
   public:
-    GeomProp(ElementPtr parent, const string& name) :
+      GeomPropDef(ElementPtr parent, const string& name) :
         TypedElement(parent, CATEGORY, name)
     {
     }
-    virtual ~GeomProp() { }
+    virtual ~GeomPropDef() { }
 
+    /// @name Geometric Node
+    /// @{
+
+    /// Set the geometric node string of this element.
+    void setNode(const string& node)
+    {
+        setAttribute(NODE_ATTRIBUTE, node);
+    }
+
+    /// Return true if this element has a geometric node string.
+    bool hasNode() const
+    {
+        return hasAttribute(NODE_ATTRIBUTE);
+    }
+
+    /// Return the geometric node string of this element.
+    const string& getNode() const
+    {
+        return getAttribute(NODE_ATTRIBUTE);
+    }
+
+
+    /// @}
     /// @name Geometric Space
     /// @{
 
@@ -433,6 +458,7 @@ class GeomProp : public TypedElement
 
   public:
     static const string CATEGORY;
+    static const string NODE_ATTRIBUTE;
     static const string SPACE_ATTRIBUTE;
     static const string INDEX_ATTRIBUTE;
     static const string ATTR_NAME_ATTRIBUTE;

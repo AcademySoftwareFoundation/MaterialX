@@ -171,9 +171,9 @@ void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
     }
 }
 
-void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomProp& geomprop, ShaderGenerator& shadergen, const GenOptions& options)
+void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geomprop, ShaderGenerator& shadergen, const GenOptions& options)
 {
-    const string geomNodeName = "default_" + geomprop.getName();
+    const string geomNodeName = "geomprop_" + geomprop.getName();
     ShaderNode* node = getNode(geomNodeName);
 
     if (!node)
@@ -468,12 +468,12 @@ ShaderGraphPtr ShaderGraph::create(const string& name, ElementPtr element, Shade
                 input->path = inputSocket->path;
             }
 
-            // If no explicit connection, connect to geometric node if geomprop is used
+            // If no explicit connection, connect to geometric node if a geomprop is used
             // or otherwise to the graph interface.
             const string& connection = bindInput ? bindInput->getOutputString() : EMPTY_STRING;
             if (connection.empty())
             {
-                GeomPropPtr geomprop = nodeDefInput->getGeomProp();
+                GeomPropDefPtr geomprop = nodeDefInput->getDefaultGeomProp();
                 if (geomprop)
                 {
                     graph->addDefaultGeomNode(input, *geomprop, shadergen, options);
@@ -584,7 +584,7 @@ ShaderNode* ShaderGraph::addNode(const Node& node, ShaderGenerator& shadergen, c
         }
     }
 
-    // Handle the "geomprop" directives on the nodedef inputs.
+    // Handle the "defaultgeomprop" directives on the nodedef inputs.
     // Create and connect default geometric nodes on unconnected inputs.
     for (const InputPtr& nodeDefInput : nodeDef->getInputs())
     {
@@ -594,7 +594,7 @@ ShaderNode* ShaderGraph::addNode(const Node& node, ShaderGenerator& shadergen, c
         const string& connection = nodeInput ? nodeInput->getNodeName() : EMPTY_STRING;
         if (connection.empty() && !input->connection)
         {
-            GeomPropPtr geomprop = nodeDefInput->getGeomProp();
+            GeomPropDefPtr geomprop = nodeDefInput->getDefaultGeomProp();
             if (geomprop)
             {
                 addDefaultGeomNode(input, *geomprop, shadergen, options);

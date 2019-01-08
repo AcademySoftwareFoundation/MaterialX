@@ -77,3 +77,23 @@ TEST_CASE("Geom elements", "[geom]")
     REQUIRE(collection1->matchesGeomString("/root/scene1"));
     REQUIRE(!collection1->matchesGeomString("/root/scene2"));
 }
+
+TEST_CASE("GeomPropDef", "[geom]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+
+    // Create a geomprop definition for world space normal
+    mx::GeomPropDefPtr Nworld = doc->addGeomPropDef("Nworld", "vector3", "normal");
+    Nworld->setSpace("world");
+
+    // Create a new nodedef and set an input to use the world space normal
+    // as default geometric data.
+    mx::NodeDefPtr nodeDef = doc->addNodeDef("ND_foo", "color3", "foo");
+    mx::InputPtr in1 = doc->addInput("in1", "vector3");
+    in1->setDefaultGeomPropString(Nworld->getName());
+
+    // Test accessing the geomprop
+    mx::GeomPropDefPtr geomProp = in1->getDefaultGeomProp();
+    REQUIRE(geomProp->getName() == "Nworld");
+    REQUIRE(geomProp->getSpace() == "world");
+}

@@ -93,7 +93,7 @@ class ShaderGraph : public ShaderNode
     void addUpstreamDependencies(const Element& root, ConstMaterialPtr material, ShaderGenerator& shadergen, const GenOptions& options);
 
     /// Add a default geometric node and connect to the given input.
-    void addDefaultGeomNode(ShaderInput* input, const GeomProp& geomprop, ShaderGenerator& shadergen, const GenOptions& options);
+    void addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geomprop, ShaderGenerator& shadergen, const GenOptions& options);
 
     /// Add a color transform node and connect to the given input.
     void addColorTransformNode(ShaderInput* input, const ColorSpaceTransform& transform, ShaderGenerator& shadergen, const GenOptions& options);
