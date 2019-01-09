@@ -1250,6 +1250,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
     if (!options.runGLSLTests && !options.runOGSFXTests)
     {
         excludeFiles.insert("stdlib_sx-glsl_impl.mtlx");
+        excludeFiles.insert("stdlib_sx-glsl_ogsfx_impl.mtlx");
     }
     if (!options.runOSLTests)
     {
@@ -1282,25 +1283,41 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
     mx::CopyOptions importOptions;
     importOptions.skipDuplicateElements = true;
 
-#if defined(MATERIALX_BUILD_GEN_GLSL) || defined(MATERIALX_BUILD_GEN_OGSFX)
-    mx::HwLightHandlerPtr lightHandler = nullptr;
-    if (options.runGLSLTests || options.runOGSFXTests)
+#if defined(MATERIALX_BUILD_GEN_GLSL)
+    mx::HwLightHandlerPtr glslLightHandler = nullptr;
+    if (options.runGLSLTests)
     {
         AdditiveScopedTimer glslSetupLightingTimer(profileTimes.glslTimes.setupTime, "GLSL setup lighting time");
 
-        // Add lights as a dependency
-        mx::GenOptions genOptions;
-        lightHandler = mx::HwLightHandler::create();
-        createLightRig(dependLib, *lightHandler, *glslShaderGenerator, genOptions);
-
-        // Clamp the number of light sources to the number bound
-        size_t lightSourceCount = lightHandler->getLightSources().size();
         if (glslShaderGenerator)
         {
+            // Add lights as a dependency
+            mx::GenOptions genOptions;
+            glslLightHandler = mx::HwLightHandler::create();
+            createLightRig(dependLib, *glslLightHandler, *glslShaderGenerator, genOptions);
+
+            // Clamp the number of light sources to the number bound
+            size_t lightSourceCount = glslLightHandler->getLightSources().size();
             glslShaderGenerator->setMaxActiveLightSources(lightSourceCount);
         }
+    }
+#endif
+
+#if defined(MATERIALX_BUILD_GEN_OGSFX)
+    mx::HwLightHandlerPtr ogsfxLightHandler = nullptr;
+    if (options.runOGSFXTests)
+    {
+        AdditiveScopedTimer glslSetupLightingTimer(profileTimes.glslTimes.setupTime, "OGSFX setup lighting time");
+
         if (ogsfxShaderGenerator)
         {
+            // Add lights as a dependency
+            mx::GenOptions genOptions;
+            ogsfxLightHandler = mx::HwLightHandler::create();
+            createLightRig(dependLib, *ogsfxLightHandler, *ogsfxShaderGenerator, genOptions);
+
+            // Clamp the number of light sources to the number bound
+            size_t lightSourceCount = ogsfxLightHandler->getLightSources().size();
             ogsfxShaderGenerator->setMaxActiveLightSources(lightSourceCount);
         }
     }
@@ -1435,7 +1452,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
                                 mx::InterfaceElementPtr nodeGraphImpl = nodeGraph ? nodeGraph->getImplementation() : nullptr;
                                 usedImpls.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl->getName());
                             }
-                            runGLSLValidation(elementName, element, *glslValidator, *glslShaderGenerator, lightHandler, doc, glslLog, options, profileTimes, outputPath);
+                            runGLSLValidation(elementName, element, *glslValidator, *glslShaderGenerator, glslLightHandler, doc, glslLog, options, profileTimes, outputPath);
                         }
                     }
 #endif
@@ -1453,7 +1470,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
                                 mx::InterfaceElementPtr nodeGraphImpl = nodeGraph ? nodeGraph->getImplementation() : nullptr;
                                 usedImpls.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl->getName());
                             }
-                            runOGSFXValidation(elementName, element, *ogsfxShaderGenerator, lightHandler, doc, ogsfxLog, options, profileTimes, outputPath);
+                            runOGSFXValidation(elementName, element, *ogsfxShaderGenerator, ogsfxLightHandler, doc, ogsfxLog, options, profileTimes, outputPath);
                         }
                     }
 #endif

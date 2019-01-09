@@ -13,29 +13,27 @@
   <!-- ======================================================================== -->
 
   <!-- <image> -->
-  <implementation name="IM_image_float_sx_glsl" nodedef="ND_image_float" file="stdlib/sx-glsl/mx_image_float.glsl" function="mx_image_float" language="sx-glsl">
+  <implementation name="IM_image_float_sx_glsl" nodedef="ND_image_float" file="stdlib/sx-glsl/mx_image_float.glsl" function="mx_image_float" language="sx-glsl" target="glsl400">
     <parameter name="default" type="float" implname="default_value"/>
   </implementation>
-  <implementation name="IM_image_color2_sx_glsl" nodedef="ND_image_color2" file="stdlib/sx-glsl/mx_image_color2.glsl" function="mx_image_color2" language="sx-glsl">
+  <implementation name="IM_image_color2_sx_glsl" nodedef="ND_image_color2" file="stdlib/sx-glsl/mx_image_color2.glsl" function="mx_image_color2" language="sx-glsl" target="glsl400">
     <parameter name="default" type="color2" implname="default_value"/>
   </implementation>
-  <implementation name="IM_image_color3_sx_glsl" nodedef="ND_image_color3" file="stdlib/sx-glsl/mx_image_color3.glsl" function="mx_image_color3" language="sx-glsl">
+  <implementation name="IM_image_color3_sx_glsl" nodedef="ND_image_color3" file="stdlib/sx-glsl/mx_image_color3.glsl" function="mx_image_color3" language="sx-glsl" target="glsl400">
     <parameter name="default" type="color3" implname="default_value"/>
   </implementation>
-  <implementation name="IM_image_color4_sx_glsl" nodedef="ND_image_color4" file="stdlib/sx-glsl/mx_image_color4.glsl" function="mx_image_color4" language="sx-glsl">
+  <implementation name="IM_image_color4_sx_glsl" nodedef="ND_image_color4" file="stdlib/sx-glsl/mx_image_color4.glsl" function="mx_image_color4" language="sx-glsl" target="glsl400">
     <parameter name="default" type="color4" implname="default_value"/>
   </implementation>
-  <implementation name="IM_image_vector2_sx_glsl" nodedef="ND_image_vector2" file="stdlib/sx-glsl/mx_image_vector2.glsl" function="mx_image_vector2" language="sx-glsl">
+  <implementation name="IM_image_vector2_sx_glsl" nodedef="ND_image_vector2" file="stdlib/sx-glsl/mx_image_vector2.glsl" function="mx_image_vector2" language="sx-glsl" target="glsl400">
     <parameter name="default" type="vector2" implname="default_value"/>
   </implementation>
-  <implementation name="IM_image_vector3_sx_glsl" nodedef="ND_image_vector3" file="stdlib/sx-glsl/mx_image_vector3.glsl" function="mx_image_vector3" language="sx-glsl">
+  <implementation name="IM_image_vector3_sx_glsl" nodedef="ND_image_vector3" file="stdlib/sx-glsl/mx_image_vector3.glsl" function="mx_image_vector3" language="sx-glsl" target="glsl400">
     <parameter name="default" type="vector3" implname="default_value"/>
   </implementation>
-  <implementation name="IM_image_vector4_sx_glsl" nodedef="ND_image_vector4" file="stdlib/sx-glsl/mx_image_vector4.glsl" function="mx_image_vector4" language="sx-glsl">
+  <implementation name="IM_image_vector4_sx_glsl" nodedef="ND_image_vector4" file="stdlib/sx-glsl/mx_image_vector4.glsl" function="mx_image_vector4" language="sx-glsl" target="glsl400">
     <parameter name="default" type="vector4" implname="default_value"/>
   </implementation>
-
-  <!-- <triplanarprojection> -->
 
 
   <!-- ======================================================================== -->
