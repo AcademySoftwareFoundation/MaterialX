@@ -13,10 +13,10 @@
   <implementation name="IM_gamma24_to_lin_rec709_color3_sx_glsl" file="stdlib/sx-glsl/mx_gamma24_to_linear_color3.glsl" function="mx_gamma24_to_linear_color3" language="sx-glsl" />
   <implementation name="IM_gamma24_to_lin_rec709_color4_sx_glsl" file="stdlib/sx-glsl/mx_gamma24_to_linear_color4.glsl" function="mx_gamma24_to_linear_color4" language="sx-glsl" />
 
-  <implementation name="IM_ACEScg_to_lin_rec709_color3_sx_glsl" file="stdlib/sx-glsl/mx_acescg_to_linear_color3.glsl" function="mx_acescg_to_linear_color3" language="sx-glsl" />
-  <implementation name="IM_ACEScg_to_lin_rec709_color4_sx_glsl" file="stdlib/sx-glsl/mx_acescg_to_linear_color4.glsl" function="mx_acescg_to_linear_color4" language="sx-glsl" />
+  <implementation name="IM_acescg_to_lin_rec709_color3_sx_glsl" file="stdlib/sx-glsl/mx_acescg_to_linear_color3.glsl" function="mx_acescg_to_linear_color3" language="sx-glsl" />
+  <implementation name="IM_acescg_to_lin_rec709_color4_sx_glsl" file="stdlib/sx-glsl/mx_acescg_to_linear_color4.glsl" function="mx_acescg_to_linear_color4" language="sx-glsl" />
 
-  <implementation name="IM_sRGB_to_lin_rec709_color3_sx_glsl" file="stdlib/sx-glsl/mx_srgb_to_linear_color3.glsl" function="mx_srgb_to_linear_color3" language="sx-glsl" />
-  <implementation name="IM_sRGB_to_lin_rec709_color4_sx_glsl" file="stdlib/sx-glsl/mx_srgb_to_linear_color4.glsl" function="mx_srgb_to_linear_color4" language="sx-glsl" />
+  <implementation name="IM_srgb_texture_to_lin_rec709_color3_sx_glsl" file="stdlib/sx-glsl/mx_srgb_texture_to_linear_color3.glsl" function="mx_srgb_texture_to_linear_color3" language="sx-glsl" />
+  <implementation name="IM_srgb_texture_to_lin_rec709_color4_sx_glsl" file="stdlib/sx-glsl/mx_srgb_texture_to_linear_color4.glsl" function="mx_srgb_texture_to_linear_color4" language="sx-glsl" />
 
 </materialx>

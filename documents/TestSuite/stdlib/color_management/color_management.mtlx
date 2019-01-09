@@ -54,24 +54,24 @@ Basic image unit test with one image node for each variation in input type.
           <parameter name="frameendaction" type="string" value="periodic"/>
         </image>
 
-        <output name="image_ACEScg_output" type="surfaceshader" nodename="image_ACEScg_standard_surface5" />
-        <standard_surface name="image_ACEScg_standard_surface5" type="surfaceshader" xpos="6.29441" ypos="2.18094">
-          <input name="base_color" type="color3" value="1, 1, 1" nodename="image_ACEScg" />
+        <output name="image_acescg_output" type="surfaceshader" nodename="image_acescg_standard_surface5" />
+        <standard_surface name="image_acescg_standard_surface5" type="surfaceshader" xpos="6.29441" ypos="2.18094">
+          <input name="base_color" type="color3" value="1, 1, 1" nodename="image_acescg" />
         </standard_surface>
-        <image name="image_ACEScg" type="color3">
-          <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.exr" colorspace="ACEScg" />
+        <image name="image_acescg" type="color3">
+          <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.exr" colorspace="acescg" />
           <parameter name="uaddressmode" type="string" value="black"/>
           <parameter name="vaddressmode" type="string" value="clamp"/>
           <parameter name="filtertype" type="string" value="linear"/>
           <parameter name="frameendaction" type="string" value="periodic"/>
         </image>
 
-        <output name="image_sRGB_output" type="surfaceshader" nodename="image_sRGB_standard_surface6" />
-        <standard_surface name="image_sRGB_standard_surface6" type="surfaceshader" xpos="6.29441" ypos="2.18094">
-          <input name="base_color" type="color3" value="1, 1, 1" nodename="image_sRGB" />
+        <output name="image_srgb_texture_output" type="surfaceshader" nodename="image_srgb_texture_standard_surface6" />
+        <standard_surface name="image_srgb_texture_standard_surface6" type="surfaceshader" xpos="6.29441" ypos="2.18094">
+          <input name="base_color" type="color3" value="1, 1, 1" nodename="image_srgb_texture" />
         </standard_surface>
-        <image name="image_sRGB" type="color3">
-          <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.exr" colorspace="sRGB" />
+        <image name="image_srgb_texture" type="color3">
+          <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.exr" colorspace="srgb_texture" />
           <parameter name="uaddressmode" type="string" value="black"/>
           <parameter name="vaddressmode" type="string" value="clamp"/>
           <parameter name="filtertype" type="string" value="linear"/>
@@ -110,20 +110,20 @@ Basic image unit test with one image node for each variation in input type.
           <parameter name="value" type="color3" value="0.5, 0.0, 0.0" colorspace="gamma24" />
         </constant>
 
-        <output name="color_ACEScg_output" type="surfaceshader" nodename="color_ACEScg_standard_surface5" />
-        <standard_surface name="color_ACEScg_standard_surface5" type="surfaceshader" xpos="6.29441" ypos="2.18094">
-          <input name="base_color" type="color3" value="1, 1, 1" nodename="color_ACEScg" />
+        <output name="color_acescg_output" type="surfaceshader" nodename="color_acescg_standard_surface5" />
+        <standard_surface name="color_acescg_standard_surface5" type="surfaceshader" xpos="6.29441" ypos="2.18094">
+          <input name="base_color" type="color3" value="1, 1, 1" nodename="color_acescg" />
         </standard_surface>
-        <constant name="color_ACEScg" type="color3">
-          <parameter name="value" type="color3" value="0.5, 0.0, 0.0" colorspace="ACEScg" />
+        <constant name="color_acescg" type="color3">
+          <parameter name="value" type="color3" value="0.5, 0.0, 0.0" colorspace="acescg" />
         </constant>
 
-        <output name="color_sRGB_output" type="surfaceshader" nodename="color_sRGB_standard_surface6" />
-        <standard_surface name="color_sRGB_standard_surface6" type="surfaceshader" xpos="6.29441" ypos="2.18094">
-          <input name="base_color" type="color3" value="1, 1, 1" nodename="color_sRGB" />
+        <output name="color_srgb_texture_output" type="surfaceshader" nodename="color_srgb_texture_standard_surface6" />
+        <standard_surface name="color_srgb_texture_standard_surface6" type="surfaceshader" xpos="6.29441" ypos="2.18094">
+          <input name="base_color" type="color3" value="1, 1, 1" nodename="color_srgb_texture" />
         </standard_surface>
-        <constant name="color_sRGB" type="color3">
-          <parameter name="value" type="color3" value="0.5, 0.0, 0.0" colorspace="sRGB" />
+        <constant name="color_srgb_texture" type="color3">
+          <parameter name="value" type="color3" value="0.5, 0.0, 0.0" colorspace="srgb_texture" />
         </constant>
    </nodegraph>
 </materialx>
