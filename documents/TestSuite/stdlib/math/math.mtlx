@@ -680,4 +680,26 @@ graph per math function for each variation in input type.
     </max>
     <output name="out" type="vector4" nodename="max1" />
   </nodegraph>
+  <!--
+  <nodegraph name="invert_matrix33">
+    <invert name="invert1" type="matrix33">
+      <input name="in" type="matrix33" value="1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0"/>
+    </invert>
+    <transformvector name="transformvector1" type="vector3">
+      <input name="in" type="vector3" value="0.5, 0.5, 0.5"/>
+      <input name="mat" type="matrix33" nodename="invert1"/>
+    </transformvector>
+    <output name="out" type="vector3" nodename="transformvector1"/>
+  </nodegraph>
+  -->
+  <nodegraph name="invert_matrix44">
+    <invert name="invert1" type="matrix44">
+      <input name="in" type="matrix44" value="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0"/>
+    </invert>
+    <transformvector name="transformvector1" type="vector4">
+      <input name="in" type="vector4" value="0.5, 0.5, 0.5, 1.0"/>
+      <input name="mat" type="matrix44" nodename="invert1"/>
+    </transformvector>
+    <output name="out" type="vector4" nodename="transformvector1"/>
+  </nodegraph>
 </materialx>

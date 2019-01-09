@@ -852,7 +852,7 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
     const std::string SHADER_VALID_TEST_OPTIONS_STRING("ShaderValidTestOptions");
     const std::string OVERRIDE_FILES_STRING("overrideFiles");
     const std::string LIGHT_FILES_STRING("lightFiles");
-    const std::string CMS_FILES_STRING("cmsFiles");    
+    const std::string CMS_FILES_STRING("cmsFiles");
     const std::string SHADER_INTERFACES_STRING("shaderInterfaces");
     const std::string VALIDATE_ELEMENT_TO_RENDER_STRING("validateElementToRender");
     const std::string COMPILE_CODE_STRING("compileCode");
@@ -1148,8 +1148,9 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
     std::ofstream oslLogfile("shadervalid_OSL_log.txt");
     std::ostream& oslLog(oslLogfile);
 #endif
-    std::ofstream docValidLogfile("shadervalid_validate_doc_log.txt");
-    std::ostream& docValidLog(docValidLogfile);
+    std::string docValidLogFilename = "shadervalid_validate_doc_log.txt";
+    std::ofstream docValidLogFile(docValidLogFilename);
+    std::ostream& docValidLog(docValidLogFile);
     std::ofstream profilingLogfile("shadervalid_profiling_log.txt");
     std::ostream& profilingLog(profilingLogfile);
 #else
@@ -1260,7 +1261,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
     {
         excludeFiles.insert("cm_impl.mtlx");
     }
-    
+
     const mx::StringVec libraries = { "stdlib", "sxpbrlib" };
     loadLibraries(libraries, searchPath, dependLib, &excludeFiles);
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
@@ -1401,7 +1402,15 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
 
             renderableSearchTimer.startTimer();
             std::vector<mx::TypedElementPtr> elements;
-            mx::findRenderableElements(doc, elements);
+            try
+            {
+                mx::findRenderableElements(doc, elements);
+            }
+            catch (mx::ExceptionShaderGenError& e)
+            {
+                docValidLog << e.what() << std::endl;
+                WARN("Find renderable elements failed, see: " + docValidLogFilename + " for details.");
+            }
             renderableSearchTimer.endTimer();
 
             std::string outputPath = mx::FilePath(dir) / mx::FilePath(mx::removeExtension(file));
