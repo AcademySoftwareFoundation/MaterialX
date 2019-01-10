@@ -10,23 +10,6 @@
 namespace MaterialX
 {
 
-namespace
-{
-    const char* VDIRECTION_FLIP =
-        "void vdirection(vector2 texcoord, output vector2 result)\n"
-        "{\n"
-        "   result.x = texcoord.x;\n"
-        "   result.y = 1.0 - texcoord.y;\n"
-        "}\n\n";
-
-    const char* VDIRECTION_NOOP =
-        "void vdirection(vector2 texcoord, output vector2 result)\n"
-        "{\n"
-        "   result = texcoord;\n"
-        "}\n\n";
-}
-
-
 const string OslShaderGenerator::LANGUAGE = "sx-osl";
 
 OslShaderGenerator::OslShaderGenerator()
@@ -258,16 +241,6 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     shader.endScope();
 
     return shaderPtr;
-}
-
-void OslShaderGenerator::emitFunctionDefinitions(Shader& shader)
-{
-    // Emit function for handling texture coords v-flip
-    // as needed relative to the default v-direction 
-    shader.addBlock(Shader::getDefaultVDirection() != getTargetVDirection() ? VDIRECTION_FLIP : VDIRECTION_NOOP, *this);
-
-    // Call parent to emit all other functions
-    ParentClass::emitFunctionDefinitions(shader);
 }
 
 void OslShaderGenerator::emitIncludes(Shader& shader)

@@ -2177,12 +2177,8 @@ TEST_CASE("Transparency", "[shadergen]")
     in->setValue(1.0f);
     in = nodeDef->addInput("transmission_tint", "color3");
     in->setValue(mx::Color3(1.0f, 1.0f, 1.0f));
-    in = nodeDef->addInput("roughness", "vector2");
-    in->setValue(mx::Vector2(0.0f, 0.0f));
     in = nodeDef->addInput("ior", "float");
     in->setValue(1.5f);
-    in = nodeDef->addInput("opacity", "float");
-    in->setValue(1.0f);
 
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("IMP_" + exampleName);
     nodeGraph->setAttribute("nodedef", nodeDef->getName());
@@ -2199,8 +2195,6 @@ TEST_CASE("Transparency", "[shadergen]")
     transmission_tint->setInterfaceName("transmission_tint");
     mx::InputPtr transmission_weight = transmission->addInput("weight", "float");
     transmission_weight->setInterfaceName("transmission");
-    mx::InputPtr transmission_roughness = transmission->addInput("roughness", "vector2");
-    transmission_roughness->setInterfaceName("roughness");
     mx::InputPtr transmission_ior = transmission->addInput("ior", "float");
     transmission_ior->setInterfaceName("ior");
 
@@ -2212,23 +2206,18 @@ TEST_CASE("Transparency", "[shadergen]")
     reflection_color->setInterfaceName("reflection_color");
     mx::InputPtr reflection_weight = reflection->addInput("weight", "float");
     reflection_weight->setInterfaceName("reflection");
-    mx::InputPtr reflection_roughness = reflection->addInput("roughness", "vector2");
-    reflection_roughness->setInterfaceName("roughness");
     mx::InputPtr reflection_ior = reflection->addInput("ior", "float");
     reflection_ior->setInterfaceName("ior");
 
     mx::NodePtr surface = nodeGraph->addNode("surface", "surface1", "surfaceshader");
     surface->setConnectedNode("bsdf", reflection);
 
-    mx::InputPtr opacity = surface->addInput("opacity", "float");
-    opacity->setInterfaceName("opacity");
-
     mx::OutputPtr output = nodeGraph->addOutput("out", "surfaceshader");
     output->setConnectedNode(surface);
 
     // Create a material with the above node as the shader
     mx::MaterialPtr mtrl = doc->addMaterial(exampleName + "_material");
-    mx::ShaderRefPtr shaderRef = mtrl->addShaderRef(exampleName + "_shader", "standard_surface");
+    mx::ShaderRefPtr shaderRef = mtrl->addShaderRef(exampleName + "_shader", exampleName);
 
     // Bind shader parameter values
     mx::BindInputPtr reflection_input = shaderRef->addBindInput("reflection", "float");
@@ -2237,8 +2226,6 @@ TEST_CASE("Transparency", "[shadergen]")
     transmission_input->setValue(1.0f);
     mx::BindInputPtr ior_input = shaderRef->addBindInput("ior", "float");
     ior_input->setValue(1.50f);
-    mx::BindInputPtr opacity_input = shaderRef->addBindInput("opacity", "color3");
-    opacity_input->setValue(mx::Color3(1.0f, 1, 1));
 
     mx::GenOptions options;
 
@@ -2286,12 +2273,11 @@ TEST_CASE("Transparency", "[shadergen]")
             mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
             createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator), options);
 
-            // Test the transparency tracking
-            transmission_input->setValue(0.0f);
+            // Track if this shader needs to handle transparency
             options.hwTransparency = isTransparentSurface(shaderRef, *shaderGenerator);
-            REQUIRE(!options.hwTransparency);
-            transmission_input->setValue(1.0f);
-            options.hwTransparency = isTransparentSurface(shaderRef, *shaderGenerator);
+
+            // Since transmission weight and tint is published (connected to the interface)
+            // this surface should be classifed as in need of transparency handling.
             REQUIRE(options.hwTransparency);
 
             mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, options);
@@ -2316,8 +2302,12 @@ TEST_CASE("Transparency", "[shadergen]")
         mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
         createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator), options);
 
-        // Specify if this shader needs to handle transparency
+        // Track if this shader needs to handle transparency
         options.hwTransparency = isTransparentSurface(shaderRef, *shaderGenerator);
+
+        // Since transmission weight and tint is published (connected to the interface)
+        // this surface should be classifed as in need of transparency handling.
+        REQUIRE(options.hwTransparency);
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, options);
         REQUIRE(shader != nullptr);

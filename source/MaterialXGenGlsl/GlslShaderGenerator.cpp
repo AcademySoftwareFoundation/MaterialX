@@ -28,24 +28,8 @@
 namespace MaterialX
 {
 
-namespace
-{
-    const char* VDIRECTION_FLIP =
-        "void vdirection(vec2 texcoord, out vec2 result)\n"
-        "{\n"
-        "   result.x = texcoord.x;\n"
-        "   result.y = 1.0 - texcoord.y;\n"
-        "}\n\n";
-
-    const char* VDIRECTION_NOOP =
-        "void vdirection(vec2 texcoord, out vec2 result)\n"
-        "{\n"
-        "   result = texcoord;\n"
-        "}\n\n";
-}
-
 const string GlslShaderGenerator::LANGUAGE = "sx-glsl";
-const string GlslShaderGenerator::TARGET = "glsl_v4.0";
+const string GlslShaderGenerator::TARGET = "glsl400";
 const string GlslShaderGenerator::VERSION = "400";
 const string GlslShaderGenerator::LIGHT_DIR = "L";
 const string GlslShaderGenerator::VIEW_DIR = "V";
@@ -472,10 +456,6 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
 void GlslShaderGenerator::emitFunctionDefinitions(Shader& shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-
-        // Emit function for handling texture coords v-flip 
-        // as needed relative to the default v-direction 
-        shader.addBlock(Shader::getDefaultVDirection() != getTargetVDirection() ? VDIRECTION_FLIP : VDIRECTION_NOOP, *this);
 
         // For surface shaders we need light shaders
         if (shader.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))

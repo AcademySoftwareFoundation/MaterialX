@@ -14,9 +14,4 @@ ArnoldShaderGenerator::ArnoldShaderGenerator()
     _syntax->registerRestrictedNames(restrictedNames);
 }
 
-Shader::VDirection ArnoldShaderGenerator::getTargetVDirection() const
-{
-    return Shader::VDirection::DOWN;
-}
-
 }
