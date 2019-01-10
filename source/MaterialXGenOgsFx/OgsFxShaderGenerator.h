@@ -46,9 +46,6 @@ public:
     /// Return a unique identifyer for the target this generator is for
     const string& getTarget() const override { return TARGET; }
 
-    /// Return the v-direction used by the target system
-    Shader::VDirection getTargetVDirection() const override { return Shader::VDirection::DOWN; }
-
     /// Generate a shader starting from the given element, translating 
     /// the element and all dependencies upstream into shader code.
     ShaderPtr generate(const string& shaderName, ElementPtr element, const GenOptions& options) override;

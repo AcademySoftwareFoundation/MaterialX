@@ -1,4 +1,4 @@
-void mx_srgb_to_linear_color4(vec4 _in, out vec4 result)
+void mx_srgb_texture_to_linear_color4(vec4 _in, out vec4 result)
 {
     vec4 outColor = vec4(_in.rgb, 0.);
     vec4 breakPnt = vec4(0.03928571566939354, 0.03928571566939354, 0.03928571566939354, 1.);

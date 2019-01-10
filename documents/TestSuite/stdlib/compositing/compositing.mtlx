@@ -10,9 +10,12 @@ Basic compositing function tests each test is in a separate graph for each varia
 - overlay
 - disjointover
 - mask
+- matte
+- in
 - out
 - over
 - inside
+- outside
 - mix
 - premult
 - unpremult
@@ -262,7 +265,7 @@ Basic compositing function tests each test is in a separate graph for each varia
     <output name="out" type="color4" nodename="disjointover1" />
   </nodegraph>
   <nodegraph name="mask_color2" type="" xpos="6.22388" ypos="29.2927">
-    <mask name="mask1" type="color2" xpos="5.74483" ypos="4.42">
+    <mask name="mask1" type="color2" xpos="5.0069" ypos="9.92">
       <input name="fg" type="color2" value="1.0000, 0.5000" />
       <input name="bg" type="color2" value="0.5000, 0.5000" />
       <input name="mix" type="float" value="0.5000" />
@@ -270,30 +273,30 @@ Basic compositing function tests each test is in a separate graph for each varia
     <output name="out" type="color2" nodename="mask1" />
   </nodegraph>
   <nodegraph name="mask_color4" type="" xpos="7.22892" ypos="29.2733">
-    <mask name="mask1" type="color4" xpos="5.74483" ypos="4.42">
+    <mask name="mask1" type="color4" xpos="5.0069" ypos="9.92">
       <input name="fg" type="color4" value="1.0000, 1.0000, 1.0000, 0.5000" />
       <input name="bg" type="color4" value="0.5000, 0.7500, 0.0, 0.5000" />
       <input name="mix" type="float" value="0.5000" />
     </mask>
     <output name="out" type="color4" nodename="mask1" />
   </nodegraph>
-  <nodegraph name="out_color2" type="" xpos="6.20908" ypos="30.5742">
-    <out name="out1" type="color2" xpos="5.74483" ypos="4.42">
+  <nodegraph name="out_color2" type="" xpos="6.21943" ypos="33.2042">
+    <out name="out1" type="color2" xpos="5.0069" ypos="9.92">
       <input name="fg" type="color2" value="1.0000, 0.5000" />
       <input name="bg" type="color2" value="0.5000, 0.5000" />
       <input name="mix" type="float" value="0.5000" />
     </out>
     <output name="out" type="color2" nodename="out1" />
   </nodegraph>
-  <nodegraph name="out_color4" type="" xpos="7.22457" ypos="30.5572">
-    <out name="out1" type="color4" xpos="5.74483" ypos="4.42">
+  <nodegraph name="out_color4" type="" xpos="7.23492" ypos="33.1872">
+    <out name="out1" type="color4" xpos="5.0069" ypos="9.92">
       <input name="fg" type="color4" value="1.0000, 1.0000, 1.0000, 0.5000" />
       <input name="bg" type="color4" value="1.0000, 1.0000, 0.0, 0.5000" />
       <input name="mix" type="float" value="0.5000" />
     </out>
     <output name="out" type="color4" nodename="out1" />
   </nodegraph>
-  <nodegraph name="over_color2" type="" xpos="6.2137" ypos="31.9102">
+  <nodegraph name="over_color2" type="" xpos="6.22404" ypos="34.5402">
     <over name="over1" type="color2" xpos="5.74483" ypos="4.42">
       <input name="fg" type="color2" value="1.0000, 0.5000" />
       <input name="bg" type="color2" value="0.5000, 0.5000" />
@@ -301,7 +304,7 @@ Basic compositing function tests each test is in a separate graph for each varia
     </over>
     <output name="out" type="color2" nodename="over1" />
   </nodegraph>
-  <nodegraph name="over_color4" type="" xpos="7.22158" ypos="31.8841">
+  <nodegraph name="over_color4" type="" xpos="7.23192" ypos="34.5142">
     <over name="over1" type="color4" xpos="5.74483" ypos="4.42">
       <input name="fg" type="color4" value="1.0000, 1.0000, 1.0000, 0.5000" />
       <input name="bg" type="color4" value="1.0000, 1.0000, 0.0, 0.5000" />
@@ -309,21 +312,21 @@ Basic compositing function tests each test is in a separate graph for each varia
     </over>
     <output name="out" type="color4" nodename="over1" />
   </nodegraph>
-  <nodegraph name="inside_float" type="" xpos="6.19846" ypos="33.3686">
-    <inside name="inside1" type="float" xpos="5.74483" ypos="4.58">
+  <nodegraph name="inside_float" type="" xpos="6.20881" ypos="35.9986">
+    <inside name="inside1" type="float" xpos="5.0069" ypos="10.08">
       <input name="in" type="float" value="1.0000" />
       <input name="mask" type="float" value="0.5000" />
     </inside>
     <output name="out" type="float" nodename="inside1" />
   </nodegraph>
-  <nodegraph name="inside_color2" type="" xpos="7.20932" ypos="33.3686">
-    <inside name="inside1" type="color2" xpos="5.74483" ypos="4.58">
+  <nodegraph name="inside_color2" type="" xpos="7.21966" ypos="35.9986">
+    <inside name="inside1" type="color2" xpos="5.0069" ypos="10.08">
       <input name="in" type="color2" value="0.5000, 0.8000" />
       <input name="mask" type="float" value="0.5000" />
     </inside>
     <output name="out" type="color2" nodename="inside1" />
   </nodegraph>
-  <nodegraph name="mix_float" type="" xpos="6.18649" ypos="34.6956">
+  <nodegraph name="mix_float" type="" xpos="6.2028" ypos="38.5028">
     <mix name="mix1" type="float" xpos="5.74483" ypos="4.42">
       <input name="fg" type="float" value="1.0000" />
       <input name="bg" type="float" value="0.0" />
@@ -331,7 +334,7 @@ Basic compositing function tests each test is in a separate graph for each varia
     </mix>
     <output name="out" type="float" nodename="mix1" />
   </nodegraph>
-  <nodegraph name="mix_color2" type="" xpos="7.21232" ypos="34.6956">
+  <nodegraph name="mix_color2" type="" xpos="7.22863" ypos="38.5028">
     <mix name="mix1" type="color2" xpos="5.74483" ypos="4.42">
       <input name="fg" type="color2" value="1.0000, 0.0000" />
       <input name="bg" type="color2" value="0.0, 1.0" />
@@ -339,21 +342,21 @@ Basic compositing function tests each test is in a separate graph for each varia
     </mix>
     <output name="out" type="color2" nodename="mix1" />
   </nodegraph>
-  <nodegraph name="inside_color3" type="" xpos="8.22917" ypos="33.3426">
-    <inside name="inside1" type="color3" xpos="5.74483" ypos="4.58">
+  <nodegraph name="inside_color3" type="" xpos="8.23952" ypos="35.9726">
+    <inside name="inside1" type="color3" xpos="5.0069" ypos="10.08">
       <input name="in" type="color3" value="0.5000, 0.8000, 0.0000" />
       <input name="mask" type="float" value="0.5000" />
     </inside>
     <output name="out" type="color3" nodename="inside1" />
   </nodegraph>
-  <nodegraph name="inside_color4" type="" xpos="9.26223" ypos="33.3512">
-    <inside name="inside1" type="color4" xpos="5.74483" ypos="4.58">
+  <nodegraph name="inside_color4" type="" xpos="9.27257" ypos="35.9812">
+    <inside name="inside1" type="color4" xpos="5.0069" ypos="10.08">
       <input name="in" type="color4" value="0.5000, 0.8000, 0.0, 1.0" />
       <input name="mask" type="float" value="0.5000" />
     </inside>
     <output name="out" type="color4" nodename="inside1" />
   </nodegraph>
-  <nodegraph name="mix_color3" type="" xpos="8.23216" ypos="34.6854">
+  <nodegraph name="mix_color3" type="" xpos="8.24848" ypos="38.4926">
     <mix name="mix1" type="color3" xpos="5.74483" ypos="4.42">
       <input name="fg" type="color3" value="1.0000, 0.0, 0.0" />
       <input name="bg" type="color3" value="0.0, 1.0000, 0.0" />
@@ -361,7 +364,7 @@ Basic compositing function tests each test is in a separate graph for each varia
     </mix>
     <output name="out" type="color3" nodename="mix1" />
   </nodegraph>
-  <nodegraph name="mix_color4" type="" xpos="9.29088" ypos="34.6768">
+  <nodegraph name="mix_color4" type="" xpos="9.3072" ypos="38.484">
     <mix name="mix1" type="color4" xpos="5.74483" ypos="4.42">
       <input name="fg" type="color4" value="1.0000, 0.0, 0.0, 1.0" />
       <input name="bg" type="color4" value="0.0000, 1.0000, 0.0, 1.0" />
@@ -369,7 +372,7 @@ Basic compositing function tests each test is in a separate graph for each varia
     </mix>
     <output name="out" type="color4" nodename="mix1" />
   </nodegraph>
-  <nodegraph name="mix_vector2" type="" xpos="7.19221" ypos="36.147">
+  <nodegraph name="mix_vector2" type="" xpos="7.20853" ypos="39.9542">
     <mix name="mix1" type="vector2" xpos="5.74483" ypos="4.42">
       <input name="fg" type="vector2" value="1.0000, 0.0" />
       <input name="bg" type="vector2" value="0.0, 1.0000" />
@@ -377,7 +380,7 @@ Basic compositing function tests each test is in a separate graph for each varia
     </mix>
     <output name="out" type="vector2" nodename="mix1" />
   </nodegraph>
-  <nodegraph name="mix_vector3" type="" xpos="8.24012" ypos="36.1306">
+  <nodegraph name="mix_vector3" type="" xpos="8.25643" ypos="39.9378">
     <mix name="mix1" type="vector3" xpos="5.74483" ypos="4.42">
       <input name="fg" type="vector3" value="1.0000, 0.0, 0.0" />
       <input name="bg" type="vector3" value="0.0, 1.0000, 0.0" />
@@ -385,7 +388,7 @@ Basic compositing function tests each test is in a separate graph for each varia
     </mix>
     <output name="out" type="vector3" nodename="mix1" />
   </nodegraph>
-  <nodegraph name="mix_vector4" type="" xpos="9.30868" ypos="36.0818">
+  <nodegraph name="mix_vector4" type="" xpos="9.325" ypos="39.889">
     <mix name="mix1" type="vector4" xpos="5.74483" ypos="4.42">
       <input name="fg" type="vector4" value="1.0000, 0.0, 0.0, 1.0" />
       <input name="bg" type="vector4" value="0.0, 1.0000, 0.0, 1.0" />
@@ -393,42 +396,102 @@ Basic compositing function tests each test is in a separate graph for each varia
     </mix>
     <output name="out" type="vector4" nodename="mix1" />
   </nodegraph>
-  <nodegraph name="premult_color2" type="" xpos="6.19276" ypos="37.6716">
+  <nodegraph name="premult_color2" type="" xpos="6.20907" ypos="41.4788">
     <premult name="premult1" type="color2" xpos="5.74483" ypos="4.74">
       <input name="in" type="color2" value="1.0000, 0.5000" />
     </premult>
     <output name="out" type="color2" nodename="premult1" />
   </nodegraph>
-  <nodegraph name="premult_color3" type="" xpos="7.19167" ypos="37.6542">
+  <nodegraph name="premult_color3" type="" xpos="7.20799" ypos="41.4614">
     <premult name="premult1" type="color3" xpos="5.74483" ypos="4.58">
       <input name="in" type="color3" value="1.0000, 0.0, 0.5000" />
       <input name="alpha" type="float" value="0.5000" />
     </premult>
     <output name="out" type="color3" nodename="premult1" />
   </nodegraph>
-  <nodegraph name="premult_color4" type="" xpos="8.23843" ypos="37.637">
+  <nodegraph name="premult_color4" type="" xpos="8.25474" ypos="41.4442">
     <premult name="premult1" type="color4" xpos="5.74483" ypos="4.74">
       <input name="in" type="color4" value="1.0000, 0.0, 0.5000, 0.5000" />
     </premult>
     <output name="out" type="color4" nodename="premult1" />
   </nodegraph>
-  <nodegraph name="unpremult_color2" type="" xpos="6.17482" ypos="39.2502">
+  <nodegraph name="unpremult_color2" type="" xpos="6.19113" ypos="43.0574">
     <unpremult name="unpremult1" type="color2" xpos="5.74483" ypos="4.74">
       <input name="in" type="color2" value="1.0000, 0.5000" />
     </unpremult>
     <output name="out" type="color2" nodename="unpremult1" />
   </nodegraph>
-  <nodegraph name="unpremult_color3" type="" xpos="7.21559" ypos="39.198">
+  <nodegraph name="unpremult_color3" type="" xpos="7.23191" ypos="43.0052">
     <unpremult name="unpremult1" type="color3" xpos="5.74483" ypos="4.58">
       <input name="in" type="color3" value="1.0000, 0.0, 0.5000" />
       <input name="alpha" type="float" value="0.5000" />
     </unpremult>
     <output name="out" type="color3" nodename="unpremult1" />
   </nodegraph>
-  <nodegraph name="unpremult_color4" type="" xpos="8.25637" ypos="39.1634">
+  <nodegraph name="unpremult_color4" type="" xpos="8.27269" ypos="42.9706">
     <unpremult name="unpremult1" type="color4" xpos="5.74483" ypos="4.58">
       <input name="in" type="color4" value="1.0000, 0.0, 0.5000, 0.5000" />
     </unpremult>
     <output name="out" type="color4" nodename="unpremult1" />
+  </nodegraph>
+  <nodegraph name="in_color2" type="" xpos="6.21392" ypos="31.9246">
+    <in name="in1" type="color2" xpos="5.75172" ypos="4.42">
+      <input name="fg" type="color2" value="1.0000, 0.5000" />
+      <input name="bg" type="color2" value="0.5000, 0.5000" />
+      <input name="mix" type="float" value="0.5000" />
+    </in>
+    <output name="out" type="color2" nodename="in1" />
+  </nodegraph>
+  <nodegraph name="in_color4" type="" xpos="7.23719" ypos="31.8966">
+    <in name="in1" type="color4" xpos="5.75172" ypos="4.42">
+      <input name="fg" type="color4" value="1.0000, 1.0000, 1.0000, 0.5000" />
+      <input name="bg" type="color4" value="1.0000, 1.0000, 0.0, 0.5000" />
+      <input name="mix" type="float" value="0.5000" />
+    </in>
+    <output name="out" type="color4" nodename="in1" />
+  </nodegraph>
+  <nodegraph name="outside_float" type="" xpos="6.21034" ypos="37.29">
+    <outside name="outside1" type="float" xpos="5.75172" ypos="4.58">
+      <input name="in" type="float" value="1.0000" />
+      <input name="mask" type="float" value="0.5000" />
+    </outside>
+    <output name="out" type="float" nodename="outside1" />
+  </nodegraph>
+  <nodegraph name="outside_color2" type="" xpos="7.22759" ypos="37.265">
+    <outside name="outside1" type="color2" xpos="5.75172" ypos="4.58">
+      <input name="in" type="color2" value="0.5000, 0.8000" />
+      <input name="mask" type="float" value="0.5000" />
+    </outside>
+    <output name="out" type="color2" nodename="outside1" />
+  </nodegraph>
+  <nodegraph name="outside_color3" type="" xpos="8.23448" ypos="37.25">
+    <outside name="outside1" type="color3" xpos="5.75172" ypos="4.58">
+      <input name="in" type="color3" value="0.5000, 0.8000, 0.0" />
+      <input name="mask" type="float" value="0.5000" />
+    </outside>
+    <output name="out" type="color3" nodename="outside1" />
+  </nodegraph>
+  <nodegraph name="outside_color4" type="" xpos="9.27241" ypos="37.25">
+    <outside name="outside1" type="color4" xpos="5.75172" ypos="4.58">
+      <input name="in" type="color4" value="0.5000, 0.8000, 0.0, 1.0" />
+      <input name="mask" type="float" value="0.5000" />
+    </outside>
+    <output name="out" type="color4" nodename="outside1" />
+  </nodegraph>
+  <nodegraph name="matte_color2" type="" xpos="6.21219" ypos="30.6344">
+    <matte name="matte1" type="color2" xpos="5.75172" ypos="4.42">
+      <input name="fg" type="color2" value="1.0000, 0.5000" />
+      <input name="bg" type="color2" value="0.5000, 0.5000" />
+      <input name="mix" type="float" value="0.5000" />
+    </matte>
+    <output name="out" type="color2" nodename="matte1" />
+  </nodegraph>
+  <nodegraph name="matte_color4" type="" xpos="7.22237" ypos="30.6262">
+    <matte name="matte1" type="color4" xpos="5.75172" ypos="4.42">
+      <input name="fg" type="color4" value="1.0000, 1.0000, 1.0000, 0.5000" />
+      <input name="bg" type="color4" value="0.5000, 0.7500, 0.0, 0.5000" />
+      <input name="mix" type="float" value="0.5000" />
+    </matte>
+    <output name="out" type="color4" nodename="matte1" />
   </nodegraph>
 </materialx>

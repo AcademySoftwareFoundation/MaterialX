@@ -1,0 +1,110 @@
+<!--
+
+Basic transform function tests each test is in a separate graph for each variation in input type.
+- transformpoint
+- transformvector
+- transformnormal
+
+-->
+<?xml version="1.0"?>
+<materialx version="1.36">
+  <nodegraph name="transform_point_vector3">
+    <transformpoint name="transformpoint1" type="vector3">
+	    <input name="in" type="vector3" value="1.0, 0.5, 0.0"/>
+	    <input name="fromspace" type="string" value="object"/>
+	    <input name="tospace" type="string" value="world"/>
+    </transformpoint>
+    <output name="out" type="vector3" nodename="transformpoint1" />
+  </nodegraph>
+  <nodegraph name="transform_point_vector4">
+    <transformpoint name="transformpoint1" type="vector4">
+	    <input name="in" type="vector4" value="1.0, 0.5, 0.0, 1.0"/>
+	    <input name="fromspace" type="string" value="object"/>
+	    <input name="tospace" type="string" value="world"/>
+    </transformpoint>
+    <output name="out" type="vector4" nodename="transformpoint1" />
+  </nodegraph>
+  <!--
+  <nodegraph name="transform_point_vector3M">
+    <transformpoint name="transformpoint1" type="vector3">
+	    <input name="in" type="vector3" value="1.0, 0.5, 0.0"/>
+	    <input name="mat" type="matrix33" value="0.5, 0.0, 0.0,  0.0, 2.0, 0.0,  0.0, 0.0, 0.0"/>
+    </transformpoint>
+    <output name="out" type="vector3" nodename="transformpoint1" />
+  </nodegraph>
+  -->
+  <nodegraph name="transform_point_vector4M">
+    <transformpoint name="transformpoint1" type="vector4">
+	    <input name="in" type="vector4" value="1.0, 0.5, 0.0, 1.0"/>
+	    <input name="mat" type="matrix44" value="0.5, 0.0, 0.0, 0.0,  0.0, 2.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 1.0"/>
+    </transformpoint>
+    <output name="out" type="vector4" nodename="transformpoint1" />
+  </nodegraph>
+  <!--
+  <nodegraph name="transform_vector_vector3">
+    <transformvector name="transformvector1" type="vector3">
+	    <input name="in" type="vector3" value="1.0, 0.5, 0.0"/>
+	    <input name="fromspace" type="string" value="object"/>
+	    <input name="tospace" type="string" value="world"/>
+    </transformvector>
+    <output name="out" type="vector3" nodename="transformvector1" />
+  </nodegraph>
+  -->
+  <nodegraph name="transform_vector_vector4">
+    <transformvector name="transformvector1" type="vector4">
+	    <input name="in" type="vector4" value="1.0, 0.5, 0.0, 1.0"/>
+	    <input name="fromspace" type="string" value="object"/>
+	    <input name="tospace" type="string" value="world"/>
+    </transformvector>
+    <output name="out" type="vector4" nodename="transformvector1" />
+  </nodegraph>
+  <!--
+  <nodegraph name="transform_vector_vector3M">
+    <transformvector name="transformvector1" type="vector3">
+	    <input name="in" type="vector3" value="1.0, 0.5, 0.0"/>
+	    <input name="mat" type="matrix33" value="0.5, 0.0, 0.0,  0.0, 2.0, 0.0,  0.0, 0.0, 0.0"/>
+    </transformvector>
+    <output name="out" type="vector3" nodename="transformvector1" />
+  </nodegraph>
+  -->
+  <nodegraph name="transform_vector_vector4M">
+    <transformvector name="transformvector1" type="vector4">
+	    <input name="in" type="vector4" value="1.0, 0.5, 0.0, 1.0"/>
+	    <input name="mat" type="matrix44" value="0.5, 0.0, 0.0, 0.0,  0.0, 2.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 1.0"/>
+    </transformvector>
+    <output name="out" type="vector4" nodename="transformvector1" />
+  </nodegraph>
+  <nodegraph name="transform_normal_vector3">
+    <transformnormal name="transformnormal1" type="vector3">
+	    <input name="in" type="vector3" value="1.0, 0.5, 0.0"/>
+	    <input name="fromspace" type="string" value="object"/>
+	    <input name="tospace" type="string" value="world"/>
+    </transformnormal>
+    <output name="out" type="vector3" nodename="transformnormal1" />
+  </nodegraph>
+  <nodegraph name="transform_normal_vector4">
+    <transformnormal name="transformnormal1" type="vector4">
+	    <input name="in" type="vector4" value="1.0, 0.5, 0.0, 1.0"/>
+	    <input name="fromspace" type="string" value="object"/>
+	    <input name="tospace" type="string" value="world"/>
+    </transformnormal>
+    <output name="out" type="vector4" nodename="transformnormal1" />
+  </nodegraph>
+  <!--
+  <nodegraph name="transform_normal_vector3M">
+    <transformnormal name="transformnormal1" type="vector3">
+	    <input name="in" type="vector3" value="1.0, 0.5, 0.0"/>
+	    <input name="mat" type="matrix33" value="0.5, 0.0, 0.0,  0.0, 2.0, 0.0,  0.0, 0.0, 0.0"/>
+    </transformnormal>
+    <output name="out" type="vector3" nodename="transformnormal1" />
+  </nodegraph>
+  -->
+  <nodegraph name="transform_normal_vector4M">
+    <transformnormal name="transformnormal1" type="vector4">
+	    <input name="in" type="vector4" value="1.0, 0.5, 0.0, 1.0"/>
+	    <input name="mat" type="matrix44" value="0.5, 0.0, 0.0, 0.0,  0.0, 2.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 1.0"/>
+    </transformnormal>
+    <output name="out" type="vector4" nodename="transformnormal1" />
+  </nodegraph>
+</materialx>
+

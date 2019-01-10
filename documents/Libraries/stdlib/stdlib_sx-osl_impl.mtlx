@@ -321,8 +321,8 @@
   <implementation name="IM_invert_vector3FA_sx_osl" nodedef="ND_invert_vector3FA" file="stdlib/sx-osl/mx_invert.inline" language="sx-osl"/>
   <implementation name="IM_invert_vector4_sx_osl" nodedef="ND_invert_vector4" file="stdlib/sx-osl/mx_invert.inline" language="sx-osl"/>
   <implementation name="IM_invert_vector4FA_sx_osl" nodedef="ND_invert_vector4FA" file="stdlib/sx-osl/mx_invert.inline" language="sx-osl"/>
-  <implementation name="IM_invert_matrix33_sx_osl" nodedef="ND_invert_matrix33" file="stdlib/sx-osl/mx_invert.inline" language="sx-osl"/>
-  <implementation name="IM_invert_matrix44_sx_osl" nodedef="ND_invert_matrix44" file="stdlib/sx-osl/mx_invert.inline" language="sx-osl"/>
+  <implementation name="IM_invert_matrix33_sx_osl" nodedef="ND_invert_matrix33" file="stdlib/sx-osl/mx_invertM.inline" language="sx-osl"/>
+  <implementation name="IM_invert_matrix44_sx_osl" nodedef="ND_invert_matrix44" file="stdlib/sx-osl/mx_invertM.inline" language="sx-osl"/>
 
   <!-- <absval> -->
   <implementation name="IM_absval_float_sx_osl" nodedef="ND_absval_float" file="stdlib/sx-osl/mx_absval.inline" language="sx-osl"/>

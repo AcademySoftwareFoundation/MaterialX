@@ -2,15 +2,16 @@
 <World>
    <Camera eye="11.5, 0, 0" look_at="0,0,0" fov="10" />
 
-   <!-- Background clear 
+   <!-- Background clear
    %background_color% : is the background color
    -->
    <ShaderGroup>
       color Cin %background_color%;
       shader constant_color_background layer1;
    </ShaderGroup>
+   <!--
    <Background resolution="1024" />
-
+   -->
    <!-- Shader graph for routing to output layer:
    %input_shader_type% : type of an input shader to feed into the output shader.
    %input_shader_output% : name of output argument on input shader.
@@ -25,4 +26,3 @@
    <Sphere center="0,0,0" radius="0.5" />
 
 </World>
-

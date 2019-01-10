@@ -20,9 +20,6 @@ public:
     /// the element and all dependencies upstream into shader code.
     ShaderPtr generate(const string& shaderName, ElementPtr element, const GenOptions& options) override;
 
-    /// Emit function definitions for all nodes
-    void emitFunctionDefinitions(Shader& shader) override;
-
     /// Emit the shader body
     void emitFunctionCalls(const GenContext& context, Shader& shader) override;
 

@@ -550,6 +550,10 @@ void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>
                 {
                     // Add in all shader references which are not part of a node definition library
                     NodeDefPtr nodeDef = shaderRef->getNodeDef();
+                    if (!nodeDef)
+                    {
+                        throw ExceptionShaderGenError("Could not find a nodedef for shaderref '" + shaderRef->getName() + "'");
+                    }
                     if (nodeDef && 
                         requiresImplementation(nodeDef))
                     {
@@ -587,6 +591,10 @@ void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>
                         shaderrefOutputs.count(output) == 0)
                     {                        
                         NodeDefPtr nodeDef = outputNode->getNodeDef();
+                        if (!nodeDef)
+                        {
+                            throw ExceptionShaderGenError("Could not find a nodedef for output '" + outputNode->getName() + "'");
+                        }
                         if (nodeDef &&
                             requiresImplementation(nodeDef))
                         {

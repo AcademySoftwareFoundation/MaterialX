@@ -6,9 +6,8 @@ void mx_image_vector2(string file, string layer, vector2 default_value, vector2 
         return;
     }
 
-    vdirection(texcoord, texcoord);
     color missingColor = color(default_value.x, default_value.y, 0.0);
-    color rgb = texture(file, texcoord.x, texcoord.y, "subimage", layer, "missingcolor", missingColor, "wrap", uaddressmode);
+    color rgb = texture(file, texcoord.x, 1.0 - texcoord.y, "subimage", layer, "missingcolor", missingColor, "wrap", uaddressmode);
     out.x = rgb[0];
     out.y = rgb[1];
 }
