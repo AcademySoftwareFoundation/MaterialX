@@ -180,7 +180,7 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
     {
         // Find the nodedef for the geometric node referenced by the geomprop. Use the type of the
         // input here and ignore the type of the geomprop. They are required to have the same type.
-        string geomNodeDefName = "ND_" + geomprop.getName() + "_" + input->type->getName();
+        string geomNodeDefName = "ND_" + geomprop.getNode() + "_" + input->type->getName();
         NodeDefPtr geomNodeDef = _document->getNodeDef(geomNodeDefName);
         if (!geomNodeDef)
         {
