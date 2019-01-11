@@ -1,0 +1,4 @@
+void mx_dielectricbtdf(float weight, color _color, float ior, roughnessinfo roughness, vector _normal, vector _tangent, string distribution, VDF interior, output BSDF result)
+{
+    result = _color * weight * microfacet(distribution, _normal, _tangent, roughness.alphaX, roughness.alphaY, ior, true) + weight * interior;
+}

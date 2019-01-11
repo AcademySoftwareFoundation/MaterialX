@@ -53,14 +53,14 @@ namespace
 
     static const std::unordered_map<string, string> OGSFX_GET_LIGHT_DATA_MAP =
     {
-        { "type", "getLightType" },
-        { "position", "getLightPos" },
-        { "direction", "getLightDir" },
-        { "color", "getLightColor" },
-        { "intensity", "getLightIntensity" },
-        { "decayRate", "getLightDecayRate" },
-        { "innerConeAngle", "getLightConeAngle" },
-        { "outerConeAngle", "getLightPenumbraAngle" }
+        { "type", "mx_getLightType" },
+        { "position", "mx_getLightPos" },
+        { "direction", "mx_getLightDir" },
+        { "color", "mx_getLightColor" },
+        { "intensity", "mx_getLightIntensity" },
+        { "decayRate", "mx_getLightDecayRate" },
+        { "innerConeAngle", "mx_getLightConeAngle" },
+        { "outerConeAngle", "mx_getLightPenumbraAngle" }
     };
 }
 
@@ -197,14 +197,14 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     }
 
     // Emit common math functions
-    shader.addInclude("sxpbrlib/sx-glsl/lib/sx_math.glsl", *this);
+    shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_math.glsl", *this);
     shader.newLine();
 
     // Emit sampling code if needed
     if (shader.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
     {
         // Emit sampling functions
-        shader.addInclude("stdlib/sx-glsl/lib/sx_sampling.glsl", *this);
+        shader.addInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_sampling.glsl", *this);
         shader.newLine();
     }
 
@@ -261,7 +261,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.newLine();
 
     // Add global constants and type definitions
-    shader.addInclude("sxpbrlib/sx-glsl/lib/sx_defines.glsl", *this);
+    shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_defines.glsl", *this);
     shader.addLine("#define MAX_LIGHT_SOURCES " + std::to_string(getMaxActiveLightSources()), false);
     shader.newLine();
     emitTypeDefinitions(shader);
@@ -366,15 +366,15 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     if (lighting)
     {
         // Emit OGS lighting uniforms
-        shader.addInclude("sxpbrlib/sx-glsl/ogsfx/lighting_uniforms.glsl", *this);
+        shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/" + OgsFxShaderGenerator::TARGET + "/mx_lighting_uniforms.glsl", *this);
         shader.newLine();
 
         // Emit lighting functions
         shader.addLine("GLSLShader LightingFunctions", false);
         shader.beginScope(Shader::Brackets::BRACES);
-        shader.addInclude("sxpbrlib/sx-glsl/ogsfx/lighting_functions.glsl", *this);
+        shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/" + OgsFxShaderGenerator::TARGET + "/mx_lighting_functions.glsl", *this);
         shader.newLine();
-        shader.addInclude("sxpbrlib/sx-glsl/lib/sx_lighting.glsl", *this);
+        shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_lighting.glsl", *this);
         shader.endScope();
         shader.newLine();
     }

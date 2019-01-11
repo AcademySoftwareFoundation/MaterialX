@@ -54,23 +54,30 @@ void loadLibrary(const mx::FilePath& file, mx::DocumentPtr doc)
     doc->importLibrary(libDoc, &copyOptions);
 }
 
+// Loads all the MTLX files below a given library path
 void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc,
                    const std::set<std::string>* excludeFiles = nullptr)
 {
     const std::string MTLX_EXTENSION("mtlx");
     for (const std::string& library : libraryNames)
     {
-        mx::FilePath path = searchPath / library;
-        mx::StringVec filenames;
-        mx::getFilesInDirectory(path.asString(), filenames, MTLX_EXTENSION);
+        mx::StringVec librarySubPaths;
+        mx::FilePath libraryPath = searchPath / library;
+        mx::getSubDirectories(libraryPath, librarySubPaths);
 
-        for (const std::string& filename : filenames)
+        for (auto path : librarySubPaths)
         {
-            if (excludeFiles && excludeFiles->count(filename))
+            mx::StringVec filenames;
+            mx::getFilesInDirectory(path, filenames, MTLX_EXTENSION);
+
+            for (const std::string& filename : filenames)
             {
-                continue;
+                if (excludeFiles && excludeFiles->count(filename))
+                {
+                    continue;
+                }
+                loadLibrary(mx::FilePath(path)/ filename, doc);
             }
-            loadLibrary(path / filename, doc);
         }
     }
     REQUIRE(doc->getNodeDefs().size() > 0);
@@ -163,7 +170,7 @@ TEST_CASE("Valid Libraries", "[shadergen]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
 
     std::string validationErrors;
     bool valid = doc->validate(&validationErrors);
@@ -503,7 +510,7 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
 
     std::vector<mx::ShaderGeneratorPtr> shaderGenerators =
     {
@@ -1664,7 +1671,7 @@ TEST_CASE("Subgraphs", "[shadergen]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), doc);
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), doc);
@@ -1784,13 +1791,13 @@ TEST_CASE("Materials", "[shadergen]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), doc);
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), doc);
     loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), doc);
 
-    mx::FilePath materialsFile = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/sxpbrlib/materials/surfaceshader.mtlx");
+    mx::FilePath materialsFile = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/pbrlib/materials/surfaceshader.mtlx");
     mx::readFromXmlFile(doc, materialsFile.asString());
 
     // Get all materials
@@ -1898,7 +1905,7 @@ TEST_CASE("Color Spaces", "[shadergen]")
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
     mx::StringVec libraryNames;
-    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
 
     mx::MaterialPtr material = doc->addMaterial("color_spaces");
     mx::ShaderRefPtr shaderRef = material->addShaderRef("color_spaces_surface", "standard_surface");
@@ -1994,7 +2001,7 @@ TEST_CASE("BSDF Layering", "[shadergen]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), doc);
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), doc);
@@ -2159,7 +2166,7 @@ TEST_CASE("Transparency", "[shadergen]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), doc);
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), doc);
@@ -2331,7 +2338,7 @@ TEST_CASE("Surface Layering", "[shadergen]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), doc);
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), doc);

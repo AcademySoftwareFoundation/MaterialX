@@ -1,0 +1,5 @@
+void mx_sheenbrdf(float weight, color _color, float rougness, vector _normal, BSDF base, output BSDF result)
+{
+    // TODO: implement this properly
+    result = _color * weight * oren_nayar({{normal}}, {{roughness}})
+}

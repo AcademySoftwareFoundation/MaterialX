@@ -1,4 +1,0 @@
-void sx_srgb_linear_color3(color in, output color result)
-{
-    result = pow(in, 2.2);
-}
