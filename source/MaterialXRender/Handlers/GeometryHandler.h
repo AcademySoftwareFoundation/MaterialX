@@ -1,124 +1,109 @@
 #ifndef MATERIALX_GEOMETRYHANDLER_H
 #define MATERIALX_GEOMETRYHANDLER_H
 
-#include <MaterialXCore/Types.h>
-#include <string>
+#include <MaterialXRender/Handlers/Mesh.h>
 #include <memory>
-#include <vector>
+#include <map>
 
 namespace MaterialX
 {
+
+/// Shared pointer to a GeometryLoader
+using GeometryLoaderPtr = std::shared_ptr<class GeometryLoader>;
+
+/// @class @GeometryLoader
+/// Base class representing a geometry loader. A loader can be 
+/// associated with one or more file extensions.
+class GeometryLoader
+{
+  public:
+    /// Default constructor
+    GeometryLoader() {}
+
+    /// Default destructor
+    virtual ~GeometryLoader() {}
+
+    /// Returns a list of supported extensions
+    /// @return List of support extensions
+    const vector<string>& supportedExtensions()
+    {
+        return _extensions;
+    }
+
+    /// Load geometry from disk. Must be implemented by derived classes
+    /// @param fileName Name of file to load
+    /// @param meshList List of meshes to update
+    /// @return True if load was successful 
+    virtual bool load(const string& fileName, MeshList& meshList) = 0;
+
+  protected:
+    /// List of supported string extensions
+    StringVec _extensions;
+};
+
 /// Shared pointer to an GeometryHandler
 using GeometryHandlerPtr = std::shared_ptr<class GeometryHandler>;
 
+/// Map of extensions to image loaders
+using GeometryLoaderMap = std::multimap<string, GeometryLoaderPtr>;
+
 /// @class @GeometryHandler
-/// Abstract class representing a geometry handler for providing data for shader binding.
-///
+/// Class which holds a set of geometry loaders. Each loader is associated with
+/// a given set of file extensions. 
 class GeometryHandler
 {
-  public:
-    /// Geometry index buffer
-    using IndexBuffer = std::vector<unsigned int>;
-    /// Float geometry buffer
-    using FloatBuffer = std::vector<float>;
-      
+  public: 
     /// Default constructor
-    GeometryHandler();
+    GeometryHandler() {};
     
     /// Default destructor
-    virtual ~GeometryHandler();
+    virtual ~GeometryHandler() {};
 
-    /// Set the identifier which will indicate what geometry to return
-    /// e.g. UNIT_QUAD is one identifier
-    virtual void setIdentifier(const std::string& identifier);
-    
-    /// Get geometry identifier
-    const std::string& getIdentifier() const
+    /// Add a geometry loader
+    /// @param loader Loader to add to list of available loaders.
+    void addLoader(GeometryLoaderPtr loader);
+
+    /// Clear all loaded geometry
+    void clearGeometry();
+
+    // Determine if any meshes have been loaded from a given location
+    bool hasGeometry(const string& location);
+
+    // Find all meshes loaded from a given location
+    void getGeometry(MeshList& meshes, const string& location);
+
+    /// Clear geometry with a given location
+    void clearGeometry(const string& location);
+
+    /// Load geometry from a given location
+    bool loadGeometry(const string& location);
+
+    /// Get list of meshes
+    const MeshList& getMeshes() const
     {
-        return _identifier;
+        return _meshes;
     }
 
-    /// Create indexing data for geometry. The indexing is assumed to 
-    /// be for a set of triangles. That is every 3 values index triangle data.
-    virtual IndexBuffer& getIndexing() = 0;
-
-    /// Create position data. 
-    /// @param stride The stride between elements. Returned.
-    /// @param index Attribute index for identifying different sets of data. Default value is 0.
-    /// Passing in a 0 indicates to use the "default" or first set of data.
-    virtual FloatBuffer& getPositions(unsigned int& stride, unsigned int index = 0) = 0;
-
-    /// Create normal data.
-    /// @param stride The stride between elements. Returned.
-    /// @param index Attribute index for identifying different sets of data. Default value is 0.
-    /// Passing in a 0 indicates to use the "default" or first set of data.
-    virtual FloatBuffer& getNormals(unsigned int& stride, unsigned int index = 0) = 0;
-
-    /// Create texture coordinate (uv) data.
-    /// @param stride The stride between elements. Returned.
-    /// @param index Attribute index for identifying different sets of data. Default value is 0.
-    /// Passing in a 0 indicates to use the "default" or first set of data.
-    virtual FloatBuffer& getTextureCoords(unsigned int& stride, unsigned int index = 0) = 0;
-
-    /// Create tangent data.
-    /// @param stride The stride between elements. Returned.
-    /// @param index Attribute index for identifying different sets of data. Default value is 0.
-    /// Passing in a 0 indicates to use the "default" or first set of data.
-    virtual FloatBuffer& getTangents(unsigned int& stride, unsigned int index = 0) = 0;
-
-    /// Create bitangent data.
-    /// @param stride The stride between elements. Returned.
-    /// @param index Attribute index for identifying different sets of data. Default value is 0.
-    /// Passing in a 0 indicates to use the "default" or first set of data.
-    virtual FloatBuffer& getBitangents(unsigned int& stride, unsigned int index = 0) = 0;
-
-    /// Create color data.
-    /// @param stride The stride between elements. Returned.
-    /// @param index Attribute index for identifying different sets of data. Default value is 0.
-    /// Passing in a 0 indicates to use the "default" or first set of data.
-    virtual FloatBuffer& getColors(unsigned int& stride, unsigned int index = 0) = 0;
-
-    /// Create attribute data. 
-    /// @param attributeType String indicating type of attribute. Any string which starts
-    /// with the attribute constants for this class will call the corresponding attribute
-    /// specific method in this class. e.g. A string starting with POSITION_ATTRIBUTE
-    /// will call the getPositions() method.
-    /// @param stride The stride between elements. Returned.
-    /// @param index Attribute index for identifying different sets of data. Default value is 0.
-    /// Passing in a 0 indicates to use the "default" or first set of data.
-    virtual FloatBuffer& getAttribute(const std::string& attributeType, unsigned int& stride, unsigned int index = 0) = 0;
-
-    /// Return the minimum bounds for the geometry
-    virtual const MaterialX::Vector3& getMinimumBounds()
+    /// Return the minimum bounds for all meshes
+    const Vector3& getMinimumBounds() const
     {
         return _minimumBounds;
     }
 
-    /// Return the minimum bounds for the geometry
-    virtual const MaterialX::Vector3& getMaximumBounds()
+    /// Return the minimum bounds for all meshes
+    const Vector3& getMaximumBounds() const
     {
         return _maximumBounds;
     }
 
-    /// Geometry identifier indicating to create data for a unit quad.
-    /// The quad is assumed to be positioned along the X/Y plane.
-    static const std::string UNIT_QUAD;
-
-    /// Geometry attribute types
-    static const std::string POSITION_ATTRIBUTE;
-    static const std::string NORMAL_ATTRIBUTE;
-    static const std::string TEXCOORD_ATTRIBUTE;
-    static const std::string TANGENT_ATTRIBUTE;
-    static const std::string BITANGENT_ATTRIBUTE;
-    static const std::string COLOR_ATTRIBUTE;
-
   protected:
-     /// Geometry identifier
-     std::string _identifier;
+    /// Recompute bounds for all stored geometry
+    void computeBounds();
 
-     /// Geometry bounds based on the identifier
-     MaterialX::Vector3 _minimumBounds;
-     MaterialX::Vector3 _maximumBounds;
+    GeometryLoaderMap _geometryLoaders;
+    MeshList _meshes;
+    Vector3 _minimumBounds;
+    Vector3 _maximumBounds;
 };
 
 } // namespace MaterialX

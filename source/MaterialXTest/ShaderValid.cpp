@@ -59,11 +59,9 @@ extern void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler
 // By default if the file can be loaded it is assumed that rendering is done using a perspective
 // view vs an orthographic view. This flag argument is updated and returned.
 //
-static mx::GlslValidatorPtr createGLSLValidator(bool& orthographicView, const std::string& fileName,
-                                                std::ostream& log)
+static mx::GlslValidatorPtr createGLSLValidator(const std::string& fileName, std::ostream& log)
 {
     bool initialized = false;
-    orthographicView = true;
     mx::GlslValidatorPtr validator = mx::GlslValidator::create();
     mx::stbImageLoaderPtr stbLoader = mx::stbImageLoader::create();
     mx::GLTextureHandlerPtr imageHandler = mx::GLTextureHandler::create(stbLoader);
@@ -76,16 +74,16 @@ static mx::GlslValidatorPtr createGLSLValidator(bool& orthographicView, const st
         validator->initialize();
         validator->setImageHandler(imageHandler);
         validator->setLightHandler(nullptr);
-        mx::GeometryHandlerPtr geometryHandler = validator->getGeometryHandler();
+        mx::GeometryHandler& geometryHandler = validator->getGeometryHandler();
         std::string geometryFile;
         if (fileName.length())
         {
             geometryFile =  mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Geometry/") / mx::FilePath(fileName);
-            geometryHandler->setIdentifier(geometryFile);
-        }
-        if (geometryHandler->getIdentifier() == geometryFile)
-        {
-            orthographicView = false;
+            if (!geometryHandler.hasGeometry(geometryFile))
+            {
+                geometryHandler.clearGeometry();
+                geometryHandler.loadGeometry(geometryFile);
+            }
         }
         initialized = true;
     }
@@ -103,10 +101,9 @@ static mx::GlslValidatorPtr createGLSLValidator(bool& orthographicView, const st
 #endif
 
 #ifdef MATERIALX_BUILD_GEN_OSL
-static mx::OslValidatorPtr createOSLValidator(bool& orthographicView, std::ostream& log)
+static mx::OslValidatorPtr createOSLValidator(std::ostream& log)
 {
     bool initialized = false;
-    orthographicView = true;
     bool initializeTestRender = false;
 
     mx::OslValidatorPtr validator = mx::OslValidator::create();
@@ -556,7 +553,7 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
             bool validated = false;
             try
             {
-                mx::GeometryHandlerPtr geomHandler = validator.getGeometryHandler();
+                mx::GeometryHandler& geomHandler = validator.getGeometryHandler();
 
                 bool isShader = mx::elementRequiresShading(element);
                 if (isShader)
@@ -577,7 +574,11 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                     {
                         geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Geometry/shaderball.obj");
                     }
-                    geomHandler->setIdentifier(geomPath);
+                    if (!geomHandler.hasGeometry(geomPath))
+                    {
+                        geomHandler.clearGeometry();
+                        geomHandler.loadGeometry(geomPath);
+                    }
                     validator.setLightHandler(lightHandler);
                 }
                 else
@@ -598,7 +599,11 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                     {
                         geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Geometry/sphere.obj");
                     }
-                    geomHandler->setIdentifier(geomPath);
+                    if (!geomHandler.hasGeometry(geomPath))
+                    {
+                        geomHandler.clearGeometry();
+                        geomHandler.loadGeometry(geomPath);
+                    }
                     validator.setLightHandler(nullptr);
                 }
 
@@ -1201,7 +1206,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
 
     // Create validators and generators
-    bool orthographicView = true;
+    const bool orthographicView = false;
 #if defined(MATERIALX_BUILD_GEN_GLSL) || defined(MATERIALX_BUILD_GEN_OGSFX)
     mx::DefaultColorManagementSystemPtr glslColorManagementSystem = nullptr;
     mx::GlslValidatorPtr glslValidator = nullptr;
@@ -1211,7 +1216,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
     if (options.runGLSLTests)
     {
         AdditiveScopedTimer glslSetupTime(profileTimes.glslTimes.setupTime, "GLSL setup time");
-        glslValidator = createGLSLValidator(orthographicView, "sphere.obj", glslLog);
+        glslValidator = createGLSLValidator("sphere.obj", glslLog);
         glslShaderGenerator = std::static_pointer_cast<mx::GlslShaderGenerator>(mx::GlslShaderGenerator::create());
         glslShaderGenerator->registerSourceCodeSearchPath(searchPath);
         glslSetupTime.endTimer();
@@ -1235,7 +1240,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
     if (options.runOSLTests)
     {
         AdditiveScopedTimer oslSetupTime(profileTimes.oslTimes.setupTime, "OSL setup time");
-        oslValidator = createOSLValidator(orthographicView, oslLog);
+        oslValidator = createOSLValidator(oslLog);
         oslShaderGenerator = std::static_pointer_cast<mx::ArnoldShaderGenerator>(mx::ArnoldShaderGenerator::create());
         oslShaderGenerator->registerSourceCodeSearchPath(searchPath);
         oslShaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));

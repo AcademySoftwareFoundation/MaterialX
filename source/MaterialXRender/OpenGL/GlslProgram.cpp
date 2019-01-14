@@ -287,7 +287,7 @@ bool GlslProgram::bind()
 }
 
 void GlslProgram::bindInputs(ViewHandlerPtr viewHandler,
-                            GeometryHandlerPtr geometryHandler,
+                            GeometryHandler& geometryHandler,
                             ImageHandlerPtr imageHandler,
                             HwLightHandlerPtr lightHandler)
 {
@@ -308,7 +308,10 @@ void GlslProgram::bindInputs(ViewHandlerPtr viewHandler,
 
     // Bind based on inputs found
     bindViewInformation(viewHandler);
-    bindGeometry(geometryHandler);
+    for (auto mesh : geometryHandler.getMeshes())
+    {
+        bindStreams(mesh);
+    }
     bindTextures(imageHandler);
     bindTimeAndFrame();
     bindLighting(lightHandler, imageHandler);
@@ -337,14 +340,14 @@ void GlslProgram::unbindInputs(ImageHandlerPtr imageHandler)
     }
 }
 
-void GlslProgram::bindAttribute(const MaterialX::GlslProgram::InputMap& inputs, GeometryHandlerPtr geometryHandler)
+void GlslProgram::bindAttribute(const MaterialX::GlslProgram::InputMap& inputs, MeshPtr mesh)
 {
     const std::string errorType("GLSL bind attribute error.");
     ShaderValidationErrorList errors;
 
-    if (!geometryHandler)
+    if (!mesh)
     {
-        errors.push_back("Cannot bind geometry without a geometry handler");
+        errors.push_back("No geometry set to bind");
         throw ExceptionShaderValidationError(errorType, errors);
     }
 
@@ -356,11 +359,18 @@ void GlslProgram::bindAttribute(const MaterialX::GlslProgram::InputMap& inputs, 
         unsigned int index = input.second->value ? input.second->value->asA<int>() : 0;
 
         unsigned int stride = 0;
-        GeometryHandler::FloatBuffer& attributeData = geometryHandler->getAttribute(input.first, stride, index);
+        MeshStreamPtr stream = mesh->getStream(input.first);
+        if (!stream)
+        {
+            errors.push_back("Geometry buffer could not be retrieved for binding: " + input.first + ". Index: " + std::to_string(index));
+            throw ExceptionShaderValidationError(errorType, errors);
+        }
+        MeshFloatBuffer& attributeData = stream->getData();
+        stride = stream->getStride();
 
         if (attributeData.empty() || (stride == 0))
         {
-            errors.push_back("Geometry buffer could not be retrieved for binding: " + input.first);
+            errors.push_back("Geometry buffer could not be retrieved for binding: " + input.first + ". Index: " + std::to_string(index));
             throw ExceptionShaderValidationError(errorType, errors);
         }
 
@@ -383,7 +393,25 @@ void GlslProgram::bindAttribute(const MaterialX::GlslProgram::InputMap& inputs, 
     }
 }
 
-void GlslProgram::bindGeometry(GeometryHandlerPtr geometryHandler)
+void GlslProgram::bindPartition(MeshPartitionPtr partition)
+{
+    ShaderValidationErrorList errors;
+    const std::string errorType("GLSL geometry bind error.");
+    if (!partition || partition->getFaceCount() == 0)
+    {
+        errors.push_back("Cannot bind geometry partition");
+        throw ExceptionShaderValidationError(errorType, errors);
+    }
+
+    size_t UINT_SIZE = sizeof(unsigned int);
+    MeshIndexBuffer& indexData = partition->getIndices();
+    _indexBufferSize = indexData.size();
+    glGenBuffers(1, &_indexBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (unsigned int)(_indexBufferSize*UINT_SIZE), &indexData[0], GL_STATIC_DRAW);
+}
+
+void GlslProgram::bindStreams(MeshPtr mesh)
 {
     ShaderValidationErrorList errors;
     const std::string errorType("GLSL geometry bind error.");
@@ -393,9 +421,9 @@ void GlslProgram::bindGeometry(GeometryHandlerPtr geometryHandler)
         errors.push_back("Cannot bind geometry without a valid program");
         throw ExceptionShaderValidationError(errorType, errors);
     }
-    if (!geometryHandler)
+    if (!mesh)
     {
-        errors.push_back("Cannot bind geometry without a geometry handler");
+        errors.push_back("No geometry to bind");
         throw ExceptionShaderValidationError(errorType, errors);
     }
 
@@ -406,39 +434,33 @@ void GlslProgram::bindGeometry(GeometryHandlerPtr geometryHandler)
     glGenVertexArrays(1, &_vertexArray);
     glBindVertexArray(_vertexArray);
 
-    size_t UINT_SIZE = sizeof(unsigned int);
-    GeometryHandler::IndexBuffer& indexData = geometryHandler->getIndexing();
-    _indexBufferSize = indexData.size();
-    glGenBuffers(1, &_indexBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (unsigned int)(_indexBufferSize*UINT_SIZE), &indexData[0], GL_STATIC_DRAW);
-
+  
     // Bind positions
     findInputs("i_position", attributeList, foundList, true);
     if (foundList.size())
     {
-        bindAttribute(foundList, geometryHandler);
+        bindAttribute(foundList, mesh);
     }
 
     // Bind normals
     findInputs("i_normal", attributeList, foundList, true);
     if (foundList.size())
     {
-        bindAttribute(foundList, geometryHandler);
+        bindAttribute(foundList, mesh);
     }
 
     // Bind tangents
     findInputs("i_tangent", attributeList, foundList, true);
     if (foundList.size())
     {
-        bindAttribute(foundList, geometryHandler);
+        bindAttribute(foundList, mesh);
     }
 
     // Bind bitangents
     findInputs("i_bitangent", attributeList, foundList, true);
     if (foundList.size())
     {
-        bindAttribute(foundList, geometryHandler);
+        bindAttribute(foundList, mesh);
     }
 
     // Bind colors
@@ -446,7 +468,7 @@ void GlslProgram::bindGeometry(GeometryHandlerPtr geometryHandler)
     findInputs("i_color_", attributeList, foundList, false);
     if (foundList.size())
     {
-        bindAttribute(foundList, geometryHandler);
+        bindAttribute(foundList, mesh);
     }
 
     // Bind texture coordinates
@@ -454,7 +476,7 @@ void GlslProgram::bindGeometry(GeometryHandlerPtr geometryHandler)
     findInputs("i_texcoord_", attributeList, foundList, false);
     if (foundList.size())
     {
-        bindAttribute(foundList, geometryHandler);
+        bindAttribute(foundList, mesh);
     }
 
     // Bind any named attribute information
