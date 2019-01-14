@@ -75,9 +75,4 @@
   <!-- <normalmap> -->
   <implementation name="IM_normalmap_genglsl" nodedef="ND_normalmap" file="pbrlib/genglsl/mx_normalmap.glsl" function="mx_normalmap" language="genglsl"/>
 
-  <!-- <srgb_linear> -->
-  <implementation name="IM_srgb_linear_color2_genglsl" nodedef="ND_srgb_linear_color2" file="pbrlib/genglsl/mx_srgb_linear_color2.glsl" function="mx_srgb_linear_color2" language="genglsl"/>
-  <implementation name="IM_srgb_linear_color3_genglsl" nodedef="ND_srgb_linear_color3" file="pbrlib/genglsl/mx_srgb_linear_color3.glsl" function="mx_srgb_linear_color3" language="genglsl"/>
-  <implementation name="IM_srgb_linear_color4_genglsl" nodedef="ND_srgb_linear_color4" file="pbrlib/genglsl/mx_srgb_linear_color4.glsl" function="mx_srgb_linear_color4" language="genglsl"/>
-
 </materialx>

@@ -379,17 +379,4 @@
     <input name="file" type="filename" />
   </nodedef>
 
-  <!--
-    Node: <srgb_linear>
-  -->
-  <nodedef name="ND_srgb_linear_color2" node="srgb_linear" type="color2" nodegroup="pbr">
-    <input name="in" type="color2" />
-  </nodedef>
-  <nodedef name="ND_srgb_linear_color3" node="srgb_linear" type="color3" nodegroup="pbr">
-    <input name="in" type="color3" />
-  </nodedef>
-  <nodedef name="ND_srgb_linear_color4" node="srgb_linear" type="color4" nodegroup="pbr">
-    <input name="in" type="color4" />
-  </nodedef>
-
 </materialx>
