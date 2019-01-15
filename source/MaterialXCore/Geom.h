@@ -357,11 +357,11 @@ class GeomAttr : public ValueElement
 /// by a geometric node and modifiers on this node.
 /// Once a GeomPropDef has been defined it can be referenced by defaultgeomprop
 /// and internalgeomprop attributes by using its name.
-class GeomPropDef : public TypedElement
+class GeomPropDef : public Element
 {
   public:
       GeomPropDef(ElementPtr parent, const string& name) :
-        TypedElement(parent, CATEGORY, name)
+          Element(parent, CATEGORY, name)
     {
     }
     virtual ~GeomPropDef() { }

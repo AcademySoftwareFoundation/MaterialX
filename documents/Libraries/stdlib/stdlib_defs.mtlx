@@ -47,13 +47,13 @@
   <!-- Geomprop definitions                                                     -->
   <!-- ======================================================================== -->
 
-  <geompropdef name="Pobject" node="position" type="vector3" space="object"/>
-  <geompropdef name="Nobject" node="normal" type="vector3" space="object"/>
-  <geompropdef name="Tobject" node="tangent" type="vector3" space="object"/>
-  <geompropdef name="Pworld" node="position" type="vector3" space="world"/>
-  <geompropdef name="Nworld" node="normal" type="vector3" space="world"/>
-  <geompropdef name="Tworld" node="tangent" type="vector3" space="world"/>
-  <geompropdef name="UV0" node="texcoord" type="vector2" index="0"/>
+  <geompropdef name="Pobject" node="position" space="object"/>
+  <geompropdef name="Nobject" node="normal" space="object"/>
+  <geompropdef name="Tobject" node="tangent" space="object" index="0"/>
+  <geompropdef name="Pworld" node="position" space="world"/>
+  <geompropdef name="Nworld" node="normal" space="world"/>
+  <geompropdef name="Tworld" node="tangent" space="world" index="0"/>
+  <geompropdef name="UV0" node="texcoord" index="0"/>
 
   <!-- ======================================================================== -->
   <!-- Texture nodes                                                            -->

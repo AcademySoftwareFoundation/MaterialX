@@ -175,13 +175,11 @@ class Document : public GraphElement
 
     /// Add a GeomPropDef to the document.
     /// @param name The name of the new GeomPropDef.
-    /// @param type The type of the new GeomPropDef.
     /// @param node The geometric node to use for the GeomPropDef.
     /// @return A shared pointer to the new GeomPropDef.
-    GeomPropDefPtr addGeomPropDef(const string& name, const string& type, const string& node)
+    GeomPropDefPtr addGeomPropDef(const string& name, const string& node)
     {
         GeomPropDefPtr geomProp = addChild<GeomPropDef>(name);
-        geomProp->setType(type);
         geomProp->setNode(node);
         return geomProp;
     }

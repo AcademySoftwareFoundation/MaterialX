@@ -83,7 +83,7 @@ TEST_CASE("GeomPropDef", "[geom]")
     mx::DocumentPtr doc = mx::createDocument();
 
     // Create a geomprop definition for world space normal
-    mx::GeomPropDefPtr Nworld = doc->addGeomPropDef("Nworld", "vector3", "normal");
+    mx::GeomPropDefPtr Nworld = doc->addGeomPropDef("Nworld", "normal");
     Nworld->setSpace("world");
 
     // Create a new nodedef and set an input to use the world space normal
