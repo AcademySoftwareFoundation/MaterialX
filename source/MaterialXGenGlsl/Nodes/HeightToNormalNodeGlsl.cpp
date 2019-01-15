@@ -9,8 +9,8 @@ HeightToNormalNodeGlsl::HeightToNormalNodeGlsl()
     : ParentClass()
 {
     _sampleCount = 9;
-    _sampleSizeFunctionUV.assign("sx_compute_sample_size_uv");
-    _filterFunctionName.assign("sx_normal_from_samples_sobel");
+    _sampleSizeFunctionUV.assign("mx_compute_sample_size_uv");
+    _filterFunctionName.assign("mx_normal_from_samples_sobel");
 }
 
 ShaderNodeImplPtr HeightToNormalNodeGlsl::create()

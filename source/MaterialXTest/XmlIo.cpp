@@ -15,7 +15,7 @@ TEST_CASE("Load content", "[xmlio]")
     {
         "stdlib_defs.mtlx",
         "stdlib_ng.mtlx",
-        "stdlib_osl_impl.mtlx"
+        "osl/stdlib_osl_impl.mtlx"
     };
     std::string exampleFilenames[] =
     {

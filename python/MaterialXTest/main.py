@@ -30,7 +30,7 @@ _searchPath = _libraryDir + ';' + _exampleDir
 
 _libraryFilenames = ('stdlib_defs.mtlx',
                      'stdlib_ng.mtlx',
-                     'stdlib_osl_impl.mtlx')
+                     'osl/stdlib_osl_impl.mtlx')
 _exampleFilenames = ('CustomNode.mtlx',
                      'Looks.mtlx',
                      'MaterialBasic.mtlx',
