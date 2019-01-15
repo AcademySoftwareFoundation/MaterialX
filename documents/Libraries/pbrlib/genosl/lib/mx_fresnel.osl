@@ -33,5 +33,5 @@ color mx_fresnel_conductor(float cosTheta, vector n, vector k)
 color mx_fresnel_schlick(float cosTheta, color f0, color f90, float exponent)
 {
     float x = clamp(1.0 - cosTheta, 0.0, 1.0);
-    return mix(F0, F90, pow(x, exponent));
+    return mix(f0, f90, pow(x, exponent));
 }
