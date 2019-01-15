@@ -28,6 +28,10 @@ void bindPyInterface(py::module& mod)
         .def("getConnectedNode", &mx::PortElement::getConnectedNode);
 
     py::class_<mx::Input, mx::InputPtr, mx::PortElement>(mod, "Input")
+        .def("setDefaultGeomPropString", &mx::Input::setDefaultGeomPropString)
+        .def("hasDefaultGeomPropString", &mx::Input::hasDefaultGeomPropString)
+        .def("getDefaultGeomPropString", &mx::Input::getDefaultGeomPropString)
+        .def("getDefaultGeomProp", &mx::Input::getDefaultGeomProp)
         .def_readonly_static("CATEGORY", &mx::Input::CATEGORY);
 
     py::class_<mx::Output, mx::OutputPtr, mx::PortElement>(mod, "Output")

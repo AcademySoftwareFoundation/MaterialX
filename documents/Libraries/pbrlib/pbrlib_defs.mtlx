@@ -19,9 +19,7 @@
     <input name="weight" type="float" value="1.0"/>
     <input name="color" type="color3" value="0.18, 0.18, 0.18"/>
     <input name="roughness" type="float" value="0.0"/>
-    <input name="normal" type="vector3">
-      <geomprop name="normal" type="vector3" space="world"/>
-    </input>
+    <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
   </nodedef>
 
   <!--
@@ -32,9 +30,7 @@
            doc="A BSDF node for pure diffuse transmission.">
     <input name="weight" type="float" value="1.0"/>
     <input name="color" type="color3" value="1.0, 1.0, 1.0"/>
-    <input name="normal" type="vector3">
-      <geomprop name="normal" type="vector3" space="world"/>
-    </input>
+    <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
   </nodedef>
 
   <!--
@@ -47,12 +43,8 @@
     <input name="reflectivity" type="color3" value="0.944 0.776 0.373"/>
     <input name="edgecolor" type="color3" value="0.998 0.981 0.751"/>
     <input name="roughness" type="roughnessinfo"/>
-    <input name="normal" type="vector3">
-      <geomprop name="normal" type="vector3" space="world"/>
-    </input>
-    <input name="tangent" type="vector3">
-      <geomprop name="tangent" type="vector3" space="world"/>
-    </input>
+    <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
     <input name="distribution" type="string" value="ggx" enum="ggx"/>
   </nodedef>
 
@@ -66,12 +58,8 @@
     <input name="tint" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="ior" type="float" value="1.52"/>
     <input name="roughness" type="roughnessinfo"/>
-    <input name="normal" type="vector3">
-      <geomprop name="normal" type="vector3" space="world"/>
-    </input>
-    <input name="tangent" type="vector3">
-      <geomprop name="tangent" type="vector3" space="world"/>
-    </input>
+    <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
     <input name="distribution" type="string" value="ggx" enum="ggx"/>
     <input name="base" type="BSDF"/>
   </nodedef>
@@ -86,12 +74,8 @@
     <input name="tint" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="ior" type="float" value="1.52"/>
     <input name="roughness" type="roughnessinfo"/>
-    <input name="normal" type="vector3">
-      <geomprop name="normal" type="vector3" space="world"/>
-    </input>
-    <input name="tangent" type="vector3">
-      <geomprop name="tangent" type="vector3" space="world"/>
-    </input>
+    <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
     <input name="distribution" type="string" value="ggx" enum="ggx"/>
     <input name="interior" type="VDF"/>
   </nodedef>
@@ -127,9 +111,7 @@
     <input name="color" type="color3" value="0.18, 0.18, 0.18"/>
     <input name="radius" type="vector3" value="1.0, 1.0, 1.0"/>
     <input name="anisotropy" type="float" value="0.0"/>
-    <input name="normal" type="vector3">
-      <geomprop name="normal" type="vector3" space="world"/>
-    </input>
+    <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
   </nodedef>
 
   <!--
@@ -141,9 +123,7 @@
     <input name="weight" type="float" value="1.0"/>
     <input name="color" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="roughness" type="float" value="0.3"/>
-    <input name="normal" type="vector3">
-      <geomprop name="normal" type="vector3" space="world"/>
-    </input>
+    <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
     <input name="base" type="BSDF"/>
   </nodedef>
 
@@ -293,19 +273,13 @@
       <input name="subsurface_radius" type="color3" value="1, 1, 1" uiname="Subsurface Radius" uifolder="Subsurface"/>
       <input name="subsurface_scale" type="float" value="1" uiname="Subsurface Scale" uifolder="Subsurface"/>
       <input name="thin_walled" type="boolean" value="false" uiname="Thin Walled" uifolder="Geometry"/>
-      <input name="normal" type="vector3" uiname="Normal" uifolder="Geometry">
-        <geomprop name="normal" type="vector3" space="world"/>
-      </input>
-      <input name="tangent" type="vector3" uiname="Tangent Input" uifolder="Geometry">
-        <geomprop name="tangent" type="vector3" space="world"/>
-      </input>
+      <input name="normal" type="vector3" defaultgeomprop="Nworld" uiname="Normal" uifolder="Geometry"/>
+      <input name="tangent" type="vector3"  defaultgeomprop="Tworld" uiname="Tangent Input" uifolder="Geometry"/>
       <input name="coat" type="float" value="0" uiname="Coat" uifolder="Coat"/>
       <input name="coat_color" type="color3" value="1, 1, 1" uiname="Coat Color" uifolder="Coat"/>
       <input name="coat_roughness" type="float" value="0.1" uiname="Coat Roughness" uifolder="Coat"/>
       <input name="coat_IOR" type="float" value="1.5" uiname="Coat Index of Refraction" uifolder="Coat"/>
-      <input name="coat_normal" type="vector3" uiname="Coat normal" uifolder="Geometry">
-        <geomprop name="normal" type="vector3" space="world"/>
-      </input>
+      <input name="coat_normal" type="vector3" defaultgeomprop="Nworld" uiname="Coat normal" uifolder="Geometry"/>
       <input name="sheen" type="float" value="0" uiname="Sheen" uifolder="Sheen"/>
       <input name="sheen_color" type="color3" value="1, 1, 1" uiname="Sheen Color" uifolder="Sheen"/>
       <input name="sheen_roughness" type="float" value="0.3" uiname="Sheen Roughness" uifolder="Sheen"/>
@@ -376,12 +350,8 @@
   <nodedef name="ND_normalmap" node="normalmap" type="vector3" nodegroup="pbr">
     <input name="in" type="vector3" value="0.5, 0.5, 1.0"/>
     <parameter name="tangentSpace" type="integer" value="1"/>
-    <input name="normal" type="vector3">
-      <geomprop name="normal" type="vector3" space="world"/>
-    </input>
-    <input name="tangent" type="vector3">
-      <geomprop name="tangent" type="vector3" space="world"/>
-    </input>
+    <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
   </nodedef>
 
 </materialx>
