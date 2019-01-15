@@ -179,17 +179,6 @@ class MeshPartition
         _faceCount = val;
     }
 
-    /// Generate tangents and optionally bitangents for a given 
-    /// set of postions, texture coordinates and normals.
-    /// @param positions Positions to use
-    /// @param texcoords Texture coordinates to use
-    /// @param normals Normals to use
-    /// @param tangents Tangents to produce
-    /// @param bitangents Bitangents to produce.
-    /// Returns true if successful.
-    bool generateTangents(MeshStreamPtr positions, MeshStreamPtr texcoords, MeshStreamPtr normals,
-                          MeshStreamPtr tangents, MeshStreamPtr bitangents);
-
   private:
     string _identifier;
     MeshIndexBuffer _indices;
@@ -353,6 +342,17 @@ class Mesh
     {
         return _partitions[partIndex];
     }
+
+    /// Generate tangents and optionally bitangents for a given 
+    /// set of postions, texture coordinates and normals.
+    /// @param positions Positions to use
+    /// @param texcoords Texture coordinates to use
+    /// @param normals Normals to use
+    /// @param tangents Tangents to produce
+    /// @param bitangents Bitangents to produce.
+    /// Returns true if successful.
+    bool generateTangents(MeshStreamPtr positionStream, MeshStreamPtr texcoordStream, MeshStreamPtr normalStream,
+                          MeshStreamPtr tangentStream, MeshStreamPtr bitangentStream);   
 
   private:
     string _identifier;

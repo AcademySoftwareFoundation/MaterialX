@@ -53,9 +53,12 @@ bool TestObjLoader::load(const std::string& fileName, MeshList& meshList)
     MeshFloatBuffer pos;
     MeshFloatBuffer uv;
     MeshFloatBuffer norm;
-    MeshIndexBuffer pidx;
     MeshIndexBuffer uvidx;
     MeshIndexBuffer nidx;
+
+    std::vector<MeshPartitionPtr> partitions;
+    MeshPartitionPtr currentPartition = nullptr;
+    MeshIndexBuffer pidx;
 
     const float MAX_FLOAT = std::numeric_limits<float>::max();
     Vector3 minPos = { MAX_FLOAT , MAX_FLOAT , MAX_FLOAT };
@@ -121,6 +124,17 @@ bool TestObjLoader::load(const std::string& fileName, MeshList& meshList)
                 dump << "vn " << val1 << " " << val2 << " " << val3 << std::endl;
             }
         }
+        else if (_readGroups && line.substr(0, 2) == "g ")
+        {
+            string name;
+            string parent;
+            std::istringstream valstring(line.substr(2));
+            valstring >> name;
+
+            currentPartition = MeshPartition::create();
+            currentPartition->setIdentifier(name);
+            partitions.push_back(currentPartition);
+        }
         else if (line.substr(0, 2) == "f ")
         {
             // Extact out the component parts from face string
@@ -148,9 +162,17 @@ bool TestObjLoader::load(const std::string& fileName, MeshList& meshList)
                 }
             }
 
+            if (!currentPartition)
+            {
+                currentPartition = MeshPartition::create();
+                currentPartition->setIdentifier("Partition" + std::to_string(mesh->getPartitionCount()));
+                partitions.push_back(currentPartition);
+            }
+            
+            size_t facesAdded = 0;
             if (vertexCount >= 3)
             {
-                faceCount++;
+                facesAdded++;
 
                 pidx.push_back(ipos[0] - 1);
                 pidx.push_back(ipos[1] - 1);
@@ -174,7 +196,7 @@ bool TestObjLoader::load(const std::string& fileName, MeshList& meshList)
 
                 if (vertexCount >= 4)
                 {
-                    faceCount++;
+                    facesAdded++;
 
                     pidx.push_back(ipos[0] - 1);
                     pidx.push_back(ipos[2] - 1);
@@ -196,6 +218,9 @@ bool TestObjLoader::load(const std::string& fileName, MeshList& meshList)
                             << ipos[3] << "/" << iuv[3] << "/" << inorm[3] << std::endl;
                     }
                 }
+
+                currentPartition->setFaceCount(currentPartition->getFaceCount() + facesAdded);
+                faceCount += facesAdded;
             }
         }
     }
@@ -206,6 +231,9 @@ bool TestObjLoader::load(const std::string& fileName, MeshList& meshList)
     // Set bounds
     mesh->setMinimumBounds(minPos);
     mesh->setMaximumBounds(maxPos);
+    Vector3 sphereCenter = (maxPos + minPos) / 2.0;
+    mesh->setSphereCenter(sphereCenter);
+    mesh->setSphereRadius((sphereCenter - minPos).getMagnitude());
 
     // Organize data to get triangles for positions 
     for (unsigned int i = 0; i < pidx.size(); i++)
@@ -248,29 +276,32 @@ bool TestObjLoader::load(const std::string& fileName, MeshList& meshList)
         normalData.push_back(norm[vertexIndex + 2]);
     }
 
-    // Set up flattened indexing
-    MeshPartitionPtr partition = nullptr;
-    if (faceCount && positionData.size() && pidx.size())
+    // Set up flattened contiguous indexing for all partitions
+    unsigned int startIndex = 0;
+    for (auto partition : partitions)
     {
-        partition = MeshPartition::create();
-        partition->setFaceCount(faceCount);
         MeshIndexBuffer& indexing = partition->getIndices();
-        indexing.resize(pidx.size());
-        std::iota(indexing.begin(), indexing.end(), 0);
+        size_t indexCount = partition->getFaceCount() * 3;
+        if (indexCount > 0)
+        {
+            indexing.resize(indexCount);
+            std::iota(indexing.begin(), indexing.end(), startIndex);
+            startIndex += (unsigned int)indexing.size();
 
-        mesh->addPartition(partition);
+            mesh->addPartition(partition);
+        }
     }
-
-    mesh->setVertexCount(positionData.size() / 3);
 
     // Add tangent basis
     //
     MeshStreamPtr tangentStream = MeshStream::create("i_" + MeshStream::TANGENT_ATTRIBUTE, MeshStream::TANGENT_ATTRIBUTE, 0);
     MeshStreamPtr bitangentStream = MeshStream::create("i_" + MeshStream::BITANGENT_ATTRIBUTE, MeshStream::BITANGENT_ATTRIBUTE, 0);
-    partition->generateTangents(positionStream, texCoordStream, normalStream, tangentStream, bitangentStream);
+    mesh->generateTangents(positionStream, texCoordStream, normalStream, tangentStream, bitangentStream);
     mesh->addStream(tangentStream);
     mesh->addStream(bitangentStream);
-    
+
+    mesh->setVertexCount(positionData.size() / 3);
+
     // Add in new mesh
     meshList.push_back(mesh);
     return true;

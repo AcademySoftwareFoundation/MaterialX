@@ -1,5 +1,5 @@
-#ifndef MATERIALX_OBJGEOMETRYHANDLER_H
-#define MATERIALX_OBJGEOMETRYHANDLER_H
+#ifndef MATERIALX_TESTOBJLOADER_H
+#define MATERIALX_TESTOBJLOADER_H
 
 #include <string>
 #include <memory>
@@ -11,7 +11,7 @@ namespace MaterialX
 using TestObjLoaderPtr = std::shared_ptr<class TestObjLoader>;
 
 /// @class @TestObjHandler
-/// Utility geometry handler to read in OBJ files for unit testing.
+/// Utility geometry loader to read in OBJ files for unit testing.
 ///
 class TestObjLoader : public GeometryLoader
 {
@@ -20,7 +20,8 @@ class TestObjLoader : public GeometryLoader
     static TestObjLoaderPtr create() { return std::make_shared<TestObjLoader>(); }
 
     /// Default constructor
-    TestObjLoader() 
+    TestObjLoader() :
+        _readGroups(true)
     {
         _extensions = { "obj", "OBJ" };
     }
@@ -30,6 +31,21 @@ class TestObjLoader : public GeometryLoader
 
     /// Load geometry from disk
     bool load(const std::string& fileName, MeshList& meshList) override;
+
+    /// Set to read groups as partitions. 
+    void setReadGroups(bool val)
+    {
+        _readGroups = val;
+    }
+
+    /// Read groups as partitions. Default is false.
+    bool readGroups() const
+    {
+        return _readGroups;
+    }
+
+  protected:
+    bool _readGroups;
 };
 
 } // namespace MaterialX

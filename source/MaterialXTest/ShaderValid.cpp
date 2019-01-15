@@ -1040,7 +1040,7 @@ void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidT
             "geomattrvalue_integer", "geomattrvalue_boolean", "geomattrvalue_string"
         };
         const std::string OSL_STRING("osl");
-        const std::string GEN_OSL_STRING("gen_osl");
+        const std::string GEN_OSL_STRING(mx::OslShaderGenerator::LANGUAGE);
         unsigned int implementationUseCount = 0;
         for (auto libraryImpl : libraryImpls)
         {
