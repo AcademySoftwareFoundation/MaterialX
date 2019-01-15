@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.36" require="">
-  <nodegraph name="lighting1">
+  <nodegraph name="test_generalizedschlick">
     <roughness_anisotropy name="roughness1" type="roughnessinfo">
       <input name="roughness" type="float" value="0.2" />
       <input name="anisotropy" type="float" value="0.0" />
