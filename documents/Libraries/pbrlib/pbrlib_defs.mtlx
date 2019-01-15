@@ -81,22 +81,18 @@
   </nodedef>
 
   <!--
-    Node: <glossybrdf>
-    A reflection BSDF node based on a microfacet model and a generic Fresnel curve.
+    Node: <generalizedschlickbrdf>
+    A reflection BSDF node based on a microfacet model and a generalized Schlick Fresnel curve.
   -->
-  <nodedef name="ND_glossybrdf" node="glossybrdf" type="BSDF" nodegroup="pbr"
-           doc="A reflection BSDF node based on a microfacet model and a generic Fresnel curve.">
+  <nodedef name="ND_generalizedschlickbrdf" node="generalizedschlickbrdf" type="BSDF" nodegroup="pbr"
+           doc="A reflection BSDF node based on a microfacet model and a generalized Schlick Fresnel curve.">
     <input name="weight" type="float" value="1.0"/>
     <input name="color0" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="color90" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="exponent" type="float" value="5.0"/>
     <input name="roughness" type="roughnessinfo"/>
-    <input name="normal" type="vector3">
-      <geomprop name="normal" type="vector3" space="world"/>
-    </input>
-    <input name="tangent" type="vector3">
-      <geomprop name="tangent" type="vector3" space="world"/>
-    </input>
+    <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
     <input name="distribution" type="string" value="ggx" enum="ggx"/>
     <input name="base" type="BSDF"/>
 </nodedef>
