@@ -384,20 +384,4 @@
     </input>
   </nodedef>
 
-  <!--
-    Node: <inputmap>
-  -->
-  <nodedef name="ND_inputmap_float" type="float" node="inputmap" nodegroup="pbr" sxclass="image">
-    <input name="value" type="float" />
-    <input name="file" type="filename" />
-  </nodedef>
-  <nodedef name="ND_inputmap_color3" type="color3" node="inputmap" nodegroup="pbr" sxclass="image">
-    <input name="value" type="color3" />
-    <input name="file" type="filename" />
-  </nodedef>
-  <nodedef name="ND_inputmap_vector3" type="vector3" node="inputmap" nodegroup="pbr" sxclass="image">
-    <input name="value" type="vector3" />
-    <input name="file" type="filename" />
-  </nodedef>
-
 </materialx>

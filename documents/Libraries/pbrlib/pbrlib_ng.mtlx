@@ -1,28 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.36">
-  <!-- <inputmap> -->
-  <nodegraph name="IMP_inputmap_float" nodedef="ND_inputmap_float">
-    <image name="image" type="float">
-      <parameter name="file" type="filename" interfacename="file" />
-      <parameter name="default" type="float" interfacename="value" />
-    </image>
-    <output name="out" type="float" nodename="image" />
-  </nodegraph>
-  <nodegraph name="IMP_inputmap_color3" nodedef="ND_inputmap_color3">
-    <image name="image" type="color3">
-      <parameter name="file" type="filename" interfacename="file" />
-      <parameter name="default" type="color3" interfacename="value" />
-    </image>
-    <output name="out" type="color3" nodename="image" />
-  </nodegraph>
-  <nodegraph name="IMP_inputmap_vector3" nodedef="ND_inputmap_vector3">
-    <image name="image" type="vector3">
-      <parameter name="file" type="filename" interfacename="file" />
-      <parameter name="default" type="vector3" interfacename="value" />
-    </image>
-    <output name="out" type="vector3" nodename="image" />
-  </nodegraph>
-
   <!-- <glossiness_anisotropy> -->
   <nodegraph name="IMP_glossiness_anisotropy" nodedef="ND_glossiness_anisotropy">
     <invert name="invert1" type="float">

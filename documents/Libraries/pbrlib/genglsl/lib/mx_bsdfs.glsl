@@ -37,7 +37,7 @@ float mx_microfacet_ggx_smith_G(float NdotL, float NdotV, float alpha)
     return mx_microfacet_ggx_G1(NdotL, alpha) * mx_microfacet_ggx_G1(NdotV, alpha);
 }
 
-vec3 sx_fresnel_schlick(float cosTheta, vec3 F0, vec3 F90, float exponent)
+vec3 mx_fresnel_schlick(float cosTheta, vec3 F0, vec3 F90, float exponent)
 {
     float x = clamp(1.0 - cosTheta, 0.0, 1.0);
     return mix(F0, F90, pow(x, exponent));
