@@ -41,13 +41,6 @@ public:
         SQUARES
     };
 
-    /// 
-    enum class VDirection
-    {
-        UP,
-        DOWN
-    };
-
     struct Variable;
     using VariablePtr = std::shared_ptr<Variable>;
 
@@ -248,9 +241,6 @@ public:
     /// Return true if this shader matches the given classification.
     bool hasClassification(unsigned int c) const { return getGraph()->hasClassification(c); }
 
-    /// Return the default vdirection which is up.
-    static VDirection getDefaultVDirection() { return VDirection::UP; }
-
     /// Return the final shader source code for a given shader stage
     const string& getSourceCode(size_t stage = PIXEL_STAGE) const { return _stages[stage].code; }
 
@@ -290,7 +280,6 @@ protected:
     string _name;
     ShaderGraphPtr _rootGraph;
     vector<ShaderGraph*> _graphStack;
-    VDirection _vdirection;
 
     size_t _activeStage;
     vector<Stage> _stages;

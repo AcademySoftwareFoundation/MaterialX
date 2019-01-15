@@ -20,7 +20,7 @@ namespace MaterialX
     {
         _filterSize = 2;
         _sampleCount = 1;
-        _sampleSizeFunctionUV.assign("sx_compute_sample_size_uv");
+        _sampleSizeFunctionUV.assign("mx_compute_sample_size_uv");
     }
 
     ShaderNodeImplPtr BlurNode::create()
@@ -133,7 +133,7 @@ namespace MaterialX
         BEGIN_SHADER_STAGE(shader, Shader::PIXEL_STAGE)
         {
             // Emit samples
-            // Note: The maximum sample count SX_MAX_SAMPLE_COUNT is defined in the shader code and 
+            // Note: The maximum sample count MX_MAX_SAMPLE_COUNT is defined in the shader code and 
             // is assumed to be 49 (7x7 kernel). If this changes the filter size logic here 
             // needs to be adjusted.
             //
@@ -150,15 +150,15 @@ namespace MaterialX
 
             if (_sampleCount > 1)
             {
-                const string SX_MAX_SAMPLE_COUNT_STRING("SX_MAX_SAMPLE_COUNT");
-                const string SX_WEIGHT_ARRAY_SIZE_STRING("SX_WEIGHT_ARRAY_SIZE");
-                const string SX_CONVOLUTION_PREFIX_STRING("sx_convolution_");
+                const string MX_MAX_SAMPLE_COUNT_STRING("MX_MAX_SAMPLE_COUNT");
+                const string MX_WEIGHT_ARRAY_SIZE_STRING("MX_WEIGHT_ARRAY_SIZE");
+                const string MX_CONVOLUTION_PREFIX_STRING("mx_convolution_");
                 const string SAMPLES_POSTFIX_STRING("_samples");
                 const string WEIGHT_POSTFIX_STRING("_weights");
 
                 // Set up sample array
                 string sampleName(output->variable + SAMPLES_POSTFIX_STRING);
-                shader.addLine(_inputTypeString + " " + sampleName + "[" + SX_MAX_SAMPLE_COUNT_STRING + "]");
+                shader.addLine(_inputTypeString + " " + sampleName + "[" + MX_MAX_SAMPLE_COUNT_STRING + "]");
                 for (unsigned int i = 0; i < _sampleCount; i++)
                 {
                     shader.addLine(sampleName + "[" + std::to_string(i) + "] = " + sampleStrings[i]);
@@ -189,7 +189,7 @@ namespace MaterialX
 
                 shader.beginScope();
                 {
-                    string filterFunctionName = SX_CONVOLUTION_PREFIX_STRING + _inputTypeString;
+                    string filterFunctionName = MX_CONVOLUTION_PREFIX_STRING + _inputTypeString;
                     shader.beginLine();
                     shader.addStr(output->variable);
                     shader.addStr(" = " + filterFunctionName);
@@ -204,7 +204,7 @@ namespace MaterialX
                 shader.addLine("else");
                 shader.beginScope();
                 {
-                    string filterFunctionName = SX_CONVOLUTION_PREFIX_STRING + _inputTypeString;
+                    string filterFunctionName = MX_CONVOLUTION_PREFIX_STRING + _inputTypeString;
                     shader.beginLine();
                     shader.addStr(output->variable);
                     shader.addStr(" = " + filterFunctionName);

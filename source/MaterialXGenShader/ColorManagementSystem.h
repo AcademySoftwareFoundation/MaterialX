@@ -42,6 +42,8 @@ struct ColorSpaceTransform
 class ColorManagementSystem
 {
   public:
+    virtual ~ColorManagementSystem() {}
+
     /// Return the ColorManagementSystem name
     virtual const string& getName() const = 0;
 

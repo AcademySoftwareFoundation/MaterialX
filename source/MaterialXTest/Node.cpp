@@ -73,11 +73,17 @@ TEST_CASE("Node", "[node]")
 
     // Reference the custom nodedef.
     mx::NodePtr custom = doc->addNodeInstance(customNodeDef);
+    REQUIRE(custom->getNodeDefString() == customNodeDef->getName());
     REQUIRE(custom->getNodeDef()->getNodeGroup() == mx::PROCEDURAL_NODE_GROUP);
     REQUIRE(custom->getParameterValue("octaves")->isA<int>());
     REQUIRE(custom->getParameterValue("octaves")->asA<int>() == 3);
     custom->setParameterValue("octaves", 5);
     REQUIRE(custom->getParameterValue("octaves")->asA<int>() == 5);
+
+    // Remove the nodedef attribute from the node, requiring that it fall back
+    // to type and version matching.
+    custom->removeAttribute(mx::NodeDef::NODE_DEF_ATTRIBUTE);
+    REQUIRE(custom->getNodeDef() == customNodeDef);
 
     // Set nodedef and node version strings.
     customNodeDef->setVersionString("2.0");
@@ -210,7 +216,7 @@ TEST_CASE("Topological sort", "[nodegraph]")
     multiply->setConnectedNode("in2", add1);
     mix->setConnectedNode("fg", multiply);
     mix->setConnectedNode("bg", add3);
-    mix->setConnectedNode("mix", noise3d);
+    mix->setConnectedNode("mask", noise3d);
     output->setConnectedNode(mix);
 
     // Validate the document.
@@ -266,7 +272,7 @@ TEST_CASE("New nodegraph from output", "[nodegraph]")
     multiply2->setConnectedNode("in2", constant3);
     mix->setConnectedNode("fg", multiply1);
     mix->setConnectedNode("bg", add3);
-    mix->setConnectedNode("mix", noise3d);
+    mix->setConnectedNode("mask", noise3d);
     out1->setConnectedNode(mix);
     out2->setConnectedNode(multiply2);
 
@@ -364,7 +370,7 @@ TEST_CASE("Prune nodes", "[nodegraph]")
     multiply->setConnectedNode("in2", add1);
     mix->setConnectedNode("fg", multiply);
     mix->setConnectedNode("bg", add3);
-    mix->setConnectedNode("mix", noise3d);
+    mix->setConnectedNode("mask", noise3d);
     output->setConnectedNode(mix);
 
     // Set the node names we want to prune from the graph

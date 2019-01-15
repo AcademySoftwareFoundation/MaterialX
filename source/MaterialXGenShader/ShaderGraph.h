@@ -30,6 +30,7 @@ class ShaderGraph : public ShaderNode
 {
   public:
     ShaderGraph(const string& name, DocumentPtr document);
+    virtual ~ShaderGraph() {}
 
     /// Create a new shader graph from an element.
     /// Supported elements are outputs and shaderrefs.

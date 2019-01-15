@@ -66,17 +66,12 @@ string Node::getConnectedNodeName(const string& inputName) const
     return input->getNodeName();
 }
 
-bool Node::requiresInputCompatibility(ConstInterfaceElementPtr rhs) const
-{
-    if (rhs->isA<NodeDef>())
-    {
-        return true;
-    }
-    return false;
-}
-
 NodeDefPtr Node::getNodeDef(const string& target) const
 {
+    if (hasNodeDefString())
+    {
+        return resolveRootNameReference<NodeDef>(getNodeDefString());
+    }
     vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getCategory()));
     vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getCategory());
     nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
@@ -379,6 +374,28 @@ string GraphElement::asStringDot() const
 //
 // NodeGraph methods
 //
+
+void NodeGraph::setNodeDef(ConstNodeDefPtr nodeDef)
+{
+    if (nodeDef)
+    {
+        setNodeDefString(nodeDef->getName());
+    }
+    else
+    {
+        removeAttribute(NODE_DEF_ATTRIBUTE);
+    }
+}
+
+NodeDefPtr NodeGraph::getNodeDef() const
+{
+    return resolveRootNameReference<NodeDef>(getNodeDefString());
+}
+
+ConstNodeDefPtr NodeGraph::getDeclaration(const string&) const
+{
+    return getNodeDef();
+}
 
 InterfaceElementPtr NodeGraph::getImplementation() const
 {

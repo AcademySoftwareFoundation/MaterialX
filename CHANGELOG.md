@@ -1,5 +1,31 @@
 # Change Log
 
+## [1.36.2] - Development
+
+### Added
+- Added support for 'nodedef' attributes on MaterialX\:\:Node, integrating this usage into GraphElement\:\:addNodeInstance.
+- Added support for GCC 8 and Clang 7.
+
+### Changed
+- Added callbacks Observer\:\:onCopyContent and Observer\:\:onClearContent, and removed callback Observer::onInitialize.
+
+## [1.36.1] - 2018-12-18
+
+### Added
+- Added support for interface tokens, including the MaterialX\:\:BindToken class and '[TOKEN]' syntax in filenames.
+- Added support for Clang 6.
+
+### Changed
+- Updated geometry token syntax from '%TOKEN' to '\<TOKEN\>'.
+- Replaced readXIncludes boolean with a readXIncludeFunction callback in the XmlReadOptions structure.
+- Combined individual options into an XmlWriteOptions argument for the XML write functions.
+- Extended functionality of the vector and matrix classes.
+- Updated PyBind11 library to version 2.2.3.
+- Updated PugiXML library to version 1.9.
+
+### Fixed
+- Fixed graph implementations of range, extract, tiledimage, and ramp4 nodes.
+
 ## [1.36.0] - 2018-07-23
 
 Updated the MaterialX library to the v1.36 specification.

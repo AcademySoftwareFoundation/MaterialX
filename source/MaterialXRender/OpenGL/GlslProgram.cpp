@@ -58,7 +58,7 @@ void GlslProgram::setStages(const std::vector<std::string>& stages)
 
     unsigned int count = 0;
     for (auto stage : stages)
-    { 
+    {
         _stages[count++] = stage;
     }
 
@@ -287,7 +287,7 @@ bool GlslProgram::bind()
 }
 
 void GlslProgram::bindInputs(ViewHandlerPtr viewHandler,
-                            GeometryHandlerPtr geometryHandler,
+                            GeometryHandler& geometryHandler,
                             ImageHandlerPtr imageHandler,
                             HwLightHandlerPtr lightHandler)
 {
@@ -308,7 +308,10 @@ void GlslProgram::bindInputs(ViewHandlerPtr viewHandler,
 
     // Bind based on inputs found
     bindViewInformation(viewHandler);
-    bindGeometry(geometryHandler);
+    for (auto mesh : geometryHandler.getMeshes())
+    {
+        bindStreams(mesh);
+    }
     bindTextures(imageHandler);
     bindTimeAndFrame();
     bindLighting(lightHandler, imageHandler);
@@ -337,14 +340,14 @@ void GlslProgram::unbindInputs(ImageHandlerPtr imageHandler)
     }
 }
 
-void GlslProgram::bindAttribute(const MaterialX::GlslProgram::InputMap& inputs, GeometryHandlerPtr geometryHandler)
+void GlslProgram::bindAttribute(const MaterialX::GlslProgram::InputMap& inputs, MeshPtr mesh)
 {
     const std::string errorType("GLSL bind attribute error.");
     ShaderValidationErrorList errors;
 
-    if (!geometryHandler)
+    if (!mesh)
     {
-        errors.push_back("Cannot bind geometry without a geometry handler");
+        errors.push_back("No geometry set to bind");
         throw ExceptionShaderValidationError(errorType, errors);
     }
 
@@ -356,11 +359,18 @@ void GlslProgram::bindAttribute(const MaterialX::GlslProgram::InputMap& inputs, 
         unsigned int index = input.second->value ? input.second->value->asA<int>() : 0;
 
         unsigned int stride = 0;
-        GeometryHandler::FloatBuffer& attributeData = geometryHandler->getAttribute(input.first, stride, index);
+        MeshStreamPtr stream = mesh->getStream(input.first);
+        if (!stream)
+        {
+            errors.push_back("Geometry buffer could not be retrieved for binding: " + input.first + ". Index: " + std::to_string(index));
+            throw ExceptionShaderValidationError(errorType, errors);
+        }
+        MeshFloatBuffer& attributeData = stream->getData();
+        stride = stream->getStride();
 
         if (attributeData.empty() || (stride == 0))
         {
-            errors.push_back("Geometry buffer could not be retrieved for binding: " + input.first);
+            errors.push_back("Geometry buffer could not be retrieved for binding: " + input.first + ". Index: " + std::to_string(index));
             throw ExceptionShaderValidationError(errorType, errors);
         }
 
@@ -383,7 +393,25 @@ void GlslProgram::bindAttribute(const MaterialX::GlslProgram::InputMap& inputs, 
     }
 }
 
-void GlslProgram::bindGeometry(GeometryHandlerPtr geometryHandler)
+void GlslProgram::bindPartition(MeshPartitionPtr partition)
+{
+    ShaderValidationErrorList errors;
+    const std::string errorType("GLSL geometry bind error.");
+    if (!partition || partition->getFaceCount() == 0)
+    {
+        errors.push_back("Cannot bind geometry partition");
+        throw ExceptionShaderValidationError(errorType, errors);
+    }
+
+    size_t UINT_SIZE = sizeof(unsigned int);
+    MeshIndexBuffer& indexData = partition->getIndices();
+    _indexBufferSize = indexData.size();
+    glGenBuffers(1, &_indexBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (unsigned int)(_indexBufferSize*UINT_SIZE), &indexData[0], GL_STATIC_DRAW);
+}
+
+void GlslProgram::bindStreams(MeshPtr mesh)
 {
     ShaderValidationErrorList errors;
     const std::string errorType("GLSL geometry bind error.");
@@ -393,9 +421,9 @@ void GlslProgram::bindGeometry(GeometryHandlerPtr geometryHandler)
         errors.push_back("Cannot bind geometry without a valid program");
         throw ExceptionShaderValidationError(errorType, errors);
     }
-    if (!geometryHandler)
+    if (!mesh)
     {
-        errors.push_back("Cannot bind geometry without a geometry handler");
+        errors.push_back("No geometry to bind");
         throw ExceptionShaderValidationError(errorType, errors);
     }
 
@@ -406,39 +434,33 @@ void GlslProgram::bindGeometry(GeometryHandlerPtr geometryHandler)
     glGenVertexArrays(1, &_vertexArray);
     glBindVertexArray(_vertexArray);
 
-    size_t UINT_SIZE = sizeof(unsigned int);
-    GeometryHandler::IndexBuffer& indexData = geometryHandler->getIndexing();
-    _indexBufferSize = indexData.size();
-    glGenBuffers(1, &_indexBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (unsigned int)(_indexBufferSize*UINT_SIZE), &indexData[0], GL_STATIC_DRAW);
-
+  
     // Bind positions
     findInputs("i_position", attributeList, foundList, true);
     if (foundList.size())
     {
-        bindAttribute(foundList, geometryHandler);
+        bindAttribute(foundList, mesh);
     }
 
     // Bind normals
     findInputs("i_normal", attributeList, foundList, true);
     if (foundList.size())
     {
-        bindAttribute(foundList, geometryHandler);
+        bindAttribute(foundList, mesh);
     }
 
     // Bind tangents
     findInputs("i_tangent", attributeList, foundList, true);
     if (foundList.size())
     {
-        bindAttribute(foundList, geometryHandler);
+        bindAttribute(foundList, mesh);
     }
 
     // Bind bitangents
     findInputs("i_bitangent", attributeList, foundList, true);
     if (foundList.size())
     {
-        bindAttribute(foundList, geometryHandler);
+        bindAttribute(foundList, mesh);
     }
 
     // Bind colors
@@ -446,7 +468,7 @@ void GlslProgram::bindGeometry(GeometryHandlerPtr geometryHandler)
     findInputs("i_color_", attributeList, foundList, false);
     if (foundList.size())
     {
-        bindAttribute(foundList, geometryHandler);
+        bindAttribute(foundList, mesh);
     }
 
     // Bind texture coordinates
@@ -454,7 +476,7 @@ void GlslProgram::bindGeometry(GeometryHandlerPtr geometryHandler)
     findInputs("i_texcoord_", attributeList, foundList, false);
     if (foundList.size())
     {
-        bindAttribute(foundList, geometryHandler);
+        bindAttribute(foundList, mesh);
     }
 
     // Bind any named attribute information
@@ -523,14 +545,14 @@ void GlslProgram::unbindTextures(ImageHandlerPtr imageHandler)
     checkErrors();
 }
 
-bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, const string& fileName,  
+bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, const string& fileName,
                               ImageHandlerPtr imageHandler, bool generateMipMaps,
                               const ImageSamplingProperties& samplingProperties)
 {
     bool textureBound = false;
     if (uniformLocation >= 0 &&
         uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
-    {        
+    {
         ImageDesc imageDesc;
         string identifier(fileName);
         bool haveImage = imageHandler->acquireImage(identifier, imageDesc, generateMipMaps, &(samplingProperties.defaultColor));
@@ -554,7 +576,7 @@ MaterialX::ValuePtr GlslProgram::findUniformValue(const std::string& uniformName
         int location = uniform->second->location;
         if (location >= 0)
         {
-            return uniform->second->value;         
+            return uniform->second->value;
         }
     }
     return nullptr;
@@ -587,7 +609,7 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
             uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
         {
             const std::string fileName(uniform.second->value ? uniform.second->value->getValueString() : "");
-            
+
             // Skip binding if nothing to bind or if is a lighting texture.
             // Lighting textures are handled in the bindLighting() call
             if (!fileName.empty() &&
@@ -603,11 +625,11 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
                 const std::string uaddressModeStr = root[0] + UADDRESS_MODE_POST_FIX;
                 ValuePtr intValue = findUniformValue(uaddressModeStr, uniformList);
                 samplingProperties.uaddressMode = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
-                
+
                 const std::string vaddressmodeStr = root[0] + VADDRESS_MODE_POST_FIX;
                 intValue = findUniformValue(vaddressmodeStr, uniformList);
                 samplingProperties.vaddressMode = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
-                
+
                 const std::string filtertypeStr = root[0] + FILTER_TYPE_POST_FIX;
                 intValue = findUniformValue(filtertypeStr, uniformList);
                 samplingProperties.filterType = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
@@ -633,7 +655,7 @@ void GlslProgram::bindLighting(HwLightHandlerPtr lightHandler, ImageHandlerPtr i
     if (!lightHandler)
     {
         // Nothing to bind if a light handler is not used.
-        // This is a valid condition for shaders that don't 
+        // This is a valid condition for shaders that don't
         // need lighting so just ignore silently.
         return;
     }
@@ -701,7 +723,7 @@ void GlslProgram::bindLighting(HwLightHandlerPtr lightHandler, ImageHandlerPtr i
     }
 
     size_t index = 0;
-    for (LightSourcePtr light : lightHandler->getLightSources())
+    for (NodePtr light : lightHandler->getLightSources())
     {
         const string prefix = "u_lightData[" + std::to_string(index) + "]";
 
@@ -712,7 +734,7 @@ void GlslProgram::bindLighting(HwLightHandlerPtr lightHandler, ImageHandlerPtr i
             location = input->second->location;
             if (location >= 0)
             {
-                glUniform1i(location, int(light->getType()));
+                glUniform1i(location, int(HwLightHandler::getLightType(light)));
             }
         }
 
@@ -720,12 +742,12 @@ void GlslProgram::bindLighting(HwLightHandlerPtr lightHandler, ImageHandlerPtr i
         for (auto param : light->getParameters())
         {
             // Make sure we have a value to set
-            if (param.second)
+            if (param->hasValue())
             {
-                input = uniformList.find(prefix + "." + param.first);
+                input = uniformList.find(prefix + "." + param->getName());
                 if (input != uniformList.end())
                 {
-                    bindUniform(input->second->location, *param.second);
+                    bindUniform(input->second->location, *param->getValue());
                 }
             }
         }
@@ -1245,7 +1267,7 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
         {
             InputPtr inputPtr = std::make_shared<Input>(attributeLocation, attributeType, attributeSize, EMPTY_STRING);
 
-            // Attempt to pull out the set number for specific attributes 
+            // Attempt to pull out the set number for specific attributes
             //
             std::string sattributeName(attributeName);
             const std::string colorSet("i_color_");
@@ -1267,13 +1289,13 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
     delete[] attributeName;
 
     if (_hwShader)
-    {        
+    {
         const MaterialX::Shader::VariableBlock& appDataBlock = _hwShader->getAppDataBlock();
-        
+
         bool uniformTypeMismatchFound = false;
 
         if (!appDataBlock.empty())
-        { 
+        {
             for (const MaterialX::Shader::Variable* input : appDataBlock.variableOrder)
             {
                 auto Input = _attributeList.find(input->name);
@@ -1313,7 +1335,7 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
     return _attributeList;
 }
 
-void GlslProgram::findInputs(const std::string& variable, 
+void GlslProgram::findInputs(const std::string& variable,
                                          const InputMap& variableList,
                                          InputMap& foundList,
                                          bool exactMatch)
@@ -1349,7 +1371,7 @@ void GlslProgram::findInputs(const std::string& variable,
     }
 }
 
-void GlslProgram::printUniforms(std::ostream& outputStream) 
+void GlslProgram::printUniforms(std::ostream& outputStream)
 {
     updateUniformsList();
     for (auto input : _uniformList)
@@ -1376,7 +1398,7 @@ void GlslProgram::printUniforms(std::ostream& outputStream)
 }
 
 
-void GlslProgram::printAttributes(std::ostream& outputStream) 
+void GlslProgram::printAttributes(std::ostream& outputStream)
 {
     updateAttributesList();
     for (auto input : _attributeList)

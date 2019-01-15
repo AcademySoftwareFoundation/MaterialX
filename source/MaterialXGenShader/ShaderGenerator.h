@@ -71,9 +71,6 @@ public:
     /// Return the syntax object for the language used by the code generator
     const Syntax* getSyntax() const { return _syntax.get(); }
 
-    /// Return the v-direction used by the target system
-    virtual Shader::VDirection getTargetVDirection() const;
-
     /// Add node contexts id's to the given node to control
     /// in which contexts this node should be used.
     virtual void addNodeContextIDs(ShaderNode* node) const;

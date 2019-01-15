@@ -22,12 +22,6 @@ ShaderGenerator::ShaderGenerator(SyntaxPtr syntax)
     _defaultContext = createContext(CONTEXT_DEFAULT);
 }
 
-Shader::VDirection ShaderGenerator::getTargetVDirection() const
-{
-    // Default is to use vdirection up
-    return Shader::VDirection::UP;
-}
-
 void ShaderGenerator::emitTypeDefinitions(Shader& shader)
 {
     // Emit typedef statements for all data types that have an alias

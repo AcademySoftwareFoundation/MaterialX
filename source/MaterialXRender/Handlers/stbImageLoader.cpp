@@ -1,6 +1,6 @@
 #include <MaterialXRender/Window/HardwarePlatform.h>
 
-#if defined(OSWin_)
+#if defined(OSWin_) || defined(_WIN32)
     #pragma warning( push )
     #pragma warning( disable: 4100)
     #pragma warning( disable: 4505)
@@ -22,7 +22,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <MaterialXRender/External/stb/stb_image.h>
 
-#if defined(OSWin_)
+#if defined(OSWin_) || defined(_WIN32)
     #pragma warning( pop ) 
 #elif defined(__clang__)
     #pragma clang diagnostic pop

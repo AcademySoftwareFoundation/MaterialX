@@ -1,7 +1,8 @@
 
 #include <MaterialXRender/External/GLew/glew.h>
 #include <MaterialXRender/ShaderValidators/Glsl/GlslValidator.h>
-#include <MaterialXRender/Handlers/ObjGeometryHandler.h>
+#include <MaterialXRender/Handlers/GeometryHandler.h>
+#include <MaterialXRender/Handlers/TestObjLoader.h>
 
 #include <iostream>
 #include <algorithm>
@@ -37,7 +38,8 @@ GlslValidator::GlslValidator() :
 {
     _program = GlslProgram::create();
 
-    _geometryHandler = ObjGeometryHandler::create();
+    TestObjLoaderPtr loader = TestObjLoader::create();
+    _geometryHandler.addLoader(loader);
 
     _viewHandler = ViewHandler::create();
 }
@@ -355,7 +357,7 @@ void GlslValidator::updateViewInformation()
     Vector3& viewPosition = _viewHandler->viewPosition();
 
     // Offset view position a little beyond geometry bounds
-    Vector3 minBounds = _geometryHandler->getMinimumBounds();
+    Vector3 minBounds = _geometryHandler.getMinimumBounds();
     float distance = minBounds.getMagnitude() + 0.5f;
 
     viewPosition[0] = 0.0f;
@@ -448,59 +450,27 @@ void GlslValidator::validateRender(bool orthographicView)
                 _program->bind();
                 _program->bindInputs(_viewHandler, _geometryHandler, _imageHandler, _lightHandler);
 
-                GeometryHandler::IndexBuffer& indexData = _geometryHandler->getIndexing();
-                glDrawElements(GL_TRIANGLES, (GLsizei)indexData.size(), GL_UNSIGNED_INT, (void*)0);
+                // Draw all the partitions of all the meshes in the handler
+                for (auto mesh : _geometryHandler.getMeshes())
+                {
+                    for (size_t i = 0; i < mesh->getPartitionCount(); i++)
+                    {
+                        auto part = mesh->getPartition(i);
+                        _program->bindPartition(part);
+
+                        MeshIndexBuffer& indexData = part->getIndices();
+                        glDrawElements(GL_TRIANGLES, (GLsizei)indexData.size(), GL_UNSIGNED_INT, (void*)0);
+                    }
+                }
                 checkErrors();
 
                 // Unbind resources
                 _program->unbind();
                 _program->unbindInputs(_imageHandler);
             }
-        }
-
-        // Fallack simple draw 
-        else
-        {
-            if (_geometryHandler->getIdentifier() == GeometryHandler::UNIT_QUAD)
-            {
-                glPushMatrix();
-                glBegin(GL_QUADS);
-
-                glColor3f(1.0f, 0.0f, 0.0f);
-                glVertex2f(0.0f, (float)_frameBufferHeight);
-
-                glColor3f(0.0f, 1.0f, 0.0f);
-                glVertex2f(0.0f, 0.0f);
-
-                glColor3f(0.0f, 0.0f, 1.0f);
-                glVertex2f((float)_frameBufferWidth, 0.0f);
-
-                glColor3f(1.0f, 1.0f, 0.0f);
-                glVertex2f((float)_frameBufferWidth, (float)_frameBufferHeight);
-
-                glEnd();
-                glPopMatrix();
-            }
-            else
-            {
-                unsigned int channelCount = 3;
-                GeometryHandler::FloatBuffer& positionData =
-                    _geometryHandler->getAttribute(GeometryHandler::POSITION_ATTRIBUTE, channelCount);
-                GeometryHandler::IndexBuffer& indexBuffer =
-                    _geometryHandler->getIndexing();
-
-                glBegin(GL_TRIANGLES);
-                glColor3f(1.0f, 1.0f, 1.0f);
-                for (unsigned int i = 0; i < indexBuffer.size(); i++)
-                {
-                    glVertex3f(positionData[3*i], positionData[3 * i + 1], positionData[3 * i + 2]);
-                }
-                glEnd();
-            }
-            checkErrors();
-        }
+        }      
     }
-    catch (ExceptionShaderValidationError e)
+    catch (ExceptionShaderValidationError& e)
     {
         bindTarget(false);
         throw e;
@@ -539,7 +509,7 @@ void GlslValidator::save(const std::string& fileName, bool floatingPoint)
     {
         checkErrors();
     }
-    catch (ExceptionShaderValidationError e)
+    catch (ExceptionShaderValidationError& e)
     {
         delete[] buffer;
         errors.push_back("Failed to read color buffer back.");

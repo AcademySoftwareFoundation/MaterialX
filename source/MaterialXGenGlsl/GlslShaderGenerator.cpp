@@ -27,25 +27,8 @@
 
 namespace MaterialX
 {
-
-namespace
-{
-    const char* VDIRECTION_FLIP =
-        "void vdirection(vec2 texcoord, out vec2 result)\n"
-        "{\n"
-        "   result.x = texcoord.x;\n"
-        "   result.y = 1.0 - texcoord.y;\n"
-        "}\n\n";
-
-    const char* VDIRECTION_NOOP =
-        "void vdirection(vec2 texcoord, out vec2 result)\n"
-        "{\n"
-        "   result = texcoord;\n"
-        "}\n\n";
-}
-
-const string GlslShaderGenerator::LANGUAGE = "sx-glsl";
-const string GlslShaderGenerator::TARGET = "glsl_v4.0";
+const string GlslShaderGenerator::LANGUAGE = "genglsl";
+const string GlslShaderGenerator::TARGET = "glsl400";
 const string GlslShaderGenerator::VERSION = "400";
 const string GlslShaderGenerator::LIGHT_DIR = "L";
 const string GlslShaderGenerator::VIEW_DIR = "V";
@@ -87,185 +70,185 @@ GlslShaderGenerator::GlslShaderGenerator()
     //
 
     // <!-- <compare> -->
-    registerImplementation("IM_compare_float_sx_glsl", CompareNode::create);
-    registerImplementation("IM_compare_color2_sx_glsl", CompareNode::create);
-    registerImplementation("IM_compare_color3_sx_glsl", CompareNode::create);
-    registerImplementation("IM_compare_color4_sx_glsl", CompareNode::create);
-    registerImplementation("IM_compare_vector2_sx_glsl", CompareNode::create);
-    registerImplementation("IM_compare_vector3_sx_glsl", CompareNode::create);
-    registerImplementation("IM_compare_vector4_sx_glsl", CompareNode::create);
+    registerImplementation("IM_compare_float_" + GlslShaderGenerator::LANGUAGE, CompareNode::create);
+    registerImplementation("IM_compare_color2_" + GlslShaderGenerator::LANGUAGE, CompareNode::create);
+    registerImplementation("IM_compare_color3_" + GlslShaderGenerator::LANGUAGE, CompareNode::create);
+    registerImplementation("IM_compare_color4_" + GlslShaderGenerator::LANGUAGE, CompareNode::create);
+    registerImplementation("IM_compare_vector2_" + GlslShaderGenerator::LANGUAGE, CompareNode::create);
+    registerImplementation("IM_compare_vector3_" + GlslShaderGenerator::LANGUAGE, CompareNode::create);
+    registerImplementation("IM_compare_vector4_" + GlslShaderGenerator::LANGUAGE, CompareNode::create);
 
     // <!-- <switch> -->
     // <!-- 'which' type : float -->
-    registerImplementation("IM_switch_float_sx_glsl", SwitchNode::create);
-    registerImplementation("IM_switch_color2_sx_glsl", SwitchNode::create);
-    registerImplementation("IM_switch_color3_sx_glsl", SwitchNode::create);
-    registerImplementation("IM_switch_color4_sx_glsl", SwitchNode::create);
-    registerImplementation("IM_switch_vector2_sx_glsl", SwitchNode::create);
-    registerImplementation("IM_switch_vector3_sx_glsl", SwitchNode::create);
-    registerImplementation("IM_switch_vector4_sx_glsl", SwitchNode::create);
+    registerImplementation("IM_switch_float_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_color2_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_color3_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_color4_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_vector2_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_vector3_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_vector4_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
     // <!-- 'which' type : integer -->
-    registerImplementation("IM_switch_floatI_sx_glsl", SwitchNode::create);
-    registerImplementation("IM_switch_color2I_sx_glsl", SwitchNode::create);
-    registerImplementation("IM_switch_color3I_sx_glsl", SwitchNode::create);
-    registerImplementation("IM_switch_color4I_sx_glsl", SwitchNode::create);
-    registerImplementation("IM_switch_vector2I_sx_glsl", SwitchNode::create);
-    registerImplementation("IM_switch_vector3I_sx_glsl", SwitchNode::create);
-    registerImplementation("IM_switch_vector4I_sx_glsl", SwitchNode::create);
+    registerImplementation("IM_switch_floatI_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_color2I_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_color3I_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_color4I_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_vector2I_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_vector3I_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_vector4I_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
     // <!-- 'which' type : boolean -->
-    registerImplementation("IM_switch_floatB_sx_glsl", SwitchNode::create);
-    registerImplementation("IM_switch_color2B_sx_glsl", SwitchNode::create);
-    registerImplementation("IM_switch_color3B_sx_glsl", SwitchNode::create);
-    registerImplementation("IM_switch_color4B_sx_glsl", SwitchNode::create);
-    registerImplementation("IM_switch_vector2B_sx_glsl", SwitchNode::create);
-    registerImplementation("IM_switch_vector3B_sx_glsl", SwitchNode::create);
-    registerImplementation("IM_switch_vector4B_sx_glsl", SwitchNode::create);
+    registerImplementation("IM_switch_floatB_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_color2B_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_color3B_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_color4B_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_vector2B_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_vector3B_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
+    registerImplementation("IM_switch_vector4B_" + GlslShaderGenerator::LANGUAGE, SwitchNode::create);
 
     // <!-- <swizzle> -->
     // <!-- from type : float -->
-    registerImplementation("IM_swizzle_float_color2_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_float_color3_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_float_color4_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_float_vector2_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_float_vector3_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_float_vector4_sx_glsl", SwizzleNode::create);
+    registerImplementation("IM_swizzle_float_color2_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_float_color3_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_float_color4_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_float_vector2_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_float_vector3_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_float_vector4_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
     // <!-- from type : color2 -->
-    registerImplementation("IM_swizzle_color2_float_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_color2_color2_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_color2_color3_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_color2_color4_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_color2_vector2_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_color2_vector3_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_color2_vector4_sx_glsl", SwizzleNode::create);
+    registerImplementation("IM_swizzle_color2_float_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color2_color2_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color2_color3_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color2_color4_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color2_vector2_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color2_vector3_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color2_vector4_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
     // <!-- from type : color3 -->
-    registerImplementation("IM_swizzle_color3_float_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_color3_color2_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_color3_color3_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_color3_color4_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_color3_vector2_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_color3_vector3_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_color3_vector4_sx_glsl", SwizzleNode::create);
+    registerImplementation("IM_swizzle_color3_float_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color3_color2_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color3_color3_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color3_color4_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color3_vector2_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color3_vector3_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color3_vector4_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
     // <!-- from type : color4 -->
-    registerImplementation("IM_swizzle_color4_float_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_color4_color2_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_color4_color3_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_color4_color4_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_color4_vector2_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_color4_vector3_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_color4_vector4_sx_glsl", SwizzleNode::create);
+    registerImplementation("IM_swizzle_color4_float_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color4_color2_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color4_color3_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color4_color4_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color4_vector2_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color4_vector3_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_color4_vector4_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
     // <!-- from type : vector2 -->
-    registerImplementation("IM_swizzle_vector2_float_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector2_color2_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector2_color3_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector2_color4_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector2_vector2_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector2_vector3_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector2_vector4_sx_glsl", SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector2_float_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector2_color2_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector2_color3_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector2_color4_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector2_vector2_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector2_vector3_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector2_vector4_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
     // <!-- from type : vector3 -->
-    registerImplementation("IM_swizzle_vector3_float_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector3_color2_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector3_color3_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector3_color4_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector3_vector2_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector3_vector3_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector3_vector4_sx_glsl", SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector3_float_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector3_color2_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector3_color3_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector3_color4_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector3_vector2_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector3_vector3_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector3_vector4_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
     // <!-- from type : vector4 -->
-    registerImplementation("IM_swizzle_vector4_float_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector4_color2_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector4_color3_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector4_color4_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector4_vector2_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector4_vector3_sx_glsl", SwizzleNode::create);
-    registerImplementation("IM_swizzle_vector4_vector4_sx_glsl", SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector4_float_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector4_color2_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector4_color3_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector4_color4_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector4_vector2_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector4_vector3_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
+    registerImplementation("IM_swizzle_vector4_vector4_" + GlslShaderGenerator::LANGUAGE, SwizzleNode::create);
 
     // <!-- <convert> -->
-    registerImplementation("IM_convert_float_color2_sx_glsl", ConvertNode::create);
-    registerImplementation("IM_convert_float_color3_sx_glsl", ConvertNode::create);
-    registerImplementation("IM_convert_float_color4_sx_glsl", ConvertNode::create);
-    registerImplementation("IM_convert_float_vector2_sx_glsl", ConvertNode::create);
-    registerImplementation("IM_convert_float_vector3_sx_glsl", ConvertNode::create);
-    registerImplementation("IM_convert_float_vector4_sx_glsl", ConvertNode::create);
-    registerImplementation("IM_convert_vector2_color2_sx_glsl", ConvertNode::create);
-    registerImplementation("IM_convert_vector3_color3_sx_glsl", ConvertNode::create);
-    registerImplementation("IM_convert_vector4_color4_sx_glsl", ConvertNode::create);
-    registerImplementation("IM_convert_color2_vector2_sx_glsl", ConvertNode::create);
-    registerImplementation("IM_convert_color3_vector3_sx_glsl", ConvertNode::create);
-    registerImplementation("IM_convert_color4_vector4_sx_glsl", ConvertNode::create);
-    registerImplementation("IM_convert_color3_color4_sx_glsl", ConvertNode::create);
-    registerImplementation("IM_convert_color4_color3_sx_glsl", ConvertNode::create);
-    registerImplementation("IM_convert_boolean_float_sx_glsl", ConvertNode::create);
-    registerImplementation("IM_convert_integer_float_sx_glsl", ConvertNode::create);
+    registerImplementation("IM_convert_float_color2_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_float_color3_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_float_color4_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_float_vector2_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_float_vector3_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_float_vector4_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_vector2_color2_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_vector3_color3_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_vector4_color4_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_color2_vector2_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_color3_vector3_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_color4_vector4_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_color3_color4_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_color4_color3_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_boolean_float_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_integer_float_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
 
     // <!-- <combine> -->
-    registerImplementation("IM_combine_color2_sx_glsl", CombineNode::create);
-    registerImplementation("IM_combine_vector2_sx_glsl", CombineNode::create);
-    registerImplementation("IM_combine_color3_sx_glsl", CombineNode::create);
-    registerImplementation("IM_combine_vector3_sx_glsl", CombineNode::create);
-    registerImplementation("IM_combine_color4_sx_glsl", CombineNode::create);
-    registerImplementation("IM_combine_vector4_sx_glsl", CombineNode::create);
-    registerImplementation("IM_combine_color4CF_sx_glsl", CombineNode::create);
-    registerImplementation("IM_combine_vector4VF_sx_glsl", CombineNode::create);
-    registerImplementation("IM_combine_color4CC_sx_glsl", CombineNode::create);
-    registerImplementation("IM_combine_vector4VV_sx_glsl", CombineNode::create);
+    registerImplementation("IM_combine_color2_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine_vector2_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine_color3_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine_vector3_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine_color4_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine_vector4_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine_color4CF_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine_vector4VF_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine_color4CC_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
+    registerImplementation("IM_combine_vector4VV_" + GlslShaderGenerator::LANGUAGE, CombineNode::create);
 
     // <!-- <position> -->
-    registerImplementation("IM_position_vector3_sx_glsl", PositionNodeGlsl::create);
+    registerImplementation("IM_position_vector3_" + GlslShaderGenerator::LANGUAGE, PositionNodeGlsl::create);
     // <!-- <normal> -->
-    registerImplementation("IM_normal_vector3_sx_glsl", NormalNodeGlsl::create);
+    registerImplementation("IM_normal_vector3_" + GlslShaderGenerator::LANGUAGE, NormalNodeGlsl::create);
     // <!-- <tangent> -->
-    registerImplementation("IM_tangent_vector3_sx_glsl", TangentNodeGlsl::create);
+    registerImplementation("IM_tangent_vector3_" + GlslShaderGenerator::LANGUAGE, TangentNodeGlsl::create);
     // <!-- <bitangent> -->
-    registerImplementation("IM_bitangent_vector3_sx_glsl", BitangentNodeGlsl::create);
+    registerImplementation("IM_bitangent_vector3_" + GlslShaderGenerator::LANGUAGE, BitangentNodeGlsl::create);
     // <!-- <texcoord> -->
-    registerImplementation("IM_texcoord_vector2_sx_glsl", TexCoordNodeGlsl::create);
-    registerImplementation("IM_texcoord_vector3_sx_glsl", TexCoordNodeGlsl::create);
+    registerImplementation("IM_texcoord_vector2_" + GlslShaderGenerator::LANGUAGE, TexCoordNodeGlsl::create);
+    registerImplementation("IM_texcoord_vector3_" + GlslShaderGenerator::LANGUAGE, TexCoordNodeGlsl::create);
     // <!-- <geomcolor> -->
-    registerImplementation("IM_geomcolor_float_sx_glsl", GeomColorNodeGlsl::create);
-    registerImplementation("IM_geomcolor_color2_sx_glsl", GeomColorNodeGlsl::create);
-    registerImplementation("IM_geomcolor_color3_sx_glsl", GeomColorNodeGlsl::create);
-    registerImplementation("IM_geomcolor_color4_sx_glsl", GeomColorNodeGlsl::create);
+    registerImplementation("IM_geomcolor_float_" + GlslShaderGenerator::LANGUAGE, GeomColorNodeGlsl::create);
+    registerImplementation("IM_geomcolor_color2_" + GlslShaderGenerator::LANGUAGE, GeomColorNodeGlsl::create);
+    registerImplementation("IM_geomcolor_color3_" + GlslShaderGenerator::LANGUAGE, GeomColorNodeGlsl::create);
+    registerImplementation("IM_geomcolor_color4_" + GlslShaderGenerator::LANGUAGE, GeomColorNodeGlsl::create);
     // <!-- <geomattrvalue> -->
-    registerImplementation("IM_geomattrvalue_integer_sx_glsl", GeomAttrValueNodeGlsl::create);
-    registerImplementation("IM_geomattrvalue_boolean_sx_glsl", GeomAttrValueNodeGlsl::create);
-    registerImplementation("IM_geomattrvalue_string_sx_glsl", GeomAttrValueNodeGlsl::create);
-    registerImplementation("IM_geomattrvalue_float_sx_glsl", GeomAttrValueNodeGlsl::create);
-    registerImplementation("IM_geomattrvalue_color2_sx_glsl", GeomAttrValueNodeGlsl::create);
-    registerImplementation("IM_geomattrvalue_color3_sx_glsl", GeomAttrValueNodeGlsl::create);
-    registerImplementation("IM_geomattrvalue_color4_sx_glsl", GeomAttrValueNodeGlsl::create);
-    registerImplementation("IM_geomattrvalue_vector2_sx_glsl", GeomAttrValueNodeGlsl::create);
-    registerImplementation("IM_geomattrvalue_vector3_sx_glsl", GeomAttrValueNodeGlsl::create);
-    registerImplementation("IM_geomattrvalue_vector4_sx_glsl", GeomAttrValueNodeGlsl::create);
+    registerImplementation("IM_geomattrvalue_integer_" + GlslShaderGenerator::LANGUAGE, GeomAttrValueNodeGlsl::create);
+    registerImplementation("IM_geomattrvalue_boolean_" + GlslShaderGenerator::LANGUAGE, GeomAttrValueNodeGlsl::create);
+    registerImplementation("IM_geomattrvalue_string_" + GlslShaderGenerator::LANGUAGE, GeomAttrValueNodeGlsl::create);
+    registerImplementation("IM_geomattrvalue_float_" + GlslShaderGenerator::LANGUAGE, GeomAttrValueNodeGlsl::create);
+    registerImplementation("IM_geomattrvalue_color2_" + GlslShaderGenerator::LANGUAGE, GeomAttrValueNodeGlsl::create);
+    registerImplementation("IM_geomattrvalue_color3_" + GlslShaderGenerator::LANGUAGE, GeomAttrValueNodeGlsl::create);
+    registerImplementation("IM_geomattrvalue_color4_" + GlslShaderGenerator::LANGUAGE, GeomAttrValueNodeGlsl::create);
+    registerImplementation("IM_geomattrvalue_vector2_" + GlslShaderGenerator::LANGUAGE, GeomAttrValueNodeGlsl::create);
+    registerImplementation("IM_geomattrvalue_vector3_" + GlslShaderGenerator::LANGUAGE, GeomAttrValueNodeGlsl::create);
+    registerImplementation("IM_geomattrvalue_vector4_" + GlslShaderGenerator::LANGUAGE, GeomAttrValueNodeGlsl::create);
 
     // <!-- <frame> -->
-    registerImplementation("IM_frame_float_sx_glsl", FrameNodeGlsl::create);
+    registerImplementation("IM_frame_float_" + GlslShaderGenerator::LANGUAGE, FrameNodeGlsl::create);
     // <!-- <time> -->
-    registerImplementation("IM_time_float_sx_glsl", TimeNodeGlsl::create);
+    registerImplementation("IM_time_float_" + GlslShaderGenerator::LANGUAGE, TimeNodeGlsl::create);
     // <!-- <viewdirection> -->
-    registerImplementation("IM_viewdirection_vector3_sx_glsl", ViewDirectionNodeGlsl::create);
+    registerImplementation("IM_viewdirection_vector3_" + GlslShaderGenerator::LANGUAGE, ViewDirectionNodeGlsl::create);
 
     // <!-- <surface> -->
-    registerImplementation("IM_surface_sx_glsl", SurfaceNodeGlsl::create);
+    registerImplementation("IM_surface_" + GlslShaderGenerator::LANGUAGE, SurfaceNodeGlsl::create);
     // <!-- <light> -->
-    registerImplementation("IM_light_sx_glsl", LightNodeGlsl::create);
+    registerImplementation("IM_light_" + GlslShaderGenerator::LANGUAGE, LightNodeGlsl::create);
 
     // <!-- <pointlight> -->
-    registerImplementation("IM_pointlight_sx_glsl", LightShaderNodeGlsl::create);
+    registerImplementation("IM_pointlight_" + GlslShaderGenerator::LANGUAGE, LightShaderNodeGlsl::create);
     // <!-- <directionallight> -->
-    registerImplementation("IM_directionallight_sx_glsl", LightShaderNodeGlsl::create);
+    registerImplementation("IM_directionallight_" + GlslShaderGenerator::LANGUAGE, LightShaderNodeGlsl::create);
     // <!-- <spotlight> -->
-    registerImplementation("IM_spotlight_sx_glsl", LightShaderNodeGlsl::create);
+    registerImplementation("IM_spotlight_" + GlslShaderGenerator::LANGUAGE, LightShaderNodeGlsl::create);
 
     // <!-- <heighttonormal> -->
-    registerImplementation("IM_heighttonormal_vector3_sx_glsl", HeightToNormalNodeGlsl::create);
+    registerImplementation("IM_heighttonormal_vector3_" + GlslShaderGenerator::LANGUAGE, HeightToNormalNodeGlsl::create);
 
     // <!-- <blur> -->
-    registerImplementation("IM_blur_float_sx_glsl", BlurNode::create);
-    registerImplementation("IM_blur_color2_sx_glsl", BlurNode::create);
-    registerImplementation("IM_blur_color3_sx_glsl", BlurNode::create);
-    registerImplementation("IM_blur_color4_sx_glsl", BlurNode::create);
-    registerImplementation("IM_blur_vector2_sx_glsl", BlurNode::create);
-    registerImplementation("IM_blur_vector3_sx_glsl", BlurNode::create);
-    registerImplementation("IM_blur_vector4_sx_glsl", BlurNode::create);
+    registerImplementation("IM_blur_float_" + GlslShaderGenerator::LANGUAGE, BlurNode::create);
+    registerImplementation("IM_blur_color2_" + GlslShaderGenerator::LANGUAGE, BlurNode::create);
+    registerImplementation("IM_blur_color3_" + GlslShaderGenerator::LANGUAGE, BlurNode::create);
+    registerImplementation("IM_blur_color4_" + GlslShaderGenerator::LANGUAGE, BlurNode::create);
+    registerImplementation("IM_blur_vector2_" + GlslShaderGenerator::LANGUAGE, BlurNode::create);
+    registerImplementation("IM_blur_vector3_" + GlslShaderGenerator::LANGUAGE, BlurNode::create);
+    registerImplementation("IM_blur_vector4_" + GlslShaderGenerator::LANGUAGE, BlurNode::create);
 }
 
 ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr element, const GenOptions& options)
@@ -365,7 +348,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     shader.newLine();
 
     // Add global constants and type definitions
-    shader.addInclude("sxpbrlib/sx-glsl/lib/sx_defines.glsl", *this);
+    shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_defines.glsl", *this);
     shader.addLine("#define MAX_LIGHT_SOURCES " + std::to_string(getMaxActiveLightSources()), false);
     shader.newLine();
     emitTypeDefinitions(shader);
@@ -437,13 +420,13 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     shader.newLine();
 
     // Emit common math functions
-    shader.addInclude("sxpbrlib/sx-glsl/lib/sx_math.glsl", *this);
+    shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_math.glsl", *this);
     shader.newLine();
 
     // Emit lighting functions
     if (lighting)
     {
-        shader.addInclude("sxpbrlib/sx-glsl/lib/sx_lighting.glsl", *this);
+        shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_lighting.glsl", *this);
         shader.newLine();
     }
 
@@ -451,7 +434,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     if (shader.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
     {
         // Emit sampling functions
-        shader.addInclude("stdlib/sx-glsl/lib/sx_sampling.glsl", *this);
+        shader.addInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_sampling.glsl", *this);
         shader.newLine();
     }
 
@@ -472,10 +455,6 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
 void GlslShaderGenerator::emitFunctionDefinitions(Shader& shader)
 {
     BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-
-        // Emit function for handling texture coords v-flip 
-        // as needed relative to the default v-direction 
-        shader.addBlock(Shader::getDefaultVDirection() != getTargetVDirection() ? VDIRECTION_FLIP : VDIRECTION_NOOP, *this);
 
         // For surface shaders we need light shaders
         if (shader.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))

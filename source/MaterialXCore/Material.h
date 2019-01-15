@@ -22,6 +22,7 @@ class Material;
 class ShaderRef;
 class BindParam;
 class BindInput;
+class BindToken;
 class Override;
 class MaterialInherit;
 class MaterialAssign;
@@ -46,6 +47,11 @@ using ConstBindParamPtr = shared_ptr<const BindParam>;
 using BindInputPtr = shared_ptr<BindInput>;
 /// A shared pointer to a const BindInput
 using ConstBindInputPtr = shared_ptr<const BindInput>;
+
+/// A shared pointer to a BindToken
+using BindTokenPtr = shared_ptr<BindToken>;
+/// A shared pointer to a const BindToken
+using ConstBindTokenPtr = shared_ptr<const BindToken>;
 
 /// @class Material
 /// A material element within a Document.
@@ -171,6 +177,17 @@ class Material : public Element
     vector<InputPtr> getPrimaryShaderInputs(const string& target = EMPTY_STRING,
                                             const string& type = EMPTY_STRING) const;
 
+    /// Return the tokens of the first shader referenced by this material,
+    /// optionally filtered by the given target and shader type.
+    /// @param target An optional target name, which will be used to filter
+    ///    the shader nodedefs that are considered.
+    /// @param type An optional shader type (e.g. "surfaceshader"), which will
+    ///    be used to filter the shader nodedefs that are considered.
+    /// @return The tokens of the first matching shader referenced by this
+    ///    material, or an empty vector if no matching shader was found.
+    vector<TokenPtr> getPrimaryShaderTokens(const string& target = EMPTY_STRING,
+                                            const string& type = EMPTY_STRING) const;
+
     /// @}
     /// @name Geometry Bindings
     /// @{
@@ -209,6 +226,15 @@ class BindParam : public ValueElement
     {
     }
     virtual ~BindParam() { }
+
+    /// @name Validation
+    /// @{
+
+    /// Validate that the given element tree, including all descendants, is
+    /// consistent with the MaterialX specification.
+    bool validate(string* message = nullptr) const override;
+
+    /// @}
 
   public:
     static const string CATEGORY;
@@ -283,11 +309,46 @@ class BindInput : public ValueElement
     OutputPtr getConnectedOutput() const;
 
     /// @}
+    /// @name Validation
+    /// @{
+
+    /// Validate that the given element tree, including all descendants, is
+    /// consistent with the MaterialX specification.
+    bool validate(string* message = nullptr) const override;
+
+    /// @}
 
   public:
     static const string CATEGORY;
     static const string NODE_GRAPH_ATTRIBUTE;
     static const string OUTPUT_ATTRIBUTE;
+};
+
+/// @class BindToken
+/// A bind token element within a ShaderRef.
+///
+/// A BindToken binds a string value to a Token of a shader NodeDef within
+/// the scope of a material.
+class BindToken : public ValueElement
+{
+  public:
+    BindToken(ElementPtr parent, const string& name) :
+        ValueElement(parent, CATEGORY, name)
+    {
+    }
+    virtual ~BindToken() { }
+
+    /// @name Validation
+    /// @{
+
+    /// Validate that the given element tree, including all descendants, is
+    /// consistent with the MaterialX specification.
+    bool validate(string* message = nullptr) const override;
+
+    /// @}
+
+  public:
+    static const string CATEGORY;
 };
 
 /// @class ShaderRef
@@ -420,6 +481,38 @@ class ShaderRef : public TypedElement
     }
 
     /// @}
+    /// @name BindToken Elements
+    /// @{
+
+    /// Add a BindToken to the ShaderRef.
+    /// @param name The name of the new BindToken.
+    ///     If no name is specified, then a unique name will automatically be
+    ///     generated.
+    /// @return A shared pointer to the new BindToken.
+    BindTokenPtr addBindToken(const string& name)
+    {
+        return addChild<BindToken>(name);
+    }
+
+    /// Return the BindToken, if any, with the given name.
+    BindTokenPtr getBindToken(const string& name) const
+    {
+        return getChildOfType<BindToken>(name);
+    }
+
+    /// Return a vector of all BindInput elements in the ShaderRef.
+    vector<BindTokenPtr> getBindTokens() const
+    {
+        return getChildrenOfType<BindToken>();
+    }
+
+    /// Remove the BindToken, if any, with the given name.
+    void removeBindToken(const string& name)
+    {
+        removeChildOfType<BindToken>(name);
+    }
+
+    /// @}
     /// @name NodeDef References
     /// @{
 
@@ -433,16 +526,18 @@ class ShaderRef : public TypedElement
     /// Return a vector of all outputs that this element references.
     vector<OutputPtr> getReferencedOutputs() const
     {
-        std::set<OutputPtr> outputs;
+        vector<OutputPtr> outputVec;
+        std::set<OutputPtr> outputSet;
         for (BindInputPtr bindInput : getBindInputs())
         {
             OutputPtr output = bindInput->getConnectedOutput();
-            if (output)
+            if (output && !outputSet.count(output))
             {
-                outputs.insert(output);
+                outputVec.push_back(output);
+                outputSet.insert(output);
             }
         }
-        return vector<OutputPtr>(outputs.begin(), outputs.end());
+        return outputVec;
     }
 
     /// @}

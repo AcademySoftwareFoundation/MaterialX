@@ -19,9 +19,11 @@ TEST_CASE("Material", "[material]")
     mx::InputPtr diffColor = simpleSrf->setInputValue("diffColor", mx::Color3(1.0f));
     mx::InputPtr specColor = simpleSrf->setInputValue("specColor", mx::Color3(0.0f));
     mx::ParameterPtr roughness = simpleSrf->setParameterValue("roughness", 0.25f);
+    mx::TokenPtr texId = simpleSrf->setTokenValue("texId", std::string("01"));
     REQUIRE(simpleSrf->getInputValue("diffColor")->asA<mx::Color3>() == mx::Color3(1.0f));
     REQUIRE(simpleSrf->getInputValue("specColor")->asA<mx::Color3>() == mx::Color3(0.0f));
     REQUIRE(simpleSrf->getParameterValue("roughness")->asA<float>() == 0.25f);
+    REQUIRE(simpleSrf->getTokenValue("texId") == "01");
 
     // Create an inherited shader nodedef.
     mx::NodeDefPtr anisoSrf = doc->addNodeDef("ND_anisoSrf", "surfaceshader", "anisoSrf");
@@ -40,6 +42,7 @@ TEST_CASE("Material", "[material]")
     REQUIRE(material->getPrimaryShaderName() == refAnisoSrf->getNodeString());
     REQUIRE(material->getPrimaryShaderParameters().size() == 2);
     REQUIRE(material->getPrimaryShaderInputs().size() == 2);
+    REQUIRE(material->getPrimaryShaderTokens().size() == 1);
 
     // Set nodedef and shader reference qualifiers.
     refAnisoSrf->setVersionString("2.0");
@@ -51,17 +54,25 @@ TEST_CASE("Material", "[material]")
     refAnisoSrf->setType("surfaceshader");
     REQUIRE(refAnisoSrf->getNodeDef() == anisoSrf);
 
+    // Bind a shader parameter to a value.
+    mx::BindParamPtr bindParam = refAnisoSrf->addBindParam("roughness");
+    bindParam->setValue(0.5f);
+    REQUIRE(roughness->getBoundValue(material)->asA<float>() == 0.5f);
+    REQUIRE(roughness->getDefaultValue()->asA<float>() == 0.25f);
+
     // Bind a shader input to a value.
     mx::BindInputPtr bindInput = refAnisoSrf->addBindInput("specColor");
     bindInput->setValue(mx::Color3(0.5f));
     REQUIRE(specColor->getBoundValue(material)->asA<mx::Color3>() == mx::Color3(0.5f));
     REQUIRE(specColor->getDefaultValue()->asA<mx::Color3>() == mx::Color3(0.0f));
 
-    // Bind a shader parameter to a value.
-    mx::BindParamPtr bindParam = refAnisoSrf->addBindParam("roughness");
-    bindParam->setValue(0.5f);
-    REQUIRE(roughness->getBoundValue(material)->asA<float>() == 0.5f);
-    REQUIRE(roughness->getDefaultValue()->asA<float>() == 0.25f);
+    // Bind a shader token to a value.
+    mx::BindTokenPtr bindToken = refAnisoSrf->addBindToken("texId");
+    bindToken->setValue(std::string("02"));
+    REQUIRE(texId->getBoundValue(material)->asA<std::string>() == "02");
+    REQUIRE(texId->getDefaultValue()->asA<std::string>() == "01");
+    mx::StringResolverPtr resolver = doc->createStringResolver(mx::UNIVERSAL_GEOM_NAME, material);
+    REQUIRE(resolver->resolve("diffColor_[texId].tif", mx::FILENAME_TYPE_STRING) == "diffColor_02.tif");
 
     // Add an invalid shader reference.
     mx::ShaderRefPtr refInvalid = material->addShaderRef("SR_invalidSrf", "invalidSrf");
@@ -75,6 +86,7 @@ TEST_CASE("Material", "[material]")
     REQUIRE(material2->getPrimaryShaderName() == refAnisoSrf->getNodeString());
     REQUIRE(material2->getPrimaryShaderParameters().size() == 2);
     REQUIRE(material2->getPrimaryShaderInputs().size() == 2);
+    REQUIRE(material2->getPrimaryShaderTokens().size() == 1);
     REQUIRE(roughness->getBoundValue(material2)->asA<float>() == 0.5f);
 
     // Create and detect an inheritance cycle.
@@ -88,6 +100,7 @@ TEST_CASE("Material", "[material]")
     REQUIRE(material2->getPrimaryShaderName().empty());
     REQUIRE(material2->getPrimaryShaderParameters().empty());
     REQUIRE(material2->getPrimaryShaderInputs().empty());
+    REQUIRE(material2->getPrimaryShaderTokens().empty());
     REQUIRE(roughness->getBoundValue(material2)->asA<float>() == 0.25f);
 
     // Remove shader reference.
@@ -96,4 +109,5 @@ TEST_CASE("Material", "[material]")
     REQUIRE(material->getPrimaryShaderName().empty());
     REQUIRE(material->getPrimaryShaderParameters().empty());
     REQUIRE(material->getPrimaryShaderInputs().empty());
+    REQUIRE(material->getPrimaryShaderTokens().empty());
 }

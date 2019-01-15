@@ -42,6 +42,8 @@ TEST_CASE("Vectors", "[types]")
     mx::Vector4 v3(4);
     REQUIRE(v3.getMagnitude() == 8);
     REQUIRE(v3.getNormalized().getMagnitude() == 1);
+    REQUIRE(v1.dot(v2) == 28);
+    REQUIRE(v1.cross(v2) == mx::Vector3());
 }
 
 TEST_CASE("Matrices", "[types]")

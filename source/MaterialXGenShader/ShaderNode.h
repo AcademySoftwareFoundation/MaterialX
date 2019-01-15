@@ -99,6 +99,8 @@ class ShaderOutput : public ShaderPort
 class ShaderNode
 {
   public:
+    virtual ~ShaderNode() {}
+
     /// Flags for classifying nodes into different categories.
     class Classification
     {

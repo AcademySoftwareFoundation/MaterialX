@@ -203,6 +203,8 @@ class Input : public PortElement
     }
 
     /// @}
+
+    /// @}
     /// @name GeomProp
     /// @{
 
@@ -302,12 +304,7 @@ class InterfaceElement : public TypedElement
         return getAttribute(NODE_DEF_ATTRIBUTE);
     }
 
-    /// Set the NodeDef element for the interface.
-    void setNodeDef(ConstNodeDefPtr nodeDef);
-
-    /// Return the NodeDef element for the interface.
-    NodeDefPtr getNodeDef() const;
-
+    /// @}
     /// @name Parameters
     /// @{
     
@@ -554,7 +551,7 @@ class InterfaceElement : public TypedElement
         TokenPtr token = getToken(name);
         if (!token)
             token = addToken(name);
-        token->setValue<std::string>(value);
+        token->setValue<string>(value);
         return token;
     }
 
@@ -576,23 +573,17 @@ class InterfaceElement : public TypedElement
     ///    the declarations that are considered.
     /// @return A shared pointer to nodedef, or an empty shared pointer if
     ///    no declaration was found.
-    NodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const;
+    virtual ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const;
 
-    /// Return true if the given interface element is type compatible with
-    /// this one.  This may be used to test, for example, whether a NodeDef
-    /// and Node may be used together.
+    /// Return true if this interface instance is type compatible with the given
+    /// interface declaration.  This may be used to test, for example, whether a
+    /// Node is an instantiation of a given NodeDef.
     ///
-    /// If the type string of the given interface element differs from this
-    /// one, then false is returned.
-    ///
-    /// If the two interface elements have child Parameter or Input elements
-    /// with identical names but different types, then false is returned.
-    ///
-    /// Note that a Parameter or Input that is present in only one of the two
-    /// interfaces does not affect their type compatibility by default. This behaviour
-    /// can be overridden in derived classes by overriding the requiresInputCompatibility() 
-    /// method.
-    bool isTypeCompatible(ConstInterfaceElementPtr rhs) const;
+    /// If the type string of the instance differs from that of the declaration,
+    /// then false is returned.  If the instance possesses a Parameter or Input
+    /// with no Parameter or Input of matching type in the declaration, then
+    /// false is returned.
+    bool isTypeCompatible(ConstInterfaceElementPtr declaration) const;
 
     /// @}
 
@@ -600,11 +591,6 @@ class InterfaceElement : public TypedElement
     static const string NODE_DEF_ATTRIBUTE;
 
   protected:
-    /// When performing a type compatibility check this method will be invoked.
-    /// The return value indicates if the existence of an Input or a Parameter is required
-    /// based on the element being compared. The default return value is false.
-    virtual bool requiresInputCompatibility(ConstInterfaceElementPtr rhs) const;
-
     void registerChildElement(ElementPtr child) override;
     void unregisterChildElement(ElementPtr child) override;
 

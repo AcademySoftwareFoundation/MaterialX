@@ -54,23 +54,30 @@ void loadLibrary(const mx::FilePath& file, mx::DocumentPtr doc)
     doc->importLibrary(libDoc, &copyOptions);
 }
 
+// Loads all the MTLX files below a given library path
 void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc,
                    const std::set<std::string>* excludeFiles = nullptr)
 {
     const std::string MTLX_EXTENSION("mtlx");
     for (const std::string& library : libraryNames)
     {
-        mx::FilePath path = searchPath / library;
-        mx::StringVec filenames;
-        mx::getFilesInDirectory(path.asString(), filenames, MTLX_EXTENSION);
+        mx::StringVec librarySubPaths;
+        mx::FilePath libraryPath = searchPath / library;
+        mx::getSubDirectories(libraryPath, librarySubPaths);
 
-        for (const std::string& filename : filenames)
+        for (auto path : librarySubPaths)
         {
-            if (excludeFiles && excludeFiles->count(filename))
+            mx::StringVec filenames;
+            mx::getFilesInDirectory(path, filenames, MTLX_EXTENSION);
+
+            for (const std::string& filename : filenames)
             {
-                continue;
+                if (excludeFiles && excludeFiles->count(filename))
+                {
+                    continue;
+                }
+                loadLibrary(mx::FilePath(path)/ filename, doc);
             }
-            loadLibrary(path / filename, doc);
         }
     }
     REQUIRE(doc->getNodeDefs().size() > 0);
@@ -86,8 +93,9 @@ void loadExamples(const mx::StringVec& exampleNames, const mx::FilePath& example
             mx::readFromXmlFile(doc, file, searchPath);
         }
     }
-    catch (mx::Exception e)
+    catch (mx::Exception& e)
     {
+        std::cout << e.what();
     }
 }
 
@@ -132,34 +140,7 @@ void createLights(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler)
     {
         if (node->getType() == LIGHT_SHADER)
         {
-            mx::LightSourcePtr light;
-            if (node->getCategory() == DIRECTIONAL_LIGHT)
-            {
-                lightHandler.addLightShader(LightType::DIRECTIONAL, node->getNodeDef());
-                light = lightHandler.createLightSource(DIRECTIONAL);
-            }
-            else if (node->getCategory() == POINT_LIGHT)
-            {
-                lightHandler.addLightShader(LightType::POINT, node->getNodeDef());
-                light = lightHandler.createLightSource(POINT);
-            }
-            else if (node->getCategory() == SPOT_LIGHT)
-            {
-                lightHandler.addLightShader(LightType::SPOT, node->getNodeDef());
-                light = lightHandler.createLightSource(SPOT);
-            }
-            else if (node->getCategory() == LIGHT_COMPOUND)
-            {
-                lightHandler.addLightShader(LIGHT_COMPOUND_ID, node->getNodeDef());
-                light = lightHandler.createLightSource(LIGHT_COMPOUND_ID);
-            }
-            if (light)
-            {
-                for (mx::InputPtr input : node->getInputs())
-                {
-                    light->setParameter(input->getName(), input->getValue());
-                }
-            }
+            lightHandler.addLightSource(node);
         }
     }
 }
@@ -189,7 +170,7 @@ TEST_CASE("Valid Libraries", "[shadergen]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
 
     std::string validationErrors;
     bool valid = doc->validate(&validationErrors);
@@ -529,7 +510,7 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
 
     std::vector<mx::ShaderGeneratorPtr> shaderGenerators =
     {
@@ -1690,7 +1671,7 @@ TEST_CASE("Subgraphs", "[shadergen]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), doc);
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), doc);
@@ -1810,13 +1791,13 @@ TEST_CASE("Materials", "[shadergen]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), doc);
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), doc);
     loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), doc);
 
-    mx::FilePath materialsFile = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/sxpbrlib/materials/surfaceshader.mtlx");
+    mx::FilePath materialsFile = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/pbrlib/materials/surfaceshader.mtlx");
     mx::readFromXmlFile(doc, materialsFile.asString());
 
     // Get all materials
@@ -1924,7 +1905,7 @@ TEST_CASE("Color Spaces", "[shadergen]")
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
     mx::StringVec libraryNames;
-    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
 
     mx::MaterialPtr material = doc->addMaterial("color_spaces");
     mx::ShaderRefPtr shaderRef = material->addShaderRef("color_spaces_surface", "standard_surface");
@@ -2020,7 +2001,7 @@ TEST_CASE("BSDF Layering", "[shadergen]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), doc);
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), doc);
@@ -2185,7 +2166,7 @@ TEST_CASE("Transparency", "[shadergen]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), doc);
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), doc);
@@ -2203,12 +2184,8 @@ TEST_CASE("Transparency", "[shadergen]")
     in->setValue(1.0f);
     in = nodeDef->addInput("transmission_tint", "color3");
     in->setValue(mx::Color3(1.0f, 1.0f, 1.0f));
-    in = nodeDef->addInput("roughness", "vector2");
-    in->setValue(mx::Vector2(0.0f, 0.0f));
     in = nodeDef->addInput("ior", "float");
     in->setValue(1.5f);
-    in = nodeDef->addInput("opacity", "float");
-    in->setValue(1.0f);
 
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("IMP_" + exampleName);
     nodeGraph->setAttribute("nodedef", nodeDef->getName());
@@ -2225,8 +2202,6 @@ TEST_CASE("Transparency", "[shadergen]")
     transmission_tint->setInterfaceName("transmission_tint");
     mx::InputPtr transmission_weight = transmission->addInput("weight", "float");
     transmission_weight->setInterfaceName("transmission");
-    mx::InputPtr transmission_roughness = transmission->addInput("roughness", "vector2");
-    transmission_roughness->setInterfaceName("roughness");
     mx::InputPtr transmission_ior = transmission->addInput("ior", "float");
     transmission_ior->setInterfaceName("ior");
 
@@ -2238,23 +2213,18 @@ TEST_CASE("Transparency", "[shadergen]")
     reflection_color->setInterfaceName("reflection_color");
     mx::InputPtr reflection_weight = reflection->addInput("weight", "float");
     reflection_weight->setInterfaceName("reflection");
-    mx::InputPtr reflection_roughness = reflection->addInput("roughness", "vector2");
-    reflection_roughness->setInterfaceName("roughness");
     mx::InputPtr reflection_ior = reflection->addInput("ior", "float");
     reflection_ior->setInterfaceName("ior");
 
     mx::NodePtr surface = nodeGraph->addNode("surface", "surface1", "surfaceshader");
     surface->setConnectedNode("bsdf", reflection);
 
-    mx::InputPtr opacity = surface->addInput("opacity", "float");
-    opacity->setInterfaceName("opacity");
-
     mx::OutputPtr output = nodeGraph->addOutput("out", "surfaceshader");
     output->setConnectedNode(surface);
 
     // Create a material with the above node as the shader
     mx::MaterialPtr mtrl = doc->addMaterial(exampleName + "_material");
-    mx::ShaderRefPtr shaderRef = mtrl->addShaderRef(exampleName + "_shader", "standard_surface");
+    mx::ShaderRefPtr shaderRef = mtrl->addShaderRef(exampleName + "_shader", exampleName);
 
     // Bind shader parameter values
     mx::BindInputPtr reflection_input = shaderRef->addBindInput("reflection", "float");
@@ -2263,8 +2233,6 @@ TEST_CASE("Transparency", "[shadergen]")
     transmission_input->setValue(1.0f);
     mx::BindInputPtr ior_input = shaderRef->addBindInput("ior", "float");
     ior_input->setValue(1.50f);
-    mx::BindInputPtr opacity_input = shaderRef->addBindInput("opacity", "color3");
-    opacity_input->setValue(mx::Color3(1.0f, 1, 1));
 
     mx::GenOptions options;
 
@@ -2312,12 +2280,11 @@ TEST_CASE("Transparency", "[shadergen]")
             mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
             createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator), options);
 
-            // Test the transparency tracking
-            transmission_input->setValue(0.0f);
+            // Track if this shader needs to handle transparency
             options.hwTransparency = isTransparentSurface(shaderRef, *shaderGenerator);
-            REQUIRE(!options.hwTransparency);
-            transmission_input->setValue(1.0f);
-            options.hwTransparency = isTransparentSurface(shaderRef, *shaderGenerator);
+
+            // Since transmission weight and tint is published (connected to the interface)
+            // this surface should be classifed as in need of transparency handling.
             REQUIRE(options.hwTransparency);
 
             mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, options);
@@ -2342,8 +2309,12 @@ TEST_CASE("Transparency", "[shadergen]")
         mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
         createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator), options);
 
-        // Specify if this shader needs to handle transparency
+        // Track if this shader needs to handle transparency
         options.hwTransparency = isTransparentSurface(shaderRef, *shaderGenerator);
+
+        // Since transmission weight and tint is published (connected to the interface)
+        // this surface should be classifed as in need of transparency handling.
+        REQUIRE(options.hwTransparency);
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, options);
         REQUIRE(shader != nullptr);
@@ -2367,7 +2338,7 @@ TEST_CASE("Surface Layering", "[shadergen]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    loadLibraries({ "stdlib", "sxpbrlib" }, searchPath, doc);
+    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), doc);
     loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), doc);

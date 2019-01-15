@@ -141,7 +141,7 @@ class GlslProgram
 
     /// Bind inputs
     void bindInputs(ViewHandlerPtr viewHandler,
-                    GeometryHandlerPtr geometryHandler,
+                    GeometryHandler& geometryHandler,
                     ImageHandlerPtr imageHandler,
                     HwLightHandlerPtr lightHandler);
 
@@ -158,10 +158,14 @@ class GlslProgram
     /// A hardware buffer of the given attribute type is created and bound to the program locations
     /// for the input attribute.
     /// @param inputs Attribute inputs to bind to
-    void bindAttribute(const GlslProgram::InputMap& inputs, GeometryHandlerPtr geometryHandler);
+    /// @param mesh Mesh containing streams to bind
+    void bindAttribute(const GlslProgram::InputMap& inputs, MeshPtr mesh);
+
+    /// Bind input geometry partition (indexing)
+    void bindPartition(MeshPartitionPtr partition);
 
     /// Bind input geometry streams
-    void bindGeometry(GeometryHandlerPtr geometryHandler);
+    void bindStreams(MeshPtr mesh);
 
     /// Unbind any bound geometry
     void unbindGeometry();

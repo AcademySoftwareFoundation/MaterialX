@@ -2,6 +2,7 @@
 #define MATERIALX_HWLIGHTHANDLER_H
 
 #include <MaterialXCore/Definition.h>
+#include <MaterialXCore/Node.h>
 
 #include <string>
 #include <memory>
@@ -11,45 +12,6 @@ namespace MaterialX
 
 class HwShaderGenerator;
 class GenOptions;
-
-/// Shared pointer to a LightSource
-using LightSourcePtr = std::shared_ptr<class LightSource>;
-
-/// @class @LightSource
-/// Class holding data for a light source.
-///
-class LightSource
-{
-public:
-    using ParameterMap = std::unordered_map<string, ValuePtr>;
-
-    /// Return the light type
-    size_t getType() const
-    {
-        return _typeId;
-    }
-
-    /// Return the light parameters
-    const ParameterMap& getParameters() const
-    {
-        return _parameters;
-    }
-
-    /// Set a light parameter value
-    void setParameter(const string& name, const ValuePtr value)
-    {
-        _parameters[name] = value;
-    }
-
-protected:
-    LightSource(size_t typeId, const NodeDef& nodeDef);
-
-    const size_t _typeId;
-    ParameterMap _parameters;
-
-    friend class HwLightHandler;
-};
-
 
 /// Shared pointer to a LightHandler
 using HwLightHandlerPtr = std::shared_ptr<class HwLightHandler>;
@@ -61,11 +23,10 @@ using HwLightHandlerPtr = std::shared_ptr<class HwLightHandler>;
 class HwLightHandler
 {
 public:
-    using LightShaderMap = std::unordered_map<size_t, ConstNodeDefPtr>;
-
-public:
     /// Static instance create function
     static HwLightHandlerPtr create() { return std::make_shared<HwLightHandler>(); }
+
+    static unsigned int getLightType(NodePtr node);
 
     /// Default constructor
     HwLightHandler();
@@ -73,15 +34,11 @@ public:
     /// Default destructor
     virtual ~HwLightHandler();
 
-    /// Add a light shader to be used for creting light sources
-    void addLightShader(size_t typeId, ConstNodeDefPtr nodeDef);
-
-    /// Create a light source of given type. The typeId must match
-    /// a light shader that has been previously added to the handler.
-    LightSourcePtr createLightSource(size_t typeId);
+    // Adds a light source node
+    void addLightSource(NodePtr node);
 
     /// Return a vector of all created light sources.
-    const vector<LightSourcePtr>& getLightSources() const
+    const vector<NodePtr>& getLightSources() const
     {
         return _lightSources;
     }
@@ -116,8 +73,7 @@ public:
     }
 
 private:
-    LightShaderMap _lightShaders;
-    vector<LightSourcePtr> _lightSources;
+    vector<NodePtr> _lightSources;
     string _lightEnvIrradiancePath;
     string _lightEnvRadiancePath;
 };

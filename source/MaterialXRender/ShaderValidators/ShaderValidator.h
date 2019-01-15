@@ -58,17 +58,9 @@ class ShaderValidator
         return _lightHandler;
     }
 
-    /// Set geometry handler for geometry load.
-    /// By default a validator will use the DefaultGeometryHanlder
-    /// @param geometryHandler Handler to use
-    void setGeometryHandler(const GeometryHandlerPtr geometryHandler)
-    {
-        _geometryHandler = geometryHandler;
-    }
-
     /// Get geometry handler
-    /// @return Shared pointer to a geometry handler
-    const GeometryHandlerPtr getGeometryHandler() const
+    /// @return Reference to a geometry handler
+    GeometryHandler& getGeometryHandler()
     {
         return _geometryHandler;
     }
@@ -127,7 +119,7 @@ class ShaderValidator
     ImageHandlerPtr _imageHandler;
 
     /// Utility geometry handler
-    GeometryHandlerPtr _geometryHandler;
+    GeometryHandler _geometryHandler;
 
     /// Utility light handler
     HwLightHandlerPtr _lightHandler;
