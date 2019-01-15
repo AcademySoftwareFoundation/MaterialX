@@ -16,6 +16,9 @@
   <!-- <dielectricbtdf> -->
   <implementation name="IM_dielectricbtdf_genosl" nodedef="ND_dielectricbtdf" file="pbrlib/genosl/mx_dielectricbtdf.osl" function="mx_dielectricbtdf" language="genosl"/>
 
+  <!-- <generalizedschlickbrdf> -->
+  <implementation name="IM_generalizedschlickbrdf_genosl" nodedef="ND_generalizedschlickbrdf" file="pbrlib/genosl/mx_generalizedschlickbrdf.osl" function="mx_generalizedschlickbrdf" language="genosl"/>
+
   <!-- <subsurfacebrdf> -->
   <implementation name="IM_subsurfacebrdf_genosl" nodedef="ND_subsurfacebrdf" file="pbrlib/genosl/mx_subsurfacebrdf.osl" function="mx_subsurfacebrdf" language="genosl"/>
 

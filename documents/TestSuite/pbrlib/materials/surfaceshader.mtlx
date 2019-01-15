@@ -144,6 +144,64 @@
     <input name="coat_normalmap" type="filename" />
   </nodedef>
   <nodegraph name="IMP_testshader4" nodedef="ND_testshader4">
+    <image name="base_color" type="color3">
+      <parameter name="file" type="filename" interfacename="base_color_map" />
+      <parameter name="default" type="color3" interfacename="base_color" />
+    </image>
+    <image name="specular" type="float">
+      <parameter name="file" type="filename" interfacename="specular_map" />
+      <parameter name="default" type="float" interfacename="specular" />
+    </image>
+    <image name="specular_color" type="color3">
+      <parameter name="file" type="filename" interfacename="specular_color_map" />
+      <parameter name="default" type="color3" interfacename="specular_color" />
+    </image>
+    <image name="specular_roughness" type="float">
+      <parameter name="file" type="filename" interfacename="specular_roughness_map" />
+      <parameter name="default" type="float" interfacename="specular_roughness" />
+    </image>
+    <image name="metalness" type="float">
+      <parameter name="file" type="filename" interfacename="metalness_map" />
+      <parameter name="default" type="float" interfacename="metalness" />
+    </image>
+    <image name="transmission" type="float">
+      <parameter name="file" type="filename" interfacename="transmission_map" />
+      <parameter name="default" type="float" interfacename="transmission" />
+    </image>
+    <image name="transmission_color" type="color3">
+      <parameter name="file" type="filename" interfacename="transmission_color_map" />
+      <parameter name="default" type="color3" interfacename="transmission_color" />
+    </image>
+    <image name="transmission_extra_roughness" type="float">
+      <parameter name="file" type="filename" interfacename="transmission_extra_roughness_map" />
+      <parameter name="default" type="float" interfacename="transmission_extra_roughness" />
+    </image>
+    <image name="coat" type="float">
+      <parameter name="file" type="filename" interfacename="coat_map" />
+      <parameter name="default" type="float" interfacename="coat" />
+    </image>
+    <image name="coat_color" type="color3">
+      <parameter name="file" type="filename" interfacename="coat_color_map" />
+      <parameter name="default" type="color3" interfacename="coat_color" />
+    </image>
+    <image name="coat_roughness" type="float">
+      <parameter name="file" type="filename" interfacename="coat_roughness_map" />
+      <parameter name="default" type="float" interfacename="coat_roughness" />
+    </image>
+    <image name="normalTex" type="vector3">
+      <parameter name="file" type="filename" interfacename="normalmap" />
+      <parameter name="default" type="vector3" value="0.5, 0.5, 1" />
+    </image>
+    <normalmap name="normalmap1" type="vector3">
+      <input name="in" type="vector3" nodename="normalTex" />
+    </normalmap>
+    <image name="coatTex" type="vector3">
+      <parameter name="file" type="filename" interfacename="coat_normalmap" />
+      <parameter name="default" type="vector3" value="0.5, 0.5, 1" />
+    </image>
+    <normalmap name="normalmap2" type="vector3">
+      <input name="in" type="vector3" nodename="coatTex" />
+    </normalmap>
     <standard_surface name="standardsurface1" type="surfaceshader">
       <input name="base" type="float" interfacename="base" />
       <input name="base_color" type="color3" nodename="base_color" />
@@ -166,64 +224,6 @@
       <input name="normal" type="vector3" nodename="normalmap1" />
       <input name="coat_normal" type="vector3" nodename="normalmap2" />
     </standard_surface>
-    <inputmap name="base_color" type="color3">
-      <input name="file" type="filename" interfacename="base_color_map" />
-      <input name="value" type="color3" interfacename="base_color" />
-    </inputmap>
-    <inputmap name="specular" type="float">
-      <input name="file" type="filename" interfacename="specular_map" />
-      <input name="value" type="float" interfacename="specular" />
-    </inputmap>
-    <inputmap name="specular_color" type="color3">
-      <input name="file" type="filename" interfacename="specular_color_map" />
-      <input name="value" type="color3" interfacename="specular_color" />
-    </inputmap>
-    <inputmap name="specular_roughness" type="float">
-      <input name="file" type="filename" interfacename="specular_roughness_map" />
-      <input name="value" type="float" interfacename="specular_roughness" />
-    </inputmap>
-    <inputmap name="metalness" type="float">
-      <input name="file" type="filename" interfacename="metalness_map" />
-      <input name="value" type="float" interfacename="metalness" />
-    </inputmap>
-    <inputmap name="transmission" type="float">
-      <input name="file" type="filename" interfacename="transmission_map" />
-      <input name="value" type="float" interfacename="transmission" />
-    </inputmap>
-    <inputmap name="transmission_color" type="color3">
-      <input name="file" type="filename" interfacename="transmission_color_map" />
-      <input name="value" type="color3" interfacename="transmission_color" />
-    </inputmap>
-    <inputmap name="transmission_extra_roughness" type="float">
-      <input name="file" type="filename" interfacename="transmission_extra_roughness_map" />
-      <input name="value" type="float" interfacename="transmission_extra_roughness" />
-    </inputmap>
-    <inputmap name="coat" type="float">
-      <input name="file" type="filename" interfacename="coat_map" />
-      <input name="value" type="float" interfacename="coat" />
-    </inputmap>
-    <inputmap name="coat_color" type="color3">
-      <input name="file" type="filename" interfacename="coat_color_map" />
-      <input name="value" type="color3" interfacename="coat_color" />
-    </inputmap>
-    <inputmap name="coat_roughness" type="float">
-      <input name="file" type="filename" interfacename="coat_roughness_map" />
-      <input name="value" type="float" interfacename="coat_roughness" />
-    </inputmap>
-    <image name="normalTex" type="vector3">
-      <parameter name="file" type="filename" interfacename="normalmap" />
-      <parameter name="default" type="vector3" value="0.5, 0.5, 1" />
-    </image>
-    <normalmap name="normalmap1" type="vector3">
-      <input name="in" type="vector3" nodename="normalTex" />
-    </normalmap>
-    <image name="coatTex" type="vector3">
-      <parameter name="file" type="filename" interfacename="coat_normalmap" />
-      <parameter name="default" type="vector3" value="0.5, 0.5, 1" />
-    </image>
-    <normalmap name="normalmap2" type="vector3">
-      <input name="in" type="vector3" nodename="coatTex" />
-    </normalmap>
     <output name="out" type="surfaceshader" nodename="standardsurface1" />
   </nodegraph>
    

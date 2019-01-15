@@ -16,6 +16,9 @@
   <!-- <conductorbrdf> -->
   <implementation name="IM_conductorbrdf_genglsl" nodedef="ND_conductorbrdf" file="pbrlib/genglsl/mx_conductorbrdf.glsl" function="mx_conductorbrdf" language="genglsl"/>
 
+  <!-- <generalizedschlickbrdf> -->
+  <implementation name="IM_generalizedschlickbrdf_genglsl" nodedef="ND_generalizedschlickbrdf" file="pbrlib/genglsl/mx_generalizedschlickbrdf.glsl" function="mx_generalizedschlickbrdf" language="genglsl"/>
+
   <!-- <subsurfacebrdf> -->
   <implementation name="IM_subsurfacebrdf_genglsl" nodedef="ND_subsurfacebrdf" file="pbrlib/genglsl/mx_subsurfacebrdf.glsl" function="mx_subsurfacebrdf" language="genglsl"/>
 
