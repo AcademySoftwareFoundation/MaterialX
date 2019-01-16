@@ -58,10 +58,10 @@ bool TinyObjLoader::load(const std::string& fileName, MeshList& meshList)
     MeshFloatBuffer& tangents = tangentStream->getData();
     mesh->addStream(tangentStream);
 
-    positions.resize(vertexCount);
-    normals.resize(vertexCount);
-    texcoords.resize(vertexCount);
-    tangents.resize(vertexCount);
+    positions.resize(vertexCount * 3);
+    normals.resize(vertexCount * 3);
+    texcoords.resize(vertexCount * 2);
+    tangents.resize(vertexCount * 3);
 
     const float MAX_FLOAT = std::numeric_limits<float>::max();
     Vector3 boxMin = { MAX_FLOAT, MAX_FLOAT, MAX_FLOAT };
@@ -75,12 +75,13 @@ bool TinyObjLoader::load(const std::string& fileName, MeshList& meshList)
         {
             continue;
         }
+        faceCount /= 3;
 
         MeshPartitionPtr part = MeshPartition::create();
         part->setIdentifier(shape.name);
         MeshIndexBuffer& indices = part->getIndices();
         indices.resize(shape.mesh.indices.size());
-        part->setFaceCount(faceCount / 3);
+        part->setFaceCount(faceCount);
         mesh->addPartition(part);
 
         for (size_t faceIndex = 0; faceIndex < faceCount; faceIndex++)
