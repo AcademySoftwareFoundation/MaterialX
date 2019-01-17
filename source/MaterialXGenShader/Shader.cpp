@@ -178,7 +178,8 @@ void Shader::addComment(const string& str)
 
 void Shader::addBlock(const string& str, ShaderGenerator& shadergen)
 {
-    static const string INCLUDE_PATTERN = "#include ";
+    static const string INCLUDE_PATTERN = "#include";
+    static const string QUOTATION_MARK = "\"";
 
     // Add each line in the block seperatelly
     // to get correct indentation
@@ -188,10 +189,17 @@ void Shader::addBlock(const string& str, ShaderGenerator& shadergen)
         size_t pos = line.find(INCLUDE_PATTERN);
         if (pos != string::npos)
         {
-            const size_t start = pos + INCLUDE_PATTERN.size() + 1;
-            const size_t count = line.size() - start - 1;
-            const string filename = line.substr(start, count);
-            addInclude(filename, shadergen);
+            size_t startQuote = line.find_first_of(QUOTATION_MARK);
+            size_t endQuote = line.find_last_of(QUOTATION_MARK);
+            if (startQuote != string::npos && endQuote != string::npos)
+            {
+                size_t length = (endQuote - startQuote) - 1;
+                if (length)
+                {
+                    const string filename = line.substr(startQuote + 1, length);
+                    addInclude(filename, shadergen);
+                }
+            }
         }
         else
         {
