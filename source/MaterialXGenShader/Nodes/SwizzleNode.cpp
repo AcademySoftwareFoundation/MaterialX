@@ -31,15 +31,16 @@ void SwizzleNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
     const string& swizzle = channels->value ? channels->value->getValueString() : EMPTY_STRING;
     string variableName = in->connection ? in->connection->variable : in->variable;
 
+    // If the input is unconnected we must declare a variable
+    // for it first, in order to swizzle it below.
+    if (!in->connection)
+    {
+        string variableValue = in->value ? shadergen.getSyntax()->getValue(in->type, *in->value) : shadergen.getSyntax()->getDefaultValue(in->type);
+        shader.addLine(shadergen.getSyntax()->getTypeName(in->type) + " " + variableName + " = " + variableValue);
+    }
+
     if (!swizzle.empty())
     {
-        // If the input is unconnected we must declare a variable
-        // for it first, in order to swizzle it below.
-        if (!in->connection)
-        {
-            string variableValue = in->value ? shadergen.getSyntax()->getValue(in->type, *in->value) : shadergen.getSyntax()->getDefaultValue(in->type);
-            shader.addLine(shadergen.getSyntax()->getTypeName(in->type) + " " + variableName + " = " + variableValue);
-        }
         const TypeDesc* type = in->connection ? in->connection->type : in->type;
         variableName = shadergen.getSyntax()->getSwizzledVariable(variableName, type, swizzle, node.getOutput()->type);
     }
