@@ -154,8 +154,8 @@ void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::H
     lightHandler.bindLightShaders(shadergen, options);
 
     // Set up IBL inputs
-    lightHandler.setLightEnvIrradiancePath("documents/TestSuite/Images/san_giuseppe_bridge_diffuse.exr");
-    lightHandler.setLightEnvRadiancePath("documents/TestSuite/Images/san_giuseppe_bridge.exr");
+    lightHandler.setLightEnvIrradiancePath("documents/TestSuite/Images/san_giuseppe_bridge.hdr");
+    lightHandler.setLightEnvRadiancePath("documents/TestSuite/Images/san_giuseppe_bridge_diffuse.hdr");
 }
 
 static std::string RESULT_DIRECTORY("results/");

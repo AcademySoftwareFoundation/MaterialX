@@ -1,7 +1,7 @@
 <World>
    <Camera eye="2.1, 0, 0" look_at="0,0,0" fov="70" />
 
-   <!-- Background clear. Uncomment this use flat color 
+   <!-- Background clear. Uncomment this use flat color
    %background_color% : is the background color
    -->
    <!--
@@ -13,11 +13,11 @@
    -->
    <!-- Background environment map. Comment this out to use flat color  -->
    <ShaderGroup>
-      string filename "documents/TestSuite/Images/kitchen_probe.hdr";
+      string filename "documents/TestSuite/Images/san_giuseppe_bridge.hdr";
       shader envmap layer1;
    </ShaderGroup>
    <Background resolution="1024" />
-   
+
    <!-- Emitter -->
    <ShaderGroup>
       float power 326000;
@@ -38,4 +38,3 @@
    </ShaderGroup>
    <Sphere center="0,0,0" radius="0.5" />
 </World>
-

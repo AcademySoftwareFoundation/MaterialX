@@ -5,7 +5,7 @@ Basic test of heighttonormal node
 -->
 <?xml version="1.0"?>
 <materialx version="1.36">
-   
+
   <!-- Unconnected input test -->
   <nodegraph name="hton_unconnected_graph" type="" xpos="6.82414" ypos="8.68">
     <heighttonormal name="heighttonormal1" type="vector3" xpos="3.38621" ypos="7.06">
@@ -14,7 +14,7 @@ Basic test of heighttonormal node
     </heighttonormal>
     <output name="out" type="vector3" nodename="heighttonormal1" />
   </nodegraph>
-   
+
    <!-- Connected to input image node -->
    <nodegraph name="hton_image_graph" type="" xpos="8.26207" ypos="20.328">
       <heighttonormal name="heighttonormal1" type="vector3" xpos="5.82414" ypos="15.83">
@@ -22,7 +22,7 @@ Basic test of heighttonormal node
          <parameter name="scale" type="float" value="0.2000" />
       </heighttonormal>
       <image name="image1" type="float" xpos="4.32759" ypos="14.92">
-         <parameter name="file" type="filename" value="documents/TestSuite/Images/MaterialXLogo.exr" />
+         <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" />
          <parameter name="layer" type="string" value="" />
          <parameter name="default" type="float" value="0.0" />
          <input name="texcoord" type="vector2" value="0.0, 0.0" />
