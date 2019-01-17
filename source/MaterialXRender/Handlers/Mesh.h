@@ -209,6 +209,12 @@ class Mesh
     Mesh(const string& identifier);
     ~Mesh() { }
 
+    /// Get mesh identifier
+    const string& getIdentifier() const
+    {
+        return _identifier;
+    }
+
     /// Set the mesh 's source URI.
     void setSourceUri(const string& sourceUri)
     {
