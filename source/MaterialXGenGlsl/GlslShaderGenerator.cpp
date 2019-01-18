@@ -578,7 +578,7 @@ void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
     }
 }
 
-void GlslShaderGenerator::addNodeContextIDs(ShaderNode* node) const
+void GlslShaderGenerator::addContextIDs(ShaderNode* node) const
 {
     if (node->hasClassification(ShaderNode::Classification::BSDF))
     {
@@ -607,7 +607,7 @@ void GlslShaderGenerator::addNodeContextIDs(ShaderNode* node) const
     }
     else
     {
-        ParentClass::addNodeContextIDs(node);
+        ParentClass::addContextIDs(node);
     }
 }
 

@@ -185,12 +185,12 @@ void ShaderGenerator::emitOutput(const GenContext& context, const ShaderOutput* 
     }
 }
 
-void ShaderGenerator::addNodeContextIDs(ShaderNode* node) const
+void ShaderGenerator::addContextIDs(ShaderNode* node) const
 {
     node->addContextID(CONTEXT_DEFAULT);
 }
 
-const GenContext* ShaderGenerator::getNodeContext(int id) const
+const GenContext* ShaderGenerator::getContext(int id) const
 {
     auto it = _contexts.find(id);
     return it != _contexts.end() ? it->second.get() : nullptr;
