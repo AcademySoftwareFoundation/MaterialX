@@ -1,0 +1,19 @@
+// Open Shading Language : Copyright (c) 2009-2017 Sony Pictures Imageworks Inc., et al.
+// https://github.com/imageworks/OpenShadingLanguage/blob/master/LICENSE
+//
+// MaterialX specification (c) 2017 Lucasfilm Ltd.
+// http://www.materialx.org/
+
+#include "mx_funcs.h"
+
+shader mx_contrast_float_vector4
+    [[ string help = "Vector4"" Increase or decrease contrast of a float/color value using a linear slope multiplier." ]]
+  (
+    vector4 in = {0,0,0,0},
+    float amount = 1.0,
+    float pivot = 0.5,
+    output vector4 out = {0,0,0,0}
+  )
+{
+    out = contrast(in, amount, pivot); 
+}

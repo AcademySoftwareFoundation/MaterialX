@@ -203,18 +203,35 @@ class Input : public PortElement
     }
 
     /// @}
-
-    /// @}
-    /// @name GeomProp
+    /// @name Default Geometric Property
     /// @{
 
-    /// Return the GeomProp element, if defined, for this input.
-    GeomPropPtr getGeomProp() const;
+    /// Set the defaultgeomprop string for the input.
+    void setDefaultGeomPropString(const string& geomprop)
+    {
+        setAttribute(DEFAULTGEOMPROP, geomprop);
+    }
+
+    /// Return true if the given input has a defaultgeomprop string.
+    bool hasDefaultGeomPropString() const
+    {
+        return hasAttribute(DEFAULTGEOMPROP);
+    }
+
+    /// Return the defaultgeomprop string for the input.
+    const string& getDefaultGeomPropString() const
+    {
+        return getAttribute(DEFAULTGEOMPROP);
+    }
+
+    /// Return the GeomPropDef element to use, if defined for this input.
+    GeomPropDefPtr getDefaultGeomProp() const;
 
     /// @}
 
   public:
     static const string CATEGORY;
+    static const string DEFAULTGEOMPROP;
 };
 
 /// @class Output

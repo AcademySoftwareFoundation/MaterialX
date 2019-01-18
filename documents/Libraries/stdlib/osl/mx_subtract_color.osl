@@ -1,0 +1,19 @@
+// Open Shading Language : Copyright (c) 2009-2017 Sony Pictures Imageworks Inc., et al.
+// https://github.com/imageworks/OpenShadingLanguage/blob/master/LICENSE
+//
+// MaterialX specification (c) 2017 Lucasfilm Ltd.
+// http://www.materialx.org/
+
+#include "mx_funcs.h"
+
+
+shader mx_subtract_color
+    [[ string help = "Color"" subtract in2 from the incoming data" ]]
+  (
+    color in1 = 0,
+    color in2 = 0,
+    output color out = 0
+  )
+{
+    out = mx_sub (in1, in2);
+}
