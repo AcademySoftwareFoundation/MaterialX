@@ -15,7 +15,7 @@ TEST_CASE("Load content", "[xmlio]")
     {
         "stdlib_defs.mtlx",
         "stdlib_ng.mtlx",
-        "stdlib_osl_impl.mtlx"
+        "osl/stdlib_osl_impl.mtlx"
     };
     std::string exampleFilenames[] =
     {
@@ -31,7 +31,7 @@ TEST_CASE("Load content", "[xmlio]")
         "BxDF/Disney_BRDF_2012.mtlx",
         "BxDF/Disney_BSDF_2015.mtlx",
     };
-    std::string searchPath = "documents/Libraries;documents/Examples";
+    std::string searchPath = "documents/Libraries/stdlib;documents/Examples";
 
     // Read the standard library.
     std::vector<mx::DocumentPtr> libs;

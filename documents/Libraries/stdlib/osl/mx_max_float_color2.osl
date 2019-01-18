@@ -1,0 +1,18 @@
+// Open Shading Language : Copyright (c) 2009-2017 Sony Pictures Imageworks Inc., et al.
+// https://github.com/imageworks/OpenShadingLanguage/blob/master/LICENSE
+//
+// MaterialX specification (c) 2017 Lucasfilm Ltd.
+// http://www.materialx.org/
+
+#include "mx_funcs.h"
+
+shader mx_max_float_color2
+    [[ string help = "Color2"" Select the maximum among incoming values." ]]
+  (
+    color2 in1 = {0,0},
+    float in2 = 0.0,
+    output color2 out = {0,0}
+  )
+{
+    out = max(in1, in2); 
+}

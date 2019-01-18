@@ -24,13 +24,13 @@ _testValues = (1,
                'value')
 
 _fileDir = os.path.dirname(os.path.abspath(__file__))
-_libraryDir = os.path.join(_fileDir, '../../documents/Libraries/')
+_libraryDir = os.path.join(_fileDir, '../../documents/Libraries/stdlib/')
 _exampleDir = os.path.join(_fileDir, '../../documents/Examples/')
 _searchPath = _libraryDir + ';' + _exampleDir
 
 _libraryFilenames = ('stdlib_defs.mtlx',
                      'stdlib_ng.mtlx',
-                     'stdlib_osl_impl.mtlx')
+                     'osl/stdlib_osl_impl.mtlx')
 _exampleFilenames = ('CustomNode.mtlx',
                      'Looks.mtlx',
                      'MaterialBasic.mtlx',

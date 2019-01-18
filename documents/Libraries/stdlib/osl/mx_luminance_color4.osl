@@ -1,0 +1,35 @@
+// Open Shading Language : Copyright (c) 2009-2017 Sony Pictures Imageworks Inc., et al.
+// https://github.com/imageworks/OpenShadingLanguage/blob/master/LICENSE
+//
+// MaterialX specification (c) 2017 Lucasfilm Ltd.
+// http://www.materialx.org/
+
+#include "mx_funcs.h"
+
+
+//
+// cluminance extracts the luminance of a color (with given color channel
+// weight coefficients).
+//
+color cluminance (color in, color lumacoeffs)
+{
+    return dot(in, lumacoeffs);
+}
+
+color4 cluminance (color4 in, color lumacoeffs)
+{
+    return color4 (dot(in.rgb, lumacoeffs), in.a);
+}
+
+
+
+shader mx_luminance_color4
+    [[ string help = "Output a grayscale image containing the luminance of the incoming RGB color in all color channels." ]]
+  (
+    color4 in = {color(0,0,0), 0},
+    color lumacoeffs = color(0.272287, 0.6740818, 0.0536895),
+    output color4 out = {color(0,0,0), 0}
+  )
+{
+    out = cluminance (in, lumacoeffs);
+}
