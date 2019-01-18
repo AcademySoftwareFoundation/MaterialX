@@ -1,0 +1,23 @@
+// Open Shading Language : Copyright (c) 2009-2017 Sony Pictures Imageworks Inc., et al.
+// https://github.com/imageworks/OpenShadingLanguage/blob/master/LICENSE
+//
+// MaterialX specification (c) 2017 Lucasfilm Ltd.
+// http://www.materialx.org/
+
+
+// NOTE: This node was DEPRECATED in MaterialX 1.36
+
+
+#include "mx_funcs.h"
+
+shader mx_rotate2d_vector2
+    [[ string help = "Rotates a vector2 value about a center point in 2D pattern space." ]]
+  (
+    vector2 in = {0,0},
+    float amount = 0,
+    vector2 center = {0.5,0.5},
+    output vector2 out = {0,0}
+  )
+{
+    out = rotate2d(in, amount, center);
+}
