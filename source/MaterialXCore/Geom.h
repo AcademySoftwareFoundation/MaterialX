@@ -350,11 +350,10 @@ class GeomAttr : public ValueElement
 
 /// @class GeomPropDef
 /// An element representing a declaration of geometric input data.
-/// Can be used to declare a geometric property with specific modifiers set,
-/// and assing this a name to be referenced elsewhere in a document. 
-/// For example assigning the name "Nworld" to world space normal, or the name
-/// "UV1" for texcoords of set index 1. The geometric property is defined
-/// by a geometric node and modifiers on this node.
+/// Properties of the data are defined by a geometric node and a set of modifiers for that node.
+/// For example, a property called "Nworld" representing a world space normal
+/// would have a node reference of "normal" and a "space" property of "world", or a property called
+/// "UV1" would have a "texcoord" node reference and an "index" property of 1. 
 /// Once a GeomPropDef has been defined it can be referenced by defaultgeomprop
 /// and internalgeomprop attributes by using its name.
 class GeomPropDef : public Element
