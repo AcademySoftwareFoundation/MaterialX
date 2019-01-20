@@ -209,19 +209,19 @@ class Input : public PortElement
     /// Set the defaultgeomprop string for the input.
     void setDefaultGeomPropString(const string& geomprop)
     {
-        setAttribute(DEFAULTGEOMPROP, geomprop);
+        setAttribute(DEFAULT_GEOM_PROP_ATTRIBUTE, geomprop);
     }
 
     /// Return true if the given input has a defaultgeomprop string.
     bool hasDefaultGeomPropString() const
     {
-        return hasAttribute(DEFAULTGEOMPROP);
+        return hasAttribute(DEFAULT_GEOM_PROP_ATTRIBUTE);
     }
 
     /// Return the defaultgeomprop string for the input.
     const string& getDefaultGeomPropString() const
     {
-        return getAttribute(DEFAULTGEOMPROP);
+        return getAttribute(DEFAULT_GEOM_PROP_ATTRIBUTE);
     }
 
     /// Return the GeomPropDef element to use, if defined for this input.
@@ -231,7 +231,7 @@ class Input : public PortElement
 
   public:
     static const string CATEGORY;
-    static const string DEFAULTGEOMPROP;
+    static const string DEFAULT_GEOM_PROP_ATTRIBUTE;
 };
 
 /// @class Output

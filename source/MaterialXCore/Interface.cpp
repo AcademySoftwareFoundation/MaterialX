@@ -16,7 +16,7 @@ namespace MaterialX
 const string PortElement::NODE_NAME_ATTRIBUTE = "nodename";
 const string PortElement::OUTPUT_ATTRIBUTE = "output";
 const string InterfaceElement::NODE_DEF_ATTRIBUTE = "nodedef";
-const string Input::DEFAULTGEOMPROP = "defaultgeomprop";
+const string Input::DEFAULT_GEOM_PROP_ATTRIBUTE = "defaultgeomprop";
 
 //
 // PortElement methods
@@ -155,7 +155,7 @@ Edge Input::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
 
 GeomPropDefPtr Input::getDefaultGeomProp() const
 {
-    const string& defaultgeomprop = getAttribute(DEFAULTGEOMPROP);
+    const string& defaultgeomprop = getAttribute(DEFAULT_GEOM_PROP_ATTRIBUTE);
     if (!defaultgeomprop.empty())
     {
         ConstDocumentPtr doc = getDocument();
