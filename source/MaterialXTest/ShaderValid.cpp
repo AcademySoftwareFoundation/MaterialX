@@ -973,12 +973,13 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
             options.saveImages = false;
         }
 
-        // If implementation count check is required, then at a minimum OSL and GLSL
-        // code generation must execute to be able to check implementation usage.
+        // If implementation count check is required, then OSL and GLSL/OGSFX
+        // code generation must be executed to be able to check implementation usage.
         if (options.checkImplCount)
         {
             options.runGLSLTests = true;
             options.runOSLTests = true;
+            options.runOGSFXTests = true;
         }
         return true;
     }

@@ -24,10 +24,10 @@
         <!-- Set to true to enable execution of OGSFX tests. Default is false.
              Currently only shader generation testing is performed.
         -->
-        <parameter name="runOGSFXTests" type="boolean" value="false" />
+        <parameter name="runOGSFXTests" type="boolean" value="true" />
 
         <!-- Check the count of number of implementations used. Default is true.
-             If this option si set then runOSLTests and runGLSLTests will also
+             If this option is set then runOSLTests, runGLSLTests and runOGSFXTests will also
              be enabled to ensure a proper set of implementations to check.
         -->
         <parameter name="checkImplCount" type="boolean" value="true" />
