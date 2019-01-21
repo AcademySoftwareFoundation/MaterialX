@@ -141,9 +141,6 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     bool lighting = shader.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE) ||
         shader.hasClassification(ShaderNode::Classification::BSDF);
 
-    // Turn on fixed formatting since OgsFx doesn't support scientific values
-    Value::ScopedFloatFormatting fmt(Value::FloatFormatFixed);
-
     //
     // Emit code for vertex shader stage
     //
