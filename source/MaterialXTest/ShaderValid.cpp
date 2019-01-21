@@ -973,12 +973,13 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
             options.saveImages = false;
         }
 
-        // If implementation count check is required, then at a minimum OSL and GLSL
-        // code generation must execute to be able to check implementation usage.
+        // If implementation count check is required, then OSL and GLSL/OGSFX
+        // code generation must be executed to be able to check implementation usage.
         if (options.checkImplCount)
         {
             options.runGLSLTests = true;
             options.runOSLTests = true;
+            options.runOGSFXTests = true;
         }
         return true;
     }
@@ -1037,7 +1038,10 @@ void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidT
         {
             "arrayappend", "backfacing", "screen", "curveadjust", "dot_surfaceshader", "mix_surfaceshader"
             "displacementShader", "displacementshader", "volumeshader", "IM_dot_filename", "ambientocclusion", "dot_lightshader",
-            "geomattrvalue_integer", "geomattrvalue_boolean", "geomattrvalue_string"
+            "geomattrvalue_integer", "geomattrvalue_boolean", "geomattrvalue_string", "constant_matrix33", "add_matrix33FA",
+            "add_matrix33", "subtract_matrix33FA", "subtract_matrix33", "multiply_matrix33", "divide_matrix33", "invert_matrix33",
+            "transpose_matrix33", "transformvector_vector3M", "transformnormal_vector3M", "transformpoint_vector3M",
+            "determinant_matrix33"
         };
         const std::string OSL_STRING("osl");
         const std::string GEN_OSL_STRING(mx::OslShaderGenerator::LANGUAGE);

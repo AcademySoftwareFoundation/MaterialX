@@ -57,8 +57,22 @@ TEST_CASE("Look", "[look]")
     // Create a variant set.
     mx::VariantSetPtr variantSet = doc->addVariantSet("damageVars");
     mx::VariantPtr original = variantSet->addVariant("original");
+    mx::TokenPtr original_token1 = original->addToken("token1");
+    mx::InputPtr original_input1 = original->addInput("input1");
+    mx::ParameterPtr original_param1 = original->addParameter("param1");
     mx::VariantPtr damaged = variantSet->addVariant("damaged");
+    mx::TokenPtr damaged_token1 = damaged->addToken("token1");
+    mx::InputPtr damaged_input1 = damaged->addInput("input1");
+    mx::ParameterPtr damaged_param1 = damaged->addParameter("param1");
     REQUIRE(variantSet->getVariants().size() == 2);
+    mx::VariantAssignPtr variantAssign = look->addVariantAssign("assign_damageVars");
+    variantAssign->setVariantSetString("damageVars");
+    variantAssign->setVariantString("original");
+    REQUIRE(look->getActiveVariantAssigns().size() == 1);
+    mx::VariantAssignPtr variantAssign2 = matAssign1->addVariantAssign("assign_damageVars");
+    variantAssign2->setVariantSetString("damageVars");
+    variantAssign2->setVariantString("damaged");
+    REQUIRE(matAssign1->getActiveVariantAssigns().size() == 1);
 
     // Create a visibility element.
     mx::VisibilityPtr visibility = look->addVisibility();

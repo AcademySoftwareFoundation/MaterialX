@@ -128,16 +128,20 @@ bool readFile(const string& filename, string& contents)
     {
         string buffer;
         file.seekg(0, std::ios::end);
-        buffer.resize(size_t(file.tellg()));
-        file.seekg(0, std::ios::beg);
-        file.read(&buffer[0], buffer.size());
-        file.close();
-        if (buffer.length() > 0)
+        std::streamsize bufferSize = file.tellg();
+        if (bufferSize > 0)
         {
-            size_t pos = buffer.find_last_not_of('\0');
-            contents = buffer.substr(0, pos + 1);
+            buffer.resize(size_t(bufferSize));
+            file.seekg(0, std::ios::beg);
+            file.read(&buffer[0], bufferSize);
+            file.close();
+            if (buffer.length() > 0)
+            {
+                size_t pos = buffer.find_last_not_of('\0');
+                contents = buffer.substr(0, pos + 1);
+            }
+            result = true;
         }
-        result = true;
     }
 #if defined(_WIN32)
     _set_fmode(oldMode ? oldMode : _O_TEXT);
