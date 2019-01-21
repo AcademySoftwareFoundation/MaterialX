@@ -4,6 +4,7 @@
 namespace MaterialX
 {
 
+const string HwShader::VERTEX_STAGE = "vertex";
 const string HwShader::LIGHT_DATA_BLOCK = "LightData";
 
 HwShader::HwShader(const string& name) 
@@ -11,7 +12,8 @@ HwShader::HwShader(const string& name)
     , _vertexData("VertexData", "vd")
     , _transparency(false)
 {
-    _stages.push_back(Stage("Vertex"));
+    // Create the vertex stage
+    createStage(VERTEX_STAGE);
 
     // Create default uniform blocks for vertex stage
     createUniformBlock(VERTEX_STAGE, PRIVATE_UNIFORMS, "prvUniform");

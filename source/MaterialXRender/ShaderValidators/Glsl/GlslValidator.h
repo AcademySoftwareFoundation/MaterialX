@@ -59,7 +59,7 @@ class GlslValidator : public ShaderValidator
 
     /// Validate creation of program based input shader stage strings
     /// @param shader Input stages List of stage string
-    void validateCreation(const std::vector<std::string>& stages) override;
+    void validateCreation(const std::unordered_map<string, string>& stages) override;
 
     /// Validate inputs for the program 
     void validateInputs() override;
@@ -76,7 +76,7 @@ class GlslValidator : public ShaderValidator
     /// Save the current contents the offscreen hardware buffer to disk.
     /// @param fileName Name of file to save rendered image to.
     /// @param floatingPoint Format of output image is floating point.
-    void save(const std::string& fileName, bool floatingPoint) override;
+    void save(const string& fileName, bool floatingPoint) override;
     
     /// Return the GLSL program wrapper class
     MaterialX::GlslProgramPtr program()

@@ -90,7 +90,7 @@ class ShaderValidator
 
     /// Validate creation of program based input shader stage strings
     /// @param shader Input stages List of stage string
-    virtual void validateCreation(const std::vector<std::string>& stages) = 0;
+    virtual void validateCreation(const std::unordered_map<string, string>& stages) = 0;
 
     /// Validate inputs for the program 
     virtual void validateInputs() = 0;
