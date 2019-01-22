@@ -182,7 +182,6 @@ ScalarTypeSyntax::ScalarTypeSyntax(const string& name, const string& defaultValu
 
 string ScalarTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
 {
-    MaterialX::Value::ScopedFloatFormatting scopedFloatFormatting(MaterialX::Value::FloatFormatFixed, 5);
     return value.getValueString();
 }
 
@@ -192,8 +191,8 @@ string ScalarTypeSyntax::getValue(const vector<string>& values, bool /*uniform*/
     {
         throw ExceptionShaderGenError("No values given to construct a value");
     }
-
-    MaterialX::Value::ScopedFloatFormatting scopedFloatFormatting(MaterialX::Value::FloatFormatFixed, 5);
+    // Write the value using a stream to maintain any float formatting set
+    // using Value::setFloatFormat() and Value::setFloatPrecision()
     std::stringstream ss;
     ss << values[0];
     return ss.str();
@@ -219,7 +218,6 @@ AggregateTypeSyntax::AggregateTypeSyntax(const string& name, const string& defau
 
 string AggregateTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
 {
-    MaterialX::Value::ScopedFloatFormatting scopedFloatFormatting(MaterialX::Value::FloatFormatFixed, 5);
     return getName() + "(" + value.getValueString() + ")";
 }
 
@@ -230,9 +228,10 @@ string AggregateTypeSyntax::getValue(const vector<string>& values, bool /*unifor
         throw ExceptionShaderGenError("No values given to construct a value");
     }
 
-    MaterialX::Value::ScopedFloatFormatting scopedFloatFormatting(MaterialX::Value::FloatFormatFixed, 5);
+    // Write the value using a stream to maintain any float formatting set
+    // using Value::setFloatFormat() and Value::setFloatPrecision()
     std::stringstream ss;
-    ss <<getName() << "(" << values[0];
+    ss << getName() << "(" << values[0];
     for (size_t i=1; i<values.size(); ++i)
     {
         ss << ", " << values[i];

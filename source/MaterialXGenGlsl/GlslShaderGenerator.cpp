@@ -258,6 +258,11 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
 
     HwShader& shader = *shaderPtr;
 
+    // Turn on fixed float formatting to make sure float values are
+    // emitted with a decimal point and not as integers, and to avoid
+    // any scientific notation which isn't supported by all OpenGL targets.
+    Value::ScopedFloatFormatting fmt(Value::FloatFormatFixed);
+
     //
     // Emit code for vertex shader stage
     //

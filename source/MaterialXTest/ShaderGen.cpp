@@ -219,15 +219,15 @@ TEST_CASE("Syntax", "[shadergen]")
 
         mx::ValuePtr floatValue = mx::Value::createValue<float>(42.0f);
         value = syntax->getValue(mx::Type::FLOAT, *floatValue);
-        REQUIRE(value == "42.00000");
+        REQUIRE(value == "42.0");
         value = syntax->getValue(mx::Type::FLOAT, *floatValue, true);
-        REQUIRE(value == "42.00000");
+        REQUIRE(value == "42.0");
 
         mx::ValuePtr color3Value = mx::Value::createValue<mx::Color3>(mx::Color3(1.0f, 2.0f, 3.0f));
         value = syntax->getValue(mx::Type::COLOR3, *color3Value);
-        REQUIRE(value == "color(1.00000, 2.00000, 3.00000)");
+        REQUIRE(value == "color(1.0, 2.0, 3.0)");
         value = syntax->getValue(mx::Type::COLOR3, *color3Value, true);
-        REQUIRE(value == "color(1.00000, 2.00000, 3.00000)");
+        REQUIRE(value == "color(1.0, 2.0, 3.0)");
 
         mx::ValuePtr color4Value = mx::Value::createValue<mx::Color4>(mx::Color4(1.0f, 2.0f, 3.0f, 4.0f));
         value = syntax->getValue(mx::Type::COLOR4, *color4Value);
@@ -279,21 +279,21 @@ TEST_CASE("Syntax", "[shadergen]")
 
         mx::ValuePtr floatValue = mx::Value::createValue<float>(42.0f);
         value = syntax->getValue(mx::Type::FLOAT, *floatValue);
-        REQUIRE(value == "42.00000");
+        REQUIRE(value == "42.0");
         value = syntax->getValue(mx::Type::FLOAT, *floatValue, true);
-        REQUIRE(value == "42.00000");
+        REQUIRE(value == "42.0");
 
         mx::ValuePtr color3Value = mx::Value::createValue<mx::Color3>(mx::Color3(1.0f, 2.0f, 3.0f));
         value = syntax->getValue(mx::Type::COLOR3, *color3Value);
-        REQUIRE(value == "vec3(1.00000, 2.00000, 3.00000)");
+        REQUIRE(value == "vec3(1.0, 2.0, 3.0)");
         value = syntax->getValue(mx::Type::COLOR3, *color3Value, true);
-        REQUIRE(value == "vec3(1.00000, 2.00000, 3.00000)");
+        REQUIRE(value == "vec3(1.0, 2.0, 3.0)");
 
         mx::ValuePtr color4Value = mx::Value::createValue<mx::Color4>(mx::Color4(1.0f, 2.0f, 3.0f, 4.0f));
         value = syntax->getValue(mx::Type::COLOR4, *color4Value);
-        REQUIRE(value == "vec4(1.00000, 2.00000, 3.00000, 4.00000)");
+        REQUIRE(value == "vec4(1.0, 2.0, 3.0, 4.0)");
         value = syntax->getValue(mx::Type::COLOR4, *color4Value, true);
-        REQUIRE(value == "vec4(1.00000, 2.00000, 3.00000, 4.00000)");
+        REQUIRE(value == "vec4(1.0, 2.0, 3.0, 4.0)");
 
         std::vector<float> floatArray = { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f };
         mx::ValuePtr floatArrayValue = mx::Value::createValue<std::vector<float>>(floatArray);
@@ -335,9 +335,9 @@ TEST_CASE("Syntax", "[shadergen]")
 
         mx::ValuePtr floatValue = mx::Value::createValue<float>(42.0f);
         value = syntax->getValue(mx::Type::FLOAT, *floatValue);
-        REQUIRE(value == "42.00000");
+        REQUIRE(value == "42.0");
         value = syntax->getValue(mx::Type::FLOAT, *floatValue, true);
-        REQUIRE(value == "42.00000");
+        REQUIRE(value == "42.0");
 
         mx::ValuePtr color3Value = mx::Value::createValue<mx::Color3>(mx::Color3(1.0f, 2.0f, 3.0f));
         value = syntax->getValue(mx::Type::COLOR3, *color3Value);
