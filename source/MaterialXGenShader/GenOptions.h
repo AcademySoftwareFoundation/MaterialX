@@ -1,8 +1,6 @@
 #ifndef MATERIALX_GENOPTIONS_H
 #define MATERIALX_GENOPTIONS_H
 
-#include <string>
-
 namespace MaterialX
 {
 
@@ -44,9 +42,6 @@ class GenOptions
     /// code fragments will be generated for the shader and
     /// the surface will be fully opaque.
     bool hwTransparency;
-
-    /// An optional override for the target color space
-    std::string targetColorSpaceOverride;
 };
 
 } // namespace MaterialX
