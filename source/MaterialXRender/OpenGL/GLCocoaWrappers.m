@@ -179,7 +179,7 @@ void NSOpenGLDescribePixelFormat(void* pPixelFormat, int attrib, int* vals)
 void NSOpenGLGetInteger(void* pContext, int param, int* vals)
 {
   NSOpenGLContext* context = (NSOpenGLContext*)pContext;
-	[context getValues:vals forParameter:param];
+	[context getValues:vals forParameter:(NSOpenGLContextParameter)param];
 }
 
 void NSOpenGLUpdate(void* pContext)
