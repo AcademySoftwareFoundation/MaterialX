@@ -1,0 +1,18 @@
+// Open Shading Language : Copyright (c) 2009-2017 Sony Pictures Imageworks Inc., et al.
+// https://github.com/imageworks/OpenShadingLanguage/blob/master/LICENSE
+//
+// MaterialX specification (c) 2017 Lucasfilm Ltd.
+// http://www.materialx.org/
+
+#include "mx_funcs.h"
+
+shader mx_min_float_color
+    [[ string help = "Color"" Select the minimum among incoming values." ]]
+  (
+    color in1 = 0,
+    float in2 = 0.0,
+    output color out = 0
+  )
+{
+    out = min(in1, in2); 
+}

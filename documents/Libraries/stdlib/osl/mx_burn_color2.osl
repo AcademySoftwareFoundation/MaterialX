@@ -1,0 +1,18 @@
+// Open Shading Language : Copyright (c) 2009-2017 Sony Pictures Imageworks Inc., et al.
+// https://github.com/imageworks/OpenShadingLanguage/blob/master/LICENSE
+//
+// MaterialX specification (c) 2017 Lucasfilm Ltd.
+// http://www.materialx.org/
+
+#include "mx_funcs.h"
+
+shader mx_burn_color2
+    [[ string help = "Color2"" Take two 1-4 channel inputs and apply the same operator to all channels: 1-(1-B)/F" ]]
+  (
+    color2 fg = {0,0},
+    color2 bg = {0,0},
+    output color2 out = {0,0}
+  )
+{
+    out = 1 - ((1 - bg) / fg); 
+}

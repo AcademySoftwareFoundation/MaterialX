@@ -6,6 +6,7 @@
 #include <MaterialXCore/Interface.h>
 
 #include <MaterialXCore/Definition.h>
+#include <MaterialXCore/Document.h>
 #include <MaterialXCore/Material.h>
 #include <MaterialXCore/Node.h>
 
@@ -15,6 +16,7 @@ namespace MaterialX
 const string PortElement::NODE_NAME_ATTRIBUTE = "nodename";
 const string PortElement::OUTPUT_ATTRIBUTE = "output";
 const string InterfaceElement::NODE_DEF_ATTRIBUTE = "nodedef";
+const string Input::DEFAULT_GEOM_PROP_ATTRIBUTE = "defaultgeomprop";
 
 //
 // PortElement methods
@@ -149,6 +151,17 @@ Edge Input::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
     }
 
     return NULL_EDGE;
+}
+
+GeomPropDefPtr Input::getDefaultGeomProp() const
+{
+    const string& defaultgeomprop = getAttribute(DEFAULT_GEOM_PROP_ATTRIBUTE);
+    if (!defaultgeomprop.empty())
+    {
+        ConstDocumentPtr doc = getDocument();
+        return doc->getChildOfType<GeomPropDef>(defaultgeomprop);
+    }
+    return nullptr;
 }
 
 //

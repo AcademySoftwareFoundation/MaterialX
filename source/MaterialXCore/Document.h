@@ -170,6 +170,39 @@ class Document : public GraphElement
     }
 
     /// @}
+    /// @name GeomPropDef Elements
+    /// @{
+
+    /// Add a GeomPropDef to the document.
+    /// @param name The name of the new GeomPropDef.
+    /// @param node The geometric node to use for the GeomPropDef.
+    /// @return A shared pointer to the new GeomPropDef.
+    GeomPropDefPtr addGeomPropDef(const string& name, const string& node)
+    {
+        GeomPropDefPtr geomProp = addChild<GeomPropDef>(name);
+        geomProp->setNode(node);
+        return geomProp;
+    }
+
+    /// Return the GeomPropDef, if any, with the given name.
+    GeomPropDefPtr getGeomPropDef(const string& name) const
+    {
+        return getChildOfType<GeomPropDef>(name);
+    }
+
+    /// Return a vector of all GeomPropDef elements in the document.
+    vector<GeomPropDefPtr> getGeomPropDefs() const
+    {
+        return getChildrenOfType<GeomPropDef>();
+    }
+
+    /// Remove the GeomPropDef, if any, with the given name.
+    void removeGeomPropDef(const string& name)
+    {
+        removeChildOfType<GeomPropDef>(name);
+    }
+
+    /// @}
     /// @name Look Elements
     /// @{
 
