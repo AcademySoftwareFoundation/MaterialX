@@ -4,10 +4,12 @@
 
 ### Added
 - Added support for 'nodedef' attributes on MaterialX\:\:Node, integrating this usage into GraphElement\:\:addNodeInstance.
+- Added the MaterialX\:\:GeomPropDef class for geometric input declarations.
 - Added support for GCC 8 and Clang 7.
 
 ### Changed
 - Added callbacks Observer\:\:onCopyContent and Observer\:\:onClearContent, and removed callback Observer::onInitialize.
+- Moved the standard document library to the 'documents/Libraries/stdlib' folder.
 
 ## [1.36.1] - 2018-12-18
 
