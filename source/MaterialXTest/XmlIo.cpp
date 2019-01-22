@@ -5,6 +5,7 @@
 
 #include <MaterialXTest/Catch/catch.hpp>
 
+#include <MaterialXFormat/File.h>
 #include <MaterialXFormat/XmlIo.h>
 
 namespace mx = MaterialX;
@@ -15,7 +16,7 @@ TEST_CASE("Load content", "[xmlio]")
     {
         "stdlib_defs.mtlx",
         "stdlib_ng.mtlx",
-        "osl/stdlib_osl_impl.mtlx"
+        "stdlib_osl_impl.mtlx"
     };
     std::string exampleFilenames[] =
     {
@@ -31,7 +32,7 @@ TEST_CASE("Load content", "[xmlio]")
         "BxDF/Disney_BRDF_2012.mtlx",
         "BxDF/Disney_BSDF_2015.mtlx",
     };
-    std::string searchPath = "documents/Libraries/stdlib;documents/Examples";
+    std::string searchPath = "documents/Libraries/stdlib;documents/Libraries/stdlib/osl;documents/Examples";
 
     // Read the standard library.
     std::vector<mx::DocumentPtr> libs;
@@ -132,15 +133,16 @@ TEST_CASE("Load content", "[xmlio]")
             }
 
             mx::TypedElementPtr typedElem = elem->asA<mx::TypedElement>();
-            mx::NodePtr node = elem->asA<mx::Node>();
             if (typedElem && typedElem->hasType() && !typedElem->isMultiOutputType())
             {
                 if (!typedElem->getTypeDef())
                 {
-                    WARN("[" + node->getActiveSourceUri() + "] TypedElement " + node->getName() + " has no matching TypeDef");
+                    WARN("[" + typedElem->getActiveSourceUri() + "] TypedElement " + typedElem->getName() + " has no matching TypeDef");
                     referencesValid = false;
                 }
             }
+
+            mx::NodePtr node = elem->asA<mx::Node>();
             if (node)
             {
                 if (!node->getNodeDef())
