@@ -365,7 +365,6 @@ void getGenerationOptions(const ShaderValidTestOptions& testOptions, std::vector
     {
         mx::GenOptions reducedOption;
         reducedOption.shaderInterfaceType = mx::SHADER_INTERFACE_REDUCED;
-        reducedOption.validate = testOptions.validateElementToRender;
         optionsList.push_back(reducedOption);
     }
     // Alway fallback to complete if no options specified.
@@ -373,7 +372,6 @@ void getGenerationOptions(const ShaderValidTestOptions& testOptions, std::vector
     {
         mx::GenOptions completeOption;
         completeOption.shaderInterfaceType = mx::SHADER_INTERFACE_COMPLETE;
-        completeOption.validate = testOptions.validateElementToRender;
         optionsList.push_back(completeOption);
     }
 }
@@ -384,6 +382,17 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
     std::ostream& log, const ShaderValidTestOptions& testOptions, ShaderValidProfileTimes& profileTimes, const std::string& outputPath = ".")
 {
     AdditiveScopedTimer totalOgsFXTime(profileTimes.ogsfxTimes.totalTime, "OGSFX total time");
+
+    // Perform validation if requested
+    if (testOptions.validateElementToRender)
+    {
+        std::string message;
+        if (!element->validate(&message))
+        {
+            log << "Element is invalid: " << message << std::endl;
+            return;
+        }
+    }
 
     std::vector<mx::GenOptions> optionsList;
     getGenerationOptions(testOptions, optionsList);
@@ -477,6 +486,17 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                               std::ostream& log, const ShaderValidTestOptions& testOptions, ShaderValidProfileTimes& profileTimes, const std::string& outputPath=".")
 {
     AdditiveScopedTimer totalGLSLTime(profileTimes.glslTimes.totalTime, "GLSL total time");
+
+    // Perform validation if requested
+    if (testOptions.validateElementToRender)
+    {
+        std::string message;
+        if (!element->validate(&message))
+        {
+            log << "Element is invalid: " << message << std::endl;
+            return;
+        }
+    }
 
     std::vector<mx::GenOptions> optionsList;
     getGenerationOptions(testOptions, optionsList);
@@ -718,6 +738,17 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
                              const ShaderValidTestOptions& testOptions, ShaderValidProfileTimes& profileTimes, const std::string& outputPath=".")
 {
     AdditiveScopedTimer totalOSLTime(profileTimes.oslTimes.totalTime, "OSL total time");
+
+    // Perform validation if requested
+    if (testOptions.validateElementToRender)
+    {
+        std::string message;
+        if (!element->validate(&message))
+        {
+            log << "Element is invalid: " << message << std::endl;
+            return;
+        }
+    }
 
     std::vector<mx::GenOptions> optionsList;
     getGenerationOptions(testOptions, optionsList);

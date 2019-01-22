@@ -47,9 +47,6 @@ class GenOptions
 
     /// An optional override for the target color space
     std::string targetColorSpaceOverride;
-
-    /// Sets whether to perform a validation check before generation
-    bool validate;
 };
 
 } // namespace MaterialX
