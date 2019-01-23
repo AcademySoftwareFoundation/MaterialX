@@ -11,7 +11,7 @@ namespace MaterialX
 {
 
 // Statics
-std::string OslValidator::OSL_CLOSURE_COLOR_STRING("closure color");
+string OslValidator::OSL_CLOSURE_COLOR_STRING("closure color");
 
 //
 // Creator
@@ -34,7 +34,7 @@ OslValidator::~OslValidator()
 void OslValidator::initialize()
 {
     ShaderValidationErrorList errors;
-    const std::string errorType("OSL initialization error.");
+    const string errorType("OSL initialization error.");
     if (_oslIncludePathString.empty())
     {
         errors.push_back("OSL validation include path is empty.");
@@ -47,10 +47,10 @@ void OslValidator::initialize()
     }
 }
 
-void OslValidator::renderOSL(const std::string& outputPath, const std::string& shaderName, const std::string& outputName)
+void OslValidator::renderOSL(const string& outputPath, const string& shaderName, const string& outputName)
 {
     ShaderValidationErrorList errors;
-    const std::string errorType("OSL rendering error.");
+    const string errorType("OSL rendering error.");
 
     // If command options missing, skip testing.
     if (_oslTestRenderExecutable.empty() || _oslIncludePathString.empty() ||
@@ -76,37 +76,37 @@ void OslValidator::renderOSL(const std::string& outputPath, const std::string& s
     // Determine the shader path from output path and shader name
     FilePath shaderFilePath(outputPath);
     shaderFilePath = shaderFilePath / shaderName;
-    std::string shaderPath = shaderFilePath.asString();
+    string shaderPath = shaderFilePath.asString();
 
     // Set output image name.
-    std::string outputFileName = shaderPath + "_osl.png";
+    string outputFileName = shaderPath + "_osl.png";
 
     // Use a known error file name to check
-    std::string errorFile(shaderPath + "_render_errors.txt");
-    const std::string redirectString(" 2>&1");
+    string errorFile(shaderPath + "_render_errors.txt");
+    const string redirectString(" 2>&1");
 
     // Read in scene template and replace the applicable tokens to have a valid ShaderGroup.
     // Write to local file to use as input for rendering.
     //
     std::ifstream sceneTemplateStream(_oslTestRenderSceneTemplateFile);
-    std::string sceneTemplateString;
+    string sceneTemplateString;
     sceneTemplateString.assign(std::istreambuf_iterator<char>(sceneTemplateStream),
         std::istreambuf_iterator<char>());
 
     // Get final output to use in the shader
-    const std::string CLOSURE_PASSTHROUGH_SHADER_STRING("closure_passthrough");
-    const std::string CONSTANT_COLOR_SHADER_STRING("constant_color");
-    const std::string CONSTANT_COLOR_SHADER_PREFIX_STRING("constant_");
-    std::string outputShader = isColorClosure ? CLOSURE_PASSTHROUGH_SHADER_STRING :
+    const string CLOSURE_PASSTHROUGH_SHADER_STRING("closure_passthrough");
+    const string CONSTANT_COLOR_SHADER_STRING("constant_color");
+    const string CONSTANT_COLOR_SHADER_PREFIX_STRING("constant_");
+    string outputShader = isColorClosure ? CLOSURE_PASSTHROUGH_SHADER_STRING :
         (isRemappable ? CONSTANT_COLOR_SHADER_PREFIX_STRING + _oslShaderOutputType : CONSTANT_COLOR_SHADER_STRING);
 
     // Perform token replacement
-    const std::string OUTPUT_SHADER_TYPE_STRING("%output_shader_type%");
-    const std::string OUTPUT_SHADER_INPUT_STRING("%output_shader_input%");
-    const std::string OUTPUT_SHADER_INPUT_VALUE_STRING("Cin");
-    const std::string INPUT_SHADER_TYPE_STRING("%input_shader_type%");
-    const std::string INPUT_SHADER_OUTPUT_STRING("%input_shader_output%");
-    const std::string BACKGROUND_COLOR_STRING("%background_color%");
+    const string OUTPUT_SHADER_TYPE_STRING("%output_shader_type%");
+    const string OUTPUT_SHADER_INPUT_STRING("%output_shader_input%");
+    const string OUTPUT_SHADER_INPUT_VALUE_STRING("Cin");
+    const string INPUT_SHADER_TYPE_STRING("%input_shader_type%");
+    const string INPUT_SHADER_OUTPUT_STRING("%input_shader_output%");
+    const string BACKGROUND_COLOR_STRING("%background_color%");
     const string backgroundColor("0.0 0.0 0.0"); // TODO: Make this a user input
 
     StringMap replacementMap;
@@ -115,7 +115,7 @@ void OslValidator::renderOSL(const std::string& outputPath, const std::string& s
     replacementMap[INPUT_SHADER_TYPE_STRING] = shaderName;
     replacementMap[INPUT_SHADER_OUTPUT_STRING] = outputName;
     replacementMap[BACKGROUND_COLOR_STRING] = backgroundColor;
-    std::string sceneString = replaceSubstrings(sceneTemplateString, replacementMap);
+    string sceneString = replaceSubstrings(sceneTemplateString, replacementMap);
     if ((sceneString == sceneTemplateString) || sceneTemplateString.empty())
     {
         errors.push_back("Scene template file: " + _oslTestRenderSceneTemplateFile +
@@ -124,7 +124,7 @@ void OslValidator::renderOSL(const std::string& outputPath, const std::string& s
     }
 
     // Write scene file
-    const std::string sceneFileName(shaderPath + "_scene.xml");
+    const string sceneFileName(shaderPath + "_scene.xml");
     std::ofstream shaderFileStream;
     shaderFileStream.open(sceneFileName);
     if (shaderFileStream.is_open())
@@ -134,12 +134,12 @@ void OslValidator::renderOSL(const std::string& outputPath, const std::string& s
     }
 
     // Set oso file paths
-    std::string osoPaths(_oslUtilityOSOPath);
+    string osoPaths(_oslUtilityOSOPath);
     osoPaths += ";" + outputPath;
 
     // Build and run render command
     //
-    std::string command(_oslTestRenderExecutable);
+    string command(_oslTestRenderExecutable);
     command += " " + sceneFileName;
     command += " " + outputFileName;
     command += " -r 512 512 --path " + osoPaths;
@@ -152,7 +152,7 @@ void OslValidator::renderOSL(const std::string& outputPath, const std::string& s
     int returnValue = std::system(command.c_str());
 
     std::ifstream errorStream(errorFile);
-    std::string result;
+    string result;
     result.assign(std::istreambuf_iterator<char>(errorStream),
         std::istreambuf_iterator<char>());
 
@@ -166,7 +166,7 @@ void OslValidator::renderOSL(const std::string& outputPath, const std::string& s
     }
 }
 
-void OslValidator::shadeOSL(const std::string& outputPath, const std::string& shaderName, const std::string& outputName)
+void OslValidator::shadeOSL(const string& outputPath, const string& shaderName, const string& outputName)
 {
     // If no command and include path specified then skip checking.
     if (_oslTestShadeExecutable.empty() || _oslIncludePathString.empty())
@@ -176,16 +176,16 @@ void OslValidator::shadeOSL(const std::string& outputPath, const std::string& sh
 
     FilePath shaderFilePath(outputPath);
     shaderFilePath = shaderFilePath / shaderName;
-    std::string shaderPath = shaderFilePath.asString();
+    string shaderPath = shaderFilePath.asString();
 
     // Set output image name.
-    std::string outputFileName = shaderPath + ".testshade.png";
+    string outputFileName = shaderPath + ".testshade.png";
 
     // Use a known error file name to check
-    std::string errorFile(shaderPath + "_shade_errors.txt");
-    const std::string redirectString(" 2>&1");
+    string errorFile(shaderPath + "_shade_errors.txt");
+    const string redirectString(" 2>&1");
 
-    std::string command(_oslTestShadeExecutable);
+    string command(_oslTestShadeExecutable);
     command += " " + shaderPath;
     command += " -o " + outputName + " " + outputFileName;
     command += " -g 256 256";
@@ -199,15 +199,15 @@ void OslValidator::shadeOSL(const std::string& outputPath, const std::string& sh
     // modifies this then this hard-coded string must also be modified.
     // The formatted string is "Output <outputName> to <outputFileName>".
     std::ifstream errorStream(errorFile);
-    std::string result;
-    std::vector<std::string> results;
-    std::string line;
-    std::string successfulOutputSubString("Output " + outputName + " to " +
+    string result;
+    std::vector<string> results;
+    string line;
+    string successfulOutputSubString("Output " + outputName + " to " +
                                            outputFileName);
     while (std::getline(errorStream, line))
     {
         if (!line.empty() &&
-            line.find(successfulOutputSubString) == std::string::npos)
+            line.find(successfulOutputSubString) == string::npos)
         {
             results.push_back(line);
         }
@@ -215,7 +215,7 @@ void OslValidator::shadeOSL(const std::string& outputPath, const std::string& sh
 
     if (!results.empty())
     {
-        const std::string errorType("OSL rendering error.");
+        const string errorType("OSL rendering error.");
         ShaderValidationErrorList errors;
         errors.push_back("Command string: " + command);
         errors.push_back("Command return code: " + std::to_string(returnValue));
@@ -228,7 +228,7 @@ void OslValidator::shadeOSL(const std::string& outputPath, const std::string& sh
     }
 }
 
-void OslValidator::compileOSL(const std::string& oslFileName)
+void OslValidator::compileOSL(const string& oslFileName)
 {
     // If no command and include path specified then skip checking.
     if (_oslCompilerExecutable.empty() || _oslIncludePathString.empty())
@@ -237,27 +237,27 @@ void OslValidator::compileOSL(const std::string& oslFileName)
     }
 
     // Remove .osl and add .oso extension for output.
-    std::string outputFileName = removeExtension(oslFileName);
+    string outputFileName = removeExtension(oslFileName);
     outputFileName += ".oso";
 
     // Use a known error file name to check
-    std::string errorFile(oslFileName + "_compile_errors.txt");
-    const std::string redirectString(" 2>&1");
+    string errorFile(oslFileName + "_compile_errors.txt");
+    const string redirectString(" 2>&1");
 
     // Run the command and get back the result. If non-empty string throw exception with error
-    std::string command = _oslCompilerExecutable + " -q -I\"" + _oslIncludePathString + "\" " + oslFileName + " -o " + outputFileName + " > " +
+    string command = _oslCompilerExecutable + " -q -I\"" + _oslIncludePathString + "\" " + oslFileName + " -o " + outputFileName + " > " +
         errorFile + redirectString;
 
     int returnValue = std::system(command.c_str());
 
     std::ifstream errorStream(errorFile);
-    std::string result;
+    string result;
     result.assign(std::istreambuf_iterator<char>(errorStream),
                   std::istreambuf_iterator<char>());
 
     if (!result.empty())
     {
-        const std::string errorType("OSL compilation error.");
+        const string errorType("OSL compilation error.");
         ShaderValidationErrorList errors;
         errors.push_back("Command string: " + command);
         errors.push_back("Command return code: " + std::to_string(returnValue));
@@ -269,17 +269,17 @@ void OslValidator::compileOSL(const std::string& oslFileName)
 
 void OslValidator::validateCreation(const ShaderPtr shader)
 {
-    std::vector<std::string> stages;
-    stages.push_back(shader->getSourceCode());
-
+    StageMap stages = { {Shader::PIXEL_STAGE, shader->getSourceCode(Shader::PIXEL_STAGE)} };
     validateCreation(stages);
 }
 
-void OslValidator::validateCreation(const std::vector<std::string>& stages)
+void OslValidator::validateCreation(const StageMap& stages)
 {
+    // There is only one stage in an OSL shader so only
+    // the first stage is examined.
     ShaderValidationErrorList errors;
-    const std::string errorType("OSL compilation error.");
-    if (stages.empty() || stages[0].empty())
+    const string errorType("OSL compilation error.");
+    if (stages.empty() || stages.begin()->second.empty())
     {
         errors.push_back("No shader code to validate");
         throw ExceptionShaderValidationError(errorType, errors);
@@ -295,7 +295,7 @@ void OslValidator::validateCreation(const std::vector<std::string>& stages)
     // Dump string to disk. For OSL assume shader is in stage 0 slot.
     FilePath filePath(_oslOutputFilePathString);
     filePath = filePath  / _oslShaderName;
-    std::string fileName = filePath.asString();
+    string fileName = filePath.asString();
     if (fileName.empty())
     {
         fileName = "_osl_temp.osl";
@@ -309,7 +309,7 @@ void OslValidator::validateCreation(const std::vector<std::string>& stages)
     // Thus we replace all instances of "object" with "world" to avoid issues.
     StringMap spaceMap;
     spaceMap["\"object\""] = "\"world\"";
-    std::string oslCode = replaceSubstrings(stages[0], spaceMap);
+    string oslCode = replaceSubstrings(stages.begin()->second, spaceMap);
 
     std::ofstream file;
     file.open(fileName);
@@ -323,7 +323,7 @@ void OslValidator::validateCreation(const std::vector<std::string>& stages)
 void OslValidator::validateInputs()
 {
     ShaderValidationErrorList errors;
-    const std::string errorType("OSL validation error.");
+    const string errorType("OSL validation error.");
 
     errors.push_back("OSL input validation is not supported at this time.");
     throw ExceptionShaderValidationError(errorType, errors);
@@ -332,7 +332,7 @@ void OslValidator::validateInputs()
 void OslValidator::validateRender(bool /*orthographicView*/)
 {
     ShaderValidationErrorList errors;
-    const std::string errorType("OSL rendering error.");
+    const string errorType("OSL rendering error.");
 
     if (_oslOutputFilePathString.empty())
     {
@@ -363,7 +363,7 @@ void OslValidator::validateRender(bool /*orthographicView*/)
     }
 }
 
-void OslValidator::save(const std::string& /*fileName*/, bool /*floatingPoint*/)
+void OslValidator::save(const string& /*fileName*/, bool /*floatingPoint*/)
 {
     // No-op: image save is done as part of rendering.
 }

@@ -13,8 +13,8 @@
 /// Macro for being/end of statements to be picked up by a given shader stage.
 /// For shaders that are multi-stage all code generation statements adding code 
 /// to the shader should be wrapped inside such begin/end stating its target.
-#define BEGIN_SHADER_STAGE(shader, stageId) if (shader.getActiveStage() == stageId) {
-#define END_SHADER_STAGE(shader, stageId) }
+#define BEGIN_SHADER_STAGE(shader, stage) if (shader.getActiveStage() == stage) {
+#define END_SHADER_STAGE(shader, stage) }
 
 namespace MaterialX
 {
@@ -111,8 +111,7 @@ public:
 
     /// Identifier for shader stages. The base class shader has only a single 
     /// pixel shader stage. Derived shader classes can define additional stages.
-    static const size_t PIXEL_STAGE = 0;
-    static const size_t NUM_STAGES  = 1;
+    static const string PIXEL_STAGE;
 
     /// Identifiers for uniform variable blocks. 
     /// Derived classes can define additional blocks.
@@ -138,38 +137,40 @@ public:
     virtual void initialize(ElementPtr element, ShaderGenerator& shadergen, const GenOptions& options);
 
     /// Return the number of shader stages for this shader.
-    /// Defaults to a single stage, derived classes can override this.
-    virtual size_t numStages() const { return NUM_STAGES; }
+    size_t numStages() const { return _stages.size(); }
+
+    /// Return the name of the shader stages for this shader.
+    void getStageNames(StringVec& stages);
 
     /// Set the active stage that code will be added to
-    virtual void setActiveStage(size_t stage) { _activeStage = stage; }
+    void setActiveStage(const string& stage);
 
-    /// Return the active stage
-    virtual size_t getActiveStage() const { return _activeStage; }
+    /// Return the name of the active stage
+    const string& getActiveStage() const { return _activeStage->name; }
 
     /// Create a new constant variable for a stage.
-    virtual void createConstant(size_t stage, const TypeDesc* type, const string& name,
+    virtual void createConstant(const string& stage, const TypeDesc* type, const string& name,
                                 const string& path = EMPTY_STRING, const string& semantic = EMPTY_STRING, ValuePtr value = nullptr);
 
     /// Create a new variable block for uniform inputs in a stage.
-    virtual void createUniformBlock(size_t stage, const string& block, const string& instance = EMPTY_STRING);
+    virtual void createUniformBlock(const string& stage, const string& block, const string& instance = EMPTY_STRING);
 
     /// Create a new variable for uniform data in the given block for a stage.
     /// The block must be previously created with createUniformBlock.
-    virtual void createUniform(size_t stage, const string& block, const TypeDesc* type, const string& name,
+    virtual void createUniform(const string& stage, const string& block, const TypeDesc* type, const string& name,
                                const string& path = EMPTY_STRING, const string& semantic = EMPTY_STRING, ValuePtr value = nullptr);
 
     /// Create a new variable for application/geometric data (primvars).
     virtual void createAppData(const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING);
 
     /// Return the block of constant variables for a stage.
-    const VariableBlock& getConstantBlock(size_t stage) const;
+    const VariableBlock& getConstantBlock(const string& stage) const;
 
     /// Return all blocks of uniform variables for a stage.
-    const VariableBlockMap& getUniformBlocks(size_t stage) const { return _stages[stage].uniforms; }
+    const VariableBlockMap& getUniformBlocks(const string& stage) const;
 
     /// Return a specific block of uniform variables for a stage.
-    const VariableBlock& getUniformBlock(size_t stage, const string& block) const;
+    const VariableBlock& getUniformBlock(const string& stage, const string& block) const;
 
     /// Return the block of application data variables.
     const VariableBlock& getAppDataBlock() const { return _appData; }
@@ -222,7 +223,7 @@ public:
     {
         std::stringstream str;
         str << value;
-        stage().code += str.str();
+        _activeStage->code += str.str();
     }
 
     /// Return the shader name
@@ -242,7 +243,7 @@ public:
     bool hasClassification(unsigned int c) const { return getGraph()->hasClassification(c); }
 
     /// Return the final shader source code for a given shader stage
-    const string& getSourceCode(size_t stage = PIXEL_STAGE) const { return _stages[stage].code; }
+    const string& getSourceCode(const string& stage = PIXEL_STAGE) const { return getStage(stage)->code; }
 
 protected:
 
@@ -268,8 +269,14 @@ protected:
         Stage(const string& n) : name(n), indentations(0), constants("Constants", "cn") {}
     };
 
-    /// Return the currently active stage
-    Stage& stage() { return _stages[_activeStage]; }
+    using StagePtr = std::shared_ptr<Stage>;
+
+    /// Create a new stage with given name.
+    StagePtr createStage(const string& name);
+
+    /// Return the stage with the given name.
+    Stage* getStage(const string& name);
+    const Stage* getStage(const string& name) const;
 
     /// Add indentation on current line
     virtual void indent();
@@ -281,8 +288,8 @@ protected:
     ShaderGraphPtr _rootGraph;
     vector<ShaderGraph*> _graphStack;
 
-    size_t _activeStage;
-    vector<Stage> _stages;
+    Stage* _activeStage;
+    std::unordered_map<string, StagePtr> _stages;
 
     // Block holding application/geometric input variables
     VariableBlock _appData;

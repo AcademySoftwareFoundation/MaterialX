@@ -15,8 +15,7 @@ class HwShader : public Shader
 
 public:
     /// Identifier for additional vertex shader stage
-    static const size_t VERTEX_STAGE = Shader::NUM_STAGES;
-    static const size_t NUM_STAGES = Shader::NUM_STAGES + 1;
+    static const string VERTEX_STAGE;
 
     /// Identifier for light data uniform block.
     static const string LIGHT_DATA_BLOCK;
@@ -29,9 +28,6 @@ public:
     /// @param shadergen The shader generator instance.
     /// @param options Generation options
     void initialize(ElementPtr element, ShaderGenerator& shadergen, const GenOptions& options) override;
-
-    /// Return the number of shader stages for this shader.
-    size_t numStages() const override { return NUM_STAGES; }
 
     /// Create a new variable for vertex data. This creates an 
     /// output from the vertex stage and and input to the pixel stage.

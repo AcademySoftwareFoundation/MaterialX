@@ -48,26 +48,6 @@ GlslProgram::~GlslProgram()
     deleteProgram();
 }
 
-void GlslProgram::setStages(const std::vector<std::string>& stages)
-{
-    if (stages.size() != HwShader::NUM_STAGES)
-    {
-        ShaderValidationErrorList errors;
-        throw ExceptionShaderValidationError("Incorrect number of stages passed in for stage setup.", errors);
-    }
-
-    unsigned int count = 0;
-    for (auto stage : stages)
-    {
-        _stages[count++] = stage;
-    }
-
-    // A stage change invalidates any cached parsed inputs
-    clearInputLists();
-    _hwShader = nullptr;
-}
-
-
 void GlslProgram::setStages(const HwShaderPtr shader)
 {
     if (!shader)
@@ -81,42 +61,38 @@ void GlslProgram::setStages(const HwShaderPtr shader)
 
     // Extract out the shader code per stage
     _hwShader = shader;
-    for (size_t i = 0; i < HwShader::NUM_STAGES; i++)
+    StringVec stages;
+    shader->getStageNames(stages);
+    for (const string& s : stages)
     {
-        _stages[i] = _hwShader->getSourceCode(i);
+        addStage(s, shader->getSourceCode(s));
     }
 
     // A stage change invalidates any cached parsed inputs
     clearInputLists();
 }
 
-const std::string GlslProgram::getStage(size_t stage) const
+void GlslProgram::addStage(const string& stage, const string& sourcCode)
 {
-    if (stage < HwShader::NUM_STAGES)
+    _stages[stage] = sourcCode;
+}
+
+const string& GlslProgram::getStageSourceCode(const string& stage) const
+{
+    auto it = _stages.find(stage);
+    if (it != _stages.end())
     {
-        return _stages[stage];
+        return it->second;
     }
-    return std::string();
+    return EMPTY_STRING;
 }
 
 void GlslProgram::clearStages()
 {
-    for (size_t i = 0; i < HwShader::NUM_STAGES; i++)
-    {
-        _stages[i].clear();
-    }
+    _stages.clear();
 
     // Clearing stages invalidates any cached inputs
     clearInputLists();
-}
-
-bool GlslProgram::haveValidStages() const
-{
-    // Need at least a pixel shader stage and a vertex shader stage
-    const std::string& vertexShaderSource = _stages[HwShader::VERTEX_STAGE];
-    const std::string& fragmentShaderSource = _stages[HwShader::PIXEL_STAGE];
-
-    return (vertexShaderSource.length() > 0 && fragmentShaderSource.length() > 0);
 }
 
 void GlslProgram::deleteProgram()
@@ -139,20 +115,14 @@ unsigned int GlslProgram::build()
 
     deleteProgram();
 
-    if (!haveValidStages())
-    {
-        errors.push_back("An invalid set of stages has been provided.");
-        throw ExceptionShaderValidationError(errorType, errors);
-    }
-
     GLint GLStatus = GL_FALSE;
     int GLInfoLogLength = 0;
 
     unsigned int stagesBuilt = 0;
     unsigned int desiredStages = 0;
-    for (unsigned int i = 0; i < HwShader::NUM_STAGES; i++)
+    for (auto it : _stages)
     {
-        if (_stages[i].length())
+        if (it.second.length())
             desiredStages++;
     }
 
@@ -242,6 +212,11 @@ unsigned int GlslProgram::build()
                 errors.push_back(&ProgramErrorMessage[0]);
             }
         }
+    }
+    else
+    {
+        errors.push_back("Failed to build all stages.");
+        throw ExceptionShaderValidationError(errorType, errors);
     }
 
     // Cleanup

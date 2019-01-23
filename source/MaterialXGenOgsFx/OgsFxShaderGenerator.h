@@ -18,15 +18,12 @@ class OgsFxShader : public HwShader
 
 public:
     /// Identifier for final effects stage
-    static const size_t FINAL_FX_STAGE = HwShader::NUM_STAGES;
-    static const size_t NUM_STAGES = HwShader::NUM_STAGES + 1;
+    static const string FINAL_FX_STAGE;
 
 public:
     OgsFxShader(const string& name);
 
-    size_t numStages() const override { return NUM_STAGES; }
-
-    void createUniform(size_t stage, const string& block, const TypeDesc* type, const string& name, const string& path = EMPTY_STRING, const string& semantic = EMPTY_STRING, ValuePtr value = nullptr) override;
+    void createUniform(const string& stage, const string& block, const TypeDesc* type, const string& name, const string& path = EMPTY_STRING, const string& semantic = EMPTY_STRING, ValuePtr value = nullptr) override;
     void createAppData(const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING) override;
     void createVertexData(const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING) override;
 };

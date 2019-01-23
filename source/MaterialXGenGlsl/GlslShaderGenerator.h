@@ -91,9 +91,9 @@ class GlslShaderGenerator : public HwShaderGenerator
     /// Emit the final output expression
     void emitFinalOutput(Shader& shader) const override;
 
-    /// Add node contexts id's to the given node to control 
+    /// Add contexts id's to the given node to control 
     /// in which contexts this node should be used
-    void addNodeContextIDs(ShaderNode* node) const override;
+    void addContextIDs(ShaderNode* node) const override;
 
     /// Given a element attempt to remap a value to an enumeration which is accepted by
     /// the shader generator.

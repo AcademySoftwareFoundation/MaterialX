@@ -62,7 +62,7 @@ GlslValidator::~GlslValidator()
 void GlslValidator::initialize()
 {
     ShaderValidationErrorList errors;
-    const std::string errorType("OpenGL utilities initialization.");
+    const string errorType("OpenGL utilities initialization.");
 
     if (!_initialized)
     {
@@ -132,7 +132,7 @@ void GlslValidator::deleteTarget()
 bool GlslValidator::createTarget()
 {
     ShaderValidationErrorList errors;
-    const std::string errorType("OpenGL target creation failure.");
+    const string errorType("OpenGL target creation failure.");
 
     if (!_context)
     {
@@ -200,7 +200,7 @@ bool GlslValidator::createTarget()
         glDeleteFramebuffers(1, &_frameBuffer);
         _frameBuffer = MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
 
-        std::string errorMessage("Frame buffer object setup failed: ");
+        string errorMessage("Frame buffer object setup failed: ");
         switch (status) {
         case GL_FRAMEBUFFER_COMPLETE:
             errorMessage += "GL_FRAMEBUFFER_COMPLETE";
@@ -275,7 +275,7 @@ bool GlslValidator::bindTarget(bool bind)
 void GlslValidator::validateCreation(const ShaderPtr shader)
 {
     ShaderValidationErrorList errors;
-    const std::string errorType("GLSL program creation error.");
+    const string errorType("GLSL program creation error.");
 
     if (!_context)
     {
@@ -293,10 +293,10 @@ void GlslValidator::validateCreation(const ShaderPtr shader)
     _program->build();    
 }
 
-void GlslValidator::validateCreation(const std::vector<std::string>& stages)
+void GlslValidator::validateCreation(const StageMap& stages)
 {
     ShaderValidationErrorList errors;
-    const std::string errorType("GLSL program creation error.");
+    const string errorType("GLSL program creation error.");
 
     if (!_context)
     {
@@ -310,14 +310,17 @@ void GlslValidator::validateCreation(const std::vector<std::string>& stages)
         throw ExceptionShaderValidationError(errorType, errors);
     }
 
-    _program->setStages(stages);
+    for (auto it : stages)
+    {
+        _program->addStage(it.first, it.second);
+    }
     _program->build();
 }
 
 void GlslValidator::validateInputs()
 {
     ShaderValidationErrorList errors;
-    const std::string errorType("GLSL program input error.");
+    const string errorType("GLSL program input error.");
 
     if (!_context)
     {
@@ -399,7 +402,7 @@ void GlslValidator::validateRender(bool orthographicView)
     _orthographicView = orthographicView;
 
     ShaderValidationErrorList errors;
-    const std::string errorType("GLSL rendering error.");
+    const string errorType("GLSL rendering error.");
 
     if (!_context)
     {
@@ -480,10 +483,10 @@ void GlslValidator::validateRender(bool orthographicView)
     bindTarget(false);
 }
 
-void GlslValidator::save(const std::string& fileName, bool floatingPoint)
+void GlslValidator::save(const string& fileName, bool floatingPoint)
 {
     ShaderValidationErrorList errors;
-    const std::string errorType("GLSL image save error.");
+    const string errorType("GLSL image save error.");
 
     if (!_imageHandler)
     {

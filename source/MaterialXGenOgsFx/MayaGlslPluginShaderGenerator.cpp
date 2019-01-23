@@ -15,7 +15,7 @@ MayaGlslPluginShader::MayaGlslPluginShader(const string& name)
 {
 }
 
-void MayaGlslPluginShader::createUniform(size_t stage, const string& block, const TypeDesc* type, const string& name, const string& path, const string& semantic, ValuePtr value)
+void MayaGlslPluginShader::createUniform(const string& stage, const string& block, const TypeDesc* type, const string& name, const string& path, const string& semantic, ValuePtr value)
 {
     // If no semantic is given and this is the view position uniform
     // we need to override its default semantic

@@ -21,6 +21,10 @@ using ShaderValidatorPtr = std::shared_ptr<class ShaderValidator>;
 class ShaderValidator
 {
   public:
+    /// A map with name and source code for each shader stage.
+    using StageMap = std::unordered_map<string, string>;
+
+  public:
     /// Destructor
     virtual ~ShaderValidator() {};
 
@@ -88,9 +92,9 @@ class ShaderValidator
     /// @param shader Input Shader
     virtual void validateCreation(const ShaderPtr shader) = 0;
 
-    /// Validate creation of program based input shader stage strings
-    /// @param shader Input stages List of stage string
-    virtual void validateCreation(const std::vector<std::string>& stages) = 0;
+    /// Validate creation of program based on shader stage source code.
+    /// @param stages Map of name and source code for the shader stages.
+    virtual void validateCreation(const StageMap& stages) = 0;
 
     /// Validate inputs for the program 
     virtual void validateInputs() = 0;

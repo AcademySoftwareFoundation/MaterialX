@@ -94,10 +94,10 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(const ShaderNode& node, Shade
     // Emit function definitions for each context used by this compound node
     for (int id : node.getContextIDs())
     {
-        const GenContext* context = shadergen.getNodeContext(id);
+        const GenContext* context = shadergen.getContext(id);
         if (!context)
         {
-            throw ExceptionShaderGenError("Node '" + node.getName() + "' has an implementation context that is undefined for shader generator '" +
+            throw ExceptionShaderGenError("Node '" + node.getName() + "' has a context id that is undefined for shader generator '" +
                 shadergen.getLanguage() + "/" + shadergen.getTarget() + "'");
         }
 

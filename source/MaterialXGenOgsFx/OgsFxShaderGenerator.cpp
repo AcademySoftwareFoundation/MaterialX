@@ -64,17 +64,20 @@ namespace
     };
 }
 
+
+const string OgsFxShader::FINAL_FX_STAGE = "finalfx";
+
 OgsFxShader::OgsFxShader(const string& name) 
     : ParentClass(name)
 {
-    _stages.push_back(Stage("FinalFx"));
+    createStage(FINAL_FX_STAGE);
 
     // Create default uniform blocks for final fx stage
     createUniformBlock(FINAL_FX_STAGE, PRIVATE_UNIFORMS, "prvUniform");
     createUniformBlock(FINAL_FX_STAGE, PUBLIC_UNIFORMS, "pubUniform");
 }
 
-void OgsFxShader::createUniform(size_t stage, const string& block, const TypeDesc* type, const string& name, const string& path, const string& semantic, ValuePtr value)
+void OgsFxShader::createUniform(const string& stage, const string& block, const TypeDesc* type, const string& name, const string& path, const string& semantic, ValuePtr value)
 {
     // If no semantic is given check if we have 
     // an OgsFx semantic that should be used
@@ -254,7 +257,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     // Assemble the final effects shader
     //
 
-    shader.setActiveStage(size_t(OgsFxShader::FINAL_FX_STAGE));
+    shader.setActiveStage(OgsFxShader::FINAL_FX_STAGE);
 
     // Add version directive
     shader.addLine("#version " + getVersion(), false);

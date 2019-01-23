@@ -303,7 +303,7 @@ ShaderNodePtr ShaderNode::create(const string& name, const NodeDef& nodeDef, Sha
     newNode->_classification |= groupClassification;
 
     // Let the shader generator assign in which contexts to use this node
-    shadergen.addNodeContextIDs(newNode.get());
+    shadergen.addContextIDs(newNode.get());
 
     return newNode;
 }
@@ -395,7 +395,7 @@ ShaderNodePtr ShaderNode::createColorTransformNode(const string& name, ShaderNod
         throw ExceptionShaderGenError("Invalid type specified to createColorTransform: '" + type->getName() + "'");
     }
     newNode->addOutput("out", type);
-    shadergen.addNodeContextIDs(newNode.get());
+    shadergen.addContextIDs(newNode.get());
     return newNode;
 }
 

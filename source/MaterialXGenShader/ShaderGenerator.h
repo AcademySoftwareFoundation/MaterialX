@@ -71,13 +71,13 @@ public:
     /// Return the syntax object for the language used by the code generator
     const Syntax* getSyntax() const { return _syntax.get(); }
 
-    /// Add node contexts id's to the given node to control
+    /// Add context id's to the given node to control
     /// in which contexts this node should be used.
-    virtual void addNodeContextIDs(ShaderNode* node) const;
+    virtual void addContextIDs(ShaderNode* node) const;
 
-    /// Return the node context corresponding to the given id,
+    /// Return the context corresponding to the given id,
     /// or nullptr if no such context is found.
-    const GenContext* getNodeContext(int id) const;
+    const GenContext* getContext(int id) const;
 
     template<class T>
     using CreatorFunction = shared_ptr<T>(*)();

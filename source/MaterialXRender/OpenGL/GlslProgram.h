@@ -44,19 +44,13 @@ class GlslProgram
 
     /// Set the code stages based on a list of stage strings.
     /// Refer to the ordering of stages as defined by a HwShader.
-    /// @param stages List of shader code strings.
-    void setStages(const std::vector<std::string>& stages);
+    /// @param stage Name of the shader stage.
+    /// @param sourcCode Source code of the shader stage.
+    void addStage(const string& stage, const string& sourcCode);
 
-    /// Get code string for a given stage
+    /// Get source code string for a given stage.
     /// @return Shader stage string. String is empty if not found.
-    const std::string getStage(size_t stage) const;
-
-    /// Get the number of stages
-    /// @return Stage count
-    size_t numStages() const
-    {
-        return HwShader::NUM_STAGES;
-    }
+    const string& getStageSourceCode(const string& stage) const;
 
     /// Clear out any existing stages
     void clearStages();
@@ -232,12 +226,6 @@ class GlslProgram
     bool bindTexture(unsigned int uniformType, int uniformLocation, const string& fileName,
                      ImageHandlerPtr imageHandler, bool generateMipMaps, const ImageSamplingProperties& imageProperties);
 
-    /// Internal cleanup of stages and OpenGL constructs
-    void cleanup();
-
-    /// Check if there is a valid set of stages to build program from
-    bool haveValidStages() const;
-
     /// Utility to check for OpenGL context errors.
     /// Will throw an ExceptionShaderValidationError exception which will list of the errors found
     /// if any errors encountered.
@@ -250,7 +238,8 @@ class GlslProgram
 
   private:
     /// Stages used to create program
-    std::string _stages[HwShader::NUM_STAGES];
+    /// Map of stage name and its source code
+    std::unordered_map<string, string> _stages;
 
     /// Generated program. A non-zero number indicates a valid shader program.
     unsigned int _programId;
