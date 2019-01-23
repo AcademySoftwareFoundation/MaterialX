@@ -6,7 +6,6 @@ namespace MaterialX
 GenOptions::GenOptions()
     : shaderInterfaceType(SHADER_INTERFACE_COMPLETE)
     , hwTransparency(false)
-    , validate(false)
 {
 }
 
