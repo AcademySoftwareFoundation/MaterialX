@@ -82,18 +82,17 @@ TEST_CASE("GeomPropDef", "[geom]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    // Create a geomprop definition for world space normal
-    mx::GeomPropDefPtr Nworld = doc->addGeomPropDef("Nworld", "normal");
-    Nworld->setSpace("world");
+    // Declare a GeomPropDef for world-space normal.
+    mx::GeomPropDefPtr worldNormal = doc->addGeomPropDef("Nworld", "normal");
+    worldNormal->setSpace("world");
 
-    // Create a new nodedef and set an input to use the world space normal
-    // as default geometric data.
+    // Create a NodeDef with an input that defaults to the declared world-space
+    // normal property.
     mx::NodeDefPtr nodeDef = doc->addNodeDef("ND_foo", "color3", "foo");
-    mx::InputPtr in1 = doc->addInput("in1", "vector3");
-    in1->setDefaultGeomPropString(Nworld->getName());
+    mx::InputPtr input = doc->addInput("input1", "vector3");
+    input->setDefaultGeomPropString(worldNormal->getName());
 
-    // Test accessing the geomprop
-    mx::GeomPropDefPtr geomProp = in1->getDefaultGeomProp();
-    REQUIRE(geomProp->getName() == "Nworld");
-    REQUIRE(geomProp->getSpace() == "world");
+    // Validate connections.
+    REQUIRE(input->getDefaultGeomProp() == worldNormal);
+    REQUIRE(doc->validate());
 }
