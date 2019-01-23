@@ -114,40 +114,20 @@ void getFilesInDirectory(const std::string& directory, StringVec& files, const s
 
 bool readFile(const string& filename, string& contents)
 {
-#if defined(_WIN32)
-    // Protection in case someone sets fmode to binary
-    int oldMode;
-    _get_fmode(&oldMode);
-    _set_fmode(_O_TEXT);
-#endif
-
-    bool result = false;
-
-    std::ifstream file(filename, std::ios::in );
+    std::ifstream file(filename, std::ios::in | std::ios::binary);
     if (file)
     {
-        string buffer;
-        file.seekg(0, std::ios::end);
-        std::streamsize bufferSize = file.tellg();
-        if (bufferSize > 0)
+        std::stringstream stream;
+        stream << file.rdbuf();
+        file.close();
+        if (stream)
         {
-            buffer.resize(size_t(bufferSize));
-            file.seekg(0, std::ios::beg);
-            file.read(&buffer[0], bufferSize);
-            file.close();
-            if (buffer.length() > 0)
-            {
-                size_t pos = buffer.find_last_not_of('\0');
-                contents = buffer.substr(0, pos + 1);
-            }
-            result = true;
+            contents = stream.str();
+            return (contents.size() > 0);
         }
+        return false;
     }
-#if defined(_WIN32)
-    _set_fmode(oldMode ? oldMode : _O_TEXT);
-#endif
-
-    return result;
+    return false;
 }
 
 string getFileExtension(const string& filename)

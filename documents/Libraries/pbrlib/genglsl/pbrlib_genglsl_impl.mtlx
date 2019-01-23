@@ -37,9 +37,6 @@
   <!-- <uniformedf> -->
   <implementation name="IM_uniformedf_genglsl" nodedef="ND_uniformedf" file="pbrlib/genglsl/mx_uniformedf.glsl" function="mx_uniformedf" language="genglsl"/>
 
-  <!-- <conicaledf> -->
-  <implementation name="IM_conicaledf_genglsl" nodedef="ND_conicaledf" file="pbrlib/genglsl/mx_conicaledf.glsl" function="mx_conicaledf" language="genglsl"/>
-
   <!-- <mixedf> -->
   <implementation name="IM_mixedf_genglsl" nodedef="ND_mixedf" file="pbrlib/genglsl/mx_mixedf.glsl" function="mx_mixedf" language="genglsl"/>
 
