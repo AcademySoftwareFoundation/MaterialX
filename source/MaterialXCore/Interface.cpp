@@ -155,13 +155,23 @@ Edge Input::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
 
 GeomPropDefPtr Input::getDefaultGeomProp() const
 {
-    const string& defaultgeomprop = getAttribute(DEFAULT_GEOM_PROP_ATTRIBUTE);
-    if (!defaultgeomprop.empty())
+    const string& defaultGeomProp = getAttribute(DEFAULT_GEOM_PROP_ATTRIBUTE);
+    if (!defaultGeomProp.empty())
     {
         ConstDocumentPtr doc = getDocument();
-        return doc->getChildOfType<GeomPropDef>(defaultgeomprop);
+        return doc->getChildOfType<GeomPropDef>(defaultGeomProp);
     }
     return nullptr;
+}
+
+bool Input::validate(string* message) const
+{
+    bool res = true;
+    if (hasDefaultGeomPropString())
+    {
+        validateRequire(getDefaultGeomProp() != nullptr, res, message, "Invalid defaultgeomprop string");
+    }
+    return PortElement::validate(message) && res;
 }
 
 //
