@@ -293,7 +293,7 @@ void GlslValidator::validateCreation(const ShaderPtr shader)
     _program->build();    
 }
 
-void GlslValidator::validateCreation(const std::unordered_map<string, string>& stages)
+void GlslValidator::validateCreation(const StageMap& stages)
 {
     ShaderValidationErrorList errors;
     const string errorType("GLSL program creation error.");

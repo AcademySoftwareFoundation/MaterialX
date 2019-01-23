@@ -57,9 +57,9 @@ class GlslValidator : public ShaderValidator
     /// @param shader Input HwShader
     void validateCreation(const ShaderPtr shader) override;
 
-    /// Validate creation of program based input shader stage strings
-    /// @param shader Input stages List of stage string
-    void validateCreation(const std::unordered_map<string, string>& stages) override;
+    /// Validate creation of program based on shader stage source code.
+    /// @param stages Map of name and source code for the shader stages.
+    void validateCreation(const StageMap& stages) override;
 
     /// Validate inputs for the program 
     void validateInputs() override;

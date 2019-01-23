@@ -60,10 +60,9 @@ class OslValidator : public ShaderValidator
     /// @param shader Input shader
     void validateCreation(const ShaderPtr shader) override;
 
-    /// Validate creation of an OSL program based upon a shader string for a given
-    /// shader "stage". There is only one shader stage for OSL thus
-    /// @param stages List of shader strings. Only first string in list is examined.
-    void validateCreation(const std::unordered_map<string, string>& stages) override;
+    /// Validate creation of an OSL program based on shader stage source code.
+    /// @param stages Map of name and source code for the shader stages.
+    void validateCreation(const StageMap& stages) override;
 
     /// Validate inputs for the compiled OSL program. 
     /// Note: Currently no validation has been implemented.

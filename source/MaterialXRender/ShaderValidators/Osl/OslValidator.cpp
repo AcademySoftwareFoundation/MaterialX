@@ -269,14 +269,14 @@ void OslValidator::compileOSL(const string& oslFileName)
 
 void OslValidator::validateCreation(const ShaderPtr shader)
 {
-    std::unordered_map<string, string> stages;
-    stages[Shader::PIXEL_STAGE] = shader->getSourceCode(Shader::PIXEL_STAGE);
-
+    StageMap stages = { {Shader::PIXEL_STAGE, shader->getSourceCode(Shader::PIXEL_STAGE)} };
     validateCreation(stages);
 }
 
-void OslValidator::validateCreation(const std::unordered_map<string, string>& stages)
+void OslValidator::validateCreation(const StageMap& stages)
 {
+    // There is only one stage in an OSL shader so only
+    // the first stage is examined.
     ShaderValidationErrorList errors;
     const string errorType("OSL compilation error.");
     if (stages.empty() || stages.begin()->second.empty())
