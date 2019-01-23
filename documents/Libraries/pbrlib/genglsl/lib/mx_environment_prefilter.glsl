@@ -35,14 +35,13 @@ vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lodBias, sampler2D sa
     return vec3(0.0);
 }
 
-vec3 mx_environment_specular(vec3 normal, vec3 view, float roughness)
+vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, roughnessinfo roughness, int distribution)
 {
-    vec3 dir = reflect(-view, normal);
-    return mx_latlong_map_lookup(dir, u_envMatrix, roughness, u_envSpecular);
+    vec3 dir = reflect(-V, N);
+    return mx_latlong_map_lookup(dir, u_envMatrix, roughness.alpha, u_envRadiance);
 }
 
-vec3 mx_environment_irradiance(vec3 normal)
+vec3 mx_environment_irradiance(vec3 N)
 {
-    vec3 result = mx_latlong_map_lookup(normal, u_envMatrix, u_envIrradiance);
-    return result;
+    return mx_latlong_map_lookup(N, u_envMatrix, u_envIrradiance);
 }

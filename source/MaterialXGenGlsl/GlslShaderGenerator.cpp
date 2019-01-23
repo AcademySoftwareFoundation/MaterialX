@@ -431,7 +431,14 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
     // Emit lighting functions
     if (lighting)
     {
-        shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_lighting.glsl", *this);
+        if (options.hwSpecularEnvironmentMethod == SPECULAR_ENVIRONMENT_FIS)
+        {
+            shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_fis.glsl", *this);
+        }
+        else
+        {
+            shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_prefilter.glsl", *this);
+        }
         shader.newLine();
     }
 

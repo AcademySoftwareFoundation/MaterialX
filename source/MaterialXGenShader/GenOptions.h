@@ -21,6 +21,18 @@ enum ShaderInterfaceType
     SHADER_INTERFACE_REDUCED
 };
 
+/// Method to use for specular environment lighting
+enum HwSpecularEnvironmentMethod
+{
+    /// Use pre-filtered environment maps for
+    /// specular environment/indirect lighting.
+    SPECULAR_ENVIRONMENT_PREFILTER,
+
+    /// Use Filtered Importance Sampling for
+    /// specular environment/indirect lighting.
+    SPECULAR_ENVIRONMENT_FIS
+};
+
 /// Class holding options to configure shader generation.
 class GenOptions
 {
@@ -42,6 +54,10 @@ class GenOptions
     /// code fragments will be generated for the shader and
     /// the surface will be fully opaque.
     bool hwTransparency;
+
+    /// Sets the method to use for specular environment 
+    /// lighting for HW shader targets.
+    int hwSpecularEnvironmentMethod;
 };
 
 } // namespace MaterialX
