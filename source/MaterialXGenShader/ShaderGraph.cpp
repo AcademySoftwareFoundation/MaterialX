@@ -603,7 +603,8 @@ ShaderNode* ShaderGraph::addNode(const Node& node, ShaderGenerator& shadergen, c
     }
 
     ColorManagementSystemPtr colorManagementSystem = shadergen.getColorManagementSystem();
-    const string& targetColorSpace =_document->getActiveColorSpace();
+    const string& targetColorSpace = options.targetColorSpaceOverride.empty() ?
+        _document->getActiveColorSpace() : options.targetColorSpaceOverride;
 
     if (colorManagementSystem && !targetColorSpace.empty())
     {
