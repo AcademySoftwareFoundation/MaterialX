@@ -67,6 +67,17 @@ Basic transform function tests each test is in a separate graph for each variati
     <output name="out" type="vector3" nodename="transformvector1" />
   </nodegraph>
   -->
+  <nodegraph name="transformvector_vector3" type="" xpos="6.27714" ypos="26.3972">
+      <position name="position1" type="vector3" xpos="4.87243" ypos="6.7323">
+        <parameter name="space" type="string" value="object" />
+      </position>
+      <transformvector name="transformvector1" type="vector3" xpos="6.25413" ypos="7.13256">
+      <input name="in" type="vector3" nodename="position1" />
+      <input name="fromspace" type="string" value="object"/>
+      <input name="tospace" type="string" value="world"/>
+    </transformvector>
+    <output name="out" type="vector3" nodename="transformvector1" />
+  </nodegraph>
   <nodegraph name="transform_vector_vector4M">
     <transformvector name="transformvector1" type="vector4">
 	    <input name="in" type="vector4" value="1.0, 0.5, 0.0, 1.0"/>
@@ -107,4 +118,3 @@ Basic transform function tests each test is in a separate graph for each variati
     <output name="out" type="vector4" nodename="transformnormal1" />
   </nodegraph>
 </materialx>
-

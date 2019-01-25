@@ -1,6 +1,8 @@
 #ifndef MATERIALX_GENOPTIONS_H
 #define MATERIALX_GENOPTIONS_H
 
+#include <MaterialXCore/Library.h>
+
 namespace MaterialX
 {
 
@@ -58,6 +60,11 @@ class GenOptions
     /// Sets the method to use for specular environment 
     /// lighting for HW shader targets.
     int hwSpecularEnvironmentMethod;
+
+    /// An optional override for the target color space.
+    /// Shader fragments will be generated to transform
+    /// input values and textures into this color space.
+    string targetColorSpaceOverride;
 };
 
 } // namespace MaterialX

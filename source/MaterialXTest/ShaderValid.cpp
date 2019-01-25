@@ -1072,7 +1072,7 @@ void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidT
             "geomattrvalue_integer", "geomattrvalue_boolean", "geomattrvalue_string", "constant_matrix33", "add_matrix33FA",
             "add_matrix33", "subtract_matrix33FA", "subtract_matrix33", "multiply_matrix33", "divide_matrix33", "invert_matrix33",
             "transpose_matrix33", "transformvector_vector3M", "transformnormal_vector3M", "transformpoint_vector3M",
-            "determinant_matrix33"
+            "determinant_matrix33", "IM_dot_", "IM_constant_string_", "IM_constant_filename_"
         };
         const std::string OSL_STRING("osl");
         const std::string GEN_OSL_STRING(mx::OslShaderGenerator::LANGUAGE);
@@ -1150,8 +1150,7 @@ void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidT
         }
         size_t libraryCount = libraryImpls.size();
         profilingLog << "Tested: " << implementationUseCount << " out of: " << libraryCount << " library implementations." << std::endl;
-        // TODO: Add a CHECK when all implementations have been tested using unit tests.
-        // CHECK(implementationUseCount == libraryCount);
+        CHECK(implementationUseCount == libraryCount);
     }
 }
 
