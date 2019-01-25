@@ -1,3 +1,5 @@
+#include "pbrlib/genglsl/lib/mx_bsdfs.glsl"
+
 vec2 mx_latlong_projection(vec3 dir)
 {
     float latitude = -asin(dir.y) * M_PI_INV + 0.5;
