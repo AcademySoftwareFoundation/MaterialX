@@ -12,19 +12,28 @@
 namespace MaterialX
 {
 
-const string Shader::PIXEL_STAGE = "pixel";
+Shader::Stage::Stage(const string& n)
+    : name(n)
+    , indentations(0)
+    , constants("Constants", "cn")
+{
+}
+
+const string Shader::PIXEL_STAGE = "PS";
 const string Shader::PRIVATE_UNIFORMS = "PrivateUniforms";
 const string Shader::PUBLIC_UNIFORMS = "PublicUniforms";
 
 Shader::Shader(const string& name)
     : _name(name)
     , _rootGraph(nullptr)
-    , _appData("AppData", "ad")
-    , _outputs("Outputs", "op")
 {
+    createStages();
+
     // Create pixel stage and make it the active stage
     StagePtr pixelStage = createStage(PIXEL_STAGE);
     _activeStage = pixelStage.get();
+
+    createUniformBlock(PIXEL_STAGE, PRIVATE_UNIFORMS, "prvUniform");
 
     // Create default uniform blocks for pixel stage
     createUniformBlock(PIXEL_STAGE, PRIVATE_UNIFORMS, "prvUniform");
@@ -273,27 +282,6 @@ void Shader::indent()
     }
 }
 
-void Shader::createConstant(const string& stage, const TypeDesc* type, const string& name, const string& path, const string& semantic, ValuePtr value)
-{
-    Stage* s = getStage(stage);
-    if (s->constants.variableMap.find(name) == s->constants.variableMap.end())
-    {
-        VariablePtr variablePtr = Variable::create(type, name, path, semantic, value);
-        s->constants.variableMap[name] = variablePtr;
-        s->constants.variableOrder.push_back(variablePtr.get());
-    }
-}
-
-const Shader::VariableBlock& Shader::getConstantBlock(const string& stage) const
-{
-    return getStage(stage)->constants;
-}
-
-const Shader::VariableBlockMap& Shader::getUniformBlocks(const string& stage) const
-{
-    return getStage(stage)->uniforms;
-}
-
 void Shader::createUniformBlock(const string& stage, const string& block, const string& instance)
 {
     Stage* s = getStage(stage);
@@ -304,7 +292,27 @@ void Shader::createUniformBlock(const string& stage, const string& block, const 
     }
 }
 
-void Shader::createUniform(const string& stage, const string& block, const TypeDesc* type, const string& name, const string& path, const string& semantic, ValuePtr value)
+void Shader::createInputBlock(const string& stage, const string& block, const string& instance)
+{
+    Stage* s = getStage(stage);
+    auto it = s->uniforms.find(block);
+    if (it == s->inputs.end())
+    {
+        s->inputs[block] = std::make_shared<VariableBlock>(block, instance);
+    }
+}
+
+void Shader::createOutputBlock(const string& stage, const string& block, const string& instance)
+{
+    Stage* s = getStage(stage);
+    auto it = s->uniforms.find(block);
+    if (it == s->outputs.end())
+    {
+        s->outputs[block] = std::make_shared<VariableBlock>(block, instance);
+    }
+}
+
+void Shader::createUniform(const string& stage, const string& block, const TypeDesc* type, const string& name, const string& semantic, ValuePtr value, const string& path)
 {
     Stage* s = getStage(stage);
     auto it = s->uniforms.find(block);
@@ -312,13 +320,63 @@ void Shader::createUniform(const string& stage, const string& block, const TypeD
     {
         throw ExceptionShaderGenError("No uniform block named '" + block + "' exists for shader '" + getName() + "'");
     }
-    VariableBlockPtr  blockPtr = it->second;
+    VariableBlockPtr blockPtr = it->second;
     if (blockPtr->variableMap.find(name) == blockPtr->variableMap.end())
     {
-        VariablePtr variablePtr = Variable::create(type, name, path, semantic, value);
+        VariablePtr variablePtr = Variable::create(type, name, semantic, value, path);
         blockPtr->variableMap[name] = variablePtr;
         blockPtr->variableOrder.push_back(variablePtr.get());
     }
+}
+
+void Shader::createInput(const string& stage, const string& block, const TypeDesc* type, const string& name, const string& semantic)
+{
+    Stage* s = getStage(stage);
+    auto it = s->inputs.find(block);
+    if (it == s->inputs.end())
+    {
+        throw ExceptionShaderGenError("No input block named '" + block + "' exists for shader '" + getName() + "'");
+    }
+    VariableBlockPtr blockPtr = it->second;
+    if (blockPtr->variableMap.find(name) == blockPtr->variableMap.end())
+    {
+        VariablePtr variablePtr = Variable::create(type, name, semantic);
+        blockPtr->variableMap[name] = variablePtr;
+        blockPtr->variableOrder.push_back(variablePtr.get());
+    }
+}
+
+void Shader::createOutput(const string& stage, const string& block, const TypeDesc* type, const string& name)
+{
+    Stage* s = getStage(stage);
+    auto it = s->outputs.find(block);
+    if (it == s->outputs.end())
+    {
+        throw ExceptionShaderGenError("No output block named '" + block + "' exists for shader '" + getName() + "'");
+    }
+    VariableBlockPtr blockPtr = it->second;
+    if (blockPtr->variableMap.find(name) == blockPtr->variableMap.end())
+    {
+        VariablePtr variablePtr = Variable::create(type, name);
+        blockPtr->variableMap[name] = variablePtr;
+        blockPtr->variableOrder.push_back(variablePtr.get());
+    }
+}
+
+void Shader::createConstant(const string& stage, const TypeDesc* type, const string& name, ValuePtr value)
+{
+    Stage* s = getStage(stage);
+    if (s->constants.variableMap.find(name) == s->constants.variableMap.end())
+    {
+        VariablePtr variablePtr = Variable::create(type, name, EMPTY_STRING, value);
+        s->constants.variableMap[name] = variablePtr;
+        s->constants.variableOrder.push_back(variablePtr.get());
+    }
+}
+
+const Shader::VariableBlock& Shader::getConstantBlock(const string& stage) const
+{
+    return getStage(stage)->constants;
 }
 
 const Shader::VariableBlock& Shader::getUniformBlock(const string& stage, const string& block) const
@@ -332,14 +390,26 @@ const Shader::VariableBlock& Shader::getUniformBlock(const string& stage, const 
     return *it->second;
 }
 
-void Shader::createAppData(const TypeDesc* type, const string& name, const string& semantic)
+const Shader::VariableBlock& Shader::getInputBlock(const string& stage, const string& block) const
 {
-    if (_appData.variableMap.find(name) == _appData.variableMap.end())
+    const Stage* s = getStage(stage);
+    auto it = s->inputs.find(block);
+    if (it == s->inputs.end())
     {
-        VariablePtr variable = Variable::create(type, name, EMPTY_STRING, semantic, nullptr);
-        _appData.variableMap[name] = variable;
-        _appData.variableOrder.push_back(variable.get());
+        throw ExceptionShaderGenError("No input block named '" + block + "' exists for shader '" + getName() + "'");
     }
+    return *it->second;
+}
+
+const Shader::VariableBlock& Shader::getOutputBlock(const string& stage, const string& block) const
+{
+    const Stage* s = getStage(stage);
+    auto it = s->outputs.find(block);
+    if (it == s->outputs.end())
+    {
+        throw ExceptionShaderGenError("No output block named '" + block + "' exists for shader '" + getName() + "'");
+    }
+    return *it->second;
 }
 
 void Shader::getTopLevelShaderGraphs(ShaderGenerator& /*shadergen*/, std::deque<ShaderGraph*>& graphs) const

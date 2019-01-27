@@ -29,25 +29,6 @@ public:
     /// @param options Generation options
     void initialize(ElementPtr element, ShaderGenerator& shadergen, const GenOptions& options) override;
 
-    /// Create a new variable for vertex data. This creates an 
-    /// output from the vertex stage and and input to the pixel stage.
-    virtual void createVertexData(const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING);
-
-    /// Return the block of a vertex data variables.
-    const VariableBlock& getVertexDataBlock() const { return _vertexData; }
-    
-    /// Query if an output has been calculated in the vertex stage.
-    bool isCalculated(const string& outputName) const 
-    {
-        return _calculatedVertexData.count(outputName) > 0;
-    }
-
-    /// Set an output as calculated in the vertex stage.
-    void setCalculated(const string& outputName)
-    {
-        _calculatedVertexData.insert(outputName);
-    }
-
     /// Returns true if the shader has transparency fragments.
     /// Will return false if the shader is opaque.
     bool hasTransparency() const
@@ -56,12 +37,13 @@ public:
     }
 
 protected:
+    /// Create the stages used by this shader.
+    void createStages() override;
+
     /// Return a container with all top level graphs use by this shader.
     void getTopLevelShaderGraphs(ShaderGenerator& shadergen, std::deque<ShaderGraph*>& graphs) const override;
 
 private:
-    VariableBlock _vertexData;
-    std::set<string> _calculatedVertexData;
     bool _transparency;
 };
 

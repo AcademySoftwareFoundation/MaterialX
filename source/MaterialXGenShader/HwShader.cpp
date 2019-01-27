@@ -4,13 +4,16 @@
 namespace MaterialX
 {
 
-const string HwShader::VERTEX_STAGE = "vertex";
+const string HwShader::VERTEX_STAGE = "VS";
 const string HwShader::LIGHT_DATA_BLOCK = "LightData";
 
 HwShader::HwShader(const string& name) 
     : ParentClass(name)
-    , _vertexData("VertexData", "vd")
     , _transparency(false)
+{
+}
+
+void HwShader::createStages()
 {
     // Create the vertex stage
     createStage(VERTEX_STAGE);
@@ -18,6 +21,9 @@ HwShader::HwShader(const string& name)
     // Create default uniform blocks for vertex stage
     createUniformBlock(VERTEX_STAGE, PRIVATE_UNIFORMS, "prvUniform");
     createUniformBlock(VERTEX_STAGE, PUBLIC_UNIFORMS, "pubUniform");
+
+    // Create the pixel stage
+    createStage(PIXEL_STAGE);
 
     // Create light data uniform block with the required field for light type
     createUniformBlock(PIXEL_STAGE, LIGHT_DATA_BLOCK, "u_lightData");
@@ -29,10 +35,10 @@ HwShader::HwShader(const string& name)
     // just setting explicit values here for now since the matrix is simple.
     // In general the values will need to be "sanitized" for hardware.
     const Matrix44 yRotationPI(-1, 0, 0, 0,
-                                0, 1, 0, 0,
-                                0, 0, -1, 0,
-                                0, 0, 0, 1);
-    createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, Type::MATRIX44, "u_envMatrix", EMPTY_STRING, 
+        0, 1, 0, 0,
+        0, 0, -1, 0,
+        0, 0, 0, 1);
+    createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, Type::MATRIX44, "u_envMatrix",
         EMPTY_STRING, Value::createValue<Matrix44>(yRotationPI));
     createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, Type::FILENAME, "u_envSpecular");
     createUniform(PIXEL_STAGE, PRIVATE_UNIFORMS, Type::FILENAME, "u_envIrradiance");
@@ -96,16 +102,6 @@ void HwShader::initialize(ElementPtr element, ShaderGenerator& shadergen, const 
         {
             lightShader.second->createVariables(*ShaderNode::NONE, shadergen, *this);
         }
-    }
-}
-
-void HwShader::createVertexData(const TypeDesc* type, const string& name, const string& semantic)
-{
-    if (_vertexData.variableMap.find(name) == _vertexData.variableMap.end())
-    {
-        VariablePtr variable = Variable::create(type, name, EMPTY_STRING, semantic, nullptr);
-        _vertexData.variableMap[name] = variable;
-        _vertexData.variableOrder.push_back(variable.get());
     }
 }
 

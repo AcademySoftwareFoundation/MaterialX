@@ -48,30 +48,34 @@ public:
     {
         const TypeDesc* type;
         string name;
-        string path;
         string semantic;
         ValuePtr value;
+        string path;
+        bool calculated;
 
-        static VariablePtr create(const TypeDesc* t, const string& n, const string& p, const string& s, ValuePtr v)
+        static VariablePtr create(const TypeDesc* _type, const string& _name, const string& _semantic = EMPTY_STRING,
+                                  ValuePtr _value = nullptr, const string& _path = EMPTY_STRING)
         {
-            return std::make_shared<Variable>(t, n, p, s, v);
+            return std::make_shared<Variable>(_type, _name, _semantic, _value, _path);
         }
 
         Variable()
             : type(nullptr)
             , name(EMPTY_STRING)
-            , path(EMPTY_STRING)
             , semantic(EMPTY_STRING)
             , value(nullptr)
+            , path(EMPTY_STRING)
+            , calculated(false)
         {
         }
 
-        Variable(const TypeDesc* t, const string& n, const string& p, const string& s, ValuePtr v)
-            : type(t)
-            , name(n)
-            , path(p)
-            , semantic(s)
-            , value(v)
+        Variable(const TypeDesc* _type, const string& _name, const string& _semantic = EMPTY_STRING,
+                 ValuePtr _value = nullptr, const string& _path = EMPTY_STRING)
+            : type(_type)
+            , name(_name)
+            , semantic(_semantic)
+            , value(_value)
+            , path(_path)
         {
         }
 
@@ -119,6 +123,7 @@ public:
     /// Default uniform block for private variables.
     /// For uniforms not visible to user and only set by application.
     static const string PRIVATE_UNIFORMS;
+
     /// Default uniform block for public variables. 
     /// For uniforms visible in UI and set by users.
     static const string PUBLIC_UNIFORMS;
@@ -148,35 +153,44 @@ public:
     /// Return the name of the active stage
     const string& getActiveStage() const { return _activeStage->name; }
 
-    /// Create a new constant variable for a stage.
-    virtual void createConstant(const string& stage, const TypeDesc* type, const string& name,
-                                const string& path = EMPTY_STRING, const string& semantic = EMPTY_STRING, ValuePtr value = nullptr);
-
-    /// Create a new variable block for uniform inputs in a stage.
+    /// Create a new uniform block in a stage.
     virtual void createUniformBlock(const string& stage, const string& block, const string& instance = EMPTY_STRING);
+
+    /// Create a new input block in a stage.
+    virtual void createInputBlock(const string& stage, const string& block, const string& instance = EMPTY_STRING);
+
+    /// Create a new output block in a stage.
+    virtual void createOutputBlock(const string& stage, const string& block, const string& instance = EMPTY_STRING);
 
     /// Create a new variable for uniform data in the given block for a stage.
     /// The block must be previously created with createUniformBlock.
     virtual void createUniform(const string& stage, const string& block, const TypeDesc* type, const string& name,
-                               const string& path = EMPTY_STRING, const string& semantic = EMPTY_STRING, ValuePtr value = nullptr);
+                               const string& semantic = EMPTY_STRING, ValuePtr value = nullptr, const string& path = EMPTY_STRING);
 
-    /// Create a new variable for application/geometric data (primvars).
-    virtual void createAppData(const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING);
+    /// Create a new variable for input data in the given block for a stage.
+    /// The block must be previously created with createInputBlock.
+    virtual void createInput(const string& stage, const string& block, const TypeDesc* type, const string& name,
+                             const string& semantic = EMPTY_STRING);
 
-    /// Return the block of constant variables for a stage.
+    /// Create a new variable for output data in the given block for a stage.
+    /// The block must be previously created with createOutputBlock.
+    virtual void createOutput(const string& stage, const string& block, const TypeDesc* type, const string& name);
+
+    /// Create a new constant variable for a stage.
+    virtual void createConstant(const string& stage, const TypeDesc* type, const string& name, ValuePtr value);
+
+    /// Return a uniform variable block for a stage.
+    const VariableBlock& getUniformBlock(const string& stage, const string& block = EMPTY_STRING) const;
+
+    /// Return an input variable block for a stage.
+    const VariableBlock& getInputBlock(const string& stage, const string& block = EMPTY_STRING) const;
+
+    /// Return an output variable block for a stage.
+    const VariableBlock& getOutputBlock(const string& stage, const string& block = EMPTY_STRING) const;
+
+    /// Return the constant variable block for a stage.
     const VariableBlock& getConstantBlock(const string& stage) const;
 
-    /// Return all blocks of uniform variables for a stage.
-    const VariableBlockMap& getUniformBlocks(const string& stage) const;
-
-    /// Return a specific block of uniform variables for a stage.
-    const VariableBlock& getUniformBlock(const string& stage, const string& block) const;
-
-    /// Return the block of application data variables.
-    const VariableBlock& getAppDataBlock() const { return _appData; }
-
-    /// Return the block of output variables.
-    const VariableBlock& getOutputBlock() const { return _outputs; }
 
     /// Start a new scope in the shader, using the given bracket type
     virtual void beginScope(Brackets brackets = Brackets::BRACES);
@@ -248,25 +262,40 @@ public:
 protected:
 
     /// A shader stage, containing the state and 
-    /// resulting source code for the stage
+    /// resulting source code for the stage.
     struct Stage
     {
-        string name;
+        /// Name of the stage
+        const string name;
+
+        /// Current indentation level.
         int indentations;
+
+        /// Current scope.
         std::queue<Brackets> scopes;
+
+        /// Set of include files that has been included.
         std::set<string> includes;
+
+        /// Set of functions that has been defined.
         std::set<ShaderNodeImpl*> definedFunctions;
 
-        // Block holding constant variables for this stage
+        /// Block holding constant variables for this stage.
         VariableBlock constants;
 
-        // Blocks holding uniform variables for this stage
+        /// Map of blocks holding uniform variables for this stage.
         VariableBlockMap uniforms;
 
-        // Resulting source code for this stage
+        /// Map of blocks holding input variables for this stage.
+        VariableBlockMap inputs;
+
+        /// Map of blocks holding output variables for this stage.
+        VariableBlockMap outputs;
+
+        /// Resulting source code for this stage.
         string code;
 
-        Stage(const string& n) : name(n), indentations(0), constants("Constants", "cn") {}
+        Stage(const string& n);
     };
 
     using StagePtr = std::shared_ptr<Stage>;
@@ -277,6 +306,9 @@ protected:
     /// Return the stage with the given name.
     Stage* getStage(const string& name);
     const Stage* getStage(const string& name) const;
+
+    /// Create the stages used by this shader.
+    virtual void createStages() = 0;
 
     /// Add indentation on current line
     virtual void indent();
@@ -290,12 +322,6 @@ protected:
 
     Stage* _activeStage;
     std::unordered_map<string, StagePtr> _stages;
-
-    // Block holding application/geometric input variables
-    VariableBlock _appData;
-
-    // Block holding output variables
-    VariableBlock _outputs;
 };
 
 /// @class @ExceptionShaderGenError
