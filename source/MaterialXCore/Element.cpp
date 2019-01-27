@@ -525,6 +525,10 @@ TypeDefPtr TypedElement::getTypeDef() const
 
 string ValueElement::getResolvedValueString(StringResolverPtr resolver) const
 {
+    if (!StringResolver::isResolvedType(getType()))
+    {
+        return getValueString();
+    }
     if (!resolver)
     {
         resolver = createStringResolver();
