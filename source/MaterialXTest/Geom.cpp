@@ -50,8 +50,8 @@ TEST_CASE("Geom elements", "[geom]")
     resolver1->setUdimString("1001");
     mx::StringResolverPtr resolver2 = image->createStringResolver("/robot2");
     resolver2->setUdimString("1002");
-    REQUIRE(fileParam->getResolvedValueString(resolver1) == "folder/robot01_diffuse_1001.tif");
-    REQUIRE(fileParam->getResolvedValueString(resolver2) == "folder/robot02_diffuse_1002.tif");
+    REQUIRE(fileParam->getResolvedValue(resolver1)->asA<std::string>() == "folder/robot01_diffuse_1001.tif");
+    REQUIRE(fileParam->getResolvedValue(resolver2)->asA<std::string>() == "folder/robot02_diffuse_1002.tif");
 
     // Create a base collection.
     mx::CollectionPtr collection1 = doc->addCollection("collection1");
