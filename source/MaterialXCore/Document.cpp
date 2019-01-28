@@ -206,6 +206,24 @@ vector<PortElementPtr> Document::getMatchingPorts(const string& nodeName) const
     return ports;
 }
 
+ValuePtr Document::getGeomAttrValue(const string& geomAttrName, const string& geom) const
+{
+    ValuePtr value;
+    for (GeomInfoPtr geomInfo : getGeomInfos())
+    {
+        if (!geomStringsMatch(geom, geomInfo->getActiveGeom()))
+        {
+            continue;
+        }
+        GeomAttrPtr geomAttr = geomInfo->getGeomAttr(geomAttrName);
+        if (geomAttr)
+        {
+            value = geomAttr->getValue();
+        }
+    }
+    return value;
+}
+
 vector<NodeDefPtr> Document::getMatchingNodeDefs(const string& nodeName) const
 {
     // Refresh the cache.

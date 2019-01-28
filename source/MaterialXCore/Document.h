@@ -169,6 +169,9 @@ class Document : public GraphElement
         removeChildOfType<GeomInfo>(name);
     }
 
+    /// Return the value of a geometric attribute for the given geometry string.
+    ValuePtr getGeomAttrValue(const string& geomAttrName, const string& geom = UNIVERSAL_GEOM_NAME) const;
+
     /// @}
     /// @name GeomPropDef Elements
     /// @{
