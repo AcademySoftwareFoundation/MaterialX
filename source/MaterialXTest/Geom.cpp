@@ -53,6 +53,13 @@ TEST_CASE("Geom elements", "[geom]")
     REQUIRE(fileParam->getResolvedValue(resolver1)->asA<std::string>() == "folder/robot01_diffuse_1001.tif");
     REQUIRE(fileParam->getResolvedValue(resolver2)->asA<std::string>() == "folder/robot02_diffuse_1002.tif");
 
+    // Create a geominfo with an attribute.
+    mx::GeomInfoPtr geominfo4 = doc->addGeomInfo("geominfo4", "/robot1");
+    mx::StringVec udimSet = {{"1001", "1002", "1003", "1004"}};
+    geominfo4->setGeomAttrValue("udimset", udimSet);
+    REQUIRE(doc->getGeomAttrValue("udimset", "/robot1")->asA<mx::StringVec>() == udimSet);
+    REQUIRE(doc->getGeomAttrValue("udimset", "/robot2") == nullptr);
+
     // Create a base collection.
     mx::CollectionPtr collection1 = doc->addCollection("collection1");
     collection1->setIncludeGeom("/scene1");
