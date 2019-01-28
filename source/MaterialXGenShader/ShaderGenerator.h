@@ -50,12 +50,6 @@ public:
     /// Emit the final output expression
     virtual void emitFinalOutput(Shader& shader) const;
 
-    /// Emit a shader constant input variable
-    virtual void emitConstant(const Shader::Variable& uniform, Shader& shader);
-
-    /// Emit a shader uniform input variable
-    virtual void emitUniform(const Shader::Variable& uniform, Shader& shader);
-
     /// Emit the connected variable name for an input,
     /// or constant value if the port is not connected
     virtual void emitInput(const GenContext& context, const ShaderInput* input, Shader& shader) const;
@@ -67,6 +61,21 @@ public:
     /// Emit the output variable name for an output, optionally including it's type
     /// and default value assignment.
     virtual void emitOutput(const GenContext& context, const ShaderOutput* output, bool includeType, bool assignDefault, Shader& shader) const;
+
+    /// Utility to emit a block of either uniform or constant variables
+    /// @param block Block to emit.
+    /// @param qualifier Optional qualifier to add before the variable declaration.
+    /// Qualifiers are specified by the syntax for the generator.
+    /// @param separator Separator to use between variables.
+    /// @param shader Shader to emit to.
+    virtual void emitVariableBlock(const Shader::VariableBlock& block, const string& qualifier, const string& separator, Shader& shader);
+
+    /// Emit a shader input variable
+    /// @param variable Variable to emit
+    /// @param qualifier Optional qualifier to add before the variable declaration.
+    /// Qualifiers are specified by the syntax for the generator.
+    /// @param shader Shader source to emit output to
+    virtual void emitVariable(const Shader::Variable& variable, const string& qualifier, Shader& shader);
 
     /// Return the syntax object for the language used by the code generator
     const Syntax* getSyntax() const { return _syntax.get(); }
@@ -162,6 +171,9 @@ public:
         CONTEXT_DEFAULT = 0
     };
 
+    static string SEMICOLON_NEWLINE;
+    static string COMMA;
+
 protected:
     /// Protected constructor
     ShaderGenerator(SyntaxPtr syntax);
@@ -179,20 +191,6 @@ protected:
     /// Create a new node context with the given id. The context is added to the
     /// shader generators node context storage and returned.
     GenContextPtr createContext(int id);
-
-    /// Utility to emit a block of either uniform or constant variables
-    /// @param block Block to emit.
-    /// @param qualifier Optional qualifier to add before the variable declaration.
-    /// Qualifiers are specified by the syntax for the generator.
-    /// @param shader Shader to emit to.
-    virtual void emitVariableBlock(const Shader::VariableBlock& block, const string& qualifier, Shader& shader);
-
-    /// Emit a shader input variable
-    /// @param variable Variable to emit
-    /// @param qualifier Optional qualifier to add before the variable declaration.
-    /// Qualifiers are specified by the syntax for the generator.
-    /// @param shader Shader source to emit output to
-    virtual void emitVariable(const Shader::Variable& variable, const string& qualifier, Shader& shader);
 
     SyntaxPtr _syntax;
     Factory<ShaderNodeImpl> _implFactory;
