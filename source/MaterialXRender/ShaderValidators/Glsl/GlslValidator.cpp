@@ -531,7 +531,7 @@ void GlslValidator::save(const string& fileName, bool floatingPoint)
 
     if (!saved)
     {
-        errors.push_back("Faled to save to file:" + fileName);
+        errors.push_back("Failed to save to file:" + fileName);
         throw ExceptionShaderValidationError(errorType, errors);
     }
 }
