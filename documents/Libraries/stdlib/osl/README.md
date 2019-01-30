@@ -1,4 +1,4 @@
-# OSL Source
+# OSL Reference Implementations
 
 This folder contains reference OSL implementations for the standard MaterialX nodes, documenting their intended functionality as of MaterialX v1.35.
 

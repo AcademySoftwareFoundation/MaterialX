@@ -1037,6 +1037,21 @@ class ValueElement : public TypedElement
         return Value::createValueFromStrings(getValueString(), getType());
     }
 
+    /// Return the resolved value of an element as a generic value object, which
+    /// may be queried to access its data.
+    ///
+    /// @param resolver An optional string resolver, which will be used to
+    ///    apply string substitutions.  By default, a new string resolver
+    ///    will be created at this scope and applied to the return value.
+    /// @return A shared pointer to the typed value of this element, or an
+    ///    empty shared pointer if no value is present.
+    ValuePtr getResolvedValue(StringResolverPtr resolver = nullptr) const
+    {
+        if (!hasValue())
+            return ValuePtr();
+        return Value::createValueFromStrings(getResolvedValueString(resolver), getType());
+    }
+
     /// @}
     /// @name Bound Value
     /// @{
@@ -1234,6 +1249,12 @@ class StringResolver
     /// Given an input string and type, apply all appropriate modifiers and
     /// return the resulting string.
     virtual string resolve(const string& str, const string& type) const;
+
+    /// Return true if the given type may be resolved by this class.
+    static bool isResolvedType(const string& type)
+    {
+        return type == FILENAME_TYPE_STRING || type == GEOMNAME_TYPE_STRING;
+    }
 
     /// @}
 

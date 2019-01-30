@@ -5,6 +5,8 @@
 ### Added
 - Added support for 'nodedef' attributes on MaterialX\:\:Node, integrating this usage into GraphElement\:\:addNodeInstance.
 - Added the MaterialX\:\:GeomPropDef class for geometric input declarations.
+- Added the Document\:\:getGeomAttrValue method.
+- Added the ValueElement\:\:getResolvedValue method.
 - Added support for GCC 8 and Clang 7.
 
 ### Changed

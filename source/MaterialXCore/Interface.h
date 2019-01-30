@@ -228,6 +228,14 @@ class Input : public PortElement
     GeomPropDefPtr getDefaultGeomProp() const;
 
     /// @}
+    /// @name Validation
+    /// @{
+
+    /// Validate that the given element tree, including all descendants, is
+    /// consistent with the MaterialX specification.
+    bool validate(string* message = nullptr) const override;
+
+    /// @}
 
   public:
     static const string CATEGORY;
