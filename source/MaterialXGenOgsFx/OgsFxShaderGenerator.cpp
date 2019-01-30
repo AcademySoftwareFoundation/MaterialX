@@ -361,7 +361,17 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
         shader.beginScope(Shader::Brackets::BRACES);
         shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/" + OgsFxShaderGenerator::TARGET + "/mx_lighting_functions.glsl", *this);
         shader.newLine();
-        shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_lighting.glsl", *this);
+
+        // Emit environment lighting functions
+        if (options.hwSpecularEnvironmentMethod == SPECULAR_ENVIRONMENT_FIS)
+        {
+            shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_fis.glsl", *this);
+        }
+        else
+        {
+            shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_prefilter.glsl", *this);
+        }
+
         shader.endScope();
         shader.newLine();
     }

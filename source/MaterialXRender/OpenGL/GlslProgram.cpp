@@ -15,7 +15,7 @@ int GlslProgram::UNDEFINED_OPENGL_PROGRAM_LOCATION = -1;
 int GlslProgram::Input::INVALID_OPENGL_TYPE = -1;
 
 // Shader constants
-static string RADIANCE_ENV_UNIFORM_NAME("u_envSpecular");
+static string RADIANCE_ENV_UNIFORM_NAME("u_envRadiance");
 static string IRRADIANCE_ENV_UNIFORM_NAME("u_envIrradiance");
 
 /// Sampling constants
