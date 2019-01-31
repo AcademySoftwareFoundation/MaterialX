@@ -34,10 +34,10 @@ class DefaultColorManagementSystem : public ColorManagementSystem
     /// Returns an implementation name for a given transform
     string getImplementationName(const ColorSpaceTransform& transform) override;
 
-  private:
     /// Protected constructor
     DefaultColorManagementSystem(const string& language);
 
+  private:
     string _language;
 };
 
