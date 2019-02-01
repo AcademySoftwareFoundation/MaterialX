@@ -169,6 +169,18 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
         shader.newLine();
     }
 
+    // Emit uv transform function
+    if (options.fileTextureVerticalFlip)
+    {
+        shader.addInclude("stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.osl", *this);
+        shader.newLine();
+    }
+    else
+    {
+        shader.addInclude("stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.osl", *this);
+        shader.newLine();
+    }
+
     emitFunctionDefinitions(shader);
 
     // Emit shader type

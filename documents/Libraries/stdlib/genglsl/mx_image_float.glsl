@@ -3,7 +3,8 @@ void mx_image_float(sampler2D tex_sampler, int layer, float defaultval, vec2 tex
     // TODO: Fix handling of addressmode
     if(textureSize(tex_sampler, 0).x > 1)
     {
-        result = texture(tex_sampler, texcoord).r;
+        vec2 uv = mx_get_target_uv(texcoord);
+        result = texture(tex_sampler, uv).r;
     }
     else
     {

@@ -450,6 +450,18 @@ ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr ele
         shader.newLine();
     }
 
+    // Emit uv transform function
+    if (options.fileTextureVerticalFlip)
+    {
+        shader.addInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.glsl", *this);
+        shader.newLine();
+    }
+    else
+    {
+        shader.addInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.glsl", *this);
+        shader.newLine();
+    }
+
     // Add all functions for node implementations
     emitFunctionDefinitions(shader);
 
