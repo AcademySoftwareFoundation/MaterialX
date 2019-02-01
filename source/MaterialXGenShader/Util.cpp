@@ -114,7 +114,7 @@ void getFilesInDirectory(const std::string& directory, StringVec& files, const s
 
 bool readFile(const string& filename, string& contents)
 {
-    std::ifstream file(filename, std::ios::in | std::ios::binary);
+    std::ifstream file(filename, std::ios::in);
     if (file)
     {
         std::stringstream stream;
