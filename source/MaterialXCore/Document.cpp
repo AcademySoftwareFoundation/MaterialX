@@ -446,6 +446,38 @@ void Document::upgradeVersion()
             }
         }
 
+        // Combine udim assignments into udim sets.
+        if (getGeomAttrValue("udim") && !getGeomAttrValue("udimset"))
+        {
+            StringSet udimSet;
+            for (GeomInfoPtr geomInfo : getGeomInfos())
+            {
+                for (GeomAttrPtr geomAttr : geomInfo->getGeomAttrs())
+                {
+                    if (geomAttr->getName() == "udim")
+                    {
+                        udimSet.insert(geomAttr->getValueString());
+                    }
+                }
+            }
+
+            std::string udimSetString;
+            for (const std::string& udim : udimSet)
+            {
+                if (udimSetString.empty())
+                {
+                    udimSetString = udim;
+                }
+                else
+                {
+                    udimSetString += ", " + udim;
+                }
+            }
+
+            GeomInfoPtr udimSetInfo = addGeomInfo();
+            udimSetInfo->setGeomAttrValue("udimset", udimSetString, getTypeString<StringVec>());
+        }
+
         minorVersion = 34;
     }
 
