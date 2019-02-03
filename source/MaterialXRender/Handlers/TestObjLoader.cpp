@@ -67,8 +67,7 @@ bool TestObjLoader::load(const std::string& fileName, MeshList& meshList)
     // Enable debugging of read by dumping to disk what was read in.
     // Disabled by default
     std::ofstream dump;
-    bool debugDump = false;
-    if (debugDump)
+    if (_debugDump)
     {
         dump.open("dump.obj");
     }
@@ -84,7 +83,7 @@ bool TestObjLoader::load(const std::string& fileName, MeshList& meshList)
             std::istringstream valstring(line.substr(2));
             valstring >> val1; valstring >> val2; valstring >> val3;
 
-            if (debugDump)
+            if (_debugDump)
             {
                 dump << "v " << val1 << " " << val2 << " " << val3 << std::endl;
             }
@@ -108,7 +107,7 @@ bool TestObjLoader::load(const std::string& fileName, MeshList& meshList)
             valstring >> val1; valstring >> val2;
             uv.push_back(val1); uv.push_back(val2);
 
-            if (debugDump)
+            if (_debugDump)
             {
                 dump << "vt " << val1 << " " << val2 << std::endl;
             }
@@ -119,7 +118,7 @@ bool TestObjLoader::load(const std::string& fileName, MeshList& meshList)
             valstring >> val1; valstring >> val2; valstring >> val3;
             norm.push_back(val1); norm.push_back(val2); norm.push_back(val3);
 
-            if (debugDump)
+            if (_debugDump)
             {
                 dump << "vn " << val1 << " " << val2 << " " << val3 << std::endl;
             }
@@ -169,10 +168,9 @@ bool TestObjLoader::load(const std::string& fileName, MeshList& meshList)
                 partitions.push_back(currentPartition);
             }
             
-            size_t facesAdded = 0;
             if (vertexCount >= 3)
             {
-                facesAdded++;
+                size_t facesAdded = 1;
 
                 pidx.push_back(ipos[0] - 1);
                 pidx.push_back(ipos[1] - 1);
@@ -186,7 +184,7 @@ bool TestObjLoader::load(const std::string& fileName, MeshList& meshList)
                 nidx.push_back(inorm[1] - 1);
                 nidx.push_back(inorm[2] - 1);
 
-                if (debugDump)
+                if (_debugDump)
                 {
                     dump << "f "
                         << ipos[0] << "/" << iuv[0] << "/" << inorm[0] << " "
@@ -210,7 +208,7 @@ bool TestObjLoader::load(const std::string& fileName, MeshList& meshList)
                     nidx.push_back(inorm[2] - 1);
                     nidx.push_back(inorm[3] - 1);
 
-                    if (debugDump)
+                    if (_debugDump)
                     {
                         dump << "f "
                             << ipos[0] << "/" << iuv[0] << "/" << inorm[0] << " "
@@ -225,7 +223,10 @@ bool TestObjLoader::load(const std::string& fileName, MeshList& meshList)
         }
     }
 
-    dump.close();
+    if (_debugDump)
+    {
+        dump.close();
+    }
     objfile.close();
 
     // Set bounds
