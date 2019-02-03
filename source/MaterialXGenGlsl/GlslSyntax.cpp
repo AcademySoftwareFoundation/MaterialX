@@ -64,7 +64,7 @@ namespace
     class GlslFloatArrayTypeSyntax : public GlslArrayTypeSyntax
     {
     public:
-        GlslFloatArrayTypeSyntax(const string& name)
+        explicit GlslFloatArrayTypeSyntax(const string& name)
             : GlslArrayTypeSyntax(name)
         {}
 
@@ -80,7 +80,7 @@ namespace
     class GlslIntegerArrayTypeSyntax : public GlslArrayTypeSyntax
     {
     public:
-        GlslIntegerArrayTypeSyntax(const string& name)
+        explicit GlslIntegerArrayTypeSyntax(const string& name)
             : GlslArrayTypeSyntax(name)
         {}
 

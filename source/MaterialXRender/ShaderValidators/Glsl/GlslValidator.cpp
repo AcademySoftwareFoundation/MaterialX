@@ -473,10 +473,10 @@ void GlslValidator::validateRender(bool orthographicView)
             }
         }      
     }
-    catch (ExceptionShaderValidationError& e)
+    catch (ExceptionShaderValidationError& /*e*/)
     {
         bindTarget(false);
-        throw e;
+        throw;
     }
 
     // Unset target

@@ -54,7 +54,7 @@ namespace
     class OslFloatArrayTypeSyntax : public OslArrayTypeSyntax
     {
     public:
-        OslFloatArrayTypeSyntax(const string& name)
+        explicit OslFloatArrayTypeSyntax(const string& name)
             : OslArrayTypeSyntax(name)
         {}
 
@@ -69,7 +69,7 @@ namespace
     class OslIntegerArrayTypeSyntax : public OslArrayTypeSyntax
     {
     public:
-        OslIntegerArrayTypeSyntax(const string& name)
+        explicit OslIntegerArrayTypeSyntax(const string& name)
             : OslArrayTypeSyntax(name)
         {}
 

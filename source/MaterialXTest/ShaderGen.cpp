@@ -860,7 +860,7 @@ TEST_CASE("Swizzling", "[shadergen]")
 // Utility to call validate OSL.
 // For now only call into oslc to compile an OSL file and get the results.
 //
-static void validateOSL(const std::string oslFileName, std::string& errorResult)
+static void validateOSL(const std::string& oslFileName, std::string& errorResult)
 {
     errorResult.clear();
 
@@ -907,8 +907,6 @@ TEST_CASE("Shader Interface", "[shadergen]")
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
     loadLibraries({ "stdlib" }, searchPath, doc);
 
-    const std::string exampleName = "shader_interface";
-
     // Create a nodedef taking three color3 and producing another color3
     mx::NodeDefPtr nodeDef = doc->addNodeDef("ND_foo", "color3", "foo");
     mx::InputPtr fooInputA = nodeDef->addInput("a", "color3");
@@ -939,6 +937,7 @@ TEST_CASE("Shader Interface", "[shadergen]")
     mx::GenOptions options;
 
 #ifdef MATERIALX_BUILD_GEN_OSL
+    const std::string exampleName = "shader_interface";
     {
         mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();
         // Add path to find all source code snippets
@@ -1475,8 +1474,9 @@ TEST_CASE("Noise", "[shadergen]")
     const size_t numNoiseType = noiseNodes.size();
     for (size_t noiseType = 0; noiseType < numNoiseType; ++noiseType)
     {
+#if defined(MATERIALX_BUILD_GEN_OSL) || defined(MATERIALX_BUILD_GEN_OGSFX) || defined(MATERIALX_BUILD_GEN_GLSL)
         const std::string shaderName = "test_" + noiseNodes[noiseType]->getName();
-
+#endif
         // Select the noise type
         switch1->setParameterValue("which", float(noiseType));
 
@@ -1680,8 +1680,9 @@ TEST_CASE("Subgraphs", "[shadergen]")
     mx::FilePath examplesSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Examples");
     loadExamples({ "SubGraphs.mtlx"}, examplesSearchPath, searchPath,  doc);
 
+#if defined(MATERIALX_BUILD_GEN_OSL) || defined(MATERIALX_BUILD_GEN_OGSFX) || defined(MATERIALX_BUILD_GEN_GLSL)
     std::vector<std::string> exampleGraphNames = { "subgraph_ex1" , "subgraph_ex2" };
-
+#endif
     mx::GenOptions options;
 
 #ifdef MATERIALX_BUILD_GEN_OSL
@@ -1800,9 +1801,10 @@ TEST_CASE("Materials", "[shadergen]")
     mx::FilePath materialsFile = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/pbrlib/materials/surfaceshader.mtlx");
     mx::readFromXmlFile(doc, materialsFile.asString());
 
+#if defined(MATERIALX_BUILD_GEN_OSL) || defined(MATERIALX_BUILD_GEN_OGSFX) || defined(MATERIALX_BUILD_GEN_GLSL)
     // Get all materials
     std::vector<mx::MaterialPtr> materials = doc->getMaterials();
-
+#endif
     mx::GenOptions options;
 
 #ifdef MATERIALX_BUILD_GEN_OSL
