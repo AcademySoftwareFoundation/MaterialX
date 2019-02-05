@@ -9,7 +9,7 @@ The following is the layout of the definitions and implementations provided as p
     -   [genglsl](stdlib/genglsl): GLSL language support
         -   lib : Shader utility files.
         - [stdlib_genglsl_impl.mtlx](stdlib/genglsl/stdlib_genglsl_impl.mtlx) : Mapping from definitions to implementations
-        - [cm_genglsl_impl.mtlx](stdlib/genglsl/cm_genglsl_impl.mtlx) : Color management implementations
+        - [stdlib_genglsl_cm_impl.mtlx](stdlib/genglsl/stdlib_genglsl_cm_impl.mtlx) : Minimal set of "default" color management implementations.
         -   GLSL implementation files
         -   [ogsfx](stdlib/genglsl/ogsfx): OGSFX support
             - [stdlib_genglsl_ogsfx_impl.mtlx](stdlib/genglsl/ogsfx/stdlib_genglsl_ogsfx_impl.mtlx) : Mapping from definitions to implementations
@@ -17,7 +17,7 @@ The following is the layout of the definitions and implementations provided as p
     -   [genosl](stdlib/genosl): OSL language support
         -   lib: Shader utility files.
         - [stdlib_genosl_impl.mtlx](stdlib/genosl/stdlib_genosl_impl.mtlx) : Mapping from definitions to implementations
-        - [cm_genosl_impl.mtlx](stdlib/genosl/cm_genosl_impl.mtlx) : Color management implementations
+        - [stdlib_genosl_cm_impl.mtlx](stdlib/genosl/stdlib_genosl_cm_impl.mtlx) : Minimal set of "default" color management implementations
         -  OSL implementation files.
     -   [osl](stdlib/genosl): OSL reference implementation
         -  OSL implementation files.
