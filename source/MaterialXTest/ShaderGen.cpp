@@ -1801,10 +1801,6 @@ TEST_CASE("Materials", "[shadergen]")
     mx::FilePath materialsFile = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/pbrlib/materials/surfaceshader.mtlx");
     mx::readFromXmlFile(doc, materialsFile.asString());
 
-#if defined(MATERIALX_BUILD_GEN_OSL) || defined(MATERIALX_BUILD_GEN_OGSFX) || defined(MATERIALX_BUILD_GEN_GLSL)
-    // Get all materials
-    std::vector<mx::MaterialPtr> materials = doc->getMaterials();
-#endif
     mx::GenOptions options;
 
 #ifdef MATERIALX_BUILD_GEN_OSL
@@ -1849,7 +1845,7 @@ TEST_CASE("Materials", "[shadergen]")
         mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
         createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator), options);
 
-        for (const mx::MaterialPtr& material : materials)
+        for (const mx::MaterialPtr& material : doc->getMaterials())
         {
             for (mx::ShaderRefPtr shaderRef : material->getShaderRefs())
             {
@@ -1877,7 +1873,7 @@ TEST_CASE("Materials", "[shadergen]")
         mx::HwLightHandlerPtr lightHandler = mx::HwLightHandler::create();
         createLightRig(doc, *lightHandler, static_cast<mx::HwShaderGenerator&>(*shaderGenerator), options);
 
-        for (const mx::MaterialPtr& material : materials)
+        for (const mx::MaterialPtr& material : doc->getMaterials())
         {
             for (mx::ShaderRefPtr shaderRef : material->getShaderRefs())
             {

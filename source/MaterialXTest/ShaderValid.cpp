@@ -104,22 +104,14 @@ static mx::GlslValidatorPtr createGLSLValidator(const std::string& fileName, std
 static mx::OslValidatorPtr createOSLValidator(std::ostream& log)
 {
     bool initialized = false;
-    bool initializeTestRender = false;
 
     mx::OslValidatorPtr validator = mx::OslValidator::create();
-#ifdef MATERIALX_OSLC_EXECUTABLE
-    validator->setOslCompilerExecutable(MATERIALX_OSLC_EXECUTABLE);
-#endif
-#ifdef MATERIALX_TESTSHADE_EXECUTABLE
+    const std::string oslcExecutable(MATERIALX_OSLC_EXECUTABLE);
+    validator->setOslCompilerExecutable(oslcExecutable);
     validator->setOslTestShadeExecutable(MATERIALX_TESTSHADE_EXECUTABLE);
-#endif
-#ifdef MATERIALX_TESTRENDER_EXECUTABLE
-    validator->setOslTestRenderExecutable(MATERIALX_TESTRENDER_EXECUTABLE);
-    initializeTestRender = true;
-#endif
-#ifdef MATERIALX_OSL_INCLUDE_PATH
+    const std::string testRenderExecutable(MATERIALX_TESTRENDER_EXECUTABLE);
+    validator->setOslTestRenderExecutable(testRenderExecutable);
     validator->setOslIncludePath(MATERIALX_OSL_INCLUDE_PATH);
-#endif
     try
     {
         validator->initialize();
@@ -128,7 +120,7 @@ static mx::OslValidatorPtr createOSLValidator(std::ostream& log)
         initialized = true;
 
         // Pre-compile some required shaders for testrender
-        if (initializeTestRender)
+        if (!oslcExecutable.empty() && !testRenderExecutable.empty())
         {
             mx::FilePath shaderPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/");
             validator->setOslOutputFilePath(shaderPath);
@@ -146,7 +138,7 @@ static mx::OslValidatorPtr createOSLValidator(std::ostream& log)
             validator->setOslUtilityOSOPath(shaderPath);
         }
     }
-    catch(mx::ExceptionShaderValidationError e)
+    catch(mx::ExceptionShaderValidationError& e)
     {
         for (auto error : e.errorLog())
         {
