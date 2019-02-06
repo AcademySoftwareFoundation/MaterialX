@@ -3,7 +3,8 @@ void mx_image_color2(sampler2D tex_sampler, int layer, vec2 defaultval, vec2 tex
     // TODO: Fix handling of addressmode
     if(textureSize(tex_sampler, 0).x > 1)
     {
-        result = texture(tex_sampler, texcoord).rg;
+        vec2 uv = mx_get_target_uv(texcoord);
+        result = texture(tex_sampler, uv).rg;
     }
     else
     {

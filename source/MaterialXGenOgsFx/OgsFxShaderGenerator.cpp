@@ -211,6 +211,18 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
         shader.newLine();
     }
 
+    // Emit uv transform function
+    if (options.fileTextureVerticalFlip)
+    {
+        shader.addInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.glsl", *this);
+        shader.newLine();
+    }
+    else
+    {
+        shader.addInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.glsl", *this);
+        shader.newLine();
+    }
+
     emitFunctionDefinitions(shader);
 
     // Add constants

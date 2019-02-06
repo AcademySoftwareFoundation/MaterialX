@@ -7,7 +7,8 @@ void mx_image_color2(string file, string layer, color2 default_value, vector2 te
     }
 
     color missingColor = color(default_value.r, default_value.a, 0.0);
-    color rgb = texture(file, texcoord.x, 1.0 - texcoord.y, "subimage", layer, "missingcolor", missingColor, "wrap", uaddressmode);
+    vector2 st = mx_get_target_uv(texcoord);
+    color rgb = texture(file, st.x, st.y, "subimage", layer, "missingcolor", missingColor, "wrap", uaddressmode);
 
     out.r = rgb[0];
     out.a = rgb[1];

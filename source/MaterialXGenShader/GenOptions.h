@@ -61,6 +61,12 @@ class GenOptions
     /// lighting for HW shader targets.
     int hwSpecularEnvironmentMethod;
 
+    /// If true the y-component of texture coordinates used for sampling
+    /// file textures will be flipped before sampling. This can be used if
+    /// file textures need to be flipped vertically to match the target's
+    /// texture space convention. By default this option is false.
+    bool fileTextureVerticalFlip;
+
     /// An optional override for the target color space.
     /// Shader fragments will be generated to transform
     /// input values and textures into this color space.
