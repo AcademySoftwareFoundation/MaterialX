@@ -108,7 +108,7 @@ string replaceSubstrings(string str, const StringMap& stringMap)
     return str;
 }
 
-string prettyPrint(ElementPtr elem)
+string prettyPrint(ConstElementPtr elem)
 {
     string text;
     for (TreeIterator it = elem->traverseTree().begin(); it != TreeIterator::end(); ++it)
