@@ -3922,11 +3922,13 @@ PUGI__NS_BEGIN
 					++s;
 					break;
 				case '<':
-					writer.write('&', 'l', 't', ';');
+					// MaterialX: Allow angle brackets in MTLX serialization.
+					writer.write(*s);
 					++s;
 					break;
 				case '>':
-					writer.write('&', 'g', 't', ';');
+					// MaterialX: Allow angle brackets in MTLX serialization.
+					writer.write(*s);
 					++s;
 					break;
 				case '"':
