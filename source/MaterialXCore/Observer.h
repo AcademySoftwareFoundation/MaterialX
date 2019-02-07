@@ -137,7 +137,7 @@ class ObservedDocument : public Document
         _updateScope = 0;
     }
 
-    DocumentPtr copy() override
+    DocumentPtr copy() const override
     {
         DocumentPtr doc = createDocument<ObservedDocument>();
         doc->copyContentFrom(getSelf());
