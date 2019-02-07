@@ -14,40 +14,45 @@ a listing of the variables with a description of what data they should be bound 
 ------------------------------------------------------------------------------------------------------------
 
 Vertex input variables :
-    i_position                          vec3    Vertex position in object space
-    i_normal                            vec3    Vertex normal in object space
-    i_tangent                           vec3    Vertex tangent in object space
-    i_bitangent                         vec3    Vertex bitangent in object space
-    i_texcoord_N                        vec2    Vertex texture coordinate for the N:th uv set
-    i_color_N                           vec4    Vertex color for the N:th color set (RGBA)
+    i_position                          vec3       Vertex position in object space
+    i_normal                            vec3       Vertex normal in object space
+    i_tangent                           vec3       Vertex tangent in object space
+    i_bitangent                         vec3       Vertex bitangent in object space
+    i_texcoord_N                        vec2       Vertex texture coordinate for the N:th uv set
+    i_color_N                           vec4       Vertex color for the N:th color set (RGBA)
 
 Uniform variables :
-    u_worldMatrix                       mat4    World transformation
-    u_worldInverseMatrix                mat4    World transformation, inverted
-    u_worldTransposeMatrix              mat4    World transformation, transposed
-    u_worldInverseTransposeMatrix       mat4    World transformation, inverted and transposed
-    u_viewMatrix                        mat4    View transformation
-    u_viewInverseMatrix                 mat4    View transformation, inverted
-    u_viewTransposeMatrix               mat4    View transformation, transposed
-    u_viewInverseTransposeMatrix        mat4    View transformation, inverted and transposed
-    u_projectionMatrix                  mat4    Projection transformation
-    u_projectionInverseMatrix           mat4    Projection transformation, inverted
-    u_projectionTransposeMatrix         mat4    Projection transformation, transposed
-    u_projectionInverseTransposeMatrix  mat4    Projection transformation, inverted and transposed
-    u_worldViewMatrix                   mat4    World-view transformation
-    u_viewProjectionMatrix              mat4    View-projection transformation
-    u_worldViewProjectionMatrix         mat4    World-view-projection transformation
-    u_viewPosition                      vec3    World-space position of the view (camera)
-    u_viewDirection                     vec3    World-space direction of the view (camera)
-    u_frame                             float   The current frame number as defined by the host application
-    u_time                              float   The current time in seconds
-    u_geomattr_<name>                   <type>  A named attribute of given <type> where <name> is the name of the variable on the geometry
-    u_numActiveLightSources             int     The number of currently active light sources. Note that in shader this is clamped against
-                                                the maximum allowed number of lights sources. The maximum number is set by calling 
-                                                HwShaderGenerator::setMaxActiveLightSources().
-    u_lightData[]                       struct  Array of struct LightData holding parameters for active light sources.
-                                                The LightData struct is built dynamically depending on requirements for
-                                                bound light shaders.
+    u_worldMatrix                       mat4       World transformation
+    u_worldInverseMatrix                mat4       World transformation, inverted
+    u_worldTransposeMatrix              mat4       World transformation, transposed
+    u_worldInverseTransposeMatrix       mat4       World transformation, inverted and transposed
+    u_viewMatrix                        mat4       View transformation
+    u_viewInverseMatrix                 mat4       View transformation, inverted
+    u_viewTransposeMatrix               mat4       View transformation, transposed
+    u_viewInverseTransposeMatrix        mat4       View transformation, inverted and transposed
+    u_projectionMatrix                  mat4       Projection transformation
+    u_projectionInverseMatrix           mat4       Projection transformation, inverted
+    u_projectionTransposeMatrix         mat4       Projection transformation, transposed
+    u_projectionInverseTransposeMatrix  mat4       Projection transformation, inverted and transposed
+    u_worldViewMatrix                   mat4       World-view transformation
+    u_viewProjectionMatrix              mat4       View-projection transformation
+    u_worldViewProjectionMatrix         mat4       World-view-projection transformation
+    u_viewPosition                      vec3       World-space position of the view (camera)
+    u_viewDirection                     vec3       World-space direction of the view (camera)
+    u_frame                             float      The current frame number as defined by the host application
+    u_time                              float      The current time in seconds
+    u_geomattr_<name>                   <type>     A named attribute of given <type> where <name> is the name of the variable on the geometry
+    u_numActiveLightSources             int        The number of currently active light sources. Note that in shader this is clamped against
+                                                   the maximum allowed number of lights sources. The maximum number is set by calling 
+                                                   HwShaderGenerator::setMaxActiveLightSources().
+    u_lightData[]                       struct     Array of struct LightData holding parameters for active light sources.
+                                                   The LightData struct is built dynamically depending on requirements for
+                                                   bound light shaders.
+    u_envIrradiance                     sampler2D  Sampler for the texture used for diffuse environment lighting.
+    u_envRadiance                       sampler2D  Sampler for the texture used for specular environment lighting.
+    u_envRadianceMips                   int        Number of mipmaps used on the specular environment texture.
+    u_envMatrix                         mat4       Rotation matrix for the environment.
+    u_envSamples                        int        Samples to use if Filtered Importance Sampling is used for specular environment lighting.
 
 ------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------
