@@ -21,6 +21,13 @@ add_custom_command(TARGET MaterialXTest POST_BUILD
 add_custom_command(TARGET MaterialXTest POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${CMAKE_SOURCE_DIR}/documents/Examples ${CMAKE_CURRENT_BINARY_DIR}/documents/Examples)
+
+add_custom_command(TARGET MaterialXTest POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_SOURCE_DIR}/documents/Images ${CMAKE_CURRENT_BINARY_DIR}/documents/Images)
+add_custom_command(TARGET MaterialXTest POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_SOURCE_DIR}/documents/TestSuite ${CMAKE_CURRENT_BINARY_DIR}/documents/TestSuite)
                    
 set_target_properties(
     MaterialXTest PROPERTIES
@@ -30,8 +37,21 @@ set_target_properties(
     VERSION "${MATERIALX_LIBRARY_VERSION}"
     SOVERSION "${MATERIALX_MAJOR_VERSION}")
 
+set (LIBS 
+    MaterialXCore 
+    MaterialXFormat 
+    MaterialXGenShader
+)
+if (MATERIALX_BUILD_GEN_OSL)
+    LIST(APPEND LIBS "MaterialXGenOsl")
+endif(MATERIALX_BUILD_GEN_OSL)
+if (MATERIALX_BUILD_GEN_GLSL)
+    LIST(APPEND LIBS "MaterialXGenGlsl")
+endif(MATERIALX_BUILD_GEN_GLSL)
+if (MATERIALX_BUILD_GEN_OGSFX)
+    LIST(APPEND LIBS "MaterialXGenOgsFx")
+endif(MATERIALX_BUILD_GEN_OGSFX)
 target_link_libraries(
-    MaterialXTest
-    MaterialXFormat
+    MaterialXTest ${LIBS}    
     ${CMAKE_DL_LIBS}
 )

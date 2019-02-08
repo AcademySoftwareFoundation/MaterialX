@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<materialx version="1.36">
+  <nodedef name="ND_mysurface" type="surfaceshader" node="mysurface">
+    <input name="diffuse" type="float" value="1.0"/>
+    <input name="diffuseColor" type="color3" value="0.8, 0.8, 0.8"/>
+    <input name="transmission" type="float" value="0.6"/>
+    <input name="transmissionColor" type="color3" value="1.0, 1.0, 1.0"/>
+  </nodedef>
+  <nodegraph name="IMP_mysurface" nodedef="ND_mysurface">
+    <output name="out" type="surfaceshader" nodename="surface3" />
+    <dielectricbtdf name="dielectricbtdf1" type="BSDF">
+      <input name="weight" type="float" value="1.0000" />
+      <input name="tint" type="color3" interfacename="transmissionColor" />
+      <input name="ior" type="float" value="1.52" />
+      <input name="normal" type="vector3" value="0.0, 0.0, 0.0" />
+      <input name="tangent" type="vector3" value="0.0, 0.0, 0.0" />
+      <input name="distribution" type="string" value="ggx" />
+      <input name="interior" type="VDF" value="" />
+    </dielectricbtdf>
+    <diffusebrdf name="diffusebrdf2" type="BSDF">
+      <input name="weight" type="float" interfacename="diffuse" />
+      <input name="color" type="color3" interfacename="diffuseColor" />
+      <input name="roughness" type="float" value="1.0" />
+      <input name="normal" type="vector3" value="0.0, 0.0, 0.0" />
+    </diffusebrdf>
+    <mixbsdf name="mixbsdf1" type="BSDF">
+      <input name="in1" type="BSDF" value="" nodename="diffusebrdf2" />
+      <input name="in2" type="BSDF" value="" nodename="dielectricbtdf1" />
+      <input name="weight" type="float" interfacename="transmission" />
+    </mixbsdf>
+    <surface name="surface3" type="surfaceshader">
+      <input name="bsdf" type="BSDF" value="" nodename="mixbsdf1" />
+      <input name="edf" type="EDF" value="" />
+      <input name="opacity" type="float" value="1.0000" />
+    </surface>
+  </nodegraph>
+</materialx>

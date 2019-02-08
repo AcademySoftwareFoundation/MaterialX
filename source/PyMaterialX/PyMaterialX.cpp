@@ -23,6 +23,7 @@ void bindPyUtil(py::module& mod);
 void bindPyValue(py::module& mod);
 void bindPyVariant(py::module& mod);
 void bindPyXmlIo(py::module& mod);
+void bindPyFile(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialX, mod)
 {
@@ -44,4 +45,5 @@ PYBIND11_MODULE(PyMaterialX, mod)
     bindPyUtil(mod);
     bindPyException(mod);
     bindPyXmlIo(mod);
+    bindPyFile(mod);
 }

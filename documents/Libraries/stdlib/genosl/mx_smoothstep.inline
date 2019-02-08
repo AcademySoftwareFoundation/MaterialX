@@ -1,0 +1,1 @@
+smoothstep({{low}}, {{high}}, {{in}})

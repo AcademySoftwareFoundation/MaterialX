@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<materialx version="1.36">
+  <nodegraph name="NG_lightcompoundtest" nodedef="ND_lightcompoundtest">
+    <uniformedf name="edf1" type="EDF">
+      <input name="intensity" type="color3" interfacename="color"/>
+    </uniformedf>
+    <light name="light1" type="lightshader">
+      <input name="edf" type="EDF" nodename="edf1"/>
+      <input name="intensity" type="float" interfacename="intensity"/>
+    </light>
+    <output name="out" type="lightshader" nodename="light1"/>
+  </nodegraph>
+</materialx>

@@ -1,0 +1,5 @@
+void mx_surface(BSDF bsdf, EDF edf, float opacity, output surfaceshader result)
+{
+    float opacity_weight = clamp(opacity, 0.0, 1.0);
+    result = (bsdf + edf) * opacity_weight + transparent() * (1.0 - opacity_weight);
+}

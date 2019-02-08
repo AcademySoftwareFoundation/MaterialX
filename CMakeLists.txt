@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_MACOSX_RPATH ON)
 include(CheckCXXCompilerFlag)
+include(CMakeDependentOption)
 enable_testing()
 
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 2.6 or greater." OFF)
@@ -16,6 +17,9 @@ option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires t
 option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)
 option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
 option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors." OFF)
+option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-end." ON)
+option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
+cmake_dependent_option(MATERIALX_BUILD_GEN_OGSFX "Build the OGSFX shader generator back-end." ON "MATERIALX_BUILD_GEN_GLSL" OFF)
 
 set(MATERIALX_PYTHON_VERSION "" CACHE STRING
     "Python version to be used in building the MaterialX Python package (e.g. '2.7').")
@@ -35,6 +39,10 @@ mark_as_advanced(MATERIALX_PYTHON_EXECUTABLE)
 mark_as_advanced(MATERIALX_PYTHON_OCIO_DIR)
 mark_as_advanced(MATERIALX_PYTHON_PYBIND11_DIR)
 
+mark_as_advanced(MATERIALX_BUILD_GEN_OSL)
+mark_as_advanced(MATERIALX_BUILD_GEN_GLSL)
+mark_as_advanced(MATERIALX_BUILD_GEN_OGSFX)
+
 # Adjust the default installation path
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/installed" CACHE PATH "Default install path" FORCE)
@@ -51,7 +59,7 @@ if(MSVC)
         add_compile_options(/WX)
     endif()
 else()
-    add_compile_options(-Wall -Wno-missing-braces)
+    add_compile_options(-Wall -Wno-missing-braces -Wno-unused-function)
     if(MATERIALX_WARNINGS_AS_ERRORS)
         add_compile_options(-Werror)
     endif()
@@ -67,6 +75,21 @@ endif()
 # Add subdirectories
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
+add_subdirectory(source/MaterialXGenShader)
+
+if (MATERIALX_BUILD_GEN_OSL)
+    add_definitions(-DMATERIALX_BUILD_GEN_OSL)
+    add_subdirectory(source/MaterialXGenOsl)
+endif(MATERIALX_BUILD_GEN_OSL)
+if (MATERIALX_BUILD_GEN_GLSL)
+    add_definitions(-DMATERIALX_BUILD_GEN_GLSL)
+    add_subdirectory(source/MaterialXGenGlsl)
+endif(MATERIALX_BUILD_GEN_GLSL)
+if (MATERIALX_BUILD_GEN_OGSFX)
+    add_definitions(-DMATERIALX_BUILD_GEN_OGSFX)
+    add_subdirectory(source/MaterialXGenOgsFx)
+endif(MATERIALX_BUILD_GEN_OGSFX)
+
 add_subdirectory(source/MaterialXTest)
 add_subdirectory(documents)
 
@@ -74,3 +97,5 @@ if(MATERIALX_BUILD_PYTHON)
     add_subdirectory(source/PyMaterialX)
     add_subdirectory(python)
 endif(MATERIALX_BUILD_PYTHON)
+
+

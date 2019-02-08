@@ -1,0 +1,5 @@
+void mx_noise3d_color4(vector4 amplitude, float pivot, vector position, output color4 result)
+{
+    color4 value = noise("snoise", position);
+    result = value * combine(amplitude.x, amplitude.y, amplitude.z, amplitude.w) + pivot;
+}

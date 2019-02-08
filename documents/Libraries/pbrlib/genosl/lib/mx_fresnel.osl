@@ -1,0 +1,37 @@
+float mx_fresnel_dielectric(float cosTheta, float ior)
+{
+    if (cosTheta < 0.0 || ior == 0.0)
+        return 1.0;
+
+    float g =  ior*ior + cosTheta*cosTheta - 1.0;
+    // Check for total internal reflection
+    if (g < 0.0)
+        return 1.0;
+
+    g = sqrt(g);
+    float gmc = g - cosTheta;
+    float gpc = g + cosTheta;
+    float x = gmc / gpc;
+    float y = (gpc * cosTheta - 1.0) / (gmc * cosTheta + 1.0);
+    return 0.5 * x * x * (1.0 + y * y);
+}
+
+color mx_fresnel_conductor(float cosTheta, vector n, vector k)
+{
+   float c2 = cosTheta*cosTheta;
+   vector n2_k2 = n*n + k*k;
+   vector nc2 = 2.0 * n * cosTheta;
+
+   vector rs_a = n2_k2 + c2;
+   vector rp_a = n2_k2 * c2 + 1.0;
+   vector rs = (rs_a - nc2) / (rs_a + nc2);
+   vector rp = (rp_a - nc2) / (rp_a + nc2);
+
+   return 0.5 * (rs + rp);
+}
+
+color mx_fresnel_schlick(float cosTheta, color f0, color f90, float exponent)
+{
+    float x = clamp(1.0 - cosTheta, 0.0, 1.0);
+    return mix(f0, f90, pow(x, exponent));
+}

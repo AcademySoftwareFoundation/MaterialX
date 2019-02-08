@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
+<!--
   TM & (c) 2018 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
   All rights reserved.  See LICENSE.txt for license.
 
@@ -357,7 +357,7 @@
   <implementation name="IM_modulo_color4_osl" nodedef="ND_modulo_color4" file="stdlib/osl/mx_modulo_color4.osl" function="mx_modulo_color4" language="osl"/>
   <implementation name="IM_modulo_color4FA_osl" nodedef="ND_modulo_color4FA" file="stdlib/osl/mx_modulo_float_color4.osl" function="mx_modulo_float_color4" language="osl"/>
   <implementation name="IM_modulo_vector2_osl" nodedef="ND_modulo_vector2" file="stdlib/osl/mx_modulo_vector2.osl" function="mx_modulo_vector2" language="osl"/>
-  <implementation name="IM_modulo_vector2FA" nodedef="ND_modulo_vector2FA" file="stdlib/osl/mx_modulo_float_vector2.osl" function="mx_modulo_float_vector2" language="osl"/>
+  <implementation name="IM_modulo_vector2FA_osl" nodedef="ND_modulo_vector2FA" file="stdlib/osl/mx_modulo_float_vector2.osl" function="mx_modulo_float_vector2" language="osl"/>
   <implementation name="IM_modulo_vector3_osl" nodedef="ND_modulo_vector3" file="stdlib/osl/mx_modulo_vector.osl" function="mx_modulo_vector" language="osl"/>
   <implementation name="IM_modulo_vector3FA_osl" nodedef="ND_modulo_vector3FA" file="stdlib/osl/mx_modulo_float_vector.osl" function="mx_modulo_float_vector" language="osl"/>
   <implementation name="IM_modulo_vector4_osl" nodedef="ND_modulo_vector4" file="stdlib/osl/mx_modulo_vector4.osl" function="mx_modulo_vector4" language="osl"/>
