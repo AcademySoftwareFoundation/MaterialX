@@ -10,9 +10,6 @@
 namespace MaterialX
 {
 
-class HwShaderGenerator;
-class GenOptions;
-
 /// Shared pointer to a LightHandler
 using HwLightHandlerPtr = std::shared_ptr<class HwLightHandler>;
 
@@ -26,8 +23,6 @@ public:
     /// Static instance create function
     static HwLightHandlerPtr create() { return std::make_shared<HwLightHandler>(); }
 
-    static unsigned int getLightType(NodePtr node);
-
     /// Default constructor
     HwLightHandler();
 
@@ -37,16 +32,17 @@ public:
     // Adds a light source node
     void addLightSource(NodePtr node);
 
-    /// Return a vector of all created light sources.
+    /// Get the list of light sources.
     const vector<NodePtr>& getLightSources() const
     {
         return _lightSources;
     }
 
-    /// Bind all added light shaders to the given shader generator.
-    /// Only the light shaders bound to the generator will have their
-    /// code emitted during shader generation.
-    void bindLightShaders(HwShaderGenerator& shadergen, const GenOptions& options) const;
+    /// Set the list of light sources.
+    void setLightSources(const vector<NodePtr>& lights)
+    {
+        _lightSources = lights;
+    }
 
     /// Set path to irradiance IBL image
     void setLightEnvIrradiancePath(const string& path)

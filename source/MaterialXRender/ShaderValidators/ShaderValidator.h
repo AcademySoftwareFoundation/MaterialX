@@ -2,11 +2,11 @@
 #define MATERIALX_SHADERVALIDATOR_H
 
 #include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/HwLightHandler.h>
 #include <MaterialXRender/ShaderValidators/ExceptionShaderValidationError.h>
 #include <MaterialXRender/Handlers/ImageHandler.h>
 #include <MaterialXRender/Handlers/GeometryHandler.h>
 #include <MaterialXRender/Handlers/ViewHandler.h>
+#include <MaterialXRender/Handlers/HwLightHandler.h>
 #include <vector>
 #include <string>
 

@@ -27,7 +27,6 @@ void bindPyGenOptions(py::module& mod);
 void bindPyShaderGenerator(py::module& mod);
 void bindPyShader(py::module& mod);
 void bindPyHwShader(py::module& mod);
-void bindPyHwLightHandler(py::module& mod);
 void bindPyColorManagement(py::module& mod);
 void bindPyGenShaderUtil(py::module& mod);
 void bindPyFile(py::module& mod);
@@ -56,7 +55,6 @@ PYBIND11_MODULE(PyMaterialX, mod)
     bindPyShaderGenerator(mod);
     bindPyShader(mod);
     bindPyHwShader(mod);
-    bindPyHwLightHandler(mod);
     bindPyColorManagement(mod);
     bindPyGenShaderUtil(mod);
     bindPyFile(mod);

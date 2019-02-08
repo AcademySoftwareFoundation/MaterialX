@@ -2,11 +2,11 @@
 #define MATERIALX_GLSLPROGRAM_H
 
 #include <MaterialXGenShader/HwShader.h>
-#include <MaterialXGenShader/HwLightHandler.h>
 #include <MaterialXRender/ShaderValidators/ExceptionShaderValidationError.h>
 #include <MaterialXRender/Handlers/ViewHandler.h>
 #include <MaterialXRender/Handlers/ImageHandler.h>
 #include <MaterialXRender/Handlers/GeometryHandler.h>
+#include <MaterialXRender/Handlers/HwLightHandler.h>
 #include <vector>
 #include <string>
 #include <unordered_map>

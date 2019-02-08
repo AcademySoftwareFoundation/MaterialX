@@ -666,7 +666,9 @@ void GlslProgram::bindLighting(HwLightHandlerPtr lightHandler, ImageHandlerPtr i
         lightCount = 0;
     }
 
-    if (lightCount == 0)
+    if (lightCount == 0 &&
+        lightHandler->getLightEnvRadiancePath().empty() &&
+        lightHandler->getLightEnvIrradiancePath().empty())
     {
         return;
     }
@@ -697,23 +699,49 @@ void GlslProgram::bindLighting(HwLightHandlerPtr lightHandler, ImageHandlerPtr i
         }
     }
 
+    const std::vector<NodePtr> lightList = lightHandler->getLightSources();
+    std::unordered_map<string, unsigned int> ids;
+    mapNodeDefToIdentiers(lightList, ids);
+
     size_t index = 0;
-    for (NodePtr light : lightHandler->getLightSources())
+    for (auto light : lightList)
     {
+        auto nodeDef = light->getNodeDef();
         const string prefix = "u_lightData[" + std::to_string(index) + "]";
 
         // Set light type id
+        bool boundType = false;
         input = uniformList.find(prefix + ".type");
         if (input != uniformList.end())
         {
             location = input->second->location;
             if (location >= 0)
             {
-                glUniform1i(location, int(HwLightHandler::getLightType(light)));
+                unsigned int lightType = ids[nodeDef->getName()];
+                glUniform1i(location, lightType);
+                boundType = true;
+            }
+        }
+        if (!boundType)
+        {
+            continue;
+        }
+
+        // Set all inputs
+        for (auto lightInput : light->getInputs())
+        {
+            // Make sure we have a value to set
+            if (lightInput->hasValue())
+            {
+                input = uniformList.find(prefix + "." + lightInput->getName());
+                if (input != uniformList.end())
+                {
+                    bindUniform(input->second->location, *lightInput->getValue());
+                }
             }
         }
 
-        // Set all parameters
+        // Set all parameters. Note that upstream connections are not currently handled.
         for (auto param : light->getParameters())
         {
             // Make sure we have a value to set

@@ -2,6 +2,7 @@
 #define MATERIALX_HWSHADERGENERATOR_H
 
 #include <MaterialXGenShader/ShaderGenerator.h>
+#include <algorithm>
 
 namespace MaterialX
 {
@@ -16,16 +17,19 @@ public:
 
 public:
     /// Set the maximum number of light sources that can be active at once.
-    void setMaxActiveLightSources(size_t count) { _maxActiveLightSources = count; }
+    void setMaxActiveLightSources(unsigned int count) 
+    { 
+        _maxActiveLightSources = std::max((unsigned int)1, count);
+    }
 
     /// Get the maximum number of light sources that can be active at once.
-    size_t getMaxActiveLightSources() const { return _maxActiveLightSources; }
+    unsigned int getMaxActiveLightSources() const { return _maxActiveLightSources; }
 
     /// Bind a light shader to a light type id, for usage in surface shaders created 
     /// by the generator. The lightTypeId should be a unique identifier for the light 
-    /// type and the same id should be used when setting light parameters on a 
+    /// type (node definition) and the same id should be used when setting light parameters on a 
     /// generated surface shader.
-    void bindLightShader(const NodeDef& nodeDef, size_t lightTypeId, const GenOptions& options);
+    void bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, const GenOptions& options);
 
     /// Return a map of all light shaders that has been bound. The map contains the 
     /// light shader implementations with their bound light type id's.
@@ -34,12 +38,12 @@ public:
     /// Return the light shader implementation for the given light type id.
     /// If no light shader with that light type has been bound a nullptr is 
     /// returned instead.
-    ShaderNodeImpl* getBoundLightShader(size_t lightTypeId);
+    ShaderNodeImpl* getBoundLightShader(unsigned int lightTypeId);
 
 protected:
     HwShaderGenerator(SyntaxPtr syntax);
 
-    size_t _maxActiveLightSources;
+    unsigned int _maxActiveLightSources;
     LightShaderMap _boundLightShaders;
 };
 

@@ -14,8 +14,8 @@
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/HwShader.h>
-#include <MaterialXGenShader/HwLightHandler.h>
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
+#include <MaterialXRender/Handlers/HwLightHandler.h>
 
 #ifdef MATERIALX_BUILD_GEN_GLSL
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
@@ -50,7 +50,48 @@ namespace mx = MaterialX;
 extern void loadLibrary(const mx::FilePath& file, mx::DocumentPtr doc);
 extern void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc,
                           const std::set<std::string>* excludeFiles = nullptr);
-extern void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::HwShaderGenerator& shadergen, const mx::GenOptions& options);
+
+void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::HwShaderGenerator& shadergen, const mx::GenOptions& options,
+                    const mx::FilePath&  envIrradiancePath, const mx::FilePath& envRadiancePath)
+{
+    // Scan for lights
+    const std::string LIGHT_SHADER_TYPE("lightshader");
+    std::vector<mx::NodePtr> lights;
+    for (mx::NodePtr node : doc->getNodes())
+    {
+        if (node->getType() == LIGHT_SHADER_TYPE)
+        {
+            lights.push_back(node);
+        }
+    }
+    if (!lights.empty()) 
+    {
+        // Set the list of lights on the with the generator
+        lightHandler.setLightSources(lights);
+
+        // Find light types (node definitions) and generate ids.
+        // Register types and ids with the generator
+        std::unordered_map<std::string, unsigned int> identifiers;
+        mx::mapNodeDefToIdentiers(lights, identifiers);
+        for (auto id : identifiers)
+        {
+            mx::NodeDefPtr nodeDef = doc->getNodeDef(id.first);
+            if (nodeDef)
+            {
+                shadergen.bindLightShader(*nodeDef, id.second, options);
+            }
+        }
+    }
+
+    // Clamp the number of light sources to the number found
+    unsigned int lightSourceCount = static_cast<unsigned int>(lightHandler.getLightSources().size());
+    shadergen.setMaxActiveLightSources(lightSourceCount);
+
+    // Set up IBL inputs
+    lightHandler.setLightEnvIrradiancePath(envIrradiancePath);
+    lightHandler.setLightEnvRadiancePath(envRadiancePath);
+}
+
 
 #ifdef MATERIALX_BUILD_GEN_GLSL
 //
@@ -191,6 +232,8 @@ public:
         output << "\tDump GLSL Uniforms and Attributes  " << dumpGlslUniformsAndAttributes << std::endl;
         output << "\tGLSL Non-Shader Geometry: " << glslNonShaderGeometry.asString() << std::endl;
         output << "\tGLSL Shader Geometry: " << glslShaderGeometry.asString() << std::endl;
+        output << "\tRadiance IBL File Path " << radianceIBLPath.asString() << std::endl;
+        output << "\tIrradiance IBL File Path: " << irradianceIBLPath.asString() << std::endl;
     }
 
     // Filter list of files to only run validation on.
@@ -243,6 +286,12 @@ public:
 
     // Shader GLSL geometry file
     MaterialX::FilePath glslShaderGeometry = "shaderball.obj";
+
+    // Radiance IBL file
+    MaterialX::FilePath radianceIBLPath;
+
+    // IradianceIBL file
+    MaterialX::FilePath irradianceIBLPath;
 };
 
 // Per language profile times
@@ -894,6 +943,8 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
     const std::string DUMP_GENERATED_CODE_STRING("dumpGeneratedCode");
     const std::string GLSL_NONSHADER_GEOMETRY_STRING("glslNonShaderGeometry");
     const std::string GLSL_SHADER_GEOMETRY_STRING("glslShaderGeometry");
+    const std::string RADIANCE_IBL_PATH_STRING("radianceIBLPath");
+    const std::string IRRADIANCE_IBL_PATH_STRING("irradianceIBLPath");
 
     options.overrideFiles.clear();
     options.dumpGeneratedCode = false;
@@ -979,6 +1030,14 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
                     else if (name == GLSL_SHADER_GEOMETRY_STRING)
                     {
                         options.glslShaderGeometry = p->getValueString();
+                    }
+                    else if (name == RADIANCE_IBL_PATH_STRING)
+                    {
+                        options.radianceIBLPath = p->getValueString();
+                    }
+                    else if (name == IRRADIANCE_IBL_PATH_STRING)
+                    {
+                        options.irradianceIBLPath = p->getValueString();
                     }
                 }
             }
@@ -1148,15 +1207,9 @@ void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidT
 
 TEST_CASE("MaterialX documents", "[shadervalid]")
 {
-    bool runValidation = false;
-#if defined(MATERIALX_BUILD_GEN_GLSL) || defined(MATERIALX_BUILD_GEN_OSL) || defined(MATERIALX_BUILD_GEN_OGSFX)
-    runValidation = true;
+#if !defined(MATERIALX_BUILD_GEN_GLSL) && !defined(MATERIALX_BUILD_GEN_OSL) && defined(MATERIALX_BUILD_GEN_OGSFX)
+    return;
 #endif
-    if (!runValidation)
-    {
-        // No generators exist so there is nothing to test. Just return
-        return;
-    }
 
     // Profiling times
     ShaderValidProfileTimes profileTimes;
@@ -1322,11 +1375,8 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
             // Add lights as a dependency
             mx::GenOptions genOptions;
             glslLightHandler = mx::HwLightHandler::create();
-            createLightRig(dependLib, *glslLightHandler, *glslShaderGenerator, genOptions);
-
-            // Clamp the number of light sources to the number bound
-            size_t lightSourceCount = glslLightHandler->getLightSources().size();
-            glslShaderGenerator->setMaxActiveLightSources(lightSourceCount);
+            createLightRig(dependLib, *glslLightHandler, *glslShaderGenerator, genOptions, 
+                           options.radianceIBLPath, options.irradianceIBLPath);
         }
     }
 #endif
@@ -1342,11 +1392,8 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
             // Add lights as a dependency
             mx::GenOptions genOptions;
             ogsfxLightHandler = mx::HwLightHandler::create();
-            createLightRig(dependLib, *ogsfxLightHandler, *ogsfxShaderGenerator, genOptions);
-
-            // Clamp the number of light sources to the number bound
-            size_t lightSourceCount = ogsfxLightHandler->getLightSources().size();
-            ogsfxShaderGenerator->setMaxActiveLightSources(lightSourceCount);
+            createLightRig(dependLib, *ogsfxLightHandler, *ogsfxShaderGenerator, genOptions,
+                           options.radianceIBLPath, options.irradianceIBLPath);
         }
     }
 #endif

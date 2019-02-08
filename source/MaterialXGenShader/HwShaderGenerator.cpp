@@ -12,7 +12,7 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax)
 {
 }
 
-void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, size_t lightTypeId, const GenOptions& options)
+void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, const GenOptions& options)
 {
     if (TypeDesc::get(nodeDef.getType()) != Type::LIGHTSHADER)
     {
@@ -21,7 +21,8 @@ void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, size_t lightType
 
     if (getBoundLightShader(lightTypeId))
     {
-        throw ExceptionShaderGenError("Error binding light shader. Light type id '" + std::to_string(lightTypeId) + "' has already been bound");
+        throw ExceptionShaderGenError("Error binding light shader. Light type id '" + std::to_string(lightTypeId) +
+            "' has already been bound");
     }
 
     ShaderNodeImplPtr sgimpl;
@@ -52,7 +53,7 @@ void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, size_t lightType
     _boundLightShaders[lightTypeId] = sgimpl;
 }
 
-ShaderNodeImpl* HwShaderGenerator::getBoundLightShader(size_t lightTypeId)
+ShaderNodeImpl* HwShaderGenerator::getBoundLightShader(unsigned int lightTypeId)
 {
     auto it = _boundLightShaders.find(lightTypeId);
     return it != _boundLightShaders.end() ? it->second.get() : nullptr;
