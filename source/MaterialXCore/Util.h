@@ -19,6 +19,7 @@ extern const string EMPTY_STRING;
 class Element;
 
 using ElementPtr = shared_ptr<Element>;
+using ConstElementPtr = shared_ptr<const Element>;
 
 /// Return the version of the MaterialX library as a string.
 string getVersionString();
@@ -45,7 +46,7 @@ string replaceSubstrings(string str, const StringMap& stringMap);
 
 /// Pretty print the given element tree, calling asString recursively on each
 /// element in depth-first order.
-string prettyPrint(ElementPtr elem);
+string prettyPrint(ConstElementPtr elem);
 
 } // namespace MaterialX
 
