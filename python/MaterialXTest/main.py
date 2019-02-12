@@ -315,8 +315,8 @@ class TestMaterialX(unittest.TestCase):
 
         # Create a variant set.
         variantSet = doc.addVariantSet()
-        original = variantSet.addVariant("original")
-        damaged = variantSet.addVariant("damaged")
+        variantSet.addVariant("original")
+        variantSet.addVariant("damaged")
         self.assertTrue(len(variantSet.getVariants()) == 2)
 
         # Disconnect outputs from sources.
@@ -332,7 +332,7 @@ class TestMaterialX(unittest.TestCase):
         # Create a node graph with the following structure:
         #
         # [image1] [constant]     [image2]
-        #        \ /                 |   
+        #        \ /                 | 
         #    [multiply]          [contrast]         [noise3d]
         #             \____________  |  ____________/
         #                          [mix]
@@ -480,13 +480,13 @@ class TestMaterialX(unittest.TestCase):
                 for param in material.getPrimaryShaderParameters():
                     boundValue = param.getBoundValue(material)
                     self.assertTrue(boundValue is not None)
-                    for edge in param.traverseGraph(material):
+                    for _ in param.traverseGraph(material):
                         edgeCount += 1
-                for input in material.getPrimaryShaderInputs():
-                    boundValue = input.getBoundValue(material)
-                    upstreamElement = input.getUpstreamElement(material)
+                for shaderInput in material.getPrimaryShaderInputs():
+                    boundValue = shaderInput.getBoundValue(material)
+                    upstreamElement = shaderInput.getUpstreamElement(material)
                     self.assertTrue(boundValue is not None or upstreamElement is not None)
-                    for edge in input.traverseGraph(material):
+                    for edge in shaderInput.traverseGraph(material):
                         edgeCount += 1
                 self.assertTrue(edgeCount > 0)
 

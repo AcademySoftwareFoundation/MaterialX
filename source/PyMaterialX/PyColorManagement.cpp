@@ -14,7 +14,7 @@ namespace mx = MaterialX;
 class PyColorManagementSystem : public mx::ColorManagementSystem
 {
   public:
-    PyColorManagementSystem(const std::string& configFile) :
+    explicit PyColorManagementSystem(const std::string& configFile) :
         mx::ColorManagementSystem(configFile)
     {
     }

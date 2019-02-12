@@ -1,4 +1,3 @@
-import math
 import os
 import unittest
 
@@ -67,7 +66,7 @@ class TestShaderX(unittest.TestCase):
         in2.setInterfaceName(fooInputB.getName())
         output.setConnectedNode(mult1)
 
-        foo = doc.addNode("foo", "foo1", "color3")
+        doc.addNode("foo", "foo1", "color3")
         output = doc.addOutput("foo_test", "color3");
         output.setNodeName("foo1");
         output.setAttribute("output", "o");

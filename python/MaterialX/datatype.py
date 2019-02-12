@@ -1,4 +1,3 @@
-import re
 import sys
 
 from .PyMaterialX import *
