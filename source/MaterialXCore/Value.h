@@ -67,7 +67,7 @@ class Value
     /// Return our underlying data as an object of the given type.
     /// If the given type doesn't match our own data type, then an
     /// exception is thrown.
-    template<class T> T asA() const;
+    template<class T> const T& asA() const;
 
     /// Return the type string for this value.
     virtual const string& getTypeString() const = 0;
@@ -159,7 +159,7 @@ template <class T> class TypedValue : public Value
     }
 
     /// Return stored data object.
-    T getData() const
+    const T& getData() const
     {
         return _data;
     }
