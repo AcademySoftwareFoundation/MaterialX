@@ -45,7 +45,6 @@ _exampleFilenames = ('CustomNode.mtlx',
 
 _epsilon = 1e-4
 
-
 #--------------------------------------------------------------------------------
 class TestMaterialX(unittest.TestCase):
     def test_DataTypes(self):
@@ -332,7 +331,7 @@ class TestMaterialX(unittest.TestCase):
         # Create a node graph with the following structure:
         #
         # [image1] [constant]     [image2]
-        #        \ /                 | 
+        #        \ /                 |
         #    [multiply]          [contrast]         [noise3d]
         #             \____________  |  ____________/
         #                          [mix]
@@ -453,7 +452,6 @@ class TestMaterialX(unittest.TestCase):
             mx.readFromXmlFile(lib, filename, _searchPath)
             self.assertTrue(lib.validate()[0])
             libs.append(lib)
-
         # Read and validate each example document.
         for filename in _exampleFilenames:
             doc = mx.createDocument()
@@ -514,7 +512,6 @@ class TestMaterialX(unittest.TestCase):
         mx.readFromXmlFile(doc, filename, _searchPath, readOptions)
         mx.readFromXmlFile(doc, filename, _searchPath, readOptions)
         self.assertTrue(doc.validate()[0])
-
 
 #--------------------------------------------------------------------------------
 if __name__ == '__main__':

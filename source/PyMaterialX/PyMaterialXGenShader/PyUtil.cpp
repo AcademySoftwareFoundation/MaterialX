@@ -10,7 +10,7 @@
 namespace py = pybind11;
 namespace mx = MaterialX;
 
-void bindPyGenShaderUtil(py::module& mod)
+void bindPyUtil(py::module& mod)
 {
     mod.def("isTransparentSurface", &mx::isTransparentSurface);
 }

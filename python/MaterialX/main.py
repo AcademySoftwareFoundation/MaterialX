@@ -1,6 +1,6 @@
 import warnings
 
-from .PyMaterialX import *
+from .PyMaterialXCore import *
 from .datatype import *
 
 """

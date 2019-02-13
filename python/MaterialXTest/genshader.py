@@ -2,6 +2,13 @@ import os
 import unittest
 
 import MaterialX as mx
+from MaterialX.PyMaterialXGenShader import *
+
+try:
+    from MaterialX.PyMaterialXGenOsl import ArnoldShaderGenerator
+    ARNOLD_SHADER_GENERATOR_EXISTS = True
+except ImportError:
+   ARNOLD_SHADER_GENERATOR_EXISTS = False
 
 _fileDir = os.path.dirname(os.path.abspath(__file__))
 
@@ -14,9 +21,11 @@ def _getMTLXFilesInDirectory(path):
         if file.endswith(".mtlx"):
             yield file
 
+_readFromXmlFile = mx.readFromXmlFileBase
+
 def _loadLibrary(file, doc):
     libDoc = mx.createDocument()
-    mx.readFromXmlFile(libDoc, file)
+    _readFromXmlFile(libDoc, file)
     libDoc.setSourceUri(file)
     copyOptions = mx.CopyOptions()
     copyOptions.skipDuplicateElements = True;
@@ -31,10 +40,8 @@ def _loadLibraries(doc, searchPath, libraryPath):
             filePath = os.path.join(libraryPath, os.path.join(path, filename))
             _loadLibrary(filePath, doc)
 
-"""
-Unit tests for ShaderX Python.
-"""
-class TestShaderX(unittest.TestCase):
+# Unit tests for GenShader (Python).
+class TestGenShader(unittest.TestCase):
 
     def test_ShaderInterface(self):
         doc = mx.createDocument()
@@ -71,47 +78,48 @@ class TestShaderX(unittest.TestCase):
         output.setNodeName("foo1");
         output.setAttribute("output", "o");
 
-        options = mx.GenOptions()
+        options = GenOptions()
 
-        shadergen = mx.ArnoldShaderGenerator.create()
-        # Add path to find all source code snippets
-        shadergen.registerSourceCodeSearchPath(mx.FilePath(searchPath))
-        # Add path to find OSL include files
-        shadergen.registerSourceCodeSearchPath(mx.FilePath(os.path.join(searchPath, "stdlib/osl")))
+        if ARNOLD_SHADER_GENERATOR_EXISTS:
+            shadergen = ArnoldShaderGenerator.create()
+            # Add path to find all source code snippets
+            shadergen.registerSourceCodeSearchPath(mx.FilePath(searchPath))
+            # Add path to find OSL include files
+            shadergen.registerSourceCodeSearchPath(mx.FilePath(os.path.join(searchPath, "stdlib/osl")))
 
-        # Test complete mode
-        options.shaderInterfaceType = mx.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE;
-        shader = shadergen.generate(exampleName, output, options);
-        self.assertTrue(shader)
-        self.assertTrue(len(shader.getSourceCode(mx.Shader.PIXEL_STAGE)) > 0)
+            # Test complete mode
+            options.shaderInterfaceType = ShaderInterfaceType.SHADER_INTERFACE_COMPLETE;
+            shader = shadergen.generate(exampleName, output, options);
+            self.assertTrue(shader)
+            self.assertTrue(len(shader.getSourceCode(Shader.PIXEL_STAGE)) > 0)
 
-        uniforms = shader.getUniformBlock(mx.Shader.PIXEL_STAGE, mx.Shader.PUBLIC_UNIFORMS)
-        self.assertTrue(uniforms.size() == 2)
+            uniforms = shader.getUniformBlock(Shader.PIXEL_STAGE, Shader.PUBLIC_UNIFORMS)
+            self.assertTrue(uniforms.size() == 2)
 
-        outputs = shader.getOutputBlock()
-        self.assertTrue(outputs.size() == 1)
-        self.assertTrue(outputs[0].name == output.getName())
+            outputs = shader.getOutputBlock()
+            self.assertTrue(outputs.size() == 1)
+            self.assertTrue(outputs[0].name == output.getName())
 
-        file = open(shader.getName() + "_complete.osl", "w+")
-        file.write(shader.getSourceCode(mx.Shader.PIXEL_STAGE))
-        file.close()
+            file = open(shader.getName() + "_complete.osl", "w+")
+            file.write(shader.getSourceCode(Shader.PIXEL_STAGE))
+            file.close()
 
-        # Test reduced mode
-        options.shaderInterfaceType = mx.ShaderInterfaceType.SHADER_INTERFACE_REDUCED;
-        shader = shadergen.generate(exampleName, output, options);
-        self.assertTrue(shader)
-        self.assertTrue(len(shader.getSourceCode(mx.Shader.PIXEL_STAGE)) > 0)
+            # Test reduced mode
+            options.shaderInterfaceType = ShaderInterfaceType.SHADER_INTERFACE_REDUCED;
+            shader = shadergen.generate(exampleName, output, options);
+            self.assertTrue(shader)
+            self.assertTrue(len(shader.getSourceCode(Shader.PIXEL_STAGE)) > 0)
 
-        uniforms = shader.getUniformBlock(mx.Shader.PIXEL_STAGE, mx.Shader.PUBLIC_UNIFORMS)
-        self.assertTrue(uniforms.size() == 0)
+            uniforms = shader.getUniformBlock(Shader.PIXEL_STAGE, Shader.PUBLIC_UNIFORMS)
+            self.assertTrue(uniforms.size() == 0)
 
-        outputs = shader.getOutputBlock()
-        self.assertTrue(outputs.size() == 1)
-        self.assertTrue(outputs[0].name == output.getName())
+            outputs = shader.getOutputBlock()
+            self.assertTrue(outputs.size() == 1)
+            self.assertTrue(outputs[0].name == output.getName())
 
-        file = open(shader.getName() + "_reduced.osl", "w+")
-        file.write(shader.getSourceCode(mx.Shader.PIXEL_STAGE))
-        file.close()
+            file = open(shader.getName() + "_reduced.osl", "w+")
+            file.write(shader.getSourceCode(Shader.PIXEL_STAGE))
+            file.close()
 
 if __name__ == '__main__':
     unittest.main()

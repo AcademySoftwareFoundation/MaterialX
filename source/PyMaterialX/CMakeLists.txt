@@ -23,9 +23,6 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${PYBIND11_INCLUDE_DIR})
 
-file(GLOB pymaterialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB pymaterialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
-
 list(APPEND CMAKE_MODULE_PATH "${MATERIALX_PYTHON_PYBIND11_DIR}/tools")
 include(pybind11Tools)
 
@@ -33,29 +30,14 @@ if(NOT MATERIALX_PYTHON_LTO)
     set(PYBIND11_MODULE_FLAGS "NO_EXTRAS")
 endif()
 
-pybind11_add_module(PyMaterialX SHARED ${PYBIND11_MODULE_FLAGS} ${pymaterialx_source} ${pymaterialx_headers})
-
-if(APPLE)
-    set_target_properties(PyMaterialX PROPERTIES CXX_VISIBILITY_PRESET "default")
+add_subdirectory(PyMaterialXCore)
+add_subdirectory(PyMaterialXGenShader)
+if (MATERIALX_BUILD_GEN_GLSL)
+    add_subdirectory(PyMaterialXGenGlsl)
 endif()
-
-set_target_properties(
-    PyMaterialX
-    PROPERTIES
-    OUTPUT_NAME PyMaterialX
-    COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
-    LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
-    VERSION "${MATERIALX_LIBRARY_VERSION}"
-    SOVERSION "${MATERIALX_MAJOR_VERSION}")
-
-target_link_libraries(
-    PyMaterialX
-    PUBLIC MaterialXFormat
-           MaterialXGenShader
-           MaterialXGenGlsl
-           MaterialXGenOgsFx
-           MaterialXGenOsl
-    PRIVATE ${CMAKE_DL_LIBS})
-
-install(TARGETS PyMaterialX
-        DESTINATION "${CMAKE_INSTALL_PREFIX}/python/MaterialX")
+if (MATERIALX_BUILD_GEN_OGSFX)
+    add_subdirectory(PyMaterialXGenOgsFx)
+endif()
+if (MATERIALX_BUILD_GEN_OSL)
+    add_subdirectory(PyMaterialXGenOsl)
+endif()
