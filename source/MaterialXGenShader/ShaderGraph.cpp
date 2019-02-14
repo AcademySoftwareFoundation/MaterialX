@@ -674,6 +674,11 @@ ShaderNode* ShaderGraph::getNode(const string& name)
     return it != _nodeMap.end() ? it->second.get() : nullptr;
 }
 
+const ShaderNode* ShaderGraph::getNode(const string& name) const
+{
+    return const_cast<ShaderGraph*>(this)->getNode(name);
+}
+
 void ShaderGraph::finalize(ShaderGenerator& shadergen, const GenOptions& options)
 {
     // Insert color transformation nodes where needed

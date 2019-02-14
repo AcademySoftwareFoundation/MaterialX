@@ -1,13 +1,14 @@
 #ifndef MATERIALX_SHADERGENERATOR_H
 #define MATERIALX_SHADERGENERATOR_H
 
-#include <MaterialXGenShader/ColorManagementSystem.h>
+#include <MaterialXGenShader/Library.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Syntax.h>
 #include <MaterialXGenShader/Factory.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/GenOptions.h>
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/ColorManagementSystem.h>
 
 #include <MaterialXCore/Util.h>
 
@@ -251,26 +252,6 @@ protected:
     GenContextPtr _defaultContext;
 
     ColorManagementSystemPtr _colorManagementSystem;
-};
-
-/// @class @ExceptionShaderGenError
-/// An exception that is thrown when shader generation fails.
-class ExceptionShaderGenError : public Exception
-{
-public:
-    ExceptionShaderGenError(const string& msg) :
-        Exception(msg)
-    {
-    }
-
-    ExceptionShaderGenError(const ExceptionShaderGenError& e) :
-        Exception(e)
-    {
-    }
-
-    virtual ~ExceptionShaderGenError() throw()
-    {
-    }
 };
 
 } // namespace MaterialX

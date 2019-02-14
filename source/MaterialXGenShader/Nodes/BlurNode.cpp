@@ -1,5 +1,4 @@
 #include <MaterialXGenShader/Nodes/BlurNode.h>
-#include <MaterialXGenShader/HwShader.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
 #include <cmath>

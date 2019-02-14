@@ -45,6 +45,9 @@ class ShaderGraph : public ShaderNode
     /// Get an internal node by name
     ShaderNode* getNode(const string& name);
 
+    /// Get an internal node by name
+    const ShaderNode* getNode(const string& name) const;
+
     /// Get a vector of all nodes in order
     const vector<ShaderNode*>& getNodes() const { return _nodeOrder; }
 

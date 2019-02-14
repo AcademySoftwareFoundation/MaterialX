@@ -1,5 +1,4 @@
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
-#include <MaterialXGenShader/HwShader.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
 namespace MaterialX

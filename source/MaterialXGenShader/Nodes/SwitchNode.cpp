@@ -1,5 +1,4 @@
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
-#include <MaterialXGenShader/HwShader.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
 namespace MaterialX

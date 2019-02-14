@@ -10,7 +10,6 @@
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/Util.h>
-#include <MaterialXGenShader/HwShader.h>
 #include <MaterialXGenShader/HwLightHandler.h>
 
 #ifdef MATERIALX_BUILD_GEN_GLSL
@@ -743,20 +742,9 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
 
 TEST_CASE("Swizzling", "[shadergen]")
 {
-    mx::DocumentPtr doc = mx::createDocument();
-
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    loadLibraries({"stdlib"}, searchPath, doc);
-
-    mx::GenOptions options;
-    options.shaderInterfaceType = mx::SHADER_INTERFACE_COMPLETE;
-    mx::GenContext context(mx::ShaderGenerator::CONTEXT_DEFAULT);
-
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
-        mx::ArnoldShaderGenerator sg;
-        sg.registerSourceCodeSearchPath(searchPath);
-        const mx::Syntax* syntax = sg.getSyntax();
+        mx::SyntaxPtr syntax = mx::OslSyntax::create();
 
         // Test swizzle syntax
         std::string var1 = syntax->getSwizzledVariable("foo", mx::Type::COLOR3, "bgr", mx::Type::COLOR3);
@@ -771,43 +759,12 @@ TEST_CASE("Swizzling", "[shadergen]")
         REQUIRE(var5 == "vector2(foo.y, foo.y)");
         std::string var6 = syntax->getSwizzledVariable("foo", mx::Type::COLOR2, "rraa", mx::Type::VECTOR4);
         REQUIRE(var6 == "vector4(foo.r, foo.r, foo.a, foo.a)");
-
-        // Create a simple test graph
-        mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
-        mx::NodePtr constant1 = nodeGraph->addNode("constant", "constant1", "color3");
-        constant1->setParameterValue("value", mx::Color3(1, 2, 3));
-        mx::NodePtr swizzle1 = nodeGraph->addNode("swizzle", "swizzle1", "color3");
-        swizzle1->setConnectedNode("in", constant1);
-        swizzle1->setParameterValue("channels", std::string("rrr"));
-        mx::OutputPtr output1 = nodeGraph->addOutput();
-        output1->setConnectedNode(swizzle1);
-
-        // Test swizzle node implementation
-        mx::Shader test1("test1");
-        test1.initialize(output1, sg, options);
-        mx::ShaderNode* sgNode = test1.getGraph()->getNode("swizzle1");
-        REQUIRE(sgNode);
-        test1.addFunctionCall(sgNode, context, sg);
-        const std::string test1Result = "color swizzle1_out = color(swizzle1_in[0], swizzle1_in[0], swizzle1_in[0]);\n";
-        REQUIRE(test1.getSourceCode() == test1Result);
-
-        // Change swizzle pattern and test again
-        swizzle1->setParameterValue("channels", std::string("b0b"));
-        mx::Shader test2("test2");
-        test2.initialize(output1, sg, options);
-        sgNode = test2.getGraph()->getNode("swizzle1");
-        REQUIRE(sgNode);
-        test2.addFunctionCall(sgNode, context, sg);
-        const std::string test2Result = "color swizzle1_out = color(swizzle1_in[2], 0, swizzle1_in[2]);\n";
-        REQUIRE(test2.getSourceCode() == test2Result);
     }
 #endif // MATERIALX_BUILD_GEN_OSL
 
 #ifdef MATERIALX_BUILD_GEN_GLSL
     {
-        mx::GlslShaderGenerator sg;
-        sg.registerSourceCodeSearchPath(searchPath);
-        const mx::Syntax* syntax = sg.getSyntax();
+        mx::SyntaxPtr syntax = mx::GlslSyntax::create();
 
         // Test swizzle syntax
         std::string var1 = syntax->getSwizzledVariable("foo", mx::Type::COLOR3, "bgr", mx::Type::COLOR3);
@@ -822,35 +779,6 @@ TEST_CASE("Swizzling", "[shadergen]")
         REQUIRE(var5 == "vec2(foo.y, foo.y)");
         std::string var6 = syntax->getSwizzledVariable("foo", mx::Type::COLOR2, "rraa", mx::Type::VECTOR4);
         REQUIRE(var6 == "vec4(foo.x, foo.x, foo.y, foo.y)");
-
-        // Create a simple test graph
-        mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
-        mx::NodePtr constant1 = nodeGraph->addNode("constant", "constant1", "color3");
-        constant1->setParameterValue("value", mx::Color3(1, 2, 3));
-        mx::NodePtr swizzle1 = nodeGraph->addNode("swizzle", "swizzle1", "color3");
-        swizzle1->setConnectedNode("in", constant1);
-        swizzle1->setParameterValue("channels", std::string("rrr"));
-        mx::OutputPtr output1 = nodeGraph->addOutput();
-        output1->setConnectedNode(swizzle1);
-
-        // Test swizzle node implementation
-        mx::Shader test1("test1");
-        test1.initialize(output1, sg, options);
-        mx::ShaderNode* sgNode = test1.getGraph()->getNode("swizzle1");
-        REQUIRE(sgNode);
-        test1.addFunctionCall(sgNode, context, sg);
-        const std::string test1Result = "vec3 swizzle1_out = vec3(swizzle1_in.x, swizzle1_in.x, swizzle1_in.x);\n";
-        REQUIRE(test1.getSourceCode() == test1Result);
-
-        // Change swizzle pattern and test again
-        swizzle1->setParameterValue("channels", std::string("b0b"));
-        mx::Shader test2("test2");
-        test2.initialize(output1, sg, options);
-        sgNode = test2.getGraph()->getNode("swizzle1");
-        REQUIRE(sgNode);
-        test2.addFunctionCall(sgNode, context, sg);
-        const std::string test2Result = "vec3 swizzle1_out = vec3(swizzle1_in.z, 0, swizzle1_in.z);\n";
-        REQUIRE(test2.getSourceCode() == test2Result);
     }
 #endif // MATERIALX_BUILD_GEN_GLSL
 }
@@ -952,12 +880,13 @@ TEST_CASE("Shader Interface", "[shadergen]")
             REQUIRE(shader != nullptr);
             REQUIRE(shader->getSourceCode().length() > 0);
 
-            const mx::Shader::VariableBlock& uniforms = shader->getUniformBlock(mx::Shader::PIXEL_STAGE, mx::Shader::PUBLIC_UNIFORMS);
+            const mx::ShaderStage& stage = shader->getStage(mx::OSL::STAGE);
+            const mx::VariableBlock& uniforms = stage.getUniformBlock(mx::OSL::UNIFORMS);
             REQUIRE(uniforms.size() == 2);
 
-            const mx::Shader::VariableBlock& outputs = shader->getOutputBlock();
+            const mx::VariableBlock& outputs = stage.getOutputBlock(mx::OSL::OUTPUTS);
             REQUIRE(outputs.size() == 1);
-            REQUIRE(outputs[0]->name == output->getName());
+            REQUIRE(outputs[0]->getName() == output->getName());
 
             // Write out to file for inspection
             std::ofstream file;
@@ -973,12 +902,13 @@ TEST_CASE("Shader Interface", "[shadergen]")
             REQUIRE(shader != nullptr);
             REQUIRE(shader->getSourceCode().length() > 0);
 
-            const mx::Shader::VariableBlock& uniforms = shader->getUniformBlock(mx::Shader::PIXEL_STAGE, mx::Shader::PUBLIC_UNIFORMS);
+            const mx::ShaderStage& stage = shader->getStage(mx::OSL::STAGE);
+            const mx::VariableBlock& uniforms = stage.getUniformBlock(mx::OSL::UNIFORMS);
             REQUIRE(uniforms.size() == 0);
 
-            const mx::Shader::VariableBlock& outputs = shader->getOutputBlock();
+            const mx::VariableBlock& outputs = stage.getOutputBlock(mx::OSL::OUTPUTS);
             REQUIRE(outputs.size() == 1);
-            REQUIRE(outputs[0]->name == output->getName());
+            REQUIRE(outputs[0]->getName() == output->getName());
 
             // Write out to file for inspection
             std::ofstream file;
@@ -1549,7 +1479,6 @@ TEST_CASE("Noise", "[shadergen]")
     }
 }
 
-
 TEST_CASE("Unique Names", "[shadergen]")
 {
     mx::DocumentPtr doc = mx::createDocument();
@@ -1589,9 +1518,9 @@ TEST_CASE("Unique Names", "[shadergen]")
         REQUIRE(shader->getSourceCode().length() > 0);
 
         // Make sure the output and internal node output has their variable names set
-        mx::ShaderGraphOutputSocket* sgOutputSocket = shader->getGraph()->getOutputSocket();
+        const mx::ShaderGraphOutputSocket* sgOutputSocket = shader->getGraph()->getOutputSocket();
         REQUIRE(sgOutputSocket->variable != "output");
-        mx::ShaderNode* sgNode1 = shader->getGraph()->getNode(node1->getName());
+        const mx::ShaderNode* sgNode1 = shader->getGraph()->getNode(node1->getName());
         REQUIRE(sgNode1->getOutput()->variable == "unique_names_out");
 
         // Write out to file for inspection

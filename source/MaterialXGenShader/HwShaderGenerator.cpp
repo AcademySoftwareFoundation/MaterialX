@@ -1,5 +1,4 @@
 #include <MaterialXGenShader/HwShaderGenerator.h>
-#include <MaterialXGenShader/HwShader.h>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Definition.h>

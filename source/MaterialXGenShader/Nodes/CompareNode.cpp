@@ -1,5 +1,4 @@
 #include <MaterialXGenShader/Nodes/CompareNode.h>
-#include <MaterialXGenShader/HwShader.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/ShaderNode.h>
 
