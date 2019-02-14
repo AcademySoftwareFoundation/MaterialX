@@ -179,6 +179,48 @@ namespace
             }
         }
     };
+
+    
+    class OSLMatrix3TypeSyntax : public AggregateTypeSyntax
+    {
+    public:
+        OSLMatrix3TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
+            const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
+            const vector<string>& members = EMPTY_MEMBERS)
+            : AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
+        {}
+
+        string getValue(const Value& value, bool uniform) const
+        {   
+            vector<string> values = splitString(value.getValueString(), ",");
+            return getValue(values, uniform);
+        }
+
+        string getValue(const vector<string>& values, bool /*uniform*/) const
+        {
+            if (values.empty())
+            {
+                throw ExceptionShaderGenError("No values given to construct a value");
+            }
+
+            // Write the value using a stream to maintain any float formatting set
+            // using Value::setFloatFormat() and Value::setFloatPrecision()
+            std::stringstream ss;
+            ss << getName() << "(";
+            for (size_t i = 0; i<values.size(); i++)
+            {
+                ss << values[i] << ", ";
+                if (i % 3 == 0)
+                {
+                    ss << "0.0" << ", ";
+                }
+            }
+            static string ROW_4("0.0, 0.0, 0.0, 1.0");
+            ss << ROW_4 << ")";
+
+            return ss.str();
+        }
+    };
 }
 
 const string OslSyntax::OUTPUT_QUALIFIER = "output";
@@ -325,7 +367,7 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         Type::MATRIX33,
-        std::make_shared<AggregateTypeSyntax>(
+        std::make_shared<OSLMatrix3TypeSyntax>(
             "matrix",
             "matrix(1.0)",
             "matrix(1.0)")

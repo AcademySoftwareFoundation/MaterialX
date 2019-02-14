@@ -19,7 +19,6 @@ and graph traversal.
     -   GLSL
         -   Version 4 or higher
         -   Core support in [MaterialXGenGLSL](MaterialXGenGLSL) module
-        -   Autodesk OGSFX Effect support in [MaterialXGenOgsFx](MaterialXGenOgsFx) module
     -   OSL:
         -   [MaterialXGenOsl](MaterialXGenOsl) module.
         -   Uses an implementation which differs from the reference OSL
@@ -47,7 +46,6 @@ Nodes and implementations which are not currently supported:
 -   displacementshader and volumeshader and associated operations (add,
     multiply, mix)
 -   mix surfaceshader for GLSL
--   Matrix33 type operations for OSL.
 
 ## Rendering Utilities
 
@@ -61,17 +59,11 @@ Nodes and implementations which are not currently supported:
 
 The unit tests are located in the [MaterialXTest](MaterialXTest/README.md) module.
 
-This includes tests for core and shader generation. The tests executed are based on what build options have been enabled. The test suite for this resides [here](../documents/TestSuite).
-
-## Viewing Utilities
-
-- [MaterialXView](https://github.com/jstone-dev/MaterialX/blob/adsk_contrib/dev/README.md) module
-- Sample material viewer which uses the core, shader generation and rendering utilities libraries.
+This includes tests for core and shader generation. The test suite for this resides [here](../documents/TestSuite).
 
 ## Build Options
 By default MaterialXCore, MaterialXFormat and MaterialXGenShader are built.
 - Python support is enabled via the MATERIALX_BUILD_PYTHON build variable.
 - OSL shader generation is enabled via the MATERIALX_BUILD_GEN_OSL build variable.
 - GLSL shader generation is enabled via the MATERIALX_BUILD_GEN_GLSL build variable.
-- OGSFX shader generation is enabled via the MATERIALX_BUILD_GEN_OGSFX build variable. The GLSL shader generation build variable must also be enabled.
 - Building of rendering utilities is enabled via the MATERIALX_BUILD_RENDER build variable. Execution of rendering tests is enabled via the MATERIALX_TEST_RENDER. These tests are currently only supported for the Windows platform.

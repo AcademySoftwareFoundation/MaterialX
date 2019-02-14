@@ -19,7 +19,6 @@ option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third
 option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors." OFF)
 option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
-cmake_dependent_option(MATERIALX_BUILD_GEN_OGSFX "Build the OGSFX shader generator back-end." ON "MATERIALX_BUILD_GEN_GLSL" OFF)
 
 set(MATERIALX_PYTHON_VERSION "" CACHE STRING
     "Python version to be used in building the MaterialX Python package (e.g. '2.7').")
@@ -41,7 +40,6 @@ mark_as_advanced(MATERIALX_PYTHON_PYBIND11_DIR)
 
 mark_as_advanced(MATERIALX_BUILD_GEN_OSL)
 mark_as_advanced(MATERIALX_BUILD_GEN_GLSL)
-mark_as_advanced(MATERIALX_BUILD_GEN_OGSFX)
 
 # Adjust the default installation path
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -85,10 +83,6 @@ if (MATERIALX_BUILD_GEN_GLSL)
     add_definitions(-DMATERIALX_BUILD_GEN_GLSL)
     add_subdirectory(source/MaterialXGenGlsl)
 endif(MATERIALX_BUILD_GEN_GLSL)
-if (MATERIALX_BUILD_GEN_OGSFX)
-    add_definitions(-DMATERIALX_BUILD_GEN_OGSFX)
-    add_subdirectory(source/MaterialXGenOgsFx)
-endif(MATERIALX_BUILD_GEN_OGSFX)
 
 add_subdirectory(source/MaterialXTest)
 add_subdirectory(documents)
