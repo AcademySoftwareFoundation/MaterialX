@@ -540,20 +540,23 @@ void Document::upgradeVersion()
                     for (ShaderRefPtr shaderRef : material->getShaderRefs())
                     {
                         NodeDefPtr nodeDef = shaderRef->getNodeDef();
-                        for (ValueElementPtr activeValue : nodeDef->getActiveValueElements())
+                        if (nodeDef)
                         {
-                            if (activeValue->getAttribute("publicname") == child->getName() &&
-                                !shaderRef->getChild(child->getName()))
+                            for (ValueElementPtr activeValue : nodeDef->getActiveValueElements())
                             {
-                                if (activeValue->isA<Parameter>())
+                                if (activeValue->getAttribute("publicname") == child->getName() &&
+                                    !shaderRef->getChild(child->getName()))
                                 {
-                                    BindParamPtr bindParam = shaderRef->addBindParam(activeValue->getName(), activeValue->getType());
-                                    bindParam->setValueString(child->getAttribute("value"));
-                                }
-                                else if (activeValue->isA<Input>())
-                                {
-                                    BindInputPtr bindInput = shaderRef->addBindInput(activeValue->getName(), activeValue->getType());
-                                    bindInput->setValueString(child->getAttribute("value"));
+                                    if (activeValue->isA<Parameter>())
+                                    {
+                                        BindParamPtr bindParam = shaderRef->addBindParam(activeValue->getName(), activeValue->getType());
+                                        bindParam->setValueString(child->getAttribute("value"));
+                                    }
+                                    else if (activeValue->isA<Input>())
+                                    {
+                                        BindInputPtr bindInput = shaderRef->addBindInput(activeValue->getName(), activeValue->getType());
+                                        bindInput->setValueString(child->getAttribute("value"));
+                                    }
                                 }
                             }
                         }

@@ -49,7 +49,7 @@ class Document : public GraphElement
     virtual void initialize();
 
     /// Create a deep copy of the document.
-    virtual DocumentPtr copy()
+    virtual DocumentPtr copy() const
     {
         DocumentPtr doc = createDocument<Document>();
         doc->copyContentFrom(getSelf());
@@ -203,7 +203,7 @@ class Document : public GraphElement
     void removeGeomPropDef(const string& name)
     {
         removeChildOfType<GeomPropDef>(name);
-    }    
+    }
 
     /// @}
     /// @name Look Elements
