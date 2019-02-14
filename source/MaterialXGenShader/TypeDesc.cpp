@@ -1,5 +1,5 @@
 #include <MaterialXGenShader/TypeDesc.h>
-#include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 
 namespace MaterialX
 {

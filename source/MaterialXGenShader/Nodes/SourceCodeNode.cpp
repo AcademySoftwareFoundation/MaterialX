@@ -56,24 +56,23 @@ void SourceCodeNode::initialize(ElementPtr implementation, ShaderGenerator& shad
     }
 }
 
-void SourceCodeNode::emitFunctionDefinition(const ShaderNode& /*node*/, ShaderGenerator& shadergen, Shader& shader)
+void SourceCodeNode::emitFunctionDefinition(ShaderStage& stage, const ShaderNode&, ShaderGenerator& shadergen)
 {
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 
     // Emit function definition for non-inlined functions
     if (!_inlined)
     {
-        shader.addBlock(_functionSource, shadergen);
-        shader.newLine();
+        shadergen.emitBlock(stage, _functionSource);
+        shadergen.emitLineEnd(stage);
     }
 
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+END_SHADER_STAGE(stage, MAIN_STAGE)
 }
 
-void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader)
+void SourceCodeNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen)
 {
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-
+BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     if (_inlined)
     {
         // An inline function call
@@ -82,15 +81,15 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
         static const string postfix("}}");
 
         // Inline expressions can only have a single output
-        shader.beginLine();
-        shadergen.emitOutput(context, node.getOutput(), true, false, shader);
-        shader.addStr(" = ");
+        shadergen.emitLineBegin(stage);
+        shadergen.emitOutput(stage, context, node.getOutput(), true, false);
+        shadergen.emitString(stage, " = ");
 
         size_t pos = 0;
         size_t i = _functionSource.find_first_of(prefix);
         while (i != string::npos)
         {
-            shader.addStr(_functionSource.substr(pos, i - pos));
+            shadergen.emitString(stage, _functionSource.substr(pos, i - pos));
 
             size_t j = _functionSource.find_first_of(postfix, i + 2);
             if (j == string::npos)
@@ -105,13 +104,13 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
                 throw ExceptionShaderGenError("Could not find an input named '" + variable +
                     "' on node '" + node.getName() + "'");
             }
-            shadergen.emitInput(context, input, shader);
+            shadergen.emitInput(stage, context, input);
 
             pos = j + 2;
             i = _functionSource.find_first_of(prefix, pos);
         }
-        shader.addStr(_functionSource.substr(pos));
-        shader.endLine();
+        shadergen.emitString(stage, _functionSource.substr(pos));
+        shadergen.emitLineEnd(stage);
     }
     else
     {
@@ -120,15 +119,15 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
         // Declare the output variables
         for (size_t i = 0; i < node.numOutputs(); ++i)
         {
-            shader.beginLine();
-            shadergen.emitOutput(context, node.getOutput(i), true, true, shader);
-            shader.endLine();
+            shadergen.emitLineBegin(stage);
+            shadergen.emitOutput(stage, context, node.getOutput(i), true, true);
+            shadergen.emitLineEnd(stage);
         }
 
-        shader.beginLine();
+        shadergen.emitLineBegin(stage);
 
         // Emit function name
-        shader.addStr(_functionName + context.getFunctionSuffix() + "(");
+        shadergen.emitString(stage, _functionName + context.getFunctionSuffix() + "(");
 
         // Emit function inputs
         string delim = "";
@@ -136,32 +135,31 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
         // Add any extra argument inputs first...
         for (const Argument& arg : context.getArguments())
         {
-            shader.addStr(delim + arg.second);
+            shadergen.emitString(stage, delim + arg.second);
             delim = ", ";
         }
 
         // ...and then all inputs on the node
         for (ShaderInput* input : node.getInputs())
         {
-            shader.addStr(delim);
-            shadergen.emitInput(context, input, shader);
+            shadergen.emitString(stage, delim);
+            shadergen.emitInput(stage, context, input);
             delim = ", ";
         }
 
         // Emit function outputs
         for (size_t i = 0; i < node.numOutputs(); ++i)
         {
-            shader.addStr(delim);
-            shadergen.emitOutput(context, node.getOutput(i), false, false, shader);
+            shadergen.emitString(stage, delim);
+            shadergen.emitOutput(stage, context, node.getOutput(i), false, false);
             delim = ", ";
         }
 
         // End function call
-        shader.addStr(")");
-        shader.endLine();
+        shadergen.emitString(stage, ")");
+        shadergen.emitLineEnd(stage);
     }
-
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+END_SHADER_STAGE(stage, MAIN_STAGE)
 }
 
 } // namespace MaterialX

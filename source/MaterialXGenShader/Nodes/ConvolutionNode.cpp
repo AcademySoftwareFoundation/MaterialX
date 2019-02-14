@@ -37,8 +37,10 @@ ConvolutionNode::ConvolutionNode()
 {
 }
 
-void ConvolutionNode::createVariables(const ShaderNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader)
+void ConvolutionNode::createVariables(ShaderStage& stage, const ShaderNode&)
 {
+BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
+
     // Create constant for box weights
     const float boxWeight3x3 = 1.0f / 9.0f;
     const float boxWeight5x5 = 1.0f / 25.0f;
@@ -57,16 +59,16 @@ void ConvolutionNode::createVariables(const ShaderNode& /*node*/, ShaderGenerato
     {
         boxWeightArray.push_back(boxWeight7x7);
     }
-    shader.createConstant(Shader::PIXEL_STAGE, 
-        Type::FLOATARRAY, "c_box_filter_weights", EMPTY_STRING, EMPTY_STRING, Value::createValue<vector<float>>(boxWeightArray));
+    VariableBlock& constants = stage.getConstantBlock();
+    constants.add(Type::FLOATARRAY, "c_box_filter_weights", EMPTY_STRING, Value::createValue<vector<float>>(boxWeightArray));
 
     // Create constant for Gaussian weights
- 
-    shader.createConstant(Shader::PIXEL_STAGE,
-        Type::FLOATARRAY, "c_gaussian_filter_weights", EMPTY_STRING, EMPTY_STRING, Value::createValue<vector<float>>(GAUSSIAN_WEIGHT_ARRAY));
+    constants.add(Type::FLOATARRAY, "c_gaussian_filter_weights", EMPTY_STRING, Value::createValue<vector<float>>(GAUSSIAN_WEIGHT_ARRAY));
+
+END_SHADER_STAGE(stage, PIXEL_STAGE)
 }
 
-void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader, StringVec& sampleStrings)
+void ConvolutionNode::emitInputSamplesUV(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, StringVec& sampleStrings)
 {
     sampleStrings.clear();
 
@@ -114,7 +116,7 @@ void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node, GenContext& con
                             std::to_string(_filterSize) + "," +
                             std::to_string(_filterOffset) + ");"
                         );
-                        shader.addLine(sampleCall);
+                        shadergen.emitLine(stage, sampleCall);
 
                         // Build the sample offset strings. This is dependent on
                         // the derived class to determine where samples are located
@@ -134,7 +136,7 @@ void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node, GenContext& con
                             string outputSuffix("_" + output->variable + std::to_string(i));
                             context.addOutputSuffix(upstreamOutput, outputSuffix);
 
-                            impl->emitFunctionCall(*upstreamNode, context, shadergen, shader);
+                            impl->emitFunctionCall(stage, *upstreamNode, context, shadergen);
 
                             // Remove suffixes
                             context.removeInputSuffix(samplingInput);

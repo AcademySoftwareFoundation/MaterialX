@@ -13,9 +13,9 @@ ShaderNodeImplPtr SwizzleNode::create()
     return std::make_shared<SwizzleNode>();
 }
 
-void SwizzleNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader)
+void SwizzleNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen)
 {
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 
     const ShaderInput* in = node.getInput(IN_STRING);
     const ShaderInput* channels = node.getInput(CHANNELS_STRING);
@@ -36,7 +36,7 @@ void SwizzleNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
     if (!in->connection)
     {
         string variableValue = in->value ? shadergen.getSyntax()->getValue(in->type, *in->value) : shadergen.getSyntax()->getDefaultValue(in->type);
-        shader.addLine(shadergen.getSyntax()->getTypeName(in->type) + " " + variableName + " = " + variableValue);
+        shadergen.emitLine(stage, shadergen.getSyntax()->getTypeName(in->type) + " " + variableName + " = " + variableValue);
     }
 
     if (!swizzle.empty())
@@ -45,12 +45,12 @@ void SwizzleNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         variableName = shadergen.getSyntax()->getSwizzledVariable(variableName, type, swizzle, node.getOutput()->type);
     }
 
-    shader.beginLine();
-    shadergen.emitOutput(context, node.getOutput(), true, false, shader);
-    shader.addStr(" = " + variableName);
-    shader.endLine();
+    shadergen.emitLineBegin(stage);
+    shadergen.emitOutput(stage, context, node.getOutput(), true, false);
+    shadergen.emitString(stage, " = " + variableName);
+    shadergen.emitLineEnd(stage);
 
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+END_SHADER_STAGE(stage, MAIN_STAGE)
 }
 
 bool SwizzleNode::isEditable(const ShaderInput& input) const

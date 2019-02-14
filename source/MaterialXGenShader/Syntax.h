@@ -11,10 +11,13 @@
 namespace MaterialX
 {
 
+class Syntax;
+class TypeSyntax;
 class TypeDesc;
 
-using SyntaxPtr = shared_ptr<class Syntax>;
-using TypeSyntaxPtr = shared_ptr<class TypeSyntax>;
+using SyntaxPtr = shared_ptr<Syntax>;
+using ConstSyntaxPtr = shared_ptr<const Syntax>;
+using TypeSyntaxPtr = shared_ptr<TypeSyntax>;
 
 /// Base class for syntax objects used by shader generators
 /// to emit code with correcy syntax for each language.

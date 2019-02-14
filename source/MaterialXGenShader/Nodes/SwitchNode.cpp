@@ -12,14 +12,14 @@ ShaderNodeImplPtr SwitchNode::create()
     return std::make_shared<SwitchNode>();
 }
 
-void SwitchNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader)
+void SwitchNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen)
 {
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 
     // Declare the output variable
-    shader.beginLine();
-    shadergen.emitOutput(context, node.getOutput(), true, true, shader);
-    shader.endLine();
+    shadergen.emitLineBegin(stage);
+    shadergen.emitOutput(stage, context, node.getOutput(), true, true);
+    shadergen.emitLineEnd(stage);
 
     const ShaderInput* which = node.getInput(INPUT_NAMES[5]);
 
@@ -34,41 +34,45 @@ void SwitchNode::emitFunctionCall(const ShaderNode& node, GenContext& context, S
             break;
         }
 
-        shader.beginLine();
+        shadergen.emitLineBegin(stage);
         if (branch > 0)
         {
-            shader.addStr("else ");
+            shadergen.emitString(stage, "else ");
         }
         if (branch < 5)
         {
             // 'which' can be float, integer or boolean, 
             // so always convert to float to make sure the comparison is valid
-            shader.addStr("if (float("); shadergen.emitInput(context, which, shader); shader.addStr(") < "); shader.addValue(float(branch + 1));  shader.addStr(")");
+            shadergen.emitString(stage, "if (float("); 
+            shadergen.emitInput(stage, context, which);
+            shadergen.emitString(stage, ") < ");
+            shadergen.emitValue(stage, float(branch + 1));
+            shadergen.emitString(stage, ")");
         }
-        shader.endLine(false);
+        shadergen.emitLineEnd(stage, false);
 
-        shader.beginScope();
+        shadergen.emitScopeBegin(stage);
 
         // Emit nodes that are ONLY needed in this scope
-        for (ShaderNode* otherNode : shader.getGraph()->getNodes())
+        for (ShaderNode* otherNode : stage.getGraph()->getNodes())
         {
             const ShaderNode::ScopeInfo& scope = otherNode->getScopeInfo();
             if (scope.conditionalNode == &node && scope.usedByBranch(branch))
             {
-                shader.addFunctionCall(otherNode, context, shadergen);
+                shadergen.emitFunctionCall(stage, otherNode, context, false);
             }
         }
 
-        shader.beginLine();
-        shadergen.emitOutput(context, node.getOutput(), false, false, shader);
-        shader.addStr(" = ");
-        shadergen.emitInput(context, input, shader);
-        shader.endLine();
+        shadergen.emitLineBegin(stage);
+        shadergen.emitOutput(stage, context, node.getOutput(), false, false);
+        shadergen.emitString(stage, " = ");
+        shadergen.emitInput(stage, context, input);
+        shadergen.emitLineEnd(stage);
 
-        shader.endScope();
+        shadergen.emitScopeEnd(stage);
     }
 
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+    END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

@@ -8,69 +8,69 @@ ShaderNodeImplPtr BitangentNodeGlsl::create()
     return std::make_shared<BitangentNodeGlsl>();
 }
 
-void BitangentNodeGlsl::createVariables(const ShaderNode& node, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void BitangentNodeGlsl::createVariables(const ShaderNode& node, Shader& shader)
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
+    ShaderStage& vs = shader.getStage(HwShader::VERTEX_STAGE);
+    ShaderStage& ps = shader.getStage(HwShader::PIXEL_STAGE);
 
-    shader.createAppData(Type::VECTOR3, "i_bitangent");
+    addStageInput(vs, HwShader::APP_DATA, Type::VECTOR3, "i_bitangent");
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const string& space = spaceInput ? spaceInput->value->getValueString() : EMPTY_STRING;
-    const string& path = spaceInput ? spaceInput->path : EMPTY_STRING;
     if (space == WORLD)
     {
-        shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix", path);
-        shader.createVertexData(Type::VECTOR3, "bitangentWorld");
+        const string& path = spaceInput ? spaceInput->path : EMPTY_STRING;
+        addStageUniform(vs, HwShader::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix", EMPTY_STRING, nullptr, path);
+        addStageConnector(vs, ps, HwShader::VERTEX_DATA, Type::VECTOR3, "bitangentWorld");
     }
     else if (space == MODEL)
     {
-        shader.createVertexData(Type::VECTOR3, "bitangentModel");
+        addStageConnector(vs, ps, HwShader::VERTEX_DATA, Type::VECTOR3, "bitangentModel");
     }
     else
     {
-        shader.createVertexData(Type::VECTOR3, "bitangentObject");
+        addStageConnector(vs, ps, HwShader::VERTEX_DATA, Type::VECTOR3, "bitangentObject");
     }
 }
 
-void BitangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void BitangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, ShaderStage& stage)
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
-
-    const string& blockInstance = shader.getVertexDataBlock().instance;
-    const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
-
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const string& space = spaceInput ? spaceInput->value->getValueString() : EMPTY_STRING;
 
-    BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
+    BEGIN_SHADER_STAGE(stage, HwShader::VERTEX_STAGE)
+        VariableBlock& vd = stage.getOutputBlock(HwShader::VERTEX_DATA);
         if (space == WORLD)
         {
-            if (!shader.isCalculated("bitangentWorld"))
+            Variable& bitangent = vd["bitangentWorld"];
+            if (!bitangent.isCalculated())
             {
-                shader.setCalculated("bitangentWorld");
-                shader.addLine(blockPrefix + "bitangentWorld = (u_worldInverseTransposeMatrix * vec4(i_bitangent,0.0)).xyz");
+                bitangent.setCalculated();
+                stage.addLine(bitangent.getFullName() + " = (u_worldInverseTransposeMatrix * vec4(i_bitangent,0.0)).xyz");
             }
         }
         else if (space == MODEL)
         {
-            if (!shader.isCalculated("bitangentModel"))
+            Variable& bitangent = vd["bitangentModel"];
+            if (!bitangent.isCalculated())
             {
-                shader.setCalculated("bitangentModel");
-                shader.addLine(blockPrefix + "bitangentModel = i_bitangent");
+                bitangent.setCalculated();
+                stage.addLine(bitangent.getFullName() + " = i_bitangent");
             }
         }
         else
         {
-            if (!shader.isCalculated("bitangentObject"))
+            Variable& bitangent = vd["bitangentObject"];
+            if (!bitangent.isCalculated())
             {
-                shader.setCalculated("bitangentObject");
-                shader.addLine(blockPrefix + "bitangentObject = i_bitangent");
+                bitangent.setCalculated();
+                stage.addLine(bitangent.getFullName() + " = i_bitangent");
             }
         }
-    END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
+    END_SHADER_STAGE(stage, HwShader::VERTEX_STAGE)
 
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-        shader.beginLine();
+    BEGIN_SHADER_STAGE(stage, HwShader::PIXEL_STAGE)
+        stage.beginLine();
         shadergen.emitOutput(context, node.getOutput(), true, false, shader);
         if (space == WORLD)
         {

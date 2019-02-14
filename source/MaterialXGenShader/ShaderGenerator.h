@@ -36,37 +36,75 @@ public:
 
     /// Generate a shader starting from the given element, translating
     /// the element and all dependencies upstream into shader code.
-    virtual ShaderPtr generate(const string& shaderName, ElementPtr element, const GenOptions& options) = 0;
+    virtual ShaderPtr generate(const string& name, ElementPtr element, const GenOptions& options) = 0;
+
+    /// Start a new scope using the given bracket type.
+    virtual void emitScopeBegin(ShaderStage& stage, ShaderStage::Brackets brackets = ShaderStage::Brackets::BRACES);
+
+    /// End the current scope.
+    virtual void emitScopeEnd(ShaderStage& stage, bool semicolon = false, bool newline = true);
+
+    /// Start a new line.
+    virtual void emitLineBegin(ShaderStage& stage);
+
+    /// End the current line.
+    virtual void emitLineEnd(ShaderStage& stage, bool semicolon = true);
+
+    /// Add a line break.
+    virtual void emitLineBreak(ShaderStage& stage);
+
+    /// Add a string.
+    virtual void emitString(ShaderStage& stage, const string& str);
+
+    /// Add a single line of code, optionally appening a semi-colon.
+    virtual void emitLine(ShaderStage& stage, const string& str, bool semicolon = true);
+
+    /// Add a block of code.
+    virtual void emitBlock(ShaderStage& stage, const string& str);
+
+    /// Add the function definition for a node.
+    virtual void emitFunctionDefinition(ShaderStage& stage, ShaderNode* node);
+
+    /// Add the function call for a node.
+    virtual void emitFunctionCall(ShaderStage& stage, ShaderNode* node, const GenContext& context, 
+                                  bool checkScope = true);
+
+    /// Add the contents of an include file. Making sure it is 
+    /// only included once for the shader stage.
+    virtual void emitInclude(ShaderStage& stage, const string& file);
+
+    /// Add a single line code comment.
+    virtual void emitComment(ShaderStage& stage, const string& str);
+
+    /// Add a value.
+    template<typename T>
+    void emitValue(ShaderStage& stage, const T& value)
+    {
+        stage.addValue<T>(value);
+    }
 
     /// Emit type definitions for all data types that needs it.
-    virtual void emitTypeDefinitions(Shader& shader);
-
-    /// Emit function definitions for all nodes
-    virtual void emitFunctionDefinitions(Shader& shader);
-
-    /// Emit all functon calls constructing the shader body
-    virtual void emitFunctionCalls(const GenContext& context, Shader& shader);
-
-    /// Emit the final output expression
-    virtual void emitFinalOutput(Shader& shader) const;
-
-    /// Emit a shader constant input variable
-    virtual void emitConstant(const Shader::Variable& uniform, Shader& shader);
-
-    /// Emit a shader uniform input variable
-    virtual void emitUniform(const Shader::Variable& uniform, Shader& shader);
+    virtual void emitTypeDefinitions(ShaderStage& stage);
 
     /// Emit the connected variable name for an input,
     /// or constant value if the port is not connected
-    virtual void emitInput(const GenContext& context, const ShaderInput* input, Shader& shader) const;
+    virtual void emitInput(ShaderStage& stage, const GenContext& context, const ShaderInput* input) const;
+
+    /// Emit the output variable name for an output, optionally including it's type
+    /// and default value assignment.
+    virtual void emitOutput(ShaderStage& stage, const GenContext& context, const ShaderOutput* output, 
+                            bool includeType, bool assignDefaultValue) const;
+
+    /// Push a new active shader graph.
+    /// Used when emitting code for compounds / subgraphs.
+    void pushActiveGraph(ShaderStage& stage, ShaderGraph* graph) const;
+
+    /// Reactivate the previously last used shader graph.
+    void popActiveGraph(ShaderStage& stage) const;
 
     /// Get the connected variable name for an input,
     /// or constant value if the port is not connected
     virtual void getInput(const GenContext& context, const ShaderInput* input, string& result) const;
-
-    /// Emit the output variable name for an output, optionally including it's type
-    /// and default value assignment.
-    virtual void emitOutput(const GenContext& context, const ShaderOutput* output, bool includeType, bool assignDefault, Shader& shader) const;
 
     /// Return the syntax object for the language used by the code generator
     const Syntax* getSyntax() const { return _syntax.get(); }
@@ -166,6 +204,9 @@ protected:
     /// Protected constructor
     ShaderGenerator(SyntaxPtr syntax);
 
+    /// Create a new stage in a shader.
+    virtual ShaderStagePtr createStage(Shader& shader, const string& name);
+
     /// Create a default implementation which is the implementation class to use
     /// for nodes that has no specific implementation registered for it.
     /// Derived classes can override this to use custom default implementations.
@@ -185,14 +226,20 @@ protected:
     /// @param qualifier Optional qualifier to add before the variable declaration.
     /// Qualifiers are specified by the syntax for the generator.
     /// @param shader Shader to emit to.
-    virtual void emitVariableBlock(const Shader::VariableBlock& block, const string& qualifier, Shader& shader);
+    virtual void emitVariableBlock(ShaderStage& stage, const VariableBlock& block, const string& qualifier);
 
     /// Emit a shader input variable
     /// @param variable Variable to emit
     /// @param qualifier Optional qualifier to add before the variable declaration.
     /// Qualifiers are specified by the syntax for the generator.
     /// @param shader Shader source to emit output to
-    virtual void emitVariable(const Shader::Variable& variable, const string& qualifier, Shader& shader);
+    virtual void emitVariable(ShaderStage& stage, const Variable& variable, const string& qualifier);
+
+    /// Utility to emit a shader constant variable
+    virtual void emitConstant(ShaderStage& stage, const Variable& variable);
+
+    /// Utility to emit a shader uniform input variable
+    virtual void emitUniform(ShaderStage& stage, const Variable& variable);
 
     SyntaxPtr _syntax;
     Factory<ShaderNodeImpl> _implFactory;
@@ -204,6 +251,26 @@ protected:
     GenContextPtr _defaultContext;
 
     ColorManagementSystemPtr _colorManagementSystem;
+};
+
+/// @class @ExceptionShaderGenError
+/// An exception that is thrown when shader generation fails.
+class ExceptionShaderGenError : public Exception
+{
+public:
+    ExceptionShaderGenError(const string& msg) :
+        Exception(msg)
+    {
+    }
+
+    ExceptionShaderGenError(const ExceptionShaderGenError& e) :
+        Exception(e)
+    {
+    }
+
+    virtual ~ExceptionShaderGenError() throw()
+    {
+    }
 };
 
 } // namespace MaterialX

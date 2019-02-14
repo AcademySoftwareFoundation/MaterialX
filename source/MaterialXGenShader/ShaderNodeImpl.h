@@ -8,6 +8,7 @@ namespace MaterialX
 {
 
 class Shader;
+class ShaderStage;
 class ShaderGenerator;
 class ShaderNode;
 class ShaderGraph;
@@ -44,13 +45,13 @@ class ShaderNodeImpl
 
     /// Create shader variables needed for the implementation of this node (e.g. uniforms, inputs and outputs).
     /// Used if the node requires input data from the application.
-    virtual void createVariables(const ShaderNode& node, ShaderGenerator& shadergen, Shader& shader);
+    virtual void createVariables(ShaderStage& stage, const ShaderNode& node);
 
     /// Emit function definition for the given node instance.
-    virtual void emitFunctionDefinition(const ShaderNode& node, ShaderGenerator& shadergen, Shader& shader);
+    virtual void emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen);
 
     /// Emit the function call or inline source code for given node instance in the given context.
-    virtual void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader);
+    virtual void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen);
 
     /// Return a pointer to the graph if this implementation is using a graph,
     /// or returns nullptr otherwise.

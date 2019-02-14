@@ -1,5 +1,7 @@
 #include <MaterialXGenShader/Syntax.h>
-#include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/TypeDesc.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
+
 #include <MaterialXCore/Value.h>
 
 namespace MaterialX

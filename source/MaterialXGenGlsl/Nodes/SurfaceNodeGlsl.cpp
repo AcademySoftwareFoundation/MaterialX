@@ -23,7 +23,7 @@ ShaderNodeImplPtr SurfaceNodeGlsl::create()
     return std::make_shared<SurfaceNodeGlsl>();
 }
 
-void SurfaceNodeGlsl::createVariables(const ShaderNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void SurfaceNodeGlsl::createVariables(const ShaderNode& /*node*/, ShaderGenerator& /*shadergen*/, ShaderStage& stage)
 {
     // TODO: 
     // The surface shader needs position, normal, view position and light sources. We should solve this by adding some 
@@ -31,12 +31,18 @@ void SurfaceNodeGlsl::createVariables(const ShaderNode& /*node*/, ShaderGenerato
     // ViewDirectionNodeGlsl and LightNodeGlsl nodes instead? This is where the MaterialX attribute "internalgeomprops" 
     // is needed.
     //
-    HwShader& shader = static_cast<HwShader&>(shader_);
+    BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
 
-    shader.createAppData(Type::VECTOR3, "i_position");
-    shader.createAppData(Type::VECTOR3, "i_normal");
+        shader.createAppData(Type::VECTOR3, "i_position");
+        shader.createAppData(Type::VECTOR3, "i_normal");
+
+    END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
+
+
     shader.createVertexData(Type::VECTOR3, "positionWorld");
     shader.createVertexData(Type::VECTOR3, "normalWorld");
+
+
     shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix");
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::VECTOR3, "u_viewPosition");
     shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", EMPTY_STRING,

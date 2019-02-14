@@ -9,6 +9,7 @@
 
 namespace MaterialX
 {
+
 const string OslShaderGenerator::LANGUAGE = "genosl";
 
 OslShaderGenerator::OslShaderGenerator()
@@ -148,103 +149,176 @@ OslShaderGenerator::OslShaderGenerator()
     registerImplementation("IM_blur_vector4_" + OslShaderGenerator::LANGUAGE, BlurNode::create);
 }
 
-ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr element, const GenOptions& options)
+ShaderPtr OslShaderGenerator::create(const string& name, ElementPtr element, const GenOptions& options)
 {
-    ShaderPtr shaderPtr = std::make_shared<Shader>(shaderName);
-    shaderPtr->initialize(element, *this, options);
+    ShaderGraphPtr graph = ShaderGraph::create(name, element, *this, options);
+    ShaderPtr shader = std::make_shared<Shader>(name, graph);
 
-    Shader& shader = *shaderPtr;
+    // Create our stage.
+    ShaderStagePtr stage = createStage(*shader, OSL::STAGE);
+    stage->createUniformBlock(OSL::UNIFORMS);
+    stage->createInputBlock(OSL::INPUTS);
+    stage->createOutputBlock(OSL::OUTPUTS);
 
-    emitIncludes(shader);
-
-    // Add global constants and type definitions
-    shader.addLine("#define M_FLOAT_EPS 0.000001", false);
-    emitTypeDefinitions(shader);
-
-    // Emit sampling code if needed
-    if (shader.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
+    // Create shader variables for all nodes that need this (geometric nodes / input streams)
+    for (ShaderNode* node : graph->getNodes())
     {
-        // Emit sampling functions
-        shader.addInclude("stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_sampling.osl", *this);
-        shader.newLine();
+        ShaderNodeImpl* impl = node->getImplementation();
+        impl->createVariables(*stage, *node);
     }
 
-    emitFunctionDefinitions(shader);
+    // Create uniforms for the published graph interface
+    VariableBlock& uniforms = stage->getUniformBlock(OSL::UNIFORMS);
+    for (ShaderGraphInputSocket* inputSocket : graph->getInputSockets())
+    {
+        // Only for inputs that are connected/used internally,
+        // and are editable by users.
+        if (inputSocket->connections.size() && graph->isEditable(*inputSocket))
+        {
+            uniforms.add(inputSocket->type, inputSocket->variable, EMPTY_STRING, inputSocket->value, inputSocket->path);
+        }
+    }
+
+    // Create outputs from the graph interface
+    VariableBlock& outputs = stage->getOutputBlock(OSL::OUTPUTS);
+    for (ShaderGraphOutputSocket* outputSocket : graph->getOutputSockets())
+    {
+        outputs.add(outputSocket->type, outputSocket->name);
+    }
+
+    return shader;
+}
+
+ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr element, const GenOptions& options)
+{
+    ShaderPtr shader = create(shaderName, element, options);
+
+    const ShaderGraph* graph = shader->getGraph();
+    ShaderStage& stage = shader->getStage(OSL::STAGE);
+
+    emitIncludes(stage);
+
+    // Add global constants and type definitions
+    emitLine(stage, "#define M_FLOAT_EPS 0.000001", false);
+    emitTypeDefinitions(stage);
+
+    // Emit sampling code if needed
+    if (graph->hasClassification(ShaderNode::Classification::CONVOLUTION2D))
+    {
+        // Emit sampling functions
+        emitInclude(stage, "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_sampling.osl");
+        emitLineBreak(stage);
+    }
+
+    // Emit function definitions for all nodes
+    for (ShaderNode* node : graph->getNodes())
+    {
+        emitFunctionDefinition(stage, node);
+    }
 
     // Emit shader type
-    const ShaderGraphOutputSocket* outputSocket = shader.getGraph()->getOutputSocket();
+    const ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
     if (outputSocket->type == Type::SURFACESHADER)
     {
-        shader.addStr("surface ");
+        emitString(stage, "surface ");
     }
     else if (outputSocket->type == Type::VOLUMESHADER)
     {
-        shader.addStr("volume ");
+        emitString(stage, "volume ");
     }
     else
     {
-        shader.addStr("shader ");
+        emitString(stage, "shader ");
     }
 
-    // Emit shader name
-    shader.addStr(shader.getName() + "\n");
+    // Begin shader signature
+    emitLine(stage, shader->getName(), false);
+    emitScopeBegin(stage, ShaderStage::Brackets::PARENTHESES);
+    emitLine(stage, "float dummy = 0.0,", false);
 
-    shader.beginScope(Shader::Brackets::PARENTHESES);
-
-    shader.addLine("float dummy = 0.0,", false);
-
-    // Emit all app data inputs
-    const Shader::VariableBlock& appDataBlock = shader.getAppDataBlock();
-    for (const Shader::Variable* input : appDataBlock.variableOrder)
+    // Emit all varying inputs
+    const VariableBlock& inputs = stage.getInputBlock(OSL::INPUTS);
+    for (size_t i=0; inputs.size(); ++i)
     {
-        const string& type = _syntax->getTypeName(input->type);
-        const string value = _syntax->getDefaultValue(input->type, true);
-        shader.addLine(type + " " + input->name + " = " + value + " [[ int lockgeom=0 ]],", false);
+        const Variable* input = inputs[i];
+        const string& type = _syntax->getTypeName(input->getType());
+        const string& value = _syntax->getDefaultValue(input->getType(), true);
+        emitLine(stage, type + " " + input->getName() + " = " + value + " [[ int lockgeom=0 ]],", false);
     }
 
-    // Emit all public inputs
-    const Shader::VariableBlock& publicUniforms = shader.getUniformBlock(Shader::PIXEL_STAGE, Shader::PUBLIC_UNIFORMS);
-    for (const Shader::Variable* uniform : publicUniforms.variableOrder)
+    // Emit all uniform inputs
+    const VariableBlock& uniforms = stage.getInputBlock(OSL::UNIFORMS);
+    for (size_t i = 0; uniforms.size(); ++i)
     {
-        shader.beginLine();
-        emitUniform(*uniform, shader);
-        shader.addStr(",");
-        shader.endLine(false);
+        const Variable* uniform = uniforms[i];
+        emitLineBegin(stage);
+        emitUniform(stage, *uniform);
+        emitString(stage, ",");
+        emitLineEnd(stage, false);
     }
 
     // Emit shader output
+    // TODO: Support multiple outputs
     const TypeDesc* outputType = outputSocket->type;
     const string type = _syntax->getOutputTypeName(outputType);
     const string value = _syntax->getDefaultValue(outputType, true);
-    shader.addLine(type + " " + outputSocket->variable + " = " + value, false);
+    emitLine(stage, type + " " + outputSocket->variable + " = " + value, false);
 
-    shader.endScope();
+    // End shader signature
+    emitScopeEnd(stage);
 
-    // Emit shader body
-    shader.beginScope(Shader::Brackets::BRACES);
+    // Begin shader body
+    emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
 
-    // Emit private constants. Must be within the shader body.
-    const Shader::VariableBlock& psConstants = shader.getConstantBlock(Shader::PIXEL_STAGE);
-    shader.addComment("Private Constants: ");
-    for (const Shader::Variable* constant : psConstants.variableOrder)
+    // Emit constants
+    const VariableBlock& constants = stage.getConstantBlock();
+    if (constants.size())
     {
-        shader.beginLine();
-        emitConstant(*constant, shader);
-        shader.endLine();
+        for (size_t i = 0; constants.size(); ++i)
+        {
+            const Variable* constant = constants[i];
+            emitLineBegin(stage);
+            emitConstant(stage, *constant);
+            emitLineEnd(stage, true);
+        }
+        emitLineBreak(stage);
     }
-    shader.newLine();
 
-    emitFunctionCalls(*_defaultContext, shader);
-    emitFinalOutput(shader);
+    // Emit needed globals
+    if (!graph->hasClassification(ShaderNode::Classification::TEXTURE))
+    {
+        emitLine(stage, "closure color null_closure = 0");
+    }
 
-    shader.endScope();
+    // Emit function calls for all nodes
+    for (ShaderNode* node : graph->getNodes())
+    {
+        emitFunctionCall(stage, node, *_defaultContext);
+    }
 
-    return shaderPtr;
+    // Emit final output
+    if (outputSocket->connection)
+    {
+        string finalResult = outputSocket->connection->variable;
+        emitLine(stage, outputSocket->variable + " = " + finalResult);
+    }
+    else
+    {
+        emitLine(stage, outputSocket->variable + " = " + (outputSocket->value ?
+            _syntax->getValue(outputSocket->type, *outputSocket->value) :
+            _syntax->getDefaultValue(outputSocket->type)));
+    }
+
+    emitScopeEnd(stage);
+
+    return shader;
 }
 
-void OslShaderGenerator::emitIncludes(Shader& shader)
+void OslShaderGenerator::emitIncludes(ShaderStage& stage)
 {
-    static const vector<string> includeFiles =
+    static const string INCLUDE_PREFIX = "#include \"";
+    static const string INCLUDE_SUFFIX = "\"";
+    static const vector<string> INCLUDE_FILES =
     {
         "color2.h",
         "color4.h",
@@ -254,57 +328,22 @@ void OslShaderGenerator::emitIncludes(Shader& shader)
         "mx_funcs.h"
     };
 
-    for (const string& file : includeFiles)
+    for (const string& file : INCLUDE_FILES)
     {
         FilePath path = findSourceCode(file);
-        shader.addLine("#include \"" + path.asString() + "\"", false);
+        emitLine(stage, INCLUDE_PREFIX + path.asString() + INCLUDE_SUFFIX, false);
     }
 
-    shader.newLine();
+    emitLineBreak(stage);
 }
 
-void OslShaderGenerator::emitFunctionCalls(const GenContext& context, Shader &shader)
+namespace OSL
 {
-    // Emit needed globals
-    if (!shader.getGraph()->hasClassification(ShaderNode::Classification::TEXTURE))
-    {
-        shader.addLine("closure color null_closure = 0");
-    }
-
-    // Call parent
-    ParentClass::emitFunctionCalls(context, shader);
-}
-
-void OslShaderGenerator::emitFinalOutput(Shader& shader) const
-{
-    ShaderGraph* graph = shader.getGraph();
-    const ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
-
-    if (!outputSocket->connection)
-    {
-        // Early out for the rare case where the whole graph is just a single value
-        shader.addLine(outputSocket->variable + " = " + (outputSocket->value ?
-            _syntax->getValue(outputSocket->type, *outputSocket->value) :
-            _syntax->getDefaultValue(outputSocket->type)));
-        return;
-    }
-
-    string finalResult = outputSocket->connection->variable;
-    shader.addLine(outputSocket->variable + " = " + finalResult);
-}
-
-void OslShaderGenerator::emitVariable(const Shader::Variable& uniform, const string& /*qualifier*/, Shader& shader)
-{
-    const string initStr = (uniform.value ? _syntax->getValue(uniform.type, *uniform.value, true) : _syntax->getDefaultValue(uniform.type, true));
-    string line = _syntax->getTypeName(uniform.type) + " " + uniform.name;
-
-    // If an arrays we need an array qualifier (suffix) for the variable name
-    string arraySuffix;
-    uniform.getArraySuffix(arraySuffix);
-    line += arraySuffix;
-
-    line += initStr.empty() ? "" : " = " + initStr;
-    shader.addStr(line);
+    // Identifiers for OSL stage and variable blocks
+    const string STAGE    = MAIN_STAGE;
+    const string UNIFORMS = "u";
+    const string INPUTS   = "i";
+    const string OUTPUTS  = "o";
 }
 
 } // namespace MaterialX

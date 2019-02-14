@@ -69,9 +69,9 @@ ShaderNodeImplPtr ConvertNode::create()
     return std::make_shared<ConvertNode>();
 }
 
-void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader)
+void ConvertNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen)
 {
-    BEGIN_SHADER_STAGE(shader, Shader::PIXEL_STAGE)
+BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 
     const ShaderInput* in = node.getInput(IN_STRING);
     const ShaderOutput* out = node.getOutput();
@@ -118,18 +118,18 @@ void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         if (!in->connection)
         {
             string variableValue = in->value ? shadergen.getSyntax()->getValue(in->type, *in->value) : shadergen.getSyntax()->getDefaultValue(in->type);
-            shader.addLine(shadergen.getSyntax()->getTypeName(in->type) + " " + variableName + " = " + variableValue);
+            shadergen.emitLine(stage, shadergen.getSyntax()->getTypeName(in->type) + " " + variableName + " = " + variableValue);
         }
         const TypeDesc* type = in->connection ? in->connection->type : in->type;
         result = shadergen.getSyntax()->getSwizzledVariable(variableName, type, *swizzle, node.getOutput()->type);
     }
 
-    shader.beginLine();
-    shadergen.emitOutput(context, node.getOutput(), true, false, shader);
-    shader.addStr(" = " + result);
-    shader.endLine();
+    shadergen.emitLineBegin(stage);
+    shadergen.emitOutput(stage, context, node.getOutput(), true, false);
+    shadergen.emitString(stage, " = " + result);
+    shadergen.emitLineEnd(stage);
 
-    END_SHADER_STAGE(shader, Shader::PIXEL_STAGE)
+END_SHADER_STAGE(stage, MAIN_STAGE)
 }
 
 } // namespace MaterialX

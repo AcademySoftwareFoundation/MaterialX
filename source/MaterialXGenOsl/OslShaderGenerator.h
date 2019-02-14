@@ -20,12 +20,6 @@ public:
     /// the element and all dependencies upstream into shader code.
     ShaderPtr generate(const string& shaderName, ElementPtr element, const GenOptions& options) override;
 
-    /// Emit the shader body
-    void emitFunctionCalls(const GenContext& context, Shader& shader) override;
-
-    /// Emit the final output expression
-    void emitFinalOutput(Shader& shader) const override;
-
     /// Unique identifyer for the osl language
     static const string LANGUAGE;
 
@@ -33,12 +27,21 @@ protected:
     /// Protected constructor.
     OslShaderGenerator();
 
-    /// Emit include headers needed by the generated shader code.
-    void emitIncludes(Shader& shader);
+    /// Create and initialize a new OSL shader for shader generation.
+    virtual ShaderPtr create(const string& name, ElementPtr element, const GenOptions& options);
 
-    /// Emit a shader input variable
-    void emitVariable(const Shader::Variable& variable, const string& qualifier, Shader& shader) override;
+    /// Emit include headers needed by the generated shader code.
+    virtual void emitIncludes(ShaderStage& stage);
 };
+
+namespace OSL
+{
+    /// Identifiers for OSL stage and variable blocks
+    extern const string STAGE;
+    extern const string UNIFORMS;
+    extern const string INPUTS;
+    extern const string OUTPUTS;
+}
 
 } // namespace MaterialX
 

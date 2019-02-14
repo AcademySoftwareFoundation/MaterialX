@@ -6,6 +6,24 @@
 namespace MaterialX
 {
 
+namespace HW
+{
+    /// Identifiers for shader stages.
+    extern const string VERTEX_STAGE;
+    extern const string PIXEL_STAGE;
+
+    /// Identifiers for variable blocks.
+    extern const string VERTEX_INPUTS;    // Geometric inputs for vertex stage.
+    extern const string VERTEX_DATA;      // Connector block for data transfer from vertex stage to pixel stage.
+    extern const string PRIVATE_UNIFORMS; // Uniform inputs not visible to user but set privately by application.
+    extern const string PUBLIC_UNIFORMS;  // Uniform inputs visible in UI and set by users.
+    extern const string LIGHT_UNIFORMS;   // Uniform inputs for light sources.
+    extern const string PIXEL_OUTPUTS;    // Outputs from the main/pixel stage.
+
+    /// Attribute names.
+    extern const string TRANSPARENCY;
+}
+
 using HwShaderGeneratorPtr = shared_ptr<class HwShaderGenerator>;
 
 /// Base class for shader generators targeting HW rendering.
@@ -38,6 +56,9 @@ public:
 
 protected:
     HwShaderGenerator(SyntaxPtr syntax);
+
+    /// Create and initialize a new HW shader for shader generation.
+    virtual ShaderPtr create(const string& name, ElementPtr element, const GenOptions& options);
 
     size_t _maxActiveLightSources;
     LightShaderMap _boundLightShaders;
