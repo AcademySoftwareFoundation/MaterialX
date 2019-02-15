@@ -47,14 +47,6 @@ Nodes and implementations which are not currently supported:
     multiply, mix)
 -   mix surfaceshader for GLSL
 
-## Rendering Utilities
-
-- [MaterialXRender](MaterialXRender) module.
-- Geometry handler with OBJ format support.
-- Image handler with formats supported by the "stb" open source loader.
-- Render test suite: Windows only.
-- GLSL and OSL program validators
-
 ## Test Framework
 
 The unit tests are located in the [MaterialXTest](MaterialXTest/README.md) module.
@@ -66,4 +58,4 @@ By default MaterialXCore, MaterialXFormat and MaterialXGenShader are built.
 - Python support is enabled via the MATERIALX_BUILD_PYTHON build variable.
 - OSL shader generation is enabled via the MATERIALX_BUILD_GEN_OSL build variable.
 - GLSL shader generation is enabled via the MATERIALX_BUILD_GEN_GLSL build variable.
-- Building of rendering utilities is enabled via the MATERIALX_BUILD_RENDER build variable. Execution of rendering tests is enabled via the MATERIALX_TEST_RENDER. These tests are currently only supported for the Windows platform.
+
