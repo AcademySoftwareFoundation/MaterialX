@@ -21,6 +21,17 @@ Basic transform function tests each test is in a separate graph for each variati
     <output name="out" type="vector3" nodename="transformpoint1" />
   </nodegraph>
 
+  <nodegraph name="tf_point2_vector3M" xpos="6.93103" ypos="26.16">
+    <transformpoint name="transformpoint2M3" type="vector2" xpos="5.12832" ypos="10.7513">
+      <input name="in" type="vector2" value="1.0, 0.5" nodename="texcoord1" />
+      <input name="mat" type="matrix33" value="0.5, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 1.0" />
+    </transformpoint>
+    <output name="out" type="vector2" nodename="transformpoint2M3" />
+    <texcoord name="texcoord1" type="vector2" xpos="4.05281" ypos="11.1126">
+      <parameter name="index" type="integer" value="0" />
+    </texcoord>
+  </nodegraph>
+
   <nodegraph name="tf_point_vector4" xpos="6.81379" ypos="17.58">
     <transformpoint name="transformpoint1" type="vector4">
       <input name="in" type="vector4" value="1.0, 0.5, 0.0, 1.0" nodename="convert1"/>
@@ -36,7 +47,7 @@ Basic transform function tests each test is in a separate graph for each variati
     <output name="out" type="vector4" nodename="transformpoint1" />
   </nodegraph>
 
-  <nodegraph name="tf_point_vector3M">
+  <nodegraph name="tf_point3_vector3M">
     <transformpoint name="transformpoint1" type="vector3">
 	  <input name="in" type="vector3" value="1.0, 0.5, 0.0" nodename="position1"/>
       <input name="mat" type="matrix33" value="0.5, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0"/>
@@ -47,7 +58,7 @@ Basic transform function tests each test is in a separate graph for each variati
     <output name="out" type="vector3" nodename="transformpoint1" />
   </nodegraph>
 
-  <nodegraph name="tf_point_vector4M" xpos="6.77931" ypos="6.14">
+  <nodegraph name="tf_point4_vector4M" xpos="6.77931" ypos="6.14">
     <transformpoint name="transformpoint1" type="vector4" xpos="5.32672" ypos="9.57308">
       <input name="in" type="vector4" value="1.0, 0.5, 0.0, 1.0" nodename="convert1" />
       <input name="mat" type="matrix44" value="0.5, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0" />
@@ -59,6 +70,17 @@ Basic transform function tests each test is in a separate graph for each variati
     <convert name="convert1" type="vector4" xpos="5.60771" ypos="6.46944">
       <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="position1" />
     </convert>
+  </nodegraph>
+
+  <nodegraph name="tf_point3_vector4M" xpos="6.93103" ypos="29.02">
+    <output name="out" type="vector3" nodename="transformpoint3M4" />
+    <transformpoint name="transformpoint3M4" type="vector3" xpos="5.1253" ypos="10.5662">
+      <input name="in" type="vector3" value="1.0, 0.5, 0.0" nodename="position1" />
+      <input name="mat" type="matrix44" value="0.5, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0" />
+    </transformpoint>
+    <position name="position1" type="vector3" xpos="4.29468" ypos="7.25674">
+      <parameter name="space" type="string" value="object" />
+    </position>
   </nodegraph>
 
   <!-- vector transform -->

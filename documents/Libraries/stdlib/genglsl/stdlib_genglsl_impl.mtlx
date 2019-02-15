@@ -450,7 +450,9 @@
 
   <!-- <transformpoint> -->
   <implementation name="IM_transformpoint_vector3_genglsl" nodedef="ND_transformpoint_vector3"  file="stdlib/genglsl/mx_transformpoint.inline" language="genglsl"/>
+  <implementation name="IM_transformpoint_vector2M3_genglsl" nodedef="ND_transformpoint_vector2M3" function="transformpoint2_matrix33" file="stdlib/genglsl/mx_transformpoint2_matrix33.glsl" language="genglsl"/>
   <implementation name="IM_transformpoint_vector3M_genglsl" nodedef="ND_transformpoint_vector3M"  file="stdlib/genglsl/mx_transformpointM.inline" language="genglsl"/>
+  <implementation name="IM_transformpoint_vector3M4_genglsl" nodedef="ND_transformpoint_vector3M4" function="transformpoint3_matrix44" file="stdlib/genglsl/mx_transformpoint3_matrix44.glsl" language="genglsl"/>
   <implementation name="IM_transformpoint_vector4_genglsl" nodedef="ND_transformpoint_vector4"  file="stdlib/genglsl/mx_transformpoint.inline" language="genglsl"/>
   <implementation name="IM_transformpoint_vector4M_genglsl" nodedef="ND_transformpoint_vector4M"  file="stdlib/genglsl/mx_transformpointM.inline" language="genglsl"/>
 
