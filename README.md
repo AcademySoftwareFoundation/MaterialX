@@ -26,12 +26,9 @@ The Python bindings for MaterialX are based on [PyBind11](https://github.com/pyb
 
 The MaterialX repository consists of the following folders:
 
-    documents - The MaterialX specification, developer guide, and example files.
-    source    - A cross-platform C++ library for MaterialX with Python bindings.
-                The MaterialXCore module supports the core MaterialX elements
-                and graph traversal, while the MaterialXFormat module supports
-                XML serialization.
-    python    - Support modules for MaterialX Python.
+- [documents](documents) - The MaterialX specification, developer guide, example and test suite files.
+- [source](source) - Cross-platform C++ libraries for MaterialX with Python bindings.
+- [python](python) - Support modules for MaterialX Python.
 
 ### Additional Resources
 
