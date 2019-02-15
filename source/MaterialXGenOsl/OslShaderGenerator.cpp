@@ -163,8 +163,8 @@ ShaderPtr OslShaderGenerator::create(const string& name, ElementPtr element, con
     // Create shader variables for all nodes that need this (geometric nodes / input streams)
     for (ShaderNode* node : graph->getNodes())
     {
-        ShaderNodeImpl* impl = node->getImplementation();
-        impl->createVariables(*stage, *node);
+        const ShaderNodeImpl& impl = node->getImplementation();
+        impl.createVariables(*stage, *node);
     }
 
     // Create uniforms for the published graph interface
@@ -193,7 +193,7 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
 {
     ShaderPtr shader = create(shaderName, element, options);
 
-    const ShaderGraph* graph = shader->getGraph();
+    const ShaderGraph& graph = shader->getGraph();
     ShaderStage& stage = shader->getStage(OSL::STAGE);
 
     emitIncludes(stage);
@@ -203,7 +203,7 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     emitTypeDefinitions(stage);
 
     // Emit sampling code if needed
-    if (graph->hasClassification(ShaderNode::Classification::CONVOLUTION2D))
+    if (graph.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
     {
         // Emit sampling functions
         emitInclude(stage, "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_sampling.osl");
@@ -223,13 +223,10 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     }
 
     // Emit function definitions for all nodes
-    for (ShaderNode* node : graph->getNodes())
-    {
-        emitFunctionDefinition(stage, node);
-    }
+    emitFunctionDefinitions(stage, graph);
 
     // Emit shader type
-    const ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
+    const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket();
     if (outputSocket->type == Type::SURFACESHADER)
     {
         emitString(stage, "surface ");
@@ -259,7 +256,7 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     }
 
     // Emit all uniform inputs
-    const VariableBlock& uniforms = stage.getInputBlock(OSL::UNIFORMS);
+    const VariableBlock& uniforms = stage.getUniformBlock(OSL::UNIFORMS);
     emitVariableBlock(stage, uniforms, _syntax->getUniformQualifier(), COMMA);
 
     // Emit shader output
@@ -283,17 +280,8 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
         emitLineBreak(stage);
     }
 
-    // Emit needed globals
-    if (!graph->hasClassification(ShaderNode::Classification::TEXTURE))
-    {
-        emitLine(stage, "closure color null_closure = 0");
-    }
-
     // Emit function calls for all nodes
-    for (ShaderNode* node : graph->getNodes())
-    {
-        emitFunctionCall(stage, node, *_defaultContext);
-    }
+    emitFunctionCalls(stage, graph, *_defaultContext);
 
     // Emit final output
     if (outputSocket->connection)
@@ -308,9 +296,19 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
             _syntax->getDefaultValue(outputSocket->type)));
     }
 
+    // End shader body
     emitScopeEnd(stage);
 
     return shader;
+}
+
+void OslShaderGenerator::emitFunctionCalls(ShaderStage& stage, const ShaderGraph& graph, const GenContext& context)
+{
+    if (!graph.hasClassification(ShaderNode::Classification::TEXTURE))
+    {
+        emitLine(stage, "closure color null_closure = 0");
+    }
+    ShaderGenerator::emitFunctionCalls(stage, graph, context);
 }
 
 void OslShaderGenerator::emitIncludes(ShaderStage& stage)

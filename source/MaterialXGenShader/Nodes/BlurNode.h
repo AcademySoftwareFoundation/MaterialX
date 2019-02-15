@@ -14,7 +14,7 @@ class BlurNode : public ConvolutionNode
 
     static ShaderNodeImplPtr create();
 
-    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen) override;
+    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen) const override;
 
   protected:
     /// Constructor

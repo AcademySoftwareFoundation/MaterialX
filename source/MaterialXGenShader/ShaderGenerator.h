@@ -63,12 +63,18 @@ public:
     /// Add a block of code.
     virtual void emitBlock(ShaderStage& stage, const string& str);
 
-    /// Add the function definition for a node.
-    virtual void emitFunctionDefinition(ShaderStage& stage, ShaderNode* node);
+    /// Add the function definition for a single node.
+    virtual void emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node);
 
-    /// Add the function call for a node.
-    virtual void emitFunctionCall(ShaderStage& stage, ShaderNode* node, const GenContext& context, 
+    /// Add the function call for a singl node.
+    virtual void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const GenContext& context, 
                                   bool checkScope = true);
+
+    /// Add all function definitions for a graph.
+    virtual void emitFunctionDefinitions(ShaderStage& stage, const ShaderGraph& graph);
+
+    /// Add all function calls for a graph.
+    virtual void emitFunctionCalls(ShaderStage& stage, const ShaderGraph& graph, const GenContext& context);
 
     /// Add the contents of an include file. Making sure it is 
     /// only included once for the shader stage.
@@ -116,13 +122,6 @@ public:
 
     /// Utility to emit a shader uniform input variable
     virtual void emitUniform(ShaderStage& stage, const Variable& variable);
-
-    /// Push a new active shader graph.
-    /// Used when emitting code for compounds / subgraphs.
-    void pushActiveGraph(ShaderStage& stage, ShaderGraph* graph) const;
-
-    /// Reactivate the previously last used shader graph.
-    void popActiveGraph(ShaderStage& stage) const;
 
     /// Get the connected variable name for an input,
     /// or constant value if the port is not connected

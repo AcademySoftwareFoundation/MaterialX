@@ -17,7 +17,7 @@ Variable::Variable(const VariableBlock* block, const TypeDesc* type, const strin
     ValuePtr value, const string& path)
     : _type(type)
     , _name(name)
-    , _fullName(block && block->getInstance().empty() ? name : block->getInstance() + "." + name)
+    , _fullName(block && !block->getInstance().empty() ? block->getInstance() + "." + name : name)
     , _semantic(semantic)
     , _value(value)
     , _path(path)
@@ -282,20 +282,20 @@ void ShaderStage::addBlock(const string& str, ShaderGenerator& shadergen)
     }
 }
 
-void ShaderStage::addFunctionDefinition(ShaderNode* node, ShaderGenerator& shadergen)
+void ShaderStage::addFunctionDefinition(const ShaderNode& node, ShaderGenerator& shadergen)
 {
-    ShaderNodeImpl* impl = node->getImplementation();
-    if (!_definedFunctions.count(impl))
+    const ShaderNodeImpl& impl = node.getImplementation();
+    const size_t id = impl.getHash();
+    if (!_definedFunctions.count(id))
     {
-        _definedFunctions.insert(impl);
-        impl->emitFunctionDefinition(*this, *node, shadergen);
+        _definedFunctions.insert(id);
+        impl.emitFunctionDefinition(*this, node, shadergen);
     }
 }
 
-void ShaderStage::addFunctionCall(ShaderNode* node, const GenContext& context, ShaderGenerator& shadergen)
+void ShaderStage::addFunctionCall(const ShaderNode& node, const GenContext& context, ShaderGenerator& shadergen)
 {
-    ShaderNodeImpl* impl = node->getImplementation();
-    impl->emitFunctionCall(*this, *node, const_cast<GenContext&>(context), shadergen);
+    node.getImplementation().emitFunctionCall(*this, node, const_cast<GenContext&>(context), shadergen);
 }
 
 void ShaderStage::addInclude(const string& file, ShaderGenerator& shadergen)

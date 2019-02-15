@@ -55,21 +55,19 @@ void SourceCodeNode::initialize(ElementPtr implementation, ShaderGenerator& shad
     }
 }
 
-void SourceCodeNode::emitFunctionDefinition(ShaderStage& stage, const ShaderNode&, ShaderGenerator& shadergen)
+void SourceCodeNode::emitFunctionDefinition(ShaderStage& stage, const ShaderNode&, ShaderGenerator& shadergen) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
-
     // Emit function definition for non-inlined functions
-    if (!_inlined)
+    if (!_inlined && !_functionSource.empty())
     {
         shadergen.emitBlock(stage, _functionSource);
-        shadergen.emitLineEnd(stage);
+        shadergen.emitLineBreak(stage);
     }
-
 END_SHADER_STAGE(stage, MAIN_STAGE)
 }
 
-void SourceCodeNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen)
+void SourceCodeNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     if (_inlined)

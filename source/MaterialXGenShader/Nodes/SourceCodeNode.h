@@ -16,9 +16,9 @@ public:
 
     void initialize(ElementPtr implementation, ShaderGenerator& shadergen, const GenOptions& options) override;
 
-    void emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen) override;
+    void emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen) const override;
 
-    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen) override;
+    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen) const override;
 
 protected:
     bool _inlined;

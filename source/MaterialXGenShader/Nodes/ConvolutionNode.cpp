@@ -37,7 +37,7 @@ ConvolutionNode::ConvolutionNode()
 {
 }
 
-void ConvolutionNode::createVariables(ShaderStage& stage, const ShaderNode&)
+void ConvolutionNode::createVariables(ShaderStage& stage, const ShaderNode&) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 
@@ -81,81 +81,78 @@ void ConvolutionNode::emitInputSamplesUV(ShaderStage& stage, const ShaderNode& n
         ShaderNode* upstreamNode = inConnection->node;
         if (upstreamNode && upstreamNode->hasClassification(ShaderNode::Classification::SAMPLE2D))
         {
-            ShaderNodeImpl *impl = upstreamNode->getImplementation();
-            if (impl)
+            const ShaderNodeImpl& impl = upstreamNode->getImplementation();
+            ShaderOutput* upstreamOutput = upstreamNode->getOutput();
+            if (upstreamOutput)
             {
-                ShaderOutput* upstreamOutput = upstreamNode->getOutput();
-                if (upstreamOutput)
+                // Find out which input needs to be sampled multiple times
+                // If the sample count is 1 then the sample code has already been emitted
+                ShaderInput* samplingInput = (_sampleCount > 1) ? upstreamNode->getSamplingInput() : nullptr;
+
+                // TODO: For now we only support uv space sampling
+                if (samplingInput && samplingInput->type != Type::VECTOR2)
                 {
-                    // Find out which input needs to be sampled multiple times
-                    // If the sample count is 1 then the sample code has already been emitted
-                    ShaderInput* samplingInput = (_sampleCount > 1) ? upstreamNode->getSamplingInput() : nullptr;
+                    samplingInput = nullptr;
+                }
 
-                    // TODO: For now we only support uv space sampling
-                    if (samplingInput && samplingInput->type != Type::VECTOR2)
+                if (samplingInput)
+                {
+                    // This is not exposed. Assume a filter size of 1 with no offset
+
+                    const ShaderOutput* output = node.getOutput();
+
+                    // Emit code to compute sample size
+                    //
+                    string sampleInputValue;
+                    shadergen.getInput(context, samplingInput, sampleInputValue);
+
+                    const string sampleSizeName(output->variable + "_sample_size");
+                    const string vec2TypeString = shadergen.getSyntax()->getTypeName(Type::VECTOR2);
+                    string sampleCall(vec2TypeString + " " + sampleSizeName + " = " +
+                        _sampleSizeFunctionUV + "(" +
+                        sampleInputValue + "," +
+                        std::to_string(_filterSize) + "," +
+                        std::to_string(_filterOffset) + ");"
+                    );
+                    shadergen.emitLine(stage, sampleCall);
+
+                    // Build the sample offset strings. This is dependent on
+                    // the derived class to determine where samples are located
+                    // and to generate the strings required to offset from the center
+                    // sample. The sample size is passed over.
+                    //
+                    StringVec inputVec2Suffix;
+                    computeSampleOffsetStrings(sampleSizeName, vec2TypeString, inputVec2Suffix);
+
+                    // Emit outputs for sample input 
+                    for (unsigned int i = 0; i < _sampleCount; i++)
                     {
-                        samplingInput = nullptr;
+                        // Add an input name suffix. 
+                        context.addInputSuffix(samplingInput, inputVec2Suffix[i]);
+
+                        // Add a output name suffix for the emit call
+                        string outputSuffix("_" + output->variable + std::to_string(i));
+                        context.addOutputSuffix(upstreamOutput, outputSuffix);
+
+                        impl.emitFunctionCall(stage, *upstreamNode, context, shadergen);
+
+                        // Remove suffixes
+                        context.removeInputSuffix(samplingInput);
+                        context.removeOutputSuffix(upstreamOutput);
+
+                        // Keep track of the output name with the suffix
+                        sampleStrings.push_back(upstreamOutput->variable + outputSuffix);
                     }
-
-                    if (samplingInput)
+                }
+                else
+                {
+                    // Use the same input for all samples.
+                    // Note: This does not recomputed the output, but instead it reuses
+                    // the output variable.
+                    for (unsigned int i = 0; i < _sampleCount; i++)
                     {
-                        // This is not exposed. Assume a filter size of 1 with no offset
-
-                        const ShaderOutput* output = node.getOutput();
-
-                        // Emit code to compute sample size
-                        //
-                        string sampleInputValue;
-                        shadergen.getInput(context, samplingInput, sampleInputValue);
-
-                        const string sampleSizeName(output->variable + "_sample_size");
-                        const string vec2TypeString = shadergen.getSyntax()->getTypeName(Type::VECTOR2);
-                        string sampleCall(vec2TypeString + " " + sampleSizeName + " = " +
-                            _sampleSizeFunctionUV + "(" +
-                            sampleInputValue + "," +
-                            std::to_string(_filterSize) + "," +
-                            std::to_string(_filterOffset) + ");"
-                        );
-                        shadergen.emitLine(stage, sampleCall);
-
-                        // Build the sample offset strings. This is dependent on
-                        // the derived class to determine where samples are located
-                        // and to generate the strings required to offset from the center
-                        // sample. The sample size is passed over.
-                        //
-                        StringVec inputVec2Suffix;
-                        computeSampleOffsetStrings(sampleSizeName, vec2TypeString, inputVec2Suffix);
-
-                        // Emit outputs for sample input 
-                        for (unsigned int i = 0; i < _sampleCount; i++)
-                        {
-                            // Add an input name suffix. 
-                            context.addInputSuffix(samplingInput, inputVec2Suffix[i]);
-
-                            // Add a output name suffix for the emit call
-                            string outputSuffix("_" + output->variable + std::to_string(i));
-                            context.addOutputSuffix(upstreamOutput, outputSuffix);
-
-                            impl->emitFunctionCall(stage, *upstreamNode, context, shadergen);
-
-                            // Remove suffixes
-                            context.removeInputSuffix(samplingInput);
-                            context.removeOutputSuffix(upstreamOutput);
-
-                            // Keep track of the output name with the suffix
-                            sampleStrings.push_back(upstreamOutput->variable + outputSuffix);
-                        }
-                    }
-                    else
-                    {
-                        // Use the same input for all samples.
-                        // Note: This does not recomputed the output, but instead it reuses
-                        // the output variable.
-                        for (unsigned int i = 0; i < _sampleCount; i++)
-                        {
-                            // Call the unmodified function
-                            sampleStrings.push_back(upstreamOutput->variable);
-                        }
+                        // Call the unmodified function
+                        sampleStrings.push_back(upstreamOutput->variable);
                     }
                 }
             }

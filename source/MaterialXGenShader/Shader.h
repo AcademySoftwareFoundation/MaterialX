@@ -75,10 +75,10 @@ class Shader
     }
 
     /// Return the shader graph.
-    const ShaderGraph* getGraph() const { return _graph.get(); }
+    const ShaderGraph& getGraph() const { return *_graph; }
 
     /// Return true if this shader matches the given classification.
-    bool hasClassification(unsigned int c) const { return getGraph()->hasClassification(c); }
+    bool hasClassification(unsigned int c) const { return _graph->hasClassification(c); }
 
     /// Return the final shader source code for a given shader stage
     const string& getSourceCode(const string& stage = MAIN_STAGE) const { return getStage(stage).getSourceCode(); }

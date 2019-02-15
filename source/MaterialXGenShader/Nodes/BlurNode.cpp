@@ -5,7 +5,6 @@
 
 namespace MaterialX
 {
-
     string BlurNode::BOX_FILTER = "box";
     string BlurNode::GAUSSIAN_FILTER = "gaussian";
     string BlurNode::BOX_WEIGHTS_VARIABLE = "c_box_filter_weights";
@@ -56,7 +55,11 @@ namespace MaterialX
             type->isFloat2() || type->isFloat3() || type->isFloat4());
     }
 
-    void BlurNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen)
+    void BlurNode::emitFunctionCall(ShaderStage&, const ShaderNode&, GenContext&, ShaderGenerator&) const
+    {}
+
+/*  TODO: This function needs to be const and cannot set any member variables
+    void BlurNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen) const
     {
         const string IN_STRING("in");
         const ShaderInput* inInput = node.getInput(IN_STRING);
@@ -227,5 +230,6 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
         }
 END_SHADER_STAGE(stage, MAIN_STAGE)
     }
+*/
 
 } // namespace MaterialX

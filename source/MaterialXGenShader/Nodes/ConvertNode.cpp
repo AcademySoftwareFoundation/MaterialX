@@ -69,7 +69,7 @@ ShaderNodeImplPtr ConvertNode::create()
     return std::make_shared<ConvertNode>();
 }
 
-void ConvertNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen)
+void ConvertNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 

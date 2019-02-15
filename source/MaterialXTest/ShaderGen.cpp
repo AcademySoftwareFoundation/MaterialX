@@ -1120,9 +1120,9 @@ TEST_CASE("Conditionals", "[shadergen]")
 
         // All of the nodes should have been removed by optimization
         // leaving a graph with a single constant value
-        REQUIRE(shader->getGraph()->getNodes().empty());
-        REQUIRE(shader->getGraph()->getOutputSocket()->value != nullptr);
-        REQUIRE(shader->getGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
+        REQUIRE(shader->getGraph().getNodes().empty());
+        REQUIRE(shader->getGraph().getOutputSocket()->value != nullptr);
+        REQUIRE(shader->getGraph().getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
 
         // Write out to file for inspection
         const std::string fileName(RESULT_DIRECTORY + shader->getName() + ".osl");
@@ -1512,9 +1512,9 @@ TEST_CASE("Unique Names", "[shadergen]")
         REQUIRE(shader->getSourceCode().length() > 0);
 
         // Make sure the output and internal node output has their variable names set
-        const mx::ShaderGraphOutputSocket* sgOutputSocket = shader->getGraph()->getOutputSocket();
+        const mx::ShaderGraphOutputSocket* sgOutputSocket = shader->getGraph().getOutputSocket();
         REQUIRE(sgOutputSocket->variable != "output");
-        const mx::ShaderNode* sgNode1 = shader->getGraph()->getNode(node1->getName());
+        const mx::ShaderNode* sgNode1 = shader->getGraph().getNode(node1->getName());
         REQUIRE(sgNode1->getOutput()->variable == "unique_names_out");
 
         // Write out to file for inspection

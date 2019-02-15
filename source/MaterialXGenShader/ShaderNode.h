@@ -197,9 +197,9 @@ class ShaderNode
     }
 
     /// Return the implementation used for this node.
-    ShaderNodeImpl* getImplementation()
+    const ShaderNodeImpl& getImplementation() const
     {
-        return _impl.get();
+        return *_impl;
     }
 
     /// Return the scope info for this node.

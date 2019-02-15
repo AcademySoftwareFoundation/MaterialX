@@ -208,10 +208,10 @@ protected:
     void addBlock(const string& str, ShaderGenerator& shadergen);
 
     /// Add the function definition for a node.
-    void addFunctionDefinition(ShaderNode* node, ShaderGenerator& shadergen);
+    void addFunctionDefinition(const ShaderNode& node, ShaderGenerator& shadergen);
 
     /// Add the function call for a node.
-    void addFunctionCall(ShaderNode* node, const GenContext& context, ShaderGenerator& shadergen);
+    void addFunctionCall(const ShaderNode& node, const GenContext& context, ShaderGenerator& shadergen);
 
     /// Add the contents of an include file. Making sure it is 
     /// only included once for the shader stage.
@@ -257,8 +257,8 @@ private:
     /// Set of include files that has been included.
     std::set<string> _includes;
 
-    /// Set of functions that has been defined.
-    std::set<const ShaderNodeImpl*> _definedFunctions;
+    /// Set of hash ID's for functions that has been defined.
+    std::set<size_t> _definedFunctions;
 
     /// Block holding constant variables for this stage.
     VariableBlock _constants;

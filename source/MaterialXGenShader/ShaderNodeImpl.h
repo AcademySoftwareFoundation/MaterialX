@@ -45,17 +45,20 @@ class ShaderNodeImpl
 
     /// Create shader variables needed for the implementation of this node (e.g. uniforms, inputs and outputs).
     /// Used if the node requires input data from the application.
-    virtual void createVariables(ShaderStage& stage, const ShaderNode& node);
+    virtual void createVariables(ShaderStage& stage, const ShaderNode& node) const;
 
     /// Emit function definition for the given node instance.
-    virtual void emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen);
+    virtual void emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen) const;
 
     /// Emit the function call or inline source code for given node instance in the given context.
-    virtual void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen);
+    virtual void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen) const;
 
     /// Return a pointer to the graph if this implementation is using a graph,
     /// or returns nullptr otherwise.
     virtual ShaderGraph* getGraph() const;
+
+    /// Return a unique hash for this implementation.
+    size_t getHash() const;
 
     /// Returns true if an input is editable by users.
     /// Editable inputs are allowed to be published as shader uniforms

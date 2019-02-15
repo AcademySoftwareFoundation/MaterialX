@@ -70,20 +70,20 @@ void ShaderGenerator::emitBlock(ShaderStage& stage, const string& str)
     stage.addBlock(str, *this);
 }
 
-void ShaderGenerator::emitFunctionDefinition(ShaderStage& stage, ShaderNode* node)
+void ShaderGenerator::emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node)
 {
     stage.addFunctionDefinition(node, *this);
 }
 
-void ShaderGenerator::emitFunctionCall(ShaderStage& stage, ShaderNode* node, const GenContext& context, bool checkScope)
+void ShaderGenerator::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const GenContext& context, bool checkScope)
 {
     // Omit node if it's only used inside a conditional branch
-    if (checkScope && node->referencedConditionally())
+    if (checkScope && node.referencedConditionally())
     {
         if (debugOutput)
         {
             std::stringstream str;
-            str << "// Omitted node '" << node->getName() << "'. Only used in conditional node '" << node->getScopeInfo().conditionalNode->getName() << "'";
+            str << "// Omitted node '" << node.getName() << "'. Only used in conditional node '" << node.getScopeInfo().conditionalNode->getName() << "'";
             stage.addLine(str.str(), false);
         }
         // Omit this node
@@ -91,12 +91,12 @@ void ShaderGenerator::emitFunctionCall(ShaderStage& stage, ShaderNode* node, con
     }
 
     // Check if this node has the given context defined
-    if (node->getContextIDs().count(context.id()))
+    if (node.getContextIDs().count(context.id()))
     {
         // Node has this context id defined so make the function call for this context
         stage.addFunctionCall(node, context, *this);
     }
-    else if (node->getContextIDs().count(CONTEXT_DEFAULT))
+    else if (node.getContextIDs().count(CONTEXT_DEFAULT))
     {
         // Node is defined in the default context so make the function call for default context
         stage.addFunctionCall(node, *_defaultContext, *this);
@@ -107,8 +107,26 @@ void ShaderGenerator::emitFunctionCall(ShaderStage& stage, ShaderNode* node, con
         // Just emit the output variable set to default value, in case it
         // is referenced by another node in this context.
         stage.beginLine();
-        emitOutput(stage, context, node->getOutput(), true, true);
+        emitOutput(stage, context, node.getOutput(), true, true);
         stage.endLine();
+    }
+}
+
+void ShaderGenerator::emitFunctionDefinitions(ShaderStage& stage, const ShaderGraph& graph)
+{
+    // Emit function definitions for all nodes in the graph.
+    for (ShaderNode* node : graph.getNodes())
+    {
+        emitFunctionDefinition(stage, *node);
+    }
+}
+
+void ShaderGenerator::emitFunctionCalls(ShaderStage& stage, const ShaderGraph& graph, const GenContext& context)
+{
+    // Emit function calls for all nodes in the graph.
+    for (ShaderNode* node : graph.getNodes())
+    {
+        emitFunctionCall(stage, *node, context);
     }
 }
 
@@ -159,27 +177,23 @@ void ShaderGenerator::emitVariable(ShaderStage& stage, const Variable& variable,
     string arraySuffix;
     variable.getArraySuffix(arraySuffix);
 
-    string line = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
-    line += _syntax->getTypeName(variable.getType()) + " " + variable.getName();
-    line += arraySuffix;
-    line += initStr.empty() ? EMPTY_STRING : " = " + initStr;
+    string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
+    str += _syntax->getTypeName(variable.getType()) + " " + variable.getName();
+    str += arraySuffix;
+    str += initStr.empty() ? EMPTY_STRING : " = " + initStr;
 
-    stage.addLine(line);
+    stage.addString(str);
 }
 
 void ShaderGenerator::emitVariableBlock(ShaderStage& stage, const VariableBlock& block, 
                                         const string& qualifier, const string& separator)
 {
-    if (!block.empty())
+    for (size_t i=0; i<block.size(); ++i)
     {
-        for (size_t i=0; i<block.size(); ++i)
-        {
-            emitLineBegin(stage);
-            emitVariable(stage, block[i], qualifier);
-            emitString(stage, separator);
-            emitLineEnd(stage, false);
-        }
-        stage.newLine();
+        emitLineBegin(stage);
+        emitVariable(stage, block[i], qualifier);
+        emitString(stage, separator);
+        emitLineEnd(stage, false);
     }
 }
 
@@ -210,16 +224,6 @@ void ShaderGenerator::emitOutput(ShaderStage& stage, const GenContext& context, 
             stage.addString(" = " + value);
         }
     }
-}
-
-void ShaderGenerator::pushActiveGraph(ShaderStage& stage, ShaderGraph* graph) const
-{
-    stage.pushActiveGraph(graph);
-}
-
-void ShaderGenerator::popActiveGraph(ShaderStage& stage) const
-{
-    stage.popActiveGraph();
 }
 
 void ShaderGenerator::getInput(const GenContext& context, const ShaderInput* input, string& result) const

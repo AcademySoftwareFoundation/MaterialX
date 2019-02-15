@@ -87,8 +87,7 @@ ShaderPtr HwShaderGenerator::create(const string& name, ElementPtr element, cons
     {
         for (ShaderNode* node : graph->getNodes())
         {
-            ShaderNodeImpl* impl = node->getImplementation();
-            impl->createVariables(*stage, *node);
+            node->getImplementation().createVariables(*stage, *node);
         }
     }
 
@@ -145,10 +144,10 @@ ShaderPtr HwShaderGenerator::create(const string& name, ElementPtr element, cons
                 }
             }
             // Push subgraphs on the queue to process these as well.
-            ShaderGraph* sg = node->getImplementation()->getGraph();
-            if (sg)
+            ShaderGraph* subgraph = node->getImplementation().getGraph();
+            if (subgraph)
             {
-                graphQueue.push_back(sg);
+                graphQueue.push_back(subgraph);
             }
         }
     }

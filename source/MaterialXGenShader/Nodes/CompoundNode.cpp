@@ -34,30 +34,24 @@ void CompoundNode::initialize(ElementPtr implementation, ShaderGenerator& shader
     _functionName = graph->getName();
 }
 
-void CompoundNode::createVariables(ShaderStage& stage, const ShaderNode&)
+void CompoundNode::createVariables(ShaderStage& stage, const ShaderNode&) const
 {
     // Gather shader inputs from all child nodes
-    for (ShaderNode* childNode : _rootGraph->getNodes())
+    for (const ShaderNode* childNode : _rootGraph->getNodes())
     {
-        ShaderNodeImpl* impl = childNode->getImplementation();
-        impl->createVariables(stage, *childNode);
+        const ShaderNodeImpl& impl = childNode->getImplementation();
+        impl.createVariables(stage, *childNode);
     }
 }
 
-void CompoundNode::emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen)
+void CompoundNode::emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
-
-    // Make the compound root graph the active graph
-    shadergen.pushActiveGraph(stage, _rootGraph.get());
 
     const Syntax* syntax = shadergen.getSyntax();
 
     // Emit functions for all child nodes
-    for (ShaderNode* childNode : _rootGraph->getNodes())
-    {
-        shadergen.emitFunctionDefinition(stage, childNode);
-    }
+    shadergen.emitFunctionDefinitions(stage, *_rootGraph);
 
     // Emit function definitions for each context used by this compound node
     for (int id : node.getContextIDs())
@@ -104,10 +98,7 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
         shadergen.emitScopeBegin(stage);
 
         // Add function body, with all child node function calls
-        for (ShaderNode* childNode : stage.getGraph()->getNodes())
-        {
-            shadergen.emitFunctionCall(stage, childNode, *context);
-        }
+        shadergen.emitFunctionCalls(stage, *_rootGraph, *context);
 
         // Emit final results
         for (ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
@@ -129,21 +120,15 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
         shadergen.emitLineBreak(stage);
     }
 
-    // Restore active graph
-    shadergen.popActiveGraph(stage);
-
 END_SHADER_STAGE(stage, MAIN_STAGE)
 }
 
-void CompoundNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen)
+void CompoundNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen) const
 {
 BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
 
     // Emit function calls for all child nodes to the vertex shader stage
-    for (ShaderNode* childNode : _rootGraph->getNodes())
-    {
-        shadergen.emitFunctionCall(stage, childNode, context);
-    }
+    shadergen.emitFunctionCalls(stage, *_rootGraph, context);
 
 END_SHADER_STAGE(stage, HW::VERTEX_STAGE)
 

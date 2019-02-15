@@ -12,7 +12,7 @@ class SwizzleNode : public ShaderNodeImpl
   public:
     static ShaderNodeImplPtr create();
 
-    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen) override;
+    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen) const override;
 
     /// Returns true if the input is editable by users.
     /// Editable inputs are allowed to be published as shader uniforms
