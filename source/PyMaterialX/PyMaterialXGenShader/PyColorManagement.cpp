@@ -43,7 +43,7 @@ class PyColorManagementSystem : public mx::ColorManagementSystem
 class PyDefaultColorManagementSystem : public mx::DefaultColorManagementSystem
 {
   public:
-    PyDefaultColorManagementSystem(const std::string& configFile) :
+      explicit PyDefaultColorManagementSystem(const std::string& configFile) :
         mx::DefaultColorManagementSystem(configFile)
     {
     }

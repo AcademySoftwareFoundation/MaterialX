@@ -4,10 +4,7 @@ import unittest
 
 import MaterialX as mx
 
-"""
-Unit tests for MaterialX Python.
-"""
-
+# Unit tests for MaterialX Python.
 
 #--------------------------------------------------------------------------------
 _testValues = (1,
@@ -484,7 +481,7 @@ class TestMaterialX(unittest.TestCase):
                     boundValue = shaderInput.getBoundValue(material)
                     upstreamElement = shaderInput.getUpstreamElement(material)
                     self.assertTrue(boundValue is not None or upstreamElement is not None)
-                    for edge in shaderInput.traverseGraph(material):
+                    for _ in shaderInput.traverseGraph(material):
                         edgeCount += 1
                 self.assertTrue(edgeCount > 0)
 

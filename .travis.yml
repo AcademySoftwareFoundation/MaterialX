@@ -73,6 +73,7 @@ script:
   - ctest --output-on-failure --build-config "${CONFIG}"
   - export PYTHONPATH=$PYTHONPATH:$PWD/installed/python
   - cmake -E chdir ../python/MaterialXTest python main.py
+  # - cmake -E chdir ../python/MaterialXTest python genshader.py
 
 before_deploy:
     # Go to install directory and zip up to create artifact
