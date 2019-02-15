@@ -103,6 +103,7 @@ class TestGenShader(unittest.TestCase):
             file = open(shader.getName() + "_complete.osl", "w+")
             file.write(shader.getSourceCode(Shader.PIXEL_STAGE))
             file.close()
+            os.remove(shader.getName() + "_complete.osl");
 
             # Test reduced mode
             options.shaderInterfaceType = ShaderInterfaceType.SHADER_INTERFACE_REDUCED;
@@ -120,6 +121,7 @@ class TestGenShader(unittest.TestCase):
             file = open(shader.getName() + "_reduced.osl", "w+")
             file.write(shader.getSourceCode(Shader.PIXEL_STAGE))
             file.close()
+            os.remove(shader.getName() + "_reduced.osl");
 
 if __name__ == '__main__':
     unittest.main()

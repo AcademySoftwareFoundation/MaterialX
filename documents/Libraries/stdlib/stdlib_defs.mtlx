@@ -1917,6 +1917,10 @@
     <input name="in" type="vector3"/>
     <input name="mat" type="matrix33" value="0.0,0.0,0.0, 0.0,0.0,0.0, 0.0,0.0,0.0"/>
   </nodedef>
+  <nodedef name="ND_transformpoint_vector2M3" node="transformpoint" type="vector2" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector2"/>
+    <input name="mat" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0"/>
+  </nodedef>
   <nodedef name="ND_transformpoint_vector4" node="transformpoint" type="vector4" nodegroup="math" defaultinput="in">
     <input name="in" type="vector4"/>
     <input name="fromspace" type="string" value=""/>
@@ -1925,6 +1929,10 @@
   <nodedef name="ND_transformpoint_vector4M" node="transformpoint" type="vector4" nodegroup="math" defaultinput="in">
     <input name="in" type="vector4"/>
     <input name="mat" type="matrix44" value="0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0"/>
+  </nodedef>
+  <nodedef name="ND_transformpoint_vector3M4" node="transformpoint" type="vector3" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector3"/>
+    <input name="mat" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
   </nodedef>
 
   <!--

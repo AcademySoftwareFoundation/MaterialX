@@ -458,6 +458,8 @@
   <!-- <transformpoint> -->
   <implementation name="IM_transformpoint_vector3_genosl" nodedef="ND_transformpoint_vector3"  file="stdlib/genosl/mx_transformpoint.inline" language="genosl"/>
   <implementation name="IM_transformpoint_vector3M_genosl" nodedef="ND_transformpoint_vector3M"  file="stdlib/genosl/mx_transformpointM.inline" language="genosl"/>
+  <implementation name="IM_transformpoint_vector2M3_genosl" nodedef="ND_transformpoint_vector2M3" function="mx_transformpoint2_matrix33" file="stdlib/genosl/mx_transformpoint2_matrix33.osl" language="genosl"/>
+  <implementation name="IM_transformpoint_vector3M4_genosl" nodedef="ND_transformpoint_vector3M4" function="mx_transformpoint3_matrix44" file="stdlib/genosl/mx_transformpoint3_matrix44.osl" language="genosl"/>
   <implementation name="IM_transformpoint_vector4_genosl" nodedef="ND_transformpoint_vector4"  file="stdlib/genosl/mx_transformpoint.inline" language="genosl"/>
   <implementation name="IM_transformpoint_vector4M_genosl" nodedef="ND_transformpoint_vector4M"  file="stdlib/genosl/mx_transformpointM.inline" language="genosl"/>
 

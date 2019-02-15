@@ -4,10 +4,7 @@ import unittest
 
 import MaterialX as mx
 
-"""
-Unit tests for MaterialX Python.
-"""
-
+# Unit tests for MaterialX Python.
 
 #--------------------------------------------------------------------------------
 _testValues = (1,
