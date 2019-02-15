@@ -23,6 +23,18 @@ enum ShaderInterfaceType
     SHADER_INTERFACE_REDUCED
 };
 
+/// Method to use for specular environment lighting
+enum HwSpecularEnvironmentMethod
+{
+    /// Use pre-filtered environment maps for
+    /// specular environment/indirect lighting.
+    SPECULAR_ENVIRONMENT_PREFILTER,
+
+    /// Use Filtered Importance Sampling for
+    /// specular environment/indirect lighting.
+    SPECULAR_ENVIRONMENT_FIS
+};
+
 /// Class holding options to configure shader generation.
 class GenOptions
 {
@@ -44,6 +56,16 @@ class GenOptions
     /// code fragments will be generated for the shader and
     /// the surface will be fully opaque.
     bool hwTransparency;
+
+    /// Sets the method to use for specular environment 
+    /// lighting for HW shader targets.
+    int hwSpecularEnvironmentMethod;
+
+    /// If true the y-component of texture coordinates used for sampling
+    /// file textures will be flipped before sampling. This can be used if
+    /// file textures need to be flipped vertically to match the target's
+    /// texture space convention. By default this option is false.
+    bool fileTextureVerticalFlip;
 
     /// An optional override for the target color space.
     /// Shader fragments will be generated to transform

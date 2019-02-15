@@ -48,12 +48,31 @@ class Shader
     /// Return a stage by name.
     const ShaderStage& getStage(const string& name) const;
 
-    /// Set an attribute on the shader.
-    void setAttribute(const string& attrib, ValuePtr value);
+    /// Return true if the shader has a given named attribute.
+    bool hasAttribute(const string& attrib) const
+    {
+        return _attributeMap.count(attrib) != 0;
+    }
 
     /// Return the value for a named attribute,
     /// or nullptr if no such attribute is found.
-    ValuePtr getAttribute(const string& attrib) const;
+    ValuePtr getAttribute(const string& attrib) const
+    {
+        auto it = _attributeMap.find(attrib);
+        return it != _attributeMap.end() ? it->second : nullptr;
+    }
+
+    /// Set a value attribute on the shader.
+    void setAttribute(const string& attrib, ValuePtr value)
+    {
+        _attributeMap[attrib] = value;
+    }
+
+    /// Set a flag attribute on the shader.
+    void setAttribute(const string& attrib)
+    {
+        _attributeMap[attrib] = Value::createValue<bool>(true);
+    }
 
     /// Return the shader graph.
     const ShaderGraph* getGraph() const { return _graph.get(); }

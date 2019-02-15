@@ -79,17 +79,13 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
         static const string prefix("{{");
         static const string postfix("}}");
 
-        // Inline expressions can only have a single output
-        shadergen.emitLineBegin(stage);
-        shadergen.emitOutput(stage, context, node.getOutput(), true, false);
-        shadergen.emitString(stage, " = ");
-
         size_t pos = 0;
         size_t i = _functionSource.find_first_of(prefix);
+        std::set<string> variableNames;
+        vector<string> code;
         while (i != string::npos)
         {
-            shadergen.emitString(stage, _functionSource.substr(pos, i - pos));
-
+            code.push_back(_functionSource.substr(pos, i - pos));
             size_t j = _functionSource.find_first_of(postfix, i + 2);
             if (j == string::npos)
             {
@@ -103,12 +99,39 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
                 throw ExceptionShaderGenError("Could not find an input named '" + variable +
                     "' on node '" + node.getName() + "'");
             }
-            shadergen.emitInput(stage, context, input);
+
+            if (input->connection)
+            {
+                string inputStr;
+                shadergen.getInput(context, input, inputStr);
+                code.push_back(inputStr);
+            }
+            else
+            {
+                string variableName = node.getName() + "_" + input->name + "_tmp";
+                if (!variableNames.count(variableName))
+                {
+                    Variable newVariable(nullptr, input->type, variableName, EMPTY_STRING, input->value, EMPTY_STRING);
+                    shadergen.emitLineBegin(stage);
+                    shadergen.emitConstant(stage, newVariable);
+                    shadergen.emitLineEnd(stage);
+                    variableNames.insert(variableName);
+                }
+                code.push_back(variableName);
+            }
 
             pos = j + 2;
             i = _functionSource.find_first_of(prefix, pos);
         }
-        shadergen.emitString(stage, _functionSource.substr(pos));
+        code.push_back(_functionSource.substr(pos));
+
+        shadergen.emitLineBegin(stage);
+        shadergen.emitOutput(stage, context, node.getOutput(), true, false);
+        shadergen.emitString(stage, " = ");
+        for (const string& c : code)
+        {
+            shadergen.emitString(stage, c);
+        }
         shadergen.emitLineEnd(stage);
     }
     else

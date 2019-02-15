@@ -96,6 +96,27 @@ public:
     virtual void emitOutput(ShaderStage& stage, const GenContext& context, const ShaderOutput* output, 
                             bool includeType, bool assignDefaultValue) const;
 
+    /// Utility to emit a block of either uniform or constant variables
+    /// @param block Block to emit.
+    /// @param qualifier Optional qualifier to add before the variable declaration.
+    /// Qualifiers are specified by the syntax for the generator.
+    /// @param shader Shader to emit to.
+    virtual void emitVariableBlock(ShaderStage& stage, const VariableBlock& block,
+        const string& qualifier, const string& separator);
+
+    /// Emit a shader variable
+    /// @param variable Variable to emit
+    /// @param qualifier Optional qualifier to add before the variable declaration.
+    /// Qualifiers are specified by the syntax for the generator.
+    /// @param shader Shader source to emit output to
+    virtual void emitVariable(ShaderStage& stage, const Variable& variable, const string& qualifier);
+
+    /// Utility to emit a shader constant variable
+    virtual void emitConstant(ShaderStage& stage, const Variable& variable);
+
+    /// Utility to emit a shader uniform input variable
+    virtual void emitUniform(ShaderStage& stage, const Variable& variable);
+
     /// Push a new active shader graph.
     /// Used when emitting code for compounds / subgraphs.
     void pushActiveGraph(ShaderStage& stage, ShaderGraph* graph) const;
@@ -201,6 +222,9 @@ public:
         CONTEXT_DEFAULT = 0
     };
 
+    static string SEMICOLON_NEWLINE;
+    static string COMMA;
+
 protected:
     /// Protected constructor
     ShaderGenerator(SyntaxPtr syntax);
@@ -221,26 +245,6 @@ protected:
     /// Create a new node context with the given id. The context is added to the
     /// shader generators node context storage and returned.
     GenContextPtr createContext(int id);
-
-    /// Utility to emit a block of either uniform or constant variables
-    /// @param block Block to emit.
-    /// @param qualifier Optional qualifier to add before the variable declaration.
-    /// Qualifiers are specified by the syntax for the generator.
-    /// @param shader Shader to emit to.
-    virtual void emitVariableBlock(ShaderStage& stage, const VariableBlock& block, const string& qualifier);
-
-    /// Emit a shader input variable
-    /// @param variable Variable to emit
-    /// @param qualifier Optional qualifier to add before the variable declaration.
-    /// Qualifiers are specified by the syntax for the generator.
-    /// @param shader Shader source to emit output to
-    virtual void emitVariable(ShaderStage& stage, const Variable& variable, const string& qualifier);
-
-    /// Utility to emit a shader constant variable
-    virtual void emitConstant(ShaderStage& stage, const Variable& variable);
-
-    /// Utility to emit a shader uniform input variable
-    virtual void emitUniform(ShaderStage& stage, const Variable& variable);
 
     SyntaxPtr _syntax;
     Factory<ShaderNodeImpl> _implFactory;

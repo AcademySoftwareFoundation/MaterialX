@@ -47,7 +47,7 @@ namespace
 
             return result;
         }
-       
+
     protected:
         virtual bool isEmpty(const Value& value) const = 0;
     };
@@ -55,7 +55,7 @@ namespace
     class OslFloatArrayTypeSyntax : public OslArrayTypeSyntax
     {
     public:
-        OslFloatArrayTypeSyntax(const string& name)
+        explicit OslFloatArrayTypeSyntax(const string& name)
             : OslArrayTypeSyntax(name)
         {}
 
@@ -70,7 +70,7 @@ namespace
     class OslIntegerArrayTypeSyntax : public OslArrayTypeSyntax
     {
     public:
-        OslIntegerArrayTypeSyntax(const string& name)
+        explicit OslIntegerArrayTypeSyntax(const string& name)
             : OslArrayTypeSyntax(name)
         {}
 
@@ -82,13 +82,13 @@ namespace
         }
     };
 
-    // In OSL vector2, vector4, color2 and color4 are custom struct types and require a different 
+    // In OSL vector2, vector4, color2 and color4 are custom struct types and require a different
     // value syntax for uniforms. So override the aggregate type syntax to support this.
     class OslStructTypeSyntax : public AggregateTypeSyntax
     {
     public:
         OslStructTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
-            const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING, 
+            const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
             const vector<string>& members = EMPTY_MEMBERS)
             : AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
         {}
@@ -133,7 +133,7 @@ namespace
     class OslColor4TypeSyntax : public OslStructTypeSyntax
     {
     public:
-        OslColor4TypeSyntax() 
+        OslColor4TypeSyntax()
             : OslStructTypeSyntax("color4", "color4(color(0.0), 0.0)", "{color(0.0), 0.0}", EMPTY_STRING, EMPTY_STRING, OslSyntax::COLOR4_MEMBERS)
         {}
 
@@ -201,7 +201,7 @@ OslSyntax::OslSyntax()
         "false", "friend", "goto", "inline", "long", "new", "operator", "private", "protected", "short",
         "signed", "sizeof", "static", "switch", "template", "this", "throw", "true", "try", "typedef", "uniform",
         "union", "unsigned", "varying", "virtual", "volatile",
-        "emission", "background", "diffuse", "oren_nayer", "translucent", "phong", "ward", "microfacet", 
+        "emission", "background", "diffuse", "oren_nayer", "translucent", "phong", "ward", "microfacet",
         "reflection", "transparent", "debug", "holdout", "subsurface",
         ""
     });
@@ -214,8 +214,8 @@ OslSyntax::OslSyntax()
     (
         Type::FLOAT,
         std::make_shared<ScalarTypeSyntax>(
-            "float", 
-            "0.0", 
+            "float",
+            "0.0",
             "0.0")
     );
 
@@ -230,7 +230,7 @@ OslSyntax::OslSyntax()
     (
         Type::INTEGER,
         std::make_shared<ScalarTypeSyntax>(
-            "int", 
+            "int",
             "0",
             "0")
     );
@@ -246,9 +246,9 @@ OslSyntax::OslSyntax()
     (
         Type::BOOLEAN,
         std::make_shared<ScalarTypeSyntax>(
-            "int", 
-            "0", 
-            "0", 
+            "int",
+            "0",
+            "0",
             EMPTY_STRING,
             "#define true 1\n#define false 0")
     );
@@ -257,9 +257,9 @@ OslSyntax::OslSyntax()
     (
         Type::COLOR2,
         std::make_shared<OslStructTypeSyntax>(
-            "color2", 
-            "color2(0.0, 0.0)", 
-            "{0.0, 0.0}", 
+            "color2",
+            "color2(0.0, 0.0)",
+            "{0.0, 0.0}",
             EMPTY_STRING,
             EMPTY_STRING,
             COLOR2_MEMBERS)
@@ -267,12 +267,12 @@ OslSyntax::OslSyntax()
 
     registerTypeSyntax
     (
-        // Note: the color type in OSL is a built in type and 
+        // Note: the color type in OSL is a built in type and
         // should not use the custom OslStructTypeSyntax.
         Type::COLOR3,
         std::make_shared<AggregateTypeSyntax>(
-            "color", 
-            "color(0.0)", 
+            "color",
+            "color(0.0)",
             "color(0.0)",
             EMPTY_STRING,
             EMPTY_STRING,
@@ -289,8 +289,8 @@ OslSyntax::OslSyntax()
     (
         Type::VECTOR2,
         std::make_shared<OslStructTypeSyntax>(
-            "vector2", 
-            "vector2(0.0, 0.0)", 
+            "vector2",
+            "vector2(0.0, 0.0)",
             "{0.0, 0.0}",
             EMPTY_STRING,
             EMPTY_STRING,
@@ -299,12 +299,12 @@ OslSyntax::OslSyntax()
 
     registerTypeSyntax
     (
-        // Note: the vector type in OSL is a built in type and 
+        // Note: the vector type in OSL is a built in type and
         // should not use the custom OslStructTypeSyntax.
         Type::VECTOR3,
         std::make_shared<AggregateTypeSyntax>(
-            "vector", 
-            "vector(0.0)", 
+            "vector",
+            "vector(0.0)",
             "vector(0.0)",
             EMPTY_STRING,
             EMPTY_STRING,
@@ -315,8 +315,8 @@ OslSyntax::OslSyntax()
     (
         Type::VECTOR4,
         std::make_shared<OslStructTypeSyntax>(
-            "vector4", 
-            "vector4(0.0, 0.0, 0.0, 0.0)", 
+            "vector4",
+            "vector4(0.0, 0.0, 0.0, 0.0)",
             "{0.0, 0.0, 0.0, 0.0}",
             EMPTY_STRING,
             EMPTY_STRING,
@@ -327,8 +327,8 @@ OslSyntax::OslSyntax()
     (
         Type::MATRIX33,
         std::make_shared<AggregateTypeSyntax>(
-            "matrix", 
-            "matrix(1.0)", 
+            "matrix",
+            "matrix(1.0)",
             "matrix(1.0)")
     );
 
@@ -336,8 +336,8 @@ OslSyntax::OslSyntax()
     (
         Type::MATRIX44,
         std::make_shared<AggregateTypeSyntax>(
-            "matrix", 
-            "matrix(1.0)", 
+            "matrix",
+            "matrix(1.0)",
             "matrix(1.0)")
     );
 
@@ -345,8 +345,8 @@ OslSyntax::OslSyntax()
     (
         Type::STRING,
         std::make_shared<StringTypeSyntax>(
-            "string", 
-            "\"\"", 
+            "string",
+            "\"\"",
             "\"\"")
     );
 
@@ -354,8 +354,8 @@ OslSyntax::OslSyntax()
     (
         Type::FILENAME,
         std::make_shared<StringTypeSyntax>(
-            "string", 
-            "\"\"", 
+            "string",
+            "\"\"",
             "\"\"")
     );
 
@@ -363,9 +363,9 @@ OslSyntax::OslSyntax()
     (
         Type::BSDF,
         std::make_shared<ScalarTypeSyntax>(
-            "BSDF", 
-            "null_closure", 
-            "0", 
+            "BSDF",
+            "null_closure",
+            "0",
             "closure color")
     );
 
@@ -373,9 +373,9 @@ OslSyntax::OslSyntax()
     (
         Type::EDF,
         std::make_shared<ScalarTypeSyntax>(
-            "EDF", 
-            "null_closure", 
-            "0", 
+            "EDF",
+            "null_closure",
+            "0",
             "closure color")
     );
 
@@ -383,9 +383,9 @@ OslSyntax::OslSyntax()
     (
         Type::VDF,
         std::make_shared<ScalarTypeSyntax>(
-            "VDF", 
-            "null_closure", 
-            "0", 
+            "VDF",
+            "null_closure",
+            "0",
             "closure color")
     );
 
@@ -404,9 +404,9 @@ OslSyntax::OslSyntax()
     (
         Type::SURFACESHADER,
         std::make_shared<ScalarTypeSyntax>(
-            "surfaceshader", 
-            "null_closure", 
-            "0", 
+            "surfaceshader",
+            "null_closure",
+            "0",
             "closure color")
     );
 
@@ -414,9 +414,9 @@ OslSyntax::OslSyntax()
     (
         Type::VOLUMESHADER,
         std::make_shared<ScalarTypeSyntax>(
-            "volumeshader", 
-            "null_closure", 
-            "0", 
+            "volumeshader",
+            "null_closure",
+            "0",
             "closure color")
     );
 
@@ -435,9 +435,9 @@ OslSyntax::OslSyntax()
     (
         Type::LIGHTSHADER,
         std::make_shared<ScalarTypeSyntax>(
-            "lightshader", 
-            "null_closure", 
-            "0", 
+            "lightshader",
+            "null_closure",
+            "0",
             "closure color")
     );
 }

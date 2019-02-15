@@ -47,17 +47,6 @@ const ShaderStage& Shader::getStage(const string& name) const
     return const_cast<Shader*>(this)->getStage(name);
 }
 
-void Shader::setAttribute(const string& attrib, ValuePtr value)
-{
-    _attributeMap[attrib] = value;
-}
-
-ValuePtr Shader::getAttribute(const string& attrib) const
-{
-    auto it = _attributeMap.find(attrib);
-    return it != _attributeMap.end() ? it->second : nullptr;
-}
-
 ShaderStagePtr Shader::createStage(const string& name, ConstSyntaxPtr syntax)
 {
     auto it = _stagesMap.find(name);

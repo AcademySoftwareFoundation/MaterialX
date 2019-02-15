@@ -1,6 +1,7 @@
-
 #include <MaterialXRender/External/GLew/glew.h>
 #include <MaterialXRender/OpenGL/GlslProgram.h>
+
+#include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <iostream>
@@ -15,7 +16,7 @@ int GlslProgram::UNDEFINED_OPENGL_PROGRAM_LOCATION = -1;
 int GlslProgram::Input::INVALID_OPENGL_TYPE = -1;
 
 // Shader constants
-static string RADIANCE_ENV_UNIFORM_NAME("u_envSpecular");
+static string RADIANCE_ENV_UNIFORM_NAME("u_envRadiance");
 static string IRRADIANCE_ENV_UNIFORM_NAME("u_envIrradiance");
 
 /// Sampling constants
@@ -35,7 +36,7 @@ GlslProgramPtr GlslProgram::create()
 
 GlslProgram::GlslProgram() :
     _programId(UNDEFINED_OPENGL_RESOURCE_ID),
-    _hwShader(nullptr),
+    _shader(nullptr),
     _indexBuffer(0),
     _indexBufferSize(0),
     _vertexArray(0)
@@ -48,7 +49,7 @@ GlslProgram::~GlslProgram()
     deleteProgram();
 }
 
-void GlslProgram::setStages(const HwShaderPtr shader)
+void GlslProgram::setStages(const ShaderPtr shader)
 {
     if (!shader)
     {
@@ -60,12 +61,11 @@ void GlslProgram::setStages(const HwShaderPtr shader)
     clearStages();
 
     // Extract out the shader code per stage
-    _hwShader = shader;
-    StringVec stages;
-    shader->getStageNames(stages);
-    for (const string& s : stages)
+    _shader = shader;
+    for (size_t i =0; i<shader->numStages(); ++i)
     {
-        addStage(s, shader->getSourceCode(s));
+        const ShaderStage& stage = shader->getStage(i);
+        addStage(stage.getName(), stage.getSourceCode());
     }
 
     // A stage change invalidates any cached parsed inputs
@@ -128,7 +128,7 @@ unsigned int GlslProgram::build()
 
     // Create vertex shader
     GLuint vertexShaderId = UNDEFINED_OPENGL_RESOURCE_ID;
-    std::string &vertexShaderSource = _stages[HwShader::VERTEX_STAGE];
+    std::string &vertexShaderSource = _stages[HW::VERTEX_STAGE];
     if (vertexShaderSource.length())
     {
         vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
@@ -160,7 +160,7 @@ unsigned int GlslProgram::build()
 
     // Create fragment shader
     GLuint fragmentShaderId = UNDEFINED_OPENGL_RESOURCE_ID;
-    std::string& fragmentShaderSource = _stages[HwShader::PIXEL_STAGE];
+    std::string& fragmentShaderSource = _stages[HW::PIXEL_STAGE];
     if (fragmentShaderSource.length())
     {
         fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
@@ -292,7 +292,7 @@ void GlslProgram::bindInputs(ViewHandlerPtr viewHandler,
     bindLighting(lightHandler, imageHandler);
 
     // Set up raster state for transparency as needed
-    if (_hwShader->hasTransparency())
+    if (_shader->hasAttribute(HW::TRANSPARENT))
     {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -309,7 +309,7 @@ void GlslProgram::unbindInputs(ImageHandlerPtr imageHandler)
     unbindGeometry();
 
     // Clean up raster state if transparency was set in bindInputs()
-    if (_hwShader->hasTransparency())
+    if (_shader->hasAttribute(HW::TRANSPARENT))
     {
         glDisable(GL_BLEND);
     }
@@ -666,7 +666,9 @@ void GlslProgram::bindLighting(HwLightHandlerPtr lightHandler, ImageHandlerPtr i
         lightCount = 0;
     }
 
-    if (lightCount == 0)
+    if (lightCount == 0 &&
+        lightHandler->getLightEnvRadiancePath().empty() &&
+        lightHandler->getLightEnvIrradiancePath().empty())
     {
         return;
     }
@@ -697,23 +699,49 @@ void GlslProgram::bindLighting(HwLightHandlerPtr lightHandler, ImageHandlerPtr i
         }
     }
 
+    const std::vector<NodePtr> lightList = lightHandler->getLightSources();
+    std::unordered_map<string, unsigned int> ids;
+    mapNodeDefToIdentiers(lightList, ids);
+
     size_t index = 0;
-    for (NodePtr light : lightHandler->getLightSources())
+    for (auto light : lightList)
     {
+        auto nodeDef = light->getNodeDef();
         const string prefix = "u_lightData[" + std::to_string(index) + "]";
 
         // Set light type id
+        bool boundType = false;
         input = uniformList.find(prefix + ".type");
         if (input != uniformList.end())
         {
             location = input->second->location;
             if (location >= 0)
             {
-                glUniform1i(location, int(HwLightHandler::getLightType(light)));
+                unsigned int lightType = ids[nodeDef->getName()];
+                glUniform1i(location, lightType);
+                boundType = true;
+            }
+        }
+        if (!boundType)
+        {
+            continue;
+        }
+
+        // Set all inputs
+        for (auto lightInput : light->getInputs())
+        {
+            // Make sure we have a value to set
+            if (lightInput->hasValue())
+            {
+                input = uniformList.find(prefix + "." + lightInput->getName());
+                if (input != uniformList.end())
+                {
+                    bindUniform(input->second->location, *lightInput->getValue());
+                }
             }
         }
 
-        // Set all parameters
+        // Set all parameters. Note that upstream connections are not currently handled.
         for (auto param : light->getParameters())
         {
             // Make sure we have a value to set
@@ -1067,74 +1095,73 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
     }
     delete[] uniformName;
 
-    if (_hwShader)
+    if (_shader)
     {
         // Check for any type mismatches between the program and the h/w shader.
         // i.e the type indicated by the HwShader does not match what was generated.
         bool uniformTypeMismatchFound = false;
 
-        /// Return constant block of variables for a stage.
-        const MaterialX::Shader::VariableBlock& pixelShaderConstants = _hwShader->getConstantBlock(HwShader::PIXEL_STAGE);
-        for (const MaterialX::Shader::Variable* input : pixelShaderConstants.variableOrder)
+        const ShaderStage& ps = _shader->getStage(HW::PIXEL_STAGE);
+        const ShaderStage& vs = _shader->getStage(HW::VERTEX_STAGE);
+
+        // Process constants
+        const VariableBlock& constants = ps.getConstantBlock();
+        for (size_t i=0; i< constants.size(); ++i)
         {
+            const Variable& v = constants[i];
             // There is no way to match with an unnamed variable
-            if (input->name.empty())
+            if (v.getName().empty())
             {
                 continue;
             }
 
-            InputPtr inputPtr = std::make_shared<Input>(-1, -1, static_cast<int>(input->type->getSize()), EMPTY_STRING);
-            _uniformList[input->name] = inputPtr;
+            // TODO: Shoud we really create new ones here each update?
+            InputPtr inputPtr = std::make_shared<Input>(-1, -1, int(v.getType()->getSize()), EMPTY_STRING);
+            _uniformList[v.getName()] = inputPtr;
             inputPtr->isConstant = true;
-            if (input->value)
-            {
-                inputPtr->value = input->value;
-            }
-            inputPtr->typeString = input->type->getName();
-            inputPtr->path = input->path;
+            inputPtr->value = v.getValue();
+            inputPtr->typeString = v.getType()->getName();
+            inputPtr->path = v.getPath();
         }
 
-        /// Return all blocks of uniform variables for a stage.
-        const std::string LIGHT_DATA_STRING("LightData");
-        const MaterialX::Shader::VariableBlockMap& pixelShaderUniforms = _hwShader->getUniformBlocks(HwShader::PIXEL_STAGE);
-        for (auto uniforms : pixelShaderUniforms)
+        // Process pixel stage uniforms
+        for (auto uniformsIt : ps.getUniformBlocks())
         {
-            MaterialX::Shader::VariableBlockPtr block = uniforms.second;
-            if (block->name == LIGHT_DATA_STRING)
+            const VariableBlock& uniforms = *uniformsIt.second;
+            if (uniforms.getName() == HW::LIGHT_UNIFORMS)
             {
                 // Need to go through LightHandler to match with uniforms
                 continue;
             }
 
-            for (const MaterialX::Shader::Variable* input : block->variableOrder)
+            for (size_t i = 0; i < uniforms.size(); ++i)
             {
+                const Variable& v = uniforms[i];
                 // There is no way to match with an unnamed variable
-                if (input->name.empty())
+                if (v.getName().empty())
                 {
                     continue;
                 }
 
-                auto Input = _uniformList.find(input->name);
-                if (Input != _uniformList.end())
+                auto inputIt = _uniformList.find(v.getName());
+                if (inputIt != _uniformList.end())
                 {
-                    Input->second->path = input->path;
-                    if (input->value)
+                    Input* input = inputIt->second.get();
+                    input->path = v.getPath();
+                    input->value = v.getValue();
+                    if (input->gltype == mapTypeToOpenGLType(v.getType()))
                     {
-                        Input->second->value = input->value;
-                    }
-                    if (Input->second->gltype == mapTypeToOpenGLType(input->type))
-                    {
-                        Input->second->typeString = input->type->getName();
+                        input->typeString = v.getType()->getName();
                     }
                     else
                     {
                         errors.push_back(
-                            "Pixel shader uniform block type mismatch[" + uniforms.first + "]. "
-                            + "Name: \"" + input->name
-                            + "\". Type: \"" + input->type->getName()
-                            + "\". Semantic: \"" + input->semantic
-                            + "\". Value: \"" + (input->value ? input->value->getValueString() : "<none>")
-                            + "\". GLType: " + std::to_string(mapTypeToOpenGLType(input->type))
+                            "Pixel shader uniform block type mismatch [" + uniforms.getName() + "]. "
+                            + "Name: \"" + v.getName()
+                            + "\". Type: \"" + v.getType()->getName()
+                            + "\". Semantic: \"" + v.getSemantic()
+                            + "\". Value: \"" + (v.getValue() ? v.getValue()->getValueString() : "<none>")
+                            + "\". GLType: " + std::to_string(mapTypeToOpenGLType(v.getType()))
                         );
                         uniformTypeMismatchFound = true;
                     }
@@ -1142,30 +1169,32 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
             }
         }
 
-        const MaterialX::Shader::VariableBlockMap& vertexShaderUniforms = _hwShader->getUniformBlocks(HwShader::VERTEX_STAGE);
-        for (auto uniforms : vertexShaderUniforms)
+        // Process vertex stage uniforms
+        for (auto uniformsIt : vs.getUniformBlocks())
         {
-            MaterialX::Shader::VariableBlockPtr block = uniforms.second;
-            for (const MaterialX::Shader::Variable* input : block->variableOrder)
+            const VariableBlock& uniforms = *uniformsIt.second;
+            for (size_t i = 0; i < uniforms.size(); ++i)
             {
-                auto Input = _uniformList.find(input->name);
-                if (Input != _uniformList.end())
+                const Variable& v = uniforms[i];
+                auto inputIt = _uniformList.find(v.getName());
+                if (inputIt != _uniformList.end())
                 {
-                    if (Input->second->gltype == mapTypeToOpenGLType(input->type))
+                    Input* input = inputIt->second.get();
+                    if (input->gltype == mapTypeToOpenGLType(v.getType()))
                     {
-                        Input->second->typeString = input->type->getName();
-                        Input->second->value = input->value;
-                        Input->second->path = input->path;
+                        input->typeString = v.getType()->getName();
+                        input->value = v.getValue();
+                        input->path = v.getPath();
                     }
                     else
                     {
                         errors.push_back(
-                            "Vertex shader uniform block type mismatch[" + uniforms.first + "]. "
-                            + "Name: \"" + input->name
-                            + "\". Type: \"" + input->type->getName()
-                            + "\". Semantic: \"" + input->semantic
-                            + "\". Value: \"" + (input->value ? input->value->getValueString() : "<none>")
-                            + "\". GLType: " + std::to_string(mapTypeToOpenGLType(input->type))
+                            "Vertex shader uniform block type mismatch [" + uniforms.getName() + "]. "
+                            + "Name: \"" + v.getName()
+                            + "\". Type: \"" + v.getType()->getName()
+                            + "\". Semantic: \"" + v.getSemantic()
+                            + "\". Value: \"" + (v.getValue() ? v.getValue()->getValueString() : "<none>")
+                            + "\". GLType: " + std::to_string(mapTypeToOpenGLType(v.getType()))
                         );
                         uniformTypeMismatchFound = true;
                     }
@@ -1263,36 +1292,35 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
     }
     delete[] attributeName;
 
-    if (_hwShader)
+    if (_shader)
     {
-        const MaterialX::Shader::VariableBlock& appDataBlock = _hwShader->getAppDataBlock();
+        const ShaderStage& vs = _shader->getStage(HW::VERTEX_STAGE);
 
         bool uniformTypeMismatchFound = false;
 
-        if (!appDataBlock.empty())
+        const VariableBlock& vertexInputs = vs.getInputBlock(HW::VERTEX_INPUTS);
+        if (!vertexInputs.empty())
         {
-            for (const MaterialX::Shader::Variable* input : appDataBlock.variableOrder)
+            for (size_t i = 0; i < vertexInputs.size(); ++i)
             {
-                auto Input = _attributeList.find(input->name);
-                if (Input != _attributeList.end())
+                const Variable& v = vertexInputs[i];
+                auto inputIt = _attributeList.find(v.getName());
+                if (inputIt != _attributeList.end())
                 {
-                    if (input->value)
+                    Input* input = inputIt->second.get();
+                    input->value = v.getValue();
+                    if (input->gltype == mapTypeToOpenGLType(v.getType()))
                     {
-                        Input->second->value = input->value;
-                    }
-
-                    if (Input->second->gltype == mapTypeToOpenGLType(input->type))
-                    {
-                        Input->second->typeString = input->type->getName();
+                        input->typeString = v.getType()->getName();
                     }
                     else
                     {
                         errors.push_back(
-                            "Application uniform type mismatch in block. Name: \"" + input->name
-                            + "\". Type: \"" + input->type->getName()
-                            + "\". Semantic: \"" + input->semantic
-                            + "\". Value: \"" + (input->value ? input->value->getValueString() : "<none>")
-                            + "\". GLType: " + std::to_string(mapTypeToOpenGLType(input->type))
+                            "Vertex shader attribute type mismatch in block. Name: \"" + v.getName()
+                            + "\". Type: \"" + v.getType()->getName()
+                            + "\". Semantic: \"" + v.getSemantic()
+                            + "\". Value: \"" + (v.getValue() ? v.getValue()->getValueString() : "<none>")
+                            + "\". GLType: " + std::to_string(mapTypeToOpenGLType(v.getType()))
                         );
                         uniformTypeMismatchFound = true;
                     }

@@ -1,12 +1,14 @@
 #ifndef MATERIALX_GLSLPROGRAM_H
 #define MATERIALX_GLSLPROGRAM_H
 
-#include <MaterialXGenShader/HwShader.h>
-#include <MaterialXGenShader/HwLightHandler.h>
+#include <MaterialXGenShader/Shader.h>
+
 #include <MaterialXRender/ShaderValidators/ExceptionShaderValidationError.h>
 #include <MaterialXRender/Handlers/ViewHandler.h>
 #include <MaterialXRender/Handlers/ImageHandler.h>
 #include <MaterialXRender/Handlers/GeometryHandler.h>
+#include <MaterialXRender/Handlers/HwLightHandler.h>
+
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -40,7 +42,7 @@ class GlslProgram
 
     /// Set up code stages to validate based on an input hardware shader.
     /// @param shader Hardware shader to use
-    void setStages(const HwShaderPtr shader);
+    void setStages(const ShaderPtr shader);
 
     /// Set the code stages based on a list of stage strings.
     /// Refer to the ordering of stages as defined by a HwShader.
@@ -250,7 +252,7 @@ class GlslProgram
     InputMap _attributeList;
 
     /// Hardware shader (if any) used for program creation
-    HwShaderPtr _hwShader;
+    ShaderPtr _shader;
 
     /// Attribute buffer resource handles
     /// for each attribute identifier in the program

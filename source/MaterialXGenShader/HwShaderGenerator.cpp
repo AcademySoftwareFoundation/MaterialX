@@ -16,7 +16,7 @@ namespace HW
     const string PUBLIC_UNIFORMS  = "PublicUniforms";
     const string LIGHT_UNIFORMS   = "LightUniforms";
     const string PIXEL_OUTPUTS    = "PixelOutputs";
-    const string TRANSPARENCY     = "transparency";
+    const string TRANSPARENT      = "transparent";
 }
 
 HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax)
@@ -30,8 +30,11 @@ ShaderPtr HwShaderGenerator::create(const string& name, ElementPtr element, cons
     ShaderGraphPtr graph = ShaderGraph::create(name, element, *this, options);
     ShaderPtr shader = std::make_shared<Shader>(name, graph);
 
-    // Store transparency state in an attribute
-    shader->setAttribute(HW::TRANSPARENCY, Value::createValue<bool>(options.hwTransparency));
+    if (options.hwTransparency)
+    {
+        // Flag the shader as being transparent.
+        shader->setAttribute(HW::TRANSPARENT);
+    }
 
     // Create vertex stage.
     ShaderStagePtr vs = createStage(*shader, HW::VERTEX_STAGE);
@@ -153,7 +156,7 @@ ShaderPtr HwShaderGenerator::create(const string& name, ElementPtr element, cons
     return shader;
 }
 
-void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, size_t lightTypeId, const GenOptions& options)
+void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, const GenOptions& options)
 {
     if (TypeDesc::get(nodeDef.getType()) != Type::LIGHTSHADER)
     {
@@ -162,7 +165,8 @@ void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, size_t lightType
 
     if (getBoundLightShader(lightTypeId))
     {
-        throw ExceptionShaderGenError("Error binding light shader. Light type id '" + std::to_string(lightTypeId) + "' has already been bound");
+        throw ExceptionShaderGenError("Error binding light shader. Light type id '" + std::to_string(lightTypeId) +
+            "' has already been bound");
     }
 
     ShaderNodeImplPtr sgimpl;
@@ -193,7 +197,7 @@ void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, size_t lightType
     _boundLightShaders[lightTypeId] = sgimpl;
 }
 
-ShaderNodeImpl* HwShaderGenerator::getBoundLightShader(size_t lightTypeId)
+ShaderNodeImpl* HwShaderGenerator::getBoundLightShader(unsigned int lightTypeId)
 {
     auto it = _boundLightShaders.find(lightTypeId);
     return it != _boundLightShaders.end() ? it->second.get() : nullptr;

@@ -67,7 +67,7 @@ namespace
 
 const string OgsFxShader::FINAL_FX_STAGE = "finalfx";
 
-OgsFxShader::OgsFxShader(const string& name) 
+OgsFxShader::OgsFxShader(const string& name)
     : ParentClass(name)
 {
     createStage(FINAL_FX_STAGE);
@@ -79,7 +79,7 @@ OgsFxShader::OgsFxShader(const string& name)
 
 void OgsFxShader::createUniform(const string& stage, const string& block, const TypeDesc* type, const string& name, const string& path, const string& semantic, ValuePtr value)
 {
-    // If no semantic is given check if we have 
+    // If no semantic is given check if we have
     // an OgsFx semantic that should be used
     if (semantic.empty())
     {
@@ -95,7 +95,7 @@ void OgsFxShader::createUniform(const string& stage, const string& block, const 
 
 void OgsFxShader::createAppData(const TypeDesc* type, const string& name, const string& semantic)
 {
-    // If no semantic is given check if we have 
+    // If no semantic is given check if we have
     // an OgsFx semantic that should be used
     if (semantic.empty())
     {
@@ -111,7 +111,7 @@ void OgsFxShader::createAppData(const TypeDesc* type, const string& name, const 
 
 void OgsFxShader::createVertexData(const TypeDesc* type, const string& name, const string& semantic)
 {
-    // If no semantic is given check if we have 
+    // If no semantic is given check if we have
     // an OgsFx semantic that should be used
     if (semantic.empty())
     {
@@ -169,7 +169,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     if (!vsConstants.empty())
     {
         shader.addComment("Constant block: " + vsConstants.name);
-        emitVariableBlock(vsConstants, _syntax->getConstantQualifier(), shader);
+        emitVariableBlock(vsConstants, _syntax->getConstantQualifier(), SEMICOLON_NEWLINE, shader);
     }
 
     // Add main function
@@ -187,7 +187,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     //
 
     shader.setActiveStage(OgsFxShader::PIXEL_STAGE);
-    
+
     shader.addComment("---------------------------------- Pixel shader ----------------------------------------\n");
     shader.addStr("GLSLShader PS\n");
     shader.beginScope(Shader::Brackets::BRACES);
@@ -211,6 +211,18 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
         shader.newLine();
     }
 
+    // Emit uv transform function
+    if (options.fileTextureVerticalFlip)
+    {
+        shader.addInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.glsl", *this);
+        shader.newLine();
+    }
+    else
+    {
+        shader.addInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.glsl", *this);
+        shader.newLine();
+    }
+
     emitFunctionDefinitions(shader);
 
     // Add constants
@@ -218,7 +230,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     if (!psConstants.empty())
     {
         shader.addComment("Constant block: " + psConstants.name);
-        emitVariableBlock(psConstants, _syntax->getConstantQualifier(), shader);
+        emitVariableBlock(psConstants, _syntax->getConstantQualifier(), SEMICOLON_NEWLINE, shader);
     }
 
     // Add main function
@@ -308,11 +320,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     if (!vsPrivateUniforms.empty())
     {
         shader.addComment("Vertex stage uniform block: " + vsPrivateUniforms.name);
-        for (const Shader::Variable* uniform : vsPrivateUniforms.variableOrder)
-        {
-            emitUniform(*uniform, shader);
-        }
-        shader.newLine();
+        emitVariableBlock(vsPrivateUniforms, _syntax->getUniformQualifier(), SEMICOLON_NEWLINE, shader);
     }
 
     // Add all public vertex shader uniforms
@@ -320,11 +328,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     if (!vsPublicUniforms.empty())
     {
         shader.addComment("Vertex stage uniform block: " + vsPublicUniforms.name);
-        for (const Shader::Variable* uniform : vsPublicUniforms.variableOrder)
-        {
-            emitUniform(*uniform, shader);
-        }
-        shader.newLine();
+        emitVariableBlock(vsPublicUniforms, _syntax->getUniformQualifier(), SEMICOLON_NEWLINE, shader);
     }
 
     // Add all private pixel shader uniforms
@@ -332,11 +336,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     if (!psPrivateUniforms.empty())
     {
         shader.addComment("Pixel stage uniform block: " + psPrivateUniforms.name);
-        for (const Shader::Variable* uniform : psPrivateUniforms.variableOrder)
-        {
-            emitUniform(*uniform, shader);
-        }
-        shader.newLine();
+        emitVariableBlock(psPrivateUniforms, _syntax->getUniformQualifier(), SEMICOLON_NEWLINE, shader);
     }
 
     // Add all public pixel shader uniforms
@@ -344,11 +344,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     if (!psPublicUniforms.empty())
     {
         shader.addComment("Pixel stage uniform block: " + psPublicUniforms.name);
-        for (const Shader::Variable* uniform : psPublicUniforms.variableOrder)
-        {
-            emitUniform(*uniform, shader);
-        }
-        shader.newLine();
+        emitVariableBlock(psPublicUniforms, _syntax->getUniformQualifier(), SEMICOLON_NEWLINE, shader);
     }
 
     if (lighting)
@@ -377,7 +373,17 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
         shader.beginScope(Shader::Brackets::BRACES);
         shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/" + OgsFxShaderGenerator::TARGET + "/mx_lighting_functions.glsl", *this);
         shader.newLine();
-        shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_lighting.glsl", *this);
+
+        // Emit environment lighting functions
+        if (options.hwSpecularEnvironmentMethod == SPECULAR_ENVIRONMENT_FIS)
+        {
+            shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_fis.glsl", *this);
+        }
+        else
+        {
+            shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_prefilter.glsl", *this);
+        }
+
         shader.endScope();
         shader.newLine();
     }
@@ -401,7 +407,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.addLine("pass p0", false);
     shader.beginScope(Shader::Brackets::BRACES);
     shader.addLine("VertexShader(in AppData, out VertexData vd) = { VS }");
-    shader.addLine(lighting ? 
+    shader.addLine(lighting ?
         "PixelShader(in VertexData vd, out PixelOutput) = { LightingFunctions, PS }" :
         "PixelShader(in VertexData vd, out PixelOutput) = { PS }");
     shader.endScope();

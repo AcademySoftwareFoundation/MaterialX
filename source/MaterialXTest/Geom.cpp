@@ -50,8 +50,15 @@ TEST_CASE("Geom elements", "[geom]")
     resolver1->setUdimString("1001");
     mx::StringResolverPtr resolver2 = image->createStringResolver("/robot2");
     resolver2->setUdimString("1002");
-    REQUIRE(fileParam->getResolvedValueString(resolver1) == "folder/robot01_diffuse_1001.tif");
-    REQUIRE(fileParam->getResolvedValueString(resolver2) == "folder/robot02_diffuse_1002.tif");
+    REQUIRE(fileParam->getResolvedValue(resolver1)->asA<std::string>() == "folder/robot01_diffuse_1001.tif");
+    REQUIRE(fileParam->getResolvedValue(resolver2)->asA<std::string>() == "folder/robot02_diffuse_1002.tif");
+
+    // Create a geominfo with an attribute.
+    mx::GeomInfoPtr geominfo4 = doc->addGeomInfo("geominfo4", "/robot1");
+    mx::StringVec udimSet = {{"1001", "1002", "1003", "1004"}};
+    geominfo4->setGeomAttrValue("udimset", udimSet);
+    REQUIRE(doc->getGeomAttrValue("udimset", "/robot1")->asA<mx::StringVec>() == udimSet);
+    REQUIRE(doc->getGeomAttrValue("udimset", "/robot2") == nullptr);
 
     // Create a base collection.
     mx::CollectionPtr collection1 = doc->addCollection("collection1");
@@ -82,18 +89,17 @@ TEST_CASE("GeomPropDef", "[geom]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    // Create a geomprop definition for world space normal
-    mx::GeomPropDefPtr Nworld = doc->addGeomPropDef("Nworld", "normal");
-    Nworld->setSpace("world");
+    // Declare a GeomPropDef for world-space normal.
+    mx::GeomPropDefPtr worldNormal = doc->addGeomPropDef("Nworld", "normal");
+    worldNormal->setSpace("world");
 
-    // Create a new nodedef and set an input to use the world space normal
-    // as default geometric data.
+    // Create a NodeDef with an input that defaults to the declared world-space
+    // normal property.
     mx::NodeDefPtr nodeDef = doc->addNodeDef("ND_foo", "color3", "foo");
-    mx::InputPtr in1 = doc->addInput("in1", "vector3");
-    in1->setDefaultGeomPropString(Nworld->getName());
+    mx::InputPtr input = doc->addInput("input1", "vector3");
+    input->setDefaultGeomPropString(worldNormal->getName());
 
-    // Test accessing the geomprop
-    mx::GeomPropDefPtr geomProp = in1->getDefaultGeomProp();
-    REQUIRE(geomProp->getName() == "Nworld");
-    REQUIRE(geomProp->getSpace() == "world");
+    // Validate connections.
+    REQUIRE(input->getDefaultGeomProp() == worldNormal);
+    REQUIRE(doc->validate());
 }

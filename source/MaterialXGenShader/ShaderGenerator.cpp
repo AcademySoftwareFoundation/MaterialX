@@ -19,6 +19,9 @@ namespace
     const bool debugOutput = true;
 }
 
+string ShaderGenerator::SEMICOLON_NEWLINE = ";\n";
+string ShaderGenerator::COMMA = ",";
+
 ShaderGenerator::ShaderGenerator(SyntaxPtr syntax)
     : _syntax(syntax)
 {
@@ -136,33 +139,6 @@ void ShaderGenerator::emitTypeDefinitions(ShaderStage& stage)
     stage.newLine();
 }
 
-/*
-void ShaderGenerator::emitFunctionDefinitions(ShaderStage& stage)
-{
-    // Emit function definitions for all nodes
-    for (ShaderNode* node : shader.getGraph()->getNodes())
-    {
-        shader.addFunctionDefinition(node, *this);
-    }
-}
-void ShaderGenerator::emitFinalOutput(ShaderStage& stage) const
-{
-    ShaderGraph* graph = shader.getGraph();
-    const ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
-
-    if (!outputSocket->connection)
-    {
-        // Early out for the rare case where the whole graph is just a single value
-        shadergen.emitLine(stage, outputSocket->variable + " = " + (outputSocket->value ?
-            _syntax->getValue(outputSocket->type, *outputSocket->value) :
-            _syntax->getDefaultValue(outputSocket->type)));
-        return;
-    }
-
-    shadergen.emitLine(stage, outputSocket->variable + " = " + outputSocket->connection->variable);
-}
-*/
-
 void ShaderGenerator::emitConstant(ShaderStage& stage, const Variable& constant)
 {
     emitVariable(stage, constant, _syntax->getConstantQualifier());
@@ -191,13 +167,17 @@ void ShaderGenerator::emitVariable(ShaderStage& stage, const Variable& variable,
     stage.addLine(line);
 }
 
-void ShaderGenerator::emitVariableBlock(ShaderStage& stage, const VariableBlock& block, const string& qualifier)
+void ShaderGenerator::emitVariableBlock(ShaderStage& stage, const VariableBlock& block, 
+                                        const string& qualifier, const string& separator)
 {
     if (!block.empty())
     {
         for (size_t i=0; i<block.size(); ++i)
         {
-            emitVariable(stage, *block[i], qualifier);
+            emitLineBegin(stage);
+            emitVariable(stage, block[i], qualifier);
+            emitString(stage, separator);
+            emitLineEnd(stage, false);
         }
         stage.newLine();
     }

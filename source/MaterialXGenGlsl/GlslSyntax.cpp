@@ -64,9 +64,9 @@ namespace
     class GlslFloatArrayTypeSyntax : public GlslArrayTypeSyntax
     {
     public:
-        GlslFloatArrayTypeSyntax(const string& name)
+        explicit GlslFloatArrayTypeSyntax(const string& name)
             : GlslArrayTypeSyntax(name)
-        {}        
+        {}
 
     protected:
         size_t getSize(const Value& value) const override
@@ -80,9 +80,9 @@ namespace
     class GlslIntegerArrayTypeSyntax : public GlslArrayTypeSyntax
     {
     public:
-        GlslIntegerArrayTypeSyntax(const string& name)
+        explicit GlslIntegerArrayTypeSyntax(const string& name)
             : GlslArrayTypeSyntax(name)
-        {}        
+        {}
 
     protected:
         size_t getSize(const Value& value) const override
@@ -108,7 +108,7 @@ GlslSyntax::GlslSyntax()
     {
         "centroid", "flat", "smooth", "noperspective", "patch", "sample",
         "break", "continue", "do", "for", "while", "switch", "case", "default",
-        "if", "else,", "subroutine", "in", "out", "inout", 
+        "if", "else,", "subroutine", "in", "out", "inout",
         "float", "double", "int", "void", "bool", "true", "false",
         "invariant", "discard", "return",
         "mat2", "mat3", "mat4", "dmat2", "dmat3", "dmat4",
@@ -155,7 +155,7 @@ GlslSyntax::GlslSyntax()
     tokens["webgl_"] = "webgll";
     tokens["_webgl"] = "wwebgl";
     registerInvalidTokens(tokens);
-    
+
     //
     // Register syntax handlers for each data type.
     //
@@ -164,8 +164,8 @@ GlslSyntax::GlslSyntax()
     (
         Type::FLOAT,
         std::make_shared<ScalarTypeSyntax>(
-            "float", 
-            "0.0", 
+            "float",
+            "0.0",
             "0.0")
     );
 
@@ -180,8 +180,8 @@ GlslSyntax::GlslSyntax()
     (
         Type::INTEGER,
         std::make_shared<ScalarTypeSyntax>(
-            "int", 
-            "0", 
+            "int",
+            "0",
             "0")
     );
 
@@ -196,8 +196,8 @@ GlslSyntax::GlslSyntax()
     (
         Type::BOOLEAN,
         std::make_shared<ScalarTypeSyntax>(
-            "bool", 
-            "false", 
+            "bool",
+            "false",
             "false")
     );
 
@@ -205,9 +205,9 @@ GlslSyntax::GlslSyntax()
     (
         Type::COLOR2,
         std::make_shared<AggregateTypeSyntax>(
-            "vec2", 
-            "vec2(0.0)", 
-            "vec2(0.0)", 
+            "vec2",
+            "vec2(0.0)",
+            "vec2(0.0)",
             EMPTY_STRING,
             EMPTY_STRING,
             VEC2_MEMBERS)
@@ -217,9 +217,9 @@ GlslSyntax::GlslSyntax()
     (
         Type::COLOR3,
         std::make_shared<AggregateTypeSyntax>(
-            "vec3", 
-            "vec3(0.0)", 
-            "vec3(0.0)", 
+            "vec3",
+            "vec3(0.0)",
+            "vec3(0.0)",
             EMPTY_STRING,
             EMPTY_STRING,
             VEC3_MEMBERS)
@@ -229,9 +229,9 @@ GlslSyntax::GlslSyntax()
     (
         Type::COLOR4,
         std::make_shared<AggregateTypeSyntax>(
-            "vec4", 
-            "vec4(0.0)", 
-            "vec4(0.0)", 
+            "vec4",
+            "vec4(0.0)",
+            "vec4(0.0)",
             EMPTY_STRING,
             EMPTY_STRING,
             VEC4_MEMBERS)
@@ -241,11 +241,11 @@ GlslSyntax::GlslSyntax()
     (
         Type::VECTOR2,
         std::make_shared<AggregateTypeSyntax>(
-            "vec2", 
-            "vec2(0.0)", 
-            "vec2(0.0)", 
-            EMPTY_STRING, 
-            EMPTY_STRING, 
+            "vec2",
+            "vec2(0.0)",
+            "vec2(0.0)",
+            EMPTY_STRING,
+            EMPTY_STRING,
             VEC2_MEMBERS)
     );
 
@@ -253,9 +253,9 @@ GlslSyntax::GlslSyntax()
     (
         Type::VECTOR3,
         std::make_shared<AggregateTypeSyntax>(
-            "vec3", 
-            "vec3(0.0)", 
-            "vec3(0.0)", 
+            "vec3",
+            "vec3(0.0)",
+            "vec3(0.0)",
             EMPTY_STRING,
             EMPTY_STRING,
             VEC3_MEMBERS)
@@ -265,9 +265,9 @@ GlslSyntax::GlslSyntax()
     (
         Type::VECTOR4,
         std::make_shared<AggregateTypeSyntax>(
-            "vec4", 
-            "vec4(0.0)", 
-            "vec4(0.0)", 
+            "vec4",
+            "vec4(0.0)",
+            "vec4(0.0)",
             EMPTY_STRING,
             EMPTY_STRING,
             VEC4_MEMBERS)
@@ -277,8 +277,8 @@ GlslSyntax::GlslSyntax()
     (
         Type::MATRIX33,
         std::make_shared<AggregateTypeSyntax>(
-            "mat3", 
-            "mat3(1.0)", 
+            "mat3",
+            "mat3(1.0)",
             "mat3(1.0)")
     );
 
@@ -286,8 +286,8 @@ GlslSyntax::GlslSyntax()
     (
         Type::MATRIX44,
         std::make_shared<AggregateTypeSyntax>(
-            "mat4", 
-            "mat4(1.0)", 
+            "mat4",
+            "mat4(1.0)",
             "mat4(1.0)")
     );
 
@@ -301,8 +301,8 @@ GlslSyntax::GlslSyntax()
     (
         Type::FILENAME,
         std::make_shared<ScalarTypeSyntax>(
-            "sampler2D", 
-            EMPTY_STRING, 
+            "sampler2D",
+            EMPTY_STRING,
             EMPTY_STRING)
     );
 
@@ -310,9 +310,9 @@ GlslSyntax::GlslSyntax()
     (
         Type::BSDF,
         std::make_shared<AggregateTypeSyntax>(
-            "BSDF", 
-            "BSDF(0.0)", 
-            "BSDF(0.0)", 
+            "BSDF",
+            "BSDF(0.0)",
+            "BSDF(0.0)",
             "vec3")
     );
 
@@ -320,9 +320,9 @@ GlslSyntax::GlslSyntax()
     (
         Type::EDF,
         std::make_shared<AggregateTypeSyntax>(
-            "EDF", 
-            "EDF(0.0)", 
-            "EDF(0.0)", 
+            "EDF",
+            "EDF(0.0)",
+            "EDF(0.0)",
             "vec3")
     );
 
@@ -330,9 +330,9 @@ GlslSyntax::GlslSyntax()
     (
         Type::VDF,
         std::make_shared<AggregateTypeSyntax>(
-            "VDF", 
-            "VDF(vec3(0.0),vec3(0.0))", 
-            EMPTY_STRING, 
+            "VDF",
+            "VDF(vec3(0.0),vec3(0.0))",
+            EMPTY_STRING,
             EMPTY_STRING,
             "struct VDF { vec3 absorption; vec3 scattering; };")
     );
@@ -352,8 +352,8 @@ GlslSyntax::GlslSyntax()
     (
         Type::SURFACESHADER,
         std::make_shared<AggregateTypeSyntax>(
-            "surfaceshader", 
-            "surfaceshader(vec3(0.0),vec3(0.0))", 
+            "surfaceshader",
+            "surfaceshader(vec3(0.0),vec3(0.0))",
             EMPTY_STRING,
             EMPTY_STRING,
             "struct surfaceshader { vec3 color; vec3 transparency; };")
@@ -385,8 +385,8 @@ GlslSyntax::GlslSyntax()
     (
         Type::LIGHTSHADER,
         std::make_shared<AggregateTypeSyntax>(
-            "lightshader", 
-            "lightshader(vec3(0.0),vec3(0.0))", 
+            "lightshader",
+            "lightshader(vec3(0.0),vec3(0.0))",
             EMPTY_STRING,
             EMPTY_STRING,
             "struct lightshader { vec3 intensity; vec3 direction; };")
@@ -399,8 +399,8 @@ const string& GlslSyntax::getOutputQualifier() const
 }
 
 bool GlslSyntax::typeSupported(const TypeDesc* type) const
-{ 
-    return type != Type::STRING; 
+{
+    return type != Type::STRING;
 }
 
 }

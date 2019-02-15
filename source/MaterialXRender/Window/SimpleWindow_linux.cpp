@@ -32,9 +32,9 @@ bool SimpleWindow::initialize(char* title,
     XtAppContext appContext;
     Widget shell;
     static Widget batchShell;
-    static bool initializedXServer = false;
     if (!applicationShell)
     {
+        static bool initializedXServer = false;
         // Connect to the X Server
         if (!initializedXServer)
         {

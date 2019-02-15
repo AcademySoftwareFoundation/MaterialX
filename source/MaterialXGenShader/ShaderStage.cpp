@@ -13,11 +13,11 @@ namespace MaterialX
 /// Identifier for main shader stage.
 const string MAIN_STAGE = "main";
 
-Variable::Variable(const VariableBlock& parent, const TypeDesc* type, const string& name, const string& semantic,
+Variable::Variable(const VariableBlock* block, const TypeDesc* type, const string& name, const string& semantic,
     ValuePtr value, const string& path)
     : _type(type)
     , _name(name)
-    , _fullName(parent.getInstance().empty() ? name : parent.getInstance() + "." + name)
+    , _fullName(block && block->getInstance().empty() ? name : block->getInstance() + "." + name)
     , _semantic(semantic)
     , _value(value)
     , _path(path)
@@ -37,6 +37,17 @@ Variable& VariableBlock::operator[](const string& name)
 const Variable& VariableBlock::operator[](const string& name) const
 {
     return const_cast<VariableBlock*>(this)->operator[](name);
+}
+
+void VariableBlock::add(const TypeDesc* type, const string& name, const string& semantic,
+                        ValuePtr value, const string& path)
+{
+    if (!_variableMap.count(name))
+    {
+        VariablePtr v = std::make_shared<Variable>(this, type, name, semantic, value, path);
+        _variableMap[name] = v;
+        _variableOrder.push_back(v.get());
+    }
 }
 
 

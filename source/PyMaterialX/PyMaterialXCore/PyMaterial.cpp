@@ -9,6 +9,11 @@
 
 #include <MaterialXCore/Look.h>
 
+
+#include <MaterialXCore/Material.h>
+
+#include <MaterialXCore/Look.h>
+
 namespace py = pybind11;
 namespace mx = MaterialX;
 
@@ -79,3 +84,4 @@ void bindPyMaterial(py::module& mod)
         .def("getReferencedOutputs", &mx::ShaderRef::getReferencedOutputs)
         .def_readonly_static("CATEGORY", &mx::ShaderRef::CATEGORY);
 }
+

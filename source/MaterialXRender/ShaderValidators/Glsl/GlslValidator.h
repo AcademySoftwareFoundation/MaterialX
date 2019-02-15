@@ -2,7 +2,6 @@
 #define MATERIALX_GLSLVALIDATOR_H
 
 #include <MaterialXRender/ShaderValidators/ShaderValidator.h>
-#include <MaterialXGenShader/HwShader.h>
 #include <MaterialXRender/ShaderValidators/ExceptionShaderValidationError.h>
 #include <MaterialXRender/Handlers/ImageHandler.h>
 #include <MaterialXRender/Window/SimpleWindow.h>

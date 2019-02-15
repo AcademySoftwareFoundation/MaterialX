@@ -19,8 +19,27 @@ float mx_microfacet_ggx_NDF(vec3 X, vec3 Y, vec3 H, float NdotH, float alphaX, f
 {
     float XdotH = dot(X, H);
     float YdotH = dot(Y, H);
-    float denom = XdotH * XdotH / (alphaX * alphaX) + YdotH * YdotH / (alphaY * alphaY) + NdotH * NdotH;
-    return denom > 0.0 ? 1.0 / (M_PI * alphaX * alphaY * denom * denom) : 0.0;
+    float denom = mx_square(XdotH / alphaX) + mx_square(YdotH / alphaY) + mx_square(NdotH);
+    return 1.0 / (M_PI * alphaX * alphaY * mx_square(denom));
+}
+
+// https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf
+// Appendix B.1 Equation 3
+float mx_microfacet_ggx_PDF(vec3 X, vec3 Y, vec3 H, float NdotH, float LdotH, float alphaX, float alphaY)
+{
+    return mx_microfacet_ggx_NDF(X, Y, H, NdotH, alphaX, alphaY) * NdotH / (4.0 * LdotH);
+}
+
+// https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf
+// Appendix B.2 Equation 15
+vec3 mx_microfacet_ggx_IS(vec2 Xi, vec3 X, vec3 Y, vec3 N, float alphaX, float alphaY)
+{
+    float phi = 2.0 * M_PI * Xi.x;
+    float tanTheta = sqrt(Xi.y / (1.0 - Xi.y));
+    vec3 H = vec3(X * (tanTheta * alphaX * cos(phi)) +
+                  Y * (tanTheta * alphaY * sin(phi)) +
+                  N);
+    return normalize(H);
 }
 
 // https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf (Equation 34)

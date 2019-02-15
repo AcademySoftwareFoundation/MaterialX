@@ -21,7 +21,8 @@ class TestObjLoader : public GeometryLoader
 
     /// Default constructor
     TestObjLoader() :
-        _readGroups(true)
+        _readGroups(true),
+        _debugDump(false)
     {
         _extensions = { "obj", "OBJ" };
     }
@@ -46,6 +47,7 @@ class TestObjLoader : public GeometryLoader
 
   protected:
     bool _readGroups;
+    bool _debugDump;
 };
 
 } // namespace MaterialX

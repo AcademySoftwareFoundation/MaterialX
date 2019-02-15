@@ -34,9 +34,7 @@ using VariableBlockMap = std::unordered_map<string, VariableBlockPtr>;
 class Variable
 {
   public:
-//    Variable();
-    
-    Variable(const VariableBlock& parent, const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING,
+    Variable(const VariableBlock* block, const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING,
         ValuePtr value = nullptr, const string& path = EMPTY_STRING);
 
     const TypeDesc* getType() const { return _type; }
@@ -97,24 +95,16 @@ class VariableBlock
 
     size_t size() const { return _variableOrder.size(); }
 
-    Variable* operator[](size_t i) { return _variableOrder[i]; }
+    Variable& operator[](size_t i) { return *_variableOrder[i]; }
 
-    const Variable* operator[](size_t i) const { return _variableOrder[i]; }
+    const Variable& operator[](size_t i) const { return *_variableOrder[i]; }
 
     Variable& operator[](const string& name);
 
     const Variable& operator[](const string& name) const;
 
     void add(const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING,
-        ValuePtr value = nullptr, const string& path = EMPTY_STRING)
-    {
-        if (!_variableMap.count(name))
-        {
-            VariablePtr v = std::make_shared<Variable>(*this, type, name, semantic, value, path);
-            _variableMap[name] = v;
-            _variableOrder.push_back(v.get());
-        }
-    }
+        ValuePtr value = nullptr, const string& path = EMPTY_STRING);
 
   private:
     string _name;
@@ -171,6 +161,24 @@ class ShaderStage
     VariableBlock& getConstantBlock();
     const VariableBlock& getConstantBlock() const;
 
+    /// Return a map of all uniform blocks.
+    const VariableBlockMap& getUniformBlocks() const
+    {
+        return _uniforms;
+    }
+
+    /// Return a map of all input blocks.
+    const VariableBlockMap& getInputBlocks() const
+    {
+        return _inputs;
+    }
+
+    /// Return a map of all output blocks.
+    const VariableBlockMap& getOutputBlocks() const
+    {
+        return _outputs;
+    }
+ 
     /// Return the active shader graph.
     ShaderGraph* getGraph() const { return _graphStack.back(); }
 

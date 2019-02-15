@@ -210,6 +210,18 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
         emitLineBreak(stage);
     }
 
+    // Emit uv transform function
+    if (options.fileTextureVerticalFlip)
+    {
+        emitInclude(stage, "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.osl");
+        emitLineBreak(stage);
+    }
+    else
+    {
+        emitInclude(stage, "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.osl");
+        emitLineBreak(stage);
+    }
+
     // Emit function definitions for all nodes
     for (ShaderNode* node : graph->getNodes())
     {
@@ -240,22 +252,15 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     const VariableBlock& inputs = stage.getInputBlock(OSL::INPUTS);
     for (size_t i=0; inputs.size(); ++i)
     {
-        const Variable* input = inputs[i];
-        const string& type = _syntax->getTypeName(input->getType());
-        const string& value = _syntax->getDefaultValue(input->getType(), true);
-        emitLine(stage, type + " " + input->getName() + " = " + value + " [[ int lockgeom=0 ]],", false);
+        const Variable& input = inputs[i];
+        const string& type = _syntax->getTypeName(input.getType());
+        const string& value = _syntax->getDefaultValue(input.getType(), true);
+        emitLine(stage, type + " " + input.getName() + " = " + value + " [[ int lockgeom=0 ]],", false);
     }
 
     // Emit all uniform inputs
     const VariableBlock& uniforms = stage.getInputBlock(OSL::UNIFORMS);
-    for (size_t i = 0; uniforms.size(); ++i)
-    {
-        const Variable* uniform = uniforms[i];
-        emitLineBegin(stage);
-        emitUniform(stage, *uniform);
-        emitString(stage, ",");
-        emitLineEnd(stage, false);
-    }
+    emitVariableBlock(stage, uniforms, _syntax->getUniformQualifier(), COMMA);
 
     // Emit shader output
     // TODO: Support multiple outputs
@@ -274,13 +279,7 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     const VariableBlock& constants = stage.getConstantBlock();
     if (constants.size())
     {
-        for (size_t i = 0; constants.size(); ++i)
-        {
-            const Variable* constant = constants[i];
-            emitLineBegin(stage);
-            emitConstant(stage, *constant);
-            emitLineEnd(stage, true);
-        }
+        emitVariableBlock(stage, constants, _syntax->getConstantQualifier(), SEMICOLON_NEWLINE);
         emitLineBreak(stage);
     }
 

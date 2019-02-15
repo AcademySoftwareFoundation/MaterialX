@@ -289,7 +289,7 @@ void GlslValidator::validateCreation(const ShaderPtr shader)
         throw ExceptionShaderValidationError(errorType, errors);
     }
 
-    _program->setStages(std::dynamic_pointer_cast<HwShader>(shader));
+    _program->setStages(shader);
     _program->build();    
 }
 
@@ -473,10 +473,10 @@ void GlslValidator::validateRender(bool orthographicView)
             }
         }      
     }
-    catch (ExceptionShaderValidationError& e)
+    catch (ExceptionShaderValidationError& /*e*/)
     {
         bindTarget(false);
-        throw e;
+        throw;
     }
 
     // Unset target
@@ -531,7 +531,7 @@ void GlslValidator::save(const string& fileName, bool floatingPoint)
 
     if (!saved)
     {
-        errors.push_back("Faled to save to file:" + fileName);
+        errors.push_back("Failed to save to file:" + fileName);
         throw ExceptionShaderValidationError(errorType, errors);
     }
 }

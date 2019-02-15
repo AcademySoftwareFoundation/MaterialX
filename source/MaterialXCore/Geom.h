@@ -350,12 +350,15 @@ class GeomAttr : public ValueElement
 
 /// @class GeomPropDef
 /// An element representing a declaration of geometric input data.
-/// Properties of the data are defined by a geometric node and a set of modifiers for that node.
-/// For example, a property called "Nworld" representing a world space normal
-/// would have a node reference of "normal" and a "space" property of "world", or a property called
-/// "UV1" would have a "texcoord" node reference and an "index" property of 1. 
-/// Once a GeomPropDef has been defined it can be referenced by defaultgeomprop
-/// and internalgeomprop attributes by using its name.
+///
+/// A GeomPropDef element contains a reference to a geometric node and a set of
+/// modifiers for that node.  For example, a world-space normal can be declared
+/// as a reference to the "normal" geometric node with a space setting of
+/// "world", or a specific set of texture coordinates can be declared as a
+/// reference to the "texcoord" geometric node with an index setting of "1".
+///
+/// Once a GeomPropDef has been declared it may be referenced by Input elements
+/// through their defaultgeomprop attribute.
 class GeomPropDef : public Element
 {
   public:
@@ -385,7 +388,6 @@ class GeomPropDef : public Element
     {
         return getAttribute(NODE_ATTRIBUTE);
     }
-
 
     /// @}
     /// @name Geometric Space
@@ -462,7 +464,6 @@ class GeomPropDef : public Element
     static const string INDEX_ATTRIBUTE;
     static const string ATTR_NAME_ATTRIBUTE;
 };
-
 
 /// @class Collection
 /// A collection element within a Document.
