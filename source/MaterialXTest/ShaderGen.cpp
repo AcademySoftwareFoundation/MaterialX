@@ -18,7 +18,7 @@
 #endif
 
 #ifdef MATERIALX_BUILD_GEN_OSL
-#include <MaterialXGenOsl/ArnoldShaderGenerator.h>
+#include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslSyntax.h>
 #endif
 
@@ -453,7 +453,7 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
     std::vector<mx::ShaderGeneratorPtr> shaderGenerators =
     {
 #ifdef MATERIALX_BUILD_GEN_OSL
-        mx::ArnoldShaderGenerator::create(),
+        mx::OslShaderGenerator::create(),
 #endif
 #ifdef MATERIALX_BUILD_GEN_GLSL
         mx::GlslShaderGenerator::create(),
@@ -689,7 +689,7 @@ TEST_CASE("Swizzling", "[shadergen]")
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
-        mx::ArnoldShaderGenerator sg;
+        mx::OslShaderGenerator sg;
         sg.registerSourceCodeSearchPath(searchPath);
         const mx::Syntax* syntax = sg.getSyntax();
 
@@ -878,7 +878,7 @@ TEST_CASE("Shader Interface", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_OSL
     const std::string exampleName = "shader_interface";
     {
-        mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();
+        mx::ShaderGeneratorPtr shadergen = mx::OslShaderGenerator::create();
         // Add path to find all source code snippets
         shadergen->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
@@ -965,7 +965,7 @@ TEST_CASE("Hello World", "[shadergen]")
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
-        mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();
+        mx::ShaderGeneratorPtr shadergen = mx::OslShaderGenerator::create();
         // Add path to find all source code snippets
         shadergen->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
@@ -1095,7 +1095,7 @@ TEST_CASE("Conditionals", "[shadergen]")
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::OslShaderGenerator::create();
         // Add path to find all source code snippets
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
@@ -1221,7 +1221,7 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::OslShaderGenerator::create();
         // Add path to find all source code snippets
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
@@ -1353,7 +1353,7 @@ TEST_CASE("Noise", "[shadergen]")
 
 #ifdef MATERIALX_BUILD_GEN_OSL
         {
-            mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();
+            mx::ShaderGeneratorPtr shadergen = mx::OslShaderGenerator::create();
             // Add path to find all source code snippets
             shadergen->registerSourceCodeSearchPath(searchPath);
             // Add path to find OSL include files
@@ -1428,7 +1428,7 @@ TEST_CASE("Unique Names", "[shadergen]")
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::OslShaderGenerator::create();
         // Add path to find all source code snippets
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
@@ -1514,7 +1514,7 @@ TEST_CASE("Subgraphs", "[shadergen]")
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::OslShaderGenerator::create();
         // Add path to find all source code snippets
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
@@ -1601,7 +1601,7 @@ TEST_CASE("Materials", "[shadergen]")
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::OslShaderGenerator::create();
         // Add path to find all source code snippets
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
@@ -1698,7 +1698,7 @@ TEST_CASE("Color Spaces", "[shadergen]")
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::OslShaderGenerator::create();
         // Add path to find all source code snippets
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
@@ -1838,7 +1838,7 @@ TEST_CASE("BSDF Layering", "[shadergen]")
 
 #ifdef MATERIALX_BUILD_GEN_OSL
         {
-            mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
+            mx::ShaderGeneratorPtr shaderGenerator = mx::OslShaderGenerator::create();
             // Add path to find all source code snippets
             shaderGenerator->registerSourceCodeSearchPath(searchPath);
             // Add path to find OSL include files
@@ -1966,7 +1966,7 @@ TEST_CASE("Transparency", "[shadergen]")
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
-        mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
+        mx::ShaderGeneratorPtr shaderGenerator = mx::OslShaderGenerator::create();
         // Add path to find all source code snippets
         shaderGenerator->registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
