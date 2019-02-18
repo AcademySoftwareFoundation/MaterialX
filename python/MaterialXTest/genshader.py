@@ -5,10 +5,10 @@ import MaterialX as mx
 from MaterialX.PyMaterialXGenShader import *
 
 try:
-    from MaterialX.PyMaterialXGenOsl import ArnoldShaderGenerator
-    ARNOLD_SHADER_GENERATOR_EXISTS = True
+    from MaterialX.PyMaterialXGenOsl import OslShaderGenerator
+    OSL_SHADER_GENERATOR_EXISTS = True
 except ImportError:
-   ARNOLD_SHADER_GENERATOR_EXISTS = False
+   OSL_SHADER_GENERATOR_EXISTS = False
 
 _fileDir = os.path.dirname(os.path.abspath(__file__))
 
@@ -80,8 +80,8 @@ class TestGenShader(unittest.TestCase):
 
         options = GenOptions()
 
-        if ARNOLD_SHADER_GENERATOR_EXISTS:
-            shadergen = ArnoldShaderGenerator.create()
+        if OSL_SHADER_GENERATOR_EXISTS:
+            shadergen = OslShaderGenerator.create()
             # Add path to find all source code snippets
             shadergen.registerSourceCodeSearchPath(mx.FilePath(searchPath))
             # Add path to find OSL include files

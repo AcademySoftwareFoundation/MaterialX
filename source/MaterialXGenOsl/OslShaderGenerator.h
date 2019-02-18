@@ -15,8 +15,15 @@ class OslShaderGenerator : public ShaderGenerator
     using ParentClass = ShaderGenerator;
 
 public:
+    OslShaderGenerator();
+
+    static ShaderGeneratorPtr create() { return std::make_shared<OslShaderGenerator>(); }
+
     /// Return a unique identifyer for the language used by this generator
     const string& getLanguage() const override { return LANGUAGE; }
+
+    /// Return a unique identifyer for the target this generator is for
+    const string& getTarget() const override { return TARGET; }
 
     /// Generate a shader starting from the given element, translating
     /// the element and all dependencies upstream into shader code.
@@ -31,9 +38,10 @@ public:
     /// Unique identifyer for the osl language
     static const string LANGUAGE;
 
+    /// Unique identifyer for this generator target
+    static const string TARGET;
+
 protected:
-    /// Protected constructor.
-    OslShaderGenerator();
 
     /// Emit include headers needed by the generated shader code.
     void emitIncludes(Shader& shader);
