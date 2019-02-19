@@ -520,7 +520,7 @@ bool elementRequiresShading(const TypedElementPtr element)
             colorClosures.count(elementType) > 0);
 }
 
-void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>& elements)
+void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>& elements, bool includeReferencedGraphs)
 {
     std::vector<NodeGraphPtr> nodeGraphs = doc->getNodeGraphs();
     std::vector<OutputPtr> outputList = doc->getOutputs();
@@ -549,12 +549,15 @@ void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>
                     }
 
                     // Find all bindinputs which reference outputs and outputgraphs
-                    for (auto bindInput : shaderRef->getBindInputs())
+                    if (!includeReferencedGraphs)
                     {
-                        OutputPtr outputPtr = bindInput->getConnectedOutput();
-                        if (outputPtr)
+                        for (auto bindInput : shaderRef->getBindInputs())
                         {
-                            shaderrefOutputs.insert(outputPtr);
+                            OutputPtr outputPtr = bindInput->getConnectedOutput();
+                            if (outputPtr)
+                            {
+                                shaderrefOutputs.insert(outputPtr);
+                            }
                         }
                     }
                 }
@@ -576,7 +579,7 @@ void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>
                     // For now we skip any outputs which are referenced elsewhere.
                     if (outputNode && 
                         outputNode->getType() != LIGHT_SHADER &&
-                        shaderrefOutputs.count(output) == 0)
+                        (!includeReferencedGraphs && shaderrefOutputs.count(output) == 0))
                     {                        
                         NodeDefPtr nodeDef = outputNode->getNodeDef();
                         if (!nodeDef)
