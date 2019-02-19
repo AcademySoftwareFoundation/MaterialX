@@ -70,6 +70,9 @@ const string ShaderNode::COMPARE = "compare";
 const string ShaderNode::SWITCH = "switch";
 const string ShaderNode::BSDF_R = "R";
 const string ShaderNode::BSDF_T = "T";
+const string ShaderNode::TRANSFORM_POINT = "transformpoint";
+const string ShaderNode::TRANSFORM_VECTOR = "transformvector";
+const string ShaderNode::TRANSFORM_NORMAL = "transformnormal";
 
 bool ShaderNode::referencedConditionally() const
 {
@@ -299,6 +302,19 @@ ShaderNodePtr ShaderNode::create(const string& name, const NodeDef& nodeDef, Sha
         newNode->_classification = Classification::TEXTURE | Classification::FILETEXTURE;
     }
 
+    if(nodeDef.getNodeString() == TRANSFORM_POINT)
+    {
+        newNode->_classification |= Classification::TRANSFORM_POINT;
+    }
+    else if(nodeDef.getNodeString() == TRANSFORM_VECTOR)
+    {
+        newNode->_classification |= Classification::TRANSFORM_VECTOR;
+    }
+    else if(nodeDef.getNodeString() == TRANSFORM_NORMAL)
+    {
+        newNode->_classification |= Classification::TRANSFORM_NORMAL;
+    }
+
     // Add in group classification
     newNode->_classification |= groupClassification;
 
@@ -372,7 +388,7 @@ void ShaderNode::setValues(const Node& node, const NodeDef& nodeDef, ShaderGener
                 input->value = nodeValue->getValue();
             }
         }
-    } 
+    }
 }
 
 ShaderNodePtr ShaderNode::createColorTransformNode(const string& name, ShaderNodeImplPtr shaderImpl, const TypeDesc* type, ShaderGenerator& shadergen)

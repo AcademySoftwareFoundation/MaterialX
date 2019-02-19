@@ -449,25 +449,25 @@
   <implementation name="IM_crossproduct_vector3_genglsl" nodedef="ND_crossproduct_vector3" file="stdlib/genglsl/mx_crossproduct.inline" language="genglsl"/>
 
   <!-- <transformpoint> -->
-  <implementation name="IM_transformpoint_vector3_genglsl" nodedef="ND_transformpoint_vector3"  file="stdlib/genglsl/mx_transformpoint.inline" language="genglsl"/>
+  <implementation name="IM_transformpoint_vector3_genglsl" nodedef="ND_transformpoint_vector3" language="genglsl"/>
+  <implementation name="IM_transformpoint_vector4_genglsl" nodedef="ND_transformpoint_vector4" language="genglsl"/>
   <implementation name="IM_transformpoint_vector2M3_genglsl" nodedef="ND_transformpoint_vector2M3" function="transformpoint2_matrix33" file="stdlib/genglsl/mx_transformpoint2_matrix33.glsl" language="genglsl"/>
   <implementation name="IM_transformpoint_vector3M_genglsl" nodedef="ND_transformpoint_vector3M"  file="stdlib/genglsl/mx_transformpointM.inline" language="genglsl"/>
   <implementation name="IM_transformpoint_vector3M4_genglsl" nodedef="ND_transformpoint_vector3M4" function="transformpoint3_matrix44" file="stdlib/genglsl/mx_transformpoint3_matrix44.glsl" language="genglsl"/>
-  <implementation name="IM_transformpoint_vector4_genglsl" nodedef="ND_transformpoint_vector4"  file="stdlib/genglsl/mx_transformpoint.inline" language="genglsl"/>
   <implementation name="IM_transformpoint_vector4M_genglsl" nodedef="ND_transformpoint_vector4M"  file="stdlib/genglsl/mx_transformpointM.inline" language="genglsl"/>
 
   <!-- <transformvector> -->
-  <implementation name="IM_transformvector_vector3_genglsl" nodedef="ND_transformvector_vector3"  file="stdlib/genglsl/mx_transformvector.inline" language="genglsl"/>
+  <implementation name="IM_transformvector_vector3_genglsl" nodedef="ND_transformvector_vector3" language="genglsl"/>
+  <implementation name="IM_transformvector_vector4_genglsl" nodedef="ND_transformvector_vector4" language="genglsl"/>
   <implementation name="IM_transformvector_vector2M3_genglsl" nodedef="ND_transformvector_vector2M3" function="transformvector2_matrix33" file="stdlib/genglsl/mx_transformvector2_matrix33.glsl" language="genglsl"/>
   <implementation name="IM_transformvector_vector3M_genglsl" nodedef="ND_transformvector_vector3M"  file="stdlib/genglsl/mx_transformvectorM.inline" language="genglsl"/>
   <implementation name="IM_transformvector_vector3M4_genglsl" nodedef="ND_transformvector_vector3M4" function="transformvector3_matrix44" file="stdlib/genglsl/mx_transformvector3_matrix44.glsl" language="genglsl"/>
-  <implementation name="IM_transformvector_vector4_genglsl" nodedef="ND_transformvector_vector4"  file="stdlib/genglsl/mx_transformvector.inline" language="genglsl"/>
   <implementation name="IM_transformvector_vector4M_genglsl" nodedef="ND_transformvector_vector4M"  file="stdlib/genglsl/mx_transformvectorM.inline" language="genglsl"/>
 
   <!-- <transformnormal> -->
-  <implementation name="IM_transformnormal_vector3_genglsl" nodedef="ND_transformnormal_vector3"  file="stdlib/genglsl/mx_transformnormal.inline" language="genglsl"/>
+  <implementation name="IM_transformnormal_vector3_genglsl" nodedef="ND_transformnormal_vector3" language="genglsl"/>
+  <implementation name="IM_transformnormal_vector4_genglsl" nodedef="ND_transformnormal_vector4" language="genglsl"/>
   <implementation name="IM_transformnormal_vector3M_genglsl" nodedef="ND_transformnormal_vector3M"  file="stdlib/genglsl/mx_transformnormalM.inline" language="genglsl"/>
-  <implementation name="IM_transformnormal_vector4_genglsl" nodedef="ND_transformnormal_vector4"  file="stdlib/genglsl/mx_transformnormal.inline" language="genglsl"/>
   <implementation name="IM_transformnormal_vector4M_genglsl" nodedef="ND_transformnormal_vector4M"  file="stdlib/genglsl/mx_transformnormalM.inline" language="genglsl"/>
 
   <!-- <transpose> -->
