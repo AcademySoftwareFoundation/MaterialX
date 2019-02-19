@@ -1521,6 +1521,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
                 if (nodeDef)
                 {
                     mx::string elementName = mx::replaceSubstrings(element->getNamePath(), pathMap);
+                    elementName = mx::createValidName(elementName);
 #ifdef MATERIALX_BUILD_GEN_GLSL
                     if (options.runGLSLTests)
                     {
