@@ -21,6 +21,7 @@ Variable::Variable(const VariableBlock* block, const TypeDesc* type, const strin
     , _semantic(semantic)
     , _value(value)
     , _path(path)
+    , _calculated(false)
 {
 }
 
@@ -282,27 +283,22 @@ void ShaderStage::addBlock(const string& str, ShaderGenerator& shadergen)
     }
 }
 
-void ShaderStage::addFunctionDefinition(const ShaderNode& node, ShaderGenerator& shadergen)
+void ShaderStage::addFunctionDefinition(const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context)
 {
     const ShaderNodeImpl& impl = node.getImplementation();
     const size_t id = impl.getHash();
     if (!_definedFunctions.count(id))
     {
         _definedFunctions.insert(id);
-        impl.emitFunctionDefinition(*this, node, shadergen);
+        impl.emitFunctionDefinition(*this, node, shadergen, context);
     }
-}
-
-void ShaderStage::addFunctionCall(const ShaderNode& node, const GenContext& context, ShaderGenerator& shadergen)
-{
-    node.getImplementation().emitFunctionCall(*this, node, const_cast<GenContext&>(context), shadergen);
 }
 
 void ShaderStage::addInclude(const string& file, ShaderGenerator& shadergen)
 {
     const string path = shadergen.findSourceCode(file);
 
-    if (!_includes.count(file))
+    if (!_includes.count(path))
     {
         string content;
         if (!readFile(path, content))

@@ -12,7 +12,7 @@ class CombineNode : public ShaderNodeImpl
   public:
     static ShaderNodeImplPtr create();
 
-    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen) const override;
+    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const override;
 };
 
 } // namespace MaterialX

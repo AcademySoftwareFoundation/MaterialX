@@ -16,8 +16,8 @@
 namespace MaterialX
 {
 
-ShaderGraph::ShaderGraph(const string& name, DocumentPtr document)
-    : ShaderNode(name)
+ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, DocumentPtr document)
+    : ShaderNode(parent, name)
     , _document(document)
 {
 }
@@ -64,7 +64,7 @@ void ShaderGraph::addOutputSockets(const InterfaceElement& elem)
     }
 }
 
-void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr material, ShaderGenerator& shadergen, const GenOptions& options)
+void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr material, ShaderGenerator& shadergen, GenContext& context)
 {
     // Keep track of our root node in the graph.
     // This is needed when the graph is a shader graph and we need
@@ -110,7 +110,7 @@ void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
         ShaderNode* newNode = getNode(newNodeName);
         if (!newNode)
         {
-            newNode = addNode(*upstreamNode, shadergen, options);
+            newNode = addNode(*upstreamNode, shadergen, context);
         }
 
         //
@@ -171,7 +171,7 @@ void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
     }
 }
 
-void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geomprop, ShaderGenerator& shadergen, const GenOptions& options)
+void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geomprop, ShaderGenerator& shadergen, GenContext& context)
 {
     const string geomNodeName = "geomprop_" + geomprop.getName();
     ShaderNode* node = getNode(geomNodeName);
@@ -188,7 +188,7 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
                 "' for geomprop on input '" + input->node->getName() + "." + input->name + "'");
         }
 
-        ShaderNodePtr geomNodePtr = ShaderNode::create(geomNodeName, *geomNodeDef, shadergen, options);
+        ShaderNodePtr geomNodePtr = ShaderNode::create(this, geomNodeName, *geomNodeDef, shadergen, context);
         _nodeMap[geomNodeName] = geomNodePtr;
         _nodeOrder.push_back(geomNodePtr.get());
 
@@ -242,7 +242,7 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
     input->makeConnection(node->getOutput());
 }
 
-void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTransform& transform, ShaderGenerator& shadergen, const GenOptions& options)
+void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTransform& transform, ShaderGenerator& shadergen, GenContext& context)
 {
     ColorManagementSystemPtr colorManagementSystem = shadergen.getColorManagementSystem();
     if (!colorManagementSystem)
@@ -250,7 +250,7 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
         return;
     }
     string colorTransformNodeName = input->node->getName() + "_" + input->name + "_cm";
-    ShaderNodePtr colorTransformNodePtr = colorManagementSystem->createNode(transform, colorTransformNodeName, shadergen, options);
+    ShaderNodePtr colorTransformNodePtr = colorManagementSystem->createNode(this, transform, colorTransformNodeName, shadergen, context);
 
     if (colorTransformNodePtr)
     {
@@ -276,7 +276,7 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
     }
 }
 
-void ShaderGraph::addColorTransformNode(ShaderOutput* output, const ColorSpaceTransform& transform, ShaderGenerator& shadergen, const GenOptions& options)
+void ShaderGraph::addColorTransformNode(ShaderOutput* output, const ColorSpaceTransform& transform, ShaderGenerator& shadergen, GenContext& context)
 {
     ColorManagementSystemPtr colorManagementSystem = shadergen.getColorManagementSystem();
     if (!colorManagementSystem)
@@ -284,7 +284,7 @@ void ShaderGraph::addColorTransformNode(ShaderOutput* output, const ColorSpaceTr
         return;
     }
     string colorTransformNodeName = output->node->getName() + "_" + output->name + "_cm";
-    ShaderNodePtr colorTransformNodePtr = colorManagementSystem->createNode(transform, colorTransformNodeName, shadergen, options);
+    ShaderNodePtr colorTransformNodePtr = colorManagementSystem->createNode(this, transform, colorTransformNodeName, shadergen, context);
 
     if (colorTransformNodePtr)
     {
@@ -307,7 +307,7 @@ void ShaderGraph::addColorTransformNode(ShaderOutput* output, const ColorSpaceTr
     }
 }
 
-ShaderGraphPtr ShaderGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shadergen, const GenOptions& options)
+ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, NodeGraphPtr nodeGraph, ShaderGenerator& shadergen, GenContext& context)
 {
     NodeDefPtr nodeDef = nodeGraph->getNodeDef();
     if (!nodeDef)
@@ -315,7 +315,7 @@ ShaderGraphPtr ShaderGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shad
         throw ExceptionShaderGenError("Can't find nodedef '" + nodeGraph->getNodeDefString() + "' referenced by nodegraph '" + nodeGraph->getName() + "'");
     }
 
-    ShaderGraphPtr graph = std::make_shared<ShaderGraph>(nodeGraph->getName(), nodeGraph->getDocument());
+    ShaderGraphPtr graph = std::make_shared<ShaderGraph>(parent, nodeGraph->getName(), nodeGraph->getDocument());
 
     // Clear classification
     graph->_classification = 0;
@@ -329,7 +329,7 @@ ShaderGraphPtr ShaderGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shad
     // Traverse all outputs and create all upstream dependencies
     for (OutputPtr graphOutput : nodeGraph->getOutputs())
     {
-        graph->addUpstreamDependencies(*graphOutput, nullptr, shadergen, options);
+        graph->addUpstreamDependencies(*graphOutput, nullptr, shadergen, context);
     }
 
     // Add classification according to last node
@@ -340,12 +340,12 @@ ShaderGraphPtr ShaderGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shad
     }
 
     // Finalize the graph
-    graph->finalize(shadergen, options);
+    graph->finalize(shadergen, context);
 
     return graph;
 }
 
-ShaderGraphPtr ShaderGraph::create(const string& name, ElementPtr element, ShaderGenerator& shadergen, const GenOptions& options)
+ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name, ElementPtr element, ShaderGenerator& shadergen, GenContext& context)
 {
     ShaderGraphPtr graph;
     ElementPtr root;
@@ -354,12 +354,12 @@ ShaderGraphPtr ShaderGraph::create(const string& name, ElementPtr element, Shade
     if (element->isA<Output>())
     {
         OutputPtr output = element->asA<Output>();
-        ElementPtr parent = output->getParent();
-        InterfaceElementPtr interface = parent->asA<InterfaceElement>();
+        ElementPtr outputParent = output->getParent();
+        InterfaceElementPtr interface = outputParent->asA<InterfaceElement>();
 
-        if (parent->isA<NodeGraph>())
+        if (outputParent->isA<NodeGraph>())
         {
-            NodeDefPtr nodeDef = parent->asA<NodeGraph>()->getNodeDef();
+            NodeDefPtr nodeDef = outputParent->asA<NodeGraph>()->getNodeDef();
             if (nodeDef)
             {
                 interface = nodeDef;
@@ -368,15 +368,15 @@ ShaderGraphPtr ShaderGraph::create(const string& name, ElementPtr element, Shade
 
         if (!interface)
         {
-            parent = output->getConnectedNode();
-            interface = parent ? parent->asA<InterfaceElement>() : nullptr;
+            outputParent = output->getConnectedNode();
+            interface = outputParent ? outputParent->asA<InterfaceElement>() : nullptr;
             if (!interface)
             {
                 throw ExceptionShaderGenError("Given output '" + output->getName() + "' has no interface valid for shader generation");
             }
         }
 
-        graph = std::make_shared<ShaderGraph>(name, element->getDocument());
+        graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument());
 
         // Clear classification
         graph->_classification = 0;
@@ -401,7 +401,7 @@ ShaderGraphPtr ShaderGraph::create(const string& name, ElementPtr element, Shade
             throw ExceptionShaderGenError("Could not find a nodedef for shader '" + shaderRef->getName() + "'");
         }
 
-        graph = std::make_shared<ShaderGraph>(name, element->getDocument());
+        graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument());
 
         // Create input sockets
         graph->addInputSockets(*nodeDef, shadergen);
@@ -411,7 +411,7 @@ ShaderGraphPtr ShaderGraph::create(const string& name, ElementPtr element, Shade
 
         // Create this shader node in the graph.
         const string& newNodeName = shaderRef->getName();
-        ShaderNodePtr newNode = ShaderNode::create(newNodeName, *nodeDef, shadergen, options);
+        ShaderNodePtr newNode = ShaderNode::create(graph.get(), newNodeName, *nodeDef, shadergen, context);
         graph->_nodeMap[newNodeName] = newNode;
         graph->_nodeOrder.push_back(newNode.get());
 
@@ -476,7 +476,7 @@ ShaderGraphPtr ShaderGraph::create(const string& name, ElementPtr element, Shade
                 GeomPropDefPtr geomprop = nodeDefInput->getDefaultGeomProp();
                 if (geomprop)
                 {
-                    graph->addDefaultGeomNode(input, *geomprop, shadergen, options);
+                    graph->addDefaultGeomNode(input, *geomprop, shadergen, context);
                 }
                 else
                 {
@@ -531,18 +531,18 @@ ShaderGraphPtr ShaderGraph::create(const string& name, ElementPtr element, Shade
     }
 
     // Traverse and create all dependencies upstream
-    graph->addUpstreamDependencies(*root, material, shadergen, options);
+    graph->addUpstreamDependencies(*root, material, shadergen, context);
 
     // Add classification according to root node
     ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
     graph->_classification |= outputSocket->connection ? outputSocket->connection->node->_classification : 0;
 
-    graph->finalize(shadergen, options);
+    graph->finalize(shadergen, context);
 
     return graph;
 }
 
-ShaderNode* ShaderGraph::addNode(const Node& node, ShaderGenerator& shadergen, const GenOptions& options)
+ShaderNode* ShaderGraph::addNode(const Node& node, ShaderGenerator& shadergen, GenContext& context)
 {
     NodeDefPtr nodeDef = node.getNodeDef();
     if (!nodeDef)
@@ -552,7 +552,7 @@ ShaderNode* ShaderGraph::addNode(const Node& node, ShaderGenerator& shadergen, c
 
     // Create this node in the graph.
     const string& name = node.getName();
-    ShaderNodePtr newNode = ShaderNode::create(name, *nodeDef, shadergen, options);
+    ShaderNodePtr newNode = ShaderNode::create(this, name, *nodeDef, shadergen, context);
     newNode->setValues(node, *nodeDef, shadergen);
     newNode->setPaths(node, *nodeDef);
     _nodeMap[name] = newNode;
@@ -597,14 +597,14 @@ ShaderNode* ShaderGraph::addNode(const Node& node, ShaderGenerator& shadergen, c
             GeomPropDefPtr geomprop = nodeDefInput->getDefaultGeomProp();
             if (geomprop)
             {
-                addDefaultGeomNode(input, *geomprop, shadergen, options);
+                addDefaultGeomNode(input, *geomprop, shadergen, context);
             }
         }
     }
 
     ColorManagementSystemPtr colorManagementSystem = shadergen.getColorManagementSystem();
-    const string& targetColorSpace = options.targetColorSpaceOverride.empty() ?
-        _document->getActiveColorSpace() : options.targetColorSpaceOverride;
+    const string& targetColorSpace = context.getOptions().targetColorSpaceOverride.empty() ?
+        _document->getActiveColorSpace() : context.getOptions().targetColorSpaceOverride;
 
     if (colorManagementSystem && !targetColorSpace.empty())
     {
@@ -679,16 +679,16 @@ const ShaderNode* ShaderGraph::getNode(const string& name) const
     return const_cast<ShaderGraph*>(this)->getNode(name);
 }
 
-void ShaderGraph::finalize(ShaderGenerator& shadergen, const GenOptions& options)
+void ShaderGraph::finalize(ShaderGenerator& shadergen, GenContext& context)
 {
     // Insert color transformation nodes where needed
     for (auto it : _inputColorTransformMap)
     {
-        addColorTransformNode(it.first, it.second, shadergen, options);
+        addColorTransformNode(it.first, it.second, shadergen, context);
     }
     for (auto it : _outputColorTransformMap)
     {
-        addColorTransformNode(it.first, it.second, shadergen, options);
+        addColorTransformNode(it.first, it.second, shadergen, context);
     }
     _inputColorTransformMap.clear();
     _outputColorTransformMap.clear();
@@ -696,7 +696,7 @@ void ShaderGraph::finalize(ShaderGenerator& shadergen, const GenOptions& options
     // Optimize the graph, removing redundant paths.
     optimize();
 
-    if (options.shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
+    if (context.getOptions().shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
     {
         // Create uniforms for all node inputs that has not been connected already
         for (ShaderNode* node : getNodes())
@@ -738,6 +738,10 @@ void ShaderGraph::finalize(ShaderGenerator& shadergen, const GenOptions& options
     setVariableNames(shadergen);
 
     // Track closure nodes used by each surface shader.
+    //
+    // TODO: Optimize this search for closures.
+    //       No need to do a full traversal when 
+    //       texture nodes are reached.
     for (ShaderNode* node : _nodeOrder)
     {
         if (node->hasClassification(ShaderNode::Classification::SHADER))

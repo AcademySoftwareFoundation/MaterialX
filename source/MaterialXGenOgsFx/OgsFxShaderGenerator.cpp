@@ -86,7 +86,7 @@ void OgsFxShader::createUniform(const string& stage, const string& block, const 
         auto it = OGSFX_DEFAULT_SEMANTICS_MAP.find(name);
         if (it != OGSFX_DEFAULT_SEMANTICS_MAP.end())
         {
-            HwShader::createUniform(stage, block, type, name, path, it->second, value);
+            HW::createUniform(stage, block, type, name, path, it->second, value);
             return;
         }
     }
@@ -102,7 +102,7 @@ void OgsFxShader::createAppData(const TypeDesc* type, const string& name, const 
         auto it = OGSFX_DEFAULT_SEMANTICS_MAP.find(name);
         if (it != OGSFX_DEFAULT_SEMANTICS_MAP.end())
         {
-            HwShader::createAppData(type, name, it->second);
+            HW::createAppData(type, name, it->second);
             return;
         }
     }
@@ -118,7 +118,7 @@ void OgsFxShader::createVertexData(const TypeDesc* type, const string& name, con
         auto it = OGSFX_DEFAULT_SEMANTICS_MAP.find(name);
         if (it != OGSFX_DEFAULT_SEMANTICS_MAP.end())
         {
-            HwShader::createVertexData(type, name, it->second);
+            HW::createVertexData(type, name, it->second);
             return;
         }
     }
@@ -132,6 +132,11 @@ OgsFxShaderGenerator::OgsFxShaderGenerator()
     : ParentClass()
 {
     _syntax = OgsFxSyntax::create();
+}
+
+ShaderGeneratorPtr OgsFxShaderGenerator::create()
+{
+    return std::make_shared<OgsFxShaderGenerator>();
 }
 
 ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr element, const GenOptions& options)
@@ -155,17 +160,17 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 
     // Create required variables
     shader.createAppData(Type::VECTOR3, "i_position");
-    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldMatrix");
-    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, Type::MATRIX44, "u_viewProjectionMatrix");
+    shader.createUniform(HW::VERTEX_STAGE, HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldMatrix");
+    shader.createUniform(HW::VERTEX_STAGE, HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_viewProjectionMatrix");
 
     shader.addComment("---------------------------------- Vertex shader ----------------------------------------\n");
     shader.addLine("GLSLShader VS", false);
-    shader.beginScope(Shader::Brackets::BRACES);
+    shader.beginScope(ShaderStage::Brackets::BRACES);
 
     emitFunctionDefinitions(shader);
 
     // Add constants
-    const Shader::VariableBlock& vsConstants = shader.getConstantBlock(HwShader::VERTEX_STAGE);
+    const Shader::VariableBlock& vsConstants = shader.getConstantBlock(HW::VERTEX_STAGE);
     if (!vsConstants.empty())
     {
         shader.addComment("Constant block: " + vsConstants.name);
@@ -174,13 +179,13 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 
     // Add main function
     shader.addLine("void main()", false);
-    shader.beginScope(Shader::Brackets::BRACES);
+    shader.beginScope(ShaderStage::Brackets::BRACES);
     shader.addLine("vec4 hPositionWorld = u_worldMatrix * vec4(i_position, 1.0)");
     shader.addLine("gl_Position = u_viewProjectionMatrix * hPositionWorld");
     emitFunctionCalls(*_defaultContext, shader);
-    shader.endScope();
-    shader.endScope();
-    shader.newLine();
+    emitScopeEnd(stage);
+    emitScopeEnd(stage);
+    emitLineBreak(stage);
 
     //
     // Emit code for pixel shader stage
@@ -189,44 +194,44 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     shader.setActiveStage(OgsFxShader::PIXEL_STAGE);
 
     shader.addComment("---------------------------------- Pixel shader ----------------------------------------\n");
-    shader.addStr("GLSLShader PS\n");
-    shader.beginScope(Shader::Brackets::BRACES);
+    shadergen.emitString(stage, "GLSLShader PS\n");
+    shader.beginScope(ShaderStage::Brackets::BRACES);
 
     if (lighting)
     {
-        const Shader::VariableBlock& lightData = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK);
+        const Shader::VariableBlock& lightData = shader.getUniformBlock(HW::PIXEL_STAGE, HW::LIGHT_DATA_BLOCK);
         shader.addLine(lightData.name + " " + lightData.instance + "[MAX_LIGHT_SOURCES]");
-        shader.newLine();
+        emitLineBreak(stage);
     }
 
     // Emit common math functions
     shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_math.glsl", *this);
-    shader.newLine();
+    emitLineBreak(stage);
 
     // Emit sampling code if needed
     if (shader.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
     {
         // Emit sampling functions
         shader.addInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_sampling.glsl", *this);
-        shader.newLine();
+        emitLineBreak(stage);
     }
 
     // Emit uv transform function
     if (options.fileTextureVerticalFlip)
     {
         shader.addInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.glsl", *this);
-        shader.newLine();
+        emitLineBreak(stage);
     }
     else
     {
         shader.addInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.glsl", *this);
-        shader.newLine();
+        emitLineBreak(stage);
     }
 
     emitFunctionDefinitions(shader);
 
     // Add constants
-    const Shader::VariableBlock& psConstants = shader.getConstantBlock(HwShader::PIXEL_STAGE);
+    const Shader::VariableBlock& psConstants = shader.getConstantBlock(HW::PIXEL_STAGE);
     if (!psConstants.empty())
     {
         shader.addComment("Constant block: " + psConstants.name);
@@ -235,7 +240,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 
     // Add main function
     shader.addLine("void main()", false);
-    shader.beginScope(Shader::Brackets::BRACES);
+    shader.beginScope(ShaderStage::Brackets::BRACES);
 
     if (lighting)
     {
@@ -243,8 +248,8 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
         shader.beginScope();
         shader.addLine("int numLights = numActiveLightSources()");
         shader.addLine("for (int i = 0; i<numLights; ++i)", false);
-        shader.beginScope(Shader::Brackets::BRACES);
-        const Shader::VariableBlock& lightData = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK);
+        shader.beginScope(ShaderStage::Brackets::BRACES);
+        const Shader::VariableBlock& lightData = shader.getUniformBlock(HW::PIXEL_STAGE, HW::LIGHT_DATA_BLOCK);
         for (const Shader::Variable* uniform : lightData.variableOrder)
         {
             auto it = OGSFX_GET_LIGHT_DATA_MAP.find(uniform->name);
@@ -253,17 +258,17 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
                 shader.addLine(lightData.instance + "[i]." + uniform->name + " = " + it->second + "(i)");
             }
         }
-        shader.endScope();
-        shader.endScope();
-        shader.newLine();
+        emitScopeEnd(stage);
+        emitScopeEnd(stage);
+        emitLineBreak(stage);
     }
 
     emitFunctionCalls(*_defaultContext, shader);
     emitFinalOutput(shader);
 
-    shader.endScope();
-    shader.endScope();
-    shader.newLine();
+    emitScopeEnd(stage);
+    emitScopeEnd(stage);
+    emitLineBreak(stage);
 
     //
     // Assemble the final effects shader
@@ -273,17 +278,17 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
 
     // Add version directive
     shader.addLine("#version " + getVersion(), false);
-    shader.newLine();
+    emitLineBreak(stage);
 
     // Add global constants and type definitions
     shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_defines.glsl", *this);
     shader.addLine("#define MAX_LIGHT_SOURCES " + std::to_string(getMaxActiveLightSources()), false);
-    shader.newLine();
+    emitLineBreak(stage);
     emitTypeDefinitions(shader);
 
     shader.addComment("Data from application to vertex shader");
     shader.addLine("attribute AppData", false);
-    shader.beginScope(Shader::Brackets::BRACES);
+    shader.beginScope(ShaderStage::Brackets::BRACES);
     const Shader::VariableBlock& appDataBlock = shader.getAppDataBlock();
     for (const Shader::Variable* input : appDataBlock.variableOrder)
     {
@@ -291,11 +296,11 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
         shader.addLine(type + " " + input->name + (!input->semantic.empty() ? " : " + input->semantic : ""));
     }
     shader.endScope(true);
-    shader.newLine();
+    emitLineBreak(stage);
 
     shader.addComment("Data passed from vertex shader to pixel shader");
     shader.addLine("attribute VertexData", false);
-    shader.beginScope(Shader::Brackets::BRACES);
+    shader.beginScope(ShaderStage::Brackets::BRACES);
     const Shader::VariableBlock& vertexDataBlock = shader.getVertexDataBlock();
     for (const Shader::Variable* output : vertexDataBlock.variableOrder)
     {
@@ -303,20 +308,20 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
         shader.addLine(type + " " + output->name + (!output->semantic.empty() ? " : " + output->semantic : ""));
     }
     shader.endScope(true);
-    shader.newLine();
+    emitLineBreak(stage);
 
     // Add the pixel shader output. This needs to be a vec4 for rendering
     // and upstream connection will be converted to vec4 if needed in emitFinalOutput()
     shader.addComment("Data output by the pixel shader");
     const ShaderGraphOutputSocket* outputSocket = shader.getGraph()->getOutputSocket();
     shader.addLine("attribute PixelOutput", false);
-    shader.beginScope(Shader::Brackets::BRACES);
+    shader.beginScope(ShaderStage::Brackets::BRACES);
     shader.addLine("vec4 " + outputSocket->variable);
     shader.endScope(true);
-    shader.newLine();
+    emitLineBreak(stage);
 
     // Add all private vertex shader uniforms
-    const Shader::VariableBlock& vsPrivateUniforms = shader.getUniformBlock(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS);
+    const Shader::VariableBlock& vsPrivateUniforms = shader.getUniformBlock(HW::VERTEX_STAGE, HW::PRIVATE_UNIFORMS);
     if (!vsPrivateUniforms.empty())
     {
         shader.addComment("Vertex stage uniform block: " + vsPrivateUniforms.name);
@@ -324,7 +329,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     }
 
     // Add all public vertex shader uniforms
-    const Shader::VariableBlock& vsPublicUniforms = shader.getUniformBlock(HwShader::VERTEX_STAGE, HwShader::PUBLIC_UNIFORMS);
+    const Shader::VariableBlock& vsPublicUniforms = shader.getUniformBlock(HW::VERTEX_STAGE, HW::PUBLIC_UNIFORMS);
     if (!vsPublicUniforms.empty())
     {
         shader.addComment("Vertex stage uniform block: " + vsPublicUniforms.name);
@@ -332,7 +337,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     }
 
     // Add all private pixel shader uniforms
-    const Shader::VariableBlock& psPrivateUniforms = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS);
+    const Shader::VariableBlock& psPrivateUniforms = shader.getUniformBlock(HW::PIXEL_STAGE, HW::PRIVATE_UNIFORMS);
     if (!psPrivateUniforms.empty())
     {
         shader.addComment("Pixel stage uniform block: " + psPrivateUniforms.name);
@@ -340,7 +345,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     }
 
     // Add all public pixel shader uniforms
-    const Shader::VariableBlock& psPublicUniforms = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::PUBLIC_UNIFORMS);
+    const Shader::VariableBlock& psPublicUniforms = shader.getUniformBlock(HW::PIXEL_STAGE, HW::PUBLIC_UNIFORMS);
     if (!psPublicUniforms.empty())
     {
         shader.addComment("Pixel stage uniform block: " + psPublicUniforms.name);
@@ -350,29 +355,29 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     if (lighting)
     {
         // Add light struct declaration
-        const Shader::VariableBlock& lightData = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK);
+        const Shader::VariableBlock& lightData = shader.getUniformBlock(HW::PIXEL_STAGE, HW::LIGHT_DATA_BLOCK);
         shader.addLine("struct " + lightData.name, false);
-        shader.beginScope(Shader::Brackets::BRACES);
+        shader.beginScope(ShaderStage::Brackets::BRACES);
         for (const Shader::Variable* uniform : lightData.variableOrder)
         {
             const string& type = _syntax->getTypeName(uniform->type);
             shader.addLine(type + " " + uniform->name);
         }
         shader.endScope(true);
-        shader.newLine();
+        emitLineBreak(stage);
     }
 
     if (lighting)
     {
         // Emit OGS lighting uniforms
         shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/" + OgsFxShaderGenerator::TARGET + "/mx_lighting_uniforms.glsl", *this);
-        shader.newLine();
+        emitLineBreak(stage);
 
         // Emit lighting functions
         shader.addLine("GLSLShader LightingFunctions", false);
-        shader.beginScope(Shader::Brackets::BRACES);
+        shader.beginScope(ShaderStage::Brackets::BRACES);
         shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/" + OgsFxShaderGenerator::TARGET + "/mx_lighting_functions.glsl", *this);
-        shader.newLine();
+        emitLineBreak(stage);
 
         // Emit environment lighting functions
         if (options.hwSpecularEnvironmentMethod == SPECULAR_ENVIRONMENT_FIS)
@@ -384,8 +389,8 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
             shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_prefilter.glsl", *this);
         }
 
-        shader.endScope();
-        shader.newLine();
+        emitScopeEnd(stage);
+        emitLineBreak(stage);
     }
 
     // Add code blocks from the vertex and pixel shader stages generated above
@@ -403,60 +408,70 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& shaderName, ElementPtr el
     {
         shader.addLine("technique Main", false);
     }
-    shader.beginScope(Shader::Brackets::BRACES);
+    shader.beginScope(ShaderStage::Brackets::BRACES);
     shader.addLine("pass p0", false);
-    shader.beginScope(Shader::Brackets::BRACES);
+    shader.beginScope(ShaderStage::Brackets::BRACES);
     shader.addLine("VertexShader(in AppData, out VertexData vd) = { VS }");
     shader.addLine(lighting ?
         "PixelShader(in VertexData vd, out PixelOutput) = { LightingFunctions, PS }" :
         "PixelShader(in VertexData vd, out PixelOutput) = { PS }");
-    shader.endScope();
-    shader.endScope();
-    shader.newLine();
+    emitScopeEnd(stage);
+    emitScopeEnd(stage);
+    emitLineBreak(stage);
 
     return shaderPtr;
 }
 
-void OgsFxShaderGenerator::emitVariable(const Shader::Variable& uniform, const string& qualifier, Shader& shader)
+void OgsFxShaderGenerator::emitVariable(ShaderStage& stage, const Variable& variable, const string& qualifier)
 {
     // A file texture input needs special handling on GLSL
-    if (uniform.type == Type::FILENAME)
+    if (variable.getType() == Type::FILENAME)
     {
         std::stringstream str;
-        str << "uniform texture2D " << uniform.name << "_texture : SourceTexture;\n";
-        str << "uniform sampler2D " << uniform.name << " = sampler_state\n";
-        str << "{\n    Texture = <" << uniform.name << "_texture>;\n};\n";
-        shader.addBlock(str.str(), *this);
+        str << "uniform texture2D " << variable.getName() << "_texture : SourceTexture;\n";
+        str << "uniform sampler2D " << variable.getName() << " = sampler_state\n";
+        str << "{\n    Texture = <" << variable.getName() << "_texture>;\n};\n";
+        emitBlock(stage, str.str());
     }
-    else if (!uniform.semantic.empty())
+    else if (!variable.getSemantic().empty())
     {
-        const string& type = _syntax->getTypeName(uniform.type);
-        shader.addLine(qualifier + " " + type + " " + uniform.name + " : " + uniform.semantic);
+        const string& type = _syntax->getTypeName(variable.getType());
+        emitLine(stage, qualifier + " " + type + " " + variable.getName() + " : " + variable.getSemantic());
     }
     else
     {
-        const string& type = _syntax->getTypeName(uniform.type);
-        const string initStr = (uniform.value ? _syntax->getValue(uniform.type, *uniform.value, true) : _syntax->getDefaultValue(uniform.type, true));
+        const string& type = _syntax->getTypeName(variable.getType());
+        const string initStr = (variable.getValue() ? 
+            _syntax->getValue(variable.getType(), *variable.getValue(), true) : 
+            _syntax->getDefaultValue(variable.getType(), true));
 
-        string line = qualifier + " " + type + " " + uniform.name;
+        string line = qualifier + " " + type + " " + variable.getName();
 
         // If an arrays we need an array qualifier (suffix) for the variable name
         string arraySuffix;
-        uniform.getArraySuffix(arraySuffix);
+        variable.getArraySuffix(arraySuffix);
         line += arraySuffix;
 
         line += initStr.empty() ? "" : " = " + initStr;
 
-        shader.addLine(line);
+        emitLine(stage, line);
     }
 }
 
-OgsFxShaderPtr OgsFxShaderGenerator::createShader(const string& name)
+ShaderPtr OgsFxShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context)
 {
-    return std::make_shared<OgsFxShader>(name);
+    ShaderPtr shader = GlslShaderGenerator::createShader(name, element, context);
+
+
+
+    for (size_t i = 0; i < shader->numStages(); ++i)
+    {
+        ShaderStage& stage = shader->getStage(i);
+        
+    }
 }
 
-void OgsFxShaderGenerator::getTechniqueParams(const Shader& /*shader*/, string& /*params*/)
+void OgsFxShaderGenerator::getTechniqueParams(const Shader&, string&)
 {
     // Default implementation doesn't use any technique parameters
 }

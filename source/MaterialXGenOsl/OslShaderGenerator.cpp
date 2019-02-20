@@ -149,49 +149,9 @@ OslShaderGenerator::OslShaderGenerator()
     registerImplementation("IM_blur_vector4_" + OslShaderGenerator::LANGUAGE, BlurNode::create);
 }
 
-ShaderPtr OslShaderGenerator::create(const string& name, ElementPtr element, const GenOptions& options)
+ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context)
 {
-    ShaderGraphPtr graph = ShaderGraph::create(name, element, *this, options);
-    ShaderPtr shader = std::make_shared<Shader>(name, graph);
-
-    // Create our stage.
-    ShaderStagePtr stage = createStage(*shader, OSL::STAGE);
-    stage->createUniformBlock(OSL::UNIFORMS);
-    stage->createInputBlock(OSL::INPUTS);
-    stage->createOutputBlock(OSL::OUTPUTS);
-
-    // Create shader variables for all nodes that need this (geometric nodes / input streams)
-    for (ShaderNode* node : graph->getNodes())
-    {
-        const ShaderNodeImpl& impl = node->getImplementation();
-        impl.createVariables(*stage, *node);
-    }
-
-    // Create uniforms for the published graph interface
-    VariableBlock& uniforms = stage->getUniformBlock(OSL::UNIFORMS);
-    for (ShaderGraphInputSocket* inputSocket : graph->getInputSockets())
-    {
-        // Only for inputs that are connected/used internally,
-        // and are editable by users.
-        if (inputSocket->connections.size() && graph->isEditable(*inputSocket))
-        {
-            uniforms.add(inputSocket->type, inputSocket->variable, EMPTY_STRING, inputSocket->value, inputSocket->path);
-        }
-    }
-
-    // Create outputs from the graph interface
-    VariableBlock& outputs = stage->getOutputBlock(OSL::OUTPUTS);
-    for (ShaderGraphOutputSocket* outputSocket : graph->getOutputSockets())
-    {
-        outputs.add(outputSocket->type, outputSocket->name);
-    }
-
-    return shader;
-}
-
-ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr element, const GenOptions& options)
-{
-    ShaderPtr shader = create(shaderName, element, options);
+    ShaderPtr shader = createShader(name, element, context);
 
     const ShaderGraph& graph = shader->getGraph();
     ShaderStage& stage = shader->getStage(OSL::STAGE);
@@ -211,7 +171,7 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     }
 
     // Emit uv transform function
-    if (options.fileTextureVerticalFlip)
+    if (context.getOptions().fileTextureVerticalFlip)
     {
         emitInclude(stage, "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.osl");
         emitLineBreak(stage);
@@ -223,7 +183,7 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     }
 
     // Emit function definitions for all nodes
-    emitFunctionDefinitions(stage, graph);
+    emitFunctionDefinitions(stage, graph, context);
 
     // Emit shader type
     const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket();
@@ -276,12 +236,12 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     const VariableBlock& constants = stage.getConstantBlock();
     if (constants.size())
     {
-        emitVariableBlock(stage, constants, _syntax->getConstantQualifier(), SEMICOLON_NEWLINE);
+        emitVariableBlock(stage, constants, _syntax->getConstantQualifier(), SEMICOLON);
         emitLineBreak(stage);
     }
 
     // Emit function calls for all nodes
-    emitFunctionCalls(stage, graph, *_defaultContext);
+    emitFunctionCalls(stage, graph, context);
 
     // Emit final output
     if (outputSocket->connection)
@@ -302,7 +262,47 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     return shader;
 }
 
-void OslShaderGenerator::emitFunctionCalls(ShaderStage& stage, const ShaderGraph& graph, const GenContext& context)
+ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context)
+{
+    // Create the root shader graph
+    ShaderGraphPtr graph = ShaderGraph::create(nullptr, name, element, *this, context);
+    ShaderPtr shader = std::make_shared<Shader>(name, graph);
+
+    // Create our stage.
+    ShaderStagePtr stage = createStage(*shader, OSL::STAGE);
+    stage->createUniformBlock(OSL::UNIFORMS);
+    stage->createInputBlock(OSL::INPUTS);
+    stage->createOutputBlock(OSL::OUTPUTS);
+
+    // Create shader variables for all nodes that need this.
+    for (ShaderNode* node : graph->getNodes())
+    {
+        node->getImplementation().createVariables(*shader, *node, *this, context);
+    }
+
+    // Create uniforms for the published graph interface.
+    VariableBlock& uniforms = stage->getUniformBlock(OSL::UNIFORMS);
+    for (ShaderGraphInputSocket* inputSocket : graph->getInputSockets())
+    {
+        // Only for inputs that are connected/used internally,
+        // and are editable by users.
+        if (inputSocket->connections.size() && graph->isEditable(*inputSocket))
+        {
+            uniforms.add(inputSocket->type, inputSocket->variable, EMPTY_STRING, inputSocket->value, inputSocket->path);
+        }
+    }
+
+    // Create outputs from the graph interface.
+    VariableBlock& outputs = stage->getOutputBlock(OSL::OUTPUTS);
+    for (ShaderGraphOutputSocket* outputSocket : graph->getOutputSockets())
+    {
+        outputs.add(outputSocket->type, outputSocket->name);
+    }
+
+    return shader;
+}
+
+void OslShaderGenerator::emitFunctionCalls(ShaderStage& stage, const ShaderGraph& graph, GenContext& context)
 {
     if (!graph.hasClassification(ShaderNode::Classification::TEXTURE))
     {

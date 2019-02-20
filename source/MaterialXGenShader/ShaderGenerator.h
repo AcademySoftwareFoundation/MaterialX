@@ -37,7 +37,7 @@ public:
 
     /// Generate a shader starting from the given element, translating
     /// the element and all dependencies upstream into shader code.
-    virtual ShaderPtr generate(const string& name, ElementPtr element, const GenOptions& options) = 0;
+    virtual ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) = 0;
 
     /// Start a new scope using the given bracket type.
     virtual void emitScopeBegin(ShaderStage& stage, ShaderStage::Brackets brackets = ShaderStage::Brackets::BRACES);
@@ -64,17 +64,17 @@ public:
     virtual void emitBlock(ShaderStage& stage, const string& str);
 
     /// Add the function definition for a single node.
-    virtual void emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node);
+    virtual void emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, GenContext& context);
 
-    /// Add the function call for a singl node.
-    virtual void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const GenContext& context, 
+    /// Add the function call for a single node.
+    virtual void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, 
                                   bool checkScope = true);
 
     /// Add all function definitions for a graph.
-    virtual void emitFunctionDefinitions(ShaderStage& stage, const ShaderGraph& graph);
+    virtual void emitFunctionDefinitions(ShaderStage& stage, const ShaderGraph& graph, GenContext& context);
 
     /// Add all function calls for a graph.
-    virtual void emitFunctionCalls(ShaderStage& stage, const ShaderGraph& graph, const GenContext& context);
+    virtual void emitFunctionCalls(ShaderStage& stage, const ShaderGraph& graph, GenContext& context);
 
     /// Add the contents of an include file. Making sure it is 
     /// only included once for the shader stage.
@@ -100,7 +100,7 @@ public:
     /// Emit the output variable name for an output, optionally including it's type
     /// and default value assignment.
     virtual void emitOutput(ShaderStage& stage, const GenContext& context, const ShaderOutput* output, 
-                            bool includeType, bool assignDefaultValue) const;
+                            bool includeType, bool assignValue) const;
 
     /// Utility to emit a block of either uniform or constant variables
     /// @param block Block to emit.
@@ -108,14 +108,15 @@ public:
     /// Qualifiers are specified by the syntax for the generator.
     /// @param shader Shader to emit to.
     virtual void emitVariableBlock(ShaderStage& stage, const VariableBlock& block,
-        const string& qualifier, const string& separator);
+        const string& qualifier, const string& separator, bool assignValue = true);
 
     /// Emit a shader variable
     /// @param variable Variable to emit
     /// @param qualifier Optional qualifier to add before the variable declaration.
     /// Qualifiers are specified by the syntax for the generator.
     /// @param shader Shader source to emit output to
-    virtual void emitVariable(ShaderStage& stage, const Variable& variable, const string& qualifier);
+    virtual void emitVariable(ShaderStage& stage, const Variable& variable, 
+        const string& qualifier, bool assignValue = true);
 
     /// Utility to emit a shader constant variable
     virtual void emitConstant(ShaderStage& stage, const Variable& variable);
@@ -129,14 +130,6 @@ public:
 
     /// Return the syntax object for the language used by the code generator
     const Syntax* getSyntax() const { return _syntax.get(); }
-
-    /// Add context id's to the given node to control
-    /// in which contexts this node should be used.
-    virtual void addContextIDs(ShaderNode* node) const;
-
-    /// Return the context corresponding to the given id,
-    /// or nullptr if no such context is found.
-    const GenContext* getContext(int id) const;
 
     template<class T>
     using CreatorFunction = shared_ptr<T>(*)();
@@ -163,7 +156,7 @@ public:
     /// The element must be an Implementation or a NodeGraph acting as implementation.
     /// If no registered implementation is found a 'default' implementation instance
     /// will be returned, as defined by the createDefaultImplementation method.
-    ShaderNodeImplPtr getImplementation(InterfaceElementPtr element, const GenOptions& options);
+    ShaderNodeImplPtr getImplementation(InterfaceElementPtr element, GenContext& context);
 
     /// Add to the search path used for finding source code.
     void registerSourceCodeSearchPath(const FilePath& path);
@@ -214,16 +207,6 @@ public:
         return nullptr;
     }
 
-public:
-    /// Identifiers for contexts
-    enum Context
-    {
-        CONTEXT_DEFAULT = 0
-    };
-
-    static string SEMICOLON_NEWLINE;
-    static string COMMA;
-
 protected:
     /// Protected constructor
     ShaderGenerator(SyntaxPtr syntax);
@@ -231,29 +214,23 @@ protected:
     /// Create a new stage in a shader.
     virtual ShaderStagePtr createStage(Shader& shader, const string& name);
 
-    /// Create a default implementation which is the implementation class to use
-    /// for nodes that has no specific implementation registered for it.
-    /// Derived classes can override this to use custom default implementations.
-    virtual ShaderNodeImplPtr createDefaultImplementation(ImplementationPtr impl);
+    /// Create a source code implementation which is the implementation class to use
+    /// for nodes that has no specific C++ implementation registered for it.
+    /// Derived classes can override this to use custom source code implementations.
+    virtual ShaderNodeImplPtr createSourceCodeImplementation(ImplementationPtr impl);
 
     /// Create a compound implementation which is the implementation class to use
     /// for nodes using a nodegraph as their implementation.
     /// Derived classes can override this to use custom compound implementations.
     virtual ShaderNodeImplPtr createCompoundImplementation(NodeGraphPtr impl);
 
-    /// Create a new node context with the given id. The context is added to the
-    /// shader generators node context storage and returned.
-    GenContextPtr createContext(int id);
+    static string SEMICOLON;
+    static string COMMA;
 
     SyntaxPtr _syntax;
     Factory<ShaderNodeImpl> _implFactory;
     std::unordered_map<string, ShaderNodeImplPtr> _cachedImpls;
-
     FileSearchPath _sourceCodeSearchPath;
-
-    std::unordered_map<int, GenContextPtr> _contexts;
-    GenContextPtr _defaultContext;
-
     ColorManagementSystemPtr _colorManagementSystem;
 };
 

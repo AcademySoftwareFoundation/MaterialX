@@ -10,11 +10,9 @@ namespace MaterialX
 class BlurNode : public ConvolutionNode
 {
   public:
-    using ParentClass = ConvolutionNode;
-
     static ShaderNodeImplPtr create();
 
-    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen) const override;
+    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const override;
 
   protected:
     /// Constructor
@@ -31,10 +29,10 @@ class BlurNode : public ConvolutionNode
     static string GAUSSIAN_WEIGHTS_VARIABLE;
 
     /// Return if given type is an acceptible input
-    bool acceptsInputType(const TypeDesc* type) override;
+    bool acceptsInputType(const TypeDesc* type) const override;
     
     /// Compute offset strings for sampling
-    void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings) override;
+    void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings) const override;
 
     /// Name of weight array variable
     std::string _weightArrayVariable;

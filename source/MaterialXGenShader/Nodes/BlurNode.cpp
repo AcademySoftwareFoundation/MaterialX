@@ -11,7 +11,7 @@ namespace MaterialX
     string BlurNode::GAUSSIAN_WEIGHTS_VARIABLE = "c_gaussian_filter_weights";
 
     BlurNode::BlurNode()
-        : ParentClass()
+        : ConvolutionNode()
         , _weightArrayVariable(BOX_WEIGHTS_VARIABLE)
         , _filterType(BOX_FILTER)
         , _inputTypeString("float")
@@ -26,7 +26,7 @@ namespace MaterialX
         return std::shared_ptr<BlurNode>(new BlurNode());
     }
 
-    void BlurNode::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings)
+    void BlurNode::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings) const
     {
         offsetStrings.clear();
 
@@ -48,18 +48,18 @@ namespace MaterialX
         }
     }
 
-    bool BlurNode::acceptsInputType(const TypeDesc* type)
+    bool BlurNode::acceptsInputType(const TypeDesc* type) const
     {
         // Float 1-4 is acceptable as input
         return ((type == Type::FLOAT && type->isScalar()) ||
             type->isFloat2() || type->isFloat3() || type->isFloat4());
     }
 
-    void BlurNode::emitFunctionCall(ShaderStage&, const ShaderNode&, GenContext&, ShaderGenerator&) const
+    void BlurNode::emitFunctionCall(ShaderStage&, const ShaderNode&, ShaderGenerator&, GenContext&) const
     {}
 
 /*  TODO: This function needs to be const and cannot set any member variables
-    void BlurNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen) const
+    void BlurNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
     {
         const string IN_STRING("in");
         const ShaderInput* inInput = node.getInput(IN_STRING);

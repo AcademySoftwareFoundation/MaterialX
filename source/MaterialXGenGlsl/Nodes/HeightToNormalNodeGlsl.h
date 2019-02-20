@@ -10,21 +10,19 @@ namespace MaterialX
 class HeightToNormalNodeGlsl : public ConvolutionNode
 {
   public:
-    using ParentClass = ConvolutionNode;
-
     static ShaderNodeImplPtr create();
 
-    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const override;
 
   protected:
     /// Constructor
     HeightToNormalNodeGlsl();
 
     /// Return if given type is an acceptible input
-    bool acceptsInputType(const TypeDesc* type) override;
+    bool acceptsInputType(const TypeDesc* type) const override;
 
     /// Compute offset strings for sampling
-    void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings) override;
+    void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings) const override;
 
     /// Name of filter function to call to compute normals from input samples
     string _filterFunctionName;

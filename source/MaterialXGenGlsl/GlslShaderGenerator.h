@@ -2,7 +2,6 @@
 #define MATERIALX_GLSLSHADERGENERATOR_H
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
-#include <MaterialXGenShader/HwShader.h>
 
 /*
 The GLSL shader generator has a number of predefined variables (inputs and uniforms) with set binding rules.
@@ -67,8 +66,6 @@ using GlslShaderGeneratorPtr = shared_ptr<class GlslShaderGenerator>;
 /// A generator for a specific GLSL target should be derived from this class.
 class GlslShaderGenerator : public HwShaderGenerator
 {
-    using ParentClass = HwShaderGenerator;
-
   public:
     GlslShaderGenerator();
 
@@ -76,7 +73,7 @@ class GlslShaderGenerator : public HwShaderGenerator
 
     /// Generate a shader starting from the given element, translating 
     /// the element and all dependencies upstream into shader code.
-    ShaderPtr generate(const string& shaderName, ElementPtr element, const GenOptions& options) override;
+    ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) override;
 
     /// Return a unique identifyer for the language used by this generator
     const string& getLanguage() const override { return LANGUAGE; }
@@ -88,17 +85,13 @@ class GlslShaderGenerator : public HwShaderGenerator
     virtual const string& getVersion() const { return VERSION; }
 
     /// Emit function definitions for all nodes
-    void emitFunctionDefinitions(Shader& shader) override;
+    void emitFunctionDefinitions(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) override;
 
     /// Emit all functon calls constructing the shader body
-    void emitFunctionCalls(const GenContext& context, Shader &shader) override;
+    void emitFunctionCalls(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) override;
 
-    /// Emit the final output expression
-    void emitFinalOutput(Shader& shader) const override;
-
-    /// Add contexts id's to the given node to control 
-    /// in which contexts this node should be used
-    void addContextIDs(ShaderNode* node) const override;
+    /// Emit a shader variable.
+    void emitVariable(ShaderStage& stage, const Variable& variable, const string& qualifier, bool assingValue) override;
 
     /// Given a element attempt to remap a value to an enumeration which is accepted by
     /// the shader generator.
@@ -110,17 +103,22 @@ class GlslShaderGenerator : public HwShaderGenerator
                               const InterfaceElement& mappingElement, const TypeDesc*& enumerationType) override;
 
     /// Emit code for all texturing nodes.
-    virtual void emitTextureNodes(Shader& shader);
+    virtual void emitTextureNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context);
 
     /// Emit code for calculating BSDF response for a shader, 
     /// given the incident and outgoing light directions.
     /// The output 'bsdf' will hold the variable name keeping the result.
-    virtual void emitBsdfNodes(const ShaderNode& shaderNode, int bsdfContext, const string& incident, const string& outgoing, Shader& shader, string& bsdf);
+    virtual void emitBsdfNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context,
+                               const ShaderNode& surfaceShader, int closureType,
+                               const string& incident, const string& outgoing,
+                               string& bsdf);
 
     /// Emit code for calculating emission for a surface or light shader,
     /// given the normal direction of the EDF and the evaluation direction.
     /// The output 'edf' will hold the variable keeping the result.
-    virtual void emitEdfNodes(const ShaderNode& shaderNode, const string& normalDir, const string& evalDir, Shader& shader, string& edf);
+    virtual void emitEdfNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context, 
+                              const ShaderNode& surfaceShader, const string& normalDir, const string& evalDir, 
+                              string& edf);
 
   public:
     /// Unique identifyer for the glsl language
@@ -132,41 +130,17 @@ class GlslShaderGenerator : public HwShaderGenerator
     /// Version string for the generator target
     static const string VERSION;
 
-    /// String constants for direction vectors
-    static const string LIGHT_DIR;
-    static const string VIEW_DIR;
-
-    /// Identifiers for contexts
-    enum Context
-    {
-        CONTEXT_BSDF_REFLECTION = CONTEXT_DEFAULT + 1,
-        CONTEXT_BSDF_TRANSMISSION,
-        CONTEXT_BSDF_INDIRECT,
-        CONTEXT_EDF,
-    };
-
-    /// Enum to identify common BSDF direction vectors
-    enum class BsdfDir
-    {
-        NORMAL_DIR,
-        LIGHT_DIR,
-        VIEW_DIR,
-        REFL_DIR
-    };
-
-  protected:   
-    void emitVariable(const Shader::Variable& variable, const string& qualifier, Shader& shader) override;
+  protected:
+    virtual void emitVertexStage(ShaderStage& stage, const ShaderGraph& graph, GenContext& context);
+    virtual void emitPixelStage(ShaderStage& stage, const ShaderGraph& graph, GenContext& context);
 
     /// Override the compound implementation creator in order to handle light compounds.
     ShaderNodeImplPtr createCompoundImplementation(NodeGraphPtr impl) override;
 
     static void toVec4(const TypeDesc* type, string& variable);
 
-    /// Internal string constants
-    static const string INCIDENT;
-    static const string OUTGOING;
-    static const string NORMAL;
-    static const string EVAL;
+    /// Nodes used internally for light sampling.
+    vector<ShaderNodePtr> _lightSamplingNodes;
 };
 
 
@@ -179,6 +153,16 @@ class GlslImplementation : public ShaderNodeImpl
 
   protected:
     GlslImplementation() {}
+
+    // Integer identifiers for corrdinate spaces
+    // The order must match the order given for
+    // the space enum string in stdlib.
+    enum Space
+    {
+        MODEL_SPACE,
+        OBJECT_SPACE,
+        WORLD_SPACE
+    };
 
     /// Internal string constants
     static const string SPACE;

@@ -8,56 +8,55 @@ ShaderNodeImplPtr GeomColorNodeGlsl::create()
     return std::make_shared<GeomColorNodeGlsl>();
 }
 
-void GeomColorNodeGlsl::createVariables(const ShaderNode& node, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void GeomColorNodeGlsl::createVariables(Shader& shader, const ShaderNode& node, ShaderGenerator&, GenContext&) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
-
     const ShaderInput* indexInput = node.getInput(INDEX);
     const string index = indexInput ? indexInput->value->getValueString() : "0";
 
-    shader.createAppData(Type::COLOR4, "i_color_" + index);
-    shader.createVertexData(Type::COLOR4, "color_" + index);
+    ShaderStage& vs = shader.getStage(HW::VERTEX_STAGE);
+    ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
+    addStageInput(vs, HW::VERTEX_INPUTS, Type::COLOR4, "i_color_" + index);
+    addStageConnector(vs, ps, HW::VERTEX_DATA, Type::COLOR4, "color_" + index);
 }
 
-void GeomColorNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void GeomColorNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
-
-    const string& blockInstance = shader.getVertexDataBlock().instance;
-    const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
-
     const ShaderOutput* output = node.getOutput();
     const ShaderInput* indexInput = node.getInput(INDEX);
     string index = indexInput ? indexInput->value->getValueString() : "0";
     string variable = "color_" + index;
 
-    BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
-        if (!shader.isCalculated(variable))
-        {
-            shader.addLine(blockPrefix + variable + " = i_" + variable);
-            shader.setCalculated(variable);
-        }
-    END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
+BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+    VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
+    Variable& color = vertexData[variable];
+    if (!color.isCalculated())
+    {
+        color.setCalculated();
+        shadergen.emitLine(stage, color.getFullName() + " = i_" + variable);
+    }
+END_SHADER_STAGE(shader, HW::VERTEX_STAGE)
 
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-        string suffix = "";
-        if (output->type == Type::FLOAT)
-        {
-            suffix = ".r";
-        }
-        else if (output->type == Type::COLOR2)
-        {
-            suffix = ".rg";
-        }
-        else if (output->type == Type::COLOR3)
-        {
-            suffix = ".rgb";
-        }
-        shader.beginLine();
-        shadergen.emitOutput(context, node.getOutput(), true, false, shader);
-        shader.addStr(" = " + blockPrefix + variable + suffix);
-        shader.endLine();
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    string suffix = "";
+    if (output->type == Type::FLOAT)
+    {
+        suffix = ".r";
+    }
+    else if (output->type == Type::COLOR2)
+    {
+        suffix = ".rg";
+    }
+    else if (output->type == Type::COLOR3)
+    {
+        suffix = ".rgb";
+    }
+    VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
+    Variable& color = vertexData[variable];
+    shadergen.emitLineBegin(stage);
+    shadergen.emitOutput(stage, context, node.getOutput(), true, false);
+    shadergen.emitString(stage, " = " + color.getFullName() + suffix);
+    shadergen.emitLineEnd(stage);
+END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

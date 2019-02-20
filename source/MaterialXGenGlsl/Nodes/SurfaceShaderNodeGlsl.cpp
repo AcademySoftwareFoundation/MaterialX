@@ -20,7 +20,7 @@ const string& SurfaceShaderNodeGlsl::getTarget() const
     return GlslShaderGenerator::TARGET;
 }
 
-void SurfaceShaderNodeGlsl::createVariables(const ShaderNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void SurfaceShaderNodeGlsl::createVariables(Shader& shader, const ShaderNode&, ShaderGenerator&, GenContext&) const
 {
     // TODO: 
     // The surface shader needs position, view position and light sources. We should solve this by adding some 
@@ -28,30 +28,32 @@ void SurfaceShaderNodeGlsl::createVariables(const ShaderNode& /*node*/, ShaderGe
     // ViewDirectionNodeGlsl and LightNodeGlsl nodes instead? This is where the MaterialX attribute "internalgeomprops" 
     // is needed.
     //
-    HwShader& shader = static_cast<HwShader&>(shader_);
+    ShaderStage& vs = shader.getStage(HW::VERTEX_STAGE);
+    ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
 
-    shader.createAppData(Type::VECTOR3, "i_position");
-    shader.createVertexData(Type::VECTOR3, "positionWorld");
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::VECTOR3, "u_viewPosition");
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", EMPTY_STRING,
-        EMPTY_STRING, Value::createValue<int>(0));
+    addStageInput(vs, HW::VERTEX_INPUTS, Type::VECTOR3, "i_position");
+    addStageConnector(vs, ps, HW::VERTEX_DATA, Type::VECTOR3, "positionWorld");
+
+    addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::VECTOR3, "u_viewPosition");
+    addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources",
+                    EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void SurfaceShaderNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void SurfaceShaderNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
+BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+    VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
+    Variable& position = vertexData["positionWorld"];
+    if (!position.isCalculated())
+    {
+        position.setCalculated();
+        shadergen.emitLine(stage, position.getFullName() + " = hPositionWorld.xyz");
+    }
+END_SHADER_STAGE(shader, HW::VERTEX_STAGE)
 
-    BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
-        if (!shader.isCalculated("positionWorld"))
-        {
-            shader.setCalculated("positionWorld");
-            shader.addLine("vd.positionWorld = hPositionWorld.xyz");
-        }
-    END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
-
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-        SourceCodeNode::emitFunctionCall(node, context, shadergen, shader_);
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    SourceCodeNode::emitFunctionCall(stage, node, shadergen, context);
+END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

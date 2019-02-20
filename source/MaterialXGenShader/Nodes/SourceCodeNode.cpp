@@ -17,9 +17,9 @@ ShaderNodeImplPtr SourceCodeNode::create()
     return std::make_shared<SourceCodeNode>();
 }
 
-void SourceCodeNode::initialize(ElementPtr implementation, ShaderGenerator& shadergen, const GenOptions& options)
+void SourceCodeNode::initialize(ElementPtr implementation, ShaderGenerator& shadergen, GenContext& context)
 {
-    ShaderNodeImpl::initialize(implementation, shadergen, options);
+    ShaderNodeImpl::initialize(implementation, shadergen, context);
 
     ImplementationPtr impl = implementation->asA<Implementation>();
     if (!impl)
@@ -55,7 +55,7 @@ void SourceCodeNode::initialize(ElementPtr implementation, ShaderGenerator& shad
     }
 }
 
-void SourceCodeNode::emitFunctionDefinition(ShaderStage& stage, const ShaderNode&, ShaderGenerator& shadergen) const
+void SourceCodeNode::emitFunctionDefinition(ShaderStage& stage, const ShaderNode&, ShaderGenerator& shadergen, GenContext&) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     // Emit function definition for non-inlined functions
@@ -67,7 +67,7 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 END_SHADER_STAGE(stage, MAIN_STAGE)
 }
 
-void SourceCodeNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen) const
+void SourceCodeNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     if (_inlined)
@@ -145,21 +145,12 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
         }
 
         shadergen.emitLineBegin(stage);
-
-        // Emit function name
-        shadergen.emitString(stage, _functionName + context.getFunctionSuffix() + "(");
-
-        // Emit function inputs
         string delim = "";
 
-        // Add any extra argument inputs first...
-        for (const Argument& arg : context.getArguments())
-        {
-            shadergen.emitString(stage, delim + arg.second);
-            delim = ", ";
-        }
+        // Emit function name.
+        shadergen.emitString(stage, _functionName + "(");
 
-        // ...and then all inputs on the node
+        // Emit all inputs on the node.
         for (ShaderInput* input : node.getInputs())
         {
             shadergen.emitString(stage, delim);
@@ -167,7 +158,7 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
             delim = ", ";
         }
 
-        // Emit function outputs
+        // Emit node outputs.
         for (size_t i = 0; i < node.numOutputs(); ++i)
         {
             shadergen.emitString(stage, delim);

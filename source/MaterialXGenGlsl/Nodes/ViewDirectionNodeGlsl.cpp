@@ -8,33 +8,36 @@ ShaderNodeImplPtr ViewDirectionNodeGlsl::create()
     return std::make_shared<ViewDirectionNodeGlsl>();
 }
 
-void ViewDirectionNodeGlsl::createVariables(const ShaderNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void ViewDirectionNodeGlsl::createVariables(Shader& shader, const ShaderNode&, ShaderGenerator&, GenContext&) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
+    ShaderStage& vs = shader.getStage(HW::VERTEX_STAGE);
+    ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
 
-    shader.createAppData(Type::VECTOR3, "i_position");
-    shader.createVertexData(Type::VECTOR3, "positionWorld");
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::VECTOR3, "u_viewPosition");
+    addStageInput(vs, HW::VERTEX_INPUTS, Type::VECTOR3, "i_position");
+    addStageConnector(vs, ps, HW::VERTEX_DATA, Type::VECTOR3, "positionWorld");
+    addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::VECTOR3, "u_viewPosition");
 }
 
-void ViewDirectionNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void ViewDirectionNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
+BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+    VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
+    Variable& position = vertexData["positionWorld"];
+    if (!position.isCalculated())
+    {
+        position.setCalculated();
+        shadergen.emitLine(stage, position.getFullName() + " = hPositionWorld.xyz");
+    }
+END_SHADER_STAGE(stage, HW::VERTEX_STAGE)
 
-    BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
-        if (!shader.isCalculated("positionWorld"))
-        {
-            shader.setCalculated("positionWorld");
-            shader.addLine("vd.positionWorld = hPositionWorld.xyz");
-        }
-    END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
-
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-        shader.beginLine();
-        shadergen.emitOutput(context, node.getOutput(), true, false, shader);
-        shader.addStr(" = normalize(vd.positionWorld - u_viewPosition)");
-        shader.endLine();
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
+    Variable& position = vertexData["positionWorld"];
+    shadergen.emitLineBegin(stage);
+    shadergen.emitOutput(stage, context, node.getOutput(), true, false);
+    shadergen.emitString(stage, " = normalize(" + position.getFullName() + " - u_viewPosition)");
+    shadergen.emitLineEnd(stage);
+END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

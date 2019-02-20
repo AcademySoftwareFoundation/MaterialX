@@ -16,9 +16,9 @@ class SurfaceShaderNodeGlsl : public SourceCodeNode
     const string& getLanguage() const override;
     const string& getTarget() const override;
 
-    void createVariables(const ShaderNode& node, ShaderGenerator& shadergen, Shader& shader) override;
+    void createVariables(Shader& shader, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const override;
 
-    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const override;
 };
 
 } // namespace MaterialX

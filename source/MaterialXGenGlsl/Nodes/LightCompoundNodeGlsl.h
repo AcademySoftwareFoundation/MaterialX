@@ -7,25 +7,34 @@
 namespace MaterialX
 {
 
+class GlslShaderGenerator;
+class HwGenContext;
+class HwClosureContext;
+
 /// Implementation of 'light' node for GLSL
 class LightCompoundNodeGlsl : public CompoundNode
 {
 public:
+    LightCompoundNodeGlsl();
+
     static ShaderNodeImplPtr create();
 
     const string& getLanguage() const override;
     const string& getTarget() const override;
 
-    void initialize(ElementPtr implementation, ShaderGenerator& shadergen, const GenOptions& options) override;
+    void initialize(ElementPtr implementation, ShaderGenerator& shadergen, GenContext& context) override;
 
-    void createVariables(const ShaderNode& node, ShaderGenerator& shadergen, Shader& shader) override;
+    void createVariables(Shader& shader, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const override;
 
-    void emitFunctionDefinition(const ShaderNode& node, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const override;
 
-    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const override;
 
 protected:
-    vector<Shader::Variable> _lightUniforms;
+    void emitFunctionDefinition(ShaderStage& stage, GlslShaderGenerator& shadergen,
+                                GenContext& context, const HwClosureContext* ccx) const;
+
+    VariableBlock _lightUniforms;
 };
 
 } // namespace MaterialX

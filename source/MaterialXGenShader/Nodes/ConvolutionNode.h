@@ -11,24 +11,24 @@ namespace MaterialX
 class ConvolutionNode : public ShaderNodeImpl
 {
   public:
-     void createVariables(ShaderStage& stage, const ShaderNode& node) const override;
+     void createVariables(Shader& shader, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const override;
 
   protected:
     /// Constructor
     ConvolutionNode();
 
     /// Derived classes are responsible for returning if a given type is an acceptable input.
-    virtual bool acceptsInputType(const TypeDesc* type) = 0;
+    virtual bool acceptsInputType(const TypeDesc* type) const = 0;
 
     // Derived classes are responsible for computing offset strings relative to the center sample
     // The sample size and offset type are passed in as arguments.
-    virtual void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings) = 0;
+    virtual void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings) const = 0;
 
     /// Generate upstream / input sampling code in uv space and cache the output variable names which 
     /// will hold the sample values after execution.
-    void emitInputSamplesUV(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen,
-                            StringVec& sampleStrings);
-    
+    void emitInputSamplesUV(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context,
+                            StringVec& sampleStrings) const;
+
     /// Number of samples.
     unsigned int _sampleCount;
 

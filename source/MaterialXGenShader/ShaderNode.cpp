@@ -56,9 +56,7 @@ namespace
 {
     ShaderNodePtr createEmptyNode()
     {
-        ShaderNodePtr node = std::make_shared<ShaderNode>("");
-        node->addContextID(ShaderGenerator::CONTEXT_DEFAULT);
-        return node;
+        return std::make_shared<ShaderNode>(nullptr, "");
     }
 }
 
@@ -134,8 +132,9 @@ void ShaderNode::ScopeInfo::merge(const ScopeInfo &fromScope)
     }
 }
 
-ShaderNode::ShaderNode(const string& name)
-    : _name(name)
+ShaderNode::ShaderNode(const ShaderGraph* parent, const string& name)
+    : _parent(parent)
+    , _name(name)
     , _classification(0)
     , _samplingInput(nullptr)
     , _impl(nullptr)
@@ -154,15 +153,15 @@ static bool elementCanBeSampled3D(const Element& element)
     return (element.getName() == POSITION_NAME);
 }
 
-ShaderNodePtr ShaderNode::create(const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, const GenOptions& options)
+ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, GenContext& context)
 {
-    ShaderNodePtr newNode = std::make_shared<ShaderNode>(name);
+    ShaderNodePtr newNode = std::make_shared<ShaderNode>(parent, name);
 
     // Find the implementation for this nodedef
     InterfaceElementPtr impl = nodeDef.getImplementation(shadergen.getTarget(), shadergen.getLanguage());
     if (impl)
     {
-        newNode->_impl = shadergen.getImplementation(impl, options);
+        newNode->_impl = shadergen.getImplementation(impl, context);
     }
     if (!newNode->_impl)
     {
@@ -302,9 +301,6 @@ ShaderNodePtr ShaderNode::create(const string& name, const NodeDef& nodeDef, Sha
     // Add in group classification
     newNode->_classification |= groupClassification;
 
-    // Let the shader generator assign in which contexts to use this node
-    shadergen.addContextIDs(newNode.get());
-
     return newNode;
 }
 
@@ -375,9 +371,17 @@ void ShaderNode::setValues(const Node& node, const NodeDef& nodeDef, ShaderGener
     } 
 }
 
-ShaderNodePtr ShaderNode::createColorTransformNode(const string& name, ShaderNodeImplPtr shaderImpl, const TypeDesc* type, ShaderGenerator& shadergen)
+ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, ShaderNodeImplPtr impl, unsigned int classification)
 {
-    ShaderNodePtr newNode = std::make_shared<ShaderNode>(name);
+    ShaderNodePtr newNode = std::make_shared<ShaderNode>(parent, name);
+    newNode->_impl = impl;
+    newNode->_classification = classification;
+    return newNode;
+}
+
+ShaderNodePtr ShaderNode::createColorTransformNode(const ShaderGraph* parent, const string& name, ShaderNodeImplPtr shaderImpl, const TypeDesc* type)
+{
+    ShaderNodePtr newNode = std::make_shared<ShaderNode>(parent, name);
     newNode->_impl = shaderImpl;
     newNode->_classification = Classification::TEXTURE | Classification::COLOR_SPACE_TRANSFORM;
     ShaderInput* input = newNode->addInput("in", type);
@@ -395,7 +399,7 @@ ShaderNodePtr ShaderNode::createColorTransformNode(const string& name, ShaderNod
         throw ExceptionShaderGenError("Invalid type specified to createColorTransform: '" + type->getName() + "'");
     }
     newNode->addOutput("out", type);
-    shadergen.addContextIDs(newNode.get());
+
     return newNode;
 }
 

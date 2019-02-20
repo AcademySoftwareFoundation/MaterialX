@@ -64,7 +64,8 @@ class ColorManagementSystem
     bool supportsTransform(const ColorSpaceTransform& transform);
 
     /// Create a node to use to perform the given color space transformation.
-    ShaderNodePtr createNode(const ColorSpaceTransform& transform, const string& name, ShaderGenerator& shadergen, const GenOptions& options);
+    ShaderNodePtr createNode(const ShaderGraph* parent, const ColorSpaceTransform& transform, 
+                             const string& name, ShaderGenerator& shadergen, GenContext& context);
 
     /// Return a cached implementation if used during shader generation
     const ShaderNodeImplPtr getCachedImplementation(const string& name) const

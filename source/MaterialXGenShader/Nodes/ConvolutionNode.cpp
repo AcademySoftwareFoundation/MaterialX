@@ -37,9 +37,10 @@ ConvolutionNode::ConvolutionNode()
 {
 }
 
-void ConvolutionNode::createVariables(ShaderStage& stage, const ShaderNode&) const
+void ConvolutionNode::createVariables(Shader& shader, const ShaderNode&, ShaderGenerator&, GenContext&) const
 {
-BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
+    ShaderStage stage = shader.getStage(MAIN_STAGE);
+    VariableBlock& constants = stage.getConstantBlock();
 
     // Create constant for box weights
     const float boxWeight3x3 = 1.0f / 9.0f;
@@ -59,16 +60,15 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     {
         boxWeightArray.push_back(boxWeight7x7);
     }
-    VariableBlock& constants = stage.getConstantBlock();
     constants.add(Type::FLOATARRAY, "c_box_filter_weights", EMPTY_STRING, Value::createValue<vector<float>>(boxWeightArray));
 
     // Create constant for Gaussian weights
     constants.add(Type::FLOATARRAY, "c_gaussian_filter_weights", EMPTY_STRING, Value::createValue<vector<float>>(GAUSSIAN_WEIGHT_ARRAY));
-
-END_SHADER_STAGE(stage, PIXEL_STAGE)
 }
 
-void ConvolutionNode::emitInputSamplesUV(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, StringVec& sampleStrings)
+void ConvolutionNode::emitInputSamplesUV(ShaderStage& stage, const ShaderNode& node, 
+                                         ShaderGenerator& shadergen, GenContext& context, 
+                                         StringVec& sampleStrings) const
 {
     sampleStrings.clear();
 
@@ -134,7 +134,7 @@ void ConvolutionNode::emitInputSamplesUV(ShaderStage& stage, const ShaderNode& n
                         string outputSuffix("_" + output->variable + std::to_string(i));
                         context.addOutputSuffix(upstreamOutput, outputSuffix);
 
-                        impl.emitFunctionCall(stage, *upstreamNode, context, shadergen);
+                        impl.emitFunctionCall(stage, *upstreamNode, shadergen, context);
 
                         // Remove suffixes
                         context.removeInputSuffix(samplingInput);

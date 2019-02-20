@@ -29,15 +29,17 @@ using ShaderGraphPtr = shared_ptr<class ShaderGraph>;
 class ShaderGraph : public ShaderNode
 {
   public:
-    ShaderGraph(const string& name, DocumentPtr document);
+    ShaderGraph(const ShaderGraph* parent, const string& name, DocumentPtr document);
     virtual ~ShaderGraph() {}
 
     /// Create a new shader graph from an element.
     /// Supported elements are outputs and shaderrefs.
-    static ShaderGraphPtr create(const string& name, ElementPtr element, ShaderGenerator& shadergen, const GenOptions& options);
+    static ShaderGraphPtr create(const ShaderGraph* parent, const string& name, ElementPtr element, 
+                                 ShaderGenerator& shadergen, GenContext& context);
 
     /// Create a new shader graph from a nodegraph.
-    static ShaderGraphPtr create(NodeGraphPtr nodeGraph, ShaderGenerator& shadergen, const GenOptions& options);
+    static ShaderGraphPtr create(const ShaderGraph* parent, NodeGraphPtr nodeGraph,
+                                 ShaderGenerator& shadergen, GenContext& context);
 
     /// Return true if this node is a graph.
     bool isAGraph() const override { return true; }
@@ -74,7 +76,7 @@ class ShaderGraph : public ShaderNode
     const vector<ShaderGraphOutputSocket*>& getOutputSockets() const { return _inputOrder; }
 
     /// Add new node
-    ShaderNode* addNode(const Node& node, ShaderGenerator& shadergen, const GenOptions& options);
+    ShaderNode* addNode(const Node& node, ShaderGenerator& shadergen, GenContext& context);
 
     /// Add input/output sockets
     ShaderGraphInputSocket* addInputSocket(const string& name, const TypeDesc* type);
@@ -93,19 +95,19 @@ class ShaderGraph : public ShaderNode
     /// Traverse from the given root element and add all dependencies upstream.
     /// The traversal is done in the context of a material, if given, to include
     /// bind input elements in the traversal.
-    void addUpstreamDependencies(const Element& root, ConstMaterialPtr material, ShaderGenerator& shadergen, const GenOptions& options);
+    void addUpstreamDependencies(const Element& root, ConstMaterialPtr material, ShaderGenerator& shadergen, GenContext& contexts);
 
     /// Add a default geometric node and connect to the given input.
-    void addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geomprop, ShaderGenerator& shadergen, const GenOptions& options);
+    void addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geomprop, ShaderGenerator& shadergen, GenContext& context);
 
     /// Add a color transform node and connect to the given input.
-    void addColorTransformNode(ShaderInput* input, const ColorSpaceTransform& transform, ShaderGenerator& shadergen, const GenOptions& options);
+    void addColorTransformNode(ShaderInput* input, const ColorSpaceTransform& transform, ShaderGenerator& shadergen, GenContext& context);
 
     /// Add a color transform node and connect to the given output.
-    void addColorTransformNode(ShaderOutput* input, const ColorSpaceTransform& transform, ShaderGenerator& shadergen, const GenOptions& options);
+    void addColorTransformNode(ShaderOutput* input, const ColorSpaceTransform& transform, ShaderGenerator& shadergen, GenContext& context);
 
     /// Perform all post-build operations on the graph.
-    void finalize(ShaderGenerator& shadergen, const GenOptions& options);
+    void finalize(ShaderGenerator& shadergen, GenContext& context);
 
     /// Optimize the graph, removing redundant paths.
     void optimize();

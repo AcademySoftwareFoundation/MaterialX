@@ -1128,7 +1128,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
         for (auto uniformsIt : ps.getUniformBlocks())
         {
             const VariableBlock& uniforms = *uniformsIt.second;
-            if (uniforms.getName() == HW::LIGHT_UNIFORMS)
+            if (uniforms.getName() == HW::LIGHT_DATA)
             {
                 // Need to go through LightHandler to match with uniforms
                 continue;

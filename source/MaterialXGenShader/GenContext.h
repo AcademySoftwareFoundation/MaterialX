@@ -2,16 +2,12 @@
 #define MATERIALX_GENCONTEXT_H
 
 #include <MaterialXGenShader/ShaderNode.h>
+#include <MaterialXGenShader/GenOptions.h>
 
 #include <set>
 
 namespace MaterialX
 {
-
-/// A function argument for node implementation functions.
-/// A argument is a pair of strings holding the 'type' and 'name' of the argument.
-using Argument = std::pair<string, string>;
-using Arguments = vector<Argument>;
 
 using GenContextPtr = std::shared_ptr<class GenContext>;
 
@@ -31,23 +27,26 @@ using GenContextPtr = std::shared_ptr<class GenContext>;
 class GenContext
 {
   public:
-    /// Constructor, set the identifier for this context.
-    GenContext(int id) : _id(id) {}
+    /// Constructor.
+    GenContext()
+    {}
 
-    /// Return the identifier for this context.
-    int id() const { return _id; }
+    /// Constructor.
+    GenContext(const GenOptions& options)
+        : _options(options)
+    {}
 
-    /// Add an extra argument to be used for the node function in this context.
-    void addArgument(const Argument& arg) { _arguments.push_back(arg); }
+    /// Return shader generation options.
+    GenOptions& getOptions()
+    {
+        return _options;
+    }
 
-    /// Return a list of extra argument to be used for the node function in this context.
-    const Arguments& getArguments() const { return _arguments; }
-
-    /// Set a function name suffix to be used for the node function in this context.
-    void setFunctionSuffix(const string& suffix) { _functionSuffix = suffix; }
-
-    /// Return the function name suffix to be used for the node function in this context.
-    const string& getFunctionSuffix() const { return _functionSuffix; }
+    /// Return shader generation options.
+    const GenOptions& getOptions() const
+    {
+        return _options;
+    }
 
     /// Add an input suffix to be used for the node function in this context.
     /// @param input Node input
@@ -77,16 +76,46 @@ class GenContext
     /// @param suffix Suffix string returned. Is empty if not found.
     void getOutputSuffix(const ShaderOutput* output, string& suffix) const;
 
-  private:
-    const int _id;
-    Arguments _arguments;
-    string _functionSuffix;
+    template<typename T>
+    void pushUserData(const string& name, T* ptr)
+    {
+        auto it = _userData.find(name);
+        if (it != _userData.end())
+        {
+            it->second.push_back((void*)ptr);
+        }
+        else
+        {
+            _userData[name] = {(void*)ptr};
+        }
+    }
+
+    void popUserData(const string& name)
+    {
+        auto it = _userData.find(name);
+        if (it != _userData.end())
+        {
+            it->second.pop_back();
+        }
+    }
+    template<typename T>
+    T* getUserData(const string& name)
+    {
+        auto it = _userData.find(name);
+        return it != _userData.end() && !it->second.empty() ? (T*)it->second.back() : nullptr;
+    }
+
+protected:
+    GenOptions _options;
 
     // List of input suffixes
     std::unordered_map<const ShaderInput*, string> _inputSuffix;
 
     // List of output suffixes
     std::unordered_map<const ShaderOutput*, string> _outputSuffix;
+
+    // User data
+    std::unordered_map<string, vector<void*>> _userData;
 };
 
 } // namespace MaterialX

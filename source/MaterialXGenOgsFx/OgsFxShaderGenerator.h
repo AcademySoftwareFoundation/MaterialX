@@ -2,7 +2,6 @@
 #define MATERIALX_OGSFXSHADERGENERATOR_H
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
-#include <MaterialXGenShader/HwShader.h>
 
 namespace MaterialX
 {
@@ -52,10 +51,10 @@ public:
 
 protected:
     /// Emit a shader input variable
-    void emitVariable(const Shader::Variable& variable, const string& qualifier, Shader& shader) override;
+    void emitVariable(ShaderStage& stage, const Variable& variable, const string& qualifier) override;
 
-    /// Create a new shader instance
-    virtual OgsFxShaderPtr createShader(const string& name);
+    /// Create and initialize a new OGSFX shader for shader generation.
+    ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) override;
 
     /// Get parameters for the technique block
     virtual void getTechniqueParams(const Shader& shader, string& params);

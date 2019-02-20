@@ -13,7 +13,6 @@
 
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
-#include <MaterialXGenShader/HwShader.h>
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXRender/Handlers/HwLightHandler.h>
 
@@ -51,7 +50,7 @@ extern void loadLibrary(const mx::FilePath& file, mx::DocumentPtr doc);
 extern void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc,
                           const std::set<std::string>* excludeFiles = nullptr);
 
-void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::HwShaderGenerator& shadergen, const mx::GenOptions& options,
+void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::HwShaderGenerator& shadergen, mx::GenContext& context,
                     const mx::FilePath&  envIrradiancePath, const mx::FilePath& envRadiancePath)
 {
     // Scan for lights
@@ -78,7 +77,7 @@ void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::H
             mx::NodeDefPtr nodeDef = doc->getNodeDef(id.first);
             if (nodeDef)
             {
-                shadergen.bindLightShader(*nodeDef, id.second, options);
+                shadergen.bindLightShader(*nodeDef, id.second, context);
             }
         }
     }
@@ -571,8 +570,10 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                 AdditiveScopedTimer transpTimer(profileTimes.glslTimes.transparencyTime, "GLSL transparency time");
                 options.hwTransparency = mx::isTransparentSurface(element, shaderGenerator);
                 transpTimer.endTimer();
+
                 AdditiveScopedTimer generationTimer(profileTimes.glslTimes.generationTime, "GLSL generation time");
-                shader = shaderGenerator.generate(shaderName, element, options);
+                mx::GenContext context(options);
+                shader = shaderGenerator.generate(shaderName, element, context);
                 generationTimer.endTimer();
             }
             catch (mx::ExceptionShaderGenError& e)
@@ -587,8 +588,8 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                 log << ">> Failed to generate shader\n";
                 return;
             }
-            const std::string& vertexSourceCode = shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
-            const std::string& pixelSourceCode = shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
+            const std::string& vertexSourceCode = shader->getSourceCode(mx::HW::VERTEX_STAGE);
+            const std::string& pixelSourceCode = shader->getSourceCode(mx::HW::PIXEL_STAGE);
             CHECK(vertexSourceCode.length() > 0);
             CHECK(pixelSourceCode.length() > 0);
 
@@ -755,10 +756,10 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                 // Always dump shader stages on error
                 std::ofstream file;
                 file.open(shaderPath + "_vs.glsl");
-                file << shader->getSourceCode(mx::HwShader::VERTEX_STAGE);
+                file << shader->getSourceCode(mx::HW::VERTEX_STAGE);
                 file.close();
                 file.open(shaderPath + "_ps.glsl");
-                file << shader->getSourceCode(mx::HwShader::PIXEL_STAGE);
+                file << shader->getSourceCode(mx::HW::PIXEL_STAGE);
                 file.close();
 
                 for (auto error : e.errorLog())
@@ -806,7 +807,8 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
             try
             {
                 AdditiveScopedTimer genTimer(profileTimes.oslTimes.generationTime, "OSL generation time");
-                shader = shaderGenerator.generate(shaderName, element, options);
+                mx::GenContext context(options);
+                shader = shaderGenerator.generate(shaderName, element, context);
             }
             catch (mx::ExceptionShaderGenError& e)
             {
@@ -868,13 +870,15 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
 
                 if (testOptions.renderImages)
                 {
-                    if (shader->getOutputBlock().size() > 0)
+                    const mx::ShaderStage& stage = shader->getStage(mx::OSL::STAGE);
+                    const mx::VariableBlock& outputs = stage.getOutputBlock(mx::OSL::OUTPUTS);
+                    if (outputs.size() > 0)
                     {
-                        const mx::Shader::Variable* output = shader->getOutputBlock()[0];
-                        const mx::TypeSyntax& syntax = shaderGenerator.getSyntax()->getTypeSyntax(output->type);
+                        const mx::Variable& output = outputs[0];
+                        const mx::TypeSyntax& typeSyntax = shaderGenerator.getSyntax()->getTypeSyntax(output.getType());
 
-                        const std::string& outputName = output->name;
-                        const std::string& outputType = syntax.getTypeAlias().empty() ? syntax.getName() : syntax.getTypeAlias();
+                        const std::string& outputName = output.getName();
+                        const std::string& outputType = typeSyntax.getTypeAlias().empty() ? typeSyntax.getName() : typeSyntax.getTypeAlias();
 
                         static const std::string SHADING_SCENE_FILE = "closure_color_scene.xml";
                         static const std::string NON_SHADING_SCENE_FILE = "constant_color_scene.xml";
@@ -1072,6 +1076,7 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
     return false;
 }
 
+/*
 void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidTestOptions& options,
     std::set<std::string>& usedImpls, std::ostream& profilingLog, mx::DocumentPtr dependLib,
     mx::ArnoldShaderGeneratorPtr oslShaderGenerator, mx::GlslShaderGeneratorPtr glslShaderGenerator,
@@ -1204,6 +1209,7 @@ void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidT
         CHECK(implementationUseCount == libraryCount);
     }
 }
+*/
 
 TEST_CASE("MaterialX documents", "[shadervalid]")
 {
@@ -1232,8 +1238,8 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
     std::string docValidLogFilename = "shadervalid_validate_doc_log.txt";
     std::ofstream docValidLogFile(docValidLogFilename);
     std::ostream& docValidLog(docValidLogFile);
-    std::ofstream profilingLogfile("shadervalid_profiling_log.txt");
-    std::ostream& profilingLog(profilingLogfile);
+//    std::ofstream profilingLogfile("shadervalid_profiling_log.txt");
+//    std::ostream& profilingLog(profilingLogfile);
 #else
 #ifdef MATERIALX_BUILD_GEN_GLSL
     std::ostream& glslLog(std::cout);
@@ -1285,8 +1291,12 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
 #if defined(MATERIALX_BUILD_GEN_GLSL) || defined(MATERIALX_BUILD_GEN_OGSFX)
     mx::DefaultColorManagementSystemPtr glslColorManagementSystem = nullptr;
     mx::GlslValidatorPtr glslValidator = nullptr;
+#if defined(MATERIALX_BUILD_GEN_GLSL)
     mx::GlslShaderGeneratorPtr glslShaderGenerator = nullptr;
+#endif
+#if defined(MATERIALX_BUILD_GEN_OGSFX)
     mx::OgsFxShaderGeneratorPtr ogsfxShaderGenerator = nullptr;
+#endif
 #ifdef MATERIALX_BUILD_GEN_GLSL
     if (options.runGLSLTests)
     {
@@ -1373,9 +1383,9 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
         if (glslShaderGenerator)
         {
             // Add lights as a dependency
-            mx::GenOptions genOptions;
+            mx::GenContext context;
             glslLightHandler = mx::HwLightHandler::create();
-            createLightRig(dependLib, *glslLightHandler, *glslShaderGenerator, genOptions, 
+            createLightRig(dependLib, *glslLightHandler, *glslShaderGenerator, context,
                            options.radianceIBLPath, options.irradianceIBLPath);
         }
     }
@@ -1446,10 +1456,14 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
                 if ((options.runGLSLTests || options.runOGSFXTests) && !glslColorManagementSystem)
                 {
                     glslColorManagementSystem = mx::DefaultColorManagementSystem::create(glslShaderGenerator->getLanguage());
+#if defined(MATERIALX_BUILD_GEN_GLSL)
                     if (glslShaderGenerator)
                         glslShaderGenerator->setColorManagementSystem(glslColorManagementSystem);
+#endif
+#if defined(MATERIALX_BUILD_GEN_OGSFX)
                     if (ogsfxShaderGenerator)
                         ogsfxShaderGenerator->setColorManagementSystem(glslColorManagementSystem);
+#endif
                     glslColorManagementSystem->loadLibrary(dependLib);
                 }
 #endif
@@ -1582,10 +1596,8 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
 
     // Dump out profiling information
     totalTime.endTimer();
-    printRunLog(profileTimes, options, usedImpls, profilingLog, dependLib, oslShaderGenerator, glslShaderGenerator, ogsfxShaderGenerator);
+//    printRunLog(profileTimes, options, usedImpls, profilingLog, dependLib, oslShaderGenerator, glslShaderGenerator, ogsfxShaderGenerator);
 }
-
-
 
 #endif
 #endif

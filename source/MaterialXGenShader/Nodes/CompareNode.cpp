@@ -12,9 +12,11 @@ ShaderNodeImplPtr CompareNode::create()
     return std::make_shared<CompareNode>();
 }
 
-void CompareNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen) const
+void CompareNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
+
+    const ShaderGraph& graph = *node.getParent();
 
     // Declare the output variable
     shadergen.emitLineBegin(stage);
@@ -47,7 +49,7 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
         shadergen.emitScopeBegin(stage);
 
         // Emit function calls for nodes that are ONLY needed in this scope
-        for (const ShaderNode* otherNode : stage.getGraph()->getNodes())
+        for (const ShaderNode* otherNode : graph.getNodes())
         {
             const ShaderNode::ScopeInfo& scope = otherNode->getScopeInfo();
             if (scope.conditionalNode == &node && scope.usedByBranch(branch))

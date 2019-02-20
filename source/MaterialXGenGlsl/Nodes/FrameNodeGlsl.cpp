@@ -8,23 +8,20 @@ ShaderNodeImplPtr FrameNodeGlsl::create()
     return std::make_shared<FrameNodeGlsl>();
 }
 
-void FrameNodeGlsl::createVariables(const ShaderNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void FrameNodeGlsl::createVariables(Shader& shader, const ShaderNode&, ShaderGenerator&, GenContext&) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
-
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::FLOAT, "u_frame");
+    ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
+    addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::FLOAT, "u_frame");
 }
 
-void FrameNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void FrameNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
-
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-        shader.beginLine();
-        shadergen.emitOutput(context, node.getOutput(), true, false, shader);
-        shader.addStr(" = u_frame");
-        shader.endLine();
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    shadergen.emitLineBegin(stage);
+    shadergen.emitOutput(stage, context, node.getOutput(), true, false);
+    shadergen.emitString(stage, " = u_frame");
+    shadergen.emitLineEnd(stage);
+END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

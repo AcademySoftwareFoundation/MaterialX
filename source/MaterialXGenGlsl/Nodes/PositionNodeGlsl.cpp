@@ -8,83 +8,83 @@ ShaderNodeImplPtr PositionNodeGlsl::create()
     return std::make_shared<PositionNodeGlsl>();
 }
 
-void PositionNodeGlsl::createVariables(const ShaderNode& node, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void PositionNodeGlsl::createVariables(Shader& shader, const ShaderNode& node, ShaderGenerator&, GenContext&) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
+    ShaderStage vs = shader.getStage(HW::VERTEX_STAGE);
+    ShaderStage ps = shader.getStage(HW::PIXEL_STAGE);
 
-    shader.createAppData(Type::VECTOR3, "i_position");
+    addStageInput(vs, HW::VERTEX_INPUTS, Type::VECTOR3, "i_position");
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
-    string space = spaceInput ? spaceInput->value->getValueString() : EMPTY_STRING;
-    if (space == WORLD)
+    const int space = spaceInput ? spaceInput->value->asA<int>() : -1;
+    if (space == WORLD_SPACE)
     {
-        shader.createVertexData(Type::VECTOR3, "positionWorld");
+        addStageConnector(vs, ps, HW::VERTEX_DATA, Type::VECTOR3, "positionWorld");
     }
-    else if (space == MODEL)
+    else if (space == MODEL_SPACE)
     {
-        shader.createVertexData(Type::VECTOR3, "positionModel");
+        addStageConnector(vs, ps, HW::VERTEX_DATA, Type::VECTOR3, "positionModel");
     }
     else
     {
-        shader.createVertexData(Type::VECTOR3, "positionObject");
+        addStageConnector(vs, ps, HW::VERTEX_DATA, Type::VECTOR3, "positionObject");
     }
 }
 
-void PositionNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void PositionNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
-
-    const string& blockInstance = shader.getVertexDataBlock().instance;
-    const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
-
     const ShaderInput* spaceInput = node.getInput(SPACE);
-    string space = spaceInput ? spaceInput->value->getValueString() : EMPTY_STRING;
+    const int space = spaceInput ? spaceInput->value->asA<int>() : -1;
 
-    BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
-        if (space == WORLD)
+BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+    VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
+    if (space == WORLD_SPACE)
+    {
+        Variable& position = vertexData["positionWorld"];
+        if (!position.isCalculated())
         {
-            if (!shader.isCalculated("positionWorld"))
-            {
-                shader.setCalculated("positionWorld");
-                shader.addLine(blockPrefix + "positionWorld = hPositionWorld.xyz");
-            }
+            position.setCalculated();
+            shadergen.emitLine(stage, position.getFullName() + " = hPositionWorld.xyz");
         }
-        else if (space == MODEL)
+    }
+    else if (space == MODEL_SPACE)
+    {
+        Variable& position = vertexData["positionModel"];
+        if (!position.isCalculated())
         {
-            if (!shader.isCalculated("positionModel"))
-            {
-                shader.setCalculated("positionModel");
-                shader.addLine(blockPrefix + "positionModel = i_position");
-            }
+            position.setCalculated();
+            shadergen.emitLine(stage, position.getFullName() + " = i_position");
         }
-        else
+    }
+    else
+    {
+        Variable& position = vertexData["positionObject"];
+        if (!position.isCalculated())
         {
-            if (!shader.isCalculated("positionObject"))
-            {
-                shader.setCalculated("positionObject");
-                shader.addLine(blockPrefix + "positionObject = i_position");
-            }
+            position.setCalculated();
+            shadergen.emitLine(stage, position.getFullName() + " = i_position");
         }
-    END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
+    }
+END_SHADER_STAGE(shader, HW::VERTEX_STAGE)
 
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-        shader.beginLine();
-        shadergen.emitOutput(context, node.getOutput(), true, false, shader);
-        if (space == WORLD)
-        {
-            shader.addStr(" = " + blockPrefix + "positionWorld");
-        }
-        else if (space == MODEL)
-        {
-            shader.addStr(" = " + blockPrefix + "positionModel");
-        }
-        else
-        {
-            shader.addStr(" = " + blockPrefix + "positionObject");
-        }
-
-        shader.endLine();
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
+    shadergen.emitLineBegin(stage);
+    shadergen.emitOutput(stage, context, node.getOutput(), true, false);
+    if (space == WORLD_SPACE)
+    {
+        shadergen.emitString(stage, " = " + vertexData["positionWorld"].getFullName());
+    }
+    else if (space == MODEL_SPACE)
+    {
+        shadergen.emitString(stage, " = " + vertexData["positionModel"].getFullName());
+    }
+    else
+    {
+        shadergen.emitString(stage, " = " + vertexData["positionObject"].getFullName());
+    }
+    shadergen.emitLineEnd(stage);
+END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

@@ -1,12 +1,11 @@
 #include <MaterialXGenGlsl/Nodes/HeightToNormalNodeGlsl.h>
-#include <MaterialXGenShader/HwShader.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 namespace MaterialX
 {
 
 HeightToNormalNodeGlsl::HeightToNormalNodeGlsl()
-    : ParentClass()
+    : ConvolutionNode()
 {
     _sampleCount = 9;
     _sampleSizeFunctionUV.assign("mx_compute_sample_size_uv");
@@ -18,7 +17,7 @@ ShaderNodeImplPtr HeightToNormalNodeGlsl::create()
     return std::shared_ptr<HeightToNormalNodeGlsl>(new HeightToNormalNodeGlsl());
 }
 
-void HeightToNormalNodeGlsl::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings)
+void HeightToNormalNodeGlsl::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings) const
 {
     // Build a 3x3 grid of samples that are offset by the provided sample size
     offsetStrings.clear();
@@ -31,14 +30,15 @@ void HeightToNormalNodeGlsl::computeSampleOffsetStrings(const string& sampleSize
     }
 }
 
-bool HeightToNormalNodeGlsl::acceptsInputType(const TypeDesc* type)
+bool HeightToNormalNodeGlsl::acceptsInputType(const TypeDesc* type) const
 {
     // Only support inputs which are float scalar
     return (type == Type::FLOAT && type->isScalar());
 }
 
-void HeightToNormalNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void HeightToNormalNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
 {
+BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     const ShaderInput* inInput = node.getInput("in");
     const ShaderInput* scaleInput = node.getInput("scale");
 
@@ -47,36 +47,31 @@ void HeightToNormalNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext
         throw ExceptionShaderGenError("Node '" + node.getName() + "' is not a valid heighttonormal node");
     }
 
-    HwShader& shader = static_cast<HwShader&>(shader_);
+    // Create the input "samples". This means to emit the calls to 
+    // compute the sames and return a set of strings containaing
+    // the variables to assign to the sample grid.
+    //  
+    StringVec sampleStrings;
+    emitInputSamplesUV(stage, node, shadergen, context, sampleStrings);
 
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+    const ShaderOutput* output = node.getOutput();
+
+    // Emit code to evaluate samples.
+    //
+    string sampleName(output->variable + "_samples");
+    shadergen.emitLine(stage, "float " + sampleName + "[" + std::to_string(_sampleCount) + "]");
+    for (unsigned int i = 0; i < _sampleCount; i++)
     {
-        // Create the input "samples". This means to emit the calls to 
-        // compute the sames and return a set of strings containaing
-        // the variables to assign to the sample grid.
-        //  
-        StringVec sampleStrings;
-        emitInputSamplesUV(node, context, shadergen, shader, sampleStrings);
-
-        const ShaderOutput* output = node.getOutput();
-
-        // Emit code to evaluate samples.
-        //
-        string sampleName(output->variable + "_samples");
-        shader.addLine("float " + sampleName + "[" + std::to_string(_sampleCount) + "]");
-        for (unsigned int i = 0; i < _sampleCount; i++)
-        {
-            shader.addLine(sampleName + "[" + std::to_string(i) + "] = " + sampleStrings[i]);
-        }
-        shader.beginLine();
-        shadergen.emitOutput(context, output, true, false, shader);
-        shader.addStr(" = " + _filterFunctionName);
-        shader.addStr("(" + sampleName + ", ");
-        shadergen.emitInput(context, scaleInput, shader);
-        shader.addStr(")");
-        shader.endLine();
+        shadergen.emitLine(stage, sampleName + "[" + std::to_string(i) + "] = " + sampleStrings[i]);
     }
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+    shadergen.emitLineBegin(stage);
+    shadergen.emitOutput(stage, context, output, true, false);
+    shadergen.emitString(stage, " = " + _filterFunctionName);
+    shadergen.emitString(stage, "(" + sampleName + ", ");
+    shadergen.emitInput(stage, context, scaleInput);
+    shadergen.emitString(stage, ")");
+    shadergen.emitLineEnd(stage);
+END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

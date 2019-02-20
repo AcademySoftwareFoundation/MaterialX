@@ -49,7 +49,7 @@ class Variable
 
     const string& getPath() const { return _path; }
 
-    bool setCalculated() { _calculated = true; }
+    void setCalculated() { _calculated = true; }
 
     bool isCalculated() const { return _calculated; }
 
@@ -179,9 +179,6 @@ class ShaderStage
         return _outputs;
     }
  
-    /// Return the active shader graph.
-    ShaderGraph* getGraph() const { return _graphStack.back(); }
-
 protected:
     /// Start a new scope using the given bracket type.
     void beginScope(Brackets brackets = Brackets::BRACES);
@@ -208,10 +205,7 @@ protected:
     void addBlock(const string& str, ShaderGenerator& shadergen);
 
     /// Add the function definition for a node.
-    void addFunctionDefinition(const ShaderNode& node, ShaderGenerator& shadergen);
-
-    /// Add the function call for a node.
-    void addFunctionCall(const ShaderNode& node, const GenContext& context, ShaderGenerator& shadergen);
+    void addFunctionDefinition(const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context);
 
     /// Add the contents of an include file. Making sure it is 
     /// only included once for the shader stage.
@@ -229,13 +223,6 @@ protected:
         _code += str.str();
     }
 
-    /// Push a new active shader graph.
-    /// Used when emitting code for compounds / subgraphs.
-    void pushActiveGraph(ShaderGraph* graph) { _graphStack.push_back(graph); }
-
-    /// Reactivate the previously last used shader graph.
-    void popActiveGraph() { _graphStack.pop_back(); }
-
     friend class ShaderGenerator;
 
 private:
@@ -244,9 +231,6 @@ private:
 
     /// Syntax for the type of shader to generate.
     ConstSyntaxPtr _syntax;
-
-    /// Stack of active graphs.
-    vector<ShaderGraph*> _graphStack;
 
     /// Current indentation level.
     int _indentations;
@@ -278,7 +262,7 @@ private:
 
 using ShaderStagePtr = std::shared_ptr<ShaderStage>;
 
-
+/// Utility function for adding a variable to a uniform block.
 inline void addStageUniform(ShaderStage& stage, const string& block, const TypeDesc* type, const string& name,
     const string& semantic = EMPTY_STRING, ValuePtr value = nullptr, const string& path = EMPTY_STRING)
 {
@@ -286,6 +270,7 @@ inline void addStageUniform(ShaderStage& stage, const string& block, const TypeD
     uniforms.add(type, name, semantic, value, path);
 }
 
+/// Utility function for adding a variable to an input block.
 inline void addStageInput(ShaderStage& stage, const string& block, const TypeDesc* type, const string& name,
     const string& semantic = EMPTY_STRING, ValuePtr value = nullptr, const string& path = EMPTY_STRING)
 {
@@ -293,20 +278,21 @@ inline void addStageInput(ShaderStage& stage, const string& block, const TypeDes
     inputs.add(type, name, semantic, value, path);
 }
 
+/// Utility function for adding a variable to an output block.
 inline void addStageOutput(ShaderStage& stage, const string& block, const TypeDesc* type, const string& name)
 {
-    VariableBlock& inputs = stage.getInputBlock(block);
-    inputs.add(type, name);
+    VariableBlock& outputs = stage.getOutputBlock(block);
+    outputs.add(type, name);
 }
 
-/// Utility function for adding a connector block between stages
+/// Utility function for adding a connector block between stages.
 inline void addStageConnectorBlock(ShaderStage& from, ShaderStage& to, const string& block, const string& instance)
 {
     from.createOutputBlock(block, instance);
     to.createInputBlock(block, instance);
 }
 
-/// Utility function for adding a variable to a stage connector block
+/// Utility function for adding a variable to a stage connector block.
 inline void addStageConnector(ShaderStage& from, ShaderStage& to, const string& block, const TypeDesc* type, const string& name)
 {
     addStageOutput(from, block, type, name);

@@ -173,16 +173,29 @@ class ShaderNode
 
   public:
     /// Constructor.
-    ShaderNode(const string& name);
+    ShaderNode(const ShaderGraph* parent, const string& name);
 
     /// Create a new node from a nodedef
-    static ShaderNodePtr create(const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, const GenOptions& options);
+    static ShaderNodePtr create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef, 
+                                ShaderGenerator& shadergen, GenContext& context);
+
+    static ShaderNodePtr create(const ShaderGraph* parent, const string& name, ShaderNodeImplPtr impl, 
+                                unsigned int classification = Classification::TEXTURE);
 
     /// Create a new color transform node from a ShaderNodeImpl and type.
-    static ShaderNodePtr createColorTransformNode(const string& name, ShaderNodeImplPtr shaderImpl, const TypeDesc* type, ShaderGenerator& shadergen);
+    static ShaderNodePtr createColorTransformNode(const ShaderGraph* parent, const string& name,
+                                                  ShaderNodeImplPtr shaderImpl, const TypeDesc* type);
 
     /// Return true if this node is a graph.
     virtual bool isAGraph() const { return false; }
+
+    /// Return the parent graph that owns this node.
+    /// If this node is a root graph it has no parent
+    /// and nullptr will be returned.
+    const ShaderGraph* getParent() const
+    {
+        return _parent;
+    }
 
     /// Return true if this node matches the given classification.
     bool hasClassification(unsigned int c) const
@@ -284,6 +297,7 @@ class ShaderNode
 
   protected:
     string _name;
+    const ShaderGraph* _parent;
     unsigned int _classification;
 
     std::unordered_map<string, ShaderInputPtr> _inputMap;

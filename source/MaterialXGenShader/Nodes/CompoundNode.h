@@ -13,13 +13,13 @@ class CompoundNode : public ShaderNodeImpl
 public:
     static ShaderNodeImplPtr create();
 
-    void initialize(ElementPtr implementation, ShaderGenerator& shadergen, const GenOptions& options) override;
+    void initialize(ElementPtr implementation, ShaderGenerator& shadergen, GenContext& context) override;
 
-    void createVariables(ShaderStage& stage, const ShaderNode& node) const override;
+    void createVariables(Shader& shader, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const override;
 
-    void emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen) const override;
+    void emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const override;
 
-    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen) const override;
+    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const override;
 
     ShaderGraph* getGraph() const override { return _rootGraph.get(); }
 

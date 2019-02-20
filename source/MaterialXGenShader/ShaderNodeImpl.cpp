@@ -7,27 +7,24 @@
 namespace MaterialX
 {
 
-void ShaderNodeImpl::initialize(ElementPtr, ShaderGenerator&, const GenOptions&)
+void ShaderNodeImpl::initialize(ElementPtr, ShaderGenerator&, GenContext&)
 {
 }
 
-void ShaderNodeImpl::createVariables(ShaderStage&, const ShaderNode&) const
+void ShaderNodeImpl::createVariables(Shader&, const ShaderNode&, ShaderGenerator&, GenContext&) const
 {
 }
 
-void ShaderNodeImpl::emitFunctionDefinition(ShaderStage&, const ShaderNode&, ShaderGenerator&) const
+void ShaderNodeImpl::emitFunctionDefinition(ShaderStage&, const ShaderNode&, ShaderGenerator&, GenContext&) const
 {
-    // default implementation has no function definition
 }
 
-void ShaderNodeImpl::emitFunctionCall(ShaderStage&, const ShaderNode&, GenContext&, ShaderGenerator&) const
+void ShaderNodeImpl::emitFunctionCall(ShaderStage&, const ShaderNode&, ShaderGenerator&, GenContext&) const
 {
-    // default implementation has no source code
 }
 
 ShaderGraph* ShaderNodeImpl::getGraph() const
 {
-    // default implementation has no graph
     return nullptr;
 }
 

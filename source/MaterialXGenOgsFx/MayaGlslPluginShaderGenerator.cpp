@@ -21,7 +21,7 @@ void MayaGlslPluginShader::createUniform(const string& stage, const string& bloc
     // we need to override its default semantic
     if (semantic.empty() && name == VIEW_POSITON_UNIFORM_NAME)
     {
-        HwShader::createUniform(stage, block, type, name, path, VIEW_POSITON_SEMANTIC, value);
+        HW::createUniform(stage, block, type, name, path, VIEW_POSITON_SEMANTIC, value);
         return;
     }
     ParentClass::createUniform(stage, block, type, name, path, semantic, value);
@@ -33,7 +33,7 @@ void MayaGlslPluginShader::createAppData(const TypeDesc* type, const string& nam
     // we need to override its default semantic
     if (semantic.empty() && name == VIEW_POSITON_UNIFORM_NAME)
     {
-        HwShader::createAppData(type, name, VIEW_POSITON_SEMANTIC);
+        HW::createAppData(type, name, VIEW_POSITON_SEMANTIC);
         return;
     }
     ParentClass::createAppData(type, name, semantic);
@@ -45,7 +45,7 @@ void MayaGlslPluginShader::createVertexData(const TypeDesc* type, const string& 
     // we need to override its default semantic
     if (semantic.empty() && name == VIEW_POSITON_UNIFORM_NAME)
     {
-        HwShader::createVertexData(type, name, VIEW_POSITON_SEMANTIC);
+        HW::createVertexData(type, name, VIEW_POSITON_SEMANTIC);
         return;
     }
     ParentClass::createVertexData(type, name, semantic);
