@@ -6,7 +6,7 @@
 #include <PyMaterialX/PyMaterialX.h>
 
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenOsl/ArnoldShaderGenerator.h>
+#include <MaterialXGenArnold/ArnoldShaderGenerator.h>
 
 #include <string>
 

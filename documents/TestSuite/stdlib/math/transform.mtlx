@@ -226,14 +226,14 @@ Basic transform function tests each test is in a separate graph for each variati
     <position name="position1" type="vector3">
       <parameter name="space" type="string" value="object" />
     </position>
-    <output name="out" type="vector3" output="out" nodename="transformpoint2" />
+    <output name="out" type="vector3" nodename="transformpoint2" />
     <transformpoint name="transformpoint1" type="vector3">
-      <input name="in" type="vector3" value="0.0, 0.0, 0.0" output="out" nodename="position1" />
+      <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="position1" />
       <input name="fromspace" type="string" value="object" />
       <input name="tospace" type="string" value="world" />
     </transformpoint>
     <transformpoint name="transformpoint2" type="vector3">
-      <input name="in" type="vector3" value="0.0, 0.0, 0.0" output="out" nodename="transformpoint1" />
+      <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="transformpoint1" />
       <input name="fromspace" type="string" value="world" />
       <input name="tospace" type="string" value="object" />
     </transformpoint>
@@ -242,14 +242,14 @@ Basic transform function tests each test is in a separate graph for each variati
     <normal name="normal1" type="vector3">
       <parameter name="space" type="string" value="object" />
     </normal>
-    <output name="out" type="vector3" output="out" nodename="transformnormal2" />
+    <output name="out" type="vector3" nodename="transformnormal2" />
     <transformnormal name="transformnormal1" type="vector3">
-      <input name="in" type="vector3" value="0.0, 0.0, 0.0" output="out" nodename="normal1" />
+      <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="normal1" />
       <input name="fromspace" type="string" value="object" />
       <input name="tospace" type="string" value="world" />
     </transformnormal>
     <transformnormal name="transformnormal2" type="vector3">
-      <input name="in" type="vector3" value="0.0, 0.0, 0.0" output="out" nodename="transformnormal1" />
+      <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="transformnormal1" />
       <input name="fromspace" type="string" value="world" />
       <input name="tospace" type="string" value="object" />
     </transformnormal>

@@ -8,12 +8,10 @@
 namespace py = pybind11;
 
 void bindPyOslShaderGenerator(py::module& mod);
-void bindPyArnoldShaderGenerator(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXGenOsl, mod)
 {
     mod.doc() = "Module containing Python bindings for the MaterialXGenOsl library (C++)";
 
     bindPyOslShaderGenerator(mod);
-    bindPyArnoldShaderGenerator(mod);
 }
