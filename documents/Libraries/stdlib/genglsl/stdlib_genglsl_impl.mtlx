@@ -469,6 +469,7 @@
   <implementation name="IM_transformnormal_vector4_genglsl" nodedef="ND_transformnormal_vector4" language="genglsl"/>
   <implementation name="IM_transformnormal_vector3M_genglsl" nodedef="ND_transformnormal_vector3M"  file="stdlib/genglsl/mx_transformnormalM.inline" language="genglsl"/>
   <implementation name="IM_transformnormal_vector4M_genglsl" nodedef="ND_transformnormal_vector4M"  file="stdlib/genglsl/mx_transformnormalM.inline" language="genglsl"/>
+  <implementation name="IM_transformnormal_vector3M4_genglsl" nodedef="ND_transformnormal_vector3M4" function="transformnormal3_matrix44" file="stdlib/genglsl/mx_transformnormal3_matrix44.glsl" language="genglsl"/>
 
   <!-- <transpose> -->
   <implementation name="IM_transpose_matrix33_genglsl" nodedef="ND_transpose_matrix33" file="stdlib/genglsl/mx_transpose.inline" language="genglsl"/>
