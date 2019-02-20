@@ -22,25 +22,14 @@ class ConvolutionNode : public ShaderNodeImpl
 
     // Derived classes are responsible for computing offset strings relative to the center sample
     // The sample size and offset type are passed in as arguments.
-    virtual void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings) const = 0;
+    virtual void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, 
+                                            unsigned int filterWidth, StringVec& offsetStrings) const = 0;
 
     /// Generate upstream / input sampling code in uv space and cache the output variable names which 
     /// will hold the sample values after execution.
     void emitInputSamplesUV(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context,
-                            StringVec& sampleStrings) const;
-
-    /// Number of samples.
-    unsigned int _sampleCount;
-
-    /// Filter size. Default value is 1
-    float _filterSize;
-
-    /// Filter offset. Default value is 0
-    float _filterOffset;
-
-    /// Name of function to compute sample size in uv space. Takes uv, filter size, and filter offset
-    /// as input, and return a 2 channel vector as output
-    string _sampleSizeFunctionUV;
+                            unsigned int sampleCount, unsigned int filterWidth, float filterSize, float filterOffset,
+                            const string& sampleSizeFunctionUV,  StringVec& sampleStrings) const;
 };
 
 } // namespace MaterialX

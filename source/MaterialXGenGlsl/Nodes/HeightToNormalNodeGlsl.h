@@ -22,10 +22,8 @@ class HeightToNormalNodeGlsl : public ConvolutionNode
     bool acceptsInputType(const TypeDesc* type) const override;
 
     /// Compute offset strings for sampling
-    void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings) const override;
-
-    /// Name of filter function to call to compute normals from input samples
-    string _filterFunctionName;
+    void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, 
+                                    unsigned int filterWidth, StringVec& offsetStrings) const override;
 };
 
 } // namespace MaterialX

@@ -4,12 +4,24 @@
 namespace MaterialX
 {
 
+namespace
+{
+    /// Name of filter function to call to compute normals from input samples
+    const string filterFunctionName = "mx_normal_from_samples_sobel";
+
+    /// Name of function to compute sample size in uv space. Takes uv, filter size, and filter offset
+    /// as input, and return a 2 channel vector as output
+    const string sampleSizeFunctionUV = "mx_compute_sample_size_uv";
+
+    const unsigned int sampleCount = 9;
+    const unsigned int filterWidth = 3;
+    const float filterSize = 1.0;
+    const float filterOffset = 0.0;
+}
+
 HeightToNormalNodeGlsl::HeightToNormalNodeGlsl()
     : ConvolutionNode()
 {
-    _sampleCount = 9;
-    _sampleSizeFunctionUV.assign("mx_compute_sample_size_uv");
-    _filterFunctionName.assign("mx_normal_from_samples_sobel");
 }
 
 ShaderNodeImplPtr HeightToNormalNodeGlsl::create()
@@ -17,10 +29,10 @@ ShaderNodeImplPtr HeightToNormalNodeGlsl::create()
     return std::shared_ptr<HeightToNormalNodeGlsl>(new HeightToNormalNodeGlsl());
 }
 
-void HeightToNormalNodeGlsl::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings) const
+void HeightToNormalNodeGlsl::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, 
+                                                        unsigned int, StringVec& offsetStrings) const
 {
     // Build a 3x3 grid of samples that are offset by the provided sample size
-    offsetStrings.clear();
     for (int row = -1; row <= 1; row++)
     {
         for (int col = -1; col <= 1; col++)
@@ -52,21 +64,22 @@ BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     // the variables to assign to the sample grid.
     //  
     StringVec sampleStrings;
-    emitInputSamplesUV(stage, node, shadergen, context, sampleStrings);
+    emitInputSamplesUV(stage, node, shadergen, context, sampleCount, filterWidth, 
+        filterSize, filterOffset, sampleSizeFunctionUV, sampleStrings);
 
     const ShaderOutput* output = node.getOutput();
 
     // Emit code to evaluate samples.
     //
     string sampleName(output->variable + "_samples");
-    shadergen.emitLine(stage, "float " + sampleName + "[" + std::to_string(_sampleCount) + "]");
-    for (unsigned int i = 0; i < _sampleCount; i++)
+    shadergen.emitLine(stage, "float " + sampleName + "[" + std::to_string(sampleCount) + "]");
+    for (unsigned int i = 0; i < sampleCount; i++)
     {
         shadergen.emitLine(stage, sampleName + "[" + std::to_string(i) + "] = " + sampleStrings[i]);
     }
     shadergen.emitLineBegin(stage);
     shadergen.emitOutput(stage, context, output, true, false);
-    shadergen.emitString(stage, " = " + _filterFunctionName);
+    shadergen.emitString(stage, " = " + filterFunctionName);
     shadergen.emitString(stage, "(" + sampleName + ", ");
     shadergen.emitInput(stage, context, scaleInput);
     shadergen.emitString(stage, ")");

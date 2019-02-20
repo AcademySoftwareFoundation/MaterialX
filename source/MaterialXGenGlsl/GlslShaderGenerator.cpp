@@ -253,7 +253,11 @@ void GlslShaderGenerator::emitVertexStage(ShaderStage& stage, const ShaderGraph&
 
     // Add all constants
     const VariableBlock& constants = stage.getConstantBlock();
-    emitVariableBlock(stage, constants, _syntax->getConstantQualifier(), SEMICOLON);
+    if (!constants.empty())
+    {
+        emitVariableBlock(stage, constants, _syntax->getConstantQualifier(), SEMICOLON);
+        emitLineBreak(stage);
+    }
 
     // Add all uniforms
     for (auto it : stage.getUniformBlocks())
@@ -315,7 +319,11 @@ void GlslShaderGenerator::emitPixelStage(ShaderStage& stage, const ShaderGraph& 
 
     // Add all constants
     const VariableBlock& constants = stage.getConstantBlock();
-    emitVariableBlock(stage, constants, _syntax->getConstantQualifier(), SEMICOLON);
+    if (!constants.empty())
+    {
+        emitVariableBlock(stage, constants, _syntax->getConstantQualifier(), SEMICOLON);
+        emitLineBreak(stage);
+    }
 
     // Add all uniforms
     for (auto it : stage.getUniformBlocks())

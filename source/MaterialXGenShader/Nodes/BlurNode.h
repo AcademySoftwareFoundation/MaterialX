@@ -18,33 +18,27 @@ class BlurNode : public ConvolutionNode
     /// Constructor
     BlurNode();
 
-    /// Box filter option on blur
-    static string BOX_FILTER;
-    /// Box filter weights variable name
-    static string BOX_WEIGHTS_VARIABLE;
-
-    /// Gaussian filter option on blur
-    static string GAUSSIAN_FILTER;
-    /// Gaussian filter weights variable name
-    static string GAUSSIAN_WEIGHTS_VARIABLE;
-
     /// Return if given type is an acceptible input
     bool acceptsInputType(const TypeDesc* type) const override;
-    
+
     /// Compute offset strings for sampling
-    void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings) const override;
+    void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString,
+                                    unsigned int filterWidth, StringVec& offsetStrings) const override;
 
-    /// Name of weight array variable
-    std::string _weightArrayVariable;
+    /// Box filter option on blur
+    static const string BOX_FILTER;
+    /// Box filter weights variable name
+    static const string BOX_WEIGHTS_VARIABLE;
 
-    /// Type of filter 
-    string _filterType;
+    /// Gaussian filter option on blur
+    static const string GAUSSIAN_FILTER;
+    /// Gaussian filter weights variable name
+    static const string GAUSSIAN_WEIGHTS_VARIABLE;
 
-    /// Width of filter
-    unsigned int _filterWidth;
-
-    /// Language dependent input type string
-    string _inputTypeString;
+    /// String constants
+    static const string IN_STRING;
+    static const string FILTER_TYPE_STRING;
+    static const string FILTER_SIZE_STRING;
 };
 
 } // namespace MaterialX
