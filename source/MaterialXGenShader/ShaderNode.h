@@ -266,13 +266,6 @@ class ShaderNode
     const vector<ShaderInput*>& getInputs() const { return _inputOrder; }
     const vector<ShaderOutput*>& getOutputs() const { return _outputOrder; }
 
-    /// Get input which is used for sampling. If there is none
-    /// then a null pointer is returned.
-    ShaderInput* getSamplingInput() const
-    {
-        return _samplingInput;
-    }
-
     /// Returns true if an input is editable by users.
     /// Editable inputs are allowed to be published as shader uniforms
     /// and hence must be presentable in a user interface.
@@ -305,8 +298,6 @@ class ShaderNode
 
     std::unordered_map<string, ShaderOutputPtr> _outputMap;
     vector<ShaderOutput*> _outputOrder;
-
-    ShaderInput* _samplingInput;
 
     ShaderNodeImplPtr _impl;
     ScopeInfo _scopeInfo;

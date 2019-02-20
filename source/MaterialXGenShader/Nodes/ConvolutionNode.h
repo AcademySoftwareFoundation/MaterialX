@@ -25,11 +25,18 @@ class ConvolutionNode : public ShaderNodeImpl
     virtual void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, 
                                             unsigned int filterWidth, StringVec& offsetStrings) const = 0;
 
+    /// Get input which is used for sampling. If there is none
+    /// then a null pointer is returned.
+    virtual const ShaderInput* getSamplingInput(const ShaderNode& node) const;
+
     /// Generate upstream / input sampling code in uv space and cache the output variable names which 
     /// will hold the sample values after execution.
     void emitInputSamplesUV(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context,
                             unsigned int sampleCount, unsigned int filterWidth, float filterSize, float filterOffset,
                             const string& sampleSizeFunctionUV,  StringVec& sampleStrings) const;
+
+    static const string SAMPLE2D_INPUT;
+    static const string SAMPLE3D_INPUT;
 };
 
 } // namespace MaterialX

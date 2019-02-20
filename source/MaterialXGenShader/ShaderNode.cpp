@@ -136,21 +136,8 @@ ShaderNode::ShaderNode(const ShaderGraph* parent, const string& name)
     : _parent(parent)
     , _name(name)
     , _classification(0)
-    , _samplingInput(nullptr)
     , _impl(nullptr)
 {
-}
-
-static bool elementCanBeSampled2D(const Element& element)
-{
-    const string TEXCOORD_NAME("texcoord");
-    return (element.getName() == TEXCOORD_NAME);
-}
-
-static bool elementCanBeSampled3D(const Element& element)
-{
-    const string POSITION_NAME("position");
-    return (element.getName() == POSITION_NAME);
 }
 
 ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, GenContext& context)
@@ -192,7 +179,6 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
             groupClassification = Classification::CONVOLUTION2D;
         }
     }
-    newNode->_samplingInput = nullptr;
 
     // Create interface from nodedef
     const vector<ValueElementPtr> nodeDefInputs = nodeDef.getChildrenOfType<ValueElement>();
@@ -223,13 +209,6 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
                 {
                     input->value = elem->getValue();
                 }
-            }
-
-            // Determine if this input can be sampled
-            if ((groupClassification == Classification::SAMPLE2D && elementCanBeSampled2D(*elem)) ||
-                (groupClassification == Classification::SAMPLE3D && elementCanBeSampled3D(*elem)))
-            {
-                newNode->_samplingInput = input;
             }
         }
     }

@@ -30,6 +30,10 @@ namespace
 
 namespace MaterialX
 {
+
+const string ConvolutionNode::SAMPLE2D_INPUT = "texcoord";
+const string ConvolutionNode::SAMPLE3D_INPUT = "position";
+
 ConvolutionNode::ConvolutionNode()
 {
 }
@@ -63,6 +67,24 @@ void ConvolutionNode::createVariables(Shader& shader, const ShaderNode&, ShaderG
     constants.add(Type::FLOATARRAY, "c_gaussian_filter_weights", EMPTY_STRING, Value::createValue<vector<float>>(GAUSSIAN_WEIGHT_ARRAY));
 }
 
+/// Get input which is used for sampling. If there is none
+/// then a null pointer is returned.
+const ShaderInput* ConvolutionNode::getSamplingInput(const ShaderNode& node) const
+{
+    // Determine if this input can be sampled
+    if (node.hasClassification(ShaderNode::Classification::SAMPLE2D))
+    {
+        const ShaderInput* input = node.getInput(SAMPLE2D_INPUT);
+        return input->type == Type::VECTOR2 ? input : nullptr;
+    }
+    else if (node.hasClassification(ShaderNode::Classification::SAMPLE3D))
+    {
+        const ShaderInput* input = node.getInput(SAMPLE3D_INPUT);
+        return input->type == Type::VECTOR3 ? input : nullptr;
+    }
+    return nullptr;
+}
+
 void ConvolutionNode::emitInputSamplesUV(ShaderStage& stage, const ShaderNode& node, 
                                          ShaderGenerator& shadergen, GenContext& context, 
                                          unsigned int sampleCount, unsigned int filterWidth, 
@@ -86,7 +108,7 @@ void ConvolutionNode::emitInputSamplesUV(ShaderStage& stage, const ShaderNode& n
             {
                 // Find out which input needs to be sampled multiple times
                 // If the sample count is 1 then the sample code has already been emitted
-                ShaderInput* samplingInput = (sampleCount > 1) ? upstreamNode->getSamplingInput() : nullptr;
+                const ShaderInput* samplingInput = (sampleCount > 1) ? getSamplingInput(*upstreamNode) : nullptr;
 
                 // TODO: For now we only support uv space sampling
                 if (samplingInput && samplingInput->type != Type::VECTOR2)
