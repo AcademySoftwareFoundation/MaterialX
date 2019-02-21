@@ -989,32 +989,34 @@ TEST_CASE("Hello World", "[shadergen]")
         validateOSL(fileName, errorResult);
         REQUIRE(errorResult.size() == 0);
     }
-#endif // MATERIALX_BUILD_GEN_GLSL
+#endif // MATERIALX_BUILD_GEN_OSL
 
 #ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shadergen = mx::OgsFxShaderGenerator::create();
+
+        mx::GenContext context;
         context.registerSourceCodeSearchPath(searchPath);
 
         // Test shader generation from nodegraph
         mx::ShaderPtr shader = shadergen->generate(exampleName, output1, context);
         REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+        REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
         // Write out to file for inspection
         // TODO: Use validation in MaterialXRender library
         std::ofstream file;
         file.open(RESULT_DIRECTORY + shader->getName() + "_graph.ogsfx");
-        file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+        file << shader->getSourceCode(mx::HW::FX_STAGE);
         file.close();
 
         // Test shader generation from shaderref
         shader = shadergen->generate(exampleName, shaderRef, context);
         REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+        REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
         // Write out to file for inspection
         // TODO: Use validation in MaterialXRender library
         file.open(RESULT_DIRECTORY + shader->getName() + "_shaderref.ogsfx");
-        file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+        file << shader->getSourceCode(mx::HW::FX_STAGE);
         file.close();
     }
 #endif // MATERIALX_BUILD_GEN_OGSFX
@@ -1143,6 +1145,8 @@ TEST_CASE("Conditionals", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
+
+        mx::GenContext context;
         context.registerSourceCodeSearchPath(searchPath);
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, output1, context);
@@ -1157,9 +1161,9 @@ TEST_CASE("Conditionals", "[shadergen]")
 
         // All of the nodes should have been removed by optimization
         // leaving a graph with a single constant value
-        REQUIRE(shader->getGraph()->getNodes().empty());
-        REQUIRE(shader->getGraph()->getOutputSocket()->value != nullptr);
-        REQUIRE(shader->getGraph()->getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
+        REQUIRE(shader->getGraph().getNodes().empty());
+        REQUIRE(shader->getGraph().getOutputSocket()->value != nullptr);
+        REQUIRE(shader->getGraph().getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
     }
 #endif // MATERIALX_BUILD_GEN_OGSFX
 
@@ -1289,17 +1293,19 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
+
+        mx::GenContext context;
         context.registerSourceCodeSearchPath(searchPath);
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, context);
         REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+        REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
 
         // Write out to file for inspection
         // TODO: Use validation in MaterialXRender library
         std::ofstream file;
         file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
-        file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+        file << shader->getSourceCode(mx::HW::FX_STAGE);
     }
 #endif // MATERIALX_BUILD_GEN_OGSFX
 
@@ -1441,17 +1447,19 @@ TEST_CASE("Noise", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_OGSFX
         {
             mx::ShaderGeneratorPtr shadergen = mx::OgsFxShaderGenerator::create();
+            
+            mx::GenContext context;
             context.registerSourceCodeSearchPath(searchPath);
 
             // Test shader generation from nodegraph
             mx::ShaderPtr shader = shadergen->generate(shaderName, output1, context);
             REQUIRE(shader != nullptr);
-            REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+            REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
             // Write out to file for inspection
             // TODO: Use validation in MaterialXRender library
             std::ofstream file;
             file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
-            file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+            file << shader->getSourceCode(mx::HW::FX_STAGE);
             file.close();
         }
 #endif // MATERIALX_BUILD_GEN_OGSFX
@@ -1553,19 +1561,19 @@ TEST_CASE("Unique Names", "[shadergen]")
 
         mx::ShaderPtr shader = shaderGenerator->generate(shaderName, output1, context);
         REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+        REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
 
         // Make sure the output and internal node output has their variable names set
-        mx::ShaderGraphOutputSocket* sgOutputSocket = shader->getGraph()->getOutputSocket();
+        const mx::ShaderGraphOutputSocket* sgOutputSocket = shader->getGraph().getOutputSocket();
         REQUIRE(sgOutputSocket->variable != "out");
-        mx::ShaderNode* sgNode1 = shader->getGraph()->getNode(node1->getName());
+        const mx::ShaderNode* sgNode1 = shader->getGraph().getNode(node1->getName());
         REQUIRE(sgNode1->getOutput()->variable == "unique_names_out");
 
         // Write out to file for inspection
         // TODO: Use validation in MaterialXRender library
         std::ofstream file;
         file.open(RESULT_DIRECTORY + exampleName + ".ogsfx");
-        file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+        file << shader->getSourceCode(mx::HW::FX_STAGE);
     }
 #endif // MATERIALX_BUILD_GEN_OGSFX
 
@@ -1678,13 +1686,13 @@ TEST_CASE("Subgraphs", "[shadergen]")
 
             mx::ShaderPtr shader = shaderGenerator->generate(graphName, output, context);
             REQUIRE(shader != nullptr);
-            REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+            REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
 
             // Write out to file for inspection
             // TODO: Use validation in MaterialXRender library
             std::ofstream file;
             file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
-            file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+            file << shader->getSourceCode(mx::HW::FX_STAGE);
         }
     }
 #endif // MATERIALX_BUILD_OGSX
@@ -1798,7 +1806,7 @@ TEST_CASE("Materials", "[shadergen]")
                 // TODO: Use validation in MaterialXRender library
                 std::ofstream file;
                 file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
-                file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+                file << shader->getSourceCode(mx::HW::FX_STAGE);
             }
         }
     }
@@ -1905,13 +1913,13 @@ TEST_CASE("Color Spaces", "[shadergen]")
 
         mx::ShaderPtr shader = shaderGenerator->generate(material->getName(), shaderRef, context);
         REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+        REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
 
         // Write out to file for inspection
         // TODO: Use validation in MaterialXRender library
         std::ofstream file;
         file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
-        file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+        file << shader->getSourceCode(mx::HW::FX_STAGE);
     }
 #endif // MATERIALX_BUILD_GEN_OGSFX
 
@@ -2070,13 +2078,13 @@ TEST_CASE("BSDF Layering", "[shadergen]")
 
             mx::ShaderPtr shader = shaderGenerator->generate(shaderName, elem, context);
             REQUIRE(shader != nullptr);
-            REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+            REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
 
             // Write out to file for inspection
             // TODO: Use validation in MaterialXRender library
             std::ofstream file;
             file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
-            file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+            file << shader->getSourceCode(mx::HW::FX_STAGE);
         }
 #endif // MATERIALX_BUILD_GEN_OGSFX
 
@@ -2237,13 +2245,13 @@ TEST_CASE("Transparency", "[shadergen]")
 
             mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, context);
             REQUIRE(shader != nullptr);
-            REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+            REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
 
             // Write out to file for inspection
             // TODO: Use validation in MaterialXView library
             std::ofstream file;
             file.open(RESULT_DIRECTORY + shader->getName() + it.first);
-            file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+            file << shader->getSourceCode(mx::HW::FX_STAGE);
         }
     }
 #endif // MATERIALX_BUILD_GEN_OGSFX
@@ -2366,13 +2374,13 @@ TEST_CASE("Surface Layering", "[shadergen]")
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, context);
         REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE).length() > 0);
+        REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
 
         // Write out to file for inspection
         // TODO: Use validation in MaterialXRender library
         std::ofstream file;
         file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
-        file << shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+        file << shader->getSourceCode(mx::HW::FX_STAGE);
     }
 #endif // MATERIALX_BUILD_GEN_OGSFX
 

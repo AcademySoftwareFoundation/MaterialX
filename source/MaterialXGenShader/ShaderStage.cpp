@@ -27,17 +27,28 @@ Variable::Variable(const VariableBlock* block, const TypeDesc* type, const strin
 
 Variable& VariableBlock::operator[](const string& name)
 {
-    auto it = _variableMap.find(name);
-    if (it == _variableMap.end())
+    Variable* v = find(name);
+    if (!v)
     {
         throw ExceptionShaderGenError("No variable named '" + name + "' exists for block '" + getName() + "'");
     }
-    return *it->second;
+    return *v;
 }
 
 const Variable& VariableBlock::operator[](const string& name) const
 {
     return const_cast<VariableBlock*>(this)->operator[](name);
+}
+
+Variable* VariableBlock::find(const string& name)
+{
+    auto it = _variableMap.find(name);
+    return it != _variableMap.end() ? it->second.get() : nullptr;
+}
+
+const Variable* VariableBlock::find(const string& name) const
+{
+    return const_cast<VariableBlock*>(this)->find(name);
 }
 
 void VariableBlock::add(const TypeDesc* type, const string& name, const string& semantic,

@@ -10,13 +10,7 @@
 namespace MaterialX
 {
 
-const string PIXEL_STAGE = "PS";
-const string APP_INPUTS = "AppInputs";
-const string PRIVATE_UNIFORMS = "PrivateUniforms";
-const string PUBLIC_UNIFORMS = "PublicUniforms";
-const string PIXEL_OUTPUTS = "PixelOutputs";
-
-Shader::Shader(const string& name, ShaderGraphPtr graph)
+ Shader::Shader(const string& name, ShaderGraphPtr graph)
     : _name(name)
     , _graph(graph)
 {

@@ -467,7 +467,7 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
                 options.hwTransparency = mx::isTransparentSurface(element, shaderGenerator);
                 transpTimer.endTimer();
                 AdditiveScopedTimer generationTimer(profileTimes.ogsfxTimes.generationTime, "OGSFX generation time");
-                shader = shaderGenerator.generate(shaderName, element, options);
+                shader = shaderGenerator.generate(shaderName, element, context);
                 generationTimer.endTimer();
 
                 if (shader && testOptions.dumpGeneratedCode)
@@ -475,7 +475,7 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
                     AdditiveScopedTimer dumpTimer(profileTimes.ogsfxTimes.ioTime, "OGSFX io time");
                     std::ofstream file;
                     file.open(shaderPath + ".ogsfx");
-                    file << shader->getSourceCode(MaterialX::OgsFxShader::FINAL_FX_STAGE);
+                    file << shader->getSourceCode(mx::HW::FX_STAGE);
                     file.close();
                 }
             }
@@ -488,7 +488,7 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
                 {
                     std::ofstream file;
                     file.open(shaderPath + ".ogsfx");
-                    file << shader->getSourceCode(MaterialX::OgsFxShader::FINAL_FX_STAGE);
+                    file << shader->getSourceCode(mx::HW::FX_STAGE);
                     file.close();
                 }
 
@@ -502,7 +502,7 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
                 return;
             }
 
-            const std::string& sourceCode = shader->getSourceCode(mx::OgsFxShader::FINAL_FX_STAGE);
+            const std::string& sourceCode = shader->getSourceCode(mx::HW::FX_STAGE);
             CHECK(sourceCode.length() > 0);
         }
     }
@@ -1312,7 +1312,6 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
     {
         AdditiveScopedTimer ogsfxSetupTime(profileTimes.ogsfxTimes.setupTime, "OGSFX setup time");
         ogsfxShaderGenerator = std::static_pointer_cast<mx::OgsFxShaderGenerator>(mx::OgsFxShaderGenerator::create());
-        ogsfxShaderGenerator->registerSourceCodeSearchPath(searchPath);
         ogsfxSetupTime.endTimer();
     }
 #endif
@@ -1565,7 +1564,8 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
                                 mx::InterfaceElementPtr nodeGraphImpl = nodeGraph ? nodeGraph->getImplementation() : nullptr;
                                 usedImpls.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl->getName());
                             }
-                            runOGSFXValidation(elementName, element, *ogsfxShaderGenerator, ogsfxLightHandler, doc, ogsfxLog, options, profileTimes, outputPath);
+                            runOGSFXValidation(elementName, element, *ogsfxShaderGenerator, context, 
+                                               ogsfxLightHandler, doc, ogsfxLog, options, profileTimes, outputPath);
                         }
                     }
 #endif

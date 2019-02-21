@@ -37,20 +37,25 @@ class Variable
     Variable(const VariableBlock* block, const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING,
         ValuePtr value = nullptr, const string& path = EMPTY_STRING);
 
+    void setType(const TypeDesc* type) { _type = type; }
     const TypeDesc* getType() const { return _type; }
 
+    void setName(const string& name) { _name = name; }
     const string& getName() const { return _name; }
 
+    void setFullName(const string& fullName) { _fullName = fullName; }
     const string& getFullName() const { return _fullName; }
 
+    void setSemantic(const string& semantic) { _semantic = semantic; }
     const string& getSemantic() const { return _semantic; }
 
+    void setValue(ValuePtr value) { _value = value; }
     ValuePtr getValue() const { return _value; }
 
+    void setPath(const string& path) { _path = path; }
     const string& getPath() const { return _path; }
 
     void setCalculated() { _calculated = true; }
-
     bool isCalculated() const { return _calculated; }
 
     void getArraySuffix(string& result) const
@@ -102,6 +107,10 @@ class VariableBlock
     Variable& operator[](const string& name);
 
     const Variable& operator[](const string& name) const;
+
+    Variable* find(const string& name);
+
+    const Variable* find(const string& name) const;
 
     void add(const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING,
         ValuePtr value = nullptr, const string& path = EMPTY_STRING);
