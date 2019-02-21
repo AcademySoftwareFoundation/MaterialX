@@ -28,6 +28,10 @@ namespace HW
     extern const string CLOSURE_CONTEXT;
 }
 
+/// Class representing a context for closure evaluation on hardware targets.
+/// On hardware BSDF closures are evaluated differently in reflection, transmission
+/// or environment/indirect contexts. This class represents with context we are in
+/// and if extra arguments and function decorators are needed for that context.
 class HwClosureContext
 {
 public:

@@ -13,19 +13,8 @@ namespace MaterialX
 
 using GenContextPtr = std::shared_ptr<class GenContext>;
 
-/// Class representing an shader generation context for a node.
-///
-/// For some shader generators a node might need customization to it's implementation 
-/// depending on in which context the node is used. This class handles customizations
-/// by adding a suffix to the function name to distinguish between the functions for 
-/// different contexts. I also supports adding extra arguments to the node's function.
-///
-/// An example of where this is required if for BSDF and EDF nodes for HW targets 
-/// where extra arguments are needed to give directions vectors for evaluation. 
-/// For BSDF nodes another use-case is to distinguish between evaluation in a direct lighting
-/// context and an indirect lighting context where different versions of the node's function
-/// is required.
-/// 
+/// A context class for shader generation.
+/// Used for thread local storage of data needed during shader generation.
 class GenContext
 {
   public:
@@ -49,34 +38,6 @@ class GenContext
     {
         return _options;
     }
-
-    /// Add an input suffix to be used for the node function in this context.
-    /// @param input Node input
-    /// @param suffix Suffix string
-    void addInputSuffix(const ShaderInput* input, const string& suffix);
-
-    /// Remove an input suffix to be used for the node function in this context.
-    /// @param input Node input
-    void removeInputSuffix(const ShaderInput* input);
-
-    /// Get an input suffix to be used for the node function in this context.
-    /// @param input Node input
-    /// @param suffix Suffix string returned. Is empty if not found.
-    void getInputSuffix(const ShaderInput* input, string& suffix) const;
-
-    /// Add an output suffix to be used for the node function in this context.
-    /// @param output Node output
-    /// @param suffix Suffix string
-    void addOutputSuffix(const ShaderOutput* output, const string& suffix);
-
-    /// Remove an output suffix to be used for the node function in this context.
-    /// @param output Node output
-    void removeOutputSuffix(const ShaderOutput* output);
-
-    /// Get an output suffix to be used for the node function in this context.
-    /// @param output Node output
-    /// @param suffix Suffix string returned. Is empty if not found.
-    void getOutputSuffix(const ShaderOutput* output, string& suffix) const;
 
     /// Add to the search path used for finding source code.
     void registerSourceCodeSearchPath(const FilePath& path)
@@ -138,6 +99,34 @@ class GenContext
         return it != _userData.end() && !it->second.empty() ? (T*)it->second.back() : nullptr;
     }
 
+    /// Add an input suffix to be used for the input in this context.
+    /// @param input Node input
+    /// @param suffix Suffix string
+    void addInputSuffix(const ShaderInput* input, const string& suffix);
+
+    /// Remove an input suffix to be used for the input in this context.
+    /// @param input Node input
+    void removeInputSuffix(const ShaderInput* input);
+
+    /// Get an input suffix to be used for the input in this context.
+    /// @param input Node input
+    /// @param suffix Suffix string returned. Is empty if not found.
+    void getInputSuffix(const ShaderInput* input, string& suffix) const;
+
+    /// Add an output suffix to be used for the output in this context.
+    /// @param output Node output
+    /// @param suffix Suffix string
+    void addOutputSuffix(const ShaderOutput* output, const string& suffix);
+
+    /// Remove an output suffix to be used for the output in this context.
+    /// @param output Node output
+    void removeOutputSuffix(const ShaderOutput* output);
+
+    /// Get an output suffix to be used for the output in this context.
+    /// @param output Node output
+    /// @param suffix Suffix string returned. Is empty if not found.
+    void getOutputSuffix(const ShaderOutput* output, string& suffix) const;
+
 protected:
     // Generation options.
     GenOptions _options;
@@ -148,14 +137,14 @@ protected:
     // Cached shader node implementations.
     std::unordered_map<string, ShaderNodeImplPtr> _nodeImpls;
 
+    // User data
+    std::unordered_map<string, vector<void*>> _userData;
+
     // List of input suffixes
     std::unordered_map<const ShaderInput*, string> _inputSuffix;
 
     // List of output suffixes
     std::unordered_map<const ShaderOutput*, string> _outputSuffix;
-
-    // User data
-    std::unordered_map<string, vector<void*>> _userData;
 };
 
 } // namespace MaterialX

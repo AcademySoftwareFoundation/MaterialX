@@ -3,6 +3,17 @@
 namespace MaterialX
 {
 
+void GenContext::addNodeImplementation(const string& name, const string& target, ShaderNodeImplPtr impl)
+{
+    _nodeImpls[name + target] = impl;
+}
+
+ShaderNodeImplPtr GenContext::findNodeImplementation(const string& name, const string& target)
+{
+    auto it = _nodeImpls.find(name + target);
+    return it != _nodeImpls.end() ? it->second : nullptr;
+}
+
 void GenContext::addInputSuffix(const ShaderInput* input, const string& suffix)
 {
     _inputSuffix[input] = suffix;
@@ -42,17 +53,5 @@ void GenContext::getOutputSuffix(const ShaderOutput* output, string& suffix) con
         suffix = iter->second;
     }
 }
-
-void GenContext::addNodeImplementation(const string& name, const string& target, ShaderNodeImplPtr impl)
-{
-    _nodeImpls[name + target] = impl;
-}
-
-ShaderNodeImplPtr GenContext::findNodeImplementation(const string& name, const string& target)
-{
-    auto it = _nodeImpls.find(name + target);
-    return it != _nodeImpls.end() ? it->second : nullptr;
-}
-
 
 } // namespace MaterialX
