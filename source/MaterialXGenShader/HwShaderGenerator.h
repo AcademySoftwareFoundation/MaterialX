@@ -83,7 +83,7 @@ public:
 
 public:
     /// Add the function call for a single node.
-    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, bool checkScope) override;
+    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, bool checkScope) const override;
 
     /// Set the maximum number of light sources that can be active at once.
     void setMaxActiveLightSources(unsigned int count) 
@@ -129,13 +129,13 @@ protected:
     HwShaderGenerator(SyntaxPtr syntax);
 
     /// Create and initialize a new HW shader for shader generation.
-    virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context);
+    virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
 
     /// Override the source code implementation creator.
-    ShaderNodeImplPtr createSourceCodeImplementation(ImplementationPtr impl) override;
+    ShaderNodeImplPtr createSourceCodeImplementation(ImplementationPtr impl) const override;
 
     /// Override the compound implementation creator.
-    ShaderNodeImplPtr createCompoundImplementation(NodeGraphPtr impl) override;
+    ShaderNodeImplPtr createCompoundImplementation(NodeGraphPtr impl) const override;
 
     unsigned int _maxActiveLightSources;
     LightShaderMap _boundLightShaders;

@@ -8,7 +8,7 @@ ShaderNodeImplPtr GeomColorNodeGlsl::create()
     return std::make_shared<GeomColorNodeGlsl>();
 }
 
-void GeomColorNodeGlsl::createVariables(Shader& shader, const ShaderNode& node, ShaderGenerator&, GenContext&) const
+void GeomColorNodeGlsl::createVariables(Shader& shader, const ShaderNode& node, const ShaderGenerator&, GenContext&) const
 {
     const ShaderInput* indexInput = node.getInput(INDEX);
     const string index = indexInput ? indexInput->value->getValueString() : "0";
@@ -19,7 +19,7 @@ void GeomColorNodeGlsl::createVariables(Shader& shader, const ShaderNode& node, 
     addStageConnector(vs, ps, HW::VERTEX_DATA, Type::COLOR4, "color_" + index);
 }
 
-void GeomColorNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
+void GeomColorNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
 {
     const ShaderOutput* output = node.getOutput();
     const ShaderInput* indexInput = node.getInput(INDEX);

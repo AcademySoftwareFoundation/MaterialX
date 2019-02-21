@@ -177,7 +177,7 @@ class ShaderNode
 
     /// Create a new node from a nodedef
     static ShaderNodePtr create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef, 
-                                ShaderGenerator& shadergen, GenContext& context);
+                                const ShaderGenerator& shadergen, GenContext& context);
 
     static ShaderNodePtr create(const ShaderGraph* parent, const string& name, ShaderNodeImplPtr impl, 
                                 unsigned int classification = Classification::TEXTURE);
@@ -237,7 +237,7 @@ class ShaderNode
     }
 
     /// Set input values from the given node and nodedef.
-    void setValues(const Node& node, const NodeDef& nodeDef, ShaderGenerator& shadergen);
+    void setValues(const Node& node, const NodeDef& nodeDef, const ShaderGenerator& shadergen);
 
     /// Set input element paths for the given node and nodedef.
     void setPaths(const Node& node, const NodeDef& nodeDef, bool includeNodeDefInputs=true);

@@ -8,7 +8,7 @@ ShaderNodeImplPtr TangentNodeGlsl::create()
     return std::make_shared<TangentNodeGlsl>();
 }
 
-void TangentNodeGlsl::createVariables(Shader& shader, const ShaderNode& node, ShaderGenerator&, GenContext&) const
+void TangentNodeGlsl::createVariables(Shader& shader, const ShaderNode& node, const ShaderGenerator&, GenContext&) const
 {
     ShaderStage& vs = shader.getStage(HW::VERTEX_STAGE);
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
@@ -33,7 +33,7 @@ void TangentNodeGlsl::createVariables(Shader& shader, const ShaderNode& node, Sh
     }
 }
 
-void TangentNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
+void TangentNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
 {
     const ShaderInput* spaceInput = node.getInput(SPACE);
         const int space = spaceInput ? spaceInput->value->asA<int>() : -1;

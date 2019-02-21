@@ -32,7 +32,7 @@ class DefaultColorManagementSystem : public ColorManagementSystem
 
   protected:
     /// Returns an implementation name for a given transform
-    string getImplementationName(const ColorSpaceTransform& transform) override;
+    string getImplementationName(const ColorSpaceTransform& transform) const override;
 
     /// Protected constructor
     DefaultColorManagementSystem(const string& language);

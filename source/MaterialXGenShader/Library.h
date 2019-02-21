@@ -15,6 +15,9 @@
 namespace MaterialX
 {
 
+template<class T>
+using CreatorFunction = shared_ptr<T>(*)();
+
 /// @class @ExceptionShaderGenError
 /// An exception that is thrown when shader generation fails.
 class ExceptionShaderGenError : public Exception

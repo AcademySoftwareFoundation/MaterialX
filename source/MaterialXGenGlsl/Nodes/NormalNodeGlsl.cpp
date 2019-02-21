@@ -8,7 +8,7 @@ ShaderNodeImplPtr NormalNodeGlsl::create()
     return std::make_shared<NormalNodeGlsl>();
 }
 
-void NormalNodeGlsl::createVariables(Shader& shader, const ShaderNode& node, ShaderGenerator&, GenContext&) const
+void NormalNodeGlsl::createVariables(Shader& shader, const ShaderNode& node, const ShaderGenerator&, GenContext&) const
 {
     ShaderStage& vs = shader.getStage(HW::VERTEX_STAGE);
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
@@ -33,7 +33,7 @@ void NormalNodeGlsl::createVariables(Shader& shader, const ShaderNode& node, Sha
     }
 }
 
-void NormalNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
+void NormalNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
 {
     const ShaderInput* spaceInput = node.getInput(SPACE);
         const int space = spaceInput ? spaceInput->value->asA<int>() : -1;

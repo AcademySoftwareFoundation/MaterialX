@@ -11,7 +11,7 @@ ShaderNodeImplPtr SwitchNode::create()
     return std::make_shared<SwitchNode>();
 }
 
-void SwitchNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
+void SwitchNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 

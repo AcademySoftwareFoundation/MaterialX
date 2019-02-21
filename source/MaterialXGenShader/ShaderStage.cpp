@@ -251,7 +251,7 @@ void ShaderStage::addComment(const string& str)
     endLine(false);
 }
 
-void ShaderStage::addBlock(const string& str, ShaderGenerator& shadergen)
+void ShaderStage::addBlock(const string& str, GenContext& context)
 {
     static const string INCLUDE_PATTERN = "#include";
     static const string QUOTATION_MARK = "\"";
@@ -272,7 +272,7 @@ void ShaderStage::addBlock(const string& str, ShaderGenerator& shadergen)
                 if (length)
                 {
                     const string filename = line.substr(startQuote + 1, length);
-                    addInclude(filename, shadergen);
+                    addInclude(filename, context);
                 }
             }
         }
@@ -283,20 +283,9 @@ void ShaderStage::addBlock(const string& str, ShaderGenerator& shadergen)
     }
 }
 
-void ShaderStage::addFunctionDefinition(const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context)
+void ShaderStage::addInclude(const string& file, GenContext& context)
 {
-    const ShaderNodeImpl& impl = node.getImplementation();
-    const size_t id = impl.getHash();
-    if (!_definedFunctions.count(id))
-    {
-        _definedFunctions.insert(id);
-        impl.emitFunctionDefinition(*this, node, shadergen, context);
-    }
-}
-
-void ShaderStage::addInclude(const string& file, ShaderGenerator& shadergen)
-{
-    const string path = shadergen.findSourceCode(file);
+    const string path = context.findSourceCode(file);
 
     if (!_includes.count(path))
     {
@@ -306,7 +295,18 @@ void ShaderStage::addInclude(const string& file, ShaderGenerator& shadergen)
             throw ExceptionShaderGenError("Could not find include file: '" + file + "'");
         }
         _includes.insert(path);
-        addBlock(content, shadergen);
+        addBlock(content, context);
+    }
+}
+
+void ShaderStage::addFunctionDefinition(const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context)
+{
+    const ShaderNodeImpl& impl = node.getImplementation();
+    const size_t id = impl.getHash();
+    if (!_definedFunctions.count(id))
+    {
+        _definedFunctions.insert(id);
+        impl.emitFunctionDefinition(*this, node, shadergen, context);
     }
 }
 

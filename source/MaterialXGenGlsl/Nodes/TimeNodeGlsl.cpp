@@ -8,13 +8,13 @@ ShaderNodeImplPtr TimeNodeGlsl::create()
     return std::make_shared<TimeNodeGlsl>();
 }
 
-void TimeNodeGlsl::createVariables(Shader& shader, const ShaderNode&, ShaderGenerator&, GenContext&) const
+void TimeNodeGlsl::createVariables(Shader& shader, const ShaderNode&, const ShaderGenerator&, GenContext&) const
 {
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
     addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::FLOAT, "u_frame");
 }
 
-void TimeNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
+void TimeNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     shadergen.emitLineBegin(stage);

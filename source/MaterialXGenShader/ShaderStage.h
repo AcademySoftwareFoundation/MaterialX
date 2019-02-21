@@ -201,18 +201,15 @@ protected:
     /// Add a single line of code, optionally appening a semi-colon.
     void addLine(const string& str, bool semicolon = true);
 
-    /// Add a block of code.
-    void addBlock(const string& str, ShaderGenerator& shadergen);
+    /// Add a single line code comment.
+    void addComment(const string& str);
 
-    /// Add the function definition for a node.
-    void addFunctionDefinition(const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context);
+    /// Add a block of code.
+    void addBlock(const string& str, GenContext& context);
 
     /// Add the contents of an include file. Making sure it is 
     /// only included once for the shader stage.
-    void addInclude(const string& file, ShaderGenerator& shadergen);
-
-    /// Add a single line code comment.
-    void addComment(const string& str);
+    void addInclude(const string& file, GenContext& context);
 
     /// Add a value.
     template<typename T>
@@ -222,6 +219,9 @@ protected:
         str << value;
         _code += str.str();
     }
+
+    /// Add the function definition for a node.
+    void addFunctionDefinition(const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context);
 
     friend class ShaderGenerator;
 

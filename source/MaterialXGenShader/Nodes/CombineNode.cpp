@@ -10,7 +10,7 @@ ShaderNodeImplPtr CombineNode::create()
     return std::make_shared<CombineNode>();
 }
 
-void CombineNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
+void CombineNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 

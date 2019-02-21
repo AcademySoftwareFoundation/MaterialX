@@ -4,6 +4,8 @@
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/GenOptions.h>
 
+#include <MaterialXFormat/File.h>
+
 #include <set>
 
 namespace MaterialX
@@ -76,6 +78,33 @@ class GenContext
     /// @param suffix Suffix string returned. Is empty if not found.
     void getOutputSuffix(const ShaderOutput* output, string& suffix) const;
 
+    /// Add to the search path used for finding source code.
+    void registerSourceCodeSearchPath(const FilePath& path)
+    {
+        _sourceCodeSearchPath.append(path);
+    }
+
+    /// Resolve a file using the registered search paths.
+    FilePath findSourceCode(const FilePath& filename) const
+    {
+        return _sourceCodeSearchPath.find(filename);
+    }
+
+    /// Return the source code search path.
+    const FileSearchPath& sourceCodeSearchPath()
+    {
+        return _sourceCodeSearchPath;
+    }
+
+    /// Cache a shader node implementation.
+    void addNodeImplementation(const string& name, const string& target, ShaderNodeImplPtr impl);
+
+    /// Find and return a cached shader node implementation,
+    /// or return nullptr if no implementation is found.
+    ShaderNodeImplPtr findNodeImplementation(const string& name, const string& target);
+
+    /// Add user data to the context to make it
+    /// available during shader generator.
     template<typename T>
     void pushUserData(const string& name, T* ptr)
     {
@@ -86,10 +115,11 @@ class GenContext
         }
         else
         {
-            _userData[name] = {(void*)ptr};
+            _userData[name] = { (void*)ptr };
         }
     }
 
+    /// Remove user data from the context.
     void popUserData(const string& name)
     {
         auto it = _userData.find(name);
@@ -98,6 +128,9 @@ class GenContext
             it->second.pop_back();
         }
     }
+
+    /// Return user data with given name,
+    /// or nullptr if no data is found.
     template<typename T>
     T* getUserData(const string& name)
     {
@@ -106,7 +139,14 @@ class GenContext
     }
 
 protected:
+    // Generation options.
     GenOptions _options;
+
+    // Search path for finding source files.
+    FileSearchPath _sourceCodeSearchPath;
+
+    // Cached shader node implementations.
+    std::unordered_map<string, ShaderNodeImplPtr> _nodeImpls;
 
     // List of input suffixes
     std::unordered_map<const ShaderInput*, string> _inputSuffix;

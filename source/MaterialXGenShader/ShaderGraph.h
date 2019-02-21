@@ -11,6 +11,7 @@
 namespace MaterialX
 {
 
+class Syntax;
 class ShaderGraphEdge;
 class ShaderGraphEdgeIterator;
 class GenOptions;
@@ -35,11 +36,11 @@ class ShaderGraph : public ShaderNode
     /// Create a new shader graph from an element.
     /// Supported elements are outputs and shaderrefs.
     static ShaderGraphPtr create(const ShaderGraph* parent, const string& name, ElementPtr element, 
-                                 ShaderGenerator& shadergen, GenContext& context);
+                                 const ShaderGenerator& shadergen, GenContext& context);
 
     /// Create a new shader graph from a nodegraph.
     static ShaderGraphPtr create(const ShaderGraph* parent, NodeGraphPtr nodeGraph,
-                                 ShaderGenerator& shadergen, GenContext& context);
+                                 const ShaderGenerator& shadergen, GenContext& context);
 
     /// Return true if this node is a graph.
     bool isAGraph() const override { return true; }
@@ -76,7 +77,7 @@ class ShaderGraph : public ShaderNode
     const vector<ShaderGraphOutputSocket*>& getOutputSockets() const { return _inputOrder; }
 
     /// Add new node
-    ShaderNode* addNode(const Node& node, ShaderGenerator& shadergen, GenContext& context);
+    ShaderNode* addNode(const Node& node, const ShaderGenerator& shadergen, GenContext& context);
 
     /// Add input/output sockets
     ShaderGraphInputSocket* addInputSocket(const string& name, const TypeDesc* type);
@@ -87,7 +88,7 @@ class ShaderGraph : public ShaderNode
 
   protected:
     /// Add input sockets from an interface element (nodedef, nodegraph or node)
-    void addInputSockets(const InterfaceElement& elem, ShaderGenerator& shadergen);
+    void addInputSockets(const InterfaceElement& elem, const ShaderGenerator& shadergen);
 
     /// Add output sockets from an interface element (nodedef, nodegraph or node)
     void addOutputSockets(const InterfaceElement& elem);
@@ -95,19 +96,19 @@ class ShaderGraph : public ShaderNode
     /// Traverse from the given root element and add all dependencies upstream.
     /// The traversal is done in the context of a material, if given, to include
     /// bind input elements in the traversal.
-    void addUpstreamDependencies(const Element& root, ConstMaterialPtr material, ShaderGenerator& shadergen, GenContext& contexts);
+    void addUpstreamDependencies(const Element& root, ConstMaterialPtr material, const ShaderGenerator& shadergen, GenContext& contexts);
 
     /// Add a default geometric node and connect to the given input.
-    void addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geomprop, ShaderGenerator& shadergen, GenContext& context);
+    void addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geomprop, const ShaderGenerator& shadergen, GenContext& context);
 
     /// Add a color transform node and connect to the given input.
-    void addColorTransformNode(ShaderInput* input, const ColorSpaceTransform& transform, ShaderGenerator& shadergen, GenContext& context);
+    void addColorTransformNode(ShaderInput* input, const ColorSpaceTransform& transform, const ShaderGenerator& shadergen, GenContext& context);
 
     /// Add a color transform node and connect to the given output.
-    void addColorTransformNode(ShaderOutput* input, const ColorSpaceTransform& transform, ShaderGenerator& shadergen, GenContext& context);
+    void addColorTransformNode(ShaderOutput* input, const ColorSpaceTransform& transform, const ShaderGenerator& shadergen, GenContext& context);
 
     /// Perform all post-build operations on the graph.
-    void finalize(ShaderGenerator& shadergen, GenContext& context);
+    void finalize(const ShaderGenerator& shadergen, GenContext& context);
 
     /// Optimize the graph, removing redundant paths.
     void optimize();
@@ -127,14 +128,14 @@ class ShaderGraph : public ShaderNode
     /// For inputs and outputs in the graph set the variable names to be used
     /// in generated code. Making sure variable names are valid and unique
     /// to avoid name conflicts during shader generation.
-    void setVariableNames(ShaderGenerator& shadergen);
+    void setVariableNames(const Syntax& syntax);
 
     /// Populates the input color transform map if the provided input/parameter
     /// has a color space attribute and has a type of color3 or color4.
     void populateInputColorTransformMap(ColorManagementSystemPtr colorManagementSystem, ShaderNodePtr shaderNode, ValueElementPtr input, const string& targetColorSpace);
 
     /// Break all connections on a node
-    static void disconnect(ShaderNode* node);
+    void disconnect(ShaderNode* node) const;
 
     DocumentPtr _document;
     std::unordered_map<string, ShaderNodePtr> _nodeMap;

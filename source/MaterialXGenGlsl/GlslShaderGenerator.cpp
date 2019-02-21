@@ -225,7 +225,7 @@ GlslShaderGenerator::GlslShaderGenerator()
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", LightSamplerNodeGlsl::create()));
 }
 
-ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context)
+ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
     ShaderPtr shader = createShader(name, element, context);
 
@@ -245,7 +245,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, 
     return shader;
 }
 
-void GlslShaderGenerator::emitVertexStage(ShaderStage& stage, const ShaderGraph& graph, GenContext& context)
+void GlslShaderGenerator::emitVertexStage(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const
 {
     // Add version directive
     emitLine(stage, "#version " + getVersion(), false);
@@ -305,14 +305,14 @@ void GlslShaderGenerator::emitVertexStage(ShaderStage& stage, const ShaderGraph&
     emitLineBreak(stage);
 }
 
-void GlslShaderGenerator::emitPixelStage(ShaderStage& stage, const ShaderGraph& graph, GenContext& context)
+void GlslShaderGenerator::emitPixelStage(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const
 {
     // Add version directive
     emitLine(stage, "#version " + getVersion(), false);
     emitLineBreak(stage);
 
     // Add global constants and type definitions
-    emitInclude(stage, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_defines.glsl");
+    emitInclude(stage, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_defines.glsl", context);
     emitLine(stage, "#define MAX_LIGHT_SOURCES " + std::to_string(getMaxActiveLightSources()), false);
     emitLineBreak(stage);
     emitTypeDefinitions(stage);
@@ -376,7 +376,7 @@ void GlslShaderGenerator::emitPixelStage(ShaderStage& stage, const ShaderGraph& 
     emitLineBreak(stage);
 
     // Emit common math functions
-    emitInclude(stage, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_math.glsl");
+    emitInclude(stage, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_math.glsl", context);
     emitLineBreak(stage);
 
     // Emit lighting functions
@@ -384,11 +384,11 @@ void GlslShaderGenerator::emitPixelStage(ShaderStage& stage, const ShaderGraph& 
     {
         if (context.getOptions().hwSpecularEnvironmentMethod == SPECULAR_ENVIRONMENT_FIS)
         {
-            emitInclude(stage, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_fis.glsl");
+            emitInclude(stage, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_fis.glsl", context);
         }
         else
         {
-            emitInclude(stage, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_prefilter.glsl");
+            emitInclude(stage, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_prefilter.glsl", context);
         }
         emitLineBreak(stage);
     }
@@ -397,19 +397,19 @@ void GlslShaderGenerator::emitPixelStage(ShaderStage& stage, const ShaderGraph& 
     if (graph.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
     {
         // Emit sampling functions
-        emitInclude(stage, "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_sampling.glsl");
+        emitInclude(stage, "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_sampling.glsl", context);
         emitLineBreak(stage);
     }
 
     // Emit uv transform function
     if (context.getOptions().fileTextureVerticalFlip)
     {
-        emitInclude(stage, "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.glsl");
+        emitInclude(stage, "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.glsl", context);
         emitLineBreak(stage);
     }
     else
     {
-        emitInclude(stage, "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.glsl");
+        emitInclude(stage, "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.glsl", context);
         emitLineBreak(stage);
     }
 
@@ -482,7 +482,7 @@ void GlslShaderGenerator::emitPixelStage(ShaderStage& stage, const ShaderGraph& 
     emitLineBreak(stage);
 }
 
-void GlslShaderGenerator::emitFunctionDefinitions(ShaderStage& stage, const ShaderGraph& graph, GenContext& context)
+void GlslShaderGenerator::emitFunctionDefinitions(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 
@@ -506,7 +506,7 @@ END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     HwShaderGenerator::emitFunctionDefinitions(stage, graph, context);
 }
 
-void GlslShaderGenerator::emitFunctionCalls(ShaderStage& stage, const ShaderGraph& graph, GenContext& context)
+void GlslShaderGenerator::emitFunctionCalls(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
     // For vertex stage just emit all function calls in order
@@ -543,7 +543,7 @@ BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 }
 
-void GlslShaderGenerator::emitTextureNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context)
+void GlslShaderGenerator::emitTextureNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const
 {
     // Emit function calls for all texturing nodes
     bool found = false;
@@ -565,7 +565,7 @@ void GlslShaderGenerator::emitTextureNodes(ShaderStage& stage, const ShaderGraph
 void GlslShaderGenerator::emitBsdfNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context, 
                                         const ShaderNode& surfaceShader, int closureType, 
                                         const string& incident, const string& outgoing, 
-                                        string& bsdf)
+                                        string& bsdf) const
 {
     HwClosureContext ccx(closureType);
 
@@ -613,7 +613,7 @@ void GlslShaderGenerator::emitBsdfNodes(ShaderStage& stage, const ShaderGraph& g
 
 void GlslShaderGenerator::emitEdfNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context, 
                                        const ShaderNode& lightShader, const string& normalDir, const string& evalDir, 
-                                       string& edf)
+                                       string& edf) const
 {
     // Set extra arguments according to the given directions
     HwClosureContext ccx(HwClosureContext::EMISSION);
@@ -668,7 +668,7 @@ void GlslShaderGenerator::toVec4(const TypeDesc* type, string& variable)
     }
 }
 
-void GlslShaderGenerator::emitVariable(ShaderStage& stage, const Variable& variable, const string& qualifier, bool assingValue)
+void GlslShaderGenerator::emitVariable(ShaderStage& stage, const Variable& variable, const string& qualifier, bool assingValue) const
 {
     // A file texture input needs special handling on GLSL
     if (variable.getType() == Type::FILENAME)
@@ -703,7 +703,7 @@ void GlslShaderGenerator::emitVariable(ShaderStage& stage, const Variable& varia
     }
 }
 
-ShaderNodeImplPtr GlslShaderGenerator::createCompoundImplementation(NodeGraphPtr impl)
+ShaderNodeImplPtr GlslShaderGenerator::createCompoundImplementation(NodeGraphPtr impl) const
 {
     NodeDefPtr nodeDef = impl->getNodeDef();
     if (!nodeDef)
@@ -717,7 +717,8 @@ ShaderNodeImplPtr GlslShaderGenerator::createCompoundImplementation(NodeGraphPtr
     return HwShaderGenerator::createCompoundImplementation(impl);
 }
 
-ValuePtr GlslShaderGenerator::remapEnumeration(const ValueElementPtr& input, const InterfaceElement& mappingElement, const TypeDesc*& enumerationType)
+ValuePtr GlslShaderGenerator::remapEnumeration(const ValueElementPtr& input, const InterfaceElement& mappingElement, 
+                                               const TypeDesc*& enumerationType) const
 {
     const string& inputName = input->getName();
     const string& inputValue = input->getValueString();
@@ -726,7 +727,8 @@ ValuePtr GlslShaderGenerator::remapEnumeration(const ValueElementPtr& input, con
     return remapEnumeration(inputName, inputValue, inputType, mappingElement, enumerationType);
 }
 
-ValuePtr GlslShaderGenerator::remapEnumeration(const string& inputName, const string& inputValue, const string& inputType, const InterfaceElement& mappingElement, const TypeDesc*& enumerationType)
+ValuePtr GlslShaderGenerator::remapEnumeration(const string& inputName, const string& inputValue, const string& inputType, 
+                                               const InterfaceElement& mappingElement, const TypeDesc*& enumerationType) const
 {
     enumerationType = nullptr;
 

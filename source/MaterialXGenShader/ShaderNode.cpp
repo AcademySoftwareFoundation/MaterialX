@@ -140,7 +140,7 @@ ShaderNode::ShaderNode(const ShaderGraph* parent, const string& name)
 {
 }
 
-ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef, ShaderGenerator& shadergen, GenContext& context)
+ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef, const ShaderGenerator& shadergen, GenContext& context)
 {
     ShaderNodePtr newNode = std::make_shared<ShaderNode>(parent, name);
 
@@ -326,7 +326,7 @@ void ShaderNode::setPaths(const Node& node, const NodeDef& nodeDef, bool include
     }
 }
 
-void ShaderNode::setValues(const Node& node, const NodeDef& nodeDef, ShaderGenerator& shadergen)
+void ShaderNode::setValues(const Node& node, const NodeDef& nodeDef, const ShaderGenerator& shadergen)
 {
     // Copy input values from the given node
     const vector<ValueElementPtr> nodeValues = node.getChildrenOfType<ValueElement>();

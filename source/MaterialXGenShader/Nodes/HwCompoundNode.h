@@ -16,12 +16,12 @@ class HwCompoundNode : public CompoundNode
 public:
     static ShaderNodeImplPtr create();
 
-    void emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const override;
+    void emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const override;
 
-    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const override;
+    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const override;
 
 protected:
-    void emitFunctionDefinition(ShaderStage& stage, HwShaderGenerator& shadergen, GenContext& context, const HwClosureContext* ccx) const;
+    void emitFunctionDefinition(ShaderStage& stage, const HwShaderGenerator& shadergen, GenContext& context, const HwClosureContext* ccx) const;
 };
 
 } // namespace MaterialX

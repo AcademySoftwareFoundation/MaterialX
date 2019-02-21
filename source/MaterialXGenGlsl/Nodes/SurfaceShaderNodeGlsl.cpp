@@ -20,7 +20,7 @@ const string& SurfaceShaderNodeGlsl::getTarget() const
     return GlslShaderGenerator::TARGET;
 }
 
-void SurfaceShaderNodeGlsl::createVariables(Shader& shader, const ShaderNode&, ShaderGenerator&, GenContext&) const
+void SurfaceShaderNodeGlsl::createVariables(Shader& shader, const ShaderNode&, const ShaderGenerator&, GenContext&) const
 {
     // TODO: 
     // The surface shader needs position, view position and light sources. We should solve this by adding some 
@@ -39,7 +39,7 @@ void SurfaceShaderNodeGlsl::createVariables(Shader& shader, const ShaderNode&, S
                     EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void SurfaceShaderNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
+void SurfaceShaderNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
     VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);

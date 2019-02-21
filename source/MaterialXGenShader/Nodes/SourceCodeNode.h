@@ -14,11 +14,11 @@ class SourceCodeNode : public ShaderNodeImpl
 public:
     static ShaderNodeImplPtr create();
 
-    void initialize(ElementPtr implementation, ShaderGenerator& shadergen, GenContext& context) override;
+    void initialize(ElementPtr implementation, const ShaderGenerator& shadergen, GenContext& context) override;
 
-    void emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const override;
+    void emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const override;
 
-    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const override;
+    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const override;
 
 protected:
     bool _inlined;

@@ -8,7 +8,7 @@ ShaderNodeImplPtr GeomAttrValueNodeGlsl::create()
     return std::make_shared<GeomAttrValueNodeGlsl>();
 }
 
-void GeomAttrValueNodeGlsl::createVariables(Shader& shader, const ShaderNode& node, ShaderGenerator&, GenContext&) const
+void GeomAttrValueNodeGlsl::createVariables(Shader& shader, const ShaderNode& node, const ShaderGenerator&, GenContext&) const
 {
     const ShaderInput* attrNameInput = node.getInput(ATTRNAME);
     if (!attrNameInput || !attrNameInput->value)
@@ -20,7 +20,7 @@ void GeomAttrValueNodeGlsl::createVariables(Shader& shader, const ShaderNode& no
     addStageUniform(ps, HW::PRIVATE_UNIFORMS, node.getOutput()->type, "u_geomattr_" + attrName, EMPTY_STRING, nullptr, attrNameInput->path);
 }
 
-void GeomAttrValueNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
+void GeomAttrValueNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     const ShaderInput* attrNameInput = node.getInput(ATTRNAME);

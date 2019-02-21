@@ -16,7 +16,7 @@ ShaderNodeImplPtr HwSourceCodeNode::create()
     return std::make_shared<HwSourceCodeNode>();
 }
 
-void HwSourceCodeNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
+void HwSourceCodeNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     if (_inlined)

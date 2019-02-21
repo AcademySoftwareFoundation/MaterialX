@@ -12,7 +12,7 @@ class HeightToNormalNodeGlsl : public ConvolutionNode
   public:
     static ShaderNodeImplPtr create();
 
-    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const override;
+    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const override;
 
   protected:
     /// Constructor

@@ -17,7 +17,7 @@ ShaderNodeImplPtr LightNodeGlsl::create()
     return std::make_shared<LightNodeGlsl>();
 }
 
-void LightNodeGlsl::createVariables(Shader& shader, const ShaderNode&, ShaderGenerator&, GenContext&) const
+void LightNodeGlsl::createVariables(Shader& shader, const ShaderNode&, const ShaderGenerator&, GenContext&) const
 {
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
 
@@ -32,13 +32,13 @@ void LightNodeGlsl::createVariables(Shader& shader, const ShaderNode&, ShaderGen
                     EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void LightNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen_, GenContext& context) const
+void LightNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen_, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
-    GlslShaderGenerator& shadergen = static_cast<GlslShaderGenerator&>(shadergen_);
+    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(shadergen_);
     const ShaderGraph& graph = *node.getParent();
 
-    shadergen.emitBlock(stage, LIGHT_DIRECTION_CALCULATION);
+    shadergen.emitBlock(stage, LIGHT_DIRECTION_CALCULATION, context);
     shadergen.emitLineBreak(stage);
 
     string emission;

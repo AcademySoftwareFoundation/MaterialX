@@ -55,7 +55,7 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax)
     _emission.addArgument("vec3", EVAL);
 }
 
-ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context)
+ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
 {
     // Create the root shader graph
     ShaderGraphPtr graph = ShaderGraph::create(nullptr, name, element, *this, context);
@@ -191,7 +191,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     return shader;
 }
 
-void HwShaderGenerator::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, bool checkScope)
+void HwShaderGenerator::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, bool checkScope) const
 {
     // Omit node if it's only used inside a conditional branch
     if (checkScope && node.referencedConditionally())
@@ -305,14 +305,14 @@ void HwShaderGenerator::getClosureContexts(const ShaderNode& node, vector<const 
     }
 }
 
-ShaderNodeImplPtr HwShaderGenerator::createSourceCodeImplementation(ImplementationPtr impl)
+ShaderNodeImplPtr HwShaderGenerator::createSourceCodeImplementation(ImplementationPtr impl) const
 {
     // The standard source code implementation
     // is the implementation to use by default
     return HwSourceCodeNode::create();
 }
 
-ShaderNodeImplPtr HwShaderGenerator::createCompoundImplementation(NodeGraphPtr impl)
+ShaderNodeImplPtr HwShaderGenerator::createCompoundImplementation(NodeGraphPtr impl) const
 {
     // The standard compound implementation
     // is the compound implementation to us by default

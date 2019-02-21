@@ -17,7 +17,7 @@ ShaderNodeImplPtr SourceCodeNode::create()
     return std::make_shared<SourceCodeNode>();
 }
 
-void SourceCodeNode::initialize(ElementPtr implementation, ShaderGenerator& shadergen, GenContext& context)
+void SourceCodeNode::initialize(ElementPtr implementation, const ShaderGenerator& shadergen, GenContext& context)
 {
     ShaderNodeImpl::initialize(implementation, shadergen, context);
 
@@ -44,7 +44,7 @@ void SourceCodeNode::initialize(ElementPtr implementation, ShaderGenerator& shad
         _functionName = impl->getNodeDefString();
     }
 
-    if (!readFile(shadergen.findSourceCode(file), _functionSource))
+    if (!readFile(context.findSourceCode(file), _functionSource))
     {
         throw ExceptionShaderGenError("Can't find source file '" + file + "' used by implementation '" + impl->getName() + "'");
     }
@@ -55,19 +55,19 @@ void SourceCodeNode::initialize(ElementPtr implementation, ShaderGenerator& shad
     }
 }
 
-void SourceCodeNode::emitFunctionDefinition(ShaderStage& stage, const ShaderNode&, ShaderGenerator& shadergen, GenContext&) const
+void SourceCodeNode::emitFunctionDefinition(ShaderStage& stage, const ShaderNode&, const ShaderGenerator& shadergen, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     // Emit function definition for non-inlined functions
     if (!_inlined && !_functionSource.empty())
     {
-        shadergen.emitBlock(stage, _functionSource);
+        shadergen.emitBlock(stage, _functionSource, context);
         shadergen.emitLineBreak(stage);
     }
 END_SHADER_STAGE(stage, MAIN_STAGE)
 }
 
-void SourceCodeNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
+void SourceCodeNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     if (_inlined)

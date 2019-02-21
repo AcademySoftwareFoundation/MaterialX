@@ -48,7 +48,7 @@ bool HeightToNormalNodeGlsl::acceptsInputType(const TypeDesc* type) const
     return (type == Type::FLOAT && type->isScalar());
 }
 
-void HeightToNormalNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
+void HeightToNormalNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     const ShaderInput* inInput = node.getInput("in");

@@ -23,7 +23,7 @@ ShaderNodeImplPtr SurfaceNodeGlsl::create()
     return std::make_shared<SurfaceNodeGlsl>();
 }
 
-void SurfaceNodeGlsl::createVariables(Shader& shader, const ShaderNode&, ShaderGenerator&, GenContext&) const
+void SurfaceNodeGlsl::createVariables(Shader& shader, const ShaderNode&, const ShaderGenerator&, GenContext&) const
 {
     // TODO: 
     // The surface shader needs position, normal, view position and light sources. We should solve this by adding some 
@@ -46,9 +46,9 @@ void SurfaceNodeGlsl::createVariables(Shader& shader, const ShaderNode&, ShaderG
                     EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void SurfaceNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen_, GenContext& context) const
+void SurfaceNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen_, GenContext& context) const
 {
-    GlslShaderGenerator& shadergen = static_cast<GlslShaderGenerator&>(shadergen_);
+    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(shadergen_);
 
     const ShaderGraph& graph = *node.getParent();
 
@@ -102,10 +102,10 @@ BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     const string& normalWorld = vertexData["normalWorld"].getFullName();
 
     shadergen.emitComment(stage, "Light loop");
-    shadergen.emitBlock(stage, LIGHT_LOOP_BEGIN);
+    shadergen.emitBlock(stage, LIGHT_LOOP_BEGIN, context);
     shadergen.emitScopeBegin(stage);
 
-    shadergen.emitBlock(stage, LIGHT_CONTRIBUTION);
+    shadergen.emitBlock(stage, LIGHT_CONTRIBUTION, context);
     shadergen.emitLineBreak(stage);
 
     shadergen.emitComment(stage, "Calculate the BSDF response for this light source");

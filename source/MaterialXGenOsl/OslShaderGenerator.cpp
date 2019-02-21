@@ -149,14 +149,14 @@ OslShaderGenerator::OslShaderGenerator()
     registerImplementation("IM_blur_vector4_" + OslShaderGenerator::LANGUAGE, BlurNode::create);
 }
 
-ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context)
+ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
     ShaderPtr shader = createShader(name, element, context);
 
     const ShaderGraph& graph = shader->getGraph();
     ShaderStage& stage = shader->getStage(OSL::STAGE);
 
-    emitIncludes(stage);
+    emitIncludes(stage, context);
 
     // Add global constants and type definitions
     emitLine(stage, "#define M_FLOAT_EPS 0.000001", false);
@@ -166,19 +166,19 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     if (graph.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
     {
         // Emit sampling functions
-        emitInclude(stage, "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_sampling.osl");
+        emitInclude(stage, "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_sampling.osl", context);
         emitLineBreak(stage);
     }
 
     // Emit uv transform function
     if (context.getOptions().fileTextureVerticalFlip)
     {
-        emitInclude(stage, "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.osl");
+        emitInclude(stage, "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.osl", context);
         emitLineBreak(stage);
     }
     else
     {
-        emitInclude(stage, "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.osl");
+        emitInclude(stage, "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.osl", context);
         emitLineBreak(stage);
     }
 
@@ -262,7 +262,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     return shader;
 }
 
-ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context)
+ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
 {
     // Create the root shader graph
     ShaderGraphPtr graph = ShaderGraph::create(nullptr, name, element, *this, context);
@@ -302,7 +302,7 @@ ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr elemen
     return shader;
 }
 
-void OslShaderGenerator::emitFunctionCalls(ShaderStage& stage, const ShaderGraph& graph, GenContext& context)
+void OslShaderGenerator::emitFunctionCalls(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const
 {
     if (!graph.hasClassification(ShaderNode::Classification::TEXTURE))
     {
@@ -311,7 +311,7 @@ void OslShaderGenerator::emitFunctionCalls(ShaderStage& stage, const ShaderGraph
     ShaderGenerator::emitFunctionCalls(stage, graph, context);
 }
 
-void OslShaderGenerator::emitIncludes(ShaderStage& stage)
+void OslShaderGenerator::emitIncludes(ShaderStage& stage, GenContext& context) const
 {
     static const string INCLUDE_PREFIX = "#include \"";
     static const string INCLUDE_SUFFIX = "\"";
@@ -327,7 +327,7 @@ void OslShaderGenerator::emitIncludes(ShaderStage& stage)
 
     for (const string& file : INCLUDE_FILES)
     {
-        FilePath path = findSourceCode(file);
+        FilePath path = context.findSourceCode(file);
         emitLine(stage, INCLUDE_PREFIX + path.asString() + INCLUDE_SUFFIX, false);
     }
 

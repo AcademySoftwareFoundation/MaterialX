@@ -104,7 +104,7 @@ void loadExamples(const mx::StringVec& exampleNames, const mx::FilePath& example
 // Get source content, source path and resolved paths for
 // an implementation
 //
-bool getShaderSource(mx::ShaderGeneratorPtr generator,
+bool getShaderSource(mx::GenContext context,
                     const mx::ImplementationPtr implementation,
                     mx::FilePath& sourcePath,
                     mx::FilePath& resolvedPath,
@@ -113,7 +113,7 @@ bool getShaderSource(mx::ShaderGeneratorPtr generator,
     if (implementation)
     {
         sourcePath = implementation->getFile();
-        resolvedPath = generator->findSourceCode(sourcePath);
+        resolvedPath = context.findSourceCode(sourcePath);
         if (mx::readFile(resolvedPath.asString(), sourceContents))
         {
             return true;
@@ -523,10 +523,11 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
     implDumpBuffer.open(fileName, std::ios::out);
     std::ostream implDumpStream(&implDumpBuffer);
 
+    mx::GenContext context;
+    context.registerSourceCodeSearchPath(searchPath);
+
     for (auto generator : shaderGenerators)
     {
-        generator->registerSourceCodeSearchPath(searchPath);
-
         const std::string& language = generator->getLanguage();
         const std::string& target = generator->getTarget();
 
@@ -692,7 +693,7 @@ TEST_CASE("ShaderX Implementation Validity", "[shadergen]")
                     {
                         mx::FilePath sourcePath, resolvedPath;
                         std::string contents;
-                        if (!getShaderSource(generator, impl, sourcePath, resolvedPath, contents))
+                        if (!getShaderSource(context, impl, sourcePath, resolvedPath, contents))
                         {
                             missing++;
                             missing_str += "Missing source code: " + sourcePath.asString() + " for nodeDef: "
@@ -856,16 +857,16 @@ TEST_CASE("Shader Interface", "[shadergen]")
     output->setNodeName("foo1");
     output->setOutputString("o");
 
-    mx::GenContext context;
-
 #ifdef MATERIALX_BUILD_GEN_OSL
     const std::string exampleName = "shader_interface";
     {
         mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();
+        mx::GenContext context;
+
         // Add path to find all source code snippets
-        shadergen->registerSourceCodeSearchPath(searchPath);
+        context.registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
-        shadergen->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+        context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
         {
             context.getOptions().shaderInterfaceType = mx::SHADER_INTERFACE_COMPLETE;
@@ -946,15 +947,15 @@ TEST_CASE("Hello World", "[shadergen]")
     mx::MaterialPtr mtrl = doc->addMaterial(exampleName + "_material");
     mx::ShaderRefPtr shaderRef = mtrl->addShaderRef(exampleName + "_shader", exampleName);
 
-    mx::GenContext context;
-
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
         mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();
+
+        mx::GenContext context;
         // Add path to find all source code snippets
-        shadergen->registerSourceCodeSearchPath(searchPath);
+        context.registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
-        shadergen->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+        context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
         // Test shader generation from nodegraph
         mx::ShaderPtr shader = shadergen->generate(exampleName, output1, context);
@@ -993,7 +994,7 @@ TEST_CASE("Hello World", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shadergen = mx::OgsFxShaderGenerator::create();
-        shadergen->registerSourceCodeSearchPath(searchPath);
+        context.registerSourceCodeSearchPath(searchPath);
 
         // Test shader generation from nodegraph
         mx::ShaderPtr shader = shadergen->generate(exampleName, output1, context);
@@ -1021,7 +1022,9 @@ TEST_CASE("Hello World", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::ShaderGeneratorPtr shadergen = mx::GlslShaderGenerator::create();
-        shadergen->registerSourceCodeSearchPath(searchPath);
+
+        mx::GenContext context;
+        context.registerSourceCodeSearchPath(searchPath);
 
         // Test shader generation from nodegraph
         mx::ShaderPtr shader = shadergen->generate(exampleName, output1, context);
@@ -1104,15 +1107,15 @@ TEST_CASE("Conditionals", "[shadergen]")
     file << dot;
     file.close();
 
-    mx::GenContext context;
-
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
+
+        mx::GenContext context;
         // Add path to find all source code snippets
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+        context.registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
-        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+        context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, output1, context);
         REQUIRE(shader != nullptr);
@@ -1140,7 +1143,7 @@ TEST_CASE("Conditionals", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+        context.registerSourceCodeSearchPath(searchPath);
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, output1, context);
         REQUIRE(shader != nullptr);
@@ -1163,7 +1166,9 @@ TEST_CASE("Conditionals", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        mx::GenContext context;
+        context.registerSourceCodeSearchPath(searchPath);
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, output1, context);
         REQUIRE(shader != nullptr);
@@ -1253,15 +1258,15 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
     mx::MaterialPtr mtrl = doc->addMaterial(exampleName + "_material");
     mx::ShaderRefPtr shaderRef = mtrl->addShaderRef(exampleName + "_shader", exampleName);
 
-    mx::GenContext context;
-
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
+
+        mx::GenContext context;
         // Add path to find all source code snippets
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+        context.registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
-        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+        context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, context);
         REQUIRE(shader != nullptr);
@@ -1284,7 +1289,7 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+        context.registerSourceCodeSearchPath(searchPath);
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, context);
         REQUIRE(shader != nullptr);
@@ -1301,7 +1306,9 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        mx::GenContext context;
+        context.registerSourceCodeSearchPath(searchPath);
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, context);
         REQUIRE(shader != nullptr);
@@ -1393,8 +1400,6 @@ TEST_CASE("Noise", "[shadergen]")
 
     output1->setConnectedNode(mixer);
 
-    mx::GenContext context;
-
     const size_t numNoiseType = noiseNodes.size();
     for (size_t noiseType = 0; noiseType < numNoiseType; ++noiseType)
     {
@@ -1407,10 +1412,12 @@ TEST_CASE("Noise", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_OSL
         {
             mx::ShaderGeneratorPtr shadergen = mx::ArnoldShaderGenerator::create();
+
+            mx::GenContext context;
             // Add path to find all source code snippets
-            shadergen->registerSourceCodeSearchPath(searchPath);
+            context.registerSourceCodeSearchPath(searchPath);
             // Add path to find OSL include files
-            shadergen->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+            context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
             // Test shader generation from nodegraph
             mx::ShaderPtr shader = shadergen->generate(shaderName, output1, context);
@@ -1434,7 +1441,7 @@ TEST_CASE("Noise", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_OGSFX
         {
             mx::ShaderGeneratorPtr shadergen = mx::OgsFxShaderGenerator::create();
-            shadergen->registerSourceCodeSearchPath(searchPath);
+            context.registerSourceCodeSearchPath(searchPath);
 
             // Test shader generation from nodegraph
             mx::ShaderPtr shader = shadergen->generate(shaderName, output1, context);
@@ -1452,7 +1459,9 @@ TEST_CASE("Noise", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_GLSL
         {
             mx::ShaderGeneratorPtr shadergen = mx::GlslShaderGenerator::create();
-            shadergen->registerSourceCodeSearchPath(searchPath);
+
+            mx::GenContext context;
+            context.registerSourceCodeSearchPath(searchPath);
 
             // Test shader generation from nodegraph
             mx::ShaderPtr shader = shadergen->generate(shaderName, output1, context);
@@ -1494,15 +1503,15 @@ TEST_CASE("Unique Names", "[shadergen]")
 
     output1->setConnectedNode(node1);
 
-    mx::GenContext context;
-
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
+
+        mx::GenContext context;
         // Add path to find all source code snippets
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+        context.registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
-        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+        context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
         // Set the output to a restricted name for OSL
         output1->setName("output");
@@ -1535,7 +1544,9 @@ TEST_CASE("Unique Names", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        mx::GenContext context;
+        context.registerSourceCodeSearchPath(searchPath);
 
         // Set the output to a restricted name for OgsFx
         output1->setName("out");
@@ -1561,7 +1572,9 @@ TEST_CASE("Unique Names", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        mx::GenContext context;
+        context.registerSourceCodeSearchPath(searchPath);
 
         // Set the output to a restricted name for GLSL
         output1->setName("vec3");
@@ -1606,15 +1619,16 @@ TEST_CASE("Subgraphs", "[shadergen]")
 #if defined(MATERIALX_BUILD_GEN_OSL) || defined(MATERIALX_BUILD_GEN_OGSFX) || defined(MATERIALX_BUILD_GEN_GLSL)
     std::vector<std::string> exampleGraphNames = { "subgraph_ex1" , "subgraph_ex2" };
 #endif
-    mx::GenContext context;
 
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
+
+        mx::GenContext context;
         // Add path to find all source code snippets
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+        context.registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
-        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+        context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
         for (const std::string& graphName : exampleGraphNames)
         {
@@ -1647,7 +1661,9 @@ TEST_CASE("Subgraphs", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        mx::GenContext context;
+        context.registerSourceCodeSearchPath(searchPath);
 
         // Setup lighting
         registerLightType(doc, static_cast<mx::HwShaderGenerator&>(*shaderGenerator), context);
@@ -1676,7 +1692,9 @@ TEST_CASE("Subgraphs", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        mx::GenContext context;
+        context.registerSourceCodeSearchPath(searchPath);
 
         // Setup lighting
         registerLightType(doc, static_cast<mx::HwShaderGenerator&>(*shaderGenerator), context);
@@ -1722,15 +1740,15 @@ TEST_CASE("Materials", "[shadergen]")
     mx::FilePath materialsFile = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/pbrlib/materials/surfaceshader.mtlx");
     mx::readFromXmlFile(doc, materialsFile.asString());
 
-    mx::GenContext context;
-
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
+
+        mx::GenContext context;
         // Add path to find all source code snippets
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+        context.registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
-        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+        context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
         for (const mx::MaterialPtr& material : doc->getMaterials())
         {
@@ -1760,7 +1778,9 @@ TEST_CASE("Materials", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        mx::GenContext context;
+        context.registerSourceCodeSearchPath(searchPath);
 
         // Setup lighting
         registerLightType(doc, static_cast<mx::HwShaderGenerator&>(*shaderGenerator), context);
@@ -1787,7 +1807,9 @@ TEST_CASE("Materials", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        mx::GenContext context;
+        context.registerSourceCodeSearchPath(searchPath);
 
         // Setup lighting
         registerLightType(doc, static_cast<mx::HwShaderGenerator&>(*shaderGenerator), context);
@@ -1846,15 +1868,15 @@ TEST_CASE("Color Spaces", "[shadergen]")
     mx::BindInputPtr rougnessBind = shaderRef->addBindInput("specular_roughness", "float");
     rougnessBind->setConnectedOutput(roughnessOutput);
 
-    mx::GenContext context;
-
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
+
+        mx::GenContext context;
         // Add path to find all source code snippets
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+        context.registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
-        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+        context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
         mx::ShaderPtr shader = shaderGenerator->generate(material->getName(), shaderRef, context);
         REQUIRE(shader != nullptr);
@@ -1877,7 +1899,9 @@ TEST_CASE("Color Spaces", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        mx::GenContext context;
+        context.registerSourceCodeSearchPath(searchPath);
 
         mx::ShaderPtr shader = shaderGenerator->generate(material->getName(), shaderRef, context);
         REQUIRE(shader != nullptr);
@@ -1894,7 +1918,9 @@ TEST_CASE("Color Spaces", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        mx::GenContext context;
+        context.registerSourceCodeSearchPath(searchPath);
 
         mx::ShaderPtr shader = shaderGenerator->generate(material->getName(), shaderRef, context);
         REQUIRE(shader != nullptr);
@@ -1995,8 +2021,6 @@ TEST_CASE("BSDF Layering", "[shadergen]")
     mx::BindInputPtr coating_ior_input = shaderRef->addBindInput("coating_ior", "float");
     coating_ior_input->setValue(1.52f);
 
-    mx::GenContext context;
-
     // Test generation from both graph ouput and shaderref
     std::vector<mx::ElementPtr> elements = { output, shaderRef };
     for (mx::ElementPtr elem : elements)
@@ -2008,10 +2032,12 @@ TEST_CASE("BSDF Layering", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_OSL
         {
             mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
+
+            mx::GenContext context;
             // Add path to find all source code snippets
-            shaderGenerator->registerSourceCodeSearchPath(searchPath);
+            context.registerSourceCodeSearchPath(searchPath);
             // Add path to find OSL include files
-            shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+            context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
             mx::ShaderPtr shader = shaderGenerator->generate(shaderName, elem, context);
             REQUIRE(shader != nullptr);
@@ -2035,7 +2061,9 @@ TEST_CASE("BSDF Layering", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_OGSFX
         {
             mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
-            shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+            mx::GenContext context;
+            context.registerSourceCodeSearchPath(searchPath);
 
             // Setup lighting
             registerLightType(doc, static_cast<mx::HwShaderGenerator&>(*shaderGenerator), context);
@@ -2055,7 +2083,9 @@ TEST_CASE("BSDF Layering", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_GLSL
         {
             mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
-            shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+            mx::GenContext context;
+            context.registerSourceCodeSearchPath(searchPath);
 
             // Setup lighting
             registerLightType(doc, static_cast<mx::HwShaderGenerator&>(*shaderGenerator), context);
@@ -2151,15 +2181,15 @@ TEST_CASE("Transparency", "[shadergen]")
     mx::BindInputPtr ior_input = shaderRef->addBindInput("ior", "float");
     ior_input->setValue(1.50f);
 
-    mx::GenContext context;
-
 #ifdef MATERIALX_BUILD_GEN_OSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::ArnoldShaderGenerator::create();
+
+        mx::GenContext context;
         // Add path to find all source code snippets
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+        context.registerSourceCodeSearchPath(searchPath);
         // Add path to find OSL include files
-        shaderGenerator->registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+        context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, context);
         REQUIRE(shader != nullptr);
@@ -2191,7 +2221,9 @@ TEST_CASE("Transparency", "[shadergen]")
         for (auto it : shaderGenerators)
         {
             mx::ShaderGeneratorPtr shaderGenerator = it.second;
-            shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+            mx::GenContext context;
+            context.registerSourceCodeSearchPath(searchPath);
 
             // Setup lighting
             registerLightType(doc, static_cast<mx::HwShaderGenerator&>(*shaderGenerator), context);
@@ -2219,7 +2251,9 @@ TEST_CASE("Transparency", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        mx::GenContext context;
+        context.registerSourceCodeSearchPath(searchPath);
 
         // Setup lighting
         registerLightType(doc, static_cast<mx::HwShaderGenerator&>(*shaderGenerator), context);
@@ -2317,12 +2351,12 @@ TEST_CASE("Surface Layering", "[shadergen]")
     mx::BindInputPtr mix_weight_input = shaderRef->addBindInput("mix_weight", "float");
     mix_weight_input->setValue(0.5f);
 
-    mx::GenContext context;
-
 #ifdef MATERIALX_BUILD_GEN_OGSFX
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        mx::GenContext context;
+        context.registerSourceCodeSearchPath(searchPath);
 
         // Setup lighting
         registerLightType(doc, static_cast<mx::HwShaderGenerator&>(*shaderGenerator), context);
@@ -2345,7 +2379,9 @@ TEST_CASE("Surface Layering", "[shadergen]")
 #ifdef MATERIALX_BUILD_GEN_GLSL
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
-        shaderGenerator->registerSourceCodeSearchPath(searchPath);
+
+        mx::GenContext context;
+        context.registerSourceCodeSearchPath(searchPath);
 
         // Setup lighting
         registerLightType(doc, static_cast<mx::HwShaderGenerator&>(*shaderGenerator), context);

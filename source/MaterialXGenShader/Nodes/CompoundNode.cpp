@@ -15,7 +15,7 @@ ShaderNodeImplPtr CompoundNode::create()
     return std::make_shared<CompoundNode>();
 }
 
-void CompoundNode::initialize(ElementPtr implementation, ShaderGenerator& shadergen, GenContext& context)
+void CompoundNode::initialize(ElementPtr implementation, const ShaderGenerator& shadergen, GenContext& context)
 {
     ShaderNodeImpl::initialize(implementation, shadergen, context);
 
@@ -35,7 +35,7 @@ void CompoundNode::initialize(ElementPtr implementation, ShaderGenerator& shader
     context.getOptions().shaderInterfaceType = shaderInterfaceType;
 }
 
-void CompoundNode::createVariables(Shader& shader, const ShaderNode&, ShaderGenerator& shadergen, GenContext& context) const
+void CompoundNode::createVariables(Shader& shader, const ShaderNode&, const ShaderGenerator& shadergen, GenContext& context) const
 {
     // Gather shader inputs from all child nodes
     for (const ShaderNode* childNode : _rootGraph->getNodes())
@@ -44,7 +44,7 @@ void CompoundNode::createVariables(Shader& shader, const ShaderNode&, ShaderGene
     }
 }
 
-void CompoundNode::emitFunctionDefinition(ShaderStage& stage, const ShaderNode&, ShaderGenerator& shadergen, GenContext& context) const
+void CompoundNode::emitFunctionDefinition(ShaderStage& stage, const ShaderNode&, const ShaderGenerator& shadergen, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 
@@ -104,7 +104,7 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 END_SHADER_STAGE(stage, MAIN_STAGE)
 }
 
-void CompoundNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
+void CompoundNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 

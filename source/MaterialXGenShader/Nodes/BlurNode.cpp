@@ -55,7 +55,7 @@ bool BlurNode::acceptsInputType(const TypeDesc* type) const
         type->isFloat2() || type->isFloat3() || type->isFloat4());
 }
 
-void BlurNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
+void BlurNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 

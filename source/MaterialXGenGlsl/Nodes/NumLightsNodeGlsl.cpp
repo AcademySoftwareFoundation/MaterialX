@@ -8,7 +8,7 @@ ShaderNodeImplPtr NumLightsNodeGlsl::create()
     return std::make_shared<NumLightsNodeGlsl>();
 }
 
-void NumLightsNodeGlsl::createVariables(Shader& shader, const ShaderNode&, ShaderGenerator&, GenContext&) const
+void NumLightsNodeGlsl::createVariables(Shader& shader, const ShaderNode&, const ShaderGenerator&, GenContext&) const
 {
     // Create uniform for number of active light sources
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
@@ -16,7 +16,7 @@ void NumLightsNodeGlsl::createVariables(Shader& shader, const ShaderNode&, Shade
         EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void NumLightsNodeGlsl::emitFunctionDefinition(ShaderStage& stage, const ShaderNode&, ShaderGenerator& shadergen, GenContext&) const
+void NumLightsNodeGlsl::emitFunctionDefinition(ShaderStage& stage, const ShaderNode&, const ShaderGenerator& shadergen, GenContext&) const
 {
 BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     shadergen.emitLine(stage, "int numActiveLightSources()", false);

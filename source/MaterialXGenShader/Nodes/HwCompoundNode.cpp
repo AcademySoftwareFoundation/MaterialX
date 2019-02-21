@@ -15,11 +15,11 @@ ShaderNodeImplPtr HwCompoundNode::create()
     return std::make_shared<HwCompoundNode>();
 }
 
-void HwCompoundNode::emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen_, GenContext& context) const
+void HwCompoundNode::emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen_, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 
-    HwShaderGenerator& shadergen = static_cast<HwShaderGenerator&>(shadergen_);
+    const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(shadergen_);
 
     // Emit functions for all child nodes
     shadergen.emitFunctionDefinitions(stage, *_rootGraph, context);
@@ -43,7 +43,7 @@ BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 }
 
-void HwCompoundNode::emitFunctionDefinition(ShaderStage& stage, HwShaderGenerator& shadergen, 
+void HwCompoundNode::emitFunctionDefinition(ShaderStage& stage, const HwShaderGenerator& shadergen, 
     GenContext& context, const HwClosureContext* ccx) const
 {
     const Syntax* syntax = shadergen.getSyntax();
@@ -121,7 +121,7 @@ void HwCompoundNode::emitFunctionDefinition(ShaderStage& stage, HwShaderGenerato
     shadergen.emitLineBreak(stage);
 }
 
-void HwCompoundNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const
+void HwCompoundNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
 

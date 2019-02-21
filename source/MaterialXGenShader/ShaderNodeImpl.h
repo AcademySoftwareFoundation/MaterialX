@@ -41,24 +41,24 @@ class ShaderNodeImpl
     virtual const string& getTarget() const { return EMPTY_STRING; }
 
     /// Initialize with the given implementation element.
-    virtual void initialize(ElementPtr implementation, ShaderGenerator& shadergen, GenContext& context);
+    virtual void initialize(ElementPtr implementation, const ShaderGenerator& shadergen, GenContext& context);
 
     /// Create shader variables needed for the implementation of this node (e.g. uniforms, inputs and outputs).
     /// Used if the node requires input data from the application.
-    virtual void createVariables(Shader& shader, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const;
+    virtual void createVariables(Shader& shader, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const;
 
     /// Emit function definition for the given node instance.
-    virtual void emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const;
+    virtual void emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const;
 
     /// Emit the function call or inline source code for given node instance in the given context.
-    virtual void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen, GenContext& context) const;
+    virtual void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const;
 
     /// Return a pointer to the graph if this implementation is using a graph,
     /// or returns nullptr otherwise.
     virtual ShaderGraph* getGraph() const;
 
     /// Return a unique hash for this implementation.
-    size_t getHash() const;
+    virtual size_t getHash() const;
 
     /// Returns true if an input is editable by users.
     /// Editable inputs are allowed to be published as shader uniforms

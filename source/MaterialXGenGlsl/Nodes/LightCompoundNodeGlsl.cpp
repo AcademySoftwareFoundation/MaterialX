@@ -26,7 +26,7 @@ const string& LightCompoundNodeGlsl::getTarget() const
     return GlslShaderGenerator::TARGET;
 }
 
-void LightCompoundNodeGlsl::initialize(ElementPtr implementation, ShaderGenerator& shadergen, GenContext& context)
+void LightCompoundNodeGlsl::initialize(ElementPtr implementation, const ShaderGenerator& shadergen, GenContext& context)
 {
     ShaderNodeImpl::initialize(implementation, shadergen, context);
 
@@ -57,7 +57,7 @@ void LightCompoundNodeGlsl::initialize(ElementPtr implementation, ShaderGenerato
     }
 }
 
-void LightCompoundNodeGlsl::createVariables(Shader& shader, const ShaderNode&, ShaderGenerator& shadergen, GenContext& context) const
+void LightCompoundNodeGlsl::createVariables(Shader& shader, const ShaderNode&, const ShaderGenerator& shadergen, GenContext& context) const
 {
     // Create variables for all child nodes
     for (ShaderNode* childNode : _rootGraph->getNodes())
@@ -79,11 +79,11 @@ void LightCompoundNodeGlsl::createVariables(Shader& shader, const ShaderNode&, S
                     EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void LightCompoundNodeGlsl::emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, ShaderGenerator& shadergen_, GenContext& context) const
+void LightCompoundNodeGlsl::emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen_, GenContext& context) const
 {
 BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 
-    GlslShaderGenerator& shadergen = static_cast<GlslShaderGenerator&>(shadergen_);
+    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(shadergen_);
 
     // Emit functions for all child nodes
     shadergen.emitFunctionDefinitions(stage, *_rootGraph, context);
@@ -107,8 +107,8 @@ BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 
-void LightCompoundNodeGlsl::emitFunctionDefinition(ShaderStage& stage, GlslShaderGenerator& shadergen,
-    GenContext& context, const HwClosureContext* ccx) const
+void LightCompoundNodeGlsl::emitFunctionDefinition(ShaderStage& stage, const GlslShaderGenerator& shadergen,
+                                                   GenContext& context, const HwClosureContext* ccx) const
 {
     // Emit function signature
     if (ccx)
@@ -150,7 +150,7 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(ShaderStage& stage, GlslShade
 }
 
 
-void LightCompoundNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode&, ShaderGenerator& shadergen, GenContext&) const
+void LightCompoundNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode&, const ShaderGenerator& shadergen, GenContext&) const
 {
 BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     shadergen.emitLine(stage, _functionName + "(light, position, result)");

@@ -20,10 +20,10 @@ public:
 
     /// Generate a shader starting from the given element, translating
     /// the element and all dependencies upstream into shader code.
-    ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) override;
+    ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const override;
 
     /// Add all function calls for a graph.
-    void emitFunctionCalls(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) override;
+    void emitFunctionCalls(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const override;
 
     /// Unique identifyer for the osl language
     static const string LANGUAGE;
@@ -33,10 +33,10 @@ protected:
     OslShaderGenerator();
 
     /// Create and initialize a new OSL shader for shader generation.
-    virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context);
+    virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
 
     /// Emit include headers needed by the generated shader code.
-    virtual void emitIncludes(ShaderStage& stage);
+    virtual void emitIncludes(ShaderStage& stage, GenContext& context) const;
 };
 
 namespace OSL

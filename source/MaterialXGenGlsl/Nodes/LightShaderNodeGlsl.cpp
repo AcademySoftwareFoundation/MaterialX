@@ -25,7 +25,7 @@ const string& LightShaderNodeGlsl::getTarget() const
     return GlslShaderGenerator::TARGET;
 }
 
-void LightShaderNodeGlsl::initialize(ElementPtr implementation, ShaderGenerator& shadergen, GenContext& context)
+void LightShaderNodeGlsl::initialize(ElementPtr implementation, const ShaderGenerator& shadergen, GenContext& context)
 {
     SourceCodeNode::initialize(implementation, shadergen, context);
 
@@ -52,7 +52,7 @@ void LightShaderNodeGlsl::initialize(ElementPtr implementation, ShaderGenerator&
     }
 }
 
-void LightShaderNodeGlsl::createVariables(Shader& shader, const ShaderNode&, ShaderGenerator&, GenContext&) const
+void LightShaderNodeGlsl::createVariables(Shader& shader, const ShaderNode&, const ShaderGenerator&, GenContext&) const
 {
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
 
@@ -68,7 +68,7 @@ void LightShaderNodeGlsl::createVariables(Shader& shader, const ShaderNode&, Sha
         EMPTY_STRING, Value::createValue<int>(0));
 }
 
-void LightShaderNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode&, ShaderGenerator& shadergen, GenContext&) const
+void LightShaderNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode&, const ShaderGenerator& shadergen, GenContext&) const
 {
 BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     shadergen.emitLine(stage, _functionName + "(light, position, result)");

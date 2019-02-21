@@ -38,7 +38,7 @@ ConvolutionNode::ConvolutionNode()
 {
 }
 
-void ConvolutionNode::createVariables(Shader& shader, const ShaderNode&, ShaderGenerator&, GenContext&) const
+void ConvolutionNode::createVariables(Shader& shader, const ShaderNode&, const ShaderGenerator&, GenContext&) const
 {
     ShaderStage& stage = shader.getStage(MAIN_STAGE);
     VariableBlock& constants = stage.getConstantBlock();
@@ -86,7 +86,7 @@ const ShaderInput* ConvolutionNode::getSamplingInput(const ShaderNode& node) con
 }
 
 void ConvolutionNode::emitInputSamplesUV(ShaderStage& stage, const ShaderNode& node, 
-                                         ShaderGenerator& shadergen, GenContext& context, 
+                                         const ShaderGenerator& shadergen, GenContext& context, 
                                          unsigned int sampleCount, unsigned int filterWidth, 
                                          float filterSize, float filterOffset,
                                          const string& sampleSizeFunctionUV, StringVec& sampleStrings) const
