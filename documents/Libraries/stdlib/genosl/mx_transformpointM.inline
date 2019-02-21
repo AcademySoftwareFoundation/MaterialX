@@ -1,1 +1,1 @@
-transform({{mat}}, {{in}})
+transform({{mat}}, (point){{in}})
