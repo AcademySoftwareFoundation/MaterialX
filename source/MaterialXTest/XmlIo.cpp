@@ -32,7 +32,12 @@ TEST_CASE("Load content", "[xmlio]")
         "BxDF/Disney_BRDF_2012.mtlx",
         "BxDF/Disney_BSDF_2015.mtlx",
     };
-    std::string searchPath = "documents/Libraries/stdlib;documents/Libraries/stdlib/osl;documents/Examples";
+
+    std::string searchPath = "documents/Libraries/stdlib" + 
+                             mx::PATH_LIST_SEPARATOR + 
+                             "documents/Libraries/stdlib/osl" + 
+                             mx::PATH_LIST_SEPARATOR + 
+                             "documents/Examples";
 
     // Read the standard library.
     std::vector<mx::DocumentPtr> libs;
@@ -40,7 +45,13 @@ TEST_CASE("Load content", "[xmlio]")
     {
         mx::DocumentPtr lib = mx::createDocument();
         mx::readFromXmlFile(lib, filename, searchPath);
-        REQUIRE(lib->validate());
+        std::string message;
+        bool docValid = lib->validate(&message);
+        if (!docValid)
+        {
+            WARN("[" + filename + "] " + message);
+        }
+        REQUIRE(docValid);
         libs.push_back(lib);
     }
 
