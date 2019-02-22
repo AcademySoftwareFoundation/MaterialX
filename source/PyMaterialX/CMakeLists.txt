@@ -31,6 +31,7 @@ if(NOT MATERIALX_PYTHON_LTO)
 endif()
 
 add_subdirectory(PyMaterialXCore)
+add_subdirectory(PyMaterialXFormat)
 add_subdirectory(PyMaterialXGenShader)
 if (MATERIALX_BUILD_GEN_GLSL)
     add_subdirectory(PyMaterialXGenGlsl)
