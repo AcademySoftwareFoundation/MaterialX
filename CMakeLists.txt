@@ -50,6 +50,9 @@ if(MSVC)
     if(MATERIALX_WARNINGS_AS_ERRORS)
         add_compile_options(/WX)
     endif()
+    # Temporarily disable secure warnings for setenv in windows, until cross-platform 
+    # getEnvironmentVar/setEnvironmentVar functions are added.
+    add_compile_options(/D_CRT_SECURE_NO_WARNINGS)
 else()
     add_compile_options(-Wall -Wno-missing-braces)
     if(MATERIALX_WARNINGS_AS_ERRORS)
