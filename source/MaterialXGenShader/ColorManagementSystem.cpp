@@ -80,7 +80,25 @@ ShaderNodePtr ColorManagementSystem::createNode(const ShaderGraph* parent, const
     // Cache it.
     context.addNodeImplementation(implName, shadergen.getTarget(), nodeImpl);
 
-    ShaderNodePtr shaderNode = ShaderNode::createColorTransformNode(parent, name, nodeImpl, transform.type);
+    // Create the node.
+    ShaderNodePtr shaderNode = ShaderNode::create(parent, name, nodeImpl, 
+        ShaderNode::Classification::TEXTURE | ShaderNode::Classification::COLOR_SPACE_TRANSFORM);
+
+    // Create ports on the node.
+    ShaderInput* input = shaderNode->addInput("in", transform.type);
+    if (transform.type == Type::COLOR3)
+    {
+        input->value = Value::createValue(Color3(0.0f, 0.0f, 0.0f));
+    }
+    else if (transform.type == Type::COLOR4)
+    {
+        input->value = Value::createValue(Color4(0.0f, 0.0f, 0.0f, 1.0));
+    }
+    else
+    {
+        throw ExceptionShaderGenError("Invalid type specified to createColorTransform: '" + transform.type->getName() + "'");
+    }
+    shaderNode->addOutput("out", transform.type);
 
     return shaderNode;
 }

@@ -175,16 +175,13 @@ class ShaderNode
     /// Constructor.
     ShaderNode(const ShaderGraph* parent, const string& name);
 
-    /// Create a new node from a nodedef
+    /// Create a new node from a nodedef.
     static ShaderNodePtr create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef, 
                                 const ShaderGenerator& shadergen, GenContext& context);
 
-    static ShaderNodePtr create(const ShaderGraph* parent, const string& name, ShaderNodeImplPtr impl, 
+    /// Create a new node from a node implementation.
+    static ShaderNodePtr create(const ShaderGraph* parent, const string& name, ShaderNodeImplPtr impl,
                                 unsigned int classification = Classification::TEXTURE);
-
-    /// Create a new color transform node from a ShaderNodeImpl and type.
-    static ShaderNodePtr createColorTransformNode(const ShaderGraph* parent, const string& name,
-                                                  ShaderNodeImplPtr shaderImpl, const TypeDesc* type);
 
     /// Return true if this node is a graph.
     virtual bool isAGraph() const { return false; }

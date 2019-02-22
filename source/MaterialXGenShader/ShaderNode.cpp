@@ -358,30 +358,6 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     return newNode;
 }
 
-ShaderNodePtr ShaderNode::createColorTransformNode(const ShaderGraph* parent, const string& name, ShaderNodeImplPtr shaderImpl, const TypeDesc* type)
-{
-    ShaderNodePtr newNode = std::make_shared<ShaderNode>(parent, name);
-    newNode->_impl = shaderImpl;
-    newNode->_classification = Classification::TEXTURE | Classification::COLOR_SPACE_TRANSFORM;
-    ShaderInput* input = newNode->addInput("in", type);
-
-    if(type == Type::COLOR3)
-    {
-        input->value = Value::createValue(Color3(0.0f, 0.0f, 0.0f));
-    }
-    else if(type == Type::COLOR4)
-    {
-        input->value = Value::createValue(Color4(0.0f, 0.0f, 0.0f, 1.0));
-    }
-    else
-    {
-        throw ExceptionShaderGenError("Invalid type specified to createColorTransform: '" + type->getName() + "'");
-    }
-    newNode->addOutput("out", type);
-
-    return newNode;
-}
-
 ShaderInput* ShaderNode::getInput(const string& name)
 {
     auto it = _inputMap.find(name);
