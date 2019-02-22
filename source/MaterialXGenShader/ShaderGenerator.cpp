@@ -138,13 +138,14 @@ void ShaderGenerator::emitUniform(ShaderStage& stage, const Variable& uniform) c
 
 void ShaderGenerator::emitVariable(ShaderStage& stage, const Variable& variable, const string& qualifier, bool assingValue) const
 {
-    // If an array we need an array qualifier (suffix) for the variable name
-    string arraySuffix;
-    variable.getArraySuffix(arraySuffix);
-
     string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
     str += _syntax->getTypeName(variable.getType()) + " " + variable.getName();
-    str += arraySuffix;
+
+    // If an array we need an array qualifier (suffix) for the variable name
+    if (variable.getType()->isArray() && variable.getValue())
+    {
+        str += _syntax->getArraySuffix(variable.getType(), *variable.getValue());
+    }
 
     if (assingValue)
     {

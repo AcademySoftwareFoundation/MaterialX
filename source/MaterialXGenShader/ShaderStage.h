@@ -58,21 +58,6 @@ class Variable
     void setCalculated() { _calculated = true; }
     bool isCalculated() const { return _calculated; }
 
-    void getArraySuffix(string& result) const
-    {
-        result.clear();
-        if (_value && _value->isA<vector<float>>())
-        {
-            vector<float> valueArray = _value->asA<vector<float>>();
-            result = "[" + std::to_string(valueArray.size()) + "]";
-        }
-        else if (_value && _value->isA<vector<int>>())
-        {
-            vector<int> valueArray = _value->asA<vector<int>>();
-            result = "[" + std::to_string(valueArray.size()) + "]";
-        }
-    }
-
   private:
     const TypeDesc* _type;
     string _name;

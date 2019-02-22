@@ -162,6 +162,23 @@ void Syntax::makeUnique(string& name, UniqueNameMap& uniqueNames) const
     }
 }
 
+string Syntax::getArraySuffix(const TypeDesc* type, const Value& value) const
+{
+    if (type->isArray())
+    {
+        if (value.isA<vector<float>>())
+        {
+            const size_t size = value.asA<vector<float>>().size();
+            return "[" + std::to_string(size) + "]";
+        }
+        else if (value.isA<vector<int>>())
+        {
+            const size_t size = value.asA<vector<int>>().size();
+            return "[" + std::to_string(size) + "]";
+        }
+    }
+    return string();
+}
 
 const vector<string> TypeSyntax::EMPTY_MEMBERS;
 

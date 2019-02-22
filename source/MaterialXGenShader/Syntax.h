@@ -98,6 +98,9 @@ public:
     /// override this method.
     virtual const string& getUniformQualifier() const { return EMPTY_STRING; };
 
+    /// Return the array suffix to use for declaring an array variable.
+    virtual string getArraySuffix(const TypeDesc* type, const Value& value) const;
+
     /// Query if given type is suppored in the syntax
     /// By default all types are assumed to be supported
     virtual bool typeSupported(const TypeDesc* /*type*/) const { return true; }

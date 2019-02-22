@@ -435,22 +435,23 @@ void OgsFxShaderGenerator::emitVariable(ShaderStage& stage, const Variable& vari
     else
     {
         const string& type = _syntax->getTypeName(variable.getType());
-        string line = qualifier + " " + type + " " + variable.getName();
+        string str = qualifier + " " + type + " " + variable.getName();
 
-        // If an arrays we need an array qualifier (suffix) for the variable name
-        string arraySuffix;
-        variable.getArraySuffix(arraySuffix);
-        line += arraySuffix;
+        // If an array we need an array qualifier (suffix) for the variable name
+        if (variable.getType()->isArray() && variable.getValue())
+        {
+            str += _syntax->getArraySuffix(variable.getType(), *variable.getValue());
+        }
 
         if (assignValue)
         {
             const string initStr = (variable.getValue() ?
                 _syntax->getValue(variable.getType(), *variable.getValue(), true) :
                 _syntax->getDefaultValue(variable.getType(), true));
-            line += initStr.empty() ? "" : " = " + initStr;
+            str += initStr.empty() ? "" : " = " + initStr;
         }
 
-        emitLine(stage, line);
+        emitLine(stage, str);
     }
 }
 
