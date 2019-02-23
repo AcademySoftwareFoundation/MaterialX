@@ -204,7 +204,9 @@ ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr elem
     }
 
     // Emit shader name
-    shader.addStr(createValidName(shader.getName()) + "\n");
+    string emitShaderName = shader.getName();
+    getSyntax()->makeValidName(emitShaderName);
+    shader.addStr(emitShaderName + "\n");
 
     shader.beginScope(Shader::Brackets::PARENTHESES);
 

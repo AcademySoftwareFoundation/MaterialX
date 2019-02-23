@@ -419,8 +419,9 @@ void getGenerationOptions(const ShaderValidTestOptions& testOptions, std::vector
 
 #ifdef MATERIALX_BUILD_GEN_OGSFX
 static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPtr element,
-    mx::OgsFxShaderGenerator& shaderGenerator, const mx::HwLightHandlerPtr lightHandler, mx::DocumentPtr doc,
-    std::ostream& log, const ShaderValidTestOptions& testOptions, ShaderValidProfileTimes& profileTimes, const std::string& outputPath = ".")
+                                mx::OgsFxShaderGenerator& shaderGenerator, const mx::HwLightHandlerPtr lightHandler, mx::DocumentPtr doc,
+                                std::ostream& log, const ShaderValidTestOptions& testOptions, ShaderValidProfileTimes& profileTimes, 
+                                const std::string& outputPath = ".")
 {
     AdditiveScopedTimer totalOgsFXTime(profileTimes.ogsfxTimes.totalTime, "OGSFX total time");
 
@@ -524,7 +525,8 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
 //
 static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr element, mx::GlslValidator& validator,
                               mx::GlslShaderGenerator& shaderGenerator, const mx::HwLightHandlerPtr lightHandler, mx::DocumentPtr doc,
-                              std::ostream& log, const ShaderValidTestOptions& testOptions, ShaderValidProfileTimes& profileTimes, const std::string& outputPath=".")
+                              std::ostream& log, const ShaderValidTestOptions& testOptions, ShaderValidProfileTimes& profileTimes, 
+                              const mx::FileSearchPath& imageSearchPath, const std::string& outputPath=".")
 {
     AdditiveScopedTimer totalGLSLTime(profileTimes.glslTimes.totalTime, "GLSL total time");
 
@@ -737,6 +739,7 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                 {
                     {
                         AdditiveScopedTimer renderTimer(profileTimes.glslTimes.renderTime, "GLSL render time");
+                        validator.getImageHandler()->setSearchPath(imageSearchPath);
                         validator.validateRender(!isShader);
                     }
 
@@ -776,7 +779,8 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
 #ifdef MATERIALX_BUILD_GEN_OSL
 static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr element, mx::OslValidator& validator,
                              mx::OslShaderGenerator& shaderGenerator, mx::DocumentPtr doc, std::ostream& log,
-                             const ShaderValidTestOptions& testOptions, ShaderValidProfileTimes& profileTimes, const std::string& outputPath=".")
+                             const ShaderValidTestOptions& testOptions, ShaderValidProfileTimes& profileTimes, 
+                             const mx::FileSearchPath& imageSearchPath, const std::string& outputPath=".")
 {
     AdditiveScopedTimer totalOSLTime(profileTimes.oslTimes.totalTime, "OSL total time");
 
@@ -868,6 +872,40 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
 
                 if (testOptions.renderImages)
                 {
+                    // Look for textures and build parameter override string for each image
+                    // files if a relative path maps to an absolute path
+                    const mx::Shader::VariableBlock publicUniforms = 
+                        shader->getUniformBlock(mx::Shader::PIXEL_STAGE, mx::Shader::PUBLIC_UNIFORMS);
+
+                    mx::StringVec overrides;
+                    mx::StringMap separatorMapper;
+                    separatorMapper["\\\\"] = "/";
+                    separatorMapper["\\"] = "/";
+                    for (auto uniform : publicUniforms.variableOrder)
+                    {
+                        if (uniform->type != MaterialX::Type::FILENAME)
+                        {
+                            continue;
+                        }
+                        if (uniform->value)
+                        {
+                            const std::string& uniformName = uniform->name;
+                            mx::FilePath filename;
+                            mx::FilePath origFilename(uniform->value->getValueString());
+                            if (!origFilename.isAbsolute())
+                            {
+                                filename = imageSearchPath.find(origFilename);
+                                if (filename != origFilename)
+                                {
+                                    std::string overrideString("string " + uniformName + " \"" + filename.asString() + "\";\n");
+                                    overrideString = mx::replaceSubstrings(overrideString, separatorMapper);
+                                    overrides.push_back(overrideString);
+                                }
+                            }
+                        }
+                    }
+                    validator.setShaderParameterOverrides(overrides);
+
                     if (shader->getOutputBlock().size() > 0)
                     {
                         const mx::Shader::Variable* output = shader->getOutputBlock()[0];
@@ -1437,7 +1475,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
             const std::string filename = filePath;
 
             mx::DocumentPtr doc = mx::createDocument();
-            readFromXmlFile(doc, filename);
+            mx::readFromXmlFile(doc, filename, dir);
 
             if (options.cmsFiles.size() && options.cmsFiles.count(file))
             {
@@ -1505,6 +1543,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
             renderableSearchTimer.endTimer();
 
             std::string outputPath = mx::FilePath(dir) / mx::FilePath(mx::removeExtension(file));
+            mx::FileSearchPath imageSearchPath(dir);
             for (auto element : elements)
             {
                 mx::OutputPtr output = element->asA<mx::Output>();
@@ -1536,7 +1575,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
                                 mx::InterfaceElementPtr nodeGraphImpl = nodeGraph ? nodeGraph->getImplementation() : nullptr;
                                 usedImpls.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl->getName());
                             }
-                            runGLSLValidation(elementName, element, *glslValidator, *glslShaderGenerator, glslLightHandler, doc, glslLog, options, profileTimes, outputPath);
+                            runGLSLValidation(elementName, element, *glslValidator, *glslShaderGenerator, glslLightHandler, doc, glslLog, options, profileTimes, imageSearchPath, outputPath);
                         }
                     }
 #endif
@@ -1572,7 +1611,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
                                 mx::InterfaceElementPtr nodeGraphImpl = nodeGraph ? nodeGraph->getImplementation() : nullptr;
                                 usedImpls.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl2->getName());
                             }
-                            runOSLValidation(elementName, element, *oslValidator, *oslShaderGenerator, doc, oslLog, options, profileTimes, outputPath);
+                            runOSLValidation(elementName, element, *oslValidator, *oslShaderGenerator, doc, oslLog, options, profileTimes, imageSearchPath, outputPath);
                         }
                     }
 #endif

@@ -520,7 +520,7 @@ void GlslProgram::unbindTextures(ImageHandlerPtr imageHandler)
     checkErrors();
 }
 
-bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, const string& fileName,
+bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& fileName,
                               ImageHandlerPtr imageHandler, bool generateMipMaps,
                               const ImageSamplingProperties& samplingProperties)
 {
@@ -529,14 +529,13 @@ bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, con
         uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
     {
         ImageDesc imageDesc;
-        string identifier(fileName);
-        bool haveImage = imageHandler->acquireImage(identifier, imageDesc, generateMipMaps, &(samplingProperties.defaultColor));
+        bool haveImage = imageHandler->acquireImage(fileName, imageDesc, generateMipMaps, &(samplingProperties.defaultColor));
 
         if (haveImage)
         {
             // Map location to a texture unit
             glUniform1i(uniformLocation, imageDesc.resourceId);
-            textureBound = imageHandler->bindImage(identifier, samplingProperties);
+            textureBound = imageHandler->bindImage(fileName, samplingProperties);
         }
         checkErrors();
     }

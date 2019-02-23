@@ -29,12 +29,12 @@ bool GLTextureHandler::createColorImage(const std::array<float,4>& color,
     return false;
 }
 
-bool GLTextureHandler::acquireImage(const std::string& fileName,
+bool GLTextureHandler::acquireImage(const FilePath& fileName,
                                     ImageDesc &imageDesc,
                                     bool generateMipMaps,
                                     const std::array<float,4>* fallbackColor)
 {
-    if (fileName.empty())
+    if (fileName.isEmpty())
     {
         return false;
     }

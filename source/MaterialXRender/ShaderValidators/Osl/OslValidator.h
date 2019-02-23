@@ -119,6 +119,13 @@ class OslValidator : public ShaderValidator
         _oslOutputFilePathString = filePathString;
     }
 
+    /// Set shader parameter strings to be added to the scene XML file. These
+    /// strings will set parameter overrides for the shader.
+    void setShaderParameterOverrides(const StringVec& parameterOverrides)
+    {
+        _oslShaderParameterOverrides = parameterOverrides;
+    }
+
     /// Set the OSL shader output. 
     /// This is used during render validation if "testshade" or "testrender" is executed.
     /// For testrender this value is used to replace the %shader_output% token in the
@@ -222,6 +229,8 @@ class OslValidator : public ShaderValidator
     string _oslTestRenderSceneTemplateFile;
     /// Name of shader. Used for rendering with "testrender"
     string _oslShaderName;
+    /// Set of strings containing parameter override settings for "testrender"
+    StringVec _oslShaderParameterOverrides;
     /// Name of output on the shader. Used for rendering with "testshade" and "testrender"
     string _oslShaderOutputName;
     /// MaterialX type of the output on the shader. Used for rendering with "testshade" and "testrender"

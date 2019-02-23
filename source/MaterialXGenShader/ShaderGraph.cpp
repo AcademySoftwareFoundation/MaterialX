@@ -315,7 +315,9 @@ ShaderGraphPtr ShaderGraph::create(NodeGraphPtr nodeGraph, ShaderGenerator& shad
         throw ExceptionShaderGenError("Can't find nodedef '" + nodeGraph->getNodeDefString() + "' referenced by nodegraph '" + nodeGraph->getName() + "'");
     }
 
-    ShaderGraphPtr graph = std::make_shared<ShaderGraph>(nodeGraph->getName(), nodeGraph->getDocument());
+    string graphName = nodeGraph->getName();
+    shadergen.getSyntax()->makeValidName(graphName);
+    ShaderGraphPtr graph = std::make_shared<ShaderGraph>(graphName, nodeGraph->getDocument());
 
     // Clear classification
     graph->_classification = 0;

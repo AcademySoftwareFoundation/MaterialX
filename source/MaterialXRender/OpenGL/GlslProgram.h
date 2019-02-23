@@ -223,7 +223,7 @@ class GlslProgram
     /// @{
 
     /// Bind an individual texture to a program uniform location
-    bool bindTexture(unsigned int uniformType, int uniformLocation, const string& fileName,
+    bool bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& fileName,
                      ImageHandlerPtr imageHandler, bool generateMipMaps, const ImageSamplingProperties& imageProperties);
 
     /// Utility to check for OpenGL context errors.

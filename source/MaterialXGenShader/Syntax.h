@@ -102,6 +102,9 @@ public:
     /// on the name string if there is a name collision.
     virtual void makeUnique(string& name, UniqueNameMap& uniqueNames) const;
 
+    /// Modify the given name string to remote any invalid characters or tokens.
+    virtual void makeValidName(string& name) const;
+
 protected:
     /// Protected constructor
     Syntax();

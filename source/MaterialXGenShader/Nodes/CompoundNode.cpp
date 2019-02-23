@@ -32,6 +32,7 @@ void CompoundNode::initialize(ElementPtr implementation, ShaderGenerator& shader
 
     _rootGraph = ShaderGraph::create(graph, shadergen, compoundOptions);
     _functionName = graph->getName();
+    shadergen.getSyntax()->makeValidName(_functionName);
 }
 
 void CompoundNode::createVariables(const ShaderNode& /*node*/, ShaderGenerator& shadergen, Shader& shader)

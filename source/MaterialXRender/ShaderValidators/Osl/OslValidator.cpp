@@ -105,6 +105,7 @@ void OslValidator::renderOSL(const string& outputPath, const string& shaderName,
     const string OUTPUT_SHADER_INPUT_STRING("%output_shader_input%");
     const string OUTPUT_SHADER_INPUT_VALUE_STRING("Cin");
     const string INPUT_SHADER_TYPE_STRING("%input_shader_type%");
+    const string INPUT_SHADER_PARAMETER_OVERRIDES("%input_shader_parameter_overrides%");
     const string INPUT_SHADER_OUTPUT_STRING("%input_shader_output%");
     const string BACKGROUND_COLOR_STRING("%background_color%");
     const string backgroundColor("0.0 0.0 0.0"); // TODO: Make this a user input
@@ -113,6 +114,12 @@ void OslValidator::renderOSL(const string& outputPath, const string& shaderName,
     replacementMap[OUTPUT_SHADER_TYPE_STRING] = outputShader;
     replacementMap[OUTPUT_SHADER_INPUT_STRING] = OUTPUT_SHADER_INPUT_VALUE_STRING;
     replacementMap[INPUT_SHADER_TYPE_STRING] = shaderName;
+    string overrideString;
+    for (auto param : _oslShaderParameterOverrides)
+    {
+        overrideString.append(param);
+    }
+    replacementMap[INPUT_SHADER_PARAMETER_OVERRIDES] = overrideString;
     replacementMap[INPUT_SHADER_OUTPUT_STRING] = outputName;
     replacementMap[BACKGROUND_COLOR_STRING] = backgroundColor;
     string sceneString = replaceSubstrings(sceneTemplateString, replacementMap);
