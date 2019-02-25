@@ -1,12 +1,12 @@
 #ifndef MATERIALX_WINDOWWRAPPER_H
 #define MATERIALX_WINDOWWRAPPER_H
 
-#include <MaterialXRender/Window/HardwarePlatform.h>
+#include <MaterialXRender/HardwarePlatform.h>
 
 #if defined(OSWin_)
 #include <windows.h>
 #elif defined(OSLinux_)
-#include <X11/X.h> // for Window 
+#include <X11/X.h> // for Window
 #include <X11/Xlib.h> // for Display
 using Widget = struct _WidgetRec*;
 #endif
@@ -42,7 +42,7 @@ using Widget = void*;
 using ExternalWindowHandle = void*;
 using InternalWindowHandle = void*;
 using DisplayHandle = void*;
-#endif 
+#endif
 
 ///
 /// @class WindowWrapper
@@ -87,9 +87,9 @@ class WindowWrapper
 
     /// Check that there is a valid OS handle set.
     /// It is sufficient to just check the internal handle
-    bool isValid() const 
-    { 
-        return _internalHandle != 0; 
+    bool isValid() const
+    {
+        return _internalHandle != 0;
     }
 
 #if defined(OSLinux_)
@@ -129,4 +129,4 @@ class WindowWrapper
 
 } // namespace MaterialX
 
-#endif 
+#endif

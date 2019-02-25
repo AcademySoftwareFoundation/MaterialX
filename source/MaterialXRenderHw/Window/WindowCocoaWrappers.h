@@ -1,7 +1,7 @@
 #ifndef MATERIALX_WINDOWCOCOAWRAPPERS_H
 #define MATERIALX_WINDOWCOCOAWRAPPERS_H
 
-#include <MaterialXRender/Window/HardwarePlatform.h>
+#include <MaterialXRender/HardwarePlatform.h>
 #if defined(OSMac_)
 
 /// Wrappers for calling into Objective-C Cocoa routines on Mac for Windowing

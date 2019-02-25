@@ -1,10 +1,10 @@
-#include <MaterialXRender/Window/HardwarePlatform.h>
+#include <MaterialXRender/HardwarePlatform.h>
 
 #if defined(OSWin_)
 
 #include <Windows.h>
-#include <MaterialXRender/Window/SimpleWindow.h>
-#include <MaterialXRender/Window/WindowWrapper.h>
+#include <MaterialXRenderHw/Window/SimpleWindow.h>
+#include <MaterialXRenderHw/Window/WindowWrapper.h>
 #include <string>
 
 namespace MaterialX
@@ -17,7 +17,7 @@ SimpleWindow::SimpleWindow()
     _id = windowCount;
     windowCount++;
 
-    // Generate a unique string for our window class. 
+    // Generate a unique string for our window class.
     sprintf_s(_windowClassName, "_SW_%lu", _id);
 }
 
@@ -52,7 +52,7 @@ bool SimpleWindow::initialize(char* title,
     wc.hInstance = hInstance; // Set the instance to this application
     wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground = NULL; // No background required 
+    wc.hbrBackground = NULL; // No background required
     wc.lpszMenuName = NULL;	 // No menu required
     wc.lpszClassName = _windowClassName;
 
@@ -74,7 +74,7 @@ bool SimpleWindow::initialize(char* title,
     WindowRect.right = (long)width;
     WindowRect.bottom = (long)height;
 
-    // Calculate the exact window size (including border) so that the 
+    // Calculate the exact window size (including border) so that the
     // client area has the desired dimensions.
     //
     AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);

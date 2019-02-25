@@ -1,8 +1,8 @@
 #ifndef MATERIALX_SIMPLEWINDOW_H
 #define MATERIALX_SIMPLEWINDOW_H
 
-#include <MaterialXRender/Window/HardwarePlatform.h>
-#include <MaterialXRender/Window/WindowWrapper.h>
+#include <MaterialXRender/HardwarePlatform.h>
+#include <MaterialXRenderHw/Window/WindowWrapper.h>
 
 #include <memory>
 
@@ -67,7 +67,7 @@ class SimpleWindow
 
     /// Wrapper for platform specific window resources
     WindowWrapper _windowWrapper;
-    
+
     /// Width of the window
     unsigned int _width;
     /// Height of the window

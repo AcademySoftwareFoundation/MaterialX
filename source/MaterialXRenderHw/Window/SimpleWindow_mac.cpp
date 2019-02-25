@@ -1,9 +1,9 @@
-#include <MaterialXRender/Window/HardwarePlatform.h>
+#include <MaterialXRender/HardwarePlatform.h>
 
 #if defined(OSMac_)
 
-#include <MaterialXRender/Window/SimpleWindow.h>
-#include <MaterialXRender/Window/WindowCocoaWrappers.h>
+#include <MaterialXRenderHw/Window/SimpleWindow.h>
+#include <MaterialXRenderHw/Window/WindowCocoaWrappers.h>
 
 namespace MaterialX
 {

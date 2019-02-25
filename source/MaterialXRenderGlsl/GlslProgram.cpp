@@ -1,6 +1,6 @@
 
-#include <MaterialXRender/External/GLew/glew.h>
-#include <MaterialXRender/OpenGL/GlslProgram.h>
+#include <MaterialXRenderGlsl/External/GLew/glew.h>
+#include <MaterialXRenderGlsl/GlslProgram.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <iostream>
@@ -409,7 +409,7 @@ void GlslProgram::bindStreams(MeshPtr mesh)
     glGenVertexArrays(1, &_vertexArray);
     glBindVertexArray(_vertexArray);
 
-  
+
     // Bind positions
     findInputs("i_position", attributeList, foundList, true);
     if (foundList.size())

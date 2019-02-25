@@ -1,10 +1,10 @@
-#include <MaterialXRender/Window/HardwarePlatform.h>
+#include <MaterialXRender/HardwarePlatform.h>
 
 #if defined (OSMac_)
 
 #import <Cocoa/Cocoa.h>
 #import <AppKit/NSApplication.h>
-#import <MaterialXRender/Window/WindowCocoaWrappers.h>
+#import <MaterialXRenderHw/Window/WindowCocoaWrappers.h>
 
 void* NSUtilGetView(void* pWindow)
 {

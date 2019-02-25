@@ -1,22 +1,22 @@
 
-#include <MaterialXRender/Window/HardwarePlatform.h>
+#include <MaterialXRender/HardwarePlatform.h>
 
 #if defined(OSWin_)
 #include <windows.h> // For Windows calls
 
 #elif defined(OSLinux_)
 #include <dlfcn.h> // For dlopen
-#include <MaterialXRender/External/GLew/glxew.h>
-#include <X11/Intrinsic.h> 
+#include <MaterialXRenderGlsl/External/GLew/glxew.h>
+#include <X11/Intrinsic.h>
 
 #elif defined(OSMac_)
-#include <MaterialXRender/External/GLew/glew.h>
-#include <MaterialXRender/Window/WindowCocoaWrappers.h>
-#include <MaterialXRender/OpenGL/GLCocoaWrappers.h>
+#include <MaterialXRenderHw/Window/WindowCocoaWrappers.h>
+#include <MaterialXRenderGlsl/External/GLew/glew.h>
+#include <MaterialXRenderGlsl/GLCocoaWrappers.h>
 #endif
 
-#include <MaterialXRender/External/GLew/glew.h>
-#include <MaterialXRender/OpenGL/GLUtilityContext.h>
+#include <MaterialXRenderGlsl/External/GLew/glew.h>
+#include <MaterialXRenderGlsl/GLUtilityContext.h>
 
 namespace MaterialX
 {
@@ -328,4 +328,3 @@ GLUtilityContextPtr GLUtilityContext::create(const WindowWrapper& windowWrapper,
 }
 
 }
-

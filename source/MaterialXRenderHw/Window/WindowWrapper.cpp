@@ -1,9 +1,9 @@
-#include <MaterialXRender/Window/WindowWrapper.h>
+#include <MaterialXRenderHw/Window/WindowWrapper.h>
 
 #if defined(OSLinux_)
 #include <X11/Intrinsic.h>
 #elif defined(OSMac_)
-#include <MaterialXRender/Window/WindowCocoaWrappers.h>
+#include <MaterialXRenderHw/Window/WindowCocoaWrappers.h>
 #endif
 
 namespace MaterialX
@@ -52,7 +52,7 @@ WindowWrapper::WindowWrapper() :
 {
 }
 
-WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle, 
+WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle,
                              InternalWindowHandle internalHandle,
                              DisplayHandle /*display*/)
 {
@@ -130,8 +130,8 @@ WindowWrapper::WindowWrapper() :
 {
 }
 
-WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle, 
-                             InternalWindowHandle internalHandle, 
+WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle,
+                             InternalWindowHandle internalHandle,
                              DisplayHandle display)
 {
     _display = display;
@@ -186,8 +186,8 @@ WindowWrapper::WindowWrapper() :
 {
 }
 
-WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle, 
-                             InternalWindowHandle internalHandle, 
+WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle,
+                             InternalWindowHandle internalHandle,
                              DisplayHandle display)
 {
     _externalHandle = externalHandle;
@@ -219,6 +219,6 @@ void WindowWrapper::release()
     _externalHandle = 0;
     _internalHandle = 0;
 }
-#endif 
+#endif
 
 }

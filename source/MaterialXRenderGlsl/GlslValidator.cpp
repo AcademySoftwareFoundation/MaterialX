@@ -1,6 +1,6 @@
 
-#include <MaterialXRender/External/GLew/glew.h>
-#include <MaterialXRender/ShaderValidators/Glsl/GlslValidator.h>
+#include <MaterialXRenderGlsl/External/GLew/glew.h>
+#include <MaterialXRenderGlsl/GlslValidator.h>
 #include <MaterialXRender/Handlers/GeometryHandler.h>
 #include <MaterialXRender/Handlers/TestObjLoader.h>
 
@@ -46,9 +46,9 @@ GlslValidator::GlslValidator() :
 
 GlslValidator::~GlslValidator()
 {
-    // Clean up the program 
+    // Clean up the program
     _program = nullptr;
-    
+
     // Clean up offscreen target
     deleteTarget();
 
@@ -172,7 +172,7 @@ bool GlslValidator::createTarget()
     glBindTexture(GL_TEXTURE_2D, _depthTarget);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, _frameBufferWidth, _frameBufferHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _depthTarget, 0);
-    
+
     glBindTexture(GL_TEXTURE_2D, MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
     glDrawBuffer(GL_NONE);
 
@@ -290,7 +290,7 @@ void GlslValidator::validateCreation(const ShaderPtr shader)
     }
 
     _program->setStages(std::dynamic_pointer_cast<HwShader>(shader));
-    _program->build();    
+    _program->build();
 }
 
 void GlslValidator::validateCreation(const StageMap& stages)
@@ -471,7 +471,7 @@ void GlslValidator::validateRender(bool orthographicView)
                 _program->unbind();
                 _program->unbindInputs(_imageHandler);
             }
-        }      
+        }
     }
     catch (ExceptionShaderValidationError& /*e*/)
     {

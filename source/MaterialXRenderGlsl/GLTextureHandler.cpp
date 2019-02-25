@@ -1,7 +1,7 @@
 #include <MaterialXCore/Types.h>
-#include <MaterialXRender/OpenGL/GLTextureHandler.h>
-#include <MaterialXRender/OpenGL/GlslProgram.h>
-#include <MaterialXRender/External/GLew/glew.h>
+#include <MaterialXRenderGlsl/GLTextureHandler.h>
+#include <MaterialXRenderGlsl/GlslProgram.h>
+#include <MaterialXRenderGlsl/External/GLew/glew.h>
 
 namespace MaterialX
 {
@@ -128,7 +128,7 @@ bool GLTextureHandler::acquireImage(const FilePath& fileName,
 
 
 bool GLTextureHandler::bindImage(const string &identifier, const ImageSamplingProperties& samplingProperties)
-{        
+{
     const ImageDesc* cachedDesc = getCachedImage(identifier);
     if (cachedDesc)
     {

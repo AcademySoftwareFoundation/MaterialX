@@ -1,16 +1,16 @@
 #ifndef MATERIALX_GLUTILITYCONTEXT_H
 #define MATERIALX_GLUTILITYCONTEXT_H
 
-#include <MaterialXRender/Window/HardwarePlatform.h>
-#include <MaterialXRender/Window/WindowWrapper.h>
+#include <MaterialXRender/HardwarePlatform.h>
+#include <MaterialXRenderHw/Window/WindowWrapper.h>
 #include <memory>
 
 #if defined(OSWin_)
-#include <MaterialXRender/Window/SimpleWindow.h>
+#include <MaterialXRenderHw/Window/SimpleWindow.h>
 #elif defined(OSMac_)
 #include <OpenGL/gl.h>
 #elif defined(OSLinux_)
-#include <MaterialXRender/External/GLew/glxew.h>
+#include <MaterialXRenderGlsl/External/GLew/glxew.h>
 #endif
 
 namespace MaterialX
@@ -30,15 +30,15 @@ using HardwareContextHandle = void*;
 using GLUtilityContextPtr = std::shared_ptr<class GLUtilityContext>;
 
 /// @class GLUtilityContext
-/// Base OpenGL context singleton. 
+/// Base OpenGL context singleton.
 /// Used as a utility context to perform OpenGL operations from,
 /// and context for resource sharing between contexts.
 ///
 class GLUtilityContext
 {
   public:
-    
-    /// Create a utility context 
+
+    /// Create a utility context
     static GLUtilityContextPtr create(const WindowWrapper& windowWrapper, HardwareContextHandle context = 0);
 
     /// Default destructor

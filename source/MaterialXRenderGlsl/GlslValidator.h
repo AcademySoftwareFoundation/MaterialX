@@ -5,9 +5,9 @@
 #include <MaterialXGenShader/HwShader.h>
 #include <MaterialXRender/ShaderValidators/ExceptionShaderValidationError.h>
 #include <MaterialXRender/Handlers/ImageHandler.h>
-#include <MaterialXRender/Window/SimpleWindow.h>
-#include <MaterialXRender/OpenGL/GLUtilityContext.h>
-#include <MaterialXRender/OpenGL/GlslProgram.h>
+#include <MaterialXRenderHw/Window/SimpleWindow.h>
+#include <MaterialXRenderGlsl/GLUtilityContext.h>
+#include <MaterialXRenderGlsl/GlslProgram.h>
 #include <vector>
 #include <string>
 #include <map>
@@ -61,10 +61,10 @@ class GlslValidator : public ShaderValidator
     /// @param stages Map of name and source code for the shader stages.
     void validateCreation(const StageMap& stages) override;
 
-    /// Validate inputs for the program 
+    /// Validate inputs for the program
     void validateInputs() override;
 
-    /// Perform validation that inputs can be bound to and 
+    /// Perform validation that inputs can be bound to and
     /// rendered with. Rendering is to an offscreen hardware buffer.
     /// @param orthographicView Render orthographically
     void validateRender(bool orthographicView=true) override;
@@ -77,7 +77,7 @@ class GlslValidator : public ShaderValidator
     /// @param fileName Name of file to save rendered image to.
     /// @param floatingPoint Format of output image is floating point.
     void save(const string& fileName, bool floatingPoint) override;
-    
+
     /// Return the GLSL program wrapper class
     MaterialX::GlslProgramPtr program()
     {
@@ -109,8 +109,8 @@ class GlslValidator : public ShaderValidator
 
     /// Update viewing information
     void updateViewInformation();
-    
-    /// Bind viewing information for fixed function 
+
+    /// Bind viewing information for fixed function
     void bindFixedFunctionViewInformation();
 
   private:
@@ -118,8 +118,8 @@ class GlslValidator : public ShaderValidator
     /// Will throw an ExceptionShaderValidationError exception which will list of the errors found
     /// if any errors encountered.
     void checkErrors();
-    
-    /// GLSL program. 
+
+    /// GLSL program.
     GlslProgramPtr _program;
 
     /// Hardware color target (texture)
@@ -131,14 +131,14 @@ class GlslValidator : public ShaderValidator
     /// Hardware frame buffer object
     unsigned int _frameBuffer;
 
-    /// Width of the frame buffer / targets to use. 
+    /// Width of the frame buffer / targets to use.
     unsigned int _frameBufferWidth;
-    /// Height of the frame buffer / targets to use. 
+    /// Height of the frame buffer / targets to use.
     unsigned int _frameBufferHeight;
 
     /// Flag to indicate if validator has been initialized properly.
     bool _initialized;
-    
+
     /// Dummy window for OpenGL usage.
     SimpleWindowPtr _window;
     /// Dummy OpenGL context for OpenGL usage

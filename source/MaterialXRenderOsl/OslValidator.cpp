@@ -1,4 +1,4 @@
-#include <MaterialXRender/ShaderValidators/Osl/OslValidator.h>
+#include <MaterialXRenderOsl/OslValidator.h>
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXFormat/File.h>
 

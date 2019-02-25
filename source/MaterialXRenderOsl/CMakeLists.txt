@@ -22,49 +22,43 @@ endfunction(assign_source_group)
 assign_source_group("Header Files" ${materialx_header})
 assign_source_group("Source Files" ${materialx_source})
 
-add_library(MaterialXRender STATIC
+add_library(MaterialXRenderOsl STATIC
     ${materialx_source}
     ${materialx_header}
 )
 
 if(MSVC)
     target_link_libraries(
-        MaterialXRender
-        MaterialXGenShader
-        MaterialXCore
-        Opengl32
-        ${CMAKE_DL_LIBS})
+    MaterialXRenderOsl
+    MaterialXRender
+    ${CMAKE_DL_LIBS})
 elseif (APPLE)
     target_link_libraries(
-        MaterialXRender
-        MaterialXGenShader
-        MaterialXCore
-        ${CMAKE_DL_LIBS}
-)
+    MaterialXRenderOsl
+    MaterialXRender
+    ${CMAKE_DL_LIBS})
 elseif (UNIX AND NOT APPLE)
     target_link_libraries(
-        MaterialXRender
-        MaterialXGenShader
-        MaterialXCore
-        ${CMAKE_DL_LIBS}
-    )
+    MaterialXRenderOsl
+    MaterialXRender
+    ${CMAKE_DL_LIBS})
 endif(MSVC)
 
 set_target_properties(
-    MaterialXRender PROPERTIES
-    OUTPUT_NAME MaterialXRender
+    MaterialXRenderOsl PROPERTIES
+    OUTPUT_NAME MaterialXRenderOsl
     COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
     VERSION "${MATERIALX_LIBRARY_VERSION}"
     SOVERSION "${MATERIALX_MAJOR_VERSION}")
 
-install(TARGETS MaterialXRender
+install(TARGETS MaterialXRenderOsl
     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/
 )
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXRender/
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXRenderOsl/
     FILES_MATCHING PATTERN "*.h*")
 
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXRender.pdb"
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXRenderOsl.pdb"
         DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/" OPTIONAL)

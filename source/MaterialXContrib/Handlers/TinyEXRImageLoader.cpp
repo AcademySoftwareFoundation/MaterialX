@@ -1,4 +1,4 @@
-#include <MaterialXRender/Window/HardwarePlatform.h>
+#include <MaterialXRender/HardwarePlatform.h>
 
 #if defined(OSWin_) && defined(_WIN64)
 #define TINYEXR_USABLE
@@ -20,7 +20,7 @@
 #undef max
 #endif
 #include <MaterialXContrib/External/tinyexr/tinyexr.h>
-#ifdef max_cache 
+#ifdef max_cache
 #define max max_cache
 #endif
 #endif
@@ -38,7 +38,7 @@ bool TinyEXRImageLoader::saveImage(const std::string& fileName,
     // Fail with any type other than exr.
     std::string extension = (fileName.substr(fileName.find_last_of(".") + 1));
     if (extension == EXR_EXTENSION)
-    { 
+    {
         returnValue = SaveEXR(static_cast<float*>(imageDesc.resourceBuffer), static_cast<int>(imageDesc.width), static_cast<int>(imageDesc.height), imageDesc.channelCount, 1 /* save as 16 bit float format */, fileName.c_str());
     }
     return (returnValue == 0);
@@ -84,7 +84,7 @@ bool TinyEXRImageLoader::saveImage(const std::string& /*fileName*/,
 }
 
 bool TinyEXRImageLoader::acquireImage(const std::string& /*fileName*/,
-                                      ImageDesc& /*imageDesc*/, 
+                                      ImageDesc& /*imageDesc*/,
                                       bool /*generateMipMaps*/)
 {
     return false;
@@ -92,5 +92,3 @@ bool TinyEXRImageLoader::acquireImage(const std::string& /*fileName*/,
 
 #endif
 }
-
-

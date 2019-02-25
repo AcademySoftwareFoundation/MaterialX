@@ -2,7 +2,7 @@
 #if defined(MATERIALX_TEST_RENDER) && defined(MATERIALX_BUILD_RENDER) && defined(MATERIALX_BUILD_GEN_GLSL)
 
 // Run only on supported platforms
-#include <MaterialXRender/Window/HardwarePlatform.h>
+#include <MaterialXRender/HardwarePlatform.h>
 #if defined(OSWin_) || defined(OSLinux_) || defined(OSMac_)
 
 #include <MaterialXTest/Catch/catch.hpp>
@@ -19,8 +19,8 @@
 
 #ifdef MATERIALX_BUILD_GEN_GLSL
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
-#include <MaterialXRender/ShaderValidators/Glsl/GlslValidator.h>
-#include <MaterialXRender/OpenGL/GLTextureHandler.h>
+#include <MaterialXRenderGlsl/GlslValidator.h>
+#include <MaterialXRenderGlsl/GLTextureHandler.h>
 #endif
 
 #ifdef MATERIALX_BUILD_GEN_OGSFX
@@ -29,7 +29,7 @@
 
 #ifdef MATERIALX_BUILD_GEN_OSL
 #include <MaterialXGenOsl/OslShaderGenerator.h>
-#include <MaterialXRender/ShaderValidators/Osl/OslValidator.h>
+#include <MaterialXRenderOsl/OslValidator.h>
 #endif
 
 #ifdef MATERIALX_BUILD_CONTRIB
@@ -64,7 +64,7 @@ void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::H
             lights.push_back(node);
         }
     }
-    if (!lights.empty()) 
+    if (!lights.empty())
     {
         // Set the list of lights on the with the generator
         lightHandler.setLightSources(lights);
@@ -420,7 +420,7 @@ void getGenerationOptions(const ShaderValidTestOptions& testOptions, std::vector
 #ifdef MATERIALX_BUILD_GEN_OGSFX
 static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPtr element,
                                 mx::OgsFxShaderGenerator& shaderGenerator, const mx::HwLightHandlerPtr lightHandler, mx::DocumentPtr doc,
-                                std::ostream& log, const ShaderValidTestOptions& testOptions, ShaderValidProfileTimes& profileTimes, 
+                                std::ostream& log, const ShaderValidTestOptions& testOptions, ShaderValidProfileTimes& profileTimes,
                                 const std::string& outputPath = ".")
 {
     AdditiveScopedTimer totalOgsFXTime(profileTimes.ogsfxTimes.totalTime, "OGSFX total time");
@@ -525,7 +525,7 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
 //
 static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr element, mx::GlslValidator& validator,
                               mx::GlslShaderGenerator& shaderGenerator, const mx::HwLightHandlerPtr lightHandler, mx::DocumentPtr doc,
-                              std::ostream& log, const ShaderValidTestOptions& testOptions, ShaderValidProfileTimes& profileTimes, 
+                              std::ostream& log, const ShaderValidTestOptions& testOptions, ShaderValidProfileTimes& profileTimes,
                               const mx::FileSearchPath& imageSearchPath, const std::string& outputPath=".")
 {
     AdditiveScopedTimer totalGLSLTime(profileTimes.glslTimes.totalTime, "GLSL total time");
@@ -779,7 +779,7 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
 #ifdef MATERIALX_BUILD_GEN_OSL
 static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr element, mx::OslValidator& validator,
                              mx::OslShaderGenerator& shaderGenerator, mx::DocumentPtr doc, std::ostream& log,
-                             const ShaderValidTestOptions& testOptions, ShaderValidProfileTimes& profileTimes, 
+                             const ShaderValidTestOptions& testOptions, ShaderValidProfileTimes& profileTimes,
                              const mx::FileSearchPath& imageSearchPath, const std::string& outputPath=".")
 {
     AdditiveScopedTimer totalOSLTime(profileTimes.oslTimes.totalTime, "OSL total time");
@@ -874,7 +874,7 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
                 {
                     // Look for textures and build parameter override string for each image
                     // files if a relative path maps to an absolute path
-                    const mx::Shader::VariableBlock publicUniforms = 
+                    const mx::Shader::VariableBlock publicUniforms =
                         shader->getUniformBlock(mx::Shader::PIXEL_STAGE, mx::Shader::PUBLIC_UNIFORMS);
 
                     mx::StringVec overrides;
@@ -1413,7 +1413,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
             // Add lights as a dependency
             mx::GenOptions genOptions;
             glslLightHandler = mx::HwLightHandler::create();
-            createLightRig(dependLib, *glslLightHandler, *glslShaderGenerator, genOptions, 
+            createLightRig(dependLib, *glslLightHandler, *glslShaderGenerator, genOptions,
                            options.radianceIBLPath, options.irradianceIBLPath);
         }
     }

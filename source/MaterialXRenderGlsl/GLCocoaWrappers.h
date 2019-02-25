@@ -1,7 +1,7 @@
 #ifndef MATERIALX_GLCOCOAWRAPPERS_H
 #define MATERIALX_GLCOCOAWRAPPERS_H
 
-#include <MaterialXRender/Window/HardwarePlatform.h>
+#include <MaterialXRender/HardwarePlatform.h>
 #if defined(OSMac_)
 
 /// Wrappers for calling into OpenGL related Objective-C Cocoa routines on Mac
