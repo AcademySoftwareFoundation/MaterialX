@@ -27,6 +27,13 @@ const string VALID_SEPARATORS_POSIX = "/";
 const char PREFERRED_SEPARATOR_WINDOWS = '\\';
 const char PREFERRED_SEPARATOR_POSIX = '/';
 
+#if defined(_WIN32)
+const string PATH_LIST_SEPARATOR = ";";
+#else
+const string PATH_LIST_SEPARATOR = ":";
+#endif
+const string MATERIALX_SEARCH_PATH_ENV_VAR = "MATERIALX_SEARCH_PATH";
+
 //
 // FilePath methods
 //
@@ -138,6 +145,18 @@ FilePath FilePath::getCurrentPath()
     }
     return FilePath(buf);
 #endif
+}
+
+FileSearchPath getEnvironmentPath(const string& sep)
+{
+    const char* searchPathEnv = std::getenv(MATERIALX_SEARCH_PATH_ENV_VAR.c_str());
+
+    if (!searchPathEnv)
+    {
+        searchPathEnv = "";
+    }
+
+    return FileSearchPath(searchPathEnv, sep);
 }
 
 } // namespace MaterialX
