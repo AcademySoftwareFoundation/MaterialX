@@ -14,6 +14,9 @@
 namespace MaterialX
 {
 
+extern const string PATH_LIST_SEPARATOR;
+extern const string MATERIALX_SEARCH_PATH_ENV_VAR;
+
 /// @class FilePath
 /// A generic file path, supporting both syntactic and file system operations.
 class FilePath
@@ -139,12 +142,26 @@ class FileSearchPath
     ///    by separator characters.
     /// @param sep The set of separator characters used in the search path.
     ///    Defaults to the semicolon character.
-    FileSearchPath(const string& searchPath, const string& sep = ";") :
+    FileSearchPath(const string& searchPath, const string& sep = PATH_LIST_SEPARATOR) :
         FileSearchPath()
     {
+        parse(searchPath, sep);
+    }
+
+    /// Parse a given path and append to the sequence
+    void parse(const string& searchPath, const string& sep = PATH_LIST_SEPARATOR)
+    {
+        if (searchPath.empty())
+        {
+            return;
+        }
+
         for (const string& path : splitString(searchPath, sep))
         {
-            append(path);
+            if (!path.empty())
+            {
+                append(FilePath(path));
+            }
         }
     }
 
@@ -152,6 +169,21 @@ class FileSearchPath
     void append(const FilePath& path)
     {
         _paths.push_back(path);
+    }
+
+    /// Append the given search path to the sequence.
+    void append(const FileSearchPath& searchPath)
+    {
+        for (const FilePath& path : searchPath.paths())
+        {
+            _paths.push_back(path);
+        }
+    }
+
+    /// Get list of paths in the search path.
+    const vector<FilePath>& paths() const
+    {
+        return _paths;
     }
 
     /// Prepend the given path to the sequence.
@@ -184,6 +216,10 @@ class FileSearchPath
     /// filename is returned unmodified.
     FilePath find(const FilePath& filename) const
     {
+        if (_paths.empty()) 
+        {
+            return filename;
+        }
         if (!filename.isAbsolute())
         {
             for (const FilePath& path : _paths)
@@ -201,6 +237,9 @@ class FileSearchPath
   private:
     vector<FilePath> _paths;
 };
+
+/// Return a FileSearchPath object from search path environment variable.
+FileSearchPath getEnvironmentPath(const string& sep = PATH_LIST_SEPARATOR);
 
 } // namespace MaterialX
 

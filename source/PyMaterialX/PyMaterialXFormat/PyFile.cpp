@@ -34,4 +34,7 @@ void bindPyFile(py::module& mod)
         .def("isAbsolute", &mx::FilePath::isAbsolute)
         .def("getBaseName", &mx::FilePath::getBaseName)
         .def("exists", &mx::FilePath::exists);
+
+    mod.attr("PATH_LIST_SEPARATOR") = mx::PATH_LIST_SEPARATOR;
+    mod.attr("MATERIALX_SEARCH_PATH_ENV_VAR") = mx::MATERIALX_SEARCH_PATH_ENV_VAR;
 }
