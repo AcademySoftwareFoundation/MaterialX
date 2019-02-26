@@ -8,6 +8,7 @@
 - Added the Document\:\:getGeomAttrValue method.
 - Added the ValueElement\:\:getResolvedValue method.
 - Added support for GCC 8 and Clang 7.
+- Added support for setting search path via environment variable.
 
 ### Changed
 - Added callbacks Observer\:\:onCopyContent and Observer\:\:onClearContent, and removed callback Observer::onInitialize.
