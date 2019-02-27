@@ -10,7 +10,10 @@ namespace MaterialX
 
 namespace HW
 {
-    const string PIXEL_STAGE      = MAIN_STAGE;
+    // Note: The pixle stage is the "main stage" for HW and must use the same identifyer
+    //       as MAIN_STAGE in order for code to be shared between multiple shader targets
+    //       like OSL, GLSL, etc.
+    const string PIXEL_STAGE      = _MAIN_STAGE_NAME;
     const string VERTEX_STAGE     = "vertex";
     const string VERTEX_INPUTS    = "VertexInputs";
     const string VERTEX_DATA      = "VertexData";

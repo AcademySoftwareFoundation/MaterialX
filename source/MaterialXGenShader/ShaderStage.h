@@ -17,6 +17,12 @@
 #define BEGIN_SHADER_STAGE(stage, name) if (stage.getName() == name) {
 #define END_SHADER_STAGE(stage, name) }
 
+/// Private macro to name the main shader stage.
+/// This is only used to handle static initialization order issues.
+/// API users should use the string identifyer MaterialX::MAIN_STAGE
+/// instead of this macro.
+#define _MAIN_STAGE_NAME "main"
+
 namespace MaterialX
 {
 

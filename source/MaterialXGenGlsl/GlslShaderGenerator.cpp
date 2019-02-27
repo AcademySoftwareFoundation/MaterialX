@@ -572,7 +572,7 @@ void GlslShaderGenerator::toVec4(const TypeDesc* type, string& variable)
     }
 }
 
-void GlslShaderGenerator::emitVariableDeclaration(ShaderStage& stage, const ShaderPort* variable, const string& qualifier, bool assingValue) const
+void GlslShaderGenerator::emitVariableDeclaration(ShaderStage& stage, const ShaderPort* variable, const string& qualifier, bool assignValue) const
 {
     // A file texture input needs special handling on GLSL
     if (variable->getType() == Type::FILENAME)
@@ -596,7 +596,7 @@ void GlslShaderGenerator::emitVariableDeclaration(ShaderStage& stage, const Shad
             str += " : " + variable->getSemantic();
         }
 
-        if (assingValue)
+        if (assignValue)
         {
             const string valueStr = (variable->getValue() ?
                 _syntax->getValue(variable->getType(), *variable->getValue(), true) :

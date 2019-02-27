@@ -150,6 +150,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         {
             emitComment(fx, "Vertex stage uniform block: " + uniforms.getName());
             emitVariableDeclarations(fx, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
+            emitLineBreak(fx);
         }
     }
     // Add all public vertex shader uniforms
@@ -159,6 +160,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         {
             emitComment(fx, "Vertex stage uniform block: " + uniforms.getName());
             emitVariableDeclarations(fx, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
+            emitLineBreak(fx);
         }
     }
     // Add all private pixel shader uniforms
@@ -168,6 +170,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         {
             emitComment(fx, "Pixel stage uniform block: " + uniforms.getName());
             emitVariableDeclarations(fx, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
+            emitLineBreak(fx);
         }
     }
     // Add all public pixel shader uniforms
@@ -177,6 +180,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         {
             emitComment(fx, "Pixel stage uniform block: " + uniforms.getName());
             emitVariableDeclarations(fx, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
+            emitLineBreak(fx);
         }
     }
 
@@ -423,19 +427,15 @@ void OgsFxShaderGenerator::emitVariableDeclaration(ShaderStage& stage, const Sha
     // A file texture input needs special handling on GLSL
     if (variable->getType() == Type::FILENAME)
     {
-        emitLine(stage, "uniform texture2D " + variable->getName() + "_texture : SourceTexture");
-        emitLine(stage, "uniform sampler2D " + variable->getName() + " = sampler_state", false);
-        emitLine(stage, "{\n    Texture = <" + variable->getName() + "_texture>;\n}");
-    }
-    else if (!variable->getSemantic().empty())
-    {
-        const string& type = _syntax->getTypeName(variable->getType());
-        emitLine(stage, qualifier + " " + type + " " + variable->getName() + " : " + variable->getSemantic());
+        string str = "uniform texture2D " + variable->getVariable() + "_texture : SourceTexture\n" \
+                     "uniform sampler2D " + variable->getVariable() + " = sampler_state\n"         \
+                     "{\n    Texture = <" + variable->getVariable() + "_texture>;\n}";
+        emitString(stage, str);
     }
     else
     {
-        const string& type = _syntax->getTypeName(variable->getType());
-        string str = qualifier + " " + type + " " + variable->getName();
+        string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
+        str += _syntax->getTypeName(variable->getType()) + " " + variable->getVariable();
 
         // If an array we need an array qualifier (suffix) for the variable name
         if (variable->getType()->isArray() && variable->getValue())
@@ -443,15 +443,20 @@ void OgsFxShaderGenerator::emitVariableDeclaration(ShaderStage& stage, const Sha
             str += _syntax->getArraySuffix(variable->getType(), *variable->getValue());
         }
 
-        if (assignValue)
+        if (!variable->getSemantic().empty())
         {
-            const string initStr = (variable->getValue() ?
-                _syntax->getValue(variable->getType(), *variable->getValue(), true) :
-                _syntax->getDefaultValue(variable->getType(), true));
-            str += initStr.empty() ? "" : " = " + initStr;
+            str += " : " + variable->getSemantic();
         }
 
-        emitLine(stage, str);
+        if (assignValue)
+        {
+            const string valueStr = (variable->getValue() ?
+                _syntax->getValue(variable->getType(), *variable->getValue(), true) :
+                _syntax->getDefaultValue(variable->getType(), true));
+            str += valueStr.empty() ? EMPTY_STRING : " = " + valueStr;
+        }
+
+        emitString(stage, str);
     }
 }
 

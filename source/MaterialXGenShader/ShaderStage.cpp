@@ -11,7 +11,7 @@ namespace MaterialX
 {
 
 /// Identifier for main shader stage.
-const string MAIN_STAGE = "main";
+const string MAIN_STAGE = _MAIN_STAGE_NAME;
 
 ShaderPort* VariableBlock::operator[](const string& name)
 {
@@ -315,6 +315,7 @@ void ShaderStage::addFunctionDefinition(const ShaderNode& node, const ShaderGene
 {
     const ShaderNodeImpl& impl = node.getImplementation();
     const size_t id = impl.getHash();
+
     if (!_definedFunctions.count(id))
     {
         _definedFunctions.insert(id);

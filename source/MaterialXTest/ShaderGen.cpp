@@ -1151,12 +1151,12 @@ TEST_CASE("Conditionals", "[shadergen]")
 
         mx::ShaderPtr shader = shaderGenerator->generate(exampleName, output1, context);
         REQUIRE(shader != nullptr);
-        REQUIRE(shader->getSourceCode().length() > 0);
+        REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
 
         // Write out to file for inspection
         // TODO: Use validation in MaterialXRender library
         file.open(RESULT_DIRECTORY + shader->getName() + ".ogsfx");
-        file << shader->getSourceCode();
+        file << shader->getSourceCode(mx::HW::FX_STAGE);
         file.close();
 
         // All of the nodes should have been removed by optimization
@@ -1800,7 +1800,7 @@ TEST_CASE("Materials", "[shadergen]")
                 const std::string name = material->getName() + "_" + shaderRef->getName();
                 mx::ShaderPtr shader = shaderGenerator->generate(name, shaderRef, context);
                 REQUIRE(shader != nullptr);
-                REQUIRE(shader->getSourceCode().length() > 0);
+                REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
 
                 // Write out to file for inspection
                 // TODO: Use validation in MaterialXRender library
