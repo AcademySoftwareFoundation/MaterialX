@@ -8,7 +8,7 @@ ShaderNodeImplPtr BitangentNodeGlsl::create()
     return std::make_shared<BitangentNodeGlsl>();
 }
 
-void BitangentNodeGlsl::createVariables(Shader& shader, const ShaderNode& node, const ShaderGenerator&, GenContext&) const
+void BitangentNodeGlsl::createVariables(Shader& shader, GenContext&, const ShaderGenerator&, const ShaderNode& node) const
 {
     ShaderStage& vs = shader.getStage(HW::VERTEX_STAGE);
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
@@ -32,7 +32,7 @@ void BitangentNodeGlsl::createVariables(Shader& shader, const ShaderNode& node, 
     }
 }
 
-void BitangentNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
+void BitangentNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const
 {
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : -1;

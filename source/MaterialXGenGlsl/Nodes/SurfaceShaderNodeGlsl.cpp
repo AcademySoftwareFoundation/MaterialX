@@ -20,7 +20,7 @@ const string& SurfaceShaderNodeGlsl::getTarget() const
     return GlslShaderGenerator::TARGET;
 }
 
-void SurfaceShaderNodeGlsl::createVariables(Shader& shader, const ShaderNode&, const ShaderGenerator&, GenContext&) const
+void SurfaceShaderNodeGlsl::createVariables(Shader& shader, GenContext&, const ShaderGenerator&, const ShaderNode&) const
 {
     // TODO: 
     // The surface shader needs position, view position and light sources. We should solve this by adding some 
@@ -38,7 +38,7 @@ void SurfaceShaderNodeGlsl::createVariables(Shader& shader, const ShaderNode&, c
     addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", Value::createValue<int>(0));
 }
 
-void SurfaceShaderNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
+void SurfaceShaderNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const
 {
     BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
@@ -52,7 +52,7 @@ void SurfaceShaderNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNod
     END_SHADER_STAGE(shader, HW::VERTEX_STAGE)
 
     BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
-        SourceCodeNode::emitFunctionCall(stage, node, shadergen, context);
+        SourceCodeNode::emitFunctionCall(stage, context, shadergen, node);
     END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 

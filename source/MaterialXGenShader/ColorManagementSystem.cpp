@@ -75,7 +75,7 @@ ShaderNodePtr ColorManagementSystem::createNode(const ShaderGraph* parent, const
     {
         nodeImpl = SourceCodeNode::create();
     }
-    nodeImpl->initialize(impl, shadergen, context);
+    nodeImpl->initialize(context, shadergen, impl);
 
     // Cache it.
     context.addNodeImplementation(implName, shadergen.getTarget(), nodeImpl);

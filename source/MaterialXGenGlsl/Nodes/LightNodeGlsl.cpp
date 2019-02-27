@@ -25,7 +25,7 @@ ShaderNodeImplPtr LightNodeGlsl::create()
     return std::make_shared<LightNodeGlsl>();
 }
 
-void LightNodeGlsl::createVariables(Shader& shader, const ShaderNode&, const ShaderGenerator&, GenContext&) const
+void LightNodeGlsl::createVariables(Shader& shader, GenContext&, const ShaderGenerator&, const ShaderNode&) const
 {
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
 
@@ -39,7 +39,7 @@ void LightNodeGlsl::createVariables(Shader& shader, const ShaderNode&, const Sha
     addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", Value::createValue<int>(0));
 }
 
-void LightNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen_, GenContext& context) const
+void LightNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen_, const ShaderNode& node) const
 {
     BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
         const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(shadergen_);

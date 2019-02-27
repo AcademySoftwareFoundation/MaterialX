@@ -120,7 +120,7 @@ ShaderPtr HwShaderGenerator::createShader(GenContext& context, const string& nam
     // Create shader variables for all nodes that need this.
     for (ShaderNode* node : graph->getNodes())
     {
-        node->getImplementation().createVariables(*shader, *node, *this, context);
+        node->getImplementation().createVariables(*shader, context, *this, *node);
     }
 
     HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
@@ -132,7 +132,7 @@ ShaderPtr HwShaderGenerator::createShader(GenContext& context, const string& nam
         for (auto it : lightShaders->get())
         {
             ShaderNode* node = it.second.get();
-            node->getImplementation().createVariables(*shader, *node, *this, context);
+            node->getImplementation().createVariables(*shader, context, *this, *node);
         }
     }
 
@@ -233,7 +233,7 @@ void HwShaderGenerator::emitFunctionCall(ShaderStage& stage, GenContext& context
         {
             // A match between closure context and node classification was found.
             // So emit the function call in this context.
-            node.getImplementation().emitFunctionCall(stage, node, *this, context);
+            node.getImplementation().emitFunctionCall(stage, context, *this, node);
         }
         else
         {

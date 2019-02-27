@@ -8,13 +8,13 @@ ShaderNodeImplPtr FrameNodeGlsl::create()
     return std::make_shared<FrameNodeGlsl>();
 }
 
-void FrameNodeGlsl::createVariables(Shader& shader, const ShaderNode&, const ShaderGenerator&, GenContext&) const
+void FrameNodeGlsl::createVariables(Shader& shader, GenContext&, const ShaderGenerator&, const ShaderNode&) const
 {
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
     addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::FLOAT, "u_frame");
 }
 
-void FrameNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
+void FrameNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const
 {
 BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     shadergen.emitLineBegin(stage);

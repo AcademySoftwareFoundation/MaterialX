@@ -7,19 +7,19 @@
 namespace MaterialX
 {
 
-void ShaderNodeImpl::initialize(ElementPtr, const ShaderGenerator&, GenContext&)
+void ShaderNodeImpl::initialize(GenContext&, const ShaderGenerator&, ElementPtr)
 {
 }
 
-void ShaderNodeImpl::createVariables(Shader&, const ShaderNode&, const ShaderGenerator&, GenContext&) const
+void ShaderNodeImpl::createVariables(Shader&, GenContext&, const ShaderGenerator&, const ShaderNode&) const
 {
 }
 
-void ShaderNodeImpl::emitFunctionDefinition(ShaderStage&, const ShaderNode&, const ShaderGenerator&, GenContext&) const
+void ShaderNodeImpl::emitFunctionDefinition(ShaderStage&, GenContext&, const ShaderGenerator&, const ShaderNode&) const
 {
 }
 
-void ShaderNodeImpl::emitFunctionCall(ShaderStage&, const ShaderNode&, const ShaderGenerator&, GenContext&) const
+void ShaderNodeImpl::emitFunctionCall(ShaderStage&, GenContext&, const ShaderGenerator&, const ShaderNode&) const
 {
 }
 

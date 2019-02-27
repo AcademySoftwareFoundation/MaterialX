@@ -38,7 +38,7 @@ ConvolutionNode::ConvolutionNode()
 {
 }
 
-void ConvolutionNode::createVariables(Shader& shader, const ShaderNode&, const ShaderGenerator&, GenContext&) const
+void ConvolutionNode::createVariables(Shader& shader, GenContext&, const ShaderGenerator&, const ShaderNode&) const
 {
     ShaderStage& stage = shader.getStage(MAIN_STAGE);
     VariableBlock& constants = stage.getConstantBlock();
@@ -158,7 +158,7 @@ void ConvolutionNode::emitInputSamplesUV(ShaderStage& stage, const ShaderNode& n
                         string outputSuffix("_" + output->getVariable() + std::to_string(i));
                         context.addOutputSuffix(upstreamOutput, outputSuffix);
 
-                        impl.emitFunctionCall(stage, *upstreamNode, shadergen, context);
+                        impl.emitFunctionCall(stage, context, shadergen, *upstreamNode);
 
                         // Remove suffixes
                         context.removeInputSuffix(samplingInput);

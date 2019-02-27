@@ -8,7 +8,7 @@ ShaderNodeImplPtr TexCoordNodeGlsl::create()
     return std::make_shared<TexCoordNodeGlsl>();
 }
 
-void TexCoordNodeGlsl::createVariables(Shader& shader, const ShaderNode& node, const ShaderGenerator&, GenContext&) const
+void TexCoordNodeGlsl::createVariables(Shader& shader, GenContext&, const ShaderGenerator&, const ShaderNode& node) const
 {
     const ShaderOutput* output = node.getOutput();
     const ShaderInput* indexInput = node.getInput(INDEX);
@@ -21,7 +21,7 @@ void TexCoordNodeGlsl::createVariables(Shader& shader, const ShaderNode& node, c
     addStageConnector(vs, ps, HW::VERTEX_DATA, output->getType(), "texcoord_" + index);
 }
 
-void TexCoordNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
+void TexCoordNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const
 {
     const ShaderInput* indexInput = node.getInput(INDEX);
     const string index = indexInput ? indexInput->getValue()->getValueString() : "0";

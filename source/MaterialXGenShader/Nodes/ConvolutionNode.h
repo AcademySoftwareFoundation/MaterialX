@@ -11,7 +11,7 @@ namespace MaterialX
 class ConvolutionNode : public ShaderNodeImpl
 {
   public:
-     void createVariables(Shader& shader, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const override;
+     void createVariables(Shader& shader, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const override;
 
   protected:
     /// Constructor

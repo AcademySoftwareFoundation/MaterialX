@@ -12,7 +12,7 @@ ShaderNodeImplPtr SwizzleNode::create()
     return std::make_shared<SwizzleNode>();
 }
 
-void SwizzleNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
+void SwizzleNode::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 

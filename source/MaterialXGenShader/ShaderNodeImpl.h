@@ -41,17 +41,17 @@ class ShaderNodeImpl
     virtual const string& getTarget() const { return EMPTY_STRING; }
 
     /// Initialize with the given implementation element.
-    virtual void initialize(ElementPtr implementation, const ShaderGenerator& shadergen, GenContext& context);
+    virtual void initialize(GenContext& context, const ShaderGenerator& shadergen, ElementPtr implementation);
 
     /// Create shader variables needed for the implementation of this node (e.g. uniforms, inputs and outputs).
     /// Used if the node requires input data from the application.
-    virtual void createVariables(Shader& shader, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const;
+    virtual void createVariables(Shader& shader, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const;
 
     /// Emit function definition for the given node instance.
-    virtual void emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const;
+    virtual void emitFunctionDefinition(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const;
 
     /// Emit the function call or inline source code for given node instance in the given context.
-    virtual void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const;
+    virtual void emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const;
 
     /// Return a pointer to the graph if this implementation is using a graph,
     /// or returns nullptr otherwise.

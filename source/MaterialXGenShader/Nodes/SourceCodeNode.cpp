@@ -17,9 +17,9 @@ ShaderNodeImplPtr SourceCodeNode::create()
     return std::make_shared<SourceCodeNode>();
 }
 
-void SourceCodeNode::initialize(ElementPtr implementation, const ShaderGenerator& shadergen, GenContext& context)
+void SourceCodeNode::initialize(GenContext& context, const ShaderGenerator& shadergen, ElementPtr implementation)
 {
-    ShaderNodeImpl::initialize(implementation, shadergen, context);
+    ShaderNodeImpl::initialize(context, shadergen, implementation);
 
     ImplementationPtr impl = implementation->asA<Implementation>();
     if (!impl)
@@ -55,7 +55,7 @@ void SourceCodeNode::initialize(ElementPtr implementation, const ShaderGenerator
     }
 }
 
-void SourceCodeNode::emitFunctionDefinition(ShaderStage& stage, const ShaderNode&, const ShaderGenerator& shadergen, GenContext& context) const
+void SourceCodeNode::emitFunctionDefinition(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode&) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     // Emit function definition for non-inlined functions
@@ -67,7 +67,7 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 END_SHADER_STAGE(stage, MAIN_STAGE)
 }
 
-void SourceCodeNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
+void SourceCodeNode::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     if (_inlined)

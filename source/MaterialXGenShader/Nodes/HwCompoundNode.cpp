@@ -15,36 +15,35 @@ ShaderNodeImplPtr HwCompoundNode::create()
     return std::make_shared<HwCompoundNode>();
 }
 
-void HwCompoundNode::emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen_, GenContext& context) const
+void HwCompoundNode::emitFunctionDefinition(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen_, const ShaderNode& node) const
 {
-BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 
-    const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(shadergen_);
+        const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(shadergen_);
 
-    // Emit functions for all child nodes
-    shadergen.emitFunctionDefinitions(stage, context, *_rootGraph);
+        // Emit functions for all child nodes
+        shadergen.emitFunctionDefinitions(stage, context, *_rootGraph);
 
-    // Find any closure contexts used by this node
-    // and emit the function for each context.
-    vector<HwClosureContextPtr> ccxs;
-    shadergen.getNodeClosureContexts(node, ccxs);
-    if (ccxs.empty())
-    {
-        emitFunctionDefinition(stage, shadergen, context, nullptr);
-    }
-    else
-    {
-        for (HwClosureContextPtr ccx : ccxs)
+        // Find any closure contexts used by this node
+        // and emit the function for each context.
+        vector<HwClosureContextPtr> ccxs;
+        shadergen.getNodeClosureContexts(node, ccxs);
+        if (ccxs.empty())
         {
-            emitFunctionDefinition(stage, shadergen, context, ccx);
+            emitFunctionDefinition(stage, context, shadergen, nullptr);
         }
-    }
+        else
+        {
+            for (HwClosureContextPtr ccx : ccxs)
+            {
+                emitFunctionDefinition(stage, context, shadergen, ccx);
+            }
+        }
 
-END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 }
 
-void HwCompoundNode::emitFunctionDefinition(ShaderStage& stage, const HwShaderGenerator& shadergen, 
-    GenContext& context, HwClosureContextPtr ccx) const
+void HwCompoundNode::emitFunctionDefinition(ShaderStage& stage, GenContext& context, const HwShaderGenerator& shadergen, HwClosureContextPtr ccx) const
 {
     const Syntax* syntax = shadergen.getSyntax();
 
@@ -122,71 +121,71 @@ void HwCompoundNode::emitFunctionDefinition(ShaderStage& stage, const HwShaderGe
     shadergen.emitLineBreak(stage);
 }
 
-void HwCompoundNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
+void HwCompoundNode::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const
 {
-BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+    BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
 
-    // Emit function calls for all child nodes to the vertex shader stage
-    // TODO: Is this ever usefull?
-    shadergen.emitFunctionCalls(stage, context, *_rootGraph);
+        // Emit function calls for all child nodes to the vertex shader stage
+        // TODO: Is this ever usefull?
+        shadergen.emitFunctionCalls(stage, context, *_rootGraph);
 
-END_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+    END_SHADER_STAGE(stage, HW::VERTEX_STAGE)
 
-BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 
-    // Declare the output variables
-    for (size_t i = 0; i < node.numOutputs(); ++i)
-    {
-        shadergen.emitLineBegin(stage);
-        shadergen.emitOutput(stage, context, node.getOutput(i), true, true);
-        shadergen.emitLineEnd(stage);
-    }
-
-    shadergen.emitLineBegin(stage);
-    string delim = "";
-
-    // Check if we have a closure context to modify the function call.
-    HwClosureContextPtr ccx = context.getUserData<HwClosureContext>(HW::USER_DATA_CLOSURE_CONTEXT);
-
-    if (ccx)
-    {
-        // Emit function name.
-        shadergen.emitString(stage, _functionName + ccx->getSuffix() + "(");
-
-        // Emit extra argument.
-        for (const HwClosureContext::Argument& arg : ccx->getArguments())
+        // Declare the output variables
+        for (size_t i = 0; i < node.numOutputs(); ++i)
         {
-            shadergen.emitString(stage, delim + arg.second);
+            shadergen.emitLineBegin(stage);
+            shadergen.emitOutput(stage, context, node.getOutput(i), true, true);
+            shadergen.emitLineEnd(stage);
+        }
+
+        shadergen.emitLineBegin(stage);
+        string delim = "";
+
+        // Check if we have a closure context to modify the function call.
+        HwClosureContextPtr ccx = context.getUserData<HwClosureContext>(HW::USER_DATA_CLOSURE_CONTEXT);
+
+        if (ccx)
+        {
+            // Emit function name.
+            shadergen.emitString(stage, _functionName + ccx->getSuffix() + "(");
+
+            // Emit extra argument.
+            for (const HwClosureContext::Argument& arg : ccx->getArguments())
+            {
+                shadergen.emitString(stage, delim + arg.second);
+                delim = ", ";
+            }
+        }
+        else
+        {
+            // Emit function name.
+            shadergen.emitString(stage, _functionName + "(");
+        }
+
+        // Emit all inputs.
+        for (ShaderInput* input : node.getInputs())
+        {
+            shadergen.emitString(stage, delim);
+            shadergen.emitInput(stage, context, input);
             delim = ", ";
         }
-    }
-    else
-    {
-        // Emit function name.
-        shadergen.emitString(stage, _functionName + "(");
-    }
 
-    // Emit all inputs.
-    for (ShaderInput* input : node.getInputs())
-    {
-        shadergen.emitString(stage, delim);
-        shadergen.emitInput(stage, context, input);
-        delim = ", ";
-    }
+        // Emit all outputs.
+        for (size_t i = 0; i < node.numOutputs(); ++i)
+        {
+            shadergen.emitString(stage, delim);
+            shadergen.emitOutput(stage, context, node.getOutput(i), false, false);
+            delim = ", ";
+        }
 
-    // Emit all outputs.
-    for (size_t i = 0; i < node.numOutputs(); ++i)
-    {
-        shadergen.emitString(stage, delim);
-        shadergen.emitOutput(stage, context, node.getOutput(i), false, false);
-        delim = ", ";
-    }
+        // End function call
+        shadergen.emitString(stage, ")");
+        shadergen.emitLineEnd(stage);
 
-    // End function call
-    shadergen.emitString(stage, ")");
-    shadergen.emitLineEnd(stage);
-
-END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

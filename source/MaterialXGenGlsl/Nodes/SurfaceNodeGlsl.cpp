@@ -47,7 +47,7 @@ ShaderNodeImplPtr SurfaceNodeGlsl::create()
     return std::make_shared<SurfaceNodeGlsl>();
 }
 
-void SurfaceNodeGlsl::createVariables(Shader& shader, const ShaderNode&, const ShaderGenerator&, GenContext&) const
+void SurfaceNodeGlsl::createVariables(Shader& shader, GenContext&, const ShaderGenerator&, const ShaderNode&) const
 {
     // TODO: 
     // The surface shader needs position, normal, view position and light sources. We should solve this by adding some 
@@ -69,7 +69,7 @@ void SurfaceNodeGlsl::createVariables(Shader& shader, const ShaderNode&, const S
     addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", Value::createValue<int>(0));
 }
 
-void SurfaceNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen_, GenContext& context) const
+void SurfaceNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen_, const ShaderNode& node) const
 {
     const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(shadergen_);
 

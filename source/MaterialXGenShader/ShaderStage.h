@@ -190,11 +190,11 @@ protected:
     void addComment(const string& str);
 
     /// Add a block of code.
-    void addBlock(const string& str, GenContext& context);
+    void addBlock(GenContext& context, const string& str);
 
     /// Add the contents of an include file. Making sure it is 
     /// only included once for the shader stage.
-    void addInclude(const string& file, GenContext& context);
+    void addInclude(GenContext& context, const string& file);
 
     /// Add a value.
     template<typename T>
@@ -206,7 +206,7 @@ protected:
     }
 
     /// Add the function definition for a node.
-    void addFunctionDefinition(const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context);
+    void addFunctionDefinition(GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node);
 
 private:
     /// Name of the stage
@@ -274,14 +274,17 @@ inline ShaderPort* addStageOutput(ShaderStage& stage, const string& block,
 }
 
 /// Utility function for adding a connector block between stages.
-inline void addStageConnectorBlock(ShaderStage& from, ShaderStage& to, const string& block, const string& instance)
+inline void addStageConnectorBlock(ShaderStage& from, ShaderStage& to, 
+                                   const string& block, const string& instance)
 {
     from.createOutputBlock(block, instance);
     to.createInputBlock(block, instance);
 }
 
 /// Utility function for adding a variable to a stage connector block.
-inline void addStageConnector(ShaderStage& from, ShaderStage& to, const string& block, const TypeDesc* type, const string& name)
+inline void addStageConnector(ShaderStage& from, ShaderStage& to, 
+                              const string& block, const TypeDesc* type, 
+                              const string& name)
 {
     addStageOutput(from, block, type, name);
     addStageInput(to, block, type, name);

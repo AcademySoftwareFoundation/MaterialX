@@ -277,7 +277,7 @@ ShaderPtr OslShaderGenerator::createShader(GenContext& context, const string& na
     // Create shader variables for all nodes that need this.
     for (ShaderNode* node : graph->getNodes())
     {
-        node->getImplementation().createVariables(*shader, *node, *this, context);
+        node->getImplementation().createVariables(*shader, context, *this, *node);
     }
 
     // Create uniforms for the published graph interface.

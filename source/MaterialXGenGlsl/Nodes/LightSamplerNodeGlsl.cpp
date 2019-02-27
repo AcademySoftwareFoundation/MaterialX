@@ -8,7 +8,7 @@ ShaderNodeImplPtr LightSamplerNodeGlsl::create()
     return std::make_shared<LightSamplerNodeGlsl>();
 }
 
-void LightSamplerNodeGlsl::emitFunctionDefinition(ShaderStage& stage, const ShaderNode&, const ShaderGenerator& shadergen_, GenContext& context) const
+void LightSamplerNodeGlsl::emitFunctionDefinition(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen_, const ShaderNode&) const
 {
     BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
         const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(shadergen_);

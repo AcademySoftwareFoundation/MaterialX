@@ -8,7 +8,7 @@ ShaderNodeImplPtr ViewDirectionNodeGlsl::create()
     return std::make_shared<ViewDirectionNodeGlsl>();
 }
 
-void ViewDirectionNodeGlsl::createVariables(Shader& shader, const ShaderNode&, const ShaderGenerator&, GenContext&) const
+void ViewDirectionNodeGlsl::createVariables(Shader& shader, GenContext&, const ShaderGenerator&, const ShaderNode&) const
 {
     ShaderStage& vs = shader.getStage(HW::VERTEX_STAGE);
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
@@ -18,7 +18,7 @@ void ViewDirectionNodeGlsl::createVariables(Shader& shader, const ShaderNode&, c
     addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::VECTOR3, "u_viewPosition");
 }
 
-void ViewDirectionNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
+void ViewDirectionNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const
 {
     BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);

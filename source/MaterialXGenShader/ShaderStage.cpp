@@ -263,7 +263,7 @@ void ShaderStage::addComment(const string& str)
     endLine(false);
 }
 
-void ShaderStage::addBlock(const string& str, GenContext& context)
+void ShaderStage::addBlock(GenContext& context, const string& str)
 {
     static const string INCLUDE_PATTERN = "#include";
     static const string QUOTATION_MARK = "\"";
@@ -284,7 +284,7 @@ void ShaderStage::addBlock(const string& str, GenContext& context)
                 if (length)
                 {
                     const string filename = line.substr(startQuote + 1, length);
-                    addInclude(filename, context);
+                    addInclude(context, filename);
                 }
             }
         }
@@ -295,7 +295,7 @@ void ShaderStage::addBlock(const string& str, GenContext& context)
     }
 }
 
-void ShaderStage::addInclude(const string& file, GenContext& context)
+void ShaderStage::addInclude(GenContext& context, const string& file)
 {
     const string path = context.findSourceCode(file);
 
@@ -307,11 +307,11 @@ void ShaderStage::addInclude(const string& file, GenContext& context)
             throw ExceptionShaderGenError("Could not find include file: '" + file + "'");
         }
         _includes.insert(path);
-        addBlock(content, context);
+        addBlock(context, content);
     }
 }
 
-void ShaderStage::addFunctionDefinition(const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context)
+void ShaderStage::addFunctionDefinition(GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node)
 {
     const ShaderNodeImpl& impl = node.getImplementation();
     const size_t id = impl.getHash();
@@ -319,7 +319,7 @@ void ShaderStage::addFunctionDefinition(const ShaderNode& node, const ShaderGene
     if (!_definedFunctions.count(id))
     {
         _definedFunctions.insert(id);
-        impl.emitFunctionDefinition(*this, node, shadergen, context);
+        impl.emitFunctionDefinition(*this, context, shadergen, node);
     }
 }
 

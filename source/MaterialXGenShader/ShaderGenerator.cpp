@@ -64,17 +64,17 @@ void ShaderGenerator::emitComment(ShaderStage& stage, const string& str) const
 
 void ShaderGenerator::emitBlock(ShaderStage& stage, GenContext& context, const string& str) const
 {
-    stage.addBlock(str, context);
+    stage.addBlock(context, str);
 }
 
 void ShaderGenerator::emitInclude(ShaderStage& stage, GenContext& context, const string& file) const
 {
-    stage.addInclude(file, context);
+    stage.addInclude(context, file);
 }
 
 void ShaderGenerator::emitFunctionDefinition(ShaderStage& stage, GenContext& context, const ShaderNode& node) const
 {
-    stage.addFunctionDefinition(node, *this, context);
+    stage.addFunctionDefinition(context, *this, node);
 }
 
 void ShaderGenerator::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderNode& node, bool checkScope) const
@@ -87,7 +87,7 @@ void ShaderGenerator::emitFunctionCall(ShaderStage& stage, GenContext& context, 
     }
     else
     {
-        node.getImplementation().emitFunctionCall(stage, node, *this, context);
+        node.getImplementation().emitFunctionCall(stage, context, *this, node);
     }
 }
 
@@ -248,7 +248,7 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(GenContext& context, Interf
     {
         throw ExceptionShaderGenError("Element '" + name + "' is neither an Implementation nor an NodeGraph");
     }
-    impl->initialize(element, *this, context);
+    impl->initialize(context, *this, element);
 
     // Cache it.
     context.addNodeImplementation(name, getTarget(), impl);

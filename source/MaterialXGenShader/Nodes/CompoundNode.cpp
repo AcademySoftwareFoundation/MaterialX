@@ -15,9 +15,9 @@ ShaderNodeImplPtr CompoundNode::create()
     return std::make_shared<CompoundNode>();
 }
 
-void CompoundNode::initialize(ElementPtr implementation, const ShaderGenerator& shadergen, GenContext& context)
+void CompoundNode::initialize(GenContext& context, const ShaderGenerator& shadergen, ElementPtr implementation)
 {
-    ShaderNodeImpl::initialize(implementation, shadergen, context);
+    ShaderNodeImpl::initialize(context, shadergen, implementation);
 
     NodeGraphPtr graph = implementation->asA<NodeGraph>();
     if (!graph)
@@ -35,16 +35,16 @@ void CompoundNode::initialize(ElementPtr implementation, const ShaderGenerator& 
     context.getOptions().shaderInterfaceType = shaderInterfaceType;
 }
 
-void CompoundNode::createVariables(Shader& shader, const ShaderNode&, const ShaderGenerator& shadergen, GenContext& context) const
+void CompoundNode::createVariables(Shader& shader, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode&) const
 {
     // Gather shader inputs from all child nodes
     for (const ShaderNode* childNode : _rootGraph->getNodes())
     {
-        childNode->getImplementation().createVariables(shader, *childNode, shadergen, context);
+        childNode->getImplementation().createVariables(shader, context, shadergen, *childNode);
     }
 }
 
-void CompoundNode::emitFunctionDefinition(ShaderStage& stage, const ShaderNode&, const ShaderGenerator& shadergen, GenContext& context) const
+void CompoundNode::emitFunctionDefinition(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode&) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 
@@ -104,7 +104,7 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 END_SHADER_STAGE(stage, MAIN_STAGE)
 }
 
-void CompoundNode::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
+void CompoundNode::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 
