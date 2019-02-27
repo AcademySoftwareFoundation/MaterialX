@@ -36,24 +36,38 @@ class VariableBlock
         , _instance(instance)
     {}
 
+    /// Get the name of this block.
     const string& getName() const { return _name; }
 
+    /// Get the instance name of this block.
     const string& getInstance() const { return _instance; }
 
+    /// Return true if the block has no variables.
     bool empty() const { return _variableOrder.empty(); }
 
+    /// Return the number of variables in this block.
     size_t size() const { return _variableOrder.size(); }
 
-    ShaderPort* operator[](size_t i) { return _variableOrder[i]; }
+    /// Return a variable by index.
+    ShaderPort* operator[](size_t index) { return _variableOrder[index]; }
 
-    const ShaderPort* operator[](size_t i) const { return _variableOrder[i]; }
+    /// Return a variable by index.
+    const ShaderPort* operator[](size_t index) const { return _variableOrder[index]; }
 
+    /// Return a variable by name. Throws exception if
+    /// no variable is found by the given name.
     ShaderPort* operator[](const string& name);
 
+    /// Return a variable by name. Throws exception if
+    /// no variable is found by the given name.
     const ShaderPort* operator[](const string& name) const;
 
+    /// Return a variable by name. Returns nullptr if
+    /// no variable is found by the given name.
     ShaderPort* find(const string& name);
 
+    /// Return a variable by name. Returns nullptr if
+    /// no variable is found by the given name.
     const ShaderPort* find(const string& name) const;
 
     /// Add a new shader port to this block.
@@ -84,6 +98,7 @@ class ShaderStage
         SQUARES
     };
 
+    /// Contructor.
     ShaderStage(const string& name, ConstSyntaxPtr syntax);
 
     /// Return the stage name.
@@ -179,8 +194,6 @@ protected:
     /// Add the function definition for a node.
     void addFunctionDefinition(const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context);
 
-    friend class ShaderGenerator;
-
 private:
     /// Name of the stage
     const string _name;
@@ -214,6 +227,8 @@ private:
 
     /// Resulting source code for this stage.
     string _code;
+
+    friend class ShaderGenerator;
 };
 
 using ShaderStagePtr = std::shared_ptr<ShaderStage>;

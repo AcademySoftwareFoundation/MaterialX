@@ -26,18 +26,6 @@ ShaderPort::ShaderPort(ShaderNode* node, const TypeDesc* type, const string& nam
 {
 }
 
-void ShaderPort::copyData(const ShaderPort& other)
-{
-    _value = other._value;
-    _path = other._path;
-
-    if (ShaderPort::VARIABLE_NOT_RENAMABLE & other._flags)
-    {
-        _variable = other._variable;
-        _flags |= ShaderPort::VARIABLE_NOT_RENAMABLE;
-    }
-}
-
 ShaderInput::ShaderInput(ShaderNode* node, const TypeDesc* type, const string& name)
     : ShaderPort(node, type, name)
     , _connection(nullptr)

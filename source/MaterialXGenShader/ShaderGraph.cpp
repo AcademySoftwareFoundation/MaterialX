@@ -254,12 +254,6 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
 
     if (colorTransformNodePtr)
     {
-        // We can potentially improve this workflow in the future by replacing the constant node with the transform node
-//        if (input->getNode()->hasClassification(ShaderNode::Classification::CONSTANT))
-//        {
-//            input->getNode()->_classification |= ShaderNode::Classification::DO_NOT_OPTIMIZE;
-//        }
-
         _nodeMap[colorTransformNodePtr->getName()] = colorTransformNodePtr;
         _nodeOrder.push_back(colorTransformNodePtr.get());
 
@@ -270,7 +264,6 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
         shaderInput->setVariable(input->getNode()->getName() + "_" + input->getName());
         shaderInput->setValue(input->getValue());
         shaderInput->setPath(input->getPath());
-        shaderInput->setFlags(shaderInput->getFlags() | ShaderPort::VARIABLE_NOT_RENAMABLE);
 
         input->makeConnection(colorTransformNodeOutput);
     }
@@ -698,8 +691,8 @@ void ShaderGraph::finalize(const ShaderGenerator& shadergen, GenContext& context
 
     if (context.getOptions().shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
     {
-        // Create uniforms for all node inputs that has not been connected already
-        for (ShaderNode* node : getNodes())
+        // Publish all node inputs that has not been connected already.
+        for (const ShaderNode* node : getNodes())
         {
             for (ShaderInput* input : node->getInputs())
             {
@@ -718,8 +711,8 @@ void ShaderGraph::finalize(const ShaderGenerator& shadergen, GenContext& context
                         if (!inputSocket)
                         {
                             inputSocket = addInputSocket(interfaceName, input->getType());
-                            // Copy relevant data from internal input to the published socket
-                            inputSocket->copyData(*input);
+                            inputSocket->setPath(input->getPath());
+                            inputSocket->setValue(input->getValue());
                         }
                         inputSocket->makeConnection(input);
                     }
@@ -889,7 +882,8 @@ void ShaderGraph::bypass(ShaderNode* node, size_t inputIndex, size_t outputIndex
         for (ShaderInput* downstream : downstreamConnections)
         {
             output->breakConnection(downstream);
-            downstream->copyData(*input);
+            downstream->setValue(input->getValue());
+            downstream->setPath(input->getPath());
         }
     }
 }

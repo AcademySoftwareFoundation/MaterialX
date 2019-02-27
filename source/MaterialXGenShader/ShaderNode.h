@@ -28,8 +28,8 @@ using ShaderInputSet = std::set<ShaderInput*>;
 class ShaderPort : public std::enable_shared_from_this<ShaderPort>
 {
   public:
-    static const unsigned int VARIABLE_NOT_RENAMABLE = 1 << 0; // Variable should not be automatically named
-    static const unsigned int EMITTED = 1 << 1;
+    /// Flags set on shader ports.
+    static const unsigned int EMITTED = 1 << 0;
 
     ShaderPort(ShaderNode* node, const TypeDesc* type, const string& name, ValuePtr value = nullptr);
 
@@ -39,34 +39,58 @@ class ShaderPort : public std::enable_shared_from_this<ShaderPort>
         return shared_from_this();
     }
 
-    /// Copy data from another port to this port
-    void copyData(const ShaderPort& other);
-
+    /// Return the node this port belongs to.
     ShaderNode* getNode() { return _node; }
+
+    /// Return the node this port belongs to.
     const ShaderNode* getNode() const { return _node; }
 
+    /// Set the data type for this port.
     void setType(const TypeDesc* type) { _type = type; }
+
+    /// Return the data type for this port.
     const TypeDesc* getType() const { return _type; }
 
+    /// Set the name of this port.
     void setName(const string& name) { _name = name; }
+
+    /// Return the name of this port.
     const string& getName() const { return _name; }
 
+    /// Set the variable name of this port.
     void setVariable(const string& name) { _variable = name; }
+
+    /// Return the variable name of this port.
     const string& getVariable() const { return _variable; }
 
+    /// Set the variable semantic of this port.
     void setSemantic(const string& semantic) { _semantic = semantic; }
+
+    /// Return the variable semantic of this port.
     const string& getSemantic() const { return _semantic; }
 
+    /// Set a value on this port.
     void setValue(ValuePtr value) { _value = value; }
+
+    /// Return the value set on this port.
     ValuePtr getValue() const { return _value; }
 
+    /// Set the path to this port.
     void setPath(const string& path) { _path = path; }
+
+    /// Return the path to this port.
     const string& getPath() const { return _path; }
 
+    /// Set the emitted state on this port to true.
     void setEmitted() { _flags |= EMITTED; }
+
+    /// Return the emitted state of this port.
     bool isEmitted() const { return (_flags & EMITTED) != 0; }
 
+    /// Set flags on this port.
     void setFlags(unsigned int flags) { _flags = flags; }
+
+    /// Return flags set on this port.
     unsigned int getFlags() const { return _flags; }
 
   protected:

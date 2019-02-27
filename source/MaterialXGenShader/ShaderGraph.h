@@ -105,7 +105,7 @@ class ShaderGraph : public ShaderNode
     void addColorTransformNode(ShaderInput* input, const ColorSpaceTransform& transform, const ShaderGenerator& shadergen, GenContext& context);
 
     /// Add a color transform node and connect to the given output.
-    void addColorTransformNode(ShaderOutput* input, const ColorSpaceTransform& transform, const ShaderGenerator& shadergen, GenContext& context);
+    void addColorTransformNode(ShaderOutput* output, const ColorSpaceTransform& transform, const ShaderGenerator& shadergen, GenContext& context);
 
     /// Perform all post-build operations on the graph.
     void finalize(const ShaderGenerator& shadergen, GenContext& context);
