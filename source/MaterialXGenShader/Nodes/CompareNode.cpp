@@ -55,7 +55,7 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
             if (scope.conditionalNode == &node && scope.usedByBranch(branch))
             {
                 // Force ignore scope otherwise the function call will be omitted.
-                shadergen.emitFunctionCall(stage, *otherNode, context, false);
+                shadergen.emitFunctionCall(stage, context, *otherNode, false);
             }
         }
 

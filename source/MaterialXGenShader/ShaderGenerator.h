@@ -35,7 +35,7 @@ public:
 
     /// Generate a shader starting from the given element, translating
     /// the element and all dependencies upstream into shader code.
-    virtual ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const = 0;
+    virtual ShaderPtr generate(GenContext& context, const string& name, ElementPtr element) const = 0;
 
     /// Start a new scope using the given bracket type.
     virtual void emitScopeBegin(ShaderStage& stage, ShaderStage::Brackets brackets = ShaderStage::Brackets::BRACES) const;
@@ -62,11 +62,11 @@ public:
     virtual void emitComment(ShaderStage& stage, const string& str) const;
 
     /// Add a block of code.
-    virtual void emitBlock(ShaderStage& stage, const string& str, GenContext& context) const;
+    virtual void emitBlock(ShaderStage& stage, GenContext& context, const string& str) const;
 
     /// Add the contents of an include file. Making sure it is 
     /// only included once for the shader stage.
-    virtual void emitInclude(ShaderStage& stage, const string& file, GenContext& context) const;
+    virtual void emitInclude(ShaderStage& stage, GenContext& context, const string& file) const;
 
     /// Add a value.
     template<typename T>
@@ -76,28 +76,28 @@ public:
     }
 
     /// Add the function definition for a single node.
-    virtual void emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, GenContext& context) const;
+    virtual void emitFunctionDefinition(ShaderStage& stage, GenContext& context, const ShaderNode& node) const;
 
     /// Add the function call for a single node.
-    virtual void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context,
-        bool checkScope = true) const;
+    virtual void emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderNode& node,
+                                  bool checkScope = true) const;
 
     /// Add all function definitions for a graph.
-    virtual void emitFunctionDefinitions(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const;
+    virtual void emitFunctionDefinitions(ShaderStage& stage, GenContext& context, const ShaderGraph& graph) const;
 
     /// Add all function calls for a graph.
-    virtual void emitFunctionCalls(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const;
+    virtual void emitFunctionCalls(ShaderStage& stage, GenContext& context, const ShaderGraph& graph) const;
 
     /// Emit type definitions for all data types that needs it.
-    virtual void emitTypeDefinitions(ShaderStage& stage) const;
+    virtual void emitTypeDefinitions(ShaderStage& stage, GenContext& context) const;
 
     /// Emit the connected variable name for an input,
     /// or constant value if the port is not connected
-    virtual void emitInput(ShaderStage& stage, const GenContext& context, const ShaderInput* input) const;
+    virtual void emitInput(ShaderStage& stage, GenContext& context, const ShaderInput* input) const;
 
     /// Emit the output variable name for an output, optionally including it's type
     /// and default value assignment.
-    virtual void emitOutput(ShaderStage& stage, const GenContext& context, const ShaderOutput* output, 
+    virtual void emitOutput(ShaderStage& stage, GenContext& context, const ShaderOutput* output, 
                             bool includeType, bool assignValue) const;
 
     /// Emit definitions for all shader variables in a block.
@@ -106,20 +106,19 @@ public:
     /// @param qualifier Optional qualifier to add before the variable declaration.
     /// @param separator Separator to use between the declarations.
     /// @param assignValue If true the variables are initialized with their value.
-    virtual void emitVariableDeclarations(ShaderStage& stage, const VariableBlock& block,
-                                   const string& qualifier, const string& separator, 
-                                   bool assignValue = true) const;
+    virtual void emitVariableDeclarations(ShaderStage& stage, GenContext& context, const VariableBlock& block,
+                                          const string& qualifier, const string& separator, bool assignValue = true) const;
 
     /// Emit definition of a single shader variable.
     /// @param stage The stage to emit code into.
     /// @param variable Shader port representing the variable.
     /// @param qualifier Optional qualifier to add before the variable declaration.
     /// @param assignValue If true the variable is initialized with its value.
-    virtual void emitVariableDeclaration(ShaderStage& stage, const ShaderPort* variable,
+    virtual void emitVariableDeclaration(ShaderStage& stage, GenContext& context, const ShaderPort* variable,
                                          const string& qualifier, bool assignValue = true) const;
 
     /// Return the result of an upstream connection or value for an input.
-    virtual string getUpstreamResult(const GenContext& context, const ShaderInput* input) const;
+    virtual string getUpstreamResult(GenContext& context, const ShaderInput* input) const;
 
     /// Return the syntax object for the language used by the code generator
     const Syntax* getSyntax() const { return _syntax.get(); }
@@ -146,7 +145,7 @@ public:
     /// The element must be an Implementation or a NodeGraph acting as implementation.
     /// If no registered implementation is found a 'default' implementation instance
     /// will be returned, as defined by the createDefaultImplementation method.
-    ShaderNodeImplPtr getImplementation(InterfaceElementPtr element, GenContext& context) const;
+    ShaderNodeImplPtr getImplementation(GenContext& context, InterfaceElementPtr element) const;
 
     /// Given a input element attempt to remap this to an enumeration which is accepted by
     /// the shader generator. The enumeration may be of a different type than the input value type.

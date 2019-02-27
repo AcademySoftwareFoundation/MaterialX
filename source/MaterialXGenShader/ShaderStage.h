@@ -124,18 +124,26 @@ class ShaderStage
 
     /// Return the uniform variable block with given name.
     VariableBlock& getUniformBlock(const string& name);
+
+    /// Return the uniform variable block with given name.
     const VariableBlock& getUniformBlock(const string& name) const;
 
     /// Return the input variable block with given name.
     VariableBlock& getInputBlock(const string& name);
+
+    /// Return the input variable block with given name.
     const VariableBlock& getInputBlock(const string& name) const;
 
     /// Return the output variable block with given name.
     VariableBlock& getOutputBlock(const string& name);
+
+    /// Return the output variable block with given name.
     const VariableBlock& getOutputBlock(const string& name) const;
 
     /// Return the constant variable block.
     VariableBlock& getConstantBlock();
+
+    /// Return the constant variable block.
     const VariableBlock& getConstantBlock() const;
 
     /// Return a map of all uniform blocks.

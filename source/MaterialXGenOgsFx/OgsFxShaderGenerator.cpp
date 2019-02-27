@@ -82,9 +82,9 @@ ShaderGeneratorPtr OgsFxShaderGenerator::create()
     return std::make_shared<OgsFxShaderGenerator>();
 }
 
-ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
+ShaderPtr OgsFxShaderGenerator::generate(GenContext& context, const string& name, ElementPtr element) const
 {
-    ShaderPtr shader = createShader(name, element, context);
+    ShaderPtr shader = createShader(context, name, element);
 
     // Turn on fixed formatting since OgsFx doesn't support scientific values
     Value::ScopedFloatFormatting fmt(Value::FloatFormatFixed);
@@ -95,8 +95,8 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     ShaderStage& fx = shader->getStage(HW::FX_STAGE);
 
     // Emit code for vertex and pixel shader stages
-    emitVertexStage(vs, graph, context);
-    emitPixelStage(ps, graph, context);
+    emitVertexStage(vs, context, graph);
+    emitPixelStage(ps, context, graph);
 
     //
     // Assemble the final effects shader
@@ -107,10 +107,10 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     emitLineBreak(fx);
 
     // Add global constants and type definitions
-    emitInclude(fx, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_defines.glsl", context);
+    emitInclude(fx, context, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_defines.glsl");
     emitLine(fx, "#define MAX_LIGHT_SOURCES " + std::to_string(getMaxActiveLightSources()), false);
     emitLineBreak(fx);
-    emitTypeDefinitions(fx);
+    emitTypeDefinitions(fx, context);
 
     // Add vertex inputs block
     const VariableBlock& vertexInputs = vs.getInputBlock(HW::VERTEX_INPUTS);
@@ -118,7 +118,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     {
         emitLine(fx, "attribute " + vertexInputs.getName(), false);
         emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
-        emitVariableDeclarations(fx, vertexInputs, EMPTY_STRING, SEMICOLON, false);
+        emitVariableDeclarations(fx, context, vertexInputs, EMPTY_STRING, SEMICOLON, false);
         emitScopeEnd(fx, true);
         emitLineBreak(fx);
     }
@@ -129,7 +129,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     {
         emitLine(fx, "attribute " + vertexData.getName(), false);
         emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
-        emitVariableDeclarations(fx, vertexData, EMPTY_STRING, SEMICOLON, false);
+        emitVariableDeclarations(fx, context, vertexData, EMPTY_STRING, SEMICOLON, false);
         emitScopeEnd(fx, true);
         emitLineBreak(fx);
     }
@@ -149,7 +149,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         if (!uniforms.empty())
         {
             emitComment(fx, "Vertex stage uniform block: " + uniforms.getName());
-            emitVariableDeclarations(fx, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
+            emitVariableDeclarations(fx, context, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
             emitLineBreak(fx);
         }
     }
@@ -159,7 +159,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         if (!uniforms.empty())
         {
             emitComment(fx, "Vertex stage uniform block: " + uniforms.getName());
-            emitVariableDeclarations(fx, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
+            emitVariableDeclarations(fx, context, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
             emitLineBreak(fx);
         }
     }
@@ -169,7 +169,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         if (!uniforms.empty())
         {
             emitComment(fx, "Pixel stage uniform block: " + uniforms.getName());
-            emitVariableDeclarations(fx, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
+            emitVariableDeclarations(fx, context, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
             emitLineBreak(fx);
         }
     }
@@ -179,7 +179,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         if (!uniforms.empty())
         {
             emitComment(fx, "Pixel stage uniform block: " + uniforms.getName());
-            emitVariableDeclarations(fx, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
+            emitVariableDeclarations(fx, context, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
             emitLineBreak(fx);
         }
     }
@@ -203,23 +203,23 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         emitLineBreak(fx);
 
         // Emit OGS lighting uniforms
-        emitInclude(fx, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/" + OgsFxShaderGenerator::TARGET + "/mx_lighting_uniforms.glsl", context);
+        emitInclude(fx, context, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/" + OgsFxShaderGenerator::TARGET + "/mx_lighting_uniforms.glsl");
         emitLineBreak(fx);
 
         // Emit lighting functions
         emitLine(fx, "GLSLShader LightingFunctions", false);
         emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
-        emitInclude(fx, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/" + OgsFxShaderGenerator::TARGET + "/mx_lighting_functions.glsl", context);
+        emitInclude(fx, context, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/" + OgsFxShaderGenerator::TARGET + "/mx_lighting_functions.glsl");
         emitLineBreak(fx);
 
         // Emit environment lighting functions
         if (context.getOptions().hwSpecularEnvironmentMethod == SPECULAR_ENVIRONMENT_FIS)
         {
-            emitInclude(fx, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_fis.glsl", context);
+            emitInclude(fx, context, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_fis.glsl");
         }
         else
         {
-            emitInclude(fx, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_prefilter.glsl", context);
+            emitInclude(fx, context, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_prefilter.glsl");
         }
         emitLineBreak(fx);
 
@@ -228,8 +228,8 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     }
 
     // Add code blocks from the vertex and pixel shader stages generated above
-    emitBlock(fx, vs.getSourceCode(), context);
-    emitBlock(fx, ps.getSourceCode(), context);
+    emitBlock(fx, context, vs.getSourceCode());
+    emitBlock(fx, context, ps.getSourceCode());
 
     // Add Main technique block
     string techniqueParams;
@@ -256,7 +256,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     return shader;
 }
 
-void OgsFxShaderGenerator::emitVertexStage(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const
+void OgsFxShaderGenerator::emitVertexStage(ShaderStage& stage, GenContext& context, const ShaderGraph& graph) const
 {
     emitComment(stage, "---------------------------------- Vertex shader ----------------------------------------\n");
     emitLine(stage, "GLSLShader VS", false);
@@ -266,23 +266,23 @@ void OgsFxShaderGenerator::emitVertexStage(ShaderStage& stage, const ShaderGraph
     const VariableBlock& constants = stage.getConstantBlock();
     if (!constants.empty())
     {
-        emitVariableDeclarations(stage, constants, _syntax->getConstantQualifier(), SEMICOLON);
+        emitVariableDeclarations(stage, context, constants, _syntax->getConstantQualifier(), SEMICOLON);
         emitLineBreak(stage);
     }
 
-    emitFunctionDefinitions(stage, graph, context);
+    emitFunctionDefinitions(stage, context, graph);
 
     // Add main function
     emitLine(stage, "void main()", false);
     emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
     emitLine(stage, "vec4 hPositionWorld = u_worldMatrix * vec4(i_position, 1.0)");
     emitLine(stage, "gl_Position = u_viewProjectionMatrix * hPositionWorld");
-    emitFunctionCalls(stage, graph, context);
+    emitFunctionCalls(stage, context, graph);
     emitScopeEnd(stage);
     emitLineBreak(stage);
 }
 
-void OgsFxShaderGenerator::emitPixelStage(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const
+void OgsFxShaderGenerator::emitPixelStage(ShaderStage& stage, GenContext& context, const ShaderGraph& graph) const
 {
     emitComment(stage, "---------------------------------- Pixel shader ----------------------------------------\n");
     emitLine(stage, "GLSLShader PS", false);
@@ -302,36 +302,36 @@ void OgsFxShaderGenerator::emitPixelStage(ShaderStage& stage, const ShaderGraph&
     const VariableBlock& constants = stage.getConstantBlock();
     if (!constants.empty())
     {
-        emitVariableDeclarations(stage, constants, _syntax->getConstantQualifier(), SEMICOLON);
+        emitVariableDeclarations(stage, context, constants, _syntax->getConstantQualifier(), SEMICOLON);
         emitLineBreak(stage);
     }
 
     // Emit common math functions
-    emitInclude(stage, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_math.glsl", context);
+    emitInclude(stage, context, "pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_math.glsl");
     emitLineBreak(stage);
 
     // Emit sampling code if needed
     if (graph.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
     {
         // Emit sampling functions
-        emitInclude(stage, "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_sampling.glsl", context);
+        emitInclude(stage, context, "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_sampling.glsl");
         emitLineBreak(stage);
     }
 
     // Emit uv transform function
     if (context.getOptions().fileTextureVerticalFlip)
     {
-        emitInclude(stage, "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.glsl", context);
+        emitInclude(stage, context, "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.glsl");
         emitLineBreak(stage);
     }
     else
     {
-        emitInclude(stage, "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.glsl", context);
+        emitInclude(stage, context, "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.glsl");
         emitLineBreak(stage);
     }
 
     // Add all functions for node implementations
-    emitFunctionDefinitions(stage, graph, context);
+    emitFunctionDefinitions(stage, context, graph);
 
     const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket();
 
@@ -371,7 +371,7 @@ void OgsFxShaderGenerator::emitPixelStage(ShaderStage& stage, const ShaderGraph&
         }
 
         // Add all function calls
-        emitFunctionCalls(stage, graph, context);
+        emitFunctionCalls(stage, context, graph);
 
         // Emit final output
         if (outputSocket->getConnection())
@@ -421,7 +421,7 @@ void OgsFxShaderGenerator::emitPixelStage(ShaderStage& stage, const ShaderGraph&
     emitLineBreak(stage);
 }
 
-void OgsFxShaderGenerator::emitVariableDeclaration(ShaderStage& stage, const ShaderPort* variable,
+void OgsFxShaderGenerator::emitVariableDeclaration(ShaderStage& stage, GenContext&, const ShaderPort* variable,
                                                    const string& qualifier, bool assignValue) const
 {
     // A file texture input needs special handling on GLSL
@@ -460,9 +460,9 @@ void OgsFxShaderGenerator::emitVariableDeclaration(ShaderStage& stage, const Sha
     }
 }
 
-ShaderPtr OgsFxShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
+ShaderPtr OgsFxShaderGenerator::createShader(GenContext& context, const string& name, ElementPtr element) const
 {
-    ShaderPtr shader = GlslShaderGenerator::createShader(name, element, context);
+    ShaderPtr shader = GlslShaderGenerator::createShader(context, name, element);
     createStage(*shader, HW::FX_STAGE);
 
     // Update semantics to match OGSFX semantics.

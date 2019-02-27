@@ -22,7 +22,7 @@ public:
 
 protected:
     /// Create a new shader instance
-    ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const override;
+    ShaderPtr createShader(GenContext& context, const string& name, ElementPtr element) const override;
 
     /// Get parameters for the technique block
     void getTechniqueParams(const Shader& shader, string& params) const override;

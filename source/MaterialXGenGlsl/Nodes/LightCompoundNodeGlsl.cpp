@@ -87,7 +87,7 @@ BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(shadergen_);
 
     // Emit functions for all child nodes
-    shadergen.emitFunctionDefinitions(stage, *_rootGraph, context);
+    shadergen.emitFunctionDefinitions(stage, context, *_rootGraph);
 
     // Find any closure contexts used by this node
     // and emit the function for each context.
@@ -125,7 +125,7 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(ShaderStage& stage, const Gls
 
     // Handle all texturing nodes. These are inputs to any
     // closure/shader nodes and need to be emitted first.
-    shadergen.emitTextureNodes(stage, *_rootGraph, context);
+    shadergen.emitTextureNodes(stage, context, *_rootGraph);
 
     if (ccx)
     {
@@ -137,7 +137,7 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(ShaderStage& stage, const Gls
     {
         if (childNode->hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::LIGHT))
         {
-            shadergen.emitFunctionCall(stage, *childNode, context, false);
+            shadergen.emitFunctionCall(stage, context, *childNode, false);
         }
     }
 

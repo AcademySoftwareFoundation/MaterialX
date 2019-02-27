@@ -149,9 +149,9 @@ OslShaderGenerator::OslShaderGenerator()
     registerImplementation("IM_blur_vector4_" + OslShaderGenerator::LANGUAGE, BlurNode::create);
 }
 
-ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
+ShaderPtr OslShaderGenerator::generate(GenContext& context, const string& name, ElementPtr element) const
 {
-    ShaderPtr shader = createShader(name, element, context);
+    ShaderPtr shader = createShader(context, name, element);
 
     const ShaderGraph& graph = shader->getGraph();
     ShaderStage& stage = shader->getStage(OSL::STAGE);
@@ -160,30 +160,30 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
 
     // Add global constants and type definitions
     emitLine(stage, "#define M_FLOAT_EPS 0.000001", false);
-    emitTypeDefinitions(stage);
+    emitTypeDefinitions(stage, context);
 
     // Emit sampling code if needed
     if (graph.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
     {
         // Emit sampling functions
-        emitInclude(stage, "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_sampling.osl", context);
+        emitInclude(stage, context, "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_sampling.osl");
         emitLineBreak(stage);
     }
 
     // Emit uv transform function
     if (context.getOptions().fileTextureVerticalFlip)
     {
-        emitInclude(stage, "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.osl", context);
+        emitInclude(stage, context, "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.osl");
         emitLineBreak(stage);
     }
     else
     {
-        emitInclude(stage, "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.osl", context);
+        emitInclude(stage, context, "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.osl");
         emitLineBreak(stage);
     }
 
     // Emit function definitions for all nodes
-    emitFunctionDefinitions(stage, graph, context);
+    emitFunctionDefinitions(stage, context, graph);
 
     // Emit shader type
     const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket();
@@ -217,7 +217,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
 
     // Emit all uniform inputs
     const VariableBlock& uniforms = stage.getUniformBlock(OSL::UNIFORMS);
-    emitVariableDeclarations(stage, uniforms, _syntax->getUniformQualifier(), COMMA);
+    emitVariableDeclarations(stage, context, uniforms, _syntax->getUniformQualifier(), COMMA);
 
     // Emit shader output
     // TODO: Support multiple outputs
@@ -236,12 +236,12 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     const VariableBlock& constants = stage.getConstantBlock();
     if (constants.size())
     {
-        emitVariableDeclarations(stage, constants, _syntax->getConstantQualifier(), SEMICOLON);
+        emitVariableDeclarations(stage, context, constants, _syntax->getConstantQualifier(), SEMICOLON);
         emitLineBreak(stage);
     }
 
     // Emit function calls for all nodes
-    emitFunctionCalls(stage, graph, context);
+    emitFunctionCalls(stage, context, graph);
 
     // Emit final output
     if (outputSocket->getConnection())
@@ -262,7 +262,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     return shader;
 }
 
-ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
+ShaderPtr OslShaderGenerator::createShader(GenContext& context, const string& name, ElementPtr element) const
 {
     // Create the root shader graph
     ShaderGraphPtr graph = ShaderGraph::create(nullptr, name, element, *this, context);
@@ -302,13 +302,13 @@ ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr elemen
     return shader;
 }
 
-void OslShaderGenerator::emitFunctionCalls(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const
+void OslShaderGenerator::emitFunctionCalls(ShaderStage& stage, GenContext& context, const ShaderGraph& graph) const
 {
     if (!graph.hasClassification(ShaderNode::Classification::TEXTURE))
     {
         emitLine(stage, "closure color null_closure = 0");
     }
-    ShaderGenerator::emitFunctionCalls(stage, graph, context);
+    ShaderGenerator::emitFunctionCalls(stage, context, graph);
 }
 
 void OslShaderGenerator::emitIncludes(ShaderStage& stage, GenContext& context) const

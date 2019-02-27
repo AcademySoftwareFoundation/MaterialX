@@ -136,22 +136,23 @@ class HwShaderGenerator : public ShaderGenerator
 {
 public:
     /// Add the function call for a single node.
-    void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, bool checkScope) const override;
+    void emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderNode& node, 
+                          bool checkScope) const override;
 
     /// Emit code for all texturing nodes.
-    virtual void emitTextureNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const;
+    virtual void emitTextureNodes(ShaderStage& stage, GenContext& context, const ShaderGraph& graph) const;
 
     /// Emit code for calculating BSDF response for a shader, 
     /// given the incident and outgoing light directions.
     /// The output 'bsdf' will hold the variable name keeping the result.
-    virtual void emitBsdfNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context,
+    virtual void emitBsdfNodes(ShaderStage& stage, GenContext& context, const ShaderGraph& graph,
                                const ShaderNode& surfaceShader, HwClosureContextPtr ccx,
                                string& bsdf) const;
 
     /// Emit code for calculating emission for a surface or light shader,
     /// given the normal direction of the EDF and the evaluation direction.
     /// The output 'edf' will hold the variable keeping the result.
-    virtual void emitEdfNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context,
+    virtual void emitEdfNodes(ShaderStage& stage, GenContext& context, const ShaderGraph& graph,
                               const ShaderNode& surfaceShader, HwClosureContextPtr ccx,
                               string& edf) const;
 
@@ -171,7 +172,7 @@ public:
     /// by the generator. The lightTypeId should be a unique identifier for the light 
     /// type (node definition) and the same id should be used when setting light parameters on a 
     /// generated surface shader.
-    void bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, GenContext& context);
+    void bindLightShader(GenContext& context, const NodeDef& nodeDef, unsigned int lightTypeId);
 
     /// Return the closure contexts defined for the given node.
     void getNodeClosureContexts(const ShaderNode& node, vector<HwClosureContextPtr>& ccx) const;
@@ -193,7 +194,7 @@ protected:
     HwShaderGenerator(SyntaxPtr syntax);
 
     /// Create and initialize a new HW shader for shader generation.
-    virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
+    virtual ShaderPtr createShader(GenContext& context, const string& name, ElementPtr element) const;
 
     /// Override the source code implementation creator.
     ShaderNodeImplPtr createSourceCodeImplementation(ImplementationPtr impl) const override;

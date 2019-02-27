@@ -54,7 +54,7 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax)
     _defEmission->addArgument(Type::VECTOR3, HW::LIGHT_DIR);
 }
 
-ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
+ShaderPtr HwShaderGenerator::createShader(GenContext& context, const string& name, ElementPtr element) const
 {
     // Create the root shader graph
     ShaderGraphPtr graph = ShaderGraph::create(nullptr, name, element, *this, context);
@@ -198,7 +198,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     return shader;
 }
 
-void HwShaderGenerator::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, bool checkScope) const
+void HwShaderGenerator::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderNode& node, bool checkScope) const
 {
     // Omit node if it's only used inside a conditional branch
     if (checkScope && node.referencedConditionally())
@@ -247,7 +247,7 @@ void HwShaderGenerator::emitFunctionCall(ShaderStage& stage, const ShaderNode& n
     }
 }
 
-void HwShaderGenerator::emitTextureNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const
+void HwShaderGenerator::emitTextureNodes(ShaderStage& stage, GenContext& context, const ShaderGraph& graph) const
 {
     // Emit function calls for all texturing nodes
     bool found = false;
@@ -255,7 +255,7 @@ void HwShaderGenerator::emitTextureNodes(ShaderStage& stage, const ShaderGraph& 
     {
         if (node->hasClassification(ShaderNode::Classification::TEXTURE) && !node->referencedConditionally())
         {
-            emitFunctionCall(stage, *node, context, false);
+            emitFunctionCall(stage, context, *node, false);
             found = true;
         }
     }
@@ -266,9 +266,9 @@ void HwShaderGenerator::emitTextureNodes(ShaderStage& stage, const ShaderGraph& 
     }
 }
 
-void HwShaderGenerator::emitBsdfNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context,
-    const ShaderNode& surfaceShader, HwClosureContextPtr ccx,
-    string& bsdf) const
+void HwShaderGenerator::emitBsdfNodes(ShaderStage& stage, GenContext& context, const ShaderGraph& graph,
+                                      const ShaderNode& surfaceShader, HwClosureContextPtr ccx,
+                                      string& bsdf) const
 {
     bsdf = _syntax->getTypeSyntax(Type::BSDF).getDefaultValue(false);
 
@@ -281,7 +281,7 @@ void HwShaderGenerator::emitBsdfNodes(ShaderStage& stage, const ShaderGraph& gra
     {
         if (node->hasClassification(ShaderNode::Classification::BSDF) && surfaceShader.isUsedClosure(node))
         {
-            emitFunctionCall(stage, *node, context, false);
+            emitFunctionCall(stage, context, *node, false);
             last = node;
         }
     }
@@ -293,9 +293,9 @@ void HwShaderGenerator::emitBsdfNodes(ShaderStage& stage, const ShaderGraph& gra
     context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
 }
 
-void HwShaderGenerator::emitEdfNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context,
-    const ShaderNode& lightShader, HwClosureContextPtr ccx,
-    string& edf) const
+void HwShaderGenerator::emitEdfNodes(ShaderStage& stage, GenContext& context, const ShaderGraph& graph,
+                                     const ShaderNode& lightShader, HwClosureContextPtr ccx,
+                                     string& edf) const
 {
     edf = _syntax->getTypeSyntax(Type::EDF).getDefaultValue(false);
 
@@ -308,7 +308,7 @@ void HwShaderGenerator::emitEdfNodes(ShaderStage& stage, const ShaderGraph& grap
     {
         if (node->hasClassification(ShaderNode::Classification::EDF) && lightShader.isUsedClosure(node))
         {
-            emitFunctionCall(stage, *node, context, false);
+            emitFunctionCall(stage, context, *node, false);
             last = node;
         }
     }
@@ -320,7 +320,7 @@ void HwShaderGenerator::emitEdfNodes(ShaderStage& stage, const ShaderGraph& grap
     context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
 }
 
-void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, GenContext& context)
+void HwShaderGenerator::bindLightShader(GenContext& context, const NodeDef& nodeDef, unsigned int lightTypeId)
 {
     if (TypeDesc::get(nodeDef.getType()) != Type::LIGHTSHADER)
     {

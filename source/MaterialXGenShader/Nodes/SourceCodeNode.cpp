@@ -61,7 +61,7 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     // Emit function definition for non-inlined functions
     if (!_inlined && !_functionSource.empty())
     {
-        shadergen.emitBlock(stage, _functionSource, context);
+        shadergen.emitBlock(stage, context, _functionSource);
         shadergen.emitLineBreak(stage);
     }
 END_SHADER_STAGE(stage, MAIN_STAGE)
@@ -109,7 +109,7 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
                 {
                     ShaderPort newVariable(nullptr, input->getType(), variableName, input->getValue());
                     shadergen.emitLineBegin(stage);
-                    shadergen.emitVariableDeclaration(stage, &newVariable, shadergen.getSyntax()->getConstantQualifier(), true);
+                    shadergen.emitVariableDeclaration(stage, context, &newVariable, shadergen.getSyntax()->getConstantQualifier(), true);
                     shadergen.emitLineEnd(stage);
                     variableNames.insert(variableName);
                 }

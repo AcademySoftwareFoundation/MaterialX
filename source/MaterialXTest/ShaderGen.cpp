@@ -144,7 +144,7 @@ void registerLightType(mx::DocumentPtr doc, mx::HwShaderGenerator& shadergen, mx
             mx::NodeDefPtr nodeDef = doc->getNodeDef(id.first);
             if (nodeDef)
             {
-                shadergen.bindLightShader(*nodeDef, id.second, context);
+                shadergen.bindLightShader(context, *nodeDef, id.second);
             }
         }
     }
@@ -870,7 +870,7 @@ TEST_CASE("Shader Interface", "[shadergen]")
 
         {
             context.getOptions().shaderInterfaceType = mx::SHADER_INTERFACE_COMPLETE;
-            mx::ShaderPtr shader = shadergen->generate(exampleName, output, context);
+            mx::ShaderPtr shader = shadergen->generate(context, exampleName, output);
             REQUIRE(shader != nullptr);
             REQUIRE(shader->getSourceCode().length() > 0);
 
@@ -892,7 +892,7 @@ TEST_CASE("Shader Interface", "[shadergen]")
 
         {
             context.getOptions().shaderInterfaceType = mx::SHADER_INTERFACE_REDUCED;
-            mx::ShaderPtr shader = shadergen->generate(exampleName, output, context);
+            mx::ShaderPtr shader = shadergen->generate(context, exampleName, output);
             REQUIRE(shader != nullptr);
             REQUIRE(shader->getSourceCode().length() > 0);
 
@@ -958,7 +958,7 @@ TEST_CASE("Hello World", "[shadergen]")
         context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
         // Test shader generation from nodegraph
-        mx::ShaderPtr shader = shadergen->generate(exampleName, output1, context);
+        mx::ShaderPtr shader = shadergen->generate(context, exampleName, output1);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
         // Write out to file for inspection
@@ -975,7 +975,7 @@ TEST_CASE("Hello World", "[shadergen]")
         REQUIRE(errorResult.size() == 0);
 
         // Test shader generation from shaderref
-        shader = shadergen->generate(exampleName, shaderRef, context);
+        shader = shadergen->generate(context, exampleName, shaderRef);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
         // Write out to file for inspection
@@ -999,7 +999,7 @@ TEST_CASE("Hello World", "[shadergen]")
         context.registerSourceCodeSearchPath(searchPath);
 
         // Test shader generation from nodegraph
-        mx::ShaderPtr shader = shadergen->generate(exampleName, output1, context);
+        mx::ShaderPtr shader = shadergen->generate(context, exampleName, output1);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
         // Write out to file for inspection
@@ -1010,7 +1010,7 @@ TEST_CASE("Hello World", "[shadergen]")
         file.close();
 
         // Test shader generation from shaderref
-        shader = shadergen->generate(exampleName, shaderRef, context);
+        shader = shadergen->generate(context, exampleName, shaderRef);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
         // Write out to file for inspection
@@ -1029,7 +1029,7 @@ TEST_CASE("Hello World", "[shadergen]")
         context.registerSourceCodeSearchPath(searchPath);
 
         // Test shader generation from nodegraph
-        mx::ShaderPtr shader = shadergen->generate(exampleName, output1, context);
+        mx::ShaderPtr shader = shadergen->generate(context, exampleName, output1);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::HW::VERTEX_STAGE).length() > 0);
         REQUIRE(shader->getSourceCode(mx::HW::PIXEL_STAGE).length() > 0);
@@ -1044,7 +1044,7 @@ TEST_CASE("Hello World", "[shadergen]")
         file.close();
 
         // Test shader generation from shaderref
-        shader = shadergen->generate(exampleName, shaderRef, context);
+        shader = shadergen->generate(context, exampleName, shaderRef);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::HW::VERTEX_STAGE).length() > 0);
         REQUIRE(shader->getSourceCode(mx::HW::PIXEL_STAGE).length() > 0);
@@ -1119,7 +1119,7 @@ TEST_CASE("Conditionals", "[shadergen]")
         // Add path to find OSL include files
         context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
-        mx::ShaderPtr shader = shaderGenerator->generate(exampleName, output1, context);
+        mx::ShaderPtr shader = shaderGenerator->generate(context, exampleName, output1);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
 
@@ -1149,7 +1149,7 @@ TEST_CASE("Conditionals", "[shadergen]")
         mx::GenContext context;
         context.registerSourceCodeSearchPath(searchPath);
 
-        mx::ShaderPtr shader = shaderGenerator->generate(exampleName, output1, context);
+        mx::ShaderPtr shader = shaderGenerator->generate(context, exampleName, output1);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
 
@@ -1174,7 +1174,7 @@ TEST_CASE("Conditionals", "[shadergen]")
         mx::GenContext context;
         context.registerSourceCodeSearchPath(searchPath);
 
-        mx::ShaderPtr shader = shaderGenerator->generate(exampleName, output1, context);
+        mx::ShaderPtr shader = shaderGenerator->generate(context, exampleName, output1);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::HW::VERTEX_STAGE).length() > 0);
         REQUIRE(shader->getSourceCode(mx::HW::PIXEL_STAGE).length() > 0);
@@ -1272,7 +1272,7 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
         // Add path to find OSL include files
         context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
-        mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, context);
+        mx::ShaderPtr shader = shaderGenerator->generate(context, exampleName, shaderRef);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
 
@@ -1297,7 +1297,7 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
         mx::GenContext context;
         context.registerSourceCodeSearchPath(searchPath);
 
-        mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, context);
+        mx::ShaderPtr shader = shaderGenerator->generate(context, exampleName, shaderRef);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
 
@@ -1316,7 +1316,7 @@ TEST_CASE("Geometric Nodes", "[shadergen]")
         mx::GenContext context;
         context.registerSourceCodeSearchPath(searchPath);
 
-        mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, context);
+        mx::ShaderPtr shader = shaderGenerator->generate(context, exampleName, shaderRef);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::HW::PIXEL_STAGE).length() > 0);
         REQUIRE(shader->getSourceCode(mx::HW::VERTEX_STAGE).length() > 0);
@@ -1426,7 +1426,7 @@ TEST_CASE("Noise", "[shadergen]")
             context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
             // Test shader generation from nodegraph
-            mx::ShaderPtr shader = shadergen->generate(shaderName, output1, context);
+            mx::ShaderPtr shader = shadergen->generate(context, shaderName, output1);
             REQUIRE(shader != nullptr);
             REQUIRE(shader->getSourceCode().length() > 0);
 
@@ -1452,7 +1452,7 @@ TEST_CASE("Noise", "[shadergen]")
             context.registerSourceCodeSearchPath(searchPath);
 
             // Test shader generation from nodegraph
-            mx::ShaderPtr shader = shadergen->generate(shaderName, output1, context);
+            mx::ShaderPtr shader = shadergen->generate(context, shaderName, output1);
             REQUIRE(shader != nullptr);
             REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
             // Write out to file for inspection
@@ -1472,7 +1472,7 @@ TEST_CASE("Noise", "[shadergen]")
             context.registerSourceCodeSearchPath(searchPath);
 
             // Test shader generation from nodegraph
-            mx::ShaderPtr shader = shadergen->generate(shaderName, output1, context);
+            mx::ShaderPtr shader = shadergen->generate(context, shaderName, output1);
             REQUIRE(shader != nullptr);
             REQUIRE(shader->getSourceCode(mx::HW::VERTEX_STAGE).length() > 0);
             REQUIRE(shader->getSourceCode(mx::HW::PIXEL_STAGE).length() > 0);
@@ -1524,7 +1524,7 @@ TEST_CASE("Unique Names", "[shadergen]")
         // Set the output to a restricted name for OSL
         output1->setName("output");
 
-        mx::ShaderPtr shader = shaderGenerator->generate(shaderName, output1, context);
+        mx::ShaderPtr shader = shaderGenerator->generate(context, shaderName, output1);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
 
@@ -1559,7 +1559,7 @@ TEST_CASE("Unique Names", "[shadergen]")
         // Set the output to a restricted name for OgsFx
         output1->setName("out");
 
-        mx::ShaderPtr shader = shaderGenerator->generate(shaderName, output1, context);
+        mx::ShaderPtr shader = shaderGenerator->generate(context, shaderName, output1);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
 
@@ -1587,7 +1587,7 @@ TEST_CASE("Unique Names", "[shadergen]")
         // Set the output to a restricted name for GLSL
         output1->setName("vec3");
 
-        mx::ShaderPtr shader = shaderGenerator->generate(shaderName, output1, context);
+        mx::ShaderPtr shader = shaderGenerator->generate(context, shaderName, output1);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::HW::PIXEL_STAGE).length() > 0);
         REQUIRE(shader->getSourceCode(mx::HW::VERTEX_STAGE).length() > 0);
@@ -1646,7 +1646,7 @@ TEST_CASE("Subgraphs", "[shadergen]")
             mx::OutputPtr output = nodeGraph->getOutput("out");
             REQUIRE(output != nullptr);
 
-            mx::ShaderPtr shader = shaderGenerator->generate(graphName, output, context);
+            mx::ShaderPtr shader = shaderGenerator->generate(context, graphName, output);
             REQUIRE(shader != nullptr);
             REQUIRE(shader->getSourceCode().length() > 0);
 
@@ -1684,7 +1684,7 @@ TEST_CASE("Subgraphs", "[shadergen]")
             mx::OutputPtr output = nodeGraph->getOutput("out");
             REQUIRE(output != nullptr);
 
-            mx::ShaderPtr shader = shaderGenerator->generate(graphName, output, context);
+            mx::ShaderPtr shader = shaderGenerator->generate(context, graphName, output);
             REQUIRE(shader != nullptr);
             REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
 
@@ -1715,7 +1715,7 @@ TEST_CASE("Subgraphs", "[shadergen]")
             mx::OutputPtr output = nodeGraph->getOutput("out");
             REQUIRE(output != nullptr);
 
-            mx::ShaderPtr shader = shaderGenerator->generate(graphName, output, context);
+            mx::ShaderPtr shader = shaderGenerator->generate(context, graphName, output);
             REQUIRE(shader != nullptr);
 
             REQUIRE(shader->getSourceCode(mx::HW::PIXEL_STAGE).length() > 0);
@@ -1763,7 +1763,7 @@ TEST_CASE("Materials", "[shadergen]")
             for (mx::ShaderRefPtr shaderRef : material->getShaderRefs())
             {
                 const std::string name = material->getName() + "_" + shaderRef->getName();
-                mx::ShaderPtr shader = shaderGenerator->generate(name, shaderRef, context);
+                mx::ShaderPtr shader = shaderGenerator->generate(context, name, shaderRef);
                 REQUIRE(shader != nullptr);
                 REQUIRE(shader->getSourceCode().length() > 0);
 
@@ -1798,7 +1798,7 @@ TEST_CASE("Materials", "[shadergen]")
             for (mx::ShaderRefPtr shaderRef : material->getShaderRefs())
             {
                 const std::string name = material->getName() + "_" + shaderRef->getName();
-                mx::ShaderPtr shader = shaderGenerator->generate(name, shaderRef, context);
+                mx::ShaderPtr shader = shaderGenerator->generate(context, name, shaderRef);
                 REQUIRE(shader != nullptr);
                 REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
 
@@ -1827,7 +1827,7 @@ TEST_CASE("Materials", "[shadergen]")
             for (mx::ShaderRefPtr shaderRef : material->getShaderRefs())
             {
                 const std::string name = material->getName() + "_" + shaderRef->getName();
-                mx::ShaderPtr shader = shaderGenerator->generate(name, shaderRef, context);
+                mx::ShaderPtr shader = shaderGenerator->generate(context, name, shaderRef);
                 REQUIRE(shader != nullptr);
                 REQUIRE(shader->getSourceCode(mx::HW::PIXEL_STAGE).length() > 0);
                 REQUIRE(shader->getSourceCode(mx::HW::VERTEX_STAGE).length() > 0);
@@ -1886,7 +1886,7 @@ TEST_CASE("Color Spaces", "[shadergen]")
         // Add path to find OSL include files
         context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
-        mx::ShaderPtr shader = shaderGenerator->generate(material->getName(), shaderRef, context);
+        mx::ShaderPtr shader = shaderGenerator->generate(context, material->getName(), shaderRef);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
 
@@ -1911,7 +1911,7 @@ TEST_CASE("Color Spaces", "[shadergen]")
         mx::GenContext context;
         context.registerSourceCodeSearchPath(searchPath);
 
-        mx::ShaderPtr shader = shaderGenerator->generate(material->getName(), shaderRef, context);
+        mx::ShaderPtr shader = shaderGenerator->generate(context, material->getName(), shaderRef);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
 
@@ -1930,7 +1930,7 @@ TEST_CASE("Color Spaces", "[shadergen]")
         mx::GenContext context;
         context.registerSourceCodeSearchPath(searchPath);
 
-        mx::ShaderPtr shader = shaderGenerator->generate(material->getName(), shaderRef, context);
+        mx::ShaderPtr shader = shaderGenerator->generate(context, material->getName(), shaderRef);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::HW::PIXEL_STAGE).length() > 0);
         REQUIRE(shader->getSourceCode(mx::HW::VERTEX_STAGE).length() > 0);
@@ -2047,7 +2047,7 @@ TEST_CASE("BSDF Layering", "[shadergen]")
             // Add path to find OSL include files
             context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
-            mx::ShaderPtr shader = shaderGenerator->generate(shaderName, elem, context);
+            mx::ShaderPtr shader = shaderGenerator->generate(context, shaderName, elem);
             REQUIRE(shader != nullptr);
             REQUIRE(shader->getSourceCode().length() > 0);
 
@@ -2076,7 +2076,7 @@ TEST_CASE("BSDF Layering", "[shadergen]")
             // Setup lighting
             registerLightType(doc, static_cast<mx::HwShaderGenerator&>(*shaderGenerator), context);
 
-            mx::ShaderPtr shader = shaderGenerator->generate(shaderName, elem, context);
+            mx::ShaderPtr shader = shaderGenerator->generate(context, shaderName, elem);
             REQUIRE(shader != nullptr);
             REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
 
@@ -2098,7 +2098,7 @@ TEST_CASE("BSDF Layering", "[shadergen]")
             // Setup lighting
             registerLightType(doc, static_cast<mx::HwShaderGenerator&>(*shaderGenerator), context);
 
-            mx::ShaderPtr shader = shaderGenerator->generate(shaderName, elem, context);
+            mx::ShaderPtr shader = shaderGenerator->generate(context, shaderName, elem);
             REQUIRE(shader != nullptr);
             REQUIRE(shader->getSourceCode(mx::HW::PIXEL_STAGE).length() > 0);
             REQUIRE(shader->getSourceCode(mx::HW::VERTEX_STAGE).length() > 0);
@@ -2199,7 +2199,7 @@ TEST_CASE("Transparency", "[shadergen]")
         // Add path to find OSL include files
         context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
-        mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, context);
+        mx::ShaderPtr shader = shaderGenerator->generate(context, exampleName, shaderRef);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode().length() > 0);
 
@@ -2243,7 +2243,7 @@ TEST_CASE("Transparency", "[shadergen]")
             // this surface should be classifed as in need of transparency handling.
             REQUIRE(context.getOptions().hwTransparency);
 
-            mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, context);
+            mx::ShaderPtr shader = shaderGenerator->generate(context, exampleName, shaderRef);
             REQUIRE(shader != nullptr);
             REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
 
@@ -2273,7 +2273,7 @@ TEST_CASE("Transparency", "[shadergen]")
         // this surface should be classifed as in need of transparency handling.
         REQUIRE(context.getOptions().hwTransparency);
 
-        mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, context);
+        mx::ShaderPtr shader = shaderGenerator->generate(context, exampleName, shaderRef);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::HW::PIXEL_STAGE).length() > 0);
         REQUIRE(shader->getSourceCode(mx::HW::VERTEX_STAGE).length() > 0);
@@ -2372,7 +2372,7 @@ TEST_CASE("Surface Layering", "[shadergen]")
         // Specify if this shader needs to handle transparency
         context.getOptions().hwTransparency = isTransparentSurface(shaderRef, *shaderGenerator);
 
-        mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, context);
+        mx::ShaderPtr shader = shaderGenerator->generate(context, exampleName, shaderRef);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::HW::FX_STAGE).length() > 0);
 
@@ -2397,7 +2397,7 @@ TEST_CASE("Surface Layering", "[shadergen]")
         // Specify if this shader needs to handle transparency
         context.getOptions().hwTransparency = isTransparentSurface(shaderRef, *shaderGenerator);
 
-        mx::ShaderPtr shader = shaderGenerator->generate(exampleName, shaderRef, context);
+        mx::ShaderPtr shader = shaderGenerator->generate(context, exampleName, shaderRef);
         REQUIRE(shader != nullptr);
         REQUIRE(shader->getSourceCode(mx::HW::PIXEL_STAGE).length() > 0);
         REQUIRE(shader->getSourceCode(mx::HW::VERTEX_STAGE).length() > 0);

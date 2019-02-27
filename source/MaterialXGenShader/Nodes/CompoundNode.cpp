@@ -51,7 +51,7 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     const Syntax* syntax = shadergen.getSyntax();
 
     // Emit functions for all child nodes
-    shadergen.emitFunctionDefinitions(stage, *_rootGraph, context);
+    shadergen.emitFunctionDefinitions(stage, context, *_rootGraph);
 
     // Begin function signature.
     shadergen.emitLineBegin(stage);
@@ -79,7 +79,7 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 
     // Begin function body.
     shadergen.emitScopeBegin(stage);
-    shadergen.emitFunctionCalls(stage, *_rootGraph, context);
+    shadergen.emitFunctionCalls(stage, context, *_rootGraph);
 
     // Emit final results
     for (ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())

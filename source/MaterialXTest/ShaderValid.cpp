@@ -77,7 +77,7 @@ void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::H
             mx::NodeDefPtr nodeDef = doc->getNodeDef(id.first);
             if (nodeDef)
             {
-                shadergen.bindLightShader(*nodeDef, id.second, context);
+                shadergen.bindLightShader(context, *nodeDef, id.second);
             }
         }
     }
@@ -467,7 +467,7 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
                 options.hwTransparency = mx::isTransparentSurface(element, shaderGenerator);
                 transpTimer.endTimer();
                 AdditiveScopedTimer generationTimer(profileTimes.ogsfxTimes.generationTime, "OGSFX generation time");
-                shader = shaderGenerator.generate(shaderName, element, context);
+                shader = shaderGenerator.generate(context, shaderName, element);
                 generationTimer.endTimer();
 
                 if (shader && testOptions.dumpGeneratedCode)
@@ -571,7 +571,7 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                 transpTimer.endTimer();
 
                 AdditiveScopedTimer generationTimer(profileTimes.glslTimes.generationTime, "GLSL generation time");
-                shader = shaderGenerator.generate(shaderName, element, context);
+                shader = shaderGenerator.generate(context, shaderName, element);
                 generationTimer.endTimer();
             }
             catch (mx::ExceptionShaderGenError& e)
@@ -805,7 +805,7 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
             try
             {
                 AdditiveScopedTimer genTimer(profileTimes.oslTimes.generationTime, "OSL generation time");
-                shader = shaderGenerator.generate(shaderName, element, context);
+                shader = shaderGenerator.generate(context, shaderName, element);
             }
             catch (mx::ExceptionShaderGenError& e)
             {

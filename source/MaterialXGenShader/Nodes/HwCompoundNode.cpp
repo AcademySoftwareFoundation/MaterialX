@@ -22,7 +22,7 @@ BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(shadergen_);
 
     // Emit functions for all child nodes
-    shadergen.emitFunctionDefinitions(stage, *_rootGraph, context);
+    shadergen.emitFunctionDefinitions(stage, context, *_rootGraph);
 
     // Find any closure contexts used by this node
     // and emit the function for each context.
@@ -93,12 +93,12 @@ void HwCompoundNode::emitFunctionDefinition(ShaderStage& stage, const HwShaderGe
     if (ccx)
     {
         context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, ccx);
-        shadergen.emitFunctionCalls(stage, *_rootGraph, context);
+        shadergen.emitFunctionCalls(stage, context, *_rootGraph);
         context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
     }
     else
     {
-        shadergen.emitFunctionCalls(stage, *_rootGraph, context);
+        shadergen.emitFunctionCalls(stage, context, *_rootGraph);
     }
 
     // Emit final results
@@ -128,7 +128,7 @@ BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
 
     // Emit function calls for all child nodes to the vertex shader stage
     // TODO: Is this ever usefull?
-    shadergen.emitFunctionCalls(stage, *_rootGraph, context);
+    shadergen.emitFunctionCalls(stage, context, *_rootGraph);
 
 END_SHADER_STAGE(stage, HW::VERTEX_STAGE)
 

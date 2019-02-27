@@ -169,7 +169,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     InterfaceElementPtr impl = nodeDef.getImplementation(shadergen.getTarget(), shadergen.getLanguage());
     if (impl)
     {
-        newNode->_impl = shadergen.getImplementation(impl, context);
+        newNode->_impl = shadergen.getImplementation(context, impl);
     }
     if (!newNode->_impl)
     {

@@ -123,15 +123,15 @@ void SurfaceNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& nod
         //
 
         shadergen.emitComment(stage, "Light loop");
-        shadergen.emitBlock(stage, LIGHT_LOOP_BEGIN, context);
+        shadergen.emitBlock(stage, context, LIGHT_LOOP_BEGIN);
         shadergen.emitScopeBegin(stage);
 
-        shadergen.emitBlock(stage, LIGHT_CONTRIBUTION, context);
+        shadergen.emitBlock(stage, context, LIGHT_CONTRIBUTION);
         shadergen.emitLineBreak(stage);
 
         shadergen.emitComment(stage, "Calculate the BSDF response for this light source");
         string bsdf;
-        shadergen.emitBsdfNodes(stage, graph, context, node, _callReflection, bsdf);
+        shadergen.emitBsdfNodes(stage, context, graph, node, _callReflection, bsdf);
         shadergen.emitLineBreak(stage);
 
         shadergen.emitComment(stage, "Accumulate the light's contribution");
@@ -147,14 +147,14 @@ void SurfaceNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& nod
         shadergen.emitComment(stage, "Add surface emission");
         shadergen.emitScopeBegin(stage);
         string emission;
-        shadergen.emitEdfNodes(stage, graph, context, node, _callEmission, emission);
+        shadergen.emitEdfNodes(stage, context, graph, node, _callEmission, emission);
         shadergen.emitLine(stage, outColor + " += " + emission);
         shadergen.emitScopeEnd(stage);
         shadergen.emitLineBreak(stage);
 
         shadergen.emitComment(stage, "Add indirect contribution");
         shadergen.emitScopeBegin(stage);
-        shadergen.emitBsdfNodes(stage, graph, context, node, _callIndirect, bsdf);
+        shadergen.emitBsdfNodes(stage, context, graph, node, _callIndirect, bsdf);
         shadergen.emitLineBreak(stage);
         shadergen.emitLine(stage, outColor + " += " + bsdf);
         shadergen.emitScopeEnd(stage);
@@ -166,7 +166,7 @@ void SurfaceNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& nod
         {
             shadergen.emitComment(stage, "Calculate the BSDF transmission for viewing direction");
             shadergen.emitScopeBegin(stage);
-            shadergen.emitBsdfNodes(stage, graph, context, node, _callTransmission, bsdf);
+            shadergen.emitBsdfNodes(stage, context, graph, node, _callTransmission, bsdf);
             shadergen.emitLine(stage, outTransparency + " = " + bsdf);
             shadergen.emitScopeEnd(stage);
             shadergen.emitLineBreak(stage);

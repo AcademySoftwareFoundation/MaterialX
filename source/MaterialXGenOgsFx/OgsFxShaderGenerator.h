@@ -21,21 +21,21 @@ public:
 
     /// Generate a shader starting from the given element, translating 
     /// the element and all dependencies upstream into shader code.
-    ShaderPtr generate(const string& shaderName, ElementPtr element, GenContext& context) const override;
+    ShaderPtr generate(GenContext& context, const string& shaderName, ElementPtr element) const override;
 
     /// Unique identifyer for this generator target
     static const string TARGET;
 
 protected:
-    void emitVertexStage(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const override;
-    void emitPixelStage(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const override;
+    void emitVertexStage(ShaderStage& stage, GenContext& context, const ShaderGraph& graph) const override;
+    void emitPixelStage(ShaderStage& stage, GenContext& context, const ShaderGraph& graph) const override;
 
     /// Emit a shader input variable
-    void emitVariableDeclaration(ShaderStage& stage, const ShaderPort* variable,
+    void emitVariableDeclaration(ShaderStage& stage, GenContext& context, const ShaderPort* variable,
                                  const string& qualifier, bool assignValue = true) const override;
 
     /// Create and initialize a new OGSFX shader for shader generation.
-    ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const override;
+    ShaderPtr createShader(GenContext& context, const string& name, ElementPtr element) const override;
 
     /// Get parameters for the technique block
     virtual void getTechniqueParams(const Shader& shader, string& params) const;

@@ -60,7 +60,7 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
             const ShaderNode::ScopeInfo& scope = otherNode->getScopeInfo();
             if (scope.conditionalNode == &node && scope.usedByBranch(branch))
             {
-                shadergen.emitFunctionCall(stage, *otherNode, context, false);
+                shadergen.emitFunctionCall(stage, context, *otherNode, false);
             }
         }
 
