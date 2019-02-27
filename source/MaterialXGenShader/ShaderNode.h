@@ -341,12 +341,6 @@ class ShaderNode
         return (!_impl || _impl->isEditable(input));
     }
 
-    /// Add the given contex id to the set of contexts used for this node.
-    void addContextID(int id) { _contextIDs.insert(id); }
-
-    /// Return the set of contexts id's for the contexts used for this node.
-    const std::set<int>& getContextIDs() const { return _contextIDs; }
-
   protected:
     string _name;
     const ShaderGraph* _parent;
@@ -361,7 +355,6 @@ class ShaderNode
     ShaderNodeImplPtr _impl;
     ScopeInfo _scopeInfo;
     std::set<const ShaderNode*> _usedClosures;
-    std::set<int> _contextIDs;
 
     friend class ShaderGraph;
 };
