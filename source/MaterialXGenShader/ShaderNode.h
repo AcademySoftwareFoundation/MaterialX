@@ -7,83 +7,117 @@
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
+#include <memory>
 #include <set>
 
 namespace MaterialX
 {
 
 class ShaderNode;
+class ShaderPort;
 class ShaderInput;
 class ShaderOutput;
 
+using ShaderPortPtr = shared_ptr<class ShaderPort>;
 using ShaderInputPtr = shared_ptr<class ShaderInput>;
 using ShaderOutputPtr = shared_ptr<class ShaderOutput>;
 using ShaderNodePtr = shared_ptr<class ShaderNode>;
 using ShaderInputSet = std::set<ShaderInput*>;
 
 /// An input or output port on a ShaderNode
-class ShaderPort
+class ShaderPort : public std::enable_shared_from_this<ShaderPort>
 {
   public:
     static const unsigned int VARIABLE_NOT_RENAMABLE = 1 << 0; // Variable should not be automatically named
+    static const unsigned int EMITTED = 1 << 1;
 
-    /// Copy data from another port to this port
-    void copyData(const ShaderPort& other)
+    ShaderPort(ShaderNode* node, const TypeDesc* type, const string& name, ValuePtr value = nullptr);
+
+    /// Return a shared pointer instance of this object.
+    ShaderPortPtr getSelf()
     {
-        value = other.value;
-        path = other.path;
-
-        if (ShaderPort::VARIABLE_NOT_RENAMABLE & other.flags)
-        {
-            variable = other.variable;
-            flags |= ShaderPort::VARIABLE_NOT_RENAMABLE;
-        }
+        return shared_from_this();
     }
 
-    /// Port type.
-    const TypeDesc* type;
+    /// Copy data from another port to this port
+    void copyData(const ShaderPort& other);
 
-    /// Port name.
-    string name;
+    ShaderNode* getNode() { return _node; }
+    const ShaderNode* getNode() const { return _node; }
 
-    // Path to the origin (input/parameter element) for this shader port.
-    // Can be used to map client side node inputs to uniforms on the generated shader,
-    // if input values change during rendering.
-    string path;
+    void setType(const TypeDesc* type) { _type = type; }
+    const TypeDesc* getType() const { return _type; }
 
-    /// Variable name as used in generated code.
-    string variable;
+    void setName(const string& name) { _name = name; }
+    const string& getName() const { return _name; }
 
-    /// Parent node.
-    ShaderNode* node;
+    void setVariable(const string& name) { _variable = name; }
+    const string& getVariable() const { return _variable; }
 
-    /// A value, or nullptr if not assigned.
-    ValuePtr value;
+    void setSemantic(const string& semantic) { _semantic = semantic; }
+    const string& getSemantic() const { return _semantic; }
 
-    /// Property flags
-    unsigned int flags;
+    void setValue(ValuePtr value) { _value = value; }
+    ValuePtr getValue() const { return _value; }
+
+    void setPath(const string& path) { _path = path; }
+    const string& getPath() const { return _path; }
+
+    void setEmitted() { _flags |= EMITTED; }
+    bool isEmitted() const { return (_flags & EMITTED) != 0; }
+
+    void setFlags(unsigned int flags) { _flags = flags; }
+    unsigned int getFlags() const { return _flags; }
+
+  protected:
+    ShaderNode* _node;
+    const TypeDesc* _type;
+    string _name;
+    string _path;
+    string _semantic;
+    string _variable;
+    ValuePtr _value;
+    unsigned int _flags;
 };
 
 /// An input on a ShaderNode
 class ShaderInput : public ShaderPort
 {
-  public:  
-    /// A connection to an upstream node output, or nullptr if not connected.
-    ShaderOutput* connection;
+  public:
+    ShaderInput(ShaderNode* node, const TypeDesc* type, const string& name);
+
+    /// Return a connection to an upstream node output,
+    /// or nullptr if not connected.
+    ShaderOutput* getConnection() { return _connection; }
+
+    /// Return a connection to an upstream node output,
+    /// or nullptr if not connected.
+    const ShaderOutput* getConnection() const { return _connection; }
 
     /// Make a connection from the given source output to this input.
     void makeConnection(ShaderOutput* src);
 
     /// Break the connection to this input.
     void breakConnection();
+
+  protected:
+    ShaderOutput* _connection;
+    friend class ShaderOutput;
 };
 
 /// An output on a ShaderNode
 class ShaderOutput : public ShaderPort
 {
   public:
-    /// A set of connections to downstream node inputs, empty if not connected.
-    ShaderInputSet connections;
+    ShaderOutput(ShaderNode* node, const TypeDesc* type, const string& name);
+
+    /// Return a set of connections to downstream node inputs,
+    /// empty if not connected.
+    ShaderInputSet& getConnections() { return _connections; }
+
+    /// Return a set of connections to downstream node inputs,
+    /// empty if not connected.
+    const ShaderInputSet& getConnections() const { return _connections; }
 
     /// Make a connection from this output to the given input
     void makeConnection(ShaderInput* dst);
@@ -93,6 +127,10 @@ class ShaderOutput : public ShaderPort
 
     /// Break all connections from this output
     void breakConnection();
+
+  protected:
+    ShaderInputSet _connections;
+    friend class ShaderInput;
 };
 
 /// Class representing a node in the shader generation DAG

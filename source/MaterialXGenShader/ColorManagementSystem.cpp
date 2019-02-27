@@ -88,11 +88,11 @@ ShaderNodePtr ColorManagementSystem::createNode(const ShaderGraph* parent, const
     ShaderInput* input = shaderNode->addInput("in", transform.type);
     if (transform.type == Type::COLOR3)
     {
-        input->value = Value::createValue(Color3(0.0f, 0.0f, 0.0f));
+        input->setValue(Value::createValue(Color3(0.0f, 0.0f, 0.0f)));
     }
     else if (transform.type == Type::COLOR4)
     {
-        input->value = Value::createValue(Color4(0.0f, 0.0f, 0.0f, 1.0));
+        input->setValue(Value::createValue(Color4(0.0f, 0.0f, 0.0f, 1.0)));
     }
     else
     {

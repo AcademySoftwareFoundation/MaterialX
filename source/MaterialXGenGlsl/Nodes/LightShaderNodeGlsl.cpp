@@ -44,11 +44,11 @@ void LightShaderNodeGlsl::initialize(ElementPtr implementation, const ShaderGene
     NodeDefPtr nodeDef = impl->getNodeDef();
     for (InputPtr input : nodeDef->getInputs())
     {
-        _lightUniforms.add(TypeDesc::get(input->getType()), input->getName(), EMPTY_STRING, input->getValue(), input->getNamePath());
+        _lightUniforms.add(TypeDesc::get(input->getType()), input->getName(), input->getValue());
     }
     for (ParameterPtr param : nodeDef->getParameters())
     {
-        _lightUniforms.add(TypeDesc::get(param->getType()), param->getName(), EMPTY_STRING, param->getValue(), param->getNamePath());
+        _lightUniforms.add(TypeDesc::get(param->getType()), param->getName(), param->getValue());
     }
 }
 
@@ -57,15 +57,15 @@ void LightShaderNodeGlsl::createVariables(Shader& shader, const ShaderNode&, con
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
 
     // Create all light uniforms
+    VariableBlock& lightData = ps.getUniformBlock(HW::LIGHT_DATA);
     for (size_t i = 0; i < _lightUniforms.size(); ++i)
     {
-        const Variable& u = _lightUniforms[i];
-        addStageUniform(ps, HW::LIGHT_DATA, u.getType(), u.getName());
+        const ShaderPort* u = _lightUniforms[i];
+        lightData.add(u->getType(), u->getName());
     }
 
     // Create uniform for number of active light sources
-    addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources",
-        EMPTY_STRING, Value::createValue<int>(0));
+    addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", Value::createValue<int>(0));
 }
 
 void LightShaderNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode&, const ShaderGenerator& shadergen, GenContext&) const

@@ -62,8 +62,8 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     const ShaderInput* inInput = node.getInput(IN_STRING);
 
     // Get input type name string
-    const string& inputTypeString = acceptsInputType(inInput->type) ?
-        shadergen.getSyntax()->getTypeName(inInput->type) : EMPTY_STRING;
+    const string& inputTypeString = acceptsInputType(inInput->getType()) ?
+        shadergen.getSyntax()->getTypeName(inInput->getType()) : EMPTY_STRING;
 
     const ShaderInput* filterTypeInput = node.getInput(FILTER_TYPE_STRING);
     if (!inInput || !filterTypeInput || inputTypeString.empty())
@@ -77,7 +77,7 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     unsigned int arrayOffset = 0;
     if (sizeInput)
     {
-        float sizeInputValue = sizeInput->value->asA<float>();
+        float sizeInputValue = sizeInput->getValue()->asA<float>();
         if (sizeInputValue > 0.0f)
         {
             if (sizeInputValue <= 0.333f)
@@ -107,10 +107,10 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     string weightArrayVariable = BOX_WEIGHTS_VARIABLE;
     if (sampleCount > 1)
     {
-        if (filterTypeInput->value)
+        if (filterTypeInput->getValue())
         {
             // Use Gaussian filter.
-            if (filterTypeInput->value->getValueString() == GAUSSIAN_FILTER)
+            if (filterTypeInput->getValue()->getValueString() == GAUSSIAN_FILTER)
             {
                 weightArrayVariable = GAUSSIAN_WEIGHTS_VARIABLE;
             }
@@ -143,7 +143,7 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
         const string WEIGHT_POSTFIX_STRING("_weights");
 
         // Set up sample array
-        string sampleName(output->variable + SAMPLES_POSTFIX_STRING);
+        string sampleName(output->getVariable() + SAMPLES_POSTFIX_STRING);
         shadergen.emitLine(stage, inputTypeString + " " + sampleName + "[" + MX_MAX_SAMPLE_COUNT_STRING + "]");
         for (unsigned int i = 0; i < sampleCount; i++)
         {
@@ -177,7 +177,7 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
         {
             string filterFunctionName = MX_CONVOLUTION_PREFIX_STRING + inputTypeString;
             shadergen.emitLineBegin(stage);
-            shadergen.emitString(stage, output->variable);
+            shadergen.emitString(stage, output->getVariable());
             shadergen.emitString(stage, " = " + filterFunctionName);
             shadergen.emitString(stage, "(" + sampleName + ", " +
                 GAUSSIAN_WEIGHTS_VARIABLE + ", " +
@@ -192,7 +192,7 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
         {
             string filterFunctionName = MX_CONVOLUTION_PREFIX_STRING + inputTypeString;
             shadergen.emitLineBegin(stage);
-            shadergen.emitString(stage, output->variable);
+            shadergen.emitString(stage, output->getVariable());
             shadergen.emitString(stage, " = " + filterFunctionName);
             shadergen.emitString(stage, "(" + sampleName + ", " +
                 BOX_WEIGHTS_VARIABLE + ", " +

@@ -187,11 +187,11 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
 
     // Emit shader type
     const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket();
-    if (outputSocket->type == Type::SURFACESHADER)
+    if (outputSocket->getType() == Type::SURFACESHADER)
     {
         emitString(stage, "surface ");
     }
-    else if (outputSocket->type == Type::VOLUMESHADER)
+    else if (outputSocket->getType() == Type::VOLUMESHADER)
     {
         emitString(stage, "volume ");
     }
@@ -209,22 +209,22 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     const VariableBlock& inputs = stage.getInputBlock(OSL::INPUTS);
     for (size_t i=0; inputs.size(); ++i)
     {
-        const Variable& input = inputs[i];
-        const string& type = _syntax->getTypeName(input.getType());
-        const string& value = _syntax->getDefaultValue(input.getType(), true);
-        emitLine(stage, type + " " + input.getName() + " = " + value + " [[ int lockgeom=0 ]],", false);
+        const ShaderPort* input = inputs[i];
+        const string& type = _syntax->getTypeName(input->getType());
+        const string& value = _syntax->getDefaultValue(input->getType(), true);
+        emitLine(stage, type + " " + input->getName() + " = " + value + " [[ int lockgeom=0 ]],", false);
     }
 
     // Emit all uniform inputs
     const VariableBlock& uniforms = stage.getUniformBlock(OSL::UNIFORMS);
-    emitVariableBlock(stage, uniforms, _syntax->getUniformQualifier(), COMMA);
+    emitVariableDeclarations(stage, uniforms, _syntax->getUniformQualifier(), COMMA);
 
     // Emit shader output
     // TODO: Support multiple outputs
-    const TypeDesc* outputType = outputSocket->type;
+    const TypeDesc* outputType = outputSocket->getType();
     const string type = _syntax->getOutputTypeName(outputType);
     const string value = _syntax->getDefaultValue(outputType, true);
-    emitLine(stage, type + " " + outputSocket->variable + " = " + value, false);
+    emitLine(stage, type + " " + outputSocket->getVariable() + " = " + value, false);
 
     // End shader signature
     emitScopeEnd(stage);
@@ -236,7 +236,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     const VariableBlock& constants = stage.getConstantBlock();
     if (constants.size())
     {
-        emitVariableBlock(stage, constants, _syntax->getConstantQualifier(), SEMICOLON);
+        emitVariableDeclarations(stage, constants, _syntax->getConstantQualifier(), SEMICOLON);
         emitLineBreak(stage);
     }
 
@@ -244,16 +244,16 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     emitFunctionCalls(stage, graph, context);
 
     // Emit final output
-    if (outputSocket->connection)
+    if (outputSocket->getConnection())
     {
-        string finalResult = outputSocket->connection->variable;
-        emitLine(stage, outputSocket->variable + " = " + finalResult);
+        string finalResult = outputSocket->getConnection()->getVariable();
+        emitLine(stage, outputSocket->getVariable() + " = " + finalResult);
     }
     else
     {
-        emitLine(stage, outputSocket->variable + " = " + (outputSocket->value ?
-            _syntax->getValue(outputSocket->type, *outputSocket->value) :
-            _syntax->getDefaultValue(outputSocket->type)));
+        emitLine(stage, outputSocket->getVariable() + " = " + (outputSocket->getValue() ?
+            _syntax->getValue(outputSocket->getType(), *outputSocket->getValue()) :
+            _syntax->getDefaultValue(outputSocket->getType())));
     }
 
     // End shader body
@@ -286,9 +286,9 @@ ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr elemen
     {
         // Only for inputs that are connected/used internally,
         // and are editable by users.
-        if (inputSocket->connections.size() && graph->isEditable(*inputSocket))
+        if (inputSocket->getConnections().size() && graph->isEditable(*inputSocket))
         {
-            uniforms.add(inputSocket->type, inputSocket->variable, EMPTY_STRING, inputSocket->value, inputSocket->path);
+            uniforms.add(inputSocket->getSelf());
         }
     }
 
@@ -296,7 +296,7 @@ ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr elemen
     VariableBlock& outputs = stage->getOutputBlock(OSL::OUTPUTS);
     for (ShaderGraphOutputSocket* outputSocket : graph->getOutputSockets())
     {
-        outputs.add(outputSocket->type, outputSocket->name);
+        outputs.add(outputSocket->getSelf());
     }
 
     return shader;

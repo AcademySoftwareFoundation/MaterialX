@@ -11,6 +11,35 @@
 namespace MaterialX
 {
 
+using GenUserDataPtr = std::shared_ptr<class GenUserData>;
+
+class GenUserData : public std::enable_shared_from_this<GenUserData>
+{
+  public:
+    virtual ~GenUserData() {}
+    
+    /// Return a shaderd pointer for this object.
+    GenUserDataPtr getSelf()
+    {
+        return shared_from_this();
+    }
+
+    /// Return this object cast to a templated type.
+    template<class T> shared_ptr<T> asA()
+    {
+        return std::dynamic_pointer_cast<T>(getSelf());
+    }
+
+    /// Return this object cast to a templated type.
+    template<class T> shared_ptr<const T> asA() const
+    {
+        return std::dynamic_pointer_cast<const T>(getSelf());
+    }
+
+  protected:
+    GenUserData() {}
+};
+
 using GenContextPtr = std::shared_ptr<class GenContext>;
 
 /// A context class for shader generation.
@@ -66,17 +95,16 @@ class GenContext
 
     /// Add user data to the context to make it
     /// available during shader generator.
-    template<typename T>
-    void pushUserData(const string& name, T* ptr)
+    void pushUserData(const string& name, GenUserDataPtr data)
     {
         auto it = _userData.find(name);
         if (it != _userData.end())
         {
-            it->second.push_back((void*)ptr);
+            it->second.push_back(data);
         }
         else
         {
-            _userData[name] = { (void*)ptr };
+            _userData[name] = { data };
         }
     }
 
@@ -92,11 +120,11 @@ class GenContext
 
     /// Return user data with given name,
     /// or nullptr if no data is found.
-    template<typename T>
-    T* getUserData(const string& name)
+    template<class T>
+    std::shared_ptr<T> getUserData(const string& name)
     {
         auto it = _userData.find(name);
-        return it != _userData.end() && !it->second.empty() ? (T*)it->second.back() : nullptr;
+        return it != _userData.end() && !it->second.empty() ? it->second.back()->asA<T>() : nullptr;
     }
 
     /// Add an input suffix to be used for the input in this context.
@@ -138,7 +166,7 @@ protected:
     std::unordered_map<string, ShaderNodeImplPtr> _nodeImpls;
 
     // User data
-    std::unordered_map<string, vector<void*>> _userData;
+    std::unordered_map<string, vector<GenUserDataPtr>> _userData;
 
     // List of input suffixes
     std::unordered_map<const ShaderInput*, string> _inputSuffix;

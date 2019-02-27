@@ -12,8 +12,7 @@ void NumLightsNodeGlsl::createVariables(Shader& shader, const ShaderNode&, const
 {
     // Create uniform for number of active light sources
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
-    addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources",
-        EMPTY_STRING, Value::createValue<int>(0));
+    addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", Value::createValue<int>(0));
 }
 
 void NumLightsNodeGlsl::emitFunctionDefinition(ShaderStage& stage, const ShaderNode&, const ShaderGenerator& shadergen, GenContext&) const

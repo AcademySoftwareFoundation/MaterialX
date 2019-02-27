@@ -71,7 +71,7 @@ BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 
     // Emit code to evaluate samples.
     //
-    string sampleName(output->variable + "_samples");
+    string sampleName(output->getVariable() + "_samples");
     shadergen.emitLine(stage, "float " + sampleName + "[" + std::to_string(sampleCount) + "]");
     for (unsigned int i = 0; i < sampleCount; i++)
     {

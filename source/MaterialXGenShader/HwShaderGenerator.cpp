@@ -18,41 +18,37 @@ namespace HW
     const string PUBLIC_UNIFORMS  = "PublicUniforms";
     const string LIGHT_DATA       = "LightData";
     const string PIXEL_OUTPUTS    = "PixelOutputs";
-    const string TRANSPARENT      = "transparent";
-    const string CLOSURE_CONTEXT  = "ccx";
+    const string NORMAL_DIR       = "N";
+    const string LIGHT_DIR        = "L";
+    const string VIEW_DIR         = "V";
+    const string ATTR_TRANSPARENT = "transparent";
+    const string USER_DATA_CLOSURE_CONTEXT = "ud_cc";
+    const string USER_DATA_LIGHT_SHADERS   = "ud_ls";
 }
-
-const string HwShaderGenerator::LIGHT_DIR = "L";
-const string HwShaderGenerator::VIEW_DIR  = "V";
-const string HwShaderGenerator::INCIDENT  = "incident";
-const string HwShaderGenerator::OUTGOING  = "outgoing";
-const string HwShaderGenerator::NORMAL    = "normal";
-const string HwShaderGenerator::EVAL      = "eval";
 
 HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax)
     : ShaderGenerator(syntax)
     , _maxActiveLightSources(3)
-    , _reflection(HwClosureContext::REFLECTION)
-    , _transmission(HwClosureContext::TRANSMISSION)
-    , _indirect(HwClosureContext::INDIRECT)
-    , _emission(HwClosureContext::EMISSION)
 {
+    // Create closure contexts for defining closure functions
+    //
     // Reflection context
-    _reflection.addArgument("vec3", INCIDENT);
-    _reflection.addArgument("vec3", OUTGOING);
-    _reflection.setSuffix("_reflection");
-
-    //Transmission context
-    _transmission.addArgument("vec3", OUTGOING);
-    _transmission.setSuffix("_transmission");
-
+    _defReflection = HwClosureContext::create(HwClosureContext::REFLECTION);
+    _defReflection->setSuffix("_reflection");
+    _defReflection->addArgument(Type::VECTOR3, HW::LIGHT_DIR);
+    _defReflection->addArgument(Type::VECTOR3, HW::VIEW_DIR);
+    // Transmission context
+    _defTransmission = HwClosureContext::create(HwClosureContext::TRANSMISSION);
+    _defTransmission->setSuffix("_transmission");
+    _defTransmission->addArgument(Type::VECTOR3, HW::VIEW_DIR);
     // Indirect context
-    _indirect.addArgument("vec3", OUTGOING);
-    _indirect.setSuffix("_indirect");
-
+    _defIndirect = HwClosureContext::create(HwClosureContext::INDIRECT);
+    _defIndirect->setSuffix("_indirect");
+    _defIndirect->addArgument(Type::VECTOR3, HW::VIEW_DIR);
     // Emission context
-    _emission.addArgument("vec3", NORMAL);
-    _emission.addArgument("vec3", EVAL);
+    _defEmission = HwClosureContext::create(HwClosureContext::EMISSION);
+    _defEmission->addArgument(Type::VECTOR3, HW::NORMAL_DIR);
+    _defEmission->addArgument(Type::VECTOR3, HW::LIGHT_DIR);
 }
 
 ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
@@ -94,27 +90,29 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
         0, 1, 0, 0,
         0, 0, -1, 0,
         0, 0, 0, 1);
-    psPrivateUniforms->add(Type::MATRIX44, "u_envMatrix", EMPTY_STRING, Value::createValue<Matrix44>(yRotationPI));
+    psPrivateUniforms->add(Type::MATRIX44, "u_envMatrix", Value::createValue<Matrix44>(yRotationPI));
     psPrivateUniforms->add(Type::FILENAME, "u_envIrradiance");
     psPrivateUniforms->add(Type::FILENAME, "u_envRadiance");
-    psPrivateUniforms->add(Type::INTEGER, "u_envRadianceMips", EMPTY_STRING, Value::createValue<int>(1));
-    psPrivateUniforms->add(Type::INTEGER, "u_envSamples", EMPTY_STRING, Value::createValue<int>(16));
+    psPrivateUniforms->add(Type::INTEGER, "u_envRadianceMips", Value::createValue<int>(1));
+    psPrivateUniforms->add(Type::INTEGER, "u_envSamples", Value::createValue<int>(16));
 
     // Create uniforms for the published graph interface
     for (ShaderGraphInputSocket* inputSocket : graph->getInputSockets())
     {
         // Only for inputs that are connected/used internally,
         // and are editable by users.
-        if (inputSocket->connections.size() && graph->isEditable(*inputSocket))
+        if (!inputSocket->getConnections().empty() && graph->isEditable(*inputSocket))
         {
-            psPublicUniforms->add(inputSocket->type, inputSocket->variable, EMPTY_STRING, inputSocket->value, inputSocket->path);
+            psPublicUniforms->add(inputSocket->getSelf());
         }
     }
 
-    // Add the pixel stage output. This needs to be a color4 for rendering.
+    // Add the pixel stage output. This needs to be a color4 for rendering,
+    // so copy name and variable from the graph output but set type to color4.
     // TODO: Improve this to support multiple outputs and other data types.
-    const ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
-    psOutputs->add(Type::COLOR4, outputSocket->variable);
+    ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
+    ShaderPort* output = psOutputs->add(Type::COLOR4, outputSocket->getName());
+    output->setVariable(outputSocket->getVariable());
 
     // Create shader variables for all nodes that need this.
     for (ShaderNode* node : graph->getNodes())
@@ -122,11 +120,13 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
         node->getImplementation().createVariables(*shader, *node, *this, context);
     }
 
+    HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
+
     // For surface shaders we need light shaders
-    if (graph->hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
+    if (lightShaders && graph->hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
     {
         // Create shader variables for all bound light shaders
-        for (auto it : _boundLightShaders)
+        for (auto it : lightShaders->get())
         {
             ShaderNode* node = it.second.get();
             node->getImplementation().createVariables(*shader, *node, *this, context);
@@ -141,13 +141,16 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
 
     // Start with top level graphs.
     std::deque<ShaderGraph*> graphQueue = { graph.get() };
-    for (auto it : _boundLightShaders)
+    if (lightShaders)
     {
-        ShaderNode* node = it.second.get();
-        ShaderGraph* lightGraph = node->getImplementation().getGraph();
-        if (lightGraph)
+        for (auto it : lightShaders->get())
         {
-            graphQueue.push_back(lightGraph);
+            ShaderNode* node = it.second.get();
+            ShaderGraph* lightGraph = node->getImplementation().getGraph();
+            if (lightGraph)
+            {
+                graphQueue.push_back(lightGraph);
+            }
         }
     }
 
@@ -162,14 +165,15 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
             {
                 for (ShaderInput* input : node->getInputs())
                 {
-                    if (!input->connection && input->type == Type::FILENAME)
+                    if (!input->getConnection() && input->getType() == Type::FILENAME)
                     {
                         // Create the uniform using the filename type to make this uniform into a texture sampler.
-                        psPublicUniforms->add(Type::FILENAME, input->variable, EMPTY_STRING, input->value, input->path);
+                        ShaderPort* filename = psPublicUniforms->add(Type::FILENAME, input->getVariable(), input->getValue());
+                        filename->setPath(input->getPath());
 
                         // Assing the uniform name to the input value
                         // so we can reference it duing code generation.
-                        input->value = Value::createValue(input->variable);
+                        input->setValue(Value::createValue(input->getVariable()));
                     }
                 }
             }
@@ -185,7 +189,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     if (context.getOptions().hwTransparency)
     {
         // Flag the shader as being transparent.
-        shader->setAttribute(HW::TRANSPARENT);
+        shader->setAttribute(HW::ATTR_TRANSPARENT);
     }
 
     return shader;
@@ -204,7 +208,7 @@ void HwShaderGenerator::emitFunctionCall(ShaderStage& stage, const ShaderNode& n
         bool match = true;
 
         // Check if we have a closure context to modify the function call.
-        const HwClosureContext* ccx = context.getUserData<HwClosureContext>(HW::CLOSURE_CONTEXT);
+        HwClosureContextPtr ccx = context.getUserData<HwClosureContext>(HW::USER_DATA_CLOSURE_CONTEXT);
 
         if (ccx && node.hasClassification(ShaderNode::Classification::CLOSURE))
         {
@@ -240,6 +244,79 @@ void HwShaderGenerator::emitFunctionCall(ShaderStage& stage, const ShaderNode& n
     }
 }
 
+void HwShaderGenerator::emitTextureNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const
+{
+    // Emit function calls for all texturing nodes
+    bool found = false;
+    for (const ShaderNode* node : graph.getNodes())
+    {
+        if (node->hasClassification(ShaderNode::Classification::TEXTURE) && !node->referencedConditionally())
+        {
+            emitFunctionCall(stage, *node, context, false);
+            found = true;
+        }
+    }
+
+    if (found)
+    {
+        emitLineBreak(stage);
+    }
+}
+
+void HwShaderGenerator::emitBsdfNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context,
+    const ShaderNode& surfaceShader, HwClosureContextPtr ccx,
+    string& bsdf) const
+{
+    bsdf = _syntax->getTypeSyntax(Type::BSDF).getDefaultValue(false);
+
+    context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, ccx);
+
+    // Emit function calls for all BSDF nodes used by this surface shader.
+    // The last node will hold the final result.
+    const ShaderNode* last = nullptr;
+    for (const ShaderNode* node : graph.getNodes())
+    {
+        if (node->hasClassification(ShaderNode::Classification::BSDF) && surfaceShader.isUsedClosure(node))
+        {
+            emitFunctionCall(stage, *node, context, false);
+            last = node;
+        }
+    }
+    if (last)
+    {
+        bsdf = last->getOutput()->getVariable();
+    }
+
+    context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
+}
+
+void HwShaderGenerator::emitEdfNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context,
+    const ShaderNode& lightShader, HwClosureContextPtr ccx,
+    string& edf) const
+{
+    edf = _syntax->getTypeSyntax(Type::EDF).getDefaultValue(false);
+
+    context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, ccx);
+
+    // Emit function calls for all EDF nodes used by this shader
+    // The last node will hold the final result
+    const ShaderNode* last = nullptr;
+    for (const ShaderNode* node : graph.getNodes())
+    {
+        if (node->hasClassification(ShaderNode::Classification::EDF) && lightShader.isUsedClosure(node))
+        {
+            emitFunctionCall(stage, *node, context, false);
+            last = node;
+        }
+    }
+    if (last)
+    {
+        edf = last->getOutput()->getVariable();
+    }
+
+    context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
+}
+
 void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, GenContext& context)
 {
     if (TypeDesc::get(nodeDef.getType()) != Type::LIGHTSHADER)
@@ -247,61 +324,62 @@ void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, unsigned int lig
         throw ExceptionShaderGenError("Error binding light shader. Given nodedef '" + nodeDef.getName() + "' is not of lightshader type");
     }
 
-    if (getBoundLightShader(lightTypeId))
+    HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
+    if (!lightShaders)
+    {
+        lightShaders = HwLightShaders::create();
+        context.pushUserData(HW::USER_DATA_LIGHT_SHADERS, lightShaders);
+    }
+
+    if (lightShaders->get(lightTypeId))
     {
         throw ExceptionShaderGenError("Error binding light shader. Light type id '" + std::to_string(lightTypeId) +
             "' has already been bound");
     }
 
-    ShaderNodePtr lightShader = ShaderNode::create(nullptr, nodeDef.getNodeString(), nodeDef, *this, context);
+    ShaderNodePtr shader = ShaderNode::create(nullptr, nodeDef.getNodeString(), nodeDef, *this, context);
 
     // Prepend the light struct instance name on all input socket variables, 
     // since in generated code these inputs will be members of the light struct.
-    ShaderGraph* graph = lightShader->getImplementation().getGraph();
+    ShaderGraph* graph = shader->getImplementation().getGraph();
     if (graph)
     {
         for (ShaderGraphInputSocket* inputSockets : graph->getInputSockets())
         {
-            inputSockets->variable = "light." + inputSockets->variable;
+            inputSockets->setVariable("light." + inputSockets->getVariable());
         }
     }
 
-    _boundLightShaders[lightTypeId] = lightShader;
+    lightShaders->add(lightTypeId, shader);
 }
 
-const ShaderNode* HwShaderGenerator::getBoundLightShader(unsigned int lightTypeId) const
-{
-    auto it = _boundLightShaders.find(lightTypeId);
-    return it != _boundLightShaders.end() ? it->second.get() : nullptr;
-}
-
-void HwShaderGenerator::getClosureContexts(const ShaderNode& node, vector<const HwClosureContext*>& ccx) const
+void HwShaderGenerator::getNodeClosureContexts(const ShaderNode& node, vector<HwClosureContextPtr>& ccx) const
 {
     if (node.hasClassification(ShaderNode::Classification::BSDF))
     {
         if (node.hasClassification(ShaderNode::Classification::BSDF_R))
         {
             // A BSDF for reflection only
-            ccx.push_back(&_reflection);
-            ccx.push_back(&_indirect);
+            ccx.push_back(_defReflection);
+            ccx.push_back(_defIndirect);
         }
         else if (node.hasClassification(ShaderNode::Classification::BSDF_T))
         {
             // A BSDF for transmission only
-            ccx.push_back(&_transmission);
+            ccx.push_back(_defTransmission);
         }
         else
         {
             // A general BSDF handling both reflection and transmission
-            ccx.push_back(&_reflection);
-            ccx.push_back(&_transmission);
-            ccx.push_back(&_indirect);
+            ccx.push_back(_defReflection);
+            ccx.push_back(_defTransmission);
+            ccx.push_back(_defIndirect);
         }
     }
     else if (node.hasClassification(ShaderNode::Classification::EDF))
     {
         // An EDF
-        ccx.push_back(&_emission);
+        ccx.push_back(_defEmission);
     }
 }
 

@@ -91,7 +91,7 @@ class GlslShaderGenerator : public HwShaderGenerator
     void emitFunctionCalls(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const override;
 
     /// Emit a shader variable.
-    void emitVariable(ShaderStage& stage, const Variable& variable, const string& qualifier, bool assingValue) const override;
+    void emitVariableDeclaration(ShaderStage& stage, const ShaderPort* variable, const string& qualifier, bool assingValue) const override;
 
     /// Given a element attempt to remap a value to an enumeration which is accepted by
     /// the shader generator.
@@ -101,24 +101,6 @@ class GlslShaderGenerator : public HwShaderGenerator
     /// which is accepted by the shader generator.
     ValuePtr remapEnumeration(const string& inputName, const string& inputValue, const string& inputType, 
                               const InterfaceElement& mappingElement, const TypeDesc*& enumerationType) const override;
-
-    /// Emit code for all texturing nodes.
-    virtual void emitTextureNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const;
-
-    /// Emit code for calculating BSDF response for a shader, 
-    /// given the incident and outgoing light directions.
-    /// The output 'bsdf' will hold the variable name keeping the result.
-    virtual void emitBsdfNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context,
-                               const ShaderNode& surfaceShader, int closureType,
-                               const string& incident, const string& outgoing,
-                               string& bsdf) const;
-
-    /// Emit code for calculating emission for a surface or light shader,
-    /// given the normal direction of the EDF and the evaluation direction.
-    /// The output 'edf' will hold the variable keeping the result.
-    virtual void emitEdfNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context, 
-                              const ShaderNode& surfaceShader, const string& normalDir, const string& evalDir, 
-                              string& edf) const;
 
   public:
     /// Unique identifyer for the glsl language

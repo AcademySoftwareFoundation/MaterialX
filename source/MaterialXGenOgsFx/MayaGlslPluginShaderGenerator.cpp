@@ -27,7 +27,7 @@ ShaderPtr MayaGlslPluginShaderGenerator::createShader(const string& name, Elemen
         ShaderStage& stage = shader->getStage(i);
         for (auto it : stage.getUniformBlocks())
         {
-            Variable* v = it.second->find(VIEW_POSITON_UNIFORM_NAME);
+            ShaderPort* v = it.second->find(VIEW_POSITON_UNIFORM_NAME);
             if (v)
             {
                 v->setSemantic(VIEW_POSITON_SEMANTIC);
@@ -40,7 +40,7 @@ ShaderPtr MayaGlslPluginShaderGenerator::createShader(const string& name, Elemen
 
 void MayaGlslPluginShaderGenerator::getTechniqueParams(const Shader& shader, string& params) const
 {
-    if (shader.hasAttribute(HW::TRANSPARENT))
+    if (shader.hasAttribute(HW::ATTR_TRANSPARENT))
     {
         params = "string transparency = \"transparent\";";
     }

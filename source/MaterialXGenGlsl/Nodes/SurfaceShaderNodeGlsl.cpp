@@ -35,25 +35,25 @@ void SurfaceShaderNodeGlsl::createVariables(Shader& shader, const ShaderNode&, c
     addStageConnector(vs, ps, HW::VERTEX_DATA, Type::VECTOR3, "positionWorld");
 
     addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::VECTOR3, "u_viewPosition");
-    addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources",
-                    EMPTY_STRING, Value::createValue<int>(0));
+    addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", Value::createValue<int>(0));
 }
 
 void SurfaceShaderNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
 {
-BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
-    VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-    Variable& position = vertexData["positionWorld"];
-    if (!position.isCalculated())
-    {
-        position.setCalculated();
-        shadergen.emitLine(stage, position.getFullName() + " = hPositionWorld.xyz");
-    }
-END_SHADER_STAGE(shader, HW::VERTEX_STAGE)
+    BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+        VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
+        const string prefix = vertexData.getInstance() + ".";
+        ShaderPort* position = vertexData["positionWorld"];
+        if (!position->isEmitted())
+        {
+            position->setEmitted();
+            shadergen.emitLine(stage, prefix + position->getVariable() + " = hPositionWorld.xyz");
+        }
+    END_SHADER_STAGE(shader, HW::VERTEX_STAGE)
 
-BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
-    SourceCodeNode::emitFunctionCall(stage, node, shadergen, context);
-END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+        SourceCodeNode::emitFunctionCall(stage, node, shadergen, context);
+    END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

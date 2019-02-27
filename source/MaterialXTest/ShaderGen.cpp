@@ -880,7 +880,7 @@ TEST_CASE("Shader Interface", "[shadergen]")
 
             const mx::VariableBlock& outputs = stage.getOutputBlock(mx::OSL::OUTPUTS);
             REQUIRE(outputs.size() == 1);
-            REQUIRE(outputs[0].getName() == output->getName());
+            REQUIRE(outputs[0]->getName() == output->getName());
 
             // Write out to file for inspection
             std::ofstream file;
@@ -902,7 +902,7 @@ TEST_CASE("Shader Interface", "[shadergen]")
 
             const mx::VariableBlock& outputs = stage.getOutputBlock(mx::OSL::OUTPUTS);
             REQUIRE(outputs.size() == 1);
-            REQUIRE(outputs[0].getName() == output->getName());
+            REQUIRE(outputs[0]->getName() == output->getName());
 
             // Write out to file for inspection
             std::ofstream file;
@@ -1126,8 +1126,8 @@ TEST_CASE("Conditionals", "[shadergen]")
         // All of the nodes should have been removed by optimization
         // leaving a graph with a single constant value
         REQUIRE(shader->getGraph().getNodes().empty());
-        REQUIRE(shader->getGraph().getOutputSocket()->value != nullptr);
-        REQUIRE(shader->getGraph().getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
+        REQUIRE(shader->getGraph().getOutputSocket()->getValue() != nullptr);
+        REQUIRE(shader->getGraph().getOutputSocket()->getValue()->getValueString() == constant2->getParameterValue("value")->getValueString());
 
         // Write out to file for inspection
         const std::string fileName(RESULT_DIRECTORY + shader->getName() + ".osl");
@@ -1162,8 +1162,8 @@ TEST_CASE("Conditionals", "[shadergen]")
         // All of the nodes should have been removed by optimization
         // leaving a graph with a single constant value
         REQUIRE(shader->getGraph().getNodes().empty());
-        REQUIRE(shader->getGraph().getOutputSocket()->value != nullptr);
-        REQUIRE(shader->getGraph().getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
+        REQUIRE(shader->getGraph().getOutputSocket()->getValue() != nullptr);
+        REQUIRE(shader->getGraph().getOutputSocket()->getValue()->getValueString() == constant2->getParameterValue("value")->getValueString());
     }
 #endif // MATERIALX_BUILD_GEN_OGSFX
 
@@ -1191,8 +1191,8 @@ TEST_CASE("Conditionals", "[shadergen]")
         // All of the nodes should have been removed by optimization
         // leaving a graph with a single constant value
         REQUIRE(shader->getGraph().getNodes().empty());
-        REQUIRE(shader->getGraph().getOutputSocket()->value != nullptr);
-        REQUIRE(shader->getGraph().getOutputSocket()->value->getValueString() == constant2->getParameterValue("value")->getValueString());
+        REQUIRE(shader->getGraph().getOutputSocket()->getValue() != nullptr);
+        REQUIRE(shader->getGraph().getOutputSocket()->getValue()->getValueString() == constant2->getParameterValue("value")->getValueString());
     }
 #endif // MATERIALX_BUILD_GEN_GLSL
 }
@@ -1530,9 +1530,9 @@ TEST_CASE("Unique Names", "[shadergen]")
 
         // Make sure the output and internal node output has their variable names set
         const mx::ShaderGraphOutputSocket* sgOutputSocket = shader->getGraph().getOutputSocket();
-        REQUIRE(sgOutputSocket->variable != "output");
+        REQUIRE(sgOutputSocket->getVariable() != "output");
         const mx::ShaderNode* sgNode1 = shader->getGraph().getNode(node1->getName());
-        REQUIRE(sgNode1->getOutput()->variable == "unique_names_out");
+        REQUIRE(sgNode1->getOutput()->getVariable() == "unique_names_out");
 
         // Write out to file for inspection
         // TODO: Use validation in MaterialXRender library
@@ -1565,9 +1565,9 @@ TEST_CASE("Unique Names", "[shadergen]")
 
         // Make sure the output and internal node output has their variable names set
         const mx::ShaderGraphOutputSocket* sgOutputSocket = shader->getGraph().getOutputSocket();
-        REQUIRE(sgOutputSocket->variable != "out");
+        REQUIRE(sgOutputSocket->getVariable() != "out");
         const mx::ShaderNode* sgNode1 = shader->getGraph().getNode(node1->getName());
-        REQUIRE(sgNode1->getOutput()->variable == "unique_names_out");
+        REQUIRE(sgNode1->getOutput()->getVariable() == "unique_names_out");
 
         // Write out to file for inspection
         // TODO: Use validation in MaterialXRender library
@@ -1594,9 +1594,9 @@ TEST_CASE("Unique Names", "[shadergen]")
 
         // Make sure the output and internal node output has been renamed
         const mx::ShaderGraphOutputSocket* sgOutputSocket = shader->getGraph().getOutputSocket();
-        REQUIRE(sgOutputSocket->variable != "vec3");
+        REQUIRE(sgOutputSocket->getVariable() != "vec3");
         const mx::ShaderNode* sgNode1 = shader->getGraph().getNode(node1->getName());
-        REQUIRE(sgNode1->getOutput()->variable == "unique_names_out");
+        REQUIRE(sgNode1->getOutput()->getVariable() == "unique_names_out");
 
         // Write out to file for inspection
         // TODO: Use validation in MaterialXRender library

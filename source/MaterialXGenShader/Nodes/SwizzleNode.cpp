@@ -22,26 +22,26 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     {
         throw ExceptionShaderGenError("Node '" + node.getName() +"' is not a valid swizzle node");
     }
-    if (!in->connection && !in->value)
+    if (!in->getConnection() && !in->getValue())
     {
         throw ExceptionShaderGenError("No connection or value found to swizzle on node '" + node.getName() + "'");
     }
 
-    const string& swizzle = channels->value ? channels->value->getValueString() : EMPTY_STRING;
-    string variableName = in->connection ? in->connection->variable : in->variable;
+    const string& swizzle = channels->getValue() ? channels->getValue()->getValueString() : EMPTY_STRING;
+    string variableName = in->getConnection() ? in->getConnection()->getVariable() : in->getVariable();
 
     // If the input is unconnected we must declare a variable
     // for it first, in order to swizzle it below.
-    if (!in->connection)
+    if (!in->getConnection())
     {
-        string variableValue = in->value ? shadergen.getSyntax()->getValue(in->type, *in->value) : shadergen.getSyntax()->getDefaultValue(in->type);
-        shadergen.emitLine(stage, shadergen.getSyntax()->getTypeName(in->type) + " " + variableName + " = " + variableValue);
+        string variableValue = in->getValue() ? shadergen.getSyntax()->getValue(in->getType(), *in->getValue()) : shadergen.getSyntax()->getDefaultValue(in->getType());
+        shadergen.emitLine(stage, shadergen.getSyntax()->getTypeName(in->getType()) + " " + variableName + " = " + variableValue);
     }
 
     if (!swizzle.empty())
     {
-        const TypeDesc* type = in->connection ? in->connection->type : in->type;
-        variableName = shadergen.getSyntax()->getSwizzledVariable(variableName, type, swizzle, node.getOutput()->type);
+        const TypeDesc* type = in->getConnection() ? in->getConnection()->getType() : in->getType();
+        variableName = shadergen.getSyntax()->getSwizzledVariable(variableName, type, swizzle, node.getOutput()->getType());
     }
 
     shadergen.emitLineBegin(stage);
@@ -54,7 +54,7 @@ END_SHADER_STAGE(stage, MAIN_STAGE)
 
 bool SwizzleNode::isEditable(const ShaderInput& input) const
 {
-    return (input.name != CHANNELS_STRING);
+    return (input.getName() != CHANNELS_STRING);
 }
 
 } // namespace MaterialX

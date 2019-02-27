@@ -79,7 +79,7 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     {
         throw ExceptionShaderGenError("Node '" + node.getName() + "' is not a valid convert node");
     }
-    if (!in->connection && !in->value)
+    if (!in->getConnection() && !in->getValue())
     {
         throw ExceptionShaderGenError("No connection or value found to convert on node '" + node.getName() + "'");
     }
@@ -87,20 +87,20 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     string result;
 
     // Handle supported scalar type conversions.
-    if ((in->type == Type::BOOLEAN || in->type == Type::INTEGER) && out->type == Type::FLOAT)
+    if (in->getType()->isScalar() && out->getType()->isScalar())
     {
-        shadergen.getInput(context, in, result);
-        result = shadergen.getSyntax()->getTypeName(out->type) + "(" + result + ")";
+        result = shadergen.getUpstreamResult(context, in);
+        result = shadergen.getSyntax()->getTypeName(out->getType()) + "(" + result + ")";
     }
     // Handle supported vector type conversions.
     else
     {
         // Search the conversion table for a swizzle pattern to use.
         const string* swizzle = nullptr;
-        auto i = CONVERT_TABLE.find(in->type);
+        auto i = CONVERT_TABLE.find(in->getType());
         if (i != CONVERT_TABLE.end())
         {
-            auto j = i->second.find(out->type);
+            auto j = i->second.find(out->getType());
             if (j != i->second.end())
             {
                 swizzle = &j->second;
@@ -108,20 +108,20 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
         }
         if (!swizzle || swizzle->empty())
         {
-            throw ExceptionShaderGenError("Conversion from '" + in->type->getName() + "' to '" + out->type->getName() + "' is not supported by convert node");
+            throw ExceptionShaderGenError("Conversion from '" + in->getType()->getName() + "' to '" + out->getType()->getName() + "' is not supported by convert node");
         }
 
-        string variableName = in->connection ? in->connection->variable : in->variable;
+        string variableName = in->getConnection() ? in->getConnection()->getVariable() : in->getVariable();
 
         // If the input is unconnected we must declare a local variable
         // for it first, in order to swizzle it below.
-        if (!in->connection)
+        if (!in->getConnection())
         {
-            string variableValue = in->value ? shadergen.getSyntax()->getValue(in->type, *in->value) : shadergen.getSyntax()->getDefaultValue(in->type);
-            shadergen.emitLine(stage, shadergen.getSyntax()->getTypeName(in->type) + " " + variableName + " = " + variableValue);
+            string variableValue = in->getValue() ? shadergen.getSyntax()->getValue(in->getType(), *in->getValue()) : shadergen.getSyntax()->getDefaultValue(in->getType());
+            shadergen.emitLine(stage, shadergen.getSyntax()->getTypeName(in->getType()) + " " + variableName + " = " + variableValue);
         }
-        const TypeDesc* type = in->connection ? in->connection->type : in->type;
-        result = shadergen.getSyntax()->getSwizzledVariable(variableName, type, *swizzle, node.getOutput()->type);
+        const TypeDesc* type = in->getConnection() ? in->getConnection()->getType() : in->getType();
+        result = shadergen.getSyntax()->getSwizzledVariable(variableName, type, *swizzle, node.getOutput()->getType());
     }
 
     shadergen.emitLineBegin(stage);

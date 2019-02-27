@@ -66,17 +66,18 @@ void LightCompoundNodeGlsl::createVariables(Shader& shader, const ShaderNode&, c
     }
 
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
+    VariableBlock& lightData = ps.getUniformBlock(HW::LIGHT_DATA);
 
     // Create all light uniforms
     for (size_t i = 0; i<_lightUniforms.size(); ++i)
     {
-        const Variable& u = _lightUniforms[i];
-        addStageUniform(ps, HW::LIGHT_DATA, u.getType(), u.getName());
+        ShaderPort* u = const_cast<ShaderPort*>(_lightUniforms[i]);
+        lightData.add(u->getSelf());
     }
 
     // Create uniform for number of active light sources
     addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", 
-                    EMPTY_STRING, Value::createValue<int>(0));
+                    Value::createValue<int>(0));
 }
 
 void LightCompoundNodeGlsl::emitFunctionDefinition(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen_, GenContext& context) const
@@ -90,15 +91,15 @@ BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 
     // Find any closure contexts used by this node
     // and emit the function for each context.
-    vector<const HwClosureContext*> ccxs;
-    shadergen.getClosureContexts(node, ccxs);
+    vector<HwClosureContextPtr> ccxs;
+    shadergen.getNodeClosureContexts(node, ccxs);
     if (ccxs.empty())
     {
         emitFunctionDefinition(stage, shadergen, context, nullptr);
     }
     else
     {
-        for (const HwClosureContext* ccx : ccxs)
+        for (HwClosureContextPtr ccx : ccxs)
         {
             emitFunctionDefinition(stage, shadergen, context, ccx);
         }
@@ -108,7 +109,7 @@ END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 
 void LightCompoundNodeGlsl::emitFunctionDefinition(ShaderStage& stage, const GlslShaderGenerator& shadergen,
-                                                   GenContext& context, const HwClosureContext* ccx) const
+                                                   GenContext& context, HwClosureContextPtr ccx) const
 {
     // Emit function signature
     if (ccx)
@@ -128,7 +129,7 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(ShaderStage& stage, const Gls
 
     if (ccx)
     {
-        context.pushUserData(HW::CLOSURE_CONTEXT, ccx);
+        context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, ccx);
     }
 
     // Emit function calls for all light shader nodes
@@ -142,7 +143,7 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(ShaderStage& stage, const Gls
 
     if (ccx)
     {
-        context.popUserData(HW::CLOSURE_CONTEXT);
+        context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
     }
 
     shadergen.emitScopeEnd(stage);

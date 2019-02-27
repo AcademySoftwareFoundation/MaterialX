@@ -11,7 +11,7 @@ ShaderNodeImplPtr GeomColorNodeGlsl::create()
 void GeomColorNodeGlsl::createVariables(Shader& shader, const ShaderNode& node, const ShaderGenerator&, GenContext&) const
 {
     const ShaderInput* indexInput = node.getInput(INDEX);
-    const string index = indexInput ? indexInput->value->getValueString() : "0";
+    const string index = indexInput ? indexInput->getValue()->getValueString() : "0";
 
     ShaderStage& vs = shader.getStage(HW::VERTEX_STAGE);
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
@@ -23,38 +23,40 @@ void GeomColorNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& n
 {
     const ShaderOutput* output = node.getOutput();
     const ShaderInput* indexInput = node.getInput(INDEX);
-    string index = indexInput ? indexInput->value->getValueString() : "0";
+    string index = indexInput ? indexInput->getValue()->getValueString() : "0";
     string variable = "color_" + index;
 
 BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
     VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-    Variable& color = vertexData[variable];
-    if (!color.isCalculated())
+    const string prefix = vertexData.getInstance() + ".";
+    ShaderPort* color = vertexData[variable];
+    if (!color->isEmitted())
     {
-        color.setCalculated();
-        shadergen.emitLine(stage, color.getFullName() + " = i_" + variable);
+        color->setEmitted();
+        shadergen.emitLine(stage, prefix + color->getVariable() + " = i_" + variable);
     }
 END_SHADER_STAGE(shader, HW::VERTEX_STAGE)
 
 BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     string suffix = "";
-    if (output->type == Type::FLOAT)
+    if (output->getType() == Type::FLOAT)
     {
         suffix = ".r";
     }
-    else if (output->type == Type::COLOR2)
+    else if (output->getType() == Type::COLOR2)
     {
         suffix = ".rg";
     }
-    else if (output->type == Type::COLOR3)
+    else if (output->getType() == Type::COLOR3)
     {
         suffix = ".rgb";
     }
     VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-    Variable& color = vertexData[variable];
+    const string prefix = vertexData.getInstance() + ".";
+    ShaderPort* color = vertexData[variable];
     shadergen.emitLineBegin(stage);
     shadergen.emitOutput(stage, context, node.getOutput(), true, false);
-    shadergen.emitString(stage, " = " + color.getFullName() + suffix);
+    shadergen.emitString(stage, " = " + prefix + color->getVariable() + suffix);
     shadergen.emitLineEnd(stage);
 END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }

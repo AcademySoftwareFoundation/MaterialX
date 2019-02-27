@@ -26,15 +26,15 @@ BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 
     // Find any closure contexts used by this node
     // and emit the function for each context.
-    vector<const HwClosureContext*> ccxs;
-    shadergen.getClosureContexts(node, ccxs);
+    vector<HwClosureContextPtr> ccxs;
+    shadergen.getNodeClosureContexts(node, ccxs);
     if (ccxs.empty())
     {
         emitFunctionDefinition(stage, shadergen, context, nullptr);
     }
     else
     {
-        for (const HwClosureContext* ccx : ccxs)
+        for (HwClosureContextPtr ccx : ccxs)
         {
             emitFunctionDefinition(stage, shadergen, context, ccx);
         }
@@ -44,7 +44,7 @@ END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 }
 
 void HwCompoundNode::emitFunctionDefinition(ShaderStage& stage, const HwShaderGenerator& shadergen, 
-    GenContext& context, const HwClosureContext* ccx) const
+    GenContext& context, HwClosureContextPtr ccx) const
 {
     const Syntax* syntax = shadergen.getSyntax();
 
@@ -59,7 +59,8 @@ void HwCompoundNode::emitFunctionDefinition(ShaderStage& stage, const HwShaderGe
         // Add any extra argument inputs first
         for (const HwClosureContext::Argument& arg : ccx->getArguments())
         {
-            shadergen.emitString(stage, delim + arg.first + " " + arg.second);
+            const string& type = shadergen.getSyntax()->getTypeName(arg.first);
+            shadergen.emitString(stage, delim + type + " " + arg.second);
             delim = ", ";
         }
     }
@@ -71,14 +72,14 @@ void HwCompoundNode::emitFunctionDefinition(ShaderStage& stage, const HwShaderGe
     // Add all inputs
     for (ShaderGraphInputSocket* inputSocket : _rootGraph->getInputSockets())
     {
-        shadergen.emitString(stage, delim + syntax->getTypeName(inputSocket->type) + " " + inputSocket->variable);
+        shadergen.emitString(stage, delim + syntax->getTypeName(inputSocket->getType()) + " " + inputSocket->getVariable());
         delim = ", ";
     }
 
     // Add all outputs
     for (ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
     {
-        shadergen.emitString(stage, delim + syntax->getOutputTypeName(outputSocket->type) + " " + outputSocket->variable);
+        shadergen.emitString(stage, delim + syntax->getOutputTypeName(outputSocket->getType()) + " " + outputSocket->getVariable());
         delim = ", ";
     }
 
@@ -91,9 +92,9 @@ void HwCompoundNode::emitFunctionDefinition(ShaderStage& stage, const HwShaderGe
 
     if (ccx)
     {
-        context.pushUserData(HW::CLOSURE_CONTEXT, ccx);
+        context.pushUserData(HW::USER_DATA_CLOSURE_CONTEXT, ccx);
         shadergen.emitFunctionCalls(stage, *_rootGraph, context);
-        context.popUserData(HW::CLOSURE_CONTEXT);
+        context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
     }
     else
     {
@@ -104,15 +105,15 @@ void HwCompoundNode::emitFunctionDefinition(ShaderStage& stage, const HwShaderGe
     for (ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
     {
         // Check for the rare case where the output is not internally connected
-        if (!outputSocket->connection)
+        if (!outputSocket->getConnection())
         {
-            shadergen.emitLine(stage, outputSocket->variable + " = " + (outputSocket->value ?
-                syntax->getValue(outputSocket->type, *outputSocket->value) :
-                syntax->getDefaultValue(outputSocket->type)));
+            shadergen.emitLine(stage, outputSocket->getVariable() + " = " + (outputSocket->getValue() ?
+                syntax->getValue(outputSocket->getType(), *outputSocket->getValue()) :
+                syntax->getDefaultValue(outputSocket->getType())));
         }
         else
         {
-            shadergen.emitLine(stage, outputSocket->variable + " = " + outputSocket->connection->variable);
+            shadergen.emitLine(stage, outputSocket->getVariable() + " = " + outputSocket->getConnection()->getVariable());
         }
     }
 
@@ -145,7 +146,7 @@ BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     string delim = "";
 
     // Check if we have a closure context to modify the function call.
-    const HwClosureContext* ccx = context.getUserData<HwClosureContext>(HW::CLOSURE_CONTEXT);
+    HwClosureContextPtr ccx = context.getUserData<HwClosureContext>(HW::USER_DATA_CLOSURE_CONTEXT);
 
     if (ccx)
     {

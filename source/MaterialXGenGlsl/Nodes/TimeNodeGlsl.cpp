@@ -21,7 +21,7 @@ BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     shadergen.emitOutput(stage, context, node.getOutput(), true, false);
     shadergen.emitString(stage, " = u_frame / ");
     const ShaderInput* fpsInput = node.getInput("fps");
-    const string fps = fpsInput->value->getValueString();
+    const string fps = fpsInput->getValue()->getValueString();
     shadergen.emitString(stage, fps);
     shadergen.emitLineEnd(stage);
 END_SHADER_STAGE(stage, HW::PIXEL_STAGE)

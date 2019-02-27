@@ -11,13 +11,14 @@ ShaderNodeImplPtr GeomAttrValueNodeGlsl::create()
 void GeomAttrValueNodeGlsl::createVariables(Shader& shader, const ShaderNode& node, const ShaderGenerator&, GenContext&) const
 {
     const ShaderInput* attrNameInput = node.getInput(ATTRNAME);
-    if (!attrNameInput || !attrNameInput->value)
+    if (!attrNameInput || !attrNameInput->getValue())
     {
         throw ExceptionShaderGenError("No 'attrname' parameter found on geomattrvalue node '" + node.getName() + "', don't know what attribute to bind");
     }
-    const string attrName = attrNameInput->value->getValueString();
+    const string attrName = attrNameInput->getValue()->getValueString();
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
-    addStageUniform(ps, HW::PRIVATE_UNIFORMS, node.getOutput()->type, "u_geomattr_" + attrName, EMPTY_STRING, nullptr, attrNameInput->path);
+    ShaderPort* uniform = addStageUniform(ps, HW::PRIVATE_UNIFORMS, node.getOutput()->getType(), "u_geomattr_" + attrName);
+    uniform->setPath(attrNameInput->getPath());
 }
 
 void GeomAttrValueNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
@@ -28,7 +29,7 @@ BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     {
         throw ExceptionShaderGenError("No 'attrname' parameter found on geomattrvalue node '" + node.getName() + "', don't know what attribute to bind");
     }
-    const string attrName = attrNameInput->value->getValueString();
+    const string attrName = attrNameInput->getValue()->getValueString();
     shadergen.emitLineBegin(stage);
     shadergen.emitOutput(stage, context, node.getOutput(), true, false);
     shadergen.emitString(stage, " = u_geomattr_" + attrName);

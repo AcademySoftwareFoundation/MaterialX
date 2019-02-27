@@ -98,20 +98,18 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
                     "' on node '" + node.getName() + "'");
             }
 
-            if (input->connection)
+            if (input->getConnection())
             {
-                string inputStr;
-                shadergen.getInput(context, input, inputStr);
-                code.push_back(inputStr);
+                code.push_back(shadergen.getUpstreamResult(context, input));
             }
             else
             {
-                string variableName = node.getName() + "_" + input->name + "_tmp";
+                string variableName = node.getName() + "_" + input->getName() + "_tmp";
                 if (!variableNames.count(variableName))
                 {
-                    Variable newVariable(nullptr, input->type, variableName, EMPTY_STRING, input->value, EMPTY_STRING);
+                    ShaderPort newVariable(nullptr, input->getType(), variableName, input->getValue());
                     shadergen.emitLineBegin(stage);
-                    shadergen.emitConstant(stage, newVariable);
+                    shadergen.emitVariableDeclaration(stage, &newVariable, shadergen.getSyntax()->getConstantQualifier(), true);
                     shadergen.emitLineEnd(stage);
                     variableNames.insert(variableName);
                 }

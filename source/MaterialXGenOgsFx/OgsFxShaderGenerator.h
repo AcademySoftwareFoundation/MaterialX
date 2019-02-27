@@ -31,8 +31,8 @@ protected:
     void emitPixelStage(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const override;
 
     /// Emit a shader input variable
-    void emitVariable(ShaderStage& stage, const Variable& variable,
-        const string& qualifier, bool assignValue = true) const override;
+    void emitVariableDeclaration(ShaderStage& stage, const ShaderPort* variable,
+                                 const string& qualifier, bool assignValue = true) const override;
 
     /// Create and initialize a new OGSFX shader for shader generation.
     ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const override;

@@ -118,7 +118,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     {
         emitLine(fx, "attribute " + vertexInputs.getName(), false);
         emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
-        emitVariableBlock(fx, vertexInputs, EMPTY_STRING, SEMICOLON, false);
+        emitVariableDeclarations(fx, vertexInputs, EMPTY_STRING, SEMICOLON, false);
         emitScopeEnd(fx, true);
         emitLineBreak(fx);
     }
@@ -129,7 +129,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     {
         emitLine(fx, "attribute " + vertexData.getName(), false);
         emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
-        emitVariableBlock(fx, vertexData, EMPTY_STRING, SEMICOLON, false);
+        emitVariableDeclarations(fx, vertexData, EMPTY_STRING, SEMICOLON, false);
         emitScopeEnd(fx, true);
         emitLineBreak(fx);
     }
@@ -139,7 +139,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket();
     emitLine(fx, "attribute PixelOutput", false);
     emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
-    emitLine(fx, "vec4 " + outputSocket->variable);
+    emitLine(fx, "vec4 " + outputSocket->getVariable());
     emitScopeEnd(fx, true);
     emitLineBreak(fx);
 
@@ -149,7 +149,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         if (!uniforms.empty())
         {
             emitComment(fx, "Vertex stage uniform block: " + uniforms.getName());
-            emitVariableBlock(fx, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
+            emitVariableDeclarations(fx, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
         }
     }
     // Add all public vertex shader uniforms
@@ -158,7 +158,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         if (!uniforms.empty())
         {
             emitComment(fx, "Vertex stage uniform block: " + uniforms.getName());
-            emitVariableBlock(fx, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
+            emitVariableDeclarations(fx, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
         }
     }
     // Add all private pixel shader uniforms
@@ -167,7 +167,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         if (!uniforms.empty())
         {
             emitComment(fx, "Pixel stage uniform block: " + uniforms.getName());
-            emitVariableBlock(fx, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
+            emitVariableDeclarations(fx, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
         }
     }
     // Add all public pixel shader uniforms
@@ -176,7 +176,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         if (!uniforms.empty())
         {
             emitComment(fx, "Pixel stage uniform block: " + uniforms.getName());
-            emitVariableBlock(fx, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
+            emitVariableDeclarations(fx, uniforms, _syntax->getUniformQualifier(), SEMICOLON);
         }
     }
 
@@ -191,9 +191,9 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
         for (size_t i=0; i<lightData.size(); ++i)
         {
-            const Variable& uniform = lightData[i];
-            const string& type = _syntax->getTypeName(uniform.getType());
-            emitLine(fx, type + " " + uniform.getName());
+            const ShaderPort* uniform = lightData[i];
+            const string& type = _syntax->getTypeName(uniform->getType());
+            emitLine(fx, type + " " + uniform->getName());
         }
         emitScopeEnd(fx, true);
         emitLineBreak(fx);
@@ -262,7 +262,7 @@ void OgsFxShaderGenerator::emitVertexStage(ShaderStage& stage, const ShaderGraph
     const VariableBlock& constants = stage.getConstantBlock();
     if (!constants.empty())
     {
-        emitVariableBlock(stage, constants, _syntax->getConstantQualifier(), SEMICOLON);
+        emitVariableDeclarations(stage, constants, _syntax->getConstantQualifier(), SEMICOLON);
         emitLineBreak(stage);
     }
 
@@ -298,7 +298,7 @@ void OgsFxShaderGenerator::emitPixelStage(ShaderStage& stage, const ShaderGraph&
     const VariableBlock& constants = stage.getConstantBlock();
     if (!constants.empty())
     {
-        emitVariableBlock(stage, constants, _syntax->getConstantQualifier(), SEMICOLON);
+        emitVariableDeclarations(stage, constants, _syntax->getConstantQualifier(), SEMICOLON);
         emitLineBreak(stage);
     }
 
@@ -340,7 +340,7 @@ void OgsFxShaderGenerator::emitPixelStage(ShaderStage& stage, const ShaderGraph&
         // Handle the case where the graph is a direct closure.
         // We don't support rendering closures without attaching 
         // to a surface shader, so just output black.
-        emitLine(stage, outputSocket->variable + " = vec4(0.0, 0.0, 0.0, 1.0)");
+        emitLine(stage, outputSocket->getVariable() + " = vec4(0.0, 0.0, 0.0, 1.0)");
     }
     else
     {
@@ -354,11 +354,11 @@ void OgsFxShaderGenerator::emitPixelStage(ShaderStage& stage, const ShaderGraph&
             const VariableBlock& lightData = stage.getUniformBlock(HW::LIGHT_DATA);
             for (size_t i = 0; i < lightData.size(); ++i)
             {
-                const Variable& uniform = lightData[i];
-                auto it = OGSFX_GET_LIGHT_DATA_MAP.find(uniform.getName());
+                const ShaderPort* uniform = lightData[i];
+                auto it = OGSFX_GET_LIGHT_DATA_MAP.find(uniform->getName());
                 if (it != OGSFX_GET_LIGHT_DATA_MAP.end())
                 {
-                    emitLine(stage, lightData.getInstance() + "[i]." + uniform.getName() + " = " + it->second + "(i)");
+                    emitLine(stage, lightData.getInstance() + "[i]." + uniform->getName() + " = " + it->second + "(i)");
                 }
             }
             emitScopeEnd(stage);
@@ -370,44 +370,44 @@ void OgsFxShaderGenerator::emitPixelStage(ShaderStage& stage, const ShaderGraph&
         emitFunctionCalls(stage, graph, context);
 
         // Emit final output
-        if (outputSocket->connection)
+        if (outputSocket->getConnection())
         {
-            string finalOutput = outputSocket->connection->variable;
+            string finalOutput = outputSocket->getConnection()->getVariable();
 
             if (graph.hasClassification(ShaderNode::Classification::SURFACE))
             {
                 if (context.getOptions().hwTransparency)
                 {
                     emitLine(stage, "float outAlpha = clamp(1.0 - dot(" + finalOutput + ".transparency, vec3(0.3333)), 0.0, 1.0)");
-                    emitLine(stage, outputSocket->variable + " = vec4(" + finalOutput + ".color, outAlpha)");
+                    emitLine(stage, outputSocket->getVariable() + " = vec4(" + finalOutput + ".color, outAlpha)");
                 }
                 else
                 {
-                    emitLine(stage, outputSocket->variable + " = vec4(" + finalOutput + ".color, 1.0)");
+                    emitLine(stage, outputSocket->getVariable() + " = vec4(" + finalOutput + ".color, 1.0)");
                 }
             }
             else
             {
-                if (!outputSocket->type->isFloat4())
+                if (!outputSocket->getType()->isFloat4())
                 {
-                    toVec4(outputSocket->type, finalOutput);
+                    toVec4(outputSocket->getType(), finalOutput);
                 }
-                emitLine(stage, outputSocket->variable + " = " + finalOutput);
+                emitLine(stage, outputSocket->getVariable() + " = " + finalOutput);
             }
         }
         else
         {
-            string outputValue = outputSocket->value ? _syntax->getValue(outputSocket->type, *outputSocket->value) : _syntax->getDefaultValue(outputSocket->type);
-            if (!outputSocket->type->isFloat4())
+            string outputValue = outputSocket->getValue() ? _syntax->getValue(outputSocket->getType(), *outputSocket->getValue()) : _syntax->getDefaultValue(outputSocket->getType());
+            if (!outputSocket->getType()->isFloat4())
             {
-                string finalOutput = outputSocket->variable + "_tmp";
-                emitLine(stage, _syntax->getTypeName(outputSocket->type) + " " + finalOutput + " = " + outputValue);
-                toVec4(outputSocket->type, finalOutput);
-                emitLine(stage, outputSocket->variable + " = " + finalOutput);
+                string finalOutput = outputSocket->getVariable() + "_tmp";
+                emitLine(stage, _syntax->getTypeName(outputSocket->getType()) + " " + finalOutput + " = " + outputValue);
+                toVec4(outputSocket->getType(), finalOutput);
+                emitLine(stage, outputSocket->getVariable() + " = " + finalOutput);
             }
             else
             {
-                emitLine(stage, outputSocket->variable + " = " + outputValue);
+                emitLine(stage, outputSocket->getVariable() + " = " + outputValue);
             }
         }
     }
@@ -417,37 +417,37 @@ void OgsFxShaderGenerator::emitPixelStage(ShaderStage& stage, const ShaderGraph&
     emitLineBreak(stage);
 }
 
-void OgsFxShaderGenerator::emitVariable(ShaderStage& stage, const Variable& variable,
-                                        const string& qualifier, bool assignValue) const
+void OgsFxShaderGenerator::emitVariableDeclaration(ShaderStage& stage, const ShaderPort* variable,
+                                                   const string& qualifier, bool assignValue) const
 {
     // A file texture input needs special handling on GLSL
-    if (variable.getType() == Type::FILENAME)
+    if (variable->getType() == Type::FILENAME)
     {
-        emitLine(stage, "uniform texture2D " + variable.getName() + "_texture : SourceTexture");
-        emitLine(stage, "uniform sampler2D " + variable.getName() + " = sampler_state", false);
-        emitLine(stage, "{\n    Texture = <" + variable.getName() + "_texture>;\n}");
+        emitLine(stage, "uniform texture2D " + variable->getName() + "_texture : SourceTexture");
+        emitLine(stage, "uniform sampler2D " + variable->getName() + " = sampler_state", false);
+        emitLine(stage, "{\n    Texture = <" + variable->getName() + "_texture>;\n}");
     }
-    else if (!variable.getSemantic().empty())
+    else if (!variable->getSemantic().empty())
     {
-        const string& type = _syntax->getTypeName(variable.getType());
-        emitLine(stage, qualifier + " " + type + " " + variable.getName() + " : " + variable.getSemantic());
+        const string& type = _syntax->getTypeName(variable->getType());
+        emitLine(stage, qualifier + " " + type + " " + variable->getName() + " : " + variable->getSemantic());
     }
     else
     {
-        const string& type = _syntax->getTypeName(variable.getType());
-        string str = qualifier + " " + type + " " + variable.getName();
+        const string& type = _syntax->getTypeName(variable->getType());
+        string str = qualifier + " " + type + " " + variable->getName();
 
         // If an array we need an array qualifier (suffix) for the variable name
-        if (variable.getType()->isArray() && variable.getValue())
+        if (variable->getType()->isArray() && variable->getValue())
         {
-            str += _syntax->getArraySuffix(variable.getType(), *variable.getValue());
+            str += _syntax->getArraySuffix(variable->getType(), *variable->getValue());
         }
 
         if (assignValue)
         {
-            const string initStr = (variable.getValue() ?
-                _syntax->getValue(variable.getType(), *variable.getValue(), true) :
-                _syntax->getDefaultValue(variable.getType(), true));
+            const string initStr = (variable->getValue() ?
+                _syntax->getValue(variable->getType(), *variable->getValue(), true) :
+                _syntax->getDefaultValue(variable->getType(), true));
             str += initStr.empty() ? "" : " = " + initStr;
         }
 
@@ -470,11 +470,11 @@ ShaderPtr OgsFxShaderGenerator::createShader(const string& name, ElementPtr elem
             VariableBlock& block = *it.second;
             for (size_t j = 0; j < block.size(); ++j)
             {
-                Variable& v = block[j];
-                auto sematic = OGSFX_DEFAULT_SEMANTICS_MAP.find(v.getName());
+                ShaderPort* v = block[j];
+                auto sematic = OGSFX_DEFAULT_SEMANTICS_MAP.find(v->getName());
                 if (sematic != OGSFX_DEFAULT_SEMANTICS_MAP.end())
                 {
-                    v.setSemantic(sematic->second);
+                    v->setSemantic(sematic->second);
                 }
             }
         }
@@ -483,11 +483,11 @@ ShaderPtr OgsFxShaderGenerator::createShader(const string& name, ElementPtr elem
             VariableBlock& block = *it.second;
             for (size_t j = 0; j < block.size(); ++j)
             {
-                Variable& v = block[j];
-                auto sematic = OGSFX_DEFAULT_SEMANTICS_MAP.find(v.getName());
+                ShaderPort* v = block[j];
+                auto sematic = OGSFX_DEFAULT_SEMANTICS_MAP.find(v->getName());
                 if (sematic != OGSFX_DEFAULT_SEMANTICS_MAP.end())
                 {
-                    v.setSemantic(sematic->second);
+                    v->setSemantic(sematic->second);
                 }
             }
         }

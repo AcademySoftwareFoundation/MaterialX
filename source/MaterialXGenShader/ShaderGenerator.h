@@ -100,31 +100,26 @@ public:
     virtual void emitOutput(ShaderStage& stage, const GenContext& context, const ShaderOutput* output, 
                             bool includeType, bool assignValue) const;
 
-    /// Utility to emit a block of either uniform or constant variables
+    /// Emit definitions for all shader variables in a block.
+    /// @param stage The stage to emit code into.
     /// @param block Block to emit.
     /// @param qualifier Optional qualifier to add before the variable declaration.
-    /// Qualifiers are specified by the syntax for the generator.
-    /// @param shader Shader to emit to.
-    virtual void emitVariableBlock(ShaderStage& stage, const VariableBlock& block,
-        const string& qualifier, const string& separator, bool assignValue = true) const;
+    /// @param separator Separator to use between the declarations.
+    /// @param assignValue If true the variables are initialized with their value.
+    virtual void emitVariableDeclarations(ShaderStage& stage, const VariableBlock& block,
+                                   const string& qualifier, const string& separator, 
+                                   bool assignValue = true) const;
 
-    /// Emit a shader variable
-    /// @param variable Variable to emit
+    /// Emit definition of a single shader variable.
+    /// @param stage The stage to emit code into.
+    /// @param variable Shader port representing the variable.
     /// @param qualifier Optional qualifier to add before the variable declaration.
-    /// Qualifiers are specified by the syntax for the generator.
-    /// @param shader Shader source to emit output to
-    virtual void emitVariable(ShaderStage& stage, const Variable& variable, 
-        const string& qualifier, bool assignValue = true) const;
+    /// @param assignValue If true the variable is initialized with its value.
+    virtual void emitVariableDeclaration(ShaderStage& stage, const ShaderPort* variable,
+                                         const string& qualifier, bool assignValue = true) const;
 
-    /// Utility to emit a shader constant variable
-    virtual void emitConstant(ShaderStage& stage, const Variable& variable) const;
-
-    /// Utility to emit a shader uniform input variable
-    virtual void emitUniform(ShaderStage& stage, const Variable& variable) const;
-
-    /// Get the connected variable name for an input,
-    /// or constant value if the port is not connected
-    virtual void getInput(const GenContext& context, const ShaderInput* input, string& result) const;
+    /// Return the result of an upstream connection or value for an input.
+    virtual string getUpstreamResult(const GenContext& context, const ShaderInput* input) const;
 
     /// Return the syntax object for the language used by the code generator
     const Syntax* getSyntax() const { return _syntax.get(); }

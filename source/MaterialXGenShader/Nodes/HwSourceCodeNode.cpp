@@ -37,7 +37,7 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
         string delim = "";
 
         // Check if we have a closure context to modify the function call.
-        const HwClosureContext* ccx = context.getUserData<HwClosureContext>(HW::CLOSURE_CONTEXT);
+        HwClosureContextPtr ccx = context.getUserData<HwClosureContext>(HW::USER_DATA_CLOSURE_CONTEXT);
 
         if (ccx)
         {

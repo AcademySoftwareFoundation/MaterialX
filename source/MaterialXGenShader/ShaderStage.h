@@ -23,50 +23,9 @@ namespace MaterialX
 /// Identifier for main shader stage.
 extern const string MAIN_STAGE;
 
-class Variable;
-using VariablePtr = std::shared_ptr<Variable>;
-
 class VariableBlock;
 using VariableBlockPtr = std::shared_ptr<VariableBlock>;
 using VariableBlockMap = std::unordered_map<string, VariableBlockPtr>;
-
-/// A variables in a shader stage
-class Variable
-{
-  public:
-    Variable(const VariableBlock* block, const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING,
-        ValuePtr value = nullptr, const string& path = EMPTY_STRING);
-
-    void setType(const TypeDesc* type) { _type = type; }
-    const TypeDesc* getType() const { return _type; }
-
-    void setName(const string& name) { _name = name; }
-    const string& getName() const { return _name; }
-
-    void setFullName(const string& fullName) { _fullName = fullName; }
-    const string& getFullName() const { return _fullName; }
-
-    void setSemantic(const string& semantic) { _semantic = semantic; }
-    const string& getSemantic() const { return _semantic; }
-
-    void setValue(ValuePtr value) { _value = value; }
-    ValuePtr getValue() const { return _value; }
-
-    void setPath(const string& path) { _path = path; }
-    const string& getPath() const { return _path; }
-
-    void setCalculated() { _calculated = true; }
-    bool isCalculated() const { return _calculated; }
-
-  private:
-    const TypeDesc* _type;
-    string _name;
-    string _fullName;
-    string _semantic;
-    ValuePtr _value;
-    string _path;
-    bool _calculated;
-};
 
 /// A block of variables in a shader stage
 class VariableBlock
@@ -85,26 +44,29 @@ class VariableBlock
 
     size_t size() const { return _variableOrder.size(); }
 
-    Variable& operator[](size_t i) { return *_variableOrder[i]; }
+    ShaderPort* operator[](size_t i) { return _variableOrder[i]; }
 
-    const Variable& operator[](size_t i) const { return *_variableOrder[i]; }
+    const ShaderPort* operator[](size_t i) const { return _variableOrder[i]; }
 
-    Variable& operator[](const string& name);
+    ShaderPort* operator[](const string& name);
 
-    const Variable& operator[](const string& name) const;
+    const ShaderPort* operator[](const string& name) const;
 
-    Variable* find(const string& name);
+    ShaderPort* find(const string& name);
 
-    const Variable* find(const string& name) const;
+    const ShaderPort* find(const string& name) const;
 
-    void add(const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING,
-        ValuePtr value = nullptr, const string& path = EMPTY_STRING);
+    /// Add a new shader port to this block.
+    ShaderPort* add(const TypeDesc* type, const string& name, ValuePtr value = nullptr);
+
+    /// Add an existing shader port to this block.
+    void add(ShaderPortPtr port);
 
   private:
     string _name;
     string _instance;
-    std::unordered_map<string, VariablePtr> _variableMap;
-    vector<Variable*> _variableOrder;
+    std::unordered_map<string, ShaderPortPtr> _variableMap;
+    vector<ShaderPort*> _variableOrder;
 };
 
 
@@ -256,27 +218,30 @@ private:
 
 using ShaderStagePtr = std::shared_ptr<ShaderStage>;
 
-/// Utility function for adding a variable to a uniform block.
-inline void addStageUniform(ShaderStage& stage, const string& block, const TypeDesc* type, const string& name,
-    const string& semantic = EMPTY_STRING, ValuePtr value = nullptr, const string& path = EMPTY_STRING)
+/// Utility function for adding a new shader port to a uniform block.
+inline ShaderPort* addStageUniform(ShaderStage& stage, const string& block, 
+                                   const TypeDesc* type, const string& name,
+                                   ValuePtr value = nullptr)
 {
     VariableBlock& uniforms = stage.getUniformBlock(block);
-    uniforms.add(type, name, semantic, value, path);
+    return uniforms.add(type, name, value);
 }
 
-/// Utility function for adding a variable to an input block.
-inline void addStageInput(ShaderStage& stage, const string& block, const TypeDesc* type, const string& name,
-    const string& semantic = EMPTY_STRING, ValuePtr value = nullptr, const string& path = EMPTY_STRING)
+/// Utility function for adding a new shader port to an input block.
+inline ShaderPort* addStageInput(ShaderStage& stage, const string& block, 
+                                 const TypeDesc* type, const string& name,
+                                 ValuePtr value = nullptr)
 {
     VariableBlock& inputs = stage.getInputBlock(block);
-    inputs.add(type, name, semantic, value, path);
+    return inputs.add(type, name, value);
 }
 
-/// Utility function for adding a variable to an output block.
-inline void addStageOutput(ShaderStage& stage, const string& block, const TypeDesc* type, const string& name)
+/// Utility function for adding a new shader port to an output block.
+inline ShaderPort* addStageOutput(ShaderStage& stage, const string& block,
+                                  const TypeDesc* type, const string& name)
 {
     VariableBlock& outputs = stage.getOutputBlock(block);
-    outputs.add(type, name);
+    return outputs.add(type, name);
 }
 
 /// Utility function for adding a connector block between stages.

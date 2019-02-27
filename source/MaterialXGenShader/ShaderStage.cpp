@@ -13,52 +13,53 @@ namespace MaterialX
 /// Identifier for main shader stage.
 const string MAIN_STAGE = "main";
 
-Variable::Variable(const VariableBlock* block, const TypeDesc* type, const string& name, const string& semantic,
-    ValuePtr value, const string& path)
-    : _type(type)
-    , _name(name)
-    , _fullName(block && !block->getInstance().empty() ? block->getInstance() + "." + name : name)
-    , _semantic(semantic)
-    , _value(value)
-    , _path(path)
-    , _calculated(false)
+ShaderPort* VariableBlock::operator[](const string& name)
 {
-}
-
-Variable& VariableBlock::operator[](const string& name)
-{
-    Variable* v = find(name);
+    ShaderPort* v = find(name);
     if (!v)
     {
         throw ExceptionShaderGenError("No variable named '" + name + "' exists for block '" + getName() + "'");
     }
-    return *v;
+    return v;
 }
 
-const Variable& VariableBlock::operator[](const string& name) const
+const ShaderPort* VariableBlock::operator[](const string& name) const
 {
     return const_cast<VariableBlock*>(this)->operator[](name);
 }
 
-Variable* VariableBlock::find(const string& name)
+ShaderPort* VariableBlock::find(const string& name)
 {
     auto it = _variableMap.find(name);
     return it != _variableMap.end() ? it->second.get() : nullptr;
 }
 
-const Variable* VariableBlock::find(const string& name) const
+const ShaderPort* VariableBlock::find(const string& name) const
 {
     return const_cast<VariableBlock*>(this)->find(name);
 }
 
-void VariableBlock::add(const TypeDesc* type, const string& name, const string& semantic,
-                        ValuePtr value, const string& path)
+ShaderPort* VariableBlock::add(const TypeDesc* type, const string& name, ValuePtr value)
 {
-    if (!_variableMap.count(name))
+    auto it = _variableMap.find(name);
+    if (it != _variableMap.end())
     {
-        VariablePtr v = std::make_shared<Variable>(this, type, name, semantic, value, path);
-        _variableMap[name] = v;
-        _variableOrder.push_back(v.get());
+        return it->second.get();
+    }
+
+    ShaderPortPtr port = std::make_shared<ShaderPort>(nullptr, type, name, value);
+    _variableMap[name] = port;
+    _variableOrder.push_back(port.get());
+
+    return port.get();
+}
+
+void VariableBlock::add(ShaderPortPtr port)
+{
+    if (!_variableMap.count(port->getName()))
+    {
+        _variableMap[port->getName()] = port;
+        _variableOrder.push_back(port.get());
     }
 }
 

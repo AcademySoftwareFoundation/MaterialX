@@ -12,6 +12,14 @@ namespace
         "result.direction = L;\n";
 }
 
+LightNodeGlsl::LightNodeGlsl()
+{
+    // Emission context
+    _callEmission = HwClosureContext::create(HwClosureContext::EMISSION);
+    _callEmission->addArgument(Type::VECTOR3, "light.direction");
+    _callEmission->addArgument(Type::VECTOR3, "-L");
+}
+
 ShaderNodeImplPtr LightNodeGlsl::create()
 {
     return std::make_shared<LightNodeGlsl>();
@@ -23,13 +31,12 @@ void LightNodeGlsl::createVariables(Shader& shader, const ShaderNode&, const Sha
 
     // Create uniform for intensity, exposure and direction
     VariableBlock& lightUniforms = ps.getUniformBlock(HW::LIGHT_DATA);
-    lightUniforms.add(Type::FLOAT, "intensity", EMPTY_STRING, Value::createValue<float>(1.0f));
-    lightUniforms.add(Type::FLOAT, "exposure", EMPTY_STRING, Value::createValue<float>(0.0f));
-    lightUniforms.add(Type::VECTOR3, "direction", EMPTY_STRING, Value::createValue<Vector3>(Vector3(0.0f,1.0f,0.0f)));
+    lightUniforms.add(Type::FLOAT, "intensity", Value::createValue<float>(1.0f));
+    lightUniforms.add(Type::FLOAT, "exposure", Value::createValue<float>(0.0f));
+    lightUniforms.add(Type::VECTOR3, "direction", Value::createValue<Vector3>(Vector3(0.0f,1.0f,0.0f)));
 
     // Create uniform for number of active light sources
-    addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", 
-                    EMPTY_STRING, Value::createValue<int>(0));
+    addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", Value::createValue<int>(0));
 }
 
 void LightNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen_, GenContext& context) const
@@ -42,7 +49,7 @@ BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     shadergen.emitLineBreak(stage);
 
     string emission;
-    shadergen.emitEdfNodes(stage, graph, context, node, "light.direction", "-L", emission);
+    shadergen.emitEdfNodes(stage, graph, context, node, _callEmission, emission);
     shadergen.emitLineBreak(stage);
 
     shadergen.emitComment(stage, "Apply quadratic falloff and adjust intensity");
@@ -57,7 +64,7 @@ BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     shadergen.emitLineEnd(stage);
 
     // Emit exposure adjustment only if it matters
-    if (exposure->connection || (exposure->value && exposure->value->asA<float>() != 0.0f))
+    if (exposure->getConnection() || (exposure->getValue() && exposure->getValue()->asA<float>() != 0.0f))
     {
         shadergen.emitLineBegin(stage);
         shadergen.emitString(stage, "result.intensity *= pow(2, ");

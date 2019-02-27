@@ -20,24 +20,26 @@ void ViewDirectionNodeGlsl::createVariables(Shader& shader, const ShaderNode&, c
 
 void ViewDirectionNodeGlsl::emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const
 {
-BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
-    VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-    Variable& position = vertexData["positionWorld"];
-    if (!position.isCalculated())
-    {
-        position.setCalculated();
-        shadergen.emitLine(stage, position.getFullName() + " = hPositionWorld.xyz");
-    }
-END_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+    BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+        VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
+        const string prefix = vertexData.getInstance() + ".";
+        ShaderPort* position = vertexData["positionWorld"];
+        if (!position->isEmitted())
+        {
+            position->setEmitted();
+            shadergen.emitLine(stage, prefix + position->getVariable() + " = hPositionWorld.xyz");
+        }
+    END_SHADER_STAGE(stage, HW::VERTEX_STAGE)
 
-BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
-    VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-    Variable& position = vertexData["positionWorld"];
-    shadergen.emitLineBegin(stage);
-    shadergen.emitOutput(stage, context, node.getOutput(), true, false);
-    shadergen.emitString(stage, " = normalize(" + position.getFullName() + " - u_viewPosition)");
-    shadergen.emitLineEnd(stage);
-END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+        VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
+        const string prefix = vertexData.getInstance() + ".";
+        ShaderPort* position = vertexData["positionWorld"];
+        shadergen.emitLineBegin(stage);
+        shadergen.emitOutput(stage, context, node.getOutput(), true, false);
+        shadergen.emitString(stage, " = normalize(" + prefix + position->getVariable() + " - u_viewPosition)");
+        shadergen.emitLineEnd(stage);
+    END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

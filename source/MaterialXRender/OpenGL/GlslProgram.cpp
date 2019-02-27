@@ -292,7 +292,7 @@ void GlslProgram::bindInputs(ViewHandlerPtr viewHandler,
     bindLighting(lightHandler, imageHandler);
 
     // Set up raster state for transparency as needed
-    if (_shader->hasAttribute(HW::TRANSPARENT))
+    if (_shader->hasAttribute(HW::ATTR_TRANSPARENT))
     {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -309,7 +309,7 @@ void GlslProgram::unbindInputs(ImageHandlerPtr imageHandler)
     unbindGeometry();
 
     // Clean up raster state if transparency was set in bindInputs()
-    if (_shader->hasAttribute(HW::TRANSPARENT))
+    if (_shader->hasAttribute(HW::ATTR_TRANSPARENT))
     {
         glDisable(GL_BLEND);
     }
@@ -1108,20 +1108,20 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
         const VariableBlock& constants = ps.getConstantBlock();
         for (size_t i=0; i< constants.size(); ++i)
         {
-            const Variable& v = constants[i];
+            const ShaderPort* v = constants[i];
             // There is no way to match with an unnamed variable
-            if (v.getName().empty())
+            if (v->getName().empty())
             {
                 continue;
             }
 
             // TODO: Shoud we really create new ones here each update?
-            InputPtr inputPtr = std::make_shared<Input>(-1, -1, int(v.getType()->getSize()), EMPTY_STRING);
-            _uniformList[v.getName()] = inputPtr;
+            InputPtr inputPtr = std::make_shared<Input>(-1, -1, int(v->getType()->getSize()), EMPTY_STRING);
+            _uniformList[v->getName()] = inputPtr;
             inputPtr->isConstant = true;
-            inputPtr->value = v.getValue();
-            inputPtr->typeString = v.getType()->getName();
-            inputPtr->path = v.getPath();
+            inputPtr->value = v->getValue();
+            inputPtr->typeString = v->getType()->getName();
+            inputPtr->path = v->getPath();
         }
 
         // Process pixel stage uniforms
@@ -1136,32 +1136,32 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
 
             for (size_t i = 0; i < uniforms.size(); ++i)
             {
-                const Variable& v = uniforms[i];
+                const ShaderPort* v = uniforms[i];
                 // There is no way to match with an unnamed variable
-                if (v.getName().empty())
+                if (v->getName().empty())
                 {
                     continue;
                 }
 
-                auto inputIt = _uniformList.find(v.getName());
+                auto inputIt = _uniformList.find(v->getName());
                 if (inputIt != _uniformList.end())
                 {
                     Input* input = inputIt->second.get();
-                    input->path = v.getPath();
-                    input->value = v.getValue();
-                    if (input->gltype == mapTypeToOpenGLType(v.getType()))
+                    input->path = v->getPath();
+                    input->value = v->getValue();
+                    if (input->gltype == mapTypeToOpenGLType(v->getType()))
                     {
-                        input->typeString = v.getType()->getName();
+                        input->typeString = v->getType()->getName();
                     }
                     else
                     {
                         errors.push_back(
                             "Pixel shader uniform block type mismatch [" + uniforms.getName() + "]. "
-                            + "Name: \"" + v.getName()
-                            + "\". Type: \"" + v.getType()->getName()
-                            + "\". Semantic: \"" + v.getSemantic()
-                            + "\". Value: \"" + (v.getValue() ? v.getValue()->getValueString() : "<none>")
-                            + "\". GLType: " + std::to_string(mapTypeToOpenGLType(v.getType()))
+                            + "Name: \"" + v->getName()
+                            + "\". Type: \"" + v->getType()->getName()
+                            + "\". Semantic: \"" + v->getSemantic()
+                            + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
+                            + "\". GLType: " + std::to_string(mapTypeToOpenGLType(v->getType()))
                         );
                         uniformTypeMismatchFound = true;
                     }
@@ -1175,26 +1175,26 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
             const VariableBlock& uniforms = *uniformsIt.second;
             for (size_t i = 0; i < uniforms.size(); ++i)
             {
-                const Variable& v = uniforms[i];
-                auto inputIt = _uniformList.find(v.getName());
+                const ShaderPort* v = uniforms[i];
+                auto inputIt = _uniformList.find(v->getName());
                 if (inputIt != _uniformList.end())
                 {
                     Input* input = inputIt->second.get();
-                    if (input->gltype == mapTypeToOpenGLType(v.getType()))
+                    if (input->gltype == mapTypeToOpenGLType(v->getType()))
                     {
-                        input->typeString = v.getType()->getName();
-                        input->value = v.getValue();
-                        input->path = v.getPath();
+                        input->typeString = v->getType()->getName();
+                        input->value = v->getValue();
+                        input->path = v->getPath();
                     }
                     else
                     {
                         errors.push_back(
                             "Vertex shader uniform block type mismatch [" + uniforms.getName() + "]. "
-                            + "Name: \"" + v.getName()
-                            + "\". Type: \"" + v.getType()->getName()
-                            + "\". Semantic: \"" + v.getSemantic()
-                            + "\". Value: \"" + (v.getValue() ? v.getValue()->getValueString() : "<none>")
-                            + "\". GLType: " + std::to_string(mapTypeToOpenGLType(v.getType()))
+                            + "Name: \"" + v->getName()
+                            + "\". Type: \"" + v->getType()->getName()
+                            + "\". Semantic: \"" + v->getSemantic()
+                            + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
+                            + "\". GLType: " + std::to_string(mapTypeToOpenGLType(v->getType()))
                         );
                         uniformTypeMismatchFound = true;
                     }
@@ -1303,24 +1303,24 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
         {
             for (size_t i = 0; i < vertexInputs.size(); ++i)
             {
-                const Variable& v = vertexInputs[i];
-                auto inputIt = _attributeList.find(v.getName());
+                const ShaderPort* v = vertexInputs[i];
+                auto inputIt = _attributeList.find(v->getName());
                 if (inputIt != _attributeList.end())
                 {
                     Input* input = inputIt->second.get();
-                    input->value = v.getValue();
-                    if (input->gltype == mapTypeToOpenGLType(v.getType()))
+                    input->value = v->getValue();
+                    if (input->gltype == mapTypeToOpenGLType(v->getType()))
                     {
-                        input->typeString = v.getType()->getName();
+                        input->typeString = v->getType()->getName();
                     }
                     else
                     {
                         errors.push_back(
-                            "Vertex shader attribute type mismatch in block. Name: \"" + v.getName()
-                            + "\". Type: \"" + v.getType()->getName()
-                            + "\". Semantic: \"" + v.getSemantic()
-                            + "\". Value: \"" + (v.getValue() ? v.getValue()->getValueString() : "<none>")
-                            + "\". GLType: " + std::to_string(mapTypeToOpenGLType(v.getType()))
+                            "Vertex shader attribute type mismatch in block. Name: \"" + v->getName()
+                            + "\". Type: \"" + v->getType()->getName()
+                            + "\". Semantic: \"" + v->getSemantic()
+                            + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
+                            + "\". GLType: " + std::to_string(mapTypeToOpenGLType(v->getType()))
                         );
                         uniformTypeMismatchFound = true;
                     }

@@ -871,10 +871,10 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
                     const mx::VariableBlock& outputs = stage.getOutputBlock(mx::OSL::OUTPUTS);
                     if (outputs.size() > 0)
                     {
-                        const mx::Variable& output = outputs[0];
-                        const mx::TypeSyntax& typeSyntax = shaderGenerator.getSyntax()->getTypeSyntax(output.getType());
+                        const mx::ShaderPort* output = outputs[0];
+                        const mx::TypeSyntax& typeSyntax = shaderGenerator.getSyntax()->getTypeSyntax(output->getType());
 
-                        const std::string& outputName = output.getName();
+                        const std::string& outputName = output->getName();
                         const std::string& outputType = typeSyntax.getTypeAlias().empty() ? typeSyntax.getName() : typeSyntax.getTypeAlias();
 
                         static const std::string SHADING_SCENE_FILE = "closure_color_scene.xml";
@@ -1284,9 +1284,21 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
     // Library search path
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
 
-    mx::GenContext context;
-    context.registerSourceCodeSearchPath(searchPath);
-    context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+#ifdef MATERIALX_BUILD_GEN_GLSL
+    mx::GenContext glslContext;
+    glslContext.registerSourceCodeSearchPath(searchPath);
+    glslContext.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+#endif
+#ifdef MATERIALX_BUILD_GEN_OGSFX
+    mx::GenContext ogsfxContext;
+    ogsfxContext.registerSourceCodeSearchPath(searchPath);
+    ogsfxContext.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+#endif
+#ifdef MATERIALX_BUILD_GEN_OSL
+    mx::GenContext oslContext;
+    oslContext.registerSourceCodeSearchPath(searchPath);
+    oslContext.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+#endif
 
     // Create validators and generators
 #if defined(MATERIALX_BUILD_GEN_GLSL) || defined(MATERIALX_BUILD_GEN_OGSFX)
@@ -1381,7 +1393,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
         {
             // Add lights as a dependency
             glslLightHandler = mx::HwLightHandler::create();
-            createLightRig(dependLib, *glslLightHandler, *glslShaderGenerator, context,
+            createLightRig(dependLib, *glslLightHandler, *glslShaderGenerator, glslContext,
                            options.radianceIBLPath, options.irradianceIBLPath);
         }
     }
@@ -1398,7 +1410,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
             // Add lights as a dependency
             mx::GenOptions genOptions;
             ogsfxLightHandler = mx::HwLightHandler::create();
-            createLightRig(dependLib, *ogsfxLightHandler, *ogsfxShaderGenerator, context,
+            createLightRig(dependLib, *ogsfxLightHandler, *ogsfxShaderGenerator, ogsfxContext,
                            options.radianceIBLPath, options.irradianceIBLPath);
         }
     }
@@ -1545,7 +1557,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
                                 mx::InterfaceElementPtr nodeGraphImpl = nodeGraph ? nodeGraph->getImplementation() : nullptr;
                                 usedImpls.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl->getName());
                             }
-                            runGLSLValidation(elementName, element, *glslValidator, *glslShaderGenerator, context, glslLightHandler, 
+                            runGLSLValidation(elementName, element, *glslValidator, *glslShaderGenerator, glslContext, glslLightHandler, 
                                               doc, glslLog, options, profileTimes, outputPath);
                         }
                     }
@@ -1564,7 +1576,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
                                 mx::InterfaceElementPtr nodeGraphImpl = nodeGraph ? nodeGraph->getImplementation() : nullptr;
                                 usedImpls.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl->getName());
                             }
-                            runOGSFXValidation(elementName, element, *ogsfxShaderGenerator, context, 
+                            runOGSFXValidation(elementName, element, *ogsfxShaderGenerator, ogsfxContext, 
                                                ogsfxLightHandler, doc, ogsfxLog, options, profileTimes, outputPath);
                         }
                     }
@@ -1583,7 +1595,7 @@ TEST_CASE("MaterialX documents", "[shadervalid]")
                                 mx::InterfaceElementPtr nodeGraphImpl = nodeGraph ? nodeGraph->getImplementation() : nullptr;
                                 usedImpls.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl2->getName());
                             }
-                            runOSLValidation(elementName, element, *oslValidator, *oslShaderGenerator, context, 
+                            runOSLValidation(elementName, element, *oslValidator, *oslShaderGenerator, oslContext, 
                                              doc, oslLog, options, profileTimes, outputPath);
                         }
                     }

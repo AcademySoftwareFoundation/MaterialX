@@ -62,14 +62,14 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     // Add all inputs
     for (ShaderGraphInputSocket* inputSocket : _rootGraph->getInputSockets())
     {
-        shadergen.emitString(stage, delim + syntax->getTypeName(inputSocket->type) + " " + inputSocket->variable);
+        shadergen.emitString(stage, delim + syntax->getTypeName(inputSocket->getType()) + " " + inputSocket->getVariable());
         delim = ", ";
     }
 
     // Add all outputs
     for (ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
     {
-        shadergen.emitString(stage, delim + syntax->getOutputTypeName(outputSocket->type) + " " + outputSocket->variable);
+        shadergen.emitString(stage, delim + syntax->getOutputTypeName(outputSocket->getType()) + " " + outputSocket->getVariable());
         delim = ", ";
     }
 
@@ -85,15 +85,15 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     for (ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
     {
         // Check for the rare case where the output is not internally connected
-        if (!outputSocket->connection)
+        if (!outputSocket->getConnection())
         {
-            shadergen.emitLine(stage, outputSocket->variable + " = " + (outputSocket->value ?
-                syntax->getValue(outputSocket->type, *outputSocket->value) :
-                syntax->getDefaultValue(outputSocket->type)));
+            shadergen.emitLine(stage, outputSocket->getVariable() + " = " + (outputSocket->getValue() ?
+                syntax->getValue(outputSocket->getType(), *outputSocket->getValue()) :
+                syntax->getDefaultValue(outputSocket->getType())));
         }
         else
         {
-            shadergen.emitLine(stage, outputSocket->variable + " = " + outputSocket->connection->variable);
+            shadergen.emitLine(stage, outputSocket->getVariable() + " = " + outputSocket->getConnection()->getVariable());
         }
     }
 

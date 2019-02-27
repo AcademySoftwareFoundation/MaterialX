@@ -2,6 +2,8 @@
 #define MATERIALX_HWSHADERGENERATOR_H
 
 #include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
+
 #include <algorithm>
 
 namespace MaterialX
@@ -16,23 +18,38 @@ namespace HW
     /// Identifiers for variable blocks.
     extern const string VERTEX_INPUTS;    // Geometric inputs for vertex stage.
     extern const string VERTEX_DATA;      // Connector block for data transfer from vertex stage to pixel stage.
-    extern const string PRIVATE_UNIFORMS; // Uniform inputs not visible to user but set privately by application.
-    extern const string PUBLIC_UNIFORMS;  // Uniform inputs visible in UI and set by users.
+    extern const string PRIVATE_UNIFORMS; // Uniform inputs set privately by application.
+    extern const string PUBLIC_UNIFORMS;  // Uniform inputs visible in UI and set by user.
     extern const string LIGHT_DATA;       // Uniform inputs for light sources.
     extern const string PIXEL_OUTPUTS;    // Outputs from the main/pixel stage.
 
+    /// Default variable names for direction vectors.
+    extern const string NORMAL_DIR;
+    extern const string LIGHT_DIR;
+    extern const string VIEW_DIR;
+
     /// Attribute names.
-    extern const string TRANSPARENT;
+    extern const string ATTR_TRANSPARENT;
 
     /// User data names.
-    extern const string CLOSURE_CONTEXT;
+    extern const string USER_DATA_CLOSURE_CONTEXT;
+    extern const string USER_DATA_LIGHT_SHADERS;
 }
+
+class HwClosureContext;
+class HwLightShaders;
+class HwShaderGenerator;
+
+using HwClosureContextPtr = shared_ptr<class HwClosureContext>;
+using HwLightShadersPtr = shared_ptr<class HwLightShaders>;
+using HwShaderGeneratorPtr = shared_ptr<class HwShaderGenerator>;
+
 
 /// Class representing a context for closure evaluation on hardware targets.
 /// On hardware BSDF closures are evaluated differently in reflection, transmission
 /// or environment/indirect contexts. This class represents with context we are in
 /// and if extra arguments and function decorators are needed for that context.
-class HwClosureContext
+class HwClosureContext : public GenUserData
 {
 public:
     /// Types of closure contexts.
@@ -47,17 +64,23 @@ public:
     /// An extra argument for closure functions.
     /// An argument is a pair of strings holding the
     /// 'type' and 'name' of the argument.
-    using Argument = std::pair<string, string>;
+    using Argument = std::pair<const TypeDesc*, string>;
     using Arguments = vector<Argument>;
 
     /// Constructor
     HwClosureContext(int type) : _type(type) {}
 
+    /// Create and return a new instance.
+    static HwClosureContextPtr create(int type)
+    {
+        return std::make_shared<HwClosureContext>(type);
+    }
+
     /// Return the identifier for this context.
     int getType() const { return _type; }
 
     /// Add an extra argument to be used for functions in this context.
-    void addArgument(const string& type, const string& name)
+    void addArgument(const TypeDesc* type, const string& name)
     {
         _arguments.push_back(Argument(type,name));
     }
@@ -77,17 +100,60 @@ protected:
     string _suffix;
 };
 
-using HwShaderGeneratorPtr = shared_ptr<class HwShaderGenerator>;
+class HwLightShaders : public GenUserData
+{
+public:
+    /// Create and return a new instance.
+    static HwLightShadersPtr create()
+    {
+        return std::make_shared<HwLightShaders>();
+    }
+
+    void add(unsigned int type, ShaderNodePtr shader)
+    {
+        _shaders[type] = shader;
+
+    }
+
+    const ShaderNode* get(unsigned int type) const
+    {
+        auto it = _shaders.find(type);
+        return it != _shaders.end() ? it->second.get() : nullptr;
+    }
+
+    const std::unordered_map<unsigned int, ShaderNodePtr>& get() const
+    {
+        return _shaders;
+    }
+
+protected:
+    std::unordered_map<unsigned int, ShaderNodePtr> _shaders;
+};
+
 
 /// Base class for shader generators targeting HW rendering.
 class HwShaderGenerator : public ShaderGenerator
 {
 public:
-    using LightShaderMap = std::unordered_map<size_t, ShaderNodePtr>;
-
-public:
     /// Add the function call for a single node.
     void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, GenContext& context, bool checkScope) const override;
+
+    /// Emit code for all texturing nodes.
+    virtual void emitTextureNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context) const;
+
+    /// Emit code for calculating BSDF response for a shader, 
+    /// given the incident and outgoing light directions.
+    /// The output 'bsdf' will hold the variable name keeping the result.
+    virtual void emitBsdfNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context,
+                               const ShaderNode& surfaceShader, HwClosureContextPtr ccx,
+                               string& bsdf) const;
+
+    /// Emit code for calculating emission for a surface or light shader,
+    /// given the normal direction of the EDF and the evaluation direction.
+    /// The output 'edf' will hold the variable keeping the result.
+    virtual void emitEdfNodes(ShaderStage& stage, const ShaderGraph& graph, GenContext& context,
+                              const ShaderNode& surfaceShader, HwClosureContextPtr ccx,
+                              string& edf) const;
 
     /// Set the maximum number of light sources that can be active at once.
     void setMaxActiveLightSources(unsigned int count) 
@@ -96,7 +162,10 @@ public:
     }
 
     /// Get the maximum number of light sources that can be active at once.
-    unsigned int getMaxActiveLightSources() const { return _maxActiveLightSources; }
+    unsigned int getMaxActiveLightSources() const 
+    {
+        return _maxActiveLightSources;
+    }
 
     /// Bind a light shader to a light type id, for usage in surface shaders created 
     /// by the generator. The lightTypeId should be a unique identifier for the light 
@@ -104,17 +173,8 @@ public:
     /// generated surface shader.
     void bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, GenContext& context);
 
-    /// Return a map of all light shaders that has been bound. The map contains the 
-    /// light shader implementations with their bound light type id's.
-    const LightShaderMap& getBoundLightShaders() const { return _boundLightShaders; }
-
-    /// Return the light shader implementation for the given light type id.
-    /// If no light shader with that light type has been bound a nullptr is 
-    /// returned instead.
-    const ShaderNode* getBoundLightShader(unsigned int lightTypeId) const;
-
     /// Return the closure contexts defined for the given node.
-    void getClosureContexts(const ShaderNode& node, vector<const HwClosureContext*>& ccx) const;
+    void getNodeClosureContexts(const ShaderNode& node, vector<HwClosureContextPtr>& ccx) const;
 
     /// String constants for direction vectors
     static const string LIGHT_DIR;
@@ -142,19 +202,12 @@ protected:
     ShaderNodeImplPtr createCompoundImplementation(NodeGraphPtr impl) const override;
 
     unsigned int _maxActiveLightSources;
-    LightShaderMap _boundLightShaders;
 
-    /// Closure contexts supported by this generator.
-    HwClosureContext _reflection;
-    HwClosureContext _transmission;
-    HwClosureContext _indirect;
-    HwClosureContext _emission;
-
-    /// Internal string constants
-    static const string INCIDENT;
-    static const string OUTGOING;
-    static const string NORMAL;
-    static const string EVAL;
+    /// Closure contexts for defining closure functions.
+    HwClosureContextPtr _defReflection;
+    HwClosureContextPtr _defTransmission;
+    HwClosureContextPtr _defIndirect;
+    HwClosureContextPtr _defEmission;
 };
 
 } // namespace MaterialX

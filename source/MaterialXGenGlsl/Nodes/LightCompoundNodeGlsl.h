@@ -3,13 +3,12 @@
 
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 namespace MaterialX
 {
 
 class GlslShaderGenerator;
-class HwGenContext;
-class HwClosureContext;
 
 /// Implementation of 'light' node for GLSL
 class LightCompoundNodeGlsl : public CompoundNode
@@ -32,7 +31,7 @@ public:
 
 protected:
     void emitFunctionDefinition(ShaderStage& stage, const GlslShaderGenerator& shadergen,
-                                GenContext& context, const HwClosureContext* ccx) const;
+                                GenContext& context, HwClosureContextPtr ccx) const;
 
     VariableBlock _lightUniforms;
 };

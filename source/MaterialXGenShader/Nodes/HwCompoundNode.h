@@ -2,13 +2,10 @@
 #define MATERIALX_HWCOMPOUNDNODE_H
 
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 namespace MaterialX
 {
-
-class HwShaderGenerator;
-class HwGenContext;
-class HwClosureContext;
 
 /// Extending the CompoundNode with requirements for HW.
 class HwCompoundNode : public CompoundNode
@@ -21,7 +18,7 @@ public:
     void emitFunctionCall(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context) const override;
 
 protected:
-    void emitFunctionDefinition(ShaderStage& stage, const HwShaderGenerator& shadergen, GenContext& context, const HwClosureContext* ccx) const;
+    void emitFunctionDefinition(ShaderStage& stage, const HwShaderGenerator& shadergen, GenContext& context, HwClosureContextPtr ccx) const;
 };
 
 } // namespace MaterialX
