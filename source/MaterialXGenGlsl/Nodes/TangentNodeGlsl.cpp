@@ -8,32 +8,34 @@ ShaderNodeImplPtr TangentNodeGlsl::create()
     return std::make_shared<TangentNodeGlsl>();
 }
 
-void TangentNodeGlsl::createVariables(Shader& shader, GenContext&, const ShaderGenerator&, const ShaderNode& node) const
+void TangentNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
 {
     ShaderStage& vs = shader.getStage(HW::VERTEX_STAGE);
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
 
-    addStageInput(vs, HW::VERTEX_INPUTS, Type::VECTOR3, "i_tangent");
+    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, "i_tangent", vs);
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : -1;
     if (space == WORLD_SPACE)
     {
-        addStageUniform(vs, HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix");
-        addStageConnector(vs, ps, HW::VERTEX_DATA, Type::VECTOR3, "tangentWorld");
+        addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix", vs);
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "tangentWorld", vs, ps);
     }
     else if (space == MODEL_SPACE)
     {
-        addStageConnector(vs, ps, HW::VERTEX_DATA, Type::VECTOR3, "tangentModel");
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "tangentModel", vs, ps);
     }
     else
     {
-        addStageConnector(vs, ps, HW::VERTEX_DATA, Type::VECTOR3, "tangentObject");
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "tangentObject", vs, ps);
     }
 }
 
-void TangentNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const
+void TangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
+
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : -1;
 
@@ -46,7 +48,7 @@ void TangentNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& context, 
             if (!tangent->isEmitted())
             {
                 tangent->setEmitted();
-                shadergen.emitLine(stage, prefix + tangent->getVariable() + " = (u_worldInverseTransposeMatrix * vec4(i_tangent,0.0)).xyz");
+                shadergen.emitLine(prefix + tangent->getVariable() + " = (u_worldInverseTransposeMatrix * vec4(i_tangent,0.0)).xyz", stage);
             }
         }
         else if (space == MODEL_SPACE)
@@ -55,7 +57,7 @@ void TangentNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& context, 
             if (!tangent->isEmitted())
             {
                 tangent->setEmitted();
-                shadergen.emitLine(stage, prefix + tangent->getVariable() + " = i_tangent");
+                shadergen.emitLine(prefix + tangent->getVariable() + " = i_tangent", stage);
             }
         }
         else
@@ -64,7 +66,7 @@ void TangentNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& context, 
             if (!tangent->isEmitted())
             {
                 tangent->setEmitted();
-                shadergen.emitLine(stage, prefix + tangent->getVariable() + " = i_tangent");
+                shadergen.emitLine(prefix + tangent->getVariable() + " = i_tangent", stage);
             }
         }
     END_SHADER_STAGE(shader, HW::VERTEX_STAGE)
@@ -73,21 +75,21 @@ void TangentNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& context, 
         VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
         const string prefix = vertexData.getInstance() + ".";
         shadergen.emitLineBegin(stage);
-        shadergen.emitOutput(stage, context, node.getOutput(), true, false);
+        shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         if (space == WORLD_SPACE)
         {
             const ShaderPort* tangent = vertexData["tangentWorld"];
-            shadergen.emitString(stage, " = normalize(" + prefix + tangent->getVariable() + ")");
+            shadergen.emitString(" = normalize(" + prefix + tangent->getVariable() + ")", stage);
         }
         else if (space == MODEL_SPACE)
         {
             const ShaderPort* tangent = vertexData["tangentModel"];
-            shadergen.emitString(stage, " = normalize(" + prefix + tangent->getVariable() + ")");
+            shadergen.emitString(" = normalize(" + prefix + tangent->getVariable() + ")", stage);
         }
         else
         {
             const ShaderPort* tangent = vertexData["tangentObject"];
-            shadergen.emitString(stage, " = normalize(" + prefix + tangent->getVariable() + ")");
+            shadergen.emitString(" = normalize(" + prefix + tangent->getVariable() + ")", stage);
         }
         shadergen.emitLineEnd(stage);
     END_SHADER_STAGE(shader, HW::PIXEL_STAGE)

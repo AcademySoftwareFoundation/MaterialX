@@ -8,7 +8,7 @@ ShaderNodeImplPtr TransformNodeGlsl::create()
     return std::make_shared<TransformNodeGlsl>();
 }
 
-void TransformNodeGlsl::createVariables(Shader& shader, GenContext&, const ShaderGenerator&, const ShaderNode& node) const
+void TransformNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
 {
     const ShaderInput* toSpaceInput = node.getInput(TO_SPACE);
     string toSpace = toSpaceInput ? toSpaceInput->getValue()->getValueString() : EMPTY_STRING;
@@ -22,90 +22,92 @@ void TransformNodeGlsl::createVariables(Shader& shader, GenContext&, const Shade
     {
         if (node.hasClassification(ShaderNode::Classification::TRANSFORM_NORMAL))
         {
-            addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix");
+            addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix", ps);
         }
         else
         {
-            addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldMatrix");
+            addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldMatrix", ps);
         }
     }
     else if (fromSpace == WORLD && (toSpace == MODEL || toSpace == OBJECT))
     {
         if (node.hasClassification(ShaderNode::Classification::TRANSFORM_NORMAL))
         {
-            addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldTransposeMatrix");
+            addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldTransposeMatrix", ps);
         }
         else
         {
-            addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseMatrix");
+            addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseMatrix", ps);
         }
     }
 }
 
-void TransformNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const
+void TransformNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    const ShaderInput* inInput = node.getInput("in");
-    if (inInput->getType() != Type::VECTOR3 && inInput->getType() != Type::VECTOR4)
-    {
-        throw ExceptionShaderGenError("Transform node must have 'in' type of vector3 or vector4.");
-    }
-
-    const ShaderInput* toSpaceInput = node.getInput(TO_SPACE);
-    string toSpace = toSpaceInput ? toSpaceInput->getValue()->getValueString() : EMPTY_STRING;
-
-    const ShaderInput* fromSpaceInput = node.getInput(FROM_SPACE);
-    string fromSpace = fromSpaceInput ? fromSpaceInput->getValue()->getValueString() : EMPTY_STRING;
-
     BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
-        shadergen.emitLineBegin(stage);
-        shadergen.emitOutput(stage, context, node.getOutput(), true, false);
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
 
-        shadergen.emitString(stage, " = ");
+        const ShaderInput* inInput = node.getInput("in");
+        if (inInput->getType() != Type::VECTOR3 && inInput->getType() != Type::VECTOR4)
+        {
+            throw ExceptionShaderGenError("Transform node must have 'in' type of vector3 or vector4.");
+        }
+
+        const ShaderInput* toSpaceInput = node.getInput(TO_SPACE);
+        string toSpace = toSpaceInput ? toSpaceInput->getValue()->getValueString() : EMPTY_STRING;
+
+        const ShaderInput* fromSpaceInput = node.getInput(FROM_SPACE);
+        string fromSpace = fromSpaceInput ? fromSpaceInput->getValue()->getValueString() : EMPTY_STRING;
+
+        shadergen.emitLineBegin(stage);
+        shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+
+        shadergen.emitString(" = ", stage);
         if (inInput->getType() == Type::VECTOR3)
         {
-            shadergen.emitString(stage, "(");
+            shadergen.emitString("(", stage);
         }
         if ((fromSpace == MODEL || fromSpace == OBJECT) && toSpace == WORLD)
         {
             if (node.hasClassification(ShaderNode::Classification::TRANSFORM_NORMAL))
             {
-                shadergen.emitString(stage, "u_worldInverseTransposeMatrix * ");
+                shadergen.emitString("u_worldInverseTransposeMatrix * ", stage);
             }
             else
             {
-                shadergen.emitString(stage, "u_worldMatrix * ");
+                shadergen.emitString("u_worldMatrix * ", stage);
             }
         }
         else if (fromSpace == WORLD && (toSpace == MODEL || toSpace == OBJECT))
         {
             if (node.hasClassification(ShaderNode::Classification::TRANSFORM_NORMAL))
             {
-                shadergen.emitString(stage, "u_worldTransposeMatrix * ");
+                shadergen.emitString("u_worldTransposeMatrix * ", stage);
             }
             else
             {
-                shadergen.emitString(stage, "u_worldInverseMatrix * ");
+                shadergen.emitString("u_worldInverseMatrix * ", stage);
             }
         }
 
         if (inInput->getType() == Type::VECTOR3)
         {
-            shadergen.emitString(stage, "vec4(");
+            shadergen.emitString("vec4(", stage);
             if (node.hasClassification(ShaderNode::Classification::TRANSFORM_POINT))
             {
-                shadergen.emitInput(stage, context, inInput);
-                shadergen.emitString(stage, ", 1.0)");
+                shadergen.emitInput(inInput, context, stage);
+                shadergen.emitString(", 1.0)", stage);
             }
             else
             {
-                shadergen.emitInput(stage, context, inInput);
-                shadergen.emitString(stage, ", 0.0)");
+                shadergen.emitInput(inInput, context, stage);
+                shadergen.emitString(", 0.0)", stage);
             }
-            shadergen.emitString(stage, ").xyz");
+            shadergen.emitString(").xyz", stage);
         }
         else
         {
-            shadergen.emitInput(stage, context, inInput);
+            shadergen.emitInput(inInput, context, stage);
         }
         shadergen.emitLineEnd(stage);
     END_SHADER_STAGE(stage, HW::PIXEL_STAGE)

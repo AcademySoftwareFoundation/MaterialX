@@ -1,6 +1,7 @@
 #include <MaterialXGenShader/ColorManagementSystem.h>
 
 #include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
 namespace MaterialX
@@ -52,7 +53,7 @@ bool ColorManagementSystem::supportsTransform(const ColorSpaceTransform& transfo
 }
 
 ShaderNodePtr ColorManagementSystem::createNode(const ShaderGraph* parent, const ColorSpaceTransform& transform, const string& name, 
-                                                const ShaderGenerator& shadergen, GenContext& context) const
+                                                GenContext& context) const
 {
     string implName = getImplementationName(transform);
     ImplementationPtr impl = _document->getImplementation(implName);
@@ -62,7 +63,7 @@ ShaderNodePtr ColorManagementSystem::createNode(const ShaderGraph* parent, const
     }
 
     // Check if it's created and cached already.
-    ShaderNodeImplPtr nodeImpl = context.findNodeImplementation(implName, shadergen.getTarget());
+    ShaderNodeImplPtr nodeImpl = context.findNodeImplementation(implName);
     if (!nodeImpl)
     {
         // If not, try creating a new implementation in the factory.
@@ -73,10 +74,10 @@ ShaderNodePtr ColorManagementSystem::createNode(const ShaderGraph* parent, const
     {
         nodeImpl = SourceCodeNode::create();
     }
-    nodeImpl->initialize(context, shadergen, impl);
+    nodeImpl->initialize(impl, context);
 
     // Cache it.
-    context.addNodeImplementation(implName, shadergen.getTarget(), nodeImpl);
+    context.addNodeImplementation(implName, nodeImpl);
 
     // Create the node.
     ShaderNodePtr shaderNode = ShaderNode::create(parent, name, nodeImpl, 

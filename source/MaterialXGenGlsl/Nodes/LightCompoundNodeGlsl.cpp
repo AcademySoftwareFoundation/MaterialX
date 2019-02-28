@@ -26,9 +26,9 @@ const string& LightCompoundNodeGlsl::getTarget() const
     return GlslShaderGenerator::TARGET;
 }
 
-void LightCompoundNodeGlsl::initialize(GenContext& context, const ShaderGenerator& shadergen, ElementPtr implementation)
+void LightCompoundNodeGlsl::initialize(ElementPtr implementation, GenContext& context)
 {
-    ShaderNodeImpl::initialize(context, shadergen, implementation);
+    ShaderNodeImpl::initialize(implementation, context);
 
     NodeGraphPtr graph = implementation->asA<NodeGraph>();
     if (!graph)
@@ -42,7 +42,7 @@ void LightCompoundNodeGlsl::initialize(GenContext& context, const ShaderGenerato
     // so always use the reduced interface for this graph.
     const int shaderInterfaceType = context.getOptions().shaderInterfaceType;
     context.getOptions().shaderInterfaceType = SHADER_INTERFACE_REDUCED;
-    _rootGraph = ShaderGraph::create(nullptr, graph, shadergen, context);
+    _rootGraph = ShaderGraph::create(nullptr, graph, context);
     context.getOptions().shaderInterfaceType = shaderInterfaceType;
 
     // Store light uniforms for all inputs and parameters on the interface
@@ -57,12 +57,12 @@ void LightCompoundNodeGlsl::initialize(GenContext& context, const ShaderGenerato
     }
 }
 
-void LightCompoundNodeGlsl::createVariables(Shader& shader, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode&) const
+void LightCompoundNodeGlsl::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
 {
     // Create variables for all child nodes
     for (ShaderNode* childNode : _rootGraph->getNodes())
     {
-        childNode->getImplementation().createVariables(shader, context, shadergen, *childNode);
+        childNode->getImplementation().createVariables(*childNode, context, shader);
     }
 
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
@@ -76,17 +76,17 @@ void LightCompoundNodeGlsl::createVariables(Shader& shader, GenContext& context,
     }
 
     // Create uniform for number of active light sources
-    addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", 
-                    Value::createValue<int>(0));
+    ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", ps);
+    numActiveLights->setValue(Value::createValue<int>(0));
 }
 
-void LightCompoundNodeGlsl::emitFunctionDefinition(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen_, const ShaderNode& node) const
+void LightCompoundNodeGlsl::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
-        const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(shadergen_);
+        const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
 
         // Emit functions for all child nodes
-        shadergen.emitFunctionDefinitions(stage, context, *_rootGraph);
+        shadergen.emitFunctionDefinitions(*_rootGraph, context, stage);
 
         // Find any closure contexts used by this node
         // and emit the function for each context.
@@ -94,37 +94,37 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(ShaderStage& stage, GenContex
         shadergen.getNodeClosureContexts(node, ccxs);
         if (ccxs.empty())
         {
-            emitFunctionDefinition(stage, context, shadergen, nullptr);
+            emitFunctionDefinition(nullptr, context, stage);
         }
         else
         {
             for (HwClosureContextPtr ccx : ccxs)
             {
-                emitFunctionDefinition(stage, context, shadergen, ccx);
+                emitFunctionDefinition(ccx, context, stage);
             }
         }
     END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 
-void LightCompoundNodeGlsl::emitFunctionDefinition(ShaderStage& stage, GenContext& context, 
-                                                   const GlslShaderGenerator& shadergen, 
-                                                   HwClosureContextPtr ccx) const
+void LightCompoundNodeGlsl::emitFunctionDefinition(HwClosureContextPtr ccx, GenContext& context, ShaderStage& stage) const
 {
+    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
+
     // Emit function signature
     if (ccx)
     {
-        shadergen.emitLine(stage, "void " + _functionName + ccx->getSuffix() + "(LightData light, vec3 position, out lightshader result)", false);
+        shadergen.emitLine("void " + _functionName + ccx->getSuffix() + "(LightData light, vec3 position, out lightshader result)", stage, false);
     }
     else
     {
-        shadergen.emitLine(stage, "void " + _functionName + "(LightData light, vec3 position, out lightshader result)", false);
+        shadergen.emitLine("void " + _functionName + "(LightData light, vec3 position, out lightshader result)", stage, false);
     }
 
     shadergen.emitScopeBegin(stage);
 
     // Handle all texturing nodes. These are inputs to any
     // closure/shader nodes and need to be emitted first.
-    shadergen.emitTextureNodes(stage, context, *_rootGraph);
+    shadergen.emitTextureNodes(*_rootGraph, context, stage);
 
     if (ccx)
     {
@@ -136,7 +136,7 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(ShaderStage& stage, GenContex
     {
         if (childNode->hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::LIGHT))
         {
-            shadergen.emitFunctionCall(stage, context, *childNode, false);
+            shadergen.emitFunctionCall(*childNode, context, stage, false);
         }
     }
 
@@ -150,10 +150,11 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(ShaderStage& stage, GenContex
 }
 
 
-void LightCompoundNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext&, const ShaderGenerator& shadergen, const ShaderNode&) const
+void LightCompoundNodeGlsl::emitFunctionCall(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
     BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
-        shadergen.emitLine(stage, _functionName + "(light, position, result)");
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
+        shadergen.emitLine(_functionName + "(light, position, result)", stage);
     END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 

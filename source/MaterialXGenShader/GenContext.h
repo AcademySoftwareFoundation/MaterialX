@@ -1,6 +1,7 @@
 #ifndef MATERIALX_GENCONTEXT_H
 #define MATERIALX_GENCONTEXT_H
 
+#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/GenOptions.h>
 
@@ -48,14 +49,14 @@ class GenContext
 {
   public:
     /// Constructor.
-    GenContext()
-    {}
+    GenContext(ShaderGeneratorPtr sg);
 
-    /// Constructor.
-    GenContext(const GenOptions& options)
-        : _options(options)
-    {}
-
+    /// Return shader generatior.
+    const ShaderGenerator& getShaderGenerator() const
+    {
+        return *_sg;
+    }
+    
     /// Return shader generation options.
     GenOptions& getOptions()
     {
@@ -87,11 +88,11 @@ class GenContext
     }
 
     /// Cache a shader node implementation.
-    void addNodeImplementation(const string& name, const string& target, ShaderNodeImplPtr impl);
+    void addNodeImplementation(const string& name, ShaderNodeImplPtr impl);
 
     /// Find and return a cached shader node implementation,
     /// or return nullptr if no implementation is found.
-    ShaderNodeImplPtr findNodeImplementation(const string& name, const string& target);
+    ShaderNodeImplPtr findNodeImplementation(const string& name);
 
     /// Add user data to the context to make it
     /// available during shader generator.
@@ -156,6 +157,9 @@ class GenContext
     void getOutputSuffix(const ShaderOutput* output, string& suffix) const;
 
 protected:
+    // Shader generator.
+    ShaderGeneratorPtr _sg;
+
     // Generation options.
     GenOptions _options;
 

@@ -17,9 +17,9 @@ ShaderGeneratorPtr MayaGlslPluginShaderGenerator::create()
     return std::make_shared<MayaGlslPluginShaderGenerator>();
 }
 
-ShaderPtr MayaGlslPluginShaderGenerator::createShader(GenContext& context, const string& name, ElementPtr element) const
+ShaderPtr MayaGlslPluginShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
 {
-    ShaderPtr shader = OgsFxShaderGenerator::createShader(context, name, element);
+    ShaderPtr shader = OgsFxShaderGenerator::createShader(name, element, context);
 
     // Update view position semantic to match Maya's semantics.
     for (size_t i = 0; i < shader->numStages(); ++i)

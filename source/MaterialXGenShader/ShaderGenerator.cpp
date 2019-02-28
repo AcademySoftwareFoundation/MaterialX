@@ -1,4 +1,5 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
@@ -47,69 +48,70 @@ void ShaderGenerator::emitLineBreak(ShaderStage& stage) const
     stage.newLine();
 }
 
-void ShaderGenerator::emitString(ShaderStage& stage, const string& str) const
+void ShaderGenerator::emitString(const string& str, ShaderStage& stage) const
 {
     stage.addString(str);
 }
 
-void ShaderGenerator::emitLine(ShaderStage& stage, const string& str, bool semicolon) const
+void ShaderGenerator::emitLine(const string& str, ShaderStage& stage, bool semicolon) const
 {
     stage.addLine(str, semicolon);
 }
 
-void ShaderGenerator::emitComment(ShaderStage& stage, const string& str) const
+void ShaderGenerator::emitComment(const string& str, ShaderStage& stage) const
 {
     stage.addComment(str);
 }
 
-void ShaderGenerator::emitBlock(ShaderStage& stage, GenContext& context, const string& str) const
+void ShaderGenerator::emitBlock(const string& str, GenContext& context, ShaderStage& stage) const
 {
-    stage.addBlock(context, str);
+    stage.addBlock(str, context);
 }
 
-void ShaderGenerator::emitInclude(ShaderStage& stage, GenContext& context, const string& file) const
+void ShaderGenerator::emitInclude(const string& file, GenContext& context, ShaderStage& stage) const
 {
-    stage.addInclude(context, file);
+    stage.addInclude(file, context);
 }
 
-void ShaderGenerator::emitFunctionDefinition(ShaderStage& stage, GenContext& context, const ShaderNode& node) const
+void ShaderGenerator::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    stage.addFunctionDefinition(context, *this, node);
+    stage.addFunctionDefinition(node, context);
 }
 
-void ShaderGenerator::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderNode& node, bool checkScope) const
+void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage,
+                                       bool checkScope) const
 {
     // Omit node if it's only used inside a conditional branch
     if (checkScope && node.referencedConditionally())
     {
-        emitComment(stage, "Omitted node '" + node.getName() + "'. Only used in conditional node '" +
-                    node.getScopeInfo().conditionalNode->getName() + "'");
+        emitComment("Omitted node '" + node.getName() + "'. Only used in conditional node '" +
+                    node.getScopeInfo().conditionalNode->getName() + "'", stage);
     }
     else
     {
-        node.getImplementation().emitFunctionCall(stage, context, *this, node);
+        node.getImplementation().emitFunctionCall(node, context, stage);
     }
 }
 
-void ShaderGenerator::emitFunctionDefinitions(ShaderStage& stage, GenContext& context, const ShaderGraph& graph) const
+void ShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
     // Emit function definitions for all nodes in the graph.
     for (ShaderNode* node : graph.getNodes())
     {
-        emitFunctionDefinition(stage, context, *node);
+        emitFunctionDefinition(*node, context, stage);
     }
 }
 
-void ShaderGenerator::emitFunctionCalls(ShaderStage& stage, GenContext& context, const ShaderGraph& graph) const
+void ShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
     // Emit function calls for all nodes in the graph.
     for (ShaderNode* node : graph.getNodes())
     {
-        emitFunctionCall(stage, context, *node);
+        emitFunctionCall(*node, context, stage);
     }
 }
 
-void ShaderGenerator::emitTypeDefinitions(ShaderStage& stage, GenContext&) const
+void ShaderGenerator::emitTypeDefinitions(GenContext&, ShaderStage& stage) const
 {
     // Emit typedef statements for all data types that have an alias
     for (auto syntax : _syntax->getTypeSyntaxs())
@@ -126,8 +128,9 @@ void ShaderGenerator::emitTypeDefinitions(ShaderStage& stage, GenContext&) const
     stage.newLine();
 }
 
-void ShaderGenerator::emitVariableDeclaration(ShaderStage& stage, GenContext&, const ShaderPort* variable, 
-                                              const string& qualifier, bool assingValue) const
+void ShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, 
+                                              GenContext&, ShaderStage& stage,
+                                              bool assignValue) const
 {
     string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
     str += _syntax->getTypeName(variable->getType()) + " " + variable->getVariable();
@@ -138,7 +141,7 @@ void ShaderGenerator::emitVariableDeclaration(ShaderStage& stage, GenContext&, c
         str += _syntax->getArraySuffix(variable->getType(), *variable->getValue());
     }
 
-    if (assingValue)
+    if (assignValue)
     {
         const string valueStr = (variable->getValue() ?
             _syntax->getValue(variable->getType(), *variable->getValue(), true) :
@@ -149,24 +152,25 @@ void ShaderGenerator::emitVariableDeclaration(ShaderStage& stage, GenContext&, c
     stage.addString(str);
 }
 
-void ShaderGenerator::emitVariableDeclarations(ShaderStage& stage, GenContext& context, const VariableBlock& block,
-                                               const string& qualifier, const string& separator, bool assingValues) const
+void ShaderGenerator::emitVariableDeclarations(const VariableBlock& block, const string& qualifier, const string& separator, 
+                                               GenContext& context, ShaderStage& stage,
+                                               bool assignValue) const
 {
     for (size_t i=0; i<block.size(); ++i)
     {
         emitLineBegin(stage);
-        emitVariableDeclaration(stage, context, block[i], qualifier, assingValues);
-        emitString(stage, separator);
+        emitVariableDeclaration(block[i], qualifier, context, stage, assignValue);
+        emitString(separator, stage);
         emitLineEnd(stage, false);
     }
 }
 
-void ShaderGenerator::emitInput(ShaderStage& stage, GenContext& context, const ShaderInput* input) const
+void ShaderGenerator::emitInput(const ShaderInput* input, GenContext& context, ShaderStage& stage) const
 {
-    stage.addString(getUpstreamResult(context, input));
+    stage.addString(getUpstreamResult(input, context));
 }
 
-void ShaderGenerator::emitOutput(ShaderStage& stage, GenContext& context, const ShaderOutput* output, bool includeType, bool assignDefaultValue) const
+void ShaderGenerator::emitOutput(const ShaderOutput* output, bool includeType, bool assignValue, GenContext& context, ShaderStage& stage) const
 {
     stage.addString(includeType ? _syntax->getTypeName(output->getType()) + " " + output->getVariable() : output->getVariable());
 
@@ -178,7 +182,7 @@ void ShaderGenerator::emitOutput(ShaderStage& stage, GenContext& context, const 
         stage.addString(suffix);
     }
 
-    if (assignDefaultValue)
+    if (assignValue)
     {
         const string& value = _syntax->getDefaultValue(output->getType());
         if (!value.empty())
@@ -188,7 +192,7 @@ void ShaderGenerator::emitOutput(ShaderStage& stage, GenContext& context, const 
     }
 }
 
-string ShaderGenerator::getUpstreamResult(GenContext& context, const ShaderInput* input) const
+string ShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContext& context) const
 {
     if (!input->getConnection())
     {
@@ -223,7 +227,7 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(GenContext& context, Interf
     const string& name = element->getName();
 
     // Check if it's created and cached already.
-    ShaderNodeImplPtr impl = context.findNodeImplementation(name, getTarget());
+    ShaderNodeImplPtr impl = context.findNodeImplementation(name);
     if (impl)
     {
         return impl;
@@ -248,10 +252,10 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(GenContext& context, Interf
     {
         throw ExceptionShaderGenError("Element '" + name + "' is neither an Implementation nor an NodeGraph");
     }
-    impl->initialize(context, *this, element);
+    impl->initialize(element, context);
 
     // Cache it.
-    context.addNodeImplementation(name, getTarget(), impl);
+    context.addNodeImplementation(name, impl);
 
     return impl;
 }
@@ -263,12 +267,12 @@ ValuePtr ShaderGenerator::remapEnumeration(const ValueElementPtr&, const Interfa
 }
 
 ValuePtr ShaderGenerator::remapEnumeration(const string&, const string&, const string&,
-                                            const InterfaceElement&, const TypeDesc*&) const
+                                           const InterfaceElement&, const TypeDesc*&) const
 {
     return nullptr;
 }
 
-ShaderStagePtr ShaderGenerator::createStage(Shader& shader, const string& name) const
+ShaderStagePtr ShaderGenerator::createStage(const string& name, Shader& shader) const
 {
     return shader.createStage(name, _syntax);
 }

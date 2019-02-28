@@ -8,18 +8,20 @@ ShaderNodeImplPtr ViewDirectionNodeGlsl::create()
     return std::make_shared<ViewDirectionNodeGlsl>();
 }
 
-void ViewDirectionNodeGlsl::createVariables(Shader& shader, GenContext&, const ShaderGenerator&, const ShaderNode&) const
+void ViewDirectionNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
 {
     ShaderStage& vs = shader.getStage(HW::VERTEX_STAGE);
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
 
-    addStageInput(vs, HW::VERTEX_INPUTS, Type::VECTOR3, "i_position");
-    addStageConnector(vs, ps, HW::VERTEX_DATA, Type::VECTOR3, "positionWorld");
-    addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::VECTOR3, "u_viewPosition");
+    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, "i_position", vs);
+    addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "positionWorld", vs, ps);
+    addStageUniform(HW::PRIVATE_UNIFORMS, Type::VECTOR3, "u_viewPosition", ps);
 }
 
-void ViewDirectionNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const
+void ViewDirectionNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
+
     BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
         const string prefix = vertexData.getInstance() + ".";
@@ -27,7 +29,7 @@ void ViewDirectionNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& con
         if (!position->isEmitted())
         {
             position->setEmitted();
-            shadergen.emitLine(stage, prefix + position->getVariable() + " = hPositionWorld.xyz");
+            shadergen.emitLine(prefix + position->getVariable() + " = hPositionWorld.xyz", stage);
         }
     END_SHADER_STAGE(stage, HW::VERTEX_STAGE)
 
@@ -36,8 +38,8 @@ void ViewDirectionNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& con
         const string prefix = vertexData.getInstance() + ".";
         ShaderPort* position = vertexData["positionWorld"];
         shadergen.emitLineBegin(stage);
-        shadergen.emitOutput(stage, context, node.getOutput(), true, false);
-        shadergen.emitString(stage, " = normalize(" + prefix + position->getVariable() + " - u_viewPosition)");
+        shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+        shadergen.emitString(" = normalize(" + prefix + position->getVariable() + " - u_viewPosition)", stage);
         shadergen.emitLineEnd(stage);
     END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 }

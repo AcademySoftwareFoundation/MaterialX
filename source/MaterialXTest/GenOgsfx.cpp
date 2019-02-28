@@ -11,11 +11,11 @@
 
 namespace mx = MaterialX;
 
-extern void checkImplementations(mx::GenContext& context, mx::ShaderGeneratorPtr generator,
-    std::set<std::string> generatorSkipNodeTypes,
-    std::set<std::string> generatorSkipNodeDefs);
+extern void checkImplementations(mx::GenContext& context,
+                                 std::set<std::string> generatorSkipNodeTypes,
+                                 std::set<std::string> generatorSkipNodeDefs);
 
-extern void testUniqueNames(mx::GenContext& context, mx::ShaderGeneratorPtr shaderGenerator, const std::string& stage);
+extern void testUniqueNames(mx::GenContext& context, const std::string& stage);
 
 TEST_CASE("OGSFX Syntax", "[genogsfx]")
 {
@@ -64,8 +64,7 @@ TEST_CASE("OGSFX Syntax", "[genogsfx]")
 
 TEST_CASE("OGSFX Implementation Check", "[genogsfx]")
 {
-    mx::GenContext contex;
-    mx::ShaderGeneratorPtr generator = mx::OgsFxShaderGenerator::create();
+    mx::GenContext context(mx::OgsFxShaderGenerator::create());
 
     std::set<std::string> generatorSkipNodeTypes;
     std::set<std::string> generatorSkipNodeDefs;
@@ -74,16 +73,15 @@ TEST_CASE("OGSFX Implementation Check", "[genogsfx]")
     generatorSkipNodeDefs.insert("ND_multiply_surfaceshaderC");
     generatorSkipNodeDefs.insert("ND_mix_surfaceshader");
 
-    checkImplementations(contex, generator, generatorSkipNodeTypes, generatorSkipNodeDefs);
+    checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs);
 }
 
 TEST_CASE("OGSFX Unique Names", "[genogsfx]")
 {
-    mx::GenContext contex;
-    mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
+    mx::GenContext context(mx::OgsFxShaderGenerator::create());
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    contex.registerSourceCodeSearchPath(searchPath);
+    context.registerSourceCodeSearchPath(searchPath);
 
-    testUniqueNames(contex, shaderGenerator, mx::HW::FX_STAGE);
+    testUniqueNames(context, mx::HW::FX_STAGE);
 }

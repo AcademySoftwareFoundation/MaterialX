@@ -1,5 +1,5 @@
 #include <MaterialXGenShader/ShaderStage.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Syntax.h>
 #include <MaterialXGenShader/Util.h>
 
@@ -263,7 +263,7 @@ void ShaderStage::addComment(const string& str)
     endLine(false);
 }
 
-void ShaderStage::addBlock(GenContext& context, const string& str)
+void ShaderStage::addBlock(const string& str, GenContext& context)
 {
     static const string INCLUDE_PATTERN = "#include";
     static const string QUOTATION_MARK = "\"";
@@ -284,7 +284,7 @@ void ShaderStage::addBlock(GenContext& context, const string& str)
                 if (length)
                 {
                     const string filename = line.substr(startQuote + 1, length);
-                    addInclude(context, filename);
+                    addInclude(filename, context);
                 }
             }
         }
@@ -295,7 +295,7 @@ void ShaderStage::addBlock(GenContext& context, const string& str)
     }
 }
 
-void ShaderStage::addInclude(GenContext& context, const string& file)
+void ShaderStage::addInclude(const string& file, GenContext& context)
 {
     const string path = context.findSourceCode(file);
 
@@ -307,11 +307,11 @@ void ShaderStage::addInclude(GenContext& context, const string& file)
             throw ExceptionShaderGenError("Could not find include file: '" + file + "'");
         }
         _includes.insert(path);
-        addBlock(context, content);
+        addBlock(content, context);
     }
 }
 
-void ShaderStage::addFunctionDefinition(GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node)
+void ShaderStage::addFunctionDefinition(const ShaderNode& node, GenContext& context)
 {
     const ShaderNodeImpl& impl = node.getImplementation();
     const size_t id = impl.getHash();
@@ -319,7 +319,7 @@ void ShaderStage::addFunctionDefinition(GenContext& context, const ShaderGenerat
     if (!_definedFunctions.count(id))
     {
         _definedFunctions.insert(id);
-        impl.emitFunctionDefinition(*this, context, shadergen, node);
+        impl.emitFunctionDefinition(node, context, *this);
     }
 }
 

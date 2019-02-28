@@ -1,5 +1,5 @@
 #include <MaterialXGenShader/ShaderNode.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/Util.h>
@@ -164,9 +164,11 @@ ShaderNode::ShaderNode(const ShaderGraph* parent, const string& name)
 {
 }
 
-ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef, const ShaderGenerator& shadergen, GenContext& context)
+ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef, GenContext& context)
 {
     ShaderNodePtr newNode = std::make_shared<ShaderNode>(parent, name);
+
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
 
     // Find the implementation for this nodedef
     InterfaceElementPtr impl = nodeDef.getImplementation(shadergen.getTarget(), shadergen.getLanguage());
@@ -320,6 +322,14 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     return newNode;
 }
 
+ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, ShaderNodeImplPtr impl, unsigned int classification)
+{
+    ShaderNodePtr newNode = std::make_shared<ShaderNode>(parent, name);
+    newNode->_impl = impl;
+    newNode->_classification = classification;
+    return newNode;
+}
+
 void ShaderNode::setPaths(const Node& node, const NodeDef& nodeDef, bool includeNodeDefInputs)
 {
     // Set element paths for children on the node
@@ -363,7 +373,7 @@ void ShaderNode::setPaths(const Node& node, const NodeDef& nodeDef, bool include
     }
 }
 
-void ShaderNode::setValues(const Node& node, const NodeDef& nodeDef, const ShaderGenerator& shadergen)
+void ShaderNode::setValues(const Node& node, const NodeDef& nodeDef, GenContext& context)
 {
     // Copy input values from the given node
     const vector<ValueElementPtr> nodeValues = node.getChildrenOfType<ValueElement>();
@@ -374,7 +384,7 @@ void ShaderNode::setValues(const Node& node, const NodeDef& nodeDef, const Shade
         if (input)
         {
             const TypeDesc* enumerationType = nullptr;
-            ValuePtr value = shadergen.remapEnumeration(nodeValue, nodeDef, enumerationType);
+            ValuePtr value = context.getShaderGenerator().remapEnumeration(nodeValue, nodeDef, enumerationType);
             if (value)
             {
                 input->setValue(value);
@@ -385,14 +395,6 @@ void ShaderNode::setValues(const Node& node, const NodeDef& nodeDef, const Shade
             }
         }
     }
-}
-
-ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, ShaderNodeImplPtr impl, unsigned int classification)
-{
-    ShaderNodePtr newNode = std::make_shared<ShaderNode>(parent, name);
-    newNode->_impl = impl;
-    newNode->_classification = classification;
-    return newNode;
 }
 
 ShaderInput* ShaderNode::getInput(const string& name)

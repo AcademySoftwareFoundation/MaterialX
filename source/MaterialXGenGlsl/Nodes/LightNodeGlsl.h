@@ -14,9 +14,9 @@ class LightNodeGlsl : public GlslImplementation
 
     static ShaderNodeImplPtr create();
 
-    void createVariables(Shader& shader, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const override;
+    void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
 
-    void emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const override;
+    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   private:
       HwClosureContextPtr _callEmission;

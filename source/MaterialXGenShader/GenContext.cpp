@@ -3,14 +3,23 @@
 namespace MaterialX
 {
 
-void GenContext::addNodeImplementation(const string& name, const string& target, ShaderNodeImplPtr impl)
+GenContext::GenContext(ShaderGeneratorPtr sg)
+    : _sg(sg)
 {
-    _nodeImpls[name + target] = impl;
+    if (!_sg)
+    {
+        throw ExceptionShaderGenError("GenContext must have a valid shader generator");
+    }
 }
 
-ShaderNodeImplPtr GenContext::findNodeImplementation(const string& name, const string& target)
+void GenContext::addNodeImplementation(const string& name, ShaderNodeImplPtr impl)
 {
-    auto it = _nodeImpls.find(name + target);
+    _nodeImpls[name] = impl;
+}
+
+ShaderNodeImplPtr GenContext::findNodeImplementation(const string& name)
+{
+    auto it = _nodeImpls.find(name);
     return it != _nodeImpls.end() ? it->second : nullptr;
 }
 

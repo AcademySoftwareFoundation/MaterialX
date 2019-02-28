@@ -109,18 +109,22 @@ public:
         return std::make_shared<HwLightShaders>();
     }
 
-    void add(unsigned int type, ShaderNodePtr shader)
+    /// Bind a light shader to a light type id.
+    void bind(unsigned int type, ShaderNodePtr shader)
     {
         _shaders[type] = shader;
 
     }
 
+    /// Return the light shader bound to the given light type,
+    /// or nullptr if not light shader is bound to this type.
     const ShaderNode* get(unsigned int type) const
     {
         auto it = _shaders.find(type);
         return it != _shaders.end() ? it->second.get() : nullptr;
     }
 
+    /// Return the map of bound light shaders.
     const std::unordered_map<unsigned int, ShaderNodePtr>& get() const
     {
         return _shaders;
@@ -136,65 +140,38 @@ class HwShaderGenerator : public ShaderGenerator
 {
 public:
     /// Add the function call for a single node.
-    void emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderNode& node, 
-                          bool checkScope) const override;
+    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, 
+                          bool checkScope = true) const override;
 
     /// Emit code for all texturing nodes.
-    virtual void emitTextureNodes(ShaderStage& stage, GenContext& context, const ShaderGraph& graph) const;
+    virtual void emitTextureNodes(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
 
     /// Emit code for calculating BSDF response for a shader, 
     /// given the incident and outgoing light directions.
     /// The output 'bsdf' will hold the variable name keeping the result.
-    virtual void emitBsdfNodes(ShaderStage& stage, GenContext& context, const ShaderGraph& graph,
-                               const ShaderNode& surfaceShader, HwClosureContextPtr ccx,
-                               string& bsdf) const;
+    virtual void emitBsdfNodes(const ShaderGraph& graph, const ShaderNode& shaderNode, HwClosureContextPtr ccx,
+                               GenContext& context, ShaderStage& stage, string& bsdf) const;
 
     /// Emit code for calculating emission for a surface or light shader,
     /// given the normal direction of the EDF and the evaluation direction.
     /// The output 'edf' will hold the variable keeping the result.
-    virtual void emitEdfNodes(ShaderStage& stage, GenContext& context, const ShaderGraph& graph,
-                              const ShaderNode& surfaceShader, HwClosureContextPtr ccx,
-                              string& edf) const;
-
-    /// Set the maximum number of light sources that can be active at once.
-    void setMaxActiveLightSources(unsigned int count) 
-    { 
-        _maxActiveLightSources = std::max((unsigned int)1, count);
-    }
-
-    /// Get the maximum number of light sources that can be active at once.
-    unsigned int getMaxActiveLightSources() const 
-    {
-        return _maxActiveLightSources;
-    }
+    virtual void emitEdfNodes(const ShaderGraph& graph, const ShaderNode& shaderNode, HwClosureContextPtr ccx,
+                              GenContext& context, ShaderStage& stage, string& edf) const;
 
     /// Bind a light shader to a light type id, for usage in surface shaders created 
     /// by the generator. The lightTypeId should be a unique identifier for the light 
     /// type (node definition) and the same id should be used when setting light parameters on a 
     /// generated surface shader.
-    void bindLightShader(GenContext& context, const NodeDef& nodeDef, unsigned int lightTypeId);
+    void bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, GenContext& context) const;
 
     /// Return the closure contexts defined for the given node.
     void getNodeClosureContexts(const ShaderNode& node, vector<HwClosureContextPtr>& ccx) const;
-
-    /// String constants for direction vectors
-    static const string LIGHT_DIR;
-    static const string VIEW_DIR;
-
-    /// Enum to identify common BSDF direction vectors
-    enum class BsdfDir
-    {
-        NORMAL_DIR,
-        LIGHT_DIR,
-        VIEW_DIR,
-        REFL_DIR
-    };
 
 protected:
     HwShaderGenerator(SyntaxPtr syntax);
 
     /// Create and initialize a new HW shader for shader generation.
-    virtual ShaderPtr createShader(GenContext& context, const string& name, ElementPtr element) const;
+    virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
 
     /// Override the source code implementation creator.
     ShaderNodeImplPtr createSourceCodeImplementation(ImplementationPtr impl) const override;

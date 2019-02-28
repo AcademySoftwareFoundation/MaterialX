@@ -8,89 +8,91 @@ ShaderNodeImplPtr NormalNodeGlsl::create()
     return std::make_shared<NormalNodeGlsl>();
 }
 
-void NormalNodeGlsl::createVariables(Shader& shader, GenContext&, const ShaderGenerator&, const ShaderNode& node) const
+void NormalNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
 {
     ShaderStage& vs = shader.getStage(HW::VERTEX_STAGE);
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
 
-    addStageInput(vs, HW::VERTEX_INPUTS, Type::VECTOR3, "i_normal");
+    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, "i_normal", vs);
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
         const int space = spaceInput ? spaceInput->getValue()->asA<int>() : -1;
     if (space == WORLD_SPACE)
     {
-        addStageUniform(vs, HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix");
-        addStageConnector(vs, ps, HW::VERTEX_DATA, Type::VECTOR3, "normalWorld");
+        addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix", vs);
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "normalWorld", vs, ps);
     }
     else if (space == MODEL_SPACE)
     {
-        addStageConnector(vs, ps, HW::VERTEX_DATA, Type::VECTOR3, "normalModel");
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "normalModel", vs, ps);
     }
     else
     {
-        addStageConnector(vs, ps, HW::VERTEX_DATA, Type::VECTOR3, "normalObject");
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "normalObject", vs, ps);
     }
 }
 
-void NormalNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const
+void NormalNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
+
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : -1;
 
-BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
-    VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-    const string prefix = vertexData.getInstance() + ".";
-    if (space == WORLD_SPACE)
-    {
-        ShaderPort* normal = vertexData["normalWorld"];
-        if (!normal->isEmitted())
+    BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+        VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
+        const string prefix = vertexData.getInstance() + ".";
+        if (space == WORLD_SPACE)
         {
-            normal->setEmitted();
-            shadergen.emitLine(stage, prefix + normal->getVariable() + " = (u_worldInverseTransposeMatrix * vec4(i_normal,0.0)).xyz");
+            ShaderPort* normal = vertexData["normalWorld"];
+            if (!normal->isEmitted())
+            {
+                normal->setEmitted();
+                shadergen.emitLine(prefix + normal->getVariable() + " = (u_worldInverseTransposeMatrix * vec4(i_normal,0.0)).xyz", stage);
+            }
         }
-    }
-    else if (space == MODEL_SPACE)
-    {
-        ShaderPort* normal = vertexData["normalModel"];
-        if (!normal->isEmitted())
+        else if (space == MODEL_SPACE)
         {
-            normal->setEmitted();
-            shadergen.emitLine(stage, prefix + normal->getVariable() + " = i_normal");
+            ShaderPort* normal = vertexData["normalModel"];
+            if (!normal->isEmitted())
+            {
+                normal->setEmitted();
+                shadergen.emitLine(prefix + normal->getVariable() + " = i_normal", stage);
+            }
         }
-    }
-    else
-    {
-        ShaderPort* normal = vertexData["normalObject"];
-        if (!normal->isEmitted())
+        else
         {
-            normal->setEmitted();
-            shadergen.emitLine(stage, prefix + normal->getVariable() + " = i_normal");
+            ShaderPort* normal = vertexData["normalObject"];
+            if (!normal->isEmitted())
+            {
+                normal->setEmitted();
+                shadergen.emitLine(prefix + normal->getVariable() + " = i_normal", stage);
+            }
         }
-    }
-END_SHADER_STAGE(shader, HW::VERTEX_STAGE)
+    END_SHADER_STAGE(shader, HW::VERTEX_STAGE)
 
-BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
-    VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-    const string prefix = vertexData.getInstance() + ".";
-    shadergen.emitLineBegin(stage);
-    shadergen.emitOutput(stage, context, node.getOutput(), true, false);
-    if (space == WORLD_SPACE)
-    {
-        const ShaderPort* normal = vertexData["normalWorld"];
-        shadergen.emitString(stage, " = normalize(" + prefix + normal->getVariable() + ")");
-    }
-    else if (space == MODEL_SPACE)
-    {
-        const ShaderPort* normal = vertexData["normalModel"];
-        shadergen.emitString(stage, " = normalize(" + prefix + normal->getVariable() + ")");
-    }
-    else
-    {
-        const ShaderPort* normal = vertexData["normalObject"];
-        shadergen.emitString(stage, " = normalize(" + prefix + normal->getVariable() + ")");
-    }
-    shadergen.emitLineEnd(stage);
-END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+        VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
+        const string prefix = vertexData.getInstance() + ".";
+        shadergen.emitLineBegin(stage);
+        shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+        if (space == WORLD_SPACE)
+        {
+            const ShaderPort* normal = vertexData["normalWorld"];
+            shadergen.emitString(" = normalize(" + prefix + normal->getVariable() + ")", stage);
+        }
+        else if (space == MODEL_SPACE)
+        {
+            const ShaderPort* normal = vertexData["normalModel"];
+            shadergen.emitString(" = normalize(" + prefix + normal->getVariable() + ")", stage);
+        }
+        else
+        {
+            const ShaderPort* normal = vertexData["normalObject"];
+            shadergen.emitString(" = normalize(" + prefix + normal->getVariable() + ")", stage);
+        }
+        shadergen.emitLineEnd(stage);
+    END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

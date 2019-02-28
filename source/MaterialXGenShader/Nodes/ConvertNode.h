@@ -12,7 +12,7 @@ class ConvertNode : public ShaderNodeImpl
   public:
     static ShaderNodeImplPtr create();
 
-    void emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const override;
+    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 
 } // namespace MaterialX

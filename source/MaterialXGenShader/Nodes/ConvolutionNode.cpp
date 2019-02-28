@@ -1,6 +1,6 @@
 #include <MaterialXGenShader/Nodes/ConvolutionNode.h>
+#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
 
 namespace
 {
@@ -38,7 +38,7 @@ ConvolutionNode::ConvolutionNode()
 {
 }
 
-void ConvolutionNode::createVariables(Shader& shader, GenContext&, const ShaderGenerator&, const ShaderNode&) const
+void ConvolutionNode::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
 {
     ShaderStage& stage = shader.getStage(MAIN_STAGE);
     VariableBlock& constants = stage.getConstantBlock();
@@ -85,13 +85,16 @@ const ShaderInput* ConvolutionNode::getSamplingInput(const ShaderNode& node) con
     return nullptr;
 }
 
-void ConvolutionNode::emitInputSamplesUV(ShaderStage& stage, const ShaderNode& node, 
-                                         const ShaderGenerator& shadergen, GenContext& context, 
+void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node, 
                                          unsigned int sampleCount, unsigned int filterWidth, 
                                          float filterSize, float filterOffset,
-                                         const string& sampleSizeFunctionUV, StringVec& sampleStrings) const
+                                         const string& sampleSizeFunctionUV, 
+                                         GenContext& context, ShaderStage& stage, 
+                                         StringVec& sampleStrings) const
 {
     sampleStrings.clear();
+
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
 
     // Check for an upstream node to sample
     const ShaderInput* inInput = node.getInput("in");
@@ -124,17 +127,17 @@ void ConvolutionNode::emitInputSamplesUV(ShaderStage& stage, const ShaderNode& n
 
                     // Emit code to compute sample size
                     //
-                    string sampleInputValue = shadergen.getUpstreamResult(context, samplingInput);
+                    string sampleInputValue = shadergen.getUpstreamResult(samplingInput, context);
 
                     const string sampleSizeName(output->getVariable() + "_sample_size");
-                    const string vec2TypeString = shadergen.getSyntax()->getTypeName(Type::VECTOR2);
+                    const string vec2TypeString = shadergen.getSyntax().getTypeName(Type::VECTOR2);
                     string sampleCall(vec2TypeString + " " + sampleSizeName + " = " +
                         sampleSizeFunctionUV + "(" +
                         sampleInputValue + "," +
                         std::to_string(filterSize) + "," +
                         std::to_string(filterOffset) + ");"
                     );
-                    shadergen.emitLine(stage, sampleCall);
+                    shadergen.emitLine(sampleCall, stage);
 
                     // Build the sample offset strings. This is dependent on
                     // the derived class to determine where samples are located
@@ -158,7 +161,7 @@ void ConvolutionNode::emitInputSamplesUV(ShaderStage& stage, const ShaderNode& n
                         string outputSuffix("_" + output->getVariable() + std::to_string(i));
                         context.addOutputSuffix(upstreamOutput, outputSuffix);
 
-                        impl.emitFunctionCall(stage, context, shadergen, *upstreamNode);
+                        impl.emitFunctionCall(*upstreamNode, context, stage);
 
                         // Remove suffixes
                         context.removeInputSuffix(samplingInput);
@@ -203,7 +206,7 @@ void ConvolutionNode::emitInputSamplesUV(ShaderStage& stage, const ShaderNode& n
         }
         else
         {
-            string typeString = shadergen.getSyntax()->getTypeName(inInput->getType());
+            string typeString = shadergen.getSyntax().getTypeName(inInput->getType());
             string inValueString = typeString + "(" + inInput->getValue()->getValueString() + ")";
             for (unsigned int i = 0; i < sampleCount; i++)
             {

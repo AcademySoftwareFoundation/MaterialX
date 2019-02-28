@@ -11,7 +11,7 @@ namespace MaterialX
 class ConvolutionNode : public ShaderNodeImpl
 {
   public:
-     void createVariables(Shader& shader, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const override;
+     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
 
   protected:
     /// Constructor
@@ -31,9 +31,12 @@ class ConvolutionNode : public ShaderNodeImpl
 
     /// Generate upstream / input sampling code in uv space and cache the output variable names which 
     /// will hold the sample values after execution.
-    void emitInputSamplesUV(ShaderStage& stage, const ShaderNode& node, const ShaderGenerator& shadergen, GenContext& context,
-                            unsigned int sampleCount, unsigned int filterWidth, float filterSize, float filterOffset,
-                            const string& sampleSizeFunctionUV,  StringVec& sampleStrings) const;
+    void emitInputSamplesUV(const ShaderNode& node,
+                            unsigned int sampleCount, unsigned int filterWidth,
+                            float filterSize, float filterOffset,
+                            const string& sampleSizeFunctionUV,
+                            GenContext& context, ShaderStage& stage,
+                            StringVec& sampleStrings) const;
 
     static const string SAMPLE2D_INPUT;
     static const string SAMPLE3D_INPUT;

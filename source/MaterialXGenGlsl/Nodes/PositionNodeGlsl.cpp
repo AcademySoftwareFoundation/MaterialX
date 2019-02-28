@@ -8,31 +8,33 @@ ShaderNodeImplPtr PositionNodeGlsl::create()
     return std::make_shared<PositionNodeGlsl>();
 }
 
-void PositionNodeGlsl::createVariables(Shader& shader, GenContext&, const ShaderGenerator&, const ShaderNode& node) const
+void PositionNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
 {
     ShaderStage vs = shader.getStage(HW::VERTEX_STAGE);
     ShaderStage ps = shader.getStage(HW::PIXEL_STAGE);
 
-    addStageInput(vs, HW::VERTEX_INPUTS, Type::VECTOR3, "i_position");
+    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, "i_position", vs);
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : -1;
     if (space == WORLD_SPACE)
     {
-        addStageConnector(vs, ps, HW::VERTEX_DATA, Type::VECTOR3, "positionWorld");
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "positionWorld", vs, ps);
     }
     else if (space == MODEL_SPACE)
     {
-        addStageConnector(vs, ps, HW::VERTEX_DATA, Type::VECTOR3, "positionModel");
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "positionModel", vs, ps);
     }
     else
     {
-        addStageConnector(vs, ps, HW::VERTEX_DATA, Type::VECTOR3, "positionObject");
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "positionObject", vs, ps);
     }
 }
 
-void PositionNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const
+void PositionNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
+
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : -1;
 
@@ -45,7 +47,7 @@ BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
         if (!position->isEmitted())
         {
             position->setEmitted();
-            shadergen.emitLine(stage, prefix + position->getVariable() + " = hPositionWorld.xyz");
+            shadergen.emitLine(prefix + position->getVariable() + " = hPositionWorld.xyz", stage);
         }
     }
     else if (space == MODEL_SPACE)
@@ -54,7 +56,7 @@ BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
         if (!position->isEmitted())
         {
             position->setEmitted();
-            shadergen.emitLine(stage, prefix + position->getVariable() + " = i_position");
+            shadergen.emitLine(prefix + position->getVariable() + " = i_position", stage);
         }
     }
     else
@@ -63,7 +65,7 @@ BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
         if (!position->isEmitted())
         {
             position->setEmitted();
-            shadergen.emitLine(stage, prefix + position->getVariable() + " = i_position");
+            shadergen.emitLine(prefix + position->getVariable() + " = i_position", stage);
         }
     }
 END_SHADER_STAGE(shader, HW::VERTEX_STAGE)
@@ -72,21 +74,21 @@ BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
     const string prefix = vertexData.getInstance() + ".";
     shadergen.emitLineBegin(stage);
-    shadergen.emitOutput(stage, context, node.getOutput(), true, false);
+    shadergen.emitOutput(node.getOutput(), true, false, context, stage);
     if (space == WORLD_SPACE)
     {
         const ShaderPort* position = vertexData["positionWorld"];
-        shadergen.emitString(stage, " = " + prefix + position->getVariable());
+        shadergen.emitString(" = " + prefix + position->getVariable(), stage);
     }
     else if (space == MODEL_SPACE)
     {
         const ShaderPort* position = vertexData["positionModel"];
-        shadergen.emitString(stage, " = " + prefix + position->getVariable());
+        shadergen.emitString(" = " + prefix + position->getVariable(), stage);
     }
     else
     {
         const ShaderPort* position = vertexData["positionObject"];
-        shadergen.emitString(stage, " = " + prefix + position->getVariable());
+        shadergen.emitString(" = " + prefix + position->getVariable(), stage);
     }
     shadergen.emitLineEnd(stage);
 END_SHADER_STAGE(shader, HW::PIXEL_STAGE)

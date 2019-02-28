@@ -25,7 +25,7 @@ ShaderNodeImplPtr LightNodeGlsl::create()
     return std::make_shared<LightNodeGlsl>();
 }
 
-void LightNodeGlsl::createVariables(Shader& shader, GenContext&, const ShaderGenerator&, const ShaderNode&) const
+void LightNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
 {
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
 
@@ -36,40 +36,41 @@ void LightNodeGlsl::createVariables(Shader& shader, GenContext&, const ShaderGen
     lightUniforms.add(Type::VECTOR3, "direction", Value::createValue<Vector3>(Vector3(0.0f,1.0f,0.0f)));
 
     // Create uniform for number of active light sources
-    addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", Value::createValue<int>(0));
+    ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", ps);
+    numActiveLights->setValue(Value::createValue<int>(0));
 }
 
-void LightNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen_, const ShaderNode& node) const
+void LightNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
-        const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(shadergen_);
+        const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
         const ShaderGraph& graph = *node.getParent();
 
-        shadergen.emitBlock(stage, context, LIGHT_DIRECTION_CALCULATION);
+        shadergen.emitBlock(LIGHT_DIRECTION_CALCULATION, context, stage);
         shadergen.emitLineBreak(stage);
 
         string emission;
-        shadergen.emitEdfNodes(stage, context, graph, node, _callEmission, emission);
+        shadergen.emitEdfNodes(graph, node, _callEmission, context, stage, emission);
         shadergen.emitLineBreak(stage);
 
-        shadergen.emitComment(stage, "Apply quadratic falloff and adjust intensity");
-        shadergen.emitLine(stage, "result.intensity = " + emission + " / (distance * distance)");
+        shadergen.emitComment("Apply quadratic falloff and adjust intensity", stage);
+        shadergen.emitLine("result.intensity = " + emission + " / (distance * distance)", stage);
 
         const ShaderInput* intensity = node.getInput("intensity");
         const ShaderInput* exposure = node.getInput("exposure");
 
         shadergen.emitLineBegin(stage);
-        shadergen.emitString(stage, "result.intensity *= ");
-        shadergen.emitInput(stage, context, intensity);
+        shadergen.emitString("result.intensity *= ", stage);
+        shadergen.emitInput(intensity, context, stage);
         shadergen.emitLineEnd(stage);
 
         // Emit exposure adjustment only if it matters
         if (exposure->getConnection() || (exposure->getValue() && exposure->getValue()->asA<float>() != 0.0f))
         {
             shadergen.emitLineBegin(stage);
-            shadergen.emitString(stage, "result.intensity *= pow(2, ");
-            shadergen.emitInput(stage, context, exposure);
-            shadergen.emitString(stage, ")");
+            shadergen.emitString("result.intensity *= pow(2, ", stage);
+            shadergen.emitInput(exposure, context, stage);
+            shadergen.emitString(")", stage);
             shadergen.emitLineEnd(stage);
         }
     END_SHADER_STAGE(shader, HW::PIXEL_STAGE)

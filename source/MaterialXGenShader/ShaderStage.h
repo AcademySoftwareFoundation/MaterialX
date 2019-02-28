@@ -190,11 +190,11 @@ protected:
     void addComment(const string& str);
 
     /// Add a block of code.
-    void addBlock(GenContext& context, const string& str);
+    void addBlock(const string& str, GenContext& context);
 
     /// Add the contents of an include file. Making sure it is 
     /// only included once for the shader stage.
-    void addInclude(GenContext& context, const string& file);
+    void addInclude(const string& file, GenContext& context);
 
     /// Add a value.
     template<typename T>
@@ -206,7 +206,7 @@ protected:
     }
 
     /// Add the function definition for a node.
-    void addFunctionDefinition(GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node);
+    void addFunctionDefinition(const ShaderNode& node, GenContext& context);
 
 private:
     /// Name of the stage
@@ -248,46 +248,54 @@ private:
 using ShaderStagePtr = std::shared_ptr<ShaderStage>;
 
 /// Utility function for adding a new shader port to a uniform block.
-inline ShaderPort* addStageUniform(ShaderStage& stage, const string& block, 
-                                   const TypeDesc* type, const string& name,
-                                   ValuePtr value = nullptr)
+inline ShaderPort* addStageUniform(const string& block, 
+                                   const TypeDesc* type, 
+                                   const string& name,
+                                   ShaderStage& stage)
 {
     VariableBlock& uniforms = stage.getUniformBlock(block);
-    return uniforms.add(type, name, value);
+    return uniforms.add(type, name);
 }
 
 /// Utility function for adding a new shader port to an input block.
-inline ShaderPort* addStageInput(ShaderStage& stage, const string& block, 
-                                 const TypeDesc* type, const string& name,
-                                 ValuePtr value = nullptr)
+inline ShaderPort* addStageInput(const string& block, 
+                                 const TypeDesc* type,
+                                 const string& name,
+                                 ShaderStage& stage)
 {
     VariableBlock& inputs = stage.getInputBlock(block);
-    return inputs.add(type, name, value);
+    return inputs.add(type, name);
 }
 
 /// Utility function for adding a new shader port to an output block.
-inline ShaderPort* addStageOutput(ShaderStage& stage, const string& block,
-                                  const TypeDesc* type, const string& name)
+inline ShaderPort* addStageOutput(const string& block,
+                                  const TypeDesc* type, 
+                                  const string& name,
+                                  ShaderStage& stage)
 {
     VariableBlock& outputs = stage.getOutputBlock(block);
     return outputs.add(type, name);
 }
 
 /// Utility function for adding a connector block between stages.
-inline void addStageConnectorBlock(ShaderStage& from, ShaderStage& to, 
-                                   const string& block, const string& instance)
+inline void addStageConnectorBlock(const string& block, 
+                                   const string& instance,
+                                   ShaderStage& from, 
+                                   ShaderStage& to)
 {
     from.createOutputBlock(block, instance);
     to.createInputBlock(block, instance);
 }
 
 /// Utility function for adding a variable to a stage connector block.
-inline void addStageConnector(ShaderStage& from, ShaderStage& to, 
-                              const string& block, const TypeDesc* type, 
-                              const string& name)
+inline void addStageConnector(const string& block, 
+                              const TypeDesc* type, 
+                              const string& name,
+                              ShaderStage& from,
+                              ShaderStage& to)
 {
-    addStageOutput(from, block, type, name);
-    addStageInput(to, block, type, name);
+    addStageOutput(block, type, name, from);
+    addStageInput(block, type, name, to);
 }
 
 } // namespace MaterialX

@@ -1,5 +1,5 @@
 #include <MaterialXGenShader/Nodes/BlurNode.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
 
 #include <cmath>
 
@@ -55,15 +55,16 @@ bool BlurNode::acceptsInputType(const TypeDesc* type) const
         type->isFloat2() || type->isFloat3() || type->isFloat4());
 }
 
-void BlurNode::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const
+void BlurNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
 BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
 
     const ShaderInput* inInput = node.getInput(IN_STRING);
 
     // Get input type name string
     const string& inputTypeString = acceptsInputType(inInput->getType()) ?
-        shadergen.getSyntax()->getTypeName(inInput->getType()) : EMPTY_STRING;
+        shadergen.getSyntax().getTypeName(inInput->getType()) : EMPTY_STRING;
 
     const ShaderInput* filterTypeInput = node.getInput(FILTER_TYPE_STRING);
     if (!inInput || !filterTypeInput || inputTypeString.empty())
@@ -123,8 +124,9 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
     // needs to be adjusted.
     //
     StringVec sampleStrings;
-    emitInputSamplesUV(stage, node, shadergen, context, sampleCount, filterWidth, 
-        filterSize, filterOffset, sampleSizeFunctionUV, sampleStrings);
+    emitInputSamplesUV(node, sampleCount, filterWidth, 
+                       filterSize, filterOffset, sampleSizeFunctionUV, 
+                       context, stage, sampleStrings);
 
     // There should always be at least 1 sample
     if (sampleStrings.empty())
@@ -144,32 +146,32 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
 
         // Set up sample array
         string sampleName(output->getVariable() + SAMPLES_POSTFIX_STRING);
-        shadergen.emitLine(stage, inputTypeString + " " + sampleName + "[" + MX_MAX_SAMPLE_COUNT_STRING + "]");
+        shadergen.emitLine(inputTypeString + " " + sampleName + "[" + MX_MAX_SAMPLE_COUNT_STRING + "]", stage);
         for (unsigned int i = 0; i < sampleCount; i++)
         {
-            shadergen.emitLine(stage, sampleName + "[" + std::to_string(i) + "] = " + sampleStrings[i]);
+            shadergen.emitLine(sampleName + "[" + std::to_string(i) + "] = " + sampleStrings[i], stage);
         }
 
         // Emit code to evaluate using input sample and weight arrays. 
         // The function to call depends on input type.
         //
         shadergen.emitLineBegin(stage);
-        shadergen.emitOutput(stage, context, output, true, false);
+        shadergen.emitOutput(output, true, false, context, stage);
         shadergen.emitLineEnd(stage);
 
         shadergen.emitLineBegin(stage);
-        shadergen.emitString(stage, "if (");
+        shadergen.emitString("if (", stage);
         // If strings are support compare against string input,
         // other use int compare
-        if (shadergen.getSyntax()->typeSupported(Type::STRING))
+        if (shadergen.getSyntax().typeSupported(Type::STRING))
         {
-            shadergen.emitInput(stage, context, filterTypeInput);
-            shadergen.emitString(stage, " == \"" + GAUSSIAN_FILTER + "\")");
+            shadergen.emitInput(filterTypeInput, context, stage);
+            shadergen.emitString(" == \"" + GAUSSIAN_FILTER + "\")", stage);
         }
         else
         {
-            shadergen.emitInput(stage, context, filterTypeInput);
-            shadergen.emitString(stage, " == 1)");
+            shadergen.emitInput(filterTypeInput, context, stage);
+            shadergen.emitString(" == 1)", stage);
         }
         shadergen.emitLineEnd(stage, false);
 
@@ -177,28 +179,28 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
         {
             string filterFunctionName = MX_CONVOLUTION_PREFIX_STRING + inputTypeString;
             shadergen.emitLineBegin(stage);
-            shadergen.emitString(stage, output->getVariable());
-            shadergen.emitString(stage, " = " + filterFunctionName);
-            shadergen.emitString(stage, "(" + sampleName + ", " +
+            shadergen.emitString(output->getVariable(), stage);
+            shadergen.emitString(" = " + filterFunctionName, stage);
+            shadergen.emitString("(" + sampleName + ", " +
                 GAUSSIAN_WEIGHTS_VARIABLE + ", " +
                 std::to_string(arrayOffset) + ", " +
                 std::to_string(sampleCount) +
-                ")");
+                ")", stage);
             shadergen.emitLineEnd(stage);
         }
         shadergen.emitScopeEnd(stage);
-        shadergen.emitLine(stage, "else", false);
+        shadergen.emitLine("else", stage, false);
         shadergen.emitScopeBegin(stage);
         {
             string filterFunctionName = MX_CONVOLUTION_PREFIX_STRING + inputTypeString;
             shadergen.emitLineBegin(stage);
-            shadergen.emitString(stage, output->getVariable());
-            shadergen.emitString(stage, " = " + filterFunctionName);
-            shadergen.emitString(stage, "(" + sampleName + ", " +
+            shadergen.emitString(output->getVariable(), stage);
+            shadergen.emitString(" = " + filterFunctionName, stage);
+            shadergen.emitString("(" + sampleName + ", " +
                 BOX_WEIGHTS_VARIABLE + ", " +
                 std::to_string(arrayOffset) + ", " +
                 std::to_string(sampleCount) +
-                ")");
+                ")", stage);
             shadergen.emitLineEnd(stage);
         }
         shadergen.emitScopeEnd(stage);
@@ -209,8 +211,8 @@ BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
         // or the constant value on the node.
         //
         shadergen.emitLineBegin(stage);
-        shadergen.emitOutput(stage, context, output, true, false);
-        shadergen.emitString(stage, " = " + sampleStrings[0]);
+        shadergen.emitOutput(output, true, false, context, stage);
+        shadergen.emitString(" = " + sampleStrings[0], stage);
         shadergen.emitLineEnd(stage);
     }
 END_SHADER_STAGE(stage, MAIN_STAGE)

@@ -8,32 +8,34 @@ ShaderNodeImplPtr BitangentNodeGlsl::create()
     return std::make_shared<BitangentNodeGlsl>();
 }
 
-void BitangentNodeGlsl::createVariables(Shader& shader, GenContext&, const ShaderGenerator&, const ShaderNode& node) const
+void BitangentNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
 {
     ShaderStage& vs = shader.getStage(HW::VERTEX_STAGE);
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
 
-    addStageInput(vs, HW::VERTEX_INPUTS, Type::VECTOR3, "i_bitangent");
+    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, "i_bitangent", vs);
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : -1;
     if (space == WORLD_SPACE)
     {
-        addStageUniform(vs, HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix");
-        addStageConnector(vs, ps, HW::VERTEX_DATA, Type::VECTOR3, "bitangentWorld");
+        addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix", vs);
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "bitangentWorld", vs, ps);
     }
     else if (space == MODEL_SPACE)
     {
-        addStageConnector(vs, ps, HW::VERTEX_DATA, Type::VECTOR3, "bitangentModel");
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "bitangentModel", vs, ps);
     }
     else
     {
-        addStageConnector(vs, ps, HW::VERTEX_DATA, Type::VECTOR3, "bitangentObject");
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "bitangentObject", vs, ps);
     }
 }
 
-void BitangentNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const
+void BitangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
+
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : -1;
 
@@ -46,7 +48,7 @@ BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
         if (!bitangent->isEmitted())
         {
             bitangent->setEmitted();
-            shadergen.emitLine(stage, prefix + bitangent->getVariable() + " = (u_worldInverseTransposeMatrix * vec4(i_bitangent,0.0)).xyz");
+            shadergen.emitLine(prefix + bitangent->getVariable() + " = (u_worldInverseTransposeMatrix * vec4(i_bitangent,0.0)).xyz", stage);
         }
     }
     else if (space == MODEL_SPACE)
@@ -55,7 +57,7 @@ BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
         if (!bitangent->isEmitted())
         {
             bitangent->setEmitted();
-            shadergen.emitLine(stage, prefix + bitangent->getVariable() + " = i_bitangent");
+            shadergen.emitLine(prefix + bitangent->getVariable() + " = i_bitangent", stage);
         }
     }
     else
@@ -64,7 +66,7 @@ BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
         if (!bitangent->isEmitted())
         {
             bitangent->setEmitted();
-            shadergen.emitLine(stage, prefix + bitangent->getVariable() + " = i_bitangent");
+            shadergen.emitLine(prefix + bitangent->getVariable() + " = i_bitangent", stage);
         }
     }
 END_SHADER_STAGE(stage, HW::VERTEX_STAGE)
@@ -73,21 +75,21 @@ BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
     VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
     const string prefix = vertexData.getInstance() + ".";
     shadergen.emitLineBegin(stage);
-    shadergen.emitOutput(stage, context, node.getOutput(), true, false);
+    shadergen.emitOutput(node.getOutput(), true, false, context, stage);
     if (space == WORLD_SPACE)
     {
         const ShaderPort* bitangent = vertexData["bitangentWorld"];
-        shadergen.emitString(stage, " = normalize(" + prefix + bitangent->getVariable() + ")");
+        shadergen.emitString(" = normalize(" + prefix + bitangent->getVariable() + ")", stage);
     }
     else if (space == MODEL_SPACE)
     {
         const ShaderPort* bitangent = vertexData["bitangentModel"];
-        shadergen.emitString(stage, " = normalize(" + prefix + bitangent->getVariable() + ")");
+        shadergen.emitString(" = normalize(" + prefix + bitangent->getVariable() + ")", stage);
     }
     else
     {
         const ShaderPort* bitangent = vertexData["bitangentObject"];
-        shadergen.emitString(stage, " = normalize(" + prefix + bitangent->getVariable() + ")");
+        shadergen.emitString(" = normalize(" + prefix + bitangent->getVariable() + ")", stage);
     }
     shadergen.emitLineEnd(stage);
 END_SHADER_STAGE(shader, HW::PIXEL_STAGE)

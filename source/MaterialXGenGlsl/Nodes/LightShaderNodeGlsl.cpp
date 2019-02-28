@@ -25,9 +25,9 @@ const string& LightShaderNodeGlsl::getTarget() const
     return GlslShaderGenerator::TARGET;
 }
 
-void LightShaderNodeGlsl::initialize(GenContext& context, const ShaderGenerator& shadergen, ElementPtr implementation)
+void LightShaderNodeGlsl::initialize(ElementPtr implementation, GenContext& context)
 {
-    SourceCodeNode::initialize(context, shadergen, implementation);
+    SourceCodeNode::initialize(implementation, context);
 
     if (_inlined)
     {
@@ -52,7 +52,7 @@ void LightShaderNodeGlsl::initialize(GenContext& context, const ShaderGenerator&
     }
 }
 
-void LightShaderNodeGlsl::createVariables(Shader& shader, GenContext&, const ShaderGenerator&, const ShaderNode&) const
+void LightShaderNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
 {
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
 
@@ -65,14 +65,16 @@ void LightShaderNodeGlsl::createVariables(Shader& shader, GenContext&, const Sha
     }
 
     // Create uniform for number of active light sources
-    addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", Value::createValue<int>(0));
+    ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", ps);
+    numActiveLights->setValue(Value::createValue<int>(0));
 }
 
-void LightShaderNodeGlsl::emitFunctionCall(ShaderStage& stage, GenContext&, const ShaderGenerator& shadergen, const ShaderNode&) const
+void LightShaderNodeGlsl::emitFunctionCall(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
-BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
-    shadergen.emitLine(stage, _functionName + "(light, position, result)");
-END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
+        shadergen.emitLine(_functionName + "(light, position, result)", stage);
+    END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

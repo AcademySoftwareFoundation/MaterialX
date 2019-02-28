@@ -73,7 +73,7 @@ class GlslShaderGenerator : public HwShaderGenerator
 
     /// Generate a shader starting from the given element, translating
     /// the element and all dependencies upstream into shader code.
-    ShaderPtr generate(GenContext& context, const string& name, ElementPtr element) const override;
+    ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const override;
 
     /// Return a unique identifyer for the language used by this generator
     const string& getLanguage() const override { return LANGUAGE; }
@@ -85,17 +85,19 @@ class GlslShaderGenerator : public HwShaderGenerator
     virtual const string& getVersion() const { return VERSION; }
 
     /// Emit function definitions for all nodes
-    void emitFunctionDefinitions(ShaderStage& stage, GenContext& context, const ShaderGraph& graph) const override;
+    void emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const override;
 
     /// Emit all functon calls constructing the shader body
-    void emitFunctionCalls(ShaderStage& stage, GenContext& context, const ShaderGraph& graph) const override;
+    void emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const override;
 
     /// Emit a shader variable.
-    void emitVariableDeclaration(ShaderStage& stage, GenContext& context, const ShaderPort* variable, const string& qualifier, bool assingValue) const override;
+    void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext& context, ShaderStage& stage,
+                                 bool assignValue = true) const override;
 
     /// Given a element attempt to remap a value to an enumeration which is accepted by
     /// the shader generator.
-    ValuePtr remapEnumeration(const ValueElementPtr& input, const InterfaceElement& mappingElement, const TypeDesc*& enumerationType) const override;
+    ValuePtr remapEnumeration(const ValueElementPtr& input, const InterfaceElement& mappingElement, 
+                              const TypeDesc*& enumerationType) const override;
 
     /// Given a input specification (name, value, type) attempt to remap a value to an enumeration
     /// which is accepted by the shader generator.
@@ -113,8 +115,8 @@ class GlslShaderGenerator : public HwShaderGenerator
     static const string VERSION;
 
   protected:
-    virtual void emitVertexStage(ShaderStage& stage, GenContext& context, const ShaderGraph& graph) const;
-    virtual void emitPixelStage(ShaderStage& stage, GenContext& context, const ShaderGraph& graph) const;
+    virtual void emitVertexStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
+    virtual void emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
 
     /// Override the compound implementation creator in order to handle light compounds.
     ShaderNodeImplPtr createCompoundImplementation(NodeGraphPtr impl) const override;

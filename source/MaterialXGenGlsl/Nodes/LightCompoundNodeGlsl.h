@@ -21,16 +21,16 @@ public:
     const string& getLanguage() const override;
     const string& getTarget() const override;
 
-    void initialize(GenContext& context, const ShaderGenerator& shadergen, ElementPtr implementation) override;
+    void initialize(ElementPtr implementation, GenContext& context) override;
 
-    void createVariables(Shader& shader, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const override;
+    void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
 
-    void emitFunctionDefinition(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const override;
+    void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
-    void emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const override;
+    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
 protected:
-    void emitFunctionDefinition(ShaderStage& stage, GenContext& context, const GlslShaderGenerator& shadergen, HwClosureContextPtr ccx) const;
+    void emitFunctionDefinition(HwClosureContextPtr ccx, GenContext& context, ShaderStage& stage) const;
 
     VariableBlock _lightUniforms;
 };

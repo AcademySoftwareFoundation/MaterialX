@@ -1,18 +1,21 @@
 #include <MaterialXTest/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
+
 #include <MaterialXFormat/File.h>
+
+#include <MaterialXGenShader/GenContext.h>
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslSyntax.h>
 
 namespace mx = MaterialX;
 
-extern void checkImplementations(mx::GenContext& context, mx::ShaderGeneratorPtr generator,
-    std::set<std::string> generatorSkipNodeTypes,
-    std::set<std::string> generatorSkipNodeDefs);
+extern void checkImplementations(mx::GenContext& context,
+                                 std::set<std::string> generatorSkipNodeTypes,
+                                 std::set<std::string> generatorSkipNodeDefs);
 
-extern void testUniqueNames(mx::GenContext& context, mx::ShaderGeneratorPtr shaderGenerator, const std::string& stage);
+extern void testUniqueNames(mx::GenContext& context, const std::string& stage);
 
 TEST_CASE("OSL Syntax", "[genosl]")
 {
@@ -79,8 +82,7 @@ TEST_CASE("OSL Syntax", "[genosl]")
 
 TEST_CASE("OSL Implementation Check", "[genosl]")
 {
-    mx::GenContext context;
-    mx::ShaderGeneratorPtr generator = mx::OslShaderGenerator::create();
+    mx::GenContext context(mx::OslShaderGenerator::create());
 
     std::set<std::string> generatorSkipNodeTypes;
     generatorSkipNodeTypes.insert("light");
@@ -89,18 +91,17 @@ TEST_CASE("OSL Implementation Check", "[genosl]")
     generatorSkipNodeTypes.insert("spotlight");
     std::set<std::string> generatorSkipNodeDefs;
 
-    checkImplementations(context, generator, generatorSkipNodeTypes, generatorSkipNodeDefs);
+    checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs);
 }
 
 TEST_CASE("OSL Unique Names", "[genosl]")
 {
-    mx::GenContext contex;
-    mx::ShaderGeneratorPtr shaderGenerator = mx::OslShaderGenerator::create();
+    mx::GenContext context(mx::OslShaderGenerator::create());
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    contex.registerSourceCodeSearchPath(searchPath);
+    context.registerSourceCodeSearchPath(searchPath);
     // Add path to find OSL include files
-    contex.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+    context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
-    testUniqueNames(contex, shaderGenerator, mx::OSL::STAGE);
+    testUniqueNames(context, mx::OSL::STAGE);
 }

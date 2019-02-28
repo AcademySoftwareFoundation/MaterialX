@@ -12,7 +12,7 @@ class LightSamplerNodeGlsl : public GlslImplementation
 public:
     static ShaderNodeImplPtr create();
 
-    void emitFunctionDefinition(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const override;
+    void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 
 

@@ -66,7 +66,7 @@ class ColorManagementSystem
 
     /// Create a node to use to perform the given color space transformation.
     ShaderNodePtr createNode(const ShaderGraph* parent, const ColorSpaceTransform& transform, const string& name,
-                             const ShaderGenerator& shadergen, GenContext& context) const;
+                             GenContext& context) const;
 
   protected:
     /// Protected constructor

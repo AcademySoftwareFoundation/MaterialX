@@ -1,5 +1,5 @@
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
 
 namespace MaterialX
 {
@@ -11,68 +11,67 @@ ShaderNodeImplPtr SwitchNode::create()
     return std::make_shared<SwitchNode>();
 }
 
-void SwitchNode::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const
+void SwitchNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
+    BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
+        const ShaderGraph& graph = *node.getParent();
 
-    const ShaderGraph& graph = *node.getParent();
-
-    // Declare the output variable
-    shadergen.emitLineBegin(stage);
-    shadergen.emitOutput(stage, context, node.getOutput(), true, true);
-    shadergen.emitLineEnd(stage);
-
-    const ShaderInput* which = node.getInput(INPUT_NAMES[5]);
-
-    // Process the branches of the switch node
-    for (int branch = 0; branch < 5; ++branch)
-    {
-        const ShaderInput* input = node.getInput(INPUT_NAMES[branch]);
-        if (!input)
-        {
-            // The boolean version only has two inputs
-            // so break if the input doesn't exist
-            break;
-        }
-
+        // Declare the output variable
         shadergen.emitLineBegin(stage);
-        if (branch > 0)
-        {
-            shadergen.emitString(stage, "else ");
-        }
-        if (branch < 5)
-        {
-            // 'which' can be float, integer or boolean, 
-            // so always convert to float to make sure the comparison is valid
-            shadergen.emitString(stage, "if (float("); 
-            shadergen.emitInput(stage, context, which);
-            shadergen.emitString(stage, ") < ");
-            shadergen.emitValue(stage, float(branch + 1));
-            shadergen.emitString(stage, ")");
-        }
-        shadergen.emitLineEnd(stage, false);
-
-        shadergen.emitScopeBegin(stage);
-
-        // Emit nodes that are ONLY needed in this scope
-        for (const ShaderNode* otherNode : graph.getNodes())
-        {
-            const ShaderNode::ScopeInfo& scope = otherNode->getScopeInfo();
-            if (scope.conditionalNode == &node && scope.usedByBranch(branch))
-            {
-                shadergen.emitFunctionCall(stage, context, *otherNode, false);
-            }
-        }
-
-        shadergen.emitLineBegin(stage);
-        shadergen.emitOutput(stage, context, node.getOutput(), false, false);
-        shadergen.emitString(stage, " = ");
-        shadergen.emitInput(stage, context, input);
+        shadergen.emitOutput(node.getOutput(), true, true, context, stage);
         shadergen.emitLineEnd(stage);
 
-        shadergen.emitScopeEnd(stage);
-    }
+        const ShaderInput* which = node.getInput(INPUT_NAMES[5]);
 
+        // Process the branches of the switch node
+        for (int branch = 0; branch < 5; ++branch)
+        {
+            const ShaderInput* input = node.getInput(INPUT_NAMES[branch]);
+            if (!input)
+            {
+                // The boolean version only has two inputs
+                // so break if the input doesn't exist
+                break;
+            }
+
+            shadergen.emitLineBegin(stage);
+            if (branch > 0)
+            {
+                shadergen.emitString("else ", stage);
+            }
+            if (branch < 5)
+            {
+                // 'which' can be float, integer or boolean, 
+                // so always convert to float to make sure the comparison is valid
+                shadergen.emitString("if (float(", stage); 
+                shadergen.emitInput(which, context, stage);
+                shadergen.emitString(") < ", stage);
+                shadergen.emitValue(float(branch + 1), stage);
+                shadergen.emitString(")", stage);
+            }
+            shadergen.emitLineEnd(stage, false);
+
+            shadergen.emitScopeBegin(stage);
+
+            // Emit nodes that are ONLY needed in this scope
+            for (const ShaderNode* otherNode : graph.getNodes())
+            {
+                const ShaderNode::ScopeInfo& scope = otherNode->getScopeInfo();
+                if (scope.conditionalNode == &node && scope.usedByBranch(branch))
+                {
+                    shadergen.emitFunctionCall(*otherNode, context, stage, false);
+                }
+            }
+
+            shadergen.emitLineBegin(stage);
+            shadergen.emitOutput(node.getOutput(), false, false, context, stage);
+            shadergen.emitString(" = ", stage);
+            shadergen.emitInput(input, context, stage);
+            shadergen.emitLineEnd(stage);
+
+            shadergen.emitScopeEnd(stage);
+        }
     END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 }
 

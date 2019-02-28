@@ -246,7 +246,7 @@ class ShaderNode
 
     /// Create a new node from a nodedef.
     static ShaderNodePtr create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef, 
-                                const ShaderGenerator& shadergen, GenContext& context);
+                                GenContext& context);
 
     /// Create a new node from a node implementation.
     static ShaderNodePtr create(const ShaderGraph* parent, const string& name, ShaderNodeImplPtr impl,
@@ -303,7 +303,7 @@ class ShaderNode
     }
 
     /// Set input values from the given node and nodedef.
-    void setValues(const Node& node, const NodeDef& nodeDef, const ShaderGenerator& shadergen);
+    void setValues(const Node& node, const NodeDef& nodeDef, GenContext& context);
 
     /// Set input element paths for the given node and nodedef.
     void setPaths(const Node& node, const NodeDef& nodeDef, bool includeNodeDefInputs=true);

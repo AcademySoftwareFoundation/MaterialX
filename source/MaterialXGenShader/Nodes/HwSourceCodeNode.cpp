@@ -16,20 +16,22 @@ ShaderNodeImplPtr HwSourceCodeNode::create()
     return std::make_shared<HwSourceCodeNode>();
 }
 
-void HwSourceCodeNode::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const
+void HwSourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
         if (_inlined)
         {
-            SourceCodeNode::emitFunctionCall(stage, context, shadergen, node);
+            SourceCodeNode::emitFunctionCall(node, context, stage);
         }
         else
         {
+            const ShaderGenerator& shadergen = context.getShaderGenerator();
+
             // Declare the output variables
             for (size_t i = 0; i < node.numOutputs(); ++i)
             {
                 shadergen.emitLineBegin(stage);
-                shadergen.emitOutput(stage, context, node.getOutput(i), true, true);
+                shadergen.emitOutput(node.getOutput(i), true, true, context, stage);
                 shadergen.emitLineEnd(stage);
             }
 
@@ -42,39 +44,39 @@ void HwSourceCodeNode::emitFunctionCall(ShaderStage& stage, GenContext& context,
             if (ccx)
             {
                 // Emit function name.
-                shadergen.emitString(stage, _functionName + ccx->getSuffix() + "(");
+                shadergen.emitString(_functionName + ccx->getSuffix() + "(", stage);
 
                 // Emit extra argument.
                 for (const HwClosureContext::Argument& arg : ccx->getArguments())
                 {
-                    shadergen.emitString(stage, delim + arg.second);
+                    shadergen.emitString(delim + arg.second, stage);
                     delim = ", ";
                 }
             }
             else
             {
                 // Emit function name.
-                shadergen.emitString(stage, _functionName + "(");
+                shadergen.emitString(_functionName + "(", stage);
             }
 
             // Emit all inputs.
             for (ShaderInput* input : node.getInputs())
             {
-                shadergen.emitString(stage, delim);
-                shadergen.emitInput(stage, context, input);
+                shadergen.emitString(delim, stage);
+                shadergen.emitInput(input, context, stage);
                 delim = ", ";
             }
 
             // Emit all outputs.
             for (size_t i = 0; i < node.numOutputs(); ++i)
             {
-                shadergen.emitString(stage, delim);
-                shadergen.emitOutput(stage, context, node.getOutput(i), false, false);
+                shadergen.emitString(delim, stage);
+                shadergen.emitOutput(node.getOutput(i), false, false, context, stage);
                 delim = ", ";
             }
 
             // End function call
-            shadergen.emitString(stage, ")");
+            shadergen.emitString(")", stage);
             shadergen.emitLineEnd(stage);
         }
     END_SHADER_STAGE(stage, MAIN_STAGE)

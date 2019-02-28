@@ -8,19 +8,21 @@ ShaderNodeImplPtr NumLightsNodeGlsl::create()
     return std::make_shared<NumLightsNodeGlsl>();
 }
 
-void NumLightsNodeGlsl::createVariables(Shader& shader, GenContext&, const ShaderGenerator&, const ShaderNode&) const
+void NumLightsNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
 {
     // Create uniform for number of active light sources
     ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
-    addStageUniform(ps, HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", Value::createValue<int>(0));
+    ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", ps);
+    numActiveLights->setValue(Value::createValue<int>(0));
 }
 
-void NumLightsNodeGlsl::emitFunctionDefinition(ShaderStage& stage, GenContext&, const ShaderGenerator& shadergen, const ShaderNode&) const
+void NumLightsNodeGlsl::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
     BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
-        shadergen.emitLine(stage, "int numActiveLightSources()", false);
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
+        shadergen.emitLine("int numActiveLightSources()", stage, false);
         shadergen.emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
-        shadergen.emitLine(stage, "return min(u_numActiveLightSources, MAX_LIGHT_SOURCES)");
+        shadergen.emitLine("return min(u_numActiveLightSources, MAX_LIGHT_SOURCES)", stage);
         shadergen.emitScopeEnd(stage);
         shadergen.emitLineBreak(stage);
     END_SHADER_STAGE(shader, HW::PIXEL_STAGE)

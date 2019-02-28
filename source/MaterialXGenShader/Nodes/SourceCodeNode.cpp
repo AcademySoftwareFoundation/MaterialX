@@ -1,6 +1,5 @@
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
-#include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <MaterialXCore/Library.h>
@@ -17,9 +16,9 @@ ShaderNodeImplPtr SourceCodeNode::create()
     return std::make_shared<SourceCodeNode>();
 }
 
-void SourceCodeNode::initialize(GenContext& context, const ShaderGenerator& shadergen, ElementPtr implementation)
+void SourceCodeNode::initialize(ElementPtr implementation, GenContext& context)
 {
-    ShaderNodeImpl::initialize(context, shadergen, implementation);
+    ShaderNodeImpl::initialize(implementation, context);
 
     ImplementationPtr impl = implementation->asA<Implementation>();
     if (!impl)
@@ -55,120 +54,122 @@ void SourceCodeNode::initialize(GenContext& context, const ShaderGenerator& shad
     }
 }
 
-void SourceCodeNode::emitFunctionDefinition(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode&) const
+void SourceCodeNode::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
-BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
-    // Emit function definition for non-inlined functions
-    if (!_inlined && !_functionSource.empty())
-    {
-        shadergen.emitBlock(stage, context, _functionSource);
-        shadergen.emitLineBreak(stage);
-    }
-END_SHADER_STAGE(stage, MAIN_STAGE)
+    BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
+        // Emit function definition for non-inlined functions
+        if (!_inlined && !_functionSource.empty())
+        {
+            const ShaderGenerator& shadergen = context.getShaderGenerator();
+            shadergen.emitBlock(_functionSource, context, stage);
+            shadergen.emitLineBreak(stage);
+        }
+    END_SHADER_STAGE(stage, MAIN_STAGE)
 }
 
-void SourceCodeNode::emitFunctionCall(ShaderStage& stage, GenContext& context, const ShaderGenerator& shadergen, const ShaderNode& node) const
+void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
-    if (_inlined)
-    {
-        // An inline function call
-
-        static const string prefix("{{");
-        static const string postfix("}}");
-
-        size_t pos = 0;
-        size_t i = _functionSource.find_first_of(prefix);
-        std::set<string> variableNames;
-        vector<string> code;
-        while (i != string::npos)
+    BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
+        if (_inlined)
         {
-            code.push_back(_functionSource.substr(pos, i - pos));
-            size_t j = _functionSource.find_first_of(postfix, i + 2);
-            if (j == string::npos)
-            {
-                throw ExceptionShaderGenError("Malformed inline expression in implementation for node " + node.getName());
-            }
+            // An inline function call
 
-            const string variable = _functionSource.substr(i + 2, j - i - 2);
-            const ShaderInput* input = node.getInput(variable);
-            if (!input)
-            {
-                throw ExceptionShaderGenError("Could not find an input named '" + variable +
-                    "' on node '" + node.getName() + "'");
-            }
+            static const string prefix("{{");
+            static const string postfix("}}");
 
-            if (input->getConnection())
+            size_t pos = 0;
+            size_t i = _functionSource.find_first_of(prefix);
+            std::set<string> variableNames;
+            vector<string> code;
+            while (i != string::npos)
             {
-                code.push_back(shadergen.getUpstreamResult(context, input));
-            }
-            else
-            {
-                string variableName = node.getName() + "_" + input->getName() + "_tmp";
-                if (!variableNames.count(variableName))
+                code.push_back(_functionSource.substr(pos, i - pos));
+                size_t j = _functionSource.find_first_of(postfix, i + 2);
+                if (j == string::npos)
                 {
-                    ShaderPort newVariable(nullptr, input->getType(), variableName, input->getValue());
-                    shadergen.emitLineBegin(stage);
-                    shadergen.emitVariableDeclaration(stage, context, &newVariable, shadergen.getSyntax()->getConstantQualifier(), true);
-                    shadergen.emitLineEnd(stage);
-                    variableNames.insert(variableName);
+                    throw ExceptionShaderGenError("Malformed inline expression in implementation for node " + node.getName());
                 }
-                code.push_back(variableName);
+
+                const string variable = _functionSource.substr(i + 2, j - i - 2);
+                const ShaderInput* input = node.getInput(variable);
+                if (!input)
+                {
+                    throw ExceptionShaderGenError("Could not find an input named '" + variable +
+                        "' on node '" + node.getName() + "'");
+                }
+
+                if (input->getConnection())
+                {
+                    code.push_back(shadergen.getUpstreamResult(input, context));
+                }
+                else
+                {
+                    string variableName = node.getName() + "_" + input->getName() + "_tmp";
+                    if (!variableNames.count(variableName))
+                    {
+                        ShaderPort newVariable(nullptr, input->getType(), variableName, input->getValue());
+                        shadergen.emitLineBegin(stage);
+                        shadergen.emitVariableDeclaration(&newVariable, shadergen.getSyntax().getConstantQualifier(), context, stage, true);
+                        shadergen.emitLineEnd(stage);
+                        variableNames.insert(variableName);
+                    }
+                    code.push_back(variableName);
+                }
+
+                pos = j + 2;
+                i = _functionSource.find_first_of(prefix, pos);
             }
+            code.push_back(_functionSource.substr(pos));
 
-            pos = j + 2;
-            i = _functionSource.find_first_of(prefix, pos);
-        }
-        code.push_back(_functionSource.substr(pos));
-
-        shadergen.emitLineBegin(stage);
-        shadergen.emitOutput(stage, context, node.getOutput(), true, false);
-        shadergen.emitString(stage, " = ");
-        for (const string& c : code)
-        {
-            shadergen.emitString(stage, c);
-        }
-        shadergen.emitLineEnd(stage);
-    }
-    else
-    {
-        // An ordinary source code function call
-
-        // Declare the output variables
-        for (size_t i = 0; i < node.numOutputs(); ++i)
-        {
             shadergen.emitLineBegin(stage);
-            shadergen.emitOutput(stage, context, node.getOutput(i), true, true);
+            shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+            shadergen.emitString(" = ", stage);
+            for (const string& c : code)
+            {
+                shadergen.emitString(c, stage);
+            }
             shadergen.emitLineEnd(stage);
         }
-
-        shadergen.emitLineBegin(stage);
-        string delim = "";
-
-        // Emit function name.
-        shadergen.emitString(stage, _functionName + "(");
-
-        // Emit all inputs on the node.
-        for (ShaderInput* input : node.getInputs())
+        else
         {
-            shadergen.emitString(stage, delim);
-            shadergen.emitInput(stage, context, input);
-            delim = ", ";
-        }
+            // An ordinary source code function call
 
-        // Emit node outputs.
-        for (size_t i = 0; i < node.numOutputs(); ++i)
-        {
-            shadergen.emitString(stage, delim);
-            shadergen.emitOutput(stage, context, node.getOutput(i), false, false);
-            delim = ", ";
-        }
+            // Declare the output variables
+            for (size_t i = 0; i < node.numOutputs(); ++i)
+            {
+                shadergen.emitLineBegin(stage);
+                shadergen.emitOutput(node.getOutput(i), true, true, context, stage);
+                shadergen.emitLineEnd(stage);
+            }
 
-        // End function call
-        shadergen.emitString(stage, ")");
-        shadergen.emitLineEnd(stage);
-    }
-END_SHADER_STAGE(stage, MAIN_STAGE)
+            shadergen.emitLineBegin(stage);
+            string delim = "";
+
+            // Emit function name.
+            shadergen.emitString(_functionName + "(", stage);
+
+            // Emit all inputs on the node.
+            for (ShaderInput* input : node.getInputs())
+            {
+                shadergen.emitString(delim, stage);
+                shadergen.emitInput(input, context, stage);
+                delim = ", ";
+            }
+
+            // Emit node outputs.
+            for (size_t i = 0; i < node.numOutputs(); ++i)
+            {
+                shadergen.emitString(delim, stage);
+                shadergen.emitOutput(node.getOutput(i), false, false, context, stage);
+                delim = ", ";
+            }
+
+            // End function call
+            shadergen.emitString(")", stage);
+            shadergen.emitLineEnd(stage);
+        }
+    END_SHADER_STAGE(stage, MAIN_STAGE)
 }
 
 } // namespace MaterialX
