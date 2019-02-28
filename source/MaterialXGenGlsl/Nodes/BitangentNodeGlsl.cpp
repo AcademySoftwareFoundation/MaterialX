@@ -39,60 +39,60 @@ void BitangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : -1;
 
-BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
-    VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-    const string prefix = vertexData.getInstance() + ".";
-    if (space == WORLD_SPACE)
-    {
-        ShaderPort* bitangent = vertexData["bitangentWorld"];
-        if (!bitangent->isEmitted())
+    BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+        VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
+        const string prefix = vertexData.getInstance() + ".";
+        if (space == WORLD_SPACE)
         {
-            bitangent->setEmitted();
-            shadergen.emitLine(prefix + bitangent->getVariable() + " = (u_worldInverseTransposeMatrix * vec4(i_bitangent,0.0)).xyz", stage);
+            ShaderPort* bitangent = vertexData["bitangentWorld"];
+            if (!bitangent->isEmitted())
+            {
+                bitangent->setEmitted();
+                shadergen.emitLine(prefix + bitangent->getVariable() + " = (u_worldInverseTransposeMatrix * vec4(i_bitangent,0.0)).xyz", stage);
+            }
         }
-    }
-    else if (space == MODEL_SPACE)
-    {
-        ShaderPort* bitangent = vertexData["bitangentModel"];
-        if (!bitangent->isEmitted())
+        else if (space == MODEL_SPACE)
         {
-            bitangent->setEmitted();
-            shadergen.emitLine(prefix + bitangent->getVariable() + " = i_bitangent", stage);
+            ShaderPort* bitangent = vertexData["bitangentModel"];
+            if (!bitangent->isEmitted())
+            {
+                bitangent->setEmitted();
+                shadergen.emitLine(prefix + bitangent->getVariable() + " = i_bitangent", stage);
+            }
         }
-    }
-    else
-    {
-        ShaderPort* bitangent = vertexData["bitangentObject"];
-        if (!bitangent->isEmitted())
+        else
         {
-            bitangent->setEmitted();
-            shadergen.emitLine(prefix + bitangent->getVariable() + " = i_bitangent", stage);
+            ShaderPort* bitangent = vertexData["bitangentObject"];
+            if (!bitangent->isEmitted())
+            {
+                bitangent->setEmitted();
+                shadergen.emitLine(prefix + bitangent->getVariable() + " = i_bitangent", stage);
+            }
         }
-    }
-END_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+    END_SHADER_STAGE(stage, HW::VERTEX_STAGE)
 
-BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
-    VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-    const string prefix = vertexData.getInstance() + ".";
-    shadergen.emitLineBegin(stage);
-    shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-    if (space == WORLD_SPACE)
-    {
-        const ShaderPort* bitangent = vertexData["bitangentWorld"];
-        shadergen.emitString(" = normalize(" + prefix + bitangent->getVariable() + ")", stage);
-    }
-    else if (space == MODEL_SPACE)
-    {
-        const ShaderPort* bitangent = vertexData["bitangentModel"];
-        shadergen.emitString(" = normalize(" + prefix + bitangent->getVariable() + ")", stage);
-    }
-    else
-    {
-        const ShaderPort* bitangent = vertexData["bitangentObject"];
-        shadergen.emitString(" = normalize(" + prefix + bitangent->getVariable() + ")", stage);
-    }
-    shadergen.emitLineEnd(stage);
-END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+        VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
+        const string prefix = vertexData.getInstance() + ".";
+        shadergen.emitLineBegin(stage);
+        shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+        if (space == WORLD_SPACE)
+        {
+            const ShaderPort* bitangent = vertexData["bitangentWorld"];
+            shadergen.emitString(" = normalize(" + prefix + bitangent->getVariable() + ")", stage);
+        }
+        else if (space == MODEL_SPACE)
+        {
+            const ShaderPort* bitangent = vertexData["bitangentModel"];
+            shadergen.emitString(" = normalize(" + prefix + bitangent->getVariable() + ")", stage);
+        }
+        else
+        {
+            const ShaderPort* bitangent = vertexData["bitangentObject"];
+            shadergen.emitString(" = normalize(" + prefix + bitangent->getVariable() + ")", stage);
+        }
+        shadergen.emitLineEnd(stage);
+    END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX
