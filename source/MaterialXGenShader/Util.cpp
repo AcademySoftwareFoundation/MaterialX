@@ -1,3 +1,4 @@
+#include <MaterialXFormat/XmlIo.h>
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/Shader.h>
@@ -134,6 +135,60 @@ string getFileExtension(const string& filename)
 {
     size_t i = filename.rfind('.');
     return i != string::npos ? filename.substr(i + 1) : EMPTY_STRING;
+}
+
+void loadDocuments(const FilePath& rootPath, const std::set<string>& skipFiles, 
+                   vector<DocumentPtr>& documents, vector<string>& documentsPaths, std::ostream* validityLog)
+{
+    const std::string MTLX_EXTENSION("mtlx");
+
+    StringVec dirs;
+    string baseDirectory = rootPath;
+    getSubDirectories(baseDirectory, dirs);
+
+    bool testSkipFiles = !skipFiles.empty();
+
+    for (auto dir : dirs)
+    {
+        StringVec files;
+        getFilesInDirectory(dir, files, MTLX_EXTENSION);
+
+        for (const std::string& file : files)
+        {
+            if (testSkipFiles && skipFiles.count(file) != 0)
+            {
+                continue;
+            }
+
+            const FilePath filePath = FilePath(dir) / FilePath(file);
+            const std::string filename = filePath;
+
+            DocumentPtr doc = createDocument();
+            try
+            {
+                readFromXmlFile(doc, filename, dir);
+
+                if (validityLog)
+                {
+                    std::string docErrors;
+                    bool valid = doc->validate(&docErrors);
+                    if (!valid)
+                    {
+                        *validityLog << filename << std::endl;
+                        *validityLog << docErrors << std::endl;
+                        throw ExceptionShaderGenError("");
+                    }
+                }
+
+                documents.push_back(doc);
+                documentsPaths.push_back(filePath.asString());
+            }
+            catch (Exception& /*e*/)
+            {
+                continue;
+            }
+        }
+    }
 }
 
 namespace
@@ -520,89 +575,100 @@ bool elementRequiresShading(const TypedElementPtr element)
             colorClosures.count(elementType) > 0);
 }
 
-void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>& elements, bool includeReferencedGraphs)
+void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>& elements, bool includeReferencedGraphs, 
+                            std::ostream* errorLog)
 {
-    std::vector<NodeGraphPtr> nodeGraphs = doc->getNodeGraphs();
-    std::vector<OutputPtr> outputList = doc->getOutputs();
-    std::unordered_set<OutputPtr> outputSet(outputList.begin(), outputList.end());
-    std::vector<MaterialPtr> materials = doc->getMaterials();
-
-    if (!materials.empty() || !nodeGraphs.empty() || !outputList.empty())
+    try
     {
-        std::unordered_set<OutputPtr> shaderrefOutputs;
-        for (auto material : materials)
-        {
-            for (auto shaderRef : material->getShaderRefs())
-            {
-                if (!shaderRef->hasSourceUri())
-                {
-                    // Add in all shader references which are not part of a node definition library
-                    NodeDefPtr nodeDef = shaderRef->getNodeDef();
-                    if (!nodeDef)
-                    {
-                        throw ExceptionShaderGenError("Could not find a nodedef for shaderref '" + shaderRef->getName() + "'");
-                    }
-                    if (nodeDef && 
-                        requiresImplementation(nodeDef))
-                    {
-                        elements.push_back(shaderRef);
-                    }
+        std::vector<NodeGraphPtr> nodeGraphs = doc->getNodeGraphs();
+        std::vector<OutputPtr> outputList = doc->getOutputs();
+        std::unordered_set<OutputPtr> outputSet(outputList.begin(), outputList.end());
+        std::vector<MaterialPtr> materials = doc->getMaterials();
 
-                    // Find all bindinputs which reference outputs and outputgraphs
-                    if (!includeReferencedGraphs)
+        if (!materials.empty() || !nodeGraphs.empty() || !outputList.empty())
+        {
+            std::unordered_set<OutputPtr> shaderrefOutputs;
+            for (auto material : materials)
+            {
+                for (auto shaderRef : material->getShaderRefs())
+                {
+                    if (!shaderRef->hasSourceUri())
                     {
-                        for (auto bindInput : shaderRef->getBindInputs())
+                        // Add in all shader references which are not part of a node definition library
+                        NodeDefPtr nodeDef = shaderRef->getNodeDef();
+                        if (!nodeDef)
                         {
-                            OutputPtr outputPtr = bindInput->getConnectedOutput();
-                            if (outputPtr)
+                            throw ExceptionShaderGenError("Could not find a nodedef for shaderref '" + shaderRef->getName() + "'");
+                        }
+                        if (nodeDef &&
+                            requiresImplementation(nodeDef))
+                        {
+                            elements.push_back(shaderRef);
+                        }
+
+                        // Find all bindinputs which reference outputs and outputgraphs
+                        if (!includeReferencedGraphs)
+                        {
+                            for (auto bindInput : shaderRef->getBindInputs())
                             {
-                                shaderrefOutputs.insert(outputPtr);
+                                OutputPtr outputPtr = bindInput->getConnectedOutput();
+                                if (outputPtr)
+                                {
+                                    shaderrefOutputs.insert(outputPtr);
+                                }
                             }
                         }
                     }
                 }
             }
-        }
 
-        // Find node graph outputs. Skip any light shaders
-        const std::string LIGHT_SHADER("lightshader");
-        for (NodeGraphPtr nodeGraph : nodeGraphs)
-        {
-            // Skip anything from an include file including libraries.
-            if (!nodeGraph->hasSourceUri())
+            // Find node graph outputs. Skip any light shaders
+            const std::string LIGHT_SHADER("lightshader");
+            for (NodeGraphPtr nodeGraph : nodeGraphs)
             {
-                std::vector<OutputPtr> nodeGraphOutputs = nodeGraph->getOutputs();
-                for (OutputPtr output : nodeGraphOutputs)
+                // Skip anything from an include file including libraries.
+                if (!nodeGraph->hasSourceUri())
                 {
-                    NodePtr outputNode = output->getConnectedNode();
+                    std::vector<OutputPtr> nodeGraphOutputs = nodeGraph->getOutputs();
+                    for (OutputPtr output : nodeGraphOutputs)
+                    {
+                        NodePtr outputNode = output->getConnectedNode();
 
-                    // For now we skip any outputs which are referenced elsewhere.
-                    if (outputNode && 
-                        outputNode->getType() != LIGHT_SHADER &&
-                        (!includeReferencedGraphs && shaderrefOutputs.count(output) == 0))
-                    {                        
-                        NodeDefPtr nodeDef = outputNode->getNodeDef();
-                        if (!nodeDef)
+                        // For now we skip any outputs which are referenced elsewhere.
+                        if (outputNode &&
+                            outputNode->getType() != LIGHT_SHADER &&
+                            (!includeReferencedGraphs && shaderrefOutputs.count(output) == 0))
                         {
-                            throw ExceptionShaderGenError("Could not find a nodedef for output '" + outputNode->getName() + "'");
-                        }
-                        if (nodeDef &&
-                            requiresImplementation(nodeDef))
-                        {
-                            outputSet.insert(output);
+                            NodeDefPtr nodeDef = outputNode->getNodeDef();
+                            if (!nodeDef)
+                            {
+                                throw ExceptionShaderGenError("Could not find a nodedef for output '" + outputNode->getName() + "'");
+                            }
+                            if (nodeDef &&
+                                requiresImplementation(nodeDef))
+                            {
+                                outputSet.insert(output);
+                            }
                         }
                     }
                 }
             }
-        }
 
-        // Add in all outputs which are not part of a library
-        for (OutputPtr output : outputSet)
-        {
-            if (!output->hasSourceUri())
+            // Add in all outputs which are not part of a library
+            for (OutputPtr output : outputSet)
             {
-                elements.push_back(output);
+                if (!output->hasSourceUri())
+                {
+                    elements.push_back(output);
+                }
             }
+        }
+    }
+    catch (ExceptionShaderGenError& e)
+    {
+        if (errorLog)
+        {
+            *errorLog << e.what() << std::endl;
         }
     }
 }

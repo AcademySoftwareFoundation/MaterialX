@@ -1,5 +1,5 @@
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/documents/Libraries/
-        DESTINATION "${CMAKE_INSTALL_PREFIX}/documents/Libraries")
+        DESTINATION "${CMAKE_INSTALL_PREFIX}/documents/Libraries" MESSAGE_NEVER)
 
 if(MATERIALX_BUILD_DOCS)
     set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR})

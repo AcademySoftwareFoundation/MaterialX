@@ -8,11 +8,11 @@
 #include <MaterialXTest/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
-
 #include <MaterialXFormat/XmlIo.h>
 
+#include <MaterialXTest/GenShaderUtil.h>
+
 #include <MaterialXGenShader/Util.h>
-#include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/HwShader.h>
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXRender/Handlers/HwLightHandler.h>
@@ -46,10 +46,6 @@
 namespace mx = MaterialX;
 
 #define LOG_TO_FILE
-
-extern void loadLibrary(const mx::FilePath& file, mx::DocumentPtr doc);
-extern void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc,
-                          const std::set<std::string>* excludeFiles = nullptr);
 
 void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::HwShaderGenerator& shadergen, const mx::GenOptions& options,
                     const mx::FilePath&  envIrradiancePath, const mx::FilePath& envRadiancePath)
@@ -1386,19 +1382,19 @@ TEST_CASE("Render validation of test suite", "[render]")
     }
 
     const mx::StringVec libraries = { "stdlib", "pbrlib" };
-    loadLibraries(libraries, searchPath, dependLib, &excludeFiles);
+    GenShaderUtil::loadLibraries(libraries, searchPath, dependLib, &excludeFiles);
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
     if (options.lightFiles.size() == 0)
     {
-        loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), dependLib);
-        loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), dependLib);
-        loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), dependLib);
+        GenShaderUtil::loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), dependLib);
+        GenShaderUtil::loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), dependLib);
+        GenShaderUtil::loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), dependLib);
     }
     else
     {
         for (auto lightFile : options.lightFiles)
         {
-            loadLibrary(lightDir / mx::FilePath(lightFile), dependLib);
+            GenShaderUtil::loadLibrary(lightDir / mx::FilePath(lightFile), dependLib);
         }
     }
     ioTimer.endTimer();

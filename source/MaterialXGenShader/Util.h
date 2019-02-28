@@ -7,6 +7,7 @@
 #include <MaterialXCore/Element.h>
 #include <MaterialXCore/Interface.h>
 #include <MaterialXCore/Document.h>
+#include <MaterialXFormat/File.h>
 
 namespace MaterialX
 {
@@ -31,6 +32,11 @@ bool readFile(const string& filename, string& content);
 
 /// Returns the extension of the given filename
 string getFileExtension(const string& filename);
+
+/// Scans for all documents under a root path and returns documents which can be loaded
+/// Optionally can test and log errors if the document is not considered to be valid.
+void loadDocuments(const FilePath& rootPath, const std::set<string>& skipFiles,
+    vector<DocumentPtr>& documents, vector<string>& documentsPaths, std::ostream* validityLog);
 
 /// Returns true if the given element is a surface shader with the potential
 /// of beeing transparent. This can be used by HW shader generators to determine
@@ -63,7 +69,8 @@ bool elementRequiresShading(const TypedElementPtr element);
 /// This includes all outputs on node graphs and shader references which are not
 /// part of any included library. Light shaders are not considered to be renderable.
 /// The option to include node graphs referened by shader references is disabled by default.
-void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>& elements, bool includeReferencedGraphs=false);
+void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>& elements, 
+                            bool includeReferencedGraphs=false, std::ostream* errorLog=nullptr);
 
 /// Given a path to a element, find the corresponding element with the same name
 /// on an associated nodedef if it exists. A target string should be provided

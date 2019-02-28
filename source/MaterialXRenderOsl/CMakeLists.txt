@@ -57,7 +57,7 @@ install(TARGETS MaterialXRenderOsl
 )
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXRenderOsl/
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXRenderOsl/ MESSAGE_NEVER
     FILES_MATCHING PATTERN "*.h*")
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXRenderOsl.pdb"

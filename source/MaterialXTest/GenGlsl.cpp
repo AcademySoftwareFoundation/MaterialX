@@ -7,11 +7,9 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenGlsl/GlslSyntax.h>
 
-namespace mx = MaterialX;
+#include <MaterialXTest/GenShaderUtil.h>
 
-extern void checkImplementations(mx::ShaderGeneratorPtr generator, std::set<std::string> generatorSkipNodeTypes,
-    std::set<std::string> generatorSkipNodeDefs);
-extern void testUniqueNames(mx::ShaderGeneratorPtr shaderGenerator, const std::string& stage);
+namespace mx = MaterialX;
 
 TEST_CASE("GLSL Syntax Check", "[genglsl]")
 {
@@ -83,7 +81,7 @@ TEST_CASE("GLSL Implementation Check", "[genglsl]")
     generatorSkipNodeDefs.insert("ND_multiply_surfaceshaderC");
     generatorSkipNodeDefs.insert("ND_mix_surfaceshader");
 
-    checkImplementations(generator, generatorSkipNodeTypes, generatorSkipNodeDefs);
+    GenShaderUtil::checkImplementations(generator, generatorSkipNodeTypes, generatorSkipNodeDefs);
 }
 
 TEST_CASE("GLSL Unique Names", "[genglsl]")
@@ -92,5 +90,56 @@ TEST_CASE("GLSL Unique Names", "[genglsl]")
     mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
     shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-    testUniqueNames(shaderGenerator, mx::Shader::PIXEL_STAGE);
+    GenShaderUtil::testUniqueNames(shaderGenerator, mx::Shader::PIXEL_STAGE);
+}
+
+class GLSLGenCodeGenerationTester : public GenShaderUtil::ShaderGeneratorTester
+{
+public:
+    using ParentClass = GenShaderUtil::ShaderGeneratorTester;
+
+    GLSLGenCodeGenerationTester(const mx::FilePath& searchPath, const mx::FilePath& testRootPath,
+        const mx::FilePath& logFilePath) : GenShaderUtil::ShaderGeneratorTester(searchPath, testRootPath, logFilePath)
+    {}
+
+    void createGenerator() override
+    {
+        _shaderGenerator = mx::GlslShaderGenerator::create();
+        _shaderGenerator->registerSourceCodeSearchPath(_searchPath);
+
+        if (!_shaderGenerator)
+        {
+            _logFile << ">> Failed to create GLSL generator" << std::endl;
+        }
+    }
+
+    void addSkipNodeDefs() override
+    {
+        _skipNodeDefs.insert("ND_add_surfaceshader");
+        _skipNodeDefs.insert("ND_multiply_surfaceshaderF");
+        _skipNodeDefs.insert("ND_multiply_surfaceshaderC");
+        _skipNodeDefs.insert("ND_mix_surfaceshader");
+    }
+
+    void setTestStages() override
+    {
+        _testStages.push_back(mx::HwShader::VERTEX_STAGE);
+        _testStages.push_back(mx::HwShader::PIXEL_STAGE);
+    }
+};
+
+static void generateGLSLCode()
+{
+    const mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite");
+    const mx::FilePath logPath("genglsl_glsl400_generate_test.txt");
+    GLSLGenCodeGenerationTester tester(searchPath, testRootPath, logPath);
+
+    const mx::GenOptions genOptions;
+    tester.testGeneration(genOptions);
+}
+
+TEST_CASE("GLSL Shader Generation", "[genglsl]")
+{
+    generateGLSLCode();
 }

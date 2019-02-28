@@ -3,17 +3,13 @@
 #include <MaterialXCore/Document.h>
 #include <MaterialXFormat/File.h>
 
-//#include <MaterialXGenShader/HwShader.h>
-
 #include <MaterialXGenOgsFx/OgsFxShaderGenerator.h>
 #include <MaterialXGenOgsFx/OgsFxSyntax.h>
 #include <MaterialXGenOgsFx/MayaGlslPluginShaderGenerator.h>
 
-namespace mx = MaterialX;
+#include <MaterialXTest/GenShaderUtil.h>
 
-extern void checkImplementations(mx::ShaderGeneratorPtr generator, std::set<std::string> generatorSkipNodeTypes,
-    std::set<std::string> generatorSkipNodeDefs);
-extern void testUniqueNames(mx::ShaderGeneratorPtr shaderGenerator, const std::string& stage);
+namespace mx = MaterialX;
 
 TEST_CASE("OGSFX Syntax", "[genogsfx]")
 {
@@ -74,7 +70,7 @@ TEST_CASE("OGSFX Implementation Check", "[genogsfx]")
     generatorSkipNodeDefs.insert("ND_multiply_surfaceshaderC");
     generatorSkipNodeDefs.insert("ND_mix_surfaceshader");
 
-    checkImplementations(generator, generatorSkipNodeTypes, generatorSkipNodeDefs);
+    GenShaderUtil::checkImplementations(generator, generatorSkipNodeTypes, generatorSkipNodeDefs);
 }
 
 TEST_CASE("OGSFX Unique Names", "[genogsfx]")
@@ -83,8 +79,58 @@ TEST_CASE("OGSFX Unique Names", "[genogsfx]")
     mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
     shaderGenerator->registerSourceCodeSearchPath(searchPath);
 
-    testUniqueNames(shaderGenerator, mx::OgsFxShader::FINAL_FX_STAGE);
+    GenShaderUtil::testUniqueNames(shaderGenerator, mx::OgsFxShader::FINAL_FX_STAGE);
 }
 
+class OGSFXGenCodeGenerationTester : public GenShaderUtil::ShaderGeneratorTester
+{
+public:
+    using ParentClass = GenShaderUtil::ShaderGeneratorTester;
+
+    OGSFXGenCodeGenerationTester(const mx::FilePath& searchPath, const mx::FilePath& testRootPath,
+        const mx::FilePath& logFilePath) : GenShaderUtil::ShaderGeneratorTester(searchPath, testRootPath, logFilePath)
+    {}
+
+    void createGenerator() override
+    {
+        _shaderGenerator = mx::OgsFxShaderGenerator::create();
+        _shaderGenerator->registerSourceCodeSearchPath(_searchPath);
+
+        if (!_shaderGenerator)
+        {
+            _logFile << ">> Failed to create OGSFX generator" << std::endl;
+        }
+    }
+
+    void addSkipNodeDefs() override
+    {
+        _skipNodeDefs.insert("ND_add_surfaceshader");
+        _skipNodeDefs.insert("ND_multiply_surfaceshaderF");
+        _skipNodeDefs.insert("ND_multiply_surfaceshaderC");
+        _skipNodeDefs.insert("ND_mix_surfaceshader");
+    }
+
+    void setTestStages() override
+    {
+        _testStages.push_back(mx::HwShader::VERTEX_STAGE);
+        _testStages.push_back(mx::HwShader::PIXEL_STAGE);
+    }
+};
+
+static void generateOGSFXCode()
+{
+    const mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite");
+    const mx::FilePath logPath("genglsl_ogsfx_generate_test.txt");
+    OGSFXGenCodeGenerationTester tester(searchPath, testRootPath, logPath);
+
+    const mx::GenOptions genOptions;
+    tester.testGeneration(genOptions);
+}
+
+TEST_CASE("OGSFX Shader Generation", "[genogsfx]")
+{
+    generateOGSFXCode();
+}
 
 

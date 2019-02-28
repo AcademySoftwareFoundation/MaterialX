@@ -72,7 +72,7 @@ install(TARGETS MaterialXRenderHw
 )
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXRenderHw/
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXRenderHw/ MESSAGE_NEVER
     FILES_MATCHING PATTERN "*.h*")
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXRenderHw.pdb"

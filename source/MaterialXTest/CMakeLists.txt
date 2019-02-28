@@ -43,17 +43,9 @@ add_test(NAME MaterialXTest
          COMMAND MaterialXTest
          WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-add_custom_command(TARGET MaterialXTest POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_SOURCE_DIR}/documents/Libraries ${CMAKE_CURRENT_BINARY_DIR}/documents/Libraries)
-
-add_custom_command(TARGET MaterialXTest POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_SOURCE_DIR}/documents/Examples ${CMAKE_CURRENT_BINARY_DIR}/documents/Examples)
-
-add_custom_command(TARGET MaterialXTest POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_directory
-                ${CMAKE_SOURCE_DIR}/documents/TestSuite ${CMAKE_CURRENT_BINARY_DIR}/documents/TestSuite)
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../documents/Examples" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/documents MESSAGE_NEVER)
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../documents/Libraries" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/documents MESSAGE_NEVER)
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../documents/TestSuite" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/documents MESSAGE_NEVER)
 
 set_target_properties(
     MaterialXTest PROPERTIES
