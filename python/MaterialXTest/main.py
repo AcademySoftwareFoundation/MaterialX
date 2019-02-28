@@ -4,10 +4,7 @@ import unittest
 
 import MaterialX as mx
 
-"""
-Unit tests for MaterialX Python.
-"""
-
+# Unit tests for MaterialX Python.
 
 #--------------------------------------------------------------------------------
 _testValues = (1,
@@ -26,7 +23,7 @@ _testValues = (1,
 _fileDir = os.path.dirname(os.path.abspath(__file__))
 _libraryDir = os.path.join(_fileDir, '../../documents/Libraries/stdlib/')
 _exampleDir = os.path.join(_fileDir, '../../documents/Examples/')
-_searchPath = _libraryDir + ';' + _exampleDir
+_searchPath = _libraryDir + mx.PATH_LIST_SEPARATOR + _exampleDir
 
 _libraryFilenames = ('stdlib_defs.mtlx',
                      'stdlib_ng.mtlx',
@@ -484,7 +481,7 @@ class TestMaterialX(unittest.TestCase):
                     boundValue = shaderInput.getBoundValue(material)
                     upstreamElement = shaderInput.getUpstreamElement(material)
                     self.assertTrue(boundValue is not None or upstreamElement is not None)
-                    for edge in shaderInput.traverseGraph(material):
+                    for _ in shaderInput.traverseGraph(material):
                         edgeCount += 1
                 self.assertTrue(edgeCount > 0)
 

@@ -18,6 +18,7 @@
 #include <MaterialXGenGlsl/Nodes/HeightToNormalNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightSamplerNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/NumLightsNodeGlsl.h>
+#include <MaterialXGenGlsl/Nodes/TransformNodeGlsl.h>
 
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
@@ -140,7 +141,11 @@ GlslShaderGenerator::GlslShaderGenerator()
     registerImplementation("IM_convert_float_vector3_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
     registerImplementation("IM_convert_float_vector4_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
     registerImplementation("IM_convert_vector2_color2_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_vector2_vector3_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_vector3_vector2_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
     registerImplementation("IM_convert_vector3_color3_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_vector3_vector4_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
+    registerImplementation("IM_convert_vector4_vector3_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
     registerImplementation("IM_convert_vector4_color4_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
     registerImplementation("IM_convert_color2_vector2_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
     registerImplementation("IM_convert_color3_vector3_" + GlslShaderGenerator::LANGUAGE, ConvertNode::create);
@@ -220,6 +225,18 @@ GlslShaderGenerator::GlslShaderGenerator()
     registerImplementation("IM_blur_vector2_" + GlslShaderGenerator::LANGUAGE, BlurNode::create);
     registerImplementation("IM_blur_vector3_" + GlslShaderGenerator::LANGUAGE, BlurNode::create);
     registerImplementation("IM_blur_vector4_" + GlslShaderGenerator::LANGUAGE, BlurNode::create);
+
+    // <!-- <ND_transformpoint> ->
+    registerImplementation("IM_transformpoint_vector3_" + GlslShaderGenerator::LANGUAGE, TransformNodeGlsl::create);
+    registerImplementation("IM_transformpoint_vector4_" + GlslShaderGenerator::LANGUAGE, TransformNodeGlsl::create);
+
+    // <!-- <ND_transformvector> ->
+    registerImplementation("IM_transformvector_vector3_" + GlslShaderGenerator::LANGUAGE, TransformNodeGlsl::create);
+    registerImplementation("IM_transformvector_vector4_" + GlslShaderGenerator::LANGUAGE, TransformNodeGlsl::create);
+
+    // <!-- <ND_transformnormal> ->
+    registerImplementation("IM_transformnormal_vector3_" + GlslShaderGenerator::LANGUAGE, TransformNodeGlsl::create);
+    registerImplementation("IM_transformnormal_vector4_" + GlslShaderGenerator::LANGUAGE, TransformNodeGlsl::create);
 
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", NumLightsNodeGlsl::create()));
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", LightSamplerNodeGlsl::create()));
@@ -684,6 +701,8 @@ ValuePtr GlslShaderGenerator::remapEnumeration(const string& inputName, const st
 }
 
 const string GlslImplementation::SPACE = "space";
+const string GlslImplementation::TO_SPACE = "tospace";
+const string GlslImplementation::FROM_SPACE = "fromspace";
 const string GlslImplementation::WORLD = "world";
 const string GlslImplementation::OBJECT = "object";
 const string GlslImplementation::MODEL = "model";

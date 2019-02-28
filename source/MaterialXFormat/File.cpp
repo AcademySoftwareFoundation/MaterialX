@@ -5,6 +5,13 @@
 
 #include <MaterialXFormat/File.h>
 
+#ifdef _MSC_VER
+// Temporarily disable secure warnings for getenv in windows, until cross - platform
+// getEnvironmentVar / setEnvironmentVar functions are added.
+#pragma warning( push )
+#pragma warning( disable: 4996)
+#endif
+
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -26,6 +33,13 @@ const string VALID_SEPARATORS_POSIX = "/";
 
 const char PREFERRED_SEPARATOR_WINDOWS = '\\';
 const char PREFERRED_SEPARATOR_POSIX = '/';
+
+#if defined(_WIN32)
+const string PATH_LIST_SEPARATOR = ";";
+#else
+const string PATH_LIST_SEPARATOR = ":";
+#endif
+const string MATERIALX_SEARCH_PATH_ENV_VAR = "MATERIALX_SEARCH_PATH";
 
 //
 // FilePath methods
@@ -140,4 +154,20 @@ FilePath FilePath::getCurrentPath()
 #endif
 }
 
+FileSearchPath getEnvironmentPath(const string& sep)
+{
+    const char* searchPathEnv = std::getenv(MATERIALX_SEARCH_PATH_ENV_VAR.c_str());
+
+    if (!searchPathEnv)
+    {
+        searchPathEnv = "";
+    }
+
+    return FileSearchPath(searchPathEnv, sep);
+}
+
 } // namespace MaterialX
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif

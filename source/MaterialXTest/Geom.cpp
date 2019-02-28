@@ -55,7 +55,7 @@ TEST_CASE("Geom elements", "[geom]")
 
     // Create a geominfo with an attribute.
     mx::GeomInfoPtr geominfo4 = doc->addGeomInfo("geominfo4", "/robot1");
-    mx::StringVec udimSet = {{"1001", "1002", "1003", "1004"}};
+    mx::StringVec udimSet = {"1001", "1002", "1003", "1004"};
     geominfo4->setGeomAttrValue("udimset", udimSet);
     REQUIRE(doc->getGeomAttrValue("udimset", "/robot1")->asA<mx::StringVec>() == udimSet);
     REQUIRE(doc->getGeomAttrValue("udimset", "/robot2") == nullptr);

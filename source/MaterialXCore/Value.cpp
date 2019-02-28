@@ -234,7 +234,7 @@ template<class T> bool Value::isA() const
     return dynamic_cast<const TypedValue<T>*>(this) != nullptr;
 }
 
-template<class T> T Value::asA() const
+template<class T> const T& Value::asA() const
 {
     const TypedValue<T>* typedVal = dynamic_cast<const TypedValue<T>*>(this);
     if (!typedVal)
@@ -286,7 +286,7 @@ using FloatVec = vector<float>;
 #define INSTANTIATE_TYPE(T, name)                       \
 template <> const string TypedValue<T>::TYPE = name;    \
 template bool Value::isA<T>() const;                    \
-template T Value::asA<T>() const;                       \
+template const T& Value::asA<T>() const;                \
 template const string& getTypeString<T>();              \
 template string toValueString(const T& data);           \
 template T fromValueString(const string& value);        \

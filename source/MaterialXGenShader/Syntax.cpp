@@ -139,10 +139,8 @@ string Syntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcTyp
 
 void Syntax::makeUnique(string& name, UniqueNameMap& uniqueNames) const
 {
-    if (_invalidTokens.size())
-    {
-        name = replaceSubstrings(name, _invalidTokens);
-    }
+    makeValidName(name);
+
     UniqueNameMap::iterator it = uniqueNames.find(name);
     if (it != uniqueNames.end())
     {
@@ -179,6 +177,21 @@ string Syntax::getArraySuffix(const TypeDesc* type, const Value& value) const
     }
     return string();
 }
+
+static bool isInvalidChar(char c)
+{
+    return !isalnum(c) && c != '_';
+}
+
+void Syntax::makeValidName(string& name) const
+{
+    std::replace_if(name.begin(), name.end(), isInvalidChar, '_');
+    if (_invalidTokens.size())
+    {
+        name = replaceSubstrings(name, _invalidTokens);
+    }
+}
+
 
 const vector<string> TypeSyntax::EMPTY_MEMBERS;
 

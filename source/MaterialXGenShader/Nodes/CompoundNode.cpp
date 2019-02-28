@@ -26,6 +26,7 @@ void CompoundNode::initialize(GenContext& context, const ShaderGenerator& shader
     }
 
     _functionName = graph->getName();
+    shadergen.getSyntax()->makeValidName(_functionName);
 
     // For compounds we do not want to publish all internal inputs
     // so always use the reduced interface for this graph.

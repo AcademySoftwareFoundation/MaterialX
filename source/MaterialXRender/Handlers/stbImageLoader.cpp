@@ -1,4 +1,4 @@
-#include <MaterialXRender/Window/HardwarePlatform.h>
+#include <MaterialXRender/HardwarePlatform.h>
 
 #if defined(OSWin_) || defined(_WIN32)
     #pragma warning( push )

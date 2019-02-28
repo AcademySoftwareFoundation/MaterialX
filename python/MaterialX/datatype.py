@@ -2,10 +2,7 @@ import sys
 
 from .PyMaterialXCore import *
 
-"""
-Native Python helper functions for MaterialX data types.
-"""
-
+# Native Python helper functions for MaterialX data types.
 
 #--------------------------------------------------------------------------------
 _nameToType = { 'integer'   : int,

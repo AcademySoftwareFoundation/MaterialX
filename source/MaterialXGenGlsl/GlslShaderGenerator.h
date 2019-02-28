@@ -42,7 +42,7 @@ Uniform variables :
     u_time                              float      The current time in seconds
     u_geomattr_<name>                   <type>     A named attribute of given <type> where <name> is the name of the variable on the geometry
     u_numActiveLightSources             int        The number of currently active light sources. Note that in shader this is clamped against
-                                                   the maximum allowed number of lights sources. The maximum number is set by calling 
+                                                   the maximum allowed number of lights sources. The maximum number is set by calling
                                                    HwShaderGenerator::setMaxActiveLightSources().
     u_lightData[]                       struct     Array of struct LightData holding parameters for active light sources.
                                                    The LightData struct is built dynamically depending on requirements for
@@ -71,7 +71,7 @@ class GlslShaderGenerator : public HwShaderGenerator
 
     static ShaderGeneratorPtr create() { return std::make_shared<GlslShaderGenerator>(); }
 
-    /// Generate a shader starting from the given element, translating 
+    /// Generate a shader starting from the given element, translating
     /// the element and all dependencies upstream into shader code.
     ShaderPtr generate(GenContext& context, const string& name, ElementPtr element) const override;
 
@@ -97,7 +97,7 @@ class GlslShaderGenerator : public HwShaderGenerator
     /// the shader generator.
     ValuePtr remapEnumeration(const ValueElementPtr& input, const InterfaceElement& mappingElement, const TypeDesc*& enumerationType) const override;
 
-    /// Given a input specification (name, value, type) attempt to remap a value to an enumeration 
+    /// Given a input specification (name, value, type) attempt to remap a value to an enumeration
     /// which is accepted by the shader generator.
     ValuePtr remapEnumeration(const string& inputName, const string& inputValue, const string& inputType, 
                               const InterfaceElement& mappingElement, const TypeDesc*& enumerationType) const override;
@@ -148,6 +148,8 @@ class GlslImplementation : public ShaderNodeImpl
 
     /// Internal string constants
     static const string SPACE;
+    static const string TO_SPACE;
+    static const string FROM_SPACE;
     static const string WORLD;
     static const string OBJECT;
     static const string MODEL;

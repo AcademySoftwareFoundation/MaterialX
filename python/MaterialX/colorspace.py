@@ -2,14 +2,12 @@ import os
 
 from .PyMaterialXCore import *
 
-"""
-Native Python wrappers for PyMaterialX and PyOpenColorIO, providing helper
-functions for transforming MaterialX colors between OpenColorIO color spaces.
-
-By default, the OpenColorIO configuration packaged with MaterialX Python will
-be used, but clients may instead pass their own custom configurations to these
-methods.
-"""
+# Native Python wrappers for PyMaterialX and PyOpenColorIO, providing helper
+# functions for transforming MaterialX colors between OpenColorIO color spaces.
+#
+# By default, the OpenColorIO configuration packaged with MaterialX Python will
+# be used, but clients may instead pass their own custom configurations to these
+# methods.
 
 
 #--------------------------------------------------------------------------------

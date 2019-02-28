@@ -33,19 +33,23 @@ namespace
         {
             Type::VECTOR2,
             {
-                { Type::COLOR2, std::string("xy") }
+                { Type::COLOR2, std::string("xy") },
+                { Type::VECTOR3, std::string("xy0") }
             }
         },
         {
             Type::VECTOR3,
             {
-                { Type::COLOR3, std::string("xyz") }
+                { Type::COLOR3, std::string("xyz") },
+                { Type::VECTOR4, std::string("xyz1") },
+                { Type::VECTOR2, std::string("xy") }
             }
         },
         {
             Type::VECTOR4,
             {
-                { Type::COLOR4, std::string("xyzw") }
+                { Type::COLOR4, std::string("xyzw") },
+                { Type::VECTOR3, std::string("xyz") }
             }
         },
         {
@@ -56,7 +60,7 @@ namespace
                 { Type::COLOR4, std::string("rrrr") },
                 { Type::VECTOR2, std::string("rr") },
                 { Type::VECTOR3, std::string("rrr") },
-                { Type::VECTOR4, std::string("rrrr") },
+                { Type::VECTOR4, std::string("rrrr") }
             }
         }
     });

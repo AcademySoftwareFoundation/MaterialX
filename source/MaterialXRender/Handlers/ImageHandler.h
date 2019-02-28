@@ -10,6 +10,8 @@
 #include <map>
 #include <array>
 
+#include <MaterialXFormat/File.h>
+
 namespace MaterialX
 {
 /// @class @ImageDesc
@@ -152,7 +154,7 @@ class ImageHandler
     /// @param fallbackColor Color of fallback image to use if failed to load.  If null is specified then
     /// no fallback image will be acquired.
     /// @return if load succeeded in loading image or created fallback image.
-    virtual bool acquireImage(const std::string& fileName, ImageDesc& desc, bool generateMipMaps, const std::array<float, 4>* fallbackColor);
+    virtual bool acquireImage(const FilePath& fileName, ImageDesc& desc, bool generateMipMaps, const std::array<float, 4>* fallbackColor);
 
     /// Utility to create a solid color color image 
     /// @param color Color to set
@@ -174,6 +176,18 @@ class ImageHandler
     virtual void clearImageCache()
     {
         _imageCache.clear();
+    }
+
+    /// Set to the search path used for finding image files.
+    void setSearchPath(const FileSearchPath& path);
+
+    /// Resolve a filename using the registered search paths.
+    FilePath findFile(const FilePath& filename);
+
+    /// Get the image search path
+    const FileSearchPath& searchPath()
+    {
+        return _searchPath;
     }
 
   protected:
@@ -207,6 +221,9 @@ class ImageHandler
     ImageLoaderMap _imageLoaders;
     /// Image description cache
     ImageDescCache _imageCache;
+
+    /// Filename search path
+    FileSearchPath _searchPath;
 };
 
 } // namespace MaterialX

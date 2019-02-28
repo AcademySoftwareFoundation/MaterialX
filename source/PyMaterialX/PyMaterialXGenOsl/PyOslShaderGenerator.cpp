@@ -16,6 +16,8 @@ namespace mx = MaterialX;
 class PyOslShaderGenerator : public mx::OslShaderGenerator
 {
   public:
+    using OslShaderGenerator::OslShaderGenerator;
+
     PyOslShaderGenerator() :
         mx::OslShaderGenerator()
     {
@@ -37,7 +39,7 @@ class PyOslShaderGenerator : public mx::OslShaderGenerator
     {
         PYBIND11_OVERLOAD_PURE(
             const std::string&,
-            mx::ShaderGenerator,
+            mx::OslShaderGenerator,
             getTarget
         );
     }
@@ -55,6 +57,7 @@ class PyOslShaderGenerator : public mx::OslShaderGenerator
 void bindPyOslShaderGenerator(py::module& mod)
 {
     py::class_<mx::OslShaderGenerator, mx::ShaderGenerator, PyOslShaderGenerator, mx::OslShaderGeneratorPtr>(mod, "OslShaderGenerator")
+        .def_static("create", &mx::OslShaderGenerator::create)
         .def(py::init([](){ return new PyOslShaderGenerator(); }))
         .def("generate", &mx::OslShaderGenerator::generate)
         .def("getLanguage", &mx::OslShaderGenerator::getLanguage);

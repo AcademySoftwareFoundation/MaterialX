@@ -196,6 +196,10 @@ class ShaderNode
         static const unsigned int COLOR_SPACE_TRANSFORM = 1 << 19; // Performs color space transformation
 
         static const unsigned int DO_NOT_OPTIMIZE = 1 << 20; // Flag that this should not be optimized
+
+        static const unsigned int TRANSFORM_POINT = 1 << 21; // A transform point node
+        static const unsigned int TRANSFORM_VECTOR = 1 << 22; // A transform vector node
+        static const unsigned int TRANSFORM_NORMAL = 1 << 23; // A transform normal node
     };
 
     /// Information on source code scope for the node.
@@ -232,6 +236,9 @@ class ShaderNode
     static const string SWITCH;
     static const string BSDF_R;
     static const string BSDF_T;
+    static const string TRANSFORM_POINT;
+    static const string TRANSFORM_VECTOR;
+    static const string TRANSFORM_NORMAL;
 
   public:
     /// Constructor.

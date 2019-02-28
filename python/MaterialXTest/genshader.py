@@ -5,10 +5,10 @@ import MaterialX as mx
 from MaterialX.PyMaterialXGenShader import *
 
 try:
-    from MaterialX.PyMaterialXGenOsl import ArnoldShaderGenerator
-    ARNOLD_SHADER_GENERATOR_EXISTS = True
+    from MaterialX.PyMaterialXGenOsl import OslShaderGenerator
+    OSL_SHADER_GENERATOR_EXISTS = True
 except ImportError:
-   ARNOLD_SHADER_GENERATOR_EXISTS = False
+   OSL_SHADER_GENERATOR_EXISTS = False
 
 _fileDir = os.path.dirname(os.path.abspath(__file__))
 
@@ -80,8 +80,8 @@ class TestGenShader(unittest.TestCase):
 
         options = GenOptions()
 
-        if ARNOLD_SHADER_GENERATOR_EXISTS:
-            shadergen = ArnoldShaderGenerator.create()
+        if OSL_SHADER_GENERATOR_EXISTS:
+            shadergen = OslShaderGenerator.create()
             # Add path to find all source code snippets
             shadergen.registerSourceCodeSearchPath(mx.FilePath(searchPath))
             # Add path to find OSL include files
@@ -103,6 +103,7 @@ class TestGenShader(unittest.TestCase):
             file = open(shader.getName() + "_complete.osl", "w+")
             file.write(shader.getSourceCode(Shader.PIXEL_STAGE))
             file.close()
+            os.remove(shader.getName() + "_complete.osl");
 
             # Test reduced mode
             options.shaderInterfaceType = ShaderInterfaceType.SHADER_INTERFACE_REDUCED;
@@ -120,6 +121,7 @@ class TestGenShader(unittest.TestCase):
             file = open(shader.getName() + "_reduced.osl", "w+")
             file.write(shader.getSourceCode(Shader.PIXEL_STAGE))
             file.close()
+            os.remove(shader.getName() + "_reduced.osl");
 
 if __name__ == '__main__':
     unittest.main()
