@@ -12,15 +12,27 @@
 namespace MaterialX
 {
 
-using GenUserDataPtr = std::shared_ptr<class GenUserData>;
+class GenContext;
+class GenUserData;
 
+using GenContextPtr = std::shared_ptr<GenContext>;
+using GenUserDataPtr = std::shared_ptr<GenUserData>;
+using ConstGenUserDataPtr = std::shared_ptr<const GenUserData>;
+
+/// Base class for custom user data needed during shader generation.
 class GenUserData : public std::enable_shared_from_this<GenUserData>
 {
   public:
     virtual ~GenUserData() {}
     
-    /// Return a shaderd pointer for this object.
+    /// Return a shared pointer for this object.
     GenUserDataPtr getSelf()
+    {
+        return shared_from_this();
+    }
+
+    /// Return a shared pointer for this object.
+    ConstGenUserDataPtr getSelf() const
     {
         return shared_from_this();
     }
@@ -40,8 +52,6 @@ class GenUserData : public std::enable_shared_from_this<GenUserData>
   protected:
     GenUserData() {}
 };
-
-using GenContextPtr = std::shared_ptr<class GenContext>;
 
 /// A context class for shader generation.
 /// Used for thread local storage of data needed during shader generation.
