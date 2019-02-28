@@ -68,17 +68,6 @@ class ColorManagementSystem
     ShaderNodePtr createNode(const ShaderGraph* parent, const ColorSpaceTransform& transform, const string& name,
                              const ShaderGenerator& shadergen, GenContext& context) const;
 
-    /// Return a cached implementation if used during shader generation
-    const ShaderNodeImplPtr getCachedImplementation(const string& name) const
-    {
-        auto it = _cachedImpls.find(name);
-        if (it != _cachedImpls.end())
-        {
-            return it->second;
-        }
-        return nullptr;
-    }
-
   protected:
     /// Protected constructor
     ColorManagementSystem(const string& configFile);
@@ -90,7 +79,6 @@ class ColorManagementSystem
     void registerImplementation(const ColorSpaceTransform& transform, CreatorFunction<ShaderNodeImpl> creator);
 
     Factory<ShaderNodeImpl> _implFactory;
-    std::unordered_map<string, ShaderNodeImplPtr> _cachedImpls;
     vector<string> _registeredImplNames;
     string _configFile;
     DocumentPtr _document;

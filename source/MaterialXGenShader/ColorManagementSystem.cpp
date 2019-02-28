@@ -35,7 +35,6 @@ void  ColorManagementSystem::setConfigFile(const string& configFile)
     _configFile = configFile;
     _implFactory.unregisterClasses(_registeredImplNames);
     _registeredImplNames.clear();
-    _cachedImpls.clear();
 }
 
 void ColorManagementSystem::loadLibrary(DocumentPtr document)
@@ -43,7 +42,6 @@ void ColorManagementSystem::loadLibrary(DocumentPtr document)
     _document = document;
     _implFactory.unregisterClasses(_registeredImplNames);
     _registeredImplNames.clear();
-    _cachedImpls.clear();
 }
 
 bool ColorManagementSystem::supportsTransform(const ColorSpaceTransform& transform) const
