@@ -5,12 +5,17 @@
 namespace MaterialX
 {
 
-namespace
+ShaderNodeImplPtr ConvertNode::create()
+{
+    return std::make_shared<ConvertNode>();
+}
+
+void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     using ConvertTable = std::unordered_map<const TypeDesc*, std::unordered_map<const TypeDesc*, std::string> >;
 
     static const ConvertTable CONVERT_TABLE({
-        { 
+        {
             Type::COLOR2,
             {
                 { Type::VECTOR2, std::string("ra") }
@@ -66,15 +71,7 @@ namespace
     });
 
     static const string IN_STRING("in");
-}
 
-ShaderNodeImplPtr ConvertNode::create()
-{
-    return std::make_shared<ConvertNode>();
-}
-
-void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
-{
     BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 

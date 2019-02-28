@@ -97,7 +97,7 @@ install(TARGETS MaterialXRenderGlsl
 )
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXRenderGlsl/
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXRenderGlsl/ MESSAGE_NEVER
     FILES_MATCHING PATTERN "*.h*")
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXRenderGlsl.pdb"
