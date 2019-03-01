@@ -5,6 +5,7 @@
 
 #include <MaterialXTest/Catch/catch.hpp>
 
+#include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/File.h>
 #include <MaterialXFormat/XmlIo.h>
 
@@ -188,6 +189,13 @@ TEST_CASE("Load content", "[xmlio]")
     readOptions.readXIncludeFunction = nullptr;
     mx::readFromXmlFile(flatDoc, filename, searchPath, &readOptions);
     REQUIRE(*flatDoc != *doc);
+
+    // Read document using environment search path.
+    mx::setEnviron(mx::MATERIALX_SEARCH_PATH_ENV_VAR, searchPath);
+    mx::DocumentPtr envDoc = mx::createDocument();
+    mx::readFromXmlFile(envDoc, filename);
+    REQUIRE(envDoc->validate());
+    mx::removeEnviron(mx::MATERIALX_SEARCH_PATH_ENV_VAR);
 
     // Serialize to XML with a custom predicate that skips images.
     auto skipImages = [](mx::ElementPtr elem)
