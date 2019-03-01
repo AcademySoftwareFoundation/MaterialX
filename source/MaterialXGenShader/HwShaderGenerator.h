@@ -158,14 +158,14 @@ public:
     virtual void emitEdfNodes(const ShaderGraph& graph, const ShaderNode& shaderNode, HwClosureContextPtr ccx,
                               GenContext& context, ShaderStage& stage, string& edf) const;
 
+    /// Return the closure contexts defined for the given node.
+    void getNodeClosureContexts(const ShaderNode& node, vector<HwClosureContextPtr>& ccx) const;
+
     /// Bind a light shader to a light type id, for usage in surface shaders created 
     /// by the generator. The lightTypeId should be a unique identifier for the light 
     /// type (node definition) and the same id should be used when setting light parameters on a 
     /// generated surface shader.
-    void bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, GenContext& context) const;
-
-    /// Return the closure contexts defined for the given node.
-    void getNodeClosureContexts(const ShaderNode& node, vector<HwClosureContextPtr>& ccx) const;
+    static void bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, GenContext& context);
 
 protected:
     HwShaderGenerator(SyntaxPtr syntax);

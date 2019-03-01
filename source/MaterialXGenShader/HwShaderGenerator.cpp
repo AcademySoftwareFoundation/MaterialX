@@ -317,7 +317,7 @@ void HwShaderGenerator::emitEdfNodes(const ShaderGraph& graph, const ShaderNode&
     context.popUserData(HW::USER_DATA_CLOSURE_CONTEXT);
 }
 
-void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, GenContext& context) const
+void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, GenContext& context)
 {
     if (TypeDesc::get(nodeDef.getType()) != Type::LIGHTSHADER)
     {

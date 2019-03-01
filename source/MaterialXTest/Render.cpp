@@ -50,8 +50,6 @@ namespace mx = MaterialX;
 void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::GenContext& context,
                     const mx::FilePath& envIrradiancePath, const mx::FilePath& envRadiancePath)
 {
-    const mx::HwShaderGenerator& shadergen = static_cast<const mx::HwShaderGenerator&>(context.getShaderGenerator());
-
     // Scan for lights
     std::vector<mx::NodePtr> lights;
     for (mx::NodePtr node : doc->getNodes())
@@ -76,7 +74,7 @@ void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::G
             mx::NodeDefPtr nodeDef = doc->getNodeDef(id.first);
             if (nodeDef)
             {
-                shadergen.bindLightShader(*nodeDef, id.second, context);
+                mx::HwShaderGenerator::bindLightShader(*nodeDef, id.second, context);
             }
         }
     }

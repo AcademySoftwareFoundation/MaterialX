@@ -74,8 +74,6 @@ void registerLightType(mx::DocumentPtr doc, mx::GenContext& context)
     }
     if (!lights.empty())
     {
-        const mx::HwShaderGenerator& shadergen = static_cast<const mx::HwShaderGenerator&>(context.getShaderGenerator());
-
         // Create a list of unique nodedefs and ids for them
         std::unordered_map<std::string, unsigned int> identifiers;
         mx::mapNodeDefToIdentiers(lights, identifiers);
@@ -84,7 +82,7 @@ void registerLightType(mx::DocumentPtr doc, mx::GenContext& context)
             mx::NodeDefPtr nodeDef = doc->getNodeDef(id.first);
             if (nodeDef)
             {
-                shadergen.bindLightShader(*nodeDef, id.second, context);
+                mx::HwShaderGenerator::bindLightShader(*nodeDef, id.second, context);
             }
         }
     }
