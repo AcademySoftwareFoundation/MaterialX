@@ -39,7 +39,7 @@ string getEnviron(const string& name)
 bool setEnviron(const string& name, const string& value)
 {
 #if defined(_WIN32)
-    return setEnvironmentVariable(name.c_str(), value.c_str()) != 0;
+    return SetEnvironmentVariable(name.c_str(), value.c_str()) != 0;
 #else
     return setenv(name.c_str(), value.c_str(), true);
 #endif
