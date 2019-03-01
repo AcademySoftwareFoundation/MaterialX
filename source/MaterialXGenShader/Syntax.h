@@ -80,8 +80,8 @@ public:
     const StringMap& getInvalidTokens() const { return _invalidTokens; }
 
     /// Returns a type qualifier to be used when declaring types for output variables.
-/// Default implementation returns empty string and derived syntax classes should
-/// override this method.
+    /// Default implementation returns empty string and derived syntax classes should
+    /// override this method.
     virtual const string& getInputQualifier() const { return EMPTY_STRING; };
 
     /// Returns a type qualifier to be used when declaring types for output variables.
