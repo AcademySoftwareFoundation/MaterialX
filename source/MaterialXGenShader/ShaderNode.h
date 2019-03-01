@@ -349,8 +349,8 @@ class ShaderNode
     }
 
   protected:
-    string _name;
     const ShaderGraph* _parent;
+    string _name;
     unsigned int _classification;
 
     std::unordered_map<string, ShaderInputPtr> _inputMap;
