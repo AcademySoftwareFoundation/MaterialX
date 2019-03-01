@@ -108,9 +108,13 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
                     string variableName = node.getName() + "_" + input->getName() + "_tmp";
                     if (!variableNames.count(variableName))
                     {
-                        ShaderPort newVariable(nullptr, input->getType(), variableName, input->getValue());
+                        ShaderPort v(nullptr, input->getType(), variableName, input->getValue());
                         shadergen.emitLineBegin(stage);
-                        shadergen.emitVariableDeclaration(&newVariable, shadergen.getSyntax().getConstantQualifier(), context, stage, true);
+                        const Syntax& syntax = shadergen.getSyntax();
+                        const string valueStr = (v.getValue() ? syntax.getValue(v.getType(), *v.getValue()) : syntax.getDefaultValue(v.getType()));
+                        string str = syntax.getConstantQualifier() + " " + syntax.getTypeName(v.getType()) + " " + v.getVariable();
+                        str += valueStr.empty() ? EMPTY_STRING : " = " + valueStr;
+                        shadergen.emitString(str, stage);
                         shadergen.emitLineEnd(stage);
                         variableNames.insert(variableName);
                     }

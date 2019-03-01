@@ -114,25 +114,19 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
 
     // Add vertex inputs block
     const VariableBlock& vertexInputs = vs.getInputBlock(HW::VERTEX_INPUTS);
-    if (!vertexInputs.empty())
-    {
-        emitLine("attribute " + vertexInputs.getName(), fx, false);
-        emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
-        emitVariableDeclarations(vertexInputs, EMPTY_STRING, SEMICOLON, context, fx, false);
-        emitScopeEnd(fx, true);
-        emitLineBreak(fx);
-    }
+    emitLine("attribute " + vertexInputs.getName(), fx, false);
+    emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
+    emitVariableDeclarations(vertexInputs, EMPTY_STRING, SEMICOLON, context, fx, false);
+    emitScopeEnd(fx, true);
+    emitLineBreak(fx);
 
     // Add vertex data outputs block
     const VariableBlock& vertexData = vs.getOutputBlock(HW::VERTEX_DATA);
-    if (!vertexData.empty())
-    {
-        emitLine("attribute " + vertexData.getName(), fx, false);
-        emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
-        emitVariableDeclarations(vertexData, EMPTY_STRING, SEMICOLON, context, fx, false);
-        emitScopeEnd(fx, true);
-        emitLineBreak(fx);
-    }
+    emitLine("attribute " + vertexData.getName(), fx, false);
+    emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
+    emitVariableDeclarations(vertexData, EMPTY_STRING, SEMICOLON, context, fx, false);
+    emitScopeEnd(fx, true);
+    emitLineBreak(fx);
 
     // Add the pixel shader output. This needs to be a vec4 for rendering
     // and upstream connection will be converted to vec4 below if needed.
@@ -245,7 +239,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
     emitLine("pass p0", fx, false);
     emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
-    emitLine("VertexShader(in AppData, out VertexData vd) = { VS }", fx);
+    emitLine("VertexShader(in VertexInputs, out VertexData vd) = { VS }", fx);
     emitLine(lighting ?
         "PixelShader(in VertexData vd, out PixelOutput) = { LightingFunctions, PS }" :
         "PixelShader(in VertexData vd, out PixelOutput) = { PS }", fx);
@@ -278,6 +272,7 @@ void OgsFxShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext&
     emitLine("vec4 hPositionWorld = u_worldMatrix * vec4(i_position, 1.0)", stage);
     emitLine("gl_Position = u_viewProjectionMatrix * hPositionWorld", stage);
     emitFunctionCalls(graph, context, stage);
+    emitScopeEnd(stage);
     emitScopeEnd(stage);
     emitLineBreak(stage);
 }
@@ -428,7 +423,7 @@ void OgsFxShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, c
     // A file texture input needs special handling on GLSL
     if (variable->getType() == Type::FILENAME)
     {
-        string str = "uniform texture2D " + variable->getVariable() + "_texture : SourceTexture\n" \
+        string str = "uniform texture2D " + variable->getVariable() + "_texture : SourceTexture;\n" \
                      "uniform sampler2D " + variable->getVariable() + " = sampler_state\n"         \
                      "{\n    Texture = <" + variable->getVariable() + "_texture>;\n}";
         emitString(str, stage);
