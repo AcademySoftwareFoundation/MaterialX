@@ -26,6 +26,8 @@ string getEnviron(const string& name)
         GetEnvironmentVariable(name.c_str(), buffer.get(), size);
         return string(buffer.get());
     }
+
+    return EMPTY_STRING;
 #else
     if (const char* const result = getenv(name.c_str()))
     {
