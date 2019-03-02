@@ -5,6 +5,8 @@
 
 #include <MaterialXFormat/File.h>
 
+#include <MaterialXFormat/Environ.h>
+
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -149,13 +151,7 @@ FilePath FilePath::getCurrentPath()
 
 FileSearchPath getEnvironmentPath(const string& sep)
 {
-    const char* searchPathEnv = std::getenv(MATERIALX_SEARCH_PATH_ENV_VAR.c_str());
-
-    if (!searchPathEnv)
-    {
-        searchPathEnv = "";
-    }
-
+    string searchPathEnv = getEnviron(MATERIALX_SEARCH_PATH_ENV_VAR);
     return FileSearchPath(searchPathEnv, sep);
 }
 
