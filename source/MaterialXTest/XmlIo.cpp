@@ -194,8 +194,9 @@ TEST_CASE("Load content", "[xmlio]")
     mx::setEnviron(mx::MATERIALX_SEARCH_PATH_ENV_VAR, searchPath);
     mx::DocumentPtr envDoc = mx::createDocument();
     mx::readFromXmlFile(envDoc, filename);
-    REQUIRE(envDoc->validate());
+    REQUIRE(*envDoc == *doc);
     mx::removeEnviron(mx::MATERIALX_SEARCH_PATH_ENV_VAR);
+    REQUIRE_THROWS_AS(mx::readFromXmlFile(envDoc, filename), mx::ExceptionFileMissing&);
 
     // Serialize to XML with a custom predicate that skips images.
     auto skipImages = [](mx::ElementPtr elem)

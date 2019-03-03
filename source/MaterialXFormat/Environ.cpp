@@ -5,10 +5,10 @@
 
 #include <MaterialXFormat/Environ.h>
 
-#include <MaterialXCore/Library.h>
 #include <MaterialXCore/Util.h>
 
 #if defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
 
@@ -18,13 +18,12 @@ namespace MaterialX
 string getEnviron(const string& name)
 {
 #if defined(_WIN32)
-    DWORD size = GetEnvironmentVariable(name.c_str(), nullptr, 0);
-
-    if (size != 0 && size != ERROR_ENVVAR_NOT_FOUND) 
+    uint32_t size = GetEnvironmentVariable(name.c_str(), nullptr, 0);
+    if (size)
     {
-        std::unique_ptr<char[]> buffer(new char[size]);
-        GetEnvironmentVariable(name.c_str(), buffer.get(), size);
-        return string(buffer.get());
+        vector<char> buffer(size);
+        GetEnvironmentVariable(name.c_str(), buffer.data(), size);
+        return string(buffer.data());
     }
 #else
     if (const char* const result = getenv(name.c_str()))
