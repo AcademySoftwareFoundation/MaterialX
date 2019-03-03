@@ -25,4 +25,4 @@ bool removeEnviron(const string& name);
 
 } // namespace MaterialX
 
-#endif
+#endif // MATERIALX_ENVIRON_H
