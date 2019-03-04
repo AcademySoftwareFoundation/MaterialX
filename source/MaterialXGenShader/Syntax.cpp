@@ -7,6 +7,14 @@
 namespace MaterialX
 {
 
+const string Syntax::NEWLINE = "\n";
+const string Syntax::INDENTATION = "    ";
+const string Syntax::STRING_QUOTE = "\"";
+const string Syntax::INCLUDE_STATEMENT = "#include";
+const string Syntax::SINGLE_LINE_COMMENT = "// ";
+const string Syntax::BEGIN_MULTI_LINE_COMMENT = "/* ";
+const string Syntax::END_MULTI_LINE_COMMENT = " */";
+
 Syntax::Syntax()
 {
 }

@@ -98,6 +98,27 @@ public:
     /// override this method.
     virtual const string& getUniformQualifier() const { return EMPTY_STRING; };
 
+    /// Return the characters used for a newline.
+    virtual const string& getNewline() const { return NEWLINE; };
+
+    /// Return the characters used for a single indentation level.
+    virtual const string& getIndentation() const { return INDENTATION; };
+
+    /// Return the characters used to begin/end a string definition.
+    virtual const string& getStringQuote() const { return STRING_QUOTE; };
+
+    /// Return the string pattern used for a file include statement.
+    virtual const string& getIncludeStatement() const { return INCLUDE_STATEMENT; };
+
+    /// Return the characters used for single line comment.
+    virtual const string& getSingleLineComment() const { return SINGLE_LINE_COMMENT; };
+
+    /// Return the characters used to begin a multi line comments block.
+    virtual const string& getBeginMultiLineComment() const { return BEGIN_MULTI_LINE_COMMENT; };
+
+    /// Return the characters used to end a multi line comments block.
+    virtual const string& getEndMultiLineComment() const { return END_MULTI_LINE_COMMENT; };
+
     /// Return the array suffix to use for declaring an array variable.
     virtual string getArraySuffix(const TypeDesc* type, const Value& value) const;
 
@@ -126,6 +147,14 @@ private:
 
     StringSet _restrictedNames;
     StringMap _invalidTokens;
+
+    static const string NEWLINE;
+    static const string INDENTATION;
+    static const string STRING_QUOTE;
+    static const string INCLUDE_STATEMENT;
+    static const string SINGLE_LINE_COMMENT;
+    static const string BEGIN_MULTI_LINE_COMMENT;
+    static const string END_MULTI_LINE_COMMENT;
 };
 
 /// Base class for syntax handling of types.

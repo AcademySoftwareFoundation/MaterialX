@@ -168,15 +168,15 @@ void ShaderStage::beginScope(ShaderStage::Brackets brackets)
     switch (brackets) {
     case Brackets::BRACES:
         beginLine();
-        _code += "{\n";
+        _code += "{" + _syntax->getNewline();
         break;
     case Brackets::PARENTHESES:
         beginLine();
-        _code += "(\n";
+        _code += "(" + _syntax->getNewline();
         break;
     case Brackets::SQUARES:
         beginLine();
-        _code += "[\n";
+        _code += "[" + _syntax->getNewline();
         break;
     case Brackets::NONE:
         break;
@@ -216,17 +216,14 @@ void ShaderStage::endScope(bool semicolon, bool newline)
     if (semicolon)
         _code += ";";
     if (newline)
-        _code += "\n";
+        _code += _syntax->getNewline();
 }
 
 void ShaderStage::beginLine()
 {
-    // TODO: Call syntax class to get indentation string
-    // Use 4 spaces as default indentation
-    static const string& INDENTATION = "    ";
     for (int i = 0; i < _indentations; ++i)
     {
-        _code += INDENTATION;
+        _code += _syntax->getIndentation();
     }
 }
 
@@ -241,7 +238,7 @@ void ShaderStage::endLine(bool semicolon)
 
 void ShaderStage::newLine()
 {
-    _code += "\n";
+    _code += _syntax->getNewline();
 }
 
 void ShaderStage::addString(const string& str)
@@ -259,25 +256,25 @@ void ShaderStage::addLine(const string& str, bool semicolon)
 void ShaderStage::addComment(const string& str)
 {
     beginLine();
-    _code += "// " + str;
+    _code += _syntax->getSingleLineComment() + str;
     endLine(false);
 }
 
 void ShaderStage::addBlock(const string& str, GenContext& context)
 {
-    static const string INCLUDE_PATTERN = "#include";
-    static const string QUOTATION_MARK = "\"";
+    const string& INCLUDE = _syntax->getIncludeStatement();
+    const string& QUOTE   = _syntax->getStringQuote();
 
     // Add each line in the block seperatelly
     // to get correct indentation
     std::stringstream stream(str);
     for (string line; std::getline(stream, line); )
     {
-        size_t pos = line.find(INCLUDE_PATTERN);
+        size_t pos = line.find(INCLUDE);
         if (pos != string::npos)
         {
-            size_t startQuote = line.find_first_of(QUOTATION_MARK);
-            size_t endQuote = line.find_last_of(QUOTATION_MARK);
+            size_t startQuote = line.find_first_of(QUOTE);
+            size_t endQuote = line.find_last_of(QUOTE);
             if (startQuote != string::npos && endQuote != string::npos)
             {
                 size_t length = (endQuote - startQuote) - 1;

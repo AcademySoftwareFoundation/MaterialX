@@ -1116,14 +1116,11 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
 
 void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidTestOptions& options,
     std::set<std::string>& usedImpls, std::ostream& profilingLog, mx::DocumentPtr dependLib
-#ifdef MATERIALX_BUILD_GEN_OSL
+#ifdef MATERIALX_BUILD_RENDEROSL
     , mx::GenContext& oslContext
 #endif
-#ifdef MATERIALX_BUILD_GEN_GLSL
+#ifdef MATERIALX_BUILD_RENDERGLSL
     , mx::GenContext& glslContext
-#endif
-#ifdef MATERIALX_BUILD_GEN_OGSFX
-    , mx::GenContext& /*ogsfxContext*/
 #endif
 )
 {
@@ -1591,14 +1588,11 @@ TEST_CASE("Render validation of test suite", "[render]")
     // Dump out profiling information
     totalTime.endTimer();
     printRunLog(profileTimes, options, usedImpls, profilingLog, dependLib
-#ifdef MATERIALX_BUILD_GEN_OSL
+#ifdef MATERIALX_BUILD_RENDEROSL
         , oslContext
 #endif
-#ifdef MATERIALX_BUILD_GEN_GLSL
+#ifdef MATERIALX_BUILD_RENDERGLSL
         , glslContext
-#endif
-#ifdef MATERIALX_BUILD_GEN_OGSFX
-        , ogsfxContext
 #endif
     );
 }

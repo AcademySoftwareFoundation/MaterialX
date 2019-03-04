@@ -16,7 +16,7 @@ void NormalNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Shader
     addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, "i_normal", vs);
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
-        const int space = spaceInput ? spaceInput->getValue()->asA<int>() : -1;
+    const int space = spaceInput ? spaceInput->getValue()->asA<int>() : -1;
     if (space == WORLD_SPACE)
     {
         addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix", vs);
