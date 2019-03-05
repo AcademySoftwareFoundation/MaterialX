@@ -6,11 +6,11 @@
 #if defined(OSWin_) || defined(OSLinux_) || defined(OSMac_)
 
 #include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/GenShaderUtil.h>
 
 #include <MaterialXCore/Document.h>
-#include <MaterialXFormat/XmlIo.h>
 
-#include <MaterialXTest/GenShaderUtil.h>
+#include <MaterialXFormat/XmlIo.h>
 
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
