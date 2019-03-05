@@ -243,55 +243,6 @@
   </nodedef>
 
   <!--
-    Node: <standard_surface>
-  -->
-  <nodedef name="ND_standard_surface_surfaceshader" node="standard_surface" type="surfaceshader" nodegroup="pbr"
-           doc="A surface uber shader based on the Arnold standard surface shader">
-      <input name="base" type="float" value="0.8" uiname="Base" uifolder="Base"/>
-      <input name="base_color" type="color3" value="1, 1, 1" uiname="Base Color"  uifolder="Base"/>
-      <input name="diffuse_roughness" type="float" value="0" uiname="Diffuse Roughness"  uifolder="Diffuse"/>
-      <input name="specular" type="float" value="1" uiname="Specular" uifolder="Specular"/>
-      <input name="specular_color" type="color3" value="1, 1, 1" uiname="Specular Color" uifolder="Specular"/>
-      <input name="specular_roughness" type="float" value="0.1" uiname="Specular Roughness" uifolder="Specular"/>
-      <input name="specular_IOR" type="float" value="1.52" uiname="Index of Refraction" uifolder="Specular"/>
-      <input name="specular_anisotropy" type="float" value="0" uiname="Specular Anisotropy" uifolder="Specular"/>
-      <input name="specular_rotation" type="float" value="0" uiname="Specular Rotation" uifolder="Specular"/>
-      <input name="metalness" type="float" value="0" uiname="Metalness" uifolder="Specular"/>
-      <input name="transmission" type="float" value="0" uiname="Transmission" uifolder="Transmission"/>
-      <input name="transmission_color" type="color3" value="1, 1, 1" uiname="Transmission Color" uifolder="Transmission"/>
-      <input name="transmission_depth" type="float" value="0" uiname="Transmission Depth" uifolder="Transmission"/>
-      <input name="transmission_scatter" type="color3" value="0, 0, 0" uiname="Transmission Scatter" uifolder="Transmission"/>
-      <input name="transmission_scatter_anisotropy" type="float" value="0" uiname="Transmission Anisotropy" uifolder="Transmission"/>
-      <input name="transmission_dispersion" type="float" value="0" uiname="Transmission Dispersion" uifolder="Transmission"/>
-      <input name="transmission_extra_roughness" type="float" value="0" uiname="Transmission Roughness" uifolder="Transmission"/>
-      <input name="subsurface" type="float" value="0" uiname="Subsurface" uifolder="Subsurface"/>
-      <input name="subsurface_color" type="color3" value="1, 1, 1" uiname="Subsurface Color" uifolder="Subsurface"/>
-      <input name="subsurface_radius" type="color3" value="1, 1, 1" uiname="Subsurface Radius" uifolder="Subsurface"/>
-      <input name="subsurface_scale" type="float" value="1" uiname="Subsurface Scale" uifolder="Subsurface"/>
-      <input name="thin_walled" type="boolean" value="false" uiname="Thin Walled" uifolder="Geometry"/>
-      <input name="normal" type="vector3" defaultgeomprop="Nworld" uiname="Normal" uifolder="Geometry"/>
-      <input name="tangent" type="vector3"  defaultgeomprop="Tworld" uiname="Tangent Input" uifolder="Geometry"/>
-      <input name="coat" type="float" value="0" uiname="Coat" uifolder="Coat"/>
-      <input name="coat_color" type="color3" value="1, 1, 1" uiname="Coat Color" uifolder="Coat"/>
-      <input name="coat_roughness" type="float" value="0.1" uiname="Coat Roughness" uifolder="Coat"/>
-      <input name="coat_IOR" type="float" value="1.5" uiname="Coat Index of Refraction" uifolder="Coat"/>
-      <input name="coat_normal" type="vector3" defaultgeomprop="Nworld" uiname="Coat normal" uifolder="Geometry"/>
-      <input name="sheen" type="float" value="0" uiname="Sheen" uifolder="Sheen"/>
-      <input name="sheen_color" type="color3" value="1, 1, 1" uiname="Sheen Color" uifolder="Sheen"/>
-      <input name="sheen_roughness" type="float" value="0.3" uiname="Sheen Roughness" uifolder="Sheen"/>
-      <input name="thin_film_thickness" type="float" value="0" uiname="Thin Film Thickness" uifolder="Thin Film"/>
-      <input name="thin_film_IOR" type="float" value="1.5" uiname="Thin Film Index of Refraction" uifolder="Thin Film"/>
-      <input name="emission" type="float" value="0" uiname="Emission" uifolder="Emission"/>
-      <input name="emission_color" type="color3" value="1, 1, 1" uiname="Emission Color" uifolder="Emission"/>
-      <input name="opacity" type="color3" value="1, 1, 1" uiname="Opacity" uifolder="Geometry"/>
-      <input name="caustics" type="boolean" value="false" uiname="Caustics" uifolder="Advanced"/>
-      <input name="internal_reflections" type="boolean" value="true" uiname="Internal Reflections" uifolder="Advanced"/>
-      <input name="exit_to_background" type="boolean" value="false" uiname="Use Background" uifolder="Advanced"/>
-      <input name="indirect_diffuse" type="float" value="1" uiname="Indirect Diffuse" uifolder="Advanced"/>
-      <input name="indirect_specular" type="float" value="1" uiname="Indirect Specular" uifolder="Advanced"/>
-  </nodedef>
-
-  <!--
     Node: <backfacing>
   -->
   <nodedef name="ND_backfacing_boolean" node="backfacing" type="boolean" nodegroup="pbr"/>

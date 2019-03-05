@@ -1383,6 +1383,8 @@ TEST_CASE("Render validation of test suite", "[render]")
 
     const mx::StringVec libraries = { "stdlib", "pbrlib" };
     GenShaderUtil::loadLibraries(libraries, searchPath, dependLib, &excludeFiles);
+    GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("documents/Examples/BxDF/standard_surface.mtlx"), dependLib);
+
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
     if (options.lightFiles.size() == 0)
     {

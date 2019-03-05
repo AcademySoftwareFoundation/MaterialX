@@ -385,8 +385,13 @@ void ShaderGeneratorTester::addColorManagement()
 void ShaderGeneratorTester::setupDependentLibraries()
 {
     _dependLib = mx::createDocument();
+
+    // Load the standard libraries.
     const mx::StringVec libraries = { "stdlib", "pbrlib" };
     GenShaderUtil::loadLibraries(libraries, _searchPath, _dependLib, &_excludeLibraryFiles);
+
+    // Load the standard_surface definition since it's used in the test suite.
+    GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("documents/Examples/BxDF/standard_surface.mtlx"), _dependLib);
 }
 
 void ShaderGeneratorTester::setExcludeLibraryFiles()
