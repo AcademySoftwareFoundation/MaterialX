@@ -1,4 +1,4 @@
-void mx_mixsurface(surfaceshader in1, surfaceshader in2, float weight, output surfaceshader result)
+void mx_mix_surface(surfaceshader in1, surfaceshader in2, float weight, output surfaceshader result)
 {
     float w = clamp(weight, 0.0, 1.0);
     result = in1 * (1.0 - w) + in2 * w;

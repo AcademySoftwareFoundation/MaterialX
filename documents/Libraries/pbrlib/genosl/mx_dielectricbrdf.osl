@@ -1,6 +1,6 @@
 #include "pbrlib/genosl/lib/mx_fresnel.osl"
 
-void mx_dielectricbrdf(float weight, color reflectance, float ior, roughnessinfo roughness, normal N, vector U, string distribution, BSDF base, output BSDF result)
+void mx_dielectric_brdf(float weight, color reflectance, float ior, roughnessinfo roughness, normal N, vector U, string distribution, BSDF base, output BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {

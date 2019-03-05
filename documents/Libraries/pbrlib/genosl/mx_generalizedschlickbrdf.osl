@@ -1,6 +1,6 @@
 #include "pbrlib/genosl/lib/mx_fresnel.osl"
 
-void mx_generalizedschlickbrdf(float weight, color color0, color color90, float exponent, roughnessinfo roughness, normal N, vector U, string distribution, BSDF base, output BSDF result)
+void mx_generalized_schlick_brdf(float weight, color color0, color color90, float exponent, roughnessinfo roughness, normal N, vector U, string distribution, BSDF base, output BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {

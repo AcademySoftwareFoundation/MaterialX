@@ -1,7 +1,7 @@
 #include "pbrlib/genglsl/lib/mx_bsdfs.glsl"
 
 // Fake with simple diffuse reflection for now
-void mx_sheenbrdf_reflection(vec3 L, vec3 V, float weight, vec3 color, float roughness, vec3 normal, BSDF base, out BSDF result)
+void mx_sheen_brdf_reflection(vec3 L, vec3 V, float weight, vec3 color, float roughness, vec3 normal, BSDF base, out BSDF result)
 {
     float NdotL = dot(L, normal);
     if (NdotL <= 0.0 || weight < M_FLOAT_EPS)
@@ -18,7 +18,7 @@ void mx_sheenbrdf_reflection(vec3 L, vec3 V, float weight, vec3 color, float rou
 }
 
 // Fake with simple diffuse reflection for now
-void mx_sheenbrdf_indirect(vec3 V, float weight, vec3 color, float roughness, vec3 normal, BSDF base, out vec3 result)
+void mx_sheen_brdf_indirect(vec3 V, float weight, vec3 color, float roughness, vec3 normal, BSDF base, out vec3 result)
 {
     if (weight < M_FLOAT_EPS)
     {

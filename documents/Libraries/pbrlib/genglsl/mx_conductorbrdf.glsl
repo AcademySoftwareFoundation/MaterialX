@@ -1,7 +1,7 @@
 #include "pbrlib/genglsl/lib/mx_bsdfs.glsl"
 #include "pbrlib/genglsl/lib/mx_refractionindex.glsl"
 
-void mx_conductorbrdf_reflection(vec3 L, vec3 V, float weight, vec3 reflectivity, vec3 edgecolor, roughnessinfo roughness, vec3 N, vec3 X, int distribution, out BSDF result)
+void mx_conductor_brdf_reflection(vec3 L, vec3 V, float weight, vec3 reflectivity, vec3 edgecolor, roughnessinfo roughness, vec3 N, vec3 X, int distribution, out BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -36,7 +36,7 @@ void mx_conductorbrdf_reflection(vec3 L, vec3 V, float weight, vec3 reflectivity
     result = F * D * G / (4 * NdotV);
 }
 
-void mx_conductorbrdf_indirect(vec3 V, float weight, vec3 reflectivity, vec3 edgecolor, roughnessinfo roughness, vec3 N, vec3 X, int distribution, out vec3 result)
+void mx_conductor_brdf_indirect(vec3 V, float weight, vec3 reflectivity, vec3 edgecolor, roughnessinfo roughness, vec3 N, vec3 X, int distribution, out vec3 result)
 {
     if (weight < M_FLOAT_EPS)
     {

@@ -1,6 +1,6 @@
 #include "pbrlib/genglsl/lib/mx_bsdfs.glsl"
 
-void mx_dielectricbrdf_reflection(vec3 L, vec3 V, float weight, vec3 tint, float ior, roughnessinfo roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
+void mx_dielectric_brdf_reflection(vec3 L, vec3 V, float weight, vec3 tint, float ior, roughnessinfo roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -33,7 +33,7 @@ void mx_dielectricbrdf_reflection(vec3 L, vec3 V, float weight, vec3 tint, float
            + base * (1.0 - F);              // Base layer reflection attenuated by top fresnel
 }
 
-void mx_dielectricbrdf_transmission(vec3 V, float weight, vec3 tint, float ior, roughnessinfo roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
+void mx_dielectric_brdf_transmission(vec3 V, float weight, vec3 tint, float ior, roughnessinfo roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -53,7 +53,7 @@ void mx_dielectricbrdf_transmission(vec3 V, float weight, vec3 tint, float ior, 
     result = base * (1.0 - F); // Base layer transmission attenuated by top fresnel
 }
 
-void mx_dielectricbrdf_indirect(vec3 V, float weight, vec3 tint, float ior, roughnessinfo roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
+void mx_dielectric_brdf_indirect(vec3 V, float weight, vec3 tint, float ior, roughnessinfo roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {

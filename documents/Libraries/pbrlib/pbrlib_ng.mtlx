@@ -47,25 +47,25 @@
       <input name="anisotropy" type="float" interfacename="specular_anisotropy" />
     </roughness_anisotropy>
     <!-- Diffuse layer -->
-    <diffusebrdf name="Diffuse_BSDF" type="BSDF">
+    <diffuse_brdf name="Diffuse_BSDF" type="BSDF">
       <input name="weight" type="float" interfacename="base" />
       <input name="color" type="color3" interfacename="base_color" />
       <input name="roughness" type="float" interfacename="diffuse_roughness" />
       <input name="normal" type="vector3" interfacename="normal" />
-    </diffusebrdf>
+    </diffuse_brdf>
     <!-- SSS layer -->
-    <diffusebtdf name="SSS_BSDF" type="BSDF">
+    <diffuse_btdf name="SSS_BSDF" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="color" type="color3" interfacename="subsurface_color" />
       <input name="normal" type="vector3" interfacename="normal" />
-    </diffusebtdf>
-    <mixbsdf name="mixbsdf1" type="BSDF">
+    </diffuse_btdf>
+    <mix_bsdf name="mix_bsdf1" type="BSDF">
       <input name="in1" type="BSDF" nodename="Diffuse_BSDF" />
       <input name="in2" type="BSDF" nodename="SSS_BSDF" />
       <input name="weight" type="float" interfacename="subsurface" />
-    </mixbsdf>
+    </mix_bsdf>
     <!-- Transmission layer -->
-    <dielectricbtdf name="Transmission_BSDF" type="BSDF">
+    <dielectric_btdf name="Transmission_BSDF" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" interfacename="transmission_color" />
       <input name="ior" type="float" interfacename="specular_IOR" />
@@ -74,14 +74,14 @@
       <input name="tangent" type="vector3" interfacename="tangent" />
       <input name="distribution" type="string" value="ggx" />
       <input name="interior" type="VDF" value="" />
-    </dielectricbtdf>
-    <mixbsdf name="mixbsdf3" type="BSDF">
-      <input name="in1" type="BSDF" nodename="mixbsdf1" />
+    </dielectric_btdf>
+    <mix_bsdf name="mix_bsdf3" type="BSDF">
+      <input name="in1" type="BSDF" nodename="mix_bsdf1" />
       <input name="in2" type="BSDF" nodename="Transmission_BSDF" />
       <input name="weight" type="float" interfacename="transmission" />
-    </mixbsdf>
+    </mix_bsdf>
     <!-- Specular layer -->
-    <dielectricbrdf name="Specular_BSDF" type="BSDF">
+    <dielectric_brdf name="Specular_BSDF" type="BSDF">
       <input name="weight" type="float" interfacename="specular" />
       <input name="tint" type="color3" interfacename="specular_color" />
       <input name="ior" type="float" interfacename="specular_IOR" />
@@ -89,10 +89,10 @@
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" interfacename="tangent" />
       <input name="distribution" type="string" value="ggx" />
-      <input name="base" type="BSDF" nodename="mixbsdf3" />
-    </dielectricbrdf>
+      <input name="base" type="BSDF" nodename="mix_bsdf3" />
+    </dielectric_brdf>
     <!-- Metal layer -->
-    <conductorbrdf name="Metal_BSDF" type="BSDF">
+    <conductor_brdf name="Metal_BSDF" type="BSDF">
       <input name="weight" type="float" interfacename="base" />
       <input name="reflectivity" type="color3" interfacename="base_color"/>
       <input name="edgecolor" type="color3" interfacename="specular_color"/>
@@ -100,35 +100,35 @@
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" interfacename="tangent" />
       <input name="distribution" type="string" value="ggx" />
-    </conductorbrdf>
-    <mixbsdf name="mixbsdf2" type="BSDF">
+    </conductor_brdf>
+    <mix_bsdf name="mix_bsdf2" type="BSDF">
       <input name="in1" type="BSDF" nodename="Specular_BSDF" />
       <input name="in2" type="BSDF" nodename="Metal_BSDF" />
       <input name="weight" type="float" interfacename="metalness" />
-    </mixbsdf>
+    </mix_bsdf>
     <!-- Coat layer -->
     <mix name="coat_attenuation" type="color3" >
       <input name="fg" type="color3" interfacename="coat_color" />
       <input name="bg" type="color3" value="1.0, 1.0, 1.0" />
       <input name="mix" type="float" interfacename="coat" />
     </mix>
-    <scalebsdf name="scalebsdf1" type="BSDF">
-      <input name="in" type="BSDF" nodename="mixbsdf2" />
+    <scale_bsdf name="scale_bsdf1" type="BSDF">
+      <input name="in" type="BSDF" nodename="mix_bsdf2" />
       <input name="weight" type="color3" nodename="coat_attenuation" />
-    </scalebsdf>
+    </scale_bsdf>
     <roughness_anisotropy name="coat_roughness2" type="roughnessinfo">
       <input name="roughness" type="float" interfacename="coat_roughness" />
       <input name="anisotropy" type="float" value="0.0" />
     </roughness_anisotropy>
-    <dielectricbrdf name="Coat_BSDF" type="BSDF">
+    <dielectric_brdf name="Coat_BSDF" type="BSDF">
       <input name="weight" type="float" interfacename="coat" />
       <input name="tint" type="color3" value="1.0, 1.0, 1.0" />
       <input name="ior" type="float" interfacename="coat_IOR" />
       <input name="roughness" type="roughnessinfo" nodename="coat_roughness2" />
       <input name="normal" type="vector3" interfacename="coat_normal" />
       <input name="distribution" type="string" value="ggx" />
-      <input name="base" type="BSDF" nodename="scalebsdf1" />
-    </dielectricbrdf>
+      <input name="base" type="BSDF" nodename="scale_bsdf1" />
+    </dielectric_brdf>
     <!-- Emission -->
     <multiply name="multiply3" type="color3">
       <input name="in1" type="color3" interfacename="emission_color" />
@@ -138,9 +138,9 @@
       <input name="in1" type="color3" nodename="multiply3" />
       <input name="in2" type="color3" nodename="coat_attenuation" />
     </multiply>
-    <uniformedf name="Emission_EDF" type="EDF">
+    <uniform_edf name="Emission_EDF" type="EDF">
       <input name="intensity" type="color3" nodename="multiply4" />
-    </uniformedf>
+    </uniform_edf>
     <!-- Opacity -->
     <luminance name="luminance1" type="color3">
       <input name="in" type="color3" interfacename="opacity" />
