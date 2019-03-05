@@ -1,6 +1,6 @@
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
-#include <MaterialXGenShader/HwShader.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <MaterialXCore/Library.h>
@@ -15,9 +15,9 @@ ShaderNodeImplPtr CompoundNode::create()
     return std::make_shared<CompoundNode>();
 }
 
-void CompoundNode::initialize(ElementPtr implementation, ShaderGenerator& shadergen, const GenOptions& options)
+void CompoundNode::initialize(ElementPtr implementation, GenContext& context)
 {
-    ShaderNodeImpl::initialize(implementation, shadergen, options);
+    ShaderNodeImpl::initialize(implementation, context);
 
     NodeGraphPtr graph = implementation->asA<NodeGraph>();
     if (!graph)
@@ -25,172 +25,124 @@ void CompoundNode::initialize(ElementPtr implementation, ShaderGenerator& shader
         throw ExceptionShaderGenError("Element '" + implementation->getName() + "' is not a node graph implementation");
     }
 
+    _functionName = graph->getName();
+    context.getShaderGenerator().getSyntax().makeValidName(_functionName);
+
     // For compounds we do not want to publish all internal inputs
     // so always use the reduced interface for this graph.
-    GenOptions compoundOptions(options);
-    compoundOptions.shaderInterfaceType = SHADER_INTERFACE_REDUCED;
-
-    _rootGraph = ShaderGraph::create(graph, shadergen, compoundOptions);
-    _functionName = graph->getName();
-    shadergen.getSyntax()->makeValidName(_functionName);
+    const int shaderInterfaceType = context.getOptions().shaderInterfaceType;
+    context.getOptions().shaderInterfaceType = SHADER_INTERFACE_REDUCED;
+    _rootGraph = ShaderGraph::create(nullptr, graph, context);
+    context.getOptions().shaderInterfaceType = shaderInterfaceType;
 }
 
-void CompoundNode::createVariables(const ShaderNode& /*node*/, ShaderGenerator& shadergen, Shader& shader)
+void CompoundNode::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
 {
     // Gather shader inputs from all child nodes
-    for (ShaderNode* childNode : _rootGraph->getNodes())
+    for (const ShaderNode* childNode : _rootGraph->getNodes())
     {
-        ShaderNodeImpl* impl = childNode->getImplementation();
-        impl->createVariables(*childNode, shadergen, shader);
+        childNode->getImplementation().createVariables(*childNode, context, shader);
     }
 }
 
-void CompoundNode::emitFunctionDefinition(const ShaderNode& node, ShaderGenerator& shadergen, Shader& shader)
+void CompoundNode::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
+        const Syntax& syntax = shadergen.getSyntax();
 
-    // Make the compound root graph the active graph
-    shader.pushActiveGraph(_rootGraph.get());
+        // Emit functions for all child nodes
+        shadergen.emitFunctionDefinitions(*_rootGraph, context, stage);
 
-    const Syntax* syntax = shadergen.getSyntax();
+        // Begin function signature.
+        shadergen.emitLineBegin(stage);
+        shadergen.emitString("void " + _functionName + + "(", stage);
 
-    // Emit functions for all child nodes
-    for (ShaderNode* childNode : _rootGraph->getNodes())
-    {
-        shader.addFunctionDefinition(childNode, shadergen);
-    }
-
-    // Emit function definitions for each context used by this compound node
-    for (int id : node.getContextIDs())
-    {
-        const GenContext* context = shadergen.getContext(id);
-        if (!context)
-        {
-            throw ExceptionShaderGenError("Node '" + node.getName() + "' has a context id that is undefined for shader generator '" + 
-                shadergen.getLanguage() + "/" +shadergen.getTarget() + "'");
-        }
-
-        // Emit function name
-        shader.beginLine();
-        shader.addStr("void " + _functionName + context->getFunctionSuffix() + "(");
-
-        // Emit function inputs
         string delim = "";
-
-        // Add any extra argument inputs first
-        for (const Argument& arg : context->getArguments())
-        {
-            shader.addStr(delim + arg.first + " " + arg.second);
-            delim = ", ";
-        }
 
         // Add all inputs
         for (ShaderGraphInputSocket* inputSocket : _rootGraph->getInputSockets())
         {
-            shader.addStr(delim + syntax->getTypeName(inputSocket->type) + " " + inputSocket->variable);
+            shadergen.emitString(delim + syntax.getTypeName(inputSocket->getType()) + " " + inputSocket->getVariable(), stage);
             delim = ", ";
         }
 
         // Add all outputs
         for (ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
         {
-            shader.addStr(delim + syntax->getOutputTypeName(outputSocket->type) + " " + outputSocket->variable);
+            shadergen.emitString(delim + syntax.getOutputTypeName(outputSocket->getType()) + " " + outputSocket->getVariable(), stage);
             delim = ", ";
         }
 
-        // End function call
-        shader.addStr(")");
-        shader.endLine(false);
+        // End function signature.
+        shadergen.emitString(")", stage);
+        shadergen.emitLineEnd(stage, false);
 
-        shader.beginScope();
-
-        // Add function body, with all child node function calls
-        shadergen.emitFunctionCalls(*context, shader);
+        // Begin function body.
+        shadergen.emitScopeBegin(stage);
+        shadergen.emitFunctionCalls(*_rootGraph, context, stage);
 
         // Emit final results
         for (ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
         {
             // Check for the rare case where the output is not internally connected
-            if (!outputSocket->connection)
+            if (!outputSocket->getConnection())
             {
-                shader.addLine(outputSocket->variable + " = " + (outputSocket->value ?
-                    syntax->getValue(outputSocket->type, *outputSocket->value) :
-                    syntax->getDefaultValue(outputSocket->type)));
+                shadergen.emitLine(outputSocket->getVariable() + " = " + (outputSocket->getValue() ?
+                    syntax.getValue(outputSocket->getType(), *outputSocket->getValue()) :
+                    syntax.getDefaultValue(outputSocket->getType())), stage);
             }
             else
             {
-                shader.addLine(outputSocket->variable + " = " + outputSocket->connection->variable);
+                shadergen.emitLine(outputSocket->getVariable() + " = " + outputSocket->getConnection()->getVariable(), stage);
             }
         }
 
-        shader.endScope();
-        shader.newLine();
-    }
-
-    // Restore active graph
-    shader.popActiveGraph();
-
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+        // End function body.
+        shadergen.emitScopeEnd(stage);
+        shadergen.emitLineBreak(stage);
+    END_SHADER_STAGE(stage, MAIN_STAGE)
 }
 
-void CompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader)
+void CompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
+    BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
 
-    // Emit function calls for all child nodes to the vertex shader stage
-    for (ShaderNode* childNode : _rootGraph->getNodes())
-    {
-        shader.addFunctionCall(childNode, context, shadergen);
-    }
+        // Declare the output variables
+        for (size_t i = 0; i < node.numOutputs(); ++i)
+        {
+            shadergen.emitLineBegin(stage);
+            shadergen.emitOutput(node.getOutput(i), true, true, context, stage);
+            shadergen.emitLineEnd(stage);
+        }
 
-    END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
+        // Begin function call.
+        shadergen.emitLineBegin(stage);
+        shadergen.emitString(_functionName + "(", stage);
 
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+        string delim = "";
 
-    // Declare the output variables
-    for (size_t i = 0; i < node.numOutputs(); ++i)
-    {
-        shader.beginLine();
-        shadergen.emitOutput(context, node.getOutput(i), true, true, shader);
-        shader.endLine();
-    }
+        // Emit inputs.
+        for (ShaderInput* input : node.getInputs())
+        {
+            shadergen.emitString(delim, stage);
+            shadergen.emitInput(input, context, stage);
+            delim = ", ";
+        }
 
-    shader.beginLine();
+        // Emit outputs.
+        for (size_t i = 0; i < node.numOutputs(); ++i)
+        {
+            shadergen.emitString(delim, stage);
+            shadergen.emitOutput(node.getOutput(i), false, false, context, stage);
+            delim = ", ";
+        }
 
-    // Emit function name
-    shader.addStr(_functionName + context.getFunctionSuffix() + "(");
-
-    // Emit function inputs
-    string delim = "";
-
-    // Add any extra argument inputs first...
-    for (const Argument& arg : context.getArguments())
-    {
-        shader.addStr(delim + arg.second);
-        delim = ", ";
-    }
-
-    // ...and then all inputs on the node
-    for (ShaderInput* input : node.getInputs())
-    {
-        shader.addStr(delim);
-        shadergen.emitInput(context, input, shader);
-        delim = ", ";
-    }
-
-    // Emit function outputs
-    for (size_t i = 0; i < node.numOutputs(); ++i)
-    {
-        shader.addStr(delim);
-        shadergen.emitOutput(context, node.getOutput(i), false, false, shader);
-        delim = ", ";
-    }
-
-    // End function call
-    shader.addStr(")");
-    shader.endLine();
-
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+        // End function call
+        shadergen.emitString(")", stage);
+        shadergen.emitLineEnd(stage);
+    END_SHADER_STAGE(stage, MAIN_STAGE)
 }
 
 } // namespace MaterialX

@@ -289,7 +289,7 @@ void GlslValidator::validateCreation(const ShaderPtr shader)
         throw ExceptionShaderValidationError(errorType, errors);
     }
 
-    _program->setStages(std::dynamic_pointer_cast<HwShader>(shader));
+    _program->setStages(shader);
     _program->build();
 }
 

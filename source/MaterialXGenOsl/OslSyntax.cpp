@@ -1,5 +1,6 @@
 #include <MaterialXGenOsl/OslSyntax.h>
-#include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/Library.h>
+#include <MaterialXGenShader/TypeDesc.h>
 
 #include <memory>
 #include <sstream>

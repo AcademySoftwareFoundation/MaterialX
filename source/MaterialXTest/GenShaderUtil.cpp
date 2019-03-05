@@ -6,6 +6,7 @@ namespace mx = MaterialX;
 
 namespace GenShaderUtil
 {
+
 void loadLibrary(const mx::FilePath& file, mx::DocumentPtr doc)
 {
     mx::DocumentPtr libDoc = mx::createDocument();
@@ -44,7 +45,7 @@ void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& search
     REQUIRE(doc->getNodeDefs().size() > 0);
 }
 
-bool getShaderSource(mx::ShaderGeneratorPtr generator,
+bool getShaderSource(mx::GenContext& context,
                     const mx::ImplementationPtr implementation,
                     mx::FilePath& sourcePath,
                     mx::FilePath& resolvedPath,
@@ -53,22 +54,20 @@ bool getShaderSource(mx::ShaderGeneratorPtr generator,
     if (implementation)
     {
         sourcePath = implementation->getFile();
-        resolvedPath = generator->findSourceCode(sourcePath);
-        if (mx::readFile(resolvedPath.asString(), sourceContents))
-        {
-            return true;
-        }
+        resolvedPath = context.findSourceCode(sourcePath);
+        return mx::readFile(resolvedPath.asString(), sourceContents);
     }
     return false;
 }
 
-void registerLightType(mx::DocumentPtr doc, mx::HwShaderGenerator& shadergen, const mx::GenOptions& options)
+void registerLightType(mx::DocumentPtr doc, mx::GenContext& context)
 {
     // Scan for lights
     std::vector<mx::NodePtr> lights;
     for (mx::NodePtr node : doc->getNodes())
     {
-        if (node->getType() == LIGHT_SHADER_TYPE)
+        const mx::TypeDesc* type = mx::TypeDesc::get(node->getType());
+        if (type == mx::Type::LIGHTSHADER)
         {
             lights.push_back(node);
         }
@@ -83,32 +82,35 @@ void registerLightType(mx::DocumentPtr doc, mx::HwShaderGenerator& shadergen, co
             mx::NodeDefPtr nodeDef = doc->getNodeDef(id.first);
             if (nodeDef)
             {
-                shadergen.bindLightShader(*nodeDef, id.second, options);
+                mx::HwShaderGenerator::bindLightShader(*nodeDef, id.second, context);
             }
         }
     }
 }
 
 // Check that implementations exist for all nodedefs supported per generator
-void checkImplementations(mx::ShaderGeneratorPtr generator, std::set<std::string> generatorSkipNodeTypes, 
-                          std::set<std::string> generatorSkipNodeDefs)
+void checkImplementations(mx::GenContext& context,
+                          const std::set<std::string>& generatorSkipNodeTypes,
+                          const std::set<std::string>& generatorSkipNodeDefs)
 {
     mx::DocumentPtr doc = mx::createDocument();
+
+    const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
     loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
 
-    std::string generatorId = generator->getLanguage() + "_" + generator->getTarget();
+    std::string generatorId = shadergen.getLanguage() + "_" + shadergen.getTarget();
     std::string fileName = generatorId + "_implementation_check.txt";
 
     std::filebuf implDumpBuffer;
     implDumpBuffer.open(fileName, std::ios::out);
     std::ostream implDumpStream(&implDumpBuffer);
 
-    generator->registerSourceCodeSearchPath(searchPath);
+    context.registerSourceCodeSearchPath(searchPath);
 
-    const std::string& language = generator->getLanguage();
-    const std::string& target = generator->getTarget();
+    const std::string& language = shadergen.getLanguage();
+    const std::string& target = shadergen.getTarget();
 
     // Node types to explicitly skip temporarily.
     std::set<std::string> skipNodeTypes =
@@ -241,7 +243,7 @@ void checkImplementations(mx::ShaderGeneratorPtr generator, std::set<std::string
             if (impl)
             {
                 // Test if the generator has an interal implementation first
-                if (generator->implementationRegistered(impl->getName()))
+                if (shadergen.implementationRegistered(impl->getName()))
                 {
                     found_str += "Found generator impl for nodedef: " + nodeDefName + ", Node: "
                         + nodeDefName + ". Impl: " + impl->getName() + ".\n";
@@ -252,7 +254,7 @@ void checkImplementations(mx::ShaderGeneratorPtr generator, std::set<std::string
                 {
                     mx::FilePath sourcePath, resolvedPath;
                     std::string contents;
-                    if (!getShaderSource(generator, impl, sourcePath, resolvedPath, contents))
+                    if (!getShaderSource(context, impl, sourcePath, resolvedPath, contents))
                     {
                         missing++;
                         missing_str += "Missing source code: " + sourcePath.asString() + " for nodeDef: "
@@ -293,7 +295,7 @@ void checkImplementations(mx::ShaderGeneratorPtr generator, std::set<std::string
     implDumpBuffer.close();
 }
 
-void testUniqueNames(mx::ShaderGeneratorPtr shaderGenerator, const std::string& stage)
+void testUniqueNames(mx::GenContext& context, const std::string& stage)
 {
     mx::DocumentPtr doc = mx::createDocument();
 
@@ -314,29 +316,31 @@ void testUniqueNames(mx::ShaderGeneratorPtr shaderGenerator, const std::string& 
 
     output1->setConnectedNode(node1);
 
+    const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
+
     // Set the output to a restricted name
-    const std::string outputQualifier = shaderGenerator->getSyntax()->getOutputQualifier();
+    const std::string& outputQualifier = shadergen.getSyntax().getOutputQualifier();
     output1->setName(outputQualifier);
 
     mx::GenOptions options;
-    mx::ShaderPtr shader = shaderGenerator->generate(shaderName, output1, options);
+    mx::ShaderPtr shader = shadergen.generate(shaderName, output1, context);
     REQUIRE(shader != nullptr);
     REQUIRE(shader->getSourceCode(stage).length() > 0);
 
     // Make sure the output and internal node output has their variable names set
-    mx::ShaderGraphOutputSocket* sgOutputSocket = shader->getGraph()->getOutputSocket();
-    REQUIRE(sgOutputSocket->variable != outputQualifier);
-    mx::ShaderNode* sgNode1 = shader->getGraph()->getNode(node1->getName());
-    REQUIRE(sgNode1->getOutput()->variable == "unique_names_out");
+    const mx::ShaderGraphOutputSocket* sgOutputSocket = shader->getGraph().getOutputSocket();
+    REQUIRE(sgOutputSocket->getVariable() != outputQualifier);
+    const mx::ShaderNode* sgNode1 = shader->getGraph().getNode(node1->getName());
+    REQUIRE(sgNode1->getOutput()->getVariable() == "unique_names_out");
 }
 
-bool generateCode(mx::ShaderGenerator& shaderGenerator, const std::string& shaderName, mx::TypedElementPtr element,
-                  const mx::GenOptions& options, std::ostream& log, std::vector<std::string>testStages)
+bool generateCode(mx::GenContext& context, const std::string& shaderName, mx::TypedElementPtr element,
+                  std::ostream& log, std::vector<std::string>testStages)
 {
     mx::ShaderPtr shader = nullptr;
     try
     {
-        shader = shaderGenerator.generate(shaderName, element, options);
+        shader = context.getShaderGenerator().generate(shaderName, element, context);
     }
     catch (mx::ExceptionShaderGenError& e)
     {
@@ -386,7 +390,7 @@ void ShaderGeneratorTester::setupDependentLibraries()
 {
     _dependLib = mx::createDocument();
     const mx::StringVec libraries = { "stdlib", "pbrlib" };
-    GenShaderUtil::loadLibraries(libraries, _searchPath, _dependLib, &_excludeLibraryFiles);
+    GenShaderUtil::loadLibraries(libraries, _libSearchPath, _dependLib, &_excludeLibraryFiles);
 }
 
 void ShaderGeneratorTester::setExcludeLibraryFiles()
@@ -436,6 +440,11 @@ void ShaderGeneratorTester::testGeneration(const mx::GenOptions& generateOptions
 
     // Add nodedefs to skip when testing
     addSkipNodeDefs();
+
+    // Create our context
+    mx::GenContext context(_shaderGenerator);
+    context.getOptions() = generateOptions;
+    context.registerSourceCodeSearchPath(_srcSearchPath);
 
     mx::XmlReadOptions importOptions;
     importOptions.skipDuplicateElements = true;
@@ -507,7 +516,7 @@ void ShaderGeneratorTester::testGeneration(const mx::GenOptions& generateOptions
                 if (impl)
                 {
                     _logFile << "------------ Run validation with element: " << namePath << "------------" << std::endl;
-                    bool generatedCode = GenShaderUtil::generateCode(*_shaderGenerator, elementName, element, generateOptions, _logFile, _testStages);
+                    bool generatedCode = GenShaderUtil::generateCode(context, elementName, element, _logFile, _testStages);
                     CHECK(generatedCode);
                 }
                 else

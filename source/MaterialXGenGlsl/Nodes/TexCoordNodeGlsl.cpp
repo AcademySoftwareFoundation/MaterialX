@@ -8,43 +8,47 @@ ShaderNodeImplPtr TexCoordNodeGlsl::create()
     return std::make_shared<TexCoordNodeGlsl>();
 }
 
-void TexCoordNodeGlsl::createVariables(const ShaderNode& node, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void TexCoordNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
-
     const ShaderOutput* output = node.getOutput();
     const ShaderInput* indexInput = node.getInput(INDEX);
-    const string index = indexInput ? indexInput->value->getValueString() : "0";
+    const string index = indexInput ? indexInput->getValue()->getValueString() : "0";
 
-    shader.createAppData(output->type, "i_texcoord_" + index);
-    shader.createVertexData(output->type, "texcoord_" + index);
+    ShaderStage& vs = shader.getStage(HW::VERTEX_STAGE);
+    ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
+
+    addStageInput(HW::VERTEX_INPUTS, output->getType(), "i_texcoord_" + index, vs);
+    addStageConnector(HW::VERTEX_DATA, output->getType(), "texcoord_" + index, vs, ps);
 }
 
-void TexCoordNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void TexCoordNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
-
-    const string& blockInstance = shader.getVertexDataBlock().instance;
-    const string blockPrefix = blockInstance.length() ? blockInstance + "." : EMPTY_STRING;
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
 
     const ShaderInput* indexInput = node.getInput(INDEX);
-    const string index = indexInput ? indexInput->value->getValueString() : "0";
+    const string index = indexInput ? indexInput->getValue()->getValueString() : "0";
     const string variable = "texcoord_" + index;
 
-    BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
-        if (!shader.isCalculated(variable))
+    BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+        VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
+        const string prefix = vertexData.getInstance() + ".";
+        ShaderPort* texcoord = vertexData[variable];
+        if (!texcoord->isEmitted())
         {
-            shader.addLine(blockPrefix + variable + " = i_" + variable);
-            shader.setCalculated(variable);
+            shadergen.emitLine(prefix + texcoord->getVariable() + " = i_" + variable, stage);
+            texcoord->setEmitted();
         }
-    END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
+    END_SHADER_STAGE(shader, HW::VERTEX_STAGE)
 
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-        shader.beginLine();
-        shadergen.emitOutput(context, node.getOutput(), true, false, shader);
-        shader.addStr(" = " + blockPrefix + variable);
-        shader.endLine();
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+        VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
+        const string prefix = vertexData.getInstance() + ".";
+        ShaderPort* texcoord = vertexData[variable];
+            shadergen.emitLineBegin(stage);
+        shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+        shadergen.emitString(" = " + prefix + texcoord->getVariable(), stage);
+        shadergen.emitLineEnd(stage);
+    END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

@@ -6,63 +6,41 @@ namespace MaterialX
 
 namespace
 {
-    static const std::string VIEW_POSITON_UNIFORM_NAME = "u_viewPosition";
-    static const std::string VIEW_POSITON_SEMANTIC = "ViewPosition";
+    static const string VIEW_POSITON_UNIFORM_NAME = "u_viewPosition";
+    static const string VIEW_POSITON_SEMANTIC = "ViewPosition";
 }
-
-MayaGlslPluginShader::MayaGlslPluginShader(const string& name)
-    : ParentClass(name)
-{
-}
-
-void MayaGlslPluginShader::createUniform(const string& stage, const string& block, const TypeDesc* type, const string& name, const string& path, const string& semantic, ValuePtr value)
-{
-    // If no semantic is given and this is the view position uniform
-    // we need to override its default semantic
-    if (semantic.empty() && name == VIEW_POSITON_UNIFORM_NAME)
-    {
-        HwShader::createUniform(stage, block, type, name, path, VIEW_POSITON_SEMANTIC, value);
-        return;
-    }
-    ParentClass::createUniform(stage, block, type, name, path, semantic, value);
-}
-
-void MayaGlslPluginShader::createAppData(const TypeDesc* type, const string& name, const string& semantic)
-{
-    // If no semantic is given and this is the view position uniform
-    // we need to override its default semantic
-    if (semantic.empty() && name == VIEW_POSITON_UNIFORM_NAME)
-    {
-        HwShader::createAppData(type, name, VIEW_POSITON_SEMANTIC);
-        return;
-    }
-    ParentClass::createAppData(type, name, semantic);
-}
-
-void MayaGlslPluginShader::createVertexData(const TypeDesc* type, const string& name, const string& semantic)
-{
-    // If no semantic is given and this is the view position uniform
-    // we need to override its default semantic
-    if (semantic.empty() && name == VIEW_POSITON_UNIFORM_NAME)
-    {
-        HwShader::createVertexData(type, name, VIEW_POSITON_SEMANTIC);
-        return;
-    }
-    ParentClass::createVertexData(type, name, semantic);
-}
-
 
 const string MayaGlslPluginShaderGenerator::TARGET = "ogsfx_mayaglslplugin";
 
-OgsFxShaderPtr MayaGlslPluginShaderGenerator::createShader(const string& name)
+ShaderGeneratorPtr MayaGlslPluginShaderGenerator::create()
 {
-    return std::make_shared<MayaGlslPluginShader>(name);
+    return std::make_shared<MayaGlslPluginShaderGenerator>();
 }
 
-void MayaGlslPluginShaderGenerator::getTechniqueParams(const Shader& shader, string& params)
+ShaderPtr MayaGlslPluginShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
 {
-    const HwShader& hwShader = static_cast<const HwShader&>(shader);
-    if (hwShader.hasTransparency())
+    ShaderPtr shader = OgsFxShaderGenerator::createShader(name, element, context);
+
+    // Update view position semantic to match Maya's semantics.
+    for (size_t i = 0; i < shader->numStages(); ++i)
+    {
+        ShaderStage& stage = shader->getStage(i);
+        for (auto it : stage.getUniformBlocks())
+        {
+            ShaderPort* v = it.second->find(VIEW_POSITON_UNIFORM_NAME);
+            if (v)
+            {
+                v->setSemantic(VIEW_POSITON_SEMANTIC);
+            }
+        }
+    }
+
+    return shader;
+}
+
+void MayaGlslPluginShaderGenerator::getTechniqueParams(const Shader& shader, string& params) const
+{
+    if (shader.hasAttribute(HW::ATTR_TRANSPARENT))
     {
         params = "string transparency = \"transparent\";";
     }

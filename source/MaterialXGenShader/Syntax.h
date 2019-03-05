@@ -11,10 +11,13 @@
 namespace MaterialX
 {
 
+class Syntax;
+class TypeSyntax;
 class TypeDesc;
 
-using SyntaxPtr = shared_ptr<class Syntax>;
-using TypeSyntaxPtr = shared_ptr<class TypeSyntax>;
+using SyntaxPtr = shared_ptr<Syntax>;
+using ConstSyntaxPtr = shared_ptr<const Syntax>;
+using TypeSyntaxPtr = shared_ptr<TypeSyntax>;
 
 /// Base class for syntax objects used by shader generators
 /// to emit code with correcy syntax for each language.
@@ -79,6 +82,11 @@ public:
     /// Returns a type qualifier to be used when declaring types for output variables.
     /// Default implementation returns empty string and derived syntax classes should
     /// override this method.
+    virtual const string& getInputQualifier() const { return EMPTY_STRING; };
+
+    /// Returns a type qualifier to be used when declaring types for output variables.
+    /// Default implementation returns empty string and derived syntax classes should
+    /// override this method.
     virtual const string& getOutputQualifier() const { return EMPTY_STRING; };
 
     /// Get the qualifier used when declaring constant variables.
@@ -89,6 +97,30 @@ public:
     /// Default implementation returns empty string and derived syntax classes should
     /// override this method.
     virtual const string& getUniformQualifier() const { return EMPTY_STRING; };
+
+    /// Return the characters used for a newline.
+    virtual const string& getNewline() const { return NEWLINE; };
+
+    /// Return the characters used for a single indentation level.
+    virtual const string& getIndentation() const { return INDENTATION; };
+
+    /// Return the characters used to begin/end a string definition.
+    virtual const string& getStringQuote() const { return STRING_QUOTE; };
+
+    /// Return the string pattern used for a file include statement.
+    virtual const string& getIncludeStatement() const { return INCLUDE_STATEMENT; };
+
+    /// Return the characters used for single line comment.
+    virtual const string& getSingleLineComment() const { return SINGLE_LINE_COMMENT; };
+
+    /// Return the characters used to begin a multi line comments block.
+    virtual const string& getBeginMultiLineComment() const { return BEGIN_MULTI_LINE_COMMENT; };
+
+    /// Return the characters used to end a multi line comments block.
+    virtual const string& getEndMultiLineComment() const { return END_MULTI_LINE_COMMENT; };
+
+    /// Return the array suffix to use for declaring an array variable.
+    virtual string getArraySuffix(const TypeDesc* type, const Value& value) const;
 
     /// Query if given type is suppored in the syntax
     /// By default all types are assumed to be supported
@@ -102,7 +134,7 @@ public:
     /// on the name string if there is a name collision.
     virtual void makeUnique(string& name, UniqueNameMap& uniqueNames) const;
 
-    /// Modify the given name string to remote any invalid characters or tokens.
+    /// Modify the given name string to remove any invalid characters or tokens.
     virtual void makeValidName(string& name) const;
 
 protected:
@@ -115,6 +147,14 @@ private:
 
     StringSet _restrictedNames;
     StringMap _invalidTokens;
+
+    static const string NEWLINE;
+    static const string INDENTATION;
+    static const string STRING_QUOTE;
+    static const string INCLUDE_STATEMENT;
+    static const string SINGLE_LINE_COMMENT;
+    static const string BEGIN_MULTI_LINE_COMMENT;
+    static const string END_MULTI_LINE_COMMENT;
 };
 
 /// Base class for syntax handling of types.

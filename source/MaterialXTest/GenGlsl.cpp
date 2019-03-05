@@ -72,7 +72,7 @@ TEST_CASE("GLSL Syntax Check", "[genglsl]")
 
 TEST_CASE("GLSL Implementation Check", "[genglsl]")
 {
-    mx::ShaderGeneratorPtr generator = mx::GlslShaderGenerator::create();
+    mx::GenContext context(mx::GlslShaderGenerator::create());
 
     std::set<std::string> generatorSkipNodeTypes;
     std::set<std::string> generatorSkipNodeDefs;
@@ -81,16 +81,17 @@ TEST_CASE("GLSL Implementation Check", "[genglsl]")
     generatorSkipNodeDefs.insert("ND_multiply_surfaceshaderC");
     generatorSkipNodeDefs.insert("ND_mix_surfaceshader");
 
-    GenShaderUtil::checkImplementations(generator, generatorSkipNodeTypes, generatorSkipNodeDefs);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs);
 }
 
 TEST_CASE("GLSL Unique Names", "[genglsl]")
 {
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
-    shaderGenerator->registerSourceCodeSearchPath(searchPath);
+    mx::GenContext context(mx::GlslShaderGenerator::create());
 
-    GenShaderUtil::testUniqueNames(shaderGenerator, mx::Shader::PIXEL_STAGE);
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    context.registerSourceCodeSearchPath(searchPath);
+
+    GenShaderUtil::testUniqueNames(context, mx::HW::PIXEL_STAGE);
 }
 
 class GLSLGenCodeGenerationTester : public GenShaderUtil::ShaderGeneratorTester
@@ -98,19 +99,14 @@ class GLSLGenCodeGenerationTester : public GenShaderUtil::ShaderGeneratorTester
 public:
     using ParentClass = GenShaderUtil::ShaderGeneratorTester;
 
-    GLSLGenCodeGenerationTester(const mx::FilePath& searchPath, const mx::FilePath& testRootPath,
-        const mx::FilePath& logFilePath) : GenShaderUtil::ShaderGeneratorTester(searchPath, testRootPath, logFilePath)
+    GLSLGenCodeGenerationTester(const mx::FilePath& testRootPath, const mx::FilePath& libSearchPath,
+                                const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath) 
+        : GenShaderUtil::ShaderGeneratorTester(testRootPath, libSearchPath, srcSearchPath, logFilePath)
     {}
 
     void createGenerator() override
     {
         _shaderGenerator = mx::GlslShaderGenerator::create();
-        _shaderGenerator->registerSourceCodeSearchPath(_searchPath);
-
-        if (!_shaderGenerator)
-        {
-            _logFile << ">> Failed to create GLSL generator" << std::endl;
-        }
     }
 
     void addSkipNodeDefs() override
@@ -123,17 +119,18 @@ public:
 
     void setTestStages() override
     {
-        _testStages.push_back(mx::HwShader::VERTEX_STAGE);
-        _testStages.push_back(mx::HwShader::PIXEL_STAGE);
+        _testStages.push_back(mx::HW::VERTEX_STAGE);
+        _testStages.push_back(mx::HW::PIXEL_STAGE);
     }
 };
 
 static void generateGLSLCode()
 {
-    const mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
     const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite");
+    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     const mx::FilePath logPath("genglsl_glsl400_generate_test.txt");
-    GLSLGenCodeGenerationTester tester(searchPath, testRootPath, logPath);
+    GLSLGenCodeGenerationTester tester(testRootPath, libSearchPath, srcSearchPath, logPath);
 
     const mx::GenOptions genOptions;
     tester.testGeneration(genOptions);
