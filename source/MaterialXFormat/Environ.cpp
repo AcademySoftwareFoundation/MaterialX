@@ -1,5 +1,5 @@
 //
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
@@ -18,8 +18,7 @@ namespace MaterialX
 string getEnviron(const string& name)
 {
 #if defined(_WIN32)
-    uint32_t size = GetEnvironmentVariable(name.c_str(), nullptr, 0);
-    if (size)
+    if (uint32_t size = GetEnvironmentVariable(name.c_str(), nullptr, 0))
     {
         vector<char> buffer(size);
         GetEnvironmentVariable(name.c_str(), buffer.data(), size);
@@ -52,4 +51,4 @@ bool removeEnviron(const string& name)
 #endif
 }
 
-}  // namespace MaterialX
+} // namespace MaterialX
