@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.36.2] - Development
+## [1.36.2] - 2019-03-05
 
 ### Added
 - Added support for 'nodedef' attributes on MaterialX\:\:Node, integrating this usage into GraphElement\:\:addNodeInstance.
