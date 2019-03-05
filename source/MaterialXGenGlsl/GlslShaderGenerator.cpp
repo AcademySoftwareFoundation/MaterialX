@@ -16,6 +16,8 @@
 #include <MaterialXGenGlsl/Nodes/LightCompoundNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightShaderNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/HeightToNormalNodeGlsl.h>
+#include <MaterialXGenGlsl/Nodes/LightSamplerNodeGlsl.h>
+#include <MaterialXGenGlsl/Nodes/NumLightsNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/TransformNodeGlsl.h>
 
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
@@ -31,41 +33,10 @@ namespace MaterialX
 const string GlslShaderGenerator::LANGUAGE = "genglsl";
 const string GlslShaderGenerator::TARGET = "glsl400";
 const string GlslShaderGenerator::VERSION = "400";
-const string GlslShaderGenerator::LIGHT_DIR = "L";
-const string GlslShaderGenerator::VIEW_DIR = "V";
-const string GlslShaderGenerator::INCIDENT = "incident";
-const string GlslShaderGenerator::OUTGOING = "outgoing";
-const string GlslShaderGenerator::NORMAL = "normal";
-const string GlslShaderGenerator::EVAL = "eval";
 
 GlslShaderGenerator::GlslShaderGenerator()
-    : ParentClass(GlslSyntax::create())
+    : HwShaderGenerator(GlslSyntax::create())
 {
-    //
-    // Create the node contexts used by this generator
-    //
-
-    // BSDF reflection context
-    GenContextPtr ctxBsdfReflection = createContext(CONTEXT_BSDF_REFLECTION);
-    ctxBsdfReflection->addArgument(Argument("vec3", INCIDENT));
-    ctxBsdfReflection->addArgument(Argument("vec3", OUTGOING));
-    ctxBsdfReflection->setFunctionSuffix("_reflection");
-
-    // BSDF transmission context
-    GenContextPtr ctxBsdfTransmission = createContext(CONTEXT_BSDF_TRANSMISSION);
-    ctxBsdfTransmission->addArgument(Argument("vec3", OUTGOING));
-    ctxBsdfTransmission->setFunctionSuffix("_transmission");
-
-    // BSDF indirect context
-    GenContextPtr ctxBsdfIndirect = createContext(CONTEXT_BSDF_INDIRECT);
-    ctxBsdfIndirect->addArgument(Argument("vec3", OUTGOING));
-    ctxBsdfIndirect->setFunctionSuffix("_indirect");
-
-    // EDF emission context
-    GenContextPtr ctxEdf = createContext(CONTEXT_EDF);
-    ctxEdf->addArgument(Argument("vec3", NORMAL));
-    ctxEdf->addArgument(Argument("vec3", EVAL));
-
     //
     // Register all custom node implementation classes
     //
@@ -266,492 +237,331 @@ GlslShaderGenerator::GlslShaderGenerator()
     // <!-- <ND_transformnormal> ->
     registerImplementation("IM_transformnormal_vector3_" + GlslShaderGenerator::LANGUAGE, TransformNodeGlsl::create);
     registerImplementation("IM_transformnormal_vector4_" + GlslShaderGenerator::LANGUAGE, TransformNodeGlsl::create);
+
+    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", NumLightsNodeGlsl::create()));
+    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", LightSamplerNodeGlsl::create()));
 }
 
-ShaderPtr GlslShaderGenerator::generate(const string& shaderName, ElementPtr element, const GenOptions& options)
+ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
-    HwShaderPtr shaderPtr = std::make_shared<HwShader>(shaderName);
-    shaderPtr->initialize(element, *this, options);
-
-    HwShader& shader = *shaderPtr;
+    ShaderPtr shader = createShader(name, element, context);
 
     // Turn on fixed float formatting to make sure float values are
     // emitted with a decimal point and not as integers, and to avoid
     // any scientific notation which isn't supported by all OpenGL targets.
     Value::ScopedFloatFormatting fmt(Value::FloatFormatFixed);
 
-    //
     // Emit code for vertex shader stage
-    //
+    ShaderStage& vs = shader->getStage(HW::VERTEX_STAGE);
+    emitVertexStage(shader->getGraph(), context, vs);
 
-    shader.setActiveStage(HwShader::VERTEX_STAGE);
+    // Emit code for pixel shader stage
+    ShaderStage& ps = shader->getStage(HW::PIXEL_STAGE);
+    emitPixelStage(shader->getGraph(), context, ps);
 
-    // Create required variables for vertex stage
-    shader.createAppData(Type::VECTOR3, "i_position");
-    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldMatrix");
-    shader.createUniform(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS, Type::MATRIX44, "u_viewProjectionMatrix");
+    return shader;
+}
 
+void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
+{
     // Add version directive
-    shader.addLine("#version " + getVersion(), false);
-    shader.newLine();
+    emitLine("#version " + getVersion(), stage, false);
+    emitLineBreak(stage);
 
     // Add all constants
-    const Shader::VariableBlock& vsConstants = shader.getConstantBlock(HwShader::VERTEX_STAGE);
-    if (!vsConstants.empty())
+    const VariableBlock& constants = stage.getConstantBlock();
+    if (!constants.empty())
     {
-        shader.addComment("Constant block: " + vsConstants.name);
-        emitVariableBlock(vsConstants, _syntax->getConstantQualifier(), SEMICOLON_NEWLINE, shader);
+        emitVariableDeclarations(constants, _syntax->getConstantQualifier(), SEMICOLON, context, stage);
+        emitLineBreak(stage);
     }
 
-    // Add all private uniforms
-    const Shader::VariableBlock& vsPrivateUniforms = shader.getUniformBlock(HwShader::VERTEX_STAGE, HwShader::PRIVATE_UNIFORMS);
-    if (!vsPrivateUniforms.empty())
+    // Add all uniforms
+    for (auto it : stage.getUniformBlocks())
     {
-        shader.addComment("Uniform block: " + vsPrivateUniforms.name);
-        emitVariableBlock(vsPrivateUniforms, _syntax->getUniformQualifier(), SEMICOLON_NEWLINE, shader);
-    }
-
-    // Add any public uniforms
-    const Shader::VariableBlock& vsPublicUniforms = shader.getUniformBlock(HwShader::VERTEX_STAGE, HwShader::PUBLIC_UNIFORMS);
-    if (!vsPublicUniforms.empty())
-    {
-        shader.addComment("Uniform block: " + vsPublicUniforms.name);
-        emitVariableBlock(vsPublicUniforms, _syntax->getUniformQualifier(), SEMICOLON_NEWLINE, shader);
-    }
-
-    // Add all app data inputs
-    const Shader::VariableBlock& appDataBlock = shader.getAppDataBlock();
-    if (!appDataBlock.empty())
-    {
-        shader.addComment("Application data block: " + appDataBlock.name);
-        for (const Shader::Variable* input : appDataBlock.variableOrder)
+        const VariableBlock& uniforms = *it.second;
+        if (!uniforms.empty())
         {
-            const string& type = _syntax->getTypeName(input->type);
-            shader.addLine("in " + type + " " + input->name);
+            emitComment("Uniform block: " + uniforms.getName(), stage);
+            emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), SEMICOLON, context, stage);
+            emitLineBreak(stage);
         }
-        shader.newLine();
     }
 
-    // Add vertex data block
-    const Shader::VariableBlock& vertexDataBlock = shader.getVertexDataBlock();
-    if (!vertexDataBlock.empty())
+    // Add vertex inputs
+    const VariableBlock& vertexInputs = stage.getInputBlock(HW::VERTEX_INPUTS);
+    if (!vertexInputs.empty())
     {
-        shader.addLine("out VertexData", false);
-        shader.beginScope(Shader::Brackets::BRACES);
-        for (const Shader::Variable* output : vertexDataBlock.variableOrder)
-        {
-            const string& type = _syntax->getTypeName(output->type);
-            shader.addLine(type + " " + output->name);
-        }
-        shader.endScope(false, false);
-        shader.addStr(" " + vertexDataBlock.instance + SEMICOLON_NEWLINE);
-        shader.newLine();
+        emitComment("Inputs block: " + vertexInputs.getName(), stage);
+        emitVariableDeclarations(vertexInputs, _syntax->getInputQualifier(), SEMICOLON, context, stage, false);
+        emitLineBreak(stage);
     }
 
-    emitFunctionDefinitions(shader);
+    // Add vertex data outputs block
+    const VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
+    if (!vertexData.empty())
+    {
+        emitLine("out " + vertexData.getName(), stage, false);
+        emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
+        emitVariableDeclarations(vertexData, EMPTY_STRING, SEMICOLON, context, stage, false);
+        emitScopeEnd(stage, false, false);
+        emitString(" " + vertexData.getInstance() + SEMICOLON, stage);
+        emitLineBreak(stage);
+        emitLineBreak(stage);
+    }
+
+    emitFunctionDefinitions(graph, context, stage);
 
     // Add main function
-    shader.addLine("void main()", false);
-    shader.beginScope(Shader::Brackets::BRACES);
-    shader.addLine("vec4 hPositionWorld = u_worldMatrix * vec4(i_position, 1.0)");
-    shader.addLine("gl_Position = u_viewProjectionMatrix * hPositionWorld");
-    emitFunctionCalls(*_defaultContext, shader);
-    shader.endScope();
-    shader.newLine();
+    emitLine("void main()", stage, false);
+    emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
+    emitLine("vec4 hPositionWorld = u_worldMatrix * vec4(i_position, 1.0)", stage);
+    emitLine("gl_Position = u_viewProjectionMatrix * hPositionWorld", stage);
+    emitFunctionCalls(graph, context, stage);
+    emitScopeEnd(stage);
+    emitLineBreak(stage);
+}
 
-    //
-    // Emit code for pixel shader stage
-    //
-
-    shader.setActiveStage(HwShader::PIXEL_STAGE);
-
+void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
+{
     // Add version directive
-    shader.addLine("#version " + getVersion(), false);
-    shader.newLine();
+    emitLine("#version " + getVersion(), stage, false);
+    emitLineBreak(stage);
 
     // Add global constants and type definitions
-    shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_defines.glsl", *this);
-    shader.addLine("#define MAX_LIGHT_SOURCES " + std::to_string(getMaxActiveLightSources()), false);
-    shader.newLine();
-    emitTypeDefinitions(shader);
+    emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_defines.glsl", context, stage);
+    emitLine("#define MAX_LIGHT_SOURCES " + std::to_string(context.getOptions().hwMaxActiveLightSources), stage, false);
+    emitLineBreak(stage);
+    emitTypeDefinitions(context, stage);
 
-    // Add constants
-    const Shader::VariableBlock& psConstants = shader.getConstantBlock(HwShader::PIXEL_STAGE);
-    if (!psConstants.empty())
+    // Add all constants
+    const VariableBlock& constants = stage.getConstantBlock();
+    if (!constants.empty())
     {
-        shader.addComment("Constant block: " + psConstants.name);
-        emitVariableBlock(psConstants, _syntax->getConstantQualifier(), SEMICOLON_NEWLINE, shader);
+        emitVariableDeclarations(constants, _syntax->getConstantQualifier(), SEMICOLON, context, stage);
+        emitLineBreak(stage);
     }
 
-    // Add all private uniforms
-    const Shader::VariableBlock& psPrivateUniforms = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS);
-    if (!psPrivateUniforms.empty())
+    // Add all uniforms
+    for (auto it : stage.getUniformBlocks())
     {
-        shader.addComment("Uniform block: " + psPrivateUniforms.name);
-        emitVariableBlock(psPrivateUniforms, _syntax->getUniformQualifier(), SEMICOLON_NEWLINE, shader);
+        const VariableBlock& uniforms = *it.second;
+
+        // Skip light uniforms as they are handled separately
+        if (!uniforms.empty() && uniforms.getName() != HW::LIGHT_DATA)
+        {
+            emitComment("Uniform block: " + uniforms.getName(), stage);
+            emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), SEMICOLON, context, stage);
+            emitLineBreak(stage);
+        }
     }
 
-    // Add all public uniforms
-    const Shader::VariableBlock& psPublicUniforms = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::PUBLIC_UNIFORMS);
-    if (!psPublicUniforms.empty())
-    {
-        shader.addComment("Uniform block: " + psPublicUniforms.name);
-        emitVariableBlock(psPublicUniforms, _syntax->getUniformQualifier(), SEMICOLON_NEWLINE, shader);
-    }
-
-    bool lighting = shader.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE) ||
-                    shader.hasClassification(ShaderNode::Classification::BSDF);
+    bool lighting = graph.hasClassification(ShaderNode::Classification::SHADER|ShaderNode::Classification::SURFACE) ||
+                    graph.hasClassification(ShaderNode::Classification::BSDF);
 
     // Add light data block if needed
     if (lighting)
     {
-        const Shader::VariableBlock& lightData = shader.getUniformBlock(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK);
-        shader.addLine("struct " + lightData.name, false);
-        shader.beginScope(Shader::Brackets::BRACES);
-        for (const Shader::Variable* uniform : lightData.variableOrder)
-        {
-            const string& type = _syntax->getTypeName(uniform->type);
-            shader.addLine(type + " " + uniform->name);
-        }
-        shader.endScope(true);
-        shader.newLine();
-        shader.addLine("uniform " + lightData.name + " " + lightData.instance + "[MAX_LIGHT_SOURCES]");
-        shader.newLine();
+        const VariableBlock& lightData = stage.getUniformBlock(HW::LIGHT_DATA);
+        emitLine("struct " + lightData.getName(), stage, false);
+        emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
+        emitVariableDeclarations(lightData, EMPTY_STRING, SEMICOLON, context, stage, false);
+        emitScopeEnd(stage, true);
+        emitLineBreak(stage);
+        emitLine("uniform " + lightData.getName() + " " + lightData.getInstance() + "[MAX_LIGHT_SOURCES]", stage);
+        emitLineBreak(stage);
     }
 
-    // Add vertex data block
-    if (!vertexDataBlock.empty())
+    // Add vertex data inputs block
+    const VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
+    if (!vertexData.empty())
     {
-        shader.addLine("in VertexData", false);
-        shader.beginScope(Shader::Brackets::BRACES);
-        for (const Shader::Variable* input : vertexDataBlock.variableOrder)
-        {
-            const string& type = _syntax->getTypeName(input->type);
-            shader.addLine(type + " " + input->name);
-        }
-        shader.endScope(false, false);
-        shader.addStr(" " + vertexDataBlock.instance + SEMICOLON_NEWLINE);
-        shader.newLine();
+        emitLine("in " + vertexData.getName(), stage, false);
+        emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
+        emitVariableDeclarations(vertexData, EMPTY_STRING, SEMICOLON, context, stage, false);
+        emitScopeEnd(stage, false, false);
+        emitString(" " + vertexData.getInstance() + SEMICOLON, stage);
+        emitLineBreak(stage);
+        emitLineBreak(stage);
     }
 
     // Add the pixel shader output. This needs to be a vec4 for rendering
     // and upstream connection will be converted to vec4 if needed in emitFinalOutput()
-    shader.addComment("Data output by the pixel shader");
-    const ShaderGraphOutputSocket* outputSocket = shader.getGraph()->getOutputSocket();
-    shader.addLine("out vec4 " + outputSocket->variable);
-    shader.newLine();
+    emitComment("Pixel shader outputs", stage);
+    const VariableBlock& outputs = stage.getOutputBlock(HW::PIXEL_OUTPUTS);
+    emitVariableDeclarations(outputs, _syntax->getOutputQualifier(), SEMICOLON, context, stage, false);
+    emitLineBreak(stage);
 
     // Emit common math functions
-    shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_math.glsl", *this);
-    shader.newLine();
+    emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_math.glsl", context, stage);
+    emitLineBreak(stage);
 
     // Emit lighting functions
     if (lighting)
     {
-        if (options.hwSpecularEnvironmentMethod == SPECULAR_ENVIRONMENT_FIS)
+        if (context.getOptions().hwSpecularEnvironmentMethod == SPECULAR_ENVIRONMENT_FIS)
         {
-            shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_fis.glsl", *this);
+            emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_fis.glsl", context, stage);
         }
         else
         {
-            shader.addInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_prefilter.glsl", *this);
+            emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_prefilter.glsl", context, stage);
         }
-        shader.newLine();
+        emitLineBreak(stage);
     }
 
     // Emit sampling code if needed
-    if (shader.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
+    if (graph.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
     {
         // Emit sampling functions
-        shader.addInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_sampling.glsl", *this);
-        shader.newLine();
+        emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_sampling.glsl", context, stage);
+        emitLineBreak(stage);
     }
 
     // Emit uv transform function
-    if (options.fileTextureVerticalFlip)
+    if (context.getOptions().fileTextureVerticalFlip)
     {
-        shader.addInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.glsl", *this);
-        shader.newLine();
+        emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.glsl", context, stage);
+        emitLineBreak(stage);
     }
     else
     {
-        shader.addInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.glsl", *this);
-        shader.newLine();
+        emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.glsl", context, stage);
+        emitLineBreak(stage);
     }
 
     // Add all functions for node implementations
-    emitFunctionDefinitions(shader);
+    emitFunctionDefinitions(graph, context, stage);
+
+    const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket();
 
     // Add main function
-    shader.addLine("void main()", false);
-    shader.beginScope(Shader::Brackets::BRACES);
-    emitFunctionCalls(*_defaultContext, shader);
-    emitFinalOutput(shader);
-    shader.endScope();
-    shader.newLine();
+    emitLine("void main()", stage, false);
+    emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
 
-    return shaderPtr;
-}
+    if (graph.hasClassification(ShaderNode::Classification::CLOSURE))
+    {
+        // Handle the case where the graph is a direct closure.
+        // We don't support rendering closures without attaching 
+        // to a surface shader, so just output black.
+        emitLine(outputSocket->getVariable() + " = vec4(0.0, 0.0, 0.0, 1.0)", stage);
+    }
+    else
+    {
+        // Add all function calls
+        emitFunctionCalls(graph, context, stage);
 
-void GlslShaderGenerator::emitFunctionDefinitions(Shader& shader)
-{
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-
-        // For surface shaders we need light shaders
-        if (shader.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
+        // Emit final output
+        if (outputSocket->getConnection())
         {
-            // Emit functions for all bound light shaders
-            for (auto lightShader : getBoundLightShaders())
+            string finalOutput = outputSocket->getConnection()->getVariable();
+
+            if (graph.hasClassification(ShaderNode::Classification::SURFACE))
             {
-                lightShader.second->emitFunctionDefinition(*ShaderNode::NONE, *this, shader);
-            }
-
-            // Emit active light count function
-            shader.addLine("int numActiveLightSources()", false);
-            shader.beginScope(Shader::Brackets::BRACES);
-            shader.addLine("return min(u_numActiveLightSources, MAX_LIGHT_SOURCES)");
-            shader.endScope();
-            shader.newLine();
-
-            // Emit light sampler function with all bound light types
-            shader.addLine("void sampleLightSource(LightData light, vec3 position, out lightshader result)", false);
-            shader.beginScope(Shader::Brackets::BRACES);
-            shader.addLine("result.intensity = vec3(0.0)");
-            string ifstatement = "if ";
-            for (auto lightShader : getBoundLightShaders())
-            {
-                shader.addLine(ifstatement + "(light.type == " + std::to_string(lightShader.first) + ")", false);
-                shader.beginScope(Shader::Brackets::BRACES);
-                lightShader.second->emitFunctionCall(*ShaderNode::NONE, *_defaultContext, *this, shader);
-                shader.endScope();
-                ifstatement = "else if ";
-            }
-            shader.endScope();
-            shader.newLine();
-        }
-
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-
-    // Call parent to emit all other functions
-    ParentClass::emitFunctionDefinitions(shader);
-}
-
-void GlslShaderGenerator::emitFunctionCalls(const GenContext& context, Shader &shader)
-{
-    BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
-        // For vertex stage just emit all function calls in order
-        // and ignore conditional scope.
-        for (ShaderNode* node : shader.getGraph()->getNodes())
-        {
-            shader.addFunctionCall(node, context, *this);
-        }
-    END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
-
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-        // For pixel stage surface shaders need special handling
-        if (shader.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
-        {
-            // Handle all texturing nodes. These are inputs to any
-            // closure/shader nodes and need to be emitted first.
-            emitTextureNodes(shader);
-
-            // Emit function calls for all surface shader nodes
-            for (ShaderNode* node : shader.getGraph()->getNodes())
-            {
-                if (node->hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
+                if (context.getOptions().hwTransparency)
                 {
-                    shader.addFunctionCall(node, context, *this);
+                    emitLine("float outAlpha = clamp(1.0 - dot(" + finalOutput + ".transparency, vec3(0.3333)), 0.0, 1.0)", stage);
+                    emitLine(outputSocket->getVariable() + " = vec4(" + finalOutput + ".color, outAlpha)", stage);
                 }
-            }
-        }
-        else
-        {
-            // No surface shader, fallback to parent class
-            ParentClass::emitFunctionCalls(context, shader);
-        }
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-}
-
-void GlslShaderGenerator::emitFinalOutput(Shader& shader) const
-{
-    const ShaderGraphOutputSocket* outputSocket = shader.getGraph()->getOutputSocket();
-
-    // Early out for the rare case where the whole graph is just a single value
-    if (!outputSocket->connection)
-    {
-        string outputValue = outputSocket->value ? _syntax->getValue(outputSocket->type, *outputSocket->value) : _syntax->getDefaultValue(outputSocket->type);
-        if (!outputSocket->type->isFloat4())
-        {
-            string finalOutput = outputSocket->variable + "_tmp";
-            shader.addLine(_syntax->getTypeName(outputSocket->type) + " " + finalOutput + " = " + outputValue);
-            toVec4(outputSocket->type, finalOutput);
-            shader.addLine(outputSocket->variable + " = " + finalOutput);
-        }
-        else
-        {
-            shader.addLine(outputSocket->variable + " = " + outputValue);
-        }
-        return;
-    }
-
-    string finalOutput = outputSocket->connection->variable;
-
-    if (shader.hasClassification(ShaderNode::Classification::SURFACE))
-    {
-        const HwShader& hwShader = static_cast<const HwShader&>(shader);
-        if (hwShader.hasTransparency())
-        {
-            shader.addLine("float outAlpha = clamp(1.0 - dot(" + finalOutput + ".transparency, vec3(0.3333)), 0.0, 1.0)");
-            shader.addLine(outputSocket->variable + " = vec4(" + finalOutput + ".color, outAlpha)");
-        }
-        else
-        {
-            shader.addLine(outputSocket->variable + " = vec4(" + finalOutput + ".color, 1.0)");
-        }
-    }
-    else
-    {
-        if (!outputSocket->type->isFloat4())
-        {
-            toVec4(outputSocket->type, finalOutput);
-        }
-        shader.addLine(outputSocket->variable + " = " + finalOutput);
-    }
-}
-
-void GlslShaderGenerator::addContextIDs(ShaderNode* node) const
-{
-    if (node->hasClassification(ShaderNode::Classification::BSDF))
-    {
-        if (node->hasClassification(ShaderNode::Classification::BSDF_R))
-        {
-            // A BSDF for reflection only
-            node->addContextID(CONTEXT_BSDF_REFLECTION);
-            node->addContextID(CONTEXT_BSDF_INDIRECT);
-        }
-        else if (node->hasClassification(ShaderNode::Classification::BSDF_T))
-        {
-            // A BSDF for transmission only
-            node->addContextID(CONTEXT_BSDF_TRANSMISSION);
-        }
-        else
-        {
-            // A general BSDF handling both reflection and transmission
-            node->addContextID(CONTEXT_BSDF_REFLECTION);
-            node->addContextID(CONTEXT_BSDF_TRANSMISSION);
-            node->addContextID(CONTEXT_BSDF_INDIRECT);
-        }
-    }
-    else if (node->hasClassification(ShaderNode::Classification::EDF))
-    {
-        node->addContextID(CONTEXT_EDF);
-    }
-    else
-    {
-        ParentClass::addContextIDs(node);
-    }
-}
-
-void GlslShaderGenerator::emitTextureNodes(Shader& shader)
-{
-    // Emit function calls for all texturing nodes
-    bool found = false;
-    for (ShaderNode* node : shader.getGraph()->getNodes())
-    {
-        if (node->hasClassification(ShaderNode::Classification::TEXTURE) && !node->referencedConditionally())
-        {
-            shader.addFunctionCall(node, *_defaultContext, *this);
-            found = true;
-        }
-    }
-
-    if (found)
-    {
-        shader.newLine();
-    }
-}
-
-void GlslShaderGenerator::emitBsdfNodes(const ShaderNode& shaderNode, int bsdfContext, const string& incident, const string& outgoing, Shader& shader, string& bsdf)
-{
-    GenContext context(bsdfContext);
-
-    switch (bsdfContext)
-    {
-    case CONTEXT_BSDF_REFLECTION:
-        context.addArgument(Argument("vec3", incident));
-        context.addArgument(Argument("vec3", outgoing));
-        context.setFunctionSuffix("_reflection");
-        break;
-    case CONTEXT_BSDF_TRANSMISSION:
-        context.addArgument(Argument("vec3", outgoing));
-        context.setFunctionSuffix("_transmission");
-        break;
-    case CONTEXT_BSDF_INDIRECT:
-        context.addArgument(Argument("vec3", outgoing));
-        context.setFunctionSuffix("_indirect");
-        break;
-    default:
-        throw ExceptionShaderGenError("Unknown bsdf context id given when generating bsdf node function calls");
-    }
-
-    ShaderNode* last = nullptr;
-
-    // Emit function calls for all BSDF nodes used by this shader.
-    // The last node will hold the final result.
-    for (ShaderNode* node : shader.getGraph()->getNodes())
-    {
-        if (node->hasClassification(ShaderNode::Classification::BSDF) && shaderNode.isUsedClosure(node))
-        {
-            // Check if the node is defined in this context.
-            if (node->getContextIDs().count(bsdfContext))
-            {
-                shader.addFunctionCall(node, context, *this);
+                else
+                {
+                    emitLine(outputSocket->getVariable() + " = vec4(" + finalOutput + ".color, 1.0)", stage);
+                }
             }
             else
             {
-                // Node is not defined in this context so just
-                // emit the output variable set to default value.
-                shader.beginLine();
-                emitOutput(context, node->getOutput(), true, true, shader);
-                shader.endLine();
+                if (!outputSocket->getType()->isFloat4())
+                {
+                    toVec4(outputSocket->getType(), finalOutput);
+                }
+                emitLine(outputSocket->getVariable() + " = " + finalOutput, stage);
             }
-            last = node;
+        }
+        else
+        {
+            string outputValue = outputSocket->getValue() ? _syntax->getValue(outputSocket->getType(), *outputSocket->getValue()) : _syntax->getDefaultValue(outputSocket->getType());
+            if (!outputSocket->getType()->isFloat4())
+            {
+                string finalOutput = outputSocket->getVariable() + "_tmp";
+                emitLine(_syntax->getTypeName(outputSocket->getType()) + " " + finalOutput + " = " + outputValue, stage);
+                toVec4(outputSocket->getType(), finalOutput);
+                emitLine(outputSocket->getVariable() + " = " + finalOutput, stage);
+            }
+            else
+            {
+                emitLine(outputSocket->getVariable() + " = " + outputValue, stage);
+            }
         }
     }
 
-    if (last)
-    {
-        bsdf = last->getOutput()->variable;
-    }
+    // End main function
+    emitScopeEnd(stage);
+    emitLineBreak(stage);
 }
 
-void GlslShaderGenerator::emitEdfNodes(const ShaderNode& shaderNode, const string& normalDir, const string& evalDir, Shader& shader, string& edf)
+void GlslShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
-    GenContext context(CONTEXT_EDF);
+BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 
-    // Set extra arguments according to the given directions
-    context.addArgument(Argument("vec3", normalDir));
-    context.addArgument(Argument("vec3", evalDir));
-
-    edf = "EDF(0.0)";
-
-    ShaderNode* last = nullptr;
-
-    // Emit function calls for all EDF nodes used by this shader
-    // The last node will hold the final result
-    for (ShaderNode* node : shader.getGraph()->getNodes())
+    // For surface shaders we need light shaders
+    if (graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
     {
-        if (node->hasClassification(ShaderNode::Classification::EDF) && shaderNode.isUsedClosure(node))
+        // Emit functions for all bound light shaders
+        HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
+        if (lightShaders)
         {
-            shader.addFunctionCall(node, context, *this);
-            last = node;
+            for (auto it : lightShaders->get())
+            {
+                emitFunctionDefinition(*it.second, context, stage);
+            }
+        }
+        // Emit functions for light sampling
+        for (auto it : _lightSamplingNodes)
+        {
+            emitFunctionDefinition(*it, context, stage);
         }
     }
+END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 
-    if (last)
+    // Call parent to emit all other functions
+    HwShaderGenerator::emitFunctionDefinitions(graph, context, stage);
+}
+
+void GlslShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
+{
+BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+    // For vertex stage just emit all function calls in order
+    // and ignore conditional scope.
+    for (const ShaderNode* node : graph.getNodes())
     {
-        edf = last->getOutput()->variable;
+        emitFunctionCall(*node, context, stage, true);
     }
+END_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+
+BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    // For pixel stage surface shaders need special handling
+    if (graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
+    {
+        // Handle all texturing nodes. These are inputs to any
+        // closure/shader nodes and need to be emitted first.
+        emitTextureNodes(graph, context, stage);
+
+        // Emit function calls for all surface shader nodes
+        for (const ShaderNode* node : graph.getNodes())
+        {
+            if (node->hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
+            {
+                emitFunctionCall(*node, context, stage, false);
+            }
+        }
+    }
+    else
+    {
+        // No surface shader or closure graph,
+        // so generate a normel function call.
+        HwShaderGenerator::emitFunctionCalls(graph, context, stage);
+    }
+END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 }
 
 void GlslShaderGenerator::toVec4(const TypeDesc* type, string& variable)
@@ -768,6 +578,10 @@ void GlslShaderGenerator::toVec4(const TypeDesc* type, string& variable)
     {
         variable = "vec4(" + variable + ", " + variable + ", " + variable + ", 1.0)";
     }
+    else if (type == Type::BSDF || type == Type::EDF)
+    {
+        variable = "vec4(" + variable + ", 1.0)";
+    }
     else
     {
         // Can't understand other types. Just return black.
@@ -775,39 +589,45 @@ void GlslShaderGenerator::toVec4(const TypeDesc* type, string& variable)
     }
 }
 
-void GlslShaderGenerator::emitVariable(const Shader::Variable& variable, const string& qualifier, Shader& shader)
+void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, 
+                                                  GenContext&, ShaderStage& stage,
+                                                  bool assignValue) const
 {
     // A file texture input needs special handling on GLSL
-    if (variable.type == Type::FILENAME)
+    if (variable->getType() == Type::FILENAME)
     {
         // Samplers must always be uniforms
-        shader.addStr("uniform sampler2D " + variable.name);
+        emitString("uniform sampler2D " + variable->getVariable(), stage);
     }
     else
     {
-        const string& type = _syntax->getTypeName(variable.type);
+        string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
+        str += _syntax->getTypeName(variable->getType()) + " " + variable->getVariable();
 
-        string line = qualifier + " " + type + " " + variable.name;
-        if (variable.semantic.length())
-            line += " : " + variable.semantic;
-        if (variable.value)
+        // If an array we need an array qualifier (suffix) for the variable name
+        if (variable->getType()->isArray() && variable->getValue())
         {
-            // If an array we need an array qualifier (suffix) for the variable name
-            string arraySuffix;
-            variable.getArraySuffix(arraySuffix);
-            line += arraySuffix;
+            str += _syntax->getArraySuffix(variable->getType(), *variable->getValue());
+        }
 
-            line += " = " + _syntax->getValue(variable.type, *variable.value, true);
-        }
-        else
+        if (!variable->getSemantic().empty())
         {
-            line += " = " + _syntax->getDefaultValue(variable.type, true);
+            str += " : " + variable->getSemantic();
         }
-        shader.addStr(line);
+
+        if (assignValue)
+        {
+            const string valueStr = (variable->getValue() ?
+                _syntax->getValue(variable->getType(), *variable->getValue(), true) :
+                _syntax->getDefaultValue(variable->getType(), true));
+            str += valueStr.empty() ? EMPTY_STRING : " = " + valueStr;
+        }
+
+        emitString(str, stage);
     }
 }
 
-ShaderNodeImplPtr GlslShaderGenerator::createCompoundImplementation(NodeGraphPtr impl)
+ShaderNodeImplPtr GlslShaderGenerator::createCompoundImplementation(NodeGraphPtr impl) const
 {
     NodeDefPtr nodeDef = impl->getNodeDef();
     if (!nodeDef)
@@ -818,11 +638,11 @@ ShaderNodeImplPtr GlslShaderGenerator::createCompoundImplementation(NodeGraphPtr
     {
         return LightCompoundNodeGlsl::create();
     }
-    return ParentClass::createCompoundImplementation(impl);
+    return HwShaderGenerator::createCompoundImplementation(impl);
 }
 
-
-ValuePtr GlslShaderGenerator::remapEnumeration(const ValueElementPtr& input, const InterfaceElement& mappingElement, const TypeDesc*& enumerationType)
+ValuePtr GlslShaderGenerator::remapEnumeration(const ValueElementPtr& input, const InterfaceElement& mappingElement, 
+                                               const TypeDesc*& enumerationType) const
 {
     const string& inputName = input->getName();
     const string& inputValue = input->getValueString();
@@ -831,9 +651,9 @@ ValuePtr GlslShaderGenerator::remapEnumeration(const ValueElementPtr& input, con
     return remapEnumeration(inputName, inputValue, inputType, mappingElement, enumerationType);
 }
 
-ValuePtr GlslShaderGenerator::remapEnumeration(const string& inputName, const string& inputValue, const string& inputType, const InterfaceElement& mappingElement, const TypeDesc*& enumerationType)
+ValuePtr GlslShaderGenerator::remapEnumeration(const string& inputName, const string& inputValue, const string& inputType, 
+                                               const InterfaceElement& mappingElement, const TypeDesc*& enumerationType) const
 {
-
     enumerationType = nullptr;
 
     ValueElementPtr valueElem = mappingElement.getChildOfType<ValueElement>(inputName);
@@ -849,7 +669,7 @@ ValuePtr GlslShaderGenerator::remapEnumeration(const string& inputName, const st
         return nullptr;
     }
     // Don't convert supported types
-    if (getSyntax()->typeSupported(inputTypeDesc))
+    if (getSyntax().typeSupported(inputTypeDesc))
     {
         return nullptr;
     }

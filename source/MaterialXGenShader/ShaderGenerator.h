@@ -1,22 +1,22 @@
 #ifndef MATERIALX_SHADERGENERATOR_H
 #define MATERIALX_SHADERGENERATOR_H
 
-#include <MaterialXGenShader/ColorManagementSystem.h>
+#include <MaterialXGenShader/Library.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Syntax.h>
 #include <MaterialXGenShader/Factory.h>
 #include <MaterialXGenShader/ShaderNode.h>
-#include <MaterialXGenShader/GenOptions.h>
-#include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/ColorManagementSystem.h>
 
 #include <MaterialXCore/Util.h>
-
-#include <MaterialXFormat/File.h>
 
 namespace MaterialX
 {
 
-using ShaderGeneratorPtr = shared_ptr<class ShaderGenerator>;
+class GenContext;
+class ShaderGenerator;
+
+using ShaderGeneratorPtr = shared_ptr<ShaderGenerator>;
 
 /// Base class for shader generators
 /// All 3rd party shader generators should derive from this class.
@@ -36,60 +36,92 @@ public:
 
     /// Generate a shader starting from the given element, translating
     /// the element and all dependencies upstream into shader code.
-    virtual ShaderPtr generate(const string& shaderName, ElementPtr element, const GenOptions& options) = 0;
+    virtual ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const = 0;
+
+    /// Start a new scope using the given bracket type.
+    virtual void emitScopeBegin(ShaderStage& stage, ShaderStage::Brackets brackets = ShaderStage::Brackets::BRACES) const;
+
+    /// End the current scope.
+    virtual void emitScopeEnd(ShaderStage& stage, bool semicolon = false, bool newline = true) const;
+
+    /// Start a new line.
+    virtual void emitLineBegin(ShaderStage& stage) const;
+
+    /// End the current line.
+    virtual void emitLineEnd(ShaderStage& stage, bool semicolon = true) const;
+
+    /// Add a line break.
+    virtual void emitLineBreak(ShaderStage& stage) const;
+
+    /// Add a string.
+    virtual void emitString(const string& str, ShaderStage& stage) const;
+
+    /// Add a single line of code, optionally appening a semi-colon.
+    virtual void emitLine(const string& str, ShaderStage& stage, bool semicolon = true) const;
+
+    /// Add a single line code comment.
+    virtual void emitComment(const string& str, ShaderStage& stage) const;
+
+    /// Add a block of code.
+    virtual void emitBlock(const string& str, GenContext& context, ShaderStage& stage) const;
+
+    /// Add the contents of an include file. Making sure it is 
+    /// only included once for the shader stage.
+    virtual void emitInclude(const string& file, GenContext& context, ShaderStage& stage) const;
+
+    /// Add a value.
+    template<typename T>
+    void emitValue(const T& value, ShaderStage& stage) const
+    {
+        stage.addValue<T>(value);
+    }
+
+    /// Add the function definition for a single node.
+    virtual void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const;
+
+    /// Add the function call for a single node.
+    virtual void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage,
+                                  bool checkScope = true) const;
+
+    /// Add all function definitions for a graph.
+    virtual void emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
+
+    /// Add all function calls for a graph.
+    virtual void emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
 
     /// Emit type definitions for all data types that needs it.
-    virtual void emitTypeDefinitions(Shader& shader);
-
-    /// Emit function definitions for all nodes
-    virtual void emitFunctionDefinitions(Shader& shader);
-
-    /// Emit all functon calls constructing the shader body
-    virtual void emitFunctionCalls(const GenContext& context, Shader& shader);
-
-    /// Emit the final output expression
-    virtual void emitFinalOutput(Shader& shader) const;
+    virtual void emitTypeDefinitions(GenContext& context, ShaderStage& stage) const;
 
     /// Emit the connected variable name for an input,
     /// or constant value if the port is not connected
-    virtual void emitInput(const GenContext& context, const ShaderInput* input, Shader& shader) const;
-
-    /// Get the connected variable name for an input,
-    /// or constant value if the port is not connected
-    virtual void getInput(const GenContext& context, const ShaderInput* input, string& result) const;
+    virtual void emitInput(const ShaderInput* input, GenContext& context, ShaderStage& stage) const;
 
     /// Emit the output variable name for an output, optionally including it's type
     /// and default value assignment.
-    virtual void emitOutput(const GenContext& context, const ShaderOutput* output, bool includeType, bool assignDefault, Shader& shader) const;
+    virtual void emitOutput(const ShaderOutput* output, bool includeType, bool assignValue, GenContext& context, ShaderStage& stage) const;
 
-    /// Utility to emit a block of either uniform or constant variables
+    /// Emit definitions for all shader variables in a block.
+    /// @param stage The stage to emit code into.
     /// @param block Block to emit.
     /// @param qualifier Optional qualifier to add before the variable declaration.
-    /// Qualifiers are specified by the syntax for the generator.
-    /// @param separator Separator to use between variables.
-    /// @param shader Shader to emit to.
-    virtual void emitVariableBlock(const Shader::VariableBlock& block, const string& qualifier, const string& separator, Shader& shader);
+    /// @param separator Separator to use between the declarations.
+    /// @param assignValue If true the variables are initialized with their value.
+    virtual void emitVariableDeclarations(const VariableBlock& block, const string& qualifier, const string& separator, GenContext& context, ShaderStage& stage,
+                                          bool assignValue = true) const;
 
-    /// Emit a shader input variable
-    /// @param variable Variable to emit
+    /// Emit definition of a single shader variable.
+    /// @param stage The stage to emit code into.
+    /// @param variable Shader port representing the variable.
     /// @param qualifier Optional qualifier to add before the variable declaration.
-    /// Qualifiers are specified by the syntax for the generator.
-    /// @param shader Shader source to emit output to
-    virtual void emitVariable(const Shader::Variable& variable, const string& qualifier, Shader& shader);
+    /// @param assignValue If true the variable is initialized with its value.
+    virtual void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext& context, ShaderStage& stage,
+                                         bool assignValue = true) const;
+
+    /// Return the result of an upstream connection or value for an input.
+    virtual string getUpstreamResult(const ShaderInput* input, GenContext& context) const;
 
     /// Return the syntax object for the language used by the code generator
-    const Syntax* getSyntax() const { return _syntax.get(); }
-
-    /// Add context id's to the given node to control
-    /// in which contexts this node should be used.
-    virtual void addContextIDs(ShaderNode* node) const;
-
-    /// Return the context corresponding to the given id,
-    /// or nullptr if no such context is found.
-    const GenContext* getContext(int id) const;
-
-    template<class T>
-    using CreatorFunction = shared_ptr<T>(*)();
+    const Syntax& getSyntax() const { return *_syntax; }
 
     /// Register a shader node implementation for a given implementation element name
     void registerImplementation(const string& name, CreatorFunction<ShaderNodeImpl> creator);
@@ -104,7 +136,7 @@ public:
     }
 
     /// Returns the color management system
-    ColorManagementSystemPtr getColorManagementSystem()
+    ColorManagementSystemPtr getColorManagementSystem() const
     {
         return _colorManagementSystem;
     }
@@ -113,19 +145,7 @@ public:
     /// The element must be an Implementation or a NodeGraph acting as implementation.
     /// If no registered implementation is found a 'default' implementation instance
     /// will be returned, as defined by the createDefaultImplementation method.
-    ShaderNodeImplPtr getImplementation(InterfaceElementPtr element, const GenOptions& options);
-
-    /// Add to the search path used for finding source code.
-    void registerSourceCodeSearchPath(const FilePath& path);
-
-    /// Resolve a source code file using the registered search paths.
-    FilePath findSourceCode(const FilePath& filename);
-
-    /// Get the source code search path
-    const FileSearchPath& sourceCodeSearchPath()
-    {
-        return _sourceCodeSearchPath;
-    }
+    ShaderNodeImplPtr getImplementation(GenContext& context, InterfaceElementPtr element) const;
 
     /// Given a input element attempt to remap this to an enumeration which is accepted by
     /// the shader generator. The enumeration may be of a different type than the input value type.
@@ -133,10 +153,8 @@ public:
     /// @param mappingElement Element which provides enumeration information for mapping.
     /// @param enumerationType Enumeration type description (returned).
     /// @return Enumeration value. Null if no remapping is performed.
-    virtual ValuePtr remapEnumeration(const ValueElementPtr& /*input*/, const InterfaceElement& /*mappingElement*/, const TypeDesc*& /*enumerationType*/)
-    {
-        return nullptr;
-    }
+    virtual ValuePtr remapEnumeration(const ValueElementPtr& input, const InterfaceElement& mappingElement,
+                                      const TypeDesc*& enumerationType) const;
 
     /// Given a input specification (name, value, type) attempt to remap this to an enumeration which is accepted by
     /// the shader generator. The enumeration may be of a different type than the input value type.
@@ -147,60 +165,31 @@ public:
     /// @param mappingElement Element which provides enumeration information for mapping.
     /// @param enumerationType Enumeration type description (returned).
     /// @return Enumeration value. Null if no remapping is performed.
-    virtual ValuePtr remapEnumeration(const string& /*inputName*/, const string& /*inputValue*/, const string& /*inputType*/,
-                                      const InterfaceElement& /*mappingElement*/, const TypeDesc*& /*enumerationType*/)
-    {
-        return nullptr;
-    }
-
-    /// Return a cached implementation if used during shader generation
-    const ShaderNodeImplPtr getCachedImplementation(const string& name) const
-    {
-        auto it = _cachedImpls.find(name);
-        if (it != _cachedImpls.end())
-        {
-            return it->second;
-        }
-        return nullptr;
-    }
-
-public:
-    /// Identifiers for contexts
-    enum Context
-    {
-        CONTEXT_DEFAULT = 0
-    };
-
-    static string SEMICOLON_NEWLINE;
-    static string COMMA;
+    virtual ValuePtr remapEnumeration(const string& inputName, const string& inputValue, const string& inputType,
+                                      const InterfaceElement& mappingElement, const TypeDesc*& enumerationType) const;
 
 protected:
     /// Protected constructor
     ShaderGenerator(SyntaxPtr syntax);
 
-    /// Create a default implementation which is the implementation class to use
-    /// for nodes that has no specific implementation registered for it.
-    /// Derived classes can override this to use custom default implementations.
-    virtual ShaderNodeImplPtr createDefaultImplementation(ImplementationPtr impl);
+    /// Create a new stage in a shader.
+    virtual ShaderStagePtr createStage(const string& name, Shader& shader) const;
+
+    /// Create a source code implementation which is the implementation class to use
+    /// for nodes that has no specific C++ implementation registered for it.
+    /// Derived classes can override this to use custom source code implementations.
+    virtual ShaderNodeImplPtr createSourceCodeImplementation(ImplementationPtr impl) const;
 
     /// Create a compound implementation which is the implementation class to use
     /// for nodes using a nodegraph as their implementation.
     /// Derived classes can override this to use custom compound implementations.
-    virtual ShaderNodeImplPtr createCompoundImplementation(NodeGraphPtr impl);
+    virtual ShaderNodeImplPtr createCompoundImplementation(NodeGraphPtr impl) const;
 
-    /// Create a new node context with the given id. The context is added to the
-    /// shader generators node context storage and returned.
-    GenContextPtr createContext(int id);
+    static string SEMICOLON;
+    static string COMMA;
 
     SyntaxPtr _syntax;
     Factory<ShaderNodeImpl> _implFactory;
-    std::unordered_map<string, ShaderNodeImplPtr> _cachedImpls;
-
-    FileSearchPath _sourceCodeSearchPath;
-
-    std::unordered_map<int, GenContextPtr> _contexts;
-    GenContextPtr _defaultContext;
-
     ColorManagementSystemPtr _colorManagementSystem;
 };
 

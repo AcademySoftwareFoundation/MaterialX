@@ -4,6 +4,7 @@
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Library.h>
 
+#include <MaterialXGenShader/Library.h>
 #include <MaterialXGenShader/Factory.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
@@ -61,37 +62,23 @@ class ColorManagementSystem
     virtual void loadLibrary(DocumentPtr document);
 
     /// Returns whether this color management system supports a provided transform
-    bool supportsTransform(const ColorSpaceTransform& transform);
+    bool supportsTransform(const ColorSpaceTransform& transform) const;
 
     /// Create a node to use to perform the given color space transformation.
-    ShaderNodePtr createNode(const ColorSpaceTransform& transform, const string& name, ShaderGenerator& shadergen, const GenOptions& options);
-
-    /// Return a cached implementation if used during shader generation
-    const ShaderNodeImplPtr getCachedImplementation(const string& name) const
-    {
-        auto it = _cachedImpls.find(name);
-        if (it != _cachedImpls.end())
-        {
-            return it->second;
-        }
-        return nullptr;
-    }
+    ShaderNodePtr createNode(const ShaderGraph* parent, const ColorSpaceTransform& transform, const string& name,
+                             GenContext& context) const;
 
   protected:
-    template<class T>
-    using CreatorFunction = shared_ptr<T>(*)();
-
+    /// Protected constructor
+    ColorManagementSystem(const string& configFile);
+      
     /// Returns an implementation name for a given transform
-    virtual string getImplementationName(const ColorSpaceTransform& transform) = 0;
+    virtual string getImplementationName(const ColorSpaceTransform& transform) const = 0;
 
     /// Register a node implementation for a given color space transformation.
     void registerImplementation(const ColorSpaceTransform& transform, CreatorFunction<ShaderNodeImpl> creator);
 
-    /// Protected constructor
-    ColorManagementSystem(const string& configFile);
-
     Factory<ShaderNodeImpl> _implFactory;
-    std::unordered_map<string, ShaderNodeImplPtr> _cachedImpls;
     vector<string> _registeredImplNames;
     string _configFile;
     DocumentPtr _document;

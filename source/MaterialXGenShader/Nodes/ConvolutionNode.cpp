@@ -1,6 +1,6 @@
 #include <MaterialXGenShader/Nodes/ConvolutionNode.h>
+#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
 
 namespace
 {
@@ -30,15 +30,19 @@ namespace
 
 namespace MaterialX
 {
+
+const string ConvolutionNode::SAMPLE2D_INPUT = "texcoord";
+const string ConvolutionNode::SAMPLE3D_INPUT = "position";
+
 ConvolutionNode::ConvolutionNode()
-    : _sampleCount(1)
-    , _filterSize(1.0f)
-    , _filterOffset(0.0f)
 {
 }
 
-void ConvolutionNode::createVariables(const ShaderNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader)
+void ConvolutionNode::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
 {
+    ShaderStage& stage = shader.getStage(MAIN_STAGE);
+    VariableBlock& constants = stage.getConstantBlock();
+
     // Create constant for box weights
     const float boxWeight3x3 = 1.0f / 9.0f;
     const float boxWeight5x5 = 1.0f / 25.0f;
@@ -57,103 +61,125 @@ void ConvolutionNode::createVariables(const ShaderNode& /*node*/, ShaderGenerato
     {
         boxWeightArray.push_back(boxWeight7x7);
     }
-    shader.createConstant(Shader::PIXEL_STAGE, 
-        Type::FLOATARRAY, "c_box_filter_weights", EMPTY_STRING, EMPTY_STRING, Value::createValue<vector<float>>(boxWeightArray));
+    constants.add(Type::FLOATARRAY, "c_box_filter_weights", Value::createValue<vector<float>>(boxWeightArray));
 
     // Create constant for Gaussian weights
- 
-    shader.createConstant(Shader::PIXEL_STAGE,
-        Type::FLOATARRAY, "c_gaussian_filter_weights", EMPTY_STRING, EMPTY_STRING, Value::createValue<vector<float>>(GAUSSIAN_WEIGHT_ARRAY));
+    constants.add(Type::FLOATARRAY, "c_gaussian_filter_weights", Value::createValue<vector<float>>(GAUSSIAN_WEIGHT_ARRAY));
 }
 
-void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader, StringVec& sampleStrings)
+/// Get input which is used for sampling. If there is none
+/// then a null pointer is returned.
+const ShaderInput* ConvolutionNode::getSamplingInput(const ShaderNode& node) const
+{
+    // Determine if this input can be sampled
+    if (node.hasClassification(ShaderNode::Classification::SAMPLE2D))
+    {
+        const ShaderInput* input = node.getInput(SAMPLE2D_INPUT);
+        return input->getType() == Type::VECTOR2 ? input : nullptr;
+    }
+    else if (node.hasClassification(ShaderNode::Classification::SAMPLE3D))
+    {
+        const ShaderInput* input = node.getInput(SAMPLE3D_INPUT);
+        return input->getType() == Type::VECTOR3 ? input : nullptr;
+    }
+    return nullptr;
+}
+
+void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node, 
+                                         unsigned int sampleCount, unsigned int filterWidth, 
+                                         float filterSize, float filterOffset,
+                                         const string& sampleSizeFunctionUV, 
+                                         GenContext& context, ShaderStage& stage, 
+                                         StringVec& sampleStrings) const
 {
     sampleStrings.clear();
 
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
+
     // Check for an upstream node to sample
     const ShaderInput* inInput = node.getInput("in");
-    ShaderOutput* inConnection = inInput ? inInput->connection : nullptr;
+    const ShaderOutput* inConnection = inInput ? inInput->getConnection() : nullptr;
 
-    if (inConnection && inConnection->type && acceptsInputType(inConnection->type))
+    if (inConnection && inConnection->getType() && acceptsInputType(inConnection->getType()))
     {
-        ShaderNode* upstreamNode = inConnection->node;
+        const ShaderNode* upstreamNode = inConnection->getNode();
         if (upstreamNode && upstreamNode->hasClassification(ShaderNode::Classification::SAMPLE2D))
         {
-            ShaderNodeImpl *impl = upstreamNode->getImplementation();
-            if (impl)
+            const ShaderNodeImpl& impl = upstreamNode->getImplementation();
+            const ShaderOutput* upstreamOutput = upstreamNode->getOutput();
+            if (upstreamOutput)
             {
-                ShaderOutput* upstreamOutput = upstreamNode->getOutput();
-                if (upstreamOutput)
+                // Find out which input needs to be sampled multiple times
+                // If the sample count is 1 then the sample code has already been emitted
+                const ShaderInput* samplingInput = (sampleCount > 1) ? getSamplingInput(*upstreamNode) : nullptr;
+
+                // TODO: For now we only support uv space sampling
+                if (samplingInput && samplingInput->getType() != Type::VECTOR2)
                 {
-                    // Find out which input needs to be sampled multiple times
-                    // If the sample count is 1 then the sample code has already been emitted
-                    ShaderInput* samplingInput = (_sampleCount > 1) ? upstreamNode->getSamplingInput() : nullptr;
+                    samplingInput = nullptr;
+                }
 
-                    // TODO: For now we only support uv space sampling
-                    if (samplingInput && samplingInput->type != Type::VECTOR2)
+                if (samplingInput)
+                {
+                    // This is not exposed. Assume a filter size of 1 with no offset
+
+                    const ShaderOutput* output = node.getOutput();
+
+                    // Emit code to compute sample size
+                    //
+                    string sampleInputValue = shadergen.getUpstreamResult(samplingInput, context);
+
+                    const string sampleSizeName(output->getVariable() + "_sample_size");
+                    const string vec2TypeString = shadergen.getSyntax().getTypeName(Type::VECTOR2);
+                    string sampleCall(vec2TypeString + " " + sampleSizeName + " = " +
+                        sampleSizeFunctionUV + "(" +
+                        sampleInputValue + "," +
+                        std::to_string(filterSize) + "," +
+                        std::to_string(filterOffset) + ");"
+                    );
+                    shadergen.emitLine(sampleCall, stage);
+
+                    // Build the sample offset strings. This is dependent on
+                    // the derived class to determine where samples are located
+                    // and to generate the strings required to offset from the center
+                    // sample. The sample size is passed over.
+                    //
+                    StringVec inputVec2Suffix;
+                    if (sampleCount > 1)
                     {
-                        samplingInput = nullptr;
+                        computeSampleOffsetStrings(sampleSizeName, vec2TypeString,
+                            filterWidth, inputVec2Suffix);
                     }
 
-                    if (samplingInput)
+                    // Emit outputs for sample input 
+                    for (unsigned int i = 0; i < sampleCount; i++)
                     {
-                        // This is not exposed. Assume a filter size of 1 with no offset
+                        // Add an input name suffix. 
+                        context.addInputSuffix(samplingInput, inputVec2Suffix[i]);
 
-                        const ShaderOutput* output = node.getOutput();
+                        // Add a output name suffix for the emit call
+                        string outputSuffix("_" + output->getVariable() + std::to_string(i));
+                        context.addOutputSuffix(upstreamOutput, outputSuffix);
 
-                        // Emit code to compute sample size
-                        //
-                        string sampleInputValue;
-                        shadergen.getInput(context, samplingInput, sampleInputValue);
+                        impl.emitFunctionCall(*upstreamNode, context, stage);
 
-                        const string sampleSizeName(output->variable + "_sample_size");
-                        const string vec2TypeString = shadergen.getSyntax()->getTypeName(Type::VECTOR2);
-                        string sampleCall(vec2TypeString + " " + sampleSizeName + " = " +
-                            _sampleSizeFunctionUV + "(" +
-                            sampleInputValue + "," +
-                            std::to_string(_filterSize) + "," +
-                            std::to_string(_filterOffset) + ");"
-                        );
-                        shader.addLine(sampleCall);
+                        // Remove suffixes
+                        context.removeInputSuffix(samplingInput);
+                        context.removeOutputSuffix(upstreamOutput);
 
-                        // Build the sample offset strings. This is dependent on
-                        // the derived class to determine where samples are located
-                        // and to generate the strings required to offset from the center
-                        // sample. The sample size is passed over.
-                        //
-                        StringVec inputVec2Suffix;
-                        computeSampleOffsetStrings(sampleSizeName, vec2TypeString, inputVec2Suffix);
-
-                        // Emit outputs for sample input 
-                        for (unsigned int i = 0; i < _sampleCount; i++)
-                        {
-                            // Add an input name suffix. 
-                            context.addInputSuffix(samplingInput, inputVec2Suffix[i]);
-
-                            // Add a output name suffix for the emit call
-                            string outputSuffix("_" + output->variable + std::to_string(i));
-                            context.addOutputSuffix(upstreamOutput, outputSuffix);
-
-                            impl->emitFunctionCall(*upstreamNode, context, shadergen, shader);
-
-                            // Remove suffixes
-                            context.removeInputSuffix(samplingInput);
-                            context.removeOutputSuffix(upstreamOutput);
-
-                            // Keep track of the output name with the suffix
-                            sampleStrings.push_back(upstreamOutput->variable + outputSuffix);
-                        }
+                        // Keep track of the output name with the suffix
+                        sampleStrings.push_back(upstreamOutput->getVariable() + outputSuffix);
                     }
-                    else
+                }
+                else
+                {
+                    // Use the same input for all samples.
+                    // Note: This does not recomputed the output, but instead it reuses
+                    // the output variable.
+                    for (unsigned int i = 0; i < sampleCount; i++)
                     {
-                        // Use the same input for all samples.
-                        // Note: This does not recomputed the output, but instead it reuses
-                        // the output variable.
-                        for (unsigned int i = 0; i < _sampleCount; i++)
-                        {
-                            // Call the unmodified function
-                            sampleStrings.push_back(upstreamOutput->variable);
-                        }
+                        // Call the unmodified function
+                        sampleStrings.push_back(upstreamOutput->getVariable());
                     }
                 }
             }
@@ -161,7 +187,7 @@ void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node, GenContext& con
     }
     else
     {
-        if (!inInput->value)
+        if (!inInput->getValue())
         {
             throw ExceptionShaderGenError("No connection or value found on node: '" + node.getName() + "'");
         }
@@ -170,20 +196,19 @@ void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node, GenContext& con
     // Build a set of samples with constant values
     if (sampleStrings.empty())
     {
-
-        if (inInput->type->isScalar())
+        if (inInput->getType()->isScalar())
         {
-            string scalarValueString = inInput->value ? inInput->value->getValueString() : "1";
-            for (unsigned int i = 0; i < _sampleCount; i++)
+            string scalarValueString = inInput->getValue() ? inInput->getValue()->getValueString() : "1";
+            for (unsigned int i = 0; i < sampleCount; i++)
             {
                 sampleStrings.push_back(scalarValueString);
             }
         }
         else
         {
-            string typeString = shadergen.getSyntax()->getTypeName(inInput->type);
-            string inValueString = typeString + "(" + inInput->value->getValueString() + ")";
-            for (unsigned int i = 0; i < _sampleCount; i++)
+            string typeString = shadergen.getSyntax().getTypeName(inInput->getType());
+            string inValueString = typeString + "(" + inInput->getValue()->getValueString() + ")";
+            for (unsigned int i = 0; i < sampleCount; i++)
             {
                 sampleStrings.push_back(inValueString);
             }

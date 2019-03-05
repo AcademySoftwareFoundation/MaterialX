@@ -5,6 +5,11 @@
 namespace MaterialX
 {
 
+LightShaderNodeGlsl::LightShaderNodeGlsl()
+    : _lightUniforms(HW::LIGHT_DATA, EMPTY_STRING)
+{
+}
+
 ShaderNodeImplPtr LightShaderNodeGlsl::create()
 {
     return std::make_shared<LightShaderNodeGlsl>();
@@ -20,9 +25,9 @@ const string& LightShaderNodeGlsl::getTarget() const
     return GlslShaderGenerator::TARGET;
 }
 
-void LightShaderNodeGlsl::initialize(ElementPtr implementation, ShaderGenerator& shadergen, const GenOptions& options)
+void LightShaderNodeGlsl::initialize(ElementPtr implementation, GenContext& context)
 {
-    SourceCodeNode::initialize(implementation, shadergen, options);
+    SourceCodeNode::initialize(implementation, context);
 
     if (_inlined)
     {
@@ -35,44 +40,41 @@ void LightShaderNodeGlsl::initialize(ElementPtr implementation, ShaderGenerator&
         throw ExceptionShaderGenError("Element '" + implementation->getName() + "' is not an Implementation element");
     }
 
-    // Create light uniforms for all inputs and parameters on the nodedef
+    // Store light uniforms for all inputs and parameters on the interface
     NodeDefPtr nodeDef = impl->getNodeDef();
-    _lightUniforms.resize(nodeDef->getInputCount() + nodeDef->getParameterCount());
-    size_t index = 0;
     for (InputPtr input : nodeDef->getInputs())
     {
-        _lightUniforms[index++] = Shader::Variable(TypeDesc::get(input->getType()), input->getName(), input->getNamePath(), EMPTY_STRING, input->getValue());
+        _lightUniforms.add(TypeDesc::get(input->getType()), input->getName(), input->getValue());
     }
     for (ParameterPtr param : nodeDef->getParameters())
     {
-        _lightUniforms[index++] = Shader::Variable(TypeDesc::get(param->getType()), param->getName(), param->getNamePath(), EMPTY_STRING, param->getValue());
+        _lightUniforms.add(TypeDesc::get(param->getType()), param->getName(), param->getValue());
     }
 }
 
-void LightShaderNodeGlsl::createVariables(const ShaderNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void LightShaderNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
+    ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
 
-    // Create variables used by this shader
-    for (const Shader::Variable& uniform : _lightUniforms)
+    // Create all light uniforms
+    VariableBlock& lightData = ps.getUniformBlock(HW::LIGHT_DATA);
+    for (size_t i = 0; i < _lightUniforms.size(); ++i)
     {
-        shader.createUniform(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK, uniform.type, uniform.name, EMPTY_STRING, uniform.semantic, uniform.value);
+        const ShaderPort* u = _lightUniforms[i];
+        lightData.add(u->getType(), u->getName());
     }
 
     // Create uniform for number of active light sources
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources",
-        EMPTY_STRING, EMPTY_STRING, Value::createValue<int>(0));
+    ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", ps);
+    numActiveLights->setValue(Value::createValue<int>(0));
 }
 
-void LightShaderNodeGlsl::emitFunctionCall(const ShaderNode& /*node*/, GenContext& /*context*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void LightShaderNodeGlsl::emitFunctionCall(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
-
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-
-        shader.addLine(_functionName + "(light, position, result)");
-
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
+        shadergen.emitLine(_functionName + "(light, position, result)", stage);
+    END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

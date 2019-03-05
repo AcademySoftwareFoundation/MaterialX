@@ -58,10 +58,7 @@ TEST_CASE("OGSFX Syntax", "[genogsfx]")
 
 TEST_CASE("OGSFX Implementation Check", "[genogsfx]")
 {
-    mx::DocumentPtr doc = mx::createDocument();
-
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    mx::ShaderGeneratorPtr generator = mx::OgsFxShaderGenerator::create();
+    mx::GenContext context(mx::OgsFxShaderGenerator::create());
 
     std::set<std::string> generatorSkipNodeTypes;
     std::set<std::string> generatorSkipNodeDefs;
@@ -70,16 +67,17 @@ TEST_CASE("OGSFX Implementation Check", "[genogsfx]")
     generatorSkipNodeDefs.insert("ND_multiply_surfaceshaderC");
     generatorSkipNodeDefs.insert("ND_mix_surfaceshader");
 
-    GenShaderUtil::checkImplementations(generator, generatorSkipNodeTypes, generatorSkipNodeDefs);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs);
 }
 
 TEST_CASE("OGSFX Unique Names", "[genogsfx]")
 {
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
-    mx::ShaderGeneratorPtr shaderGenerator = mx::OgsFxShaderGenerator::create();
-    shaderGenerator->registerSourceCodeSearchPath(searchPath);
+    mx::GenContext context(mx::OgsFxShaderGenerator::create());
 
-    GenShaderUtil::testUniqueNames(shaderGenerator, mx::OgsFxShader::FINAL_FX_STAGE);
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    context.registerSourceCodeSearchPath(searchPath);
+
+    GenShaderUtil::testUniqueNames(context, mx::HW::FX_STAGE);
 }
 
 class OGSFXGenCodeGenerationTester : public GenShaderUtil::ShaderGeneratorTester
@@ -87,19 +85,14 @@ class OGSFXGenCodeGenerationTester : public GenShaderUtil::ShaderGeneratorTester
 public:
     using ParentClass = GenShaderUtil::ShaderGeneratorTester;
 
-    OGSFXGenCodeGenerationTester(const mx::FilePath& searchPath, const mx::FilePath& testRootPath,
-        const mx::FilePath& logFilePath) : GenShaderUtil::ShaderGeneratorTester(searchPath, testRootPath, logFilePath)
+    OGSFXGenCodeGenerationTester(const mx::FilePath& testRootPath, const mx::FilePath& libSearchPath,
+                                 const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath)
+        : GenShaderUtil::ShaderGeneratorTester(testRootPath, libSearchPath, srcSearchPath, logFilePath)
     {}
 
     void createGenerator() override
     {
         _shaderGenerator = mx::OgsFxShaderGenerator::create();
-        _shaderGenerator->registerSourceCodeSearchPath(_searchPath);
-
-        if (!_shaderGenerator)
-        {
-            _logFile << ">> Failed to create OGSFX generator" << std::endl;
-        }
     }
 
     void addSkipNodeDefs() override
@@ -112,17 +105,18 @@ public:
 
     void setTestStages() override
     {
-        _testStages.push_back(mx::HwShader::VERTEX_STAGE);
-        _testStages.push_back(mx::HwShader::PIXEL_STAGE);
+        _testStages.push_back(mx::HW::VERTEX_STAGE);
+        _testStages.push_back(mx::HW::PIXEL_STAGE);
     }
 };
 
 static void generateOGSFXCode()
 {
-    const mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
     const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite");
+    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     const mx::FilePath logPath("genglsl_ogsfx_generate_test.txt");
-    OGSFXGenCodeGenerationTester tester(searchPath, testRootPath, logPath);
+    OGSFXGenCodeGenerationTester tester(testRootPath, libSearchPath, srcSearchPath, logPath);
 
     const mx::GenOptions genOptions;
     tester.testGeneration(genOptions);
@@ -132,5 +126,3 @@ TEST_CASE("OGSFX Shader Generation", "[genogsfx]")
 {
     generateOGSFXCode();
 }
-
-

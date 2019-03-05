@@ -1,9 +1,19 @@
 #include <MaterialXGenShader/Syntax.h>
-#include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/TypeDesc.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
+
 #include <MaterialXCore/Value.h>
 
 namespace MaterialX
 {
+
+const string Syntax::NEWLINE = "\n";
+const string Syntax::INDENTATION = "    ";
+const string Syntax::STRING_QUOTE = "\"";
+const string Syntax::INCLUDE_STATEMENT = "#include";
+const string Syntax::SINGLE_LINE_COMMENT = "// ";
+const string Syntax::BEGIN_MULTI_LINE_COMMENT = "/* ";
+const string Syntax::END_MULTI_LINE_COMMENT = " */";
 
 Syntax::Syntax()
 {
@@ -158,6 +168,24 @@ void Syntax::makeUnique(string& name, UniqueNameMap& uniqueNames) const
     }
 }
 
+string Syntax::getArraySuffix(const TypeDesc* type, const Value& value) const
+{
+    if (type->isArray())
+    {
+        if (value.isA<vector<float>>())
+        {
+            const size_t size = value.asA<vector<float>>().size();
+            return "[" + std::to_string(size) + "]";
+        }
+        else if (value.isA<vector<int>>())
+        {
+            const size_t size = value.asA<vector<int>>().size();
+            return "[" + std::to_string(size) + "]";
+        }
+    }
+    return string();
+}
+
 static bool isInvalidChar(char c)
 {
     return !isalnum(c) && c != '_';
@@ -171,6 +199,7 @@ void Syntax::makeValidName(string& name) const
         name = replaceSubstrings(name, _invalidTokens);
     }
 }
+
 
 const vector<string> TypeSyntax::EMPTY_MEMBERS;
 

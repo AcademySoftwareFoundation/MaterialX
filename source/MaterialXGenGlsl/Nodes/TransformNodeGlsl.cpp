@@ -8,109 +8,109 @@ ShaderNodeImplPtr TransformNodeGlsl::create()
     return std::make_shared<TransformNodeGlsl>();
 }
 
-void TransformNodeGlsl::createVariables(const ShaderNode& node, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void TransformNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
-
     const ShaderInput* toSpaceInput = node.getInput(TO_SPACE);
-    string toSpace = toSpaceInput ? toSpaceInput->value->getValueString() : EMPTY_STRING;
+    string toSpace = toSpaceInput ? toSpaceInput->getValue()->getValueString() : EMPTY_STRING;
 
     const ShaderInput* fromSpaceInput = node.getInput(FROM_SPACE);
-    string fromSpace = fromSpaceInput ? fromSpaceInput->value->getValueString() : EMPTY_STRING;
+    string fromSpace = fromSpaceInput ? fromSpaceInput->getValue()->getValueString() : EMPTY_STRING;
+
+    ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
 
     if ((fromSpace == MODEL || fromSpace == OBJECT) && toSpace == WORLD)
     {
         if (node.hasClassification(ShaderNode::Classification::TRANSFORM_NORMAL))
         {
-            shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix");
+            addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix", ps);
         }
         else
         {
-            shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldMatrix");
+            addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldMatrix", ps);
         }
     }
     else if (fromSpace == WORLD && (toSpace == MODEL || toSpace == OBJECT))
     {
         if (node.hasClassification(ShaderNode::Classification::TRANSFORM_NORMAL))
         {
-            shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldTransposeMatrix");
+            addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldTransposeMatrix", ps);
         }
         else
         {
-            shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseMatrix");
+            addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseMatrix", ps);
         }
     }
 }
 
-void TransformNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void TransformNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
+    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
 
-    const ShaderInput* inInput = node.getInput("in");
-    if (inInput->type != Type::VECTOR3 && inInput->type != Type::VECTOR4)
-    {
-        throw ExceptionShaderGenError("Transform node must have 'in' type of vector3 or vector4.");
-    }
-
-    const ShaderInput* toSpaceInput = node.getInput(TO_SPACE);
-    string toSpace = toSpaceInput ? toSpaceInput->value->getValueString() : EMPTY_STRING;
-
-    const ShaderInput* fromSpaceInput = node.getInput(FROM_SPACE);
-    string fromSpace = fromSpaceInput ? fromSpaceInput->value->getValueString() : EMPTY_STRING;
-
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-        shader.beginLine();
-        shadergen.emitOutput(context, node.getOutput(), true, false, shader);
-
-        shader.addStr( " = ");
-        if (inInput->type == Type::VECTOR3)
+        const ShaderInput* inInput = node.getInput("in");
+        if (inInput->getType() != Type::VECTOR3 && inInput->getType() != Type::VECTOR4)
         {
-            shader.addStr("(");
+            throw ExceptionShaderGenError("Transform node must have 'in' type of vector3 or vector4.");
+        }
+
+        const ShaderInput* toSpaceInput = node.getInput(TO_SPACE);
+        string toSpace = toSpaceInput ? toSpaceInput->getValue()->getValueString() : EMPTY_STRING;
+
+        const ShaderInput* fromSpaceInput = node.getInput(FROM_SPACE);
+        string fromSpace = fromSpaceInput ? fromSpaceInput->getValue()->getValueString() : EMPTY_STRING;
+
+        shadergen.emitLineBegin(stage);
+        shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+
+        shadergen.emitString(" = ", stage);
+        if (inInput->getType() == Type::VECTOR3)
+        {
+            shadergen.emitString("(", stage);
         }
         if ((fromSpace == MODEL || fromSpace == OBJECT) && toSpace == WORLD)
         {
             if (node.hasClassification(ShaderNode::Classification::TRANSFORM_NORMAL))
             {
-                shader.addStr("u_worldInverseTransposeMatrix * ");
+                shadergen.emitString("u_worldInverseTransposeMatrix * ", stage);
             }
             else
             {
-                shader.addStr("u_worldMatrix * ");
+                shadergen.emitString("u_worldMatrix * ", stage);
             }
         }
         else if (fromSpace == WORLD && (toSpace == MODEL || toSpace == OBJECT))
         {
             if (node.hasClassification(ShaderNode::Classification::TRANSFORM_NORMAL))
             {
-                shader.addStr("u_worldTransposeMatrix * ");
+                shadergen.emitString("u_worldTransposeMatrix * ", stage);
             }
             else
             {
-                shader.addStr("u_worldInverseMatrix * ");
+                shadergen.emitString("u_worldInverseMatrix * ", stage);
             }
         }
 
-        if (inInput->type == Type::VECTOR3)
+        if (inInput->getType() == Type::VECTOR3)
         {
-            shader.addStr("vec4(");
+            shadergen.emitString("vec4(", stage);
             if (node.hasClassification(ShaderNode::Classification::TRANSFORM_POINT))
             {
-                shadergen.emitInput(context, inInput, shader);
-                shader.addStr(", 1.0)");
+                shadergen.emitInput(inInput, context, stage);
+                shadergen.emitString(", 1.0)", stage);
             }
             else
             {
-                shadergen.emitInput(context, inInput, shader);
-                shader.addStr(", 0.0)");
+                shadergen.emitInput(inInput, context, stage);
+                shadergen.emitString(", 0.0)", stage);
             }
-            shader.addStr(").xyz");
+            shadergen.emitString(").xyz", stage);
         }
         else
         {
-            shadergen.emitInput(context, inInput, shader);
+            shadergen.emitInput(inInput, context, stage);
         }
-        shader.endLine();
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+        shadergen.emitLineEnd(stage);
+    END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

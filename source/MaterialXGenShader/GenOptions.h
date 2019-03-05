@@ -50,17 +50,6 @@ class GenOptions
     /// Sets the type of shader interface to be generated
     int shaderInterfaceType;
 
-    /// Sets if transparency is needed or not for HW shaders.
-    /// If a surface shader has potential of being transparent
-    /// this must be set to true, otherwise no transparency
-    /// code fragments will be generated for the shader and
-    /// the surface will be fully opaque.
-    bool hwTransparency;
-
-    /// Sets the method to use for specular environment 
-    /// lighting for HW shader targets.
-    int hwSpecularEnvironmentMethod;
-
     /// If true the y-component of texture coordinates used for sampling
     /// file textures will be flipped before sampling. This can be used if
     /// file textures need to be flipped vertically to match the target's
@@ -71,6 +60,21 @@ class GenOptions
     /// Shader fragments will be generated to transform
     /// input values and textures into this color space.
     string targetColorSpaceOverride;
+
+    /// Sets if transparency is needed or not for HW shaders.
+    /// If a surface shader has potential of being transparent
+    /// this must be set to true, otherwise no transparency
+    /// code fragments will be generated for the shader and
+    /// the surface will be fully opaque.
+    bool hwTransparency;
+
+    /// Sets the method to use for specular environment 
+    /// lighting for HW shader targets.
+    unsigned int hwSpecularEnvironmentMethod;
+
+    /// Sets the maximum number of light sources that can
+    /// be active at once.
+    unsigned int hwMaxActiveLightSources;
 };
 
 } // namespace MaterialX

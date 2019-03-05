@@ -1,11 +1,10 @@
 #include <MaterialXRenderOsl/OslValidator.h>
+
 #include <MaterialXGenShader/Util.h>
-#include <MaterialXFormat/File.h>
+
+#include <MaterialXGenOsl/OslShaderGenerator.h>
 
 #include <fstream>
-#include <iostream>
-#include <algorithm>
-#include <vector>
 
 namespace MaterialX
 {
@@ -276,7 +275,7 @@ void OslValidator::compileOSL(const string& oslFileName)
 
 void OslValidator::validateCreation(const ShaderPtr shader)
 {
-    StageMap stages = { {Shader::PIXEL_STAGE, shader->getSourceCode(Shader::PIXEL_STAGE)} };
+    StageMap stages = { {OSL::STAGE, shader->getStage(OSL::STAGE).getSourceCode()} };
     validateCreation(stages);
 }
 

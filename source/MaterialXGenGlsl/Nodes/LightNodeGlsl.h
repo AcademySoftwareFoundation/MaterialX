@@ -10,11 +10,16 @@ namespace MaterialX
 class LightNodeGlsl : public GlslImplementation
 {
   public:
+    LightNodeGlsl();
+
     static ShaderNodeImplPtr create();
 
-    void createVariables(const ShaderNode& node, ShaderGenerator& shadergen, Shader& shader) override;
+    void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
 
-    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
+
+  private:
+      HwClosureContextPtr _callEmission;
 };
 
 } // namespace MaterialX

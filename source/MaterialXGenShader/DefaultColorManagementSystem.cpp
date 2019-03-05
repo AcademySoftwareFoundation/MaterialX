@@ -9,7 +9,7 @@ namespace MaterialX
 const string DefaultColorManagementSystem::CMS_NAME = "default_cms";
 
 
-string DefaultColorManagementSystem::getImplementationName(const ColorSpaceTransform& transform)
+string DefaultColorManagementSystem::getImplementationName(const ColorSpaceTransform& transform) const
 {
     return "IM_" + transform.sourceSpace + "_to_" + transform.targetSpace + "_" + transform.type->getName() + "_" + _language;
 }

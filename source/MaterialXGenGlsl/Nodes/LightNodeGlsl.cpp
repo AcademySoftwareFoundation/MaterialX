@@ -5,11 +5,19 @@ namespace MaterialX
 
 namespace
 {
-    static const string LIGHT_DIRECTION_BLOCK =
+    static const string LIGHT_DIRECTION_CALCULATION =
         "vec3 L = light.position - position;\n"
         "float distance = length(L);\n"
         "L /= distance;\n"
         "result.direction = L;\n";
+}
+
+LightNodeGlsl::LightNodeGlsl()
+{
+    // Emission context
+    _callEmission = HwClosureContext::create(HwClosureContext::EMISSION);
+    _callEmission->addArgument(Type::VECTOR3, "light.direction");
+    _callEmission->addArgument(Type::VECTOR3, "-L");
 }
 
 ShaderNodeImplPtr LightNodeGlsl::create()
@@ -17,59 +25,55 @@ ShaderNodeImplPtr LightNodeGlsl::create()
     return std::make_shared<LightNodeGlsl>();
 }
 
-void LightNodeGlsl::createVariables(const ShaderNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void LightNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
+    ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
 
     // Create uniform for intensity, exposure and direction
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK, Type::FLOAT, "intensity", EMPTY_STRING,
-        EMPTY_STRING, Value::createValue<float>(1.0f));
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK, Type::FLOAT, "exposure", EMPTY_STRING,
-        EMPTY_STRING, Value::createValue<float>(0.0f));
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::LIGHT_DATA_BLOCK, Type::VECTOR3, "direction", EMPTY_STRING,
-        EMPTY_STRING, Value::createValue<Vector3>(Vector3(0.0f,1.0f,0.0f)));
+    VariableBlock& lightUniforms = ps.getUniformBlock(HW::LIGHT_DATA);
+    lightUniforms.add(Type::FLOAT, "intensity", Value::createValue<float>(1.0f));
+    lightUniforms.add(Type::FLOAT, "exposure", Value::createValue<float>(0.0f));
+    lightUniforms.add(Type::VECTOR3, "direction", Value::createValue<Vector3>(Vector3(0.0f,1.0f,0.0f)));
 
     // Create uniform for number of active light sources
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", EMPTY_STRING,
-        EMPTY_STRING, Value::createValue<int>(0));
+    ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", ps);
+    numActiveLights->setValue(Value::createValue<int>(0));
 }
 
-void LightNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen_, Shader& shader_)
+void LightNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
-    GlslShaderGenerator& shadergen = static_cast<GlslShaderGenerator&>(shadergen_);
+    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+        const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
+        const ShaderGraph& graph = *node.getParent();
 
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+        shadergen.emitBlock(LIGHT_DIRECTION_CALCULATION, context, stage);
+        shadergen.emitLineBreak(stage);
 
-    shader.addBlock(LIGHT_DIRECTION_BLOCK, shadergen);
-    shader.newLine();
+        string emission;
+        shadergen.emitEdfNodes(graph, node, _callEmission, context, stage, emission);
+        shadergen.emitLineBreak(stage);
 
-    string emission;
-    shadergen.emitEdfNodes(node, "light.direction", "-L", shader, emission);
-    shader.newLine();
+        shadergen.emitComment("Apply quadratic falloff and adjust intensity", stage);
+        shadergen.emitLine("result.intensity = " + emission + " / (distance * distance)", stage);
 
-    shader.addComment("Apply quadratic falloff and adjust intensity");
-    shader.addLine("result.intensity = " + emission + " / (distance * distance)");
+        const ShaderInput* intensity = node.getInput("intensity");
+        const ShaderInput* exposure = node.getInput("exposure");
 
-    const ShaderInput* intensity = node.getInput("intensity");
-    const ShaderInput* exposure = node.getInput("exposure");
+        shadergen.emitLineBegin(stage);
+        shadergen.emitString("result.intensity *= ", stage);
+        shadergen.emitInput(intensity, context, stage);
+        shadergen.emitLineEnd(stage);
 
-    shader.beginLine();
-    shader.addStr("result.intensity *= ");
-    shadergen.emitInput(context, intensity, shader);
-    shader.endLine();
-
-    // Emit exposure adjustment only if it matters
-    if (exposure->connection || (exposure->value && exposure->value->asA<float>() != 0.0f))
-    {
-        shader.beginLine();
-        shader.addStr("result.intensity *= pow(2, ");
-        shadergen.emitInput(context, exposure, shader);
-        shader.addStr(")");
-        shader.endLine();
-    }
-
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+        // Emit exposure adjustment only if it matters
+        if (exposure->getConnection() || (exposure->getValue() && exposure->getValue()->asA<float>() != 0.0f))
+        {
+            shadergen.emitLineBegin(stage);
+            shadergen.emitString("result.intensity *= pow(2, ", stage);
+            shadergen.emitInput(exposure, context, stage);
+            shadergen.emitString(")", stage);
+            shadergen.emitLineEnd(stage);
+        }
+    END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

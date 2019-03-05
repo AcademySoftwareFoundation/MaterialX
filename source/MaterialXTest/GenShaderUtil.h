@@ -12,7 +12,6 @@
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/Util.h>
-#include <MaterialXGenShader/HwShader.h>
 
 #include <cstdlib>
 #include <fstream>
@@ -22,8 +21,6 @@ namespace mx = MaterialX;
 
 namespace GenShaderUtil
 {
-    static const std::string LIGHT_SHADER_TYPE = "lightshader";
-
     //
     // Load in a library. Sets the URI before import
     //
@@ -39,36 +36,38 @@ namespace GenShaderUtil
     // Get source content, source path and resolved paths for
     // an implementation
     //
-    bool getShaderSource(mx::ShaderGeneratorPtr generator,
-                                const mx::ImplementationPtr implementation,
-                                mx::FilePath& sourcePath,
-                                mx::FilePath& resolvedPath,
-                                std::string& sourceContents);
+    bool getShaderSource(mx::GenContext& context, 
+                         const mx::ImplementationPtr implementation,
+                         mx::FilePath& sourcePath,
+                         mx::FilePath& resolvedPath,
+                         std::string& sourceContents);
 
     // Find all light shaders in a document and register them with a hardware shader generator
-    void registerLightType(mx::DocumentPtr doc, mx::HwShaderGenerator& shadergen, const mx::GenOptions& options);
+    void registerLightType(mx::DocumentPtr doc, mx::GenContext& context);
 
     // Check that implementations exist for all nodedefs supported per generator
-    void checkImplementations(mx::ShaderGeneratorPtr generator, std::set<std::string> generatorSkipNodeTypes,
-                                     std::set<std::string> generatorSkipNodeDefs);
+    void checkImplementations(mx::GenContext& context, 
+                              const std::set<std::string>& generatorSkipNodeTypes,
+                              const std::set<std::string>& generatorSkipNodeDefs);
 
     // Utility test to  check unique name generation on a shader generator
-    void testUniqueNames(mx::ShaderGeneratorPtr shaderGenerator, const std::string& stage);
+    void testUniqueNames(mx::GenContext& context, const std::string& stage);
 
     // Test code generation for a given element
-    bool generateCode(mx::ShaderGenerator& shaderGenerator, const std::string& shaderName, mx::TypedElementPtr element,
-        const mx::GenOptions& options, std::ostream& log, std::vector<std::string>testStages);
+    bool generateCode(mx::GenContext& context, const std::string& shaderName, mx::TypedElementPtr element,
+                      std::ostream& log, std::vector<std::string>testStages);
 
     // Utility class to handle testing of shader generators.
     // Currently only tests source code generation.
     class ShaderGeneratorTester
     {
     public:
-        ShaderGeneratorTester(const mx::FilePath& searchPath, const mx::FilePath& testRootPath,
-            const mx::FilePath& logFilePath)
+        ShaderGeneratorTester(const mx::FilePath& testRootPath, const mx::FilePath& libSearchPath, 
+                              const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath)
         {
             _logFilePath = logFilePath;
-            _searchPath = searchPath;
+            _libSearchPath = libSearchPath;
+            _srcSearchPath = srcSearchPath;
             _testRootPath = testRootPath;
         }
 
@@ -99,7 +98,8 @@ namespace GenShaderUtil
         mx::ShaderGeneratorPtr _shaderGenerator;
         mx::DefaultColorManagementSystemPtr _colorManagementSystem;
         mx::DocumentPtr _dependLib;
-        mx::FilePath _searchPath;
+        mx::FilePath _libSearchPath;
+        mx::FileSearchPath _srcSearchPath;
         std::set<std::string> _excludeLibraryFiles;
 
         mx::FilePath _testRootPath;
