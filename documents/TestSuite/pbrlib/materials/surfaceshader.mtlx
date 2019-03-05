@@ -90,13 +90,13 @@
       <input name="ior" type="vector3" interfacename="ior_n" />
       <input name="extinction" type="vector3" interfacename="ior_k" />
     </complex_ior>
-    <mix_bsdf name="mix" type="BSDF">
-      <input name="weight" type="float" interfacename="artistic_vs_complex" />
-      <input name="in1" type="BSDF" nodename="metal1" />
-      <input name="in2" type="BSDF" nodename="metal2" />
-    </mix_bsdf>
+    <mix name="mix1" type="BSDF">
+      <input name="mix" type="float" interfacename="artistic_vs_complex" />
+      <input name="fg" type="BSDF" nodename="metal1" />
+      <input name="bg" type="BSDF" nodename="metal2" />
+    </mix>
     <surface name="surface1" type="surfaceshader">
-      <input name="bsdf" type="BSDF" nodename="mix" />
+      <input name="bsdf" type="BSDF" nodename="mix1" />
     </surface>
     <output name="out" type="surfaceshader" nodename="surface1" />
   </nodegraph>

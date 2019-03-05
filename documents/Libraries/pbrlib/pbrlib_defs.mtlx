@@ -124,37 +124,6 @@
   </nodedef>
 
   <!--
-    Node: <mix_bsdf>
-    A node for mixing BSDF's as: in1 * (1 − weight) + in2 * weight.
-  -->
-  <nodedef name="ND_mix_bsdf" node="mix_bsdf" type="BSDF" nodegroup="pbr"
-           doc="A node for mixing BSDF's as: in1 * (1 − weight) + in2 * weight.">
-    <input name="in1" type="BSDF" doc="First BSDF."/>
-    <input name="in2" type="BSDF" doc="Second BSDF."/>
-    <input name="weight" type="float" value="1.0" doc="Mixing weight, range [0, 1]."/>
-  </nodedef>
-
-  <!--
-    Node: <add_bsdf>
-    A node for additive blending of BSDF's.
-  -->
-  <nodedef name="ND_add_bsdf" node="add_bsdf" type="BSDF" nodegroup="pbr"
-           doc="A node for additive blending of BSDF's.">
-    <input name="in1" type="BSDF" doc="First BSDF."/>
-    <input name="in2" type="BSDF" doc="Second BSDF."/>
-  </nodedef>
-
-  <!--
-    Node: <scale_bsdf>
-    A node for adjusting the contribution of a BSDF with a weight.
-  -->
-  <nodedef name="ND_scale_bsdf" node="scale_bsdf" type="BSDF" nodegroup="pbr"
-           doc="A node for adjusting the contribution of a BSDF with a weight.">
-    <input name="in" type="BSDF" doc="The BSDF to scale."/>
-    <input name="weight" type="color3" value="1.0, 1.0, 1.0" doc="Scaling weight."/>
-  </nodedef>
-
-  <!--
     Node: <uniform_edf>
     An EDF node for uniform emission.
   -->
@@ -164,14 +133,63 @@
   </nodedef>
 
   <!--
-    Node: <mix_edf>
-    A node for mixing EDF's as: in1 * (1 − weight) + in2 * weight.
+    Node: <mix>
   -->
-  <nodedef name="ND_mix_edf" node="mix_edf" type="EDF" nodegroup="pbr"
-           doc="A node for mixing EDF's as:  in1 * (1 − weight) + in2 * weight.">
+  <nodedef name="ND_mix_bsdf" node="mix" type="BSDF" nodegroup="pbr" defaultinput="bg"
+           doc="A node for mixing BSDF's as: fg * (1 − mix) + bg * mix.">
+    <input name="fg" type="BSDF" doc="First BSDF."/>
+    <input name="bg" type="BSDF" doc="Second BSDF."/>
+    <input name="mix" type="float" value="1.0" doc="Mixing weight, range [0, 1]."/>
+  </nodedef>
+  <nodedef name="ND_mix_edf" node="mix_edf" type="EDF" nodegroup="pbr" defaultinput="bg"
+           doc="A node for mixing EDF's as: fg * (1 − mix) + bg * mix.">
+    <input name="fg" type="EDF" doc="First EDF."/>
+    <input name="bg" type="EDF" doc="Second EDF."/>
+    <input name="mix" type="float" value="1.0" doc="Mixing weight, range [0, 1]."/>
+  </nodedef>
+  <nodedef name="ND_mix_surface" node="mix_surface" type="surfaceshader" nodegroup="pbr" defaultinput="bg"
+           doc="Mix two surface shaders according to a weight.">
+    <input name="fg" type="surfaceshader" doc="The first surface shader."/>
+    <input name="bg" type="surfaceshader" doc="The second surface shader."/>
+    <input name="mix" type="float" value="1.0" doc="Mixing weight, range [0, 1]."/>
+  </nodedef>
+
+  <!--
+    Node: <add>
+  -->
+  <nodedef name="ND_add_bsdf" node="add" type="BSDF" nodegroup="pbr" defaultinput="bg"
+           doc="A node for additive blending of BSDF's.">
+    <input name="in1" type="BSDF" doc="First BSDF."/>
+    <input name="in2" type="BSDF" doc="Second BSDF."/>
+  </nodedef>
+  <nodedef name="ND_add_edf" node="add" type="EDF" nodegroup="pbr" defaultinput="bg"
+           doc="A node for additive blending of EDF's.">
     <input name="in1" type="EDF" doc="First EDF."/>
     <input name="in2" type="EDF" doc="Second EDF."/>
-    <input name="weight" type="float" value="1.0" doc="Mixing weight, range [0, 1]."/>
+  </nodedef>
+
+  <!--
+    Node: <multiply>
+  -->
+  <nodedef name="ND_multiply_bsdfC" node="multiply" type="BSDF" nodegroup="pbr" defaultinput="in1"
+           doc="A node for adjusting the contribution of a BSDF with a weight.">
+    <input name="in1" type="BSDF" doc="The BSDF to scale."/>
+    <input name="in2" type="color3" value="1.0, 1.0, 1.0" doc="Scaling weight."/>
+  </nodedef>
+  <nodedef name="ND_multiply_bsdfF" node="multiply" type="BSDF" nodegroup="pbr" defaultinput="in1"
+           doc="A node for adjusting the contribution of a BSDF with a weight.">
+    <input name="in1" type="BSDF" doc="The BSDF to scale."/>
+    <input name="in2" type="float" value="1.0" doc="Scaling weight."/>
+  </nodedef>
+  <nodedef name="ND_multiply_edfC" node="multiply" type="EDF" nodegroup="pbr" defaultinput="in1"
+           doc="A node for adjusting the contribution of an EDF with a weight.">
+    <input name="in1" type="EDF" doc="The EDF to scale."/>
+    <input name="in2" type="color3" value="1.0, 1.0, 1.0" doc="Scaling weight."/>
+  </nodedef>
+  <nodedef name="ND_multiply_edfF" node="multiply" type="EDF" nodegroup="pbr" defaultinput="in1"
+           doc="A node for adjusting the contribution of an EDF with a weight.">
+    <input name="in1" type="EDF" doc="The EDF to scale."/>
+    <input name="in2" type="float" value="1.0" doc="Scaling weight."/>
   </nodedef>
 
   <!--
@@ -183,17 +201,6 @@
     <input name="bsdf" type="BSDF" doc="Distribution function for surface scattering."/>
     <input name="edf" type="EDF" doc="Distribution function for surface emission."/>
     <input name="opacity" type="float" value="1.0" doc="Surface cutout opacity"/>
-  </nodedef>
-
-  <!--
-    Node: <mix_surface>
-    Mix two surface shaders according to a weight
-  -->
-  <nodedef name="ND_mix_surface" node="mix_surface" type="surfaceshader" nodegroup="pbr"
-           doc="Mix two surface shaders according to a weight.">
-    <input name="in1" type="surfaceshader" doc="The first surface shader."/>
-    <input name="in2" type="surfaceshader" doc="The second surface shader."/>
-    <input name="weight" type="float" value="1.0" doc="Mixing weight, range [0, 1]."/>
   </nodedef>
 
   <!--

@@ -25,26 +25,26 @@
   <!-- <sheen_brdf> -->
   <implementation name="IM_sheen_brdf_genglsl" nodedef="ND_sheen_brdf" file="pbrlib/genglsl/mx_sheen_brdf.glsl" function="mx_sheen_brdf" language="genglsl"/>
 
-  <!-- <mix_bsdf> -->
+  <!-- <mix> -->
   <implementation name="IM_mix_bsdf_genglsl" nodedef="ND_mix_bsdf" file="pbrlib/genglsl/mx_mix_bsdf.glsl" function="mx_mix_bsdf" language="genglsl"/>
+  <implementation name="IM_mix_edf_genglsl" nodedef="ND_mix_edf" file="pbrlib/genglsl/mx_mix_edf.glsl" function="mx_mix_edf" language="genglsl"/>
+  <implementation name="IM_mix_surface_genglsl" nodedef="ND_mix_surface" file="pbrlib/genglsl/mx_mix_surface.glsl" function="mx_mix_surface" language="genglsl"/>
 
-  <!-- <add_bsdf> -->
+  <!-- <add> -->
   <implementation name="IM_add_bsdf_genglsl" nodedef="ND_add_bsdf" file="pbrlib/genglsl/mx_add_bsdf.glsl" function="mx_add_bsdf" language="genglsl"/>
+  <implementation name="IM_add_edf_genglsl" nodedef="ND_add_edf" file="pbrlib/genglsl/mx_add_edf.glsl" function="mx_add_edf" language="genglsl"/>
 
-  <!-- <scale_bsdf> -->
-  <implementation name="IM_scale_bsdf_genglsl" nodedef="ND_scale_bsdf" file="pbrlib/genglsl/mx_scale_bsdf.glsl" function="mx_scale_bsdf" language="genglsl"/>
+  <!-- <multiply> -->
+  <implementation name="IM_multiply_bsdfC_genglsl" nodedef="ND_multiply_bsdfC" file="pbrlib/genglsl/mx_multiply_bsdfC.glsl" function="mx_multiply_bsdfC" language="genglsl"/>
+  <implementation name="IM_multiply_bsdfF_genglsl" nodedef="ND_multiply_bsdfF" file="pbrlib/genglsl/mx_multiply_bsdfF.glsl" function="mx_multiply_bsdfF" language="genglsl"/>
+  <implementation name="IM_multiply_edfC_genglsl" nodedef="ND_multiply_edfC" file="pbrlib/genglsl/mx_multiply_edfC.glsl" function="mx_multiply_edfC" language="genglsl"/>
+  <implementation name="IM_multiply_edfF_genglsl" nodedef="ND_multiply_edfF" file="pbrlib/genglsl/mx_multiply_edfF.glsl" function="mx_multiply_edfF" language="genglsl"/>
 
   <!-- <uniform_edf> -->
   <implementation name="IM_uniform_edf_genglsl" nodedef="ND_uniform_edf" file="pbrlib/genglsl/mx_uniform_edf.glsl" function="mx_uniform_edf" language="genglsl"/>
 
-  <!-- <mix_edf> -->
-  <implementation name="IM_mix_edf_genglsl" nodedef="ND_mix_edf" file="pbrlib/genglsl/mx_mix_edf.glsl" function="mx_mix_edf" language="genglsl"/>
-
   <!-- <surface> -->
   <implementation name="IM_surface_genglsl" nodedef="ND_surface" language="genglsl"/>
-
-  <!-- <mix_surface> -->
-  <implementation name="IM_mix_surface_genglsl" nodedef="ND_mix_surface" file="pbrlib/genglsl/mx_mix_surface.glsl" function="mx_mix_surface" language="genglsl"/>
 
   <!-- <light> -->
   <implementation name="IM_light_genglsl" nodedef="ND_light" language="genglsl"/>

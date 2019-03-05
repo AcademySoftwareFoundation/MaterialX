@@ -1,5 +1,5 @@
-void mx_mix_edf(EDF in1, EDF in2, float weight, output EDF result)
+void mx_mix_edf(EDF fg, EDF bg, float mx, output EDF result)
 {
-    float w = clamp(weight, 0.0, 1.0);
-    result = in1 * (1.0 - w) + in2 * w;
+    float w = clamp(mx, 0.0, 1.0);
+    result = fg * (1.0 - w) + bg * w;
 }

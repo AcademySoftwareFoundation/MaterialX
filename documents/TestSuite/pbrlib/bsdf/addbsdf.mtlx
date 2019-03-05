@@ -24,10 +24,10 @@
       <input name="tint" type="color3" value="1.0, 1.0, 1.0" />
       <input name="ior" type="float" value="1.52" />
     </dielectric_brdf>
-    <add_bsdf name="add_bsdf1" type="BSDF">
+    <add name="add_bsdf1" type="BSDF">
       <input name="in1" type="BSDF" nodename="dielectric_brdf1" />
       <input name="in2" type="BSDF" nodename="diffuse_brdf1" />
-    </add_bsdf>
+    </add>
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="add_bsdf1" />
       <input name="edf" type="EDF" value="" />
