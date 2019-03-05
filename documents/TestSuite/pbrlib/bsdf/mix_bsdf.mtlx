@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<materialx version="1.36">
+  <nodegraph name="mix_bsdf_test" type="">
+    <diffuse_brdf name="diffuse_brdf1" type="BSDF">
+      <input name="color" type="color3" value="0.96, 0.1, 0.1" />
+      <input name="roughness" type="float" value="0.0" />
+      <input name="normal" type="vector3" value="0.0, 0.0, 0.0" />
+    </diffuse_brdf>
+    <dielectric_brdf name="dielectric_brdf1" type="BSDF">
+      <input name="tint" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="ior" type="float" value="1.52" />
+    </dielectric_brdf>
+    <mix name="mix_bsdf1" type="BSDF">
+      <input name="fg" type="BSDF" nodename="dielectric_brdf1" />
+      <input name="bg" type="BSDF" nodename="diffuse_brdf1" />
+      <input name="mix" type="float" value="0.5"/>
+    </mix>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="mix_bsdf1" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+</materialx>

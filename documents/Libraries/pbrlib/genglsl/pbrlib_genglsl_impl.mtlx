@@ -28,7 +28,6 @@
   <!-- <mix> -->
   <implementation name="IM_mix_bsdf_genglsl" nodedef="ND_mix_bsdf" file="pbrlib/genglsl/mx_mix_bsdf.glsl" function="mx_mix_bsdf" language="genglsl"/>
   <implementation name="IM_mix_edf_genglsl" nodedef="ND_mix_edf" file="pbrlib/genglsl/mx_mix_edf.glsl" function="mx_mix_edf" language="genglsl"/>
-  <implementation name="IM_mix_surface_genglsl" nodedef="ND_mix_surface" file="pbrlib/genglsl/mx_mix_surface.glsl" function="mx_mix_surface" language="genglsl"/>
 
   <!-- <add> -->
   <implementation name="IM_add_bsdf_genglsl" nodedef="ND_add_bsdf" file="pbrlib/genglsl/mx_add_bsdf.glsl" function="mx_add_bsdf" language="genglsl"/>

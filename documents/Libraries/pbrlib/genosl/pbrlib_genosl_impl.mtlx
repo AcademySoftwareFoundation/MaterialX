@@ -29,19 +29,18 @@
   <implementation name="IM_uniform_edf_genosl" nodedef="ND_uniform_edf" file="pbrlib/genosl/mx_uniform_edf.inline" language="genosl"/>
 
   <!-- <mix> -->
-  <implementation name="IM_mix_bsdf_genosl" nodedef="ND_mix_bsdf" file="pbrlib/genosl/mx_mix_bsdf.osl" function="mx_mix_bsdf" language="genosl"/>
-  <implementation name="IM_mix_edf_genosl" nodedef="ND_mix_edf" file="pbrlib/genosl/mx_mix_edf.osl" function="mx_mix_edf" language="genosl"/>
-  <implementation name="IM_mix_surface_genosl" nodedef="ND_mix_surface" file="pbrlib/genosl/mx_mix_surface.osl" function="mx_mix_surface" language="genosl"/>
+  <implementation name="IM_mix_bsdf_genosl" nodedef="ND_mix_bsdf" file="pbrlib/genosl/mx_mix.inline" language="genosl"/>
+  <implementation name="IM_mix_edf_genosl" nodedef="ND_mix_edf" file="pbrlib/genosl/mx_mix.inline" language="genosl"/>
 
   <!-- <add> -->
   <implementation name="IM_add_bsdf_genosl" nodedef="ND_add_bsdf" file="pbrlib/genosl/mx_add.inline" language="genosl"/>
   <implementation name="IM_add_edf_genosl" nodedef="ND_add_edf" file="pbrlib/genosl/mx_add.inline" language="genosl"/>
 
   <!-- <multiply> -->
-  <implementation name="IM_multiply_bsdfC_genosl" nodedef="ND_multiply_bsdfC" file="pbrlib/genosl/mx_multiply.inline" language="genosl"/>
-  <implementation name="IM_multiply_bsdfF_genosl" nodedef="ND_multiply_bsdfF" file="pbrlib/genosl/mx_multiply.inline" language="genosl"/>
-  <implementation name="IM_multiply_edfC_genosl" nodedef="ND_multiply_edfC" file="pbrlib/genosl/mx_multiply.inline" language="genosl"/>
-  <implementation name="IM_multiply_edfF_genosl" nodedef="ND_multiply_edfF" file="pbrlib/genosl/mx_multiply.inline" language="genosl"/>
+  <implementation name="IM_multiply_bsdfC_genosl" nodedef="ND_multiply_bsdfC" file="pbrlib/genosl/mx_multiply_bsdf.inline" language="genosl"/>
+  <implementation name="IM_multiply_bsdfF_genosl" nodedef="ND_multiply_bsdfF" file="pbrlib/genosl/mx_multiply_bsdf.inline" language="genosl"/>
+  <implementation name="IM_multiply_edfC_genosl" nodedef="ND_multiply_edfC" file="pbrlib/genosl/mx_multiply_edf.inline" language="genosl"/>
+  <implementation name="IM_multiply_edfF_genosl" nodedef="ND_multiply_edfF" file="pbrlib/genosl/mx_multiply_edf.inline" language="genosl"/>
 
   <!-- <surface> -->
   <implementation name="IM_surface_genosl" nodedef="ND_surface" file="pbrlib/genosl/mx_surface.osl" function="mx_surface" language="genosl"/>

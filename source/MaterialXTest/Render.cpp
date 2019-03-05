@@ -1241,7 +1241,7 @@ void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidT
     }
 }
 
-TEST_CASE("Render validation of test suite", "[render]")
+TEST_CASE("Render TestSuite", "[render]")
 {
 #if !defined(MATERIALX_BUILD_RENDERGLSL) && !defined(MATERIALX_BUILD_RENDEROSL)
     return;

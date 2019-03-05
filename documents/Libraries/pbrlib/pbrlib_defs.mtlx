@@ -141,16 +141,10 @@
     <input name="bg" type="BSDF" doc="Second BSDF."/>
     <input name="mix" type="float" value="1.0" doc="Mixing weight, range [0, 1]."/>
   </nodedef>
-  <nodedef name="ND_mix_edf" node="mix_edf" type="EDF" nodegroup="pbr" defaultinput="bg"
+  <nodedef name="ND_mix_edf" node="mix" type="EDF" nodegroup="pbr" defaultinput="bg"
            doc="A node for mixing EDF's as: fg * (1 − mix) + bg * mix.">
     <input name="fg" type="EDF" doc="First EDF."/>
     <input name="bg" type="EDF" doc="Second EDF."/>
-    <input name="mix" type="float" value="1.0" doc="Mixing weight, range [0, 1]."/>
-  </nodedef>
-  <nodedef name="ND_mix_surface" node="mix_surface" type="surfaceshader" nodegroup="pbr" defaultinput="bg"
-           doc="Mix two surface shaders according to a weight.">
-    <input name="fg" type="surfaceshader" doc="The first surface shader."/>
-    <input name="bg" type="surfaceshader" doc="The second surface shader."/>
     <input name="mix" type="float" value="1.0" doc="Mixing weight, range [0, 1]."/>
   </nodedef>
 
