@@ -1,4 +1,4 @@
-#include "pbrlib/genosl/lib/mx_refractionindex.osl"
+#include "pbrlib/genosl/lib/mx_refraction_index.osl"
 
 void mx_complex_ior(vector ior, vector extinction, output color reflectivity, output color edgecolor)
 {

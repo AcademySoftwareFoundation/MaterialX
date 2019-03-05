@@ -72,7 +72,7 @@
     </image>
     <normalmap name="normalmap1" type="vector3" xpos="4.7931" ypos="11.16">
       <input name="in" type="vector3" value="0.5, 0.5, 1.0" nodename="image2" />
-      <parameter name="tangentSpace" type="integer" value="1" />
+      <parameter name="tangent_space" type="integer" value="1" />
       <input name="normal" type="vector3" value="0.0, 0.0, 0.0" />
       <input name="tangent" type="vector3" value="0.0, 0.0, 0.0" />
     </normalmap>

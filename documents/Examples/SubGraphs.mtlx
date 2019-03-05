@@ -97,17 +97,17 @@
       <input name="subsurface_weight" type="float" value="0.0"/>
    </nodedef>
    <nodegraph name="IMP_substratebsdf" nodedef="ND_substratebsdf">
-      <diffusebrdf name="diffuse" type="BSDF">
+      <diffuse_brdf name="diffuse" type="BSDF">
          <input name="color" type="color3" interfacename="albedo" value="0.9, 0.1, 0.1" />
-      </diffusebrdf>
-      <diffusebtdf name="subsurface" type="BSDF">
+      </diffuse_brdf>
+      <diffuse_btdf name="subsurface" type="BSDF">
          <input name="color" type="color3" interfacename="subsurface" value="0.1, 0.1, 0.8" />
-      </diffusebtdf>
-      <mixbsdf name="layer1" type="BSDF">
+      </diffuse_btdf>
+      <mix_bsdf name="layer1" type="BSDF">
          <input name="in1" type="BSDF" nodename="diffuse" />
          <input name="in2" type="BSDF" nodename="subsurface" />
          <input name="weight" type="float" interfacename="subsurface_weight" />
-      </mixbsdf>
+      </mix_bsdf>
       <output name="out" type="BSDF" nodename="layer1" />
    </nodegraph>
 
@@ -126,9 +126,9 @@
          <input name="subsurface" type="color3" value="0.1, 0.1, 0.8" interfacename="subsurface"/>
          <input name="subsurface_weight" type="float" value="0.0" interfacename="subsurface_weight"/>
       </substratebsdf>
-      <uniformedf name="edf1" type="EDF">
+      <uniform_edf name="edf1" type="EDF">
          <input name="intensity" type="color3" value="0.0, 0.0, 0.0" interfacename="emission" />
-      </uniformedf>
+      </uniform_edf>
       <surface name="surface1" type="surfaceshader">
          <input name="bsdf" type="BSDF" nodename="substrate1" />
          <input name="edf" type="EDF" nodename="edf1" />
