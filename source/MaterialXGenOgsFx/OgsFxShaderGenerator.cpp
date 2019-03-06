@@ -58,9 +58,9 @@ namespace
         { "direction", "mx_getLightDir" },
         { "color", "mx_getLightColor" },
         { "intensity", "mx_getLightIntensity" },
-        { "decayRate", "mx_getLightDecayRate" },
-        { "innerConeAngle", "mx_getLightConeAngle" },
-        { "outerConeAngle", "mx_getLightPenumbraAngle" }
+        { "decay_rate", "mx_getLightDecayRate" },
+        { "inner_angle", "mx_getLightConeAngle" },
+        { "outer_angle", "mx_getLightPenumbraAngle" }
     };
 }
 

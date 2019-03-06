@@ -1,7 +1,7 @@
-void mx_normalmap(vector value, int tangentSpace,  vector N, vector U, output vector result)
+void mx_normalmap(vector value, int tangent_space,  vector N, vector U, output vector result)
 {
     // Tangent space
-    if (tangentSpace == 1)
+    if (tangent_space == 1)
     {
         vector v = value * 2.0 - 1.0;
         vector T = normalize(U - dot(U, N) * N);

@@ -1232,8 +1232,7 @@ void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidT
     }
 }
 
-
-TEST_CASE("Render validation of test suite", "[render]")
+TEST_CASE("Render TestSuite", "[render]")
 {
 #if !defined(MATERIALX_BUILD_RENDERGLSL) && !defined(MATERIALX_BUILD_RENDEROSL)
     return;
@@ -1331,6 +1330,8 @@ TEST_CASE("Render validation of test suite", "[render]")
 
     const mx::StringVec libraries = { "stdlib", "pbrlib" };
     GenShaderUtil::loadLibraries(libraries, searchPath, dependLib, &excludeFiles);
+    GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("documents/Examples/BxDF/standard_surface.mtlx"), dependLib);
+
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
     if (options.lightFiles.size() == 0)
     {

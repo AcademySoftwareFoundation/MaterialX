@@ -149,7 +149,7 @@ GlslSyntax::GlslSyntax()
         "sizeof", "cast", "namespace", "using", "row_major"
     });
 
-    // Register regstricted tokens in GLSL
+    // Register restricted tokens in GLSL
     StringMap tokens;
     tokens["__"] = "_";
     tokens["gl_"] = "gll";

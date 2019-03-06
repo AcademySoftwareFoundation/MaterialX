@@ -1,0 +1,5 @@
+void mx_subsurface_brdf(float weight, color _color, vector radius, float anisotropy, vector _normal, output BSDF result)
+{
+    // TODO: implement this properly
+    result = _color * weight * translucent(_normal);
+}
