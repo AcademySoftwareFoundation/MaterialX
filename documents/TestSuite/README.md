@@ -15,4 +15,4 @@ The sub-folders in the test suite contain a set of input MaterialX documents. Du
   documents containing the various Elements to test.
 - It is possible to add additional tests by simply adding new MaterialX documents under the TestSuite sub-folder.
 - The [Geometry](Geometry) and [Images](Images) folders provide stock input geometry and images for usage by the test suite.
-- The [Lights](Lights) folder provides a sample configuration of hardware lights for usage by hardware shader generators. 
+- The [Lights](Utilities/Lights) folder provides a sample configuration of hardware lights for usage by hardware shader generators. 
