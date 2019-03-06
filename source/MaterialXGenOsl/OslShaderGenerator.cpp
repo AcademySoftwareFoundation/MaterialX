@@ -351,7 +351,7 @@ void OslShaderGenerator::emitIncludes(ShaderStage& stage, GenContext& context) c
 namespace OSL
 {
     // Identifiers for OSL stage and variable blocks
-    const string STAGE    = MAIN_STAGE;
+    const string STAGE    = _MAIN_STAGE_NAME;
     const string UNIFORMS = "u";
     const string INPUTS   = "i";
     const string OUTPUTS  = "o";
