@@ -1,6 +1,10 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
 #ifndef GENSHADER_UTIL_H
 #define GENSHADER_UTIL_H
-
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Observer.h>

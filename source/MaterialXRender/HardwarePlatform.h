@@ -1,3 +1,8 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
 #ifndef MATERIALX_HARDWAREPLATFORM_H
 //
 // Platform macros. All platform specific files in the module should use the OS*_ macros
