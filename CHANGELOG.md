@@ -1,13 +1,13 @@
 # Change Log
 
-## [1.36.2] - Development
+## [1.36.2] - 2019-03-05
 
 ### Added
 - Added support for 'nodedef' attributes on MaterialX\:\:Node, integrating this usage into GraphElement\:\:addNodeInstance.
 - Added the MaterialX\:\:GeomPropDef class for geometric input declarations.
 - Added the Document\:\:getGeomAttrValue method.
 - Added the ValueElement\:\:getResolvedValue method.
-- Added support for setting search path via environment variable.
+- Added support for the MATERIALX_SEARCH_PATH environment variable.
 - Added support for GCC 8 and Clang 7.
 
 ### Changed

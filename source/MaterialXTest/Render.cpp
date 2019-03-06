@@ -1219,7 +1219,7 @@ void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidT
                     if (ending == OSL_STRING)
                     {
                         std::string sxImplName = implName.substr(0, endSize) + GEN_OSL_STRING;
-                        if (oslContext.findNodeImplementation(implName))
+                        if (oslContext.findNodeImplementation(sxImplName))
                         {
                             implementationUseCount++;
                             continue;
