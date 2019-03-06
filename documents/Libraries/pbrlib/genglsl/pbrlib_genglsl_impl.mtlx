@@ -34,10 +34,10 @@
   <implementation name="IM_add_edf_genglsl" nodedef="ND_add_edf" file="pbrlib/genglsl/mx_add_edf.glsl" function="mx_add_edf" language="genglsl"/>
 
   <!-- <multiply> -->
-  <implementation name="IM_multiply_bsdfC_genglsl" nodedef="ND_multiply_bsdfC" file="pbrlib/genglsl/mx_multiply_bsdfC.glsl" function="mx_multiply_bsdfC" language="genglsl"/>
-  <implementation name="IM_multiply_bsdfF_genglsl" nodedef="ND_multiply_bsdfF" file="pbrlib/genglsl/mx_multiply_bsdfF.glsl" function="mx_multiply_bsdfF" language="genglsl"/>
-  <implementation name="IM_multiply_edfC_genglsl" nodedef="ND_multiply_edfC" file="pbrlib/genglsl/mx_multiply_edfC.glsl" function="mx_multiply_edfC" language="genglsl"/>
-  <implementation name="IM_multiply_edfF_genglsl" nodedef="ND_multiply_edfF" file="pbrlib/genglsl/mx_multiply_edfF.glsl" function="mx_multiply_edfF" language="genglsl"/>
+  <implementation name="IM_multiply_bsdfC_genglsl" nodedef="ND_multiply_bsdfC" file="pbrlib/genglsl/mx_multiply_bsdf_color.glsl" function="mx_multiply_bsdf_color" language="genglsl"/>
+  <implementation name="IM_multiply_bsdfF_genglsl" nodedef="ND_multiply_bsdfF" file="pbrlib/genglsl/mx_multiply_bsdf_float.glsl" function="mx_multiply_bsdf_float" language="genglsl"/>
+  <implementation name="IM_multiply_edfC_genglsl" nodedef="ND_multiply_edfC" file="pbrlib/genglsl/mx_multiply_edf_color.glsl" function="mx_multiply_edf_color" language="genglsl"/>
+  <implementation name="IM_multiply_edfF_genglsl" nodedef="ND_multiply_edfF" file="pbrlib/genglsl/mx_multiply_edf_float.glsl" function="mx_multiply_edf_float" language="genglsl"/>
 
   <!-- <uniform_edf> -->
   <implementation name="IM_uniform_edf_genglsl" nodedef="ND_uniform_edf" file="pbrlib/genglsl/mx_uniform_edf.glsl" function="mx_uniform_edf" language="genglsl"/>

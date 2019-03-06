@@ -49,7 +49,7 @@
       <input name="indirect_specular" type="float" value="1" uiname="Indirect Specular" uifolder="Advanced"/>
   </nodedef>
   <!-- Node graph implementation -->
-  <nodegraph name="IMPL_standard_surface_surfaceshader" type="" nodedef="ND_standard_surface_surfaceshader">
+  <nodegraph name="IMPL_standard_surface_surfaceshader" nodedef="ND_standard_surface_surfaceshader">
     <!-- Roughness influence by coat-->
     <constant name="coat_affect_roughness" type="float">
       <parameter name="value" type="float" value="0.0" />

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.36">
-  <nodegraph name="multiply_edf_test" type="">
+  <nodegraph name="multiply_edf_test">
     <diffuse_brdf name="brdf1" type="BSDF">
       <input name="color" type="color3" value="0.0, 0.0, 0.0" />
     </diffuse_brdf>
