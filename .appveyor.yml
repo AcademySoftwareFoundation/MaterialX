@@ -22,8 +22,9 @@ install:
 build_script:
   - mkdir build
   - cd build
-  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON -G "%CMAKE_PLATFORM%" ..
+#  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON -G "%CMAKE_PLATFORM%" ..
+  - cmake -DMATERIALX_WARNINGS_AS_ERRORS=ON -G "%CMAKE_PLATFORM%" ..
   - cmake --build . --target install --config %CONFIGURATION%
   - ctest --output-on-failure --build-config %CONFIGURATION%
-  - cmake -E chdir ../python/MaterialXTest python main.py
-  - cmake -E chdir ../python/MaterialXTest python genshader.py
+  #- cmake -E chdir ../python/MaterialXTest python main.py
+  #- cmake -E chdir ../python/MaterialXTest python genshader.py

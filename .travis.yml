@@ -48,8 +48,9 @@ before_install:
 script:
   - mkdir build
   - cd build
-  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${CMAKE_EXTRA_ARGS} ..
+  #- cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${CMAKE_EXTRA_ARGS} ..
+  - cmake -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${CMAKE_EXTRA_ARGS} ..
   - cmake --build . --target install -- -j4
   - ctest --output-on-failure
   - export PYTHONPATH=$PYTHONPATH:$PWD/installed/python
-  - cmake -E chdir ../python/MaterialXTest python main.py
+  #- cmake -E chdir ../python/MaterialXTest python main.py
