@@ -365,6 +365,12 @@ class Mesh
     bool generateTangents(MeshStreamPtr positionStream, MeshStreamPtr texcoordStream, MeshStreamPtr normalStream,
                           MeshStreamPtr tangentStream, MeshStreamPtr bitangentStream);   
 
+    /// Merge all mesh partitions into one.
+    void mergePartitions();
+
+    /// Split the mesh into a single partition per UDIM.
+    void splitByUdims();
+
   private:
     string _identifier;
     string _sourceUri;

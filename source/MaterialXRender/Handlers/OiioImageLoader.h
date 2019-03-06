@@ -1,29 +1,24 @@
-//
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
-//
-
-#ifndef MATERIALX_STBIMAGELOADER_H
-#define MATERIALX_STBIMAGELOADER_H
+#ifndef MATERIALX_OIIOIMAGELOADER_H
+#define MATERIALX_OIIOIMAGELOADER_H
 
 #include <MaterialXRender/Handlers/ImageHandler.h>
 
 namespace MaterialX
 {
-/// Shared pointer to an stbImageLoader
-using stbImageLoaderPtr = std::shared_ptr<class stbImageLoader>;
+/// Shared pointer to an OiioImageLoader
+using OiioImageLoaderPtr = std::shared_ptr<class OiioImageLoader>;
 
-/// @class @stbImageLoader
-/// Disk image loader wrapper using stb library
+/// @class OiioImageLoader
+/// Disk image loader wrapper using OpenImageIO library
 ///
-class stbImageLoader : public ImageLoader
+class OiioImageLoader : public ImageLoader
 {
-public:
+  public:
     /// Static instance create function
-    static stbImageLoaderPtr create() { return std::make_shared<stbImageLoader>(); }
+    static OiioImageLoaderPtr create() { return std::make_shared<OiioImageLoader>(); }
 
     /// Default constructor. Set all extensions supported by stb
-    stbImageLoader() 
+    OiioImageLoader() 
     {
         _extensions.push_back(BMP_EXTENSION);
         _extensions.push_back(GIF_EXTENSION);
@@ -34,10 +29,14 @@ public:
         _extensions.push_back(PNG_EXTENSION);
         _extensions.push_back(PSD_EXTENSION);
         _extensions.push_back(TGA_EXTENSION);
+        _extensions.push_back(EXR_EXTENSION);
+        _extensions.push_back(TIF_EXTENSION);
+        _extensions.push_back(TIFF_EXTENSION);
+        _extensions.push_back(TXT_EXTENSION);
     }
 
     /// Default destructor
-    virtual ~stbImageLoader() {}    
+    virtual ~OiioImageLoader() {}    
 
     /// Save image to disk. This method must be implemented by derived classes.
     /// @param fileName Name of file to save image to

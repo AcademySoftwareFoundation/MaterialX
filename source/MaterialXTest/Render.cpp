@@ -40,7 +40,7 @@
 #ifdef MATERIALX_BUILD_CONTRIB
 #include <MaterialXContrib/Handlers/TinyEXRImageLoader.h>
 #endif
-#include <MaterialXRender/Handlers/stbImageLoader.h>
+#include <MaterialXRender/Handlers/StbImageLoader.h>
 
 #include <fstream>
 #include <iostream>
@@ -105,7 +105,7 @@ static mx::GlslValidatorPtr createGLSLValidator(const std::string& fileName, std
 {
     bool initialized = false;
     mx::GlslValidatorPtr validator = mx::GlslValidator::create();
-    mx::stbImageLoaderPtr stbLoader = mx::stbImageLoader::create();
+    mx::StbImageLoaderPtr stbLoader = mx::StbImageLoader::create();
     mx::GLTextureHandlerPtr imageHandler = mx::GLTextureHandler::create(stbLoader);
 #ifdef MATERIALX_BUILD_CONTRIB
     mx::TinyEXRImageLoaderPtr exrLoader = mx::TinyEXRImageLoader::create();

@@ -5,6 +5,8 @@
 
 #include <MaterialXRender/Handlers/Mesh.h>
 
+#include <map>
+
 namespace MaterialX
 {
 const string MeshStream::POSITION_ATTRIBUTE("position");
@@ -129,6 +131,72 @@ bool Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr texcoord
         }
     }
     return true;
+}
+
+void Mesh::mergePartitions()
+{
+    if (getPartitionCount() <= 1)
+    {
+        return;
+    }
+
+    MeshPartitionPtr merged = MeshPartition::create();
+    merged->setIdentifier("merged");
+    for (size_t p = 0; p < getPartitionCount(); p++)
+    {
+        MeshPartitionPtr part = getPartition(p);
+        merged->getIndices().insert(merged->getIndices().end(),
+                                    part->getIndices().begin(),
+                                    part->getIndices().end());
+        merged->setFaceCount(merged->getFaceCount() + part->getFaceCount());
+    }
+
+    _partitions.clear();
+    addPartition(merged);
+}
+
+void Mesh::splitByUdims()
+{
+    MeshStreamPtr texcoords = getStream(MeshStream::TEXCOORD_ATTRIBUTE, 0);
+    if (!texcoords)
+    {
+        return;
+    }
+
+    using UdimMap = std::map<uint32_t, MeshPartitionPtr>;
+    UdimMap udimMap;
+    for (size_t p = 0; p < getPartitionCount(); p++)
+    {
+        MeshPartitionPtr part = getPartition(p);
+        for (size_t f = 0; f < part->getFaceCount(); f++)
+        {
+            uint32_t i0 = part->getIndices()[f * 3 + 0];
+            uint32_t i1 = part->getIndices()[f * 3 + 1];
+            uint32_t i2 = part->getIndices()[f * 3 + 2];
+
+            const Vector2& uv0 = reinterpret_cast<Vector2*>(&texcoords->getData()[0])[i0];
+            uint32_t udimU = (uint32_t) uv0[0];
+            uint32_t udimV = (uint32_t) uv0[1];
+            uint32_t udim = 1001 + udimU + (10 * udimV);
+            if (!udimMap.count(udim))
+            {
+                udimMap[udim] = MeshPartition::create();
+                udimMap[udim]->setIdentifier(std::to_string(udim));
+            }
+
+            MeshPartitionPtr udimPart = udimMap[udim];
+            udimPart->getIndices().push_back(i0);
+            udimPart->getIndices().push_back(i1);
+            udimPart->getIndices().push_back(i2);
+            udimPart->setFaceCount(udimPart->getFaceCount() + 1);
+        }
+    }
+
+    _partitions.clear();
+    for (auto pair : udimMap)
+    {
+        addPartition(pair.second);
+    }
 }
 
 }

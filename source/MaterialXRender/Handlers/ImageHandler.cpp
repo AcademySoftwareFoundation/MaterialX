@@ -20,6 +20,9 @@ std::string ImageLoader::PIC_EXTENSION = "pic";
 std::string ImageLoader::PNG_EXTENSION = "png";
 std::string ImageLoader::PSD_EXTENSION = "psd";
 std::string ImageLoader::TGA_EXTENSION = "tga";
+std::string ImageLoader::TIF_EXTENSION = "tif";
+std::string ImageLoader::TIFF_EXTENSION = "tiff";
+std::string ImageLoader::TXT_EXTENSION = "txt";
 
 ImageHandler::ImageHandler(ImageLoaderPtr imageLoader)
 {

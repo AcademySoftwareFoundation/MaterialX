@@ -22,10 +22,10 @@
 #define STB_IMAGE_STATIC 1
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <MaterialXRender/External/stb/stb_image_write.h>
+#include <MaterialXRender/External/StbImage/stb_image_write.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <MaterialXRender/External/stb/stb_image.h>
+#include <MaterialXRender/External/StbImage/stb_image.h>
 
 #if defined(OSWin_) || defined(_WIN32)
     #pragma warning( pop ) 
@@ -36,12 +36,12 @@
 #endif
 
 
-#include <MaterialXRender/Handlers/stbImageLoader.h>
+#include <MaterialXRender/Handlers/StbImageLoader.h>
 
 namespace MaterialX
 {
-bool stbImageLoader::saveImage(const std::string& fileName,
-                                    const ImageDesc& imageDesc)
+bool StbImageLoader::saveImage(const std::string& fileName,
+                               const ImageDesc& imageDesc)
 {
     int returnValue = -1;
 
@@ -74,7 +74,7 @@ bool stbImageLoader::saveImage(const std::string& fileName,
     return (returnValue == 1);
 }
 
-bool stbImageLoader::acquireImage(const std::string& fileName,
+bool StbImageLoader::acquireImage(const std::string& fileName,
                                       ImageDesc& imageDesc,
                                       bool /*generateMipMaps*/)
 {
