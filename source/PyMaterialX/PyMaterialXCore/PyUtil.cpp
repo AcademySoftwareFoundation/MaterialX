@@ -23,4 +23,7 @@ void bindPyUtil(py::module& mod)
     mod.def("splitString", &mx::splitString);
     mod.def("replaceSubstrings", &mx::replaceSubstrings);
     mod.def("prettyPrint", &mx::prettyPrint);
+
+    mod.attr("PATH_LIST_SEPARATOR") = mx::PATH_LIST_SEPARATOR;
+    mod.attr("MATERIALX_SEARCH_PATH_ENV_VAR") = mx::MATERIALX_SEARCH_PATH_ENV_VAR;
 }
