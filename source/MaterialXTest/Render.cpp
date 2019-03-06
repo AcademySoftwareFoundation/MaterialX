@@ -1,3 +1,8 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
 // Compile if module flags were set
 #if defined(MATERIALX_TEST_RENDER) && defined(MATERIALX_BUILD_RENDEROSL) && defined(MATERIALX_BUILD_RENDERGLSL)
 
