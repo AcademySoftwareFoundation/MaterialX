@@ -252,14 +252,16 @@ vector2 fmod(vector2 a, float b)
     return fmod(a, vector2(b, b));
 }
 
-vector2 pow (vector2 in, vector2 amount)
+vector2 pow(vector2 in, vector2 amount)
 {
-    return vector2 (pow(in.x, amount.x), pow(in.y, amount.y));
+    return vector2(pow(in.x, amount.x),
+                   pow(in.y, amount.y));
 }
 
-vector2 pow (vector2 in, float amount)
+vector2 pow(vector2 in, float amount)
 {
-    return pow(in, vector2(amount, amount));
+    return vector2(pow(in.x, amount),
+                   pow(in.y, amount));
 }
 
 vector2 sign(vector2 a)
