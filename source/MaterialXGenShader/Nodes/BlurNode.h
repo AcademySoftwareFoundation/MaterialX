@@ -1,3 +1,8 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
 #ifndef MATERIALX_BLURNODE_H
 #define MATERIALX_BLURNODE_H
 
@@ -10,43 +15,35 @@ namespace MaterialX
 class BlurNode : public ConvolutionNode
 {
   public:
-    using ParentClass = ConvolutionNode;
-
     static ShaderNodeImplPtr create();
 
-    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   protected:
     /// Constructor
     BlurNode();
 
+    /// Return if given type is an acceptible input
+    bool acceptsInputType(const TypeDesc* type) const override;
+
+    /// Compute offset strings for sampling
+    void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString,
+                                    unsigned int filterWidth, StringVec& offsetStrings) const override;
+
     /// Box filter option on blur
-    static string BOX_FILTER;
+    static const string BOX_FILTER;
     /// Box filter weights variable name
-    static string BOX_WEIGHTS_VARIABLE;
+    static const string BOX_WEIGHTS_VARIABLE;
 
     /// Gaussian filter option on blur
-    static string GAUSSIAN_FILTER;
+    static const string GAUSSIAN_FILTER;
     /// Gaussian filter weights variable name
-    static string GAUSSIAN_WEIGHTS_VARIABLE;
+    static const string GAUSSIAN_WEIGHTS_VARIABLE;
 
-    /// Return if given type is an acceptible input
-    bool acceptsInputType(const TypeDesc* type) override;
-    
-    /// Compute offset strings for sampling
-    void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings) override;
-
-    /// Name of weight array variable
-    std::string _weightArrayVariable;
-
-    /// Type of filter 
-    string _filterType;
-
-    /// Width of filter
-    unsigned int _filterWidth;
-
-    /// Language dependent input type string
-    string _inputTypeString;
+    /// String constants
+    static const string IN_STRING;
+    static const string FILTER_TYPE_STRING;
+    static const string FILTER_SIZE_STRING;
 };
 
 } // namespace MaterialX

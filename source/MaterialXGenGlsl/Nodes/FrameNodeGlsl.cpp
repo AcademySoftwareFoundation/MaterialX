@@ -1,3 +1,8 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
 #include <MaterialXGenGlsl/Nodes/FrameNodeGlsl.h>
 
 namespace MaterialX
@@ -8,23 +13,21 @@ ShaderNodeImplPtr FrameNodeGlsl::create()
     return std::make_shared<FrameNodeGlsl>();
 }
 
-void FrameNodeGlsl::createVariables(const ShaderNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void FrameNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
-
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::FLOAT, "u_frame");
+    ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
+    addStageUniform(HW::PRIVATE_UNIFORMS, Type::FLOAT, "u_frame", ps);
 }
 
-void FrameNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void FrameNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
-
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-        shader.beginLine();
-        shadergen.emitOutput(context, node.getOutput(), true, false, shader);
-        shader.addStr(" = u_frame");
-        shader.endLine();
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
+        shadergen.emitLineBegin(stage);
+        shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+        shadergen.emitString(" = u_frame", stage);
+        shadergen.emitLineEnd(stage);
+    END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

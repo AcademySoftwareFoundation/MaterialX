@@ -1,3 +1,8 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
 #include <MaterialXGenGlsl/Nodes/ViewDirectionNodeGlsl.h>
 
 namespace MaterialX
@@ -8,33 +13,40 @@ ShaderNodeImplPtr ViewDirectionNodeGlsl::create()
     return std::make_shared<ViewDirectionNodeGlsl>();
 }
 
-void ViewDirectionNodeGlsl::createVariables(const ShaderNode& /*node*/, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void ViewDirectionNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
+    ShaderStage& vs = shader.getStage(HW::VERTEX_STAGE);
+    ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
 
-    shader.createAppData(Type::VECTOR3, "i_position");
-    shader.createVertexData(Type::VECTOR3, "positionWorld");
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, Type::VECTOR3, "u_viewPosition");
+    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, "i_position", vs);
+    addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "positionWorld", vs, ps);
+    addStageUniform(HW::PRIVATE_UNIFORMS, Type::VECTOR3, "u_viewPosition", ps);
 }
 
-void ViewDirectionNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void ViewDirectionNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
 
-    BEGIN_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
-        if (!shader.isCalculated("positionWorld"))
+    BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+        VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
+        const string prefix = vertexData.getInstance() + ".";
+        ShaderPort* position = vertexData["positionWorld"];
+        if (!position->isEmitted())
         {
-            shader.setCalculated("positionWorld");
-            shader.addLine("vd.positionWorld = hPositionWorld.xyz");
+            position->setEmitted();
+            shadergen.emitLine(prefix + position->getVariable() + " = hPositionWorld.xyz", stage);
         }
-    END_SHADER_STAGE(shader, HwShader::VERTEX_STAGE)
+    END_SHADER_STAGE(stage, HW::VERTEX_STAGE)
 
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-        shader.beginLine();
-        shadergen.emitOutput(context, node.getOutput(), true, false, shader);
-        shader.addStr(" = normalize(vd.positionWorld - u_viewPosition)");
-        shader.endLine();
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+        VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
+        const string prefix = vertexData.getInstance() + ".";
+        ShaderPort* position = vertexData["positionWorld"];
+        shadergen.emitLineBegin(stage);
+        shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+        shadergen.emitString(" = normalize(" + prefix + position->getVariable() + " - u_viewPosition)", stage);
+        shadergen.emitLineEnd(stage);
+    END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

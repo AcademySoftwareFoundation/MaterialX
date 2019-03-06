@@ -1,7 +1,32 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
 #include <MaterialXGenShader/GenContext.h>
 
 namespace MaterialX
 {
+
+GenContext::GenContext(ShaderGeneratorPtr sg)
+    : _sg(sg)
+{
+    if (!_sg)
+    {
+        throw ExceptionShaderGenError("GenContext must have a valid shader generator");
+    }
+}
+
+void GenContext::addNodeImplementation(const string& name, ShaderNodeImplPtr impl)
+{
+    _nodeImpls[name] = impl;
+}
+
+ShaderNodeImplPtr GenContext::findNodeImplementation(const string& name)
+{
+    auto it = _nodeImpls.find(name);
+    return it != _nodeImpls.end() ? it->second : nullptr;
+}
 
 void GenContext::addInputSuffix(const ShaderInput* input, const string& suffix)
 {

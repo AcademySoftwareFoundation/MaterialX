@@ -1,3 +1,8 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
 #ifndef MATERIALX_SOURCECODENODE_H
 #define MATERIALX_SOURCECODENODE_H
 
@@ -14,11 +19,11 @@ class SourceCodeNode : public ShaderNodeImpl
 public:
     static ShaderNodeImplPtr create();
 
-    void initialize(ElementPtr implementation, ShaderGenerator& shadergen, const GenOptions& options) override;
+    void initialize(ElementPtr implementation, GenContext& context) override;
 
-    void emitFunctionDefinition(const ShaderNode& node, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
-    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
 protected:
     bool _inlined;

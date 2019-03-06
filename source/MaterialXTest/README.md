@@ -25,6 +25,9 @@ The names of the files reflect the Element type being tested for the following:
 
 ## Shader Generation Tests
 
-- ShaderGen.cpp : Shader generation tests.
+- GenShader.cpp : Core shader generation framework tests.
+- GenGlsl.cpp : GLSL generation tests.
+- GenOsl.cpp : OSL generation tests.
+- GenShaderUtil.cpp : Utilities for generation tests.
 
 

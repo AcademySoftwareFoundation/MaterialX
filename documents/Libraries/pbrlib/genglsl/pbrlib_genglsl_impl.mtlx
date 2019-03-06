@@ -1,62 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.36">
 
-  <!-- <diffusebrdf> -->
-  <implementation name="IM_diffusebrdf_genglsl" nodedef="ND_diffusebrdf" file="pbrlib/genglsl/mx_diffusebrdf.glsl" function="mx_diffusebrdf" language="genglsl"/>
+  <!-- <diffuse_brdf> -->
+  <implementation name="IM_diffuse_brdf_genglsl" nodedef="ND_diffuse_brdf" file="pbrlib/genglsl/mx_diffuse_brdf.glsl" function="mx_diffuse_brdf" language="genglsl"/>
 
-  <!-- <diffusebtdf> -->
-  <implementation name="IM_diffusebtdf_genglsl" nodedef="ND_diffusebtdf" file="pbrlib/genglsl/mx_diffusebtdf.glsl" function="mx_diffusebtdf" language="genglsl"/>
+  <!-- <diffuse_btdf> -->
+  <implementation name="IM_diffuse_btdf_genglsl" nodedef="ND_diffuse_btdf" file="pbrlib/genglsl/mx_diffuse_btdf.glsl" function="mx_diffuse_btdf" language="genglsl"/>
 
-  <!-- <dielectricbrdf> -->
-  <implementation name="IM_dielectricbrdf_genglsl" nodedef="ND_dielectricbrdf" file="pbrlib/genglsl/mx_dielectricbrdf.glsl" function="mx_dielectricbrdf" language="genglsl"/>
+  <!-- <dielectric_brdf> -->
+  <implementation name="IM_dielectric_brdf_genglsl" nodedef="ND_dielectric_brdf" file="pbrlib/genglsl/mx_dielectric_brdf.glsl" function="mx_dielectric_brdf" language="genglsl"/>
 
-  <!-- <dielectricbtdf> -->
-  <implementation name="IM_dielectricbtdf_genglsl" nodedef="ND_dielectricbtdf" file="pbrlib/genglsl/mx_dielectricbtdf.glsl" function="mx_dielectricbtdf" language="genglsl"/>
+  <!-- <dielectric_btdf> -->
+  <implementation name="IM_dielectric_btdf_genglsl" nodedef="ND_dielectric_btdf" file="pbrlib/genglsl/mx_dielectric_btdf.glsl" function="mx_dielectric_btdf" language="genglsl"/>
 
-  <!-- <conductorbrdf> -->
-  <implementation name="IM_conductorbrdf_genglsl" nodedef="ND_conductorbrdf" file="pbrlib/genglsl/mx_conductorbrdf.glsl" function="mx_conductorbrdf" language="genglsl"/>
+  <!-- <conductor_brdf> -->
+  <implementation name="IM_conductor_brdf_genglsl" nodedef="ND_conductor_brdf" file="pbrlib/genglsl/mx_conductor_brdf.glsl" function="mx_conductor_brdf" language="genglsl"/>
 
-  <!-- <generalizedschlickbrdf> -->
-  <implementation name="IM_generalizedschlickbrdf_genglsl" nodedef="ND_generalizedschlickbrdf" file="pbrlib/genglsl/mx_generalizedschlickbrdf.glsl" function="mx_generalizedschlickbrdf" language="genglsl"/>
+  <!-- <generalized_schlick_brdf> -->
+  <implementation name="IM_generalized_schlick_brdf_genglsl" nodedef="ND_generalized_schlick_brdf" file="pbrlib/genglsl/mx_generalized_schlick_brdf.glsl" function="mx_generalized_schlick_brdf" language="genglsl"/>
 
-  <!-- <subsurfacebrdf> -->
-  <implementation name="IM_subsurfacebrdf_genglsl" nodedef="ND_subsurfacebrdf" file="pbrlib/genglsl/mx_subsurfacebrdf.glsl" function="mx_subsurfacebrdf" language="genglsl"/>
+  <!-- <subsurface_brdf> -->
+  <implementation name="IM_subsurface_brdf_genglsl" nodedef="ND_subsurface_brdf" file="pbrlib/genglsl/mx_subsurface_brdf.glsl" function="mx_subsurface_brdf" language="genglsl"/>
 
-  <!-- <sheenbrdf> -->
-  <implementation name="IM_sheenbrdf_genglsl" nodedef="ND_sheenbrdf" file="pbrlib/genglsl/mx_sheenbrdf.glsl" function="mx_sheenbrdf" language="genglsl"/>
+  <!-- <sheen_brdf> -->
+  <implementation name="IM_sheen_brdf_genglsl" nodedef="ND_sheen_brdf" file="pbrlib/genglsl/mx_sheen_brdf.glsl" function="mx_sheen_brdf" language="genglsl"/>
 
-  <!-- <mixbsdf> -->
-  <implementation name="IM_mixbsdf_genglsl" nodedef="ND_mixbsdf" file="pbrlib/genglsl/mx_mixbsdf.glsl" function="mx_mixbsdf" language="genglsl"/>
+  <!-- <mix> -->
+  <implementation name="IM_mix_bsdf_genglsl" nodedef="ND_mix_bsdf" file="pbrlib/genglsl/mx_mix_bsdf.glsl" function="mx_mix_bsdf" language="genglsl"/>
+  <implementation name="IM_mix_edf_genglsl" nodedef="ND_mix_edf" file="pbrlib/genglsl/mx_mix_edf.glsl" function="mx_mix_edf" language="genglsl"/>
 
-  <!-- <addbsdf> -->
-  <implementation name="IM_addbsdf_genglsl" nodedef="ND_addbsdf" file="pbrlib/genglsl/mx_addbsdf.glsl" function="mx_addbsdf" language="genglsl"/>
+  <!-- <add> -->
+  <implementation name="IM_add_bsdf_genglsl" nodedef="ND_add_bsdf" file="pbrlib/genglsl/mx_add_bsdf.glsl" function="mx_add_bsdf" language="genglsl"/>
+  <implementation name="IM_add_edf_genglsl" nodedef="ND_add_edf" file="pbrlib/genglsl/mx_add_edf.glsl" function="mx_add_edf" language="genglsl"/>
 
-  <!-- <scalebsdf> -->
-  <implementation name="IM_scalebsdf_genglsl" nodedef="ND_scalebsdf" file="pbrlib/genglsl/mx_scalebsdf.glsl" function="mx_scalebsdf" language="genglsl"/>
+  <!-- <multiply> -->
+  <implementation name="IM_multiply_bsdfC_genglsl" nodedef="ND_multiply_bsdfC" file="pbrlib/genglsl/mx_multiply_bsdf_color.glsl" function="mx_multiply_bsdf_color" language="genglsl"/>
+  <implementation name="IM_multiply_bsdfF_genglsl" nodedef="ND_multiply_bsdfF" file="pbrlib/genglsl/mx_multiply_bsdf_float.glsl" function="mx_multiply_bsdf_float" language="genglsl"/>
+  <implementation name="IM_multiply_edfC_genglsl" nodedef="ND_multiply_edfC" file="pbrlib/genglsl/mx_multiply_edf_color.glsl" function="mx_multiply_edf_color" language="genglsl"/>
+  <implementation name="IM_multiply_edfF_genglsl" nodedef="ND_multiply_edfF" file="pbrlib/genglsl/mx_multiply_edf_float.glsl" function="mx_multiply_edf_float" language="genglsl"/>
 
-  <!-- <uniformedf> -->
-  <implementation name="IM_uniformedf_genglsl" nodedef="ND_uniformedf" file="pbrlib/genglsl/mx_uniformedf.glsl" function="mx_uniformedf" language="genglsl"/>
-
-  <!-- <mixedf> -->
-  <implementation name="IM_mixedf_genglsl" nodedef="ND_mixedf" file="pbrlib/genglsl/mx_mixedf.glsl" function="mx_mixedf" language="genglsl"/>
+  <!-- <uniform_edf> -->
+  <implementation name="IM_uniform_edf_genglsl" nodedef="ND_uniform_edf" file="pbrlib/genglsl/mx_uniform_edf.glsl" function="mx_uniform_edf" language="genglsl"/>
 
   <!-- <surface> -->
   <implementation name="IM_surface_genglsl" nodedef="ND_surface" language="genglsl"/>
 
-  <!-- <mixsurface> -->
-  <implementation name="IM_mixsurface_genglsl" nodedef="ND_mixsurface" file="pbrlib/genglsl/mx_mixsurface.glsl" function="mx_mixsurface" language="genglsl"/>
-
   <!-- <light> -->
   <implementation name="IM_light_genglsl" nodedef="ND_light" language="genglsl"/>
 
-  <!-- <pointlight> -->
-  <implementation name="IM_pointlight_genglsl" nodedef="ND_pointlight" file="pbrlib/genglsl/mx_pointlight.glsl" function="mx_pointlight" language="genglsl"/>
+  <!-- <point_light> -->
+  <implementation name="IM_point_light_genglsl" nodedef="ND_point_light" file="pbrlib/genglsl/mx_point_light.glsl" function="mx_point_light" language="genglsl"/>
 
-  <!-- <directionallight> -->
-  <implementation name="IM_directionallight_genglsl" nodedef="ND_directionallight" file="pbrlib/genglsl/mx_directionallight.glsl" function="mx_directionallight" language="genglsl"/>
+  <!-- <directional_light> -->
+  <implementation name="IM_directional_light_genglsl" nodedef="ND_directional_light" file="pbrlib/genglsl/mx_directional_light.glsl" function="mx_directional_light" language="genglsl"/>
 
-  <!-- <spotlight> -->
-  <implementation name="IM_spotlight_genglsl" nodedef="ND_spotlight" file="pbrlib/genglsl/mx_spotlight.glsl" function="mx_spotlight" language="genglsl"/>
+  <!-- <spot_light> -->
+  <implementation name="IM_spot_light_genglsl" nodedef="ND_spot_light" file="pbrlib/genglsl/mx_spot_light.glsl" function="mx_spot_light" language="genglsl"/>
 
   <!-- <backfacing> -->
   <implementation name="IM_backfacing_boolean_genglsl" nodedef="ND_backfacing_boolean" file="pbrlib/genglsl/mx_backfacing_boolean.inline" language="genglsl"/>

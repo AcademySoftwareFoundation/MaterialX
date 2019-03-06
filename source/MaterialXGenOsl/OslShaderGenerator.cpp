@@ -1,5 +1,12 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslSyntax.h>
+
+#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
 #include <MaterialXGenShader/Nodes/CombineNode.h>
@@ -9,6 +16,7 @@
 
 namespace MaterialX
 {
+
 const string OslShaderGenerator::LANGUAGE = "genosl";
 const string OslShaderGenerator::TARGET = "vanilla";
 
@@ -153,109 +161,175 @@ OslShaderGenerator::OslShaderGenerator()
     registerImplementation("IM_blur_vector4_" + OslShaderGenerator::LANGUAGE, BlurNode::create);
 }
 
-ShaderPtr OslShaderGenerator::generate(const string& shaderName, ElementPtr element, const GenOptions& options)
+ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
-    ShaderPtr shaderPtr = std::make_shared<Shader>(shaderName);
-    shaderPtr->initialize(element, *this, options);
+    ShaderPtr shader = createShader(name, element, context);
 
-    Shader& shader = *shaderPtr;
+    const ShaderGraph& graph = shader->getGraph();
+    ShaderStage& stage = shader->getStage(OSL::STAGE);
 
-    emitIncludes(shader);
+    emitIncludes(stage, context);
 
     // Add global constants and type definitions
-    shader.addLine("#define M_FLOAT_EPS 0.000001", false);
-    emitTypeDefinitions(shader);
+    emitLine("#define M_FLOAT_EPS 0.000001", stage, false);
+    emitTypeDefinitions(context, stage);
 
     // Emit sampling code if needed
-    if (shader.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
+    if (graph.hasClassification(ShaderNode::Classification::CONVOLUTION2D))
     {
         // Emit sampling functions
-        shader.addInclude("stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_sampling.osl", *this);
-        shader.newLine();
+        emitInclude("stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_sampling.osl", context, stage);
+        emitLineBreak(stage);
     }
 
     // Emit uv transform function
-    if (options.fileTextureVerticalFlip)
+    if (context.getOptions().fileTextureVerticalFlip)
     {
-        shader.addInclude("stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.osl", *this);
-        shader.newLine();
+        emitInclude("stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.osl", context, stage);
+        emitLineBreak(stage);
     }
     else
     {
-        shader.addInclude("stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.osl", *this);
-        shader.newLine();
+        emitInclude("stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.osl", context, stage);
+        emitLineBreak(stage);
     }
 
-    emitFunctionDefinitions(shader);
+    // Emit function definitions for all nodes
+    emitFunctionDefinitions(graph, context, stage);
 
     // Emit shader type
-    const ShaderGraphOutputSocket* outputSocket = shader.getGraph()->getOutputSocket();
-    if (outputSocket->type == Type::SURFACESHADER)
+    const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket();
+    if (outputSocket->getType() == Type::SURFACESHADER)
     {
-        shader.addStr("surface ");
+        emitString("surface ", stage);
     }
-    else if (outputSocket->type == Type::VOLUMESHADER)
+    else if (outputSocket->getType() == Type::VOLUMESHADER)
     {
-        shader.addStr("volume ");
+        emitString("volume ", stage);
     }
     else
     {
-        shader.addStr("shader ");
+        emitString("shader ", stage);
     }
 
-    // Emit shader name
-    shader.addStr(shader.getName() + "\n");
+    // Begin shader signature
+    string emitShaderName = shader->getName();
+    _syntax->makeValidName(emitShaderName);
+    emitLine(emitShaderName, stage, false);
+    emitScopeBegin(stage, ShaderStage::Brackets::PARENTHESES);
+    emitLine("float dummy = 0.0,", stage, false);
 
-    shader.beginScope(Shader::Brackets::PARENTHESES);
-
-    shader.addLine("float dummy = 0.0,", false);
-
-    // Emit all app data inputs
-    const Shader::VariableBlock& appDataBlock = shader.getAppDataBlock();
-    for (const Shader::Variable* input : appDataBlock.variableOrder)
+    // Emit all varying inputs
+    const VariableBlock& inputs = stage.getInputBlock(OSL::INPUTS);
+    for (size_t i=0; inputs.size(); ++i)
     {
-        const string& type = _syntax->getTypeName(input->type);
-        const string value = _syntax->getDefaultValue(input->type, true);
-        shader.addLine(type + " " + input->name + " = " + value + " [[ int lockgeom=0 ]],", false);
+        const ShaderPort* input = inputs[i];
+        const string& type = _syntax->getTypeName(input->getType());
+        const string& value = _syntax->getDefaultValue(input->getType(), true);
+        emitLine(type + " " + input->getName() + " = " + value + " [[ int lockgeom=0 ]],", stage, false);
     }
 
-    // Emit all public inputs
-    const Shader::VariableBlock& publicUniforms = shader.getUniformBlock(Shader::PIXEL_STAGE, Shader::PUBLIC_UNIFORMS);
-    emitVariableBlock(publicUniforms, _syntax->getUniformQualifier(), COMMA, shader);
+    // Emit all uniform inputs
+    const VariableBlock& uniforms = stage.getUniformBlock(OSL::UNIFORMS);
+    emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), COMMA, context, stage);
 
     // Emit shader output
-    const TypeDesc* outputType = outputSocket->type;
+    // TODO: Support multiple outputs
+    const TypeDesc* outputType = outputSocket->getType();
     const string type = _syntax->getOutputTypeName(outputType);
     const string value = _syntax->getDefaultValue(outputType, true);
-    shader.addLine(type + " " + outputSocket->variable + " = " + value, false);
+    emitLine(type + " " + outputSocket->getVariable() + " = " + value, stage, false);
 
-    shader.endScope();
+    // End shader signature
+    emitScopeEnd(stage);
 
-    // Emit shader body
-    shader.beginScope(Shader::Brackets::BRACES);
+    // Begin shader body
+    emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
 
-    // Emit private constants. Must be within the shader body.
-    const Shader::VariableBlock& psConstants = shader.getConstantBlock(Shader::PIXEL_STAGE);
-    shader.addComment("Private Constants: ");
-    for (const Shader::Variable* constant : psConstants.variableOrder)
+    // Emit constants
+    const VariableBlock& constants = stage.getConstantBlock();
+    if (constants.size())
     {
-        shader.beginLine();
-        emitVariable(*constant, _syntax->getConstantQualifier(), shader);
-        shader.endLine();
+        emitVariableDeclarations(constants, _syntax->getConstantQualifier(), SEMICOLON, context, stage);
+        emitLineBreak(stage);
     }
-    shader.newLine();
 
-    emitFunctionCalls(*_defaultContext, shader);
-    emitFinalOutput(shader);
+    // Emit function calls for all nodes
+    emitFunctionCalls(graph, context, stage);
 
-    shader.endScope();
+    // Emit final output
+    if (outputSocket->getConnection())
+    {
+        string finalResult = outputSocket->getConnection()->getVariable();
+        emitLine(outputSocket->getVariable() + " = " + finalResult, stage);
+    }
+    else
+    {
+        emitLine(outputSocket->getVariable() + " = " + (outputSocket->getValue() ?
+            _syntax->getValue(outputSocket->getType(), *outputSocket->getValue()) :
+            _syntax->getDefaultValue(outputSocket->getType())), stage);
+    }
 
-    return shaderPtr;
+    // End shader body
+    emitScopeEnd(stage);
+
+    return shader;
 }
 
-void OslShaderGenerator::emitIncludes(Shader& shader)
+ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
 {
-    static const vector<string> includeFiles =
+    // Create the root shader graph
+    ShaderGraphPtr graph = ShaderGraph::create(nullptr, name, element, context);
+    ShaderPtr shader = std::make_shared<Shader>(name, graph);
+
+    // Create our stage.
+    ShaderStagePtr stage = createStage(OSL::STAGE, *shader);
+    stage->createUniformBlock(OSL::UNIFORMS);
+    stage->createInputBlock(OSL::INPUTS);
+    stage->createOutputBlock(OSL::OUTPUTS);
+
+    // Create shader variables for all nodes that need this.
+    for (ShaderNode* node : graph->getNodes())
+    {
+        node->getImplementation().createVariables(*node, context, *shader);
+    }
+
+    // Create uniforms for the published graph interface.
+    VariableBlock& uniforms = stage->getUniformBlock(OSL::UNIFORMS);
+    for (ShaderGraphInputSocket* inputSocket : graph->getInputSockets())
+    {
+        // Only for inputs that are connected/used internally,
+        // and are editable by users.
+        if (inputSocket->getConnections().size() && graph->isEditable(*inputSocket))
+        {
+            uniforms.add(inputSocket->getSelf());
+        }
+    }
+
+    // Create outputs from the graph interface.
+    VariableBlock& outputs = stage->getOutputBlock(OSL::OUTPUTS);
+    for (ShaderGraphOutputSocket* outputSocket : graph->getOutputSockets())
+    {
+        outputs.add(outputSocket->getSelf());
+    }
+
+    return shader;
+}
+
+void OslShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
+{
+    if (!graph.hasClassification(ShaderNode::Classification::TEXTURE))
+    {
+        emitLine("closure color null_closure = 0", stage);
+    }
+    ShaderGenerator::emitFunctionCalls(graph, context, stage);
+}
+
+void OslShaderGenerator::emitIncludes(ShaderStage& stage, GenContext& context) const
+{
+    static const string INCLUDE_PREFIX = "#include \"";
+    static const string INCLUDE_SUFFIX = "\"";
+    static const vector<string> INCLUDE_FILES =
     {
         "color2.h",
         "color4.h",
@@ -265,57 +339,22 @@ void OslShaderGenerator::emitIncludes(Shader& shader)
         "mx_funcs.h"
     };
 
-    for (const string& file : includeFiles)
+    for (const string& file : INCLUDE_FILES)
     {
-        FilePath path = findSourceCode(file);
-        shader.addLine("#include \"" + path.asString() + "\"", false);
+        FilePath path = context.findSourceCode(file);
+        emitLine(INCLUDE_PREFIX + path.asString() + INCLUDE_SUFFIX, stage, false);
     }
 
-    shader.newLine();
+    emitLineBreak(stage);
 }
 
-void OslShaderGenerator::emitFunctionCalls(const GenContext& context, Shader &shader)
+namespace OSL
 {
-    // Emit needed globals
-    if (!shader.getGraph()->hasClassification(ShaderNode::Classification::TEXTURE))
-    {
-        shader.addLine("closure color null_closure = 0");
-    }
-
-    // Call parent
-    ParentClass::emitFunctionCalls(context, shader);
-}
-
-void OslShaderGenerator::emitFinalOutput(Shader& shader) const
-{
-    ShaderGraph* graph = shader.getGraph();
-    const ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
-
-    if (!outputSocket->connection)
-    {
-        // Early out for the rare case where the whole graph is just a single value
-        shader.addLine(outputSocket->variable + " = " + (outputSocket->value ?
-            _syntax->getValue(outputSocket->type, *outputSocket->value) :
-            _syntax->getDefaultValue(outputSocket->type)));
-        return;
-    }
-
-    string finalResult = outputSocket->connection->variable;
-    shader.addLine(outputSocket->variable + " = " + finalResult);
-}
-
-void OslShaderGenerator::emitVariable(const Shader::Variable& uniform, const string& /*qualifier*/, Shader& shader)
-{
-    const string initStr = (uniform.value ? _syntax->getValue(uniform.type, *uniform.value, true) : _syntax->getDefaultValue(uniform.type, true));
-    string line = _syntax->getTypeName(uniform.type) + " " + uniform.name;
-
-    // If an arrays we need an array qualifier (suffix) for the variable name
-    string arraySuffix;
-    uniform.getArraySuffix(arraySuffix);
-    line += arraySuffix;
-
-    line += initStr.empty() ? "" : " = " + initStr;
-    shader.addStr(line);
+    // Identifiers for OSL stage and variable blocks
+    const string STAGE    = MAIN_STAGE;
+    const string UNIFORMS = "u";
+    const string INPUTS   = "i";
+    const string OUTPUTS  = "o";
 }
 
 } // namespace MaterialX

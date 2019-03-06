@@ -117,10 +117,10 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions
 
 void xmlDocumentFromFile(xml_document& xmlDoc, string filename, const string& searchPath)
 {
-    if (!searchPath.empty())
-    {
-        filename = FileSearchPath(searchPath).find(filename);
-    }
+    FileSearchPath fileSearchPath = FileSearchPath(searchPath);
+    fileSearchPath.append(getEnvironmentPath());
+
+    filename = fileSearchPath.find(filename);
 
     xml_parse_result result = xmlDoc.load_file(filename.c_str());
     if (!result)

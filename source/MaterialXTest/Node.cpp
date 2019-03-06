@@ -8,6 +8,7 @@
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Document.h>
 
+#include <MaterialXFormat/File.h>
 #include <MaterialXFormat/XmlIo.h>
 
 namespace mx = MaterialX;
@@ -136,9 +137,11 @@ TEST_CASE("Node", "[node]")
 
 TEST_CASE("Flatten", "[nodegraph]")
 {
+    std::string searchPath = "documents/Examples" + mx::PATH_LIST_SEPARATOR + "documents/Libraries/stdlib";
+
     // Read the example file.
     mx::DocumentPtr doc = mx::createDocument();
-    mx::readFromXmlFile(doc, "SubGraphs.mtlx", "documents/Examples;documents/Libraries/stdlib");
+    mx::readFromXmlFile(doc, "SubGraphs.mtlx", searchPath);
 
     // Find the example graph.
     mx::NodeGraphPtr graph = doc->getNodeGraph("subgraph_ex1");

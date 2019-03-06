@@ -1,3 +1,8 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
 #ifndef MATERIALX_DEFAULT_COLOR_MANAGEMENT_SYSTEM_H
 #define MATERIALX_DEFAULT_COLOR_MANAGEMENT_SYSTEM_H
 
@@ -32,7 +37,7 @@ class DefaultColorManagementSystem : public ColorManagementSystem
 
   protected:
     /// Returns an implementation name for a given transform
-    string getImplementationName(const ColorSpaceTransform& transform) override;
+    string getImplementationName(const ColorSpaceTransform& transform) const override;
 
     /// Protected constructor
     DefaultColorManagementSystem(const string& language);

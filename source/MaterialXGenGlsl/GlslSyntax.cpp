@@ -1,6 +1,11 @@
-#include <MaterialXGenGlsl/GlslSyntax.h>
-#include <MaterialXGenShader/Shader.h>
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
 
+#include <MaterialXGenGlsl/GlslSyntax.h>
+
+#include <MaterialXGenShader/Library.h>
 #include <MaterialXGenShader/TypeDesc.h>
 
 #include <memory>
@@ -94,6 +99,7 @@ namespace
     };
 }
 
+const string GlslSyntax::INPUT_QUALIFIER = "in";
 const string GlslSyntax::OUTPUT_QUALIFIER = "out";
 const string GlslSyntax::UNIFORM_QUALIFIER = "uniform";
 const string GlslSyntax::CONSTANT_QUALIFIER = "const";
@@ -148,7 +154,7 @@ GlslSyntax::GlslSyntax()
         "sizeof", "cast", "namespace", "using", "row_major"
     });
 
-    // Register regstricted tokens in GLSL
+    // Register restricted tokens in GLSL
     StringMap tokens;
     tokens["__"] = "_";
     tokens["gl_"] = "gll";
@@ -391,11 +397,6 @@ GlslSyntax::GlslSyntax()
             EMPTY_STRING,
             "struct lightshader { vec3 intensity; vec3 direction; };")
     );
-}
-
-const string& GlslSyntax::getOutputQualifier() const
-{
-    return OUTPUT_QUALIFIER;
 }
 
 bool GlslSyntax::typeSupported(const TypeDesc* type) const

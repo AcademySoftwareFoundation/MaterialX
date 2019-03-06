@@ -1,5 +1,5 @@
 //
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 #include <PyMaterialX/PyMaterialX.h>
@@ -43,7 +43,7 @@ class PyColorManagementSystem : public mx::ColorManagementSystem
 class PyDefaultColorManagementSystem : public mx::DefaultColorManagementSystem
 {
   public:
-    explicit PyDefaultColorManagementSystem(const std::string& configFile) :
+      explicit PyDefaultColorManagementSystem(const std::string& configFile) :
         mx::DefaultColorManagementSystem(configFile)
     {
     }

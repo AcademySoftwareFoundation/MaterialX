@@ -1,16 +1,32 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
 #include <MaterialXGenGlsl/Nodes/HeightToNormalNodeGlsl.h>
-#include <MaterialXGenShader/HwShader.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 namespace MaterialX
 {
 
-HeightToNormalNodeGlsl::HeightToNormalNodeGlsl()
-    : ParentClass()
+namespace
 {
-    _sampleCount = 9;
-    _sampleSizeFunctionUV.assign("mx_compute_sample_size_uv");
-    _filterFunctionName.assign("mx_normal_from_samples_sobel");
+    /// Name of filter function to call to compute normals from input samples
+    const string filterFunctionName = "mx_normal_from_samples_sobel";
+
+    /// Name of function to compute sample size in uv space. Takes uv, filter size, and filter offset
+    /// as input, and return a 2 channel vector as output
+    const string sampleSizeFunctionUV = "mx_compute_sample_size_uv";
+
+    const unsigned int sampleCount = 9;
+    const unsigned int filterWidth = 3;
+    const float filterSize = 1.0;
+    const float filterOffset = 0.0;
+}
+
+HeightToNormalNodeGlsl::HeightToNormalNodeGlsl()
+    : ConvolutionNode()
+{
 }
 
 ShaderNodeImplPtr HeightToNormalNodeGlsl::create()
@@ -18,10 +34,10 @@ ShaderNodeImplPtr HeightToNormalNodeGlsl::create()
     return std::shared_ptr<HeightToNormalNodeGlsl>(new HeightToNormalNodeGlsl());
 }
 
-void HeightToNormalNodeGlsl::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, StringVec& offsetStrings)
+void HeightToNormalNodeGlsl::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, 
+                                                        unsigned int, StringVec& offsetStrings) const
 {
     // Build a 3x3 grid of samples that are offset by the provided sample size
-    offsetStrings.clear();
     for (int row = -1; row <= 1; row++)
     {
         for (int col = -1; col <= 1; col++)
@@ -31,52 +47,52 @@ void HeightToNormalNodeGlsl::computeSampleOffsetStrings(const string& sampleSize
     }
 }
 
-bool HeightToNormalNodeGlsl::acceptsInputType(const TypeDesc* type)
+bool HeightToNormalNodeGlsl::acceptsInputType(const TypeDesc* type) const
 {
     // Only support inputs which are float scalar
     return (type == Type::FLOAT && type->isScalar());
 }
 
-void HeightToNormalNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void HeightToNormalNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    const ShaderInput* inInput = node.getInput("in");
-    const ShaderInput* scaleInput = node.getInput("scale");
+    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
+    
+        const ShaderInput* inInput = node.getInput("in");
+        const ShaderInput* scaleInput = node.getInput("scale");
 
-    if (!inInput || !scaleInput)
-    {
-        throw ExceptionShaderGenError("Node '" + node.getName() + "' is not a valid heighttonormal node");
-    }
+        if (!inInput || !scaleInput)
+        {
+            throw ExceptionShaderGenError("Node '" + node.getName() + "' is not a valid heighttonormal node");
+        }
 
-    HwShader& shader = static_cast<HwShader&>(shader_);
-
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
-    {
         // Create the input "samples". This means to emit the calls to 
         // compute the sames and return a set of strings containaing
         // the variables to assign to the sample grid.
         //  
         StringVec sampleStrings;
-        emitInputSamplesUV(node, context, shadergen, shader, sampleStrings);
+        emitInputSamplesUV(node, sampleCount, filterWidth, 
+                           filterSize, filterOffset, sampleSizeFunctionUV, 
+                           context, stage, sampleStrings);
 
         const ShaderOutput* output = node.getOutput();
 
         // Emit code to evaluate samples.
         //
-        string sampleName(output->variable + "_samples");
-        shader.addLine("float " + sampleName + "[" + std::to_string(_sampleCount) + "]");
-        for (unsigned int i = 0; i < _sampleCount; i++)
+        string sampleName(output->getVariable() + "_samples");
+        shadergen.emitLine("float " + sampleName + "[" + std::to_string(sampleCount) + "]", stage);
+        for (unsigned int i = 0; i < sampleCount; i++)
         {
-            shader.addLine(sampleName + "[" + std::to_string(i) + "] = " + sampleStrings[i]);
+            shadergen.emitLine(sampleName + "[" + std::to_string(i) + "] = " + sampleStrings[i], stage);
         }
-        shader.beginLine();
-        shadergen.emitOutput(context, output, true, false, shader);
-        shader.addStr(" = " + _filterFunctionName);
-        shader.addStr("(" + sampleName + ", ");
-        shadergen.emitInput(context, scaleInput, shader);
-        shader.addStr(")");
-        shader.endLine();
-    }
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+        shadergen.emitLineBegin(stage);
+        shadergen.emitOutput(output, true, false, context, stage);
+        shadergen.emitString(" = " + filterFunctionName, stage);
+        shadergen.emitString("(" + sampleName + ", ", stage);
+        shadergen.emitInput(scaleInput, context, stage);
+        shadergen.emitString(")", stage);
+        shadergen.emitLineEnd(stage);
+    END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX

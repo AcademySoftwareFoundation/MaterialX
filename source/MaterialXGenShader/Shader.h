@@ -1,25 +1,22 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
 #ifndef MATERIALX_SHADER_H
 #define MATERIALX_SHADER_H
 
 #include <MaterialXCore/Library.h>
-#include <MaterialXCore/Node.h>
+#include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/ShaderGraph.h>
 #include <MaterialXGenShader/GenOptions.h>
-
-#include <queue>
-#include <sstream>
-#include <unordered_map>
-
-/// Macro for being/end of statements to be picked up by a given shader stage.
-/// For shaders that are multi-stage all code generation statements adding code 
-/// to the shader should be wrapped inside such begin/end stating its target.
-#define BEGIN_SHADER_STAGE(shader, stage) if (shader.getActiveStage() == stage) {
-#define END_SHADER_STAGE(shader, stage) }
 
 namespace MaterialX
 {
 
-using ShaderPtr = shared_ptr<class Shader>;
+class ShaderGenerator;
+class Shader;
+using ShaderPtr = shared_ptr<Shader>;
 
 /// Class containing all data needed during shader generation.
 /// After generation is completed it will contain the resulting source code
@@ -31,291 +28,77 @@ using ShaderPtr = shared_ptr<class Shader>;
 ///
 class Shader
 {
-public:
-    /// Bracket types
-    enum class Brackets
-    {
-        NONE,
-        BRACES,
-        PARENTHESES,
-        SQUARES
-    };
-
-    struct Variable;
-    using VariablePtr = std::shared_ptr<Variable>;
-
-    struct Variable
-    {
-        const TypeDesc* type;
-        string name;
-        string path;
-        string semantic;
-        ValuePtr value;
-
-        static VariablePtr create(const TypeDesc* t, const string& n, const string& p, const string& s, ValuePtr v)
-        {
-            return std::make_shared<Variable>(t, n, p, s, v);
-        }
-
-        Variable()
-            : type(nullptr)
-            , name(EMPTY_STRING)
-            , path(EMPTY_STRING)
-            , semantic(EMPTY_STRING)
-            , value(nullptr)
-        {
-        }
-
-        Variable(const TypeDesc* t, const string& n, const string& p, const string& s, ValuePtr v)
-            : type(t)
-            , name(n)
-            , path(p)
-            , semantic(s)
-            , value(v)
-        {
-        }
-
-        void getArraySuffix(string& result) const
-        {
-            result.clear();
-            if (value && value->isA<vector<float>>())
-            {
-                vector<float> valueArray = value->asA<vector<float>>();
-                result = "[" + std::to_string(valueArray.size()) + "]";
-            }
-            else if (value && value->isA<vector<int>>())
-            {
-                vector<int> valueArray = value->asA<vector<int>>();
-                result = "[" + std::to_string(valueArray.size()) + "]";
-            }
-        }
-    };
-
-    /// A block of variables for a shader stage
-    struct VariableBlock
-    {
-        string name;
-        string instance;
-        std::unordered_map<string, VariablePtr> variableMap;
-        vector<Variable*> variableOrder;
-
-        VariableBlock(const string& n, const string& i) : name(n), instance(i) {}    
-        bool empty() const { return variableOrder.empty(); }
-        size_t size() const { return variableOrder.size(); }
-        Variable* operator[](size_t i) { return variableOrder[i]; }
-        const Variable* operator[](size_t i) const { return variableOrder[i]; }
-    };
-
-    using VariableBlockPtr = std::shared_ptr<VariableBlock>;
-    using VariableBlockMap = std::unordered_map<string, VariableBlockPtr>;
-
-    /// Identifier for shader stages. The base class shader has only a single 
-    /// pixel shader stage. Derived shader classes can define additional stages.
-    static const string PIXEL_STAGE;
-
-    /// Identifiers for uniform variable blocks. 
-    /// Derived classes can define additional blocks.
-    ///
-    /// Default uniform block for private variables.
-    /// For uniforms not visible to user and only set by application.
-    static const string PRIVATE_UNIFORMS;
-    /// Default uniform block for public variables. 
-    /// For uniforms visible in UI and set by users.
-    static const string PUBLIC_UNIFORMS;
-
-public:
+  public:
     /// Constructor
-    Shader(const string& name);
+    Shader(const string& name, ShaderGraphPtr graph);
 
     /// Destructor
     virtual ~Shader() {}
 
-    /// Initialize the shader before shader generation.
-    /// @param element The root element to generate the shader from. 
-    /// @param shadergen The shader generator instance.
-    /// @param options Generation options
-    virtual void initialize(ElementPtr element, ShaderGenerator& shadergen, const GenOptions& options);
+    /// Return the shader name
+    const string& getName() const { return _name; }
 
     /// Return the number of shader stages for this shader.
     size_t numStages() const { return _stages.size(); }
 
-    /// Return the name of the shader stages for this shader.
-    void getStageNames(StringVec& stages);
+    /// Return a stage by index.
+    ShaderStage& getStage(size_t index);
 
-    /// Set the active stage that code will be added to
-    void setActiveStage(const string& stage);
+    /// Return a stage by index.
+    const ShaderStage& getStage(size_t index) const;
 
-    /// Return the name of the active stage
-    const string& getActiveStage() const { return _activeStage->name; }
+    /// Return a stage by name.
+    ShaderStage& getStage(const string& name);
 
-    /// Create a new constant variable for a stage.
-    virtual void createConstant(const string& stage, const TypeDesc* type, const string& name,
-                                const string& path = EMPTY_STRING, const string& semantic = EMPTY_STRING, ValuePtr value = nullptr);
+    /// Return a stage by name.
+    const ShaderStage& getStage(const string& name) const;
 
-    /// Create a new variable block for uniform inputs in a stage.
-    virtual void createUniformBlock(const string& stage, const string& block, const string& instance = EMPTY_STRING);
-
-    /// Create a new variable for uniform data in the given block for a stage.
-    /// The block must be previously created with createUniformBlock.
-    virtual void createUniform(const string& stage, const string& block, const TypeDesc* type, const string& name,
-                               const string& path = EMPTY_STRING, const string& semantic = EMPTY_STRING, ValuePtr value = nullptr);
-
-    /// Create a new variable for application/geometric data (primvars).
-    virtual void createAppData(const TypeDesc* type, const string& name, const string& semantic = EMPTY_STRING);
-
-    /// Return the block of constant variables for a stage.
-    const VariableBlock& getConstantBlock(const string& stage) const;
-
-    /// Return all blocks of uniform variables for a stage.
-    const VariableBlockMap& getUniformBlocks(const string& stage) const;
-
-    /// Return a specific block of uniform variables for a stage.
-    const VariableBlock& getUniformBlock(const string& stage, const string& block) const;
-
-    /// Return the block of application data variables.
-    const VariableBlock& getAppDataBlock() const { return _appData; }
-
-    /// Return the block of output variables.
-    const VariableBlock& getOutputBlock() const { return _outputs; }
-
-    /// Start a new scope in the shader, using the given bracket type
-    virtual void beginScope(Brackets brackets = Brackets::BRACES);
-
-    /// End the current scope in the shader
-    virtual void endScope(bool semicolon = false, bool newline = true);
-
-    /// Start a new line in the shader
-    virtual void beginLine();
-
-    /// End the current line in the shader
-    virtual void endLine(bool semicolon = true);
-
-    /// Add a newline character to the shader
-    virtual void newLine();
-
-    /// Add a string to the shader
-    virtual void addStr(const string& str);
-
-    /// Add a single line of code to the shader,
-    /// optionally appening a semi-colon
-    virtual void addLine(const string& str, bool semicolon = true);
-
-    /// Add a block of code to the shader
-    virtual void addBlock(const string& str, ShaderGenerator& shadergen);
-
-    /// Add the function definition for a node
-    virtual void addFunctionDefinition(ShaderNode* node, ShaderGenerator& shadergen);
-
-    /// Add the function call for a node
-    virtual void addFunctionCall(ShaderNode* node, const GenContext& context, ShaderGenerator& shadergen);
-
-    /// Add the contents of an include file
-    /// Making sure it is only included once
-    /// for a shader stage
-    virtual void addInclude(const string& file, ShaderGenerator& shadergen);
-
-    /// Add a single line of code comment to the shader
-    virtual void addComment(const string& str);
-
-    /// Add a value to the shader
-    template<typename T>
-    void addValue(const T& value)
+    /// Return true if the shader has a given named attribute.
+    bool hasAttribute(const string& attrib) const
     {
-        std::stringstream str;
-        str << value;
-        _activeStage->code += str.str();
+        return _attributeMap.count(attrib) != 0;
     }
 
-    /// Return the shader name
-    const string& getName() const { return _name; }
+    /// Return the value for a named attribute,
+    /// or nullptr if no such attribute is found.
+    ValuePtr getAttribute(const string& attrib) const
+    {
+        auto it = _attributeMap.find(attrib);
+        return it != _attributeMap.end() ? it->second : nullptr;
+    }
 
-    /// Return the active shader graph.
-    ShaderGraph* getGraph() const { return _graphStack.back(); }
+    /// Set a value attribute on the shader.
+    void setAttribute(const string& attrib, ValuePtr value)
+    {
+        _attributeMap[attrib] = value;
+    }
 
-    /// Push a new active shader graph.
-    /// Used when emitting code for compounds / subgraphs.
-    void pushActiveGraph(ShaderGraph* graph) { _graphStack.push_back(graph); }
+    /// Set a flag attribute on the shader.
+    void setAttribute(const string& attrib)
+    {
+        _attributeMap[attrib] = Value::createValue<bool>(true);
+    }
 
-    /// Reactivate the previously last used shader graph.
-    void popActiveGraph() { _graphStack.pop_back(); }
+    /// Return the shader graph.
+    const ShaderGraph& getGraph() const { return *_graph; }
 
     /// Return true if this shader matches the given classification.
-    bool hasClassification(unsigned int c) const { return getGraph()->hasClassification(c); }
+    bool hasClassification(unsigned int c) const { return _graph->hasClassification(c); }
 
     /// Return the final shader source code for a given shader stage
-    const string& getSourceCode(const string& stage = PIXEL_STAGE) const { return getStage(stage)->code; }
+    const string& getSourceCode(const string& stage = MAIN_STAGE) const { return getStage(stage).getSourceCode(); }
 
-protected:
-
-    /// A shader stage, containing the state and 
-    /// resulting source code for the stage
-    struct Stage
-    {
-        string name;
-        int indentations;
-        std::queue<Brackets> scopes;
-        std::set<string> includes;
-        std::set<ShaderNodeImpl*> definedFunctions;
-
-        // Block holding constant variables for this stage
-        VariableBlock constants;
-
-        // Blocks holding uniform variables for this stage
-        VariableBlockMap uniforms;
-
-        // Resulting source code for this stage
-        string code;
-
-        Stage(const string& n) : name(n), indentations(0), constants("Constants", "cn") {}
-    };
-
-    using StagePtr = std::shared_ptr<Stage>;
-
-    /// Create a new stage with given name.
-    StagePtr createStage(const string& name);
-
-    /// Return the stage with the given name.
-    Stage* getStage(const string& name);
-    const Stage* getStage(const string& name) const;
-
-    /// Add indentation on current line
-    virtual void indent();
-
-    /// Return a container with all top level graphs use by this shader.
-    virtual void getTopLevelShaderGraphs(ShaderGenerator& shadergen, std::deque<ShaderGraph*>& graphs) const;
+  protected: 
+    /// Create a new stage in the shader.
+    ShaderStagePtr createStage(const string& name, ConstSyntaxPtr syntax);
 
     string _name;
-    ShaderGraphPtr _rootGraph;
-    vector<ShaderGraph*> _graphStack;
+    ShaderGraphPtr _graph;
+    std::unordered_map<string, ShaderStagePtr> _stagesMap;
+    vector<ShaderStage*> _stages;
+    std::unordered_map<string, ValuePtr> _attributeMap;
 
-    Stage* _activeStage;
-    std::unordered_map<string, StagePtr> _stages;
-
-    // Block holding application/geometric input variables
-    VariableBlock _appData;
-
-    // Block holding output variables
-    VariableBlock _outputs;
-};
-
-/// @class @ExceptionShaderGenError
-/// An exception that is thrown when shader generation fails.
-class ExceptionShaderGenError : public Exception
-{
-public:
-    ExceptionShaderGenError(const string& msg) :
-        Exception(msg)
-    {
-    }
-
-    ExceptionShaderGenError(const ExceptionShaderGenError& e) :
-        Exception(e)
-    {
-    }
-
-    virtual ~ExceptionShaderGenError() throw()
-    {
-    }
+    friend class ShaderGenerator;
 };
 
 } // namespace MaterialX

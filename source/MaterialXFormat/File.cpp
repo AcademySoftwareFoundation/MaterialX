@@ -5,6 +5,8 @@
 
 #include <MaterialXFormat/File.h>
 
+#include <MaterialXFormat/Environ.h>
+
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -26,6 +28,13 @@ const string VALID_SEPARATORS_POSIX = "/";
 
 const char PREFERRED_SEPARATOR_WINDOWS = '\\';
 const char PREFERRED_SEPARATOR_POSIX = '/';
+
+#if defined(_WIN32)
+const string PATH_LIST_SEPARATOR = ";";
+#else
+const string PATH_LIST_SEPARATOR = ":";
+#endif
+const string MATERIALX_SEARCH_PATH_ENV_VAR = "MATERIALX_SEARCH_PATH";
 
 //
 // FilePath methods
@@ -138,6 +147,12 @@ FilePath FilePath::getCurrentPath()
     }
     return FilePath(buf);
 #endif
+}
+
+FileSearchPath getEnvironmentPath(const string& sep)
+{
+    string searchPathEnv = getEnviron(MATERIALX_SEARCH_PATH_ENV_VAR);
+    return FileSearchPath(searchPathEnv, sep);
 }
 
 } // namespace MaterialX

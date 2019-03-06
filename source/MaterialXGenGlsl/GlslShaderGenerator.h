@@ -1,8 +1,12 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
 #ifndef MATERIALX_GLSLSHADERGENERATOR_H
 #define MATERIALX_GLSLSHADERGENERATOR_H
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
-#include <MaterialXGenShader/HwShader.h>
 
 /*
 The GLSL shader generator has a number of predefined variables (inputs and uniforms) with set binding rules.
@@ -43,7 +47,7 @@ Uniform variables :
     u_time                              float      The current time in seconds
     u_geomattr_<name>                   <type>     A named attribute of given <type> where <name> is the name of the variable on the geometry
     u_numActiveLightSources             int        The number of currently active light sources. Note that in shader this is clamped against
-                                                   the maximum allowed number of lights sources. The maximum number is set by calling 
+                                                   the maximum allowed number of lights sources. The maximum number is set by calling
                                                    HwShaderGenerator::setMaxActiveLightSources().
     u_lightData[]                       struct     Array of struct LightData holding parameters for active light sources.
                                                    The LightData struct is built dynamically depending on requirements for
@@ -67,16 +71,14 @@ using GlslShaderGeneratorPtr = shared_ptr<class GlslShaderGenerator>;
 /// A generator for a specific GLSL target should be derived from this class.
 class GlslShaderGenerator : public HwShaderGenerator
 {
-    using ParentClass = HwShaderGenerator;
-
   public:
     GlslShaderGenerator();
 
     static ShaderGeneratorPtr create() { return std::make_shared<GlslShaderGenerator>(); }
 
-    /// Generate a shader starting from the given element, translating 
+    /// Generate a shader starting from the given element, translating
     /// the element and all dependencies upstream into shader code.
-    ShaderPtr generate(const string& shaderName, ElementPtr element, const GenOptions& options) override;
+    ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const override;
 
     /// Return a unique identifyer for the language used by this generator
     const string& getLanguage() const override { return LANGUAGE; }
@@ -88,39 +90,24 @@ class GlslShaderGenerator : public HwShaderGenerator
     virtual const string& getVersion() const { return VERSION; }
 
     /// Emit function definitions for all nodes
-    void emitFunctionDefinitions(Shader& shader) override;
+    void emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const override;
 
     /// Emit all functon calls constructing the shader body
-    void emitFunctionCalls(const GenContext& context, Shader &shader) override;
+    void emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const override;
 
-    /// Emit the final output expression
-    void emitFinalOutput(Shader& shader) const override;
-
-    /// Add contexts id's to the given node to control 
-    /// in which contexts this node should be used
-    void addContextIDs(ShaderNode* node) const override;
+    /// Emit a shader variable.
+    void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext& context, ShaderStage& stage,
+                                 bool assignValue = true) const override;
 
     /// Given a element attempt to remap a value to an enumeration which is accepted by
     /// the shader generator.
-    ValuePtr remapEnumeration(const ValueElementPtr& input, const InterfaceElement& mappingElement, const TypeDesc*& enumerationType) override;
+    ValuePtr remapEnumeration(const ValueElementPtr& input, const InterfaceElement& mappingElement, 
+                              const TypeDesc*& enumerationType) const override;
 
-    /// Given a input specification (name, value, type) attempt to remap a value to an enumeration 
+    /// Given a input specification (name, value, type) attempt to remap a value to an enumeration
     /// which is accepted by the shader generator.
     ValuePtr remapEnumeration(const string& inputName, const string& inputValue, const string& inputType, 
-                              const InterfaceElement& mappingElement, const TypeDesc*& enumerationType) override;
-
-    /// Emit code for all texturing nodes.
-    virtual void emitTextureNodes(Shader& shader);
-
-    /// Emit code for calculating BSDF response for a shader, 
-    /// given the incident and outgoing light directions.
-    /// The output 'bsdf' will hold the variable name keeping the result.
-    virtual void emitBsdfNodes(const ShaderNode& shaderNode, int bsdfContext, const string& incident, const string& outgoing, Shader& shader, string& bsdf);
-
-    /// Emit code for calculating emission for a surface or light shader,
-    /// given the normal direction of the EDF and the evaluation direction.
-    /// The output 'edf' will hold the variable keeping the result.
-    virtual void emitEdfNodes(const ShaderNode& shaderNode, const string& normalDir, const string& evalDir, Shader& shader, string& edf);
+                              const InterfaceElement& mappingElement, const TypeDesc*& enumerationType) const override;
 
   public:
     /// Unique identifyer for the glsl language
@@ -132,41 +119,17 @@ class GlslShaderGenerator : public HwShaderGenerator
     /// Version string for the generator target
     static const string VERSION;
 
-    /// String constants for direction vectors
-    static const string LIGHT_DIR;
-    static const string VIEW_DIR;
-
-    /// Identifiers for contexts
-    enum Context
-    {
-        CONTEXT_BSDF_REFLECTION = CONTEXT_DEFAULT + 1,
-        CONTEXT_BSDF_TRANSMISSION,
-        CONTEXT_BSDF_INDIRECT,
-        CONTEXT_EDF,
-    };
-
-    /// Enum to identify common BSDF direction vectors
-    enum class BsdfDir
-    {
-        NORMAL_DIR,
-        LIGHT_DIR,
-        VIEW_DIR,
-        REFL_DIR
-    };
-
-  protected:   
-    void emitVariable(const Shader::Variable& variable, const string& qualifier, Shader& shader) override;
+  protected:
+    virtual void emitVertexStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
+    virtual void emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
 
     /// Override the compound implementation creator in order to handle light compounds.
-    ShaderNodeImplPtr createCompoundImplementation(NodeGraphPtr impl) override;
+    ShaderNodeImplPtr createCompoundImplementation(NodeGraphPtr impl) const override;
 
     static void toVec4(const TypeDesc* type, string& variable);
 
-    /// Internal string constants
-    static const string INCIDENT;
-    static const string OUTGOING;
-    static const string NORMAL;
-    static const string EVAL;
+    /// Nodes used internally for light sampling.
+    vector<ShaderNodePtr> _lightSamplingNodes;
 };
 
 
@@ -180,8 +143,20 @@ class GlslImplementation : public ShaderNodeImpl
   protected:
     GlslImplementation() {}
 
+    // Integer identifiers for corrdinate spaces
+    // The order must match the order given for
+    // the space enum string in stdlib.
+    enum Space
+    {
+        MODEL_SPACE,
+        OBJECT_SPACE,
+        WORLD_SPACE
+    };
+
     /// Internal string constants
     static const string SPACE;
+    static const string TO_SPACE;
+    static const string FROM_SPACE;
     static const string WORLD;
     static const string OBJECT;
     static const string MODEL;

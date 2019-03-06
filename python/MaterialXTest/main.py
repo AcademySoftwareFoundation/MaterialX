@@ -23,7 +23,7 @@ _testValues = (1,
 _fileDir = os.path.dirname(os.path.abspath(__file__))
 _libraryDir = os.path.join(_fileDir, '../../documents/Libraries/stdlib/')
 _exampleDir = os.path.join(_fileDir, '../../documents/Examples/')
-_searchPath = _libraryDir + ';' + _exampleDir
+_searchPath = _libraryDir + mx.PATH_LIST_SEPARATOR + _exampleDir
 
 _libraryFilenames = ('stdlib_defs.mtlx',
                      'stdlib_ng.mtlx',

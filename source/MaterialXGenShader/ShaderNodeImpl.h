@@ -1,3 +1,8 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
 #ifndef MATERIALX_SHADERNODEIMPL_H
 #define MATERIALX_SHADERNODEIMPL_H
 
@@ -8,6 +13,7 @@ namespace MaterialX
 {
 
 class Shader;
+class ShaderStage;
 class ShaderGenerator;
 class ShaderNode;
 class ShaderGraph;
@@ -40,21 +46,24 @@ class ShaderNodeImpl
     virtual const string& getTarget() const { return EMPTY_STRING; }
 
     /// Initialize with the given implementation element.
-    virtual void initialize(ElementPtr implementation, ShaderGenerator& shadergen, const GenOptions& options);
+    virtual void initialize(ElementPtr implementation, GenContext& context);
 
     /// Create shader variables needed for the implementation of this node (e.g. uniforms, inputs and outputs).
     /// Used if the node requires input data from the application.
-    virtual void createVariables(const ShaderNode& node, ShaderGenerator& shadergen, Shader& shader);
+    virtual void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const;
 
     /// Emit function definition for the given node instance.
-    virtual void emitFunctionDefinition(const ShaderNode& node, ShaderGenerator& shadergen, Shader& shader);
+    virtual void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const;
 
     /// Emit the function call or inline source code for given node instance in the given context.
-    virtual void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader);
+    virtual void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const;
 
     /// Return a pointer to the graph if this implementation is using a graph,
     /// or returns nullptr otherwise.
     virtual ShaderGraph* getGraph() const;
+
+    /// Return a unique hash for this implementation.
+    virtual size_t getHash() const;
 
     /// Returns true if an input is editable by users.
     /// Editable inputs are allowed to be published as shader uniforms

@@ -1,3 +1,8 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
 #include <MaterialXCore/Library.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/ShaderNode.h>
@@ -7,27 +12,31 @@
 namespace MaterialX
 {
 
-void ShaderNodeImpl::initialize(ElementPtr /*implementation*/, ShaderGenerator& /*shadergen*/, const GenOptions& /*options*/)
+void ShaderNodeImpl::initialize(ElementPtr, GenContext&)
 {
 }
 
-void ShaderNodeImpl::createVariables(const ShaderNode&, ShaderGenerator&, Shader&)
+void ShaderNodeImpl::createVariables(const ShaderNode&, GenContext&, Shader&) const
 {
 }
 
-void ShaderNodeImpl::emitFunctionDefinition(const ShaderNode&, ShaderGenerator&, Shader&)
+void ShaderNodeImpl::emitFunctionDefinition(const ShaderNode&, GenContext&, ShaderStage&) const
 {
-    // default implementation has no function definition
 }
 
-void ShaderNodeImpl::emitFunctionCall(const ShaderNode&, GenContext&, ShaderGenerator&, Shader&)
+void ShaderNodeImpl::emitFunctionCall(const ShaderNode&, GenContext&, ShaderStage&) const
 {
-    // default implementation has no source code
 }
 
 ShaderGraph* ShaderNodeImpl::getGraph() const
 {
     return nullptr;
+}
+
+size_t ShaderNodeImpl::getHash() const
+{
+    // For now use the instance pointer as the hash
+    return reinterpret_cast<size_t>(this);
 }
 
 } // namespace MaterialX

@@ -1,3 +1,8 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
 #ifndef MATERIALX_LIGHTSHADERNODEGLSL_H
 #define MATERIALX_LIGHTSHADERNODEGLSL_H
 
@@ -12,19 +17,21 @@ namespace MaterialX
 class LightShaderNodeGlsl : public SourceCodeNode
 {
 public:
+    LightShaderNodeGlsl();
+
     static ShaderNodeImplPtr create();
 
     const string& getLanguage() const override;
     const string& getTarget() const override;
 
-    void initialize(ElementPtr implementation, ShaderGenerator& shadergen, const GenOptions& options) override;
+    void initialize(ElementPtr implementation, GenContext& context) override;
 
-    void createVariables(const ShaderNode& node, ShaderGenerator& shadergen, Shader& shader) override;
+    void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
 
-    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader) override;
+    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
 protected:
-    vector<Shader::Variable> _lightUniforms;
+    VariableBlock _lightUniforms;
 };
 
 } // namespace MaterialX

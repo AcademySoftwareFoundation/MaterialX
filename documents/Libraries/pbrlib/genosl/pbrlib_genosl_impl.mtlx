@@ -1,50 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.35">
 
-  <!-- <diffusebrdf> -->
-  <implementation name="IM_diffusebrdf_genosl" nodedef="ND_diffusebrdf" file="pbrlib/genosl/mx_diffusebrdf.inline" function="mx_diffusebrdf" language="genosl"/>
+  <!-- <diffuse_brdf> -->
+  <implementation name="IM_diffuse_brdf_genosl" nodedef="ND_diffuse_brdf" file="pbrlib/genosl/mx_diffuse_brdf.inline" language="genosl"/>
 
-  <!-- <diffusebtdf> -->
-  <implementation name="IM_diffusebtdf_genosl" nodedef="ND_diffusebtdf" file="pbrlib/genosl/mx_diffusebtdf.inline" function="mx_diffusebtdf" language="genosl"/>
+  <!-- <diffuse_btdf> -->
+  <implementation name="IM_diffuse_btdf_genosl" nodedef="ND_diffuse_btdf" file="pbrlib/genosl/mx_diffuse_btdf.inline" language="genosl"/>
 
-  <!-- <dielectricbrdf> -->
-  <implementation name="IM_dielectricbrdf_genosl" nodedef="ND_dielectricbrdf" file="pbrlib/genosl/mx_dielectricbrdf.osl" function="mx_dielectricbrdf" language="genosl"/>
+  <!-- <dielectric_brdf> -->
+  <implementation name="IM_dielectric_brdf_genosl" nodedef="ND_dielectric_brdf" file="pbrlib/genosl/mx_dielectric_brdf.osl" function="mx_dielectric_brdf" language="genosl"/>
 
-  <!-- <conductorbrdf> -->
-  <implementation name="IM_conductorbrdf_genosl" nodedef="ND_conductorbrdf" file="pbrlib/genosl/mx_conductorbrdf.osl" function="mx_conductorbrdf" language="genosl"/>
+  <!-- <conductor_brdf> -->
+  <implementation name="IM_conductor_brdf_genosl" nodedef="ND_conductor_brdf" file="pbrlib/genosl/mx_conductor_brdf.osl" function="mx_conductor_brdf" language="genosl"/>
 
-  <!-- <dielectricbtdf> -->
-  <implementation name="IM_dielectricbtdf_genosl" nodedef="ND_dielectricbtdf" file="pbrlib/genosl/mx_dielectricbtdf.osl" function="mx_dielectricbtdf" language="genosl"/>
+  <!-- <dielectric_btdf> -->
+  <implementation name="IM_dielectric_btdf_genosl" nodedef="ND_dielectric_btdf" file="pbrlib/genosl/mx_dielectric_btdf.osl" function="mx_dielectric_btdf" language="genosl"/>
 
-  <!-- <generalizedschlickbrdf> -->
-  <implementation name="IM_generalizedschlickbrdf_genosl" nodedef="ND_generalizedschlickbrdf" file="pbrlib/genosl/mx_generalizedschlickbrdf.osl" function="mx_generalizedschlickbrdf" language="genosl"/>
+  <!-- <generalized_schlick_brdf> -->
+  <implementation name="IM_generalized_schlick_brdf_genosl" nodedef="ND_generalized_schlick_brdf" file="pbrlib/genosl/mx_generalized_schlick_brdf.osl" function="mx_generalized_schlick_brdf" language="genosl"/>
 
-  <!-- <subsurfacebrdf> -->
-  <implementation name="IM_subsurfacebrdf_genosl" nodedef="ND_subsurfacebrdf" file="pbrlib/genosl/mx_subsurfacebrdf.osl" function="mx_subsurfacebrdf" language="genosl"/>
+  <!-- <subsurface_brdf> -->
+  <implementation name="IM_subsurface_brdf_genosl" nodedef="ND_subsurface_brdf" file="pbrlib/genosl/mx_subsurface_brdf.osl" function="mx_subsurface_brdf" language="genosl"/>
 
-  <!-- <sheenbrdf> -->
-  <implementation name="IM_sheenbrdf_genosl" nodedef="ND_sheenbrdf" file="pbrlib/genosl/mx_sheenbrdf.osl" function="mx_sheenbrdf" language="genosl"/>
+  <!-- <sheen_brdf> -->
+  <implementation name="IM_sheen_brdf_genosl" nodedef="ND_sheen_brdf" file="pbrlib/genosl/mx_sheen_brdf.osl" function="mx_sheen_brdf" language="genosl"/>
 
-  <!-- <uniformedf> -->
-  <implementation name="IM_uniformedf_genosl" nodedef="ND_uniformedf" file="pbrlib/genosl/mx_uniformedf.inline" function="mx_uniformedf" language="genosl"/>
+  <!-- <uniform_edf> -->
+  <implementation name="IM_uniform_edf_genosl" nodedef="ND_uniform_edf" file="pbrlib/genosl/mx_uniform_edf.inline" language="genosl"/>
 
-  <!-- <mixbsdf> -->
-  <implementation name="IM_mixbsdf_genosl" nodedef="ND_mixbsdf" file="pbrlib/genosl/mx_mixbsdf.osl" function="mx_mixbsdf" language="genosl"/>
+  <!-- <mix> -->
+  <implementation name="IM_mix_bsdf_genosl" nodedef="ND_mix_bsdf" file="pbrlib/genosl/mx_mix.inline" language="genosl"/>
+  <implementation name="IM_mix_edf_genosl" nodedef="ND_mix_edf" file="pbrlib/genosl/mx_mix.inline" language="genosl"/>
 
-  <!-- <addbsdf> -->
-  <implementation name="IM_addbsdf_genosl" nodedef="ND_addbsdf" file="pbrlib/genosl/mx_addbsdf.inline" function="mx_addbsdf" language="genosl"/>
+  <!-- <add> -->
+  <implementation name="IM_add_bsdf_genosl" nodedef="ND_add_bsdf" file="pbrlib/genosl/mx_add.inline" language="genosl"/>
+  <implementation name="IM_add_edf_genosl" nodedef="ND_add_edf" file="pbrlib/genosl/mx_add.inline" language="genosl"/>
 
-  <!-- <scalebsdf> -->
-  <implementation name="IM_scalebsdf_genosl" nodedef="ND_scalebsdf" file="pbrlib/genosl/mx_scalebsdf.osl" function="mx_scalebsdf" language="genosl"/>
-
-  <!-- <mixedf> -->
-  <implementation name="IM_mixedf_genosl" nodedef="ND_mixedf" file="pbrlib/genosl/mx_mixedf.osl" function="mx_mixedf" language="genosl"/>
+  <!-- <multiply> -->
+  <implementation name="IM_multiply_bsdfC_genosl" nodedef="ND_multiply_bsdfC" file="pbrlib/genosl/mx_multiply_bsdf.inline" language="genosl"/>
+  <implementation name="IM_multiply_bsdfF_genosl" nodedef="ND_multiply_bsdfF" file="pbrlib/genosl/mx_multiply_bsdf.inline" language="genosl"/>
+  <implementation name="IM_multiply_edfC_genosl" nodedef="ND_multiply_edfC" file="pbrlib/genosl/mx_multiply_edf.inline" language="genosl"/>
+  <implementation name="IM_multiply_edfF_genosl" nodedef="ND_multiply_edfF" file="pbrlib/genosl/mx_multiply_edf.inline" language="genosl"/>
 
   <!-- <surface> -->
   <implementation name="IM_surface_genosl" nodedef="ND_surface" file="pbrlib/genosl/mx_surface.osl" function="mx_surface" language="genosl"/>
-
-  <!-- <mixsurface> -->
-  <implementation name="IM_mixsurface_genosl" nodedef="ND_mixsurface" file="pbrlib/genosl/mx_mixsurface.osl" function="mx_mixsurface" language="genosl"/>
 
   <!-- <backfacing> -->
   <implementation name="IM_backfacing_boolean_genosl" nodedef="ND_backfacing_boolean" file="pbrlib/genosl/mx_backfacing_boolean.inline" language="genosl"/>

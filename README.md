@@ -30,6 +30,10 @@ The MaterialX repository consists of the following folders:
 - [source](source) - Cross-platform C++ libraries for MaterialX with Python bindings.
 - [python](python) - Support modules for MaterialX Python.
 
+### Usage
+
+Use of this code is subject to the terms of the Autodesk license agreement provided at the time of installation or download, or which otherwise accompanies this software in either electronic or hard copy form.
+
 ### Additional Resources
 
 - The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains more detailed documentation and code examples in C++ and Python.

@@ -1,3 +1,8 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
 #include <MaterialXGenGlsl/Nodes/GeomAttrValueNodeGlsl.h>
 
 namespace MaterialX
@@ -8,36 +13,34 @@ ShaderNodeImplPtr GeomAttrValueNodeGlsl::create()
     return std::make_shared<GeomAttrValueNodeGlsl>();
 }
 
-void GeomAttrValueNodeGlsl::createVariables(const ShaderNode& node, ShaderGenerator& /*shadergen*/, Shader& shader_)
+void GeomAttrValueNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
-
     const ShaderInput* attrNameInput = node.getInput(ATTRNAME);
-    if (!attrNameInput || !attrNameInput->value)
+    if (!attrNameInput || !attrNameInput->getValue())
     {
         throw ExceptionShaderGenError("No 'attrname' parameter found on geomattrvalue node '" + node.getName() + "', don't know what attribute to bind");
     }
-    const string attrName = attrNameInput->value->getValueString();
-    shader.createUniform(HwShader::PIXEL_STAGE, HwShader::PRIVATE_UNIFORMS, node.getOutput()->type, "u_geomattr_" + attrName, attrNameInput->path);
+    const string attrName = attrNameInput->getValue()->getValueString();
+    ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
+    ShaderPort* uniform = addStageUniform(HW::PRIVATE_UNIFORMS, node.getOutput()->getType(), "u_geomattr_" + attrName, ps);
+    uniform->setPath(attrNameInput->getPath());
 }
 
-void GeomAttrValueNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderGenerator& shadergen, Shader& shader_)
+void GeomAttrValueNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    HwShader& shader = static_cast<HwShader&>(shader_);
-
-    BEGIN_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
         const ShaderInput* attrNameInput = node.getInput(ATTRNAME);
         if (!attrNameInput)
         {
             throw ExceptionShaderGenError("No 'attrname' parameter found on geomattrvalue node '" + node.getName() + "', don't know what attribute to bind");
         }
-        const string attrName = attrNameInput->value->getValueString();
-
-        shader.beginLine();
-        shadergen.emitOutput(context, node.getOutput(), true, false, shader);
-        shader.addStr(" = u_geomattr_" + attrName);
-        shader.endLine();
-    END_SHADER_STAGE(shader, HwShader::PIXEL_STAGE)
+        const string attrName = attrNameInput->getValue()->getValueString();
+        shadergen.emitLineBegin(stage);
+        shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+        shadergen.emitString(" = u_geomattr_" + attrName, stage);
+        shadergen.emitLineEnd(stage);
+    END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
 }
 
 } // namespace MaterialX
