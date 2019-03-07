@@ -70,7 +70,7 @@ void LightCompoundNodeGlsl::createVariables(const ShaderNode&, GenContext& conte
         childNode->getImplementation().createVariables(*childNode, context, shader);
     }
 
-    ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
+    ShaderStage& ps = shader.getStage(Stage::PIXEL);
     VariableBlock& lightData = ps.getUniformBlock(HW::LIGHT_DATA);
 
     // Create all light uniforms
@@ -87,7 +87,7 @@ void LightCompoundNodeGlsl::createVariables(const ShaderNode&, GenContext& conte
 
 void LightCompoundNodeGlsl::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
 
         // Emit functions for all child nodes
@@ -108,7 +108,7 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(const ShaderNode& node, GenCo
                 emitFunctionDefinition(ccx, context, stage);
             }
         }
-    END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
+    END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
 void LightCompoundNodeGlsl::emitFunctionDefinition(HwClosureContextPtr ccx, GenContext& context, ShaderStage& stage) const
@@ -157,10 +157,10 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(HwClosureContextPtr ccx, GenC
 
 void LightCompoundNodeGlsl::emitFunctionCall(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         shadergen.emitLine(_functionName + "(light, position, result)", stage);
-    END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
+    END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
 } // namespace MaterialX

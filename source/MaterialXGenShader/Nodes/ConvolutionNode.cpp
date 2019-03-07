@@ -5,6 +5,9 @@
 
 #include <MaterialXGenShader/Nodes/ConvolutionNode.h>
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/ShaderNode.h>
+#include <MaterialXGenShader/ShaderStage.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
 
 namespace
@@ -45,7 +48,7 @@ ConvolutionNode::ConvolutionNode()
 
 void ConvolutionNode::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
 {
-    ShaderStage& stage = shader.getStage(MAIN_STAGE);
+    ShaderStage& stage = shader.getStage(Stage::PIXEL);
     VariableBlock& constants = stage.getConstantBlock();
 
     // Create constant for box weights

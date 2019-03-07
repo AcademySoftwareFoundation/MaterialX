@@ -5,6 +5,9 @@
 
 #include <MaterialXGenShader/Nodes/BlurNode.h>
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/ShaderNode.h>
+#include <MaterialXGenShader/ShaderStage.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 
 #include <cmath>
 
@@ -62,7 +65,7 @@ bool BlurNode::acceptsInputType(const TypeDesc* type) const
 
 void BlurNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
         const ShaderInput* inInput = node.getInput(IN_STRING);
@@ -220,7 +223,7 @@ void BlurNode::emitFunctionCall(const ShaderNode& node, GenContext& context, Sha
             shadergen.emitString(" = " + sampleStrings[0], stage);
             shadergen.emitLineEnd(stage);
         }
-    END_SHADER_STAGE(stage, MAIN_STAGE)
+    END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 } // namespace MaterialX

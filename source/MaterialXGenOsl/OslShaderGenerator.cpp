@@ -7,6 +7,8 @@
 #include <MaterialXGenOsl/OslSyntax.h>
 
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
 #include <MaterialXGenShader/Nodes/CombineNode.h>
@@ -166,7 +168,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     ShaderPtr shader = createShader(name, element, context);
 
     const ShaderGraph& graph = shader->getGraph();
-    ShaderStage& stage = shader->getStage(OSL::STAGE);
+    ShaderStage& stage = shader->getStage(Stage::PIXEL);
 
     emitIncludes(stage, context);
 
@@ -283,7 +285,7 @@ ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr elemen
     ShaderPtr shader = std::make_shared<Shader>(name, graph);
 
     // Create our stage.
-    ShaderStagePtr stage = createStage(OSL::STAGE, *shader);
+    ShaderStagePtr stage = createStage(Stage::PIXEL, *shader);
     stage->createUniformBlock(OSL::UNIFORMS);
     stage->createInputBlock(OSL::INPUTS);
     stage->createOutputBlock(OSL::OUTPUTS);
@@ -350,8 +352,7 @@ void OslShaderGenerator::emitIncludes(ShaderStage& stage, GenContext& context) c
 
 namespace OSL
 {
-    // Identifiers for OSL stage and variable blocks
-    const string STAGE    = _MAIN_STAGE_NAME;
+    // Identifiers for OSL variable blocks
     const string UNIFORMS = "u";
     const string INPUTS   = "i";
     const string OUTPUTS  = "o";

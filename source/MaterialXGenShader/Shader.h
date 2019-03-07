@@ -86,7 +86,7 @@ class Shader
     bool hasClassification(unsigned int c) const { return _graph->hasClassification(c); }
 
     /// Return the final shader source code for a given shader stage
-    const string& getSourceCode(const string& stage = MAIN_STAGE) const { return getStage(stage).getSourceCode(); }
+    const string& getSourceCode(const string& stage = Stage::PIXEL) const { return getStage(stage).getSourceCode(); }
 
   protected: 
     /// Create a new stage in the shader.

@@ -5,6 +5,8 @@
 
 #include <MaterialXGenGlsl/Nodes/TangentNodeGlsl.h>
 
+#include <MaterialXGenShader/Shader.h>
+
 namespace MaterialX
 {
 
@@ -15,8 +17,8 @@ ShaderNodeImplPtr TangentNodeGlsl::create()
 
 void TangentNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
 {
-    ShaderStage& vs = shader.getStage(HW::VERTEX_STAGE);
-    ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
+    ShaderStage& vs = shader.getStage(Stage::VERTEX);
+    ShaderStage& ps = shader.getStage(Stage::PIXEL);
 
     addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, "i_tangent", vs);
 
@@ -44,7 +46,7 @@ void TangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : -1;
 
-    BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
         const string prefix = vertexData.getInstance() + ".";
         if (space == WORLD_SPACE)
@@ -74,9 +76,9 @@ void TangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
                 shadergen.emitLine(prefix + tangent->getVariable() + " = i_tangent", stage);
             }
         }
-    END_SHADER_STAGE(shader, HW::VERTEX_STAGE)
+    END_SHADER_STAGE(shader, Stage::VERTEX)
 
-    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
         const string prefix = vertexData.getInstance() + ".";
         shadergen.emitLineBegin(stage);
@@ -97,7 +99,7 @@ void TangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             shadergen.emitString(" = normalize(" + prefix + tangent->getVariable() + ")", stage);
         }
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
+    END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
 } // namespace MaterialX

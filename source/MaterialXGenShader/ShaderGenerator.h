@@ -7,21 +7,15 @@
 #define MATERIALX_SHADERGENERATOR_H
 
 #include <MaterialXGenShader/Library.h>
-#include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Syntax.h>
 #include <MaterialXGenShader/Factory.h>
-#include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ColorManagementSystem.h>
 
 #include <MaterialXCore/Util.h>
 
 namespace MaterialX
 {
-
-class GenContext;
-class ShaderGenerator;
-
-using ShaderGeneratorPtr = shared_ptr<ShaderGenerator>;
 
 /// Base class for shader generators
 /// All 3rd party shader generators should derive from this class.

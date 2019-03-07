@@ -5,6 +5,9 @@
 
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/ShaderNode.h>
+#include <MaterialXGenShader/ShaderStage.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/TypeDesc.h>
 
 namespace MaterialX
@@ -77,7 +80,7 @@ void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
 
     static const string IN_STRING("in");
 
-    BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
         const ShaderInput* in = node.getInput(IN_STRING);
@@ -135,7 +138,7 @@ void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         shadergen.emitString(" = " + result, stage);
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(stage, MAIN_STAGE)
+    END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 } // namespace MaterialX

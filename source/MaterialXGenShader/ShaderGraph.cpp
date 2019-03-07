@@ -6,17 +6,11 @@
 #include <MaterialXGenShader/ShaderGraph.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <MaterialXCore/Document.h>
-#include <MaterialXCore/Value.h>
-
-#include <MaterialXFormat/File.h>
-
-#include <iostream>
-#include <sstream>
-#include <stack>
 
 namespace MaterialX
 {

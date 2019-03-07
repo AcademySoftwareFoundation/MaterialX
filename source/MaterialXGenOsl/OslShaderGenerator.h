@@ -54,8 +54,7 @@ protected:
 
 namespace OSL
 {
-    /// Identifiers for OSL stage and variable blocks
-    extern const string STAGE;
+    /// Identifiers for OSL variable blocks
     extern const string UNIFORMS;
     extern const string INPUTS;
     extern const string OUTPUTS;

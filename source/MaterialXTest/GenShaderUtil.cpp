@@ -6,6 +6,8 @@
 #include <MaterialXTest/Catch/catch.hpp>
 #include <MaterialXTest/GenShaderUtil.h>
 
+#include <MaterialXGenShader/Shader.h>
+
 namespace mx = MaterialX;
 
 namespace GenShaderUtil

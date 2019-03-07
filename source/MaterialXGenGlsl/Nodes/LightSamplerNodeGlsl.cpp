@@ -15,7 +15,7 @@ ShaderNodeImplPtr LightSamplerNodeGlsl::create()
 
 void LightSamplerNodeGlsl::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
         // Emit light sampler function with all bound light types
@@ -39,7 +39,7 @@ void LightSamplerNodeGlsl::emitFunctionDefinition(const ShaderNode&, GenContext&
 
         shadergen.emitScopeEnd(stage);
         shadergen.emitLineBreak(stage);
-    END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
+    END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
 } // namespace MaterialX

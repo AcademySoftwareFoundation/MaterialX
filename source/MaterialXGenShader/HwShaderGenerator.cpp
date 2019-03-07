@@ -13,13 +13,13 @@
 namespace MaterialX
 {
 
+namespace Stage
+{
+    const string VERTEX = "vertex";
+}
+
 namespace HW
 {
-    // Note: The pixle stage is the "main stage" for HW and must use the same identifyer
-    //       as MAIN_STAGE in order for code to be shared between multiple shader targets
-    //       like OSL, GLSL, etc.
-    const string PIXEL_STAGE      = _MAIN_STAGE_NAME;
-    const string VERTEX_STAGE     = "vertex";
     const string VERTEX_INPUTS    = "VertexInputs";
     const string VERTEX_DATA      = "VertexData";
     const string PRIVATE_UNIFORMS = "PrivateUniforms";
@@ -30,8 +30,8 @@ namespace HW
     const string LIGHT_DIR        = "L";
     const string VIEW_DIR         = "V";
     const string ATTR_TRANSPARENT = "transparent";
-    const string USER_DATA_CLOSURE_CONTEXT = "ud_cc";
-    const string USER_DATA_LIGHT_SHADERS   = "ud_ls";
+    const string USER_DATA_CLOSURE_CONTEXT = "udcc";
+    const string USER_DATA_LIGHT_SHADERS   = "udls";
 }
 
 HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax)
@@ -65,7 +65,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     ShaderPtr shader = std::make_shared<Shader>(name, graph);
 
     // Create vertex stage.
-    ShaderStagePtr vs = createStage(HW::VERTEX_STAGE, *shader);
+    ShaderStagePtr vs = createStage(Stage::VERTEX, *shader);
     vs->createInputBlock(HW::VERTEX_INPUTS, "i_vs");
     vs->createUniformBlock(HW::PRIVATE_UNIFORMS, "u_prv");
     vs->createUniformBlock(HW::PUBLIC_UNIFORMS, "u_pub");
@@ -78,7 +78,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     vsPrivateUniforms.add(Type::MATRIX44, "u_viewProjectionMatrix");
 
     // Create pixel stage.
-    ShaderStagePtr ps = createStage(HW::PIXEL_STAGE, *shader);
+    ShaderStagePtr ps = createStage(Stage::PIXEL, *shader);
     VariableBlockPtr psOutputs = ps->createOutputBlock(HW::PIXEL_OUTPUTS, "o_ps");
     VariableBlockPtr psPrivateUniforms = ps->createUniformBlock(HW::PRIVATE_UNIFORMS, "u_prv");
     VariableBlockPtr psPublicUniforms = ps->createUniformBlock(HW::PUBLIC_UNIFORMS, "u_pub");
@@ -179,7 +179,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
                         filename->setPath(input->getPath());
 
                         // Assing the uniform name to the input value
-                        // so we can reference it duing code generation.
+                        // so we can reference it during code generation.
                         input->setValue(Value::createValue(input->getVariable()));
                     }
                 }

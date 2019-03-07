@@ -6,6 +6,8 @@
 #include <MaterialXGenOgsFx/MayaGlslPluginShaderGenerator.h>
 #include <MaterialXGenOgsFx/OgsFxSyntax.h>
 
+#include <MaterialXGenShader/Shader.h>
+
 namespace MaterialX
 {
 

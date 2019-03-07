@@ -5,6 +5,8 @@
 
 #include <MaterialXGenGlsl/Nodes/TransformNodeGlsl.h>
 
+#include <MaterialXGenShader/Shader.h>
+
 namespace MaterialX
 {
 
@@ -21,7 +23,7 @@ void TransformNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Sha
     const ShaderInput* fromSpaceInput = node.getInput(FROM_SPACE);
     string fromSpace = fromSpaceInput ? fromSpaceInput->getValue()->getValueString() : EMPTY_STRING;
 
-    ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
+    ShaderStage& ps = shader.getStage(Stage::PIXEL);
 
     if ((fromSpace == MODEL || fromSpace == OBJECT) && toSpace == WORLD)
     {
@@ -49,7 +51,7 @@ void TransformNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Sha
 
 void TransformNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
         const ShaderInput* inInput = node.getInput("in");
@@ -115,7 +117,7 @@ void TransformNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
             shadergen.emitInput(inInput, context, stage);
         }
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 } // namespace MaterialX

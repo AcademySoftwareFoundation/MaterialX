@@ -22,17 +22,20 @@
 #define BEGIN_SHADER_STAGE(stage, name) if (stage.getName() == name) {
 #define END_SHADER_STAGE(stage, name) }
 
-/// Private macro to name the main shader stage.
-/// This is only used to handle static initialization order issues.
-/// API users should use the string identifyer MaterialX::MAIN_STAGE
-/// instead of this macro.
-#define _MAIN_STAGE_NAME "main"
-
 namespace MaterialX
 {
 
-/// Identifier for main shader stage.
-extern const string MAIN_STAGE;
+/// Shader stage identifiers.
+namespace Stage
+{
+    /// Identifier for pixel stage.
+    /// This is the main stage used by all shader targets.
+    /// For single stage shader targets this is the one
+    /// and only stage.
+    /// Shader targets with multiple stages can add additional
+    /// stage identifiers to the Stage namespace.
+    extern const string PIXEL;
+}
 
 class VariableBlock;
 using VariableBlockPtr = std::shared_ptr<VariableBlock>;

@@ -96,7 +96,7 @@ TEST_CASE("GLSL Unique Names", "[genglsl]")
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
     context.registerSourceCodeSearchPath(searchPath);
 
-    GenShaderUtil::testUniqueNames(context, mx::HW::PIXEL_STAGE);
+    GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }
 
 class GLSLGenCodeGenerationTester : public GenShaderUtil::ShaderGeneratorTester
@@ -124,8 +124,8 @@ public:
 
     void setTestStages() override
     {
-        _testStages.push_back(mx::HW::VERTEX_STAGE);
-        _testStages.push_back(mx::HW::PIXEL_STAGE);
+        _testStages.push_back(mx::Stage::VERTEX);
+        _testStages.push_back(mx::Stage::PIXEL);
     }
 };
 

@@ -6,7 +6,7 @@
 #ifndef MATERIALX_CONVOLUTIONNODE_H
 #define MATERIALX_CONVOLUTIONNODE_H
 
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/ShaderNodeImpl.h>
 
 namespace MaterialX
 {

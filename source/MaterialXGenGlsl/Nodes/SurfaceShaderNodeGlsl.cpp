@@ -4,8 +4,9 @@
 //
 
 #include <MaterialXGenGlsl/Nodes/SurfaceShaderNodeGlsl.h>
-
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
+
+#include <MaterialXGenShader/Shader.h>
 
 namespace MaterialX
 {
@@ -33,8 +34,8 @@ void SurfaceShaderNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shad
     // ViewDirectionNodeGlsl and LightNodeGlsl nodes instead? This is where the MaterialX attribute "internalgeomprops" 
     // is needed.
     //
-    ShaderStage& vs = shader.getStage(HW::VERTEX_STAGE);
-    ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
+    ShaderStage& vs = shader.getStage(Stage::VERTEX);
+    ShaderStage& ps = shader.getStage(Stage::PIXEL);
 
     addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, "i_position", vs);
     addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "positionWorld", vs, ps);
@@ -46,7 +47,7 @@ void SurfaceShaderNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shad
 
 void SurfaceShaderNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
         const string prefix = vertexData.getInstance() + ".";
         ShaderPort* position = vertexData["positionWorld"];
@@ -55,11 +56,11 @@ void SurfaceShaderNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext&
             position->setEmitted();
             context.getShaderGenerator().emitLine(prefix + position->getVariable() + " = hPositionWorld.xyz", stage);
         }
-    END_SHADER_STAGE(shader, HW::VERTEX_STAGE)
+    END_SHADER_STAGE(shader, Stage::VERTEX)
 
-    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         SourceCodeNode::emitFunctionCall(node, context, stage);
-    END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
+    END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
 } // namespace MaterialX

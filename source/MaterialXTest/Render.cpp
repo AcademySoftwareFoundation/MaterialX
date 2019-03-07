@@ -593,8 +593,8 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                 log << ">> Failed to generate shader\n";
                 return;
             }
-            const std::string& vertexSourceCode = shader->getSourceCode(mx::HW::VERTEX_STAGE);
-            const std::string& pixelSourceCode = shader->getSourceCode(mx::HW::PIXEL_STAGE);
+            const std::string& vertexSourceCode = shader->getSourceCode(mx::Stage::VERTEX);
+            const std::string& pixelSourceCode = shader->getSourceCode(mx::Stage::PIXEL);
             CHECK(vertexSourceCode.length() > 0);
             CHECK(pixelSourceCode.length() > 0);
 
@@ -762,10 +762,10 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                 // Always dump shader stages on error
                 std::ofstream file;
                 file.open(shaderPath + "_vs.glsl");
-                file << shader->getSourceCode(mx::HW::VERTEX_STAGE);
+                file << shader->getSourceCode(mx::Stage::VERTEX);
                 file.close();
                 file.open(shaderPath + "_ps.glsl");
-                file << shader->getSourceCode(mx::HW::PIXEL_STAGE);
+                file << shader->getSourceCode(mx::Stage::PIXEL);
                 file.close();
 
                 for (auto error : e.errorLog())
@@ -878,7 +878,7 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
 
                 if (testOptions.renderImages)
                 {
-                    const mx::ShaderStage& stage = shader->getStage(mx::OSL::STAGE);
+                    const mx::ShaderStage& stage = shader->getStage(mx::Stage::PIXEL);
 
                     // Look for textures and build parameter override string for each image
                     // files if a relative path maps to an absolute path

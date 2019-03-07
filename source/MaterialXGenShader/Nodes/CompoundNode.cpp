@@ -52,7 +52,7 @@ void CompoundNode::createVariables(const ShaderNode&, GenContext& context, Shade
 
 void CompoundNode::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         const Syntax& syntax = shadergen.getSyntax();
 
@@ -106,12 +106,12 @@ void CompoundNode::emitFunctionDefinition(const ShaderNode&, GenContext& context
         // End function body.
         shadergen.emitScopeEnd(stage);
         shadergen.emitLineBreak(stage);
-    END_SHADER_STAGE(stage, MAIN_STAGE)
+    END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 void CompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
         // Declare the output variables
@@ -147,7 +147,7 @@ void CompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
         // End function call
         shadergen.emitString(")", stage);
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(stage, MAIN_STAGE)
+    END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 } // namespace MaterialX

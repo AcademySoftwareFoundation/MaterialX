@@ -6,7 +6,7 @@
 #ifndef MATERIALX_GENCONTEXT_H
 #define MATERIALX_GENCONTEXT_H
 
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/Library.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/GenOptions.h>
 
@@ -17,10 +17,7 @@
 namespace MaterialX
 {
 
-class GenContext;
 class GenUserData;
-
-using GenContextPtr = std::shared_ptr<GenContext>;
 using GenUserDataPtr = std::shared_ptr<GenUserData>;
 using ConstGenUserDataPtr = std::shared_ptr<const GenUserData>;
 

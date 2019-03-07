@@ -5,6 +5,9 @@
 
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/ShaderNode.h>
+#include <MaterialXGenShader/ShaderStage.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 
 namespace MaterialX
 {
@@ -19,7 +22,7 @@ ShaderNodeImplPtr SwizzleNode::create()
 
 void SwizzleNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
         const ShaderInput* in = node.getInput(IN_STRING);
@@ -54,7 +57,7 @@ void SwizzleNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         shadergen.emitString(" = " + variableName, stage);
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(stage, MAIN_STAGE)
+    END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 bool SwizzleNode::isEditable(const ShaderInput& input) const

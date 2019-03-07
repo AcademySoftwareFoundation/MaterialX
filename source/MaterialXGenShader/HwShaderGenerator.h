@@ -14,12 +14,16 @@
 namespace MaterialX
 {
 
+/// Shader stage identifiers.
+namespace Stage
+{
+    /// Identifier for vertex stage.
+    extern const string VERTEX;
+}
+
+/// HW specific identifiers.
 namespace HW
 {
-    /// Identifiers for shader stages.
-    extern const string VERTEX_STAGE;
-    extern const string PIXEL_STAGE;
-
     /// Identifiers for variable blocks.
     extern const string VERTEX_INPUTS;    // Geometric inputs for vertex stage.
     extern const string VERTEX_DATA;      // Connector block for data transfer from vertex stage to pixel stage.

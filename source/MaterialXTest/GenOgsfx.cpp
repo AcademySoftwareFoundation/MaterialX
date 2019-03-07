@@ -110,8 +110,8 @@ public:
 
     void setTestStages() override
     {
-        _testStages.push_back(mx::HW::VERTEX_STAGE);
-        _testStages.push_back(mx::HW::PIXEL_STAGE);
+        _testStages.push_back(mx::Stage::VERTEX);
+        _testStages.push_back(mx::Stage::PIXEL);
     }
 };
 

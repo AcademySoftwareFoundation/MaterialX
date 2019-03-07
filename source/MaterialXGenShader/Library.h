@@ -15,6 +15,24 @@
 namespace MaterialX
 {
 
+class Shader;
+class ShaderStage;
+class ShaderGenerator;
+class ShaderNode;
+class ShaderGraph;
+class ShaderInput;
+class ShaderOutput;
+class ShaderNodeImpl;
+class GenOptions;
+class GenContext;
+class TypeDesc;
+
+using ShaderPtr = shared_ptr<Shader>;
+using ShaderStagePtr = shared_ptr<ShaderStage>;
+using ShaderGeneratorPtr = shared_ptr<ShaderGenerator>;
+using ShaderNodeImplPtr = shared_ptr<ShaderNodeImpl>;
+using GenContextPtr = shared_ptr<GenContext>;
+
 template<class T>
 using CreatorFunction = shared_ptr<T>(*)();
 

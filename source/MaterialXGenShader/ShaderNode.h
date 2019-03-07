@@ -7,12 +7,10 @@
 #define MATERIALX_SHADERNODE_H
 
 #include <MaterialXCore/Node.h>
-#include <MaterialXCore/Document.h>
 
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
-#include <memory>
 #include <set>
 
 namespace MaterialX
@@ -22,6 +20,7 @@ class ShaderNode;
 class ShaderPort;
 class ShaderInput;
 class ShaderOutput;
+class ShaderGraph;
 
 using ShaderPortPtr = shared_ptr<class ShaderPort>;
 using ShaderInputPtr = shared_ptr<class ShaderInput>;

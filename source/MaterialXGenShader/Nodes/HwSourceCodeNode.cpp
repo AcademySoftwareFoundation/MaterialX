@@ -5,13 +5,6 @@
 
 #include <MaterialXGenShader/Nodes/HwSourceCodeNode.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
-#include <MaterialXGenShader/Shader.h>
-
-#include <MaterialXCore/Library.h>
-#include <MaterialXCore/Definition.h>
-#include <MaterialXCore/Document.h>
-
-#include <cstdarg>
 
 namespace MaterialX
 {
@@ -23,7 +16,7 @@ ShaderNodeImplPtr HwSourceCodeNode::create()
 
 void HwSourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         if (_inlined)
         {
             SourceCodeNode::emitFunctionCall(node, context, stage);
@@ -84,7 +77,7 @@ void HwSourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& cont
             shadergen.emitString(")", stage);
             shadergen.emitLineEnd(stage);
         }
-    END_SHADER_STAGE(stage, MAIN_STAGE)
+    END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 } // namespace MaterialX

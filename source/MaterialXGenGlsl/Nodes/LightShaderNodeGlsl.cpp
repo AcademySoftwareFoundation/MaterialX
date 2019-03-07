@@ -5,7 +5,7 @@
 
 #include <MaterialXGenGlsl/Nodes/LightShaderNodeGlsl.h>
 
-#include <MaterialXGenShader/Util.h>
+#include <MaterialXGenShader/Shader.h>
 
 namespace MaterialX
 {
@@ -59,7 +59,7 @@ void LightShaderNodeGlsl::initialize(ElementPtr implementation, GenContext& cont
 
 void LightShaderNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
 {
-    ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
+    ShaderStage& ps = shader.getStage(Stage::PIXEL);
 
     // Create all light uniforms
     VariableBlock& lightData = ps.getUniformBlock(HW::LIGHT_DATA);
@@ -76,10 +76,10 @@ void LightShaderNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader
 
 void LightShaderNodeGlsl::emitFunctionCall(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         shadergen.emitLine(_functionName + "(light, position, result)", stage);
-    END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
+    END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
 } // namespace MaterialX

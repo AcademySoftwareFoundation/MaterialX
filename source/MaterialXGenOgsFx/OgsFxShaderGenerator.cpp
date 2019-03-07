@@ -6,6 +6,8 @@
 #include <MaterialXGenOgsFx/OgsFxShaderGenerator.h>
 #include <MaterialXGenOgsFx/OgsFxSyntax.h>
 
+#include <MaterialXGenShader/Shader.h>
+
 namespace MaterialX
 {
 
@@ -95,8 +97,8 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     Value::ScopedFloatFormatting fmt(Value::FloatFormatFixed);
 
     const ShaderGraph& graph = shader->getGraph();
-    ShaderStage& vs = shader->getStage(HW::VERTEX_STAGE);
-    ShaderStage& ps = shader->getStage(HW::PIXEL_STAGE);
+    ShaderStage& vs = shader->getStage(Stage::VERTEX);
+    ShaderStage& ps = shader->getStage(Stage::PIXEL);
     ShaderStage& fx = shader->getStage(HW::FX_STAGE);
 
     // Emit code for vertex and pixel shader stages

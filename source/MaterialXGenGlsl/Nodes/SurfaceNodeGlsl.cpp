@@ -4,8 +4,9 @@
 //
 
 #include <MaterialXGenGlsl/Nodes/SurfaceNodeGlsl.h>
-
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
+
+#include <MaterialXGenShader/Shader.h>
 
 namespace MaterialX
 {
@@ -60,8 +61,8 @@ void SurfaceNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& sh
     // ViewDirectionNodeGlsl and LightNodeGlsl nodes instead? This is where the MaterialX attribute "internalgeomprops" 
     // is needed.
     //
-    ShaderStage& vs = shader.getStage(HW::VERTEX_STAGE);
-    ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
+    ShaderStage& vs = shader.getStage(Stage::VERTEX);
+    ShaderStage& ps = shader.getStage(Stage::PIXEL);
 
     addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, "i_position", vs);
     addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, "i_normal", vs);
@@ -81,7 +82,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
 
     const ShaderGraph& graph = *node.getParent();
 
-    BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
         const string prefix = vertexData.getInstance() + ".";
         ShaderPort* position = vertexData["positionWorld"];
@@ -96,9 +97,9 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             normal->setEmitted();
             shadergen.emitLine(prefix + normal->getVariable() + " = normalize((u_worldInverseTransposeMatrix * vec4(i_normal, 0)).xyz)", stage);
         }
-    END_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+    END_SHADER_STAGE(stage, Stage::VERTEX)
 
-    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         // Declare the output variable
         shadergen.emitLineBegin(stage);
         shadergen.emitOutput(node.getOutput(), true, true, context, stage);
@@ -189,7 +190,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         shadergen.emitScopeEnd(stage);
         shadergen.emitLineBreak(stage);
 
-    END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 } // namespace MaterialX

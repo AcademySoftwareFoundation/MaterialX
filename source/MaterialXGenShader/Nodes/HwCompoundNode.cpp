@@ -6,11 +6,6 @@
 #include <MaterialXGenShader/Nodes/HwCompoundNode.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
-#include <MaterialXGenShader/Util.h>
-
-#include <MaterialXCore/Library.h>
-#include <MaterialXCore/Definition.h>
-#include <MaterialXCore/Document.h>
 
 namespace MaterialX
 {
@@ -22,7 +17,7 @@ ShaderNodeImplPtr HwCompoundNode::create()
 
 void HwCompoundNode::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
 
         // Emit functions for all child nodes
@@ -43,7 +38,7 @@ void HwCompoundNode::emitFunctionDefinition(const ShaderNode& node, GenContext& 
                 emitFunctionDefinition(ccx, context, stage);
             }
         }
-    END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 void HwCompoundNode::emitFunctionDefinition(HwClosureContextPtr ccx, GenContext& context, ShaderStage& stage) const
@@ -129,13 +124,13 @@ void HwCompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
 {
     const ShaderGenerator& shadergen = context.getShaderGenerator();
 
-    BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
         // Emit function calls for all child nodes to the vertex shader stage
         // TODO: Is this ever usefull?
         shadergen.emitFunctionCalls(*_rootGraph, context, stage);
-    END_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+    END_SHADER_STAGE(stage, Stage::VERTEX)
 
-    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         // Declare the output variables
         for (size_t i = 0; i < node.numOutputs(); ++i)
         {
@@ -187,7 +182,7 @@ void HwCompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
         // End function call
         shadergen.emitString(")", stage);
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 } // namespace MaterialX

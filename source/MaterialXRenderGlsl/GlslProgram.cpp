@@ -133,7 +133,7 @@ unsigned int GlslProgram::build()
 
     // Create vertex shader
     GLuint vertexShaderId = UNDEFINED_OPENGL_RESOURCE_ID;
-    std::string &vertexShaderSource = _stages[HW::VERTEX_STAGE];
+    std::string &vertexShaderSource = _stages[Stage::VERTEX];
     if (vertexShaderSource.length())
     {
         vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
@@ -165,7 +165,7 @@ unsigned int GlslProgram::build()
 
     // Create fragment shader
     GLuint fragmentShaderId = UNDEFINED_OPENGL_RESOURCE_ID;
-    std::string& fragmentShaderSource = _stages[HW::PIXEL_STAGE];
+    std::string& fragmentShaderSource = _stages[Stage::PIXEL];
     if (fragmentShaderSource.length())
     {
         fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
@@ -1105,8 +1105,8 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
         // i.e the type indicated by the HwShader does not match what was generated.
         bool uniformTypeMismatchFound = false;
 
-        const ShaderStage& ps = _shader->getStage(HW::PIXEL_STAGE);
-        const ShaderStage& vs = _shader->getStage(HW::VERTEX_STAGE);
+        const ShaderStage& ps = _shader->getStage(Stage::PIXEL);
+        const ShaderStage& vs = _shader->getStage(Stage::VERTEX);
 
         // Process constants
         const VariableBlock& constants = ps.getConstantBlock();
@@ -1298,7 +1298,7 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
 
     if (_shader)
     {
-        const ShaderStage& vs = _shader->getStage(HW::VERTEX_STAGE);
+        const ShaderStage& vs = _shader->getStage(Stage::VERTEX);
 
         bool uniformTypeMismatchFound = false;
 

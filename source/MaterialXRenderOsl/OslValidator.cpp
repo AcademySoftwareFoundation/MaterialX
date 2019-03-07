@@ -280,7 +280,7 @@ void OslValidator::compileOSL(const string& oslFileName)
 
 void OslValidator::validateCreation(const ShaderPtr shader)
 {
-    StageMap stages = { {OSL::STAGE, shader->getStage(OSL::STAGE).getSourceCode()} };
+    StageMap stages = { {Stage::PIXEL, shader->getStage(Stage::PIXEL).getSourceCode()} };
     validateCreation(stages);
 }
 
