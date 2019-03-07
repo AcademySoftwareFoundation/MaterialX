@@ -1,3 +1,10 @@
+<!--
+  TM & (c) 2018 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+  All rights reserved.  See LICENSE.txt for license.
+
+  Declarations of standard data types and nodes included in the MaterialX specification.
+-->
+
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.36">
   <!-- <glossiness_anisotropy> -->

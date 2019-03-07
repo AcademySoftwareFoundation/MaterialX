@@ -3,7 +3,7 @@
 - [MaterialXCore](MaterialXCore): Support for the core MaterialX elements
 and graph traversal.
 - [MaterialXFormat](MaterialXFormat): XML serialization support.
-- [PyMaterialX](PyMaterialX) : Core library Python API support
+- [PyMaterialX](PyMaterialX/README.md) : Core library Python API support
 
 # Shader Generation Support
 
@@ -40,22 +40,23 @@ and graph traversal.
 
 ## Unsupported definitions for Shader Generation
 
-Nodes and implementations which are not currently supported:
+The following nodes and implementations are not currently supported:
 -   ambientocclusion
 -   arrayappend
 -   curveadjust
 -   displacementshader and volumeshader and associated operations (add,
     multiply, mix)
 -   mix surfaceshader for GLSL
--   Matrix33 type operations for OSL.
 
 ## Rendering Utilities
 
-- [MaterialXRender](MaterialXRender) module.
-- Geometry handler with OBJ format support.
-- Image handler with formats supported by the "stb" open source loader.
-- Render test suite: Windows only.
-- GLSL and OSL program validators
+The [MaterialXRender](MaterialXRender) module contains the following base rendering
+and validation utilities:
+  - Geometry handler framework with sample OBJ format support via "TinyObjLoader" (https://github.com/syoyo/tinyobjloader).
+  - Image handler framework with sample support via the "stb" loader (https://github.com/nothings/stb). A wrapper to use OpenImageIO (https://github.com/OpenImageIO/oiio) is also include if the build flag is enabled.
+-  [MaterialXRenderHw](MaterialXRenderHw) : Provides base hardware rendering support.
+-  [MaterialXRenderGlsl](MaterialXRenderGlsl) : Provides GLSL support.
+-  [MaterialXRenderOsl](MaterialXRenderOsl) : Provides OSL support.
 
 ## Test Framework
 
