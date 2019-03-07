@@ -9,7 +9,6 @@ if(MATERIALX_BUILD_DOCS)
                            ${CMAKE_SOURCE_DIR}/source/MaterialXFormat
                            ${CMAKE_SOURCE_DIR}/source/MaterialXGenShader
                            ${CMAKE_SOURCE_DIR}/source/MaterialXGenGlsl
-                           ${CMAKE_SOURCE_DIR}/source/MaterialXGenOgsFx
                            ${CMAKE_SOURCE_DIR}/source/MaterialXGenOsl)
     string (REPLACE ";" " " DOXYGEN_INPUT_STR "${DOXYGEN_INPUT_LIST}")
 
