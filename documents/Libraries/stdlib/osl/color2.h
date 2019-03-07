@@ -258,16 +258,6 @@ color2 fmod(color2 a, float b)
     return fmod(a, color2(b, b));
 }
 
-color2 pow(color2 base, color2 power)
-{
-    return color2(pow(base.r, power.r), pow(base.a, power.a));
-}
-
-color2 pow(color2 base, float power)
-{
-    return pow(base, color2(power, power));
-}
-
 color2 sign(color2 a)
 {
     return color2(sign(a.r),
