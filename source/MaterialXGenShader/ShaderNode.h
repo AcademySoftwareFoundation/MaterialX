@@ -225,7 +225,7 @@ class ShaderNode
     ///
     struct ScopeInfo
     {
-        enum class Type
+        enum Type
         {
             UNKNOWN,
             GLOBAL,
@@ -233,7 +233,7 @@ class ShaderNode
             MULTIPLE
         };
 
-        ScopeInfo() : type(Type::UNKNOWN), conditionalNode(nullptr), conditionBitmask(0), fullConditionMask(0) {}
+        ScopeInfo() : type(UNKNOWN), conditionalNode(nullptr), conditionBitmask(0), fullConditionMask(0) {}
 
         void merge(const ScopeInfo& fromScope);
         void adjustAtConditionalInput(ShaderNode* condNode, int branch, const uint32_t condMask);
@@ -256,6 +256,11 @@ class ShaderNode
     static const string TRANSFORM_POINT;
     static const string TRANSFORM_VECTOR;
     static const string TRANSFORM_NORMAL;
+    static const string TEXTURE2D_GROUPNAME;
+    static const string TEXTURE3D_GROUPNAME;
+    static const string PROCEDURAL2D_GROUPNAME;
+    static const string PROCEDURAL3D_GROUPNAME;
+    static const string CONVOLUTION2D_GROUPNAME;
 
   public:
     /// Constructor.

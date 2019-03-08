@@ -112,15 +112,6 @@ class VariableBlock
 class ShaderStage
 {
   public:
-    /// Bracket types
-    enum class Brackets
-    {
-        NONE,
-        BRACES,
-        PARENTHESES,
-        SQUARES
-    };
-
     /// Contructor.
     ShaderStage(const string& name, ConstSyntaxPtr syntax);
 
@@ -183,7 +174,7 @@ class ShaderStage
  
 protected:
     /// Start a new scope using the given bracket type.
-    void beginScope(Brackets brackets = Brackets::BRACES);
+    void beginScope(Syntax::Punctuation punc = Syntax::CURLY_BRACKETS);
 
     /// End the current scope.
     void endScope(bool semicolon = false, bool newline = true);
@@ -236,7 +227,7 @@ private:
     int _indentations;
 
     /// Current scope.
-    std::queue<Brackets> _scopes;
+    std::queue<Syntax::Punctuation> _scopes;
 
     /// Set of include files that has been included.
     std::set<string> _includes;

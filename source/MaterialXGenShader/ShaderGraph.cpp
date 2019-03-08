@@ -15,7 +15,7 @@
 namespace MaterialX
 {
 
-ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, DocumentPtr document)
+ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, ConstDocumentPtr document)
     : ShaderNode(parent, name)
     , _document(document)
 {
@@ -23,28 +23,21 @@ ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, Document
 
 void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& context)
 {
-    const ShaderGenerator& shadergen = context.getShaderGenerator();
-
     for (ValueElementPtr port : elem.getChildrenOfType<ValueElement>())
     {
         if (!port->isA<Output>())
         {
-            ShaderGraphInputSocket* inputSocket = nullptr;
-            const TypeDesc* enumerationType = nullptr;
-            ValuePtr enumValue = shadergen.remapEnumeration(port, elem, enumerationType);
-            if (enumerationType)
+            const string& portValue = port->getValueString();
+            std::pair<const TypeDesc*, ValuePtr> enumResult;
+            if (context.getShaderGenerator().remapEnumeration(*port, portValue, enumResult))
             {
-                inputSocket = addInputSocket(port->getName(), enumerationType);
-                if (enumValue)
-                {
-                    inputSocket->setValue(enumValue);
-                }
+                ShaderGraphInputSocket* inputSocket = addInputSocket(port->getName(), enumResult.first);
+                inputSocket->setValue(enumResult.second);
             }
             else
             {
-                const string& elemType = port->getType();
-                inputSocket = addInputSocket(port->getName(), TypeDesc::get(elemType));
-                if (!port->getValueString().empty())
+                ShaderGraphInputSocket* inputSocket = addInputSocket(port->getName(), TypeDesc::get(port->getType()));
+                if (!portValue.empty())
                 {
                     inputSocket->setValue(port->getValue());
                 }
@@ -189,27 +182,23 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
                 "' for geomprop on input '" + input->getNode()->getName() + "." + input->getName() + "'");
         }
 
-        ShaderNodePtr geomNodePtr = ShaderNode::create(this, geomNodeName, *geomNodeDef, context);
-        _nodeMap[geomNodeName] = geomNodePtr;
-        _nodeOrder.push_back(geomNodePtr.get());
+        ShaderNodePtr geomNode = ShaderNode::create(this, geomNodeName, *geomNodeDef, context);
+        _nodeMap[geomNodeName] = geomNode;
+        _nodeOrder.push_back(geomNode.get());
 
         // Set node inputs if given.
         const string& namePath = geomprop.getNamePath();
         const string& space = geomprop.getSpace();
         if (!space.empty())
         {
-            ShaderInput* spaceInput = geomNodePtr->getInput("space");
-            if (spaceInput)
+            ShaderInput* spaceInput = geomNode->getInput(GeomPropDef::SPACE_ATTRIBUTE);
+            ValueElementPtr nodeDefSpaceInput = geomNodeDef->getChildOfType<ValueElement>(GeomPropDef::SPACE_ATTRIBUTE);
+            if (spaceInput && nodeDefSpaceInput)
             {
-                const TypeDesc* enumerationType = nullptr;
-                const string& inputName("space");
-                const string& inputType("string");
-
-                const ShaderGenerator& shadergen = context.getShaderGenerator();
-                ValuePtr value = shadergen.remapEnumeration(inputName, space, inputType, *geomNodeDef, enumerationType);
-                if (value)
+                std::pair<const TypeDesc*, ValuePtr> enumResult;
+                if (context.getShaderGenerator().remapEnumeration(*nodeDefSpaceInput, space, enumResult))
                 {
-                    spaceInput->setValue(value);
+                    spaceInput->setValue(enumResult.second);
                 }
                 else
                 {
@@ -221,7 +210,7 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
         const string& index = geomprop.getIndex();
         if (!index.empty())
         {
-            ShaderInput* indexInput = geomNodePtr->getInput("index");
+            ShaderInput* indexInput = geomNode->getInput("index");
             if (indexInput)
             {
                 indexInput->setValue(Value::createValue<string>(index));
@@ -231,7 +220,7 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
         const string& attrname = geomprop.getAttrName();
         if (!attrname.empty())
         {
-            ShaderInput* attrnameInput = geomNodePtr->getInput("attrname");
+            ShaderInput* attrnameInput = geomNode->getInput("attrname");
             if (attrnameInput)
             {
                 attrnameInput->setValue(Value::createValue<string>(attrname));
@@ -239,7 +228,7 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
             }
         }
 
-        node = geomNodePtr.get();
+        node = geomNode.get();
     }
 
     input->makeConnection(node->getOutput());
@@ -303,17 +292,17 @@ void ShaderGraph::addColorTransformNode(ShaderOutput* output, const ColorSpaceTr
     }
 }
 
-ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, NodeGraphPtr nodeGraph, GenContext& context)
+ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& nodeGraph, GenContext& context)
 {
-    NodeDefPtr nodeDef = nodeGraph->getNodeDef();
+    NodeDefPtr nodeDef = nodeGraph.getNodeDef();
     if (!nodeDef)
     {
-        throw ExceptionShaderGenError("Can't find nodedef '" + nodeGraph->getNodeDefString() + "' referenced by nodegraph '" + nodeGraph->getName() + "'");
+        throw ExceptionShaderGenError("Can't find nodedef '" + nodeGraph.getNodeDefString() + "' referenced by nodegraph '" + nodeGraph.getName() + "'");
     }
 
-    string graphName = nodeGraph->getName();
+    string graphName = nodeGraph.getName();
     context.getShaderGenerator().getSyntax().makeValidName(graphName);
-    ShaderGraphPtr graph = std::make_shared<ShaderGraph>(parent, graphName, nodeGraph->getDocument());
+    ShaderGraphPtr graph = std::make_shared<ShaderGraph>(parent, graphName, nodeGraph.getDocument());
 
     // Clear classification
     graph->_classification = 0;
@@ -322,10 +311,10 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, NodeGraphPtr nodeG
     graph->addInputSockets(*nodeDef, context);
 
     // Create output sockets from the nodegraph
-    graph->addOutputSockets(*nodeGraph);
+    graph->addOutputSockets(nodeGraph);
 
     // Traverse all outputs and create all upstream dependencies
-    for (OutputPtr graphOutput : nodeGraph->getOutputs())
+    for (OutputPtr graphOutput : nodeGraph.getOutputs())
     {
         graph->addUpstreamDependencies(*graphOutput, nullptr, context);
     }
@@ -973,7 +962,7 @@ void ShaderGraph::calculateScopes()
 
     size_t lastNodeIndex = _nodeOrder.size() - 1;
     ShaderNode* lastNode = _nodeOrder[lastNodeIndex];
-    lastNode->getScopeInfo().type = ShaderNode::ScopeInfo::Type::GLOBAL;
+    lastNode->getScopeInfo().type = ShaderNode::ScopeInfo::GLOBAL;
 
     std::set<ShaderNode*> nodeUsed;
     nodeUsed.insert(lastNode);

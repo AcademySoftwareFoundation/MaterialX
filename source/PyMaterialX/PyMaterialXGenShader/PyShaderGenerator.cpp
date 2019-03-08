@@ -52,14 +52,14 @@ class PyShaderGenerator : public mx::ShaderGenerator
         );
     }
 
-    void emitScopeBegin(mx::ShaderStage& stage, mx::ShaderStage::Brackets brackets) const override
+    void emitScopeBegin(mx::ShaderStage& stage, mx::Syntax::Punctuation punc) const override
     {
         PYBIND11_OVERLOAD(
             void,
             mx::ShaderGenerator,
             emitScopeBegin,
             stage,
-            brackets
+            punc
         );
     }
 
@@ -290,29 +290,15 @@ class PyShaderGenerator : public mx::ShaderGenerator
         );
     }
 
-    mx::ValuePtr remapEnumeration(const mx::ValueElementPtr& input, const mx::InterfaceElement& mappingElement, const mx::TypeDesc*& enumerationType) const override
+    bool remapEnumeration(const mx::ValueElement& input, const std::string& value, std::pair<const mx::TypeDesc*, mx::ValuePtr>& result) const override
     {
         PYBIND11_OVERLOAD(
-            mx::ValuePtr,
+            bool,
             mx::ShaderGenerator,
             remapEnumeration,
             input,
-            mappingElement,
-            enumerationType
-        );
-    }
-
-    mx::ValuePtr remapEnumeration(const std::string& inputName, const std::string& inputValue, const std::string& inputType, const mx::InterfaceElement& mappingElement, const mx::TypeDesc*& enumerationType) const override
-    {
-        PYBIND11_OVERLOAD(
-            mx::ValuePtr,
-            mx::ShaderGenerator,
-            remapEnumeration,
-            inputName,
-            inputValue,
-            inputType,
-            mappingElement,
-            enumerationType
+            value,
+            result
         );
     }
 
@@ -328,7 +314,7 @@ class PyShaderGenerator : public mx::ShaderGenerator
         );
     }
 
-    mx::ShaderNodeImplPtr createSourceCodeImplementation(mx::ImplementationPtr impl) const override
+    mx::ShaderNodeImplPtr createSourceCodeImplementation(const mx::Implementation& impl) const override
     {
         PYBIND11_OVERLOAD(
             mx::ShaderNodeImplPtr,
@@ -338,7 +324,7 @@ class PyShaderGenerator : public mx::ShaderGenerator
         );
     }
 
-    mx::ShaderNodeImplPtr createCompoundImplementation(mx::NodeGraphPtr impl) const override
+    mx::ShaderNodeImplPtr createCompoundImplementation(const mx::NodeGraph& impl) const override
     {
         PYBIND11_OVERLOAD(
             mx::ShaderNodeImplPtr,

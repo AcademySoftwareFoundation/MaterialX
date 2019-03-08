@@ -102,21 +102,18 @@ Basic vector math function tests each test is in a separate graph for each varia
     </rotate>
     <output name="out" type="vector3" nodename="rotate1" />
   </nodegraph>
-  <!--
   <nodegraph name="determinant_matrix33" type="" xpos="6.26251" ypos="25.1022">
     <determinant name="determinant1" type="float" xpos="5.74835" ypos="6.41022">
       <input name="in" type="matrix33" value="1.0,0.0,0.5, 0.0,1.0,0.0, 1.0,0.0,1.0" />
     </determinant>
     <output name="out" type="float" nodename="determinant1" />
   </nodegraph>
-  -->
   <nodegraph name="determinant_matrix44" type="" xpos="7.26465" ypos="25.0919">
     <determinant name="determinant1" type="float" xpos="5.75172" ypos="6.42">
       <input name="in" type="matrix44" value="1.0,0.0,0.0,1.0, 0.0,1.0,1.0,0.0, 0.0,0.5.0,1.0,0.0, 1.0,0.0,0.0,1.0" />
     </determinant>
     <output name="out" type="float" nodename="determinant1" />
   </nodegraph>
-  <!--
   <nodegraph name="transpose_matrix33" type="" xpos="6.27714" ypos="26.3972">
     <transpose name="transpose1" type="matrix33" xpos="5.02637" ypos="8.34744">
       <input name="in" type="matrix33" value="1.0,1.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0" />
@@ -130,7 +127,6 @@ Basic vector math function tests each test is in a separate graph for each varia
     </transformvector>
     <output name="out" type="vector3" nodename="transformvector1" />
   </nodegraph>
-  -->
   <nodegraph name="transpose_matrix44" type="" xpos="7.2764" ypos="26.383">
     <position name="position1" type="vector3" xpos="3.41379" ypos="6.94">
       <parameter name="space" type="string" value="object" />

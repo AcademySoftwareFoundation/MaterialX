@@ -42,7 +42,7 @@ public:
     virtual ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const = 0;
 
     /// Start a new scope using the given bracket type.
-    virtual void emitScopeBegin(ShaderStage& stage, ShaderStage::Brackets brackets = ShaderStage::Brackets::BRACES) const;
+    virtual void emitScopeBegin(ShaderStage& stage, Syntax::Punctuation punc = Syntax::CURLY_BRACKETS) const;
 
     /// End the current scope.
     virtual void emitScopeEnd(ShaderStage& stage, bool semicolon = false, bool newline = true) const;
@@ -150,28 +150,16 @@ public:
     /// The element must be an Implementation or a NodeGraph acting as implementation.
     /// If no registered implementation is found a 'default' implementation instance
     /// will be returned, as defined by the createDefaultImplementation method.
-    ShaderNodeImplPtr getImplementation(GenContext& context, InterfaceElementPtr element) const;
+    ShaderNodeImplPtr getImplementation(const InterfaceElement& element, GenContext& context) const;
 
-    /// Given a input element attempt to remap this to an enumeration which is accepted by
-    /// the shader generator. The enumeration may be of a different type than the input value type.
-    /// @param input Input value element to test.
-    /// @param mappingElement Element which provides enumeration information for mapping.
-    /// @param enumerationType Enumeration type description (returned).
-    /// @return Enumeration value. Null if no remapping is performed.
-    virtual ValuePtr remapEnumeration(const ValueElementPtr& input, const InterfaceElement& mappingElement,
-                                      const TypeDesc*& enumerationType) const;
-
-    /// Given a input specification (name, value, type) attempt to remap this to an enumeration which is accepted by
-    /// the shader generator. The enumeration may be of a different type than the input value type.
-    /// which is accepted by the shader generator.
-    /// @param inputName Name of input parameter.
-    /// @param inputValue Input value to test.
-    /// @param inputType Input type.
-    /// @param mappingElement Element which provides enumeration information for mapping.
-    /// @param enumerationType Enumeration type description (returned).
-    /// @return Enumeration value. Null if no remapping is performed.
-    virtual ValuePtr remapEnumeration(const string& inputName, const string& inputValue, const string& inputType,
-                                      const InterfaceElement& mappingElement, const TypeDesc*& enumerationType) const;
+    /// Given an input specification attempt to remap this to an enumeration which is accepted by
+    /// the shader generator. The enumeration may be converted to a different type than the input.
+    /// @param input Nodedef input potentially holding an enum definition.
+    /// @param value The value string to remap.
+    /// @param result Enumeration type and value (returned).
+    /// @return Return true if the remapping was successful.
+    virtual bool remapEnumeration(const ValueElement& input, const string& value,
+                                  std::pair<const TypeDesc*, ValuePtr>& result) const;
 
 protected:
     /// Protected constructor
@@ -183,15 +171,15 @@ protected:
     /// Create a source code implementation which is the implementation class to use
     /// for nodes that has no specific C++ implementation registered for it.
     /// Derived classes can override this to use custom source code implementations.
-    virtual ShaderNodeImplPtr createSourceCodeImplementation(ImplementationPtr impl) const;
+    virtual ShaderNodeImplPtr createSourceCodeImplementation(const Implementation& impl) const;
 
     /// Create a compound implementation which is the implementation class to use
     /// for nodes using a nodegraph as their implementation.
     /// Derived classes can override this to use custom compound implementations.
-    virtual ShaderNodeImplPtr createCompoundImplementation(NodeGraphPtr impl) const;
+    virtual ShaderNodeImplPtr createCompoundImplementation(const NodeGraph& impl) const;
 
-    static string SEMICOLON;
-    static string COMMA;
+    static const string SEMICOLON;
+    static const string COMMA;
 
     SyntaxPtr _syntax;
     Factory<ShaderNodeImpl> _implFactory;

@@ -193,10 +193,10 @@ protected:
     virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
 
     /// Override the source code implementation creator.
-    ShaderNodeImplPtr createSourceCodeImplementation(ImplementationPtr impl) const override;
+    ShaderNodeImplPtr createSourceCodeImplementation(const Implementation& impl) const override;
 
     /// Override the compound implementation creator.
-    ShaderNodeImplPtr createCompoundImplementation(NodeGraphPtr impl) const override;
+    ShaderNodeImplPtr createCompoundImplementation(const NodeGraph& impl) const override;
 
     unsigned int _maxActiveLightSources;
 
