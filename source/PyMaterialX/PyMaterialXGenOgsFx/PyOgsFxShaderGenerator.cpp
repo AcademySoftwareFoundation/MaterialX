@@ -5,13 +5,21 @@
 
 #include <PyMaterialX/PyMaterialX.h>
 
+#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenOgsFx/OgsFxShaderGenerator.h>
+
+#include <string>
+
 namespace py = pybind11;
+namespace mx = MaterialX;
 
-void bindPyOgsFxShaderGenerator(py::module& mod);
-
-PYBIND11_MODULE(PyMaterialXGenOgsFx, mod)
+void bindPyOgsFxShaderGenerator(py::module& mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXGenOgsFx library (C++)";
+    mod.attr("FX_STAGE") = mx::HW::FX_STAGE;
 
-    bindPyOgsFxShaderGenerator(mod);
+    py::class_<mx::OgsFxShaderGenerator, mx::ShaderGenerator, mx::OgsFxShaderGeneratorPtr>(mod, "OgsFxShaderGenerator")
+        .def_static("create", &mx::OgsFxShaderGenerator::create)
+        .def(py::init<>())
+        .def("getTarget", &mx::OgsFxShaderGenerator::getTarget);
+        .def("generate", &mx::OgsFxShaderGenerator::generate)
 }

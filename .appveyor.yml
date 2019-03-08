@@ -31,12 +31,12 @@ install:
 build_script:
   - mkdir build
   - cd build
-#  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON -G "%CMAKE_PLATFORM%" -DCMAKE_BUILD_TYPE="%CONFIGURATION%" ..
-  - cmake -DMATERIALX_BUILD_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -G "%CMAKE_PLATFORM%" -DCMAKE_BUILD_TYPE="%CONFIGURATION%" ..
+  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON -G "%CMAKE_PLATFORM%" -DCMAKE_BUILD_TYPE="%CONFIGURATION%" ..
+#  - cmake -DMATERIALX_BUILD_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -G "%CMAKE_PLATFORM%" -DCMAKE_BUILD_TYPE="%CONFIGURATION%" ..
   - cmake --build . --target install --config %CONFIGURATION%
   - ctest -VV --output-on-failure --build-config %CONFIGURATION%
-#  - cmake -E chdir ../python/MaterialXTest python main.py
-#  - cmake -E chdir ../python/MaterialXTest python genshader.py
+  - cmake -E chdir ../python/MaterialXTest python main.py
+  - cmake -E chdir ../python/MaterialXTest python genshader.py
 
 before_deploy:
     # Go to install directory and zip it up.  Currently marked as pre-release

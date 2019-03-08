@@ -5,60 +5,25 @@
 
 #include <PyMaterialX/PyMaterialX.h>
 
-#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenOsl/OslShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/Shader.h>
 
 #include <string>
 
 namespace py = pybind11;
 namespace mx = MaterialX;
 
-class PyOslShaderGenerator : public mx::OslShaderGenerator
-{
-  public:
-    using OslShaderGenerator::OslShaderGenerator;
-
-    PyOslShaderGenerator() :
-        mx::OslShaderGenerator()
-    {
-    }
-
-    mx::ShaderPtr generate(const std::string& shaderName, mx::ElementPtr element, const mx::GenOptions& options) override
-    {
-        PYBIND11_OVERLOAD(
-            mx::ShaderPtr,
-            mx::OslShaderGenerator,
-            generate,
-            shaderName,
-            element,
-            options
-        );
-    }
-
-    const std::string& getTarget() const override
-    {
-        PYBIND11_OVERLOAD_PURE(
-            const std::string&,
-            mx::OslShaderGenerator,
-            getTarget
-        );
-    }
-
-    const std::string& getLanguage() const override
-    {
-        PYBIND11_OVERLOAD(
-            const std::string&,
-            mx::OslShaderGenerator,
-            getLanguage
-        );
-    }
-};
-
 void bindPyOslShaderGenerator(py::module& mod)
 {
-    py::class_<mx::OslShaderGenerator, mx::ShaderGenerator, PyOslShaderGenerator, mx::OslShaderGeneratorPtr>(mod, "OslShaderGenerator")
+    mod.attr("OSL_UNIFORMS") = mx::OSL::UNIFORMS;
+    mod.attr("OSL_INPUTS") = mx::OSL::INPUTS;
+    mod.attr("OSL_OUTPUTS") = mx::OSL::OUTPUTS;
+
+    py::class_<mx::OslShaderGenerator, mx::ShaderGenerator, mx::OslShaderGeneratorPtr>(mod, "OslShaderGenerator")
         .def_static("create", &mx::OslShaderGenerator::create)
-        .def(py::init([](){ return new PyOslShaderGenerator(); }))
-        .def("generate", &mx::OslShaderGenerator::generate)
-        .def("getLanguage", &mx::OslShaderGenerator::getLanguage);
+        .def(py::init<>())
+        .def("getLanguage", &mx::OslShaderGenerator::getLanguage)
+        .def("getTarget", &mx::OslShaderGenerator::getTarget)
+        .def("generate", &mx::OslShaderGenerator::generate);
 }

@@ -419,8 +419,8 @@ void getGenerationOptions(const ShaderValidTestOptions& testOptions, std::vector
 
 #ifdef MATERIALX_BUILD_GEN_OGSFX
 static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPtr element,
-                               mx::GenContext& context, const mx::HwLightHandlerPtr lightHandler, 
-                               mx::DocumentPtr doc, std::ostream& log, const ShaderValidTestOptions& testOptions, 
+                               mx::GenContext& context, const mx::HwLightHandlerPtr lightHandler,
+                               mx::DocumentPtr doc, std::ostream& log, const ShaderValidTestOptions& testOptions,
                                ShaderValidProfileTimes& profileTimes, const std::string& outputPath = ".")
 {
     AdditiveScopedTimer totalOgsFXTime(profileTimes.ogsfxTimes.totalTime, "OGSFX total time");
@@ -526,7 +526,7 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
 // Outputs error log if validation fails
 //
 static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr element, mx::GlslValidator& validator,
-                              mx::GenContext& context, const mx::HwLightHandlerPtr lightHandler, 
+                              mx::GenContext& context, const mx::HwLightHandlerPtr lightHandler,
                               mx::DocumentPtr doc, std::ostream& log, const ShaderValidTestOptions& testOptions, ShaderValidProfileTimes& profileTimes,
                               const mx::FileSearchPath& imageSearchPath, const std::string& outputPath=".")
 {
@@ -781,8 +781,8 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
 #endif
 
 #ifdef MATERIALX_BUILD_RENDEROSL
-static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr element, 
-                             mx::OslValidator& validator, mx::GenContext& context, mx::DocumentPtr doc, 
+static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr element,
+                             mx::OslValidator& validator, mx::GenContext& context, mx::DocumentPtr doc,
                              std::ostream& log, const ShaderValidTestOptions& testOptions, ShaderValidProfileTimes& profileTimes,
                              const mx::FileSearchPath& imageSearchPath, const std::string& outputPath=".")
 {

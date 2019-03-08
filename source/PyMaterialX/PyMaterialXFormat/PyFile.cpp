@@ -14,12 +14,14 @@ void bindPyFile(py::module& mod)
     py::enum_<mx::FilePath::Type>(mod, "Type")
         .value("TypeRelative", mx::FilePath::Type::TypeRelative)
         .value("TypeAbsolute", mx::FilePath::Type::TypeAbsolute)
-        .value("TypeNetwork", mx::FilePath::Type::TypeNetwork);
+        .value("TypeNetwork", mx::FilePath::Type::TypeNetwork)
+        .export_values();
 
     py::enum_<mx::FilePath::Format>(mod, "Format")
         .value("FormatWindows", mx::FilePath::Format::FormatWindows)
         .value("FormatPosix", mx::FilePath::Format::FormatPosix)
-        .value("FormatNative", mx::FilePath::Format::FormatNative);
+        .value("FormatNative", mx::FilePath::Format::FormatNative)
+        .export_values();
 
     py::class_<mx::FilePath>(mod, "FilePath")
         .def_static("getCurrentPath", &mx::FilePath::getCurrentPath)

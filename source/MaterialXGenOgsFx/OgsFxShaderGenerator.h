@@ -24,9 +24,9 @@ public:
     /// Return a unique identifyer for the target this generator is for
     const string& getTarget() const override { return TARGET; }
 
-    /// Generate a shader starting from the given element, translating 
+    /// Generate a shader starting from the given element, translating
     /// the element and all dependencies upstream into shader code.
-    ShaderPtr generate(const string& shaderName, ElementPtr element, GenContext& context) const override;
+    ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const override;
 
     /// Unique identifyer for this generator target
     static const string TARGET;
@@ -36,7 +36,7 @@ protected:
     void emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const override;
 
     /// Emit a shader input variable
-    void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, 
+    void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier,
                                  GenContext& context, ShaderStage& stage,
                                  bool assignValue = true) const override;
 
