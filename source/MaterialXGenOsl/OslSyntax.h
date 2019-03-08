@@ -6,11 +6,15 @@
 #ifndef MATERIALX_OSLSYNTAX_H
 #define MATERIALX_OSLSYNTAX_H
 
+/// @file
+/// OSL syntax class
+
 #include <MaterialXGenShader/Syntax.h>
 
 namespace MaterialX
 {
 
+/// @class OslSyntax
 /// Syntax class for OSL (Open Shading Language)
 class OslSyntax : public Syntax
 {

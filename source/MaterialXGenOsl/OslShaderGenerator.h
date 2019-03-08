@@ -6,6 +6,9 @@
 #ifndef MATERIALX_OSLSHADERGENERATOR_H
 #define MATERIALX_OSLSHADERGENERATOR_H
 
+/// @file
+/// OSL shading language generator
+
 #include <MaterialXGenShader/ShaderGenerator.h>
 
 namespace MaterialX
@@ -13,6 +16,7 @@ namespace MaterialX
 
 using OslShaderGeneratorPtr = shared_ptr<class OslShaderGenerator>;
 
+/// @class OslShaderGenerator
 /// Base class for OSL (Open Shading Language) shader generators.
 /// A generator for a specific OSL target should be derived from this class.
 class OslShaderGenerator : public ShaderGenerator
@@ -54,8 +58,7 @@ protected:
 
 namespace OSL
 {
-    /// Identifiers for OSL stage and variable blocks
-    extern const string STAGE;
+    /// Identifiers for OSL variable blocks
     extern const string UNIFORMS;
     extern const string INPUTS;
     extern const string OUTPUTS;

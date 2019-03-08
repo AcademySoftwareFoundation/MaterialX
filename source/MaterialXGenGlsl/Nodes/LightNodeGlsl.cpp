@@ -5,6 +5,8 @@
 
 #include <MaterialXGenGlsl/Nodes/LightNodeGlsl.h>
 
+#include <MaterialXGenShader/Shader.h>
+
 namespace MaterialX
 {
 
@@ -32,7 +34,7 @@ ShaderNodeImplPtr LightNodeGlsl::create()
 
 void LightNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
 {
-    ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
+    ShaderStage& ps = shader.getStage(Stage::PIXEL);
 
     // Create uniform for intensity, exposure and direction
     VariableBlock& lightUniforms = ps.getUniformBlock(HW::LIGHT_DATA);
@@ -47,7 +49,7 @@ void LightNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& shad
 
 void LightNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
         const ShaderGraph& graph = *node.getParent();
 
@@ -78,7 +80,7 @@ void LightNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context
             shadergen.emitString(")", stage);
             shadergen.emitLineEnd(stage);
         }
-    END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
+    END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
 } // namespace MaterialX

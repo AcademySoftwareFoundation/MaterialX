@@ -105,7 +105,7 @@ TEST_CASE("OSL Unique Names", "[genosl]")
     // Add path to find OSL include files
     context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
 
-    GenShaderUtil::testUniqueNames(context, mx::OSL::STAGE);
+    GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }
 
 class OSLGenCodeGenerationTester : public GenShaderUtil::ShaderGeneratorTester
@@ -125,7 +125,7 @@ public:
 
     void setTestStages() override
     {
-        _testStages.push_back(mx::OSL::STAGE);
+        _testStages.push_back(mx::Stage::PIXEL);
     }
 };
 

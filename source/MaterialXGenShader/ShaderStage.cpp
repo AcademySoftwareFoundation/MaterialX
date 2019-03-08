@@ -15,8 +15,10 @@
 namespace MaterialX
 {
 
-/// Identifier for main shader stage.
-const string MAIN_STAGE = _MAIN_STAGE_NAME;
+namespace Stage
+{
+    const string PIXEL = "pixel";
+}
 
 ShaderPort* VariableBlock::operator[](const string& name)
 {

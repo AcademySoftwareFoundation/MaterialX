@@ -6,13 +6,14 @@
 #ifndef MATERIALX_SHADERNODE_H
 #define MATERIALX_SHADERNODE_H
 
+/// @file
+/// Classes for nodes created during shader generation
+
 #include <MaterialXCore/Node.h>
-#include <MaterialXCore/Document.h>
 
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
-#include <memory>
 #include <set>
 
 namespace MaterialX
@@ -22,13 +23,20 @@ class ShaderNode;
 class ShaderPort;
 class ShaderInput;
 class ShaderOutput;
+class ShaderGraph;
 
+/// Shared pointer to a ShaderPort
 using ShaderPortPtr = shared_ptr<class ShaderPort>;
+/// Shared pointer to a ShaderInput
 using ShaderInputPtr = shared_ptr<class ShaderInput>;
+/// Shared pointer to a ShaderOutput
 using ShaderOutputPtr = shared_ptr<class ShaderOutput>;
+/// Shared pointer to a ShaderNode
 using ShaderNodePtr = shared_ptr<class ShaderNode>;
+/// Shared pointer to a ShaderInput
 using ShaderInputSet = std::set<ShaderInput*>;
 
+/// @class ShaderPort
 /// An input or output port on a ShaderNode
 class ShaderPort : public std::enable_shared_from_this<ShaderPort>
 {
@@ -109,6 +117,7 @@ class ShaderPort : public std::enable_shared_from_this<ShaderPort>
     unsigned int _flags;
 };
 
+/// @class ShaderInput
 /// An input on a ShaderNode
 class ShaderInput : public ShaderPort
 {
@@ -134,6 +143,7 @@ class ShaderInput : public ShaderPort
     friend class ShaderOutput;
 };
 
+/// @class ShaderOutput
 /// An output on a ShaderNode
 class ShaderOutput : public ShaderPort
 {
@@ -162,6 +172,7 @@ class ShaderOutput : public ShaderPort
     friend class ShaderInput;
 };
 
+/// @class ShaderNode
 /// Class representing a node in the shader generation DAG
 class ShaderNode
 {
@@ -173,43 +184,44 @@ class ShaderNode
     {
     public:
         // Node classes
-        static const unsigned int TEXTURE     = 1 << 0;  // Any node that outputs floats, colors, vectors, etc.
-        static const unsigned int CLOSURE     = 1 << 1;  // Any node that represents light integration
-        static const unsigned int SHADER      = 1 << 2;  // Any node that outputs a shader
+        static const unsigned int TEXTURE     = 1 << 0;  /// Any node that outputs floats, colors, vectors, etc.
+        static const unsigned int CLOSURE     = 1 << 1;  /// Any node that represents light integration
+        static const unsigned int SHADER      = 1 << 2;  /// Any node that outputs a shader
         // Specific texture node types
-        static const unsigned int FILETEXTURE = 1 << 3;  // A file texture node
-        static const unsigned int CONDITIONAL = 1 << 4;  // A conditional node
-        static const unsigned int CONSTANT    = 1 << 5;  // A constant node
+        static const unsigned int FILETEXTURE = 1 << 3;  /// A file texture node
+        static const unsigned int CONDITIONAL = 1 << 4;  /// A conditional node
+        static const unsigned int CONSTANT    = 1 << 5;  /// A constant node
         // Specific closure types
-        static const unsigned int BSDF        = 1 << 6;  // A BDFS node
-        static const unsigned int BSDF_R      = 1 << 7;  // A BDFS node only for reflection
-        static const unsigned int BSDF_T      = 1 << 8;  // A BDFS node only for transmission
-        static const unsigned int EDF         = 1 << 9;  // A EDF node
-        static const unsigned int VDF         = 1 << 10; // A VDF node
+        static const unsigned int BSDF        = 1 << 6;  /// A BDFS node
+        static const unsigned int BSDF_R      = 1 << 7;  /// A BDFS node only for reflection
+        static const unsigned int BSDF_T      = 1 << 8;  /// A BDFS node only for transmission
+        static const unsigned int EDF         = 1 << 9;  /// A EDF node
+        static const unsigned int VDF         = 1 << 10; /// A VDF node
         // Specific shader types
-        static const unsigned int SURFACE     = 1 << 11;  // A surface shader node
-        static const unsigned int VOLUME      = 1 << 12; // A volume shader node
-        static const unsigned int LIGHT       = 1 << 13; // A light shader node
+        static const unsigned int SURFACE     = 1 << 11; /// A surface shader node
+        static const unsigned int VOLUME      = 1 << 12; /// A volume shader node
+        static const unsigned int LIGHT       = 1 << 13; /// A light shader node
         // Specific conditional types
-        static const unsigned int IFELSE      = 1 << 14; // An if-else statement
-        static const unsigned int SWITCH      = 1 << 15; // A switch statement
+        static const unsigned int IFELSE      = 1 << 14; /// An if-else statement
+        static const unsigned int SWITCH      = 1 << 15; /// A switch statement
         // Types based on nodegroup
-        static const unsigned int SAMPLE2D    = 1 << 16; // Can be sampled in 2D (uv space)
-        static const unsigned int SAMPLE3D    = 1 << 17; // Can be sampled in 3D (position)
-        static const unsigned int CONVOLUTION2D = 1 << 18; // Performs a convolution in 2D (uv space)
+        static const unsigned int SAMPLE2D    = 1 << 16; /// Can be sampled in 2D (uv space)
+        static const unsigned int SAMPLE3D    = 1 << 17; /// Can be sampled in 3D (position)
+        static const unsigned int CONVOLUTION2D = 1 << 18; /// Performs a convolution in 2D (uv space)
 
-        static const unsigned int COLOR_SPACE_TRANSFORM = 1 << 19; // Performs color space transformation
+        static const unsigned int COLOR_SPACE_TRANSFORM = 1 << 19; /// Performs color space transformation
 
-        static const unsigned int DO_NOT_OPTIMIZE = 1 << 20; // Flag that this should not be optimized
+        static const unsigned int DO_NOT_OPTIMIZE = 1 << 20; /// Flag that this should not be optimized
 
-        static const unsigned int TRANSFORM_POINT = 1 << 21; // A transform point node
-        static const unsigned int TRANSFORM_VECTOR = 1 << 22; // A transform vector node
-        static const unsigned int TRANSFORM_NORMAL = 1 << 23; // A transform normal node
+        static const unsigned int TRANSFORM_POINT = 1 << 21; /// A transform point node
+        static const unsigned int TRANSFORM_VECTOR = 1 << 22; /// A transform vector node
+        static const unsigned int TRANSFORM_NORMAL = 1 << 23; /// A transform normal node
     };
 
+    /// @struct ScopeInfo
     /// Information on source code scope for the node.
     ///
-    /// TODO: Refactor the scope handling, using scope id's instead
+    /// @todo: Refactor the scope handling, using scope id's instead
     ///
     struct ScopeInfo
     {

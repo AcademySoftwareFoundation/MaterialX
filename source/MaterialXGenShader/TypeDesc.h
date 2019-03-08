@@ -6,6 +6,9 @@
 #ifndef MATERIALX_TYPEDESC_H
 #define MATERIALX_TYPEDESC_H
 
+/// @file
+/// Type descriptor for a MaterialX data type.
+
 #include <MaterialXCore/Library.h>
 
 namespace MaterialX

@@ -4,7 +4,10 @@
 //
 
 #include <MaterialXGenGlsl/Nodes/HeightToNormalNodeGlsl.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+
+#include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/GenContext.h>
 
 namespace MaterialX
 {
@@ -55,7 +58,7 @@ bool HeightToNormalNodeGlsl::acceptsInputType(const TypeDesc* type) const
 
 void HeightToNormalNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const ShaderGenerator& shadergen = context.getShaderGenerator();
     
         const ShaderInput* inInput = node.getInput("in");
@@ -92,7 +95,18 @@ void HeightToNormalNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext
         shadergen.emitInput(scaleInput, context, stage);
         shadergen.emitString(")", stage);
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
+    END_SHADER_STAGE(shader, Stage::PIXEL)
 }
+
+const string& HeightToNormalNodeGlsl::getLanguage() const
+{
+    return GlslShaderGenerator::LANGUAGE;
+}
+
+const string& HeightToNormalNodeGlsl::getTarget() const
+{
+    return GlslShaderGenerator::TARGET;
+}
+
 
 } // namespace MaterialX

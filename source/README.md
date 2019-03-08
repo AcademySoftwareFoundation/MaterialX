@@ -3,7 +3,7 @@
 - [MaterialXCore](MaterialXCore): Support for the core MaterialX elements
 and graph traversal.
 - [MaterialXFormat](MaterialXFormat): XML serialization support.
-- [PyMaterialX](PyMaterialX) : Core library Python API support
+- [PyMaterialX](PyMaterialX/README.md) : Core library Python API support
 
 # Shader Generation Support
 
@@ -39,7 +39,7 @@ and graph traversal.
 
 ## Unsupported definitions for Shader Generation
 
-Nodes and implementations which are not currently supported:
+The following nodes and implementations are not currently supported:
 -   ambientocclusion
 -   arrayappend
 -   curveadjust
@@ -51,7 +51,7 @@ Nodes and implementations which are not currently supported:
 
 The unit tests are located in the [MaterialXTest](MaterialXTest/README.md) module.
 
-This includes tests for core and shader generation. The test suite for this resides [here](../documents/TestSuite).
+This includes tests for core and shader generation. The tests executed are based on what build options have been enabled. The test suite for this resides [here](../documents/TestSuite).
 
 ## Build Options
 By default MaterialXCore, MaterialXFormat and MaterialXGenShader are built.

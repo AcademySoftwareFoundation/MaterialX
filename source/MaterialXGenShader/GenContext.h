@@ -6,7 +6,10 @@
 #ifndef MATERIALX_GENCONTEXT_H
 #define MATERIALX_GENCONTEXT_H
 
-#include <MaterialXGenShader/ShaderGenerator.h>
+/// @file
+/// Context classes for shader generation
+
+#include <MaterialXGenShader/Library.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/GenOptions.h>
 
@@ -17,13 +20,15 @@
 namespace MaterialX
 {
 
-class GenContext;
 class GenUserData;
 
-using GenContextPtr = std::shared_ptr<GenContext>;
+/// Shared pointer to a GenUserData
 using GenUserDataPtr = std::shared_ptr<GenUserData>;
+
+/// Shared pointer to a constant GenUserData
 using ConstGenUserDataPtr = std::shared_ptr<const GenUserData>;
 
+/// @class GenUserData 
 /// Base class for custom user data needed during shader generation.
 class GenUserData : public std::enable_shared_from_this<GenUserData>
 {
@@ -58,6 +63,7 @@ class GenUserData : public std::enable_shared_from_this<GenUserData>
     GenUserData() {}
 };
 
+/// @class GenContext 
 /// A context class for shader generation.
 /// Used for thread local storage of data needed during shader generation.
 class GenContext

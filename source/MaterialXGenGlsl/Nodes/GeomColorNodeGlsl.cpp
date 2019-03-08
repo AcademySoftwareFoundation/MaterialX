@@ -5,6 +5,8 @@
 
 #include <MaterialXGenGlsl/Nodes/GeomColorNodeGlsl.h>
 
+#include <MaterialXGenShader/Shader.h>
+
 namespace MaterialX
 {
 
@@ -18,8 +20,8 @@ void GeomColorNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Sha
     const ShaderInput* indexInput = node.getInput(INDEX);
     const string index = indexInput ? indexInput->getValue()->getValueString() : "0";
 
-    ShaderStage& vs = shader.getStage(HW::VERTEX_STAGE);
-    ShaderStage& ps = shader.getStage(HW::PIXEL_STAGE);
+    ShaderStage& vs = shader.getStage(Stage::VERTEX);
+    ShaderStage& ps = shader.getStage(Stage::PIXEL);
     addStageInput(HW::VERTEX_INPUTS, Type::COLOR4, "i_color_" + index, vs);
     addStageConnector(HW::VERTEX_DATA, Type::COLOR4, "color_" + index, vs, ps);
 }
@@ -33,7 +35,7 @@ void GeomColorNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
     string index = indexInput ? indexInput->getValue()->getValueString() : "0";
     string variable = "color_" + index;
 
-    BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
         const string prefix = vertexData.getInstance() + ".";
         ShaderPort* color = vertexData[variable];
@@ -42,9 +44,9 @@ void GeomColorNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
             color->setEmitted();
             shadergen.emitLine(prefix + color->getVariable() + " = i_" + variable, stage);
         }
-    END_SHADER_STAGE(shader, HW::VERTEX_STAGE)
+    END_SHADER_STAGE(shader, Stage::VERTEX)
 
-    BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         string suffix = "";
         if (output->getType() == Type::FLOAT)
         {
@@ -65,7 +67,7 @@ void GeomColorNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         shadergen.emitString(" = " + prefix + color->getVariable() + suffix, stage);
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(shader, HW::PIXEL_STAGE)
+    END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
 } // namespace MaterialX

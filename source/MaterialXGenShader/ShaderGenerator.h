@@ -6,11 +6,13 @@
 #ifndef MATERIALX_SHADERGENERATOR_H
 #define MATERIALX_SHADERGENERATOR_H
 
+/// @file
+/// Base shader generator class
+
 #include <MaterialXGenShader/Library.h>
-#include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Syntax.h>
 #include <MaterialXGenShader/Factory.h>
-#include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ColorManagementSystem.h>
 
 #include <MaterialXCore/Util.h>
@@ -18,11 +20,7 @@
 namespace MaterialX
 {
 
-class GenContext;
-class ShaderGenerator;
-
-using ShaderGeneratorPtr = shared_ptr<ShaderGenerator>;
-
+/// @class ShaderGenerator
 /// Base class for shader generators
 /// All 3rd party shader generators should derive from this class.
 /// Derived classes should use DECLARE_SHADER_GENERATOR / DEFINE_SHADER_GENERATOR
@@ -106,18 +104,20 @@ public:
     virtual void emitOutput(const ShaderOutput* output, bool includeType, bool assignValue, GenContext& context, ShaderStage& stage) const;
 
     /// Emit definitions for all shader variables in a block.
-    /// @param stage The stage to emit code into.
     /// @param block Block to emit.
     /// @param qualifier Optional qualifier to add before the variable declaration.
     /// @param separator Separator to use between the declarations.
+    /// @param context Context for generation.
+    /// @param stage The stage to emit code into.
     /// @param assignValue If true the variables are initialized with their value.
     virtual void emitVariableDeclarations(const VariableBlock& block, const string& qualifier, const string& separator, GenContext& context, ShaderStage& stage,
                                           bool assignValue = true) const;
 
     /// Emit definition of a single shader variable.
-    /// @param stage The stage to emit code into.
     /// @param variable Shader port representing the variable.
     /// @param qualifier Optional qualifier to add before the variable declaration.
+    /// @param context Context for generation.
+    /// @param stage The stage to emit code into.
     /// @param assignValue If true the variable is initialized with its value.
     virtual void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext& context, ShaderStage& stage,
                                          bool assignValue = true) const;

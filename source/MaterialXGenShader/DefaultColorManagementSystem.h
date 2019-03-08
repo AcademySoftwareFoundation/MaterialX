@@ -6,6 +6,9 @@
 #ifndef MATERIALX_DEFAULT_COLOR_MANAGEMENT_SYSTEM_H
 #define MATERIALX_DEFAULT_COLOR_MANAGEMENT_SYSTEM_H
 
+/// @file
+/// Sample default color management system implementation
+
 #include <MaterialXGenShader/ColorManagementSystem.h>
 
 namespace MaterialX
@@ -14,7 +17,7 @@ namespace MaterialX
 /// A shared pointer to a DefaultColorManagementSystem
 using DefaultColorManagementSystemPtr = shared_ptr<class DefaultColorManagementSystem>;
 
-/// @class @DefaultColorManagementSystem
+/// @class DefaultColorManagementSystem
 /// Class for a default color management system. The default color management system users
 /// the typical workflow for registering nodes with the exception that the target for them
 /// nodedefs is set to DefaultColorManagementSystem::CMS_NAME.

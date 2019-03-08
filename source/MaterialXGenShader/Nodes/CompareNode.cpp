@@ -6,6 +6,8 @@
 #include <MaterialXGenShader/Nodes/CompareNode.h>
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderNode.h>
+#include <MaterialXGenShader/ShaderStage.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 
 namespace MaterialX
 {
@@ -19,7 +21,7 @@ ShaderNodeImplPtr CompareNode::create()
 
 void CompareNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
         const ShaderGraph& graph = *node.getParent();
@@ -73,7 +75,7 @@ void CompareNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
 
             shadergen.emitScopeEnd(stage);
         }
-    END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+    END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 } // namespace MaterialX

@@ -257,11 +257,11 @@ ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, 
     Value::ScopedFloatFormatting fmt(Value::FloatFormatFixed);
 
     // Emit code for vertex shader stage
-    ShaderStage& vs = shader->getStage(HW::VERTEX_STAGE);
+    ShaderStage& vs = shader->getStage(Stage::VERTEX);
     emitVertexStage(shader->getGraph(), context, vs);
 
     // Emit code for pixel shader stage
-    ShaderStage& ps = shader->getStage(HW::PIXEL_STAGE);
+    ShaderStage& ps = shader->getStage(Stage::PIXEL);
     emitPixelStage(shader->getGraph(), context, ps);
 
     return shader;
@@ -506,7 +506,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
 
 void GlslShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
-BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
 
     // For surface shaders we need light shaders
     if (graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
@@ -526,7 +526,7 @@ BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
             emitFunctionDefinition(*it, context, stage);
         }
     }
-END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+END_SHADER_STAGE(stage, Stage::PIXEL)
 
     // Call parent to emit all other functions
     HwShaderGenerator::emitFunctionDefinitions(graph, context, stage);
@@ -534,16 +534,16 @@ END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
 
 void GlslShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
-BEGIN_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
     // For vertex stage just emit all function calls in order
     // and ignore conditional scope.
     for (const ShaderNode* node : graph.getNodes())
     {
         emitFunctionCall(*node, context, stage, true);
     }
-END_SHADER_STAGE(stage, HW::VERTEX_STAGE)
+END_SHADER_STAGE(stage, Stage::VERTEX)
 
-BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     // For pixel stage surface shaders need special handling
     if (graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
     {
@@ -566,7 +566,7 @@ BEGIN_SHADER_STAGE(stage, HW::PIXEL_STAGE)
         // so generate a normel function call.
         HwShaderGenerator::emitFunctionCalls(graph, context, stage);
     }
-END_SHADER_STAGE(stage, HW::PIXEL_STAGE)
+END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 void GlslShaderGenerator::toVec4(const TypeDesc* type, string& variable)

@@ -3,7 +3,6 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXCore/Library.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/Shader.h>

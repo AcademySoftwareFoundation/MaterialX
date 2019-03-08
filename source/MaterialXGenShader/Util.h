@@ -6,7 +6,8 @@
 #ifndef MATERIALX_SHADERGEN_UTIL_H
 #define MATERIALX_SHADERGEN_UTIL_H
 
-/// Utility methods
+/// @file
+/// Shader generation utility methods
 
 #include <MaterialXCore/Library.h>
 #include <MaterialXCore/Element.h>

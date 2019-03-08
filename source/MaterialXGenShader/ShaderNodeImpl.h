@@ -6,25 +6,23 @@
 #ifndef MATERIALX_SHADERNODEIMPL_H
 #define MATERIALX_SHADERNODEIMPL_H
 
-#include <MaterialXCore/Library.h>
-#include <MaterialXCore/Util.h>
+/// @file
+/// Base class for shader node implementations
+
+#include <MaterialXCore/Element.h>
+
+#include <MaterialXGenShader/Library.h>
 
 namespace MaterialX
 {
 
-class Shader;
-class ShaderStage;
-class ShaderGenerator;
-class ShaderNode;
-class ShaderGraph;
-class GenContext;
-class GenOptions;
-class ShaderInput;
-class ShaderOutput;
+/// Shared pointer to a ShaderOutput
 using ShaderGraphInputSocket = ShaderOutput;
 
+/// Shared pointer to a ShaderNodeImpl
 using ShaderNodeImplPtr = shared_ptr<class ShaderNodeImpl>;
 
+/// @class ShaderNodeImpl
 /// Class handling the shader generation implementation for a node.
 /// Responsible for emitting the function definition and function call 
 /// that is the node implementation.

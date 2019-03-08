@@ -8,8 +8,11 @@ if(MATERIALX_BUILD_DOCS)
                            ${CMAKE_SOURCE_DIR}/source/MaterialXCore
                            ${CMAKE_SOURCE_DIR}/source/MaterialXFormat
                            ${CMAKE_SOURCE_DIR}/source/MaterialXGenShader
+                           ${CMAKE_SOURCE_DIR}/source/MaterialXGenShader/Nodes
                            ${CMAKE_SOURCE_DIR}/source/MaterialXGenGlsl
-                           ${CMAKE_SOURCE_DIR}/source/MaterialXGenOsl)
+                           ${CMAKE_SOURCE_DIR}/source/MaterialXGenGlsl/Nodes
+                           ${CMAKE_SOURCE_DIR}/source/MaterialXGenOsl
+                           )
     string (REPLACE ";" " " DOXYGEN_INPUT_STR "${DOXYGEN_INPUT_LIST}")
 
     find_package(Doxygen)

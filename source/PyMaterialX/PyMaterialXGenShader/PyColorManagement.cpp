@@ -6,7 +6,8 @@
 
 #include <MaterialXGenShader/ColorManagementSystem.h>
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/ShaderGraph.h>
 
 namespace py = pybind11;
 namespace mx = MaterialX;
@@ -29,7 +30,7 @@ class PyColorManagementSystem : public mx::ColorManagementSystem
     }
 
   protected:
-    std::string getImplementationName(const mx::ColorSpaceTransform& transform) override
+    std::string getImplementationName(const mx::ColorSpaceTransform& transform) const override
     {
         PYBIND11_OVERLOAD_PURE(
             std::string,
@@ -40,43 +41,23 @@ class PyColorManagementSystem : public mx::ColorManagementSystem
     }
 };
 
-class PyDefaultColorManagementSystem : public mx::DefaultColorManagementSystem
-{
-  public:
-      explicit PyDefaultColorManagementSystem(const std::string& configFile) :
-        mx::DefaultColorManagementSystem(configFile)
-    {
-    }
-
-    const std::string& getName() const override
-    {
-        PYBIND11_OVERLOAD(
-            const std::string&,
-            mx::DefaultColorManagementSystem,
-            getName
-        );
-    }
-};
-
 void bindPyColorManagement(py::module& mod)
 {
     py::class_<mx::ColorSpaceTransform>(mod, "ColorSpaceTransform")
-        .def(py::init([](const std::string& ss, const std::string& ts, const mx::TypeDesc* t) { return new mx::ColorSpaceTransform(ss, ts, t); }))
+        .def(py::init<const std::string&, const std::string&, const mx::TypeDesc*>())
         .def_readwrite("sourceSpace", &mx::ColorSpaceTransform::sourceSpace)
         .def_readwrite("targetSpace", &mx::ColorSpaceTransform::targetSpace)
         .def_readwrite("type", &mx::ColorSpaceTransform::type);
 
     py::class_<mx::ColorManagementSystem, PyColorManagementSystem, mx::ColorManagementSystemPtr>(mod, "ColorManagementSystem")
-        .def(py::init([](const std::string& configFile) { return new PyColorManagementSystem(configFile); }))
+        .def(py::init<const std::string&>())
         .def("getName", &mx::ColorManagementSystem::getName)
         .def("getConfigFile", &mx::ColorManagementSystem::getConfigFile)
         .def("setConfigFile", &mx::ColorManagementSystem::setConfigFile)
         .def("loadLibrary", &mx::ColorManagementSystem::loadLibrary)
-        .def("supportsTransform", &mx::ColorManagementSystem::supportsTransform)
-        .def("createNode", &mx::ColorManagementSystem::createNode);
+        .def("supportsTransform", &mx::ColorManagementSystem::supportsTransform);
 
-    py::class_<mx::DefaultColorManagementSystem, PyDefaultColorManagementSystem, mx::DefaultColorManagementSystemPtr>(mod, "DefaultColorManagementSystem")
+    py::class_<mx::DefaultColorManagementSystem, mx::DefaultColorManagementSystemPtr>(mod, "DefaultColorManagementSystem")
         .def_static("create", &mx::DefaultColorManagementSystem::create)
-        .def(py::init([](const std::string& configFile) { return new PyDefaultColorManagementSystem(configFile); }))
         .def("getName", &mx::DefaultColorManagementSystem::getName);
 }

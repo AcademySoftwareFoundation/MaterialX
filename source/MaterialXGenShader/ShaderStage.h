@@ -6,6 +6,9 @@
 #ifndef MATERIALX_SHADERSTAGE_H
 #define MATERIALX_SHADERSTAGE_H
 
+/// @file
+/// Class related to holding information for shader stages
+
 #include <MaterialXCore/Library.h>
 #include <MaterialXCore/Node.h>
 #include <MaterialXGenShader/Syntax.h>
@@ -22,22 +25,30 @@
 #define BEGIN_SHADER_STAGE(stage, name) if (stage.getName() == name) {
 #define END_SHADER_STAGE(stage, name) }
 
-/// Private macro to name the main shader stage.
-/// This is only used to handle static initialization order issues.
-/// API users should use the string identifyer MaterialX::MAIN_STAGE
-/// instead of this macro.
-#define _MAIN_STAGE_NAME "main"
-
 namespace MaterialX
 {
 
-/// Identifier for main shader stage.
-extern const string MAIN_STAGE;
+/// @class Stage
+/// Shader stage identifiers.
+namespace Stage
+{
+    /// Identifier for pixel stage.
+    /// This is the main stage used by all shader targets.
+    /// For single stage shader targets this is the one
+    /// and only stage.
+    /// Shader targets with multiple stages can add additional
+    /// stage identifiers to the Stage namespace.
+    extern const string PIXEL;
+}
 
 class VariableBlock;
+/// Shared pointer to a VariableBlock
 using VariableBlockPtr = std::shared_ptr<VariableBlock>;
+/// Shared pointer to a map between string identifiers and VariableBlocks
 using VariableBlockMap = std::unordered_map<string, VariableBlockPtr>;
 
+
+/// @class VariableBlock
 /// A block of variables in a shader stage
 class VariableBlock
 {
@@ -95,6 +106,7 @@ class VariableBlock
 };
 
 
+/// @class ShaderStage
 /// A shader stage, containing the state and 
 /// resulting source code for the stage.
 class ShaderStage
@@ -250,6 +262,7 @@ private:
     friend class ShaderGenerator;
 };
 
+/// Shared pointer to a ShaderStage
 using ShaderStagePtr = std::shared_ptr<ShaderStage>;
 
 /// Utility function for adding a new shader port to a uniform block.

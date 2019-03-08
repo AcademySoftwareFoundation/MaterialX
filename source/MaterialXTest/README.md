@@ -30,4 +30,5 @@ The names of the files reflect the Element type being tested for the following:
 - GenOsl.cpp : OSL generation tests.
 - GenShaderUtil.cpp : Utilities for generation tests.
 
-
+Each language test will scan MaterialX files in the test suite to test code generation.
+Refer to the [test suite documentation](../../documents/TestSuite) for more information about the organization of the test suite data used for testing.

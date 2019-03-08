@@ -13,11 +13,20 @@ void bindPyGenOptions(py::module& mod)
 {
     py::enum_<mx::ShaderInterfaceType>(mod, "ShaderInterfaceType")
         .value("SHADER_INTERFACE_COMPLETE", mx::ShaderInterfaceType::SHADER_INTERFACE_COMPLETE)
-        .value("SHADER_INTERFACE_REDUCED", mx::ShaderInterfaceType::SHADER_INTERFACE_REDUCED);
+        .value("SHADER_INTERFACE_REDUCED", mx::ShaderInterfaceType::SHADER_INTERFACE_REDUCED)
+        .export_values();
+
+    py::enum_<mx::HwSpecularEnvironmentMethod>(mod, "HwSpecularEnvironmentMethod")
+        .value("SPECULAR_ENVIRONMENT_PREFILTER", mx::HwSpecularEnvironmentMethod::SPECULAR_ENVIRONMENT_PREFILTER)
+        .value("SPECULAR_ENVIRONMENT_FIS", mx::HwSpecularEnvironmentMethod::SPECULAR_ENVIRONMENT_FIS)
+        .export_values();
 
     py::class_<mx::GenOptions>(mod, "GenOptions")
         .def_readwrite("shaderInterfaceType", &mx::GenOptions::shaderInterfaceType)
-        .def_readwrite("hwTransparency", &mx::GenOptions::hwTransparency)
+        .def_readwrite("fileTextureVerticalFlip", &mx::GenOptions::fileTextureVerticalFlip)
         .def_readwrite("targetColorSpaceOverride", &mx::GenOptions::targetColorSpaceOverride)
+        .def_readwrite("hwTransparency", &mx::GenOptions::hwTransparency)
+        .def_readwrite("hwSpecularEnvironmentMethod", &mx::GenOptions::hwSpecularEnvironmentMethod)
+        .def_readwrite("hwMaxActiveLightSources", &mx::GenOptions::hwMaxActiveLightSources)
         .def(py::init<>());
 }

@@ -251,12 +251,14 @@ color4 fmod(color4 a, float b)
 
 color4 pow(color4 base, color4 power)
 {
-    return color4(pow(base.rgb, power.rgb), pow(base.a, power.a));
+    return color4(pow(base.rgb, power.rgb),
+                  pow(base.a, power.a));
 }
 
 color4 pow(color4 base, float power)
 {
-    return pow(base, color4(color(power), power));
+    return color4(pow(base.rgb, power),
+                  pow(base.a, power));
 }
 
 color4 sign(color4 a)

@@ -5,13 +5,10 @@
 
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/ShaderNode.h>
+#include <MaterialXGenShader/ShaderStage.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
-
-#include <MaterialXCore/Library.h>
-#include <MaterialXCore/Definition.h>
-#include <MaterialXCore/Document.h>
-
-#include <cstdarg>
 
 namespace MaterialX
 {
@@ -61,7 +58,7 @@ void SourceCodeNode::initialize(ElementPtr implementation, GenContext& context)
 
 void SourceCodeNode::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         // Emit function definition for non-inlined functions
         if (!_inlined && !_functionSource.empty())
         {
@@ -69,12 +66,12 @@ void SourceCodeNode::emitFunctionDefinition(const ShaderNode&, GenContext& conte
             shadergen.emitBlock(_functionSource, context, stage);
             shadergen.emitLineBreak(stage);
         }
-    END_SHADER_STAGE(stage, MAIN_STAGE)
+    END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, MAIN_STAGE)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         if (_inlined)
         {
@@ -178,7 +175,7 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
             shadergen.emitString(")", stage);
             shadergen.emitLineEnd(stage);
         }
-    END_SHADER_STAGE(stage, MAIN_STAGE)
+    END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 } // namespace MaterialX

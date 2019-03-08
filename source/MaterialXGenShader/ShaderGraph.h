@@ -6,6 +6,9 @@
 #ifndef MATERIALX_SHADERGRAPH_H
 #define MATERIALX_SHADERGRAPH_H
 
+/// @file
+/// Shader graph class
+
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Document.h>
 
@@ -29,8 +32,10 @@ using ShaderGraphInputSocket = ShaderOutput;
 /// used for connecting internal nodes to the outside
 using ShaderGraphOutputSocket = ShaderInput;
 
+/// A shared pointer to a shader graph
 using ShaderGraphPtr = shared_ptr<class ShaderGraph>;
 
+/// @class ShaderGraph
 /// Class representing a graph (DAG) for shader generation
 class ShaderGraph : public ShaderNode
 {
@@ -153,6 +158,7 @@ class ShaderGraph : public ShaderNode
     std::unordered_map<ShaderOutput*, ColorSpaceTransform> _outputColorTransformMap;
 };
 
+/// @class ShaderGraphEdge
 /// An edge returned during shader graph traversal.
 class ShaderGraphEdge
 {
@@ -165,6 +171,7 @@ class ShaderGraphEdge
     ShaderInput* downstream;
 };
 
+/// @class ShaderGraphEdgeIterator
 /// Iterator class for traversing edges between nodes in a shader graph.
 class ShaderGraphEdgeIterator
 {
