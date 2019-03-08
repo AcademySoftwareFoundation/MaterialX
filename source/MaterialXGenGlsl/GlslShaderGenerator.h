@@ -127,7 +127,7 @@ class GlslShaderGenerator : public HwShaderGenerator
     virtual void emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
 
     /// Override the compound implementation creator in order to handle light compounds.
-    ShaderNodeImplPtr createCompoundImplementation(NodeGraphPtr impl) const override;
+    ShaderNodeImplPtr createCompoundImplementation(const NodeGraph& impl) const override;
 
     static void toVec4(const TypeDesc* type, string& variable);
 

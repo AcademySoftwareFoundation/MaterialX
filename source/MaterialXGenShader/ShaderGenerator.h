@@ -42,7 +42,7 @@ public:
     virtual ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const = 0;
 
     /// Start a new scope using the given bracket type.
-    virtual void emitScopeBegin(ShaderStage& stage, ShaderStage::Brackets brackets = ShaderStage::Brackets::BRACES) const;
+    virtual void emitScopeBegin(ShaderStage& stage, Syntax::Punctuation punc = Syntax::CURLY_BRACKETS) const;
 
     /// End the current scope.
     virtual void emitScopeEnd(ShaderStage& stage, bool semicolon = false, bool newline = true) const;
@@ -150,7 +150,7 @@ public:
     /// The element must be an Implementation or a NodeGraph acting as implementation.
     /// If no registered implementation is found a 'default' implementation instance
     /// will be returned, as defined by the createDefaultImplementation method.
-    ShaderNodeImplPtr getImplementation(GenContext& context, InterfaceElementPtr element) const;
+    ShaderNodeImplPtr getImplementation(const InterfaceElement& element, GenContext& context) const;
 
     /// Given a input element attempt to remap this to an enumeration which is accepted by
     /// the shader generator. The enumeration may be of a different type than the input value type.
@@ -183,15 +183,15 @@ protected:
     /// Create a source code implementation which is the implementation class to use
     /// for nodes that has no specific C++ implementation registered for it.
     /// Derived classes can override this to use custom source code implementations.
-    virtual ShaderNodeImplPtr createSourceCodeImplementation(ImplementationPtr impl) const;
+    virtual ShaderNodeImplPtr createSourceCodeImplementation(const Implementation& impl) const;
 
     /// Create a compound implementation which is the implementation class to use
     /// for nodes using a nodegraph as their implementation.
     /// Derived classes can override this to use custom compound implementations.
-    virtual ShaderNodeImplPtr createCompoundImplementation(NodeGraphPtr impl) const;
+    virtual ShaderNodeImplPtr createCompoundImplementation(const NodeGraph& impl) const;
 
-    static string SEMICOLON;
-    static string COMMA;
+    static const string SEMICOLON;
+    static const string COMMA;
 
     SyntaxPtr _syntax;
     Factory<ShaderNodeImpl> _implFactory;

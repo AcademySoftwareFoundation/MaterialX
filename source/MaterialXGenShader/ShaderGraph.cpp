@@ -15,7 +15,7 @@
 namespace MaterialX
 {
 
-ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, DocumentPtr document)
+ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, ConstDocumentPtr document)
     : ShaderNode(parent, name)
     , _document(document)
 {
@@ -303,17 +303,17 @@ void ShaderGraph::addColorTransformNode(ShaderOutput* output, const ColorSpaceTr
     }
 }
 
-ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, NodeGraphPtr nodeGraph, GenContext& context)
+ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& nodeGraph, GenContext& context)
 {
-    NodeDefPtr nodeDef = nodeGraph->getNodeDef();
+    NodeDefPtr nodeDef = nodeGraph.getNodeDef();
     if (!nodeDef)
     {
-        throw ExceptionShaderGenError("Can't find nodedef '" + nodeGraph->getNodeDefString() + "' referenced by nodegraph '" + nodeGraph->getName() + "'");
+        throw ExceptionShaderGenError("Can't find nodedef '" + nodeGraph.getNodeDefString() + "' referenced by nodegraph '" + nodeGraph.getName() + "'");
     }
 
-    string graphName = nodeGraph->getName();
+    string graphName = nodeGraph.getName();
     context.getShaderGenerator().getSyntax().makeValidName(graphName);
-    ShaderGraphPtr graph = std::make_shared<ShaderGraph>(parent, graphName, nodeGraph->getDocument());
+    ShaderGraphPtr graph = std::make_shared<ShaderGraph>(parent, graphName, nodeGraph.getDocument());
 
     // Clear classification
     graph->_classification = 0;
@@ -322,10 +322,10 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, NodeGraphPtr nodeG
     graph->addInputSockets(*nodeDef, context);
 
     // Create output sockets from the nodegraph
-    graph->addOutputSockets(*nodeGraph);
+    graph->addOutputSockets(nodeGraph);
 
     // Traverse all outputs and create all upstream dependencies
-    for (OutputPtr graphOutput : nodeGraph->getOutputs())
+    for (OutputPtr graphOutput : nodeGraph.getOutputs())
     {
         graph->addUpstreamDependencies(*graphOutput, nullptr, context);
     }
@@ -973,7 +973,7 @@ void ShaderGraph::calculateScopes()
 
     size_t lastNodeIndex = _nodeOrder.size() - 1;
     ShaderNode* lastNode = _nodeOrder[lastNodeIndex];
-    lastNode->getScopeInfo().type = ShaderNode::ScopeInfo::Type::GLOBAL;
+    lastNode->getScopeInfo().type = ShaderNode::ScopeInfo::GLOBAL;
 
     std::set<ShaderNode*> nodeUsed;
     nodeUsed.insert(lastNode);

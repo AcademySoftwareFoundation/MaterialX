@@ -89,10 +89,15 @@ const string ShaderNode::BSDF_T = "T";
 const string ShaderNode::TRANSFORM_POINT = "transformpoint";
 const string ShaderNode::TRANSFORM_VECTOR = "transformvector";
 const string ShaderNode::TRANSFORM_NORMAL = "transformnormal";
+const string ShaderNode::TEXTURE2D_GROUPNAME = "texture2d";
+const string ShaderNode::TEXTURE3D_GROUPNAME = "texture3d";
+const string ShaderNode::PROCEDURAL2D_GROUPNAME = "procedural2d";
+const string ShaderNode::PROCEDURAL3D_GROUPNAME = "procedural3d";
+const string ShaderNode::CONVOLUTION2D_GROUPNAME = "convolution2d";
 
 bool ShaderNode::referencedConditionally() const
 {
-    if (_scopeInfo.type == ShaderNode::ScopeInfo::Type::SINGLE)
+    if (_scopeInfo.type == ShaderNode::ScopeInfo::SINGLE)
     {
         int numBranches = 0;
         uint32_t mask = _scopeInfo.conditionBitmask;
@@ -110,45 +115,45 @@ bool ShaderNode::referencedConditionally() const
 
 void ShaderNode::ScopeInfo::adjustAtConditionalInput(ShaderNode* condNode, int branch, const uint32_t fullMask)
 {
-    if (type == ScopeInfo::Type::GLOBAL || (type == ScopeInfo::Type::SINGLE && conditionBitmask == fullConditionMask))
+    if (type == ScopeInfo::GLOBAL || (type == ScopeInfo::SINGLE && conditionBitmask == fullConditionMask))
     {
-        type = ScopeInfo::Type::SINGLE;
+        type = ScopeInfo::SINGLE;
         conditionalNode = condNode;
         conditionBitmask = 1 << branch;
         fullConditionMask = fullMask;
     }
-    else if (type == ScopeInfo::Type::SINGLE)
+    else if (type == ScopeInfo::SINGLE)
     {
-        type = ScopeInfo::Type::MULTIPLE;
+        type = ScopeInfo::MULTIPLE;
         conditionalNode = nullptr;
     }
 }
 
 void ShaderNode::ScopeInfo::merge(const ScopeInfo &fromScope)
 {
-    if (type == ScopeInfo::Type::UNKNOWN || fromScope.type == ScopeInfo::Type::GLOBAL)
+    if (type == ScopeInfo::UNKNOWN || fromScope.type == ScopeInfo::GLOBAL)
     {
         *this = fromScope;
     }
-    else if (type == ScopeInfo::Type::GLOBAL)
+    else if (type == ScopeInfo::GLOBAL)
     {
 
     }
-    else if (type == ScopeInfo::Type::SINGLE && fromScope.type == ScopeInfo::Type::SINGLE && conditionalNode == fromScope.conditionalNode)
+    else if (type == ScopeInfo::SINGLE && fromScope.type == ScopeInfo::SINGLE && conditionalNode == fromScope.conditionalNode)
     {
         conditionBitmask |= fromScope.conditionBitmask;
 
         // This node is needed for all branches so it is no longer conditional
         if (conditionBitmask == fullConditionMask)
         {
-            type = ScopeInfo::Type::GLOBAL;
+            type = ScopeInfo::GLOBAL;
             conditionalNode = nullptr;
         }
     }
     else
     {
-        // NOTE: Right now multiple scopes is not really used, it works exactly as ScopeInfo::Type::GLOBAL
-        type = ScopeInfo::Type::MULTIPLE;
+        // NOTE: Right now multiple scopes is not really used, it works exactly as ScopeInfo::GLOBAL
+        type = ScopeInfo::MULTIPLE;
         conditionalNode = nullptr;
     }
 }
@@ -171,7 +176,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     InterfaceElementPtr impl = nodeDef.getImplementation(shadergen.getTarget(), shadergen.getLanguage());
     if (impl)
     {
-        newNode->_impl = shadergen.getImplementation(context, impl);
+        newNode->_impl = shadergen.getImplementation(*impl, context);
     }
     if (!newNode->_impl)
     {
@@ -181,11 +186,6 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
 
     // Check for classification based on group name
     unsigned int groupClassification = 0;
-    const string TEXTURE2D_GROUPNAME("texture2d");
-    const string TEXTURE3D_GROUPNAME("texture3d");
-    const string PROCEDURAL2D_GROUPNAME("procedural2d");
-    const string PROCEDURAL3D_GROUPNAME("procedural3d");
-    const string CONVOLUTION2D_GROUPNAME("convolution2d");
     string groupName = nodeDef.getNodeGroup();
     if (!groupName.empty())
     {

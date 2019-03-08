@@ -40,7 +40,10 @@ using ShaderGraphPtr = shared_ptr<class ShaderGraph>;
 class ShaderGraph : public ShaderNode
 {
   public:
-    ShaderGraph(const ShaderGraph* parent, const string& name, DocumentPtr document);
+    /// Constructor.
+    ShaderGraph(const ShaderGraph* parent, const string& name, ConstDocumentPtr document);
+
+    /// Desctructor.
     virtual ~ShaderGraph() {}
 
     /// Create a new shader graph from an element.
@@ -49,7 +52,7 @@ class ShaderGraph : public ShaderNode
                                  GenContext& context);
 
     /// Create a new shader graph from a nodegraph.
-    static ShaderGraphPtr create(const ShaderGraph* parent, NodeGraphPtr nodeGraph,
+    static ShaderGraphPtr create(const ShaderGraph* parent, const NodeGraph& nodeGraph,
                                  GenContext& context);
 
     /// Return true if this node is a graph.
@@ -147,7 +150,7 @@ class ShaderGraph : public ShaderNode
     /// Break all connections on a node
     void disconnect(ShaderNode* node) const;
 
-    DocumentPtr _document;
+    ConstDocumentPtr _document;
     std::unordered_map<string, ShaderNodePtr> _nodeMap;
     std::vector<ShaderNode*> _nodeOrder;
 

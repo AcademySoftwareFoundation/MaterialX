@@ -20,25 +20,26 @@ ShaderNodeImplPtr CompoundNode::create()
     return std::make_shared<CompoundNode>();
 }
 
-void CompoundNode::initialize(ElementPtr implementation, GenContext& context)
+void CompoundNode::initialize(const InterfaceElement& element, GenContext& context)
 {
-    ShaderNodeImpl::initialize(implementation, context);
+    ShaderNodeImpl::initialize(element, context);
 
-    NodeGraphPtr graph = implementation->asA<NodeGraph>();
-    if (!graph)
+    if (!element.isA<NodeGraph>())
     {
-        throw ExceptionShaderGenError("Element '" + implementation->getName() + "' is not a node graph implementation");
+        throw ExceptionShaderGenError("Element '" + element.getName() + "' is not a node graph implementation");
     }
 
-    _functionName = graph->getName();
+    const NodeGraph& graph = static_cast<const NodeGraph&>(element);
+
+    _functionName = graph.getName();
     context.getShaderGenerator().getSyntax().makeValidName(_functionName);
 
     // For compounds we do not want to publish all internal inputs
     // so always use the reduced interface for this graph.
-    const int shaderInterfaceType = context.getOptions().shaderInterfaceType;
+    const int oldShaderInterfaceType = context.getOptions().shaderInterfaceType;
     context.getOptions().shaderInterfaceType = SHADER_INTERFACE_REDUCED;
     _rootGraph = ShaderGraph::create(nullptr, graph, context);
-    context.getOptions().shaderInterfaceType = shaderInterfaceType;
+    context.getOptions().shaderInterfaceType = oldShaderInterfaceType;
 }
 
 void CompoundNode::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const

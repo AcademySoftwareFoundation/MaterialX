@@ -20,17 +20,17 @@
 namespace MaterialX
 {
 
-string ShaderGenerator::SEMICOLON = ";";
-string ShaderGenerator::COMMA = ",";
+const string ShaderGenerator::SEMICOLON = ";";
+const string ShaderGenerator::COMMA = ",";
 
 ShaderGenerator::ShaderGenerator(SyntaxPtr syntax)
     : _syntax(syntax)
 {
 }
 
-void ShaderGenerator::emitScopeBegin(ShaderStage& stage, ShaderStage::Brackets brackets) const
+void ShaderGenerator::emitScopeBegin(ShaderStage& stage, Syntax::Punctuation punc) const
 {
-    stage.beginScope(brackets);
+    stage.beginScope(punc);
 }
 
 void ShaderGenerator::emitScopeEnd(ShaderStage& stage, bool semicolon, bool newline) const
@@ -227,9 +227,9 @@ bool ShaderGenerator::implementationRegistered(const string& name) const
     return _implFactory.classRegistered(name);
 }
 
-ShaderNodeImplPtr ShaderGenerator::getImplementation(GenContext& context, InterfaceElementPtr element) const
+ShaderNodeImplPtr ShaderGenerator::getImplementation(const InterfaceElement& element, GenContext& context) const
 {
-    const string& name = element->getName();
+    const string& name = element.getName();
 
     // Check if it's created and cached already.
     ShaderNodeImplPtr impl = context.findNodeImplementation(name);
@@ -238,19 +238,19 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(GenContext& context, Interf
         return impl;
     }
 
-    if (element->isA<NodeGraph>())
+    if (element.isA<NodeGraph>())
     {
         // Use a compound implementation.
-        impl = createCompoundImplementation(element->asA<NodeGraph>());
+        impl = createCompoundImplementation(static_cast<const NodeGraph&>(element));
     }
-    else if (element->isA<Implementation>())
+    else if (element.isA<Implementation>())
     {
         // Try creating a new in the factory.
         impl = _implFactory.create(name);
         if (!impl)
         {
             // Fall back to the source code implementation.
-            impl = createSourceCodeImplementation(element->asA<Implementation>());
+            impl = createSourceCodeImplementation(static_cast<const Implementation&>(element));
         }
     }
     else
@@ -282,14 +282,14 @@ ShaderStagePtr ShaderGenerator::createStage(const string& name, Shader& shader) 
     return shader.createStage(name, _syntax);
 }
 
-ShaderNodeImplPtr ShaderGenerator::createSourceCodeImplementation(ImplementationPtr impl) const
+ShaderNodeImplPtr ShaderGenerator::createSourceCodeImplementation(const Implementation&) const
 {
     // The standard source code implementation
     // is the implementation to use by default
     return SourceCodeNode::create();
 }
 
-ShaderNodeImplPtr ShaderGenerator::createCompoundImplementation(NodeGraphPtr impl) const
+ShaderNodeImplPtr ShaderGenerator::createCompoundImplementation(const NodeGraph&) const
 {
     // The standard compound implementation
     // is the compound implementation to us by default

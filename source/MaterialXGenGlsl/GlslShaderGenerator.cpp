@@ -307,7 +307,7 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
     if (!vertexData.empty())
     {
         emitLine("out " + vertexData.getName(), stage, false);
-        emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
+        emitScopeBegin(stage);
         emitVariableDeclarations(vertexData, EMPTY_STRING, SEMICOLON, context, stage, false);
         emitScopeEnd(stage, false, false);
         emitString(" " + vertexData.getInstance() + SEMICOLON, stage);
@@ -319,7 +319,7 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
 
     // Add main function
     emitLine("void main()", stage, false);
-    emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
+    emitScopeBegin(stage);
     emitLine("vec4 hPositionWorld = u_worldMatrix * vec4(i_position, 1.0)", stage);
     emitLine("gl_Position = u_viewProjectionMatrix * hPositionWorld", stage);
     emitFunctionCalls(graph, context, stage);
@@ -369,7 +369,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     {
         const VariableBlock& lightData = stage.getUniformBlock(HW::LIGHT_DATA);
         emitLine("struct " + lightData.getName(), stage, false);
-        emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
+        emitScopeBegin(stage);
         emitVariableDeclarations(lightData, EMPTY_STRING, SEMICOLON, context, stage, false);
         emitScopeEnd(stage, true);
         emitLineBreak(stage);
@@ -382,7 +382,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     if (!vertexData.empty())
     {
         emitLine("in " + vertexData.getName(), stage, false);
-        emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
+        emitScopeBegin(stage);
         emitVariableDeclarations(vertexData, EMPTY_STRING, SEMICOLON, context, stage, false);
         emitScopeEnd(stage, false, false);
         emitString(" " + vertexData.getInstance() + SEMICOLON, stage);
@@ -442,7 +442,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
 
     // Add main function
     emitLine("void main()", stage, false);
-    emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
+    emitScopeBegin(stage);
 
     if (graph.hasClassification(ShaderNode::Classification::CLOSURE))
     {
@@ -632,12 +632,12 @@ void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
     }
 }
 
-ShaderNodeImplPtr GlslShaderGenerator::createCompoundImplementation(NodeGraphPtr impl) const
+ShaderNodeImplPtr GlslShaderGenerator::createCompoundImplementation(const NodeGraph& impl) const
 {
-    NodeDefPtr nodeDef = impl->getNodeDef();
+    NodeDefPtr nodeDef = impl.getNodeDef();
     if (!nodeDef)
     {
-        throw ExceptionShaderGenError("Error creating compound implementation. Given nodegraph '" + impl->getName() + "' has no nodedef set");
+        throw ExceptionShaderGenError("Error creating compound implementation. Given nodegraph '" + impl.getName() + "' has no nodedef set");
     }
     if (TypeDesc::get(nodeDef->getType()) == Type::LIGHTSHADER)
     {

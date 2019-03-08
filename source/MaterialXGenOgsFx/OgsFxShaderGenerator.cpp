@@ -122,7 +122,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     // Add vertex inputs block
     const VariableBlock& vertexInputs = vs.getInputBlock(HW::VERTEX_INPUTS);
     emitLine("attribute " + vertexInputs.getName(), fx, false);
-    emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
+    emitScopeBegin(fx);
     emitVariableDeclarations(vertexInputs, EMPTY_STRING, SEMICOLON, context, fx, false);
     emitScopeEnd(fx, true);
     emitLineBreak(fx);
@@ -130,7 +130,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     // Add vertex data outputs block
     const VariableBlock& vertexData = vs.getOutputBlock(HW::VERTEX_DATA);
     emitLine("attribute " + vertexData.getName(), fx, false);
-    emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
+    emitScopeBegin(fx);
     emitVariableDeclarations(vertexData, EMPTY_STRING, SEMICOLON, context, fx, false);
     emitScopeEnd(fx, true);
     emitLineBreak(fx);
@@ -139,7 +139,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     // and upstream connection will be converted to vec4 below if needed.
     const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket();
     emitLine("attribute PixelOutput", fx, false);
-    emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
+    emitScopeBegin(fx);
     emitLine("vec4 " + outputSocket->getVariable(), fx);
     emitScopeEnd(fx, true);
     emitLineBreak(fx);
@@ -193,7 +193,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         // Add light struct declaration
         const VariableBlock& lightData = ps.getUniformBlock(HW::LIGHT_DATA);
         emitLine("struct " + lightData.getName(), fx, false);
-        emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
+        emitScopeBegin(fx);
         for (size_t i=0; i<lightData.size(); ++i)
         {
             const ShaderPort* uniform = lightData[i];
@@ -209,7 +209,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
 
         // Emit lighting functions
         emitLine("GLSLShader LightingFunctions", fx, false);
-        emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
+        emitScopeBegin(fx);
         emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/" + OgsFxShaderGenerator::TARGET + "/mx_lighting_functions.glsl", context, fx);
         emitLineBreak(fx);
 
@@ -243,9 +243,9 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     {
         emitLine("technique Main", fx, false);
     }
-    emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
+    emitScopeBegin(fx);
     emitLine("pass p0", fx, false);
-    emitScopeBegin(fx, ShaderStage::Brackets::BRACES);
+    emitScopeBegin(fx);
     emitLine("VertexShader(in VertexInputs, out VertexData vd) = { VS }", fx);
     emitLine(lighting ?
         "PixelShader(in VertexData vd, out PixelOutput) = { LightingFunctions, PS }" :
@@ -261,7 +261,7 @@ void OgsFxShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext&
 {
     emitComment("---------------------------------- Vertex shader ----------------------------------------\n", stage);
     emitLine("GLSLShader VS", stage, false);
-    emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
+    emitScopeBegin(stage);
 
     // Add all constants
     const VariableBlock& constants = stage.getConstantBlock();
@@ -275,7 +275,7 @@ void OgsFxShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext&
 
     // Add main function
     emitLine("void main()", stage, false);
-    emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
+    emitScopeBegin(stage);
     emitLine("vec4 hPositionWorld = u_worldMatrix * vec4(i_position, 1.0)", stage);
     emitLine("gl_Position = u_viewProjectionMatrix * hPositionWorld", stage);
     emitFunctionCalls(graph, context, stage);
@@ -288,7 +288,7 @@ void OgsFxShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& 
 {
     emitComment("---------------------------------- Pixel shader ----------------------------------------\n", stage);
     emitLine("GLSLShader PS", stage, false);
-    emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
+    emitScopeBegin(stage);
 
     bool lighting = graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE) ||
                     graph.hasClassification(ShaderNode::Classification::BSDF);
@@ -339,7 +339,7 @@ void OgsFxShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& 
 
     // Add main function
     emitLine("void main()", stage, false);
-    emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
+    emitScopeBegin(stage);
 
     if (graph.hasClassification(ShaderNode::Classification::CLOSURE))
     {
@@ -356,7 +356,7 @@ void OgsFxShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& 
             emitScopeBegin(stage);
             emitLine("int numLights = numActiveLightSources()", stage);
             emitLine("for (int i = 0; i<numLights; ++i)", stage, false);
-            emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
+            emitScopeBegin(stage);
             const VariableBlock& lightData = stage.getUniformBlock(HW::LIGHT_DATA);
             for (size_t i = 0; i < lightData.size(); ++i)
             {

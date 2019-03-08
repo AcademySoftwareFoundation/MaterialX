@@ -79,7 +79,7 @@ class GenOptions
 
     /// Sets the method to use for specular environment 
     /// lighting for HW shader targets.
-    unsigned int hwSpecularEnvironmentMethod;
+    int hwSpecularEnvironmentMethod;
 
     /// Sets the maximum number of light sources that can
     /// be active at once.

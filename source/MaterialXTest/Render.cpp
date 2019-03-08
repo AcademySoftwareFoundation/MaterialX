@@ -212,12 +212,6 @@ public:
         {
             output << lightFile << " ";
         }
-        output << "\tColor Management Files: ";
-        output << std::endl;
-        for (auto cmsFile : cmsFiles)
-        {
-            output << cmsFile << " ";
-        }
         output << std::endl;
         output << "\tRun GLSL Tests: " << runGLSLTests << std::endl;
         output << "\tRun OGSFX Tests: " << runOGSFXTests << std::endl;
@@ -241,9 +235,6 @@ public:
 
     // Comma separated list of light setup files
     std::vector<std::string> lightFiles;
-
-    // List of comma separated file names which require color management.
-    std::set<std::string> cmsFiles;
 
     // Set to true to always dump generated code to disk
     bool dumpGeneratedCode = false;
@@ -976,7 +967,6 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
     const std::string SHADER_VALID_TEST_OPTIONS_STRING("ShaderValidTestOptions");
     const std::string OVERRIDE_FILES_STRING("overrideFiles");
     const std::string LIGHT_FILES_STRING("lightFiles");
-    const std::string CMS_FILES_STRING("cmsFiles");
     const std::string SHADER_INTERFACES_STRING("shaderInterfaces");
     const std::string VALIDATE_ELEMENT_TO_RENDER_STRING("validateElementToRender");
     const std::string COMPILE_CODE_STRING("compileCode");
@@ -995,7 +985,6 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
 
     options.overrideFiles.clear();
     options.dumpGeneratedCode = false;
-    options.cmsFiles.clear();
 
     MaterialX::DocumentPtr doc = MaterialX::createDocument();
     try {
@@ -1017,14 +1006,6 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
                     if (name == LIGHT_FILES_STRING)
                     {
                         options.lightFiles  = MaterialX::splitString(p->getValueString(), ",");
-                    }
-                    if (name == CMS_FILES_STRING)
-                    {
-                        MaterialX::StringVec cmsStrings = MaterialX::splitString(p->getValueString(), ",");
-                        for (auto cmsString : cmsStrings)
-                        {
-                            options.cmsFiles.insert(cmsString);
-                        }
                     }
                     else if (name == SHADER_INTERFACES_STRING)
                     {
@@ -1327,10 +1308,6 @@ TEST_CASE("Render TestSuite", "[render]")
     {
         excludeFiles.insert("stdlib_osl_impl.mtlx");
         excludeFiles.insert("stdlib_" + mx::OslShaderGenerator::LANGUAGE + "_impl.mtlx");
-    }
-    if (options.cmsFiles.size() == 0)
-    {
-        excludeFiles.insert("cm_impl.mtlx");
     }
 
     const mx::StringVec libraries = { "stdlib", "pbrlib" };

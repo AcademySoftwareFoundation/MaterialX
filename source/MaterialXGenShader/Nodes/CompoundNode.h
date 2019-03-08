@@ -18,7 +18,7 @@ class CompoundNode : public ShaderNodeImpl
 public:
     static ShaderNodeImplPtr create();
 
-    void initialize(ElementPtr implementation, GenContext& context) override;
+    void initialize(const InterfaceElement& element, GenContext& context) override;
 
     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
 

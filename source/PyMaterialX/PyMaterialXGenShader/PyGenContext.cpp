@@ -20,6 +20,5 @@ void bindPyGenContext(py::module& mod)
         .def("registerSourceCodeSearchPath", static_cast<void (mx::GenContext::*)(const std::string&)>(&mx::GenContext::registerSourceCodeSearchPath))
         .def("registerSourceCodeSearchPath", static_cast<void (mx::GenContext::*)(const mx::FilePath&)>(&mx::GenContext::registerSourceCodeSearchPath))
         .def("registerSourceCodeSearchPath", static_cast<void (mx::GenContext::*)(const mx::FileSearchPath&)>(&mx::GenContext::registerSourceCodeSearchPath))
-        .def("findSourceCode", &mx::GenContext::findSourceCode)
-        .def("sourceCodeSearchPath", &mx::GenContext::sourceCodeSearchPath);
+        .def("resolveSourceFile", &mx::GenContext::resolveSourceFile);
 }

@@ -52,14 +52,14 @@ class PyShaderGenerator : public mx::ShaderGenerator
         );
     }
 
-    void emitScopeBegin(mx::ShaderStage& stage, mx::ShaderStage::Brackets brackets) const override
+    void emitScopeBegin(mx::ShaderStage& stage, mx::Syntax::Punctuation punc) const override
     {
         PYBIND11_OVERLOAD(
             void,
             mx::ShaderGenerator,
             emitScopeBegin,
             stage,
-            brackets
+            punc
         );
     }
 
@@ -328,7 +328,7 @@ class PyShaderGenerator : public mx::ShaderGenerator
         );
     }
 
-    mx::ShaderNodeImplPtr createSourceCodeImplementation(mx::ImplementationPtr impl) const override
+    mx::ShaderNodeImplPtr createSourceCodeImplementation(const mx::Implementation& impl) const override
     {
         PYBIND11_OVERLOAD(
             mx::ShaderNodeImplPtr,
@@ -338,7 +338,7 @@ class PyShaderGenerator : public mx::ShaderGenerator
         );
     }
 
-    mx::ShaderNodeImplPtr createCompoundImplementation(mx::NodeGraphPtr impl) const override
+    mx::ShaderNodeImplPtr createCompoundImplementation(const mx::NodeGraph& impl) const override
     {
         PYBIND11_OVERLOAD(
             mx::ShaderNodeImplPtr,

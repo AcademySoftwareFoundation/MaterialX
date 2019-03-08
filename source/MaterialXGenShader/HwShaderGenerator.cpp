@@ -388,14 +388,14 @@ void HwShaderGenerator::getNodeClosureContexts(const ShaderNode& node, vector<Hw
     }
 }
 
-ShaderNodeImplPtr HwShaderGenerator::createSourceCodeImplementation(ImplementationPtr impl) const
+ShaderNodeImplPtr HwShaderGenerator::createSourceCodeImplementation(const Implementation&) const
 {
     // The standard source code implementation
     // is the implementation to use by default
     return HwSourceCodeNode::create();
 }
 
-ShaderNodeImplPtr HwShaderGenerator::createCompoundImplementation(NodeGraphPtr impl) const
+ShaderNodeImplPtr HwShaderGenerator::createCompoundImplementation(const NodeGraph&) const
 {
     // The standard compound implementation
     // is the compound implementation to us by default

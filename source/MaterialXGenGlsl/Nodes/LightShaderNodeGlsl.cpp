@@ -30,23 +30,24 @@ const string& LightShaderNodeGlsl::getTarget() const
     return GlslShaderGenerator::TARGET;
 }
 
-void LightShaderNodeGlsl::initialize(ElementPtr implementation, GenContext& context)
+void LightShaderNodeGlsl::initialize(const InterfaceElement& element, GenContext& context)
 {
-    SourceCodeNode::initialize(implementation, context);
+    SourceCodeNode::initialize(element, context);
 
     if (_inlined)
     {
         throw ExceptionShaderGenError("Light shaders doesn't support inlined implementations'");
     }
 
-    ImplementationPtr impl = implementation->asA<Implementation>();
-    if (!impl)
+    if (!element.isA<Implementation>())
     {
-        throw ExceptionShaderGenError("Element '" + implementation->getName() + "' is not an Implementation element");
+        throw ExceptionShaderGenError("Element '" + element.getName() + "' is not an Implementation element");
     }
 
+    const Implementation& impl = static_cast<const Implementation&>(element);
+
     // Store light uniforms for all inputs and parameters on the interface
-    NodeDefPtr nodeDef = impl->getNodeDef();
+    NodeDefPtr nodeDef = impl.getNodeDef();
     for (InputPtr input : nodeDef->getInputs())
     {
         _lightUniforms.add(TypeDesc::get(input->getType()), input->getName(), input->getValue());

@@ -60,7 +60,7 @@ bool getShaderSource(mx::GenContext& context,
     if (implementation)
     {
         sourcePath = implementation->getFile();
-        resolvedPath = context.findSourceCode(sourcePath);
+        resolvedPath = context.resolveSourceFile(sourcePath);
         return mx::readFile(resolvedPath.asString(), sourceContents);
     }
     return false;

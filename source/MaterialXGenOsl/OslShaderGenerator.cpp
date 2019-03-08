@@ -218,7 +218,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     string emitShaderName = shader->getName();
     _syntax->makeValidName(emitShaderName);
     emitLine(emitShaderName, stage, false);
-    emitScopeBegin(stage, ShaderStage::Brackets::PARENTHESES);
+    emitScopeBegin(stage, Syntax::PARENTHESES);
     emitLine("float dummy = 0.0,", stage, false);
 
     // Emit all varying inputs
@@ -246,7 +246,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     emitScopeEnd(stage);
 
     // Begin shader body
-    emitScopeBegin(stage, ShaderStage::Brackets::BRACES);
+    emitScopeBegin(stage);
 
     // Emit constants
     const VariableBlock& constants = stage.getConstantBlock();
@@ -343,7 +343,7 @@ void OslShaderGenerator::emitIncludes(ShaderStage& stage, GenContext& context) c
 
     for (const string& file : INCLUDE_FILES)
     {
-        FilePath path = context.findSourceCode(file);
+        FilePath path = context.resolveSourceFile(file);
         emitLine(INCLUDE_PREFIX + path.asString() + INCLUDE_SUFFIX, stage, false);
     }
 

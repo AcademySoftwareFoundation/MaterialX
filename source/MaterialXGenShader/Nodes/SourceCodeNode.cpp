@@ -18,36 +18,37 @@ ShaderNodeImplPtr SourceCodeNode::create()
     return std::make_shared<SourceCodeNode>();
 }
 
-void SourceCodeNode::initialize(ElementPtr implementation, GenContext& context)
+void SourceCodeNode::initialize(const InterfaceElement& element, GenContext& context)
 {
-    ShaderNodeImpl::initialize(implementation, context);
+    ShaderNodeImpl::initialize(element, context);
 
-    ImplementationPtr impl = implementation->asA<Implementation>();
-    if (!impl)
+    if (!element.isA<Implementation>())
     {
-        throw ExceptionShaderGenError("Element '" + implementation->getName() + "' is not a source code implementation");
+        throw ExceptionShaderGenError("Element '" + element.getName() + "' is not an Implementation element");
     }
 
-    const string& file = impl->getAttribute("file");
+    const Implementation& impl = static_cast<const Implementation&>(element);
+
+    const string& file = impl.getAttribute("file");
     if (file.empty())
     {
-        throw ExceptionShaderGenError("No source file specified for implementation '" + impl->getName() + "'");
+        throw ExceptionShaderGenError("No source file specified for implementation '" + impl.getName() + "'");
     }
 
     _functionSource = "";
     _inlined = (getFileExtension(file) == "inline");
 
     // Find the function name to use
-    _functionName = impl->getAttribute("function");
+    _functionName = impl.getAttribute("function");
     if (_functionName.empty())
     {
         // No function given so use nodedef name
-        _functionName = impl->getNodeDefString();
+        _functionName = impl.getNodeDefString();
     }
 
-    if (!readFile(context.findSourceCode(file), _functionSource))
+    if (!readFile(context.resolveSourceFile(file), _functionSource))
     {
-        throw ExceptionShaderGenError("Can't find source file '" + file + "' used by implementation '" + impl->getName() + "'");
+        throw ExceptionShaderGenError("Can't find source file '" + file + "' used by implementation '" + impl.getName() + "'");
     }
 
     if (_inlined)

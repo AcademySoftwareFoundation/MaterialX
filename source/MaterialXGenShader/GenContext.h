@@ -109,15 +109,9 @@ class GenContext
     }
 
     /// Resolve a file using the registered search paths.
-    FilePath findSourceCode(const FilePath& filename) const
+    FilePath resolveSourceFile(const FilePath& filename) const
     {
         return _sourceCodeSearchPath.find(filename);
-    }
-
-    /// Return the source code search path.
-    const FileSearchPath& sourceCodeSearchPath()
-    {
-        return _sourceCodeSearchPath;
     }
 
     /// Cache a shader node implementation.

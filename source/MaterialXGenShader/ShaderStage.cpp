@@ -170,27 +170,25 @@ const VariableBlock& ShaderStage::getConstantBlock() const
     return _constants;
 }
 
-void ShaderStage::beginScope(ShaderStage::Brackets brackets)
+void ShaderStage::beginScope(Syntax::Punctuation punc)
 {
-    switch (brackets) {
-    case Brackets::BRACES:
+    switch (punc) {
+    case Syntax::CURLY_BRACKETS:
         beginLine();
         _code += "{" + _syntax->getNewline();
         break;
-    case Brackets::PARENTHESES:
+    case Syntax::PARENTHESES:
         beginLine();
         _code += "(" + _syntax->getNewline();
         break;
-    case Brackets::SQUARES:
+    case Syntax::SQUARE_BRACKETS:
         beginLine();
         _code += "[" + _syntax->getNewline();
-        break;
-    case Brackets::NONE:
         break;
     }
 
     ++_indentations;
-    _scopes.push(brackets);
+    _scopes.push(punc);
 }
 
 void ShaderStage::endScope(bool semicolon, bool newline)
@@ -200,24 +198,22 @@ void ShaderStage::endScope(bool semicolon, bool newline)
         throw ExceptionShaderGenError("End scope called with no scope active, please check your beginScope/endScope calls");
     }
 
-    Brackets brackets = _scopes.back();
+    Syntax::Punctuation punc = _scopes.back();
     _scopes.pop();
     --_indentations;
 
-    switch (brackets) {
-    case Brackets::BRACES:
+    switch (punc) {
+    case Syntax::CURLY_BRACKETS:
         beginLine();
         _code += "}";
         break;
-    case Brackets::PARENTHESES:
+    case Syntax::PARENTHESES:
         beginLine();
         _code += ")";
         break;
-    case Brackets::SQUARES:
+    case Syntax::SQUARE_BRACKETS:
         beginLine();
         _code += "]";
-        break;
-    case Brackets::NONE:
         break;
     }
     if (semicolon)
@@ -301,7 +297,7 @@ void ShaderStage::addBlock(const string& str, GenContext& context)
 
 void ShaderStage::addInclude(const string& file, GenContext& context)
 {
-    const string path = context.findSourceCode(file);
+    const string path = context.resolveSourceFile(file);
 
     if (!_includes.count(path))
     {

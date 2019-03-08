@@ -8,9 +8,6 @@
         <!-- List of comma separated file names acts as a filter to only test documents with these names -->
         <parameter name="overrideFiles" type="string" value="" />
 
-        <!-- List of comma separated file names which require color management  -->
-        <parameter name="cmsFiles" type="string" value="color_management.mtlx" />
-
         <!-- Comma separated list of light setup files -->
         <parameter name="lightFiles" type="string" value=
             "lightcompoundtest_ng.mtlx,lightcompoundtest.mtlx,light_rig.mtlx" />

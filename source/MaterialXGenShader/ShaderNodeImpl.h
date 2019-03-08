@@ -9,14 +9,13 @@
 /// @file
 /// Base class for shader node implementations
 
-#include <MaterialXCore/Element.h>
-
 #include <MaterialXGenShader/Library.h>
+#include <MaterialXCore/Util.h>
 
 namespace MaterialX
 {
 
-/// Shared pointer to a ShaderOutput
+class InterfaceElement;
 using ShaderGraphInputSocket = ShaderOutput;
 
 /// Shared pointer to a ShaderNodeImpl
@@ -44,7 +43,7 @@ class ShaderNodeImpl
     virtual const string& getTarget() const { return EMPTY_STRING; }
 
     /// Initialize with the given implementation element.
-    virtual void initialize(ElementPtr implementation, GenContext& context);
+    virtual void initialize(const InterfaceElement& element, GenContext& context);
 
     /// Create shader variables needed for the implementation of this node (e.g. uniforms, inputs and outputs).
     /// Used if the node requires input data from the application.

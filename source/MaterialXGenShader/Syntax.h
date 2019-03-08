@@ -38,6 +38,14 @@ class Syntax
 public:
     using UniqueNameMap = std::unordered_map<string, size_t>;
 
+    /// Punctuation types
+    enum Punctuation
+    {
+        PARENTHESES,
+        CURLY_BRACKETS,
+        SQUARE_BRACKETS
+    };
+
 public:
     virtual ~Syntax() {}
 

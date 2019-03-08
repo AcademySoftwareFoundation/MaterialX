@@ -6,6 +6,7 @@
 #include <PyMaterialX/PyMaterialX.h>
 
 #include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenOgsFx/OgsFxShaderGenerator.h>
 
 #include <string>
@@ -20,6 +21,6 @@ void bindPyOgsFxShaderGenerator(py::module& mod)
     py::class_<mx::OgsFxShaderGenerator, mx::ShaderGenerator, mx::OgsFxShaderGeneratorPtr>(mod, "OgsFxShaderGenerator")
         .def_static("create", &mx::OgsFxShaderGenerator::create)
         .def(py::init<>())
-        .def("getTarget", &mx::OgsFxShaderGenerator::getTarget);
-        .def("generate", &mx::OgsFxShaderGenerator::generate)
+        .def("getTarget", &mx::OgsFxShaderGenerator::getTarget)
+        .def("generate", &mx::OgsFxShaderGenerator::generate);
 }
