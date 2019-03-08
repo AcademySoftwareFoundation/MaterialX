@@ -23,7 +23,7 @@ void NormalNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Shader
     addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, "i_normal", vs);
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
-    const int space = spaceInput ? spaceInput->getValue()->asA<int>() : -1;
+    const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
     if (space == WORLD_SPACE)
     {
         addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix", vs);
@@ -44,7 +44,7 @@ void NormalNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& contex
     const ShaderGenerator& shadergen = context.getShaderGenerator();
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
-    const int space = spaceInput ? spaceInput->getValue()->asA<int>() : -1;
+    const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
 
     BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);

@@ -23,7 +23,7 @@ void PositionNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Shad
     addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, "i_position", vs);
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
-    const int space = spaceInput ? spaceInput->getValue()->asA<int>() : -1;
+    const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
     if (space == WORLD_SPACE)
     {
         addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "positionWorld", vs, ps);
@@ -43,7 +43,7 @@ void PositionNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& cont
     const ShaderGenerator& shadergen = context.getShaderGenerator();
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
-    const int space = spaceInput ? spaceInput->getValue()->asA<int>() : -1;
+    const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
 
     BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);

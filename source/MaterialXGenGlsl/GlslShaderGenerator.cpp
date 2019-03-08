@@ -646,65 +646,43 @@ ShaderNodeImplPtr GlslShaderGenerator::createCompoundImplementation(const NodeGr
     return HwShaderGenerator::createCompoundImplementation(impl);
 }
 
-ValuePtr GlslShaderGenerator::remapEnumeration(const ValueElementPtr& input, const InterfaceElement& mappingElement, 
-                                               const TypeDesc*& enumerationType) const
+bool GlslShaderGenerator::remapEnumeration(const ValueElement& input, const string& value, std::pair<const TypeDesc*, ValuePtr>& result) const
 {
-    const string& inputName = input->getName();
-    const string& inputValue = input->getValueString();
-    const string& inputType = input->getType();
-
-    return remapEnumeration(inputName, inputValue, inputType, mappingElement, enumerationType);
-}
-
-ValuePtr GlslShaderGenerator::remapEnumeration(const string& inputName, const string& inputValue, const string& inputType, 
-                                               const InterfaceElement& mappingElement, const TypeDesc*& enumerationType) const
-{
-    enumerationType = nullptr;
-
-    ValueElementPtr valueElem = mappingElement.getChildOfType<ValueElement>(inputName);
-    if (!valueElem)
+    // Early out if not an enum input.
+    const string& enumNames = input.getAttribute(ValueElement::ENUM_ATTRIBUTE);
+    if (enumNames.empty())
     {
-        return nullptr;
+        return false;
     }
 
-    // Don't convert file names and arrays to integers
-    const TypeDesc* inputTypeDesc = TypeDesc::get(inputType);
-    if (inputTypeDesc->isArray() || inputTypeDesc == Type::FILENAME)
+    // Don't convert already supported types
+    // or filenames and arrays.
+    const TypeDesc* type = TypeDesc::get(input.getType());
+    if (_syntax->typeSupported(type) ||
+        type == Type::FILENAME || type->isArray())
     {
-        return nullptr;
-    }
-    // Don't convert supported types
-    if (getSyntax().typeSupported(inputTypeDesc))
-    {
-        return nullptr;
+        return false;
     }
 
-    // Skip any elements which have no enumerations
-    const string& valueElemEnums = valueElem->getAttribute(ValueElement::ENUM_ATTRIBUTE);
-    if (valueElemEnums.empty())
-    {
-        return nullptr;
-    }
-
-    // Always update the type. For GLSL we always convert to integers,
+    // For GLSL we always convert to integer,
     // with the integer value being an index into the enumeration.
-    enumerationType = TypeDesc::get(TypedValue<int>::TYPE);
+    result.first = Type::INTEGER;
+    result.second = nullptr;
 
-    // Update the return value if any was specified. If the value
-    // cannot be found always return a default value of 0 to provide some mapping.
-    ValuePtr returnValue = nullptr;
-    if (inputValue.size())
+    // Try remapping to an enum value.
+    if (value.size())
     {
-        int integerValue = 0;
-        StringVec valueElemEnumsVec = splitString(valueElemEnums, ",");
-        auto pos = std::find(valueElemEnumsVec.begin(), valueElemEnumsVec.end(), inputValue);
-        if (pos != valueElemEnumsVec.end())
+        StringVec valueElemEnumsVec = splitString(enumNames, ",");
+        auto pos = std::find(valueElemEnumsVec.begin(), valueElemEnumsVec.end(), value);
+        if (pos == valueElemEnumsVec.end())
         {
-            integerValue = static_cast<int>(std::distance(valueElemEnumsVec.begin(), pos));
+            throw ExceptionShaderGenError("Given value '" + value + "' is not a valid enum value for input '" + input.getNamePath() + "'");
         }
-        returnValue = Value::createValue<int>(integerValue);
+        const int index = static_cast<int>(std::distance(valueElemEnumsVec.begin(), pos));
+        result.second = Value::createValue<int>(index);
     }
-    return returnValue;
+
+    return true;
 }
 
 const string GlslImplementation::SPACE = "space";

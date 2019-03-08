@@ -265,16 +265,9 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const InterfaceElement& ele
     return impl;
 }
 
-ValuePtr ShaderGenerator::remapEnumeration(const ValueElementPtr&, const InterfaceElement&, 
-                                           const TypeDesc*&) const
+bool ShaderGenerator::remapEnumeration(const ValueElement&, const string&, std::pair<const TypeDesc*, ValuePtr>&) const
 {
-    return nullptr;
-}
-
-ValuePtr ShaderGenerator::remapEnumeration(const string&, const string&, const string&,
-                                           const InterfaceElement&, const TypeDesc*&) const
-{
-    return nullptr;
+    return false;
 }
 
 ShaderStagePtr ShaderGenerator::createStage(const string& name, Shader& shader) const
