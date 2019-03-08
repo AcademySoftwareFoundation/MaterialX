@@ -6,6 +6,9 @@
 #ifndef MATERIALX_GLSL_SYNTAX_H
 #define MATERIALX_GLSL_SYNTAX_H
 
+/// @file
+/// GLSL syntax class
+
 #include <MaterialXGenShader/Syntax.h>
 
 namespace MaterialX

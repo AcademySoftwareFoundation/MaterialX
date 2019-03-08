@@ -6,6 +6,9 @@
 #ifndef MATERIALX_OGSFXSYNTAX_H
 #define MATERIALX_OGSFXSYNTAX_H
 
+/// @file
+/// OGSFX syntax class
+
 #include <MaterialXGenGlsl/GlslSyntax.h>
 
 namespace MaterialX

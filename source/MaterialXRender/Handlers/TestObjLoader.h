@@ -15,7 +15,7 @@ namespace MaterialX
 /// Shared pointer to an TestObjLoader
 using TestObjLoaderPtr = std::shared_ptr<class TestObjLoader>;
 
-/// @class @TestObjHandler
+/// @class TestObjHandler
 /// Utility geometry loader to read in OBJ files for unit testing.
 ///
 class TestObjLoader : public GeometryLoader

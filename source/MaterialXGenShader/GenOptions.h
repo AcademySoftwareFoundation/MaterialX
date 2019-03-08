@@ -6,6 +6,9 @@
 #ifndef MATERIALX_GENOPTIONS_H
 #define MATERIALX_GENOPTIONS_H
 
+/// @file
+/// Shader generation options class
+
 #include <MaterialXCore/Library.h>
 
 namespace MaterialX
@@ -40,6 +43,7 @@ enum HwSpecularEnvironmentMethod
     SPECULAR_ENVIRONMENT_FIS
 };
 
+/// @class GenOptions 
 /// Class holding options to configure shader generation.
 class GenOptions
 {

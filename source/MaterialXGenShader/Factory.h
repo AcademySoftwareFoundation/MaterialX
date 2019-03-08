@@ -6,11 +6,15 @@
 #ifndef MATERIALX_FACTORY_H
 #define MATERIALX_FACTORY_H
 
+/// @file
+/// Class instantiator factory helper class
+
 #include <MaterialXCore/Library.h>
 
 namespace MaterialX
 {
 
+/// @class Factory
 /// Factory class for creating instances of classes given their type name.
 template<class T>
 class Factory

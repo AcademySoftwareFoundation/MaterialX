@@ -13,7 +13,7 @@ namespace MaterialX
 /// Shared pointer to an stbImageLoader
 using StbImageLoaderPtr = std::shared_ptr<class StbImageLoader>;
 
-/// @class @stbImageLoader
+/// @class StbImageLoader
 /// Disk image loader wrapper using stb library
 ///
 class StbImageLoader : public ImageLoader

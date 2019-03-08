@@ -6,6 +6,9 @@
 #ifndef MATERIALX_HWSHADERGENERATOR_H
 #define MATERIALX_HWSHADERGENERATOR_H
 
+/// @file
+/// Hardware shader generator base class
+
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
 
@@ -49,11 +52,14 @@ class HwClosureContext;
 class HwLightShaders;
 class HwShaderGenerator;
 
+/// Shared pointer to a HwClosureContext
 using HwClosureContextPtr = shared_ptr<class HwClosureContext>;
+/// Shared pointer to a HwLightShaders
 using HwLightShadersPtr = shared_ptr<class HwLightShaders>;
+/// Shared pointer to a HwShaderGenerator
 using HwShaderGeneratorPtr = shared_ptr<class HwShaderGenerator>;
 
-
+/// @class HwClosureContext
 /// Class representing a context for closure evaluation on hardware targets.
 /// On hardware BSDF closures are evaluated differently in reflection, transmission
 /// or environment/indirect contexts. This class represents with context we are in
@@ -74,6 +80,7 @@ public:
     /// An argument is a pair of strings holding the
     /// 'type' and 'name' of the argument.
     using Argument = std::pair<const TypeDesc*, string>;
+    /// An array of arguments
     using Arguments = vector<Argument>;
 
     /// Constructor
@@ -109,6 +116,8 @@ protected:
     string _suffix;
 };
 
+/// @class HwLightShaders 
+/// Hardware light shader user data
 class HwLightShaders : public GenUserData
 {
 public:
@@ -144,6 +153,7 @@ protected:
 };
 
 
+/// @class HwShaderGenerator
 /// Base class for shader generators targeting HW rendering.
 class HwShaderGenerator : public ShaderGenerator
 {

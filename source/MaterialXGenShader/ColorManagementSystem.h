@@ -6,6 +6,9 @@
 #ifndef MATERIALX_COLOR_MANAGEMENT_SYSTEM_H
 #define MATERIALX_COLOR_MANAGEMENT_SYSTEM_H
 
+/// @file
+/// Color management system classes
+
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Library.h>
 
@@ -42,7 +45,7 @@ struct ColorSpaceTransform
     }
 };
 
-/// @class @ColorManagementSystem
+/// @class ColorManagementSystem
 /// Abstract base class for a ColorManagementSystem.
 ///
 class ColorManagementSystem

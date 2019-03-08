@@ -6,6 +6,9 @@
 #ifndef MATERIALX_OGSFXSHADERGENERATOR_H
 #define MATERIALX_OGSFXSHADERGENERATOR_H
 
+/// @file
+/// OGSFX shader generator
+
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 namespace MaterialX

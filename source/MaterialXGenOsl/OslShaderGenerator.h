@@ -6,6 +6,9 @@
 #ifndef MATERIALX_OSLSHADERGENERATOR_H
 #define MATERIALX_OSLSHADERGENERATOR_H
 
+/// @file
+/// OSL shading language generator
+
 #include <MaterialXGenShader/ShaderGenerator.h>
 
 namespace MaterialX

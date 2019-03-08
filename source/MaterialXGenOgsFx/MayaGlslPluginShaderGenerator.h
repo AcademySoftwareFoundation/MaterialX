@@ -6,6 +6,9 @@
 #ifndef MATERIALX_MAYAGLSLPUGINSHADERGENERATOR_H
 #define MATERIALX_MAYAGLSLPUGINSHADERGENERATOR_H
 
+/// @file
+/// Maya OGSFX shader generator
+
 #include <MaterialXGenOgsFx/OgsFxShaderGenerator.h>
 
 namespace MaterialX

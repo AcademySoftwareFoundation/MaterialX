@@ -27,16 +27,21 @@ class GenOptions;
 class GenContext;
 class TypeDesc;
 
+/// Shared pointer to a Shader
 using ShaderPtr = shared_ptr<Shader>;
+/// Shared pointer to a ShaderStage
 using ShaderStagePtr = shared_ptr<ShaderStage>;
+/// Shared pointer to a ShaderGenerator
 using ShaderGeneratorPtr = shared_ptr<ShaderGenerator>;
+/// Shared pointer to a ShaderNodeImpl
 using ShaderNodeImplPtr = shared_ptr<ShaderNodeImpl>;
+/// Shared pointer to a GenContext
 using GenContextPtr = shared_ptr<GenContext>;
 
 template<class T>
 using CreatorFunction = shared_ptr<T>(*)();
 
-/// @class @ExceptionShaderGenError
+/// @class ExceptionShaderGenError
 /// An exception that is thrown when shader generation fails.
 class ExceptionShaderGenError : public Exception
 {
