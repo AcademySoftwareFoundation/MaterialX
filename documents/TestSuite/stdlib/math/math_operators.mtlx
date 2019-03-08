@@ -558,7 +558,6 @@ Basic math operator function tests each test is in a separate graph for each var
     </power>
     <output name="out" type="vector4" nodename="power1" />
   </nodegraph>
-  <!--
   <nodegraph name="add_matrix33">
     <add name="add1" type="matrix33">
       <input name="in1" type="matrix33" value="0.5, 0.0, 0.0,  0.0, 0.5, 0.0,  0.0, 0.0, 0.5"/>
@@ -570,7 +569,6 @@ Basic math operator function tests each test is in a separate graph for each var
     </transformvector>
     <output name="out" type="vector3" nodename="transformvector1"/>
   </nodegraph>
-  -->
   <nodegraph name="add_matrix44">
     <add name="add1" type="matrix44">
       <input name="in1" type="matrix44" value="0.5, 0.0, 0.0, 0.0,  0.0, 0.5, 0.0, 0.0,  0.0, 0.0, 0.5, 0.0,  0.0, 0.0, 0.0, 0.5"/>
@@ -582,7 +580,6 @@ Basic math operator function tests each test is in a separate graph for each var
     </transformvector>
     <output name="out" type="vector4" nodename="transformvector1"/>
   </nodegraph>
-  <!--
   <nodegraph name="add_matrix33FA">
     <add name="add1" type="matrix33">
       <input name="in1" type="matrix33" value="1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0"/>
@@ -594,7 +591,6 @@ Basic math operator function tests each test is in a separate graph for each var
     </transformvector>
     <output name="out" type="vector3" nodename="transformvector1"/>
   </nodegraph>
-  -->
   <nodegraph name="add_matrix44FA">
     <add name="add1" type="matrix44">
       <input name="in1" type="matrix44" value="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0"/>
@@ -606,7 +602,6 @@ Basic math operator function tests each test is in a separate graph for each var
     </transformvector>
     <output name="out" type="vector4" nodename="transformvector1"/>
   </nodegraph>
-  <!--
   <nodegraph name="subtract_matrix33">
     <subtract name="subtract1" type="matrix33">
       <input name="in1" type="matrix33" value="1.5, 0.0, 0.0,  0.0, 1.5, 0.0,  0.0, 0.0, 1.5"/>
@@ -618,7 +613,6 @@ Basic math operator function tests each test is in a separate graph for each var
     </transformvector>
     <output name="out" type="vector3" nodename="transformvector1"/>
   </nodegraph>
-  -->
   <nodegraph name="subtract_matrix44">
     <subtract name="subtract1" type="matrix44">
       <input name="in1" type="matrix44" value="1.5, 0.0, 0.0, 0.0,  0.0, 1.5, 0.0, 0.0,  0.0, 0.0, 1.5, 0.0,  0.0, 0.0, 0.0, 1.5"/>
@@ -630,7 +624,6 @@ Basic math operator function tests each test is in a separate graph for each var
     </transformvector>
     <output name="out" type="vector4" nodename="transformvector1"/>
   </nodegraph>
-  <!--
   <nodegraph name="subtract_matrix33FA">
     <subtract name="subtract1" type="matrix33">
       <input name="in1" type="matrix33" value="1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0"/>
@@ -642,7 +635,6 @@ Basic math operator function tests each test is in a separate graph for each var
     </transformvector>
     <output name="out" type="vector3" nodename="transformvector1"/>
   </nodegraph>
-  -->
   <nodegraph name="subtract_matrix44FA">
     <subtract name="subtract1" type="matrix44">
       <input name="in1" type="matrix44" value="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0"/>
@@ -654,7 +646,6 @@ Basic math operator function tests each test is in a separate graph for each var
     </transformvector>
     <output name="out" type="vector4" nodename="transformvector1"/>
   </nodegraph>
-  <!--
   <nodegraph name="multiply_matrix33">
     <multiply name="multiply1" type="matrix33">
       <input name="in1" type="matrix33" value="1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0"/>
@@ -666,7 +657,6 @@ Basic math operator function tests each test is in a separate graph for each var
     </transformvector>
     <output name="out" type="vector3" nodename="transformvector1"/>
   </nodegraph>
-  -->
   <nodegraph name="multiply_matrix44">
     <multiply name="multiply1" type="matrix44">
       <input name="in1" type="matrix44" value="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0"/>
@@ -678,7 +668,6 @@ Basic math operator function tests each test is in a separate graph for each var
     </transformvector>
     <output name="out" type="vector4" nodename="transformvector1"/>
   </nodegraph>
-  <!--
   <nodegraph name="divide_matrix33">
     <divide name="divide1" type="matrix33">
       <input name="in1" type="matrix33" value="1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0"/>
@@ -690,7 +679,6 @@ Basic math operator function tests each test is in a separate graph for each var
     </transformvector>
     <output name="out" type="vector3" nodename="transformvector1"/>
   </nodegraph>
-  -->
   <nodegraph name="divide_matrix44">
     <divide name="divide1" type="matrix44">
       <input name="in1" type="matrix44" value="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0"/>

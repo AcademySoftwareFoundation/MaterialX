@@ -1077,10 +1077,16 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
             options.renderImages = false;
             options.saveImages = false;
         }
-        // Disable saveing imsages, if no images are to be produced
+        // Disable saving images, if no images are to be produced
         if (!options.renderImages)
         {
             options.saveImages = false;
+        }
+
+        // If there is a filter on the files to run turn off profile checking
+        if (!options.overrideFiles.empty())
+        {
+            options.checkImplCount = false;
         }
 
         // If implementation count check is required, then OSL and GLSL/OGSFX
@@ -1119,7 +1125,7 @@ void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidT
     {
         profilingLog << "---------------------------------------" << std::endl;
 
-        // Get implementation count from libraries
+        // Get implementation count from libraries. 
         std::set<mx::ImplementationPtr> libraryImpls;
         const std::vector<mx::ElementPtr>& children = dependLib->getChildren();
         for (auto child : children)
@@ -1129,39 +1135,41 @@ void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidT
             {
                 continue;
             }
-            libraryImpls.insert(impl);
+
+            // Only check implementations for languages we're interested in and
+            // are testing.
+            // 
+            if ((options.runGLSLTests && impl->getLanguage() == mx::GlslShaderGenerator::LANGUAGE) ||
+                (options.runOSLTests && impl->getLanguage() == mx::OslShaderGenerator::LANGUAGE))
+            {
+                libraryImpls.insert(impl);
+            }
         }
 
         size_t skipCount = 0;
         profilingLog << "-- Possibly missed implementations ----" << std::endl;
         std::vector<std::string> whiteList =
         {
-            "arrayappend", "backfacing", "screen", "curveadjust", "dot_surfaceshader", "mix_surfaceshader"
-            "displacementShader", "displacementshader", "volumeshader", "IM_dot_filename", "ambientocclusion", "dot_lightshader",
-            "geomattrvalue_integer", "geomattrvalue_boolean", "geomattrvalue_string", "constant_matrix33", "add_matrix33FA",
-            "add_matrix33", "subtract_matrix33FA", "subtract_matrix33", "multiply_matrix33", "divide_matrix33", "invert_matrix33",
-            "transpose_matrix33", "transformvector_vector3M", "transformnormal_vector3M", "transformpoint_vector3M",
-            "determinant_matrix33", "IM_dot_", "IM_constant_string_", "IM_constant_filename_"
+            "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
+            "volumeshader", "IM_constant_string_", "IM_constant_filename_", "IM_dot_string"
         };
-        const std::string OSL_STRING("osl");
-        const std::string GEN_OSL_STRING(mx::OslShaderGenerator::LANGUAGE);
         unsigned int implementationUseCount = 0;
         for (auto libraryImpl : libraryImpls)
         {
             const std::string& implName = libraryImpl->getName();
 
             // Skip white-list items
-            bool whileListFound = false;
+            bool inWhiteList = false;
             for (auto w : whiteList)
             {
                 if (implName.find(w) != std::string::npos)
                 {
                     skipCount++;
-                    whileListFound = true;
+                    inWhiteList = true;
                     break;
                 }
             }
-            if (whileListFound)
+            if (inWhiteList)
             {
                 implementationUseCount++;
                 continue;
@@ -1187,33 +1195,11 @@ void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidT
                 continue;
             }
 #endif
-
-#ifdef MATERIALX_BUILD_RENDEROSL
-            // See if we have a genosl implementation used
-            // instead of the reference one
-            if (libraryImpl->getLanguage() == OSL_STRING)
-            {
-                size_t endSize = implName.size() - 3;
-                if (endSize > 0)
-                {
-                    std::string ending = implName.substr(endSize);
-                    if (ending == OSL_STRING)
-                    {
-                        std::string sxImplName = implName.substr(0, endSize) + GEN_OSL_STRING;
-                        if (oslContext.findNodeImplementation(sxImplName))
-                        {
-                            implementationUseCount++;
-                            continue;
-                        }
-                    }
-                }
-            }
-#endif
-
             profilingLog << "\t" << implName << std::endl;
         }
         size_t libraryCount = libraryImpls.size();
         profilingLog << "Tested: " << implementationUseCount << " out of: " << libraryCount << " library implementations." << std::endl;
+        // Enable when implementations and testing are complete
         // CHECK(implementationUseCount == libraryCount);
     }
 }
@@ -1231,21 +1217,21 @@ TEST_CASE("Render TestSuite", "[render]")
 
 #ifdef LOG_TO_FILE
 #ifdef MATERIALX_BUILD_RENDERGLSL
-    std::ofstream glslLogfile("shadervalid_GLSL_log.txt");
+    std::ofstream glslLogfile("genglsl_render_test.txt");
     std::ostream& glslLog(glslLogfile);
 #endif
 #ifdef MATERIALX_BUILD_GEN_OGSFX
-    std::ofstream ogsfxLogfile("shadervalid_OGSFX_log.txt");
+    std::ofstream ogsfxLogfile("genglsl_ogsfx_render_test.txt");
     std::ostream& ogsfxLog(ogsfxLogfile);
 #endif
 #ifdef MATERIALX_BUILD_RENDEROSL
-    std::ofstream oslLogfile("shadervalid_OSL_log.txt");
+    std::ofstream oslLogfile("genosl_vanilla_render_test.txt");
     std::ostream& oslLog(oslLogfile);
 #endif
-    std::string docValidLogFilename = "shadervalid_validate_doc_log.txt";
+    std::string docValidLogFilename = "render_validate_doc_log.txt";
     std::ofstream docValidLogFile(docValidLogFilename);
     std::ostream& docValidLog(docValidLogFile);
-    std::ofstream profilingLogfile("shadervalid_profiling_log.txt");
+    std::ofstream profilingLogfile("render_profiling_log.txt");
     std::ostream& profilingLog(profilingLogfile);
 #else
 #ifdef MATERIALX_BUILD_RENDERGLSL

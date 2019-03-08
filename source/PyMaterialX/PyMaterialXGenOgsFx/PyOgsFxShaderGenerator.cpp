@@ -18,9 +18,8 @@ void bindPyOgsFxShaderGenerator(py::module& mod)
 {
     mod.attr("FX_STAGE") = mx::HW::FX_STAGE;
 
-    py::class_<mx::OgsFxShaderGenerator, mx::ShaderGenerator, mx::OgsFxShaderGeneratorPtr>(mod, "OgsFxShaderGenerator")
+    py::class_<mx::OgsFxShaderGenerator, mx::GlslShaderGenerator, mx::OgsFxShaderGeneratorPtr>(mod, "OgsFxShaderGenerator")
         .def_static("create", &mx::OgsFxShaderGenerator::create)
         .def(py::init<>())
-        .def("getTarget", &mx::OgsFxShaderGenerator::getTarget)
-        .def("generate", &mx::OgsFxShaderGenerator::generate);
+        .def("getTarget", &mx::OgsFxShaderGenerator::getTarget);
 }
