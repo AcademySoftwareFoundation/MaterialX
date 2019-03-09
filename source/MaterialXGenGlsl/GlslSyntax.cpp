@@ -8,96 +8,94 @@
 #include <MaterialXGenShader/Library.h>
 #include <MaterialXGenShader/TypeDesc.h>
 
-#include <memory>
-
 namespace MaterialX
 {
 
 namespace
 {
-    // Since GLSL doesn't support strings we use integers instead.
-    // TODO: Support options strings by converting to a corresponding enum integer
-    class GlslStringTypeSyntax : public StringTypeSyntax
+
+// Since GLSL doesn't support strings we use integers instead.
+// TODO: Support options strings by converting to a corresponding enum integer
+class GlslStringTypeSyntax : public StringTypeSyntax
+{
+  public:
+    GlslStringTypeSyntax() : StringTypeSyntax("int", "0", "0") {}
+
+    string getValue(const Value& /*value*/, bool /*uniform*/) const override
     {
-    public:
-        GlslStringTypeSyntax() : StringTypeSyntax("int", "0", "0") {}
+        return "0";
+    }
+};
 
-        string getValue(const Value& /*value*/, bool /*uniform*/) const override
-        {
-            return "0";
-        }
-    };
+class GlslArrayTypeSyntax : public ScalarTypeSyntax
+{
+  public:
+    GlslArrayTypeSyntax(const string& name)
+        : ScalarTypeSyntax(name, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING)
+    {}
 
-    class GlslArrayTypeSyntax : public ScalarTypeSyntax
+    string getValue(const Value& value, bool /*uniform*/) const override
     {
-    public:
-        GlslArrayTypeSyntax(const string& name)
-            : ScalarTypeSyntax(name, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING)
-        {}
-
-        string getValue(const Value& value, bool /*uniform*/) const override
+        size_t arraySize = getSize(value);
+        if (arraySize > 0)
         {
-            size_t arraySize = getSize(value);
-            if (arraySize > 0)
-            {
-                return _name + "[" + std::to_string(arraySize) + "](" + value.getValueString() + ")";
-            }
-            return EMPTY_STRING;
+            return _name + "[" + std::to_string(arraySize) + "](" + value.getValueString() + ")";
         }
+        return EMPTY_STRING;
+    }
 
-        string getValue(const StringVec& values, bool /*uniform*/) const override
-        {
-            if (values.empty())
-            {
-                throw ExceptionShaderGenError("No values given to construct an array value");
-            }
-
-            string result = _name + "[" + std::to_string(values.size()) + "](" + values[0];
-            for (size_t i = 1; i<values.size(); ++i)
-            {
-                result += ", " + values[i];
-            }
-            result += ")";
-
-            return result;
-        }
-
-    protected:
-        virtual size_t getSize(const Value& value) const = 0;
-    };
-
-    class GlslFloatArrayTypeSyntax : public GlslArrayTypeSyntax
+    string getValue(const StringVec& values, bool /*uniform*/) const override
     {
-    public:
-        explicit GlslFloatArrayTypeSyntax(const string& name)
-            : GlslArrayTypeSyntax(name)
-        {}
-
-    protected:
-        size_t getSize(const Value& value) const override
+        if (values.empty())
         {
-            vector<float> valueArray = value.asA<vector<float>>();
-            return valueArray.size();
+            throw ExceptionShaderGenError("No values given to construct an array value");
         }
 
-    };
+        string result = _name + "[" + std::to_string(values.size()) + "](" + values[0];
+        for (size_t i = 1; i<values.size(); ++i)
+        {
+            result += ", " + values[i];
+        }
+        result += ")";
 
-    class GlslIntegerArrayTypeSyntax : public GlslArrayTypeSyntax
+        return result;
+    }
+
+  protected:
+    virtual size_t getSize(const Value& value) const = 0;
+};
+
+class GlslFloatArrayTypeSyntax : public GlslArrayTypeSyntax
+{
+  public:
+    explicit GlslFloatArrayTypeSyntax(const string& name)
+        : GlslArrayTypeSyntax(name)
+    {}
+
+  protected:
+    size_t getSize(const Value& value) const override
     {
-    public:
-        explicit GlslIntegerArrayTypeSyntax(const string& name)
-            : GlslArrayTypeSyntax(name)
-        {}
+        vector<float> valueArray = value.asA<vector<float>>();
+        return valueArray.size();
+    }
+};
 
-    protected:
-        size_t getSize(const Value& value) const override
-        {
-            vector<int> valueArray = value.asA<vector<int>>();
-            return valueArray.size();
-        }
+class GlslIntegerArrayTypeSyntax : public GlslArrayTypeSyntax
+{
+  public:
+    explicit GlslIntegerArrayTypeSyntax(const string& name)
+        : GlslArrayTypeSyntax(name)
+    {}
 
-    };
-}
+  protected:
+    size_t getSize(const Value& value) const override
+    {
+        vector<int> valueArray = value.asA<vector<int>>();
+        return valueArray.size();
+    }
+};
+
+} // anonymous namespace
 
 const string GlslSyntax::INPUT_QUALIFIER = "in";
 const string GlslSyntax::OUTPUT_QUALIFIER = "out";
@@ -404,4 +402,4 @@ bool GlslSyntax::typeSupported(const TypeDesc* type) const
     return type != Type::STRING;
 }
 
-}
+} // namespace MaterialX
