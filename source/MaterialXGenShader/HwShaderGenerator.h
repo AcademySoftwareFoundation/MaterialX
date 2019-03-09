@@ -198,8 +198,6 @@ protected:
     /// Override the compound implementation creator.
     ShaderNodeImplPtr createCompoundImplementation(const NodeGraph& impl) const override;
 
-    unsigned int _maxActiveLightSources;
-
     /// Closure contexts for defining closure functions.
     HwClosureContextPtr _defReflection;
     HwClosureContextPtr _defTransmission;
