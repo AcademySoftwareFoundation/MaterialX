@@ -10,9 +10,10 @@
 /// Shader generation utility methods
 
 #include <MaterialXCore/Library.h>
+
+#include <MaterialXCore/Document.h>
 #include <MaterialXCore/Element.h>
 #include <MaterialXCore/Interface.h>
-#include <MaterialXCore/Document.h>
 #include <MaterialXFormat/File.h>
 
 namespace MaterialX
@@ -21,17 +22,17 @@ namespace MaterialX
 class ShaderGenerator;
 
 /// Make the directory with the given path if it doesn't already exist
-void makeDirectory(const std::string& directoryPath);
+void makeDirectory(const string& directoryPath);
 
 /// Removes the extension from the provided filename
-std::string removeExtension(const std::string& filename);
+string removeExtension(const string& filename);
 
 /// Directory scanner utility. Finds all subdirectories in the given directory
-void getSubDirectories(const std::string& baseDirectory, StringVec& relativePaths);
+void getSubDirectories(const string& baseDirectory, StringVec& relativePaths);
 
 /// Directory file scanner utility. Finds all files with a given extension
 /// in the given directory.
-void getFilesInDirectory(const std::string& directory, StringVec& files, const std::string& extension);
+void getFilesInDirectory(const string& directory, StringVec& files, const string& extension);
 
 /// Reads the contents of a file into the given string
 bool readFile(const string& filename, string& content);
