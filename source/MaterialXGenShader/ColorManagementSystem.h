@@ -87,7 +87,7 @@ class ColorManagementSystem
     void registerImplementation(const ColorSpaceTransform& transform, CreatorFunction<ShaderNodeImpl> creator);
 
     Factory<ShaderNodeImpl> _implFactory;
-    vector<string> _registeredImplNames;
+    StringVec _registeredImplNames;
     string _configFile;
     DocumentPtr _document;
 };

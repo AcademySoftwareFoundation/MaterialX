@@ -36,7 +36,7 @@ void ColorManagementSystem::registerImplementation(const ColorSpaceTransform& tr
     _registeredImplNames.push_back(implName);
 }
 
-void  ColorManagementSystem::setConfigFile(const string& configFile)
+void ColorManagementSystem::setConfigFile(const string& configFile)
 {
     _configFile = configFile;
     _implFactory.unregisterClasses(_registeredImplNames);

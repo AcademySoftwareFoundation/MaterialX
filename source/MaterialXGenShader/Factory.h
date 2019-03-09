@@ -49,7 +49,7 @@ public:
         }
     }
 
-    static void unregisterClasses(vector<string>& registeredImplNames)
+    static void unregisterClasses(StringVec& registeredImplNames)
     {
         for (string registeredImplName : registeredImplNames)
         {

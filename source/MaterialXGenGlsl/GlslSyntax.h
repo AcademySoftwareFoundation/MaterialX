@@ -36,9 +36,9 @@ public:
     static const string UNIFORM_QUALIFIER;
     static const string CONSTANT_QUALIFIER;
 
-    static const vector<string> VEC2_MEMBERS;
-    static const vector<string> VEC3_MEMBERS;
-    static const vector<string> VEC4_MEMBERS;
+    static const StringVec VEC2_MEMBERS;
+    static const StringVec VEC3_MEMBERS;
+    static const StringVec VEC4_MEMBERS;
 };
 
 } // namespace MaterialX

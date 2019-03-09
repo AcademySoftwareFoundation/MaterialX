@@ -33,7 +33,7 @@ void CombineNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         // type conversion to perform, and get the value
         // components to use for constructing the new value.
         //
-        vector<string> valueComponents;
+        StringVec valueComponents;
         if (in1->getType() == Type::FLOAT)
         {
             // Get the components of the input values.
@@ -66,7 +66,7 @@ void CombineNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
             valueComponents.resize(4);
 
             // Get components from in1
-            const vector<string>& in1Members = shadergen.getSyntax().getTypeSyntax(in1->getType()).getMembers();
+            const StringVec& in1Members = shadergen.getSyntax().getTypeSyntax(in1->getType()).getMembers();
             valueComponents[0] = in1Variable + in1Members[0];
             valueComponents[1] = in1Variable + in1Members[1];
             valueComponents[2] = in1Variable + in1Members[2];
@@ -104,12 +104,12 @@ void CombineNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
             valueComponents.resize(4);
 
             // Get components from in1.
-            const vector<string>& in1Members = shadergen.getSyntax().getTypeSyntax(in1->getType()).getMembers();
+            const StringVec& in1Members = shadergen.getSyntax().getTypeSyntax(in1->getType()).getMembers();
             valueComponents[0] = in1Variable + in1Members[0];
             valueComponents[1] = in1Variable + in1Members[1];
 
             // Get components from in2.
-            const vector<string>& in2Members = shadergen.getSyntax().getTypeSyntax(in2->getType()).getMembers();
+            const StringVec& in2Members = shadergen.getSyntax().getTypeSyntax(in2->getType()).getMembers();
             valueComponents[2] = in2Variable + in2Members[0];
             valueComponents[3] = in2Variable + in2Members[1];
         }

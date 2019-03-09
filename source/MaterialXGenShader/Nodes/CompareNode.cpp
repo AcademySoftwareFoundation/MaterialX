@@ -12,7 +12,7 @@
 namespace MaterialX
 {
 
-const vector<string> CompareNode::INPUT_NAMES = { "intest", "cutoff", "in1", "in2" };
+const StringVec CompareNode::INPUT_NAMES = { "intest", "cutoff", "in1", "in2" };
 
 ShaderNodeImplPtr CompareNode::create()
 {

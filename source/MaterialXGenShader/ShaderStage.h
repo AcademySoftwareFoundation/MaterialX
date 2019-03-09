@@ -230,7 +230,7 @@ private:
     std::queue<Syntax::Punctuation> _scopes;
 
     /// Set of include files that has been included.
-    std::set<string> _includes;
+    StringSet _includes;
 
     /// Set of hash ID's for functions that has been defined.
     std::set<size_t> _definedFunctions;

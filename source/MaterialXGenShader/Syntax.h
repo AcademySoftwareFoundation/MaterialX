@@ -14,7 +14,6 @@
 #include <MaterialXCore/Definition.h>
 
 #include <utility>
-#include <set>
 
 namespace MaterialX
 {
@@ -198,7 +197,7 @@ public:
 
     /// Returns the syntax for accessing type members if the type 
     /// can be swizzled.
-    const vector<string>& getMembers() const { return _members; }
+    const StringVec& getMembers() const { return _members; }
 
     /// Returns a value formatted according to this type syntax.
     /// The value is constructed from the given value object.
@@ -207,21 +206,21 @@ public:
     /// Returns a value formatted according to this type syntax.
     /// The value is constructed from the given list of value entries
     /// with one entry for each member of the type.
-    virtual string getValue(const vector<string>& values, bool uniform) const = 0;
+    virtual string getValue(const StringVec& values, bool uniform) const = 0;
 
 protected:
     /// Protected constructor
     TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, 
-        const string& typeAlias, const string& typeDefinition, const vector<string>& members);
+        const string& typeAlias, const string& typeDefinition, const StringVec& members);
 
     string _name;                // type name
     string _defaultValue;        // default value syntax
     string _uniformDefaultValue; // default value syntax when assigned to uniforms
     string _typeAlias;           // type alias if needed in source code
     string _typeDefinition;      // custom type definition if needed in source code
-    vector<string> _members;     // syntax for member access
+    StringVec _members;          // syntax for member access
 
-    static const vector<string> EMPTY_MEMBERS;
+    static const StringVec EMPTY_MEMBERS;
 };
 
 /// Syntax class for scalar types.
@@ -232,7 +231,7 @@ public:
         const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING);
 
     string getValue(const Value& value, bool uniform) const override;
-    string getValue(const vector<string>& values, bool uniform) const override;
+    string getValue(const StringVec& values, bool uniform) const override;
 };
 
 /// Syntax class for string types.
@@ -251,10 +250,10 @@ class AggregateTypeSyntax : public TypeSyntax
 public:
     AggregateTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
         const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING, 
-        const vector<string>& members = EMPTY_MEMBERS);
+        const StringVec& members = EMPTY_MEMBERS);
 
     string getValue(const Value& value, bool uniform) const override;
-    string getValue(const vector<string>& values, bool uniform) const override;
+    string getValue(const StringVec& values, bool uniform) const override;
 };
 
 } // namespace MaterialX

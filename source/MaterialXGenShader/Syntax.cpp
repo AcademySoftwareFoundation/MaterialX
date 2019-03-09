@@ -113,9 +113,9 @@ string Syntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcTyp
     const TypeSyntax& srcSyntax = getTypeSyntax(srcType);
     const TypeSyntax& dstSyntax = getTypeSyntax(dstType);
 
-    const vector<string>& srcMembers = srcSyntax.getMembers();
+    const StringVec& srcMembers = srcSyntax.getMembers();
 
-    vector<string> membersSwizzled;
+    StringVec membersSwizzled;
 
     for (size_t i = 0; i < channels.size(); ++i)
     {
@@ -211,10 +211,10 @@ void Syntax::makeValidName(string& name) const
 }
 
 
-const vector<string> TypeSyntax::EMPTY_MEMBERS;
+const StringVec TypeSyntax::EMPTY_MEMBERS;
 
 TypeSyntax::TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
-    const string& typeAlias, const string& typeDefinition, const vector<string>& members)
+    const string& typeAlias, const string& typeDefinition, const StringVec& members)
     : _name(name)
     , _defaultValue(defaultValue)
     , _uniformDefaultValue(uniformDefaultValue)
@@ -235,7 +235,7 @@ string ScalarTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
     return value.getValueString();
 }
 
-string ScalarTypeSyntax::getValue(const vector<string>& values, bool /*uniform*/) const
+string ScalarTypeSyntax::getValue(const StringVec& values, bool /*uniform*/) const
 {
     if (values.empty())
     {
@@ -261,7 +261,7 @@ string StringTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
 
 
 AggregateTypeSyntax::AggregateTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
-    const string& typeAlias, const string& typeDefinition, const vector<string>& members)
+    const string& typeAlias, const string& typeDefinition, const StringVec& members)
     : TypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
 {
 }
@@ -271,7 +271,7 @@ string AggregateTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
     return getName() + "(" + value.getValueString() + ")";
 }
 
-string AggregateTypeSyntax::getValue(const vector<string>& values, bool /*uniform*/) const
+string AggregateTypeSyntax::getValue(const StringVec& values, bool /*uniform*/) const
 {
     if (values.empty())
     {

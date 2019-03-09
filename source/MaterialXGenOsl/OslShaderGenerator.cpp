@@ -331,7 +331,7 @@ void OslShaderGenerator::emitIncludes(ShaderStage& stage, GenContext& context) c
 {
     static const string INCLUDE_PREFIX = "#include \"";
     static const string INCLUDE_SUFFIX = "\"";
-    static const vector<string> INCLUDE_FILES =
+    static const StringVec INCLUDE_FILES =
     {
         "color2.h",
         "color4.h",

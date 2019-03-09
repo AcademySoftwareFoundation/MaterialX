@@ -142,8 +142,8 @@ string getFileExtension(const string& filename)
     return i != string::npos ? filename.substr(i + 1) : EMPTY_STRING;
 }
 
-void loadDocuments(const FilePath& rootPath, const std::set<string>& skipFiles, 
-                   vector<DocumentPtr>& documents, vector<string>& documentsPaths, std::ostream* validityLog)
+void loadDocuments(const FilePath& rootPath, const StringSet& skipFiles, 
+                   vector<DocumentPtr>& documents, StringVec& documentsPaths, std::ostream* validityLog)
 {
     const std::string MTLX_EXTENSION("mtlx");
 

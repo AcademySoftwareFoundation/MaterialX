@@ -36,7 +36,7 @@ namespace
             return EMPTY_STRING;
         }
 
-        string getValue(const vector<string>& values, bool /*uniform*/) const override
+        string getValue(const StringVec& values, bool /*uniform*/) const override
         {
             if (values.empty())
             {
@@ -94,7 +94,7 @@ namespace
     public:
         OslStructTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
             const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
-            const vector<string>& members = EMPTY_MEMBERS)
+            const StringVec& members = EMPTY_MEMBERS)
             : AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
         {}
 
@@ -110,7 +110,7 @@ namespace
             }
         }
 
-        string getValue(const vector<string>& values, bool uniform) const override
+        string getValue(const StringVec& values, bool uniform) const override
         {
             if (values.empty())
             {
@@ -168,7 +168,7 @@ namespace
             return ss.str();
         }
 
-        string getValue(const vector<string>& values, bool uniform) const override
+        string getValue(const StringVec& values, bool uniform) const override
         {
             if (values.size() < 4)
             {
@@ -192,18 +192,18 @@ namespace
     public:
         OSLMatrix3TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
             const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
-            const vector<string>& members = EMPTY_MEMBERS)
+            const StringVec& members = EMPTY_MEMBERS)
             : AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
         {}
 
         string getValue(const Value& value, bool uniform) const
         {   
             Value::ScopedFloatFormatting fmt(Value::FloatFormatFixed, 3);
-            vector<string> values = splitString(value.getValueString(), ",");
+            StringVec values = splitString(value.getValueString(), ",");
             return getValue(values, uniform);
         }
 
-        string getValue(const vector<string>& values, bool /*uniform*/) const
+        string getValue(const StringVec& values, bool /*uniform*/) const
         {
             if (values.empty())
             {
@@ -231,11 +231,11 @@ namespace
 }
 
 const string OslSyntax::OUTPUT_QUALIFIER = "output";
-const vector<string> OslSyntax::VECTOR_MEMBERS  = { "[0]", "[1]", "[2]" };
-const vector<string> OslSyntax::VECTOR2_MEMBERS = { ".x", ".y" };
-const vector<string> OslSyntax::VECTOR4_MEMBERS = { ".x", ".y", ".z", ".w" };
-const vector<string> OslSyntax::COLOR2_MEMBERS  = { ".r", ".a" };
-const vector<string> OslSyntax::COLOR4_MEMBERS  = { ".rgb[0]", ".rgb[1]", ".rgb[2]", ".a" };
+const StringVec OslSyntax::VECTOR_MEMBERS  = { "[0]", "[1]", "[2]" };
+const StringVec OslSyntax::VECTOR2_MEMBERS = { ".x", ".y" };
+const StringVec OslSyntax::VECTOR4_MEMBERS = { ".x", ".y", ".z", ".w" };
+const StringVec OslSyntax::COLOR2_MEMBERS  = { ".r", ".a" };
+const StringVec OslSyntax::COLOR4_MEMBERS  = { ".rgb[0]", ".rgb[1]", ".rgb[2]", ".a" };
 
 OslSyntax::OslSyntax()
 {
