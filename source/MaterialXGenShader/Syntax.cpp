@@ -29,12 +29,12 @@ void Syntax::registerTypeSyntax(const TypeDesc* type, TypeSyntaxPtr syntax)
     auto it = _typeSyntaxByType.find(type);
     if (it != _typeSyntaxByType.end())
     {
-        _typeSyntaxs[it->second] = syntax;
+        _typeSyntaxes[it->second] = syntax;
     }
     else
     {
-        _typeSyntaxs.push_back(syntax);
-        _typeSyntaxByType[type] = _typeSyntaxs.size() - 1;
+        _typeSyntaxes.push_back(syntax);
+        _typeSyntaxByType[type] = _typeSyntaxes.size() - 1;
     }
 
     // Make this type a restricted name
@@ -60,7 +60,7 @@ const TypeSyntax& Syntax::getTypeSyntax(const TypeDesc* type) const
     {
         throw ExceptionShaderGenError("No syntax is defined for the given type '" + type->getName() + "'.");
     }
-    return *_typeSyntaxs[it->second];
+    return *_typeSyntaxes[it->second];
 }
 
 string Syntax::getValue(const TypeDesc* type, const Value& value, bool uniform) const

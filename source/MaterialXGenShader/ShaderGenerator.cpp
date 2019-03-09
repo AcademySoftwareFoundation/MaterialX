@@ -119,7 +119,7 @@ void ShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& co
 void ShaderGenerator::emitTypeDefinitions(GenContext&, ShaderStage& stage) const
 {
     // Emit typedef statements for all data types that have an alias
-    for (auto syntax : _syntax->getTypeSyntaxs())
+    for (auto syntax : _syntax->getTypeSyntaxes())
     {
         if (!syntax->getTypeAlias().empty())
         {

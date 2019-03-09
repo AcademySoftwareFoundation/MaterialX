@@ -31,7 +31,7 @@ using TypeSyntaxPtr = shared_ptr<TypeSyntax>;
 
 /// @class Syntax
 /// Base class for syntax objects used by shader generators
-/// to emit code with correcy syntax for each language.
+/// to emit code with correct syntax for each language.
 class Syntax
 {
 public:
@@ -67,7 +67,7 @@ public:
     const TypeSyntax& getTypeSyntax(const TypeDesc* type) const;
 
     /// Returns an array of all registered type syntax objects
-    const vector<TypeSyntaxPtr>& getTypeSyntaxs() const { return _typeSyntaxs; }
+    const vector<TypeSyntaxPtr>& getTypeSyntaxes() const { return _typeSyntaxes; }
 
     /// Returns the name syntax of the given type
     const string& getTypeName(const TypeDesc* type) const;
@@ -161,7 +161,7 @@ protected:
     Syntax();
 
 private:
-    vector<TypeSyntaxPtr> _typeSyntaxs;
+    vector<TypeSyntaxPtr> _typeSyntaxes;
     std::unordered_map<const TypeDesc*, size_t> _typeSyntaxByType;
 
     StringSet _restrictedNames;
