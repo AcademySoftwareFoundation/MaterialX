@@ -223,7 +223,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
 
     // Emit all varying inputs
     const VariableBlock& inputs = stage.getInputBlock(OSL::INPUTS);
-    for (size_t i=0; inputs.size(); ++i)
+    for (size_t i=0; i < inputs.size(); ++i)
     {
         const ShaderPort* input = inputs[i];
         const string& type = _syntax->getTypeName(input->getType());

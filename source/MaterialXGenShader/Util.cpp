@@ -213,12 +213,12 @@ namespace
 
     inline bool isBlack(const Color3& c)
     {
-        return isZero(c[0]) && isZero(c[1]) && isZero(c[0]);
+        return isZero(c[0]) && isZero(c[1]) && isZero(c[2]);
     }
 
     inline bool isWhite(const Color3& c)
     {
-        return isOne(c[0]) && isOne(c[1]) && isOne(c[0]);
+        return isOne(c[0]) && isOne(c[1]) && isOne(c[2]);
     }
 
     bool isTransparentShaderGraph(OutputPtr output, const ShaderGenerator& shadergen)
@@ -605,8 +605,7 @@ void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>
                         {
                             throw ExceptionShaderGenError("Could not find a nodedef for shaderref '" + shaderRef->getName() + "'");
                         }
-                        if (nodeDef &&
-                            requiresImplementation(nodeDef))
+                        if (requiresImplementation(nodeDef))
                         {
                             elements.push_back(shaderRef);
                         }
@@ -649,8 +648,7 @@ void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>
                             {
                                 throw ExceptionShaderGenError("Could not find a nodedef for output '" + outputNode->getName() + "'");
                             }
-                            if (nodeDef &&
-                                requiresImplementation(nodeDef))
+                            if (requiresImplementation(nodeDef))
                             {
                                 outputSet.insert(output);
                             }
