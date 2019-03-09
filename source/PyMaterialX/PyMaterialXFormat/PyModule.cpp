@@ -12,9 +12,8 @@ void bindPyFile(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXFormat, mod)
 {
-    mod.doc() = "Module containing Python bindings for MaterialX Format C++";
+    mod.doc() = "Module containing Python bindings for the MaterialXFormat library";
 
     bindPyXmlIo(mod);
     bindPyFile(mod);
 }
-
