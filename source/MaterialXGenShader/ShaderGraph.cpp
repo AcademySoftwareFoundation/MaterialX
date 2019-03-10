@@ -15,9 +15,9 @@
 namespace MaterialX
 {
 
-ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, ConstDocumentPtr document)
-    : ShaderNode(parent, name)
-    , _document(document)
+ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, ConstDocumentPtr document) :
+    ShaderNode(parent, name),
+    _document(document)
 {
 }
 
@@ -1083,9 +1083,9 @@ namespace
     static const ShaderGraphEdgeIterator NULL_EDGE_ITERATOR(nullptr);
 }
 
-ShaderGraphEdgeIterator::ShaderGraphEdgeIterator(ShaderOutput* output)
-    : _upstream(output)
-    , _downstream(nullptr)
+ShaderGraphEdgeIterator::ShaderGraphEdgeIterator(ShaderOutput* output) :
+    _upstream(output),
+    _downstream(nullptr)
 {
 }
 

@@ -13,19 +13,19 @@
 namespace MaterialX
 {
 
-ShaderPort::ShaderPort(ShaderNode* node, const TypeDesc* type, const string& name, ValuePtr value)
-    : _node(node)
-    , _type(type)
-    , _name(name)
-    , _variable(name)
-    , _value(value)
-    , _flags(0)
+ShaderPort::ShaderPort(ShaderNode* node, const TypeDesc* type, const string& name, ValuePtr value) :
+    _node(node),
+    _type(type),
+    _name(name),
+    _variable(name),
+    _value(value),
+    _flags(0)
 {
 }
 
-ShaderInput::ShaderInput(ShaderNode* node, const TypeDesc* type, const string& name)
-    : ShaderPort(node, type, name)
-    , _connection(nullptr)
+ShaderInput::ShaderInput(ShaderNode* node, const TypeDesc* type, const string& name) :
+    ShaderPort(node, type, name),
+    _connection(nullptr)
 {
 }
 
@@ -44,8 +44,8 @@ void ShaderInput::breakConnection()
     }
 }
 
-ShaderOutput::ShaderOutput(ShaderNode* node, const TypeDesc* type, const string& name)
-    : ShaderPort(node, type, name)
+ShaderOutput::ShaderOutput(ShaderNode* node, const TypeDesc* type, const string& name) :
+    ShaderPort(node, type, name)
 {
 }
 
@@ -158,11 +158,11 @@ void ShaderNode::ScopeInfo::merge(const ScopeInfo &fromScope)
     }
 }
 
-ShaderNode::ShaderNode(const ShaderGraph* parent, const string& name)
-    : _parent(parent)
-    , _name(name)
-    , _classification(0)
-    , _impl(nullptr)
+ShaderNode::ShaderNode(const ShaderGraph* parent, const string& name) :
+    _parent(parent),
+    _name(name),
+    _classification(0),
+    _impl(nullptr)
 {
 }
 

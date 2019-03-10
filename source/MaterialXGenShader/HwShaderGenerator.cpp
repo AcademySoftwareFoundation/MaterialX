@@ -34,8 +34,8 @@ namespace HW
     const string USER_DATA_LIGHT_SHADERS   = "udls";
 }
 
-HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax)
-    : ShaderGenerator(syntax)
+HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
+    ShaderGenerator(syntax)
 {
     // Create closure contexts for defining closure functions
     //

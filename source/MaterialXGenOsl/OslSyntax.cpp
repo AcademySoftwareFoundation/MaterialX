@@ -19,8 +19,8 @@ namespace
 class OslArrayTypeSyntax : public ScalarTypeSyntax
 {
   public:
-    OslArrayTypeSyntax(const string& name)
-        : ScalarTypeSyntax(name, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING)
+    OslArrayTypeSyntax(const string& name) :
+        ScalarTypeSyntax(name, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING)
     {}
 
     string getValue(const Value& value, bool uniform) const override
@@ -61,8 +61,8 @@ class OslArrayTypeSyntax : public ScalarTypeSyntax
 class OslFloatArrayTypeSyntax : public OslArrayTypeSyntax
 {
   public:
-    explicit OslFloatArrayTypeSyntax(const string& name)
-        : OslArrayTypeSyntax(name)
+    explicit OslFloatArrayTypeSyntax(const string& name) :
+        OslArrayTypeSyntax(name)
     {}
 
   protected:
@@ -76,8 +76,8 @@ class OslFloatArrayTypeSyntax : public OslArrayTypeSyntax
 class OslIntegerArrayTypeSyntax : public OslArrayTypeSyntax
 {
   public:
-    explicit OslIntegerArrayTypeSyntax(const string& name)
-        : OslArrayTypeSyntax(name)
+    explicit OslIntegerArrayTypeSyntax(const string& name) :
+        OslArrayTypeSyntax(name)
     {}
 
   protected:
@@ -94,9 +94,9 @@ class OslStructTypeSyntax : public AggregateTypeSyntax
 {
   public:
     OslStructTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
-        const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
-        const StringVec& members = EMPTY_MEMBERS)
-        : AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
+                        const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
+                        const StringVec& members = EMPTY_MEMBERS) :
+        AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
     {}
 
     string getValue(const Value& value, bool uniform) const override
@@ -139,8 +139,8 @@ class OslStructTypeSyntax : public AggregateTypeSyntax
 class OslColor4TypeSyntax : public OslStructTypeSyntax
 {
   public:
-    OslColor4TypeSyntax()
-        : OslStructTypeSyntax("color4", "color4(color(0.0), 0.0)", "{color(0.0), 0.0}", EMPTY_STRING, EMPTY_STRING, OslSyntax::COLOR4_MEMBERS)
+    OslColor4TypeSyntax() :
+        OslStructTypeSyntax("color4", "color4(color(0.0), 0.0)", "{color(0.0), 0.0}", EMPTY_STRING, EMPTY_STRING, OslSyntax::COLOR4_MEMBERS)
     {}
 
     string getValue(const Value& value, bool uniform) const override
@@ -191,9 +191,9 @@ class OSLMatrix3TypeSyntax : public AggregateTypeSyntax
 {
   public:
     OSLMatrix3TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
-        const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
-        const StringVec& members = EMPTY_MEMBERS)
-        : AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
+                         const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
+                         const StringVec& members = EMPTY_MEMBERS) :
+        AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
     {}
 
     string getValue(const Value& value, bool uniform) const

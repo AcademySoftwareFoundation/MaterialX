@@ -15,9 +15,9 @@
 namespace MaterialX
 {
 
- Shader::Shader(const string& name, ShaderGraphPtr graph)
-    : _name(name)
-    , _graph(graph)
+ Shader::Shader(const string& name, ShaderGraphPtr graph) :
+    _name(name),
+    _graph(graph)
 {
 }
 

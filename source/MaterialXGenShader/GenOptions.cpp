@@ -8,12 +8,12 @@
 namespace MaterialX
 {
 
-GenOptions::GenOptions()
-    : shaderInterfaceType(SHADER_INTERFACE_COMPLETE)
-    , fileTextureVerticalFlip(false)
-    , hwTransparency(false)
-    , hwSpecularEnvironmentMethod(SPECULAR_ENVIRONMENT_PREFILTER)
-    , hwMaxActiveLightSources(3)
+GenOptions::GenOptions() :
+    shaderInterfaceType(SHADER_INTERFACE_COMPLETE),
+    fileTextureVerticalFlip(false),
+    hwTransparency(false),
+    hwSpecularEnvironmentMethod(SPECULAR_ENVIRONMENT_PREFILTER),
+    hwMaxActiveLightSources(3)
 {
 }
 

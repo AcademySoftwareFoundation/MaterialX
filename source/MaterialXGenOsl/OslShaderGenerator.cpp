@@ -22,8 +22,8 @@ namespace MaterialX
 const string OslShaderGenerator::LANGUAGE = "genosl";
 const string OslShaderGenerator::TARGET = "vanilla";
 
-OslShaderGenerator::OslShaderGenerator()
-    : ParentClass(OslSyntax::create())
+OslShaderGenerator::OslShaderGenerator() :
+    ShaderGenerator(OslSyntax::create())
 {
     // Register build-in implementations
 

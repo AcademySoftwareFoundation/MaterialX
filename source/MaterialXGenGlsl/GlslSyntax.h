@@ -17,9 +17,7 @@ namespace MaterialX
 /// Syntax class for GLSL (OpenGL Shading Language)
 class GlslSyntax : public Syntax
 {
-    using ParentClass = Syntax;
-
-public:
+  public:
     GlslSyntax();
 
     static SyntaxPtr create() { return std::make_shared<GlslSyntax>(); }

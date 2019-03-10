@@ -71,11 +71,11 @@ void VariableBlock::add(ShaderPortPtr port)
 }
 
 
-ShaderStage::ShaderStage(const string& name, ConstSyntaxPtr syntax)
-    : _name(name)
-    , _syntax(syntax)
-    , _indentations(0)
-    , _constants("Constants", "cn")
+ShaderStage::ShaderStage(const string& name, ConstSyntaxPtr syntax) :
+    _name(name),
+    _syntax(syntax),
+    _indentations(0),
+    _constants("Constants", "cn")
 {
 }
 

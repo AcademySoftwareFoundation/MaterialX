@@ -30,8 +30,8 @@ class GlslStringTypeSyntax : public StringTypeSyntax
 class GlslArrayTypeSyntax : public ScalarTypeSyntax
 {
   public:
-    GlslArrayTypeSyntax(const string& name)
-        : ScalarTypeSyntax(name, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING)
+    GlslArrayTypeSyntax(const string& name) :
+        ScalarTypeSyntax(name, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING)
     {}
 
     string getValue(const Value& value, bool /*uniform*/) const override
@@ -68,8 +68,8 @@ class GlslArrayTypeSyntax : public ScalarTypeSyntax
 class GlslFloatArrayTypeSyntax : public GlslArrayTypeSyntax
 {
   public:
-    explicit GlslFloatArrayTypeSyntax(const string& name)
-        : GlslArrayTypeSyntax(name)
+    explicit GlslFloatArrayTypeSyntax(const string& name) :
+        GlslArrayTypeSyntax(name)
     {}
 
   protected:
@@ -83,8 +83,8 @@ class GlslFloatArrayTypeSyntax : public GlslArrayTypeSyntax
 class GlslIntegerArrayTypeSyntax : public GlslArrayTypeSyntax
 {
   public:
-    explicit GlslIntegerArrayTypeSyntax(const string& name)
-        : GlslArrayTypeSyntax(name)
+    explicit GlslIntegerArrayTypeSyntax(const string& name) :
+        GlslArrayTypeSyntax(name)
     {}
 
   protected:

@@ -101,12 +101,10 @@ TEST_CASE("GLSL Unique Names", "[genglsl]")
 
 class GLSLGenCodeGenerationTester : public GenShaderUtil::ShaderGeneratorTester
 {
-public:
-    using ParentClass = GenShaderUtil::ShaderGeneratorTester;
-
+  public:
     GLSLGenCodeGenerationTester(const mx::FilePath& testRootPath, const mx::FilePath& libSearchPath,
-                                const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath) 
-        : GenShaderUtil::ShaderGeneratorTester(testRootPath, libSearchPath, srcSearchPath, logFilePath)
+                                const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath) :
+        GenShaderUtil::ShaderGeneratorTester(testRootPath, libSearchPath, srcSearchPath, logFilePath)
     {}
 
     void createGenerator() override

@@ -23,8 +23,8 @@ namespace MaterialX
 const string ShaderGenerator::SEMICOLON = ";";
 const string ShaderGenerator::COMMA = ",";
 
-ShaderGenerator::ShaderGenerator(SyntaxPtr syntax)
-    : _syntax(syntax)
+ShaderGenerator::ShaderGenerator(SyntaxPtr syntax) :
+     _syntax(syntax)
 {
 }
 

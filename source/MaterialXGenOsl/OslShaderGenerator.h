@@ -21,9 +21,7 @@ using OslShaderGeneratorPtr = shared_ptr<class OslShaderGenerator>;
 /// A generator for a specific OSL target should be derived from this class.
 class OslShaderGenerator : public ShaderGenerator
 {
-    using ParentClass = ShaderGenerator;
-
-public:
+  public:
     OslShaderGenerator();
 
     static ShaderGeneratorPtr create() { return std::make_shared<OslShaderGenerator>(); }

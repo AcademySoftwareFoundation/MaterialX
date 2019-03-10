@@ -214,19 +214,20 @@ void Syntax::makeValidName(string& name) const
 const StringVec TypeSyntax::EMPTY_MEMBERS;
 
 TypeSyntax::TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
-    const string& typeAlias, const string& typeDefinition, const StringVec& members)
-    : _name(name)
-    , _defaultValue(defaultValue)
-    , _uniformDefaultValue(uniformDefaultValue)
-    , _typeAlias(typeAlias)
-    , _typeDefinition(typeDefinition)
-    , _members(members)
+                       const string& typeAlias, const string& typeDefinition, const StringVec& members) :
+    _name(name),
+    _defaultValue(defaultValue),
+    _uniformDefaultValue(uniformDefaultValue),
+    _typeAlias(typeAlias),
+    _typeDefinition(typeDefinition),
+    _members(members)
 {
 }
 
 
-ScalarTypeSyntax::ScalarTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, const string& typeAlias, const string& typeDefinition)
-    : TypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, EMPTY_MEMBERS)
+ScalarTypeSyntax::ScalarTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
+                                   const string& typeAlias, const string& typeDefinition) :
+    TypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, EMPTY_MEMBERS)
 {
 }
 
@@ -249,8 +250,9 @@ string ScalarTypeSyntax::getValue(const StringVec& values, bool /*uniform*/) con
 }
 
 
-StringTypeSyntax::StringTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, const string& typeAlias, const string& typeDefinition)
-    : ScalarTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition)
+StringTypeSyntax::StringTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
+                                   const string& typeAlias, const string& typeDefinition) :
+    ScalarTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition)
 {
 }
 
@@ -261,8 +263,8 @@ string StringTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
 
 
 AggregateTypeSyntax::AggregateTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
-    const string& typeAlias, const string& typeDefinition, const StringVec& members)
-    : TypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
+                                         const string& typeAlias, const string& typeDefinition, const StringVec& members) :
+    TypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
 {
 }
 

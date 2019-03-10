@@ -53,9 +53,9 @@ using VariableBlockMap = std::unordered_map<string, VariableBlockPtr>;
 class VariableBlock
 {
   public:
-    VariableBlock(const string& name, const string& instance) 
-        : _name(name)
-        , _instance(instance)
+    VariableBlock(const string& name, const string& instance) :
+        _name(name),
+        _instance(instance)
     {}
 
     /// Get the name of this block.

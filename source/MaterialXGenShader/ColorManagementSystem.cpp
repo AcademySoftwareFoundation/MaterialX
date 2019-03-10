@@ -12,10 +12,10 @@
 namespace MaterialX
 {
 
-ColorSpaceTransform::ColorSpaceTransform(const string& ss, const string& ts, const TypeDesc* t)
-    : sourceSpace(ss)
-    , targetSpace(ts)
-    , type(t)
+ColorSpaceTransform::ColorSpaceTransform(const string& ss, const string& ts, const TypeDesc* t) :
+    sourceSpace(ss),
+    targetSpace(ts),
+    type(t)
 {
     if (type != Type::COLOR3 && type != Type::COLOR4)
     {
@@ -24,8 +24,8 @@ ColorSpaceTransform::ColorSpaceTransform(const string& ss, const string& ts, con
 }
 
 
-ColorManagementSystem::ColorManagementSystem(const string& configFile)
-    : _configFile(configFile)
+ColorManagementSystem::ColorManagementSystem(const string& configFile) :
+     _configFile(configFile)
 {
 }
 

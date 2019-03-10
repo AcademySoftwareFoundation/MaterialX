@@ -166,9 +166,9 @@ class ShaderGraph : public ShaderNode
 class ShaderGraphEdge
 {
   public:
-    ShaderGraphEdge(ShaderOutput* up, ShaderInput* down)
-        : upstream(up)
-        , downstream(down)
+    ShaderGraphEdge(ShaderOutput* up, ShaderInput* down) :
+        upstream(up),
+        downstream(down)
     {}
     ShaderOutput* upstream;
     ShaderInput* downstream;
