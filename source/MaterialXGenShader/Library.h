@@ -45,20 +45,8 @@ using CreatorFunction = shared_ptr<T>(*)();
 /// An exception that is thrown when shader generation fails.
 class ExceptionShaderGenError : public Exception
 {
-public:
-    ExceptionShaderGenError(const string& msg) :
-        Exception(msg)
-    {
-    }
-
-    ExceptionShaderGenError(const ExceptionShaderGenError& e) :
-        Exception(e)
-    {
-    }
-
-    virtual ~ExceptionShaderGenError() throw()
-    {
-    }
+  public:
+    using Exception::Exception;
 };
 
 } // namespace MaterialX
