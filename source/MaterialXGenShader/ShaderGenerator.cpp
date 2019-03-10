@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGenShader/ShaderGenerator.h>
+
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
@@ -22,6 +23,10 @@ namespace MaterialX
 
 const string ShaderGenerator::SEMICOLON = ";";
 const string ShaderGenerator::COMMA = ",";
+
+//
+// ShaderGenerator methods
+//
 
 ShaderGenerator::ShaderGenerator(SyntaxPtr syntax) :
      _syntax(syntax)
@@ -289,4 +294,4 @@ ShaderNodeImplPtr ShaderGenerator::createCompoundImplementation(const NodeGraph&
     return CompoundNode::create();
 }
 
-}
+} // namespace MaterialX

@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGenShader/ShaderGraph.h>
+
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
@@ -14,6 +15,10 @@
 
 namespace MaterialX
 {
+
+//
+// ShaderGraph methods
+//
 
 ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, ConstDocumentPtr document) :
     ShaderNode(parent, name),
@@ -1082,6 +1087,10 @@ namespace
 {
     static const ShaderGraphEdgeIterator NULL_EDGE_ITERATOR(nullptr);
 }
+
+//
+// ShaderGraphEdgeIterator methods
+//
 
 ShaderGraphEdgeIterator::ShaderGraphEdgeIterator(ShaderOutput* output) :
     _upstream(output),

@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
+
 #include <MaterialXGenGlsl/GlslSyntax.h>
 #include <MaterialXGenGlsl/Nodes/PositionNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/NormalNodeGlsl.h>
@@ -35,9 +36,14 @@
 
 namespace MaterialX
 {
+
 const string GlslShaderGenerator::LANGUAGE = "genglsl";
 const string GlslShaderGenerator::TARGET = "glsl400";
 const string GlslShaderGenerator::VERSION = "400";
+
+//
+// GlslShaderGenerator methods
+//
 
 GlslShaderGenerator::GlslShaderGenerator() :
     HwShaderGenerator(GlslSyntax::create())

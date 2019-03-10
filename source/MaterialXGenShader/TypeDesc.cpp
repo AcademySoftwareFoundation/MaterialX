@@ -22,6 +22,10 @@ namespace
     }
 }
 
+//
+// TypeDesc methods
+//
+
 TypeDesc::TypeDesc(const string& name, unsigned char basetype, unsigned char semantic, int size,
                    bool editable, const std::unordered_map<char, int>& channelMapping) :
     _name(name),

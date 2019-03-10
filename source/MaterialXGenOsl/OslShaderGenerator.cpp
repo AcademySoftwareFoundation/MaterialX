@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
+
 #include <MaterialXGenOsl/OslSyntax.h>
 
 #include <MaterialXGenShader/GenContext.h>
@@ -21,6 +22,10 @@ namespace MaterialX
 
 const string OslShaderGenerator::LANGUAGE = "genosl";
 const string OslShaderGenerator::TARGET = "vanilla";
+
+//
+// OslShaderGenerator methods
+//
 
 OslShaderGenerator::OslShaderGenerator() :
     ShaderGenerator(OslSyntax::create())

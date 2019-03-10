@@ -105,6 +105,10 @@ const StringVec GlslSyntax::VEC2_MEMBERS = { ".x", ".y" };
 const StringVec GlslSyntax::VEC3_MEMBERS = { ".x", ".y", ".z" };
 const StringVec GlslSyntax::VEC4_MEMBERS = { ".x", ".y", ".z", ".w" };
 
+//
+// GlslSyntax methods
+//
+
 GlslSyntax::GlslSyntax()
 {
     // Add in all restricted names and keywords in GLSL

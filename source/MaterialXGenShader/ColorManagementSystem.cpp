@@ -5,12 +5,16 @@
 
 #include <MaterialXGenShader/ColorManagementSystem.h>
 
-#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
 namespace MaterialX
 {
+
+//
+// ColorSpaceTransform methods
+//
 
 ColorSpaceTransform::ColorSpaceTransform(const string& ss, const string& ts, const TypeDesc* t) :
     sourceSpace(ss),

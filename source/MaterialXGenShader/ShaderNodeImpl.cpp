@@ -4,12 +4,17 @@
 //
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
-#include <MaterialXGenShader/ShaderNode.h>
+
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/ShaderNode.h>
 
 namespace MaterialX
 {
+
+//
+// ShaderNodeImpl methods
+//
 
 void ShaderNodeImpl::initialize(const InterfaceElement&, GenContext&)
 {

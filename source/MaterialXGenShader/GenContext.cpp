@@ -8,6 +8,10 @@
 namespace MaterialX
 {
 
+//
+// GenContext methods
+//
+
 GenContext::GenContext(ShaderGeneratorPtr sg) :
     _sg(sg)
 {

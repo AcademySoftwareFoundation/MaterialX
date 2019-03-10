@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
+
 #include <MaterialXGenShader/Nodes/HwSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/HwCompoundNode.h>
 
@@ -33,6 +34,10 @@ namespace HW
     const string USER_DATA_CLOSURE_CONTEXT = "udcc";
     const string USER_DATA_LIGHT_SHADERS   = "udls";
 }
+
+//
+// HwShaderGenerator methods
+//
 
 HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
     ShaderGenerator(syntax)
@@ -402,4 +407,4 @@ ShaderNodeImplPtr HwShaderGenerator::createCompoundImplementation(const NodeGrap
     return HwCompoundNode::create();
 }
 
-}
+} // namespace MaterialX

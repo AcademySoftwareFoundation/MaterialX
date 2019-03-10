@@ -238,6 +238,10 @@ const StringVec OslSyntax::VECTOR4_MEMBERS = { ".x", ".y", ".z", ".w" };
 const StringVec OslSyntax::COLOR2_MEMBERS  = { ".r", ".a" };
 const StringVec OslSyntax::COLOR4_MEMBERS  = { ".rgb[0]", ".rgb[1]", ".rgb[2]", ".a" };
 
+//
+// OslSyntax methods
+//
+
 OslSyntax::OslSyntax()
 {
     // Add in all restricted names and keywords in OSL

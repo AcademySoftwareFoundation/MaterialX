@@ -20,6 +20,10 @@ const string Syntax::SINGLE_LINE_COMMENT = "// ";
 const string Syntax::BEGIN_MULTI_LINE_COMMENT = "/* ";
 const string Syntax::END_MULTI_LINE_COMMENT = " */";
 
+//
+// Syntax methods
+//
+
 Syntax::Syntax()
 {
 }
