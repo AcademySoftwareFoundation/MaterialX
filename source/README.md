@@ -54,8 +54,6 @@ The unit tests are located in the [MaterialXTest](MaterialXTest/README.md) modul
 This includes tests for core and shader generation. The tests executed are based on what build options have been enabled. The test suite for this resides [here](../documents/TestSuite).
 
 ## Build Options
-By default MaterialXCore, MaterialXFormat and MaterialXGenShader are built.
+By default MaterialXCore, MaterialXFormat and MaterialXGenShader, MaterialXGenGlsl and MaterialXGenOsl are built.
 - Python support is enabled via the MATERIALX_BUILD_PYTHON build variable.
-- OSL shader generation is enabled via the MATERIALX_BUILD_GEN_OSL build variable.
-- GLSL shader generation is enabled via the MATERIALX_BUILD_GEN_GLSL build variable.
 

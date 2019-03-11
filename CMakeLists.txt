@@ -36,12 +36,6 @@ mark_as_advanced(MATERIALX_PYTHON_EXECUTABLE)
 mark_as_advanced(MATERIALX_PYTHON_OCIO_DIR)
 mark_as_advanced(MATERIALX_PYTHON_PYBIND11_DIR)
 
-# Shader generation options
-option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-end." ON)
-mark_as_advanced(MATERIALX_BUILD_GEN_OSL)
-option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
-mark_as_advanced(MATERIALX_BUILD_GEN_GLSL)
-
 # Adjust the default installation path
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/installed" CACHE PATH "Default install path" FORCE)
@@ -78,15 +72,8 @@ endif()
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
 add_subdirectory(source/MaterialXGenShader)
-
-if (MATERIALX_BUILD_GEN_OSL)
-    add_definitions(-DMATERIALX_BUILD_GEN_OSL)
-    add_subdirectory(source/MaterialXGenOsl)
-endif()
-if (MATERIALX_BUILD_GEN_GLSL)
-    add_definitions(-DMATERIALX_BUILD_GEN_GLSL)
-    add_subdirectory(source/MaterialXGenGlsl)
-endif()
+add_subdirectory(source/MaterialXGenOsl)
+add_subdirectory(source/MaterialXGenGlsl)
 
 add_subdirectory(source/MaterialXTest)
 add_subdirectory(documents)
