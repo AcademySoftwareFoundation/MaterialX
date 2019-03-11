@@ -28,35 +28,18 @@ ColorSpaceTransform::ColorSpaceTransform(const string& ss, const string& ts, con
 }
 
 
-ColorManagementSystem::ColorManagementSystem(const string& configFile) :
-     _configFile(configFile)
+ColorManagementSystem::ColorManagementSystem()
 {
-}
-
-void ColorManagementSystem::registerImplementation(const ColorSpaceTransform& transform, CreatorFunction<ShaderNodeImpl> creator)
-{
-    string implName = getImplementationName(transform);
-    _implFactory.registerClass(implName, creator);
-    _registeredImplNames.push_back(implName);
-}
-
-void ColorManagementSystem::setConfigFile(const string& configFile)
-{
-    _configFile = configFile;
-    _implFactory.unregisterClasses(_registeredImplNames);
-    _registeredImplNames.clear();
 }
 
 void ColorManagementSystem::loadLibrary(DocumentPtr document)
 {
     _document = document;
-    _implFactory.unregisterClasses(_registeredImplNames);
-    _registeredImplNames.clear();
 }
 
 bool ColorManagementSystem::supportsTransform(const ColorSpaceTransform& transform) const
 {
-    string implName = getImplementationName(transform);
+    const string implName = getImplementationName(transform);
     ImplementationPtr impl = _document->getImplementation(implName);
     return impl != nullptr;
 }
@@ -64,29 +47,22 @@ bool ColorManagementSystem::supportsTransform(const ColorSpaceTransform& transfo
 ShaderNodePtr ColorManagementSystem::createNode(const ShaderGraph* parent, const ColorSpaceTransform& transform, const string& name, 
                                                 GenContext& context) const
 {
-    string implName = getImplementationName(transform);
+    const string implName = getImplementationName(transform);
     ImplementationPtr impl = _document->getImplementation(implName);
     if (!impl)
     {
         throw ExceptionShaderGenError("No implementation found for transform: ('" + transform.sourceSpace + "', '" + transform.targetSpace + "').");
     }
 
-    // Check if it's created and cached already.
+    // Check if it's created and cached already,
+    // otherwise create and cache it.
     ShaderNodeImplPtr nodeImpl = context.findNodeImplementation(implName);
     if (!nodeImpl)
     {
-        // If not, try creating a new implementation in the factory.
-        nodeImpl = _implFactory.create(implName);
-    }
-    // Fall back to the default implementation
-    if (!nodeImpl)
-    {
         nodeImpl = SourceCodeNode::create();
+        nodeImpl->initialize(*impl, context);
+        context.addNodeImplementation(implName, nodeImpl);
     }
-    nodeImpl->initialize(*impl, context);
-
-    // Cache it.
-    context.addNodeImplementation(implName, nodeImpl);
 
     // Create the node.
     ShaderNodePtr shaderNode = ShaderNode::create(parent, name, nodeImpl, 

@@ -16,8 +16,7 @@ namespace mx = MaterialX;
 class PyColorManagementSystem : public mx::ColorManagementSystem
 {
   public:
-    explicit PyColorManagementSystem(const std::string& configFile) :
-        mx::ColorManagementSystem(configFile)
+    PyColorManagementSystem()
     {
     }
 
@@ -51,10 +50,8 @@ void bindPyColorManagement(py::module& mod)
         .def_readwrite("type", &mx::ColorSpaceTransform::type);
 
     py::class_<mx::ColorManagementSystem, PyColorManagementSystem, mx::ColorManagementSystemPtr>(mod, "ColorManagementSystem")
-        .def(py::init<const std::string&>())
+        .def(py::init<>())
         .def("getName", &mx::ColorManagementSystem::getName)
-        .def("getConfigFile", &mx::ColorManagementSystem::getConfigFile)
-        .def("setConfigFile", &mx::ColorManagementSystem::setConfigFile)
         .def("loadLibrary", &mx::ColorManagementSystem::loadLibrary)
         .def("supportsTransform", &mx::ColorManagementSystem::supportsTransform);
 
