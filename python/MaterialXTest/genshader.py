@@ -4,12 +4,7 @@ import unittest
 import MaterialX as mx
 from MaterialX.PyMaterialXGenShader import *
 
-try:
-    from MaterialX.PyMaterialXGenOsl import OslShaderGenerator, OSL_UNIFORMS, OSL_OUTPUTS
-    OSL_SHADER_GENERATOR_EXISTS = True
-except ImportError:
-    OSL_SHADER_GENERATOR_EXISTS = False
-
+from MaterialX.PyMaterialXGenOsl import OslShaderGenerator, OSL_UNIFORMS, OSL_OUTPUTS
 _fileDir = os.path.dirname(os.path.abspath(__file__))
 
 def _getSubDirectories(libraryPath):
@@ -78,50 +73,49 @@ class TestGenShader(unittest.TestCase):
         output.setNodeName("foo1");
         output.setAttribute("output", "o");
 
-        if OSL_SHADER_GENERATOR_EXISTS:
-            shadergen = OslShaderGenerator.create()
-            context = GenContext(shadergen)
-            # Add path to find all source code snippets
-            context.registerSourceCodeSearchPath(mx.FilePath(searchPath))
-            # Add path to find OSL include files
-            context.registerSourceCodeSearchPath(mx.FilePath(os.path.join(searchPath, "stdlib/osl")))
+        shadergen = OslShaderGenerator.create()
+        context = GenContext(shadergen)
+        # Add path to find all source code snippets
+        context.registerSourceCodeSearchPath(mx.FilePath(searchPath))
+        # Add path to find OSL include files
+        context.registerSourceCodeSearchPath(mx.FilePath(os.path.join(searchPath, "stdlib/osl")))
 
-            # Test complete mode
-            context.getOptions().shaderInterfaceType = int(ShaderInterfaceType.SHADER_INTERFACE_COMPLETE);
-            shader = shadergen.generate(exampleName, output, context);
-            self.assertTrue(shader)
-            self.assertTrue(len(shader.getSourceCode(PIXEL_STAGE)) > 0)
+        # Test complete mode
+        context.getOptions().shaderInterfaceType = int(ShaderInterfaceType.SHADER_INTERFACE_COMPLETE);
+        shader = shadergen.generate(exampleName, output, context);
+        self.assertTrue(shader)
+        self.assertTrue(len(shader.getSourceCode(PIXEL_STAGE)) > 0)
 
-            ps = shader.getStage(PIXEL_STAGE);
-            uniforms = ps.getUniformBlock(OSL_UNIFORMS)
-            self.assertTrue(uniforms.size() == 2)
+        ps = shader.getStage(PIXEL_STAGE);
+        uniforms = ps.getUniformBlock(OSL_UNIFORMS)
+        self.assertTrue(uniforms.size() == 2)
 
-            outputs = ps.getOutputBlock(OSL_OUTPUTS)
-            self.assertTrue(outputs.size() == 1)
-            self.assertTrue(outputs[0].getName() == output.getName())
+        outputs = ps.getOutputBlock(OSL_OUTPUTS)
+        self.assertTrue(outputs.size() == 1)
+        self.assertTrue(outputs[0].getName() == output.getName())
 
-            file = open(shader.getName() + "_complete.osl", "w+")
-            file.write(shader.getSourceCode(PIXEL_STAGE))
-            file.close()
-            os.remove(shader.getName() + "_complete.osl");
+        file = open(shader.getName() + "_complete.osl", "w+")
+        file.write(shader.getSourceCode(PIXEL_STAGE))
+        file.close()
+        os.remove(shader.getName() + "_complete.osl");
 
-            context.getOptions().shaderInterfaceType = int(ShaderInterfaceType.SHADER_INTERFACE_REDUCED);
-            shader = shadergen.generate(exampleName, output, context);
-            self.assertTrue(shader)
-            self.assertTrue(len(shader.getSourceCode(PIXEL_STAGE)) > 0)
+        context.getOptions().shaderInterfaceType = int(ShaderInterfaceType.SHADER_INTERFACE_REDUCED);
+        shader = shadergen.generate(exampleName, output, context);
+        self.assertTrue(shader)
+        self.assertTrue(len(shader.getSourceCode(PIXEL_STAGE)) > 0)
 
-            ps = shader.getStage(PIXEL_STAGE);
-            uniforms = ps.getUniformBlock(OSL_UNIFORMS)
-            self.assertTrue(uniforms.size() == 0)
+        ps = shader.getStage(PIXEL_STAGE);
+        uniforms = ps.getUniformBlock(OSL_UNIFORMS)
+        self.assertTrue(uniforms.size() == 0)
 
-            outputs = ps.getOutputBlock(OSL_OUTPUTS)
-            self.assertTrue(outputs.size() == 1)
-            self.assertTrue(outputs[0].getName() == output.getName())
+        outputs = ps.getOutputBlock(OSL_OUTPUTS)
+        self.assertTrue(outputs.size() == 1)
+        self.assertTrue(outputs[0].getName() == output.getName())
 
-            file = open(shader.getName() + "_reduced.osl", "w+")
-            file.write(shader.getSourceCode(PIXEL_STAGE))
-            file.close()
-            os.remove(shader.getName() + "_reduced.osl");
+        file = open(shader.getName() + "_reduced.osl", "w+")
+        file.write(shader.getSourceCode(PIXEL_STAGE))
+        file.close()
+        os.remove(shader.getName() + "_reduced.osl");
 
 if __name__ == '__main__':
     unittest.main()

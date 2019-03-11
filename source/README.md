@@ -72,7 +72,6 @@ This includes tests for core and shader generation. The tests executed are based
 ## Build Options
 By default MaterialXCore, MaterialXFormat and MaterialXGenShader are built.
 - Python support is enabled via the MATERIALX_BUILD_PYTHON build variable.
-- OSL shader generation is enabled via the MATERIALX_BUILD_GEN_OSL build variable.
-- GLSL shader generation is enabled via the MATERIALX_BUILD_GEN_GLSL build variable.
-- OGSFX shader generation is enabled via the MATERIALX_BUILD_GEN_OGSFX build variable. The GLSL shader generation build variable must also be enabled.
+- OGSFX shader generation is enabled via the MATERIALX_BUILD_GEN_OGSFX build variable.
+- Arnold shader generation is enabled via theMATERIALX_BUILD_GEN_ARNOLD build variable.
 - Building of rendering utilities is enabled via the MATERIALX_BUILD_RENDER build variable. Execution of rendering tests is enabled via the MATERIALX_TEST_RENDER. These tests are currently only supported for the Windows platform.
