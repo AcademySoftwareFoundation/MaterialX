@@ -1,8 +1,8 @@
 # Shader Generation
 
 ## 1.1 Scope
- Shader generation features are implemented as core part of MaterialX. Most
-features are contained in a the [MaterialXGenShader](/source/MaterialXGenShader) shared library, but some features are part of the [MaterialXCore](/source/MaterialXCore) library as well.
+Shader generation features are implemented as a core part of MaterialX. Most
+features are contained in the [MaterialXGenShader](/source/MaterialXGenShader) shared library, but some features are part of the [MaterialXCore](/source/MaterialXCore) library as well.
 
 Note that there is no runtime and the output produced is source code, not binary executable
 code. The source code produced needs to be compiled by a shading language compiler before being
@@ -32,10 +32,10 @@ be added for existing nodes.
 
 ## 1.3 Node Implementations
 There are four different methods to define the implementation of a node:
-- Using an inline expression.
-- Using a function written in the target language.
-- Using a nodegraph that defines the operation performed by the node.
-- Using a C++ class that emits code dynamically during shader generation.
+1. Using an inline expression.
+2. Using a function written in the target language.
+3. Using a nodegraph that defines the operation performed by the node.
+4. Using a C++ class that emits code dynamically during shader generation.
 
 For all methods the implementation is tied to a specific `nodedef` with a well defined interface of typed inputs and outputs. In the following sub-sections each of these methods are explained.
 
@@ -122,7 +122,7 @@ void mx_image_color3(string file, string layer, color defaultvalue,
                 "wrap", uaddressmode);
 }
 ```
-**Figure 3**: Shading language functions implementation for node `<image>` in OSL.
+**Figure 3**: Shading language function's implementation for node `<image>` in OSL.
 
 ### 1.3.3 Implementation by Node Graph
 As an alternative to defining source code, there is also an option to reference a nodegraph as the implementation of a nodedef. The only requirement is that the nodegraph and nodedef have matching inputs and outputs.
@@ -172,15 +172,15 @@ This is useful for creating a compound for a set of nodes performing some common
 In some situations static source code is not enough to implement a node. The code might need
 to be customized depending on parameters set on the node. Or for a hardware render target vertex streams or uniform inputs might need to be created in order to supply the data needed for the node implementation.
 
-In this case a C++ class can be added to handle the implementation of the node. The
+In this case, a C++ class can be added to handle the implementation of the node. The
 class should be derived from the base class `ShaderNodeImpl`. It should specify what language
 and target it is for by overriding `getLanguage()` and `getTarget()`. It can also be specified to support all languages or all targets by setting the identifier to an empty string, as done for the target identifier in the example below. It then needs to be registered for a `ShaderGenerator` by
 calling `ShaderGenerator::registerImplementation()`. See Figure 5 for an example.
-When an `ShaderNodeImpl` class is used for a nodedef the corresponding `<implementation>`
-element don’t need a file attribute, since no static source code is used. The `<implementation>` element will then act only as a declaration that there exists an implementation for the nodedef for a particular language and target.
+When a `ShaderNodeImpl` class is used for a nodedef the corresponding `<implementation>`
+element doesn’t need a file attribute, since no static source code is used. The `<implementation>` element will then act only as a declaration that there exists an implementation for the nodedef for a particular language and target.
 
 Note that the use of `ShaderNodeImpl` classes for dynamic code generation goes against our
-design goal of being data driven. An application needs to be recompiled after adding a new node implementation class. However this usage is only needed in special cases. And in these cases the code produced can be made much more efficient by allowing this dynamic generation. As a result we choose to support this method of code generation, but it should only be used when inline expressions or static source code functions are not enough to handle the implementation of a node.
+design goal of being data driven. An application needs to be recompiled after adding a new node implementation class. However this usage is only needed in special cases. And in these cases the code produced can be made much more efficient by allowing this dynamic generation. As a result, we choose to support this method of code generation, but it should only be used when inline expressions or static source code functions are not enough to handle the implementation of a node.
 
 ```c++
 /// Implementation of ’foo' node for OSL
@@ -220,7 +220,7 @@ OslShaderGenerator::OslShaderGenerator()
 **Figure 5**: C++ class for dynamic code generation.
 
 ## 1.4 Shader Generation Steps
-This section outlines the steps taken in general to produce a shader from the MaterialX description. The `ShaderGenerator` base class and its support classes will handle this for you, but it’s good to know the steps involved in case more custom changes are needed to support a new target.
+This section outlines the steps taken in general to produce a shader from the MaterialX description. The `ShaderGenerator` base class and its supporting classes will handle this for you, but it’s good to know the steps involved in case custom changes are needed to support a new target.
 
 Shader generation supports generating a shader starting from either a graph output port, an arbitrary node inside a graph, or a `shaderref` in a material. A shader is generated by calling your shader generator class with an element of either of these types as input. The given element and all dependencies upstream will be translated into a single monolithic shader in the target shading language.
 
@@ -236,27 +236,27 @@ The shader generation process can be divided into initialization and code genera
 
 1. Create an optimized version of the graph as a tree with the given element as root, and with only the used dependencies connected upstream. This involves removing unused paths in
 the graph, converting constant nodes to constant values, and adding in any default nodes
-for ports that are unconnected but has default connections specified. Removal of unused
-paths typically involves constant folding and pruning of conditional branches that never will
+for ports that are unconnected but have default connections specified. Removal of unused
+paths typically involves constant folding and pruning of conditional branches that will never
 be taken. Since the resulting shader in the end will be compiled by a shading language
 compiler, and receive a lot of additional optimizations, we don’t need to do too much work
-in this optimization step. However a few graph level optimizations can make the resulting
+in this optimization step. However, a few graph level optimizations can make the resulting
 shader a lot smaller and save time and memory during shader compilation. It will also
 produce more readable source code which is good for debugging purposes.
 
   This step is also a good place to do other custom optimizations needed by a particular target. For example simplification of the graph, which could involve substituting expensive nodes with approximate nodes, identification of common subgraphs that can be merged, etc.                              
 
-2. Track which graph interface ports are being used. It’s done by finding which graph interface ports have connections to nodes inside the graph. This is useful in later steps to be able to ignore interface ports that are not used.
+2. Track which graph interface ports are being used. This is done by finding which graph interface ports have connections to nodes inside the graph. This is useful in later steps to be able to ignore interface ports that are not used.
 
 3. The nodes are sorted in topological order. Since a node can be referenced by many other
-nodes in the graph we need an ordering of the nodes so that nodes that has a dependency
-on other nodes comes after all nodes it depends on. This step also makes sure there are no
+nodes in the graph we need an ordering of the nodes so that nodes that have a dependency
+on other nodes come after all dependent nodes. This step also makes sure there are no
 cyclic dependencies in the graph.
 
-4. The shader signature; its interface of uniforms and varyings are established. This consists of
-the graph interface ports that are in use, as well as internal ports that has been published
-to the interface (an example of the latter is for a hardrware shader generator where image texture
-filenames gets converted to texture samplers which needs to be published in order to be
+4. The shader signature's interface of uniforms and varyings are established. This consists of
+the graph interface ports that are in use, as well as internal ports that have been published
+to the interface (an example of the latter is for a hardware shader generator where image texture
+filenames get converted to texture samplers which needs to be published in order to be
 bound by the target application). This information is stored on the `Shader` class, and can
 be retrieved from it, together with the emitted source code when generation is completed.
 
@@ -269,11 +269,11 @@ scope or by multiple conditional scopes.
 
 The output from the initialization step is a new graph representation constructed using the classes `ShaderNode`, `ShaderInput`, `ShaderOutput`, `ShaderGraph`, etc. This is a graph representation optimized for shader generation with quick access and traversal of nodes and ports, as well as caching of extra information needed by shader generation.
 
-After initialization the code generation steps are handled by the `ShaderGenerator` class and derived classes. This part is specific for the particular generator being used, but in general it consists of the following steps:
+After initialization the code generation steps are handled by the `ShaderGenerator` class and derived classes. This part is specific to the particular generator being used, but in general it consists of the following steps:
 
 1. Typedefs are emitted as specified by the Syntax class.
 
-2. Function definitions are emitted for all the atomic nodes that has shading language functions for their implementations. For nodes using dynamic code generation their `ShaderNodeImpl` instances are called to generate the functions. For nodes that are implemented by graphs a function definition representing the graph computation is emitted.
+2. Function definitions are emitted for all the atomic nodes that have shading language functions for their implementations. For nodes using dynamic code generation their `ShaderNodeImpl` instances are called to generate the functions. For nodes that are implemented by graphs a function definition representing the graph computation is emitted.
 
 3. The shader signature is emitted with all uniforms set to default values. The shader uniforms can later be accessed on the returned `Shader` instance in order for applications to be able to bind values to them.
 
@@ -290,12 +290,12 @@ Note that if a single monolithic shader for the whole graph is not appropriate f
 There are a number of ways to bind values to input ports on nodes and graphs. A port can be
 assigned a constant default value or be connected to other nodes. If a port is connected it will read the value from the upstream node. Ports can also be set to have a default node connected if the user has not made a specific connection to it. This is for example used for input ports that expect to receive geometric data from the current shading context, like normal or texture coordinates. If no such connection is made explicitly a default geometric node is connected to supply the data.
 
-Geometric data from the current shading context is supplied using MaterialX’s geometric nodes. There are a number of predefined geometric nodes in the MaterialX standard library to supply shading context data like position, normal, tangents, texture coordinates, vertex colors, etc. The vectors can be returned in different coordinate spaces: model, object or world space. If the data available from the standard geometric nodes are not enough the general purpose primvar node `geomattrvalue` can be used to access any named data on geometry using a string identifier. It is up to the shader generator and node implementation of these geometric nodes to make sure the data is
+Geometric data from the current shading context is supplied using MaterialX’s geometric nodes. There are a number of predefined geometric nodes in the MaterialX standard library to supply shading context data like position, normal, tangents, texture coordinates, vertex colors, etc. The vectors can be returned in different coordinate spaces: model, object or world space. If the data available from the standard geometric nodes are not enough, the general purpose primvar node `geomattrvalue` can be used to access any named data on geometry using a string identifier. It is up to the shader generator and node implementation of these geometric nodes to make sure the data is
 supplied, and where applicable transformed to the requested coordinate space.
 
 ## 1.6 Shader Stages
 
-A `ShaderStage` namespace can include multiple shader stages. This is needed in order to generate separate code for multiple stages on hardware render targets. By default there is a single stage defined, called the `pixel stage`. Hardware generators specify an additional stage, the `vertex stage`. If more stages then more stages they can be added to the namespace. When creating shader input variables you can specify which stage the variable should be used in, see 1.7 for more information on shader variable creation.
+A `ShaderStage` namespace can include multiple shader stages. This is needed in order to generate separate code for multiple stages on hardware render targets. By default there is a single stage defined, called the `pixel stage`. Hardware generators specify an additional stage, the `vertex stage`. If additional stages are needed they can be added to the namespace. When creating shader input variables you can specify which stage the variable should be used in, see 1.7 for more information on shader variable creation.
 
 Node implementations using static source code (function or inline expressions) are always emitted to the pixel stage. Controlling the vertex stage, or other stages, is not supported using static source code. In order to do that you must use dynamic code generation with a custom `ShaderNodeImpl` sub-class for your node. You are then able to control how it affects all stages separately. Inside `emitFunctionDefinition` and `emitFunctionCall` you can add separate sections for each stage using begin/end shader stage macros. Figure 6 shows how the texcoord node for GLSL is emitting different code into the vertex and pixel stages.
 
@@ -363,21 +363,21 @@ public:
   }
 };
 ```
-**Figure 6**: Implementation of node `texcoord` in GLSL. Using an `ShaderNodeImpl` sub-class in order to control shader variable creation and code generation into separate shader stages.
+**Figure 6**: Implementation of node `texcoord` in GLSL. Using a `ShaderNodeImpl` sub-class in order to control shader variable creation and code generation into separate shader stages.
 
-For inputs representing geometric data streams a separate variable block is used. These variables are named application data inputs (in a hardware shading language they are often
+For inputs representing geometric data streams a separate variable block is used. These variables are named vertex inputs (in a hardware shading language they are often
 named varying inputs or attributes). The `ShaderStage` class has a method for creating such variables, in a block named `VertexInputs`. This is also accessible from the `ShaderStage` instance after generation. In order to pass data between shader stages in a hardware shader additional variable blocks are needed. For this purpose an additional variable block named `VertexData` is used. It is used for transporting data from the vertex stage to the pixel stage.
 
 Creating shader variables and binding values to them needs to be done in agreement with the
-shader generator side and application side. The application must know what a variable is for in order to bind meaningful data to it. One way of handling this is by using semantics. All shader variables created can be assigned a semantic if that is used by the target application. Shader generation does not impose a specific set of semantics to use, so for languages and applications that use this any semantics can be used. For languages that does not use semantics a variable naming convention needs to be used instead.
+shader generator side and application side. The application must know what a variable is for in order to bind meaningful data to it. One way of handling this is by using semantics. All shader variables created can be assigned a semantic if that is used by the target application. Shader generation does not impose a specific set of semantics to use, so for languages and applications that use this any semantics can be used. For languages that do not use semantics a variable naming convention needs to be used instead.
 
-Figure 6 shows how creation of shader inputs and vertex data variables are done for a node implementation that needs this.
+Figure 6 shows how creation of shader inputs and vertex data variables are used for a node implementation that requires this.
 
 ### 1.7.1 Variable Naming Convention
 
-Built-in shader generators and accompanying node implementations are using a naming convention for its shader variables. A custom shader generator that derives from and takes
+Built-in shader generators and accompanying node implementations have a naming convention for shader variables. A custom shader generator that derives from and takes
 advantage of built-in features should preferably use the same convention.
-Uniform variables are prefixed with `u_` and application data inputs with `i_` . For languages not using semantics. Figure 7 shows the naming used for variables (inputs and uniforms) with predefined binding rules:
+Uniform variables are prefixed with `u_` and vertex inputs with `i_` . For languages not using semantics, Figure 7 shows the naming used for variables (inputs and uniforms) with predefined binding rules:
 
 App data input variables
 
@@ -416,7 +416,7 @@ Uniform variables
 |    u_time                              | float   | The current time in seconds. |
 |    u_geomattr_<name>                   | <type\>  | A named attribute of given <type\> where <name\> is the name of the variable on the geometry. |
 |    u_numActiveLightSources             | int     | The number of currently active light sources. Note that in shader this is clamped against the maximum allowed number of light sources. |
-|    u_lightData[]                       | struct  | Array of struct LightData holding parameters  for active light sources. The `LightData` struct is built dynamically depending on requirements for bound light shaders. |
+|    u_lightData[]                       | struct  | Array of struct LightData holding parameters for active light sources. The `LightData` struct is built dynamically depending on requirements for bound light shaders. |
 
 
 **Figure 7** : Listing of predefined variables with their binding rules.
