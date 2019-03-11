@@ -26,7 +26,7 @@ DefaultColorManagementSystemPtr DefaultColorManagementSystem::create(const strin
 }
 
 DefaultColorManagementSystem::DefaultColorManagementSystem(const string& language)
-    : ColorManagementSystem(MaterialX::EMPTY_STRING)
+    : ColorManagementSystem()
 {
     _language = createValidName(language);
 }

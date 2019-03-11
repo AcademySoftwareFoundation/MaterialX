@@ -26,52 +26,37 @@ public:
 
     /// Register a new class given a unique type name
     /// and a creator function for the class.
-    static void registerClass(const string& typeName, CreatorFunction f)
+    void registerClass(const string& typeName, CreatorFunction f)
     {
-        creatorMap()[typeName] = f;
+        _creatorMap[typeName] = f;
     }
 
     /// Determine if a class has been registered for a type name
-    static bool classRegistered(const string& typeName)
+    bool classRegistered(const string& typeName) const
     {
-        CreatorMap& map = creatorMap();
-        return map.find(typeName) != map.end();
+        return _creatorMap.find(typeName) != _creatorMap.end();
     }
 
     /// Unregister a registered class
-    static void unregisterClass(const string& typeName)
+    void unregisterClass(const string& typeName)
     {
-        CreatorMap& map = creatorMap();
-        auto it = map.find(typeName);
-        if (it != map.end())
+        auto it = _creatorMap.find(typeName);
+        if (it != _creatorMap.end())
         {
-            map.erase(it);
-        }
-    }
-
-    static void unregisterClasses(vector<string>& registeredImplNames)
-    {
-        for (string registeredImplName : registeredImplNames)
-        {
-            unregisterClass(registeredImplName);
+            _creatorMap.erase(it);
         }
     }
 
     /// Create a new instance of the class with given type name.
     /// Returns nullptr if no class with given name is registered.
-    static Ptr create(const string& typeName)
+    Ptr create(const string& typeName) const
     {
-        CreatorMap& map = creatorMap();
-        auto it = map.find(typeName);
-        return (it != map.end() ? it->second() : nullptr);
+        auto it = _creatorMap.find(typeName);
+        return (it != _creatorMap.end() ? it->second() : nullptr);
     }
 
 private:
-    static CreatorMap& creatorMap()
-    {
-        static CreatorMap s_creatorMap;
-        return s_creatorMap;
-    }
+    CreatorMap _creatorMap;
 };
 
 } // namespace MaterialX
