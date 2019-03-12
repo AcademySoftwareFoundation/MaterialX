@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGenShader/ShaderGenerator.h>
+
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
@@ -23,8 +24,12 @@ namespace MaterialX
 const string ShaderGenerator::SEMICOLON = ";";
 const string ShaderGenerator::COMMA = ",";
 
-ShaderGenerator::ShaderGenerator(SyntaxPtr syntax)
-    : _syntax(syntax)
+//
+// ShaderGenerator methods
+//
+
+ShaderGenerator::ShaderGenerator(SyntaxPtr syntax) :
+     _syntax(syntax)
 {
 }
 
@@ -119,7 +124,7 @@ void ShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& co
 void ShaderGenerator::emitTypeDefinitions(GenContext&, ShaderStage& stage) const
 {
     // Emit typedef statements for all data types that have an alias
-    for (auto syntax : _syntax->getTypeSyntaxs())
+    for (auto syntax : _syntax->getTypeSyntaxes())
     {
         if (!syntax->getTypeAlias().empty())
         {
@@ -289,4 +294,4 @@ ShaderNodeImplPtr ShaderGenerator::createCompoundImplementation(const NodeGraph&
     return CompoundNode::create();
 }
 
-}
+} // namespace MaterialX

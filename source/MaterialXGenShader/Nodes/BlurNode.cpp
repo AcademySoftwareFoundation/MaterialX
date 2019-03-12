@@ -32,8 +32,8 @@ const string BlurNode::IN_STRING = "in";
 const string BlurNode::FILTER_TYPE_STRING = "filtertype";
 const string BlurNode::FILTER_SIZE_STRING = "size";
 
-BlurNode::BlurNode()
-    : ConvolutionNode()
+BlurNode::BlurNode() :
+    ConvolutionNode()
 {
 }
 

@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGenShader/Shader.h>
+
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Syntax.h>
 #include <MaterialXGenShader/Util.h>
@@ -15,9 +16,13 @@
 namespace MaterialX
 {
 
- Shader::Shader(const string& name, ShaderGraphPtr graph)
-    : _name(name)
-    , _graph(graph)
+//
+// Shader methods
+//
+
+Shader::Shader(const string& name, ShaderGraphPtr graph) :
+    _name(name),
+    _graph(graph)
 {
 }
 
@@ -61,4 +66,4 @@ ShaderStagePtr Shader::createStage(const string& name, ConstSyntaxPtr syntax)
     return s;
 }
 
-}
+} // namespace MaterialX

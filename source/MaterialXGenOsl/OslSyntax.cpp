@@ -4,10 +4,10 @@
 //
 
 #include <MaterialXGenOsl/OslSyntax.h>
+
 #include <MaterialXGenShader/Library.h>
 #include <MaterialXGenShader/TypeDesc.h>
 
-#include <memory>
 #include <sstream>
 
 namespace MaterialX
@@ -15,227 +15,232 @@ namespace MaterialX
 
 namespace
 {
-    class OslArrayTypeSyntax : public ScalarTypeSyntax
+
+class OslArrayTypeSyntax : public ScalarTypeSyntax
+{
+  public:
+    OslArrayTypeSyntax(const string& name) :
+        ScalarTypeSyntax(name, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING)
+    {}
+
+    string getValue(const Value& value, bool uniform) const override
     {
-    public:
-        OslArrayTypeSyntax(const string& name)
-            : ScalarTypeSyntax(name, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING)
-        {}
-
-        string getValue(const Value& value, bool uniform) const override
+        if (!isEmpty(value))
         {
-            if (!isEmpty(value))
-            {
-                return "{" + value.getValueString() + "}";
-            }
-            // OSL disallows arrays without initialization when specified as input uniform
-            else if (uniform)
-            {
-                throw ExceptionShaderGenError("Uniform array cannot initialize to a empty value.");
-            }
-            return EMPTY_STRING;
+            return "{" + value.getValueString() + "}";
         }
-
-        string getValue(const vector<string>& values, bool /*uniform*/) const override
+        // OSL disallows arrays without initialization when specified as input uniform
+        else if (uniform)
         {
-            if (values.empty())
-            {
-                throw ExceptionShaderGenError("No values given to construct an array value");
-            }
-
-            string result = "{" + values[0];
-            for (size_t i = 1; i<values.size(); ++i)
-            {
-                result += ", " + values[i];
-            }
-            result += "}";
-
-            return result;
+            throw ExceptionShaderGenError("Uniform array cannot initialize to a empty value.");
         }
+        return EMPTY_STRING;
+    }
 
-    protected:
-        virtual bool isEmpty(const Value& value) const = 0;
-    };
-
-    class OslFloatArrayTypeSyntax : public OslArrayTypeSyntax
+    string getValue(const StringVec& values, bool /*uniform*/) const override
     {
-    public:
-        explicit OslFloatArrayTypeSyntax(const string& name)
-            : OslArrayTypeSyntax(name)
-        {}
-
-    protected:
-        bool isEmpty(const Value& value) const override
+        if (values.empty())
         {
-            vector<float> valueArray = value.asA<vector<float>>();
-            return valueArray.empty();
+            throw ExceptionShaderGenError("No values given to construct an array value");
         }
-    };
 
-    class OslIntegerArrayTypeSyntax : public OslArrayTypeSyntax
+        string result = "{" + values[0];
+        for (size_t i = 1; i<values.size(); ++i)
+        {
+            result += ", " + values[i];
+        }
+        result += "}";
+
+        return result;
+    }
+
+  protected:
+    virtual bool isEmpty(const Value& value) const = 0;
+};
+
+class OslFloatArrayTypeSyntax : public OslArrayTypeSyntax
+{
+  public:
+    explicit OslFloatArrayTypeSyntax(const string& name) :
+        OslArrayTypeSyntax(name)
+    {}
+
+  protected:
+    bool isEmpty(const Value& value) const override
     {
-    public:
-        explicit OslIntegerArrayTypeSyntax(const string& name)
-            : OslArrayTypeSyntax(name)
-        {}
+        vector<float> valueArray = value.asA<vector<float>>();
+        return valueArray.empty();
+    }
+};
 
-    protected:
-        bool isEmpty(const Value& value) const override
-        {
-            vector<int> valueArray = value.asA<vector<int>>();
-            return valueArray.empty();
-        }
-    };
+class OslIntegerArrayTypeSyntax : public OslArrayTypeSyntax
+{
+  public:
+    explicit OslIntegerArrayTypeSyntax(const string& name) :
+        OslArrayTypeSyntax(name)
+    {}
 
-    // In OSL vector2, vector4, color2 and color4 are custom struct types and require a different
-    // value syntax for uniforms. So override the aggregate type syntax to support this.
-    class OslStructTypeSyntax : public AggregateTypeSyntax
+  protected:
+    bool isEmpty(const Value& value) const override
     {
-    public:
-        OslStructTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
-            const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
-            const vector<string>& members = EMPTY_MEMBERS)
-            : AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
-        {}
+        vector<int> valueArray = value.asA<vector<int>>();
+        return valueArray.empty();
+    }
+};
 
-        string getValue(const Value& value, bool uniform) const override
-        {
-            if (uniform)
-            {
-                return "{" + value.getValueString() + "}";
-            }
-            else
-            {
-                return getName() + "(" + value.getValueString() + ")";
-            }
-        }
+// In OSL vector2, vector4, color2 and color4 are custom struct types and require a different
+// value syntax for uniforms. So override the aggregate type syntax to support this.
+class OslStructTypeSyntax : public AggregateTypeSyntax
+{
+  public:
+    OslStructTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
+                        const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
+                        const StringVec& members = EMPTY_MEMBERS) :
+        AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
+    {}
 
-        string getValue(const vector<string>& values, bool uniform) const override
-        {
-            if (values.empty())
-            {
-                throw ExceptionShaderGenError("No values given to construct a value");
-            }
-
-            string result = uniform ? "{" : getName() + "(" + values[0];
-            for (size_t i = 1; i<values.size(); ++i)
-            {
-                result += ", " + values[i];
-            }
-            result += uniform ? "}" : ")";
-
-            return result;
-        }
-    };
-
-    // For the color4 type we need even more specialization since it's a struct of a struct:
-    //
-    // struct color4 {
-    //    color rgb;
-    //    float a;
-    // }
-    //
-    class OslColor4TypeSyntax : public OslStructTypeSyntax
+    string getValue(const Value& value, bool uniform) const override
     {
-    public:
-        OslColor4TypeSyntax()
-            : OslStructTypeSyntax("color4", "color4(color(0.0), 0.0)", "{color(0.0), 0.0}", EMPTY_STRING, EMPTY_STRING, OslSyntax::COLOR4_MEMBERS)
-        {}
-
-        string getValue(const Value& value, bool uniform) const override
+        if (uniform)
         {
-            std::stringstream ss;
+            return "{" + value.getValueString() + "}";
+        }
+        else
+        {
+            return getName() + "(" + value.getValueString() + ")";
+        }
+    }
 
-            // Set float format and precision for the stream
-            const Value::FloatFormat fmt = Value::getFloatFormat();
-            ss.setf(std::ios_base::fmtflags(
-                (fmt == Value::FloatFormatFixed ? std::ios_base::fixed :
-                (fmt == Value::FloatFormatScientific ? std::ios_base::scientific : 0))),
-                std::ios_base::floatfield);
-            ss.precision(Value::getFloatPrecision());
-
-            const Color4 c = value.asA<Color4>();
-
-            if (uniform)
-            {
-                ss << "{color(" << c[0] << ", " << c[1] << ", " << c[2] << "), " << c[3] << "}";
-            }
-            else
-            {
-                ss << "color4(color(" << c[0] << ", " << c[1] << ", " << c[2] << "), " << c[3] << ")";
-            }
-
-            return ss.str();
+    string getValue(const StringVec& values, bool uniform) const override
+    {
+        if (values.empty())
+        {
+            throw ExceptionShaderGenError("No values given to construct a value");
         }
 
-        string getValue(const vector<string>& values, bool uniform) const override
+        string result = uniform ? "{" : getName() + "(" + values[0];
+        for (size_t i = 1; i<values.size(); ++i)
         {
-            if (values.size() < 4)
-            {
-                throw ExceptionShaderGenError("Too few values given to construct a color4 value");
-            }
-
-            if (uniform)
-            {
-                return "{color(" + values[0] + ", " + values[1] + ", " + values[2] + "), " + values[3] + "}";
-            }
-            else
-            {
-                return "color4(color(" + values[0] + ", " + values[1] + ", " + values[2] + "), " + values[3] + ")";
-            }
+            result += ", " + values[i];
         }
-    };
+        result += uniform ? "}" : ")";
 
+        return result;
+    }
+};
+
+// For the color4 type we need even more specialization since it's a struct of a struct:
+//
+// struct color4 {
+//    color rgb;
+//    float a;
+// }
+//
+class OslColor4TypeSyntax : public OslStructTypeSyntax
+{
+  public:
+    OslColor4TypeSyntax() :
+        OslStructTypeSyntax("color4", "color4(color(0.0), 0.0)", "{color(0.0), 0.0}", EMPTY_STRING, EMPTY_STRING, OslSyntax::COLOR4_MEMBERS)
+    {}
+
+    string getValue(const Value& value, bool uniform) const override
+    {
+        std::stringstream ss;
+
+        // Set float format and precision for the stream
+        const Value::FloatFormat fmt = Value::getFloatFormat();
+        ss.setf(std::ios_base::fmtflags(
+            (fmt == Value::FloatFormatFixed ? std::ios_base::fixed :
+            (fmt == Value::FloatFormatScientific ? std::ios_base::scientific : 0))),
+            std::ios_base::floatfield);
+        ss.precision(Value::getFloatPrecision());
+
+        const Color4 c = value.asA<Color4>();
+
+        if (uniform)
+        {
+            ss << "{color(" << c[0] << ", " << c[1] << ", " << c[2] << "), " << c[3] << "}";
+        }
+        else
+        {
+            ss << "color4(color(" << c[0] << ", " << c[1] << ", " << c[2] << "), " << c[3] << ")";
+        }
+
+        return ss.str();
+    }
+
+    string getValue(const StringVec& values, bool uniform) const override
+    {
+        if (values.size() < 4)
+        {
+            throw ExceptionShaderGenError("Too few values given to construct a color4 value");
+        }
+
+        if (uniform)
+        {
+            return "{color(" + values[0] + ", " + values[1] + ", " + values[2] + "), " + values[3] + "}";
+        }
+        else
+        {
+            return "color4(color(" + values[0] + ", " + values[1] + ", " + values[2] + "), " + values[3] + ")";
+        }
+    }
+};
     
-    class OSLMatrix3TypeSyntax : public AggregateTypeSyntax
+class OSLMatrix3TypeSyntax : public AggregateTypeSyntax
+{
+  public:
+    OSLMatrix3TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
+                         const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
+                         const StringVec& members = EMPTY_MEMBERS) :
+        AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
+    {}
+
+    string getValue(const Value& value, bool uniform) const
+    {   
+        Value::ScopedFloatFormatting fmt(Value::FloatFormatFixed, 3);
+        StringVec values = splitString(value.getValueString(), ",");
+        return getValue(values, uniform);
+    }
+
+    string getValue(const StringVec& values, bool /*uniform*/) const
     {
-    public:
-        OSLMatrix3TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
-            const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
-            const vector<string>& members = EMPTY_MEMBERS)
-            : AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
-        {}
-
-        string getValue(const Value& value, bool uniform) const
-        {   
-            Value::ScopedFloatFormatting fmt(Value::FloatFormatFixed, 3);
-            vector<string> values = splitString(value.getValueString(), ",");
-            return getValue(values, uniform);
-        }
-
-        string getValue(const vector<string>& values, bool /*uniform*/) const
+        if (values.empty())
         {
-            if (values.empty())
-            {
-                throw ExceptionShaderGenError("No values given to construct a value");
-            }
-
-            // Write the value using a stream to maintain any float formatting set
-            // using Value::setFloatFormat() and Value::setFloatPrecision()
-            std::stringstream ss;
-            ss << getName() << "(";
-            for (size_t i = 0; i<values.size(); i++)
-            {
-                ss << values[i] << ", ";
-                if ((i != 0) && (i % 3 == 0))
-                {
-                    ss << "0.000" << ", ";
-                }
-            }
-            static string ROW_4("0.000, 0.000, 0.000, 0.000, 1.000");
-            ss << ROW_4 << ")";
-
-            return ss.str();
+            throw ExceptionShaderGenError("No values given to construct a value");
         }
-    };
-}
+
+        // Write the value using a stream to maintain any float formatting set
+        // using Value::setFloatFormat() and Value::setFloatPrecision()
+        std::stringstream ss;
+        ss << getName() << "(";
+        for (size_t i = 0; i<values.size(); i++)
+        {
+            ss << values[i] << ", ";
+            if ((i != 0) && (i % 3 == 0))
+            {
+                ss << "0.000" << ", ";
+            }
+        }
+        static string ROW_4("0.000, 0.000, 0.000, 0.000, 1.000");
+        ss << ROW_4 << ")";
+
+        return ss.str();
+    }
+};
+
+} // anonymous namespace
 
 const string OslSyntax::OUTPUT_QUALIFIER = "output";
-const vector<string> OslSyntax::VECTOR_MEMBERS  = { "[0]", "[1]", "[2]" };
-const vector<string> OslSyntax::VECTOR2_MEMBERS = { ".x", ".y" };
-const vector<string> OslSyntax::VECTOR4_MEMBERS = { ".x", ".y", ".z", ".w" };
-const vector<string> OslSyntax::COLOR2_MEMBERS  = { ".r", ".a" };
-const vector<string> OslSyntax::COLOR4_MEMBERS  = { ".rgb[0]", ".rgb[1]", ".rgb[2]", ".a" };
+const StringVec OslSyntax::VECTOR_MEMBERS  = { "[0]", "[1]", "[2]" };
+const StringVec OslSyntax::VECTOR2_MEMBERS = { ".x", ".y" };
+const StringVec OslSyntax::VECTOR4_MEMBERS = { ".x", ".y", ".z", ".w" };
+const StringVec OslSyntax::COLOR2_MEMBERS  = { ".r", ".a" };
+const StringVec OslSyntax::COLOR4_MEMBERS  = { ".rgb[0]", ".rgb[1]", ".rgb[2]", ".a" };
+
+//
+// OslSyntax methods
+//
 
 OslSyntax::OslSyntax()
 {

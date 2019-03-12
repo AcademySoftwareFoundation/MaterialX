@@ -15,8 +15,6 @@
 
 #include <MaterialXFormat/File.h>
 
-#include <set>
-
 namespace MaterialX
 {
 

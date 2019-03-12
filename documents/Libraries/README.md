@@ -19,7 +19,7 @@ The following is the layout of the definitions and implementations provided as p
         - [stdlib_genosl_impl.mtlx](stdlib/genosl/stdlib_genosl_impl.mtlx) : Mapping from definitions to implementations
         - [stdlib_genosl_cm_impl.mtlx](stdlib/genosl/stdlib_genosl_cm_impl.mtlx) : Minimal set of "default" color management implementations
         -  OSL implementation files.
-    -   [osl](stdlib/genosl): OSL reference implementation
+    -   [osl](stdlib/osl): OSL reference implementation
         -  OSL implementation files.
 
 ## PBR library

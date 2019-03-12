@@ -10,7 +10,6 @@
 /// Color management system classes
 
 #include <MaterialXCore/Document.h>
-#include <MaterialXCore/Library.h>
 
 #include <MaterialXGenShader/Library.h>
 #include <MaterialXGenShader/Factory.h>

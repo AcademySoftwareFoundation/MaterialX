@@ -48,9 +48,15 @@ enum HwSpecularEnvironmentMethod
 class GenOptions
 {
   public:
-    GenOptions();
-
-    virtual ~GenOptions() {}
+    GenOptions() :
+        shaderInterfaceType(SHADER_INTERFACE_COMPLETE),
+        fileTextureVerticalFlip(false),
+        hwTransparency(false),
+        hwSpecularEnvironmentMethod(SPECULAR_ENVIRONMENT_PREFILTER),
+        hwMaxActiveLightSources(3)
+    {
+    }
+    virtual ~GenOptions() { }
 
     // TODO: Add options for:
     //  - shader gen optimization level

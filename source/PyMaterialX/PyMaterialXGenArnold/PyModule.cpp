@@ -11,7 +11,7 @@ void bindPyArnoldShaderGenerator(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXGenArnold, mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXGenArnold library (C++)";
+    mod.doc() = "Module containing Python bindings for the MaterialXGenArnold library";
 
     bindPyArnoldShaderGenerator(mod);
 }

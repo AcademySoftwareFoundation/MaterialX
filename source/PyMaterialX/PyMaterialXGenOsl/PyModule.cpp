@@ -11,7 +11,7 @@ void bindPyOslShaderGenerator(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXGenOsl, mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXGenOsl library (C++)";
+    mod.doc() = "Module containing Python bindings for the MaterialXGenOsl library";
 
     bindPyOslShaderGenerator(mod);
 }

@@ -83,8 +83,8 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
 
             size_t pos = 0;
             size_t i = _functionSource.find_first_of(prefix);
-            std::set<string> variableNames;
-            vector<string> code;
+            StringSet variableNames;
+            StringVec code;
             while (i != string::npos)
             {
                 code.push_back(_functionSource.substr(pos, i - pos));

@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGenShader/ShaderStage.h>
+
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Syntax.h>
 #include <MaterialXGenShader/Util.h>
@@ -19,6 +20,10 @@ namespace Stage
 {
     const string PIXEL = "pixel";
 }
+
+//
+// VariableBlock methods
+//
 
 ShaderPort* VariableBlock::operator[](const string& name)
 {
@@ -70,12 +75,15 @@ void VariableBlock::add(ShaderPortPtr port)
     }
 }
 
+//
+// ShaderStage methods
+//
 
-ShaderStage::ShaderStage(const string& name, ConstSyntaxPtr syntax)
-    : _name(name)
-    , _syntax(syntax)
-    , _indentations(0)
-    , _constants("Constants", "cn")
+ShaderStage::ShaderStage(const string& name, ConstSyntaxPtr syntax) :
+    _name(name),
+    _syntax(syntax),
+    _indentations(0),
+    _constants("Constants", "cn")
 {
 }
 

@@ -27,8 +27,8 @@ namespace
     const float filterOffset = 0.0;
 }
 
-HeightToNormalNodeGlsl::HeightToNormalNodeGlsl()
-    : ConvolutionNode()
+HeightToNormalNodeGlsl::HeightToNormalNodeGlsl() :
+    ConvolutionNode()
 {
 }
 

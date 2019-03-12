@@ -53,9 +53,9 @@ using VariableBlockMap = std::unordered_map<string, VariableBlockPtr>;
 class VariableBlock
 {
   public:
-    VariableBlock(const string& name, const string& instance) 
-        : _name(name)
-        , _instance(instance)
+    VariableBlock(const string& name, const string& instance) :
+        _name(name),
+        _instance(instance)
     {}
 
     /// Get the name of this block.
@@ -230,7 +230,7 @@ private:
     std::queue<Syntax::Punctuation> _scopes;
 
     /// Set of include files that has been included.
-    std::set<string> _includes;
+    StringSet _includes;
 
     /// Set of hash ID's for functions that has been defined.
     std::set<size_t> _definedFunctions;

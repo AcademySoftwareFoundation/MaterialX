@@ -20,6 +20,10 @@ const string Syntax::SINGLE_LINE_COMMENT = "// ";
 const string Syntax::BEGIN_MULTI_LINE_COMMENT = "/* ";
 const string Syntax::END_MULTI_LINE_COMMENT = " */";
 
+//
+// Syntax methods
+//
+
 Syntax::Syntax()
 {
 }
@@ -29,12 +33,12 @@ void Syntax::registerTypeSyntax(const TypeDesc* type, TypeSyntaxPtr syntax)
     auto it = _typeSyntaxByType.find(type);
     if (it != _typeSyntaxByType.end())
     {
-        _typeSyntaxs[it->second] = syntax;
+        _typeSyntaxes[it->second] = syntax;
     }
     else
     {
-        _typeSyntaxs.push_back(syntax);
-        _typeSyntaxByType[type] = _typeSyntaxs.size() - 1;
+        _typeSyntaxes.push_back(syntax);
+        _typeSyntaxByType[type] = _typeSyntaxes.size() - 1;
     }
 
     // Make this type a restricted name
@@ -60,7 +64,7 @@ const TypeSyntax& Syntax::getTypeSyntax(const TypeDesc* type) const
     {
         throw ExceptionShaderGenError("No syntax is defined for the given type '" + type->getName() + "'.");
     }
-    return *_typeSyntaxs[it->second];
+    return *_typeSyntaxes[it->second];
 }
 
 string Syntax::getValue(const TypeDesc* type, const Value& value, bool uniform) const
@@ -113,9 +117,9 @@ string Syntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcTyp
     const TypeSyntax& srcSyntax = getTypeSyntax(srcType);
     const TypeSyntax& dstSyntax = getTypeSyntax(dstType);
 
-    const vector<string>& srcMembers = srcSyntax.getMembers();
+    const StringVec& srcMembers = srcSyntax.getMembers();
 
-    vector<string> membersSwizzled;
+    StringVec membersSwizzled;
 
     for (size_t i = 0; i < channels.size(); ++i)
     {
@@ -211,22 +215,23 @@ void Syntax::makeValidName(string& name) const
 }
 
 
-const vector<string> TypeSyntax::EMPTY_MEMBERS;
+const StringVec TypeSyntax::EMPTY_MEMBERS;
 
 TypeSyntax::TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
-    const string& typeAlias, const string& typeDefinition, const vector<string>& members)
-    : _name(name)
-    , _defaultValue(defaultValue)
-    , _uniformDefaultValue(uniformDefaultValue)
-    , _typeAlias(typeAlias)
-    , _typeDefinition(typeDefinition)
-    , _members(members)
+                       const string& typeAlias, const string& typeDefinition, const StringVec& members) :
+    _name(name),
+    _defaultValue(defaultValue),
+    _uniformDefaultValue(uniformDefaultValue),
+    _typeAlias(typeAlias),
+    _typeDefinition(typeDefinition),
+    _members(members)
 {
 }
 
 
-ScalarTypeSyntax::ScalarTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, const string& typeAlias, const string& typeDefinition)
-    : TypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, EMPTY_MEMBERS)
+ScalarTypeSyntax::ScalarTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
+                                   const string& typeAlias, const string& typeDefinition) :
+    TypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, EMPTY_MEMBERS)
 {
 }
 
@@ -235,7 +240,7 @@ string ScalarTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
     return value.getValueString();
 }
 
-string ScalarTypeSyntax::getValue(const vector<string>& values, bool /*uniform*/) const
+string ScalarTypeSyntax::getValue(const StringVec& values, bool /*uniform*/) const
 {
     if (values.empty())
     {
@@ -249,8 +254,9 @@ string ScalarTypeSyntax::getValue(const vector<string>& values, bool /*uniform*/
 }
 
 
-StringTypeSyntax::StringTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, const string& typeAlias, const string& typeDefinition)
-    : ScalarTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition)
+StringTypeSyntax::StringTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
+                                   const string& typeAlias, const string& typeDefinition) :
+    ScalarTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition)
 {
 }
 
@@ -261,8 +267,8 @@ string StringTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
 
 
 AggregateTypeSyntax::AggregateTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
-    const string& typeAlias, const string& typeDefinition, const vector<string>& members)
-    : TypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
+                                         const string& typeAlias, const string& typeDefinition, const StringVec& members) :
+    TypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
 {
 }
 
@@ -271,7 +277,7 @@ string AggregateTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
     return getName() + "(" + value.getValueString() + ")";
 }
 
-string AggregateTypeSyntax::getValue(const vector<string>& values, bool /*uniform*/) const
+string AggregateTypeSyntax::getValue(const StringVec& values, bool /*uniform*/) const
 {
     if (values.empty())
     {

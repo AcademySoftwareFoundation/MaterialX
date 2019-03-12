@@ -10,8 +10,8 @@
 namespace MaterialX
 {
 
-LightShaderNodeGlsl::LightShaderNodeGlsl()
-    : _lightUniforms(HW::LIGHT_DATA, EMPTY_STRING)
+LightShaderNodeGlsl::LightShaderNodeGlsl() :
+    _lightUniforms(HW::LIGHT_DATA, EMPTY_STRING)
 {
 }
 

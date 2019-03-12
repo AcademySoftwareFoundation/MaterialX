@@ -20,7 +20,7 @@ public:
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
 public:
-    static const vector<string> INPUT_NAMES;
+    static const StringVec INPUT_NAMES;
 };
 
 } // namespace MaterialX

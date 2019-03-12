@@ -11,8 +11,8 @@
 namespace MaterialX
 {
 
-LightCompoundNodeGlsl::LightCompoundNodeGlsl()
-    : _lightUniforms(HW::LIGHT_DATA, EMPTY_STRING)
+LightCompoundNodeGlsl::LightCompoundNodeGlsl() :
+    _lightUniforms(HW::LIGHT_DATA, EMPTY_STRING)
 {
 }
 

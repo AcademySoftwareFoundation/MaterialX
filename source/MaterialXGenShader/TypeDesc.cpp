@@ -22,13 +22,18 @@ namespace
     }
 }
 
-TypeDesc::TypeDesc(const string& name, unsigned char basetype, unsigned char semantic, int size, bool editable, const std::unordered_map<char, int>& channelMapping)
-    : _name(name)
-    , _basetype(basetype)
-    , _semantic(semantic)
-    , _size(size)
-    , _editable(editable)
-    , _channelMapping(channelMapping)
+//
+// TypeDesc methods
+//
+
+TypeDesc::TypeDesc(const string& name, unsigned char basetype, unsigned char semantic, int size,
+                   bool editable, const std::unordered_map<char, int>& channelMapping) :
+    _name(name),
+    _basetype(basetype),
+    _semantic(semantic),
+    _size(size),
+    _editable(editable),
+    _channelMapping(channelMapping)
 {
 }
 

@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
+
 #include <MaterialXGenOsl/OslSyntax.h>
 
 #include <MaterialXGenShader/GenContext.h>
@@ -22,8 +23,12 @@ namespace MaterialX
 const string OslShaderGenerator::LANGUAGE = "genosl";
 const string OslShaderGenerator::TARGET = "vanilla";
 
-OslShaderGenerator::OslShaderGenerator()
-    : ParentClass(OslSyntax::create())
+//
+// OslShaderGenerator methods
+//
+
+OslShaderGenerator::OslShaderGenerator() :
+    ShaderGenerator(OslSyntax::create())
 {
     // Register build-in implementations
 
@@ -223,7 +228,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
 
     // Emit all varying inputs
     const VariableBlock& inputs = stage.getInputBlock(OSL::INPUTS);
-    for (size_t i=0; inputs.size(); ++i)
+    for (size_t i=0; i < inputs.size(); ++i)
     {
         const ShaderPort* input = inputs[i];
         const string& type = _syntax->getTypeName(input->getType());
@@ -331,7 +336,7 @@ void OslShaderGenerator::emitIncludes(ShaderStage& stage, GenContext& context) c
 {
     static const string INCLUDE_PREFIX = "#include \"";
     static const string INCLUDE_SUFFIX = "\"";
-    static const vector<string> INCLUDE_FILES =
+    static const StringVec INCLUDE_FILES =
     {
         "color2.h",
         "color4.h",
