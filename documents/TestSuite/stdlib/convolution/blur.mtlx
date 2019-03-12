@@ -5,7 +5,7 @@
 <materialx version="1.36">
   <nodegraph name="blur_float" type="" xpos="8.42368" ypos="11.8375">
     <image name="image1" type="float" xpos="4.26897" ypos="10.02">
-      <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="file" type="filename" value="resources/Images/marble.png" />
       <parameter name="default" type="float" value="0.0" />
       <input name="texcoord" type="vector2" value="0.0, 0.0" />
     </image>
@@ -18,7 +18,7 @@
   </nodegraph>
   <nodegraph name="blur_color3" type="" xpos="8.38333" ypos="15.4672">
     <image name="image2" type="color3" xpos="4.26514" ypos="10.02">
-      <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="file" type="filename" value="resources/Images/marble.png" />
       <parameter name="default" type="color3" value="0.0, 0.0, 0.0" />
       <input name="texcoord" type="vector2" value="0.0, 0.0" />
     </image>
@@ -69,7 +69,7 @@
   </nodegraph>
   <nodegraph name="blur_color2" type="" xpos="8.36983" ypos="14.1887">
     <image name="image1" type="color2" xpos="4.72893" ypos="14.7138">
-      <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="file" type="filename" value="resources/Images/marble.png" />
       <parameter name="layer" type="string" value="" />
       <parameter name="default" type="color2" value="0.0, 0.0" />
       <input name="texcoord" type="vector2" value="0.0, 0.0" />
@@ -89,7 +89,7 @@
   </nodegraph>
   <nodegraph name="blur_vector2" type="" xpos="8.44298" ypos="19.7465">
     <tiledimage name="tiledimage1" type="vector2" xpos="4.36194" ypos="5.05426">
-      <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="file" type="filename" value="resources/Images/marble.png" />
       <parameter name="default" type="vector2" value="0.0, 0.0" />
       <input name="texcoord" type="vector2" value="0.0, 0.0" />
       <parameter name="uvtiling" type="vector2" value="0.2000, 0.2000" />
@@ -108,7 +108,7 @@
   </nodegraph>
   <nodegraph name="blur_vector3" type="" xpos="8.44785" ypos="21.4295">
     <tiledimage name="tiledimage1" type="vector3" xpos="4.82888" ypos="5.20368">
-      <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="file" type="filename" value="resources/Images/marble.png" />
       <parameter name="default" type="vector3" value="0.0, 0.0, 0.0" />
       <input name="texcoord" type="vector2" value="0.0, 0.0" />
       <parameter name="uvtiling" type="vector2" value="0.1000, 0.1000" />
@@ -132,7 +132,7 @@
       <parameter name="filtertype" type="string" value="gaussian" />
     </blur>
     <tiledimage name="tiledimage1" type="color4" xpos="5.38269" ypos="7.44224">
-      <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="file" type="filename" value="resources/Images/marble.png" />
       <parameter name="default" type="color4" value="0.0, 0.0, 0.0, 0.0" />
       <input name="texcoord" type="vector2" value="0.0, 0.0" />
       <parameter name="uvtiling" type="vector2" value="0.2000, 0.2000" />
@@ -151,7 +151,7 @@
       <parameter name="filtertype" type="string" value="gaussian" />
     </blur>
     <tiledimage name="tiledimage1" type="vector4" xpos="5.45428" ypos="6.50982">
-      <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="file" type="filename" value="resources/Images/marble.png" />
       <parameter name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
       <input name="texcoord" type="vector2" value="0.0, 0.0" />
       <parameter name="uvtiling" type="vector2" value="0.4000, 0.4000" />

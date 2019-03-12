@@ -7,63 +7,63 @@ Basic triplanar mapping unit test.
 <materialx version="1.36">
    <output name="triplanarprojection_4_output" type="color4" nodename="triplanarprojection_4" />
    <triplanarprojection name="triplanarprojection_4" type="color4">
-      <parameter name="filex" type="filename" value="documents/TestSuite/Images/marble.png" />
-      <parameter name="filey" type="filename" value="documents/TestSuite/Images/marble.png" />
-      <parameter name="filez" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="filex" type="filename" value="resources/Images/marble.png" />
+      <parameter name="filey" type="filename" value="resources/Images/marble.png" />
+      <parameter name="filez" type="filename" value="resources/Images/marble.png" />
       <parameter name="filtertype" type="string" value="cubic"/>
       <parameter name="frameendaction" type="string" value="clamp"/>
    </triplanarprojection>
 
    <output name="triplanarprojection_3_output" type="color3" nodename="triplanarprojection_3" />
    <triplanarprojection name="triplanarprojection_3" type="color3">
-      <parameter name="filex" type="filename" value="documents/TestSuite/Images/marble.png" />
-      <parameter name="filey" type="filename" value="documents/TestSuite/Images/marble.png" />
-      <parameter name="filez" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="filex" type="filename" value="resources/Images/marble.png" />
+      <parameter name="filey" type="filename" value="resources/Images/marble.png" />
+      <parameter name="filez" type="filename" value="resources/Images/marble.png" />
       <parameter name="filtertype" type="string" value="cubic"/>
       <parameter name="frameendaction" type="string" value="clamp"/>
    </triplanarprojection>
 
    <output name="triplanarprojection_2_output" type="color2" nodename="triplanarprojection_2" />
    <triplanarprojection name="triplanarprojection_2" type="color2">
-      <parameter name="filex" type="filename" value="documents/TestSuite/Images/marble.png" />
-      <parameter name="filey" type="filename" value="documents/TestSuite/Images/marble.png" />
-      <parameter name="filez" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="filex" type="filename" value="resources/Images/marble.png" />
+      <parameter name="filey" type="filename" value="resources/Images/marble.png" />
+      <parameter name="filez" type="filename" value="resources/Images/marble.png" />
       <parameter name="filtertype" type="string" value="cubic"/>
       <parameter name="frameendaction" type="string" value="clamp"/>
    </triplanarprojection>
 
    <output name="triplanarprojection_1_output" type="float" nodename="triplanarprojection_1" />
    <triplanarprojection name="triplanarprojection_1" type="float">
-      <parameter name="filex" type="filename" value="documents/TestSuite/Images/marble.png" />
-      <parameter name="filey" type="filename" value="documents/TestSuite/Images/marble.png" />
-      <parameter name="filez" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="filex" type="filename" value="resources/Images/marble.png" />
+      <parameter name="filey" type="filename" value="resources/Images/marble.png" />
+      <parameter name="filez" type="filename" value="resources/Images/marble.png" />
       <parameter name="filtertype" type="string" value="cubic"/>
       <parameter name="frameendaction" type="string" value="clamp"/>
    </triplanarprojection>
 
    <output name="triplanarprojection_4v_output" type="vector4" nodename="triplanarprojection_4v" />
    <triplanarprojection name="triplanarprojection_4v" type="vector4">
-      <parameter name="filex" type="filename" value="documents/TestSuite/Images/marble.png" />
-      <parameter name="filey" type="filename" value="documents/TestSuite/Images/marble.png" />
-      <parameter name="filez" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="filex" type="filename" value="resources/Images/marble.png" />
+      <parameter name="filey" type="filename" value="resources/Images/marble.png" />
+      <parameter name="filez" type="filename" value="resources/Images/marble.png" />
       <parameter name="filtertype" type="string" value="cubic"/>
       <parameter name="frameendaction" type="string" value="clamp"/>
    </triplanarprojection>
 
    <output name="triplanarprojection_3v_output" type="vector3" nodename="triplanarprojection_3v" />
    <triplanarprojection name="triplanarprojection_3v" type="vector3">
-      <parameter name="filex" type="filename" value="documents/TestSuite/Images/marble.png" />
-      <parameter name="filey" type="filename" value="documents/TestSuite/Images/marble.png" />
-      <parameter name="filez" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="filex" type="filename" value="resources/Images/marble.png" />
+      <parameter name="filey" type="filename" value="resources/Images/marble.png" />
+      <parameter name="filez" type="filename" value="resources/Images/marble.png" />
       <parameter name="filtertype" type="string" value="cubic"/>
       <parameter name="frameendaction" type="string" value="clamp"/>
    </triplanarprojection>
 
    <output name="triplanarprojection_2v_output" type="vector2" nodename="triplanarprojection_2v" />
    <triplanarprojection name="triplanarprojection_2v" type="vector2">
-      <parameter name="filex" type="filename" value="documents/TestSuite/Images/marble.png" />
-      <parameter name="filey" type="filename" value="documents/TestSuite/Images/marble.png" />
-      <parameter name="filez" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="filex" type="filename" value="resources/Images/marble.png" />
+      <parameter name="filey" type="filename" value="resources/Images/marble.png" />
+      <parameter name="filez" type="filename" value="resources/Images/marble.png" />
       <parameter name="filtertype" type="string" value="cubic"/>
       <parameter name="frameendaction" type="string" value="clamp"/>
    </triplanarprojection>

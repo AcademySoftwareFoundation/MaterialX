@@ -3,7 +3,7 @@
   <nodegraph name="nodegraph1" type="" xpos="7.4" ypos="19.0118">
     <output name="out" type="surfaceshader" nodename="standard_surface2" />
     <image name="image1" type="color3" xpos="4.7931" ypos="-2.06">
-      <parameter name="file" type="filename" value="documents/TestSuite/Images/wood_baseColor.png" />
+      <parameter name="file" type="filename" value="resources/Images/wood_baseColor.png" />
       <parameter name="layer" type="string" value="" />
       <parameter name="default" type="color3" value="0.0, 0.0, 0.0" />
       <input name="texcoord" type="vector2" value="0.0, 0.0" />
@@ -59,7 +59,7 @@
       <input name="indirect_specular" type="float" value="1" />
     </standard_surface>
     <image name="image2" type="vector3" xpos="3.31034" ypos="11.8">
-      <parameter name="file" type="filename" value="documents/TestSuite/Images/wood_normal.png" />
+      <parameter name="file" type="filename" value="resources/Images/wood_normal.png" />
       <parameter name="layer" type="string" value="" />
       <parameter name="default" type="vector3" value="0.0, 0.0, 0.0" />
       <input name="texcoord" type="vector2" value="0.0, 0.0" />
@@ -77,7 +77,7 @@
       <input name="tangent" type="vector3" value="0.0, 0.0, 0.0" />
     </normalmap>
     <image name="image3" type="float" xpos="4.57241" ypos="5.36">
-      <parameter name="file" type="filename" value="documents/TestSuite/Images/wood_roughness.png" />
+      <parameter name="file" type="filename" value="resources/Images/wood_roughness.png" />
       <parameter name="layer" type="string" value="" />
       <parameter name="default" type="float" value="0.0" />
       <input name="texcoord" type="vector2" value="0.0, 0.0" />

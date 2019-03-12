@@ -8,7 +8,7 @@ Note that there is no runtime and the output produced is source code, not binary
 code. The source code produced needs to be compiled by a shading language compiler before being
 executed by the renderer. See Figure 1 for a high level overview of the system.
 
-![Shader generation with multiple shader generators](../Images/shaderx.png)
+![Shader generation with multiple shader generators](../../resources/Images/shaderx.png)
 
 **Figure 1**: Shader generation with multiple shader generators
 
