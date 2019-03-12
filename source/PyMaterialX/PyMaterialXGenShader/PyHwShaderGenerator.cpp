@@ -30,5 +30,7 @@ void bindPyHwShaderGenerator(py::module& mod)
 
     py::class_<mx::HwShaderGenerator, mx::ShaderGenerator, mx::HwShaderGeneratorPtr>(mod, "HwShaderGenerator")
         .def("getNodeClosureContexts", &mx::HwShaderGenerator::getNodeClosureContexts)
-        .def("bindLightShader", &mx::HwShaderGenerator::bindLightShader);
+        .def("bindLightShader", &mx::HwShaderGenerator::bindLightShader)
+        .def("unbindLightShader", &mx::HwShaderGenerator::unbindLightShader)
+        .def("unbindLightShaders", &mx::HwShaderGenerator::unbindLightShaders);
 }

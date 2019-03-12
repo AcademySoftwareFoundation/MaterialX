@@ -349,7 +349,8 @@ void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, unsigned int lig
 
     ShaderNodePtr shader = ShaderNode::create(nullptr, nodeDef.getNodeString(), nodeDef, context);
 
-    // Prepend the light struct instance name on all input socket variables, 
+    // Check if this is a graph implementation.
+    // If so prepend the light struct instance name on all input socket variables,
     // since in generated code these inputs will be members of the light struct.
     ShaderGraph* graph = shader->getImplementation().getGraph();
     if (graph)
@@ -361,6 +362,24 @@ void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, unsigned int lig
     }
 
     lightShaders->bind(lightTypeId, shader);
+}
+
+void HwShaderGenerator::unbindLightShader(unsigned int lightTypeId, GenContext& context)
+{
+    HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
+    if (lightShaders)
+    {
+        lightShaders->unbind(lightTypeId);
+    }
+}
+
+void HwShaderGenerator::unbindLightShaders(GenContext& context)
+{
+    HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
+    if (lightShaders)
+    {
+        lightShaders->clear();
+    }
 }
 
 void HwShaderGenerator::getNodeClosureContexts(const ShaderNode& node, vector<HwClosureContextPtr>& ccx) const

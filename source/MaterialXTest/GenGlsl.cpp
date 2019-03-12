@@ -99,6 +99,28 @@ TEST_CASE("GLSL Unique Names", "[genglsl]")
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }
 
+TEST_CASE("Bind Light Shaders", "[genglsl]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    GenShaderUtil::loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
+
+    mx::NodeDefPtr pointLightShader = doc->getNodeDef("ND_point_light");
+    mx::NodeDefPtr spotLightShader = doc->getNodeDef("ND_spot_light");
+
+    mx::GenContext context(mx::GlslShaderGenerator::create());
+    context.registerSourceCodeSearchPath(mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries"));
+
+    mx::HwShaderGenerator::bindLightShader(*pointLightShader, 42, context);
+    REQUIRE_THROWS(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 42, context));
+    mx::HwShaderGenerator::unbindLightShader(42, context);
+    REQUIRE_NOTHROW(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 42, context));
+    REQUIRE_NOTHROW(mx::HwShaderGenerator::bindLightShader(*pointLightShader, 66, context));
+    mx::HwShaderGenerator::unbindLightShaders(context);
+    REQUIRE_NOTHROW(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 66, context));
+}
+
 class GLSLGenCodeGenerationTester : public GenShaderUtil::ShaderGeneratorTester
 {
   public:
