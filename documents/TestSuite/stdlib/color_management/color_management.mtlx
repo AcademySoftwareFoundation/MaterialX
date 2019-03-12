@@ -11,7 +11,7 @@ Basic image unit test with one image node for each variation in input type.
           <input name="base_color" type="color3" value="1, 1, 1" nodename="image_lin_rec709" />
         </standard_surface>
         <image name="image_lin_rec709" type="color3">
-          <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" colorspace="lin_rec709" />
+          <parameter name="file" type="filename" value="resources/Images/marble.png" colorspace="lin_rec709" />
           <parameter name="uaddressmode" type="string" value="black"/>
           <parameter name="vaddressmode" type="string" value="clamp"/>
           <parameter name="filtertype" type="string" value="linear"/>
@@ -20,7 +20,7 @@ Basic image unit test with one image node for each variation in input type.
 
         <output name="image4_lin_rec709_output" type="color4" nodename="image4_lin_rec709" />
         <image name="image4_lin_rec709" type="color4">
-          <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" colorspace="lin_rec709" />
+          <parameter name="file" type="filename" value="resources/Images/marble.png" colorspace="lin_rec709" />
         </image>
 
         <output name="image_gamma18_output" type="surfaceshader" nodename="image_gamma18_standard_surface2" />
@@ -28,7 +28,7 @@ Basic image unit test with one image node for each variation in input type.
           <input name="base_color" type="color3" value="1, 1, 1" nodename="image_gamma18" />
         </standard_surface>
         <image name="image_gamma18" type="color3">
-          <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" colorspace="gamma18" />
+          <parameter name="file" type="filename" value="resources/Images/marble.png" colorspace="gamma18" />
           <parameter name="uaddressmode" type="string" value="black"/>
           <parameter name="vaddressmode" type="string" value="clamp"/>
           <parameter name="filtertype" type="string" value="linear"/>
@@ -37,7 +37,7 @@ Basic image unit test with one image node for each variation in input type.
 
         <output name="image4_gamma18_output" type="color4" nodename="image4_gamma18" />
         <image name="image4_gamma18" type="color4">
-          <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" colorspace="gamma18" />
+          <parameter name="file" type="filename" value="resources/Images/marble.png" colorspace="gamma18" />
         </image>
 
         <output name="image_gamma22_output" type="surfaceshader" nodename="image_gamma22_standard_surface3" />
@@ -45,7 +45,7 @@ Basic image unit test with one image node for each variation in input type.
           <input name="base_color" type="color3" value="1, 1, 1" nodename="image_gamma22" />
         </standard_surface>
         <image name="image_gamma22" type="color3">
-          <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" colorspace="gamma22" />
+          <parameter name="file" type="filename" value="resources/Images/marble.png" colorspace="gamma22" />
           <parameter name="uaddressmode" type="string" value="black"/>
           <parameter name="vaddressmode" type="string" value="clamp"/>
           <parameter name="filtertype" type="string" value="linear"/>
@@ -54,7 +54,7 @@ Basic image unit test with one image node for each variation in input type.
         
         <output name="image4_gamma22_output" type="color4" nodename="image4_gamma22" />
         <image name="image4_gamma22" type="color4">
-          <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" colorspace="gamma22" />
+          <parameter name="file" type="filename" value="resources/Images/marble.png" colorspace="gamma22" />
         </image>
 
         <output name="image_gamma24_output" type="surfaceshader" nodename="image_gamma24_standard_surface4" />
@@ -62,7 +62,7 @@ Basic image unit test with one image node for each variation in input type.
           <input name="base_color" type="color3" value="1, 1, 1" nodename="image_gamma24" />
         </standard_surface>
         <image name="image_gamma24" type="color3">
-          <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" colorspace="gamma24" />
+          <parameter name="file" type="filename" value="resources/Images/marble.png" colorspace="gamma24" />
           <parameter name="uaddressmode" type="string" value="black"/>
           <parameter name="vaddressmode" type="string" value="clamp"/>
           <parameter name="filtertype" type="string" value="linear"/>
@@ -71,7 +71,7 @@ Basic image unit test with one image node for each variation in input type.
 
         <output name="image4_gamma24_output" type="color4" nodename="image4_gamma24" />
         <image name="image4_gamma24" type="color4">
-          <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" colorspace="gamma24" />
+          <parameter name="file" type="filename" value="resources/Images/marble.png" colorspace="gamma24" />
         </image>
 
         <output name="image_acescg_output" type="surfaceshader" nodename="image_acescg_standard_surface5" />
@@ -79,7 +79,7 @@ Basic image unit test with one image node for each variation in input type.
           <input name="base_color" type="color3" value="1, 1, 1" nodename="image_acescg" />
         </standard_surface>
         <image name="image_acescg" type="color3">
-          <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" colorspace="acescg" />
+          <parameter name="file" type="filename" value="resources/Images/marble.png" colorspace="acescg" />
           <parameter name="uaddressmode" type="string" value="black"/>
           <parameter name="vaddressmode" type="string" value="clamp"/>
           <parameter name="filtertype" type="string" value="linear"/>
@@ -88,7 +88,7 @@ Basic image unit test with one image node for each variation in input type.
 
         <output name="image4_acescg_output" type="color4" nodename="image4_acescg" />
         <image name="image4_acescg" type="color4">
-          <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" colorspace="acescg" />
+          <parameter name="file" type="filename" value="resources/Images/marble.png" colorspace="acescg" />
         </image>
 
         <output name="image_srgb_texture_output" type="surfaceshader" nodename="image_srgb_texture_standard_surface6" />
@@ -96,7 +96,7 @@ Basic image unit test with one image node for each variation in input type.
           <input name="base_color" type="color3" value="1, 1, 1" nodename="image_srgb_texture" />
         </standard_surface>
         <image name="image_srgb_texture" type="color3">
-          <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" colorspace="srgb_texture" />
+          <parameter name="file" type="filename" value="resources/Images/marble.png" colorspace="srgb_texture" />
           <parameter name="uaddressmode" type="string" value="black"/>
           <parameter name="vaddressmode" type="string" value="clamp"/>
           <parameter name="filtertype" type="string" value="linear"/>
@@ -105,7 +105,7 @@ Basic image unit test with one image node for each variation in input type.
 
         <output name="image4_srgb_texture_output" type="color4" nodename="image4_srgb_texture" />
         <image name="image4_srgb_texture" type="color4">
-          <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" colorspace="srgb_texture" />
+          <parameter name="file" type="filename" value="resources/Images/marble.png" colorspace="srgb_texture" />
         </image>
 
         <output name="color_lin_rec709_output" type="surfaceshader" nodename="color_lin_rec709_standard_surface" />

@@ -20,6 +20,7 @@ namespace MaterialX
 {
 
 class ShaderGenerator;
+class GenContext;
 
 /// Make the directory with the given path if it doesn't already exist
 void makeDirectory(const string& directoryPath);
@@ -83,10 +84,6 @@ void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>
 /// on an associated nodedef if it exists. A target string should be provided
 /// if the path is to a Node as definitions for Nodes can be target specific.
 ValueElementPtr findNodeDefChild(const string& path, DocumentPtr doc, const string& target);
-
-// From a set of nodes, create a mapping of nodedef identifiers to numbers
-void mapNodeDefToIdentiers(const std::vector<NodePtr>& nodes,
-                           std::unordered_map<string, unsigned int>& ids);
 
 /// Set of possible UI properties for an element 
 struct UIProperties

@@ -13,7 +13,7 @@
    -->
    <!-- Background environment map. Comment this out to use flat color  -->
    <ShaderGroup>
-      string filename "documents/TestSuite/Images/san_giuseppe_bridge.hdr";
+      string filename "resources/Images/san_giuseppe_bridge.hdr";
       shader envmap layer1;
    </ShaderGroup>
    <Background resolution="1024" />

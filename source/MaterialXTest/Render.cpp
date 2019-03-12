@@ -57,37 +57,11 @@ void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::G
 {
     // Scan for lights
     std::vector<mx::NodePtr> lights;
-    for (mx::NodePtr node : doc->getNodes())
-    {
-        const mx::TypeDesc* type = mx::TypeDesc::get(node->getType());
-        if (type == mx::Type::LIGHTSHADER)
-        {
-            lights.push_back(node);
-        }
-    }
-    if (!lights.empty())
-    {
-        // Set the list of lights on the with the generator
-        lightHandler.setLightSources(lights);
+    lightHandler.findLights(doc, lights);
+    lightHandler.registerLights(doc, lights, context);
 
-        // Find light types (node definitions) and generate ids.
-        // Register types and ids with the generator
-        std::unordered_map<std::string, unsigned int> identifiers;
-        mx::mapNodeDefToIdentiers(lights, identifiers);
-        for (auto id : identifiers)
-        {
-            mx::NodeDefPtr nodeDef = doc->getNodeDef(id.first);
-            if (nodeDef)
-            {
-                mx::HwShaderGenerator::bindLightShader(*nodeDef, id.second, context);
-            }
-        }
-    }
-
-    // Clamp the number of light sources to the number found
-    unsigned int lightSourceCount = static_cast<unsigned int>(lightHandler.getLightSources().size());
-    context.getOptions().hwMaxActiveLightSources = lightSourceCount;
-
+    // Set the list of lights on the with the generator
+    lightHandler.setLightSources(lights);
     // Set up IBL inputs
     lightHandler.setLightEnvIrradiancePath(envIrradiancePath);
     lightHandler.setLightEnvRadiancePath(envRadiancePath);
@@ -120,7 +94,7 @@ static mx::GlslValidatorPtr createGLSLValidator(const std::string& fileName, std
         std::string geometryFile;
         if (fileName.length())
         {
-            geometryFile =  mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Geometry/") / mx::FilePath(fileName);
+            geometryFile =  mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/") / mx::FilePath(fileName);
             if (!geometryHandler.hasGeometry(geometryFile))
             {
                 geometryHandler.clearGeometry();
@@ -621,7 +595,7 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                     {
                         if (!testOptions.glslShaderGeometry.isAbsolute())
                         {
-                            geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Geometry") / testOptions.glslShaderGeometry;
+                            geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry") / testOptions.glslShaderGeometry;
                         }
                         else
                         {
@@ -630,7 +604,7 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                     }
                     else
                     {
-                        geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Geometry/shaderball.obj");
+                        geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/shaderball.obj");
                     }
                     if (!geomHandler.hasGeometry(geomPath))
                     {
@@ -646,7 +620,7 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                     {
                         if (!testOptions.glslNonShaderGeometry.isAbsolute())
                         {
-                            geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Geometry") / testOptions.glslNonShaderGeometry;
+                            geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry") / testOptions.glslNonShaderGeometry;
                         }
                         else
                         {
@@ -655,7 +629,7 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                     }
                     else
                     {
-                        geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Geometry/sphere.obj");
+                        geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/sphere.obj");
                     }
                     if (!geomHandler.hasGeometry(geomPath))
                     {

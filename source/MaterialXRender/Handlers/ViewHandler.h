@@ -45,6 +45,10 @@ class ViewHandler
                                         float farClipPlane);
 
     /// Set a matrix to an orthographic projection
+    /// @param left Left clip plane
+    /// @param right Right clip plane
+    /// @param bottom Bottom clip plane
+    /// @param top Top clip plane
     /// @param nearClipPlane Near clip plane
     /// @param farClipPlane Far clip plane
     void setOrthoGraphicProjectionMatrix(float left,

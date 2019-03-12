@@ -54,7 +54,7 @@ class ShaderValidator
     }
 
     /// Set light handler to use for light bindings
-    /// @param imageHandler Handler used for lights
+    /// @param lightHandler Handler used for lights
     void setLightHandler(const HwLightHandlerPtr lightHandler)
     {
         _lightHandler = lightHandler;

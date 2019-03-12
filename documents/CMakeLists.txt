@@ -32,7 +32,7 @@ if(MATERIALX_BUILD_DOCS)
                           COMMENT "Generating HTML documentation: ${DOXYGEN_HTML_OUTPUT_DIR}/index.html")
         add_custom_command(TARGET MaterialXDocs PRE_BUILD
                            COMMAND ${CMAKE_COMMAND} -E copy_directory
-                           ${CMAKE_SOURCE_DIR}/documents/Images ${CMAKE_CURRENT_BINARY_DIR})
+                           ${CMAKE_SOURCE_DIR}/resources/Images ${CMAKE_CURRENT_BINARY_DIR})
         install(DIRECTORY ${DOXYGEN_HTML_OUTPUT_DIR}
                 DESTINATION "${CMAKE_INSTALL_PREFIX}/documents" MESSAGE_NEVER)
     endif(DOXYGEN_FOUND)

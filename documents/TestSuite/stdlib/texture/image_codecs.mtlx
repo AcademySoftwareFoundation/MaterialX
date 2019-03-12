@@ -2,7 +2,7 @@
 <materialx version="1.36">
   <output name="image4_output_bmp" type="color4" nodename="image4_bmp" xpos="6.01379" ypos="-0.64" />
   <image name="image4_bmp" type="color4" xpos="6.57241" ypos="21.64">
-    <parameter name="file" type="filename" value="documents/TestSuite/Images/cloth.bmp" />
+    <parameter name="file" type="filename" value="resources/Images/cloth.bmp" />
     <parameter name="uaddressmode" type="string" value="black" />
     <parameter name="vaddressmode" type="string" value="clamp" />
     <parameter name="filtertype" type="string" value="linear" />
@@ -10,7 +10,7 @@
   </image>
   <output name="image4_output_gif" type="color4" nodename="image4_gif" xpos="6.14483" ypos="8.16" />
   <image name="image4_gif" type="color4" xpos="6.57931" ypos="27.28">
-    <parameter name="file" type="filename" value="documents/TestSuite/Images/cloth.gif" />
+    <parameter name="file" type="filename" value="resources/Images/cloth.gif" />
     <parameter name="uaddressmode" type="string" value="black" />
     <parameter name="vaddressmode" type="string" value="clamp" />
     <parameter name="filtertype" type="string" value="linear" />
@@ -18,7 +18,7 @@
   </image>
   <output name="image4_output_jpg" type="color4" nodename="image4_jpg" xpos="6.10345" ypos="5.96" />
   <image name="image4_jpg" type="color4" xpos="6.57931" ypos="32.92">
-    <parameter name="file" type="filename" value="documents/TestSuite/Images/cloth.jpg" />
+    <parameter name="file" type="filename" value="resources/Images/cloth.jpg" />
     <parameter name="uaddressmode" type="string" value="black" />
     <parameter name="vaddressmode" type="string" value="clamp" />
     <parameter name="filtertype" type="string" value="linear" />
@@ -26,7 +26,7 @@
   </image>
   <output name="image4_output_png" type="color4" nodename="image4_png" xpos="6.06207" ypos="1.56" />
   <image name="image4_png" type="color4" xpos="6.57931" ypos="30.1">
-    <parameter name="file" type="filename" value="documents/TestSuite/Images/cloth.png" />
+    <parameter name="file" type="filename" value="resources/Images/cloth.png" />
     <parameter name="uaddressmode" type="string" value="black" />
     <parameter name="vaddressmode" type="string" value="clamp" />
     <parameter name="filtertype" type="string" value="linear" />
@@ -34,7 +34,7 @@
   </image>
   <output name="image4_output_tga" type="color4" nodename="image4_tga" xpos="6.09655" ypos="3.76" />
   <image name="image4_tga" type="color4" xpos="6.57931" ypos="24.46">
-    <parameter name="file" type="filename" value="documents/TestSuite/Images/cloth.tga" />
+    <parameter name="file" type="filename" value="resources/Images/cloth.tga" />
     <parameter name="uaddressmode" type="string" value="black" />
     <parameter name="vaddressmode" type="string" value="clamp" />
     <parameter name="filtertype" type="string" value="linear" />
@@ -42,7 +42,7 @@
   </image>
   <output name="image4_output_wood1" type="color4" nodename="image4_wood1" xpos="5.84828" ypos="-5.04" />
   <image name="image4_wood1" type="color4" xpos="6.4069" ypos="13.18">
-    <parameter name="file" type="filename" value="documents/TestSuite/Images/wood_baseColor.png" />
+    <parameter name="file" type="filename" value="resources/Images/wood_baseColor.png" />
     <parameter name="uaddressmode" type="string" value="black" />
     <parameter name="vaddressmode" type="string" value="clamp" />
     <parameter name="filtertype" type="string" value="linear" />
@@ -50,7 +50,7 @@
   </image>
   <output name="image4_output_wood2" type="color4" nodename="image4_wood2" xpos="5.84828" ypos="-7.24" />
   <image name="image4_wood2" type="color4" xpos="6.4069" ypos="10.36">
-    <parameter name="file" type="filename" value="documents/TestSuite/Images/wood_height.png" />
+    <parameter name="file" type="filename" value="resources/Images/wood_height.png" />
     <parameter name="uaddressmode" type="string" value="black" />
     <parameter name="vaddressmode" type="string" value="clamp" />
     <parameter name="filtertype" type="string" value="linear" />
@@ -58,7 +58,7 @@
   </image>
   <output name="image4_output_wood3" type="color4" nodename="image4_wood3" xpos="5.84828" ypos="-9.44" />
   <image name="image4_wood3" type="color4" xpos="6.4069" ypos="18.82">
-    <parameter name="file" type="filename" value="documents/TestSuite/Images/wood_normal.png" />
+    <parameter name="file" type="filename" value="resources/Images/wood_normal.png" />
     <parameter name="uaddressmode" type="string" value="black" />
     <parameter name="vaddressmode" type="string" value="clamp" />
     <parameter name="filtertype" type="string" value="linear" />
@@ -66,7 +66,7 @@
   </image>
   <output name="image4_output_wood4" type="color4" nodename="image4_wood4" xpos="5.84828" ypos="-2.84" />
   <image name="image4_wood4" type="color4" xpos="6.4069" ypos="16">
-    <parameter name="file" type="filename" value="documents/TestSuite/Images/wood_roughness.png" />
+    <parameter name="file" type="filename" value="resources/Images/wood_roughness.png" />
     <parameter name="uaddressmode" type="string" value="black" />
     <parameter name="vaddressmode" type="string" value="clamp" />
     <parameter name="filtertype" type="string" value="linear" />

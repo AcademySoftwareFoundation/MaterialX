@@ -136,7 +136,7 @@ class OslValidator : public ShaderValidator
     /// For testrender this value is used to replace the %shader_output% token in the
     /// input scene file.
     /// @param outputName Name of shader output
-    /// @param outputName The MaterialX type of the output
+    /// @param outputType The MaterialX type of the output
     void setOslShaderOutput(const string& outputName, const string& outputType)
     {
         _oslShaderOutputName = outputName;

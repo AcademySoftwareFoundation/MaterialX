@@ -3,12 +3,14 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXGenShader/Util.h>
-
 #include <MaterialXCore/Util.h>
 #include <MaterialXFormat/XmlIo.h>
+#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenShader/Util.h>
 
 #include <iostream>
 #include <fstream>
@@ -815,24 +817,6 @@ unsigned int getUIProperties(const string& path, DocumentPtr doc, const string& 
         return getUIProperties(valueElement, uiProperties);
     }
     return 0;
-}
-
-void mapNodeDefToIdentiers(const std::vector<NodePtr>& nodes,
-                           std::unordered_map<string, unsigned int>& ids)
-{
-    unsigned int id = 1;
-    for (auto node : nodes)
-    {
-        auto nodedef = node->getNodeDef();
-        if (nodedef)
-        {
-            const string& name = nodedef->getName();
-            if (!ids.count(name))
-            {
-                ids[name] = id++;
-            }
-        }
-    }
 }
 
 } // namespace MaterialX

@@ -13,6 +13,7 @@
 #include <MaterialXGenGlsl/GlslSyntax.h>
 
 #include <MaterialXTest/GenShaderUtil.h>
+#include <MaterialXTest/GenGlsl.h>
 
 namespace mx = MaterialX;
 
@@ -121,41 +122,13 @@ TEST_CASE("Bind Light Shaders", "[genglsl]")
     REQUIRE_NOTHROW(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 66, context));
 }
 
-class GLSLGenCodeGenerationTester : public GenShaderUtil::ShaderGeneratorTester
-{
-  public:
-    GLSLGenCodeGenerationTester(const mx::FilePath& testRootPath, const mx::FilePath& libSearchPath,
-                                const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath) :
-        GenShaderUtil::ShaderGeneratorTester(testRootPath, libSearchPath, srcSearchPath, logFilePath)
-    {}
-
-    void createGenerator() override
-    {
-        _shaderGenerator = mx::GlslShaderGenerator::create();
-    }
-
-    void addSkipNodeDefs() override
-    {
-        _skipNodeDefs.insert("ND_add_surfaceshader");
-        _skipNodeDefs.insert("ND_multiply_surfaceshaderF");
-        _skipNodeDefs.insert("ND_multiply_surfaceshaderC");
-        _skipNodeDefs.insert("ND_mix_surfaceshader");
-    }
-
-    void setTestStages() override
-    {
-        _testStages.push_back(mx::Stage::VERTEX);
-        _testStages.push_back(mx::Stage::PIXEL);
-    }
-};
-
 static void generateGLSLCode()
 {
     const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite");
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     const mx::FilePath logPath("genglsl_glsl400_generate_test.txt");
-    GLSLGenCodeGenerationTester tester(testRootPath, libSearchPath, srcSearchPath, logPath);
+    GlslShaderGeneratorTester tester(testRootPath, libSearchPath, srcSearchPath, logPath);
 
     const mx::GenOptions genOptions;
     tester.testGeneration(genOptions);

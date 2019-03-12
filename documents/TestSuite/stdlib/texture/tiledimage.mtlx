@@ -9,7 +9,7 @@ used to lookup each image
 <materialx version="1.36">
    <output name="tiled_image4_output" type="color4" nodename="tiled_image4" />
    <tiledimage name="tiled_image4" type="color4">
-      <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="file" type="filename" value="resources/Images/marble.png" />
       <parameter name="uvtiling" type="vector2" value="2.0, 2.0"/>
       <parameter name="uvoffset" type="vector2" value="0.5, 0.5"/>
       <parameter name="filtertype" type="string" value="cubic"/>
@@ -18,7 +18,7 @@ used to lookup each image
 
    <output name="tiled_image3_output" type="color3" nodename="tiled_image3" />
    <tiledimage name="tiled_image3" type="color3">
-      <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="file" type="filename" value="resources/Images/marble.png" />
       <parameter name="uvtiling" type="vector2" value="2.0, 2.0"/>
       <parameter name="uvoffset" type="vector2" value="0.5, 0.5"/>
       <parameter name="filtertype" type="string" value="closest"/>
@@ -27,7 +27,7 @@ used to lookup each image
 
    <output name="tiled_image2_output" type="color2" nodename="tiled_image2" />
    <tiledimage name="tiled_image2" type="color2">
-      <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="file" type="filename" value="resources/Images/marble.png" />
       <parameter name="uvtiling" type="vector2" value="2.0, 2.0"/>
       <parameter name="uvoffset" type="vector2" value="0.5, 0.5"/>
       <parameter name="filtertype" type="string" value="linear"/>
@@ -36,7 +36,7 @@ used to lookup each image
 
    <output name="tiled_image1_output" type="float" nodename="tiled_image1" />
    <tiledimage name="tiled_image1" type="float">
-      <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="file" type="filename" value="resources/Images/marble.png" />
       <parameter name="uvtiling" type="vector2" value="2.0, 2.0"/>
       <parameter name="uvoffset" type="vector2" value="0.5, 0.5"/>
       <parameter name="filtertype" type="string" value="cubic"/>
@@ -45,7 +45,7 @@ used to lookup each image
 
    <output name="tiled_image4v_output" type="vector4" nodename="tiled_image4v" />
    <tiledimage name="tiled_image4v" type="vector4">
-      <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="file" type="filename" value="resources/Images/marble.png" />
       <parameter name="uvtiling" type="vector2" value="2.0, 2.0"/>
       <parameter name="uvoffset" type="vector2" value="0.5, 0.5"/>
       <parameter name="filtertype" type="string" value="closest"/>
@@ -54,7 +54,7 @@ used to lookup each image
 
    <output name="tiled_image3v_output" type="vector3" nodename="tiled_image3v" />
    <tiledimage name="tiled_image3v" type="vector3">
-      <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="file" type="filename" value="resources/Images/marble.png" />
       <parameter name="uvtiling" type="vector2" value="2.0, 2.0"/>
       <parameter name="uvoffset" type="vector2" value="0.5, 0.5"/>
       <parameter name="filtertype" type="string" value="linear"/>
@@ -63,7 +63,7 @@ used to lookup each image
 
    <output name="tiled_image2v_output" type="vector2" nodename="tiled_image2v" />
    <tiledimage name="tiled_image2v" type="vector2">
-      <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" />
+      <parameter name="file" type="filename" value="resources/Images/marble.png" />
       <parameter name="uvtiling" type="vector2" value="2.0, 2.0"/>
       <parameter name="uvoffset" type="vector2" value="0.5, 0.5"/>
       <parameter name="filtertype" type="string" value="closest"/>

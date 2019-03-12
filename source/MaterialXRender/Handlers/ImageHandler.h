@@ -43,7 +43,7 @@ class ImageDesc
     }
 };
 
-/// class @ImageSamplingProperties
+/// @class @ImageSamplingProperties
 /// Interface to describe sampling properties for images.
 class ImageSamplingProperties
 {
@@ -154,7 +154,7 @@ class ImageHandler
     /// Acquire an image from disk. This method must be implemented by derived classes.
     /// The first image loader which supports the file name extension will be used.
     /// @param fileName Name of file to load image from.
-    /// @param imageDesc Description of image updated during load.
+    /// @param desc Description of image updated during load.
     /// @param generateMipMaps Generate mip maps if supported.
     /// @param fallbackColor Color of fallback image to use if failed to load.  If null is specified then
     /// no fallback image will be acquired.
@@ -173,7 +173,7 @@ class ImageHandler
     /// @param identifier Identifier for image description to bind.
     /// @param samplingProperties Sampling properties for the image
     /// @return true if succeded to bind
-    virtual bool bindImage(const std::string& /*identifier*/, const ImageSamplingProperties& /*samplingProperties*/) = 0;
+    virtual bool bindImage(const std::string& identifier, const ImageSamplingProperties& samplingProperties) = 0;
 
     /// Clear the contents of the image cache.
     /// deleteImage() will be called for each cache description to 
@@ -220,7 +220,7 @@ class ImageHandler
     /// @param imageDesc Image description indicate which image to delete.
     /// Derived classes must implement this method to clean up resources
     /// when the image cache is cleared.
-    virtual void deleteImage(ImageDesc& /*imageDesc*/) = 0;
+    virtual void deleteImage(ImageDesc& imageDesc) = 0;
 
     /// Image loader utilities
     ImageLoaderMap _imageLoaders;

@@ -55,17 +55,17 @@
         <parameter name="dumpGeneratedCode" type="boolean" value="true" />
 
         <!-- Geometry file to use for rendering non-shader elements in GLSL.
-        A relative path specifier is relative to the folder "/documents/TestSuite/Geometry/" -->
+        A relative path specifier is relative to the folder "/resources/Geometry/" -->
         <parameter name="glslNonShaderGeometry" type="string" value="sphere.obj" />
 
         <!-- Geometry file to use for rendering shader elements in GLSL -->
         <parameter name="glslShaderGeometry" type="string" value="sphere.obj" />
 
         <!-- Radiance IBL file path -->
-        <parameter name="radianceIBLPath" type="string" value="/documents/TestSuite/Images/san_giuseppe_bridge.hdr" />
+        <parameter name="radianceIBLPath" type="string" value="/resources/Images/san_giuseppe_bridge.hdr" />
 
         <!-- Irradiance IBL file path -->
-        <parameter name="irradianceIBLPath" type="string" value="/documents/TestSuite/Images/san_giuseppe_bridge_diffuse.hdr" />
+        <parameter name="irradianceIBLPath" type="string" value="/resources/Images/san_giuseppe_bridge_diffuse.hdr" />
 
     </nodedef>
 </materialx>

@@ -22,7 +22,7 @@ Basic test of heighttonormal node
          <parameter name="scale" type="float" value="0.2000" />
       </heighttonormal>
       <image name="image1" type="float" xpos="4.32759" ypos="14.92">
-         <parameter name="file" type="filename" value="documents/TestSuite/Images/marble.png" />
+         <parameter name="file" type="filename" value="resources/Images/marble.png" />
          <parameter name="layer" type="string" value="" />
          <parameter name="default" type="float" value="0.0" />
          <input name="texcoord" type="vector2" value="0.0, 0.0" />
