@@ -86,12 +86,12 @@ TEST_CASE("OSL Implementation Check", "[genosl]")
 {
     mx::GenContext context(mx::OslShaderGenerator::create());
 
-    std::set<std::string> generatorSkipNodeTypes;
+    mx::StringSet generatorSkipNodeTypes;
     generatorSkipNodeTypes.insert("light");
     generatorSkipNodeTypes.insert("point_light");
     generatorSkipNodeTypes.insert("directional_light");
     generatorSkipNodeTypes.insert("spot_light");
-    std::set<std::string> generatorSkipNodeDefs;
+    mx::StringSet generatorSkipNodeDefs;
 
     GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs);
 }

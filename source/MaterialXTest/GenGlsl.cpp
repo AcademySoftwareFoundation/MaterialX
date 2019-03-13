@@ -80,8 +80,8 @@ TEST_CASE("GLSL Implementation Check", "[genglsl]")
 {
     mx::GenContext context(mx::GlslShaderGenerator::create());
 
-    std::set<std::string> generatorSkipNodeTypes;
-    std::set<std::string> generatorSkipNodeDefs;
+    mx::StringSet generatorSkipNodeTypes;
+    mx::StringSet generatorSkipNodeDefs;
     generatorSkipNodeDefs.insert("ND_add_surfaceshader");
     generatorSkipNodeDefs.insert("ND_multiply_surfaceshaderF");
     generatorSkipNodeDefs.insert("ND_multiply_surfaceshaderC");

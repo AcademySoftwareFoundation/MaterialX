@@ -32,7 +32,7 @@ TEST_CASE("Syntactic operations", "[file]")
 
 TEST_CASE("File system operations", "[file]")
 {
-    std::vector<std::string> filenames =
+    mx::StringVec filenames =
     {
         "documents/Libraries/stdlib/stdlib_defs.mtlx",
         "documents/Examples/MaterialBasic.mtlx",
@@ -53,7 +53,7 @@ TEST_CASE("File search path operations", "[file]")
                              mx::PATH_LIST_SEPARATOR + 
                              "documents/Examples";
 
-    std::vector<std::string> filenames =
+    mx::StringVec filenames =
     {
         "stdlib_defs.mtlx",
         "MaterialBasic.mtlx",
