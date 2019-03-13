@@ -265,4 +265,19 @@ Basic transform function tests each test is in a separate graph for each variati
       <input name="tospace" type="string" value="object" />
     </transformnormal>
   </nodegraph>
+
+  <nodegraph name="place2d_vector2" xpos="6.93103" ypos="26.16">
+    <texcoord name="texcoord1" type="vector2" xpos="4.05281" ypos="11.1126">
+        <parameter name="index" type="integer" value="0" />
+    </texcoord>
+    <place2d name="place2d1_1" type="vector2">
+        <input name="texcoord" type="vector2" nodename="texcoord1"/>
+        <parameter name="pivot" type="vector2" value="0.5,0.5"/>
+        <input name="scale" type="vector2" value="2.0,2.0"/>
+        <input name="rotate" type="float" value="45.0"/>
+        <input name="offset" type="vector2" value="0.2,0.2"/>
+    </place2d>
+    <output name="out" type="vector2" nodename="place2d1_1" />
+  </nodegraph>
+
 </materialx>
