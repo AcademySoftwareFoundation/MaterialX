@@ -14,7 +14,7 @@ namespace MaterialX
 namespace
 {
     // Semantics used by OgsFx
-    static const std::unordered_map<string,string> OGSFX_DEFAULT_SEMANTICS_MAP =
+    static const StringMap OGSFX_DEFAULT_SEMANTICS_MAP =
     {
         { "i_position", "POSITION"},
         { "i_normal", "NORMAL" },
@@ -58,7 +58,7 @@ namespace
         { "u_time", "Time" }
     };
 
-    static const std::unordered_map<string, string> OGSFX_GET_LIGHT_DATA_MAP =
+    static const StringMap OGSFX_GET_LIGHT_DATA_MAP =
     {
         { "type", "mx_getLightType" },
         { "position", "mx_getLightPos" },

@@ -27,7 +27,7 @@ class ShaderValidator
 {
   public:
     /// A map with name and source code for each shader stage.
-    using StageMap = std::unordered_map<string, string>;
+    using StageMap = StringMap;
 
   public:
     /// Destructor

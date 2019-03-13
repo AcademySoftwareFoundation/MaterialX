@@ -6,7 +6,7 @@
 #include <MaterialXRenderGlsl/External/GLew/glew.h>
 #include <MaterialXRenderGlsl/GlslValidator.h>
 #include <MaterialXRender/Handlers/GeometryHandler.h>
-#include <MaterialXRender/Handlers/TestObjLoader.h>
+#include <MaterialXRender/Handlers/SampleObjLoader.h>
 
 #include <iostream>
 #include <algorithm>
@@ -42,7 +42,7 @@ GlslValidator::GlslValidator() :
 {
     _program = GlslProgram::create();
 
-    TestObjLoaderPtr loader = TestObjLoader::create();
+    SampleObjLoaderPtr loader = SampleObjLoader::create();
     _geometryHandler.addLoader(loader);
 
     _viewHandler = ViewHandler::create();

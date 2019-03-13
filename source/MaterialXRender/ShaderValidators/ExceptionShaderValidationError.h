@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 /// Error string list type
-using ShaderValidationErrorList = vector<string>;
+using ShaderValidationErrorList = StringVec;
 
 /// @class @ExceptionShaderValidationError
 /// An exception that is thrown when shader validation fails.

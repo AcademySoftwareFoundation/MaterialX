@@ -571,7 +571,7 @@ bool requiresImplementation(const NodeDefPtr nodeDef)
 bool elementRequiresShading(const TypedElementPtr element)
 {
     string elementType(element->getType());
-    static std::set<string> colorClosures =
+    static StringSet colorClosures =
     {
         "surfaceshader", "volumeshader", "lightshader",
         "BSDF", "EDF", "VDF"

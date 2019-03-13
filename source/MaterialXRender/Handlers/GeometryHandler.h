@@ -30,7 +30,7 @@ class GeometryLoader
 
     /// Returns a list of supported extensions
     /// @return List of support extensions
-    const vector<string>& supportedExtensions()
+    const StringVec& supportedExtensions()
     {
         return _extensions;
     }

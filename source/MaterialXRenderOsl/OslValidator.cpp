@@ -211,7 +211,7 @@ void OslValidator::shadeOSL(const string& outputPath, const string& shaderName, 
     // The formatted string is "Output <outputName> to <outputFileName>".
     std::ifstream errorStream(errorFile);
     string result;
-    std::vector<string> results;
+    StringVec results;
     string line;
     string successfulOutputSubString("Output " + outputName + " to " +
                                            outputFileName);

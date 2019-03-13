@@ -246,7 +246,7 @@ class GlslProgram
   private:
     /// Stages used to create program
     /// Map of stage name and its source code
-    std::unordered_map<string, string> _stages;
+      StringMap _stages;
 
     /// Generated program. A non-zero number indicates a valid shader program.
     unsigned int _programId;

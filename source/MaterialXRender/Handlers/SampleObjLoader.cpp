@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRender/Handlers/TestObjLoader.h>
+#include <MaterialXRender/Handlers/SampleObjLoader.h>
 #include <MaterialXCore/Util.h>
 
 #include <iostream>
@@ -15,7 +15,7 @@
 
 namespace MaterialX
 { 
-bool TestObjLoader::load(const std::string& fileName, MeshList& meshList)
+bool SampleObjLoader::load(const std::string& fileName, MeshList& meshList)
 {
     std::ifstream objfile;
     objfile.open(fileName);
@@ -155,7 +155,7 @@ bool TestObjLoader::load(const std::string& fileName, MeshList& meshList)
             {
                 if (vertices[i].size())
                 {
-                    std::vector<string> vertexParts = MaterialX::splitString(vertices[i], "/");
+                    StringVec vertexParts = MaterialX::splitString(vertices[i], "/");
                     if (vertexParts.size() == 3)
                     {
                         ipos[i] = std::stoi(vertexParts[0]);

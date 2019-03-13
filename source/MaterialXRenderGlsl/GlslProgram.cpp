@@ -887,7 +887,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
     // Set world related matrices. World matrix is identity so
     // bind the same matrix to all locations
     //
-    std::vector<std::string> worldMatrixVariables =
+    StringVec worldMatrixVariables =
     {
         "u_worldMatrix",
         "u_worldInverseMatrix",
@@ -909,7 +909,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
 
     // Bind projection matrices
     //
-    std::vector<std::string> projectionMatrixVariables =
+    StringVec projectionMatrixVariables =
     {
         "u_projectionMatrix",
         "u_projectionTransposeMatrix",
@@ -944,7 +944,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
     }
 
     // Bind view related matrices
-    std::vector<std::string> viewMatrixVariables =
+    StringVec viewMatrixVariables =
     {
         "u_viewMatrix",
         "u_viewTransposeMatrix",
@@ -979,7 +979,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
     }
 
     // Bind combined matrices
-    std::vector<std::string> combinedMatrixVariables =
+    StringVec combinedMatrixVariables =
     {
         "u_viewProjectionMatrix",
         "u_worldViewProjectionMatrix"

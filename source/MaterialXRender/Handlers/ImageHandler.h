@@ -93,7 +93,7 @@ class ImageLoader
 
     /// Returns a list of supported extensions
     /// @return List of support extensions
-    const std::vector<std::string>& supportedExtensions()
+    const StringVec& supportedExtensions()
     {
         return _extensions;
     }
@@ -114,7 +114,7 @@ class ImageLoader
 
   protected:
     /// List of supported string extensions
-    std::vector<std::string> _extensions;
+    StringVec _extensions;
 };
 
 /// Shared pointer to an ImageHandler
