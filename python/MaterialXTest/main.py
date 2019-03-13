@@ -21,8 +21,8 @@ _testValues = (1,
                'value')
 
 _fileDir = os.path.dirname(os.path.abspath(__file__))
-_libraryDir = os.path.join(_fileDir, '../../documents/Libraries/stdlib/')
-_exampleDir = os.path.join(_fileDir, '../../documents/Examples/')
+_libraryDir = os.path.join(_fileDir, '../../libraries/stdlib/')
+_exampleDir = os.path.join(_fileDir, '../../resources/Materials/Examples/')
 _searchPath = _libraryDir + mx.PATH_LIST_SEPARATOR + _exampleDir
 
 _libraryFilenames = ('stdlib_defs.mtlx',
@@ -35,10 +35,7 @@ _exampleFilenames = ('CustomNode.mtlx',
                      'NodeGraphs.mtlx',
                      'PaintMaterials.mtlx',
                      'PostShaderComposite.mtlx',
-                     'PreShaderComposite.mtlx',
-                     'BxDF/alSurface.mtlx',
-                     'BxDF/Disney_BRDF_2012.mtlx',
-                     'BxDF/Disney_BSDF_2015.mtlx')
+                     'PreShaderComposite.mtlx')
 
 _epsilon = 1e-4
 

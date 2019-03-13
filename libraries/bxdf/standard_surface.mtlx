@@ -182,13 +182,13 @@
       <input name="in" type="color3" interfacename="opacity" />
     </luminance>
     <swizzle name="luminance1_x" type="float">
-      <input name="in" type="color3" nodename="luminance1"/>/>
-      <parameter name="channels" type="string" value="r"/>
+      <input name="in" type="color3" nodename="luminance1" />
+      <parameter name="channels" type="string" value="r" />
     </swizzle>
     <surface name="Surface_Constructor" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="Coat_BSDF" />
-      <input name="edf" type="EDF" nodename="Emission_EDF"  />
-      <input name="opacity" type="float" nodename="luminance1_x"/>
+      <input name="edf" type="EDF" nodename="Emission_EDF" />
+      <input name="opacity" type="float" nodename="luminance1_x" />
     </surface>
     <!-- Output -->
     <output name="out" type="surfaceshader" nodename="Surface_Constructor" />

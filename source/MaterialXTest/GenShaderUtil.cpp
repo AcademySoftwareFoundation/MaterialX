@@ -76,7 +76,7 @@ void checkImplementations(mx::GenContext& context,
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
 
     std::string generatorId = shadergen.getLanguage() + "_" + shadergen.getTarget();
@@ -278,7 +278,7 @@ void testUniqueNames(mx::GenContext& context, const std::string& stage)
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     loadLibraries({ "stdlib" }, searchPath, doc);
 
     const std::string exampleName = "unique_names";
@@ -376,7 +376,7 @@ void ShaderGeneratorTester::setupDependentLibraries()
     GenShaderUtil::loadLibraries(libraries, _libSearchPath, _dependLib, &_excludeLibraryFiles);
 
     // Load the standard_surface definition since it's used in the test suite.
-    GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("documents/Examples/BxDF/standard_surface.mtlx"), _dependLib);
+    GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), _dependLib);
 }
 
 void ShaderGeneratorTester::setExcludeLibraryFiles()
