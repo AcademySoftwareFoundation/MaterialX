@@ -127,6 +127,27 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
         _testStages.push_back(mx::Stage::PIXEL);
     }
+
+    // Ignore trying to create shader code for lightshaders
+    void addSkipNodeDefs() override
+    {
+        _skipNodeDefs.insert("ND_point_light");
+        _skipNodeDefs.insert("ND_spot_light");
+        _skipNodeDefs.insert("ND_directional_light");
+        ParentClass::addSkipNodeDefs();
+    }
+
+    // Ignore light shaders in the document for OSL
+    void findLights(mx::DocumentPtr /*doc*/, std::vector<mx::NodePtr>& lights) override
+    {
+        lights.clear();
+    }
+
+    // No direct lighting to register for OSL
+    void registerLights(mx::DocumentPtr /*doc*/, const std::vector<mx::NodePtr>& /*lights*/, mx::GenContext& /*context*/) override
+    {
+        ; // no-op
+    }
 };
 
 static void generateOSLCode()
