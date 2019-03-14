@@ -15,17 +15,17 @@
 
 namespace MaterialX
 { 
-bool SampleObjLoader::load(const std::string& fileName, MeshList& meshList)
+bool SampleObjLoader::load(const FilePath& filePath, MeshList& meshList)
 {
     std::ifstream objfile;
-    objfile.open(fileName);
+    objfile.open(filePath);
     if (!objfile.is_open())
     {
         return false;
     }
 
-    MeshPtr mesh = Mesh::create(fileName);
-    mesh->setSourceUri(fileName);
+    MeshPtr mesh = Mesh::create(filePath);
+    mesh->setSourceUri(filePath);
     MeshStreamPtr positionStream = MeshStream::create("i_" + MeshStream::POSITION_ATTRIBUTE, MeshStream::POSITION_ATTRIBUTE, 0);
     MeshFloatBuffer& positionData = positionStream->getData();
     mesh->addStream(positionStream);

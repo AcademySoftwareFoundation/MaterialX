@@ -20,14 +20,14 @@
 
 namespace MaterialX
 {
-bool TinyObjLoader::load(const std::string& fileName, MeshList& meshList)
+bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
 {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
     std::string err;
     bool load = tinyobj::LoadObj(&attrib, &shapes, &materials, nullptr, &err,
-                                 fileName.c_str(), nullptr, true, false);
+                                 filePath.asString().c_str(), nullptr, true, false);
     if (!load)
     {
         std::cerr << err << std::endl;
@@ -41,10 +41,10 @@ bool TinyObjLoader::load(const std::string& fileName, MeshList& meshList)
         return false;
     }
 
-    MeshPtr mesh = Mesh::create(fileName);
+    MeshPtr mesh = Mesh::create(filePath);
     meshList.push_back(mesh);
     mesh->setVertexCount(vertexCount);
-    mesh->setSourceUri(fileName);
+    mesh->setSourceUri(filePath);
     MeshStreamPtr positionStream = MeshStream::create("i_" + MeshStream::POSITION_ATTRIBUTE, MeshStream::POSITION_ATTRIBUTE, 0);
     MeshFloatBuffer& positions = positionStream->getData();
     mesh->addStream(positionStream);

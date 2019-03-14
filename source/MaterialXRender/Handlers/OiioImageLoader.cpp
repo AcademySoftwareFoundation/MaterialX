@@ -33,20 +33,20 @@
 namespace MaterialX
 {
 
-bool OiioImageLoader::saveImage(const std::string& /*fileName*/,
+bool OiioImageLoader::saveImage(const FilePath& /*filePath*/,
                                 const ImageDesc &/*imageDesc*/)
 {
     throw Exception("Unimplemented method OiioImageLoader::saveImage.");
 }
 
-bool OiioImageLoader::acquireImage(const std::string& fileName,
+bool OiioImageLoader::acquireImage(const FilePath& filePath,
                                   ImageDesc& imageDesc,
                                   bool /*generateMipMaps*/)
 {
     imageDesc.width = imageDesc.height = imageDesc.channelCount = 0;
     imageDesc.resourceBuffer = nullptr;
 
-    OIIO::ImageInput* imageInput = OIIO::ImageInput::open(fileName);
+    OIIO::ImageInput* imageInput = OIIO::ImageInput::open(filePath);
     if (!imageInput)
     {
         return false;

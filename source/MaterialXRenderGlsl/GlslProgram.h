@@ -6,6 +6,9 @@
 #ifndef MATERIALX_GLSLPROGRAM_H
 #define MATERIALX_GLSLPROGRAM_H
 
+/// @file
+/// GLSL Program interfaces
+
 #include <MaterialXGenShader/Shader.h>
 
 #include <MaterialXRender/ShaderValidators/ExceptionShaderValidationError.h>
@@ -230,7 +233,7 @@ class GlslProgram
     /// @{
 
     /// Bind an individual texture to a program uniform location
-    bool bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& fileName,
+    bool bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& filePath,
                      ImageHandlerPtr imageHandler, bool generateMipMaps, const ImageSamplingProperties& imageProperties);
 
     /// Utility to check for OpenGL context errors.

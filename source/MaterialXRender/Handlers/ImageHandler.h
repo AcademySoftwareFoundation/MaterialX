@@ -6,6 +6,9 @@
 #ifndef MATERIALX_IMAGEHANDLER_H
 #define MATERIALX_IMAGEHANDLER_H
 
+/// @file
+/// Image handler interfaces
+
 #include <MaterialXCore/Types.h>
 
 #include <cmath>
@@ -16,7 +19,7 @@
 
 namespace MaterialX
 {
-/// @class @ImageDesc
+/// @class ImageDesc
 /// Interface to describe an image. Images are assumed to be float type.
 class ImageDesc
 {
@@ -33,7 +36,7 @@ class ImageDesc
     void* resourceBuffer = nullptr;
     /// Is buffer floating point
     bool floatingPoint = true;
-    /// Hardware target dependent resource identifier. May be empty
+    /// Hardware target dependent resource identifier. May be undefined.
     unsigned int resourceId = 0;
 
     /// Compute the number of mip map levels based on size of the image
@@ -43,7 +46,7 @@ class ImageDesc
     }
 };
 
-/// @class @ImageSamplingProperties
+/// @class ImageSamplingProperties
 /// Interface to describe sampling properties for images.
 class ImageSamplingProperties
 {
@@ -64,7 +67,7 @@ using ImageDescCache = std::unordered_map<std::string, ImageDesc>;
 /// Shared pointer to an ImageLoader
 using ImageLoaderPtr = std::shared_ptr<class ImageLoader>;
 
-/// @class @ImageLoader
+/// @class ImageLoader
 /// Abstract class representing an disk image loader
 ///
 class ImageLoader
@@ -99,18 +102,18 @@ class ImageLoader
     }
 
     /// Save image to disk. This method must be implemented by derived classes.
-    /// @param fileName Name of file to save image to
+    /// @param filePath Path to save image to
     /// @param imageDesc Description of image
     /// @return if save succeeded
-    virtual bool saveImage(const std::string& fileName,
+    virtual bool saveImage(const FilePath& filePath,
                            const ImageDesc &imageDesc) = 0;
 
     /// Acquire an image from disk. This method must be implemented by derived classes.
-    /// @param fileName Name of file to load image from
+    /// @param filePath Path to load image from
     /// @param imageDesc Description of image updated during load.
     /// @param generateMipMaps Generate mip maps if supported.
     /// @return if load succeeded
-    virtual bool acquireImage(const std::string& fileName, ImageDesc &imageDesc, bool generateMipMaps) = 0;
+    virtual bool acquireImage(const FilePath& filePath, ImageDesc &imageDesc, bool generateMipMaps) = 0;
 
   protected:
     /// List of supported string extensions
@@ -145,21 +148,21 @@ class ImageHandler
 
     /// Save image to disk. This method must be implemented by derived classes.
     /// The first image loader which supports the file name extension will be used.
-    /// @param fileName Name of file to save image to
+    /// @param filePath Name of file to save image to
     /// @param imageDesc Description of image
     /// @return if save succeeded
-    virtual bool saveImage(const std::string& fileName,
+    virtual bool saveImage(const FilePath& filePath,
                            const ImageDesc &imageDesc);
 
     /// Acquire an image from disk. This method must be implemented by derived classes.
     /// The first image loader which supports the file name extension will be used.
-    /// @param fileName Name of file to load image from.
+    /// @param filePath Name of file to load image from.
     /// @param desc Description of image updated during load.
     /// @param generateMipMaps Generate mip maps if supported.
     /// @param fallbackColor Color of fallback image to use if failed to load.  If null is specified then
     /// no fallback image will be acquired.
     /// @return if load succeeded in loading image or created fallback image.
-    virtual bool acquireImage(const FilePath& fileName, ImageDesc& desc, bool generateMipMaps, const std::array<float, 4>* fallbackColor);
+    virtual bool acquireImage(const FilePath& filePath, ImageDesc& desc, bool generateMipMaps, const std::array<float, 4>* fallbackColor);
 
     /// Utility to create a solid color color image 
     /// @param color Color to set
@@ -186,8 +189,8 @@ class ImageHandler
     /// Set to the search path used for finding image files.
     void setSearchPath(const FileSearchPath& path);
 
-    /// Resolve a filename using the registered search paths.
-    FilePath findFile(const FilePath& filename);
+    /// Resolve a path to a file using the registered search paths.
+    FilePath findFile(const FilePath& filePath);
 
     /// Get the image search path
     const FileSearchPath& searchPath()

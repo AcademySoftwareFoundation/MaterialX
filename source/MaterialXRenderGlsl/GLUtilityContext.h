@@ -6,6 +6,9 @@
 #ifndef MATERIALX_GLUTILITYCONTEXT_H
 #define MATERIALX_GLUTILITYCONTEXT_H
 
+/// @file
+/// OpenGL utility context
+
 #include <MaterialXRender/HardwarePlatform.h>
 #include <MaterialXRenderHw/Window/WindowWrapper.h>
 #include <memory>
@@ -31,7 +34,7 @@ using HardwareContextHandle = void*;
 using HardwareContextHandle = void*;
 #endif
 
-// GLUtilityContext shared pointer
+/// GLUtilityContext shared pointer
 using GLUtilityContextPtr = std::shared_ptr<class GLUtilityContext>;
 
 /// @class GLUtilityContext

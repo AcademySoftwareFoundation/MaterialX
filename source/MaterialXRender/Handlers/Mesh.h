@@ -6,6 +6,9 @@
 #ifndef MATERIALX_MESH_H
 #define MATERIALX_MESH_H
 
+/// @file
+/// Mesh interfaces
+
 #include <MaterialXCore/Types.h>
 #include <string>
 #include <vector>
@@ -122,7 +125,7 @@ class MeshStream
 /// Shader pointer to a mesh stream
 using MeshPartitionPtr = shared_ptr<class MeshPartition>;
 
-/// @class @MeshPartition
+/// @class MeshPartition
 /// Class that describes a sub-region of a mesh using vertex indexing.
 /// Note that a face is considered to be a triangle.
 class MeshPartition
@@ -200,7 +203,7 @@ using MeshList = vector<MeshPtr>;
 /// Map of names to mesh
 using MeshMap = std::unordered_map<string, MeshPtr>;
 
-/// @class @Mesh
+/// @class Mesh
 /// Container for mesh data
 ///
 class Mesh

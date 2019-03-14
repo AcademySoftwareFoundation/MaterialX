@@ -6,6 +6,9 @@
 #ifndef MATERIALX_SAMPLEOBJLOADER_H
 #define MATERIALX_SAMPLEOBJLOADER_H
 
+/// @file
+/// Sample OBJ geometry loader
+
 #include <string>
 #include <memory>
 #include <MaterialXRender/Handlers/GeometryHandler.h>
@@ -36,7 +39,7 @@ class SampleObjLoader : public GeometryLoader
     virtual ~SampleObjLoader() {}
 
     /// Load geometry from disk
-    bool load(const std::string& fileName, MeshList& meshList) override;
+    bool load(const FilePath& filePath, MeshList& meshList) override;
 
     /// Set to read groups as partitions. 
     void setReadGroups(bool val)

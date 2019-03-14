@@ -6,6 +6,9 @@
 #ifndef MATERIALX_GLSLVALIDATOR_H
 #define MATERIALX_GLSLVALIDATOR_H
 
+/// @file
+/// GLSL code validator
+
 #include <MaterialXRender/ShaderValidators/ShaderValidator.h>
 #include <MaterialXRender/ShaderValidators/ExceptionShaderValidationError.h>
 #include <MaterialXRender/Handlers/ImageHandler.h>
@@ -78,9 +81,9 @@ class GlslValidator : public ShaderValidator
     /// @{
 
     /// Save the current contents the offscreen hardware buffer to disk.
-    /// @param fileName Name of file to save rendered image to.
+    /// @param filePath Name of file to save rendered image to.
     /// @param floatingPoint Format of output image is floating point.
-    void save(const string& fileName, bool floatingPoint) override;
+    void save(const FilePath& filePath, bool floatingPoint) override;
 
     /// Return the GLSL program wrapper class
     MaterialX::GlslProgramPtr program()

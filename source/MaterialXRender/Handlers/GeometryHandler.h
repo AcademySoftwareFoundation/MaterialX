@@ -6,6 +6,10 @@
 #ifndef MATERIALX_GEOMETRYHANDLER_H
 #define MATERIALX_GEOMETRYHANDLER_H
 
+/// @file
+/// Geometry loader interfaces
+
+#include <MaterialXFormat/File.h>
 #include <MaterialXRender/Handlers/Mesh.h>
 #include <memory>
 #include <map>
@@ -16,8 +20,8 @@ namespace MaterialX
 /// Shared pointer to a GeometryLoader
 using GeometryLoaderPtr = std::shared_ptr<class GeometryLoader>;
 
-/// @class @GeometryLoader
-/// Base class representing a geometry loader. A loader can be 
+/// @class GeometryLoader
+/// Base class representing a geometry loader. A loader can be
 /// associated with one or more file extensions.
 class GeometryLoader
 {
@@ -35,11 +39,11 @@ class GeometryLoader
         return _extensions;
     }
 
-    /// Load geometry from disk. Must be implemented by derived classes
-    /// @param fileName Name of file to load
+    /// Load geometry from disk. Must be implemented by derived classes.
+    /// @param filePath Path to file to load
     /// @param meshList List of meshes to update
-    /// @return True if load was successful 
-    virtual bool load(const string& fileName, MeshList& meshList) = 0;
+    /// @return True if load was successful
+    virtual bool load(const FilePath& filePath, MeshList& meshList) = 0;
 
   protected:
     /// List of supported string extensions
@@ -52,15 +56,15 @@ using GeometryHandlerPtr = std::shared_ptr<class GeometryHandler>;
 /// Map of extensions to image loaders
 using GeometryLoaderMap = std::multimap<string, GeometryLoaderPtr>;
 
-/// @class @GeometryHandler
+/// @class GeometryHandler
 /// Class which holds a set of geometry loaders. Each loader is associated with
-/// a given set of file extensions. 
+/// a given set of file extensions.
 class GeometryHandler
 {
-  public: 
+  public:
     /// Default constructor
     GeometryHandler() {};
-    
+
     /// Default destructor
     virtual ~GeometryHandler() {};
 
@@ -81,7 +85,7 @@ class GeometryHandler
     void clearGeometry(const string& location);
 
     /// Load geometry from a given location
-    bool loadGeometry(const string& location);
+    bool loadGeometry(const FilePath& filePath);
 
     /// Get list of meshes
     const MeshList& getMeshes() const

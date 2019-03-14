@@ -126,7 +126,7 @@ static mx::OslValidatorPtr createOSLValidator(std::ostream& log)
     validator->setOslCompilerExecutable(oslcExecutable);
     const std::string testRenderExecutable(MATERIALX_TESTRENDER_EXECUTABLE);
     validator->setOslTestRenderExecutable(testRenderExecutable);
-    validator->setOslIncludePath(MATERIALX_OSL_INCLUDE_PATH);
+    validator->setOslIncludePath(mx::FilePath(MATERIALX_OSL_INCLUDE_PATH));
     try
     {
         validator->initialize();

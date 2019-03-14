@@ -6,6 +6,9 @@
 #ifndef MATERIALX_GLTEXTUREHANDLER_H
 #define MATERIALX_GLTEXTUREHANDLER_H
 
+/// @file
+/// OpenGL texture handler
+
 #include <MaterialXRender/Handlers/ImageHandler.h>
 
 namespace MaterialX
@@ -13,9 +16,8 @@ namespace MaterialX
 /// Shared pointer to an OpenGL texture handler
 using GLTextureHandlerPtr = std::shared_ptr<class GLTextureHandler>;
 
-/// @class @GLTextureHandler
+/// @class GLTextureHandler
 /// An OpenGL texture handler class
-///
 class GLTextureHandler : public ImageHandler
 {
   public:
@@ -51,13 +53,13 @@ class GLTextureHandler : public ImageHandler
     /// The first image loader which supports the file name extension will be used.
     /// This method will create an OpenGL texture resource and return it's resource identifier
     /// as part of the image description returned.
-    /// @param fileName Name of file to load image from.
+    /// @param fileName Path to file to load image from.
     /// @param imageDesc Description of image updated during load.
     /// @param generateMipMaps Generate mip maps if supported.
     /// @param fallbackColor Color of fallback image to use if failed to load.  If null is specified then
     /// no fallback image will be acquired.
     /// @return if load succeeded in loading image or created fallback image.
-    bool acquireImage(const FilePath& fileName, ImageDesc &imageDesc, bool generateMipMaps, const std::array<float,4>* fallbackColor) override;
+    bool acquireImage(const FilePath& filePath, ImageDesc &imageDesc, bool generateMipMaps, const std::array<float,4>* fallbackColor) override;
 
     /// Bind an image. This method will bind the texture to an active texture
     /// unit as defined by the corresponding image description. The method

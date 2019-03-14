@@ -38,19 +38,19 @@ void ImageHandler::addLoader(ImageLoaderPtr loader)
     }
 }
 
-bool ImageHandler::saveImage(const std::string& fileName,
+bool ImageHandler::saveImage(const FilePath& filePath,
                             const ImageDesc &imageDesc)
 {
-    FilePath filePath = findFile(fileName);
+    FilePath foundFilePath = findFile(filePath);
 
     std::pair <ImageLoaderMap::iterator, ImageLoaderMap::iterator> range;
-    string extension = MaterialX::getFileExtension(fileName);
+    string extension = MaterialX::getFileExtension(foundFilePath);
     range = _imageLoaders.equal_range(extension);
     ImageLoaderMap::iterator first = --range.second;
     ImageLoaderMap::iterator last = --range.first;
     for (auto it = first; it != last; --it)
     {
-        bool saved = it->second->saveImage(filePath, imageDesc);
+        bool saved = it->second->saveImage(foundFilePath, imageDesc);
         if (saved)
         {
             return true;
@@ -59,18 +59,18 @@ bool ImageHandler::saveImage(const std::string& fileName,
     return false;
 }
 
-bool ImageHandler::acquireImage(const FilePath& fileName, ImageDesc &imageDesc, bool generateMipMaps, const std::array<float, 4>* /*fallbackColor*/)
+bool ImageHandler::acquireImage(const FilePath& filePath, ImageDesc &imageDesc, bool generateMipMaps, const std::array<float, 4>* /*fallbackColor*/)
 {
-    FilePath filePath = findFile(fileName);
+    FilePath foundFilePath = findFile(filePath);
 
     std::pair <ImageLoaderMap::iterator, ImageLoaderMap::iterator> range;
-    string extension = MaterialX::getFileExtension(fileName);
+    string extension = MaterialX::getFileExtension(foundFilePath);
     range = _imageLoaders.equal_range(extension);
     ImageLoaderMap::iterator first = --range.second;
     ImageLoaderMap::iterator last= --range.first;
     for (auto it = first; it != last; --it)
     {
-        bool acquired = it->second->acquireImage(filePath, imageDesc, generateMipMaps);
+        bool acquired = it->second->acquireImage(foundFilePath, imageDesc, generateMipMaps);
         if (acquired)
         {
             return true;
@@ -127,9 +127,9 @@ void ImageHandler::setSearchPath(const FileSearchPath& path)
     _searchPath = path;
 }
 
-FilePath ImageHandler::findFile(const FilePath& filename)
+FilePath ImageHandler::findFile(const FilePath& filePath)
 {
-    return _searchPath.find(filename);
+    return _searchPath.find(filePath);
 }
 
 

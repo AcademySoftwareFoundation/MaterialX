@@ -14,7 +14,7 @@
 namespace MaterialX
 {
 
-// SimpleWindow shared pointer
+/// SimpleWindow shared pointer
 using SimpleWindowPtr = std::shared_ptr<class SimpleWindow>;
 
 ///

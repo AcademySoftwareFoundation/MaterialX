@@ -34,12 +34,12 @@ bool GLTextureHandler::createColorImage(const std::array<float,4>& color,
     return false;
 }
 
-bool GLTextureHandler::acquireImage(const FilePath& fileName,
+bool GLTextureHandler::acquireImage(const FilePath& filePath,
                                     ImageDesc &imageDesc,
                                     bool generateMipMaps,
                                     const std::array<float,4>* fallbackColor)
 {
-    if (fileName.isEmpty())
+    if (filePath.isEmpty())
     {
         return false;
     }
@@ -51,7 +51,7 @@ bool GLTextureHandler::acquireImage(const FilePath& fileName,
 
     // Check to see if we have already loaded in the texture.
     // If so, reuse the existing texture id
-    const ImageDesc* cachedDesc = getCachedImage(fileName);
+    const ImageDesc* cachedDesc = getCachedImage(filePath);
     if (cachedDesc)
     {
         imageDesc = *cachedDesc;
@@ -59,7 +59,7 @@ bool GLTextureHandler::acquireImage(const FilePath& fileName,
     }
 
     bool textureLoaded = false;
-    if (ParentClass::acquireImage(fileName, imageDesc, generateMipMaps, fallbackColor))
+    if (ParentClass::acquireImage(filePath, imageDesc, generateMipMaps, fallbackColor))
     {
         imageDesc.resourceId = MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -111,7 +111,7 @@ bool GLTextureHandler::acquireImage(const FilePath& fileName,
         free(imageDesc.resourceBuffer);
         imageDesc.resourceBuffer = nullptr;
 
-        cacheImage(fileName, imageDesc);
+        cacheImage(filePath, imageDesc);
         textureLoaded = true;
     }
 
@@ -124,7 +124,7 @@ bool GLTextureHandler::acquireImage(const FilePath& fileName,
         desc.height = 1;
         desc.floatingPoint = true;
         createColorImage(*fallbackColor, desc);
-        cacheImage(fileName, desc);
+        cacheImage(filePath, desc);
         textureLoaded = true;
     }
 

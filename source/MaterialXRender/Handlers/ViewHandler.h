@@ -6,6 +6,9 @@
 #ifndef MATERIALX_VIEWHANDLER_H
 #define MATERIALX_VIEWHANDLER_H
 
+/// @file
+/// Utility for providing view data
+
 #include <MaterialXCore/Types.h>
 #include <memory>
 
@@ -15,7 +18,7 @@ namespace MaterialX
 /// Shared pointer to a ViewHandler
 using ViewHandlerPtr = std::shared_ptr<class ViewHandler>;
 
-/// @class @ViewHandler
+/// @class ViewHandler
 /// Utility view handler for creating and providing 
 /// View data for shader binding.
 ///
