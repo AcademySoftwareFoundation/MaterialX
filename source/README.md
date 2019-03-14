@@ -7,11 +7,11 @@
 - [MaterialXGenShader](MaterialXGenShader) : Core shader generation support [1]
     - [MaterialXGenGlsl](MaterialXGenGlsl) : GLSL shading language generation support.
     - [MaterialXGenOsl](MaterialXGenOsl) : OSL shading language generation support.
-- [MaterialXTest](MaterialXTest/README.md) : Unit test module.
+- [MaterialXTest](MaterialXTest) : Unit test module.
 The shader generation test suite resides [here](../resources/Materials/TestSuite).
 
 ## Python Modules
 
 Python modules which provide wrappers for the provided C++ modules reside under the [PyMaterialX](PyMaterialX/README.md) folder.
 
-[1] Refer to [shader generation documentation](../documents/DeveloperGuide/ShaderGeneration.md) and the associated definition and implementation [libraries](../documents/Libraries).
+[1] Refer to [shader generation documentation](../documents/DeveloperGuide/ShaderGeneration.md) and the associated definition and implementation [libraries](../libraries).
