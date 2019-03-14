@@ -6,6 +6,11 @@ include_directories(
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB_RECURSE materialx_header "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
+if(NOT MATERIALX_BUILD_OIIO)
+    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/Handlers/OiioImageLoader.h")
+    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/Handlers/OiioImageLoader.cpp")
+endif()
+
 function(assign_source_group prefix)
     foreach(_source IN ITEMS ${ARGN})
         if (IS_ABSOLUTE "${_source}")

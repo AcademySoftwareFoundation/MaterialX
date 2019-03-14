@@ -5,15 +5,36 @@
 
 #include <MaterialXRender/Handlers/OiioImageLoader.h>
 
-#ifdef MATERIALX_BUILD_OIIO
+#if defined(OSWin_) || defined(_WIN32)
+#pragma warning( push )
+#pragma warning( disable: 4100)
+#pragma warning( disable: 4505)
+#pragma warning( disable: 4800)
+#pragma warning( disable: 4244)
+#elif defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
 
 #include <OpenImageIO/imageio.h>
+
+
+#if defined(OSWin_) || defined(_WIN32)
+#pragma warning( pop ) 
+#elif defined(__clang__)
+#pragma clang diagnostic pop
+#else
+#pragma GCC diagnostic pop
+#endif
 
 namespace MaterialX
 {
 
-bool OiioImageLoader::saveImage(const std::string& fileName,
-                                const ImageDesc &imageDesc)
+bool OiioImageLoader::saveImage(const std::string& /*fileName*/,
+                                const ImageDesc &/*imageDesc*/)
 {
     throw Exception("Unimplemented method OiioImageLoader::saveImage.");
 }
@@ -54,4 +75,3 @@ bool OiioImageLoader::acquireImage(const std::string& fileName,
 
 } // namespace MaterialX
 
-#endif // MATERIALX_BUILD_OIIO
