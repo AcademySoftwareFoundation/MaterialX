@@ -1,5 +1,18 @@
 # Change Log
 
+## [1.36.3] - Development
+
+Merged shader code generation and PBR node support from Autodesk's ShaderX extensions.
+
+### Added
+- Added the MaterialXGenShader library, supporting shader code generation in GLSL and OSL.
+- Added the PBR node library (libraries/pbrlib).
+- Added a root-level 'resources' folder.
+
+### Changed
+- Moved the MaterialX data libraries from 'documents/Libraries' to 'libraries'.
+- Split the PyMaterialX library into a separate folder for each C++ library.
+
 ## [1.36.2] - 2019-03-05
 
 ### Added
