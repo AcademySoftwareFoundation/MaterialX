@@ -8,7 +8,7 @@
 // Platform macros. All platform specific files in the module should use the OS*_ macros
 // instead of the native ones.
 //
-#if defined(_WIN64)
+#if defined(_WIN64) || defined(_WIN32)
 #define OSWin_
 #elif defined(__linux__)
 #define OSLinux_
