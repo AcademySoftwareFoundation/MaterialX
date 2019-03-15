@@ -43,7 +43,24 @@ class ShaderNodeImpl
     virtual const string& getTarget() const { return EMPTY_STRING; }
 
     /// Initialize with the given implementation element.
+    /// Initialization must set the name and hash for the implementation,
+    /// as well as any other data needed to emit code for the node.
     virtual void initialize(const InterfaceElement& element, GenContext& context);
+
+    /// Return the name of this implementation.
+    const string& getName() const
+    {
+        return _name;
+    }
+
+    /// Return a hash for this implementation.
+    /// The hash should correspond to the function signature generated for the node,
+    /// and can be used to compare implementations, e.g. to query if an identical
+    /// function has already been emitted during shader generation.
+    size_t getHash() const
+    {
+        return _hash;
+    }
 
     /// Create shader variables needed for the implementation of this node (e.g. uniforms, inputs and outputs).
     /// Used if the node requires input data from the application.
@@ -58,9 +75,6 @@ class ShaderNodeImpl
     /// Return a pointer to the graph if this implementation is using a graph,
     /// or returns nullptr otherwise.
     virtual ShaderGraph* getGraph() const;
-
-    /// Return a unique hash for this implementation.
-    virtual size_t getHash() const;
 
     /// Returns true if an input is editable by users.
     /// Editable inputs are allowed to be published as shader uniforms
@@ -82,7 +96,10 @@ class ShaderNodeImpl
 
   protected:
     /// Protected constructor
-    ShaderNodeImpl() {}
+    ShaderNodeImpl();
+
+    string _name;
+    size_t _hash;
 };
 
 } // namespace MaterialX

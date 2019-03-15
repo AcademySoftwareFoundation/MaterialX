@@ -5,15 +5,15 @@
 
 #include <MaterialXTest/Catch/catch.hpp>
 
+#include <MaterialXTest/GenGlsl.h>
+#include <MaterialXTest/GenShaderUtil.h>
+
 #include <MaterialXCore/Document.h>
 
 #include <MaterialXFormat/File.h>
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenGlsl/GlslSyntax.h>
-
-#include <MaterialXTest/GenShaderUtil.h>
-#include <MaterialXTest/GenGlsl.h>
 
 namespace mx = MaterialX;
 
@@ -94,7 +94,7 @@ TEST_CASE("GLSL Unique Names", "[genglsl]")
 {
     mx::GenContext context(mx::GlslShaderGenerator::create());
 
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     context.registerSourceCodeSearchPath(searchPath);
 
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
@@ -104,14 +104,14 @@ TEST_CASE("Bind Light Shaders", "[genglsl]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     GenShaderUtil::loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
 
     mx::NodeDefPtr pointLightShader = doc->getNodeDef("ND_point_light");
     mx::NodeDefPtr spotLightShader = doc->getNodeDef("ND_spot_light");
 
     mx::GenContext context(mx::GlslShaderGenerator::create());
-    context.registerSourceCodeSearchPath(mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries"));
+    context.registerSourceCodeSearchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
 
     mx::HwShaderGenerator::bindLightShader(*pointLightShader, 42, context);
     REQUIRE_THROWS(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 42, context));
@@ -124,8 +124,8 @@ TEST_CASE("Bind Light Shaders", "[genglsl]")
 
 static void generateGLSLCode()
 {
-    const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite");
-    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
+    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     const mx::FilePath logPath("genglsl_glsl400_generate_test.txt");
     GlslShaderGeneratorTester tester(testRootPath, libSearchPath, srcSearchPath, logPath);

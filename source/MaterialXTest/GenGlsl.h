@@ -3,6 +3,9 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
+#ifndef GENGLSL_UTIL_H
+#define GENGLSL_UTIL_H
+
 #include <MaterialXTest/Catch/catch.hpp>
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
@@ -12,14 +15,13 @@
 
 namespace mx = MaterialX;
 
-// Base GLSL code generation tester
 class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
 {
-public:
+  public:
     using ParentClass = GenShaderUtil::ShaderGeneratorTester;
 
     GlslShaderGeneratorTester(const mx::FilePath& testRootPath, const mx::FilePath& libSearchPath,
-                                const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath) :
+                              const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath) :
         GenShaderUtil::ShaderGeneratorTester(testRootPath, libSearchPath, srcSearchPath, logFilePath)
     {}
 
@@ -46,10 +48,11 @@ public:
     {
         ParentClass::setupDependentLibraries();
 
-        mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
+        mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/Utilities/Lights");
         GenShaderUtil::loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), _dependLib);
         GenShaderUtil::loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), _dependLib);
         GenShaderUtil::loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), _dependLib);
     }
 };
 
+#endif // GENGLSL_UTIL_H

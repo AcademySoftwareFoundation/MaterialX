@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXTest/Catch/catch.hpp>
+
 #include <MaterialXTest/GenShaderUtil.h>
 
 #include <MaterialXCore/Document.h>
@@ -13,9 +14,10 @@
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslSyntax.h>
 
-#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
+#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Util.h>
+
 
 namespace mx = MaterialX;
 
@@ -100,7 +102,7 @@ TEST_CASE("OSL Unique Names", "[genosl]")
 {
     mx::GenContext context(mx::OslShaderGenerator::create());
 
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     context.registerSourceCodeSearchPath(searchPath);
     // Add path to find OSL include files
     context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
@@ -127,12 +129,33 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
         _testStages.push_back(mx::Stage::PIXEL);
     }
+
+    // Ignore trying to create shader code for lightshaders
+    void addSkipNodeDefs() override
+    {
+        _skipNodeDefs.insert("ND_point_light");
+        _skipNodeDefs.insert("ND_spot_light");
+        _skipNodeDefs.insert("ND_directional_light");
+        ParentClass::addSkipNodeDefs();
+    }
+
+    // Ignore light shaders in the document for OSL
+    void findLights(mx::DocumentPtr /*doc*/, std::vector<mx::NodePtr>& lights) override
+    {
+        lights.clear();
+    }
+
+    // No direct lighting to register for OSL
+    void registerLights(mx::DocumentPtr /*doc*/, const std::vector<mx::NodePtr>& /*lights*/, mx::GenContext& /*context*/) override
+    {
+        ; // no-op
+    }
 };
 
 static void generateOSLCode()
 {
-    const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite");
-    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
+    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     srcSearchPath.append(libSearchPath / mx::FilePath("stdlib/osl"));
     const mx::FilePath logPath("genosl_vanilla_generate_test.txt");

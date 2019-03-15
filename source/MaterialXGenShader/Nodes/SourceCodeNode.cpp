@@ -45,6 +45,7 @@ void SourceCodeNode::initialize(const InterfaceElement& element, GenContext& con
         // No function given so use nodedef name
         _functionName = impl.getNodeDefString();
     }
+    context.getShaderGenerator().getSyntax().makeValidName(_functionName);
 
     if (!readFile(context.resolveSourceFile(file), _functionSource))
     {
@@ -55,6 +56,10 @@ void SourceCodeNode::initialize(const InterfaceElement& element, GenContext& con
     {
         _functionSource.erase(std::remove(_functionSource.begin(), _functionSource.end(), '\n'), _functionSource.end());
     }
+
+    // Set hash using the function name.
+    // TODO: Could be improved to include the full function signature.
+    _hash = std::hash<string>{}(_functionName);
 }
 
 void SourceCodeNode::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const

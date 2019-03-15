@@ -7,13 +7,12 @@
 #define GENSHADER_UTIL_H
 
 #include <MaterialXCore/Document.h>
-#include <MaterialXCore/Observer.h>
 
-#include <MaterialXFormat/XmlIo.h>
 #include <MaterialXFormat/File.h>
+#include <MaterialXFormat/XmlIo.h>
 
-#include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/Util.h>
 
@@ -33,8 +32,10 @@ namespace GenShaderUtil
     //
     // Loads all the MTLX files below a given library path
     //
-    void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc,
-        const mx::StringSet* excludeFiles = nullptr);
+    void loadLibraries(const mx::StringVec& libraryNames,
+                       const mx::FilePath& searchPath,
+                       mx::DocumentPtr doc,
+                       const mx::StringSet* excludeFiles = nullptr);
     
     //
     // Get source content, source path and resolved paths for
@@ -82,9 +83,6 @@ namespace GenShaderUtil
         // Stages to test is required from derived class
         virtual void setTestStages() = 0;
 
-        // Set library files to not load when loading libraries.
-        virtual void setExcludeLibraryFiles();
-
         // Add files in to not examine
         virtual void addSkipFiles();
 
@@ -120,7 +118,6 @@ namespace GenShaderUtil
         mx::DocumentPtr _dependLib;
         mx::FilePath _libSearchPath;
         mx::FileSearchPath _srcSearchPath;
-        mx::StringSet _excludeLibraryFiles;
 
         mx::FilePath _testRootPath;
         mx::StringSet _skipFiles;

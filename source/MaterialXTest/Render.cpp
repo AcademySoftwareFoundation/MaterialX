@@ -137,7 +137,7 @@ static mx::OslValidatorPtr createOSLValidator(std::ostream& log)
         // Pre-compile some required shaders for testrender
         if (!oslcExecutable.empty() && !testRenderExecutable.empty())
         {
-            mx::FilePath shaderPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/");
+            mx::FilePath shaderPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/Utilities/");
             validator->setOslOutputFilePath(shaderPath);
 
             mx::StringVec files;
@@ -364,19 +364,22 @@ protected:
 };
 
 // Create a list of generation options based on unit test options
-void getGenerationOptions(const ShaderValidTestOptions& testOptions, std::vector<mx::GenOptions>& optionsList)
+// These options will override the original generation context options.
+void getGenerationOptions(const ShaderValidTestOptions& testOptions, 
+                          const mx::GenOptions& originalOptions, 
+                          std::vector<mx::GenOptions>& optionsList)
 {
     optionsList.clear();
     if (testOptions.shaderInterfaces & 1)
     {
-        mx::GenOptions reducedOption;
+        mx::GenOptions reducedOption = originalOptions;
         reducedOption.shaderInterfaceType = mx::SHADER_INTERFACE_REDUCED;
         optionsList.push_back(reducedOption);
     }
     // Alway fallback to complete if no options specified.
     if ((testOptions.shaderInterfaces & 2) || optionsList.empty())
     {
-        mx::GenOptions completeOption;
+        mx::GenOptions completeOption = originalOptions;
         completeOption.shaderInterfaceType = mx::SHADER_INTERFACE_COMPLETE;
         optionsList.push_back(completeOption);
     }
@@ -404,7 +407,7 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
     }
 
     std::vector<mx::GenOptions> optionsList;
-    getGenerationOptions(testOptions, optionsList);
+    getGenerationOptions(testOptions, context.getOptions(), optionsList);
 
     if (element && doc)
     {
@@ -435,7 +438,10 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
                 AdditiveScopedTimer transpTimer(profileTimes.ogsfxTimes.transparencyTime, "OGSFX transparency time");
                 options.hwTransparency = mx::isTransparentSurface(element, shadergen);
                 transpTimer.endTimer();
+
                 AdditiveScopedTimer generationTimer(profileTimes.ogsfxTimes.generationTime, "OGSFX generation time");
+                mx::GenOptions& contextOptions = context.getOptions();
+                contextOptions = options;
                 shader = shadergen.generate(shaderName, element, context);
                 generationTimer.endTimer();
 
@@ -511,7 +517,7 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
     }
 
     std::vector<mx::GenOptions> optionsList;
-    getGenerationOptions(testOptions, optionsList);
+    getGenerationOptions(testOptions, context.getOptions(), optionsList);
 
     if(element && doc)
     {
@@ -543,6 +549,8 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                 transpTimer.endTimer();
 
                 AdditiveScopedTimer generationTimer(profileTimes.glslTimes.generationTime, "GLSL generation time");
+                mx::GenOptions& contextOptions = context.getOptions();
+                contextOptions = options;
                 shader = shadergen.generate(shaderName, element, context);
                 generationTimer.endTimer();
             }
@@ -767,7 +775,7 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
     }
 
     std::vector<mx::GenOptions> optionsList;
-    getGenerationOptions(testOptions, optionsList);
+    getGenerationOptions(testOptions, context.getOptions(), optionsList);
 
     if(element && doc)
     {
@@ -781,6 +789,8 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
             try
             {
                 AdditiveScopedTimer genTimer(profileTimes.oslTimes.generationTime, "OSL generation time");
+                mx::GenOptions& contextOptions = context.getOptions();
+                contextOptions = options;
                 shader = shadergen.generate(shaderName, element, context);
             }
             catch (mx::ExceptionShaderGenError& e)
@@ -896,7 +906,7 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
                         validator.setOslShaderOutput(outputName, outputType);
 
                         // Set scene template file. For now we only have the constant color scene file
-                        mx::FilePath sceneTemplatePath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/");
+                        mx::FilePath sceneTemplatePath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/Utilities/");
                         sceneTemplatePath = sceneTemplatePath / sceneTemplateFile;
                         validator.setOslTestRenderSceneTemplateFile(sceneTemplatePath.asString());
 
@@ -1227,7 +1237,7 @@ TEST_CASE("Render TestSuite", "[render]")
     mx::StringSet testfileOverride;
 
     AdditiveScopedTimer ioTimer(profileTimes.ioTime, "Global I/O time");
-    mx::FilePath path = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite");
+    mx::FilePath path = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
     mx::StringVec dirs;
     std::string baseDirectory = path;
     mx::getSubDirectories(baseDirectory, dirs);
@@ -1252,7 +1262,7 @@ TEST_CASE("Render TestSuite", "[render]")
     }
 
     // Library search path
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("documents/Libraries");
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
 
     // Load in the library dependencies once
     // This will be imported in each test document below
@@ -1272,9 +1282,9 @@ TEST_CASE("Render TestSuite", "[render]")
 
     const mx::StringVec libraries = { "stdlib", "pbrlib" };
     GenShaderUtil::loadLibraries(libraries, searchPath, dependLib, &excludeFiles);
-    GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("documents/Examples/BxDF/standard_surface.mtlx"), dependLib);
+    GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), dependLib);
 
-    mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("documents/TestSuite/Utilities/Lights");
+    mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/Utilities/Lights");
     if (options.lightFiles.size() == 0)
     {
         GenShaderUtil::loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), dependLib);

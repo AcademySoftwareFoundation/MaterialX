@@ -41,7 +41,7 @@ class TestGenShader(unittest.TestCase):
     def test_ShaderInterface(self):
         doc = mx.createDocument()
 
-        searchPath = os.path.join(_fileDir, "../../documents/Libraries")
+        searchPath = os.path.join(_fileDir, "../../libraries")
         libraryPath = os.path.join(searchPath, "stdlib")
         _loadLibraries(doc, searchPath, libraryPath)
 

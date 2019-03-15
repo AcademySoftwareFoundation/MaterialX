@@ -1,0 +1,2 @@
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/libraries/
+        DESTINATION "${CMAKE_INSTALL_PREFIX}/libraries" MESSAGE_NEVER)

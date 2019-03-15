@@ -15,6 +15,8 @@ namespace MaterialX
 class NumLightsNodeGlsl : public GlslImplementation
 {
 public:
+    NumLightsNodeGlsl();
+
     static ShaderNodeImplPtr create();
 
     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;

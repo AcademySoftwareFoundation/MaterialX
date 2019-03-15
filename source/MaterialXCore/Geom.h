@@ -368,25 +368,25 @@ class GeomPropDef : public Element
     }
     virtual ~GeomPropDef() { }
 
-    /// @name Geometric Node
+    /// @name Geometric Property
     /// @{
 
-    /// Set the geometric node string of this element.
-    void setNode(const string& node)
+    /// Set the geomprop string of this element.
+    void setGeomProp(const string& node)
     {
-        setAttribute(NODE_ATTRIBUTE, node);
+        setAttribute(GEOM_PROP_ATTRIBUTE, node);
     }
 
-    /// Return true if this element has a geometric node string.
-    bool hasNode() const
+    /// Return true if this element has a geomprop string.
+    bool hasGeomProp() const
     {
-        return hasAttribute(NODE_ATTRIBUTE);
+        return hasAttribute(GEOM_PROP_ATTRIBUTE);
     }
 
-    /// Return the geometric node string of this element.
-    const string& getNode() const
+    /// Return the geomprop string of this element.
+    const string& getGeomProp() const
     {
-        return getAttribute(NODE_ATTRIBUTE);
+        return getAttribute(GEOM_PROP_ATTRIBUTE);
     }
 
     /// @}
@@ -459,7 +459,7 @@ class GeomPropDef : public Element
 
   public:
     static const string CATEGORY;
-    static const string NODE_ATTRIBUTE;
+    static const string GEOM_PROP_ATTRIBUTE;
     static const string SPACE_ATTRIBUTE;
     static const string INDEX_ATTRIBUTE;
     static const string ATTR_NAME_ATTRIBUTE;

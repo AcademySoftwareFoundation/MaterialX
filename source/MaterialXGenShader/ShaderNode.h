@@ -14,8 +14,6 @@
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
-#include <set>
-
 namespace MaterialX
 {
 

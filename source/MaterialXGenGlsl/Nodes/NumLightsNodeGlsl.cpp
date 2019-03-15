@@ -10,6 +10,16 @@
 namespace MaterialX
 {
 
+namespace
+{
+    const string NUM_LIGHTS_FUNC_SIGNATURE = "int numActiveLightSources()";
+}
+
+NumLightsNodeGlsl::NumLightsNodeGlsl()
+{
+    _hash = std::hash<string>{}(NUM_LIGHTS_FUNC_SIGNATURE);
+}
+
 ShaderNodeImplPtr NumLightsNodeGlsl::create()
 {
     return std::make_shared<NumLightsNodeGlsl>();
@@ -27,7 +37,7 @@ void NumLightsNodeGlsl::emitFunctionDefinition(const ShaderNode&, GenContext& co
 {
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const ShaderGenerator& shadergen = context.getShaderGenerator();
-        shadergen.emitLine("int numActiveLightSources()", stage, false);
+        shadergen.emitLine(NUM_LIGHTS_FUNC_SIGNATURE, stage, false);
         shadergen.emitScopeBegin(stage);
         shadergen.emitLine("return min(u_numActiveLightSources, MAX_LIGHT_SOURCES)", stage);
         shadergen.emitScopeEnd(stage);

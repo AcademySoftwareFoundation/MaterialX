@@ -3,14 +3,12 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
+#include <MaterialXGenShader/Util.h>
+
 #include <MaterialXCore/Util.h>
 #include <MaterialXFormat/XmlIo.h>
-#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
-#include <MaterialXGenShader/Util.h>
 
 #include <iostream>
 #include <fstream>
@@ -143,7 +141,7 @@ string getFileExtension(const string& filename)
 }
 
 void loadDocuments(const FilePath& rootPath, const StringSet& skipFiles, 
-                   vector<DocumentPtr>& documents, StringVec& documentsPaths, std::ostream* validityLog)
+                   vector<DocumentPtr>& documents, StringVec& documentsPaths)
 {
     const string MTLX_EXTENSION("mtlx");
 
@@ -151,16 +149,14 @@ void loadDocuments(const FilePath& rootPath, const StringSet& skipFiles,
     string baseDirectory = rootPath;
     getSubDirectories(baseDirectory, dirs);
 
-    bool testSkipFiles = !skipFiles.empty();
-
-    for (auto dir : dirs)
+    for (const string& dir : dirs)
     {
         StringVec files;
         getFilesInDirectory(dir, files, MTLX_EXTENSION);
 
         for (const string& file : files)
         {
-            if (testSkipFiles && skipFiles.count(file) != 0)
+            if (skipFiles.count(file) != 0)
             {
                 continue;
             }
@@ -169,29 +165,10 @@ void loadDocuments(const FilePath& rootPath, const StringSet& skipFiles,
             const string filename = filePath;
 
             DocumentPtr doc = createDocument();
-            try
-            {
-                readFromXmlFile(doc, filename, dir);
+            readFromXmlFile(doc, filename, dir);
 
-                if (validityLog)
-                {
-                    string docErrors;
-                    bool valid = doc->validate(&docErrors);
-                    if (!valid)
-                    {
-                        *validityLog << filename << std::endl;
-                        *validityLog << docErrors << std::endl;
-                        throw ExceptionShaderGenError("");
-                    }
-                }
-
-                documents.push_back(doc);
-                documentsPaths.push_back(filePath.asString());
-            }
-            catch (Exception& /*e*/)
-            {
-                continue;
-            }
+            documents.push_back(doc);
+            documentsPaths.push_back(filePath.asString());
         }
     }
 }
