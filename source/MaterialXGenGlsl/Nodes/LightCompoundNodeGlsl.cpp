@@ -33,25 +33,10 @@ const string& LightCompoundNodeGlsl::getTarget() const
 
 void LightCompoundNodeGlsl::initialize(const InterfaceElement& element, GenContext& context)
 {
-    ShaderNodeImpl::initialize(element, context);
-
-    if (!element.isA<NodeGraph>())
-    {
-        throw ExceptionShaderGenError("Element '" + element.getName() + "' is not a node graph implementation");
-    }
-
-    const NodeGraph& graph = static_cast<const NodeGraph&>(element);
-
-    _functionName = graph.getName();
-
-    // For compounds we do not want to publish all internal inputs
-    // so always use the reduced interface for this graph.
-    const int oldShaderInterfaceType = context.getOptions().shaderInterfaceType;
-    context.getOptions().shaderInterfaceType = SHADER_INTERFACE_REDUCED;
-    _rootGraph = ShaderGraph::create(nullptr, graph, context);
-    context.getOptions().shaderInterfaceType = oldShaderInterfaceType;
+    CompoundNode::initialize(element, context);
 
     // Store light uniforms for all inputs and parameters on the interface
+    const NodeGraph& graph = static_cast<const NodeGraph&>(element);
     NodeDefPtr nodeDef = graph.getNodeDef();
     for (InputPtr input : nodeDef->getInputs())
     {

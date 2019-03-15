@@ -40,6 +40,10 @@ void CompoundNode::initialize(const InterfaceElement& element, GenContext& conte
     context.getOptions().shaderInterfaceType = SHADER_INTERFACE_REDUCED;
     _rootGraph = ShaderGraph::create(nullptr, graph, context);
     context.getOptions().shaderInterfaceType = oldShaderInterfaceType;
+
+    // Set hash using the function name.
+    // TODO: Could be improved to include the full function signature.
+    _hash = std::hash<string>{}(_functionName);
 }
 
 void CompoundNode::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const

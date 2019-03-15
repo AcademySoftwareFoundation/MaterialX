@@ -16,8 +16,22 @@ namespace MaterialX
 // ShaderNodeImpl methods
 //
 
-void ShaderNodeImpl::initialize(const InterfaceElement&, GenContext&)
+ShaderNodeImpl::ShaderNodeImpl() : 
+    _name(EMPTY_STRING), 
+    _hash(0)
 {
+}
+
+void ShaderNodeImpl::initialize(const InterfaceElement& element, GenContext&)
+{
+    // Store name
+    _name = element.getName();
+
+    // By default use the implementation name as hash to make it unique.
+    // Derived classes can override this to create other hashes,
+    // e.g. to share the same hash beteen nodes that can share
+    // the same function definition.
+    _hash = std::hash<string>{}(_name);
 }
 
 void ShaderNodeImpl::createVariables(const ShaderNode&, GenContext&, Shader&) const
@@ -35,12 +49,6 @@ void ShaderNodeImpl::emitFunctionCall(const ShaderNode&, GenContext&, ShaderStag
 ShaderGraph* ShaderNodeImpl::getGraph() const
 {
     return nullptr;
-}
-
-size_t ShaderNodeImpl::getHash() const
-{
-    // For now use the instance pointer as the hash
-    return reinterpret_cast<size_t>(this);
 }
 
 } // namespace MaterialX
