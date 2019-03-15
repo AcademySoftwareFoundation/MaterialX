@@ -26,10 +26,11 @@ The Python bindings for MaterialX are based on [PyBind11](https://github.com/pyb
 
 The MaterialX repository consists of the following folders:
 
-- [documents](documents) - The MaterialX specification and developer guides.
 - [source](source) - Cross-platform C++ libraries for MaterialX with Python bindings.
 - [python](python) - Support modules for MaterialX Python.
-- [resources](resources) - Set of sample resources including test suite files.
+- [documents](documents) - MaterialX documentation, including its specification and developer guides.
+- [libraries](libraries) - The standard data libraries for MaterialX, including the definitions of its pattern and shader nodes.
+- [resources](resources) - Resources for rendering MaterialX content, including example materials, images, and geometry.
 
 ### Additional Resources
 
