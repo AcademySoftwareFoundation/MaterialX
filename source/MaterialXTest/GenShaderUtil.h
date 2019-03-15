@@ -34,7 +34,8 @@ namespace GenShaderUtil
     //
     void loadLibraries(const mx::StringVec& libraryNames,
                        const mx::FilePath& searchPath,
-                       mx::DocumentPtr doc);
+                       mx::DocumentPtr doc,
+                       const mx::StringSet* excludeFiles = nullptr);
     
     //
     // Get source content, source path and resolved paths for

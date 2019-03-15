@@ -27,7 +27,8 @@ void loadLibrary(const mx::FilePath& file, mx::DocumentPtr doc)
 
 void loadLibraries(const mx::StringVec& libraryNames,
                    const mx::FilePath& searchPath,
-                   mx::DocumentPtr doc)
+                   mx::DocumentPtr doc,
+                   const mx::StringSet* excludeFiles)
 {
     const std::string MTLX_EXTENSION("mtlx");
     for (const std::string& library : libraryNames)
@@ -43,6 +44,10 @@ void loadLibraries(const mx::StringVec& libraryNames,
 
             for (const std::string& filename : filenames)
             {
+                if (excludeFiles && excludeFiles->count(filename))
+                {
+                    continue;
+                }
                 loadLibrary(mx::FilePath(path)/ filename, doc);
             }
         }
