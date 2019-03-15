@@ -2021,12 +2021,24 @@
   -->
   <nodedef name="ND_rotate_vector2" node="rotate" type="vector2" nodegroup="math" defaultinput="in">
     <input name="in" type="vector2"/>
-    <parameter name="amount" type="float"/>
+    <parameter name="amount" type="float" value="0.0"/>
   </nodedef>
   <nodedef name="ND_rotate_vector3" node="rotate" type="vector3" nodegroup="math" defaultinput="in">
     <input name="in" type="vector3"/>
-    <parameter name="amount" type="float"/>
+    <parameter name="amount" type="float" value="0.0"/>
     <parameter name="axis" type="vector3"/>
+  </nodedef>
+
+  <!--
+    Node: <place2d>
+    Transform incoming UV texture coordinates for 2D texture placement.
+  -->
+  <nodedef name="ND_place2d_vector2" node="place2d" type="vector2" nodegroup="math" defaultinput="texcoord">
+    <input name="texcoord" type="vector2"/>
+    <parameter name="pivot" type="vector2" value="0.0,0.0"/>
+    <input name="scale" type="vector2" value="1.0,1.0"/>
+    <input name="rotate" type="float" value="0.0"/>
+    <input name="offset" type="vector2" value="0.0,0.0"/>
   </nodedef>
 
   <!--
@@ -2591,12 +2603,12 @@
   <nodedef name="ND_premult_color2" node="premult" type="color2" nodegroup="compositing" defaultinput="in">
     <input name="in" type="color2"/>
   </nodedef>
-  <nodedef name="ND_premult_color4" node="premult" type="color4" nodegroup="compositing" defaultinput="in">
-    <input name="in" type="color4"/>
-  </nodedef>
   <nodedef name="ND_premult_color3" node="premult" type="color3" nodegroup="compositing" defaultinput="in">
     <input name="in" type="color3"/>
     <input name="alpha" type="float"/>
+  </nodedef>
+  <nodedef name="ND_premult_color4" node="premult" type="color4" nodegroup="compositing" defaultinput="in">
+    <input name="in" type="color4"/>
   </nodedef>
 
   <!--
@@ -2607,12 +2619,12 @@
   <nodedef name="ND_unpremult_color2" node="unpremult" type="color2" nodegroup="compositing" defaultinput="in">
     <input name="in" type="color2"/>
   </nodedef>
-  <nodedef name="ND_unpremult_color4" node="unpremult" type="color4" nodegroup="compositing" defaultinput="in">
-    <input name="in" type="color4"/>
-  </nodedef>
   <nodedef name="ND_unpremult_color3" node="unpremult" type="color3" nodegroup="compositing" defaultinput="in">
     <input name="in" type="color3"/>
     <input name="alpha" type="float"/>
+  </nodedef>
+  <nodedef name="ND_unpremult_color4" node="unpremult" type="color4" nodegroup="compositing" defaultinput="in">
+    <input name="in" type="color4"/>
   </nodedef>
 
   <!--

@@ -15,11 +15,12 @@ namespace MaterialX
 class LightSamplerNodeGlsl : public GlslImplementation
 {
 public:
+    LightSamplerNodeGlsl();
+
     static ShaderNodeImplPtr create();
 
     void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
-
 
 } // namespace MaterialX
 
