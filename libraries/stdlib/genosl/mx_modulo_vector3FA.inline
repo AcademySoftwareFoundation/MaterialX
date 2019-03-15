@@ -1,0 +1,1 @@
+fmod({{in1}}, vector({{in2}},{{in2}},{{in2}}))

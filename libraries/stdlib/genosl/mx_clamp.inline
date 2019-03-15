@@ -1,0 +1,1 @@
+clamp({{in}}, {{low}}, {{high}})

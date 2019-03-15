@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<materialx version="1.36">
+  <!--
+    Node: <lightcompound>
+  -->
+  <nodedef name="ND_lightcompoundtest" node="lightcompoundtest" type="lightshader" nodegroup="test"
+           doc="A light shader node of 'lightcompoundtest' type.">
+    <input name="position" type="vector3" doc="Light source position."/>
+    <input name="direction" type="vector3" doc="Light source direction."/>
+    <input name="color" type="color3" doc="Light color."/>
+    <input name="intensity" type="float" doc="Light intensity."/>
+  </nodedef>
+</materialx>

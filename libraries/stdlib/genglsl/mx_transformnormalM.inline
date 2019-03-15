@@ -1,0 +1,1 @@
+{{in}} * transpose(inverse({{mat}}))

@@ -1,0 +1,105 @@
+<!--- Geometric node test for "stock" streams: 
+      - position, 
+      - normal
+      - color, 
+      - tangent, 
+      - bi-tangent,
+      - uvs
+      
+      For color, tangent, bi-tangent, and uvs set 0 and set 1 are
+      asked for. uvs are 2d and are swizzled to fill 3d.
+      
+      Space variations are not included currently. All streams are considered
+      to be in world space
+-->
+<?xml version="1.0"?>
+<materialx version="1.36">
+   <normal name="normal1" type="vector3">
+      <parameter name="space" type="string" value="world" />
+   </normal>
+   <output name="normal_output" type="vector3" nodename="normal1" />
+   
+   <position name="position1" type="vector3">
+      <parameter name="space" type="string" value="world" />
+   </position>
+   <output name="position_output" type="vector3" nodename="position1" />
+
+   <geomcolor name="color1_set0" type="float">
+      <parameter name="index" type="integer" value="0" />
+   </geomcolor>
+   <swizzle name="swizzle_color1_set0" type="vector3">
+      <input name="in" type="float" nodename="color1_set0" />
+      <parameter name="channels" type="string" value="x00" />
+   </swizzle>
+   <output name="color1_output0" type="vector3" nodename="swizzle_color1_set0" />
+
+   <geomcolor name="color2_set0" type="color2">
+      <parameter name="index" type="integer" value="0" />
+   </geomcolor>
+   <swizzle name="swizzle_color2_set0" type="vector3">
+      <input name="in" type="color2" nodename="color2_set0" />
+      <parameter name="channels" type="string" value="ra0" />
+   </swizzle>
+   <output name="color2_output0" type="vector3" nodename="swizzle_color2_set0" />
+
+   <geomcolor name="color3_set0" type="color3">
+      <parameter name="index" type="integer" value="0" />
+   </geomcolor>
+   <output name="color3_output0" type="color3" nodename="color3_set0" />
+
+   <geomcolor name="color4_set0" type="color4">
+      <parameter name="index" type="integer" value="0" />
+   </geomcolor>
+   <output name="color4_output0" type="color4" nodename="color4_set0" />
+
+   <geomcolor name="color3_set1" type="color3">
+      <parameter name="index" type="integer" value="1" />
+   </geomcolor>
+   <output name="color3_output1" type="color3" nodename="color3_set1" />
+      
+   <tangent name="tangent0" type="vector3">
+      <parameter name="index" type="integer" value="1" />
+      <parameter name="space" type="string" value="world" />
+   </tangent>
+   <output name="tangent0_output" type="vector3" nodename="tangent0" />
+   
+   <tangent name="tangent1" type="vector3">
+      <parameter name="index" type="integer" value="1" />
+      <parameter name="space" type="string" value="world" />
+   </tangent>
+   <output name="tangent1_output" type="vector3" nodename="tangent1" />
+   
+   <bitangent name="bitangent0" type="vector3">
+      <parameter name="index" type="integer" value="0" />
+      <parameter name="space" type="string" value="world" />
+   </bitangent>
+   <output name="bitangent0_output" type="vector3" nodename="bitangent0" />
+   
+   <bitangent name="bitangent1" type="vector3">
+      <parameter name="index" type="integer" value="1" />
+   </bitangent>
+   <output name="bitangent1_output" type="vector3" nodename="bitangent1" />
+
+   <texcoord name="uv3_set0" type="vector3">
+      <parameter name="index" type="integer" value="0" />
+   </texcoord>
+   <output name="uv3_output0" type="vector3" nodename="uv3_set0" />
+
+   <texcoord name="uv2_set0" type="vector2">
+      <parameter name="index" type="integer" value="0" />
+   </texcoord>
+   <swizzle name="swizzle_uv_set0" type="vector3">
+      <input name="in" type="vector2" nodename="uv2_set0" />
+      <parameter name="channels" type="string" value="xy0" />
+   </swizzle>
+   <output name="uv2_output0" type="vector3" nodename="swizzle_uv_set0" />
+   
+   <texcoord name="uv2_set1" type="vector2">
+      <parameter name="index" type="integer" value="1" />
+   </texcoord>
+   <swizzle name="swizzle_uv_set1" type="vector3">
+      <input name="in" type="vector2" nodename="uv2_set1" />
+      <parameter name="channels" type="string" value="xy0" />
+   </swizzle>
+   <output name="uv2_output1" type="vector3" nodename="swizzle_uv_set1" />
+</materialx>

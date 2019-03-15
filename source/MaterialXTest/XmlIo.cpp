@@ -28,17 +28,14 @@ TEST_CASE("Load content", "[xmlio]")
         "NodeGraphs.mtlx",
         "PaintMaterials.mtlx",
         "PostShaderComposite.mtlx",
-        "PreShaderComposite.mtlx",
-        "BxDF/alSurface.mtlx",
-        "BxDF/Disney_BRDF_2012.mtlx",
-        "BxDF/Disney_BSDF_2015.mtlx",
+        "PreShaderComposite.mtlx"
     };
 
-    std::string searchPath = "documents/Libraries/stdlib" + 
-                             mx::PATH_LIST_SEPARATOR + 
-                             "documents/Libraries/stdlib/osl" + 
-                             mx::PATH_LIST_SEPARATOR + 
-                             "documents/Examples";
+    std::string searchPath = "libraries/stdlib" +
+                             mx::PATH_LIST_SEPARATOR +
+                             "libraries/stdlib/osl" +
+                             mx::PATH_LIST_SEPARATOR +
+                             "resources/Materials/Examples";
 
     // Read the standard library.
     std::vector<mx::DocumentPtr> libs;
@@ -62,6 +59,10 @@ TEST_CASE("Load content", "[xmlio]")
     {
         mx::DocumentPtr doc = mx::createDocument();
         mx::readFromXmlFile(doc, filename, searchPath);
+        for (mx::DocumentPtr lib : libs)
+        {
+            doc->importLibrary(lib);
+        }
         std::string message;
         bool docValid = doc->validate(&message);
         if (!docValid)
@@ -115,13 +116,6 @@ TEST_CASE("Load content", "[xmlio]")
         mx::DocumentPtr writtenDoc = mx::createDocument();
         mx::readFromXmlString(writtenDoc, xmlString);
         REQUIRE(*writtenDoc == *doc);
-
-        // Combine document with the standard library.
-        for (mx::DocumentPtr lib : libs)
-        {
-            doc->importLibrary(lib);
-        }
-        REQUIRE(doc->validate());
 
         // Flatten subgraph references.
         for (mx::NodeGraphPtr nodeGraph : doc->getNodeGraphs())

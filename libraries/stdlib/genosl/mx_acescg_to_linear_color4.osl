@@ -1,0 +1,7 @@
+void mx_acescg_to_linear_color4(color4 _in, output color4 result)
+{
+    vector4 outColor = vector4(_in.rgb[0], _in.rgb[1], _in.rgb[2], _in.a);
+    matrix m = transpose(matrix(1.705079555511475, -0.1297005265951157, -0.02416634373366833, 0., -0.6242334842681885, 1.138468623161316, -0.1246141716837883, 0., -0.0808461606502533, -0.008768022060394287, 1.148780584335327, 0., 0., 0., 0., 1.));
+    vector4 resultVector4 = transform(m, outColor);
+    result = color4(color(resultVector4.x, resultVector4.y, resultVector4.z), resultVector4.w);
+}

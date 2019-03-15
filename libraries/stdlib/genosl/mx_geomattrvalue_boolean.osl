@@ -1,0 +1,4 @@
+void mx_geomattrvalue_boolean(string attrname, output int out)
+{
+    getattribute(attrname, out);
+}
