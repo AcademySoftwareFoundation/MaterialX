@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<materialx version="1.36" require="">
+  <nodegraph name="test_generalizedschlick">
+    <roughness_anisotropy name="roughness1" type="roughnessinfo">
+      <input name="roughness" type="float" value="0.2" />
+      <input name="anisotropy" type="float" value="0.0" />
+    </roughness_anisotropy>
+    <generalized_schlick_brdf name="schlickbsdf1" type="BSDF">
+      <input name="color0" type="color3" value="0.3, 0.3, 1.0" />
+      <input name="color90" type="color3" value="1.0, 0.3, 0.3" />
+      <input name="exponent" type="float" value="5.0" />
+      <input name="roughness" type="roughnessinfo" nodename="roughness1" />
+    </generalized_schlick_brdf>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" value="" nodename="schlickbsdf1" />
+      <input name="edf" type="EDF" value="" />
+      <input name="opacity" type="float" value="1.0" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+</materialx>

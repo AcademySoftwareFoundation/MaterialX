@@ -1,0 +1,4 @@
+(({{fg}}.a+{{bg}}.a < 1.0) ?
+  vec4( {{fg}}.rgb + {{bg}}.rgb, min({{fg}}.a + {{bg}}.a, 1.0) ) * {{mix}} :
+  vec4( {{fg}}.rgb + ({{bg}}.rgb * (1.0-{{fg}}.a)/{{bg}}.a ), min({{fg}}.a + {{bg}}.a, 1.0) ) * {{mix}} )
++ ({{bg}} * (1.0-{{mix}}));

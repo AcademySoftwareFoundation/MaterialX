@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<materialx version="1.36" require="">
+  <nodegraph name="nodegraph1" type="" xpos="6.44334" ypos="16.5914">
+    <roughness_dual name="roughness_dual1" type="roughnessinfo" xpos="3.37737" ypos="12.2247">
+      <input name="roughness_x" type="float" value="0.2000" />
+      <input name="roughness_y" type="float" value="0.4000" />
+    </roughness_dual>
+    <subsurface_brdf name="subsurface_brdf1" type="BSDF" xpos="2.0363" ypos="14.2553">
+      <input name="weight" type="float" value="1.0" />
+      <input name="color" type="color3" value="0.18, 0.18, 0.18" />
+      <input name="radius" type="vector3" value="1.0, 1.0, 1.0" />
+      <input name="anisotropy" type="float" value="0.0" />
+      <input name="normal" type="vector3" value="0.0, 0.0, 0.0" />
+    </subsurface_brdf>
+    <sheen_brdf name="sheen_brdf1" type="BSDF" xpos="2.02026" ypos="20.1608">
+      <input name="weight" type="float" value="1.0" />
+      <input name="color" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="roughness" type="float" value="0.3" />
+      <input name="normal" type="vector3" value="0.0, 0.0, 0.0" />
+      <input name="base" type="BSDF" value="" />
+    </sheen_brdf>
+    <mix name="mix_edf1" type="EDF" xpos="4.84828" ypos="-0.84">
+      <input name="fg" type="EDF" value="" nodename="Emission_EDF" />
+      <input name="bg" type="EDF" value="" />
+      <input name="mix" type="float" value="0.5000" />
+    </mix>
+    <mix name="mix_surface1" type="surfaceshader" xpos="7.98621" ypos="5.96">
+      <input name="fg" type="surfaceshader" value="" nodename="surface1" />
+      <input name="bg" type="surfaceshader" value="" nodename="surface2" />
+      <input name="mix" type="float" value="0.5000" />
+    </mix>
+    <mix name="mix_bsdf1" type="BSDF" xpos="3.57026" ypos="16.8768">
+      <input name="fg" type="BSDF" value="" nodename="sheen_brdf1" />
+      <input name="bg" type="BSDF" value="" nodename="subsurface_brdf1" />
+      <input name="mix" type="float" value="0.5000" />
+    </mix>
+    <surface name="surface1" type="surfaceshader" xpos="6.50345" ypos="2.22">
+      <input name="bsdf" type="BSDF" value="" nodename="conductor_brdf1" />
+      <input name="edf" type="EDF" value="" nodename="mix_edf1" />
+      <input name="opacity" type="float" value="1.0000" />
+    </surface>
+    <surface name="surface2" type="surfaceshader" xpos="6.50345" ypos="11.58">
+      <input name="bsdf" type="BSDF" value="" nodename="SchlickBRDF" />
+      <input name="edf" type="EDF" value="" nodename="Emission_EDF" />
+      <input name="opacity" type="float" value="1.0" />
+    </surface>
+    <uniform_edf name="Emission_EDF" type="EDF" xpos="3.06207" ypos="9.72">
+      <input name="intensity" type="color3" value="0.2000, 1.0, 0.2000" />
+    </uniform_edf>
+    <output name="out" type="surfaceshader" nodename="mix_surface1" />
+    <conductor_brdf name="conductor_brdf1" type="BSDF" xpos="4.84828" ypos="3.48">
+      <input name="weight" type="float" value="1.0" />
+      <input name="reflectivity" type="color3" value="0.944 0.776 0.373" />
+      <input name="edgecolor" type="color3" value="0.998 0.981 0.751" />
+      <input name="roughness" type="roughnessinfo" value="" />
+      <input name="normal" type="vector3" value="0.0, 0.0, 0.0" />
+      <input name="tangent" type="vector3" value="0.0, 0.0, 0.0" />
+      <input name="distribution" type="string" value="ggx" />
+    </conductor_brdf>
+    <generalized_schlick_brdf name="SchlickBRDF" type="BSDF" xpos="4.84828" ypos="10.32">
+      <input name="weight" type="float" value="1.0" />
+      <input name="color0" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="exponent" type="float" value="5.0" />
+      <input name="roughness" type="roughnessinfo" value="" nodename="roughness_dual1" />
+      <input name="normal" type="vector3" value="0.0, 0.0, 0.0" />
+      <input name="tangent" type="vector3" value="0.0, 0.0, 0.0" />
+      <input name="distribution" type="string" value="ggx" />
+      <input name="base" type="BSDF" value="" nodename="mix_bsdf1" />
+    </generalized_schlick_brdf>
+  </nodegraph>
+</materialx>

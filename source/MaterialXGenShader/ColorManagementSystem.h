@@ -1,0 +1,81 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
+#ifndef MATERIALX_COLOR_MANAGEMENT_SYSTEM_H
+#define MATERIALX_COLOR_MANAGEMENT_SYSTEM_H
+
+/// @file
+/// Color management system classes
+
+#include <MaterialXCore/Document.h>
+
+#include <MaterialXGenShader/Library.h>
+#include <MaterialXGenShader/Factory.h>
+#include <MaterialXGenShader/ShaderNode.h>
+#include <MaterialXGenShader/ShaderNodeImpl.h>
+#include <MaterialXGenShader/TypeDesc.h>
+
+namespace MaterialX
+{
+
+class ShaderGenerator;
+
+/// A shared pointer to a ColorManagementSystem
+using ColorManagementSystemPtr = shared_ptr<class ColorManagementSystem>;
+
+/// @struct @ColorSpaceTransform
+/// Structure that represents color space transform information
+struct ColorSpaceTransform
+{
+    ColorSpaceTransform(const string& ss, const string& ts, const TypeDesc* t);
+
+    string sourceSpace;
+    string targetSpace;
+    const TypeDesc* type;
+
+    /// Comparison operator
+    bool operator==(const ColorSpaceTransform &other) const
+    {
+        return sourceSpace == other.sourceSpace &&
+               targetSpace == other.targetSpace &&
+               type == other.type;
+    }
+};
+
+/// @class ColorManagementSystem
+/// Abstract base class for a ColorManagementSystem.
+///
+class ColorManagementSystem
+{
+  public:
+    virtual ~ColorManagementSystem() {}
+
+    /// Return the ColorManagementSystem name
+    virtual const string& getName() const = 0;
+
+    /// Load a library of implementations from the provided document,
+    /// replacing any previously loaded content.
+    virtual void loadLibrary(DocumentPtr document);
+
+    /// Returns whether this color management system supports a provided transform
+    bool supportsTransform(const ColorSpaceTransform& transform) const;
+
+    /// Create a node to use to perform the given color space transformation.
+    ShaderNodePtr createNode(const ShaderGraph* parent, const ColorSpaceTransform& transform, const string& name,
+                             GenContext& context) const;
+
+  protected:
+    /// Protected constructor
+    ColorManagementSystem();
+      
+    /// Returns an implementation name for a given transform
+    virtual string getImplementationName(const ColorSpaceTransform& transform) const = 0;
+
+    DocumentPtr _document;
+};
+
+} // namespace MaterialX
+
+#endif

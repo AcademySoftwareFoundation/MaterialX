@@ -1,0 +1,5 @@
+void mx_saturate_color4(color4 in, float amount, color lumacoeffs, output color4 result)
+{
+    result = color4(dot(in.rgb, lumacoeffs), in.a);
+    result = mix(result, in, amount);
+}

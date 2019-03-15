@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<materialx version="1.36">
+  <nodegraph name="add_edf_test">
+    <diffuse_brdf name="brdf1" type="BSDF">
+      <input name="color" type="color3" value="0.1, 0.1, 0.1" />
+    </diffuse_brdf>
+    <uniform_edf name="edf1" type="EDF">
+      <input name="intensity" type="color3" value="1.0, 0.0, 0.0" />
+    </uniform_edf>
+    <uniform_edf name="edf2" type="EDF">
+      <input name="intensity" type="color3" value="0.0, 1.0, 0.0" />
+    </uniform_edf>
+    <add name="add_edf1" type="EDF">
+      <input name="in1" type="EDF" nodename="edf1" />
+      <input name="in2" type="EDF" nodename="edf2" />
+    </add>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="brdf1" />
+      <input name="edf" type="EDF" nodename="add_edf1" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+</materialx>

@@ -18,6 +18,7 @@ extern const string EMPTY_STRING;
 
 class Element;
 
+using ElementPtr = shared_ptr<Element>;
 using ConstElementPtr = shared_ptr<const Element>;
 
 /// Return the version of the MaterialX library as a string.

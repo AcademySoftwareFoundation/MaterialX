@@ -1,0 +1,5 @@
+void mx_fractal3d_fa_color4(float amplitude, int octaves, float lacunarity, float diminish, vector position, output color4 result)
+{
+    color4 f = fBm(position, octaves, lacunarity, diminish, "snoise");
+    result = f * amplitude;
+}

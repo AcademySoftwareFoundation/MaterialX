@@ -1,0 +1,5 @@
+void mx_fractal3d_fa_vector3(float amplitude, int octaves, float lacunarity, float diminish, vector position, output vector result)
+{
+    vector f = fBm(position, octaves, lacunarity, diminish, "snoise");
+    result = f * amplitude;
+}

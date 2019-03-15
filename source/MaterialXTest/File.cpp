@@ -32,11 +32,11 @@ TEST_CASE("Syntactic operations", "[file]")
 
 TEST_CASE("File system operations", "[file]")
 {
-    std::vector<std::string> filenames =
+    mx::StringVec filenames =
     {
-        "documents/Libraries/stdlib/stdlib_defs.mtlx",
-        "documents/Examples/MaterialBasic.mtlx",
-        "documents/Examples/PaintMaterials.mtlx",
+        "libraries/stdlib/stdlib_defs.mtlx",
+        "resources/Materials/Examples/MaterialBasic.mtlx",
+        "resources/Materials/Examples/PaintMaterials.mtlx",
     };
 
     for (const std::string& filename : filenames)
@@ -49,11 +49,11 @@ TEST_CASE("File system operations", "[file]")
 
 TEST_CASE("File search path operations", "[file]")
 {
-    std::string searchPath = "documents/Libraries/stdlib" + 
+    std::string searchPath = "libraries/stdlib" + 
                              mx::PATH_LIST_SEPARATOR + 
-                             "documents/Examples";
+                             "resources/Materials/Examples";
 
-    std::vector<std::string> filenames =
+    mx::StringVec filenames =
     {
         "stdlib_defs.mtlx",
         "MaterialBasic.mtlx",
