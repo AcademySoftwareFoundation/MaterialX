@@ -77,6 +77,7 @@ add_subdirectory(source/MaterialXGenGlsl)
 
 add_subdirectory(source/MaterialXTest)
 add_subdirectory(libraries)
+add_subdirectory(resources)
 
 if(MATERIALX_BUILD_PYTHON)
     add_subdirectory(source/PyMaterialX)
