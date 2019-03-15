@@ -77,7 +77,7 @@ mix({{bg}}, {{fg}}, {{mix}})
 **Figure 2**: Inline expressions for implementing nodes `<add>` and `<mix>`.
 
 ### 1.3.2 Shading Language Function
-For nodes that can’t be implemented by inline expressions a function definition can be used instead. The function signature should match the nodedefs interface with inputs and outputs. See Figure 3 for an example. Connecting the source code to the nodedef is done using an `<implementation>` element, see [1] for more information.
+For nodes that can’t be implemented by inline expressions a function definition can be used instead. The function signature should match the nodedefs interface with inputs and outputs. See Figure 3 for an example. Connecting the source code to the nodedef is done using an `<implementation>` element, see the [MaterialX specification](../Specification/MaterialX.v1.36.Spec.pdf) for more information.
 
 ```xml
 // Nodedef element
@@ -106,12 +106,12 @@ void mx_image_color3(string file, string layer, color defaultvalue,
                      string framerange, int frameoffset,
                      string frameendaction, output color out)
 {
-  // Sample the texture
-  out = texture(file, texcoord.x, texcoord.y,
-                "interp", filtertype,
-                "subimage", layer,
-                "missingcolor", defaultvalue,
-                "wrap", uaddressmode);
+    // Sample the texture
+    out = texture(file, texcoord.x, texcoord.y,
+                  "interp", filtertype,
+                  "subimage", layer,
+                  "missingcolor", defaultvalue,
+                  "wrap", uaddressmode);
 }
 ```
 **Figure 3**: Shading language function's implementation for node `<image>` in OSL.
@@ -174,23 +174,23 @@ Note that by using a `ShaderNodeImpl` class for your node's implementation it is
 /// Implementation of ’foo' node for OSL
 class FooOsl : public ShaderNodeImpl
 {
-public:
-  static ShaderNodeImplPtr create() { return std::make_shared<FooOsl>(); }
+  public:
+    static ShaderNodeImplPtr create() { return std::make_shared<FooOsl>(); }
 
-  const string& getLanguage() const override { return LANGUAGE_OSL; }
-  const string& getTarget() const override { return EMPTY_STRING; }
+    const string& getLanguage() const override { return LANGUAGE_OSL; }
+    const string& getTarget() const override { return EMPTY_STRING; }
 
-  void emitFunctionDefinition(const ShaderNode& node, GenContext& context,
-                              ShaderStage& stage) const override
-  {
-    // Emit function definition if needed for the node
-  }
+    void emitFunctionDefinition(const ShaderNode& node, GenContext& context,
+                                ShaderStage& stage) const override
+    {
+        // Emit function definition if needed for the node
+    }
 
-  void emitFunctionCall(const ShaderNode& node, GenContext& context,
-                        ShaderStage& stage) const override
-  {
-    // Emit function call, or inline shader code, for the node
-  }
+    void emitFunctionCall(const ShaderNode& node, GenContext& context,
+                          ShaderStage& stage) const override
+    {
+        // Emit function call, or inline shader code, for the node
+    }
 };
 ```
 ```c++
@@ -283,57 +283,57 @@ Figure 6 shows how creation of shader inputs and connector variables are done fo
 // Implementation of 'texcoord' node for GLSL
 class TexCoordGlsl : public ShaderNodeImpl
 {
-public:
-  static ShaderNodeImplPtr create()
-  {
-      return std::make_shared<TexCoordGlsl>();
-  }
+  public:
+    static ShaderNodeImplPtr create()
+    {
+        return std::make_shared<TexCoordGlsl>();
+    }
 
-  void TexCoordNodeGlsl::createVariables(const ShaderNode& node, GenContext&,
-                                         Shader& shader) const
-  {
-      const ShaderOutput* output = node.getOutput();
-      const ShaderInput* indexInput = node.getInput(INDEX);
-      const string index = indexInput ? indexInput->getValue()->getValueString() : "0";
+    void TexCoordNodeGlsl::createVariables(const ShaderNode& node, GenContext&,
+                                           Shader& shader) const
+    {
+        const ShaderOutput* output = node.getOutput();
+        const ShaderInput* indexInput = node.getInput(INDEX);
+        const string index = indexInput ? indexInput->getValue()->getValueString() : "0";
 
-      ShaderStage& vs = shader.getStage(Stage::VERTEX);
-      ShaderStage& ps = shader.getStage(Stage::PIXEL);
+        ShaderStage& vs = shader.getStage(Stage::VERTEX);
+        ShaderStage& ps = shader.getStage(Stage::PIXEL);
 
-      addStageInput(HW::VERTEX_INPUTS, output->getType(), "i_texcoord_" + index, vs);
-      addStageConnector(HW::VERTEX_DATA, output->getType(), "texcoord_" + index, vs, ps);
-  }
+        addStageInput(HW::VERTEX_INPUTS, output->getType(), "i_texcoord_" + index, vs);
+        addStageConnector(HW::VERTEX_DATA, output->getType(), "texcoord_" + index, vs, ps);
+    }
 
-  void TexCoordNodeGlsl::emitFunctionCall(const ShaderNode& node,
-                                          GenContext& context,
-                                          ShaderStage& stage) const
-  {
-      const ShaderGenerator& shadergen = context.getShaderGenerator();
+    void TexCoordNodeGlsl::emitFunctionCall(const ShaderNode& node,
+                                            GenContext& context,
+                                            ShaderStage& stage) const
+    {
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
 
-      const ShaderInput* indexInput = node.getInput(INDEX);
-      const string index = indexInput ? indexInput->getValue()->getValueString() : "0";
-      const string variable = "texcoord_" + index;
+        const ShaderInput* indexInput = node.getInput(INDEX);
+        const string index = indexInput ? indexInput->getValue()->getValueString() : "0";
+        const string variable = "texcoord_" + index;
 
-      BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
-        VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-        const string prefix = vertexData.getInstance() + ".";
-        ShaderPort* texcoord = vertexData[variable];
-        if (!texcoord->isEmitted())
-        {
-            shadergen.emitLine(prefix + texcoord->getVariable() + " = i_" + variable, stage);
-            texcoord->setEmitted();
-        }
-      END_SHADER_STAGE(shader, Stage::VERTEX)
+        BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
+            VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
+            const string prefix = vertexData.getInstance() + ".";
+            ShaderPort* texcoord = vertexData[variable];
+            if (!texcoord->isEmitted())
+            {
+                shadergen.emitLine(prefix + texcoord->getVariable() + " = i_" + variable, stage);
+                texcoord->setEmitted();
+            }
+        END_SHADER_STAGE(shader, Stage::VERTEX)
 
-      BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-        VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-        const string prefix = vertexData.getInstance() + ".";
-        ShaderPort* texcoord = vertexData[variable];
-            shadergen.emitLineBegin(stage);
-        shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-        shadergen.emitString(" = " + prefix + texcoord->getVariable(), stage);
-        shadergen.emitLineEnd(stage);
-      END_SHADER_STAGE(shader, Stage::PIXEL)
-  }
+        BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+            VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
+            const string prefix = vertexData.getInstance() + ".";
+            ShaderPort* texcoord = vertexData[variable];
+                shadergen.emitLineBegin(stage);
+            shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+            shadergen.emitString(" = " + prefix + texcoord->getVariable(), stage);
+            shadergen.emitLineEnd(stage);
+        END_SHADER_STAGE(shader, Stage::PIXEL)
+    }
 };
 ```
 **Figure 6**: Implementation of node `texcoord` in GLSL. Using a `ShaderNodeImpl` sub-class in order to control shader variable creation and code generation into separate shader stages.
@@ -384,8 +384,3 @@ Uniform variables
 |    u_lightData[]                       | struct  | Array of struct LightData holding parameters for active light sources. The `LightData` struct is built dynamically depending on requirements for bound light shaders. |
 
 **Figure 7** : Listing of predefined variables with their binding rules.
-
-## References
-
-[1] Lucasfilm, MaterialX specification.
-http://www.materialx.org, 2017.
