@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXTest/Catch/catch.hpp>
+
 #include <MaterialXTest/GenShaderUtil.h>
 
 #include <MaterialXCore/Document.h>
@@ -13,9 +14,10 @@
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXGenOsl/OslSyntax.h>
 
-#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
+#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Util.h>
+
 
 namespace mx = MaterialX;
 

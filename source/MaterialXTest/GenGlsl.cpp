@@ -5,15 +5,15 @@
 
 #include <MaterialXTest/Catch/catch.hpp>
 
+#include <MaterialXTest/GenGlsl.h>
+#include <MaterialXTest/GenShaderUtil.h>
+
 #include <MaterialXCore/Document.h>
 
 #include <MaterialXFormat/File.h>
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenGlsl/GlslSyntax.h>
-
-#include <MaterialXTest/GenShaderUtil.h>
-#include <MaterialXTest/GenGlsl.h>
 
 namespace mx = MaterialX;
 

@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXTest/Catch/catch.hpp>
+
 #include <MaterialXTest/GenShaderUtil.h>
 
 #include <MaterialXGenShader/Shader.h>
@@ -24,8 +25,9 @@ void loadLibrary(const mx::FilePath& file, mx::DocumentPtr doc)
     doc->importLibrary(libDoc, &copyOptions);
 }
 
-void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& searchPath, mx::DocumentPtr doc,
-                   const mx::StringSet* excludeFiles)
+void loadLibraries(const mx::StringVec& libraryNames,
+                   const mx::FilePath& searchPath,
+                   mx::DocumentPtr doc)
 {
     const std::string MTLX_EXTENSION("mtlx");
     for (const std::string& library : libraryNames)
@@ -41,15 +43,10 @@ void loadLibraries(const mx::StringVec& libraryNames, const mx::FilePath& search
 
             for (const std::string& filename : filenames)
             {
-                if (excludeFiles && excludeFiles->count(filename))
-                {
-                    continue;
-                }
                 loadLibrary(mx::FilePath(path)/ filename, doc);
             }
         }
     }
-    REQUIRE(doc->getNodeDefs().size() > 0);
 }
 
 bool getShaderSource(mx::GenContext& context,
@@ -373,15 +370,10 @@ void ShaderGeneratorTester::setupDependentLibraries()
 
     // Load the standard libraries.
     const mx::StringVec libraries = { "stdlib", "pbrlib" };
-    GenShaderUtil::loadLibraries(libraries, _libSearchPath, _dependLib, &_excludeLibraryFiles);
+    GenShaderUtil::loadLibraries(libraries, _libSearchPath, _dependLib);
 
     // Load the standard_surface definition since it's used in the test suite.
     GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), _dependLib);
-}
-
-void ShaderGeneratorTester::setExcludeLibraryFiles()
-{
-    // Base class adds no additional library files to exclude
 }
 
 void ShaderGeneratorTester::addSkipFiles()
@@ -463,7 +455,6 @@ void ShaderGeneratorTester::testGeneration(const mx::GenOptions& generateOptions
     createGenerator();
 
     // Dependent library setup
-    setExcludeLibraryFiles();
     setupDependentLibraries();
     addColorManagement();
 
@@ -474,7 +465,7 @@ void ShaderGeneratorTester::testGeneration(const mx::GenOptions& generateOptions
     setTestStages();
 
     // Load in all documents to test
-    mx::loadDocuments(_testRootPath, _skipFiles, _documents, _documentPaths, nullptr);
+    mx::loadDocuments(_testRootPath, _skipFiles, _documents, _documentPaths);
 
     // Scan each document for renderable elements and check code generation
     //
@@ -521,15 +512,18 @@ void ShaderGeneratorTester::testGeneration(const mx::GenOptions& generateOptions
         }
 
         // Perform document validation
-        std::string docErrors;
-        bool documentIsValid = doc->validate(&docErrors);
-        CHECK(documentIsValid);
-        if (!documentIsValid)
+        std::string message;
+        bool docValid = doc->validate(&message);
+        if (!docValid)
         {
-            _logFile << ">> Validation errors: " << docErrors << std::endl;
+            WARN("[" + doc->getSourceUri() + "] " + message);
         }
+        REQUIRE(docValid);
 
         // Traverse the renderable documents and run validation the validation step
+        int missingNodeDefs = 0;
+        int missingImplementations = 0;
+        int codeGenerationFailures = 0;
         for (auto element : elements)
         {
             mx::OutputPtr output = element->asA<mx::Output>();
@@ -553,31 +547,39 @@ void ShaderGeneratorTester::testGeneration(const mx::GenOptions& generateOptions
             }
 
             const std::string namePath(element->getNamePath());
-            CHECK(nodeDef);
             if (nodeDef)
             {
                 mx::string elementName = mx::replaceSubstrings(namePath, pathMap);
                 elementName = mx::createValidName(elementName);
 
                 mx::InterfaceElementPtr impl = nodeDef->getImplementation(_shaderGenerator->getTarget(), _shaderGenerator->getLanguage());
-                CHECK(impl);
                 if (impl)
                 {
                     _logFile << "------------ Run validation with element: " << namePath << "------------" << std::endl;
                     mx::StringVec sourceCode;
                     bool generatedCode = generateCode(context, elementName, element, _logFile, _testStages, sourceCode);
-                    CHECK(generatedCode);
+                    if (!generatedCode)
+                    {
+                        _logFile << ">> Failed to generate code for nodedef: " << nodeDefName << std::endl;
+                        codeGenerationFailures++;
+                    }
                 }
                 else
                 {
                     _logFile << ">> Failed to find implementation for nodedef: " << nodeDefName << std::endl;
+                    missingImplementations++;
                 }
             }
             else
             {
                 _logFile << ">> Failed to find nodedef for: " << namePath << std::endl;
+                missingNodeDefs++;
             }
         }
+
+        CHECK(missingNodeDefs == 0);
+        CHECK(missingImplementations == 0);
+        CHECK(codeGenerationFailures == 0);
     }
 
     // End logging
@@ -587,5 +589,4 @@ void ShaderGeneratorTester::testGeneration(const mx::GenOptions& generateOptions
     }
 }
 
-} //namespace GenShaderUtil
-
+} // namespace GenShaderUtil

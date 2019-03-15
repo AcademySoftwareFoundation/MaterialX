@@ -3,6 +3,9 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
+#ifndef GENGLSL_UTIL_H
+#define GENGLSL_UTIL_H
+
 #include <MaterialXTest/Catch/catch.hpp>
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
@@ -12,14 +15,13 @@
 
 namespace mx = MaterialX;
 
-// Base GLSL code generation tester
 class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
 {
-public:
+  public:
     using ParentClass = GenShaderUtil::ShaderGeneratorTester;
 
     GlslShaderGeneratorTester(const mx::FilePath& testRootPath, const mx::FilePath& libSearchPath,
-                                const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath) :
+                              const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath) :
         GenShaderUtil::ShaderGeneratorTester(testRootPath, libSearchPath, srcSearchPath, logFilePath)
     {}
 
@@ -53,3 +55,4 @@ public:
     }
 };
 
+#endif // GENGLSL_UTIL_H
