@@ -194,15 +194,15 @@ class FooOsl : public ShaderNodeImpl
 };
 ```
 ```c++
-OslShaderGenerator::OslShaderGenerator()
-    : ShaderGenerator(std::make_shared<OslSyntax>())
+OslShaderGenerator::OslShaderGenerator() :
+    ShaderGenerator(std::make_shared<OslSyntax>())
 {
-  ...
-  // Register foo implementation for nodedefs it should be used for
-  registerImplementation("IM_foo_color2_osl", FooOsl::create);
-  registerImplementation("IM_foo_color3_osl", FooOsl::create);
-  registerImplementation("IM_foo_color4_osl", FooOsl::create);
-  ...
+    ...
+    // Register foo implementation for nodedefs it should be used for
+    registerImplementation("IM_foo_color2_osl", FooOsl::create);
+    registerImplementation("IM_foo_color3_osl", FooOsl::create);
+    registerImplementation("IM_foo_color4_osl", FooOsl::create);
+    ...
 }
 ```
 **Figure 5**: C++ class for dynamic code generation.
