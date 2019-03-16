@@ -9,7 +9,7 @@
 /// @file
 /// Type descriptor for a MaterialX data type.
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXGenShader/Library.h>
 
 namespace MaterialX
 {

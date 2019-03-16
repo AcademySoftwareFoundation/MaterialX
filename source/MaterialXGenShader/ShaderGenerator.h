@@ -10,10 +10,11 @@
 /// Base shader generator class
 
 #include <MaterialXGenShader/Library.h>
+
+#include <MaterialXGenShader/ColorManagementSystem.h>
+#include <MaterialXGenShader/Factory.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Syntax.h>
-#include <MaterialXGenShader/Factory.h>
-#include <MaterialXGenShader/ColorManagementSystem.h>
 
 #include <MaterialXCore/Util.h>
 
@@ -22,19 +23,19 @@ namespace MaterialX
 
 /// @class ShaderGenerator
 /// Base class for shader generators
-/// All 3rd party shader generators should derive from this class.
+/// All third-party shader generators should derive from this class.
 /// Derived classes should use DECLARE_SHADER_GENERATOR / DEFINE_SHADER_GENERATOR
-/// in it's declaration / definition, and register with the Registry class.
+/// in their declaration / definition, and register with the Registry class.
 class ShaderGenerator
 {
-public:
+  public:
     /// Destructor
-    virtual ~ShaderGenerator() {}
+    virtual ~ShaderGenerator() { }
 
-    /// Return a unique identifyer for the language used by this generator
+    /// Return a unique identifier for the language used by this generator
     virtual const string& getLanguage() const = 0;
 
-    /// Return a unique identifyer for the target this generator is for
+    /// Return a unique identifier for the target this generator is for
     virtual const string& getTarget() const = 0;
 
     /// Generate a shader starting from the given element, translating
@@ -59,7 +60,7 @@ public:
     /// Add a string.
     virtual void emitString(const string& str, ShaderStage& stage) const;
 
-    /// Add a single line of code, optionally appening a semi-colon.
+    /// Add a single line of code, optionally appending a semicolon.
     virtual void emitLine(const string& str, ShaderStage& stage, bool semicolon = true) const;
 
     /// Add a single line code comment.
@@ -161,7 +162,7 @@ public:
     virtual bool remapEnumeration(const ValueElement& input, const string& value,
                                   std::pair<const TypeDesc*, ValuePtr>& result) const;
 
-protected:
+  protected:
     /// Protected constructor
     ShaderGenerator(SyntaxPtr syntax);
 
@@ -178,6 +179,7 @@ protected:
     /// Derived classes can override this to use custom compound implementations.
     virtual ShaderNodeImplPtr createCompoundImplementation(const NodeGraph& impl) const;
 
+  protected:
     static const string SEMICOLON;
     static const string COMMA;
 
@@ -188,4 +190,4 @@ protected:
 
 } // namespace MaterialX
 
-#endif
+#endif // MATERIALX_SHADERGENERATOR_H
