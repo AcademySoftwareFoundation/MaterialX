@@ -83,10 +83,10 @@ class GlslShaderGenerator : public HwShaderGenerator
     /// the element and all dependencies upstream into shader code.
     ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const override;
 
-    /// Return a unique identifyer for the language used by this generator
+    /// Return a unique identifier for the language used by this generator
     const string& getLanguage() const override { return LANGUAGE; }
 
-    /// Return a unique identifyer for the target this generator is for
+    /// Return a unique identifier for the target this generator is for
     const string& getTarget() const override { return TARGET; }
 
     /// Return the version string for the GLSL version this generator is for
@@ -107,10 +107,10 @@ class GlslShaderGenerator : public HwShaderGenerator
     bool remapEnumeration(const ValueElement& input, const string& value, std::pair<const TypeDesc*, ValuePtr>& result) const override;
 
   public:
-    /// Unique identifyer for the glsl language
+    /// Unique identifier for the glsl language
     static const string LANGUAGE;
 
-    /// Unique identifyer for this generator target
+    /// Unique identifier for this generator target
     static const string TARGET;
 
     /// Version string for the generator target

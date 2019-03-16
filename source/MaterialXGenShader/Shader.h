@@ -9,10 +9,11 @@
 /// @file
 /// Shader instance class created during shader generation
 
-#include <MaterialXCore/Library.h>
-#include <MaterialXGenShader/ShaderStage.h>
-#include <MaterialXGenShader/ShaderGraph.h>
+#include <MaterialXGenShader/Library.h>
+
 #include <MaterialXGenShader/GenOptions.h>
+#include <MaterialXGenShader/ShaderGraph.h>
+#include <MaterialXGenShader/ShaderStage.h>
 
 namespace MaterialX
 {
@@ -38,7 +39,7 @@ class Shader
     Shader(const string& name, ShaderGraphPtr graph);
 
     /// Destructor
-    virtual ~Shader() {}
+    virtual ~Shader() { }
 
     /// Return the shader name
     const string& getName() const { return _name; }

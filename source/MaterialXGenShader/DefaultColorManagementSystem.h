@@ -25,7 +25,7 @@ using DefaultColorManagementSystemPtr = shared_ptr<class DefaultColorManagementS
 class DefaultColorManagementSystem : public ColorManagementSystem
 {
   public:
-    virtual ~DefaultColorManagementSystem() {}
+    virtual ~DefaultColorManagementSystem() { }
 
     /// Create a new DefaultColorManagementSystem
     static DefaultColorManagementSystemPtr create(const string& language);

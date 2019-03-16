@@ -10,6 +10,7 @@
 /// Base class for shader node implementations
 
 #include <MaterialXGenShader/Library.h>
+
 #include <MaterialXCore/Util.h>
 
 namespace MaterialX
@@ -28,15 +29,15 @@ using ShaderNodeImplPtr = shared_ptr<class ShaderNodeImpl>;
 class ShaderNodeImpl
 {
   public:
-    virtual ~ShaderNodeImpl() {}
+    virtual ~ShaderNodeImpl() { }
 
-    /// Return an identifyer for the language used by this implementation.
+    /// Return an identifier for the language used by this implementation.
     /// By default an empty string is returned, representing any language.
     /// Only override this method if your derived node implementation class
     /// is for a specific language.
     virtual const string& getLanguage() const { return EMPTY_STRING; }
 
-    /// Return an identifyer for the target used by this implementation.
+    /// Return an identifier for the target used by this implementation.
     /// By default an empty string is returned, representing all targets.
     /// Only override this method if your derived node implementation class
     /// is for a specific target.
@@ -98,6 +99,7 @@ class ShaderNodeImpl
     /// Protected constructor
     ShaderNodeImpl();
 
+  protected:
     string _name;
     size_t _hash;
 };

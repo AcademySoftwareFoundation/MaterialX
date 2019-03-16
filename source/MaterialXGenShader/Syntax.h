@@ -9,11 +9,11 @@
 /// @file
 /// Base class for syntax handling for shader generators
 
+#include <MaterialXGenShader/Library.h>
+
+#include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Library.h>
 #include <MaterialXCore/Value.h>
-#include <MaterialXCore/Definition.h>
-
-#include <utility>
 
 namespace MaterialX
 {
@@ -34,7 +34,7 @@ using TypeSyntaxPtr = shared_ptr<TypeSyntax>;
 /// to emit code with correct syntax for each language.
 class Syntax
 {
-public:
+  public:
     using UniqueNameMap = std::unordered_map<string, size_t>;
 
     /// Punctuation types
@@ -45,8 +45,8 @@ public:
         SQUARE_BRACKETS
     };
 
-public:
-    virtual ~Syntax() {}
+  public:
+    virtual ~Syntax() { }
 
     /// Register syntax handling for a data type.
     /// Required to be set for all supported data types.
@@ -156,11 +156,11 @@ public:
     /// Modify the given name string to remove any invalid characters or tokens.
     virtual void makeValidName(string& name) const;
 
-protected:
+  protected:
     /// Protected constructor
     Syntax();
 
-private:
+  private:
     vector<TypeSyntaxPtr> _typeSyntaxes;
     std::unordered_map<const TypeDesc*, size_t> _typeSyntaxByType;
 
@@ -180,8 +180,8 @@ private:
 /// Base class for syntax handling of types.
 class TypeSyntax
 {
-public:
-    virtual ~TypeSyntax() {}
+  public:
+    virtual ~TypeSyntax() { }
 
     /// Returns the type name.
     const string& getName() const { return _name; }
@@ -208,10 +208,10 @@ public:
     /// with one entry for each member of the type.
     virtual string getValue(const StringVec& values, bool uniform) const = 0;
 
-protected:
+  protected:
     /// Protected constructor
     TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, 
-        const string& typeAlias, const string& typeDefinition, const StringVec& members);
+               const string& typeAlias, const string& typeDefinition, const StringVec& members);
 
     string _name;                // type name
     string _defaultValue;        // default value syntax
@@ -226,9 +226,9 @@ protected:
 /// Syntax class for scalar types.
 class ScalarTypeSyntax : public TypeSyntax
 {
-public:
+  public:
     ScalarTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, 
-        const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING);
+                     const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING);
 
     string getValue(const Value& value, bool uniform) const override;
     string getValue(const StringVec& values, bool uniform) const override;
@@ -237,9 +237,9 @@ public:
 /// Syntax class for string types.
 class StringTypeSyntax : public ScalarTypeSyntax
 {
-public:
+  public:
     StringTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
-        const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING);
+                     const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING);
 
     string getValue(const Value& value, bool uniform) const override;
 };
@@ -247,10 +247,10 @@ public:
 /// Syntax class for aggregate types.
 class AggregateTypeSyntax : public TypeSyntax
 {
-public:
+  public:
     AggregateTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
-        const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING, 
-        const StringVec& members = EMPTY_MEMBERS);
+                        const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING, 
+                        const StringVec& members = EMPTY_MEMBERS);
 
     string getValue(const Value& value, bool uniform) const override;
     string getValue(const StringVec& values, bool uniform) const override;

@@ -9,12 +9,14 @@
 /// @file
 /// Shader graph class
 
-#include <MaterialXCore/Node.h>
-#include <MaterialXCore/Document.h>
+#include <MaterialXGenShader/Library.h>
 
 #include <MaterialXGenShader/ColorManagementSystem.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/TypeDesc.h>
+
+#include <MaterialXCore/Document.h>
+#include <MaterialXCore/Node.h>
 
 namespace MaterialX
 {
@@ -44,7 +46,7 @@ class ShaderGraph : public ShaderNode
     ShaderGraph(const ShaderGraph* parent, const string& name, ConstDocumentPtr document);
 
     /// Desctructor.
-    virtual ~ShaderGraph() {}
+    virtual ~ShaderGraph() { }
 
     /// Create a new shader graph from an element.
     /// Supported elements are outputs and shaderrefs.

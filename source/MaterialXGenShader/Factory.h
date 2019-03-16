@@ -16,10 +16,9 @@ namespace MaterialX
 
 /// @class Factory
 /// Factory class for creating instances of classes given their type name.
-template<class T>
-class Factory
+template<class T> class Factory
 {
-public:
+  public:
     using Ptr = shared_ptr<T>;
     using CreatorFunction = Ptr(*)();
     using CreatorMap = std::unordered_map<string, CreatorFunction>;
@@ -55,10 +54,10 @@ public:
         return (it != _creatorMap.end() ? it->second() : nullptr);
     }
 
-private:
+  private:
     CreatorMap _creatorMap;
 };
 
 } // namespace MaterialX
 
-#endif
+#endif // MATERIALX_FACTORY_H

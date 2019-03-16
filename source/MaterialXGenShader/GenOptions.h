@@ -9,7 +9,7 @@
 /// @file
 /// Shader generation options class
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXGenShader/Library.h>
 
 namespace MaterialX
 {

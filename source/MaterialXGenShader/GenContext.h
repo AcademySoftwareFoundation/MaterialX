@@ -10,8 +10,9 @@
 /// Context classes for shader generation
 
 #include <MaterialXGenShader/Library.h>
-#include <MaterialXGenShader/ShaderNode.h>
+
 #include <MaterialXGenShader/GenOptions.h>
+#include <MaterialXGenShader/ShaderNode.h>
 
 #include <MaterialXFormat/File.h>
 
@@ -31,7 +32,7 @@ using ConstGenUserDataPtr = std::shared_ptr<const GenUserData>;
 class GenUserData : public std::enable_shared_from_this<GenUserData>
 {
   public:
-    virtual ~GenUserData() {}
+    virtual ~GenUserData() { }
     
     /// Return a shared pointer for this object.
     GenUserDataPtr getSelf()
@@ -58,7 +59,7 @@ class GenUserData : public std::enable_shared_from_this<GenUserData>
     }
 
   protected:
-    GenUserData() {}
+    GenUserData() { }
 };
 
 /// @class GenContext 
@@ -181,7 +182,7 @@ class GenContext
     /// @param suffix Suffix string returned. Is empty if not found.
     void getOutputSuffix(const ShaderOutput* output, string& suffix) const;
 
-protected:
+  protected:
     // Shader generator.
     ShaderGeneratorPtr _sg;
 
@@ -206,4 +207,4 @@ protected:
 
 } // namespace MaterialX
 
-#endif
+#endif // MATERIALX_GENCONTEXT_H
