@@ -9,13 +9,13 @@
 /// @file
 /// Color management system classes
 
-#include <MaterialXCore/Document.h>
-
 #include <MaterialXGenShader/Library.h>
-#include <MaterialXGenShader/Factory.h>
+
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/TypeDesc.h>
+
+#include <MaterialXCore/Document.h>
 
 namespace MaterialX
 {
@@ -50,7 +50,7 @@ struct ColorSpaceTransform
 class ColorManagementSystem
 {
   public:
-    virtual ~ColorManagementSystem() {}
+    virtual ~ColorManagementSystem() { }
 
     /// Return the ColorManagementSystem name
     virtual const string& getName() const = 0;
@@ -73,6 +73,7 @@ class ColorManagementSystem
     /// Returns an implementation name for a given transform
     virtual string getImplementationName(const ColorSpaceTransform& transform) const = 0;
 
+  protected:
     DocumentPtr _document;
 };
 

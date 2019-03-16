@@ -5,13 +5,13 @@
 
 #include <MaterialXGenShader/Util.h>
 
-#include <MaterialXCore/Util.h>
-#include <MaterialXFormat/XmlIo.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-#include <iostream>
+#include <MaterialXFormat/XmlIo.h>
+
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <unordered_set>
 

@@ -9,11 +9,12 @@
 /// @file
 /// Shader generation utility methods
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXGenShader/Library.h>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Element.h>
 #include <MaterialXCore/Interface.h>
+
 #include <MaterialXFormat/File.h>
 
 namespace MaterialX
