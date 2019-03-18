@@ -9,6 +9,8 @@
 /// @file
 /// Hardware shader generator base class
 
+#include <MaterialXGenShader/Library.h>
+
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
 

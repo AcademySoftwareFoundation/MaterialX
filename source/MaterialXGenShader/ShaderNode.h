@@ -9,10 +9,12 @@
 /// @file
 /// Classes for nodes created during shader generation
 
-#include <MaterialXCore/Node.h>
+#include <MaterialXGenShader/Library.h>
 
-#include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
+#include <MaterialXGenShader/TypeDesc.h>
+
+#include <MaterialXCore/Node.h>
 
 namespace MaterialX
 {
@@ -175,7 +177,7 @@ class ShaderOutput : public ShaderPort
 class ShaderNode
 {
   public:
-    virtual ~ShaderNode() {}
+    virtual ~ShaderNode() { }
 
     /// Flags for classifying nodes into different categories.
     class Classification

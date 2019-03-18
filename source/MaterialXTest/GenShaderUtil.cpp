@@ -52,7 +52,6 @@ void loadLibraries(const mx::StringVec& libraryNames,
             }
         }
     }
-    REQUIRE(doc->getNodeDefs().size() > 0);
 }
 
 bool getShaderSource(mx::GenContext& context,

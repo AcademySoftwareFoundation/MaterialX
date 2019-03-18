@@ -9,11 +9,14 @@
 /// @file
 /// Class related to holding information for shader stages
 
+#include <MaterialXGenShader/Library.h>
+
+#include <MaterialXGenShader/GenOptions.h>
+#include <MaterialXGenShader/ShaderGraph.h>
+#include <MaterialXGenShader/Syntax.h>
+
 #include <MaterialXCore/Library.h>
 #include <MaterialXCore/Node.h>
-#include <MaterialXGenShader/Syntax.h>
-#include <MaterialXGenShader/ShaderGraph.h>
-#include <MaterialXGenShader/GenOptions.h>
 
 #include <queue>
 #include <sstream>
@@ -172,7 +175,7 @@ class ShaderStage
         return _outputs;
     }
  
-protected:
+  protected:
     /// Start a new scope using the given bracket type.
     void beginScope(Syntax::Punctuation punc = Syntax::CURLY_BRACKETS);
 
@@ -191,7 +194,7 @@ protected:
     /// Add a string.
     void addString(const string& str);
 
-    /// Add a single line of code, optionally appening a semi-colon.
+    /// Add a single line of code, optionally appending a semicolon.
     void addLine(const string& str, bool semicolon = true);
 
     /// Add a single line code comment.
@@ -216,7 +219,7 @@ protected:
     /// Add the function definition for a node.
     void addFunctionDefinition(const ShaderNode& node, GenContext& context);
 
-private:
+  private:
     /// Name of the stage
     const string _name;
 

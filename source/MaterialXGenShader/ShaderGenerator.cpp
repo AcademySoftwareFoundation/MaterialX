@@ -7,14 +7,14 @@
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
-#include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
-
-#include <MaterialXCore/Node.h>
-#include <MaterialXCore/Document.h>
-#include <MaterialXCore/Value.h>
+#include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
 #include <MaterialXFormat/File.h>
+
+#include <MaterialXCore/Document.h>
+#include <MaterialXCore/Node.h>
+#include <MaterialXCore/Value.h>
 
 #include <sstream>
 

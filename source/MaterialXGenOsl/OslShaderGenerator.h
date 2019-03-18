@@ -26,10 +26,10 @@ class OslShaderGenerator : public ShaderGenerator
 
     static ShaderGeneratorPtr create() { return std::make_shared<OslShaderGenerator>(); }
 
-    /// Return a unique identifyer for the language used by this generator
+    /// Return a unique identifier for the language used by this generator
     const string& getLanguage() const override { return LANGUAGE; }
 
-    /// Return a unique identifyer for the target this generator is for
+    /// Return a unique identifier for the target this generator is for
     const string& getTarget() const override { return TARGET; }
 
     /// Generate a shader starting from the given element, translating
@@ -39,10 +39,10 @@ class OslShaderGenerator : public ShaderGenerator
     /// Add all function calls for a graph.
     void emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const override;
 
-    /// Unique identifyer for the osl language
+    /// Unique identifier for the osl language
     static const string LANGUAGE;
 
-    /// Unique identifyer for this generator target
+    /// Unique identifier for this generator target
     static const string TARGET;
 
 protected:
