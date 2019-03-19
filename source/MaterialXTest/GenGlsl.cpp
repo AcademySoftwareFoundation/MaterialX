@@ -82,12 +82,7 @@ TEST_CASE("GLSL Implementation Check", "[genglsl]")
 
     mx::StringSet generatorSkipNodeTypes;
     mx::StringSet generatorSkipNodeDefs;
-    generatorSkipNodeDefs.insert("ND_add_surfaceshader");
-    generatorSkipNodeDefs.insert("ND_multiply_surfaceshaderF");
-    generatorSkipNodeDefs.insert("ND_multiply_surfaceshaderC");
-    generatorSkipNodeDefs.insert("ND_mix_surfaceshader");
-
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 34);
 }
 
 TEST_CASE("GLSL Unique Names", "[genglsl]")

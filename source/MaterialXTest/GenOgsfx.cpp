@@ -68,12 +68,7 @@ TEST_CASE("OGSFX Implementation Check", "[genogsfx]")
 
     mx::StringSet generatorSkipNodeTypes;
     mx::StringSet generatorSkipNodeDefs;
-    generatorSkipNodeDefs.insert("ND_add_surfaceshader");
-    generatorSkipNodeDefs.insert("ND_multiply_surfaceshaderF");
-    generatorSkipNodeDefs.insert("ND_multiply_surfaceshaderC");
-    generatorSkipNodeDefs.insert("ND_mix_surfaceshader");
-
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 34);
 }
 
 TEST_CASE("OGSFX Unique Names", "[genogsfx]")

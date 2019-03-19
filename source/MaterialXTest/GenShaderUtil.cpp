@@ -72,7 +72,8 @@ bool getShaderSource(mx::GenContext& context,
 // Check that implementations exist for all nodedefs supported per generator
 void checkImplementations(mx::GenContext& context,
                           const mx::StringSet& generatorSkipNodeTypes,
-                          const mx::StringSet& generatorSkipNodeDefs)
+                          const mx::StringSet& generatorSkipNodeDefs,
+                          unsigned int expectedSkipCount)
 {
     mx::DocumentPtr doc = mx::createDocument();
 
@@ -244,7 +245,7 @@ void checkImplementations(mx::GenContext& context,
                     else
                     {
                         found_str += "Found impl and src for nodedef: " + nodeDefName + ", Node: "
-                            + nodeName + +". Impl: " + impl->getName() + "Path: " + resolvedPath.asString() + ".\n";
+                            + nodeName + +". Impl: " + impl->getName() + ". Path: " + resolvedPath.asString() + ".\n";
                     }
                 }
             }
@@ -271,7 +272,7 @@ void checkImplementations(mx::GenContext& context,
 
     // Should have 0 missing including skipped
     REQUIRE(missing == 0);
-    REQUIRE(skipped == 38);
+    REQUIRE(skipped == expectedSkipCount);
 
     implDumpBuffer.close();
 }
