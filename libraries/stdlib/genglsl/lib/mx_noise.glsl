@@ -1,5 +1,5 @@
 /*
-ShaderX Noise Library.
+Noise Library.
 
 This library is a modified version of the noise library found in
 Open Shading Language:

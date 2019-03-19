@@ -95,7 +95,7 @@ TEST_CASE("OSL Implementation Check", "[genosl]")
     generatorSkipNodeTypes.insert("spot_light");
     mx::StringSet generatorSkipNodeDefs;
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 38);
 }
 
 TEST_CASE("OSL Unique Names", "[genosl]")

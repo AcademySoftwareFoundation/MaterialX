@@ -30,14 +30,6 @@ class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         _shaderGenerator = mx::GlslShaderGenerator::create();
     }
 
-    void addSkipNodeDefs() override
-    {
-        _skipNodeDefs.insert("ND_add_surfaceshader");
-        _skipNodeDefs.insert("ND_multiply_surfaceshaderF");
-        _skipNodeDefs.insert("ND_multiply_surfaceshaderC");
-        _skipNodeDefs.insert("ND_mix_surfaceshader");
-    }
-
     void setTestStages() override
     {
         _testStages.push_back(mx::Stage::VERTEX);

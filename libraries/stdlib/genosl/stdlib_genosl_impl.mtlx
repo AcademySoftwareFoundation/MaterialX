@@ -270,10 +270,10 @@
   <implementation name="IM_multiply_vector3FA_genosl" nodedef="ND_multiply_vector3FA" file="stdlib/genosl/mx_multiply.inline" language="genosl"/>
   <implementation name="IM_multiply_vector4_genosl" nodedef="ND_multiply_vector4" file="stdlib/genosl/mx_multiply.inline" language="genosl"/>
   <implementation name="IM_multiply_vector4FA_genosl" nodedef="ND_multiply_vector4FA" file="stdlib/genosl/mx_multiply.inline" language="genosl"/>
-  <implementation name="IM_multiply_surfaceshaderF_genosl" nodedef="ND_multiply_surfaceshaderF" file="stdlib/genosl/mx_multiply.inline" language="genosl"/>
-  <implementation name="IM_multiply_surfaceshaderC_genosl" nodedef="ND_multiply_surfaceshaderC" file="stdlib/genosl/mx_multiply.inline" language="genosl"/>
   <implementation name="IM_multiply_matrix33_genosl" nodedef="ND_multiply_matrix33" file="stdlib/genosl/mx_multiply.inline" language="genosl"/>
   <implementation name="IM_multiply_matrix44_genosl" nodedef="ND_multiply_matrix44" file="stdlib/genosl/mx_multiply.inline" language="genosl"/>
+  <implementation name="IM_multiply_surfaceshaderF_genosl" nodedef="ND_multiply_surfaceshaderF" file="stdlib/genosl/mx_multiply.inline" language="genosl"/>
+  <implementation name="IM_multiply_surfaceshaderC_genosl" nodedef="ND_multiply_surfaceshaderC" file="stdlib/genosl/mx_multiply.inline" language="genosl"/>
 
   <!-- <divide> -->
   <implementation name="IM_divide_float_genosl" nodedef="ND_divide_float" file="stdlib/genosl/mx_divide.inline" language="genosl"/>

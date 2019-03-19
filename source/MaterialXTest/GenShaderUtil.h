@@ -54,7 +54,8 @@ namespace GenShaderUtil
     // Check that implementations exist for all nodedefs supported per generator
     void checkImplementations(mx::GenContext& context,
                               const mx::StringSet& generatorSkipNodeTypes,
-                              const mx::StringSet& generatorSkipNodeDefs);
+                              const mx::StringSet& generatorSkipNodeDefs,
+                              unsigned int expectedSkipCount);
 
     // Utility test to  check unique name generation on a shader generator
     void testUniqueNames(mx::GenContext& context, const std::string& stage);
