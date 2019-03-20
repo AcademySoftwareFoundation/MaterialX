@@ -71,9 +71,9 @@ namespace
     };
 }
 
-namespace HW
+namespace Stage
 {
-    const string FX_STAGE = "fx";
+    const string EFFECT = "effect";
 }
 
 const string OgsFxShaderGenerator::TARGET = "ogsfx";
@@ -99,7 +99,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     const ShaderGraph& graph = shader->getGraph();
     ShaderStage& vs = shader->getStage(Stage::VERTEX);
     ShaderStage& ps = shader->getStage(Stage::PIXEL);
-    ShaderStage& fx = shader->getStage(HW::FX_STAGE);
+    ShaderStage& fx = shader->getStage(Stage::EFFECT);
 
     // Emit code for vertex and pixel shader stages
     emitVertexStage(graph, context, vs);
@@ -466,7 +466,7 @@ void OgsFxShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, c
 ShaderPtr OgsFxShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
 {
     ShaderPtr shader = GlslShaderGenerator::createShader(name, element, context);
-    createStage(HW::FX_STAGE, *shader);
+    createStage(Stage::EFFECT, *shader);
 
     // Update semantics to match OGSFX semantics.
     for (size_t i = 0; i < shader->numStages(); ++i)

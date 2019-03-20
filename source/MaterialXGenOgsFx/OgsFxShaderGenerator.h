@@ -50,9 +50,10 @@ protected:
     virtual void getTechniqueParams(const Shader& shader, string& params) const;
 };
 
-namespace HW
+namespace Stage
 {
-    extern const string FX_STAGE;
+    /// Identifier for full Effect
+    extern const string EFFECT;
 }
 
 }

@@ -450,7 +450,7 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
                     AdditiveScopedTimer dumpTimer(profileTimes.ogsfxTimes.ioTime, "OGSFX io time");
                     std::ofstream file;
                     file.open(shaderPath + ".ogsfx");
-                    file << shader->getSourceCode(mx::HW::FX_STAGE);
+                    file << shader->getSourceCode(mx::Stage::EFFECT);
                     file.close();
                 }
             }
@@ -463,7 +463,7 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
                 {
                     std::ofstream file;
                     file.open(shaderPath + ".ogsfx");
-                    file << shader->getSourceCode(mx::HW::FX_STAGE);
+                    file << shader->getSourceCode(mx::Stage::EFFECT);
                     file.close();
                 }
 
@@ -477,7 +477,7 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
                 return;
             }
 
-            const std::string& sourceCode = shader->getSourceCode(mx::HW::FX_STAGE);
+            const std::string& sourceCode = shader->getSourceCode(mx::Stage::EFFECT);
             CHECK(sourceCode.length() > 0);
         }
     }
