@@ -10,7 +10,7 @@
 
 namespace MaterialX
 {
-bool GLTextureHandler::createColorImage(const std::array<float,4>& color,
+bool GLTextureHandler::createColorImage(const Color4& color,
                                         ImageDesc& imageDesc)
 {
     if (!glActiveTexture)
@@ -37,7 +37,7 @@ bool GLTextureHandler::createColorImage(const std::array<float,4>& color,
 bool GLTextureHandler::acquireImage(const FilePath& filePath,
                                     ImageDesc &imageDesc,
                                     bool generateMipMaps,
-                                    const std::array<float,4>* fallbackColor)
+                                    const Color4* fallbackColor)
 {
     if (filePath.isEmpty())
     {
@@ -234,12 +234,9 @@ void GLTextureHandler::deleteImage(MaterialX::ImageDesc& imageDesc)
         glDeleteTextures(1, &imageDesc.resourceId);
         imageDesc.resourceId = MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
     }
+
     // Delete any CPU side memory
-    if (imageDesc.resourceBuffer)
-    {
-        free(imageDesc.resourceBuffer);
-        imageDesc.resourceBuffer = nullptr;
-    }
+    ParentClass::deleteImage(imageDesc);
 }
 
 }

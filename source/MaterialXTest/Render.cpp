@@ -3,8 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-// Compile if module flags were set
-#if defined(MATERIALX_TEST_RENDER) && defined(MATERIALX_BUILD_RENDEROSL) && defined(MATERIALX_BUILD_RENDERGLSL)
+#if defined(MATERIALX_BUILD_RENDER) 
 
 // Run only on supported platforms
 #include <MaterialXRender/HardwarePlatform.h>
@@ -39,6 +38,9 @@
 
 #ifdef MATERIALX_BUILD_CONTRIB
 #include <MaterialXContrib/Handlers/TinyEXRImageLoader.h>
+#endif
+#ifdef MATERIALX_BUILD_OIIO
+#include <MaterialXRender/Handlers/OiioImageLoader.h>
 #endif
 #include <MaterialXRender/Handlers/StbImageLoader.h>
 
@@ -171,7 +173,7 @@ static mx::OslValidatorPtr createOSLValidator(std::ostream& log)
 //
 class ShaderValidTestOptions
 {
-public:
+  public:
     void print(std::ostream& output) const
     {
         output << "Shader Validation Test Options:" << std::endl;
@@ -247,10 +249,10 @@ public:
     bool dumpGlslUniformsAndAttributes = true;
 
     // Non-shader GLSL geometry file
-    MaterialX::FilePath glslNonShaderGeometry = "sphere.obj";
+    MaterialX::FilePath glslNonShaderGeometry;
 
     // Shader GLSL geometry file
-    MaterialX::FilePath glslShaderGeometry = "shaderball.obj";
+    MaterialX::FilePath glslShaderGeometry;
 
     // Radiance IBL file
     MaterialX::FilePath radianceIBLPath;
@@ -966,9 +968,13 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
     const std::string GLSL_SHADER_GEOMETRY_STRING("glslShaderGeometry");
     const std::string RADIANCE_IBL_PATH_STRING("radianceIBLPath");
     const std::string IRRADIANCE_IBL_PATH_STRING("irradianceIBLPath");
+    const std::string SPHERE_OBJ("sphere.obj");
+    const std::string SHADERBALL_OBJ("shaderball.obj");
 
     options.overrideFiles.clear();
     options.dumpGeneratedCode = false;
+    options.glslNonShaderGeometry = SPHERE_OBJ;
+    options.glslShaderGeometry = SHADERBALL_OBJ;
 
     MaterialX::DocumentPtr doc = MaterialX::createDocument();
     try {
@@ -1188,11 +1194,114 @@ void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidT
     }
 }
 
-TEST_CASE("Render TestSuite", "[render]")
+struct ImageHandlerTestOptions
 {
-#if !defined(MATERIALX_BUILD_RENDERGLSL) && !defined(MATERIALX_BUILD_RENDEROSL)
-    return;
+    mx::ImageHandlerPtr imageHandler;
+    std::ofstream* logFile;
+
+    mx::StringVec testExtensions;
+    mx::StringVec skipExtensions;
+};
+
+void testImageHandler(ImageHandlerTestOptions& options)
+{
+    mx::FilePath imagePath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Images/");
+    mx::StringVec files;
+
+    unsigned int loadFailed = 0;
+    for (auto extension : options.testExtensions)
+    {
+        if (options.skipExtensions.end() != std::find(options.skipExtensions.begin(), options.skipExtensions.end(), extension))
+        {
+            continue;
+        }
+        mx::getFilesInDirectory(imagePath, files, extension);
+        for (const std::string& file : files)
+        {
+            const mx::FilePath filePath = imagePath / mx::FilePath(file);
+            const std::string fileName = filePath;
+            mx::ImageDesc desc;
+            bool loaded = options.imageHandler->acquireImage(filePath, desc, false, nullptr);
+            if (options.logFile)
+            {
+                *(options.logFile) << "Loaded image: " << fileName << ". Loaded: " << loaded << std::endl;
+            }
+            if (!loaded)
+            {
+                loadFailed++;
+            }
+        }
+        files.clear();
+    }
+    CHECK(loadFailed == 0);
+}
+
+TEST_CASE("Render: Image Handler Load", "[rendercore]")
+{
+    std::ofstream imageHandlerLog;
+    imageHandlerLog.open("render_image_handler_test.txt");
+    bool imagesLoaded = false;
+    try
+    {
+        ImageHandlerTestOptions options;
+        options.logFile = &imageHandlerLog;
+
+        imageHandlerLog << "** Test STB image loader **" << std::endl;
+        mx::StbImageLoaderPtr stbLoader = mx::StbImageLoader::create();
+        mx::ImageHandlerPtr imageHandler = mx::ImageHandler::create(nullptr);
+        imageHandler->addLoader(stbLoader);
+        options.testExtensions = stbLoader->supportedExtensions();
+        options.imageHandler = imageHandler;
+        testImageHandler(options);
+
+#ifdef MATERIALX_BUILD_CONTRIB
+        imageHandlerLog << "** Test TinyEXR image loader **" << std::endl;
+        mx::TinyEXRImageLoaderPtr exrLoader = mx::TinyEXRImageLoader::create();
+        mx::ImageHandlerPtr imageHandler2 = mx::ImageHandler::create(nullptr);
+        imageHandler2->addLoader(exrLoader);
+        options.testExtensions = exrLoader->supportedExtensions();
+        options.imageHandler = imageHandler2;
+        testImageHandler(options);
 #endif
+
+#if defined(MATERIALX_BUILD_OIIO) && defined(OPENIMAGEIO_ROOT_DIR)
+        imageHandlerLog << "** Test OpenImageIO image loader **" << std::endl;
+        mx::OiioImageLoaderPtr oiioLoader = mx::OiioImageLoader::create();
+        mx::ImageHandlerPtr imageHandler3 = mx::ImageHandler::create(nullptr);
+        imageHandler3->addLoader(oiioLoader);
+        options.testExtensions = oiioLoader->supportedExtensions();
+        options.imageHandler = imageHandler3;
+        // Getting libpng warning: iCCP: known incorrect sRGB profile for some reason. TBD.
+        options.skipExtensions.push_back("gif");
+        testImageHandler(options);
+#endif
+        imagesLoaded = true;
+    }
+    catch (mx::ExceptionShaderValidationError& e)
+    {
+        for (auto error : e.errorLog())
+        {
+            imageHandlerLog << e.what() << " " << error << std::endl;
+        }
+    }
+    CHECK(imagesLoaded);
+    imageHandlerLog.close();
+}
+
+TEST_CASE("Render: TestSuite", "[render]")
+{
+    bool skipTest = false;
+#if !defined(MATERIALX_TEST_RENDER) 
+    skipTest = true;
+#endif
+#if !defined(MATERIALX_BUILD_RENDERGLSL) && !defined(MATERIALX_BUILD_RENDEROSL)
+    skipTest = true;
+#endif
+
+    if (skipTest)
+    {
+        return;
+    }
 
     // Profiling times
     ShaderValidProfileTimes profileTimes;

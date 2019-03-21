@@ -58,11 +58,11 @@ class ImageSamplingProperties
     /// Filter type
     int filterType = -1;
     /// Default color
-    std::array<float, 4> defaultColor = { { 0.0f, 0.0f, 0.0f, 1.0f } };
+    Color4 defaultColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 };
 
 /// Image description cache
-using ImageDescCache = std::unordered_map<std::string, ImageDesc>;
+using ImageDescCache = std::unordered_map<string, ImageDesc>;
 
 /// Shared pointer to an ImageLoader
 using ImageLoaderPtr = std::shared_ptr<class ImageLoader>;
@@ -80,19 +80,19 @@ class ImageLoader
     virtual ~ImageLoader() {}
 
     /// Stock extension names
-    static std::string BMP_EXTENSION;
-    static std::string EXR_EXTENSION;
-    static std::string GIF_EXTENSION;
-    static std::string HDR_EXTENSION;
-    static std::string JPG_EXTENSION;
-    static std::string JPEG_EXTENSION;
-    static std::string PIC_EXTENSION;
-    static std::string PNG_EXTENSION;
-    static std::string PSD_EXTENSION;
-    static std::string TGA_EXTENSION;
-    static std::string TIF_EXTENSION;
-    static std::string TIFF_EXTENSION;
-    static std::string TXT_EXTENSION;
+    static string BMP_EXTENSION;
+    static string EXR_EXTENSION;
+    static string GIF_EXTENSION;
+    static string HDR_EXTENSION;
+    static string JPG_EXTENSION;
+    static string JPEG_EXTENSION;
+    static string PIC_EXTENSION;
+    static string PNG_EXTENSION;
+    static string PSD_EXTENSION;
+    static string TGA_EXTENSION;
+    static string TIF_EXTENSION;
+    static string TIFF_EXTENSION;
+    static string TXT_EXTENSION;
 
     /// Returns a list of supported extensions
     /// @return List of support extensions
@@ -124,7 +124,7 @@ class ImageLoader
 using ImageHandlerPtr = std::shared_ptr<class ImageHandler>;
 
 /// Map of extensions to image loaders
-using ImageLoaderMap = std::multimap<std::string, ImageLoaderPtr>;
+using ImageLoaderMap = std::multimap<string, ImageLoaderPtr>;
 
 /// @class @ImageHandler
 /// A image handler class. Keeps track of images which are loaded
@@ -137,6 +137,12 @@ class ImageHandler
   public:
     /// Constructor. Assume at least one loader must be supplied.
     ImageHandler(ImageLoaderPtr imageLoader);
+
+    /// Static instance create function
+    static ImageHandlerPtr create(ImageLoaderPtr imageLoader)
+    {
+        return std::make_shared<ImageHandler>(imageLoader);
+    }
 
     /// Add additional image loaders. Useful to handle different file
     /// extensions
@@ -162,21 +168,21 @@ class ImageHandler
     /// @param fallbackColor Color of fallback image to use if failed to load.  If null is specified then
     /// no fallback image will be acquired.
     /// @return if load succeeded in loading image or created fallback image.
-    virtual bool acquireImage(const FilePath& filePath, ImageDesc& desc, bool generateMipMaps, const std::array<float, 4>* fallbackColor);
+    virtual bool acquireImage(const FilePath& filePath, ImageDesc& desc, bool generateMipMaps, const Color4* fallbackColor);
 
     /// Utility to create a solid color color image 
     /// @param color Color to set
     /// @param imageDesc Description of image updated during load.
     /// @return if creation succeeded
-    virtual bool createColorImage(const std::array<float,4>& color,
+    virtual bool createColorImage(const Color4& color,
                                   ImageDesc& imageDesc);
  
-    /// Bind an image. Derived classes must implement this method
-    /// to handle logical binding of an image resource.
+    /// Bind an image. Derived classes should implement this method to handle logical binding of 
+    /// an image resource. The default implementation performs no action.
     /// @param identifier Identifier for image description to bind.
     /// @param samplingProperties Sampling properties for the image
     /// @return true if succeded to bind
-    virtual bool bindImage(const std::string& identifier, const ImageSamplingProperties& samplingProperties) = 0;
+    virtual bool bindImage(const string& identifier, const ImageSamplingProperties& samplingProperties);
 
     /// Clear the contents of the image cache.
     /// deleteImage() will be called for each cache description to 
@@ -202,16 +208,16 @@ class ImageHandler
     /// Cache an image for reuse.
     /// @param identifier Description identifier to use.
     /// @param imageDesc Image description to cache
-    void cacheImage(const std::string& identifier, const ImageDesc& imageDesc);
+    void cacheImage(const string& identifier, const ImageDesc& imageDesc);
 
     /// Remove image description from the cache.
     /// @param identifier Identifier of description to remove.
-    void uncacheImage(const std::string& identifier);
+    void uncacheImage(const string& identifier);
 
     /// Get an image description in the image cache if it exists
     /// @param identifier Description to search for.
     /// @return A null ptr is returned if not found.
-    const ImageDesc* getCachedImage(const std::string& identifier);
+    const ImageDesc* getCachedImage(const string& identifier);
 
     /// Return a reference to the image cache
     ImageDescCache& getImageCache()
@@ -221,9 +227,9 @@ class ImageHandler
 
     /// Delete an image
     /// @param imageDesc Image description indicate which image to delete.
-    /// Derived classes must implement this method to clean up resources
-    /// when the image cache is cleared.
-    virtual void deleteImage(ImageDesc& imageDesc) = 0;
+    /// Derived classes should override this method to clean up any related resources
+    /// an image is deleted from the handler.
+    virtual void deleteImage(ImageDesc& imageDesc);
 
     /// Image loader utilities
     ImageLoaderMap _imageLoaders;

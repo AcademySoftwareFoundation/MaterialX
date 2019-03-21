@@ -21,7 +21,7 @@
 
 namespace mx = MaterialX;
 
-TEST_CASE("OSL Syntax", "[genosl]")
+TEST_CASE("GenShader: OSL Syntax", "[genosl]")
 {
     mx::SyntaxPtr syntax = mx::OslSyntax::create();
 
@@ -84,7 +84,7 @@ TEST_CASE("OSL Syntax", "[genosl]")
     REQUIRE(value == "{1, 2, 3, 4, 5, 6, 7}");
 }
 
-TEST_CASE("OSL Implementation Check", "[genosl]")
+TEST_CASE("GenShader: OSL Implementation Check", "[genosl]")
 {
     mx::GenContext context(mx::OslShaderGenerator::create());
 
@@ -98,7 +98,7 @@ TEST_CASE("OSL Implementation Check", "[genosl]")
     GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 38);
 }
 
-TEST_CASE("OSL Unique Names", "[genosl]")
+TEST_CASE("GenShader: OSL Unique Names", "[genosl]")
 {
     mx::GenContext context(mx::OslShaderGenerator::create());
 
@@ -165,7 +165,7 @@ static void generateOSLCode()
     tester.testGeneration(genOptions);
 }
 
-TEST_CASE("OSL Shader Generation", "[genosl]")
+TEST_CASE("GenShader: OSL Shader Generation", "[genosl]")
 {
     generateOSLCode();
 }

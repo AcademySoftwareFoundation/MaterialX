@@ -17,7 +17,7 @@
 
 namespace mx = MaterialX;
 
-TEST_CASE("OGSFX Syntax", "[genogsfx]")
+TEST_CASE("GenShader: OGSFX Syntax", "[genogsfx]")
 {
     mx::SyntaxPtr syntax = mx::OgsFxSyntax::create();
 
@@ -62,7 +62,7 @@ TEST_CASE("OGSFX Syntax", "[genogsfx]")
     REQUIRE(value == "{1.0, 2.0, 3.0, 4.0}");
 }
 
-TEST_CASE("OGSFX Implementation Check", "[genogsfx]")
+TEST_CASE("GenShader: OGSFX Implementation Check", "[genogsfx]")
 {
     mx::GenContext context(mx::OgsFxShaderGenerator::create());
 
@@ -71,7 +71,7 @@ TEST_CASE("OGSFX Implementation Check", "[genogsfx]")
     GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 34);
 }
 
-TEST_CASE("OGSFX Unique Names", "[genogsfx]")
+TEST_CASE("GenShader: OGSFX Unique Names", "[genogsfx]")
 {
     mx::GenContext context(mx::OgsFxShaderGenerator::create());
 
@@ -113,7 +113,7 @@ static void generateOGSFXCode()
     tester.testGeneration(genOptions);
 }
 
-TEST_CASE("OGSFX Shader Generation", "[genogsfx]")
+TEST_CASE("GenShader: OGSFX Shader Generation", "[genogsfx]")
 {
     generateOGSFXCode();
 }
