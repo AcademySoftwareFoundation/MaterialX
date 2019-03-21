@@ -43,9 +43,7 @@ The following is the layout of the definitions and implementations provided as p
 - Basic GLSL `lightshader` node definitions and implementations are provided for the following light types:
     - point, directional, spot
 - Code generation is not currently supported for:
-    - `noise2d`, `noise3d`, `cellnoise2d`, `cellnoise3d`, `fractal3d` nodes for `genglsl`
     - `ambientocclusion` node for: `genosl` and `genglsl`.
     - `arrayappend` node for: `genosl` and `genglsl`.
     - `curveadjust` node for: `genosl` and `genglsl`.
     - `displacementshader` and `volumeshader` nodes and associated operations (`add`, `multiply`, `mix`) for: `genosl` and `genglsl`.
-    - `add`, `multiply`, and `mix surfaceshader` node operations for `genglsl`.
