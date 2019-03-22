@@ -96,7 +96,7 @@ static mx::GlslValidatorPtr createGLSLValidator(const std::string& fileName, std
         std::string geometryFile;
         if (fileName.length())
         {
-            geometryFile =  mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/") / mx::FilePath(fileName);
+            geometryFile = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/") / mx::FilePath(fileName);
             if (!geometryHandler.hasGeometry(geometryFile))
             {
                 geometryHandler.clearGeometry();
@@ -111,6 +111,10 @@ static mx::GlslValidatorPtr createGLSLValidator(const std::string& fileName, std
         {
             log << e.what() << " " << error << std::endl;
         }
+    }
+    catch (mx::Exception& e)
+    {
+        log << e.what() << std::endl;
     }
     REQUIRE(initialized);
 
@@ -155,7 +159,7 @@ static mx::OslValidatorPtr createOSLValidator(std::ostream& log)
             validator->setOslUtilityOSOPath(shaderPath);
         }
     }
-    catch(mx::ExceptionShaderValidationError& e)
+    catch (mx::ExceptionShaderValidationError& e)
     {
         for (auto error : e.errorLog())
         {
@@ -444,6 +448,7 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
                 AdditiveScopedTimer generationTimer(profileTimes.ogsfxTimes.generationTime, "OGSFX generation time");
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
+                contextOptions.fileTextureVerticalFlip = true;
                 shader = shadergen.generate(shaderName, element, context);
                 generationTimer.endTimer();
 
@@ -456,7 +461,7 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
                     file.close();
                 }
             }
-            catch (mx::ExceptionShaderGenError& e)
+            catch (mx::Exception& e)
             {
                 log << ">> " << e.what() << "\n";
 
@@ -521,7 +526,7 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
     std::vector<mx::GenOptions> optionsList;
     getGenerationOptions(testOptions, context.getOptions(), optionsList);
 
-    if(element && doc)
+    if (element && doc)
     {
         log << "------------ Run GLSL validation with element: " << element->getNamePath() << "-------------------" << std::endl;
 
@@ -553,10 +558,11 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                 AdditiveScopedTimer generationTimer(profileTimes.glslTimes.generationTime, "GLSL generation time");
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
+                contextOptions.fileTextureVerticalFlip = true;
                 shader = shadergen.generate(shaderName, element, context);
                 generationTimer.endTimer();
             }
-            catch (mx::ExceptionShaderGenError& e)
+            catch (mx::Exception& e)
             {
                 log << ">> " << e.what() << "\n";
                 shader = nullptr;
@@ -655,15 +661,6 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                     validator.validateInputs();
                 }
 
-                if (options.shaderInterfaceType == mx::SHADER_INTERFACE_REDUCED)
-                {
-                    log << "-- SHADER_INTERFACE_REDUCED output:" << std::endl;
-                }
-                else
-                {
-                    log << "-- SHADER_INTERFACE_COMPLETE output:" << std::endl;
-                }
-
                 if (testOptions.dumpGlslUniformsAndAttributes)
                 {
                     AdditiveScopedTimer printTimer(profileTimes.glslTimes.ioTime, "GLSL io time");
@@ -694,7 +691,7 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                             if (!uiProperties.enumeration.empty())
                             {
                                 log << ". Enumeration: {";
-                                for (size_t i=0; i<uiProperties.enumeration.size(); i++)
+                                for (size_t i = 0; i<uiProperties.enumeration.size(); i++)
                                     log << uiProperties.enumeration[i] << " ";
                                 log << "}";
                             }
@@ -749,6 +746,10 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                 }
                 log << ">> Refer to shader code in dump files: " << shaderPath << "_ps.glsl and _vs.glsl files" << std::endl;
             }
+            catch (mx::Exception& e)
+            {
+                log << e.what() << std::endl;
+            }
             CHECK(validated);
         }
     }
@@ -779,7 +780,7 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
     std::vector<mx::GenOptions> optionsList;
     getGenerationOptions(testOptions, context.getOptions(), optionsList);
 
-    if(element && doc)
+    if (element && doc)
     {
         log << "------------ Run OSL validation with element: " << element->getNamePath() << "-------------------" << std::endl;
 
@@ -795,7 +796,7 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
                 contextOptions = options;
                 shader = shadergen.generate(shaderName, element, context);
             }
-            catch (mx::ExceptionShaderGenError& e)
+            catch (mx::Exception& e)
             {
                 log << ">> " << e.what() << "\n";
                 shader = nullptr;
@@ -865,7 +866,7 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
                     mx::StringMap separatorMapper;
                     separatorMapper["\\\\"] = "/";
                     separatorMapper["\\"] = "/";
-                    for (size_t i=0; i<uniforms.size(); ++i)
+                    for (size_t i = 0; i<uniforms.size(); ++i)
                     {
                         const mx::ShaderPort* uniform = uniforms[i];
                         if (uniform->getType() != MaterialX::Type::FILENAME)
@@ -941,6 +942,10 @@ static void runOSLValidation(const std::string& shaderName, mx::TypedElementPtr 
                 }
                 log << ">> Refer to shader code in dump file: " << shaderPath << ".osl file" << std::endl;
             }
+            catch (mx::Exception& e)
+            {
+                std::cout << e.what();
+            }
             CHECK(validated);
         }
     }
@@ -995,7 +1000,7 @@ bool getTestOptions(const std::string& optionFile, ShaderValidTestOptions& optio
                     }
                     if (name == LIGHT_FILES_STRING)
                     {
-                        options.lightFiles  = MaterialX::splitString(p->getValueString(), ",");
+                        options.lightFiles = MaterialX::splitString(p->getValueString(), ",");
                     }
                     else if (name == SHADER_INTERFACES_STRING)
                     {
@@ -1284,6 +1289,10 @@ TEST_CASE("Render: Image Handler Load", "[rendercore]")
             imageHandlerLog << e.what() << " " << error << std::endl;
         }
     }
+    catch (mx::Exception& e)
+    {
+        std::cout << e.what();
+    }
     CHECK(imagesLoaded);
     imageHandlerLog.close();
 }
@@ -1562,7 +1571,7 @@ TEST_CASE("Render: TestSuite", "[render]")
             {
                 mx::findRenderableElements(doc, elements);
             }
-            catch (mx::ExceptionShaderGenError& e)
+            catch (mx::Exception& e)
             {
                 docValidLog << e.what() << std::endl;
                 WARN("Find renderable elements failed, see: " + docValidLogFilename + " for details.");
