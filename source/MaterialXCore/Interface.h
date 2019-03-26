@@ -148,6 +148,40 @@ class PortElement : public ValueElement
     }
 
     /// @}
+    /// @name Channels
+    /// @{
+
+    /// Set the channels string of this element, defining a channel swizzle
+    /// that will be applied to the upstream result if this port is connected.
+    void setChannels(const string& channels)
+    {
+        setAttribute(CHANNELS_ATTRIBUTE, channels);
+    }
+
+    /// Return true if this element has a channels string.
+    bool hasChannels() const
+    {
+        return hasAttribute(CHANNELS_ATTRIBUTE);
+    }
+
+    /// Return the channels string of this element.
+    const string& getChannels() const
+    {
+        return getAttribute(CHANNELS_ATTRIBUTE);
+    }
+
+    /// Utility method which returns whether a given swizzle pattern
+    /// is valid for a given source type and destination type.
+    static bool supportsSwizzle(const string &sourceType, const string& destinationType, const string &pattern);
+
+    /// Utility that returns if a swizzle pattern string is acceptable for a given type.
+    static bool validSwizzlePattern(const string &type, const string &pattern);
+
+    /// Utility that returns if a swizzle pattern size is acceptable for a given type.
+    static bool validSwizzleSize(const string &type, const string &pattern);
+
+
+    /// @}
     /// @name Connections
     /// @{
 
@@ -171,6 +205,11 @@ class PortElement : public ValueElement
   public:
     static const string NODE_NAME_ATTRIBUTE;
     static const string OUTPUT_ATTRIBUTE;
+    static const string CHANNELS_ATTRIBUTE;
+
+  private:
+    static std::unordered_map<string, std::set<char>> _swizzlePatterns;
+    static std::unordered_map<string, size_t> _swizzlePatternSizes;
 };
 
 /// @class Input
@@ -332,7 +371,7 @@ class InterfaceElement : public TypedElement
     /// @}
     /// @name Parameters
     /// @{
-    
+
     /// Add a Parameter to this interface.
     /// @param name The name of the new Parameter.
     ///     If no name is specified, then a unique name will automatically be
