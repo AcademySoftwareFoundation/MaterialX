@@ -1146,7 +1146,7 @@ void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidT
         mx::StringVec whiteList =
         {
             "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
-            "volumeshader", "IM_constant_string_", "IM_constant_filename_", "IM_dot_string"
+            "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue"
         };
         unsigned int implementationUseCount = 0;
         for (auto libraryImpl : libraryImpls)
@@ -1345,6 +1345,7 @@ TEST_CASE("Render: TestSuite", "[render]")
 #ifdef MATERIALX_BUILD_RENDEROSL
     std::ostream& oslLog(std::cout);
 #endif
+    std::string docValidLogFilename = "std::out";
     std::ostream& docValidLog(std::cout);
     std::ostream& profilingLog(std::cout);
 #endif

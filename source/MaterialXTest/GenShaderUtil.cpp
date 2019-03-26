@@ -324,7 +324,7 @@ bool ShaderGeneratorTester::generateCode(mx::GenContext& context, const std::str
     {
         shader = context.getShaderGenerator().generate(shaderName, element, context);
     }
-    catch (mx::ExceptionShaderGenError& e)
+    catch (mx::Exception& e)
     {
         log << ">> Code generation failure: " << e.what() << "\n";
         shader = nullptr;
@@ -505,7 +505,7 @@ void ShaderGeneratorTester::testGeneration(const mx::GenOptions& generateOptions
         {
             mx::findRenderableElements(doc, elements);
         }
-        catch (mx::ExceptionShaderGenError& e)
+        catch (mx::Exception& e)
         {
             _logFile << "Renderables search errors: " << e.what() << std::endl;
         }

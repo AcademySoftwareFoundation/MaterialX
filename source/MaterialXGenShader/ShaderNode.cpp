@@ -399,6 +399,12 @@ void ShaderNode::setValues(const Node& node, const NodeDef& nodeDef, GenContext&
             {
                 input->setValue(nodeValue->getResolvedValue());
             }
+
+            InputPtr inputElem = nodeValue->asA<Input>();
+            if (inputElem)
+            {
+                input->setChannels(inputElem->getChannels());
+            }
         }
     }
 }

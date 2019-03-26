@@ -55,7 +55,8 @@ void ShaderGraph::addOutputSockets(const InterfaceElement& elem)
 {
     for (const OutputPtr& output : elem.getActiveOutputs())
     {
-        addOutputSocket(output->getName(), TypeDesc::get(output->getType()));
+        ShaderGraphOutputSocket* outputSocket = addOutputSocket(output->getName(), TypeDesc::get(output->getType()));
+        outputSocket->setChannels(output->getChannels());
     }
     if (numOutputSockets() == 0)
     {
@@ -379,6 +380,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         // Create the given output socket
         ShaderGraphOutputSocket* outputSocket = graph->addOutputSocket(output->getName(), TypeDesc::get(output->getType()));
         outputSocket->setPath(output->getNamePath());
+        outputSocket->setChannels(output->getChannels());
 
         // Start traversal from this output
         root = output;
@@ -684,7 +686,7 @@ void ShaderGraph::finalize(GenContext& context)
     _outputColorTransformMap.clear();
 
     // Optimize the graph, removing redundant paths.
-    optimize();
+    optimize(context);
 
     if (context.getOptions().shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
     {
@@ -762,7 +764,7 @@ void ShaderGraph::disconnect(ShaderNode* node) const
     }
 }
 
-void ShaderGraph::optimize()
+void ShaderGraph::optimize(GenContext& context)
 {
     size_t numEdits = 0;
     for (ShaderNode* node : getNodes())
@@ -775,7 +777,7 @@ void ShaderGraph::optimize()
             ShaderInput* valueInput = node->getInput(0);
             if (!valueInput->getConnection())
             {
-                bypass(node, 0);
+                bypass(context, node, 0);
                 ++numEdits;
             }
         }
@@ -792,7 +794,7 @@ void ShaderGraph::optimize()
                 const int branch = (intestValue <= cutoff->getValue()->asA<float>() ? 2 : 3);
 
                 // Bypass the conditional using the taken branch
-                bypass(node, branch);
+                bypass(context, node, branch);
 
                 ++numEdits;
             }
@@ -810,7 +812,7 @@ void ShaderGraph::optimize()
                     (which->getType() == Type::FLOAT ? value->asA<float>() : value->asA<int>())));
 
                 // Bypass the conditional using the taken branch
-                bypass(node, branch);
+                bypass(context, node, branch);
 
                 ++numEdits;
             }
@@ -851,7 +853,7 @@ void ShaderGraph::optimize()
     }
 }
 
-void ShaderGraph::bypass(ShaderNode* node, size_t inputIndex, size_t outputIndex)
+void ShaderGraph::bypass(GenContext& context, ShaderNode* node, size_t inputIndex, size_t outputIndex)
 {
     ShaderInput* input = node->getInput(inputIndex);
     ShaderOutput* output = node->getOutput(outputIndex);
@@ -881,6 +883,19 @@ void ShaderGraph::bypass(ShaderNode* node, size_t inputIndex, size_t outputIndex
             output->breakConnection(downstream);
             downstream->setValue(input->getValue());
             downstream->setPath(input->getPath());
+
+            // Swizzle the input value. Once done clear the channel to indicate
+            // no further swizzling is reqiured.
+            const string& channels = downstream->getChannels();
+            if (!channels.empty())
+            {
+                downstream->setValue(context.getShaderGenerator().getSyntax().getSwizzledValue(input->getValue(),
+                                                                                          input->getType(), 
+                                                                                          channels,
+                                                                                          downstream->getType()));
+                downstream->setType(downstream->getType());
+                downstream->setChannels(EMPTY_STRING);
+            }
         }
     }
 }
