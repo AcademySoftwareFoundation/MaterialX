@@ -78,6 +78,9 @@ if (MATERIALX_BUILD_RENDEROSL)
     add_definitions(-DMATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\")
 endif()
 
+# Viewer options
+option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer. " ON)
+
 # Adjust the default installation path
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/installed" CACHE PATH "Default install path" FORCE)
@@ -164,6 +167,9 @@ if (MATERIALX_BUILD_RENDER)
     endif()
 endif(MATERIALX_BUILD_RENDER)
 
+if (MATERIALX_BUILD_VIEWER)
+    add_subdirectory(source/MaterialXView)
+endif()
 if (MATERIALX_BUILD_CONTRIB)
     add_definitions(-DMATERIALX_BUILD_CONTRIB)
     add_subdirectory(source/MaterialXContrib)

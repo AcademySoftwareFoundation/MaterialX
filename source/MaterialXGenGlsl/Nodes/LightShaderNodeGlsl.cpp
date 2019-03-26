@@ -48,11 +48,11 @@ void LightShaderNodeGlsl::initialize(const InterfaceElement& element, GenContext
 
     // Store light uniforms for all inputs and parameters on the interface
     NodeDefPtr nodeDef = impl.getNodeDef();
-    for (InputPtr input : nodeDef->getInputs())
+    for (InputPtr input : nodeDef->getActiveInputs())
     {
         _lightUniforms.add(TypeDesc::get(input->getType()), input->getName(), input->getValue());
     }
-    for (ParameterPtr param : nodeDef->getParameters())
+    for (ParameterPtr param : nodeDef->getActiveParameters())
     {
         _lightUniforms.add(TypeDesc::get(param->getType()), param->getName(), param->getValue());
     }

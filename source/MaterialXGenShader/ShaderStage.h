@@ -79,6 +79,9 @@ class VariableBlock
     /// Return a variable by index.
     const ShaderPort* operator[](size_t index) const { return _variableOrder[index]; }
 
+    /// Return a const reference to our variable order vector.
+    const vector<ShaderPort*>& getVariableOrder() const { return _variableOrder; }
+
     /// Return a variable by name. Throws exception if
     /// no variable is found by the given name.
     ShaderPort* operator[](const string& name);

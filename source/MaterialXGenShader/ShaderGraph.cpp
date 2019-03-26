@@ -28,7 +28,7 @@ ShaderGraph::ShaderGraph(const ShaderGraph* parent, const string& name, ConstDoc
 
 void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& context)
 {
-    for (ValueElementPtr port : elem.getChildrenOfType<ValueElement>())
+    for (ValueElementPtr port : elem.getActiveValueElements())
     {
         if (!port->isA<Output>())
         {
@@ -53,7 +53,7 @@ void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& cont
 
 void ShaderGraph::addOutputSockets(const InterfaceElement& elem)
 {
-    for (const OutputPtr& output : elem.getOutputs())
+    for (const OutputPtr& output : elem.getActiveOutputs())
     {
         addOutputSocket(output->getName(), TypeDesc::get(output->getType()));
     }
@@ -197,7 +197,7 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
         if (!space.empty())
         {
             ShaderInput* spaceInput = geomNode->getInput(GeomPropDef::SPACE_ATTRIBUTE);
-            ValueElementPtr nodeDefSpaceInput = geomNodeDef->getChildOfType<ValueElement>(GeomPropDef::SPACE_ATTRIBUTE);
+            ValueElementPtr nodeDefSpaceInput = geomNodeDef->getActiveValueElement(GeomPropDef::SPACE_ATTRIBUTE);
             if (spaceInput && nodeDefSpaceInput)
             {
                 std::pair<const TypeDesc*, ValuePtr> enumResult;
@@ -319,7 +319,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& n
     graph->addOutputSockets(nodeGraph);
 
     // Traverse all outputs and create all upstream dependencies
-    for (OutputPtr graphOutput : nodeGraph.getOutputs())
+    for (OutputPtr graphOutput : nodeGraph.getActiveOutputs())
     {
         graph->addUpstreamDependencies(*graphOutput, nullptr, context);
     }
@@ -412,7 +412,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         outputSocket->makeConnection(newNode->getOutput());
 
         // Handle node parameters
-        for (ParameterPtr elem : nodeDef->getParameters())
+        for (ParameterPtr elem : nodeDef->getActiveParameters())
         {
             ShaderGraphInputSocket* inputSocket = graph->getInputSocket(elem->getName());
             ShaderInput* input = newNode->getInput(elem->getName());
@@ -438,7 +438,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         }
 
         // Handle node inputs
-        for (const InputPtr& nodeDefInput : nodeDef->getInputs())
+        for (const InputPtr& nodeDefInput : nodeDef->getActiveInputs())
         {
             ShaderGraphInputSocket* inputSocket = graph->getInputSocket(nodeDefInput->getName());
             ShaderInput* input = newNode->getInput(nodeDefInput->getName());
@@ -478,9 +478,8 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         }
 
         // Add shareRef nodedef paths
-        const vector<InputPtr> nodeInputs = nodeDef->getChildrenOfType<Input>();
         const string& nodePath = shaderRef->getNamePath();
-        for (const ValueElementPtr& nodeInput : nodeInputs)
+        for (const ValueElementPtr& nodeInput : nodeDef->getActiveInputs())
         {
             const string& inputName = nodeInput->getName();
             const string path = nodePath + NAME_PATH_SEPARATOR + inputName;
@@ -495,8 +494,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                 inputSocket->setPath(path);
             }
         }
-        const vector<ParameterPtr> nodeParameters = nodeDef->getChildrenOfType<Parameter>();
-        for (const ParameterPtr& nodeParameter : nodeParameters)
+        for (const ParameterPtr& nodeParameter : nodeDef->getActiveParameters())
         {
             const string& paramName = nodeParameter->getName();
             const string path = nodePath + NAME_PATH_SEPARATOR + paramName;
@@ -578,7 +576,7 @@ ShaderNode* ShaderGraph::addNode(const Node& node, GenContext& context)
 
     // Handle the "defaultgeomprop" directives on the nodedef inputs.
     // Create and connect default geometric nodes on unconnected inputs.
-    for (const InputPtr& nodeDefInput : nodeDef->getInputs())
+    for (const InputPtr& nodeDefInput : nodeDef->getActiveInputs())
     {
         ShaderInput* input = newNode->getInput(nodeDefInput->getName());
         InputPtr nodeInput = node.getInput(nodeDefInput->getName());

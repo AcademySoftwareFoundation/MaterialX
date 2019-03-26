@@ -693,8 +693,8 @@ ValueElementPtr findNodeDefChild(const string& path, DocumentPtr doc, const stri
 
     // Use the path element name to look up in the equivalent element
     // in the nodedef as only the nodedef elements contain the information.
-    const string& valueElementName = pathElement->getName();
-    ValueElementPtr valueElement = nodeDef->getChildOfType<ValueElement>(valueElementName);
+    const std::string& valueElementName = pathElement->getName();
+    ValueElementPtr valueElement = nodeDef->getActiveValueElement(valueElementName);
 
     return valueElement;
 }
