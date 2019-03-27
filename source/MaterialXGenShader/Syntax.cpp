@@ -20,6 +20,18 @@ const string Syntax::SINGLE_LINE_COMMENT = "// ";
 const string Syntax::BEGIN_MULTI_LINE_COMMENT = "/* ";
 const string Syntax::END_MULTI_LINE_COMMENT = " */";
 
+namespace {
+
+const std::unordered_map<char, size_t> CHANNELS_MAPPING =
+{
+    { 'r', 0 }, { 'x', 0 },
+    { 'g', 1 }, { 'y', 1 },
+    { 'b', 2 }, { 'z', 2 },
+    { 'a', 3 }, { 'w', 3 }
+};
+
+} // anonymous namespace
+
 //
 // Syntax methods
 //
@@ -106,14 +118,6 @@ const string& Syntax::getTypeDefinition(const TypeDesc* type) const
 
 string Syntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const
 {
-    static const std::unordered_map<char, size_t> s_channelsMapping =
-    {
-        { 'r', 0 }, { 'x', 0 },
-        { 'g', 1 }, { 'y', 1 },
-        { 'b', 2 }, { 'z', 2 },
-        { 'a', 3 }, { 'w', 3 }
-    };
-
     const TypeSyntax& srcSyntax = getTypeSyntax(srcType);
     const TypeSyntax& dstSyntax = getTypeSyntax(dstType);
 
@@ -130,8 +134,8 @@ string Syntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcTyp
             continue;
         }
 
-        auto it = s_channelsMapping.find(ch);
-        if (it == s_channelsMapping.end())
+        auto it = CHANNELS_MAPPING.find(ch);
+        if (it == CHANNELS_MAPPING.end())
         {
             throw ExceptionShaderGenError("Invalid channel pattern '" + channels + "'.");
         }
@@ -156,14 +160,6 @@ string Syntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcTyp
 
 ValuePtr Syntax::getSwizzledValue(ValuePtr value, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const
 {
-    static const std::unordered_map<char, size_t> s_channelsMapping =
-    {
-        { 'r', 0 }, { 'x', 0 },
-        { 'g', 1 }, { 'y', 1 },
-        { 'b', 2 }, { 'z', 2 },
-        { 'a', 3 }, { 'w', 3 }
-    };
-
     const TypeSyntax& srcSyntax = getTypeSyntax(srcType);
     const vector<string>& srcMembers = srcSyntax.getMembers();
 
@@ -184,8 +180,8 @@ ValuePtr Syntax::getSwizzledValue(ValuePtr value, const TypeDesc* srcType, const
             continue;
         }
 
-        auto it = s_channelsMapping.find(ch);
-        if (it == s_channelsMapping.end())
+        auto it = CHANNELS_MAPPING.find(ch);
+        if (it == CHANNELS_MAPPING.end())
         {
             throw ExceptionShaderGenError("Invalid channel pattern '" + channels + "'.");
         }
