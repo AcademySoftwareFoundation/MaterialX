@@ -108,10 +108,10 @@ string Syntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcTyp
 {
     static const std::unordered_map<char, size_t> s_channelsMapping =
     {
-        { 'r', 0 },{ 'x', 0 },
-        { 'g', 1 },{ 'y', 1 },
-        { 'b', 2 },{ 'z', 2 },
-        { 'a', 3 },{ 'w', 3 }
+        { 'r', 0 }, { 'x', 0 },
+        { 'g', 1 }, { 'y', 1 },
+        { 'b', 2 }, { 'z', 2 },
+        { 'a', 3 }, { 'w', 3 }
     };
 
     const TypeSyntax& srcSyntax = getTypeSyntax(srcType);
@@ -158,10 +158,10 @@ ValuePtr Syntax::getSwizzledValue(ValuePtr value, const TypeDesc* srcType, const
 {
     static const std::unordered_map<char, size_t> s_channelsMapping =
     {
-        { 'r', 0 },{ 'x', 0 },
-        { 'g', 1 },{ 'y', 1 },
-        { 'b', 2 },{ 'z', 2 },
-        { 'a', 3 },{ 'w', 3 }
+        { 'r', 0 }, { 'x', 0 },
+        { 'g', 1 }, { 'y', 1 },
+        { 'b', 2 }, { 'z', 2 },
+        { 'a', 3 }, { 'w', 3 }
     };
 
     const TypeSyntax& srcSyntax = getTypeSyntax(srcType);

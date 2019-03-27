@@ -20,19 +20,19 @@ const string InterfaceElement::NODE_DEF_ATTRIBUTE = "nodedef";
 const string Input::DEFAULT_GEOM_PROP_ATTRIBUTE = "defaultgeomprop";
 
 // Map from type strings to swizzle pattern character sets.
-const std::unordered_map<string, CharSet> PortElement::SWIZZLE_CHARACTER_SET =
+const std::unordered_map<string, CharSet> PortElement::CHANNELS_CHARACTER_SET =
 {
-    { "float",      { '0', '1', 'r', 'x' } },
-    { "color2",     { '0', '1', 'r', 'a' } },
-    { "color3",     { '0', '1', 'r', 'g', 'b' } },
-    { "color4",     { '0', '1', 'r', 'g', 'b', 'a' } },
-    { "vector2",    { '0', '1', 'x', 'y' } },
-    { "vector3",    { '0', '1', 'x', 'y', 'z' } },
-    { "vector4",    { '0', '1', 'x', 'y', 'z', 'w' } }
+    { "float", { '0', '1', 'r', 'x' } },
+    { "color2", { '0', '1', 'r', 'a' } },
+    { "color3", { '0', '1', 'r', 'g', 'b' } },
+    { "color4", { '0', '1', 'r', 'g', 'b', 'a' } },
+    { "vector2", { '0', '1', 'x', 'y' } },
+    { "vector3", { '0', '1', 'x', 'y', 'z' } },
+    { "vector4", { '0', '1', 'x', 'y', 'z', 'w' } }
 };
 
 // Map from type strings to swizzle pattern lengths.
-const std::unordered_map<string, size_t> PortElement::SWIZZLE_PATTERN_LENGTH =
+const std::unordered_map<string, size_t> PortElement::CHANNELS_PATTERN_LENGTH =
 {
     { "float", 1 },
     { "color2", 2 },
@@ -119,11 +119,11 @@ bool PortElement::validate(string* message) const
 
 bool PortElement::validChannelsCharacters(const string& channels, const string& sourceType)
 {
-    if (!SWIZZLE_CHARACTER_SET.count(sourceType))
+    if (!CHANNELS_CHARACTER_SET.count(sourceType))
     {
         return false;
     }
-    const CharSet& validCharSet = SWIZZLE_CHARACTER_SET.at(sourceType);
+    const CharSet& validCharSet = CHANNELS_CHARACTER_SET.at(sourceType);
     for (const char& channelChar : channels)
     {
         if (!validCharSet.count(channelChar))
@@ -140,8 +140,8 @@ bool PortElement::validChannelsString(const string& channels, const string& sour
     {
         return false;
     }
-    if (!SWIZZLE_PATTERN_LENGTH.count(destinationType) ||
-        SWIZZLE_PATTERN_LENGTH.at(destinationType) != channels.size())
+    if (!CHANNELS_PATTERN_LENGTH.count(destinationType) ||
+        CHANNELS_PATTERN_LENGTH.at(destinationType) != channels.size())
     {
         return false;
     }

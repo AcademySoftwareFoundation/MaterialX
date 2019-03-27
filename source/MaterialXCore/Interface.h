@@ -207,8 +207,8 @@ class PortElement : public ValueElement
     static const string CHANNELS_ATTRIBUTE;
 
   private:
-    static const std::unordered_map<string, CharSet> SWIZZLE_CHARACTER_SET;
-    static const std::unordered_map<string, size_t> SWIZZLE_PATTERN_LENGTH;
+    static const std::unordered_map<string, CharSet> CHANNELS_CHARACTER_SET;
+    static const std::unordered_map<string, size_t> CHANNELS_PATTERN_LENGTH;
 };
 
 /// @class Input
