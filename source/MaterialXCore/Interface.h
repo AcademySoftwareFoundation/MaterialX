@@ -51,6 +51,8 @@ using InterfaceElementPtr = shared_ptr<InterfaceElement>;
 /// A shared pointer to a const InterfaceElement
 using ConstInterfaceElementPtr = shared_ptr<const InterfaceElement>;
 
+using CharSet = std::set<char>;
+
 /// @class Parameter
 /// A parameter element within a Node or NodeDef.
 ///
@@ -170,16 +172,13 @@ class PortElement : public ValueElement
         return getAttribute(CHANNELS_ATTRIBUTE);
     }
 
-    /// Utility method which returns whether a given swizzle pattern
-    /// is valid for a given source type and destination type.
-    static bool supportsSwizzle(const string &sourceType, const string& destinationType, const string &pattern);
+    /// Return true if the given channels characters are valid for the given
+    /// source type string.
+    static bool validChannelsCharacters(const string &channels, const string &sourceType);
 
-    /// Utility that returns if a swizzle pattern string is acceptable for a given type.
-    static bool validSwizzlePattern(const string &type, const string &pattern);
-
-    /// Utility that returns if a swizzle pattern size is acceptable for a given type.
-    static bool validSwizzleSize(const string &type, const string &pattern);
-
+    /// Return true if the given swizzle pattern is valid for the given source
+    /// and destination type strings.
+    static bool validChannelsString(const string& channels, const string& sourceType, const string& destinationType);
 
     /// @}
     /// @name Connections
@@ -208,8 +207,8 @@ class PortElement : public ValueElement
     static const string CHANNELS_ATTRIBUTE;
 
   private:
-    static std::unordered_map<string, std::set<char>> _swizzlePatterns;
-    static std::unordered_map<string, size_t> _swizzlePatternSizes;
+    static const std::unordered_map<string, CharSet> SWIZZLE_CHARACTER_SET;
+    static const std::unordered_map<string, size_t> SWIZZLE_PATTERN_LENGTH;
 };
 
 /// @class Input
