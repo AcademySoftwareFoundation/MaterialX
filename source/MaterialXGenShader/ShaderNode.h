@@ -138,8 +138,15 @@ class ShaderInput : public ShaderPort
     /// Break the connection to this input.
     void breakConnection();
 
+    /// Set optional channels value
+    void setChannels(const string& channels) { _channels = channels; }
+
+    /// Get optional channels value
+    const string& getChannels() const { return _channels; }
+
   protected:
     ShaderOutput* _connection;
+    string _channels;
     friend class ShaderOutput;
 };
 

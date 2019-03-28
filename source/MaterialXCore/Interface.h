@@ -51,6 +51,8 @@ using InterfaceElementPtr = shared_ptr<InterfaceElement>;
 /// A shared pointer to a const InterfaceElement
 using ConstInterfaceElementPtr = shared_ptr<const InterfaceElement>;
 
+using CharSet = std::set<char>;
+
 /// @class Parameter
 /// A parameter element within a Node or NodeDef.
 ///
@@ -148,6 +150,37 @@ class PortElement : public ValueElement
     }
 
     /// @}
+    /// @name Channels
+    /// @{
+
+    /// Set the channels string of this element, defining a channel swizzle
+    /// that will be applied to the upstream result if this port is connected.
+    void setChannels(const string& channels)
+    {
+        setAttribute(CHANNELS_ATTRIBUTE, channels);
+    }
+
+    /// Return true if this element has a channels string.
+    bool hasChannels() const
+    {
+        return hasAttribute(CHANNELS_ATTRIBUTE);
+    }
+
+    /// Return the channels string of this element.
+    const string& getChannels() const
+    {
+        return getAttribute(CHANNELS_ATTRIBUTE);
+    }
+
+    /// Return true if the given channels characters are valid for the given
+    /// source type string.
+    static bool validChannelsCharacters(const string &channels, const string &sourceType);
+
+    /// Return true if the given swizzle pattern is valid for the given source
+    /// and destination type strings.
+    static bool validChannelsString(const string& channels, const string& sourceType, const string& destinationType);
+
+    /// @}
     /// @name Connections
     /// @{
 
@@ -171,6 +204,11 @@ class PortElement : public ValueElement
   public:
     static const string NODE_NAME_ATTRIBUTE;
     static const string OUTPUT_ATTRIBUTE;
+    static const string CHANNELS_ATTRIBUTE;
+
+  private:
+    static const std::unordered_map<string, CharSet> CHANNELS_CHARACTER_SET;
+    static const std::unordered_map<string, size_t> CHANNELS_PATTERN_LENGTH;
 };
 
 /// @class Input
@@ -332,7 +370,7 @@ class InterfaceElement : public TypedElement
     /// @}
     /// @name Parameters
     /// @{
-    
+
     /// Add a Parameter to this interface.
     /// @param name The name of the new Parameter.
     ///     If no name is specified, then a unique name will automatically be
