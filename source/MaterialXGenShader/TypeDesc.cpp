@@ -20,13 +20,13 @@ namespace
         static TypeDescMap map;
         return map;
     }
-}
+} // anonymous namespace
 
 //
 // TypeDesc methods
 //
 
-TypeDesc::TypeDesc(const string& name, unsigned char basetype, unsigned char semantic, int size,
+TypeDesc::TypeDesc(const string& name, unsigned char basetype, unsigned char semantic, size_t size,
                    bool editable, const std::unordered_map<char, int>& channelMapping) :
     _name(name),
     _basetype(basetype),
@@ -37,7 +37,8 @@ TypeDesc::TypeDesc(const string& name, unsigned char basetype, unsigned char sem
 {
 }
 
-const TypeDesc* TypeDesc::registerType(const string& name, unsigned char basetype, unsigned char semantic, int size, bool editable, const std::unordered_map<char, int>& channelMapping)
+const TypeDesc* TypeDesc::registerType(const string& name, unsigned char basetype, unsigned char semantic, size_t size,
+                                       bool editable, const std::unordered_map<char, int>& channelMapping)
 {
     TypeDescMap& map = typeMap();
     auto it = map.find(name);
