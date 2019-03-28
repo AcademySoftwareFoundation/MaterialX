@@ -20,6 +20,18 @@ const string Syntax::SINGLE_LINE_COMMENT = "// ";
 const string Syntax::BEGIN_MULTI_LINE_COMMENT = "/* ";
 const string Syntax::END_MULTI_LINE_COMMENT = " */";
 
+namespace {
+
+const std::unordered_map<char, size_t> CHANNELS_MAPPING =
+{
+    { 'r', 0 }, { 'x', 0 },
+    { 'g', 1 }, { 'y', 1 },
+    { 'b', 2 }, { 'z', 2 },
+    { 'a', 3 }, { 'w', 3 }
+};
+
+} // anonymous namespace
+
 //
 // Syntax methods
 //
@@ -106,14 +118,6 @@ const string& Syntax::getTypeDefinition(const TypeDesc* type) const
 
 string Syntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const
 {
-    static const std::unordered_map<char, size_t> s_channelsMapping =
-    {
-        { 'r', 0 },{ 'x', 0 },
-        { 'g', 1 },{ 'y', 1 },
-        { 'b', 2 },{ 'z', 2 },
-        { 'a', 3 },{ 'w', 3 }
-    };
-
     const TypeSyntax& srcSyntax = getTypeSyntax(srcType);
     const TypeSyntax& dstSyntax = getTypeSyntax(dstType);
 
@@ -130,8 +134,8 @@ string Syntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcTyp
             continue;
         }
 
-        auto it = s_channelsMapping.find(ch);
-        if (it == s_channelsMapping.end())
+        auto it = CHANNELS_MAPPING.find(ch);
+        if (it == CHANNELS_MAPPING.end())
         {
             throw ExceptionShaderGenError("Invalid channel pattern '" + channels + "'.");
         }
@@ -152,6 +156,97 @@ string Syntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcTyp
     }
 
     return dstSyntax.getValue(membersSwizzled, false);
+}
+
+ValuePtr Syntax::getSwizzledValue(ValuePtr value, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const
+{
+    const TypeSyntax& srcSyntax = getTypeSyntax(srcType);
+    const vector<string>& srcMembers = srcSyntax.getMembers();
+
+    std::stringstream ss;
+    string delimiter = ", ";
+
+    for (size_t i = 0; i < channels.size(); ++i)
+    {
+        if (i == channels.size() - 1)
+        {
+            delimiter = "";
+        }
+
+        const char ch = channels[i];
+        if (ch == '0' || ch == '1')
+        {
+            ss << string(1, ch);
+            continue;
+        }
+
+        auto it = CHANNELS_MAPPING.find(ch);
+        if (it == CHANNELS_MAPPING.end())
+        {
+            throw ExceptionShaderGenError("Invalid channel pattern '" + channels + "'.");
+        }
+
+        if (srcMembers.empty())
+        {
+            ss << value->getValueString();
+        }
+        else
+        {
+            int channelIndex = srcType->getChannelIndex(ch);
+            if (channelIndex < 0 || channelIndex >= static_cast<int>(srcMembers.size()))
+            {
+                throw ExceptionShaderGenError("Given channel index: '" + string(1, ch) + "' in channels pattern is incorrect for type '" + srcType->getName() + "'.");
+            }
+            if (srcType == Type::FLOAT)
+            {
+                float v = value->asA<float>();
+                ss << std::to_string(v);
+            }
+            else if (srcType == Type::INTEGER)
+            {
+                int v = value->asA<int>();
+                ss << std::to_string(v);
+            }
+            else if (srcType == Type::BOOLEAN)
+            {
+                bool v = value->asA<bool>();
+                ss << std::to_string(v);
+            }
+            else if (srcType == Type::COLOR2)
+            {
+                Color2 v = value->asA<Color2>();
+                ss << std::to_string(v[channelIndex]);
+            }
+            else if (srcType == Type::COLOR3)
+            {
+                Color3 v = value->asA<Color3>();
+                ss << std::to_string(v[channelIndex]);
+            }
+            else if (srcType == Type::COLOR4)
+            {
+                Color4 v = value->asA<Color4>();
+                ss << std::to_string(v[channelIndex]);
+            }
+            else if (srcType == Type::VECTOR2)
+            {
+                Vector2 v = value->asA<Vector2>();
+                ss << std::to_string(v[channelIndex]);
+            }
+            else if (srcType == Type::VECTOR3)
+            {
+                Vector3 v = value->asA<Vector3>();
+                ss << std::to_string(v[channelIndex]);
+            }
+            else if (srcType == Type::VECTOR4)
+            {
+                Vector4 v = value->asA<Vector4>();
+                ss << std::to_string(v[channelIndex]);
+            }
+        }
+        ss << delimiter;
+    }
+
+    return Value::createValueFromStrings(ss.str(), getTypeName(dstType));
 }
 
 void Syntax::makeUnique(string& name, UniqueNameMap& uniqueNames) const
