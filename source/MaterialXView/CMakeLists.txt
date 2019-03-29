@@ -21,6 +21,7 @@ elseif(UNIX AND NOT APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     add_compile_options(-Wno-misleading-indentation)
     add_compile_options(-Wno-format-truncation)
     add_compile_options(-Wno-implicit-fallthrough)
+    add_compile_options(-Wno-int-in-bool-context)
     add_compile_options(-Wno-maybe-uninitialized) # GCC-8 only
 endif()
 

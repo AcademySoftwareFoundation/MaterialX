@@ -23,6 +23,7 @@ string ImageLoader::TGA_EXTENSION = "tga";
 string ImageLoader::TIF_EXTENSION = "tif";
 string ImageLoader::TIFF_EXTENSION = "tiff";
 string ImageLoader::TXT_EXTENSION = "txt";
+string ImageLoader::TXR_EXTENSION = "txr";
 
 ImageHandler::ImageHandler(ImageLoaderPtr imageLoader)
 {

@@ -52,7 +52,14 @@ bool OiioImageLoader::acquireImage(const FilePath& filePath,
         return false;
     }
 
-    const OIIO::ImageSpec& imageSpec = imageInput->spec();
+    OIIO::ImageSpec imageSpec = imageInput->spec();
+    if (imageSpec.format == OIIO::TypeDesc::HALF)
+    {
+        // Due to display issue with 16-bit tiled exrs,
+        // treat as 32-bit float.
+        imageSpec.set_format(OIIO::TypeDesc::FLOAT);
+    }
+
     if (imageSpec.format != OIIO::TypeDesc::UINT8 &&
         imageSpec.format != OIIO::TypeDesc::FLOAT)
     {

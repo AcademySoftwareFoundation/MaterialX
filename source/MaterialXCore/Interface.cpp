@@ -12,38 +12,35 @@
 
 namespace MaterialX
 {
+
 const string PortElement::NODE_NAME_ATTRIBUTE = "nodename";
 const string PortElement::OUTPUT_ATTRIBUTE = "output";
 const string PortElement::CHANNELS_ATTRIBUTE = "channels";
 const string InterfaceElement::NODE_DEF_ATTRIBUTE = "nodedef";
 const string Input::DEFAULT_GEOM_PROP_ATTRIBUTE = "defaultgeomprop";
 
-//
-// PortElement static data members
-//
-
-// Mapping from a type to the acceptable set of characters in a swizzle pattern
-std::unordered_map<string, std::set<char>> PortElement::_swizzlePatterns =
+// Map from type strings to swizzle pattern character sets.
+const std::unordered_map<string, CharSet> PortElement::CHANNELS_CHARACTER_SET =
 {
-    { "float", { '0', '1', 'r', 'x' }},
-    {"color2", { '0', '1', 'r', 'a' }},
-    {"color3", { '0', '1', 'r', 'g', 'b' }},
-    {"color4", { '0', '1', 'r', 'g', 'b', 'a' }},
-    {"vector2", { '0', '1', 'x', 'y' }},
-    {"vector3", { '0', '1', 'x', 'y', 'z' }},
-    {"vector4", { '0', '1', 'x', 'y', 'z', 'w' }}
+    { "float", { '0', '1', 'r', 'x' } },
+    { "color2", { '0', '1', 'r', 'a' } },
+    { "color3", { '0', '1', 'r', 'g', 'b' } },
+    { "color4", { '0', '1', 'r', 'g', 'b', 'a' } },
+    { "vector2", { '0', '1', 'x', 'y' } },
+    { "vector3", { '0', '1', 'x', 'y', 'z' } },
+    { "vector4", { '0', '1', 'x', 'y', 'z', 'w' } }
 };
 
-// Mapping from a type to the acceptable swizzle pattern size
-std::unordered_map<string, size_t> PortElement::_swizzlePatternSizes =
+// Map from type strings to swizzle pattern lengths.
+const std::unordered_map<string, size_t> PortElement::CHANNELS_PATTERN_LENGTH =
 {
-    {"float", 1},
-    {"color2", 2},
-    {"color3", 3},
-    {"color4", 4},
-    {"vector2", 2},
-    {"vector3", 3},
-    {"vector4", 4}
+    { "float", 1 },
+    { "color2", 2 },
+    { "color3", 3 },
+    { "color4", 4 },
+    { "vector2", 2 },
+    { "vector3", 3 },
+    { "vector4", 4 }
 };
 
 //
@@ -64,13 +61,10 @@ void PortElement::setConnectedNode(NodePtr node)
 
 NodePtr PortElement::getConnectedNode() const
 {
-    for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
+    ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
+    if (graph)
     {
-        ConstGraphElementPtr graph = elem->asA<GraphElement>();
-        if (graph)
-        {
-            return graph->getNode(getNodeName());
-        }
+        return graph->getNode(getNodeName());
     }
     return NodePtr();
 }
@@ -99,7 +93,7 @@ bool PortElement::validate(string* message) const
                     const string& outputType = output->getType();
                     if (hasChannels())
                     {
-                        validateRequire(supportsSwizzle(outputType, getType(), getChannels()), res, message, "Invalid channels attribute");
+                        validateRequire(validChannelsString(getChannels(), outputType, getType()), res, message, "Invalid channels attribute");
                     }
                     else
                     {
@@ -110,7 +104,7 @@ bool PortElement::validate(string* message) const
         }
         else if (hasChannels())
         {
-            validateRequire(supportsSwizzle(connectedNode->getType(), getType(), getChannels()), res, message, "Invalid channels attribute");
+            validateRequire(validChannelsString(getChannels(), connectedNode->getType(), getType()), res, message, "Invalid channels attribute");
         }
         else if(!hasChannels())
         {
@@ -120,16 +114,16 @@ bool PortElement::validate(string* message) const
     return ValueElement::validate(message) && res;
 }
 
-bool PortElement::validSwizzlePattern(const string &type, const string &pattern)
+bool PortElement::validChannelsCharacters(const string& channels, const string& sourceType)
 {
-    if (!_swizzlePatterns.count(type))
+    if (!CHANNELS_CHARACTER_SET.count(sourceType))
     {
         return false;
     }
-    const std::set<char>& supportedChannels = _swizzlePatterns[type];
-    for (const char& channel : pattern)
+    const CharSet& validCharSet = CHANNELS_CHARACTER_SET.at(sourceType);
+    for (const char& channelChar : channels)
     {
-        if (supportedChannels.count(channel) == 0)
+        if (!validCharSet.count(channelChar))
         {
             return false;
         }
@@ -137,14 +131,19 @@ bool PortElement::validSwizzlePattern(const string &type, const string &pattern)
     return true;
 }
 
-bool PortElement::validSwizzleSize(const string &type, const string &pattern)
+bool PortElement::validChannelsString(const string& channels, const string& sourceType, const string& destinationType)
 {
-    return (_swizzlePatternSizes.count(type) == 0) ? false : (pattern.size() == _swizzlePatternSizes[type]);
-}
+    if (!validChannelsCharacters(channels, sourceType))
+    {
+        return false;
+    }
+    if (!CHANNELS_PATTERN_LENGTH.count(destinationType) ||
+        CHANNELS_PATTERN_LENGTH.at(destinationType) != channels.size())
+    {
+        return false;
+    }
 
-bool PortElement::supportsSwizzle(const string &sourceType, const string& destinationType, const string &pattern)
-{
-    return validSwizzlePattern(sourceType, pattern) && validSwizzleSize(destinationType, pattern);
+    return true;
 }
 
 //
