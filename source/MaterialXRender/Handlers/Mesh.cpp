@@ -124,10 +124,16 @@ bool Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr texcoord
         if (t != Vector3(0.0f))
         {
             t = (t - n * n.dot(t)).getNormalized();
-            if (b)
-            {
-                *b = n.cross(t);
-            }
+        }
+        else
+        {
+            // Tangent vector is zero length so set a default direction
+            // to avoid sending invalid data to the renderer.
+            t = Vector3(0.0f, 0.0f, 1.0f);
+        }
+        if (b)
+        {
+            *b = n.cross(t);
         }
     }
     return true;
