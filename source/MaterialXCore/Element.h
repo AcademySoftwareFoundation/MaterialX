@@ -466,9 +466,9 @@ class Element : public std::enable_shared_from_this<Element>
         return _childOrder;
     }
 
-    /// Return a vector of all child elements that are instances of the given type,
-    /// optionally filtered by the given category string.  The returned vector
-    /// maintains the order in which children were added.
+    /// Return a vector of all child elements that are instances of the given
+    /// subclass, optionally filtered by the given category string.  The returned
+    /// vector maintains the order in which children were added.
     template<class T> vector< shared_ptr<T> > getChildrenOfType(const string& category = EMPTY_STRING) const
     {
         vector< shared_ptr<T> > children;
@@ -604,6 +604,21 @@ class Element : public std::enable_shared_from_this<Element>
     ConstDocumentPtr getDocument() const
     {
         return getRoot()->asA<Document>();
+    }
+
+    /// Return the first ancestor of the given subclass, or an empty shared
+    /// pointer if no ancestor of this subclass is found.
+    template<class T> shared_ptr<const T> getAncestorOfType() const
+    {
+        for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
+        {
+            shared_ptr<const T> typedElem = elem->asA<T>();
+            if (typedElem)
+            {
+                return typedElem;
+            }
+        }
+        return nullptr;
     }
 
     /// @}
