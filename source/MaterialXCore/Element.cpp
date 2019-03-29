@@ -421,10 +421,6 @@ bool Element::validate(string* message) const
 {
     bool res = true;
     validateRequire(isValidName(getName()), res, message, "Invalid element name");
-    if (hasColorSpace())
-    {
-        validateRequire(getDocument()->hasColorManagementSystem(), res, message, "Colorspace set without color management system");
-    }
     if (hasInheritString())
     {
         bool validInherit = getInheritsFrom() && getInheritsFrom()->getCategory() == getCategory();
@@ -581,6 +577,16 @@ bool ValueElement::validate(string* message) const
     if (hasType() && hasValueString())
     {
         validateRequire(getValue() != nullptr, res, message, "Invalid value");
+    }
+    if (hasInterfaceName())
+    {
+        ConstNodeGraphPtr nodeGraph = getAncestorOfType<NodeGraph>();
+        NodeDefPtr nodeDef = nodeGraph ? nodeGraph->getNodeDef() : nullptr;
+        if (nodeDef)
+        {
+            ValueElementPtr valueElem = nodeDef->getActiveValueElement(getInterfaceName());
+            validateRequire(valueElem != nullptr, res, message, "Interface name not found in referenced nodedef");
+        }
     }
     return TypedElement::validate(message) && res;
 }

@@ -61,13 +61,10 @@ void PortElement::setConnectedNode(NodePtr node)
 
 NodePtr PortElement::getConnectedNode() const
 {
-    for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
+    ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
+    if (graph)
     {
-        ConstGraphElementPtr graph = elem->asA<GraphElement>();
-        if (graph)
-        {
-            return graph->getNode(getNodeName());
-        }
+        return graph->getNode(getNodeName());
     }
     return NodePtr();
 }
