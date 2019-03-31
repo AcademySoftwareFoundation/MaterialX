@@ -10,6 +10,8 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Util.h>
 
+#include <MaterialXFormat/File.h>
+
 namespace mx = MaterialX;
 
 namespace GenShaderUtil
@@ -30,25 +32,17 @@ void loadLibraries(const mx::StringVec& libraryNames,
                    mx::DocumentPtr doc,
                    const mx::StringSet* excludeFiles)
 {
-    const std::string MTLX_EXTENSION("mtlx");
     for (const std::string& library : libraryNames)
     {
-        mx::StringVec librarySubPaths;
         mx::FilePath libraryPath = searchPath / library;
-        mx::getSubDirectories(libraryPath, librarySubPaths);
-
-        for (auto path : librarySubPaths)
+        for (const mx::FilePath& path : libraryPath.getSubDirectories())
         {
-            mx::StringVec filenames;
-            mx::getFilesInDirectory(path, filenames, MTLX_EXTENSION);
-
-            for (const std::string& filename : filenames)
+            for (const mx::FilePath& filename : path.getFilesInDirectory(mx::MTLX_EXTENSION))
             {
-                if (excludeFiles && excludeFiles->count(filename))
+                if (!excludeFiles || !excludeFiles->count(filename))
                 {
-                    continue;
+                    loadLibrary(path / filename, doc);
                 }
-                loadLibrary(mx::FilePath(path)/ filename, doc);
             }
         }
     }

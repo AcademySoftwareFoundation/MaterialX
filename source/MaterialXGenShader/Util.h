@@ -22,24 +22,11 @@ namespace MaterialX
 
 class ShaderGenerator;
 
-/// Make the directory with the given path if it doesn't already exist
-void makeDirectory(const string& directoryPath);
-
 /// Removes the extension from the provided filename
 string removeExtension(const string& filename);
 
-/// Directory scanner utility. Finds all subdirectories in the given directory
-void getSubDirectories(const string& baseDirectory, StringVec& relativePaths);
-
-/// Directory file scanner utility. Finds all files with a given extension
-/// in the given directory.
-void getFilesInDirectory(const string& directory, StringVec& files, const string& extension);
-
 /// Reads the contents of a file into the given string
 bool readFile(const string& filename, string& content);
-
-/// Returns the extension of the given filename
-string getFileExtension(const string& filename);
 
 /// Scans for all documents under a root path and returns documents which can be loaded
 /// Optionally can test and log errors if the document is not considered to be valid.

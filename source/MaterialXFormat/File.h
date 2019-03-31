@@ -14,6 +14,9 @@
 namespace MaterialX
 {
 
+class FilePath;
+using FilePathVec = vector<FilePath>;
+
 extern const string PATH_LIST_SEPARATOR;
 extern const string MATERIALX_SEARCH_PATH_ENV_VAR;
 
@@ -103,6 +106,14 @@ class FilePath
         return _vec[_vec.size() - 1];
     }
 
+    /// Return the file extension of the given path.
+    string getExtension()
+    {
+        string baseName = getBaseName();
+        size_t i = baseName.rfind('.');
+        return i != string::npos ? baseName.substr(i + 1) : EMPTY_STRING;
+    }
+
     /// Concatenate two paths with a directory separator, returning the
     /// combined path.
     FilePath operator/(const FilePath& rhs) const;
@@ -113,6 +124,18 @@ class FilePath
 
     /// Return true if the given path exists on the file system.
     bool exists() const;
+
+    /// Return true if the given path is a directory on the file system.
+    bool isDirectory() const;
+
+    /// Return a vector of all files in the given directory with the given extension.
+    FilePathVec getFilesInDirectory(const string& extension) const;
+
+    /// Return a vector of all directories at or beneath the given path.
+    FilePathVec getSubDirectories() const;
+
+    /// Create a directory on the file system at the given path.
+    void createDirectory();
 
     /// @}
 
@@ -181,7 +204,7 @@ class FileSearchPath
     }
 
     /// Get list of paths in the search path.
-    const vector<FilePath>& paths() const
+    const FilePathVec& paths() const
     {
         return _paths;
     }
@@ -235,7 +258,7 @@ class FileSearchPath
     }
 
   private:
-    vector<FilePath> _paths;
+    FilePathVec _paths;
 };
 
 /// Return a FileSearchPath object from search path environment variable.
