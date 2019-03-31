@@ -18,6 +18,8 @@ namespace MaterialX
 
 class XmlReadOptions;
 
+extern const string MTLX_EXTENSION;
+
 /// A standard function that reads from an XML file into a Document, with
 /// optional search path and read options.
 using XmlReadFunction = std::function<void(DocumentPtr, string, string, const XmlReadOptions*)>;
