@@ -21,6 +21,8 @@ using namespace pugi;
 namespace MaterialX
 {
 
+const string MTLX_EXTENSION = "mtlx";
+
 namespace {
 
 const string SOURCE_URI_ATTRIBUTE = "__sourceUri";
