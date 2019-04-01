@@ -152,6 +152,10 @@ class Viewer : public ng::Screen
     // Render options
     bool _outlineSelection;
     int _envSamples;
+
+    // Image save
+    bool _captureFrame;
+    mx::FilePath _captureFrameFileName;
 };
 
 #endif // MATERIALXVIEW_VIEWER_H

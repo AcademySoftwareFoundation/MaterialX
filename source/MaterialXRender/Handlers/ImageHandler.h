@@ -24,18 +24,36 @@ namespace MaterialX
 class ImageDesc
 {
   public:
+    /// Image base type identifier
+    using BaseType = string;
+    /// Set of base type identifiers
+    using BaseTypeSet = std::set<BaseType>;
+
+    /// Preset base type identifiers
+    static BaseType BASETYPE_UINT8;
+    static BaseType BASETYPE_HALF;
+    static BaseType BASETYPE_FLOAT;
+
+    /// Image type identifier
+    using ImageType = string;
+
+    /// Preset image type identifiers
+    static ImageType IMAGETYPE_2D;
+
     /// Image width
-    unsigned width = 0; 
+    unsigned int width = 0; 
     /// Image height
-    unsigned height = 0;
+    unsigned int height = 0;
     /// Number of channels
     unsigned int channelCount = 0;
     /// Number of mip map levels
     unsigned int mipCount = 0;
     /// CPU buffer. May be empty
     void* resourceBuffer = nullptr;
-    /// Is buffer floating point
-    bool floatingPoint = true;
+    /// Base type
+    BaseType baseType = BASETYPE_UINT8;
+    /// Image Type
+    ImageType imageType = IMAGETYPE_2D;
     /// Hardware target dependent resource identifier. May be undefined.
     unsigned int resourceId = 0;
 
@@ -44,6 +62,14 @@ class ImageDesc
     {
         mipCount = (unsigned int)std::log2(std::max(width, height)) + 1;
     }
+};
+
+/// Structure containing harware image description restrictions
+class ImageDescRestrictions
+{
+  public:
+    /// List of base types that can be supported
+    ImageDesc::BaseTypeSet supportedBaseTypes;
 };
 
 /// @class ImageSamplingProperties
@@ -93,6 +119,7 @@ class ImageLoader
     static string TIF_EXTENSION;
     static string TIFF_EXTENSION;
     static string TXT_EXTENSION;
+    static string TX_EXTENSION;
     static string TXR_EXTENSION;
 
     /// Returns a list of supported extensions
@@ -106,15 +133,19 @@ class ImageLoader
     /// @param filePath Path to save image to
     /// @param imageDesc Description of image
     /// @return if save succeeded
+    /// @param verticalFlip Whether the image should be flipped in Y during save
+    /// @return if save succeeded
     virtual bool saveImage(const FilePath& filePath,
-                           const ImageDesc &imageDesc) = 0;
+                           const ImageDesc &imageDesc,
+                           bool verticalFlip = false) = 0;
 
     /// Acquire an image from disk. This method must be implemented by derived classes.
     /// @param filePath Path to load image from
     /// @param imageDesc Description of image updated during load.
-    /// @param generateMipMaps Generate mip maps if supported.
+    /// @param restrictions Hardware image description restrictions. Default value is nullptr, meaning no restrictions.
     /// @return if load succeeded
-    virtual bool acquireImage(const FilePath& filePath, ImageDesc &imageDesc, bool generateMipMaps) = 0;
+    virtual bool acquireImage(const FilePath& filePath, ImageDesc &imageDesc, 
+                              const ImageDescRestrictions* restrictions = nullptr) = 0;
 
   protected:
     /// List of supported string extensions
@@ -151,7 +182,7 @@ class ImageHandler
     void addLoader(ImageLoaderPtr loader);
     
     /// Default destructor
-    virtual ~ImageHandler() {}
+    virtual ~ImageHandler() { };
 
     /// Get a list of extensions supported by the handler
     void supportedExtensions(StringSet& extensions);
@@ -159,10 +190,11 @@ class ImageHandler
     /// Save image to disk. This method must be implemented by derived classes.
     /// The first image loader which supports the file name extension will be used.
     /// @param filePath Name of file to save image to
-    /// @param imageDesc Description of image
+    /// @param verticalFlip Whether the image should be flipped in Y during save
     /// @return if save succeeded
     virtual bool saveImage(const FilePath& filePath,
-                           const ImageDesc &imageDesc);
+                           const ImageDesc &imageDesc,
+                           bool verticalFlip = false);
 
     /// Acquire an image from disk. This method must be implemented by derived classes.
     /// The first image loader which supports the file name extension will be used.
@@ -234,6 +266,11 @@ class ImageHandler
     /// Derived classes should override this method to clean up any related resources
     /// an image is deleted from the handler.
     virtual void deleteImage(ImageDesc& imageDesc);
+
+    /// Return image description restrictions. By default nullptr is
+    /// returned meaning no restrictions. Derived classes can override
+    /// this to add restrictions specific to that handler.
+    virtual const ImageDescRestrictions* getRestrictions() const { return nullptr; }
 
     /// Image loader utilities
     ImageLoaderMap _imageLoaders;

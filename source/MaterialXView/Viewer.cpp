@@ -120,7 +120,8 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     _mergeMaterials(false),
     _assignLooks(false),
     _outlineSelection(false),
-    _envSamples(DEFAULT_ENV_SAMPLES)
+    _envSamples(DEFAULT_ENV_SAMPLES),
+    _captureFrame(false)
 {
     _window = new ng::Window(this, "Viewer Options");
     _window->setPosition(ng::Vector2i(15, 15));
@@ -775,6 +776,31 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
     {
         return true;
     }
+
+    if (key == GLFW_KEY_F && action == GLFW_PRESS)
+    {
+        mx::StringSet extensions;
+        _imageHandler->supportedExtensions(extensions);
+        if (!extensions.empty())
+        {
+            std::vector<std::pair<std::string, std::string>> filetypes;
+            for (auto extension : extensions)
+            {
+                filetypes.push_back(std::make_pair(extension, extension));
+            }
+            std::string fileName = ng::file_dialog(filetypes, true);
+            if (!fileName.empty())
+            {
+                std::string fileExtension = (fileName.substr(fileName.find_last_of(".") + 1));
+                if (extensions.count(fileExtension) == 0)
+                {
+                    fileName += "." + *extensions.begin();
+                }
+                _captureFrameFileName = fileName;
+                _captureFrame = true;
+            }
+        }
+    }
     if (key == GLFW_KEY_R && action == GLFW_PRESS)
     {
         try
@@ -910,6 +936,41 @@ void Viewer::drawContents()
             _wireMaterial->bindViewInformation(world, view, proj);
             _wireMaterial->drawPartition(activeGeom);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+    }
+
+    if (_captureFrame)
+    {
+        bool saved = false;
+
+        glFlush();
+        glPixelStorei(GL_PACK_ALIGNMENT, 1);
+        glReadBuffer(GL_COLOR_ATTACHMENT0);
+
+        // Must multipy by pixel ratio to handle device DPI
+        int w = mSize.x() * static_cast<int>(mPixelRatio);
+        int h = mSize.y() * static_cast<int>(mPixelRatio);
+        size_t bufferSize = w * h * 3;
+        uint8_t* buffer = new uint8_t[bufferSize];
+        if (buffer)
+        {
+            glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+
+            mx::ImageDesc desc;
+            desc.width = w;
+            desc.height = h;
+            desc.channelCount = 3;
+            desc.resourceBuffer = buffer;
+            desc.baseType = mx::ImageDesc::BASETYPE_UINT8;
+            saved = _imageHandler->saveImage(_captureFrameFileName, desc, true);
+            delete[] buffer;
+        }
+        _captureFrame = false;
+
+        if (!saved)
+        {
+            new ng::MessageDialog(this, ng::MessageDialog::Type::Information,
+                "Failed to save frame to disk: ", _captureFrameFileName.asString());
         }
     }
 }

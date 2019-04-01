@@ -40,6 +40,7 @@ class OiioImageLoader : public ImageLoader
         _extensions.insert(EXR_EXTENSION);
         _extensions.insert(TIF_EXTENSION);
         _extensions.insert(TIFF_EXTENSION);
+        _extensions.insert(TX_EXTENSION);
         _extensions.insert(TXT_EXTENSION);
         _extensions.insert(TXR_EXTENSION);
     }
@@ -50,16 +51,19 @@ class OiioImageLoader : public ImageLoader
     /// Save image to disk. This method must be implemented by derived classes.
     /// @param filePath Path to file to save image to
     /// @param imageDesc Description of image
+    /// @param verticalFlip Whether the image should be flipped in Y during save
     /// @return if save succeeded
     bool saveImage(const FilePath& filePath,
-                   const ImageDesc &imageDesc) override;
+                   const ImageDesc &imageDesc,
+                   bool verticalFlip = false) override;
 
     /// Load an image from disk. This method must be implemented by derived classes.
     /// @param filePath Path to file to load image from
     /// @param imageDesc Description of image updated during load.
-    /// @param generateMipMaps Generate mip maps if supported.
+    /// @param restrictions Hardware image description restrictions. Default value is nullptr, meaning no restrictions.
     /// @return if load succeeded
-    bool acquireImage(const FilePath& filePath, ImageDesc &imageDesc, bool generateMipMaps) override;
+    bool acquireImage(const FilePath& filePath, ImageDesc &imageDesc,
+                      const ImageDescRestrictions* restrictions = nullptr) override;
 };
 
 } // namespace MaterialX;
