@@ -190,6 +190,30 @@ bool Material::generateConstantShader(mx::GenContext& context,
     return _glShader->init(shaderName, vertexShader, pixelShader);
 }
 
+bool Material::loadSource(const mx::FilePath& vertexShaderFile, const mx::FilePath& pixelShaderFile, const std::string& shaderName, bool hasTransparency)
+{
+    _hasTransparency = hasTransparency;
+
+    if (!_glShader)
+    {
+        _glShader = std::make_shared<ng::GLShader>();
+    }
+
+    std::string vertexShader;
+    if (!mx::readFile(vertexShaderFile, vertexShader))
+    {
+        return false;
+    }
+
+    std::string pixelShader;
+    if (!mx::readFile(pixelShaderFile, pixelShader))
+    {
+        return false;
+    }
+
+    return _glShader->init(shaderName, vertexShader, pixelShader);
+}
+
 mx::ShaderPtr Material::generateSource(mx::GenContext& context, mx::ElementPtr elem)
 {
     if (!elem)

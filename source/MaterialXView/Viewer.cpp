@@ -741,6 +741,32 @@ void Viewer::saveActiveMaterialSource()
     }
 }
 
+void Viewer::loadActiveMaterialSource()
+{
+    try
+    {
+        MaterialPtr material = getSelectedMaterial();
+        mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
+        if (elem)
+        {
+            std::string baseName = elem->getName();
+            std::string vertexShaderFile = _searchPath[0] / (baseName + "_vs.glsl");
+            std::string pixelShaderFile = _searchPath[0] / (baseName + "_ps.glsl");
+            // Ignore transparency for now as we can't know from the source code 
+            // if the shader is transparent or not.
+            if (material->loadSource(vertexShaderFile, pixelShaderFile, baseName, false))
+            {
+                assignMaterial(material, _geometryList[_selectedGeom]);
+            }
+        }
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Cannot load source for material", e.what());
+    }
+}
+
+
 bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
 {
     if (Screen::keyboardEvent(key, scancode, action, modifiers))
@@ -787,6 +813,15 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
     if (key == GLFW_KEY_S && action == GLFW_PRESS)
     {
         saveActiveMaterialSource();
+        return true;
+    }
+
+    // Load a material previously saved to file.
+    // Editing the source files before loading gives a way to debug
+    // and experiment with shader source code.
+    if (key == GLFW_KEY_L && action == GLFW_PRESS)
+    {
+        loadActiveMaterialSource();
         return true;
     }
 
