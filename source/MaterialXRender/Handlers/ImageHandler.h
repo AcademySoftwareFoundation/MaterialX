@@ -97,7 +97,7 @@ class ImageLoader
 
     /// Returns a list of supported extensions
     /// @return List of support extensions
-    const StringVec& supportedExtensions()
+    const StringSet& supportedExtensions()
     {
         return _extensions;
     }
@@ -118,7 +118,7 @@ class ImageLoader
 
   protected:
     /// List of supported string extensions
-    StringVec _extensions;
+    StringSet _extensions;
 };
 
 /// Shared pointer to an ImageHandler
@@ -152,6 +152,9 @@ class ImageHandler
     
     /// Default destructor
     virtual ~ImageHandler() {}
+
+    /// Get a list of extensions supported by the handler
+    void supportedExtensions(StringSet& extensions);
 
     /// Save image to disk. This method must be implemented by derived classes.
     /// The first image loader which supports the file name extension will be used.

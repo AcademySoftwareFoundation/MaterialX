@@ -34,7 +34,7 @@ class GeometryLoader
 
     /// Returns a list of supported extensions
     /// @return List of support extensions
-    const StringVec& supportedExtensions()
+    const StringSet& supportedExtensions()
     {
         return _extensions;
     }
@@ -47,7 +47,7 @@ class GeometryLoader
 
   protected:
     /// List of supported string extensions
-    StringVec _extensions;
+    StringSet _extensions;
 };
 
 /// Shared pointer to an GeometryHandler

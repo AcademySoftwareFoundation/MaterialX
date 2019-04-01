@@ -51,6 +51,18 @@ const ShaderPort* VariableBlock::find(const string& name) const
     return const_cast<VariableBlock*>(this)->find(name);
 }
 
+ShaderPort* VariableBlock::find(const ShaderPortPredicate& predicate)
+{
+    for (ShaderPort* port : getVariableOrder())
+    {
+        if (predicate(port))
+        {
+            return port;
+        }
+    }
+    return nullptr;
+}
+
 ShaderPort* VariableBlock::add(const TypeDesc* type, const string& name, ValuePtr value)
 {
     auto it = _variableMap.find(name);

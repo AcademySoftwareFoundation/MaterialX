@@ -107,6 +107,9 @@ class FilePath
     /// combined path.
     FilePath operator/(const FilePath& rhs) const;
 
+    /// Set the path to the parent directory if one exists. 
+    void pop();
+
     /// @}
     /// @name File System Operations
     /// @{

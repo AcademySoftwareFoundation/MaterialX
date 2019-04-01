@@ -61,7 +61,5 @@ add_custom_command(TARGET MaterialXView POST_BUILD
 
 install(TARGETS MaterialXView
         DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/libraries/
-        DESTINATION "${CMAKE_INSTALL_PREFIX}/bin/libraries")
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/resources/
-        DESTINATION "${CMAKE_INSTALL_PREFIX}/bin/resources")
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXView.pdb"
+        DESTINATION "${CMAKE_INSTALL_PREFIX}/bin/" OPTIONAL)

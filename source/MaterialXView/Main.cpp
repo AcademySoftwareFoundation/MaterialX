@@ -12,7 +12,7 @@ int main(int argc, char* const argv[])
         tokens.push_back(std::string(argv[i]));
     }
 
-    mx::StringVec libraryFolders = { "stdlib", "pbrlib", "stdlib/genglsl", "pbrlib/genglsl", "BxDF" };
+    mx::StringVec libraryFolders = { "libraries/stdlib", "libraries/pbrlib", "libraries/stdlib/genglsl", "libraries/pbrlib/genglsl", "libraries/bxdf" };
     mx::FileSearchPath searchPath;
     std::string meshFilename = "resources/Geometry/teapot.obj";
     std::string materialFilename = "resources/Materials/TestSuite/pbrlib/materials/standard_surface_default.mtlx";
@@ -60,8 +60,32 @@ int main(int argc, char* const argv[])
             multiSampleCount = std::stoi(nextToken);
         }
     }
-    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples"));
+
+    // Search current directory and parent directory if not found.
+    mx::FilePath currentPath(mx::FilePath::getCurrentPath());
+    mx::FilePath parentCurrentPath(currentPath);
+    parentCurrentPath.pop();
+    std::vector<mx::FilePath> libraryPaths = { 
+        mx::FilePath("libraries"), 
+        mx::FilePath("resources/Materials/Examples") 
+    };
+    for (auto libraryPath : libraryPaths)
+    {
+        mx::FilePath fullPath(currentPath / libraryPath);
+        if (!fullPath.exists())
+        {
+            fullPath = parentCurrentPath / libraryPath;
+            if (fullPath.exists())
+            {
+                searchPath.append(fullPath);
+            }
+        }
+        else
+        {
+            searchPath.append(fullPath);
+        }
+    }
+    searchPath.append(parentCurrentPath);
 
     try
     {

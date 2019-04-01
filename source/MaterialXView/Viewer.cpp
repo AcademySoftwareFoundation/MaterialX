@@ -3,6 +3,7 @@
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Util.h>
+#include <MaterialXRender/Util.h>
 #include <MaterialXRender/Handlers/OiioImageLoader.h>
 #include <MaterialXRender/Handlers/StbImageLoader.h>
 #include <MaterialXRender/Handlers/TinyObjLoader.h>
@@ -158,6 +159,7 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     // Set default generator options.
     _genContext.getOptions().hwSpecularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
+    _genContext.getOptions().fileTextureVerticalFlip = true;
 
     // Set default light information before initialization
     _lightFileName = "resources/Materials/TestSuite/Utilities/Lights/default_viewer_lights.mtlx";
@@ -192,7 +194,7 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
 
     mx::TinyObjLoaderPtr loader = mx::TinyObjLoader::create();
     _geometryHandler.addLoader(loader);
-    _geometryHandler.loadGeometry(meshFilename);
+    _geometryHandler.loadGeometry(_searchPath.find(meshFilename));
     updateGeometrySelections();
 
     // Initialize camera
@@ -204,7 +206,7 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
 
     try
     {
-        Material::loadDocument(_doc, _materialFilename, _stdLib, _modifiers, _materials);
+        Material::loadDocument(_doc, _searchPath.find(_materialFilename), _stdLib, _modifiers, _materials);
         updateMaterialSelections();
         setMaterialSelection(0);
         if (_materials.size())
@@ -290,8 +292,8 @@ void Viewer::setupLights(mx::DocumentPtr doc, const std::string& envRadiancePath
         }
 
         // Set up IBL inputs
-        _lightHandler->setLightEnvRadiancePath(envRadiancePath);
-        _lightHandler->setLightEnvIrradiancePath(envIrradiancePath);
+        _lightHandler->setLightEnvRadiancePath(_searchPath.find(envRadiancePath));
+        _lightHandler->setLightEnvIrradiancePath(_searchPath.find(envIrradiancePath));
     }
     catch (std::exception& e)
     {
@@ -499,7 +501,7 @@ void Viewer::createLoadMaterialsInterface(Widget* parent, const std::string labe
                     {
                         initializeDocument(_stdLib);
                     }
-                    size_t newRenderables = Material::loadDocument(_doc, _materialFilename, _stdLib, _modifiers, _materials);
+                    size_t newRenderables = Material::loadDocument(_doc, _searchPath.find(_materialFilename), _stdLib, _modifiers, _materials);
                     if (newRenderables > 0)
                     {
                         updateMaterialSelections();
@@ -724,7 +726,7 @@ void Viewer::saveActiveMaterialSource()
         mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
         if (elem)
         {
-            mx::ShaderPtr shader = material->generateSource(_genContext, elem);
+            mx::ShaderPtr shader = createShader(elem->getNamePath(), _genContext, elem);
             if (shader)
             {
                 std::string vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
@@ -780,7 +782,7 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
             if (!_materialFilename.isEmpty())
             {
                 initializeDocument(_stdLib);
-                size_t newRenderables = Material::loadDocument(_doc, _materialFilename, _stdLib, _modifiers, _materials);
+                size_t newRenderables = Material::loadDocument(_doc, _searchPath.find(_materialFilename), _stdLib, _modifiers, _materials);
                 if (newRenderables)
                 {
                     updateMaterialSelections();

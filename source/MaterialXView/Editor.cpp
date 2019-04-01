@@ -21,9 +21,6 @@ class EditorFormHelper : public ng::FormHelper
 
 } // anonymous namespace
 
-// Property editor items grouped based on a string identifier
-using EditorGroups = std::multimap<std::string, EditorItem>;
-
 //
 // PropertyEditor methods
 //
@@ -79,7 +76,7 @@ void PropertyEditor::create(Viewer& parent)
     _form->setWindow(_formWindow);
 }
 
-void PropertyEditor::addItemToForm(const EditorItem& item, const std::string& group,
+void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::string& group,
                                    ng::FormHelper& form, Viewer* viewer)
 {
     const mx::UIProperties& ui = item.ui;
@@ -507,11 +504,14 @@ void PropertyEditor::addItemToForm(const EditorItem& item, const std::string& gr
                             const mx::GLTextureHandlerPtr handler = viewer->getImageHandler();
                             if (handler)
                             {
-                                std::string filename = ng::file_dialog({ { "png", "PNG" },
-                                                                         { "jpeg", "JPEG" },
-                                                                         { "hdr", "HDR" },
-                                                                         { "gif", "GIF" },
-                                                                         { "bmp", "BMP" } }, false);
+                                mx::StringSet extensions;
+                                handler->supportedExtensions(extensions);
+                                std::vector<std::pair<std::string, std::string>> filetypes;
+                                for (auto extension : extensions)
+                                {
+                                    filetypes.push_back(std::make_pair(extension, extension));
+                                }
+                                std::string filename = ng::file_dialog(filetypes, false);
                                 if (!filename.empty())
                                 {
                                     uniform->setValue(mx::Value::createValue<std::string>(filename));
@@ -569,62 +569,17 @@ void PropertyEditor::updateContents(Viewer* viewer)
     const MaterialX::VariableBlock* publicUniforms = material->getPublicUniforms();
     if (publicUniforms)
     {
-        EditorGroups groups;
-        EditorGroups unnamedGroups;
-        for (auto uniform : publicUniforms->getVariableOrder())
-        {
-            if (uniform->getPath().size() && uniform->getValue())
-            {
-                mx::ElementPtr uniformElement = contentDocument->getDescendant(uniform->getPath());
-                if (uniformElement && uniformElement->isA<mx::ValueElement>())
-                {
-                    EditorItem item;
-                    item.variable = uniform;
-                    mx::getUIProperties(uniform->getPath(), contentDocument, mx::EMPTY_STRING, item.ui);
-
-                    std::string parentLabel;
-                    mx::ElementPtr parent = uniformElement->getParent();
-                    if (parent && parent != contentDocument && parent != materialElement)
-                    {
-                        parentLabel = parent->getNamePath();
-                    }
-                    if (parentLabel == materialElement->getAttribute(mx::PortElement::NODE_NAME_ATTRIBUTE))
-                    {
-                        parentLabel.clear();
-                    }
-                    if (!parentLabel.empty())
-                    {
-                        parentLabel += ":";
-                    }
-
-                    if (!item.ui.uiName.empty())
-                    {
-                        item.label = parentLabel + item.ui.uiName;
-                    }
-                    if (item.label.empty())
-                    {
-                        item.label = parentLabel + uniformElement->getName();
-                    }
-
-                    if (!item.ui.uiFolder.empty())
-                    {
-                        groups.insert(std::pair<std::string, EditorItem>
-                            (item.ui.uiFolder, item));
-                    }
-                    else
-                    {
-                        unnamedGroups.insert(std::pair<std::string, EditorItem>
-                            (mx::EMPTY_STRING, item));
-                    }
-                }
-            }
-        }
+        mx::UIPropertyGroup groups;
+        mx::UIPropertyGroup unnamedGroups;
+        const std::string pathSeparator(":");
+        mx::createUIPropertyGroups(*publicUniforms, contentDocument, materialElement,
+                                    pathSeparator, groups, unnamedGroups); 
 
         std::string previousFolder;
         for (auto it = groups.begin(); it != groups.end(); ++it)
         {
             const std::string& folder = it->first;
-            const EditorItem& item = it->second;
+            const mx::UIPropertyItem& item = it->second;
             addItemToForm(item, (previousFolder == folder) ? mx::EMPTY_STRING : folder, *_form, viewer);
             previousFolder.assign(folder);
         }

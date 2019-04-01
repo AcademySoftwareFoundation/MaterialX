@@ -20,6 +20,7 @@
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXRender/Handlers/HwLightHandler.h>
+#include <MaterialXRender/Util.h>
 
 #ifdef MATERIALX_BUILD_RENDERGLSL
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
@@ -1204,7 +1205,7 @@ struct ImageHandlerTestOptions
     mx::ImageHandlerPtr imageHandler;
     std::ofstream* logFile;
 
-    mx::StringVec testExtensions;
+    mx::StringSet testExtensions;
     mx::StringVec skipExtensions;
 };
 

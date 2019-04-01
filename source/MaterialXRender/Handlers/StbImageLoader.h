@@ -28,15 +28,15 @@ class StbImageLoader : public ImageLoader
     /// Default constructor. Set all extensions supported by stb
     StbImageLoader() 
     {
-        _extensions.push_back(BMP_EXTENSION);
-        _extensions.push_back(GIF_EXTENSION);
-        _extensions.push_back(HDR_EXTENSION);
-        _extensions.push_back(JPG_EXTENSION);
-        _extensions.push_back(JPEG_EXTENSION);
-        _extensions.push_back(PIC_EXTENSION);
-        _extensions.push_back(PNG_EXTENSION);
-        _extensions.push_back(PSD_EXTENSION);
-        _extensions.push_back(TGA_EXTENSION);
+        _extensions.insert(BMP_EXTENSION);
+        _extensions.insert(GIF_EXTENSION);
+        _extensions.insert(HDR_EXTENSION);
+        _extensions.insert(JPG_EXTENSION);
+        _extensions.insert(JPEG_EXTENSION);
+        _extensions.insert(PIC_EXTENSION);
+        _extensions.insert(PNG_EXTENSION);
+        _extensions.insert(PSD_EXTENSION);
+        _extensions.insert(TGA_EXTENSION);
     }
 
     /// Default destructor

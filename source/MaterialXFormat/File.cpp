@@ -120,6 +120,14 @@ FilePath FilePath::operator/(const FilePath& rhs) const
     return combined;
 }
 
+void FilePath::pop()
+{
+    if (!isEmpty())
+    {
+        _vec.pop_back();
+    }
+}
+
 bool FilePath::exists() const
 {
 #if defined(_WIN32)

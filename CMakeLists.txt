@@ -57,6 +57,15 @@ set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO
 mark_as_advanced(MATERIALX_OIIO_DIR)
 option(MATERIALX_BUILD_CONTRIB "Build contribution folder." OFF)
 mark_as_advanced(MATERIALX_BUILD_CONTRIB)
+
+# Viewer building option. If viewer is desired then we require
+# render and GLSL modules.
+option(MATERIALX_BUILD_VIEWER "Build the MaterialX Sample Viewer. " ON)
+if (MATERIALX_BUILD_VIEWER)
+    set( MATERIALX_BUILD_RENDER ON)
+    set (MATERIALX_BUILD_RENDERGLSL ON)
+endif()
+
 if (NOT MATERIALX_BUILD_RENDER)
     set (MATERIALX_BUILD_RENDEROSL OFF)
     set (MATERIALX_BUILD_RENDERGLSL OFF)
@@ -77,9 +86,6 @@ if (MATERIALX_BUILD_RENDEROSL)
     mark_as_advanced(MATERIALX_OSL_INCLUDE_PATH)
     add_definitions(-DMATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\")
 endif()
-
-# Viewer options
-option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer. " ON)
 
 # Adjust the default installation path
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)

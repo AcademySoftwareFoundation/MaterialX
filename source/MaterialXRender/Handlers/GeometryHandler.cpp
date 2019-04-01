@@ -10,7 +10,7 @@ namespace MaterialX
 {
 void GeometryHandler::addLoader(GeometryLoaderPtr loader)
 {
-    const StringVec& extensions = loader->supportedExtensions();
+    const StringSet& extensions = loader->supportedExtensions();
     for (auto extension : extensions)
     {
         _geometryLoaders.insert(std::pair<std::string, GeometryLoaderPtr>(extension, loader));
