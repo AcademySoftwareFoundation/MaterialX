@@ -21,7 +21,6 @@ void loadLibrary(const mx::FilePath& file, mx::DocumentPtr doc)
 {
     mx::DocumentPtr libDoc = mx::createDocument();
     mx::readFromXmlFile(libDoc, file);
-    libDoc->setSourceUri(file);
     mx::CopyOptions copyOptions;
     copyOptions.skipDuplicateElements = true;
     doc->importLibrary(libDoc, &copyOptions);
