@@ -36,9 +36,9 @@ class XmlReadOptions : public CopyOptions
     /// needs to be read into a document.  Defaults to readFromXmlFile.
     XmlReadFunction readXIncludeFunction;
 
-    /// The set of parent filenames at the scope of the current document.
-    /// Defaults to an empty set.
-    StringSet parentFilenames;
+    /// The vector of parent XIncludes at the scope of the current document.
+    /// Defaults to an empty vector.
+    StringVec parentXIncludes;
 };
 
 /// @class XmlWriteOptions

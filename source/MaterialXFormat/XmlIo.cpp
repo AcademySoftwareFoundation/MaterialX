@@ -157,15 +157,19 @@ void processXIncludes(DocumentPtr doc, xml_node& xmlNode, const string& searchPa
                 string filename = xmlChild.attribute("href").value();
 
                 // Check for XInclude cycles.
-                if (readOptions && readOptions->parentFilenames.count(filename))
+                if (readOptions)
                 {
-                    throw ExceptionParseError("XInclude cycle detected.");
+                    const StringVec& parents = readOptions->parentXIncludes;
+                    if (std::find(parents.begin(), parents.end(), filename) != parents.end())
+                    {
+                        throw ExceptionParseError("XInclude cycle detected.");
+                    }
                 }
 
                 // Read the included file into a library document.
                 DocumentPtr library = createDocument();
                 XmlReadOptions xiReadOptions = readOptions ? *readOptions : XmlReadOptions();
-                xiReadOptions.parentFilenames.insert(filename);
+                xiReadOptions.parentXIncludes.push_back(filename);
                 readXIncludeFunction(library, filename, searchPath, &xiReadOptions);
 
                 // Import the library document.
@@ -256,7 +260,14 @@ void readFromXmlFile(DocumentPtr doc, const string& filename, const string& sear
     xmlDocumentFromFile(xmlDoc, filename, searchPath);
 
     documentFromXml(doc, xmlDoc, searchPath, readOptions);
-    doc->setSourceUri(filename);
+    if (readOptions && !readOptions->parentXIncludes.empty())
+    {
+        doc->setSourceUri(readOptions->parentXIncludes[0]);
+    }
+    else
+    {
+        doc->setSourceUri(filename);
+    }
 }
 
 void readFromXmlString(DocumentPtr doc, const string& str, const XmlReadOptions* readOptions)
