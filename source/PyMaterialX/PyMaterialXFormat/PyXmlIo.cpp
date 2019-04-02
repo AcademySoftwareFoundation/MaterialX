@@ -16,7 +16,7 @@ void bindPyXmlIo(py::module& mod)
     py::class_<mx::XmlReadOptions, mx::CopyOptions>(mod, "XmlReadOptions")
         .def(py::init())
         .def_readwrite("readXIncludeFunction", &mx::XmlReadOptions::readXIncludeFunction)
-        .def_readwrite("parentFilenames", &mx::XmlReadOptions::parentFilenames);
+        .def_readwrite("parentXIncludes", &mx::XmlReadOptions::parentXIncludes);
 
     py::class_<mx::XmlWriteOptions>(mod, "XmlWriteOptions")
         .def(py::init())
