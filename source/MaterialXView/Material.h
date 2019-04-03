@@ -131,12 +131,14 @@ class Material
 
   protected:
     void bindUniform(const std::string& name, mx::ConstValuePtr value);
+    void updateUniformsList();
 
     GLShaderPtr _glShader;
     mx::ShaderPtr _hwShader;
     mx::TypedElementPtr _elem;
     std::string _udim;
     bool _hasTransparency;
+    mx::StringSet _uniformNames;
 };
 
 #endif // MATERIALXVIEW_MATERIAL_H

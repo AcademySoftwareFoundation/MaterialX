@@ -36,7 +36,7 @@ class PropertyEditor
   protected:
     void create(Viewer& parent);
     void addItemToForm(const mx::UIPropertyItem& item, const std::string& group,
-                       ng::FormHelper& form, Viewer* viewer);
+                       ng::FormHelper& form, Viewer* viewer, bool editable);
       
     bool _visible;
     ng::FormHelper* _form;

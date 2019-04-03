@@ -206,7 +206,38 @@ bool Material::loadSource(const mx::FilePath& vertexShaderFile, const mx::FilePa
         return false;
     }
 
-    return _glShader->init(shaderName, vertexShader, pixelShader);
+    bool initialized = _glShader->init(shaderName, vertexShader, pixelShader);
+    updateUniformsList();
+
+    return initialized;
+}
+
+void Material::updateUniformsList()
+{
+    _uniformNames.clear();
+
+    // Must bind to be able to inspect the uniforms
+    _glShader->bind();
+
+    int _programId = 0;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &_programId);
+    int uniformCount = -1;
+    int uniformSize = -1;
+    GLenum uniformType = 0;
+    int maxNameLength = 0;
+    glGetProgramiv(_programId, GL_ACTIVE_UNIFORMS, &uniformCount);
+    glGetProgramiv(_programId, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
+    char* uniformName = new char[maxNameLength];
+    for (int i = 0; i < uniformCount; i++)
+    {
+        glGetActiveUniform(_programId, GLuint(i), maxNameLength, nullptr, &uniformSize, &uniformType, uniformName);
+        GLint uniformLocation = glGetUniformLocation(_programId, uniformName);
+        if (uniformLocation >= 0)
+        {
+            _uniformNames.insert(uniformName);
+        }
+    }
+    delete[] uniformName;
 }
 
 bool Material::generateShader(mx::GenContext& context)
@@ -224,8 +255,7 @@ bool Material::generateShader(mx::GenContext& context)
         return false;
     }
 
-    // TODO: Add support for transparency detection
-    _hasTransparency = false;
+    _hasTransparency = context.getOptions().hwTransparency;
 
     if (!_glShader)
     {
@@ -234,6 +264,7 @@ bool Material::generateShader(mx::GenContext& context)
 
         _glShader = std::make_shared<ng::GLShader>();
         _glShader->init(_elem->getNamePath(), vertexShader, pixelShader);
+        updateUniformsList();
     }
     return true;
 }
@@ -483,7 +514,7 @@ void Material::bindLights(mx::HwLightHandlerPtr lightHandler, mx::GLTextureHandl
     }
 
     // Skip direct lights if unsupported by the shader.
-    if (_glShader->uniform("u_numActiveLightSources", false) == -1)
+    if (!directLighting || _glShader->uniform("u_numActiveLightSources", false) == -1)
     {
         return;
     }
@@ -573,15 +604,22 @@ mx::VariableBlock* Material::getPublicUniforms() const
 
 mx::ShaderPort* Material::findUniform(const std::string& path) const
 {
+    mx::ShaderPort* port = nullptr;
     mx::VariableBlock* publicUniforms = getPublicUniforms();
     if (publicUniforms)
     { 
         // Scan block based on path match predicate
-        return publicUniforms->find(
+        port = publicUniforms->find(
             [path](mx::ShaderPort* port)
             {
                 return (port && (port->getPath() == path));
             });
+
+        // Check if the uniform exists in the shader program
+        if (port && !_uniformNames.count(port->getName()))
+        {
+            port = nullptr;
+        }
     }
-    return nullptr;
+    return port;
 }
