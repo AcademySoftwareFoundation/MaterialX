@@ -32,6 +32,16 @@ ShaderNodeImplPtr GenContext::findNodeImplementation(const string& name)
     return it != _nodeImpls.end() ? it->second : nullptr;
 }
 
+void GenContext::clearNodeImplementations()
+{
+    _nodeImpls.clear();
+}
+
+void GenContext::clearUserData()
+{
+    _userData.clear();
+}
+
 void GenContext::addInputSuffix(const ShaderInput* input, const string& suffix)
 {
     _inputSuffix[input] = suffix;

@@ -261,9 +261,6 @@ void Viewer::setupLights(mx::DocumentPtr doc, const std::string& envRadiancePath
     // Create a new light handler
     _lightHandler = mx::HwLightHandler::create();
 
-    // Clear context light user data.
-    _genContext.popUserData(mx::HW::USER_DATA_LIGHT_SHADERS);
-
     try 
     {
         // Set lights on the generator. Set to empty if no lights found
@@ -319,6 +316,9 @@ void Viewer::initializeDocument(mx::DocumentPtr libraries)
         _genContext.registerSourceCodeSearchPath(_searchPath[i]);
     }
     _genContext.getShaderGenerator().setColorManagementSystem(cms);
+
+    // Clear user data if previously used.
+    _genContext.clearUserData();
 
     // Add lighting 
     setupLights(_doc, _envRadiancePath, _envIrradiancePath);
@@ -506,6 +506,11 @@ void Viewer::createLoadMaterialsInterface(Widget* parent, const std::string labe
                     if (newRenderables > 0)
                     {
                         updateMaterialSelections();
+
+                        // Clear cached implementations in case a nodedef 
+                        // or nodegraph has changed on disc.
+                        _genContext.clearNodeImplementations();
+
                         for (auto m : _materials)
                         {
                             m->generateShader(_genContext);

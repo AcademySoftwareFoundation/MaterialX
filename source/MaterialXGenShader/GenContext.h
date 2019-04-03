@@ -120,6 +120,9 @@ class GenContext
     /// or return nullptr if no implementation is found.
     ShaderNodeImplPtr findNodeImplementation(const string& name);
 
+    /// Clear all cached shader node implementation.
+    void clearNodeImplementations();
+
     /// Add user data to the context to make it
     /// available during shader generator.
     void pushUserData(const string& name, GenUserDataPtr data)
@@ -144,6 +147,9 @@ class GenContext
             it->second.pop_back();
         }
     }
+
+    /// Clear all user data from the context.
+    void clearUserData();
 
     /// Return user data with given name,
     /// or nullptr if no data is found.
