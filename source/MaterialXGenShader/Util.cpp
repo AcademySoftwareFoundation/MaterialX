@@ -15,105 +15,14 @@
 #include <sstream>
 #include <unordered_set>
 
-#if defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <direct.h>
-#else
-#include <dirent.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#endif
-
 namespace MaterialX
 {
 
-void makeDirectory(const string& directoryPath)
-{
-#if defined(_WIN32)
-    _mkdir(directoryPath.c_str());
-#else
-    mkdir(directoryPath.c_str(), 0777);
-#endif
-}
-
 string removeExtension(const string& filename)
 {
-    size_t lastDot = filename.find_last_of(".");
+    size_t lastDot = filename.find_last_of('.');
     if (lastDot == string::npos) return filename;
     return filename.substr(0, lastDot);
-}
-
-void getSubDirectories(const string& baseDirectory, StringVec& relativePaths)
-{
-    relativePaths.push_back(baseDirectory);
-
-#if defined(_WIN32)
-    WIN32_FIND_DATA fd;
-    HANDLE hFind = ::FindFirstFile((baseDirectory + "\\*").c_str(), &fd);
-    if (hFind != INVALID_HANDLE_VALUE)
-    {
-        do
-        {
-            string filename = fd.cFileName;
-            if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (filename != "." && filename != ".."))
-            {
-                string newBaseDirectory = baseDirectory + "\\" + filename;
-                getSubDirectories(newBaseDirectory, relativePaths);
-            }
-        } while (::FindNextFile(hFind, &fd));
-        ::FindClose(hFind);
-    }
-#else
-    struct dirent *entry = nullptr;
-    DIR* dir = opendir(baseDirectory.c_str());
-    if (dir)
-    {
-        while ((entry = readdir(dir)))
-        {
-            string filename = entry->d_name;
-            if (entry->d_type == DT_DIR && (filename != "." && filename != ".."))
-            {
-                string newBaseDirectory = baseDirectory + "/" + filename;
-                getSubDirectories(newBaseDirectory, relativePaths);
-            }
-        }
-        closedir(dir);
-    }
-#endif
-}
-
-void getFilesInDirectory(const string& directory, StringVec& files, const string& extension)
-{
-#if defined(_WIN32)
-    WIN32_FIND_DATA fd;
-    HANDLE hFind = ::FindFirstFile((directory + "/*." + extension).c_str(), &fd);
-    if (hFind != INVALID_HANDLE_VALUE)
-    {
-        do
-        {
-            if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-            {
-                files.push_back(fd.cFileName);
-            }
-        } while (::FindNextFile(hFind, &fd));
-        ::FindClose(hFind);
-    }
-#else
-    struct dirent *entry = nullptr;
-    DIR* dir = opendir(directory.c_str());
-    if (dir)
-    {
-        while ((entry = readdir(dir)))
-        {
-            if (entry->d_type != DT_DIR && getFileExtension(entry->d_name) == "mtlx")
-            {
-                files.push_back(entry->d_name);
-            }
-        }
-        closedir(dir);
-    }
-#endif
 }
 
 bool readFile(const string& filename, string& contents)
@@ -134,41 +43,22 @@ bool readFile(const string& filename, string& contents)
     return false;
 }
 
-string getFileExtension(const string& filename)
-{
-    size_t i = filename.rfind('.');
-    return i != string::npos ? filename.substr(i + 1) : EMPTY_STRING;
-}
-
 void loadDocuments(const FilePath& rootPath, const StringSet& skipFiles, 
                    vector<DocumentPtr>& documents, StringVec& documentsPaths)
 {
-    const string MTLX_EXTENSION("mtlx");
-
-    StringVec dirs;
-    string baseDirectory = rootPath;
-    getSubDirectories(baseDirectory, dirs);
-
-    for (const string& dir : dirs)
+    for (const FilePath& dir : rootPath.getSubDirectories())
     {
-        StringVec files;
-        getFilesInDirectory(dir, files, MTLX_EXTENSION);
-
-        for (const string& file : files)
+        for (const FilePath& file : dir.getFilesInDirectory(MTLX_EXTENSION))
         {
-            if (skipFiles.count(file) != 0)
+            if (!skipFiles.count(file))
             {
-                continue;
+                DocumentPtr doc = createDocument();
+                const FilePath filePath = dir / file;
+                readFromXmlFile(doc, filePath, dir);
+
+                documents.push_back(doc);
+                documentsPaths.push_back(filePath.asString());
             }
-
-            const FilePath filePath = FilePath(dir) / FilePath(file);
-            const string filename = filePath;
-
-            DocumentPtr doc = createDocument();
-            readFromXmlFile(doc, filename, dir);
-
-            documents.push_back(doc);
-            documentsPaths.push_back(filePath.asString());
         }
     }
 }

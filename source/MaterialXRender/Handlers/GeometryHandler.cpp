@@ -85,7 +85,7 @@ bool GeometryHandler::loadGeometry(const FilePath& filePath)
     bool loaded = false;
 
     std::pair <GeometryLoaderMap::iterator, GeometryLoaderMap::iterator> range;
-    string extension = MaterialX::getFileExtension(filePath);
+    string extension = filePath.getExtension();
     range = _geometryLoaders.equal_range(extension);
     GeometryLoaderMap::iterator first = --range.second;
     GeometryLoaderMap::iterator last = --range.first;

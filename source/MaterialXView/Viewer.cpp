@@ -65,8 +65,7 @@ mx::DocumentPtr loadLibraries(const mx::StringVec& libraryFolders, const mx::Fil
     for (const std::string& libraryFolder : libraryFolders)
     {
         mx::FilePath path = searchPath.find(libraryFolder);
-        mx::StringVec filenames;
-        mx::getFilesInDirectory(path.asString(), filenames, "mtlx");
+        mx::FilePathVec filenames = path.getFilesInDirectory("mtlx");
 
         for (const std::string& filename : filenames)
         {

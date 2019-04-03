@@ -64,18 +64,23 @@ bool ImageHandler::saveImage(const FilePath& filePath,
                              bool verticalFlip)
 {
     FilePath foundFilePath = findFile(filePath);
-
-    std::pair <ImageLoaderMap::iterator, ImageLoaderMap::iterator> range;
-    string extension = MaterialX::getFileExtension(foundFilePath);
-    range = _imageLoaders.equal_range(extension);
-    ImageLoaderMap::iterator first = --range.second;
-    ImageLoaderMap::iterator last = --range.first;
-    for (auto it = first; it != last; --it)
+    if (foundFilePath.isEmpty())
     {
-        bool saved = it->second->saveImage(foundFilePath, imageDesc, verticalFlip);
-        if (saved)
+        return false;
+    }
+
+    string extension = foundFilePath.getExtension();
+    ImageLoaderMap::reverse_iterator iter;
+    for (iter = _imageLoaders.rbegin(); iter != _imageLoaders.rend(); ++iter)
+    {
+        ImageLoaderPtr loader = iter->second;
+        if (loader && loader->supportedExtensions().count(extension))
         {
-            return true;
+            bool saved = iter->second->saveImage(foundFilePath, imageDesc, verticalFlip);
+            if (saved)
+            {
+                return true;
+            }
         }
     }
     return false;
@@ -84,18 +89,23 @@ bool ImageHandler::saveImage(const FilePath& filePath,
 bool ImageHandler::acquireImage(const FilePath& filePath, ImageDesc &imageDesc, bool /*generateMipMaps*/, const Color4* /*fallbackColor*/)
 {
     FilePath foundFilePath = findFile(filePath);
-
-    std::pair <ImageLoaderMap::iterator, ImageLoaderMap::iterator> range;
-    string extension = MaterialX::getFileExtension(foundFilePath);
-    range = _imageLoaders.equal_range(extension);
-    ImageLoaderMap::iterator first = --range.second;
-    ImageLoaderMap::iterator last= --range.first;
-    for (auto it = first; it != last; --it)
+    if (foundFilePath.isEmpty())
     {
-        bool acquired = it->second->acquireImage(foundFilePath, imageDesc, getRestrictions());
-        if (acquired)
+        return false;
+    }
+
+    string extension = foundFilePath.getExtension();
+    ImageLoaderMap::reverse_iterator iter;
+    for (iter = _imageLoaders.rbegin(); iter != _imageLoaders.rend(); ++iter)
+    {
+        ImageLoaderPtr loader = iter->second;
+        if (loader && loader->supportedExtensions().count(extension))
         {
-            return true;
+            bool acquired = loader->acquireImage(foundFilePath, imageDesc, getRestrictions());
+            if (acquired)
+            {
+                return true;
+            }
         }
     }
     return false;

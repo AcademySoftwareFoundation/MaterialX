@@ -29,14 +29,14 @@ void SourceCodeNode::initialize(const InterfaceElement& element, GenContext& con
 
     const Implementation& impl = static_cast<const Implementation&>(element);
 
-    const string& file = impl.getAttribute("file");
-    if (file.empty())
+    FilePath file = impl.getAttribute("file");
+    if (file.isEmpty())
     {
         throw ExceptionShaderGenError("No source file specified for implementation '" + impl.getName() + "'");
     }
 
     _functionSource = "";
-    _inlined = (getFileExtension(file) == "inline");
+    _inlined = (file.getExtension() == "inline");
 
     // Find the function name to use
     _functionName = impl.getAttribute("function");
@@ -49,7 +49,8 @@ void SourceCodeNode::initialize(const InterfaceElement& element, GenContext& con
 
     if (!readFile(context.resolveSourceFile(file), _functionSource))
     {
-        throw ExceptionShaderGenError("Can't find source file '" + file + "' used by implementation '" + impl.getName() + "'");
+        throw ExceptionShaderGenError("Can't find source file '" + file.asString() +
+                                      "' used by implementation '" + impl.getName() + "'");
     }
 
     if (_inlined)
