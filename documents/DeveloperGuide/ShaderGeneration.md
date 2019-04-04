@@ -5,7 +5,7 @@ A shader generation framework is implemented as part of MaterialX. This can help
 
 Note that this system has no runtime and the output produced is source code, not binary executable code. The source code produced needs to be compiled by a shading language compiler before being executed by the renderer. See Figure 1 for a high level overview of the system.
 
-![Shader generation with multiple shader generators](../../resources/Images/shadergen.png)
+![Shader generation with multiple shader generators](/documents/Images/shadergen.png)
 
 **Figure 1**: Shader generation with multiple shader generators.
 

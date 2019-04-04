@@ -2,13 +2,13 @@
 
 ## C++ Modules
 
-- [MaterialXCore](MaterialXCore): Support for the core MaterialX elements and graph traversal.
-- [MaterialXFormat](MaterialXFormat): Support for XML serialization and file accessor utilities.
-- [MaterialXGenShader](MaterialXGenShader) : Core shader generation support [1]
+  - [MaterialXCore](MaterialXCore): Support for the core MaterialX elements and graph traversal.
+  - [MaterialXFormat](MaterialXFormat): Support for XML serialization and file accessor utilities.
+  - [MaterialXGenShader](MaterialXGenShader) : Core shader generation support [1]
     - [MaterialXGenGlsl](MaterialXGenGlsl) : GLSL shading language generation support.
     - [MaterialXGenOsl](MaterialXGenOsl) : OSL shading language generation support.
-- [MaterialXTest](MaterialXTest) : Unit test module.
-The shader generation test suite resides [here](../resources/Materials/TestSuite).
+  - [MaterialXTest](MaterialXTest) : Unit test module. The shader generation test suite resides [here](../resources/Materials/TestSuite).
+  - [MaterialXView](MaterialXView) : Sample material viewer.
 
 ## Python Modules
 
