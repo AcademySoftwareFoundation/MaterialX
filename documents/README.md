@@ -2,5 +2,5 @@
 
 ## Folders
 
-- [DeveloperGuide](DeveloperGuide): Developer information
-- [Specification](Specification): MaterialX specifications
+-   [DeveloperGuide](DeveloperGuide): Developer information
+-   [Specification](Specification): MaterialX specifications
