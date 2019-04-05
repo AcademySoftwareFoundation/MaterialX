@@ -16,7 +16,7 @@ To open MaterialXView, open the **MaterialXView** executable found in the `bin/`
 Upon launching MaterialXView, a teapot model is automatically loaded.
 To change this preview geometry, click `Load Mesh` and navigate to `/resources/Geometry` for a list of available models.
 
-Currently files using the  OBJ file format are  supported. If a file contains more than `group`, then a `Select Geometry` option is available which lists the available groups. One group is chosen as the current *active* group. To change the *active* group click on the associated geometry group label to choose from a list of available groups.
+Currently, files using the  OBJ file format are  supported. If a file contains more than one `group`, then a `Select Geometry` option is available which lists the available groups. One group is chosen as the current *active* group. To change the *active* group, click the `Select Geometry` list to choose from a list of available groups.
 
 Under `Advanced Settings` it is possible to have a wireframe overlay displayed for the active group by choosing `Outline Selected Geometry`.
 
@@ -29,17 +29,17 @@ To adjust the attributes on the materials, click `Property Editor` to show or hi
 To load in more than one material:
 
 1.  Either have more than one renderable item specified in the input MaterialX document (.mtlx) or
-2.  Incrementally load in more materials by:
+2.  Include more than one renderable item in the input MaterialX document (.mtlx) by
     1.  Clicking on `Advanced Setting`s and enable `Merge Materials`.
     2.  Clicking on `Load Material` to select additional `.mtlx` files. The materials are listed under a `Assigned Material` option.
 
 To assign a renderable item to either an existing group or the entire object, click the `Assigned Material` list to switch among (between) the currently loaded materials.
 Alternatively the `LEFT` and `RIGHT` arrows can be used to cycle through the list.
 
-Note: Once you have loaded a material, it remains in the list even after you disable `Merge Materials`. After disabling this option the next load will reset the list to the
-renderable elements found in that document.
+Note: Once you have loaded a material, it remains in the list even after you disable `Merge Materials`.
+To clear the entries, reload the .mtlx file and the list will be refreshed to include only the renderable items from the MaterialX document.
 
-**Figure 1**. Snapshot showing the options for selecting *active* group and for that group the assigned material. In this case a group called `stand` has been assigned the material `M_jade`.
+**Figure 1**: The following image shows the options for selecting an active group and assigning a material for a group. In this example, a group called `stand` has been assigned the material `M_jade`.
 A wireframe overlay is applied to the `stand` geometry in the viewer.
 
 <img src="/documents/Images/MaterialXView_Materials_And_Geomtery_Groups.png" width="480">
@@ -48,7 +48,7 @@ A wireframe overlay is applied to the `stand` geometry in the viewer.
 
 **MaterialXView** currently provides built-in direct and indirect lighting (IBL). You can enable one or both by selecting `Advanced Settings > Lighting Options`.
 
-To improve the highlights on your material, increase the `Advanced Settings > Environment Samples`. This may cause your system to slow down, so you may want to balance speed with quality.
+To improve the indirect lighting highlights on your material, increase the `Advanced Settings > Environment Samples`. This may cause your system to slow down, so you may want to balance speed with quality.
 
 ### Utilites
 
