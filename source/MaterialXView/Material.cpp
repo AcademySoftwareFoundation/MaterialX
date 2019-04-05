@@ -514,7 +514,7 @@ void Material::bindLights(mx::HwLightHandlerPtr lightHandler, mx::GLTextureHandl
     }
 
     // Skip direct lights if unsupported by the shader.
-    if (!directLighting || _glShader->uniform("u_numActiveLightSources", false) == -1)
+    if (_glShader->uniform("u_numActiveLightSources", false) == -1)
     {
         return;
     }
