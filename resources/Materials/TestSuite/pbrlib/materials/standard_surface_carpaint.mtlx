@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.36">
-  <material name="M_carpaint">
+  <material name="Car_Paint">
     <shaderref name="SR_carpaint" node="standard_surface">
       <bindinput name="base" type="float" value="0.5" />
       <bindinput name="base_color" type="color3" value="0.1037792, 0.59212029, 0.85064936" />

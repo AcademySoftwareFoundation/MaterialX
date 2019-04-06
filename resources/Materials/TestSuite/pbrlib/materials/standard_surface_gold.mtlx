@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.36">
-  <material name="M_gold">
+  <material name="Gold">
     <shaderref name="SR_gold" node="standard_surface">
       <bindinput name="base" type="float" value="1" />
       <bindinput name="specular" type="float" value="0" />

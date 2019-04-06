@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.36">
-  <material name="M_jade">
+  <material name="Jade">
     <shaderref name="SR_jade" node="standard_surface">
       <bindinput name="base" type="float" value="0.5" />
       <bindinput name="base_color" type="color3" value="0.0603, 0.43979999, 0.19159999" />

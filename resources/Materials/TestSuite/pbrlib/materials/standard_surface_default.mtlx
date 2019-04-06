@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.36">
-  <material name="M_default">
+  <material name="Default">
     <shaderref name="SR_default" node="standard_surface">
     </shaderref>
   </material>

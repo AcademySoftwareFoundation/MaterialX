@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.36">
-  <material name="M_plastic">
+  <material name="Plastic">
     <shaderref name="SR_plastic" node="standard_surface">
       <bindinput name="base" type="float" value="1" />
       <bindinput name="base_color" type="color3" value="0.10470402, 0.24188282, 0.81800002" />

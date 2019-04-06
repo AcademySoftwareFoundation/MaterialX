@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.36">
-  <material name="M_copper">
+  <material name="Copper">
     <shaderref name="SR_copper" node="standard_surface">
       <bindinput name="base" type="float" value="1" />
       <bindinput name="specular" type="float" value="0" />

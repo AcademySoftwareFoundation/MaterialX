@@ -13,7 +13,7 @@
     <output name="out_roughness" type="float" nodename="image_roughness" />
   </nodegraph>
 
-  <material name="M_brass1">
+  <material name="Tiled_Brass">
     <shaderref name="SR_brass1" node="standard_surface">
       <bindinput name="base" type="float" value="1" />
       <bindinput name="specular" type="float" value="0" />
