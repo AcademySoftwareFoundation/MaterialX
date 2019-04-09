@@ -45,6 +45,9 @@
 #endif
 #include <MaterialXRender/Handlers/StbImageLoader.h>
 
+#include <MaterialXRender/Handlers/GeometryHandler.h>
+#include <MaterialXRender/Handlers/TinyObjLoader.h>
+
 #include <fstream>
 #include <iostream>
 #include <unordered_set>
@@ -93,15 +96,15 @@ static mx::GlslValidatorPtr createGLSLValidator(const std::string& fileName, std
         validator->initialize();
         validator->setImageHandler(imageHandler);
         validator->setLightHandler(nullptr);
-        mx::GeometryHandler& geometryHandler = validator->getGeometryHandler();
+        mx::GeometryHandlerPtr geometryHandler = validator->getGeometryHandler();
         std::string geometryFile;
         if (fileName.length())
         {
             geometryFile = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/") / mx::FilePath(fileName);
-            if (!geometryHandler.hasGeometry(geometryFile))
+            if (!geometryHandler->hasGeometry(geometryFile))
             {
-                geometryHandler.clearGeometry();
-                geometryHandler.loadGeometry(geometryFile);
+                geometryHandler->clearGeometry();
+                geometryHandler->loadGeometry(geometryFile);
             }
         }
         initialized = true;
@@ -601,7 +604,7 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
             bool validated = false;
             try
             {
-                mx::GeometryHandler& geomHandler = validator.getGeometryHandler();
+                mx::GeometryHandlerPtr geomHandler = validator.getGeometryHandler();
 
                 bool isShader = mx::elementRequiresShading(element);
                 if (isShader)
@@ -622,10 +625,10 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                     {
                         geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/shaderball.obj");
                     }
-                    if (!geomHandler.hasGeometry(geomPath))
+                    if (!geomHandler->hasGeometry(geomPath))
                     {
-                        geomHandler.clearGeometry();
-                        geomHandler.loadGeometry(geomPath);
+                        geomHandler->clearGeometry();
+                        geomHandler->loadGeometry(geomPath);
                     }
                     validator.setLightHandler(lightHandler);
                 }
@@ -647,10 +650,10 @@ static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr
                     {
                         geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/sphere.obj");
                     }
-                    if (!geomHandler.hasGeometry(geomPath))
+                    if (!geomHandler->hasGeometry(geomPath))
                     {
-                        geomHandler.clearGeometry();
-                        geomHandler.loadGeometry(geomPath);
+                        geomHandler->clearGeometry();
+                        geomHandler->loadGeometry(geomPath);
                     }
                     validator.setLightHandler(nullptr);
                 }
@@ -1198,6 +1201,82 @@ void printRunLog(const ShaderValidProfileTimes &profileTimes, const ShaderValidT
         // CHECK(implementationUseCount == libraryCount);
     }
 }
+
+struct GeomHandlerTestOptions
+{
+    mx::GeometryHandlerPtr geomHandler;
+    std::ofstream* logFile;
+
+    mx::StringSet testExtensions;
+    mx::StringVec skipExtensions;
+};
+
+void testGeomHandler(GeomHandlerTestOptions& options)
+{
+    mx::FilePath imagePath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/");
+    mx::FilePathVec files;
+
+    unsigned int loadFailed = 0;
+    for (const std::string& extension : options.testExtensions)
+    {
+        if (options.skipExtensions.end() != std::find(options.skipExtensions.begin(), options.skipExtensions.end(), extension))
+        {
+            continue;
+        }
+        files = imagePath.getFilesInDirectory(extension);
+        for (const mx::FilePath& file : files)
+        {
+            const mx::FilePath filePath = imagePath / file;
+            mx::ImageDesc desc;
+            bool loaded = options.geomHandler->loadGeometry(filePath);
+            if (options.logFile)
+            {
+                *(options.logFile) << "Loaded image: " << filePath.asString() << ". Loaded: " << loaded << std::endl;
+            }
+            if (!loaded)
+            {
+                loadFailed++;
+            }
+        }
+    }
+    CHECK(loadFailed == 0);
+}
+
+TEST_CASE("Render: Geometry Handler Load", "[rendercore]")
+{
+    std::ofstream geomHandlerLog;
+    geomHandlerLog.open("render_geom_handler_test.txt");
+    bool geomLoaded = false;
+    try
+    {
+        geomHandlerLog << "** Test TinyOBJ geom loader **" << std::endl;
+        mx::TinyObjLoaderPtr loader = mx::TinyObjLoader::create();
+        mx::GeometryHandlerPtr handler = mx::GeometryHandler::create();
+        handler->addLoader(loader);
+
+        GeomHandlerTestOptions options;
+        options.logFile = &geomHandlerLog;
+        options.geomHandler = handler;
+        handler->supportedExtensions(options.testExtensions);
+        testGeomHandler(options);
+
+        geomLoaded = true;
+    }
+    catch (mx::ExceptionShaderValidationError& e)
+    {
+        for (auto error : e.errorLog())
+        {
+            geomHandlerLog << e.what() << " " << error << std::endl;
+        }
+    }
+    catch (mx::Exception& e)
+    {
+        std::cout << e.what();
+    }
+    CHECK(geomLoaded);
+    geomHandlerLog.close();
+}
+
 
 struct ImageHandlerTestOptions
 {

@@ -145,7 +145,7 @@ class GlslProgram
 
     /// Bind inputs
     void bindInputs(ViewHandlerPtr viewHandler,
-                    GeometryHandler& geometryHandler,
+                    GeometryHandlerPtr geometryHandler,
                     ImageHandlerPtr imageHandler,
                     HwLightHandlerPtr lightHandler);
 

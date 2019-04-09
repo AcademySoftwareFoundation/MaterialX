@@ -68,9 +68,18 @@ class GeometryHandler
     /// Default destructor
     virtual ~GeometryHandler() {};
 
+    /// Static instance create function
+    static GeometryHandlerPtr create()
+    {
+        return std::make_shared<GeometryHandler>();
+    }
+
     /// Add a geometry loader
     /// @param loader Loader to add to list of available loaders.
     void addLoader(GeometryLoaderPtr loader);
+
+    /// Get a list of extensions supported by the handler
+    void supportedExtensions(StringSet& extensions);
 
     /// Clear all loaded geometry
     void clearGeometry();

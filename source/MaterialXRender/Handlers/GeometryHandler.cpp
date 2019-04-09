@@ -17,6 +17,16 @@ void GeometryHandler::addLoader(GeometryLoaderPtr loader)
     }
 }
 
+void GeometryHandler::supportedExtensions(StringSet& extensions)
+{
+    extensions.clear();
+    for (auto loader : _geometryLoaders)
+    {
+        const StringSet& loaderExtensions = loader.second->supportedExtensions();
+        extensions.insert(loaderExtensions.begin(), loaderExtensions.end());
+    }
+}
+
 void GeometryHandler::clearGeometry()
 {
     _meshes.clear();

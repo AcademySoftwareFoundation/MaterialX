@@ -58,8 +58,14 @@ add_custom_command(TARGET MaterialXView POST_BUILD
 add_custom_command(TARGET MaterialXView POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${CMAKE_SOURCE_DIR}/resources ${CMAKE_CURRENT_BINARY_DIR}/resources)
+if(MATERIALX_BUILD_OIIO AND OPENIMAGEIO_ROOT_DIR)
+    add_custom_command(TARGET MaterialXView POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${OPENIMAGEIO_ROOT_DIR}/bin ${CMAKE_CURRENT_BINARY_DIR})
+endif()
 
 install(TARGETS MaterialXView
         DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXView.pdb"
         DESTINATION "${CMAKE_INSTALL_PREFIX}/bin/" OPTIONAL)
+

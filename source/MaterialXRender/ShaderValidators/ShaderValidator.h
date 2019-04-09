@@ -72,7 +72,7 @@ class ShaderValidator
 
     /// Get geometry handler
     /// @return Reference to a geometry handler
-    GeometryHandler& getGeometryHandler()
+    GeometryHandlerPtr getGeometryHandler()
     {
         return _geometryHandler;
     }
@@ -131,7 +131,7 @@ class ShaderValidator
     ImageHandlerPtr _imageHandler;
 
     /// Utility geometry handler
-    GeometryHandler _geometryHandler;
+    GeometryHandlerPtr _geometryHandler;
 
     /// Utility light handler
     HwLightHandlerPtr _lightHandler;

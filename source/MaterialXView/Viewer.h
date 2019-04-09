@@ -135,7 +135,7 @@ class Viewer : public ng::Screen
     std::map<mx::MeshPartitionPtr, MaterialPtr> _materialAssignments;
 
     // Resource handlers
-    mx::GeometryHandler _geometryHandler;
+    mx::GeometryHandlerPtr _geometryHandler;
     mx::GLTextureHandlerPtr _imageHandler;
     mx::HwLightHandlerPtr _lightHandler;
 
