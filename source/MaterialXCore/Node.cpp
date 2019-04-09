@@ -111,7 +111,7 @@ OutputPtr Node::getNodeDefOutput(const Edge& edge)
         NodeDefPtr nodeDef = getNodeDef();
         if (nodeDef)
         {
-            return nodeDef->getOutput(input->getOutputString());
+            return nodeDef->getActiveOutput(input->getOutputString());
         }
     }
     return OutputPtr();

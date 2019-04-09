@@ -4,6 +4,10 @@ include_directories(
 )
 
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+if(NOT MATERIALX_BUILD_RENDER)
+    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/Render.cpp")
+endif()
+
 file(GLOB_RECURSE materialx_header "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 file(GLOB_RECURSE catch_headers "${CMAKE_CURRENT_SOURCE_DIR}/Catch/*.hpp")
 
@@ -30,6 +34,12 @@ add_test(NAME MaterialXTest
          COMMAND MaterialXTest
          WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
+if(MATERIALX_BUILD_OIIO AND OPENIMAGEIO_ROOT_DIR)
+    add_custom_command(TARGET MaterialXTest POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${OPENIMAGEIO_ROOT_DIR}/bin ${CMAKE_CURRENT_BINARY_DIR})
+endif()
+
 add_custom_command(TARGET MaterialXTest POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${CMAKE_SOURCE_DIR}/libraries ${CMAKE_CURRENT_BINARY_DIR}/libraries)
@@ -45,11 +55,28 @@ set_target_properties(
     VERSION "${MATERIALX_LIBRARY_VERSION}"
     SOVERSION "${MATERIALX_MAJOR_VERSION}")
 
-target_link_libraries(
-    MaterialXTest
+set (LIBS
     MaterialXCore
     MaterialXFormat
     MaterialXGenShader
     MaterialXGenOsl
     MaterialXGenGlsl
-    ${CMAKE_DL_LIBS})
+)
+
+# Add render libraries
+if (MATERIALX_BUILD_RENDER)
+    LIST(APPEND LIBS "MaterialXRender")
+    if (MATERIALX_BUILD_RENDEROSL)
+        LIST(APPEND LIBS "MaterialXRenderOsl")
+    endif()
+    if (MATERIALX_BUILD_RENDERGLSL)
+        LIST(APPEND LIBS "MaterialXRenderHw")
+        LIST(APPEND LIBS "MaterialXRenderGlsl")
+    endif()
+endif()
+
+target_link_libraries(
+    MaterialXTest ${LIBS}
+    ${CMAKE_DL_LIBS}
+)
+

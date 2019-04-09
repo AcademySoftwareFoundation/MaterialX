@@ -1,0 +1,3 @@
+[submodule "source/MaterialXView/NanoGUI"]
+	path = source/MaterialXView/NanoGUI
+	url = https://github.com/wjakob/nanogui

@@ -424,7 +424,7 @@ void Document::upgradeVersion()
         // Move connections from nodedef inputs to bindinputs.
         for (NodeDefPtr nodeDef : getNodeDefs())
         {
-            for (InputPtr input : nodeDef->getInputs())
+            for (InputPtr input : nodeDef->getActiveInputs())
             {
                 if (input->hasAttribute("opgraph") && input->hasAttribute("graphoutput"))
                 {

@@ -515,9 +515,9 @@ void ShaderGeneratorTester::testGeneration(const mx::GenOptions& generateOptions
         bool docValid = doc->validate(&message);
         if (!docValid)
         {
-            WARN("[" + doc->getSourceUri() + "] " + message);
+            _logFile << "Document is invalid: [" << doc->getSourceUri() << "] " << message;
         }
-        REQUIRE(docValid);
+        CHECK(docValid);
 
         // Traverse the renderable documents and run validation the validation step
         int missingNodeDefs = 0;

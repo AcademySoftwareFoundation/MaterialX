@@ -49,7 +49,8 @@ class VariableBlock;
 using VariableBlockPtr = std::shared_ptr<VariableBlock>;
 /// Shared pointer to a map between string identifiers and VariableBlocks
 using VariableBlockMap = std::unordered_map<string, VariableBlockPtr>;
-
+/// A standard function predicate taking an ShaderPort pointer and returning a boolean.
+using ShaderPortPredicate = std::function<bool(ShaderPort*)>;
 
 /// @class VariableBlock
 /// A block of variables in a shader stage
@@ -79,6 +80,9 @@ class VariableBlock
     /// Return a variable by index.
     const ShaderPort* operator[](size_t index) const { return _variableOrder[index]; }
 
+    /// Return a const reference to our variable order vector.
+    const vector<ShaderPort*>& getVariableOrder() const { return _variableOrder; }
+
     /// Return a variable by name. Throws exception if
     /// no variable is found by the given name.
     ShaderPort* operator[](const string& name);
@@ -94,6 +98,9 @@ class VariableBlock
     /// Return a variable by name. Returns nullptr if
     /// no variable is found by the given name.
     const ShaderPort* find(const string& name) const;
+
+    /// Find a port based on a predicate
+    ShaderPort* find(const ShaderPortPredicate& predicate);
 
     /// Add a new shader port to this block.
     ShaderPort* add(const TypeDesc* type, const string& name, ValuePtr value = nullptr);

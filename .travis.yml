@@ -5,12 +5,52 @@ matrix:
     # Standard builds
     - os: linux
       compiler: gcc
+      addons:
+        apt:
+          packages:
+            - libglu1-mesa-dev
+            - libxxf86vm-dev
+            - libxrandr-dev
+            - libxinerama-dev
+            - libxcursor-dev
+            - libxi-dev
+            - libx11-dev
     - os: linux
       compiler: clang
+      addons:
+        apt:
+          packages:
+            - libglu1-mesa-dev
+            - libxxf86vm-dev
+            - libxrandr-dev
+            - libxinerama-dev
+            - libxcursor-dev
+            - libxi-dev
+            - libx11-dev
     - os: osx
       compiler: gcc
+      addons:
+        apt:
+          packages:
+            - libglu1-mesa-dev
+            - libxxf86vm-dev
+            - libxrandr-dev
+            - libxinerama-dev
+            - libxcursor-dev
+            - libxi-dev
+            - libx11-dev
     - os: osx
       compiler: clang
+      addons:
+        apt:
+          packages:
+            - libglu1-mesa-dev
+            - libxxf86vm-dev
+            - libxrandr-dev
+            - libxinerama-dev
+            - libxcursor-dev
+            - libxi-dev
+            - libx11-dev
 
     # Custom builds
     - os: linux
@@ -22,6 +62,13 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-6
+            - libglu1-mesa-dev
+            - libxxf86vm-dev
+            - libxrandr-dev
+            - libxinerama-dev
+            - libxcursor-dev
+            - libxi-dev
+            - libx11-dev
     - os: linux
       compiler: gcc
       env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8 && CMAKE_EXTRA_ARGS='-DMATERIALX_PYTHON_LTO=OFF'"
@@ -31,6 +78,13 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-8
+            - libglu1-mesa-dev
+            - libxxf86vm-dev
+            - libxrandr-dev
+            - libxinerama-dev
+            - libxcursor-dev
+            - libxi-dev
+            - libx11-dev
     - os: linux
       compiler: clang
       env: MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
@@ -41,6 +95,13 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - clang-7
+            - libglu1-mesa-dev
+            - libxxf86vm-dev
+            - libxrandr-dev
+            - libxinerama-dev
+            - libxcursor-dev
+            - libxi-dev
+            - libx11-dev
 
 before_install:
   - eval "${MATRIX_EVAL}"

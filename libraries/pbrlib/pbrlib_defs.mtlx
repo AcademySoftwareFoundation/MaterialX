@@ -102,7 +102,7 @@
     <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
     <input name="distribution" type="string" value="ggx" enum="ggx"/>
     <input name="base" type="BSDF"/>
-</nodedef>
+  </nodedef>
 
   <!--
     Node: <subsurface_brdf>
@@ -262,7 +262,7 @@
     Calculates anisotropic surface roughness from a scalar roughness and anisotropy parameterization.
   -->
   <nodedef name="ND_roughness_anisotropy" node="roughness_anisotropy" type="roughnessinfo" nodegroup="pbr"
-           doc="Calculates anisotropic surface roughness from a scalar rougness/anisotropy parameterization.">
+           doc="Calculates anisotropic surface roughness from a scalar roughness/anisotropy parameterization.">
     <input name="roughness" type="float" value="0.0"/>
     <input name="anisotropy" type="float" value="0.0"/>
   </nodedef>

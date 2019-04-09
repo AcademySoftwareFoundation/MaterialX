@@ -18,6 +18,7 @@ configuration:
     
 install:
   - set PATH=%PYTHON%;%PATH%
+  - git submodule update --init --recursive
   
 build_script:
   - mkdir build
