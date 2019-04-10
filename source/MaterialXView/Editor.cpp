@@ -65,7 +65,7 @@ void PropertyEditor::create(Viewer& parent)
     _formWindow = new ng::Window(&parent, "Property Editor");
     ng::AdvancedGridLayout* layout = new ng::AdvancedGridLayout({ 10, 0, 10, 0 }, {});
     layout->setMargin(2);
-    layout->setColStretch(2, 0);
+    layout->setColStretch(2, 1);
     if (previousPosition.x() < 0)
         previousPosition.x() = 0;
     if (previousPosition.y() < 0)
