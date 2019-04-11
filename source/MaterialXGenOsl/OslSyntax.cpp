@@ -145,7 +145,7 @@ class OslColor4TypeSyntax : public OslStructTypeSyntax
 
     string getValue(const Value& value, bool uniform) const override
     {
-        std::stringstream ss;
+        StringStream ss;
 
         // Set float format and precision for the stream
         const Value::FloatFormat fmt = Value::getFloatFormat();
@@ -212,7 +212,7 @@ class OSLMatrix3TypeSyntax : public AggregateTypeSyntax
 
         // Write the value using a stream to maintain any float formatting set
         // using Value::setFloatFormat() and Value::setFloatPrecision()
-        std::stringstream ss;
+        StringStream ss;
         ss << getName() << "(";
         for (size_t i = 0; i<values.size(); i++)
         {

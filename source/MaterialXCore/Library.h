@@ -33,6 +33,8 @@ using StringVec = vector<string>;
 using StringMap = std::unordered_map<string, string>;
 /// A set of strings.
 using StringSet = std::set<string>;
+/// A string stream
+using StringStream = std::stringstream;
 
 /// @class Exception
 /// The base class for exceptions that are propagated from the MaterialX library

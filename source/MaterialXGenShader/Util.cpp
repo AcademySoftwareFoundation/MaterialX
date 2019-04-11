@@ -30,7 +30,7 @@ bool readFile(const string& filename, string& contents)
     std::ifstream file(filename, std::ios::in);
     if (file)
     {
-        std::stringstream stream;
+        StringStream stream;
         stream << file.rdbuf();
         file.close();
         if (stream)
@@ -583,7 +583,7 @@ ValueElementPtr findNodeDefChild(const string& path, DocumentPtr doc, const stri
 
     // Use the path element name to look up in the equivalent element
     // in the nodedef as only the nodedef elements contain the information.
-    const std::string& valueElementName = pathElement->getName();
+    const string& valueElementName = pathElement->getName();
     ValueElementPtr valueElement = nodeDef->getActiveValueElement(valueElementName);
 
     return valueElement;
