@@ -145,6 +145,10 @@ bool OiioImageLoader::acquireImage(const FilePath& filePath,
         if (imageInput->read_image(imageSpec.format, imageBuf))
         {
             imageDesc.resourceBuffer = imageBuf;
+            imageDesc.resourceBufferDeallocator = [](void* buffer)
+            {
+                free(buffer);
+            };
             read = true;
         }
     }

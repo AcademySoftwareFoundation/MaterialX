@@ -1305,6 +1305,8 @@ void testImageHandler(ImageHandlerTestOptions& options)
             const mx::FilePath filePath = imagePath / file;
             mx::ImageDesc desc;
             bool loaded = options.imageHandler->acquireImage(filePath, desc, false, nullptr);
+            desc.freeResourceBuffer();
+            CHECK(!desc.resourceBuffer);
             if (options.logFile)
             {
                 *(options.logFile) << "Loaded image: " << filePath.asString() << ". Loaded: " << loaded << std::endl;
@@ -1325,12 +1327,25 @@ TEST_CASE("Render: Image Handler Load", "[rendercore]")
     bool imagesLoaded = false;
     try
     {
+        // Create a stock color image
+        mx::ImageHandlerPtr imageHandler = mx::ImageHandler::create(nullptr);
+        mx::Color4 color(1.0f, 0.0f, 0.0f, 1.0f);
+        mx::ImageDesc desc;
+        bool createdColorImage = imageHandler->createColorImage(color, desc);
+        CHECK(!createdColorImage);
+        desc.width = 1;
+        desc.height = 1;
+        desc.channelCount = 3;
+        createdColorImage = imageHandler->createColorImage(color, desc);
+        CHECK(createdColorImage);
+        desc.freeResourceBuffer();
+        CHECK(!desc.resourceBuffer);
+
         ImageHandlerTestOptions options;
         options.logFile = &imageHandlerLog;
 
         imageHandlerLog << "** Test STB image loader **" << std::endl;
         mx::StbImageLoaderPtr stbLoader = mx::StbImageLoader::create();
-        mx::ImageHandlerPtr imageHandler = mx::ImageHandler::create(nullptr);
         imageHandler->addLoader(stbLoader);
         options.testExtensions = stbLoader->supportedExtensions();
         options.imageHandler = imageHandler;

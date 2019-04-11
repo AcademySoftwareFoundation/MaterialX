@@ -145,6 +145,8 @@ bool StbImageLoader::acquireImage(const FilePath& filePath, ImageDesc &imageDesc
         imageDesc.height = iheight;
         imageDesc.channelCount = ichannelCount;
         imageDesc.computeMipCount();
+        // Set the deallocator to be the one provided with the library
+        imageDesc.resourceBufferDeallocator = &stbi_image_free;
     }
     return (imageDesc.resourceBuffer != nullptr);
 }

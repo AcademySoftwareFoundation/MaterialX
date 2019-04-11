@@ -16,6 +16,22 @@ string ImageDesc::BASETYPE_FLOAT = "FLOAT";
 
 string ImageDesc::IMAGETYPE_2D = "IMAGE2D";
 
+void ImageDesc::freeResourceBuffer()
+{
+    if (resourceBuffer)
+    {
+        if (resourceBufferDeallocator)
+        {
+            resourceBufferDeallocator(resourceBuffer);
+        }
+        else
+        {
+            free(resourceBuffer);
+        }
+        resourceBuffer = nullptr;
+    }
+}
+
 string ImageLoader::BMP_EXTENSION = "bmp";
 string ImageLoader::EXR_EXTENSION = "exr";
 string ImageLoader::GIF_EXTENSION = "gif";
@@ -114,9 +130,15 @@ bool ImageHandler::acquireImage(const FilePath& filePath, ImageDesc &imageDesc, 
 bool ImageHandler::createColorImage(const Color4& color,
                                     ImageDesc& desc)
 {
+    unsigned int bufferSize = desc.width * desc.height * desc.channelCount;
+    if (bufferSize < 1)
+    {
+        return false;
+    }
+
     // Create a solid color image
     //
-    desc.resourceBuffer = new float[desc.width * desc.height * desc.channelCount];
+    desc.resourceBuffer = new float[bufferSize];
     float* pixel = static_cast<float*>(desc.resourceBuffer);
     for (size_t i = 0; i<desc.width; i++)
     {
@@ -129,6 +151,10 @@ bool ImageHandler::createColorImage(const Color4& color,
         }
     }
     desc.computeMipCount();
+    desc.resourceBufferDeallocator = [](void *buffer)
+    {
+        delete[] static_cast<float*>(buffer);
+    };
     return true;
 }
 
@@ -171,11 +197,16 @@ FilePath ImageHandler::findFile(const FilePath& filePath)
 
 void ImageHandler::deleteImage(ImageDesc& imageDesc)
 {
-    if (imageDesc.resourceBuffer)
+    imageDesc.freeResourceBuffer();
+}
+
+void ImageHandler::clearImageCache()
+{
+    for (auto iter : _imageCache)
     {
-        free(imageDesc.resourceBuffer);
-        imageDesc.resourceBuffer = nullptr;
+        deleteImage(iter.second);
     }
+    _imageCache.clear();
 }
 
 }
