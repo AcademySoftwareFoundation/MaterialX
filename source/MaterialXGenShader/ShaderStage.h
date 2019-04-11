@@ -218,7 +218,7 @@ class ShaderStage
     template<typename T>
     void addValue(const T& value)
     {
-        std::stringstream str;
+        StringStream str;
         str << value;
         _code += str.str();
     }

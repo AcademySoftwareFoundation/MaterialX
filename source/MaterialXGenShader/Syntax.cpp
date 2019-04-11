@@ -163,7 +163,7 @@ ValuePtr Syntax::getSwizzledValue(ValuePtr value, const TypeDesc* srcType, const
     const TypeSyntax& srcSyntax = getTypeSyntax(srcType);
     const vector<string>& srcMembers = srcSyntax.getMembers();
 
-    std::stringstream ss;
+    StringStream ss;
     string delimiter = ", ";
 
     for (size_t i = 0; i < channels.size(); ++i)
@@ -343,7 +343,7 @@ string ScalarTypeSyntax::getValue(const StringVec& values, bool /*uniform*/) con
     }
     // Write the value using a stream to maintain any float formatting set
     // using Value::setFloatFormat() and Value::setFloatPrecision()
-    std::stringstream ss;
+    StringStream ss;
     ss << values[0];
     return ss.str();
 }
@@ -381,7 +381,7 @@ string AggregateTypeSyntax::getValue(const StringVec& values, bool /*uniform*/) 
 
     // Write the value using a stream to maintain any float formatting set
     // using Value::setFloatFormat() and Value::setFloatPrecision()
-    std::stringstream ss;
+    StringStream ss;
     ss << getName() << "(" << values[0];
     for (size_t i=1; i<values.size(); ++i)
     {

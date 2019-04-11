@@ -32,7 +32,7 @@ template <class T> using enable_if_std_vector_t =
 
 template <class T> void stringToData(const string& value, T& data)
 {
-    std::stringstream ss(value);
+    StringStream ss(value);
     if (!(ss >> data))
     {
         throw ExceptionTypeError("Type mismatch in generic stringToData: " + value);
@@ -95,7 +95,7 @@ template <class T> void stringToData(const string& str, enable_if_std_vector_t<T
 
 template <class T> void dataToString(const T& data, string& str)
 {
-    std::stringstream ss;
+    StringStream ss;
 
     // Set float format and precision for the stream
     const Value::FloatFormat fmt = Value::getFloatFormat();

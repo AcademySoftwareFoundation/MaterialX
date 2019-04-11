@@ -27,7 +27,7 @@ using ChannelMap = std::unordered_map<char, int>;
 /// Descriptors for registered types can be retreived using TypeDesc::get(), see below.
 class TypeDesc
 {
-public:
+  public:
     enum BaseType
     {
         BASETYPE_NONE,
@@ -54,8 +54,8 @@ public:
     /// Register a type descriptor for a MaterialX data type.
     /// Throws an exception if a type with the same name is already registered.
     static const TypeDesc* registerType(const string& name, unsigned char basetype,
-        unsigned char semantic = SEMANTIC_NONE, int size = 1, bool editable = true,
-        const ChannelMap& channelMapping = ChannelMap());
+                                        unsigned char semantic = SEMANTIC_NONE, int size = 1, bool editable = true,
+                                        const ChannelMap& channelMapping = ChannelMap());
 
     /// Get a type descriptor for given name.
     /// Throws an exception if no type with that name is found.
@@ -105,8 +105,8 @@ public:
 
 private:
     TypeDesc(const string& name, unsigned char basetype,
-      unsigned char semantic, int size, bool editable,
-      const ChannelMap& channelMapping);
+             unsigned char semantic, int size, bool editable,
+             const ChannelMap& channelMapping);
 
     const string _name;
     const unsigned char _basetype;

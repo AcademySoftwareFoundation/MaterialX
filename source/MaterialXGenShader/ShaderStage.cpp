@@ -290,7 +290,7 @@ void ShaderStage::addBlock(const string& str, GenContext& context)
 
     // Add each line in the block seperatelly
     // to get correct indentation
-    std::stringstream stream(str);
+    StringStream stream(str);
     for (string line; std::getline(stream, line); )
     {
         size_t pos = line.find(INCLUDE);
