@@ -19,11 +19,19 @@
 
 namespace MaterialX
 {
+/// A function to perform image buffer deallocation
+using ImageBufferDeallocator = std::function<void(void*)>;
+
 /// @class ImageDesc
 /// Interface to describe an image. Images are assumed to be float type.
 class ImageDesc
 {
   public:
+    ~ImageDesc()
+    {
+        freeResourceBuffer();
+    }
+
     /// Image base type identifier
     using BaseType = string;
     /// Set of base type identifiers
@@ -56,12 +64,22 @@ class ImageDesc
     ImageType imageType = IMAGETYPE_2D;
     /// Hardware target dependent resource identifier. May be undefined.
     unsigned int resourceId = 0;
+    /// Deallocator to free resource buffer memory. If not defined then malloc() is
+    /// assumed to have been used to allocate the buffer and corresponding free() is
+    /// used to deallocate.
+    ImageBufferDeallocator resourceBufferDeallocator = [](void *buffer)
+    {
+        free(buffer);
+    };
 
     /// Compute the number of mip map levels based on size of the image
     void computeMipCount()
     {
         mipCount = (unsigned int)std::log2(std::max(width, height)) + 1;
     }
+
+    /// Free any resource buffer memory
+    void freeResourceBuffer();
 };
 
 /// Structure containing harware image description restrictions
@@ -182,7 +200,10 @@ class ImageHandler
     void addLoader(ImageLoaderPtr loader);
     
     /// Default destructor
-    virtual ~ImageHandler() { };
+    virtual ~ImageHandler() 
+    {
+        clearImageCache();
+    };
 
     /// Get a list of extensions supported by the handler
     void supportedExtensions(StringSet& extensions);
@@ -223,10 +244,7 @@ class ImageHandler
     /// Clear the contents of the image cache.
     /// deleteImage() will be called for each cache description to 
     /// allow derived classes to clean up any associated resources.
-    virtual void clearImageCache()
-    {
-        _imageCache.clear();
-    }
+    virtual void clearImageCache();
 
     /// Set to the search path used for finding image files.
     void setSearchPath(const FileSearchPath& path);

@@ -529,6 +529,8 @@ void GlslValidator::save(const FilePath& filePath, bool floatingPoint)
     desc.channelCount = 4;
     desc.resourceBuffer = buffer;
     bool saved = _imageHandler->saveImage(filePath, desc);
+
+    desc.resourceBuffer = nullptr;
     delete[] buffer;
 
     if (!saved)

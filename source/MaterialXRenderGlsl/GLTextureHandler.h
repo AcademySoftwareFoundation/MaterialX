@@ -71,9 +71,6 @@ class GLTextureHandler : public ImageHandler
     /// Utility to map a filter type enumeration to an OpenGL filter type
     static int mapFilterTypeToGL(int filterTypeEnum);
 
-    /// Clear image cache
-    void clearImageCache() override;
-
   protected:
     /// Delete an image
     /// @param imageDesc Image description indicate which image to delete.

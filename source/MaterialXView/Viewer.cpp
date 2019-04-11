@@ -973,6 +973,7 @@ void Viewer::drawContents()
             desc.resourceBuffer = buffer;
             desc.baseType = mx::ImageDesc::BASETYPE_UINT8;
             saved = _imageHandler->saveImage(_captureFrameFileName, desc, true);
+            desc.resourceBuffer = nullptr;
             delete[] buffer;
         }
         _captureFrame = false;

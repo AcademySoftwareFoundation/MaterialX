@@ -122,6 +122,8 @@ class PyImageHandler : public mx::ImageHandler
 
 void bindPyImageHandler(py::module& mod)
 {
+    py::class_<mx::ImageBufferDeallocator>(mod, "ImageBufferDeallocator");
+
     py::class_<mx::ImageDesc>(mod, "ImageDesc")
         .def_readwrite("width", &mx::ImageDesc::width)
         .def_readwrite("height", &mx::ImageDesc::height)
@@ -130,7 +132,9 @@ void bindPyImageHandler(py::module& mod)
         .def_readwrite("resourceBuffer", &mx::ImageDesc::resourceBuffer)
         .def_readwrite("baseType", &mx::ImageDesc::baseType)
         .def_readwrite("resourceId", &mx::ImageDesc::resourceId)
-        .def("computeMipCount", &mx::ImageDesc::computeMipCount);
+        .def_readwrite("resourceBufferDeallocator ", &mx::ImageDesc::resourceBufferDeallocator)
+        .def("computeMipCount", &mx::ImageDesc::computeMipCount)
+        .def("freeResourceBuffer", &mx::ImageDesc::freeResourceBuffer);
 
     py::class_<mx::ImageSamplingProperties>(mod, "ImageSamplingProperties")
         .def_readwrite("uaddressMode", &mx::ImageSamplingProperties::uaddressMode)
