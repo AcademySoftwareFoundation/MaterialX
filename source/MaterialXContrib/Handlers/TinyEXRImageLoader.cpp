@@ -80,6 +80,10 @@ bool TinyEXRImageLoader::acquireImage(const FilePath& filePath,
         if (returnValue == 0)
         {
             imageDesc.resourceBuffer = buffer;
+            imageDesc.resourceBufferDeallocator = [](void* buffer)
+            {
+                free(buffer);
+            };
             imageDesc.width = iwidth;
             imageDesc.height = iheight;
             imageDesc.baseType = ImageDesc::BASETYPE_FLOAT;
