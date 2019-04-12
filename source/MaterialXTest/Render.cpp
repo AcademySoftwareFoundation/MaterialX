@@ -396,7 +396,7 @@ void getGenerationOptions(const ShaderValidTestOptions& testOptions,
 
 #ifdef MATERIALX_BUILD_GEN_OGSFX
 static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPtr element,
-                               mx::GenContext& context, const mx::HwLightHandlerPtr lightHandler,
+                               mx::GenContext& context, const mx::LightHandlerPtr lightHandler,
                                mx::DocumentPtr doc, std::ostream& log, const ShaderValidTestOptions& testOptions,
                                ShaderValidProfileTimes& profileTimes, const std::string& outputPath = ".")
 {
@@ -1573,7 +1573,7 @@ TEST_CASE("Render: TestSuite", "[render]")
 #endif
 
 #if defined(MATERIALX_BUILD_GEN_OGSFX)
-    mx::HwLightHandlerPtr ogsfxLightHandler = nullptr;
+    mx::LightHandlerPtr ogsfxLightHandler = nullptr;
     if (options.runOGSFXTests)
     {
         AdditiveScopedTimer glslSetupLightingTimer(profileTimes.glslTimes.setupTime, "OGSFX setup lighting time");
@@ -1582,7 +1582,7 @@ TEST_CASE("Render: TestSuite", "[render]")
         {
             // Add lights as a dependency
             mx::GenOptions genOptions;
-            ogsfxLightHandler = mx::HwLightHandler::create();
+            ogsfxLightHandler = mx::LightHandler::create();
             createLightRig(dependLib, *ogsfxLightHandler, ogsfxContext,
                            options.radianceIBLPath, options.irradianceIBLPath);
         }
