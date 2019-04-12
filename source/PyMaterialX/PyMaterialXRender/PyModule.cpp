@@ -9,7 +9,7 @@ namespace py = pybind11;
 
 void bindPyMesh(py::module& mod);
 void bindPyGeometryHandler(py::module& mod);
-void bindPyHwLightHandler(py::module& mod);
+void bindPyLightHandler(py::module& mod);
 void bindPyImageHandler(py::module& mod);
 void bindPyStbImageLoader(py::module& mod);
 #ifdef MATERIALX_BUILD_OIIO
@@ -27,7 +27,7 @@ PYBIND11_MODULE(PyMaterialXRender, mod)
 
     bindPyMesh(mod);
     bindPyGeometryHandler(mod);
-    bindPyHwLightHandler(mod);
+    bindPyLightHandler(mod);
     bindPyImageHandler(mod);
     bindPyStbImageLoader(mod);
 #ifdef MATERIALX_BUILD_OIIO

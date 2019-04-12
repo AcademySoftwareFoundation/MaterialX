@@ -15,7 +15,7 @@
 #include <MaterialXRender/Handlers/ViewHandler.h>
 #include <MaterialXRender/Handlers/ImageHandler.h>
 #include <MaterialXRender/Handlers/GeometryHandler.h>
-#include <MaterialXRender/Handlers/HwLightHandler.h>
+#include <MaterialXRender/Handlers/LightHandler.h>
 
 #include <vector>
 #include <string>
@@ -147,7 +147,7 @@ class GlslProgram
     void bindInputs(ViewHandlerPtr viewHandler,
                     GeometryHandlerPtr geometryHandler,
                     ImageHandlerPtr imageHandler,
-                    HwLightHandlerPtr lightHandler);
+                    LightHandlerPtr lightHandler);
 
     /// Unbind inputs
     void unbindInputs(ImageHandlerPtr imageHandler);
@@ -181,7 +181,7 @@ class GlslProgram
     void unbindTextures(ImageHandlerPtr imageHandler);
 
     /// Bind lighting
-    void bindLighting(HwLightHandlerPtr lightHandler, ImageHandlerPtr imageHandler);
+    void bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr imageHandler);
 
     /// Bind view information
     void bindViewInformation(ViewHandlerPtr viewHandler);

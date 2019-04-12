@@ -14,7 +14,7 @@
 #include <MaterialXRender/Handlers/ImageHandler.h>
 #include <MaterialXRender/Handlers/GeometryHandler.h>
 #include <MaterialXRender/Handlers/ViewHandler.h>
-#include <MaterialXRender/Handlers/HwLightHandler.h>
+#include <MaterialXRender/Handlers/LightHandler.h>
 #include <vector>
 #include <string>
 
@@ -58,14 +58,14 @@ class ShaderValidator
 
     /// Set light handler to use for light bindings
     /// @param lightHandler Handler used for lights
-    void setLightHandler(const HwLightHandlerPtr lightHandler)
+    void setLightHandler(const LightHandlerPtr lightHandler)
     {
         _lightHandler = lightHandler;
     }
 
     /// Get light handler
     /// @return Shared pointer to a light handler
-    const HwLightHandlerPtr getLightHandler() const
+    const LightHandlerPtr getLightHandler() const
     {
         return _lightHandler;
     }
@@ -134,7 +134,7 @@ class ShaderValidator
     GeometryHandlerPtr _geometryHandler;
 
     /// Utility light handler
-    HwLightHandlerPtr _lightHandler;
+    LightHandlerPtr _lightHandler;
 
     /// Viewing utilities handler
     ViewHandlerPtr _viewHandler;

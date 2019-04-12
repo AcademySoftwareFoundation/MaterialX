@@ -4,7 +4,7 @@
 #include <MaterialXView/Editor.h>
 #include <MaterialXView/Material.h>
 #include <MaterialXRender/Handlers/GeometryHandler.h>
-#include <MaterialXRender/Handlers/HwLightHandler.h>
+#include <MaterialXRender/Handlers/LightHandler.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 namespace mx = MaterialX;
@@ -137,7 +137,7 @@ class Viewer : public ng::Screen
     // Resource handlers
     mx::GeometryHandlerPtr _geometryHandler;
     mx::GLTextureHandlerPtr _imageHandler;
-    mx::HwLightHandlerPtr _lightHandler;
+    mx::LightHandlerPtr _lightHandler;
 
     // Shader generator
     mx::GenContext _genContext;

@@ -5,25 +5,25 @@
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXRender/Handlers/HwLightHandler.h>
+#include <MaterialXRender/Handlers/LightHandler.h>
 
 namespace MaterialX
 {
 
-HwLightHandler::HwLightHandler()
+LightHandler::LightHandler()
 {
 }
 
-HwLightHandler::~HwLightHandler()
+LightHandler::~LightHandler()
 {
 }
 
-void HwLightHandler::addLightSource(NodePtr node)
+void LightHandler::addLightSource(NodePtr node)
 {
     _lightSources.push_back(node);
 }
 
-void HwLightHandler::mapNodeDefToIdentiers(const std::vector<NodePtr>& nodes,
+void LightHandler::mapNodeDefToIdentiers(const std::vector<NodePtr>& nodes,
                                            std::unordered_map<string, unsigned int>& ids)
 {
     unsigned int id = 1;
@@ -41,7 +41,7 @@ void HwLightHandler::mapNodeDefToIdentiers(const std::vector<NodePtr>& nodes,
     }
 }
 
-void HwLightHandler::findLights(DocumentPtr doc, std::vector<NodePtr>& lights)
+void LightHandler::findLights(DocumentPtr doc, std::vector<NodePtr>& lights)
 {
     lights.clear();
     for (NodePtr node : doc->getNodes())
@@ -54,7 +54,7 @@ void HwLightHandler::findLights(DocumentPtr doc, std::vector<NodePtr>& lights)
     }
 }
 
-void HwLightHandler::registerLights(DocumentPtr doc, const std::vector<NodePtr>& lights, GenContext& context)
+void LightHandler::registerLights(DocumentPtr doc, const std::vector<NodePtr>& lights, GenContext& context)
 {
     // Clear context light user data which is set when bindLightShader() 
     // is called. This is necessary in case the light types have already been

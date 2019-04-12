@@ -19,7 +19,7 @@
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
-#include <MaterialXRender/Handlers/HwLightHandler.h>
+#include <MaterialXRender/Handlers/LightHandler.h>
 #include <MaterialXRender/Util.h>
 
 #ifdef MATERIALX_BUILD_RENDERGLSL
@@ -58,7 +58,7 @@ namespace mx = MaterialX;
 
 #define LOG_TO_FILE
 
-void createLightRig(mx::DocumentPtr doc, mx::HwLightHandler& lightHandler, mx::GenContext& context,
+void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::GenContext& context,
                     const mx::FilePath& envIrradiancePath, const mx::FilePath& envRadiancePath)
 {
     // Scan for lights
@@ -507,7 +507,7 @@ static void runOGSFXValidation(const std::string& shaderName, mx::TypedElementPt
 // Outputs error log if validation fails
 //
 static void runGLSLValidation(const std::string& shaderName, mx::TypedElementPtr element, mx::GlslValidator& validator,
-                              mx::GenContext& context, const mx::HwLightHandlerPtr lightHandler,
+                              mx::GenContext& context, const mx::LightHandlerPtr lightHandler,
                               mx::DocumentPtr doc, std::ostream& log, const ShaderValidTestOptions& testOptions, ShaderValidProfileTimes& profileTimes,
                               const mx::FileSearchPath& imageSearchPath, const std::string& outputPath=".")
 {
@@ -1557,7 +1557,7 @@ TEST_CASE("Render: TestSuite", "[render]")
     importOptions.skipDuplicateElements = true;
 
 #if defined(MATERIALX_BUILD_RENDERGLSL)
-    mx::HwLightHandlerPtr glslLightHandler = nullptr;
+    mx::LightHandlerPtr glslLightHandler = nullptr;
     if (options.runGLSLTests)
     {
         AdditiveScopedTimer glslSetupLightingTimer(profileTimes.glslTimes.setupTime, "GLSL setup lighting time");
@@ -1565,7 +1565,7 @@ TEST_CASE("Render: TestSuite", "[render]")
         if (glslShaderGenerator)
         {
             // Add lights as a dependency
-            glslLightHandler = mx::HwLightHandler::create();
+            glslLightHandler = mx::LightHandler::create();
             createLightRig(dependLib, *glslLightHandler, glslContext,
                            options.radianceIBLPath, options.irradianceIBLPath);
         }

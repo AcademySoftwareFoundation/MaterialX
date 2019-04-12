@@ -3,8 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_HWLIGHTHANDLER_H
-#define MATERIALX_HWLIGHTHANDLER_H
+#ifndef MATERIALX_LIGHTHANDLER_H
+#define MATERIALX_LIGHTHANDLER_H
 
 /// @file
 /// Handler for hardware lights
@@ -20,23 +20,23 @@ namespace MaterialX
 class GenContext;
 
 /// Shared pointer to a LightHandler
-using HwLightHandlerPtr = std::shared_ptr<class HwLightHandler>;
+using LightHandlerPtr = std::shared_ptr<class LightHandler>;
 
-/// @class HwLightHandler
+/// @class LightHandler
 /// Utility light handler for creating and providing
 /// light data for shader binding.
 ///
-class HwLightHandler
+class LightHandler
 {
   public:
     /// Static instance create function
-    static HwLightHandlerPtr create() { return std::make_shared<HwLightHandler>(); }
+    static LightHandlerPtr create() { return std::make_shared<LightHandler>(); }
 
     /// Default constructor
-    HwLightHandler();
+    LightHandler();
 
     /// Default destructor
-    virtual ~HwLightHandler();
+    virtual ~LightHandler();
 
     /// Adds a light source node
     void addLightSource(NodePtr node);

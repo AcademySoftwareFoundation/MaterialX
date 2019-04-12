@@ -471,7 +471,7 @@ void Material::bindUniform(const std::string& name, mx::ConstValuePtr value)
     }
 }
 
-void Material::bindLights(mx::HwLightHandlerPtr lightHandler, mx::GLTextureHandlerPtr imageHandler, 
+void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandlerPtr imageHandler, 
                           const mx::FileSearchPath& imagePath, int envSamples, bool directLighting, 
                           bool indirectLighting)
 {

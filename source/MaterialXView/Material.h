@@ -9,7 +9,7 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
-#include <MaterialXRender/Handlers/HwLightHandler.h>
+#include <MaterialXRender/Handlers/LightHandler.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
 
 #include <nanogui/common.h>
@@ -111,7 +111,7 @@ class Material
                    mx::ImageDesc& desc, const std::string& udim = mx::EMPTY_STRING, mx::Color4* fallbackColor = nullptr);
 
     /// Bind lights to shader.
-    void bindLights(mx::HwLightHandlerPtr lightHandler, mx::GLTextureHandlerPtr imageHandler, const mx::FileSearchPath& imagePath, 
+    void bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandlerPtr imageHandler, const mx::FileSearchPath& imagePath, 
                     int envSamples, bool directLighting, bool indirectLighting);
 
     /// Bind the given mesh to this material.
