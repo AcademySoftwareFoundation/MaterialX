@@ -259,7 +259,7 @@ void Viewer::setupLights(mx::DocumentPtr doc, const std::string& envRadiancePath
     }
 
     // Create a new light handler
-    _lightHandler = mx::HwLightHandler::create();
+    _lightHandler = mx::LightHandler::create();
 
     try 
     {
