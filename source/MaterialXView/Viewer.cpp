@@ -801,7 +801,7 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
             std::string fileName = ng::file_dialog(filetypes, true);
             if (!fileName.empty())
             {
-                std::string fileExtension = (fileName.substr(fileName.find_last_of(".") + 1));
+                std::string fileExtension = mx::FilePath(fileName).getExtension();
                 if (extensions.count(fileExtension) == 0)
                 {
                     fileName += "." + *extensions.begin();
@@ -951,7 +951,7 @@ void Viewer::drawContents()
 
     if (_captureFrame)
     {
-        bool saved = false;
+        _captureFrame = false;
 
         glFlush();
         glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -961,23 +961,18 @@ void Viewer::drawContents()
         int w = mSize.x() * static_cast<int>(mPixelRatio);
         int h = mSize.y() * static_cast<int>(mPixelRatio);
         size_t bufferSize = w * h * 3;
-        uint8_t* buffer = new uint8_t[bufferSize];
-        if (buffer)
-        {
-            glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+        std::vector<uint8_t> buffer(bufferSize);
+        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
 
-            mx::ImageDesc desc;
-            desc.width = w;
-            desc.height = h;
-            desc.channelCount = 3;
-            desc.resourceBuffer = buffer;
-            desc.baseType = mx::ImageDesc::BASETYPE_UINT8;
-            saved = _imageHandler->saveImage(_captureFrameFileName, desc, true);
-            desc.resourceBuffer = nullptr;
-            delete[] buffer;
-        }
-        _captureFrame = false;
+        mx::ImageDesc desc;
+        desc.width = w;
+        desc.height = h;
+        desc.channelCount = 3;
+        desc.resourceBuffer = buffer.data();
+        desc.baseType = mx::ImageDesc::BASETYPE_UINT8;
 
+        bool saved = _imageHandler->saveImage(_captureFrameFileName, desc, true);
+        desc.resourceBuffer = nullptr;
         if (!saved)
         {
             new ng::MessageDialog(this, ng::MessageDialog::Type::Information,
