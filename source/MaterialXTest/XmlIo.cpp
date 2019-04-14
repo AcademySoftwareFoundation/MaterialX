@@ -14,7 +14,7 @@ namespace mx = MaterialX;
 TEST_CASE("Load content", "[xmlio]")
 {
     mx::FilePath libraryPath("libraries/stdlib");
-    mx::FilePath examplesPath("resources/Materials/Examples");
+    mx::FilePath examplesPath("resources/Materials/Examples/Syntax");
     std::string searchPath = libraryPath.asString() +
                              mx::PATH_LIST_SEPARATOR +
                              examplesPath.asString();
