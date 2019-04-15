@@ -3,6 +3,7 @@
 MaterialX is an open standard for transfer of rich material and look-development content between applications and renderers.  Originated at Lucasfilm in 2012, MaterialX has been used by Industrial Light & Magic (ILM) in feature films such as _Star Wars: The Force Awakens_ and real-time experiences such as _Trials on Tatooine_, and it remains the central material format for new ILM productions.
 
 ### Quick Start for Developers
+
 - Download the latest version of the [CMake](https://cmake.org) build system.
 - Point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
 - Select the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
@@ -10,6 +11,7 @@ MaterialX is an open standard for transfer of rich material and look-development
 ### Supported Platforms
 
 The MaterialX codebase requires a compiler with support for C++11, and can be built with any of the following:
+
 - Microsoft Visual Studio 2015 or newer
 - GCC 4.8 or newer
 - Clang 3.3 or newer
