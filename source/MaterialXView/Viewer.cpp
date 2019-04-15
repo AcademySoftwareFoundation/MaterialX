@@ -89,8 +89,8 @@ mx::DocumentPtr loadLibraries(const mx::StringVec& libraryFolders, const mx::Fil
 
 Viewer::Viewer(const mx::StringVec& libraryFolders,
                const mx::FileSearchPath& searchPath,
-               const std::string meshFilename,
-               const std::string materialFilename,
+               const std::string& meshFilename,
+               const std::string& materialFilename,
                const DocumentModifiers& modifiers,
                int multiSampleCount) :
     ng::Screen(ng::Vector2i(1280, 960), "MaterialXView",
@@ -210,7 +210,7 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
         Material::loadDocument(_doc, _searchPath.find(_materialFilename), _stdLib, _modifiers, _materials);
         updateMaterialSelections();
         setMaterialSelection(0);
-        if (_materials.size())
+        if (!_materials.empty())
         {
             assignMaterial(_materials[0]);
         }
@@ -502,7 +502,7 @@ void Viewer::createLoadMaterialsInterface(Widget* parent, const std::string labe
                             // material to it.
                             mx::StringVec geomList;
                             std::string geom = assignment->getGeom();
-                            if (geom.size())
+                            if (!geom.empty())
                             {
                                 geomList.push_back(geom);
                             }
@@ -640,15 +640,14 @@ void Viewer::updateGeometrySelections()
     }
 
     std::vector<std::string> items;
-    for (size_t i = 0; i < _geometryList.size(); i++)
+    for (const mx::MeshPartitionPtr& part : _geometryList)
     {
-        std::string geomName = _geometryList[i]->getIdentifier();
+        std::string geomName = part->getIdentifier();
         mx::StringVec geomSplit = mx::splitString(geomName, ":");
         if (!geomSplit.empty() && !geomSplit[geomSplit.size() - 1].empty())
         {
             geomName = geomSplit[geomSplit.size() - 1];
         }
-
         items.push_back(geomName);
     }
     _geometryListBox->setItems(items);
@@ -823,7 +822,7 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
                 {
                     updateMaterialSelections();
                     setMaterialSelection(0);
-                    if (_materials.size())
+                    if (!_materials.empty())
                     {
                         assignMaterial(_materials[0]);
                     }

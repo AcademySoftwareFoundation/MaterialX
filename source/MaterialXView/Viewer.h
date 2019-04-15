@@ -15,8 +15,8 @@ class Viewer : public ng::Screen
   public:
     Viewer(const mx::StringVec& libraryFolders,
            const mx::FileSearchPath& searchPath,
-           const std::string meshFilename,
-           const std::string materialFilename,
+           const std::string& meshFilename,
+           const std::string& materialFilename,
            const DocumentModifiers& modifiers,
            int multiSampleCount);
     ~Viewer() { }
