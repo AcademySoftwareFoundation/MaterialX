@@ -1,6 +1,6 @@
 # Change Log
 
-## \[1.36.3] - Development
+## [1.36.3] - Development
 
 Merged shader code generation and PBR node support from Autodesk's ShaderX extensions.
 
@@ -13,7 +13,7 @@ Merged shader code generation and PBR node support from Autodesk's ShaderX exten
 ### Changed
 - Moved the MaterialX data libraries from 'documents/Libraries' to 'libraries'.
 
-## \[1.36.2] - 2019-03-05
+## [1.36.2] - 2019-03-05
 
 ### Added
 - Added support for 'nodedef' attributes on MaterialX\:\:Node, integrating this usage into GraphElement\:\:addNodeInstance.
@@ -27,10 +27,10 @@ Merged shader code generation and PBR node support from Autodesk's ShaderX exten
 - Added callbacks Observer\:\:onCopyContent and Observer\:\:onClearContent, and removed callback Observer::onInitialize.
 - Moved the standard document library to the 'documents/Libraries/stdlib' folder.
 
-## \[1.36.1] - 2018-12-18
+## [1.36.1] - 2018-12-18
 
 ### Added
-- Added support for interface tokens, including the MaterialX\:\:BindToken class and '\[TOKEN]' syntax in filenames.
+- Added support for interface tokens, including the MaterialX\:\:BindToken class and '[TOKEN]' syntax in filenames.
 - Added support for Clang 6.
 
 ### Changed
@@ -44,7 +44,7 @@ Merged shader code generation and PBR node support from Autodesk's ShaderX exten
 ### Fixed
 - Fixed graph implementations of range, extract, tiledimage, and ramp4 nodes.
 
-## \[1.36.0] - 2018-07-23
+## [1.36.0] - 2018-07-23
 
 Updated the MaterialX library to the v1.36 specification.
 
@@ -67,7 +67,7 @@ Updated the MaterialX library to the v1.36 specification.
 - Removed the 'channels' attribute from MaterialX\:\:InterfaceElement.
 - Removed the Material::getReferencingMaterialAssigns method (deprecated in Python).
 
-## \[1.35.5] - 2018-05-07
+## [1.35.5] - 2018-05-07
 
 ### Added
 - Added material inheritance support to graph traversal and the high-level Material API.
@@ -83,7 +83,7 @@ Updated the MaterialX library to the v1.36 specification.
 - Renamed VectorN\:\:length to VectorN\:\:numElements.
 - Updated Python bindings to PyBind11 2.2.1.
 
-## \[1.35.4] - 2017-12-18
+## [1.35.4] - 2017-12-18
 
 ### Added
 - Added high-level Material API, including getPrimaryShaderParameters, getPrimaryShaderInputs, getBoundGeomStrings, and getBoundGeomCollections.
@@ -104,7 +104,7 @@ Updated the MaterialX library to the v1.36 specification.
 - Removed method Document\:\:applyStringSubstitutions (deprecated in Python).
 - Removed method InterfaceElement\:\:getParameterValueString (deprecated in Python).
 
-## \[1.35.3] - 2017-10-11
+## [1.35.3] - 2017-10-11
 
 ### Added
 - Added support for Python 3.
@@ -122,7 +122,7 @@ Updated the MaterialX library to the v1.36 specification.
 - Fixed handling of empty names in Element\:\:addChildOfCategory.
 - Fixed an edge case in Document\:\:upgradeVersion.
 
-## \[1.35.2] - 2017-07-03
+## [1.35.2] - 2017-07-03
 
 ### Added
 - Added OSL source files for the standard nodes.
@@ -135,17 +135,17 @@ Updated the MaterialX library to the v1.36 specification.
 ### Fixed
 - Fixed handling of BindInput elements with missing connections.
 
-## \[1.35.1] - 2017-06-23
+## [1.35.1] - 2017-06-23
 
 ### Added
 - Added a 'viewercollection' attribute to MaterialX\:\:Visibility.
 - Added Python support for visibility and source URI methods.
 
 ### Changed
-- Changed naming convention from 'ColorSpace' to 'ColorManagement' in Document   methods.
+- Changed naming convention from 'ColorSpace' to 'ColorManagement' in Document methods.
 - Split library document 'mx_stdlib.mtlx' into 'mx_stdlib_defs.mtlx' and 'mx_stdlib_osl_impl.mtlx'.
 
-## \[1.35.0] - 2017-06-20
+## [1.35.0] - 2017-06-20
 
 Updated the MaterialX library to the v1.35 specification.
 
@@ -162,7 +162,7 @@ Updated the MaterialX library to the v1.35 specification.
 - Renamed Material\:\:getMaterialAssigns to Material\:\:getReferencingMaterialAssigns.
 - Changed the argument type for MaterialAssign\:\:setExclusive and MaterialAssign\:\:getExclusive to boolean.
 
-## \[1.34.4] - 2017-06-09
+## [1.34.4] - 2017-06-09
 
 ### Added
 - Added support for graph-based implementations of nodes.
@@ -177,7 +177,7 @@ Updated the MaterialX library to the v1.35 specification.
 ### Fixed
 - Fixed an issue where connecting elements were not returned in graph traversal edges.
 
-## \[1.34.3] - 2017-05-16
+## [1.34.3] - 2017-05-16
 
 ### Added
 - Added support for document validation, including the Document\:\:validate and Element\:\:validate methods.
