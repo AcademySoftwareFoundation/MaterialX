@@ -5,7 +5,7 @@
 
 #include <PyMaterialX/PyMaterialX.h>
 
-#include <MaterialXRender/ShaderValidators/ShaderValidator.h>
+#include <MaterialXRender/ShaderValidator.h>
 
 namespace py = pybind11;
 namespace mx = MaterialX;

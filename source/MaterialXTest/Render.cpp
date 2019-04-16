@@ -16,7 +16,7 @@
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 
 #include <MaterialXRender/Util.h>
-#include <MaterialXRender/ShaderValidators/ExceptionShaderValidationError.h>
+#include <MaterialXRender/ExceptionShaderValidationError.h>
 
 #include <MaterialXTest/RenderUtil.h>
 
@@ -24,12 +24,12 @@
 #include <MaterialXContrib/Handlers/TinyEXRImageLoader.h>
 #endif
 #ifdef MATERIALX_BUILD_OIIO
-#include <MaterialXRender/Handlers/OiioImageLoader.h>
+#include <MaterialXRender/OiioImageLoader.h>
 #endif
-#include <MaterialXRender/Handlers/StbImageLoader.h>
+#include <MaterialXRender/StbImageLoader.h>
 
-#include <MaterialXRender/Handlers/GeometryHandler.h>
-#include <MaterialXRender/Handlers/TinyObjLoader.h>
+#include <MaterialXRender/GeometryHandler.h>
+#include <MaterialXRender/TinyObjLoader.h>
 
 #include <fstream>
 #include <iostream>
@@ -189,16 +189,6 @@ TEST_CASE("Render: Image Handler Load", "[rendercore]")
         options.testExtensions = stbLoader->supportedExtensions();
         options.imageHandler = imageHandler;
         testImageHandler(options);
-
-#ifdef MATERIALX_BUILD_CONTRIB
-        imageHandlerLog << "** Test TinyEXR image loader **" << std::endl;
-        mx::TinyEXRImageLoaderPtr exrLoader = mx::TinyEXRImageLoader::create();
-        mx::ImageHandlerPtr imageHandler2 = mx::ImageHandler::create(nullptr);
-        imageHandler2->addLoader(exrLoader);
-        options.testExtensions = exrLoader->supportedExtensions();
-        options.imageHandler = imageHandler2;
-        testImageHandler(options);
-#endif
 
 #if defined(MATERIALX_BUILD_OIIO) && defined(OPENIMAGEIO_ROOT_DIR)
         imageHandlerLog << "** Test OpenImageIO image loader **" << std::endl;

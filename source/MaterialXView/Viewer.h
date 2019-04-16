@@ -3,8 +3,8 @@
 
 #include <MaterialXView/Editor.h>
 #include <MaterialXView/Material.h>
-#include <MaterialXRender/Handlers/GeometryHandler.h>
-#include <MaterialXRender/Handlers/LightHandler.h>
+#include <MaterialXRender/GeometryHandler.h>
+#include <MaterialXRender/LightHandler.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 namespace mx = MaterialX;
@@ -15,8 +15,8 @@ class Viewer : public ng::Screen
   public:
     Viewer(const mx::StringVec& libraryFolders,
            const mx::FileSearchPath& searchPath,
-           const std::string meshFilename,
-           const std::string materialFilename,
+           const std::string& meshFilename,
+           const std::string& materialFilename,
            const DocumentModifiers& modifiers,
            int multiSampleCount);
     ~Viewer() { }

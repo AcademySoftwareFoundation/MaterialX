@@ -76,7 +76,7 @@ void RenderTestOptions::print(std::ostream& output) const
     output << "\tSave Images: " << saveImages << std::endl;
     output << "\tDump uniforms and Attributes  " << dumpUniformsAndAttributes << std::endl;
     output << "\tNon-Shaded Geometry: " << unShadedGeometry.asString() << std::endl;
-    output << "\tShaderdGeometry: " << shadedGeometry.asString() << std::endl;
+    output << "\tShaded Geometry: " << shadedGeometry.asString() << std::endl;
     output << "\tRadiance IBL File Path " << radianceIBLPath.asString() << std::endl;
     output << "\tIrradiance IBL File Path: " << irradianceIBLPath.asString() << std::endl;
 }

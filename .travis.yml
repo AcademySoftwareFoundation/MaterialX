@@ -1,5 +1,22 @@
 language: cpp
 
+addons:
+  apt:
+    sources:
+      - llvm-toolchain-trusty-7
+      - ubuntu-toolchain-r-test
+    packages:
+      - libglu1-mesa-dev
+      - libxxf86vm-dev
+      - libxrandr-dev
+      - libxinerama-dev
+      - libxcursor-dev
+      - libxi-dev
+      - libx11-dev
+      - g++-6
+      - g++-8
+      - clang-7
+
 matrix:
   include:
     # Standard builds
@@ -7,56 +24,16 @@ matrix:
       compiler: gcc
       env: CONFIG=Debug
       if: tag IS present
-      addons:
-        apt:
-          packages:
-            - libglu1-mesa-dev
-            - libxxf86vm-dev
-            - libxrandr-dev
-            - libxinerama-dev
-            - libxcursor-dev
-            - libxi-dev
-            - libx11-dev
     - os: linux
       compiler: gcc
       env: CONFIG=Release
-      addons:
-        apt:
-          packages:
-            - libglu1-mesa-dev
-            - libxxf86vm-dev
-            - libxrandr-dev
-            - libxinerama-dev
-            - libxcursor-dev
-            - libxi-dev
-            - libx11-dev
     - os: linux
       compiler: gcc
       env: CONFIG=RelWithDebInfo
       if: tag IS present
-      addons:
-        apt:
-          packages:
-            - libglu1-mesa-dev
-            - libxxf86vm-dev
-            - libxrandr-dev
-            - libxinerama-dev
-            - libxcursor-dev
-            - libxi-dev
-            - libx11-dev
     - os: linux
       compiler: clang
       env: CONFIG=Release
-      addons:
-        apt:
-          packages:
-            - libglu1-mesa-dev
-            - libxxf86vm-dev
-            - libxrandr-dev
-            - libxinerama-dev
-            - libxcursor-dev
-            - libxi-dev
-            - libx11-dev
     - os: osx
       compiler: gcc
       env: CONFIG=Debug
@@ -76,52 +53,12 @@ matrix:
     - os: linux
       compiler: gcc
       env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-6
-            - libglu1-mesa-dev
-            - libxxf86vm-dev
-            - libxrandr-dev
-            - libxinerama-dev
-            - libxcursor-dev
-            - libxi-dev
-            - libx11-dev
     - os: linux
       compiler: gcc
       env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8 && CMAKE_EXTRA_ARGS='-DMATERIALX_PYTHON_LTO=OFF'"
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-8
-            - libglu1-mesa-dev
-            - libxxf86vm-dev
-            - libxrandr-dev
-            - libxinerama-dev
-            - libxcursor-dev
-            - libxi-dev
-            - libx11-dev
     - os: linux
       compiler: clang
       env: MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
-      addons:
-        apt:
-          sources:
-            - llvm-toolchain-trusty-7
-            - ubuntu-toolchain-r-test
-          packages:
-            - clang-7
-            - libglu1-mesa-dev
-            - libxxf86vm-dev
-            - libxrandr-dev
-            - libxinerama-dev
-            - libxcursor-dev
-            - libxi-dev
-            - libx11-dev
 
 before_install:
   - eval "${MATRIX_EVAL}"
@@ -129,7 +66,7 @@ before_install:
 script:
   - mkdir build
   - cd build
-  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -DCMAKE_BUILD_TYPE="${CONFIG}" ${CMAKE_EXTRA_ARGS} ..
+  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -DCMAKE_BUILD_TYPE="${CONFIG}" ${CMAKE_EXTRA_ARGS} ..
   - cmake --build . --target install --config "${CONFIG}" -- -j4
   - ctest -VV --output-on-failure --build-config "${CONFIG}"
   - export PYTHONPATH=$PYTHONPATH:$PWD/installed/python

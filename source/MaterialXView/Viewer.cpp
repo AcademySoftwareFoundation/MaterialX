@@ -4,9 +4,9 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXRender/Util.h>
-#include <MaterialXRender/Handlers/OiioImageLoader.h>
-#include <MaterialXRender/Handlers/StbImageLoader.h>
-#include <MaterialXRender/Handlers/TinyObjLoader.h>
+#include <MaterialXRender/OiioImageLoader.h>
+#include <MaterialXRender/StbImageLoader.h>
+#include <MaterialXRender/TinyObjLoader.h>
 
 #include <nanogui/button.h>
 #include <nanogui/combobox.h>
@@ -89,8 +89,8 @@ mx::DocumentPtr loadLibraries(const mx::StringVec& libraryFolders, const mx::Fil
 
 Viewer::Viewer(const mx::StringVec& libraryFolders,
                const mx::FileSearchPath& searchPath,
-               const std::string meshFilename,
-               const std::string materialFilename,
+               const std::string& meshFilename,
+               const std::string& materialFilename,
                const DocumentModifiers& modifiers,
                int multiSampleCount) :
     ng::Screen(ng::Vector2i(1280, 960), "MaterialXView",
@@ -210,7 +210,7 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
         Material::loadDocument(_doc, _searchPath.find(_materialFilename), _stdLib, _modifiers, _materials);
         updateMaterialSelections();
         setMaterialSelection(0);
-        if (_materials.size())
+        if (!_materials.empty())
         {
             assignMaterial(_materials[0]);
         }
@@ -502,7 +502,7 @@ void Viewer::createLoadMaterialsInterface(Widget* parent, const std::string labe
                             // material to it.
                             mx::StringVec geomList;
                             std::string geom = assignment->getGeom();
-                            if (geom.size())
+                            if (!geom.empty())
                             {
                                 geomList.push_back(geom);
                             }
@@ -640,15 +640,14 @@ void Viewer::updateGeometrySelections()
     }
 
     std::vector<std::string> items;
-    for (size_t i = 0; i < _geometryList.size(); i++)
+    for (const mx::MeshPartitionPtr& part : _geometryList)
     {
-        std::string geomName = _geometryList[i]->getIdentifier();
+        std::string geomName = part->getIdentifier();
         mx::StringVec geomSplit = mx::splitString(geomName, ":");
         if (!geomSplit.empty() && !geomSplit[geomSplit.size() - 1].empty())
         {
             geomName = geomSplit[geomSplit.size() - 1];
         }
-
         items.push_back(geomName);
     }
     _geometryListBox->setItems(items);
@@ -801,7 +800,7 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
             std::string fileName = ng::file_dialog(filetypes, true);
             if (!fileName.empty())
             {
-                std::string fileExtension = (fileName.substr(fileName.find_last_of(".") + 1));
+                std::string fileExtension = mx::FilePath(fileName).getExtension();
                 if (extensions.count(fileExtension) == 0)
                 {
                     fileName += "." + *extensions.begin();
@@ -823,7 +822,7 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
                 {
                     updateMaterialSelections();
                     setMaterialSelection(0);
-                    if (_materials.size())
+                    if (!_materials.empty())
                     {
                         assignMaterial(_materials[0]);
                     }
@@ -916,7 +915,7 @@ void Viewer::drawContents()
         MaterialPtr material = assignment.second;
         mx::TypedElementPtr shader = material->getElement();
 
-        material->bindShader(_genContext);
+        material->bindShader();
         if (material->hasTransparency())
         {
             glEnable(GL_BLEND);
@@ -951,7 +950,7 @@ void Viewer::drawContents()
 
     if (_captureFrame)
     {
-        bool saved = false;
+        _captureFrame = false;
 
         glFlush();
         glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -961,23 +960,18 @@ void Viewer::drawContents()
         int w = mSize.x() * static_cast<int>(mPixelRatio);
         int h = mSize.y() * static_cast<int>(mPixelRatio);
         size_t bufferSize = w * h * 3;
-        uint8_t* buffer = new uint8_t[bufferSize];
-        if (buffer)
-        {
-            glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+        std::vector<uint8_t> buffer(bufferSize);
+        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
 
-            mx::ImageDesc desc;
-            desc.width = w;
-            desc.height = h;
-            desc.channelCount = 3;
-            desc.resourceBuffer = buffer;
-            desc.baseType = mx::ImageDesc::BASETYPE_UINT8;
-            saved = _imageHandler->saveImage(_captureFrameFileName, desc, true);
-            desc.resourceBuffer = nullptr;
-            delete[] buffer;
-        }
-        _captureFrame = false;
+        mx::ImageDesc desc;
+        desc.width = w;
+        desc.height = h;
+        desc.channelCount = 3;
+        desc.resourceBuffer = buffer.data();
+        desc.baseType = mx::ImageDesc::BASETYPE_UINT8;
 
+        bool saved = _imageHandler->saveImage(_captureFrameFileName, desc, true);
+        desc.resourceBuffer = nullptr;
         if (!saved)
         {
             new ng::MessageDialog(this, ng::MessageDialog::Type::Information,

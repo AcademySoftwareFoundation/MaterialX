@@ -15,7 +15,7 @@ int main(int argc, char* const argv[])
     mx::StringVec libraryFolders = { "libraries/stdlib", "libraries/pbrlib", "libraries/stdlib/genglsl", "libraries/pbrlib/genglsl", "libraries/bxdf" };
     mx::FileSearchPath searchPath;
     std::string meshFilename = "resources/Geometry/teapot.obj";
-    std::string materialFilename = "resources/Materials/TestSuite/pbrlib/materials/standard_surface_default.mtlx";
+    std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
     DocumentModifiers modifiers;
     int multiSampleCount = 0;
 
@@ -65,9 +65,9 @@ int main(int argc, char* const argv[])
     mx::FilePath currentPath(mx::FilePath::getCurrentPath());
     mx::FilePath parentCurrentPath(currentPath);
     parentCurrentPath.pop();
-    std::vector<mx::FilePath> libraryPaths = { 
-        mx::FilePath("libraries"), 
-        mx::FilePath("resources/Materials/Examples") 
+    std::vector<mx::FilePath> libraryPaths =
+    { 
+        mx::FilePath("libraries")
     };
     for (auto libraryPath : libraryPaths)
     {

@@ -35,8 +35,8 @@ TEST_CASE("File system operations", "[file]")
     mx::StringVec filenames =
     {
         "libraries/stdlib/stdlib_defs.mtlx",
-        "resources/Materials/Examples/MaterialBasic.mtlx",
-        "resources/Materials/Examples/PaintMaterials.mtlx",
+        "resources/Materials/Examples/Syntax/MaterialBasic.mtlx",
+        "resources/Materials/Examples/Syntax/PaintMaterials.mtlx",
     };
 
     for (const std::string& filename : filenames)
@@ -51,7 +51,7 @@ TEST_CASE("File search path operations", "[file]")
 {
     std::string searchPath = "libraries/stdlib" + 
                              mx::PATH_LIST_SEPARATOR + 
-                             "resources/Materials/Examples";
+                             "resources/Materials/Examples/Syntax";
 
     mx::StringVec filenames =
     {

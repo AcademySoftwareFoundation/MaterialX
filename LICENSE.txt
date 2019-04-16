@@ -307,3 +307,36 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+============================================================
+HDRI Haven image(s)
+============================================================
+
+https://hdrihaven.com/p/license.php
+
+HDRI License
+All HDRIs on this site are licensed as CC0 - which is the most liberal license I know of.
+
+Here's an exerpt from the CC0 FAQ page to clarify:
+
+Once the creator or a subsequent owner of a work applies CC0 to a work, the work is no longer his or hers in any meaningful sense under copyright law. Anyone can then use the work in any way and for any purpose, including commercial purposes, subject to other laws and the rights others may have in the work or how the work is used. Think of CC0 as the "no rights reserved" option. CC0 is a useful tool for clarifying that you do not claim copyright in a work anywhere in the world.
+In other words:
+
+You can use the HDRIs for any purpose, including commercial work.
+You do not need to give credit or attribution when using them (although it is appreciated).
+You can redistribute them, share them around, include them when sharing your own work, or in a product you sell.
+The only thing you can't do is claim to be the original author of the HDRIs.
+
+More info: CC0 summary, CC0 wiki, CC0 FAQ.
+
+If you have any questions, feel free to email me at info@hdrihaven.com
+
+Disclaimer: occasionally a brand name, logo or other copyrighted design may appear in the HDRIs. It is the responsibility of the user not to infringe on these copyrights in their own work.
+
+============================================================
+CC0Textures image(s)
+============================================================
+
+https://cc0textures.com/
+
+All textures on CC0Textures.com are licensed under the Creative Commons CC0 License. You can use them for any purpose, even Commercially. There is no need to give credit.

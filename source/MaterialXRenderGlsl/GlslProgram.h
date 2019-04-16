@@ -11,11 +11,11 @@
 
 #include <MaterialXGenShader/Shader.h>
 
-#include <MaterialXRender/ShaderValidators/ExceptionShaderValidationError.h>
-#include <MaterialXRender/Handlers/ViewHandler.h>
-#include <MaterialXRender/Handlers/ImageHandler.h>
-#include <MaterialXRender/Handlers/GeometryHandler.h>
-#include <MaterialXRender/Handlers/LightHandler.h>
+#include <MaterialXRender/ExceptionShaderValidationError.h>
+#include <MaterialXRender/ViewHandler.h>
+#include <MaterialXRender/ImageHandler.h>
+#include <MaterialXRender/GeometryHandler.h>
+#include <MaterialXRender/LightHandler.h>
 
 #include <vector>
 #include <string>

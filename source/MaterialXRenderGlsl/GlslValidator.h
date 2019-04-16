@@ -9,9 +9,9 @@
 /// @file
 /// GLSL code validator
 
-#include <MaterialXRender/ShaderValidators/ShaderValidator.h>
-#include <MaterialXRender/ShaderValidators/ExceptionShaderValidationError.h>
-#include <MaterialXRender/Handlers/ImageHandler.h>
+#include <MaterialXRender/ShaderValidator.h>
+#include <MaterialXRender/ExceptionShaderValidationError.h>
+#include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRenderHw/Window/SimpleWindow.h>
 #include <MaterialXRenderGlsl/GLUtilityContext.h>
 #include <MaterialXRenderGlsl/GlslProgram.h>

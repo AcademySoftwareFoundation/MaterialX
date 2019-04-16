@@ -28,7 +28,6 @@ The names of the files reflect the Element type being tested for the following:
 - GenShader.cpp : Core shader generation tests.
 - GenOsl.cpp : OSL shader generation tests.
 - GenGlsl.cpp : GLSL shader generation tests.
-- GenOgsfx.cpp : OGSFX shader generation tests.
 
 Each language test will scan MaterialX files in the test suite to test code generation.
 

@@ -1,7 +1,7 @@
 #ifndef MATERIALXVIEW_MATERIAL_H
 #define MATERIALXVIEW_MATERIAL_H
 
-#include <MaterialXRender/Handlers/GeometryHandler.h>
+#include <MaterialXRender/GeometryHandler.h>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXFormat/XmlIo.h>
@@ -9,7 +9,7 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
-#include <MaterialXRender/Handlers/LightHandler.h>
+#include <MaterialXRender/LightHandler.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
 
 #include <nanogui/common.h>
@@ -74,7 +74,10 @@ class Material
     }
 
     /// Load shader source from file.
-    bool loadSource(const mx::FilePath& vertexStage, const mx::FilePath& pixelStage, const std::string& shaderName, bool hasTransparency);
+    bool loadSource(const mx::FilePath& vertexShaderFile,
+                    const mx::FilePath& pixelShaderFile,
+                    const std::string& shaderName,
+                    bool hasTransparency);
 
     /// Generate a shader from the given inputs.
     bool generateShader(mx::GenContext& context);
@@ -98,13 +101,15 @@ class Material
     }
     
     /// Bind shader
-    void bindShader(mx::GenContext& context);
+    void bindShader();
 
     /// Bind viewing information for this material.
     void bindViewInformation(const mx::Matrix44& world, const mx::Matrix44& view, const mx::Matrix44& proj);
 
     /// Bind all images for this material.
-    void bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSearchPath& imagePath, const std::string& udim);
+    void bindImages(mx::GLTextureHandlerPtr imageHandler,
+                    const mx::FileSearchPath& searchPath,
+                    const std::string& udim);
 
     /// Bind a single image.
     bool bindImage(std::string filename, const std::string& uniformName, mx::GLTextureHandlerPtr imageHandler,

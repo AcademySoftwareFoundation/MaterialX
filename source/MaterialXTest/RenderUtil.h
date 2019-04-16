@@ -14,7 +14,7 @@
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 
 #include <MaterialXRender/Util.h>
-#include <MaterialXRender/Handlers/LightHandler.h>
+#include <MaterialXRender/LightHandler.h>
 
 #include <MaterialXTest/GenShaderUtil.h>
 
@@ -148,7 +148,7 @@ class AdditiveScopedTimer
     }
 
   protected:
-    double _duration;
+    double &_duration;
     bool _debugUpdate;
     std::string _label;
     std::chrono::time_point<std::chrono::system_clock> _startTime;

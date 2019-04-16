@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<materialx version="1.36" cms="ocio" colorspace="lin_rec709">
+  <xi:include href="SimpleSrf.mtlx"/>
+  <material name="Mplastic1">
+    <shaderref name="sr_mp1" node="simple_srf">
+      <bindinput name="diffColor" type="color3" value="0.134, 0.130, 0.125"/>
+      <bindinput name="specColor" type="color3" value="0.114, 0.114, 0.114"/>
+      <bindinput name="specRoughness" type="float" value="0.38"/>
+    </shaderref>
+  </material>
+  <material name="Mplastic2">
+    <materialinherit name="mi_mp2" material="Mplastic1"/>
+    <shaderref name="sr_mp2" node="simple_srf">
+      <bindinput name="diffColor" type="color3" value="0.17, 0.26, 0.23"/>
+      <bindinput name="specRoughness" type="float" value="0.24"/>
+    </shaderref>
+  </material>
+  <material name="Mmetal1">
+    <shaderref name="sr_mm1" node="simple_srf">
+      <bindinput name="diffColor" type="color3" value="0.001, 0.001, 0.001"/>
+      <bindinput name="specColor" type="color3" value="0.671, 0.676, 0.667"/>
+      <bindinput name="specRoughness" type="float" value="0.005"/>
+    </shaderref>
+  </material>
+  <material name="Mmetal2">
+    <shaderref name="sr_mm2" node="simple_srf">
+      <bindinput name="diffColor" type="color3" value="0.049, 0.043, 0.033"/>
+      <bindinput name="specColor" type="color3" value="0.115, 0.091, 0.064"/>
+      <bindinput name="specRoughness" type="float" value="0.35"/>
+    </shaderref>
+  </material>
+
+  <collection name="c_plastic" includegeom="/a/g1,/a/g2,/a/g5"/>
+  <collection name="c_metal" includegeom="/a/g3,/a/g4"/>
+  <collection name="c_lamphouse" includegeom="/a/lamp1/housing*Mesh"/>
+  <collection name="c_setgeom" includegeom="/b"/>
+
+  <nodedef name="ND_disk_lgt_light" type="lightshader" node="disk_lgt">
+    <parameter name="emissionmap" type="filename" value=""/>
+    <parameter name="gain" type="float" value="2000.0"/>
+  </nodedef>
+  <material name="mheadlight">
+    <shaderref name="lgtsr1" node="disk_lgt">
+      <bindparam name="gain" type="float" value="500.0"/>
+    </shaderref>
+  </material>
+
+  <propertyset name="standard">
+    <property name="displacementbound_sphere" target="rmanris" type="float" value="0.05"/>
+    <property name="trace_maxdiffusedepth" target="rmanris" type="float" value="3"/>
+  </propertyset>
+
+  <look name="lookA">
+    <materialassign name="ma1" material="Mplastic1" collection="c_plastic"/>
+    <materialassign name="ma2" material="Mmetal1" collection="c_metal"/>
+    <materialassign name="ma3" material="mheadlight" geom="/a/b/headlight"/>
+    <visibility name="v1" viewergeom="/a/b/headlight" vistype="shadow" geom="/" visible="false"/>
+    <visibility name="v2" viewergeom="/a/b/headlight" vistype="shadow" collection="c_lamphouse"/>
+    <propertysetassign name="psa1" propertysetname="standard" geom="/"/>
+  </look>
+  <look name="lookB">
+    <materialassign name="ma4" material="Mplastic2" collection="c_plastic"/>
+    <materialassign name="ma5" material="Mmetal2" collection="c_metal"/>
+    <propertysetassign name="psa2" propertysetname="standard" geom="/"/>
+    <!-- make the setgeom invisible to camera but still visible to shadows and reflections -->
+    <visibility name="v3" vistype="camera" collection="c_setgeom" visible="false"/>
+  </look>
+</materialx>
