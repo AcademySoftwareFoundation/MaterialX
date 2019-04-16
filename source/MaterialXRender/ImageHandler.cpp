@@ -5,7 +5,7 @@
 
 #include <MaterialXCore/Types.h>
 #include <MaterialXGenShader/Util.h>
-#include <MaterialXRender/Handlers/ImageHandler.h>
+#include <MaterialXRender/ImageHandler.h>
 #include <cmath>
 
 namespace MaterialX

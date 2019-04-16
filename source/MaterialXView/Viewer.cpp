@@ -4,9 +4,9 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXRender/Util.h>
-#include <MaterialXRender/Handlers/OiioImageLoader.h>
-#include <MaterialXRender/Handlers/StbImageLoader.h>
-#include <MaterialXRender/Handlers/TinyObjLoader.h>
+#include <MaterialXRender/OiioImageLoader.h>
+#include <MaterialXRender/StbImageLoader.h>
+#include <MaterialXRender/TinyObjLoader.h>
 
 #include <nanogui/button.h>
 #include <nanogui/combobox.h>

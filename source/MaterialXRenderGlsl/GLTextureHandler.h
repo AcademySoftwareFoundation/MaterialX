@@ -9,7 +9,7 @@
 /// @file
 /// OpenGL texture handler
 
-#include <MaterialXRender/Handlers/ImageHandler.h>
+#include <MaterialXRender/ImageHandler.h>
 
 namespace MaterialX
 {

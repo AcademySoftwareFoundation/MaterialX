@@ -10,7 +10,7 @@
 /// Geometry loader interfaces
 
 #include <MaterialXFormat/File.h>
-#include <MaterialXRender/Handlers/Mesh.h>
+#include <MaterialXRender/Mesh.h>
 #include <memory>
 #include <map>
 

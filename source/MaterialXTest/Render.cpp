@@ -19,7 +19,7 @@
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
-#include <MaterialXRender/Handlers/LightHandler.h>
+#include <MaterialXRender/LightHandler.h>
 #include <MaterialXRender/Util.h>
 
 #ifdef MATERIALX_BUILD_RENDERGLSL
@@ -34,12 +34,12 @@
 #endif
 
 #ifdef MATERIALX_BUILD_OIIO
-#include <MaterialXRender/Handlers/OiioImageLoader.h>
+#include <MaterialXRender/OiioImageLoader.h>
 #endif
-#include <MaterialXRender/Handlers/StbImageLoader.h>
+#include <MaterialXRender/StbImageLoader.h>
 
-#include <MaterialXRender/Handlers/GeometryHandler.h>
-#include <MaterialXRender/Handlers/TinyObjLoader.h>
+#include <MaterialXRender/GeometryHandler.h>
+#include <MaterialXRender/TinyObjLoader.h>
 
 #include <fstream>
 #include <iostream>

@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRender/Handlers/Mesh.h>
+#include <MaterialXRender/Mesh.h>
 
 #include <map>
 

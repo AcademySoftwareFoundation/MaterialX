@@ -36,7 +36,7 @@
 #endif
 
 
-#include <MaterialXRender/Handlers/StbImageLoader.h>
+#include <MaterialXRender/StbImageLoader.h>
 
 namespace MaterialX
 {

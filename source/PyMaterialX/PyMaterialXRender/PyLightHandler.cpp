@@ -7,7 +7,7 @@
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXGenShader/GenContext.h>
-#include <MaterialXRender/Handlers/LightHandler.h>
+#include <MaterialXRender/LightHandler.h>
 
 namespace py = pybind11;
 namespace mx = MaterialX;

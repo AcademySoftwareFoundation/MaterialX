@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRender/Handlers/SampleObjLoader.h>
+#include <MaterialXRender/SampleObjLoader.h>
 #include <MaterialXCore/Util.h>
 
 #include <iostream>

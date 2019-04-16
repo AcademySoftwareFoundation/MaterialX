@@ -4,7 +4,7 @@
 //
 
 #include <MaterialXGenShader/Util.h>
-#include <MaterialXRender/Handlers/GeometryHandler.h>
+#include <MaterialXRender/GeometryHandler.h>
 
 namespace MaterialX
 {

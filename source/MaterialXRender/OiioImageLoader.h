@@ -3,30 +3,30 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_STBIMAGELOADER_H
-#define MATERIALX_STBIMAGELOADER_H
+#ifndef MATERIALX_OIIOIMAGELOADER_H
+#define MATERIALX_OIIOIMAGELOADER_H
 
 /// @file
-/// Image loader using the stb image library
+/// Image loader wrapper using OpenImageIO 
 
-#include <MaterialXRender/Handlers/ImageHandler.h>
+#include <MaterialXRender/ImageHandler.h>
 
 namespace MaterialX
 {
-/// Shared pointer to an stbImageLoader
-using StbImageLoaderPtr = std::shared_ptr<class StbImageLoader>;
+/// Shared pointer to an OiioImageLoader
+using OiioImageLoaderPtr = std::shared_ptr<class OiioImageLoader>;
 
-/// @class StbImageLoader
-/// Disk image loader wrapper using stb library
+/// @class OiioImageLoader
+/// Disk image loader wrapper using OpenImageIO library
 ///
-class StbImageLoader : public ImageLoader
+class OiioImageLoader : public ImageLoader
 {
   public:
     /// Static instance create function
-    static StbImageLoaderPtr create() { return std::make_shared<StbImageLoader>(); }
+    static OiioImageLoaderPtr create() { return std::make_shared<OiioImageLoader>(); }
 
     /// Default constructor. Set all extensions supported by stb
-    StbImageLoader() 
+    OiioImageLoader() 
     {
         _extensions.insert(BMP_EXTENSION);
         _extensions.insert(GIF_EXTENSION);
@@ -37,10 +37,16 @@ class StbImageLoader : public ImageLoader
         _extensions.insert(PNG_EXTENSION);
         _extensions.insert(PSD_EXTENSION);
         _extensions.insert(TGA_EXTENSION);
+        _extensions.insert(EXR_EXTENSION);
+        _extensions.insert(TIF_EXTENSION);
+        _extensions.insert(TIFF_EXTENSION);
+        _extensions.insert(TX_EXTENSION);
+        _extensions.insert(TXT_EXTENSION);
+        _extensions.insert(TXR_EXTENSION);
     }
 
     /// Default destructor
-    virtual ~StbImageLoader() {}    
+    virtual ~OiioImageLoader() {}    
 
     /// Save image to disk. This method must be implemented by derived classes.
     /// @param filePath Path to file to save image to

@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRender/Handlers/TinyObjLoader.h>
+#include <MaterialXRender/TinyObjLoader.h>
 #include <MaterialXCore/Util.h>
 
 #if defined(__GNUC__) && !defined(__clang__)

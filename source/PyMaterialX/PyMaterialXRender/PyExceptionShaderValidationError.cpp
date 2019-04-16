@@ -5,7 +5,7 @@
 
 #include <PyMaterialX/PyMaterialX.h>
 
-#include <MaterialXRender/ShaderValidators/ExceptionShaderValidationError.h>
+#include <MaterialXRender/ExceptionShaderValidationError.h>
 
 namespace py = pybind11;
 namespace mx = MaterialX;

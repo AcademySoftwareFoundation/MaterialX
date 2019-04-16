@@ -5,8 +5,8 @@
 
 #include <MaterialXRenderGlsl/External/GLew/glew.h>
 #include <MaterialXRenderGlsl/GlslValidator.h>
-#include <MaterialXRender/Handlers/GeometryHandler.h>
-#include <MaterialXRender/Handlers/SampleObjLoader.h>
+#include <MaterialXRender/GeometryHandler.h>
+#include <MaterialXRender/SampleObjLoader.h>
 
 #include <iostream>
 #include <algorithm>

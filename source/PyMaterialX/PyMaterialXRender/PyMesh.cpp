@@ -5,7 +5,7 @@
 
 #include <PyMaterialX/PyMaterialX.h>
 
-#include <MaterialXRender/Handlers/Mesh.h>
+#include <MaterialXRender/Mesh.h>
 
 namespace py = pybind11;
 namespace mx = MaterialX;

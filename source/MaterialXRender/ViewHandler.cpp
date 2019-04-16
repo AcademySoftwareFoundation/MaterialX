@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRender/Handlers/ViewHandler.h>
+#include <MaterialXRender/ViewHandler.h>
 #include <cmath>
 
 namespace MaterialX

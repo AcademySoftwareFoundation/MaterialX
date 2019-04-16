@@ -3,8 +3,8 @@
 
 #include <MaterialXView/Editor.h>
 #include <MaterialXView/Material.h>
-#include <MaterialXRender/Handlers/GeometryHandler.h>
-#include <MaterialXRender/Handlers/LightHandler.h>
+#include <MaterialXRender/GeometryHandler.h>
+#include <MaterialXRender/LightHandler.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 namespace mx = MaterialX;
