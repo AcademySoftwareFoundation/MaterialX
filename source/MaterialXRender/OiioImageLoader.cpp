@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRender/Handlers/OiioImageLoader.h>
+#include <MaterialXRender/OiioImageLoader.h>
 
 #if defined(OSWin_) || defined(_WIN32)
 #pragma warning( push )
