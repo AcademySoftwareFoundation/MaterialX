@@ -83,7 +83,7 @@ class LightHandler
         return _lightEnvRadiancePath;
     }
 
-    /// From a set of nodes, create a mapping of corresponding 
+    /// From a set of nodes, create a mapping of corresponding
     /// nodedef identifiers to numbers
     void mapNodeDefToIdentiers(const std::vector<NodePtr>& nodes,
                                std::unordered_map<string, unsigned int>& ids);

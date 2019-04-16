@@ -53,9 +53,8 @@ class TypeDesc
 
     /// Register a type descriptor for a MaterialX data type.
     /// Throws an exception if a type with the same name is already registered.
-    static const TypeDesc* registerType(const string& name, unsigned char basetype,
-                                        unsigned char semantic = SEMANTIC_NONE, int size = 1, bool editable = true,
-                                        const ChannelMap& channelMapping = ChannelMap());
+    static const TypeDesc* registerType(const string& name, unsigned char basetype, unsigned char semantic = SEMANTIC_NONE,
+                                        size_t size = 1, bool editable = true, const ChannelMap& channelMapping = ChannelMap());
 
     /// Get a type descriptor for given name.
     /// Throws an exception if no type with that name is found.
@@ -103,15 +102,14 @@ class TypeDesc
     /// Return true if the type is an aggregate of 4 floats.
     bool isFloat4() const { return _size == 4 && (_semantic == SEMANTIC_COLOR || _semantic == SEMANTIC_VECTOR); }
 
-private:
-    TypeDesc(const string& name, unsigned char basetype,
-             unsigned char semantic, int size, bool editable,
-             const ChannelMap& channelMapping);
+  private:
+    TypeDesc(const string& name, unsigned char basetype, unsigned char semantic, size_t size,
+             bool editable, const ChannelMap& channelMapping);
 
     const string _name;
     const unsigned char _basetype;
     const unsigned char _semantic;
-    const int _size;
+    const size_t _size;
     const bool _editable;
     const ChannelMap _channelMapping;
 };
@@ -127,7 +125,7 @@ namespace Type
     extern const TypeDesc* BOOLEAN;
     extern const TypeDesc* INTEGER;
     extern const TypeDesc* INTEGERARRAY;
-    extern const TypeDesc* FLOAT; 
+    extern const TypeDesc* FLOAT;
     extern const TypeDesc* FLOATARRAY;
     extern const TypeDesc* VECTOR2;
     extern const TypeDesc* VECTOR3;

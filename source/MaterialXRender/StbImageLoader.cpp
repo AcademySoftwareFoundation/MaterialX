@@ -9,12 +9,6 @@
     #pragma warning( push )
     #pragma warning( disable: 4100)
     #pragma warning( disable: 4505)
-#elif defined(__clang__)
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wunused-function"
-#else
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
 // Make the functions static to avoid multiple definitions if other libraries
@@ -29,10 +23,6 @@
 
 #if defined(OSWin_) || defined(_WIN32)
     #pragma warning( pop ) 
-#elif defined(__clang__)
-    #pragma clang diagnostic pop
-#else
-    #pragma GCC diagnostic pop
 #endif
 
 

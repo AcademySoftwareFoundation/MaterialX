@@ -1,26 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Test suite options file which is parsed when the "shadervalid" category units tests are executed.
+   Test suite options file which is parsed when the "render" category units tests are executed.
+
+   Execution uses existing code generator instances to produce the code and corresponding validator
+   instance to check the validity of the generated code by compiling and/or rendering
+   the code to produce images on disk.
+
+   Input uniform and stream checking as well as node implementation coverage and profiling
+   can also be performed depending on the options enabled.
 -->
 <materialx version="1.36">
-   <nodedef name="ShaderValidTestOptions">
+   <nodedef name="RenderTestOptions">
 
       <!-- List of comma separated file names acts as a filter to only test documents with these names -->
       <parameter name="overrideFiles" type="string" value="" />
 
-      <!-- Comma separated list of light setup files -->
+      <!-- Comma separated list of light setup files. Only used for hardware shading languages  -->
       <parameter name="lightFiles" type="string" value=
             "lightcompoundtest_ng.mtlx,lightcompoundtest.mtlx,light_rig.mtlx" />
 
-      <!-- Set to false to disable execution of OSL tests. Default is true. -->
-      <parameter name="runOSLTests" type="boolean" value="true" />
+      <!-- Comma separated list of "language"_"target" specifiers to indicate which
+           code generators to use.
+       -->
+      <parameter name="languageAndTargets" type="string" value="genglsl_glsl400,genosl_vanilla" />
 
-      <!-- Set to false to disable execution of GLSL tests. Default is true. -->
-      <parameter name="runGLSLTests" type="boolean" value="true" />
-
-      <!-- Check the count of number of implementations used. Default is true.
-             If this option is set then runOSLTests and runGLSLTests will also
-             be enabled to ensure a proper set of implementations to check.
+      <!-- Check the count of number of implementations used for a given generator
         -->
       <parameter name="checkImplCount" type="boolean" value="true" />
 
@@ -43,23 +47,24 @@
       <!-- Perform saving of image. Can only be disabled for GLSL tests -->
       <parameter name="saveImages" type="boolean" value="true" />
 
-      <!-- Set this to be true if it is desired to dump out GLSL uniform and attribut information to the logging file -->
-      <parameter name="dumpGlslUniformsAndAttributes" type="boolean" value="true" />
+      <!-- Set this to be true if it is desired to dump out uniform and attribut information to the logging file -->
+      <parameter name="dumpUniformsAndAttributes" type="boolean" value="true" />
 
       <!-- Set this to be true if it is desired to always dump out generated source code to disk instead of just on compile errors -->
       <parameter name="dumpGeneratedCode" type="boolean" value="true" />
 
-      <!-- Geometry file to use for rendering non-shader elements in GLSL.
-        A relative path specifier is relative to the folder "/resources/Geometry/" -->
-      <parameter name="glslNonShaderGeometry" type="string" value="sphere.obj" />
+      <!-- Suggested geometry file to use for rendering unshaded elements.
+           File path is relative to the "/resources/Geometry/" folder -->
+      <parameter name="unShadedGeometry" type="string" value="sphere.obj" />
 
-      <!-- Geometry file to use for rendering shader elements in GLSL -->
-      <parameter name="glslShaderGeometry" type="string" value="sphere.obj" />
+      <!-- Suggested geometry file to use for rendering shaded elements.
+           File path is relative to the "/resources/Geometry/" folder -->
+      <parameter name="shadedGeometry" type="string" value="sphere.obj" />
 
-      <!-- Radiance IBL file path -->
+      <!-- Suggested radiance IBL file path -->
       <parameter name="radianceIBLPath" type="string" value="/resources/Images/san_giuseppe_bridge.hdr" />
 
-      <!-- Irradiance IBL file path -->
+      <!-- Suggested irradiance IBL file path -->
       <parameter name="irradianceIBLPath" type="string" value="/resources/Images/san_giuseppe_bridge_diffuse.hdr" />
 
    </nodedef>

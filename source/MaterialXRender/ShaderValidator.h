@@ -9,14 +9,13 @@
 /// @file
 /// Base class for shader validation
 
+#include <MaterialXCore/Library.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXRender/ExceptionShaderValidationError.h>
 #include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/ViewHandler.h>
 #include <MaterialXRender/LightHandler.h>
-#include <vector>
-#include <string>
 
 namespace MaterialX
 {

@@ -9,8 +9,7 @@
 /// @file 
 /// OBJ geometry format loader using the TinyObj library
 
-#include <string>
-#include <memory>
+#include <MaterialXCore/Library.h>
 #include <MaterialXRender/GeometryHandler.h>
 
 namespace MaterialX
