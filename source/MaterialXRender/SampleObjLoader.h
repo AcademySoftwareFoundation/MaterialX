@@ -9,12 +9,11 @@
 /// @file
 /// Sample OBJ geometry loader
 
-#include <string>
-#include <memory>
 #include <MaterialXRender/GeometryHandler.h>
 
 namespace MaterialX
 {
+
 /// Shared pointer to an SampleObjLoader
 using SampleObjLoaderPtr = std::shared_ptr<class SampleObjLoader>;
 
@@ -59,4 +58,5 @@ class SampleObjLoader : public GeometryLoader
 };
 
 } // namespace MaterialX
+
 #endif

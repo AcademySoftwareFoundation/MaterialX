@@ -15,12 +15,10 @@
 #include <MaterialXRenderHw/Window/SimpleWindow.h>
 #include <MaterialXRenderGlsl/GLUtilityContext.h>
 #include <MaterialXRenderGlsl/GlslProgram.h>
-#include <vector>
-#include <string>
-#include <map>
 
 namespace MaterialX
 {
+
 // Shared pointer to a GlslProgram
 using GlslValidatorPtr = std::shared_ptr<class GlslValidator>;
 
@@ -156,4 +154,5 @@ class GlslValidator : public ShaderValidator
 };
 
 } // namespace MaterialX
+
 #endif
