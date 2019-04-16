@@ -269,9 +269,8 @@ bool Material::generateShader(mx::GenContext& context)
     return true;
 }
 
-void Material::bindShader(mx::GenContext& context)
+void Material::bindShader()
 {
-    generateShader(context);
     if (_glShader)
     {
         _glShader->bind();

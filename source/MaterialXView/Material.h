@@ -101,7 +101,7 @@ class Material
     }
     
     /// Bind shader
-    void bindShader(mx::GenContext& context);
+    void bindShader();
 
     /// Bind viewing information for this material.
     void bindViewInformation(const mx::Matrix44& world, const mx::Matrix44& view, const mx::Matrix44& proj);

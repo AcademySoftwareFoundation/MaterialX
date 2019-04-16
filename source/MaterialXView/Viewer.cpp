@@ -915,7 +915,7 @@ void Viewer::drawContents()
         MaterialPtr material = assignment.second;
         mx::TypedElementPtr shader = material->getElement();
 
-        material->bindShader(_genContext);
+        material->bindShader();
         if (material->hasTransparency())
         {
             glEnable(GL_BLEND);
