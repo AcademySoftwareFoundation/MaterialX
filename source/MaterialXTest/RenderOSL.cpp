@@ -331,7 +331,16 @@ void OslShaderRenderTester::getImplementationWhiteList(mx::StringSet& whiteList)
 TEST_CASE("Render: OSL TestSuite", "[renderosl]")
 {
     OslShaderRenderTester renderTester;
-    renderTester.validate();
+
+    mx::FilePathVec testRootPaths;
+    mx::FilePath testRoot = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
+    testRootPaths.push_back(testRoot);
+    const mx::FilePath testRoot2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
+    testRootPaths.push_back(testRoot2);
+
+    mx::FilePath optionsFilePath = testRoot / mx::FilePath("_options.mtlx");
+
+    renderTester.validate(testRootPaths, optionsFilePath);
 }
 
 #endif
