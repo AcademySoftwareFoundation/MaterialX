@@ -84,9 +84,9 @@ TEST_CASE("GenShader: OGSFX Unique Names", "[genogsfx]")
 class OgsFxShaderGeneratorTester : public GlslShaderGeneratorTester
 {
 public:
-    OgsFxShaderGeneratorTester(const mx::FilePath& testRootPath, const mx::FilePath& libSearchPath,
+    OgsFxShaderGeneratorTester(const mx::FilePathVec& testRootPaths, const mx::FilePath& libSearchPath,
                                  const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath) :
-            GlslShaderGeneratorTester(testRootPath, libSearchPath, srcSearchPath, logFilePath)
+            GlslShaderGeneratorTester(testRootPaths, libSearchPath, srcSearchPath, logFilePath)
     {}
 
     // Only the generator differs for now between OGSFX and GLSL testers
@@ -104,10 +104,13 @@ public:
 static void generateOGSFXCode()
 {
     const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
+    const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
+    mx::FilePathVec testRootPaths;
+    testRootPaths.push_back(testRootPath);
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     const mx::FilePath logPath("genglsl_ogsfx_generate_test.txt");
-    OgsFxShaderGeneratorTester tester(testRootPath, libSearchPath, srcSearchPath, logPath);
+    OgsFxShaderGeneratorTester tester(testRootPaths, libSearchPath, srcSearchPath, logPath);
 
     const mx::GenOptions genOptions;
     tester.testGeneration(genOptions);
