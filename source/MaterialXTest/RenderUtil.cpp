@@ -324,14 +324,12 @@ void ShaderRenderTester::printRunLog(const RenderProfileTimes &profileTimes,
     }
 }
 
-bool ShaderRenderTester::validate()
+bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx::FilePath optionsFilePath)
 {
     // Test has been turned off so just do nothing.
     // Check for an option file
-    mx::FilePath path = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
-    const mx::FilePath optionsPath = path / mx::FilePath("_options.mtlx");
     RenderUtil::RenderTestOptions options;
-    if (!options.readOptions(optionsPath))
+    if (!options.readOptions(optionsFilePath))
     {
         return false;
     }
@@ -373,8 +371,11 @@ bool ShaderRenderTester::validate()
 
     RenderUtil::AdditiveScopedTimer ioTimer(profileTimes.ioTime, "Global I/O time");
     mx::FilePathVec dirs;
-    mx::FilePath baseDirectory = path;
-    dirs = baseDirectory.getSubDirectories();
+    for (auto testRoot : testRootPaths)
+    {
+        mx::FilePathVec testRootDirs = testRoot.getSubDirectories();
+        dirs.insert(std::end(dirs), std::begin(testRootDirs), std::end(testRootDirs));
+    }
 
     ioTimer.endTimer();
 

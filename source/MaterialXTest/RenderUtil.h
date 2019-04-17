@@ -215,7 +215,7 @@ class ShaderRenderTester
   public:
     ShaderRenderTester() {};
     virtual ~ShaderRenderTester() {};
-    bool validate();
+    bool validate(const mx::FilePathVec& testRootPaths, const mx::FilePath optionsFilePath);
 
   protected:
     // The shading language / target being tested

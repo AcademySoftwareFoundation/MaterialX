@@ -464,7 +464,10 @@ void ShaderGeneratorTester::testGeneration(const mx::GenOptions& generateOptions
     setTestStages();
 
     // Load in all documents to test
-    mx::loadDocuments(_testRootPath, _skipFiles, _documents, _documentPaths);
+    for (auto testRoot : _testRootPaths)
+    {
+        mx::loadDocuments(testRoot, _skipFiles, _documents, _documentPaths);
+    }
 
     // Scan each document for renderable elements and check code generation
     //
