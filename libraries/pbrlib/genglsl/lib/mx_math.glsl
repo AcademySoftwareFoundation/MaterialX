@@ -43,6 +43,14 @@ bool mx_is_tiny(vec3 v)
     return all(lessThan(abs(v), vec3(M_FLOAT_EPS)));
 }
 
+float mx_mix(float v00, float v01, float v10, float v11,
+             float x, float y)
+{
+   float v0_ = mix(v00, v01, x);
+   float v1_ = mix(v10, v11, x);
+   return mix(v0_, v1_, y);
+}
+
 // https://www.graphics.rwth-aachen.de/publication/2/jgt.pdf
 float mx_golden_ratio_sequence(int i)
 {
