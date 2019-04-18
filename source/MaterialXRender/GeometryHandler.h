@@ -90,9 +90,6 @@ class GeometryHandler
     // Find all meshes loaded from a given location
     void getGeometry(MeshList& meshes, const string& location);
 
-    /// Clear geometry with a given location
-    void clearGeometry(const string& location);
-
     /// Load geometry from a given location
     bool loadGeometry(const FilePath& filePath);
 
