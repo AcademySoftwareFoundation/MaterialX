@@ -21,7 +21,7 @@
 #endif
 #include <MaterialXTest/Catch/catch.hpp>
 #if defined(__linux__)
-    #define None NonPrev
+    #define None NonePrev
 #endif
 #include <MaterialXTest/RenderUtil.h>
 
