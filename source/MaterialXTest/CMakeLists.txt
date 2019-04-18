@@ -4,15 +4,9 @@ include_directories(
 )
 
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-if(NOT MATERIALX_BUILD_RENDER)
-    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/Render.cpp")
-    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/RenderGLSL.cpp")
-    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/RenderOSL.cpp")
-endif()
 if(NOT MATERIALX_BUILD_GEN_OGSFX)
     list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/GenOgsfx.cpp")
 endif()
-
 file(GLOB_RECURSE materialx_header "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 file(GLOB_RECURSE catch_headers "${CMAKE_CURRENT_SOURCE_DIR}/Catch/*.hpp")
 
@@ -66,23 +60,15 @@ set (LIBS
     MaterialXGenShader
     MaterialXGenOsl
     MaterialXGenGlsl
+    MaterialXRender
+    MaterialXRenderOsl
+    MaterialXRenderHw
+    MaterialXRenderGlsl
 )
 
 # Add language specific generators
 if (MATERIALX_BUILD_GEN_OGSFX)
     LIST(APPEND LIBS "MaterialXGenOgsFx")
-endif()
-
-# Add render libraries
-if (MATERIALX_BUILD_RENDER)
-    LIST(APPEND LIBS "MaterialXRender")
-    if (MATERIALX_BUILD_RENDEROSL)
-        LIST(APPEND LIBS "MaterialXRenderOsl")
-    endif()
-    if (MATERIALX_BUILD_RENDERGLSL)
-        LIST(APPEND LIBS "MaterialXRenderHw")
-        LIST(APPEND LIBS "MaterialXRenderGlsl")
-    endif()
 endif()
 
 # Add contrib libraries
@@ -94,4 +80,3 @@ target_link_libraries(
     MaterialXTest ${LIBS}
     ${CMAKE_DL_LIBS}
 )
-
