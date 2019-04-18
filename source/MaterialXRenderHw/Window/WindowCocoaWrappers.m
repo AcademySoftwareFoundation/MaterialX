@@ -3,9 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRender/HardwarePlatform.h>
-
-#if defined (OSMac_)
+#if defined (__APPLE__)
 
 #import <Cocoa/Cocoa.h>
 #import <AppKit/NSApplication.h>

@@ -3,9 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRender/HardwarePlatform.h>
-
-#if defined(OSLinux_)
+#if defined(__linux__)
 
 #include <MaterialXRenderHw/Window/SimpleWindow.h>
 

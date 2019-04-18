@@ -6,11 +6,9 @@
 #ifndef MATERIALX_WINDOWWRAPPER_H
 #define MATERIALX_WINDOWWRAPPER_H
 
-#include <MaterialXRender/HardwarePlatform.h>
-
-#if defined(OSWin_)
+#if defined(_WIN32)
 #include <windows.h>
-#elif defined(OSLinux_)
+#elif defined(__linux__)
 #include <X11/X.h> // for Window
 #include <X11/Xlib.h> // for Display
 using Widget = struct _WidgetRec*;
@@ -19,14 +17,14 @@ using Widget = struct _WidgetRec*;
 namespace MaterialX
 {
 /// OS specific type windowing definitions
-#if defined(OSWin_)
+#if defined(_WIN32)
 /// External handle is a window handle
 using ExternalWindowHandle = HWND;
 /// Internal handle is a device context
 using InternalWindowHandle = HDC;
 /// Display handle concept has no equivalence on Windows
 using DisplayHandle = void*;
-#elif defined(OSLinux_)
+#elif defined(__linux__)
 /// External handle is a widget
 using ExternalWindowHandle = Widget;
 /// Internal handle is the window for the widget
@@ -35,7 +33,7 @@ using InternalWindowHandle = Window;
 using DisplayHandle = Display*;
 /// Application shell
 using Widget = struct _WidgetRec*;
-#elif defined(OSMac_)
+#elif defined(__APPLE__)
 /// External handle is a window handle
 using ExternalWindowHandle = void*;
 /// Internal handle concept has no equivalence on Mac
@@ -64,7 +62,7 @@ class WindowWrapper
     virtual ~WindowWrapper();
 
     /// Construct a wrapper using windowing information
-#if defined(OSLinux_)
+#if defined(__linux__)
     WindowWrapper(ExternalWindowHandle externalHandle, InternalWindowHandle internalHandle = 0,
                   DisplayHandle display = 0);
 #else
@@ -97,7 +95,7 @@ class WindowWrapper
         return _internalHandle != 0;
     }
 
-#if defined(OSLinux_)
+#if defined(__linux__)
     /// Return frame buffer X window
     Window getFrameBufferWindow() const
     {
@@ -123,7 +121,7 @@ class WindowWrapper
     ExternalWindowHandle _externalHandle;
     InternalWindowHandle _internalHandle;
 
-#if defined(OSLinux_)
+#if defined(__linux__)
     /// Window ID of framebuffer instance created in the wrapper
     Window _framebufferWindow;
     /// X Display

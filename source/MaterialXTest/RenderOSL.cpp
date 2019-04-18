@@ -3,8 +3,6 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRender/HardwarePlatform.h>
-
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXRenderOsl/OslValidator.h>
 
