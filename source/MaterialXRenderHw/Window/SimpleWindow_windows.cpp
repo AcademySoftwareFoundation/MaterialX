@@ -3,9 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRender/HardwarePlatform.h>
-
-#if defined(OSWin_)
+#if defined(_WIN32)
 
 #include <Windows.h>
 #include <MaterialXRenderHw/Window/SimpleWindow.h>

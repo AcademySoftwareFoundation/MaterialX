@@ -3,9 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRender/HardwarePlatform.h>
-
-#if defined(OSMac_)
+#if defined(__APPLE__)
 
 #include <MaterialXRenderHw/Window/SimpleWindow.h>
 #include <MaterialXRenderHw/Window/WindowCocoaWrappers.h>

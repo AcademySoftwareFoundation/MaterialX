@@ -15,7 +15,14 @@
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/TinyObjLoader.h>
 
+#if defined(__linux__)
+#define NonePrev None
+#undef None
+#endif
 #include <MaterialXTest/Catch/catch.hpp>
+#if defined(__linux__)
+    #define None NonPrev
+#endif
 #include <MaterialXTest/RenderUtil.h>
 
 namespace mx = MaterialX;

@@ -5,7 +5,7 @@
 
 #include <MaterialXRender/OiioImageLoader.h>
 
-#if defined(OSWin_) || defined(_WIN32)
+#if defined(_WIN32)
 #pragma warning( push )
 #pragma warning( disable: 4100)
 #pragma warning( disable: 4505)
@@ -22,8 +22,8 @@
 #include <OpenImageIO/imageio.h>
 
 
-#if defined(OSWin_) || defined(_WIN32)
-#pragma warning( pop ) 
+#if defined(_WIN32)
+#pragma warning( pop )
 #elif defined(__clang__)
 #pragma clang diagnostic pop
 #else
@@ -69,7 +69,7 @@ bool OiioImageLoader::saveImage(const FilePath& filePath,
             {
                 int scanlinesize = imageDesc.width * imageDesc.channelCount * byteCount;
                 written = imageOutput->write_image(
-                            format, 
+                            format,
                             static_cast<char *>(imageDesc.resourceBuffer) + (imageDesc.height - 1) * scanlinesize,
                             OIIO::AutoStride, // default x stride
                             static_cast<OIIO::stride_t>(-scanlinesize), // special y stride
@@ -158,4 +158,3 @@ bool OiioImageLoader::acquireImage(const FilePath& filePath,
 }
 
 } // namespace MaterialX
-

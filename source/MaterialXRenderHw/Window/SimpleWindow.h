@@ -6,7 +6,6 @@
 #ifndef MATERIALX_SIMPLEWINDOW_H
 #define MATERIALX_SIMPLEWINDOW_H
 
-#include <MaterialXRender/HardwarePlatform.h>
 #include <MaterialXRenderHw/Window/WindowWrapper.h>
 
 #include <memory>
@@ -81,7 +80,7 @@ class SimpleWindow
     /// Unique window identifier generated dynamically at creation time.
     unsigned int _id;
 
-#if defined(OSWin_)
+#if defined(_WIN32)
     /// Window class name for window generated at creation time.
     char _windowClassName[128];
 #endif

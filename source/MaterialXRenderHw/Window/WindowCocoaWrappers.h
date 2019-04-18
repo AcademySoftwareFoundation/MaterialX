@@ -6,8 +6,7 @@
 #ifndef MATERIALX_WINDOWCOCOAWRAPPERS_H
 #define MATERIALX_WINDOWCOCOAWRAPPERS_H
 
-#include <MaterialXRender/HardwarePlatform.h>
-#if defined(OSMac_)
+#if defined(__APPLE__)
 
 /// Wrappers for calling into Objective-C Cocoa routines on Mac for Windowing
 #ifdef __cplusplus

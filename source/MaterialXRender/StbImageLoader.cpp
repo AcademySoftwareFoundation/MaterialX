@@ -3,9 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRender/HardwarePlatform.h>
-
-#if defined(OSWin_) || defined(_WIN32)
+#if defined(_WIN32)
     #pragma warning( push )
     #pragma warning( disable: 4100)
     #pragma warning( disable: 4505)
@@ -21,8 +19,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <MaterialXRender/External/StbImage/stb_image.h>
 
-#if defined(OSWin_) || defined(_WIN32)
-    #pragma warning( pop ) 
+#if defined(_WIN32)
+    #pragma warning( pop )
 #endif
 
 
@@ -90,7 +88,7 @@ bool StbImageLoader::saveImage(const FilePath& filePath,
 }
 
 bool StbImageLoader::acquireImage(const FilePath& filePath, ImageDesc &imageDesc,
-                                  const ImageDescRestrictions* restrictions) 
+                                  const ImageDescRestrictions* restrictions)
 {
     imageDesc.width = imageDesc.height = imageDesc.channelCount = 0;
     imageDesc.resourceBuffer = nullptr;
@@ -142,6 +140,3 @@ bool StbImageLoader::acquireImage(const FilePath& filePath, ImageDesc &imageDesc
 }
 
 }
-
-
-

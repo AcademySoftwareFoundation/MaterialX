@@ -3,17 +3,15 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRender/HardwarePlatform.h>
-
-#if defined(OSWin_)
+#if defined(_WIN32)
 #include <windows.h> // For Windows calls
 
-#elif defined(OSLinux_)
+#elif defined(__linux__)
 #include <dlfcn.h> // For dlopen
 #include <MaterialXRenderGlsl/External/GLew/glxew.h>
 #include <X11/Intrinsic.h>
 
-#elif defined(OSMac_)
+#elif defined(__APPLE__)
 #include <MaterialXRenderHw/Window/WindowCocoaWrappers.h>
 #include <MaterialXRenderGlsl/External/GLew/glew.h>
 #include <MaterialXRenderGlsl/GLCocoaWrappers.h>
@@ -24,16 +22,7 @@
 
 namespace MaterialX
 {
-// Unsupported
-#if defined(OSUnsupported_)
-
-GLUtilityContext::GLUtilityContext(const WindowWrapper& /*windowWrapper*/, HardwareContextHandle /*sharedWithContext*/) :
-    _contextHandle(nullptr),
-    _isValid(false)
-{
-}
-
-#elif defined(OSWin_)
+#if defined(_WIN32)
 //
 // Windows implementation
 //
@@ -93,7 +82,7 @@ void GLUtilityContext::shareLists(HardwareContextHandle context)
     }
 }
 
-#elif defined(OSLinux_)
+#elif defined(__linux__)
 //
 // Linux context implementation
 //
@@ -240,7 +229,7 @@ GLUtilityContext::GLUtilityContext(const WindowWrapper& windowWrapper,
 //
 // OSX implementation
 //
-#elif defined(OSMac_)
+#elif defined(__APPLE__)
 
 GLUtilityContext::GLUtilityContext(const WindowWrapper& /*windowWrapper*/, HardwareContextHandle sharedWithContext)
 {
@@ -270,11 +259,11 @@ GLUtilityContext::~GLUtilityContext()
     // Only do this portion if the context is valid
     if (_isValid)
     {
-#if defined(OSWin_)
+#if defined(_WIN32)
         // Release the dummy context.
         wglDeleteContext(_contextHandle);
 
-#elif defined(OSLinux_)
+#elif defined(__linux__)
         glXMakeCurrent(_display, None, NULL);
 
         // This needs to be done after all the GL object
@@ -288,7 +277,7 @@ GLUtilityContext::~GLUtilityContext()
             XDestroyWindow(_display, _dummyWindow);
         }
 
-#elif defined(OSMac_)
+#elif defined(__APPLE__)
         // This needs to be done after all the GL object
         // created with this context are destroyed.
         if (_contextHandle != 0)
@@ -307,11 +296,11 @@ int GLUtilityContext::makeCurrent()
     }
 
     int makeCurrentOk = 0;
-#if defined(OSWin_)
+#if defined(_WIN32)
     makeCurrentOk = wglMakeCurrent(_dummyWindow.windowWrapper().internalHandle(), _contextHandle);
-#elif defined(OSLinux_)
+#elif defined(__linux__)
     makeCurrentOk = glXMakeCurrent(_display, _dummyWindow, _contextHandle);
-#elif defined(OSMac_)
+#elif defined(__APPLE__)
     NSOpenGLMakeCurrent(_contextHandle);
     if (NSOpenGLGetCurrentContextWrapper() == _contextHandle)
     {

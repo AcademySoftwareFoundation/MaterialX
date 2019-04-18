@@ -9,26 +9,25 @@
 /// @file
 /// OpenGL utility context
 
-#include <MaterialXRender/HardwarePlatform.h>
 #include <MaterialXRenderHw/Window/WindowWrapper.h>
 #include <memory>
 
-#if defined(OSWin_)
+#if defined(_WIN32)
 #include <MaterialXRenderHw/Window/SimpleWindow.h>
-#elif defined(OSMac_)
+#elif defined(__APPLE__)
 #include <OpenGL/gl.h>
-#elif defined(OSLinux_)
+#elif defined(__linux__)
 #include <MaterialXRenderGlsl/External/GLew/glxew.h>
 #endif
 
 namespace MaterialX
 {
 /// Platform dependent definition of a hardware context
-#if defined(OSWin_)
+#if defined(_WIN32)
 using HardwareContextHandle = HGLRC;
-#elif defined(OSLinux_)
+#elif defined(__linux__)
 using HardwareContextHandle = GLXContext;
-#elif defined(OSMac_)
+#elif defined(__APPLE__)
 using HardwareContextHandle = void*;
 #else
 using HardwareContextHandle = void*;
@@ -58,7 +57,7 @@ class GLUtilityContext
         return _contextHandle;
     }
 
-#if defined(OSLinux_)
+#if defined(__linux__)
     /// Return X display associated with context
     Display *display() const { return _display; }
 #endif
@@ -72,7 +71,7 @@ class GLUtilityContext
     /// Make the context "current" before execution of OpenGL operations
     int makeCurrent();
 
-#if defined(OSWin_)
+#if defined(_WIN32)
     /// Share this context with an external one
     void shareLists(HardwareContextHandle context);
 #endif
@@ -81,10 +80,10 @@ class GLUtilityContext
     /// Create the base context. A OpenGL context to share with can be passed in.
     GLUtilityContext(const WindowWrapper& windowWrapper, HardwareContextHandle context = 0);
 
-#if defined(OSWin_)
+#if defined(_WIN32)
     /// Offscreen window required for context operations
     SimpleWindow _dummyWindow;
-#elif defined(OSLinux_)
+#elif defined(__linux__)
     /// Offscreen window required for context operations
     Window _dummyWindow;
     /// X Display used by context operations

@@ -5,48 +5,15 @@
 
 #include <MaterialXRenderHw/Window/WindowWrapper.h>
 
-#if defined(OSLinux_)
+#if defined(__linux__)
 #include <X11/Intrinsic.h>
-#elif defined(OSMac_)
+#elif defined(__APPLE__)
 #include <MaterialXRenderHw/Window/WindowCocoaWrappers.h>
 #endif
 
 namespace MaterialX
 {
-#if defined(OSUnsupported_)
-//
-// Unsupport platform stubs
-//
-WindowWrapper::WindowWrapper() :
-    _externalHandle(0),
-    _internalHandle(0)
-{
-}
-
-WindowWrapper::WindowWrapper(ExternalWindowHandle /*externalHandle*/,
-    InternalWindowHandle /*internalHandle*/,
-    DisplayHandle /*display*/) :
-    _externalHandle(0),
-    _internalHandle(0)
-{
-}
-
-WindowWrapper::WindowWrapper(const WindowWrapper& /*other*/) :
-    _externalHandle(0),
-    _internalHandle(0)
-{
-}
-
-const WindowWrapper& WindowWrapper::operator=(const WindowWrapper& /*other*/)
-{
-    return *this;
-}
-
-WindowWrapper::~WindowWrapper()
-{
-}
-
-#elif defined(OSWin_)
+#if defined(_WIN32)
 //
 // Window platform code
 //
@@ -121,7 +88,7 @@ void WindowWrapper::release()
     _internalHandle = 0;
 }
 
-#elif defined(OSLinux_)
+#elif defined(__linux__)
 //
 // Linux (X-specific) code
 //
@@ -180,7 +147,7 @@ void WindowWrapper::release()
     _display = 0;
 }
 
-#elif defined(OSMac_)
+#elif defined(__APPLE__)
 //
 // OSX (Apple) specific code
 //
