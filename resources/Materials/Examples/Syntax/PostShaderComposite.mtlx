@@ -14,7 +14,7 @@
     <parameter name="roughness2" type="float" value="0.5"/>
     <input name="mixamt" type="float" value="0"/>
   </nodedef>
-  <nodegraph name="NG_twolayersurface_srf" nodedef="ND_twolayersurface_srf">
+  <nodegraph name="NG_twolayersurface_srf" nodedef="ND_twolayersurface_surface">
     <image name="i_diff1" type="color3">
       <parameter name="file" type="filename" value="txt/[color1]/[color1].<UDIM>.tif"/>
     </image>
