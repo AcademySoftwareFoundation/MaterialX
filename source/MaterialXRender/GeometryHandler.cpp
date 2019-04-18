@@ -57,17 +57,6 @@ void GeometryHandler::getGeometry(MeshList& meshes, const string& location)
     }
 }
 
-void GeometryHandler::clearGeometry(const string& location)
-{
-    for (auto mesh : _meshes)
-    {
-        if (mesh->getSourceUri() == location)
-        {
-            _meshes.erase(std::find(_meshes.begin(), _meshes.end(), mesh));
-        }
-    }
-}
-
 void GeometryHandler::computeBounds()
 {
     const float MAX_FLOAT = std::numeric_limits<float>::max();
