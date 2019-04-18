@@ -27,7 +27,7 @@ namespace MaterialX
 using GlslProgramPtr = std::shared_ptr<class GlslProgram>;
 
 /// @class @GlslProgram
-/// GLSL program helper class to perform validation of GLSL source code. 
+/// GLSL program helper class to perform validation of GLSL source code.
 ///
 /// There are two main interfaces which can be used. One which takes in a HwShader and one which
 /// allows for explicit setting of shader stage code.
@@ -72,7 +72,7 @@ class GlslProgram
     /// Create the shader program from stages specified
     /// An exception is thrown if the program cannot be created.
     /// The exception will contain a list of program creation errors.
-    /// @return Program identifier. 
+    /// @return Program identifier.
     unsigned int build();
 
     /// Structure to hold information about program inputs
@@ -113,13 +113,13 @@ class GlslProgram
     /// Program input shaded pointer map type
     using InputMap = std::unordered_map<std::string, InputPtr>;
 
-    /// Get list of program input uniforms. 
+    /// Get list of program input uniforms.
     /// The program must have been created successfully first.
     /// An exception is thrown if the parsing of the program for uniforms cannot be performed.
     /// @return Program uniforms list.
     const InputMap& getUniformsList();
 
-    /// Get list of program input attributes. 
+    /// Get list of program input attributes.
     /// The program must have been created successfully first.
     /// An exception is thrown if the parsing of the program for attribute cannot be performed.
     /// @return Program attributes list.
@@ -217,7 +217,7 @@ class GlslProgram
     const InputMap& updateAttributesList();
 
     /// Clear out any cached input lists
-    void clearInputLists();   
+    void clearInputLists();
 
     /// Utility to map a MaterialX type to an OpenGL type
     /// @param type MaterialX type
@@ -276,6 +276,8 @@ class GlslProgram
 
     /// Program texture map
     std::unordered_map<std::string, unsigned int> _programTextures;
+
+    std::set<int> _enabledLocations;
 };
 
 } // namespace MaterialX

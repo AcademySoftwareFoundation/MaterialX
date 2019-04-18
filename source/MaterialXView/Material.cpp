@@ -30,7 +30,7 @@ bool stringEndsWith(const std::string& str, std::string const& end)
 // Material methods
 //
 
-size_t Material::loadDocument(mx::DocumentPtr destinationDoc, const mx::FilePath& filePath, 
+size_t Material::loadDocument(mx::DocumentPtr destinationDoc, const mx::FilePath& filePath,
                               mx::DocumentPtr libraries, const DocumentModifiers& modifiers,
                               std::vector<MaterialPtr>& materials)
 {
@@ -41,7 +41,7 @@ size_t Material::loadDocument(mx::DocumentPtr destinationDoc, const mx::FilePath
     {
         mx::FileSearchPath fileSearchPath = mx::FileSearchPath(searchPath);
         fileSearchPath.append(mx::getEnvironmentPath());
-        
+
         mx::FilePath resolvedFilename = fileSearchPath.find(filename);
         if (resolvedFilename.exists())
         {
@@ -325,7 +325,7 @@ bool Material::bindPartition(mx::MeshPartitionPtr part) const
     _glShader->bind();
     MatrixXuProxy indices(&part->getIndices()[0], 3, part->getIndices().size() / 3);
     _glShader->uploadIndices(indices);
-    
+
     return true;
 }
 
@@ -409,7 +409,9 @@ bool Material::bindImage(std::string filename, const std::string& uniformName, m
     }
 
     // Bind the image and set its sampling properties.
-    _glShader->setUniform(uniformName, desc.resourceId);
+    int textureLocation = imageHandler->getBoundTextureLocation(desc.resourceId);
+    if (textureLocation < 0) return false;
+    _glShader->setUniform(uniformName, textureLocation);
     mx::ImageSamplingProperties samplingProperties;
     imageHandler->bindImage(filename, samplingProperties);
 
@@ -470,8 +472,8 @@ void Material::bindUniform(const std::string& name, mx::ConstValuePtr value)
     }
 }
 
-void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandlerPtr imageHandler, 
-                          const mx::FileSearchPath& imagePath, int envSamples, bool directLighting, 
+void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandlerPtr imageHandler,
+                          const mx::FileSearchPath& imagePath, int envSamples, bool directLighting,
                           bool indirectLighting)
 {
     if (!_glShader)
@@ -606,7 +608,7 @@ mx::ShaderPort* Material::findUniform(const std::string& path) const
     mx::ShaderPort* port = nullptr;
     mx::VariableBlock* publicUniforms = getPublicUniforms();
     if (publicUniforms)
-    { 
+    {
         // Scan block based on path match predicate
         port = publicUniforms->find(
             [path](mx::ShaderPort* port)

@@ -100,13 +100,15 @@ void GlslValidator::initialize()
                     bool initializedFunctions = true;
 
                     glewInit();
+#ifndef OSMac_
+
                     if (!glewIsSupported("GL_VERSION_4_0"))
                     {
                         initializedFunctions = false;
                         errors.push_back("OpenGL version 4.0 not supported");
                         throw ExceptionShaderValidationError(errorType, errors);
                     }
-
+#endif
                     if (initializedFunctions)
                     {
                         glClearColor(0.4f, 0.4f, 0.4f, 0.0f);
@@ -432,9 +434,6 @@ void GlslValidator::validateRender(bool orthographicView)
 
     // Update viewing information
     updateViewInformation();
-
-    // Set view information for fixed function
-    bindFixedFunctionViewInformation();
 
     try
     {

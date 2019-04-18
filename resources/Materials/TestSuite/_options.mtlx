@@ -62,10 +62,10 @@
       <parameter name="shadedGeometry" type="string" value="sphere.obj" />
 
       <!-- Suggested radiance IBL file path -->
-      <parameter name="radianceIBLPath" type="string" value="/resources/Images/san_giuseppe_bridge.hdr" />
+      <parameter name="radianceIBLPath" type="string" value="resources/Images/san_giuseppe_bridge.hdr" />
 
       <!-- Suggested irradiance IBL file path -->
-      <parameter name="irradianceIBLPath" type="string" value="/resources/Images/san_giuseppe_bridge_diffuse.hdr" />
+      <parameter name="irradianceIBLPath" type="string" value="resources/Images/san_giuseppe_bridge_diffuse.hdr" />
 
    </nodedef>
 </materialx>

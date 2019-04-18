@@ -104,7 +104,7 @@ void GlslProgram::deleteProgram()
     if (_programId > UNDEFINED_OPENGL_RESOURCE_ID)
     {
         glUseProgram(0);
-        glDeleteObjectARB(_programId);
+        glDeleteProgram(_programId);
         _programId = UNDEFINED_OPENGL_RESOURCE_ID;
     }
 
@@ -368,6 +368,7 @@ void GlslProgram::bindAttribute(const MaterialX::GlslProgram::InputMap& inputs, 
         }
 
         glEnableVertexAttribArray(location);
+        _enabledLocations.insert(location);
         glVertexAttribPointer(location, stride, GL_FLOAT, GL_FALSE, 0, 0);
     }
 }
@@ -392,6 +393,7 @@ void GlslProgram::bindPartition(MeshPartitionPtr partition)
 
 void GlslProgram::bindStreams(MeshPtr mesh)
 {
+    _enabledLocations.clear();
     ShaderValidationErrorList errors;
     const std::string errorType("GLSL geometry bind error.");
 
@@ -488,13 +490,14 @@ void GlslProgram::unbindGeometry()
 {
     // Cleanup attribute bindings
     //
-    glBindVertexArray(0);
     int numberAttributes = 0;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &numberAttributes);
-    for (int i = 0; i < numberAttributes; i++)
+    for(int i : _enabledLocations)
     {
         glDisableVertexAttribArray(i);
     }
+    _enabledLocations.clear();
+    glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
 
@@ -537,8 +540,10 @@ bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, con
 
         if (haveImage)
         {
+            int textureLocation = imageHandler->getBoundTextureLocation(imageDesc.resourceId);
+            if (textureLocation < 0) return false;
             // Map location to a texture unit
-            glUniform1i(uniformLocation, imageDesc.resourceId);
+            glUniform1i(uniformLocation, textureLocation);
             textureBound = imageHandler->bindImage(filePath, samplingProperties);
         }
         checkErrors();

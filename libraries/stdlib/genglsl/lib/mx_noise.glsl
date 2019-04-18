@@ -96,19 +96,19 @@ vec3 mx_trilerp(vec3 v0, vec3 v1, vec3 v2, vec3 v3, vec3 v4, vec3 v5, vec3 v6, v
 float mx_gradient(uint hash, float x, float y)
 {
     // 8 possible directions (+-1,+-2) and (+-2,+-1)
-    uint h = hash & 7;
-    float u = mx_select(h<4, x, y);
-    float v = 2.0 * mx_select(h<4, y, x);
+    uint h = hash & uint(7);
+    float u = mx_select(h<uint(4), x, y);
+    float v = 2.0 * mx_select(h<uint(4), y, x);
     // compute the dot product with (x,y).
-    return mx_negate_if(u, bool(h&1)) + mx_negate_if(v, bool(h&2));
+    return mx_negate_if(u, bool(h&uint(1)) || bool(mx_negate_if(v, bool(h&uint(2)))));
 }
 float mx_gradient(uint hash, float x, float y, float z)
 {
     // use vectors pointing to the edges of the cube
-    uint h = hash & 15;
-    float u = mx_select(h<8, x, y);
-    float v = mx_select(h<4, y, mx_select((h==12)||(h==14), x, z));
-    return mx_negate_if(u, bool(h&1)) + mx_negate_if(v, bool(h&2));
+    uint h = hash & uint(15);
+    float u = mx_select(h<uint(8), x, y);
+    float v = mx_select(h<uint(4), y, mx_select((h==uint(12))||(h==uint(14)), x, z));
+    return mx_negate_if(u, bool(h&uint(1)) || bool(mx_negate_if(v, bool(h&uint(2)))));
 }
 vec3 mx_gradient(uvec3 hash, float x, float y)
 {
@@ -187,9 +187,9 @@ uvec3 mx_hash_vec3(int x, int y)
     // we only need the low-order bits to be random, so split out
     // the 32 bit result into 3 parts for each channel
     uvec3 result;
-    result.x = (h      ) & 0xFF;
-    result.y = (h >> 8 ) & 0xFF;
-    result.z = (h >> 16) & 0xFF;
+    result.x = (h      ) & uint(0xFF);
+    result.y = (h >> 8 ) & uint(0xFF);
+    result.z = (h >> 16) & uint(0xFF);
     return result;
 }
 
@@ -199,9 +199,9 @@ uvec3 mx_hash_vec3(int x, int y, int z)
     // we only need the low-order bits to be random, so split out
     // the 32 bit result into 3 parts for each channel
     uvec3 result;
-    result.x = (h      ) & 0xFF;
-    result.y = (h >> 8 ) & 0xFF;
-    result.z = (h >> 16) & 0xFF;
+    result.x = (h      ) & uint(0xFF);
+    result.y = (h >> 8 ) & uint(0xFF);
+    result.z = (h >> 16) & uint(0xFF);
     return result;
 }
 
