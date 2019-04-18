@@ -117,6 +117,14 @@ size_t Material::loadDocument(mx::DocumentPtr destinationDoc, const mx::FilePath
         }
     }
 
+    // Validate the document.
+    std::string message;
+    if (!doc->validate(&message))
+    {
+        std::cerr << "*** Validation warnings for " << filePath.getBaseName() << " ***" << std::endl;
+        std::cerr << message;
+    }
+
     // Find new renderable elements.
     size_t previousMaterialCount = materials.size();
     mx::StringVec renderablePaths;
