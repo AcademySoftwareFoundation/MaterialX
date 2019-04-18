@@ -37,12 +37,6 @@ mark_as_advanced(MATERIALX_PYTHON_OCIO_DIR)
 mark_as_advanced(MATERIALX_PYTHON_PYBIND11_DIR)
 
 # Validation options for compiling and rendering generated shaders
-option(MATERIALX_BUILD_RENDER "Build the MaterialX Render module." ON)
-mark_as_advanced(MATERIALX_BUILD_RENDER)
-option(MATERIALX_BUILD_RENDEROSL "Build OSL shader generator validation." ON)
-mark_as_advanced(MATERIALX_BUILD_RENDEROSL)
-option(MATERIALX_BUILD_RENDERGLSL "Build GLSL shader generator validation." ON)
-mark_as_advanced(MATERIALX_BUILD_RENDERGLSL)
 option(MATERIALX_TEST_RENDER "Run rendering tests for MaterialX Render module. GPU required for graphics validation." OFF)
 mark_as_advanced(MATERIALX_TEST_RENDER)
 option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
@@ -53,30 +47,17 @@ mark_as_advanced(MATERIALX_OIIO_DIR)
 # Viewer building option. If viewer is desired then we require
 # render and GLSL modules.
 option(MATERIALX_BUILD_VIEWER "Build the MaterialX Sample Viewer. " OFF)
-if(MATERIALX_BUILD_VIEWER)
-    set(MATERIALX_BUILD_RENDER ON)
-    set(MATERIALX_BUILD_RENDERGLSL ON)
-endif()
-
-if(NOT MATERIALX_BUILD_RENDER)
-    set(MATERIALX_BUILD_RENDEROSL OFF)
-    set(MATERIALX_BUILD_RENDERGLSL OFF)
-    set(MATERIALX_BUILD_OIIO OFF)
-    set(MATERIALX_TEST_RENDER OFF)
-endif()
 
 # Helpers for OSL validation
-if(MATERIALX_BUILD_RENDEROSL)
-    set(MATERIALX_OSLC_EXECUTABLE "" CACHE FILEPATH "Full path to the oslc binary.")
-    mark_as_advanced(MATERIALX_OSLC_EXECUTABLE)
-    add_definitions(-DMATERIALX_OSLC_EXECUTABLE=\"${MATERIALX_OSLC_EXECUTABLE}\")
-    set(MATERIALX_TESTRENDER_EXECUTABLE "" CACHE FILEPATH "Full path to the testrender binary.")
-    mark_as_advanced(MATERIALX_TESTRENDER_EXECUTABLE)
-    add_definitions(-DMATERIALX_TESTRENDER_EXECUTABLE=\"${MATERIALX_TESTRENDER_EXECUTABLE}\")
-    set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH "Full path to osl include paths. e.g. location of stdosl.h")
-    mark_as_advanced(MATERIALX_OSL_INCLUDE_PATH)
-    add_definitions(-DMATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\")
-endif()
+set(MATERIALX_OSLC_EXECUTABLE "" CACHE FILEPATH "Full path to the oslc binary.")
+mark_as_advanced(MATERIALX_OSLC_EXECUTABLE)
+add_definitions(-DMATERIALX_OSLC_EXECUTABLE=\"${MATERIALX_OSLC_EXECUTABLE}\")
+set(MATERIALX_TESTRENDER_EXECUTABLE "" CACHE FILEPATH "Full path to the testrender binary.")
+mark_as_advanced(MATERIALX_TESTRENDER_EXECUTABLE)
+add_definitions(-DMATERIALX_TESTRENDER_EXECUTABLE=\"${MATERIALX_TESTRENDER_EXECUTABLE}\")
+set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH "Full path to osl include paths. e.g. location of stdosl.h")
+mark_as_advanced(MATERIALX_OSL_INCLUDE_PATH)
+add_definitions(-DMATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\")
 
 # Adjust the default installation path
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -110,39 +91,37 @@ else()
     endif()
 endif()
 
-# Add subdirectories
+# Add core subdirectories
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
+
+# Add shader generation subdirectories
 add_subdirectory(source/MaterialXGenShader)
 add_subdirectory(source/MaterialXGenOsl)
 add_subdirectory(source/MaterialXGenGlsl)
 
-if(MATERIALX_BUILD_RENDER)
-    add_definitions(-DMATERIALX_BUILD_RENDER)
-    if(MATERIALX_BUILD_OIIO)
-        add_definitions(-DMATERIALX_BUILD_OIIO)
-        add_definitions(-DOPENIMAGEIO_ROOT_DIR=\"${OPENIMAGEIO_ROOT_DIR}\")
-    endif()
-    add_subdirectory(source/MaterialXRender)
-    if(MATERIALX_BUILD_RENDEROSL)
-        add_subdirectory(source/MaterialXRenderOsl)
-        add_definitions(-DMATERIALX_BUILD_RENDEROSL)
-    endif()
-    if(MATERIALX_BUILD_RENDERGLSL)
-        add_subdirectory(source/MaterialXRenderHw)
-        add_subdirectory(source/MaterialXRenderGlsl)
-        add_definitions(-DMATERIALX_BUILD_RENDERGLSL)
-    endif()
-    if(MATERIALX_TEST_RENDER)
-        add_definitions(-DMATERIALX_TEST_RENDER)
-    endif()
-endif(MATERIALX_BUILD_RENDER)
+# Add render module subdirectories
+if(MATERIALX_BUILD_OIIO)
+    add_definitions(-DMATERIALX_BUILD_OIIO)
+    add_definitions(-DOPENIMAGEIO_ROOT_DIR=\"${OPENIMAGEIO_ROOT_DIR}\")
+endif()
+add_subdirectory(source/MaterialXRender)
+add_subdirectory(source/MaterialXRenderOsl)
+add_subdirectory(source/MaterialXRenderHw)
+add_subdirectory(source/MaterialXRenderGlsl)
+if(MATERIALX_TEST_RENDER)
+    add_definitions(-DMATERIALX_TEST_RENDER)
+endif()
 
+# Add viewer subdirectory
 if(MATERIALX_BUILD_VIEWER)
     add_subdirectory(source/MaterialXView)
 endif()
 
+# Add test subdirectory
 add_subdirectory(source/MaterialXTest)
+
+# Add resource and library subdirectories
 add_subdirectory(libraries)
 add_subdirectory(resources)
 
@@ -154,7 +133,7 @@ if(MATERIALX_BUILD_DOCS)
     add_subdirectory(documents)
 endif()
 
-if(${CMAKE_VERSION} VERSION_GREATER "3.6.2") 
+if(${CMAKE_VERSION} VERSION_GREATER "3.6.2")
     if(MATERIALX_BUILD_VIEWER)
         set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT MaterialXView)
     else()

@@ -159,11 +159,13 @@ bool RenderTestOptions::readOptions(const std::string& optionFile)
                     }
                     else if (name == LANGUAGE_AND_TARGETS_STRING)
                     {
+                        #if defined(MATERIALX_TEST_RENDER)
                         mx::StringVec list =  mx::splitString(p->getValueString(), ",");
                         for (auto l : list)
                         {
                             languageAndTargets.insert(l);
                         }
+                        #endif
                     }
                     else if (name == CHECK_IMPL_COUNT_STRING)
                     {
@@ -225,7 +227,7 @@ void ShaderRenderTester::checkImplementationUsage(const std::string& language,
                                                   mx::GenContext& context,
                                                   std::ostream& stream)
 {
-    // Get list of implementations a given langauge. 
+    // Get list of implementations a given langauge.
     std::set<mx::ImplementationPtr> libraryImpls;
     const std::vector<mx::ElementPtr>& children = dependLib->getChildren();
     for (auto child : children)
@@ -535,4 +537,3 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 }
 
 } // namespace RenderUtil
-

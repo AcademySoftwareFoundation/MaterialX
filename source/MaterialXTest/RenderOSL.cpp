@@ -3,8 +3,6 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#if defined(MATERIALX_TEST_RENDER) && defined(MATERIALX_BUILD_RENDEROSL)
-
 #include <MaterialXRender/HardwarePlatform.h>
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
@@ -34,7 +32,7 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
     {
         return _languageTargetString;
     }
-    
+
     void createShaderGenerator() override
     {
         _shaderGenerator = mx::OslShaderGenerator::create();
@@ -58,7 +56,7 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
                       RenderUtil::RenderProfileTimes& profileTimes,
                       const mx::FileSearchPath& imageSearchPath,
                       const std::string& outputPath = ".") override;
-    
+
     void getImplementationWhiteList(mx::StringSet& whiteList) override;
 
     std::string _languageTargetString;
@@ -119,12 +117,12 @@ void OslShaderRenderTester::createValidator(std::ostream& log)
 // Validator execution
 bool OslShaderRenderTester::runValidator(const std::string& shaderName,
                                          mx::TypedElementPtr element,
-                                         mx::GenContext& context, 
+                                         mx::GenContext& context,
                                          mx::DocumentPtr doc,
-                                         std::ostream& log, 
-                                         const RenderUtil::RenderTestOptions& testOptions, 
+                                         std::ostream& log,
+                                         const RenderUtil::RenderTestOptions& testOptions,
                                          RenderUtil::RenderProfileTimes& profileTimes,
-                                         const mx::FileSearchPath& imageSearchPath, 
+                                         const mx::FileSearchPath& imageSearchPath,
                                          const std::string& outputPath)
 {
     RenderUtil::AdditiveScopedTimer totalOSLTime(profileTimes.languageTimes.totalTime, "OSL total time");
@@ -320,7 +318,7 @@ bool OslShaderRenderTester::runValidator(const std::string& shaderName,
 
 void OslShaderRenderTester::getImplementationWhiteList(mx::StringSet& whiteList)
 {
-    whiteList = 
+    whiteList =
     {
         "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
         "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue"
@@ -342,5 +340,3 @@ TEST_CASE("Render: OSL TestSuite", "[renderosl]")
 
     renderTester.validate(testRootPaths, optionsFilePath);
 }
-
-#endif
