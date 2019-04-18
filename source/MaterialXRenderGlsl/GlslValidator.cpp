@@ -100,7 +100,7 @@ void GlslValidator::initialize()
                     bool initializedFunctions = true;
 
                     glewInit();
-#ifndef OSMac_
+#if !defined(__APPLE__)
 
                     if (!glewIsSupported("GL_VERSION_4_0"))
                     {

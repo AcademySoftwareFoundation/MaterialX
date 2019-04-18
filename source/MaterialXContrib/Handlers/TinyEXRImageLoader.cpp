@@ -3,8 +3,6 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRender/HardwarePlatform.h>
-
 #define TINYEXR_IMPLEMENTATION
 #include <cstdlib>
 #include <cstdio>
