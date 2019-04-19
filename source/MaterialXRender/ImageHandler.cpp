@@ -209,4 +209,4 @@ void ImageHandler::clearImageCache()
     _imageCache.clear();
 }
 
-}
+} // namespace MaterialX

@@ -80,4 +80,4 @@ void LightHandler::registerLights(DocumentPtr doc, const std::vector<NodePtr>& l
     context.getOptions().hwMaxActiveLightSources = lightSourceCount;
 }
 
-}
+} // namespace MaterialX

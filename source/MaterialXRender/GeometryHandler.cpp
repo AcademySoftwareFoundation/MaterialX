@@ -79,7 +79,9 @@ bool GeometryHandler::loadGeometry(const FilePath& filePath)
 {
     // Early return if already loaded
     if (hasGeometry(filePath))
+    {
         return true;
+    }
 
     bool loaded = false;
 
@@ -106,4 +108,4 @@ bool GeometryHandler::loadGeometry(const FilePath& filePath)
     return loaded;
 }
 
-}
+} // namespace MaterialX

@@ -66,4 +66,4 @@ void ViewHandler::setOrthoGraphicProjectionMatrix(float left,
     _projectionMatrix[3][3] = 1.0f;
 }
 
-}
+} // namespace MaterialX

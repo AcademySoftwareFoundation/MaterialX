@@ -75,7 +75,7 @@ class ImageDesc
     /// Compute the number of mip map levels based on size of the image
     void computeMipCount()
     {
-        mipCount = (unsigned int)std::log2(std::max(width, height)) + 1;
+        mipCount = (unsigned int) std::log2(std::max(width, height)) + 1;
     }
 
     /// Free any resource buffer memory

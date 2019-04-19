@@ -139,4 +139,4 @@ bool StbImageLoader::acquireImage(const FilePath& filePath, ImageDesc &imageDesc
     return (imageDesc.resourceBuffer != nullptr);
 }
 
-}
+} // namespace MaterialX
