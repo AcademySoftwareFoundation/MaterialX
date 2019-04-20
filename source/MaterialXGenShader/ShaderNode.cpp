@@ -221,8 +221,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     }
 
     // Create interface from nodedef
-    const vector<ValueElementPtr> nodeDefPorts = nodeDef.getChildrenOfType<ValueElement>();
-    for (const ValueElementPtr& port : nodeDefPorts)
+    for (const ValueElementPtr& port : nodeDef.getActiveValueElements())
     {
         const TypeDesc* portType = TypeDesc::get(port->getType());
         if (port->isA<Output>())
@@ -343,8 +342,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
 void ShaderNode::setPaths(const Node& node, const NodeDef& nodeDef, bool includeNodeDefInputs)
 {
     // Set element paths for children on the node
-    const vector<ValueElementPtr> nodeValues = node.getChildrenOfType<ValueElement>();
-    for (const ValueElementPtr& nodeValue : nodeValues)
+    for (const ValueElementPtr& nodeValue : node.getActiveValueElements())
     {
         ShaderInput* input = getInput(nodeValue->getName());
         if (input)
@@ -362,9 +360,8 @@ void ShaderNode::setPaths(const Node& node, const NodeDef& nodeDef, bool include
     // paths don't actually exist at time of shader generation since there
     // are no inputs/parameters specified on the node itself
     //
-    const vector<InputPtr> nodeInputs = nodeDef.getChildrenOfType<Input>();
     const string& nodePath = node.getNamePath();
-    for (const ValueElementPtr& nodeInput : nodeInputs)
+    for (const InputPtr& nodeInput : nodeDef.getActiveInputs())
     {
         ShaderInput* input = getInput(nodeInput->getName());
         if (input && input->getPath().empty())
@@ -372,8 +369,8 @@ void ShaderNode::setPaths(const Node& node, const NodeDef& nodeDef, bool include
             input->setPath(nodePath + NAME_PATH_SEPARATOR + nodeInput->getName());
         }
     }
-    const vector<ParameterPtr> nodeParameters = nodeDef.getChildrenOfType<Parameter>();
-    for (const ParameterPtr& nodeParameter : nodeParameters)
+
+    for (const ParameterPtr& nodeParameter : nodeDef.getActiveParameters())
     {
         ShaderInput* input = getInput(nodeParameter->getName());
         if (input && input->getPath().empty())
@@ -386,11 +383,10 @@ void ShaderNode::setPaths(const Node& node, const NodeDef& nodeDef, bool include
 void ShaderNode::setValues(const Node& node, const NodeDef& nodeDef, GenContext& context)
 {
     // Copy input values from the given node
-    const vector<ValueElementPtr> nodeValues = node.getChildrenOfType<ValueElement>();
-    for (const ValueElementPtr& nodeValue : nodeValues)
+    for (const ValueElementPtr& nodeValue : node.getActiveValueElements())
     {
         ShaderInput* input = getInput(nodeValue->getName());
-        ValueElementPtr nodeDefInput = nodeDef.getChildOfType<ValueElement>(nodeValue->getName());
+        ValueElementPtr nodeDefInput = nodeDef.getActiveValueElement(nodeValue->getName());
         if (input && nodeDefInput)
         {
             const string& valueString = nodeValue->getValueString();

@@ -111,7 +111,7 @@ OutputPtr Node::getNodeDefOutput(const Edge& edge)
         NodeDefPtr nodeDef = getNodeDef();
         if (nodeDef)
         {
-            return nodeDef->getOutput(input->getOutputString());
+            return nodeDef->getActiveOutput(input->getOutputString());
         }
     }
     return OutputPtr();
@@ -392,15 +392,15 @@ NodeDefPtr NodeGraph::getNodeDef() const
     return resolveRootNameReference<NodeDef>(getNodeDefString());
 }
 
-ConstNodeDefPtr NodeGraph::getDeclaration(const string&) const
-{
-    return getNodeDef();
-}
-
 InterfaceElementPtr NodeGraph::getImplementation() const
 {
     NodeDefPtr nodedef = getNodeDef();
     return nodedef ? nodedef->getImplementation() : InterfaceElementPtr();
+}
+
+ConstNodeDefPtr NodeGraph::getDeclaration(const string&) const
+{
+    return getNodeDef();
 }
 
 } // namespace MaterialX
