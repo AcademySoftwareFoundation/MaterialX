@@ -398,11 +398,6 @@ InterfaceElementPtr NodeGraph::getImplementation() const
     return nodedef ? nodedef->getImplementation() : InterfaceElementPtr();
 }
 
-ConstNodeDefPtr NodeGraph::getDeclaration(const string&) const
-{
-    return getNodeDef();
-}
-
 bool NodeGraph::validate(string* message) const
 {
     bool res = true;
