@@ -224,6 +224,16 @@ class ShaderRenderTester
     // Check if testing should be performed based in input options
     virtual bool runTest(const RenderUtil::RenderTestOptions& testOptions) const = 0;
 
+    // Add files to skip
+    void addSkipFiles()
+    {
+        _skipFiles.insert("_options.mtlx");
+        _skipFiles.insert("light_rig.mtlx");
+        _skipFiles.insert("lightcompoundtest_ng.mtlx");
+        _skipFiles.insert("lightcompoundtest.mtlx");
+        _skipFiles.insert("default_viewer_lights.mtlx");
+    }
+
     // Load any additional libraries requird by the generator
     virtual void loadLibraries(mx::DocumentPtr /*dependLib*/,
                                RenderUtil::RenderTestOptions& /*options*/) {};
@@ -288,6 +298,8 @@ class ShaderRenderTester
 
     // Generator to use
     mx::ShaderGeneratorPtr _shaderGenerator;
+    // Files to skip
+    mx::StringSet _skipFiles;
 };
 
 } // namespace RenderUtil

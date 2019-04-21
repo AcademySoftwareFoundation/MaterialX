@@ -388,10 +388,12 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     // This will be imported in each test document below
     ioTimer.startTimer();
     mx::DocumentPtr dependLib = mx::createDocument();
-    mx::StringSet excludeFiles;
+
+    // Add files to skip
+    addSkipFiles();
 
     const mx::StringVec libraries = { "stdlib", "pbrlib" };
-    GenShaderUtil::loadLibraries(libraries, searchPath, dependLib, &excludeFiles);
+    GenShaderUtil::loadLibraries(libraries, searchPath, dependLib, nullptr);
     GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), dependLib);
     // Load any addition per validator libraries
     loadLibraries(dependLib, options);
@@ -428,7 +430,6 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     mx::StringSet usedImpls;
 
     const std::string MTLX_EXTENSION("mtlx");
-    const std::string OPTIONS_FILENAME("_options.mtlx");
     for (auto dir : dirs)
     {
         ioTimer.startTimer();
@@ -439,7 +440,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
         for (const std::string& file : files)
         {
 
-            if (file == OPTIONS_FILENAME)
+            if (_skipFiles.count(file))
             {
                 continue;
             }

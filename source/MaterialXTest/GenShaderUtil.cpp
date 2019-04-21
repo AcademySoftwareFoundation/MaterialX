@@ -381,6 +381,7 @@ void ShaderGeneratorTester::addSkipFiles()
     _skipFiles.insert("light_rig.mtlx");
     _skipFiles.insert("lightcompoundtest_ng.mtlx");
     _skipFiles.insert("lightcompoundtest.mtlx");
+    _skipFiles.insert("default_viewer_lights.mtlx");
 }
 
 void ShaderGeneratorTester::addSkipNodeDefs()
