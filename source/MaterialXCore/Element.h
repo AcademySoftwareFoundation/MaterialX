@@ -771,7 +771,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// @param copyOptions An optional pointer to a CopyOptions object.
     ///    If provided, then the given options will affect the behavior of the
     ///    copy function.  Defaults to a null pointer.
-    void copyContentFrom(ConstElementPtr source, const CopyOptions* copyOptions = nullptr);
+    void copyContentFrom(const ConstElementPtr& source, const CopyOptions* copyOptions = nullptr);
 
     /// Clear all attributes and descendants from this element.
     void clearContent();

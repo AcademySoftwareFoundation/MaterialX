@@ -144,10 +144,10 @@ void Document::initialize()
     setVersionString(DOCUMENT_VERSION_STRING);
 }
 
-void Document::importLibrary(ConstDocumentPtr library, const CopyOptions* copyOptions)
+void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions* copyOptions)
 {
     bool skipDuplicateElements = copyOptions && copyOptions->skipDuplicateElements;
-    for (ElementPtr child : library->getChildren())
+    for (const ConstElementPtr& child : library->getChildren())
     {
         string childName = child->getQualifiedName(child->getName());
         if (skipDuplicateElements && getChild(childName))
