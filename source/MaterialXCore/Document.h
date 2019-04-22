@@ -63,7 +63,7 @@ class Document : public GraphElement
     /// @param copyOptions An optional pointer to a CopyOptions object.
     ///    If provided, then the given options will affect the behavior of the
     ///    import function.  Defaults to a null pointer.
-    void importLibrary(ConstDocumentPtr library, const CopyOptions* copyOptions = nullptr);
+    void importLibrary(const ConstDocumentPtr& library, const CopyOptions* copyOptions = nullptr);
 
     /// @}
     /// @name NodeGraph Elements
