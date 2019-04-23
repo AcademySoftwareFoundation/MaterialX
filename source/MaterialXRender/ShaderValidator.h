@@ -108,8 +108,7 @@ class ShaderValidator
 
     /// Perform validation that inputs can be bound to and 
     /// Uendered with. Rendering is to an offscreen hardware buffer.
-    /// @param orthographicView Render orthographically
-    virtual void validateRender(bool orthographicView = true) = 0;
+    virtual void validateRender() = 0;
 
     /// @}
     /// @name Utilities

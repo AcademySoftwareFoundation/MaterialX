@@ -83,9 +83,7 @@ class OslValidator : public ShaderValidator
     /// Usage of both executables requires compiled source (.oso) files as input.
     /// A shader output must be set before running this test via the setOslOutputName() method to
     /// ensure that the appropriate .oso files can be located.
-    ///
-    /// @param orthographicView Render orthographically
-    void validateRender(bool orthographicView=true) override;
+    void validateRender() override;
 
     /// @}
     /// @name Utilities

@@ -6,7 +6,7 @@
 #include <MaterialXRenderGlsl/External/GLew/glew.h>
 #include <MaterialXRenderGlsl/GlslValidator.h>
 #include <MaterialXRender/GeometryHandler.h>
-#include <MaterialXRender/SampleObjLoader.h>
+#include <MaterialXRender/TinyObjLoader.h>
 
 #include <iostream>
 #include <algorithm>
@@ -14,10 +14,8 @@
 namespace MaterialX
 {
 // View information
-const float NEAR_PLANE_ORTHO = 0.01f;
-const float FAR_PLANE_ORTHO = 100.0f;
-const float FOV_PERSP = 70.0f; // degrees
-const float NEAR_PLANE_PERSP = 0.01f;
+const float FOV_PERSP = 45.0f; // degrees
+const float NEAR_PLANE_PERSP = 0.05f;
 const float FAR_PLANE_PERSP = 100.0f;
 
 //
@@ -37,12 +35,11 @@ GlslValidator::GlslValidator() :
     _frameBufferHeight(512),
     _initialized(false),
     _window(nullptr),
-    _context(nullptr),
-    _orthographicView(true)
+    _context(nullptr)
 {
     _program = GlslProgram::create();
 
-    SampleObjLoaderPtr loader = SampleObjLoader::create();
+    TinyObjLoaderPtr loader = TinyObjLoader::create();
     _geometryHandler = GeometryHandler::create();
     _geometryHandler->addLoader(loader);
 
@@ -101,7 +98,6 @@ void GlslValidator::initialize()
 
                     glewInit();
 #if !defined(__APPLE__)
-
                     if (!glewIsSupported("GL_VERSION_4_0"))
                     {
                         initializedFunctions = false;
@@ -349,65 +345,40 @@ void GlslValidator::validateInputs()
 ////////////////////////////////////////////////////////////////////////////////////
 // Binders
 ////////////////////////////////////////////////////////////////////////////////////
-
-void GlslValidator::updateViewInformation()
+void GlslValidator::updateViewInformation(const Vector3& eye,
+                                          const Vector3& center,
+                                          const Vector3& up,                                          
+                                          float viewAngle,
+                                          float nearDist,
+                                          float farDist,
+                                          float objectScale)
 {
-    // Assume identify for model's world matrix
-    Matrix44& modelMatrix = _viewHandler->worldMatrix();
-    modelMatrix = Matrix44::IDENTITY;
+    const float PI = std::acos(-1.0f);
+    float fH = std::tan(viewAngle / 360.0f * PI) * nearDist;
+    float fW = fH * 1.0f;
 
-    Matrix44& viewMatrix = _viewHandler->viewMatrix();
-    viewMatrix = Matrix44::IDENTITY;
+    Vector3 boxMin = _geometryHandler->getMinimumBounds();
+    Vector3 boxMax = _geometryHandler->getMaximumBounds();
+    Vector3 sphereCenter = (boxMax + boxMin) / 2.0;
+    float sphereRadius = (sphereCenter - boxMin).getMagnitude();
+    float meshFit = 2.0f / sphereRadius;
+    Vector3 modelTranslation = sphereCenter * -1.0f;
 
-    Vector3& viewDirection = _viewHandler->viewDirection();
-    viewDirection[0] = 0.0f;
-    viewDirection[1] = 0.0f;
-    viewDirection[2] = 1.0f;
+    Matrix44& world = _viewHandler->worldMatrix();
+    Matrix44& view = _viewHandler->viewMatrix();
+    Matrix44& proj = _viewHandler->projectionMatrix();
+    view = ViewHandler::createViewMatrix(eye, center, up);
+    proj = ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, nearDist, farDist);
+    world = Matrix44::createScale(Vector3(objectScale * meshFit));
+    world *= Matrix44::createTranslation(modelTranslation).getTranspose();
 
-    Vector3& viewPosition = _viewHandler->viewPosition();
-
-    // Offset view position a little beyond geometry bounds
-    Vector3 minBounds = _geometryHandler->getMinimumBounds();
-    float distance = minBounds.getMagnitude() + 0.5f;
-
-    viewPosition[0] = 0.0f;
-    viewPosition[1] = 0.0f;
-    viewPosition[2] = -distance;
-
-    viewMatrix = viewMatrix.createTranslation(viewPosition);
-
-    // Update projection matrix
-    if (_orthographicView)
-    {
-        _viewHandler->setOrthoGraphicProjectionMatrix(-1.0f, 1.0f, -1.0f, 1.0f, NEAR_PLANE_ORTHO, FAR_PLANE_ORTHO);
-    }
-    else
-    {
-        float aspectRatio = (float)_frameBufferWidth / (float)_frameBufferHeight;
-        _viewHandler->setPerspectiveProjectionMatrix(FOV_PERSP, aspectRatio, NEAR_PLANE_PERSP, FAR_PLANE_PERSP);
-    }
+    Matrix44 invView = view.getInverse();
+    _viewHandler->viewDirection() = { invView[0][2], invView[1][2], invView[2][2] };
+    _viewHandler->viewPosition() = { invView[0][3], invView[1][3], invView[2][3] };
 }
 
-void GlslValidator::bindFixedFunctionViewInformation()
+void GlslValidator::validateRender()
 {
-    // Bind projection
-    glMatrixMode(GL_PROJECTION);
-    Matrix44& projection = _viewHandler->projectionMatrix();
-    glLoadMatrixf(&(projection[0][0]));
-
-    // Bind model view matrix
-    glMatrixMode(GL_MODELVIEW);
-    Matrix44 viewMatrix = _viewHandler->viewMatrix();
-    // Note: (model * view) is just Identity * view.
-    glLoadMatrixf(&(viewMatrix[0][0]));
-
-    checkErrors();
-}
-
-void GlslValidator::validateRender(bool orthographicView)
-{
-    _orthographicView = orthographicView;
-
     ShaderValidationErrorList errors;
     const string errorType("GLSL rendering error.");
 
@@ -429,11 +400,14 @@ void GlslValidator::validateRender(bool orthographicView)
     glDepthFunc(GL_LESS);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Set up viewing / projection matrices for an orthographic rendering
     glViewport(0, 0, _frameBufferWidth, _frameBufferHeight);
 
     // Update viewing information
-    updateViewInformation();
+    const Vector3 eye(0.0f, 0.0f, 40.0f);
+    const Vector3 center;
+    const Vector3 up(0.0f, 1.0f, 0.0f);
+    float objectScale(10.0f);
+    updateViewInformation(eye, center, up, FOV_PERSP, NEAR_PLANE_PERSP, FAR_PLANE_PERSP, objectScale);
 
     try
     {
@@ -527,7 +501,7 @@ void GlslValidator::save(const FilePath& filePath, bool floatingPoint)
     desc.height = _frameBufferHeight;
     desc.channelCount = 4;
     desc.resourceBuffer = buffer;
-    bool saved = _imageHandler->saveImage(filePath, desc);
+    bool saved = _imageHandler->saveImage(filePath, desc, true);
 
     desc.resourceBuffer = nullptr;
     delete[] buffer;

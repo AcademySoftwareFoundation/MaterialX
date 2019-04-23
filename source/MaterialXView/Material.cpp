@@ -516,7 +516,10 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandler
                 // Bind any associated uniforms.
                 if (pair.first == "u_envRadiance")
                 {
-                    _glShader->setUniform("u_envRadianceMips", desc.mipCount);
+                    if (_glShader->uniform("u_envRadianceMips", false) != -1)
+                    {
+                        _glShader->setUniform("u_envRadianceMips", desc.mipCount);
+                    }
                 }
             }
         }

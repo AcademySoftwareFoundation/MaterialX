@@ -34,32 +34,15 @@ class ViewHandler
     /// Default destructor
     virtual ~ViewHandler() {};
 
-    /// @name View matrices and vectors
-    /// @{
+    /// Create a view matrix given a eye position, a target position and an up vector
+    static Matrix44 createViewMatrix(const Vector3& eye,
+                                     const Vector3& target,
+                                     const Vector3& up);
 
-    /// Set a matrix to a perspective projection
-    /// @param fov Field of view
-    /// @param aspectRatio Aspect ration (viewport width /  viewport height)
-    /// @param nearClipPlane Near clip plane
-    /// @param farClipPlane Far clip plane
-    void setPerspectiveProjectionMatrix(float fov,
-                                        float aspectRatio,
-                                        float nearClipPlane,
-                                        float farClipPlane);
-
-    /// Set a matrix to an orthographic projection
-    /// @param left Left clip plane
-    /// @param right Right clip plane
-    /// @param bottom Bottom clip plane
-    /// @param top Top clip plane
-    /// @param nearClipPlane Near clip plane
-    /// @param farClipPlane Far clip plane
-    void setOrthoGraphicProjectionMatrix(float left,
-                                         float right,
-                                         float bottom,
-                                         float top,
-                                         float nearClipPlane,
-                                         float farClipPlane);
+    /// Create a perpective matrix given a set of clip planes
+    static Matrix44 createPerspectiveMatrix(float left, float right,
+                                            float bottom, float top,
+                                            float nearP, float farP);
 
     /// Set the world matrix
     void setWorldMatrix(Matrix44& m)

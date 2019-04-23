@@ -194,8 +194,6 @@ bool GLTextureHandler::bindImage(const string &identifier, const ImageSamplingPr
             return false;
         }
 
-        int numTextures;
-        glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &numTextures);
         int textureUnit = getBoundTextureLocation(resourceId);
         if (textureUnit < 0) return false;
         glActiveTexture(GL_TEXTURE0 + textureUnit);
