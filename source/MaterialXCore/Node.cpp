@@ -102,16 +102,50 @@ Edge Node::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
     return NULL_EDGE;
 }
 
-OutputPtr Node::getNodeDefOutput(const Edge& edge)
+OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
 {
-    const ElementPtr connectingElement = edge.getConnectingElement();
-    const PortElementPtr input = connectingElement ? connectingElement->asA<PortElement>() : nullptr;
-    if (input)
+    const string* outputName = nullptr;
+    const PortElementPtr port = connectingElement->asA<PortElement>();
+    if (port)
     {
+        // The connecting element is an input/output port,
+        // so get the name of the output connected to this 
+        // port. If no explicit output is specified this will
+        // return an empty string which is handled below.
+        outputName = &port->getOutputString();
+    }
+    else
+    {
+        const BindInputPtr bindInput = connectingElement->asA<BindInput>();
+        if (bindInput)
+        {
+            // Handle the case where the edge involves a bindinput.
+            const OutputPtr output = bindInput->getConnectedOutput();
+            if (output)
+            {
+                if (output->getParent()->isA<NodeGraph>())
+                {
+                    // The bindinput connects to a graph output,
+                    // so this is the output we're looking for.
+                    outputName = &output->getName();
+                }
+                else
+                {
+                    // The bindinput connects to a free floating output,
+                    // so we have an extra level of indirection. Hence 
+                    // get its connected output.
+                    outputName = &output->getOutputString();
+                }
+            }
+        }
+    }
+    if (outputName && !outputName->empty())
+    {
+        // Find this output on our nodedef.
         NodeDefPtr nodeDef = getNodeDef();
         if (nodeDef)
         {
-            return nodeDef->getActiveOutput(input->getOutputString());
+            return nodeDef->getActiveOutput(*outputName);
         }
     }
     return OutputPtr();

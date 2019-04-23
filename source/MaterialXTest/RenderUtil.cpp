@@ -350,7 +350,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     const std::string prefex = languageTargetString();
     std::ofstream logfile(prefex + "_render_log.txt");
     std::ostream& log(logfile);
-    std::string docValidLogFilename = prefex + "_render_doc_validatiion_log.txt";
+    std::string docValidLogFilename = prefex + "_render_doc_validation_log.txt";
     std::ofstream docValidLogFile(docValidLogFilename);
     std::ostream& docValidLog(docValidLogFile);
     std::ofstream profilingLogfile(prefex + "__render_profiling_log.txt");
