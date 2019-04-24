@@ -16,8 +16,7 @@
       <parameter name="overrideFiles" type="string" value="" />
 
       <!-- Comma separated list of light setup files. Only used for hardware shading languages  -->
-      <parameter name="lightFiles" type="string" value=
-            "lightcompoundtest_ng.mtlx,lightcompoundtest.mtlx,light_rig.mtlx" />
+      <parameter name="lightFiles" type="string" value="default_viewer_lights.mtlx" />
 
       <!-- Comma separated list of "language"_"target" specifiers to indicate which
            code generators to use.
@@ -62,10 +61,10 @@
       <parameter name="shadedGeometry" type="string" value="sphere.obj" />
 
       <!-- Suggested radiance IBL file path -->
-      <parameter name="radianceIBLPath" type="string" value="/resources/Images/san_giuseppe_bridge.hdr" />
+      <parameter name="radianceIBLPath" type="string" value="resources/Images/san_giuseppe_bridge.hdr" />
 
       <!-- Suggested irradiance IBL file path -->
-      <parameter name="irradianceIBLPath" type="string" value="/resources/Images/san_giuseppe_bridge_diffuse.hdr" />
+      <parameter name="irradianceIBLPath" type="string" value="resources/Images/san_giuseppe_bridge_diffuse.hdr" />
 
    </nodedef>
 </materialx>

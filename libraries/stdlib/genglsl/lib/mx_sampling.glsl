@@ -19,7 +19,7 @@ vec2 mx_compute_sample_size_uv(vec2 uv, float filterSize, float filterOffset)
    if (sampleSizeV < 1.0E-05f)
        sampleSizeV = 1.0E-05f;
    return vec2(sampleSizeU, sampleSizeV);
-};
+}
 
 //
 // Compute a normal mapped to 0..1 space based on a set of input
@@ -32,7 +32,7 @@ vec3 mx_normal_from_samples_sobel(float S[9], float _scale)
    float nz = _scale * sqrt(1.0 - nx*nx - ny*ny);
    vec3 norm = normalize(vec3(nx, ny, nz));
    return (norm + 1.0) * 0.5;
-};
+}
 
 // Kernel weights for box filter
 void mx_get_box_weights(inout float W[MX_MAX_SAMPLE_COUNT], int filterSize)

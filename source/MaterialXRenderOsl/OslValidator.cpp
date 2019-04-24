@@ -342,7 +342,7 @@ void OslValidator::validateInputs()
     throw ExceptionShaderValidationError(errorType, errors);
 }
 
-void OslValidator::validateRender(bool /*orthographicView*/)
+void OslValidator::validateRender()
 {
     ShaderValidationErrorList errors;
     const string errorType("OSL rendering error.");

@@ -16,54 +16,30 @@ float ViewHandler::degreesToRadians(float degrees) const
     return (degrees * PI_VALUE / 180.0f);
 }
 
-void ViewHandler::setPerspectiveProjectionMatrix(float fov,
-                                                 float aspectRatio,
-                                                 float nearClipPlane,
-                                                 float farClipPlane)
+Matrix44 ViewHandler::createViewMatrix(const Vector3& eye,
+                                       const Vector3& target,
+                                       const Vector3& up)
 {
-    for (unsigned int i = 0; i < 4; i++)
-    {
-        for (unsigned int j = 0; j < 4; j++)
-        {
-            _projectionMatrix[i][j] = 0.0f;
-        }
-    }
+    Vector3 z = (target - eye).getNormalized();
+    Vector3 x = z.cross(up).getNormalized();
+    Vector3 y = x.cross(z);
 
-    float scaley = 1.0f / std::tan(degreesToRadians(fov / 2.0f));
-    float scalex = scaley / aspectRatio;
-    float clipDistance = farClipPlane - nearClipPlane;
-
-    _projectionMatrix[0][0] = scalex;
-    _projectionMatrix[1][1] = scaley;
-    _projectionMatrix[2][2] = -(nearClipPlane + farClipPlane) / clipDistance;
-    _projectionMatrix[2][3] = -1;
-    _projectionMatrix[3][2] = -((2.0f * nearClipPlane * farClipPlane) / clipDistance);
+    return Matrix44(
+        x[0], x[1], x[2], -x.dot(eye),
+        y[0], y[1], y[2], -y.dot(eye),
+        -z[0], -z[1], -z[2], z.dot(eye),
+        0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-void ViewHandler::setOrthoGraphicProjectionMatrix(float left,
-                                                  float right,
-                                                  float bottom,
-                                                  float top,
-                                                  float nearClipPlane,
-                                                  float farClipPlane)
+Matrix44 ViewHandler::createPerspectiveMatrix(float left, float right,
+                                              float bottom, float top,
+                                              float nearP, float farP)
 {
-    for (unsigned int i = 0; i < 4; i++)
-    {
-        for (unsigned int j = 0; j < 4; j++)
-        {
-            _projectionMatrix[i][j] = 0.0f;
-        }
-    }
-
-    float clipDistance = farClipPlane - nearClipPlane;
-
-    _projectionMatrix[0][0] = 2.0f / (right - left);
-    _projectionMatrix[1][1] = 2.0f / (top - bottom);
-    _projectionMatrix[2][2] = -2.0f / clipDistance;
-    _projectionMatrix[3][0] = -(right + left) / (right - left);
-    _projectionMatrix[3][1] = -(top + bottom) / (top - bottom);
-    _projectionMatrix[3][2] = -(farClipPlane + nearClipPlane) / clipDistance;
-    _projectionMatrix[3][3] = 1.0f;
+    return Matrix44(
+        (2.0f * nearP) / (right - left), 0.0f, (right + left) / (right - left), 0.0f,
+        0.0f, (2.0f * nearP) / (top - bottom), (top + bottom) / (top - bottom), 0.0f,
+        0.0f, 0.0f, -(farP + nearP) / (farP - nearP), -(2.0f * farP * nearP) / (farP - nearP),
+        0.0f, 0.0f, -1.0f, 0.0f);
 }
 
 } // namespace MaterialX

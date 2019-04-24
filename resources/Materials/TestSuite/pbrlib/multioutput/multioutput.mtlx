@@ -76,4 +76,35 @@
     <output name="out" type="color3" nodename="multiply1" />
   </nodegraph>
 
+  <!-- Test custom node implementation with multioutput in a material context -->
+  <color4split name="color4split1" type="multioutput">
+    <input name="in" type="color4" value="1.0, 0.25, 0.25, 0.42" />
+  </color4split>
+  <output name="color4split1_colour" type="color3" nodename="color4split1" output="colour"/>
+  <output name="color4split1_alpha" type="float" nodename="color4split1" output="alpha"/>
+  <material name="multioutput_test5">
+    <shaderref name="standard_surface1" node="standard_surface">
+      <bindinput name="base_color" type="color3" output="color4split1_colour" />
+      <bindinput name="specular_roughness" type="float" output="color4split1_alpha" />
+    </shaderref>
+  </material>
+
+  <!-- Test node graph with multioutput in a material context -->
+  <nodegraph name="multioutput_graph">
+    <constant name="value_color3" type="color3">
+      <parameter name="value" type="color3" value="1.0, 0.25, 0.25" />
+    </constant>
+    <constant name="value_float" type="float">
+      <parameter name="value" type="float" value="0.42" />
+    </constant>
+    <output name="colour" type="color3" nodename="value_color3"/>
+    <output name="alpha" type="float" nodename="value_float"/>
+  </nodegraph>
+  <material name="multioutput_test6">
+    <shaderref name="standard_surface1" node="standard_surface">
+      <bindinput name="base_color" type="color3" nodegraph="multioutput_graph" output="colour" />
+      <bindinput name="specular_roughness" type="float" nodegraph="multioutput_graph" output="alpha" />
+    </shaderref>
+  </material>
+
 </materialx>

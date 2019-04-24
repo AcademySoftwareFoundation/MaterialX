@@ -15,7 +15,6 @@ void bindPyStbImageLoader(py::module& mod);
 #ifdef MATERIALX_BUILD_OIIO
 void bindPyOiioImageLoader(py::module& mod);
 #endif
-void bindPySampleObjLoader(py::module& mod);
 void bindPyTinyObjLoader(py::module& mod);
 void bindPyViewHandler(py::module& mod);
 void bindPyExceptionShaderValidationError(py::module& mod);
@@ -33,7 +32,6 @@ PYBIND11_MODULE(PyMaterialXRender, mod)
 #ifdef MATERIALX_BUILD_OIIO
     bindPyOiioImageLoader(mod);
 #endif
-    bindPySampleObjLoader(mod);
     bindPyTinyObjLoader(mod);
     bindPyViewHandler(mod);
     bindPyExceptionShaderValidationError(mod);

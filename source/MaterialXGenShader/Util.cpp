@@ -452,85 +452,78 @@ void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>
 {
     try
     {
-        std::vector<NodeGraphPtr> nodeGraphs = doc->getNodeGraphs();
-        std::vector<OutputPtr> outputList = doc->getOutputs();
-        std::unordered_set<OutputPtr> outputSet(outputList.begin(), outputList.end());
-        std::vector<MaterialPtr> materials = doc->getMaterials();
+        std::unordered_set<OutputPtr> processedOutputs;
 
-        if (!materials.empty() || !nodeGraphs.empty() || !outputList.empty())
+        for (auto material : doc->getMaterials())
         {
-            std::unordered_set<OutputPtr> shaderrefOutputs;
-            for (auto material : materials)
+            for (auto shaderRef : material->getShaderRefs())
             {
-                for (auto shaderRef : material->getShaderRefs())
+                if (!shaderRef->hasSourceUri())
                 {
-                    if (!shaderRef->hasSourceUri())
+                    // Add in all shader references which are not part of a node definition library
+                    NodeDefPtr nodeDef = shaderRef->getNodeDef();
+                    if (!nodeDef)
                     {
-                        // Add in all shader references which are not part of a node definition library
-                        NodeDefPtr nodeDef = shaderRef->getNodeDef();
+                        throw ExceptionShaderGenError("Could not find a nodedef for shaderref '" + shaderRef->getName() + "'");
+                    }
+                    if (requiresImplementation(nodeDef))
+                    {
+                        elements.push_back(shaderRef);
+                    }
+
+                    if (!includeReferencedGraphs)
+                    {
+                        // Track outputs already used by the shaderref
+                        for (auto bindInput : shaderRef->getBindInputs())
+                        {
+                            OutputPtr outputPtr = bindInput->getConnectedOutput();
+                            if (outputPtr)
+                            {
+                                processedOutputs.insert(outputPtr);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Find node graph outputs. Skip any light shaders
+        const string LIGHT_SHADER("lightshader");
+        for (NodeGraphPtr nodeGraph : doc->getNodeGraphs())
+        {
+            // Skip anything from an include file including libraries.
+            if (!nodeGraph->hasSourceUri())
+            {
+                for (OutputPtr output : nodeGraph->getOutputs())
+                {
+                    if (output->hasSourceUri() || processedOutputs.count(output))
+                    {
+                        continue;
+                    }
+                    NodePtr outputNode = output->getConnectedNode();
+                    if (outputNode && outputNode->getType() != LIGHT_SHADER)
+                    {
+                        NodeDefPtr nodeDef = outputNode->getNodeDef();
                         if (!nodeDef)
                         {
-                            throw ExceptionShaderGenError("Could not find a nodedef for shaderref '" + shaderRef->getName() + "'");
+                            throw ExceptionShaderGenError("Could not find a nodedef for output '" + outputNode->getName() + "'");
                         }
                         if (requiresImplementation(nodeDef))
                         {
-                            elements.push_back(shaderRef);
-                        }
-
-                        // Find all bindinputs which reference outputs and outputgraphs
-                        if (!includeReferencedGraphs)
-                        {
-                            for (auto bindInput : shaderRef->getBindInputs())
-                            {
-                                OutputPtr outputPtr = bindInput->getConnectedOutput();
-                                if (outputPtr)
-                                {
-                                    shaderrefOutputs.insert(outputPtr);
-                                }
-                            }
+                            elements.push_back(output);
                         }
                     }
+                    processedOutputs.insert(output);
                 }
             }
+        }
 
-            // Find node graph outputs. Skip any light shaders
-            const string LIGHT_SHADER("lightshader");
-            for (NodeGraphPtr nodeGraph : nodeGraphs)
+        // Add in all top-level outputs not already processed.
+        for (OutputPtr output : doc->getOutputs())
+        {
+            if (!output->hasSourceUri() && !processedOutputs.count(output))
             {
-                // Skip anything from an include file including libraries.
-                if (!nodeGraph->hasSourceUri())
-                {
-                    std::vector<OutputPtr> nodeGraphOutputs = nodeGraph->getOutputs();
-                    for (OutputPtr output : nodeGraphOutputs)
-                    {
-                        NodePtr outputNode = output->getConnectedNode();
-
-                        // For now we skip any outputs which are referenced elsewhere.
-                        if (outputNode &&
-                            outputNode->getType() != LIGHT_SHADER &&
-                            (!includeReferencedGraphs && shaderrefOutputs.count(output) == 0))
-                        {
-                            NodeDefPtr nodeDef = outputNode->getNodeDef();
-                            if (!nodeDef)
-                            {
-                                throw ExceptionShaderGenError("Could not find a nodedef for output '" + outputNode->getName() + "'");
-                            }
-                            if (requiresImplementation(nodeDef))
-                            {
-                                outputSet.insert(output);
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Add in all outputs which are not part of a library
-            for (OutputPtr output : outputSet)
-            {
-                if (!output->hasSourceUri())
-                {
-                    elements.push_back(output);
-                }
+                elements.push_back(output);
             }
         }
     }

@@ -64,8 +64,14 @@ void* NSOpenGLChoosePixelFormatWrapper(bool allRenders, int bufferType, int colo
         list[i++] = NSOpenGLPFASampleBuffers; list[i++] = TRUE;
         list[i++] = NSOpenGLPFASamples; list[i++] = 4;
     }
-
-    list[ i++] = 0 ;
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 101000
+    list[i++] = NSOpenGLPFAOpenGLProfile;
+    list[i++] = NSOpenGLProfileVersion4_1Core;
+#else
+    list[i++] = NSOpenGLPFAOpenGLProfile;
+    list[i++] = NSOpenGLProfileVersion3_2Core;
+#endif
+	list[ i++] = 0 ;
 
     NSOpenGLPixelFormat *pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:list];
     if (!pixelFormat)

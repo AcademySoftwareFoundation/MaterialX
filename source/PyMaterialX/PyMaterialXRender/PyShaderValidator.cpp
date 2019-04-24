@@ -57,13 +57,12 @@ class PyShaderValidator : public mx::ShaderValidator
         );
     }
 
-    void validateRender(bool orthographicView) override
+    void validateRender() override
     {
         PYBIND11_OVERLOAD_PURE(
             void,
             mx::ShaderValidator,
-            validateRender,
-            orthographicView
+            validateRender
         );
     }
 
