@@ -94,24 +94,18 @@ void GlslValidator::initialize()
                 if (_context->makeCurrent())
                 {
                     // Initialize glew
-                    bool initializedFunctions = true;
-
                     glewInit();
 #if !defined(__APPLE__)
                     if (!glewIsSupported("GL_VERSION_4_0"))
                     {
-                        initializedFunctions = false;
                         errors.push_back("OpenGL version 4.0 not supported");
                         throw ExceptionShaderValidationError(errorType, errors);
                     }
 #endif
-                    if (initializedFunctions)
-                    {
-                        glClearColor(0.4f, 0.4f, 0.4f, 0.0f);
-                        glClearStencil(0);
+                    glClearColor(0.4f, 0.4f, 0.4f, 0.0f);
+                    glClearStencil(0);
 
-                        _initialized = true;
-                    }
+                    _initialized = true;
                 }
             }
         }
