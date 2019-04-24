@@ -5,7 +5,7 @@
 
 #include <PyMaterialX/PyMaterialX.h>
 
-#include <MaterialXContrib/SampleObjLoader.h>
+#include <MaterialXContrib/Handlers/SampleObjLoader.h>
 
 namespace py = pybind11;
 namespace mx = MaterialX;
