@@ -24,7 +24,7 @@
       <input name="transmission_extra_roughness" type="float" value="0" uiname="Transmission Roughness" uifolder="Transmission"/>
       <input name="subsurface" type="float" value="0" uiname="Subsurface" uifolder="Subsurface"/>
       <input name="subsurface_color" type="color3" value="1, 1, 1" uiname="Subsurface Color" uifolder="Subsurface"/>
-      <input name="subsurface_radius" type="color3" value="1, 1, 1" uiname="Subsurface Radius" uifolder="Subsurface"/>
+      <input name="subsurface_radius" type="vector3" value="1, 1, 1" uiname="Subsurface Radius" uifolder="Subsurface"/>
       <input name="subsurface_scale" type="float" value="1" uiname="Subsurface Scale" uifolder="Subsurface"/>
       <input name="subsurface_anisotropy" type="float" value="0" uiname="Subsurface Anisotropy" uifolder="Subsurface"/>
       <input name="sheen" type="float" value="0" uiname="Sheen" uifolder="Sheen"/>
