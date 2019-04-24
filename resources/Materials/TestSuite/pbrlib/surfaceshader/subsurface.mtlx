@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<materialx version="1.36" require="">
+  <material name="M_subsurface_thin">
+    <shaderref name="SR_subsurface" node="standard_surface">
+      <bindinput name="specular" type="float" value="0.0" />
+      <bindinput name="thin_walled" type="boolean" value="true" />
+      <bindinput name="subsurface" type="float" value="1.0" />
+      <bindinput name="subsurface_color" type="color3" value="0.816, 0.140, 0.124" />
+      <bindinput name="subsurface_scale" type="float" value="1.0" />
+    </shaderref>
+  </material>
+  <material name="M_subsurface_thick">
+    <shaderref name="SR_subsurface" node="standard_surface">
+      <bindinput name="specular" type="float" value="0.0" />
+      <bindinput name="thin_walled" type="boolean" value="false" />
+      <bindinput name="subsurface" type="float" value="1.0" />
+      <bindinput name="subsurface_color" type="color3" value="0.816, 0.140, 0.124" />
+      <bindinput name="subsurface_scale" type="float" value="1.0" />
+    </shaderref>
+  </material>
+</materialx>
