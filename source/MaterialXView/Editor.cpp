@@ -176,6 +176,24 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         });
     }
 
+    // Boolean widget
+    else if (value->isA<bool>())
+    {
+        bool v = value->asA<bool>();
+        nanogui::detail::FormWidget<bool, std::true_type>* boolVar =
+            form.addVariable(label, v, editable);
+        boolVar->setCallback([path, viewer](bool v)
+        {
+            MaterialPtr material = viewer->getSelectedMaterial();
+            mx::ShaderPort* uniform = material ? material->findUniform(path) : nullptr;
+            if (uniform)
+            {
+                material->getShader()->bind();
+                material->getShader()->setUniform(uniform->getName(), v);
+            }
+        });
+    }
+
     // Color2 input
     else if (value->isA<mx::Color2>())
     {
