@@ -3,8 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_OslValidator_H
-#define MATERIALX_OslValidator_H
+#ifndef MATERIALX_OSLVALIDATOR_H
+#define MATERIALX_OSLVALIDATOR_H
 
 /// @file
 /// OSL code validator
@@ -12,12 +12,10 @@
 #include <MaterialXRender/ShaderValidator.h>
 #include <MaterialXRender/ExceptionShaderValidationError.h>
 #include <MaterialXRender/ImageHandler.h>
-#include <vector>
-#include <string>
-#include <map>
 
 namespace MaterialX
 {
+
 // Shared pointer to an OslValidator
 using OslValidatorPtr = std::shared_ptr<class OslValidator>;
 
@@ -246,4 +244,5 @@ class OslValidator : public ShaderValidator
 };
 
 } // namespace MaterialX
+
 #endif

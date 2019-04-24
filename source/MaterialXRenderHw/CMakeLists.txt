@@ -12,6 +12,7 @@ if (APPLE)
   set_source_files_properties(${materialx_source_oc} PROPERTIES
                             COMPILE_FLAGS "-x objective-c++")
   set(materialx_source ${materialx_source} ${materialx_source_oc})
+
 endif(APPLE)
 
 function(assign_source_group prefix)

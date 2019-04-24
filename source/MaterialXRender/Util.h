@@ -58,7 +58,7 @@ namespace MaterialX
 
     /// Get the UI properties for a given nodedef element.
     /// Returns the number of properties found.
-    unsigned int getUIProperties(const ValueElementPtr nodeDefElement, UIProperties& uiProperties);
+    unsigned int getUIProperties(ValueElementPtr nodeDefElement, UIProperties& uiProperties);
 
     /// Get the UI properties for a given element path. If the path is to a node, a target
     /// identifier can be provided.

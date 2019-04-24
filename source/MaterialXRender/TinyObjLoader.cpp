@@ -72,9 +72,8 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
     Vector3 boxMin = { MAX_FLOAT, MAX_FLOAT, MAX_FLOAT };
     Vector3 boxMax = { -MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT };
 
-    for (size_t partIndex = 0; partIndex < shapes.size(); partIndex++)
+    for (const tinyobj::shape_t& shape : shapes)
     {
-        const tinyobj::shape_t& shape = shapes[partIndex];
         size_t faceCount = shape.mesh.indices.size();
         if (faceCount == 0)
         {
@@ -202,4 +201,4 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
     return true;
 }
 
-}
+} // namespace MaterialX

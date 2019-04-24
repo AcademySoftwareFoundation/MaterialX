@@ -3,6 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
+
 #include <MaterialXTest/Catch/catch.hpp>
 #include <MaterialXTest/GenShaderUtil.h>
 
@@ -114,6 +115,7 @@ TEST_CASE("Render: Geometry Handler Load", "[rendercore]")
     CHECK(geomLoaded);
     geomHandlerLog.close();
 }
+
 
 struct ImageHandlerTestOptions
 {

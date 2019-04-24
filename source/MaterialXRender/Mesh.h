@@ -10,13 +10,10 @@
 /// Mesh interfaces
 
 #include <MaterialXCore/Types.h>
-#include <string>
-#include <vector>
-#include <memory>
-#include <unordered_map>
 
 namespace MaterialX
 {
+
 /// Geometry index buffer
 using MeshIndexBuffer = vector<unsigned int>;
 /// Float geometry buffer
@@ -389,5 +386,6 @@ class Mesh
     vector<MeshPartitionPtr> _partitions;
 };
 
-}
-#endif // MATERIALX_MESH_H
+} // namespace MaterialX
+
+#endif

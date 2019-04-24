@@ -205,4 +205,4 @@ void Mesh::splitByUdims()
     }
 }
 
-}
+} // namespace MaterialX

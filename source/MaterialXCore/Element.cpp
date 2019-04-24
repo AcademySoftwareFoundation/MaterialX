@@ -373,7 +373,7 @@ InheritanceIterator Element::traverseInheritance() const
     return InheritanceIterator(getSelf());
 }
 
-void Element::copyContentFrom(ConstElementPtr source, const CopyOptions* copyOptions)
+void Element::copyContentFrom(const ConstElementPtr& source, const CopyOptions* copyOptions)
 {
     DocumentPtr doc = getDocument();
     bool skipDuplicateElements = copyOptions && copyOptions->skipDuplicateElements;
@@ -386,7 +386,7 @@ void Element::copyContentFrom(ConstElementPtr source, const CopyOptions* copyOpt
     _attributeMap = source->_attributeMap;
     _attributeOrder = source->_attributeOrder;
 
-    for (ElementPtr child : source->getChildren())
+    for (const ConstElementPtr& child : source->getChildren())
     {
         const string& name = child->getName();
         if (skipDuplicateElements && getChild(name))
@@ -585,7 +585,11 @@ bool ValueElement::validate(string* message) const
         if (nodeDef)
         {
             ValueElementPtr valueElem = nodeDef->getActiveValueElement(getInterfaceName());
-            validateRequire(valueElem != nullptr, res, message, "Interface name not found in referenced nodedef");
+            validateRequire(valueElem != nullptr, res, message, "Interface name not found in referenced NodeDef");
+            if (valueElem)
+            {
+                validateRequire(valueElem->getType() == getType(), res, message, "Interface name refers to value element of a different type");
+            }
         }
     }
     return TypedElement::validate(message) && res;

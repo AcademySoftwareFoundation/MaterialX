@@ -42,4 +42,4 @@ Matrix44 ViewHandler::createPerspectiveMatrix(float left, float right,
         0.0f, 0.0f, -1.0f, 0.0f);
 }
 
-}
+} // namespace MaterialX

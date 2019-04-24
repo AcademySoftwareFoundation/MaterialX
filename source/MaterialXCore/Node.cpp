@@ -437,4 +437,26 @@ InterfaceElementPtr NodeGraph::getImplementation() const
     return nodedef ? nodedef->getImplementation() : InterfaceElementPtr();
 }
 
+bool NodeGraph::validate(string* message) const
+{
+    bool res = true;
+    if (hasNodeDefString())
+    {
+        NodeDefPtr nodeDef = getNodeDef();
+        validateRequire(nodeDef != nullptr, res, message, "NodeGraph implementation refers to non-existent NodeDef");
+        if (nodeDef)
+        {
+            if (nodeDef->isMultiOutputType())
+            {
+                validateRequire(getOutputCount() == nodeDef->getOutputCount(), res, message, "NodeGraph implementation has a different number of outputs than its NodeDef");
+            }
+            else
+            {
+                validateRequire(getOutputCount() == 1, res, message, "NodeGraph implementation has a different number of outputs than its NodeDef");
+            }
+        }
+    }
+    return GraphElement::validate(message) && res;
+}
+
 } // namespace MaterialX

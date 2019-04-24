@@ -40,7 +40,7 @@ ShaderPtr createConstantShader(GenContext& context,
     return createShader(shaderName, context, output);
 }
 
-unsigned int getUIProperties(const ValueElementPtr nodeDefElement, UIProperties& uiProperties)
+unsigned int getUIProperties(ValueElementPtr nodeDefElement, UIProperties& uiProperties)
 {
     if (!nodeDefElement)
     {
@@ -79,18 +79,18 @@ unsigned int getUIProperties(const ValueElementPtr nodeDefElement, UIProperties&
                 size_t elementCount = typeDesc->getSize();
                 elementCount--;
                 size_t count = 0;
-                for (size_t i = 0; i < stringValues.size(); i++)
+                for (const string& val : stringValues)
                 {
                     if (count == elementCount)
                     {
-                        valueString += stringValues[i];
+                        valueString += val;
                         uiProperties.enumerationValues.push_back(Value::createValueFromStrings(valueString, elemType));
                         valueString.clear();
                         count = 0;
                     }
                     else
                     {
-                        valueString += stringValues[i] + ",";
+                        valueString += val + ",";
                         count++;
                     }
                 }
@@ -142,7 +142,7 @@ void createUIPropertyGroups(const VariableBlock& block, DocumentPtr contentDocum
 {
     for (auto uniform : block.getVariableOrder())
     {
-        if (uniform->getPath().size() && uniform->getValue())
+        if (!uniform->getPath().empty() && uniform->getValue())
         {
             ElementPtr uniformElement = contentDocument->getDescendant(uniform->getPath());
             if (uniformElement && uniformElement->isA<ValueElement>())

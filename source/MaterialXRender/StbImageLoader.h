@@ -60,6 +60,6 @@ class StbImageLoader : public ImageLoader
                       const ImageDescRestrictions* restrictions = nullptr) override;
 };
 
-} // namespace MaterialX;
+} // namespace MaterialX
 
 #endif
