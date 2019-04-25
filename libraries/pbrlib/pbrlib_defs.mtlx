@@ -143,13 +143,13 @@
     Node: <mix>
   -->
   <nodedef name="ND_mix_bsdf" node="mix" type="BSDF" nodegroup="pbr" defaultinput="bg"
-           doc="A node for mixing BSDF's as: fg * (1 − mix) + bg * mix.">
+           doc="Mix two BSDF's according to an input mix amount.">
     <input name="fg" type="BSDF" doc="First BSDF."/>
     <input name="bg" type="BSDF" doc="Second BSDF."/>
     <input name="mix" type="float" value="1.0" doc="Mixing weight, range [0, 1]."/>
   </nodedef>
   <nodedef name="ND_mix_edf" node="mix" type="EDF" nodegroup="pbr" defaultinput="bg"
-           doc="A node for mixing EDF's as: fg * (1 − mix) + bg * mix.">
+           doc="Mix two EDF's according to an input mix amount.">
     <input name="fg" type="EDF" doc="First EDF."/>
     <input name="bg" type="EDF" doc="Second EDF."/>
     <input name="mix" type="float" value="1.0" doc="Mixing weight, range [0, 1]."/>

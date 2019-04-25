@@ -3,12 +3,11 @@
   <material name="Copper">
     <shaderref name="SR_copper" node="standard_surface">
       <bindinput name="base" type="float" value="1" />
+      <bindinput name="base_color" type="color3" value="0.926, 0.721, 0.504" />
       <bindinput name="specular" type="float" value="0" />
-      <bindinput name="specular_roughness" type="float" value="0.25" />
+      <bindinput name="specular_color" type="color3" value="0.996, 0.957, 0.823" />
+      <bindinput name="specular_roughness" type="float" value="0.20" />
       <bindinput name="metalness" type="float" value="1" />
-      <bindinput name="coat" type="float" value="1" />
-      <bindinput name="coat_color" type="color3" value="0.96467984 0.37626296 0.25818297" />
-      <bindinput name="coat_roughness" type="float" value="0.20000000298023224" />
     </shaderref>
   </material>
 </materialx>

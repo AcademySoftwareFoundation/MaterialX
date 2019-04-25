@@ -20,5 +20,5 @@ build
 deploy
 
 # Ignore local editor settings
-.vscode/settings.json
+.vscode/*
 
