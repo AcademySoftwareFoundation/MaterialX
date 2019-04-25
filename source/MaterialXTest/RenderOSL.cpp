@@ -224,12 +224,15 @@ bool OslShaderRenderTester::runValidator(const std::string& shaderName,
                     const mx::VariableBlock& uniforms = stage.getUniformBlock(mx::OSL::UNIFORMS);
 
                     mx::StringVec overrides;
+                    mx::StringVec envOverrides;
                     mx::StringMap separatorMapper;
                     separatorMapper["\\\\"] = "/";
                     separatorMapper["\\"] = "/";
                     for (size_t i = 0; i<uniforms.size(); ++i)
                     {
                         const mx::ShaderPort* uniform = uniforms[i];
+
+                        // Bind input images
                         if (uniform->getType() != MaterialX::Type::FILENAME)
                         {
                             continue;
@@ -251,7 +254,12 @@ bool OslShaderRenderTester::runValidator(const std::string& shaderName,
                             }
                         }
                     }
+                    // Bind IBL image name overrides.
+                    std::string envmap_filename("string envmap_filename \"resources/Images/san_giuseppe_bridge.hdr\";\n");
+                    envOverrides.push_back(envmap_filename);
+
                     _validator->setShaderParameterOverrides(overrides);
+                    _validator->setEnvShaderParameterOverrides(envOverrides);
 
                     const mx::VariableBlock& outputs = stage.getOutputBlock(mx::OSL::OUTPUTS);
                     if (outputs.size() > 0)

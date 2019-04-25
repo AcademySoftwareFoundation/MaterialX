@@ -28,10 +28,10 @@ void mx_sheen_brdf_reflection(vec3 L, vec3 V, float weight, vec3 color, float ro
     // https://blog.selfshadow.com/publications/s2013-shading-course/rad/s2013_pbs_rad_notes.pdf
     vec3 fr = D * F / (4.0 * (NdotL + NdotV - NdotL*NdotV));
 
-    // Top layer transmission to atttenuate base layer.
+    // Top layer transmission to attenuate base layer.
     // We use a LUT of directional albedo for this.
     float albedo = mx_microfacet_sheen_albedo(NdotV, alpha);
-    float topTrans = clamp(1.0 - albedo, 0.0, 1.0);
+    float topTrans = clamp(1.0 - albedo * weight, 0.0, 1.0);
 
     // We need to include NdotL from the light integral here
     // as in this case it's not cancelled out by the BRDF denominator.

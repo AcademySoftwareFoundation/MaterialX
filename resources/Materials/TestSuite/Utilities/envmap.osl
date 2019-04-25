@@ -1,11 +1,15 @@
-shader envmap(float Kb = 1, string filename = "")
+void latlong_map_lookup(vector dir, string envmap_filename, output color result)
 {
-   vector dir = normalize(I);
-   float radial = atan2(-dir[2], dir[0]);
-   float nradial = acos(dir[1]);
-   float r = 0.5 * sin(nradial * 0.5);
-   float tu = 0.5 + r * cos(radial);
-   float tv = 0.5 - r * sin(radial);
-   color c = texture(filename, tu, tv);
+   float M_PI_INV = 1.0/M_PI;
+   float latitude = -asin(dir[1]) * M_PI_INV + 0.5;
+   latitude = clamp(latitude, 0.01, 0.99);
+   float longitude = -atan2(dir[0], dir[2]) * M_PI_INV * 0.5 + 0.5;
+   result = texture(envmap_filename, longitude, latitude);
+}
+
+shader envmap(float Kb = 1, string envmap_filename = "")
+{
+   color c;
+   latlong_map_lookup(I, envmap_filename, c);
    Ci = Kb * c * background();
 }
