@@ -3,13 +3,11 @@
   <material name="Gold">
     <shaderref name="SR_gold" node="standard_surface">
       <bindinput name="base" type="float" value="1" />
+      <bindinput name="base_color" type="color3" value="0.944, 0.776, 0.373" />
       <bindinput name="specular" type="float" value="0" />
-      <bindinput name="specular_roughness" type="float" value="0" />
+      <bindinput name="specular_color" type="color3" value="0.998, 0.981, 0.751" />
+      <bindinput name="specular_roughness" type="float" value="0.02" />
       <bindinput name="metalness" type="float" value="1" />
-      <bindinput name="coat" type="float" value="1" />
-      <bindinput name="coat_color" type="color3" value="1, 0.6864, 0" />
-      <bindinput name="coat_roughness" type="float" value="0" />
-      <bindinput name="coat_IOR" type="float" value="4" />
     </shaderref>
   </material>
 </materialx>
