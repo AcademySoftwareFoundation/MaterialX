@@ -5,6 +5,8 @@
 #include <nanogui/button.h>
 #include <nanogui/combobox.h>
 #include <nanogui/layout.h>
+#include <nanogui/vscrollpanel.h>
+#include <nanogui/textbox.h>
 
 namespace {
 
@@ -27,7 +29,7 @@ class EditorFormHelper : public ng::FormHelper
 
 PropertyEditor::PropertyEditor() :
     _visible(false),
-    _form(nullptr),
+    _container(nullptr),
     _formWindow(nullptr),
     _fileDialogsForImages(true)
 {
@@ -36,14 +38,6 @@ PropertyEditor::PropertyEditor() :
 void PropertyEditor::create(Viewer& parent)
 {
     ng::Window* parentWindow = parent.getWindow();
-    if (!_form)
-    {
-        EditorFormHelper* form = new EditorFormHelper(&parent);
-        form->setPreGroupSpacing(2);
-        form->setPostGroupSpacing(2);
-        form->setVariableSpacing(2);
-        _form = form;
-    }
 
     // Remove the window associated with the form.
     // This is done by explicitly creating and owning the window
@@ -62,22 +56,28 @@ void PropertyEditor::create(Viewer& parent)
         parent.removeChild(_formWindow);
     }
 
-    _formWindow = new ng::Window(&parent, "Property Editor");
-    ng::AdvancedGridLayout* layout = new ng::AdvancedGridLayout({ 10, 0, 10, 0 }, {});
-    layout->setMargin(2);
-    layout->setColStretch(2, 1);
     if (previousPosition.x() < 0)
         previousPosition.x() = 0;
     if (previousPosition.y() < 0)
         previousPosition.y() = 0;
+
+    _formWindow = new ng::Window(&parent, "Property Editor");
+    _formWindow->setLayout(new ng::GroupLayout());
     _formWindow->setPosition(previousPosition);
     _formWindow->setVisible(_visible);
-    _formWindow->setLayout(layout);
-    _form->setWindow(_formWindow);
+
+    ng::VScrollPanel *scroll_panel = new ng::VScrollPanel(_formWindow);
+    scroll_panel->setFixedHeight(200);
+    _container = new ng::Widget(scroll_panel);
+
+    ng::GridLayout *layout = new ng::GridLayout(ng::Orientation::Horizontal, 2,
+                                                ng::Alignment::Minimum, 2, 2);
+    layout->setColAlignment({ ng::Alignment::Minimum, ng::Alignment::Minimum });
+    _container->setLayout(layout);
 }
 
 void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::string& group,
-                                   ng::FormHelper& form, Viewer* viewer, bool editable)
+                                   ng::Widget* container, Viewer* viewer, bool editable)
 {
     const mx::UIProperties& ui = item.ui;
     mx::ValuePtr value = item.variable->getValue();
@@ -95,7 +95,12 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
 
     if (!group.empty())
     {
-        form.addGroup(group);
+        ng::Label* groupLabel =  new ng::Label(container, group);
+        groupLabel->setFontSize(20);
+        groupLabel->setFont("sans-bold");
+        new ng::Label(container, "");
+        new ng::Label(container, "");
+        new ng::Label(container, "");
     }
 
     // Integer input. Can map to a combo box if an enumeration
@@ -108,12 +113,13 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         {
             std::string enumValue = enumeration[v];
 
-            ng::ComboBox* comboBox = new ng::ComboBox(form.window(), {""});
+            new ng::Label(container, label);
+            ng::ComboBox* comboBox = new ng::ComboBox(container, {""});
             comboBox->setEnabled(editable);
             comboBox->setItems(enumeration);
             comboBox->setSelectedIndex(v);
-            comboBox->setFontSize(form.widgetFontSize());
-            form.addWidget(label, comboBox);
+            comboBox->setFixedSize(ng::Vector2i(100, 20));
+            comboBox->setFontSize(15);
             comboBox->setCallback([path, viewer, enumValues](int v)
             {
                 MaterialPtr material = viewer->getSelectedMaterial();
@@ -134,8 +140,10 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         }
         else
         {
-            nanogui::detail::FormWidget<int, std::true_type>* intVar =
-                form.addVariable(label, v, editable);
+            new ng::Label(container, label);
+            auto intVar = new ng::IntBox<int>(container);
+            intVar->setFixedSize(ng::Vector2i(100, 20));
+            intVar->setFontSize(15);
             intVar->setSpinnable(editable);
             intVar->setCallback([path, viewer](int v)
             {
@@ -156,10 +164,13 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
     // Float widget
     else if (value->isA<float>())
     {
+        new ng::Label(container, label);
         float v = value->asA<float>();
-        nanogui::detail::FormWidget<float, std::true_type>* floatVar =
-            form.addVariable(label, v, editable);
+        auto floatVar = new ng::FloatBox<float>(container, v);
+        floatVar->setFixedSize(ng::Vector2i(100, 20));
         floatVar->setSpinnable(editable);
+        floatVar->setEditable(editable);
+        floatVar->setFontSize(15);
         if (min)
             floatVar->setMinValue(min->asA<float>());
         if (max)
@@ -167,12 +178,15 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         floatVar->setCallback([path, viewer](float v)
         {
             MaterialPtr material = viewer->getSelectedMaterial();
-            mx::ShaderPort* uniform = material ? material->findUniform(path) : nullptr;
-            if (uniform)
+            if (material)
             {
-                material->getShader()->bind();
-                material->getShader()->setUniform(uniform->getName(), v);
-            }                
+                mx::ShaderPort* uniform = material ? material->findUniform(path) : nullptr;
+                if (uniform)
+                {
+                    material->getShader()->bind();
+                    material->getShader()->setUniform(uniform->getName(), v);
+                }                
+            }
         });
     }
 
@@ -180,8 +194,10 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
     else if (value->isA<bool>())
     {
         bool v = value->asA<bool>();
-        nanogui::detail::FormWidget<bool, std::true_type>* boolVar =
-            form.addVariable(label, v, editable);
+        new ng::Label(container, label);
+        ng::CheckBox* boolVar = new ng::CheckBox(container, "");
+        boolVar->setChecked(v);
+        boolVar->setFontSize(15);
         boolVar->setCallback([path, viewer](bool v)
         {
             MaterialPtr material = viewer->getSelectedMaterial();
@@ -197,14 +213,16 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
     // Color2 input
     else if (value->isA<mx::Color2>())
     {
+        new ng::Label(container, label);
         mx::Color2 v = value->asA<mx::Color2>();
         ng::Color c;
         c.r() = v[0];
         c.g() = v[1];
         c.b() = 0.0f;
         c.w() = 1.0f;
-        nanogui::detail::FormWidget<nanogui::Color, std::true_type>* colorVar =
-            form.addVariable(label, c, editable);
+        auto colorVar = new ng::ColorPicker(container, c);
+        colorVar->setFixedSize({ 100, 20 });
+        colorVar->setFontSize(15);
         colorVar->setFinalCallback([path, viewer, colorVar](const ng::Color &c)
         {
             MaterialPtr material = viewer->getSelectedMaterial();
@@ -219,7 +237,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 ng::Color c2 = c;
                 c2.b() = 0.0f;
                 c2.w() = 1.0f;
-                colorVar->setValue(c2);
+                colorVar->setColor(c2);
             }
         });
     }
@@ -246,12 +264,11 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         // Create a combo box. The items are the enumerations in order.
         if (index >= 0)
         {
-            ng::ComboBox* comboBox = new ng::ComboBox(form.window(), { "" });
+            ng::ComboBox* comboBox = new ng::ComboBox(container, { "" });
             comboBox->setEnabled(editable);
             comboBox->setItems(enumeration);
             comboBox->setSelectedIndex(index);
-            comboBox->setFontSize(form.widgetFontSize());
-            form.addWidget(label, comboBox);
+            comboBox->setFontSize(15);
             comboBox->setCallback([path, enumValues, viewer](int index)
             {
                 MaterialPtr material = viewer->getSelectedMaterial();
@@ -279,8 +296,11 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             c.g() = v[1];
             c.b() = v[2];
             c.w() = 1.0;
-            nanogui::detail::FormWidget<nanogui::Color, std::true_type>* colorVar =
-                form.addVariable(label, c, editable);
+            
+            new ng::Label(container, label);
+            auto colorVar = new ng::ColorPicker(container, c);
+            colorVar->setFixedSize({ 100, 20 });
+            colorVar->setFontSize(15);
             colorVar->setFinalCallback([path, viewer](const ng::Color &c)
             {
                 MaterialPtr material = viewer->getSelectedMaterial();
@@ -301,14 +321,16 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
     // Color4 input
     else if (value->isA<mx::Color4>())
     {
+        new ng::Label(container, label);
         mx::Color4 v = value->asA<mx::Color4>();
         ng::Color c;
         c.r() = v[0];
         c.g() = v[1];
         c.b() = v[2];
         c.w() = v[3];
-        nanogui::detail::FormWidget<nanogui::Color, std::true_type>* colorVar =
-            form.addVariable(label, c, editable);
+        auto colorVar = new ng::ColorPicker(container, c);
+        colorVar->setFixedSize({ 100, 20 });
+        colorVar->setFontSize(15);
         colorVar->setFinalCallback([path, viewer](const ng::Color &c)
         {
             MaterialPtr material = viewer->getSelectedMaterial();
@@ -330,10 +352,14 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
     else if (value->isA<mx::Vector2>())
     {
         mx::Vector2 v = value->asA<mx::Vector2>();
-        nanogui::detail::FormWidget<float, std::true_type>* v1 =
-            form.addVariable(label + ".x", v[0], editable);
-        nanogui::detail::FormWidget<float, std::true_type>* v2 =
-            form.addVariable(label + ".y", v[1], editable);
+        new ng::Label(container, label + ".x");
+        auto v1 = new ng::FloatBox<float>(container, v[0]);
+        v1->setFixedSize({ 100, 20 });
+        v1->setFontSize(15);
+        new ng::Label(container, label + ".y");
+        auto v2 = new ng::FloatBox<float>(container, v[1]);
+        v2->setFixedSize({ 100, 20 });
+        v2->setFontSize(15);
         v1->setCallback([v2, path, viewer](float f)
         {
             MaterialPtr material = viewer->getSelectedMaterial();
@@ -368,12 +394,19 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
     else if (value->isA<mx::Vector3>())
     {
         mx::Vector3 v = value->asA<mx::Vector3>();
-        nanogui::detail::FormWidget<float, std::true_type>* v1 = 
-            form.addVariable(label + ".x", v[0], editable);
-        nanogui::detail::FormWidget<float, std::true_type>* v2 =
-            form.addVariable(label + ".y", v[1], editable);
-        nanogui::detail::FormWidget<float, std::true_type>* v3 =
-            form.addVariable(label + ".z", v[2], editable);
+        new ng::Label(container, label + ".x");
+        auto v1 = new ng::FloatBox<float>(container, v[0]);
+        v1->setFixedSize({ 100, 20 });
+        v1->setFontSize(15);
+        new ng::Label(container, label + ".y");
+        auto v2 = new ng::FloatBox<float>(container, v[1]);
+        v2->setFixedSize({ 100, 20 });
+        v2->setFontSize(15);
+        new ng::Label(container, label + ".z");
+        auto v3 = new ng::FloatBox<float>(container, v[2]);
+        v3->setFixedSize({ 100, 20 });
+        v3->setFontSize(15);
+
         v1->setCallback([v2, v3, path, viewer](float f)
         {
             MaterialPtr material = viewer->getSelectedMaterial();
@@ -425,14 +458,23 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
     else if (value->isA<mx::Vector4>())
     {
         mx::Vector4 v = value->asA<mx::Vector4>();
-        nanogui::detail::FormWidget<float, std::true_type>* v1 =
-            form.addVariable(label + ".x", v[0], editable);
-        nanogui::detail::FormWidget<float, std::true_type>* v2 =
-            form.addVariable(label + ".y", v[1], editable);
-        nanogui::detail::FormWidget<float, std::true_type>* v3 =
-            form.addVariable(label + ".z", v[2], editable);
-        nanogui::detail::FormWidget<float, std::true_type>* v4 =
-            form.addVariable(label + ".w", v[3], editable);
+        new ng::Label(container, label + ".x");
+        auto v1 = new ng::FloatBox<float>(container, v[0]);
+        v1->setFixedSize({ 100, 20 });
+        v1->setFontSize(15);
+        new ng::Label(container, label + ".y");
+        auto v2 = new ng::FloatBox<float>(container, v[1]);
+        v2->setFixedSize({ 100, 20 });
+        v1->setFontSize(15);
+        new ng::Label(container, label + ".z");
+        auto v3 = new ng::FloatBox<float>(container, v[2]);
+        v3->setFixedSize({ 100, 20 });
+        v1->setFontSize(15);
+        new ng::Label(container, label + ".w");
+        auto v4 = new ng::FloatBox<float>(container, v[3]);
+        v4->setFixedSize({ 100, 20 });
+        v1->setFontSize(15);
+
         v1->setCallback([v2, v3, v4, path, viewer](float f)
         {
             MaterialPtr material = viewer->getSelectedMaterial();
@@ -505,12 +547,12 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         std::string v = value->asA<std::string>();
         if (!v.empty())
         {
-            if (_fileDialogsForImages && item.variable->getType() == MaterialX::Type::FILENAME)
+            if (item.variable->getType() == MaterialX::Type::FILENAME)
             {
-                ng::Button* buttonVar = new ng::Button(form.window(), mx::FilePath(v).getBaseName());
-                form.addWidget(label, buttonVar);
+                new ng::Label(container, label);
+                ng::Button* buttonVar = new ng::Button(container, mx::FilePath(v).getBaseName());
                 buttonVar->setEnabled(editable);
-                buttonVar->setFontSize(form.widgetFontSize()-1);
+                buttonVar->setFontSize(15);
                 buttonVar->setCallback([buttonVar, path, viewer]()
                 {
                     MaterialPtr material = viewer->getSelectedMaterial();
@@ -543,24 +585,19 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             }
             else
             {
-                nanogui::detail::FormWidget<std::string, std::true_type>* stringVar =
-                    form.addVariable(label, v, editable);
+                new ng::Label(container, label);
+                ng::TextBox* stringVar =  new ng::TextBox(container, v);
+                stringVar->setFixedSize({ 100, 20 });
+                stringVar->setFontSize(15);
                 stringVar->setCallback([path, viewer](const std::string &v)
                 {
                     MaterialPtr material = viewer->getSelectedMaterial();
                     mx::ShaderPort* uniform = material ? material->findUniform(path) : nullptr;
                     if (uniform)
                     {
-                        if (uniform->getType() == MaterialX::Type::FILENAME)
-                        {
-                            const std::string& filename = viewer->getSearchPath().find(v);
-                            uniform->setValue(mx::Value::createValue<std::string>(filename));
-                        }
-                        else
-                        {
-                            uniform->setValue(mx::Value::createValue<std::string>(v));
-                        }
+                        uniform->setValue(mx::Value::createValue<std::string>(v));
                     }
+                    return true;
                 });
             }
         }
@@ -584,6 +621,7 @@ void PropertyEditor::updateContents(Viewer* viewer)
         return;
     }
 
+    bool addedItems = false;
     const MaterialX::VariableBlock* publicUniforms = material->getPublicUniforms();
     if (publicUniforms)
     {
@@ -605,23 +643,34 @@ void PropertyEditor::updateContents(Viewer* viewer)
             // inputs may be optimized out during compilation.
             if (material->findUniform(item.variable->getPath()))
             {
-                addItemToForm(item, (previousFolder == folder) ? mx::EMPTY_STRING : folder, *_form, viewer, editable);
+                addItemToForm(item, (previousFolder == folder) ? mx::EMPTY_STRING : folder, _container, viewer, editable);
                 previousFolder.assign(folder);
+                addedItems = true;
             }
         }
 
-        if (!unnamedGroups.empty())
+        if (!unnamedGroups.empty() && groups.empty())
         {
-            _form->addGroup("Other");
+            ng::Label* otherLabel = new ng::Label(_container, "Other");
+            otherLabel->setFontSize(20);
+            otherLabel->setFont("sans-bold");
+            new ng::Label(_container, "");
         }
         for (auto it2 = unnamedGroups.begin(); it2 != unnamedGroups.end(); ++it2)
         {
             const mx::UIPropertyItem& item = it2->second;
             if (material->findUniform(item.variable->getPath()))
             {
-                addItemToForm(item, mx::EMPTY_STRING, *_form, viewer, editable);
+                addItemToForm(item, mx::EMPTY_STRING, _container, viewer, editable);
+                addedItems = true;
             }
         }
     }
+    if (!addedItems)
+    {
+        new ng::Label(_container, "No Input Parameters");
+        new ng::Label(_container, "");
+    }
+
     viewer->performLayout();
 }
