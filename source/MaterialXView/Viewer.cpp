@@ -725,7 +725,42 @@ MaterialPtr Viewer::setMaterialSelection(size_t index)
     return nullptr;
 }
 
-void Viewer::saveActiveMaterialSource()
+void Viewer::reloadDocument()
+{
+    try
+    {
+        if (!_materialFilename.isEmpty())
+        {
+            initializeDocument(_stdLib);
+            size_t newRenderables = Material::loadDocument(_doc, _searchPath.find(_materialFilename), _stdLib, _modifiers, _materials);
+            if (newRenderables)
+            {
+                updateMaterialSelections();
+                setMaterialSelection(0);
+                if (!_materials.empty())
+                {
+                    assignMaterial(_materials[0]);
+                }
+            }
+        }
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load document", e.what());
+    }
+    try
+    {
+        updateMaterialSelections();
+        setMaterialSelection(_selectedMaterial);
+        updatePropertyEditor();
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Shader Generation Error", e.what());
+    }
+}
+
+void Viewer::saveShaderSource()
 {
     try
     {
@@ -751,7 +786,7 @@ void Viewer::saveActiveMaterialSource()
     }
 }
 
-void Viewer::loadActiveMaterialSource()
+void Viewer::loadShaderSource()
 {
     try
     {
@@ -778,6 +813,31 @@ void Viewer::loadActiveMaterialSource()
     }
 }
 
+void Viewer::saveDotFile()
+{
+    try
+    {
+        MaterialPtr material = getSelectedMaterial();
+        mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
+        if (elem)
+        {
+            mx::ShaderRefPtr shaderRef = elem->asA<mx::ShaderRef>();
+            mx::NodeDefPtr nodeDef = shaderRef ? shaderRef->getNodeDef() : nullptr;
+            mx::InterfaceElementPtr implement = nodeDef ? nodeDef->getImplementation() : nullptr;
+            mx::NodeGraphPtr nodeGraph = implement ? implement->asA<mx::NodeGraph>() : nullptr;
+            if (nodeGraph)
+            {
+                std::string dot = nodeGraph->asStringDot();
+                std::string baseName = _searchPath[0] / nodeDef->getNodeString();
+                writeTextFile(dot, baseName + ".dot");
+            }
+        }
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Cannot save dot file for material", e.what());
+    }
+}
 
 bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
 {
@@ -786,6 +846,36 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         return true;
     }
 
+    // Reload the current document from file.
+    if (key == GLFW_KEY_R && action == GLFW_PRESS)
+    {
+        reloadDocument();
+        return true;
+    }
+
+    // Save the current shader source to file.
+    if (key == GLFW_KEY_S && action == GLFW_PRESS)
+    {
+        saveShaderSource();
+        return true;
+    }
+
+    // Load shader source from file.  Editing the source files before loading
+    // provides a way to debug and experiment with shader source code.
+    if (key == GLFW_KEY_L && action == GLFW_PRESS)
+    {
+        loadShaderSource();
+        return true;
+    }
+
+    // Save a dot file for the current shader node graph.
+    if (key == GLFW_KEY_D && action == GLFW_PRESS)
+    {
+        saveDotFile();
+        return true;
+    }
+
+    // Capture the current frame and save to file.
     if (key == GLFW_KEY_F && action == GLFW_PRESS)
     {
         mx::StringSet extensions;
@@ -809,57 +899,6 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
                 _captureFrame = true;
             }
         }
-    }
-    if (key == GLFW_KEY_R && action == GLFW_PRESS)
-    {
-        try
-        {
-            if (!_materialFilename.isEmpty())
-            {
-                initializeDocument(_stdLib);
-                size_t newRenderables = Material::loadDocument(_doc, _searchPath.find(_materialFilename), _stdLib, _modifiers, _materials);
-                if (newRenderables)
-                {
-                    updateMaterialSelections();
-                    setMaterialSelection(0);
-                    if (!_materials.empty())
-                    {
-                        assignMaterial(_materials[0]);
-                    }
-                }
-            }
-        }
-        catch (std::exception& e)
-        {
-            new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load document", e.what());
-        }
-        try
-        {
-            updateMaterialSelections();
-            setMaterialSelection(_selectedMaterial);
-            updatePropertyEditor();
-        }
-        catch (std::exception& e)
-        {
-            new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Shader Generation Error", e.what());
-        }
-        return true;
-    }
-
-    // Save active material if any
-    if (key == GLFW_KEY_S && action == GLFW_PRESS)
-    {
-        saveActiveMaterialSource();
-        return true;
-    }
-
-    // Load a material previously saved to file.
-    // Editing the source files before loading gives a way to debug
-    // and experiment with shader source code.
-    if (key == GLFW_KEY_L && action == GLFW_PRESS)
-    {
-        loadActiveMaterialSource();
-        return true;
     }
 
     // Allow left and right keys to cycle through the renderable elements

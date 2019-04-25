@@ -60,8 +60,10 @@ class Viewer : public ng::Screen
   private:
     void setupLights(mx::DocumentPtr doc, const std::string& envRadiancePath, const std::string& envIrradiancePath);
     void initializeDocument(mx::DocumentPtr libraries);
-    void saveActiveMaterialSource();
-    void loadActiveMaterialSource();
+    void reloadDocument();
+    void saveShaderSource();
+    void loadShaderSource();
+    void saveDotFile();
 
     /// Assign the given material to a geometry, or to all geometries if no
     /// target is specified.
