@@ -36,10 +36,10 @@ class PropertyEditor
   protected:
     void create(Viewer& parent);
     void addItemToForm(const mx::UIPropertyItem& item, const std::string& group,
-                       ng::FormHelper& form, Viewer* viewer, bool editable);
+                       ng::Widget* container, Viewer* viewer, bool editable);
       
     bool _visible;
-    ng::FormHelper* _form;
+    ng::Widget* _container;
     ng::Window* _formWindow;
     bool _fileDialogsForImages;
 };
