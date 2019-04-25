@@ -7,6 +7,7 @@
 
 #include <nanogui/formhelper.h>
 #include <nanogui/screen.h>
+#include <nanogui/textbox.h>
 
 namespace mx = MaterialX;
 namespace ng = nanogui;
@@ -37,10 +38,14 @@ class PropertyEditor
     void create(Viewer& parent);
     void addItemToForm(const mx::UIPropertyItem& item, const std::string& group,
                        ng::Widget* container, Viewer* viewer, bool editable);
-      
+    ng::FloatBox<float>* makeFloatWidget(ng::Widget* container, const std::string label, mx::ValuePtr value,
+                       bool editable, mx::ValuePtr min, mx::ValuePtr max, Viewer* viewer, const std::string& path);
+
     bool _visible;
     ng::Widget* _container;
     ng::Window* _formWindow;
+    ng::GridLayout* _gridLayout2;
+    ng::GridLayout* _gridLayout3;
     bool _fileDialogsForImages;
 };
 
