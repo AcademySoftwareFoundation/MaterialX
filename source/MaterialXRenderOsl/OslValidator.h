@@ -56,11 +56,11 @@ class OslValidator : public ShaderValidator
     /// Validate creation of an OSL program based on an input shader
     ///
     /// A valid executable and include path must be specified before calling this method.
-    /// setOslCompilerExecutable(), and setOslIncludePath(). 
+    /// setOslCompilerExecutable(), and setOslIncludePath().
     ///
     /// Additionally setOslOutputFilePath() should be set to allow for output of .osl and .oso
     /// files to the appropriate path location to be used as input for render validation.
-    /// 
+    ///
     /// If render validation is not required, then the same temporary name will be used for
     /// all shaders validated using this method.
     /// @param shader Input shader
@@ -70,7 +70,7 @@ class OslValidator : public ShaderValidator
     /// @param stages Map of name and source code for the shader stages.
     void validateCreation(const StageMap& stages) override;
 
-    /// Validate inputs for the compiled OSL program. 
+    /// Validate inputs for the compiled OSL program.
     /// Note: Currently no validation has been implemented.
     void validateInputs() override;
 
@@ -93,7 +93,7 @@ class OslValidator : public ShaderValidator
     /// @param filePath Name of file to save rendered image to.
     /// @param floatingPoint Format of output image is floating point.
     void save(const FilePath& filePath, bool floatingPoint) override;
-    
+
     /// @}
     /// @name Compilation settings
     /// @{
@@ -108,7 +108,7 @@ class OslValidator : public ShaderValidator
 
     /// Set the search locations for OSL include files.
     /// @param dirPath Include path(s) for the OSL compiler. This should include the
-    /// path to stdosl.h.    
+    /// path to stdosl.h.
     void setOslIncludePath(const FilePath& dirPath)
     {
         _oslIncludePath = dirPath;
@@ -128,7 +128,14 @@ class OslValidator : public ShaderValidator
         _oslShaderParameterOverrides = parameterOverrides;
     }
 
-    /// Set the OSL shader output. 
+    /// Set shader parameter strings to be added to the scene XML file. These
+    /// strings will set parameter overrides for the shader.
+    void setEnvShaderParameterOverrides(const StringVec& parameterOverrides)
+    {
+        _envOslShaderParameterOverrides = parameterOverrides;
+    }
+
+    /// Set the OSL shader output.
     /// This is used during render validation if "testshade" or "testrender" is executed.
     /// For testrender this value is used to replace the %shader_output% token in the
     /// input scene file.
@@ -175,7 +182,7 @@ class OslValidator : public ShaderValidator
     }
 
     /// Set the search path for dependent shaders (.oso files) which are used
-    /// when rendering with testrender. 
+    /// when rendering with testrender.
     /// @param dirPath Path to location containing .oso files.
     void setOslUtilityOSOPath(const FilePath& dirPath)
     {
@@ -225,7 +232,7 @@ class OslValidator : public ShaderValidator
 
     /// Path to "testshade" executable
     FilePath _oslTestShadeExecutable;
-    /// Path to "testrender" executable 
+    /// Path to "testrender" executable
     FilePath _oslTestRenderExecutable;
     /// Path to template scene XML file used for "testrender"
     FilePath _oslTestRenderSceneTemplateFile;
@@ -233,6 +240,8 @@ class OslValidator : public ShaderValidator
     string _oslShaderName;
     /// Set of strings containing parameter override settings for "testrender"
     StringVec _oslShaderParameterOverrides;
+    /// Set of strings containing environment parameter override settings for "testrender"
+    StringVec _envOslShaderParameterOverrides;
     /// Name of output on the shader. Used for rendering with "testshade" and "testrender"
     string _oslShaderOutputName;
     /// MaterialX type of the output on the shader. Used for rendering with "testshade" and "testrender"
