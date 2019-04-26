@@ -117,7 +117,7 @@ class Material
 
     /// Bind lights to shader.
     void bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandlerPtr imageHandler, const mx::FileSearchPath& imagePath, 
-                    int envSamples, bool directLighting, bool indirectLighting);
+                    bool directLighting, bool indirectLighting, mx::HwSpecularEnvironmentMethod specularEnvironmentMethod, int envSamples);
 
     /// Bind the given mesh to this material.
     void bindMesh(mx::MeshPtr mesh) const;

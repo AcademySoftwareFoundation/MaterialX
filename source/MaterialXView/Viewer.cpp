@@ -92,6 +92,7 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
                const std::string& meshFilename,
                const std::string& materialFilename,
                const DocumentModifiers& modifiers,
+               mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
                int multiSampleCount) :
     ng::Screen(ng::Vector2i(1280, 960), "MaterialXView",
         true, false,
@@ -119,6 +120,7 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     _mergeMaterials(false),
     _assignLooks(false),
     _outlineSelection(false),
+    _specularEnvironmentMethod(specularEnvironmentMethod),
     _envSamples(DEFAULT_ENV_SAMPLES),
     _captureFrame(false)
 {
@@ -157,7 +159,7 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     });
 
     // Set default generator options.
-    _genContext.getOptions().hwSpecularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
+    _genContext.getOptions().hwSpecularEnvironmentMethod = _specularEnvironmentMethod;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
 
@@ -600,23 +602,26 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _outlineSelection = enable;
     });
 
-    Widget* sampleGroup = new Widget(advancedPopup);
-    sampleGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
-    new ng::Label(sampleGroup, "Environment Samples:");
-    mx::StringVec sampleOptions;
-    for (int i = MIN_ENV_SAMPLES; i <= MAX_ENV_SAMPLES; i *= 4)
+    if (_specularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
     {
-        mProcessEvents = false;
-        sampleOptions.push_back(std::to_string(i));
-        mProcessEvents = true;
+        Widget* sampleGroup = new Widget(advancedPopup);
+        sampleGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+        new ng::Label(sampleGroup, "Environment Samples:");
+        mx::StringVec sampleOptions;
+        for (int i = MIN_ENV_SAMPLES; i <= MAX_ENV_SAMPLES; i *= 4)
+        {
+            mProcessEvents = false;
+            sampleOptions.push_back(std::to_string(i));
+            mProcessEvents = true;
+        }
+        ng::ComboBox* sampleBox = new ng::ComboBox(sampleGroup, sampleOptions);
+        sampleBox->setChevronIcon(-1);
+        sampleBox->setSelectedIndex((int)std::log2(DEFAULT_ENV_SAMPLES / MIN_ENV_SAMPLES) / 2);
+        sampleBox->setCallback([this](int index)
+        {
+            _envSamples = MIN_ENV_SAMPLES * (int)std::pow(4, index);
+        });
     }
-    ng::ComboBox* sampleBox = new ng::ComboBox(sampleGroup, sampleOptions);
-    sampleBox->setChevronIcon(-1);
-    sampleBox->setSelectedIndex((int) std::log2(DEFAULT_ENV_SAMPLES / MIN_ENV_SAMPLES) / 2);
-    sampleBox->setCallback([this](int index)
-    {
-        _envSamples = MIN_ENV_SAMPLES * (int) std::pow(4, index);
-    });
 }
 
 void Viewer::updateGeometrySelections()
@@ -965,7 +970,8 @@ void Viewer::drawContents()
             glDisable(GL_BLEND);
         }
         material->bindViewInformation(world, view, proj);
-        material->bindLights(_lightHandler, _imageHandler, _searchPath, _envSamples, _directLighting, _indirectLighting);
+        material->bindLights(_lightHandler, _imageHandler, _searchPath, _directLighting, _indirectLighting,
+                             _specularEnvironmentMethod, _envSamples);
         material->bindImages(_imageHandler, _searchPath, material->getUdim());
         material->drawPartition(geom);
     }
