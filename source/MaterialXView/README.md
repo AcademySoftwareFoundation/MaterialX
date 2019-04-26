@@ -60,11 +60,22 @@ To improve the indirect lighting highlights on your material, increase the `Adva
 **Figure 3**: Render with  indirect lighting enabled on the left, and with the addition of direct lighting on the right.
 <p><img src="/documents/Images/MaterialXView_DirectLighting_Compare.png" width="480"></p>
 
-### Utilites
+### Keyboard Shortcuts
 
 1.  The GLSL source code for the currently selected material can be saved to disk by pressing the `S` key while focus is in the viewer.
 2.  This source code can be reloaded back in by pressing the `L` key while focus is in the viewer. This is useful to make quick adjustments on the source code for debugging purposes. The original MaterialX document is not affected.
 3.  The current frame can be saved to disk by pressing the `F` key while focus is in the viewer.
+4.  A DOT graph can be saved to disk by pressing the `D` key while focus is in the viewer.
+
+### Command Line Options
+
+Command line arguments can be specified by using the `--` prefix on startup:
+1. `--library`: Additional library folder location(s).
+2. `--path`: Additional file search path location(s).
+3. `--mesh`: Mesh file name.
+4. `--material`: Material file name.
+5. `--envMethod`: Environment lighting method. 1 means to use prefiltered environment maps. The default is to use filtered importance sampling.
+6. `--msaa`: Multi sampling count for anti-aliasing.
 
 ### Example Images
 
