@@ -481,8 +481,8 @@ void Material::bindUniform(const std::string& name, mx::ConstValuePtr value)
 }
 
 void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandlerPtr imageHandler,
-                          const mx::FileSearchPath& imagePath, int envSamples, bool directLighting,
-                          bool indirectLighting)
+                          const mx::FileSearchPath& imagePath, bool directLighting,
+                          bool indirectLighting, mx::HwSpecularEnvironmentMethod specularEnvironmentMethod, int envSamples)
 {
     if (!_glShader)
     {
@@ -492,9 +492,12 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandler
     _glShader->bind();
 
     // Bind environment light uniforms and images.
-    if (_glShader->uniform("u_envSamples", false) != -1)
+    if (specularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
     {
-        _glShader->setUniform("u_envSamples", envSamples);
+        if (_glShader->uniform("u_envSamples", false) != -1)
+        {
+            _glShader->setUniform("u_envSamples", envSamples);
+        }
     }
     mx::StringMap lightTextures = {
         { "u_envRadiance", indirectLighting ? (std::string) lightHandler->getLightEnvRadiancePath() : mx::EMPTY_STRING },
@@ -513,12 +516,15 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandler
             mx::ImageDesc desc;
             if (bindImage(filename, pair.first, imageHandler, desc, udim, &fallbackColor))
             {
-                // Bind any associated uniforms.
-                if (pair.first == "u_envRadiance")
+                if (specularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
                 {
-                    if (_glShader->uniform("u_envRadianceMips", false) != -1)
+                    // Bind any associated uniforms.
+                    if (pair.first == "u_envRadiance")
                     {
-                        _glShader->setUniform("u_envRadianceMips", desc.mipCount);
+                        if (_glShader->uniform("u_envRadianceMips", false) != -1)
+                        {
+                            _glShader->setUniform("u_envRadianceMips", desc.mipCount);
+                        }
                     }
                 }
             }

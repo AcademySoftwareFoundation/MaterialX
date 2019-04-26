@@ -18,6 +18,7 @@ class Viewer : public ng::Screen
            const std::string& meshFilename,
            const std::string& materialFilename,
            const DocumentModifiers& modifiers,
+           mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
            int multiSampleCount);
     ~Viewer() { }
 
@@ -153,6 +154,7 @@ class Viewer : public ng::Screen
 
     // Render options
     bool _outlineSelection;
+    mx::HwSpecularEnvironmentMethod _specularEnvironmentMethod;
     int _envSamples;
 
     // Image save

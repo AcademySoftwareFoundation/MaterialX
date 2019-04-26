@@ -18,6 +18,7 @@ int main(int argc, char* const argv[])
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
     DocumentModifiers modifiers;
     int multiSampleCount = 0;
+    mx::HwSpecularEnvironmentMethod specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -54,6 +55,13 @@ int main(int argc, char* const argv[])
         if (token == "--terminator" && !nextToken.empty())
         {
             modifiers.filePrefixTerminator = nextToken;
+        }
+        if (token == "--envMethod" && !nextToken.empty())
+        {
+            if (std::stoi(nextToken) == 1)
+            {
+                specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_PREFILTER;
+            }
         }
         if (token == "--msaa" && !nextToken.empty())
         {
@@ -96,6 +104,7 @@ int main(int argc, char* const argv[])
                                                 meshFilename,
                                                 materialFilename,
                                                 modifiers,
+                                                specularEnvironmentMethod,
                                                 multiSampleCount);
             viewer->setVisible(true);
             ng::mainloop();
