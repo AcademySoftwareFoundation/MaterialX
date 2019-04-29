@@ -102,7 +102,7 @@ void GlslValidator::initialize()
                         throw ExceptionShaderValidationError(errorType, errors);
                     }
 #endif
-                    glClearColor(0.4f, 0.4f, 0.4f, 0.0f);
+                    glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
                     glClearStencil(0);
 
                     _initialized = true;
@@ -398,10 +398,10 @@ void GlslValidator::validateRender()
     glViewport(0, 0, _frameBufferWidth, _frameBufferHeight);
 
     // Update viewing information
-    const Vector3 eye(0.0f, 0.0f, 40.0f);
+    const Vector3 eye(0.0f, 0.0f, 4.0f);
     const Vector3 center;
     const Vector3 up(0.0f, 1.0f, 0.0f);
-    float objectScale(10.0f);
+    float objectScale(1.0f);
     updateViewInformation(eye, center, up, FOV_PERSP, NEAR_PLANE_PERSP, FAR_PLANE_PERSP, objectScale);
 
     try

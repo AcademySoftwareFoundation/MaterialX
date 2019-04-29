@@ -56,11 +56,11 @@ class RenderTestOptions
     bool readOptions(const std::string& optionFile);
 
     // Filter list of files to only run validation on.
-    MaterialX::StringVec overrideFiles;
+    mx::StringVec overrideFiles;
 
     // List of language,target pair identifier storage as 
     // strings in the form <language>_<target>.
-    MaterialX::StringSet languageAndTargets;
+    mx::StringSet languageAndTargets;
 
     // Comma separated list of light setup files
     mx::StringVec lightFiles;
@@ -98,11 +98,26 @@ class RenderTestOptions
     // Shaded geometry file
     MaterialX::FilePath shadedGeometry;
 
-    // Radiance IBL file
-    MaterialX::FilePath radianceIBLPath;
+    // Amount to scale geometry. 
+    float geometryScale;
 
-    // IradianceIBL file
-    MaterialX::FilePath irradianceIBLPath;
+    // Enable direct lighting. Default is true. 
+    bool enableDirectLighting;
+
+    // Enable indirect lighting. Default is true. 
+    bool enableIndirectLighting;
+
+    // Method for specular environment sampling (only used for HW rendering):
+    //   0 : Prefiltered - Use a radiance IBL texture that has been prefiltered with the BRDF.
+    //   1 : Filtered Importance Sampling - Use FIS to sample the IBL texture according to the BRDF in runtime.
+    // Default value is 1.
+    int specularEnvironmentMethod;
+
+    // Radiance IBL file.
+    mx::FilePath radianceIBLPath;
+
+    // Irradiance IBL file.
+    mx::FilePath irradianceIBLPath;
 };
 
 // Scoped timer which adds a duration to a given externally reference timing duration
@@ -229,7 +244,6 @@ class ShaderRenderTester
     {
         _skipFiles.insert("_options.mtlx");
         _skipFiles.insert("light_rig.mtlx");
-        _skipFiles.insert("lightcompoundtest_ng.mtlx");
         _skipFiles.insert("lightcompoundtest.mtlx");
         _skipFiles.insert("default_viewer_lights.mtlx");
     }

@@ -88,20 +88,10 @@ void GlslShaderRenderTester::loadLibraries(mx::DocumentPtr document,
                                            RenderUtil::RenderTestOptions& options)
 {
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/Utilities/Lights");
-    if (options.lightFiles.size() == 0)
+    for (auto lightFile : options.lightFiles)
     {
-        GenShaderUtil::loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), document);
-        GenShaderUtil::loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), document);
-        GenShaderUtil::loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), document);
+        GenShaderUtil::loadLibrary(lightDir / mx::FilePath(lightFile), document);
     }
-    else
-    {
-        for (auto lightFile : options.lightFiles)
-        {
-            GenShaderUtil::loadLibrary(lightDir / mx::FilePath(lightFile), document);
-        }
-    }
-
 }
 
 // Create a light handler and populate it based on lights found in a given document
@@ -295,6 +285,7 @@ bool GlslShaderRenderTester::runValidator(const std::string& shaderName,
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
                 contextOptions.fileTextureVerticalFlip = true;
+                contextOptions.hwSpecularEnvironmentMethod = testOptions.specularEnvironmentMethod;
                 shader = shadergen.generate(shaderName, element, context);
                 generationTimer.endTimer();
             }
@@ -513,7 +504,8 @@ void GlslShaderRenderTester::getImplementationWhiteList(mx::StringSet& whiteList
     whiteList =
     {
         "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
-        "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue", "IM_light_genglsl"
+        "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue", "IM_light_genglsl",
+        "IM_point_light_genglsl", "IM_spot_light_genglsl", "IM_directional_light_genglsl"
     };
 }
 

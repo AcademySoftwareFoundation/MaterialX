@@ -49,12 +49,12 @@ option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF
 mark_as_advanced(MATERIALX_BUILD_OIIO)
 set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO installation.")
 mark_as_advanced(MATERIALX_OIIO_DIR)
-option(MATERIALX_BUILD_CONTRIB "Build contribution folder." OFF)
+option(MATERIALX_BUILD_CONTRIB "Build contribution folder." ON)
 mark_as_advanced(MATERIALX_BUILD_CONTRIB)
 
 # Viewer building option. If viewer is desired then we require
 # render and GLSL modules.
-option(MATERIALX_BUILD_VIEWER "Build the MaterialX Sample Viewer. " OFF)
+option(MATERIALX_BUILD_VIEWER "Build the MaterialX Sample Viewer. " ON)
 
 # Helpers for OSL validation
 set(MATERIALX_OSLC_EXECUTABLE "" CACHE FILEPATH "Full path to the oslc binary.")

@@ -3,6 +3,11 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
+#if defined(_WIN32)
+#pragma warning( push )
+#pragma warning( disable: 4244)
+#endif
+
 #define TINYEXR_IMPLEMENTATION
 #include <cstdlib>
 #include <cstdio>
@@ -17,6 +22,10 @@
 #include <MaterialXContrib/External/tinyexr/tinyexr.h>
 #ifdef max_cache
 #define max max_cache
+#endif
+
+#if defined(_WIN32)
+#pragma warning( pop )
 #endif
 
 #include <MaterialXContrib/Handlers/TinyEXRImageLoader.h>

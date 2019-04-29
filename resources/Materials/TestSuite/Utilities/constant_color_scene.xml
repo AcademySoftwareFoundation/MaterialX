@@ -1,6 +1,6 @@
 <!-- Template for taking an input color shader and rendering without lighting -->
 <World>
-   <Camera eye="0, 0, 40"  dir="0,0,-1"  fov="70" />
+   <Camera eye="0, 0, 4"  dir="0,0,-1"  fov="70" />
 
    <!-- Background clear
    %background_color% : is the background color
@@ -9,9 +9,9 @@
       color Cin %background_color%;
       shader constant_color_background layer1;
    </ShaderGroup>
-   <!--
+
    <Background resolution="1024" />
-   -->
+
    <!-- Shader graph for routing to output layer:
    input_shader_parameter_overrides : are parameter overrides for the input shader
    %input_shader_type% : type of an input shader to feed into the output shader.
@@ -25,6 +25,6 @@
       shader %output_shader_type% outputShader;
       connect inputShader.%input_shader_output% outputShader.%output_shader_input%;
    </ShaderGroup>
-   <Sphere center="0,0,0" radius="10.0" />
+   <Sphere center="0,0,0" radius="1.0" />
 
 </World>

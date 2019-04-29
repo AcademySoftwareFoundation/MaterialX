@@ -77,11 +77,13 @@ void RenderTestOptions::print(std::ostream& output) const
     output << "\tDump uniforms and Attributes  " << dumpUniformsAndAttributes << std::endl;
     output << "\tNon-Shaded Geometry: " << unShadedGeometry.asString() << std::endl;
     output << "\tShaded Geometry: " << shadedGeometry.asString() << std::endl;
+    output << "\tGeometry Scale: " << geometryScale << std::endl;
+    output << "\tEnable Direct Lighting: " << enableDirectLighting << std::endl;
+    output << "\tEnable Indirect Lighting: " << enableIndirectLighting << std::endl;
+    output << "\tSpecular Environment Method: " << specularEnvironmentMethod << std::endl;
     output << "\tRadiance IBL File Path " << radianceIBLPath.asString() << std::endl;
     output << "\tIrradiance IBL File Path: " << irradianceIBLPath.asString() << std::endl;
 }
-
-
 
 bool RenderTestOptions::readOptions(const std::string& optionFile)
 {
@@ -102,6 +104,10 @@ bool RenderTestOptions::readOptions(const std::string& optionFile)
     const std::string DUMP_GENERATED_CODE_STRING("dumpGeneratedCode");
     const std::string UNSHADED_GEOMETRY_STRING("unShadedGeometry");
     const std::string SHADED_GEOMETRY_STRING("shadedGeometry");
+    const std::string GEOMETRY_SCALE_STRING("geometryScale");
+    const std::string ENABLE_DIRECT_LIGHTING("enableDirectLighting");
+    const std::string ENABLE_INDIRECT_LIGHTING("enableIndirectLighting");
+    const std::string SPECULAR_ENVIRONMENT_METHOD("specularEnvironmentMethod");
     const std::string RADIANCE_IBL_PATH_STRING("radianceIBLPath");
     const std::string IRRADIANCE_IBL_PATH_STRING("irradianceIBLPath");
     const std::string SPHERE_OBJ("sphere.obj");
@@ -111,6 +117,10 @@ bool RenderTestOptions::readOptions(const std::string& optionFile)
     dumpGeneratedCode = false;
     unShadedGeometry = SPHERE_OBJ;
     shadedGeometry = SHADERBALL_OBJ;
+    geometryScale = 1.0f;
+    enableDirectLighting = true;
+    enableIndirectLighting = true;
+    specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
 
     MaterialX::DocumentPtr doc = MaterialX::createDocument();
     try {
@@ -129,7 +139,7 @@ bool RenderTestOptions::readOptions(const std::string& optionFile)
                     {
                         overrideFiles = MaterialX::splitString(p->getValueString(), ",");
                     }
-                    if (name == LIGHT_FILES_STRING)
+                    else if (name == LIGHT_FILES_STRING)
                     {
                         lightFiles = MaterialX::splitString(p->getValueString(), ",");
                     }
@@ -183,6 +193,22 @@ bool RenderTestOptions::readOptions(const std::string& optionFile)
                     {
                         shadedGeometry = p->getValueString();
                     }
+                    else if (name == GEOMETRY_SCALE_STRING)
+                    {
+                        geometryScale = val->asA<float>();
+                    }
+                    else if (name == ENABLE_DIRECT_LIGHTING)
+                    {
+                        enableDirectLighting = val->asA<bool>();
+                    }
+                    else if (name == ENABLE_INDIRECT_LIGHTING)
+                    {
+                        enableIndirectLighting = val->asA<bool>();
+                    }
+                    else if (name == SPECULAR_ENVIRONMENT_METHOD)
+                    {
+                        specularEnvironmentMethod = val->asA<int>();
+                    }
                     else if (name == RADIANCE_IBL_PATH_STRING)
                     {
                         radianceIBLPath = p->getValueString();
@@ -205,6 +231,17 @@ bool RenderTestOptions::readOptions(const std::string& optionFile)
         if (!renderImages)
         {
             saveImages = false;
+        }
+        // Disable direct lighting
+        if (!enableDirectLighting)
+        {
+            lightFiles.clear();
+        }
+        // Disable indirect lighting
+        if (!enableIndirectLighting)
+        {
+            radianceIBLPath.assign(mx::EMPTY_STRING);
+            irradianceIBLPath.assign(mx::EMPTY_STRING);
         }
 
         // If there is a filter on the files to run turn off profile checking

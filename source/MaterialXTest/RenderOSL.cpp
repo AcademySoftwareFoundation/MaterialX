@@ -155,6 +155,7 @@ bool OslShaderRenderTester::runValidator(const std::string& shaderName,
                 RenderUtil::AdditiveScopedTimer genTimer(profileTimes.languageTimes.generationTime, "OSL generation time");
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
+                contextOptions.targetColorSpaceOverride = "lin_rec709";
                 shader = shadergen.generate(shaderName, element, context);
             }
             catch (mx::Exception& e)
