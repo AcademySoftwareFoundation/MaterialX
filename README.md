@@ -11,6 +11,7 @@ MaterialX is an open standard for transfer of rich material and look-development
 - Download the latest version of the [CMake](https://cmake.org/) build system.
 - Point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
 - Select the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
+- Select the `MATERIALX_BUILD_VIEWER` option to build the [MaterialX Viewer](documents/viewer).
 
 ### Supported Platforms
 
@@ -31,6 +32,16 @@ The MaterialX repository consists of the following folders:
 - [documents](documents) - MaterialX documentation, including its specification and developer guides.
 - [libraries](libraries) - The standard data libraries for MaterialX, including the definitions of its pattern and shader nodes.
 - [resources](resources) - Resources for rendering MaterialX content, including example materials, images, and geometry.
+
+### MaterialX Viewer
+
+The [MaterialX Viewer](documents/viewer) may be used to directly view MaterialX documents, with the following images being simple examples:
+
+**Figure 1:** Standard Surface Shader with procedural and uniform materials
+<p><img src="/documents/Images/MaterialXView_StandardSurface_01.png" width="1024"></p>
+
+**Figure 2:** Standard Surface Shader with textured, color-space-managed materials
+<p><img src="/documents/Images/MaterialXView_StandardSurface_02.png" width="480"></p>
 
 ### Additional Resources
 
