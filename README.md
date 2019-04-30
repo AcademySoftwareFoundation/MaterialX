@@ -35,7 +35,7 @@ The MaterialX repository consists of the following folders:
 
 ### MaterialX Viewer
 
-The [MaterialX Viewer](documents/viewer) may be used to directly view MaterialX documents, with the following images being simple examples:
+The [MaterialX Viewer](documents/viewer) leverages shader generation to generate GLSL shaders from MaterialX graphs, rendering the results using the NanoGUI framework.  Both the standard set of MaterialX nodes and the PBR node set are supported.
 
 **Figure 1:** Standard Surface Shader with procedural and uniform materials
 <p><img src="/documents/Images/MaterialXView_StandardSurface_01.png" width="1024"></p>

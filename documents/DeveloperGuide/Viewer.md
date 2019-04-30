@@ -1,6 +1,6 @@
-# MaterialXView Module
+# MaterialX Viewer
 
-This module contains the source for the default **MaterialX Viewer**, which leverages shader generation to generate GLSL shaders from MaterialX graphs, rendering the results using the NanoGUI framework.  Both the standard set of MaterialX nodes and the PBR node set are supported.
+The MaterialX Viewer leverages shader generation to generate GLSL shaders from MaterialX graphs, rendering the results using the NanoGUI framework.  Both the standard set of MaterialX nodes and the PBR node set are supported.
 
 ## User Interaction
 To open MaterialXView, open the **MaterialXView** executable found in the `bin/` directory.
