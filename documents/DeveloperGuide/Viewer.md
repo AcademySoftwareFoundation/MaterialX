@@ -1,9 +1,6 @@
 # MaterialX Viewer
 
-The MaterialX Viewer leverages shader generation to generate GLSL shaders from MaterialX graphs, rendering the results using the NanoGUI framework.  Both the standard set of MaterialX nodes and the PBR node set are supported.
-
-## User Interaction
-To open MaterialXView, open the **MaterialXView** executable found in the `bin/` directory.
+The MaterialX Viewer leverages shader generation to build GLSL shaders from MaterialX graphs, rendering the results using the NanoGUI framework.  Both the standard set of MaterialX nodes and the PBR node set are supported.
 
 ### Example Images
 
@@ -12,6 +9,9 @@ To open MaterialXView, open the **MaterialXView** executable found in the `bin/`
 
 **Figure 2:** Standard Surface Shader with textured, color-space-managed materials
 <p><img src="/documents/Images/MaterialXView_StandardSurface_02.png" width="480"></p>
+
+## Building The MaterialX Viewer
+Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX Viewer.  Installation will copy the **MaterialXView** executable to a `bin/` directory within the selected install folder.
 
 ### Summary of Viewer Options
 
