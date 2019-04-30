@@ -363,39 +363,78 @@ string GraphElement::asStringDot() const
 {
     string dot = "digraph {\n";
 
-    // Print the nodes
-    for (NodePtr node : getNodes())
+    // Create a unique name for each child element.
+    vector<ElementPtr> children = topologicalSort();
+    StringMap nameMap;
+    StringSet nameSet;
+    for (ElementPtr elem : children)
     {
-        dot += "    \"" + node->getName() + "\" ";
-        NodeDefPtr nodeDef = node->getNodeDef();
-        const string& nodeGroup = nodeDef ? nodeDef->getNodeGroup() : EMPTY_STRING;
-        if (nodeGroup == CONDITIONAL_NODE_GROUP)
+        string uniqueName = elem->getCategory();
+        while(nameSet.count(uniqueName))
         {
-            dot += "[shape=diamond];\n";
+            uniqueName = incrementName(uniqueName);
         }
-        else
+        nameMap[elem->getName()] = uniqueName;
+        nameSet.insert(uniqueName);
+    }
+
+    // Write out all nodes.
+    for (ElementPtr elem : children)
+    {
+        NodePtr node = elem->asA<Node>();
+        if (node)
         {
-            dot += "[shape=box];\n";
+            dot += "    \"" + nameMap[node->getName()] + "\" ";
+            NodeDefPtr nodeDef = node->getNodeDef();
+            const string& nodeGroup = nodeDef ? nodeDef->getNodeGroup() : EMPTY_STRING;
+            if (nodeGroup == CONDITIONAL_NODE_GROUP)
+            {
+                dot += "[shape=diamond];\n";
+            }
+            else
+            {
+                dot += "[shape=box];\n";
+            }
         }
     }
- 
-    // Print the connections
+
+    // Write out all connections.
     std::set<Edge> processedEdges;
+    StringSet processedInterfaces;
     for (OutputPtr output : getOutputs())
     {
         for (Edge edge : output->traverseGraph())
         {
             if (!processedEdges.count(edge))
             {
-                processedEdges.insert(edge);
                 ElementPtr upstreamElem = edge.getUpstreamElement();
                 ElementPtr downstreamElem = edge.getDownstreamElement();
                 ElementPtr connectingElem = edge.getConnectingElement();
-                dot += "    \"" + upstreamElem->getName();
-                dot += "\" -> \"" + downstreamElem->getName();
+
+                dot += "    \"" + nameMap[upstreamElem->getName()];
+                dot += "\" -> \"" + nameMap[downstreamElem->getName()];
                 dot += "\" [label=\"";
                 dot += connectingElem ? connectingElem->getName() : EMPTY_STRING;
                 dot += "\"];\n";
+
+                NodePtr upstreamNode = upstreamElem->asA<Node>();
+                if (upstreamNode && !processedInterfaces.count(upstreamNode->getName()))
+                {
+                    for (InputPtr input : upstreamNode->getInputs())
+                    {
+                        if (input->hasInterfaceName())
+                        {
+                            dot += "    \"" + input->getInterfaceName();
+                            dot += "\" -> \"" + nameMap[upstreamElem->getName()];
+                            dot += "\" [label=\"";
+                            dot += input->getName();
+                            dot += "\"];\n";
+                        }
+                    }
+                    processedInterfaces.insert(upstreamNode->getName());
+                }
+
+                processedEdges.insert(edge);
             }
         }
     }

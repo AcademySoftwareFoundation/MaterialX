@@ -64,7 +64,7 @@ class Viewer : public ng::Screen
     void reloadDocument();
     void saveShaderSource();
     void loadShaderSource();
-    void saveDotFile();
+    void saveDotFiles();
 
     /// Assign the given material to a geometry, or to all geometries if no
     /// target is specified.
