@@ -161,6 +161,10 @@ vector<PortElementPtr> Node::getDownstreamPorts() const
             downstreamPorts.push_back(port);
         }
     }
+    std::sort(downstreamPorts.begin(), downstreamPorts.end(), [](const ConstElementPtr& a, const ConstElementPtr& b)
+    {
+        return a->getName() > b->getName();
+    });
     return downstreamPorts;
 }
 
