@@ -5,11 +5,12 @@
 
 #if defined(__APPLE__)
 
-#include <MaterialXRenderHw/Window/SimpleWindow.h>
-#include <MaterialXRenderHw/Window/WindowCocoaWrappers.h>
+#include <MaterialXRenderHw/SimpleWindow.h>
+#include <MaterialXRenderHw/WindowCocoaWrappers.h>
 
 namespace MaterialX
 {
+
 SimpleWindow::SimpleWindow()
 {
     clearInternalState();
@@ -38,5 +39,7 @@ SimpleWindow::~SimpleWindow()
     void* hWnd = _windowWrapper.externalHandle();
     NSUtilDisposeWindow(hWnd);
 }
-}
+
+} // namespace MaterialX
+
 #endif

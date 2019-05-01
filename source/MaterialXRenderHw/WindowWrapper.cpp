@@ -3,16 +3,17 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRenderHw/Window/WindowWrapper.h>
+#include <MaterialXRenderHw/WindowWrapper.h>
 
 #if defined(__linux__)
 #include <X11/Intrinsic.h>
 #elif defined(__APPLE__)
-#include <MaterialXRenderHw/Window/WindowCocoaWrappers.h>
+#include <MaterialXRenderHw/WindowCocoaWrappers.h>
 #endif
 
 namespace MaterialX
 {
+
 #if defined(_WIN32)
 //
 // Window platform code
@@ -193,4 +194,4 @@ void WindowWrapper::release()
 }
 #endif
 
-}
+} // namespace MaterialX

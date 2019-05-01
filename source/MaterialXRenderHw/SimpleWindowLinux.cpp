@@ -5,7 +5,7 @@
 
 #if defined(__linux__)
 
-#include <MaterialXRenderHw/Window/SimpleWindow.h>
+#include <MaterialXRenderHw/SimpleWindow.h>
 
 #include <X11/StringDefs.h>
 #include <X11/Shell.h> // for applicationShellWidgetClass
@@ -91,5 +91,6 @@ SimpleWindow::~SimpleWindow()
     }
 }
 
-}
+} // namespace MaterialX
+
 #endif

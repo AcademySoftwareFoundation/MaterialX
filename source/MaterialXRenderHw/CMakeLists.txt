@@ -3,33 +3,20 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../
 )
 
-file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB_RECURSE materialx_header "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
-if (APPLE)
-  find_library(COCOA_FRAMEWORK Cocoa)
-  file(GLOB_RECURSE materialx_source_oc "${CMAKE_CURRENT_SOURCE_DIR}/*.m")
-  message("Objective C files: " ${materialx_source_oc})
-  set_source_files_properties(${materialx_source_oc} PROPERTIES
-                            COMPILE_FLAGS "-x objective-c++")
-  set(materialx_source ${materialx_source} ${materialx_source_oc})
-
-endif(APPLE)
-
-function(assign_source_group prefix)
-    foreach(_source IN ITEMS ${ARGN})
-        if (IS_ABSOLUTE "${_source}")
-            file(RELATIVE_PATH _source_rel "${CMAKE_CURRENT_SOURCE_DIR}" "${_source}")
-        else()
-            set(_source_rel "${_source}")
-        endif()
-        get_filename_component(_source_path "${_source_rel}" PATH)
-        string(REPLACE "/" "\\" _source_path_msvc "${_source_path}")
-        source_group("${prefix}\\${_source_path_msvc}" FILES "${_source}")
-    endforeach()
-endfunction(assign_source_group)
+file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB materialx_header "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 assign_source_group("Header Files" ${materialx_header})
 assign_source_group("Source Files" ${materialx_source})
+
+if(APPLE)
+  find_library(COCOA_FRAMEWORK Cocoa)
+  file(GLOB materialx_source_oc "${CMAKE_CURRENT_SOURCE_DIR}/*.m")
+  message("Objective C files: " ${materialx_source_oc})
+  set_source_files_properties(${materialx_source_oc} PROPERTIES
+                              COMPILE_FLAGS "-x objective-c++")
+  set(materialx_source ${materialx_source} ${materialx_source_oc})
+endif(APPLE)
 
 add_library(MaterialXRenderHw STATIC
     ${materialx_source}
@@ -38,25 +25,23 @@ add_library(MaterialXRenderHw STATIC
 
 if(MSVC)
     target_link_libraries(
-	  MaterialXRenderHw
-	  MaterialXRender
-    ${CMAKE_DL_LIBS})
-elseif (APPLE)
+      MaterialXRenderHw
+      MaterialXRender
+      ${CMAKE_DL_LIBS})
+elseif(APPLE)
     target_link_libraries(
-	  MaterialXRenderHw
-	  MaterialXRender
-    ${CMAKE_DL_LIBS}
-	  "-framework Foundation"
-	  "-framework Cocoa"
-)
-elseif (UNIX AND NOT APPLE)
+      MaterialXRenderHw
+      MaterialXRender
+      ${CMAKE_DL_LIBS}
+      "-framework Foundation"
+      "-framework Cocoa")
+elseif(UNIX)
     target_link_libraries(
-	  MaterialXRenderHw
-	  MaterialXRender
-    ${CMAKE_DL_LIBS}
-	  ${X11_LIBRARIES}
-    ${X11_Xt_LIB}
-    )
+      MaterialXRenderHw
+      MaterialXRender
+      ${CMAKE_DL_LIBS}
+      ${X11_LIBRARIES}
+      ${X11_Xt_LIB})
 endif(MSVC)
 
 set_target_properties(
@@ -68,8 +53,7 @@ set_target_properties(
     SOVERSION "${MATERIALX_MAJOR_VERSION}")
 
 install(TARGETS MaterialXRenderHw
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/
-)
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXRenderHw/ MESSAGE_NEVER

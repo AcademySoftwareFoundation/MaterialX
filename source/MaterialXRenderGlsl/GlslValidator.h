@@ -12,7 +12,7 @@
 #include <MaterialXRender/ShaderValidator.h>
 #include <MaterialXRender/ExceptionShaderValidationError.h>
 #include <MaterialXRender/ImageHandler.h>
-#include <MaterialXRenderHw/Window/SimpleWindow.h>
+#include <MaterialXRenderHw/SimpleWindow.h>
 #include <MaterialXRenderGlsl/GLUtilityContext.h>
 #include <MaterialXRenderGlsl/GlslProgram.h>
 

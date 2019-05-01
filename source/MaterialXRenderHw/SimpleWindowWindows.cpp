@@ -5,13 +5,13 @@
 
 #if defined(_WIN32)
 
-#include <Windows.h>
-#include <MaterialXRenderHw/Window/SimpleWindow.h>
-#include <MaterialXRenderHw/Window/WindowWrapper.h>
+#include <MaterialXRenderHw/SimpleWindow.h>
+#include <MaterialXRenderHw/WindowWrapper.h>
 #include <string>
 
 namespace MaterialX
 {
+
 SimpleWindow::SimpleWindow()
 {
     // Give a unique ID to this window.
@@ -114,5 +114,6 @@ SimpleWindow::~SimpleWindow()
     UnregisterClass(_windowClassName, GetModuleHandle(NULL));
 }
 
-}
+} // namespace MaterialX
+
 #endif

@@ -9,9 +9,9 @@
 /// @file
 /// OSL code validator
 
-#include <MaterialXRender/ShaderValidator.h>
 #include <MaterialXRender/ExceptionShaderValidationError.h>
 #include <MaterialXRender/ImageHandler.h>
+#include <MaterialXRender/ShaderValidator.h>
 
 namespace MaterialX
 {
