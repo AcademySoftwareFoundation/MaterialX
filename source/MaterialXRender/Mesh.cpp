@@ -205,4 +205,34 @@ void Mesh::splitByUdims()
     }
 }
 
+void MeshStream::transform(const Matrix44 &matrix)
+{
+    unsigned int stride = getStride();
+    size_t numElements = _data.size() / getStride();
+    for (size_t i=0; i<numElements; i++)
+    {
+        Vector4 vec(0.0, 0.0, 0.0, 1.0);
+        for(size_t j=0; j<stride; j++)
+        {
+            vec[j] = _data[i*stride + j];
+        }
+        if(getType() == MeshStream::POSITION_ATTRIBUTE ||
+           getType() == MeshStream::TEXCOORD_ATTRIBUTE ||
+           getType() == MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE)
+        {
+            vec = matrix.multiply(vec);
+        }
+        else if(getType() == MeshStream::NORMAL_ATTRIBUTE ||
+                getType() == MeshStream::TANGENT_ATTRIBUTE ||
+                getType() == MeshStream::BITANGENT_ATTRIBUTE)
+        {
+            vec = matrix.getInverse().getTranspose().multiply(vec);
+        }
+        for(size_t k=0; k<stride; k++)
+        {
+            _data[i*stride + k] = vec[k];
+        }
+    }
+}
+
 } // namespace MaterialX

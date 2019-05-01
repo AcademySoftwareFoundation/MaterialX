@@ -29,7 +29,9 @@ void bindPyMesh(py::module& mod)
         .def("getIndex", &mx::MeshStream::getIndex)
         .def("getData", static_cast<mx::MeshFloatBuffer& (mx::MeshStream::*)()>(&mx::MeshStream::getData), py::return_value_policy::reference)
         .def("getStride", &mx::MeshStream::getStride)
-        .def("setStride", &mx::MeshStream::setStride);
+        .def("setStride", &mx::MeshStream::setStride)
+        .def("getSize", &mx::MeshStream::getSize)
+        .def("transform", &mx::MeshStream::transform);
 
     py::class_<mx::MeshPartition, mx::MeshPartitionPtr>(mod, "MeshPartition")
         .def_static("create", &mx::MeshPartition::create)

@@ -20,9 +20,8 @@
 
       <!-- Comma separated list of "language"_"target" specifiers to indicate which
            code generators to use.
-       -->
+        -->
       <parameter name="languageAndTargets" type="string" value="genglsl_glsl400,genosl_vanilla" />
-
       <!-- Check the count of number of implementations used for a given generator
         -->
       <parameter name="checkImplCount" type="boolean" value="true" />
@@ -81,6 +80,9 @@
 
       <!-- Suggested irradiance IBL file path -->
       <parameter name="irradianceIBLPath" type="string" value="resources/Images/san_giuseppe_bridge_diffuse.hdr" />
+
+      <!-- Transforms UVs of loaded geometry -->
+      <parameter name="transformUVs" type="matrix44" value="1.0f, 0.0f, 0.0f, -0.25f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f" />
 
    </nodedef>
 </materialx>

@@ -30,7 +30,7 @@ namespace mx = MaterialX;
 // Execution uses existing code generator instances to produce the code and corresponding validator
 // instance to check the validity of the generated code by compiling and / or rendering
 // the code to produce images on disk.
-// 
+//
 // Input uniform and stream checking as well as node implementation coverage and profiling
 // can also be performed depending on the options enabled.
 //
@@ -58,7 +58,7 @@ class RenderTestOptions
     // Filter list of files to only run validation on.
     mx::StringVec overrideFiles;
 
-    // List of language,target pair identifier storage as 
+    // List of language,target pair identifier storage as
     // strings in the form <language>_<target>.
     mx::StringSet languageAndTargets;
 
@@ -86,7 +86,7 @@ class RenderTestOptions
     // Perform rendering validation test
     bool renderImages = true;
 
-    // Perform saving of image. 
+    // Perform saving of image.
     bool saveImages = true;
 
     // Set this to be true if it is desired to dump out uniform and attribut information to the logging file.
@@ -118,6 +118,10 @@ class RenderTestOptions
 
     // Irradiance IBL file.
     mx::FilePath irradianceIBLPath;
+
+    // Transforms UVs of loaded geometry
+    MaterialX::Matrix44 transformUVs;
+
 };
 
 // Scoped timer which adds a duration to a given externally reference timing duration
@@ -260,9 +264,9 @@ class ShaderRenderTester
 
     // Register any additional source code paths used by the generator
     virtual void registerSourceCodeSearchPaths(mx::GenContext& /*context*/) {};
-    
+
     // Register any lights used by the generation context
-    virtual void registerLights(mx::DocumentPtr /*dependLib*/, 
+    virtual void registerLights(mx::DocumentPtr /*dependLib*/,
                                 const RenderUtil::RenderTestOptions &/*options*/,
                                 mx::GenContext& /*context*/) {};
 
@@ -271,7 +275,7 @@ class ShaderRenderTester
     //
     // Create a validator for the generated code
     virtual void createValidator(std::ostream& log) = 0;
-    
+
     // Run the validator
     virtual bool runValidator(const std::string& shaderName,
         mx::TypedElementPtr element,
@@ -301,7 +305,7 @@ class ShaderRenderTester
                                   mx::GenContext& context,
                                   std::ostream& stream);
 
-    // Print execution summary 
+    // Print execution summary
     void printRunLog(const RenderProfileTimes &profileTimes,
                      const RenderTestOptions& options,
                      mx::StringSet& usedImpls,
@@ -319,4 +323,3 @@ class ShaderRenderTester
 } // namespace RenderUtil
 
 #endif
-
