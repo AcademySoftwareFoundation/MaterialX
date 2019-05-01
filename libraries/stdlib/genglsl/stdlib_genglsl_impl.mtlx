@@ -509,19 +509,19 @@
   <implementation name="IM_remap_vector4FA_genglsl" nodedef="ND_remap_vector4FA" file="stdlib/genglsl/mx_remap.inline" language="genglsl"/>
 
   <!-- <smoothstep> -->
-  <implementation name="IM_smoothstep_float_genglsl" nodedef="ND_smoothstep_float" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_color2_genglsl" nodedef="ND_smoothstep_color2" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_color2FA_genglsl" nodedef="ND_smoothstep_color2FA" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_color3_genglsl" nodedef="ND_smoothstep_color3" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_color3FA_genglsl" nodedef="ND_smoothstep_color3FA" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_color4_genglsl" nodedef="ND_smoothstep_color4" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_color4FA_genglsl" nodedef="ND_smoothstep_color4FA" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_vector2_genglsl" nodedef="ND_smoothstep_vector2" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_vector2FA_genglsl" nodedef="ND_smoothstep_vector2FA" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_vector3_genglsl" nodedef="ND_smoothstep_vector3" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_vector3FA_genglsl" nodedef="ND_smoothstep_vector3FA" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_vector4_genglsl" nodedef="ND_smoothstep_vector4" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_vector4FA_genglsl" nodedef="ND_smoothstep_vector4FA" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
+  <implementation name="IM_smoothstep_float_genglsl" nodedef="ND_smoothstep_float" file="stdlib/genglsl/mx_smoothstep_float.glsl" function="mx_smoothstep_float" language="genglsl"/>
+  <implementation name="IM_smoothstep_color2_genglsl" nodedef="ND_smoothstep_color2" file="stdlib/genglsl/mx_smoothstep_vec2.glsl" function="mx_smoothstep_vec2" language="genglsl"/>
+  <implementation name="IM_smoothstep_color2FA_genglsl" nodedef="ND_smoothstep_color2FA" file="stdlib/genglsl/mx_smoothstep_vec2FA.glsl" function="mx_smoothstep_vec2FA" language="genglsl"/>
+  <implementation name="IM_smoothstep_color3_genglsl" nodedef="ND_smoothstep_color3" file="stdlib/genglsl/mx_smoothstep_vec3.glsl" function="mx_smoothstep_vec3" language="genglsl"/>
+  <implementation name="IM_smoothstep_color3FA_genglsl" nodedef="ND_smoothstep_color3FA" file="stdlib/genglsl/mx_smoothstep_vec3FA.glsl" function="mx_smoothstep_vec3FA" language="genglsl"/>
+  <implementation name="IM_smoothstep_color4_genglsl" nodedef="ND_smoothstep_color4" file="stdlib/genglsl/mx_smoothstep_vec4.glsl" function="mx_smoothstep_vec4" language="genglsl"/>
+  <implementation name="IM_smoothstep_color4FA_genglsl" nodedef="ND_smoothstep_color4FA" file="stdlib/genglsl/mx_smoothstep_vec4FA.glsl" function="mx_smoothstep_vec4FA" language="genglsl"/>
+  <implementation name="IM_smoothstep_vector2_genglsl" nodedef="ND_smoothstep_vector2" file="stdlib/genglsl/mx_smoothstep_vec2.glsl" function="mx_smoothstep_vec2" language="genglsl"/>
+  <implementation name="IM_smoothstep_vector2FA_genglsl" nodedef="ND_smoothstep_vector2FA" file="stdlib/genglsl/mx_smoothstep_vec2FA.glsl" function="mx_smoothstep_vec2FA" language="genglsl"/>
+  <implementation name="IM_smoothstep_vector3_genglsl" nodedef="ND_smoothstep_vector3" file="stdlib/genglsl/mx_smoothstep_vec3.glsl" function="mx_smoothstep_vec3" language="genglsl"/>
+  <implementation name="IM_smoothstep_vector3FA_genglsl" nodedef="ND_smoothstep_vector3FA" file="stdlib/genglsl/mx_smoothstep_vec3FA.glsl" function="mx_smoothstep_vec3FA" language="genglsl"/>
+  <implementation name="IM_smoothstep_vector4_genglsl" nodedef="ND_smoothstep_vector4" file="stdlib/genglsl/mx_smoothstep_vec4.glsl" function="mx_smoothstep_vec4" language="genglsl"/>
+  <implementation name="IM_smoothstep_vector4FA_genglsl" nodedef="ND_smoothstep_vector4FA" file="stdlib/genglsl/mx_smoothstep_vec4FA.glsl" function="mx_smoothstep_vec4FA" language="genglsl"/>
 
   <!-- <saturate> -->
   <implementation name="IM_saturate_color3_genglsl" nodedef="ND_saturate_color3" file="stdlib/genglsl/mx_saturate_color3.glsl" function="mx_saturate_color3" language="genglsl"/>
