@@ -572,16 +572,16 @@
   <implementation name="IM_difference_color4_genglsl" nodedef="ND_difference_color4" file="stdlib/genglsl/mx_difference.inline" language="genglsl"/>
 
   <!-- <burn> -->
-  <implementation name="IM_burn_float_genglsl" nodedef="ND_burn_float" file="stdlib/genglsl/mx_burn.inline" language="genglsl"/>
-  <implementation name="IM_burn_color2_genglsl" nodedef="ND_burn_color2" file="stdlib/genglsl/mx_burn.inline" language="genglsl"/>
-  <implementation name="IM_burn_color3_genglsl" nodedef="ND_burn_color3" file="stdlib/genglsl/mx_burn.inline" language="genglsl"/>
-  <implementation name="IM_burn_color4_genglsl" nodedef="ND_burn_color4" file="stdlib/genglsl/mx_burn.inline" language="genglsl"/>
+  <implementation name="IM_burn_float_genglsl" nodedef="ND_burn_float" file="stdlib/genglsl/mx_burn_float.glsl" function="mx_burn_float" language="genglsl"/>
+  <implementation name="IM_burn_color2_genglsl" nodedef="ND_burn_color2" file="stdlib/genglsl/mx_burn_color2.glsl" function="mx_burn_color2" language="genglsl"/>
+  <implementation name="IM_burn_color3_genglsl" nodedef="ND_burn_color3" file="stdlib/genglsl/mx_burn_color3.glsl" function="mx_burn_color3" language="genglsl"/>
+  <implementation name="IM_burn_color4_genglsl" nodedef="ND_burn_color4" file="stdlib/genglsl/mx_burn_color4.glsl" function="mx_burn_color4" language="genglsl"/>
 
   <!-- <dodge> -->
-  <implementation name="IM_dodge_float_genglsl" nodedef="ND_dodge_float" file="stdlib/genglsl/mx_dodge.inline" language="genglsl"/>
-  <implementation name="IM_dodge_color2_genglsl" nodedef="ND_dodge_color2" file="stdlib/genglsl/mx_dodge.inline" language="genglsl"/>
-  <implementation name="IM_dodge_color3_genglsl" nodedef="ND_dodge_color3" file="stdlib/genglsl/mx_dodge.inline" language="genglsl"/>
-  <implementation name="IM_dodge_color4_genglsl" nodedef="ND_dodge_color4" file="stdlib/genglsl/mx_dodge.inline" language="genglsl"/>
+  <implementation name="IM_dodge_float_genglsl" nodedef="ND_dodge_float" file="stdlib/genglsl/mx_dodge_float.glsl" function="mx_dodge_float" language="genglsl"/>
+  <implementation name="IM_dodge_color2_genglsl" nodedef="ND_dodge_color2" file="stdlib/genglsl/mx_dodge_color2.glsl" function="mx_dodge_color2" language="genglsl"/>
+  <implementation name="IM_dodge_color3_genglsl" nodedef="ND_dodge_color3" file="stdlib/genglsl/mx_dodge_color3.glsl" function="mx_dodge_color3" language="genglsl"/>
+  <implementation name="IM_dodge_color4_genglsl" nodedef="ND_dodge_color4" file="stdlib/genglsl/mx_dodge_color4.glsl" function="mx_dodge_color4" language="genglsl"/>
 
   <!-- <screen> -->
   <implementation name="IM_screen_float_genglsl" nodedef="ND_screen_float" file="stdlib/genglsl/mx_screen.inline" language="genglsl"/>
@@ -596,8 +596,8 @@
   <implementation name="IM_overlay_color4_genglsl" nodedef="ND_overlay_color4" file="stdlib/genglsl/mx_overlay_color4.glsl" function="mx_overlay_color4" language="genglsl"/>
 
   <!-- <disjointover> -->
-  <implementation name="IM_disjointover_color2_genglsl" nodedef="ND_disjointover_color2" file="stdlib/genglsl/mx_disjointover_color2.inline" language="genglsl"/>
-  <implementation name="IM_disjointover_color4_genglsl" nodedef="ND_disjointover_color4" file="stdlib/genglsl/mx_disjointover_color4.inline" language="genglsl"/>
+  <implementation name="IM_disjointover_color2_genglsl" nodedef="ND_disjointover_color2" file="stdlib/genglsl/mx_disjointover_color2.glsl" function="mx_disjointover_color2" language="genglsl"/>
+  <implementation name="IM_disjointover_color4_genglsl" nodedef="ND_disjointover_color4" file="stdlib/genglsl/mx_disjointover_color4.glsl" function="mx_disjointover_color4" language="genglsl"/>
 
   <!-- <in> -->
   <implementation name="IM_in_color2_genglsl" nodedef="ND_in_color2" file="stdlib/genglsl/mx_in_color2.inline" language="genglsl"/>

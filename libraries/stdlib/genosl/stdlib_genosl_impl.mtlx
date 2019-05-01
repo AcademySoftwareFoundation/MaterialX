@@ -589,16 +589,16 @@
   <implementation name="IM_difference_color4_genosl" nodedef="ND_difference_color4" file="stdlib/genosl/mx_difference.inline" language="genosl"/>
 
   <!-- <burn> -->
-  <implementation name="IM_burn_float_genosl" nodedef="ND_burn_float" file="stdlib/genosl/mx_burn.inline" language="genosl"/>
-  <implementation name="IM_burn_color2_genosl" nodedef="ND_burn_color2" file="stdlib/genosl/mx_burn.inline" language="genosl"/>
-  <implementation name="IM_burn_color3_genosl" nodedef="ND_burn_color3" file="stdlib/genosl/mx_burn.inline" language="genosl"/>
-  <implementation name="IM_burn_color4_genosl" nodedef="ND_burn_color4" file="stdlib/genosl/mx_burn.inline" language="genosl"/>
+  <implementation name="IM_burn_float_genosl" nodedef="ND_burn_float" file="stdlib/genosl/mx_burn_float.osl" function="mx_burn_float" language="genosl"/>
+  <implementation name="IM_burn_color2_genosl" nodedef="ND_burn_color2" file="stdlib/genosl/mx_burn_color2.osl"  function="mx_burn_color2" language="genosl"/>
+  <implementation name="IM_burn_color3_genosl" nodedef="ND_burn_color3" file="stdlib/genosl/mx_burn_color3.osl" function="mx_burn_color3" language="genosl"/>
+  <implementation name="IM_burn_color4_genosl" nodedef="ND_burn_color4" file="stdlib/genosl/mx_burn_color4.osl" function="mx_burn_color4" language="genosl"/>
 
   <!-- <dodge> -->
-  <implementation name="IM_dodge_float_genosl" nodedef="ND_dodge_float" file="stdlib/genosl/mx_dodge.inline" language="genosl"/>
-  <implementation name="IM_dodge_color2_genosl" nodedef="ND_dodge_color2" file="stdlib/genosl/mx_dodge.inline" language="genosl"/>
-  <implementation name="IM_dodge_color3_genosl" nodedef="ND_dodge_color3" file="stdlib/genosl/mx_dodge.inline" language="genosl"/>
-  <implementation name="IM_dodge_color4_genosl" nodedef="ND_dodge_color4" file="stdlib/genosl/mx_dodge.inline" language="genosl"/>
+  <implementation name="IM_dodge_float_genosl" nodedef="ND_dodge_float" file="stdlib/genosl/mx_dodge_float.osl" function="mx_dodge_float" language="genosl"/>
+  <implementation name="IM_dodge_color2_genosl" nodedef="ND_dodge_color2" file="stdlib/genosl/mx_dodge_color2.osl"  function="mx_dodge_color2" language="genosl"/>
+  <implementation name="IM_dodge_color3_genosl" nodedef="ND_dodge_color3" file="stdlib/genosl/mx_dodge_color3.osl" function="mx_dodge_color3" language="genosl"/>
+  <implementation name="IM_dodge_color4_genosl" nodedef="ND_dodge_color4" file="stdlib/genosl/mx_dodge_color4.osl" function="mx_dodge_color4" language="genosl"/>
 
   <!-- <screen> -->
   <implementation name="IM_screen_float_genosl" nodedef="ND_screen_float" file="stdlib/genosl/mx_screen.inline" language="genosl"/>
@@ -613,8 +613,8 @@
   <implementation name="IM_overlay_color4_genosl" nodedef="ND_overlay_color4" file="stdlib/genosl/mx_overlay_color4.osl" function="mx_overlay_color4" language="genosl"/>
 
   <!-- <disjointover> -->
-  <implementation name="IM_disjointover_color2_genosl" nodedef="ND_disjointover_color2" file="stdlib/genosl/mx_disjointover_color2.inline" language="genosl"/>
-  <implementation name="IM_disjointover_color4_genosl" nodedef="ND_disjointover_color4" file="stdlib/genosl/mx_disjointover_color4.inline" language="genosl"/>
+  <implementation name="IM_disjointover_color2_genosl" nodedef="ND_disjointover_color2" file="stdlib/genosl/mx_disjointover_color2.osl" function="mx_disjointover_color2" language="genosl"/>
+  <implementation name="IM_disjointover_color4_genosl" nodedef="ND_disjointover_color4" file="stdlib/genosl/mx_disjointover_color4.osl" function="mx_disjointover_color4" language="genosl"/>
 
   <!-- <in> -->
   <implementation name="IM_in_color2_genosl" nodedef="ND_in_color2" file="stdlib/genosl/mx_in.inline" language="genosl"/>
