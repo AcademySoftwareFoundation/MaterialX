@@ -18,6 +18,11 @@ vec4 mx_square(vec4 x)
     return x*x;
 }
 
+float mx_pow5(float x)
+{
+    return mx_square(mx_square(x)) * x;
+}
+
 float mx_max_component(vec2 v)
 {
     return max(v.x, v.y);
