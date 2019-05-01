@@ -34,7 +34,10 @@ class DocumentModifiers
 class Material
 {
   public:
-    Material() {}
+    Material() :
+        _hasTransparency(false)
+    {
+    }
     ~Material() { }
 
     static MaterialPtr create()

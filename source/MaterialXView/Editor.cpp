@@ -137,7 +137,7 @@ void PropertyEditor::create(Viewer& parent)
     _gridLayout3->setColAlignment({ ng::Alignment::Minimum, ng::Alignment::Maximum, ng::Alignment::Maximum });
 }
 
-ng::FloatBox<float>* PropertyEditor::makeFloatWidget(ng::Widget* container, const std::string label, mx::ValuePtr value,
+ng::FloatBox<float>* PropertyEditor::makeFloatWidget(ng::Widget* container, const std::string& label, mx::ValuePtr value,
                                                      bool editable, mx::ValuePtr min, mx::ValuePtr max,
                                                      Viewer* viewer, const std::string& path)
 {
@@ -166,28 +166,22 @@ ng::FloatBox<float>* PropertyEditor::makeFloatWidget(ng::Widget* container, cons
     {
         floatVar->setValue(value);
         MaterialPtr material = viewer->getSelectedMaterial();
-        if (material)
+        mx::ShaderPort* uniform = material ? material->findUniform(path) : nullptr;
+        if (uniform)
         {
-            mx::ShaderPort* uniform = material ? material->findUniform(path) : nullptr;
-            if (uniform)
-            {
-                material->getShader()->bind();
-                material->getShader()->setUniform(uniform->getName(), value);
-            }
+            material->getShader()->bind();
+            material->getShader()->setUniform(uniform->getName(), value);
         }
     });
     floatVar->setCallback([slider, path, viewer](float value)
     {
         slider->setValue(value);
         MaterialPtr material = viewer->getSelectedMaterial();
-        if (material)
+        mx::ShaderPort* uniform = material ? material->findUniform(path) : nullptr;
+        if (uniform)
         {
-            mx::ShaderPort* uniform = material ? material->findUniform(path) : nullptr;
-            if (uniform)
-            {
-                material->getShader()->bind();
-                material->getShader()->setUniform(uniform->getName(), value);
-            }
+            material->getShader()->bind();
+            material->getShader()->setUniform(uniform->getName(), value);
         }
     });
 
