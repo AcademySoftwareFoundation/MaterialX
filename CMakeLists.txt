@@ -13,6 +13,7 @@ include(CMakeDependentOption)
 enable_testing()
 
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 2.6 or greater." OFF)
+option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
 option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
 option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)
 option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
@@ -44,10 +45,6 @@ mark_as_advanced(MATERIALX_BUILD_OIIO)
 set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO installation.")
 mark_as_advanced(MATERIALX_OIIO_DIR)
 
-# Viewer building option. If viewer is desired then we require
-# render and GLSL modules.
-option(MATERIALX_BUILD_VIEWER "Build the MaterialX Sample Viewer. " OFF)
-
 # Helpers for OSL validation
 set(MATERIALX_OSLC_EXECUTABLE "" CACHE FILEPATH "Full path to the oslc binary.")
 mark_as_advanced(MATERIALX_OSLC_EXECUTABLE)
@@ -66,9 +63,7 @@ endif()
 
 # Adjust compiler settings
 if(MSVC)
-    # Enable multithreaded builds
     add_compile_options(/MP)
-
     if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
         string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     else()
