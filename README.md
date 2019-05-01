@@ -11,7 +11,7 @@ MaterialX is an open standard for transfer of rich material and look-development
 - Download the latest version of the [CMake](https://cmake.org/) build system.
 - Point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
 - Select the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
-- Select the `MATERIALX_BUILD_VIEWER` option to build the [MaterialX Viewer](documents/viewer).
+- Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX viewer.
 
 ### Supported Platforms
 
