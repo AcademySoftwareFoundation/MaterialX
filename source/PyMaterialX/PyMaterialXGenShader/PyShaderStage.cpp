@@ -14,6 +14,8 @@ void bindPyShaderStage(py::module& mod)
 {
     mod.attr("PIXEL_STAGE") = &mx::Stage::PIXEL;
 
+    py::class_<mx::ShaderPortPredicate>(mod, "ShaderPortPredicate");
+
     py::class_<mx::VariableBlock, mx::VariableBlockPtr>(mod, "VariableBlock")
         .def(py::init<const std::string&, const std::string&>())
         .def("getName", &mx::VariableBlock::getName)
@@ -21,6 +23,7 @@ void bindPyShaderStage(py::module& mod)
         .def("empty", &mx::VariableBlock::empty)
         .def("size", &mx::VariableBlock::size)
         .def("find", static_cast<mx::ShaderPort* (mx::VariableBlock::*)(const std::string&)>(&mx::VariableBlock::find))
+        .def("find", (mx::ShaderPort* (mx::VariableBlock::*)(const mx::ShaderPortPredicate& )) &mx::VariableBlock::find)
         .def("__len__", &mx::VariableBlock::size)
         .def("__getitem__", [](const mx::VariableBlock &vb, size_t i)
         {

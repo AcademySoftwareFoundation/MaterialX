@@ -30,7 +30,7 @@ namespace mx = MaterialX;
 // Base tests
 //
 
-TEST_CASE("GenShader Valid Libraries", "[genshader]")
+TEST_CASE("GenShader: Valid Libraries", "[genshader]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
@@ -46,7 +46,7 @@ TEST_CASE("GenShader Valid Libraries", "[genshader]")
     REQUIRE(valid);
 }
 
-TEST_CASE("GenShader TypeDesc Check", "[genshader]")
+TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
 {
     // Make sure the standard types are registered
     const mx::TypeDesc* floatType = mx::TypeDesc::get("float");
@@ -85,7 +85,7 @@ TEST_CASE("GenShader TypeDesc Check", "[genshader]")
     REQUIRE_THROWS(mx::TypeDesc::get("bar"));
 }
 
-TEST_CASE("OSL Reference Implementation Check", "[genshader]")
+TEST_CASE("GenShader: OSL Reference Implementation Check", "[genshader]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 

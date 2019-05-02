@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<materialx version="1.36" cms="ocio">
+  <nodegraph name="NG_brass1" colorspace="srgb_texture" fileprefix="resources/Images/">
+    <tiledimage name="image_color" type="color3">
+      <parameter name="file" type="filename" value="brass_color.jpg" />
+      <parameter name="uvtiling" type="vector2" value="1.0, 1.0"/>
+    </tiledimage>
+    <tiledimage name="image_roughness" type="float">
+      <parameter name="file" type="filename" value="brass_roughness.jpg" />
+      <parameter name="uvtiling" type="vector2" value="1.0, 1.0"/>
+    </tiledimage>
+    <output name="out_color" type="color3" nodename="image_color" />
+    <output name="out_roughness" type="float" nodename="image_roughness" />
+  </nodegraph>
+
+  <material name="Tiled_Brass">
+    <shaderref name="SR_brass1" node="standard_surface">
+      <bindinput name="base" type="float" value="1" />
+      <bindinput name="specular" type="float" value="0" />
+      <bindinput name="specular_roughness" type="float" nodegraph="NG_brass1" output="out_roughness" />
+      <bindinput name="metalness" type="float" value="1" />
+      <bindinput name="coat" type="float" value="1" />
+      <bindinput name="coat_color" type="color3" nodegraph="NG_brass1" output="out_color" />
+      <bindinput name="coat_roughness" type="float" nodegraph="NG_brass1" output="out_roughness" />
+    </shaderref>
+  </material>
+</materialx>

@@ -14,7 +14,7 @@ namespace mx = MaterialX;
 TEST_CASE("Load content", "[xmlio]")
 {
     mx::FilePath libraryPath("libraries/stdlib");
-    mx::FilePath examplesPath("resources/Materials/Examples");
+    mx::FilePath examplesPath("resources/Materials/Examples/Syntax");
     std::string searchPath = libraryPath.asString() +
                              mx::PATH_LIST_SEPARATOR +
                              examplesPath.asString();
@@ -25,13 +25,6 @@ TEST_CASE("Load content", "[xmlio]")
     {
         mx::DocumentPtr lib = mx::createDocument();
         mx::readFromXmlFile(lib, filename, searchPath);
-        std::string message;
-        bool docValid = lib->validate(&message);
-        if (!docValid)
-        {
-            WARN("[" + filename + "] " + message);
-        }
-        REQUIRE(docValid);
         libs.push_back(lib);
     }
 

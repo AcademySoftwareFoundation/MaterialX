@@ -27,6 +27,9 @@ class GenOptions;
 class GenContext;
 class TypeDesc;
 
+/// A string stream
+using StringStream = std::stringstream;
+
 /// Shared pointer to a Shader
 using ShaderPtr = shared_ptr<Shader>;
 /// Shared pointer to a ShaderStage

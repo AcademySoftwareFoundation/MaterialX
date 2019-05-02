@@ -51,6 +51,18 @@ const ShaderPort* VariableBlock::find(const string& name) const
     return const_cast<VariableBlock*>(this)->find(name);
 }
 
+ShaderPort* VariableBlock::find(const ShaderPortPredicate& predicate)
+{
+    for (ShaderPort* port : getVariableOrder())
+    {
+        if (predicate(port))
+        {
+            return port;
+        }
+    }
+    return nullptr;
+}
+
 ShaderPort* VariableBlock::add(const TypeDesc* type, const string& name, ValuePtr value)
 {
     auto it = _variableMap.find(name);
@@ -278,7 +290,7 @@ void ShaderStage::addBlock(const string& str, GenContext& context)
 
     // Add each line in the block seperatelly
     // to get correct indentation
-    std::stringstream stream(str);
+    StringStream stream(str);
     for (string line; std::getline(stream, line); )
     {
         size_t pos = line.find(INCLUDE);

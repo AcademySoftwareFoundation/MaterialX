@@ -107,7 +107,7 @@ class FilePath
     }
 
     /// Return the file extension of the given path.
-    string getExtension()
+    string getExtension() const
     {
         string baseName = getBaseName();
         size_t i = baseName.rfind('.');
@@ -117,6 +117,9 @@ class FilePath
     /// Concatenate two paths with a directory separator, returning the
     /// combined path.
     FilePath operator/(const FilePath& rhs) const;
+
+    /// Set the path to the parent directory if one exists. 
+    void pop();
 
     /// @}
     /// @name File System Operations

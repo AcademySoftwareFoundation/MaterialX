@@ -16,6 +16,9 @@
   <!-- <dielectric_btdf> -->
   <implementation name="IM_dielectric_btdf_genosl" nodedef="ND_dielectric_btdf" file="pbrlib/genosl/mx_dielectric_btdf.osl" function="mx_dielectric_btdf" language="genosl"/>
 
+  <!-- <burley_diffuse_brdf> -->
+  <implementation name="IM_burley_diffuse_brdf_genosl" nodedef="ND_burley_diffuse_brdf" file="pbrlib/genosl/mx_burley_diffuse_brdf.osl" function="mx_burley_diffuse_brdf" language="genosl"/>
+
   <!-- <generalized_schlick_brdf> -->
   <implementation name="IM_generalized_schlick_brdf_genosl" nodedef="ND_generalized_schlick_brdf" file="pbrlib/genosl/mx_generalized_schlick_brdf.osl" function="mx_generalized_schlick_brdf" language="genosl"/>
 

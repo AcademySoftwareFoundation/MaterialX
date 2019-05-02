@@ -125,7 +125,7 @@ namespace Type
     extern const TypeDesc* BOOLEAN;
     extern const TypeDesc* INTEGER;
     extern const TypeDesc* INTEGERARRAY;
-    extern const TypeDesc* FLOAT; 
+    extern const TypeDesc* FLOAT;
     extern const TypeDesc* FLOATARRAY;
     extern const TypeDesc* VECTOR2;
     extern const TypeDesc* VECTOR3;

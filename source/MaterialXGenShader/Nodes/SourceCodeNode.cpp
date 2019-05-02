@@ -121,7 +121,9 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
                         shadergen.emitLineBegin(stage);
                         const Syntax& syntax = shadergen.getSyntax();
                         const string valueStr = (v.getValue() ? syntax.getValue(v.getType(), *v.getValue()) : syntax.getDefaultValue(v.getType()));
-                        string str = syntax.getConstantQualifier() + " " + syntax.getTypeName(v.getType()) + " " + v.getVariable();
+                        const string& qualifier = syntax.getConstantQualifier();
+                        string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
+                        str += syntax.getTypeName(v.getType()) + " " + v.getVariable();
                         str += valueStr.empty() ? EMPTY_STRING : " = " + valueStr;
                         shadergen.emitString(str, stage);
                         shadergen.emitLineEnd(stage);

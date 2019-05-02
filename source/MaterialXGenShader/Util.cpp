@@ -30,7 +30,7 @@ bool readFile(const string& filename, string& contents)
     std::ifstream file(filename, std::ios::in);
     if (file)
     {
-        std::stringstream stream;
+        StringStream stream;
         stream << file.rdbuf();
         file.close();
         if (stream)
@@ -452,85 +452,78 @@ void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>
 {
     try
     {
-        std::vector<NodeGraphPtr> nodeGraphs = doc->getNodeGraphs();
-        std::vector<OutputPtr> outputList = doc->getOutputs();
-        std::unordered_set<OutputPtr> outputSet(outputList.begin(), outputList.end());
-        std::vector<MaterialPtr> materials = doc->getMaterials();
+        std::unordered_set<OutputPtr> processedOutputs;
 
-        if (!materials.empty() || !nodeGraphs.empty() || !outputList.empty())
+        for (auto material : doc->getMaterials())
         {
-            std::unordered_set<OutputPtr> shaderrefOutputs;
-            for (auto material : materials)
+            for (auto shaderRef : material->getShaderRefs())
             {
-                for (auto shaderRef : material->getShaderRefs())
+                if (!shaderRef->hasSourceUri())
                 {
-                    if (!shaderRef->hasSourceUri())
+                    // Add in all shader references which are not part of a node definition library
+                    NodeDefPtr nodeDef = shaderRef->getNodeDef();
+                    if (!nodeDef)
                     {
-                        // Add in all shader references which are not part of a node definition library
-                        NodeDefPtr nodeDef = shaderRef->getNodeDef();
+                        throw ExceptionShaderGenError("Could not find a nodedef for shaderref '" + shaderRef->getName() + "'");
+                    }
+                    if (requiresImplementation(nodeDef))
+                    {
+                        elements.push_back(shaderRef);
+                    }
+
+                    if (!includeReferencedGraphs)
+                    {
+                        // Track outputs already used by the shaderref
+                        for (auto bindInput : shaderRef->getBindInputs())
+                        {
+                            OutputPtr outputPtr = bindInput->getConnectedOutput();
+                            if (outputPtr)
+                            {
+                                processedOutputs.insert(outputPtr);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Find node graph outputs. Skip any light shaders
+        const string LIGHT_SHADER("lightshader");
+        for (NodeGraphPtr nodeGraph : doc->getNodeGraphs())
+        {
+            // Skip anything from an include file including libraries.
+            if (!nodeGraph->hasSourceUri())
+            {
+                for (OutputPtr output : nodeGraph->getOutputs())
+                {
+                    if (output->hasSourceUri() || processedOutputs.count(output))
+                    {
+                        continue;
+                    }
+                    NodePtr outputNode = output->getConnectedNode();
+                    if (outputNode && outputNode->getType() != LIGHT_SHADER)
+                    {
+                        NodeDefPtr nodeDef = outputNode->getNodeDef();
                         if (!nodeDef)
                         {
-                            throw ExceptionShaderGenError("Could not find a nodedef for shaderref '" + shaderRef->getName() + "'");
+                            throw ExceptionShaderGenError("Could not find a nodedef for output '" + outputNode->getName() + "'");
                         }
                         if (requiresImplementation(nodeDef))
                         {
-                            elements.push_back(shaderRef);
-                        }
-
-                        // Find all bindinputs which reference outputs and outputgraphs
-                        if (!includeReferencedGraphs)
-                        {
-                            for (auto bindInput : shaderRef->getBindInputs())
-                            {
-                                OutputPtr outputPtr = bindInput->getConnectedOutput();
-                                if (outputPtr)
-                                {
-                                    shaderrefOutputs.insert(outputPtr);
-                                }
-                            }
+                            elements.push_back(output);
                         }
                     }
+                    processedOutputs.insert(output);
                 }
             }
+        }
 
-            // Find node graph outputs. Skip any light shaders
-            const string LIGHT_SHADER("lightshader");
-            for (NodeGraphPtr nodeGraph : nodeGraphs)
+        // Add in all top-level outputs not already processed.
+        for (OutputPtr output : doc->getOutputs())
+        {
+            if (!output->hasSourceUri() && !processedOutputs.count(output))
             {
-                // Skip anything from an include file including libraries.
-                if (!nodeGraph->hasSourceUri())
-                {
-                    std::vector<OutputPtr> nodeGraphOutputs = nodeGraph->getOutputs();
-                    for (OutputPtr output : nodeGraphOutputs)
-                    {
-                        NodePtr outputNode = output->getConnectedNode();
-
-                        // For now we skip any outputs which are referenced elsewhere.
-                        if (outputNode &&
-                            outputNode->getType() != LIGHT_SHADER &&
-                            (!includeReferencedGraphs && shaderrefOutputs.count(output) == 0))
-                        {
-                            NodeDefPtr nodeDef = outputNode->getNodeDef();
-                            if (!nodeDef)
-                            {
-                                throw ExceptionShaderGenError("Could not find a nodedef for output '" + outputNode->getName() + "'");
-                            }
-                            if (requiresImplementation(nodeDef))
-                            {
-                                outputSet.insert(output);
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Add in all outputs which are not part of a library
-            for (OutputPtr output : outputSet)
-            {
-                if (!output->hasSourceUri())
-                {
-                    elements.push_back(output);
-                }
+                elements.push_back(output);
             }
         }
     }
@@ -584,106 +577,9 @@ ValueElementPtr findNodeDefChild(const string& path, DocumentPtr doc, const stri
     // Use the path element name to look up in the equivalent element
     // in the nodedef as only the nodedef elements contain the information.
     const string& valueElementName = pathElement->getName();
-    ValueElementPtr valueElement = nodeDef->getChildOfType<ValueElement>(valueElementName);
+    ValueElementPtr valueElement = nodeDef->getActiveValueElement(valueElementName);
 
     return valueElement;
-}
-
-unsigned int getUIProperties(const ValueElementPtr nodeDefElement, UIProperties& uiProperties)
-{
-    if (!nodeDefElement)
-    {
-        return 0;
-    }
-
-    unsigned int propertyCount = 0;
-    uiProperties.uiName = nodeDefElement->getAttribute(ValueElement::UI_NAME_ATTRIBUTE);
-    if (!uiProperties.uiName.empty())
-        propertyCount++;
-
-    uiProperties.uiFolder = nodeDefElement->getAttribute(ValueElement::UI_FOLDER_ATTRIBUTE);
-    if (!uiProperties.uiFolder.empty())
-        propertyCount++;
-
-    if (nodeDefElement->isA<Parameter>())
-    {
-        string enumString = nodeDefElement->getAttribute(ValueElement::ENUM_ATTRIBUTE);
-        if (!enumString.empty())
-        {
-            uiProperties.enumeration = splitString(enumString, ",");
-            if (uiProperties.enumeration.size())
-                propertyCount++;
-        }
-
-        const string& enumerationValues = nodeDefElement->getAttribute(ValueElement::ENUM_VALUES_ATTRIBUTE);
-        if (!enumerationValues.empty())
-        {
-            const string& elemType = nodeDefElement->getType();
-            const TypeDesc* typeDesc = TypeDesc::get(elemType);
-            if (typeDesc->isScalar() || typeDesc->isFloat2() || typeDesc->isFloat3() || 
-                typeDesc->isFloat4())
-            {
-                StringVec stringValues = splitString(enumerationValues, ",");
-                string valueString;
-                size_t elementCount = typeDesc->getSize();
-                elementCount--;
-                size_t count = 0;
-                for (size_t i = 0; i < stringValues.size(); i++)
-                {
-                    if (count == elementCount)
-                    { 
-                        valueString += stringValues[i];
-                        uiProperties.enumerationValues.push_back(Value::createValueFromStrings(valueString, elemType));
-                        valueString.clear();
-                        count = 0;
-                    }
-                    else
-                    {
-                        valueString += stringValues[i] + ",";
-                        count++;
-                    }
-                }
-            }
-            else
-            {
-                uiProperties.enumerationValues.push_back(Value::createValue(enumerationValues));
-            }
-            propertyCount++;
-        }
-    }
-
-    const string& uiMinString = nodeDefElement->getAttribute(ValueElement::UI_MIN_ATTRIBUTE);
-    if (!uiMinString.empty())
-    {
-        ValuePtr value = Value::createValueFromStrings(uiMinString, nodeDefElement->getType());
-        if (value)
-        {
-            uiProperties.uiMin = value;
-            propertyCount++;
-        }
-    }
-
-    const string& uiMaxString = nodeDefElement->getAttribute(ValueElement::UI_MAX_ATTRIBUTE);
-    if (!uiMaxString.empty())
-    {
-        ValuePtr value = Value::createValueFromStrings(uiMaxString, nodeDefElement->getType());
-        if (value)
-        {
-            uiProperties.uiMax = value;
-            propertyCount++;
-        }
-    }
-    return propertyCount;
-}
-
-unsigned int getUIProperties(const string& path, DocumentPtr doc, const string& target, UIProperties& uiProperties)
-{
-    ValueElementPtr valueElement = findNodeDefChild(path, doc, target);
-    if (valueElement)
-    {
-        return getUIProperties(valueElement, uiProperties);
-    }
-    return 0;
 }
 
 } // namespace MaterialX

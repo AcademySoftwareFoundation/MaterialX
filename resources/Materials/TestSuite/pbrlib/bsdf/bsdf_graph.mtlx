@@ -5,43 +5,33 @@
     and straight transmission.
   -->
   <nodedef name="ND_mybsdf" node="mybsdf" type="BSDF">
-    <input name="diffuse" type="float" />
+    <input name="diffuse" type="float" value="0.8" />
     <input name="diffuseColor" type="color3" value="0.0, 1.0, 0.0"/>
-    <input name="transmission" type="float" value="0.5"/>
-    <input name="transmissionColor" type="color3" value="1.0, 1.0, 1.0"/>
+    <input name="specular" type="float" value="1.0"/>
+    <input name="specularColor" type="color3" value="1.0, 1.0, 1.0"/>
   </nodedef>
   <nodegraph name="IMP_mybsdf" nodedef="ND_mybsdf">
-    <dielectric_btdf name="dielectric_btdf1" type="BSDF">
-      <input name="weight" type="float" value="1.0000" />
-      <input name="tint" type="color3" interfacename="transmissionColor" />
-      <input name="ior" type="float" value="1.52" />
-      <input name="normal" type="vector3" value="0.0, 0.0, 0.0" />
-      <input name="tangent" type="vector3" value="0.0, 0.0, 0.0" />
-      <input name="distribution" type="string" value="ggx" />
-      <input name="interior" type="VDF" value="" />
-    </dielectric_btdf>
-    <diffuse_brdf name="diffuse_brdf2" type="BSDF">
+    <diffuse_brdf name="diffuse_brdf1" type="BSDF">
       <input name="weight" type="float" interfacename="diffuse" />
       <input name="color" type="color3" interfacename="diffuseColor" />
-      <input name="roughness" type="float" value="1.0" />
-      <input name="normal" type="vector3" value="0.0, 0.0, 0.0" />
     </diffuse_brdf>
-    <mix name="mix1" type="BSDF">
-      <input name="fg" type="BSDF" value="" nodename="diffuse_brdf2" />
-      <input name="bg" type="BSDF" value="" nodename="dielectric_btdf1" />
-      <input name="mix" type="float" interfacename="transmission" />
-    </mix>
-    <output name="out" type="BSDF" nodename="mix1" />
+    <dielectric_brdf name="dielectric_brdf1" type="BSDF">
+      <input name="weight" type="float" interfacename="specular" />
+      <input name="tint" type="color3" interfacename="specularColor" />
+      <input name="ior" type="float" value="1.52" />
+      <input name="base" type="BSDF" nodename="diffuse_brdf1" />
+    </dielectric_brdf>
+    <output name="out" type="BSDF" nodename="dielectric_brdf1" />
   </nodegraph>
   <!--
     Use the bsdf node above in a surface shader.
   -->
   <nodegraph name="test_mybsdf" type="surfaceshader">
     <mybsdf name="mybsdf1" type="BSDF">
-      <input name="diffuse" type="float" value="1.0" />
-      <input name="diffuseColor" type="color3" value="1.0, 0.0, 0.0" />
-      <input name="transmission" type="float" value="0.5" />
-      <input name="transmissionColor" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="diffuse" type="float" value="0.4" />
+      <input name="diffuseColor" type="color3" value="1.0, 0.1, 0.1" />
+      <input name="specular" type="float" value="1.0"/>
+      <input name="specularColor" type="color3" value="1.0, 1.0, 1.0"/>
     </mybsdf>
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" value="" nodename="mybsdf1" />

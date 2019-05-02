@@ -20,60 +20,60 @@ ShaderNodeImplPtr ConvertNode::create()
 
 void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    using ConvertTable = std::unordered_map<const TypeDesc*, std::unordered_map<const TypeDesc*, std::string> >;
+    using ConvertTable = std::unordered_map<const TypeDesc*, std::unordered_map<const TypeDesc*, string> >;
 
     static const ConvertTable CONVERT_TABLE({
         {
             Type::COLOR2,
             {
-                { Type::VECTOR2, std::string("ra") }
+                { Type::VECTOR2, string("ra") }
             }
         },
         {
             Type::COLOR3,
             {
-                { Type::VECTOR3, std::string("rgb") },
-                { Type::COLOR4, std::string("rgb1") }
+                { Type::VECTOR3, string("rgb") },
+                { Type::COLOR4, string("rgb1") }
             }
         },
         {
             Type::COLOR4,
             {
-                { Type::VECTOR4, std::string("rgba") },
-                { Type::COLOR3, std::string("rgb") }
+                { Type::VECTOR4, string("rgba") },
+                { Type::COLOR3, string("rgb") }
             }
         },
         {
             Type::VECTOR2,
             {
-                { Type::COLOR2, std::string("xy") },
-                { Type::VECTOR3, std::string("xy0") }
+                { Type::COLOR2, string("xy") },
+                { Type::VECTOR3, string("xy0") }
             }
         },
         {
             Type::VECTOR3,
             {
-                { Type::COLOR3, std::string("xyz") },
-                { Type::VECTOR4, std::string("xyz1") },
-                { Type::VECTOR2, std::string("xy") }
+                { Type::COLOR3, string("xyz") },
+                { Type::VECTOR4, string("xyz1") },
+                { Type::VECTOR2, string("xy") }
             }
         },
         {
             Type::VECTOR4,
             {
-                { Type::COLOR4, std::string("xyzw") },
-                { Type::VECTOR3, std::string("xyz") }
+                { Type::COLOR4, string("xyzw") },
+                { Type::VECTOR3, string("xyz") }
             }
         },
         {
             Type::FLOAT,
             {
-                { Type::COLOR2, std::string("rr") },
-                { Type::COLOR3, std::string("rrr") },
-                { Type::COLOR4, std::string("rrrr") },
-                { Type::VECTOR2, std::string("rr") },
-                { Type::VECTOR3, std::string("rrr") },
-                { Type::VECTOR4, std::string("rrrr") }
+                { Type::COLOR2, string("rr") },
+                { Type::COLOR3, string("rrr") },
+                { Type::COLOR4, string("rrrr") },
+                { Type::VECTOR2, string("rr") },
+                { Type::VECTOR3, string("rrr") },
+                { Type::VECTOR4, string("rrrr") }
             }
         }
     });

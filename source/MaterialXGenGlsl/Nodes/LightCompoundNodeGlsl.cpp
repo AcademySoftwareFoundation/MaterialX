@@ -38,11 +38,11 @@ void LightCompoundNodeGlsl::initialize(const InterfaceElement& element, GenConte
     // Store light uniforms for all inputs and parameters on the interface
     const NodeGraph& graph = static_cast<const NodeGraph&>(element);
     NodeDefPtr nodeDef = graph.getNodeDef();
-    for (InputPtr input : nodeDef->getInputs())
+    for (InputPtr input : nodeDef->getActiveInputs())
     {
         _lightUniforms.add(TypeDesc::get(input->getType()), input->getName());
     }
-    for (ParameterPtr param : nodeDef->getParameters())
+    for (ParameterPtr param : nodeDef->getActiveParameters())
     {
         _lightUniforms.add(TypeDesc::get(param->getType()), param->getName());
     }

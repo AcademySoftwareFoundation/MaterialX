@@ -116,14 +116,15 @@ class Node : public InterfaceElement
         return getInputCount();
     }
 
-    /// Given an edge connection return the NodeDef output corresponding to the 
-    /// output the edge is connected to. This is only valid if the NodeDef has
-    /// explicit outputs defined, e.g. multiple outputs or an explicitly named 
-    /// output. If this is not the case, nulltptr is returned, which implies 
-    /// the node is a standard node with a single implicit output.
-    OutputPtr getNodeDefOutput(const Edge& edge);
+    /// Given a connecting element (Input/Output/BindInput) return the NodeDef output
+    /// corresponding to the output the element is connected to. This is only valid if
+    /// the NodeDef has explicit outputs defined, e.g. multiple outputs or an explicitly 
+    /// named output. If this is not the case, nullptr is returned, which implies the
+    /// node is a standard node with a single implicit output.
+    OutputPtr getNodeDefOutput(ElementPtr connectingElement);
 
-    /// Return a vector of all downstream ports that connect to this node.
+    /// Return a vector of all downstream ports that connect to this node, ordered by
+    /// the names of the port elements.
     vector<PortElementPtr> getDownstreamPorts() const;
 
     /// @}
@@ -266,6 +267,14 @@ class NodeGraph : public GraphElement
     /// Return the first declaration of this interface, optionally filtered
     ///    by the given target name.
     ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const override;
+
+    /// @}
+    /// @name Validation
+    /// @{
+
+    /// Validate that the given element tree, including all descendants, is
+    /// consistent with the MaterialX specification.
+    bool validate(string* message = nullptr) const override;
 
     /// @}
 

@@ -5,14 +5,14 @@ A shader generation framework is implemented as part of MaterialX. This can help
 
 Note that this system has no runtime and the output produced is source code, not binary executable code. The source code produced needs to be compiled by a shading language compiler before being executed by the renderer. See Figure 1 for a high level overview of the system.
 
-![Shader generation with multiple shader generators](../../resources/Images/shadergen.png)
+![Shader generation with multiple shader generators](/documents/Images/shadergen.png)
 
 **Figure 1**: Shader generation with multiple shader generators.
 
 ## 1.2 Languages and Shader Generators
 The MaterialX description is free from device specific details and all implementation details needs to be taken care of by shader generators. There is one shader generator for each supported shading language. However for each language there can also be variations needed for different renderers. For example; OpenGL renderers supporting GLSL can use forward rendering or deferred rendering, each with very different requirements for how the shaders are constructed. Another example is different renderers supporting OSL but with different sets of closures or closure parameters. Hence a separate shader generator can be defined for each language/target combination.
 
-Class inheritance and specialization is used to create support for new languages or to customize existing language support for a new target. To add a new shader generator for a target you add a new C++ class derived from the base class `ShaderGenerator`, or one of the existing derived shader generator classes (`GlslShaderGenerator`, `OslShaderGenerator`, etc.), and override the methods you need to customize. You might also need to derive a new `Syntax` class, which is used to handle syntactical differences between different shading languages. Then you need to make sure there are implementations defined for all the nodes you want to support, standard library nodes and nodes from other libraries, by either reusing existing implementations where applicable or adding in new ones. See [1.3](#1.3 Node Implementations) on how that is done.
+Class inheritance and specialization is used to create support for new languages or to customize existing language support for a new target. To add a new shader generator for a target you add a new C++ class derived from the base class `ShaderGenerator`, or one of the existing derived shader generator classes (`GlslShaderGenerator`, `OslShaderGenerator`, etc.), and override the methods you need to customize. You might also need to derive a new `Syntax` class, which is used to handle syntactical differences between different shading languages. Then you need to make sure there are implementations defined for all the nodes you want to support, standard library nodes and nodes from other libraries, by either reusing existing implementations where applicable or adding in new ones. See **1.3 Node Implementations** on how that is done.
 
 Note that a shader generator doesn’t need to be defined at the time when node definitions are added. New shader generators can be added later, and node implementations for new targets can be added for existing nodes.
 
@@ -66,7 +66,7 @@ Figure 2. The file extension is used to differentiate inline expressions from so
 <implementation name="IM_mix_color3" nodedef="ND_mix_color3" file="mx_mix.inline"/>
 <... more types ...>
 ```
-```
+```c++
 // File 'mx_add.inline' contains:
 {{in1}} + {{in2}}
 
@@ -218,45 +218,25 @@ Shader generation supports generating a shader starting from either an `output` 
 ShaderPtr ShaderGenerator::generate(const string& name,
                                     ElementPtr element,
                                     GenContext& context)
-```     
+```
 
 The shader generation process can be divided into initialization and code generation. The initialization consists of a number of steps:
-
-1. Create an optimized version of the graph as a tree with the given input element as root, and with only the used dependencies connected upstream. This involves removing unused paths in the graph, converting constant nodes to constant values, and adding in any default nodes for ports that are unconnected but have default connections specified. Removal of unused paths typically involves constant folding and pruning of conditional branches that will never be taken. Since the resulting shader in the end will be compiled by a shading language compiler, and receive a lot of additional optimizations, we don’t need to do too much work
-in this optimization step. However, a few graph level optimizations can make the resulting shader a lot smaller and save time and memory during shader compilation. It will also produce more readable source code which is good for debugging purposes. This optimization step is also a good place to do other custom optimizations needed by a particular target. For example simplification of the graph, which could involve substituting expensive nodes with approximate nodes, identification of common subgraphs that can be merged, etc.
-
-2. The nodes are sorted in topological order. Since a node can be referenced by many other
-nodes in the graph we need an ordering of the nodes so that nodes that have a dependency
-on other nodes come after all dependent nodes. This step also makes sure there are no
-cyclic dependencies in the graph.
-
+1. Create an optimized version of the graph as a tree with the given input element as root, and with only the used dependencies connected upstream. This involves removing unused paths in the graph, converting constant nodes to constant values, and adding in any default nodes for ports that are unconnected but have default connections specified. Removal of unused paths typically involves constant folding and pruning of conditional branches that will never be taken. Since the resulting shader in the end will be compiled by a shading language compiler, and receive a lot of additional optimizations, we don’t need to do too much work in this optimization step. However, a few graph level optimizations can make the resulting shader a lot smaller and save time and memory during shader compilation. It will also produce more readable source code which is good for debugging purposes. This optimization step is also a good place to do other custom optimizations needed by a particular target. For example simplification of the graph, which could involve substituting expensive nodes with approximate nodes, identification of common subgraphs that can be merged, etc.
+2. The nodes are sorted in topological order. Since a node can be referenced by many other nodes in the graph we need an ordering of the nodes so that nodes that have a dependency on other nodes come after all dependent nodes. This step also makes sure there are no cyclic dependencies in the graph.
 3. The stages for the shader are created. For a HW shader this is normally a vertex stage and a pixel stage, but other stages can be added as needed. At the minumum a single pixel stage is required, so even shaders that has no concept of multiple stages, like OSL, needs to have a single pixel stage created.
-
-4. The shader stages interface of uniforms and varyings are established. This consists of
-the graph interface ports that are in use, as well as internal ports that have been published
-to the interface (an example of the latter is for a hardware shader generator where image texture filenames get converted to texture samplers which needs to be published in order to be
-bound by the target application). Each node in the graph is also called for a chance to create any uniforms or varyings needed by its implementation.
-
-5. Information about scope is tracked for each node. This information is needed to handle
-branching by conditional nodes. For example, if a node is used only by a particular branch
-on a varying conditional we want to calculate this node only inside that scope, when that
-corresponding branch is taken. A node can be used in global scope, in a single conditional
-scope or by multiple conditional scopes.
+4. The shader stages interface of uniforms and varyings are established. This consists of the graph interface ports that are in use, as well as internal ports that have been published to the interface (an example of the latter is for a hardware shader generator where image texture filenames get converted to texture samplers which needs to be published in order to be bound by the target application). Each node in the graph is also called for a chance to create any uniforms or varyings needed by its implementation.
+5. Information about scope is tracked for each node. This information is needed to handle branching by conditional nodes. For example, if a node is used only by a particular branch on a varying conditional we want to calculate this node only inside that scope, when that corresponding branch is taken. A node can be used in global scope, in a single conditional scope or by multiple conditional scopes.
 
 The output from the initialization step is a new graph representation constructed using the classes `ShaderNode`, `ShaderInput`, `ShaderOutput`, `ShaderGraph`, etc. This is a graph representation optimized for shader generation with quick access and traversal of nodes and ports, as well as caching of extra information needed by shader generation.
 
 After initialization the code generation steps are handled by the `ShaderGenerator` class and derived classes. This part is specific to the particular generator being used, but in general it consists of the following steps:
-
 1. Typedefs are emitted as specified by the Syntax class.
-
-2. Function definitions are emitted for all the atomic nodes that have shading language functions for their implementations. For nodes using dynamic code generation their `ShaderNodeImpl` instances are called to generate the functions. For nodes that are implemented by graphs a function definition representing the graph computation is emitted.
-
+2. Function definitions are emitted for all the atomic nodes that have shading
+language functions for their implementations. For nodes using dynamic code generation their `ShaderNodeImpl` instances are called to generate the functions. For nodes that are implemented by graphs a function definition representing the graph computation is emitted.
 3. The shader signature is emitted with all uniforms set to default values. The shader uniforms can later be accessed on the returned `Shader` instance in order for applications to be able to bind values to them.
-
 4. The function calls for all nodes are emitted, in the right dependency order, propagating
 output results from upstream nodes as inputs to downstream nodes. Inline expressions are
 emitted instead of functions calls for nodes that use this.
-
 5. The final shader output is produced and assigned to the shader output variable.
 
 Note that if a single monolithic shader for the whole graph is not appropriate for your system the generator can be called on `output` elements at any point in your graph, and generate code for sub-parts. It is then up to the application to decide where to split the graph, and to assemble the shader code for sub-parts after all have been generated.
@@ -346,41 +326,41 @@ Built-in shader generators and accompanying node implementations have a naming c
 
 App data input variables
 
-|    NAME                                | TYPE    | BINDING |
-| :---                                   | :--:    | :--- |
-|    i_position                          | vec3    | Vertex position in object space. |
-|    i_normal                            | vec3    | Vertex normal in object space. |
-|    i_tangent                           | vec3    | Vertex tangent in object space. |
-|    i_bitangent                         | vec3    | Vertex bitangent in object space. |
-|    i_texcoord_N                        | vec2    | Vertex texture coord for N:th uv set. |
-|    i_color_N                           | vec4    | Vertex color for N:th color set. |
+| NAME                                | TYPE    | BINDING |
+| :---                                | :--:    | :--- |
+| i_position                          | vec3    | Vertex position in object space. |
+| i_normal                            | vec3    | Vertex normal in object space. |
+| i_tangent                           | vec3    | Vertex tangent in object space. |
+| i_bitangent                         | vec3    | Vertex bitangent in object space. |
+| i_texcoord_N                        | vec2    | Vertex texture coord for N:th uv set. |
+| i_color_N                           | vec4    | Vertex color for N:th color set. |
 
 
 Uniform variables
 
-|    NAME                                | TYPE    | BINDING |
-| :---                                   | :--:    | :--- |
-|    u_worldMatrix                       | mat4    | World transform. |
-|    u_worldInverseMatrix                | mat4    | World transform, inverted. |
-|    u_worldTransposeMatrix              | mat4    | World transform, transposed. |
-|    u_worldInverseTransposeMatrix       | mat4    | World transform, inverted, transposed. |
-|    u_viewMatrix                        | mat4    | View transform. |
-|    u_viewInverseMatrix                 | mat4    | View transform, inverted. |
-|    u_viewTransposeMatrix               | mat4    | View transform, transposed.
-|    u_viewInverseTransposeMatrix        | mat4    | View transform, inverted, transposed. |
-|    u_projectionMatrix                  | mat4    | Projection transform. |
-|    u_projectionInverseMatrix           | mat4    | Projection transform, inverted. |
-|    u_projectionTransposeMatrix         | mat4    | Projection transform, transposed. |
-|    u_projectionInverseTransposeMatrix  | mat4    | Projection transform, inverted, transposed. |
-|    u_worldViewMatrix                   | mat4    | World-view transform. |
-|    u_viewProjectionMatrix              | mat4    | View-projection transform. |
-|    u_worldViewProjectionMatrix         | mat4    | World-view-projection transform. |
-|    u_viewPosition                      | vec3    | World-space position of the viewer. |
-|    u_viewDirection                     | vec3    | World-space direction of the viewer. |
-|    u_frame                             | float   | The current frame number as defined by the host application. |
-|    u_time                              | float   | The current time in seconds. |
-|    u_geomattr_<name>                   | <type\>  | A named attribute of given <type\> where <name\> is the name of the variable on the geometry. |
-|    u_numActiveLightSources             | int     | The number of currently active light sources. Note that in shader this is clamped against the maximum allowed number of light sources. |
-|    u_lightData[]                       | struct  | Array of struct LightData holding parameters for active light sources. The `LightData` struct is built dynamically depending on requirements for bound light shaders. |
+| NAME                                | TYPE    | BINDING |
+| :---                                | :--:    | :--- |
+| u_worldMatrix                       | mat4    | World transform. |
+| u_worldInverseMatrix                | mat4    | World transform, inverted. |
+| u_worldTransposeMatrix              | mat4    | World transform, transposed. |
+| u_worldInverseTransposeMatrix       | mat4    | World transform, inverted, transposed. |
+| u_viewMatrix                        | mat4    | View transform. |
+| u_viewInverseMatrix                 | mat4    | View transform, inverted. |
+| u_viewTransposeMatrix               | mat4    | View transform, transposed. |
+| u_viewInverseTransposeMatrix        | mat4    | View transform, inverted, transposed. |
+| u_projectionMatrix                  | mat4    | Projection transform. |
+| u_projectionInverseMatrix           | mat4    | Projection transform, inverted. |
+| u_projectionTransposeMatrix         | mat4    | Projection transform, transposed. |
+| u_projectionInverseTransposeMatrix  | mat4    | Projection transform, inverted, transposed. |
+| u_worldViewMatrix                   | mat4    | World-view transform. |
+| u_viewProjectionMatrix              | mat4    | View-projection transform. |
+| u_worldViewProjectionMatrix         | mat4    | World-view-projection transform. |
+| u_viewPosition                      | vec3    | World-space position of the viewer. |
+| u_viewDirection                     | vec3    | World-space direction of the viewer. |
+| u_frame                             | float   | The current frame number as defined by the host application. |
+| u_time                              | float   | The current time in seconds. |
+| u_geomattr_<name>                   | <type\> | A named attribute of given <type\> where <name\> is the name of the variable on the geometry. |
+| u_numActiveLightSources             | int     | The number of currently active light sources. Note that in shader this is clamped against the maximum allowed number of light sources. |
+| u_lightData[]                       | struct  | Array of struct LightData holding parameters for active light sources. The `LightData` struct is built dynamically depending on requirements for bound light shaders. |
 
 **Figure 7** : Listing of predefined variables with their binding rules.

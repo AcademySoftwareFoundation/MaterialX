@@ -32,7 +32,7 @@ void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& cont
     {
         if (!port->isA<Output>())
         {
-            const string& portValue = port->getValueString();
+            const string& portValue = port->getResolvedValueString();
             std::pair<const TypeDesc*, ValuePtr> enumResult;
             if (context.getShaderGenerator().remapEnumeration(*port, portValue, enumResult))
             {
@@ -117,8 +117,17 @@ void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
         // Make connections
         //
 
-        // Find the output to connect to
-        OutputPtr nodeDefOutput = upstreamNode->getNodeDefOutput(edge);
+        // Find the output to connect to.
+        ElementPtr connectingElement = edge.getConnectingElement();
+        if (!connectingElement && downstreamElement->isA<Output>())
+        {
+            // Edge case for having an output downstream but no connecting
+            // element (input) reported upstream. In this case we set the
+            // output itself as connecting element, which handles finding
+            // the nodedef output in case of a multioutput node upstream.
+            connectingElement = downstreamElement->asA<Output>();
+        }
+        OutputPtr nodeDefOutput = connectingElement ? upstreamNode->getNodeDefOutput(connectingElement) : nullptr;
         ShaderOutput* output = nodeDefOutput ? newNode->getOutput(nodeDefOutput->getName()) : newNode->getOutput();
         if (!output)
         {
@@ -128,7 +137,6 @@ void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
 
         // First check if this was a bind input connection
         // In this case we must have a root node as well
-        ElementPtr connectingElement = edge.getConnectingElement();
         if (rootNode && connectingElement && connectingElement->isA<BindInput>())
         {
             // Connect to the corresponding input on the root node
@@ -348,25 +356,31 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
     {
         OutputPtr output = element->asA<Output>();
         ElementPtr outputParent = output->getParent();
-        InterfaceElementPtr interface = outputParent->asA<InterfaceElement>();
 
+        InterfaceElementPtr interface;
         if (outputParent->isA<NodeGraph>())
         {
-            NodeDefPtr nodeDef = outputParent->asA<NodeGraph>()->getNodeDef();
+            // A nodegraph output.
+            NodeGraphPtr nodeGraph = outputParent->asA<NodeGraph>();
+            NodeDefPtr nodeDef = nodeGraph->getNodeDef();
             if (nodeDef)
             {
                 interface = nodeDef;
             }
+            else
+            {
+                interface = nodeGraph;
+            }
         }
-
+        else if (outputParent->isA<Document>())
+        {
+            // A free floating output.
+            outputParent = output->getConnectedNode();
+            interface = outputParent->asA<InterfaceElement>();
+        }
         if (!interface)
         {
-            outputParent = output->getConnectedNode();
-            interface = outputParent ? outputParent->asA<InterfaceElement>() : nullptr;
-            if (!interface)
-            {
-                throw ExceptionShaderGenError("Given output '" + output->getName() + "' has no interface valid for shader generation");
-            }
+            throw ExceptionShaderGenError("Given output '" + output->getName() + "' has no interface valid for shader generation");
         }
 
         graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument());
@@ -427,9 +441,10 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
             if (bindParam)
             {
                 // Copy value from binding
-                if (!bindParam->getValueString().empty())
+                ValuePtr bindParamValue = bindParam->getResolvedValue();
+                if (bindParamValue)
                 {
-                    inputSocket->setValue(bindParam->getValue());
+                    inputSocket->setValue(bindParamValue);
                 }
                 inputSocket->setPath(bindParam->getNamePath());
                 input->setPath(inputSocket->getPath());
@@ -454,9 +469,10 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
             if (bindInput)
             {
                 // Copy value from binding
-                if (!bindInput->getValueString().empty())
+                ValuePtr bindInputValue = bindInput->getResolvedValue();
+                if (bindInputValue)
                 {
-                    inputSocket->setValue(bindInput->getValue());
+                    inputSocket->setValue(bindInputValue);
                 }
                 inputSocket->setPath(bindInput->getNamePath());
                 input->setPath(inputSocket->getPath());

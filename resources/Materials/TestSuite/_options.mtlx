@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Test suite options file which is parsed when the "render" category units tests are executed.
+
+   Execution uses existing code generator instances to produce the code and corresponding validator
+   instance to check the validity of the generated code by compiling and/or rendering
+   the code to produce images on disk.
+
+   Input uniform and stream checking as well as node implementation coverage and profiling
+   can also be performed depending on the options enabled.
+-->
+<materialx version="1.36">
+   <nodedef name="RenderTestOptions">
+
+      <!-- List of comma separated file names acts as a filter to only test documents with these names -->
+      <parameter name="overrideFiles" type="string" value="" />
+
+      <!-- Comma separated list of light setup files. Only used for hardware shading languages  -->
+      <parameter name="lightFiles" type="string" value="default_viewer_lights.mtlx" />
+
+      <!-- Comma separated list of "language"_"target" specifiers to indicate which
+           code generators to use.
+       -->
+      <parameter name="languageAndTargets" type="string" value="genglsl_glsl400,genosl_vanilla" />
+
+      <!-- Check the count of number of implementations used for a given generator
+        -->
+      <parameter name="checkImplCount" type="boolean" value="true" />
+
+      <!-- Run using a given set of shader interface generation options. Default value is 2 where:
+            - 1 = run reduced only.
+            - 2 = run complete only.
+            - 3 = run complete + reduced.
+        -->
+      <parameter name="shaderInterfaces" type="integer" value="2" />
+
+      <!-- Validate element before attempting to generate code. Default is false  -->
+      <parameter name="validateElementToRender" type="boolean" value="false" />
+
+      <!-- Perform source code compilation validation test -->
+      <parameter name="compileCode" type="boolean" value="true" />
+
+      <!-- Perform rendering validation test -->
+      <parameter name="renderImages" type="boolean" value="true" />
+
+      <!-- Perform saving of image. Can only be disabled for GLSL tests -->
+      <parameter name="saveImages" type="boolean" value="true" />
+
+      <!-- Set this to be true if it is desired to dump out uniform and attribut information to the logging file -->
+      <parameter name="dumpUniformsAndAttributes" type="boolean" value="true" />
+
+      <!-- Set this to be true if it is desired to always dump out generated source code to disk instead of just on compile errors -->
+      <parameter name="dumpGeneratedCode" type="boolean" value="true" />
+
+      <!-- Suggested geometry file to use for rendering unshaded elements.
+           File path is relative to the "/resources/Geometry/" folder -->
+      <parameter name="unShadedGeometry" type="string" value="sphere.obj" />
+
+      <!-- Suggested geometry file to use for rendering shaded elements.
+           File path is relative to the "/resources/Geometry/" folder -->
+      <parameter name="shadedGeometry" type="string" value="sphere.obj" />
+
+      <!-- Suggested radiance IBL file path -->
+      <parameter name="radianceIBLPath" type="string" value="resources/Images/san_giuseppe_bridge.hdr" />
+
+      <!-- Suggested irradiance IBL file path -->
+      <parameter name="irradianceIBLPath" type="string" value="resources/Images/san_giuseppe_bridge_diffuse.hdr" />
+
+   </nodedef>
+</materialx>
