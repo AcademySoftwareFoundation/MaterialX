@@ -585,7 +585,11 @@ bool ValueElement::validate(string* message) const
         if (nodeDef)
         {
             ValueElementPtr valueElem = nodeDef->getActiveValueElement(getInterfaceName());
-            validateRequire(valueElem != nullptr, res, message, "Interface name not found in referenced nodedef");
+            validateRequire(valueElem != nullptr, res, message, "Interface name not found in referenced NodeDef");
+            if (valueElem)
+            {
+                validateRequire(valueElem->getType() == getType(), res, message, "Interface name refers to value element of a different type");
+            }
         }
     }
     return TypedElement::validate(message) && res;

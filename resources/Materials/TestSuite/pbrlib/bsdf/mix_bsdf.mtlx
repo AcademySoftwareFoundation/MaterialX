@@ -48,7 +48,7 @@
       <input name="emission" type="color3" value="0.0, 0.0, 0.0"/>
       <input name="opacity" type="float" value="1.0"/>
    </nodedef>
-   <nodegraph name="NG_substratebsdf_example" nodedef="ND_subgraph_ex2">
+   <nodegraph name="NG_substratebsdf_example" nodedef="ND_substratebsdf_example">
       <substratebsdf name="substrate1" type="BSDF">
          <input name="albedo" type="color3" value="0.8, 0.2, 0.1" interfacename="albedo"/>
          <input name="subsurface" type="color3" value="0.1, 0.1, 0.8" interfacename="subsurface"/>

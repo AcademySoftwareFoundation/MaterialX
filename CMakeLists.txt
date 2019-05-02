@@ -13,6 +13,7 @@ include(CMakeDependentOption)
 enable_testing()
 
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 2.6 or greater." OFF)
+option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
 option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
 option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)
 option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
@@ -36,6 +37,25 @@ mark_as_advanced(MATERIALX_PYTHON_EXECUTABLE)
 mark_as_advanced(MATERIALX_PYTHON_OCIO_DIR)
 mark_as_advanced(MATERIALX_PYTHON_PYBIND11_DIR)
 
+# Validation options for compiling and rendering generated shaders
+option(MATERIALX_TEST_RENDER "Run rendering tests for MaterialX Render module. GPU required for graphics validation." OFF)
+mark_as_advanced(MATERIALX_TEST_RENDER)
+option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
+mark_as_advanced(MATERIALX_BUILD_OIIO)
+set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO installation.")
+mark_as_advanced(MATERIALX_OIIO_DIR)
+
+# Helpers for OSL validation
+set(MATERIALX_OSLC_EXECUTABLE "" CACHE FILEPATH "Full path to the oslc binary.")
+mark_as_advanced(MATERIALX_OSLC_EXECUTABLE)
+add_definitions(-DMATERIALX_OSLC_EXECUTABLE=\"${MATERIALX_OSLC_EXECUTABLE}\")
+set(MATERIALX_TESTRENDER_EXECUTABLE "" CACHE FILEPATH "Full path to the testrender binary.")
+mark_as_advanced(MATERIALX_TESTRENDER_EXECUTABLE)
+add_definitions(-DMATERIALX_TESTRENDER_EXECUTABLE=\"${MATERIALX_TESTRENDER_EXECUTABLE}\")
+set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH "Full path to osl include paths. e.g. location of stdosl.h")
+mark_as_advanced(MATERIALX_OSL_INCLUDE_PATH)
+add_definitions(-DMATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\")
+
 # Adjust the default installation path
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/installed" CACHE PATH "Default install path" FORCE)
@@ -43,9 +63,7 @@ endif()
 
 # Adjust compiler settings
 if(MSVC)
-    # Enable multithreaded builds
     add_compile_options(/MP)
-
     if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
         string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     else()
@@ -56,6 +74,9 @@ if(MSVC)
     endif()
 else()
     add_compile_options(-Wall -Wno-missing-braces -Wno-unused-function)
+    if(APPLE)
+        add_compile_options(-Wno-deprecated-declarations)
+    endif()
     if(MATERIALX_WARNINGS_AS_ERRORS)
         add_compile_options(-Werror)
     endif()
@@ -68,14 +89,37 @@ else()
     endif()
 endif()
 
-# Add subdirectories
+# Add core subdirectories
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
+
+# Add shader generation subdirectories
 add_subdirectory(source/MaterialXGenShader)
 add_subdirectory(source/MaterialXGenOsl)
 add_subdirectory(source/MaterialXGenGlsl)
 
+# Add render module subdirectories
+if(MATERIALX_BUILD_OIIO)
+    add_definitions(-DMATERIALX_BUILD_OIIO)
+    add_definitions(-DOPENIMAGEIO_ROOT_DIR=\"${OPENIMAGEIO_ROOT_DIR}\")
+endif()
+add_subdirectory(source/MaterialXRender)
+add_subdirectory(source/MaterialXRenderOsl)
+add_subdirectory(source/MaterialXRenderHw)
+add_subdirectory(source/MaterialXRenderGlsl)
+if(MATERIALX_TEST_RENDER)
+    add_definitions(-DMATERIALX_TEST_RENDER)
+endif()
+
+# Add viewer subdirectory
+if(MATERIALX_BUILD_VIEWER)
+    add_subdirectory(source/MaterialXView)
+endif()
+
+# Add test subdirectory
 add_subdirectory(source/MaterialXTest)
+
+# Add resource and library subdirectories
 add_subdirectory(libraries)
 add_subdirectory(resources)
 
@@ -85,4 +129,12 @@ if(MATERIALX_BUILD_PYTHON)
 endif()
 if(MATERIALX_BUILD_DOCS)
     add_subdirectory(documents)
+endif()
+
+if(${CMAKE_VERSION} VERSION_GREATER "3.6.2")
+    if(MATERIALX_BUILD_VIEWER)
+        set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT MaterialXView)
+    else()
+        set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT MaterialXTest)
+    endif()
 endif()

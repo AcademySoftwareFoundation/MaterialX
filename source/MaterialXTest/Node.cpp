@@ -137,7 +137,9 @@ TEST_CASE("Node", "[node]")
 
 TEST_CASE("Flatten", "[nodegraph]")
 {
-    std::string searchPath = "resources/Materials/Examples" + mx::PATH_LIST_SEPARATOR + "libraries/stdlib";
+    std::string searchPath = "resources/Materials/Examples/Syntax" +
+                             mx::PATH_LIST_SEPARATOR +
+                             "libraries/stdlib";
 
     // Read the example file.
     mx::DocumentPtr doc = mx::createDocument();

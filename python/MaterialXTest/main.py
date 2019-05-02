@@ -22,7 +22,7 @@ _testValues = (1,
 
 _fileDir = os.path.dirname(os.path.abspath(__file__))
 _libraryDir = os.path.join(_fileDir, '../../libraries/stdlib/')
-_exampleDir = os.path.join(_fileDir, '../../resources/Materials/Examples/')
+_exampleDir = os.path.join(_fileDir, '../../resources/Materials/Examples/Syntax/')
 _searchPath = _libraryDir + mx.PATH_LIST_SEPARATOR + _exampleDir
 
 _libraryFilenames = ('stdlib_defs.mtlx',
@@ -444,7 +444,6 @@ class TestMaterialX(unittest.TestCase):
         for filename in _libraryFilenames:
             lib = mx.createDocument()
             mx.readFromXmlFile(lib, filename, _searchPath)
-            self.assertTrue(lib.validate()[0])
             libs.append(lib)
         # Read and validate each example document.
         for filename in _exampleFilenames:

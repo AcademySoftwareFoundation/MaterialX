@@ -21,7 +21,7 @@
 
 namespace mx = MaterialX;
 
-TEST_CASE("OSL Syntax", "[genosl]")
+TEST_CASE("GenShader: OSL Syntax", "[genosl]")
 {
     mx::SyntaxPtr syntax = mx::OslSyntax::create();
 
@@ -84,7 +84,7 @@ TEST_CASE("OSL Syntax", "[genosl]")
     REQUIRE(value == "{1, 2, 3, 4, 5, 6, 7}");
 }
 
-TEST_CASE("OSL Implementation Check", "[genosl]")
+TEST_CASE("GenShader: OSL Implementation Check", "[genosl]")
 {
     mx::GenContext context(mx::OslShaderGenerator::create());
 
@@ -98,7 +98,7 @@ TEST_CASE("OSL Implementation Check", "[genosl]")
     GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 38);
 }
 
-TEST_CASE("OSL Unique Names", "[genosl]")
+TEST_CASE("GenShader: OSL Unique Names", "[genosl]")
 {
     mx::GenContext context(mx::OslShaderGenerator::create());
 
@@ -115,9 +115,9 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
   public:
     using ParentClass = GenShaderUtil::ShaderGeneratorTester;
 
-    OslShaderGeneratorTester(const mx::FilePath& testRootPath, const mx::FilePath& libSearchPath,
+    OslShaderGeneratorTester(const std::vector<mx::FilePath>& testRootPaths, const mx::FilePath& libSearchPath,
                                const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath) : 
-        GenShaderUtil::ShaderGeneratorTester(testRootPath, libSearchPath, srcSearchPath, logFilePath)
+        GenShaderUtil::ShaderGeneratorTester(testRootPaths, libSearchPath, srcSearchPath, logFilePath)
     {}
 
     void createGenerator() override
@@ -155,17 +155,21 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
 static void generateOSLCode()
 {
     const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
+    const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
+    mx::FilePathVec testRootPaths;
+    testRootPaths.push_back(testRootPath);
+    testRootPaths.push_back(testRootPath2);
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     srcSearchPath.append(libSearchPath / mx::FilePath("stdlib/osl"));
     const mx::FilePath logPath("genosl_vanilla_generate_test.txt");
-    OslShaderGeneratorTester tester(testRootPath, libSearchPath, srcSearchPath, logPath);
+    OslShaderGeneratorTester tester(testRootPaths, libSearchPath, srcSearchPath, logPath);
  
     const mx::GenOptions genOptions;
     tester.testGeneration(genOptions);
 }
 
-TEST_CASE("OSL Shader Generation", "[genosl]")
+TEST_CASE("GenShader: OSL Shader Generation", "[genosl]")
 {
     generateOSLCode();
 }

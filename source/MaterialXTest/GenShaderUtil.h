@@ -65,13 +65,13 @@ namespace GenShaderUtil
     class ShaderGeneratorTester
     {
     public:
-        ShaderGeneratorTester(const mx::FilePath& testRootPath, const mx::FilePath& libSearchPath, 
+        ShaderGeneratorTester(const mx::FilePathVec& testRootPaths, const mx::FilePath& libSearchPath,
                               const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath)
         {
             _logFilePath = logFilePath;
             _libSearchPath = libSearchPath;
             _srcSearchPath = srcSearchPath;
-            _testRootPath = testRootPath;
+            _testRootPaths = testRootPaths;
         }
 
         ~ShaderGeneratorTester()
@@ -120,7 +120,7 @@ namespace GenShaderUtil
         mx::FilePath _libSearchPath;
         mx::FileSearchPath _srcSearchPath;
 
-        mx::FilePath _testRootPath;
+        mx::FilePathVec _testRootPaths;
         mx::StringSet _skipFiles;
         std::vector<mx::DocumentPtr> _documents;
         mx::StringVec _documentPaths;

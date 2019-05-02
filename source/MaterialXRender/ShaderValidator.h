@@ -1,0 +1,142 @@
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
+
+#ifndef MATERIALX_SHADERVALIDATOR_H
+#define MATERIALX_SHADERVALIDATOR_H
+
+/// @file
+/// Base class for shader validation
+
+#include <MaterialXCore/Library.h>
+#include <MaterialXGenShader/Shader.h>
+#include <MaterialXRender/ExceptionShaderValidationError.h>
+#include <MaterialXRender/ImageHandler.h>
+#include <MaterialXRender/GeometryHandler.h>
+#include <MaterialXRender/ViewHandler.h>
+#include <MaterialXRender/LightHandler.h>
+
+namespace MaterialX
+{
+/// Shared pointer to a shader validator
+using ShaderValidatorPtr = std::shared_ptr<class ShaderValidator>;
+
+/// @class ShaderValidator
+/// Base class for a shader validator
+///
+class ShaderValidator
+{
+  public:
+    /// A map with name and source code for each shader stage.
+    using StageMap = StringMap;
+
+  public:
+    /// Destructor
+    virtual ~ShaderValidator() {};
+
+    /// @name Setup
+    /// @{
+
+    /// Validator initialization 
+    virtual void initialize() = 0;
+
+    /// Set image handler to use for image load and save
+    /// @param imageHandler Handler used to save image
+    void setImageHandler(const ImageHandlerPtr imageHandler)
+    {
+        _imageHandler = imageHandler;
+    }
+
+    /// Get image handler
+    /// @return Shared pointer to an image handler
+    const ImageHandlerPtr getImageHandler() const
+    {
+        return _imageHandler;
+    }
+
+    /// Set light handler to use for light bindings
+    /// @param lightHandler Handler used for lights
+    void setLightHandler(const LightHandlerPtr lightHandler)
+    {
+        _lightHandler = lightHandler;
+    }
+
+    /// Get light handler
+    /// @return Shared pointer to a light handler
+    const LightHandlerPtr getLightHandler() const
+    {
+        return _lightHandler;
+    }
+
+    /// Get geometry handler
+    /// @return Reference to a geometry handler
+    GeometryHandlerPtr getGeometryHandler()
+    {
+        return _geometryHandler;
+    }
+
+    /// Set viewing utilities handler.
+    /// @param viewHandler Handler to use
+    void setViewHandler(const ViewHandlerPtr viewHandler)
+    {
+        _viewHandler = viewHandler;
+    }
+
+    /// Get viewing utilities handler
+    /// @return Shared pointer to a view utilities handler
+    const ViewHandlerPtr getViewHandler() const
+    {
+        return _viewHandler;
+    }
+
+
+    /// @}
+    /// @name Validation
+    /// @{
+
+    /// Validate creation of program based on an input shader
+    /// @param shader Input Shader
+    virtual void validateCreation(const ShaderPtr shader) = 0;
+
+    /// Validate creation of program based on shader stage source code.
+    /// @param stages Map of name and source code for the shader stages.
+    virtual void validateCreation(const StageMap& stages) = 0;
+
+    /// Validate inputs for the program 
+    virtual void validateInputs() = 0;
+
+    /// Perform validation that inputs can be bound to and 
+    /// Uendered with. Rendering is to an offscreen hardware buffer.
+    virtual void validateRender() = 0;
+
+    /// @}
+    /// @name Utilities
+    /// @{
+
+    /// Save the current contents the offscreen hardware buffer to disk.
+    /// @param filePath Path to file to save rendered image to.
+    /// @param floatingPoint Format of output image is floating point.
+    virtual void save(const FilePath& filePath, bool floatingPoint) = 0;
+    
+    /// @}
+
+  protected:
+    /// Constructor
+    ShaderValidator() {};
+
+    /// Utility image handler
+    ImageHandlerPtr _imageHandler;
+
+    /// Utility geometry handler
+    GeometryHandlerPtr _geometryHandler;
+
+    /// Utility light handler
+    LightHandlerPtr _lightHandler;
+
+    /// Viewing utilities handler
+    ViewHandlerPtr _viewHandler;
+};
+
+} // namespace MaterialX
+#endif

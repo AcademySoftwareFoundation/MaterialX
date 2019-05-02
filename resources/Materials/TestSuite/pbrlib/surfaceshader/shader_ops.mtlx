@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<materialx version="1.36">
+  <nodegraph name="nodegraph1" type="">
+    <add name="add_surface_shader" type="surfaceshader">
+      <input name="in1" type="surfaceshader" value="" nodename="multiply_surface_shaderFloat" />
+      <input name="in2" type="surfaceshader" value="" nodename="multiply_surface_shaderColor" />
+    </add>
+    <multiply name="multiply_surface_shaderFloat" type="surfaceshader">
+      <input name="in1" type="surfaceshader" value="" nodename="standard_surface1" />
+      <input name="in2" type="float" value="0.4000" />
+    </multiply>
+    <multiply name="multiply_surface_shaderColor" type="surfaceshader">
+      <input name="in1" type="surfaceshader" value="" nodename="mix_surface_shader" />
+      <input name="in2" type="color3" value="1.0000, 0.0, 0.0" />
+    </multiply>
+    <mix name="mix_surface_shader" type="surfaceshader">
+      <input name="fg" type="surfaceshader" value="" nodename="standard_surface1" />
+      <input name="bg" type="surfaceshader" value="" nodename="standard_surface2" />
+      <input name="mix" type="float" value="0.5000" />
+    </mix>
+    <standard_surface name="standard_surface1" type="surfaceshader">
+      <input name="base_color" type="color3" value="0.85, 0.1, 0.1" />
+    </standard_surface>
+    <standard_surface name="standard_surface2" type="surfaceshader">
+      <input name="base_color" type="color3" value="0.1, 0.1, 0.85" />
+    </standard_surface>
+    <output name="out" type="surfaceshader" nodename="add_surface_shader" />
+  </nodegraph>
+</materialx>

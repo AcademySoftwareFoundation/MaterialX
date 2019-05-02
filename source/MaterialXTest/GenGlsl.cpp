@@ -17,7 +17,7 @@
 
 namespace mx = MaterialX;
 
-TEST_CASE("GLSL Syntax Check", "[genglsl]")
+TEST_CASE("GenShader: GLSL Syntax Check", "[genglsl]")
 {
     mx::SyntaxPtr syntax = mx::GlslSyntax::create();
 
@@ -76,7 +76,7 @@ TEST_CASE("GLSL Syntax Check", "[genglsl]")
     REQUIRE(value == "int[7](1, 2, 3, 4, 5, 6, 7)");
 }
 
-TEST_CASE("GLSL Implementation Check", "[genglsl]")
+TEST_CASE("GenShader: GLSL Implementation Check", "[genglsl]")
 {
     mx::GenContext context(mx::GlslShaderGenerator::create());
 
@@ -85,7 +85,7 @@ TEST_CASE("GLSL Implementation Check", "[genglsl]")
     GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 34);
 }
 
-TEST_CASE("GLSL Unique Names", "[genglsl]")
+TEST_CASE("GenShader: GLSL Unique Names", "[genglsl]")
 {
     mx::GenContext context(mx::GlslShaderGenerator::create());
 
@@ -95,7 +95,7 @@ TEST_CASE("GLSL Unique Names", "[genglsl]")
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }
 
-TEST_CASE("Bind Light Shaders", "[genglsl]")
+TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
@@ -120,16 +120,20 @@ TEST_CASE("Bind Light Shaders", "[genglsl]")
 static void generateGLSLCode()
 {
     const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
+    const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
+    mx::FilePathVec testRootPaths;
+    testRootPaths.push_back(testRootPath);
+    testRootPaths.push_back(testRootPath2);
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     const mx::FilePath logPath("genglsl_glsl400_generate_test.txt");
-    GlslShaderGeneratorTester tester(testRootPath, libSearchPath, srcSearchPath, logPath);
+    GlslShaderGeneratorTester tester(testRootPaths, libSearchPath, srcSearchPath, logPath);
 
     const mx::GenOptions genOptions;
     tester.testGeneration(genOptions);
 }
 
-TEST_CASE("GLSL Shader Generation", "[genglsl]")
+TEST_CASE("GenShader: GLSL Shader Generation", "[genglsl]")
 {
     generateGLSLCode();
 }

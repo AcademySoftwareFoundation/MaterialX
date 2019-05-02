@@ -1,5 +1,5 @@
-void mx_mix_surfaceshader(surfaceshader shader1, surfaceshader shader2, float value, out surfaceshader returnshader)
+void mx_mix_surfaceshader(surfaceshader fg, surfaceshader bg, float w, out surfaceshader returnshader)
 {
-    returnshader.color = mix(shader1.color, shader2.color, value);
-    returnshader.transparency = mix(shader1.transparency, shader2.transparency, value);
+    returnshader.color = mix(bg.color, fg.color, w);
+    returnshader.transparency = mix(bg.transparency, fg.transparency, w);
 }

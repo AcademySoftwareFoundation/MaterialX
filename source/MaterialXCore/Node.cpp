@@ -102,16 +102,50 @@ Edge Node::getUpstreamEdge(ConstMaterialPtr material, size_t index) const
     return NULL_EDGE;
 }
 
-OutputPtr Node::getNodeDefOutput(const Edge& edge)
+OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
 {
-    const ElementPtr connectingElement = edge.getConnectingElement();
-    const PortElementPtr input = connectingElement ? connectingElement->asA<PortElement>() : nullptr;
-    if (input)
+    const string* outputName = nullptr;
+    const PortElementPtr port = connectingElement->asA<PortElement>();
+    if (port)
     {
+        // The connecting element is an input/output port,
+        // so get the name of the output connected to this 
+        // port. If no explicit output is specified this will
+        // return an empty string which is handled below.
+        outputName = &port->getOutputString();
+    }
+    else
+    {
+        const BindInputPtr bindInput = connectingElement->asA<BindInput>();
+        if (bindInput)
+        {
+            // Handle the case where the edge involves a bindinput.
+            const OutputPtr output = bindInput->getConnectedOutput();
+            if (output)
+            {
+                if (output->getParent()->isA<NodeGraph>())
+                {
+                    // The bindinput connects to a graph output,
+                    // so this is the output we're looking for.
+                    outputName = &output->getName();
+                }
+                else
+                {
+                    // The bindinput connects to a free floating output,
+                    // so we have an extra level of indirection. Hence 
+                    // get its connected output.
+                    outputName = &output->getOutputString();
+                }
+            }
+        }
+    }
+    if (outputName && !outputName->empty())
+    {
+        // Find this output on our nodedef.
         NodeDefPtr nodeDef = getNodeDef();
         if (nodeDef)
         {
-            return nodeDef->getActiveOutput(input->getOutputString());
+            return nodeDef->getActiveOutput(*outputName);
         }
     }
     return OutputPtr();
@@ -127,6 +161,10 @@ vector<PortElementPtr> Node::getDownstreamPorts() const
             downstreamPorts.push_back(port);
         }
     }
+    std::sort(downstreamPorts.begin(), downstreamPorts.end(), [](const ConstElementPtr& a, const ConstElementPtr& b)
+    {
+        return a->getName() > b->getName();
+    });
     return downstreamPorts;
 }
 
@@ -329,39 +367,78 @@ string GraphElement::asStringDot() const
 {
     string dot = "digraph {\n";
 
-    // Print the nodes
-    for (NodePtr node : getNodes())
+    // Create a unique name for each child element.
+    vector<ElementPtr> children = topologicalSort();
+    StringMap nameMap;
+    StringSet nameSet;
+    for (ElementPtr elem : children)
     {
-        dot += "    \"" + node->getName() + "\" ";
-        NodeDefPtr nodeDef = node->getNodeDef();
-        const string& nodeGroup = nodeDef ? nodeDef->getNodeGroup() : EMPTY_STRING;
-        if (nodeGroup == CONDITIONAL_NODE_GROUP)
+        string uniqueName = elem->getCategory();
+        while(nameSet.count(uniqueName))
         {
-            dot += "[shape=diamond];\n";
+            uniqueName = incrementName(uniqueName);
         }
-        else
+        nameMap[elem->getName()] = uniqueName;
+        nameSet.insert(uniqueName);
+    }
+
+    // Write out all nodes.
+    for (ElementPtr elem : children)
+    {
+        NodePtr node = elem->asA<Node>();
+        if (node)
         {
-            dot += "[shape=box];\n";
+            dot += "    \"" + nameMap[node->getName()] + "\" ";
+            NodeDefPtr nodeDef = node->getNodeDef();
+            const string& nodeGroup = nodeDef ? nodeDef->getNodeGroup() : EMPTY_STRING;
+            if (nodeGroup == CONDITIONAL_NODE_GROUP)
+            {
+                dot += "[shape=diamond];\n";
+            }
+            else
+            {
+                dot += "[shape=box];\n";
+            }
         }
     }
- 
-    // Print the connections
+
+    // Write out all connections.
     std::set<Edge> processedEdges;
+    StringSet processedInterfaces;
     for (OutputPtr output : getOutputs())
     {
         for (Edge edge : output->traverseGraph())
         {
             if (!processedEdges.count(edge))
             {
-                processedEdges.insert(edge);
                 ElementPtr upstreamElem = edge.getUpstreamElement();
                 ElementPtr downstreamElem = edge.getDownstreamElement();
                 ElementPtr connectingElem = edge.getConnectingElement();
-                dot += "    \"" + upstreamElem->getName();
-                dot += "\" -> \"" + downstreamElem->getName();
+
+                dot += "    \"" + nameMap[upstreamElem->getName()];
+                dot += "\" -> \"" + nameMap[downstreamElem->getName()];
                 dot += "\" [label=\"";
                 dot += connectingElem ? connectingElem->getName() : EMPTY_STRING;
                 dot += "\"];\n";
+
+                NodePtr upstreamNode = upstreamElem->asA<Node>();
+                if (upstreamNode && !processedInterfaces.count(upstreamNode->getName()))
+                {
+                    for (InputPtr input : upstreamNode->getInputs())
+                    {
+                        if (input->hasInterfaceName())
+                        {
+                            dot += "    \"" + input->getInterfaceName();
+                            dot += "\" -> \"" + nameMap[upstreamElem->getName()];
+                            dot += "\" [label=\"";
+                            dot += input->getName();
+                            dot += "\"];\n";
+                        }
+                    }
+                    processedInterfaces.insert(upstreamNode->getName());
+                }
+
+                processedEdges.insert(edge);
             }
         }
     }
@@ -396,6 +473,28 @@ InterfaceElementPtr NodeGraph::getImplementation() const
 {
     NodeDefPtr nodedef = getNodeDef();
     return nodedef ? nodedef->getImplementation() : InterfaceElementPtr();
+}
+
+bool NodeGraph::validate(string* message) const
+{
+    bool res = true;
+    if (hasNodeDefString())
+    {
+        NodeDefPtr nodeDef = getNodeDef();
+        validateRequire(nodeDef != nullptr, res, message, "NodeGraph implementation refers to non-existent NodeDef");
+        if (nodeDef)
+        {
+            if (nodeDef->isMultiOutputType())
+            {
+                validateRequire(getOutputCount() == nodeDef->getOutputCount(), res, message, "NodeGraph implementation has a different number of outputs than its NodeDef");
+            }
+            else
+            {
+                validateRequire(getOutputCount() == 1, res, message, "NodeGraph implementation has a different number of outputs than its NodeDef");
+            }
+        }
+    }
+    return GraphElement::validate(message) && res;
 }
 
 ConstNodeDefPtr NodeGraph::getDeclaration(const string&) const
