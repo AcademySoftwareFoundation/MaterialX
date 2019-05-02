@@ -32,7 +32,7 @@ void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& cont
     {
         if (!port->isA<Output>())
         {
-            const string& portValue = port->getValueString();
+            const string& portValue = port->getResolvedValueString();
             std::pair<const TypeDesc*, ValuePtr> enumResult;
             if (context.getShaderGenerator().remapEnumeration(*port, portValue, enumResult))
             {
@@ -441,9 +441,10 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
             if (bindParam)
             {
                 // Copy value from binding
-                if (!bindParam->getValueString().empty())
+                ValuePtr bindParamValue = bindParam->getResolvedValue();
+                if (bindParamValue)
                 {
-                    inputSocket->setValue(bindParam->getValue());
+                    inputSocket->setValue(bindParamValue);
                 }
                 inputSocket->setPath(bindParam->getNamePath());
                 input->setPath(inputSocket->getPath());
@@ -468,9 +469,10 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
             if (bindInput)
             {
                 // Copy value from binding
-                if (!bindInput->getValueString().empty())
+                ValuePtr bindInputValue = bindInput->getResolvedValue();
+                if (bindInputValue)
                 {
-                    inputSocket->setValue(bindInput->getValue());
+                    inputSocket->setValue(bindInputValue);
                 }
                 inputSocket->setPath(bindInput->getNamePath());
                 input->setPath(inputSocket->getPath());
