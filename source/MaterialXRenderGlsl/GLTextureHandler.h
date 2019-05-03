@@ -49,7 +49,7 @@ class GLTextureHandler : public ImageHandler
     /// The first image loader which supports the file name extension will be used.
     /// This method will create an OpenGL texture resource and return it's resource identifier
     /// as part of the image description returned.
-    /// @param fileName Path to file to load image from.
+    /// @param filePath Path to file to load image from.
     /// @param imageDesc Description of image updated during load.
     /// @param generateMipMaps Generate mip maps if supported.
     /// @param fallbackColor Color of fallback image to use if failed to load.  If null is specified then
