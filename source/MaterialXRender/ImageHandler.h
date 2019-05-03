@@ -150,7 +150,6 @@ class ImageLoader
     /// Save image to disk. This method must be implemented by derived classes.
     /// @param filePath Path to save image to
     /// @param imageDesc Description of image
-    /// @return if save succeeded
     /// @param verticalFlip Whether the image should be flipped in Y during save
     /// @return if save succeeded
     virtual bool saveImage(const FilePath& filePath,
@@ -211,6 +210,7 @@ class ImageHandler
     /// Save image to disk. This method must be implemented by derived classes.
     /// The first image loader which supports the file name extension will be used.
     /// @param filePath Name of file to save image to
+    /// @param imageDesc Description of image
     /// @param verticalFlip Whether the image should be flipped in Y during save
     /// @return if save succeeded
     virtual bool saveImage(const FilePath& filePath,
