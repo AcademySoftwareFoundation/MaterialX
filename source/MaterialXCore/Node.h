@@ -123,7 +123,8 @@ class Node : public InterfaceElement
     /// node is a standard node with a single implicit output.
     OutputPtr getNodeDefOutput(ElementPtr connectingElement);
 
-    /// Return a vector of all downstream ports that connect to this node.
+    /// Return a vector of all downstream ports that connect to this node, ordered by
+    /// the names of the port elements.
     vector<PortElementPtr> getDownstreamPorts() const;
 
     /// @}

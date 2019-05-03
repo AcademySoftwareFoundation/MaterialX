@@ -16,6 +16,9 @@
   <!-- <conductor_brdf> -->
   <implementation name="IM_conductor_brdf_genglsl" nodedef="ND_conductor_brdf" file="pbrlib/genglsl/mx_conductor_brdf.glsl" function="mx_conductor_brdf" language="genglsl"/>
 
+  <!-- <burley_diffuse_brdf> -->
+  <implementation name="IM_burley_diffuse_brdf_genglsl" nodedef="ND_burley_diffuse_brdf" file="pbrlib/genglsl/mx_burley_diffuse_brdf.glsl" function="mx_burley_diffuse_brdf" language="genglsl"/>
+
   <!-- <generalized_schlick_brdf> -->
   <implementation name="IM_generalized_schlick_brdf_genglsl" nodedef="ND_generalized_schlick_brdf" file="pbrlib/genglsl/mx_generalized_schlick_brdf.glsl" function="mx_generalized_schlick_brdf" language="genglsl"/>
 

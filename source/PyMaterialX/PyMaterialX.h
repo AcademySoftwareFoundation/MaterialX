@@ -16,8 +16,9 @@
 #define HAVE_ACOSH
 #define HAVE_ASINH
 #define HAVE_ATANH
-#define HAVE_LOG1P
 #define HAVE_HYPOT
+#define HAVE_LOG1P
+#define HAVE_ROUND
 #endif
 
 #include <pybind11/operators.h>

@@ -12,7 +12,7 @@
 #include <X11/Intrinsic.h>
 
 #elif defined(__APPLE__)
-#include <MaterialXRenderHw/Window/WindowCocoaWrappers.h>
+#include <MaterialXRenderHw/WindowCocoaWrappers.h>
 #include <MaterialXRenderGlsl/External/GLew/glew.h>
 #include <MaterialXRenderGlsl/GLCocoaWrappers.h>
 #endif

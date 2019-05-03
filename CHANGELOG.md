@@ -2,10 +2,12 @@
 
 ## [1.36.3] - Development
 
-Merged shader code generation and PBR node support from Autodesk's ShaderX extensions.
+Merged shader code generation and PBR node support from Autodesk's ShaderX extensions.  Added a default MaterialX viewer based on GLSL shader generation.
 
 ### Added
 - Added the MaterialXGenShader library, supporting shader code generation in GLSL and OSL.
+- Added the MaterialXRender library, providing helper functionality for rendering MaterialX content.
+- Added the MaterialXView library, providing a default MaterialX viewer.
 - Added the PBR node library (libraries/pbrlib).
 - Added a root-level 'resources' folder.
 - Added support for the 'place2d' node.

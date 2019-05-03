@@ -83,4 +83,4 @@ void LightHandler::registerLights(DocumentPtr doc, const std::vector<NodePtr>& l
     }
 }
 
-}
+} // namespace MaterialX

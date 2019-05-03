@@ -6,8 +6,8 @@
 - [MaterialXGenShader](MaterialXGenShader) : Core shader generation support [<sup>1</sup>](#1)
 - [MaterialXGenGlsl](MaterialXGenGlsl) : GLSL shading language generation support.
 - [MaterialXGenOsl](MaterialXGenOsl) : OSL shading language generation support.
-- [MaterialXTest](MaterialXTest) : Unit test module. The shader generation test suite resides [here](../resources/Materials/TestSuite).
-- [MaterialXView](MaterialXView) : Sample material viewer.
+- [MaterialXTest](MaterialXTest) : Unit tests for all MaterialX libraries.
+- [MaterialXView](MaterialXView) : Default material viewer.
 
 ## Python Modules
 

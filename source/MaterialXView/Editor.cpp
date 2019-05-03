@@ -137,7 +137,7 @@ void PropertyEditor::create(Viewer& parent)
     _gridLayout3->setColAlignment({ ng::Alignment::Minimum, ng::Alignment::Maximum, ng::Alignment::Maximum });
 }
 
-ng::FloatBox<float>* PropertyEditor::makeFloatWidget(ng::Widget* container, const std::string label, mx::ValuePtr value,
+ng::FloatBox<float>* PropertyEditor::makeFloatWidget(ng::Widget* container, const std::string& label, mx::ValuePtr value,
                                                      bool editable, mx::ValuePtr min, mx::ValuePtr max,
                                                      Viewer* viewer, const std::string& path)
 {

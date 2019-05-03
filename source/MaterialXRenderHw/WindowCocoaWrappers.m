@@ -7,7 +7,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <AppKit/NSApplication.h>
-#import <MaterialXRenderHw/Window/WindowCocoaWrappers.h>
+#import <MaterialXRenderHw/WindowCocoaWrappers.h>
 
 void* NSUtilGetView(void* pWindow)
 {

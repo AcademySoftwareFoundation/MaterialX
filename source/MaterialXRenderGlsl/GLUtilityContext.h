@@ -9,11 +9,11 @@
 /// @file
 /// OpenGL utility context
 
-#include <MaterialXRenderHw/Window/WindowWrapper.h>
+#include <MaterialXRenderHw/WindowWrapper.h>
 #include <memory>
 
 #if defined(_WIN32)
-#include <MaterialXRenderHw/Window/SimpleWindow.h>
+#include <MaterialXRenderHw/SimpleWindow.h>
 #elif defined(__APPLE__)
 #include <OpenGL/gl.h>
 #elif defined(__linux__)

@@ -818,7 +818,7 @@ void Viewer::loadShaderSource()
     }
 }
 
-void Viewer::saveDotFile()
+void Viewer::saveDotFiles()
 {
     try
     {
@@ -827,13 +827,25 @@ void Viewer::saveDotFile()
         if (elem)
         {
             mx::ShaderRefPtr shaderRef = elem->asA<mx::ShaderRef>();
+            for (mx::BindInputPtr bindInput : shaderRef->getBindInputs())
+            {
+                mx::OutputPtr output = bindInput->getConnectedOutput();
+                mx::ConstNodeGraphPtr nodeGraph = output ? output->getAncestorOfType<mx::NodeGraph>() : nullptr;
+                if (nodeGraph)
+                {
+                    std::string dot = nodeGraph->asStringDot();
+                    std::string baseName = _searchPath[0] / nodeGraph->getName();
+                    writeTextFile(dot, baseName + ".dot");
+                }
+            }
+
             mx::NodeDefPtr nodeDef = shaderRef ? shaderRef->getNodeDef() : nullptr;
             mx::InterfaceElementPtr implement = nodeDef ? nodeDef->getImplementation() : nullptr;
             mx::NodeGraphPtr nodeGraph = implement ? implement->asA<mx::NodeGraph>() : nullptr;
             if (nodeGraph)
             {
                 std::string dot = nodeGraph->asStringDot();
-                std::string baseName = _searchPath[0] / nodeDef->getNodeString();
+                std::string baseName = _searchPath[0] / nodeDef->getName();
                 writeTextFile(dot, baseName + ".dot");
             }
         }
@@ -873,10 +885,10 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         return true;
     }
 
-    // Save a dot file for the current shader node graph.
+    // Save each node graph in the current material as a dot file.
     if (key == GLFW_KEY_D && action == GLFW_PRESS)
     {
-        saveDotFile();
+        saveDotFiles();
         return true;
     }
 

@@ -48,16 +48,16 @@ TEST_CASE("Print utilities", "[util]")
     //                         [output]
     //
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
-    mx::NodePtr image1 = nodeGraph->addNode("image", "image1");
-    mx::NodePtr image2 = nodeGraph->addNode("image", "image2");
-    mx::NodePtr multiply = nodeGraph->addNode("multiply", "multiply");
-    mx::NodePtr constant1 = nodeGraph->addNode("constant", "constant1");
-    mx::NodePtr constant2 = nodeGraph->addNode("constant", "constant2");
-    mx::NodePtr add1 = nodeGraph->addNode("add", "add1");
-    mx::NodePtr add2 = nodeGraph->addNode("add", "add2");
-    mx::NodePtr add3 = nodeGraph->addNode("add", "add3");
-    mx::NodePtr noise3d = nodeGraph->addNode("noise3d", "noise3d");
-    mx::NodePtr mix = nodeGraph->addNode("mix", "mix");
+    mx::NodePtr image1 = nodeGraph->addNode("image");
+    mx::NodePtr image2 = nodeGraph->addNode("image");
+    mx::NodePtr multiply = nodeGraph->addNode("multiply");
+    mx::NodePtr constant1 = nodeGraph->addNode("constant");
+    mx::NodePtr constant2 = nodeGraph->addNode("constant");
+    mx::NodePtr add1 = nodeGraph->addNode("add");
+    mx::NodePtr add2 = nodeGraph->addNode("add");
+    mx::NodePtr add3 = nodeGraph->addNode("add");
+    mx::NodePtr noise3d = nodeGraph->addNode("noise3d");
+    mx::NodePtr mix = nodeGraph->addNode("mix");
     mx::OutputPtr output = nodeGraph->addOutput("output");
     add1->setConnectedNode("in1", constant1);
     add1->setConnectedNode("in2", constant2);
@@ -77,24 +77,24 @@ TEST_CASE("Print utilities", "[util]")
 
     const std::string blessed =
         "digraph {\n" \
-        "    \"image1\" [shape=box];\n" \
+        "    \"image\" [shape=box];\n" \
         "    \"image2\" [shape=box];\n" \
-        "    \"multiply\" [shape=box];\n" \
-        "    \"constant1\" [shape=box];\n" \
+        "    \"constant\" [shape=box];\n" \
         "    \"constant2\" [shape=box];\n" \
-        "    \"add1\" [shape=box];\n" \
-        "    \"add2\" [shape=box];\n" \
-        "    \"add3\" [shape=box];\n" \
         "    \"noise3d\" [shape=box];\n" \
+        "    \"add\" [shape=box];\n" \
+        "    \"add2\" [shape=box];\n" \
+        "    \"multiply\" [shape=box];\n" \
+        "    \"add3\" [shape=box];\n" \
         "    \"mix\" [shape=box];\n" \
         "    \"mix\" -> \"output\" [label=\"\"];\n" \
         "    \"multiply\" -> \"mix\" [label=\"fg\"];\n" \
-        "    \"image1\" -> \"multiply\" [label=\"in1\"];\n" \
-        "    \"add1\" -> \"multiply\" [label=\"in2\"];\n" \
-        "    \"constant1\" -> \"add1\" [label=\"in1\"];\n" \
-        "    \"constant2\" -> \"add1\" [label=\"in2\"];\n" \
+        "    \"image\" -> \"multiply\" [label=\"in1\"];\n" \
+        "    \"add\" -> \"multiply\" [label=\"in2\"];\n" \
+        "    \"constant\" -> \"add\" [label=\"in1\"];\n" \
+        "    \"constant2\" -> \"add\" [label=\"in2\"];\n" \
         "    \"add3\" -> \"mix\" [label=\"bg\"];\n" \
-        "    \"add1\" -> \"add3\" [label=\"in1\"];\n" \
+        "    \"add\" -> \"add3\" [label=\"in1\"];\n" \
         "    \"add2\" -> \"add3\" [label=\"in2\"];\n" \
         "    \"constant2\" -> \"add2\" [label=\"in1\"];\n" \
         "    \"image2\" -> \"add2\" [label=\"in2\"];\n" \

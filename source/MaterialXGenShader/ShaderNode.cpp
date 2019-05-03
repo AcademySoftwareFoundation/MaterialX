@@ -230,7 +230,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         }
         else
         {
-            const string& portValue = port->getValueString();
+            const string& portValue = port->getResolvedValueString();
             std::pair<const TypeDesc*, ValuePtr> enumResult;
             if (context.getShaderGenerator().remapEnumeration(*port, portValue, enumResult))
             {
@@ -242,7 +242,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
                 ShaderInput* input = newNode->addInput(port->getName(), portType);
                 if (!portValue.empty())
                 {
-                    input->setValue(port->getValue());
+                    input->setValue(port->getResolvedValue());
                 }
             }
         }
@@ -389,7 +389,7 @@ void ShaderNode::setValues(const Node& node, const NodeDef& nodeDef, GenContext&
         ValueElementPtr nodeDefInput = nodeDef.getActiveValueElement(nodeValue->getName());
         if (input && nodeDefInput)
         {
-            const string& valueString = nodeValue->getValueString();
+            const string& valueString = nodeValue->getResolvedValueString();
             std::pair<const TypeDesc*, ValuePtr> enumResult;
             if (context.getShaderGenerator().remapEnumeration(*nodeDefInput, valueString, enumResult))
             {

@@ -17,12 +17,9 @@
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/LightHandler.h>
 
-#include <vector>
-#include <string>
-#include <unordered_map>
-
 namespace MaterialX
 {
+
 // Shared pointer to a GlslProgram
 using GlslProgramPtr = std::shared_ptr<class GlslProgram>;
 

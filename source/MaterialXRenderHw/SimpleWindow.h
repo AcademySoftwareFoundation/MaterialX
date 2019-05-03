@@ -6,7 +6,7 @@
 #ifndef MATERIALX_SIMPLEWINDOW_H
 #define MATERIALX_SIMPLEWINDOW_H
 
-#include <MaterialXRenderHw/Window/WindowWrapper.h>
+#include <MaterialXRenderHw/WindowWrapper.h>
 
 #include <memory>
 

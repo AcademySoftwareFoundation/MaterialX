@@ -61,8 +61,8 @@ void* NSOpenGLChoosePixelFormatWrapper(bool allRenders, int bufferType, int colo
     if (supportMultiSample)
     {
         // Default to 4 samples
-	list[i++] = NSOpenGLPFASampleBuffers; list[i++] = TRUE;
-	list[i++] = NSOpenGLPFASamples; list[i++] = 4;
+        list[i++] = NSOpenGLPFASampleBuffers; list[i++] = TRUE;
+        list[i++] = NSOpenGLPFASamples; list[i++] = 4;
     }
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 101000
     list[i++] = NSOpenGLPFAOpenGLProfile;
@@ -221,6 +221,5 @@ void NSOpenGLInitializeGLLibrary()
     }
     [pool release];
 }
-
 
 #endif
