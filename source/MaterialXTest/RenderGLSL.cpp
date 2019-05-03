@@ -231,13 +231,13 @@ void GlslShaderRenderTester::transformUVs(const mx::MeshList& meshes, const mx::
 {
     for(mx::MeshPtr mesh : meshes)
     {
-        const std::string TEXCOORD_STREAM0_NAME("i_" + mx::MeshStream::TEXCOORD_ATTRIBUTE + "_0");
-        mx::MeshStreamPtr uvStream = mesh->getStream(TEXCOORD_STREAM0_NAME);
+        mx::MeshStreamPtr uvStream = mesh->getStream(mx::MeshStream::TEXCOORD_ATTRIBUTE, 0);
         uvStream->transform(matrixTransform);
-
-        const std::string TEXCOORD_STREAM1_NAME("i_" + mx::MeshStream::TEXCOORD_ATTRIBUTE + "_1");
-        mx::MeshStreamPtr uvStream2 = mesh->getStream(TEXCOORD_STREAM1_NAME);
-        uvStream2->transform(matrixTransform);
+        mx::MeshStreamPtr positionStream = mesh->getStream(mx::MeshStream::POSITION_ATTRIBUTE, 0);
+        mx::MeshStreamPtr normalStream = mesh->getStream(mx::MeshStream::NORMAL_ATTRIBUTE, 0);
+        mx::MeshStreamPtr tangentStream = mesh->getStream(mx::MeshStream::TANGENT_ATTRIBUTE, 0);
+        mx::MeshStreamPtr bitangentStream = mesh->getStream(mx::MeshStream::BITANGENT_ATTRIBUTE, 0);
+        mesh->generateTangents(positionStream, uvStream, normalStream, tangentStream, bitangentStream);
     }
 }
 
@@ -302,7 +302,6 @@ bool GlslShaderRenderTester::runValidator(const std::string& shaderName,
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
-                contextOptions.fileTextureVerticalFlip = true;
                 contextOptions.hwSpecularEnvironmentMethod = testOptions.specularEnvironmentMethod;
                 shader = shadergen.generate(shaderName, element, context);
                 generationTimer.endTimer();
