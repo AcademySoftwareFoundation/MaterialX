@@ -60,11 +60,30 @@
            File path is relative to the "/resources/Geometry/" folder -->
       <parameter name="shadedGeometry" type="string" value="sphere.obj" />
 
+      <!-- Amount to scale geometry. -->
+      <parameter name="geometryScale" type="float" value="40.0" />
+
+      <!-- Enable direct lighting. Default is true. -->
+      <parameter name="enableDirectLighting" type="boolean" value="true" />
+
+      <!-- Enable indirect lighting. Default is true. -->
+      <parameter name="enableIndirectLighting" type="boolean" value="true" />
+
+      <!-- Method for specular environment sampling (only used for HW rendering):
+            0 : Prefiltered: Use a radiance IBL texture that has been prefiltered with the BRDF.
+            1 : Filtered Importance Sampling: Use FIS to sample the IBL texture according to the BRDF in runtime.
+            Default value is 1.
+      -->
+      <parameter name="specularEnvironmentMethod" type="integer" value="1" />
+
       <!-- Suggested radiance IBL file path -->
       <parameter name="radianceIBLPath" type="string" value="resources/Images/san_giuseppe_bridge.hdr" />
 
       <!-- Suggested irradiance IBL file path -->
       <parameter name="irradianceIBLPath" type="string" value="resources/Images/san_giuseppe_bridge_diffuse.hdr" />
+
+      <!-- Transforms UVs of loaded geometry -->
+      <parameter name="transformUVs" type="matrix44" value="1.0f, 0.0f, 0.0f, -0.25f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f" />
 
    </nodedef>
 </materialx>

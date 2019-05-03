@@ -7,6 +7,8 @@
 #include <MaterialXRenderGlsl/GlslValidator.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
 
+#include <MaterialXCore/Types.h>
+
 #ifdef MATERIALX_BUILD_OIIO
 #include <MaterialXRender/OiioImageLoader.h>
 #endif
@@ -63,6 +65,8 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
 
     void createValidator(std::ostream& log) override;
 
+    void transformUVs(const mx::MeshList& meshes, const mx::Matrix44& matrixTransform) const;
+
     bool runValidator(const std::string& shaderName,
                       mx::TypedElementPtr element,
                       mx::GenContext& context,
@@ -88,20 +92,10 @@ void GlslShaderRenderTester::loadLibraries(mx::DocumentPtr document,
                                            RenderUtil::RenderTestOptions& options)
 {
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/Utilities/Lights");
-    if (options.lightFiles.size() == 0)
+    for (auto lightFile : options.lightFiles)
     {
-        GenShaderUtil::loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), document);
-        GenShaderUtil::loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), document);
-        GenShaderUtil::loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), document);
+        GenShaderUtil::loadLibrary(lightDir / mx::FilePath(lightFile), document);
     }
-    else
-    {
-        for (auto lightFile : options.lightFiles)
-        {
-            GenShaderUtil::loadLibrary(lightDir / mx::FilePath(lightFile), document);
-        }
-    }
-
 }
 
 // Create a light handler and populate it based on lights found in a given document
@@ -233,6 +227,20 @@ void addAdditionalTestStreams(mx::MeshPtr mesh)
     }
 }
 
+void GlslShaderRenderTester::transformUVs(const mx::MeshList& meshes, const mx::Matrix44& matrixTransform) const
+{
+    for(mx::MeshPtr mesh : meshes)
+    {
+        mx::MeshStreamPtr uvStream = mesh->getStream(mx::MeshStream::TEXCOORD_ATTRIBUTE, 0);
+        uvStream->transform(matrixTransform);
+        mx::MeshStreamPtr positionStream = mesh->getStream(mx::MeshStream::POSITION_ATTRIBUTE, 0);
+        mx::MeshStreamPtr normalStream = mesh->getStream(mx::MeshStream::NORMAL_ATTRIBUTE, 0);
+        mx::MeshStreamPtr tangentStream = mesh->getStream(mx::MeshStream::TANGENT_ATTRIBUTE, 0);
+        mx::MeshStreamPtr bitangentStream = mesh->getStream(mx::MeshStream::BITANGENT_ATTRIBUTE, 0);
+        mesh->generateTangents(positionStream, uvStream, normalStream, tangentStream, bitangentStream);
+    }
+}
+
 bool GlslShaderRenderTester::runValidator(const std::string& shaderName,
                                           mx::TypedElementPtr element,
                                           mx::GenContext& context,
@@ -294,7 +302,7 @@ bool GlslShaderRenderTester::runValidator(const std::string& shaderName,
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
-                contextOptions.fileTextureVerticalFlip = true;
+                contextOptions.hwSpecularEnvironmentMethod = testOptions.specularEnvironmentMethod;
                 shader = shadergen.generate(shaderName, element, context);
                 generationTimer.endTimer();
             }
@@ -367,6 +375,7 @@ bool GlslShaderRenderTester::runValidator(const std::string& shaderName,
                         if (!meshes.empty())
                         {
                             addAdditionalTestStreams(meshes[0]);
+                            transformUVs(meshes, testOptions.transformUVs);
                         }
                     }
 
@@ -400,6 +409,7 @@ bool GlslShaderRenderTester::runValidator(const std::string& shaderName,
                         if (!meshes.empty())
                         {
                             addAdditionalTestStreams(meshes[0]);
+                            transformUVs(meshes, testOptions.transformUVs);
                         }
                     }
 
@@ -513,7 +523,8 @@ void GlslShaderRenderTester::getImplementationWhiteList(mx::StringSet& whiteList
     whiteList =
     {
         "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
-        "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue", "IM_light_genglsl"
+        "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue", "IM_light_genglsl",
+        "IM_point_light_genglsl", "IM_spot_light_genglsl", "IM_directional_light_genglsl"
     };
 }
 
