@@ -193,6 +193,36 @@ bool Material::generateConstantShader(mx::GenContext& context,
     return _glShader->init(shaderName, vertexShader, pixelShader);
 }
 
+bool Material::generateImageShader(mx::GenContext& context,
+                                        mx::DocumentPtr stdLib,
+                                        const std::string& shaderName,
+                                        const mx::FilePath& imagePath,
+                                        const std::string& addressMode)
+{
+    // Construct the unshaded image nodegraph
+    mx::DocumentPtr doc = mx::createDocument();
+    doc->importLibrary(stdLib);
+    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
+    mx::NodePtr image = nodeGraph->addNode("image", "myimage");
+    image->setParameterValue("file", imagePath.asString(), mx::FILENAME_TYPE_STRING);
+    image->setParameterValue("uaddressmode", addressMode);
+    image->setParameterValue("vaddressmode", addressMode);
+    mx::OutputPtr output = nodeGraph->addOutput();
+    output->setConnectedNode(image);
+
+    _hwShader = createShader(shaderName, context, output); 
+    if (!_hwShader)
+    {
+        return false;
+    }
+    std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
+    std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
+
+    // Compile and return.
+    _glShader = std::make_shared<ng::GLShader>();
+    return _glShader->init(shaderName, vertexShader, pixelShader);
+}
+
 bool Material::loadSource(const mx::FilePath& vertexShaderFile, const mx::FilePath& pixelShaderFile, const std::string& shaderName, bool hasTransparency)
 {
     _hasTransparency = hasTransparency;
@@ -369,8 +399,14 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
         return;
     }
 
+    const std::string IMAGE_SEPERATOR("_");
+    const std::string UADDRESS_MODE_POST_FIX("_uaddressmode");
+    const std::string VADDRESS_MODE_POST_FIX("_vaddressmode");
+    const std::string FILTER_TYPE_POST_FIX("_filtertype");
+    const std::string DEFAULT_COLOR_POST_FIX("_default");
+    const int INVALID_MAPPED_INT_VALUE = -1; // Any value < 0 is not considered to be invalid
+
     const mx::VariableBlock* publicUniforms = getPublicUniforms();
-    mx::Color4 fallbackColor(0, 0, 0, 1);
     for (auto uniform : publicUniforms->getVariableOrder())
     {
         if (uniform->getType() != MaterialX::Type::FILENAME)
@@ -384,13 +420,46 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
             filename = searchPath.find(uniform->getValue()->getValueString());
         }
 
+        // Extract out sampling properties
+        mx::ImageSamplingProperties samplingProperties;
+
+        MaterialX::StringVec root = MaterialX::splitString(uniformName, IMAGE_SEPERATOR);
+
+        const std::string uaddressmodeStr = root[0] + UADDRESS_MODE_POST_FIX;
+        const mx::ShaderPort* port = publicUniforms->find(uaddressmodeStr);
+        mx::ValuePtr intValue = port ? port->getValue() : nullptr;
+        samplingProperties.uaddressMode = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
+
+        const std::string vaddressmodeStr = root[0] + VADDRESS_MODE_POST_FIX;
+        port = publicUniforms->find(vaddressmodeStr);
+        intValue = port ? port->getValue() : nullptr;
+        samplingProperties.vaddressMode = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
+
+        const std::string filtertypeStr = root[0] + FILTER_TYPE_POST_FIX;
+        port = publicUniforms->find(filtertypeStr);
+        intValue = port ? port->getValue() : nullptr;
+        samplingProperties.filterType = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
+
+        const std::string defaultColorStr = root[0] + DEFAULT_COLOR_POST_FIX;
+        port = publicUniforms->find(defaultColorStr);
+        mx::ValuePtr colorValue = port ? port->getValue() : nullptr;
+        mx::Color4 defaultColor;
+        if (colorValue)
+        {
+            mx::mapValueToColor(colorValue, defaultColor);
+            samplingProperties.defaultColor[0] = defaultColor[0];
+            samplingProperties.defaultColor[1] = defaultColor[1];
+            samplingProperties.defaultColor[2] = defaultColor[2];
+            samplingProperties.defaultColor[3] = defaultColor[3];
+        }
+
         mx::ImageDesc desc;
-        bindImage(filename, uniformName, imageHandler, desc, udim, &fallbackColor);
+        bindImage(filename, uniformName, imageHandler, desc, samplingProperties, udim, nullptr);
     }
 }
 
 bool Material::bindImage(std::string filename, const std::string& uniformName, mx::GLTextureHandlerPtr imageHandler,
-                         mx::ImageDesc& desc, const std::string& udim, mx::Color4* fallbackColor)
+                         mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, const std::string& udim, mx::Color4* fallbackColor)
 {
     if (!_glShader)
     {
@@ -414,13 +483,13 @@ bool Material::bindImage(std::string filename, const std::string& uniformName, m
     if (!imageHandler->acquireImage(filename, desc, true, fallbackColor))
     {
         std::cerr << "Failed to load image: " << filename << std::endl;
+        return false;
     }
 
     // Bind the image and set its sampling properties.
     int textureLocation = imageHandler->getBoundTextureLocation(desc.resourceId);
     if (textureLocation < 0) return false;
     _glShader->setUniform(uniformName, textureLocation);
-    mx::ImageSamplingProperties samplingProperties;
     imageHandler->bindImage(filename, samplingProperties);
 
     return true;
@@ -504,7 +573,7 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandler
         { "u_envIrradiance", indirectLighting ? (std::string) lightHandler->getLightEnvIrradiancePath() : mx::EMPTY_STRING }
     };
     const std::string udim;
-    mx::Color4 fallbackColor(0, 0, 0, 1);
+    mx::Color4 fallbackColor = { 0.0, 0.0, 0.0, 1.0 };
     for (auto pair : lightTextures)
     {
         if (_glShader->uniform(pair.first, false) != -1)
@@ -514,7 +583,12 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandler
             const std::string filename = path.asString();
 
             mx::ImageDesc desc;
-            if (bindImage(filename, pair.first, imageHandler, desc, udim, &fallbackColor))
+            mx::ImageSamplingProperties samplingProperties;
+            samplingProperties.uaddressMode = 1;
+            samplingProperties.vaddressMode = 1;
+            samplingProperties.filterType = 2;
+
+            if (bindImage(filename, pair.first, imageHandler, desc, samplingProperties, udim, &fallbackColor))
             {
                 if (specularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
                 {

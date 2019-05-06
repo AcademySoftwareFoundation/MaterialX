@@ -27,7 +27,7 @@ static string IRRADIANCE_ENV_UNIFORM_NAME("u_envIrradiance");
 /// Sampling constants
 static string UADDRESS_MODE_POST_FIX("_uaddressmode");
 static string VADDRESS_MODE_POST_FIX("_vaddressmode");
-static string FILTER_TYPE_POST_FIX("_filterType");
+static string FILTER_TYPE_POST_FIX("_filtertype");
 static string DEFAULT_COLOR_POST_FIX("_default");
 
 //

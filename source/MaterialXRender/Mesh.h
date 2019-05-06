@@ -52,7 +52,9 @@ class MeshStream
     }
     
     /// Default element string is 3.
-    static const unsigned int DEFAULT_STRIDE = 3;
+    static const unsigned int STRIDE_3D = 3;
+    static const unsigned int STRIDE_2D = 2;
+    static const unsigned int DEFAULT_STRIDE = STRIDE_3D;
 
     /// Constructor
     MeshStream(const string& name, const string& type, unsigned int index) :
