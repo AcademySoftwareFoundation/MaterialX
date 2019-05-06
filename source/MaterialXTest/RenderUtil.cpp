@@ -27,28 +27,6 @@ void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::Gen
     lightHandler.setLightEnvRadiancePath(envRadiancePath);
 }
 
-// Create a list of generation options based on unit test options
-// These options will override the original generation context options.
-void ShaderRenderTester::getGenerationOptions(const RenderTestOptions& testOptions,
-                                             const mx::GenOptions& originalOptions,
-                                             std::vector<mx::GenOptions>& optionsList)
-{
-    optionsList.clear();
-    if (testOptions.shaderInterfaces & 1)
-    {
-        mx::GenOptions reducedOption = originalOptions;
-        reducedOption.shaderInterfaceType = mx::SHADER_INTERFACE_REDUCED;
-        optionsList.push_back(reducedOption);
-    }
-    // Alway fallback to complete if no options specified.
-    if ((testOptions.shaderInterfaces & 2) || optionsList.empty())
-    {
-        mx::GenOptions completeOption = originalOptions;
-        completeOption.shaderInterfaceType = mx::SHADER_INTERFACE_COMPLETE;
-        optionsList.push_back(completeOption);
-    }
-}
-
 void RenderTestOptions::print(std::ostream& output) const
 {
     output << "Render Test Options:" << std::endl;
@@ -221,6 +199,39 @@ bool RenderTestOptions::readOptions(const std::string& optionFile)
     return false;
 }
 
+
+ShaderRenderTester::ShaderRenderTester(mx::ShaderGeneratorPtr shaderGenerator) :
+    _shaderGenerator(shaderGenerator),
+    _languageTargetString(shaderGenerator->getLanguage() + "_" + shaderGenerator->getTarget())
+{
+}
+
+ShaderRenderTester::~ShaderRenderTester()
+{
+}
+
+// Create a list of generation options based on unit test options
+// These options will override the original generation context options.
+void ShaderRenderTester::getGenerationOptions(const RenderTestOptions& testOptions,
+                                              const mx::GenOptions& originalOptions,
+                                              std::vector<mx::GenOptions>& optionsList)
+{
+    optionsList.clear();
+    if (testOptions.shaderInterfaces & 1)
+    {
+        mx::GenOptions reducedOption = originalOptions;
+        reducedOption.shaderInterfaceType = mx::SHADER_INTERFACE_REDUCED;
+        optionsList.push_back(reducedOption);
+    }
+    // Alway fallback to complete if no options specified.
+    if ((testOptions.shaderInterfaces & 2) || optionsList.empty())
+    {
+        mx::GenOptions completeOption = originalOptions;
+        completeOption.shaderInterfaceType = mx::SHADER_INTERFACE_COMPLETE;
+        optionsList.push_back(completeOption);
+    }
+}
+
 void ShaderRenderTester::checkImplementationUsage(const std::string& language,
                                                   mx::StringSet& usedImpls,
                                                   mx::DocumentPtr dependLib,
@@ -347,13 +358,12 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     RenderUtil::AdditiveScopedTimer totalTime(profileTimes.totalTime, "Global total time");
 
 #ifdef LOG_TO_FILE
-    const std::string prefex = languageTargetString();
-    std::ofstream logfile(prefex + "_render_log.txt");
+    std::ofstream logfile(_languageTargetString + "_render_log.txt");
     std::ostream& log(logfile);
-    std::string docValidLogFilename = prefex + "_render_doc_validation_log.txt";
+    std::string docValidLogFilename = _languageTargetString + "_render_doc_validation_log.txt";
     std::ofstream docValidLogFile(docValidLogFilename);
     std::ostream& docValidLog(docValidLogFile);
-    std::ofstream profilingLogfile(prefex + "__render_profiling_log.txt");
+    std::ofstream profilingLogfile(_languageTargetString + "__render_profiling_log.txt");
     std::ostream& profilingLog(profilingLogfile);
 #else
     std::ostream& log(std::cout);
@@ -402,7 +412,6 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     // Create validators and generators
     RenderUtil::AdditiveScopedTimer setupTime(profileTimes.languageTimes.setupTime, "Setup time");
 
-    createShaderGenerator();
     createValidator(log);
 
     mx::ColorManagementSystemPtr colorManagementSystem = mx::DefaultColorManagementSystem::create(_shaderGenerator->getLanguage());

@@ -14,28 +14,12 @@ namespace mx = MaterialX;
 class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
 {
   public:
-    OslShaderRenderTester() :
-        _languageTargetString(mx::OslShaderGenerator::LANGUAGE + "_" +
-            mx::OslShaderGenerator::TARGET)
+    explicit OslShaderRenderTester(mx::ShaderGeneratorPtr shaderGenerator) :
+        RenderUtil::ShaderRenderTester(shaderGenerator)
     {
     }
 
   protected:
-    bool runTest(const RenderUtil::RenderTestOptions& testOptions) const override
-    {
-        return (testOptions.languageAndTargets.count(_languageTargetString) > 0);
-    }
-
-    const std::string& languageTargetString() override
-    {
-        return _languageTargetString;
-    }
-
-    void createShaderGenerator() override
-    {
-        _shaderGenerator = mx::OslShaderGenerator::create();
-    }
-
     void registerSourceCodeSearchPaths(mx::GenContext& context) override
     {
         // Include extra OSL implementation files
@@ -57,7 +41,6 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
 
     void getImplementationWhiteList(mx::StringSet& whiteList) override;
 
-    std::string _languageTargetString;
     mx::OslValidatorPtr _validator;
 };
 
@@ -334,7 +317,7 @@ void OslShaderRenderTester::getImplementationWhiteList(mx::StringSet& whiteList)
 
 TEST_CASE("Render: OSL TestSuite", "[renderosl]")
 {
-    OslShaderRenderTester renderTester;
+    OslShaderRenderTester renderTester(mx::OslShaderGenerator::create());
 
     mx::FilePathVec testRootPaths;
     mx::FilePath testRoot = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");

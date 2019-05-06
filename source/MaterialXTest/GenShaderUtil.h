@@ -65,21 +65,20 @@ namespace GenShaderUtil
     class ShaderGeneratorTester
     {
     public:
-        ShaderGeneratorTester(const mx::FilePathVec& testRootPaths, const mx::FilePath& libSearchPath,
-                              const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath)
+        ShaderGeneratorTester(mx::ShaderGeneratorPtr shaderGenerator, const mx::FilePathVec& testRootPaths, 
+                              const mx::FilePath& libSearchPath, const mx::FileSearchPath& srcSearchPath, 
+                              const mx::FilePath& logFilePath) :
+            _shaderGenerator(shaderGenerator),
+            _testRootPaths(testRootPaths),
+            _libSearchPath(libSearchPath),
+            _srcSearchPath(srcSearchPath),
+            _logFilePath(logFilePath)
         {
-            _logFilePath = logFilePath;
-            _libSearchPath = libSearchPath;
-            _srcSearchPath = srcSearchPath;
-            _testRootPaths = testRootPaths;
         }
 
         ~ShaderGeneratorTester()
         {
         }
-
-        // Generator is required from derived class
-        virtual void createGenerator() = 0;
 
         // Stages to test is required from derived class
         virtual void setTestStages() = 0;
@@ -117,17 +116,16 @@ namespace GenShaderUtil
         mx::ShaderGeneratorPtr _shaderGenerator;
         mx::DefaultColorManagementSystemPtr _colorManagementSystem;
         mx::DocumentPtr _dependLib;
-        mx::FilePath _libSearchPath;
-        mx::FileSearchPath _srcSearchPath;
 
-        mx::FilePathVec _testRootPaths;
+        const mx::FilePathVec _testRootPaths;
+        const mx::FilePath _libSearchPath;
+        const mx::FileSearchPath _srcSearchPath;
+        const mx::FilePath _logFilePath;
+
         mx::StringSet _skipFiles;
         std::vector<mx::DocumentPtr> _documents;
         mx::StringVec _documentPaths;
-
-        mx::FilePath _logFilePath;
         std::ofstream _logFile;
-
         mx::StringSet _skipNodeDefs;
         mx::StringVec _testStages;
 

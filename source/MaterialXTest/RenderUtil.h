@@ -213,16 +213,17 @@ class RenderProfileTimes
 class ShaderRenderTester
 {
   public:
-    ShaderRenderTester() {};
-    virtual ~ShaderRenderTester() {};
+    ShaderRenderTester(mx::ShaderGeneratorPtr shaderGenerator);
+    virtual ~ShaderRenderTester();
+
     bool validate(const mx::FilePathVec& testRootPaths, const mx::FilePath optionsFilePath);
 
   protected:
-    // The shading language / target being tested
-    virtual const std::string& languageTargetString() = 0;
-
     // Check if testing should be performed based in input options
-    virtual bool runTest(const RenderUtil::RenderTestOptions& testOptions) const = 0;
+    virtual bool runTest(const RenderUtil::RenderTestOptions& testOptions)
+    {
+        return (testOptions.languageAndTargets.count(_languageTargetString) > 0);
+    }
 
     // Add files to skip
     void addSkipFiles()
@@ -241,8 +242,6 @@ class ShaderRenderTester
     //
     // Code generation methods
     //
-    // Create the appropirate code generator for the language/target
-    virtual void createShaderGenerator() = 0;
 
     // Register any additional source code paths used by the generator
     virtual void registerSourceCodeSearchPaths(mx::GenContext& /*context*/) {};
@@ -255,6 +254,7 @@ class ShaderRenderTester
     //
     // Code validation methods (compile and render)
     //
+
     // Create a validator for the generated code
     virtual void createValidator(std::ostream& log) = 0;
     
@@ -298,6 +298,8 @@ class ShaderRenderTester
 
     // Generator to use
     mx::ShaderGeneratorPtr _shaderGenerator;
+    const std::string _languageTargetString;
+
     // Files to skip
     mx::StringSet _skipFiles;
 };
