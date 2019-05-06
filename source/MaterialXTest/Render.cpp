@@ -141,7 +141,7 @@ void testImageHandler(ImageHandlerTestOptions& options)
         {
             const mx::FilePath filePath = imagePath / file;
             mx::ImageDesc desc;
-            bool loaded = options.imageHandler->acquireImage(filePath, desc, false, nullptr);
+            bool loaded = options.imageHandler->acquireImage(filePath, desc, false);
             desc.freeResourceBuffer();
             CHECK(!desc.resourceBuffer);
             if (options.logFile)
