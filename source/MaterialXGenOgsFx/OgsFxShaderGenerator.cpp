@@ -213,17 +213,6 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
         emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/" + OgsFxShaderGenerator::TARGET + "/mx_lighting_functions.glsl", context, fx);
         emitLineBreak(fx);
 
-        // Emit environment lighting functions
-        if (context.getOptions().hwSpecularEnvironmentMethod == SPECULAR_ENVIRONMENT_FIS)
-        {
-            emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_fis.glsl", context, fx);
-        }
-        else
-        {
-            emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_prefilter.glsl", context, fx);
-        }
-        emitLineBreak(fx);
-
         emitScopeEnd(fx);
         emitLineBreak(fx);
     }
@@ -331,6 +320,17 @@ void OgsFxShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& 
         emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.glsl", context, stage);
         emitLineBreak(stage);
     }
+
+    // Emit environment lighting functions
+    if (context.getOptions().hwSpecularEnvironmentMethod == SPECULAR_ENVIRONMENT_FIS)
+    {
+        emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_fis.glsl", context, stage);
+    }
+    else
+    {
+        emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_prefilter.glsl", context, stage);
+    }
+    emitLineBreak(stage);
 
     // Add all functions for node implementations
     emitFunctionDefinitions(graph, context, stage);

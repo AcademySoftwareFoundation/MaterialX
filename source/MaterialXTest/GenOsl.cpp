@@ -5,7 +5,7 @@
 
 #include <MaterialXTest/Catch/catch.hpp>
 
-#include <MaterialXTest/GenShaderUtil.h>
+#include <MaterialXTest/GenOsl.h>
 
 #include <MaterialXCore/Document.h>
 
@@ -110,49 +110,7 @@ TEST_CASE("GenShader: OSL Unique Names", "[genosl]")
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }
 
-class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
-{
-  public:
-    using ParentClass = GenShaderUtil::ShaderGeneratorTester;
-
-    OslShaderGeneratorTester(const std::vector<mx::FilePath>& testRootPaths, const mx::FilePath& libSearchPath,
-                               const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath) : 
-        GenShaderUtil::ShaderGeneratorTester(testRootPaths, libSearchPath, srcSearchPath, logFilePath)
-    {}
-
-    void createGenerator() override
-    {
-        _shaderGenerator = mx::OslShaderGenerator::create();
-    }
-
-    void setTestStages() override
-    {
-        _testStages.push_back(mx::Stage::PIXEL);
-    }
-
-    // Ignore trying to create shader code for lightshaders
-    void addSkipNodeDefs() override
-    {
-        _skipNodeDefs.insert("ND_point_light");
-        _skipNodeDefs.insert("ND_spot_light");
-        _skipNodeDefs.insert("ND_directional_light");
-        ParentClass::addSkipNodeDefs();
-    }
-
-    // Ignore light shaders in the document for OSL
-    void findLights(mx::DocumentPtr /*doc*/, std::vector<mx::NodePtr>& lights) override
-    {
-        lights.clear();
-    }
-
-    // No direct lighting to register for OSL
-    void registerLights(mx::DocumentPtr /*doc*/, const std::vector<mx::NodePtr>& /*lights*/, mx::GenContext& /*context*/) override
-    {
-        ; // no-op
-    }
-};
-
-static void generateOSLCode()
+static void generateOslCode()
 {
     const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
     const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
@@ -163,7 +121,8 @@ static void generateOSLCode()
     mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     srcSearchPath.append(libSearchPath / mx::FilePath("stdlib/osl"));
     const mx::FilePath logPath("genosl_vanilla_generate_test.txt");
-    OslShaderGeneratorTester tester(testRootPaths, libSearchPath, srcSearchPath, logPath);
+
+    OslShaderGeneratorTester tester(mx::OslShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath);
  
     const mx::GenOptions genOptions;
     tester.testGeneration(genOptions);
@@ -171,5 +130,5 @@ static void generateOSLCode()
 
 TEST_CASE("GenShader: OSL Shader Generation", "[genosl]")
 {
-    generateOSLCode();
+    generateOslCode();
 }

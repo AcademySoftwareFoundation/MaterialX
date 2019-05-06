@@ -4,8 +4,13 @@ include_directories(
 )
 
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+if(NOT MATERIALX_BUILD_GEN_ARNOLD)
+    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/GenArnold.cpp")
+    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/RenderArnold.cpp")
+endif()
 if(NOT MATERIALX_BUILD_GEN_OGSFX)
-    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/GenOgsfx.cpp")
+    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/GenOgsFx.cpp")
+    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/RenderOgsfx.cpp")
 endif()
 file(GLOB_RECURSE materialx_header "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 file(GLOB_RECURSE catch_headers "${CMAKE_CURRENT_SOURCE_DIR}/Catch/*.hpp")
@@ -67,6 +72,9 @@ set (LIBS
 )
 
 # Add language specific generators
+if (MATERIALX_BUILD_GEN_ARNOLD)
+    LIST(APPEND LIBS "MaterialXGenArnold")
+endif()
 if (MATERIALX_BUILD_GEN_OGSFX)
     LIST(APPEND LIBS "MaterialXGenOgsFx")
 endif()

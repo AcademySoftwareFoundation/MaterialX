@@ -450,9 +450,6 @@ void ShaderGeneratorTester::testGeneration(const mx::GenOptions& generateOptions
     // Start logging
     _logFile.open(_logFilePath);
 
-    // Generator setup
-    createGenerator();
-
     // Dependent library setup
     setupDependentLibraries();
     addColorManagement();
@@ -522,7 +519,7 @@ void ShaderGeneratorTester::testGeneration(const mx::GenOptions& generateOptions
         }
         CHECK(docValid);
 
-        // Traverse the renderable documents and run validation the validation step
+        // Traverse the renderable documents and run the validation step
         int missingNodeDefs = 0;
         int missingImplementations = 0;
         int codeGenerationFailures = 0;

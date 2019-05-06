@@ -86,14 +86,8 @@ class OgsFxShaderGeneratorTester : public GlslShaderGeneratorTester
 public:
     OgsFxShaderGeneratorTester(const mx::FilePathVec& testRootPaths, const mx::FilePath& libSearchPath,
                                  const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath) :
-            GlslShaderGeneratorTester(testRootPaths, libSearchPath, srcSearchPath, logFilePath)
+            GlslShaderGeneratorTester(mx::OgsFxShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logFilePath)
     {}
-
-    // Only the generator differs for now between OGSFX and GLSL testers
-    void createGenerator() override
-    {
-        _shaderGenerator = mx::OgsFxShaderGenerator::create();
-    }
 
     void setTestStages() override
     {
@@ -101,7 +95,7 @@ public:
     }
 };
 
-static void generateOGSFXCode()
+static void generateOgsFxCode()
 {
     const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
     const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
@@ -118,5 +112,5 @@ static void generateOGSFXCode()
 
 TEST_CASE("GenShader: OGSFX Shader Generation", "[genogsfx]")
 {
-    generateOGSFXCode();
+    generateOgsFxCode();
 }
