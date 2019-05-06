@@ -370,6 +370,7 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
     }
 
     const mx::VariableBlock* publicUniforms = getPublicUniforms();
+    mx::Color4 fallbackColor(0, 0, 0, 1);
     for (auto uniform : publicUniforms->getVariableOrder())
     {
         if (uniform->getType() != MaterialX::Type::FILENAME)
@@ -384,7 +385,7 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
         }
 
         mx::ImageDesc desc;
-        bindImage(filename, uniformName, imageHandler, desc, udim, nullptr);
+        bindImage(filename, uniformName, imageHandler, desc, udim, &fallbackColor);
     }
 }
 
@@ -413,7 +414,6 @@ bool Material::bindImage(std::string filename, const std::string& uniformName, m
     if (!imageHandler->acquireImage(filename, desc, true, fallbackColor))
     {
         std::cerr << "Failed to load image: " << filename << std::endl;
-        return false;
     }
 
     // Bind the image and set its sampling properties.
@@ -504,7 +504,7 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandler
         { "u_envIrradiance", indirectLighting ? (std::string) lightHandler->getLightEnvIrradiancePath() : mx::EMPTY_STRING }
     };
     const std::string udim;
-    mx::Color4 fallbackColor = { 0.0, 0.0, 0.0, 1.0 };
+    mx::Color4 fallbackColor(0, 0, 0, 1);
     for (auto pair : lightTextures)
     {
         if (_glShader->uniform(pair.first, false) != -1)

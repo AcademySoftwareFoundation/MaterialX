@@ -217,15 +217,22 @@ class ImageHandler
                            const ImageDesc &imageDesc,
                            bool verticalFlip = false);
 
-    /// Acquire an image from disk. This method must be implemented by derived classes.
-    /// The first image loader which supports the file name extension will be used.
-    /// @param filePath Name of file to load image from.
-    /// @param desc Description of image updated during load.
+    /// Acquire an image from the cache or file system.  If the image is not
+    /// found in the cache, then each image loader will be applied in turn.
+    /// @param filePath File path of the image.
+    /// @param imageDesc On success, this image descriptor will be filled out
+    ///    and assigned ownership of a resource buffer.
     /// @param generateMipMaps Generate mip maps if supported.
-    /// @param fallbackColor Color of fallback image to use if failed to load.  If null is specified then
-    /// no fallback image will be acquired.
-    /// @return if load succeeded in loading image or created fallback image.
-    virtual bool acquireImage(const FilePath& filePath, ImageDesc& desc, bool generateMipMaps, const Color4* fallbackColor);
+    /// @param fallbackColor Optional uniform color of a fallback texture
+    ///    to create when the image cannot be loaded from the file system.
+    ///    By default, no fallback texture is created.
+    /// @return True if the image was successfully found in the cache or
+    ///    file system.  Returns false if this call generated a fallback
+    ///    texture.
+    virtual bool acquireImage(const FilePath& filePath,
+                              ImageDesc& imageDesc,
+                              bool generateMipMaps,
+                              const Color4* fallbackColor = nullptr);
 
     /// Utility to create a solid color color image
     /// @param color Color to set

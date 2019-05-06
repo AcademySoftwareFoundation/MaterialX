@@ -102,7 +102,7 @@ bool ImageHandler::saveImage(const FilePath& filePath,
     return false;
 }
 
-bool ImageHandler::acquireImage(const FilePath& filePath, ImageDesc &imageDesc, bool /*generateMipMaps*/, const Color4* /*fallbackColor*/)
+bool ImageHandler::acquireImage(const FilePath& filePath, ImageDesc& imageDesc, bool /*generateMipMaps*/, const Color4* /*fallbackColor*/)
 {
     FilePath foundFilePath = findFile(filePath);
     if (foundFilePath.isEmpty())
