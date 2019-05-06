@@ -103,7 +103,7 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     _zoom(1.0f),
     _viewAngle(45.0f),
     _nearDist(0.05f),
-    _farDist(100.0f),
+    _farDist(5000.0f),
     _modelZoom(1.0f),
     _translationActive(false),
     _translationStart(0, 0),
@@ -122,6 +122,7 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     _outlineSelection(false),
     _specularEnvironmentMethod(specularEnvironmentMethod),
     _envSamples(DEFAULT_ENV_SAMPLES),
+    _drawEnvironment(false),
     _captureFrame(false)
 {
     _window = new ng::Window(this, "Viewer Options");
@@ -199,6 +200,43 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     _geometryHandler->addLoader(loader);
     _geometryHandler->loadGeometry(_searchPath.find(meshFilename));
     updateGeometrySelections();
+
+    _envGeometryHandler = mx::GeometryHandler::create();
+    _envGeometryHandler->addLoader(loader);
+    mx::FilePath envSphere("resources/Geometry/sphere.obj");
+    _envGeometryHandler->loadGeometry(_searchPath.find(envSphere));
+    const mx::MeshList& meshes = _envGeometryHandler->getMeshes();
+    if (!meshes.empty())
+    {
+        // Invert u and rotate 90 degrees.
+        mx::MeshPtr mesh = meshes[0];
+        mx::MeshStreamPtr stream = mesh->getStream(mx::MeshStream::TEXCOORD_ATTRIBUTE, 0);
+        mx::MeshFloatBuffer &buffer = stream->getData();
+        size_t stride = stream->getStride();
+        for (size_t i = 0; i < buffer.size() / stride; i++)
+        {
+            float val = (buffer[i*stride] * -1.0f) + 1.25f;
+            buffer[i*stride] = (val < 0.0f) ? (val + 1.0f) : ((val > 1.0f) ? val -= 1.0f : val);
+        }
+
+        // Set up world matrix for drawing
+        const float scaleFactor = 300.0f;
+        _envMatrix = mx::Matrix44::createScale(mx::Vector3(scaleFactor));
+
+        const std::string envShaderName("__ENV_SHADER_NAME__");
+        _envMaterial = Material::create();
+        try
+        {
+            const std::string addressMode("clamp");
+            _envMaterial->generateImageShader(_genContext, _stdLib, envShaderName, _envRadiancePath, addressMode);
+            _envMaterial->bindMesh(_envGeometryHandler->getMeshes()[0]);
+        }
+        catch (std::exception& e)
+        {
+            _envMaterial = nullptr;
+            new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to generate environment shader", e.what());
+        }
+    }
 
     // Initialize camera
     initCamera();
@@ -602,6 +640,13 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _outlineSelection = enable;
     });
 
+    ng::CheckBox* drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Render Environment");
+    drawEnvironmentBox->setChecked(_drawEnvironment);
+    drawEnvironmentBox->setCallback([this](bool enable)
+    {
+        _drawEnvironment = enable;
+    });
+
     if (_specularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
     {
         Widget* sampleGroup = new Widget(advancedPopup);
@@ -963,6 +1008,24 @@ void Viewer::drawContents()
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_CULL_FACE);
     glEnable(GL_FRAMEBUFFER_SRGB);
+
+    if (_drawEnvironment && _envMaterial)
+    {
+        GLShaderPtr envShader = _envMaterial->getShader();
+        auto meshes = _envGeometryHandler->getMeshes();
+        auto envPart = !meshes.empty() ? meshes[0]->getPartition(0) : nullptr;
+        if (envShader && envPart)
+        {
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_FRONT);
+            envShader->bind();
+            _envMaterial->bindViewInformation(_envMatrix, view, proj);
+            _envMaterial->bindImages(_imageHandler, _searchPath, _envMaterial->getUdim());
+            _envMaterial->drawPartition(envPart);
+            glDisable(GL_CULL_FACE);
+            glCullFace(GL_BACK);
+        }
+    }
 
     mx::TypedElementPtr lastBoundShader;
     for (auto assignment : _materialAssignments)
