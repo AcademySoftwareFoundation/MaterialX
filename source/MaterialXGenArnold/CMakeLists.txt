@@ -27,6 +27,8 @@ add_library(MaterialXGenArnold STATIC
     ${materialx_header}
 )
 
+add_subdirectory(libraries)
+
 set_target_properties(
     MaterialXGenArnold PROPERTIES
     OUTPUT_NAME MaterialXGenArnold

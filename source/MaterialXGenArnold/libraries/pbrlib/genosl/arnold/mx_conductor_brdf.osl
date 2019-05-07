@@ -1,0 +1,8 @@
+#include "pbrlib/genosl/lib/mx_refraction_index.osl"
+
+void mx_conductor_brdf(float weight, color reflectivity, color edgecolor, roughnessinfo roughness, normal N, vector U, string distribution, output BSDF result)
+{
+    vector ior_n, ior_k;
+    mx_artistic_to_complex_ior(reflectivity, edgecolor, ior_n, ior_k);
+    result = metal(distribution, N, U, ior_n, ior_k, roughness.alphaX, roughness.alphaY);
+}
