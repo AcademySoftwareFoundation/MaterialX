@@ -75,9 +75,12 @@ void LightHandler::registerLights(DocumentPtr doc, const std::vector<NodePtr>& l
         }
     }
 
-    // Clamp the number of light sources to the number registered
-    unsigned int lightSourceCount = static_cast<unsigned int>(lights.size());
-    context.getOptions().hwMaxActiveLightSources = lightSourceCount;
+    // Make sure max light count is large enough
+    const unsigned int lightCount = (unsigned int)lights.size();
+    if (lightCount > context.getOptions().hwMaxActiveLightSources)
+    {
+        context.getOptions().hwMaxActiveLightSources = lightCount;
+    }
 }
 
 } // namespace MaterialX

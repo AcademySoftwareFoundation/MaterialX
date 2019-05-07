@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 GLTextureHandler::GLTextureHandler(ImageLoaderPtr imageLoader) :
-    ImageHandler(imageLoader),
+    ParentClass(imageLoader),
     _maxImageUnits(-1)
 {
     _restrictions.supportedBaseTypes = { ImageDesc::BASETYPE_HALF, ImageDesc::BASETYPE_FLOAT, ImageDesc::BASETYPE_UINT8 };
@@ -26,7 +26,7 @@ bool GLTextureHandler::createColorImage(const Color4& color,
         glewInit();
     }
 
-    ImageHandler::createColorImage(color, imageDesc);
+    ParentClass::createColorImage(color, imageDesc);
     if ((imageDesc.width * imageDesc.height > 0) && imageDesc.resourceBuffer)
     {
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -45,11 +45,11 @@ bool GLTextureHandler::createColorImage(const Color4& color,
 }
 
 bool GLTextureHandler::acquireImage(const FilePath& filePath,
-                                    ImageDesc& imageDesc,
+                                    ImageDesc &imageDesc,
                                     bool generateMipMaps,
                                     const Color4* fallbackColor)
 {
-    if (_boundTextureLocations.empty())
+    if(_boundTextureLocations.size() == 0)
     {
         int maxTextureUnits;
         glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
@@ -60,6 +60,11 @@ bool GLTextureHandler::acquireImage(const FilePath& filePath,
             throw ExceptionShaderValidationError("OpenGL context error.", errors);
         }
         _boundTextureLocations.resize(maxTextureUnits, MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
+    }
+
+    if (filePath.isEmpty())
+    {
+        return false;
     }
 
     if (!glActiveTexture)
@@ -77,7 +82,7 @@ bool GLTextureHandler::acquireImage(const FilePath& filePath,
     }
 
     bool textureLoaded = false;
-    if (ImageHandler::acquireImage(filePath, imageDesc, generateMipMaps, fallbackColor))
+    if (ParentClass::acquireImage(filePath, imageDesc, generateMipMaps, fallbackColor))
     {
         imageDesc.resourceId = MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -159,6 +164,7 @@ bool GLTextureHandler::acquireImage(const FilePath& filePath,
         createColorImage(*fallbackColor, desc);
         desc.freeResourceBuffer();
         cacheImage(filePath, desc);
+        textureLoaded = true;
     }
 
     return textureLoaded;
@@ -265,7 +271,7 @@ void GLTextureHandler::deleteImage(MaterialX::ImageDesc& imageDesc)
     }
 
     // Delete any CPU side memory
-    ImageHandler::deleteImage(imageDesc);
+    ParentClass::deleteImage(imageDesc);
 }
 
 int GLTextureHandler::getBoundTextureLocation(unsigned int resourceId)

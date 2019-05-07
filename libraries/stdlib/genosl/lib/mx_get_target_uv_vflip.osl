@@ -1,7 +1,7 @@
 //
 // Function to transform texture coordinates before texture sampling
 //
-vec2 mx_get_target_uv(vec2 texcoord)
+vector2 mx_get_target_uv(vector2 texcoord)
 {
-   return vec2(texcoord.x, 1.0 - texcoord.y);
+   return vector2(texcoord.x, 1.0 - texcoord.y);
 }

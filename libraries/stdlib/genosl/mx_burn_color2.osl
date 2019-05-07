@@ -1,0 +1,7 @@
+#include "stdlib/genosl/mx_burn_float.osl"
+
+void mx_burn_color2(color2 fg, color2 bg, float mix, output color2 result)
+{
+    mx_burn_float(fg.r, bg.r, mix, result.r);
+    mx_burn_float(fg.a, bg.a, mix, result.a);
+}

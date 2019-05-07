@@ -22,7 +22,7 @@ using MeshFloatBuffer = vector<float>;
 /// Shader pointer to a mesh stream
 using MeshStreamPtr = shared_ptr<class MeshStream>;
 
-/// List of mesh streams 
+/// List of mesh streams
 using MeshStreamList = vector<MeshStreamPtr>;
 
 /// @class MeshStream
@@ -30,17 +30,17 @@ using MeshStreamList = vector<MeshStreamPtr>;
 class MeshStream
 {
   public:
-    /// Position attribute 
+    /// Position attribute
     static const string POSITION_ATTRIBUTE;
-    /// Normal attribute 
+    /// Normal attribute
     static const string NORMAL_ATTRIBUTE;
-    /// Texture coordinate attribute 
+    /// Texture coordinate attribute
     static const string TEXCOORD_ATTRIBUTE;
-    /// Tangent attribute 
+    /// Tangent attribute
     static const string TANGENT_ATTRIBUTE;
-    /// Bitangent attribute 
+    /// Bitangent attribute
     static const string BITANGENT_ATTRIBUTE;
-    /// Color attribute 
+    /// Color attribute
     static const string COLOR_ATTRIBUTE;
     /// Generic geometry property attribute
     static const string GEOMETRY_PROPERTY_ATTRIBUTE;
@@ -50,7 +50,7 @@ class MeshStream
     {
         return std::make_shared<MeshStream>(name, type, index);
     }
-    
+
     /// Default element string is 3.
     static const unsigned int STRIDE_3D = 3;
     static const unsigned int STRIDE_2D = 2;
@@ -62,7 +62,7 @@ class MeshStream
         _type(type),
         _index(index),
         _stride(DEFAULT_STRIDE) {}
-    
+
     ~MeshStream() {}
 
     /// Resize data to an given number of elements
@@ -112,6 +112,13 @@ class MeshStream
     {
         _stride = stride;
     }
+
+    size_t getSize() const
+    {
+        return _data.size();
+    }
+
+    void transform(const Matrix44 &matrix);
 
   protected:
     string _name;
@@ -272,7 +279,7 @@ class Mesh
         return MeshStreamPtr();
     }
 
-    /// Add a mesh stream 
+    /// Add a mesh stream
     void addStream(MeshStreamPtr stream)
     {
         _streams.push_back(stream);
@@ -356,7 +363,7 @@ class Mesh
         return _partitions[partIndex];
     }
 
-    /// Generate tangents and optionally bitangents for a given 
+    /// Generate tangents and optionally bitangents for a given
     /// set of positions, texture coordinates and normals.
     /// @param positionStream Positions to use
     /// @param texcoordStream Texture coordinates to use
@@ -365,7 +372,7 @@ class Mesh
     /// @param bitangentStream Bitangents to produce.
     /// Returns true if successful.
     bool generateTangents(MeshStreamPtr positionStream, MeshStreamPtr texcoordStream, MeshStreamPtr normalStream,
-                          MeshStreamPtr tangentStream, MeshStreamPtr bitangentStream);   
+                          MeshStreamPtr tangentStream, MeshStreamPtr bitangentStream);
 
     /// Merge all mesh partitions into one.
     void mergePartitions();

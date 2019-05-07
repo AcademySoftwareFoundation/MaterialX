@@ -368,7 +368,7 @@ void GlslProgram::bindAttribute(const MaterialX::GlslProgram::InputMap& inputs, 
         }
 
         glEnableVertexAttribArray(location);
-        _enabledLocations.insert(location);
+        _enabledStreamLocations.insert(location);
         glVertexAttribPointer(location, stride, GL_FLOAT, GL_FALSE, 0, 0);
     }
 }
@@ -393,7 +393,7 @@ void GlslProgram::bindPartition(MeshPartitionPtr partition)
 
 void GlslProgram::bindStreams(MeshPtr mesh)
 {
-    _enabledLocations.clear(); 
+    _enabledStreamLocations.clear(); 
     ShaderValidationErrorList errors;
     const std::string errorType("GLSL geometry bind error.");
 
@@ -492,11 +492,11 @@ void GlslProgram::unbindGeometry()
     //
     int numberAttributes = 0;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &numberAttributes);
-    for (int i : _enabledLocations)
+    for (int i : _enabledStreamLocations)
     {
         glDisableVertexAttribArray(i);
     }
-    _enabledLocations.clear();
+    _enabledStreamLocations.clear();
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
@@ -529,19 +529,16 @@ void GlslProgram::unbindTextures(ImageHandlerPtr imageHandler)
 
 bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& filePath,
                               ImageHandlerPtr imageHandler, bool generateMipMaps,
-                              const ImageSamplingProperties& samplingProperties)
+                              const ImageSamplingProperties& samplingProperties, ImageDesc& desc)
 {
     bool textureBound = false;
     if (uniformLocation >= 0 &&
         uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
     {
-        ImageDesc imageDesc;
-        bool haveImage = imageHandler->acquireImage(filePath, imageDesc, generateMipMaps, &(samplingProperties.defaultColor));
-
-        if (haveImage)
+        if (imageHandler->acquireImage(filePath, desc, generateMipMaps, &(samplingProperties.defaultColor)))
         {
             // Map location to a texture unit
-            int textureLocation = imageHandler->getBoundTextureLocation(imageDesc.resourceId);
+            int textureLocation = imageHandler->getBoundTextureLocation(desc.resourceId);
             if (textureLocation >= 0) 
             {
                glUniform1i(uniformLocation, textureLocation);
@@ -627,7 +624,8 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
                 samplingProperties.defaultColor[1] = defaultColor[1];
                 samplingProperties.defaultColor[2] = defaultColor[2];
                 samplingProperties.defaultColor[3] = defaultColor[3];
-                bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, samplingProperties);
+                ImageDesc desc;
+                bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, samplingProperties, desc);
             }
         }
     }
@@ -684,32 +682,42 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
     }
 
     // Bind any IBL textures specified
-    MaterialX::StringMap iblList;
-    iblList[RADIANCE_ENV_UNIFORM_NAME] = lightHandler->getLightEnvRadiancePath();
-    iblList[IRRADIANCE_ENV_UNIFORM_NAME] = lightHandler->getLightEnvIrradiancePath();
+    MaterialX::StringMap iblList = {
+        { RADIANCE_ENV_UNIFORM_NAME, lightHandler->getLightEnvRadiancePath() },
+        { IRRADIANCE_ENV_UNIFORM_NAME, lightHandler->getLightEnvIrradiancePath() }
+    };
+
     for (auto ibl : iblList)
     {
-        MaterialX::GlslProgram::InputPtr inputPtr = nullptr;
-        auto it = uniformList.find(ibl.first);
-        if (it != uniformList.end())
-        {
-            inputPtr = it->second;
-        }
+        auto iblUniform = uniformList.find(ibl.first);
+        GlslProgram::InputPtr inputPtr = iblUniform != uniformList.end() ? iblUniform->second : nullptr;
         if (inputPtr)
         {
             GLenum uniformType = inputPtr->gltype;
             GLint uniformLocation = inputPtr->location;
-            std::string fileName(inputPtr->value ? inputPtr->value->getValueString() : "");
+            string fileName(inputPtr->value ? inputPtr->value->getValueString() : EMPTY_STRING);
             if (fileName.empty())
             {
                 fileName = ibl.second;
             }
-            ImageSamplingProperties desc;
-            bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, desc);
+
+            ImageDesc desc;
+            if (bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, ImageSamplingProperties(), desc))
+            {
+                if (iblUniform->first == RADIANCE_ENV_UNIFORM_NAME)
+                {
+                    // This is our radiance texture so set the mip count.
+                    auto mipsUniform = uniformList.find("u_envRadianceMips");
+                    if (mipsUniform != uniformList.end() && mipsUniform->second->location >= 0)
+                    {
+                        glUniform1i(mipsUniform->second->location, desc.mipCount);
+                    }
+                }
+            }
         }
     }
 
-    const std::vector<NodePtr> lightList = lightHandler->getLightSources();
+    const vector<NodePtr> lightList = lightHandler->getLightSources();
     const std::unordered_map<string, unsigned int>& ids = lightHandler->getLightIdentifierMap();
 
     size_t index = 0;
