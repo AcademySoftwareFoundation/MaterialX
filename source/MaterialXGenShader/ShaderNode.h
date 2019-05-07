@@ -172,7 +172,7 @@ class ShaderOutput : public ShaderPort
     void breakConnection(ShaderInput* dst);
 
     /// Break all connections from this output
-    void breakConnection();
+    void breakConnections();
 
   protected:
     ShaderInputSet _connections;
