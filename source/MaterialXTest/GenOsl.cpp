@@ -125,7 +125,8 @@ static void generateOslCode()
     OslShaderGeneratorTester tester(mx::OslShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath);
  
     const mx::GenOptions genOptions;
-    tester.testGeneration(genOptions);
+    mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
+    tester.validate(genOptions, optionsFilePath);
 }
 
 TEST_CASE("GenShader: OSL Shader Generation", "[genosl]")

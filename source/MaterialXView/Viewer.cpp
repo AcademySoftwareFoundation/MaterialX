@@ -872,26 +872,29 @@ void Viewer::saveDotFiles()
         if (elem)
         {
             mx::ShaderRefPtr shaderRef = elem->asA<mx::ShaderRef>();
-            for (mx::BindInputPtr bindInput : shaderRef->getBindInputs())
+            if (shaderRef)
             {
-                mx::OutputPtr output = bindInput->getConnectedOutput();
-                mx::ConstNodeGraphPtr nodeGraph = output ? output->getAncestorOfType<mx::NodeGraph>() : nullptr;
+                for (mx::BindInputPtr bindInput : shaderRef->getBindInputs())
+                {
+                    mx::OutputPtr output = bindInput->getConnectedOutput();
+                    mx::ConstNodeGraphPtr nodeGraph = output ? output->getAncestorOfType<mx::NodeGraph>() : nullptr;
+                    if (nodeGraph)
+                    {
+                        std::string dot = nodeGraph->asStringDot();
+                        std::string baseName = _searchPath[0] / nodeGraph->getName();
+                        writeTextFile(dot, baseName + ".dot");
+                    }
+                }
+
+                mx::NodeDefPtr nodeDef = shaderRef ? shaderRef->getNodeDef() : nullptr;
+                mx::InterfaceElementPtr implement = nodeDef ? nodeDef->getImplementation() : nullptr;
+                mx::NodeGraphPtr nodeGraph = implement ? implement->asA<mx::NodeGraph>() : nullptr;
                 if (nodeGraph)
                 {
                     std::string dot = nodeGraph->asStringDot();
-                    std::string baseName = _searchPath[0] / nodeGraph->getName();
+                    std::string baseName = _searchPath[0] / nodeDef->getName();
                     writeTextFile(dot, baseName + ".dot");
                 }
-            }
-
-            mx::NodeDefPtr nodeDef = shaderRef ? shaderRef->getNodeDef() : nullptr;
-            mx::InterfaceElementPtr implement = nodeDef ? nodeDef->getImplementation() : nullptr;
-            mx::NodeGraphPtr nodeGraph = implement ? implement->asA<mx::NodeGraph>() : nullptr;
-            if (nodeGraph)
-            {
-                std::string dot = nodeGraph->asStringDot();
-                std::string baseName = _searchPath[0] / nodeDef->getName();
-                writeTextFile(dot, baseName + ".dot");
             }
         }
     }

@@ -35,6 +35,17 @@ class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         GenShaderUtil::loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), _dependLib);
         GenShaderUtil::loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), _dependLib);
     }
+
+  protected:
+    void getImplementationWhiteList(mx::StringSet& whiteList) override
+    {
+        whiteList =
+        {
+            "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
+            "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue", "IM_light_genglsl",
+            "IM_point_light_genglsl", "IM_spot_light_genglsl", "IM_directional_light_genglsl"
+        };
+    }
 };
 
 #endif // GENGLSL_H

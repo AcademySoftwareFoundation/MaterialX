@@ -57,7 +57,8 @@ static void generateArnoldOslCode()
     OslShaderGeneratorTester tester(mx::ArnoldShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath);
  
     const mx::GenOptions genOptions;
-    tester.testGeneration(genOptions);
+    mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
+    tester.validate(genOptions, optionsFilePath);
 }
 
 TEST_CASE("GenShader: Arnold Shader Generation", "[genosl]")

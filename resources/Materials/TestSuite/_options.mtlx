@@ -10,7 +10,7 @@
    can also be performed depending on the options enabled.
 -->
 <materialx version="1.36">
-   <nodedef name="RenderTestOptions">
+   <nodedef name="TestSuiteOptions">
 
       <!-- List of comma separated file names acts as a filter to only test documents with these names -->
       <parameter name="overrideFiles" type="string" value="" />

@@ -35,12 +35,10 @@ class ArnoldShaderRenderTester : public RenderUtil::ShaderRenderTester
                       mx::GenContext& context,
                       mx::DocumentPtr doc,
                       std::ostream& log,
-                      const RenderUtil::RenderTestOptions& testOptions,
+                      const GenShaderUtil::TestSuiteOptions& testOptions,
                       RenderUtil::RenderProfileTimes& profileTimes,
                       const mx::FileSearchPath& imageSearchPath,
                       const std::string& outputPath = ".") override;
-
-    void getImplementationWhiteList(mx::StringSet& whiteList) override;
 };
 
 void ArnoldShaderRenderTester::createValidator(std::ostream& /*log*/)
@@ -52,7 +50,7 @@ bool ArnoldShaderRenderTester::runValidator(const std::string& shaderName,
                                             mx::GenContext& context,
                                             mx::DocumentPtr doc,
                                             std::ostream& log,
-                                            const RenderUtil::RenderTestOptions& testOptions,
+                                            const GenShaderUtil::TestSuiteOptions& testOptions,
                                             RenderUtil::RenderProfileTimes& profileTimes,
                                             const mx::FileSearchPath& /*imageSearchPath*/,
                                             const std::string& outputPath)
@@ -138,16 +136,6 @@ bool ArnoldShaderRenderTester::runValidator(const std::string& shaderName,
 
     return true;
 }
-
-void ArnoldShaderRenderTester::getImplementationWhiteList(mx::StringSet& whiteList)
-{
-    whiteList =
-    {
-        "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
-        "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue"
-    };
-}
-
 
 TEST_CASE("Render: Arnold TestSuite", "[renderosl]")
 {

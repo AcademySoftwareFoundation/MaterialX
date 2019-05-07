@@ -42,88 +42,6 @@ namespace RenderUtil
 void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::GenContext& context,
     const mx::FilePath& envIrradiancePath, const mx::FilePath& envRadiancePath);
 
-//
-// Render validation options. Reflects the _options.mtlx
-// file in the test suite area.
-//
-class RenderTestOptions
-{
-  public:
-    // Print out options
-    void print(std::ostream& output) const;
-
-    // Option options from an options file
-    bool readOptions(const std::string& optionFile);
-
-    // Filter list of files to only run validation on.
-    mx::StringVec overrideFiles;
-
-    // List of language,target pair identifier storage as
-    // strings in the form <language>_<target>.
-    mx::StringSet languageAndTargets;
-
-    // Comma separated list of light setup files
-    mx::StringVec lightFiles;
-
-    // Set to true to always dump generated code to disk
-    bool dumpGeneratedCode = false;
-
-    // Check the count of number of implementations used
-    bool checkImplCount = true;
-
-    // Run using a set of interfaces:
-    // - 3 = run complete + reduced.
-    // - 2 = run complete only (default)
-    // - 1 = run reduced only.
-    int shaderInterfaces = 2;
-
-    // Validate element before attempting to generate code. Default is false.
-    bool validateElementToRender = false;
-
-    // Perform source code compilation validation test
-    bool compileCode = true;
-
-    // Perform rendering validation test
-    bool renderImages = true;
-
-    // Perform saving of image.
-    bool saveImages = true;
-
-    // Set this to be true if it is desired to dump out uniform and attribut information to the logging file.
-    bool dumpUniformsAndAttributes = true;
-
-    // Non-shaded geometry file
-    MaterialX::FilePath unShadedGeometry;
-
-    // Shaded geometry file
-    MaterialX::FilePath shadedGeometry;
-
-    // Amount to scale geometry. 
-    float geometryScale;
-
-    // Enable direct lighting. Default is true. 
-    bool enableDirectLighting;
-
-    // Enable indirect lighting. Default is true. 
-    bool enableIndirectLighting;
-
-    // Method for specular environment sampling (only used for HW rendering):
-    //   0 : Prefiltered - Use a radiance IBL texture that has been prefiltered with the BRDF.
-    //   1 : Filtered Importance Sampling - Use FIS to sample the IBL texture according to the BRDF in runtime.
-    // Default value is 1.
-    int specularEnvironmentMethod;
-
-    // Radiance IBL file.
-    mx::FilePath radianceIBLPath;
-
-    // Irradiance IBL file.
-    mx::FilePath irradianceIBLPath;
-
-    // Transforms UVs of loaded geometry
-    MaterialX::Matrix44 transformUVs;
-
-};
-
 // Scoped timer which adds a duration to a given externally reference timing duration
 //
 class AdditiveScopedTimer
@@ -239,10 +157,17 @@ class ShaderRenderTester
 
   protected:
     // Check if testing should be performed based in input options
-    virtual bool runTest(const RenderUtil::RenderTestOptions& testOptions)
+#if defined(MATERIALX_TEST_RENDER)
+    virtual bool runTest(const GenShaderUtil::TestSuiteOptions& testOptions)
     {
         return (testOptions.languageAndTargets.count(_languageTargetString) > 0);
     }
+#else
+    virtual bool runTest(const GenShaderUtil::TestSuiteOptions& /*testOptions*/)
+    {
+        return false;
+    }
+#endif
 
     // Add files to skip
     void addSkipFiles()
@@ -255,7 +180,7 @@ class ShaderRenderTester
 
     // Load any additional libraries requird by the generator
     virtual void loadLibraries(mx::DocumentPtr /*dependLib*/,
-                               RenderUtil::RenderTestOptions& /*options*/) {};
+                               GenShaderUtil::TestSuiteOptions& /*options*/) {};
 
     //
     // Code generation methods
@@ -266,7 +191,7 @@ class ShaderRenderTester
 
     // Register any lights used by the generation context
     virtual void registerLights(mx::DocumentPtr /*dependLib*/,
-                                const RenderUtil::RenderTestOptions &/*options*/,
+                                const GenShaderUtil::TestSuiteOptions &/*options*/,
                                 mx::GenContext& /*context*/) {};
 
     //
@@ -282,37 +207,22 @@ class ShaderRenderTester
         mx::GenContext& context,
         mx::DocumentPtr doc,
         std::ostream& log,
-        const RenderUtil::RenderTestOptions& testOptions,
+        const GenShaderUtil::TestSuiteOptions& testOptions,
         RenderUtil::RenderProfileTimes& profileTimes,
         const mx::FileSearchPath& imageSearchPath,
         const std::string& outputPath = ".") = 0;
 
     // Create a list of generation options based on unit test options
     // These options will override the original generation context options.
-    void getGenerationOptions(const RenderTestOptions& testOptions,
+    void getGenerationOptions(const GenShaderUtil::TestSuiteOptions& testOptions,
                               const mx::GenOptions& originalOptions,
                               std::vector<mx::GenOptions>& optionsList);
 
-    // Get implemenation "whitelist" for those implementations that have
-    // been skipped for checking
-    virtual void getImplementationWhiteList(mx::StringSet& whiteList) = 0;
-
-    // Check to see that all implemenations have been tested for a given
-    // lanuage.
-    void checkImplementationUsage(const std::string& language,
-                                  mx::StringSet& usedImpls,
-                                  mx::DocumentPtr dependLib,
-                                  mx::GenContext& context,
-                                  std::ostream& stream);
-
     // Print execution summary
     void printRunLog(const RenderProfileTimes &profileTimes,
-                     const RenderTestOptions& options,
-                     mx::StringSet& usedImpls,
+                     const GenShaderUtil::TestSuiteOptions& options,
                      std::ostream& stream,
-                     mx::DocumentPtr dependLib,
-                     mx::GenContext& context,
-                     const std::string& language);
+                     mx::DocumentPtr dependLib);
 
     // Generator to use
     mx::ShaderGeneratorPtr _shaderGenerator;
