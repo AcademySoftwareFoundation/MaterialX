@@ -16,7 +16,7 @@ namespace mx = MaterialX;
 
 class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
 {
-public:
+  public:
     using ParentClass = GenShaderUtil::ShaderGeneratorTester;
 
     OslShaderGeneratorTester(mx::ShaderGeneratorPtr shaderGenerator, const std::vector<mx::FilePath>& testRootPaths,
@@ -48,6 +48,16 @@ public:
     // No direct lighting to register for OSL
     void registerLights(mx::DocumentPtr /*doc*/, const std::vector<mx::NodePtr>& /*lights*/, mx::GenContext& /*context*/) override
     {
+    }
+
+  protected:
+    void getImplementationWhiteList(mx::StringSet& whiteList) override
+    {
+        whiteList =
+        {
+            "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
+            "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue"
+        };
     }
 };
 

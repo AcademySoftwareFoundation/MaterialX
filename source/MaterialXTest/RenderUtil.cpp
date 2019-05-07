@@ -27,179 +27,6 @@ void createLightRig(mx::DocumentPtr doc, mx::LightHandler& lightHandler, mx::Gen
     lightHandler.setLightEnvRadiancePath(envRadiancePath);
 }
 
-void RenderTestOptions::print(std::ostream& output) const
-{
-    output << "Render Test Options:" << std::endl;
-    output << "\tOverride Files: { ";
-    for (auto overrideFile : overrideFiles) { output << overrideFile << " "; }
-    output << "} " << std::endl;
-    output << "\tLight Setup Files: { ";
-    for (auto lightFile : lightFiles) { output << lightFile << " "; }
-    output << "} " << std::endl;
-    output << "\tLanguage / Targets to run: " << std::endl;
-    for (auto  l : languageAndTargets)
-    {
-        mx::StringVec languageAndTarget = mx::splitString(l, "_");
-        size_t count = languageAndTarget.size();
-        output << "\t\tLanguage: " << ((count > 0) ? languageAndTarget[0] : "NONE") << ". ";
-        output << "Target: " << ((count > 1) ? languageAndTarget[1] : "NONE");
-        output << std::endl;
-    }
-    output << "\tCheck Implementation Usage Count: " << checkImplCount << std::endl;
-    output << "\tDump Generated Code: " << dumpGeneratedCode << std::endl;
-    output << "\tShader Interfaces: " << shaderInterfaces << std::endl;
-    output << "\tValidate Element To Render: " << validateElementToRender << std::endl;
-    output << "\tCompile code: " << compileCode << std::endl;
-    output << "\tRender Images: " << renderImages << std::endl;
-    output << "\tSave Images: " << saveImages << std::endl;
-    output << "\tDump uniforms and Attributes  " << dumpUniformsAndAttributes << std::endl;
-    output << "\tNon-Shaded Geometry: " << unShadedGeometry.asString() << std::endl;
-    output << "\tShaded Geometry: " << shadedGeometry.asString() << std::endl;
-    output << "\tRadiance IBL File Path " << radianceIBLPath.asString() << std::endl;
-    output << "\tIrradiance IBL File Path: " << irradianceIBLPath.asString() << std::endl;
-}
-
-
-
-bool RenderTestOptions::readOptions(const std::string& optionFile)
-{
-    // These strings should make the input names defined in the
-    // RenderTestOptions nodedef in test suite file _options.mtlx
-    //
-    const std::string RENDER_TEST_OPTIONS_STRING("RenderTestOptions");
-    const std::string OVERRIDE_FILES_STRING("overrideFiles");
-    const std::string LANGUAGE_AND_TARGETS_STRING("languageAndTargets");
-    const std::string LIGHT_FILES_STRING("lightFiles");
-    const std::string SHADER_INTERFACES_STRING("shaderInterfaces");
-    const std::string VALIDATE_ELEMENT_TO_RENDER_STRING("validateElementToRender");
-    const std::string COMPILE_CODE_STRING("compileCode");
-    const std::string RENDER_IMAGES_STRING("renderImages");
-    const std::string SAVE_IMAGES_STRING("saveImages");
-    const std::string DUMP_UNIFORMS_AND_ATTRIBUTES_STRING("dumpUniformsAndAttributes");
-    const std::string CHECK_IMPL_COUNT_STRING("checkImplCount");
-    const std::string DUMP_GENERATED_CODE_STRING("dumpGeneratedCode");
-    const std::string UNSHADED_GEOMETRY_STRING("unShadedGeometry");
-    const std::string SHADED_GEOMETRY_STRING("shadedGeometry");
-    const std::string RADIANCE_IBL_PATH_STRING("radianceIBLPath");
-    const std::string IRRADIANCE_IBL_PATH_STRING("irradianceIBLPath");
-    const std::string SPHERE_OBJ("sphere.obj");
-    const std::string SHADERBALL_OBJ("shaderball.obj");
-
-    overrideFiles.clear();
-    dumpGeneratedCode = false;
-    unShadedGeometry = SPHERE_OBJ;
-    shadedGeometry = SHADERBALL_OBJ;
-
-    MaterialX::DocumentPtr doc = MaterialX::createDocument();
-    try {
-        MaterialX::readFromXmlFile(doc, optionFile);
-
-        MaterialX::NodeDefPtr optionDefs = doc->getNodeDef(RENDER_TEST_OPTIONS_STRING);
-        if (optionDefs)
-        {
-            for (MaterialX::ParameterPtr p : optionDefs->getParameters())
-            {
-                const std::string& name = p->getName();
-                MaterialX::ValuePtr val = p->getValue();
-                if (val)
-                {
-                    if (name == OVERRIDE_FILES_STRING)
-                    {
-                        overrideFiles = MaterialX::splitString(p->getValueString(), ",");
-                    }
-                    if (name == LIGHT_FILES_STRING)
-                    {
-                        lightFiles = MaterialX::splitString(p->getValueString(), ",");
-                    }
-                    else if (name == SHADER_INTERFACES_STRING)
-                    {
-                        shaderInterfaces = val->asA<int>();
-                    }
-                    else if (name == VALIDATE_ELEMENT_TO_RENDER_STRING)
-                    {
-                        validateElementToRender = val->asA<bool>();
-                    }
-                    else if (name == COMPILE_CODE_STRING)
-                    {
-                        compileCode = val->asA<bool>();
-                    }
-                    else if (name == RENDER_IMAGES_STRING)
-                    {
-                        renderImages = val->asA<bool>();
-                    }
-                    else if (name == SAVE_IMAGES_STRING)
-                    {
-                        saveImages = val->asA<bool>();
-                    }
-                    else if (name == DUMP_UNIFORMS_AND_ATTRIBUTES_STRING)
-                    {
-                        dumpUniformsAndAttributes = val->asA<bool>();
-                    }
-                    else if (name == LANGUAGE_AND_TARGETS_STRING)
-                    {
-                        #if defined(MATERIALX_TEST_RENDER)
-                        mx::StringVec list =  mx::splitString(p->getValueString(), ",");
-                        for (auto l : list)
-                        {
-                            languageAndTargets.insert(l);
-                        }
-                        #endif
-                    }
-                    else if (name == CHECK_IMPL_COUNT_STRING)
-                    {
-                        checkImplCount = val->asA<bool>();
-                    }
-                    else if (name == DUMP_GENERATED_CODE_STRING)
-                    {
-                        dumpGeneratedCode = val->asA<bool>();
-                    }
-                    else if (name == UNSHADED_GEOMETRY_STRING)
-                    {
-                        unShadedGeometry = p->getValueString();
-                    }
-                    else if (name == SHADED_GEOMETRY_STRING)
-                    {
-                        shadedGeometry = p->getValueString();
-                    }
-                    else if (name == RADIANCE_IBL_PATH_STRING)
-                    {
-                        radianceIBLPath = p->getValueString();
-                    }
-                    else if (name == IRRADIANCE_IBL_PATH_STRING)
-                    {
-                        irradianceIBLPath = p->getValueString();
-                    }
-                }
-            }
-        }
-
-        // Disable render and save of images if not compiled code will be generated
-        if (!compileCode)
-        {
-            renderImages = false;
-            saveImages = false;
-        }
-        // Disable saving images, if no images are to be produced
-        if (!renderImages)
-        {
-            saveImages = false;
-        }
-
-        // If there is a filter on the files to run turn off profile checking
-        if (!overrideFiles.empty())
-        {
-            checkImplCount = false;
-        }
-        return true;
-    }
-    catch (mx::Exception& e)
-    {
-        std::cout << e.what();
-    }
-    return false;
-}
-
-
 ShaderRenderTester::ShaderRenderTester(mx::ShaderGeneratorPtr shaderGenerator) :
     _shaderGenerator(shaderGenerator),
     _languageTargetString(shaderGenerator->getLanguage() + "_" + shaderGenerator->getTarget())
@@ -212,7 +39,7 @@ ShaderRenderTester::~ShaderRenderTester()
 
 // Create a list of generation options based on unit test options
 // These options will override the original generation context options.
-void ShaderRenderTester::getGenerationOptions(const RenderTestOptions& testOptions,
+void ShaderRenderTester::getGenerationOptions(const GenShaderUtil::TestSuiteOptions& testOptions,
                                               const mx::GenOptions& originalOptions,
                                               std::vector<mx::GenOptions>& optionsList)
 {
@@ -232,123 +59,38 @@ void ShaderRenderTester::getGenerationOptions(const RenderTestOptions& testOptio
     }
 }
 
-void ShaderRenderTester::checkImplementationUsage(const std::string& language,
-                                                  mx::StringSet& usedImpls,
-                                                  mx::DocumentPtr dependLib,
-                                                  mx::GenContext& context,
-                                                  std::ostream& stream)
-{
-    // Get list of implementations a given langauge.
-    std::set<mx::ImplementationPtr> libraryImpls;
-    const std::vector<mx::ElementPtr>& children = dependLib->getChildren();
-    for (auto child : children)
-    {
-        mx::ImplementationPtr impl = child->asA<mx::Implementation>();
-        if (!impl)
-        {
-            continue;
-        }
-
-        if (impl->getLanguage() == language)
-        {
-            libraryImpls.insert(impl);
-        }
-    }
-
-    mx::StringSet whiteList;
-    getImplementationWhiteList(whiteList);
-
-    unsigned int implementationUseCount = 0;
-    mx::StringVec skippedImplementations;
-    mx::StringVec missedImplementations;
-    for (auto libraryImpl : libraryImpls)
-    {
-        const std::string& implName = libraryImpl->getName();
-
-        // Skip white-list items
-        bool inWhiteList = false;
-        for (auto w : whiteList)
-        {
-            if (implName.find(w) != std::string::npos)
-            {
-                inWhiteList = true;
-                break;
-            }
-        }
-        if (inWhiteList)
-        {
-            skippedImplementations.push_back(implName);
-            implementationUseCount++;
-            continue;
-        }
-
-        if (usedImpls.count(implName))
-        {
-            implementationUseCount++;
-            continue;
-        }
-
-        if (context.findNodeImplementation(implName))
-        {
-            implementationUseCount++;
-            continue;
-        }
-        missedImplementations.push_back(implName);
-    }
-
-    size_t libraryCount = libraryImpls.size();
-    stream << "Tested: " << implementationUseCount << " out of: " << libraryCount << " library implementations." << std::endl;
-    stream << "Skipped: " << skippedImplementations.size() << " implementations." << std::endl;
-    if (skippedImplementations.size())
-    {
-        for (auto implName : skippedImplementations)
-        {
-            stream << "\t" << implName << std::endl;
-        }
-    }
-    stream << "Untested: " << missedImplementations.size() << " implementations." << std::endl;
-    if (missedImplementations.size())
-    {
-        for (auto implName : missedImplementations)
-        {
-            stream << "\t" << implName << std::endl;
-        }
-        CHECK(implementationUseCount == libraryCount);
-    }
-}
-
 void ShaderRenderTester::printRunLog(const RenderProfileTimes &profileTimes,
-                                     const RenderTestOptions& options,
-                                     mx::StringSet& usedImpls,
+                                     const GenShaderUtil::TestSuiteOptions& options,
                                      std::ostream& stream,
-                                     mx::DocumentPtr dependLib,
-                                     mx::GenContext& context,
-                                     const std::string& language)
+                                     mx::DocumentPtr dependLib)
 {
     profileTimes.print(stream);
 
     stream << "---------------------------------------" << std::endl;
     options.print(stream);
 
-    if (options.checkImplCount)
-    {
-        stream << "---------------------------------------" << std::endl;
-        checkImplementationUsage(language, usedImpls, dependLib, context, stream);
-    }
+    //if (options.checkImplCount)
+    //{
+    //    stream << "---------------------------------------" << std::endl;
+    //    mx::StringSet whiteList;
+    //    getImplementationWhiteList(whiteList);
+    //    GenShaderUtil::checkImplementationUsage(language, usedImpls, whiteList, dependLib, context, stream);
+    //}
 }
 
 bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx::FilePath optionsFilePath)
 {
     // Test has been turned off so just do nothing.
     // Check for an option file
-    RenderUtil::RenderTestOptions options;
+    GenShaderUtil::TestSuiteOptions options;
     if (!options.readOptions(optionsFilePath))
     {
+        std::cout << "Can't find options file. Skip test." << std::endl;
         return false;
     }
-    bool run = runTest(options);
-    if (!run)
+    if (!runTest(options))
     {
+        std::cout << "Language / target: " << _languageTargetString << " not set to run. Skip test." << std::endl;
         return false;
     }
 
@@ -372,9 +114,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     std::ostream& profilingLog(std::cout);
 #endif
 
-    // For debugging, add files to this set to override
-    // which files in the test suite are being tested.
-    // Add only the test suite filename not the full path.
+    // Add files to override the files in the test suite to be tested.
     mx::StringSet testfileOverride;
     for (auto filterFile : options.overrideFiles)
     {
@@ -541,8 +281,8 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
     // Dump out profiling information
     totalTime.endTimer();
-    printRunLog(profileTimes, options, usedImpls, profilingLog, dependLib, context,
-                _shaderGenerator->getLanguage());
+    printRunLog(profileTimes, options, profilingLog, dependLib);
+
     return true;
 }
 
