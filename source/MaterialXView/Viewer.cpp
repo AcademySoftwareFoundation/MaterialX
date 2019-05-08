@@ -528,10 +528,6 @@ void Viewer::createLoadMaterialsInterface(Widget* parent, const std::string labe
                                         break;
                                     }
                                 }
-                                if (assignedMaterial)
-                                {
-                                    break;
-                                }
                             }
                             if (!assignedMaterial)
                             {
