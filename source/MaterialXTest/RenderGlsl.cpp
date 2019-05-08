@@ -7,6 +7,8 @@
 #include <MaterialXRenderGlsl/GlslValidator.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
 
+#include <MaterialXCore/Types.h>
+
 #ifdef MATERIALX_BUILD_OIIO
 #include <MaterialXRender/OiioImageLoader.h>
 #endif
@@ -33,49 +35,32 @@ namespace mx = MaterialX;
 class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
 {
   public:
-    GlslShaderRenderTester() :
-        _languageTargetString(mx::GlslShaderGenerator::LANGUAGE + "_" +
-        mx::GlslShaderGenerator::TARGET)
+    explicit GlslShaderRenderTester(mx::ShaderGeneratorPtr shaderGenerator) :
+        RenderUtil::ShaderRenderTester(shaderGenerator)
     {
     }
 
   protected:
-    const std::string& languageTargetString() override
-    {
-        return _languageTargetString;
-    }
-
-    bool runTest(const RenderUtil::RenderTestOptions& testOptions) const override
-    {
-        return (testOptions.languageAndTargets.count(_languageTargetString) > 0);
-    }
-
     void loadLibraries(mx::DocumentPtr document,
-                       RenderUtil::RenderTestOptions& options) override;
+                       GenShaderUtil::TestSuiteOptions& options) override;
 
-    void createShaderGenerator() override
-    {
-        _shaderGenerator = mx::GlslShaderGenerator::create();
-    }
-
-    void registerLights(mx::DocumentPtr document,
-                        const RenderUtil::RenderTestOptions &options, mx::GenContext& context) override;
+    void registerLights(mx::DocumentPtr document, const GenShaderUtil::TestSuiteOptions &options, 
+                        mx::GenContext& context) override;
 
     void createValidator(std::ostream& log) override;
+
+    void transformUVs(const mx::MeshList& meshes, const mx::Matrix44& matrixTransform) const;
 
     bool runValidator(const std::string& shaderName,
                       mx::TypedElementPtr element,
                       mx::GenContext& context,
                       mx::DocumentPtr doc,
                       std::ostream& log,
-                      const RenderUtil::RenderTestOptions& testOptions,
+                      const GenShaderUtil::TestSuiteOptions& testOptions,
                       RenderUtil::RenderProfileTimes& profileTimes,
                       const mx::FileSearchPath& imageSearchPath,
                       const std::string& outputPath = ".") override;
 
-    void getImplementationWhiteList(mx::StringSet& whiteList) override;
-
-    std::string _languageTargetString;
     mx::GlslValidatorPtr _validator;
     mx::LightHandlerPtr _lightHandler;
 };
@@ -85,28 +70,18 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
 // compound light type and a set of lights in a "light rig" are loaded in to a given
 // document.
 void GlslShaderRenderTester::loadLibraries(mx::DocumentPtr document,
-                                           RenderUtil::RenderTestOptions& options)
+                                           GenShaderUtil::TestSuiteOptions& options)
 {
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/Utilities/Lights");
-    if (options.lightFiles.size() == 0)
+    for (auto lightFile : options.lightFiles)
     {
-        GenShaderUtil::loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), document);
-        GenShaderUtil::loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), document);
-        GenShaderUtil::loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), document);
+        GenShaderUtil::loadLibrary(lightDir / mx::FilePath(lightFile), document);
     }
-    else
-    {
-        for (auto lightFile : options.lightFiles)
-        {
-            GenShaderUtil::loadLibrary(lightDir / mx::FilePath(lightFile), document);
-        }
-    }
-
 }
 
 // Create a light handler and populate it based on lights found in a given document
 void GlslShaderRenderTester::registerLights(mx::DocumentPtr document,
-                                            const RenderUtil::RenderTestOptions &options,
+                                            const GenShaderUtil::TestSuiteOptions &options,
                                             mx::GenContext& context)
 {
     _lightHandler = mx::LightHandler::create();
@@ -233,12 +208,26 @@ void addAdditionalTestStreams(mx::MeshPtr mesh)
     }
 }
 
+void GlslShaderRenderTester::transformUVs(const mx::MeshList& meshes, const mx::Matrix44& matrixTransform) const
+{
+    for(mx::MeshPtr mesh : meshes)
+    {
+        mx::MeshStreamPtr uvStream = mesh->getStream(mx::MeshStream::TEXCOORD_ATTRIBUTE, 0);
+        uvStream->transform(matrixTransform);
+        mx::MeshStreamPtr positionStream = mesh->getStream(mx::MeshStream::POSITION_ATTRIBUTE, 0);
+        mx::MeshStreamPtr normalStream = mesh->getStream(mx::MeshStream::NORMAL_ATTRIBUTE, 0);
+        mx::MeshStreamPtr tangentStream = mesh->getStream(mx::MeshStream::TANGENT_ATTRIBUTE, 0);
+        mx::MeshStreamPtr bitangentStream = mesh->getStream(mx::MeshStream::BITANGENT_ATTRIBUTE, 0);
+        mesh->generateTangents(positionStream, uvStream, normalStream, tangentStream, bitangentStream);
+    }
+}
+
 bool GlslShaderRenderTester::runValidator(const std::string& shaderName,
                                           mx::TypedElementPtr element,
                                           mx::GenContext& context,
                                           mx::DocumentPtr doc,
                                           std::ostream& log,
-                                          const RenderUtil::RenderTestOptions& testOptions,
+                                          const GenShaderUtil::TestSuiteOptions& testOptions,
                                           RenderUtil::RenderProfileTimes& profileTimes,
                                           const mx::FileSearchPath& imageSearchPath,
                                           const std::string& outputPath)
@@ -294,7 +283,7 @@ bool GlslShaderRenderTester::runValidator(const std::string& shaderName,
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
-                contextOptions.fileTextureVerticalFlip = true;
+                contextOptions.hwSpecularEnvironmentMethod = testOptions.specularEnvironmentMethod;
                 shader = shadergen.generate(shaderName, element, context);
                 generationTimer.endTimer();
             }
@@ -367,6 +356,7 @@ bool GlslShaderRenderTester::runValidator(const std::string& shaderName,
                         if (!meshes.empty())
                         {
                             addAdditionalTestStreams(meshes[0]);
+                            transformUVs(meshes, testOptions.transformUVs);
                         }
                     }
 
@@ -400,6 +390,7 @@ bool GlslShaderRenderTester::runValidator(const std::string& shaderName,
                         if (!meshes.empty())
                         {
                             addAdditionalTestStreams(meshes[0]);
+                            transformUVs(meshes, testOptions.transformUVs);
                         }
                     }
 
@@ -508,18 +499,9 @@ bool GlslShaderRenderTester::runValidator(const std::string& shaderName,
     return true;
 }
 
-void GlslShaderRenderTester::getImplementationWhiteList(mx::StringSet& whiteList)
-{
-    whiteList =
-    {
-        "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
-        "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue", "IM_light_genglsl"
-    };
-}
-
 TEST_CASE("Render: GLSL TestSuite", "[renderglsl]")
 {
-    GlslShaderRenderTester renderTester;
+    GlslShaderRenderTester renderTester(mx::GlslShaderGenerator::create());
 
     mx::FilePathVec testRootPaths;
     mx::FilePath testRoot = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");

@@ -509,19 +509,19 @@
   <implementation name="IM_remap_vector4FA_genglsl" nodedef="ND_remap_vector4FA" file="stdlib/genglsl/mx_remap.inline" language="genglsl"/>
 
   <!-- <smoothstep> -->
-  <implementation name="IM_smoothstep_float_genglsl" nodedef="ND_smoothstep_float" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_color2_genglsl" nodedef="ND_smoothstep_color2" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_color2FA_genglsl" nodedef="ND_smoothstep_color2FA" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_color3_genglsl" nodedef="ND_smoothstep_color3" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_color3FA_genglsl" nodedef="ND_smoothstep_color3FA" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_color4_genglsl" nodedef="ND_smoothstep_color4" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_color4FA_genglsl" nodedef="ND_smoothstep_color4FA" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_vector2_genglsl" nodedef="ND_smoothstep_vector2" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_vector2FA_genglsl" nodedef="ND_smoothstep_vector2FA" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_vector3_genglsl" nodedef="ND_smoothstep_vector3" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_vector3FA_genglsl" nodedef="ND_smoothstep_vector3FA" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_vector4_genglsl" nodedef="ND_smoothstep_vector4" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
-  <implementation name="IM_smoothstep_vector4FA_genglsl" nodedef="ND_smoothstep_vector4FA" file="stdlib/genglsl/mx_smoothstep.inline" language="genglsl"/>
+  <implementation name="IM_smoothstep_float_genglsl" nodedef="ND_smoothstep_float" file="stdlib/genglsl/mx_smoothstep_float.glsl" function="mx_smoothstep_float" language="genglsl"/>
+  <implementation name="IM_smoothstep_color2_genglsl" nodedef="ND_smoothstep_color2" file="stdlib/genglsl/mx_smoothstep_vec2.glsl" function="mx_smoothstep_vec2" language="genglsl"/>
+  <implementation name="IM_smoothstep_color2FA_genglsl" nodedef="ND_smoothstep_color2FA" file="stdlib/genglsl/mx_smoothstep_vec2FA.glsl" function="mx_smoothstep_vec2FA" language="genglsl"/>
+  <implementation name="IM_smoothstep_color3_genglsl" nodedef="ND_smoothstep_color3" file="stdlib/genglsl/mx_smoothstep_vec3.glsl" function="mx_smoothstep_vec3" language="genglsl"/>
+  <implementation name="IM_smoothstep_color3FA_genglsl" nodedef="ND_smoothstep_color3FA" file="stdlib/genglsl/mx_smoothstep_vec3FA.glsl" function="mx_smoothstep_vec3FA" language="genglsl"/>
+  <implementation name="IM_smoothstep_color4_genglsl" nodedef="ND_smoothstep_color4" file="stdlib/genglsl/mx_smoothstep_vec4.glsl" function="mx_smoothstep_vec4" language="genglsl"/>
+  <implementation name="IM_smoothstep_color4FA_genglsl" nodedef="ND_smoothstep_color4FA" file="stdlib/genglsl/mx_smoothstep_vec4FA.glsl" function="mx_smoothstep_vec4FA" language="genglsl"/>
+  <implementation name="IM_smoothstep_vector2_genglsl" nodedef="ND_smoothstep_vector2" file="stdlib/genglsl/mx_smoothstep_vec2.glsl" function="mx_smoothstep_vec2" language="genglsl"/>
+  <implementation name="IM_smoothstep_vector2FA_genglsl" nodedef="ND_smoothstep_vector2FA" file="stdlib/genglsl/mx_smoothstep_vec2FA.glsl" function="mx_smoothstep_vec2FA" language="genglsl"/>
+  <implementation name="IM_smoothstep_vector3_genglsl" nodedef="ND_smoothstep_vector3" file="stdlib/genglsl/mx_smoothstep_vec3.glsl" function="mx_smoothstep_vec3" language="genglsl"/>
+  <implementation name="IM_smoothstep_vector3FA_genglsl" nodedef="ND_smoothstep_vector3FA" file="stdlib/genglsl/mx_smoothstep_vec3FA.glsl" function="mx_smoothstep_vec3FA" language="genglsl"/>
+  <implementation name="IM_smoothstep_vector4_genglsl" nodedef="ND_smoothstep_vector4" file="stdlib/genglsl/mx_smoothstep_vec4.glsl" function="mx_smoothstep_vec4" language="genglsl"/>
+  <implementation name="IM_smoothstep_vector4FA_genglsl" nodedef="ND_smoothstep_vector4FA" file="stdlib/genglsl/mx_smoothstep_vec4FA.glsl" function="mx_smoothstep_vec4FA" language="genglsl"/>
 
   <!-- <saturate> -->
   <implementation name="IM_saturate_color3_genglsl" nodedef="ND_saturate_color3" file="stdlib/genglsl/mx_saturate_color3.glsl" function="mx_saturate_color3" language="genglsl"/>
@@ -572,16 +572,16 @@
   <implementation name="IM_difference_color4_genglsl" nodedef="ND_difference_color4" file="stdlib/genglsl/mx_difference.inline" language="genglsl"/>
 
   <!-- <burn> -->
-  <implementation name="IM_burn_float_genglsl" nodedef="ND_burn_float" file="stdlib/genglsl/mx_burn.inline" language="genglsl"/>
-  <implementation name="IM_burn_color2_genglsl" nodedef="ND_burn_color2" file="stdlib/genglsl/mx_burn.inline" language="genglsl"/>
-  <implementation name="IM_burn_color3_genglsl" nodedef="ND_burn_color3" file="stdlib/genglsl/mx_burn.inline" language="genglsl"/>
-  <implementation name="IM_burn_color4_genglsl" nodedef="ND_burn_color4" file="stdlib/genglsl/mx_burn.inline" language="genglsl"/>
+  <implementation name="IM_burn_float_genglsl" nodedef="ND_burn_float" file="stdlib/genglsl/mx_burn_float.glsl" function="mx_burn_float" language="genglsl"/>
+  <implementation name="IM_burn_color2_genglsl" nodedef="ND_burn_color2" file="stdlib/genglsl/mx_burn_color2.glsl" function="mx_burn_color2" language="genglsl"/>
+  <implementation name="IM_burn_color3_genglsl" nodedef="ND_burn_color3" file="stdlib/genglsl/mx_burn_color3.glsl" function="mx_burn_color3" language="genglsl"/>
+  <implementation name="IM_burn_color4_genglsl" nodedef="ND_burn_color4" file="stdlib/genglsl/mx_burn_color4.glsl" function="mx_burn_color4" language="genglsl"/>
 
   <!-- <dodge> -->
-  <implementation name="IM_dodge_float_genglsl" nodedef="ND_dodge_float" file="stdlib/genglsl/mx_dodge.inline" language="genglsl"/>
-  <implementation name="IM_dodge_color2_genglsl" nodedef="ND_dodge_color2" file="stdlib/genglsl/mx_dodge.inline" language="genglsl"/>
-  <implementation name="IM_dodge_color3_genglsl" nodedef="ND_dodge_color3" file="stdlib/genglsl/mx_dodge.inline" language="genglsl"/>
-  <implementation name="IM_dodge_color4_genglsl" nodedef="ND_dodge_color4" file="stdlib/genglsl/mx_dodge.inline" language="genglsl"/>
+  <implementation name="IM_dodge_float_genglsl" nodedef="ND_dodge_float" file="stdlib/genglsl/mx_dodge_float.glsl" function="mx_dodge_float" language="genglsl"/>
+  <implementation name="IM_dodge_color2_genglsl" nodedef="ND_dodge_color2" file="stdlib/genglsl/mx_dodge_color2.glsl" function="mx_dodge_color2" language="genglsl"/>
+  <implementation name="IM_dodge_color3_genglsl" nodedef="ND_dodge_color3" file="stdlib/genglsl/mx_dodge_color3.glsl" function="mx_dodge_color3" language="genglsl"/>
+  <implementation name="IM_dodge_color4_genglsl" nodedef="ND_dodge_color4" file="stdlib/genglsl/mx_dodge_color4.glsl" function="mx_dodge_color4" language="genglsl"/>
 
   <!-- <screen> -->
   <implementation name="IM_screen_float_genglsl" nodedef="ND_screen_float" file="stdlib/genglsl/mx_screen.inline" language="genglsl"/>
@@ -596,8 +596,8 @@
   <implementation name="IM_overlay_color4_genglsl" nodedef="ND_overlay_color4" file="stdlib/genglsl/mx_overlay_color4.glsl" function="mx_overlay_color4" language="genglsl"/>
 
   <!-- <disjointover> -->
-  <implementation name="IM_disjointover_color2_genglsl" nodedef="ND_disjointover_color2" file="stdlib/genglsl/mx_disjointover_color2.inline" language="genglsl"/>
-  <implementation name="IM_disjointover_color4_genglsl" nodedef="ND_disjointover_color4" file="stdlib/genglsl/mx_disjointover_color4.inline" language="genglsl"/>
+  <implementation name="IM_disjointover_color2_genglsl" nodedef="ND_disjointover_color2" file="stdlib/genglsl/mx_disjointover_color2.glsl" function="mx_disjointover_color2" language="genglsl"/>
+  <implementation name="IM_disjointover_color4_genglsl" nodedef="ND_disjointover_color4" file="stdlib/genglsl/mx_disjointover_color4.glsl" function="mx_disjointover_color4" language="genglsl"/>
 
   <!-- <in> -->
   <implementation name="IM_in_color2_genglsl" nodedef="ND_in_color2" file="stdlib/genglsl/mx_in_color2.inline" language="genglsl"/>

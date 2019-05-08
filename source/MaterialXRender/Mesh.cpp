@@ -52,7 +52,7 @@ bool Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr texcoord
     MeshFloatBuffer& tangents = tangentStream->getData();
     tangents.resize(positions.size());
     std::fill(tangents.begin(), tangents.end(), 0.0f);
-    const unsigned int tangentStride = 3;
+    const unsigned int tangentStride = MeshStream::STRIDE_3D;
     tangentStream->setStride(tangentStride);
 
     for (size_t i = 0; i < getPartitionCount(); i++)
@@ -64,9 +64,9 @@ bool Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr texcoord
         const MeshIndexBuffer& indicies = part->getIndices();
         for (size_t faceIndex = 0; faceIndex < part->getFaceCount(); faceIndex++)
         {
-            int i1 = indicies[faceIndex * 3 + 0];
-            int i2 = indicies[faceIndex * 3 + 1];
-            int i3 = indicies[faceIndex * 3 + 2];
+            int i1 = indicies[faceIndex * MeshStream::STRIDE_3D + 0];
+            int i2 = indicies[faceIndex * MeshStream::STRIDE_3D + 1];
+            int i3 = indicies[faceIndex * MeshStream::STRIDE_3D + 2];
 
             Vector3& v1 = *reinterpret_cast<Vector3*>(&(positions[i1 * positionStride]));
             Vector3& v2 = *reinterpret_cast<Vector3*>(&(positions[i2 * positionStride]));
@@ -171,14 +171,15 @@ void Mesh::splitByUdims()
 
     using UdimMap = std::map<uint32_t, MeshPartitionPtr>;
     UdimMap udimMap;
+    const unsigned int FACE_VERTEX_COUNT = 3;
     for (size_t p = 0; p < getPartitionCount(); p++)
     {
         MeshPartitionPtr part = getPartition(p);
         for (size_t f = 0; f < part->getFaceCount(); f++)
         {
-            uint32_t i0 = part->getIndices()[f * 3 + 0];
-            uint32_t i1 = part->getIndices()[f * 3 + 1];
-            uint32_t i2 = part->getIndices()[f * 3 + 2];
+            uint32_t i0 = part->getIndices()[f * FACE_VERTEX_COUNT + 0];
+            uint32_t i1 = part->getIndices()[f * FACE_VERTEX_COUNT + 1];
+            uint32_t i2 = part->getIndices()[f * FACE_VERTEX_COUNT + 2];
 
             const Vector2& uv0 = reinterpret_cast<Vector2*>(&texcoords->getData()[0])[i0];
             uint32_t udimU = (uint32_t) uv0[0];
@@ -202,6 +203,36 @@ void Mesh::splitByUdims()
     for (auto pair : udimMap)
     {
         addPartition(pair.second);
+    }
+}
+
+void MeshStream::transform(const Matrix44 &matrix)
+{
+    unsigned int stride = getStride();
+    size_t numElements = _data.size() / getStride();
+    for (size_t i=0; i<numElements; i++)
+    {
+        Vector4 vec(0.0, 0.0, 0.0, 1.0);
+        for(size_t j=0; j<stride; j++)
+        {
+            vec[j] = _data[i*stride + j];
+        }
+        if(getType() == MeshStream::POSITION_ATTRIBUTE ||
+           getType() == MeshStream::TEXCOORD_ATTRIBUTE ||
+           getType() == MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE)
+        {
+            vec = matrix.multiply(vec);
+        }
+        else if(getType() == MeshStream::NORMAL_ATTRIBUTE ||
+                getType() == MeshStream::TANGENT_ATTRIBUTE ||
+                getType() == MeshStream::BITANGENT_ATTRIBUTE)
+        {
+            vec = matrix.getInverse().getTranspose().multiply(vec);
+        }
+        for(size_t k=0; k<stride; k++)
+        {
+            _data[i*stride + k] = vec[k];
+        }
     }
 }
 

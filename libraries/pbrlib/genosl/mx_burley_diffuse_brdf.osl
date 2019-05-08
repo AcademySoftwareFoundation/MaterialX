@@ -1,7 +1,7 @@
 #include "pbrlib/genosl/lib/mx_fresnel.osl"
 
-void mx_burley_diffuse_brdf(float weight, color reflectance, roughnessinfo roughness, normal N, vector U, output BSDF result)
+void mx_burley_diffuse_brdf(float weight, color reflectance, float roughness, normal N, output BSDF result)
 {
-    // TODO: Implement properly
-    return color * weight * oren_nayar(normal, roughness)
+    // TODO: Implement properly.
+    //result = reflectance * weight * oren_nayar(normal, roughness);
 }

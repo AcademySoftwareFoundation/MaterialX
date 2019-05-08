@@ -557,7 +557,7 @@ class Matrix33 : public MatrixN<Matrix33, float, 3>
     // Create a rotation matrix.
     // @param angle Angle in radians
     static Matrix33 createRotation(float angle);
-    
+
     /// @}
 
   public:
@@ -581,6 +581,16 @@ class Matrix44 : public MatrixN<Matrix44, float, 4>
                 m10, m11, m12, m13,
                 m20, m21, m22, m23,
                 m30, m31, m32, m33};
+    }
+
+    Vector4 multiply(const Vector4& rhs) const
+    {
+        return Vector4(
+          _arr[0][0] * rhs[0] + _arr[0][1] * rhs[1] + _arr[0][2] * rhs[2] + _arr[0][3] * rhs[3],
+          _arr[1][0] * rhs[0] + _arr[1][1] * rhs[1] + _arr[1][2] * rhs[2] + _arr[1][3] * rhs[3],
+          _arr[2][0] * rhs[0] + _arr[2][1] * rhs[1] + _arr[2][2] * rhs[2] + _arr[2][3] * rhs[3],
+          _arr[3][0] * rhs[0] + _arr[3][1] * rhs[1] + _arr[3][2] * rhs[2] + _arr[3][3] * rhs[3]
+        );
     }
 
     /// @name 3D Transformations

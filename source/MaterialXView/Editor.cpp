@@ -166,22 +166,28 @@ ng::FloatBox<float>* PropertyEditor::makeFloatWidget(ng::Widget* container, cons
     {
         floatVar->setValue(value);
         MaterialPtr material = viewer->getSelectedMaterial();
-        mx::ShaderPort* uniform = material ? material->findUniform(path) : nullptr;
-        if (uniform)
+        if (material)
         {
-            material->getShader()->bind();
-            material->getShader()->setUniform(uniform->getName(), value);
+            mx::ShaderPort* uniform = material ? material->findUniform(path) : nullptr;
+            if (uniform)
+            {
+                material->getShader()->bind();
+                material->getShader()->setUniform(uniform->getName(), value);
+            }
         }
     });
     floatVar->setCallback([slider, path, viewer](float value)
     {
         slider->setValue(value);
         MaterialPtr material = viewer->getSelectedMaterial();
-        mx::ShaderPort* uniform = material ? material->findUniform(path) : nullptr;
-        if (uniform)
+        if (material)
         {
-            material->getShader()->bind();
-            material->getShader()->setUniform(uniform->getName(), value);
+            mx::ShaderPort* uniform = material ? material->findUniform(path) : nullptr;
+            if (uniform)
+            {
+                material->getShader()->bind();
+                material->getShader()->setUniform(uniform->getName(), value);
+            }
         }
     });
 

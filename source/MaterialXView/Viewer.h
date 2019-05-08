@@ -142,6 +142,9 @@ class Viewer : public ng::Screen
     mx::GLTextureHandlerPtr _imageHandler;
     mx::LightHandlerPtr _lightHandler;
 
+    mx::GeometryHandlerPtr _envGeometryHandler;
+    MaterialPtr _envMaterial;
+
     // Shader generator
     mx::GenContext _genContext;
 
@@ -156,6 +159,8 @@ class Viewer : public ng::Screen
     bool _outlineSelection;
     mx::HwSpecularEnvironmentMethod _specularEnvironmentMethod;
     int _envSamples;
+    bool _drawEnvironment;
+    mx::Matrix44 _envMatrix;
 
     // Image save
     bool _captureFrame;

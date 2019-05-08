@@ -40,33 +40,33 @@
     <parameter name="filtertype" type="string" value="linear" />
     <parameter name="frameendaction" type="string" value="periodic" />
   </image>
-  <output name="image4_output_wood1" type="color4" nodename="image4_wood1" xpos="5.84828" ypos="-5.04" />
-  <image name="image4_wood1" type="color4" xpos="6.4069" ypos="13.18">
-    <parameter name="file" type="filename" value="resources/Images/wood_baseColor.png" />
+  <output name="image4_output_exr" type="color4" nodename="image4_clothexr1" xpos="5.84828" ypos="-5.04" />
+  <image name="image4_clothexr1" type="color4" xpos="6.4069" ypos="13.18">
+    <parameter name="file" type="filename" value="resources/Images/cloth.exr" />
     <parameter name="uaddressmode" type="string" value="black" />
     <parameter name="vaddressmode" type="string" value="clamp" />
     <parameter name="filtertype" type="string" value="linear" />
     <parameter name="frameendaction" type="string" value="periodic" />
   </image>
-  <output name="image4_output_wood2" type="color4" nodename="image4_wood2" xpos="5.84828" ypos="-7.24" />
-  <image name="image4_wood2" type="color4" xpos="6.4069" ypos="10.36">
-    <parameter name="file" type="filename" value="resources/Images/wood_height.png" />
+  <output name="image4_output_wood_png" type="color4" nodename="image4_wood1" xpos="5.84828" ypos="-7.24" />
+  <image name="image4_wood1" type="color4" xpos="6.4069" ypos="10.36">
+    <parameter name="file" type="filename" value="resources/Images/wood_base_color.png" />
     <parameter name="uaddressmode" type="string" value="black" />
     <parameter name="vaddressmode" type="string" value="clamp" />
     <parameter name="filtertype" type="string" value="linear" />
     <parameter name="frameendaction" type="string" value="periodic" />
   </image>
-  <output name="image4_output_wood3" type="color4" nodename="image4_wood3" xpos="5.84828" ypos="-9.44" />
-  <image name="image4_wood3" type="color4" xpos="6.4069" ypos="18.82">
-    <parameter name="file" type="filename" value="resources/Images/wood_normal.png" />
+  <output name="image4_output_bridge3_hdr" type="color4" nodename="image4_bridge3" xpos="5.84828" ypos="-9.44" />
+  <image name="image4_bridge3" type="color4" xpos="6.4069" ypos="18.82">
+    <parameter name="file" type="filename" value="resources/Images/san_giuseppe_bridge_diffuse.hdr" />
     <parameter name="uaddressmode" type="string" value="black" />
     <parameter name="vaddressmode" type="string" value="clamp" />
     <parameter name="filtertype" type="string" value="linear" />
     <parameter name="frameendaction" type="string" value="periodic" />
   </image>
-  <output name="image4_output_wood4" type="color4" nodename="image4_wood4" xpos="5.84828" ypos="-2.84" />
-  <image name="image4_wood4" type="color4" xpos="6.4069" ypos="16">
-    <parameter name="file" type="filename" value="resources/Images/wood_roughness.png" />
+  <output name="image4_output_bridge4_hdr" type="color4" nodename="image4_bridge4" xpos="5.84828" ypos="-2.84" />
+  <image name="image4_bridge4" type="color4" xpos="6.4069" ypos="16">
+    <parameter name="file" type="filename" value="resources/Images/san_giuseppe_bridge.hdr" />
     <parameter name="uaddressmode" type="string" value="black" />
     <parameter name="vaddressmode" type="string" value="clamp" />
     <parameter name="filtertype" type="string" value="linear" />
