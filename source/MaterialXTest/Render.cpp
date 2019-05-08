@@ -19,9 +19,6 @@
 
 #include <MaterialXTest/RenderUtil.h>
 
-#ifdef MATERIALX_BUILD_CONTRIB
-#include <MaterialXContrib/Handlers/TinyEXRImageLoader.h>
-#endif
 #ifdef MATERIALX_BUILD_OIIO
 #include <MaterialXRender/OiioImageLoader.h>
 #endif
@@ -141,7 +138,7 @@ void testImageHandler(ImageHandlerTestOptions& options)
         {
             const mx::FilePath filePath = imagePath / file;
             mx::ImageDesc desc;
-            bool loaded = options.imageHandler->acquireImage(filePath, desc, false, nullptr);
+            bool loaded = options.imageHandler->acquireImage(filePath, desc, false);
             desc.freeResourceBuffer();
             CHECK(!desc.resourceBuffer);
             if (options.logFile)
