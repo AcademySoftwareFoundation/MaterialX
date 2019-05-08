@@ -14,8 +14,6 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
 
-#include <algorithm>
-
 namespace MaterialX
 {
 

@@ -9,7 +9,6 @@
 #include <MaterialXRender/TinyObjLoader.h>
 
 #include <iostream>
-#include <algorithm>
 
 namespace MaterialX
 {
