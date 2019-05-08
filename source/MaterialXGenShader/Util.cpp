@@ -43,14 +43,15 @@ bool readFile(const string& filename, string& contents)
     return false;
 }
 
-void loadDocuments(const FilePath& rootPath, const StringSet& skipFiles, 
+void loadDocuments(const FilePath& rootPath, const StringSet& skipFiles, const StringSet& includeFiles,
                    vector<DocumentPtr>& documents, StringVec& documentsPaths)
 {
     for (const FilePath& dir : rootPath.getSubDirectories())
     {
         for (const FilePath& file : dir.getFilesInDirectory(MTLX_EXTENSION))
         {
-            if (!skipFiles.count(file))
+            if (!skipFiles.count(file) && 
+               (includeFiles.empty() || includeFiles.count(file)))
             {
                 DocumentPtr doc = createDocument();
                 const FilePath filePath = dir / file;

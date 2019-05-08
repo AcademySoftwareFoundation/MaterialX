@@ -14,28 +14,12 @@ namespace mx = MaterialX;
 class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
 {
   public:
-    OslShaderRenderTester() :
-        _languageTargetString(mx::OslShaderGenerator::LANGUAGE + "_" +
-            mx::OslShaderGenerator::TARGET)
+    explicit OslShaderRenderTester(mx::ShaderGeneratorPtr shaderGenerator) :
+        RenderUtil::ShaderRenderTester(shaderGenerator)
     {
     }
 
   protected:
-    bool runTest(const RenderUtil::RenderTestOptions& testOptions) const override
-    {
-        return (testOptions.languageAndTargets.count(_languageTargetString) > 0);
-    }
-
-    const std::string& languageTargetString() override
-    {
-        return _languageTargetString;
-    }
-
-    void createShaderGenerator() override
-    {
-        _shaderGenerator = mx::OslShaderGenerator::create();
-    }
-
     void registerSourceCodeSearchPaths(mx::GenContext& context) override
     {
         // Include extra OSL implementation files
@@ -50,14 +34,11 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
                       mx::GenContext& context,
                       mx::DocumentPtr doc,
                       std::ostream& log,
-                      const RenderUtil::RenderTestOptions& testOptions,
+                      const GenShaderUtil::TestSuiteOptions& testOptions,
                       RenderUtil::RenderProfileTimes& profileTimes,
                       const mx::FileSearchPath& imageSearchPath,
                       const std::string& outputPath = ".") override;
 
-    void getImplementationWhiteList(mx::StringSet& whiteList) override;
-
-    std::string _languageTargetString;
     mx::OslValidatorPtr _validator;
 };
 
@@ -118,7 +99,7 @@ bool OslShaderRenderTester::runValidator(const std::string& shaderName,
                                          mx::GenContext& context,
                                          mx::DocumentPtr doc,
                                          std::ostream& log,
-                                         const RenderUtil::RenderTestOptions& testOptions,
+                                         const GenShaderUtil::TestSuiteOptions& testOptions,
                                          RenderUtil::RenderProfileTimes& profileTimes,
                                          const mx::FileSearchPath& imageSearchPath,
                                          const std::string& outputPath)
@@ -155,6 +136,7 @@ bool OslShaderRenderTester::runValidator(const std::string& shaderName,
                 RenderUtil::AdditiveScopedTimer genTimer(profileTimes.languageTimes.generationTime, "OSL generation time");
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
+                contextOptions.targetColorSpaceOverride = "lin_rec709";
                 shader = shadergen.generate(shaderName, element, context);
             }
             catch (mx::Exception& e)
@@ -322,19 +304,9 @@ bool OslShaderRenderTester::runValidator(const std::string& shaderName,
     return true;
 }
 
-void OslShaderRenderTester::getImplementationWhiteList(mx::StringSet& whiteList)
-{
-    whiteList =
-    {
-        "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
-        "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue"
-    };
-}
-
-
 TEST_CASE("Render: OSL TestSuite", "[renderosl]")
 {
-    OslShaderRenderTester renderTester;
+    OslShaderRenderTester renderTester(mx::OslShaderGenerator::create());
 
     mx::FilePathVec testRootPaths;
     mx::FilePath testRoot = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");

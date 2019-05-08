@@ -14,15 +14,25 @@
 -->
 <?xml version="1.0"?>
 <materialx version="1.36">
-   <normal name="normal1" type="vector3">
+   <normal name="normal_world" type="vector3">
       <parameter name="space" type="string" value="world" />
    </normal>
-   <output name="normal_output" type="vector3" nodename="normal1" />
+   <output name="normal_world_output" type="vector3" nodename="normal_world" />
+
+   <normal name="normal_object" type="vector3">
+      <parameter name="space" type="string" value="object" />
+   </normal>
+   <output name="normal_object_output" type="vector3" nodename="normal_object" />
    
-   <position name="position1" type="vector3">
+   <position name="position_world" type="vector3">
       <parameter name="space" type="string" value="world" />
    </position>
-   <output name="position_output" type="vector3" nodename="position1" />
+   <output name="position_world_output" type="vector3" nodename="position_world" />
+
+   <position name="position_object" type="vector3">
+      <parameter name="space" type="string" value="object" />
+   </position>
+   <output name="position_object_output" type="vector3" nodename="position_object" />
 
    <geomcolor name="color1_set0" type="float">
       <parameter name="index" type="integer" value="0" />
@@ -88,18 +98,10 @@
    <texcoord name="uv2_set0" type="vector2">
       <parameter name="index" type="integer" value="0" />
    </texcoord>
-   <swizzle name="swizzle_uv_set0" type="vector3">
-      <input name="in" type="vector2" nodename="uv2_set0" />
-      <parameter name="channels" type="string" value="xy0" />
-   </swizzle>
-   <output name="uv2_output0" type="vector3" nodename="swizzle_uv_set0" />
+   <output name="uv2_output0" type="vector3" nodename="uv2_set0" channels="xy0" />
    
    <texcoord name="uv2_set1" type="vector2">
       <parameter name="index" type="integer" value="1" />
    </texcoord>
-   <swizzle name="swizzle_uv_set1" type="vector3">
-      <input name="in" type="vector2" nodename="uv2_set1" />
-      <parameter name="channels" type="string" value="xy0" />
-   </swizzle>
-   <output name="uv2_output1" type="vector3" nodename="swizzle_uv_set1" />
+   <output name="uv2_output1" type="vector3" nodename="uv2_set1" channels="xy0" />
 </materialx>

@@ -341,7 +341,8 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
 
     // Add global constants and type definitions
     emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_defines.glsl", context, stage);
-    emitLine("#define MAX_LIGHT_SOURCES " + std::to_string(context.getOptions().hwMaxActiveLightSources), stage, false);
+    const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
+    emitLine("#define MAX_LIGHT_SOURCES " + std::to_string(maxLights), stage, false);
     emitLineBreak(stage);
     emitTypeDefinitions(context, stage);
 

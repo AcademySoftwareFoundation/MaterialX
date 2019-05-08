@@ -3,13 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef GENGLSL_UTIL_H
-#define GENGLSL_UTIL_H
-
-#include <MaterialXTest/Catch/catch.hpp>
-
-#include <MaterialXGenGlsl/GlslShaderGenerator.h>
-#include <MaterialXGenGlsl/GlslSyntax.h>
+#ifndef GENGLSL_H
+#define GENGLSL_H
 
 #include <MaterialXTest/GenShaderUtil.h>
 
@@ -20,15 +15,11 @@ class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
   public:
     using ParentClass = GenShaderUtil::ShaderGeneratorTester;
 
-    GlslShaderGeneratorTester(const mx::FilePathVec& testRootPaths, const mx::FilePath& libSearchPath,
-                              const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath) :
-        GenShaderUtil::ShaderGeneratorTester(testRootPaths, libSearchPath, srcSearchPath, logFilePath)
+    GlslShaderGeneratorTester(mx::ShaderGeneratorPtr shaderGenerator, const mx::FilePathVec& testRootPaths, 
+                              const mx::FilePath& libSearchPath, const mx::FileSearchPath& srcSearchPath, 
+                              const mx::FilePath& logFilePath) :
+        GenShaderUtil::ShaderGeneratorTester(shaderGenerator, testRootPaths, libSearchPath, srcSearchPath, logFilePath)
     {}
-
-    void createGenerator() override
-    {
-        _shaderGenerator = mx::GlslShaderGenerator::create();
-    }
 
     void setTestStages() override
     {
@@ -42,9 +33,19 @@ class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
 
         mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/Utilities/Lights");
         GenShaderUtil::loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), _dependLib);
-        GenShaderUtil::loadLibrary(lightDir / mx::FilePath("lightcompoundtest_ng.mtlx"), _dependLib);
         GenShaderUtil::loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), _dependLib);
+    }
+
+  protected:
+    void getImplementationWhiteList(mx::StringSet& whiteList) override
+    {
+        whiteList =
+        {
+            "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
+            "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue", "IM_light_genglsl",
+            "IM_point_light_genglsl", "IM_spot_light_genglsl", "IM_directional_light_genglsl"
+        };
     }
 };
 
-#endif // GENGLSL_UTIL_H
+#endif // GENGLSL_H

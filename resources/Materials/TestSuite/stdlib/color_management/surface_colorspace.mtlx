@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<materialx version="1.36" cms="ocio" colorspace="srgb_texture">
+
+  <nodedef name="ND_NodeA" type="surfaceshader" node="NodeA">
+    <input name="diffColor" type="color3" />
+  </nodedef>
+  <nodedef name="ND_NodeB" type="surfaceshader" node="NodeB" inherit="ND_NodeA">
+  </nodedef>
+
+  <nodegraph name="NG_NodeA" nodedef="ND_NodeA">
+    <diffuse_brdf name="diffuseBsdf" type="BSDF">
+      <input name="color" type="color3" interfacename="diffColor" />
+    </diffuse_brdf>
+    <surface name="surfaceConstructor" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="diffuseBsdf" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surfaceConstructor" />
+  </nodegraph>
+
+  <nodegraph name="NG_NodeB" nodedef="ND_NodeB" fileprefix="resources/Images/">
+    <tiledimage name="TI_diffColorEffect" type="color3">
+      <parameter name="file" type="filename" value="wood_base_color.jpg" />
+    </tiledimage>
+    <NodeA name="NodeA_instanceForNodeB" type="surfaceshader">
+      <input name="diffColor" type="color3" nodename="TI_diffColorEffect"/>
+    </NodeA>
+    <output name="NodeB_out" type="surfaceshader" nodename="NodeA_instanceForNodeB" />
+  </nodegraph>
+
+  <material name="M_test">
+    <shaderref name="SR_test" node="NodeB" />
+  </material>
+
+</materialx>
