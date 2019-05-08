@@ -399,7 +399,7 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
         return;
     }
 
-    const std::string IMAGE_SEPERATOR("_");
+    const std::string IMAGE_SEPARATOR("_");
     const std::string UADDRESS_MODE_POST_FIX("_uaddressmode");
     const std::string VADDRESS_MODE_POST_FIX("_vaddressmode");
     const std::string FILTER_TYPE_POST_FIX("_filtertype");
@@ -423,7 +423,7 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
         // Extract out sampling properties
         mx::ImageSamplingProperties samplingProperties;
 
-        MaterialX::StringVec root = MaterialX::splitString(uniformName, IMAGE_SEPERATOR);
+        MaterialX::StringVec root = MaterialX::splitString(uniformName, IMAGE_SEPARATOR);
 
         const std::string uaddressmodeStr = root[0] + UADDRESS_MODE_POST_FIX;
         const mx::ShaderPort* port = publicUniforms->find(uaddressmodeStr);
