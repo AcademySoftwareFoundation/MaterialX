@@ -44,8 +44,9 @@ bool readFile(const string& filename, string& contents)
 }
 
 void loadDocuments(const FilePath& rootPath, const StringSet& skipFiles, const StringSet& includeFiles,
-                   vector<DocumentPtr>& documents, StringVec& documentsPaths)
+                   vector<DocumentPtr>& documents, StringVec& documentsPaths, StringVec& errors)
 {
+    errors.clear();
     for (const FilePath& dir : rootPath.getSubDirectories())
     {
         for (const FilePath& file : dir.getFilesInDirectory(MTLX_EXTENSION))
@@ -55,10 +56,16 @@ void loadDocuments(const FilePath& rootPath, const StringSet& skipFiles, const S
             {
                 DocumentPtr doc = createDocument();
                 const FilePath filePath = dir / file;
-                readFromXmlFile(doc, filePath, dir);
-
-                documents.push_back(doc);
-                documentsPaths.push_back(filePath.asString());
+                try
+                {
+                    readFromXmlFile(doc, filePath, dir);
+                    documents.push_back(doc);
+                    documentsPaths.push_back(filePath.asString());
+                }
+                catch (Exception& e)
+                {
+                    errors.push_back("Failed to load: " + filePath.asString() + ". Error: " + e.what());
+                }
             }
         }
     }

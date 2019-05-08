@@ -207,7 +207,15 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             const std::string filename = filePath;
 
             mx::DocumentPtr doc = mx::createDocument();
-            mx::readFromXmlFile(doc, filename, dir);
+            try
+            {
+                mx::readFromXmlFile(doc, filename, dir);
+            }
+            catch (mx::Exception& e)
+            {
+                docValidLog << "Failed to load in file: " << filename << ". Error: " << e.what() << std::endl;
+                WARN("Failed to load in file: " + filename + "See: " + docValidLogFilename + " for details.");                    
+            }
 
             doc->importLibrary(dependLib, &importOptions);
             ioTimer.endTimer();
