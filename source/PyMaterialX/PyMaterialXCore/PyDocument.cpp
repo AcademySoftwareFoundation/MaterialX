@@ -37,6 +37,10 @@ void bindPyDocument(py::module& mod)
         .def("removeGeomInfo", &mx::Document::removeGeomInfo)
         .def("getGeomAttrValue", &mx::Document::getGeomAttrValue,
             py::arg("geomAttrName"), py::arg("geom") = mx::UNIVERSAL_GEOM_NAME)
+        .def("addGeomPropDef", &mx::Document::addGeomPropDef)
+        .def("getGeomPropDef", &mx::Document::getGeomPropDef)
+        .def("getGeomPropDefs", &mx::Document::getGeomPropDefs)
+        .def("removeGeomPropDef", &mx::Document::removeGeomPropDef)
         .def("addLook", &mx::Document::addLook,
             py::arg("name") = mx::EMPTY_STRING)
         .def("getLook", &mx::Document::getLook)
