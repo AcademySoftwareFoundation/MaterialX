@@ -467,11 +467,6 @@ bool Material::bindImage(std::string filename, const std::string& uniformName, m
         return false;
     }
 
-    if (filename.empty())
-    {
-        return false;
-    }
-
     // Apply udim string if specified.
     if (!udim.empty())
     {
@@ -481,7 +476,7 @@ bool Material::bindImage(std::string filename, const std::string& uniformName, m
     }
 
     // Acquire the given image.
-    if (!imageHandler->acquireImage(filename, desc, true, fallbackColor))
+    if (!imageHandler->acquireImage(filename, desc, true, fallbackColor) && !filename.empty())
     {
         std::cerr << "Failed to load image: " << filename << std::endl;
     }
@@ -578,7 +573,6 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandler
     {
         if (_glShader->uniform(pair.first, false) != -1)
         {
-            // Access cached image or load from disk.
             mx::FilePath path = imagePath.find(pair.second);
             const std::string filename = path.asString();
 
