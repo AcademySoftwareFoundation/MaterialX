@@ -193,20 +193,28 @@ bool Material::generateConstantShader(mx::GenContext& context,
     return _glShader->init(shaderName, vertexShader, pixelShader);
 }
 
-bool Material::generateImageShader(mx::GenContext& context,
-                                        mx::DocumentPtr stdLib,
-                                        const std::string& shaderName,
-                                        const mx::FilePath& imagePath,
-                                        const std::string& addressMode)
+bool Material::generateEnvironmentShader(mx::GenContext& context,
+                                         mx::DocumentPtr stdLib,
+                                         const std::string& shaderName,
+                                         const mx::FilePath& imagePath)
 {
-    // Construct the unshaded image nodegraph
+    // Construct the environment nodegraph.  The U-component of the incoming
+    // UV set is inverted and rotated by 90 degrees.
     mx::DocumentPtr doc = mx::createDocument();
     doc->importLibrary(stdLib);
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
-    mx::NodePtr image = nodeGraph->addNode("image", "myimage");
+    mx::NodePtr texcoord = nodeGraph->addNode("texcoord", mx::EMPTY_STRING, "vector2");
+    mx::NodePtr multiply = nodeGraph->addNode("multiply", mx::EMPTY_STRING, "vector2");
+    multiply->setConnectedNode("in1", texcoord);
+    multiply->setInputValue("in2", mx::Vector2(-1.0f, 1.0f));
+    mx::NodePtr add = nodeGraph->addNode("add", mx::EMPTY_STRING, "vector2");
+    add->setConnectedNode("in1", multiply);
+    add->setInputValue("in2", mx::Vector2(0.25f, 0.0f));
+    mx::NodePtr image = nodeGraph->addNode("image");
+    image->setConnectedNode("texcoord", add);
     image->setParameterValue("file", imagePath.asString(), mx::FILENAME_TYPE_STRING);
-    image->setParameterValue("uaddressmode", addressMode);
-    image->setParameterValue("vaddressmode", addressMode);
+    image->setParameterValue("uaddressmode", std::string("periodic"));
+    image->setParameterValue("vaddressmode", std::string("clamp"));
     mx::OutputPtr output = nodeGraph->addOutput();
     output->setConnectedNode(image);
 
