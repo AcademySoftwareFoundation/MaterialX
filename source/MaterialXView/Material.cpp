@@ -203,15 +203,7 @@ bool Material::generateEnvironmentShader(mx::GenContext& context,
     mx::DocumentPtr doc = mx::createDocument();
     doc->importLibrary(stdLib);
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
-    mx::NodePtr texcoord = nodeGraph->addNode("texcoord", mx::EMPTY_STRING, "vector2");
-    mx::NodePtr multiply = nodeGraph->addNode("multiply", mx::EMPTY_STRING, "vector2");
-    multiply->setConnectedNode("in1", texcoord);
-    multiply->setInputValue("in2", mx::Vector2(-1.0f, 1.0f));
-    mx::NodePtr add = nodeGraph->addNode("add", mx::EMPTY_STRING, "vector2");
-    add->setConnectedNode("in1", multiply);
-    add->setInputValue("in2", mx::Vector2(0.25f, 0.0f));
     mx::NodePtr image = nodeGraph->addNode("image");
-    image->setConnectedNode("texcoord", add);
     image->setParameterValue("file", imagePath.asString(), mx::FILENAME_TYPE_STRING);
     image->setParameterValue("uaddressmode", std::string("periodic"));
     image->setParameterValue("vaddressmode", std::string("clamp"));
