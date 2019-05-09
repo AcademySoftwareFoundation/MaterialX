@@ -242,7 +242,7 @@ class FileSearchPath
     /// filename is returned unmodified.
     FilePath find(const FilePath& filename) const
     {
-        if (_paths.empty()) 
+        if (_paths.empty() || filename.isEmpty()) 
         {
             return filename;
         }
