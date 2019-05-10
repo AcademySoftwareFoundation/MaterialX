@@ -188,12 +188,13 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     }
 
     // Construct the appropriate image handler for this build.
+    // Most recently added loader will be checked first.
+    mx::ImageLoaderPtr stdImageLoader = mx::StbImageLoader::create();
+    _imageHandler = mx::GLTextureHandler::create(stdImageLoader);
 #if MATERIALX_BUILD_OIIO
-    mx::ImageLoaderPtr imageLoader = mx::OiioImageLoader::create();
-#else
-    mx::ImageLoaderPtr imageLoader = mx::StbImageLoader::create();
+    mx::ImageLoaderPtr oiioImageLoader = mx::OiioImageLoader::create();
+    _imageHandler->addLoader(oiioImageLoader);
 #endif
-    _imageHandler = mx::GLTextureHandler::create(imageLoader);
 
     mx::TinyObjLoaderPtr loader = mx::TinyObjLoader::create();
     _geometryHandler = mx::GeometryHandler::create();
@@ -208,20 +209,20 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     const mx::MeshList& meshes = _envGeometryHandler->getMeshes();
     if (!meshes.empty())
     {
-        // Invert u and rotate 90 degrees.
+        // Invert u
         mx::MeshPtr mesh = meshes[0];
         mx::MeshStreamPtr stream = mesh->getStream(mx::MeshStream::TEXCOORD_ATTRIBUTE, 0);
         mx::MeshFloatBuffer &buffer = stream->getData();
         size_t stride = stream->getStride();
         for (size_t i = 0; i < buffer.size() / stride; i++)
         {
-            float val = (buffer[i*stride] * -1.0f) + 1.25f;
+            float val = (1.0f - buffer[i*stride]);
             buffer[i*stride] = (val < 0.0f) ? (val + 1.0f) : ((val > 1.0f) ? val -= 1.0f : val);
         }
-
         // Set up world matrix for drawing
         const float scaleFactor = 300.0f;
-        _envMatrix = mx::Matrix44::createScale(mx::Vector3(scaleFactor));
+        const float rotationRadians = PI / 2.0f; // 90 degree rotation
+        _envMatrix = mx::Matrix44::createScale(mx::Vector3(scaleFactor)) * mx::Matrix44::createRotationY(rotationRadians);
 
         const std::string envShaderName("__ENV_SHADER_NAME__");
         _envMaterial = Material::create();

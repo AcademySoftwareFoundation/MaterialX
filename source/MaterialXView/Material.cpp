@@ -49,7 +49,7 @@ size_t Material::loadDocument(mx::DocumentPtr destinationDoc, const mx::FilePath
         }
         else
         {
-            new ng::MessageDialog(nullptr, ng::MessageDialog::Type::Warning, "Include file not found:", filename);
+            std::cerr << "Include file not found:" << filename << std::endl;
         }
     };
     mx::readFromXmlFile(doc, filePath, mx::EMPTY_STRING, &readOptions);
