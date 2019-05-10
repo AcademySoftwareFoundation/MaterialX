@@ -221,13 +221,13 @@ void MeshStream::transform(const Matrix44 &matrix)
            getType() == MeshStream::TEXCOORD_ATTRIBUTE ||
            getType() == MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE)
         {
-            vec = matrix.multiply(vec);
+            vec = matrix.transform(vec);
         }
         else if(getType() == MeshStream::NORMAL_ATTRIBUTE ||
                 getType() == MeshStream::TANGENT_ATTRIBUTE ||
                 getType() == MeshStream::BITANGENT_ATTRIBUTE)
         {
-            vec = matrix.getInverse().getTranspose().multiply(vec);
+            vec = matrix.transformNormal(vec);
         }
         for(size_t k=0; k<stride; k++)
         {

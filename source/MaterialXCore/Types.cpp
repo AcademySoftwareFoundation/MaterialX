@@ -85,6 +85,41 @@ template <> Matrix33 MatrixN<Matrix33, float, 3>::getAdjugate() const
         _arr[0][0]*_arr[1][1] - _arr[1][0]*_arr[0][1]);
 }
 
+Vector3 Matrix33::transform(const Vector3& rhs) const
+{
+    return Vector3(
+      _arr[0][0] * rhs[0] + _arr[0][1] * rhs[1] + _arr[0][2] * rhs[2],
+      _arr[1][0] * rhs[0] + _arr[1][1] * rhs[1] + _arr[1][2] * rhs[2],
+      _arr[2][0] * rhs[0] + _arr[2][1] * rhs[1] + _arr[2][2] * rhs[2]
+    );
+}
+
+Vector2 Matrix33::transformPoint(const Vector2& rhs) const
+{
+    Vector3 rhsVector3(rhs[0], rhs[1], 1.0f);
+    rhsVector3 = transform(rhsVector3);
+    return Vector2(rhsVector3[0], rhsVector3[1]);
+}
+
+Vector2 Matrix33::transformVector(const Vector2& rhs) const
+{
+    Vector3 rhsVector3(rhs[0], rhs[1], 0.0f);
+    rhsVector3 = transform(rhsVector3);
+    return Vector2(rhsVector3[0], rhsVector3[1]);
+}
+
+Vector3 Matrix33::transformNormal(const Vector3& rhs) const
+{
+    return getInverse().getTranspose().transform(rhs);
+}
+
+Vector2 Matrix33::transformNormal(const Vector2& rhs) const
+{
+    Vector3 rhsVector3(rhs[0], rhs[1], 0.0f);
+    rhsVector3 = transformNormal(rhsVector3);
+    return Vector2(rhsVector3[0], rhsVector3[1]);
+}
+
 Matrix33 Matrix33::createTranslation(const Vector2& v)
 {
     return Matrix33(1.0f, 0.0f, 0.0f,
@@ -130,7 +165,7 @@ template <> float MatrixN<Matrix44, float, 4>::getDeterminant() const
            _arr[0][2] * (_arr[1][3]*_arr[2][0]*_arr[3][1] + _arr[3][3]*_arr[1][0]*_arr[2][1] + _arr[2][3]*_arr[3][0]*_arr[1][1] -
                          _arr[1][3]*_arr[3][0]*_arr[2][1] - _arr[2][3]*_arr[1][0]*_arr[3][1] - _arr[3][3]*_arr[2][0]*_arr[1][1]) +
            _arr[0][3] * (_arr[1][0]*_arr[3][1]*_arr[2][2] + _arr[2][0]*_arr[1][1]*_arr[3][2] + _arr[3][0]*_arr[2][1]*_arr[1][2] -
-                         _arr[1][0]*_arr[2][1]*_arr[3][2] - _arr[3][0]*_arr[1][1]*_arr[2][2] - _arr[2][0]*_arr[3][1]*_arr[1][2]); 
+                         _arr[1][0]*_arr[2][1]*_arr[3][2] - _arr[3][0]*_arr[1][1]*_arr[2][2] - _arr[2][0]*_arr[3][1]*_arr[1][2]);
 }
 
 template <> Matrix44 MatrixN<Matrix44, float, 4>::getAdjugate() const
@@ -185,10 +220,47 @@ template <> Matrix44 MatrixN<Matrix44, float, 4>::getAdjugate() const
         _arr[0][0]*_arr[2][1]*_arr[1][2] - _arr[1][0]*_arr[0][1]*_arr[2][2] - _arr[2][0]*_arr[1][1]*_arr[0][2]);
 }
 
+
+Vector4 Matrix44::transform(const Vector4& rhs) const
+{
+    return Vector4(
+      _arr[0][0] * rhs[0] + _arr[0][1] * rhs[1] + _arr[0][2] * rhs[2] + _arr[0][3] * rhs[3],
+      _arr[1][0] * rhs[0] + _arr[1][1] * rhs[1] + _arr[1][2] * rhs[2] + _arr[1][3] * rhs[3],
+      _arr[2][0] * rhs[0] + _arr[2][1] * rhs[1] + _arr[2][2] * rhs[2] + _arr[2][3] * rhs[3],
+      _arr[3][0] * rhs[0] + _arr[3][1] * rhs[1] + _arr[3][2] * rhs[2] + _arr[3][3] * rhs[3]
+    );
+}
+
+Vector3 Matrix44::transformPoint(const Vector3& rhs) const
+{
+    Vector4 rhsVector4(rhs[0], rhs[1], rhs[2], 1.0f);
+    rhsVector4 = transform(rhsVector4);
+    return Vector3(rhsVector4[0], rhsVector4[1], rhsVector4[2]);
+}
+
+Vector3 Matrix44::transformVector(const Vector3& rhs) const
+{
+    Vector4 rhsVector4(rhs[0], rhs[1], rhs[2], 0.0f);
+    rhsVector4 = transform(rhsVector4);
+    return Vector3(rhsVector4[0], rhsVector4[1], rhsVector4[2]);
+}
+
+Vector4 Matrix44::transformNormal(const Vector4& rhs) const
+{
+    return getInverse().getTranspose().transform(rhs);
+}
+
+Vector3 Matrix44::transformNormal(const Vector3& rhs) const
+{
+    Vector4 rhsVector4(rhs[0], rhs[1], rhs[2], 0.0f);
+    rhsVector4 = transformNormal(rhsVector4);
+    return Vector3(rhsVector4[0], rhsVector4[1], rhsVector4[2]);
+}
+
 Matrix44 Matrix44::createTranslation(const Vector3& v)
 {
     return Matrix44(1.0f, 0.0f, 0.0f, 0.0f,
-                    0.0f, 1.0f, 0.0f, 0.0f, 
+                    0.0f, 1.0f, 0.0f, 0.0f,
                     0.0f, 0.0f, 1.0f, 0.0f,
                     v[0], v[1], v[2], 1.0f);
 }
