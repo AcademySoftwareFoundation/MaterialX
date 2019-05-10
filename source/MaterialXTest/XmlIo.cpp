@@ -184,4 +184,10 @@ TEST_CASE("Load content", "[xmlio]")
     // Read a non-existent document.
     mx::DocumentPtr nonExistentDoc = mx::createDocument();
     REQUIRE_THROWS_AS(mx::readFromXmlFile(nonExistentDoc, "NonExistent.mtlx"), mx::ExceptionFileMissing&);
+
+    // Read in include file without specifying search to the parent document
+    mx::DocumentPtr parentDoc = mx::createDocument();
+    mx::readFromXmlFile(parentDoc,
+        "resources/Materials/TestSuite/libraries/metal/brass_wire_mesh.mtlx", searchPath);
+    REQUIRE(nullptr != parentDoc->getNodeDef("ND_TestMetal"));
 }
