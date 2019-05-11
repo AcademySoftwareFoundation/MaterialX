@@ -10,7 +10,6 @@ cmake_minimum_required(VERSION 2.8.12)
 # Add a CMake parameter for choosing a desired Python version
 if(NOT PYBIND11_PYTHON_VERSION)
   set(PYBIND11_PYTHON_VERSION "" CACHE STRING "Python version to use for compiling modules")
-  mark_as_advanced(PYBIND11_PYTHON_VERSION)
 endif()
 
 set(Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5 3.4)
@@ -135,6 +134,13 @@ function(pybind11_add_module target_name)
     PRIVATE ${PYBIND11_INCLUDE_DIR}  # from project CMakeLists.txt
     PRIVATE ${pybind11_INCLUDE_DIR}  # from pybind11Config
     PRIVATE ${PYTHON_INCLUDE_DIRS})
+
+  # Python debug libraries expose slightly different objects
+  # https://docs.python.org/3.6/c-api/intro.html#debugging-builds
+  # https://stackoverflow.com/questions/39161202/how-to-work-around-missing-pymodule-create2-in-amd64-win-python35-d-lib
+  if(PYTHON_IS_DEBUG)
+    target_compile_definitions(${target_name} PRIVATE Py_DEBUG)
+  endif()
 
   # The prefix and extension are provided by FindPythonLibsNew.cmake
   set_target_properties(${target_name} PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}")
