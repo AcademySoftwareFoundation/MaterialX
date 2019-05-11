@@ -1078,62 +1078,40 @@ public:
 
 class capsule : public object {
 public:
-#if PY_VERSION_HEX >= 0x02070000
     PYBIND11_OBJECT_DEFAULT(capsule, object, PyCapsule_CheckExact)
-#else
-    PYBIND11_OBJECT_DEFAULT(capsule, object, PyCObject_Check)
-#endif
     PYBIND11_DEPRECATED("Use reinterpret_borrow<capsule>() or reinterpret_steal<capsule>()")
     capsule(PyObject *ptr, bool is_borrowed) : object(is_borrowed ? object(ptr, borrowed_t{}) : object(ptr, stolen_t{})) { }
 
-#if PY_VERSION_HEX >= 0x02070000
     explicit capsule(const void *value, const char *name = nullptr, void (*destructor)(PyObject *) = nullptr)
         : object(PyCapsule_New(const_cast<void *>(value), name, destructor), stolen_t{}) {
-#else
-    explicit capsule(const void *value, const char *name = nullptr, void (*destructor)(void *) = nullptr)
-        : object(PyCObject_FromVoidPtr(const_cast<void *>(value), destructor), stolen_t{}) {
-#endif
         if (!m_ptr)
             pybind11_fail("Could not allocate capsule object!");
     }
 
-#if PY_VERSION_HEX >= 0x02070000
     PYBIND11_DEPRECATED("Please pass a destructor that takes a void pointer as input")
     capsule(const void *value, void (*destruct)(PyObject *))
         : object(PyCapsule_New(const_cast<void*>(value), nullptr, destruct), stolen_t{}) {
         if (!m_ptr)
             pybind11_fail("Could not allocate capsule object!");
     }
-#endif
 
     capsule(const void *value, void (*destructor)(void *)) {
-#if PY_VERSION_HEX >= 0x02070000
         m_ptr = PyCapsule_New(const_cast<void *>(value), nullptr, [](PyObject *o) {
             auto destructor = reinterpret_cast<void (*)(void *)>(PyCapsule_GetContext(o));
             void *ptr = PyCapsule_GetPointer(o, nullptr);
             destructor(ptr);
         });
-#else
-        m_ptr = PyCObject_FromVoidPtr(const_cast<void *>(value), destructor);
-#endif
 
         if (!m_ptr)
             pybind11_fail("Could not allocate capsule object!");
 
-#if PY_VERSION_HEX >= 0x02070000
         if (PyCapsule_SetContext(m_ptr, (void *) destructor) != 0)
             pybind11_fail("Could not set capsule context!");
-#endif
     }
 
     capsule(void (*destructor)()) {
-#if PY_VERSION_HEX >= 0x02070000
         m_ptr = PyCapsule_New(reinterpret_cast<void *>(destructor), nullptr, [](PyObject *o) {
             auto destructor = reinterpret_cast<void (*)()>(PyCapsule_GetPointer(o, nullptr));
-#else
-        m_ptr = PyCObject_FromVoidPtr(reinterpret_cast<void *>(destructor), [](void *o) {
-            auto destructor = reinterpret_cast<void (*)()>(PyCObject_AsVoidPtr((PyObject*) o));
-#endif
             destructor();
         });
 
@@ -1142,19 +1120,13 @@ public:
     }
 
     template <typename T> operator T *() const {
-#if PY_VERSION_HEX >= 0x02070000
         auto name = this->name();
         T * result = static_cast<T *>(PyCapsule_GetPointer(m_ptr, name));
-#else
-        T * result = static_cast<T *>(PyCObject_AsVoidPtr(m_ptr));
-#endif
         if (!result) pybind11_fail("Unable to extract capsule contents!");
         return result;
     }
 
-#if PY_VERSION_HEX >= 0x02070000
     const char *name() const { return PyCapsule_GetName(m_ptr); }
-#endif
 };
 
 class tuple : public object {
@@ -1265,7 +1237,6 @@ public:
     }
 };
 
-#if PY_VERSION_HEX >= 0x02070000
 class memoryview : public object {
 public:
     explicit memoryview(const buffer_info& info) {
@@ -1297,7 +1268,6 @@ public:
 
     PYBIND11_OBJECT_CVT(memoryview, object, PyMemoryView_Check, PyMemoryView_FromObject)
 };
-#endif
 /// @} pytypes
 
 /// \addtogroup python_builtins
