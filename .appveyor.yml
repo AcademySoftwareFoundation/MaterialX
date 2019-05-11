@@ -5,7 +5,7 @@ clone_folder: C:\Projects\MaterialX
 environment:
   matrix:
     - CMAKE_PLATFORM: "Visual Studio 14 2015"
-      PYTHON: C:\Python26
+      PYTHON: C:\Python27
       VS_PLATFORM: Windows_x86
       VS_COMPILER: vs2015
       configuration: Release
@@ -32,7 +32,7 @@ install:
 build_script:
   - mkdir build
   - cd build
-  - cmake -DMATERIALX_BUILD_PYTHON=ON DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON -G "%CMAKE_PLATFORM%" -DCMAKE_BUILD_TYPE="%CONFIGURATION%" ..
+  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON -G "%CMAKE_PLATFORM%" -DCMAKE_BUILD_TYPE="%CONFIGURATION%" ..
   - cmake --build . --target install --config %CONFIGURATION%
   - ctest -VV --output-on-failure --build-config %CONFIGURATION%
   - cmake -E chdir ../python/MaterialXTest python main.py

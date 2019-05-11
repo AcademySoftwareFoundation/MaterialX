@@ -20,7 +20,7 @@ The MaterialX codebase requires a compiler with support for C++11, and can be bu
 - GCC 4.8 or newer
 - Clang 3.3 or newer
 
-The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and currently support Python versions 2.6, 2.7, and 3.x.
+The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and support Python versions 2.7 and 3.x.
 
 ### Repository
 
