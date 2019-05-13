@@ -5,7 +5,7 @@ clone_folder: C:\Projects\MaterialX
 environment:
   matrix:
     - CMAKE_PLATFORM: "Visual Studio 14 2015"
-      PYTHON: C:\Python26
+      PYTHON: C:\Python27
     - CMAKE_PLATFORM: "Visual Studio 14 2015 Win64"
       PYTHON: C:\Python27-x64
     - CMAKE_PLATFORM: "Visual Studio 15 2017"
