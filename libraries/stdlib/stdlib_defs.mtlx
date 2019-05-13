@@ -2368,7 +2368,7 @@
   -->
   <nodedef name="ND_contrast_float" node="contrast" type="float" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="float"/>
-    <parameter name="amount" type="float"/>
+    <parameter name="amount" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.5"/>
   </nodedef>
   <nodedef name="ND_contrast_color2" node="contrast" type="color2" nodegroup="adjustment" defaultinput="in">
@@ -2378,7 +2378,7 @@
   </nodedef>
   <nodedef name="ND_contrast_color2FA" node="contrast" type="color2" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color2"/>
-    <parameter name="amount" type="float"/>
+    <parameter name="amount" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.5"/>
   </nodedef>
   <nodedef name="ND_contrast_color3" node="contrast" type="color3" nodegroup="adjustment" defaultinput="in">
@@ -2388,7 +2388,7 @@
   </nodedef>
   <nodedef name="ND_contrast_color3FA" node="contrast" type="color3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color3"/>
-    <parameter name="amount" type="float"/>
+    <parameter name="amount" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.5"/>
   </nodedef>
   <nodedef name="ND_contrast_color4" node="contrast" type="color4" nodegroup="adjustment" defaultinput="in">
@@ -2398,7 +2398,7 @@
   </nodedef>
   <nodedef name="ND_contrast_color4FA" node="contrast" type="color4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color4"/>
-    <parameter name="amount" type="float"/>
+    <parameter name="amount" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.5"/>
   </nodedef>
   <nodedef name="ND_contrast_vector2" node="contrast" type="vector2" nodegroup="adjustment" defaultinput="in">
@@ -2408,7 +2408,7 @@
   </nodedef>
   <nodedef name="ND_contrast_vector2FA" node="contrast" type="vector2" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector2"/>
-    <parameter name="amount" type="float"/>
+    <parameter name="amount" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.5"/>
   </nodedef>
   <nodedef name="ND_contrast_vector3" node="contrast" type="vector3" nodegroup="adjustment" defaultinput="in">
@@ -2418,7 +2418,7 @@
   </nodedef>
   <nodedef name="ND_contrast_vector3FA" node="contrast" type="vector3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector3"/>
-    <parameter name="amount" type="float"/>
+    <parameter name="amount" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.5"/>
   </nodedef>
   <nodedef name="ND_contrast_vector4" node="contrast" type="vector4" nodegroup="adjustment" defaultinput="in">
@@ -2428,7 +2428,7 @@
   </nodedef>
   <nodedef name="ND_contrast_vector4FA" node="contrast" type="vector4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector4"/>
-    <parameter name="amount" type="float"/>
+    <parameter name="amount" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.5"/>
   </nodedef>
 
@@ -2578,14 +2578,14 @@
   -->
   <nodedef name="ND_saturate_color3" node="saturate" type="color3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color3"/>
-    <parameter name="amount" type="float"/>
+    <parameter name="amount" type="float" value="1.0"/>
     <parameter name="lumacoeffs" type="color3" value="0.272287, 0.6740818, 0.0536895"
 	enum="acescg, rec709, rec2020, rec2100"
 	enumvalues="0.272287, 0.6740818, 0.0536895, 0.2126, 0.7152, 0.0722, 0.2627, 0.6780, 0.0593, 0.2627, 0.6780, 0.0593"/>
   </nodedef>
   <nodedef name="ND_saturate_color4" node="saturate" type="color4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color4"/>
-    <parameter name="amount" type="float"/>
+    <parameter name="amount" type="float" value="1.0"/>
     <parameter name="lumacoeffs" type="color3" value="0.272287, 0.6740818, 0.0536895"
 	enum="acescg, rec709, rec2020, rec2100"
 	enumvalues="0.272287, 0.6740818, 0.0536895, 0.2126, 0.7152, 0.0722, 0.2627, 0.6780, 0.0593, 0.2627, 0.6780, 0.0593"/>
