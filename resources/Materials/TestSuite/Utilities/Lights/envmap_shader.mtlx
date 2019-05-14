@@ -1,31 +1,26 @@
 <?xml version="1.0"?>
 <materialx version="1.36">
-  <nodegraph name="environmentDraw" type="" xpos="6.21532" ypos="18.0443">
-    <texcoord name="envUvs" type="vector2" xpos="2.91914" ypos="13.0204">
-      <parameter name="index" type="integer" value="0" />
-    </texcoord>
-    <invert name="flipU" type="float" xpos="5.42053" ypos="11.2215">
-      <input name="in" type="float" value="0.0" output="outx" nodename="separateUVs" />
-      <parameter name="amount" type="float" value="1.0000" />
-    </invert>
-    <separate name="separateUVs" type="multioutput" xpos="4.15328" ypos="13.213">
-      <input name="in" type="vector2" value="0.0, 0.0" nodename="envUvs" />
-      <output name="outx" type="float" />
-      <output name="outy" type="float" />
-    </separate>
-    <combine name="combineUvs" type="vector2" xpos="6.25394" ypos="14.4202">
-      <input name="in1" type="float" value="0.0" nodename="flipU" />
-      <input name="in2" type="float" value="0.0" output="outy" nodename="separateUVs" />
-    </combine>
-    <output name="out" type="color3" nodename="envImage" />
-    <image name="envImage" type="color3" xpos="7.47261" ypos="16.5067">
-      <parameter name="file" type="filename" value="resources/Images/san_giuseppe_bridge.hdr" />
-      <parameter name="layer" type="string" value="" />
-      <parameter name="default" type="color3" value="0.0, 0.0, 0.0" />
-      <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="combineUvs" />
-      <parameter name="uaddressmode" type="string" value="periodic" />
-      <parameter name="vaddressmode" type="string" value="clamp" />
-      <parameter name="filtertype" type="string" value="linear" />
-    </image>
-  </nodegraph>
-</materialx>
+   <nodegraph name="environmentDraw">
+      <texcoord name="envUvs" type="vector2">
+         <parameter name="index" type="integer" value="0" />
+      </texcoord>
+      <invert name="flipU" type="float">
+         <input name="in" type="float" nodename="envUvs" channels="x" />
+         <parameter name="amount" type="float" value="1.0000" />
+      </invert>
+      <combine name="combineUvs" type="vector2">
+         <input name="in1" type="float" nodename="flipU" />
+         <input name="in2" type="float" nodename="envUvs" channels="y"/>
+      </combine>
+      <image name="envImage" type="color3">
+         <parameter name="file" type="filename" value="resources/Images/san_giuseppe_bridge.hdr" />
+         <parameter name="layer" type="string" value="" />
+         <parameter name="default" type="color3" value="0.0, 0.0, 0.0" />
+         <input name="texcoord" type="vector2" nodename="combineUvs" />
+         <parameter name="uaddressmode" type="string" value="periodic" />
+         <parameter name="vaddressmode" type="string" value="clamp" />
+         <parameter name="filtertype" type="string" value="linear" />
+      </image>
+      <output name="out" type="color3" nodename="envImage" />
+   </nodegraph>
+</materialx>```
