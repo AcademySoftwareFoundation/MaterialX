@@ -4,6 +4,22 @@
 
 NANOGUI_FORCE_DISCRETE_GPU();
 
+const std::string doc = 
+" Options: \n"
+"    --library [PATH ...]     Additional library folder location(s)\n"
+"    --path [PATH ...]        Additional file search path location(s)\n"
+"    --mesh [PATH]            Mesh filename (defaults to resources/Geometry/teapot.obj)\n"
+"    --material [PATH]        Material filename\n"
+"    --remap [TOKEN1:TOKEN2]  Remap one token to another when MaterialX document is loaded\n"
+"    --skip [ELEMENT ...]     Elements to skip loading\n"
+"    --terminator [CHAR]      Specify file path terminator\n"
+"    --envMethod [VALUE]      Environment lighting method (Default: filtered importance sampling)\n"
+"                                1: Prefiltered environment maps\n"
+"    --msaa                   Multisampling count for anti-aliasing (Default: 0)\n"
+"    --envRad [PATH]          Specify environment radiance hdr (Default: resources/Images/san_giuseppe_bridge.hdr)\n"
+"    --envIrrad [PATH]        Specify environment irradiance hdr (Default: resources/Images/san_giuseppe_bridge_diffuse.hdr)\n"
+"    -h, --help               Print this help\n";
+
 int main(int argc, char* const argv[])
 {  
     std::vector<std::string> tokens;
@@ -16,6 +32,8 @@ int main(int argc, char* const argv[])
     mx::FileSearchPath searchPath;
     std::string meshFilename = "resources/Geometry/teapot.obj";
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
+    std::string envRadiancePath = "resources/Images/san_giuseppe_bridge.hdr";
+    std::string envIrradiancePath = "resources/Images/san_giuseppe_bridge_diffuse.hdr";
     DocumentModifiers modifiers;
     int multiSampleCount = 0;
     mx::HwSpecularEnvironmentMethod specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
@@ -67,6 +85,19 @@ int main(int argc, char* const argv[])
         {
             multiSampleCount = std::stoi(nextToken);
         }
+        if (token == "--envRad" && !nextToken.empty())
+        {
+            envRadiancePath = nextToken;
+        }
+        if (token == "--envIrrad" && !nextToken.empty())
+        {
+            envIrradiancePath = nextToken;
+        }
+        if (token == "--help" || token == "-h")
+        {
+            std::cout << doc << std::endl;
+            return 0;
+        }
     }
 
     // Search current directory and parent directory if not found.
@@ -105,7 +136,9 @@ int main(int argc, char* const argv[])
                                                 materialFilename,
                                                 modifiers,
                                                 specularEnvironmentMethod,
-                                                multiSampleCount);
+                                                multiSampleCount,
+                                                envRadiancePath,
+                                                envIrradiancePath);
             viewer->setVisible(true);
             ng::mainloop();
         }

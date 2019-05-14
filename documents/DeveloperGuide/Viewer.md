@@ -68,9 +68,15 @@ To improve the indirect lighting highlights on your material, increase the `Adva
 ### Command Line Options
 
 Command line arguments can be specified by using the `--` prefix on startup:
-1. `--library`: Additional library folder location(s).
-2. `--path`: Additional file search path location(s).
-3. `--mesh`: Mesh file name.
-4. `--material`: Material file name.
-5. `--envMethod`: Environment lighting method. 1 means to use prefiltered environment maps. The default is to use filtered importance sampling.
-6. `--msaa`: Multi sampling count for anti-aliasing.
+1. `--library [PATH ...]`: Additional library folder location(s).
+2. `--path [PATH ...]`: Additional file search path location(s).
+3. `--mesh [PATH]`: Mesh file name.
+4. `--material [PATH]`: Material file name.
+5. `--remap [TOKEN1:TOKEN2]`: Remap one token to another when MaterialX document is loaded.
+6. `--skip [ELEMENT ...]`: Elements to skip loading.
+7. `--terminator [CHAR]`: Specify file path terminator.
+8. `--envMethod`: Environment lighting method. 1 means to use prefiltered environment maps. The default is to use filtered importance sampling.
+9. `--msaa`: Multi sampling count for anti-aliasing.
+10. `--envRad [PATH]`: Specify environment radiance hdr.
+11. `--envIrrad [PATH]`: Specify the environment irradiance hdr.
+12. `-h, --help`: Print help  

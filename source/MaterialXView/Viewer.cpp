@@ -93,7 +93,9 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
                const std::string& materialFilename,
                const DocumentModifiers& modifiers,
                mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
-               int multiSampleCount) :
+               int multiSampleCount,
+               const std::string& envRadiancePath,
+               const std::string& envIrradiancePath) :
     ng::Screen(ng::Vector2i(1280, 960), "MaterialXView",
         true, false,
         8, 8, 24, 8,
@@ -111,6 +113,8 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     _searchPath(searchPath),
     _materialFilename(materialFilename),
     _modifiers(modifiers),
+    _envRadiancePath(envRadiancePath),
+    _envIrradiancePath(envIrradiancePath),
     _directLighting(false),
     _indirectLighting(true),
     _selectedGeom(0),
@@ -166,8 +170,6 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
 
     // Set default light information before initialization
     _lightFileName = "resources/Materials/TestSuite/Utilities/Lights/default_viewer_lights.mtlx";
-    _envRadiancePath = "resources/Images/san_giuseppe_bridge.hdr";
-    _envIrradiancePath = "resources/Images/san_giuseppe_bridge_diffuse.hdr";
 
     // Load in standard library and light handler and create top level document
     _stdLib = loadLibraries(_libraryFolders, _searchPath);
