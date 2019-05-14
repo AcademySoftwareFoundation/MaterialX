@@ -208,9 +208,20 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     const mx::MeshList& meshes = _envGeometryHandler->getMeshes();
     if (!meshes.empty())
     {
+        // Invert u
+        mx::MeshPtr mesh = meshes[0];
+        mx::MeshStreamPtr stream = mesh->getStream(mx::MeshStream::TEXCOORD_ATTRIBUTE, 0);
+        mx::MeshFloatBuffer &buffer = stream->getData();
+        size_t stride = stream->getStride();
+        for (size_t i = 0; i < buffer.size() / stride; i++)
+        {
+            float val = (1.0f - buffer[i*stride]);
+            buffer[i*stride] = (val < 0.0f) ? (val + 1.0f) : ((val > 1.0f) ? val -= 1.0f : val);
+        }
         // Set up world matrix for drawing
         const float scaleFactor = 300.0f;
-        _envMatrix = mx::Matrix44::createScale(mx::Vector3(scaleFactor));
+        const float rotationRadians = PI / 2.0f; // 90 degree rotation
+        _envMatrix = mx::Matrix44::createScale(mx::Vector3(scaleFactor)) * mx::Matrix44::createRotationY(rotationRadians);
 
         const std::string envShaderName("__ENV_SHADER_NAME__");
         _envMaterial = Material::create();
