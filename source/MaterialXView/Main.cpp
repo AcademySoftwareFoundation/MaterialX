@@ -4,7 +4,7 @@
 
 NANOGUI_FORCE_DISCRETE_GPU();
 
-const std::string doc = 
+const std::string docstring = 
 " Options: \n"
 "    --library [PATH ...]     Additional library folder location(s)\n"
 "    --path [PATH ...]        Additional file search path location(s)\n"
@@ -95,7 +95,7 @@ int main(int argc, char* const argv[])
         }
         if (token == "--help" || token == "-h")
         {
-            std::cout << doc << std::endl;
+            std::cout << docstring << std::endl;
             return 0;
         }
     }
