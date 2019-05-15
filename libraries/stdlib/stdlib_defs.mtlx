@@ -54,6 +54,7 @@
   <geompropdef name="Nworld" geomprop="normal" space="world"/>
   <geompropdef name="Tworld" geomprop="tangent" space="world" index="0"/>
   <geompropdef name="UV0" geomprop="texcoord" index="0"/>
+  <geompropdef name="Vworld" geomprop="viewdirection" space="world"/>
 
   <!-- ======================================================================== -->
   <!-- Texture nodes                                                            -->
