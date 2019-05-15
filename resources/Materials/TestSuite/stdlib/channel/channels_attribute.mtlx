@@ -18,7 +18,7 @@ Tests the channel attribute for inputs and outputs
          <parameter name="filtertype" type="string" value="linear"/>
          <parameter name="frameendaction" type="string" value="periodic"/>
       </image>
-      <output name="out" type="color2" nodename="image4" channels="ra" />
+      <output name="out" type="color2" nodename="image4" channels="rr" />
    </nodegraph>
 
    <nodegraph name="image4_to_color3_bgr_out" type="">
@@ -52,7 +52,7 @@ Tests the channel attribute for inputs and outputs
 
    <nodegraph name="color2_to_color4_arar_out" type="">
       <constant name="constant1" type="color2">
-         <parameter name="value" type="color2" value="0.5, 1.0" />
+         <parameter name="value" type="color2" value="1.0, 0.5" />
       </constant>
       <output name="out" type="color4" nodename="constant1" channels="arar" />
    </nodegraph>
@@ -100,7 +100,7 @@ Tests the channel attribute for inputs and outputs
          <parameter name="frameendaction" type="string" value="periodic"/>
       </image>
       <add name="add1" type="color3">
-         <input name="in1" type="color3" nodename="image4" channels="bga" />
+         <input name="in1" type="color3" nodename="image4" channels="bgr" />
          <input name="in2" type="color3" value="0.5, 0.5, 0.5" />
       </add>
       <output name="out" type="color3" nodename="add1" />
@@ -115,8 +115,8 @@ Tests the channel attribute for inputs and outputs
          <parameter name="frameendaction" type="string" value="periodic"/>
       </image>
       <add name="add1" type="color2">
-         <input name="in1" type="color2" nodename="image4" channels="ga" />
-         <input name="in2" type="color2" value="0.5, 0.5" />
+         <input name="in1" type="color2" nodename="image4" channels="gg" />
+         <input name="in2" type="color2" value="0.5, 0.0" />
       </add>
       <output name="out" type="color2" nodename="add1" />
    </nodegraph>
@@ -149,7 +149,7 @@ Tests the channel attribute for inputs and outputs
 
    <nodegraph name="color2_to_color4_arar_in" type="">
       <constant name="constant1" type="color2">
-         <parameter name="value" type="color2" value="0.5, 1.0" />
+         <parameter name="value" type="color2" value="1.0, 0.5" />
       </constant>
       <add name="add1" type="color4">
          <input name="in1" type="color4" nodename="constant1" channels="arar" />
