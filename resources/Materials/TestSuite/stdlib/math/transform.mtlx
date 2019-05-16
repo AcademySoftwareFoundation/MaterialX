@@ -185,7 +185,7 @@ Basic transform function tests each test is in a separate graph for each variati
 
   <nodegraph name="tf_normal_vector4" xpos="6.83448" ypos="20.44">
     <transformnormal name="transformnormal1" type="vector4">
-      <input name="in" type="vector4" value="1.0, 0.5, 0.0, 1.0" nodename="convert1"/>
+      <input name="in" type="vector4" nodename="convert1"/>
       <input name="fromspace" type="string" value="object" />
       <input name="tospace" type="string" value="world" />
     </transformnormal>
@@ -193,7 +193,7 @@ Basic transform function tests each test is in a separate graph for each variati
       <parameter name="space" type="string" value="object" />
     </normal>
     <convert name="convert1" type="vector4" xpos="4.86803" ypos="12.1804">
-      <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="normal1" />
+      <input name="in" type="vector3" nodename="normal1" />
     </convert>
     <output name="out" type="vector4" nodename="transformnormal1" />
   </nodegraph>
@@ -201,7 +201,7 @@ Basic transform function tests each test is in a separate graph for each variati
   <nodegraph name="tf_normal_vector3M">
     <transformnormal name="transformnormal1" type="vector3">
       <input name="in" type="vector3" value="1.0, 0.5, 0.0" nodename="normal1"/>
-      <input name="mat" type="matrix33" value="0.5, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0"/>
+      <input name="mat" type="matrix33" value="0.5, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 1.0"/>
     </transformnormal>
     <normal name="normal1" type="vector3" xpos="3.855" ypos="10.3157">
       <parameter name="space" type="string" value="object" />
@@ -212,7 +212,7 @@ Basic transform function tests each test is in a separate graph for each variati
   <nodegraph name="tf_normal_vector4M" xpos="6.7931" ypos="9">
     <transformnormal name="transformnormal1" type="vector4" xpos="5.66534" ypos="8.4484">
       <input name="in" type="vector4" value="1.0, 0.5, 0.0, 1.0" nodename="convert1" />
-      <input name="mat" type="matrix44" value="0.5, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0" />
+      <input name="mat" type="matrix44" value="0.5, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0" />
     </transformnormal>
     <output name="out" type="vector4" nodename="transformnormal1" />
     <normal name="normal1" type="vector3" xpos="3.855" ypos="10.3157">
@@ -224,8 +224,8 @@ Basic transform function tests each test is in a separate graph for each variati
   </nodegraph>
   <nodegraph name="tf_normal3_vector4M" xpos="6.93103" ypos="29.02">
     <transformnormal name="transformnormal3M4" type="vector3" xpos="5.1253" ypos="10.5662">
-      <input name="in" type="vector3" value="1.0, 0.5, 0.0" nodename="normal1" />
-      <input name="mat" type="matrix44" value="0.5, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0" />
+      <input name="in" type="vector3" nodename="normal1" />
+      <input name="mat" type="matrix44" value="0.5, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0" />
     </transformnormal>
     <output name="out" type="vector3" nodename="transformnormal3M4" />
     <normal name="normal1" type="vector3" xpos="4.77303" ypos="13.4329">
