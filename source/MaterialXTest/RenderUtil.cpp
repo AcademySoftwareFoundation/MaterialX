@@ -206,10 +206,12 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             const mx::FilePath filePath = mx::FilePath(dir) / mx::FilePath(file);
             const std::string filename = filePath;
 
+            mx::XmlReadOptions readOptions;
+            readOptions.skipDuplicateElements = true;
             mx::DocumentPtr doc = mx::createDocument();
             try
             {
-                mx::readFromXmlFile(doc, filename, dir);
+                mx::readFromXmlFile(doc, filename, dir, &readOptions);
             }
             catch (mx::Exception& e)
             {
