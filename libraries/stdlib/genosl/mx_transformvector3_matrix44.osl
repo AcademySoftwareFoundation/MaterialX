@@ -1,4 +1,0 @@
-void mx_transformvector3_matrix44(vector val, matrix m, output vector result)
-{
-    result = transform(m, val);
-}

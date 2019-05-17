@@ -1,1 +1,1 @@
-transform({{fromspace}}, {{tospace}}, {{in}})
+transform({{fromspace}}, {{tospace}}, point({{in}}))
