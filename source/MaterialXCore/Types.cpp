@@ -85,7 +85,7 @@ template <> Matrix33 MatrixN<Matrix33, float, 3>::getAdjugate() const
         _arr[0][0]*_arr[1][1] - _arr[1][0]*_arr[0][1]);
 }
 
-Vector3 Matrix33::transform(const Vector3& rhs) const
+Vector3 Matrix33::multiply(const Vector3& rhs) const
 {
     return Vector3(
       _arr[0][0] * rhs[0] + _arr[0][1] * rhs[1] + _arr[0][2] * rhs[2],
@@ -96,28 +96,21 @@ Vector3 Matrix33::transform(const Vector3& rhs) const
 
 Vector2 Matrix33::transformPoint(const Vector2& rhs) const
 {
-    Vector3 rhsVector3(rhs[0], rhs[1], 1.0f);
-    rhsVector3 = transform(rhsVector3);
-    return Vector2(rhsVector3[0], rhsVector3[1]);
+    Vector3 rhs3(rhs[0], rhs[1], 1.0f);
+    rhs3 = multiply(rhs3);
+    return Vector2(rhs3[0], rhs3[1]);
 }
 
 Vector2 Matrix33::transformVector(const Vector2& rhs) const
 {
-    Vector3 rhsVector3(rhs[0], rhs[1], 0.0f);
-    rhsVector3 = transform(rhsVector3);
-    return Vector2(rhsVector3[0], rhsVector3[1]);
+    Vector3 rhs3(rhs[0], rhs[1], 0.0f);
+    rhs3 = multiply(rhs3);
+    return Vector2(rhs3[0], rhs3[1]);
 }
 
 Vector3 Matrix33::transformNormal(const Vector3& rhs) const
 {
-    return getInverse().getTranspose().transform(rhs);
-}
-
-Vector2 Matrix33::transformNormal(const Vector2& rhs) const
-{
-    Vector3 rhsVector3(rhs[0], rhs[1], 0.0f);
-    rhsVector3 = transformNormal(rhsVector3);
-    return Vector2(rhsVector3[0], rhsVector3[1]);
+    return getInverse().getTranspose().multiply(rhs);
 }
 
 Matrix33 Matrix33::createTranslation(const Vector2& v)
@@ -221,7 +214,7 @@ template <> Matrix44 MatrixN<Matrix44, float, 4>::getAdjugate() const
 }
 
 
-Vector4 Matrix44::transform(const Vector4& rhs) const
+Vector4 Matrix44::multiply(const Vector4& rhs) const
 {
     return Vector4(
       _arr[0][0] * rhs[0] + _arr[0][1] * rhs[1] + _arr[0][2] * rhs[2] + _arr[0][3] * rhs[3],
@@ -233,28 +226,23 @@ Vector4 Matrix44::transform(const Vector4& rhs) const
 
 Vector3 Matrix44::transformPoint(const Vector3& rhs) const
 {
-    Vector4 rhsVector4(rhs[0], rhs[1], rhs[2], 1.0f);
-    rhsVector4 = transform(rhsVector4);
-    return Vector3(rhsVector4[0], rhsVector4[1], rhsVector4[2]);
+    Vector4 rhs4(rhs[0], rhs[1], rhs[2], 1.0f);
+    rhs4 = multiply(rhs4);
+    return Vector3(rhs4[0], rhs4[1], rhs4[2]);
 }
 
 Vector3 Matrix44::transformVector(const Vector3& rhs) const
 {
-    Vector4 rhsVector4(rhs[0], rhs[1], rhs[2], 0.0f);
-    rhsVector4 = transform(rhsVector4);
-    return Vector3(rhsVector4[0], rhsVector4[1], rhsVector4[2]);
-}
-
-Vector4 Matrix44::transformNormal(const Vector4& rhs) const
-{
-    return getInverse().getTranspose().transform(rhs);
+    Vector4 rhs4(rhs[0], rhs[1], rhs[2], 0.0f);
+    rhs4 = multiply(rhs4);
+    return Vector3(rhs4[0], rhs4[1], rhs4[2]);
 }
 
 Vector3 Matrix44::transformNormal(const Vector3& rhs) const
 {
-    Vector4 rhsVector4(rhs[0], rhs[1], rhs[2], 0.0f);
-    rhsVector4 = transformNormal(rhsVector4);
-    return Vector3(rhsVector4[0], rhsVector4[1], rhsVector4[2]);
+    Vector4 rhs4(rhs[0], rhs[1], rhs[2], 0.0f);
+    rhs4 = getInverse().getTranspose().multiply(rhs4);
+    return Vector3(rhs4[0], rhs4[1], rhs4[2]);
 }
 
 Matrix44 Matrix44::createTranslation(const Vector3& v)
