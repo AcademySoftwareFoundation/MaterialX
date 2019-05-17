@@ -66,7 +66,7 @@ bool elementRequiresShading(const TypedElementPtr element);
 /// part of any included library. Light shaders are not considered to be renderable.
 /// The option to include node graphs referened by shader references is disabled by default.
 void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>& elements, 
-                            bool includeReferencedGraphs=false, std::ostream* errorLog=nullptr);
+                            bool includeReferencedGraphs = false);
 
 /// Given a path to a element, find the corresponding element with the same name
 /// on an associated nodedef if it exists. A target string should be provided

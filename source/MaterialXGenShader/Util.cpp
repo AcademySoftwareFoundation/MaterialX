@@ -296,7 +296,7 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
         NodeDefPtr nodeDef = shaderRef->getNodeDef();
         if (!nodeDef)
         {
-            throw ExceptionShaderGenError("Could not find a nodedef for shaderref '" + shaderRef->getName() + "'");
+            throw ExceptionShaderGenError("Could not find a nodedef for shaderref '" + shaderRef->getName() + "' in material " + shaderRef->getParent()->getName());
         }
         if (TypeDesc::get(nodeDef->getType()) != Type::SURFACESHADER)
         {
@@ -455,91 +455,80 @@ bool elementRequiresShading(const TypedElementPtr element)
             colorClosures.count(elementType) > 0);
 }
 
-void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>& elements, bool includeReferencedGraphs, 
-                            std::ostream* errorLog)
+void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>& elements, bool includeReferencedGraphs)
 {
-    try
+    std::unordered_set<OutputPtr> processedOutputs;
+
+    for (auto material : doc->getMaterials())
     {
-        std::unordered_set<OutputPtr> processedOutputs;
-
-        for (auto material : doc->getMaterials())
+        for (auto shaderRef : material->getShaderRefs())
         {
-            for (auto shaderRef : material->getShaderRefs())
+            if (!shaderRef->hasSourceUri())
             {
-                if (!shaderRef->hasSourceUri())
+                // Add in all shader references which are not part of a node definition library
+                NodeDefPtr nodeDef = shaderRef->getNodeDef();
+                if (!nodeDef)
                 {
-                    // Add in all shader references which are not part of a node definition library
-                    NodeDefPtr nodeDef = shaderRef->getNodeDef();
-                    if (!nodeDef)
-                    {
-                        throw ExceptionShaderGenError("Could not find a nodedef for shaderref '" + shaderRef->getName() + "'");
-                    }
-                    if (requiresImplementation(nodeDef))
-                    {
-                        elements.push_back(shaderRef);
-                    }
+                    throw ExceptionShaderGenError("Could not find a nodedef for shaderref '" + shaderRef->getName() + "' in material '" + shaderRef->getParent()->getName() + "'");
+                }
+                if (requiresImplementation(nodeDef))
+                {
+                    elements.push_back(shaderRef);
+                }
 
-                    if (!includeReferencedGraphs)
+                if (!includeReferencedGraphs)
+                {
+                    // Track outputs already used by the shaderref
+                    for (auto bindInput : shaderRef->getBindInputs())
                     {
-                        // Track outputs already used by the shaderref
-                        for (auto bindInput : shaderRef->getBindInputs())
+                        OutputPtr outputPtr = bindInput->getConnectedOutput();
+                        if (outputPtr)
                         {
-                            OutputPtr outputPtr = bindInput->getConnectedOutput();
-                            if (outputPtr)
-                            {
-                                processedOutputs.insert(outputPtr);
-                            }
+                            processedOutputs.insert(outputPtr);
                         }
                     }
                 }
-            }
-        }
-
-        // Find node graph outputs. Skip any light shaders
-        const string LIGHT_SHADER("lightshader");
-        for (NodeGraphPtr nodeGraph : doc->getNodeGraphs())
-        {
-            // Skip anything from an include file including libraries.
-            if (!nodeGraph->hasSourceUri())
-            {
-                for (OutputPtr output : nodeGraph->getOutputs())
-                {
-                    if (output->hasSourceUri() || processedOutputs.count(output))
-                    {
-                        continue;
-                    }
-                    NodePtr outputNode = output->getConnectedNode();
-                    if (outputNode && outputNode->getType() != LIGHT_SHADER)
-                    {
-                        NodeDefPtr nodeDef = outputNode->getNodeDef();
-                        if (!nodeDef)
-                        {
-                            throw ExceptionShaderGenError("Could not find a nodedef for output '" + outputNode->getName() + "'");
-                        }
-                        if (requiresImplementation(nodeDef))
-                        {
-                            elements.push_back(output);
-                        }
-                    }
-                    processedOutputs.insert(output);
-                }
-            }
-        }
-
-        // Add in all top-level outputs not already processed.
-        for (OutputPtr output : doc->getOutputs())
-        {
-            if (!output->hasSourceUri() && !processedOutputs.count(output))
-            {
-                elements.push_back(output);
             }
         }
     }
-    catch (ExceptionShaderGenError& e)
+
+    // Find node graph outputs. Skip any light shaders
+    const string LIGHT_SHADER("lightshader");
+    for (NodeGraphPtr nodeGraph : doc->getNodeGraphs())
     {
-        if (errorLog)
+        // Skip anything from an include file including libraries.
+        if (!nodeGraph->hasSourceUri())
         {
-            *errorLog << e.what() << std::endl;
+            for (OutputPtr output : nodeGraph->getOutputs())
+            {
+                if (output->hasSourceUri() || processedOutputs.count(output))
+                {
+                    continue;
+                }
+                NodePtr node = output->getConnectedNode();
+                if (node && node->getType() != LIGHT_SHADER)
+                {
+                    NodeDefPtr nodeDef = node->getNodeDef();
+                    if (!nodeDef)
+                    {
+                        throw ExceptionShaderGenError("Could not find a nodedef for node '" + node->getNamePath() + "'");
+                    }
+                    if (requiresImplementation(nodeDef))
+                    {
+                        elements.push_back(output);
+                    }
+                }
+                processedOutputs.insert(output);
+            }
+        }
+    }
+
+    // Add in all top-level outputs not already processed.
+    for (OutputPtr output : doc->getOutputs())
+    {
+        if (!output->hasSourceUri() && !processedOutputs.count(output))
+        {
+            elements.push_back(output);
         }
     }
 }
