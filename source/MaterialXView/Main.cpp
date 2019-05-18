@@ -14,7 +14,7 @@ int main(int argc, char* const argv[])
 
     mx::StringVec libraryFolders = { "libraries/stdlib", "libraries/pbrlib", "libraries/stdlib/genglsl", "libraries/pbrlib/genglsl", "libraries/bxdf" };
     mx::FileSearchPath searchPath;
-    std::string meshFilename = "resources/Geometry/arnold_shaderball.obj";
+    std::string meshFilename = "resources/Geometry/shaderball.obj";
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
     DocumentModifiers modifiers;
     int multiSampleCount = 0;
