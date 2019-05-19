@@ -31,7 +31,8 @@ bool readFile(const string& filename, string& content);
 /// Scans for all documents under a root path and returns documents which can be loaded
 void loadDocuments(const FilePath& rootPath, 
                    const StringSet& skipFiles, const StringSet& includeFiles,
-                   vector<DocumentPtr>& documents, StringVec& documentsPaths);
+                   vector<DocumentPtr>& documents, StringVec& documentsPaths, 
+                   StringVec& errorLog);
 
 /// Returns true if the given element is a surface shader with the potential
 /// of beeing transparent. This can be used by HW shader generators to determine
@@ -65,7 +66,7 @@ bool elementRequiresShading(const TypedElementPtr element);
 /// part of any included library. Light shaders are not considered to be renderable.
 /// The option to include node graphs referened by shader references is disabled by default.
 void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>& elements, 
-                            bool includeReferencedGraphs=false, std::ostream* errorLog=nullptr);
+                            bool includeReferencedGraphs = false);
 
 /// Given a path to a element, find the corresponding element with the same name
 /// on an associated nodedef if it exists. A target string should be provided

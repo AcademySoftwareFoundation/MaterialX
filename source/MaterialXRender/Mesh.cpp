@@ -210,28 +210,40 @@ void MeshStream::transform(const Matrix44 &matrix)
 {
     unsigned int stride = getStride();
     size_t numElements = _data.size() / getStride();
-    for (size_t i=0; i<numElements; i++)
+    if(getType() == MeshStream::POSITION_ATTRIBUTE ||
+       getType() == MeshStream::TEXCOORD_ATTRIBUTE ||
+       getType() == MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE)
     {
-        Vector4 vec(0.0, 0.0, 0.0, 1.0);
-        for(size_t j=0; j<stride; j++)
+        for (size_t i=0; i<numElements; i++)
         {
-            vec[j] = _data[i*stride + j];
-        }
-        if(getType() == MeshStream::POSITION_ATTRIBUTE ||
-           getType() == MeshStream::TEXCOORD_ATTRIBUTE ||
-           getType() == MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE)
-        {
+            Vector4 vec(0.0, 0.0, 0.0, 1.0);
+            for(size_t j=0; j<stride; j++)
+            {
+                vec[j] = _data[i*stride + j];
+            }
             vec = matrix.multiply(vec);
+            for(size_t k=0; k<stride; k++)
+            {
+                _data[i*stride + k] = vec[k];
+            }
         }
-        else if(getType() == MeshStream::NORMAL_ATTRIBUTE ||
-                getType() == MeshStream::TANGENT_ATTRIBUTE ||
-                getType() == MeshStream::BITANGENT_ATTRIBUTE)
+    }
+    else if(getType() == MeshStream::NORMAL_ATTRIBUTE ||
+            getType() == MeshStream::TANGENT_ATTRIBUTE ||
+            getType() == MeshStream::BITANGENT_ATTRIBUTE)
+    {
+        for (size_t i=0; i<numElements; i++)
         {
-            vec = matrix.getInverse().getTranspose().multiply(vec);
-        }
-        for(size_t k=0; k<stride; k++)
-        {
-            _data[i*stride + k] = vec[k];
+            Vector3 vec(0.0, 0.0, 0.0);
+            for(size_t j=0; j<stride; j++)
+            {
+                vec[j] = _data[i*stride + j];
+            }
+            vec = matrix.transformNormal(vec);
+            for(size_t k=0; k<stride; k++)
+            {
+                _data[i*stride + k] = vec[k];
+            }
         }
     }
 }

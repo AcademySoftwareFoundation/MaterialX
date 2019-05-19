@@ -321,4 +321,14 @@
     <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
   </nodedef>
 
+  <!--
+    Node: <fresnel>
+  -->
+  <nodedef name="ND_fresnel_ior" node="fresnel" type="float" nodegroup="pbr"
+           doc="Node for calculating the Fresnel equation from index of refraction for a dielectric surface.">
+    <input name="ior" type="float" value="1.5"/>
+    <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
+    <input name="viewdirection" type="vector3" defaultgeomprop="Vworld"/>
+  </nodedef>
+
 </materialx>

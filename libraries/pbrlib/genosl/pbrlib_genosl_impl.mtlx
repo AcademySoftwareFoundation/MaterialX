@@ -65,4 +65,7 @@
   <!-- <normalmap> -->
   <implementation name="IM_normalmap_genosl" nodedef="ND_normalmap" file="pbrlib/genosl/mx_normalmap.osl" function="mx_normalmap" language="genosl"/>
 
+  <!-- <fresnel> -->
+  <implementation name="IM_fresnel_ior_genosl" nodedef="ND_fresnel_ior" file="pbrlib/genosl/mx_fresnel_ior.osl" function="mx_fresnel_ior" language="genosl"/>
+
 </materialx>
