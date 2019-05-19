@@ -1999,11 +1999,11 @@
   -->
   <nodedef name="ND_rotate_vector2" node="rotate" type="vector2" nodegroup="math" defaultinput="in">
     <input name="in" type="vector2"/>
-    <parameter name="amount" type="float" value="0.0"/>
+    <input name="amount" type="float" value="0.0"/>
   </nodedef>
   <nodedef name="ND_rotate_vector3" node="rotate" type="vector3" nodegroup="math" defaultinput="in">
     <input name="in" type="vector3"/>
-    <parameter name="amount" type="float" value="0.0"/>
+    <input name="amount" type="float" value="0.0"/>
     <parameter name="axis" type="vector3"/>
   </nodedef>
 

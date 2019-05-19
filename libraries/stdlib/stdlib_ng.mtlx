@@ -1195,7 +1195,7 @@
     </divide>
     <rotate name="N_applyrot" type="vector2">
       <input name="in" type="vector2" nodename="N_applyscale"/>
-      <parameter name="amount" type="float" interfacename="rotate"/>
+      <input name="amount" type="float" interfacename="rotate"/>
     </rotate>
     <subtract name="N_applyoffset" type="vector2">
       <input name="in1" type="vector2" nodename="N_applyrot"/>
