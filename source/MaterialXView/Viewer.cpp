@@ -210,7 +210,8 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     {
         // Set up world matrix for drawing
         const float scaleFactor = 300.0f;
-        _envMatrix = mx::Matrix44::createScale(mx::Vector3(scaleFactor));
+        const float rotationRadians = PI / 2.0f; // 90 degree rotation 
+        _envMatrix = mx::Matrix44::createScale(mx::Vector3(scaleFactor)) * mx::Matrix44::createRotationY(rotationRadians);
 
         const std::string envShaderName("__ENV_SHADER_NAME__");
         _envMaterial = Material::create();

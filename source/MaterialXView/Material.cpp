@@ -49,7 +49,7 @@ size_t Material::loadDocument(mx::DocumentPtr destinationDoc, const mx::FilePath
         }
         else
         {
-            new ng::MessageDialog(nullptr, ng::MessageDialog::Type::Warning, "Include file not found:", filename);
+            std::cerr << "Include file not found:" << filename << std::endl;
         }
     };
     mx::readFromXmlFile(doc, filePath, mx::EMPTY_STRING, &readOptions);
@@ -198,26 +198,33 @@ bool Material::generateEnvironmentShader(mx::GenContext& context,
                                          const std::string& shaderName,
                                          const mx::FilePath& imagePath)
 {
-    // Construct the environment nodegraph.  The U-component of the incoming
-    // UV set is inverted and rotated by 90 degrees.
+    // Read in the environment nodegraph. 
+    // The U-component of the incoming UV set is inverted 
     mx::DocumentPtr doc = mx::createDocument();
     doc->importLibrary(stdLib);
-    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
-    mx::NodePtr texcoord = nodeGraph->addNode("texcoord", mx::EMPTY_STRING, "vector2");
-    mx::NodePtr multiply = nodeGraph->addNode("multiply", mx::EMPTY_STRING, "vector2");
-    multiply->setConnectedNode("in1", texcoord);
-    multiply->setInputValue("in2", mx::Vector2(-1.0f, 1.0f));
-    mx::NodePtr add = nodeGraph->addNode("add", mx::EMPTY_STRING, "vector2");
-    add->setConnectedNode("in1", multiply);
-    add->setInputValue("in2", mx::Vector2(0.25f, 0.0f));
-    mx::NodePtr image = nodeGraph->addNode("image");
-    image->setConnectedNode("texcoord", add);
+    mx::DocumentPtr envDoc = mx::createDocument();
+    const std::string environmentShaderFile("resources/Materials/TestSuite/Utilities/Lights/envmap_shader.mtlx");
+    mx::readFromXmlFile(envDoc, environmentShaderFile);
+    doc->importLibrary(envDoc);
+
+    mx::NodeGraphPtr envGraph = doc->getNodeGraph("environmentDraw");
+    if (!envGraph)
+    {
+        return false;
+    }
+    mx::NodePtr image = envGraph->getNode("envImage");
+    if (!image)
+    {
+        return false;
+    }
     image->setParameterValue("file", imagePath.asString(), mx::FILENAME_TYPE_STRING);
     image->setParameterValue("uaddressmode", std::string("periodic"));
     image->setParameterValue("vaddressmode", std::string("clamp"));
-    mx::OutputPtr output = nodeGraph->addOutput();
-    output->setConnectedNode(image);
-
+    mx::OutputPtr output = envGraph->getOutput("out");
+    if (!output)
+    {
+        return false;
+    }
     _hwShader = createShader(shaderName, context, output); 
     if (!_hwShader)
     {

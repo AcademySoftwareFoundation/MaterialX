@@ -186,7 +186,7 @@ class OslColor4TypeSyntax : public OslStructTypeSyntax
         }
     }
 };
-    
+
 class OSLMatrix3TypeSyntax : public AggregateTypeSyntax
 {
   public:
@@ -197,7 +197,7 @@ class OSLMatrix3TypeSyntax : public AggregateTypeSyntax
     {}
 
     string getValue(const Value& value, bool uniform) const
-    {   
+    {
         Value::ScopedFloatFormatting fmt(Value::FloatFormatFixed, 3);
         StringVec values = splitString(value.getValueString(), ",");
         return getValue(values, uniform);
@@ -217,12 +217,12 @@ class OSLMatrix3TypeSyntax : public AggregateTypeSyntax
         for (size_t i = 0; i<values.size(); i++)
         {
             ss << values[i] << ", ";
-            if ((i != 0) && (i % 3 == 0))
+            if ((i+1) % 3 == 0)
             {
                 ss << "0.000" << ", ";
             }
         }
-        static string ROW_4("0.000, 0.000, 0.000, 0.000, 1.000");
+        static string ROW_4("0.000, 0.000, 0.000, 1.000");
         ss << ROW_4 << ")";
 
         return ss.str();
