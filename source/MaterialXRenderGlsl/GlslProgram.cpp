@@ -467,18 +467,25 @@ void GlslProgram::bindStreams(MeshPtr mesh)
     for (auto Input : foundList)
     {
         // Only handle float1-4 types for now
-        if (Input.second->gltype == GL_FLOAT)
+        switch (Input.second->gltype)
         {
-            GLfloat floatVal[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-            int size = Input.second->size;
-            if (size == 1)
-                glUniform1fv(Input.second->location, 1, floatVal);
-            else if (size == 2)
-                glUniform2fv(Input.second->location, 1, floatVal);
-            else if (size == 3)
-                glUniform3fv(Input.second->location, 1, floatVal);
-            else if (size == 4)
-                glUniform4fv(Input.second->location, 1, floatVal);
+            case GL_INT:
+                glUniform1i(Input.second->location, 1);
+                break;
+            case GL_FLOAT:
+                glUniform1f(Input.second->location, 0.0f);
+                break;
+            case GL_FLOAT_VEC2:
+                glUniform2f(Input.second->location, 0.0f, 0.0f);
+                break;
+            case GL_FLOAT_VEC3:
+                glUniform3f(Input.second->location, 0.0f, 0.0f, 0.0f);
+                break;
+            case GL_FLOAT_VEC4:
+                glUniform4f(Input.second->location, 0.0f, 0.0f, 0.0f, 1.0f);
+                break;
+            default:
+                break;
         }
     }
 

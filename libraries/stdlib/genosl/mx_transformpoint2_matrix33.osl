@@ -1,7 +1,6 @@
 void mx_transformpoint2_matrix33(vector2 val, matrix m, output vector2 result)
 {
-    point _val = point(val.x, val.y, 1.0);
-    point res = transform(m, _val);
+    point res = transform(m, point(val.x, val.y, 1.0));
     result.x = res[0];
     result.y = res[1];
 }

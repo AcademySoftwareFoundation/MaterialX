@@ -109,6 +109,10 @@ void bindPyTypes(py::module& mod)
         .def(py::init<float, float, float,
                       float, float, float,
                       float, float, float>())
+        .def("multiply", &mx::Matrix33::multiply)
+        .def("transformPoint", &mx::Matrix33::transformPoint)
+        .def("transformVector", &mx::Matrix33::transformVector)
+        .def("transformNormal", &mx::Matrix33::transformNormal)
         .def_static("createRotation", &mx::Matrix33::createRotation)
         .def_readonly_static("IDENTITY", &mx::Matrix33::IDENTITY);
 
@@ -118,6 +122,10 @@ void bindPyTypes(py::module& mod)
                       float, float, float, float,
                       float, float, float, float,
                       float, float, float, float>())
+        .def("multiply", &mx::Matrix44::multiply)
+        .def("transformPoint", &mx::Matrix44::transformPoint)
+        .def("transformVector", &mx::Matrix44::transformVector)
+        .def("transformNormal", &mx::Matrix44::transformNormal)
         .def_static("createRotationX", &mx::Matrix44::createRotationX)
         .def_static("createRotationY", &mx::Matrix44::createRotationY)
         .def_static("createRotationZ", &mx::Matrix44::createRotationZ)

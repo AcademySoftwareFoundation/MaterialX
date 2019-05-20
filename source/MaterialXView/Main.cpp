@@ -30,7 +30,7 @@ int main(int argc, char* const argv[])
 
     mx::StringVec libraryFolders = { "libraries/stdlib", "libraries/pbrlib", "libraries/stdlib/genglsl", "libraries/pbrlib/genglsl", "libraries/bxdf" };
     mx::FileSearchPath searchPath;
-    std::string meshFilename = "resources/Geometry/teapot.obj";
+    std::string meshFilename = "resources/Geometry/shaderball.obj";
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
     std::string envRadiancePath = "resources/Images/san_giuseppe_bridge.hdr";
     std::string envIrradiancePath = "resources/Images/san_giuseppe_bridge_diffuse.hdr";

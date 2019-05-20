@@ -24,7 +24,9 @@
 #include <MaterialXGenGlsl/Nodes/HeightToNormalNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightSamplerNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/NumLightsNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/TransformNodeGlsl.h>
+#include <MaterialXGenGlsl/Nodes/TransformVectorNodeGlsl.h>
+#include <MaterialXGenGlsl/Nodes/TransformPointNodeGlsl.h>
+#include <MaterialXGenGlsl/Nodes/TransformNormalNodeGlsl.h>
 
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
@@ -238,16 +240,13 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation("IM_blur_vector4_" + GlslShaderGenerator::LANGUAGE, BlurNode::create);
 
     // <!-- <ND_transformpoint> ->
-    registerImplementation("IM_transformpoint_vector3_" + GlslShaderGenerator::LANGUAGE, TransformNodeGlsl::create);
-    registerImplementation("IM_transformpoint_vector4_" + GlslShaderGenerator::LANGUAGE, TransformNodeGlsl::create);
+    registerImplementation("IM_transformpoint_vector3_" + GlslShaderGenerator::LANGUAGE, TransformPointNodeGlsl::create);
 
     // <!-- <ND_transformvector> ->
-    registerImplementation("IM_transformvector_vector3_" + GlslShaderGenerator::LANGUAGE, TransformNodeGlsl::create);
-    registerImplementation("IM_transformvector_vector4_" + GlslShaderGenerator::LANGUAGE, TransformNodeGlsl::create);
+    registerImplementation("IM_transformvector_vector3_" + GlslShaderGenerator::LANGUAGE, TransformVectorNodeGlsl::create);
 
     // <!-- <ND_transformnormal> ->
-    registerImplementation("IM_transformnormal_vector3_" + GlslShaderGenerator::LANGUAGE, TransformNodeGlsl::create);
-    registerImplementation("IM_transformnormal_vector4_" + GlslShaderGenerator::LANGUAGE, TransformNodeGlsl::create);
+    registerImplementation("IM_transformnormal_vector3_" + GlslShaderGenerator::LANGUAGE, TransformNormalNodeGlsl::create);
 
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", NumLightsNodeGlsl::create()));
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", LightSamplerNodeGlsl::create()));
