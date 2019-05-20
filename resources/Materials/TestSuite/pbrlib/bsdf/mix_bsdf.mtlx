@@ -34,9 +34,9 @@
          <input name="color" type="color3" interfacename="subsurface" value="0.1, 0.1, 0.8" />
       </diffuse_btdf>
       <mix name="layer1" type="BSDF">
-         <input name="in1" type="BSDF" nodename="diffuse" />
-         <input name="in2" type="BSDF" nodename="subsurface" />
-         <input name="weight" type="float" interfacename="subsurface_weight" />
+         <input name="fg" type="BSDF" nodename="diffuse" />
+         <input name="bg" type="BSDF" nodename="subsurface" />
+         <input name="mix" type="float" interfacename="subsurface_weight" />
       </mix>
       <output name="out" type="BSDF" nodename="layer1" />
    </nodegraph>

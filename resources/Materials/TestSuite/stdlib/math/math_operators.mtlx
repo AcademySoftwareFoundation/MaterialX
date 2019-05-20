@@ -511,7 +511,7 @@ Basic math operator function tests each test is in a separate graph for each var
   </nodegraph>
   <nodegraph name="power_color4FA" type="" xpos="8.18323" ypos="42.054">
     <power name="power1" type="color4" xpos="5.74483" ypos="4.58">
-      <input name="in1" type="color4" value="0.5000, 1.0000, 0.0, -0.5000" />
+      <input name="in1" type="color4" value="0.5000, 1.0000, 0.0, 1.0000" />
       <input name="in2" type="float" value="2.0000" />
     </power>
     <output name="out" type="color4" nodename="power1" />
@@ -553,7 +553,7 @@ Basic math operator function tests each test is in a separate graph for each var
   </nodegraph>
   <nodegraph name="power_vector4FA" type="" xpos="8.22205" ypos="44.76">
     <power name="power1" type="vector4" xpos="5.74483" ypos="4.58">
-      <input name="in1" type="vector4" value="0.5000, 1.0000, 0.0, -0.5000" />
+      <input name="in1" type="vector4" value="0.5000, 1.0000, 0.0, 1.0000" />
       <input name="in2" type="float" value="2.0000" />
     </power>
     <output name="out" type="vector4" nodename="power1" />
@@ -671,7 +671,7 @@ Basic math operator function tests each test is in a separate graph for each var
   <nodegraph name="divide_matrix33">
     <divide name="divide1" type="matrix33">
       <input name="in1" type="matrix33" value="1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0"/>
-      <input name="in2" type="matrix33" value="1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0"/>
+      <input name="in2" type="matrix33" value="1.0, 1.0, 1.0,  1.0, 1.0, 1.0,  1.0, 1.0, 1.0"/>
     </divide>
     <transformvector name="transformvector1" type="vector3">
       <input name="in" type="vector3" value="0.5, 0.5, 0.5"/>
@@ -682,7 +682,7 @@ Basic math operator function tests each test is in a separate graph for each var
   <nodegraph name="divide_matrix44">
     <divide name="divide1" type="matrix44">
       <input name="in1" type="matrix44" value="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0"/>
-      <input name="in2" type="matrix44" value="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0"/>
+      <input name="in2" type="matrix44" value="1.0, 1.0, 1.0, 1.0,  1.0, 1.0, 1.0, 1.0,  1.0, 1.0, 1.0, 1.0,  1.0, 1.0, 1.0, 1.0"/>
     </divide>
     <transformvector name="transformvector1" type="vector4">
       <input name="in" type="vector4" value="0.5, 0.5, 0.5, 1.0"/>

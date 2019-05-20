@@ -174,6 +174,16 @@ void OslValidator::renderOSL(const FilePath& dirPath, const string& shaderName, 
     result.assign(std::istreambuf_iterator<char>(errorStream),
         std::istreambuf_iterator<char>());
 
+    // Remove any erroneous messages and carriage returns.
+    const string pngWarning("libpng warning: iCCP: known incorrect sRGB profile");
+    size_t pngWarningLength = pngWarning.length();
+    size_t pos = std::string::npos;
+    while ((pos = result.find(pngWarning)) != std::string::npos)
+    {
+        result.erase(pos, pngWarningLength);
+    }
+    result.erase(std::remove(result.begin(), result.end(), '\n'), result.end());
+
     if (!result.empty())
     {
         errors.push_back("Command string: " + command);
