@@ -54,6 +54,7 @@
   <geompropdef name="Nworld" geomprop="normal" space="world"/>
   <geompropdef name="Tworld" geomprop="tangent" space="world" index="0"/>
   <geompropdef name="UV0" geomprop="texcoord" index="0"/>
+  <geompropdef name="Vworld" geomprop="viewdirection" space="world"/>
 
   <!-- ======================================================================== -->
   <!-- Texture nodes                                                            -->
@@ -1908,27 +1909,18 @@
     Transform a vector coordinate from one named space to another, or by a specified
     matrix.
   -->
-  <nodedef name="ND_transformpoint_vector3" node="transformpoint" type="vector3" nodegroup="math" defaultinput="in">
-    <input name="in" type="vector3"/>
-    <input name="fromspace" type="string" value=""/>
-    <input name="tospace" type="string" value=""/>
-  </nodedef>
-  <nodedef name="ND_transformpoint_vector3M" node="transformpoint" type="vector3" nodegroup="math" defaultinput="in">
-    <input name="in" type="vector3"/>
-    <input name="mat" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0"/>
-  </nodedef>
   <nodedef name="ND_transformpoint_vector2M3" node="transformpoint" type="vector2" nodegroup="math" defaultinput="in">
     <input name="in" type="vector2"/>
     <input name="mat" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0"/>
   </nodedef>
-  <nodedef name="ND_transformpoint_vector4" node="transformpoint" type="vector4" nodegroup="math" defaultinput="in">
-    <input name="in" type="vector4"/>
-    <input name="fromspace" type="string" value=""/>
-    <input name="tospace" type="string" value=""/>
+  <nodedef name="ND_transformpoint_vector3" node="transformpoint" type="vector3" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector3"/>
+    <parameter name="fromspace" type="string" value=""/>
+    <parameter name="tospace" type="string" value=""/>
   </nodedef>
-  <nodedef name="ND_transformpoint_vector4M" node="transformpoint" type="vector4" nodegroup="math" defaultinput="in">
-    <input name="in" type="vector4"/>
-    <input name="mat" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
+  <nodedef name="ND_transformpoint_vector3M" node="transformpoint" type="vector3" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector3"/>
+    <input name="mat" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0"/>
   </nodedef>
   <nodedef name="ND_transformpoint_vector3M4" node="transformpoint" type="vector3" nodegroup="math" defaultinput="in">
     <input name="in" type="vector3"/>
@@ -1939,30 +1931,25 @@
     Node: <transformvector>
     Transform a vector from one named space to another, or by a specified matrix.
   -->
+  <nodedef name="ND_transformvector_vector2M3" node="transformvector" type="vector2" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector2"/>
+    <input name="mat" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0"/>
+  </nodedef>
   <nodedef name="ND_transformvector_vector3" node="transformvector" type="vector3" nodegroup="math" defaultinput="in">
     <input name="in" type="vector3"/>
-    <input name="fromspace" type="string" value=""/>
-    <input name="tospace" type="string" value=""/>
+    <parameter name="fromspace" type="string" value=""/>
+    <parameter name="tospace" type="string" value=""/>
   </nodedef>
   <nodedef name="ND_transformvector_vector3M" node="transformvector" type="vector3" nodegroup="math" defaultinput="in">
     <input name="in" type="vector3"/>
     <input name="mat" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0"/>
   </nodedef>
-  <nodedef name="ND_transformvector_vector2M3" node="transformvector" type="vector2" nodegroup="math" defaultinput="in">
-    <input name="in" type="vector2"/>
-    <input name="mat" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0"/>
-  </nodedef>
-  <nodedef name="ND_transformvector_vector4" node="transformvector" type="vector4" nodegroup="math" defaultinput="in">
-    <input name="in" type="vector4"/>
-    <input name="fromspace" type="string" value=""/>
-    <input name="tospace" type="string" value=""/>
+  <nodedef name="ND_transformvector_vector3M4" node="transformvector" type="vector3" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector3"/>
+    <input name="mat" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
   </nodedef>
   <nodedef name="ND_transformvector_vector4M" node="transformvector" type="vector4" nodegroup="math" defaultinput="in">
     <input name="in" type="vector4"/>
-    <input name="mat" type="matrix44" value="0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0"/>
-  </nodedef>
-  <nodedef name="ND_transformvector_vector3M4" node="transformvector" type="vector3" nodegroup="math" defaultinput="in">
-    <input name="in" type="vector3"/>
     <input name="mat" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
   </nodedef>
 
@@ -1972,21 +1959,12 @@
   -->
   <nodedef name="ND_transformnormal_vector3" node="transformnormal" type="vector3" nodegroup="math" defaultinput="in">
     <input name="in" type="vector3"/>
-    <input name="fromspace" type="string" value=""/>
-    <input name="tospace" type="string" value=""/>
+    <parameter name="fromspace" type="string" value=""/>
+    <parameter name="tospace" type="string" value=""/>
   </nodedef>
   <nodedef name="ND_transformnormal_vector3M" node="transformnormal" type="vector3" nodegroup="math" defaultinput="in">
     <input name="in" type="vector3"/>
     <input name="mat" type="matrix33" value="1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0"/>
-  </nodedef>
-  <nodedef name="ND_transformnormal_vector4" node="transformnormal" type="vector4" nodegroup="math" defaultinput="in">
-    <input name="in" type="vector4"/>
-    <input name="fromspace" type="string" value=""/>
-    <input name="tospace" type="string" value=""/>
-  </nodedef>
-  <nodedef name="ND_transformnormal_vector4M" node="transformnormal" type="vector4" nodegroup="math" defaultinput="in">
-    <input name="in" type="vector4"/>
-    <input name="mat" type="matrix44" value="1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0"/>
   </nodedef>
   <nodedef name="ND_transformnormal_vector3M4" node="transformnormal" type="vector3" nodegroup="math" defaultinput="in">
     <input name="in" type="vector3"/>
@@ -2021,11 +1999,11 @@
   -->
   <nodedef name="ND_rotate_vector2" node="rotate" type="vector2" nodegroup="math" defaultinput="in">
     <input name="in" type="vector2"/>
-    <parameter name="amount" type="float" value="0.0"/>
+    <input name="amount" type="float" value="0.0"/>
   </nodedef>
   <nodedef name="ND_rotate_vector3" node="rotate" type="vector3" nodegroup="math" defaultinput="in">
     <input name="in" type="vector3"/>
-    <parameter name="amount" type="float" value="0.0"/>
+    <input name="amount" type="float" value="0.0"/>
     <parameter name="axis" type="vector3"/>
   </nodedef>
 

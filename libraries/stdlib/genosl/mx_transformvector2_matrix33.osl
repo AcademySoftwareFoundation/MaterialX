@@ -1,7 +1,6 @@
 void mx_transformvector2_matrix33(vector2 val, matrix m, output vector2 result)
 {
-    vector _val = vector(val.x, val.y, 0.0);
-    vector res = transform(m, _val);
+    vector res = transform(m, vector(val.x, val.y, 0.0));
     result.x = res[0];
     result.y = res[1];
 }

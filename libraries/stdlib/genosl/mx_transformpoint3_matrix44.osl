@@ -1,4 +1,0 @@
-void mx_transformpoint3_matrix44(point val, matrix m, output point result)
-{
-    result = transform(m, val);
-}

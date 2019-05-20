@@ -1,6 +1,5 @@
 void transformvector3_matrix44(vec3 val, mat4 transform, out vec3 result)
 {
-  vec4 _val = vec4(val.x, val.y, val.z, 0.0);
-  vec4 res = transform * _val;
+  vec4 res = transform * vec4(val, 0.0);
   result = res.xyz;
 }

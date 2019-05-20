@@ -542,7 +542,7 @@ graph per math function for each variation in input type.
   </nodegraph>
   <nodegraph name="min_color4FA" type="" xpos="9.10555" ypos="41.849">
     <min name="min1" type="color4" xpos="5.75172" ypos="4.58">
-      <input name="in1" type="color4" value="0.5000, 1.0000, 0.0, -0.5000" />
+      <input name="in1" type="color4" value="0.5000, 1.0000, 0.0, 0.5000" />
       <input name="in2" type="float" value="0.5000" />
     </min>
     <output name="out" type="color4" nodename="min1" />
@@ -584,7 +584,7 @@ graph per math function for each variation in input type.
   </nodegraph>
   <nodegraph name="min_vector4FA" type="" xpos="9.1153" ypos="44.6904">
     <min name="min1" type="vector4" xpos="6.2069" ypos="6.9">
-      <input name="in1" type="vector4" value="0.5000, 1.0000, 0.0, -0.5000" />
+      <input name="in1" type="vector4" value="0.5000, 1.0000, 0.0, 0.5000" />
       <input name="in2" type="float" value="0.5000" />
     </min>
     <output name="out" type="vector4" nodename="min1" />
@@ -627,13 +627,13 @@ graph per math function for each variation in input type.
   <nodegraph name="max_color4" type="" xpos="8.06196" ypos="47.435">
     <max name="max1" type="color4" xpos="5.74483" ypos="4.56">
       <input name="in1" type="color4" value="0.5000, 1.0000, 0.5000, 1.0000" />
-      <input name="in2" type="color4" value="1.0000, 0.5000, 0.5000, 2.0000" />
+      <input name="in2" type="color4" value="1.0000, 0.5000, 0.5000, 0.2500" />
     </max>
     <output name="out" type="color4" nodename="max1" />
   </nodegraph>
   <nodegraph name="max_color4FA" type="" xpos="9.14457" ypos="47.4352">
     <max name="max1" type="color4" xpos="5.75172" ypos="4.58">
-      <input name="in1" type="color4" value="0.5000, 1.0000, 0.0, -0.5000" />
+      <input name="in1" type="color4" value="0.5000, 1.0000, 0.0, 0.5000" />
       <input name="in2" type="float" value="0.5000" />
     </max>
     <output name="out" type="color4" nodename="max1" />
@@ -669,13 +669,13 @@ graph per math function for each variation in input type.
   <nodegraph name="max_vector4" type="" xpos="8.05219" ypos="50.0788">
     <max name="max1" type="vector4" xpos="5.75172" ypos="4.58">
       <input name="in1" type="vector4" value="0.5000, 1.0000, 0.5000, 1.0" />
-      <input name="in2" type="vector4" value="1.0000, 0.5000, 0.5000, 2.0000" />
+      <input name="in2" type="vector4" value="1.0000, 0.5000, 0.5000, 0.2500" />
     </max>
     <output name="out" type="vector4" nodename="max1" />
   </nodegraph>
   <nodegraph name="max_vector4FA" type="" xpos="9.14944" ypos="50.121">
     <max name="max1" type="vector4" xpos="6.2069" ypos="6.9">
-      <input name="in1" type="vector4" value="0.5000, 1.0000, 0.0, -0.5000" />
+      <input name="in1" type="vector4" value="0.5000, 1.0000, 0.0, 0.5000" />
       <input name="in2" type="float" value="0.5000" />
     </max>
     <output name="out" type="vector4" nodename="max1" />
