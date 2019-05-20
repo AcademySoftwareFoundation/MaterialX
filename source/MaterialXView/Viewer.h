@@ -19,6 +19,8 @@ class Viewer : public ng::Screen
            const std::string& materialFilename,
            const DocumentModifiers& modifiers,
            mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
+           const std::string& envRadiancePath,
+           const std::string& envIrradiancePath,
            int multiSampleCount);
     ~Viewer() { }
 
