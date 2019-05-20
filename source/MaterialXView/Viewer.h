@@ -19,9 +19,9 @@ class Viewer : public ng::Screen
            const std::string& materialFilename,
            const DocumentModifiers& modifiers,
            mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
-           int multiSampleCount,
            const std::string& envRadiancePath,
-           const std::string& envIrradiancePath);
+           const std::string& envIrradiancePath,
+           int multiSampleCount);
     ~Viewer() { }
 
     void drawContents() override;

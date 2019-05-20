@@ -135,9 +135,9 @@ int main(int argc, char* const argv[])
                                                 materialFilename,
                                                 modifiers,
                                                 specularEnvironmentMethod,
-                                                multiSampleCount,
                                                 envRadiancePath,
-                                                envIrradiancePath);
+                                                envIrradiancePath,
+                                                multiSampleCount);
             viewer->setVisible(true);
             ng::mainloop();
         }

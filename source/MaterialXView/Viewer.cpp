@@ -92,9 +92,9 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
                const std::string& materialFilename,
                const DocumentModifiers& modifiers,
                mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
-               int multiSampleCount,
                const std::string& envRadiancePath,
-               const std::string& envIrradiancePath) :
+               const std::string& envIrradiancePath,
+               int multiSampleCount) :
     ng::Screen(ng::Vector2i(1280, 960), "MaterialXView",
         true, false,
         8, 8, 24, 8,
@@ -449,7 +449,7 @@ void Viewer::createLoadMaterialsInterface(Widget* parent, const std::string labe
                 updateMaterialSelections();
 
                 // Clear cached implementations in case libraries on the file
-				// system have changed.
+                // system have changed.
                 _genContext.clearNodeImplementations();
 
                 mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
