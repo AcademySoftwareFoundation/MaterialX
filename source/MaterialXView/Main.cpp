@@ -6,18 +6,17 @@ NANOGUI_FORCE_DISCRETE_GPU();
 
 const std::string docstring = 
 " Options: \n"
-"    --library [PATH ...]     Additional library folder location(s)\n"
-"    --path [PATH ...]        Additional file search path location(s)\n"
-"    --mesh [PATH]            Mesh filename (defaults to resources/Geometry/teapot.obj)\n"
+"    --library [PATH]         Additional library folder location\n"
+"    --path [PATH]            Additional file search path location\n"
+"    --mesh [PATH]            Mesh filename (Default: resources/Geometry/shaderball.obj)\n"
 "    --material [PATH]        Material filename\n"
 "    --remap [TOKEN1:TOKEN2]  Remap one token to another when MaterialX document is loaded\n"
-"    --skip [ELEMENT ...]     Elements to skip loading\n"
-"    --terminator [CHAR]      Specify file path terminator\n"
-"    --envMethod [VALUE]      Environment lighting method (Default: filtered importance sampling)\n"
-"                                1: Prefiltered environment maps\n"
-"    --msaa                   Multisampling count for anti-aliasing (Default: 0)\n"
-"    --envRad [PATH]          Specify environment radiance hdr (Default: resources/Images/san_giuseppe_bridge.hdr)\n"
-"    --envIrrad [PATH]        Specify environment irradiance hdr (Default: resources/Images/san_giuseppe_bridge_diffuse.hdr)\n"
+"    --skip [STRING ...]      Skip elements with the given name attribute\n"
+"    --terminator [STRING]    Enforce the given terminator string for file prefixes\n"
+"    --envMethod [INTEGER]    Environment lighting method. 0 = filtered importance sampling (default); 1 = prefiltered environment maps.\n"
+"    --envRad [PATH]          Specify the environment radiance HDR (Default: resources/Images/san_giuseppe_bridge.hdr)\n"
+"    --envIrrad [PATH]        Specify the environment irradiance HDR (Default: resources/Images/san_giuseppe_bridge_diffuse.hdr)\n"
+"    --msaa [INTEGER]         Multisampling count for anti-aliasing (Default: 0)\n"
 "    -h, --help               Print this help\n";
 
 int main(int argc, char* const argv[])
@@ -81,10 +80,6 @@ int main(int argc, char* const argv[])
                 specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_PREFILTER;
             }
         }
-        if (token == "--msaa" && !nextToken.empty())
-        {
-            multiSampleCount = std::stoi(nextToken);
-        }
         if (token == "--envRad" && !nextToken.empty())
         {
             envRadiancePath = nextToken;
@@ -92,6 +87,10 @@ int main(int argc, char* const argv[])
         if (token == "--envIrrad" && !nextToken.empty())
         {
             envIrradiancePath = nextToken;
+        }
+        if (token == "--msaa" && !nextToken.empty())
+        {
+            multiSampleCount = std::stoi(nextToken);
         }
         if (token == "--help" || token == "-h")
         {
