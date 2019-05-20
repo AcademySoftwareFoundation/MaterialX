@@ -588,7 +588,7 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
 
     // Bind textures based on uniforms found in the program
     const MaterialX::GlslProgram::InputMap& uniformList = getUniformsList();
-    const std::string IMAGE_SEPERATOR("_");
+    const std::string IMAGE_SEPARATOR("_");
     for (auto uniform : uniformList)
     {
         GLenum uniformType = uniform.second->gltype;
@@ -605,7 +605,7 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
                 fileName != IRRADIANCE_ENV_UNIFORM_NAME)
             {
                 // Get the additional texture parameters based on image uniform name
-                MaterialX::StringVec root = MaterialX::splitString(uniform.first, IMAGE_SEPERATOR);
+                MaterialX::StringVec root = MaterialX::splitString(uniform.first, IMAGE_SEPARATOR);
 
                 ImageSamplingProperties samplingProperties;
 

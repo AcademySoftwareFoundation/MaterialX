@@ -198,18 +198,33 @@ bool Material::generateEnvironmentShader(mx::GenContext& context,
                                          const std::string& shaderName,
                                          const mx::FilePath& imagePath)
 {
-    // Construct the environment nodegraph.  The U-component of the incoming
-    // UV set is inverted and rotated by 90 degrees.
+    // Read in the environment nodegraph. 
+    // The U-component of the incoming UV set is inverted 
     mx::DocumentPtr doc = mx::createDocument();
     doc->importLibrary(stdLib);
-    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
-    mx::NodePtr image = nodeGraph->addNode("image");
+    mx::DocumentPtr envDoc = mx::createDocument();
+    const std::string environmentShaderFile("resources/Materials/TestSuite/Utilities/Lights/envmap_shader.mtlx");
+    mx::readFromXmlFile(envDoc, environmentShaderFile);
+    doc->importLibrary(envDoc);
+
+    mx::NodeGraphPtr envGraph = doc->getNodeGraph("environmentDraw");
+    if (!envGraph)
+    {
+        return false;
+    }
+    mx::NodePtr image = envGraph->getNode("envImage");
+    if (!image)
+    {
+        return false;
+    }
     image->setParameterValue("file", imagePath.asString(), mx::FILENAME_TYPE_STRING);
     image->setParameterValue("uaddressmode", std::string("periodic"));
     image->setParameterValue("vaddressmode", std::string("clamp"));
-    mx::OutputPtr output = nodeGraph->addOutput();
-    output->setConnectedNode(image);
-
+    mx::OutputPtr output = envGraph->getOutput("out");
+    if (!output)
+    {
+        return false;
+    }
     _hwShader = createShader(shaderName, context, output); 
     if (!_hwShader)
     {
@@ -399,7 +414,7 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
         return;
     }
 
-    const std::string IMAGE_SEPERATOR("_");
+    const std::string IMAGE_SEPARATOR("_");
     const std::string UADDRESS_MODE_POST_FIX("_uaddressmode");
     const std::string VADDRESS_MODE_POST_FIX("_vaddressmode");
     const std::string FILTER_TYPE_POST_FIX("_filtertype");
@@ -407,6 +422,7 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
     const int INVALID_MAPPED_INT_VALUE = -1; // Any value < 0 is not considered to be invalid
 
     const mx::VariableBlock* publicUniforms = getPublicUniforms();
+    mx::Color4 fallbackColor(0, 0, 0, 1);
     for (auto uniform : publicUniforms->getVariableOrder())
     {
         if (uniform->getType() != MaterialX::Type::FILENAME)
@@ -423,7 +439,7 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
         // Extract out sampling properties
         mx::ImageSamplingProperties samplingProperties;
 
-        MaterialX::StringVec root = MaterialX::splitString(uniformName, IMAGE_SEPERATOR);
+        MaterialX::StringVec root = MaterialX::splitString(uniformName, IMAGE_SEPARATOR);
 
         const std::string uaddressmodeStr = root[0] + UADDRESS_MODE_POST_FIX;
         const mx::ShaderPort* port = publicUniforms->find(uaddressmodeStr);
@@ -454,7 +470,7 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
         }
 
         mx::ImageDesc desc;
-        bindImage(filename, uniformName, imageHandler, desc, samplingProperties, udim, nullptr);
+        bindImage(filename, uniformName, imageHandler, desc, samplingProperties, udim, &fallbackColor);
     }
 }
 
@@ -478,7 +494,6 @@ bool Material::bindImage(std::string filename, const std::string& uniformName, m
     if (!imageHandler->acquireImage(filename, desc, true, fallbackColor) && !filename.empty())
     {
         std::cerr << "Failed to load image: " << filename << std::endl;
-        return false;
     }
 
     // Bind the image and set its sampling properties.
@@ -568,7 +583,7 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandler
         { "u_envIrradiance", indirectLighting ? (std::string) lightHandler->getLightEnvIrradiancePath() : mx::EMPTY_STRING }
     };
     const std::string udim;
-    mx::Color4 fallbackColor = { 0.0, 0.0, 0.0, 1.0 };
+    mx::Color4 fallbackColor(0, 0, 0, 1);
     for (auto pair : lightTextures)
     {
         if (_glShader->uniform(pair.first, false) != -1)
