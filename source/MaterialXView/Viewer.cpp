@@ -2,7 +2,6 @@
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/Util.h>
 #include <MaterialXRender/Util.h>
 #include <MaterialXRender/OiioImageLoader.h>
 #include <MaterialXRender/StbImageLoader.h>
@@ -118,7 +117,6 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     _genContext(mx::GlslShaderGenerator::create()),
     _splitByUdims(false),
     _mergeMaterials(false),
-    _assignLooks(false),
     _outlineSelection(false),
     _specularEnvironmentMethod(specularEnvironmentMethod),
     _envSamples(DEFAULT_ENV_SAMPLES),
@@ -368,17 +366,14 @@ void Viewer::assignMaterial(MaterialPtr material, mx::MeshPartitionPtr geometry)
 
     material->bindMesh(meshes[0]);
 
-    // Assign to a given mesh
     if (geometry)
     {
-        if (_materialAssignments.count(geometry))
-        {
-            _materialAssignments[geometry] = material;
-        }
+        // Assign to the given geometry.
+        _materialAssignments[geometry] = material;
     }
-    // Assign to all meshes
     else
     {
+        // Assign to all geometries.
         for (auto geom : _geometryList)
         {
             _materialAssignments[geom] = material;
@@ -438,128 +433,60 @@ void Viewer::createLoadMaterialsInterface(Widget* parent, const std::string labe
         std::string filename = ng::file_dialog({ { "mtlx", "MaterialX" } }, false);
         if (!filename.empty())
         {
-            // Try loading new materials first
+            _materialFilename = filename;
+            if (!_mergeMaterials)
             {
-                _materialFilename = filename;
-                try
-                {
-                    if (!_mergeMaterials)
-                    {
-                        initializeDocument(_stdLib);
-                    }
-                    size_t newRenderables = Material::loadDocument(_doc, _searchPath.find(_materialFilename), _stdLib, _modifiers, _materials);
-                    if (newRenderables > 0)
-                    {
-                        updateMaterialSelections();
-
-                        // Clear cached implementations in case a nodedef 
-                        // or nodegraph has changed on disc.
-                        _genContext.clearNodeImplementations();
-
-                        mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
-                        for (auto m : _materials)
-                        {
-                            m->generateShader(_genContext);
-                            if (mesh)
-                            {
-                                m->bindMesh(mesh);
-                            }
-                        }
-                        if (!_mergeMaterials)
-                        {
-                            setMaterialSelection(0);
-                            if (!_materials.empty())
-                            {
-                                assignMaterial(_materials[0]);
-                            }
-                        }
-                    }
-                }
-                catch (std::exception& e)
-                {
-                    new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Material Assignment Error", e.what());
-                }
+                initializeDocument(_stdLib);
             }
 
-            // Then try loading looks
-            if (_assignLooks)
+            // Load new materials.
+            size_t newRenderables = Material::loadDocument(_doc, _searchPath.find(_materialFilename), _stdLib, _modifiers, _materials);
+            size_t assignedGeoms = 0;
+            if (newRenderables > 0)
             {
-                try
+                updateMaterialSelections();
+
+                // Clear cached implementations in case libraries on the file
+				// system have changed.
+                _genContext.clearNodeImplementations();
+
+                mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
+                for (size_t matIndex = 0; matIndex < _materials.size(); matIndex++)
                 {
-                    // Assign any materials found to geometry
-                    mx::DocumentPtr lookDoc = mx::createDocument();
-                    mx::readFromXmlFile(lookDoc, filename);
-                    std::vector<mx::LookPtr> looks = lookDoc->getLooks();
-                    // For now only handle the first look as sets of looks are not stored
-                    if (!looks.empty())
+                    // Generate shader and bind mesh.
+                    MaterialPtr mat = _materials[matIndex];
+                    mat->generateShader(_genContext);
+                    if (mesh)
                     {
-                        auto look = looks[0];
-                        std::vector<mx::MaterialAssignPtr> assignments = look->getMaterialAssigns();
-                        for (auto assignment : assignments)
+                        mat->bindMesh(mesh);
+                    }
+
+                    // Apply geometric assignments, if any.
+                    mx::TypedElementPtr elem = mat->getElement();
+                    mx::ShaderRefPtr shaderRef = elem->asA<mx::ShaderRef>();
+                    mx::MaterialPtr materialRef = shaderRef ? shaderRef->getParent()->asA<mx::Material>() : nullptr;
+                    if (materialRef)
+                    {
+                        for (size_t partIndex = 0; partIndex < _geometryList.size(); partIndex++)
                         {
-                            // Find if material exists
-                            std::string materialName = assignment->getMaterial();
-
-                            MaterialPtr assignedMaterial = nullptr;
-                            size_t assigneMaterialIndex = 0;
-                            for (size_t i = 0; i<_materials.size(); i++)
+                            mx::MeshPartitionPtr part = _geometryList[partIndex];
+                            std::string partGeomName = part->getIdentifier();
+                            if (!materialRef->getGeometryBindings(partGeomName).empty())
                             {
-                                MaterialPtr mat = _materials[i];
-                                mx::TypedElementPtr elem = mat->getElement();
-                                mx::ShaderRefPtr shaderRef = elem->asA<mx::ShaderRef>();
-                                mx::MaterialPtr materialRef = shaderRef ? shaderRef->getParent()->asA<mx::Material>() : nullptr;
-                                if (materialRef)
-                                {
-                                    if (materialRef->getName() == materialName)
-                                    {
-                                        assignedMaterial = mat;
-                                        assigneMaterialIndex = i;
-                                        break;
-                                    }
-                                }
+                                assignMaterial(mat, part);
+                                assignedGeoms++;
                             }
-                            if (!assignedMaterial)
-                            {
-                                continue;
-                            }
-
-                            // Find if geometry to assign exists and if so assign
-                            // material to it.
-                            mx::StringVec geomList;
-                            std::string geom = assignment->getGeom();
-                            if (!geom.empty())
-                            {
-                                geomList.push_back(geom);
-                            }
-                            else
-                            {
-                                mx::CollectionPtr collection = assignment->getCollection();
-                                const std::string geomListString = collection->getIncludeGeom();
-                                geomList = mx::splitString(geomListString, ",");
-                            }
-
-                            for (auto geomName : geomList)
-                            {
-                                for (size_t p = 0; p < _geometryList.size(); p++)
-                                {
-                                    auto partition = _geometryList[p];
-                                    const std::string& id = partition->getIdentifier();
-                                    if (geomName == id)
-                                    {
-                                        // Mimic what is done manually by choosing the geometry 
-                                        // and then choosing the material to assign to that geometry
-                                        setGeometrySelection(p);
-                                        setMaterialSelection(assigneMaterialIndex);
-                                    }
-                                }
-                            }
-
                         }
                     }
                 }
-                catch (std::exception& e)
+
+                if (!_mergeMaterials && !assignedGeoms)
                 {
-                    new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Look Assignment Error", e.what());
+                    setMaterialSelection(0);
+                    if (!_materials.empty())
+                    {
+                        assignMaterial(_materials[0]);
+                    }
                 }
             }
         }
@@ -586,19 +513,12 @@ void Viewer::createAdvancedSettings(Widget* parent)
 
     new ng::Label(advancedPopup, "Material Options");
 
-    ng::CheckBox* mergeMaterialsBox = new ng::CheckBox(advancedPopup, "Add Materials");
+    ng::CheckBox* mergeMaterialsBox = new ng::CheckBox(advancedPopup, "Merge Materials");
     mergeMaterialsBox->setChecked(_mergeMaterials);
     mergeMaterialsBox->setCallback([this](bool enable)
     {
         _mergeMaterials = enable;
     });    
-
-    ng::CheckBox* assignLooksBox = new ng::CheckBox(advancedPopup, "Assign Looks");
-    assignLooksBox->setChecked(_assignLooks);
-    assignLooksBox->setCallback([this](bool enable)
-    {
-        _assignLooks = enable;
-    });
 
     new ng::Label(advancedPopup, "Lighting Options");
 
