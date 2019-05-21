@@ -44,4 +44,4 @@ If rendering tests are enabled via the build options then code for each Element 
         - MATERIALX_TESTRENDER_EXECUTABLE: Full path to the `testrender` binary.
         - MATERIALX_OSL_INCLUDE_PATH: Full path to OSL include paths (i.e. location of `stdosl.h`).
 
-Refer to the [test suite documentation](../../documents/TestSuite) for more information about the organization of the test suite data used for this test.
+Refer to the [test suite documentation](../../resources/Materials/TestSuite/README.md) for more information about the organization of the test suite data used for this test.
