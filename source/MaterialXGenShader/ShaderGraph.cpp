@@ -789,7 +789,7 @@ void ShaderGraph::optimize(GenContext& context)
     size_t numEdits = 0;
     for (ShaderNode* node : getNodes())
     {
-        if (!node->hasClassification(ShaderNode::Classification::DO_NOT_OPTIMIZE) && node->hasClassification(ShaderNode::Classification::CONSTANT))
+        if (node->hasClassification(ShaderNode::Classification::CONSTANT))
         {
             // Constant nodes can be removed by assigning their value downstream
             // But don't remove it if it's connected upstream, i.e. it's value
