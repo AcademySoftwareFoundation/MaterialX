@@ -65,8 +65,7 @@ ShaderNodePtr ColorManagementSystem::createNode(const ShaderGraph* parent, const
     }
 
     // Create the node.
-    ShaderNodePtr shaderNode = ShaderNode::create(parent, name, nodeImpl, 
-        ShaderNode::Classification::TEXTURE | ShaderNode::Classification::COLOR_SPACE_TRANSFORM);
+    ShaderNodePtr shaderNode = ShaderNode::create(parent, name, nodeImpl, ShaderNode::Classification::TEXTURE);
 
     // Create ports on the node.
     ShaderInput* input = shaderNode->addInput("in", transform.type);
