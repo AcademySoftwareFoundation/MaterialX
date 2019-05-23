@@ -125,7 +125,11 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     _specularEnvironmentMethod(specularEnvironmentMethod),
     _envSamples(DEFAULT_ENV_SAMPLES),
     _drawEnvironment(false),
-    _captureFrame(false)
+    _captureFrame(false),
+    _drawUVGeometry(false),
+    _uvScale(2.0f, 2.0f, 1.0f),
+    _uvTranslation(-0.5f, 0.5f, 0.0f),
+    _uvZoom(1.0f)
 {
     _window = new ng::Window(this, "Viewer Options");
     _window->setPosition(ng::Vector2i(15, 15));
@@ -158,7 +162,10 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     _materialSelectionBox->setCallback([this](int choice)
     {
         setMaterialSelection(choice);
-        assignMaterial(_materials[_selectedMaterial], _geometryList[_selectedGeom]);
+        if (_selectedMaterial < _materials.size())
+        {
+            assignMaterial(_materials[_selectedMaterial], _geometryList[_selectedGeom]);
+        }
     });
 
     // Set default generator options.
@@ -900,15 +907,17 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         return true;
     }
 
+    if ((key == GLFW_KEY_U) && (action == GLFW_PRESS))
+    {
+        _drawUVGeometry = !_drawUVGeometry;
+        return true;
+    }
+
     return false;
 }
 
-void Viewer::drawContents()
+void Viewer::drawScene3D()
 {
-    if (_geometryList.empty() || _materials.empty())
-    {
-        return;
-    }
 
     mx::Matrix44 world, view, proj;
     computeCameraMatrices(world, view, proj);
@@ -937,33 +946,51 @@ void Viewer::drawContents()
         }
     }
 
-    mx::TypedElementPtr lastBoundShader;
+    // Opaque pass
+    glDisable(GL_BLEND);
     for (auto assignment : _materialAssignments)
     {
         mx::MeshPartitionPtr geom = assignment.first;
         MaterialPtr material = assignment.second;
-        mx::TypedElementPtr shader = material->getElement();
-
-        material->bindShader();
         if (material->hasTransparency())
         {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            continue;
         }
-        else
+        mx::TypedElementPtr shader = material->getElement();
+        material->bindShader();
+        material->bindViewInformation(world, view, proj);
+        material->bindLights(_lightHandler, _imageHandler, _searchPath, _directLighting, _indirectLighting,
+                                _specularEnvironmentMethod, _envSamples);
+        material->bindImages(_imageHandler, _searchPath, material->getUdim());
+        material->drawPartition(geom);
+    }
+
+    // Transparent pass
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // Cull back-faces otherwise they render black (unlit)
+    glEnable(GL_CULL_FACE);
+    for (auto assignment : _materialAssignments)
+    {
+        mx::MeshPartitionPtr geom = assignment.first;
+        MaterialPtr material = assignment.second;
+        if (!material->hasTransparency())
         {
-            glDisable(GL_BLEND);
+            continue;
         }
+        mx::TypedElementPtr shader = material->getElement();
+        material->bindShader();
         material->bindViewInformation(world, view, proj);
         material->bindLights(_lightHandler, _imageHandler, _searchPath, _directLighting, _indirectLighting,
                              _specularEnvironmentMethod, _envSamples);
         material->bindImages(_imageHandler, _searchPath, material->getUdim());
         material->drawPartition(geom);
     }
-
+    glDisable(GL_CULL_FACE);
     glDisable(GL_BLEND);
     glDisable(GL_FRAMEBUFFER_SRGB);
 
+    // Wireframe pass
     if (_outlineSelection)
     {
         GLShaderPtr shader = _wireMaterial->getShader();
@@ -1010,11 +1037,159 @@ void Viewer::drawContents()
     }
 }
 
+mx::MeshStreamPtr Viewer::createUvPositionStream(mx::MeshPtr mesh, 
+                                                 const std::string& uvStreamName, 
+                                                 unsigned int index,
+                                                 const std::string& positionStreamName)
+{
+    // If there are no uvs to display then just return an empty 3d stream
+    mx::MeshStreamPtr uvStream2D = mesh->getStream(uvStreamName, index);
+    if (!uvStream2D)
+    {
+        return nullptr;
+    }
+
+    mx::MeshStreamPtr uvStream3D = mesh->getStream(positionStreamName);
+    if (!uvStream3D)
+    {
+        uvStream3D = mx::MeshStream::create(positionStreamName, mx::MeshStream::POSITION_ATTRIBUTE, 0);
+        mesh->addStream(uvStream3D);
+
+        mx::MeshFloatBuffer &uvPos2D = uvStream2D->getData();
+        mx::MeshFloatBuffer &uvPos3D = uvStream3D->getData();
+        size_t uvCount = uvPos2D.size() / 2;
+        uvPos3D.resize(uvCount * 3);
+        const float MAX_FLOAT = std::numeric_limits<float>::max();
+        mx::Vector3 boxMin = { MAX_FLOAT, MAX_FLOAT, 0.0f };
+        mx::Vector3 boxMax = { -MAX_FLOAT, -MAX_FLOAT, 0.0f };
+        for (size_t i = 0; i < uvCount; i++)
+        {
+            float u = uvPos2D[i * 2];
+            uvPos3D[i * 3] = u;
+            float v = uvPos2D[i * 2 + 1];
+            uvPos3D[i * 3 + 1] = v;
+            uvPos3D[i * 3 + 2] = 0.0f;
+
+            boxMin[0] = std::min(u, boxMin[0]);
+            boxMin[1] = std::min(v, boxMin[1]);
+            boxMax[0] = std::max(u, boxMax[0]);
+            boxMax[1] = std::max(v, boxMax[1]);
+        }
+
+        mx::Vector3 sphereCenter = (boxMax + boxMin) / 2.0;
+        float sphereRadius = (sphereCenter - boxMin).getMagnitude();
+        _uvScale[0] = 2.0f / sphereRadius;
+        _uvScale[1] = 2.0f / sphereRadius;
+        _uvScale[2] = 1.0f;
+        _uvTranslation[0] = -sphereCenter[0];
+        _uvTranslation[1] = -sphereCenter[1];
+        _uvTranslation[2] = 0.0f;
+    }
+
+    return uvStream3D;
+}
+
+void Viewer::drawScene2D()
+{
+    // Create uv shader if it does not exist
+    if (!_wireMaterialUV)
+    {
+        const std::string shaderName("__UV_WIRE_SHADER_NAME__");
+        const mx::Color3 color(1.0f);
+        _wireMaterialUV = Material::create();
+        try
+        {
+            _wireMaterialUV->generateConstantShader(_genContext, _stdLib, shaderName, color);
+        }
+        catch (std::exception& e)
+        {
+            _wireMaterialUV = nullptr;
+            std::cerr << "Failed to generate uv wire shader: " << e.what();
+            return;
+        }
+    }
+
+    GLShaderPtr shader = _wireMaterialUV->getShader();
+    if (!shader || _geometryList.empty())
+    {
+        return;
+    }
+    if (shader->attrib("i_position") == -1)
+    {
+        return;
+    }
+
+    // Create and bind uvs as input positions
+    mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
+    const std::string uvStream3DName(mx::MeshStream::TEXCOORD_ATTRIBUTE + "_3D");
+    mx::MeshStreamPtr uvStream3D = createUvPositionStream(mesh, 
+                                                          mx::MeshStream::TEXCOORD_ATTRIBUTE, 0,
+                                                          uvStream3DName);
+    if (!uvStream3D)
+    {
+        return;
+    }
+    mx::MeshFloatBuffer &buffer = uvStream3D->getData();
+    Eigen::Map<const ng::MatrixXf> positions(&buffer[0], uvStream3D->getStride(), buffer.size() / uvStream3D->getStride());
+
+    shader->bind();
+    shader->uploadAttrib("i_position", positions);
+
+    // Compute matrices
+    mx::Matrix44 world, view, proj;
+    float fH = std::tan(_viewAngle / 360.0f * PI) * _nearDist;
+    float fW = fH * (float)mSize.x() / (float)mSize.y();
+    view = createViewMatrix(_eye, _center, _up);
+    proj = createPerspectiveMatrix(-fW, fW, -fH, fH, _nearDist, _farDist);
+    world = mx::Matrix44::createScale(_uvScale * _uvZoom);
+    world *= mx::Matrix44::createTranslation(_uvTranslation).getTranspose();
+
+    _wireMaterialUV->bindViewInformation(world, view, proj);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    if (_outlineSelection && (_selectedGeom < _geometryList.size()))
+    {
+        mx::MeshPartitionPtr activeGeom = _geometryList[_selectedGeom];
+        _wireMaterialUV->drawPartition(activeGeom);
+    }
+    else
+    {
+        for (mx::MeshPartitionPtr geom : _geometryList)
+        {
+            _wireMaterialUV->drawPartition(geom);
+        }
+    }
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void Viewer::drawContents()
+{
+    if (_geometryList.empty() || _materials.empty())
+    {
+        return;
+    }
+    if (_drawUVGeometry)
+    {
+        drawScene2D();
+    }
+    else
+    {
+        drawScene3D();
+    }
+}
+
 bool Viewer::scrollEvent(const ng::Vector2i& p, const ng::Vector2f& rel)
 {
     if (!Screen::scrollEvent(p, rel))
     {
-        _zoom = std::max(0.1f, _zoom * ((rel.y() > 0) ? 1.1f : 0.9f));
+        if (_drawUVGeometry)
+        {
+            _uvZoom = std::max(0.1f, _uvZoom * ((rel.y() > 0) ? 1.1f : 0.9f));
+        }
+        else
+        {
+            _zoom = std::max(0.1f, _zoom * ((rel.y() > 0) ? 1.1f : 0.9f));;
+        }
     }
     return true;
 }
@@ -1025,6 +1200,11 @@ bool Viewer::mouseMotionEvent(const ng::Vector2i& p,
                               int modifiers)
 {
     if (Screen::mouseMotionEvent(p, rel, button, modifiers))
+    {
+        return true;
+    }
+
+    if (_drawUVGeometry)
     {
         return true;
     }
@@ -1073,19 +1253,26 @@ bool Viewer::mouseMotionEvent(const ng::Vector2i& p,
 
 bool Viewer::mouseButtonEvent(const ng::Vector2i& p, int button, bool down, int modifiers)
 {
-    if (!Screen::mouseButtonEvent(p, button, down, modifiers))
+    if (Screen::mouseButtonEvent(p, button, down, modifiers))
     {
-        if (button == GLFW_MOUSE_BUTTON_1 && !modifiers)
-        {
-            _arcball.button(p, down);
-        }
-        else if (button == GLFW_MOUSE_BUTTON_2 ||
-                (button == GLFW_MOUSE_BUTTON_1 && modifiers == GLFW_MOD_SHIFT))
-        {
-            _modelTranslationStart = _modelTranslation;
-            _translationActive = true;
-            _translationStart = p;
-        }
+        return true;
+    }
+
+    if (_drawUVGeometry)
+    {
+        return true;
+    }
+
+    if (button == GLFW_MOUSE_BUTTON_1 && !modifiers)
+    {
+        _arcball.button(p, down);
+    }
+    else if (button == GLFW_MOUSE_BUTTON_2 ||
+            (button == GLFW_MOUSE_BUTTON_1 && modifiers == GLFW_MOD_SHIFT))
+    {
+        _modelTranslationStart = _modelTranslation;
+        _translationActive = true;
+        _translationStart = p;
     }
     if (button == GLFW_MOUSE_BUTTON_1 && !down)
     {
