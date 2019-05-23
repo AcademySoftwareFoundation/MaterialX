@@ -4,20 +4,20 @@
 
 NANOGUI_FORCE_DISCRETE_GPU();
 
-const std::string docstring = 
+const std::string options = 
 " Options: \n"
-"    --library [PATH]         Additional library folder location\n"
-"    --path [PATH]            Additional file search path location\n"
-"    --mesh [PATH]            Mesh filename (Default: resources/Geometry/shaderball.obj)\n"
-"    --material [PATH]        Material filename\n"
+"    --library [FILEPATH]     Additional library folder location\n"
+"    --path [FILEPATH]        Additional file search path location\n"
+"    --mesh [FILENAME]        Mesh filename\n"
+"    --material [FILENAME]    Material filename\n"
+"    --envMethod [INTEGER]    Environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, Default is 0)\n"
+"    --envRad [FILENAME]      Specify the environment radiance HDR\n"
+"    --envIrrad [FILENAME]    Specify the environment irradiance HDR\n"
+"    --msaa [INTEGER]         Multisampling count for anti-aliasing (0 = disabled, Default is 0)\n"
 "    --remap [TOKEN1:TOKEN2]  Remap one token to another when MaterialX document is loaded\n"
-"    --skip [STRING ...]      Skip elements with the given name attribute\n"
+"    --skip [NAME]            Skip elements matching the given name attribute\n"
 "    --terminator [STRING]    Enforce the given terminator string for file prefixes\n"
-"    --envMethod [INTEGER]    Environment lighting method. 0 = filtered importance sampling (default); 1 = prefiltered environment maps.\n"
-"    --envRad [PATH]          Specify the environment radiance HDR (Default: resources/Images/san_giuseppe_bridge.hdr)\n"
-"    --envIrrad [PATH]        Specify the environment irradiance HDR (Default: resources/Images/san_giuseppe_bridge_diffuse.hdr)\n"
-"    --msaa [INTEGER]         Multisampling count for anti-aliasing (Default: 0)\n"
-"    -h, --help               Print this help\n";
+"    --help                   Print this list\n";
 
 int main(int argc, char* const argv[])
 {  
@@ -92,9 +92,9 @@ int main(int argc, char* const argv[])
         {
             multiSampleCount = std::stoi(nextToken);
         }
-        if (token == "--help" || token == "-h")
+        if (token == "--help")
         {
-            std::cout << docstring << std::endl;
+            std::cout << options << std::endl;
             return 0;
         }
     }
