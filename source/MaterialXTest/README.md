@@ -36,8 +36,6 @@ Refer to the [test suite documentation](../../resources/Materials/TestSuite/) fo
 - GenShader.cpp : Core shader generation tests which are run when the test tag `[genshader]` is specified.
 - GenOsl.cpp : OSL shader generation tests which are run when the test tag `[genosl]` is specified.
 - GenGlsl.cpp : GLSL shader generation tests which are run when the test tag `[genglsl]` is specified.
-- GenOgsfx.cpp : OGSFX shader generation tests which are run when the test tag `[genogsfx]` is specified.
-- GenArnold.cpp :  OSL shader generation tests with Arnold target which are run when the test tag `[genarnold]` is specified.
 
 Per language tests will scan MaterialX files in the test suite for input Elements.
 
@@ -52,8 +50,6 @@ Depending on which tests are executed log files are produced at the location tha
 - Render.cpp : Core render tests which are run when the test tag `[rendercore]` is specified.
 - RenderOsl.cpp : OSL render tests which are run when the test tag `[renderosl]` is specified.
 - RenderGlsl.cpp : GLSL render tests which are run when the test tag `[renderglsl]` is specified.
-- RenderOgsFx.cpp : OGSFX render tests which are run when the test tag `[renderglsl]` is specified. Currently no validator exists to perform compilation and rendering. Only shader generation is performed.
-- RenderArnold.cpp : OGSFX render tests which are run when the test tag `[renderosl]` is specified. Currently no validator exists to perform compilation and rendering. Only shader generation is performed.
 
 Per language tests will scan MaterialX files in the test suite for input Elements.
 
