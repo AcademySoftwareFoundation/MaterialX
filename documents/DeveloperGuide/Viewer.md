@@ -21,6 +21,7 @@ Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX Viewer.  Insta
 4.  **Advanced Settings** : Loading and fidelity options.
 
 ### Geometry
+
 Upon launching MaterialXView, a teapot model is automatically loaded.
 To change this preview geometry, click `Load Mesh` and navigate to `/resources/Geometry` for a list of available models.
 
@@ -29,16 +30,17 @@ Currently, files using the  OBJ file format are supported. If a file contains mo
 Under `Advanced Settings` it is possible to have a wireframe overlay displayed for the active group by choosing `Outline Selected Geometry`.
 
 ### Materials
+
 To experiment with different materials, click `Load Material`.  Navigate to
-`resources/Materials/TestSuite/pbrlib/material` for a selection of `.mtlx` files.
+`resources/Materials/Examples/StandardSurface` for a selection of `.mtlx` files.
 
 To adjust the attributes on the materials, click `Property Editor` to show or hide the material properties.  Note that this changes the generated shader inputs and not the original MaterialX document.
 
 Multiple materials can be loaded using the following options:
 
-1.  Have more than one renderable item specified in the input MaterialX document (.mtlx).
-2.  Loading in additional renderable item in an input MaterialX document (.mtlx) by
-    1.  Clicking on `Advanced Setting`s and enable `Add Materials`.
+1.  Load a single MaterialX document containing multiple materials, or
+2.  Merge additional materials into the current session by
+    1.  Clicking on `Advanced Settings` and enabling `Merge Materials`.
     2.  Clicking on `Load Material` to select additional `.mtlx` files.
 
 If more than one material has been loaded they will be listed in a pop-up menu under an `Assigned Material` label.
@@ -50,7 +52,7 @@ To clear the entries, disable `Add Materials` and load in a new `.mtlx` file.  T
 
 ### Looks
 
-The binding between materials and geometry can be performed by loading in a MaterialX document which contains a look if the 'Assign Looks' option is enabled.  If the referenced material and assigned geometry exist then the material will be assigned.
+Assignment of materials to geometry can be performed by loading a MaterialX document which contains one or more looks (e.g. `resources\Materials\Examples\StandardSurface\test_look.mtlx`).  If the geometry string referenced by a look matches the name of a group in the current mesh, then the given material assignment will be applied to that mesh group.
 
 ### Lighting
 
@@ -60,23 +62,17 @@ To improve the indirect lighting highlights on your material, increase the `Adva
 
 ### Keyboard Shortcuts
 
-1.  The GLSL source code for the currently selected material can be saved to disk by pressing the `S` key while focus is in the viewer.
-2.  This source code can be reloaded back in by pressing the `L` key while focus is in the viewer.  This is useful to make quick adjustments on the source code for debugging purposes.  The original MaterialX document is not affected.
-3.  The current frame can be saved to disk by pressing the `F` key while focus is in the viewer.
-4.  Node graphs can be saved to disk as DOT files by pressing the `D` key while focus is in the viewer.  See www.graphviz.org for more details on this format.
+- `R`: Reload the current document from file.
+- `S`: Save the current shader source to file.
+- `L`: Load shader source from file.  Editing the source files before loading provides a way to debug and experiment with shader source code.
+- `D`: Save each node graph in the current material as a DOT file.  See www.graphviz.org for more details on this format.
+- `F`: Capture the current frame and save to file.
 
-### Command Line Options
+### Command-Line Options
 
-The following command line arguments are available for the viewer application:
-1. `--library [PATH]`: Additional library folder location.
-2. `--path [PATH]`: Additional file search path location.
-3. `--mesh [PATH]`: Mesh file name.
-4. `--material [PATH]`: Material file name.
-5. `--remap [TOKEN1:TOKEN2]`: Remap one token to another when MaterialX document is loaded.
-6. `--skip [STRING ...]`: Skip elements with the given name attribute.
-7. `--terminator [STRING]`: Enforce the given terminator string for file prefixes.
-8. `--envMethod [INTEGER]`: Environment lighting method.
-9. `--envRad [PATH]`: Specify the environment radiance HDR.
-10. `--envIrrad [PATH]`: Specify the environment irradiance HDR.
-11. `--msaa [INTEGER]`: Multi sampling count for anti-aliasing.
-12. `-h, --help`: Print help  
+The following are common command-line options for MaterialXView, and a complete list can be displayed with the `--help` option.
+- `--library [FILEPATH]`: Additional library folder location
+- `--path [FILEPATH]`: Additional file search path location
+- `--mesh [FILENAME]`: Mesh filename
+- `--material [FILENAME]`: Material filename
+- `--help`: Display the complete list of command-line options
