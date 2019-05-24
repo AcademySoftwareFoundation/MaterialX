@@ -241,21 +241,7 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
         _arcball.setSize(size);
     });
 
-    try
-    {
-        Material::loadDocument(_doc, _searchPath.find(_materialFilename), _stdLib, _modifiers, _materials);
-        updateMaterialSelections();
-        setMaterialSelection(0);
-        if (!_materials.empty())
-        {
-            assignMaterial(_materials[0]);
-        }
-    }
-    catch (std::exception& e)
-    {
-        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load materials", e.what());
-    }
-
+    loadMaterialDocument();
     updatePropertyEditor();
     _propertyEditor.setVisible(false);
     performLayout();
@@ -447,57 +433,7 @@ void Viewer::createLoadMaterialsInterface(Widget* parent, const std::string labe
             {
                 initializeDocument(_stdLib);
             }
-
-            // Load new materials.
-            size_t newRenderables = Material::loadDocument(_doc, _searchPath.find(_materialFilename), _stdLib, _modifiers, _materials);
-            size_t assignedGeoms = 0;
-            if (newRenderables > 0)
-            {
-                updateMaterialSelections();
-
-                // Clear cached implementations in case libraries on the file
-                // system have changed.
-                _genContext.clearNodeImplementations();
-
-                mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
-                for (size_t matIndex = 0; matIndex < _materials.size(); matIndex++)
-                {
-                    // Generate shader and bind mesh.
-                    MaterialPtr mat = _materials[matIndex];
-                    mat->generateShader(_genContext);
-                    if (mesh)
-                    {
-                        mat->bindMesh(mesh);
-                    }
-
-                    // Apply geometric assignments, if any.
-                    mx::TypedElementPtr elem = mat->getElement();
-                    mx::ShaderRefPtr shaderRef = elem->asA<mx::ShaderRef>();
-                    mx::MaterialPtr materialRef = shaderRef ? shaderRef->getParent()->asA<mx::Material>() : nullptr;
-                    if (materialRef)
-                    {
-                        for (size_t partIndex = 0; partIndex < _geometryList.size(); partIndex++)
-                        {
-                            mx::MeshPartitionPtr part = _geometryList[partIndex];
-                            std::string partGeomName = part->getIdentifier();
-                            if (!materialRef->getGeometryBindings(partGeomName).empty())
-                            {
-                                assignMaterial(mat, part);
-                                assignedGeoms++;
-                            }
-                        }
-                    }
-                }
-
-                if (!_mergeMaterials && !assignedGeoms)
-                {
-                    setMaterialSelection(0);
-                    if (!_materials.empty())
-                    {
-                        assignMaterial(_materials[0]);
-                    }
-                }
-            }
+            loadMaterialDocument();
         }
         mProcessEvents = true;
     });
@@ -689,38 +625,55 @@ MaterialPtr Viewer::setMaterialSelection(size_t index)
     return nullptr;
 }
 
-void Viewer::reloadDocument()
+void Viewer::loadMaterialDocument()
 {
-    try
+    size_t newRenderables = Material::loadDocument(_doc, _searchPath.find(_materialFilename), _stdLib, _modifiers, _materials);
+    size_t assignedGeoms = 0;
+    if (newRenderables > 0)
     {
-        if (!_materialFilename.isEmpty())
+        updateMaterialSelections();
+
+        // Clear cached implementations, in case libraries on the file system have changed.
+        _genContext.clearNodeImplementations();
+
+        mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
+        for (size_t matIndex = 0; matIndex < _materials.size(); matIndex++)
         {
-            initializeDocument(_stdLib);
-            size_t newRenderables = Material::loadDocument(_doc, _searchPath.find(_materialFilename), _stdLib, _modifiers, _materials);
-            if (newRenderables)
+            // Generate shader and bind mesh.
+            MaterialPtr mat = _materials[matIndex];
+            mat->generateShader(_genContext);
+            if (mesh)
             {
-                updateMaterialSelections();
-                setMaterialSelection(0);
-                if (!_materials.empty())
+                mat->bindMesh(mesh);
+            }
+
+            // Apply geometric assignments, if any.
+            mx::TypedElementPtr elem = mat->getElement();
+            mx::ShaderRefPtr shaderRef = elem->asA<mx::ShaderRef>();
+            mx::MaterialPtr materialRef = shaderRef ? shaderRef->getParent()->asA<mx::Material>() : nullptr;
+            if (materialRef)
+            {
+                for (size_t partIndex = 0; partIndex < _geometryList.size(); partIndex++)
                 {
-                    assignMaterial(_materials[0]);
+                    mx::MeshPartitionPtr part = _geometryList[partIndex];
+                    std::string partGeomName = part->getIdentifier();
+                    if (!materialRef->getGeometryBindings(partGeomName).empty())
+                    {
+                        assignMaterial(mat, part);
+                        assignedGeoms++;
+                    }
                 }
             }
         }
-    }
-    catch (std::exception& e)
-    {
-        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load document", e.what());
-    }
-    try
-    {
-        updateMaterialSelections();
-        setMaterialSelection(_selectedMaterial);
-        updatePropertyEditor();
-    }
-    catch (std::exception& e)
-    {
-        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Shader Generation Error", e.what());
+
+        if (!_mergeMaterials && !assignedGeoms)
+        {
+            setMaterialSelection(0);
+            if (!_materials.empty())
+            {
+                assignMaterial(_materials[0]);
+            }
+        }
     }
 }
 
@@ -828,7 +781,7 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
     // Reload the current document from file.
     if (key == GLFW_KEY_R && action == GLFW_PRESS)
     {
-        reloadDocument();
+        loadMaterialDocument();
         return true;
     }
 
