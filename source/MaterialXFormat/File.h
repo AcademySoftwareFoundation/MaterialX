@@ -191,6 +191,21 @@ class FileSearchPath
         }
     }
 
+    /// Convert this sequence to a string using the given separator.
+    string asString(const string& sep = PATH_LIST_SEPARATOR) const
+    {
+        string str;
+        for (size_t i = 0; i < _paths.size(); i++)
+        {
+            str += _paths[i];
+            if (i + 1 < _paths.size())
+            {
+                str += sep;
+            }
+        }
+        return str;
+    }
+
     /// Append the given path to the sequence.
     void append(const FilePath& path)
     {

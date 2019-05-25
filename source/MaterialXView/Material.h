@@ -49,8 +49,8 @@ class Material
     /// and create new materials if they do not already exist.
     /// Returns the number of new materials added
     static size_t loadDocument(mx::DocumentPtr destinationDoc, const mx::FilePath& filePath,
-                               mx::DocumentPtr libraries, const DocumentModifiers& modifiers,
-                               std::vector<MaterialPtr>& materials);
+                               const mx::FileSearchPath& searchPath, mx::DocumentPtr libraries,
+                               const DocumentModifiers& modifiers, std::vector<MaterialPtr>& materials);
 
     /// Return the renderable element associated with this material
     mx::TypedElementPtr getElement() const
