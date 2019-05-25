@@ -114,7 +114,7 @@ GraphIterator& GraphIterator::operator++()
         // Traverse to the first upstream edge of this element.
         _stack.push_back(StackFrame(_upstreamElem, 0));
         Edge nextEdge = _upstreamElem->getUpstreamEdge(_material, 0);
-        if (nextEdge)
+        if (nextEdge && nextEdge.getUpstreamElement())
         {
             extendPathUpstream(nextEdge.getUpstreamElement(), nextEdge.getConnectingElement());
             return *this;
@@ -141,7 +141,7 @@ GraphIterator& GraphIterator::operator++()
         if (parentFrame.second + 1 < parentFrame.first->getUpstreamEdgeCount())
         {
             Edge nextEdge = parentFrame.first->getUpstreamEdge(_material, ++parentFrame.second);
-            if (nextEdge)
+            if (nextEdge && nextEdge.getUpstreamElement())
             {
                 extendPathUpstream(nextEdge.getUpstreamElement(), nextEdge.getConnectingElement());
                 return *this;
