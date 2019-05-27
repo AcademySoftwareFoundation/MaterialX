@@ -788,6 +788,7 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
     // Reload the current document from file.
     if (key == GLFW_KEY_R && action == GLFW_PRESS)
     {
+        initializeDocument(_stdLib);
         loadMaterialDocument();
         return true;
     }
