@@ -627,53 +627,60 @@ MaterialPtr Viewer::setMaterialSelection(size_t index)
 
 void Viewer::loadMaterialDocument()
 {
-    size_t newRenderables = Material::loadDocument(_doc, _searchPath.find(_materialFilename), _stdLib, _modifiers, _materials);
-    size_t assignedGeoms = 0;
-    if (newRenderables > 0)
+    try
     {
-        updateMaterialSelections();
-
-        // Clear cached implementations, in case libraries on the file system have changed.
-        _genContext.clearNodeImplementations();
-
-        mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
-        for (size_t matIndex = 0; matIndex < _materials.size(); matIndex++)
+        size_t newRenderables = Material::loadDocument(_doc, _materialFilename, _searchPath, _stdLib, _modifiers, _materials);
+        size_t assignedGeoms = 0;
+        if (newRenderables > 0)
         {
-            // Generate shader and bind mesh.
-            MaterialPtr mat = _materials[matIndex];
-            mat->generateShader(_genContext);
-            if (mesh)
-            {
-                mat->bindMesh(mesh);
-            }
+            updateMaterialSelections();
 
-            // Apply geometric assignments, if any.
-            mx::TypedElementPtr elem = mat->getElement();
-            mx::ShaderRefPtr shaderRef = elem->asA<mx::ShaderRef>();
-            mx::MaterialPtr materialRef = shaderRef ? shaderRef->getParent()->asA<mx::Material>() : nullptr;
-            if (materialRef)
+            // Clear cached implementations, in case libraries on the file system have changed.
+            _genContext.clearNodeImplementations();
+
+            mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
+            for (size_t matIndex = 0; matIndex < _materials.size(); matIndex++)
             {
-                for (size_t partIndex = 0; partIndex < _geometryList.size(); partIndex++)
+                // Generate shader and bind mesh.
+                MaterialPtr mat = _materials[matIndex];
+                mat->generateShader(_genContext);
+                if (mesh)
                 {
-                    mx::MeshPartitionPtr part = _geometryList[partIndex];
-                    std::string partGeomName = part->getIdentifier();
-                    if (!materialRef->getGeometryBindings(partGeomName).empty())
+                    mat->bindMesh(mesh);
+                }
+
+                // Apply geometric assignments, if any.
+                mx::TypedElementPtr elem = mat->getElement();
+                mx::ShaderRefPtr shaderRef = elem->asA<mx::ShaderRef>();
+                mx::MaterialPtr materialRef = shaderRef ? shaderRef->getParent()->asA<mx::Material>() : nullptr;
+                if (materialRef)
+                {
+                    for (size_t partIndex = 0; partIndex < _geometryList.size(); partIndex++)
                     {
-                        assignMaterial(mat, part);
-                        assignedGeoms++;
+                        mx::MeshPartitionPtr part = _geometryList[partIndex];
+                        std::string partGeomName = part->getIdentifier();
+                        if (!materialRef->getGeometryBindings(partGeomName).empty())
+                        {
+                            assignMaterial(mat, part);
+                            assignedGeoms++;
+                        }
                     }
                 }
             }
-        }
 
-        if (!_mergeMaterials && !assignedGeoms)
-        {
-            setMaterialSelection(0);
-            if (!_materials.empty())
+            if (!_mergeMaterials && !assignedGeoms)
             {
-                assignMaterial(_materials[0]);
+                setMaterialSelection(0);
+                if (!_materials.empty())
+                {
+                    assignMaterial(_materials[0]);
+                }
             }
         }
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load material", e.what());
     }
 }
 

@@ -31,28 +31,25 @@ bool stringEndsWith(const std::string& str, std::string const& end)
 //
 
 size_t Material::loadDocument(mx::DocumentPtr destinationDoc, const mx::FilePath& filePath,
-                              mx::DocumentPtr libraries, const DocumentModifiers& modifiers,
-                              std::vector<MaterialPtr>& materials)
+                              const mx::FileSearchPath& searchPath, mx::DocumentPtr libraries,
+                              const DocumentModifiers& modifiers, std::vector<MaterialPtr>& materials)
 {
     // Load the content document.
     mx::DocumentPtr doc = mx::createDocument();
     mx::XmlReadOptions readOptions;
     readOptions.readXIncludeFunction = [](mx::DocumentPtr doc, const std::string& filename, const std::string& searchPath, const mx::XmlReadOptions* options)
     {
-        mx::FileSearchPath fileSearchPath = mx::FileSearchPath(searchPath);
-        fileSearchPath.append(mx::getEnvironmentPath());
-
-        mx::FilePath resolvedFilename = fileSearchPath.find(filename);
+        mx::FilePath resolvedFilename = mx::FileSearchPath(searchPath).find(filename);
         if (resolvedFilename.exists())
         {
-            readFromXmlFile(doc, resolvedFilename, mx::EMPTY_STRING, options);
+            readFromXmlFile(doc, resolvedFilename, searchPath, options);
         }
         else
         {
-            std::cerr << "Include file not found:" << filename << std::endl;
+            std::cerr << "Include file not found: " << filename << std::endl;
         }
     };
-    mx::readFromXmlFile(doc, filePath, mx::EMPTY_STRING, &readOptions);
+    mx::readFromXmlFile(doc, filePath, searchPath.asString(), &readOptions);
 
     // Apply modifiers to the content document if requested.
     for (mx::ElementPtr elem : doc->traverseTree())
