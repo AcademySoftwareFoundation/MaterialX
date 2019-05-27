@@ -1,11 +1,16 @@
 <?xml version="1.0"?>
 <materialx version="1.36" colorspace="lin_rec709" fileprefix="resources/Images/">
   <nodegraph name="NG_Greysphere_Calibration">
-    <tiledimage name="image_base_color" type="color3">
+    <texcoord name="texcoord" type="vector2" />
+    <place2d name="place2d" type="vector2">
+      <input name="texcoord" type="vector2" nodename="texcoord"/>
+      <input name="offset" type="vector2" value="1.24, 1.47"/>
+      <input name="scale" type="vector2" value="0.2, 0.2"/>
+    </place2d>
+    <image name="image_base_color" type="color3">
+      <input name="texcoord" type="vector2" nodename="place2d"/>
       <parameter name="file" type="filename" value="greysphere_calibration.jpg" />
-      <parameter name="uvtiling" type="vector2" value="5.1, 5.1"/>
-      <parameter name="uvoffset" type="vector2" value="1.25, 1.5"/>
-    </tiledimage>
+    </image>
     <output name="out_base_color" type="color3" nodename="image_base_color" />
   </nodegraph>
 
