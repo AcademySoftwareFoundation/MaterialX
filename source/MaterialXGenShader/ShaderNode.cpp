@@ -110,9 +110,6 @@ const string ShaderNode::COMPARE = "compare";
 const string ShaderNode::SWITCH = "switch";
 const string ShaderNode::BSDF_R = "R";
 const string ShaderNode::BSDF_T = "T";
-const string ShaderNode::TRANSFORM_POINT = "transformpoint";
-const string ShaderNode::TRANSFORM_VECTOR = "transformvector";
-const string ShaderNode::TRANSFORM_NORMAL = "transformnormal";
 const string ShaderNode::TEXTURE2D_GROUPNAME = "texture2d";
 const string ShaderNode::TEXTURE3D_GROUPNAME = "texture3d";
 const string ShaderNode::PROCEDURAL2D_GROUPNAME = "procedural2d";
@@ -321,19 +318,6 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     else if (groupName == TEXTURE2D_GROUPNAME || groupName == TEXTURE3D_GROUPNAME)
     {
         newNode->_classification = Classification::TEXTURE | Classification::FILETEXTURE;
-    }
-
-    if(nodeDef.getNodeString() == TRANSFORM_POINT)
-    {
-        newNode->_classification |= Classification::TRANSFORM_POINT;
-    }
-    else if(nodeDef.getNodeString() == TRANSFORM_VECTOR)
-    {
-        newNode->_classification |= Classification::TRANSFORM_VECTOR;
-    }
-    else if(nodeDef.getNodeString() == TRANSFORM_NORMAL)
-    {
-        newNode->_classification |= Classification::TRANSFORM_NORMAL;
     }
 
     // Add in group classification

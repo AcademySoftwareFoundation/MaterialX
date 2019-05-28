@@ -61,6 +61,9 @@ class Viewer : public ng::Screen
     }
 
   private:
+    void drawScene3D();
+    void drawScene2D();
+
     void setupLights(mx::DocumentPtr doc, const std::string& envRadiancePath, const std::string& envIrradiancePath);
     void initializeDocument(mx::DocumentPtr libraries);
     void loadMaterialDocument();
@@ -87,6 +90,11 @@ class Viewer : public ng::Screen
     void createLoadMeshInterface(Widget* parent, const std::string label);
     void createLoadMaterialsInterface(Widget* parent, const std::string label);
     void createAdvancedSettings(Widget* parent);
+
+    mx::MeshStreamPtr createUvPositionStream(mx::MeshPtr mesh, 
+                                            const std::string& uvStreamName,
+                                            unsigned int index,
+                                            const std::string& positionStreamName);
 
   private:
     ng::Window* _window;
@@ -166,6 +174,13 @@ class Viewer : public ng::Screen
     // Image save
     bool _captureFrame;
     mx::FilePath _captureFrameFileName;
+
+    // UV wireframe drawing
+    bool _drawUVGeometry;
+    MaterialPtr _wireMaterialUV;
+    mx::Vector3 _uvScale;
+    mx::Vector3 _uvTranslation;
+    float _uvZoom;
 };
 
 #endif // MATERIALXVIEW_VIEWER_H
