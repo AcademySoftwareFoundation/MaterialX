@@ -605,24 +605,30 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
                 fileName != IRRADIANCE_ENV_UNIFORM_NAME)
             {
                 // Get the additional texture parameters based on image uniform name
-                MaterialX::StringVec root = MaterialX::splitString(uniform.first, IMAGE_SEPARATOR);
+                // excluding the trailing "_file" postfix string
+                std::string root = uniform.first;
+                size_t pos = root.find_last_of(IMAGE_SEPARATOR);
+                if (pos != std::string::npos)
+                {
+                    root = root.substr(0, pos);
+                }
 
                 ImageSamplingProperties samplingProperties;
 
                 const int INVALID_MAPPED_INT_VALUE = -1; // Any value < 0 is not considered to be invalid
-                const std::string uaddressModeStr = root[0] + UADDRESS_MODE_POST_FIX;
+                const std::string uaddressModeStr = root + UADDRESS_MODE_POST_FIX;
                 ValuePtr intValue = findUniformValue(uaddressModeStr, uniformList);
                 samplingProperties.uaddressMode = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
 
-                const std::string vaddressmodeStr = root[0] + VADDRESS_MODE_POST_FIX;
+                const std::string vaddressmodeStr = root + VADDRESS_MODE_POST_FIX;
                 intValue = findUniformValue(vaddressmodeStr, uniformList);
                 samplingProperties.vaddressMode = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
 
-                const std::string filtertypeStr = root[0] + FILTER_TYPE_POST_FIX;
+                const std::string filtertypeStr = root + FILTER_TYPE_POST_FIX;
                 intValue = findUniformValue(filtertypeStr, uniformList);
                 samplingProperties.filterType = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
 
-                const std::string defaultColorStr = root[0] + DEFAULT_COLOR_POST_FIX;
+                const std::string defaultColorStr = root + DEFAULT_COLOR_POST_FIX;
                 ValuePtr colorValue = findUniformValue(defaultColorStr, uniformList);
                 Color4 defaultColor;
                 mapValueToColor(colorValue, defaultColor);
