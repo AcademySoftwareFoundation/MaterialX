@@ -4,8 +4,8 @@
     <texcoord name="texcoord" type="vector2" />
     <place2d name="place2d" type="vector2">
       <input name="texcoord" type="vector2" nodename="texcoord"/>
-      <input name="offset" type="vector2" value="1.24, 1.47"/>
-      <input name="scale" type="vector2" value="0.2, 0.2"/>
+      <input name="offset" type="vector2" value="1.15, 1.38"/>
+      <input name="scale" type="vector2" value="0.21, 0.21"/>
     </place2d>
     <image name="image_base_color" type="color3">
       <input name="texcoord" type="vector2" nodename="place2d"/>
