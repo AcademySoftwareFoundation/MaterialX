@@ -124,6 +124,7 @@ int main(int argc, char* const argv[])
         }
     }
     searchPath.append(parentCurrentPath);
+    searchPath.prepend(currentPath);
 
     try
     {

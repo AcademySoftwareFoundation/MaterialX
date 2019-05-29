@@ -538,17 +538,18 @@ bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, con
                               const ImageSamplingProperties& samplingProperties, ImageDesc& desc)
 {
     bool textureBound = false;
+    FilePath resolvedFilePath = imageHandler->getSearchPath().find(filePath);
     if (uniformLocation >= 0 &&
         uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
     {
-        if (imageHandler->acquireImage(filePath, desc, generateMipMaps, &(samplingProperties.defaultColor)))
+        if (imageHandler->acquireImage(resolvedFilePath, desc, generateMipMaps, &(samplingProperties.defaultColor)))
         {
             // Map location to a texture unit
             int textureLocation = imageHandler->getBoundTextureLocation(desc.resourceId);
             if (textureLocation >= 0) 
             {
                glUniform1i(uniformLocation, textureLocation);
-               textureBound = imageHandler->bindImage(filePath, samplingProperties);
+               textureBound = imageHandler->bindImage(resolvedFilePath, samplingProperties);
             }
         }
         checkErrors();

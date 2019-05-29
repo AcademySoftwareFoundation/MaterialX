@@ -471,7 +471,7 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
     }
 }
 
-bool Material::bindImage(std::string filename, const std::string& uniformName, mx::GLTextureHandlerPtr imageHandler,
+bool Material::bindImage(const mx::FilePath& filename, const std::string& uniformName, mx::GLTextureHandlerPtr imageHandler,
                          mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, const std::string& udim, mx::Color4* fallbackColor)
 {
     if (!_glShader)
@@ -480,24 +480,32 @@ bool Material::bindImage(std::string filename, const std::string& uniformName, m
     }
 
     // Apply udim string if specified.
+    mx::FilePath resolvedFilename;
     if (!udim.empty())
     {
         mx::StringMap map;
         map[mx::UDIM_TOKEN] = udim;
-        filename = mx::replaceSubstrings(filename, map);
+        resolvedFilename = mx::FilePath(mx::replaceSubstrings(filename.asString(), map));
+    }
+    else
+    {
+        resolvedFilename = filename;
     }
 
     // Acquire the given image.
-    if (!imageHandler->acquireImage(filename, desc, true, fallbackColor) && !filename.empty())
+    resolvedFilename = imageHandler->getSearchPath().find(resolvedFilename);
+    if (!imageHandler->acquireImage(resolvedFilename, desc, true, fallbackColor) && !filename.isEmpty())
     {
-        std::cerr << "Failed to load image: " << filename << std::endl;
+        std::cerr << "Failed to load image: " << resolvedFilename.asString() << std::endl;
     }
 
     // Bind the image and set its sampling properties.
     int textureLocation = imageHandler->getBoundTextureLocation(desc.resourceId);
-    if (textureLocation < 0) return false;
-    _glShader->setUniform(uniformName, textureLocation);
-    imageHandler->bindImage(filename, samplingProperties);
+    if (textureLocation < 0)
+        return false;
+
+    _glShader->setUniform(uniformName, textureLocation, false);
+    imageHandler->bindImage(resolvedFilename, samplingProperties);
 
     return true;
 }
