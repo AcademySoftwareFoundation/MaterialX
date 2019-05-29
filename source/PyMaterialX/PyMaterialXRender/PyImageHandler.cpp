@@ -30,7 +30,7 @@ class PyImageLoader : public mx::ImageLoader
         );
     }
 
-    bool acquireImage(const mx::FilePath& filePath, mx::ImageDesc &imageDesc, const mx::ImageDescRestrictions* restrictions = nullptr) override
+    bool loadImage(const mx::FilePath& filePath, mx::ImageDesc &imageDesc, const mx::ImageDescRestrictions* restrictions = nullptr) override
     {
         PYBIND11_OVERLOAD_PURE(
             bool,
@@ -88,13 +88,13 @@ class PyImageHandler : public mx::ImageHandler
         );
     }
 
-    bool bindImage(const std::string& identifier, const mx::ImageSamplingProperties& samplingProperties) override
+    bool bindImage(const mx::FilePath& filePath, const mx::ImageSamplingProperties& samplingProperties) override
     {
         PYBIND11_OVERLOAD(
             bool,
             mx::ImageHandler,
             bindImage,
-            identifier,
+            filePath,
             samplingProperties
         );
     }
@@ -159,7 +159,7 @@ void bindPyImageHandler(py::module& mod)
         .def(py::init<>())
         .def("supportedExtensions", &mx::ImageLoader::supportedExtensions)
         .def("saveImage", &mx::ImageLoader::saveImage)
-        .def("acquireImage", &mx::ImageLoader::acquireImage);
+        .def("loadImage", &mx::ImageLoader::loadImage);
 
     py::class_<mx::ImageHandler, PyImageHandler, mx::ImageHandlerPtr>(mod, "ImageHandler")
         .def(py::init<mx::ImageLoaderPtr>())
@@ -171,6 +171,6 @@ void bindPyImageHandler(py::module& mod)
         .def("bindImage", &mx::ImageHandler::bindImage)
         .def("clearImageCache", &mx::ImageHandler::clearImageCache)
         .def("setSearchPath", &mx::ImageHandler::setSearchPath)
-        .def("findFile", &mx::ImageHandler::findFile)
-        .def("searchPath", &mx::ImageHandler::searchPath);
+        .def("getSearchPath", &mx::ImageHandler::getSearchPath)
+        .def("findFile", &mx::ImageHandler::findFile);
 }

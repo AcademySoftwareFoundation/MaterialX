@@ -635,6 +635,11 @@ void Viewer::loadMaterialDocument()
         {
             updateMaterialSelections();
 
+            // Set the default image search path.
+            mx::FilePath materialFolder = _materialFilename;
+            materialFolder.pop();
+            _imageHandler->setSearchPath(mx::FileSearchPath(materialFolder));
+
             // Clear cached implementations, in case libraries on the file system have changed.
             _genContext.clearNodeImplementations();
 

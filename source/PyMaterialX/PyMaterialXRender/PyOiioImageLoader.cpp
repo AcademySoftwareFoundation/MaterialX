@@ -16,5 +16,5 @@ void bindPyOiioImageLoader(py::module& mod)
         .def_static("create", &mx::OiioImageLoader::create)
         .def(py::init<>())
         .def("saveImage", &mx::OiioImageLoader::saveImage)
-        .def("acquireImage", &mx::OiioImageLoader::acquireImage);
+        .def("loadImage", &mx::OiioImageLoader::loadImage);
 }
