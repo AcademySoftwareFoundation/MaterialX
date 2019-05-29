@@ -580,6 +580,7 @@ bool ValueElement::validate(string* message) const
     }
     if (hasInterfaceName())
     {
+        validateRequire(isA<Parameter>() || isA<Input>(), res, message, "Only parameter and input elements support interface names");
         ConstNodeGraphPtr nodeGraph = getAncestorOfType<NodeGraph>();
         NodeDefPtr nodeDef = nodeGraph ? nodeGraph->getNodeDef() : nullptr;
         if (nodeDef)
