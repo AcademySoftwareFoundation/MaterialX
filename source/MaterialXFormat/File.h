@@ -159,7 +159,6 @@ class FileSearchPath
   public:
     FileSearchPath()
     {
-        append(FilePath::getCurrentPath());
     }
     ~FileSearchPath() { }
 

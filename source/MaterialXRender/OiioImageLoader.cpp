@@ -87,9 +87,9 @@ bool OiioImageLoader::saveImage(const FilePath& filePath,
     return written;
 }
 
-bool OiioImageLoader::acquireImage(const FilePath& filePath,
-                                  ImageDesc& imageDesc,
-                                  const ImageDescRestrictions* restrictions)
+bool OiioImageLoader::loadImage(const FilePath& filePath,
+                                ImageDesc& imageDesc,
+                                const ImageDescRestrictions* restrictions)
 {
     imageDesc.width = imageDesc.height = imageDesc.channelCount = 0;
     imageDesc.resourceBuffer = nullptr;

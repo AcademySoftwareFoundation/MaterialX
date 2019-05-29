@@ -87,8 +87,8 @@ bool StbImageLoader::saveImage(const FilePath& filePath,
     return (returnValue == 1);
 }
 
-bool StbImageLoader::acquireImage(const FilePath& filePath, ImageDesc &imageDesc,
-                                  const ImageDescRestrictions* restrictions)
+bool StbImageLoader::loadImage(const FilePath& filePath, ImageDesc &imageDesc,
+                               const ImageDescRestrictions* restrictions)
 {
     imageDesc.width = imageDesc.height = imageDesc.channelCount = 0;
     imageDesc.resourceBuffer = nullptr;

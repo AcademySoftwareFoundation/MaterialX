@@ -34,15 +34,6 @@ class GLTextureHandler : public ImageHandler
     virtual ~GLTextureHandler() {}
 
 
-    /// Utility to create a solid color color image
-    /// This method will create an OpenGL texture resource and return it's resource identifier
-    /// as part of the image description returned.
-    /// @param color Color to set
-    /// @param imageDesc Description of image updated during load.
-    /// @return if creation succeeded
-    bool createColorImage(const Color4& color,
-                          ImageDesc& imageDesc) override;
-
     /// Acquire an image from the cache or file system.  If the image is not
     /// found in the cache, then each image loader will be applied in turn.
     /// @param filePath File path of the image.
@@ -66,7 +57,7 @@ class GLTextureHandler : public ImageHandler
     /// @param identifier Identifier for image description to bind.
     /// @param samplingProperties Sampling properties for the image
     /// @return true if succeded to bind
-    bool bindImage(const string &identifier, const ImageSamplingProperties& samplingProperties) override;
+    bool bindImage(const FilePath& filePath, const ImageSamplingProperties& samplingProperties) override;
 
     /// Utility to map an address mode enumeration to an OpenGL address mode
     static int mapAddressModeToGL(int addressModeEnum);

@@ -18,32 +18,6 @@ GLTextureHandler::GLTextureHandler(ImageLoaderPtr imageLoader) :
     _restrictions.supportedBaseTypes = { ImageDesc::BASETYPE_HALF, ImageDesc::BASETYPE_FLOAT, ImageDesc::BASETYPE_UINT8 };
 }
 
-bool GLTextureHandler::createColorImage(const Color4& color,
-                                        ImageDesc& imageDesc)
-{
-    if (!glActiveTexture)
-    {
-        glewInit();
-    }
-
-    ImageHandler::createColorImage(color, imageDesc);
-    if ((imageDesc.width * imageDesc.height > 0) && imageDesc.resourceBuffer)
-    {
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glGenTextures(1, &imageDesc.resourceId);
-
-        int textureUnit = getBoundTextureLocation(imageDesc.resourceId);
-        if (textureUnit < 0) return false;
-        glActiveTexture(GL_TEXTURE0 + textureUnit);
-        glBindTexture(GL_TEXTURE_2D, imageDesc.resourceId);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, imageDesc.width, imageDesc.height, 0, GL_RGBA, GL_FLOAT, imageDesc.resourceBuffer);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        return true;
-    }
-    return false;
-}
-
 bool GLTextureHandler::acquireImage(const FilePath& filePath,
                                     ImageDesc& imageDesc,
                                     bool generateMipMaps,
@@ -84,7 +58,9 @@ bool GLTextureHandler::acquireImage(const FilePath& filePath,
         glGenTextures(1, &imageDesc.resourceId);
 
         int textureUnit = getNextAvailableTextureLocation();
-        if (textureUnit < 0) return false;
+        if (textureUnit < 0)
+            return false;
+
         _boundTextureLocations[textureUnit] = imageDesc.resourceId;
         glActiveTexture(GL_TEXTURE0 + textureUnit);
         glBindTexture(GL_TEXTURE_2D, imageDesc.resourceId);
@@ -151,23 +127,42 @@ bool GLTextureHandler::acquireImage(const FilePath& filePath,
     // Create a fallback texture if failed to load
     if (!textureLoaded && fallbackColor)
     {
-        ImageDesc desc;
-        desc.channelCount = 4;
-        desc.width = 1;
-        desc.height = 1;
-        desc.baseType = ImageDesc::BASETYPE_FLOAT;
-        createColorImage(*fallbackColor, desc);
-        desc.freeResourceBuffer();
-        cacheImage(filePath, desc);
+        imageDesc.channelCount = 4;
+        imageDesc.width = 1;
+        imageDesc.height = 1;
+        imageDesc.baseType = ImageDesc::BASETYPE_FLOAT;
+        createColorImage(*fallbackColor, imageDesc);
+        if ((imageDesc.width * imageDesc.height > 0) && imageDesc.resourceBuffer)
+        {
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            glGenTextures(1, &imageDesc.resourceId);
+
+            int textureUnit = getNextAvailableTextureLocation();
+            if (textureUnit < 0)
+                return false;
+
+            _boundTextureLocations[textureUnit] = imageDesc.resourceId;
+            glActiveTexture(GL_TEXTURE0 + textureUnit);
+            glBindTexture(GL_TEXTURE_2D, imageDesc.resourceId);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, imageDesc.width, imageDesc.height, 0,
+                GL_RGBA, GL_FLOAT, imageDesc.resourceBuffer);
+            if (generateMipMaps)
+            {
+                glGenerateMipmap(GL_TEXTURE_2D);
+            }
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
+        imageDesc.freeResourceBuffer();
+        cacheImage(filePath, imageDesc);
     }
 
     return textureLoaded;
 }
 
 
-bool GLTextureHandler::bindImage(const string &identifier, const ImageSamplingProperties& samplingProperties)
+bool GLTextureHandler::bindImage(const FilePath& filePath, const ImageSamplingProperties& samplingProperties)
 {
-    const ImageDesc* cachedDesc = getCachedImage(identifier);
+    const ImageDesc* cachedDesc = getCachedImage(filePath);
     if (cachedDesc)
     {
         if (!glActiveTexture)
@@ -189,7 +184,9 @@ bool GLTextureHandler::bindImage(const string &identifier, const ImageSamplingPr
         }
 
         int textureUnit = getBoundTextureLocation(resourceId);
-        if (textureUnit < 0) return false;
+        if (textureUnit < 0)
+            return false;
+
         glActiveTexture(GL_TEXTURE0 + textureUnit);
         glBindTexture(GL_TEXTURE_2D, resourceId);
 
