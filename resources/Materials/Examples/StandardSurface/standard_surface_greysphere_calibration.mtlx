@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.36" colorspace="lin_rec709" fileprefix="resources/Images/">
+<materialx version="1.36" colorspace="srgb_texture" fileprefix="resources/Images/">
   <nodegraph name="NG_Greysphere_Calibration">
     <texcoord name="texcoord1" type="vector2" />
     <place2d name="place2d" type="vector2">
@@ -9,7 +9,7 @@
     </place2d>
     <image name="image1" type="color3">
       <input name="texcoord" type="vector2" nodename="place2d" />
-      <parameter name="file" type="filename" value="greysphere_calibration.jpg" />
+      <parameter name="file" type="filename" value="greysphere_calibration.png" />
       <parameter name="uaddressmode" type="string" value="clamp" />
       <parameter name="vaddressmode" type="string" value="clamp" />
     </image>
