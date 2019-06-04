@@ -111,6 +111,9 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     _searchPath(searchPath),
     _materialFilename(materialFilename),
     _modifiers(modifiers),
+    _lightFileName("resources/Materials/TestSuite/Utilities/Lights/default_viewer_lights.mtlx"),
+    _envRadiancePath("resources/Images/san_giuseppe_bridge.hdr"),
+    _envIrradiancePath("resources/Images/san_giuseppe_bridge_diffuse.hdr"),
     _directLighting(false),
     _indirectLighting(true),
     _selectedGeom(0),
@@ -129,6 +132,12 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     _uvTranslation(-0.5f, 0.5f, 0.0f),
     _uvZoom(1.0f)
 {
+    // Set default generator options.
+    _genContext.getOptions().hwSpecularEnvironmentMethod = _specularEnvironmentMethod;
+    _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
+    _genContext.getOptions().fileTextureVerticalFlip = true;
+    _genContext.getOptions().hwTransparency = true;
+
     _window = new ng::Window(this, "Viewer Options");
     _window->setPosition(ng::Vector2i(15, 15));
     _window->setLayout(new ng::GroupLayout());
@@ -165,16 +174,6 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
             assignMaterial(_materials[_selectedMaterial], _geometryList[_selectedGeom]);
         }
     });
-
-    // Set default generator options.
-    _genContext.getOptions().hwSpecularEnvironmentMethod = _specularEnvironmentMethod;
-    _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
-    _genContext.getOptions().fileTextureVerticalFlip = true;
-
-    // Set default light information before initialization
-    _lightFileName = "resources/Materials/TestSuite/Utilities/Lights/default_viewer_lights.mtlx";
-    _envRadiancePath = "resources/Images/san_giuseppe_bridge.hdr";
-    _envIrradiancePath = "resources/Images/san_giuseppe_bridge_diffuse.hdr";
 
     // Load in standard library and light handler and create top level document
     _stdLib = loadLibraries(_libraryFolders, _searchPath);
@@ -632,6 +631,14 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _outlineSelection = enable;
     });
 
+    ng::CheckBox* transparencyBox = new ng::CheckBox(advancedPopup, "Render Transparency");
+    transparencyBox->setChecked(_genContext.getOptions().hwTransparency);
+    transparencyBox->setCallback([this](bool enable)
+    {
+        _genContext.getOptions().hwTransparency = enable;
+        reloadShaders();
+    });
+
     ng::CheckBox* drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Render Environment");
     drawEnvironmentBox->setChecked(_drawEnvironment);
     drawEnvironmentBox->setCallback([this](bool enable)
@@ -795,6 +802,21 @@ void Viewer::reloadDocument()
         updateMaterialSelections();
         setMaterialSelection(_selectedMaterial);
         updatePropertyEditor();
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Shader Generation Error", e.what());
+    }
+}
+
+void Viewer::reloadShaders()
+{
+    try
+    {
+        for (MaterialPtr material : _materials)
+        {
+            material->generateShader(_genContext);
+        }
     }
     catch (std::exception& e)
     {
