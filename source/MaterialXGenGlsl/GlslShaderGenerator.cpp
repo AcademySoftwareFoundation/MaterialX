@@ -551,7 +551,7 @@ BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
     // and ignore conditional scope.
     for (const ShaderNode* node : graph.getNodes())
     {
-        emitFunctionCall(*node, context, stage, true);
+        emitFunctionCall(*node, context, stage, false);
     }
 END_SHADER_STAGE(stage, Stage::VERTEX)
 
