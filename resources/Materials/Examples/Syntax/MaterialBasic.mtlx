@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.36">
-  <xi:include href="GeomInfos.mtlx"/>
-
   <nodedef name="ND_simplesrf_surface" type="surfaceshader" node="simplesrf">
     <input name="diff_albedo" type="color3" value="0.18,0.18,0.18"/>
     <input name="spec_color" type="color3" value="1,1,1"/>
