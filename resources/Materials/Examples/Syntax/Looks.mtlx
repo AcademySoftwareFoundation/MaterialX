@@ -30,6 +30,18 @@
     </shaderref>
   </material>
 
+  <variantset name="varset">
+    <variant name="dry">
+      <parameter name="wetgain" type="float" value="0.0"/>
+    </variant>
+    <variant name="wet">
+      <parameter name="wetgain" type="float" value="1.0"/>
+    </variant>
+    <variant name="damp">
+      <parameter name="wetgain" type="float" value="0.2"/>
+    </variant>
+  </variantset>
+
   <collection name="c_plastic" includegeom="/a/g1,/a/g2,/a/g5"/>
   <collection name="c_metal" includegeom="/a/g3,/a/g4"/>
   <collection name="c_lamphouse" includegeom="/a/lamp1/housing*Mesh"/>
@@ -56,12 +68,14 @@
     <materialassign name="ma3" material="mheadlight" geom="/a/b/headlight"/>
     <visibility name="v1" viewergeom="/a/b/headlight" vistype="shadow" geom="/" visible="false"/>
     <visibility name="v2" viewergeom="/a/b/headlight" vistype="shadow" collection="c_lamphouse"/>
-    <propertysetassign name="psa1" propertysetname="standard" geom="/"/>
+    <propertysetassign name="psa1" propertyset="standard" geom="/"/>
   </look>
   <look name="lookB">
     <materialassign name="ma4" material="Mplastic2" collection="c_plastic"/>
     <materialassign name="ma5" material="Mmetal2" collection="c_metal"/>
-    <propertysetassign name="psa2" propertysetname="standard" geom="/"/>
+    <propertyassign name="pa1" property="matte" type="boolean" value="true" geom="/g/holdout,/g/holdout2"/>
+    <propertysetassign name="psa2" propertyset="standard" geom="/"/>
+    <variantassign name="va1" variantset="varset" variant="damp"/>
     <!-- make the setgeom invisible to camera but still visible to shadows and reflections -->
     <visibility name="v3" vistype="camera" collection="c_setgeom" visible="false"/>
   </look>
