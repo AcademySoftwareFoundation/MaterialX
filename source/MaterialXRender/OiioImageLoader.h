@@ -62,8 +62,8 @@ class OiioImageLoader : public ImageLoader
     /// @param imageDesc Description of image updated during load.
     /// @param restrictions Hardware image description restrictions. Default value is nullptr, meaning no restrictions.
     /// @return if load succeeded
-    bool acquireImage(const FilePath& filePath, ImageDesc &imageDesc,
-                      const ImageDescRestrictions* restrictions = nullptr) override;
+    bool loadImage(const FilePath& filePath, ImageDesc &imageDesc,
+                   const ImageDescRestrictions* restrictions = nullptr) override;
 };
 
 } // namespace MaterialX;

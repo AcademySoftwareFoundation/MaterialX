@@ -117,7 +117,7 @@ bool ImageHandler::acquireImage(const FilePath& filePath, ImageDesc& imageDesc, 
         ImageLoaderPtr loader = iter->second;
         if (loader && loader->supportedExtensions().count(extension))
         {
-            bool acquired = loader->acquireImage(foundFilePath, imageDesc, getRestrictions());
+            bool acquired = loader->loadImage(foundFilePath, imageDesc, getRestrictions());
             if (acquired)
             {
                 return true;
@@ -158,16 +158,16 @@ bool ImageHandler::createColorImage(const Color4& color,
     return true;
 }
 
-bool ImageHandler::bindImage(const string& /*identifier*/, const ImageSamplingProperties& /*samplingProperties*/)
+bool ImageHandler::bindImage(const FilePath& /*filePath*/, const ImageSamplingProperties& /*samplingProperties*/)
 {
     return false;
 }
 
-void ImageHandler::cacheImage(const string& identifier, const ImageDesc& desc)
+void ImageHandler::cacheImage(const string& filePath, const ImageDesc& desc)
 {
-    if (!_imageCache.count(identifier))
+    if (!_imageCache.count(filePath))
     {
-        _imageCache[identifier] = desc;
+        _imageCache[filePath] = desc;
     }
 }
 
@@ -183,11 +183,6 @@ const ImageDesc* ImageHandler::getCachedImage(const string& identifier)
         return &(_imageCache[identifier]);
     }
     return nullptr;
-}
-
-void ImageHandler::setSearchPath(const FileSearchPath& path)
-{
-    _searchPath = path;
 }
 
 FilePath ImageHandler::findFile(const FilePath& filePath)

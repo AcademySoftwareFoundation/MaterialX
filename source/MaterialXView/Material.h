@@ -49,8 +49,8 @@ class Material
     /// and create new materials if they do not already exist.
     /// Returns the number of new materials added
     static size_t loadDocument(mx::DocumentPtr destinationDoc, const mx::FilePath& filePath,
-                               mx::DocumentPtr libraries, const DocumentModifiers& modifiers,
-                               std::vector<MaterialPtr>& materials);
+                               const mx::FileSearchPath& searchPath, mx::DocumentPtr libraries,
+                               const DocumentModifiers& modifiers, std::vector<MaterialPtr>& materials);
 
     /// Return the renderable element associated with this material
     mx::TypedElementPtr getElement() const
@@ -121,7 +121,7 @@ class Material
                     const std::string& udim);
 
     /// Bind a single image.
-    bool bindImage(std::string filename, const std::string& uniformName, mx::GLTextureHandlerPtr imageHandler,
+    bool bindImage(const mx::FilePath& filename, const std::string& uniformName, mx::GLTextureHandlerPtr imageHandler,
                    mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, const std::string& udim = mx::EMPTY_STRING, mx::Color4* fallbackColor = nullptr);
 
     /// Bind lights to shader.

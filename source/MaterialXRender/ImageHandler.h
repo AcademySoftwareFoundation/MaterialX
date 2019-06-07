@@ -156,13 +156,13 @@ class ImageLoader
                            const ImageDesc &imageDesc,
                            bool verticalFlip = false) = 0;
 
-    /// Acquire an image from disk. This method must be implemented by derived classes.
+    /// Load an image from disk. This method must be implemented by derived classes.
     /// @param filePath Path to load image from
     /// @param imageDesc Description of image updated during load.
     /// @param restrictions Hardware image description restrictions. Default value is nullptr, meaning no restrictions.
     /// @return if load succeeded
-    virtual bool acquireImage(const FilePath& filePath, ImageDesc &imageDesc,
-                              const ImageDescRestrictions* restrictions = nullptr) = 0;
+    virtual bool loadImage(const FilePath& filePath, ImageDesc &imageDesc,
+                           const ImageDescRestrictions* restrictions = nullptr) = 0;
 
   protected:
     /// List of supported string extensions
@@ -243,27 +243,30 @@ class ImageHandler
 
     /// Bind an image. Derived classes should implement this method to handle logical binding of
     /// an image resource. The default implementation performs no action.
-    /// @param identifier Identifier for image description to bind.
+    /// @param filePath File path of image description to bind.
     /// @param samplingProperties Sampling properties for the image
     /// @return true if succeded to bind
-    virtual bool bindImage(const string& identifier, const ImageSamplingProperties& samplingProperties);
+    virtual bool bindImage(const FilePath& filePath, const ImageSamplingProperties& samplingProperties);
 
     /// Clear the contents of the image cache.
     /// deleteImage() will be called for each cache description to
     /// allow derived classes to clean up any associated resources.
     virtual void clearImageCache();
 
-    /// Set to the search path used for finding image files.
-    void setSearchPath(const FileSearchPath& path);
+    /// Set the search path to be used for finding images on the file system.
+    void setSearchPath(const FileSearchPath& path)
+    {
+        _searchPath = path;
+    }
 
-    /// Resolve a path to a file using the registered search paths.
-    FilePath findFile(const FilePath& filePath);
-
-    /// Get the image search path
-    const FileSearchPath& searchPath()
+    /// Return the image search path
+    const FileSearchPath& getSearchPath()
     {
         return _searchPath;
     }
+
+    /// Resolve a path to a file using the registered search paths.
+    FilePath findFile(const FilePath& filePath);
 
     /// Returns the bound texture location for a given resource
     virtual int getBoundTextureLocation(unsigned int)
@@ -274,18 +277,18 @@ class ImageHandler
 
   protected:
     /// Cache an image for reuse.
-    /// @param identifier Description identifier to use.
-    /// @param imageDesc Image description to cache
-    void cacheImage(const string& identifier, const ImageDesc& imageDesc);
+    /// @param filePath File path of image to cache.
+    /// @param imageDesc Image description to cache.
+    void cacheImage(const string& filePath, const ImageDesc& imageDesc);
 
     /// Remove image description from the cache.
-    /// @param identifier Identifier of description to remove.
-    void uncacheImage(const string& identifier);
+    /// @param filePath File path of image to remove.
+    void uncacheImage(const string& filePath);
 
     /// Get an image description in the image cache if it exists
-    /// @param identifier Description to search for.
+    /// @param filePath File path of image to find in the cache.
     /// @return A null ptr is returned if not found.
-    const ImageDesc* getCachedImage(const string& identifier);
+    const ImageDesc* getCachedImage(const string& filePath);
 
     /// Return a reference to the image cache
     ImageDescCache& getImageCache()

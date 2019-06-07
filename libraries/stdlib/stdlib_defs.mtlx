@@ -2612,22 +2612,22 @@
   <nodedef name="ND_plus_float" node="plus" type="float" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="float"/>
     <input name="bg" type="float"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_plus_color2" node="plus" type="color2" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color2"/>
     <input name="bg" type="color2"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_plus_color3" node="plus" type="color3" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color3"/>
     <input name="bg" type="color3"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_plus_color4" node="plus" type="color4" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color4"/>
     <input name="bg" type="color4"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
 
   <!--
@@ -2637,22 +2637,22 @@
   <nodedef name="ND_minus_float" node="minus" type="float" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="float"/>
     <input name="bg" type="float"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_minus_color2" node="minus" type="color2" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color2"/>
     <input name="bg" type="color2"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_minus_color3" node="minus" type="color3" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color3"/>
     <input name="bg" type="color3"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_minus_color4" node="minus" type="color4" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color4"/>
     <input name="bg" type="color4"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
 
   <!--
@@ -2663,22 +2663,22 @@
   <nodedef name="ND_difference_float" node="difference" type="float" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="float"/>
     <input name="bg" type="float"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_difference_color2" node="difference" type="color2" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color2"/>
     <input name="bg" type="color2"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_difference_color3" node="difference" type="color3" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color3"/>
     <input name="bg" type="color3"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_difference_color4" node="difference" type="color4" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color4"/>
     <input name="bg" type="color4"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
 
   <!--
@@ -2688,22 +2688,22 @@
   <nodedef name="ND_burn_float" node="burn" type="float" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="float"/>
     <input name="bg" type="float"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_burn_color2" node="burn" type="color2" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color2"/>
     <input name="bg" type="color2"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_burn_color3" node="burn" type="color3" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color3"/>
     <input name="bg" type="color3"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_burn_color4" node="burn" type="color4" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color4"/>
     <input name="bg" type="color4"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
 
   <!--
@@ -2713,22 +2713,22 @@
   <nodedef name="ND_dodge_float" node="dodge" type="float" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="float"/>
     <input name="bg" type="float"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_dodge_color2" node="dodge" type="color2" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color2"/>
     <input name="bg" type="color2"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_dodge_color3" node="dodge" type="color3" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color3"/>
     <input name="bg" type="color3"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_dodge_color4" node="dodge" type="color4" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color4"/>
     <input name="bg" type="color4"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
 
   <!--
@@ -2738,22 +2738,22 @@
   <nodedef name="ND_screen_float" node="screen" type="float" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="float"/>
     <input name="bg" type="float"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_screen_color2" node="screen" type="color2" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color2"/>
     <input name="bg" type="color2"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_screen_color3" node="screen" type="color3" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color3"/>
     <input name="bg" type="color3"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_screen_color4" node="screen" type="color4" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color4"/>
     <input name="bg" type="color4"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
 
   <!--
@@ -2765,22 +2765,22 @@
   <nodedef name="ND_overlay_float" node="overlay" type="float" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="float"/>
     <input name="bg" type="float"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_overlay_color2" node="overlay" type="color2" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color2"/>
     <input name="bg" type="color2"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_overlay_color3" node="overlay" type="color3" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color3"/>
     <input name="bg" type="color3"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_overlay_color4" node="overlay" type="color4" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color4"/>
     <input name="bg" type="color4"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
 
   <!--
@@ -2794,12 +2794,12 @@
   <nodedef name="ND_disjointover_color2" node="disjointover" type="color2" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color2"/>
     <input name="bg" type="color2"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_disjointover_color4" node="disjointover" type="color4" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color4"/>
     <input name="bg" type="color4"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
 
   <!--
@@ -2810,12 +2810,12 @@
   <nodedef name="ND_in_color2" node="in" type="color2" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color2"/>
     <input name="bg" type="color2"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_in_color4" node="in" type="color4" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color4"/>
     <input name="bg" type="color4"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
 
   <!--
@@ -2826,12 +2826,12 @@
   <nodedef name="ND_mask_color2" node="mask" type="color2" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color2"/>
     <input name="bg" type="color2"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_mask_color4" node="mask" type="color4" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color4"/>
     <input name="bg" type="color4"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
 
   <!--
@@ -2842,12 +2842,12 @@
   <nodedef name="ND_matte_color2" node="matte" type="color2" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color2"/>
     <input name="bg" type="color2"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_matte_color4" node="matte" type="color4" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color4"/>
     <input name="bg" type="color4"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
 
   <!--
@@ -2858,12 +2858,12 @@
   <nodedef name="ND_out_color2" node="out" type="color2" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color2"/>
     <input name="bg" type="color2"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_out_color4" node="out" type="color4" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color4"/>
     <input name="bg" type="color4"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
 
   <!--
@@ -2874,12 +2874,12 @@
   <nodedef name="ND_over_color2" node="over" type="color2" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color2"/>
     <input name="bg" type="color2"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_over_color4" node="over" type="color4" nodegroup="compositing" defaultinput="bg">
     <input name="fg" type="color4"/>
     <input name="bg" type="color4"/>
-    <input name="mix" type="float" default="1.0"/>
+    <input name="mix" type="float" value="1.0"/>
   </nodedef>
 
   <!--
