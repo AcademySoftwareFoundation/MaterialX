@@ -59,9 +59,9 @@ bool TinyEXRImageLoader::saveImage(const FilePath& filePath,
     return (returnValue == 0);
 }
 
-bool TinyEXRImageLoader::acquireImage(const FilePath& filePath,
-                                      ImageDesc& imageDesc,
-                                      const ImageDescRestrictions* restrictions)
+bool TinyEXRImageLoader::loadImage(const FilePath& filePath,
+                                   ImageDesc& imageDesc,
+                                   const ImageDescRestrictions* restrictions)
 {
     // Early out if returning float is unsupported
     if (restrictions && restrictions->supportedBaseTypes.count(ImageDesc::BASETYPE_FLOAT) == 0)

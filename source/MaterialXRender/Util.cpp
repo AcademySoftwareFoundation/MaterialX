@@ -13,6 +13,12 @@ namespace MaterialX
 
 ShaderPtr createShader(const string& shaderName, GenContext& context, ElementPtr elem)
 {
+    if (!elem)
+    {
+        return nullptr;
+    }
+
+    context.getOptions().hwTransparency = isTransparentSurface(elem, context.getShaderGenerator());
     return context.getShaderGenerator().generate(shaderName, elem, context);
 }
 

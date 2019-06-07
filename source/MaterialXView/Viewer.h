@@ -19,6 +19,8 @@ class Viewer : public ng::Screen
            const std::string& materialFilename,
            const DocumentModifiers& modifiers,
            mx::HwSpecularEnvironmentMethod specularEnvironmentMethod,
+           const std::string& envRadiancePath,
+           const std::string& envIrradiancePath,
            int multiSampleCount);
     ~Viewer() { }
 
@@ -64,7 +66,7 @@ class Viewer : public ng::Screen
 
     void setupLights(mx::DocumentPtr doc, const std::string& envRadiancePath, const std::string& envIrradiancePath);
     void initializeDocument(mx::DocumentPtr libraries);
-    void reloadDocument();
+    void loadMaterialDocument();
     void reloadShaders();
     void saveShaderSource();
     void loadShaderSource();
@@ -162,7 +164,6 @@ class Viewer : public ng::Screen
 
     // Material options
     bool _mergeMaterials;
-    bool _assignLooks;
 
     // Render options
     bool _outlineSelection;
