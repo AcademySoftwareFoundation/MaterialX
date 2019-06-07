@@ -376,10 +376,15 @@ void OgsFxShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& 
         emitFunctionCalls(graph, context, stage);
 
         // Emit final output
-        if (outputSocket->getConnection())
+        const ShaderOutput* outputConnection = outputSocket->getConnection();
+        if (outputConnection)
         {
-            string finalOutput = outputSocket->getConnection()->getVariable();
-
+            string finalOutput = outputConnection->getVariable();
+            const string& channels = outputSocket->getChannels();
+            if (!channels.empty())
+            {
+                finalOutput = _syntax->getSwizzledVariable(finalOutput, outputConnection->getType(), channels, outputSocket->getType());
+            }
             if (graph.hasClassification(ShaderNode::Classification::SURFACE))
             {
                 if (context.getOptions().hwTransparency)
