@@ -14,163 +14,9 @@
 using MatrixXfProxy = Eigen::Map<const ng::MatrixXf>;
 using MatrixXuProxy = Eigen::Map<const ng::MatrixXu>;
 
-bool stringEndsWith(const std::string& str, std::string const& end)
-{
-    if (str.length() >= end.length())
-    {
-        return !str.compare(str.length() - end.length(), end.length(), end);
-    }
-    else
-    {
-        return false;
-    }
-}
-
 //
 // Material methods
 //
-
-size_t Material::loadDocument(mx::DocumentPtr destinationDoc, const mx::FilePath& filePath,
-                              const mx::FileSearchPath& searchPath, mx::DocumentPtr libraries,
-                              const DocumentModifiers& modifiers, std::vector<MaterialPtr>& materials)
-{
-    // Load the content document.
-    mx::DocumentPtr doc = mx::createDocument();
-    mx::XmlReadOptions readOptions;
-    readOptions.readXIncludeFunction = [](mx::DocumentPtr doc, const std::string& filename, const std::string& searchPath, const mx::XmlReadOptions* options)
-    {
-        mx::FilePath resolvedFilename = mx::FileSearchPath(searchPath).find(filename);
-        if (resolvedFilename.exists())
-        {
-            readFromXmlFile(doc, resolvedFilename, searchPath, options);
-        }
-        else
-        {
-            std::cerr << "Include file not found: " << filename << std::endl;
-        }
-    };
-    mx::readFromXmlFile(doc, filePath, searchPath.asString(), &readOptions);
-
-    // Apply modifiers to the content document if requested.
-    for (mx::ElementPtr elem : doc->traverseTree())
-    {
-        if (modifiers.remapElements.count(elem->getCategory()))
-        {
-            elem->setCategory(modifiers.remapElements.at(elem->getCategory()));
-        }
-        if (modifiers.remapElements.count(elem->getName()))
-        {
-            elem->setName(modifiers.remapElements.at(elem->getName()));
-        }
-        mx::StringVec attrNames = elem->getAttributeNames();
-        for (const std::string& attrName : attrNames)
-        {
-            if (modifiers.remapElements.count(elem->getAttribute(attrName)))
-            {
-                elem->setAttribute(attrName, modifiers.remapElements.at(elem->getAttribute(attrName)));
-            }
-        }
-        if (elem->hasFilePrefix() && !modifiers.filePrefixTerminator.empty())
-        {
-            std::string filePrefix = elem->getFilePrefix();
-            if (!stringEndsWith(filePrefix, modifiers.filePrefixTerminator))
-            {
-                elem->setFilePrefix(filePrefix + modifiers.filePrefixTerminator);
-            }
-        }
-        std::vector<mx::ElementPtr> children = elem->getChildren();
-        for (mx::ElementPtr child : children)
-        {
-            if (modifiers.skipElements.count(child->getCategory()) ||
-                modifiers.skipElements.count(child->getName()))
-            {
-                elem->removeChild(child->getName());
-            }
-        }
-    }
-
-    // Import the given libraries.
-    mx::CopyOptions copyOptions;
-    copyOptions.skipDuplicateElements = true;
-    doc->importLibrary(libraries, &copyOptions);
-
-    // Remap references to unimplemented shader nodedefs.
-    for (mx::MaterialPtr material : doc->getMaterials())
-    {
-        for (mx::ShaderRefPtr shaderRef : material->getShaderRefs())
-        {
-            mx::NodeDefPtr nodeDef = shaderRef->getNodeDef();
-            if (nodeDef && !nodeDef->getImplementation())
-            {
-                std::vector<mx::NodeDefPtr> altNodeDefs = doc->getMatchingNodeDefs(nodeDef->getNodeString());
-                for (mx::NodeDefPtr altNodeDef : altNodeDefs)
-                {
-                    if (altNodeDef->getImplementation())
-                    {
-                        shaderRef->setNodeDefString(altNodeDef->getName());
-                    }
-                }
-            }
-        }
-    }
-
-    // Validate the document.
-    std::string message;
-    if (!doc->validate(&message))
-    {
-        std::cerr << "*** Validation warnings for " << filePath.getBaseName() << " ***" << std::endl;
-        std::cerr << message;
-    }
-
-    // Find new renderable elements.
-    size_t previousMaterialCount = materials.size();
-    mx::StringVec renderablePaths;
-    std::vector<mx::TypedElementPtr> elems;
-    mx::findRenderableElements(doc, elems);
-    for (mx::TypedElementPtr elem : elems)
-    {
-        std::string namePath = elem->getNamePath();
-        // Skip adding if renderable already exists
-        if (!destinationDoc->getDescendant(namePath))
-        {
-            renderablePaths.push_back(namePath);
-        }
-    }
-
-    // Check for any udim set.
-    mx::ValuePtr udimSetValue = doc->getGeomAttrValue("udimset");
-
-    // Merge the content document into the destination document.
-    destinationDoc->importLibrary(doc, &copyOptions);
-
-    // Create new materials.
-    for (auto renderablePath : renderablePaths)
-    {
-        auto elem = destinationDoc->getDescendant(renderablePath)->asA<mx::TypedElement>();
-        if (!elem)
-        {
-            continue;
-        }
-        if (udimSetValue && udimSetValue->isA<mx::StringVec>())
-        {
-            for (const std::string& udim : udimSetValue->asA<mx::StringVec>())
-            {
-                MaterialPtr mat = Material::create();
-                mat->setElement(elem);
-                mat->setUdim(udim);
-                materials.push_back(mat);
-            }
-        }
-        else
-        {
-            MaterialPtr mat = Material::create();
-            mat->setElement(elem);
-            materials.push_back(mat);
-        }
-    }
-
-    return (materials.size() - previousMaterialCount);
-}
 
 bool Material::generateConstantShader(mx::GenContext& context,
                                       mx::DocumentPtr stdLib,
@@ -190,18 +36,60 @@ bool Material::generateConstantShader(mx::GenContext& context,
     return _glShader->init(shaderName, vertexShader, pixelShader);
 }
 
-bool Material::generateEnvironmentShader(mx::GenContext& context,
-                                         mx::DocumentPtr stdLib,
-                                         const std::string& shaderName,
-                                         const mx::FilePath& imagePath)
+bool Material::generateAmbOccShader(mx::GenContext& context,
+                                    const mx::FilePath& filename,
+                                    mx::DocumentPtr stdLib,
+                                    const mx::FilePath& imagePath)
 {
-    // Read in the environment nodegraph. 
-    // The U-component of the incoming UV set is inverted 
+    // Read in the ambient occlusion nodegraph. 
     mx::DocumentPtr doc = mx::createDocument();
     doc->importLibrary(stdLib);
     mx::DocumentPtr envDoc = mx::createDocument();
-    const std::string environmentShaderFile("resources/Materials/TestSuite/Utilities/Lights/envmap_shader.mtlx");
-    mx::readFromXmlFile(envDoc, environmentShaderFile);
+    mx::readFromXmlFile(envDoc, filename);
+    doc->importLibrary(envDoc);
+
+    mx::NodeGraphPtr nodeGraph = doc->getNodeGraph("NG_ambientOcclusion");
+    if (!nodeGraph)
+    {
+        return false;
+    }
+    mx::NodePtr image = nodeGraph->getNode("image_ao");
+    if (!image)
+    {
+        return false;
+    }
+    image->setParameterValue("file", imagePath.asString(), mx::FILENAME_TYPE_STRING);
+    mx::OutputPtr output = nodeGraph->getOutput("out");
+    if (!output)
+    {
+        return false;
+    }
+
+    // Create the shader.
+    std::string shaderName = "__AO_SHADER__";
+    _hwShader = createShader(shaderName, context, output); 
+    if (!_hwShader)
+    {
+        return false;
+    }
+    std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
+    std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
+
+    // Compile and return.
+    _glShader = std::make_shared<ng::GLShader>();
+    return _glShader->init(shaderName, vertexShader, pixelShader);
+}
+
+bool Material::generateEnvironmentShader(mx::GenContext& context,
+                                         const mx::FilePath& filename,
+                                         mx::DocumentPtr stdLib,
+                                         const mx::FilePath& imagePath)
+{
+    // Read in the environment nodegraph. 
+    mx::DocumentPtr doc = mx::createDocument();
+    doc->importLibrary(stdLib);
+    mx::DocumentPtr envDoc = mx::createDocument();
+    mx::readFromXmlFile(envDoc, filename);
     doc->importLibrary(envDoc);
 
     mx::NodeGraphPtr envGraph = doc->getNodeGraph("environmentDraw");
@@ -215,13 +103,14 @@ bool Material::generateEnvironmentShader(mx::GenContext& context,
         return false;
     }
     image->setParameterValue("file", imagePath.asString(), mx::FILENAME_TYPE_STRING);
-    image->setParameterValue("uaddressmode", std::string("periodic"));
-    image->setParameterValue("vaddressmode", std::string("clamp"));
     mx::OutputPtr output = envGraph->getOutput("out");
     if (!output)
     {
         return false;
     }
+
+    // Create the shader.
+    std::string shaderName = "__ENV_SHADER__";
     _hwShader = createShader(shaderName, context, output); 
     if (!_hwShader)
     {
