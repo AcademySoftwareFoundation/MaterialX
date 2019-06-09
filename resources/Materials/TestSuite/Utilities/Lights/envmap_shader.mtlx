@@ -23,4 +23,4 @@
       </image>
       <output name="out" type="color3" nodename="envImage" />
    </nodegraph>
-</materialx>```
+</materialx>

@@ -742,8 +742,8 @@ void PropertyEditor::updateContents(Viewer* viewer)
         return;
     }
 
-    mx::DocumentPtr contentDocument = viewer->getCurrentDocument();
-    if (!contentDocument)
+    mx::DocumentPtr doc = material->getDocument();
+    if (!doc)
     {
         return;
     }
@@ -755,7 +755,7 @@ void PropertyEditor::updateContents(Viewer* viewer)
         mx::UIPropertyGroup groups;
         mx::UIPropertyGroup unnamedGroups;
         const std::string pathSeparator(":");
-        mx::createUIPropertyGroups(*publicUniforms, contentDocument, materialElement,
+        mx::createUIPropertyGroups(*publicUniforms, doc, materialElement,
                                     pathSeparator, groups, unnamedGroups); 
 
         std::string previousFolder;

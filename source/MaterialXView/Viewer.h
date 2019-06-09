@@ -45,9 +45,13 @@ class Viewer : public ng::Screen
         return nullptr;
     }
 
-    mx::DocumentPtr getCurrentDocument() const
+    mx::MeshPartitionPtr getSelectedGeometry() const
     {
-        return _doc;
+        if (_selectedGeom < _geometryList.size())
+        {
+            return _geometryList[_selectedGeom];
+        }
+        return nullptr;
     }
 
     const mx::FileSearchPath& getSearchPath() const
@@ -64,31 +68,27 @@ class Viewer : public ng::Screen
     void drawScene3D();
     void drawScene2D();
 
-    void setupLights(mx::DocumentPtr doc, const std::string& envRadiancePath, const std::string& envIrradiancePath);
-    void initializeDocument(mx::DocumentPtr libraries);
-    void loadMaterialDocument();
+    void setupLights(mx::DocumentPtr doc);
+    void loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries);
     void saveShaderSource();
     void loadShaderSource();
     void saveDotFiles();
 
-    /// Assign the given material to a geometry, or to all geometries if no
-    /// target is specified.
-    void assignMaterial(MaterialPtr material, mx::MeshPartitionPtr geometry = nullptr);
+    /// Assign the given material to the given geometry, or remove any
+    /// existing assignment if the given material is nullptr.
+    void assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material);
     void initCamera();
     void computeCameraMatrices(mx::Matrix44& world,
                                mx::Matrix44& view,
                                mx::Matrix44& proj);
 
-    bool setGeometrySelection(size_t index);
     void updateGeometrySelections();
-
-    MaterialPtr setMaterialSelection(size_t index);
     void updateMaterialSelections();
-
+    void updateMaterialSelectionUI();
     void updatePropertyEditor();
 
-    void createLoadMeshInterface(Widget* parent, const std::string label);
-    void createLoadMaterialsInterface(Widget* parent, const std::string label);
+    void createLoadMeshInterface(Widget* parent, const std::string& label);
+    void createLoadMaterialsInterface(Widget* parent, const std::string& label);
     void createAdvancedSettings(Widget* parent);
 
     mx::MeshStreamPtr createUvPositionStream(mx::MeshPtr mesh, 
@@ -119,7 +119,6 @@ class Viewer : public ng::Screen
     mx::StringVec _libraryFolders;
     mx::FileSearchPath _searchPath;
     mx::DocumentPtr _stdLib;
-    mx::DocumentPtr _doc;
     mx::FilePath _materialFilename;
     DocumentModifiers _modifiers;
 
@@ -129,8 +128,10 @@ class Viewer : public ng::Screen
     std::string _envIrradiancePath;
     bool _directLighting;
     bool _indirectLighting;
+    bool _ambientOcclusion;
 
     // Geometry selections
+    std::string _meshFilename;
     std::vector<mx::MeshPartitionPtr> _geometryList;
     size_t _selectedGeom;
     ng::Label* _geomLabel;
@@ -152,6 +153,8 @@ class Viewer : public ng::Screen
     mx::GLTextureHandlerPtr _imageHandler;
     mx::LightHandlerPtr _lightHandler;
 
+    // Supporting materials and geometry.
+    MaterialPtr _ambOccMaterial;
     mx::GeometryHandlerPtr _envGeometryHandler;
     MaterialPtr _envMaterial;
 
