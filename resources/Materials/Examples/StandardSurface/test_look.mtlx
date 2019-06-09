@@ -1,16 +1,10 @@
 <?xml version="1.0"?>
 <materialx version="1.36">
-  <xi:include href="standard_surface_brass_tiled.mtlx"/>
-  <xi:include href="standard_surface_greysphere.mtlx"/>
   <xi:include href="standard_surface_greysphere_calibration.mtlx"/>
+  <xi:include href="standard_surface_brass_tiled.mtlx"/>
   
-  <collection name="standCollection" includegeom="stand" />
-  <collection name="ballCollection" includegeom="ball" />
-  <collection name="materialCollection" includegeom="ring,shell" />
-    
   <look name="Brass_Look">
-    <materialassign name="standAssign" collection="standCollection" material="Greysphere" />
-    <materialassign name="ballAssign" collection="ballCollection" material="Greysphere_Calibration" />
-    <materialassign name="materialAssign" collection="materialCollection" material="Tiled_Brass" />
+    <materialassign name="calibration" geom="Calibration_Mesh" material="Greysphere_Calibration" />
+    <materialassign name="preview" geom="Preview_Mesh" material="Tiled_Brass" />
   </look>
 </materialx>
