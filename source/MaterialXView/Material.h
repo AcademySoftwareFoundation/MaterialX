@@ -45,12 +45,17 @@ class Material
         return std::make_shared<Material>();
     }
 
-    /// Load a document on disk containing renderable materials into an existing document
-    /// and create new materials if they do not already exist.
-    /// Returns the number of new materials added
-    static size_t loadDocument(mx::DocumentPtr destinationDoc, const mx::FilePath& filePath,
-                               const mx::FileSearchPath& searchPath, mx::DocumentPtr libraries,
-                               const DocumentModifiers& modifiers, std::vector<MaterialPtr>& materials);
+    /// Return the document associated with this material
+    mx::DocumentPtr getDocument() const
+    {
+        return _doc;
+    }
+
+    /// Set the renderable element associated with this material
+    void setDocument(mx::DocumentPtr doc)
+    {
+        _doc = doc;
+    }
 
     /// Return the renderable element associated with this material
     mx::TypedElementPtr getElement() const
@@ -93,9 +98,15 @@ class Material
 
     /// Generate an environment background shader
     bool generateEnvironmentShader(mx::GenContext& context,
+                                   const mx::FilePath& filename,
                                    mx::DocumentPtr stdLib,
-                                   const std::string& shaderName,
                                    const mx::FilePath& imagePath);
+
+    /// Generate an ambient occlusion shader
+    bool generateAmbOccShader(mx::GenContext& context,
+                              const mx::FilePath& filename,
+                              mx::DocumentPtr stdLib,
+                              const mx::FilePath& imagePath);
 
     /// Return the underlying OpenGL shader.
     GLShaderPtr getShader() const
@@ -147,9 +158,13 @@ class Material
     void bindUniform(const std::string& name, mx::ConstValuePtr value);
     void updateUniformsList();
 
+  protected:
     GLShaderPtr _glShader;
     mx::ShaderPtr _hwShader;
+
+    mx::DocumentPtr _doc;
     mx::TypedElementPtr _elem;
+
     std::string _udim;
     bool _hasTransparency;
     mx::StringSet _uniformNames;
