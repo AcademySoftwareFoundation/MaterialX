@@ -1,10 +1,9 @@
 <?xml version="1.0"?>
 <materialx version="1.36">
+  <xi:include href="standard_surface_wood_tiled.mtlx"/>
   <xi:include href="standard_surface_greysphere_calibration.mtlx"/>
-  <xi:include href="standard_surface_brass_tiled.mtlx"/>
-  
-  <look name="Brass_Look">
+  <look name="Wood_Look">
+    <materialassign name="preview" geom="Preview_Mesh" material="Tiled_Wood" />
     <materialassign name="calibration" geom="Calibration_Mesh" material="Greysphere_Calibration" />
-    <materialassign name="preview" geom="Preview_Mesh" material="Tiled_Brass" />
   </look>
 </materialx>

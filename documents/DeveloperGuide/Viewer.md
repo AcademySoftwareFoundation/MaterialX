@@ -52,7 +52,7 @@ To clear the entries, disable `Add Materials` and load in a new `.mtlx` file.  T
 
 ### Looks
 
-Assignment of materials to geometry can be performed by loading a MaterialX document which contains one or more looks (e.g. `resources\Materials\Examples\StandardSurface\test_look.mtlx`).  If the geometry string referenced by a look matches the name of a group in the current mesh, then the given material assignment will be applied to that mesh group.
+Assignment of materials to geometry can be performed by loading a MaterialX document which contains one or more looks (e.g. `resources\Materials\Examples\StandardSurface\shader_ball_brass_tiled.mtlx`).  If the geometry string referenced by a look matches the name of a group in the current mesh, then the given material assignment will be applied to that mesh group.
 
 ### Lighting
 

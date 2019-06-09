@@ -15,7 +15,7 @@
 
   <material name="Tiled_Wood">
     <shaderref name="SR_wood1" node="standard_surface">
-      <bindinput name="base" type="float" value="1" />
+      <bindinput name="base" type="float" value="1.2" />
       <bindinput name="base_color" type="color3" nodegraph="NG_wood1" output="out_base_color" />
       <bindinput name="specular" type="float" value="0.5" />
       <bindinput name="specular_roughness" type="float" nodegraph="NG_wood1" output="out_roughness" />
