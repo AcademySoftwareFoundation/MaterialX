@@ -8,7 +8,7 @@
       <mix name="mix_ao" type="color3">
          <input name="bg" type="color3" value="1.0, 1.0, 1.0" />
          <input name="fg" type="color3" nodename="image_ao" />
-         <input name="mix" type="float" value="0.75" />
+         <input name="mix" type="float" value="0.85" />
       </mix>
       <output name="out" type="color3" nodename="mix_ao" />
    </nodegraph>
