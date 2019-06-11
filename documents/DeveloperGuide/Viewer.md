@@ -47,8 +47,8 @@ If more than one material has been loaded they will be listed in a pop-up menu u
 
 To assign a renderable item to either an existing group or the entire object, click on the pop-up menu to switch among (between) the available materials.  Alternatively the `LEFT` and `RIGHT` arrows can be used to cycle through the list.
 
-Note: Once you have loaded a material, it remains in the list even after you disable `Add Materials`.
-To clear the entries, disable `Add Materials` and load in a new `.mtlx` file.  The list will be refreshed to include only the renderable items from that document.
+Note: Once you have loaded a material, it remains in the list even after you disable `Merge Materials`.
+To clear the entries, disable `Merge Materials` and load in a new `.mtlx` file.  The list will be refreshed to include only the renderable items from that document.
 
 ### Looks
 
