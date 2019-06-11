@@ -14,6 +14,7 @@ const std::string options =
 "    --envRad [FILENAME]      Specify the environment radiance HDR\n"
 "    --envIrrad [FILENAME]    Specify the environment irradiance HDR\n"
 "    --msaa [INTEGER]         Multisampling count for anti-aliasing (0 = disabled, Default is 0)\n"
+"    --refresh [INTEGER]      Refresh period for the viewer in milliseconds (-1 = disabled, Default is 50)\n"
 "    --remap [TOKEN1:TOKEN2]  Remap one token to another when MaterialX document is loaded\n"
 "    --skip [NAME]            Skip elements matching the given name attribute\n"
 "    --terminator [STRING]    Enforce the given terminator string for file prefixes\n"
@@ -35,6 +36,7 @@ int main(int argc, char* const argv[])
     std::string envIrradiancePath = "resources/Images/san_giuseppe_bridge_diffuse.hdr";
     DocumentModifiers modifiers;
     int multiSampleCount = 0;
+    int refresh = 50;
     mx::HwSpecularEnvironmentMethod specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
 
     for (size_t i = 0; i < tokens.size(); i++)
@@ -57,22 +59,6 @@ int main(int argc, char* const argv[])
         {
             materialFilename = nextToken;
         }
-        if (token == "--remap" && !nextToken.empty())
-        {
-            mx::StringVec vec = mx::splitString(nextToken, ":");
-            if (vec.size() == 2)
-            {
-                modifiers.remapElements[vec[0]] = vec[1];
-            }
-        }
-        if (token == "--skip" && !nextToken.empty())
-        {
-            modifiers.skipElements.insert(nextToken);
-        }
-        if (token == "--terminator" && !nextToken.empty())
-        {
-            modifiers.filePrefixTerminator = nextToken;
-        }
         if (token == "--envMethod" && !nextToken.empty())
         {
             if (std::stoi(nextToken) == 1)
@@ -91,6 +77,26 @@ int main(int argc, char* const argv[])
         if (token == "--msaa" && !nextToken.empty())
         {
             multiSampleCount = std::stoi(nextToken);
+        }
+        if (token == "--refresh" && !nextToken.empty())
+        {
+            refresh = std::stoi(nextToken);
+        }
+        if (token == "--remap" && !nextToken.empty())
+        {
+            mx::StringVec vec = mx::splitString(nextToken, ":");
+            if (vec.size() == 2)
+            {
+                modifiers.remapElements[vec[0]] = vec[1];
+            }
+        }
+        if (token == "--skip" && !nextToken.empty())
+        {
+            modifiers.skipElements.insert(nextToken);
+        }
+        if (token == "--terminator" && !nextToken.empty())
+        {
+            modifiers.filePrefixTerminator = nextToken;
         }
         if (token == "--help")
         {
@@ -140,7 +146,7 @@ int main(int argc, char* const argv[])
                                                 envIrradiancePath,
                                                 multiSampleCount);
             viewer->setVisible(true);
-            ng::mainloop();
+            ng::mainloop(refresh);
         }
     
         ng::shutdown();
