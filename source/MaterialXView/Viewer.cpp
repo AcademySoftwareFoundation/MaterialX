@@ -732,7 +732,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         _materials.clear();
     }
 
-    size_t previousMaterialCount = _materials.size();
+    std::vector<MaterialPtr> newMaterials;
     try
     {
         // Load source document.
@@ -787,7 +787,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                     mat->setDocument(doc);
                     mat->setElement(typedElem);
                     mat->setUdim(udim);
-                    _materials.push_back(mat);
+                    newMaterials.push_back(mat);
                 }
             }
             else
@@ -795,7 +795,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 MaterialPtr mat = Material::create();
                 mat->setDocument(doc);
                 mat->setElement(typedElem);
-                _materials.push_back(mat);
+                newMaterials.push_back(mat);
             }
         }
     }
@@ -805,12 +805,9 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         return;
     }
 
-    size_t newRenderables = (_materials.size() - previousMaterialCount);
     size_t assignedGeoms = 0;
-    if (newRenderables > 0)
+    if (!newMaterials.empty())
     {
-        size_t firstNewMaterial = _materials.size() - newRenderables;
-
         // Set the default image search path.
         mx::FilePath materialFolder = _materialFilename;
         materialFolder.pop();
@@ -820,10 +817,9 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         _genContext.clearNodeImplementations();
 
         mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
-        for (size_t matIndex = firstNewMaterial; matIndex < _materials.size(); matIndex++)
+        for (MaterialPtr mat : newMaterials)
         {
             // Generate shader and bind mesh.
-            MaterialPtr mat = _materials[matIndex];
             mat->generateShader(_genContext);
             if (mesh)
             {
@@ -847,19 +843,32 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                     }
                 }
             }
-        }
 
-        // Apply fallback assignments.
-        if (!_materials.empty())
-        {
-            for (mx::MeshPartitionPtr geom : _geometryList)
+            // Apply implicit udim assignments, if any.
+            std::string udim = mat->getUdim();
+            if (!udim.empty())
             {
-                if (!_materialAssignments[geom])
+                for (mx::MeshPartitionPtr geom : _geometryList)
                 {
-                    assignMaterial(geom, _materials[firstNewMaterial]);
+                    if (!_materialAssignments[geom] && geom->getIdentifier() == udim)
+                    {
+                        assignMaterial(geom, mat);
+                    }
                 }
             }
         }
+
+        // Apply fallback assignments.
+        for (mx::MeshPartitionPtr geom : _geometryList)
+        {
+            if (!_materialAssignments[geom])
+            {
+                assignMaterial(geom, newMaterials[0]);
+            }
+        }
+
+        // Add new materials to the global vector.
+        _materials.insert(_materials.end(), newMaterials.begin(), newMaterials.end());
     }
 
     // Update material UI.
@@ -1041,7 +1050,7 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
             {
                 _selectedMaterial = (materialIndex > 0) ? materialIndex - 1 : materialCount - 1;
             }
-            if (!_materials.empty() && !_geometryList.empty())
+            if (!_geometryList.empty())
             {
                 assignMaterial(getSelectedGeometry(), getSelectedMaterial());
             }
