@@ -120,6 +120,9 @@ class GlslShaderGenerator : public HwShaderGenerator
     virtual void emitVertexStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
     virtual void emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
 
+    /// Emit specular environment lookup code
+    void emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const;
+
     /// Override the compound implementation creator in order to handle light compounds.
     ShaderNodeImplPtr createCompoundImplementation(const NodeGraph& impl) const override;
 

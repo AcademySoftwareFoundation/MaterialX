@@ -53,6 +53,9 @@ class Shader
     /// Return a stage by index.
     const ShaderStage& getStage(size_t index) const;
 
+    /// Return if stage exists.
+    bool hasStage(const string& name);
+
     /// Return a stage by name.
     ShaderStage& getStage(const string& name);
 

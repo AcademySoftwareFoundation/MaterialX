@@ -179,6 +179,9 @@ class ShaderGenerator
     /// Derived classes can override this to use custom compound implementations.
     virtual ShaderNodeImplPtr createCompoundImplementation(const NodeGraph& impl) const;
 
+    /// Set shader signature on a stage
+    void setSignature(ShaderStage& stage, const string& signature) const;
+
   protected:
     static const string SEMICOLON;
     static const string COMMA;

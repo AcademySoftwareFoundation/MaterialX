@@ -298,4 +298,11 @@ ShaderNodeImplPtr ShaderGenerator::createCompoundImplementation(const NodeGraph&
     return CompoundNode::create();
 }
 
+// This function required to access protected method on stage for this class is a friend
+void ShaderGenerator::setSignature(ShaderStage& stage, const string& signature) const
+{
+    stage.setSignature(signature);
+}
+
+
 } // namespace MaterialX

@@ -34,13 +34,16 @@ enum ShaderInterfaceType
 /// Method to use for specular environment lighting
 enum HwSpecularEnvironmentMethod
 {
-    /// Use pre-filtered environment maps for
-    /// specular environment/indirect lighting.
-    SPECULAR_ENVIRONMENT_PREFILTER,
+    /// Do not use specular environment maps
+    SPECULAR_ENVIRONMENT_NONE,
 
     /// Use Filtered Importance Sampling for
     /// specular environment/indirect lighting.
-    SPECULAR_ENVIRONMENT_FIS
+    SPECULAR_ENVIRONMENT_FIS,
+
+    /// Use pre-filtered environment maps for
+    /// specular environment/indirect lighting.
+    SPECULAR_ENVIRONMENT_PREFILTER
 };
 
 /// @class GenOptions 

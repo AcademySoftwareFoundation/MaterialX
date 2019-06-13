@@ -36,6 +36,13 @@ const ShaderStage& Shader::getStage(size_t index) const
     return *_stages[index];
 }
 
+bool Shader::hasStage(const string& name)
+{
+    auto it = _stagesMap.find(name);
+    return (it != _stagesMap.end());
+}
+
+
 ShaderStage& Shader::getStage(const string& name)
 {
     auto it = _stagesMap.find(name);

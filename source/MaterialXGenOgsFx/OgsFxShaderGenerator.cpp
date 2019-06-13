@@ -264,6 +264,7 @@ void OgsFxShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext&
 
     // Add main function
     emitLine("void main()", stage, false);
+    setSignature(stage, "main");
     emitScopeBegin(stage);
     emitLine("vec4 hPositionWorld = u_worldMatrix * vec4(i_position, 1.0)", stage);
     emitLine("gl_Position = u_viewProjectionMatrix * hPositionWorld", stage);
@@ -322,23 +323,19 @@ void OgsFxShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& 
     }
 
     // Emit environment lighting functions
-    if (context.getOptions().hwSpecularEnvironmentMethod == SPECULAR_ENVIRONMENT_FIS)
+    if (lighting)
     {
-        emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_fis.glsl", context, stage);
+        emitSpecularEnvironment(context, stage);
     }
-    else
-    {
-        emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_prefilter.glsl", context, stage);
-    }
-    emitLineBreak(stage);
 
     // Add all functions for node implementations
     emitFunctionDefinitions(graph, context, stage);
 
     const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket();
 
-    // Add main function
+    // Add main function. Cache the signature for the stage
     emitLine("void main()", stage, false);
+    setSignature(stage, "main");
     emitScopeBegin(stage);
 
     if (graph.hasClassification(ShaderNode::Classification::CLOSURE))
