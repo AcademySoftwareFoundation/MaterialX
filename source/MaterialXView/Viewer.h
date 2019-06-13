@@ -36,6 +36,18 @@ class Viewer : public ng::Screen
         return _window;
     }
 
+    void setSelectedMaterial(MaterialPtr material)
+    {
+        for (size_t i = 0; i < _materials.size(); i++)
+        {
+            if (material == _materials[i])
+            {
+                _selectedMaterial = i;
+                break;
+            }
+        }
+    }
+
     MaterialPtr getSelectedMaterial() const
     {
         if (_selectedMaterial < _materials.size())
