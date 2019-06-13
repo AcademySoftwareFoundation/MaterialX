@@ -231,6 +231,11 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
         if (index < _geometryList.size())
         {
             _selectedGeom = index;
+            if (_materialAssignments.count(getSelectedGeometry()))
+            {
+                setSelectedMaterial(_materialAssignments[getSelectedGeometry()]);
+            }
+            updatePropertyEditor();
             updateMaterialSelectionUI();
         }
     });
@@ -333,7 +338,6 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     });
 
     loadDocument(_materialFilename, _stdLib);
-    updatePropertyEditor();
     _propertyEditor.setVisible(false);
     performLayout();
 }
@@ -423,20 +427,16 @@ void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)
     if (material)
     {
         material->bindMesh(meshes[0]);
-        material->generateShader(_genContext);
+        _materialAssignments[geometry] = material;
     }
-    _materialAssignments[geometry] = material;
+    else
+    {
+        _materialAssignments.erase(geometry);
+    }
 
     if (geometry == getSelectedGeometry())
     {
-        for (size_t i = 0; i < _materials.size(); i++)
-        {
-            if (material == _materials[i])
-            {
-                _selectedMaterial = i;
-                break;
-            }
-        }
+        setSelectedMaterial(material);
         updatePropertyEditor();
     }
 }
@@ -727,7 +727,10 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
     {
         for (mx::MeshPartitionPtr geom : _geometryList)
         {
-            assignMaterial(geom, nullptr);
+            if (_materialAssignments.count(geom))
+            {
+                assignMaterial(geom, nullptr);
+            }
         }
         _materials.clear();
     }
@@ -808,6 +811,9 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
     size_t assignedGeoms = 0;
     if (!newMaterials.empty())
     {
+        // Add new materials to the global vector.
+        _materials.insert(_materials.end(), newMaterials.begin(), newMaterials.end());
+
         // Set the default image search path.
         mx::FilePath materialFolder = _materialFilename;
         materialFolder.pop();
@@ -819,12 +825,8 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
         for (MaterialPtr mat : newMaterials)
         {
-            // Generate shader and bind mesh.
+            // Generate a shader for the new material.
             mat->generateShader(_genContext);
-            if (mesh)
-            {
-                mat->bindMesh(mesh);
-            }
 
             // Apply geometric assignments specified in the document, if any.
             mx::TypedElementPtr elem = mat->getElement();
@@ -866,9 +868,6 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 assignMaterial(geom, newMaterials[0]);
             }
         }
-
-        // Add new materials to the global vector.
-        _materials.insert(_materials.end(), newMaterials.begin(), newMaterials.end());
     }
 
     // Update material UI.
