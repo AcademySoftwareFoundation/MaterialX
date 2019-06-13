@@ -95,13 +95,42 @@ class ImageDescRestrictions
 class ImageSamplingProperties
 {
   public:
+
+    /// Address mode options. Matches enumerations
+    /// allowed for <image> address modes, except
+    /// UNSPECIFIED which indicates no explicit mode was
+    /// defined.
+    enum class AddressMode : int
+    { 
+        UNSPECIFIED = -1,
+        CONSTANT = 0,
+        CLAMP = 1, 
+        PERIODIC = 2,
+        MIRROR = 3
+    };
+
     /// Address mode in U
-    int uaddressMode = -1;
+    AddressMode uaddressMode = AddressMode::UNSPECIFIED;
     /// Address mode in V
-    int vaddressMode = -1;
+    AddressMode vaddressMode = AddressMode::UNSPECIFIED;
+
+    /// Filter type options. Matches enumerations
+    /// allowed for <image> filter types, except
+    /// UNSPECIFIED which indicates no explicit type was
+    /// defined.
+    enum class FilterType : int
+    {
+        UNSPECIFIED = -1,
+        CLOSEST = 0,
+        LINEAR = 1,
+        CUBIC = 2
+    };
+
     /// Filter type
-    int filterType = -1;
-    /// Default color
+    FilterType filterType = FilterType::UNSPECIFIED;
+
+    /// Default color. Corresponds to the "default"
+    /// value on the <image> node definition.
     Color4 defaultColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 };
 

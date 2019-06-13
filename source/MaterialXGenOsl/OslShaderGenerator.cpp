@@ -219,10 +219,11 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
         emitString("shader ", stage);
     }
 
-    // Begin shader signature
-    string emitShaderName = shader->getName();
-    _syntax->makeValidName(emitShaderName);
-    emitLine(emitShaderName, stage, false);
+    // Begin shader signature.
+    string functionName = shader->getName();
+    _syntax->makeValidName(functionName);
+    setFunctionName(functionName, stage);
+    emitLine(functionName, stage, false);
     emitScopeBegin(stage, Syntax::PARENTHESES);
     emitLine("float dummy = 0.0,", stage, false);
 
@@ -265,24 +266,8 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     emitFunctionCalls(graph, context, stage);
 
     // Emit final output
-    const ShaderOutput* outConnection = outputSocket->getConnection();
-    if (outConnection)
-    {
-        string finalResult = outConnection->getVariable();
-        const string& channels = outputSocket->getChannels();
-        if (!channels.empty())
-        {
-            finalResult = _syntax->getSwizzledVariable(finalResult, outConnection->getType(), channels, outputType);
-        }
-        emitLine(outputSocket->getVariable() + " = " + finalResult, stage);
-    }
-    else
-    {
-        ValuePtr outputValue = outputSocket->getValue();
-        emitLine(outputSocket->getVariable() + " = " + (outputValue ?
-                _syntax->getValue(outputType, *outputValue) :
-                _syntax->getDefaultValue(outputType)), stage);
-    }
+    const string result = getUpstreamResult(outputSocket, context);
+    emitLine(outputSocket->getVariable() + " = " + result, stage);
 
     // End shader body
     emitScopeEnd(stage);

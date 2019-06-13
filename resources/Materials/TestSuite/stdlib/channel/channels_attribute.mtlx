@@ -13,7 +13,7 @@ Tests the channel attribute for inputs and outputs
    <nodegraph name="image4_to_color2_ra_out" type="">
       <image name="image4" type="color4">
          <parameter name="file" type="filename" value="resources/Images/san_giuseppe_bridge.hdr" />
-         <parameter name="uaddressmode" type="string" value="black"/>
+         <parameter name="uaddressmode" type="string" value="constant"/>
          <parameter name="vaddressmode" type="string" value="clamp"/>
          <parameter name="filtertype" type="string" value="linear"/>
          <parameter name="frameendaction" type="string" value="periodic"/>
@@ -24,7 +24,7 @@ Tests the channel attribute for inputs and outputs
    <nodegraph name="image4_to_color3_bgr_out" type="">
       <image name="image4" type="color4">
          <parameter name="file" type="filename" value="resources/Images/san_giuseppe_bridge.hdr" />
-         <parameter name="uaddressmode" type="string" value="black"/>
+         <parameter name="uaddressmode" type="string" value="constant"/>
          <parameter name="vaddressmode" type="string" value="clamp"/>
          <parameter name="filtertype" type="string" value="linear"/>
          <parameter name="frameendaction" type="string" value="periodic"/>
@@ -35,7 +35,7 @@ Tests the channel attribute for inputs and outputs
    <nodegraph name="image4_to_float_g_out" type="">
       <image name="image4" type="color4">
          <parameter name="file" type="filename" value="resources/Images/san_giuseppe_bridge.hdr" />
-         <parameter name="uaddressmode" type="string" value="black"/>
+         <parameter name="uaddressmode" type="string" value="constant"/>
          <parameter name="vaddressmode" type="string" value="clamp"/>
          <parameter name="filtertype" type="string" value="linear"/>
          <parameter name="frameendaction" type="string" value="periodic"/>
@@ -94,7 +94,7 @@ Tests the channel attribute for inputs and outputs
    <nodegraph name="image4_to_color3_bga_in" type="">
       <image name="image4" type="color4">
          <parameter name="file" type="filename" value="resources/Images/san_giuseppe_bridge.hdr" />
-         <parameter name="uaddressmode" type="string" value="black"/>
+         <parameter name="uaddressmode" type="string" value="constant"/>
          <parameter name="vaddressmode" type="string" value="clamp"/>
          <parameter name="filtertype" type="string" value="linear"/>
          <parameter name="frameendaction" type="string" value="periodic"/>
@@ -109,7 +109,7 @@ Tests the channel attribute for inputs and outputs
    <nodegraph name="image4_to_color2_ga_in" type="">
       <image name="image4" type="color4">
          <parameter name="file" type="filename" value="resources/Images/san_giuseppe_bridge.hdr" />
-         <parameter name="uaddressmode" type="string" value="black"/>
+         <parameter name="uaddressmode" type="string" value="constant"/>
          <parameter name="vaddressmode" type="string" value="clamp"/>
          <parameter name="filtertype" type="string" value="linear"/>
          <parameter name="frameendaction" type="string" value="periodic"/>
@@ -124,7 +124,7 @@ Tests the channel attribute for inputs and outputs
    <nodegraph name="image4_to_float_g_in" type="">
       <image name="image4" type="color4">
          <parameter name="file" type="filename" value="resources/Images/san_giuseppe_bridge.hdr" />
-         <parameter name="uaddressmode" type="string" value="black"/>
+         <parameter name="uaddressmode" type="string" value="constant"/>
          <parameter name="vaddressmode" type="string" value="clamp"/>
          <parameter name="filtertype" type="string" value="linear"/>
          <parameter name="frameendaction" type="string" value="periodic"/>

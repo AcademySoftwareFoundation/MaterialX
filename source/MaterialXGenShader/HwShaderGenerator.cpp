@@ -7,6 +7,7 @@
 
 #include <MaterialXGenShader/Nodes/HwSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/HwCompoundNode.h>
+#include <MaterialXGenShader/GenContext.h>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Definition.h>
@@ -93,20 +94,26 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     // Add a block for data from vertex to pixel shader.
     addStageConnectorBlock(HW::VERTEX_DATA, "vd", *vs, *ps);
 
-    // Create uniforms for environment lighting
-    // Note: Generation of the rotation matrix using floating point math can result
-    // in values which when output can't be consumed by a h/w shader, so
-    // just setting explicit values here for now since the matrix is simple.
-    // In general the values will need to be "sanitized" for hardware.
-    const Matrix44 yRotationPI(-1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, -1, 0,
-        0, 0, 0, 1);
-    psPrivateUniforms->add(Type::MATRIX44, "u_envMatrix", Value::createValue<Matrix44>(yRotationPI));
-    psPrivateUniforms->add(Type::FILENAME, "u_envIrradiance");
-    psPrivateUniforms->add(Type::FILENAME, "u_envRadiance");
-    psPrivateUniforms->add(Type::INTEGER, "u_envRadianceMips", Value::createValue<int>(1));
-    psPrivateUniforms->add(Type::INTEGER, "u_envSamples", Value::createValue<int>(16));
+    // Disable specular environment code if lighting is not required.
+    bool lighting = graph->hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE) ||
+                    graph->hasClassification(ShaderNode::Classification::BSDF);
+    if (lighting && context.getOptions().hwSpecularEnvironmentMethod != SPECULAR_ENVIRONMENT_NONE)
+    {
+        // Create uniforms for environment lighting
+        // Note: Generation of the rotation matrix using floating point math can result
+        // in values which when output can't be consumed by a h/w shader, so
+        // just setting explicit values here for now since the matrix is simple.
+        // In general the values will need to be "sanitized" for hardware.
+        const Matrix44 yRotationPI(-1, 0, 0, 0,
+                                    0, 1, 0, 0,
+                                    0, 0, -1, 0,
+                                    0, 0, 0, 1);
+        psPrivateUniforms->add(Type::MATRIX44, "u_envMatrix", Value::createValue<Matrix44>(yRotationPI));
+        psPrivateUniforms->add(Type::FILENAME, "u_envIrradiance");
+        psPrivateUniforms->add(Type::FILENAME, "u_envRadiance");
+        psPrivateUniforms->add(Type::INTEGER, "u_envRadianceMips", Value::createValue<int>(1));
+        psPrivateUniforms->add(Type::INTEGER, "u_envSamples", Value::createValue<int>(16));
+    }
 
     // Create uniforms for the published graph interface
     for (ShaderGraphInputSocket* inputSocket : graph->getInputSockets())
@@ -125,6 +132,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
     ShaderPort* output = psOutputs->add(Type::COLOR4, outputSocket->getName());
     output->setVariable(outputSocket->getVariable());
+    output->setPath(outputSocket->getPath());
 
     // Create shader variables for all nodes that need this.
     for (ShaderNode* node : graph->getNodes())

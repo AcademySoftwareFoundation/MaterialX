@@ -205,6 +205,10 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     _uvTranslation(-0.5f, 0.5f, 0.0f),
     _uvZoom(1.0f)
 {
+    // Transpary option before creating Advanced UI 
+    // as this flag is used to set the default value.
+    _genContext.getOptions().hwTransparency = true;
+
     _window = new ng::Window(this, "Viewer Options");
     _window->setPosition(ng::Vector2i(15, 15));
     _window->setLayout(new ng::GroupLayout());
@@ -564,6 +568,14 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _outlineSelection = enable;
     });
 
+    ng::CheckBox* transparencyBox = new ng::CheckBox(advancedPopup, "Render Transparency");
+    transparencyBox->setChecked(_genContext.getOptions().hwTransparency);
+    transparencyBox->setCallback([this](bool enable)
+    {
+        _genContext.getOptions().hwTransparency = enable;
+        reloadShaders();
+    });
+
     ng::CheckBox* drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Render Environment");
     drawEnvironmentBox->setChecked(_drawEnvironment);
     drawEnvironmentBox->setCallback([this](bool enable)
@@ -873,6 +885,21 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
     // Update material UI.
     updateMaterialSelections();
     updateMaterialSelectionUI();
+}
+
+void Viewer::reloadShaders()
+{
+    try
+    {
+        for (MaterialPtr material : _materials)
+        {
+            material->generateShader(_genContext);
+        }
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Shader Generation Error", e.what());
+    }
 }
 
 void Viewer::saveShaderSource()

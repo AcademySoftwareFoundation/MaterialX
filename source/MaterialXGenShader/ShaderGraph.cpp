@@ -430,6 +430,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         // Connect it to the graph output
         ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
         outputSocket->makeConnection(newNode->getOutput());
+        outputSocket->setPath(shaderRef->getNamePath());
 
         // Handle node parameters
         for (ParameterPtr elem : nodeDef->getActiveParameters())
