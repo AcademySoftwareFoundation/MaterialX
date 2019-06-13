@@ -350,7 +350,7 @@ GlslSyntax::GlslSyntax()
         Type::ROUGHNESSINFO,
         std::make_shared<AggregateTypeSyntax>(
             "roughnessinfo",
-            "roughnessinfo(0.0, 0.0, 0.0, 0.0)",
+            "roughnessinfo(M_FLOAT_EPS, M_FLOAT_EPS, M_FLOAT_EPS, M_FLOAT_EPS)",
             EMPTY_STRING,
             EMPTY_STRING,
             "struct roughnessinfo { float roughness; float alpha; float alphaX; float alphaY; };")

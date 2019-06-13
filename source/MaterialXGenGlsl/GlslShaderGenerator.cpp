@@ -323,12 +323,35 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
     emitFunctionDefinitions(graph, context, stage);
 
     // Add main function
+    setFunctionName("main", stage);
     emitLine("void main()", stage, false);
     emitScopeBegin(stage);
     emitLine("vec4 hPositionWorld = u_worldMatrix * vec4(i_position, 1.0)", stage);
     emitLine("gl_Position = u_viewProjectionMatrix * hPositionWorld", stage);
     emitFunctionCalls(graph, context, stage);
     emitScopeEnd(stage);
+    emitLineBreak(stage);
+}
+
+void GlslShaderGenerator::emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const
+{
+    int specularMethod = context.getOptions().hwSpecularEnvironmentMethod;
+    if (specularMethod == SPECULAR_ENVIRONMENT_FIS)
+    {
+        emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_fis.glsl", context, stage);
+    }
+    else if (specularMethod == SPECULAR_ENVIRONMENT_PREFILTER)
+    {
+        emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_prefilter.glsl", context, stage);
+    }
+    else if (specularMethod == SPECULAR_ENVIRONMENT_NONE)
+    {
+        emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_none.glsl", context, stage);
+    }
+    else
+    {
+        throw ExceptionShaderGenError("Invalid hardware specular environment method specified: '" + std::to_string(specularMethod) + "'");
+    }
     emitLineBreak(stage);
 }
 
@@ -410,15 +433,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     // Emit lighting functions
     if (lighting)
     {
-        if (context.getOptions().hwSpecularEnvironmentMethod == SPECULAR_ENVIRONMENT_FIS)
-        {
-            emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_fis.glsl", context, stage);
-        }
-        else
-        {
-            emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_environment_prefilter.glsl", context, stage);
-        }
-        emitLineBreak(stage);
+        emitSpecularEnvironment(context, stage);
     }
 
     // Emit sampling code if needed
@@ -447,6 +462,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket();
 
     // Add main function
+    setFunctionName("main", stage);
     emitLine("void main()", stage, false);
     emitScopeBegin(stage);
 
@@ -551,7 +567,7 @@ BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
     // and ignore conditional scope.
     for (const ShaderNode* node : graph.getNodes())
     {
-        emitFunctionCall(*node, context, stage, true);
+        emitFunctionCall(*node, context, stage, false);
     }
 END_SHADER_STAGE(stage, Stage::VERTEX)
 

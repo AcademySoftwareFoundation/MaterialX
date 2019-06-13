@@ -245,6 +245,13 @@ void Material::bindMesh(const mx::MeshPtr mesh) const
         MatrixXfProxy tangents(&buffer[0], stream->getStride(), buffer.size() / stream->getStride());
         _glShader->uploadAttrib("i_tangent", tangents);
     }
+    if (_glShader->attrib("i_bitangent", false) != -1)
+    {
+        mx::MeshStreamPtr stream = mesh->getStream(mx::MeshStream::BITANGENT_ATTRIBUTE, 0);
+        mx::MeshFloatBuffer &buffer = stream->getData();
+        MatrixXfProxy bitangents(&buffer[0], stream->getStride(), buffer.size() / stream->getStride());
+        _glShader->uploadAttrib("i_bitangent", bitangents);
+    }
     if (_glShader->attrib("i_texcoord_0", false) != -1)
     {
         mx::MeshStreamPtr stream = mesh->getStream(mx::MeshStream::TEXCOORD_ATTRIBUTE, 0);
@@ -325,24 +332,31 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
         // Extract out sampling properties
         mx::ImageSamplingProperties samplingProperties;
 
-        MaterialX::StringVec root = MaterialX::splitString(uniformName, IMAGE_SEPARATOR);
+        // Get the additional texture parameters based on image uniform name
+        // excluding the trailing "_file" postfix string
+        std::string root = uniformName;
+        size_t pos = root.find_last_of(IMAGE_SEPARATOR);
+        if (pos != std::string::npos)
+        {
+            root = root.substr(0, pos);
+        }
 
-        const std::string uaddressmodeStr = root[0] + UADDRESS_MODE_POST_FIX;
+        const std::string uaddressmodeStr = root + UADDRESS_MODE_POST_FIX;
         const mx::ShaderPort* port = publicUniforms->find(uaddressmodeStr);
         mx::ValuePtr intValue = port ? port->getValue() : nullptr;
-        samplingProperties.uaddressMode = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
+        samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
 
-        const std::string vaddressmodeStr = root[0] + VADDRESS_MODE_POST_FIX;
+        const std::string vaddressmodeStr = root + VADDRESS_MODE_POST_FIX;
         port = publicUniforms->find(vaddressmodeStr);
         intValue = port ? port->getValue() : nullptr;
-        samplingProperties.vaddressMode = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
+        samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
 
-        const std::string filtertypeStr = root[0] + FILTER_TYPE_POST_FIX;
+        const std::string filtertypeStr = root + FILTER_TYPE_POST_FIX;
         port = publicUniforms->find(filtertypeStr);
         intValue = port ? port->getValue() : nullptr;
-        samplingProperties.filterType = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
+        samplingProperties.filterType = mx::ImageSamplingProperties::FilterType(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
 
-        const std::string defaultColorStr = root[0] + DEFAULT_COLOR_POST_FIX;
+        const std::string defaultColorStr = root + DEFAULT_COLOR_POST_FIX;
         port = publicUniforms->find(defaultColorStr);
         mx::ValuePtr colorValue = port ? port->getValue() : nullptr;
         mx::Color4 defaultColor;
@@ -487,9 +501,9 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandler
 
             mx::ImageDesc desc;
             mx::ImageSamplingProperties samplingProperties;
-            samplingProperties.uaddressMode = 1;
-            samplingProperties.vaddressMode = 1;
-            samplingProperties.filterType = 2;
+            samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+            samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+            samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::CUBIC;
 
             if (bindImage(filename, pair.first, imageHandler, desc, samplingProperties, udim, &fallbackColor))
             {

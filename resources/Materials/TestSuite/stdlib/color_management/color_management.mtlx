@@ -12,7 +12,7 @@ Basic image unit test with one image node for each variation in input type.
         </standard_surface>
         <image name="image_lin_rec709" type="color3">
           <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="lin_rec709" />
-          <parameter name="uaddressmode" type="string" value="black"/>
+          <parameter name="uaddressmode" type="string" value="constant"/>
           <parameter name="vaddressmode" type="string" value="clamp"/>
           <parameter name="filtertype" type="string" value="linear"/>
           <parameter name="frameendaction" type="string" value="periodic"/>
@@ -29,7 +29,7 @@ Basic image unit test with one image node for each variation in input type.
         </standard_surface>
         <image name="image_gamma18" type="color3">
           <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="gamma18" />
-          <parameter name="uaddressmode" type="string" value="black"/>
+          <parameter name="uaddressmode" type="string" value="constant"/>
           <parameter name="vaddressmode" type="string" value="clamp"/>
           <parameter name="filtertype" type="string" value="linear"/>
           <parameter name="frameendaction" type="string" value="periodic"/>
@@ -46,7 +46,7 @@ Basic image unit test with one image node for each variation in input type.
         </standard_surface>
         <image name="image_gamma22" type="color3">
           <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="gamma22" />
-          <parameter name="uaddressmode" type="string" value="black"/>
+          <parameter name="uaddressmode" type="string" value="constant"/>
           <parameter name="vaddressmode" type="string" value="clamp"/>
           <parameter name="filtertype" type="string" value="linear"/>
           <parameter name="frameendaction" type="string" value="periodic"/>
@@ -63,7 +63,7 @@ Basic image unit test with one image node for each variation in input type.
         </standard_surface>
         <image name="image_gamma24" type="color3">
           <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="gamma24" />
-          <parameter name="uaddressmode" type="string" value="black"/>
+          <parameter name="uaddressmode" type="string" value="constant"/>
           <parameter name="vaddressmode" type="string" value="clamp"/>
           <parameter name="filtertype" type="string" value="linear"/>
           <parameter name="frameendaction" type="string" value="periodic"/>
@@ -80,7 +80,7 @@ Basic image unit test with one image node for each variation in input type.
         </standard_surface>
         <image name="image_acescg" type="color3">
           <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="acescg" />
-          <parameter name="uaddressmode" type="string" value="black"/>
+          <parameter name="uaddressmode" type="string" value="constant"/>
           <parameter name="vaddressmode" type="string" value="clamp"/>
           <parameter name="filtertype" type="string" value="linear"/>
           <parameter name="frameendaction" type="string" value="periodic"/>
@@ -97,7 +97,7 @@ Basic image unit test with one image node for each variation in input type.
         </standard_surface>
         <image name="image_srgb_texture" type="color3">
           <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="srgb_texture" />
-          <parameter name="uaddressmode" type="string" value="black"/>
+          <parameter name="uaddressmode" type="string" value="constant"/>
           <parameter name="vaddressmode" type="string" value="clamp"/>
           <parameter name="filtertype" type="string" value="linear"/>
           <parameter name="frameendaction" type="string" value="periodic"/>

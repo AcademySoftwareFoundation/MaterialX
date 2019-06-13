@@ -70,8 +70,9 @@
       <parameter name="enableIndirectLighting" type="boolean" value="true" />
 
       <!-- Method for specular environment sampling (only used for HW rendering):
-            0 : Prefiltered: Use a radiance IBL texture that has been prefiltered with the BRDF.
+            0 : Disable environment mapping.
             1 : Filtered Importance Sampling: Use FIS to sample the IBL texture according to the BRDF in runtime.
+            2: Prefiltered: Use a radiance IBL texture that has been prefiltered with the BRDF.
             Default value is 1.
       -->
       <parameter name="specularEnvironmentMethod" type="integer" value="1" />

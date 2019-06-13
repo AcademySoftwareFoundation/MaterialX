@@ -281,4 +281,21 @@ Basic conditional function tests each test is in a separate graph for each varia
     </switch>
     <output name="out" type="vector4" nodename="switch1" />
   </nodegraph>
+  <nodegraph name="switch_vector3_geometric">
+    <tangent name="tangent1" type="vector3"/>
+    <bitangent name="bitangent1" type="vector3"/>
+    <texcoord name="texcoord1" type="vector2"/>
+    <splitlr name="splitlr1" type="float">
+      <parameter name="valuel" type="float" value="0.0" />
+      <parameter name="valuer" type="float" value="1.0" />
+      <parameter name="center" type="float" value="0.5" />
+      <input name="texcoord" type="vector2" nodename="texcoord1" />
+    </splitlr>
+    <compare name="compare1" type="vector3">
+      <input name="intest" type="float" nodename="splitlr1" />
+      <input name="in1" type="vector3" nodename="tangent1" />
+      <input name="in2" type="vector3" nodename="bitangent1" />
+    </compare>
+    <output name="out" type="vector3" nodename="compare1" />
+  </nodegraph>
 </materialx>

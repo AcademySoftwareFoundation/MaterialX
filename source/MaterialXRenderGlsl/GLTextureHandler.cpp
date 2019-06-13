@@ -159,7 +159,6 @@ bool GLTextureHandler::acquireImage(const FilePath& filePath,
     return textureLoaded;
 }
 
-
 bool GLTextureHandler::bindImage(const FilePath& filePath, const ImageSamplingProperties& samplingProperties)
 {
     const ImageDesc* cachedDesc = getCachedImage(filePath);
@@ -197,7 +196,8 @@ bool GLTextureHandler::bindImage(const FilePath& filePath, const ImageSamplingPr
         GLint magFilterType = (minFilterType == GL_LINEAR || minFilterType == GL_REPEAT) ? minFilterType : GL_LINEAR;
         GLint uaddressMode = mapAddressModeToGL(samplingProperties.uaddressMode);
         GLint vaddressMode = mapAddressModeToGL(samplingProperties.vaddressMode);
-        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, samplingProperties.defaultColor.data());
+        Color4 borderColor(samplingProperties.defaultColor);
+        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor.data());
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, uaddressMode);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vaddressMode);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilterType);
@@ -208,34 +208,40 @@ bool GLTextureHandler::bindImage(const FilePath& filePath, const ImageSamplingPr
     return false;
 }
 
-int GLTextureHandler::mapAddressModeToGL(int addressModeEnum)
+int GLTextureHandler::mapAddressModeToGL(ImageSamplingProperties::AddressMode addressModeEnum)
 {
-    int addressMode = GL_REPEAT;
+    const vector<int> addressModes 
+    {
+        // Constant color. Use clamp to border
+        // with border color to achieve this
+        GL_CLAMP_TO_BORDER,
 
-    // Mapping is from "black". Use clamp to border
-    // with border color black to achieve this
-    if (addressModeEnum == 0)
+        // Clamp
+        GL_CLAMP_TO_EDGE,
+
+        // Repeat
+        GL_REPEAT,
+
+        // Mirror
+        GL_MIRRORED_REPEAT
+    };
+
+    int addressMode = GL_REPEAT;
+    if (addressModeEnum != ImageSamplingProperties::AddressMode::UNSPECIFIED)
     {
-        addressMode = GL_CLAMP_TO_BORDER;
-    }
-    // Clamp
-    else if (addressModeEnum == 1)
-    {
-        addressMode = GL_CLAMP_TO_EDGE;
+        addressMode = addressModes[static_cast<int>(addressModeEnum)];
     }
     return addressMode;
 }
 
-int GLTextureHandler::mapFilterTypeToGL(int filterTypeEnum)
+int GLTextureHandler::mapFilterTypeToGL(ImageSamplingProperties::FilterType filterTypeEnum)
 {
     int filterType = GL_LINEAR_MIPMAP_LINEAR;
-    // 0 = closest
-    if (filterTypeEnum == 0)
+    if (filterTypeEnum == ImageSamplingProperties::FilterType::CLOSEST)
     {
         filterType = GL_NEAREST;
     }
-    // 1 == linear
-    else if (filterTypeEnum == 1)
+    else if (filterTypeEnum == ImageSamplingProperties::FilterType::LINEAR)
     {
         filterType = GL_LINEAR;
     }
