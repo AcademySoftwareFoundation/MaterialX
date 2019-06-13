@@ -60,10 +60,10 @@ class GLTextureHandler : public ImageHandler
     bool bindImage(const FilePath& filePath, const ImageSamplingProperties& samplingProperties) override;
 
     /// Utility to map an address mode enumeration to an OpenGL address mode
-    static int mapAddressModeToGL(int addressModeEnum);
+    static int mapAddressModeToGL(ImageSamplingProperties::AddressMode addressModeEnum);
 
     /// Utility to map a filter type enumeration to an OpenGL filter type
-    static int mapFilterTypeToGL(int filterTypeEnum);
+    static int mapFilterTypeToGL(ImageSamplingProperties::FilterType filterTypeEnum);
 
     /// Returns the bound texture location for a given resource
     int getBoundTextureLocation(unsigned int resourceId) override;

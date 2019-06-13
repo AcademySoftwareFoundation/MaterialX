@@ -344,17 +344,17 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
         const std::string uaddressmodeStr = root + UADDRESS_MODE_POST_FIX;
         const mx::ShaderPort* port = publicUniforms->find(uaddressmodeStr);
         mx::ValuePtr intValue = port ? port->getValue() : nullptr;
-        samplingProperties.uaddressMode = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
+        samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
 
         const std::string vaddressmodeStr = root + VADDRESS_MODE_POST_FIX;
         port = publicUniforms->find(vaddressmodeStr);
         intValue = port ? port->getValue() : nullptr;
-        samplingProperties.vaddressMode = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
+        samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
 
         const std::string filtertypeStr = root + FILTER_TYPE_POST_FIX;
         port = publicUniforms->find(filtertypeStr);
         intValue = port ? port->getValue() : nullptr;
-        samplingProperties.filterType = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
+        samplingProperties.filterType = mx::ImageSamplingProperties::FilterType(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
 
         const std::string defaultColorStr = root + DEFAULT_COLOR_POST_FIX;
         port = publicUniforms->find(defaultColorStr);
@@ -501,9 +501,9 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandler
 
             mx::ImageDesc desc;
             mx::ImageSamplingProperties samplingProperties;
-            samplingProperties.uaddressMode = 1;
-            samplingProperties.vaddressMode = 1;
-            samplingProperties.filterType = 2;
+            samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+            samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+            samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::CUBIC;
 
             if (bindImage(filename, pair.first, imageHandler, desc, samplingProperties, udim, &fallbackColor))
             {
