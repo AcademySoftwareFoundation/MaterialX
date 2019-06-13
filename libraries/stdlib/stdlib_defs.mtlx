@@ -69,8 +69,8 @@
     <parameter name="layer" type="string" value="" uiname="Layer"/>
     <parameter name="default" type="float" value="0.0" uiname="Default Color"/>
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates"/>
-    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode U"/>
-    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode V"/>
+    <parameter name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U"/>
+    <parameter name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
     <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
     <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
@@ -81,8 +81,8 @@
     <parameter name="layer" type="string" value="" uiname="Layer"/>
     <parameter name="default" type="color2" value="0.0, 0.0" uiname="Default Color"/>
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates"/>
-    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode U"/>
-    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode V"/>
+    <parameter name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U"/>
+    <parameter name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
     <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
     <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
@@ -93,8 +93,8 @@
     <parameter name="layer" type="string" value="" uiname="Layer"/>
     <parameter name="default" type="color3" value="0.0, 0.0, 0.0" uiname="Default Color"/>
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates"/>
-    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode U"/>
-    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode V"/>
+    <parameter name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U"/>
+    <parameter name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
     <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
     <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
@@ -105,8 +105,8 @@
     <parameter name="layer" type="string" value="" uiname="Layer"/>
     <parameter name="default" type="color4" value="0.0, 0.0, 0.0, 0.0" uiname="Default Color"/>
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates"/>
-    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode U"/>
-    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode V"/>
+    <parameter name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U"/>
+    <parameter name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
     <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
     <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
@@ -117,8 +117,8 @@
     <parameter name="layer" type="string" value="" uiname="Layer"/>
     <parameter name="default" type="vector2" value="0.0, 0.0" uiname="Default Color"/>
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates"/>
-    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode U"/>
-    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode V"/>
+    <parameter name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U"/>
+    <parameter name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
     <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
     <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
@@ -129,8 +129,8 @@
     <parameter name="layer" type="string" value="" uiname="Layer"/>
     <parameter name="default" type="vector3" value="0.0, 0.0, 0.0" uiname="Default Color"/>
     <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
-    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode U"/>
-    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode V"/>
+    <parameter name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U"/>
+    <parameter name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
     <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
     <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
@@ -141,8 +141,8 @@
     <parameter name="layer" type="string" value="" uiname="Layer"/>
     <parameter name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0" uiname="Default Color"/>
     <input name="texcoord" type="vector2" defaultgeomprop="UV0"/>
-    <parameter name="uaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode U"/>
-    <parameter name="vaddressmode" type="string" value="periodic" enum="black,clamp,periodic" uiname="Address Mode V"/>
+    <parameter name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U"/>
+    <parameter name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V"/>
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
     <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
     <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>

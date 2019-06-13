@@ -619,15 +619,15 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
                 const int INVALID_MAPPED_INT_VALUE = -1; // Any value < 0 is not considered to be invalid
                 const std::string uaddressModeStr = root + UADDRESS_MODE_POST_FIX;
                 ValuePtr intValue = findUniformValue(uaddressModeStr, uniformList);
-                samplingProperties.uaddressMode = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
+                samplingProperties.uaddressMode = ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
 
                 const std::string vaddressmodeStr = root + VADDRESS_MODE_POST_FIX;
                 intValue = findUniformValue(vaddressmodeStr, uniformList);
-                samplingProperties.vaddressMode = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
+                samplingProperties.vaddressMode = ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
 
                 const std::string filtertypeStr = root + FILTER_TYPE_POST_FIX;
                 intValue = findUniformValue(filtertypeStr, uniformList);
-                samplingProperties.filterType = intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE;
+                samplingProperties.filterType = ImageSamplingProperties::FilterType(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
 
                 const std::string defaultColorStr = root + DEFAULT_COLOR_POST_FIX;
                 ValuePtr colorValue = findUniformValue(defaultColorStr, uniformList);
