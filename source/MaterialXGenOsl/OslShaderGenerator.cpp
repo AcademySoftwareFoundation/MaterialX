@@ -219,11 +219,11 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
         emitString("shader ", stage);
     }
 
-    // Begin shader signature. Cache the signature for the stage
-    string emitShaderName = shader->getName();
-    _syntax->makeValidName(emitShaderName);
-    setSignature(stage, emitShaderName);
-    emitLine(emitShaderName, stage, false);
+    // Begin shader signature.
+    string functionName = shader->getName();
+    _syntax->makeValidName(functionName);
+    setFunctionName(functionName, stage);
+    emitLine(functionName, stage, false);
     emitScopeBegin(stage, Syntax::PARENTHESES);
     emitLine("float dummy = 0.0,", stage, false);
 

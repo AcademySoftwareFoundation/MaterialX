@@ -128,8 +128,8 @@ class ShaderStage
     /// Return the stage name.
     const string& getName() const { return _name; }
 
-    /// Return the shader signature.
-    const string& getSignature() const { return _signature; }
+    /// Return the stage function name.
+    const string& getFunctionName() const { return _functionName; }
 
     /// Return the stage source code.
     const string& getSourceCode() const { return _code; }
@@ -229,18 +229,18 @@ class ShaderStage
     /// Add the function definition for a node.
     void addFunctionDefinition(const ShaderNode& node, GenContext& context);
 
-    /// Set shader signature
-    void setSignature(const string& val) 
+    /// Set stage function name.
+    void setFunctionName(const string& functionName) 
     { 
-        _signature = val;
+        _functionName = functionName;
     }
 
   private:
     /// Name of the stage
     const string _name;
 
-    /// Shader signature for the stage
-    string _signature;
+    /// Name of the stage main function
+    string _functionName;
 
     /// Syntax for the type of shader to generate.
     ConstSyntaxPtr _syntax;
