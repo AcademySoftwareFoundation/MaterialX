@@ -88,7 +88,7 @@ find_path(MATERIALX_PBRLIB_DIR
 foreach(MATERIALX_LIB
     Core
     Format
-    Shader)
+    GenShader)
     find_library(MATERIALX_${MATERIALX_LIB}_LIBRARY
             MaterialX${MATERIALX_LIB}
         HINTS
