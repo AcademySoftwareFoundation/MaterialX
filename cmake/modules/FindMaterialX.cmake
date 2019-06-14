@@ -9,7 +9,10 @@
 # Example Usage
 #  - Build and Install MaterialX 
 #  - register the path to this cmake module using CMAKE_MODULE_PATH
-#  - use find_package(MaterialX REQUIRED)
+#  - use find_package(MaterialX REQUIRED) to locate core components
+#  - additonal components can be found using shaderx, stdsurf and pytton
+#     e.g:  find_package(MaterialX REQUIRED COMPONENTS shaderx)
+#           will find inc, lib, corelib and generators
 #
 # Variables defined:
 # MATERIALX_FOUND            True if headers and requested libraries were found
@@ -18,10 +21,46 @@
 # MATERIALX_LIB_DIRS         MaterialX lib directory
 # MATERIALX_CORE_LIBS        MaterialX Core libraries and ShaderX i.e. Core, Format & GenShader
 # MATERIALX_GENERATOR_LIBS   MaterialX Generator libraries i.e GenGlsl, GenOsl
+# MATERIALX_RENDER_LIBS      MaterialX Render libraries i.e RenderGlsl, RenderOsl
 # MATERIALX_STDLIB_DIR       Path to the MaterialX standard library directory
 # MATERIALX_PBRLIB_DIR       Path to the MaterialX pbr library directory
+# MATERIALX_STDSURFLIB_DIR   Path to the Standard Surface library directory
+# MATERIALX_PYTHON_DIR       Path to MaterialX Python library
+# MATERIALX_RESOURCES_DIR    Path to MaterialX Resources (sample data, mtlx etc)
 #
 
+# make core variables required
+set (MATERIALX_REQUIRED_VARS
+        MATERIALX_INCLUDE_DIRS
+        MATERIALX_LIB_DIRS
+        MATERIALX_STDLIB_DIR
+        MATERIALX_CORE_LIBS
+    )
+
+# make shaderx a required if requested
+if ("shaderx" IN_LIST MaterialX_FIND_COMPONENTS)
+ list (APPEND MATERIALX_REQUIRED_VARS
+        MATERIALX_GENERATOR_LIBS
+        MATERIALX_RENDER_LIBS)
+endif()
+
+# make standard surfacce required if requested
+if ("stdsurf" IN_LIST MaterialX_FIND_COMPONENTS)
+ list (APPEND MATERIALX_REQUIRED_VARS 
+        MATERIALX_PBRLIB_DIR
+        MATERIALX_STDSURFLIB_DIR)
+endif()
+
+
+if ("python" IN_LIST MaterialX_FIND_COMPONENTS)
+ list (APPEND MATERIALX_REQUIRED_VARS
+        MATERIALX_PYTHON_DIR
+        MATERIALX_RESOURCES_DIR)
+endif()
+
+
+
+# Locate MaterialX base directory based on ENV var
 find_path(MATERIALX_BASE_DIR
     NAMES
         include/MaterialXCore/Library.h
@@ -81,14 +120,54 @@ find_path(MATERIALX_PBRLIB_DIR
         "MaterialX PBR Libraries Path"
 )
 
-# Path to document library
-#get_filename_component(MATERIALX_MTLXDOC_DIR ${MATERIALX_STDLIB_DIR} DIRECTORY)
+# Path to standard surface library
+find_path(MATERIALX_STDSURFLIB_DIR
+    standard_surface.mtlx
+    HINTS
+        "${MATERIALX_ROOT}"
+        "$ENV{MATERIALX_ROOT}"
+        "${MATERIALX_BASE_DIR}"
+    PATH_SUFFIXES
+        "libraries/bxdf"
+    DOC
+        "MaterialX Standard Surface Libraries Path"
+)
+
+# Path to python library
+find_path(MATERIALX_PYTHON_DIR
+    setup.py
+    HINTS
+        "${MATERIALX_ROOT}"
+        "$ENV{MATERIALX_ROOT}"
+        "${MATERIALX_BASE_DIR}"
+    PATH_SUFFIXES
+        "python"
+    DOC
+        "MaterialX Python Bindings Path"
+)
+
+# Path to MaterialX Resources
+find_path(MATERIALX_RESOURCES_DIR
+    README.md
+    HINTS
+        "${MATERIALX_ROOT}"
+        "$ENV{MATERIALX_ROOT}"
+        "${MATERIALX_BASE_DIR}"
+    PATH_SUFFIXES
+        "resources"
+    DOC
+        "MaterialX Resources path"
+)
+
+
 
 # Core Libraries
 foreach(MATERIALX_LIB
     Core
     Format
-    GenShader)
+    GenShader
+    Render
+    Contrib)
     find_library(MATERIALX_${MATERIALX_LIB}_LIBRARY
             MaterialX${MATERIALX_LIB}
         HINTS
@@ -125,15 +204,28 @@ foreach(MATERIALXGEN_LIB
     endif ()
 endforeach()
 
+# Target render Libraries 
+foreach(MATERIALXRENDER_LIB
+    Glsl
+    Osl
+    Hw)
+
+    # Locate the render library
+    find_library(MATERIALX_RENDER_${MATERIALXRENDER_LIB}_LIBRARY
+            MaterialXRender${MATERIALXRENDER_LIB}
+        HINTS
+            "${MATERIALX_LIB_DIRS}"
+        DOC
+            "MaterialX's ${MATERIALX_LIB} library path"
+        NO_CMAKE_SYSTEM_PATH
+    )
+
+    if (MATERIALX_RENDER_${MATERIALXRENDER_LIB}_LIBRARY)
+        list(APPEND MATERIALX_RENDER_LIBS ${MATERIALX_GEN_${MATERIALXRENDER_LIB}_LIBRARY})
+    endif ()
+endforeach()
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(MaterialX
-    REQUIRED_VARS
-        MATERIALX_BASE_DIR
-        MATERIALX_INCLUDE_DIRS
-        MATERIALX_LIB_DIRS
-        MATERIALX_STDLIB_DIR
-        MATERIALX_PBRLIB_DIR
-        MATERIALX_CORE_LIBS
-        MATERIALX_GENERATOR_LIBS
+    REQUIRED_VARS ${MATERIALX_REQUIRED_VARS}
 )
