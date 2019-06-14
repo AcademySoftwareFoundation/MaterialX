@@ -322,8 +322,8 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
 
     emitFunctionDefinitions(graph, context, stage);
 
-    // Add main function. Cache the signature for the stage
-    setSignature(stage, "main");
+    // Add main function
+    setFunctionName("main", stage);
     emitLine("void main()", stage, false);
     emitScopeBegin(stage);
     emitLine("vec4 hPositionWorld = u_worldMatrix * vec4(i_position, 1.0)", stage);
@@ -461,9 +461,9 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
 
     const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket();
 
-    // Add main function. Cache the signature for the stage
+    // Add main function
+    setFunctionName("main", stage);
     emitLine("void main()", stage, false);
-    setSignature(stage, "main");
     emitScopeBegin(stage);
 
     if (graph.hasClassification(ShaderNode::Classification::CLOSURE))

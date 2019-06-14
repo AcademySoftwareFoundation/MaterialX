@@ -205,6 +205,10 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     _uvTranslation(-0.5f, 0.5f, 0.0f),
     _uvZoom(1.0f)
 {
+    // Transpary option before creating Advanced UI 
+    // as this flag is used to set the default value.
+    _genContext.getOptions().hwTransparency = true;
+
     _window = new ng::Window(this, "Viewer Options");
     _window->setPosition(ng::Vector2i(15, 15));
     _window->setLayout(new ng::GroupLayout());

@@ -74,7 +74,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
     <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
     <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic" uiname="Frame End Action"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror" uiname="Frame End Action"/>
   </nodedef>
   <nodedef name="ND_image_color2" node="image" type="color2" nodegroup="texture2d" default="0.0, 0.0">
     <parameter name="file" type="filename" uiname="Filename"/>
@@ -86,7 +86,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
     <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
     <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic" uiname="Frame End Action"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror" uiname="Frame End Action"/>
   </nodedef>
   <nodedef name="ND_image_color3" node="image" type="color3" nodegroup="texture2d" default="0.0, 0.0, 0.0">
     <parameter name="file" type="filename" uiname="Filename"/>
@@ -98,7 +98,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
     <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
     <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic" uiname="Frame End Action"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror" uiname="Frame End Action"/>
   </nodedef>
   <nodedef name="ND_image_color4" node="image" type="color4" nodegroup="texture2d" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="file" type="filename" uiname="Filename"/>
@@ -110,7 +110,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
     <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
     <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic" uiname="Frame End Action"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror" uiname="Frame End Action"/>
   </nodedef>
   <nodedef name="ND_image_vector2" node="image" type="vector2" nodegroup="texture2d" default="0.0, 0.0">
     <parameter name="file" type="filename" uiname="Filename"/>
@@ -122,7 +122,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
     <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
     <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic" uiname="Frame End Action"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror" uiname="Frame End Action"/>
   </nodedef>
   <nodedef name="ND_image_vector3" node="image" type="vector3" nodegroup="texture2d" default="0.0, 0.0, 0.0">
     <parameter name="file" type="filename" uiname="Filename"/>
@@ -134,7 +134,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
     <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
     <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic" uiname="Frame End Action"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror" uiname="Frame End Action"/>
   </nodedef>
   <nodedef name="ND_image_vector4" node="image" type="vector4" nodegroup="texture2d" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="file" type="filename" uiname="Filename"/>
@@ -146,7 +146,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uiname="Filter Type"/>
     <parameter name="framerange" type="string" value="" uiname="Frame Range"/>
     <parameter name="frameoffset" type="integer" value="0" uiname="Frame Offset"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic" uiname="Frame End Action"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror" uiname="Frame End Action"/>
   </nodedef>
 
   <!--
@@ -163,7 +163,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror"/>
   </nodedef>
   <nodedef name="ND_tiledimage_color2" node="tiledimage" type="color2" nodegroup="texture2d" default="0.0, 0.0">
     <parameter name="file" type="filename"/>
@@ -174,7 +174,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror"/>
   </nodedef>
   <nodedef name="ND_tiledimage_color3" node="tiledimage" type="color3" nodegroup="texture2d" default="0.0, 0.0, 0.0">
     <parameter name="file" type="filename"/>
@@ -185,7 +185,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror"/>
   </nodedef>
   <nodedef name="ND_tiledimage_color4" node="tiledimage" type="color4" nodegroup="texture2d" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="file" type="filename"/>
@@ -196,7 +196,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror"/>
   </nodedef>
   <nodedef name="ND_tiledimage_vector2" node="tiledimage" type="vector2" nodegroup="texture2d" default="0.0, 0.0">
     <parameter name="file" type="filename"/>
@@ -207,7 +207,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror"/>
   </nodedef>
   <nodedef name="ND_tiledimage_vector3" node="tiledimage" type="vector3" nodegroup="texture2d" default="0.0, 0.0, 0.0">
     <parameter name="file" type="filename"/>
@@ -218,7 +218,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror"/>
   </nodedef>
   <nodedef name="ND_tiledimage_vector4" node="tiledimage" type="vector4" nodegroup="texture2d" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="file" type="filename"/>
@@ -229,7 +229,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror"/>
   </nodedef>
 
   <!--
@@ -251,7 +251,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror"/>
   </nodedef>
   <nodedef name="ND_triplanarprojection_color2" node="triplanarprojection" type="color2" nodegroup="texture3d" default="0.0, 0.0">
     <parameter name="filex" type="filename"/>
@@ -266,7 +266,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror"/>
   </nodedef>
   <nodedef name="ND_triplanarprojection_color3" node="triplanarprojection" type="color3" nodegroup="texture3d" default="0.0, 0.0, 0.0">
     <parameter name="filex" type="filename"/>
@@ -281,7 +281,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror"/>
   </nodedef>
   <nodedef name="ND_triplanarprojection_color4" node="triplanarprojection" type="color4" nodegroup="texture3d" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="filex" type="filename"/>
@@ -296,7 +296,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror"/>
   </nodedef>
   <nodedef name="ND_triplanarprojection_vector2" node="triplanarprojection" type="vector2" nodegroup="texture3d" default="0.0, 0.0">
     <parameter name="filex" type="filename"/>
@@ -311,7 +311,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror"/>
   </nodedef>
   <nodedef name="ND_triplanarprojection_vector3" node="triplanarprojection" type="vector3" nodegroup="texture3d" default="0.0, 0.0, 0.0">
     <parameter name="filex" type="filename"/>
@@ -326,7 +326,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror"/>
   </nodedef>
   <nodedef name="ND_triplanarprojection_vector4" node="triplanarprojection" type="vector4" nodegroup="texture3d" default="0.0, 0.0, 0.0, 0.0">
     <parameter name="filex" type="filename"/>
@@ -341,7 +341,7 @@
     <parameter name="filtertype" type="string" value="linear" enum="closest,linear,cubic"/>
     <parameter name="framerange" type="string" value=""/>
     <parameter name="frameoffset" type="integer" value="0"/>
-    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic"/>
+    <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror"/>
   </nodedef>
 
 
