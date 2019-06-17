@@ -3,35 +3,12 @@
 # All rights reserved.  See LICENSE.txt for license.
 #
 # Helper CMake module to Find MaterialX include dirs, libraries and document libraries
-# Based on https://github.com/PixarAnimationStudios/USD/blob/master/cmake/modules/FindMaterialX.cmake
-#
-# Copyright 2018 Pixar
-#
-# Licensed under the Apache License, Version 2.0 (the "Apache License")
-# with the following modification; you may not use this file except in
-# compliance with the Apache License and the following modification to it:
-# Section 6. Trademarks. is deleted and replaced with:
-#
-# 6. Trademarks. This License does not grant permission to use the trade
-#    names, trademarks, service marks, or product names of the Licensor
-#    and its affiliates, except as required to comply with Section 4(c) of
-#    the License and to reproduce the content of the NOTICE file.
-#
-# You may obtain a copy of the Apache License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the Apache License with the above modification is
-# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied. See the Apache License for the specific
-# language governing permissions and limitations under the Apache License.
 #
 # Example Usage
 #  - Build and Install MaterialX 
 #  - register the path to this cmake module using CMAKE_MODULE_PATH
 #  - use find_package(MaterialX REQUIRED) to locate core components
-#  - additonal components can be found using shaderx, stdsurf and pytton
+#  - additonal components can be found using shaderx, bxdf and pytton
 #     e.g:  find_package(MaterialX REQUIRED COMPONENTS shaderx)
 #           will find inc, lib, corelib and generators
 #
@@ -45,7 +22,7 @@
 # MATERIALX_RENDER_LIBS      MaterialX Render libraries i.e RenderGlsl, RenderOsl
 # MATERIALX_STDLIB_DIR       Path to the MaterialX standard library directory
 # MATERIALX_PBRLIB_DIR       Path to the MaterialX pbr library directory
-# MATERIALX_STDSURFLIB_DIR   Path to the Standard Surface library directory
+# MATERIALX_BXDFLIB_DIR      Path to the Surface shaders library directory e.g. standard surface
 # MATERIALX_PYTHON_DIR       Path to MaterialX Python library
 # MATERIALX_RESOURCES_DIR    Path to MaterialX Resources (sample data, mtlx etc)
 #
@@ -65,11 +42,11 @@ if ("shaderx" IN_LIST MaterialX_FIND_COMPONENTS)
         MATERIALX_RENDER_LIBS)
 endif()
 
-# make standard surfacce required if requested
-if ("stdsurf" IN_LIST MaterialX_FIND_COMPONENTS)
+# make bxdf surfacce shaders required if requested
+if ("bxdf" IN_LIST MaterialX_FIND_COMPONENTS)
  list (APPEND MATERIALX_REQUIRED_VARS 
         MATERIALX_PBRLIB_DIR
-        MATERIALX_STDSURFLIB_DIR)
+        MATERIALX_BXDFLIB_DIR)
 endif()
 
 
@@ -141,8 +118,8 @@ find_path(MATERIALX_PBRLIB_DIR
         "MaterialX PBR Libraries Path"
 )
 
-# Path to standard surface library
-find_path(MATERIALX_STDSURFLIB_DIR
+# Path to surface shader library
+find_path(MATERIALX_BXDFLIB_DIR
     standard_surface.mtlx
     HINTS
         "${MATERIALX_ROOT}"
@@ -151,7 +128,7 @@ find_path(MATERIALX_STDSURFLIB_DIR
     PATH_SUFFIXES
         "libraries/bxdf"
     DOC
-        "MaterialX Standard Surface Libraries Path"
+        "MaterialX Surface shaders Libraries Path"
 )
 
 # Path to python library
