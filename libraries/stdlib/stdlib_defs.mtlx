@@ -50,11 +50,14 @@
   <geompropdef name="Pobject" geomprop="position" space="object"/>
   <geompropdef name="Nobject" geomprop="normal" space="object"/>
   <geompropdef name="Tobject" geomprop="tangent" space="object" index="0"/>
+  <geompropdef name="Bobject" geomprop="bitangent" space="object" index="0"/>
   <geompropdef name="Pworld" geomprop="position" space="world"/>
   <geompropdef name="Nworld" geomprop="normal" space="world"/>
   <geompropdef name="Tworld" geomprop="tangent" space="world" index="0"/>
+  <geompropdef name="Bworld" geomprop="bitangent" space="world" index="0"/>
   <geompropdef name="UV0" geomprop="texcoord" index="0"/>
   <geompropdef name="Vworld" geomprop="viewdirection" space="world"/>
+
 
   <!-- ======================================================================== -->
   <!-- Texture nodes                                                            -->
