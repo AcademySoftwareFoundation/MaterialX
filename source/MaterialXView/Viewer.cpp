@@ -813,73 +813,73 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 newMaterials.push_back(mat);
             }
         }
+
+        size_t assignedGeoms = 0;
+        if (!newMaterials.empty())
+        {
+            // Add new materials to the global vector.
+            _materials.insert(_materials.end(), newMaterials.begin(), newMaterials.end());
+
+            // Set the default image search path.
+            mx::FilePath materialFolder = _materialFilename;
+            materialFolder.pop();
+            _imageHandler->setSearchPath(mx::FileSearchPath(materialFolder));
+
+            // Clear cached implementations, in case libraries on the file system have changed.
+            _genContext.clearNodeImplementations();
+
+            mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
+            for (MaterialPtr mat : newMaterials)
+            {
+                // Generate a shader for the new material.
+                mat->generateShader(_genContext);
+
+                // Apply geometric assignments specified in the document, if any.
+                mx::TypedElementPtr elem = mat->getElement();
+                mx::ShaderRefPtr shaderRef = elem->asA<mx::ShaderRef>();
+                mx::MaterialPtr materialRef = shaderRef ? shaderRef->getParent()->asA<mx::Material>() : nullptr;
+                if (materialRef)
+                {
+                    for (size_t partIndex = 0; partIndex < _geometryList.size(); partIndex++)
+                    {
+                        mx::MeshPartitionPtr part = _geometryList[partIndex];
+                        std::string partGeomName = part->getIdentifier();
+                        if (!materialRef->getGeometryBindings(partGeomName).empty())
+                        {
+                            assignMaterial(part, mat);
+                            assignedGeoms++;
+                        }
+                    }
+                }
+
+                // Apply implicit udim assignments, if any.
+                std::string udim = mat->getUdim();
+                if (!udim.empty())
+                {
+                    for (mx::MeshPartitionPtr geom : _geometryList)
+                    {
+                        if (!_materialAssignments[geom] && geom->getIdentifier() == udim)
+                        {
+                            assignMaterial(geom, mat);
+                        }
+                    }
+                }
+            }
+
+            // Apply fallback assignments.
+            for (mx::MeshPartitionPtr geom : _geometryList)
+            {
+                if (!_materialAssignments[geom])
+                {
+                    assignMaterial(geom, newMaterials[0]);
+                }
+            }
+        }
     }
     catch (std::exception& e)
     {
         new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load material", e.what());
         return;
-    }
-
-    size_t assignedGeoms = 0;
-    if (!newMaterials.empty())
-    {
-        // Add new materials to the global vector.
-        _materials.insert(_materials.end(), newMaterials.begin(), newMaterials.end());
-
-        // Set the default image search path.
-        mx::FilePath materialFolder = _materialFilename;
-        materialFolder.pop();
-        _imageHandler->setSearchPath(mx::FileSearchPath(materialFolder));
-
-        // Clear cached implementations, in case libraries on the file system have changed.
-        _genContext.clearNodeImplementations();
-
-        mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
-        for (MaterialPtr mat : newMaterials)
-        {
-            // Generate a shader for the new material.
-            mat->generateShader(_genContext);
-
-            // Apply geometric assignments specified in the document, if any.
-            mx::TypedElementPtr elem = mat->getElement();
-            mx::ShaderRefPtr shaderRef = elem->asA<mx::ShaderRef>();
-            mx::MaterialPtr materialRef = shaderRef ? shaderRef->getParent()->asA<mx::Material>() : nullptr;
-            if (materialRef)
-            {
-                for (size_t partIndex = 0; partIndex < _geometryList.size(); partIndex++)
-                {
-                    mx::MeshPartitionPtr part = _geometryList[partIndex];
-                    std::string partGeomName = part->getIdentifier();
-                    if (!materialRef->getGeometryBindings(partGeomName).empty())
-                    {
-                        assignMaterial(part, mat);
-                        assignedGeoms++;
-                    }
-                }
-            }
-
-            // Apply implicit udim assignments, if any.
-            std::string udim = mat->getUdim();
-            if (!udim.empty())
-            {
-                for (mx::MeshPartitionPtr geom : _geometryList)
-                {
-                    if (!_materialAssignments[geom] && geom->getIdentifier() == udim)
-                    {
-                        assignMaterial(geom, mat);
-                    }
-                }
-            }
-        }
-
-        // Apply fallback assignments.
-        for (mx::MeshPartitionPtr geom : _geometryList)
-        {
-            if (!_materialAssignments[geom])
-            {
-                assignMaterial(geom, newMaterials[0]);
-            }
-        }
     }
 
     // Update material UI.
