@@ -1072,6 +1072,7 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
             if (!_materials.empty() && !_geometryList.empty())
             {
                 assignMaterial(getSelectedGeometry(), getSelectedMaterial());
+                updateMaterialSelectionUI();
             }
         }
         return true;
@@ -1135,35 +1136,9 @@ void Viewer::drawScene3D()
         material->drawPartition(geom);
     }
 
-    // Ambient occlusion pass
-    if (_ambientOcclusion && _ambOccMaterial)
-    {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_DST_COLOR, GL_ZERO);
-        for (auto assignment : _materialAssignments)
-        {
-            mx::MeshPartitionPtr geom = assignment.first;
-            MaterialPtr material = assignment.second;
-            if (!material || material->hasTransparency())
-            {
-                continue;
-            }
-
-            mx::TypedElementPtr shader = _ambOccMaterial->getElement();
-            _ambOccMaterial->bindShader();
-            _ambOccMaterial->bindViewInformation(world, view, proj);
-            _ambOccMaterial->bindLights(_lightHandler, _imageHandler, _searchPath,
-                                        _directLighting, _indirectLighting,
-                                        _specularEnvironmentMethod, _envSamples);
-            _ambOccMaterial->bindImages(_imageHandler, _searchPath, material->getUdim());
-            _ambOccMaterial->drawPartition(geom);
-        }
-    }
-
     // Transparent pass
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_CULL_FACE); // Cull back-faces otherwise they render black (unlit)
     for (auto assignment : _materialAssignments)
     {
         mx::MeshPartitionPtr geom = assignment.first;
@@ -1181,7 +1156,32 @@ void Viewer::drawScene3D()
         material->bindImages(_imageHandler, _searchPath, material->getUdim());
         material->drawPartition(geom);
     }
-    glDisable(GL_CULL_FACE);
+    
+    // Ambient occlusion pass
+    if (_ambientOcclusion && _ambOccMaterial)
+    {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_DST_COLOR, GL_ZERO);
+        for (auto assignment : _materialAssignments)
+        {
+            mx::MeshPartitionPtr geom = assignment.first;
+            MaterialPtr material = assignment.second;
+            if (!material)
+            {
+                continue;
+            }
+
+            mx::TypedElementPtr shader = _ambOccMaterial->getElement();
+            _ambOccMaterial->bindShader();
+            _ambOccMaterial->bindViewInformation(world, view, proj);
+            _ambOccMaterial->bindLights(_lightHandler, _imageHandler, _searchPath,
+                                        _directLighting, _indirectLighting,
+                                        _specularEnvironmentMethod, _envSamples);
+            _ambOccMaterial->bindImages(_imageHandler, _searchPath, material->getUdim());
+            _ambOccMaterial->drawPartition(geom);
+        }
+    }
+    
     glDisable(GL_BLEND);
     glDisable(GL_FRAMEBUFFER_SRGB);
 
