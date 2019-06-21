@@ -1,0 +1,839 @@
+<?xml version="1.0"?>
+<materialx version="1.36" cms="ocio" colorspace="lin_rec709">
+  <nodedef name="ND_algclamp_float" type="float" node="algclamp">
+    <input name="val" type="float" value="0" uiname="Value" />
+    <input name="i_min" type="float" value="0" uiname="Min" />
+    <input name="i_max" type="float" value="1" uiname="Max" />
+  </nodedef>
+  <nodedef name="ND_algclamp_vector2" type="vector2" node="algclamp">
+    <input name="val" type="vector2" value="0, 0" uiname="Value" />
+    <input name="i_min" type="vector2" value="0, 0" uiname="Min" />
+    <input name="i_max" type="vector2" value="1, 1" uiname="Max" />
+  </nodedef>
+  <nodedef name="ND_algclamp_vector3" type="vector3" node="algclamp">
+    <input name="val" type="vector3" value="0, 0, 0" uiname="Value" />
+    <input name="i_min" type="vector3" value="0, 0, 0" uiname="Min" />
+    <input name="i_max" type="vector3" value="1, 1, 1" uiname="Max" />
+  </nodedef>
+  <nodedef name="ND_algclamp_vector4" type="vector4" node="algclamp">
+    <input name="val" type="vector4" value="0, 0, 0, 0" uiname="Value" />
+    <input name="i_min" type="vector4" value="0, 0, 0, 0" uiname="Min" />
+    <input name="i_max" type="vector4" value="1, 1, 1, 1" uiname="Max" />
+  </nodedef>
+  <nodedef name="ND_algclamp_color3" type="color3" node="algclamp">
+    <input name="val" type="color3" value="0, 0, 0" uiname="Value" />
+    <input name="i_min" type="color3" value="0, 0, 0" uiname="Min" />
+    <input name="i_max" type="color3" value="1, 1, 1" uiname="Max" />
+  </nodedef>
+  <nodedef name="ND_alglevels_float" type="float" node="alglevels">
+    <input name="pixel" type="float" value="0" uiname="Value" />
+    <input name="i_min" type="float" value="0" uiname="Min" />
+    <input name="i_max" type="float" value="1" uiname="Max" />
+    <input name="i_gamma" type="float" value="1" uiname="Gamma" />
+  </nodedef>
+  <nodedef name="ND_alglevels_vector2" type="vector2" node="alglevels">
+    <input name="pixel" type="vector2" value="0, 0" uiname="Value" />
+    <input name="i_min" type="vector2" value="0, 0" uiname="Min" />
+    <input name="i_max" type="vector2" value="1, 1" uiname="Max" />
+    <input name="i_gamma" type="float" value="1" uiname="Gamma" />
+  </nodedef>
+  <nodedef name="ND_alglevels_vector3" type="vector3" node="alglevels">
+    <input name="pixel" type="vector3" value="0, 0, 0" uiname="Value" />
+    <input name="i_min" type="vector3" value="0, 0, 0" uiname="Min" />
+    <input name="i_max" type="vector3" value="1, 1, 1" uiname="Max" />
+    <input name="i_gamma" type="float" value="1" uiname="Gamma" />
+  </nodedef>
+  <nodedef name="ND_alglevels_vector4" type="vector4" node="alglevels">
+    <input name="pixel" type="vector4" value="0, 0, 0, 0" uiname="Value" />
+    <input name="i_min" type="vector4" value="0, 0, 0, 0" uiname="Min" />
+    <input name="i_max" type="vector4" value="1, 1, 1, 1" uiname="Max" />
+    <input name="i_gamma" type="float" value="1" uiname="Gamma" />
+  </nodedef>
+  <nodedef name="ND_alglevels_color3" type="color3" node="alglevels">
+    <input name="pixel" type="color3" value="0, 0, 0" uiname="Value" />
+    <input name="i_min" type="color3" value="0, 0, 0" uiname="Min" />
+    <input name="i_max" type="color3" value="1, 1, 1" uiname="Max" />
+    <input name="i_gamma" type="float" value="1" uiname="Gamma" />
+  </nodedef>
+  <nodedef name="ND_algdot_color3" type="float" node="algdot">
+    <input name="in1" type="color3" value="0, 0, 0" uiname="Value" />
+    <input name="in2" type="color3" value="0, 0, 0" uiname="Min" />
+  </nodedef>
+  <nodedef name="ND_algheighttonormal" type="vector3" node="algheighttonormal">
+    <input name="h" type="float" value="0" uiname="Height" />
+    <input name="dU" type="float" value="0" uiname="HeightU" />
+    <input name="dV" type="float" value="0" uiname="HeightV" />
+    <input name="delta" type="float" value="0.0001" uiname="Delta" />
+    <input name="intensity" type="float" value="1" uimin="0.001" uimax="10.0" uiname="Normal Intensity" />
+  </nodedef>
+  <nodedef name="ND_algnormalTStoWS_vector3" type="vector3" node="algnormalTStoWS">
+    <input name="normalTS" type="vector3" value="0.5, 0.5, 1" uiname="Normal Tangent Space" />
+    <parameter name="openGL" type="boolean" value="true" uiname="OpenGL Tangent Space" />
+    <parameter name="index" type="integer" value="0" uiname="UV Index" />
+  </nodedef>
+  <nodedef name="ND_physicallyMetallicRoughnessDk" type="surfaceshader" node="physicallyMetallicRoughnessDk">
+    <input name="ambientOcclusion" type="float" value="1.0" uifolder="Ambient Occlusion" uiname="Ambient Occlusion" uimax="1" doc="AmbientOcclusion" />
+    <input name="baseColor" type="color3" value="0.5, 0.5, 0.5" uifolder="Diffuse" uiname="Base Color channel" doc="Color of the diffuse reflection." />
+    <input name="emissiveColor" type="color3" value="0.0, 0.0, 0.0" uifolder="Emissive" uiname="Emissive Color channel" doc="Color tint on the emitted light." />
+    <parameter name="emissiveIntensity" type="float" value="1.0" uifolder="Emissive" uiname="Emissive Intensity" doc="Intensity of the emitted light." />
+    <input name="height" type="float" value="0.5" uifolder="Height" uiname="Height" uimax="1" doc="Height of the material." />
+    <parameter name="heightScale" type="float" value="0.0" uifolder="Height" uiname="Scale" uimax="1" doc="Scale for the height channel." />
+    <input name="metallic" type="float" value="0.0" uifolder="Metallic" uiname="Metallic channel" uimax="1" doc="The setting for how metallic looking the material should be." />
+    <input name="normal" type="vector3" value="0.0, 0.0, 0.0" uifolder="Diffuse" uiname="Normal channel" doc="Override the normal used for this lobe." />
+    <input name="roughness" type="float" value="0.5" uifolder="Roughness" uiname="Roughness channel" uimax="1" doc="The roughness of the specular reflection. Lower numbers produce sharper reflections, higher numbers produce blurrier reflections." />
+    <input name="opacity" type="float" value="1" uifolder="Opacity" uiname="Opacity channel" uimax="1" doc="Material Opacity" />
+    <input name="specularLevel" type="float" value=".5" uifolder="Specular" uiname="Specular Level channel" uimax="1" doc="Specular Level" />
+    <input name="anisotropyLevel" type="float" value="0" uifolder="Anisotropy" uiname="Anisotropy Level channel" uimax="1" doc="Level of anisotropy in the shader" />
+    <input name="anisotropyAngle" type="float" value="0" uifolder="Anisotropy" uiname="Anisotropy Angle channel" uimax="1" doc="Rotation for anisotropy" />
+    <input name="refraction" type="float" value="0" uifolder="Refraction" uiname="Refraction channel" uimax="1" doc="Refraction" />
+    <parameter name="refractionIOR" type="float" value="1.5" uifolder="Refraction" uiname="Index of Refraction" uimax="1" doc="Refraction IOR" />
+    <parameter name="scattering" type="float" value="0" uifolder="Refraction" uiname="Scattering" uimax="1" doc="Scattering" />
+    <parameter name="absorption" type="float" value="0" uifolder="Refraction" uiname="Absorption" uimax="1" doc="Scattering" />
+    <parameter name="absorptionColor" type="vector3" value="1,1,1" uifolder="Refraction" uiname="Absorption Color" uimax="1" doc="Scattering" />
+  </nodedef>
+  <nodegraph name="NG_algclamp_float" nodedef="ND_algclamp_float">
+    <max name="ND_max_float_1" type="float">
+      <input name="in1" type="float" interfacename="val" />
+      <input name="in2" type="float" interfacename="i_min" />
+    </max>
+    <min name="ND_min_float_2" type="float">
+      <input name="in1" type="float" nodename="ND_max_float_1" />
+      <input name="in2" type="float" interfacename="i_max" />
+    </min>
+    <output name="out" type="float" nodename="ND_min_float_2" />
+  </nodegraph>
+  <nodegraph name="NG_algclamp_vector2" nodedef="ND_algclamp_vector2">
+    <max name="ND_max_vector2_3" type="vector2">
+      <input name="in1" type="vector2" interfacename="val" />
+      <input name="in2" type="vector2" interfacename="i_min" />
+    </max>
+    <min name="ND_min_vector2_4" type="vector2">
+      <input name="in1" type="vector2" nodename="ND_max_vector2_3" />
+      <input name="in2" type="vector2" interfacename="i_max" />
+    </min>
+    <output name="out" type="vector2" nodename="ND_min_vector2_4" />
+  </nodegraph>
+  <nodegraph name="NG_algclamp_vector3" nodedef="ND_algclamp_vector3">
+    <max name="ND_max_vector3_5" type="vector3">
+      <input name="in1" type="vector3" interfacename="val" />
+      <input name="in2" type="vector3" interfacename="i_min" />
+    </max>
+    <min name="ND_min_vector3_6" type="vector3">
+      <input name="in1" type="vector3" nodename="ND_max_vector3_5" />
+      <input name="in2" type="vector3" interfacename="i_max" />
+    </min>
+    <output name="out" type="vector3" nodename="ND_min_vector3_6" />
+  </nodegraph>
+  <nodegraph name="NG_algclamp_vector4" nodedef="ND_algclamp_vector4">
+    <max name="ND_max_vector4_7" type="vector4">
+      <input name="in1" type="vector4" interfacename="val" />
+      <input name="in2" type="vector4" interfacename="i_min" />
+    </max>
+    <min name="ND_min_vector4_8" type="vector4">
+      <input name="in1" type="vector4" nodename="ND_max_vector4_7" />
+      <input name="in2" type="vector4" interfacename="i_max" />
+    </min>
+    <output name="out" type="vector4" nodename="ND_min_vector4_8" />
+  </nodegraph>
+  <nodegraph name="NG_algclamp_color3" nodedef="ND_algclamp_color3">
+    <max name="ND_max_color3_9" type="color3">
+      <input name="in1" type="color3" interfacename="val" />
+      <input name="in2" type="color3" interfacename="i_min" />
+    </max>
+    <min name="ND_min_color3_10" type="color3">
+      <input name="in1" type="color3" nodename="ND_max_color3_9" />
+      <input name="in2" type="color3" interfacename="i_max" />
+    </min>
+    <output name="out" type="color3" nodename="ND_min_color3_10" />
+  </nodegraph>
+  <nodegraph name="NG_alglevels_float" nodedef="ND_alglevels_float">
+    <subtract name="ND_subtract_float_11" type="float">
+      <input name="in1" type="float" interfacename="pixel" />
+      <input name="in2" type="float" interfacename="i_min" />
+    </subtract>
+    <subtract name="ND_subtract_float_12" type="float">
+      <input name="in1" type="float" interfacename="i_max" />
+      <input name="in2" type="float" interfacename="i_min" />
+    </subtract>
+    <divide name="ND_divide_float_13" type="float">
+      <input name="in1" type="float" nodename="ND_subtract_float_11" />
+      <input name="in2" type="float" nodename="ND_subtract_float_12" />
+    </divide>
+    <constant name="ND_constant_float_14" type="float">
+      <parameter name="value" type="float" value="0" />
+    </constant>
+    <constant name="ND_constant_float_15" type="float">
+      <parameter name="value" type="float" value="1" />
+    </constant>
+    <max name="ND_max_float_16" type="float">
+      <input name="in1" type="float" nodename="ND_divide_float_13" />
+      <input name="in2" type="float" nodename="ND_constant_float_14" />
+    </max>
+    <min name="ND_min_float_17" type="float">
+      <input name="in1" type="float" nodename="ND_max_float_16" />
+      <input name="in2" type="float" nodename="ND_constant_float_15" />
+    </min>
+    <constant name="ND_constant_float_18" type="float">
+      <parameter name="value" type="float" value="1" />
+    </constant>
+    <divide name="ND_divide_float_19" type="float">
+      <input name="in1" type="float" nodename="ND_constant_float_18" />
+      <input name="in2" type="float" interfacename="i_gamma" />
+    </divide>
+    <power name="ND_power_float_20" type="float">
+      <input name="in1" type="float" nodename="ND_min_float_17" />
+      <input name="in2" type="float" nodename="ND_divide_float_19" />
+    </power>
+    <output name="out" type="float" nodename="ND_power_float_20" />
+  </nodegraph>
+  <nodegraph name="NG_alglevels_vector2" nodedef="ND_alglevels_vector2">
+    <subtract name="ND_subtract_vector2_21" type="vector2">
+      <input name="in1" type="vector2" interfacename="pixel" />
+      <input name="in2" type="vector2" interfacename="i_min" />
+    </subtract>
+    <subtract name="ND_subtract_vector2_22" type="vector2">
+      <input name="in1" type="vector2" interfacename="i_max" />
+      <input name="in2" type="vector2" interfacename="i_min" />
+    </subtract>
+    <divide name="ND_divide_vector2_23" type="vector2">
+      <input name="in1" type="vector2" nodename="ND_subtract_vector2_21" />
+      <input name="in2" type="vector2" nodename="ND_subtract_vector2_22" />
+    </divide>
+    <constant name="ND_constant_vector2_24" type="vector2">
+      <parameter name="value" type="vector2" value="0, 0" />
+    </constant>
+    <constant name="ND_constant_vector2_25" type="vector2">
+      <parameter name="value" type="vector2" value="1, 1" />
+    </constant>
+    <max name="ND_max_vector2_26" type="vector2">
+      <input name="in1" type="vector2" nodename="ND_divide_vector2_23" />
+      <input name="in2" type="vector2" nodename="ND_constant_vector2_24" />
+    </max>
+    <min name="ND_min_vector2_27" type="vector2">
+      <input name="in1" type="vector2" nodename="ND_max_vector2_26" />
+      <input name="in2" type="vector2" nodename="ND_constant_vector2_25" />
+    </min>
+    <constant name="ND_constant_float_28" type="float">
+      <parameter name="value" type="float" value="1" />
+    </constant>
+    <divide name="ND_divide_float_29" type="float">
+      <input name="in1" type="float" nodename="ND_constant_float_28" />
+      <input name="in2" type="float" interfacename="i_gamma" />
+    </divide>
+    <power name="ND_power_vector2FA_30" type="vector2">
+      <input name="in1" type="vector2" nodename="ND_min_vector2_27" />
+      <input name="in2" type="float" nodename="ND_divide_float_29" />
+    </power>
+    <output name="out" type="vector2" nodename="ND_power_vector2FA_30" />
+  </nodegraph>
+  <nodegraph name="NG_alglevels_vector3" nodedef="ND_alglevels_vector3">
+    <subtract name="ND_subtract_vector3_31" type="vector3">
+      <input name="in1" type="vector3" interfacename="pixel" />
+      <input name="in2" type="vector3" interfacename="i_min" />
+    </subtract>
+    <subtract name="ND_subtract_vector3_32" type="vector3">
+      <input name="in1" type="vector3" interfacename="i_max" />
+      <input name="in2" type="vector3" interfacename="i_min" />
+    </subtract>
+    <divide name="ND_divide_vector3_33" type="vector3">
+      <input name="in1" type="vector3" nodename="ND_subtract_vector3_31" />
+      <input name="in2" type="vector3" nodename="ND_subtract_vector3_32" />
+    </divide>
+    <constant name="ND_constant_vector3_34" type="vector3">
+      <parameter name="value" type="vector3" value="0, 0, 0" />
+    </constant>
+    <constant name="ND_constant_vector3_35" type="vector3">
+      <parameter name="value" type="vector3" value="1, 1, 1" />
+    </constant>
+    <max name="ND_max_vector3_36" type="vector3">
+      <input name="in1" type="vector3" nodename="ND_divide_vector3_33" />
+      <input name="in2" type="vector3" nodename="ND_constant_vector3_34" />
+    </max>
+    <min name="ND_min_vector3_37" type="vector3">
+      <input name="in1" type="vector3" nodename="ND_max_vector3_36" />
+      <input name="in2" type="vector3" nodename="ND_constant_vector3_35" />
+    </min>
+    <constant name="ND_constant_float_38" type="float">
+      <parameter name="value" type="float" value="1" />
+    </constant>
+    <divide name="ND_divide_float_39" type="float">
+      <input name="in1" type="float" nodename="ND_constant_float_38" />
+      <input name="in2" type="float" interfacename="i_gamma" />
+    </divide>
+    <power name="ND_power_vector3FA_40" type="vector3">
+      <input name="in1" type="vector3" nodename="ND_min_vector3_37" />
+      <input name="in2" type="float" nodename="ND_divide_float_39" />
+    </power>
+    <output name="out" type="vector3" nodename="ND_power_vector3FA_40" />
+  </nodegraph>
+  <nodegraph name="NG_alglevels_vector4" nodedef="ND_alglevels_vector4">
+    <subtract name="ND_subtract_vector4_41" type="vector4">
+      <input name="in1" type="vector4" interfacename="pixel" />
+      <input name="in2" type="vector4" interfacename="i_min" />
+    </subtract>
+    <subtract name="ND_subtract_vector4_42" type="vector4">
+      <input name="in1" type="vector4" interfacename="i_max" />
+      <input name="in2" type="vector4" interfacename="i_min" />
+    </subtract>
+    <divide name="ND_divide_vector4_43" type="vector4">
+      <input name="in1" type="vector4" nodename="ND_subtract_vector4_41" />
+      <input name="in2" type="vector4" nodename="ND_subtract_vector4_42" />
+    </divide>
+    <constant name="ND_constant_vector4_44" type="vector4">
+      <parameter name="value" type="vector4" value="0, 0, 0, 0" />
+    </constant>
+    <constant name="ND_constant_vector4_45" type="vector4">
+      <parameter name="value" type="vector4" value="1, 1, 1, 1" />
+    </constant>
+    <max name="ND_max_vector4_46" type="vector4">
+      <input name="in1" type="vector4" nodename="ND_divide_vector4_43" />
+      <input name="in2" type="vector4" nodename="ND_constant_vector4_44" />
+    </max>
+    <min name="ND_min_vector4_47" type="vector4">
+      <input name="in1" type="vector4" nodename="ND_max_vector4_46" />
+      <input name="in2" type="vector4" nodename="ND_constant_vector4_45" />
+    </min>
+    <constant name="ND_constant_float_48" type="float">
+      <parameter name="value" type="float" value="1" />
+    </constant>
+    <divide name="ND_divide_float_49" type="float">
+      <input name="in1" type="float" nodename="ND_constant_float_48" />
+      <input name="in2" type="float" interfacename="i_gamma" />
+    </divide>
+    <power name="ND_power_vector4FA_50" type="vector4">
+      <input name="in1" type="vector4" nodename="ND_min_vector4_47" />
+      <input name="in2" type="float" nodename="ND_divide_float_49" />
+    </power>
+    <output name="out" type="vector4" nodename="ND_power_vector4FA_50" />
+  </nodegraph>
+  <nodegraph name="NG_alglevels_color3" nodedef="ND_alglevels_color3">
+    <subtract name="ND_subtract_color3_51" type="color3">
+      <input name="in1" type="color3" interfacename="pixel" />
+      <input name="in2" type="color3" interfacename="i_min" />
+    </subtract>
+    <subtract name="ND_subtract_color3_52" type="color3">
+      <input name="in1" type="color3" interfacename="i_max" />
+      <input name="in2" type="color3" interfacename="i_min" />
+    </subtract>
+    <divide name="ND_divide_color3_53" type="color3">
+      <input name="in1" type="color3" nodename="ND_subtract_color3_51" />
+      <input name="in2" type="color3" nodename="ND_subtract_color3_52" />
+    </divide>
+    <constant name="ND_constant_color3_54" type="color3">
+      <parameter name="value" type="color3" value="0, 0, 0" />
+    </constant>
+    <constant name="ND_constant_color3_55" type="color3">
+      <parameter name="value" type="color3" value="1, 1, 1" />
+    </constant>
+    <max name="ND_max_color3_56" type="color3">
+      <input name="in1" type="color3" nodename="ND_divide_color3_53" />
+      <input name="in2" type="color3" nodename="ND_constant_color3_54" />
+    </max>
+    <min name="ND_min_color3_57" type="color3">
+      <input name="in1" type="color3" nodename="ND_max_color3_56" />
+      <input name="in2" type="color3" nodename="ND_constant_color3_55" />
+    </min>
+    <constant name="ND_constant_float_58" type="float">
+      <parameter name="value" type="float" value="1" />
+    </constant>
+    <divide name="ND_divide_float_59" type="float">
+      <input name="in1" type="float" nodename="ND_constant_float_58" />
+      <input name="in2" type="float" interfacename="i_gamma" />
+    </divide>
+    <power name="ND_power_color3FA_60" type="color3">
+      <input name="in1" type="color3" nodename="ND_min_color3_57" />
+      <input name="in2" type="float" nodename="ND_divide_float_59" />
+    </power>
+    <output name="out" type="color3" nodename="ND_power_color3FA_60" />
+  </nodegraph>
+  <nodegraph name="NG_algdot_color3" nodedef="ND_algdot_color3">
+    <swizzle name="ND_swizzle_color3_float_61" type="float">
+      <input name="in" type="color3" interfacename="in1" />
+      <parameter name="channels" type="string" value="r" />
+    </swizzle>
+    <swizzle name="ND_swizzle_color3_float_62" type="float">
+      <input name="in" type="color3" interfacename="in2" />
+      <parameter name="channels" type="string" value="r" />
+    </swizzle>
+    <multiply name="ND_multiply_float_63" type="float">
+      <input name="in1" type="float" nodename="ND_swizzle_color3_float_61" />
+      <input name="in2" type="float" nodename="ND_swizzle_color3_float_62" />
+    </multiply>
+    <swizzle name="ND_swizzle_color3_float_64" type="float">
+      <input name="in" type="color3" interfacename="in1" />
+      <parameter name="channels" type="string" value="g" />
+    </swizzle>
+    <swizzle name="ND_swizzle_color3_float_65" type="float">
+      <input name="in" type="color3" interfacename="in2" />
+      <parameter name="channels" type="string" value="g" />
+    </swizzle>
+    <multiply name="ND_multiply_float_66" type="float">
+      <input name="in1" type="float" nodename="ND_swizzle_color3_float_64" />
+      <input name="in2" type="float" nodename="ND_swizzle_color3_float_65" />
+    </multiply>
+    <add name="ND_add_float_67" type="float">
+      <input name="in1" type="float" nodename="ND_multiply_float_63" />
+      <input name="in2" type="float" nodename="ND_multiply_float_66" />
+    </add>
+    <swizzle name="ND_swizzle_color3_float_68" type="float">
+      <input name="in" type="color3" interfacename="in1" />
+      <parameter name="channels" type="string" value="b" />
+    </swizzle>
+    <swizzle name="ND_swizzle_color3_float_69" type="float">
+      <input name="in" type="color3" interfacename="in2" />
+      <parameter name="channels" type="string" value="b" />
+    </swizzle>
+    <multiply name="ND_multiply_float_70" type="float">
+      <input name="in1" type="float" nodename="ND_swizzle_color3_float_68" />
+      <input name="in2" type="float" nodename="ND_swizzle_color3_float_69" />
+    </multiply>
+    <add name="ND_add_float_71" type="float">
+      <input name="in1" type="float" nodename="ND_add_float_67" />
+      <input name="in2" type="float" nodename="ND_multiply_float_70" />
+    </add>
+    <output name="out" type="float" nodename="ND_add_float_71" />
+  </nodegraph>
+  <nodegraph name="NG_algheighttonormal" nodedef="ND_algheighttonormal">
+    <subtract name="ND_subtract_float_72" type="float">
+      <input name="in1" type="float" interfacename="dU" />
+      <input name="in2" type="float" interfacename="h" />
+    </subtract>
+    <divide name="ND_divide_float_73" type="float">
+      <input name="in1" type="float" nodename="ND_subtract_float_72" />
+      <input name="in2" type="float" interfacename="delta" />
+    </divide>
+    <subtract name="ND_subtract_float_74" type="float">
+      <input name="in1" type="float" interfacename="dV" />
+      <input name="in2" type="float" interfacename="h" />
+    </subtract>
+    <divide name="ND_divide_float_75" type="float">
+      <input name="in1" type="float" nodename="ND_subtract_float_74" />
+      <input name="in2" type="float" interfacename="delta" />
+    </divide>
+    <constant name="ND_constant_float_76" type="float">
+      <parameter name="value" type="float" value="1" />
+    </constant>
+    <divide name="ND_divide_float_77" type="float">
+      <input name="in1" type="float" nodename="ND_constant_float_76" />
+      <input name="in2" type="float" interfacename="intensity" />
+    </divide>
+    <combine name="ND_combine_vector3_78" type="vector3">
+      <input name="in1" type="float" nodename="ND_divide_float_73" />
+      <input name="in2" type="float" nodename="ND_divide_float_75" />
+      <input name="in3" type="float" nodename="ND_divide_float_77" />
+    </combine>
+    <normalize name="ND_normalize_vector3_79" type="vector3">
+      <input name="in" type="vector3" nodename="ND_combine_vector3_78" />
+    </normalize>
+    <constant name="ND_constant_vector3_80" type="vector3">
+      <parameter name="value" type="vector3" value="1, 1, 1" />
+    </constant>
+    <add name="ND_add_vector3_81" type="vector3">
+      <input name="in1" type="vector3" nodename="ND_normalize_vector3_79" />
+      <input name="in2" type="vector3" nodename="ND_constant_vector3_80" />
+    </add>
+    <constant name="ND_constant_float_82" type="float">
+      <parameter name="value" type="float" value="2" />
+    </constant>
+    <divide name="ND_divide_vector3FA_83" type="vector3">
+      <input name="in1" type="vector3" nodename="ND_add_vector3_81" />
+      <input name="in2" type="float" nodename="ND_constant_float_82" />
+    </divide>
+    <output name="out" type="vector3" nodename="ND_divide_vector3FA_83" />
+  </nodegraph>
+  <nodegraph name="NG_algnormalTStoWS_vector3" nodedef="ND_algnormalTStoWS_vector3">
+    <constant name="ND_constant_float_84" type="float">
+      <parameter name="value" type="float" value="0.5" />
+    </constant>
+    <subtract name="ND_subtract_vector3FA_85" type="vector3">
+      <input name="in1" type="vector3" interfacename="normalTS" />
+      <input name="in2" type="float" nodename="ND_constant_float_84" />
+    </subtract>
+    <constant name="ND_constant_float_86" type="float">
+      <parameter name="value" type="float" value="2" />
+    </constant>
+    <multiply name="ND_multiply_vector3FA_87" type="vector3">
+      <input name="in1" type="vector3" nodename="ND_subtract_vector3FA_85" />
+      <input name="in2" type="float" nodename="ND_constant_float_86" />
+    </multiply>
+    <swizzle name="ND_swizzle_vector3_float_88" type="float">
+      <input name="in" type="vector3" nodename="ND_multiply_vector3FA_87" />
+      <parameter name="channels" type="string" value="x" />
+    </swizzle>
+    <swizzle name="ND_swizzle_vector3_float_89" type="float">
+      <input name="in" type="vector3" nodename="ND_multiply_vector3FA_87" />
+      <parameter name="channels" type="string" value="y" />
+    </swizzle>
+    <swizzle name="ND_swizzle_vector3_float_90" type="float">
+      <input name="in" type="vector3" nodename="ND_multiply_vector3FA_87" />
+      <parameter name="channels" type="string" value="z" />
+    </swizzle>
+    <tangent name="ND_tangent_vector3_91" type="vector3">
+      <parameter name="space" type="string" value="world" />
+      <parameter name="index" type="integer" interfacename="index" />
+    </tangent>
+    <bitangent name="ND_bitangent_vector3_92" type="vector3">
+      <parameter name="space" type="string" value="world" />
+      <parameter name="index" type="integer" interfacename="index" />
+    </bitangent>
+    <normal name="ND_normal_vector3_93" type="vector3">
+      <parameter name="space" type="string" value="world" />
+    </normal>
+    <constant name="ND_constant_float_94" type="float">
+      <parameter name="value" type="float" value="-1" />
+    </constant>
+    <multiply name="ND_multiply_vector3FA_95" type="vector3">
+      <input name="in1" type="vector3" nodename="ND_bitangent_vector3_92" />
+      <input name="in2" type="float" nodename="ND_constant_float_94" />
+    </multiply>
+    <switch name="ND_switch_vector3B_96" type="vector3">
+      <input name="in1" type="vector3" nodename="ND_bitangent_vector3_92" />
+      <input name="in2" type="vector3" nodename="ND_multiply_vector3FA_95" />
+      <parameter name="which" type="boolean" interfacename="openGL" />
+    </switch>
+    <multiply name="ND_multiply_vector3FA_97" type="vector3">
+      <input name="in1" type="vector3" nodename="ND_tangent_vector3_91" />
+      <input name="in2" type="float" nodename="ND_swizzle_vector3_float_88" />
+    </multiply>
+    <multiply name="ND_multiply_vector3FA_98" type="vector3">
+      <input name="in1" type="vector3" nodename="ND_switch_vector3B_96" />
+      <input name="in2" type="float" nodename="ND_swizzle_vector3_float_89" />
+    </multiply>
+    <multiply name="ND_multiply_vector3FA_99" type="vector3">
+      <input name="in1" type="vector3" nodename="ND_normal_vector3_93" />
+      <input name="in2" type="float" nodename="ND_swizzle_vector3_float_90" />
+    </multiply>
+    <add name="ND_add_vector3_100" type="vector3">
+      <input name="in1" type="vector3" nodename="ND_multiply_vector3FA_97" />
+      <input name="in2" type="vector3" nodename="ND_multiply_vector3FA_98" />
+    </add>
+    <add name="ND_add_vector3_101" type="vector3">
+      <input name="in1" type="vector3" nodename="ND_add_vector3_100" />
+      <input name="in2" type="vector3" nodename="ND_multiply_vector3FA_99" />
+    </add>
+    <normalize name="ND_normalize_vector3_102" type="vector3">
+      <input name="in" type="vector3" nodename="ND_add_vector3_101" />
+    </normalize>
+    <output name="normalWS" type="vector3" nodename="ND_normalize_vector3_102" />
+  </nodegraph>
+  <nodedef name="ND_MtlxShader" type="multioutput" node="MtlxShader">
+    <parameter name="rust_tiling" type="float" value="1.0" uifolder="Material Parameters" uimin="0.0" uimax="2.0" />
+    <parameter name="rust_roughness" type="float" value="1.0" uifolder="Material Parameters" uimin="0.0" uimax="2.0" />
+    <output name="base_color_output" type="color3" />
+    <output name="specular_roughness_output" type="float" />
+    <output name="metalness_output" type="float" />
+    <output name="normal_output" type="vector3" />
+    <output name="tangent_output" type="vector3" />
+    <output name="coat_normal_output" type="vector3" />
+    <parameter name="rust_metallic" type="float" value="0.0" uifolder="Material Parameters" uimin="0.0" uimax="1.0" />
+    <parameter name="rust_factor" type="float" value="0.800000011920929" uifolder="Material Parameters" uimin="0.0" uimax="1.600000023841858" />
+    <parameter name="grunge_offset" type="float" value="5.0" uifolder="Material Parameters" uimin="0.0" uimax="10.0" />
+    <parameter name="visualize_mask" type="boolean" value="false" uifolder="Material Parameters" />
+    <parameter name="grunge_scale" type="float" value="0.10000000149011612" uifolder="Material Parameters" uimin="0.0" uimax="0.20000000298023224" />
+    <parameter name="pattern_tiling" type="float" value="20.0" uifolder="Material Parameters" uimin="0.0" uimax="40.0" />
+    <parameter name="rust_pow" type="float" value="4.0" uifolder="Material Parameters" uimin="0.0" uimax="8.0" />
+  </nodedef>
+  <nodegraph name="Shader_graph" nodedef="ND_MtlxShader">
+    <multiply name="node_multiply_0" type="vector2">
+      <input name="in1" type="vector2" nodename="node_texcoord_vector2_1" />
+      <input name="in2" type="float" interfacename="pattern_tiling" />
+    </multiply>
+    <switch name="node_switch__2" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" nodename="node_float_3" />
+      <parameter name="which" type="boolean" interfacename="visualize_mask" />
+    </switch>
+    <power name="node_power_4" type="vector3">
+      <input name="in1" type="vector3" nodename="node_mix_5" />
+      <input name="in2" type="vector3" value=" 1.000000, 1.000000, 0.450000" />
+    </power>
+    <texcoord name="node_texcoord_vector2_1" type="vector2">
+      <parameter name="index" type="integer" value="0" />
+    </texcoord>
+    <image name="node_image_color3_6" type="color3" GLSLFX_usage="basecolor" expose="true">
+      <input name="texcoord" type="vector2" nodename="node_multiply_0" />
+      <parameter name="file" type="filename" value="floor_export/Floor_basecolor.png" colorspace="srgb_texture" />
+      <parameter name="layer" type="string" value="" />
+      <parameter name="default" type="color3" value=" 0.000000, 0.000000, 0.000000" />
+      <parameter name="uaddressmode" type="string" value="periodic" />
+      <parameter name="vaddressmode" type="string" value="periodic" />
+      <parameter name="filtertype" type="string" value="linear" />
+      <parameter name="framerange" type="string" value="" />
+      <parameter name="frameoffset" type="integer" value="0" />
+      <parameter name="frameendaction" type="string" value="black" />
+    </image>
+    <multiply name="node_multiply_7" type="vector3">
+      <input name="in1" type="vector3" nodename="node_position_8" />
+      <input name="in2" type="float" interfacename="grunge_offset" />
+    </multiply>
+    <constant name="node_texture_2d_9" type="filename">
+      <parameter name="value" type="string" value="pkg:///Resources/Floor_normal?dependency=1350659114" />
+    </constant>
+    <mix name="node_mix_10" type="color3">
+      <input name="fg" type="color3" nodename="node_image_color3_6" />
+      <input name="bg" type="color3" nodename="node_image_color3_11" />
+      <input name="mix" type="float" nodename="node_algclamp_12" />
+    </mix>
+    <output name="base_color_output" type="color3" nodename="node_mix_13" />
+    <output name="specular_roughness_output" type="float" nodename="node_mix_14" />
+    <output name="metalness_output" type="float" nodename="node_mix_15" />
+    <output name="normal_output" type="vector3" nodename="node_algnormalTStoWS_16" />
+    <tangent name="onthefly_17" type="vector3">
+      <parameter name="space" type="string" value="world" />
+    </tangent>
+    <output name="tangent_output" type="vector3" nodename="onthefly_17" />
+    <normal name="onthefly_18" type="vector3">
+      <parameter name="space" type="string" value="world" />
+    </normal>
+    <output name="coat_normal_output" type="vector3" nodename="onthefly_18" />
+    <fractal3d name="node_fractal3d_float_19" type="float">
+      <input name="position" type="vector3" nodename="node_add_20" />
+      <parameter name="amplitude" type="float" value="1.0" />
+      <parameter name="octaves" type="integer" value="3" />
+      <parameter name="lacunarity" type="float" value="3.7160000801086426" />
+      <parameter name="diminish" type="float" value="0.5" />
+    </fractal3d>
+    <subtract name="node_subtract_21" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" nodename="node_alglevels_22" />
+    </subtract>
+    <alglevels name="node_alglevels_22" type="float">
+      <input name="pixel" type="float" nodename="node_multiply_23" />
+      <input name="i_min" type="float" value="0.484000027179718" />
+      <input name="i_max" type="float" value="0.5160000324249268" />
+      <input name="i_gamma" type="float" interfacename="rust_pow" />
+    </alglevels>
+    <mix name="node_mix_14" type="float">
+      <input name="fg" type="float" nodename="node_image_float_24" />
+      <input name="bg" type="float" interfacename="rust_roughness" />
+      <input name="mix" type="float" nodename="node_algclamp_12" />
+    </mix>
+    <add name="node_add_25" type="float">
+      <input name="in1" type="float" nodename="node_fractal3d_float_26" />
+      <input name="in2" type="float" nodename="node_fractal3d_float_19" />
+    </add>
+    <image name="node_image_float_24" type="float" GLSLFX_usage="roughness" expose="true">
+      <input name="texcoord" type="vector2" nodename="node_texcoord_vector2_1" />
+      <parameter name="file" type="filename" value="D:/Work/materialx/data/Substance_Floor/floor_export/Floor_roughness.png" colorspace="srgb_texture" />
+      <parameter name="layer" type="string" value="" />
+      <parameter name="default" type="float" value="0.0" />
+      <parameter name="uaddressmode" type="string" value="periodic" />
+      <parameter name="vaddressmode" type="string" value="periodic" />
+      <parameter name="filtertype" type="string" value="linear" />
+      <parameter name="framerange" type="string" value="" />
+      <parameter name="frameoffset" type="integer" value="0" />
+      <parameter name="frameendaction" type="string" value="black" />
+    </image>
+    <mix name="node_mix_13" type="color3">
+      <input name="fg" type="color3" nodename="node_mix_10" />
+      <input name="bg" type="color3" nodename="node_combine_color3_27" />
+      <input name="mix" type="float" nodename="node_switch__2" />
+    </mix>
+    <fractal3d name="node_fractal3d_float_26" type="float">
+      <input name="position" type="vector3" nodename="node_multiply_7" />
+      <parameter name="amplitude" type="float" value="0.6230000257492065" />
+      <parameter name="octaves" type="integer" value="3" />
+      <parameter name="lacunarity" type="float" value="2.0" />
+      <parameter name="diminish" type="float" value="0.5" />
+    </fractal3d>
+    <constant name="node_texture_2d_28" type="filename">
+      <parameter name="value" type="string" value="pkg:///Resources/Floor_roughness?dependency=1350659114" />
+    </constant>
+    <constant name="node_texture_2d_29" type="filename">
+      <parameter name="value" type="string" value="pkg:///Resources/Floor_Floor_AO?dependency=1350659114" />
+    </constant>
+    <multiply name="node_multiply_23" type="float">
+      <input name="in1" type="float" nodename="node_add_30" />
+      <input name="in2" type="float" interfacename="rust_factor" />
+    </multiply>
+    <image name="node_image_float_31" type="float" GLSLFX_usage="metallic" expose="true">
+      <input name="texcoord" type="vector2" nodename="node_texcoord_vector2_1" />
+      <parameter name="file" type="filename" value="D:/Work/materialx/data/Substance_Floor/floor_export/Floor_metallic.png" colorspace="srgb_texture" />
+      <parameter name="layer" type="string" value="" />
+      <parameter name="default" type="float" value="0.0" />
+      <parameter name="uaddressmode" type="string" value="periodic" />
+      <parameter name="vaddressmode" type="string" value="periodic" />
+      <parameter name="filtertype" type="string" value="linear" />
+      <parameter name="framerange" type="string" value="" />
+      <parameter name="frameoffset" type="integer" value="0" />
+      <parameter name="frameendaction" type="string" value="black" />
+    </image>
+    <add name="node_add_30" type="float">
+      <input name="in1" type="float" nodename="node_mix_32" />
+      <input name="in2" type="float" nodename="node_image_float_33" />
+    </add>
+    <combine name="node_combine_color3_27" type="color3">
+      <input name="in1" type="float" nodename="node_algclamp_12" />
+      <input name="in2" type="float" nodename="node_algclamp_12" />
+      <input name="in3" type="float" nodename="node_algclamp_12" />
+    </combine>
+    <mix name="node_mix_15" type="float">
+      <input name="fg" type="float" nodename="node_image_float_31" />
+      <input name="bg" type="float" interfacename="rust_metallic" />
+      <input name="mix" type="float" nodename="node_algclamp_12" />
+    </mix>
+    <image name="node_image_color3_11" type="color3" GLSLFX_usage="rust_basecolor" expose="true">
+      <input name="texcoord" type="vector2" nodename="node_multiply_34" />
+      <parameter name="file" type="filename" value="D:/Work/materialx/data/Substance_Floor/floor_export/Floor_Rust_Basecolor.png" colorspace="srgb_texture" />
+      <parameter name="layer" type="string" value="" />
+      <parameter name="default" type="color3" value=" 0.000000, 0.000000, 0.000000" />
+      <parameter name="uaddressmode" type="string" value="periodic" />
+      <parameter name="vaddressmode" type="string" value="periodic" />
+      <parameter name="filtertype" type="string" value="linear" />
+      <parameter name="framerange" type="string" value="" />
+      <parameter name="frameoffset" type="integer" value="0" />
+      <parameter name="frameendaction" type="string" value="black" />
+    </image>
+    <constant name="node_texture_2d_35" type="filename">
+      <parameter name="value" type="string" value="pkg:///Resources/Floor_basecolor?dependency=1350659114" />
+    </constant>
+    <position name="node_position_8" type="vector3">
+      <parameter name="space" type="string" value="object" />
+    </position>
+    <image name="node_image_vector3_36" type="vector3" GLSLFX_usage="normal" expose="true">
+      <input name="texcoord" type="vector2" nodename="node_multiply_0" />
+      <parameter name="file" type="filename" value="D:/Work/materialx/data/Substance_Floor/floor_export/Floor_normal.png" colorspace="linear" />
+      <parameter name="layer" type="string" value="" />
+      <parameter name="default" type="vector3" value=" 0.000000, 0.000000, 0.000000" />
+      <parameter name="uaddressmode" type="string" value="periodic" />
+      <parameter name="vaddressmode" type="string" value="periodic" />
+      <parameter name="filtertype" type="string" value="linear" />
+      <parameter name="framerange" type="string" value="" />
+      <parameter name="frameoffset" type="integer" value="0" />
+      <parameter name="frameendaction" type="string" value="black" />
+    </image>
+    <image name="node_image_vector3_37" type="vector3" GLSLFX_usage="rust_normal" expose="true">
+      <input name="texcoord" type="vector2" nodename="node_multiply_34" />
+      <parameter name="file" type="filename" value="D:/Work/materialx/data/Substance_Floor/floor_export/Floor_Rust_Normal.png" colorspace="linear" />
+      <parameter name="layer" type="string" value="" />
+      <parameter name="default" type="vector3" value=" 0.000000, 0.000000, 0.000000" />
+      <parameter name="uaddressmode" type="string" value="periodic" />
+      <parameter name="vaddressmode" type="string" value="periodic" />
+      <parameter name="filtertype" type="string" value="linear" />
+      <parameter name="framerange" type="string" value="" />
+      <parameter name="frameoffset" type="integer" value="0" />
+      <parameter name="frameendaction" type="string" value="black" />
+    </image>
+    <constant name="node_texture_2d_38" type="filename">
+      <parameter name="value" type="string" value="pkg:///Resources/Floor_Rust_Normal?dependency=1350659114" />
+    </constant>
+    <add name="node_add_20" type="vector3">
+      <input name="in1" type="vector3" nodename="node_multiply_39" />
+      <input name="in2" type="float" interfacename="grunge_offset" />
+    </add>
+    <multiply name="node_multiply_39" type="vector3">
+      <input name="in1" type="vector3" nodename="node_position_8" />
+      <input name="in2" type="float" interfacename="grunge_scale" />
+    </multiply>
+    <image name="node_image_float_33" type="float" GLSLFX_usage="floor_ao" expose="true">
+      <input name="texcoord" type="vector2" nodename="node_multiply_0" />
+      <parameter name="file" type="filename" value="D:/Work/materialx/data/Substance_Floor/floor_export/Floor_Floor_AO.png" colorspace="linear" />
+      <parameter name="layer" type="string" value="" />
+      <parameter name="default" type="float" value="0.0" />
+      <parameter name="uaddressmode" type="string" value="periodic" />
+      <parameter name="vaddressmode" type="string" value="periodic" />
+      <parameter name="filtertype" type="string" value="linear" />
+      <parameter name="framerange" type="string" value="" />
+      <parameter name="frameoffset" type="integer" value="0" />
+      <parameter name="frameendaction" type="string" value="black" />
+    </image>
+    <constant name="node_texture_2d_40" type="filename">
+      <parameter name="value" type="string" value="pkg:///Resources/Floor_Rust_Basecolor?dependency=1350659114" />
+    </constant>
+    <mix name="node_mix_32" type="float">
+      <input name="fg" type="float" nodename="node_add_25" />
+      <input name="bg" type="float" value="0.5940000414848328" />
+      <input name="mix" type="float" value="0.34200000762939453" />
+    </mix>
+    <constant name="node_texture_2d_41" type="filename">
+      <parameter name="value" type="string" value="pkg:///Resources/Floor_metallic?dependency=1350659114" />
+    </constant>
+    <mix name="node_mix_5" type="vector3">
+      <input name="fg" type="vector3" nodename="node_image_vector3_36" />
+      <input name="bg" type="vector3" nodename="node_image_vector3_37" />
+      <input name="mix" type="float" nodename="node_algclamp_12" />
+    </mix>
+    <algclamp name="node_algclamp_12" type="float">
+      <input name="val" type="float" nodename="node_subtract_21" />
+      <input name="i_min" type="float" value="0.0" />
+      <input name="i_max" type="float" value="1.0" />
+    </algclamp>
+    <multiply name="node_multiply_34" type="vector2">
+      <input name="in1" type="vector2" nodename="node_texcoord_vector2_1" />
+      <input name="in2" type="float" interfacename="rust_tiling" />
+    </multiply>
+    <algnormalTStoWS name="node_algnormalTStoWS_16" type="vector3">
+      <input name="normalTS" type="vector3" nodename="node_power_4" />
+      <parameter name="openGL" type="boolean" value="true" />
+      <parameter name="index" type="integer" value="0" />
+    </algnormalTStoWS>
+    <constant name="node_float_3" type="float">
+      <parameter name="value" type="float" value="0.0" />
+    </constant>
+  </nodegraph>
+
+
+  <material name="Shader">
+    <shaderref name="Shader" node="standard_surface">
+      <bindinput name="base" type="float" value="0.800000011920929" />
+      <bindinput name="base_color" type="color3" output="GraphInst_base_color_output" />
+      <bindinput name="diffuse_roughness" type="float" value="0.0" />
+      <bindinput name="specular" type="float" value="1.0" />
+      <bindinput name="specular_color" type="color3" value=" 1.000000, 1.000000, 1.000000" />
+      <bindinput name="specular_roughness" type="float" output="GraphInst_specular_roughness_output" />
+      <bindinput name="specular_IOR" type="float" value="1.5199999809265137" />
+      <bindinput name="specular_anisotropy" type="float" value="0.0" />
+      <bindinput name="specular_rotation" type="float" value="0.0" />
+      <bindinput name="metalness" type="float" output="GraphInst_metalness_output" />
+      <bindinput name="transmission" type="float" value="0.0" />
+      <bindinput name="transmission_color" type="color3" value=" 1.000000, 1.000000, 1.000000" />
+      <bindinput name="transmission_depth" type="float" value="0.0" />
+      <bindinput name="transmission_scatter" type="color3" value=" 0.000000, 0.000000, 0.000000" />
+      <bindinput name="transmission_scatter_anisotropy" type="float" value="0.0" />
+      <bindinput name="transmission_dispersion" type="float" value="0.0" />
+      <bindinput name="transmission_extra_roughness" type="float" value="0.0" />
+      <bindinput name="subsurface" type="float" value="0.0" />
+      <bindinput name="subsurface_color" type="color3" value=" 1.000000, 1.000000, 1.000000" />
+      <bindinput name="subsurface_radius" type="vector3" value=" 1.000000, 1.000000, 1.000000" />
+      <bindinput name="subsurface_scale" type="float" value="1.0" />
+      <bindinput name="subsurface_anisotropy" type="float" value="0.0" />
+      <bindinput name="sheen" type="float" value="0.0" />
+      <bindinput name="sheen_color" type="color3" value=" 1.000000, 1.000000, 1.000000" />
+      <bindinput name="sheen_roughness" type="float" value="0.30000001192092896" />
+      <bindinput name="thin_walled" type="boolean" value="false" />
+      <bindinput name="normal" type="vector3" output="GraphInst_normal_output" />
+      <bindinput name="tangent" type="vector3" output="GraphInst_tangent_output" />
+      <bindinput name="coat" type="float" value="0.0" />
+      <bindinput name="coat_color" type="color3" value=" 1.000000, 1.000000, 1.000000" />
+      <bindinput name="coat_roughness" type="float" value="0.10000000149011612" />
+      <bindinput name="coat_anisotropy" type="float" value="0.0" />
+      <bindinput name="coat_rotation" type="float" value="0.0" />
+      <bindinput name="coat_IOR" type="float" value="1.5" />
+      <bindinput name="coat_normal" type="vector3" output="GraphInst_coat_normal_output" />
+      <bindinput name="coat_affect_color" type="float" value="0.0" />
+      <bindinput name="coat_affect_roughness" type="float" value="0.0" />
+      <bindinput name="thin_film_thickness" type="float" value="0.0" />
+      <bindinput name="thin_film_IOR" type="float" value="1.5" />
+      <bindinput name="emission" type="float" value="0.0" />
+      <bindinput name="emission_color" type="color3" value=" 1.000000, 1.000000, 1.000000" />
+      <bindinput name="opacity" type="color3" value=" 1.000000, 1.000000, 1.000000" />
+    </shaderref>
+  </material>
+  <MtlxShader name="GraphInst" type="multioutput">
+    <parameter name="rust_tiling" type="float" value="1" />
+    <parameter name="rust_roughness" type="float" value="1" />
+    <parameter name="rust_metallic" type="float" value="0" />
+    <parameter name="rust_factor" type="float" value="0.8" />
+    <parameter name="grunge_offset" type="float" value="5" />
+    <parameter name="visualize_mask" type="boolean" value="false" />
+    <parameter name="grunge_scale" type="float" value="0.1" />
+    <parameter name="pattern_tiling" type="float" value="20" />
+    <parameter name="rust_pow" type="float" value="4" />
+  </MtlxShader>
+  <output name="GraphInst_base_color_output" type="color3" nodename="GraphInst" output="base_color_output" />
+  <output name="GraphInst_specular_roughness_output" type="float" nodename="GraphInst" output="specular_roughness_output" />
+  <output name="GraphInst_metalness_output" type="float" nodename="GraphInst" output="metalness_output" />
+  <output name="GraphInst_normal_output" type="vector3" nodename="GraphInst" output="normal_output" />
+  <output name="GraphInst_tangent_output" type="vector3" nodename="GraphInst" output="tangent_output" />
+  <output name="GraphInst_coat_normal_output" type="vector3" nodename="GraphInst" output="coat_normal_output" />
+</materialx>
