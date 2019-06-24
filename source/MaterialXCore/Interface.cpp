@@ -62,11 +62,7 @@ void PortElement::setConnectedNode(NodePtr node)
 NodePtr PortElement::getConnectedNode() const
 {
     ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
-    if (graph)
-    {
-        return graph->getNode(getNodeName());
-    }
-    return NodePtr();
+    return graph ? graph->getNode(getNodeName()) : nullptr;
 }
 
 bool PortElement::validate(string* message) const
@@ -90,23 +86,24 @@ bool PortElement::validate(string* message) const
                 validateRequire(output != nullptr, res, message, "Invalid output in port connection");
                 if (output)
                 {
-                    const string& outputType = output->getType();
                     if (hasChannels())
                     {
-                        validateRequire(validChannelsString(getChannels(), outputType, getType()), res, message, "Invalid channels attribute");
+                        bool valid = validChannelsString(getChannels(), output->getType(), getType());
+                        validateRequire(valid, res, message, "Invalid channels string in port connection");
                     }
                     else
                     {
-                        validateRequire(getType() == outputType, res, message, "Mismatched output type in port connection");
+                        validateRequire(getType() == output->getType(), res, message, "Mismatched types in port connection");
                     }
                 }
             }
         }
         else if (hasChannels())
         {
-            validateRequire(validChannelsString(getChannels(), connectedNode->getType(), getType()), res, message, "Invalid channels attribute");
+            bool valid = validChannelsString(getChannels(), connectedNode->getType(), getType());
+            validateRequire(valid, res, message, "Invalid channels string in port connection");
         }
-        else if(!hasChannels())
+        else
         {
             validateRequire(getType() == connectedNode->getType(), res, message, "Mismatched types in port connection");
         }
