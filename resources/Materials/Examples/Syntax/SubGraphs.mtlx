@@ -6,7 +6,7 @@
    <nodedef name="ND_checker_float" node="checker" type="float">
       <input name="scale" type="vector2" value="8.0, 8.0"/>
    </nodedef>
-   <nodegraph name="IM_checker_float" nodedef="ND_checker_float">
+   <nodegraph name="NG_checker_float" nodedef="ND_checker_float">
       <texcoord name="texcoord1" type="vector2">
          <parameter name="index" type="integer" value="0"/>
       </texcoord>
@@ -46,7 +46,7 @@
       <input name="color2" type="color3" value="0.1, 0.1, 0.8"/>
       <input name="scale" type="vector2" value="8.0, 8.0"/>
    </nodedef>
-   <nodegraph name="IM_color_checker_color3" nodedef="ND_color_checker_color3">
+   <nodegraph name="NG_color_checker_color3" nodedef="ND_color_checker_color3">
       <checker name="checker1" type="float">
          <input name="scale" type="vector2" interfacename="scale"/>
       </checker>
