@@ -27,8 +27,8 @@
        by mask image files.
   -->
   <nodedef name="ND_triblendsrf_surface" type="surfaceshader" node="triblendsrf">
-    <parameter name="paintmaskfile" type="filename"/>
-    <parameter name="rustmaskfile" type="filename"/>
+    <parameter name="paintmaskfile" type="filename" value=""/>
+    <parameter name="rustmaskfile" type="filename" value=""/>
   </nodedef>
 
   <nodegraph name="NG_triblendsrf_surface" nodedef="ND_triblendsrf_surface">
@@ -115,7 +115,7 @@
     </basic_surface>
     
     <!-- Define the output of the shading network nodegraph -->
-    <output name="o_out" type="surfaceshader" nodename="bsrf1"/>
+    <output name="out" type="surfaceshader" nodename="bsrf1"/>
   </nodegraph>
 
   <!-- Sample blended material using the above network shader -->
