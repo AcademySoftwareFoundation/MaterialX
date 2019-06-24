@@ -589,7 +589,16 @@ bool ValueElement::validate(string* message) const
             validateRequire(valueElem != nullptr, res, message, "Interface name not found in referenced NodeDef");
             if (valueElem)
             {
-                validateRequire(valueElem->getType() == getType(), res, message, "Interface name refers to value element of a different type");
+                ConstPortElementPtr portElem = asA<PortElement>();
+                if (portElem && portElem->hasChannels())
+                {
+                    bool valid = portElem->validChannelsString(portElem->getChannels(), valueElem->getType(), getType());
+                    validateRequire(valid, res, message, "Invalid channels string for interface name");
+                }
+                else
+                {
+                    validateRequire(getType() == valueElem->getType(), res, message, "Interface name refers to value element of a different type");
+                }
             }
         }
     }

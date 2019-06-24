@@ -29,7 +29,7 @@ TEST_CASE("GenShader: GLSL Syntax Check", "[genglsl]")
     REQUIRE(syntax->getOutputTypeName(mx::Type::BSDF) == "out BSDF");
 
     // Set fixed precision with one digit
-    mx::Value::ScopedFloatFormatting format(mx::Value::FloatFormatFixed, 1);
+    mx::ScopedFloatFormatting format(mx::Value::FloatFormatFixed, 1);
 
     std::string value;
     value = syntax->getDefaultValue(mx::Type::FLOAT);

@@ -176,7 +176,7 @@ class PortElement : public ValueElement
     /// source type string.
     static bool validChannelsCharacters(const string &channels, const string &sourceType);
 
-    /// Return true if the given swizzle pattern is valid for the given source
+    /// Return true if the given channels string is valid for the given source
     /// and destination type strings.
     static bool validChannelsString(const string& channels, const string& sourceType, const string& destinationType);
 
