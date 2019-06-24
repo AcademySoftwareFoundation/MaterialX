@@ -244,7 +244,7 @@ template<class T> const T& Value::asA() const
     return typedVal->getData();
 }
 
-Value::ScopedFloatFormatting::ScopedFloatFormatting(FloatFormat format, int precision) :
+ScopedFloatFormatting::ScopedFloatFormatting(Value::FloatFormat format, int precision) :
     _format(Value::getFloatFormat()),
     _precision(Value::getFloatPrecision())
 {
@@ -252,7 +252,7 @@ Value::ScopedFloatFormatting::ScopedFloatFormatting(FloatFormat format, int prec
     Value::setFloatPrecision(precision);
 }
 
-Value::ScopedFloatFormatting::~ScopedFloatFormatting()
+ScopedFloatFormatting::~ScopedFloatFormatting()
 {
     Value::setFloatFormat(_format);
     Value::setFloatPrecision(_precision);

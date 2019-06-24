@@ -101,19 +101,6 @@ class Value
         return _floatPrecision;
     }
 
-    /// RAII class for scoped setting of float formatting.
-    /// Flags are reset when the object goes out of scope.
-    class ScopedFloatFormatting
-    {
-      public:
-        ScopedFloatFormatting(FloatFormat format, int precision = 6);
-        ~ScopedFloatFormatting();
-
-      private:
-        FloatFormat _format;
-        int _precision;
-    };
-
   protected:
     template <class T> friend class ValueRegistry;
 
@@ -184,6 +171,19 @@ template <class T> class TypedValue : public Value
 
   private:
     T _data;
+};
+
+/// @class ScopedFloatFormatting
+/// An RAII class for controlling the float formatting of values.
+class ScopedFloatFormatting
+{
+  public:
+    ScopedFloatFormatting(Value::FloatFormat format, int precision = 6);
+    ~ScopedFloatFormatting();
+
+  private:
+    Value::FloatFormat _format;
+    int _precision;
 };
 
 /// @class ExceptionTypeError

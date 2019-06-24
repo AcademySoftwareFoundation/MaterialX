@@ -1107,7 +1107,6 @@ class ValueElement : public TypedElement
 
   public:
     static const string VALUE_ATTRIBUTE;
-    static const string PUBLIC_NAME_ATTRIBUTE;
     static const string INTERFACE_NAME_ATTRIBUTE;
     static const string IMPLEMENTATION_NAME_ATTRIBUTE;
     static const string IMPLEMENTATION_TYPE_ATTRIBUTE;
