@@ -17,10 +17,10 @@
     <parameter name="default" type="vector3" value="0.5, 0.5, 1" />
     <input name="texcoord" type="vector2" nodename="uvscale" />
   </image>
-  <normalmap name="normalmap1" type="vector3">
+  <normal_map name="normal_map1" type="vector3">
     <input name="in" type="vector3" nodename="normalTex" />
-  </normalmap>
-  <output name="outNormal" type="vector3" nodename="normalmap1" />
+  </normal_map>
+  <output name="outNormal" type="vector3" nodename="normal_map1" />
   <nodedef name="ND_testshader2" type="surfaceshader" node="testshader2">
     <input name="diffuse_reflectance" type="color3" />
     <input name="diffuse_roughness" type="float" />
@@ -140,8 +140,8 @@
     <input name="coat_roughness" type="float" />
     <input name="coat_roughness_map" type="filename" />
     <input name="coat_IOR" type="float" />
-    <input name="normalmap" type="filename" />
-    <input name="coat_normalmap" type="filename" />
+    <input name="normal_map" type="filename" />
+    <input name="coat_normal_map" type="filename" />
   </nodedef>
   <nodegraph name="IMP_testshader4" nodedef="ND_testshader4">
     <image name="base_color" type="color3">
@@ -189,19 +189,19 @@
       <parameter name="default" type="float" interfacename="coat_roughness" />
     </image>
     <image name="normalTex" type="vector3">
-      <parameter name="file" type="filename" interfacename="normalmap" />
+      <parameter name="file" type="filename" interfacename="normal_map" />
       <parameter name="default" type="vector3" value="0.5, 0.5, 1" />
     </image>
-    <normalmap name="normalmap1" type="vector3">
+    <normal_map name="normal_map1" type="vector3">
       <input name="in" type="vector3" nodename="normalTex" />
-    </normalmap>
+    </normal_map>
     <image name="coatTex" type="vector3">
-      <parameter name="file" type="filename" interfacename="coat_normalmap" />
+      <parameter name="file" type="filename" interfacename="coat_normal_map" />
       <parameter name="default" type="vector3" value="0.5, 0.5, 1" />
     </image>
-    <normalmap name="normalmap2" type="vector3">
+    <normal_map name="normal_map2" type="vector3">
       <input name="in" type="vector3" nodename="coatTex" />
-    </normalmap>
+    </normal_map>
     <standard_surface name="standardsurface1" type="surfaceshader">
       <input name="base" type="float" interfacename="base" />
       <input name="base_color" type="color3" nodename="base_color" />
@@ -221,8 +221,8 @@
       <input name="coat_color" type="color3" nodename="coat_color" />
       <input name="coat_roughness" type="float" nodename="coat_roughness" />
       <input name="coat_IOR" type="float" interfacename="coat_IOR" />
-      <input name="normal" type="vector3" nodename="normalmap1" />
-      <input name="coat_normal" type="vector3" nodename="normalmap2" />
+      <input name="normal" type="vector3" nodename="normal_map1" />
+      <input name="coat_normal" type="vector3" nodename="normal_map2" />
     </standard_surface>
     <output name="out" type="surfaceshader" nodename="standardsurface1" />
   </nodegraph>
