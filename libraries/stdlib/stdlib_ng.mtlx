@@ -1181,6 +1181,93 @@
   <!-- ======================================================================== -->
 
   <!--
+    Node: <transformpoint>  (2M3 and 3M4 variants)
+    Transform a vector coordinate by a specified matrix.
+  -->
+  <nodegraph name="NG_transformpoint_vector2M3" nodedef="ND_transformpoint_vector2M3">
+    <convert name="N_convtov3" type="vector3">
+      <input name="in" type="vector2" interfacename="in"/>
+    </convert>
+    <transformpoint name="N_transformpt" type="vector3">
+      <input name="in" type="vector3" nodename="N_convtov3"/>
+      <input name="mat" type="matrix33" interfacename="mat"/>
+    </transformpoint>
+    <convert name="N_convtov2" type="vector2">
+      <input name="in" type="vector3" nodename="N_transformpt"/>
+    </convert>
+    <output name="N_out_vec2" type="vector2" nodename="N_convtov2"/>
+  </nodegraph>
+  <nodegraph name="NG_transformpoint_vector3M4" nodedef="ND_transformpoint_vector3M4">
+    <convert name="N_convtov4" type="vector4">
+      <input name="in" type="vector3" interfacename="in"/>
+    </convert>
+    <transformpoint name="N_transformpt" type="vector4">
+      <input name="in" type="vector4" nodename="N_convtov4"/>
+      <input name="mat" type="matrix44" interfacename="mat"/>
+    </transformpoint>
+    <divide name="N_convtov3" type="vector3">
+      <input name="in1" type="vector3" nodename="N_transformpt" channels="xyz"/>
+      <input name="in2" type="float" nodename="N_transformpt" channels="w"/>
+    </divide>
+    <output name="N_out_vec3" type="vector3" nodename="N_convtov3"/>
+  </nodegraph>
+
+  <!--
+    Node: <transformvector>  (2M3 and 3M4 variants)
+    Transform a vector coordinate by a specified matrix.
+  -->
+  <nodegraph name="NG_transformvector_vector2M3" nodedef="ND_transformvector_vector2M3">
+    <convert name="N_convtov3" type="vector3">
+      <input name="in" type="vector2" interfacename="in"/>
+    </convert>
+    <transformvector name="N_transformvec" type="vector3">
+      <input name="in" type="vector3" nodename="N_convtov3"/>
+      <input name="mat" type="matrix33" interfacename="mat"/>
+    </transformvector>
+    <convert name="N_convtov2" type="vector2">
+      <input name="in" type="vector3" nodename="N_transformvec"/>
+    </convert>
+    <output name="N_out_vec2" type="vector2" nodename="N_convtov2"/>
+  </nodegraph>
+  <nodegraph name="NG_transformvector_vector3M4" nodedef="ND_transformvector_vector3M4">
+    <convert name="N_convtov4" type="vector4">
+      <input name="in" type="vector3" interfacename="in"/>
+    </convert>
+    <transformvector name="N_transformvec" type="vector4">
+      <input name="in" type="vector4" nodename="N_convtov4"/>
+      <input name="mat" type="matrix44" interfacename="mat"/>
+    </transformvector>
+    <convert name="N_convtov3" type="vector3">
+      <input name="in" type="vector4" nodename="N_transformvec"/>
+    </convert>
+    <output name="N_out_vec3" type="vector3" nodename="N_convtov3"/>
+  </nodegraph>
+
+  <!--
+    Node: <transformnormal>  (3M4 variant)
+    Transform a vector coordinate by a specified matrix.
+    Fourth channel of converted vector3 set to zero since normals typically can only
+    be scaled or rotated, not translated.
+  -->
+  <nodegraph name="NG_transformnormal_vector3M4" nodedef="ND_transformnormal_vector3M4">
+    <convert name="N_convtov4" type="vector4">
+      <input name="in" type="vector3" interfacename="in"/>
+    </convert>
+    <multiply name="N_zerow" type="vector4">
+      <input name="in1" type="vector4" nodename="N_convtov4"/>
+      <input name="in2" type="vector4" value="1.0, 1.0, 1.0, 0.0"/>
+    </multiply>
+    <transformnormal name="N_transformnorm" type="vector4">
+      <input name="in" type="vector4" nodename="N_zerow"/>
+      <input name="mat" type="matrix44" interfacename="mat"/>
+    </transformnormal>
+    <convert name="N_convtov3" type="vector3">
+      <input name="in" type="vector4" nodename="N_transformnorm"/>
+    </convert>
+    <output name="N_out_vec3" type="vector3" nodename="N_convtov3"/>
+  </nodegraph>
+
+  <!--
     Node: <place2d>
     Transform incoming UV texture coordinates for 2D texture placement.
   -->
@@ -2149,17 +2236,17 @@
   </nodegraph>
 
   <nodegraph name="NG_extract_vector2" nodedef="ND_extract_vector2">
-    <swizzle name="N_r_vector2" type="float">
+    <swizzle name="N_x_vector2" type="float">
       <input name="in" type="vector2" interfacename="in"/>
       <parameter name="channels" type="string" value="x"/>
     </swizzle>
-    <swizzle name="N_g_vector2" type="float">
+    <swizzle name="N_y_vector2" type="float">
       <input name="in" type="vector2" interfacename="in"/>
       <parameter name="channels" type="string" value="y"/>
     </swizzle>
     <switch name="N_sw_vector2" type="float">
-      <input name="in1" type="float" nodename="N_r_vector2"/>
-      <input name="in2" type="float" nodename="N_g_vector2"/>
+      <input name="in1" type="float" nodename="N_x_vector2"/>
+      <input name="in2" type="float" nodename="N_y_vector2"/>
       <parameter name="which" type="integer" interfacename="index"/>
     </switch>
     <output name="N_out_vector2" type="float" nodename="N_sw_vector2"/>
@@ -2188,22 +2275,22 @@
   </nodegraph>
 
   <nodegraph name="NG_extract_vector3" nodedef="ND_extract_vector3">
-    <swizzle name="N_r_vector3" type="float">
+    <swizzle name="N_x_vector3" type="float">
       <input name="in" type="vector3" interfacename="in"/>
       <parameter name="channels" type="string" value="x"/>
     </swizzle>
-    <swizzle name="N_g_vector3" type="float">
+    <swizzle name="N_y_vector3" type="float">
       <input name="in" type="vector3" interfacename="in"/>
       <parameter name="channels" type="string" value="y"/>
     </swizzle>
-    <swizzle name="N_b_vector3" type="float">
+    <swizzle name="N_z_vector3" type="float">
       <input name="in" type="vector3" interfacename="in"/>
       <parameter name="channels" type="string" value="z"/>
     </swizzle>
     <switch name="N_sw_vector3" type="float">
-      <input name="in1" type="float" nodename="N_r_vector3"/>
-      <input name="in2" type="float" nodename="N_g_vector3"/>
-      <input name="in3" type="float" nodename="N_b_vector3"/>
+      <input name="in1" type="float" nodename="N_x_vector3"/>
+      <input name="in2" type="float" nodename="N_y_vector3"/>
+      <input name="in3" type="float" nodename="N_z_vector3"/>
       <parameter name="which" type="integer" interfacename="index"/>
     </switch>
     <output name="N_out_vector3" type="float" nodename="N_sw_vector3"/>
@@ -2237,27 +2324,27 @@
   </nodegraph>
 
   <nodegraph name="NG_extract_vector4" nodedef="ND_extract_vector4">
-    <swizzle name="N_r_vector4" type="float">
+    <swizzle name="N_x_vector4" type="float">
       <input name="in" type="vector4" interfacename="in"/>
       <parameter name="channels" type="string" value="x"/>
     </swizzle>
-    <swizzle name="N_g_vector4" type="float">
+    <swizzle name="N_y_vector4" type="float">
       <input name="in" type="vector4" interfacename="in"/>
       <parameter name="channels" type="string" value="y"/>
     </swizzle>
-    <swizzle name="N_b_vector4" type="float">
+    <swizzle name="N_z_vector4" type="float">
       <input name="in" type="vector4" interfacename="in"/>
       <parameter name="channels" type="string" value="z"/>
     </swizzle>
-    <swizzle name="N_a_vector4" type="float">
+    <swizzle name="N_w_vector4" type="float">
       <input name="in" type="vector4" interfacename="in"/>
       <parameter name="channels" type="string" value="w"/>
     </swizzle>
     <switch name="N_sw_vector4" type="float">
-      <input name="in1" type="float" nodename="N_r_vector4"/>
-      <input name="in2" type="float" nodename="N_g_vector4"/>
-      <input name="in3" type="float" nodename="N_b_vector4"/>
-      <input name="in4" type="float" nodename="N_a_vector4"/>
+      <input name="in1" type="float" nodename="N_x_vector4"/>
+      <input name="in2" type="float" nodename="N_y_vector4"/>
+      <input name="in3" type="float" nodename="N_z_vector4"/>
+      <input name="in4" type="float" nodename="N_w_vector4"/>
       <parameter name="which" type="integer" interfacename="index"/>
     </switch>
     <output name="N_out_vector4" type="float" nodename="N_sw_vector4"/>
@@ -2282,16 +2369,16 @@
   </nodegraph>
 
   <nodegraph name="NG_separate_vector2" nodedef="ND_separate_vector2">
-    <swizzle name="N_r_vector2" type="float">
+    <swizzle name="N_x_vector2" type="float">
       <input name="in" type="vector2" interfacename="in"/>
       <parameter name="channels" type="string" value="x"/>
     </swizzle>
-    <swizzle name="N_g_vector2" type="float">
+    <swizzle name="N_y_vector2" type="float">
       <input name="in" type="vector2" interfacename="in"/>
       <parameter name="channels" type="string" value="y"/>
     </swizzle>
-    <output name="outx" type="float" nodename="N_r_vector2"/>
-    <output name="outy" type="float" nodename="N_g_vector2"/>
+    <output name="outx" type="float" nodename="N_x_vector2"/>
+    <output name="outy" type="float" nodename="N_y_vector2"/>
   </nodegraph>
 
   <nodegraph name="NG_separate_color3" nodedef="ND_separate_color3">
@@ -2313,21 +2400,21 @@
   </nodegraph>
 
   <nodegraph name="NG_separate_vector3" nodedef="ND_separate_vector3">
-    <swizzle name="N_r_vector3" type="float">
+    <swizzle name="N_x_vector3" type="float">
       <input name="in" type="vector3" interfacename="in"/>
       <parameter name="channels" type="string" value="x"/>
     </swizzle>
-    <swizzle name="N_g_vector3" type="float">
+    <swizzle name="N_y_vector3" type="float">
       <input name="in" type="vector3" interfacename="in"/>
       <parameter name="channels" type="string" value="y"/>
     </swizzle>
-    <swizzle name="N_b_vector3" type="float">
+    <swizzle name="N_z_vector3" type="float">
       <input name="in" type="vector3" interfacename="in"/>
       <parameter name="channels" type="string" value="z"/>
     </swizzle>
-    <output name="outx" type="float" nodename="N_r_vector3"/>
-    <output name="outy" type="float" nodename="N_g_vector3"/>
-    <output name="outz" type="float" nodename="N_b_vector3"/>
+    <output name="outx" type="float" nodename="N_x_vector3"/>
+    <output name="outy" type="float" nodename="N_y_vector3"/>
+    <output name="outz" type="float" nodename="N_z_vector3"/>
   </nodegraph>
 
   <nodegraph name="NG_separate_color4" nodedef="ND_separate_color4">
@@ -2354,26 +2441,26 @@
   </nodegraph>
 
   <nodegraph name="NG_separate_vector4" nodedef="ND_separate_vector4">
-    <swizzle name="N_r_vector4" type="float">
+    <swizzle name="N_x_vector4" type="float">
       <input name="in" type="vector4" interfacename="in"/>
       <parameter name="channels" type="string" value="x"/>
     </swizzle>
-    <swizzle name="N_g_vector4" type="float">
+    <swizzle name="N_y_vector4" type="float">
       <input name="in" type="vector4" interfacename="in"/>
       <parameter name="channels" type="string" value="y"/>
     </swizzle>
-    <swizzle name="N_b_vector4" type="float">
+    <swizzle name="N_z_vector4" type="float">
       <input name="in" type="vector4" interfacename="in"/>
       <parameter name="channels" type="string" value="z"/>
     </swizzle>
-    <swizzle name="N_a_vector4" type="float">
+    <swizzle name="N_w_vector4" type="float">
       <input name="in" type="vector4" interfacename="in"/>
       <parameter name="channels" type="string" value="w"/>
     </swizzle>
-    <output name="outx" type="float" nodename="N_r_vector4"/>
-    <output name="outy" type="float" nodename="N_g_vector4"/>
-    <output name="outz" type="float" nodename="N_b_vector4"/>
-    <output name="outw" type="float" nodename="N_a_vector4"/>
+    <output name="outx" type="float" nodename="N_x_vector4"/>
+    <output name="outy" type="float" nodename="N_y_vector4"/>
+    <output name="outz" type="float" nodename="N_z_vector4"/>
+    <output name="outw" type="float" nodename="N_w_vector4"/>
   </nodegraph>
 
 

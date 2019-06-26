@@ -11,7 +11,7 @@
       <parameter name="filtertype" type="string" value="linear" />
       <parameter name="framerange" type="string" value="" />
       <parameter name="frameoffset" type="integer" value="0" />
-      <parameter name="frameendaction" type="string" value="black" />
+      <parameter name="frameendaction" type="string" value="constant" />
     </image>
     <output name="out" type="color3" nodename="image_number_1" />
     <texcoord name="texcoord1" type="vector2" xpos="2.98368" ypos="6.80918">
@@ -33,7 +33,7 @@
       <parameter name="filtertype" type="string" value="linear" />
       <parameter name="framerange" type="string" value="" />
       <parameter name="frameoffset" type="integer" value="0" />
-      <parameter name="frameendaction" type="string" value="black" />
+      <parameter name="frameendaction" type="string" value="constant" />
     </image>
     <output name="out" type="color3" nodename="image_number_1" />
     <texcoord name="texcoord1" type="vector2" xpos="2.98368" ypos="6.80918">
@@ -55,7 +55,7 @@
       <parameter name="filtertype" type="string" value="linear" />
       <parameter name="framerange" type="string" value="" />
       <parameter name="frameoffset" type="integer" value="0" />
-      <parameter name="frameendaction" type="string" value="black" />
+      <parameter name="frameendaction" type="string" value="constant" />
     </image>
     <output name="out" type="color3" nodename="image_number_1" />
     <texcoord name="texcoord1" type="vector2" xpos="2.98368" ypos="6.80918">
@@ -77,7 +77,7 @@
       <parameter name="filtertype" type="string" value="linear" />
       <parameter name="framerange" type="string" value="" />
       <parameter name="frameoffset" type="integer" value="0" />
-      <parameter name="frameendaction" type="string" value="black" />
+      <parameter name="frameendaction" type="string" value="constant" />
     </image>
     <output name="out" type="color3" nodename="image_number_1" />
     <texcoord name="texcoord1" type="vector2" xpos="2.98368" ypos="6.80918">
@@ -99,7 +99,7 @@
       <parameter name="filtertype" type="string" value="linear" />
       <parameter name="framerange" type="string" value="" />
       <parameter name="frameoffset" type="integer" value="0" />
-      <parameter name="frameendaction" type="string" value="black" />
+      <parameter name="frameendaction" type="string" value="constant" />
     </image>
     <output name="out" type="color3" nodename="image_number_1" />
     <texcoord name="texcoord1" type="vector2" xpos="2.98368" ypos="6.80918">
@@ -125,7 +125,7 @@
       <parameter name="filtertype" type="string" value="linear" />
       <parameter name="framerange" type="string" value="" />
       <parameter name="frameoffset" type="integer" value="0" />
-      <parameter name="frameendaction" type="string" value="black" />
+      <parameter name="frameendaction" type="string" value="constant" />
     </image>
     <output name="out" type="color3" nodename="image_number_1" />
     <texcoord name="texcoord1" type="vector2" xpos="2.98368" ypos="6.80918">
@@ -147,7 +147,7 @@
       <parameter name="filtertype" type="string" value="linear" />
       <parameter name="framerange" type="string" value="" />
       <parameter name="frameoffset" type="integer" value="0" />
-      <parameter name="frameendaction" type="string" value="black" />
+      <parameter name="frameendaction" type="string" value="constant" />
     </image>
     <output name="out" type="color3" nodename="image_number_1" />
     <texcoord name="texcoord1" type="vector2" xpos="2.98368" ypos="6.80918">
