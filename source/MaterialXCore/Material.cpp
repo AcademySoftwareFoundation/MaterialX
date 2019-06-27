@@ -217,6 +217,16 @@ bool BindInput::validate(string* message) const
             validateRequire(getType() == input->getType(), res, message, "Type mismatch between BindInput and Input");
         }
     }
+    if (hasNodeGraphString())
+    {
+        NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString());
+        validateRequire(nodeGraph != nullptr, res, message, "Invalid node graph attribute on BindInput");
+    }
+    if (hasOutputString())
+    {
+        OutputPtr output = getConnectedOutput();
+        validateRequire(output != nullptr, res, message, "Invalid output attribute on BindInput");
+    }
     return ValueElement::validate(message) && res;
 }
 
