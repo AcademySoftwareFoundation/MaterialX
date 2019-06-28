@@ -78,7 +78,7 @@
       <parameter name="filtertype" type="string" value="linear" />
       <parameter name="framerange" type="string" value="" />
       <parameter name="frameoffset" type="integer" value="0" />
-      <parameter name="frameendaction" type="string" value="black" />
+      <parameter name="frameendaction" type="string" value="constant" />
     </image>
     <output name="out" type="color2" nodename="blur1" />
     <blur name="blur1" type="color2" xpos="6.00592" ypos="14.0457">
@@ -97,7 +97,7 @@
       <parameter name="filtertype" type="string" value="linear" />
       <parameter name="framerange" type="string" value="" />
       <parameter name="frameoffset" type="integer" value="0" />
-      <parameter name="frameendaction" type="string" value="black" />
+      <parameter name="frameendaction" type="string" value="constant" />
     </tiledimage>
     <output name="out" type="vector2" nodename="blur1" />
     <blur name="blur1" type="vector2" xpos="5.62498" ypos="7.67688">
@@ -116,7 +116,7 @@
       <parameter name="filtertype" type="string" value="linear" />
       <parameter name="framerange" type="string" value="" />
       <parameter name="frameoffset" type="integer" value="0" />
-      <parameter name="frameendaction" type="string" value="black" />
+      <parameter name="frameendaction" type="string" value="constant" />
     </tiledimage>
     <output name="out" type="vector3" nodename="blur1" />
     <blur name="blur1" type="vector3" xpos="6.08171" ypos="7.48624">
@@ -140,7 +140,7 @@
       <parameter name="filtertype" type="string" value="linear" />
       <parameter name="framerange" type="string" value="" />
       <parameter name="frameoffset" type="integer" value="0" />
-      <parameter name="frameendaction" type="string" value="black" />
+      <parameter name="frameendaction" type="string" value="constant" />
     </tiledimage>
     <output name="out" type="color4" nodename="blur1" />
   </nodegraph>
@@ -159,7 +159,7 @@
       <parameter name="filtertype" type="string" value="linear" />
       <parameter name="framerange" type="string" value="" />
       <parameter name="frameoffset" type="integer" value="0" />
-      <parameter name="frameendaction" type="string" value="black" />
+      <parameter name="frameendaction" type="string" value="constant" />
     </tiledimage>
     <output name="out" type="vector4" nodename="blur1" />
   </nodegraph>
