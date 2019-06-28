@@ -301,14 +301,26 @@
 
   <!--
     Node: <complex_ior>
-    A node for converting scientific/complex IOR to the artistic IOR used by the conductorbsdf node.
+    A node for converting scientific/complex IOR to the artistic IOR used by the conductor_brdf node.
   -->
   <nodedef name="ND_complex_ior" node="complex_ior" type="multioutput" nodegroup="pbr"
-           doc="A node for converting scientific/complex IOR to the artistic IOR used by the conductorbsdf node.">
+           doc="A node for converting scientific/complex IOR to the artistic IOR used by the conductor_brdf node.">
     <input name="ior" type="vector3"/>
     <input name="extinction" type="vector3"/>
     <output name="reflectivity" type="color3"/>
     <output name="edgecolor" type="color3"/>
+  </nodedef>
+
+  <!--
+    Node: <artistic_ior>
+    A node for converting artistic IOR to scientific/complex IOR.
+  -->
+  <nodedef name="ND_artistic_ior" node="artistic_ior" type="multioutput" nodegroup="pbr"
+           doc="A node for converting artistic IOR to scientific/complex IOR.">
+    <input name="reflectivity" type="color3"/>
+    <input name="edgecolor" type="color3"/>
+    <output name="ior" type="vector3"/>
+    <output name="extinction" type="vector3"/>
   </nodedef>
 
   <!--

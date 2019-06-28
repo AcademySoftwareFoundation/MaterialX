@@ -58,7 +58,6 @@
   <geompropdef name="UV0" geomprop="texcoord" index="0"/>
   <geompropdef name="Vworld" geomprop="viewdirection" space="world"/>
 
-
   <!-- ======================================================================== -->
   <!-- Texture nodes                                                            -->
   <!-- ======================================================================== -->

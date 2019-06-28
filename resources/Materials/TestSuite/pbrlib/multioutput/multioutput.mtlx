@@ -1,31 +1,23 @@
 <?xml version="1.0"?>
 <materialx version="1.36">
 
-  <!-- Test multioutput node complex_ior connected directly to graph output socket -->
+  <!-- Test multioutput node complex_ior connected directly to output -->
   <nodegraph name="multioutput_test1">
     <complex_ior name="complex_ior1" type="multioutput">
       <input name="ior" type="vector3" value="0.1556, 0.4242, 1.3831" />
       <input name="extinction" type="vector3" value="3.6024, 2.4721, 1.9155" />
-      <output name="reflectivity" type="color3" />
-      <output name="edgecolor" type="color3" />
     </complex_ior>
-    <output name="reflectivity" type="color3" nodename="complex_ior1" output="reflectivity" />
+    <output name="out" type="color3" nodename="complex_ior1" output="reflectivity" />
   </nodegraph>
 
-  <!-- Test multioutput node complex_ior connected internally-->
+  <!-- Test multioutput node artistic_ior connected directly to output -->
   <nodegraph name="multioutput_test2">
-    <complex_ior name="complex_ior1" type="multioutput">
-      <input name="ior" type="vector3" value="0.1556, 0.4242, 1.3831" />
-      <input name="extinction" type="vector3" value="3.6024, 2.4721, 1.9155" />
-      <output name="reflectivity" type="color3" />
-      <output name="edgecolor" type="color3" />
-    </complex_ior>
-    <multiply name="multiply1" type="color3">
-        <input name="in1" type="color3" nodename="complex_ior1" output="reflectivity" />
-        <input name="in2" type="color3" nodename="complex_ior1" output="edgecolor" />
-    </multiply>
-    <output name="out" type="color3" nodename="multiply1" />
-  </nodegraph>
+    <artistic_ior name="artistic_ior1" type="multioutput">
+      <input name="reflectivity" type="color3" value="0.4, 0.4, 0.4" />
+      <input name="edgecolor" type="color3" value="0.8, 0.8, 0.8" />
+    </artistic_ior>
+    <output name="out" type="vector3" nodename="artistic_ior1" output="ior" />
+   </nodegraph>
 
   <!-- Test multioutput node separate connected internally -->
   <nodegraph name="multioutput_test3">
@@ -33,16 +25,16 @@
       <input name="in" type="color4" value="0.15, 0.42, 0.78, 1.0" />
     </separate>
     <multiply name="multiply1" type="float">
-        <input name="in1" type="float" nodename="separate_color4" output="outr" />
-        <input name="in2" type="float" nodename="separate_color4" output="outg" />
+      <input name="in1" type="float" nodename="separate_color4" output="outr" />
+      <input name="in2" type="float" nodename="separate_color4" output="outg" />
     </multiply>
     <multiply name="multiply2" type="float">
-        <input name="in1" type="float" nodename="separate_color4" output="outb" />
-        <input name="in2" type="float" nodename="separate_color4" output="outa" />
+      <input name="in1" type="float" nodename="separate_color4" output="outb" />
+      <input name="in2" type="float" nodename="separate_color4" output="outa" />
     </multiply>
     <multiply name="multiply3" type="float">
-        <input name="in1" type="float" nodename="multiply1" />
-        <input name="in2" type="float" nodename="multiply2" />
+      <input name="in1" type="float" nodename="multiply1" />
+      <input name="in2" type="float" nodename="multiply2" />
     </multiply>
     <output name="out" type="float" nodename="multiply3" />
   </nodegraph>

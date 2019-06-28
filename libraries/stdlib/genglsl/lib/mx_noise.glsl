@@ -161,10 +161,10 @@ float mx_fade(float t)
 uint mx_hash_int(int x, int y)
 {
     uint a, b, c;
-    uint len = 2;
-    a = b = c = 0xdeadbeef + (len << 2) + 13;
-    a += x;
-    b += y;
+    uint len = 2u;
+    a = b = c = uint(0xdeadbeef) + (len << 2u) + 13u;
+    a += uint(x);
+    b += uint(y);
     c = mx_bjfinal(a, b, c);
     return c;
 }
@@ -172,11 +172,11 @@ uint mx_hash_int(int x, int y)
 uint mx_hash_int(int x, int y, int z)
 {
     uint a, b, c;
-    uint len = 3;
-    a = b = c = 0xdeadbeef + (len << 2) + 13;
-    a += x;
-    b += y;
-    c += z;
+    uint len = 3u;
+    a = b = c = uint(0xdeadbeef) + (len << 2u) + 13u;
+    a += uint(x);
+    b += uint(y);
+    c += uint(z);
     c = mx_bjfinal(a, b, c);
     return c;
 }

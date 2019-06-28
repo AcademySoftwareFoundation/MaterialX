@@ -74,6 +74,9 @@
   <!-- <complex_ior> -->
   <implementation name="IM_complex_ior_genglsl" nodedef="ND_complex_ior" file="pbrlib/genglsl/mx_complex_ior.glsl" function="mx_complex_ior" language="genglsl"/>
 
+  <!-- <artistic_ior> -->
+  <implementation name="IM_artistic_ior_genglsl" nodedef="ND_artistic_ior" file="pbrlib/genglsl/mx_artistic_ior.glsl" function="mx_artistic_ior" language="genglsl"/>
+
   <!-- <fresnel> -->
   <implementation name="IM_fresnel_ior_genglsl" nodedef="ND_fresnel_ior" file="pbrlib/genglsl/mx_fresnel_ior.glsl" function="mx_fresnel_ior" language="genglsl"/>
 

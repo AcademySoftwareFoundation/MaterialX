@@ -94,7 +94,7 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     ShaderPtr shader = createShader(name, element, context);
 
     // Turn on fixed formatting since OgsFx doesn't support scientific values
-    Value::ScopedFloatFormatting fmt(Value::FloatFormatFixed);
+    ScopedFloatFormatting fmt(Value::FloatFormatFixed);
 
     const ShaderGraph& graph = shader->getGraph();
     ShaderStage& vs = shader->getStage(Stage::VERTEX);

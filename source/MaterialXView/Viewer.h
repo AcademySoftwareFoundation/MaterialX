@@ -36,6 +36,18 @@ class Viewer : public ng::Screen
         return _window;
     }
 
+    void setSelectedMaterial(MaterialPtr material)
+    {
+        for (size_t i = 0; i < _materials.size(); i++)
+        {
+            if (material == _materials[i])
+            {
+                _selectedMaterial = i;
+                break;
+            }
+        }
+    }
+
     MaterialPtr getSelectedMaterial() const
     {
         if (_selectedMaterial < _materials.size())
@@ -70,11 +82,11 @@ class Viewer : public ng::Screen
 
     void setupLights(mx::DocumentPtr doc);
     void loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries);
+    void reloadShaders();
     void saveShaderSource();
     void loadShaderSource();
     void saveDotFiles();
-    void reloadShaders();
-        
+
     /// Assign the given material to the given geometry, or remove any
     /// existing assignment if the given material is nullptr.
     void assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material);

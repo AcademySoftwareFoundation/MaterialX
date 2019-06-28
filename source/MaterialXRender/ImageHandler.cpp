@@ -104,20 +104,19 @@ bool ImageHandler::saveImage(const FilePath& filePath,
 
 bool ImageHandler::acquireImage(const FilePath& filePath, ImageDesc& imageDesc, bool /*generateMipMaps*/, const Color4* /*fallbackColor*/)
 {
-    FilePath foundFilePath = findFile(filePath);
-    if (foundFilePath.isEmpty())
+    if (filePath.isEmpty())
     {
         return false;
     }
 
-    string extension = foundFilePath.getExtension();
+    string extension = filePath.getExtension();
     ImageLoaderMap::reverse_iterator iter;
     for (iter = _imageLoaders.rbegin(); iter != _imageLoaders.rend(); ++iter)
     {
         ImageLoaderPtr loader = iter->second;
         if (loader && loader->supportedExtensions().count(extension))
         {
-            bool acquired = loader->loadImage(foundFilePath, imageDesc, getRestrictions());
+            bool acquired = loader->loadImage(filePath, imageDesc, getRestrictions());
             if (acquired)
             {
                 return true;
@@ -171,16 +170,16 @@ void ImageHandler::cacheImage(const string& filePath, const ImageDesc& desc)
     }
 }
 
-void ImageHandler::uncacheImage(const string& identifier)
+void ImageHandler::uncacheImage(const string& filePath)
 {
-    _imageCache.erase(identifier);
+    _imageCache.erase(filePath);
 }
 
-const ImageDesc* ImageHandler::getCachedImage(const string& identifier)
+const ImageDesc* ImageHandler::getCachedImage(const string& filePath)
 {
-    if (_imageCache.count(identifier))
+    if (_imageCache.count(filePath))
     {
-        return &(_imageCache[identifier]);
+        return &(_imageCache[filePath]);
     }
     return nullptr;
 }
