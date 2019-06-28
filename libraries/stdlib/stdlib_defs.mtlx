@@ -50,9 +50,11 @@
   <geompropdef name="Pobject" geomprop="position" space="object"/>
   <geompropdef name="Nobject" geomprop="normal" space="object"/>
   <geompropdef name="Tobject" geomprop="tangent" space="object" index="0"/>
+  <geompropdef name="Bobject" geomprop="bitangent" space="object" index="0"/>
   <geompropdef name="Pworld" geomprop="position" space="world"/>
   <geompropdef name="Nworld" geomprop="normal" space="world"/>
   <geompropdef name="Tworld" geomprop="tangent" space="world" index="0"/>
+  <geompropdef name="Bworld" geomprop="bitangent" space="world" index="0"/>
   <geompropdef name="UV0" geomprop="texcoord" index="0"/>
   <geompropdef name="Vworld" geomprop="viewdirection" space="world"/>
 
@@ -344,6 +346,16 @@
     <parameter name="frameendaction" type="string" value="black" enum="black,clamp,periodic,mirror"/>
   </nodedef>
 
+  <!--
+    Node: <normal_map>
+  -->
+  <nodedef name="ND_normal_map" node="normal_map" type="vector3" nodegroup="texture">
+    <input name="in" type="vector3" value="0.5, 0.5, 1.0"/>
+    <parameter name="space" type="string" value="tangent" enum="object,tangent"/>
+    <input name="scale" type="float" value="1.0"/>
+    <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
+  </nodedef>
 
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->

@@ -224,6 +224,9 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
         performLayout();
     });
 
+    // Set this before building UI as this flag is used
+    // for the UI building
+    _genContext.getOptions().hwTransparency = true;
     createAdvancedSettings(_window);
 
     _geomLabel = new ng::Label(_window, "Select Geometry");
