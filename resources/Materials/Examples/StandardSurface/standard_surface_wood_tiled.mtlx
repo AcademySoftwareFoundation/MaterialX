@@ -3,11 +3,11 @@
   <nodegraph name="NG_wood1" colorspace="srgb_texture" fileprefix="resources/Images/">
     <tiledimage name="image_base_color" type="color3">
       <parameter name="file" type="filename" value="wood_base_color.jpg" />
-      <parameter name="uvtiling" type="vector2" value="1.0, 1.0"/>
+      <input name="uvtiling" type="vector2" value="1.0, 1.0"/>
     </tiledimage>
     <tiledimage name="image_roughness" type="float">
       <parameter name="file" type="filename" value="wood_roughness.jpg" />
-      <parameter name="uvtiling" type="vector2" value="1.0, 1.0"/>
+      <input name="uvtiling" type="vector2" value="1.0, 1.0"/>
     </tiledimage>
     <output name="out_base_color" type="color3" nodename="image_base_color" />
     <output name="out_roughness" type="float" nodename="image_roughness" />
