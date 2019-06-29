@@ -540,12 +540,10 @@
 
   <!-- <premult> -->
   <implementation name="IM_premult_color2_genglsl" nodedef="ND_premult_color2" file="stdlib/genglsl/mx_premult_color2.glsl" function="mx_premult_color2" language="genglsl"/>
-  <implementation name="IM_premult_color3_genglsl" nodedef="ND_premult_color3" file="stdlib/genglsl/mx_premult_color3.glsl" function="mx_premult_color3" language="genglsl"/>
   <implementation name="IM_premult_color4_genglsl" nodedef="ND_premult_color4" file="stdlib/genglsl/mx_premult_color4.glsl" function="mx_premult_color4" language="genglsl"/>
 
   <!-- <unpremult> -->
   <implementation name="IM_unpremult_color2_genglsl" nodedef="ND_unpremult_color2" file="stdlib/genglsl/mx_unpremult_color2.glsl" function="mx_unpremult_color2" language="genglsl"/>
-  <implementation name="IM_unpremult_color3_genglsl" nodedef="ND_unpremult_color3" file="stdlib/genglsl/mx_unpremult_color3.glsl" function="mx_unpremult_color3" language="genglsl"/>
   <implementation name="IM_unpremult_color4_genglsl" nodedef="ND_unpremult_color4" file="stdlib/genglsl/mx_unpremult_color4.glsl" function="mx_unpremult_color4" language="genglsl"/>
 
    <!-- <plus> -->

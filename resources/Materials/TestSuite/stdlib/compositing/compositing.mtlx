@@ -434,13 +434,6 @@ Basic compositing function tests each test is in a separate graph for each varia
     </premult>
     <output name="out" type="color2" nodename="premult1" />
   </nodegraph>
-  <nodegraph name="premult_color3" type="" xpos="7.20799" ypos="41.4614">
-    <premult name="premult1" type="color3" xpos="5.74483" ypos="4.58">
-      <input name="in" type="color3" value="1.0000, 0.0, 0.5000" />
-      <input name="alpha" type="float" value="0.5000" />
-    </premult>
-    <output name="out" type="color3" nodename="premult1" />
-  </nodegraph>
   <nodegraph name="premult_color4" type="" xpos="8.25474" ypos="41.4442">
     <premult name="premult1" type="color4" xpos="5.74483" ypos="4.74">
       <input name="in" type="color4" value="1.0000, 0.0, 0.5000, 0.5000" />
@@ -452,13 +445,6 @@ Basic compositing function tests each test is in a separate graph for each varia
       <input name="in" type="color2" value="1.0000, 0.5000" />
     </unpremult>
     <output name="out" type="color2" nodename="unpremult1" />
-  </nodegraph>
-  <nodegraph name="unpremult_color3" type="" xpos="7.23191" ypos="43.0052">
-    <unpremult name="unpremult1" type="color3" xpos="5.74483" ypos="4.58">
-      <input name="in" type="color3" value="1.0000, 0.0, 0.5000" />
-      <input name="alpha" type="float" value="0.5000" />
-    </unpremult>
-    <output name="out" type="color3" nodename="unpremult1" />
   </nodegraph>
   <nodegraph name="unpremult_color4" type="" xpos="8.27269" ypos="42.9706">
     <unpremult name="unpremult1" type="color4" xpos="5.74483" ypos="4.58">
