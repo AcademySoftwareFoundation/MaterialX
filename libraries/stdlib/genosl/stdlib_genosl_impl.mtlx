@@ -557,12 +557,10 @@
 
   <!-- <premult> -->
   <implementation name="IM_premult_color2_genosl" nodedef="ND_premult_color2" file="stdlib/genosl/mx_premult_color2.osl" function="mx_premult_color2" language="genosl"/>
-  <implementation name="IM_premult_color3_genosl" nodedef="ND_premult_color3" file="stdlib/genosl/mx_premult_color3.osl" function="mx_premult_color3" language="genosl"/>
   <implementation name="IM_premult_color4_genosl" nodedef="ND_premult_color4" file="stdlib/genosl/mx_premult_color4.osl" function="mx_premult_color4" language="genosl"/>
 
   <!-- <unpremult> -->
   <implementation name="IM_unpremult_color2_genosl" nodedef="ND_unpremult_color2" file="stdlib/genosl/mx_unpremult_color2.osl" function="mx_unpremult_color2" language="genosl"/>
-  <implementation name="IM_unpremult_color3_genosl" nodedef="ND_unpremult_color3" file="stdlib/genosl/mx_unpremult_color3.osl" function="mx_unpremult_color3" language="genosl"/>
   <implementation name="IM_unpremult_color4_genosl" nodedef="ND_unpremult_color4" file="stdlib/genosl/mx_unpremult_color4.osl" function="mx_unpremult_color4" language="genosl"/>
 
   <!-- <plus> -->
