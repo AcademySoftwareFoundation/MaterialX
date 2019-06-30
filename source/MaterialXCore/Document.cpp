@@ -144,19 +144,21 @@ void Document::initialize()
     setVersionString(DOCUMENT_VERSION_STRING);
 }
 
-void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions* copyOptions)
+void Document::importLibrary(const ConstDocumentPtr& library)
 {
-    bool skipDuplicateElements = copyOptions && copyOptions->skipDuplicateElements;
     for (const ConstElementPtr& child : library->getChildren())
     {
         string childName = child->getQualifiedName(child->getName());
-        if (skipDuplicateElements && getChild(childName))
+
+        // Skip elements from a previous import of the same library.
+        ConstElementPtr previous = getChild(childName);
+        if (previous && previous->getActiveSourceUri() == library->getSourceUri())
         {
             continue;
         }
 
         ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName);
-        childCopy->copyContentFrom(child, copyOptions);
+        childCopy->copyContentFrom(child);
         if (!childCopy->hasFilePrefix() && library->hasFilePrefix())
         {
             childCopy->setFilePrefix(library->getFilePrefix());
