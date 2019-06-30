@@ -26,7 +26,7 @@ using XmlReadFunction = std::function<void(DocumentPtr, string, string, const Xm
 
 /// @class XmlReadOptions
 /// A set of options for controlling the behavior of XML read functions.
-class XmlReadOptions : public CopyOptions
+class XmlReadOptions
 {
   public:
     XmlReadOptions();

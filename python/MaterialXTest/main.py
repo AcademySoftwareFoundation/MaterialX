@@ -445,6 +445,7 @@ class TestMaterialX(unittest.TestCase):
             lib = mx.createDocument()
             mx.readFromXmlFile(lib, filename, _searchPath)
             libs.append(lib)
+
         # Read and validate each example document.
         for filename in _exampleFilenames:
             doc = mx.createDocument()
@@ -497,14 +498,11 @@ class TestMaterialX(unittest.TestCase):
                 doc2.importLibrary(lib)
             self.assertTrue(doc2.validate()[0])
 
-        # Read the same document twice with duplicate elements skipped.
-        doc = mx.createDocument()
-        readOptions = mx.XmlReadOptions()
-        readOptions.skipDuplicateElements = True
-        filename = 'PostShaderComposite.mtlx'
-        mx.readFromXmlFile(doc, filename, _searchPath, readOptions)
-        mx.readFromXmlFile(doc, filename, _searchPath, readOptions)
-        self.assertTrue(doc.validate()[0])
+        # Import duplicate libraries into document.
+        dupDoc = mx.createDocument()
+        for lib in libs:
+            dupDoc.importLibrary(lib)
+        self.assertTrue(dupDoc.validate()[0])
 
 #--------------------------------------------------------------------------------
 if __name__ == '__main__':
