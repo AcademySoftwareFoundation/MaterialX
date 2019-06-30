@@ -22,9 +22,7 @@ def _loadLibrary(file, doc):
     libDoc = mx.createDocument()
     _readFromXmlFile(libDoc, file)
     libDoc.setSourceUri(file)
-    copyOptions = mx.CopyOptions()
-    copyOptions.skipDuplicateElements = True;
-    doc.importLibrary(libDoc, copyOptions)
+    doc.importLibrary(libDoc)
 
 def _loadLibraries(doc, searchPath, libraryPath):
     librarySubPaths = _getSubDirectories(libraryPath)

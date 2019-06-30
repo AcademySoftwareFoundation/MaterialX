@@ -30,8 +30,6 @@ const string XINCLUDE_TAG = "xi:include";
 
 void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptions* readOptions)
 {
-    bool skipDuplicateElements = readOptions && readOptions->skipDuplicateElements;
-
     // Store attributes in element.
     for (const xml_attribute& xmlAttr : xmlNode.attributes())
     {
@@ -57,12 +55,6 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
                 name = xmlAttr.value();
                 break;
             }
-        }
-
-        // If requested, skip elements with duplicate names.
-        if (skipDuplicateElements && elem->getChild(name))
-        {
-            continue;
         }
 
         ElementPtr child = elem->addChildOfCategory(category, name);
@@ -199,7 +191,7 @@ void processXIncludes(DocumentPtr doc, xml_node& xmlNode, const string& searchPa
                 readXIncludeFunction(library, filename, includeSearchPath, &xiReadOptions);
 
                 // Import the library document.
-                doc->importLibrary(library, readOptions);
+                doc->importLibrary(library);
             }
 
             // Remove include directive.

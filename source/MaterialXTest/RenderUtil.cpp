@@ -164,9 +164,6 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
     setupTime.endTimer();
 
-    mx::CopyOptions importOptions;
-    importOptions.skipDuplicateElements = true;
-
     registerLights(dependLib, options, context);
 
     // Map to replace "/" in Element path names with "_".
@@ -206,12 +203,10 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             const mx::FilePath filePath = mx::FilePath(dir) / mx::FilePath(file);
             const std::string filename = filePath;
 
-            mx::XmlReadOptions readOptions;
-            readOptions.skipDuplicateElements = true;
             mx::DocumentPtr doc = mx::createDocument();
             try
             {
-                mx::readFromXmlFile(doc, filename, dir, &readOptions);
+                mx::readFromXmlFile(doc, filename, dir);
             }
             catch (mx::Exception& e)
             {
@@ -219,7 +214,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                 WARN("Failed to load in file: " + filename + "See: " + docValidLogFilename + " for details.");                    
             }
 
-            doc->importLibrary(dependLib, &importOptions);
+            doc->importLibrary(dependLib);
             ioTimer.endTimer();
 
             validateTimer.startTimer();
