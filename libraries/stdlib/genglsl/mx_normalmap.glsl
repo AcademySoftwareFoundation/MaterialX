@@ -1,4 +1,4 @@
-void mx_normal_map(vec3 value, int map_space, float normal_scale, vec3 N, vec3 T,  out vec3 result)
+void mx_normalmap(vec3 value, int map_space, float normal_scale, vec3 N, vec3 T,  out vec3 result)
 {
     // Tangent space
     if (map_space == 1)

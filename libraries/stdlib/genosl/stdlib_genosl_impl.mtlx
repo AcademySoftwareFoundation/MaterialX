@@ -37,8 +37,8 @@
 
   <!-- <triplanarprojection> -->
 
-  <!-- <normal_map> -->
-  <implementation name="IM_normal_map_genosl" nodedef="ND_normal_map" file="stdlib/genosl/mx_normal_map.osl" function="mx_normal_map" language="genosl"/>
+  <!-- <normalmap> -->
+  <implementation name="IM_normalmap_genosl" nodedef="ND_normalmap" file="stdlib/genosl/mx_normalmap.osl" function="mx_normalmap" language="genosl"/>
 
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
