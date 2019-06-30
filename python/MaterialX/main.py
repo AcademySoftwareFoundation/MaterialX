@@ -151,7 +151,7 @@ Node.getReferencedNodeDef = _getReferencedNodeDef
 # GraphElement
 #
 
-def _addNode(self, category, name = '', typeString = 'color3'):
+def _addNode(self, category, name = '', typeString = DEFAULT_TYPE_STRING):
     "Add a node to the graph."
     return self._addNode(category, name, typeString)
 
