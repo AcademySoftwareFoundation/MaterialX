@@ -27,7 +27,7 @@ TEST_CASE("GenShader: Arnold Implementation Check", "[genosl]")
     generatorSkipNodeTypes.insert("spot_light");
     mx::StringSet generatorSkipNodeDefs;
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 38);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 50);
 }
 
 TEST_CASE("GenShader: Arnold Unique Names", "[genosl]")
@@ -55,7 +55,7 @@ static void generateArnoldOslCode()
     const mx::FilePath logPath("genosl_arnold_generate_test.txt");
 
     OslShaderGeneratorTester tester(mx::ArnoldShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath);
- 
+
     const mx::GenOptions genOptions;
     mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
     tester.validate(genOptions, optionsFilePath);
