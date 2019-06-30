@@ -53,19 +53,19 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen);
 /// Color2, and Color4. Note that for Color2 the second channel
 /// maps to alpha. If not mapping is possible the color value is
 /// set to opaque black.
-void mapValueToColor(const ValuePtr value, Color4& color);
+void mapValueToColor(ConstValuePtr value, Color4& color);
 
 /// Return whether a nodedef requires an implementation
-bool requiresImplementation(const NodeDefPtr nodeDef);
+bool requiresImplementation(ConstNodeDefPtr nodeDef);
 
 /// Determine if a given element requires shading / lighting for rendering
-bool elementRequiresShading(const TypedElementPtr element);
+bool elementRequiresShading(ConstTypedElementPtr element);
 
 /// Find any elements which may be renderable from within a document.
 /// This includes all outputs on node graphs and shader references which are not
 /// part of any included library. Light shaders are not considered to be renderable.
 /// The option to include node graphs referened by shader references is disabled by default.
-void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>& elements, 
+void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, 
                             bool includeReferencedGraphs = false);
 
 /// Given a path to a element, find the corresponding element with the same name
