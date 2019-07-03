@@ -35,6 +35,8 @@
     <parameter name="default" type="vector4" implname="default_value"/>
   </implementation>
 
+  <!-- <normalmap> -->
+  <implementation name="IM_normalmap_genglsl" nodedef="ND_normalmap" file="stdlib/genglsl/mx_normalmap.glsl" function="mx_normalmap" language="genglsl"/>
 
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->

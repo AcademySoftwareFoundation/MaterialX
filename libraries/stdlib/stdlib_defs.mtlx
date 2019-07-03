@@ -50,9 +50,11 @@
   <geompropdef name="Pobject" geomprop="position" space="object"/>
   <geompropdef name="Nobject" geomprop="normal" space="object"/>
   <geompropdef name="Tobject" geomprop="tangent" space="object" index="0"/>
+  <geompropdef name="Bobject" geomprop="bitangent" space="object" index="0"/>
   <geompropdef name="Pworld" geomprop="position" space="world"/>
   <geompropdef name="Nworld" geomprop="normal" space="world"/>
   <geompropdef name="Tworld" geomprop="tangent" space="world" index="0"/>
+  <geompropdef name="Bworld" geomprop="bitangent" space="world" index="0"/>
   <geompropdef name="UV0" geomprop="texcoord" index="0"/>
   <geompropdef name="Vworld" geomprop="viewdirection" space="world"/>
 
@@ -343,7 +345,6 @@
     <parameter name="frameoffset" type="integer" value="0"/>
     <parameter name="frameendaction" type="string" value="constant" enum="constant,clamp,periodic,mirror"/>
   </nodedef>
-
 
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
@@ -2097,6 +2098,20 @@
     <input name="scale" type="vector2" value="1.0,1.0"/>
     <input name="rotate" type="float" value="0.0"/>
     <input name="offset" type="vector2" value="0.0,0.0"/>
+  </nodedef>
+
+  <!--
+    Node: <normalmap>
+    Transform a normal vector from object or tangent space to another space.
+    THe default space for the input vector is tangent space and the default space for the
+    resulting normal is world space.
+  -->
+  <nodedef name="ND_normalmap" node="normalmap" type="vector3" nodegroup="math">
+    <input name="in" type="vector3" value="0.5, 0.5, 1.0"/>
+    <parameter name="space" type="string" value="tangent" enum="object,tangent"/>
+    <input name="scale" type="float" value="1.0"/>
+    <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
   </nodedef>
 
   <!--
