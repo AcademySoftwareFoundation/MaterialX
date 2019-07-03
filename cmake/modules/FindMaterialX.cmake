@@ -5,11 +5,11 @@
 # Helper CMake module to Find MaterialX include dirs, libraries and document libraries
 #
 # Example Usage
-#  - Build and Install MaterialX 
+#  - Build and Install MaterialX
 #  - register the path to this cmake module using CMAKE_MODULE_PATH
 #  - use find_package(MaterialX REQUIRED) to locate core components
-#  - additonal components can be found using shaderx, bxdf and pytton
-#     e.g:  find_package(MaterialX REQUIRED COMPONENTS shaderx)
+#  - additonal components can be found using shadergen, bxdf and pytton
+#     e.g:  find_package(MaterialX REQUIRED COMPONENTS shadergen)
 #           will find inc, lib, corelib and generators
 #
 # Variables defined:
@@ -17,7 +17,7 @@
 # MATERIALX_BASE_DIR         MaterialX root installation directory
 # MATERIALX_INCLUDE_DIRS     MaterialX include directory
 # MATERIALX_LIB_DIRS         MaterialX lib directory
-# MATERIALX_CORE_LIBS        MaterialX Core libraries and ShaderX i.e. Core, Format & GenShader
+# MATERIALX_CORE_LIBS        MaterialX Core libraries and Shader Generation i.e. Core, Format & GenShader
 # MATERIALX_GENERATOR_LIBS   MaterialX Generator libraries i.e GenGlsl, GenOsl
 # MATERIALX_RENDER_LIBS      MaterialX Render libraries i.e RenderGlsl, RenderOsl
 # MATERIALX_STDLIB_DIR       Path to the MaterialX standard library directory
@@ -35,8 +35,8 @@ set (MATERIALX_REQUIRED_VARS
         MATERIALX_CORE_LIBS
     )
 
-# make shaderx a required if requested
-if ("shaderx" IN_LIST MaterialX_FIND_COMPONENTS)
+# make shadergen required if requested
+if ("shadergen" IN_LIST MaterialX_FIND_COMPONENTS)
  list (APPEND MATERIALX_REQUIRED_VARS
         MATERIALX_GENERATOR_LIBS
         MATERIALX_RENDER_LIBS)
@@ -44,7 +44,7 @@ endif()
 
 # make bxdf surfacce shaders required if requested
 if ("bxdf" IN_LIST MaterialX_FIND_COMPONENTS)
- list (APPEND MATERIALX_REQUIRED_VARS 
+ list (APPEND MATERIALX_REQUIRED_VARS
         MATERIALX_PBRLIB_DIR
         MATERIALX_BXDFLIB_DIR)
 endif()
@@ -67,7 +67,7 @@ find_path(MATERIALX_BASE_DIR
         "$ENV{MATERIALX_ROOT}"
     )
 
-find_path(MATERIALX_INCLUDE_DIRS 
+find_path(MATERIALX_INCLUDE_DIRS
     MaterialXCore/Library.h
     HINTS
         "${MATERIALX_ROOT}"
@@ -80,7 +80,7 @@ find_path(MATERIALX_INCLUDE_DIRS
 )
 
 set(MATERIALX_CORE_LIB_NAME ${CMAKE_SHARED_LIBRARY_PREFIX}MaterialXCore${CMAKE_STATIC_LIBRARY_SUFFIX})
-find_path(MATERIALX_LIB_DIRS 
+find_path(MATERIALX_LIB_DIRS
     "${MATERIALX_CORE_LIB_NAME}"
     HINTS
         "${MATERIALX_ROOT}"
@@ -93,7 +93,7 @@ find_path(MATERIALX_LIB_DIRS
 )
 
 # Path to stdlib library
-find_path(MATERIALX_STDLIB_DIR 
+find_path(MATERIALX_STDLIB_DIR
     stdlib_defs.mtlx
     HINTS
         "${MATERIALX_ROOT}"
@@ -106,7 +106,7 @@ find_path(MATERIALX_STDLIB_DIR
 )
 
 # Path to pbr library
-find_path(MATERIALX_PBRLIB_DIR 
+find_path(MATERIALX_PBRLIB_DIR
     pbrlib_defs.mtlx
     HINTS
         "${MATERIALX_ROOT}"
@@ -180,7 +180,7 @@ foreach(MATERIALX_LIB
     endif ()
 endforeach()
 
-# Target generator Libraries 
+# Target generator Libraries
 foreach(MATERIALXGEN_LIB
     Glsl
     Osl
@@ -202,7 +202,7 @@ foreach(MATERIALXGEN_LIB
     endif ()
 endforeach()
 
-# Target render Libraries 
+# Target render Libraries
 foreach(MATERIALXRENDER_LIB
     Glsl
     Osl
