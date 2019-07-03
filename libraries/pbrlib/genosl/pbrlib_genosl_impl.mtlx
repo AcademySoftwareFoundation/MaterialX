@@ -65,9 +65,6 @@
   <!-- <artistic_ior> -->
   <implementation name="IM_artistic_ior_genosl" nodedef="ND_artistic_ior" file="pbrlib/genosl/mx_artistic_ior.osl" function="mx_artistic_ior" language="genosl"/>
 
-  <!-- <normalmap> -->
-  <implementation name="IM_normalmap_genosl" nodedef="ND_normalmap" file="pbrlib/genosl/mx_normalmap.osl" function="mx_normalmap" language="genosl"/>
-
   <!-- <fresnel> -->
   <implementation name="IM_fresnel_ior_genosl" nodedef="ND_fresnel_ior" file="pbrlib/genosl/mx_fresnel_ior.osl" function="mx_fresnel_ior" language="genosl"/>
 

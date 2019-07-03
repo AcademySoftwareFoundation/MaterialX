@@ -25,24 +25,21 @@ def createDiff(image1Path, image2Path, imageDiffPath):
 def main(args=None):
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--idir', dest='inputdir', action='store', help='Input directory', default=".")
-    parser.add_argument('-o', '--ofile', dest='outputfile', action='store', help='Output file name', default="tests.html")
+    parser.add_argument('-i', '--inputdir', dest='inputdir', action='store', help='Input directory', default=".")
+    parser.add_argument('-o', '--outputfile', dest='outputfile', action='store', help='Output file name', default="tests.html")
     parser.add_argument('-d', '--diff', dest='CREATE_DIFF', action='store_true', help='Perform image diff', default=False)
     parser.add_argument('-t', '--timestamp', dest='ENABLE_TIMESTAMPS', action='store_true', help='Write image timestamps', default=False)
-    parser.add_argument('-w', '--imageWidth', type=int, dest='imageWidth', action='store', help='Set image display width', default=256)
+    parser.add_argument('-w', '--imagewidth', type=int, dest='imagewidth', action='store', help='Set image display width', default=256)
+    parser.add_argument('-cp', '--cellpadding', type=int, dest='cellpadding', action='store', help='Set table cell padding', default=0)
+    parser.add_argument('-tb', '--tableborder', type=int, dest='tableborder', action='store', help='Table border width. 0 means no border', default=3)
     args = parser.parse_args(args)
-    inputdir = args.inputdir
-    outputfile = args.outputfile
-    CREATE_DIFF = args.CREATE_DIFF
-    ENABLE_TIMESTAMPS = args.ENABLE_TIMESTAMPS
-    imageWidth = args.imageWidth
 
-    fh = open(outputfile,"w+")
+    fh = open(args.outputfile,"w+")
     fh.write("<html>\n")
     fh.write("<style>\n")
     fh.write("td {")
-    fh.write("    padding: 0;")
-    fh.write("    border: 3px solid black;")
+    fh.write("    padding: " + str(args.cellpadding) + ";")
+    fh.write("    border: " + str(args.tableborder) + "px solid black;")
     fh.write("}")
     fh.write("table, tbody, th, .td_image {")
     fh.write("    border-collapse: collapse;")
@@ -53,7 +50,7 @@ def main(args=None):
     fh.write("<body>\n")
 
     # Iterate over subdirectories
-    for subdir, _, files in os.walk(inputdir):
+    for subdir, _, files in os.walk(args.inputdir):
         glslFiles = []
         oslFiles = []
         for curFile in files:
@@ -70,27 +67,27 @@ def main(args=None):
             for glslFile, oslFile in zip(glslFiles, oslFiles):
                 fullGlslPath = os.path.join(subdir, glslFile)
                 fullOslPath = os.path.join(subdir, oslFile)
-                if glslFile and oslFile and DIFF_ENABLED and CREATE_DIFF:
+                if glslFile and oslFile and DIFF_ENABLED and args.CREATE_DIFF:
                     diffPath = fullGlslPath[0:-8] + "diff.png"
                     createDiff(fullGlslPath, fullOslPath, diffPath)
                 else:
                     diffPath = None
                 fh.write("    <tr>\n")
                 if glslFile:
-                    fh.write("        <td class='td_image'><img src='" + fullGlslPath + "' width='" + str(imageWidth) + "' style='background-color:black;'/></td>\n")
+                    fh.write("        <td class='td_image'><img src='" + fullGlslPath + "' height='" + str(args.imagewidth) + "' width='" + str(args.imagewidth) + "' style='background-color:black;'/></td>\n")
                 if oslFile:
-                    fh.write("        <td class='td_image'><img src='" + fullOslPath + "' width='" + str(imageWidth) + "' style='background-color:black;'/></td>\n")
+                    fh.write("        <td class='td_image'><img src='" + fullOslPath + "' height='" + str(args.imagewidth) + "' width='" + str(args.imagewidth) + "' style='background-color:black;'/></td>\n")
                 if diffPath:
-                    fh.write("        <td class='td_image'><img src='" + diffPath + "' width='" + str(imageWidth) + "' style='background-color:black;'/></td>\n")
+                    fh.write("        <td class='td_image'><img src='" + diffPath + "' height='" + str(args.imagewidth) + "' width='" + str(args.imagewidth) + "' style='background-color:black;'/></td>\n")
                 fh.write("    </tr>\n")
                 fh.write("    <tr>\n")
                 if glslFile:
-                    if ENABLE_TIMESTAMPS:
+                    if args.ENABLE_TIMESTAMPS:
                         fh.write("        <td align='center'>" + glslFile + " (" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullGlslPath))) + ")</td>\n")
                     else:
                         fh.write("        <td align='center'>" + glslFile + "</td>\n")
                 if oslFile:
-                    if ENABLE_TIMESTAMPS:
+                    if args.ENABLE_TIMESTAMPS:
                         fh.write("        <td align='center'>" + oslFile + " (" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullOslPath))) + ")</td>\n")
                     else:
                         fh.write("        <td align='center'>" + oslFile + "</td>\n")

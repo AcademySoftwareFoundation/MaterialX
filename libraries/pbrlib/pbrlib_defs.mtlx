@@ -324,16 +324,6 @@
   </nodedef>
 
   <!--
-    Node: <normalmap>
-  -->
-  <nodedef name="ND_normalmap" node="normalmap" type="vector3" nodegroup="pbr">
-    <input name="in" type="vector3" value="0.5, 0.5, 1.0"/>
-    <parameter name="tangent_space" type="integer" value="1"/>
-    <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
-    <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
-  </nodedef>
-
-  <!--
     Node: <fresnel>
   -->
   <nodedef name="ND_fresnel_ior" node="fresnel" type="float" nodegroup="pbr"
