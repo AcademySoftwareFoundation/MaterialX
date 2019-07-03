@@ -239,11 +239,7 @@ int GLTextureHandler::mapFilterTypeToGL(ImageSamplingProperties::FilterType filt
     int filterType = GL_LINEAR_MIPMAP_LINEAR;
     if (filterTypeEnum == ImageSamplingProperties::FilterType::CLOSEST)
     {
-        filterType = GL_NEAREST;
-    }
-    else if (filterTypeEnum == ImageSamplingProperties::FilterType::LINEAR)
-    {
-        filterType = GL_LINEAR;
+        filterType = GL_NEAREST_MIPMAP_NEAREST;
     }
     return filterType;
 }
