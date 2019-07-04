@@ -179,6 +179,9 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
     mx::StringSet usedImpls;
 
+    mx::CopyOptions copyOptions;
+    copyOptions.skipDuplicateElements = true;
+
     const std::string MTLX_EXTENSION("mtlx");
     for (auto dir : dirs)
     {
@@ -218,7 +221,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                 WARN("Failed to load in file: " + filename + "See: " + docValidLogFilename + " for details.");                    
             }
 
-            doc->importLibrary(dependLib);
+            doc->importLibrary(dependLib, &copyOptions);
             ioTimer.endTimer();
 
             validateTimer.startTimer();

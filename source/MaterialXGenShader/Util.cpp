@@ -6,9 +6,11 @@
 #include <MaterialXGenShader/Util.h>
 
 #include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
 
 #include <MaterialXFormat/XmlIo.h>
+#include <MaterialXFormat/PugiXML/pugixml.hpp>
 
 #include <fstream>
 #include <iostream>
@@ -46,7 +48,6 @@ bool readFile(const string& filename, string& contents)
 void loadDocuments(const FilePath& rootPath, const StringSet& skipFiles, const StringSet& includeFiles,
                    vector<DocumentPtr>& documents, StringVec& documentsPaths, StringVec& errors)
 {
-    errors.clear();
     for (const FilePath& dir : rootPath.getSubDirectories())
     {
         for (const FilePath& file : dir.getFilesInDirectory(MTLX_EXTENSION))
@@ -577,6 +578,39 @@ ValueElementPtr findNodeDefChild(const string& path, DocumentPtr doc, const stri
     ValueElementPtr valueElement = nodeDef->getActiveValueElement(valueElementName);
 
     return valueElement;
+}
+
+namespace
+{
+    const char TOKEN_PREFIX = '$';
+}
+
+void tokenSubstitution(const StringMap& substitutions, string& source)
+{
+    string buffer;
+    size_t pos = 0, len = source.length();
+    while (pos < len)
+    {
+        size_t p1 = source.find_first_of(TOKEN_PREFIX, pos);
+        if (p1 != string::npos && p1 + 1 < len)
+        {
+            buffer += source.substr(pos, p1 - pos);
+            pos = p1 + 1;
+            string token = { TOKEN_PREFIX };
+            while (pos < len && isalnum(source[pos]))
+            {
+                token += source[pos++];
+            }
+            auto it = substitutions.find(token);
+            buffer += (it != substitutions.end() ? it->second : token);
+        }
+        else
+        {
+            buffer += source.substr(pos);
+            break;
+        }
+    }
+    source = buffer;
 }
 
 } // namespace MaterialX

@@ -6,6 +6,7 @@
 #include <MaterialXGenShader/Syntax.h>
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
 
 #include <MaterialXCore/Value.h>
 
@@ -249,27 +250,12 @@ ValuePtr Syntax::getSwizzledValue(ValuePtr value, const TypeDesc* srcType, const
     return Value::createValueFromStrings(ss.str(), getTypeName(dstType));
 }
 
-void Syntax::makeUnique(string& name, UniqueNameMap& uniqueNames) const
+string Syntax::getVariableName(const string& name, const TypeDesc* /*type*/, GenContext& context) const
 {
-    makeValidName(name);
-
-    UniqueNameMap::iterator it = uniqueNames.find(name);
-    if (it != uniqueNames.end())
-    {
-        name += std::to_string(++(it->second));
-    }
-    else
-    {
-        if (_restrictedNames.count(name))
-        {
-            uniqueNames[name] = 1;
-            name += "1";
-        }
-        else
-        {
-            uniqueNames[name] = 0;
-        }
-    }
+    string variable = name;
+    makeValidName(variable);
+    context.makeIdentifier(variable);
+    return variable;
 }
 
 bool Syntax::typeSupported(const TypeDesc*) const

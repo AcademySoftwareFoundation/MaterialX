@@ -17,17 +17,165 @@
 namespace MaterialX
 {
 
-/// Shader stage identifiers.
-namespace Stage
-{
-    /// Identifier for vertex stage.
-    extern const string VERTEX;
-}
+/*
+The HW shader generators have a number of predefined variables (inputs and uniforms) with binding rules.
+When these are used by a shader the application must bind them to the expected data. The following table is
+a listing of the variables with a description of what data they should be bound to.
+
+However, different renderers can have different requirements on naming conventions for these variables.
+In order to facilitate this the generators will use token substitution for naming the variables. The
+first colum below shows the token names that should be used in source code before the token substitution
+is done. The second row shows the real identifier names that will be used by default after substitution.
+An generator can override these identifier names in order to use a custom naming convention for these.
+Overriding identifier names is done by changing the entries in the identifiers map given to the function
+replaceIdentifiers(), which is handling the token substitution on a shader stage.
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    TOKEN NAME                          DEFAULT IDENTIFIER NAME             TYPE       BINDING
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Vertex input variables :
+    $inPosition                         i_position                          vec3       Vertex position in object space
+    $inNormal                           i_normal                            vec3       Vertex normal in object space
+    $inTangent                          i_tangent                           vec3       Vertex tangent in object space
+    $inBitangent                        i_bitangent                         vec3       Vertex bitangent in object space
+    $inTexcoord_N                       i_texcoord_N                        vec2       Vertex texture coordinate for the N:th uv set
+    $inColor_N                          i_color_N                           vec4       Vertex color for the N:th color set (RGBA)
+
+Uniform variables :
+    $worldMatrix                        u_worldMatrix                       mat4       World transformation
+    $worldInverseMatrix                 u_worldInverseMatrix                mat4       World transformation, inverted
+    $worldTransposeMatrix               u_worldTransposeMatrix              mat4       World transformation, transposed
+    $worldInverseTransposeMatrix        u_worldInverseTransposeMatrix       mat4       World transformation, inverted and transposed
+    $viewMatrix                         u_viewMatrix                        mat4       View transformation
+    $viewInverseMatrix                  u_viewInverseMatrix                 mat4       View transformation, inverted
+    $viewTransposeMatrix                u_viewTransposeMatrix               mat4       View transformation, transposed
+    $viewInverseTransposeMatrix         u_viewInverseTransposeMatrix        mat4       View transformation, inverted and transposed
+    $projectionMatrix                   u_projectionMatrix                  mat4       Projection transformation
+    $projectionInverseMatrix            u_projectionInverseMatrix           mat4       Projection transformation, inverted
+    $projectionTransposeMatrix          u_projectionTransposeMatrix         mat4       Projection transformation, transposed
+    $projectionInverseTransposeMatrix   u_projectionInverseTransposeMatrix  mat4       Projection transformation, inverted and transposed
+    $worldViewMatrix                    u_worldViewMatrix                   mat4       World-view transformation
+    $viewProjectionMatrix               u_viewProjectionMatrix              mat4       View-projection transformation
+    $worldViewProjectionMatrix          u_worldViewProjectionMatrix         mat4       World-view-projection transformation
+    $viewPosition                       u_viewPosition                      vec3       World-space position of the view (camera)
+    $viewDirection                      u_viewDirection                     vec3       World-space direction of the view (camera)
+    $frame                              u_frame                             float      The current frame number as defined by the host application
+    $time                               u_time                              float      The current time in seconds
+    $geomattr_<name>                    u_geomattr_<name>                   <type>     A named attribute of given <type> where <name> is the name of the variable on the geometry
+    $numActiveLightSources              u_numActiveLightSources             int        The number of currently active light sources. Note that in shader this is clamped against
+                                                                                       the maximum allowed number of lights sources. The maximum number is set by the generation
+                                                                                       option GenOptions.hwMaxActiveLightSources.
+    $lightData[]                        u_lightData[]                       struct     Array of struct LightData holding parameters for active light sources.
+                                                                                       The LightData struct is built dynamically depending on requirements for
+                                                                                       bound light shaders.
+    $envMatrix                          u_envMatrix                         mat4       Rotation matrix for the environment.
+    $envIrradiance                      u_envIrradiance                     sampler2D  Sampler for the texture used for diffuse environment lighting.
+    $envRadiance                        u_envRadiance                       sampler2D  Sampler for the texture used for specular environment lighting.
+    $envRadianceMips                    u_envRadianceMips                   int        Number of mipmaps used on the specular environment texture.
+    $envRadianceSamples                 u_envRadianceSamples                int        Samples to use if Filtered Importance Sampling is used for specular environment lighting.
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*/
 
 /// HW specific identifiers.
 namespace HW
 {
-    /// Identifiers for variable blocks.
+    /// Token identifiers
+    extern const string T_IN_POSITION;
+    extern const string T_IN_NORMAL;
+    extern const string T_IN_TANGENT;
+    extern const string T_IN_BITANGENT;
+    extern const string T_IN_TEXCOORD;
+    extern const string T_IN_COLOR;
+    extern const string T_POSITION_WORLD;
+    extern const string T_NORMAL_WORLD;
+    extern const string T_TANGENT_WORLD;
+    extern const string T_BITANGENT_WORLD;
+    extern const string T_POSITION_OBJECT;
+    extern const string T_NORMAL_OBJECT;
+    extern const string T_TANGENT_OBJECT;
+    extern const string T_BITANGENT_OBJECT;
+    extern const string T_TEXCOORD;
+    extern const string T_COLOR;
+    extern const string T_WORLD_MATRIX;
+    extern const string T_WORLD_INVERSE_MATRIX;
+    extern const string T_WORLD_TRANSPOSE_MATRIX;
+    extern const string T_WORLD_INVERSE_TRANSPOSE_MATRIX;
+    extern const string T_VIEW_MATRIX;
+    extern const string T_VIEW_INVERSE_MATRIX;
+    extern const string T_VIEW_TRANSPOSE_MATRIX;
+    extern const string T_VIEW_INVERSE_TRANSPOSE_MATRIX;
+    extern const string T_PROJ_MATRIX;
+    extern const string T_PROJ_INVERSE_MATRIX;
+    extern const string T_PROJ_TRANSPOSE_MATRIX;
+    extern const string T_PROJ_INVERSE_TRANSPOSE_MATRIX;
+    extern const string T_WORLD_VIEW_MATRIX;
+    extern const string T_VIEW_PROJECTION_MATRIX;
+    extern const string T_WORLD_VIEW_PROJECTION_MATRIX;
+    extern const string T_VIEW_POSITION;
+    extern const string T_VIEW_DIRECTION;
+    extern const string T_FRAME;
+    extern const string T_TIME;
+    extern const string T_GEOMATTR;
+    extern const string T_NUM_ACTIVE_LIGHT_SOURCES;
+    extern const string T_ENV_MATRIX;
+    extern const string T_ENV_IRRADIANCE;
+    extern const string T_ENV_RADIANCE;
+    extern const string T_ENV_RADIANCE_MIPS;
+    extern const string T_ENV_RADIANCE_SAMPLES;
+    extern const string T_VERTEX_DATA_INSTANCE;
+    extern const string T_LIGHT_DATA_INSTANCE;
+
+    /// Default names for identifiers.
+    /// Replacing above tokens in final code.
+    extern const string IN_POSITION;
+    extern const string IN_NORMAL;
+    extern const string IN_TANGENT;
+    extern const string IN_BITANGENT;
+    extern const string IN_TEXCOORD;
+    extern const string IN_COLOR;
+    extern const string POSITION_WORLD;
+    extern const string NORMAL_WORLD;
+    extern const string TANGENT_WORLD;
+    extern const string BITANGENT_WORLD;
+    extern const string POSITION_OBJECT;
+    extern const string NORMAL_OBJECT;
+    extern const string TANGENT_OBJECT;
+    extern const string BITANGENT_OBJECT;
+    extern const string TEXCOORD;
+    extern const string COLOR;
+    extern const string WORLD_MATRIX;
+    extern const string WORLD_INVERSE_MATRIX;
+    extern const string WORLD_TRANSPOSE_MATRIX;
+    extern const string WORLD_INVERSE_TRANSPOSE_MATRIX;
+    extern const string VIEW_MATRIX;
+    extern const string VIEW_INVERSE_MATRIX;
+    extern const string VIEW_TRANSPOSE_MATRIX;
+    extern const string VIEW_INVERSE_TRANSPOSE_MATRIX;
+    extern const string PROJ_MATRIX;
+    extern const string PROJ_INVERSE_MATRIX;
+    extern const string PROJ_TRANSPOSE_MATRIX;
+    extern const string PROJ_INVERSE_TRANSPOSE_MATRIX;
+    extern const string WORLD_VIEW_MATRIX;
+    extern const string VIEW_PROJECTION_MATRIX;
+    extern const string WORLD_VIEW_PROJECTION_MATRIX;
+    extern const string VIEW_POSITION;
+    extern const string VIEW_DIRECTION;
+    extern const string FRAME;
+    extern const string TIME;
+    extern const string GEOMATTR;
+    extern const string NUM_ACTIVE_LIGHT_SOURCES;
+    extern const string ENV_MATRIX;
+    extern const string ENV_IRRADIANCE;
+    extern const string ENV_RADIANCE;
+    extern const string ENV_RADIANCE_MIPS;
+    extern const string ENV_RADIANCE_SAMPLES;
+    extern const string VERTEX_DATA_INSTANCE;
+    extern const string LIGHT_DATA_INSTANCE;
+
+    /// Variable blocks names.
     extern const string VERTEX_INPUTS;    // Geometric inputs for vertex stage.
     extern const string VERTEX_DATA;      // Connector block for data transfer from vertex stage to pixel stage.
     extern const string PRIVATE_UNIFORMS; // Uniform inputs set privately by application.
@@ -35,10 +183,10 @@ namespace HW
     extern const string LIGHT_DATA;       // Uniform inputs for light sources.
     extern const string PIXEL_OUTPUTS;    // Outputs from the main/pixel stage.
 
-    /// Default variable names for direction vectors.
-    extern const string NORMAL_DIR;
-    extern const string LIGHT_DIR;
-    extern const string VIEW_DIR;
+    /// Variable names for direction vectors.
+    extern const string DIR_N;
+    extern const string DIR_L;
+    extern const string DIR_V;
 
     /// Attribute names.
     extern const string ATTR_TRANSPARENT;
@@ -46,6 +194,13 @@ namespace HW
     /// User data names.
     extern const string USER_DATA_CLOSURE_CONTEXT;
     extern const string USER_DATA_LIGHT_SHADERS;
+}
+
+/// Shader stage identifiers.
+namespace Stage
+{
+    /// Identifier for vertex stage.
+    extern const string VERTEX;
 }
 
 class HwClosureContext;

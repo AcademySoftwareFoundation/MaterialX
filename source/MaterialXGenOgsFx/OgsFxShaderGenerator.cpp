@@ -13,51 +13,6 @@ namespace MaterialX
 
 namespace
 {
-    // Semantics used by OgsFx
-    static const StringMap OGSFX_DEFAULT_SEMANTICS_MAP =
-    {
-        { "i_position", "POSITION"},
-        { "i_normal", "NORMAL" },
-        { "i_tangent", "TANGENT" },
-        { "i_bitangent", "BINORMAL" },
-
-        { "i_texcoord_0", "TEXCOORD0" },
-        { "i_texcoord_1", "TEXCOORD1" },
-        { "i_texcoord_2", "TEXCOORD2" },
-        { "i_texcoord_3", "TEXCOORD3" },
-        { "i_texcoord_4", "TEXCOORD4" },
-        { "i_texcoord_5", "TEXCOORD5" },
-        { "i_texcoord_6", "TEXCOORD6" },
-        { "i_texcoord_7", "TEXCOORD7" },
-
-        { "i_color_0", "COLOR0" },
-
-        { "u_worldMatrix", "World" },
-        { "u_worldInverseMatrix", "WorldInverse" },
-        { "u_worldTransposeMatrix", "WorldTranspose" },
-        { "u_worldInverseTransposeMatrix", "WorldInverseTranspose" },
-
-        { "u_viewMatrix", "View" },
-        { "u_viewInverseMatrix", "ViewInverse" },
-        { "u_viewTransposeMatrix", "ViewTranspose" },
-        { "u_viewInverseTransposeMatrix", "ViewInverseTranspose" },
-
-        { "u_projectionMatrix", "Projection" },
-        { "u_projectionInverseMatrix", "ProjectionInverse" },
-        { "u_projectionTransposeMatrix", "ProjectionTranspose" },
-        { "u_projectionInverseTransposeMatrix", "ProjectionInverseTranspose" },
-
-        { "u_worldViewMatrix", "WorldView" },
-        { "u_viewProjectionMatrix", "ViewProjection" },
-        { "u_worldViewProjectionMatrix", "WorldViewProjection" },
-
-        { "u_viewDirection", "ViewDirection" },
-        { "u_viewPosition", "WorldCameraPosition" },
-
-        { "u_frame", "Frame" },
-        { "u_time", "Time" }
-    };
-
     static const StringMap OGSFX_GET_LIGHT_DATA_MAP =
     {
         { "type", "mx_getLightType" },
@@ -82,6 +37,50 @@ OgsFxShaderGenerator::OgsFxShaderGenerator()
     : GlslShaderGenerator()
 {
     _syntax = OgsFxSyntax::create();
+
+    _semanticsMap =
+    {
+        { HW::T_IN_POSITION, "POSITION"},
+        { HW::T_IN_NORMAL, "NORMAL" },
+        { HW::T_IN_TANGENT, "TANGENT" },
+        { HW::T_IN_BITANGENT, "BINORMAL" },
+
+        { HW::T_IN_TEXCOORD + "_0", "TEXCOORD0" },
+        { HW::T_IN_TEXCOORD + "_1", "TEXCOORD1" },
+        { HW::T_IN_TEXCOORD + "_2", "TEXCOORD2" },
+        { HW::T_IN_TEXCOORD + "_3", "TEXCOORD3" },
+        { HW::T_IN_TEXCOORD + "_4", "TEXCOORD4" },
+        { HW::T_IN_TEXCOORD + "_5", "TEXCOORD5" },
+        { HW::T_IN_TEXCOORD + "_6", "TEXCOORD6" },
+        { HW::T_IN_TEXCOORD + "_7", "TEXCOORD7" },
+
+        { HW::T_IN_COLOR + "_0", "COLOR0" },
+
+        { HW::T_WORLD_MATRIX, "World" },
+        { HW::T_WORLD_INVERSE_MATRIX, "WorldInverse" },
+        { HW::T_WORLD_TRANSPOSE_MATRIX, "WorldTranspose" },
+        { HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX, "WorldInverseTranspose" },
+
+        { HW::T_VIEW_MATRIX, "View" },
+        { HW::T_VIEW_INVERSE_MATRIX, "ViewInverse" },
+        { HW::T_VIEW_TRANSPOSE_MATRIX, "ViewTranspose" },
+        { HW::T_VIEW_INVERSE_TRANSPOSE_MATRIX, "ViewInverseTranspose" },
+
+        { HW::T_PROJ_MATRIX, "Projection" },
+        { HW::T_PROJ_INVERSE_MATRIX, "ProjectionInverse" },
+        { HW::T_PROJ_TRANSPOSE_MATRIX, "ProjectionTranspose" },
+        { HW::T_PROJ_INVERSE_TRANSPOSE_MATRIX, "ProjectionInverseTranspose" },
+
+        { HW::T_WORLD_VIEW_MATRIX, "WorldView" },
+        { HW::T_VIEW_PROJECTION_MATRIX, "ViewProjection" },
+        { HW::T_WORLD_VIEW_PROJECTION_MATRIX, "WorldViewProjection" },
+
+        { HW::T_VIEW_DIRECTION, "ViewDirection" },
+        { HW::T_VIEW_POSITION, "WorldCameraPosition" },
+
+        { HW::T_FRAME, "Frame" },
+        { HW::T_TIME, "Time" }
+    };
 }
 
 ShaderGeneratorPtr OgsFxShaderGenerator::create()
@@ -91,6 +90,7 @@ ShaderGeneratorPtr OgsFxShaderGenerator::create()
 
 ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
+    resetIdentifiers(context);
     ShaderPtr shader = createShader(name, element, context);
 
     // Turn on fixed formatting since OgsFx doesn't support scientific values
@@ -103,7 +103,9 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
 
     // Emit code for vertex and pixel shader stages
     emitVertexStage(graph, context, vs);
+    replaceTokens(_tokenSubstitutions, vs);
     emitPixelStage(graph, context, ps);
+    replaceTokens(_tokenSubstitutions, ps);
 
     //
     // Assemble the final effects shader
@@ -235,13 +237,15 @@ ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element,
     emitScopeBegin(fx);
     emitLine("pass p0", fx, false);
     emitScopeBegin(fx);
-    emitLine("VertexShader(in VertexInputs, out VertexData vd) = { VS }", fx);
+    emitLine("VertexShader(in VertexInputs, out VertexData " + HW::T_VERTEX_DATA_INSTANCE +") = { VS }", fx);
     emitLine(lighting ?
-        "PixelShader(in VertexData vd, out PixelOutput) = { LightingFunctions, PS }" :
-        "PixelShader(in VertexData vd, out PixelOutput) = { PS }", fx);
+        "PixelShader(in VertexData " + HW::T_VERTEX_DATA_INSTANCE + ", out PixelOutput) = { LightingFunctions, PS }" :
+        "PixelShader(in VertexData " + HW::T_VERTEX_DATA_INSTANCE + ", out PixelOutput) = { PS }", fx);
     emitScopeEnd(fx);
     emitScopeEnd(fx);
     emitLineBreak(fx);
+
+    replaceTokens(_tokenSubstitutions, fx);
 
     return shader;
 }
@@ -263,11 +267,11 @@ void OgsFxShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext&
     emitFunctionDefinitions(graph, context, stage);
 
     // Add main function
-    emitLine("void main()", stage, false);
     setFunctionName("main", stage);
+    emitLine("void main()", stage, false);
     emitScopeBegin(stage);
-    emitLine("vec4 hPositionWorld = u_worldMatrix * vec4(i_position, 1.0)", stage);
-    emitLine("gl_Position = u_viewProjectionMatrix * hPositionWorld", stage);
+    emitLine("vec4 hPositionWorld = " + HW::T_WORLD_MATRIX + " * vec4(" + HW::T_IN_POSITION + ", 1.0)", stage);
+    emitLine("gl_Position = " + HW::T_VIEW_PROJECTION_MATRIX + " * hPositionWorld", stage);
     emitFunctionCalls(graph, context, stage);
     emitScopeEnd(stage);
     emitScopeEnd(stage);
@@ -333,15 +337,15 @@ void OgsFxShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& 
 
     const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket();
 
-    // Add main function. Cache the signature for the stage
-    emitLine("void main()", stage, false);
+    // Add main function
     setFunctionName("main", stage);
+    emitLine("void main()", stage, false);
     emitScopeBegin(stage);
 
     if (graph.hasClassification(ShaderNode::Classification::CLOSURE))
     {
         // Handle the case where the graph is a direct closure.
-        // We don't support rendering closures without attaching 
+        // We don't support rendering closures without attaching
         // to a surface shader, so just output black.
         emitLine(outputSocket->getVariable() + " = vec4(0.0, 0.0, 0.0, 1.0)", stage);
     }
@@ -481,21 +485,21 @@ ShaderPtr OgsFxShaderGenerator::createShader(const string& name, ElementPtr elem
             for (size_t j = 0; j < block.size(); ++j)
             {
                 ShaderPort* v = block[j];
-                auto sematic = OGSFX_DEFAULT_SEMANTICS_MAP.find(v->getName());
-                if (sematic != OGSFX_DEFAULT_SEMANTICS_MAP.end())
+                auto sematic = _semanticsMap.find(v->getName());
+                if (sematic != _semanticsMap.end())
                 {
                     v->setSemantic(sematic->second);
                 }
             }
         }
-        for (auto it : stage.getUniformBlocks())
+        for (const auto& it : stage.getUniformBlocks())
         {
             VariableBlock& block = *it.second;
             for (size_t j = 0; j < block.size(); ++j)
             {
                 ShaderPort* v = block[j];
-                auto sematic = OGSFX_DEFAULT_SEMANTICS_MAP.find(v->getName());
-                if (sematic != OGSFX_DEFAULT_SEMANTICS_MAP.end())
+                auto sematic = _semanticsMap.find(v->getName());
+                if (sematic != _semanticsMap.end())
                 {
                     v->setSemantic(sematic->second);
                 }

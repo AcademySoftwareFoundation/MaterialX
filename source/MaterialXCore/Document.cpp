@@ -144,8 +144,9 @@ void Document::initialize()
     setVersionString(DOCUMENT_VERSION_STRING);
 }
 
-void Document::importLibrary(const ConstDocumentPtr& library)
+void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions* copyOptions)
 {
+    bool skipDuplicateElements = copyOptions && copyOptions->skipDuplicateElements;
     for (const ConstElementPtr& child : library->getChildren())
     {
         string childName = child->getQualifiedName(child->getName());
@@ -157,8 +158,13 @@ void Document::importLibrary(const ConstDocumentPtr& library)
             continue;
         }
 
+        if (skipDuplicateElements && getChild(childName))
+        {
+            continue;
+        }
+
         ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName);
-        childCopy->copyContentFrom(child);
+        childCopy->copyContentFrom(child, copyOptions);
         if (!childCopy->hasFilePrefix() && library->hasFilePrefix())
         {
             childCopy->setFilePrefix(library->getFilePrefix());

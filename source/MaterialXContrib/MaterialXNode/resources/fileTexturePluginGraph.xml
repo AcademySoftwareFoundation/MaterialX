@@ -1,0 +1,19 @@
+ <fragment_graph name="fileTexturePluginGraph" ref="fileTexturePluginGraph" class="FragmentGraph" version="1.0">
+	<fragments>   
+   			<fragment_ref name="fileTexturePluginFragment" ref="fileTexturePluginFragment" />
+   			<fragment_ref name="myFragOutput" ref="myFragOutput" />   
+   </fragments>
+	<connections>
+   		<connect from="fileTexturePluginFragment.output" to="myFragOutput.myFragOutput" />
+   </connections>
+	<properties>
+   		<float2 name="uvCoord" ref="fileTexturePluginFragment.uvCoord" semantic="mayaUvCoordSemantic" flags="varyingInputParam" />
+   		<texture2 name="map" ref="fileTexturePluginFragment.map" />
+   		<sampler name="textureSampler" ref="fileTexturePluginFragment.textureSampler" />
+   </properties>
+	<values>
+   </values>
+	<outputs>
+   		<struct name="output" ref="myFragOutput.myFragOutput" />
+   </outputs>
+</fragment_graph>

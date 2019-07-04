@@ -1,0 +1,89 @@
+<fragment uiName="tiled_image3_output" name="tiled_image3_output" type="plumbing" class="ShadeFragment" version="1.36">
+  <description><![CDATA[MaterialX generated code for element: tiled_image3_output]]></description>
+  <properties>
+    <float2 name="uvCoord" semantic="mayaUvCoordSemantic" flags="varyingInputParam" />
+    <texture2 name="tiled_image3_file" />
+    <sampler name="tiled_image3_fileSampler" /> // TODO: Follow OGS convention of adding "Sampler" to the texture name
+    <float3 name="tiled_image3_default"  />
+    <float2 name="tiled_image3_uvtiling"  />
+    <float2 name="tiled_image3_uvoffset"  />
+    <int name="tiled_image3_filtertype"  />
+    <int name="tiled_image3_framerange" />
+    <int name="tiled_image3_frameoffset"  />
+    <int name="tiled_image3_frameendaction"  />
+  </properties>
+  <values>
+    <float3 name="tiled_image3_default" value="0, 0, 0" />
+    <float2 name="tiled_image3_uvtiling" value="4, 2" />
+    <float2 name="tiled_image3_uvoffset" value="0.25, 0.5" />
+    <int name="tiled_image3_filtertype" value="0" />
+    <int name="tiled_image3_frameoffset" value="0" />
+    <int name="tiled_image3_frameendaction" value="1" />
+  </values>
+  <outputs>
+    <float3 name="tiled_image3_output" />
+  </outputs>
+  <implementation>
+    <implementation render="OGSRenderer" language="GLSL" lang_version="3.0">
+      <function_name val="tiled_image3_function" />
+      <source>
+      <![CDATA[
+//
+// Function to transform uv-coordinates before texture sampling
+//
+vec2 mx_get_target_uv(vec2 uv)
+{
+   return vec2(uv.x, 1.0 - uv.y);
+}
+
+void mx_image_color3(sampler2D tex_sampler, int layer, vec3 defaultval, vec2 texcoord, int uaddressmode, int vaddressmode, int filtertype, int framerange, int frameoffset, int frameendaction, out vec3 result)
+{
+    if(textureSize(tex_sampler, 0).x > 1)
+    {
+        vec2 uv = mx_get_target_uv(texcoord);
+        result = texture(tex_sampler, uv).rgb;
+    }
+    else
+    {
+        result = defaultval;
+    }
+}
+
+void NG_tiledimage_color3(sampler2D file, vec3 default1, vec2 texcoord, vec2 uvtiling, vec2 uvoffset, int filtertype, int framerange, int frameoffset, int frameendaction, out vec3 N_out_color3)
+{
+    vec2 N_mult_color3_out = texcoord * uvtiling;
+    vec2 N_sub_color3_out = N_mult_color3_out - uvoffset;
+    vec3 N_img_color3_out = vec3(0.0);
+    mx_image_color3(file, 0, default1, N_sub_color3_out, 2, 2, filtertype, framerange, frameoffset, frameendaction, N_img_color3_out);
+    N_out_color3 = N_img_color3_out;
+}
+
+vec3 tiled_image3_function(
+   vec2 uv,
+   sampler2D mapSampler,
+	vec3 tiled_image3_default,
+	vec2 tiled_image3_uvtiling,
+	vec2 tiled_image3_uvoffset,
+	int tiled_image3_filtertype,
+	int tiled_image3_framerange,
+	int tiled_image3_frameoffset,
+	int tiled_image3_frameendaction)
+{
+    vec2 geomprop_UV0_out = uv;
+    vec3 tiled_image3_out = vec3(0.0);
+    NG_tiledimage_color3(mapSampler, tiled_image3_default, geomprop_UV0_out, tiled_image3_uvtiling, tiled_image3_uvoffset, tiled_image3_filtertype, tiled_image3_framerange, tiled_image3_frameoffset, tiled_image3_frameendaction, tiled_image3_out);
+    return tiled_image3_out;
+}
+
+]]></source>
+    </implementation>
+    <implementation render="OGSRenderer" language="HLSL" lang_version="11.0">
+      <function_name val="tiled_image3_function" />
+      <source><![CDATA[// HLSL source]]></source>
+    </implementation>
+    <implementation render="OGSRenderer" language="Cg" lang_version="2.1">
+      <function_name val="tiled_image3_function" />
+      <source><![CDATA[// Cg source]]></source>
+    </implementation>
+  </implementation>
+</fragment>

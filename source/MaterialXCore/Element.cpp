@@ -373,9 +373,10 @@ InheritanceIterator Element::traverseInheritance() const
     return InheritanceIterator(getSelf());
 }
 
-void Element::copyContentFrom(const ConstElementPtr& source)
+void Element::copyContentFrom(const ConstElementPtr& source, const CopyOptions* copyOptions)
 {
     DocumentPtr doc = getDocument();
+    bool skipDuplicateElements = copyOptions && copyOptions->skipDuplicateElements;
 
     // Handle change notifications.
     ScopedUpdate update(doc);
@@ -387,7 +388,12 @@ void Element::copyContentFrom(const ConstElementPtr& source)
 
     for (const ConstElementPtr& child : source->getChildren())
     {
-        ElementPtr childCopy = addChildOfCategory(child->getCategory(), child->getName());
+        const string& name = child->getName();
+        if (skipDuplicateElements && getChild(name))
+        {
+            continue;
+        }
+        ElementPtr childCopy = addChildOfCategory(child->getCategory(), name);
         childCopy->copyContentFrom(child);
     }
 }

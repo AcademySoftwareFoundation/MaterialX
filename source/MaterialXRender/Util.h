@@ -32,9 +32,9 @@ namespace MaterialX
 
     /// @}
     /// @name User interface utilities
-    /// @{ 
+    /// @{
 
-    /// Set of possible UI properties for an element 
+    /// Set of possible UI properties for an element
     struct UIProperties
     {
         /// UI name
@@ -69,6 +69,7 @@ namespace MaterialX
     struct UIPropertyItem
     {
         std::string label;
+        ValuePtr value;
         ShaderPort* variable = nullptr;
         UIProperties ui;
     };
@@ -76,7 +77,13 @@ namespace MaterialX
     /// A grouping of property items by name
     using UIPropertyGroup = std::multimap<string, UIPropertyItem>;
 
-    /// Utility to group UI properties items based on ELement group name.
+    /// Utility to group UI properties items based on Element group name from an element.
+    /// Returns a list of named and unnamed groups.
+    void createUIPropertyGroups(ElementPtr uniformElement, DocumentPtr contentDocument, TypedElementPtr materialElement,
+                                const string& pathSeparator, UIPropertyGroup& groups,
+                                UIPropertyGroup& unnamedGroups, ShaderPort* uniform = nullptr);
+
+    /// Utility to group UI properties items based on Element group name from a VariableBlock.
     /// Returns a list of named and unnamed groups.
     void createUIPropertyGroups(const VariableBlock& block, DocumentPtr contentDocument, TypedElementPtr materialElement,
                                 const string& pathSeparator, UIPropertyGroup& groups,

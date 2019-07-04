@@ -78,13 +78,17 @@ mx::DocumentPtr loadLibraries(const mx::StringVec& libraryFolders, const mx::Fil
         mx::FilePath path = searchPath.find(libraryFolder);
         mx::FilePathVec filenames = path.getFilesInDirectory("mtlx");
 
+        mx::CopyOptions copyOptions;
+        copyOptions.skipDuplicateElements = true;
+
         for (const std::string& filename : filenames)
         {
             mx::FilePath file = path / filename;
             mx::DocumentPtr libDoc = mx::createDocument();
-            mx::readFromXmlFile(libDoc, file);
+            mx::XmlReadOptions readOptions;
+            mx::readFromXmlFile(libDoc, file, mx::EMPTY_STRING, &readOptions);
             libDoc->setSourceUri(file);
-            doc->importLibrary(libDoc);
+            doc->importLibrary(libDoc, &copyOptions);
         }
     }
     return doc;
@@ -356,9 +360,13 @@ void Viewer::setupLights(mx::DocumentPtr doc)
     {
         try
         {
-            mx::readFromXmlFile(lightDoc, path.asString());
+            mx::XmlReadOptions readOptions;
+            mx::readFromXmlFile(lightDoc, path.asString(), mx::EMPTY_STRING, &readOptions);
             lightDoc->setSourceUri(path);
-            doc->importLibrary(lightDoc);
+
+            mx::CopyOptions copyOptions;
+            copyOptions.skipDuplicateElements = true;
+            doc->importLibrary(lightDoc, &copyOptions);
         }
         catch (std::exception& e)
         {
@@ -753,7 +761,9 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         mx::readFromXmlFile(doc, filename, _searchPath.asString(), &readOptions);
 
         // Import libraries.
-        doc->importLibrary(libraries);
+        mx::CopyOptions copyOptions;
+        copyOptions.skipDuplicateElements = true;
+        doc->importLibrary(libraries, &copyOptions);
 
         // Add lighting 
         setupLights(doc);
@@ -1135,6 +1145,7 @@ void Viewer::drawScene3D()
                              _specularEnvironmentMethod, _envSamples);
         material->bindImages(_imageHandler, _searchPath, material->getUdim());
         material->drawPartition(geom);
+        material->unbindImages(_imageHandler);
     }
 
     // Transparent pass
@@ -1156,6 +1167,7 @@ void Viewer::drawScene3D()
                              _specularEnvironmentMethod, _envSamples);
         material->bindImages(_imageHandler, _searchPath, material->getUdim());
         material->drawPartition(geom);
+        material->unbindImages(_imageHandler);
     }
     
     // Ambient occlusion pass
@@ -1180,6 +1192,7 @@ void Viewer::drawScene3D()
                                         _specularEnvironmentMethod, _envSamples);
             _ambOccMaterial->bindImages(_imageHandler, _searchPath, material->getUdim());
             _ambOccMaterial->drawPartition(geom);
+            _ambOccMaterial->unbindImages(_imageHandler);
         }
     }
     

@@ -20,6 +20,8 @@ namespace MaterialX
 class MayaGlslPluginShaderGenerator : public OgsFxShaderGenerator
 {
 public:
+    MayaGlslPluginShaderGenerator();
+
     static ShaderGeneratorPtr create();
 
     /// Return a unique identifyer for the target this generator is for
@@ -29,9 +31,6 @@ public:
     static const string TARGET;
 
 protected:
-    /// Create a new shader instance
-    ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const override;
-
     /// Get parameters for the technique block
     void getTechniqueParams(const Shader& shader, string& params) const override;
 };

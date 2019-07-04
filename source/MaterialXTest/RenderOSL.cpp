@@ -249,7 +249,7 @@ bool OslShaderRenderTester::runValidator(const std::string& shaderName,
                         const mx::ShaderPort* output = outputs[0];
                         const mx::TypeSyntax& typeSyntax = shadergen.getSyntax().getTypeSyntax(output->getType());
 
-                        const std::string& outputName = output->getName();
+                        const std::string& outputName = output->getVariable();
                         const std::string& outputType = typeSyntax.getTypeAlias().empty() ? typeSyntax.getName() : typeSyntax.getTypeAlias();
 
                         static const std::string SHADING_SCENE_FILE = "closure_color_scene.xml";

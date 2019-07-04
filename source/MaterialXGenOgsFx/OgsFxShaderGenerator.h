@@ -48,6 +48,8 @@ protected:
 
     /// Get parameters for the technique block
     virtual void getTechniqueParams(const Shader& shader, string& params) const;
+
+    StringMap _semanticsMap;
 };
 
 namespace Stage
