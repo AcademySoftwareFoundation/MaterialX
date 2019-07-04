@@ -19,7 +19,7 @@ MaterialXData::MaterialXData(   mx::DocumentPtr document,
     mx::findRenderableElements(_document, renderableElements);
 
     // Nothing specified. Find the first renderable element and use that
-    if (elementPath.length() == 0)
+    if (elementPath.empty())
     {
         if (renderableElements.empty())
         {
@@ -33,6 +33,13 @@ MaterialXData::MaterialXData(   mx::DocumentPtr document,
     else
     {
         _element = _document->getDescendant(elementPath);
+        if (!_element)
+        {
+            std::string message = "Element '";
+            message += elementPath;
+            message += "' not found in the document.";
+            throw mx::Exception(message);
+        }
 
         auto it = std::find_if(
             renderableElements.begin(),
