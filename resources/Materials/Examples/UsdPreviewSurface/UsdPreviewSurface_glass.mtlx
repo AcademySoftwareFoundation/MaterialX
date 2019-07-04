@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<materialx version="1.36" require="">
+  <material name="USD_Glass">
+    <shaderref name="SR_glass" node="UsdPreviewSurface">
+      <bindinput name="diffuseColor" type="color3" value="0.0, 0.0, 0.0" />
+      <bindinput name="useSpecularWorkflow" type="integer" value="0" />
+      <bindinput name="metalness" type="float" value="0" />
+      <bindinput name="roughness" type="float" value="0.01" />
+      <bindinput name="opacity" type="float" value="0" />
+      <bindinput name="opacityThreshold" type="float" value="0" />
+      <bindinput name="ior" type="float" value="1.52" />
+    </shaderref>
+  </material>
+</materialx>

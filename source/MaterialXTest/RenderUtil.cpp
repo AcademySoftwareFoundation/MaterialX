@@ -144,7 +144,11 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
     const mx::StringVec libraries = { "stdlib", "pbrlib" };
     GenShaderUtil::loadLibraries(libraries, searchPath, dependLib, nullptr);
+
+    // Load shader definitions used in the test suite.
     GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), dependLib);
+    GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd.mtlx"), dependLib);
+
     // Load any addition per validator libraries
     loadLibraries(dependLib, options);
     ioTimer.endTimer();

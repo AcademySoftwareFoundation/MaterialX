@@ -457,8 +457,9 @@ void ShaderGeneratorTester::setupDependentLibraries()
     const mx::StringVec libraries = { "stdlib", "pbrlib" };
     GenShaderUtil::loadLibraries(libraries, _libSearchPath, _dependLib);
 
-    // Load the standard_surface definition since it's used in the test suite.
+    // Load shader definitions used in the test suite.
     GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), _dependLib);
+    GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd.mtlx"), _dependLib);
 }
 
 void ShaderGeneratorTester::addSkipFiles()
