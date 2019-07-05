@@ -261,17 +261,16 @@ template<class T> shared_ptr<const T> Element::asA() const
 }
 
 ElementPtr Element::addChildOfCategory(const string& category,
-                                       const string& name)
+                                       string name,
+                                       bool registerChild)
 {
-    string childName = name;
-    if (childName.empty())
+    if (name.empty())
     {
-        childName = createValidChildName(category + "1");
+        name = createValidChildName(category + "1");
     }
-
-    if (_childMap.count(childName))
+    if (registerChild && _childMap.count(name))
     {
-        throw Exception("Child name is not unique: " + childName);
+        throw Exception("Child name is not unique: " + name);
     }
 
     ElementPtr child;
@@ -280,25 +279,27 @@ ElementPtr Element::addChildOfCategory(const string& category,
     CreatorMap::iterator it = _creatorMap.find(category);
     if (it != _creatorMap.end())
     {
-        child = it->second(getSelf(), childName);
+        child = it->second(getSelf(), name);
     }
 
     // Check for a node within a graph.
     if (!child && isA<GraphElement>())
     {
-        child = createElement<Node>(getSelf(), childName);
+        child = createElement<Node>(getSelf(), name);
         child->setCategory(category);
     }
 
     // If no match was found, then create a generic element.
     if (!child)
     {
-        child = createElement<GenericElement>(getSelf(), childName);
+        child = createElement<GenericElement>(getSelf(), name);
         child->setCategory(category);
     }
 
-    // Register the child.
-    registerChildElement(child);
+    if (registerChild)
+    {
+        registerChildElement(child);
+    }
 
     return child;
 }
@@ -373,9 +374,10 @@ InheritanceIterator Element::traverseInheritance() const
     return InheritanceIterator(getSelf());
 }
 
-void Element::copyContentFrom(const ConstElementPtr& source)
+void Element::copyContentFrom(const ConstElementPtr& source, const CopyOptions* copyOptions)
 {
     DocumentPtr doc = getDocument();
+    bool skipConflictingElements = copyOptions && copyOptions->skipConflictingElements;
 
     // Handle change notifications.
     ScopedUpdate update(doc);
@@ -387,8 +389,24 @@ void Element::copyContentFrom(const ConstElementPtr& source)
 
     for (const ConstElementPtr& child : source->getChildren())
     {
-        ElementPtr childCopy = addChildOfCategory(child->getCategory(), child->getName());
+        const string& name = child->getName();
+
+        // Check for duplicate elements.
+        ConstElementPtr previous = getChild(name);
+        if (previous && skipConflictingElements)
+        {
+            continue;
+        }
+
+        // Create the copied element.
+        ElementPtr childCopy = addChildOfCategory(child->getCategory(), name, !previous);
         childCopy->copyContentFrom(child);
+
+        // Check for conflicting elements.
+        if (previous && *previous != *childCopy)
+        {
+            throw Exception("Duplicate element with conflicting content: " + name);
+        }
     }
 }
 

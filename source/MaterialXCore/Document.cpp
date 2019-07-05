@@ -144,21 +144,23 @@ void Document::initialize()
     setVersionString(DOCUMENT_VERSION_STRING);
 }
 
-void Document::importLibrary(const ConstDocumentPtr& library)
+void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions* copyOptions)
 {
+    bool skipConflictingElements = copyOptions && copyOptions->skipConflictingElements;
     for (const ConstElementPtr& child : library->getChildren())
     {
         string childName = child->getQualifiedName(child->getName());
 
-        // Skip elements from a previous import of the same library.
+        // Check for duplicate elements.
         ConstElementPtr previous = getChild(childName);
-        if (previous && previous->getActiveSourceUri() == library->getSourceUri())
+        if (previous && skipConflictingElements)
         {
             continue;
         }
 
-        ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName);
-        childCopy->copyContentFrom(child);
+        // Create the imported element.
+        ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName, !previous);
+        childCopy->copyContentFrom(child, copyOptions);
         if (!childCopy->hasFilePrefix() && library->hasFilePrefix())
         {
             childCopy->setFilePrefix(library->getFilePrefix());
@@ -178,6 +180,12 @@ void Document::importLibrary(const ConstDocumentPtr& library)
         if (!childCopy->hasSourceUri() && library->hasSourceUri())
         {
             childCopy->setSourceUri(library->getSourceUri());
+        }
+
+        // Check for conflicting elements.
+        if (previous && *previous != *childCopy)
+        {
+            throw Exception("Duplicate element with conflicting content: " + childName);
         }
     }
 }
