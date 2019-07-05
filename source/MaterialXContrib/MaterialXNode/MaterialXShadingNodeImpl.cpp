@@ -127,11 +127,15 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shader,
             // Get back the texture description
             texturePtr->textureDescription(textureDescription);
         }
+        else
+        {
+            std::cerr << "*Unable to find image file: " << fileName << " in search paths: "
+                << searchPath.asString() << std::endl;
+        }
         status = shader.setParameter(parameterName.c_str(), textureAssignment);
         if (!status)
         {
-            std::cerr << "*Unable to find or bind image file: " << fileName << " in search paths: "
-                << searchPath.asString() << std::endl;
+            std::cerr << "*Unable to bind image file: " << fileName << std::endl;
         }
     }
 
@@ -255,12 +259,12 @@ void MaterialXShadingNodeImpl<BASE>::updateShader(MHWRender::MShaderInstance& sh
     MStringArray parameterList;
     shader.parameterList(parameterList);
 
-    // Set up image file name search path. Assume we are using built in images located in resource path
-    // TODO: Be able to add more image search paths.
-    //static std::string IMAGE_FOLDER("Images");
-    MaterialX::FileSearchPath imageSearchPath = Plugin::instance().getResourceSearchPath();
-        //(getResourcePath() / MaterialX::FilePath(IMAGE_FOLDER));
-
+    // Set up image file name search path.
+    MaterialX::FilePath documentPath(node->getDocumentFilePath().asChar());
+    documentPath.pop();
+    MaterialX::FileSearchPath imageSearchPath = Plugin::instance().getResourceSearchPath(); 
+    imageSearchPath.prepend(documentPath);
+        
     // Bind environment lighting
     // TODO: These should be options
     static const std::string
@@ -268,7 +272,7 @@ void MaterialXShadingNodeImpl<BASE>::updateShader(MHWRender::MShaderInstance& sh
         envIrradiancePath = "san_giuseppe_bridge_diffuse.hdr";
 
     ::bindEnvironmentLighting(shader, parameterList, imageSearchPath,
-        envRadiancePath, envIrradiancePath);
+                              envRadiancePath, envIrradiancePath);
 
     MaterialX::DocumentPtr document = materialXData->getDocument();
 

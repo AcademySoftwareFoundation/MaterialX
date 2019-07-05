@@ -191,7 +191,9 @@ void processXIncludes(DocumentPtr doc, xml_node& xmlNode, const string& searchPa
                 readXIncludeFunction(library, filename, includeSearchPath, &xiReadOptions);
 
                 // Import the library document.
-                doc->importLibrary(library);
+                CopyOptions copyOptions;
+                copyOptions.skipDuplicateElements = true;
+                doc->importLibrary(library, &copyOptions);
             }
 
             // Remove include directive.

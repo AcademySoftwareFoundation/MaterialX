@@ -33,6 +33,11 @@ class MaterialXNode : public MPxNode
         return _materialXData.get();
     }
 
+    const MString& getDocumentFilePath() const
+    {
+        return _documentFilePath;
+    }
+
     static const MTypeId MATERIALX_NODE_TYPEID;
     static const MString MATERIALX_NODE_TYPENAME;
 
