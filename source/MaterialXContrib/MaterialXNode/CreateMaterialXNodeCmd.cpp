@@ -173,8 +173,6 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
         }
 
         materialXNode->setData(documentFilePath, elementPath, std::move(materialXData));
-        materialXNode->createOutputAttr(_dgModifier);
-
         _dgModifier.doIt();
 
         MString message("Created ");

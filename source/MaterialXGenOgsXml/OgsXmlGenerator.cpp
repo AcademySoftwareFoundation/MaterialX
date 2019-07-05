@@ -250,7 +250,7 @@ namespace
     }
 }
 
-const string OgsXmlGenerator::OUTPUT_NAME = "out";
+const string OgsXmlGenerator::OUTPUT_NAME = "outColor";
 const string OgsXmlGenerator::SAMPLER_SUFFIX = "Sampler";
 
 OgsXmlGenerator::OgsXmlGenerator()
