@@ -26,6 +26,10 @@ namespace mx = MaterialX;
 
 void bindPyElement(py::module& mod)
 {
+    py::class_<mx::CopyOptions>(mod, "CopyOptions")
+        .def(py::init())
+        .def_readwrite("skipConflictingElements", &mx::CopyOptions::skipConflictingElements);
+
     py::class_<mx::Element, mx::ElementPtr>(mod, "Element")
         .def(py::self == py::self)
         .def(py::self != py::self)
@@ -67,7 +71,8 @@ void bindPyElement(py::module& mod)
         .def("getVersionIntegers", &mx::Element::getVersionIntegers)
         .def("setDefaultVersion", &mx::Element::setDefaultVersion)
         .def("getDefaultVersion", &mx::Element::getDefaultVersion)
-        .def("addChildOfCategory", &mx::Element::addChildOfCategory)
+        .def("addChildOfCategory", &mx::Element::addChildOfCategory,
+            py::arg("category"), py::arg("name") = mx::EMPTY_STRING, py::arg("registerChild") = true)
         .def("_getChild", &mx::Element::getChild)
         .def("getChildren", &mx::Element::getChildren)
         .def("setChildIndex", &mx::Element::setChildIndex)
@@ -101,7 +106,8 @@ void bindPyElement(py::module& mod)
                 bool res = elem.validate(&message);
                 return std::pair<bool, std::string>(res, message);
             })
-        .def("copyContentFrom", &mx::Element::copyContentFrom)
+        .def("copyContentFrom", &mx::Element::copyContentFrom,
+            py::arg("source"), py::arg("copyOptions") = (const mx::CopyOptions*) nullptr)
         .def("clearContent", &mx::Element::clearContent)
         .def("createValidChildName", &mx::Element::createValidChildName)
         .def("createStringResolver", &mx::Element::createStringResolver,

@@ -60,7 +60,10 @@ class Document : public GraphElement
     /// The contents of the library document are copied into this one, and
     /// are assigned the source URI of the library.
     /// @param library The library document to be imported.
-    void importLibrary(const ConstDocumentPtr& library);
+    /// @param copyOptions An optional pointer to a CopyOptions object.
+    ///    If provided, then the given options will affect the behavior of the
+    ///    import function.  Defaults to a null pointer.
+    void importLibrary(const ConstDocumentPtr& library, const CopyOptions* copyOptions = nullptr);
 
     /// @}
     /// @name NodeGraph Elements

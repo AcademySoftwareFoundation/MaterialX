@@ -498,11 +498,13 @@ class TestMaterialX(unittest.TestCase):
                 doc2.importLibrary(lib)
             self.assertTrue(doc2.validate()[0])
 
-        # Import duplicate libraries into document.
-        dupDoc = mx.createDocument()
-        for lib in libs:
-            dupDoc.importLibrary(lib)
-        self.assertTrue(dupDoc.validate()[0])
+        # Read the same document twice, and verify that duplicate elements
+        # are skipped.
+        doc = mx.createDocument()
+        filename = 'PostShaderComposite.mtlx'
+        mx.readFromXmlFile(doc, filename, _searchPath)
+        mx.readFromXmlFile(doc, filename, _searchPath)
+        self.assertTrue(doc.validate()[0])
 
 #--------------------------------------------------------------------------------
 if __name__ == '__main__':
