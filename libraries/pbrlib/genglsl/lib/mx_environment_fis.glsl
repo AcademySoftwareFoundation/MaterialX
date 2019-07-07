@@ -26,7 +26,7 @@ vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, sampler2D sample
 }
 
 // Only GGX is supported for now and the distribution argument is ignored
-vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, roughnessinfo roughness, int distribution)
+vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distribution)
 {
     vec3 Y = normalize(cross(N, X));
     X = cross(Y, N);
@@ -42,7 +42,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, roughnessinfo roughness, in
         vec2 Xi = mx_spherical_fibonacci(i, $envRadianceSamples);
 
         // Compute the half vector and incoming light direction.
-        vec3 H = mx_microfacet_ggx_IS(Xi, X, Y, N, roughness.alphaX, roughness.alphaY);
+        vec3 H = mx_microfacet_ggx_IS(Xi, X, Y, N, roughness.x, roughness.y);
         vec3 L = -reflect(V, H);
         
         // Compute dot products for this sample.
@@ -52,12 +52,12 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, roughnessinfo roughness, in
         float LdotH = VdotH;
 
         // Sample the environment light from the given direction.
-        float pdf = mx_microfacet_ggx_PDF(X, Y, H, NdotH, LdotH, roughness.alphaX, roughness.alphaY);
+        float pdf = mx_microfacet_ggx_PDF(X, Y, H, NdotH, LdotH, roughness.x, roughness.y);
         float lod = mx_latlong_compute_lod(L, pdf, $envRadianceMips - 1, $envRadianceSamples);
         vec3 sampleColor = mx_latlong_map_lookup(L, $envMatrix, lod, $envRadiance);
 
         // Compute the geometric term.
-        float G = mx_microfacet_ggx_smith_G(NdotL, NdotV, roughness.alpha);
+        float G = mx_microfacet_ggx_smith_G(NdotL, NdotV, max(roughness.x, roughness.y));
         
         // Fresnel is applied outside the lighting integral for now.
         // TODO: Move Fresnel term into the lighting integral.

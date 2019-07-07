@@ -68,7 +68,7 @@
       <input name="bg" type="float" interfacename="specular_roughness" />
       <input name="mix" type="float" nodename="coat_affect_roughness_multiply2" />
     </mix>
-    <roughness_anisotropy name="main_rougness" type="roughnessinfo">
+    <roughness_anisotropy name="main_rougness" type="vector2">
       <input name="roughness" type="float" nodename="coat_affected_rougness" />
       <input name="anisotropy" type="float" interfacename="specular_anisotropy" />
     </roughness_anisotropy>
@@ -141,7 +141,7 @@
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" interfacename="transmission_color" />
       <input name="ior" type="float" interfacename="specular_IOR" />
-      <input name="roughness" type="roughnessinfo" nodename="main_rougness" />
+      <input name="roughness" type="vector2" nodename="main_rougness" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" interfacename="tangent" />
       <input name="distribution" type="string" value="ggx" />
@@ -158,7 +158,7 @@
       <input name="weight" type="float" interfacename="specular" />
       <input name="tint" type="color3" interfacename="specular_color" />
       <input name="ior" type="float" interfacename="specular_IOR" />
-      <input name="roughness" type="roughnessinfo" nodename="main_rougness" />
+      <input name="roughness" type="vector2" nodename="main_rougness" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" interfacename="tangent" />
       <input name="distribution" type="string" value="ggx" />
@@ -170,7 +170,7 @@
       <input name="weight" type="float" interfacename="base" />
       <input name="reflectivity" type="color3" interfacename="base_color"/>
       <input name="edgecolor" type="color3" interfacename="specular_color"/>
-      <input name="roughness" type="roughnessinfo" nodename="main_rougness" />
+      <input name="roughness" type="vector2" nodename="main_rougness" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" interfacename="tangent" />
       <input name="distribution" type="string" value="ggx" />
@@ -191,7 +191,7 @@
       <input name="in1" type="BSDF" nodename="metalness_mix" />
       <input name="in2" type="color3" nodename="coat_attenuation" />
     </multiply>
-    <roughness_anisotropy name="coat_roughness" type="roughnessinfo">
+    <roughness_anisotropy name="coat_roughness" type="vector2">
       <input name="roughness" type="float" interfacename="coat_roughness" />
       <input name="anisotropy" type="float" interfacename="coat_anisotropy" />
     </roughness_anisotropy>
@@ -199,7 +199,7 @@
       <input name="weight" type="float" interfacename="coat" />
       <input name="tint" type="color3" value="1.0, 1.0, 1.0" />
       <input name="ior" type="float" interfacename="coat_IOR" />
-      <input name="roughness" type="roughnessinfo" nodename="coat_roughness" />
+      <input name="roughness" type="vector2" nodename="coat_roughness" />
       <input name="normal" type="vector3" interfacename="coat_normal" />
       <input name="distribution" type="string" value="ggx" />
       <input name="base" type="BSDF" nodename="metalness_mix_attenuated" />

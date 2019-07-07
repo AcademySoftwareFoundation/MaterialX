@@ -153,7 +153,7 @@
     </mix>
 
     <!-- Specular Workflow -->
-    <roughness_anisotropy name="specular_roughness" type="roughnessinfo">
+    <roughness_anisotropy name="specular_roughness" type="vector2">
       <input name="roughness" type="float" interfacename="roughness" />
       <input name="anisotropy" type="float" value="0" />
     </roughness_anisotropy>
@@ -161,7 +161,7 @@
       <input name="weight" type="float" value="1" />
       <input name="color0" type="color3" interfacename="specularColor" />
       <input name="color90" type="color3" value="1, 1, 1" />
-      <input name="roughness" type="roughnessinfo" nodename="specular_roughness" />
+      <input name="roughness" type="vector2" nodename="specular_roughness" />
       <input name="normal" type="vector3" nodename="surface_normal" />
       <input name="base" type="BSDF" nodename="transmission_mix" />
     </generalized_schlick_brdf>
@@ -191,7 +191,7 @@
       <input name="weight" type="float" value="1" />
       <input name="color0" type="color3" nodename="F0" channels="rrr"/>
       <input name="color90" type="color3" value="1, 1, 1" />
-      <input name="roughness" type="roughnessinfo" nodename="specular_roughness" />
+      <input name="roughness" type="vector2" nodename="specular_roughness" />
       <input name="normal" type="vector3" nodename="surface_normal" />
       <input name="base" type="BSDF" nodename="transmission_mix" />
     </generalized_schlick_brdf>
@@ -199,7 +199,7 @@
       <input name="weight" type="float" value="1" />
       <input name="reflectivity" type="color3" nodename="F0_albedo" />
       <input name="edgecolor" type="color3" interfacename="diffuseColor" />
-      <input name="roughness" type="roughnessinfo" nodename="specular_roughness" />
+      <input name="roughness" type="vector2" nodename="specular_roughness" />
       <input name="normal" type="vector3" nodename="surface_normal" />
     </conductor_brdf>
     <mix name="metalness_workflow_bsdf" type="BSDF">
@@ -219,7 +219,7 @@
     </mix>
 
     <!-- Clearcoat Layer -->
-    <roughness_anisotropy name="coat_roughness" type="roughnessinfo">
+    <roughness_anisotropy name="coat_roughness" type="vector2">
       <input name="roughness" type="float" interfacename="clearcoatRoughness" />
       <input name="anisotropy" type="float" value="0" />
     </roughness_anisotropy>
@@ -227,7 +227,7 @@
       <input name="weight" type="float" interfacename="clearcoat" />
       <input name="tint" type="color3" value="1, 1, 1" />
       <input name="ior" type="float" value="1.5" />
-      <input name="roughness" type="roughnessinfo" nodename="coat_roughness" />
+      <input name="roughness" type="vector2" nodename="coat_roughness" />
       <input name="normal" type="vector3" nodename="surface_normal" />
       <input name="base" type="BSDF" nodename="workflow_selector_bsdf" />
     </dielectric_brdf>

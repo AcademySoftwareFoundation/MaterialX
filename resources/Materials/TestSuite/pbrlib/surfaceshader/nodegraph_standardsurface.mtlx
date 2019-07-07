@@ -28,7 +28,7 @@
       <input name="in" type="float" nodename="multiply7" />
       <parameter name="amount" type="float" value="1.0" />
     </invert>
-    <roughness_anisotropy name="rougness2" type="roughnessinfo" xpos="3.64828" ypos="12.3">
+    <roughness_anisotropy name="rougness2" type="vector2" xpos="3.64828" ypos="12.3">
       <input name="roughness" type="float" nodename="invert3" />
       <input name="anisotropy" type="float" />
     </roughness_anisotropy>
@@ -52,7 +52,7 @@
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" value="1.0000, 1.0000, 1.0000" />
       <input name="ior" type="float" value="0.2000" />
-      <input name="roughness" type="roughnessinfo" nodename="rougness2" />
+      <input name="roughness" type="vector2" nodename="rougness2" />
       <input name="normal" type="vector3" />
       <input name="tangent" type="vector3" />
       <input name="distribution" type="string" value="ggx" />
@@ -67,7 +67,7 @@
       <input name="weight" type="float" value="1.0000" />
       <input name="tint" type="color3" value="0.0000, 0.0000, 0.0000" />
       <input name="ior" type="float" value="0.7700" />
-      <input name="roughness" type="roughnessinfo" nodename="rougness2" />
+      <input name="roughness" type="vector2" nodename="rougness2" />
       <input name="normal" type="vector3" />
       <input name="tangent" type="vector3" />
       <input name="distribution" type="string" value="ggx" />
@@ -77,7 +77,7 @@
       <input name="weight" type="float" value="1.0000" />
       <input name="reflectivity" type="color3" value="0.7000, 1.0000, 0.3000" />
       <input name="edgecolor" type="color3" value="0.9000, 0.9000, 0.9000" />
-      <input name="roughness" type="roughnessinfo" nodename="rougness2" />
+      <input name="roughness" type="vector2" nodename="rougness2" />
       <input name="normal" type="vector3" />
       <input name="tangent" type="vector3" />
       <input name="distribution" type="string" value="ggx" />
@@ -96,7 +96,7 @@
       <input name="in1" type="BSDF" nodename="mix2" />
       <input name="in2" type="color3" nodename="coat_attenuation" />
     </multiply>
-    <roughness_anisotropy name="coat_roughness2" type="roughnessinfo" xpos="12.2937" ypos="6.65742">
+    <roughness_anisotropy name="coat_roughness2" type="vector2" xpos="12.2937" ypos="6.65742">
       <input name="roughness" type="float" value="1.0000" />
       <input name="anisotropy" type="float" value="0.0000" />
     </roughness_anisotropy>
@@ -104,7 +104,7 @@
       <input name="weight" type="float" value="1.0000" />
       <input name="tint" type="color3" value="1.0, 1.0, 1.0" />
       <input name="ior" type="float" value="0.5440" />
-      <input name="roughness" type="roughnessinfo" nodename="coat_roughness2" />
+      <input name="roughness" type="vector2" nodename="coat_roughness2" />
       <input name="normal" type="vector3" />
       <input name="distribution" type="string" value="ggx" />
       <input name="base" type="BSDF" nodename="scale_bsdf1" />
