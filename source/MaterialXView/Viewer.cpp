@@ -754,7 +754,6 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
         // Import libraries.
         mx::CopyOptions copyOptions;
-        copyOptions.skipDuplicateElements = true;
         doc->importLibrary(libraries, &copyOptions);
 
         // Add lighting 

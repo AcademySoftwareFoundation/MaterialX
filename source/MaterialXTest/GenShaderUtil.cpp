@@ -22,7 +22,6 @@ void loadLibrary(const mx::FilePath& file, mx::DocumentPtr doc)
     mx::DocumentPtr libDoc = mx::createDocument();
     mx::readFromXmlFile(libDoc, file);
     mx::CopyOptions copyOptions;
-    copyOptions.skipDuplicateElements = true;
     doc->importLibrary(libDoc, &copyOptions);
 }
 
@@ -598,7 +597,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
 
     size_t documentIndex = 0;
     mx::CopyOptions copyOptions;
-    copyOptions.skipDuplicateElements = true;
     for (auto doc : _documents)
     {
         // Add in dependent libraries
