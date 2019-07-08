@@ -17,36 +17,6 @@ namespace mx = MaterialX;
 namespace GenShaderUtil
 {
 
-void loadLibrary(const mx::FilePath& file, mx::DocumentPtr doc)
-{
-    mx::DocumentPtr libDoc = mx::createDocument();
-    mx::readFromXmlFile(libDoc, file);
-    mx::CopyOptions copyOptions;
-    copyOptions.skipDuplicateElements = true;
-    doc->importLibrary(libDoc, &copyOptions);
-}
-
-void loadLibraries(const mx::StringVec& libraryNames,
-                   const mx::FilePath& searchPath,
-                   mx::DocumentPtr doc,
-                   const mx::StringSet* excludeFiles)
-{
-    for (const std::string& library : libraryNames)
-    {
-        mx::FilePath libraryPath = searchPath / library;
-        for (const mx::FilePath& path : libraryPath.getSubDirectories())
-        {
-            for (const mx::FilePath& filename : path.getFilesInDirectory(mx::MTLX_EXTENSION))
-            {
-                if (!excludeFiles || !excludeFiles->count(filename))
-                {
-                    loadLibrary(path / filename, doc);
-                }
-            }
-        }
-    }
-}
-
 bool getShaderSource(mx::GenContext& context,
                     const mx::ImplementationPtr implementation,
                     mx::FilePath& sourcePath,
@@ -457,11 +427,11 @@ void ShaderGeneratorTester::setupDependentLibraries()
 
     // Load the standard libraries.
     const mx::StringVec libraries = { "stdlib", "pbrlib" };
-    GenShaderUtil::loadLibraries(libraries, _libSearchPath, _dependLib);
+    loadLibraries(libraries, _libSearchPath, _dependLib);
 
     // Load shader definitions used in the test suite.
-    GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), _dependLib);
-    GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd.mtlx"), _dependLib);
+    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), _dependLib);
+    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd.mtlx"), _dependLib);
 }
 
 void ShaderGeneratorTester::addSkipFiles()
@@ -598,7 +568,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
 
     size_t documentIndex = 0;
     mx::CopyOptions copyOptions;
-    copyOptions.skipDuplicateElements = true;
+    copyOptions.skipConflictingElements = true;
     for (auto doc : _documents)
     {
         // Add in dependent libraries

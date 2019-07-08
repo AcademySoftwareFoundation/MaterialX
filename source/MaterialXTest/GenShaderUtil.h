@@ -24,18 +24,6 @@ namespace mx = MaterialX;
 
 namespace GenShaderUtil
 {
-//
-// Load in a library. Sets the URI before import
-//
-void loadLibrary(const mx::FilePath& file, mx::DocumentPtr doc);
-
-//
-// Loads all the MTLX files below a given library path
-//
-void loadLibraries(const mx::StringVec& libraryNames,
-                    const mx::FilePath& searchPath,
-                    mx::DocumentPtr doc,
-                    const mx::StringSet* excludeFiles = nullptr);
     
 //
 // Get source content, source path and resolved paths for

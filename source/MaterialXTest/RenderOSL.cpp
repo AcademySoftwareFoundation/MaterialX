@@ -3,6 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
+#include <MaterialXGenShader/Util.h>
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #include <MaterialXRenderOsl/OslValidator.h>
 

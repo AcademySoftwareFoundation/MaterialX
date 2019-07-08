@@ -54,7 +54,7 @@ using StringResolverPtr = shared_ptr<StringResolver>;
 using ElementMap = std::unordered_map<string, ElementPtr>;
 
 /// A standard function taking an ElementPtr and returning a boolean.
-using ElementPredicate = std::function<bool(ElementPtr)>;
+using ElementPredicate = std::function<bool(ConstElementPtr)>;
 
 /// @class Element
 /// The base class for MaterialX elements.
@@ -423,7 +423,7 @@ class Element : public std::enable_shared_from_this<Element>
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
     /// @throws Exception if a child of this element already possesses the
-    ///    given name.
+    ///     given name.
     /// @return A shared pointer to the new child element.
     template<class T> shared_ptr<T> addChild(const string& name = EMPTY_STRING);
 
@@ -434,11 +434,14 @@ class Element : public std::enable_shared_from_this<Element>
     /// @param name The name of the new child element.
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
+    /// @param registerChild If true, then the child will be registered as
+    ///     belonging to this element tree.  Defaults to true.
     /// @throws Exception if a child of this element already possesses the
-    ///    given name.
+    ///     given name.
     /// @return A shared pointer to the new child element.
     ElementPtr addChildOfCategory(const string& category,
-                                  const string& name = EMPTY_STRING);
+                                  string name = EMPTY_STRING,
+                                  bool registerChild = true);
 
     /// Return the child element, if any, with the given name.
     ElementPtr getChild(const string& name) const
@@ -1285,14 +1288,14 @@ class CopyOptions
 {
   public:
     CopyOptions() :
-        skipDuplicateElements(false)
+        skipConflictingElements(false)
     {
     }
     ~CopyOptions() { }
 
-    /// If true, elements at the same scope with duplicate names will be skipped;
-    /// otherwise, they will trigger an exception.  Defaults to false.
-    bool skipDuplicateElements;
+    /// If true, duplicate elements with non-identical content will be skipped;
+    /// otherwise they will trigger an exception.  Defaults to false.
+    bool skipConflictingElements;
 };
 
 /// @class ExceptionOrphanedElement

@@ -41,8 +41,8 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
     }
 
   protected:
-    void loadLibraries(mx::DocumentPtr document,
-                       GenShaderUtil::TestSuiteOptions& options) override;
+    void loadAdditionalLibraries(mx::DocumentPtr document,
+                                 GenShaderUtil::TestSuiteOptions& options) override;
 
     void registerLights(mx::DocumentPtr document, const GenShaderUtil::TestSuiteOptions &options, 
                         mx::GenContext& context) override;
@@ -69,13 +69,13 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
 // are loaded in. If no files are specifed in the input options, a sample
 // compound light type and a set of lights in a "light rig" are loaded in to a given
 // document.
-void GlslShaderRenderTester::loadLibraries(mx::DocumentPtr document,
-                                           GenShaderUtil::TestSuiteOptions& options)
+void GlslShaderRenderTester::loadAdditionalLibraries(mx::DocumentPtr document,
+                                                     GenShaderUtil::TestSuiteOptions& options)
 {
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/Utilities/Lights");
     for (auto lightFile : options.lightFiles)
     {
-        GenShaderUtil::loadLibrary(lightDir / mx::FilePath(lightFile), document);
+        loadLibrary(lightDir / mx::FilePath(lightFile), document);
     }
 }
 

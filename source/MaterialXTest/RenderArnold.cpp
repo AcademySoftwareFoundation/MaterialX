@@ -6,6 +6,7 @@
 #include <MaterialXGenArnold/ArnoldShaderGenerator.h>
 
 #include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/Util.h>
 
 #include <MaterialXTest/Catch/catch.hpp>
 #include <MaterialXTest/RenderUtil.h>

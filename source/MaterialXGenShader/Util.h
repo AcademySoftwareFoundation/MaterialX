@@ -34,6 +34,22 @@ void loadDocuments(const FilePath& rootPath,
                    vector<DocumentPtr>& documents, StringVec& documentsPaths, 
                    StringVec& errorLog);
 
+/// Load a given MaterialX library into a document
+void loadLibrary(const FilePath& file, DocumentPtr doc);
+
+/// Load all MaterialX files with given library names in given search paths.
+/// Note that all library files will have a URI set on them.
+void loadLibraries(const StringVec& libraryNames,
+                  const FileSearchPath& searchPath,
+                  DocumentPtr doc,
+                  const StringSet* excludeFiles = nullptr);
+
+/// Load all MaterialX files with given library names in a given path.
+void loadLibraries(const StringVec& libraryNames,
+                const FilePath& filePath,
+                DocumentPtr doc,
+                const StringSet* excludeFiles = nullptr);
+
 /// Returns true if the given element is a surface shader with the potential
 /// of beeing transparent. This can be used by HW shader generators to determine
 /// if a shader will require transparency handling.

@@ -133,14 +133,42 @@ TEST_CASE("Load content", "[xmlio]")
         REQUIRE(referencesValid);
     }
 
-    // Read reference document.
+    // Read the same document twice and verify that duplicate elements
+    // are skipped.
     mx::DocumentPtr doc = mx::createDocument();
     std::string filename = "PostShaderComposite.mtlx";
     mx::readFromXmlFile(doc, filename, searchPath);
+    mx::readFromXmlFile(doc, filename, searchPath);
+    REQUIRE(doc->validate());
+
+    // Import libraries twice and verify that duplicate elements are
+    // skipped.
+    mx::DocumentPtr libDoc = doc->copy();
+    for (mx::DocumentPtr lib : libs)
+    {
+        libDoc->importLibrary(lib);
+        libDoc->importLibrary(lib);
+    }
+    REQUIRE(libDoc->validate());
+
+    // Read document with conflicting elements.
+    mx::DocumentPtr conflictDoc = doc->copy();
+    for (mx::ElementPtr elem : conflictDoc->traverseTree())
+    {
+        if (elem->isA<mx::Node>("image"))
+        {
+            elem->setFilePrefix("differentFolder/");
+        }
+    }
+    REQUIRE_THROWS_AS(mx::readFromXmlFile(conflictDoc, filename, searchPath), mx::Exception&);
+    mx::XmlReadOptions readOptions;
+    readOptions.skipConflictingElements = true;
+    mx::readFromXmlFile(conflictDoc, filename, searchPath, &readOptions);
+    REQUIRE(conflictDoc->validate());
 
     // Read document without XIncludes.
     mx::DocumentPtr flatDoc = mx::createDocument();
-    mx::XmlReadOptions readOptions;
+    readOptions = mx::XmlReadOptions();
     readOptions.readXIncludeFunction = nullptr;
     mx::readFromXmlFile(flatDoc, filename, searchPath, &readOptions);
     REQUIRE(*flatDoc != *doc);
@@ -154,7 +182,7 @@ TEST_CASE("Load content", "[xmlio]")
     REQUIRE_THROWS_AS(mx::readFromXmlFile(envDoc, filename), mx::ExceptionFileMissing&);
 
     // Serialize to XML with a custom predicate that skips images.
-    auto skipImages = [](mx::ElementPtr elem)
+    auto skipImages = [](mx::ConstElementPtr elem)
     {
         return !elem->isA<mx::Node>("image");
     };
@@ -176,15 +204,6 @@ TEST_CASE("Load content", "[xmlio]")
         }
     }
     REQUIRE(imageElementCount == 0);
-
-    // Import duplicate libraries into document.
-    mx::DocumentPtr dupDoc = mx::createDocument();
-    for (mx::DocumentPtr lib : libs)
-    {
-        dupDoc->importLibrary(lib);
-        dupDoc->importLibrary(lib);
-    }
-    REQUIRE(dupDoc->validate());
 
     // Read a non-existent document.
     mx::DocumentPtr nonExistentDoc = mx::createDocument();

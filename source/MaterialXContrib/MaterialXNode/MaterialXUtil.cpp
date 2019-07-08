@@ -2,6 +2,7 @@
 
 #include <MaterialXCore/Traversal.h>
 #include <MaterialXFormat/XmlIo.h>
+#include <MaterialXGenShader/Util.h>
 
 #include <iostream>
 
@@ -9,36 +10,6 @@ namespace mx = MaterialX;
 
 namespace MaterialXMaya
 {
-
-void loadLibrary(const mx::FilePath& filePath, mx::DocumentPtr doc)
-{
-	mx::DocumentPtr libDoc = mx::createDocument();
-	mx::readFromXmlFile(libDoc, filePath, mx::EMPTY_STRING);
-    mx::CopyOptions copyOptions;
-    copyOptions.skipDuplicateElements = true;
-    doc->importLibrary(libDoc, &copyOptions);
-}
-
-void loadLibraries(const mx::StringVec& libraryNames,
-	               const mx::FileSearchPath& searchPath,
-	               mx::DocumentPtr doc,
-	               const mx::StringSet* excludeFiles)
-{
-	for (const std::string& libraryName : libraryNames)
-	{
-		mx::FilePath libraryPath = searchPath.find(libraryName);
-		for (const mx::FilePath& path : libraryPath.getSubDirectories())
-		{
-			for (const mx::FilePath& filename : path.getFilesInDirectory(mx::MTLX_EXTENSION))
-			{
-				if (!excludeFiles || !excludeFiles->count(filename))
-				{
-					loadLibrary(path / filename, doc);
-				}
-			}
-		}
-	}
-}
 
 mx::FilePath findInSubdirectories(const mx::FileSearchPath& searchPaths,
                                   const mx::FilePath& filePath)
@@ -71,7 +42,7 @@ mx::DocumentPtr loadDocument(const std::string& materialXDocumentPath,
 
     // Load libraries
     static const mx::StringVec libraries = { "stdlib", "pbrlib", "bxdf", "stdlib/genglsl", "pbrlib/genglsl" };
-    MaterialXMaya::loadLibraries(libraries, librarySearchPath, document);
+    loadLibraries(libraries, librarySearchPath, document);
 
     // Read document contents from disk
     mx::readFromXmlFile(document, materialXDocumentPath, mx::EMPTY_STRING);

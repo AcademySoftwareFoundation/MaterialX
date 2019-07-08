@@ -72,6 +72,48 @@ void loadDocuments(const FilePath& rootPath, const StringSet& skipFiles, const S
     }
 }
 
+void loadLibrary(const FilePath& file, DocumentPtr doc)
+{
+    DocumentPtr libDoc = createDocument();
+    XmlReadOptions readOptions;
+    readOptions.skipConflictingElements = true;
+    readFromXmlFile(libDoc, file, EMPTY_STRING, &readOptions);
+    CopyOptions copyOptions;
+    copyOptions.skipConflictingElements = true;
+    doc->importLibrary(libDoc, &copyOptions);
+}
+
+void loadLibraries(const StringVec& libraryNames,
+                   const FileSearchPath& searchPath,
+                   DocumentPtr doc,
+                   const StringSet* excludeFiles)
+{
+    for (const std::string& libraryName : libraryNames)
+    {
+        FilePath libraryPath = searchPath.find(libraryName);
+        for (const FilePath& path : libraryPath.getSubDirectories())
+        {
+            for (const FilePath& filename : path.getFilesInDirectory(MTLX_EXTENSION))
+            {
+                if (!excludeFiles || !excludeFiles->count(filename))
+                {
+                    loadLibrary(path / filename, doc);
+                }
+            }
+        }
+    }
+}
+
+void loadLibraries(const StringVec& libraryNames,
+                    const FilePath& filePath,
+                    DocumentPtr doc,
+                    const StringSet* excludeFiles)
+{
+    FileSearchPath searchPath;
+    searchPath.append(filePath);
+    loadLibraries(libraryNames, searchPath, doc, excludeFiles);
+}
+
 namespace
 {
     const float EPS_ZERO = 0.00001f;

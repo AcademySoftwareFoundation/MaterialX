@@ -79,7 +79,6 @@ mx::DocumentPtr loadLibraries(const mx::StringVec& libraryFolders, const mx::Fil
         mx::FilePathVec filenames = path.getFilesInDirectory("mtlx");
 
         mx::CopyOptions copyOptions;
-        copyOptions.skipDuplicateElements = true;
 
         for (const std::string& filename : filenames)
         {
@@ -365,7 +364,6 @@ void Viewer::setupLights(mx::DocumentPtr doc)
             lightDoc->setSourceUri(path);
 
             mx::CopyOptions copyOptions;
-            copyOptions.skipDuplicateElements = true;
             doc->importLibrary(lightDoc, &copyOptions);
         }
         catch (std::exception& e)
@@ -762,7 +760,6 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
         // Import libraries.
         mx::CopyOptions copyOptions;
-        copyOptions.skipDuplicateElements = true;
         doc->importLibrary(libraries, &copyOptions);
 
         // Add lighting 

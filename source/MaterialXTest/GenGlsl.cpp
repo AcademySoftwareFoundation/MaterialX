@@ -12,6 +12,7 @@
 
 #include <MaterialXFormat/File.h>
 
+#include <MaterialXGenShader/Util.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenGlsl/GlslSyntax.h>
 
@@ -100,7 +101,7 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
-    GenShaderUtil::loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
+    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
 
     mx::NodeDefPtr pointLightShader = doc->getNodeDef("ND_point_light");
     mx::NodeDefPtr spotLightShader = doc->getNodeDef("ND_spot_light");

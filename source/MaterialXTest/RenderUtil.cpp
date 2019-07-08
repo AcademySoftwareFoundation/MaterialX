@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-
+#include <MaterialXGenShader/Util.h>
 #include <MaterialXTest/RenderUtil.h>
 #include <MaterialXTest/Catch/catch.hpp>
 
@@ -143,14 +143,14 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     addSkipFiles();
 
     const mx::StringVec libraries = { "stdlib", "pbrlib" };
-    GenShaderUtil::loadLibraries(libraries, searchPath, dependLib, nullptr);
+    loadLibraries(libraries, searchPath, dependLib, nullptr);
 
     // Load shader definitions used in the test suite.
-    GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), dependLib);
-    GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd.mtlx"), dependLib);
+    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), dependLib);
+    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd.mtlx"), dependLib);
 
     // Load any addition per validator libraries
-    loadLibraries(dependLib, options);
+    loadAdditionalLibraries(dependLib, options);
     ioTimer.endTimer();
 
     // Create validators and generators
@@ -180,7 +180,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     mx::StringSet usedImpls;
 
     mx::CopyOptions copyOptions;
-    copyOptions.skipDuplicateElements = true;
+    copyOptions.skipConflictingElements = true;
 
     const std::string MTLX_EXTENSION("mtlx");
     for (auto dir : dirs)

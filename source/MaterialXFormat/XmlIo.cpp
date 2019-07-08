@@ -25,19 +25,16 @@ const string MTLX_EXTENSION = "mtlx";
 
 namespace {
 
-const string SOURCE_URI_ATTRIBUTE = "__sourceUri";
 const string XINCLUDE_TAG = "xi:include";
 
 void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptions* readOptions)
 {
+    bool skipConflictingElements = readOptions && readOptions->skipConflictingElements;
+
     // Store attributes in element.
     for (const xml_attribute& xmlAttr : xmlNode.attributes())
     {
-        if (xmlAttr.name() == SOURCE_URI_ATTRIBUTE)
-        {
-            elem->setSourceUri(xmlAttr.value());
-        }
-        else if (xmlAttr.name() != Element::NAME_ATTRIBUTE)
+        if (xmlAttr.name() != Element::NAME_ATTRIBUTE)
         {
             elem->setAttribute(xmlAttr.name(), xmlAttr.value());
         }
@@ -57,8 +54,22 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
             }
         }
 
-        ElementPtr child = elem->addChildOfCategory(category, name);
+        // Check for duplicate elements.
+        ConstElementPtr previous = elem->getChild(name);
+        if (previous && skipConflictingElements)
+        {
+            continue;
+        }
+
+        // Create the new element.
+        ElementPtr child = elem->addChildOfCategory(category, name, !previous);
         elementFromXml(xmlChild, child, readOptions);
+
+        // Check for conflicting elements.
+        if (previous && *previous != *child)
+        {
+            throw Exception("Duplicate element with conflicting content: " + name);
+        }
     }
 }
 
@@ -80,7 +91,7 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions
 
     // Create child nodes and recurse.
     StringSet writtenSourceFiles;
-    for (ElementPtr child : elem->getChildren())
+    for (const ConstElementPtr& child : elem->getChildren())
     {
         if (elementPredicate && !elementPredicate(child))
         {
@@ -191,9 +202,7 @@ void processXIncludes(DocumentPtr doc, xml_node& xmlNode, const string& searchPa
                 readXIncludeFunction(library, filename, includeSearchPath, &xiReadOptions);
 
                 // Import the library document.
-                CopyOptions copyOptions;
-                copyOptions.skipDuplicateElements = true;
-                doc->importLibrary(library, &copyOptions);
+                doc->importLibrary(library, readOptions);
             }
 
             // Remove include directive.
