@@ -21,7 +21,7 @@
     </doublecolor>
     <contrast name="n1" type="color3">
       <input name="in" type="color3" nodename="dc1" output="c1"/>
-      <parameter name="amount" type="float" value="0.14"/>
+      <input name="amount" type="float" value="0.14"/>
     </contrast>
     <add name="n2" type="color3">
       <input name="in1" type="color3" nodename="dc1" output="c2"/>

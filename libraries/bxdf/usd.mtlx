@@ -198,7 +198,7 @@
     <conductor_brdf name="metalness_metal_bsdf" type="BSDF">
       <input name="weight" type="float" value="1" />
       <input name="reflectivity" type="color3" nodename="F0_albedo" />
-      <input name="edgecolor" type="color3" interfacename="diffuseColor" />
+      <input name="edge_color" type="color3" interfacename="diffuseColor" />
       <input name="roughness" type="vector2" nodename="specular_roughness" />
       <input name="normal" type="vector3" nodename="surface_normal" />
     </conductor_brdf>
@@ -234,7 +234,7 @@
 
     <!-- Emission Layer -->
     <uniform_edf name="emission_edf" type="EDF">
-      <input name="intensity" type="color3" interfacename="emissiveColor" />
+      <input name="color" type="color3" interfacename="emissiveColor" />
     </uniform_edf>
 
     <!-- Surface Shader Constructor -->

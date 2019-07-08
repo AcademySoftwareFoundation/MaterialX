@@ -346,6 +346,7 @@
     <parameter name="frameendaction" type="string" value="constant" enum="constant,clamp,periodic,mirror"/>
   </nodedef>
 
+
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
   <!-- ======================================================================== -->
@@ -2053,6 +2054,18 @@
   </nodedef>
 
   <!--
+    Node: <normalmap>
+    Transform a normal vector from object or tangent space into "world" space.
+  -->
+  <nodedef name="ND_normalmap" node="normalmap" type="vector3" nodegroup="math" default="0.0, 1.0, 0.0">
+    <input name="in" type="vector3" value="0.5, 0.5, 1.0"/>
+    <parameter name="space" type="string" value="tangent"/>
+    <input name="scale" type="float" value="1.0"/>
+    <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
+  </nodedef>
+
+  <!--
     Node: <transpose>
     Output the transpose of the incoming matrix.
   -->
@@ -2098,20 +2111,6 @@
     <input name="scale" type="vector2" value="1.0,1.0"/>
     <input name="rotate" type="float" value="0.0"/>
     <input name="offset" type="vector2" value="0.0,0.0"/>
-  </nodedef>
-
-  <!--
-    Node: <normalmap>
-    Transform a normal vector from object or tangent space to another space.
-    THe default space for the input vector is tangent space and the default space for the
-    resulting normal is world space.
-  -->
-  <nodedef name="ND_normalmap" node="normalmap" type="vector3" nodegroup="math">
-    <input name="in" type="vector3" value="0.5, 0.5, 1.0"/>
-    <parameter name="space" type="string" value="tangent" enum="object,tangent"/>
-    <input name="scale" type="float" value="1.0"/>
-    <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
-    <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
   </nodedef>
 
   <!--
@@ -2203,94 +2202,94 @@
   -->
   <nodedef name="ND_remap_float" node="remap" type="float" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="float" value="0.0"/>
-    <parameter name="inlow" type="float" value="0.0"/>
-    <parameter name="inhigh" type="float" value="1.0"/>
-    <parameter name="outlow" type="float" value="0.0"/>
-    <parameter name="outhigh" type="float" value="1.0"/>
+    <input name="inlow" type="float" value="0.0"/>
+    <input name="inhigh" type="float" value="1.0"/>
+    <input name="outlow" type="float" value="0.0"/>
+    <input name="outhigh" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_remap_color2" node="remap" type="color2" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="inlow" type="color2" value="0.0, 0.0"/>
-    <parameter name="inhigh" type="color2" value="1.0, 1.0"/>
-    <parameter name="outlow" type="color2" value="0.0, 0.0"/>
-    <parameter name="outhigh" type="color2" value="1.0, 1.0"/>
+    <input name="inlow" type="color2" value="0.0, 0.0"/>
+    <input name="inhigh" type="color2" value="1.0, 1.0"/>
+    <input name="outlow" type="color2" value="0.0, 0.0"/>
+    <input name="outhigh" type="color2" value="1.0, 1.0"/>
   </nodedef>
   <nodedef name="ND_remap_color3" node="remap" type="color3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
-    <parameter name="inlow" type="color3" value="0.0, 0.0, 0.0"/>
-    <parameter name="inhigh" type="color3" value="1.0, 1.0, 1.0"/>
-    <parameter name="outlow" type="color3" value="0.0, 0.0, 0.0"/>
-    <parameter name="outhigh" type="color3" value="1.0, 1.0, 1.0"/>
+    <input name="inlow" type="color3" value="0.0, 0.0, 0.0"/>
+    <input name="inhigh" type="color3" value="1.0, 1.0, 1.0"/>
+    <input name="outlow" type="color3" value="0.0, 0.0, 0.0"/>
+    <input name="outhigh" type="color3" value="1.0, 1.0, 1.0"/>
   </nodedef>
   <nodedef name="ND_remap_color4" node="remap" type="color4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="inlow" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="inhigh" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
-    <parameter name="outlow" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="outhigh" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
+    <input name="inlow" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="inhigh" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
+    <input name="outlow" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="outhigh" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
   </nodedef>
   <nodedef name="ND_remap_vector2" node="remap" type="vector2" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector2" value="0.0, 0.0"/>
-    <parameter name="inlow" type="vector2" value="0.0, 0.0"/>
-    <parameter name="inhigh" type="vector2" value="1.0, 1.0"/>
-    <parameter name="outlow" type="vector2" value="0.0, 0.0"/>
-    <parameter name="outhigh" type="vector2" value="1.0, 1.0"/>
+    <input name="inlow" type="vector2" value="0.0, 0.0"/>
+    <input name="inhigh" type="vector2" value="1.0, 1.0"/>
+    <input name="outlow" type="vector2" value="0.0, 0.0"/>
+    <input name="outhigh" type="vector2" value="1.0, 1.0"/>
   </nodedef>
   <nodedef name="ND_remap_vector3" node="remap" type="vector3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
-    <parameter name="inlow" type="vector3" value="0.0, 0.0, 0.0"/>
-    <parameter name="inhigh" type="vector3" value="1.0, 1.0, 1.0"/>
-    <parameter name="outlow" type="vector3" value="0.0, 0.0, 0.0"/>
-    <parameter name="outhigh" type="vector3" value="1.0, 1.0, 1.0"/>
+    <input name="inlow" type="vector3" value="0.0, 0.0, 0.0"/>
+    <input name="inhigh" type="vector3" value="1.0, 1.0, 1.0"/>
+    <input name="outlow" type="vector3" value="0.0, 0.0, 0.0"/>
+    <input name="outhigh" type="vector3" value="1.0, 1.0, 1.0"/>
   </nodedef>
   <nodedef name="ND_remap_vector4" node="remap" type="vector4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="inlow" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="inhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
-    <parameter name="outlow" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="outhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
+    <input name="inlow" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="inhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
+    <input name="outlow" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="outhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
   </nodedef>
   <nodedef name="ND_remap_color2FA" node="remap" type="color2" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="inlow" type="float" value="0.0"/>
-    <parameter name="inhigh" type="float" value="1.0"/>
-    <parameter name="outlow" type="float" value="0.0"/>
-    <parameter name="outhigh" type="float" value="1.0"/>
+    <input name="inlow" type="float" value="0.0"/>
+    <input name="inhigh" type="float" value="1.0"/>
+    <input name="outlow" type="float" value="0.0"/>
+    <input name="outhigh" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_remap_color3FA" node="remap" type="color3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
-    <parameter name="inlow" type="float" value="0.0"/>
-    <parameter name="inhigh" type="float" value="1.0"/>
-    <parameter name="outlow" type="float" value="0.0"/>
-    <parameter name="outhigh" type="float" value="1.0"/>
+    <input name="inlow" type="float" value="0.0"/>
+    <input name="inhigh" type="float" value="1.0"/>
+    <input name="outlow" type="float" value="0.0"/>
+    <input name="outhigh" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_remap_color4FA" node="remap" type="color4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="inlow" type="float" value="0.0"/>
-    <parameter name="inhigh" type="float" value="1.0"/>
-    <parameter name="outlow" type="float" value="0.0"/>
-    <parameter name="outhigh" type="float" value="1.0"/>
+    <input name="inlow" type="float" value="0.0"/>
+    <input name="inhigh" type="float" value="1.0"/>
+    <input name="outlow" type="float" value="0.0"/>
+    <input name="outhigh" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_remap_vector2FA" node="remap" type="vector2" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector2" value="0.0, 0.0"/>
-    <parameter name="inlow" type="float" value="0.0"/>
-    <parameter name="inhigh" type="float" value="1.0"/>
-    <parameter name="outlow" type="float" value="0.0"/>
-    <parameter name="outhigh" type="float" value="1.0"/>
+    <input name="inlow" type="float" value="0.0"/>
+    <input name="inhigh" type="float" value="1.0"/>
+    <input name="outlow" type="float" value="0.0"/>
+    <input name="outhigh" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_remap_vector3FA" node="remap" type="vector3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
-    <parameter name="inlow" type="float" value="0.0"/>
-    <parameter name="inhigh" type="float" value="1.0"/>
-    <parameter name="outlow" type="float" value="0.0"/>
-    <parameter name="outhigh" type="float" value="1.0"/>
+    <input name="inlow" type="float" value="0.0"/>
+    <input name="inhigh" type="float" value="1.0"/>
+    <input name="outlow" type="float" value="0.0"/>
+    <input name="outhigh" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_remap_vector4FA" node="remap" type="vector4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="inlow" type="float" value="0.0"/>
-    <parameter name="inhigh" type="float" value="1.0"/>
-    <parameter name="outlow" type="float" value="0.0"/>
-    <parameter name="outhigh" type="float" value="1.0"/>
+    <input name="inlow" type="float" value="0.0"/>
+    <input name="inhigh" type="float" value="1.0"/>
+    <input name="outlow" type="float" value="0.0"/>
+    <input name="outhigh" type="float" value="1.0"/>
   </nodedef>
 
   <!--
@@ -2300,68 +2299,68 @@
   -->
   <nodedef name="ND_smoothstep_float" node="smoothstep" type="float" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="float" value="0.0"/>
-    <parameter name="low" type="float" value="0.0"/>
-    <parameter name="high" type="float" value="1.0"/>
+    <input name="low" type="float" value="0.0"/>
+    <input name="high" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_smoothstep_color2" node="smoothstep" type="color2" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="low" type="color2" value="0.0, 0.0"/>
-    <parameter name="high" type="color2" value="1.0, 1.0"/>
+    <input name="low" type="color2" value="0.0, 0.0"/>
+    <input name="high" type="color2" value="1.0, 1.0"/>
   </nodedef>
   <nodedef name="ND_smoothstep_color3" node="smoothstep" type="color3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
-    <parameter name="low" type="color3" value="0.0, 0.0, 0.0"/>
-    <parameter name="high" type="color3" value="1.0, 1.0, 1.0"/>
+    <input name="low" type="color3" value="0.0, 0.0, 0.0"/>
+    <input name="high" type="color3" value="1.0, 1.0, 1.0"/>
   </nodedef>
   <nodedef name="ND_smoothstep_color4" node="smoothstep" type="color4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="low" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="high" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
+    <input name="low" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="high" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
   </nodedef>
   <nodedef name="ND_smoothstep_vector2" node="smoothstep" type="vector2" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector2" value="0.0, 0.0"/>
-    <parameter name="low" type="vector2" value="0.0, 0.0"/>
-    <parameter name="high" type="vector2" value="1.0, 1.0"/>
+    <input name="low" type="vector2" value="0.0, 0.0"/>
+    <input name="high" type="vector2" value="1.0, 1.0"/>
   </nodedef>
   <nodedef name="ND_smoothstep_vector3" node="smoothstep" type="vector3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
-    <parameter name="low" type="vector3" value="0.0, 0.0, 0.0"/>
-    <parameter name="high" type="vector3" value="1.0, 1.0, 1.0"/>
+    <input name="low" type="vector3" value="0.0, 0.0, 0.0"/>
+    <input name="high" type="vector3" value="1.0, 1.0, 1.0"/>
   </nodedef>
   <nodedef name="ND_smoothstep_vector4" node="smoothstep" type="vector4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="low" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="high" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
+    <input name="low" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="high" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
   </nodedef>
   <nodedef name="ND_smoothstep_color2FA" node="smoothstep" type="color2" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="low" type="float" value="0.0"/>
-    <parameter name="high" type="float" value="1.0"/>
+    <input name="low" type="float" value="0.0"/>
+    <input name="high" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_smoothstep_color3FA" node="smoothstep" type="color3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
-    <parameter name="low" type="float" value="0.0"/>
-    <parameter name="high" type="float" value="1.0"/>
+    <input name="low" type="float" value="0.0"/>
+    <input name="high" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_smoothstep_color4FA" node="smoothstep" type="color4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="low" type="float" value="0.0"/>
-    <parameter name="high" type="float" value="1.0"/>
+    <input name="low" type="float" value="0.0"/>
+    <input name="high" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_smoothstep_vector2FA" node="smoothstep" type="vector2" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector2" value="0.0, 0.0"/>
-    <parameter name="low" type="float" value="0.0"/>
-    <parameter name="high" type="float" value="1.0"/>
+    <input name="low" type="float" value="0.0"/>
+    <input name="high" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_smoothstep_vector3FA" node="smoothstep" type="vector3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
-    <parameter name="low" type="float" value="0.0"/>
-    <parameter name="high" type="float" value="1.0"/>
+    <input name="low" type="float" value="0.0"/>
+    <input name="high" type="float" value="1.0"/>
   </nodedef>
   <nodedef name="ND_smoothstep_vector4FA" node="smoothstep" type="vector4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="low" type="float" value="0.0"/>
-    <parameter name="high" type="float" value="1.0"/>
+    <input name="low" type="float" value="0.0"/>
+    <input name="high" type="float" value="1.0"/>
   </nodedef>
 
   <!--
@@ -2441,67 +2440,67 @@
   -->
   <nodedef name="ND_contrast_float" node="contrast" type="float" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="float" value="0.0"/>
-    <parameter name="amount" type="float" value="1.0"/>
+    <input name="amount" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.5"/>
   </nodedef>
   <nodedef name="ND_contrast_color2" node="contrast" type="color2" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="amount" type="color2" value="1.0, 1.0"/>
+    <input name="amount" type="color2" value="1.0, 1.0"/>
     <parameter name="pivot" type="color2" value="0.5, 0.5"/>
   </nodedef>
   <nodedef name="ND_contrast_color3" node="contrast" type="color3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
-    <parameter name="amount" type="color3" value="1.0, 1.0, 1.0"/>
+    <input name="amount" type="color3" value="1.0, 1.0, 1.0"/>
     <parameter name="pivot" type="color3" value="0.5, 0.5, 0.5"/>
   </nodedef>
   <nodedef name="ND_contrast_color4" node="contrast" type="color4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="amount" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
+    <input name="amount" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
     <parameter name="pivot" type="color4" value="0.5, 0.5, 0.5, 0.5"/>
   </nodedef>
   <nodedef name="ND_contrast_vector2" node="contrast" type="vector2" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector2" value="0.0, 0.0"/>
-    <parameter name="amount" type="vector2" value="1.0, 1.0"/>
+    <input name="amount" type="vector2" value="1.0, 1.0"/>
     <parameter name="pivot" type="vector2" value="0.5, 0.5"/>
   </nodedef>
   <nodedef name="ND_contrast_vector3" node="contrast" type="vector3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
-    <parameter name="amount" type="vector3" value="1.0, 1.0, 1.0"/>
+    <input name="amount" type="vector3" value="1.0, 1.0, 1.0"/>
     <parameter name="pivot" type="vector3" value="0.5, 0.5, 0.5"/>
   </nodedef>
   <nodedef name="ND_contrast_vector4" node="contrast" type="vector4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="amount" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
+    <input name="amount" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
     <parameter name="pivot" type="vector4" value="0.5, 0.5, 0.5, 0.5"/>
   </nodedef>
   <nodedef name="ND_contrast_color2FA" node="contrast" type="color2" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="amount" type="float" value="1.0"/>
+    <input name="amount" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.5"/>
   </nodedef>
   <nodedef name="ND_contrast_color3FA" node="contrast" type="color3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
-    <parameter name="amount" type="float" value="1.0"/>
+    <input name="amount" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.5"/>
   </nodedef>
   <nodedef name="ND_contrast_color4FA" node="contrast" type="color4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="amount" type="float" value="1.0"/>
+    <input name="amount" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.5"/>
   </nodedef>
   <nodedef name="ND_contrast_vector2FA" node="contrast" type="vector2" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector2" value="0.0, 0.0"/>
-    <parameter name="amount" type="float" value="1.0"/>
+    <input name="amount" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.5"/>
   </nodedef>
   <nodedef name="ND_contrast_vector3FA" node="contrast" type="vector3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
-    <parameter name="amount" type="float" value="1.0"/>
+    <input name="amount" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.5"/>
   </nodedef>
   <nodedef name="ND_contrast_vector4FA" node="contrast" type="vector4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="amount" type="float" value="1.0"/>
+    <input name="amount" type="float" value="1.0"/>
     <parameter name="pivot" type="float" value="0.5"/>
   </nodedef>
 
@@ -2512,119 +2511,119 @@
   -->
   <nodedef name="ND_range_float" node="range" type="float" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="float" value="0.0"/>
-    <parameter name="inlow" type="float" value="0.0"/>
-    <parameter name="inhigh" type="float" value="1.0"/>
-    <parameter name="gamma" type="float" value="1.0"/>
-    <parameter name="outlow" type="float" value="0.0"/>
-    <parameter name="outhigh" type="float" value="1.0"/>
+    <input name="inlow" type="float" value="0.0"/>
+    <input name="inhigh" type="float" value="1.0"/>
+    <input name="gamma" type="float" value="1.0"/>
+    <input name="outlow" type="float" value="0.0"/>
+    <input name="outhigh" type="float" value="1.0"/>
     <parameter name="doclamp" type="boolean" value="false"/>
   </nodedef>
   <nodedef name="ND_range_color2" node="range" type="color2" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="inlow" type="color2" value="0.0, 0.0"/>
-    <parameter name="inhigh" type="color2" value="1.0, 1.0"/>
-    <parameter name="gamma" type="color2" value="1.0, 1.0"/>
-    <parameter name="outlow" type="color2" value="0.0, 0.0"/>
-    <parameter name="outhigh" type="color2" value="1.0, 1.0"/>
+    <input name="inlow" type="color2" value="0.0, 0.0"/>
+    <input name="inhigh" type="color2" value="1.0, 1.0"/>
+    <input name="gamma" type="color2" value="1.0, 1.0"/>
+    <input name="outlow" type="color2" value="0.0, 0.0"/>
+    <input name="outhigh" type="color2" value="1.0, 1.0"/>
     <parameter name="doclamp" type="boolean" value="false"/>
   </nodedef>
   <nodedef name="ND_range_color3" node="range" type="color3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
-    <parameter name="inlow" type="color3" value="0.0, 0.0, 0.0"/>
-    <parameter name="inhigh" type="color3" value="1.0, 1.0, 1.0"/>
-    <parameter name="gamma" type="color3" value="1.0, 1.0, 1.0"/>
-    <parameter name="outlow" type="color3" value="0.0, 0.0, 0.0"/>
-    <parameter name="outhigh" type="color3" value="1.0, 1.0, 1.0"/>
+    <input name="inlow" type="color3" value="0.0, 0.0, 0.0"/>
+    <input name="inhigh" type="color3" value="1.0, 1.0, 1.0"/>
+    <input name="gamma" type="color3" value="1.0, 1.0, 1.0"/>
+    <input name="outlow" type="color3" value="0.0, 0.0, 0.0"/>
+    <input name="outhigh" type="color3" value="1.0, 1.0, 1.0"/>
     <parameter name="doclamp" type="boolean" value="false"/>
   </nodedef>
   <nodedef name="ND_range_color4" node="range" type="color4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="inlow" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="inhigh" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
-    <parameter name="gamma" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
-    <parameter name="outlow" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="outhigh" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
+    <input name="inlow" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="inhigh" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
+    <input name="gamma" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
+    <input name="outlow" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="outhigh" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
     <parameter name="doclamp" type="boolean" value="false"/>
   </nodedef>
   <nodedef name="ND_range_vector2" node="range" type="vector2" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector2" value="0.0, 0.0"/>
-    <parameter name="inlow" type="vector2" value="0.0, 0.0"/>
-    <parameter name="inhigh" type="vector2" value="1.0, 1.0"/>
-    <parameter name="gamma" type="vector2" value="1.0, 1.0"/>
-    <parameter name="outlow" type="vector2" value="0.0, 0.0"/>
-    <parameter name="outhigh" type="vector2" value="1.0, 1.0"/>
+    <input name="inlow" type="vector2" value="0.0, 0.0"/>
+    <input name="inhigh" type="vector2" value="1.0, 1.0"/>
+    <input name="gamma" type="vector2" value="1.0, 1.0"/>
+    <input name="outlow" type="vector2" value="0.0, 0.0"/>
+    <input name="outhigh" type="vector2" value="1.0, 1.0"/>
     <parameter name="doclamp" type="boolean" value="false"/>
   </nodedef>
   <nodedef name="ND_range_vector3" node="range" type="vector3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
-    <parameter name="inlow" type="vector3" value="0.0, 0.0, 0.0"/>
-    <parameter name="inhigh" type="vector3" value="1.0, 1.0, 1.0"/>
-    <parameter name="gamma" type="vector3" value="1.0, 1.0, 1.0"/>
-    <parameter name="outlow" type="vector3" value="0.0, 0.0, 0.0"/>
-    <parameter name="outhigh" type="vector3" value="1.0, 1.0, 1.0"/>
+    <input name="inlow" type="vector3" value="0.0, 0.0, 0.0"/>
+    <input name="inhigh" type="vector3" value="1.0, 1.0, 1.0"/>
+    <input name="gamma" type="vector3" value="1.0, 1.0, 1.0"/>
+    <input name="outlow" type="vector3" value="0.0, 0.0, 0.0"/>
+    <input name="outhigh" type="vector3" value="1.0, 1.0, 1.0"/>
     <parameter name="doclamp" type="boolean" value="false"/>
   </nodedef>
   <nodedef name="ND_range_vector4" node="range" type="vector4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="inlow" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="inhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
-    <parameter name="gamma" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
-    <parameter name="outlow" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="outhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
+    <input name="inlow" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="inhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
+    <input name="gamma" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
+    <input name="outlow" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+    <input name="outhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
     <parameter name="doclamp" type="boolean" value="false"/>
   </nodedef>
   <nodedef name="ND_range_color2FA" node="range" type="color2" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color2" value="0.0, 0.0"/>
-    <parameter name="inlow" type="float" value="0.0"/>
-    <parameter name="inhigh" type="float" value="1.0"/>
-    <parameter name="gamma" type="float" value="1.0"/>
-    <parameter name="outlow" type="float" value="0.0"/>
-    <parameter name="outhigh" type="float" value="1.0"/>
+    <input name="inlow" type="float" value="0.0"/>
+    <input name="inhigh" type="float" value="1.0"/>
+    <input name="gamma" type="float" value="1.0"/>
+    <input name="outlow" type="float" value="0.0"/>
+    <input name="outhigh" type="float" value="1.0"/>
     <parameter name="doclamp" type="boolean" value="false"/>
   </nodedef>
   <nodedef name="ND_range_color3FA" node="range" type="color3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
-    <parameter name="inlow" type="float" value="0.0"/>
-    <parameter name="inhigh" type="float" value="1.0"/>
-    <parameter name="gamma" type="float" value="1.0"/>
-    <parameter name="outlow" type="float" value="0.0"/>
-    <parameter name="outhigh" type="float" value="1.0"/>
+    <input name="inlow" type="float" value="0.0"/>
+    <input name="inhigh" type="float" value="1.0"/>
+    <input name="gamma" type="float" value="1.0"/>
+    <input name="outlow" type="float" value="0.0"/>
+    <input name="outhigh" type="float" value="1.0"/>
     <parameter name="doclamp" type="boolean" value="false"/>
   </nodedef>
   <nodedef name="ND_range_color4FA" node="range" type="color4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="inlow" type="float" value="0.0"/>
-    <parameter name="inhigh" type="float" value="1.0"/>
-    <parameter name="gamma" type="float" value="1.0"/>
-    <parameter name="outlow" type="float" value="0.0"/>
-    <parameter name="outhigh" type="float" value="1.0"/>
+    <input name="inlow" type="float" value="0.0"/>
+    <input name="inhigh" type="float" value="1.0"/>
+    <input name="gamma" type="float" value="1.0"/>
+    <input name="outlow" type="float" value="0.0"/>
+    <input name="outhigh" type="float" value="1.0"/>
     <parameter name="doclamp" type="boolean" value="false"/>
   </nodedef>
   <nodedef name="ND_range_vector2FA" node="range" type="vector2" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector2" value="0.0, 0.0"/>
-    <parameter name="inlow" type="float" value="0.0"/>
-    <parameter name="inhigh" type="float" value="1.0"/>
-    <parameter name="gamma" type="float" value="1.0"/>
-    <parameter name="outlow" type="float" value="0.0"/>
-    <parameter name="outhigh" type="float" value="1.0"/>
+    <input name="inlow" type="float" value="0.0"/>
+    <input name="inhigh" type="float" value="1.0"/>
+    <input name="gamma" type="float" value="1.0"/>
+    <input name="outlow" type="float" value="0.0"/>
+    <input name="outhigh" type="float" value="1.0"/>
     <parameter name="doclamp" type="boolean" value="false"/>
   </nodedef>
   <nodedef name="ND_range_vector3FA" node="range" type="vector3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
-    <parameter name="inlow" type="float" value="0.0"/>
-    <parameter name="inhigh" type="float" value="1.0"/>
-    <parameter name="gamma" type="float" value="1.0"/>
-    <parameter name="outlow" type="float" value="0.0"/>
-    <parameter name="outhigh" type="float" value="1.0"/>
+    <input name="inlow" type="float" value="0.0"/>
+    <input name="inhigh" type="float" value="1.0"/>
+    <input name="gamma" type="float" value="1.0"/>
+    <input name="outlow" type="float" value="0.0"/>
+    <input name="outhigh" type="float" value="1.0"/>
     <parameter name="doclamp" type="boolean" value="false"/>
   </nodedef>
   <nodedef name="ND_range_vector4FA" node="range" type="vector4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="inlow" type="float" value="0.0"/>
-    <parameter name="inhigh" type="float" value="1.0"/>
-    <parameter name="gamma" type="float" value="1.0"/>
-    <parameter name="outlow" type="float" value="0.0"/>
-    <parameter name="outhigh" type="float" value="1.0"/>
+    <input name="inlow" type="float" value="0.0"/>
+    <input name="inhigh" type="float" value="1.0"/>
+    <input name="gamma" type="float" value="1.0"/>
+    <input name="outlow" type="float" value="0.0"/>
+    <input name="outhigh" type="float" value="1.0"/>
     <parameter name="doclamp" type="boolean" value="false"/>
   </nodedef>
 
@@ -2636,11 +2635,11 @@
   -->
   <nodedef name="ND_hsvadjust_color3" node="hsvadjust" type="color3" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color3" value="0.0, 0.0, 0.0"/>
-    <parameter name="amount" type="vector3" value="0.0, 1.0, 1.0"/>
+    <input name="amount" type="vector3" value="0.0, 1.0, 1.0"/>
   </nodedef>
   <nodedef name="ND_hsvadjust_color4" node="hsvadjust" type="color4" nodegroup="adjustment" defaultinput="in">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-    <parameter name="amount" type="vector3" value="0.0, 1.0, 1.0"/>
+    <input name="amount" type="vector3" value="0.0, 1.0, 1.0"/>
   </nodedef>
 
   <!--
