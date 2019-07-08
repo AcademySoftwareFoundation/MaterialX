@@ -113,6 +113,16 @@ class GenContext
         return _sourceCodeSearchPath.find(filename);
     }
 
+    /// Add the given name to the list of unique identifiers in use.
+    void addIdentifier(const string& name);
+
+    /// Make sure the given name is a unique identifiers, 
+    /// updating the name if needed.
+    void makeIdentifier(string& name);
+
+    /// Clear all identifiers in use.
+    void clearIdentifiers();
+
     /// Cache a shader node implementation.
     void addNodeImplementation(const string& name, ShaderNodeImplPtr impl);
 
@@ -197,6 +207,10 @@ class GenContext
 
     // Search path for finding source files.
     FileSearchPath _sourceCodeSearchPath;
+
+    // Set of unique identifier names.
+    StringSet _identifiers;
+    size_t _identifierIndex;
 
     // Cached shader node implementations.
     std::unordered_map<string, ShaderNodeImplPtr> _nodeImpls;

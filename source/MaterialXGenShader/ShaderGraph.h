@@ -143,7 +143,7 @@ class ShaderGraph : public ShaderNode
     /// For inputs and outputs in the graph set the variable names to be used
     /// in generated code. Making sure variable names are valid and unique
     /// to avoid name conflicts during shader generation.
-    void setVariableNames(const Syntax& syntax);
+    void setVariableNames(GenContext& context);
 
     /// Populates the input color transform map if the provided input/parameter
     /// has a color space attribute and has a type of color3 or color4.

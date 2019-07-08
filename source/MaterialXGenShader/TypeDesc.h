@@ -140,7 +140,6 @@ namespace Type
     extern const TypeDesc* BSDF;
     extern const TypeDesc* EDF;
     extern const TypeDesc* VDF;
-    extern const TypeDesc* ROUGHNESSINFO;
     extern const TypeDesc* SURFACESHADER;
     extern const TypeDesc* VOLUMESHADER;
     extern const TypeDesc* DISPLACEMENTSHADER;

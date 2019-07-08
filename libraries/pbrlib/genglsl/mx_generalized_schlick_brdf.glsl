@@ -1,6 +1,6 @@
 #include "pbrlib/genglsl/lib/mx_bsdfs.glsl"
 
-void mx_generalized_schlick_brdf_reflection(vec3 L, vec3 V, float weight, vec3 color0, vec3 color90, float exponent, roughnessinfo roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
+void mx_generalized_schlick_brdf_reflection(vec3 L, vec3 V, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -21,8 +21,8 @@ void mx_generalized_schlick_brdf_reflection(vec3 L, vec3 V, float weight, vec3 c
     vec3 H = normalize(L + V);
     float NdotH = dot(N, H);
 
-    float D = mx_microfacet_ggx_NDF(X, Y, H, NdotH, roughness.alphaX, roughness.alphaY);
-    float G = mx_microfacet_ggx_smith_G(NdotL, NdotV, roughness.alpha);
+    float D = mx_microfacet_ggx_NDF(X, Y, H, NdotH, roughness.x, roughness.y);
+    float G = mx_microfacet_ggx_smith_G(NdotL, NdotV, max(roughness.x, roughness.y));
 
     float VdotH = dot(V, H);
     vec3 F = mx_fresnel_schlick(VdotH, color0, color90, exponent);
@@ -34,7 +34,7 @@ void mx_generalized_schlick_brdf_reflection(vec3 L, vec3 V, float weight, vec3 c
            + base * (1.0 - avgF);       // Base layer reflection attenuated by top fresnel
 }
 
-void mx_generalized_schlick_brdf_transmission(vec3 V, float weight, vec3 color0, vec3 color90, float exponent, roughnessinfo roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
+void mx_generalized_schlick_brdf_transmission(vec3 V, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -55,7 +55,7 @@ void mx_generalized_schlick_brdf_transmission(vec3 V, float weight, vec3 color0,
     result = base * (1.0 - avgF); // Base layer transmission attenuated by top fresnel
 }
 
-void mx_generalized_schlick_brdf_indirect(vec3 V, float weight, vec3 color0, vec3 color90, float exponent, roughnessinfo roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
+void mx_generalized_schlick_brdf_indirect(vec3 V, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {

@@ -83,12 +83,12 @@ def main(args=None):
                 fh.write("    <tr>\n")
                 if glslFile:
                     if args.ENABLE_TIMESTAMPS:
-                        fh.write("        <td align='center'>" + glslFile + " (" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullGlslPath))) + ")</td>\n")
+                        fh.write("        <td align='center'><p>" + glslFile + "</p>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullGlslPath))) + ")</td>\n")
                     else:
                         fh.write("        <td align='center'>" + glslFile + "</td>\n")
                 if oslFile:
                     if args.ENABLE_TIMESTAMPS:
-                        fh.write("        <td align='center'>" + oslFile + " (" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullOslPath))) + ")</td>\n")
+                        fh.write("        <td align='center'><p>" + oslFile + "</p>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullOslPath))) + ")</td>\n")
                     else:
                         fh.write("        <td align='center'>" + oslFile + "</td>\n")
                 if diffPath:

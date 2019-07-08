@@ -131,6 +131,54 @@ unsigned int getUIProperties(const string& path, DocumentPtr doc, const string& 
     return 0;
 }
 
+void createUIPropertyGroups(ElementPtr uniformElement, DocumentPtr contentDocument, TypedElementPtr materialElement,
+                            const string& pathSeparator, UIPropertyGroup& groups,
+                            UIPropertyGroup& unnamedGroups, ShaderPort* uniform)
+{
+    if (uniformElement && uniformElement->isA<ValueElement>())
+    {
+        UIPropertyItem item;
+        item.variable = uniform;
+        item.value = uniformElement->asA<ValueElement>()->getValue();
+        getUIProperties(uniformElement->getNamePath(), contentDocument, EMPTY_STRING, item.ui);
+
+        std::string parentLabel;
+        ElementPtr parent = uniformElement->getParent();
+        if (parent && parent != contentDocument && parent != materialElement)
+        {
+            parentLabel = parent->getNamePath();
+        }
+        if (!materialElement ||  parentLabel == materialElement->getAttribute(PortElement::NODE_NAME_ATTRIBUTE))
+        {
+            parentLabel.clear();
+        }
+        if (!parentLabel.empty())
+        {
+            parentLabel += pathSeparator;
+        }
+
+        if (!item.ui.uiName.empty())
+        {
+            item.label = parentLabel + item.ui.uiName;
+        }
+        if (item.label.empty())
+        {
+            item.label = parentLabel + uniformElement->getName();
+        }
+
+        if (!item.ui.uiFolder.empty())
+        {
+            groups.insert(std::pair<std::string, UIPropertyItem>
+                (item.ui.uiFolder, item));
+        }
+        else
+        {
+            unnamedGroups.insert(std::pair<std::string, UIPropertyItem>
+                (EMPTY_STRING, item));
+        }
+    }
+}
+
 void createUIPropertyGroups(const VariableBlock& block, DocumentPtr contentDocument, TypedElementPtr materialElement,
                           const string& pathSeparator, UIPropertyGroup& groups, UIPropertyGroup& unnamedGroups)
 {
@@ -139,50 +187,9 @@ void createUIPropertyGroups(const VariableBlock& block, DocumentPtr contentDocum
         if (!uniform->getPath().empty() && uniform->getValue())
         {
             ElementPtr uniformElement = contentDocument->getDescendant(uniform->getPath());
-            if (uniformElement && uniformElement->isA<ValueElement>())
-            {
-                UIPropertyItem item;
-                item.variable = uniform;
-                getUIProperties(uniform->getPath(), contentDocument, EMPTY_STRING, item.ui);
-
-                std::string parentLabel;
-                ElementPtr parent = uniformElement->getParent();
-                if (parent && parent != contentDocument && parent != materialElement)
-                {
-                    parentLabel = parent->getNamePath();
-                }
-                if (parentLabel == materialElement->getAttribute(PortElement::NODE_NAME_ATTRIBUTE))
-                {
-                    parentLabel.clear();
-                }
-                if (!parentLabel.empty())
-                {
-                    parentLabel += pathSeparator;
-                }
-
-                if (!item.ui.uiName.empty())
-                {
-                    item.label = parentLabel + item.ui.uiName;
-                }
-                if (item.label.empty())
-                {
-                    item.label = parentLabel + uniformElement->getName();
-                }
-
-                if (!item.ui.uiFolder.empty())
-                {
-                    groups.insert(std::pair<std::string, UIPropertyItem>
-                        (item.ui.uiFolder, item));
-                }
-                else
-                {
-                    unnamedGroups.insert(std::pair<std::string, UIPropertyItem>
-                        (EMPTY_STRING, item));
-                }
-            }
+            createUIPropertyGroups(uniformElement, contentDocument, materialElement, pathSeparator, groups, unnamedGroups, uniform);
         }
     }
 }
 
 } // namespace MaterialX
-

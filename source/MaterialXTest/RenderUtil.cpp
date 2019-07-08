@@ -144,7 +144,11 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
     const mx::StringVec libraries = { "stdlib", "pbrlib" };
     GenShaderUtil::loadLibraries(libraries, searchPath, dependLib, nullptr);
+
+    // Load shader definitions used in the test suite.
     GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), dependLib);
+    GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd.mtlx"), dependLib);
+
     // Load any addition per validator libraries
     loadLibraries(dependLib, options);
     ioTimer.endTimer();
@@ -174,6 +178,9 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     RenderUtil::AdditiveScopedTimer renderableSearchTimer(profileTimes.renderableSearchTime, "Global renderable search time");
 
     mx::StringSet usedImpls;
+
+    mx::CopyOptions copyOptions;
+    copyOptions.skipDuplicateElements = true;
 
     const std::string MTLX_EXTENSION("mtlx");
     for (auto dir : dirs)
@@ -214,7 +221,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                 WARN("Failed to load in file: " + filename + "See: " + docValidLogFilename + " for details.");                    
             }
 
-            doc->importLibrary(dependLib);
+            doc->importLibrary(dependLib, &copyOptions);
             ioTimer.endTimer();
 
             validateTimer.startTimer();

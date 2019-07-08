@@ -35,8 +35,6 @@ using TypeSyntaxPtr = shared_ptr<TypeSyntax>;
 class Syntax
 {
   public:
-    using UniqueNameMap = std::unordered_map<string, size_t>;
-
     /// Punctuation types
     enum Punctuation
     {
@@ -148,13 +146,12 @@ class Syntax
     /// By default all types are assumed to be supported.
     virtual bool typeSupported(const TypeDesc* type) const;
 
-    /// Modify the given name string to make it unique according to the given uniqueName record 
-    /// and according to restricted names registered for this syntax class.
+    /// Create a unique identifier for the given variable name and type.
     /// The method is used for naming variables (inputs and outputs) in generated code.
     /// Derived classes can override this method to have a custom naming strategy.
     /// Default implementation adds a number suffix, or increases an existing number suffix, 
     /// on the name string if there is a name collision.
-    virtual void makeUnique(string& name, UniqueNameMap& uniqueNames) const;
+    virtual string getVariableName(const string& name, const TypeDesc* type, GenContext& context) const;
 
     /// Modify the given name string to remove any invalid characters or tokens.
     virtual void makeValidName(string& name) const;

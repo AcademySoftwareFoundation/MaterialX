@@ -347,17 +347,6 @@ GlslSyntax::GlslSyntax()
 
     registerTypeSyntax
     (
-        Type::ROUGHNESSINFO,
-        std::make_shared<AggregateTypeSyntax>(
-            "roughnessinfo",
-            "roughnessinfo(M_FLOAT_EPS, M_FLOAT_EPS, M_FLOAT_EPS, M_FLOAT_EPS)",
-            EMPTY_STRING,
-            EMPTY_STRING,
-            "struct roughnessinfo { float roughness; float alpha; float alphaX; float alphaY; };")
-    );
-
-    registerTypeSyntax
-    (
         Type::SURFACESHADER,
         std::make_shared<AggregateTypeSyntax>(
             "surfaceshader",

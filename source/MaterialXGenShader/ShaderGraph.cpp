@@ -748,7 +748,7 @@ void ShaderGraph::finalize(GenContext& context)
     calculateScopes();
 
     // Set variable names for inputs and outputs in the graph.
-    setVariableNames(context.getShaderGenerator().getSyntax());
+    setVariableNames(context);
 
     // Track closure nodes used by each surface shader.
     //
@@ -1055,23 +1055,21 @@ void ShaderGraph::calculateScopes()
     }
 }
 
-void ShaderGraph::setVariableNames(const Syntax& syntax)
+void ShaderGraph::setVariableNames(GenContext& context)
 {
     // Make sure inputs and outputs have variable names valid for the
     // target shading language, and are unique to avoid name conflicts.
 
-    // Names in use for the graph is recorded in 'uniqueNames'.
-    Syntax::UniqueNameMap uniqueNames;
+    const Syntax& syntax = context.getShaderGenerator().getSyntax();
+
     for (ShaderGraphInputSocket* inputSocket : getInputSockets())
     {
-        string variable = inputSocket->getName();
-        syntax.makeUnique(variable, uniqueNames);
+        const string variable = syntax.getVariableName(inputSocket->getName(), inputSocket->getType(), context);
         inputSocket->setVariable(variable);
     }
     for (ShaderGraphOutputSocket* outputSocket : getOutputSockets())
     {
-        string variable = outputSocket->getName();
-        syntax.makeUnique(variable, uniqueNames);
+        const string variable = syntax.getVariableName(outputSocket->getName(), outputSocket->getType(), context);
         outputSocket->setVariable(variable);
     }
     for (ShaderNode* node : getNodes())
@@ -1079,14 +1077,14 @@ void ShaderGraph::setVariableNames(const Syntax& syntax)
         for (ShaderInput* input : node->getInputs())
         {
             string variable = input->getNode()->getName() + "_" + input->getName();
-            syntax.makeUnique(variable, uniqueNames);
+            variable = syntax.getVariableName(variable, input->getType(), context);
             input->setVariable(variable);
         }
         for (ShaderOutput* output : node->getOutputs())
         {
             // Node outputs use long names for better code readability
             string variable = output->getNode()->getName() + "_" + output->getName();
-            syntax.makeUnique(variable, uniqueNames);
+            variable = syntax.getVariableName(variable, output->getType(), context);
             output->setVariable(variable);
         }
     }

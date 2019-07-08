@@ -13,10 +13,10 @@
     <invert name="invert1" type="float">
       <input name="in" type="float" interfacename="glossiness" />
     </invert>
-    <roughness_anisotropy name="roughness1" type="roughnessinfo">
+    <roughness_anisotropy name="roughness1" type="vector2">
       <input name="roughness" type="float" nodename="invert1" />
       <input name="anisotropy" type="float" interfacename="anisotropy" />
     </roughness_anisotropy>
-    <output name="out" type="roughnessinfo" nodename="roughness1" />
+    <output name="out" type="vector2" nodename="roughness1" />
   </nodegraph>
 </materialx>
