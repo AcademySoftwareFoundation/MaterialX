@@ -24,11 +24,37 @@
 #include <vector>
 #include <set>
 
+#if defined (MATERIALX_BUILD_CONTRIB)
+#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#include <MaterialXGenOsl/OslShaderGenerator.h>
+#endif
+
+#if defined (MATERIALX_BUILD_CONTRIB)
+#include <MaterialXContrib/OGSXMLFragmentWrapper.h>
+#endif
+
 namespace mx = MaterialX;
 
 //
 // Base tests
 //
+
+TEST_CASE("GenShader: Utilities", "[genshader]")
+{
+    // Test simple text substitution
+    std::string test1 = "Look behind you, a $threeheaded $monkey!";
+    std::string result1 = "Look behind you, a mighty pirate!";
+    mx::StringMap subst1 = { {"$threeheaded","mighty"}, {"$monkey","pirate"} };
+    mx::tokenSubstitution(subst1, test1);
+    REQUIRE(test1 == result1);
+
+    // Test uniform name substitution
+    std::string test2 = "uniform vec3 " + mx::HW::T_ENV_RADIANCE + ";";
+    std::string result2 = "uniform vec3 " + mx::HW::ENV_RADIANCE + ";";
+    mx::StringMap subst2 = { {mx::HW::T_ENV_RADIANCE, mx::HW::ENV_RADIANCE} };
+    mx::tokenSubstitution(subst2, test2);
+    REQUIRE(test2 == result2);
+}
 
 TEST_CASE("GenShader: Valid Libraries", "[genshader]")
 {
@@ -196,3 +222,4 @@ TEST_CASE("GenShader: OSL Reference Implementation Check", "[genshader]")
     // To enable once this is true
     //REQUIRE(missing == 0);
 }
+

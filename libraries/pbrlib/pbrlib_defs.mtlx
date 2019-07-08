@@ -13,7 +13,6 @@
   <typedef name="BSDF" doc="Bidirectional scattering distribution function"/>
   <typedef name="EDF" doc="Emission distribution function"/>
   <typedef name="VDF" doc="Volume distribution function"/>
-  <typedef name="roughnessinfo" doc="Surface rougness information for microfacet BDSFs"/>
 
   <!-- N O D E S -->
 
@@ -49,7 +48,7 @@
     <input name="weight" type="float" value="1.0"/>
     <input name="reflectivity" type="color3" value="0.944 0.776 0.373"/>
     <input name="edgecolor" type="color3" value="0.998 0.981 0.751"/>
-    <input name="roughness" type="roughnessinfo"/>
+    <input name="roughness" type="vector2" value="0.0, 0.0"/>
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
     <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
     <input name="distribution" type="string" value="ggx" enum="ggx"/>
@@ -63,8 +62,8 @@
            doc="A reflection BSDF node based on a microfacet model and a Fresnel curve for dielectrics.">
     <input name="weight" type="float" value="1.0"/>
     <input name="tint" type="color3" value="1.0, 1.0, 1.0"/>
-    <input name="ior" type="float" value="1.52"/>
-    <input name="roughness" type="roughnessinfo"/>
+    <input name="ior" type="float" value="1.5"/>
+    <input name="roughness" type="vector2" value="0.0, 0.0"/>
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
     <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
     <input name="distribution" type="string" value="ggx" enum="ggx"/>
@@ -79,8 +78,8 @@
            doc="A BSDF node for specular to glossy transmission.">
     <input name="weight" type="float" value="1.0"/>
     <input name="tint" type="color3" value="1.0, 1.0, 1.0"/>
-    <input name="ior" type="float" value="1.52"/>
-    <input name="roughness" type="roughnessinfo"/>
+    <input name="ior" type="float" value="1.5"/>
+    <input name="roughness" type="vector2" value="0.0, 0.0"/>
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
     <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
     <input name="distribution" type="string" value="ggx" enum="ggx"/>
@@ -109,7 +108,7 @@
     <input name="color0" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="color90" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="exponent" type="float" value="5.0"/>
-    <input name="roughness" type="roughnessinfo"/>
+    <input name="roughness" type="vector2" value="0.0, 0.0"/>
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
     <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
     <input name="distribution" type="string" value="ggx" enum="ggx"/>
@@ -273,7 +272,7 @@
     Node: <roughness_anisotropy>
     Calculates anisotropic surface roughness from a scalar roughness and anisotropy parameterization.
   -->
-  <nodedef name="ND_roughness_anisotropy" node="roughness_anisotropy" type="roughnessinfo" nodegroup="pbr"
+  <nodedef name="ND_roughness_anisotropy" node="roughness_anisotropy" type="vector2" nodegroup="pbr"
            doc="Calculates anisotropic surface roughness from a scalar roughness/anisotropy parameterization.">
     <input name="roughness" type="float" value="0.0"/>
     <input name="anisotropy" type="float" value="0.0"/>
@@ -283,17 +282,16 @@
     Node: <roughness_dual>
     Calculates anisotropic surface roughness from a dual surface roughness parameterization.
   -->
-  <nodedef name="ND_roughness_dual" node="roughness_dual" type="roughnessinfo" nodegroup="pbr"
+  <nodedef name="ND_roughness_dual" node="roughness_dual" type="vector2" nodegroup="pbr"
            doc="Calculates anisotropic surface roughness from a dual surface roughness parameterization.">
-    <input name="roughness_x" type="float" value="0.0"/>
-    <input name="roughness_y" type="float" value="0.0"/>
+    <input name="roughness" type="vector2" value="0.0, 0.0"/>
   </nodedef>
 
   <!--
     Node: <glossiness_anisotropy>
     Calculates anisotropic surface roughness from a scalar glossiness and anisotropy parameterization.
   -->
-  <nodedef name="ND_glossiness_anisotropy" node="glossiness_anisotropy" type="roughnessinfo" nodegroup="pbr"
+  <nodedef name="ND_glossiness_anisotropy" node="glossiness_anisotropy" type="vector2" nodegroup="pbr"
            doc="Calculates anisotropic surface roughness from a scalar glossiness/anisotropy parameterization.">
     <input name="glossiness" type="float" value="1.0"/>
     <input name="anisotropy" type="float" value="0.0"/>

@@ -22,8 +22,8 @@ void GeomColorNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Sha
 
     ShaderStage& vs = shader.getStage(Stage::VERTEX);
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
-    addStageInput(HW::VERTEX_INPUTS, Type::COLOR4, "i_color_" + index, vs);
-    addStageConnector(HW::VERTEX_DATA, Type::COLOR4, "color_" + index, vs, ps);
+    addStageInput(HW::VERTEX_INPUTS, Type::COLOR4, HW::T_IN_COLOR + "_" + index, vs);
+    addStageConnector(HW::VERTEX_DATA, Type::COLOR4, HW::T_COLOR + "_" + index, vs, ps);
 }
 
 void GeomColorNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
@@ -33,7 +33,7 @@ void GeomColorNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
     const ShaderOutput* output = node.getOutput();
     const ShaderInput* indexInput = node.getInput(INDEX);
     string index = indexInput ? indexInput->getValue()->getValueString() : "0";
-    string variable = "color_" + index;
+    string variable = HW::T_COLOR + "_" + index;
 
     BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
@@ -42,7 +42,7 @@ void GeomColorNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
         if (!color->isEmitted())
         {
             color->setEmitted();
-            shadergen.emitLine(prefix + color->getVariable() + " = i_" + variable, stage);
+            shadergen.emitLine(prefix + color->getVariable() + " = " + HW::T_IN_COLOR + "_" + index, stage);
         }
     END_SHADER_STAGE(shader, Stage::VERTEX)
 

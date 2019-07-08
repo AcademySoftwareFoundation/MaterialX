@@ -1,7 +1,7 @@
 #include "pbrlib/genosl/lib/mx_refraction_index.osl"
 #include "pbrlib/genosl/lib/mx_fresnel.osl"
 
-void mx_conductor_brdf(float weight, color reflectivity, color edgecolor, roughnessinfo roughness, normal N, vector U, string distribution, output BSDF result)
+void mx_conductor_brdf(float weight, color reflectivity, color edgecolor, vector2 roughness, normal N, vector U, string distribution, output BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -22,5 +22,5 @@ void mx_conductor_brdf(float weight, color reflectivity, color edgecolor, roughn
     F *= weight;
 
     // Set ior to 0.0 to disable the internal dielectric fresnel
-    result = F * microfacet(distribution, N, U, roughness.alphaX, roughness.alphaY, 0.0, false);
+    result = F * microfacet(distribution, N, U, roughness.x, roughness.y, 0.0, false);
 }

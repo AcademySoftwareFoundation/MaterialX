@@ -59,6 +59,10 @@ class GLTextureHandler : public ImageHandler
     /// @return true if succeded to bind
     bool bindImage(const FilePath& filePath, const ImageSamplingProperties& samplingProperties) override;
 
+    /// Unbind an image. 
+    /// @param filePath File path to image description to unbind
+    virtual bool unbindImage(const FilePath& filePath) override;
+
     /// Utility to map an address mode enumeration to an OpenGL address mode
     static int mapAddressModeToGL(ImageSamplingProperties::AddressMode addressModeEnum);
 
@@ -69,6 +73,9 @@ class GLTextureHandler : public ImageHandler
     int getBoundTextureLocation(unsigned int resourceId) override;
 
   protected:
+    /// Unbind an image.
+    bool unbindImage(const ImageDesc& imageDesc);
+
     /// Delete an image
     /// @param imageDesc Image description indicate which image to delete.
     /// Any OpenGL texture resource and as well as any CPU side reosurce memory will be deleted.

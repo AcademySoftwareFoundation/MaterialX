@@ -35,7 +35,7 @@
       <input name="color" type="color3" interfacename="diffuse_reflectance" />
       <input name="roughness" type="float" interfacename="diffuse_roughness" />
     </diffuse_brdf>
-    <roughness_anisotropy name="roughness1" type="roughnessinfo">
+    <roughness_anisotropy name="roughness1" type="vector2">
       <input name="roughness" type="float" interfacename="specular_roughness" />
       <input name="anisotropy" type="float" value="0.0" />
     </roughness_anisotropy>
@@ -43,7 +43,7 @@
       <input name="normal" type="vector3" nodename="shadingnormal1" />
       <input name="base" type="BSDF" nodename="diffuse" />
       <input name="tint" type="color3" interfacename="specular_reflectance" />
-      <input name="roughness" type="roughnessinfo" nodename="roughness1" />
+      <input name="roughness" type="vector2" nodename="roughness1" />
       <input name="ior" type="float" interfacename="specular_IOR" />
     </dielectric_brdf>
     <surface name="surface1" type="surfaceshader">
@@ -70,7 +70,7 @@
   </nodedef>
   <nodegraph name="IMP_testshader3" nodedef="ND_testshader3">
     <normal name="shadingnormal1" type="vector3" />
-    <roughness_anisotropy name="roughness1" type="roughnessinfo">
+    <roughness_anisotropy name="roughness1" type="vector2">
       <input name="roughness" type="float" interfacename="roughness" />
       <input name="anisotropy" type="float" value="0.0" />
     </roughness_anisotropy>
@@ -78,13 +78,13 @@
       <input name="normal" type="vector3" nodename="shadingnormal1" />
       <input name="reflectivity" type="color3" interfacename="reflectivity" />
       <input name="edgecolor" type="color3" interfacename="edgecolor" />
-      <input name="roughness" type="roughnessinfo" nodename="roughness1" />
+      <input name="roughness" type="vector2" nodename="roughness1" />
     </conductor_brdf>
     <conductor_brdf name="metal2" type="BSDF">
       <input name="normal" type="vector3" nodename="shadingnormal1" />
       <input name="reflectivity" type="color3" nodename="complex_ior1" output="reflectivity" />
       <input name="edgecolor" type="color3" nodename="complex_ior1" output="edgecolor" />
-      <input name="roughness" type="roughnessinfo" nodename="roughness1" />
+      <input name="roughness" type="vector2" nodename="roughness1" />
     </conductor_brdf>
     <complex_ior name="complex_ior1" type="multioutput">
       <input name="ior" type="vector3" interfacename="ior_n" />

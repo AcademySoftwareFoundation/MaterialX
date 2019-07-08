@@ -15,25 +15,115 @@
 namespace MaterialX
 {
 
+namespace HW
+{
+    const string T_IN_POSITION                    = "$inPosition";
+    const string T_IN_NORMAL                      = "$inNormal";
+    const string T_IN_TANGENT                     = "$inTangent";
+    const string T_IN_BITANGENT                   = "$inBitangent";
+    const string T_IN_TEXCOORD                    = "$inTexcoord";
+    const string T_IN_COLOR                       = "$inColor";
+    const string T_POSITION_WORLD                 = "$positionWorld";
+    const string T_NORMAL_WORLD                   = "$normalWorld";
+    const string T_TANGENT_WORLD                  = "$tangentWorld";
+    const string T_BITANGENT_WORLD                = "$bitangentWorld";
+    const string T_POSITION_OBJECT                = "$positionObject";
+    const string T_NORMAL_OBJECT                  = "$normalObject";
+    const string T_TANGENT_OBJECT                 = "$tangentObject";
+    const string T_BITANGENT_OBJECT               = "$bitangentObject";
+    const string T_TEXCOORD                       = "$texcoord";
+    const string T_COLOR                          = "$color";
+    const string T_WORLD_MATRIX                   = "$worldMatrix";
+    const string T_WORLD_INVERSE_MATRIX           = "$worldInverseMatrix";
+    const string T_WORLD_TRANSPOSE_MATRIX         = "$worldTransposeMatrix";
+    const string T_WORLD_INVERSE_TRANSPOSE_MATRIX = "$worldInverseTransposeMatrix";
+    const string T_VIEW_MATRIX                    = "$viewMatrix";
+    const string T_VIEW_INVERSE_MATRIX            = "$viewInverseMatrix";
+    const string T_VIEW_TRANSPOSE_MATRIX          = "$viewTransposeMatrix";
+    const string T_VIEW_INVERSE_TRANSPOSE_MATRIX  = "$viewInverseTransposeMatrix";
+    const string T_PROJ_MATRIX                    = "$projectionMatrix";
+    const string T_PROJ_INVERSE_MATRIX            = "$projectionInverseMatrix";
+    const string T_PROJ_TRANSPOSE_MATRIX          = "$projectionTransposeMatrix";
+    const string T_PROJ_INVERSE_TRANSPOSE_MATRIX  = "$projectionInverseTransposeMatrix";
+    const string T_WORLD_VIEW_MATRIX              = "$worldViewMatrix";
+    const string T_VIEW_PROJECTION_MATRIX         = "$viewProjectionMatrix";
+    const string T_WORLD_VIEW_PROJECTION_MATRIX   = "$worldViewProjectionMatrix";
+    const string T_VIEW_POSITION                  = "$viewPosition";
+    const string T_VIEW_DIRECTION                 = "$viewDirection";
+    const string T_FRAME                          = "$frame";
+    const string T_TIME                           = "$time";
+    const string T_GEOMATTR                       = "$geomattr";
+    const string T_NUM_ACTIVE_LIGHT_SOURCES       = "$numActiveLightSources";
+    const string T_ENV_MATRIX                     = "$envMatrix";
+    const string T_ENV_IRRADIANCE                 = "$envIrradiance";
+    const string T_ENV_RADIANCE                   = "$envRadiance";
+    const string T_ENV_RADIANCE_MIPS              = "$envRadianceMips";
+    const string T_ENV_RADIANCE_SAMPLES           = "$envRadianceSamples";
+    const string T_VERTEX_DATA_INSTANCE           = "$vd";
+    const string T_LIGHT_DATA_INSTANCE            = "$lightData";
+
+    const string IN_POSITION                      = "i_position";
+    const string IN_NORMAL                        = "i_normal";
+    const string IN_TANGENT                       = "i_tangent";
+    const string IN_BITANGENT                     = "i_bitangent";
+    const string IN_TEXCOORD                      = "i_texcoord";
+    const string IN_COLOR                         = "i_color";
+    const string POSITION_WORLD                   = "positionWorld";
+    const string NORMAL_WORLD                     = "normalWorld";
+    const string TANGENT_WORLD                    = "tangentWorld";
+    const string BITANGENT_WORLD                  = "bitangentWorld";
+    const string POSITION_OBJECT                  = "positionObject";
+    const string NORMAL_OBJECT                    = "normalObject";
+    const string TANGENT_OBJECT                   = "tangentObject";
+    const string BITANGENT_OBJECT                 = "bitangentObject";
+    const string TEXCOORD                         = "texcoord";
+    const string COLOR                            = "color";
+    const string WORLD_MATRIX                     = "u_worldMatrix";
+    const string WORLD_INVERSE_MATRIX             = "u_worldInverseMatrix";
+    const string WORLD_TRANSPOSE_MATRIX           = "u_worldTransposeMatrix";
+    const string WORLD_INVERSE_TRANSPOSE_MATRIX   = "u_worldInverseTransposeMatrix";
+    const string VIEW_MATRIX                      = "u_viewMatrix";
+    const string VIEW_INVERSE_MATRIX              = "u_viewInverseMatrix";
+    const string VIEW_TRANSPOSE_MATRIX            = "u_viewTransposeMatrix";
+    const string VIEW_INVERSE_TRANSPOSE_MATRIX    = "u_viewInverseTransposeMatrix";
+    const string PROJ_MATRIX                      = "u_projectionMatrix";
+    const string PROJ_INVERSE_MATRIX              = "u_projectionInverseMatrix";
+    const string PROJ_TRANSPOSE_MATRIX            = "u_projectionTransposeMatrix";
+    const string PROJ_INVERSE_TRANSPOSE_MATRIX    = "u_projectionInverseTransposeMatrix";
+    const string WORLD_VIEW_MATRIX                = "u_worldViewMatrix";
+    const string VIEW_PROJECTION_MATRIX           = "u_viewProjectionMatrix";
+    const string WORLD_VIEW_PROJECTION_MATRIX     = "u_worldViewProjectionMatrix";
+    const string VIEW_POSITION                    = "u_viewPosition";
+    const string VIEW_DIRECTION                   = "u_viewDirection";
+    const string FRAME                            = "u_frame";
+    const string TIME                             = "u_time";
+    const string GEOMATTR                         = "u_geomattr";
+    const string NUM_ACTIVE_LIGHT_SOURCES         = "u_numActiveLightSources";
+    const string ENV_MATRIX                       = "u_envMatrix";
+    const string ENV_IRRADIANCE                   = "u_envIrradiance";
+    const string ENV_RADIANCE                     = "u_envRadiance";
+    const string ENV_RADIANCE_MIPS                = "u_envRadianceMips";
+    const string ENV_RADIANCE_SAMPLES             = "u_envRadianceSamples";
+    const string VERTEX_DATA_INSTANCE             = "vd";
+    const string LIGHT_DATA_INSTANCE              = "u_lightData";
+
+    const string VERTEX_INPUTS                    = "VertexInputs";
+    const string VERTEX_DATA                      = "VertexData";
+    const string PRIVATE_UNIFORMS                 = "PrivateUniforms";
+    const string PUBLIC_UNIFORMS                  = "PublicUniforms";
+    const string LIGHT_DATA                       = "LightData";
+    const string PIXEL_OUTPUTS                    = "PixelOutputs";
+    const string DIR_N                            = "N";
+    const string DIR_L                            = "L";
+    const string DIR_V                            = "V";
+    const string ATTR_TRANSPARENT                 = "transparent";
+    const string USER_DATA_CLOSURE_CONTEXT        = "udcc";
+    const string USER_DATA_LIGHT_SHADERS          = "udls";
+}
+
 namespace Stage
 {
     const string VERTEX = "vertex";
-}
-
-namespace HW
-{
-    const string VERTEX_INPUTS    = "VertexInputs";
-    const string VERTEX_DATA      = "VertexData";
-    const string PRIVATE_UNIFORMS = "PrivateUniforms";
-    const string PUBLIC_UNIFORMS  = "PublicUniforms";
-    const string LIGHT_DATA       = "LightData";
-    const string PIXEL_OUTPUTS    = "PixelOutputs";
-    const string NORMAL_DIR       = "N";
-    const string LIGHT_DIR        = "L";
-    const string VIEW_DIR         = "V";
-    const string ATTR_TRANSPARENT = "transparent";
-    const string USER_DATA_CLOSURE_CONTEXT = "udcc";
-    const string USER_DATA_LIGHT_SHADERS   = "udls";
 }
 
 //
@@ -43,25 +133,72 @@ namespace HW
 HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
     ShaderGenerator(syntax)
 {
+    // Assign default identifiers names for all tokens.
+    // Derived generators can override these names.
+    _tokenSubstitutions[HW::T_IN_POSITION] = HW::IN_POSITION;
+    _tokenSubstitutions[HW::T_IN_NORMAL] = HW::IN_NORMAL;
+    _tokenSubstitutions[HW::T_IN_TANGENT] = HW::IN_TANGENT;
+    _tokenSubstitutions[HW::T_IN_BITANGENT] = HW::IN_BITANGENT;
+    _tokenSubstitutions[HW::T_IN_TEXCOORD] = HW::IN_TEXCOORD;
+    _tokenSubstitutions[HW::T_IN_COLOR] = HW::IN_COLOR;
+    _tokenSubstitutions[HW::T_POSITION_WORLD] = HW::POSITION_WORLD;
+    _tokenSubstitutions[HW::T_NORMAL_WORLD] = HW::NORMAL_WORLD;
+    _tokenSubstitutions[HW::T_TANGENT_WORLD] = HW::TANGENT_WORLD;
+    _tokenSubstitutions[HW::T_BITANGENT_WORLD] = HW::BITANGENT_WORLD;
+    _tokenSubstitutions[HW::T_POSITION_OBJECT] = HW::POSITION_OBJECT;
+    _tokenSubstitutions[HW::T_NORMAL_OBJECT] = HW::NORMAL_OBJECT;
+    _tokenSubstitutions[HW::T_TANGENT_OBJECT] = HW::TANGENT_OBJECT;
+    _tokenSubstitutions[HW::T_BITANGENT_OBJECT] = HW::BITANGENT_OBJECT;
+    _tokenSubstitutions[HW::T_TEXCOORD] = HW::TEXCOORD;
+    _tokenSubstitutions[HW::T_COLOR] = HW::COLOR;
+    _tokenSubstitutions[HW::T_WORLD_MATRIX] = HW::WORLD_MATRIX;
+    _tokenSubstitutions[HW::T_WORLD_INVERSE_MATRIX] = HW::WORLD_INVERSE_MATRIX;
+    _tokenSubstitutions[HW::T_WORLD_TRANSPOSE_MATRIX] = HW::WORLD_TRANSPOSE_MATRIX;
+    _tokenSubstitutions[HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX] = HW::WORLD_INVERSE_TRANSPOSE_MATRIX;
+    _tokenSubstitutions[HW::T_VIEW_MATRIX] = HW::VIEW_MATRIX;
+    _tokenSubstitutions[HW::T_VIEW_INVERSE_MATRIX] = HW::VIEW_INVERSE_MATRIX;
+    _tokenSubstitutions[HW::T_VIEW_TRANSPOSE_MATRIX] = HW::VIEW_TRANSPOSE_MATRIX;
+    _tokenSubstitutions[HW::T_VIEW_INVERSE_TRANSPOSE_MATRIX] = HW::VIEW_INVERSE_TRANSPOSE_MATRIX;
+    _tokenSubstitutions[HW::T_PROJ_MATRIX] = HW::PROJ_MATRIX;
+    _tokenSubstitutions[HW::T_PROJ_INVERSE_MATRIX] = HW::PROJ_INVERSE_MATRIX;
+    _tokenSubstitutions[HW::T_PROJ_TRANSPOSE_MATRIX] = HW::PROJ_TRANSPOSE_MATRIX;
+    _tokenSubstitutions[HW::T_PROJ_INVERSE_TRANSPOSE_MATRIX] = HW::PROJ_INVERSE_TRANSPOSE_MATRIX;
+    _tokenSubstitutions[HW::T_WORLD_VIEW_MATRIX] = HW::WORLD_VIEW_MATRIX;
+    _tokenSubstitutions[HW::T_VIEW_PROJECTION_MATRIX] = HW::VIEW_PROJECTION_MATRIX;
+    _tokenSubstitutions[HW::T_WORLD_VIEW_PROJECTION_MATRIX] = HW::WORLD_VIEW_PROJECTION_MATRIX;
+    _tokenSubstitutions[HW::T_VIEW_POSITION] = HW::VIEW_POSITION;
+    _tokenSubstitutions[HW::T_VIEW_DIRECTION] = HW::VIEW_DIRECTION;
+    _tokenSubstitutions[HW::T_FRAME] = HW::FRAME;
+    _tokenSubstitutions[HW::T_TIME] = HW::TIME;
+    _tokenSubstitutions[HW::T_GEOMATTR] = HW::GEOMATTR;
+    _tokenSubstitutions[HW::T_NUM_ACTIVE_LIGHT_SOURCES] = HW::NUM_ACTIVE_LIGHT_SOURCES;
+    _tokenSubstitutions[HW::T_ENV_MATRIX] = HW::ENV_MATRIX;
+    _tokenSubstitutions[HW::T_ENV_IRRADIANCE] = HW::ENV_IRRADIANCE;
+    _tokenSubstitutions[HW::T_ENV_RADIANCE] = HW::ENV_RADIANCE;
+    _tokenSubstitutions[HW::T_ENV_RADIANCE_MIPS] = HW::ENV_RADIANCE_MIPS;
+    _tokenSubstitutions[HW::T_ENV_RADIANCE_SAMPLES] = HW::ENV_RADIANCE_SAMPLES;
+    _tokenSubstitutions[HW::T_VERTEX_DATA_INSTANCE] = HW::VERTEX_DATA_INSTANCE;
+    _tokenSubstitutions[HW::T_LIGHT_DATA_INSTANCE] = HW::LIGHT_DATA_INSTANCE;
+
     // Create closure contexts for defining closure functions
     //
     // Reflection context
     _defReflection = HwClosureContext::create(HwClosureContext::REFLECTION);
     _defReflection->setSuffix("_reflection");
-    _defReflection->addArgument(Type::VECTOR3, HW::LIGHT_DIR);
-    _defReflection->addArgument(Type::VECTOR3, HW::VIEW_DIR);
+    _defReflection->addArgument(Type::VECTOR3, HW::DIR_L);
+    _defReflection->addArgument(Type::VECTOR3, HW::DIR_V);
     // Transmission context
     _defTransmission = HwClosureContext::create(HwClosureContext::TRANSMISSION);
     _defTransmission->setSuffix("_transmission");
-    _defTransmission->addArgument(Type::VECTOR3, HW::VIEW_DIR);
+    _defTransmission->addArgument(Type::VECTOR3, HW::DIR_V);
     // Indirect context
     _defIndirect = HwClosureContext::create(HwClosureContext::INDIRECT);
     _defIndirect->setSuffix("_indirect");
-    _defIndirect->addArgument(Type::VECTOR3, HW::VIEW_DIR);
+    _defIndirect->addArgument(Type::VECTOR3, HW::DIR_V);
     // Emission context
     _defEmission = HwClosureContext::create(HwClosureContext::EMISSION);
-    _defEmission->addArgument(Type::VECTOR3, HW::NORMAL_DIR);
-    _defEmission->addArgument(Type::VECTOR3, HW::LIGHT_DIR);
+    _defEmission->addArgument(Type::VECTOR3, HW::DIR_N);
+    _defEmission->addArgument(Type::VECTOR3, HW::DIR_L);
 }
 
 ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
@@ -78,28 +215,27 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
 
     // Create required variables for vertex stage
     VariableBlock& vsInputs = vs->getInputBlock(HW::VERTEX_INPUTS);
-    vsInputs.add(Type::VECTOR3, "i_position");
+    vsInputs.add(Type::VECTOR3, HW::T_IN_POSITION);
     VariableBlock& vsPrivateUniforms = vs->getUniformBlock(HW::PRIVATE_UNIFORMS);
-    vsPrivateUniforms.add(Type::MATRIX44, "u_worldMatrix");
-    vsPrivateUniforms.add(Type::MATRIX44, "u_viewProjectionMatrix");
+    vsPrivateUniforms.add(Type::MATRIX44, HW::T_WORLD_MATRIX);
+    vsPrivateUniforms.add(Type::MATRIX44, HW::T_VIEW_PROJECTION_MATRIX);
 
     // Create pixel stage.
     ShaderStagePtr ps = createStage(Stage::PIXEL, *shader);
     VariableBlockPtr psOutputs = ps->createOutputBlock(HW::PIXEL_OUTPUTS, "o_ps");
     VariableBlockPtr psPrivateUniforms = ps->createUniformBlock(HW::PRIVATE_UNIFORMS, "u_prv");
     VariableBlockPtr psPublicUniforms = ps->createUniformBlock(HW::PUBLIC_UNIFORMS, "u_pub");
-    VariableBlockPtr lightData = ps->createUniformBlock(HW::LIGHT_DATA, "u_lightData");
+    VariableBlockPtr lightData = ps->createUniformBlock(HW::LIGHT_DATA, HW::T_LIGHT_DATA_INSTANCE);
     lightData->add(Type::INTEGER, "type");
 
     // Add a block for data from vertex to pixel shader.
-    addStageConnectorBlock(HW::VERTEX_DATA, "vd", *vs, *ps);
+    addStageConnectorBlock(HW::VERTEX_DATA, HW::T_VERTEX_DATA_INSTANCE, *vs, *ps);
 
-    // Disable specular environment code if lighting is not required.
+    // Add uniforms for environment lighting if needed.
     bool lighting = graph->hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE) ||
                     graph->hasClassification(ShaderNode::Classification::BSDF);
     if (lighting && context.getOptions().hwSpecularEnvironmentMethod != SPECULAR_ENVIRONMENT_NONE)
     {
-        // Create uniforms for environment lighting
         // Note: Generation of the rotation matrix using floating point math can result
         // in values which when output can't be consumed by a h/w shader, so
         // just setting explicit values here for now since the matrix is simple.
@@ -108,11 +244,11 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
                                     0, 1, 0, 0,
                                     0, 0, -1, 0,
                                     0, 0, 0, 1);
-        psPrivateUniforms->add(Type::MATRIX44, "u_envMatrix", Value::createValue<Matrix44>(yRotationPI));
-        psPrivateUniforms->add(Type::FILENAME, "u_envIrradiance");
-        psPrivateUniforms->add(Type::FILENAME, "u_envRadiance");
-        psPrivateUniforms->add(Type::INTEGER, "u_envRadianceMips", Value::createValue<int>(1));
-        psPrivateUniforms->add(Type::INTEGER, "u_envSamples", Value::createValue<int>(16));
+        psPrivateUniforms->add(Type::MATRIX44, HW::T_ENV_MATRIX, Value::createValue<Matrix44>(yRotationPI));
+        psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_IRRADIANCE);
+        psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_RADIANCE);
+        psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_MIPS, Value::createValue<int>(1));
+        psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_SAMPLES, Value::createValue<int>(16));
     }
 
     // Create uniforms for the published graph interface

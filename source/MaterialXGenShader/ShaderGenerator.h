@@ -126,6 +126,9 @@ class ShaderGenerator
     /// Return the result of an upstream connection or value for an input.
     virtual string getUpstreamResult(const ShaderInput* input, GenContext& context) const;
 
+    /// Reset identifiers in use for the given context.
+    virtual void resetIdentifiers(GenContext& context) const;
+
     /// Return the syntax object for the language used by the code generator
     const Syntax& getSyntax() const { return *_syntax; }
 
@@ -185,6 +188,9 @@ class ShaderGenerator
         stage.setFunctionName(functionName);
     }
 
+    /// Replace tokens with identifiers according to the given substitutions map.
+    void replaceTokens(const StringMap& substitutions, ShaderStage& stage) const;
+
   protected:
     static const string SEMICOLON;
     static const string COMMA;
@@ -192,6 +198,7 @@ class ShaderGenerator
     SyntaxPtr _syntax;
     Factory<ShaderNodeImpl> _implFactory;
     ColorManagementSystemPtr _colorManagementSystem;
+    StringMap _tokenSubstitutions;
 };
 
 } // namespace MaterialX

@@ -11,20 +11,6 @@
 namespace MaterialX
 {
 
-namespace
-{
-    static const string LIGHT_LOOP_BEGIN =
-        "vec3 N = normalize(vd.normalWorld);\n"
-        "vec3 V = normalize(u_viewPosition - vd.positionWorld);\n"
-        "int numLights = numActiveLightSources();\n"
-        "lightshader lightShader;\n"
-        "for (int activeLightIndex = 0; activeLightIndex < numLights; ++activeLightIndex)\n";
-
-    static const string LIGHT_CONTRIBUTION =
-        "sampleLightSource(u_lightData[activeLightIndex], vd.positionWorld, lightShader);\n"
-        "vec3 L = lightShader.direction;\n";
-}
-
 SurfaceNodeGlsl::SurfaceNodeGlsl()
 {
     // Create closure contexts for calling closure functions.
@@ -32,20 +18,20 @@ SurfaceNodeGlsl::SurfaceNodeGlsl()
     // Reflection context
     _callReflection = HwClosureContext::create(HwClosureContext::REFLECTION);
     _callReflection->setSuffix("_reflection");
-    _callReflection->addArgument(Type::VECTOR3, HW::LIGHT_DIR);
-    _callReflection->addArgument(Type::VECTOR3, HW::VIEW_DIR);
+    _callReflection->addArgument(Type::VECTOR3, HW::DIR_L);
+    _callReflection->addArgument(Type::VECTOR3, HW::DIR_V);
     // Transmission context
     _callTransmission = HwClosureContext::create(HwClosureContext::TRANSMISSION);
     _callTransmission->setSuffix("_transmission");
-    _callTransmission->addArgument(Type::VECTOR3, HW::VIEW_DIR);
+    _callTransmission->addArgument(Type::VECTOR3, HW::DIR_V);
     // Indirect context
     _callIndirect = HwClosureContext::create(HwClosureContext::INDIRECT);
     _callIndirect->setSuffix("_indirect");
-    _callIndirect->addArgument(Type::VECTOR3, HW::VIEW_DIR);
+    _callIndirect->addArgument(Type::VECTOR3, HW::DIR_V);
     // Emission context
     _callEmission = HwClosureContext::create(HwClosureContext::EMISSION);
-    _callEmission->addArgument(Type::VECTOR3, HW::NORMAL_DIR);
-    _callEmission->addArgument(Type::VECTOR3, HW::VIEW_DIR);
+    _callEmission->addArgument(Type::VECTOR3, HW::DIR_N);
+    _callEmission->addArgument(Type::VECTOR3, HW::DIR_V);
 }
 
 ShaderNodeImplPtr SurfaceNodeGlsl::create()
@@ -64,15 +50,15 @@ void SurfaceNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& sh
     ShaderStage& vs = shader.getStage(Stage::VERTEX);
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
 
-    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, "i_position", vs);
-    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, "i_normal", vs);
-    addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, "u_worldInverseTransposeMatrix", vs);
+    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, HW::T_IN_POSITION, vs);
+    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, HW::T_IN_NORMAL, vs);
+    addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX, vs);
 
-    addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "positionWorld", vs, ps);
-    addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "normalWorld", vs, ps);
+    addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_POSITION_WORLD, vs, ps);
+    addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_NORMAL_WORLD, vs, ps);
 
-    addStageUniform(HW::PRIVATE_UNIFORMS, Type::VECTOR3, "u_viewPosition", ps);
-    ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", ps);
+    addStageUniform(HW::PRIVATE_UNIFORMS, Type::VECTOR3, HW::T_VIEW_POSITION, ps);
+    ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, HW::T_NUM_ACTIVE_LIGHT_SOURCES, ps);
     numActiveLights->setValue(Value::createValue<int>(0));
 }
 
@@ -85,17 +71,17 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
     BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
         const string prefix = vertexData.getInstance() + ".";
-        ShaderPort* position = vertexData["positionWorld"];
+        ShaderPort* position = vertexData[HW::T_POSITION_WORLD];
         if (!position->isEmitted())
         {
             position->setEmitted();
             shadergen.emitLine(prefix + position->getVariable() + " = hPositionWorld.xyz", stage);
         }
-        ShaderPort* normal = vertexData["normalWorld"];
+        ShaderPort* normal = vertexData[HW::T_NORMAL_WORLD];
         if (!normal->isEmitted())
         {
             normal->setEmitted();
-            shadergen.emitLine(prefix + normal->getVariable() + " = normalize((u_worldInverseTransposeMatrix * vec4(i_normal, 0)).xyz)", stage);
+            shadergen.emitLine(prefix + normal->getVariable() + " = normalize((" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + " * vec4(" + HW::T_IN_NORMAL + ", 0)).xyz)", stage);
         }
     END_SHADER_STAGE(stage, Stage::VERTEX)
 
@@ -130,10 +116,16 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         //
 
         shadergen.emitComment("Light loop", stage);
-        shadergen.emitBlock(LIGHT_LOOP_BEGIN, context, stage);
+        shadergen.emitLine("vec3 N = normalize(" + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_NORMAL_WORLD + ")", stage);
+        shadergen.emitLine("vec3 V = normalize(" + HW::T_VIEW_POSITION + " - " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ")", stage);
+        shadergen.emitLine("int numLights = numActiveLightSources()", stage);
+        shadergen.emitLine("lightshader lightShader", stage);
+        shadergen.emitLine("for (int activeLightIndex = 0; activeLightIndex < numLights; ++activeLightIndex)", stage, false);
+
         shadergen.emitScopeBegin(stage);
 
-        shadergen.emitBlock(LIGHT_CONTRIBUTION, context, stage);
+        shadergen.emitLine("sampleLightSource(" + HW::T_LIGHT_DATA_INSTANCE + "[activeLightIndex], " + HW::T_VERTEX_DATA_INSTANCE + "." + HW::T_POSITION_WORLD + ", lightShader)", stage);
+        shadergen.emitLine("vec3 L = lightShader.direction", stage);
         shadergen.emitLineBreak(stage);
 
         shadergen.emitComment("Calculate the BSDF response for this light source", stage);
