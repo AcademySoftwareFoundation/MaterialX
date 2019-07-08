@@ -14,7 +14,7 @@
   <nodegraph name="multioutput_test2">
     <artistic_ior name="artistic_ior1" type="multioutput">
       <input name="reflectivity" type="color3" value="0.4, 0.4, 0.4" />
-      <input name="edgecolor" type="color3" value="0.8, 0.8, 0.8" />
+      <input name="edge_color" type="color3" value="0.8, 0.8, 0.8" />
     </artistic_ior>
     <output name="out" type="vector3" nodename="artistic_ior1" output="ior" />
    </nodegraph>

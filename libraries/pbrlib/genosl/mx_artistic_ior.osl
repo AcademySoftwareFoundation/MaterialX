@@ -1,6 +1,6 @@
 #include "pbrlib/genosl/lib/mx_refraction_index.osl"
 
-void mx_artistic_ior(color reflectivity, color edgecolor, output vector ior, output vector extinction)
+void mx_artistic_ior(color reflectivity, color edge_color, output vector ior, output vector extinction)
 {
-    mx_artistic_to_complex_ior(reflectivity, edgecolor, ior, extinction);
+    mx_artistic_to_complex_ior(reflectivity, edge_color, ior, extinction);
 }

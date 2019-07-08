@@ -5,10 +5,10 @@
       <input name="color" type="color3" value="0.0, 0.0, 0.0" />
     </diffuse_brdf>
     <uniform_edf name="edf1" type="EDF">
-      <input name="intensity" type="color3" value="1.0, 0.0, 0.0" />
+      <input name="color" type="color3" value="1.0, 0.0, 0.0" />
     </uniform_edf>
     <uniform_edf name="edf2" type="EDF">
-      <input name="intensity" type="color3" value="0.0, 1.0, 0.0" />
+      <input name="color" type="color3" value="0.0, 1.0, 0.0" />
     </uniform_edf>
     <mix name="mix_edf1" type="EDF">
       <input name="fg" type="EDF" nodename="edf1" />

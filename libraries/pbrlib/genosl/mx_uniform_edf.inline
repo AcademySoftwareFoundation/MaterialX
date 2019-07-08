@@ -1,1 +1,1 @@
-{{intensity}} * emission()
+{{color}} * emission()
