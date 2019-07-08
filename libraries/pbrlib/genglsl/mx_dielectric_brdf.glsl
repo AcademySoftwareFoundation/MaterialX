@@ -1,6 +1,6 @@
 #include "pbrlib/genglsl/lib/mx_bsdfs.glsl"
 
-void mx_dielectric_brdf_reflection(vec3 L, vec3 V, float weight, vec3 tint, float ior, roughnessinfo roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
+void mx_dielectric_brdf_reflection(vec3 L, vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -21,8 +21,8 @@ void mx_dielectric_brdf_reflection(vec3 L, vec3 V, float weight, vec3 tint, floa
     vec3 H = normalize(L + V);
     float NdotH = dot(N, H);
 
-    float D = mx_microfacet_ggx_NDF(X, Y, H, NdotH, roughness.alphaX, roughness.alphaY);
-    float G = mx_microfacet_ggx_smith_G(NdotL, NdotV, roughness.alpha);
+    float D = mx_microfacet_ggx_NDF(X, Y, H, NdotH, roughness.x, roughness.y);
+    float G = mx_microfacet_ggx_smith_G(NdotL, NdotV, max(roughness.x, roughness.y));
 
     float VdotH = dot(V, H);
     float F = mx_fresnel_schlick(VdotH, ior);
@@ -33,7 +33,7 @@ void mx_dielectric_brdf_reflection(vec3 L, vec3 V, float weight, vec3 tint, floa
            + base * (1.0 - F);              // Base layer reflection attenuated by top fresnel
 }
 
-void mx_dielectric_brdf_transmission(vec3 V, float weight, vec3 tint, float ior, roughnessinfo roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
+void mx_dielectric_brdf_transmission(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -53,7 +53,7 @@ void mx_dielectric_brdf_transmission(vec3 V, float weight, vec3 tint, float ior,
     result = base * (1.0 - F); // Base layer transmission attenuated by top fresnel
 }
 
-void mx_dielectric_brdf_indirect(vec3 V, float weight, vec3 tint, float ior, roughnessinfo roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
+void mx_dielectric_brdf_indirect(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, BSDF base, out BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -64,7 +64,7 @@ void mx_dielectric_brdf_indirect(vec3 V, float weight, vec3 tint, float ior, rou
     vec3 Li = mx_environment_radiance(N, V, X, roughness, distribution);
 
     float NdotV = dot(N,V);
-    float F = mx_fresnel_schlick_roughness(NdotV, ior, roughness.alpha);
+    float F = mx_fresnel_schlick_roughness(NdotV, ior, max(roughness.x, roughness.y));
     F *= weight;
 
     result = Li * tint * F     // Top layer reflection

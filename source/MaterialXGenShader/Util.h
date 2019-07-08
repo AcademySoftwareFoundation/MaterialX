@@ -73,6 +73,12 @@ void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& eleme
 /// if the path is to a Node as definitions for Nodes can be target specific.
 ValueElementPtr findNodeDefChild(const string& path, DocumentPtr doc, const string& target);
 
+/// Perform token substitutions on the given source string, using the given substituation map. 
+/// Tokens are required to start with '$' and can only consist of alphanumeric characters.
+/// The full token name, including '$' and all following alphanumeric character, will be replaced
+/// by the corresponding string in the substitution map, if the token exists in the map.
+void tokenSubstitution(const StringMap& substitutions, string& source);
+
 } // namespace MaterialX
 
 #endif

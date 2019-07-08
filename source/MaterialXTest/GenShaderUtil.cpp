@@ -21,7 +21,9 @@ void loadLibrary(const mx::FilePath& file, mx::DocumentPtr doc)
 {
     mx::DocumentPtr libDoc = mx::createDocument();
     mx::readFromXmlFile(libDoc, file);
-    doc->importLibrary(libDoc);
+    mx::CopyOptions copyOptions;
+    copyOptions.skipDuplicateElements = true;
+    doc->importLibrary(libDoc, &copyOptions);
 }
 
 void loadLibraries(const mx::StringVec& libraryNames,
@@ -457,8 +459,9 @@ void ShaderGeneratorTester::setupDependentLibraries()
     const mx::StringVec libraries = { "stdlib", "pbrlib" };
     GenShaderUtil::loadLibraries(libraries, _libSearchPath, _dependLib);
 
-    // Load the standard_surface definition since it's used in the test suite.
+    // Load shader definitions used in the test suite.
     GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), _dependLib);
+    GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd.mtlx"), _dependLib);
 }
 
 void ShaderGeneratorTester::addSkipFiles()
@@ -594,10 +597,25 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     context.registerSourceCodeSearchPath(_srcSearchPath);
 
     size_t documentIndex = 0;
+    mx::CopyOptions copyOptions;
+    copyOptions.skipDuplicateElements = true;
     for (auto doc : _documents)
     {
         // Add in dependent libraries
-        doc->importLibrary(_dependLib);
+        bool importedLibrary = false;
+        try
+        {
+            doc->importLibrary(_dependLib, &copyOptions);
+            importedLibrary = true;
+        }
+        catch (mx::Exception& e)
+        {
+            _logFile << "Failed to import library into file: " 
+                    << _documentPaths[documentIndex] << ". Error: "
+                    << e.what() << std::endl;
+            CHECK(importedLibrary);
+            continue;
+        }
 
         // Find and register lights
         findLights(doc, _lights);

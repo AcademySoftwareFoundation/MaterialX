@@ -38,6 +38,7 @@ set_target_properties(
 target_link_libraries(
     MaterialXGenShader
     MaterialXCore
+    MaterialXFormat
     ${CMAKE_DL_LIBS})
 
 install(TARGETS MaterialXGenShader

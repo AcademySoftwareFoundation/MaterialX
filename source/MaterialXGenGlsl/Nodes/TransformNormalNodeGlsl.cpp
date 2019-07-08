@@ -17,11 +17,11 @@ const string& TransformNormalNodeGlsl::getMatrix(const string& fromSpace, const 
 {
     if ((fromSpace == MODEL || fromSpace == OBJECT) && toSpace == WORLD)
     {
-        return WORLD_INVERSE_TRANSPOSE_MATRIX;
+        return HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX;
     }
     else if (fromSpace == WORLD && (toSpace == MODEL || toSpace == OBJECT))
     {
-        return WORLD_TRANSPOSE_MATRIX;
+        return HW::T_WORLD_TRANSPOSE_MATRIX;
     }
     return EMPTY_STRING;
 }

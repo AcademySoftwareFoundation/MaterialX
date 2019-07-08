@@ -1,6 +1,6 @@
 #include "pbrlib/genosl/lib/mx_fresnel.osl"
 
-void mx_generalized_schlick_brdf(float weight, color color0, color color90, float exponent, roughnessinfo roughness, normal N, vector U, string distribution, BSDF base, output BSDF result)
+void mx_generalized_schlick_brdf(float weight, color color0, color color90, float exponent, vector2 roughness, normal N, vector U, string distribution, BSDF base, output BSDF result)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -20,6 +20,6 @@ void mx_generalized_schlick_brdf(float weight, color color0, color color90, floa
     F *= weight;
     float avgF = dot(F, color(1.0 / 3.0));
 
-    result = F * microfacet(distribution, N, U, roughness.alphaX, roughness.alphaY, 0.0, false)
+    result = F * microfacet(distribution, N, U, roughness.x, roughness.y, 0.0, false)
              + base * (1.0 - avgF);
 }

@@ -277,6 +277,10 @@ class ImageHandler
     /// @return true if succeded to bind
     virtual bool bindImage(const FilePath& filePath, const ImageSamplingProperties& samplingProperties);
 
+    /// Unbind an image. The default implementation performs no action.
+    /// @param filePath File path to image description to unbind
+    virtual bool unbindImage(const FilePath& filePath);
+
     /// Clear the contents of the image cache.
     /// deleteImage() will be called for each cache description to
     /// allow derived classes to clean up any associated resources.
@@ -303,6 +307,17 @@ class ImageHandler
         return -1;
     }
 
+    /// Perform UDIM token replace using an input file path and a list of token
+    /// replacements (UDIM identifiers). A new path will be created for 
+    /// each identifier.
+    /// @param filePath File path with UDIM token
+    /// @param udimIdentifiers List of UDIM identifiers
+    /// @returns List of file paths
+    static FilePathVec getUdimPaths(const FilePath& filePath, const StringVec& udimIdentifiers);
+
+    /// Compute the UDIM coordinates for a set of UDIM identifiers
+    /// @return List of UDIM coordinates
+    static vector<Vector2> getUdimCoordinates(const StringVec& udimIdentifiers);
 
   protected:
     /// Cache an image for reuse.

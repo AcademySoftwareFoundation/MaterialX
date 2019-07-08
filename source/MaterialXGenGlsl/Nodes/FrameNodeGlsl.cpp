@@ -18,7 +18,7 @@ ShaderNodeImplPtr FrameNodeGlsl::create()
 void FrameNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
 {
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
-    addStageUniform(HW::PRIVATE_UNIFORMS, Type::FLOAT, "u_frame", ps);
+    addStageUniform(HW::PRIVATE_UNIFORMS, Type::FLOAT, HW::T_FRAME, ps);
 }
 
 void FrameNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
@@ -27,7 +27,7 @@ void FrameNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         shadergen.emitLineBegin(stage);
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-        shadergen.emitString(" = u_frame", stage);
+        shadergen.emitString(" = " + HW::T_FRAME, stage);
         shadergen.emitLineEnd(stage);
     END_SHADER_STAGE(shader, Stage::PIXEL)
 }
