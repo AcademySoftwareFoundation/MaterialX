@@ -198,10 +198,10 @@ graph per math function for each variation in input type.
     <output name="out" type="color3" nodename="remap1" />
     <remap name="remap1" type="color3" xpos="7.6809" ypos="6.4775">
       <input name="in" type="color3" value="0.0, 0.0, 0.0" nodename="sign1" />
-      <parameter name="inlow" type="float" value="-1.0000" />
-      <parameter name="inhigh" type="float" value="1.0" />
-      <parameter name="outlow" type="float" value="0.0" />
-      <parameter name="outhigh" type="float" value="1.0" />
+      <input name="inlow" type="float" value="-1.0000" />
+      <input name="inhigh" type="float" value="1.0" />
+      <input name="outlow" type="float" value="0.0" />
+      <input name="outhigh" type="float" value="1.0" />
     </remap>
   </nodegraph>
   <nodegraph name="sign_color4" type="" xpos="8.81793" ypos="24.0195">
@@ -214,10 +214,10 @@ graph per math function for each variation in input type.
     <output name="out" type="color4" nodename="remap2" />
     <remap name="remap2" type="color4" xpos="6.71728" ypos="9.94476">
       <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" nodename="sign1" />
-      <parameter name="inlow" type="float" value="-1.0000" />
-      <parameter name="inhigh" type="float" value="1.0" />
-      <parameter name="outlow" type="float" value="0.0" />
-      <parameter name="outhigh" type="float" value="1.0" />
+      <input name="inlow" type="float" value="-1.0000" />
+      <input name="inhigh" type="float" value="1.0" />
+      <input name="outlow" type="float" value="0.0" />
+      <input name="outhigh" type="float" value="1.0" />
     </remap>
   </nodegraph>
   <nodegraph name="sign_vector2" type="" xpos="6.88323" ypos="25.3534">
@@ -235,10 +235,10 @@ graph per math function for each variation in input type.
     </constant>
     <remap name="remap1" type="vector3" xpos="6.2069" ypos="8.3">
       <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="sign1" />
-      <parameter name="inlow" type="float" value="-1.0000" />
-      <parameter name="inhigh" type="float" value="1.0" />
-      <parameter name="outlow" type="float" value="0.0" />
-      <parameter name="outhigh" type="float" value="1.0" />
+      <input name="inlow" type="float" value="-1.0000" />
+      <input name="inhigh" type="float" value="1.0" />
+      <input name="outlow" type="float" value="0.0" />
+      <input name="outhigh" type="float" value="1.0" />
     </remap>
     <sign name="sign1" type="vector3" xpos="7.02703" ypos="5.49704">
       <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="constant1" />
@@ -254,10 +254,10 @@ graph per math function for each variation in input type.
     </sign>
     <remap name="remap1" type="vector4" xpos="5.81452" ypos="8.63666">
       <input name="in" type="vector4" value="0.0, 0.0, 0.0, 1.0" nodename="sign1" />
-      <parameter name="inlow" type="float" value="-1.0000" />
-      <parameter name="inhigh" type="float" value="1.0" />
-      <parameter name="outlow" type="float" value="0.0" />
-      <parameter name="outhigh" type="float" value="1.0" />
+      <input name="inlow" type="float" value="-1.0000" />
+      <input name="inhigh" type="float" value="1.0" />
+      <input name="outlow" type="float" value="0.0" />
+      <input name="outhigh" type="float" value="1.0" />
     </remap>
     <output name="out" type="vector4" nodename="remap1" />
   </nodegraph>

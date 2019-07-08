@@ -6,10 +6,10 @@
     </time>
     <remap name="remap1" type="float" xpos="5.24828" ypos="7.86">
       <input name="in" type="float" value="0.0" nodename="time1" />
-      <parameter name="inlow" type="float" value="0.0" />
-      <parameter name="inhigh" type="float" value="100.0000" />
-      <parameter name="outlow" type="float" value="0.0" />
-      <parameter name="outhigh" type="float" value="1.0" />
+      <input name="inlow" type="float" value="0.0" />
+      <input name="inhigh" type="float" value="100.0000" />
+      <input name="outlow" type="float" value="0.0" />
+      <input name="outhigh" type="float" value="1.0" />
     </remap>
     <output name="out" type="float" nodename="remap1" />
   </nodegraph>
@@ -17,10 +17,10 @@
     <frame name="frame1" type="float" xpos="3.73793" ypos="5.38" />
     <remap name="remap1" type="float" xpos="5.29655" ypos="7.98">
       <input name="in" type="float" value="0.0" nodename="frame1" />
-      <parameter name="inlow" type="float" value="0.0" />
-      <parameter name="inhigh" type="float" value="100.0000" />
-      <parameter name="outlow" type="float" value="0.0" />
-      <parameter name="outhigh" type="float" value="1.0" />
+      <input name="inlow" type="float" value="0.0" />
+      <input name="inhigh" type="float" value="100.0000" />
+      <input name="outlow" type="float" value="0.0" />
+      <input name="outhigh" type="float" value="1.0" />
     </remap>
     <output name="out" type="float" nodename="remap1" />
   </nodegraph>

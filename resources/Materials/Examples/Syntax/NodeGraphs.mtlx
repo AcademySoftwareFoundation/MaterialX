@@ -74,7 +74,7 @@
     </multiply>
     <contrast name="n7" type="color3">
       <input name="in" type="color3" nodename="img2"/>
-      <parameter name="amount" type="float" value="0.2"/>
+      <input name="amount" type="float" value="0.2"/>
       <parameter name="pivot" type="float" value="0.5"/>
     </contrast>
     <mix name="n8" type="color3">
