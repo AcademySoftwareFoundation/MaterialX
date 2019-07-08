@@ -10,6 +10,8 @@
 #include <maya/MGlobal.h>
 #include <maya/MIOStream.h>
 #include <maya/MHWShaderSwatchGenerator.h>
+#include <maya/MViewport2Renderer.h>
+#include <maya/MFragmentManager.h>
 
 Plugin& Plugin::instance()
 {
@@ -20,7 +22,7 @@ Plugin& Plugin::instance()
 void Plugin::initialize(const std::string& loadPath)
 {
     // Always include plug-in load path
-	MaterialX::FilePath searchPath(loadPath);
+	const MaterialX::FilePath searchPath(loadPath);
     
     // Search in standard library directories
     _librarySearchPath.append(searchPath);
@@ -31,8 +33,22 @@ void Plugin::initialize(const std::string& loadPath)
     _resourceSearchPath.append(searchPath / MaterialX::FilePath("../../resources"));
     _resourceSearchPath.append(searchPath / MaterialX::FilePath("../resources"));
 
-    // Set to resource path for now
-    _shaderDebugPath = _resourceSearchPath[1];
+    MHWRender::MRenderer* const theRenderer = MHWRender::MRenderer::theRenderer();
+    MHWRender::MFragmentManager* const fragmentManager = theRenderer ? theRenderer->getFragmentManager() : nullptr;
+    if (!fragmentManager)
+    {
+        MGlobal::displayError("Failed to get the VP2 fragment manager");
+    }
+    else
+    {
+        // Set to resource path for now
+        std::string shaderDebugPath = _resourceSearchPath[1].asString();
+
+        // Add explicitly as VP2 does no prepend a folder separator, and thus fails silently to output anything.
+        shaderDebugPath += "/";
+        fragmentManager->setEffectOutputDirectory(shaderDebugPath.c_str());
+        fragmentManager->setIntermediateGraphOutputDirectory(shaderDebugPath.c_str());
+    }
 }
 
 ///////////////////////////////////////////////////////////////

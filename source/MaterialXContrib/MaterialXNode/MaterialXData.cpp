@@ -112,8 +112,7 @@ void MaterialXData::generateFragment(const mx::FileSearchPath& librarySearchPath
     // For Maya we need to insert a V-flip fragment
     genContext.getOptions().fileTextureVerticalFlip = true;
 
-    // Generate shader and put into XML wrapper.
-    // TODO: Generate unique fragment names
+    // Generate the fragment source (shader and XML wrapper).
     _fragmentName = _element->getNamePath();
     _fragmentName = mx::createValidName(_fragmentName);
 

@@ -1,5 +1,5 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef MATERIALX_UTILS_H
+#define MATERIALX_UTILS_H
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Interface.h>

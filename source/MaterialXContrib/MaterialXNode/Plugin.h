@@ -26,12 +26,6 @@ class Plugin
         return _resourceSearchPath;
     }
 
-    /// Get path for shader debugging output
-    const MaterialX::FilePath& getShaderDebugPath() const
-    {
-        return _shaderDebugPath;
-    }
-
   private:
     Plugin()
     {
@@ -39,7 +33,6 @@ class Plugin
 
     MaterialX::FileSearchPath _librarySearchPath;
     MaterialX::FileSearchPath _resourceSearchPath;
-    MaterialX::FilePath _shaderDebugPath;
 };
 
 #endif /* PLUGIN_H */
