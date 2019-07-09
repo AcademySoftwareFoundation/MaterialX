@@ -468,7 +468,7 @@ void ShaderGeneratorTester::setupDependentLibraries()
     _dependLib = mx::createDocument();
 
     // Load the standard libraries.
-    const mx::StringVec libraries = { "stdlib", "pbrlib" };
+    const mx::StringVec libraries = { "stdlib", "pbrlib", "lights" };
     GenShaderUtil::loadLibraries(libraries, _libSearchPath, _dependLib);
 
     // Load shader definitions used in the test suite.

@@ -142,7 +142,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     // Add files to skip
     addSkipFiles();
 
-    const mx::StringVec libraries = { "stdlib", "pbrlib" };
+    const mx::StringVec libraries = { "stdlib", "pbrlib", "lights" };
     GenShaderUtil::loadLibraries(libraries, searchPath, dependLib, nullptr);
 
     // Load shader definitions used in the test suite.
