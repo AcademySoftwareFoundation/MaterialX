@@ -2059,7 +2059,7 @@
   -->
   <nodedef name="ND_normalmap" node="normalmap" type="vector3" nodegroup="math" default="0.0, 1.0, 0.0">
     <input name="in" type="vector3" value="0.5, 0.5, 1.0"/>
-    <parameter name="space" type="string" value="tangent"/>
+    <parameter name="space" type="string" value="tangent" enum="tangent, object"/>
     <input name="scale" type="float" value="1.0"/>
     <input name="normal" type="vector3" defaultgeomprop="Nworld"/>
     <input name="tangent" type="vector3" defaultgeomprop="Tworld"/>
