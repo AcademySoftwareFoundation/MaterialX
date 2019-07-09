@@ -62,7 +62,16 @@ void checkImplementations(mx::GenContext& context,
     {
         "ambientocclusion",
         "arrayappend",
+        "displacement",
+        "volume",
+        "blackbody",
         "curveadjust",
+        "conical_edf",
+        "measured_edf",
+        "absorption_vdf",
+        "anisotropic_vdf",
+        "thin_surface",
+        "thin_film_brdf",
         "worleynoise2d",
         "worleynoise3d",
         "geompropvalue"
@@ -74,12 +83,16 @@ void checkImplementations(mx::GenContext& context,
     {
         "ND_add_displacementshader",
         "ND_add_volumeshader",
+        "ND_add_vdf",
         "ND_multiply_displacementshaderF",
         "ND_multiply_displacementshaderV",
         "ND_multiply_volumeshaderF",
         "ND_multiply_volumeshaderC",
+        "ND_multiply_vdfF",
+        "ND_multiply_vdfC",
         "ND_mix_displacementshader",
-        "ND_mix_volumeshader"
+        "ND_mix_volumeshader",
+        "ND_mix_vdf"
     };
     skipNodeDefs.insert(generatorSkipNodeDefs.begin(), generatorSkipNodeDefs.end());
 

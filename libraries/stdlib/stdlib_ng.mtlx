@@ -1521,10 +1521,10 @@
   <nodegraph name="NG_range_float" nodedef="ND_range_float">
     <remap name="N_remap1_float" type="float">
       <input name="in" type="float" interfacename="in"/>
-      <parameter name="inlow" type="float" interfacename="inlow"/>
-      <parameter name="inhigh" type="float" interfacename="inhigh"/>
-      <parameter name="outlow" type="float" value="0.0"/>
-      <parameter name="outhigh" type="float" value="1.0"/>
+      <input name="inlow" type="float" interfacename="inlow"/>
+      <input name="inhigh" type="float" interfacename="inhigh"/>
+      <input name="outlow" type="float" value="0.0"/>
+      <input name="outhigh" type="float" value="1.0"/>
     </remap>
     <divide name="N_recip_float" type="float">
       <input name="in1" type="float" value="1.0"/>
@@ -1546,10 +1546,10 @@
     </multiply>
     <remap name="N_remap2_float" type="float">
       <input name="in" type="float" nodename="N_gamma_float"/>
-      <parameter name="inlow" type="float" value="0.0"/>
-      <parameter name="inhigh" type="float" value="1.0"/>
-      <parameter name="outlow" type="float" interfacename="outlow"/>
-      <parameter name="outhigh" type="float" interfacename="outhigh"/>
+      <input name="inlow" type="float" value="0.0"/>
+      <input name="inhigh" type="float" value="1.0"/>
+      <input name="outlow" type="float" interfacename="outlow"/>
+      <input name="outhigh" type="float" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_float" type="float">
       <input name="in" type="float" nodename="N_remap2_float"/>
@@ -1565,10 +1565,10 @@
   <nodegraph name="NG_range_color2" nodedef="ND_range_color2">
     <remap name="N_remap1_color2" type="color2">
       <input name="in" type="color2" interfacename="in"/>
-      <parameter name="inlow" type="color2" interfacename="inlow"/>
-      <parameter name="inhigh" type="color2" interfacename="inhigh"/>
-      <parameter name="outlow" type="color2" value="0.0, 0.0"/>
-      <parameter name="outhigh" type="color2" value="1.0, 1.0"/>
+      <input name="inlow" type="color2" interfacename="inlow"/>
+      <input name="inhigh" type="color2" interfacename="inhigh"/>
+      <input name="outlow" type="color2" value="0.0, 0.0"/>
+      <input name="outhigh" type="color2" value="1.0, 1.0"/>
     </remap>
     <divide name="N_recip_color2" type="color2">
       <input name="in1" type="color2" value="1.0, 1.0"/>
@@ -1590,10 +1590,10 @@
     </multiply>
     <remap name="N_remap2_color2" type="color2">
       <input name="in" type="color2" nodename="N_gamma_color2"/>
-      <parameter name="inlow" type="color2" value="0.0, 0.0"/>
-      <parameter name="inhigh" type="color2" value="1.0, 1.0"/>
-      <parameter name="outlow" type="color2" interfacename="outlow"/>
-      <parameter name="outhigh" type="color2" interfacename="outhigh"/>
+      <input name="inlow" type="color2" value="0.0, 0.0"/>
+      <input name="inhigh" type="color2" value="1.0, 1.0"/>
+      <input name="outlow" type="color2" interfacename="outlow"/>
+      <input name="outhigh" type="color2" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_color2" type="color2">
       <input name="in" type="color2" nodename="N_remap2_color2"/>
@@ -1609,10 +1609,10 @@
   <nodegraph name="NG_range_color3" nodedef="ND_range_color3">
     <remap name="N_remap1_color3" type="color3">
       <input name="in" type="color3" interfacename="in"/>
-      <parameter name="inlow" type="color3" interfacename="inlow"/>
-      <parameter name="inhigh" type="color3" interfacename="inhigh"/>
-      <parameter name="outlow" type="color3" value="0.0, 0.0, 0.0"/>
-      <parameter name="outhigh" type="color3" value="1.0, 1.0, 1.0"/>
+      <input name="inlow" type="color3" interfacename="inlow"/>
+      <input name="inhigh" type="color3" interfacename="inhigh"/>
+      <input name="outlow" type="color3" value="0.0, 0.0, 0.0"/>
+      <input name="outhigh" type="color3" value="1.0, 1.0, 1.0"/>
     </remap>
     <divide name="N_recip_color3" type="color3">
       <input name="in1" type="color3" value="1.0, 1.0, 1.0"/>
@@ -1634,10 +1634,10 @@
     </multiply>
     <remap name="N_remap2_color3" type="color3">
       <input name="in" type="color3" nodename="N_gamma_color3"/>
-      <parameter name="inlow" type="color3" value="0.0, 0.0, 0.0"/>
-      <parameter name="inhigh" type="color3" value="1.0, 1.0, 1.0"/>
-      <parameter name="outlow" type="color3" interfacename="outlow"/>
-      <parameter name="outhigh" type="color3" interfacename="outhigh"/>
+      <input name="inlow" type="color3" value="0.0, 0.0, 0.0"/>
+      <input name="inhigh" type="color3" value="1.0, 1.0, 1.0"/>
+      <input name="outlow" type="color3" interfacename="outlow"/>
+      <input name="outhigh" type="color3" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_color3" type="color3">
       <input name="in" type="color3" nodename="N_remap2_color3"/>
@@ -1653,10 +1653,10 @@
   <nodegraph name="NG_range_color4" nodedef="ND_range_color4">
     <remap name="N_remap1_color4" type="color4">
       <input name="in" type="color4" interfacename="in"/>
-      <parameter name="inlow" type="color4" interfacename="inlow"/>
-      <parameter name="inhigh" type="color4" interfacename="inhigh"/>
-      <parameter name="outlow" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-      <parameter name="outhigh" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
+      <input name="inlow" type="color4" interfacename="inlow"/>
+      <input name="inhigh" type="color4" interfacename="inhigh"/>
+      <input name="outlow" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+      <input name="outhigh" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
     </remap>
     <divide name="N_recip_color4" type="color4">
       <input name="in1" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
@@ -1678,10 +1678,10 @@
     </multiply>
     <remap name="N_remap2_color4" type="color4">
       <input name="in" type="color4" nodename="N_gamma_color4"/>
-      <parameter name="inlow" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-      <parameter name="inhigh" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
-      <parameter name="outlow" type="color4" interfacename="outlow"/>
-      <parameter name="outhigh" type="color4" interfacename="outhigh"/>
+      <input name="inlow" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+      <input name="inhigh" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
+      <input name="outlow" type="color4" interfacename="outlow"/>
+      <input name="outhigh" type="color4" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_color4" type="color4">
       <input name="in" type="color4" nodename="N_remap2_color4"/>
@@ -1697,10 +1697,10 @@
   <nodegraph name="NG_range_vector2" nodedef="ND_range_vector2">
     <remap name="N_remap1_vector2" type="vector2">
       <input name="in" type="vector2" interfacename="in"/>
-      <parameter name="inlow" type="vector2" interfacename="inlow"/>
-      <parameter name="inhigh" type="vector2" interfacename="inhigh"/>
-      <parameter name="outlow" type="vector2" value="0.0, 0.0"/>
-      <parameter name="outhigh" type="vector2" value="1.0, 1.0"/>
+      <input name="inlow" type="vector2" interfacename="inlow"/>
+      <input name="inhigh" type="vector2" interfacename="inhigh"/>
+      <input name="outlow" type="vector2" value="0.0, 0.0"/>
+      <input name="outhigh" type="vector2" value="1.0, 1.0"/>
     </remap>
     <divide name="N_recip_vector2" type="vector2">
       <input name="in1" type="vector2" value="1.0, 1.0"/>
@@ -1722,10 +1722,10 @@
     </multiply>
     <remap name="N_remap2_vector2" type="vector2">
       <input name="in" type="vector2" nodename="N_gamma_vector2"/>
-      <parameter name="inlow" type="vector2" value="0.0, 0.0"/>
-      <parameter name="inhigh" type="vector2" value="1.0, 1.0"/>
-      <parameter name="outlow" type="vector2" interfacename="outlow"/>
-      <parameter name="outhigh" type="vector2" interfacename="outhigh"/>
+      <input name="inlow" type="vector2" value="0.0, 0.0"/>
+      <input name="inhigh" type="vector2" value="1.0, 1.0"/>
+      <input name="outlow" type="vector2" interfacename="outlow"/>
+      <input name="outhigh" type="vector2" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_vector2" type="vector2">
       <input name="in" type="vector2" nodename="N_remap2_vector2"/>
@@ -1741,10 +1741,10 @@
   <nodegraph name="NG_range_vector3" nodedef="ND_range_vector3">
     <remap name="N_remap1_vector3" type="vector3">
       <input name="in" type="vector3" interfacename="in"/>
-      <parameter name="inlow" type="vector3" interfacename="inlow"/>
-      <parameter name="inhigh" type="vector3" interfacename="inhigh"/>
-      <parameter name="outlow" type="vector3" value="0.0, 0.0, 0.0"/>
-      <parameter name="outhigh" type="vector3" value="1.0, 1.0, 1.0"/>
+      <input name="inlow" type="vector3" interfacename="inlow"/>
+      <input name="inhigh" type="vector3" interfacename="inhigh"/>
+      <input name="outlow" type="vector3" value="0.0, 0.0, 0.0"/>
+      <input name="outhigh" type="vector3" value="1.0, 1.0, 1.0"/>
     </remap>
     <divide name="N_recip_vector3" type="vector3">
       <input name="in1" type="vector3" value="1.0, 1.0, 1.0"/>
@@ -1766,10 +1766,10 @@
     </multiply>
     <remap name="N_remap2_vector3" type="vector3">
       <input name="in" type="vector3" nodename="N_gamma_vector3"/>
-      <parameter name="inlow" type="vector3" value="0.0, 0.0, 0.0"/>
-      <parameter name="inhigh" type="vector3" value="1.0, 1.0, 1.0"/>
-      <parameter name="outlow" type="vector3" interfacename="outlow"/>
-      <parameter name="outhigh" type="vector3" interfacename="outhigh"/>
+      <input name="inlow" type="vector3" value="0.0, 0.0, 0.0"/>
+      <input name="inhigh" type="vector3" value="1.0, 1.0, 1.0"/>
+      <input name="outlow" type="vector3" interfacename="outlow"/>
+      <input name="outhigh" type="vector3" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_vector3" type="vector3">
       <input name="in" type="vector3" nodename="N_remap2_vector3"/>
@@ -1785,10 +1785,10 @@
   <nodegraph name="NG_range_vector4" nodedef="ND_range_vector4">
     <remap name="N_remap1_vector4" type="vector4">
       <input name="in" type="vector4" interfacename="in"/>
-      <parameter name="inlow" type="vector4" interfacename="inlow"/>
-      <parameter name="inhigh" type="vector4" interfacename="inhigh"/>
-      <parameter name="outlow" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-      <parameter name="outhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
+      <input name="inlow" type="vector4" interfacename="inlow"/>
+      <input name="inhigh" type="vector4" interfacename="inhigh"/>
+      <input name="outlow" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+      <input name="outhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
     </remap>
     <divide name="N_recip_vector4" type="vector4">
       <input name="in1" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
@@ -1810,10 +1810,10 @@
     </multiply>
     <remap name="N_remap2_vector4" type="vector4">
       <input name="in" type="vector4" nodename="N_gamma_vector4"/>
-      <parameter name="inlow" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-      <parameter name="inhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
-      <parameter name="outlow" type="vector4" interfacename="outlow"/>
-      <parameter name="outhigh" type="vector4" interfacename="outhigh"/>
+      <input name="inlow" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+      <input name="inhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
+      <input name="outlow" type="vector4" interfacename="outlow"/>
+      <input name="outhigh" type="vector4" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_vector4" type="vector4">
       <input name="in" type="vector4" nodename="N_remap2_vector4"/>
@@ -1829,10 +1829,10 @@
   <nodegraph name="NG_range_color2FA" nodedef="ND_range_color2FA">
     <remap name="N_remap1_color2FA" type="color2">
       <input name="in" type="color2" interfacename="in"/>
-      <parameter name="inlow" type="float" interfacename="inlow"/>
-      <parameter name="inhigh" type="float" interfacename="inhigh"/>
-      <parameter name="outlow" type="float" value="0.0"/>
-      <parameter name="outhigh" type="float" value="1.0"/>
+      <input name="inlow" type="float" interfacename="inlow"/>
+      <input name="inhigh" type="float" interfacename="inhigh"/>
+      <input name="outlow" type="float" value="0.0"/>
+      <input name="outhigh" type="float" value="1.0"/>
     </remap>
     <divide name="N_recip_color2FA" type="float">
       <input name="in1" type="float" value="1.0"/>
@@ -1854,10 +1854,10 @@
     </multiply>
     <remap name="N_remap2_color2FA" type="color2">
       <input name="in" type="color2" nodename="N_gamma_color2FA"/>
-      <parameter name="inlow" type="float" value="0.0"/>
-      <parameter name="inhigh" type="float" value="1.0"/>
-      <parameter name="outlow" type="float" interfacename="outlow"/>
-      <parameter name="outhigh" type="float" interfacename="outhigh"/>
+      <input name="inlow" type="float" value="0.0"/>
+      <input name="inhigh" type="float" value="1.0"/>
+      <input name="outlow" type="float" interfacename="outlow"/>
+      <input name="outhigh" type="float" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_color2FA" type="color2">
       <input name="in" type="color2" nodename="N_remap2_color2FA"/>
@@ -1873,10 +1873,10 @@
   <nodegraph name="NG_range_color3FA" nodedef="ND_range_color3FA">
     <remap name="N_remap1_color3FA" type="color3">
       <input name="in" type="color3" interfacename="in"/>
-      <parameter name="inlow" type="float" interfacename="inlow"/>
-      <parameter name="inhigh" type="float" interfacename="inhigh"/>
-      <parameter name="outlow" type="float" value="0.0"/>
-      <parameter name="outhigh" type="float" value="1.0"/>
+      <input name="inlow" type="float" interfacename="inlow"/>
+      <input name="inhigh" type="float" interfacename="inhigh"/>
+      <input name="outlow" type="float" value="0.0"/>
+      <input name="outhigh" type="float" value="1.0"/>
     </remap>
     <divide name="N_recip_color3FA" type="float">
       <input name="in1" type="float" value="1.0"/>
@@ -1898,10 +1898,10 @@
     </multiply>
     <remap name="N_remap2_color3FA" type="color3">
       <input name="in" type="color3" nodename="N_gamma_color3FA"/>
-      <parameter name="inlow" type="float" value="0.0"/>
-      <parameter name="inhigh" type="float" value="1.0"/>
-      <parameter name="outlow" type="float" interfacename="outlow"/>
-      <parameter name="outhigh" type="float" interfacename="outhigh"/>
+      <input name="inlow" type="float" value="0.0"/>
+      <input name="inhigh" type="float" value="1.0"/>
+      <input name="outlow" type="float" interfacename="outlow"/>
+      <input name="outhigh" type="float" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_color3FA" type="color3">
       <input name="in" type="color3" nodename="N_remap2_color3FA"/>
@@ -1917,10 +1917,10 @@
   <nodegraph name="NG_range_color4FA" nodedef="ND_range_color4FA">
     <remap name="N_remap1_color4FA" type="color4">
       <input name="in" type="color4" interfacename="in"/>
-      <parameter name="inlow" type="float" interfacename="inlow"/>
-      <parameter name="inhigh" type="float" interfacename="inhigh"/>
-      <parameter name="outlow" type="float" value="0.0"/>
-      <parameter name="outhigh" type="float" value="1.0"/>
+      <input name="inlow" type="float" interfacename="inlow"/>
+      <input name="inhigh" type="float" interfacename="inhigh"/>
+      <input name="outlow" type="float" value="0.0"/>
+      <input name="outhigh" type="float" value="1.0"/>
     </remap>
     <divide name="N_recip_color4FA" type="float">
       <input name="in1" type="float" value="1.0"/>
@@ -1942,10 +1942,10 @@
     </multiply>
     <remap name="N_remap2_color4FA" type="color4">
       <input name="in" type="color4" nodename="N_gamma_color4FA"/>
-      <parameter name="inlow" type="float" value="0.0"/>
-      <parameter name="inhigh" type="float" value="1.0"/>
-      <parameter name="outlow" type="float" interfacename="outlow"/>
-      <parameter name="outhigh" type="float" interfacename="outhigh"/>
+      <input name="inlow" type="float" value="0.0"/>
+      <input name="inhigh" type="float" value="1.0"/>
+      <input name="outlow" type="float" interfacename="outlow"/>
+      <input name="outhigh" type="float" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_color4FA" type="color4">
       <input name="in" type="color4" nodename="N_remap2_color4FA"/>
@@ -1961,10 +1961,10 @@
   <nodegraph name="NG_range_vector2FA" nodedef="ND_range_vector2FA">
     <remap name="N_remap1_vector2FA" type="vector2">
       <input name="in" type="vector2" interfacename="in"/>
-      <parameter name="inlow" type="float" interfacename="inlow"/>
-      <parameter name="inhigh" type="float" interfacename="inhigh"/>
-      <parameter name="outlow" type="float" value="0.0"/>
-      <parameter name="outhigh" type="float" value="1.0"/>
+      <input name="inlow" type="float" interfacename="inlow"/>
+      <input name="inhigh" type="float" interfacename="inhigh"/>
+      <input name="outlow" type="float" value="0.0"/>
+      <input name="outhigh" type="float" value="1.0"/>
     </remap>
     <divide name="N_recip_vector2FA" type="float">
       <input name="in1" type="float" value="1.0"/>
@@ -1986,10 +1986,10 @@
     </multiply>
     <remap name="N_remap2_vector2FA" type="vector2">
       <input name="in" type="vector2" nodename="N_gamma_vector2FA"/>
-      <parameter name="inlow" type="float" value="0.0"/>
-      <parameter name="inhigh" type="float" value="1.0"/>
-      <parameter name="outlow" type="float" interfacename="outlow"/>
-      <parameter name="outhigh" type="float" interfacename="outhigh"/>
+      <input name="inlow" type="float" value="0.0"/>
+      <input name="inhigh" type="float" value="1.0"/>
+      <input name="outlow" type="float" interfacename="outlow"/>
+      <input name="outhigh" type="float" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_vector2FA" type="vector2">
       <input name="in" type="vector2" nodename="N_remap2_vector2FA"/>
@@ -2005,10 +2005,10 @@
   <nodegraph name="NG_range_vector3FA" nodedef="ND_range_vector3FA">
     <remap name="N_remap1_vector3FA" type="vector3">
       <input name="in" type="vector3" interfacename="in"/>
-      <parameter name="inlow" type="float" interfacename="inlow"/>
-      <parameter name="inhigh" type="float" interfacename="inhigh"/>
-      <parameter name="outlow" type="float" value="0.0"/>
-      <parameter name="outhigh" type="float" value="1.0"/>
+      <input name="inlow" type="float" interfacename="inlow"/>
+      <input name="inhigh" type="float" interfacename="inhigh"/>
+      <input name="outlow" type="float" value="0.0"/>
+      <input name="outhigh" type="float" value="1.0"/>
     </remap>
     <divide name="N_recip_vector3FA" type="float">
       <input name="in1" type="float" value="1.0"/>
@@ -2030,10 +2030,10 @@
     </multiply>
     <remap name="N_remap2_vector3FA" type="vector3">
       <input name="in" type="vector3" nodename="N_gamma_vector3FA"/>
-      <parameter name="inlow" type="float" value="0.0"/>
-      <parameter name="inhigh" type="float" value="1.0"/>
-      <parameter name="outlow" type="float" interfacename="outlow"/>
-      <parameter name="outhigh" type="float" interfacename="outhigh"/>
+      <input name="inlow" type="float" value="0.0"/>
+      <input name="inhigh" type="float" value="1.0"/>
+      <input name="outlow" type="float" interfacename="outlow"/>
+      <input name="outhigh" type="float" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_vector3FA" type="vector3">
       <input name="in" type="vector3" nodename="N_remap2_vector3FA"/>
@@ -2049,10 +2049,10 @@
   <nodegraph name="NG_range_vector4FA" nodedef="ND_range_vector4FA">
     <remap name="N_remap1_vector4FA" type="vector4">
       <input name="in" type="vector4" interfacename="in"/>
-      <parameter name="inlow" type="float" interfacename="inlow"/>
-      <parameter name="inhigh" type="float" interfacename="inhigh"/>
-      <parameter name="outlow" type="float" value="0.0"/>
-      <parameter name="outhigh" type="float" value="1.0"/>
+      <input name="inlow" type="float" interfacename="inlow"/>
+      <input name="inhigh" type="float" interfacename="inhigh"/>
+      <input name="outlow" type="float" value="0.0"/>
+      <input name="outhigh" type="float" value="1.0"/>
     </remap>
     <divide name="N_recip_vector4FA" type="float">
       <input name="in1" type="float" value="1.0"/>
@@ -2074,10 +2074,10 @@
     </multiply>
     <remap name="N_remap2_vector4FA" type="vector4">
       <input name="in" type="vector4" nodename="N_gamma_vector4FA"/>
-      <parameter name="inlow" type="float" value="0.0"/>
-      <parameter name="inhigh" type="float" value="1.0"/>
-      <parameter name="outlow" type="float" interfacename="outlow"/>
-      <parameter name="outhigh" type="float" interfacename="outhigh"/>
+      <input name="inlow" type="float" value="0.0"/>
+      <input name="inhigh" type="float" value="1.0"/>
+      <input name="outlow" type="float" interfacename="outlow"/>
+      <input name="outhigh" type="float" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_vector4FA" type="vector4">
       <input name="in" type="vector4" nodename="N_remap2_vector4FA"/>
