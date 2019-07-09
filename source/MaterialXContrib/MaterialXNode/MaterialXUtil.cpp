@@ -41,7 +41,7 @@ mx::DocumentPtr loadDocument(const std::string& materialXDocumentPath,
     }
 
     // Load libraries
-    static const mx::StringVec libraries = { "stdlib", "pbrlib", "bxdf", "stdlib/genglsl", "pbrlib/genglsl" };
+    static const mx::StringVec libraries = { "stdlib", "pbrlib", "bxdf", "stdlib/genglsl", "pbrlib/genglsl", "lights", "lights/genglsl" };
     loadLibraries(libraries, librarySearchPath, document);
 
     // Read document contents from disk

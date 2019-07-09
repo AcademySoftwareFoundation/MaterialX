@@ -101,10 +101,12 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
-    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
+    loadLibraries({ "stdlib", "pbrlib", "lights" }, searchPath, doc);
 
     mx::NodeDefPtr pointLightShader = doc->getNodeDef("ND_point_light");
     mx::NodeDefPtr spotLightShader = doc->getNodeDef("ND_spot_light");
+    REQUIRE(pointLightShader != nullptr);
+    REQUIRE(spotLightShader != nullptr);
 
     mx::GenContext context(mx::GlslShaderGenerator::create());
     context.registerSourceCodeSearchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
