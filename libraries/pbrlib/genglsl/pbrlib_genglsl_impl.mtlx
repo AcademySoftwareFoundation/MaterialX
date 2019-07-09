@@ -51,15 +51,6 @@
   <!-- <light> -->
   <implementation name="IM_light_genglsl" nodedef="ND_light" language="genglsl"/>
 
-  <!-- <point_light> -->
-  <implementation name="IM_point_light_genglsl" nodedef="ND_point_light" file="pbrlib/genglsl/mx_point_light.glsl" function="mx_point_light" language="genglsl"/>
-
-  <!-- <directional_light> -->
-  <implementation name="IM_directional_light_genglsl" nodedef="ND_directional_light" file="pbrlib/genglsl/mx_directional_light.glsl" function="mx_directional_light" language="genglsl"/>
-
-  <!-- <spot_light> -->
-  <implementation name="IM_spot_light_genglsl" nodedef="ND_spot_light" file="pbrlib/genglsl/mx_spot_light.glsl" function="mx_spot_light" language="genglsl"/>
-
   <!-- <backfacing> -->
   <implementation name="IM_backfacing_boolean_genglsl" nodedef="ND_backfacing_boolean" file="pbrlib/genglsl/mx_backfacing_boolean.inline" language="genglsl"/>
   <implementation name="IM_backfacing_integer_genglsl" nodedef="ND_backfacing_integer" file="pbrlib/genglsl/mx_backfacing_integer.inline" language="genglsl"/>
