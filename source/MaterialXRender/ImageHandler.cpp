@@ -5,6 +5,7 @@
 
 #include <MaterialXCore/Types.h>
 #include <MaterialXGenShader/Util.h>
+#include <MaterialXGenShader/Shader.h>
 #include <MaterialXRender/ImageHandler.h>
 #include <cmath>
 
@@ -261,6 +262,49 @@ vector<Vector2> ImageHandler::getUdimCoordinates(const StringVec& udimIdentifier
     }
 
     return udimCoordinates;
+}
+
+void ImageSamplingProperties::setProperties(const string& fileNameUniform,
+                                            const VariableBlock& uniformBlock)
+{
+    const std::string IMAGE_SEPARATOR("_");
+    const std::string UADDRESS_MODE_POST_FIX("_uaddressmode");
+    const std::string VADDRESS_MODE_POST_FIX("_vaddressmode");
+    const std::string FILTER_TYPE_POST_FIX("_filtertype");
+    const std::string DEFAULT_COLOR_POST_FIX("_default");
+    const int INVALID_MAPPED_INT_VALUE = -1; // Any value < 0 is not considered to be invalid
+
+    // Get the additional texture parameters based on image uniform name
+    // excluding the trailing "_file" postfix string
+    std::string root = fileNameUniform;
+    size_t pos = root.find_last_of(IMAGE_SEPARATOR);
+    if (pos != std::string::npos)
+    {
+        root = root.substr(0, pos);
+    }
+
+    const std::string uaddressmodeStr = root + UADDRESS_MODE_POST_FIX;
+    const ShaderPort* port = uniformBlock.find(uaddressmodeStr);
+    ValuePtr intValue = port ? port->getValue() : nullptr;
+    uaddressMode = ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
+
+    const std::string vaddressmodeStr = root + VADDRESS_MODE_POST_FIX;
+    port = uniformBlock.find(vaddressmodeStr);
+    intValue = port ? port->getValue() : nullptr;
+    vaddressMode = ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
+
+    const std::string filtertypeStr = root + FILTER_TYPE_POST_FIX;
+    port = uniformBlock.find(filtertypeStr);
+    intValue = port ? port->getValue() : nullptr;
+    filterType = ImageSamplingProperties::FilterType(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
+
+    const std::string defaultColorStr = root + DEFAULT_COLOR_POST_FIX;
+    port = uniformBlock.find(defaultColorStr);
+    ValuePtr colorValue = port ? port->getValue() : nullptr;
+    if (colorValue)
+    {
+        mapValueToColor(colorValue, defaultColor);
+    }
 }
 
 } // namespace MaterialX

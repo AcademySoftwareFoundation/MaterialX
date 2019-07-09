@@ -139,8 +139,7 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shader,
         }
     }
 
-    // Bind sampler. This is not correct as it's not taking into account
-    // the MaterialX sampler state.
+    // Bind sampler
     const std::string SAMPLE_PREFIX_STRING("Sampler");
     std::string samplerParameterName(parameterName + SAMPLE_PREFIX_STRING);
     Vp2SamplerUniquePtr samplerState{ MHWRender::MStateManager::acquireSamplerState(samplerDescription) };
@@ -284,6 +283,22 @@ void MaterialXShadingNodeImpl<BASE>::updateShader(MHWRender::MShaderInstance& sh
         udimIdentifiers = &(udimSetValue->asA<mx::StringVec>());
     }
 
+    // Address mode mapping
+    const std::vector<MSamplerState::TextureAddress> addressModes
+    {
+        MSamplerState::TextureAddress::kTexBorder,
+        MSamplerState::TextureAddress::kTexClamp,
+        MSamplerState::TextureAddress::kTexWrap,
+        MSamplerState::TextureAddress::kTexMirror
+    };
+
+    const std::vector<MHWRender::MSamplerState::TextureFilter> filterModes
+    { 
+        MHWRender::MSamplerState::kMinMagMipPoint,
+        MHWRender::MSamplerState::kMinMagMipLinear,
+        MHWRender::MSamplerState::kAnisotropic
+    };
+
     const MaterialX::StringMap& inputs = materialXData->getPathInputMap();
     for (const auto& input : inputs)
     {
@@ -316,10 +331,36 @@ void MaterialXShadingNodeImpl<BASE>::updateShader(MHWRender::MShaderInstance& sh
             {
                 MHWRender::MTextureDescription textureDescription;
 
-                // TODO: This should come from the element and not hard-coded.
+                mx::ImageSamplingProperties samplingProperties
+                    = materialXData->getImageSamplngProperties(textureParameterName);
+
                 MHWRender::MSamplerStateDesc samplerDescription;
-                samplerDescription.filter = MHWRender::MSamplerState::kAnisotropic;
+
+                // Set border color
+                samplerDescription.borderColor[0] = samplingProperties.defaultColor[0];
+                samplerDescription.borderColor[1] = samplingProperties.defaultColor[1];
+                samplerDescription.borderColor[2] = samplingProperties.defaultColor[2];
+                samplerDescription.borderColor[3] = samplingProperties.defaultColor[3];
+
+                // Map address modes
+                samplerDescription.addressV = MSamplerState::TextureAddress::kTexWrap;
+                if (samplingProperties.vaddressMode != mx::ImageSamplingProperties::AddressMode::UNSPECIFIED)               
+                {
+                    samplerDescription.addressV= addressModes[static_cast<int>(samplingProperties.vaddressMode)];
+                }
+                samplerDescription.addressU = MSamplerState::TextureAddress::kTexWrap;
+                if (samplingProperties.uaddressMode != mx::ImageSamplingProperties::AddressMode::UNSPECIFIED)
+                {
+                    samplerDescription.addressU = addressModes[static_cast<int>(samplingProperties.uaddressMode)];
+                }
+
+                // Map filter type
+                samplerDescription.filter = MHWRender::MSamplerState::kMinMagMipLinear;
                 samplerDescription.maxAnisotropy = 16;
+                if (samplingProperties.filterType != mx::ImageSamplingProperties::FilterType::UNSPECIFIED)
+                {
+                    samplerDescription.filter = filterModes[static_cast<int>(samplingProperties.filterType)];
+                }
 
                 status = ::bindFileTexture(shader, textureParameterName, imageSearchPath, valueString,
                                            samplerDescription, textureDescription, udimIdentifiers);

@@ -19,6 +19,8 @@
 
 namespace MaterialX
 {
+class VariableBlock;
+
 /// A function to perform image buffer deallocation
 using ImageBufferDeallocator = std::function<void(void*)>;
 
@@ -95,6 +97,12 @@ class ImageDescRestrictions
 class ImageSamplingProperties
 {
   public:
+    /// Set the properties based on data in a uniform block.
+    /// @param fileNameUniform Name of the file name uniform. Used to find
+    ///        corresponding sampler data in the uniform block
+    /// @param uniformBlock Block containing sampler uniforms
+    void setProperties(const string& fileNameUniform,
+                       const VariableBlock& uniformBlock);
 
     /// Address mode options. Matches enumerations
     /// allowed for <image> address modes, except

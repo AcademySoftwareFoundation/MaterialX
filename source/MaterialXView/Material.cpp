@@ -318,13 +318,6 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
 
     _boundImages.clear();
 
-    const std::string IMAGE_SEPARATOR("_");
-    const std::string UADDRESS_MODE_POST_FIX("_uaddressmode");
-    const std::string VADDRESS_MODE_POST_FIX("_vaddressmode");
-    const std::string FILTER_TYPE_POST_FIX("_filtertype");
-    const std::string DEFAULT_COLOR_POST_FIX("_default");
-    const int INVALID_MAPPED_INT_VALUE = -1; // Any value < 0 is not considered to be invalid
-
     const mx::VariableBlock* publicUniforms = getPublicUniforms();
     mx::Color4 fallbackColor(0, 0, 0, 1);
     for (auto uniform : publicUniforms->getVariableOrder())
@@ -342,43 +335,7 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
 
         // Extract out sampling properties
         mx::ImageSamplingProperties samplingProperties;
-
-        // Get the additional texture parameters based on image uniform name
-        // excluding the trailing "_file" postfix string
-        std::string root = uniformName;
-        size_t pos = root.find_last_of(IMAGE_SEPARATOR);
-        if (pos != std::string::npos)
-        {
-            root = root.substr(0, pos);
-        }
-
-        const std::string uaddressmodeStr = root + UADDRESS_MODE_POST_FIX;
-        const mx::ShaderPort* port = publicUniforms->find(uaddressmodeStr);
-        mx::ValuePtr intValue = port ? port->getValue() : nullptr;
-        samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
-
-        const std::string vaddressmodeStr = root + VADDRESS_MODE_POST_FIX;
-        port = publicUniforms->find(vaddressmodeStr);
-        intValue = port ? port->getValue() : nullptr;
-        samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
-
-        const std::string filtertypeStr = root + FILTER_TYPE_POST_FIX;
-        port = publicUniforms->find(filtertypeStr);
-        intValue = port ? port->getValue() : nullptr;
-        samplingProperties.filterType = mx::ImageSamplingProperties::FilterType(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
-
-        const std::string defaultColorStr = root + DEFAULT_COLOR_POST_FIX;
-        port = publicUniforms->find(defaultColorStr);
-        mx::ValuePtr colorValue = port ? port->getValue() : nullptr;
-        mx::Color4 defaultColor;
-        if (colorValue)
-        {
-            mx::mapValueToColor(colorValue, defaultColor);
-            samplingProperties.defaultColor[0] = defaultColor[0];
-            samplingProperties.defaultColor[1] = defaultColor[1];
-            samplingProperties.defaultColor[2] = defaultColor[2];
-            samplingProperties.defaultColor[3] = defaultColor[3];
-        }
+        samplingProperties.setProperties(uniformName, *publicUniforms);
 
         mx::ImageDesc desc;
         mx::FilePath resolvedFilename = bindImage(filename, uniformName, imageHandler, desc, samplingProperties, udim, &fallbackColor);
