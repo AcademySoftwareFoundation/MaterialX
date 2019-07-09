@@ -6,7 +6,7 @@
 #include <MaterialXGenShader/Util.h>
 
 MaterialXData::MaterialXData(   mx::DocumentPtr document,
-                                const std::string& elementPath, 
+                                const std::string& elementPath,
                                 const MaterialX::FileSearchPath& librarySearchPath )
     : _document(document)
 {

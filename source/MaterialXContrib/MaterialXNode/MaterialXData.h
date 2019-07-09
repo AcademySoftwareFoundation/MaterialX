@@ -56,7 +56,6 @@ struct MaterialXData
     const std::string& getFragmentSource() const;
 
     /// Return name of shader fragment
-    // TODO: move out of this class, it should be Maya-agnostic
     const std::string& getFragmentName() const;
 
     /// Maps XML element paths of MaterialX inputs to their names in the generated shader
@@ -71,14 +70,14 @@ struct MaterialXData
     /// with the element set to render
     void generateFragment(const mx::FileSearchPath& librarySearchPath);
 
-    // Reference document and element
+    // References to the document and the element
     mx::DocumentPtr _document;
     mx::ElementPtr _element;
 
     // XML fragment name
     std::string _fragmentName;
 
-    // XML fragment wrapper
+    // XML fragment source
     std::string _fragmentSource;
 
     // Mapping from MaterialX Element paths to XML input names

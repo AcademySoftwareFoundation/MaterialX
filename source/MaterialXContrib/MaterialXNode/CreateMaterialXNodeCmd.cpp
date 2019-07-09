@@ -88,9 +88,10 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
     MStatus status;
     MArgDatabase argData(syntax(), args, &status);
     if (!status)
+    {
         return status;
+    }
 
-    MString elementPath;
     try
     {
         MString documentFilePath;
@@ -104,14 +105,15 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
             throw mx::Exception("MaterialX document file path is empty.");
         }
 
+        mx::DocumentPtr document = MaterialXMaya::loadDocument(
+            documentFilePath.asChar(), Plugin::instance().getLibrarySearchPath()
+        );
+
+        MString elementPath;
         if (parser.isFlagSet(kElementFlag))
         {
             CHECK_MSTATUS(argData.getFlagArgument(kElementFlag, 0, elementPath));
         }
-
-        mx::DocumentPtr document = MaterialXMaya::loadDocument(
-            documentFilePath.asChar(), Plugin::instance().getLibrarySearchPath()
-        );
 
         std::unique_ptr<MaterialXData> materialXData{
             new MaterialXData(document,

@@ -121,35 +121,55 @@ bool MaterialXNode::getInternalValue(const MPlug& plug, MDataHandle& dataHandle)
 
 bool MaterialXNode::setInternalValue(const MPlug& plug, const MDataHandle& dataHandle)
 {
-    auto displayError = [this](const char* error)
+    auto createAndRegisterFragment = [this]()
     {
-        MString message("Failed to create shader for ");
-        message += typeName();
-        message += " '";
-        message += name();
-        message += "': ";
-        message += error;
-        MGlobal::displayError(message);
-    };
+        try
+        {
+            if (_documentFilePath.length() == 0)
+            {
+                return;
+            }
 
-    auto loadDocument = [this]()
-    {
-        return MaterialXMaya::loadDocument(
-            _documentFilePath.asChar(), Plugin::instance().getLibrarySearchPath()
-        );
-    };
+            if (!_document)
+            {
+                _document = MaterialXMaya::loadDocument(
+                    _documentFilePath.asChar(), Plugin::instance().getLibrarySearchPath()
+                );
+            };
 
-    auto createAndRegister = [this](mx::DocumentPtr document)
-    {
-        _materialXData.reset(new MaterialXData(
-            document,
-            _elementPath.asChar(),
-            Plugin::instance().getLibrarySearchPath()
-        ));
+            if (_elementPath.length() == 0)
+            {
+                // When an empty element path is passed to MaterialXData's
+                // constructor, the first renderable element is selected, which is
+                // a handy feature when creating the node with the command.
+                // However this automatic behavior would complicate state
+                // transitions on attribute edits after the node has been created.
+                // So if the element path attribute is empty, bail early and don't
+                // attempt to create a MaterialXData.
+                //
+                return;
+            }
 
-        MaterialXMaya::registerFragment(
-            _materialXData->getFragmentName(), _materialXData->getFragmentSource()
-        );
+            _materialXData.reset(new MaterialXData(
+                _document,
+                _elementPath.asChar(),
+                Plugin::instance().getLibrarySearchPath()
+            ));
+
+            MaterialXMaya::registerFragment(
+                _materialXData->getFragmentName(), _materialXData->getFragmentSource()
+            );
+        }
+        catch (std::exception& e)
+        {
+            MString message("Failed to create shader for ");
+            message += typeName();
+            message += " '";
+            message += name();
+            message += "': ";
+            message += e.what();
+            MGlobal::displayError(message);
+        }
     };
 
     if (plug == DOCUMENT_ATTRIBUTE)
@@ -161,16 +181,10 @@ bool MaterialXNode::setInternalValue(const MPlug& plug, const MDataHandle& dataH
         }
 
         _documentFilePath = value;
+        _document.reset();
         _materialXData.reset();
-
-        try
-        {
-            createAndRegister(loadDocument());
-        }
-        catch (std::exception& e)
-        {
-            displayError(e.what());
-        }
+        
+        createAndRegisterFragment();
     }
     else if (plug == ELEMENT_ATTRIBUTE)
     {
@@ -181,27 +195,9 @@ bool MaterialXNode::setInternalValue(const MPlug& plug, const MDataHandle& dataH
         }
 
         _elementPath = value;
-        mx::DocumentPtr document;
+        _materialXData.reset();
 
-        if (_materialXData)
-        {
-            document = _materialXData->getDocument();
-            _materialXData.reset();
-        }
-
-        try
-        {
-            if (!document)
-            {
-                document = loadDocument();
-            }
-
-            createAndRegister(document);
-        }
-        catch (std::exception& e)
-        {
-            displayError(e.what());
-        }
+        createAndRegisterFragment();
     }
     else
     {
@@ -219,6 +215,11 @@ void MaterialXNode::setData(const MString& documentFilePath,
     _documentFilePath = documentFilePath;
     _elementPath = elementPath;
     _materialXData = std::move(materialXData);
+
+    if (_materialXData)
+    {
+        _document = _materialXData->getDocument();
+    }
 }
 
 MTypeId MaterialXTextureNode::typeId() const
