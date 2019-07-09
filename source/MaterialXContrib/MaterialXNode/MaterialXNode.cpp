@@ -2,6 +2,7 @@
 #include "Plugin.h"
 #include "MaterialXUtil.h"
 #include "MayaUtil.h"
+#include "MaterialXData.h"
 
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MDGModifier.h>

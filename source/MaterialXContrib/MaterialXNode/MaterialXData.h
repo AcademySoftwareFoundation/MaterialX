@@ -22,7 +22,7 @@ namespace mx = MaterialX;
 /// on the specified element to render.
 /// Currently the only language target available is GLSL.
 ///
-struct MaterialXData
+class MaterialXData
 {
   public:
     /// The element path and document that the element resides in are passed in

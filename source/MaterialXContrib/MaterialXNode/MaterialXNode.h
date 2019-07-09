@@ -1,13 +1,14 @@
 #ifndef MATERIALXNODE_H
 #define MATERIALXNODE_H
 
-#include "MaterialXData.h"
-#include <MaterialXContrib/OGSXMLFragmentWrapper.h>
+#include <MaterialXCore/Document.h>
 
-#include <maya/MDGModifier.h>
 #include <maya/MPxNode.h>
 #include <maya/MObject.h>
-#include <maya/MImage.h>
+
+namespace mx = MaterialX;
+
+class MaterialXData;
 
 class MaterialXNode : public MPxNode
 {

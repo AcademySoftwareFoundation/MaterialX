@@ -4,6 +4,7 @@
 #include "Plugin.h"
 #include "MaterialXUtil.h"
 
+#include <maya/MDGModifier.h>
 #include <maya/MShaderManager.h>
 #include <maya/MTextureManager.h>
 #include <maya/MPxShadingNodeOverride.h>
@@ -194,13 +195,14 @@ void bindEnvironmentLighting(MHWRender::MShaderInstance& shader,
     // Environment matrix
     if (parameterList.indexOf(mx::HW::ENV_MATRIX.c_str()) >= 0)
     {
-        const float yRotationPI[4][4]
+        static const float yRotationPI[4][4]
         {
-            -1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, -1, 0,
-            0, 0, 0, 1
+            -1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, -1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f
         };
+
         MFloatMatrix matrix(yRotationPI);
         status = shader.setParameter(mx::HW::ENV_MATRIX.c_str(), matrix);
     }
