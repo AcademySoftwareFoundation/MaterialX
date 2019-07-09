@@ -290,20 +290,20 @@
   -->
   <nodedef name="ND_mix_bsdf" node="mix" type="BSDF" nodegroup="pbr" defaultinput="bg"
            doc="Mix two BSDF's according to an input mix amount.">
-    <input name="bg" type="BSDF" value="" doc="First BSDF."/>
-    <input name="fg" type="BSDF" value="" doc="Second BSDF."/>
+    <input name="fg" type="BSDF" value=""/>
+    <input name="bg" type="BSDF" value=""/>
     <input name="mix" type="float" value="1.0" uimin="0.0" uimax="1.0" doc="Mixing weight, range [0, 1]."/>
   </nodedef>
   <nodedef name="ND_mix_edf" node="mix" type="EDF" nodegroup="pbr" defaultinput="bg"
            doc="Mix two EDF's according to an input mix amount.">
-    <input name="bg" type="EDF" value="" doc="First EDF."/>
-    <input name="fg" type="EDF" value="" doc="Second EDF."/>
+    <input name="fg" type="EDF" value=""/>
+    <input name="bg" type="EDF" value=""/>
     <input name="mix" type="float" value="1.0" uimin="0.0" uimax="1.0" doc="Mixing weight, range [0, 1]."/>
   </nodedef>
   <nodedef name="ND_mix_vdf" node="mix" type="VDF" nodegroup="pbr" defaultinput="bg"
            doc="Mix two VDF's according to an input mix amount.">
-    <input name="bg" type="VDF" value="" doc="First VDF."/>
-    <input name="fg" type="VDF" value="" doc="Second VDF."/>
+    <input name="fg" type="VDF" value=""/>
+    <input name="bg" type="VDF" value=""/>
     <input name="mix" type="float" value="1.0" uimin="0.0" uimax="1.0" doc="Mixing weight, range [0, 1]."/>
   </nodedef>
 
