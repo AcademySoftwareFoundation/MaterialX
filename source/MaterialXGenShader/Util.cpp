@@ -59,7 +59,7 @@ void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, c
                 const FilePath filePath = dir / file;
                 try
                 {
-                    FileSearchPath readSearchPath = searchPath;
+                    FileSearchPath readSearchPath(searchPath.asString());
                     readSearchPath.append(dir);
                     readFromXmlFile(doc, filePath, readSearchPath.asString());
                     documents.push_back(doc);

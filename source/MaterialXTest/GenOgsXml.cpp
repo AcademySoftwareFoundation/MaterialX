@@ -18,7 +18,7 @@
 
 namespace mx = MaterialX;
 
-TEST_CASE("GenShader: OGS XML Generation", "[ogsxml]")
+TEST_CASE("GenShader: OGS XML Generation", "[genogsxml]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
@@ -26,7 +26,7 @@ TEST_CASE("GenShader: OGS XML Generation", "[ogsxml]")
     loadLibraries({ "stdlib", "pbrlib", "bxdf", "lights" }, librariesPath, doc);
 
     const mx::FilePath resourcesPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources");
-    loadLibraries({ "Materials/TestSuite", "Materials/Examples" }, resourcesPath, doc);
+    loadLibraries({ "Materials/TestSuite", "Materials/Examples" }, librariesPath, doc);
 
     mx::ShaderGeneratorPtr glslGenerator = mx::GlslFragmentGenerator::create();
     mx::GenContext glslContext(glslGenerator);
