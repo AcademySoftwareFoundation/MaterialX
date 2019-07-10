@@ -274,7 +274,8 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
         shaderInput->setValue(input->getValue());
         shaderInput->setPath(input->getPath());
 
-        if (input->getIsBindInput()) {
+        if (input->getIsBindInput()) 
+        {
             ShaderOutput* old_connection = input->getConnection();
             shaderInput->makeConnection(old_connection);
         }
@@ -488,8 +489,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     input->setIsBindInput(true);
                     ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
                     const string& targetColorSpace = context.getOptions().targetColorSpaceOverride.empty() ?
-                        element->getDocument()->getActiveColorSpace() :
-                        context.getOptions().targetColorSpaceOverride;
+                        element->getDocument()->getActiveColorSpace() : context.getOptions().targetColorSpaceOverride;
                     graph->populateInputColorTransformMap(colorManagementSystem, graph->_nodeMap[newNodeName], bindInput, targetColorSpace);
                 }
                 inputSocket->setPath(bindInput->getNamePath());
@@ -725,8 +725,7 @@ void ShaderGraph::finalize(GenContext& context)
     if (context.getOptions().shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
     {
         // Publish all node inputs that has not been connected already.
-        std::vector<ShaderNode*> nodes = getNodes();
-        for (const ShaderNode* node : nodes)
+        for (const ShaderNode* node : getNodes())
         {
             for (ShaderInput* input : node->getInputs())
             {

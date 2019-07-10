@@ -153,7 +153,7 @@ class ShaderInput : public ShaderPort
   protected:
     ShaderOutput* _connection;
     string _channels;
-    bool _isBindInput = false;
+    bool _isBindInput; 
     friend class ShaderOutput;
 };
 

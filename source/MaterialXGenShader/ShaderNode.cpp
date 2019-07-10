@@ -34,7 +34,8 @@ ShaderPort::ShaderPort(ShaderNode* node, const TypeDesc* type, const string& nam
 
 ShaderInput::ShaderInput(ShaderNode* node, const TypeDesc* type, const string& name) :
     ShaderPort(node, type, name),
-    _connection(nullptr)
+    _connection(nullptr),
+    _isBindInput(false)
 {
 }
 
