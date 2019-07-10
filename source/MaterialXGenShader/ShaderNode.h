@@ -150,17 +150,10 @@ class ShaderInput : public ShaderPort
     /// Get isBindInput value
     const bool& getIsBindInput() const { return _isBindInput;  }
 
-    /// Set active colorspace
-    void setActiveColorSpace(const string& activeColorSpace) { _activeColorspace = activeColorSpace;  }
-
-    /// Get active colorspace
-    const string& getActiveColorSpace() const { return _activeColorspace; }
-
   protected:
     ShaderOutput* _connection;
     string _channels;
     bool _isBindInput = false;
-    string _activeColorspace;
     friend class ShaderOutput;
 };
 

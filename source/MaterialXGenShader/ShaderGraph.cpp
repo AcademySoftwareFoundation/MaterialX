@@ -486,7 +486,11 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     inputSocket->setValue(bindInputValue);
 
                     input->setIsBindInput(true);
-                    input->setActiveColorSpace(bindInput->getActiveColorSpace());
+                    ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
+                    const string& targetColorSpace = context.getOptions().targetColorSpaceOverride.empty() ?
+                        element->getDocument()->getActiveColorSpace() :
+                        context.getOptions().targetColorSpaceOverride;
+                    graph->populateInputColorTransformMap(colorManagementSystem, graph->_nodeMap[newNodeName], bindInput, targetColorSpace);
                 }
                 inputSocket->setPath(bindInput->getNamePath());
                 input->setPath(inputSocket->getPath());
@@ -745,18 +749,6 @@ void ShaderGraph::finalize(GenContext& context)
                             inputSocket->setValue(input->getValue());
                         }
                         inputSocket->makeConnection(input);
-                    }
-                }
-                else if (input->getIsBindInput()) 
-                {
-                    // add a color transform if shaderref active colorspace is different than that in the nodegraph
-                    if (!input->getActiveColorSpace().empty() && (input->getType() == Type::COLOR3 || input->getType() == Type::COLOR4)) {
-                        const string& targetColorSpace = context.getOptions().targetColorSpaceOverride.empty() ?
-                            _document->getActiveColorSpace() 
-                            : context.getOptions().targetColorSpaceOverride;
-                        ColorSpaceTransform transform(input->getActiveColorSpace(), targetColorSpace, input->getType());
-                        ShaderOutput* connection = input->getConnection();
-                        addColorTransformNode(input, transform, context);
                     }
                 }
             }
