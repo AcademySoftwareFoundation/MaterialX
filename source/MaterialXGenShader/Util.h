@@ -30,6 +30,7 @@ bool readFile(const string& filename, string& content);
 
 /// Scans for all documents under a root path and returns documents which can be loaded
 void loadDocuments(const FilePath& rootPath, 
+                   const FileSearchPath& searchPath,
                    const StringSet& skipFiles, const StringSet& includeFiles,
                    vector<DocumentPtr>& documents, StringVec& documentsPaths, 
                    StringVec& errorLog);

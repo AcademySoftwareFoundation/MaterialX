@@ -45,7 +45,7 @@ bool readFile(const string& filename, string& contents)
     return false;
 }
 
-void loadDocuments(const FilePath& rootPath, const StringSet& skipFiles, const StringSet& includeFiles,
+void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, const StringSet& skipFiles, const StringSet& includeFiles,
                    vector<DocumentPtr>& documents, StringVec& documentsPaths, StringVec& errors)
 {
     for (const FilePath& dir : rootPath.getSubDirectories())
@@ -59,7 +59,9 @@ void loadDocuments(const FilePath& rootPath, const StringSet& skipFiles, const S
                 const FilePath filePath = dir / file;
                 try
                 {
-                    readFromXmlFile(doc, filePath, dir);
+                    FileSearchPath readSearchPath = searchPath;
+                    readSearchPath.append(dir);
+                    readFromXmlFile(doc, filePath, readSearchPath.asString());
                     documents.push_back(doc);
                     documentsPaths.push_back(filePath.asString());
                 }
@@ -540,7 +542,8 @@ void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& eleme
     for (NodeGraphPtr nodeGraph : doc->getNodeGraphs())
     {
         // Skip anything from an include file including libraries.
-        if (!nodeGraph->hasSourceUri())
+        // Skip any nodegraph which is a definition
+        if (!nodeGraph->hasSourceUri() && !nodeGraph->hasAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE))
         {
             for (OutputPtr output : nodeGraph->getOutputs())
             {

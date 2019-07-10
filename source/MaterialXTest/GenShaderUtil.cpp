@@ -555,9 +555,10 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
 
     // Load in all documents to test
     mx::StringVec errorLog;
+    mx::FileSearchPath searchPath(_libSearchPath);
     for (auto testRoot : _testRootPaths)
     {
-        mx::loadDocuments(testRoot, _skipFiles, overrideFiles, _documents, _documentPaths, errorLog);
+        mx::loadDocuments(testRoot, searchPath, _skipFiles, overrideFiles, _documents, _documentPaths, errorLog);
     }
     CHECK(errorLog.empty());
     for (auto error : errorLog)

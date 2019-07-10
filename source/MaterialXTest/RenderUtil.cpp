@@ -213,7 +213,9 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             mx::DocumentPtr doc = mx::createDocument();
             try
             {
-                mx::readFromXmlFile(doc, filename, dir);
+                mx::FileSearchPath readSearchPath = searchPath;
+                readSearchPath.append(dir);
+                mx::readFromXmlFile(doc, filename, readSearchPath.asString());
             }
             catch (mx::Exception& e)
             {
