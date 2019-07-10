@@ -3,6 +3,7 @@
 
 #include <MaterialXFormat/XmlIo.h>
 #include <MaterialXGenShader/Util.h>
+#include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenOgsXml/GlslFragmentGenerator.h>
 
 MaterialXData::MaterialXData(   mx::DocumentPtr document,
@@ -108,6 +109,27 @@ void MaterialXData::generateFragment(const mx::FileSearchPath& librarySearchPath
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslFragmentGenerator::create();
         mx::GenContext genContext(shaderGenerator);
+
+        // Set up color management. We assume the target render space is linear
+        // if not found in the document. Currently the default system has no other color space targets.
+        //
+        static std::string MATERIALX_LINEAR_WORKING_SPACE("lin_rec709");
+        const std::string language = shaderGenerator->getLanguage();
+        mx::DefaultColorManagementSystemPtr colorManagementSystem = mx::DefaultColorManagementSystem::create(language);
+        if (colorManagementSystem)
+        {
+            shaderGenerator->setColorManagementSystem(colorManagementSystem);
+            colorManagementSystem->loadLibrary(_document);
+            const std::string& documentColorSpace = _document->getAttribute(mx::Element::COLOR_SPACE_ATTRIBUTE);
+            if (documentColorSpace.empty())
+            {
+                genContext.getOptions().targetColorSpaceOverride = MATERIALX_LINEAR_WORKING_SPACE;
+            }
+            else
+            {
+                genContext.getOptions().targetColorSpaceOverride = documentColorSpace;
+            }
+        }
 
         // Set up generator context. For shaders use FIS environment lookup,
         // but disable this for textures to avoid additional unneeded XML parameter
