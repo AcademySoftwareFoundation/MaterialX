@@ -280,7 +280,6 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
             shaderInput->makeConnection(old_connection);
         }
 
-
         input->makeConnection(colorTransformNodeOutput);
     }
 }
