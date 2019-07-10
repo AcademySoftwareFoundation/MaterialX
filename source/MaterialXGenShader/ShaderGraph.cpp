@@ -269,8 +269,8 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
 
         if (input->getIsBindInput()) 
         {
-            ShaderOutput* old_connection = input->getConnection();
-            shaderInput->makeConnection(old_connection);
+            ShaderOutput* oldConnection = input->getConnection();
+            shaderInput->makeConnection(oldConnection);
         }
 
         input->makeConnection(colorTransformNodeOutput);
