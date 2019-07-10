@@ -251,6 +251,12 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
 void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTransform& transform, GenContext& context)
 {
     ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
+    if (!input->getIsBindInput() && !input->getIsBindParam() && (!colorManagementSystem || input->getConnection()))
+    {
+        // Ignore inputs (that are not bind inputs or bind params with connections as they are not 
+        // allowed to have colorspaces specified.
+        return;
+    }
     const string colorTransformNodeName = input->getNode()->getName() + "_" + input->getName() + "_cm";
     ShaderNodePtr colorTransformNodePtr = colorManagementSystem->createNode(this, transform, colorTransformNodeName, context);
 
@@ -267,7 +273,7 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
         shaderInput->setValue(input->getValue());
         shaderInput->setPath(input->getPath());
 
-        if (input->getIsBindInput()) 
+        if (input->getIsBindInput() || input->getIsBindParam()) 
         {
             ShaderOutput* oldConnection = input->getConnection();
             shaderInput->makeConnection(oldConnection);
@@ -449,6 +455,12 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                 if (bindParamValue)
                 {
                     inputSocket->setValue(bindParamValue);
+
+                    input->setIsBindParam(true);
+                    ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
+                    const string& targetColorSpace = context.getOptions().targetColorSpaceOverride.empty() ?
+                        element->getDocument()->getActiveColorSpace() : context.getOptions().targetColorSpaceOverride;
+                    graph->populateInputColorTransformMap(colorManagementSystem, graph->_nodeMap[newNodeName], bindParam, targetColorSpace);
                 }
                 inputSocket->setPath(bindParam->getNamePath());
                 input->setPath(inputSocket->getPath());

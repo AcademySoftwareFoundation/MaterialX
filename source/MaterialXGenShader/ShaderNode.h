@@ -149,11 +149,18 @@ class ShaderInput : public ShaderPort
 
     /// Get isBindInput value
     const bool& getIsBindInput() const { return _isBindInput;  }
+    
+    /// Set isBindParam value
+    void setIsBindParam(bool isBindParam) { _isBindParam = isBindParam; }
+
+    /// Get isBindParam value
+    const bool& getIsBindParam() const { return _isBindParam; }
 
   protected:
     ShaderOutput* _connection;
     string _channels;
-    bool _isBindInput; 
+    bool _isBindInput;
+    bool _isBindParam; 
     friend class ShaderOutput;
 };
 
