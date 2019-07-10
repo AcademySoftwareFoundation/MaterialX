@@ -251,7 +251,7 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
 void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTransform& transform, GenContext& context)
 {
     ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
-    if (!input->getIsBindInput() && !input->getIsBindParam() && (!colorManagementSystem || input->getConnection()))
+    if (!input->getIsBindInput() && (!colorManagementSystem || input->getConnection()))
     {
         // Ignore inputs (that are not bind inputs or bind params with connections as they are not 
         // allowed to have colorspaces specified.
@@ -273,7 +273,7 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
         shaderInput->setValue(input->getValue());
         shaderInput->setPath(input->getPath());
 
-        if (input->getIsBindInput() || input->getIsBindParam()) 
+        if (input->getIsBindInput()) 
         {
             ShaderOutput* oldConnection = input->getConnection();
             shaderInput->makeConnection(oldConnection);
@@ -456,7 +456,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                 {
                     inputSocket->setValue(bindParamValue);
 
-                    input->setIsBindParam(true);
+                    input->setIsBindInput(true);
                     ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
                     const string& targetColorSpace = context.getOptions().targetColorSpaceOverride.empty() ?
                         element->getDocument()->getActiveColorSpace() : context.getOptions().targetColorSpaceOverride;
