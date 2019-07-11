@@ -253,8 +253,8 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
     ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
     if (!(input->getFlags() & input->BIND_INPUT) && (!colorManagementSystem || input->getConnection()))
     {
-        // Ignore unbound inputs with connections, 
-        // as they are not allowed to have colorspaces specified.
+        // Ignore unbound inputs with connections, as they are not 
+        // allowed to have colorspaces specified.
         return;
     }
     const string colorTransformNodeName = input->getNode()->getName() + "_" + input->getName() + "_cm";
