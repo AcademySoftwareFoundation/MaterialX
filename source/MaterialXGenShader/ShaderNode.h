@@ -43,6 +43,7 @@ class ShaderPort : public std::enable_shared_from_this<ShaderPort>
   public:
     /// Flags set on shader ports.
     static const unsigned int EMITTED = 1 << 0;
+    static const unsigned int BIND_INPUT = 1 << 1;
 
     ShaderPort(ShaderNode* node, const TypeDesc* type, const string& name, ValuePtr value = nullptr);
 
@@ -100,6 +101,12 @@ class ShaderPort : public std::enable_shared_from_this<ShaderPort>
     /// Return the emitted state of this port.
     bool isEmitted() const { return (_flags & EMITTED) != 0; }
 
+    /// Set the bind input state on this port to true.
+    void setBindInput() { _flags |= BIND_INPUT; }
+
+    /// Return the emitted state of this port.
+    bool isBindInput() const { return (_flags & BIND_INPUT) != 0; }
+
     /// Set flags on this port.
     void setFlags(unsigned int flags) { _flags = flags; }
 
@@ -143,9 +150,6 @@ class ShaderInput : public ShaderPort
 
     /// Get optional channels value
     const string& getChannels() const { return _channels; }
-
-    /// Flag set on input shader port.
-    static const unsigned int BIND_INPUT = 1 << 1;
 
   protected:
     ShaderOutput* _connection;
