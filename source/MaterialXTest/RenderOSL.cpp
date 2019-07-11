@@ -74,7 +74,7 @@ void OslShaderRenderTester::createValidator(std::ostream& log)
 
             const std::string OSL_EXTENSION("osl");
             mx::FilePathVec files = shaderPath.getFilesInDirectory(OSL_EXTENSION);
-            for (auto file : files)
+            for (const auto& file : files)
             {
                 mx::FilePath filePath = shaderPath / file;
                 _validator->compileOSL(filePath.asString());
@@ -86,7 +86,7 @@ void OslShaderRenderTester::createValidator(std::ostream& log)
     }
     catch (mx::ExceptionShaderValidationError& e)
     {
-        for (auto error : e.errorLog())
+        for (const auto& error : e.errorLog())
         {
             log << e.what() << " " << error << std::endl;
         }
@@ -127,7 +127,7 @@ bool OslShaderRenderTester::runValidator(const std::string& shaderName,
     {
         log << "------------ Run OSL validation with element: " << element->getNamePath() << "-------------------" << std::endl;
 
-        for (auto options : optionsList)
+        for (const auto& options : optionsList)
         {
             profileTimes.elementsTested++;
 
@@ -288,7 +288,7 @@ bool OslShaderRenderTester::runValidator(const std::string& shaderName,
                 file << shader->getSourceCode();
                 file.close();
 
-                for (auto error : e.errorLog())
+                for (const auto& error : e.errorLog())
                 {
                     log << e.what() << " " << error << std::endl;
                 }

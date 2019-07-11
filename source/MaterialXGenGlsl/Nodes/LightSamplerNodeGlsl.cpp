@@ -37,7 +37,7 @@ void LightSamplerNodeGlsl::emitFunctionDefinition(const ShaderNode&, GenContext&
         if (lightShaders)
         {
             string ifstatement = "if ";
-            for (auto it : lightShaders->get())
+            for (const auto& it : lightShaders->get())
             {
                 shadergen.emitLine(ifstatement + "(light.type == " + std::to_string(it.first) + ")", stage, false);
                 shadergen.emitScopeBegin(stage);

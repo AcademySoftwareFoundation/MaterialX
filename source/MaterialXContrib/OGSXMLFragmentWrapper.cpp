@@ -581,7 +581,7 @@ void OGSXMLFragmentWrapper::generate(const string& shaderName, ElementPtr elemen
 
     // Scan outputs and create "outputs"
     pugi::xml_node xmlOutputs = xmlRoot.append_child(OGS_OUTPUTS.c_str());
-    for (auto uniformMap : ps.getOutputBlocks())
+    for (const auto& uniformMap : ps.getOutputBlocks())
     {
         const VariableBlock& uniforms = *uniformMap.second;
         for (size_t i = 0; i < uniforms.size(); ++i)

@@ -54,7 +54,7 @@ void OgsFxShaderRenderTester::loadAdditionalLibraries(mx::DocumentPtr document,
     GenShaderUtil::TestSuiteOptions& options)
 {
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/Utilities/Lights");
-    for (auto lightFile : options.lightFiles)
+    for (const auto& lightFile : options.lightFiles)
     {
         loadLibrary(lightDir / mx::FilePath(lightFile), document);
     }

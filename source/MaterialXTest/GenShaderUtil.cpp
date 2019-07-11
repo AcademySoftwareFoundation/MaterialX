@@ -103,7 +103,7 @@ void checkImplementations(mx::GenContext& context,
     std::vector<mx::ImplementationPtr> impls = doc->getImplementations();
     implDumpStream << "Existing implementations: " << std::to_string(impls.size()) << std::endl;
     implDumpStream << "-----------------------------------------------------------------------" << std::endl;
-    for (auto impl : impls)
+    for (const auto& impl : impls)
     {
         if (language == impl->getLanguage())
         {
@@ -170,7 +170,7 @@ void checkImplementations(mx::GenContext& context,
             missing_str += "Missing nodeDef implementation: " + nodeDefName + ", Node: " + nodeName + ".\n";
 
             std::vector<mx::InterfaceElementPtr> inters = doc->getMatchingImplementations(nodeDefName);
-            for (auto inter2 : inters)
+            for (const auto& inter2 : inters)
             {
                 mx::ImplementationPtr impl = inter2->asA<mx::Implementation>();
                 if (impl)
@@ -184,7 +184,7 @@ void checkImplementations(mx::GenContext& context,
                 }
             }
 
-            for (auto childImpl : impls)
+            for (const auto& childImpl : impls)
             {
                 if (childImpl->getNodeDefString() == nodeDefName)
                 {
@@ -303,7 +303,7 @@ void ShaderGeneratorTester::checkImplementationUsage(mx::StringSet& usedImpls,
     // Get list of implementations a given langauge.
     std::set<mx::ImplementationPtr> libraryImpls;
     const std::vector<mx::ElementPtr>& children = _dependLib->getChildren();
-    for (auto child : children)
+    for (const auto& child : children)
     {
         mx::ImplementationPtr impl = child->asA<mx::Implementation>();
         if (!impl)
@@ -323,13 +323,13 @@ void ShaderGeneratorTester::checkImplementationUsage(mx::StringSet& usedImpls,
     unsigned int implementationUseCount = 0;
     mx::StringVec skippedImplementations;
     mx::StringVec missedImplementations;
-    for (auto libraryImpl : libraryImpls)
+    for (const auto& libraryImpl : libraryImpls)
     {
         const std::string& implName = libraryImpl->getName();
 
         // Skip white-list items
         bool inWhiteList = false;
-        for (auto w : whiteList)
+        for (const auto& w : whiteList)
         {
             if (implName.find(w) != std::string::npos)
             {
@@ -363,7 +363,7 @@ void ShaderGeneratorTester::checkImplementationUsage(mx::StringSet& usedImpls,
     stream << "Skipped: " << skippedImplementations.size() << " implementations." << std::endl;
     if (skippedImplementations.size())
     {
-        for (auto implName : skippedImplementations)
+        for (const auto& implName : skippedImplementations)
         {
             stream << "\t" << implName << std::endl;
         }
@@ -371,7 +371,7 @@ void ShaderGeneratorTester::checkImplementationUsage(mx::StringSet& usedImpls,
     stream << "Untested: " << missedImplementations.size() << " implementations." << std::endl;
     if (missedImplementations.size())
     {
-        for (auto implName : missedImplementations)
+        for (const auto& implName : missedImplementations)
         {
             stream << "\t" << implName << std::endl;
         }
@@ -401,7 +401,7 @@ bool ShaderGeneratorTester::generateCode(mx::GenContext& context, const std::str
     }
     
     bool stageFailed = false;
-    for (auto stage : testStages)
+    for (const auto& stage : testStages)
     {
         const std::string& code = shader->getSourceCode(stage);
         sourceCode.push_back(code);
@@ -463,7 +463,7 @@ void ShaderGeneratorTester::mapNodeDefToIdentiers(const std::vector<mx::NodePtr>
                                                   std::unordered_map<std::string, unsigned int>& ids)
 {
     unsigned int id = 1;
-    for (auto node : nodes)
+    for (const auto& node : nodes)
     {
         auto nodedef = node->getNodeDef();
         if (nodedef)
@@ -502,7 +502,7 @@ void ShaderGeneratorTester::registerLights(mx::DocumentPtr doc, const std::vecto
     {
         // Create a list of unique nodedefs and ids for them
         mapNodeDefToIdentiers(lights, _lightIdentifierMap);
-        for (auto id : _lightIdentifierMap)
+        for (const auto& id : _lightIdentifierMap)
         {
             mx::NodeDefPtr nodeDef = doc->getNodeDef(id.first);
             if (nodeDef)
@@ -535,7 +535,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
 
     // Add files to override the files in the test suite to be examined.
     mx::StringSet overrideFiles;
-    for (auto filterFile : options.overrideFiles)
+    for (const auto& filterFile : options.overrideFiles)
     {
         overrideFiles.insert(filterFile);
     }
@@ -556,12 +556,12 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     // Load in all documents to test
     mx::StringVec errorLog;
     mx::FileSearchPath searchPath(_libSearchPath);
-    for (auto testRoot : _testRootPaths)
+    for (const auto& testRoot : _testRootPaths)
     {
         mx::loadDocuments(testRoot, searchPath, _skipFiles, overrideFiles, _documents, _documentPaths, errorLog);
     }
     CHECK(errorLog.empty());
-    for (auto error : errorLog)
+    for (const auto& error : errorLog)
     {
         _logFile << error << std::endl;
     }
@@ -583,7 +583,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     size_t documentIndex = 0;
     mx::CopyOptions copyOptions;
     copyOptions.skipConflictingElements = true;
-    for (auto doc : _documents)
+    for (const auto& doc : _documents)
     {
         // Add in dependent libraries
         bool importedLibrary = false;
@@ -636,7 +636,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         int missingNodeDefs = 0;
         int missingImplementations = 0;
         int codeGenerationFailures = 0;
-        for (auto element : elements)
+        for (const auto& element : elements)
         {
             mx::OutputPtr output = element->asA<mx::Output>();
             mx::ShaderRefPtr shaderRef = element->asA<mx::ShaderRef>();
@@ -719,13 +719,13 @@ void TestSuiteOptions::print(std::ostream& output) const
 {
     output << "Render Test Options:" << std::endl;
     output << "\tOverride Files: { ";
-    for (auto overrideFile : overrideFiles) { output << overrideFile << " "; }
+    for (const auto& overrideFile : overrideFiles) { output << overrideFile << " "; }
     output << "} " << std::endl;
     output << "\tLight Setup Files: { ";
-    for (auto lightFile : lightFiles) { output << lightFile << " "; }
+    for (const auto& lightFile : lightFiles) { output << lightFile << " "; }
     output << "} " << std::endl;
     output << "\tLanguage / Targets to run: " << std::endl;
-    for (auto l : languageAndTargets)
+    for (const auto& l : languageAndTargets)
     {
         mx::StringVec languageAndTarget = mx::splitString(l, "_");
         size_t count = languageAndTarget.size();
@@ -837,7 +837,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     else if (name == LANGUAGE_AND_TARGETS_STRING)
                     {
                         mx::StringVec list = mx::splitString(p->getValueString(), ",");
-                        for (auto l : list)
+                        for (const auto& l : list)
                         {
                             languageAndTargets.insert(l);
                         }

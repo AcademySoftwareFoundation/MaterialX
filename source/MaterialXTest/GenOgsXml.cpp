@@ -38,13 +38,13 @@ TEST_CASE("GenShader: OGS XML Generation", "[genogsxml]")
     mx::StringVec testGraphs = { };
     mx::StringVec testMaterials = { "Tiled_Brass", "Brass_Wire_Mesh" };
 
-    for (auto testGraph : testGraphs)
+    for (const auto& testGraph : testGraphs)
     {
         mx::NodeGraphPtr graph = doc->getNodeGraph(testGraph);
         if (graph)
         {
             std::vector<mx::OutputPtr> outputs = graph->getOutputs();
-            for (auto output : outputs)
+            for (const auto& output : outputs)
             {
                 const std::string name = graph->getName() + "_" + output->getName();
                 mx::ShaderPtr shader = glslGenerator->generate(name, output, glslContext);
@@ -56,13 +56,13 @@ TEST_CASE("GenShader: OGS XML Generation", "[genogsxml]")
         }
     }
 
-    for (auto testMaterial : testMaterials)
+    for (const auto& testMaterial : testMaterials)
     {
         mx::MaterialPtr mtrl = doc->getMaterial(testMaterial);
         if (mtrl)
         {
             std::vector<mx::ShaderRefPtr> shaderRefs = mtrl->getShaderRefs();
-            for (auto shaderRef : shaderRefs)
+            for (const auto& shaderRef : shaderRefs)
             {
                 mx::ShaderPtr shader = glslGenerator->generate(shaderRef->getName(), shaderRef, glslContext);
                 std::ofstream file(shaderRef->getName() + ".xml");

@@ -78,7 +78,7 @@ bool ArnoldShaderRenderTester::runValidator(const std::string& shaderName,
     {
         log << "------------ Run OSL validation with element: " << element->getNamePath() << "-------------------" << std::endl;
 
-        for (auto options : optionsList)
+        for (const auto& options : optionsList)
         {
             profileTimes.elementsTested++;
 

@@ -552,13 +552,13 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
         if (lightShaders)
         {
-            for (auto it : lightShaders->get())
+            for (const auto& it : lightShaders->get())
             {
                 emitFunctionDefinition(*it.second, context, stage);
             }
         }
         // Emit functions for light sampling
-        for (auto it : _lightSamplingNodes)
+        for (const auto& it : _lightSamplingNodes)
         {
             emitFunctionDefinition(*it, context, stage);
         }

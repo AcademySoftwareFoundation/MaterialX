@@ -93,7 +93,7 @@ StringVec splitString(const string& str, const string& sep)
 
 string replaceSubstrings(string str, const StringMap& stringMap)
 {
-    for (auto& pair : stringMap)
+    for (const auto& pair : stringMap)
     {
         if (pair.first.empty())
             continue;

@@ -137,7 +137,7 @@ TEST_CASE("GenShader: OSL Reference Implementation Check", "[genshader]")
     std::vector<mx::ImplementationPtr> impls = doc->getImplementations();
     implDumpStream << "Existing implementations: " << std::to_string(impls.size()) << std::endl;
     implDumpStream << "-----------------------------------------------------------------------" << std::endl;
-    for (auto impl : impls)
+    for (const auto& impl : impls)
     {
         if (language == impl->getLanguage() && impl->getTarget().empty())
         {

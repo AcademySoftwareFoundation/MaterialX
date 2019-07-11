@@ -479,7 +479,7 @@ ShaderPtr OgsFxShaderGenerator::createShader(const string& name, ElementPtr elem
     {
         ShaderStage& stage = shader->getStage(i);
 
-        for (auto it : stage.getInputBlocks())
+        for (const auto& it : stage.getInputBlocks())
         {
             VariableBlock& block = *it.second;
             for (size_t j = 0; j < block.size(); ++j)

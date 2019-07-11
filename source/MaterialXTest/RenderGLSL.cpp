@@ -73,7 +73,7 @@ void GlslShaderRenderTester::loadAdditionalLibraries(mx::DocumentPtr document,
                                                      GenShaderUtil::TestSuiteOptions& options)
 {
     mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/Utilities/Lights");
-    for (auto lightFile : options.lightFiles)
+    for (const auto& lightFile : options.lightFiles)
     {
         loadLibrary(lightDir / mx::FilePath(lightFile), document);
     }
@@ -116,7 +116,7 @@ void GlslShaderRenderTester::createValidator(std::ostream& log)
     }
     catch (mx::ExceptionShaderValidationError& e)
     {
-        for (auto error : e.errorLog())
+        for (const auto& error : e.errorLog())
         {
             log << e.what() << " " << error << std::endl;
         }
@@ -415,7 +415,7 @@ bool GlslShaderRenderTester::runValidator(const std::string& shaderName,
                     log << "* Uniform UI Properties:" << std::endl;
                     const std::string& target = shadergen.getTarget();
                     const MaterialX::GlslProgram::InputMap& uniforms = program->getUniformsList();
-                    for (auto uniform : uniforms)
+                    for (const auto& uniform : uniforms)
                     {
                         const std::string& path = uniform.second->path;
                         if (path.empty())
@@ -483,7 +483,7 @@ bool GlslShaderRenderTester::runValidator(const std::string& shaderName,
                 file << shader->getSourceCode(mx::Stage::PIXEL);
                 file.close();
 
-                for (auto error : e.errorLog())
+                for (const auto& error : e.errorLog())
                 {
                     log << e.what() << " " << error << std::endl;
                 }

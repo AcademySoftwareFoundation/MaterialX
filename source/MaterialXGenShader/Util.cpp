@@ -504,9 +504,9 @@ void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& eleme
 {
     std::unordered_set<OutputPtr> processedOutputs;
 
-    for (auto material : doc->getMaterials())
+    for (const auto& material : doc->getMaterials())
     {
-        for (auto shaderRef : material->getShaderRefs())
+        for (const auto& shaderRef : material->getShaderRefs())
         {
             if (!shaderRef->hasSourceUri())
             {
@@ -525,7 +525,7 @@ void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& eleme
                 if (!includeReferencedGraphs)
                 {
                     // Track outputs already used by the shaderref
-                    for (auto bindInput : shaderRef->getBindInputs())
+                    for (const auto& bindInput : shaderRef->getBindInputs())
                     {
                         OutputPtr outputPtr = bindInput->getConnectedOutput();
                         if (outputPtr)

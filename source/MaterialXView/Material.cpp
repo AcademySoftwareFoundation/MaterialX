@@ -303,7 +303,7 @@ void Material::bindViewInformation(const mx::Matrix44& world, const mx::Matrix44
 
 void Material::unbindImages(mx::GLTextureHandlerPtr imageHandler)
 {
-    for (auto filePath : _boundImages)
+    for (const auto& filePath : _boundImages)
     {
         imageHandler->unbindImage(filePath);
     }
@@ -320,7 +320,7 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
 
     const mx::VariableBlock* publicUniforms = getPublicUniforms();
     mx::Color4 fallbackColor(0, 0, 0, 1);
-    for (auto uniform : publicUniforms->getVariableOrder())
+    for (const auto& uniform : publicUniforms->getVariableOrder())
     {
         if (uniform->getType() != MaterialX::Type::FILENAME)
         {
@@ -468,7 +468,7 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandler
     };
     const std::string udim;
     mx::Color4 fallbackColor(0, 0, 0, 1);
-    for (auto pair : lightTextures)
+    for (const auto& pair : lightTextures)
     {
         if (_glShader->uniform(pair.first, false) != -1)
         {
@@ -529,7 +529,7 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandler
         }
 
         // Set all inputs
-        for (auto input : light->getInputs())
+        for (const auto& input : light->getInputs())
         {
             // Make sure we have a value to set
             if (input->hasValue())

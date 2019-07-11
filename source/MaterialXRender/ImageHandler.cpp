@@ -59,7 +59,7 @@ void ImageHandler::addLoader(ImageLoaderPtr loader)
     if (loader)
     {
         const StringSet& extensions = loader->supportedExtensions();
-        for (auto extension : extensions)
+        for (const auto& extension : extensions)
         {
             _imageLoaders.insert(std::pair<string, ImageLoaderPtr>(extension, loader));
         }
@@ -69,7 +69,7 @@ void ImageHandler::addLoader(ImageLoaderPtr loader)
 void ImageHandler::supportedExtensions(StringSet& extensions)
 {
     extensions.clear();
-    for (auto loader : _imageLoaders)
+    for (const auto& loader : _imageLoaders)
     {
         const StringSet& loaderExtensions = loader.second->supportedExtensions();
         extensions.insert(loaderExtensions.begin(), loaderExtensions.end());

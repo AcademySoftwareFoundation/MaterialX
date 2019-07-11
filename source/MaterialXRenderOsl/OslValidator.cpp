@@ -120,12 +120,12 @@ void OslValidator::renderOSL(const FilePath& dirPath, const string& shaderName, 
     replacementMap[OUTPUT_SHADER_INPUT_STRING] = OUTPUT_SHADER_INPUT_VALUE_STRING;
     replacementMap[INPUT_SHADER_TYPE_STRING] = shaderName;
     string overrideString;
-    for (auto param : _oslShaderParameterOverrides)
+    for (const auto& param : _oslShaderParameterOverrides)
     {
         overrideString.append(param);
     }
     string envOverrideString;
-    for (auto param : _envOslShaderParameterOverrides)
+    for (const auto& param : _envOslShaderParameterOverrides)
     {
         envOverrideString.append(param);
     }
@@ -253,7 +253,7 @@ void OslValidator::shadeOSL(const FilePath& dirPath, const string& shaderName, c
         errors.push_back("Command string: " + command);
         errors.push_back("Command return code: " + std::to_string(returnValue));
         errors.push_back("Shader failed to render:");
-        for (auto resultLine : results)
+        for (const auto& resultLine : results)
         {
             errors.push_back(resultLine);
         }

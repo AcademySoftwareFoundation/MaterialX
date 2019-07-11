@@ -116,14 +116,14 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
     // Add files to override the files in the test suite to be tested.
     mx::StringSet testfileOverride;
-    for (auto filterFile : options.overrideFiles)
+    for (const auto& filterFile : options.overrideFiles)
     {
         testfileOverride.insert(filterFile);
     }
 
     RenderUtil::AdditiveScopedTimer ioTimer(profileTimes.ioTime, "Global I/O time");
     mx::FilePathVec dirs;
-    for (auto testRoot : testRootPaths)
+    for (const auto& testRoot : testRootPaths)
     {
         mx::FilePathVec testRootDirs = testRoot.getSubDirectories();
         dirs.insert(std::end(dirs), std::begin(testRootDirs), std::end(testRootDirs));
@@ -183,7 +183,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     copyOptions.skipConflictingElements = true;
 
     const std::string MTLX_EXTENSION("mtlx");
-    for (auto dir : dirs)
+    for (const auto& dir : dirs)
     {
         ioTimer.startTimer();
         mx::FilePathVec files;
@@ -256,7 +256,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
             std::string outputPath = mx::FilePath(dir) / mx::FilePath(mx::removeExtension(file));
             mx::FileSearchPath imageSearchPath(dir);
-            for (auto element : elements)
+            for (const auto& element : elements)
             {
                 mx::OutputPtr output = element->asA<mx::Output>();
                 mx::ShaderRefPtr shaderRef = element->asA<mx::ShaderRef>();

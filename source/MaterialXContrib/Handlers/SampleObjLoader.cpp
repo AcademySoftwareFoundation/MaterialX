@@ -284,7 +284,7 @@ bool SampleObjLoader::load(const FilePath& filePath, MeshList& meshList)
 
     // Set up flattened contiguous indexing for all partitions
     unsigned int startIndex = 0;
-    for (auto partition : partitions)
+    for (const auto& partition : partitions)
     {
         MeshIndexBuffer& indexing = partition->getIndices();
         size_t indexCount = partition->getFaceCount() * 3;
