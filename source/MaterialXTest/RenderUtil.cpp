@@ -147,7 +147,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
     // Load shader definitions used in the test suite.
     loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), dependLib);
-    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd.mtlx"), dependLib);
+    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd_preview_surface.mtlx"), dependLib);
 
     // Load any addition per validator libraries
     loadAdditionalLibraries(dependLib, options);

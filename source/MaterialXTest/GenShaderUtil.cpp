@@ -444,7 +444,7 @@ void ShaderGeneratorTester::setupDependentLibraries()
 
     // Load shader definitions used in the test suite.
     loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), _dependLib);
-    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd.mtlx"), _dependLib);
+    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd_preview_surface.mtlx"), _dependLib);
 }
 
 void ShaderGeneratorTester::addSkipFiles()
