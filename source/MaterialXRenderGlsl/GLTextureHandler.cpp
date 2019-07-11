@@ -198,16 +198,15 @@ bool GLTextureHandler::bindImage(const FilePath& filePath, const ImageSamplingPr
         // Set up texture properties
         //
         GLint minFilterType = mapFilterTypeToGL(samplingProperties.filterType);
-        // Note: Magnification filters are more restrictive than minification
-        GLint magFilterType = (minFilterType == GL_LINEAR || minFilterType == GL_REPEAT) ? minFilterType : GL_LINEAR;
+        GLint magFilterType = GL_LINEAR; // Magnification filters are more restrictive than minification
         GLint uaddressMode = mapAddressModeToGL(samplingProperties.uaddressMode);
         GLint vaddressMode = mapAddressModeToGL(samplingProperties.vaddressMode);
         Color4 borderColor(samplingProperties.defaultColor);
         glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor.data());
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, uaddressMode);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vaddressMode);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilterType);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilterType);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilterType);
 
         return true;
     }
@@ -321,11 +320,7 @@ int GLTextureHandler::mapFilterTypeToGL(ImageSamplingProperties::FilterType filt
     int filterType = GL_LINEAR_MIPMAP_LINEAR;
     if (filterTypeEnum == ImageSamplingProperties::FilterType::CLOSEST)
     {
-        filterType = GL_NEAREST;
-    }
-    else if (filterTypeEnum == ImageSamplingProperties::FilterType::LINEAR)
-    {
-        filterType = GL_LINEAR;
+        filterType = GL_NEAREST_MIPMAP_NEAREST;
     }
     return filterType;
 }
