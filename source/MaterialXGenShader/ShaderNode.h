@@ -148,7 +148,7 @@ class ShaderInput : public ShaderPort
     void setIsBindInput(bool isBindInput) { _isBindInput = isBindInput; }
 
     /// Get isBindInput value
-    const bool& getIsBindInput() const { return _isBindInput;  }
+    bool getIsBindInput() const { return _isBindInput;  }
 
   protected:
     ShaderOutput* _connection;
