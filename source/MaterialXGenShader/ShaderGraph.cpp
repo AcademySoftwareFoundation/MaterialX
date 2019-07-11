@@ -251,7 +251,7 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
 void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTransform& transform, GenContext& context)
 {
     ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
-    if (!input->getIsBindInput() && (!colorManagementSystem || input->getConnection()))
+    if (!(input->getFlags() & input->BIND_INPUT) && (!colorManagementSystem || input->getConnection()))
     {
         // Ignore unbound inputs with connections, 
         // as they are not allowed to have colorspaces specified.
@@ -273,7 +273,7 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
         shaderInput->setValue(input->getValue());
         shaderInput->setPath(input->getPath());
 
-        if (input->getIsBindInput()) 
+        if (input->getFlags() & input->BIND_INPUT)
         {
             ShaderOutput* oldConnection = input->getConnection();
             shaderInput->makeConnection(oldConnection);
@@ -456,7 +456,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                 {
                     inputSocket->setValue(bindParamValue);
 
-                    input->setIsBindInput(true);
+                    input->setFlags(input->getFlags() | input->BIND_INPUT);
                     ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
                     const string& targetColorSpace = context.getOptions().targetColorSpaceOverride.empty() ?
                         element->getDocument()->getActiveColorSpace() : context.getOptions().targetColorSpaceOverride;
@@ -490,7 +490,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                 {
                     inputSocket->setValue(bindInputValue);
 
-                    input->setIsBindInput(true);
+                    input->setFlags(input->getFlags() | input->BIND_INPUT);
                     ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
                     const string& targetColorSpace = context.getOptions().targetColorSpaceOverride.empty() ?
                         element->getDocument()->getActiveColorSpace() : context.getOptions().targetColorSpaceOverride;

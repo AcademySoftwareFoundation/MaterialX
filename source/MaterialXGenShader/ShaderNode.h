@@ -144,16 +144,12 @@ class ShaderInput : public ShaderPort
     /// Get optional channels value
     const string& getChannels() const { return _channels; }
 
-    /// Set isBindInput value. If true, either a BindInput or BindParam on a shaderref
-    void setIsBindInput(bool isBindInput) { _isBindInput = isBindInput; }
-
-    /// Get isBindInput value
-    bool getIsBindInput() const { return _isBindInput;  }
+    /// Flag set on input shader port.
+    static const unsigned int BIND_INPUT = 1 << 0;
 
   protected:
     ShaderOutput* _connection;
     string _channels;
-    bool _isBindInput;
     friend class ShaderOutput;
 };
 
