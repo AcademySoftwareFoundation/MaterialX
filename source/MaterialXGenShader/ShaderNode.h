@@ -145,7 +145,7 @@ class ShaderInput : public ShaderPort
     const string& getChannels() const { return _channels; }
 
     /// Flag set on input shader port.
-    static const unsigned int BIND_INPUT = 1 << 0;
+    static const unsigned int BIND_INPUT = 1 << 1;
 
   protected:
     ShaderOutput* _connection;
