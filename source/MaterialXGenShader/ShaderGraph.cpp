@@ -251,13 +251,12 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
 void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTransform& transform, GenContext& context)
 {
     ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
-    if (!colorManagementSystem || input->getConnection())
+    if (!input->isBindInput() && (!colorManagementSystem || input->getConnection()))
     {
-        // Ignore inputs with connections as they are not 
+        // Ignore unbound inputs with connections as they are not 
         // allowed to have colorspaces specified.
         return;
     }
-
     const string colorTransformNodeName = input->getNode()->getName() + "_" + input->getName() + "_cm";
     ShaderNodePtr colorTransformNodePtr = colorManagementSystem->createNode(this, transform, colorTransformNodeName, context);
 
@@ -273,6 +272,12 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
         shaderInput->setVariable(input->getNode()->getName() + "_" + input->getName());
         shaderInput->setValue(input->getValue());
         shaderInput->setPath(input->getPath());
+
+        if (input->isBindInput())
+        {
+            ShaderOutput* oldConnection = input->getConnection();
+            shaderInput->makeConnection(oldConnection);
+        }
 
         input->makeConnection(colorTransformNodeOutput);
     }
@@ -450,6 +455,12 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                 if (bindParamValue)
                 {
                     inputSocket->setValue(bindParamValue);
+
+                    input->setBindInput();
+                    ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
+                    const string& targetColorSpace = context.getOptions().targetColorSpaceOverride.empty() ?
+                        element->getDocument()->getActiveColorSpace() : context.getOptions().targetColorSpaceOverride;
+                    graph->populateInputColorTransformMap(colorManagementSystem, graph->_nodeMap[newNodeName], bindParam, targetColorSpace);
                 }
                 inputSocket->setPath(bindParam->getNamePath());
                 input->setPath(inputSocket->getPath());
@@ -478,6 +489,12 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                 if (bindInputValue)
                 {
                     inputSocket->setValue(bindInputValue);
+
+                    input->setBindInput();
+                    ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
+                    const string& targetColorSpace = context.getOptions().targetColorSpaceOverride.empty() ?
+                        element->getDocument()->getActiveColorSpace() : context.getOptions().targetColorSpaceOverride;
+                    graph->populateInputColorTransformMap(colorManagementSystem, graph->_nodeMap[newNodeName], bindInput, targetColorSpace);
                 }
                 inputSocket->setPath(bindInput->getNamePath());
                 input->setPath(inputSocket->getPath());
