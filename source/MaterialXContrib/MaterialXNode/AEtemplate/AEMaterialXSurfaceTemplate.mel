@@ -1,0 +1,29 @@
+global proc MaterialXSurface_extraCtrlsBuild(string $nodeName)
+{
+    string $editCommand = "python(\"from MaterialXNodeUtil import editMaterialXNode; editMaterialXNode(\\\"" + $nodeName + "\\\")\")";
+    string $reloadCommand = "reloadMaterialXNode \"" + $nodeName + "\"";
+    button -label "Edit" -command $editCommand editButton;
+    button -label "Reload" -command $reloadCommand reloadButton;
+}
+
+global proc MaterialXSurface_extraCtrlsUpdate(string $nodeName)
+{
+    string $editCommand = "python(\"from MaterialXNodeUtil import editMaterialXNode; editMaterialXNode(\\\"" + $nodeName + "\\\")\")";
+    string $reloadCommand = "reloadMaterialXNode \"" + $nodeName + "\"";
+    button -edit -command $editCommand editButton;
+    button -edit -command $reloadCommand reloadButton;
+}
+
+global proc AEMaterialXSurfaceTemplate(string $nodeName)
+{
+    editorTemplate -beginScrollLayout;
+
+    editorTemplate -addControl "documentFilePath";
+    editorTemplate -addControl "elementPath";
+
+    editorTemplate -callCustom "MaterialXSurface_extraCtrlsBuild" "MaterialXSurface_extraCtrlsUpdate" "";
+
+    editorTemplate -addExtraControls;
+
+    editorTemplate -endScrollLayout;
+}

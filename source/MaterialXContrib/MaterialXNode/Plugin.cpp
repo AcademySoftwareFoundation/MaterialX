@@ -1,5 +1,6 @@
 #include "Plugin.h"
 #include "CreateMaterialXNodeCmd.h"
+#include "ReloadMaterialXNodeCmd.h"
 #include "MaterialXNode.h"
 #include "MaterialXTextureOverride.h"
 #include "MaterialXSurfaceOverride.h"
@@ -61,18 +62,23 @@ MStatus initializePlugin(MObject obj)
 	MFnPlugin plugin(obj, "Autodesk", "1.0", "Any");
 	Plugin::instance().initialize(plugin.loadPath().asChar());
 
-	CHECK_MSTATUS(plugin.registerCommand(
+    CHECK_MSTATUS(plugin.registerCommand(
         CreateMaterialXNodeCmd::NAME,
-		CreateMaterialXNodeCmd::creator,
-		CreateMaterialXNodeCmd::newSyntax));
+        CreateMaterialXNodeCmd::creator,
+        CreateMaterialXNodeCmd::newSyntax));
 
-	CHECK_MSTATUS(plugin.registerNode(
-		MaterialXNode::MATERIALX_NODE_TYPENAME,
-		MaterialXNode::MATERIALX_NODE_TYPEID,
-		MaterialXNode::creator,
-		MaterialXNode::initialize,
-		MPxNode::kDependNode,
-		nullptr));
+    CHECK_MSTATUS(plugin.registerCommand(
+        ReloadMaterialXNodeCmd::NAME,
+        ReloadMaterialXNodeCmd::creator,
+        ReloadMaterialXNodeCmd::newSyntax));
+
+    CHECK_MSTATUS(plugin.registerNode(
+        MaterialXNode::MATERIALX_NODE_TYPENAME,
+        MaterialXNode::MATERIALX_NODE_TYPEID,
+        MaterialXNode::creator,
+        MaterialXNode::initialize,
+        MPxNode::kDependNode,
+        nullptr));
 
     {
         CHECK_MSTATUS(MHWRender::MDrawRegistry::registerShadingNodeOverrideCreator(
@@ -125,9 +131,10 @@ MStatus uninitializePlugin(MObject obj)
     CHECK_MSTATUS(plugin.deregisterNode(MaterialXSurfaceNode::MATERIALX_SURFACE_NODE_TYPEID));
 
 	CHECK_MSTATUS(plugin.deregisterCommand(CreateMaterialXNodeCmd::NAME));
+	CHECK_MSTATUS(plugin.deregisterCommand(ReloadMaterialXNodeCmd::NAME));
 
-	CHECK_MSTATUS(
-		MHWRender::MDrawRegistry::deregisterShadingNodeOverrideCreator(
+    CHECK_MSTATUS(
+        MHWRender::MDrawRegistry::deregisterShadingNodeOverrideCreator(
         MaterialXTextureOverride::DRAW_CLASSIFICATION,
 		MaterialXTextureOverride::REGISTRANT_ID));
 
