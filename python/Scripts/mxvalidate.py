@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 '''
 Verify that a specified file is a valid MaterialX document.
-
-Doug Smythe
 '''
 
 import sys, os, string
@@ -55,8 +53,7 @@ def main():
 	print err
 	return
     except mx.ExceptionParseError as err:
-	m = err.split('(')[1][:-1]
-	print "%s is not a valid XML file: %s" % (filename, m)
+	print "%s is not a valid XML file.\n%s" % (filename, err)
 	return
 
     if incldefs:

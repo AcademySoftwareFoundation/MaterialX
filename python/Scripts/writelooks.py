@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 '''
 Generate the "Looks.mtlx" example file programmatically.
-
-Doug Smythe
 '''
 
 import sys, string

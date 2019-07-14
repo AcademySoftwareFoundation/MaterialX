@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 '''
 Generate the "NodeGraphs.mtlx" example file programmatically.
-
-Doug Smythe
 '''
 
 import sys, string
