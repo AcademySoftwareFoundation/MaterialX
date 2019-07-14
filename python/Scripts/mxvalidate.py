@@ -9,7 +9,7 @@ import sys, os, string
 import MaterialX as mx
 
 
-def Usage():
+def usage():
     print "mxvalidate.py: verify that a specified file is a valid MaterialX document."
     print "Usage:  mxvalidate.py [options] <file.mtlx>"
     print "    -h[elp]         Print usage information"
@@ -24,7 +24,7 @@ def main():
     resolve = 0
 
     if len(sys.argv) < 2:
-	Usage()
+	usage()
 	sys.exit(0)
     for arg in sys.argv[1:]:
 	if arg in ['-v', '-verbose']:
@@ -36,7 +36,7 @@ def main():
 	elif arg in ['-r', '-resolve']:
 	    resolve = 1
 	elif arg in ['-h', '-help', '--help']:
-	    Usage()
+	    usage()
 	    sys.exit(0)
 	else:
 	    filename = arg
@@ -104,26 +104,26 @@ def main():
 	clrmgmtconfig = doc.getColorManagementConfig() or "undefined"
 	print "Document CMS: %s  (config file: %s)" % (clrmgmtsys, clrmgmtconfig)
 
-	print "%4d Custom Type%s%s" % (len(typedefs), Pl(typedefs), ListContents(typedefs,resolve,vv))
-	print "%4d NodeDef%s%s" % (len(nodedefs), Pl(nodedefs), ListContents(nodedefs,resolve,vv))
-	print "%4d Implementation%s%s" % (len(implementations), Pl(implementations), ListContents(implementations,resolve,vv))
-	print "%4d Nodegraph%s%s" % (len(nodegraphs), Pl(nodegraphs), ListContents(nodegraphs,resolve,vv))
-	print "%4d VariantSet%s%s" % (len(variantsets), Pl(variantsets), ListContents(variantsets,resolve,vv))
-	print "%4d Material%s%s" % (len(materials), Pl(materials), ListContents(materials,resolve,vv))
-	print "%4d Collection%s%s" % (len(collections), Pl(collections), ListContents(collections,resolve,vv))
-	print "%4d GeomInfo%s%s" % (len(geominfos), Pl(geominfos), ListContents(geominfos,resolve,vv))
-	print "%4d Custom GeomProp%s%s" % (len(geompropdefs), Pl(geompropdefs), ListContents(geompropdefs,resolve,vv))
-	print "%4d PropertySet%s%s" % (len(propsets), Pl(propsets), ListContents(propsets,resolve,vv))
-	print "%4d Look%s%s" % (len(looks), Pl(looks), ListContents(looks,resolve,vv))
+	print "%4d Custom Type%s%s" % (len(typedefs), pl(typedefs), listContents(typedefs,resolve,vv))
+	print "%4d NodeDef%s%s" % (len(nodedefs), pl(nodedefs), listContents(nodedefs,resolve,vv))
+	print "%4d Implementation%s%s" % (len(implementations), pl(implementations), listContents(implementations,resolve,vv))
+	print "%4d Nodegraph%s%s" % (len(nodegraphs), pl(nodegraphs), listContents(nodegraphs,resolve,vv))
+	print "%4d VariantSet%s%s" % (len(variantsets), pl(variantsets), listContents(variantsets,resolve,vv))
+	print "%4d Material%s%s" % (len(materials), pl(materials), listContents(materials,resolve,vv))
+	print "%4d Collection%s%s" % (len(collections), pl(collections), listContents(collections,resolve,vv))
+	print "%4d GeomInfo%s%s" % (len(geominfos), pl(geominfos), listContents(geominfos,resolve,vv))
+	print "%4d Custom GeomProp%s%s" % (len(geompropdefs), pl(geompropdefs), listContents(geompropdefs,resolve,vv))
+	print "%4d PropertySet%s%s" % (len(propsets), pl(propsets), listContents(propsets,resolve,vv))
+	print "%4d Look%s%s" % (len(looks), pl(looks), listContents(looks,resolve,vv))
 
 
-def Pl(elem):
+def pl(elem):
     if len(elem) == 1:
 	return ""
     else:
 	return "s"
 
-def ListContents(elemlist, resolve, vv):
+def listContents(elemlist, resolve, vv):
     if len(elemlist)==0:
 	return ''
     names = []
@@ -137,7 +137,7 @@ def ListContents(elemlist, resolve, vv):
 		    outs = outs + '\n\t    %s output "%s"' % (ot.getType(), ot.getName())
 	    names.append('%s %s "%s"%s' % (outtype, elem.getNodeString(), elem.getName(), outs))
 	    if vv:
-		names.append(ListNodedefInterface(elem))
+		names.append(listNodedefInterface(elem))
 
 	elif elem.getCategory() == "implementation":
 	    impl = '%s for nodedef %s' % (elem.getName(), elem.getNodeDef().getName())
@@ -164,7 +164,7 @@ def ListContents(elemlist, resolve, vv):
 		for ot in elem.getOutputs():
 		    outs = outs + '\n\t    %s output "%s"' % (ot.getType(), ot.getName())
 		    if vv:
-			outs = outs + TraverseInputs(ot, "", 0)
+			outs = outs + traverseInputs(ot, "", 0)
 	    nd = elem.getNodeDef()
 	    if nd:
 		names.append('%s (implementation for nodedef "%s"): %d nodes%s' % (elem.getName(), nd.getName(), nchildnodes, outs))
@@ -190,7 +190,7 @@ def ListContents(elemlist, resolve, vv):
 		    shaders.append('%s %s(ND) "%s"' % (nodetype, nd.getNodeString(), sref.getName()))
 		    if vv:
 			vvitems.append((nodetype, nd.getNodeString(), sref))
-			shaders.append(ListSrefBindings(nodetype, nd.getNodeString(), sref))
+			shaders.append(listSrefBindings(nodetype, nd.getNodeString(), sref))
 		elif sref.hasNodeString():
 		    node = sref.getNodeString()
 		    # Get list of nodedefs for this (shader) node
@@ -208,7 +208,7 @@ def ListContents(elemlist, resolve, vv):
 	    names.append("%s %s" % (elem.getName(), shnames))
 	    if vv:
 		for i in vvitems:
-		    names.append(ListSrefBindings(i[0], i[1], i[2]))
+		    names.append(listSrefBindings(i[0], i[1], i[2]))
 
 	elif elem.getCategory() == "geominfo":
 	    #TODO: For 1.37, geomattr->geomprop
@@ -235,7 +235,7 @@ def ListContents(elemlist, resolve, vv):
 	elif elem.getCategory() == "propertyset":
 	    props = elem.getProperties()
 	    if props:
-		propnames = " (" + string.join(map(lambda x: "%s %s%s" % (x.getType(), x.getName(), GetTarget(x)), props), ", ") + ")"
+		propnames = " (" + string.join(map(lambda x: "%s %s%s" % (x.getType(), x.getName(), getTarget(x)), props), ", ") + ")"
 	    else:
 		propnames = ""
 	    names.append("%s%s" % (elem.getName(), propnames))
@@ -247,7 +247,7 @@ def ListContents(elemlist, resolve, vv):
 	    else:
 		mtlassns = elem.getMaterialAssigns()
 	    for mtlassn in mtlassns:
-		mas = mas + "\n\t    MaterialAssign %s to%s" % (mtlassn.getMaterial(), GetGeoms(mtlassn,resolve))
+		mas = mas + "\n\t    MaterialAssign %s to%s" % (mtlassn.getMaterial(), getGeoms(mtlassn,resolve))
 	    pas = ""
 	    if resolve:
 		propassns = elem.getActivePropertyAssigns()
@@ -255,7 +255,7 @@ def ListContents(elemlist, resolve, vv):
 		propassns = elem.getPropertyAssigns()
 	    for propassn in propassns:
 		propertyname = propassn.getAttribute("property")
-		pas = pas + "\n\t    PropertyAssign %s %s to%s" % (propassn.getType(), propertyname, GetGeoms(propassn,resolve))
+		pas = pas + "\n\t    PropertyAssign %s %s to%s" % (propassn.getType(), propertyname, getGeoms(propassn,resolve))
 
 	    psas = ""
 	    if resolve:
@@ -264,7 +264,7 @@ def ListContents(elemlist, resolve, vv):
 		propsetassns = elem.getPropertySetAssigns()
 	    for propsetassn in propsetassns:
 		propertysetname = propsetassn.getAttribute("propertyset")
-		psas = psas + "\n\t    PropertySetAssign %s to%s" % (propertysetname, GetGeoms(propsetassn,resolve))
+		psas = psas + "\n\t    PropertySetAssign %s to%s" % (propertysetname, getGeoms(propsetassn,resolve))
 
 	    varas = ""
 	    if resolve:
@@ -281,7 +281,7 @@ def ListContents(elemlist, resolve, vv):
 		visassns = elem.getVisibilities()
 	    for vis in visassns:
 		visstr = 'on' if vis.getVisible() else 'off'
-		visas = visas + "\n\t    Set %s visibility%s %s to%s" % (vis.getVisibilityType(), GetViewerGeoms(vis), visstr, GetGeoms(vis,resolve))
+		visas = visas + "\n\t    Set %s visibility%s %s to%s" % (vis.getVisibilityType(), getViewerGeoms(vis), visstr, getGeoms(vis,resolve))
 
 	    names.append("%s%s%s%s%s%s" % (elem.getName(), mas,pas,psas,varas,visas))
 
@@ -289,7 +289,7 @@ def ListContents(elemlist, resolve, vv):
 	    names.append(elem.getName())
     return ":\n\t" + string.join(names, "\n\t")
 
-def ListSrefBindings(nodetype, node, sref):
+def listSrefBindings(nodetype, node, sref):
     s = '  Bindings for %s "%s":' % (nodetype, node)
     for inp in sref.getBindInputs():
 	bname = inp.getName()
@@ -316,7 +316,7 @@ def ListSrefBindings(nodetype, node, sref):
 	s = s + '\n\t    %s token "%s" = %s' % (btype, bname, bval)
     return s
 
-def ListNodedefInterface(nodedef):
+def listNodedefInterface(nodedef):
     s = ''
     for inp in nodedef.getActiveInputs():
 	iname = inp.getName()
@@ -338,31 +338,31 @@ def ListNodedefInterface(nodedef):
 	s = s + '    %s token "%s"' % (ttype, tname)
     return s
 
-def TraverseInputs(node, port, depth):
+def traverseInputs(node, port, depth):
     s = ''
     if node.getCategory() == "output":
 	parent = node.getConnectedNode()
-	s = s + TraverseInputs(parent, "", depth+1)
+	s = s + traverseInputs(parent, "", depth+1)
     else:
-	s = s + '%s%s->%s %s "%s"' % (Spc(depth), port, node.getType(), node.getCategory(), node.getName())
+	s = s + '%s%s->%s %s "%s"' % (spc(depth), port, node.getType(), node.getCategory(), node.getName())
 	ins = node.getActiveInputs()
 	for i in ins:
 	    if i.hasInterfaceName():
 		intname = i.getInterfaceName()
-		s = s + '%s%s->%s interface "%s"' % (Spc(depth+1), i.getName(), i.getType(), intname)
+		s = s + '%s%s->%s interface "%s"' % (spc(depth+1), i.getName(), i.getType(), intname)
 	    elif i.hasValueString():
 		val = i.getValueString()
-		s = s + '%s%s->%s value "%s"' % (Spc(depth+1), i.getName(), i.getType(), val)
+		s = s + '%s%s->%s value "%s"' % (spc(depth+1), i.getName(), i.getType(), val)
 	    else:
 		parent = i.getConnectedNode()
 		if parent:
-		    s = s + TraverseInputs(parent, i.getName(), depth+1)
+		    s = s + traverseInputs(parent, i.getName(), depth+1)
     return s
 
-def Spc(depth):
+def spc(depth):
     return "\n\t    " + ": "*depth
 
-def GetGeoms(elem, resolve):
+def getGeoms(elem, resolve):
     s = ""
     if elem.hasGeom():
 	if resolve:
@@ -373,7 +373,7 @@ def GetGeoms(elem, resolve):
 	s = s + ' collection "%s"' % elem.getCollectionString()
     return s
 
-def GetViewerGeoms(elem):
+def getViewerGeoms(elem):
     s = ""
     if elem.hasViewerGeom():
 	s = s + ' viewergeom "%s"' % elem.getViewerGeom()
@@ -383,7 +383,7 @@ def GetViewerGeoms(elem):
 	s = " of" + s
     return s
 
-def GetTarget(elem):
+def getTarget(elem):
     if elem.hasTarget():
 	return ' [target "%s"]' % elem.getTarget()
     else:
