@@ -18,58 +18,102 @@
 
 namespace mx = MaterialX;
 
-TEST_CASE("GenShader: OGS XML Generation", "[genogsxml]")
+class OgsXmlShaderGeneratorTester : public GlslShaderGeneratorTester
 {
-    mx::DocumentPtr doc = mx::createDocument();
+public:
+    OgsXmlShaderGeneratorTester(const mx::FilePathVec& testRootPaths, const mx::FilePath& libSearchPath,
+        const mx::FileSearchPath& srcSearchPath, const mx::FilePath& logFilePath) :
+        GlslShaderGeneratorTester(mx::GlslFragmentGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logFilePath)
+    {
+        dumpMaterials = { "Tiled_Brass", "Brass_Wire_Mesh" };
+    }
 
-    const mx::FilePath librariesPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
-    loadLibraries({ "stdlib", "pbrlib", "bxdf", "lights" }, librariesPath, doc);
+    void setTestStages() override
+    {
+        _testStages.push_back(mx::Stage::PIXEL);
+    }
 
-    const mx::FilePath resourcesPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources");
-    loadLibraries({ "Materials/TestSuite", "Materials/Examples" }, librariesPath, doc);
+    // Generate source code for a given element and check that code was produced.
+    bool generateCode(mx::GenContext& context, const std::string& shaderName, mx::TypedElementPtr element,
+        std::ostream& log, mx::StringVec testStages, mx::StringVec&) override
+    {
+        mx::ShaderPtr shader = nullptr;
+        try
+        {
+            shader = context.getShaderGenerator().generate(shaderName, element, context);
+        }
+        catch (mx::Exception& e)
+        {
+            log << ">> GLSL Code generation failure: " << e.what() << "\n";
+            shader = nullptr;
+        }
+        CHECK(shader);
+        if (!shader)
+        {
+            log << ">> Failed to generate GLSL shader for element: " << element->getNamePath() << std::endl;
+            return false;
+        }
 
-    mx::ShaderGeneratorPtr glslGenerator = mx::GlslFragmentGenerator::create();
-    mx::GenContext glslContext(glslGenerator);
-    glslContext.registerSourceCodeSearchPath(librariesPath);
-    glslContext.getOptions().fileTextureVerticalFlip = true;
+        std::string cleanShaderName = mx::createValidName(shaderName);
+        std::ostringstream sourceStream;
+        xmlGenerator.generate(cleanShaderName, shader.get(), nullptr, sourceStream);
+        std::string fragmentSource = sourceStream.str();
+        if (fragmentSource.empty())
+        {
+            log << ">> Failed to generate XML code." << std::endl;
+            return false;
+        }
+
+        mx::ShaderRefPtr shaderRef = element->asA<mx::ShaderRef>();
+        if (shaderRef)
+        {
+            mx::MaterialPtr material = shaderRef->getParent()->asA<mx::Material>();
+            if (material && dumpMaterials.count(material->getName()))
+            {
+                std::ofstream file(material->getName() + ".xml");
+                file << fragmentSource;
+                file.close();
+            }
+        }
+        return true;
+    }
+
+protected:
+    void getImplementationWhiteList(mx::StringSet& whiteList) override
+    {
+        whiteList =
+        {
+            "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
+            "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue", "IM_light_genglsl",
+            "IM_point_light_genglsl", "IM_spot_light_genglsl", "IM_directional_light_genglsl"
+        };
+    }
 
     mx::OgsXmlGenerator xmlGenerator;
+    mx::StringSet dumpMaterials;
+};
 
-    mx::StringVec testGraphs = { };
-    mx::StringVec testMaterials = { "Tiled_Brass", "Brass_Wire_Mesh" };
+static void generateXmlCode()
+{
+    const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
+    const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
+    const mx::FilePath testRootPath3 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/UsdPreviewSurface");
+    mx::FilePathVec testRootPaths;
+    testRootPaths.push_back(testRootPath);
+    testRootPaths.push_back(testRootPath2);
+    testRootPaths.push_back(testRootPath3);
+    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+    const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
+    const mx::FilePath logPath("genogsxml_generate_test.txt");
 
-    for (const auto& testGraph : testGraphs)
-    {
-        mx::NodeGraphPtr graph = doc->getNodeGraph(testGraph);
-        if (graph)
-        {
-            std::vector<mx::OutputPtr> outputs = graph->getOutputs();
-            for (const auto& output : outputs)
-            {
-                const std::string name = graph->getName() + "_" + output->getName();
-                mx::ShaderPtr shader = glslGenerator->generate(name, output, glslContext);
-                std::ofstream file(name + ".xml");
-                std::string shaderName = output->getNamePath();
-                shaderName = MaterialX::createValidName(shaderName);
-                xmlGenerator.generate(shaderName, shader.get(), nullptr, file);
-            }
-        }
-    }
+    OgsXmlShaderGeneratorTester tester(testRootPaths, libSearchPath, srcSearchPath, logPath);
 
-    for (const auto& testMaterial : testMaterials)
-    {
-        mx::MaterialPtr mtrl = doc->getMaterial(testMaterial);
-        if (mtrl)
-        {
-            std::vector<mx::ShaderRefPtr> shaderRefs = mtrl->getShaderRefs();
-            for (const auto& shaderRef : shaderRefs)
-            {
-                mx::ShaderPtr shader = glslGenerator->generate(shaderRef->getName(), shaderRef, glslContext);
-                std::ofstream file(shaderRef->getName() + ".xml");
-                std::string shaderName = shaderRef->getNamePath();
-                shaderName = MaterialX::createValidName(shaderName);
-                xmlGenerator.generate(shaderName, shader.get(), nullptr, file);
-            }
-        }
-    }
+    const mx::GenOptions genOptions;
+    mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
+    tester.validate(genOptions, optionsFilePath);
+}
+
+TEST_CASE("GenShader: OGS XML Shader Generation", "[genogsxml]")
+{
+    generateXmlCode();
 }

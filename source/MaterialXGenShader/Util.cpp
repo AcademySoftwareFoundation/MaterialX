@@ -658,4 +658,98 @@ void tokenSubstitution(const StringMap& substitutions, string& source)
     source = buffer;
 }
 
+FilePathVec getUdimPaths(const FilePath& filePath, const StringVec& udimIdentifiers)
+{
+    FilePathVec resolvedFilePaths;
+    if (udimIdentifiers.empty())
+    {
+        return resolvedFilePaths;
+    }
+
+    for (const string& udimIdentifier : udimIdentifiers)
+    {
+        if (udimIdentifier.empty())
+        {
+            continue;
+        }
+
+        StringMap map;
+        map[UDIM_TOKEN] = udimIdentifier;
+        resolvedFilePaths.push_back(FilePath(replaceSubstrings(filePath.asString(), map)));
+    }
+
+    return resolvedFilePaths;
+}
+
+vector<Vector2> getUdimCoordinates(const StringVec& udimIdentifiers)
+{
+    vector<Vector2> udimCoordinates;
+    if (udimIdentifiers.empty())
+    {
+        return udimCoordinates;
+    }
+
+    for (const string& udimIdentifier : udimIdentifiers)
+    {
+        if (udimIdentifier.empty())
+        {
+            continue;
+        }
+
+        int udimVal = std::stoi(udimIdentifier);
+        if (udimVal <= 1000 || udimVal >= 2000)
+        {
+            throw Exception("Invalid UDIM identifier specified" + udimIdentifier);
+        }
+
+        // Compute UDIM coordinate and add to list to return
+        udimVal -= 1000;
+        int uVal = udimVal % 10;
+        uVal = (uVal == 0) ? 9 : uVal - 1;
+        int vVal = (udimVal - uVal - 1) / 10;
+        udimCoordinates.push_back(Vector2(static_cast<float>(uVal), static_cast<float>(vVal)));
+    }
+
+    return udimCoordinates;
+}
+
+void getUdimScaleAndOffset(const vector<Vector2>& udimCoordinates, Vector2& scaleUV, Vector2& offsetUV)
+{
+    if (udimCoordinates.empty())
+    {
+        return;
+    }
+
+    // Find range for lower left corner of each tile based on coordinate
+    Vector2 minUV = udimCoordinates[0];
+    Vector2 maxUV = udimCoordinates[0];
+    for (size_t i = 1; i < udimCoordinates.size(); i++)
+    {
+        if (udimCoordinates[i][0] < minUV[0])
+        {
+            minUV[0] = udimCoordinates[i][0];
+        }
+        if (udimCoordinates[i][1] < minUV[1])
+        {
+            minUV[1] = udimCoordinates[i][1];
+        }
+        if (udimCoordinates[i][0] > maxUV[0])
+        {
+            maxUV[0] = udimCoordinates[i][0];
+        }
+        if (udimCoordinates[i][1] > maxUV[1])
+        {
+            maxUV[1] = udimCoordinates[i][1];
+        }
+    }
+    // Extend to upper right corner of a tile
+    maxUV[0] += 1.0f;
+    maxUV[1] += 1.0f;
+
+    scaleUV[0] = 1.0f / (maxUV[0] - minUV[0]);
+    scaleUV[1] = 1.0f / (maxUV[1] - minUV[1]);
+    offsetUV[0] = -minUV[0];
+    offsetUV[1] = -minUV[1];
+}
+
 } // namespace MaterialX

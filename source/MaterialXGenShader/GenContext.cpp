@@ -26,6 +26,10 @@ GenContext::GenContext(ShaderGeneratorPtr sg) :
 
 void GenContext::addIdentifier(const string& name)
 {
+    if (name.empty())
+    {
+        throw ExceptionShaderGenError("Cannot add empty string as identifier");
+    }
     if (_identifiers.count(name))
     {
         throw ExceptionShaderGenError("Identifier '" + name + "' is already used.");

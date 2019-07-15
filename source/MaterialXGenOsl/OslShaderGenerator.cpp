@@ -16,6 +16,7 @@
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/CompareNode.h>
 #include <MaterialXGenShader/Nodes/BlurNode.h>
+#include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
 namespace MaterialX
 {
@@ -191,16 +192,15 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     }
 
     // Emit uv transform function
-    if (context.getOptions().fileTextureVerticalFlip)
+    if (!context.getOptions().fileTextureVerticalFlip)
     {
-        emitInclude("stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.osl", context, stage);
-        emitLineBreak(stage);
+        emitInclude("stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv.osl", context, stage);
     }
     else
     {
-        emitInclude("stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.osl", context, stage);
-        emitLineBreak(stage);
+        emitInclude("stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv_vflip.osl", context, stage);
     }
+    emitLineBreak(stage);
 
     // Emit function definitions for all nodes
     emitFunctionDefinitions(graph, context, stage);
@@ -274,6 +274,9 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
 
     // End shader body
     emitScopeEnd(stage);
+
+    // Perform token substitution
+    replaceTokens(_tokenSubstitutions, stage);
 
     return shader;
 }

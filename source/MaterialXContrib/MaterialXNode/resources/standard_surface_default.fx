@@ -609,7 +609,7 @@ vec3 mx_environment_irradiance(vec3 N)
 //
 // Function to transform uv-coordinates before texture sampling
 //
-vec2 mx_get_target_uv(vec2 uv)
+vec2 mx_transform_uv(vec2 uv)
 {
    return uv;
 }

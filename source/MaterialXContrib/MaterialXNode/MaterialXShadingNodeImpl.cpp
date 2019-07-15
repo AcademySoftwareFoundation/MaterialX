@@ -11,6 +11,7 @@
 #include <maya/MPxSurfaceShadingNodeOverride.h>
 
 #include <MaterialXData.h>
+#include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXRender/ImageHandler.h>
 
@@ -85,8 +86,8 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shader,
         VP2TextureUniquePtr texturePtr;
         if (udimIdentifiers && !udimIdentifiers->empty())
         {
-            std::vector<mx::Vector2> udimCoordinates{ mx::ImageHandler::getUdimCoordinates(*udimIdentifiers) };
-            mx::FilePathVec udimPaths{ mx::ImageHandler::getUdimPaths(fileName, *udimIdentifiers) };
+            std::vector<mx::Vector2> udimCoordinates{ mx::getUdimCoordinates(*udimIdentifiers) };
+            mx::FilePathVec udimPaths{ mx::getUdimPaths(fileName, *udimIdentifiers) };
             // Make sure we have 1:1 match of paths to coordinates.
             if (udimCoordinates.size() != udimPaths.size())
             {
@@ -322,50 +323,87 @@ void MaterialXShadingNodeImpl<BASE>::updateShader(MHWRender::MShaderInstance& sh
 
         const MString resolvedName = mapping ? mapping->resolvedParameterName() : inputName.c_str();
 
-        if (valueElement->getType() == MaterialX::FILENAME_TYPE_STRING)
+        // Bind values
+        mx::ValuePtr mtxValue = valueElement->getValue();
+        if (mtxValue)
         {
-            // This is the hard-coded OGS convention to associate a texture with a sampler (via post-fix "Sampler" string)
-            const std::string textureParameterName(resolvedName.asChar());
-
-            // Bind texture and sampler
-            const std::string& valueString = valueElement->getValueString();
-            if (!valueString.empty())
+            if (mtxValue->isA<mx::Matrix44>())
             {
-                MHWRender::MTextureDescription textureDescription;
-
-                mx::ImageSamplingProperties samplingProperties
-                    = materialXData->getImageSamplngProperties(textureParameterName);
-
-                MHWRender::MSamplerStateDesc samplerDescription;
-
-                // Set border color
-                samplerDescription.borderColor[0] = samplingProperties.defaultColor[0];
-                samplerDescription.borderColor[1] = samplingProperties.defaultColor[1];
-                samplerDescription.borderColor[2] = samplingProperties.defaultColor[2];
-                samplerDescription.borderColor[3] = samplingProperties.defaultColor[3];
-
-                // Map address modes
-                samplerDescription.addressV = MSamplerState::TextureAddress::kTexWrap;
-                if (samplingProperties.vaddressMode != mx::ImageSamplingProperties::AddressMode::UNSPECIFIED)               
+                mx::Matrix44 matrix44 = mtxValue->asA<mx::Matrix44>();
+                MFloatMatrix mayaValue;
+                for (unsigned int i = 0; i < 4; i++)
                 {
-                    samplerDescription.addressV= addressModes[static_cast<int>(samplingProperties.vaddressMode)];
+                    for (unsigned int j = 0; j < 4; j++)
+                    {
+                        mayaValue[i][j] = matrix44[i][j];
+                    }
                 }
-                samplerDescription.addressU = MSamplerState::TextureAddress::kTexWrap;
-                if (samplingProperties.uaddressMode != mx::ImageSamplingProperties::AddressMode::UNSPECIFIED)
+                status = shader.setParameter(resolvedName, mayaValue);
+            }
+            else if (mtxValue->isA<mx::Matrix33>())
+            {
+                // Must promote matrix33 to matrix44 as the API
+                // has no matrix33 parameter binding interface.
+                mx::Matrix33 matrix33 = mtxValue->asA<mx::Matrix33>();
+                MFloatMatrix mayaValue;
+                mayaValue.setToIdentity();
+                for (unsigned int i = 0; i < 3; i++)
                 {
-                    samplerDescription.addressU = addressModes[static_cast<int>(samplingProperties.uaddressMode)];
+                    for (unsigned int j = 0; j < 3; j++)
+                    {
+                        mayaValue[i][j] = matrix33[i][j];
+                    }
                 }
+                // Note: the parameter exposed uses a derived matrix44 name.
+                std::string matrix4Name = MaterialXData::getMatrix4Name(resolvedName.asChar());
+                status = shader.setParameter(matrix4Name.c_str(), mayaValue);
+            }
 
-                // Map filter type
-                samplerDescription.filter = MHWRender::MSamplerState::kMinMagMipLinear;
-                samplerDescription.maxAnisotropy = 16;
-                if (samplingProperties.filterType != mx::ImageSamplingProperties::FilterType::UNSPECIFIED)
+            else if (valueElement->getType() == mx::FILENAME_TYPE_STRING)
+            {
+                // This is the hard-coded OGS convention to associate a texture with a sampler (via post-fix "Sampler" string)
+                const std::string textureParameterName(resolvedName.asChar());
+
+                // Bind texture and sampler
+                const std::string& valueString = valueElement->getValueString();
+                if (!valueString.empty())
                 {
-                    samplerDescription.filter = filterModes[static_cast<int>(samplingProperties.filterType)];
-                }
+                    MHWRender::MTextureDescription textureDescription;
 
-                status = ::bindFileTexture(shader, textureParameterName, imageSearchPath, valueString,
-                                           samplerDescription, textureDescription, udimIdentifiers);
+                    mx::ImageSamplingProperties samplingProperties
+                        = materialXData->getImageSamplngProperties(textureParameterName);
+
+                    MHWRender::MSamplerStateDesc samplerDescription;
+
+                    // Set border color
+                    samplerDescription.borderColor[0] = samplingProperties.defaultColor[0];
+                    samplerDescription.borderColor[1] = samplingProperties.defaultColor[1];
+                    samplerDescription.borderColor[2] = samplingProperties.defaultColor[2];
+                    samplerDescription.borderColor[3] = samplingProperties.defaultColor[3];
+
+                    // Map address modes
+                    samplerDescription.addressV = MSamplerState::TextureAddress::kTexWrap;
+                    if (samplingProperties.vaddressMode != mx::ImageSamplingProperties::AddressMode::UNSPECIFIED)
+                    {
+                        samplerDescription.addressV = addressModes[static_cast<int>(samplingProperties.vaddressMode)];
+                    }
+                    samplerDescription.addressU = MSamplerState::TextureAddress::kTexWrap;
+                    if (samplingProperties.uaddressMode != mx::ImageSamplingProperties::AddressMode::UNSPECIFIED)
+                    {
+                        samplerDescription.addressU = addressModes[static_cast<int>(samplingProperties.uaddressMode)];
+                    }
+
+                    // Map filter type
+                    samplerDescription.filter = MHWRender::MSamplerState::kMinMagMipLinear;
+                    samplerDescription.maxAnisotropy = 16;
+                    if (samplingProperties.filterType != mx::ImageSamplingProperties::FilterType::UNSPECIFIED)
+                    {
+                        samplerDescription.filter = filterModes[static_cast<int>(samplingProperties.filterType)];
+                    }
+
+                    status = ::bindFileTexture(shader, textureParameterName, imageSearchPath, valueString,
+                        samplerDescription, textureDescription, udimIdentifiers);
+                }
             }
         }
     }

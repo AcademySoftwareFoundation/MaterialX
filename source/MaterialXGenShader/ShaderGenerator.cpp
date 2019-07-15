@@ -241,7 +241,11 @@ void ShaderGenerator::resetIdentifiers(GenContext& context) const
     // Add in the token substitution identifiers as taken names
     for (const auto& it : _tokenSubstitutions)
     {
-        context.addIdentifier(it.second);
+        // Do no add empty token substitutions as identifiers
+        if (!it.second.empty())
+        {
+            context.addIdentifier(it.second);
+        }
     }
 }
 

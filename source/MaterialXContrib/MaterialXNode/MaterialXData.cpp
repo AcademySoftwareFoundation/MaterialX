@@ -109,6 +109,7 @@ void MaterialXData::generateFragment(const mx::FileSearchPath& librarySearchPath
     {
         mx::ShaderGeneratorPtr shaderGenerator = mx::GlslFragmentGenerator::create();
         mx::GenContext genContext(shaderGenerator);
+        mx::GenOptions& genOptions = genContext.getOptions();
 
         // Set up color management. We assume the target render space is linear
         // if not found in the document. Currently the default system has no other color space targets.
@@ -123,24 +124,31 @@ void MaterialXData::generateFragment(const mx::FileSearchPath& librarySearchPath
             const std::string& documentColorSpace = _document->getAttribute(mx::Element::COLOR_SPACE_ATTRIBUTE);
             if (documentColorSpace.empty())
             {
-                genContext.getOptions().targetColorSpaceOverride = MATERIALX_LINEAR_WORKING_SPACE;
+                genOptions.targetColorSpaceOverride = MATERIALX_LINEAR_WORKING_SPACE;
             }
             else
             {
-                genContext.getOptions().targetColorSpaceOverride = documentColorSpace;
+                genOptions.targetColorSpaceOverride = documentColorSpace;
             }
         }
 
-        // Set up generator context. For shaders use FIS environment lookup,
-        // but disable this for textures to avoid additional unneeded XML parameter
+        // Use FIS environment lookup for surface shader generation but
+        // disable for textures to avoid additional unneeded XML parameter
         // generation.
         genContext.registerSourceCodeSearchPath(librarySearchPath);
-        genContext.getOptions().hwSpecularEnvironmentMethod =
+        genOptions.hwSpecularEnvironmentMethod =
             shaderRef ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_NONE;
 
-        genContext.getOptions().hwMaxActiveLightSources = 0;
-        // For Maya we need to insert a V-flip fragment
-        genContext.getOptions().fileTextureVerticalFlip = true;
+        // Set to use no direct lighting
+        genOptions.hwMaxActiveLightSources = 0;
+        
+        // Maya images require a texture coordaintes to be flipped in V.
+        genOptions.fileTextureVerticalFlip = true;
+
+        // Maya viewport uses texture atlas for tile image so enabled
+        // texture coordinate transform to go from original UDIM range to
+        // normalized 0..1 range.
+        genOptions.hwNormalizeUdimTexCoords = true;
 
         // Generate the fragment source (shader and XML wrapper).
         _fragmentName = _element->getNamePath();
@@ -229,4 +237,9 @@ mx::ImageSamplingProperties MaterialXData::getImageSamplngProperties(const std::
 
     }
     return samplingProperties;
+}
+
+std::string MaterialXData::getMatrix4Name(const std::string& matrix3Name)
+{
+    return (matrix3Name + mx::GlslFragmentGenerator::MATRIX3_TO_MATRIX4_POSTFIX);
 }

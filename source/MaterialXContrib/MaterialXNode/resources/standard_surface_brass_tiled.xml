@@ -519,7 +519,7 @@ vec3 mx_environment_irradiance(vec3 N)
 //
 // Function to transform uv-coordinates before texture sampling
 //
-vec2 mx_get_target_uv(vec2 uv)
+vec2 mx_transform_uv(vec2 uv)
 {
     return vec2(uv.x, 1.0 - uv.y);
 }
@@ -539,7 +539,7 @@ void mx_image_float(sampler2D tex_sampler, int layer, float defaultval, vec2 tex
     // TODO: Fix handling of addressmode
     if(textureSize(tex_sampler, 0).x > 1)
     {
-        vec2 uv = mx_get_target_uv(texcoord);
+        vec2 uv = mx_transform_uv(texcoord);
         result = texture(tex_sampler, uv).r;
     }
     else
@@ -562,7 +562,7 @@ void mx_image_color3(sampler2D tex_sampler, int layer, vec3 defaultval, vec2 tex
     // TODO: Fix handling of addressmode
     if(textureSize(tex_sampler, 0).x > 1)
     {
-        vec2 uv = mx_get_target_uv(texcoord);
+        vec2 uv = mx_transform_uv(texcoord);
         result = texture(tex_sampler, uv).rgb;
     }
     else

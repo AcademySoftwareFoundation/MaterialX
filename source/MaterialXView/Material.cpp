@@ -361,7 +361,7 @@ mx::FilePath Material::bindImage(const mx::FilePath& filePath, const std::string
     if (!udim.empty())
     {
         const mx::StringVec udimSet{ udim };
-        mx::FilePathVec udimPaths = imageHandler->getUdimPaths(filePath, udimSet);
+        mx::FilePathVec udimPaths = mx::getUdimPaths(filePath, udimSet);
         if (!udimPaths.empty())
         {
             resolvedFilename = udimPaths[0];

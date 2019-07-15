@@ -315,18 +315,6 @@ class ImageHandler
         return -1;
     }
 
-    /// Perform UDIM token replace using an input file path and a list of token
-    /// replacements (UDIM identifiers). A new path will be created for 
-    /// each identifier.
-    /// @param filePath File path with UDIM token
-    /// @param udimIdentifiers List of UDIM identifiers
-    /// @returns List of file paths
-    static FilePathVec getUdimPaths(const FilePath& filePath, const StringVec& udimIdentifiers);
-
-    /// Compute the UDIM coordinates for a set of UDIM identifiers
-    /// @return List of UDIM coordinates
-    static vector<Vector2> getUdimCoordinates(const StringVec& udimIdentifiers);
-
   protected:
     /// Cache an image for reuse.
     /// @param filePath File path of image to cache.

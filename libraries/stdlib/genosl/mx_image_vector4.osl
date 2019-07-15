@@ -10,7 +10,7 @@ void mx_image_vector4(string file, string layer, vector4 default_value, vector2 
 
     color missingColor = color(default_value.x, default_value.y, default_value.z);
     float missingAlpha = default_value.w;
-    vector2 st = mx_get_target_uv(texcoord);
+    vector2 st = mx_transform_uv(texcoord);
     float alpha;
     color rgb = texture(file, st.x, st.y, "alpha", alpha, "subimage", layer,
                         "missingcolor", missingColor, "missingalpha", missingAlpha, "swrap", uaddressmode, "twrap", vaddressmode);

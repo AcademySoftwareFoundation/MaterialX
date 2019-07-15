@@ -209,61 +209,6 @@ void ImageHandler::clearImageCache()
     _imageCache.clear();
 }
 
-FilePathVec ImageHandler::getUdimPaths(const FilePath& filePath, const StringVec& udimIdentifiers)
-{
-    FilePathVec resolvedFilePaths;
-    if (udimIdentifiers.empty())
-    {
-        return resolvedFilePaths;
-    }
-
-    for (const string& udimIdentifier : udimIdentifiers)
-    {
-        if (udimIdentifier.empty())
-        {
-            continue;
-        }
-
-        StringMap map;
-        map[UDIM_TOKEN] = udimIdentifier;
-        resolvedFilePaths.push_back(FilePath(replaceSubstrings(filePath.asString(), map)));
-    }
-
-    return resolvedFilePaths;
-}
-
-vector<Vector2> ImageHandler::getUdimCoordinates(const StringVec& udimIdentifiers)
-{
-    vector<Vector2> udimCoordinates;
-    if (udimIdentifiers.empty())
-    {
-        return udimCoordinates;
-    }
-
-    for (const string& udimIdentifier : udimIdentifiers)
-    {
-        if (udimIdentifier.empty())
-        {
-            continue;
-        }
-
-        int udimVal = std::stoi(udimIdentifier);
-        if (udimVal <= 1000 || udimVal >= 2000)
-        {
-            throw Exception("Invalid UDIM identifier specified" + udimIdentifier);
-        }
-
-        // Compute UDIM coordinate and add to list to return
-        udimVal -= 1000;
-        int uVal = udimVal % 10;
-        uVal = (uVal == 0) ? 9 : uVal - 1;
-        int vVal = (udimVal - uVal - 1) / 10;
-        udimCoordinates.push_back(Vector2(static_cast<float>(uVal), static_cast<float>(vVal)));
-    }
-
-    return udimCoordinates;
-}
-
 void ImageSamplingProperties::setProperties(const string& fileNameUniform,
                                             const VariableBlock& uniformBlock)
 {

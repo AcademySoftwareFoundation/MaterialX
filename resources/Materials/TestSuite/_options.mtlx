@@ -21,7 +21,7 @@
       <!-- Comma separated list of "language"_"target" specifiers to indicate which
            code generators to use.
        -->
-      <parameter name="languageAndTargets" type="string" value="genglsl_glsl400,genosl_vanilla,genglsl_ogsfx" />
+      <parameter name="languageAndTargets" type="string" value="genglsl_glsl400,genosl_vanilla,genglsl_ogsfx,genglsl_ogsxml" />
 
       <!-- Check the count of number of implementations used for a given generator
         -->
