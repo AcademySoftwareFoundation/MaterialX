@@ -118,59 +118,67 @@ bool MaterialXNode::getInternalValue(const MPlug& plug, MDataHandle& dataHandle)
     return true;
 }
 
+void MaterialXNode::createAndRegisterFragment()
+{
+    try
+    {
+        if (_documentFilePath.length() == 0)
+        {
+            return;
+        }
+
+        if (!_document)
+        {
+            _document = MaterialXMaya::loadDocument(
+                _documentFilePath.asChar(), Plugin::instance().getLibrarySearchPath()
+            );
+        };
+
+        if (_elementPath.length() == 0)
+        {
+            // When an empty element path is passed to MaterialXData's
+            // constructor, the first renderable element is selected, which is
+            // a handy feature when creating the node with the command.
+            // However this automatic behavior would complicate state
+            // transitions on attribute edits after the node has been created.
+            // So if the element path attribute is empty, bail early and don't
+            // attempt to create a MaterialXData.
+            //
+            return;
+        }
+
+        _materialXData.reset(new MaterialXData(
+            _document,
+            _elementPath.asChar(),
+            Plugin::instance().getLibrarySearchPath()
+        ));
+
+        MaterialXMaya::registerFragment(
+            _materialXData->getFragmentName(), _materialXData->getFragmentSource()
+        );
+    }
+    catch (std::exception& e)
+    {
+        MString msg("Failed to create shader for ");
+        msg += typeName();
+        msg += " '";
+        msg += name();
+        msg += "': ";
+        msg += e.what();
+        MGlobal::displayError(msg);
+    }
+}
+
+void MaterialXNode::reloadDocument()
+{
+    _document = nullptr;
+    createAndRegisterFragment();
+    // TODO: Figure out a better way to refresh the viewport
+    MGlobal::executeCommand("ogs -reset");
+}
+
 bool MaterialXNode::setInternalValue(const MPlug& plug, const MDataHandle& dataHandle)
 {
-    auto createAndRegisterFragment = [this]()
-    {
-        try
-        {
-            if (_documentFilePath.length() == 0)
-            {
-                return;
-            }
-
-            if (!_document)
-            {
-                _document = MaterialXMaya::loadDocument(
-                    _documentFilePath.asChar(), Plugin::instance().getLibrarySearchPath()
-                );
-            };
-
-            if (_elementPath.length() == 0)
-            {
-                // When an empty element path is passed to MaterialXData's
-                // constructor, the first renderable element is selected, which is
-                // a handy feature when creating the node with the command.
-                // However this automatic behavior would complicate state
-                // transitions on attribute edits after the node has been created.
-                // So if the element path attribute is empty, bail early and don't
-                // attempt to create a MaterialXData.
-                //
-                return;
-            }
-
-            _materialXData.reset(new MaterialXData(
-                _document,
-                _elementPath.asChar(),
-                Plugin::instance().getLibrarySearchPath()
-            ));
-
-            MaterialXMaya::registerFragment(
-                _materialXData->getFragmentName(), _materialXData->getFragmentSource()
-            );
-        }
-        catch (std::exception& e)
-        {
-            MString message("Failed to create shader for ");
-            message += typeName();
-            message += " '";
-            message += name();
-            message += "': ";
-            message += e.what();
-            MGlobal::displayError(message);
-        }
-    };
-
     if (plug == DOCUMENT_ATTRIBUTE)
     {
         const MString& value = dataHandle.asString();
