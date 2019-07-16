@@ -121,40 +121,7 @@ void checkImplementations(mx::GenContext& context,
         "ND_multiply_vdfC",
         "ND_mix_displacementshader",
         "ND_mix_volumeshader",
-        "ND_mix_vdf",
-
-        "ND_sin_vector2",
-        "ND_cos_vector2", 
-        "ND_tan_vector2",
-        "ND_asin_vector2",
-        "ND_acos_vector2",
-        "ND_atan2_vector2",
-        
-        "ND_sin_vector3",
-        "ND_cos_vector3",
-        "ND_tan_vector3",
-        "ND_asin_vector3",
-        "ND_acos_vector3",
-        "ND_atan2_vector3",
-        
-        "ND_sin_vector4",
-        "ND_cos_vector4",
-        "ND_tan_vector4",
-        "ND_asin_vector4",
-        "ND_acos_vector4",
-        "ND_atan2_vector4",
-        
-        "ND_sqrt_vector2",
-        "ND_sqrt_vector3",
-        "ND_sqrt_vector4",
-
-        "ND_ln_vector2",
-        "ND_ln_vector3",
-        "ND_ln_vector4",
-
-        "ND_exp_vector2",
-        "ND_exp_vector3",
-        "ND_exp_vector4"
+        "ND_mix_vdf"
     };
     skipNodeDefs.insert(generatorSkipNodeDefs.begin(), generatorSkipNodeDefs.end());
 
