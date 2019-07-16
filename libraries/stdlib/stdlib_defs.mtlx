@@ -1707,6 +1707,63 @@
     <input name="in1" type="float" value="1.0"/>
     <input name="in2" type="float" value="0.0"/>
   </nodedef>
+  <nodedef name="ND_sin_vector2" node="sin" type="vector2" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector2" value="0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_cos_vector2" node="cos" type="vector2" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector2" value="0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_tan_vector2" node="tan" type="vector2" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector2" value="0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_asin_vector2" node="asin" type="vector2" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector2" value="0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_acos_vector2" node="acos" type="vector2" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector2" value="0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_atan2_vector2" node="atan2" type="vector2" nodegroup="math" defaultinput="in1">
+    <input name="in1" type="vector2" value="1.0, 1.0"/>
+    <input name="in2" type="vector2" value="0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_sin_vector3" node="sin" type="vector3" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_cos_vector3" node="cos" type="vector3" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_tan_vector3" node="tan" type="vector3" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_asin_vector3" node="asin" type="vector3" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_acos_vector3" node="acos" type="vector3" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_atan2_vector3" node="atan2" type="vector3" nodegroup="math" defaultinput="in1">
+    <input name="in1" type="vector3" value="1.0, 1.0, 1.0"/>
+    <input name="in2" type="vector3" value="0.0, 0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_sin_vector4" node="sin" type="vector4" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_cos_vector4" node="cos" type="vector4" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_tan_vector4" node="tan" type="vector4" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_asin_vector4" node="asin" type="vector4" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_acos_vector4" node="acos" type="vector4" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_atan2_vector4" node="atan2" type="vector4" nodegroup="math" defaultinput="in1">
+    <input name="in1" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
+    <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+  </nodedef>
 
   <!--
     Nodes: <sqrt>, <ln>, <exp>
@@ -1720,6 +1777,33 @@
   </nodedef>
   <nodedef name="ND_exp_float" node="exp" type="float" nodegroup="math" defaultinput="in">
     <input name="in" type="float" value="0.0"/>
+  </nodedef>
+  <nodedef name="ND_sqrt_vector2" node="sqrt" type="vector2" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector2" value="0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_ln_vector2" node="ln" type="vector2" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector2" value="1.0, 1.0"/>
+  </nodedef>
+  <nodedef name="ND_exp_vector2" node="exp" type="vector2" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector2" value="0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_sqrt_vector3" node="sqrt" type="vector3" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_ln_vector3" node="ln" type="vector3" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector3" value="1.0, 1.0, 1.0"/>
+  </nodedef>
+  <nodedef name="ND_exp_vector3" node="exp" type="vector3" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_sqrt_vector4" node="sqrt" type="vector4" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+  </nodedef>
+  <nodedef name="ND_ln_vector4" node="ln" type="vector4" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
+  </nodedef>
+  <nodedef name="ND_exp_vector4" node="exp" type="vector4" nodegroup="math" defaultinput="in">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
   </nodedef>
 
   <!--
