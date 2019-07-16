@@ -348,42 +348,6 @@ void ShaderGeneratorTester::checkImplementationUsage(mx::StringSet& usedImpls,
 
     mx::StringSet whiteList;
     getImplementationWhiteList(whiteList);
-    // Temporarily add these in:
-    mx::StringSet vecNList = {
-        "IM_sin_vector2",
-        "IM_cos_vector2",
-        "IM_tan_vector2",
-        "IM_asin_vector2",
-        "IM_acos_vector2",
-        "IM_atan2_vector2",
-
-        "IM_sin_vector3",
-        "IM_cos_vector3",
-        "IM_tan_vector3",
-        "IM_asin_vector3",
-        "IM_acos_vector3",
-        "IM_atan2_vector3",
-
-        "IM_sin_vector4",
-        "IM_cos_vector4",
-        "IM_tan_vector4",
-        "IM_asin_vector4",
-        "IM_acos_vector4",
-        "IM_atan2_vector4",
-
-        "IM_sqrt_vector2",
-        "IM_sqrt_vector3",
-        "IM_sqrt_vector4",
-
-        "IM_ln_vector2",
-        "IM_ln_vector3",
-        "IM_ln_vector4",
-
-        "IM_exp_vector2",
-        "IM_exp_vector3",
-        "IM_exp_vector4"
-    };
-    whiteList.insert(vecNList.begin(), vecNList.end());
 
     unsigned int implementationUseCount = 0;
     mx::StringVec skippedImplementations;
