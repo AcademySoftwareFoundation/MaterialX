@@ -282,6 +282,6 @@ MaterialXSurfaceNode::getInternalValue(const MPlug& plug, MDataHandle& dataHandl
     }
     else
     {
-        return MPxNode::getInternalValue(plug, dataHandle);
+        return MaterialXNode::getInternalValue(plug, dataHandle);
     }
 }
