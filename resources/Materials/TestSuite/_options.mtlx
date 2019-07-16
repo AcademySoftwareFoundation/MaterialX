@@ -86,5 +86,11 @@
       <!-- Transforms UVs of loaded geometry -->
       <parameter name="transformUVs" type="matrix44" value="1.0f, 0.0f, 0.0f, -0.235f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f" />
 
+      <!-- External testing: extra comma separated list of library paths -->
+      <parameter name="externalLibraryPaths" type="string" value="" />
+
+      <!-- External testing: extra comma separated list of test root paths -->
+      <parameter name="externalTestPaths" type="string" value="" />
+
    </nodedef>
 </materialx>

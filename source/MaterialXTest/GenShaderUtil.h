@@ -127,6 +127,12 @@ class TestSuiteOptions
 
     // Transforms UVs of loaded geometry
     MaterialX::Matrix44 transformUVs;
+
+    // Additional library paths
+    mx::FileSearchPath externalLibraryPaths;
+
+    // Additional testPaths paths
+    mx::FileSearchPath externalTestPaths;
 };
 
 // Utility class to handle testing of shader generators.

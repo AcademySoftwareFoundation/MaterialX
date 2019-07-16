@@ -123,10 +123,22 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
     RenderUtil::AdditiveScopedTimer ioTimer(profileTimes.ioTime, "Global I/O time");
     mx::FilePathVec dirs;
-    for (const auto& testRoot : testRootPaths)
+    if (options.externalTestPaths.size() == 0)
     {
-        mx::FilePathVec testRootDirs = testRoot.getSubDirectories();
-        dirs.insert(std::end(dirs), std::begin(testRootDirs), std::end(testRootDirs));
+        for (const auto& testRoot : testRootPaths)
+        {
+            mx::FilePathVec testRootDirs = testRoot.getSubDirectories();
+            dirs.insert(std::end(dirs), std::begin(testRootDirs), std::end(testRootDirs));
+        }
+    }
+    else
+    {
+        // Use test roots from options file
+        for (size_t i = 0; i < options.externalTestPaths.size(); i++)
+        {
+            std::cout << "Test root: " << options.externalTestPaths[i].asString() << std::endl;
+            dirs.push_back(options.externalTestPaths[i]);
+        }
     }
 
     ioTimer.endTimer();
@@ -143,7 +155,17 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     addSkipFiles();
 
     const mx::StringVec libraries = { "stdlib", "pbrlib", "lights" };
-    loadLibraries(libraries, searchPath, dependLib, nullptr);
+    mx::loadLibraries(libraries, searchPath, dependLib, nullptr);
+    for (size_t i = 0; i < options.externalLibraryPaths.size(); i++)
+    {
+        const mx::FilePath& extraPath = options.externalLibraryPaths[i];
+        mx::FilePathVec libraryFiles = extraPath.getFilesInDirectory("mtlx");
+        for (size_t l = 0; l < libraryFiles.size(); l++)
+        {
+            std::cout << "Extra library path: " << (extraPath / libraryFiles[l]).asString() << std::endl;
+            mx::loadLibrary((extraPath / libraryFiles[l]), dependLib);
+        }
+    }
 
     // Load shader definitions used in the test suite.
     loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), dependLib);
