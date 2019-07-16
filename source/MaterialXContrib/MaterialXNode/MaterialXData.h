@@ -5,8 +5,6 @@
 /// MaterialX Data wrapper
 
 #include <MaterialXCore/Document.h>
-#include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenOgsXml/OgsXmlGenerator.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXRender/ImageHandler.h>
 
@@ -69,6 +67,8 @@ class MaterialXData
     /// Get image sampling properties for a given file parameter
     mx::ImageSamplingProperties getImageSamplngProperties(const std::string& fileParameterName) const;
 
+    bool isTransparent() const { return _isTransparent; }
+
     /// OGS does not support matrix3. As such the matrix4 parameter name is computed from the matrix3 name.
     /// This utility performs this computation.
     static std::string getMatrix4Name(const std::string& matrix3Name);
@@ -85,14 +85,16 @@ class MaterialXData
     /// XML fragment name
     std::string _fragmentName;
 
-   // XML fragment source
-   std::string _fragmentSource;
+    // XML fragment source
+    std::string _fragmentSource;
 
     /// Mapping from MaterialX Element paths to XML input names
     mx::StringMap _pathInputMap;
 
     /// MaterialX shader 
     mx::ShaderPtr _shader;
+
+    bool _isTransparent = false;
 };
 
 #endif // MATERIALX_DATA_H

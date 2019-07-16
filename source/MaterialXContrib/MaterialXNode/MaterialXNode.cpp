@@ -4,23 +4,15 @@
 #include "MayaUtil.h"
 #include "MaterialXData.h"
 
+#include <MaterialXGenOgsXml/OgsXmlGenerator.h>
+
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MDGModifier.h>
 #include <maya/MFnStringData.h>
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MGlobal.h>
 
-#define MAKE_INPUT(attr) \
-    CHECK_MSTATUS(attr.setKeyable(true)); \
-    CHECK_MSTATUS(attr.setStorable(true)); \
-    CHECK_MSTATUS(attr.setReadable(true)); \
-    CHECK_MSTATUS(attr.setWritable(true));
-
-#define MAKE_OUTPUT(attr) \
-    CHECK_MSTATUS(attr.setKeyable(false)); \
-    CHECK_MSTATUS(attr.setStorable(false)); \
-    CHECK_MSTATUS(attr.setReadable(true)); \
-    CHECK_MSTATUS(attr.setWritable(false));
+namespace mx = MaterialX;
 
 const MTypeId MaterialXNode::MATERIALX_NODE_TYPEID(0x00042402);
 const MString MaterialXNode::MATERIALX_NODE_TYPENAME("MaterialXNode");
@@ -40,6 +32,8 @@ const MString MaterialXTextureNode::MATERIALX_TEXTURE_NODE_TYPENAME("MaterialXTe
 
 const MTypeId MaterialXSurfaceNode::MATERIALX_SURFACE_NODE_TYPEID(0x00042404);
 const MString MaterialXSurfaceNode::MATERIALX_SURFACE_NODE_TYPENAME("MaterialXSurface");
+
+MObject MaterialXSurfaceNode::VP2_TRANSPARENCY_ATTRIBUTE;
 
 MaterialXNode::MaterialXNode()
 {
@@ -74,14 +68,18 @@ MStatus MaterialXNode::initialize()
     CHECK_MSTATUS(typedAttr.setAffectsAppearance(true));
     CHECK_MSTATUS(addAttribute(ELEMENT_ATTRIBUTE));
 
-    static const MString outColorName(MaterialX::OgsXmlGenerator::OUTPUT_NAME.c_str());
+    static const MString outColorName(mx::OgsXmlGenerator::OUTPUT_NAME.c_str());
 
     MFnNumericAttribute nAttr;
     MObject outColorR = nAttr.create(outColorName + "R", "ocr", MFnNumericData::kFloat, 0.0);
     MObject outColorG = nAttr.create(outColorName + "G", "ocg", MFnNumericData::kFloat, 0.0);
     MObject outColorB = nAttr.create(outColorName + "B", "ocb", MFnNumericData::kFloat, 0.0);
     OUT_ATTRIBUTE = nAttr.create(outColorName, "oc", outColorR, outColorG, outColorB);
-    MAKE_OUTPUT(nAttr);
+
+    CHECK_MSTATUS(nAttr.setKeyable(false));
+    CHECK_MSTATUS(nAttr.setStorable(false));
+    CHECK_MSTATUS(nAttr.setReadable(true));
+    CHECK_MSTATUS(nAttr.setWritable(false));
     CHECK_MSTATUS(nAttr.setUsedAsColor(true));
 
     CHECK_MSTATUS(addAttribute(OUT_ATTRIBUTE));
@@ -253,5 +251,37 @@ MStatus MaterialXSurfaceNode::initialize()
 {
     CHECK_MSTATUS(inheritAttributesFrom(MATERIALX_NODE_TYPENAME));
 
+    MFnNumericAttribute nAttr;
+    VP2_TRANSPARENCY_ATTRIBUTE = nAttr.create(
+        mx::OgsXmlGenerator::VP_TRANSPARENCY_NAME.c_str(),
+        "vp2t",
+        MFnNumericData::kFloat,
+        0.0
+    );
+
+    CHECK_MSTATUS(nAttr.setInternal(true));
+    CHECK_MSTATUS(nAttr.setKeyable(false));
+
+    // otherwise Maya refuses to map it to the eponymous fragment input
+    CHECK_MSTATUS(nAttr.setWritable(true));
+
+    CHECK_MSTATUS(nAttr.setHidden(true));
+    CHECK_MSTATUS(nAttr.setAffectsAppearance(true));
+    CHECK_MSTATUS(addAttribute(VP2_TRANSPARENCY_ATTRIBUTE));
+
     return MS::kSuccess;
+}
+
+bool
+MaterialXSurfaceNode::getInternalValue(const MPlug& plug, MDataHandle& dataHandle)
+{
+    if (plug == VP2_TRANSPARENCY_ATTRIBUTE)
+    {
+        dataHandle.set(_materialXData && _materialXData->isTransparent() ? 0.5f : 0.0f);
+        return true;
+    }
+    else
+    {
+        return MPxNode::getInternalValue(plug, dataHandle);
+    }
 }

@@ -142,7 +142,9 @@ ShaderPtr GlslFragmentGenerator::generate(const string& name, ElementPtr element
     string functionName = shader->getName();
     context.makeIdentifier(functionName);
     setFunctionName(functionName, stage);
-    emitLine("vec3 " + functionName, stage, false); // TODO: We are always outputting vec3 for now
+
+    emitLine((context.getOptions().hwTransparency ? "vec4 " : "vec3 ") + functionName, stage, false);
+
     emitScopeBegin(stage, Syntax::PARENTHESES);
     const VariableBlock& uniforms = stage.getUniformBlock(HW::PUBLIC_UNIFORMS);
     const size_t numUniforms = uniforms.size();
@@ -154,7 +156,7 @@ ShaderPtr GlslFragmentGenerator::generate(const string& name, ElementPtr element
             convertMatrixStrings.push_back(uniforms[i]->getVariable());
         }
         emitVariableDeclaration(uniforms[i], EMPTY_STRING, context, stage, false);
-        if (i < numUniforms-1)
+        if (i < numUniforms - 1)
         {
             emitString(COMMA, stage);
         }
@@ -169,6 +171,19 @@ ShaderPtr GlslFragmentGenerator::generate(const string& name, ElementPtr element
         emitLineBegin(stage);
         emitString(COMMA, stage);
         emitVariableDeclaration(port, EMPTY_STRING, context, stage, false);
+        emitLineEnd(stage, false);
+    }
+
+    if (context.getOptions().hwTransparency)
+    {
+        // A dummy argument not used in the generated shader code but necessary to
+        // map onto an OGS fragment parameter and a shading node DG attribute with
+        // the same name that can be set to a non-0 value to let Maya know that the
+        // surface is transparent.
+        emitLineBegin(stage);
+        emitString(COMMA, stage);
+        emitString("float ", stage);
+        emitString(OgsXmlGenerator::VP_TRANSPARENCY_NAME, stage);
         emitLineEnd(stage, false);
     }
 
@@ -210,8 +225,7 @@ ShaderPtr GlslFragmentGenerator::generate(const string& name, ElementPtr element
             {
                 if (context.getOptions().hwTransparency)
                 {
-                    // emitLine("float outAlpha = clamp(1.0 - dot(" + finalOutput + ".transparency, vec3(0.3333)), 0.0, 1.0)", stage);
-                    emitLine("return " + finalOutput + ".color", stage);
+                    emitLine("return vec4(" + finalOutput + ".color, clamp(1.0 - dot(" + finalOutput + ".transparency, vec3(0.3333)), 0.0, 1.0))", stage);
                 }
                 else
                 {

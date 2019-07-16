@@ -5,6 +5,8 @@
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenOgsXml/GlslFragmentGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenOgsXml/OgsXmlGenerator.h>
 
 MaterialXData::MaterialXData(   mx::DocumentPtr document,
                                 const std::string& elementPath,
@@ -114,7 +116,7 @@ void MaterialXData::generateFragment(const mx::FileSearchPath& librarySearchPath
         // Set up color management. We assume the target render space is linear
         // if not found in the document. Currently the default system has no other color space targets.
         //
-        static std::string MATERIALX_LINEAR_WORKING_SPACE("lin_rec709");
+        static const std::string MATERIALX_LINEAR_WORKING_SPACE("lin_rec709");
         const std::string language = shaderGenerator->getLanguage();
         mx::DefaultColorManagementSystemPtr colorManagementSystem = mx::DefaultColorManagementSystem::create(language);
         if (colorManagementSystem)
@@ -122,14 +124,9 @@ void MaterialXData::generateFragment(const mx::FileSearchPath& librarySearchPath
             shaderGenerator->setColorManagementSystem(colorManagementSystem);
             colorManagementSystem->loadLibrary(_document);
             const std::string& documentColorSpace = _document->getAttribute(mx::Element::COLOR_SPACE_ATTRIBUTE);
-            if (documentColorSpace.empty())
-            {
-                genOptions.targetColorSpaceOverride = MATERIALX_LINEAR_WORKING_SPACE;
-            }
-            else
-            {
-                genOptions.targetColorSpaceOverride = documentColorSpace;
-            }
+
+            genOptions.targetColorSpaceOverride =
+                documentColorSpace.empty() ? MATERIALX_LINEAR_WORKING_SPACE : documentColorSpace;
         }
 
         // Use FIS environment lookup for surface shader generation but
@@ -144,6 +141,9 @@ void MaterialXData::generateFragment(const mx::FileSearchPath& librarySearchPath
         
         // Maya images require a texture coordaintes to be flipped in V.
         genOptions.fileTextureVerticalFlip = true;
+
+        _isTransparent = mx::isTransparentSurface(_element, *shaderGenerator);
+        genOptions.hwTransparency = _isTransparent;
 
         // Maya viewport uses texture atlas for tile image so enabled
         // texture coordinate transform to go from original UDIM range to
@@ -167,9 +167,11 @@ void MaterialXData::generateFragment(const mx::FileSearchPath& librarySearchPath
         std::ostringstream sourceStream;
         mx::OgsXmlGenerator ogsXmlGenerator;
 
+        constexpr mx::Shader* hlslShader = nullptr;
+
         // Note: This name must match the the fragment name used for registration
         // or the registration will fail.
-        ogsXmlGenerator.generate(FRAGMENT_NAME_TOKEN, _shader.get(), nullptr, sourceStream);
+        ogsXmlGenerator.generate(FRAGMENT_NAME_TOKEN, _shader.get(), hlslShader, _isTransparent, sourceStream);
         _fragmentSource = sourceStream.str();
         if (_fragmentSource.empty())
         {

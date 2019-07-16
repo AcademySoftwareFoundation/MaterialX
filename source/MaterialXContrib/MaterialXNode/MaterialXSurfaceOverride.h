@@ -12,6 +12,8 @@ class MaterialXSurfaceOverride
   public:
     static MHWRender::MPxSurfaceShadingNodeOverride* creator(const MObject&);
 
+    MString transparencyParameter() const override;
+
     static const MString REGISTRANT_ID, DRAW_CLASSIFICATION;
 
   private:

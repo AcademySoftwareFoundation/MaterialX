@@ -251,13 +251,15 @@ namespace
 }
 
 const string OgsXmlGenerator::OUTPUT_NAME = "outColor";
+const string OgsXmlGenerator::VP_TRANSPARENCY_NAME = "vp2Transparency";
 const string OgsXmlGenerator::SAMPLER_SUFFIX = "Sampler";
 
 OgsXmlGenerator::OgsXmlGenerator()
 {
 }
 
-void OgsXmlGenerator::generate(const std::string& shaderName, const Shader* glsl, const Shader* hlsl, std::ostream& stream)
+void OgsXmlGenerator::generate( const std::string& shaderName, const Shader* glsl, const Shader* hlsl,
+                                bool hwTransparency, std::ostream& stream)
 {
     if (glsl == nullptr && hlsl == nullptr)
     {
@@ -286,6 +288,16 @@ void OgsXmlGenerator::generate(const std::string& shaderName, const Shader* glsl
     xmlAddProperties(xmlProperties, stage.getUniformBlock(HW::PUBLIC_UNIFORMS));
     xmlAddProperties(xmlProperties, stage.getInputBlock(HW::VERTEX_DATA), "isRequirementOnly, varyingInputParam");
 
+    if (hwTransparency)
+    {
+        // A dummy argument not used in the generated shader code but necessary to
+        // map onto an OGS fragment parameter and a shading node DG attribute with
+        // the same name that can be set to a non-0 value to let Maya know that the
+        // surface is transparent.
+        pugi::xml_node p = xmlProperties.append_child("float");
+        xmlSetProperty(p, "", VP_TRANSPARENCY_NAME.c_str());
+    }
+
     // Add values
     pugi::xml_node xmlValues = xmlRoot.append_child(VALUES);
     xmlAddValues(xmlValues, stage.getUniformBlock(HW::PRIVATE_UNIFORMS));
@@ -298,7 +310,7 @@ void OgsXmlGenerator::generate(const std::string& shaderName, const Shader* glsl
         throw ExceptionShaderGenError("Shader stage has no output");
     }
     pugi::xml_node xmlOutputs = xmlRoot.append_child(OUTPUTS);
-    pugi::xml_node xmlOut = xmlOutputs.append_child(OGS_TYPE_MAP.at(Type::COLOR3));
+    pugi::xml_node xmlOut = xmlOutputs.append_child(OGS_TYPE_MAP.at(hwTransparency ? Type::COLOR4 : Type::COLOR3));
     xmlOut.append_attribute(NAME) = OUTPUT_NAME.c_str();
 
     // Add implementations

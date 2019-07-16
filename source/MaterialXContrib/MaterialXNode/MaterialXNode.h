@@ -52,7 +52,7 @@ class MaterialXNode : public MPxNode
 
     static MObject OUT_ATTRIBUTE;
 
-  private:
+  protected:
     MString _documentFilePath, _elementPath;
 
     /// MaterialXData keeps a shared pointer to the document but we also keep
@@ -81,8 +81,12 @@ public:
     static MStatus initialize();
     MTypeId	typeId() const override;
 
+    bool getInternalValue(const MPlug&, MDataHandle&) override;
+
     static const MTypeId MATERIALX_SURFACE_NODE_TYPEID;
     static const MString MATERIALX_SURFACE_NODE_TYPENAME;
+
+    static MObject VP2_TRANSPARENCY_ATTRIBUTE;
 };
 
 #endif /* MATERIALX_NODE_H */
