@@ -27,6 +27,16 @@ class CreateMaterialXNodeCmd : MPxCommand
     static MString NAME;
 
   private:
+    /// Create a new Maya node for a given renderable element
+    /// @param document Document containing the element
+    /// @param renderableElement Element to use
+    /// @param createAsTexture Create texture node. If set to false will type found based on associated shader code.
+    /// @param documentFilePath Path to document
+    /// @param searchPath Shader generation source paths
+    /// @return Name of Maya node created
+    std::string createNode(MaterialX::DocumentPtr document, MaterialX::TypedElementPtr renderableElement, bool createAsTexture,
+                           const MString& documentFilePath, const MaterialX::FileSearchPath& searchPath);
+
     MDGModifier _dgModifier;
 };
 

@@ -50,5 +50,37 @@ mx::DocumentPtr loadDocument(const std::string& materialXDocumentPath,
     return document;
 }
 
+mx::TypedElementPtr getRenderableElement(mx::DocumentPtr document, 
+                                         const std::vector<mx::TypedElementPtr> renderableElements, 
+                                         const std::string &desiredElementPath)
+{
+  
+
+    if (!desiredElementPath.empty())
+    {
+        mx::ElementPtr element = document->getDescendant(desiredElementPath);
+        if (!element)
+        {
+            throw mx::Exception("The specified element " + desiredElementPath + " does not exist in the document");
+        }
+
+        auto it = std::find_if(renderableElements.begin(),
+                               renderableElements.end(),
+                               [element](mx::TypedElementPtr renderableElement) -> bool
+                               {
+                                    return (element->getNamePath() == renderableElement->getNamePath());
+                               });
+
+        if (it == renderableElements.end())
+        {
+            throw mx::Exception("The specified element " + desiredElementPath + "is not renderable");
+        }
+        
+        return element->asA<mx::TypedElement>();
+    }
+    return nullptr;
+}
+
+
 } // namespace MaterialXMaya
 

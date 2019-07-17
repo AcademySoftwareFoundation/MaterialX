@@ -136,12 +136,7 @@ void MaterialXNode::createAndRegisterFragment()
 
         if (_elementPath.length() == 0)
         {
-            // When an empty element path is passed to MaterialXData's
-            // constructor, the first renderable element is selected, which is
-            // a handy feature when creating the node with the command.
-            // However this automatic behavior would complicate state
-            // transitions on attribute edits after the node has been created.
-            // So if the element path attribute is empty, bail early and don't
+            // If the element path attribute is empty, bail early and don't
             // attempt to create a MaterialXData.
             //
             return;
@@ -149,7 +144,7 @@ void MaterialXNode::createAndRegisterFragment()
 
         _materialXData.reset(new MaterialXData(
             _document,
-            _elementPath.asChar(),
+            _document->getDescendant(_elementPath.asChar()),
             Plugin::instance().getLibrarySearchPath()
         ));
 

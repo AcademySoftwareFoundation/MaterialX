@@ -8,55 +8,20 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenOgsXml/OgsXmlGenerator.h>
 
-MaterialXData::MaterialXData(   mx::DocumentPtr document,
-                                const std::string& elementPath,
-                                const MaterialX::FileSearchPath& librarySearchPath )
-    : _document(document)
+MaterialXData::MaterialXData(mx::DocumentPtr document,
+                             mx::ElementPtr element,
+                             const MaterialX::FileSearchPath& librarySearchPath ) :
+    _document(document),
+    _element(element)
 {
     if (!_document)
     {
         throw mx::Exception("No document specified");
     }
 
-    std::vector<mx::TypedElementPtr> renderableElements;
-    mx::findRenderableElements(_document, renderableElements);
-
-    // Nothing specified. Find the first renderable element and use that
-    if (elementPath.empty())
+    if (!_element)
     {
-        if (renderableElements.empty())
-        {
-            throw mx::Exception(
-                "No element path specified and no renderable elements in the document."
-            );
-        }
-
-        _element = renderableElements.front();
-    }
-    else
-    {
-        _element = _document->getDescendant(elementPath);
-        if (!_element)
-        {
-            std::string message = "Element '";
-            message += elementPath;
-            message += "' not found in the document.";
-            throw mx::Exception(message);
-        }
-
-        auto it = std::find_if(
-            renderableElements.begin(),
-            renderableElements.end(),
-            [this](mx::TypedElementPtr renderableElement) -> bool
-            {
-                return _element->getNamePath() == renderableElement->getNamePath();
-            }
-        );
-
-        if (it == renderableElements.end())
-        {
-            throw mx::Exception("The specified element is not renderable");
-        }
+        throw mx::Exception("No element specified");
     }
 
     try

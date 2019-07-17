@@ -23,12 +23,10 @@ namespace mx = MaterialX;
 class MaterialXData
 {
   public:
-    /// The element path and document that the element resides in are passed in
+    /// The element and document that the element resides in are passed in
     /// as input arguments.
-    /// If the element specified is an empty string then an attempt will be
-    /// made to find the first renderable element.
     MaterialXData(  mx::DocumentPtr document,
-                    const std::string& elementPath,
+                    mx::ElementPtr element,
                     const mx::FileSearchPath& librarySearchPath);
 
     MaterialXData(const MaterialXData&) = delete;
