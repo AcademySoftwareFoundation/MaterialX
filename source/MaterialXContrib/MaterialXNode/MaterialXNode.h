@@ -25,8 +25,7 @@ class MaterialXNode : public MPxNode
     bool getInternalValue(const MPlug&, MDataHandle&) override;
     bool setInternalValue(const MPlug&, const MDataHandle&) override;
 
-    void setData(const MString& documentFilePath, const MString& elementPath, std::unique_ptr<MaterialXData>&&);
-    void createAndRegisterFragment();
+    void setData(const MString& documentFilePath, const MString& elementPath, std::unique_ptr<MaterialXData>&&);    
     void reloadDocument();
 
     const MaterialXData* getMaterialXData() const
@@ -55,14 +54,17 @@ class MaterialXNode : public MPxNode
     static MObject OUT_ATTRIBUTE;
 
   protected:
+    std::unique_ptr<MaterialXData> _materialXData;
+
+  private:
+    void createAndRegisterFragment();
+
     MString _documentFilePath, _elementPath;
 
     /// MaterialXData keeps a shared pointer to the document but we also keep
     /// another shared pointer here to avoid reloading the document when the
     /// element path becomes invalid and the MaterialXData doesn't exist.
     mx::DocumentPtr _document;
-
-    std::unique_ptr<MaterialXData> _materialXData;
 };
 
 class MaterialXTextureNode : public MaterialXNode
