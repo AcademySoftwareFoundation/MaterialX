@@ -5,8 +5,8 @@ include_directories(
 
 file(GLOB pugixml_source "${CMAKE_CURRENT_SOURCE_DIR}/../MaterialXFormat/PugiXML/*.cpp")
 file(GLOB pugixml_headers "${CMAKE_CURRENT_SOURCE_DIR}/../MaterialXFormat/PugiXML/*.hpp")
-file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/OGSXMLFragmentWrapper.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/External/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/Handlers/*.cpp")
-file(GLOB_RECURSE materialx_header "${CMAKE_CURRENT_SOURCE_DIR}/OGSXMLFragmentWrapper.h" "${CMAKE_CURRENT_SOURCE_DIR}/External/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/Handlers/*.h")
+file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/External/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/Handlers/*.cpp")
+file(GLOB_RECURSE materialx_header "${CMAKE_CURRENT_SOURCE_DIR}/External/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/Handlers/*.h")
 
 assign_source_group("Header Files" ${materialx_header})
 assign_source_group("Source Files" ${materialx_source})

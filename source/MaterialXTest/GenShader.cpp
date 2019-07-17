@@ -29,10 +29,6 @@
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 #endif
 
-#if defined (MATERIALX_BUILD_CONTRIB)
-#include <MaterialXContrib/OGSXMLFragmentWrapper.h>
-#endif
-
 namespace mx = MaterialX;
 
 //
