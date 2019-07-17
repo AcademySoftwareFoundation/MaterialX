@@ -21,10 +21,7 @@ class MaterialXShadingNodeImpl : public BASE
         const MHWRender::MAttributeParameterMappingList&
     ) override;
 
-    bool valueChangeRequiresFragmentRebuild(const MPlug*) const override
-    {
-        return false;
-    }
+    bool valueChangeRequiresFragmentRebuild(const MPlug*) const override;
 
   protected:
     ~MaterialXShadingNodeImpl() override;

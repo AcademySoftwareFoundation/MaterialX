@@ -235,6 +235,20 @@ MaterialXShadingNodeImpl<BASE>::fragmentName() const
 }
 
 template <class BASE>
+bool
+MaterialXShadingNodeImpl<BASE>::valueChangeRequiresFragmentRebuild(const MPlug* plug) const
+{
+    if (   *plug == MaterialXNode::DOCUMENT_ATTRIBUTE
+        || *plug == MaterialXNode::ELEMENT_ATTRIBUTE
+    )
+    {
+        return true;
+    }
+
+    return BASE::valueChangeRequiresFragmentRebuild(plug);
+}
+
+template <class BASE>
 void MaterialXShadingNodeImpl<BASE>::updateDG()
 {
 }
