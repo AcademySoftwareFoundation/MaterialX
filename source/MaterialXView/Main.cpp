@@ -33,8 +33,8 @@ int main(int argc, char* const argv[])
     mx::FileSearchPath searchPath;
     std::string meshFilename = "resources/Geometry/shaderball.obj";
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
-    std::string envRadiancePath = "resources/Images/san_giuseppe_bridge.hdr";
-    std::string envIrradiancePath = "resources/Images/san_giuseppe_bridge_diffuse.hdr";
+    std::string envRadiancePath = "resources/Images/day_stuttgart_normal.cc.neutral.hdr";
+    std::string envIrradiancePath = "resources/Images/day_stuttgart_normal.cc.neutral.hdr";
     DocumentModifiers modifiers;
     int multiSampleCount = 0;
     int refresh = 50;

@@ -284,8 +284,8 @@ void MaterialXShadingNodeImpl<BASE>::updateShader(MHWRender::MShaderInstance& sh
     // Bind environment lighting
     // TODO: These should be options
     static const std::string
-        envRadiancePath = "san_giuseppe_bridge.hdr",
-        envIrradiancePath = "san_giuseppe_bridge_diffuse.hdr";
+        envRadiancePath = "day_stuttgart_normal.cc.neutral.hdr",
+        envIrradiancePath = "day_stuttgart_normal.cc.neutral.hdr";
 
     ::bindEnvironmentLighting(shader, parameterList, imageSearchPath,
                               envRadiancePath, envIrradiancePath);
