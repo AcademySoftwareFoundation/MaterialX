@@ -29,10 +29,10 @@ string removeExtension(const string& filename);
 bool readFile(const string& filename, string& content);
 
 /// Scans for all documents under a root path and returns documents which can be loaded
-void loadDocuments(const FilePath& rootPath, 
+void loadDocuments(const FilePath& rootPath,
                    const FileSearchPath& searchPath,
                    const StringSet& skipFiles, const StringSet& includeFiles,
-                   vector<DocumentPtr>& documents, StringVec& documentsPaths, 
+                   vector<DocumentPtr>& documents, StringVec& documentsPaths,
                    StringVec& errorLog);
 
 /// Load a given MaterialX library into a document
@@ -40,16 +40,16 @@ void loadLibrary(const FilePath& file, DocumentPtr doc);
 
 /// Load all MaterialX files with given library names in given search paths.
 /// Note that all library files will have a URI set on them.
-void loadLibraries(const StringVec& libraryNames,
-                  const FileSearchPath& searchPath,
-                  DocumentPtr doc,
-                  const StringSet* excludeFiles = nullptr);
+StringVec loadLibraries(const StringVec& libraryNames,
+                        const FileSearchPath& searchPath,
+                        DocumentPtr doc,
+                        const StringSet* excludeFiles = nullptr);
 
 /// Load all MaterialX files with given library names in a given path.
-void loadLibraries(const StringVec& libraryNames,
-                const FilePath& filePath,
-                DocumentPtr doc,
-                const StringSet* excludeFiles = nullptr);
+StringVec loadLibraries(const StringVec& libraryNames,
+                        const FilePath& filePath,
+                        DocumentPtr doc,
+                        const StringSet* excludeFiles = nullptr);
 
 /// Returns true if the given element is a surface shader with the potential
 /// of beeing transparent. This can be used by HW shader generators to determine
@@ -60,7 +60,7 @@ void loadLibraries(const StringVec& libraryNames,
 /// how transparency can be done and target applications might need to do
 /// additional checks to track transparency correctly. For example, custom
 /// surface shader nodes implemented in source code will not be tracked by this
-/// function and transprency for such nodes must be tracked separately by the 
+/// function and transprency for such nodes must be tracked separately by the
 /// target application.
 ///
 bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen);
@@ -82,7 +82,7 @@ bool elementRequiresShading(ConstTypedElementPtr element);
 /// This includes all outputs on node graphs and shader references which are not
 /// part of any included library. Light shaders are not considered to be renderable.
 /// The option to include node graphs referened by shader references is disabled by default.
-void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, 
+void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& elements,
                             bool includeReferencedGraphs = false);
 
 /// Given a path to a element, find the corresponding element with the same name
@@ -90,14 +90,14 @@ void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& eleme
 /// if the path is to a Node as definitions for Nodes can be target specific.
 ValueElementPtr findNodeDefChild(const string& path, DocumentPtr doc, const string& target);
 
-/// Perform token substitutions on the given source string, using the given substituation map. 
+/// Perform token substitutions on the given source string, using the given substituation map.
 /// Tokens are required to start with '$' and can only consist of alphanumeric characters.
 /// The full token name, including '$' and all following alphanumeric character, will be replaced
 /// by the corresponding string in the substitution map, if the token exists in the map.
 void tokenSubstitution(const StringMap& substitutions, string& source);
 
 /// Perform UDIM token replace using an input file path and a list of token
-/// replacements (UDIM identifiers). A new path will be created for 
+/// replacements (UDIM identifiers). A new path will be created for
 /// each identifier.
 /// @param filePath File path with UDIM token
 /// @param udimIdentifiers List of UDIM identifiers
@@ -109,7 +109,7 @@ FilePathVec getUdimPaths(const FilePath& filePath, const StringVec& udimIdentifi
 vector<Vector2> getUdimCoordinates(const StringVec& udimIdentifiers);
 
 /// Get the UV scale and offset to transform uv coordinates from UDIM uv space to
-/// 0..1 space. 
+/// 0..1 space.
 void getUdimScaleAndOffset(const vector<Vector2>& udimCoordinates, Vector2& scaleUV, Vector2& offsetUV);
 
 } // namespace MaterialX

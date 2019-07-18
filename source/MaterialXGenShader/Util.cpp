@@ -52,7 +52,7 @@ void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, c
     {
         for (const FilePath& file : dir.getFilesInDirectory(MTLX_EXTENSION))
         {
-            if (!skipFiles.count(file) && 
+            if (!skipFiles.count(file) &&
                (includeFiles.empty() || includeFiles.count(file)))
             {
                 DocumentPtr doc = createDocument();
@@ -85,11 +85,12 @@ void loadLibrary(const FilePath& file, DocumentPtr doc)
     doc->importLibrary(libDoc, &copyOptions);
 }
 
-void loadLibraries(const StringVec& libraryNames,
-                   const FileSearchPath& searchPath,
-                   DocumentPtr doc,
-                   const StringSet* excludeFiles)
+StringVec loadLibraries(const StringVec& libraryNames,
+                        const FileSearchPath& searchPath,
+                        DocumentPtr doc,
+                        const StringSet* excludeFiles)
 {
+    StringVec loadedLibraries;
     for (const std::string& libraryName : libraryNames)
     {
         FilePath libraryPath = searchPath.find(libraryName);
@@ -99,21 +100,24 @@ void loadLibraries(const StringVec& libraryNames,
             {
                 if (!excludeFiles || !excludeFiles->count(filename))
                 {
-                    loadLibrary(path / filename, doc);
+                    const FilePath& file = path / filename;
+                    loadLibrary(file, doc);
+                    loadedLibraries.push_back(file.asString());
                 }
             }
         }
     }
+    return loadedLibraries;
 }
 
-void loadLibraries(const StringVec& libraryNames,
-                    const FilePath& filePath,
-                    DocumentPtr doc,
-                    const StringSet* excludeFiles)
+StringVec loadLibraries(const StringVec& libraryNames,
+                        const FilePath& filePath,
+                        DocumentPtr doc,
+                        const StringSet* excludeFiles)
 {
     FileSearchPath searchPath;
     searchPath.append(filePath);
-    loadLibraries(libraryNames, searchPath, doc, excludeFiles);
+    return loadLibraries(libraryNames, searchPath, doc, excludeFiles);
 }
 
 namespace
@@ -153,7 +157,7 @@ namespace
         {
             ElementPtr upstreamElem = it.getUpstreamElement();
             if (!upstreamElem)
-            {            
+            {
                 it.setPruneSubgraph(true);
                 continue;
             }
@@ -339,7 +343,7 @@ namespace
 
                 if (numOpaque != numCandidates)
                 {
-                    // We found at least one candidate that we can't 
+                    // We found at least one candidate that we can't
                     // say for sure is opaque. So we might need transparency.
                     return true;
                 }
