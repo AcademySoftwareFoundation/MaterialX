@@ -85,7 +85,7 @@ class MaterialXNode : public MPxNode
     MString _documentFilePath, _elementPath;
 
     MString _envRadianceFileName = "day_stuttgart_normal.cc.neutral.hdr";
-    MString _envIrradianceFileName = "day_stuttgart_normal.cc.neutral.hdr";
+    MString _envIrradianceFileName = "san_giuseppe_bridge_diffuse.hdr";
 
     /// MaterialXData keeps a shared pointer to the document but we also keep
     /// another shared pointer here to avoid reloading the document when the
