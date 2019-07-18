@@ -14,16 +14,24 @@
 
 namespace mx = MaterialX;
 
-const MTypeId MaterialXNode::MATERIALX_NODE_TYPEID(0x00042402);
-const MString MaterialXNode::MATERIALX_NODE_TYPENAME("MaterialXNode");
+const MTypeId MaterialXNode::MATERIALX_NODE_TYPEID = 0x00042402;
+const MString MaterialXNode::MATERIALX_NODE_TYPENAME = "MaterialXNode";
 
-MString MaterialXNode::DOCUMENT_ATTRIBUTE_LONG_NAME("documentFilePath");
-MString MaterialXNode::DOCUMENT_ATTRIBUTE_SHORT_NAME("doc");
+const MString MaterialXNode::DOCUMENT_ATTRIBUTE_LONG_NAME = "documentFilePath";
+const MString MaterialXNode::DOCUMENT_ATTRIBUTE_SHORT_NAME = "doc";
 MObject MaterialXNode::DOCUMENT_ATTRIBUTE;
 
-MString MaterialXNode::ELEMENT_ATTRIBUTE_LONG_NAME("elementPath");
-MString MaterialXNode::ELEMENT_ATTRIBUTE_SHORT_NAME("ele");
+const MString MaterialXNode::ELEMENT_ATTRIBUTE_LONG_NAME = "elementPath";
+const MString MaterialXNode::ELEMENT_ATTRIBUTE_SHORT_NAME = "ele";
 MObject MaterialXNode::ELEMENT_ATTRIBUTE;
+
+const MString MaterialXNode::ENV_RADIANCE_ATTRIBUTE_LONG_NAME = "environmentRadianceMap";
+const MString MaterialXNode::ENV_RADIANCE_ATTRIBUTE_SHORT_NAME = "envr";
+MObject MaterialXNode::ENV_RADIANCE_ATTRIBUTE;
+
+const MString MaterialXNode::ENV_IRRADIANCE_ATTRIBUTE_LONG_NAME = "environmentIrradianceMap";
+const MString MaterialXNode::ENV_IRRADIANCE_ATTRIBUTE_SHORT_NAME = "envi";
+MObject MaterialXNode::ENV_IRRADIANCE_ATTRIBUTE;
 
 MObject MaterialXNode::OUT_ATTRIBUTE;
 
@@ -53,20 +61,44 @@ MStatus MaterialXNode::initialize()
     MFnTypedAttribute typedAttr;
     MFnStringData stringData;
 
-    MObject theString = stringData.create();
+    MObject emptyStringObject = stringData.create();
 
-    DOCUMENT_ATTRIBUTE = typedAttr.create(DOCUMENT_ATTRIBUTE_LONG_NAME, DOCUMENT_ATTRIBUTE_SHORT_NAME, MFnData::kString, theString);
+    DOCUMENT_ATTRIBUTE = typedAttr.create(  DOCUMENT_ATTRIBUTE_LONG_NAME,
+                                            DOCUMENT_ATTRIBUTE_SHORT_NAME,
+                                            MFnData::kString,
+                                            emptyStringObject );
     CHECK_MSTATUS(typedAttr.setInternal(true));
     CHECK_MSTATUS(typedAttr.setKeyable(false));
     CHECK_MSTATUS(typedAttr.setAffectsAppearance(true));
     CHECK_MSTATUS(typedAttr.setUsedAsFilename(true));
     CHECK_MSTATUS(addAttribute(DOCUMENT_ATTRIBUTE));
 
-    ELEMENT_ATTRIBUTE = typedAttr.create(ELEMENT_ATTRIBUTE_LONG_NAME, ELEMENT_ATTRIBUTE_SHORT_NAME, MFnData::kString, theString);
+    ELEMENT_ATTRIBUTE = typedAttr.create(   ELEMENT_ATTRIBUTE_LONG_NAME,
+                                            ELEMENT_ATTRIBUTE_SHORT_NAME,
+                                            MFnData::kString,
+                                            emptyStringObject );
     CHECK_MSTATUS(typedAttr.setInternal(true));
     CHECK_MSTATUS(typedAttr.setKeyable(false));
     CHECK_MSTATUS(typedAttr.setAffectsAppearance(true));
     CHECK_MSTATUS(addAttribute(ELEMENT_ATTRIBUTE));
+
+    ENV_RADIANCE_ATTRIBUTE = typedAttr.create(  ENV_RADIANCE_ATTRIBUTE_LONG_NAME,
+                                                ENV_RADIANCE_ATTRIBUTE_SHORT_NAME,
+                                                MFnData::kString,
+                                                emptyStringObject );
+    CHECK_MSTATUS(typedAttr.setInternal(true));
+    CHECK_MSTATUS(typedAttr.setKeyable(false));
+    CHECK_MSTATUS(typedAttr.setAffectsAppearance(true));
+    CHECK_MSTATUS(addAttribute(ENV_RADIANCE_ATTRIBUTE));
+
+    ENV_IRRADIANCE_ATTRIBUTE = typedAttr.create(ENV_IRRADIANCE_ATTRIBUTE_LONG_NAME,
+                                                ENV_IRRADIANCE_ATTRIBUTE_SHORT_NAME,
+                                                MFnData::kString,
+                                                emptyStringObject);
+    CHECK_MSTATUS(typedAttr.setInternal(true));
+    CHECK_MSTATUS(typedAttr.setKeyable(false));
+    CHECK_MSTATUS(typedAttr.setAffectsAppearance(true));
+    CHECK_MSTATUS(addAttribute(ENV_IRRADIANCE_ATTRIBUTE));
 
     static const MString outColorName(mx::OgsXmlGenerator::OUTPUT_NAME.c_str());
 
@@ -86,6 +118,8 @@ MStatus MaterialXNode::initialize()
 
     CHECK_MSTATUS(attributeAffects(DOCUMENT_ATTRIBUTE, OUT_ATTRIBUTE));
     CHECK_MSTATUS(attributeAffects(ELEMENT_ATTRIBUTE, OUT_ATTRIBUTE));
+    CHECK_MSTATUS(attributeAffects(ENV_RADIANCE_ATTRIBUTE, OUT_ATTRIBUTE));
+    CHECK_MSTATUS(attributeAffects(ENV_IRRADIANCE_ATTRIBUTE, OUT_ATTRIBUTE));
 
     return MS::kSuccess;
 }
@@ -98,24 +132,6 @@ MTypeId MaterialXNode::typeId() const
 MPxNode::SchedulingType MaterialXNode::schedulingType() const
 {
     return MPxNode::SchedulingType::kParallel;
-}
-
-bool MaterialXNode::getInternalValue(const MPlug& plug, MDataHandle& dataHandle)
-{
-    if (plug == DOCUMENT_ATTRIBUTE)
-    {
-        dataHandle.set(_documentFilePath);
-    }
-    else if (plug == ELEMENT_ATTRIBUTE)
-    {
-        dataHandle.set(_elementPath);
-    }
-    else
-    {
-        return MPxNode::getInternalValue(plug, dataHandle);
-    }
-
-    return true;
 }
 
 void MaterialXNode::createAndRegisterFragment()
@@ -201,6 +217,14 @@ bool MaterialXNode::setInternalValue(const MPlug& plug, const MDataHandle& dataH
 
         createAndRegisterFragment();
     }
+    else if (plug == ENV_RADIANCE_ATTRIBUTE)
+    {
+        _envRadianceFileName = dataHandle.asString();
+    }
+    else if (plug == ENV_IRRADIANCE_ATTRIBUTE)
+    {
+        _envIrradianceFileName = dataHandle.asString();
+    }
     else
     {
         return MPxNode::setInternalValue(plug, dataHandle);
@@ -210,14 +234,54 @@ bool MaterialXNode::setInternalValue(const MPlug& plug, const MDataHandle& dataH
     return true;
 }
 
+bool MaterialXNode::getInternalValue(const MPlug& plug, MDataHandle& dataHandle)
+{
+    if (plug == DOCUMENT_ATTRIBUTE)
+    {
+        dataHandle.set(_documentFilePath);
+    }
+    else if (plug == ELEMENT_ATTRIBUTE)
+    {
+        dataHandle.set(_elementPath);
+    }
+    else if (plug == ENV_RADIANCE_ATTRIBUTE)
+    {
+        dataHandle.set(_envRadianceFileName);
+    }
+    else if (plug == ENV_IRRADIANCE_ATTRIBUTE)
+    {
+        dataHandle.set(_envIrradianceFileName);
+    }
+    else
+    {
+        return MPxNode::getInternalValue(plug, dataHandle);
+    }
+
+    return true;
+}
+
 void MaterialXNode::setData(const MString& documentFilePath,
                             const MString& elementPath,
+                            const MString& envRadianceFileName,
+                            const MString& envIrradianceFileName,
                             std::unique_ptr<MaterialXData>&& materialXData)
 {
     _documentFilePath = documentFilePath;
     _elementPath = elementPath;
-    _materialXData = std::move(materialXData);
 
+    // If the command doesn't provide environment map file names,
+    // leave them set to the default values.
+    if (envRadianceFileName.length() > 0)
+    {
+        _envRadianceFileName = envRadianceFileName;
+    }
+
+    if (envIrradianceFileName.length() > 0)
+    {
+        _envIrradianceFileName = envIrradianceFileName;
+    }
+
+    _materialXData = std::move(materialXData);
     if (_materialXData)
     {
         _document = _materialXData->getDocument();

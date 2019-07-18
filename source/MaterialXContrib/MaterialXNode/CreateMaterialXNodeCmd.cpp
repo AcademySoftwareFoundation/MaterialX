@@ -30,11 +30,17 @@ namespace
 const char* const kDocumentFlag     = "d";
 const char* const kElementFlag      = "e";
 
-const char* const kTextureFlag      = "t";
-const char* const kTextureFlagLong  = "asTexture";
+const char* const kAsTextureFlag      = "t";
+const char* const kAsTextureFlagLong  = "asTexture";
 
 const char* const kOgsXmlFlag       = "x";
 const char* const kOgsXmlFlagLong   = "ogsXml";
+
+const char* const kEnvRadianceFlag = "er";
+const char* const kEnvRadianceFlagLong = "envRadiance";
+
+const char* const kEnvIrradianceFlag = "ei";
+const char* const kEnvIrradianceFlagLong = "envIrradiance";
 
 void registerDebugFragment(const std::string& ogsXmlFileName)
 {
@@ -80,8 +86,13 @@ CreateMaterialXNodeCmd::~CreateMaterialXNodeCmd()
 {
 }
 
-std::string CreateMaterialXNodeCmd::createNode(mx::DocumentPtr document, mx::TypedElementPtr renderableElement, bool createAsTexture,
-                                                const MString& documentFilePath, const MaterialX::FileSearchPath& searchPath)
+std::string CreateMaterialXNodeCmd::createNode( mx::DocumentPtr document,
+                                                mx::TypedElementPtr renderableElement,
+                                                bool createAsTexture,
+                                                const MString& documentFilePath,
+                                                const MaterialX::FileSearchPath& searchPath,
+                                                const MString& envRadianceFileName,
+                                                const MString& envIrradianceFileName )
 {
     std::unique_ptr<MaterialXData> materialXData{ new MaterialXData(document,
                                                   renderableElement,
@@ -114,7 +125,8 @@ std::string CreateMaterialXNodeCmd::createNode(mx::DocumentPtr document, mx::Typ
         throw mx::Exception("Unexpected DG node type.");
     }
 
-    materialXNode->setData(documentFilePath, renderableElementPath.c_str(), std::move(materialXData));
+    materialXNode->setData( documentFilePath, renderableElementPath.c_str(),
+                            envRadianceFileName, envIrradianceFileName, std::move(materialXData) );
 
     return nodeName;
 }
@@ -165,7 +177,9 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
             CHECK_MSTATUS(argData.getFlagArgument(kElementFlag, 0, elementPath));
             if (elementPath.length())
             {
-                mx::TypedElementPtr desiredElement = MaterialXMaya::getRenderableElement(document, renderableElements, elementPath.asChar());
+                mx::TypedElementPtr desiredElement =
+                    MaterialXMaya::getRenderableElement(document, renderableElements, elementPath.asChar());
+
                 if (desiredElement)
                 {
                     renderableElements.clear();
@@ -186,17 +200,34 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
         }
 
         bool createAsTexture = false;
-        if (parser.isFlagSet(kTextureFlag))
+        if (parser.isFlagSet(kAsTextureFlag))
         {
-            CHECK_MSTATUS(argData.getFlagArgument(kTextureFlag, 0, createAsTexture));
+            CHECK_MSTATUS(argData.getFlagArgument(kAsTextureFlag, 0, createAsTexture));
+        }
+
+        MString envRadianceFileName;
+        if (parser.isFlagSet(kEnvRadianceFlagLong))
+        {
+            CHECK_MSTATUS(argData.getFlagArgument(kEnvRadianceFlagLong, 0, envRadianceFileName));
+        }
+
+        MString envIrradianceFileName;
+        if (parser.isFlagSet(kEnvIrradianceFlagLong))
+        {
+            CHECK_MSTATUS(argData.getFlagArgument(kEnvIrradianceFlagLong, 0, envIrradianceFileName));
         }
 
         const MaterialX::FileSearchPath& searchPath = Plugin::instance().getLibrarySearchPath();
         MStringArray nodeNames;
         for (auto renderableElement : renderableElements)
         {
-            std::string nodeName = createNode(document, renderableElement, createAsTexture,
-                                              documentFilePath, searchPath);
+            std::string nodeName = createNode(  document,
+                                                renderableElement,
+                                                createAsTexture,
+                                                documentFilePath,
+                                                searchPath,
+                                                envRadianceFileName,
+                                                envIrradianceFileName );
             nodeNames.append(nodeName.c_str());
         }
 
@@ -233,7 +264,9 @@ MSyntax CreateMaterialXNodeCmd::newSyntax()
     syntax.addFlag(kDocumentFlag, MaterialXNode::DOCUMENT_ATTRIBUTE_LONG_NAME.asChar(), MSyntax::kString);
     syntax.addFlag(kElementFlag, MaterialXNode::ELEMENT_ATTRIBUTE_LONG_NAME.asChar(), MSyntax::kString);
     syntax.addFlag(kOgsXmlFlag, kOgsXmlFlagLong, MSyntax::kString);
-    syntax.addFlag(kTextureFlag, kTextureFlagLong, MSyntax::kBoolean);
+    syntax.addFlag(kAsTextureFlag, kAsTextureFlagLong, MSyntax::kBoolean);
+    syntax.addFlag(kEnvRadianceFlag, kEnvRadianceFlagLong, MSyntax::kString);
+    syntax.addFlag(kEnvIrradianceFlag, kEnvIrradianceFlagLong, MSyntax::kString);
     return syntax;
 }
 

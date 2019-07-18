@@ -34,8 +34,14 @@ class CreateMaterialXNodeCmd : MPxCommand
     /// @param documentFilePath Path to document
     /// @param searchPath Shader generation source paths
     /// @return Name of Maya node created
-    std::string createNode(MaterialX::DocumentPtr document, MaterialX::TypedElementPtr renderableElement, bool createAsTexture,
-                           const MString& documentFilePath, const MaterialX::FileSearchPath& searchPath);
+    std::string createNode(
+        MaterialX::DocumentPtr document,
+        MaterialX::TypedElementPtr renderableElement,
+        bool createAsTexture,
+        const MString& documentFilePath,
+        const MaterialX::FileSearchPath& searchPath,
+        const MString& envRadianceFileName,
+        const MString& envIrradianceFileName );
 
     MDGModifier _dgModifier;
 };

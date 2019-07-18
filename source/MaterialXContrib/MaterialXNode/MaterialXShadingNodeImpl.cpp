@@ -157,8 +157,7 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shader,
 void bindEnvironmentLighting(MHWRender::MShaderInstance& shader,
                             const MStringArray parameterList,
                             const MaterialX::FileSearchPath imageSearchPath,
-                            const std::string& envRadiancePath,
-                            const std::string& envIrradiancePath)
+                            const MaterialXNode& node)
 {
     MHWRender::MSamplerStateDesc samplerDescription;
     samplerDescription.filter = MHWRender::MSamplerState::kAnisotropic;
@@ -170,25 +169,27 @@ void bindEnvironmentLighting(MHWRender::MShaderInstance& shader,
     MHWRender::MTextureDescription textureDescription;
     if (parameterList.indexOf(mx::HW::ENV_IRRADIANCE.c_str()) >= 0)
     {
-        status = bindFileTexture(shader, mx::HW::ENV_IRRADIANCE, imageSearchPath, envIrradiancePath, samplerDescription, textureDescription, nullptr);
+        status = bindFileTexture(shader, mx::HW::ENV_IRRADIANCE, imageSearchPath,
+                                 node.getEnvIrradianceFileName().asChar(), samplerDescription, textureDescription, nullptr);
     }
 
     // Set radiance map
     if (parameterList.indexOf(mx::HW::ENV_RADIANCE.c_str()) >= 0)
     {
-        status = bindFileTexture(shader, mx::HW::ENV_RADIANCE, imageSearchPath, envRadiancePath, samplerDescription, textureDescription, nullptr);
+        status = bindFileTexture(shader, mx::HW::ENV_RADIANCE, imageSearchPath,
+                                 node.getEnvRadianceFileName().asChar(), samplerDescription, textureDescription, nullptr);
         if (status == MStatus::kSuccess)
         {
             if (parameterList.indexOf(mx::HW::ENV_RADIANCE_MIPS.c_str()) >= 0)
             {
-                const int mipCount = (int)std::log2(std::max(textureDescription.fWidth, textureDescription.fHeight)) + 1;
+                const int mipCount = static_cast<int>(std::log2(std::max(textureDescription.fWidth, textureDescription.fHeight))) + 1;
                 status = shader.setParameter(mx::HW::ENV_RADIANCE_MIPS.c_str(), mipCount);
             }
 
             if (parameterList.indexOf(mx::HW::ENV_RADIANCE_SAMPLES.c_str()) >= 0)
             {
-                const int envSamples = 16;
-                status = shader.setParameter(mx::HW::ENV_RADIANCE_SAMPLES.c_str(), int(envSamples));
+                constexpr int envSamples = 16;
+                status = shader.setParameter(mx::HW::ENV_RADIANCE_SAMPLES.c_str(), envSamples);
             }
         }
     }
@@ -196,7 +197,7 @@ void bindEnvironmentLighting(MHWRender::MShaderInstance& shader,
     // Environment matrix
     if (parameterList.indexOf(mx::HW::ENV_MATRIX.c_str()) >= 0)
     {
-        static const float yRotationPI[4][4]
+        constexpr float Y_ROTATION_PI[4][4]
         {
             -1.0f, 0.0f, 0.0f, 0.0f,
             0.0f, 1.0f, 0.0f, 0.0f,
@@ -204,8 +205,8 @@ void bindEnvironmentLighting(MHWRender::MShaderInstance& shader,
             0.0f, 0.0f, 0.0f, 1.0f
         };
 
-        MFloatMatrix matrix(yRotationPI);
-        status = shader.setParameter(mx::HW::ENV_MATRIX.c_str(), matrix);
+        static const MFloatMatrix ENV_MATRIX(Y_ROTATION_PI);
+        status = shader.setParameter(mx::HW::ENV_MATRIX.c_str(), ENV_MATRIX);
     }
 }
 
@@ -240,6 +241,8 @@ MaterialXShadingNodeImpl<BASE>::valueChangeRequiresFragmentRebuild(const MPlug* 
 {
     if (   *plug == MaterialXNode::DOCUMENT_ATTRIBUTE
         || *plug == MaterialXNode::ELEMENT_ATTRIBUTE
+        || *plug == MaterialXNode::ENV_RADIANCE_ATTRIBUTE
+        || *plug == MaterialXNode::ENV_IRRADIANCE_ATTRIBUTE
     )
     {
         return true;
@@ -280,15 +283,8 @@ void MaterialXShadingNodeImpl<BASE>::updateShader(MHWRender::MShaderInstance& sh
     documentPath.pop();
     MaterialX::FileSearchPath imageSearchPath = Plugin::instance().getResourceSearchPath(); 
     imageSearchPath.prepend(documentPath);
-        
-    // Bind environment lighting
-    // TODO: These should be options
-    static const std::string
-        envRadiancePath = "day_stuttgart_normal.cc.neutral.hdr",
-        envIrradiancePath = "day_stuttgart_normal.cc.neutral.hdr";
 
-    ::bindEnvironmentLighting(shader, parameterList, imageSearchPath,
-                              envRadiancePath, envIrradiancePath);
+    ::bindEnvironmentLighting(shader, parameterList, imageSearchPath, *node);
 
     MaterialX::DocumentPtr document = materialXData->getDocument();
 
