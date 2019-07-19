@@ -40,6 +40,7 @@ void GenContext::addIdentifier(const string& name)
 
 void GenContext::makeIdentifier(string& name)
 {
+    name = createValidName(name, '_');
     string id = name;
     while (_identifiers.count(id))
     {

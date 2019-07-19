@@ -220,7 +220,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
         emitString("shader ", stage);
     }
 
-    // Begin shader signature.
+    // Begin shader signature. Note that makeIdentifier() will sanitize the name.
     string functionName = shader->getName();
     context.makeIdentifier(functionName);
     setFunctionName(functionName, stage);
