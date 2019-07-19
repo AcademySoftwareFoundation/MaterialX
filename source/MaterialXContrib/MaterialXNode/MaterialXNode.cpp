@@ -182,8 +182,11 @@ void MaterialXNode::createAndRegisterFragment()
 
 void MaterialXNode::reloadDocument()
 {
-    _document = nullptr;
+    _document.reset();
+    _materialXData.reset();
+
     createAndRegisterFragment();
+
     // TODO: Figure out a better way to refresh the viewport
     MGlobal::executeCommand("ogs -reset");
 }

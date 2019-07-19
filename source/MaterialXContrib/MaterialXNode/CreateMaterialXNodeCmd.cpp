@@ -246,7 +246,7 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
             }
             throw mx::Exception(nodeString);
         }
-        setResult(nodeNames);        
+        setResult(nodeNames);
         return status;
     }
     catch (std::exception& e)
