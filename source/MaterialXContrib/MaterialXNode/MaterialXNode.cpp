@@ -182,13 +182,15 @@ void MaterialXNode::createAndRegisterFragment()
 
 void MaterialXNode::reloadDocument()
 {
-    _document.reset();
-    _materialXData.reset();
+    if (_documentFilePath.length() == 0)
+    {
+        return;
+    }
 
-    createAndRegisterFragment();
-
-    // TODO: Figure out a better way to refresh the viewport
-    MGlobal::executeCommand("ogs -reset");
+    MPlug documentPlug(thisMObject(), DOCUMENT_ATTRIBUTE);
+    const MString documentFilePath = _documentFilePath;
+    documentPlug.setValue("");
+    documentPlug.setValue(documentFilePath);
 }
 
 bool MaterialXNode::setInternalValue(const MPlug& plug, const MDataHandle& dataHandle)
