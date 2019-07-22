@@ -13,7 +13,8 @@ GenOptions::GenOptions() :
     fileTextureVerticalFlip(false),
     hwTransparency(false),
     hwSpecularEnvironmentMethod(SPECULAR_ENVIRONMENT_FIS),
-    hwMaxActiveLightSources(3)
+    hwMaxActiveLightSources(3),
+    emitVersionString(true)
 {
 }
 GenOptions::~GenOptions()

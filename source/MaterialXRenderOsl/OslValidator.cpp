@@ -170,26 +170,31 @@ void OslValidator::renderOSL(const FilePath& dirPath, const string& shaderName, 
     int returnValue = std::system(command.c_str());
 
     std::ifstream errorStream(errorFile);
-    string result;
-    result.assign(std::istreambuf_iterator<char>(errorStream),
-        std::istreambuf_iterator<char>());
-
-    // Remove any erroneous messages and carriage returns.
+    StringVec result;
+    string line;
     const string pngWarning("libpng warning: iCCP: known incorrect sRGB profile");
-    size_t pngWarningLength = pngWarning.length();
-    size_t pos = std::string::npos;
-    while ((pos = result.find(pngWarning)) != std::string::npos)
+    unsigned int errCount = 0;
+    while (std::getline(errorStream, line))
     {
-        result.erase(pos, pngWarningLength);
+        if (line.find(pngWarning) != std::string::npos)
+        {
+            continue;
+        }
+        if (errCount++ > 10)
+        {
+            break;
+        }
+        result.push_back(line);
     }
-    result.erase(std::remove(result.begin(), result.end(), '\n'), result.end());
-
     if (!result.empty())
     {
         errors.push_back("Command string: " + command);
         errors.push_back("Command return code: " + std::to_string(returnValue));
         errors.push_back("Shader failed to render:");
-        errors.push_back(result);
+        for (size_t i = 0; i < result.size(); i++)
+        {
+            errors.push_back(result[i]);
+        }
         throw ExceptionShaderValidationError(errorType, errors);
     }
 }

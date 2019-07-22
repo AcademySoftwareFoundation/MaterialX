@@ -14,7 +14,7 @@
       <input name="ior" type="float" value="1.52" />
       <input name="normal" type="vector3" value="0.0, 0.0, 0.0" />
       <input name="tangent" type="vector3" value="0.0, 0.0, 0.0" />
-      <input name="distribution" type="string" value="ggx" />
+      <parameter name="distribution" type="string" value="ggx" />
       <input name="interior" type="VDF" value="" />
     </dielectric_btdf>
     <diffuse_brdf name="diffuse_brdf2" type="BSDF">

@@ -37,6 +37,9 @@
 
   <!-- <triplanarprojection> -->
 
+  <!-- <normalmap> -->
+  <implementation name="IM_normalmap_genosl" nodedef="ND_normalmap" file="stdlib/genosl/mx_normalmap.osl" function="mx_normalmap" language="genosl"/>
+
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
   <!-- ======================================================================== -->
@@ -374,14 +377,44 @@
   <implementation name="IM_acos_float_genosl" nodedef="ND_acos_float" file="stdlib/genosl/mx_acos.inline" function="mx_acos_float" language="genosl"/>
   <implementation name="IM_atan2_float_genosl" nodedef="ND_atan2_float" file="stdlib/genosl/mx_atan2.inline" function="mx_atan2_float" language="genosl"/>
 
+  <implementation name="IM_sin_vector2_genosl" nodedef="ND_sin_vector2" file="stdlib/genosl/mx_sin.inline" language="genosl"/>
+  <implementation name="IM_cos_vector2_genosl" nodedef="ND_cos_vector2" file="stdlib/genosl/mx_cos.inline" language="genosl"/>
+  <implementation name="IM_tan_vector2_genosl" nodedef="ND_tan_vector2" file="stdlib/genosl/mx_tan.inline" language="genosl"/>
+  <implementation name="IM_asin_vector2_genosl" nodedef="ND_asin_vector2" file="stdlib/genosl/mx_asin.inline" language="genosl"/>
+  <implementation name="IM_acos_vector2_genosl" nodedef="ND_acos_vector2" file="stdlib/genosl/mx_acos.inline" language="genosl"/>
+  <implementation name="IM_atan2_vector2_genosl" nodedef="ND_atan2_vector2" file="stdlib/genosl/mx_atan2.inline" language="genosl"/>
+
+  <implementation name="IM_sin_vector3_genosl" nodedef="ND_sin_vector3" file="stdlib/genosl/mx_sin.inline" language="genosl"/>
+  <implementation name="IM_cos_vector3_genosl" nodedef="ND_cos_vector3" file="stdlib/genosl/mx_cos.inline" language="genosl"/>
+  <implementation name="IM_tan_vector3_genosl" nodedef="ND_tan_vector3" file="stdlib/genosl/mx_tan.inline" language="genosl"/>
+  <implementation name="IM_asin_vector3_genosl" nodedef="ND_asin_vector3" file="stdlib/genosl/mx_asin.inline" language="genosl"/>
+  <implementation name="IM_acos_vector3_genosl" nodedef="ND_acos_vector3" file="stdlib/genosl/mx_acos.inline" language="genosl"/>
+  <implementation name="IM_atan2_vector3_genosl" nodedef="ND_atan2_vector3" file="stdlib/genosl/mx_atan2.inline" language="genosl"/>
+
+  <implementation name="IM_sin_vector4_genosl" nodedef="ND_sin_vector4" file="stdlib/genosl/mx_sin.inline" language="genosl"/>
+  <implementation name="IM_cos_vector4_genosl" nodedef="ND_cos_vector4" file="stdlib/genosl/mx_cos.inline" language="genosl"/>
+  <implementation name="IM_tan_vector4_genosl" nodedef="ND_tan_vector4" file="stdlib/genosl/mx_tan.inline" language="genosl"/>
+  <implementation name="IM_asin_vector4_genosl" nodedef="ND_asin_vector4" file="stdlib/genosl/mx_asin.inline" language="genosl"/>
+  <implementation name="IM_acos_vector4_genosl" nodedef="ND_acos_vector4" file="stdlib/genosl/mx_acos.inline" language="genosl"/>
+  <implementation name="IM_atan2_vector4_genosl" nodedef="ND_atan2_vector4" file="stdlib/genosl/mx_atan2.inline" language="genosl"/>
+
   <!-- <sqrt> -->
   <implementation name="IM_sqrt_float_genosl" nodedef="ND_sqrt_float" file="stdlib/genosl/mx_sqrt.inline" language="genosl"/>
+  <implementation name="IM_sqrt_vector2_genosl" nodedef="ND_sqrt_vector2" file="stdlib/genosl/mx_sqrt.inline" language="genosl"/>
+  <implementation name="IM_sqrt_vector3_genosl" nodedef="ND_sqrt_vector3" file="stdlib/genosl/mx_sqrt.inline" language="genosl"/>
+  <implementation name="IM_sqrt_vector4_genosl" nodedef="ND_sqrt_vector4" file="stdlib/genosl/mx_sqrt.inline" language="genosl"/>
 
   <!-- <ln> -->
   <implementation name="IM_ln_float_genosl" nodedef="ND_ln_float" file="stdlib/genosl/mx_ln.inline" language="genosl"/>
+  <implementation name="IM_ln_vector2_genosl" nodedef="ND_ln_vector2" file="stdlib/genosl/mx_ln.inline" language="genosl"/>
+  <implementation name="IM_ln_vector3_genosl" nodedef="ND_ln_vector3" file="stdlib/genosl/mx_ln.inline" language="genosl"/>
+  <implementation name="IM_ln_vector4_genosl" nodedef="ND_ln_vector4" file="stdlib/genosl/mx_ln.inline" language="genosl"/>
 
   <!-- <exp> -->
   <implementation name="IM_exp_float_genosl" nodedef="ND_exp_float" file="stdlib/genosl/mx_exp.inline" language="genosl"/>
+  <implementation name="IM_exp_vector2_genosl" nodedef="ND_exp_vector2" file="stdlib/genosl/mx_exp.inline" language="genosl"/>
+  <implementation name="IM_exp_vector3_genosl" nodedef="ND_exp_vector3" file="stdlib/genosl/mx_exp.inline" language="genosl"/>
+  <implementation name="IM_exp_vector4_genosl" nodedef="ND_exp_vector4" file="stdlib/genosl/mx_exp.inline" language="genosl"/>
 
   <!-- sign -->
   <implementation name="IM_sign_float_genosl" nodedef="ND_sign_float" file="stdlib/genosl/mx_sign.inline" language="genosl"/>
@@ -557,12 +590,10 @@
 
   <!-- <premult> -->
   <implementation name="IM_premult_color2_genosl" nodedef="ND_premult_color2" file="stdlib/genosl/mx_premult_color2.osl" function="mx_premult_color2" language="genosl"/>
-  <implementation name="IM_premult_color3_genosl" nodedef="ND_premult_color3" file="stdlib/genosl/mx_premult_color3.osl" function="mx_premult_color3" language="genosl"/>
   <implementation name="IM_premult_color4_genosl" nodedef="ND_premult_color4" file="stdlib/genosl/mx_premult_color4.osl" function="mx_premult_color4" language="genosl"/>
 
   <!-- <unpremult> -->
   <implementation name="IM_unpremult_color2_genosl" nodedef="ND_unpremult_color2" file="stdlib/genosl/mx_unpremult_color2.osl" function="mx_unpremult_color2" language="genosl"/>
-  <implementation name="IM_unpremult_color3_genosl" nodedef="ND_unpremult_color3" file="stdlib/genosl/mx_unpremult_color3.osl" function="mx_unpremult_color3" language="genosl"/>
   <implementation name="IM_unpremult_color4_genosl" nodedef="ND_unpremult_color4" file="stdlib/genosl/mx_unpremult_color4.osl" function="mx_unpremult_color4" language="genosl"/>
 
   <!-- <plus> -->

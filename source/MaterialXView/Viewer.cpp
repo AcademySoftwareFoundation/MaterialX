@@ -84,9 +84,7 @@ mx::DocumentPtr loadLibraries(const mx::StringVec& libraryFolders, const mx::Fil
             mx::DocumentPtr libDoc = mx::createDocument();
             mx::readFromXmlFile(libDoc, file);
             libDoc->setSourceUri(file);
-            mx::CopyOptions copyOptions;
-            copyOptions.skipDuplicateElements = true;
-            doc->importLibrary(libDoc, &copyOptions);
+            doc->importLibrary(libDoc);
         }
     }
     return doc;
@@ -224,6 +222,9 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
         performLayout();
     });
 
+    // Set this before building UI as this flag is used
+    // for the UI building
+    _genContext.getOptions().hwTransparency = true;
     createAdvancedSettings(_window);
 
     _geomLabel = new ng::Label(_window, "Select Geometry");
@@ -348,9 +349,6 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
 
 void Viewer::setupLights(mx::DocumentPtr doc)
 {
-    mx::CopyOptions copyOptions;
-    copyOptions.skipDuplicateElements = true;
-
     // Import lights
     mx::DocumentPtr lightDoc = mx::createDocument();
     mx::FilePath path = _searchPath.find(_lightFileName);
@@ -360,7 +358,7 @@ void Viewer::setupLights(mx::DocumentPtr doc)
         {
             mx::readFromXmlFile(lightDoc, path.asString());
             lightDoc->setSourceUri(path);
-            doc->importLibrary(lightDoc, &copyOptions);
+            doc->importLibrary(lightDoc);
         }
         catch (std::exception& e)
         {
@@ -756,7 +754,6 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
         // Import libraries.
         mx::CopyOptions copyOptions;
-        copyOptions.skipDuplicateElements = true;
         doc->importLibrary(libraries, &copyOptions);
 
         // Add lighting 
@@ -814,7 +811,6 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             }
         }
 
-        size_t assignedGeoms = 0;
         if (!newMaterials.empty())
         {
             // Add new materials to the global vector.
@@ -847,7 +843,6 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                         if (!materialRef->getGeometryBindings(partGeomName).empty())
                         {
                             assignMaterial(part, mat);
-                            assignedGeoms++;
                         }
                     }
                 }
@@ -1141,6 +1136,7 @@ void Viewer::drawScene3D()
                              _specularEnvironmentMethod, _envSamples);
         material->bindImages(_imageHandler, _searchPath, material->getUdim());
         material->drawPartition(geom);
+        material->unbindImages(_imageHandler);
     }
 
     // Transparent pass
@@ -1162,6 +1158,7 @@ void Viewer::drawScene3D()
                              _specularEnvironmentMethod, _envSamples);
         material->bindImages(_imageHandler, _searchPath, material->getUdim());
         material->drawPartition(geom);
+        material->unbindImages(_imageHandler);
     }
     
     // Ambient occlusion pass
@@ -1186,6 +1183,7 @@ void Viewer::drawScene3D()
                                         _specularEnvironmentMethod, _envSamples);
             _ambOccMaterial->bindImages(_imageHandler, _searchPath, material->getUdim());
             _ambOccMaterial->drawPartition(geom);
+            _ambOccMaterial->unbindImages(_imageHandler);
         }
     }
     

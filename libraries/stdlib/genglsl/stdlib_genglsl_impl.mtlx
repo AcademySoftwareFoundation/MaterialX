@@ -35,6 +35,8 @@
     <parameter name="default" type="vector4" implname="default_value"/>
   </implementation>
 
+  <!-- <normalmap> -->
+  <implementation name="IM_normalmap_genglsl" nodedef="ND_normalmap" file="stdlib/genglsl/mx_normalmap.glsl" function="mx_normalmap" language="genglsl"/>
 
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
@@ -370,14 +372,44 @@
   <implementation name="IM_acos_float_genglsl" nodedef="ND_acos_float" file="stdlib/genglsl/mx_acos.inline" language="genglsl"/>
   <implementation name="IM_atan2_float_genglsl" nodedef="ND_atan2_float" file="stdlib/genglsl/mx_atan2.inline" language="genglsl"/>
 
+  <implementation name="IM_sin_vector2_genglsl" nodedef="ND_sin_vector2" file="stdlib/genglsl/mx_sin.inline" language="genglsl"/>
+  <implementation name="IM_cos_vector2_genglsl" nodedef="ND_cos_vector2" file="stdlib/genglsl/mx_cos.inline" language="genglsl"/>
+  <implementation name="IM_tan_vector2_genglsl" nodedef="ND_tan_vector2" file="stdlib/genglsl/mx_tan.inline" language="genglsl"/>
+  <implementation name="IM_asin_vector2_genglsl" nodedef="ND_asin_vector2" file="stdlib/genglsl/mx_asin.inline" language="genglsl"/>
+  <implementation name="IM_acos_vector2_genglsl" nodedef="ND_acos_vector2" file="stdlib/genglsl/mx_acos.inline" language="genglsl"/>
+  <implementation name="IM_atan2_vector2_genglsl" nodedef="ND_atan2_vector2" file="stdlib/genglsl/mx_atan2.inline" language="genglsl"/>
+
+  <implementation name="IM_sin_vector3_genglsl" nodedef="ND_sin_vector3" file="stdlib/genglsl/mx_sin.inline" language="genglsl"/>
+  <implementation name="IM_cos_vector3_genglsl" nodedef="ND_cos_vector3" file="stdlib/genglsl/mx_cos.inline" language="genglsl"/>
+  <implementation name="IM_tan_vector3_genglsl" nodedef="ND_tan_vector3" file="stdlib/genglsl/mx_tan.inline" language="genglsl"/>
+  <implementation name="IM_asin_vector3_genglsl" nodedef="ND_asin_vector3" file="stdlib/genglsl/mx_asin.inline" language="genglsl"/>
+  <implementation name="IM_acos_vector3_genglsl" nodedef="ND_acos_vector3" file="stdlib/genglsl/mx_acos.inline" language="genglsl"/>
+  <implementation name="IM_atan2_vector3_genglsl" nodedef="ND_atan2_vector3" file="stdlib/genglsl/mx_atan2.inline" language="genglsl"/>
+
+  <implementation name="IM_sin_vector4_genglsl" nodedef="ND_sin_vector4" file="stdlib/genglsl/mx_sin.inline" language="genglsl"/>
+  <implementation name="IM_cos_vector4_genglsl" nodedef="ND_cos_vector4" file="stdlib/genglsl/mx_cos.inline" language="genglsl"/>
+  <implementation name="IM_tan_vector4_genglsl" nodedef="ND_tan_vector4" file="stdlib/genglsl/mx_tan.inline" language="genglsl"/>
+  <implementation name="IM_asin_vector4_genglsl" nodedef="ND_asin_vector4" file="stdlib/genglsl/mx_asin.inline" language="genglsl"/>
+  <implementation name="IM_acos_vector4_genglsl" nodedef="ND_acos_vector4" file="stdlib/genglsl/mx_acos.inline" language="genglsl"/>
+  <implementation name="IM_atan2_vector4_genglsl" nodedef="ND_atan2_vector4" file="stdlib/genglsl/mx_atan2.inline" language="genglsl"/>
+
   <!-- <sqrt> -->
   <implementation name="IM_sqrt_float_genglsl" nodedef="ND_sqrt_float" file="stdlib/genglsl/mx_sqrt.inline" language="genglsl"/>
+  <implementation name="IM_sqrt_vector2_genglsl" nodedef="ND_sqrt_vector2" file="stdlib/genglsl/mx_sqrt.inline" language="genglsl"/>
+  <implementation name="IM_sqrt_vector3_genglsl" nodedef="ND_sqrt_vector3" file="stdlib/genglsl/mx_sqrt.inline" language="genglsl"/>
+  <implementation name="IM_sqrt_vector4_genglsl" nodedef="ND_sqrt_vector4" file="stdlib/genglsl/mx_sqrt.inline" language="genglsl"/>
 
   <!-- <ln> -->
   <implementation name="IM_ln_float_genglsl" nodedef="ND_ln_float" file="stdlib/genglsl/mx_ln.inline" language="genglsl"/>
+  <implementation name="IM_ln_vector2_genglsl" nodedef="ND_ln_vector2" file="stdlib/genglsl/mx_ln.inline" language="genglsl"/>
+  <implementation name="IM_ln_vector3_genglsl" nodedef="ND_ln_vector3" file="stdlib/genglsl/mx_ln.inline" language="genglsl"/>
+  <implementation name="IM_ln_vector4_genglsl" nodedef="ND_ln_vector4" file="stdlib/genglsl/mx_ln.inline" language="genglsl"/>
 
   <!-- <exp> -->
   <implementation name="IM_exp_float_genglsl" nodedef="ND_exp_float" file="stdlib/genglsl/mx_exp.inline" language="genglsl"/>
+  <implementation name="IM_exp_vector2_genglsl" nodedef="ND_exp_vector2" file="stdlib/genglsl/mx_exp.inline" language="genglsl"/>
+  <implementation name="IM_exp_vector3_genglsl" nodedef="ND_exp_vector3" file="stdlib/genglsl/mx_exp.inline" language="genglsl"/>
+  <implementation name="IM_exp_vector4_genglsl" nodedef="ND_exp_vector4" file="stdlib/genglsl/mx_exp.inline" language="genglsl"/>
 
   <!-- sign -->
   <implementation name="IM_sign_float_genglsl" nodedef="ND_sign_float" file="stdlib/genglsl/mx_sign.inline" language="genglsl"/>
@@ -540,12 +572,10 @@
 
   <!-- <premult> -->
   <implementation name="IM_premult_color2_genglsl" nodedef="ND_premult_color2" file="stdlib/genglsl/mx_premult_color2.glsl" function="mx_premult_color2" language="genglsl"/>
-  <implementation name="IM_premult_color3_genglsl" nodedef="ND_premult_color3" file="stdlib/genglsl/mx_premult_color3.glsl" function="mx_premult_color3" language="genglsl"/>
   <implementation name="IM_premult_color4_genglsl" nodedef="ND_premult_color4" file="stdlib/genglsl/mx_premult_color4.glsl" function="mx_premult_color4" language="genglsl"/>
 
   <!-- <unpremult> -->
   <implementation name="IM_unpremult_color2_genglsl" nodedef="ND_unpremult_color2" file="stdlib/genglsl/mx_unpremult_color2.glsl" function="mx_unpremult_color2" language="genglsl"/>
-  <implementation name="IM_unpremult_color3_genglsl" nodedef="ND_unpremult_color3" file="stdlib/genglsl/mx_unpremult_color3.glsl" function="mx_unpremult_color3" language="genglsl"/>
   <implementation name="IM_unpremult_color4_genglsl" nodedef="ND_unpremult_color4" file="stdlib/genglsl/mx_unpremult_color4.glsl" function="mx_unpremult_color4" language="genglsl"/>
 
    <!-- <plus> -->

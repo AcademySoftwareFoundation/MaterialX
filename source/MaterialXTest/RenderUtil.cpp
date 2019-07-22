@@ -142,9 +142,13 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     // Add files to skip
     addSkipFiles();
 
-    const mx::StringVec libraries = { "stdlib", "pbrlib" };
+    const mx::StringVec libraries = { "stdlib", "pbrlib", "lights" };
     GenShaderUtil::loadLibraries(libraries, searchPath, dependLib, nullptr);
+
+    // Load shader definitions used in the test suite.
     GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), dependLib);
+    GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd_preview_surface.mtlx"), dependLib);
+
     // Load any addition per validator libraries
     loadLibraries(dependLib, options);
     ioTimer.endTimer();
@@ -164,9 +168,6 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
     setupTime.endTimer();
 
-    mx::CopyOptions importOptions;
-    importOptions.skipDuplicateElements = true;
-
     registerLights(dependLib, options, context);
 
     // Map to replace "/" in Element path names with "_".
@@ -177,6 +178,8 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     RenderUtil::AdditiveScopedTimer renderableSearchTimer(profileTimes.renderableSearchTime, "Global renderable search time");
 
     mx::StringSet usedImpls;
+
+    mx::CopyOptions copyOptions;
 
     const std::string MTLX_EXTENSION("mtlx");
     for (auto dir : dirs)
@@ -206,12 +209,10 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             const mx::FilePath filePath = mx::FilePath(dir) / mx::FilePath(file);
             const std::string filename = filePath;
 
-            mx::XmlReadOptions readOptions;
-            readOptions.skipDuplicateElements = true;
             mx::DocumentPtr doc = mx::createDocument();
             try
             {
-                mx::readFromXmlFile(doc, filename, dir, &readOptions);
+                mx::readFromXmlFile(doc, filename, dir);
             }
             catch (mx::Exception& e)
             {
@@ -219,7 +220,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                 WARN("Failed to load in file: " + filename + "See: " + docValidLogFilename + " for details.");                    
             }
 
-            doc->importLibrary(dependLib, &importOptions);
+            doc->importLibrary(dependLib, &copyOptions);
             ioTimer.endTimer();
 
             validateTimer.startTimer();

@@ -82,7 +82,7 @@ TEST_CASE("GenShader: GLSL Implementation Check", "[genglsl]")
 
     mx::StringSet generatorSkipNodeTypes;
     mx::StringSet generatorSkipNodeDefs;
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 34);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 64);
 }
 
 TEST_CASE("GenShader: GLSL Unique Names", "[genglsl]")
@@ -100,10 +100,12 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
-    GenShaderUtil::loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
+    GenShaderUtil::loadLibraries({ "stdlib", "pbrlib", "lights" }, searchPath, doc);
 
     mx::NodeDefPtr pointLightShader = doc->getNodeDef("ND_point_light");
     mx::NodeDefPtr spotLightShader = doc->getNodeDef("ND_spot_light");
+    REQUIRE(pointLightShader != nullptr);
+    REQUIRE(spotLightShader != nullptr);
 
     mx::GenContext context(mx::GlslShaderGenerator::create());
     context.registerSourceCodeSearchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
@@ -121,9 +123,11 @@ static void generateGlslCode()
 {
     const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
     const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
+    const mx::FilePath testRootPath3 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/UsdPreviewSurface");
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back(testRootPath);
     testRootPaths.push_back(testRootPath2);
+    testRootPaths.push_back(testRootPath3);
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     const mx::FilePath logPath("genglsl_glsl400_generate_test.txt");

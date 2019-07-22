@@ -53,25 +53,31 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen);
 /// Color2, and Color4. Note that for Color2 the second channel
 /// maps to alpha. If not mapping is possible the color value is
 /// set to opaque black.
-void mapValueToColor(const ValuePtr value, Color4& color);
+void mapValueToColor(ConstValuePtr value, Color4& color);
 
 /// Return whether a nodedef requires an implementation
-bool requiresImplementation(const NodeDefPtr nodeDef);
+bool requiresImplementation(ConstNodeDefPtr nodeDef);
 
 /// Determine if a given element requires shading / lighting for rendering
-bool elementRequiresShading(const TypedElementPtr element);
+bool elementRequiresShading(ConstTypedElementPtr element);
 
 /// Find any elements which may be renderable from within a document.
 /// This includes all outputs on node graphs and shader references which are not
 /// part of any included library. Light shaders are not considered to be renderable.
 /// The option to include node graphs referened by shader references is disabled by default.
-void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>& elements, 
+void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, 
                             bool includeReferencedGraphs = false);
 
 /// Given a path to a element, find the corresponding element with the same name
 /// on an associated nodedef if it exists. A target string should be provided
 /// if the path is to a Node as definitions for Nodes can be target specific.
 ValueElementPtr findNodeDefChild(const string& path, DocumentPtr doc, const string& target);
+
+/// Perform token substitutions on the given source string, using the given substituation map. 
+/// Tokens are required to start with '$' and can only consist of alphanumeric characters.
+/// The full token name, including '$' and all following alphanumeric character, will be replaced
+/// by the corresponding string in the substitution map, if the token exists in the map.
+void tokenSubstitution(const StringMap& substitutions, string& source);
 
 } // namespace MaterialX
 

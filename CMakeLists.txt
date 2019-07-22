@@ -138,3 +138,7 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.6.2")
         set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT MaterialXTest)
     endif()
 endif()
+
+# install MaterialX find_package module
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
+        DESTINATION "${CMAKE_INSTALL_PREFIX}" MESSAGE_NEVER)

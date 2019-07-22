@@ -1181,6 +1181,93 @@
   <!-- ======================================================================== -->
 
   <!--
+    Node: <transformpoint>  (2M3 and 3M4 variants)
+    Transform a vector coordinate by a specified matrix.
+  -->
+  <nodegraph name="NG_transformpoint_vector2M3" nodedef="ND_transformpoint_vector2M3">
+    <convert name="N_convtov3" type="vector3">
+      <input name="in" type="vector2" interfacename="in"/>
+    </convert>
+    <transformpoint name="N_transformpt" type="vector3">
+      <input name="in" type="vector3" nodename="N_convtov3"/>
+      <input name="mat" type="matrix33" interfacename="mat"/>
+    </transformpoint>
+    <convert name="N_convtov2" type="vector2">
+      <input name="in" type="vector3" nodename="N_transformpt"/>
+    </convert>
+    <output name="N_out_vec2" type="vector2" nodename="N_convtov2"/>
+  </nodegraph>
+  <nodegraph name="NG_transformpoint_vector3M4" nodedef="ND_transformpoint_vector3M4">
+    <convert name="N_convtov4" type="vector4">
+      <input name="in" type="vector3" interfacename="in"/>
+    </convert>
+    <transformpoint name="N_transformpt" type="vector4">
+      <input name="in" type="vector4" nodename="N_convtov4"/>
+      <input name="mat" type="matrix44" interfacename="mat"/>
+    </transformpoint>
+    <divide name="N_convtov3" type="vector3">
+      <input name="in1" type="vector3" nodename="N_transformpt" channels="xyz"/>
+      <input name="in2" type="float" nodename="N_transformpt" channels="w"/>
+    </divide>
+    <output name="N_out_vec3" type="vector3" nodename="N_convtov3"/>
+  </nodegraph>
+
+  <!--
+    Node: <transformvector>  (2M3 and 3M4 variants)
+    Transform a vector coordinate by a specified matrix.
+  -->
+  <nodegraph name="NG_transformvector_vector2M3" nodedef="ND_transformvector_vector2M3">
+    <convert name="N_convtov3" type="vector3">
+      <input name="in" type="vector2" interfacename="in"/>
+    </convert>
+    <transformvector name="N_transformvec" type="vector3">
+      <input name="in" type="vector3" nodename="N_convtov3"/>
+      <input name="mat" type="matrix33" interfacename="mat"/>
+    </transformvector>
+    <convert name="N_convtov2" type="vector2">
+      <input name="in" type="vector3" nodename="N_transformvec"/>
+    </convert>
+    <output name="N_out_vec2" type="vector2" nodename="N_convtov2"/>
+  </nodegraph>
+  <nodegraph name="NG_transformvector_vector3M4" nodedef="ND_transformvector_vector3M4">
+    <convert name="N_convtov4" type="vector4">
+      <input name="in" type="vector3" interfacename="in"/>
+    </convert>
+    <transformvector name="N_transformvec" type="vector4">
+      <input name="in" type="vector4" nodename="N_convtov4"/>
+      <input name="mat" type="matrix44" interfacename="mat"/>
+    </transformvector>
+    <convert name="N_convtov3" type="vector3">
+      <input name="in" type="vector4" nodename="N_transformvec"/>
+    </convert>
+    <output name="N_out_vec3" type="vector3" nodename="N_convtov3"/>
+  </nodegraph>
+
+  <!--
+    Node: <transformnormal>  (3M4 variant)
+    Transform a vector coordinate by a specified matrix.
+    Fourth channel of converted vector3 set to zero since normals typically can only
+    be scaled or rotated, not translated.
+  -->
+  <nodegraph name="NG_transformnormal_vector3M4" nodedef="ND_transformnormal_vector3M4">
+    <convert name="N_convtov4" type="vector4">
+      <input name="in" type="vector3" interfacename="in"/>
+    </convert>
+    <multiply name="N_zerow" type="vector4">
+      <input name="in1" type="vector4" nodename="N_convtov4"/>
+      <input name="in2" type="vector4" value="1.0, 1.0, 1.0, 0.0"/>
+    </multiply>
+    <transformnormal name="N_transformnorm" type="vector4">
+      <input name="in" type="vector4" nodename="N_zerow"/>
+      <input name="mat" type="matrix44" interfacename="mat"/>
+    </transformnormal>
+    <convert name="N_convtov3" type="vector3">
+      <input name="in" type="vector4" nodename="N_transformnorm"/>
+    </convert>
+    <output name="N_out_vec3" type="vector3" nodename="N_convtov3"/>
+  </nodegraph>
+
+  <!--
     Node: <place2d>
     Transform incoming UV texture coordinates for 2D texture placement.
   -->
@@ -1434,10 +1521,10 @@
   <nodegraph name="NG_range_float" nodedef="ND_range_float">
     <remap name="N_remap1_float" type="float">
       <input name="in" type="float" interfacename="in"/>
-      <parameter name="inlow" type="float" interfacename="inlow"/>
-      <parameter name="inhigh" type="float" interfacename="inhigh"/>
-      <parameter name="outlow" type="float" value="0.0"/>
-      <parameter name="outhigh" type="float" value="1.0"/>
+      <input name="inlow" type="float" interfacename="inlow"/>
+      <input name="inhigh" type="float" interfacename="inhigh"/>
+      <input name="outlow" type="float" value="0.0"/>
+      <input name="outhigh" type="float" value="1.0"/>
     </remap>
     <divide name="N_recip_float" type="float">
       <input name="in1" type="float" value="1.0"/>
@@ -1459,10 +1546,10 @@
     </multiply>
     <remap name="N_remap2_float" type="float">
       <input name="in" type="float" nodename="N_gamma_float"/>
-      <parameter name="inlow" type="float" value="0.0"/>
-      <parameter name="inhigh" type="float" value="1.0"/>
-      <parameter name="outlow" type="float" interfacename="outlow"/>
-      <parameter name="outhigh" type="float" interfacename="outhigh"/>
+      <input name="inlow" type="float" value="0.0"/>
+      <input name="inhigh" type="float" value="1.0"/>
+      <input name="outlow" type="float" interfacename="outlow"/>
+      <input name="outhigh" type="float" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_float" type="float">
       <input name="in" type="float" nodename="N_remap2_float"/>
@@ -1478,10 +1565,10 @@
   <nodegraph name="NG_range_color2" nodedef="ND_range_color2">
     <remap name="N_remap1_color2" type="color2">
       <input name="in" type="color2" interfacename="in"/>
-      <parameter name="inlow" type="color2" interfacename="inlow"/>
-      <parameter name="inhigh" type="color2" interfacename="inhigh"/>
-      <parameter name="outlow" type="color2" value="0.0, 0.0"/>
-      <parameter name="outhigh" type="color2" value="1.0, 1.0"/>
+      <input name="inlow" type="color2" interfacename="inlow"/>
+      <input name="inhigh" type="color2" interfacename="inhigh"/>
+      <input name="outlow" type="color2" value="0.0, 0.0"/>
+      <input name="outhigh" type="color2" value="1.0, 1.0"/>
     </remap>
     <divide name="N_recip_color2" type="color2">
       <input name="in1" type="color2" value="1.0, 1.0"/>
@@ -1503,10 +1590,10 @@
     </multiply>
     <remap name="N_remap2_color2" type="color2">
       <input name="in" type="color2" nodename="N_gamma_color2"/>
-      <parameter name="inlow" type="color2" value="0.0, 0.0"/>
-      <parameter name="inhigh" type="color2" value="1.0, 1.0"/>
-      <parameter name="outlow" type="color2" interfacename="outlow"/>
-      <parameter name="outhigh" type="color2" interfacename="outhigh"/>
+      <input name="inlow" type="color2" value="0.0, 0.0"/>
+      <input name="inhigh" type="color2" value="1.0, 1.0"/>
+      <input name="outlow" type="color2" interfacename="outlow"/>
+      <input name="outhigh" type="color2" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_color2" type="color2">
       <input name="in" type="color2" nodename="N_remap2_color2"/>
@@ -1522,10 +1609,10 @@
   <nodegraph name="NG_range_color3" nodedef="ND_range_color3">
     <remap name="N_remap1_color3" type="color3">
       <input name="in" type="color3" interfacename="in"/>
-      <parameter name="inlow" type="color3" interfacename="inlow"/>
-      <parameter name="inhigh" type="color3" interfacename="inhigh"/>
-      <parameter name="outlow" type="color3" value="0.0, 0.0, 0.0"/>
-      <parameter name="outhigh" type="color3" value="1.0, 1.0, 1.0"/>
+      <input name="inlow" type="color3" interfacename="inlow"/>
+      <input name="inhigh" type="color3" interfacename="inhigh"/>
+      <input name="outlow" type="color3" value="0.0, 0.0, 0.0"/>
+      <input name="outhigh" type="color3" value="1.0, 1.0, 1.0"/>
     </remap>
     <divide name="N_recip_color3" type="color3">
       <input name="in1" type="color3" value="1.0, 1.0, 1.0"/>
@@ -1547,10 +1634,10 @@
     </multiply>
     <remap name="N_remap2_color3" type="color3">
       <input name="in" type="color3" nodename="N_gamma_color3"/>
-      <parameter name="inlow" type="color3" value="0.0, 0.0, 0.0"/>
-      <parameter name="inhigh" type="color3" value="1.0, 1.0, 1.0"/>
-      <parameter name="outlow" type="color3" interfacename="outlow"/>
-      <parameter name="outhigh" type="color3" interfacename="outhigh"/>
+      <input name="inlow" type="color3" value="0.0, 0.0, 0.0"/>
+      <input name="inhigh" type="color3" value="1.0, 1.0, 1.0"/>
+      <input name="outlow" type="color3" interfacename="outlow"/>
+      <input name="outhigh" type="color3" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_color3" type="color3">
       <input name="in" type="color3" nodename="N_remap2_color3"/>
@@ -1566,10 +1653,10 @@
   <nodegraph name="NG_range_color4" nodedef="ND_range_color4">
     <remap name="N_remap1_color4" type="color4">
       <input name="in" type="color4" interfacename="in"/>
-      <parameter name="inlow" type="color4" interfacename="inlow"/>
-      <parameter name="inhigh" type="color4" interfacename="inhigh"/>
-      <parameter name="outlow" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-      <parameter name="outhigh" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
+      <input name="inlow" type="color4" interfacename="inlow"/>
+      <input name="inhigh" type="color4" interfacename="inhigh"/>
+      <input name="outlow" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+      <input name="outhigh" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
     </remap>
     <divide name="N_recip_color4" type="color4">
       <input name="in1" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
@@ -1591,10 +1678,10 @@
     </multiply>
     <remap name="N_remap2_color4" type="color4">
       <input name="in" type="color4" nodename="N_gamma_color4"/>
-      <parameter name="inlow" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
-      <parameter name="inhigh" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
-      <parameter name="outlow" type="color4" interfacename="outlow"/>
-      <parameter name="outhigh" type="color4" interfacename="outhigh"/>
+      <input name="inlow" type="color4" value="0.0, 0.0, 0.0, 0.0"/>
+      <input name="inhigh" type="color4" value="1.0, 1.0, 1.0, 1.0"/>
+      <input name="outlow" type="color4" interfacename="outlow"/>
+      <input name="outhigh" type="color4" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_color4" type="color4">
       <input name="in" type="color4" nodename="N_remap2_color4"/>
@@ -1610,10 +1697,10 @@
   <nodegraph name="NG_range_vector2" nodedef="ND_range_vector2">
     <remap name="N_remap1_vector2" type="vector2">
       <input name="in" type="vector2" interfacename="in"/>
-      <parameter name="inlow" type="vector2" interfacename="inlow"/>
-      <parameter name="inhigh" type="vector2" interfacename="inhigh"/>
-      <parameter name="outlow" type="vector2" value="0.0, 0.0"/>
-      <parameter name="outhigh" type="vector2" value="1.0, 1.0"/>
+      <input name="inlow" type="vector2" interfacename="inlow"/>
+      <input name="inhigh" type="vector2" interfacename="inhigh"/>
+      <input name="outlow" type="vector2" value="0.0, 0.0"/>
+      <input name="outhigh" type="vector2" value="1.0, 1.0"/>
     </remap>
     <divide name="N_recip_vector2" type="vector2">
       <input name="in1" type="vector2" value="1.0, 1.0"/>
@@ -1635,10 +1722,10 @@
     </multiply>
     <remap name="N_remap2_vector2" type="vector2">
       <input name="in" type="vector2" nodename="N_gamma_vector2"/>
-      <parameter name="inlow" type="vector2" value="0.0, 0.0"/>
-      <parameter name="inhigh" type="vector2" value="1.0, 1.0"/>
-      <parameter name="outlow" type="vector2" interfacename="outlow"/>
-      <parameter name="outhigh" type="vector2" interfacename="outhigh"/>
+      <input name="inlow" type="vector2" value="0.0, 0.0"/>
+      <input name="inhigh" type="vector2" value="1.0, 1.0"/>
+      <input name="outlow" type="vector2" interfacename="outlow"/>
+      <input name="outhigh" type="vector2" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_vector2" type="vector2">
       <input name="in" type="vector2" nodename="N_remap2_vector2"/>
@@ -1654,10 +1741,10 @@
   <nodegraph name="NG_range_vector3" nodedef="ND_range_vector3">
     <remap name="N_remap1_vector3" type="vector3">
       <input name="in" type="vector3" interfacename="in"/>
-      <parameter name="inlow" type="vector3" interfacename="inlow"/>
-      <parameter name="inhigh" type="vector3" interfacename="inhigh"/>
-      <parameter name="outlow" type="vector3" value="0.0, 0.0, 0.0"/>
-      <parameter name="outhigh" type="vector3" value="1.0, 1.0, 1.0"/>
+      <input name="inlow" type="vector3" interfacename="inlow"/>
+      <input name="inhigh" type="vector3" interfacename="inhigh"/>
+      <input name="outlow" type="vector3" value="0.0, 0.0, 0.0"/>
+      <input name="outhigh" type="vector3" value="1.0, 1.0, 1.0"/>
     </remap>
     <divide name="N_recip_vector3" type="vector3">
       <input name="in1" type="vector3" value="1.0, 1.0, 1.0"/>
@@ -1679,10 +1766,10 @@
     </multiply>
     <remap name="N_remap2_vector3" type="vector3">
       <input name="in" type="vector3" nodename="N_gamma_vector3"/>
-      <parameter name="inlow" type="vector3" value="0.0, 0.0, 0.0"/>
-      <parameter name="inhigh" type="vector3" value="1.0, 1.0, 1.0"/>
-      <parameter name="outlow" type="vector3" interfacename="outlow"/>
-      <parameter name="outhigh" type="vector3" interfacename="outhigh"/>
+      <input name="inlow" type="vector3" value="0.0, 0.0, 0.0"/>
+      <input name="inhigh" type="vector3" value="1.0, 1.0, 1.0"/>
+      <input name="outlow" type="vector3" interfacename="outlow"/>
+      <input name="outhigh" type="vector3" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_vector3" type="vector3">
       <input name="in" type="vector3" nodename="N_remap2_vector3"/>
@@ -1698,10 +1785,10 @@
   <nodegraph name="NG_range_vector4" nodedef="ND_range_vector4">
     <remap name="N_remap1_vector4" type="vector4">
       <input name="in" type="vector4" interfacename="in"/>
-      <parameter name="inlow" type="vector4" interfacename="inlow"/>
-      <parameter name="inhigh" type="vector4" interfacename="inhigh"/>
-      <parameter name="outlow" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-      <parameter name="outhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
+      <input name="inlow" type="vector4" interfacename="inlow"/>
+      <input name="inhigh" type="vector4" interfacename="inhigh"/>
+      <input name="outlow" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+      <input name="outhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
     </remap>
     <divide name="N_recip_vector4" type="vector4">
       <input name="in1" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
@@ -1723,10 +1810,10 @@
     </multiply>
     <remap name="N_remap2_vector4" type="vector4">
       <input name="in" type="vector4" nodename="N_gamma_vector4"/>
-      <parameter name="inlow" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
-      <parameter name="inhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
-      <parameter name="outlow" type="vector4" interfacename="outlow"/>
-      <parameter name="outhigh" type="vector4" interfacename="outhigh"/>
+      <input name="inlow" type="vector4" value="0.0, 0.0, 0.0, 0.0"/>
+      <input name="inhigh" type="vector4" value="1.0, 1.0, 1.0, 1.0"/>
+      <input name="outlow" type="vector4" interfacename="outlow"/>
+      <input name="outhigh" type="vector4" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_vector4" type="vector4">
       <input name="in" type="vector4" nodename="N_remap2_vector4"/>
@@ -1742,10 +1829,10 @@
   <nodegraph name="NG_range_color2FA" nodedef="ND_range_color2FA">
     <remap name="N_remap1_color2FA" type="color2">
       <input name="in" type="color2" interfacename="in"/>
-      <parameter name="inlow" type="float" interfacename="inlow"/>
-      <parameter name="inhigh" type="float" interfacename="inhigh"/>
-      <parameter name="outlow" type="float" value="0.0"/>
-      <parameter name="outhigh" type="float" value="1.0"/>
+      <input name="inlow" type="float" interfacename="inlow"/>
+      <input name="inhigh" type="float" interfacename="inhigh"/>
+      <input name="outlow" type="float" value="0.0"/>
+      <input name="outhigh" type="float" value="1.0"/>
     </remap>
     <divide name="N_recip_color2FA" type="float">
       <input name="in1" type="float" value="1.0"/>
@@ -1767,10 +1854,10 @@
     </multiply>
     <remap name="N_remap2_color2FA" type="color2">
       <input name="in" type="color2" nodename="N_gamma_color2FA"/>
-      <parameter name="inlow" type="float" value="0.0"/>
-      <parameter name="inhigh" type="float" value="1.0"/>
-      <parameter name="outlow" type="float" interfacename="outlow"/>
-      <parameter name="outhigh" type="float" interfacename="outhigh"/>
+      <input name="inlow" type="float" value="0.0"/>
+      <input name="inhigh" type="float" value="1.0"/>
+      <input name="outlow" type="float" interfacename="outlow"/>
+      <input name="outhigh" type="float" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_color2FA" type="color2">
       <input name="in" type="color2" nodename="N_remap2_color2FA"/>
@@ -1786,10 +1873,10 @@
   <nodegraph name="NG_range_color3FA" nodedef="ND_range_color3FA">
     <remap name="N_remap1_color3FA" type="color3">
       <input name="in" type="color3" interfacename="in"/>
-      <parameter name="inlow" type="float" interfacename="inlow"/>
-      <parameter name="inhigh" type="float" interfacename="inhigh"/>
-      <parameter name="outlow" type="float" value="0.0"/>
-      <parameter name="outhigh" type="float" value="1.0"/>
+      <input name="inlow" type="float" interfacename="inlow"/>
+      <input name="inhigh" type="float" interfacename="inhigh"/>
+      <input name="outlow" type="float" value="0.0"/>
+      <input name="outhigh" type="float" value="1.0"/>
     </remap>
     <divide name="N_recip_color3FA" type="float">
       <input name="in1" type="float" value="1.0"/>
@@ -1811,10 +1898,10 @@
     </multiply>
     <remap name="N_remap2_color3FA" type="color3">
       <input name="in" type="color3" nodename="N_gamma_color3FA"/>
-      <parameter name="inlow" type="float" value="0.0"/>
-      <parameter name="inhigh" type="float" value="1.0"/>
-      <parameter name="outlow" type="float" interfacename="outlow"/>
-      <parameter name="outhigh" type="float" interfacename="outhigh"/>
+      <input name="inlow" type="float" value="0.0"/>
+      <input name="inhigh" type="float" value="1.0"/>
+      <input name="outlow" type="float" interfacename="outlow"/>
+      <input name="outhigh" type="float" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_color3FA" type="color3">
       <input name="in" type="color3" nodename="N_remap2_color3FA"/>
@@ -1830,10 +1917,10 @@
   <nodegraph name="NG_range_color4FA" nodedef="ND_range_color4FA">
     <remap name="N_remap1_color4FA" type="color4">
       <input name="in" type="color4" interfacename="in"/>
-      <parameter name="inlow" type="float" interfacename="inlow"/>
-      <parameter name="inhigh" type="float" interfacename="inhigh"/>
-      <parameter name="outlow" type="float" value="0.0"/>
-      <parameter name="outhigh" type="float" value="1.0"/>
+      <input name="inlow" type="float" interfacename="inlow"/>
+      <input name="inhigh" type="float" interfacename="inhigh"/>
+      <input name="outlow" type="float" value="0.0"/>
+      <input name="outhigh" type="float" value="1.0"/>
     </remap>
     <divide name="N_recip_color4FA" type="float">
       <input name="in1" type="float" value="1.0"/>
@@ -1855,10 +1942,10 @@
     </multiply>
     <remap name="N_remap2_color4FA" type="color4">
       <input name="in" type="color4" nodename="N_gamma_color4FA"/>
-      <parameter name="inlow" type="float" value="0.0"/>
-      <parameter name="inhigh" type="float" value="1.0"/>
-      <parameter name="outlow" type="float" interfacename="outlow"/>
-      <parameter name="outhigh" type="float" interfacename="outhigh"/>
+      <input name="inlow" type="float" value="0.0"/>
+      <input name="inhigh" type="float" value="1.0"/>
+      <input name="outlow" type="float" interfacename="outlow"/>
+      <input name="outhigh" type="float" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_color4FA" type="color4">
       <input name="in" type="color4" nodename="N_remap2_color4FA"/>
@@ -1874,10 +1961,10 @@
   <nodegraph name="NG_range_vector2FA" nodedef="ND_range_vector2FA">
     <remap name="N_remap1_vector2FA" type="vector2">
       <input name="in" type="vector2" interfacename="in"/>
-      <parameter name="inlow" type="float" interfacename="inlow"/>
-      <parameter name="inhigh" type="float" interfacename="inhigh"/>
-      <parameter name="outlow" type="float" value="0.0"/>
-      <parameter name="outhigh" type="float" value="1.0"/>
+      <input name="inlow" type="float" interfacename="inlow"/>
+      <input name="inhigh" type="float" interfacename="inhigh"/>
+      <input name="outlow" type="float" value="0.0"/>
+      <input name="outhigh" type="float" value="1.0"/>
     </remap>
     <divide name="N_recip_vector2FA" type="float">
       <input name="in1" type="float" value="1.0"/>
@@ -1899,10 +1986,10 @@
     </multiply>
     <remap name="N_remap2_vector2FA" type="vector2">
       <input name="in" type="vector2" nodename="N_gamma_vector2FA"/>
-      <parameter name="inlow" type="float" value="0.0"/>
-      <parameter name="inhigh" type="float" value="1.0"/>
-      <parameter name="outlow" type="float" interfacename="outlow"/>
-      <parameter name="outhigh" type="float" interfacename="outhigh"/>
+      <input name="inlow" type="float" value="0.0"/>
+      <input name="inhigh" type="float" value="1.0"/>
+      <input name="outlow" type="float" interfacename="outlow"/>
+      <input name="outhigh" type="float" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_vector2FA" type="vector2">
       <input name="in" type="vector2" nodename="N_remap2_vector2FA"/>
@@ -1918,10 +2005,10 @@
   <nodegraph name="NG_range_vector3FA" nodedef="ND_range_vector3FA">
     <remap name="N_remap1_vector3FA" type="vector3">
       <input name="in" type="vector3" interfacename="in"/>
-      <parameter name="inlow" type="float" interfacename="inlow"/>
-      <parameter name="inhigh" type="float" interfacename="inhigh"/>
-      <parameter name="outlow" type="float" value="0.0"/>
-      <parameter name="outhigh" type="float" value="1.0"/>
+      <input name="inlow" type="float" interfacename="inlow"/>
+      <input name="inhigh" type="float" interfacename="inhigh"/>
+      <input name="outlow" type="float" value="0.0"/>
+      <input name="outhigh" type="float" value="1.0"/>
     </remap>
     <divide name="N_recip_vector3FA" type="float">
       <input name="in1" type="float" value="1.0"/>
@@ -1943,10 +2030,10 @@
     </multiply>
     <remap name="N_remap2_vector3FA" type="vector3">
       <input name="in" type="vector3" nodename="N_gamma_vector3FA"/>
-      <parameter name="inlow" type="float" value="0.0"/>
-      <parameter name="inhigh" type="float" value="1.0"/>
-      <parameter name="outlow" type="float" interfacename="outlow"/>
-      <parameter name="outhigh" type="float" interfacename="outhigh"/>
+      <input name="inlow" type="float" value="0.0"/>
+      <input name="inhigh" type="float" value="1.0"/>
+      <input name="outlow" type="float" interfacename="outlow"/>
+      <input name="outhigh" type="float" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_vector3FA" type="vector3">
       <input name="in" type="vector3" nodename="N_remap2_vector3FA"/>
@@ -1962,10 +2049,10 @@
   <nodegraph name="NG_range_vector4FA" nodedef="ND_range_vector4FA">
     <remap name="N_remap1_vector4FA" type="vector4">
       <input name="in" type="vector4" interfacename="in"/>
-      <parameter name="inlow" type="float" interfacename="inlow"/>
-      <parameter name="inhigh" type="float" interfacename="inhigh"/>
-      <parameter name="outlow" type="float" value="0.0"/>
-      <parameter name="outhigh" type="float" value="1.0"/>
+      <input name="inlow" type="float" interfacename="inlow"/>
+      <input name="inhigh" type="float" interfacename="inhigh"/>
+      <input name="outlow" type="float" value="0.0"/>
+      <input name="outhigh" type="float" value="1.0"/>
     </remap>
     <divide name="N_recip_vector4FA" type="float">
       <input name="in1" type="float" value="1.0"/>
@@ -1987,10 +2074,10 @@
     </multiply>
     <remap name="N_remap2_vector4FA" type="vector4">
       <input name="in" type="vector4" nodename="N_gamma_vector4FA"/>
-      <parameter name="inlow" type="float" value="0.0"/>
-      <parameter name="inhigh" type="float" value="1.0"/>
-      <parameter name="outlow" type="float" interfacename="outlow"/>
-      <parameter name="outhigh" type="float" interfacename="outhigh"/>
+      <input name="inlow" type="float" value="0.0"/>
+      <input name="inhigh" type="float" value="1.0"/>
+      <input name="outlow" type="float" interfacename="outlow"/>
+      <input name="outhigh" type="float" interfacename="outhigh"/>
     </remap>
     <clamp name="N_clamp_vector4FA" type="vector4">
       <input name="in" type="vector4" nodename="N_remap2_vector4FA"/>
@@ -2149,17 +2236,17 @@
   </nodegraph>
 
   <nodegraph name="NG_extract_vector2" nodedef="ND_extract_vector2">
-    <swizzle name="N_r_vector2" type="float">
+    <swizzle name="N_x_vector2" type="float">
       <input name="in" type="vector2" interfacename="in"/>
       <parameter name="channels" type="string" value="x"/>
     </swizzle>
-    <swizzle name="N_g_vector2" type="float">
+    <swizzle name="N_y_vector2" type="float">
       <input name="in" type="vector2" interfacename="in"/>
       <parameter name="channels" type="string" value="y"/>
     </swizzle>
     <switch name="N_sw_vector2" type="float">
-      <input name="in1" type="float" nodename="N_r_vector2"/>
-      <input name="in2" type="float" nodename="N_g_vector2"/>
+      <input name="in1" type="float" nodename="N_x_vector2"/>
+      <input name="in2" type="float" nodename="N_y_vector2"/>
       <parameter name="which" type="integer" interfacename="index"/>
     </switch>
     <output name="N_out_vector2" type="float" nodename="N_sw_vector2"/>
@@ -2188,22 +2275,22 @@
   </nodegraph>
 
   <nodegraph name="NG_extract_vector3" nodedef="ND_extract_vector3">
-    <swizzle name="N_r_vector3" type="float">
+    <swizzle name="N_x_vector3" type="float">
       <input name="in" type="vector3" interfacename="in"/>
       <parameter name="channels" type="string" value="x"/>
     </swizzle>
-    <swizzle name="N_g_vector3" type="float">
+    <swizzle name="N_y_vector3" type="float">
       <input name="in" type="vector3" interfacename="in"/>
       <parameter name="channels" type="string" value="y"/>
     </swizzle>
-    <swizzle name="N_b_vector3" type="float">
+    <swizzle name="N_z_vector3" type="float">
       <input name="in" type="vector3" interfacename="in"/>
       <parameter name="channels" type="string" value="z"/>
     </swizzle>
     <switch name="N_sw_vector3" type="float">
-      <input name="in1" type="float" nodename="N_r_vector3"/>
-      <input name="in2" type="float" nodename="N_g_vector3"/>
-      <input name="in3" type="float" nodename="N_b_vector3"/>
+      <input name="in1" type="float" nodename="N_x_vector3"/>
+      <input name="in2" type="float" nodename="N_y_vector3"/>
+      <input name="in3" type="float" nodename="N_z_vector3"/>
       <parameter name="which" type="integer" interfacename="index"/>
     </switch>
     <output name="N_out_vector3" type="float" nodename="N_sw_vector3"/>
@@ -2237,27 +2324,27 @@
   </nodegraph>
 
   <nodegraph name="NG_extract_vector4" nodedef="ND_extract_vector4">
-    <swizzle name="N_r_vector4" type="float">
+    <swizzle name="N_x_vector4" type="float">
       <input name="in" type="vector4" interfacename="in"/>
       <parameter name="channels" type="string" value="x"/>
     </swizzle>
-    <swizzle name="N_g_vector4" type="float">
+    <swizzle name="N_y_vector4" type="float">
       <input name="in" type="vector4" interfacename="in"/>
       <parameter name="channels" type="string" value="y"/>
     </swizzle>
-    <swizzle name="N_b_vector4" type="float">
+    <swizzle name="N_z_vector4" type="float">
       <input name="in" type="vector4" interfacename="in"/>
       <parameter name="channels" type="string" value="z"/>
     </swizzle>
-    <swizzle name="N_a_vector4" type="float">
+    <swizzle name="N_w_vector4" type="float">
       <input name="in" type="vector4" interfacename="in"/>
       <parameter name="channels" type="string" value="w"/>
     </swizzle>
     <switch name="N_sw_vector4" type="float">
-      <input name="in1" type="float" nodename="N_r_vector4"/>
-      <input name="in2" type="float" nodename="N_g_vector4"/>
-      <input name="in3" type="float" nodename="N_b_vector4"/>
-      <input name="in4" type="float" nodename="N_a_vector4"/>
+      <input name="in1" type="float" nodename="N_x_vector4"/>
+      <input name="in2" type="float" nodename="N_y_vector4"/>
+      <input name="in3" type="float" nodename="N_z_vector4"/>
+      <input name="in4" type="float" nodename="N_w_vector4"/>
       <parameter name="which" type="integer" interfacename="index"/>
     </switch>
     <output name="N_out_vector4" type="float" nodename="N_sw_vector4"/>
@@ -2282,16 +2369,16 @@
   </nodegraph>
 
   <nodegraph name="NG_separate_vector2" nodedef="ND_separate_vector2">
-    <swizzle name="N_r_vector2" type="float">
+    <swizzle name="N_x_vector2" type="float">
       <input name="in" type="vector2" interfacename="in"/>
       <parameter name="channels" type="string" value="x"/>
     </swizzle>
-    <swizzle name="N_g_vector2" type="float">
+    <swizzle name="N_y_vector2" type="float">
       <input name="in" type="vector2" interfacename="in"/>
       <parameter name="channels" type="string" value="y"/>
     </swizzle>
-    <output name="outx" type="float" nodename="N_r_vector2"/>
-    <output name="outy" type="float" nodename="N_g_vector2"/>
+    <output name="outx" type="float" nodename="N_x_vector2"/>
+    <output name="outy" type="float" nodename="N_y_vector2"/>
   </nodegraph>
 
   <nodegraph name="NG_separate_color3" nodedef="ND_separate_color3">
@@ -2313,21 +2400,21 @@
   </nodegraph>
 
   <nodegraph name="NG_separate_vector3" nodedef="ND_separate_vector3">
-    <swizzle name="N_r_vector3" type="float">
+    <swizzle name="N_x_vector3" type="float">
       <input name="in" type="vector3" interfacename="in"/>
       <parameter name="channels" type="string" value="x"/>
     </swizzle>
-    <swizzle name="N_g_vector3" type="float">
+    <swizzle name="N_y_vector3" type="float">
       <input name="in" type="vector3" interfacename="in"/>
       <parameter name="channels" type="string" value="y"/>
     </swizzle>
-    <swizzle name="N_b_vector3" type="float">
+    <swizzle name="N_z_vector3" type="float">
       <input name="in" type="vector3" interfacename="in"/>
       <parameter name="channels" type="string" value="z"/>
     </swizzle>
-    <output name="outx" type="float" nodename="N_r_vector3"/>
-    <output name="outy" type="float" nodename="N_g_vector3"/>
-    <output name="outz" type="float" nodename="N_b_vector3"/>
+    <output name="outx" type="float" nodename="N_x_vector3"/>
+    <output name="outy" type="float" nodename="N_y_vector3"/>
+    <output name="outz" type="float" nodename="N_z_vector3"/>
   </nodegraph>
 
   <nodegraph name="NG_separate_color4" nodedef="ND_separate_color4">
@@ -2354,26 +2441,26 @@
   </nodegraph>
 
   <nodegraph name="NG_separate_vector4" nodedef="ND_separate_vector4">
-    <swizzle name="N_r_vector4" type="float">
+    <swizzle name="N_x_vector4" type="float">
       <input name="in" type="vector4" interfacename="in"/>
       <parameter name="channels" type="string" value="x"/>
     </swizzle>
-    <swizzle name="N_g_vector4" type="float">
+    <swizzle name="N_y_vector4" type="float">
       <input name="in" type="vector4" interfacename="in"/>
       <parameter name="channels" type="string" value="y"/>
     </swizzle>
-    <swizzle name="N_b_vector4" type="float">
+    <swizzle name="N_z_vector4" type="float">
       <input name="in" type="vector4" interfacename="in"/>
       <parameter name="channels" type="string" value="z"/>
     </swizzle>
-    <swizzle name="N_a_vector4" type="float">
+    <swizzle name="N_w_vector4" type="float">
       <input name="in" type="vector4" interfacename="in"/>
       <parameter name="channels" type="string" value="w"/>
     </swizzle>
-    <output name="outx" type="float" nodename="N_r_vector4"/>
-    <output name="outy" type="float" nodename="N_g_vector4"/>
-    <output name="outz" type="float" nodename="N_b_vector4"/>
-    <output name="outw" type="float" nodename="N_a_vector4"/>
+    <output name="outx" type="float" nodename="N_x_vector4"/>
+    <output name="outy" type="float" nodename="N_y_vector4"/>
+    <output name="outz" type="float" nodename="N_z_vector4"/>
+    <output name="outw" type="float" nodename="N_w_vector4"/>
   </nodegraph>
 
 

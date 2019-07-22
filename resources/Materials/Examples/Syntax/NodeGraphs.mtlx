@@ -24,35 +24,9 @@
   </nodegraph>
 
   <!-- "nodegraph2" example from Spec doc -->
-  <nodegraph name="NG_example2">
-    <image name="img1" type="color3">
-      <parameter name="file" type="filename" value="multilayer.tif"/>
-      <parameter name="layer" type="string" value="diffuse1"/>
-    </image>
-    <image name="img2" type="color3">
-      <parameter name="file" type="filename" value="multilayer.tif"/>
-      <parameter name="layer" type="string" value="diffuse2"/>
-    </image>
-    <image name="img3" type="float">
-      <parameter name="file" type="filename" value="multilayer.tif"/>
-      <parameter name="layer" type="string" value="areamask"/>
-    </image>
-    <mix name="n3" type="color3">
-      <input name="fg" type="color3" nodename="img1"/>
-      <input name="bg" type="color3" nodename="img2"/>
-      <input name="mix" type="float" nodename="img3"/>
-    </mix>
-    <multiply name="n4" type="color3">
-      <input name="in1" type="color3" nodename="n3"/>
-      <input name="in2" type="float" value="0.22"/>
-    </multiply>
-    <output name="diffuse" type="color3" nodename="n4"/>
-  </nodegraph>
-
-  <!-- "nodegraph3" example from Spec doc -->
   <!-- Note: <geominfo> elements would be needed somewhere to define <diff_albedo> etc.
        token values for each geometry -->
-  <nodegraph name="NG_example3">
+  <nodegraph name="NG_example2">
     <image name="img1" type="color3">
       <parameter name="file" type="filename" value="<diff_albedo>"/>
     </image>
@@ -74,7 +48,7 @@
     </multiply>
     <contrast name="n7" type="color3">
       <input name="in" type="color3" nodename="img2"/>
-      <parameter name="amount" type="float" value="0.2"/>
+      <input name="amount" type="float" value="0.2"/>
       <parameter name="pivot" type="float" value="0.5"/>
     </contrast>
     <mix name="n8" type="color3">

@@ -14,14 +14,11 @@
 
 namespace MaterialX
 {
+
 // OpenGL Constants
 unsigned int GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID = 0;
 int GlslProgram::UNDEFINED_OPENGL_PROGRAM_LOCATION = -1;
 int GlslProgram::Input::INVALID_OPENGL_TYPE = -1;
-
-// Shader constants
-static string RADIANCE_ENV_UNIFORM_NAME("u_envRadiance");
-static string IRRADIANCE_ENV_UNIFORM_NAME("u_envIrradiance");
 
 /// Sampling constants
 static string UADDRESS_MODE_POST_FIX("_uaddressmode");
@@ -318,7 +315,7 @@ void GlslProgram::unbindInputs(ImageHandlerPtr imageHandler)
     }
 }
 
-void GlslProgram::bindAttribute(const MaterialX::GlslProgram::InputMap& inputs, MeshPtr mesh)
+void GlslProgram::bindAttribute(const GlslProgram::InputMap& inputs, MeshPtr mesh)
 {
     const std::string errorType("GLSL bind attribute error.");
     ShaderValidationErrorList errors;
@@ -358,7 +355,7 @@ void GlslProgram::bindAttribute(const MaterialX::GlslProgram::InputMap& inputs, 
             size_t bufferSize = attributeData.size()*FLOAT_SIZE;
 
             // Create a buffer based on attribute type.
-            unsigned int bufferId = MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
+            unsigned int bufferId = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
             glGenBuffers(1, &bufferId);
             glBindBuffer(GL_ARRAY_BUFFER, bufferId);
             glBufferData(GL_ARRAY_BUFFER, bufferSize, bufferData, GL_STATIC_DRAW);
@@ -407,8 +404,8 @@ void GlslProgram::bindStreams(MeshPtr mesh)
         throw ExceptionShaderValidationError(errorType, errors);
     }
 
-    MaterialX::GlslProgram::InputMap foundList;
-    const MaterialX::GlslProgram::InputMap& attributeList = getAttributesList();
+    GlslProgram::InputMap foundList;
+    const GlslProgram::InputMap& attributeList = getAttributesList();
 
     // Set up vertex arrays
     glGenVertexArrays(1, &_vertexArray);
@@ -416,54 +413,52 @@ void GlslProgram::bindStreams(MeshPtr mesh)
 
 
     // Bind positions
-    findInputs("i_position", attributeList, foundList, true);
+    findInputs(HW::IN_POSITION, attributeList, foundList, true);
     if (foundList.size())
     {
         bindAttribute(foundList, mesh);
     }
 
     // Bind normals
-    findInputs("i_normal", attributeList, foundList, true);
+    findInputs(HW::IN_NORMAL, attributeList, foundList, true);
     if (foundList.size())
     {
         bindAttribute(foundList, mesh);
     }
 
     // Bind tangents
-    findInputs("i_tangent", attributeList, foundList, true);
+    findInputs(HW::IN_TANGENT, attributeList, foundList, true);
     if (foundList.size())
     {
         bindAttribute(foundList, mesh);
     }
 
     // Bind bitangents
-    findInputs("i_bitangent", attributeList, foundList, true);
+    findInputs(HW::IN_BITANGENT, attributeList, foundList, true);
     if (foundList.size())
     {
         bindAttribute(foundList, mesh);
     }
 
     // Bind colors
-    // Search for anything that starts with the prefix "i_color_"
-    findInputs("i_color_", attributeList, foundList, false);
+    // Search for anything that starts with the color prefix
+    findInputs(HW::IN_COLOR + "_", attributeList, foundList, false);
     if (foundList.size())
     {
         bindAttribute(foundList, mesh);
     }
 
     // Bind texture coordinates
-    // Search for anything that starts with the prefix "i_texcoord_"
-    findInputs("i_texcoord_", attributeList, foundList, false);
+    // Search for anything that starts with the texcoord prefix
+    findInputs(HW::IN_TEXCOORD + "_", attributeList, foundList, false);
     if (foundList.size())
     {
         bindAttribute(foundList, mesh);
     }
 
     // Bind any named attribute information
-    //
-    std::string geomAttrPrefix("u_geomattr_");
-    const MaterialX::GlslProgram::InputMap& uniformList = getUniformsList();
-    findInputs(geomAttrPrefix, uniformList, foundList, false);
+    const GlslProgram::InputMap& uniformList = getUniformsList();
+    findInputs(HW::GEOMATTR + "_", uniformList, foundList, false);
     for (auto Input : foundList)
     {
         // Only handle float1-4 types for now
@@ -504,15 +499,15 @@ void GlslProgram::unbindGeometry()
     }
     _enabledStreamLocations.clear();
     glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
+    glBindBuffer(GL_ARRAY_BUFFER, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
 
     // Clean up buffers
     //
     if (_indexBuffer > 0)
     {
         glDeleteBuffers(1, &_indexBuffer);
-        _indexBuffer = MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
+        _indexBuffer = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
     }
     for (auto attributeBufferId : _attributeBufferIds)
     {
@@ -544,12 +539,14 @@ bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, con
     {
         if (imageHandler->acquireImage(resolvedFilePath, desc, generateMipMaps, &(samplingProperties.defaultColor)))
         {
-            // Map location to a texture unit
-            int textureLocation = imageHandler->getBoundTextureLocation(desc.resourceId);
-            if (textureLocation >= 0) 
+            textureBound = imageHandler->bindImage(resolvedFilePath, samplingProperties);
+            if (textureBound)
             {
-               glUniform1i(uniformLocation, textureLocation);
-               textureBound = imageHandler->bindImage(resolvedFilePath, samplingProperties);
+                int textureLocation = imageHandler->getBoundTextureLocation(desc.resourceId);
+                if (textureLocation >= 0)
+                {
+                    glUniform1i(uniformLocation, textureLocation);
+                }
             }
         }
         checkErrors();
@@ -557,7 +554,7 @@ bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, con
     return textureBound;
 }
 
-MaterialX::ValuePtr GlslProgram::findUniformValue(const std::string& uniformName, const MaterialX::GlslProgram::InputMap& uniformList)
+MaterialX::ValuePtr GlslProgram::findUniformValue(const std::string& uniformName, const GlslProgram::InputMap& uniformList)
 {
     auto uniform = uniformList.find(uniformName);
     if (uniform != uniformList.end())
@@ -588,7 +585,7 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
     }
 
     // Bind textures based on uniforms found in the program
-    const MaterialX::GlslProgram::InputMap& uniformList = getUniformsList();
+    const GlslProgram::InputMap& uniformList = getUniformsList();
     const std::string IMAGE_SEPARATOR("_");
     for (auto uniform : uniformList)
     {
@@ -602,8 +599,8 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
             // Skip binding if nothing to bind or if is a lighting texture.
             // Lighting textures are handled in the bindLighting() call
             if (!fileName.empty() &&
-                fileName != RADIANCE_ENV_UNIFORM_NAME &&
-                fileName != IRRADIANCE_ENV_UNIFORM_NAME)
+                fileName != HW::ENV_RADIANCE &&
+                fileName != HW::ENV_IRRADIANCE)
             {
                 // Get the additional texture parameters based on image uniform name
                 // excluding the trailing "_file" postfix string
@@ -665,14 +662,14 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
         throw ExceptionShaderValidationError(errorType, errors);
     }
 
-    const MaterialX::GlslProgram::InputMap& uniformList = getUniformsList();
+    const GlslProgram::InputMap& uniformList = getUniformsList();
 
     // Bind a couple of lights if can find the light information
-    GLint location = MaterialX::GlslProgram::UNDEFINED_OPENGL_PROGRAM_LOCATION;
+    GLint location = GlslProgram::UNDEFINED_OPENGL_PROGRAM_LOCATION;
 
     // Set the number of active light sources
     size_t lightCount = lightHandler->getLightSources().size();
-    auto input = uniformList.find("u_numActiveLightSources");
+    auto input = uniformList.find(HW::NUM_ACTIVE_LIGHT_SOURCES);
     if (input != uniformList.end())
     {
         location = input->second->location;
@@ -695,9 +692,9 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
     }
 
     // Bind any IBL textures specified
-    MaterialX::StringMap iblList = {
-        { RADIANCE_ENV_UNIFORM_NAME, lightHandler->getLightEnvRadiancePath() },
-        { IRRADIANCE_ENV_UNIFORM_NAME, lightHandler->getLightEnvIrradiancePath() }
+    StringMap iblList = {
+        { HW::ENV_RADIANCE, lightHandler->getLightEnvRadiancePath() },
+        { HW::ENV_IRRADIANCE, lightHandler->getLightEnvIrradiancePath() }
     };
 
     for (auto ibl : iblList)
@@ -717,10 +714,10 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
             ImageDesc desc;
             if (bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, ImageSamplingProperties(), desc))
             {
-                if (iblUniform->first == RADIANCE_ENV_UNIFORM_NAME)
+                if (iblUniform->first == HW::ENV_RADIANCE)
                 {
                     // This is our radiance texture so set the mip count.
-                    auto mipsUniform = uniformList.find("u_envRadianceMips");
+                    auto mipsUniform = uniformList.find(HW::ENV_RADIANCE_MIPS);
                     if (mipsUniform != uniformList.end() && mipsUniform->second->location >= 0)
                     {
                         glUniform1i(mipsUniform->second->location, desc.mipCount);
@@ -742,7 +739,7 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
             continue;
         }
         const string& nodeDefName = nodeDef->getName();
-        const string prefix = "u_lightData[" + std::to_string(index) + "]";
+        const string prefix = HW::LIGHT_DATA_INSTANCE + "[" + std::to_string(index) + "]";
 
         // Set light type id
         bool boundType = false;
@@ -881,13 +878,13 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
         throw ExceptionShaderValidationError(errorType, errors);
     }
 
-    GLint location = MaterialX::GlslProgram::UNDEFINED_OPENGL_PROGRAM_LOCATION;
+    GLint location = GlslProgram::UNDEFINED_OPENGL_PROGRAM_LOCATION;
 
     //
     // View direction and position
     //
-    const MaterialX::GlslProgram::InputMap& uniformList = getUniformsList();
-    auto Input = uniformList.find("u_viewPosition");
+    const GlslProgram::InputMap& uniformList = getUniformsList();
+    auto Input = uniformList.find(HW::VIEW_POSITION);
     if (Input != uniformList.end())
     {
         location = Input->second->location;
@@ -896,7 +893,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
             glUniform3fv(location, 1, viewHandler->viewPosition().data());
         }
     }
-    Input = uniformList.find("u_viewDirection");
+    Input = uniformList.find(HW::VIEW_DIRECTION);
     if (Input != uniformList.end())
     {
         location = Input->second->location;
@@ -914,7 +911,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
     Matrix44 invTransWorld = invWorld.getTranspose();
 
     // World matrix 
-    Input = uniformList.find("u_worldMatrix");
+    Input = uniformList.find(HW::WORLD_MATRIX);
     if (Input != uniformList.end())
     {
         location = Input->second->location;
@@ -924,7 +921,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
         }
     }
     // World transpose matrix
-    Input = uniformList.find("u_worldTransposeMatrix");
+    Input = uniformList.find(HW::WORLD_TRANSPOSE_MATRIX);
     if (Input != uniformList.end())
     {
         location = Input->second->location;
@@ -934,7 +931,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
         }
     }
     // World inverse matrix
-    Input = uniformList.find("u_worldInverseMatrix");
+    Input = uniformList.find(HW::WORLD_INVERSE_MATRIX);
     if (Input != uniformList.end())
     {
         location = Input->second->location;
@@ -944,7 +941,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
         }
     }
     // World inverse transpose matrix
-    Input = uniformList.find("u_worldInverseTransposeMatrix");
+    Input = uniformList.find(HW::WORLD_INVERSE_TRANSPOSE_MATRIX);
     if (Input != uniformList.end())
     {
         location = Input->second->location;
@@ -959,7 +956,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
     //
     Matrix44& proj = viewHandler->projectionMatrix();
     // Projection matrix 
-    Input = uniformList.find("u_projectionMatrix");
+    Input = uniformList.find(HW::PROJ_MATRIX);
     if (Input != uniformList.end())
     {
         location = Input->second->location;
@@ -969,7 +966,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
         }
     }
     // Projection tranpose matrix
-    Input = uniformList.find("u_projectionInverseMatrix");
+    Input = uniformList.find(HW::PROJ_TRANSPOSE_MATRIX);
     if (Input != uniformList.end())
     {
         location = Input->second->location;
@@ -980,7 +977,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
     }
     // Projection inverse matrix
     Matrix44 projInverse= proj.getInverse();
-    Input = uniformList.find("u_projectionInverseMatrix");
+    Input = uniformList.find(HW::PROJ_INVERSE_MATRIX);
     if (Input != uniformList.end())
     {
         location = Input->second->location;
@@ -990,7 +987,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
         }
     }
     // Projection inverse transpose matrix
-    Input = uniformList.find("u_projectionInverseTransposeMatrix");
+    Input = uniformList.find(HW::PROJ_INVERSE_TRANSPOSE_MATRIX);
     if (Input != uniformList.end())
     {
         location = Input->second->location;
@@ -1007,7 +1004,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
     Matrix44& view = viewHandler->viewMatrix();
 
     // View matrix
-    Input = uniformList.find("u_viewMatrix");
+    Input = uniformList.find(HW::VIEW_MATRIX);
     if (Input != uniformList.end())
     {
         location = Input->second->location;
@@ -1017,7 +1014,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
         }
     }
     // View tranpose
-    Input = uniformList.find("u_viewTransposeMatrix");
+    Input = uniformList.find(HW::VIEW_TRANSPOSE_MATRIX);
     if (Input != uniformList.end())
     {
         location = Input->second->location;
@@ -1028,7 +1025,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
     }
     // View inverse
     Matrix44 viewInverse = view.getInverse();
-    Input = uniformList.find("u_viewInverseMatrix");
+    Input = uniformList.find(HW::VIEW_INVERSE_MATRIX);
     if (Input != uniformList.end())
     {
         location = Input->second->location;
@@ -1038,7 +1035,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
         }
     }
     // View inverse transpose
-    Input = uniformList.find("u_viewInverseTransposeMatrix");
+    Input = uniformList.find(HW::VIEW_INVERSE_TRANSPOSE_MATRIX);
     if (Input != uniformList.end())
     {
         location = Input->second->location;
@@ -1052,7 +1049,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
     // View projection matrix
     //
     Matrix44 viewProj = proj * view;
-    Input = uniformList.find("u_viewProjectionMatrix");
+    Input = uniformList.find(HW::VIEW_PROJECTION_MATRIX);
     if (Input != uniformList.end())
     {
         location = Input->second->location;
@@ -1066,7 +1063,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
     // World view projection world
     //
     Matrix44 viewProjWorld = world * viewProj;
-    Input = uniformList.find("u_worldViewProjectionMatrix");
+    Input = uniformList.find(HW::WORLD_VIEW_PROJECTION_MATRIX);
     if (Input != uniformList.end())
     {
         location = Input->second->location;
@@ -1074,9 +1071,7 @@ void GlslProgram::bindViewInformation(ViewHandlerPtr viewHandler)
         {
             glUniformMatrix4fv(location, 1, false, viewProjWorld.getTranspose().data());
         }
-    }
-
-    
+    } 
 
     checkErrors();
 }
@@ -1092,11 +1087,11 @@ void GlslProgram::bindTimeAndFrame()
         throw ExceptionShaderValidationError(errorType, errors);
     }
 
-    GLint location = MaterialX::GlslProgram::UNDEFINED_OPENGL_PROGRAM_LOCATION;
+    GLint location = GlslProgram::UNDEFINED_OPENGL_PROGRAM_LOCATION;
 
     // Bind time
-    const MaterialX::GlslProgram::InputMap& uniformList = getUniformsList();
-    auto Input = uniformList.find("u_time");
+    const GlslProgram::InputMap& uniformList = getUniformsList();
+    auto Input = uniformList.find(HW::TIME);
     if (Input != uniformList.end())
     {
         location = Input->second->location;
@@ -1107,7 +1102,7 @@ void GlslProgram::bindTimeAndFrame()
     }
 
     // Bind frame
-    Input = uniformList.find("u_frame");
+    Input = uniformList.find(HW::FRAME);
     if (Input != uniformList.end())
     {
         location = Input->second->location;
@@ -1217,9 +1212,9 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
         }
 
         // Process pixel stage uniforms
-        for (auto uniformsIt : ps.getUniformBlocks())
+        for (const auto& uniformMap : ps.getUniformBlocks())
         {
-            const VariableBlock& uniforms = *uniformsIt.second;
+            const VariableBlock& uniforms = *uniformMap.second;
             if (uniforms.getName() == HW::LIGHT_DATA)
             {
                 // Need to go through LightHandler to match with uniforms
@@ -1262,9 +1257,9 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
         }
 
         // Process vertex stage uniforms
-        for (auto uniformsIt : vs.getUniformBlocks())
+        for (const auto& uniformMap : vs.getUniformBlocks())
         {
-            const VariableBlock& uniforms = *uniformsIt.second;
+            const VariableBlock& uniforms = *uniformMap.second;
             for (size_t i = 0; i < uniforms.size(); ++i)
             {
                 const ShaderPort* v = uniforms[i];
@@ -1366,17 +1361,17 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
             // Attempt to pull out the set number for specific attributes
             //
             std::string sattributeName(attributeName);
-            const std::string colorSet("i_color_");
-            const std::string uvSet("i_texcoord_");
+            const std::string colorSet(HW::IN_COLOR + "_");
+            const std::string uvSet(HW::IN_TEXCOORD + "_");
             if (std::string::npos != sattributeName.find(colorSet))
             {
                 std::string setNumber = sattributeName.substr(colorSet.size(), sattributeName.size());
-                inputPtr->value = MaterialX::Value::createValueFromStrings(setNumber, MaterialX::getTypeString<int>());
+                inputPtr->value = Value::createValueFromStrings(setNumber, getTypeString<int>());
             }
             else if (std::string::npos != sattributeName.find(uvSet))
             {
                 std::string setNumber = sattributeName.substr(uvSet.size(), sattributeName.size());
-                inputPtr->value = MaterialX::Value::createValueFromStrings(setNumber, MaterialX::getTypeString<int>());
+                inputPtr->value = Value::createValueFromStrings(setNumber, getTypeString<int>());
             }
 
             _attributeList[sattributeName] = inputPtr;

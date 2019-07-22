@@ -10,11 +10,6 @@
 namespace MaterialX
 {
 
-const string TransformVectorNodeGlsl::WORLD_MATRIX                   = "u_worldMatrix";
-const string TransformVectorNodeGlsl::WORLD_INVERSE_MATRIX           = "u_worldInverseMatrix";
-const string TransformVectorNodeGlsl::WORLD_TRANSPOSE_MATRIX         = "u_worldTransposeMatrix";
-const string TransformVectorNodeGlsl::WORLD_INVERSE_TRANSPOSE_MATRIX = "u_worldInverseTransposeMatrix";
-
 ShaderNodeImplPtr TransformVectorNodeGlsl::create()
 {
     return std::make_shared<TransformVectorNodeGlsl>();
@@ -72,11 +67,11 @@ const string& TransformVectorNodeGlsl::getMatrix(const string& fromSpace, const 
 {
     if ((fromSpace == MODEL || fromSpace == OBJECT) && toSpace == WORLD)
     {
-        return WORLD_MATRIX;
+        return HW::T_WORLD_MATRIX;
     }
     else if (fromSpace == WORLD && (toSpace == MODEL || toSpace == OBJECT))
     {
-        return WORLD_INVERSE_MATRIX;
+        return HW::T_WORLD_INVERSE_MATRIX;
     }
     return EMPTY_STRING;
 }

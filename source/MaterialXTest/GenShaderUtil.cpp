@@ -22,7 +22,6 @@ void loadLibrary(const mx::FilePath& file, mx::DocumentPtr doc)
     mx::DocumentPtr libDoc = mx::createDocument();
     mx::readFromXmlFile(libDoc, file);
     mx::CopyOptions copyOptions;
-    copyOptions.skipDuplicateElements = true;
     doc->importLibrary(libDoc, &copyOptions);
 }
 
@@ -92,7 +91,19 @@ void checkImplementations(mx::GenContext& context,
     {
         "ambientocclusion",
         "arrayappend",
+        "displacement",
+        "volume",
+        "blackbody",
         "curveadjust",
+        "conical_edf",
+        "measured_edf",
+        "absorption_vdf",
+        "anisotropic_vdf",
+        "thin_surface",
+        "thin_film_brdf",
+        "worleynoise2d",
+        "worleynoise3d",
+        "geompropvalue"
     };
     skipNodeTypes.insert(generatorSkipNodeTypes.begin(), generatorSkipNodeTypes.end());
 
@@ -101,12 +112,16 @@ void checkImplementations(mx::GenContext& context,
     {
         "ND_add_displacementshader",
         "ND_add_volumeshader",
+        "ND_add_vdf",
         "ND_multiply_displacementshaderF",
         "ND_multiply_displacementshaderV",
         "ND_multiply_volumeshaderF",
         "ND_multiply_volumeshaderC",
+        "ND_multiply_vdfF",
+        "ND_multiply_vdfC",
         "ND_mix_displacementshader",
-        "ND_mix_volumeshader"
+        "ND_mix_volumeshader",
+        "ND_mix_vdf"
     };
     skipNodeDefs.insert(generatorSkipNodeDefs.begin(), generatorSkipNodeDefs.end());
 
@@ -453,11 +468,12 @@ void ShaderGeneratorTester::setupDependentLibraries()
     _dependLib = mx::createDocument();
 
     // Load the standard libraries.
-    const mx::StringVec libraries = { "stdlib", "pbrlib" };
+    const mx::StringVec libraries = { "stdlib", "pbrlib", "lights" };
     GenShaderUtil::loadLibraries(libraries, _libSearchPath, _dependLib);
 
-    // Load the standard_surface definition since it's used in the test suite.
+    // Load shader definitions used in the test suite.
     GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), _dependLib);
+    GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd_preview_surface.mtlx"), _dependLib);
 }
 
 void ShaderGeneratorTester::addSkipFiles()
@@ -592,13 +608,25 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     context.getOptions() = generateOptions;
     context.registerSourceCodeSearchPath(_srcSearchPath);
 
-    mx::XmlReadOptions importOptions;
-    importOptions.skipDuplicateElements = true;
     size_t documentIndex = 0;
+    mx::CopyOptions copyOptions;
     for (auto doc : _documents)
     {
         // Add in dependent libraries
-        doc->importLibrary(_dependLib, &importOptions);
+        bool importedLibrary = false;
+        try
+        {
+            doc->importLibrary(_dependLib, &copyOptions);
+            importedLibrary = true;
+        }
+        catch (mx::Exception& e)
+        {
+            _logFile << "Failed to import library into file: " 
+                    << _documentPaths[documentIndex] << ". Error: "
+                    << e.what() << std::endl;
+            CHECK(importedLibrary);
+            continue;
+        }
 
         // Find and register lights
         findLights(doc, _lights);

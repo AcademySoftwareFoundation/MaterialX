@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<materialx version="1.36">
+  <material name="USD_Default">
+    <shaderref name="SR_default" node="UsdPreviewSurface">
+      <bindinput name="diffuseColor" type="color3" value="0.18, 0.18, 0.18" />
+      <bindinput name="emissiveColor" type="color3" value="0, 0, 0" />
+      <bindinput name="useSpecularWorkflow" type="integer" value="0" />
+      <bindinput name="specularColor" type="color3" value="0, 0, 0" />
+      <bindinput name="metalness" type="float" value="0" />
+      <bindinput name="roughness" type="float" value="0.01" />
+      <bindinput name="clearcoat" type="float" value="0" />
+      <bindinput name="clearcoatRoughness" type="float" value="0.01" />
+      <bindinput name="opacity" type="float" value="1" />
+      <bindinput name="opacityThreshold" type="float" value="0" />
+      <bindinput name="ior" type="float" value="1.5" />
+      <bindinput name="normal" type="vector3" value="0, 0, 1" />
+      <bindinput name="displacement" type="float" value="0" />
+      <bindinput name="occlusion" type="float" value="1" />
+    </shaderref>
+  </material>
+</materialx>

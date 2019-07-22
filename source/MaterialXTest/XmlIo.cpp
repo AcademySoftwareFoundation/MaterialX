@@ -133,14 +133,38 @@ TEST_CASE("Load content", "[xmlio]")
         REQUIRE(referencesValid);
     }
 
-    // Read the same document twice with duplicate elements skipped.
+    // Read the same document twice and verify that duplicate elements
+    // are skipped.
     mx::DocumentPtr doc = mx::createDocument();
-    mx::XmlReadOptions readOptions;
-    readOptions.skipDuplicateElements = true;
     std::string filename = "PostShaderComposite.mtlx";
-    mx::readFromXmlFile(doc, filename, searchPath, &readOptions);
-    mx::readFromXmlFile(doc, filename, searchPath, &readOptions);
+    mx::readFromXmlFile(doc, filename, searchPath);
+    mx::readFromXmlFile(doc, filename, searchPath);
     REQUIRE(doc->validate());
+
+    // Import libraries twice and verify that duplicate elements are
+    // skipped.
+    mx::DocumentPtr libDoc = doc->copy();
+    for (mx::DocumentPtr lib : libs)
+    {
+        libDoc->importLibrary(lib);
+        libDoc->importLibrary(lib);
+    }
+    REQUIRE(libDoc->validate());
+
+    // Read document with conflicting elements.
+    mx::DocumentPtr conflictDoc = doc->copy();
+    for (mx::ElementPtr elem : conflictDoc->traverseTree())
+    {
+        if (elem->isA<mx::Node>("image"))
+        {
+            elem->setFilePrefix("differentFolder/");
+        }
+    }
+    REQUIRE_THROWS_AS(mx::readFromXmlFile(conflictDoc, filename, searchPath), mx::Exception&);
+    mx::XmlReadOptions readOptions;
+    readOptions.skipConflictingElements = true;
+    mx::readFromXmlFile(conflictDoc, filename, searchPath, &readOptions);
+    REQUIRE(conflictDoc->validate());
 
     // Read document without XIncludes.
     mx::DocumentPtr flatDoc = mx::createDocument();
@@ -158,7 +182,7 @@ TEST_CASE("Load content", "[xmlio]")
     REQUIRE_THROWS_AS(mx::readFromXmlFile(envDoc, filename), mx::ExceptionFileMissing&);
 
     // Serialize to XML with a custom predicate that skips images.
-    auto skipImages = [](mx::ElementPtr elem)
+    auto skipImages = [](mx::ConstElementPtr elem)
     {
         return !elem->isA<mx::Node>("image");
     };

@@ -20,21 +20,17 @@ void PositionNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Shad
     ShaderStage vs = shader.getStage(Stage::VERTEX);
     ShaderStage ps = shader.getStage(Stage::PIXEL);
 
-    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, "i_position", vs);
+    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, HW::T_IN_POSITION, vs);
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
     if (space == WORLD_SPACE)
     {
-        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "positionWorld", vs, ps);
-    }
-    else if (space == MODEL_SPACE)
-    {
-        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "positionModel", vs, ps);
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_POSITION_WORLD, vs, ps);
     }
     else
     {
-        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, "positionObject", vs, ps);
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_POSITION_OBJECT, vs, ps);
     }
 }
 
@@ -50,29 +46,20 @@ void PositionNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& cont
         const string prefix = vertexData.getInstance() + ".";
         if (space == WORLD_SPACE)
         {
-            ShaderPort* position = vertexData["positionWorld"];
+            ShaderPort* position = vertexData[HW::T_POSITION_WORLD];
             if (!position->isEmitted())
             {
                 position->setEmitted();
                 shadergen.emitLine(prefix + position->getVariable() + " = hPositionWorld.xyz", stage);
             }
         }
-        else if (space == MODEL_SPACE)
-        {
-            ShaderPort* position = vertexData["positionModel"];
-            if (!position->isEmitted())
-            {
-                position->setEmitted();
-                shadergen.emitLine(prefix + position->getVariable() + " = i_position", stage);
-            }
-        }
         else
         {
-            ShaderPort* position = vertexData["positionObject"];
+            ShaderPort* position = vertexData[HW::T_POSITION_OBJECT];
             if (!position->isEmitted())
             {
                 position->setEmitted();
-                shadergen.emitLine(prefix + position->getVariable() + " = i_position", stage);
+                shadergen.emitLine(prefix + position->getVariable() + " = " + HW::T_IN_POSITION, stage);
             }
         }
     END_SHADER_STAGE(shader, Stage::VERTEX)
@@ -84,17 +71,12 @@ void PositionNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& cont
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         if (space == WORLD_SPACE)
         {
-            const ShaderPort* position = vertexData["positionWorld"];
-            shadergen.emitString(" = " + prefix + position->getVariable(), stage);
-        }
-        else if (space == MODEL_SPACE)
-        {
-            const ShaderPort* position = vertexData["positionModel"];
+            const ShaderPort* position = vertexData[HW::T_POSITION_WORLD];
             shadergen.emitString(" = " + prefix + position->getVariable(), stage);
         }
         else
         {
-            const ShaderPort* position = vertexData["positionObject"];
+            const ShaderPort* position = vertexData[HW::T_POSITION_OBJECT];
             shadergen.emitString(" = " + prefix + position->getVariable(), stage);
         }
         shadergen.emitLineEnd(stage);

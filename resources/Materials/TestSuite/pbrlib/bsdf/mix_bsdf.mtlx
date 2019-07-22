@@ -55,7 +55,7 @@
          <input name="subsurface_weight" type="float" value="0.0" interfacename="subsurface_weight"/>
       </substratebsdf>
       <uniform_edf name="edf1" type="EDF">
-         <input name="intensity" type="color3" value="0.0, 0.0, 0.0" interfacename="emission" />
+         <input name="color" type="color3" value="0.0, 0.0, 0.0" interfacename="emission" />
       </uniform_edf>
       <surface name="surface1" type="surfaceshader">
          <input name="bsdf" type="BSDF" nodename="substrate1" />

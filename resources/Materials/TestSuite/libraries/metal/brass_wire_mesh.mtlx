@@ -34,6 +34,7 @@
       </image>
       <normalmap name="SurfaceNormal_normal" type="vector3">
          <input name="in" type="vector3" nodename="normal_image" />
+         <input name="scale" type="float" value="1.5" />
       </normalmap>
       <output name="SurfaceNormal_output" type="vector3" nodename="SurfaceNormal_normal" />
 

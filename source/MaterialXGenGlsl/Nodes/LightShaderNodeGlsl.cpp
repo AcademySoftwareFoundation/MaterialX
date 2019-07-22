@@ -71,7 +71,7 @@ void LightShaderNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader
     }
 
     // Create uniform for number of active light sources
-    ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, "u_numActiveLightSources", ps);
+    ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, HW::T_NUM_ACTIVE_LIGHT_SOURCES, ps);
     numActiveLights->setValue(Value::createValue<int>(0));
 }
 

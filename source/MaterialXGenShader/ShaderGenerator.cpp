@@ -9,6 +9,7 @@
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
+#include <MaterialXGenShader/Util.h>
 
 #include <MaterialXFormat/File.h>
 
@@ -226,6 +227,24 @@ string ShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContext& 
     return variable;
 }
 
+void ShaderGenerator::resetIdentifiers(GenContext& context) const
+{
+    // Clear any previous identifiers.
+    context.clearIdentifiers();
+
+    // Add in the restricted names as taken names.
+    for (auto name : _syntax->getRestrictedNames())
+    {
+        context.addIdentifier(name);
+    }
+
+    // Add in the token substitution identifiers as taken names
+    for (auto it : _tokenSubstitutions)
+    {
+        context.addIdentifier(it.second);
+    }
+}
+
 void ShaderGenerator::registerImplementation(const string& name, CreatorFunction<ShaderNodeImpl> creator)
 {
     _implFactory.registerClass(name, creator);
@@ -277,6 +296,55 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const InterfaceElement& ele
 bool ShaderGenerator::remapEnumeration(const ValueElement&, const string&, std::pair<const TypeDesc*, ValuePtr>&) const
 {
     return false;
+}
+
+namespace
+{
+    void replace(const StringMap& substitutions, ShaderPort* port)
+    {
+        string name = port->getName();
+        tokenSubstitution(substitutions, name);
+        port->setName(name);
+        string variable = port->getVariable();
+        tokenSubstitution(substitutions, variable);
+        port->setVariable(variable);
+    }
+}
+
+void ShaderGenerator::replaceTokens(const StringMap& substitutions, ShaderStage& stage) const
+{
+    // Replace tokens in source code
+    tokenSubstitution(substitutions, stage._code);
+
+    // Replace tokens on shader interface
+    for (size_t i = 0; i < stage._constants.size(); ++i)
+    {
+        replace(substitutions, stage._constants[i]);
+    }
+    for (auto it : stage._uniforms)
+    {
+        VariableBlock& uniforms = *it.second;
+        for (size_t i = 0; i < uniforms.size(); ++i)
+        {
+            replace(substitutions, uniforms[i]);
+        }
+    }
+    for (auto it : stage._inputs)
+    {
+        VariableBlock& inputs = *it.second;
+        for (size_t i = 0; i < inputs.size(); ++i)
+        {
+            replace(substitutions, inputs[i]);
+        }
+    }
+    for (auto it : stage._outputs)
+    {
+        VariableBlock& outputs = *it.second;
+        for (size_t i = 0; i < outputs.size(); ++i)
+        {
+            replace(substitutions, outputs[i]);
+        }
+    }
 }
 
 ShaderStagePtr ShaderGenerator::createStage(const string& name, Shader& shader) const

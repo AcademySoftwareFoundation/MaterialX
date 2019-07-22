@@ -6,9 +6,11 @@
 #include <MaterialXGenShader/Util.h>
 
 #include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenShader/GenContext.h>
 
 #include <MaterialXFormat/XmlIo.h>
+#include <MaterialXFormat/PugiXML/pugixml.hpp>
 
 #include <fstream>
 #include <iostream>
@@ -46,7 +48,6 @@ bool readFile(const string& filename, string& contents)
 void loadDocuments(const FilePath& rootPath, const StringSet& skipFiles, const StringSet& includeFiles,
                    vector<DocumentPtr>& documents, StringVec& documentsPaths, StringVec& errors)
 {
-    errors.clear();
     for (const FilePath& dir : rootPath.getSubDirectories())
     {
         for (const FilePath& file : dir.getFilesInDirectory(MTLX_EXTENSION))
@@ -381,7 +382,7 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
     return false;
 }
 
-void mapValueToColor(const ValuePtr value, Color4& color)
+void mapValueToColor(ConstValuePtr value, Color4& color)
 {
     color = { 0.0, 0.0, 0.0, 1.0 };
     if (!value)
@@ -432,7 +433,7 @@ void mapValueToColor(const ValuePtr value, Color4& color)
     }
 }
 
-bool requiresImplementation(const NodeDefPtr nodeDef)
+bool requiresImplementation(ConstNodeDefPtr nodeDef)
 {
     if (!nodeDef)
     {
@@ -443,7 +444,7 @@ bool requiresImplementation(const NodeDefPtr nodeDef)
     return !typeAttribute.empty() && typeAttribute != TYPE_NONE;
 }
 
-bool elementRequiresShading(const TypedElementPtr element)
+bool elementRequiresShading(ConstTypedElementPtr element)
 {
     string elementType(element->getType());
     static StringSet colorClosures =
@@ -455,7 +456,7 @@ bool elementRequiresShading(const TypedElementPtr element)
             colorClosures.count(elementType) > 0);
 }
 
-void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>& elements, bool includeReferencedGraphs)
+void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, bool includeReferencedGraphs)
 {
     std::unordered_set<OutputPtr> processedOutputs;
 
@@ -469,7 +470,8 @@ void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>
                 NodeDefPtr nodeDef = shaderRef->getNodeDef();
                 if (!nodeDef)
                 {
-                    throw ExceptionShaderGenError("Could not find a nodedef for shaderref '" + shaderRef->getName() + "' in material '" + shaderRef->getParent()->getName() + "'");
+                    throw ExceptionShaderGenError("Could not find a nodedef for shaderref '" + shaderRef->getName() +
+                                                  "' in material '" + shaderRef->getParent()->getName() + "'");
                 }
                 if (requiresImplementation(nodeDef))
                 {
@@ -493,7 +495,6 @@ void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>
     }
 
     // Find node graph outputs. Skip any light shaders
-    const string LIGHT_SHADER("lightshader");
     for (NodeGraphPtr nodeGraph : doc->getNodeGraphs())
     {
         // Skip anything from an include file including libraries.
@@ -506,7 +507,7 @@ void findRenderableElements(const DocumentPtr& doc, std::vector<TypedElementPtr>
                     continue;
                 }
                 NodePtr node = output->getConnectedNode();
-                if (node && node->getType() != LIGHT_SHADER)
+                if (node && node->getType() != LIGHT_SHADER_TYPE_STRING)
                 {
                     NodeDefPtr nodeDef = node->getNodeDef();
                     if (!nodeDef)
@@ -577,6 +578,39 @@ ValueElementPtr findNodeDefChild(const string& path, DocumentPtr doc, const stri
     ValueElementPtr valueElement = nodeDef->getActiveValueElement(valueElementName);
 
     return valueElement;
+}
+
+namespace
+{
+    const char TOKEN_PREFIX = '$';
+}
+
+void tokenSubstitution(const StringMap& substitutions, string& source)
+{
+    string buffer;
+    size_t pos = 0, len = source.length();
+    while (pos < len)
+    {
+        size_t p1 = source.find_first_of(TOKEN_PREFIX, pos);
+        if (p1 != string::npos && p1 + 1 < len)
+        {
+            buffer += source.substr(pos, p1 - pos);
+            pos = p1 + 1;
+            string token = { TOKEN_PREFIX };
+            while (pos < len && isalnum(source[pos]))
+            {
+                token += source[pos++];
+            }
+            auto it = substitutions.find(token);
+            buffer += (it != substitutions.end() ? it->second : token);
+        }
+        else
+        {
+            buffer += source.substr(pos);
+            break;
+        }
+    }
+    source = buffer;
 }
 
 } // namespace MaterialX

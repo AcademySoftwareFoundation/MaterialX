@@ -249,7 +249,7 @@ bool OslShaderRenderTester::runValidator(const std::string& shaderName,
                         const mx::ShaderPort* output = outputs[0];
                         const mx::TypeSyntax& typeSyntax = shadergen.getSyntax().getTypeSyntax(output->getType());
 
-                        const std::string& outputName = output->getName();
+                        const std::string& outputName = output->getVariable();
                         const std::string& outputType = typeSyntax.getTypeAlias().empty() ? typeSyntax.getName() : typeSyntax.getTypeAlias();
 
                         static const std::string SHADING_SCENE_FILE = "closure_color_scene.xml";
@@ -308,13 +308,15 @@ TEST_CASE("Render: OSL TestSuite", "[renderosl]")
 {
     OslShaderRenderTester renderTester(mx::OslShaderGenerator::create());
 
+    const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
+    const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
+    const mx::FilePath testRootPath3 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/UsdPreviewSurface");
     mx::FilePathVec testRootPaths;
-    mx::FilePath testRoot = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
-    testRootPaths.push_back(testRoot);
-    const mx::FilePath testRoot2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
-    testRootPaths.push_back(testRoot2);
+    testRootPaths.push_back(testRootPath);
+    testRootPaths.push_back(testRootPath2);
+    testRootPaths.push_back(testRootPath3);
 
-    mx::FilePath optionsFilePath = testRoot / mx::FilePath("_options.mtlx");
+    mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
 
     renderTester.validate(testRootPaths, optionsFilePath);
 }

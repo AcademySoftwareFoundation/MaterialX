@@ -8,8 +8,7 @@
       <bindinput name="specRoughness" type="float" value="0.38"/>
     </shaderref>
   </material>
-  <material name="Mplastic2">
-    <materialinherit name="mi_mp2" material="Mplastic1"/>
+  <material name="Mplastic2" inherit="Mplastic1">
     <shaderref name="sr_mp2" node="simple_srf">
       <bindinput name="diffColor" type="color3" value="0.17, 0.26, 0.23"/>
       <bindinput name="specRoughness" type="float" value="0.24"/>

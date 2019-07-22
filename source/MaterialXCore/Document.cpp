@@ -146,16 +146,20 @@ void Document::initialize()
 
 void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions* copyOptions)
 {
-    bool skipDuplicateElements = copyOptions && copyOptions->skipDuplicateElements;
+    bool skipConflictingElements = copyOptions && copyOptions->skipConflictingElements;
     for (const ConstElementPtr& child : library->getChildren())
     {
         string childName = child->getQualifiedName(child->getName());
-        if (skipDuplicateElements && getChild(childName))
+
+        // Check for duplicate elements.
+        ConstElementPtr previous = getChild(childName);
+        if (previous && skipConflictingElements)
         {
             continue;
         }
 
-        ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName);
+        // Create the imported element.
+        ElementPtr childCopy = addChildOfCategory(child->getCategory(), childName, !previous);
         childCopy->copyContentFrom(child, copyOptions);
         if (!childCopy->hasFilePrefix() && library->hasFilePrefix())
         {
@@ -176,6 +180,12 @@ void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions*
         if (!childCopy->hasSourceUri() && library->hasSourceUri())
         {
             childCopy->setSourceUri(library->getSourceUri());
+        }
+
+        // Check for conflicting elements.
+        if (previous && *previous != *childCopy)
+        {
+            throw Exception("Duplicate element with conflicting content: " + childName);
         }
     }
 }
