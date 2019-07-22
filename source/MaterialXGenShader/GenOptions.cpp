@@ -14,7 +14,7 @@ GenOptions::GenOptions() :
     hwTransparency(false),
     hwSpecularEnvironmentMethod(SPECULAR_ENVIRONMENT_FIS),
     hwMaxActiveLightSources(3),
-    emitVersionString(true)
+    hwNormalizeUdimTexCoords(false)
 {
 }
 GenOptions::~GenOptions()

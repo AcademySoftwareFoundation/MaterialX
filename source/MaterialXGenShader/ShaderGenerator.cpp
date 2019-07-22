@@ -125,7 +125,7 @@ void ShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& co
 void ShaderGenerator::emitTypeDefinitions(GenContext&, ShaderStage& stage) const
 {
     // Emit typedef statements for all data types that have an alias
-    for (auto syntax : _syntax->getTypeSyntaxes())
+    for (const auto& syntax : _syntax->getTypeSyntaxes())
     {
         if (!syntax->getTypeAlias().empty())
         {
@@ -233,15 +233,19 @@ void ShaderGenerator::resetIdentifiers(GenContext& context) const
     context.clearIdentifiers();
 
     // Add in the restricted names as taken names.
-    for (auto name : _syntax->getRestrictedNames())
+    for (const auto& name : _syntax->getRestrictedNames())
     {
         context.addIdentifier(name);
     }
 
     // Add in the token substitution identifiers as taken names
-    for (auto it : _tokenSubstitutions)
+    for (const auto& it : _tokenSubstitutions)
     {
-        context.addIdentifier(it.second);
+        // Do no add empty token substitutions as identifiers
+        if (!it.second.empty())
+        {
+            context.addIdentifier(it.second);
+        }
     }
 }
 
@@ -321,7 +325,7 @@ void ShaderGenerator::replaceTokens(const StringMap& substitutions, ShaderStage&
     {
         replace(substitutions, stage._constants[i]);
     }
-    for (auto it : stage._uniforms)
+    for (const auto& it : stage._uniforms)
     {
         VariableBlock& uniforms = *it.second;
         for (size_t i = 0; i < uniforms.size(); ++i)
@@ -329,7 +333,7 @@ void ShaderGenerator::replaceTokens(const StringMap& substitutions, ShaderStage&
             replace(substitutions, uniforms[i]);
         }
     }
-    for (auto it : stage._inputs)
+    for (const auto& it : stage._inputs)
     {
         VariableBlock& inputs = *it.second;
         for (size_t i = 0; i < inputs.size(); ++i)
@@ -337,7 +341,7 @@ void ShaderGenerator::replaceTokens(const StringMap& substitutions, ShaderStage&
             replace(substitutions, inputs[i]);
         }
     }
-    for (auto it : stage._outputs)
+    for (const auto& it : stage._outputs)
     {
         VariableBlock& outputs = *it.second;
         for (size_t i = 0; i < outputs.size(); ++i)

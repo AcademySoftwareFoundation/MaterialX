@@ -24,18 +24,6 @@ namespace mx = MaterialX;
 
 namespace GenShaderUtil
 {
-//
-// Load in a library. Sets the URI before import
-//
-void loadLibrary(const mx::FilePath& file, mx::DocumentPtr doc);
-
-//
-// Loads all the MTLX files below a given library path
-//
-void loadLibraries(const mx::StringVec& libraryNames,
-                    const mx::FilePath& searchPath,
-                    mx::DocumentPtr doc,
-                    const mx::StringSet* excludeFiles = nullptr);
     
 //
 // Get source content, source path and resolved paths for
@@ -139,6 +127,12 @@ class TestSuiteOptions
 
     // Transforms UVs of loaded geometry
     MaterialX::Matrix44 transformUVs;
+
+    // Additional library paths
+    mx::FileSearchPath externalLibraryPaths;
+
+    // Additional testPaths paths
+    mx::FileSearchPath externalTestPaths;
 };
 
 // Utility class to handle testing of shader generators.
@@ -194,8 +188,8 @@ class ShaderGeneratorTester
     virtual void registerLights(mx::DocumentPtr doc, const std::vector<mx::NodePtr>& lights, mx::GenContext& context);
 
     // Generate source code for a given element and check that code was produced.
-    bool generateCode(mx::GenContext& context, const std::string& shaderName, mx::TypedElementPtr element,
-                        std::ostream& log, mx::StringVec testStages, mx::StringVec& sourceCode);
+    virtual bool generateCode(mx::GenContext& context, const std::string& shaderName, mx::TypedElementPtr element,
+                              std::ostream& log, mx::StringVec testStages, mx::StringVec& sourceCode);
 
     // Run test for source code generation
     void validate(const mx::GenOptions& generateOptions, const std::string& optionsFilePath);

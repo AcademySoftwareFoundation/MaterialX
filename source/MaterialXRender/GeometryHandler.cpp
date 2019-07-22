@@ -11,7 +11,7 @@ namespace MaterialX
 void GeometryHandler::addLoader(GeometryLoaderPtr loader)
 {
     const StringSet& extensions = loader->supportedExtensions();
-    for (auto extension : extensions)
+    for (const auto& extension : extensions)
     {
         _geometryLoaders.insert(std::pair<std::string, GeometryLoaderPtr>(extension, loader));
     }
@@ -20,7 +20,7 @@ void GeometryHandler::addLoader(GeometryLoaderPtr loader)
 void GeometryHandler::supportedExtensions(StringSet& extensions)
 {
     extensions.clear();
-    for (auto loader : _geometryLoaders)
+    for (const auto& loader : _geometryLoaders)
     {
         const StringSet& loaderExtensions = loader.second->supportedExtensions();
         extensions.insert(loaderExtensions.begin(), loaderExtensions.end());
@@ -35,7 +35,7 @@ void GeometryHandler::clearGeometry()
 
 bool GeometryHandler::hasGeometry(const string& location)
 {
-    for (auto mesh : _meshes)
+    for (const auto& mesh : _meshes)
     {
         if (mesh->getSourceUri() == location)
         {
@@ -48,7 +48,7 @@ bool GeometryHandler::hasGeometry(const string& location)
 void GeometryHandler::getGeometry(MeshList& meshes, const string& location)
 {
     meshes.clear();
-    for (auto mesh : _meshes)
+    for (const auto& mesh : _meshes)
     {
         if (mesh->getSourceUri() == location)
         {
@@ -62,7 +62,7 @@ void GeometryHandler::computeBounds()
     const float MAX_FLOAT = std::numeric_limits<float>::max();
     _minimumBounds = { MAX_FLOAT, MAX_FLOAT, MAX_FLOAT };
     _maximumBounds = { -MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT };
-    for (auto mesh : _meshes)
+    for (const auto& mesh : _meshes)
     {
         const Vector3& minMesh = mesh->getMinimumBounds();
         _minimumBounds[0] = std::min(minMesh[0], _minimumBounds[0]);

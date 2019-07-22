@@ -712,11 +712,11 @@ const ShaderNode* ShaderGraph::getNode(const string& name) const
 void ShaderGraph::finalize(GenContext& context)
 {
     // Insert color transformation nodes where needed
-    for (auto it : _inputColorTransformMap)
+    for (const auto& it : _inputColorTransformMap)
     {
         addColorTransformNode(it.first, it.second, context);
     }
-    for (auto it : _outputColorTransformMap)
+    for (const auto& it : _outputColorTransformMap)
     {
         addColorTransformNode(it.first, it.second, context);
     }
@@ -948,7 +948,7 @@ void ShaderGraph::topologicalSort()
     // Calculate in-degrees for all nodes, and enqueue those with degree 0.
     std::unordered_map<ShaderNode*, int> inDegree(_nodeMap.size());
     std::deque<ShaderNode*> nodeQueue;
-    for (auto it : _nodeMap)
+    for (const auto& it : _nodeMap)
     {
         ShaderNode* node = it.second.get();
 
@@ -981,9 +981,9 @@ void ShaderGraph::topologicalSort()
 
         // Find connected nodes and decrease their in-degree,
         // adding node to the queue if in-degrees becomes 0.
-        for (auto output : node->getOutputs())
+        for (const auto& output : node->getOutputs())
         {
-            for (auto input : output->getConnections())
+            for (const auto& input : output->getConnections())
             {
                 if (input->getNode() != this)
                 {

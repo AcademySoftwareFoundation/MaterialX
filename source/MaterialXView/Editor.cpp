@@ -694,7 +694,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                                 mx::StringSet extensions;
                                 handler->supportedExtensions(extensions);
                                 std::vector<std::pair<std::string, std::string>> filetypes;
-                                for (auto extension : extensions)
+                                for (const auto& extension : extensions)
                                 {
                                     filetypes.push_back(std::make_pair(extension, extension));
                                 }

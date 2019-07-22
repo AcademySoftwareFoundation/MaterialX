@@ -6,6 +6,7 @@
 #ifndef GENGLSL_H
 #define GENGLSL_H
 
+#include <MaterialXGenShader/Util.h>
 #include <MaterialXTest/GenShaderUtil.h>
 
 namespace mx = MaterialX;
@@ -32,8 +33,8 @@ class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         ParentClass::setupDependentLibraries();
 
         mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/Utilities/Lights");
-        GenShaderUtil::loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), _dependLib);
-        GenShaderUtil::loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), _dependLib);
+        loadLibrary(lightDir / mx::FilePath("lightcompoundtest.mtlx"), _dependLib);
+        loadLibrary(lightDir / mx::FilePath("light_rig.mtlx"), _dependLib);
     }
 
   protected:

@@ -390,7 +390,7 @@ void Viewer::setupLights(mx::DocumentPtr doc)
             // Create a list of unique nodedefs and ids for them
             std::unordered_map<std::string, unsigned int> identifiers;
             _lightHandler->mapNodeDefToIdentiers(lights, identifiers);
-            for (auto id : identifiers)
+            for (const auto& id : identifiers)
             {
                 mx::NodeDefPtr nodeDef = doc->getNodeDef(id.first);
                 if (nodeDef)
@@ -671,7 +671,7 @@ void Viewer::updateGeometrySelections()
 void Viewer::updateMaterialSelections()
 {
     std::vector<std::string> items;
-    for (auto material : _materials)
+    for (const auto& material : _materials)
     {
         mx::ElementPtr displayElem = material->getElement();
         if (displayElem->isA<mx::ShaderRef>())
@@ -783,7 +783,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         mx::ValuePtr udimSetValue = doc->getGeomAttrValue("udimset");
 
         // Create new materials.
-        for (auto renderablePath : renderablePaths)
+        for (const auto& renderablePath : renderablePaths)
         {
             mx::ElementPtr elem = doc->getDescendant(renderablePath);
             mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
@@ -1038,7 +1038,7 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         if (!extensions.empty())
         {
             std::vector<std::pair<std::string, std::string>> filetypes;
-            for (auto extension : extensions)
+            for (const auto& extension : extensions)
             {
                 filetypes.push_back(std::make_pair(extension, extension));
             }
@@ -1120,7 +1120,7 @@ void Viewer::drawScene3D()
 
     // Opaque pass
     glDisable(GL_BLEND);
-    for (auto assignment : _materialAssignments)
+    for (const auto& assignment : _materialAssignments)
     {
         mx::MeshPartitionPtr geom = assignment.first;
         MaterialPtr material = assignment.second;
@@ -1142,7 +1142,7 @@ void Viewer::drawScene3D()
     // Transparent pass
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    for (auto assignment : _materialAssignments)
+    for (const auto& assignment : _materialAssignments)
     {
         mx::MeshPartitionPtr geom = assignment.first;
         MaterialPtr material = assignment.second;
@@ -1166,7 +1166,7 @@ void Viewer::drawScene3D()
     {
         glEnable(GL_BLEND);
         glBlendFunc(GL_DST_COLOR, GL_ZERO);
-        for (auto assignment : _materialAssignments)
+        for (const auto& assignment : _materialAssignments)
         {
             mx::MeshPartitionPtr geom = assignment.first;
             MaterialPtr material = assignment.second;

@@ -206,7 +206,7 @@ void GraphElement::flattenSubgraphs(const string& target)
         processNodeVec.clear();
 
         // Iterate through nodes with graph implementations.
-        for (auto pair : graphImplMap)
+        for (const auto& pair : graphImplMap)
         {
             NodePtr processNode = pair.first;
             NodeGraphPtr sourceSubGraph = pair.second;
@@ -260,7 +260,7 @@ void GraphElement::flattenSubgraphs(const string& target)
             }
 
             // Transfer internal connections between subgraphs.
-            for (auto subNodePair : subNodeMap)
+            for (const auto& subNodePair : subNodeMap)
             {
                 NodePtr sourceSubNode = subNodePair.first;
                 NodePtr destSubNode = subNodePair.second;

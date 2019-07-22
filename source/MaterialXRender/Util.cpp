@@ -182,7 +182,7 @@ void createUIPropertyGroups(ElementPtr uniformElement, DocumentPtr contentDocume
 void createUIPropertyGroups(const VariableBlock& block, DocumentPtr contentDocument, TypedElementPtr materialElement,
                           const string& pathSeparator, UIPropertyGroup& groups, UIPropertyGroup& unnamedGroups)
 {
-    for (auto uniform : block.getVariableOrder())
+    for (const auto& uniform : block.getVariableOrder())
     {
         if (!uniform->getPath().empty() && uniform->getValue())
         {

@@ -12,6 +12,7 @@ namespace MaterialX
 
 const string GEOM_PATH_SEPARATOR = "/";
 const string UNIVERSAL_GEOM_NAME = GEOM_PATH_SEPARATOR;
+const string UDIMSET = "udimset";
 const string UDIM_TOKEN = "<UDIM>";
 const string UV_TILE_TOKEN = "<UVTILE>";
 
