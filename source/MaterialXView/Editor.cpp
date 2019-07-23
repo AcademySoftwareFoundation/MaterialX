@@ -748,6 +748,7 @@ void PropertyEditor::updateContents(Viewer* viewer)
         return;
     }
 
+    const bool showAdvancedItems = viewer->showAdvancedProperties();
     bool addedItems = false;
     const MaterialX::VariableBlock* publicUniforms = material->getPublicUniforms();
     if (publicUniforms)
@@ -766,6 +767,10 @@ void PropertyEditor::updateContents(Viewer* viewer)
             const std::string& folder = it->first;
             const mx::UIPropertyItem& item = it->second;
 
+            if(item.ui.uiAdvanced && !showAdvancedItems)
+            {
+                continue;
+            }
             // Find out if the uniform is editable. Some
             // inputs may be optimized out during compilation.
             if (material->findUniform(item.variable->getPath()))
@@ -781,6 +786,10 @@ void PropertyEditor::updateContents(Viewer* viewer)
         for (auto it2 = unnamedGroups.begin(); it2 != unnamedGroups.end(); ++it2)
         {
             const mx::UIPropertyItem& item = it2->second;
+            if (item.ui.uiAdvanced && !showAdvancedItems)
+            {
+                continue;
+            }
             if (material->findUniform(item.variable->getPath()))
             {
                 addItemToForm(item, addedLabel ? mx::EMPTY_STRING : otherString, _container, viewer, editable);

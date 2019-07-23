@@ -76,6 +76,11 @@ class Viewer : public ng::Screen
         return _imageHandler;
     }
 
+    bool showAdvancedProperties() const
+    {
+        return _showAdvancedProperties;
+    }
+
   private:
     void drawScene3D();
     void drawScene2D();
@@ -186,6 +191,9 @@ class Viewer : public ng::Screen
     int _envSamples;
     bool _drawEnvironment;
     mx::Matrix44 _envMatrix;
+
+    // Property options
+    bool _showAdvancedProperties;
 
     // Image save
     bool _captureFrame;

@@ -118,6 +118,14 @@ unsigned int getUIProperties(ValueElementPtr nodeDefElement, UIProperties& uiPro
             propertyCount++;
         }
     }
+
+    const string& uiAdvancedString = nodeDefElement->getAttribute(ValueElement::UI_ADVANCED_ATTRIBUTE);
+    uiProperties.uiAdvanced = (uiAdvancedString == "true");
+    if(!uiAdvancedString.empty())
+    {
+        propertyCount++;
+    }
+
     return propertyCount;
 }
 

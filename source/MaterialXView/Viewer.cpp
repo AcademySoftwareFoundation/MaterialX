@@ -200,6 +200,7 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     _specularEnvironmentMethod(specularEnvironmentMethod),
     _envSamples(DEFAULT_ENV_SAMPLES),
     _drawEnvironment(false),
+    _showAdvancedProperties(false),
     _captureFrame(false),
     _drawUVGeometry(false),
     _uvScale(2.0f, 2.0f, 1.0f),
@@ -607,6 +608,16 @@ void Viewer::createAdvancedSettings(Widget* parent)
             _envSamples = MIN_ENV_SAMPLES * (int) std::pow(4, index);
         });
     }
+
+    new ng::Label(advancedPopup, "Property Editor Options");
+
+    ng::CheckBox* showAdvancedProperties = new ng::CheckBox(advancedPopup, "Show advanced attributes");
+    showAdvancedProperties->setChecked(_showAdvancedProperties);
+    showAdvancedProperties->setCallback([this](bool enable)
+    {
+        _showAdvancedProperties = enable;
+        updatePropertyEditor();
+    });
 }
 
 void Viewer::updateGeometrySelections()
