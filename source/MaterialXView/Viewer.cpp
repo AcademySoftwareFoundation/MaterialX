@@ -79,12 +79,14 @@ mx::DocumentPtr loadLibraries(const mx::StringVec& libraryFolders, const mx::Fil
         mx::FilePathVec filenames = path.getFilesInDirectory("mtlx");
 
         mx::CopyOptions copyOptions;
+        copyOptions.skipConflictingElements = true;
 
+        mx::XmlReadOptions readOptions;
+        readOptions.skipConflictingElements = true;
         for (const std::string& filename : filenames)
         {
             mx::FilePath file = path / filename;
             mx::DocumentPtr libDoc = mx::createDocument();
-            mx::XmlReadOptions readOptions;
             mx::readFromXmlFile(libDoc, file, mx::EMPTY_STRING, &readOptions);
             libDoc->setSourceUri(file);
             doc->importLibrary(libDoc, &copyOptions);
@@ -361,10 +363,12 @@ void Viewer::setupLights(mx::DocumentPtr doc)
         try
         {
             mx::XmlReadOptions readOptions;
+            readOptions.skipConflictingElements = true;
             mx::readFromXmlFile(lightDoc, path.asString(), mx::EMPTY_STRING, &readOptions);
             lightDoc->setSourceUri(path);
 
             mx::CopyOptions copyOptions;
+            copyOptions.skipConflictingElements = true;
             doc->importLibrary(lightDoc, &copyOptions);
         }
         catch (std::exception& e)
@@ -732,6 +736,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 {
     // Set up read options.
     mx::XmlReadOptions readOptions;
+    readOptions.skipConflictingElements = true;
     readOptions.readXIncludeFunction = [](mx::DocumentPtr doc, const std::string& filename,
                                           const std::string& searchPath, const mx::XmlReadOptions* options)
     {
@@ -770,7 +775,8 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         mx::readFromXmlFile(doc, filename, _searchPath.asString(), &readOptions);
 
         // Import libraries.
-        mx::CopyOptions copyOptions;
+        mx::CopyOptions copyOptions; 
+        copyOptions.skipConflictingElements = true;
         doc->importLibrary(libraries, &copyOptions);
 
         // Add lighting 

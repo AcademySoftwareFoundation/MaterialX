@@ -45,7 +45,9 @@ mx::DocumentPtr loadDocument(const std::string& materialXDocumentPath,
     loadLibraries(libraries, librarySearchPath, document);
 
     // Read document contents from disk
-    mx::readFromXmlFile(document, materialXDocumentPath, mx::EMPTY_STRING);
+    mx::XmlReadOptions readOptions;
+    readOptions.skipConflictingElements = true;
+    mx::readFromXmlFile(document, materialXDocumentPath, mx::EMPTY_STRING, &readOptions);
 
     return document;
 }
