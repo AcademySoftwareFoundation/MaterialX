@@ -52,14 +52,10 @@ class XmlWriteOptions
     /// If true, elements with source file markings will be written as
     /// XIncludes rather than explicit data.  Defaults to true.
     bool writeXIncludeEnable;
-
+    
     /// If provided, this function will be used to exclude specific elements
     /// (those returning false) from the write operation.  Defaults to nullptr.
     ElementPredicate elementPredicate;
-
-    /// The vector of XIncludes to ignore saving out.  Defaults to an empty
-    /// vector.
-    StringVec ignoredXIncludes;
 };
 
 /// @class ExceptionParseError
