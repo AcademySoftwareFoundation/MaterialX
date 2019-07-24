@@ -868,7 +868,10 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                     {
                         // Generate a shader for the new material.
                         mat->generateShader(_genContext);
-                        udimMaterial = mat;
+                        if (udimElement == elem)
+                        {
+                            udimMaterial = mat;
+                        }
                     }
                 }
                 else
