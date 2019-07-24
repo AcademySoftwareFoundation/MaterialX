@@ -806,6 +806,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         mx::ValuePtr udimSetValue = doc->getGeomAttrValue("udimset");
 
         // Create new materials.
+        mx::TypedElementPtr udimElement;
         for (const auto& renderablePath : renderablePaths)
         {
             mx::ElementPtr elem = doc->getDescendant(renderablePath);
@@ -823,6 +824,8 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                     mat->setElement(typedElem);
                     mat->setUdim(udim);
                     newMaterials.push_back(mat);
+                    
+                    udimElement = typedElem;
                 }
             }
             else
@@ -844,17 +847,37 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             materialFolder.pop();
             _imageHandler->setSearchPath(mx::FileSearchPath(materialFolder));
 
-            // Clear cached implementations, in case libraries on the file system have changed.
-            _genContext.clearNodeImplementations();
-
             mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
+            MaterialPtr udimMaterial = nullptr;
             for (MaterialPtr mat : newMaterials)
             {
-                // Generate a shader for the new material.
-                mat->generateShader(_genContext);
+                // Clear cached implementations, in case libraries on the file system have changed.
+                _genContext.clearNodeImplementations();
+
+                mx::TypedElementPtr elem = mat->getElement();
+
+                std::string udim = mat->getUdim();
+                if (!udim.empty())
+                {
+                    if ((udimElement == elem) && udimMaterial)
+                    {
+                        // Reuse existing material for all udims
+                        mat->copyShader(udimMaterial);
+                    }
+                    else
+                    {
+                        // Generate a shader for the new material.
+                        mat->generateShader(_genContext);
+                        udimMaterial = mat;
+                    }
+                }
+                else
+                {
+                    // Generate a shader for the new material.
+                    mat->generateShader(_genContext);
+                }
 
                 // Apply geometric assignments specified in the document, if any.
-                mx::TypedElementPtr elem = mat->getElement();
                 mx::ShaderRefPtr shaderRef = elem->asA<mx::ShaderRef>();
                 mx::MaterialPtr materialRef = shaderRef ? shaderRef->getParent()->asA<mx::Material>() : nullptr;
                 if (materialRef)
@@ -871,7 +894,6 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 }
 
                 // Apply implicit udim assignments, if any.
-                std::string udim = mat->getUdim();
                 if (!udim.empty())
                 {
                     for (mx::MeshPartitionPtr geom : _geometryList)
