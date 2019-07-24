@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-
+#include <MaterialXGenShader/Util.h>
 #include <MaterialXTest/RenderUtil.h>
 #include <MaterialXTest/Catch/catch.hpp>
 
@@ -116,17 +116,29 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
     // Add files to override the files in the test suite to be tested.
     mx::StringSet testfileOverride;
-    for (auto filterFile : options.overrideFiles)
+    for (const auto& filterFile : options.overrideFiles)
     {
         testfileOverride.insert(filterFile);
     }
 
     RenderUtil::AdditiveScopedTimer ioTimer(profileTimes.ioTime, "Global I/O time");
     mx::FilePathVec dirs;
-    for (auto testRoot : testRootPaths)
+    if (options.externalTestPaths.size() == 0)
     {
-        mx::FilePathVec testRootDirs = testRoot.getSubDirectories();
-        dirs.insert(std::end(dirs), std::begin(testRootDirs), std::end(testRootDirs));
+        for (const auto& testRoot : testRootPaths)
+        {
+            mx::FilePathVec testRootDirs = testRoot.getSubDirectories();
+            dirs.insert(std::end(dirs), std::begin(testRootDirs), std::end(testRootDirs));
+        }
+    }
+    else
+    {
+        // Use test roots from options file
+        for (size_t i = 0; i < options.externalTestPaths.size(); i++)
+        {
+            std::cout << "Test root: " << options.externalTestPaths[i].asString() << std::endl;
+            dirs.push_back(options.externalTestPaths[i]);
+        }
     }
 
     ioTimer.endTimer();
@@ -143,14 +155,24 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     addSkipFiles();
 
     const mx::StringVec libraries = { "stdlib", "pbrlib", "lights" };
-    GenShaderUtil::loadLibraries(libraries, searchPath, dependLib, nullptr);
+    mx::loadLibraries(libraries, searchPath, dependLib, nullptr);
+    for (size_t i = 0; i < options.externalLibraryPaths.size(); i++)
+    {
+        const mx::FilePath& extraPath = options.externalLibraryPaths[i];
+        mx::FilePathVec libraryFiles = extraPath.getFilesInDirectory("mtlx");
+        for (size_t l = 0; l < libraryFiles.size(); l++)
+        {
+            std::cout << "Extra library path: " << (extraPath / libraryFiles[l]).asString() << std::endl;
+            mx::loadLibrary((extraPath / libraryFiles[l]), dependLib);
+        }
+    }
 
     // Load shader definitions used in the test suite.
-    GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), dependLib);
-    GenShaderUtil::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd_preview_surface.mtlx"), dependLib);
+    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), dependLib);
+    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd_preview_surface.mtlx"), dependLib);
 
     // Load any addition per validator libraries
-    loadLibraries(dependLib, options);
+    loadAdditionalLibraries(dependLib, options);
     ioTimer.endTimer();
 
     // Create validators and generators
@@ -180,9 +202,10 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     mx::StringSet usedImpls;
 
     mx::CopyOptions copyOptions;
+    copyOptions.skipConflictingElements = true;
 
     const std::string MTLX_EXTENSION("mtlx");
-    for (auto dir : dirs)
+    for (const auto& dir : dirs)
     {
         ioTimer.startTimer();
         mx::FilePathVec files;
@@ -212,7 +235,9 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             mx::DocumentPtr doc = mx::createDocument();
             try
             {
-                mx::readFromXmlFile(doc, filename, dir);
+                mx::FileSearchPath readSearchPath(searchPath.asString());
+                readSearchPath.append(dir);
+                mx::readFromXmlFile(doc, filename, readSearchPath.asString());
             }
             catch (mx::Exception& e)
             {
@@ -253,7 +278,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
             std::string outputPath = mx::FilePath(dir) / mx::FilePath(mx::removeExtension(file));
             mx::FileSearchPath imageSearchPath(dir);
-            for (auto element : elements)
+            for (const auto& element : elements)
             {
                 mx::OutputPtr output = element->asA<mx::Output>();
                 mx::ShaderRefPtr shaderRef = element->asA<mx::ShaderRef>();

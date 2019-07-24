@@ -252,7 +252,7 @@ class Mesh
     /// @return Reference to a mesh stream if found
     MeshStreamPtr getStream(const string& name) const
     {
-        for (auto stream : _streams)
+        for (const auto& stream : _streams)
         {
             if (stream->getName() == name)
             {
@@ -268,7 +268,7 @@ class Mesh
     /// @return Reference to a mesh stream if found
     MeshStreamPtr getStream(const string& type, unsigned int index) const
     {
-        for (auto stream : _streams)
+        for (const auto& stream : _streams)
         {
             if (stream->getType() == type &&
                 stream->getIndex() == index)

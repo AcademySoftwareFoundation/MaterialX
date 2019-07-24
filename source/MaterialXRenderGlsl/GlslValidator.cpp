@@ -306,7 +306,7 @@ void GlslValidator::validateCreation(const StageMap& stages)
         throw ExceptionShaderValidationError(errorType, errors);
     }
 
-    for (auto it : stages)
+    for (const auto& it : stages)
     {
         _program->addStage(it.first, it.second);
     }
@@ -423,7 +423,7 @@ void GlslValidator::validateRender()
                 _program->bindInputs(_viewHandler, _geometryHandler, _imageHandler, _lightHandler);
 
                 // Draw all the partitions of all the meshes in the handler
-                for (auto mesh : _geometryHandler->getMeshes())
+                for (const auto& mesh : _geometryHandler->getMeshes())
                 {
                     for (size_t i = 0; i < mesh->getPartitionCount(); i++)
                     {

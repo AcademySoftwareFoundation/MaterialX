@@ -118,6 +118,14 @@ unsigned int getUIProperties(ValueElementPtr nodeDefElement, UIProperties& uiPro
             propertyCount++;
         }
     }
+
+    const string& uiAdvancedString = nodeDefElement->getAttribute(ValueElement::UI_ADVANCED_ATTRIBUTE);
+    uiProperties.uiAdvanced = (uiAdvancedString == "true");
+    if(!uiAdvancedString.empty())
+    {
+        propertyCount++;
+    }
+
     return propertyCount;
 }
 
@@ -182,7 +190,7 @@ void createUIPropertyGroups(ElementPtr uniformElement, DocumentPtr contentDocume
 void createUIPropertyGroups(const VariableBlock& block, DocumentPtr contentDocument, TypedElementPtr materialElement,
                           const string& pathSeparator, UIPropertyGroup& groups, UIPropertyGroup& unnamedGroups)
 {
-    for (auto uniform : block.getVariableOrder())
+    for (const auto& uniform : block.getVariableOrder())
     {
         if (!uniform->getPath().empty() && uniform->getValue())
         {

@@ -17,6 +17,7 @@ namespace MaterialX
 {
 
 class InterfaceElement;
+class Node;
 using ShaderGraphInputSocket = ShaderOutput;
 
 /// Shared pointer to a ShaderNodeImpl
@@ -62,6 +63,12 @@ class ShaderNodeImpl
     {
         return _hash;
     }
+
+    /// Add additional inputs on the node 
+    virtual void addInputs(ShaderNode& node, GenContext& context) const;
+
+    /// Set values for additional inputs on the node 
+    virtual void setValues(const Node& node, ShaderNode& shaderNode, GenContext& context) const;
 
     /// Create shader variables needed for the implementation of this node (e.g. uniforms, inputs and outputs).
     /// Used if the node requires input data from the application.

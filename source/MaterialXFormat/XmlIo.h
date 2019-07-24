@@ -31,7 +31,7 @@ class XmlReadOptions : public CopyOptions
   public:
     XmlReadOptions();
     ~XmlReadOptions() { }
-    
+
     /// If provided, this function will be invoked when an XInclude reference
     /// needs to be read into a document.  Defaults to readFromXmlFile.
     XmlReadFunction readXIncludeFunction;

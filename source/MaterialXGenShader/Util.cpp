@@ -45,21 +45,23 @@ bool readFile(const string& filename, string& contents)
     return false;
 }
 
-void loadDocuments(const FilePath& rootPath, const StringSet& skipFiles, const StringSet& includeFiles,
+void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, const StringSet& skipFiles, const StringSet& includeFiles,
                    vector<DocumentPtr>& documents, StringVec& documentsPaths, StringVec& errors)
 {
     for (const FilePath& dir : rootPath.getSubDirectories())
     {
         for (const FilePath& file : dir.getFilesInDirectory(MTLX_EXTENSION))
         {
-            if (!skipFiles.count(file) && 
+            if (!skipFiles.count(file) &&
                (includeFiles.empty() || includeFiles.count(file)))
             {
                 DocumentPtr doc = createDocument();
                 const FilePath filePath = dir / file;
                 try
                 {
-                    readFromXmlFile(doc, filePath, dir);
+                    FileSearchPath readSearchPath(searchPath.asString());
+                    readSearchPath.append(dir);
+                    readFromXmlFile(doc, filePath, readSearchPath.asString());
                     documents.push_back(doc);
                     documentsPaths.push_back(filePath.asString());
                 }
@@ -70,6 +72,52 @@ void loadDocuments(const FilePath& rootPath, const StringSet& skipFiles, const S
             }
         }
     }
+}
+
+void loadLibrary(const FilePath& file, DocumentPtr doc)
+{
+    DocumentPtr libDoc = createDocument();
+    XmlReadOptions readOptions;
+    readOptions.skipConflictingElements = true;
+    readFromXmlFile(libDoc, file, EMPTY_STRING, &readOptions);
+    CopyOptions copyOptions;
+    copyOptions.skipConflictingElements = true;
+    doc->importLibrary(libDoc, &copyOptions);
+}
+
+StringVec loadLibraries(const StringVec& libraryNames,
+                        const FileSearchPath& searchPath,
+                        DocumentPtr doc,
+                        const StringSet* excludeFiles)
+{
+    StringVec loadedLibraries;
+    for (const std::string& libraryName : libraryNames)
+    {
+        FilePath libraryPath = searchPath.find(libraryName);
+        for (const FilePath& path : libraryPath.getSubDirectories())
+        {
+            for (const FilePath& filename : path.getFilesInDirectory(MTLX_EXTENSION))
+            {
+                if (!excludeFiles || !excludeFiles->count(filename))
+                {
+                    const FilePath& file = path / filename;
+                    loadLibrary(file, doc);
+                    loadedLibraries.push_back(file.asString());
+                }
+            }
+        }
+    }
+    return loadedLibraries;
+}
+
+StringVec loadLibraries(const StringVec& libraryNames,
+                        const FilePath& filePath,
+                        DocumentPtr doc,
+                        const StringSet* excludeFiles)
+{
+    FileSearchPath searchPath;
+    searchPath.append(filePath);
+    return loadLibraries(libraryNames, searchPath, doc, excludeFiles);
 }
 
 namespace
@@ -97,7 +145,8 @@ namespace
         return isOne(c[0]) && isOne(c[1]) && isOne(c[2]);
     }
 
-    bool isTransparentShaderGraph(OutputPtr output, const ShaderGenerator& shadergen)
+    bool isTransparentShaderGraph(OutputPtr output, const ShaderGenerator& shadergen,
+                                  StringSet& opacityInterfaceNames, StringSet& transmissionInterfaceNames)
     {
         // Track how many nodes has the potential of being transparent
         // and how many of these we can say for sure are 100% opaque.
@@ -108,7 +157,7 @@ namespace
         {
             ElementPtr upstreamElem = it.getUpstreamElement();
             if (!upstreamElem)
-            {            
+            {
                 it.setPruneSubgraph(true);
                 continue;
             }
@@ -205,13 +254,21 @@ namespace
                     {
                         opaque = true;
                     }
-                    else if (transmission->getNodeName() == EMPTY_STRING && transmission->getInterfaceName() == EMPTY_STRING)
+                    else
                     {
-                        // Unconnected, check the value
-                        ValuePtr value = transmission->getValue();
-                        if (!value || (value->asA<float>() && isZero(value->asA<float>())))
+                        const string& tranmsInterfaceName = transmission->getInterfaceName();
+                        if (!tranmsInterfaceName.empty())
                         {
-                            opaque = true;
+                            transmissionInterfaceNames.insert(tranmsInterfaceName);
+                        }
+                        if (transmission->getNodeName() == EMPTY_STRING)
+                        {
+                            // Unconnected, check the value
+                            ValuePtr value = transmission->getValue();
+                            if (!value || (value->asA<float>() && isZero(value->asA<float>())))
+                            {
+                                opaque = true;
+                            }
                         }
                     }
 
@@ -225,13 +282,21 @@ namespace
                         {
                             opaque = true;
                         }
-                        else if (opacity->getNodeName() == EMPTY_STRING && opacity->getInterfaceName() == EMPTY_STRING)
+                        else
                         {
-                            // Unconnected, check the value
-                            ValuePtr value = opacity->getValue();
-                            if (!value || (value->isA<Color3>() && isWhite(value->asA<Color3>())))
+                            const string& opacityInterfaceName = opacity->getInterfaceName();
+                            if (!opacityInterfaceName.empty())
                             {
-                                opaque = true;
+                                opacityInterfaceNames.insert(opacityInterfaceName);
+                            }
+                            if (opacity->getNodeName() == EMPTY_STRING)
+                            {
+                                // Unconnected, check the value
+                                ValuePtr value = opacity->getValue();
+                                if (!value || (value->isA<Color3>() && isWhite(value->asA<Color3>())))
+                                {
+                                    opaque = true;
+                                }
                             }
                         }
                     }
@@ -261,7 +326,7 @@ namespace
                                 if (outputs.size() > 0)
                                 {
                                     const OutputPtr& graphOutput = outputs[0];
-                                    bool isTransparent = isTransparentShaderGraph(graphOutput, shadergen);
+                                    bool isTransparent = isTransparentShaderGraph(graphOutput, shadergen, opacityInterfaceNames, transmissionInterfaceNames);
                                     if (isTransparent)
                                     {
                                         return true;
@@ -278,7 +343,7 @@ namespace
 
                 if (numOpaque != numCandidates)
                 {
-                    // We found at least one candidate that we can't 
+                    // We found at least one candidate that we can't
                     // say for sure is opaque. So we might need transparency.
                     return true;
                 }
@@ -367,7 +432,54 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
                     const OutputPtr& output = outputs[0];
                     if (TypeDesc::get(output->getType()) == Type::SURFACESHADER)
                     {
-                        return isTransparentShaderGraph(output, shadergen);
+                        StringSet opacityInterfaceNames;
+                        StringSet transmissionInterfaceNames;
+                        bool isTransparent = isTransparentShaderGraph(output, shadergen, opacityInterfaceNames, transmissionInterfaceNames);
+
+                        if (!isTransparent)
+                        {
+                            for (const string& transmissionInterfaceName : transmissionInterfaceNames)
+                            {
+                                // First check the transmission weight
+                                BindInputPtr transmission = shaderRef->getBindInput(transmissionInterfaceName);
+                                if (transmission)
+                                {
+                                    if (!transmission->getOutputString().empty())
+                                    {
+                                        isTransparent = true;
+                                    }
+                                    else
+                                    {
+                                        ValuePtr value = transmission->getValue();
+                                        if (value && !isZero(value->asA<float>()))
+                                        {
+                                            isTransparent = true;
+                                        }
+                                    }
+                                }
+                            }
+                            for (const string& opacityInterfaceName : opacityInterfaceNames)
+                            {
+                                BindInputPtr opacity = shaderRef->getBindInput(opacityInterfaceName);
+                                if (opacity)
+                                {
+                                    if (!opacity->getOutputString().empty())
+                                    {
+                                        isTransparent = true;
+                                    }
+                                    else
+                                    {
+                                        ValuePtr value = opacity->getValue();
+                                        if (value && value->isA<Color3>() && !isWhite(value->asA<Color3>()))
+                                        {
+                                            isTransparent = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        return isTransparent;
                     }
                 }
             }
@@ -376,7 +488,9 @@ bool isTransparentSurface(ElementPtr element, const ShaderGenerator& shadergen)
     else if (element->isA<Output>())
     {
         OutputPtr output = element->asA<Output>();
-        return isTransparentShaderGraph(output, shadergen);
+        StringSet opacityInterfaceNames;
+        StringSet transmissionInterfaceNames;
+        return isTransparentShaderGraph(output, shadergen, opacityInterfaceNames, transmissionInterfaceNames);
     }
 
     return false;
@@ -460,14 +574,14 @@ void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& eleme
 {
     std::unordered_set<OutputPtr> processedOutputs;
 
-    for (auto material : doc->getMaterials())
+    for (const auto& material : doc->getMaterials())
     {
-        for (auto shaderRef : material->getShaderRefs())
+        for (const auto& shaderRef : material->getShaderRefs())
         {
             if (!shaderRef->hasSourceUri())
             {
                 // Add in all shader references which are not part of a node definition library
-                NodeDefPtr nodeDef = shaderRef->getNodeDef();
+                ConstNodeDefPtr nodeDef = shaderRef->getNodeDef();
                 if (!nodeDef)
                 {
                     throw ExceptionShaderGenError("Could not find a nodedef for shaderref '" + shaderRef->getName() +
@@ -481,7 +595,7 @@ void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& eleme
                 if (!includeReferencedGraphs)
                 {
                     // Track outputs already used by the shaderref
-                    for (auto bindInput : shaderRef->getBindInputs())
+                    for (const auto& bindInput : shaderRef->getBindInputs())
                     {
                         OutputPtr outputPtr = bindInput->getConnectedOutput();
                         if (outputPtr)
@@ -498,7 +612,8 @@ void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& eleme
     for (NodeGraphPtr nodeGraph : doc->getNodeGraphs())
     {
         // Skip anything from an include file including libraries.
-        if (!nodeGraph->hasSourceUri())
+        // Skip any nodegraph which is a definition
+        if (!nodeGraph->hasSourceUri() && !nodeGraph->hasAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE))
         {
             for (OutputPtr output : nodeGraph->getOutputs())
             {
@@ -611,6 +726,100 @@ void tokenSubstitution(const StringMap& substitutions, string& source)
         }
     }
     source = buffer;
+}
+
+FilePathVec getUdimPaths(const FilePath& filePath, const StringVec& udimIdentifiers)
+{
+    FilePathVec resolvedFilePaths;
+    if (udimIdentifiers.empty())
+    {
+        return resolvedFilePaths;
+    }
+
+    for (const string& udimIdentifier : udimIdentifiers)
+    {
+        if (udimIdentifier.empty())
+        {
+            continue;
+        }
+
+        StringMap map;
+        map[UDIM_TOKEN] = udimIdentifier;
+        resolvedFilePaths.push_back(FilePath(replaceSubstrings(filePath.asString(), map)));
+    }
+
+    return resolvedFilePaths;
+}
+
+vector<Vector2> getUdimCoordinates(const StringVec& udimIdentifiers)
+{
+    vector<Vector2> udimCoordinates;
+    if (udimIdentifiers.empty())
+    {
+        return udimCoordinates;
+    }
+
+    for (const string& udimIdentifier : udimIdentifiers)
+    {
+        if (udimIdentifier.empty())
+        {
+            continue;
+        }
+
+        int udimVal = std::stoi(udimIdentifier);
+        if (udimVal <= 1000 || udimVal >= 2000)
+        {
+            throw Exception("Invalid UDIM identifier specified" + udimIdentifier);
+        }
+
+        // Compute UDIM coordinate and add to list to return
+        udimVal -= 1000;
+        int uVal = udimVal % 10;
+        uVal = (uVal == 0) ? 9 : uVal - 1;
+        int vVal = (udimVal - uVal - 1) / 10;
+        udimCoordinates.push_back(Vector2(static_cast<float>(uVal), static_cast<float>(vVal)));
+    }
+
+    return udimCoordinates;
+}
+
+void getUdimScaleAndOffset(const vector<Vector2>& udimCoordinates, Vector2& scaleUV, Vector2& offsetUV)
+{
+    if (udimCoordinates.empty())
+    {
+        return;
+    }
+
+    // Find range for lower left corner of each tile based on coordinate
+    Vector2 minUV = udimCoordinates[0];
+    Vector2 maxUV = udimCoordinates[0];
+    for (size_t i = 1; i < udimCoordinates.size(); i++)
+    {
+        if (udimCoordinates[i][0] < minUV[0])
+        {
+            minUV[0] = udimCoordinates[i][0];
+        }
+        if (udimCoordinates[i][1] < minUV[1])
+        {
+            minUV[1] = udimCoordinates[i][1];
+        }
+        if (udimCoordinates[i][0] > maxUV[0])
+        {
+            maxUV[0] = udimCoordinates[i][0];
+        }
+        if (udimCoordinates[i][1] > maxUV[1])
+        {
+            maxUV[1] = udimCoordinates[i][1];
+        }
+    }
+    // Extend to upper right corner of a tile
+    maxUV[0] += 1.0f;
+    maxUV[1] += 1.0f;
+
+    scaleUV[0] = 1.0f / (maxUV[0] - minUV[0]);
+    scaleUV[1] = 1.0f / (maxUV[1] - minUV[1]);
+    offsetUV[0] = -minUV[0];
+    offsetUV[1] = -minUV[1];
 }
 
 } // namespace MaterialX

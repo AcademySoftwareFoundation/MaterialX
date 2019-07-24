@@ -19,6 +19,7 @@ namespace MaterialX
 extern const string GEOM_PATH_SEPARATOR;
 extern const string UNIVERSAL_GEOM_NAME;
 extern const string UDIM_TOKEN;
+extern const string UDIMSET;
 extern const string UV_TILE_TOKEN;
 
 class GeomElement;

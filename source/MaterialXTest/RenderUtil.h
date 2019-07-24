@@ -179,8 +179,8 @@ class ShaderRenderTester
     }
 
     // Load any additional libraries requird by the generator
-    virtual void loadLibraries(mx::DocumentPtr /*dependLib*/,
-                               GenShaderUtil::TestSuiteOptions& /*options*/) {};
+    virtual void loadAdditionalLibraries(mx::DocumentPtr /*dependLib*/,
+                                         GenShaderUtil::TestSuiteOptions& /*options*/) {};
 
     //
     // Code generation methods
