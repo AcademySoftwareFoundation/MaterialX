@@ -37,9 +37,9 @@ install(TARGETS MaterialXContrib
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/External" "${CMAKE_CURRENT_SOURCE_DIR}/Handlers"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXContrib/
     FILES_MATCHING PATTERN "*.h*"
-    PATTERN "MaterialXNode/*.h*" EXCLUDE)
+    PATTERN "MaterialXMaya/*.h*" EXCLUDE)
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXContrib.pdb"
         DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/" OPTIONAL)
 
-add_subdirectory(MaterialXNode)
+add_subdirectory(MaterialXMaya)
