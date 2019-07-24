@@ -1,4 +1,4 @@
-# MaterialXNode module
+# MaterialXMaya module
 
 ## Description
 

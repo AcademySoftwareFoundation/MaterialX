@@ -1,4 +1,4 @@
-project(MaterialXNode)
+project(MaterialXMaya)
 set(MATERIALX_NODE_VERSION_MAJOR 0)
 set(MATERIALX_NODE_VERSION_MINOR 1)
 set(MATERIALX_NODE_BUILD_VERSION 0)
@@ -79,15 +79,15 @@ if (EXISTS "${MAYA_DEBUG_DIR}" OR EXISTS "${MAYA_RELEASE_DIR}")
     source_group("AETemplates" FILES ${_AEtemplate})
     source_group("Mods" FILES ${_mods})
 
-    add_library(MaterialXNode SHARED
+    add_library(${PROJECT_NAME} SHARED
         ${_source}
         ${_headers}
     )
 
     set_target_properties(
-        MaterialXNode
+        ${PROJECT_NAME}
         PROPERTIES
-        OUTPUT_NAME MaterialXNode
+        OUTPUT_NAME ${PROJECT_NAME}
         COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
         LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
         VERSION ${MATERIALX_NODE_VERSION}
@@ -104,7 +104,7 @@ if (EXISTS "${MAYA_DEBUG_DIR}" OR EXISTS "${MAYA_RELEASE_DIR}")
     DEPEND_MAYAAPI_INCLUDE()
 
     target_link_libraries(
-        MaterialXNode
+        ${PROJECT_NAME}
         MaterialXContrib
         MaterialXCore
         MaterialXFormat
@@ -113,12 +113,12 @@ if (EXISTS "${MAYA_DEBUG_DIR}" OR EXISTS "${MAYA_RELEASE_DIR}")
         MaterialXRender
         ${CMAKE_DL_LIBS}
     )
-    DEPEND_MAYAAPI_LINK(MaterialXNode)
+    DEPEND_MAYAAPI_LINK(${PROJECT_NAME})
 
-    install(TARGETS MaterialXNode DESTINATION ${CMAKE_INSTALL_PREFIX}/MaterialXNode/plug-ins)
-    install(FILES ${_scripts} DESTINATION ${CMAKE_INSTALL_PREFIX}/MaterialXNode/scripts)
-    install(FILES ${_AEtemplate} DESTINATION ${CMAKE_INSTALL_PREFIX}/MaterialXNode/AEtemplate)
-    install(FILES ${_mods} DESTINATION ${CMAKE_INSTALL_PREFIX}/MaterialXNode)
-    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION "${CMAKE_INSTALL_PREFIX}/MaterialXNode")
-    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../../resources DESTINATION "${CMAKE_INSTALL_PREFIX}/MaterialXNode")
+    install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/plug-ins)
+    install(FILES ${_scripts} DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/scripts)
+    install(FILES ${_AEtemplate} DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/AEtemplate)
+    install(FILES ${_mods} DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME})
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}")
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../../resources DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}")
 endif()
