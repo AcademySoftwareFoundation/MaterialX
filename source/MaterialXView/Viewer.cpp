@@ -78,13 +78,18 @@ mx::DocumentPtr loadLibraries(const mx::StringVec& libraryFolders, const mx::Fil
         mx::FilePath path = searchPath.find(libraryFolder);
         mx::FilePathVec filenames = path.getFilesInDirectory("mtlx");
 
+        mx::CopyOptions copyOptions;
+        copyOptions.skipConflictingElements = true;
+
+        mx::XmlReadOptions readOptions;
+        readOptions.skipConflictingElements = true;
         for (const std::string& filename : filenames)
         {
             mx::FilePath file = path / filename;
             mx::DocumentPtr libDoc = mx::createDocument();
-            mx::readFromXmlFile(libDoc, file);
+            mx::readFromXmlFile(libDoc, file, mx::EMPTY_STRING, &readOptions);
             libDoc->setSourceUri(file);
-            doc->importLibrary(libDoc);
+            doc->importLibrary(libDoc, &copyOptions);
         }
     }
     return doc;
@@ -197,6 +202,7 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     _specularEnvironmentMethod(specularEnvironmentMethod),
     _envSamples(DEFAULT_ENV_SAMPLES),
     _drawEnvironment(false),
+    _showAdvancedProperties(false),
     _captureFrame(false),
     _drawUVGeometry(false),
     _uvScale(2.0f, 2.0f, 1.0f),
@@ -356,9 +362,14 @@ void Viewer::setupLights(mx::DocumentPtr doc)
     {
         try
         {
-            mx::readFromXmlFile(lightDoc, path.asString());
+            mx::XmlReadOptions readOptions;
+            readOptions.skipConflictingElements = true;
+            mx::readFromXmlFile(lightDoc, path.asString(), mx::EMPTY_STRING, &readOptions);
             lightDoc->setSourceUri(path);
-            doc->importLibrary(lightDoc);
+
+            mx::CopyOptions copyOptions;
+            copyOptions.skipConflictingElements = true;
+            doc->importLibrary(lightDoc, &copyOptions);
         }
         catch (std::exception& e)
         {
@@ -390,7 +401,7 @@ void Viewer::setupLights(mx::DocumentPtr doc)
             // Create a list of unique nodedefs and ids for them
             std::unordered_map<std::string, unsigned int> identifiers;
             _lightHandler->mapNodeDefToIdentiers(lights, identifiers);
-            for (auto id : identifiers)
+            for (const auto& id : identifiers)
             {
                 mx::NodeDefPtr nodeDef = doc->getNodeDef(id.first);
                 if (nodeDef)
@@ -601,6 +612,16 @@ void Viewer::createAdvancedSettings(Widget* parent)
             _envSamples = MIN_ENV_SAMPLES * (int) std::pow(4, index);
         });
     }
+
+    new ng::Label(advancedPopup, "Property Editor Options");
+
+    ng::CheckBox* showAdvancedProperties = new ng::CheckBox(advancedPopup, "Show advanced attributes");
+    showAdvancedProperties->setChecked(_showAdvancedProperties);
+    showAdvancedProperties->setCallback([this](bool enable)
+    {
+        _showAdvancedProperties = enable;
+        updatePropertyEditor();
+    });
 }
 
 void Viewer::updateGeometrySelections()
@@ -671,7 +692,7 @@ void Viewer::updateGeometrySelections()
 void Viewer::updateMaterialSelections()
 {
     std::vector<std::string> items;
-    for (auto material : _materials)
+    for (const auto& material : _materials)
     {
         mx::ElementPtr displayElem = material->getElement();
         if (displayElem->isA<mx::ShaderRef>())
@@ -715,6 +736,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 {
     // Set up read options.
     mx::XmlReadOptions readOptions;
+    readOptions.skipConflictingElements = true;
     readOptions.readXIncludeFunction = [](mx::DocumentPtr doc, const std::string& filename,
                                           const std::string& searchPath, const mx::XmlReadOptions* options)
     {
@@ -753,7 +775,8 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         mx::readFromXmlFile(doc, filename, _searchPath.asString(), &readOptions);
 
         // Import libraries.
-        mx::CopyOptions copyOptions;
+        mx::CopyOptions copyOptions; 
+        copyOptions.skipConflictingElements = true;
         doc->importLibrary(libraries, &copyOptions);
 
         // Add lighting 
@@ -783,7 +806,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         mx::ValuePtr udimSetValue = doc->getGeomAttrValue("udimset");
 
         // Create new materials.
-        for (auto renderablePath : renderablePaths)
+        for (const auto& renderablePath : renderablePaths)
         {
             mx::ElementPtr elem = doc->getDescendant(renderablePath);
             mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
@@ -1038,7 +1061,7 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         if (!extensions.empty())
         {
             std::vector<std::pair<std::string, std::string>> filetypes;
-            for (auto extension : extensions)
+            for (const auto& extension : extensions)
             {
                 filetypes.push_back(std::make_pair(extension, extension));
             }
@@ -1120,7 +1143,7 @@ void Viewer::drawScene3D()
 
     // Opaque pass
     glDisable(GL_BLEND);
-    for (auto assignment : _materialAssignments)
+    for (const auto& assignment : _materialAssignments)
     {
         mx::MeshPartitionPtr geom = assignment.first;
         MaterialPtr material = assignment.second;
@@ -1142,7 +1165,7 @@ void Viewer::drawScene3D()
     // Transparent pass
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    for (auto assignment : _materialAssignments)
+    for (const auto& assignment : _materialAssignments)
     {
         mx::MeshPartitionPtr geom = assignment.first;
         MaterialPtr material = assignment.second;
@@ -1166,7 +1189,7 @@ void Viewer::drawScene3D()
     {
         glEnable(GL_BLEND);
         glBlendFunc(GL_DST_COLOR, GL_ZERO);
-        for (auto assignment : _materialAssignments)
+        for (const auto& assignment : _materialAssignments)
         {
             mx::MeshPartitionPtr geom = assignment.first;
             MaterialPtr material = assignment.second;

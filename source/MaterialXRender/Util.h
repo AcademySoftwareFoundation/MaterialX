@@ -54,6 +54,9 @@ namespace MaterialX
 
         /// UI maximum value
         ValuePtr uiMax;
+
+        /// UI advanced element
+        bool uiAdvanced;
     };
 
     /// Get the UI properties for a given nodedef element.

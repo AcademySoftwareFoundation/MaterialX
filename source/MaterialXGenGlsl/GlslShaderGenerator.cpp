@@ -28,13 +28,14 @@
 #include <MaterialXGenGlsl/Nodes/TransformPointNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/TransformNormalNodeGlsl.h>
 
-#include <MaterialXGenShader/Nodes/SourceCodeNode.h>
+#include <MaterialXGenShader/Nodes/HwSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
 #include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/CompareNode.h>
 #include <MaterialXGenShader/Nodes/BlurNode.h>
+#include <MaterialXGenShader/Nodes/HwImageNode.h>
 
 namespace MaterialX
 {
@@ -248,6 +249,15 @@ GlslShaderGenerator::GlslShaderGenerator() :
     // <!-- <ND_transformnormal> ->
     registerImplementation("IM_transformnormal_vector3_" + GlslShaderGenerator::LANGUAGE, TransformNormalNodeGlsl::create);
 
+    // <!-- <image> -->
+    registerImplementation("IM_image_float_" + GlslShaderGenerator::LANGUAGE, HwImageNode::create);
+    registerImplementation("IM_image_color2_" + GlslShaderGenerator::LANGUAGE, HwImageNode::create);
+    registerImplementation("IM_image_color3_" + GlslShaderGenerator::LANGUAGE, HwImageNode::create);
+    registerImplementation("IM_image_color4_" + GlslShaderGenerator::LANGUAGE, HwImageNode::create);
+    registerImplementation("IM_image_vector2_" + GlslShaderGenerator::LANGUAGE, HwImageNode::create);
+    registerImplementation("IM_image_vector3_" + GlslShaderGenerator::LANGUAGE, HwImageNode::create);
+    registerImplementation("IM_image_vector4_" + GlslShaderGenerator::LANGUAGE, HwImageNode::create);
+
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", NumLightsNodeGlsl::create()));
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", LightSamplerNodeGlsl::create()));
 }
@@ -278,11 +288,8 @@ ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, 
 void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
     // Add version directive
-    if (context.getOptions().emitVersionString)
-    {
-        emitLine("#version " + getVersion(), stage, false);
-        emitLineBreak(stage);
-    }
+    emitLine("#version " + getVersion(), stage, false);
+    emitLineBreak(stage);
 
     // Add all constants
     const VariableBlock& constants = stage.getConstantBlock();
@@ -363,12 +370,9 @@ void GlslShaderGenerator::emitSpecularEnvironment(GenContext& context, ShaderSta
 
 void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
-    if (context.getOptions().emitVersionString)
-    {
-        // Add version directive
-        emitLine("#version " + getVersion(), stage, false);
-        emitLineBreak(stage);
-    }
+    // Add version directive
+    emitLine("#version " + getVersion(), stage, false);
+    emitLineBreak(stage);
 
     // Add global constants and type definitions
     emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_defines.glsl", context, stage);
@@ -454,15 +458,13 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     }
 
     // Emit uv transform function
-    if (context.getOptions().fileTextureVerticalFlip)
+    if (!context.getOptions().fileTextureVerticalFlip)
     {
-        emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_vflip.glsl", context, stage);
-        emitLineBreak(stage);
+        emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv.glsl", context, stage);
     }
     else
     {
-        emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_get_target_uv_noop.glsl", context, stage);
-        emitLineBreak(stage);
+        emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv_vflip.glsl", context, stage);
     }
 
     // Add all functions for node implementations
@@ -552,13 +554,13 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
         if (lightShaders)
         {
-            for (auto it : lightShaders->get())
+            for (const auto& it : lightShaders->get())
             {
                 emitFunctionDefinition(*it.second, context, stage);
             }
         }
         // Emit functions for light sampling
-        for (auto it : _lightSamplingNodes)
+        for (const auto& it : _lightSamplingNodes)
         {
             emitFunctionDefinition(*it, context, stage);
         }

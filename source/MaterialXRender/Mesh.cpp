@@ -200,7 +200,7 @@ void Mesh::splitByUdims()
     }
 
     _partitions.clear();
-    for (auto pair : udimMap)
+    for (const auto& pair : udimMap)
     {
         addPartition(pair.second);
     }

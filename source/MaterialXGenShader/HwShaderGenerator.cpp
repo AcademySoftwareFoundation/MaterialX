@@ -282,7 +282,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     if (lightShaders && graph->hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
     {
         // Create shader variables for all bound light shaders
-        for (auto it : lightShaders->get())
+        for (const auto& it : lightShaders->get())
         {
             ShaderNode* node = it.second.get();
             node->getImplementation().createVariables(*node, context, *shader);
@@ -299,7 +299,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     std::deque<ShaderGraph*> graphQueue = { graph.get() };
     if (lightShaders)
     {
-        for (auto it : lightShaders->get())
+        for (const auto& it : lightShaders->get())
         {
             ShaderNode* node = it.second.get();
             ShaderGraph* lightGraph = node->getImplementation().getGraph();

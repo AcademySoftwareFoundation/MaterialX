@@ -120,7 +120,7 @@ unsigned int GlslProgram::build()
 
     unsigned int stagesBuilt = 0;
     unsigned int desiredStages = 0;
-    for (auto it : _stages)
+    for (const auto& it : _stages)
     {
         if (it.second.length())
             desiredStages++;
@@ -283,7 +283,7 @@ void GlslProgram::bindInputs(ViewHandlerPtr viewHandler,
 
     // Bind based on inputs found
     bindViewInformation(viewHandler);
-    for (auto mesh : geometryHandler->getMeshes())
+    for (const auto& mesh : geometryHandler->getMeshes())
     {
         bindStreams(mesh);
     }
@@ -328,7 +328,7 @@ void GlslProgram::bindAttribute(const GlslProgram::InputMap& inputs, MeshPtr mes
 
     const size_t FLOAT_SIZE = sizeof(float);
 
-    for (auto input : inputs)
+    for (const auto& input : inputs)
     {
         int location = input.second->location;
         unsigned int index = input.second->value ? input.second->value->asA<int>() : 0;
@@ -459,7 +459,7 @@ void GlslProgram::bindStreams(MeshPtr mesh)
     // Bind any named attribute information
     const GlslProgram::InputMap& uniformList = getUniformsList();
     findInputs(HW::GEOMATTR + "_", uniformList, foundList, false);
-    for (auto Input : foundList)
+    for (const auto& Input : foundList)
     {
         // Only handle float1-4 types for now
         switch (Input.second->gltype)
@@ -509,7 +509,7 @@ void GlslProgram::unbindGeometry()
         glDeleteBuffers(1, &_indexBuffer);
         _indexBuffer = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
     }
-    for (auto attributeBufferId : _attributeBufferIds)
+    for (const auto& attributeBufferId : _attributeBufferIds)
     {
         unsigned int bufferId = attributeBufferId.second;
         if (bufferId > 0)
@@ -587,7 +587,7 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
     // Bind textures based on uniforms found in the program
     const GlslProgram::InputMap& uniformList = getUniformsList();
     const std::string IMAGE_SEPARATOR("_");
-    for (auto uniform : uniformList)
+    for (const auto& uniform : uniformList)
     {
         GLenum uniformType = uniform.second->gltype;
         GLint uniformLocation = uniform.second->location;
@@ -697,7 +697,7 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
         { HW::ENV_IRRADIANCE, lightHandler->getLightEnvIrradiancePath() }
     };
 
-    for (auto ibl : iblList)
+    for (const auto& ibl : iblList)
     {
         auto iblUniform = uniformList.find(ibl.first);
         GlslProgram::InputPtr inputPtr = iblUniform != uniformList.end() ? iblUniform->second : nullptr;
@@ -731,7 +731,7 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
     const std::unordered_map<string, unsigned int>& ids = lightHandler->getLightIdentifierMap();
 
     size_t index = 0;
-    for (auto light : lightList)
+    for (const auto& light : lightList)
     {
         auto nodeDef = light->getNodeDef();
         if (!nodeDef)
@@ -763,7 +763,7 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
         }
 
         // Set all inputs
-        for (auto lightInput : light->getInputs())
+        for (const auto& lightInput : light->getInputs())
         {
             // Make sure we have a value to set
             if (lightInput->hasValue())
@@ -777,7 +777,7 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
         }
 
         // Set all parameters. Note that upstream connections are not currently handled.
-        for (auto param : light->getParameters())
+        for (const auto& param : light->getParameters())
         {
             // Make sure we have a value to set
             if (param->hasValue())
@@ -1464,7 +1464,7 @@ void GlslProgram::findInputs(const std::string& variable,
 void GlslProgram::printUniforms(std::ostream& outputStream)
 {
     updateUniformsList();
-    for (auto input : _uniformList)
+    for (const auto& input : _uniformList)
     {
         unsigned int gltype = input.second->gltype;
         int location = input.second->location;
@@ -1491,7 +1491,7 @@ void GlslProgram::printUniforms(std::ostream& outputStream)
 void GlslProgram::printAttributes(std::ostream& outputStream)
 {
     updateAttributesList();
-    for (auto input : _attributeList)
+    for (const auto& input : _attributeList)
     {
         unsigned int gltype = input.second->gltype;
         int location = input.second->location;

@@ -1119,6 +1119,7 @@ class ValueElement : public TypedElement
     static const string UI_FOLDER_ATTRIBUTE;
     static const string UI_MIN_ATTRIBUTE;
     static const string UI_MAX_ATTRIBUTE;
+    static const string UI_ADVANCED_ATTRIBUTE;
 };
 
 /// @class Token

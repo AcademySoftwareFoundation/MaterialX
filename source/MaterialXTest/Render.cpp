@@ -102,7 +102,7 @@ TEST_CASE("Render: Geometry Handler Load", "[rendercore]")
     }
     catch (mx::ExceptionShaderValidationError& e)
     {
-        for (auto error : e.errorLog())
+        for (const auto& error : e.errorLog())
         {
             geomHandlerLog << e.what() << " " << error << std::endl;
         }
@@ -203,7 +203,7 @@ TEST_CASE("Render: Image Handler Load", "[rendercore]")
     }
     catch (mx::ExceptionShaderValidationError& e)
     {
-        for (auto error : e.errorLog())
+        for (const auto& error : e.errorLog())
         {
             imageHandlerLog << e.what() << " " << error << std::endl;
         }

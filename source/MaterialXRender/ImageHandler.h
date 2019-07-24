@@ -19,6 +19,8 @@
 
 namespace MaterialX
 {
+class VariableBlock;
+
 /// A function to perform image buffer deallocation
 using ImageBufferDeallocator = std::function<void(void*)>;
 
@@ -95,6 +97,12 @@ class ImageDescRestrictions
 class ImageSamplingProperties
 {
   public:
+    /// Set the properties based on data in a uniform block.
+    /// @param fileNameUniform Name of the file name uniform. Used to find
+    ///        corresponding sampler data in the uniform block
+    /// @param uniformBlock Block containing sampler uniforms
+    void setProperties(const string& fileNameUniform,
+                       const VariableBlock& uniformBlock);
 
     /// Address mode options. Matches enumerations
     /// allowed for <image> address modes, except
@@ -306,18 +314,6 @@ class ImageHandler
     {
         return -1;
     }
-
-    /// Perform UDIM token replace using an input file path and a list of token
-    /// replacements (UDIM identifiers). A new path will be created for 
-    /// each identifier.
-    /// @param filePath File path with UDIM token
-    /// @param udimIdentifiers List of UDIM identifiers
-    /// @returns List of file paths
-    static FilePathVec getUdimPaths(const FilePath& filePath, const StringVec& udimIdentifiers);
-
-    /// Compute the UDIM coordinates for a set of UDIM identifiers
-    /// @return List of UDIM coordinates
-    static vector<Vector2> getUdimCoordinates(const StringVec& udimIdentifiers);
 
   protected:
     /// Cache an image for reuse.

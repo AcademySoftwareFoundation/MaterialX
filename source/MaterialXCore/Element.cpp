@@ -32,6 +32,7 @@ const string ValueElement::UI_NAME_ATTRIBUTE = "uiname";
 const string ValueElement::UI_FOLDER_ATTRIBUTE = "uifolder";
 const string ValueElement::UI_MIN_ATTRIBUTE = "uimin";
 const string ValueElement::UI_MAX_ATTRIBUTE = "uimax";
+const string ValueElement::UI_ADVANCED_ATTRIBUTE = "uiadvanced";
 
 Element::CreatorMap Element::_creatorMap;
 

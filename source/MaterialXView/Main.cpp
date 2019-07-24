@@ -114,7 +114,7 @@ int main(int argc, char* const argv[])
     { 
         mx::FilePath("libraries")
     };
-    for (auto libraryPath : libraryPaths)
+    for (const auto& libraryPath : libraryPaths)
     {
         mx::FilePath fullPath(currentPath / libraryPath);
         if (!fullPath.exists())

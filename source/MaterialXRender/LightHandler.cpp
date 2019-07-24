@@ -27,7 +27,7 @@ void LightHandler::mapNodeDefToIdentiers(const std::vector<NodePtr>& nodes,
                                            std::unordered_map<string, unsigned int>& ids)
 {
     unsigned int id = 1;
-    for (auto node : nodes)
+    for (const auto& node : nodes)
     {
         auto nodedef = node->getNodeDef();
         if (nodedef)
@@ -65,7 +65,7 @@ void LightHandler::registerLights(DocumentPtr doc, const std::vector<NodePtr>& l
     {
         // Create a list of unique nodedefs and ids for them
         mapNodeDefToIdentiers(lights, _lightIdentifierMap);
-        for (auto id : _lightIdentifierMap)
+        for (const auto& id : _lightIdentifierMap)
         {
             NodeDefPtr nodeDef = doc->getNodeDef(id.first);
             if (nodeDef)

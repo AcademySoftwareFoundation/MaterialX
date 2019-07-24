@@ -5,6 +5,7 @@
 
 #include <MaterialXCore/Types.h>
 #include <MaterialXGenShader/Util.h>
+#include <MaterialXGenShader/Shader.h>
 #include <MaterialXRender/ImageHandler.h>
 #include <cmath>
 
@@ -58,7 +59,7 @@ void ImageHandler::addLoader(ImageLoaderPtr loader)
     if (loader)
     {
         const StringSet& extensions = loader->supportedExtensions();
-        for (auto extension : extensions)
+        for (const auto& extension : extensions)
         {
             _imageLoaders.insert(std::pair<string, ImageLoaderPtr>(extension, loader));
         }
@@ -68,7 +69,7 @@ void ImageHandler::addLoader(ImageLoaderPtr loader)
 void ImageHandler::supportedExtensions(StringSet& extensions)
 {
     extensions.clear();
-    for (auto loader : _imageLoaders)
+    for (const auto& loader : _imageLoaders)
     {
         const StringSet& loaderExtensions = loader.second->supportedExtensions();
         extensions.insert(loaderExtensions.begin(), loaderExtensions.end());
@@ -208,59 +209,47 @@ void ImageHandler::clearImageCache()
     _imageCache.clear();
 }
 
-FilePathVec ImageHandler::getUdimPaths(const FilePath& filePath, const StringVec& udimIdentifiers)
+void ImageSamplingProperties::setProperties(const string& fileNameUniform,
+                                            const VariableBlock& uniformBlock)
 {
-    FilePathVec resolvedFilePaths;
-    if (udimIdentifiers.empty())
+    const std::string IMAGE_SEPARATOR("_");
+    const std::string UADDRESS_MODE_POST_FIX("_uaddressmode");
+    const std::string VADDRESS_MODE_POST_FIX("_vaddressmode");
+    const std::string FILTER_TYPE_POST_FIX("_filtertype");
+    const std::string DEFAULT_COLOR_POST_FIX("_default");
+    const int INVALID_MAPPED_INT_VALUE = -1; // Any value < 0 is not considered to be invalid
+
+    // Get the additional texture parameters based on image uniform name
+    // excluding the trailing "_file" postfix string
+    std::string root = fileNameUniform;
+    size_t pos = root.find_last_of(IMAGE_SEPARATOR);
+    if (pos != std::string::npos)
     {
-        return resolvedFilePaths;
+        root = root.substr(0, pos);
     }
 
-    for (const string& udimIdentifier : udimIdentifiers)
+    const std::string uaddressmodeStr = root + UADDRESS_MODE_POST_FIX;
+    const ShaderPort* port = uniformBlock.find(uaddressmodeStr);
+    ValuePtr intValue = port ? port->getValue() : nullptr;
+    uaddressMode = ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
+
+    const std::string vaddressmodeStr = root + VADDRESS_MODE_POST_FIX;
+    port = uniformBlock.find(vaddressmodeStr);
+    intValue = port ? port->getValue() : nullptr;
+    vaddressMode = ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
+
+    const std::string filtertypeStr = root + FILTER_TYPE_POST_FIX;
+    port = uniformBlock.find(filtertypeStr);
+    intValue = port ? port->getValue() : nullptr;
+    filterType = ImageSamplingProperties::FilterType(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
+
+    const std::string defaultColorStr = root + DEFAULT_COLOR_POST_FIX;
+    port = uniformBlock.find(defaultColorStr);
+    ValuePtr colorValue = port ? port->getValue() : nullptr;
+    if (colorValue)
     {
-        if (udimIdentifier.empty())
-        {
-            continue;
-        }
-
-        StringMap map;
-        map[UDIM_TOKEN] = udimIdentifier;
-        resolvedFilePaths.push_back(FilePath(replaceSubstrings(filePath.asString(), map)));
+        mapValueToColor(colorValue, defaultColor);
     }
-
-    return resolvedFilePaths;
-}
-
-vector<Vector2> ImageHandler::getUdimCoordinates(const StringVec& udimIdentifiers)
-{
-    vector<Vector2> udimCoordinates;
-    if (udimIdentifiers.empty())
-    {
-        return udimCoordinates;
-    }
-
-    for (const string& udimIdentifier : udimIdentifiers)
-    {
-        if (udimIdentifier.empty())
-        {
-            continue;
-        }
-
-        int udimVal = std::stoi(udimIdentifier);
-        if (udimVal <= 1000 || udimVal >= 2000)
-        {
-            throw Exception("Invalid UDIM identifier specified" + udimIdentifier);
-        }
-
-        // Compute UDIM coordinate and add to list to return
-        udimVal -= 1000;
-        int uVal = udimVal % 10;
-        uVal = (uVal == 0) ? 9 : uVal - 1;
-        int vVal = (udimVal - uVal - 1) / 10;
-        udimCoordinates.push_back(Vector2(static_cast<float>(uVal), static_cast<float>(vVal)));
-    }
-
-    return udimCoordinates;
 }
 
 } // namespace MaterialX
