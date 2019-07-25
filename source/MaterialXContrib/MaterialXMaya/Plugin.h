@@ -8,6 +8,9 @@
 
 namespace mx = MaterialX;
 
+namespace MaterialXMaya
+{
+
 class Plugin
 {
   public:
@@ -36,5 +39,7 @@ class Plugin
     mx::FileSearchPath _librarySearchPath;
     mx::FileSearchPath _resourceSearchPath;
 };
+
+} // namespace MaterialXMaya
 
 #endif /* PLUGIN_H */

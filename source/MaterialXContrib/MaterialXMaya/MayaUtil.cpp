@@ -6,6 +6,10 @@
 
 namespace MaterialXMaya
 {
+
+namespace MayaUtil
+{
+
 void registerFragment(const std::string& fragmentName, const std::string& fragmentSource)
 {
     if (fragmentName.empty())
@@ -39,5 +43,6 @@ void registerFragment(const std::string& fragmentName, const std::string& fragme
         }
     }
 }
-}
 
+} // namespace MayaUtil
+} // namespace MaterialXMaya

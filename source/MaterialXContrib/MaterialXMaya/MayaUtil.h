@@ -5,7 +5,10 @@
 
 namespace MaterialXMaya
 {
+namespace MayaUtil
+{
 void registerFragment(const std::string& fragmentName, const std::string& fragmentSource);
+}
 }
 
 #endif

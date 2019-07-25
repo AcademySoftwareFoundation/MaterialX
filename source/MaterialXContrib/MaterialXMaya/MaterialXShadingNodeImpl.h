@@ -3,6 +3,9 @@
 
 #include <maya/MViewport2Renderer.h>
 
+namespace MaterialXMaya
+{
+
 template <class BASE>
 class MaterialXShadingNodeImpl : public BASE
 {
@@ -30,5 +33,7 @@ class MaterialXShadingNodeImpl : public BASE
 
     MObject _object;
 };
+
+} // namespace MaterialXMaya
 
 #endif /* MATERIALX_SHADINGNODE_IMPL_H */

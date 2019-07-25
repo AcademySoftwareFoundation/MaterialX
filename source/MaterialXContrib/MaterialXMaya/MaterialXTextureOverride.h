@@ -5,6 +5,9 @@
 
 #include <maya/MPxShadingNodeOverride.h>
 
+namespace MaterialXMaya
+{
+
 /// VP2 texture shading node override
 class MaterialXTextureOverride
     : public MaterialXShadingNodeImpl<MHWRender::MPxShadingNodeOverride>
@@ -18,5 +21,7 @@ class MaterialXTextureOverride
     /// Inheriting the constructor from the base class.
     using MaterialXShadingNodeImpl<MHWRender::MPxShadingNodeOverride>::MaterialXShadingNodeImpl;
 };
+
+} // namespace MaterialXMaya
 
 #endif

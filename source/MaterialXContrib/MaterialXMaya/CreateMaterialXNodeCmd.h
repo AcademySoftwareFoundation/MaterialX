@@ -11,6 +11,9 @@
 
 namespace mx = MaterialX;
 
+namespace MaterialXMaya
+{
+
 ///
 ///
 ///
@@ -47,5 +50,7 @@ class CreateMaterialXNodeCmd : MPxCommand
 
     MDGModifier _dgModifier;
 };
+
+} // namespace MaterialXMaya
 
 #endif /* CREATE_MATERIALX_NODE_CMD_H */

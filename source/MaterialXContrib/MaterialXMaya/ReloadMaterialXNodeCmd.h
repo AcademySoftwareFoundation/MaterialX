@@ -3,6 +3,9 @@
 
 #include <maya/MPxCommand.h>
 
+namespace MaterialXMaya
+{
+
 ///
 ///
 ///
@@ -20,5 +23,7 @@ public:
 
 	static MString NAME;
 };
+
+} // namespace MaterialXMaya
 
 #endif /* RELOAD_MATERIALX_NODE_CMD_H */

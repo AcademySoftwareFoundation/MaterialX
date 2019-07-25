@@ -10,9 +10,12 @@
 
 #include <MaterialXCore/Document.h>
 
-MString ReloadMaterialXNodeCmd::NAME("reloadMaterialXNode");
-
 namespace mx = MaterialX;
+
+namespace MaterialXMaya
+{
+
+MString ReloadMaterialXNodeCmd::NAME("reloadMaterialXNode");
 
 ReloadMaterialXNodeCmd::ReloadMaterialXNodeCmd()
 {
@@ -75,3 +78,5 @@ void* ReloadMaterialXNodeCmd::creator()
 {
 	return new ReloadMaterialXNodeCmd();
 }
+
+} // namespace MaterialXMaya

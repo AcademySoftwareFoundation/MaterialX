@@ -10,6 +10,9 @@
 
 namespace mx = MaterialX;
 
+namespace MaterialXMaya
+{
+
 /// @class MaterialXData
 /// Wrapper for MaterialX associated data. 
 ///
@@ -94,5 +97,7 @@ class MaterialXData
 
     bool _isTransparent = false;
 };
+
+} // namespace MaterialXMaya
 
 #endif // MATERIALX_DATA_H

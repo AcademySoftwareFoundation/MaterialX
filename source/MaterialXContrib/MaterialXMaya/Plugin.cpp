@@ -14,16 +14,19 @@
 #include <maya/MViewport2Renderer.h>
 #include <maya/MFragmentManager.h>
 
+namespace MaterialXMaya
+{
+
 Plugin& Plugin::instance()
 {
-	static Plugin s_instance;
-	return s_instance;
+    static Plugin s_instance;
+    return s_instance;
 }
 
 void Plugin::initialize(const std::string& loadPath)
 {
     // Always include plug-in load path
-	const mx::FilePath searchPath(loadPath);
+    const mx::FilePath searchPath(loadPath);
     
     // Search in standard library directories
     _librarySearchPath.append(searchPath);
@@ -52,15 +55,16 @@ void Plugin::initialize(const std::string& loadPath)
     }
 }
 
-///////////////////////////////////////////////////////////////
-static const MString sRegistrantId("testFileTexturePlugin");
+} // namespace MaterialXMaya
 
 // Plugin configuration
 //
 MStatus initializePlugin(MObject obj)
 {
-	MFnPlugin plugin(obj, "Autodesk", "1.0", "Any");
-	Plugin::instance().initialize(plugin.loadPath().asChar());
+    using namespace MaterialXMaya;
+
+    MFnPlugin plugin(obj, "Autodesk", "1.0", "Any");
+    Plugin::instance().initialize(plugin.loadPath().asChar());
 
     CHECK_MSTATUS(plugin.registerCommand(
         CreateMaterialXNodeCmd::NAME,
@@ -123,25 +127,27 @@ MStatus initializePlugin(MObject obj)
 
 MStatus uninitializePlugin(MObject obj)
 {
-	MFnPlugin plugin(obj);
-	MStatus status;
+    using namespace MaterialXMaya;
 
-	CHECK_MSTATUS(plugin.deregisterNode(MaterialXNode::MATERIALX_NODE_TYPEID));
+    MFnPlugin plugin(obj);
+    MStatus status;
+
+    CHECK_MSTATUS(plugin.deregisterNode(MaterialXNode::MATERIALX_NODE_TYPEID));
     CHECK_MSTATUS(plugin.deregisterNode(MaterialXTextureNode::MATERIALX_TEXTURE_NODE_TYPEID));
     CHECK_MSTATUS(plugin.deregisterNode(MaterialXSurfaceNode::MATERIALX_SURFACE_NODE_TYPEID));
 
-	CHECK_MSTATUS(plugin.deregisterCommand(CreateMaterialXNodeCmd::NAME));
-	CHECK_MSTATUS(plugin.deregisterCommand(ReloadMaterialXNodeCmd::NAME));
+    CHECK_MSTATUS(plugin.deregisterCommand(CreateMaterialXNodeCmd::NAME));
+    CHECK_MSTATUS(plugin.deregisterCommand(ReloadMaterialXNodeCmd::NAME));
 
     CHECK_MSTATUS(
         MHWRender::MDrawRegistry::deregisterShadingNodeOverrideCreator(
-        MaterialXTextureOverride::DRAW_CLASSIFICATION,
-		MaterialXTextureOverride::REGISTRANT_ID));
+            MaterialXTextureOverride::DRAW_CLASSIFICATION,
+            MaterialXTextureOverride::REGISTRANT_ID ));
 
     CHECK_MSTATUS(
         MHWRender::MDrawRegistry::deregisterShadingNodeOverrideCreator(
-        MaterialXSurfaceOverride::DRAW_CLASSIFICATION,
-        MaterialXSurfaceOverride::REGISTRANT_ID));
+            MaterialXSurfaceOverride::DRAW_CLASSIFICATION,
+            MaterialXSurfaceOverride::REGISTRANT_ID ));
 
-	return MS::kSuccess;
+    return MS::kSuccess;
 }

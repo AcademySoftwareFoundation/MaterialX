@@ -14,6 +14,9 @@
 
 namespace mx = MaterialX;
 
+namespace MaterialXMaya
+{
+
 const MTypeId MaterialXNode::MATERIALX_NODE_TYPEID = 0x00042402;
 const MString MaterialXNode::MATERIALX_NODE_TYPENAME = "MaterialXNode";
 
@@ -145,7 +148,7 @@ void MaterialXNode::createAndRegisterFragment()
 
         if (!_document)
         {
-            _document = MaterialXMaya::loadDocument(
+            _document = MaterialXUtil::loadDocument(
                 _documentFilePath.asChar(), Plugin::instance().getLibrarySearchPath()
             );
         };
@@ -164,7 +167,7 @@ void MaterialXNode::createAndRegisterFragment()
             Plugin::instance().getLibrarySearchPath()
         ));
 
-        MaterialXMaya::registerFragment(
+        MayaUtil::registerFragment(
             _materialXData->getFragmentName(), _materialXData->getFragmentSource()
         );
     }
@@ -357,3 +360,5 @@ MaterialXSurfaceNode::getInternalValue(const MPlug& plug, MDataHandle& dataHandl
         return MaterialXNode::getInternalValue(plug, dataHandle);
     }
 }
+
+} // namespace MaterialXMaya

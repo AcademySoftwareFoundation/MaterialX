@@ -17,6 +17,15 @@
 
 namespace mx = MaterialX;
 
+namespace MHWRender
+{
+    class MPxShadingNodeOverride;
+    class MPxSurfaceShadingNodeOverride;
+};
+
+namespace MaterialXMaya
+{
+
 namespace
 {
 struct Vp2TextureDeleter
@@ -98,9 +107,9 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shader,
             MColor undefinedColor;
             MStringArray failedTilePaths;
             MFloatArray uvScaleOffset;
-            for (size_t i=0; i<udimPaths.size(); i++)
+            for (size_t i = 0; i < udimPaths.size(); ++i)
             {
-                mx::FilePath resolvedPath = MaterialXMaya::findInSubdirectories(searchPath, udimPaths[i]);
+                mx::FilePath resolvedPath = MaterialXUtil::findInSubdirectories(searchPath, udimPaths[i]);
                 mTilePaths.append(resolvedPath.asString().c_str());
                 mTilePositions.append(udimCoordinates[i][0]);
                 mTilePositions.append(udimCoordinates[i][1]);
@@ -115,7 +124,7 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shader,
         }
         else
         {
-            mx::FilePath imagePath = MaterialXMaya::findInSubdirectories(searchPath, fileName);
+            mx::FilePath imagePath = MaterialXUtil::findInSubdirectories(searchPath, fileName);
             if (!imagePath.isEmpty())
             {
                 texturePtr.reset(textureManager->acquireTexture(imagePath.asString().c_str(), mx::EMPTY_STRING.c_str()));
@@ -284,7 +293,7 @@ void MaterialXShadingNodeImpl<BASE>::updateShader(MHWRender::MShaderInstance& sh
     mx::FileSearchPath imageSearchPath = Plugin::instance().getResourceSearchPath(); 
     imageSearchPath.prepend(documentPath);
 
-    ::bindEnvironmentLighting(shader, parameterList, imageSearchPath, *node);
+    bindEnvironmentLighting(shader, parameterList, imageSearchPath, *node);
 
     mx::DocumentPtr document = materialXData->getDocument();
 
@@ -411,7 +420,7 @@ void MaterialXShadingNodeImpl<BASE>::updateShader(MHWRender::MShaderInstance& sh
                         samplerDescription.filter = filterModes[static_cast<int>(samplingProperties.filterType)];
                     }
 
-                    status = ::bindFileTexture(shader, textureParameterName, imageSearchPath, valueString,
+                    status = bindFileTexture(shader, textureParameterName, imageSearchPath, valueString,
                         samplerDescription, textureDescription, udimIdentifiers);
                 }
             }
@@ -419,11 +428,7 @@ void MaterialXShadingNodeImpl<BASE>::updateShader(MHWRender::MShaderInstance& sh
     }
 }
 
-namespace MHWRender
-{
-    class MPxShadingNodeOverride;
-    class MPxSurfaceShadingNodeOverride;
-};
-
 template class MaterialXShadingNodeImpl<MHWRender::MPxShadingNodeOverride>;
 template class MaterialXShadingNodeImpl<MHWRender::MPxSurfaceShadingNodeOverride>;
+
+} // namespace MaterialXMaya

@@ -8,6 +8,9 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenOgsXml/OgsXmlGenerator.h>
 
+namespace MaterialXMaya
+{
+
 MaterialXData::MaterialXData(mx::DocumentPtr document,
                              mx::ElementPtr element,
                              const mx::FileSearchPath& librarySearchPath ) :
@@ -210,3 +213,5 @@ std::string MaterialXData::getMatrix4Name(const std::string& matrix3Name)
 {
     return (matrix3Name + mx::GlslFragmentGenerator::MATRIX3_TO_MATRIX4_POSTFIX);
 }
+
+} // namespace MaterialXMaya

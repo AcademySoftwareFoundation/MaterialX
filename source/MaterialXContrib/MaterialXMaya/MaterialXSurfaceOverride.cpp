@@ -3,6 +3,9 @@
 
 namespace mx = MaterialX;
 
+namespace MaterialXMaya
+{
+
 const MString
     MaterialXSurfaceOverride::REGISTRANT_ID = "materialXSurface",
     MaterialXSurfaceOverride::DRAW_CLASSIFICATION = "drawdb/shader/surface/materialX";
@@ -19,3 +22,5 @@ MaterialXSurfaceOverride::transparencyParameter() const
 {
     return mx::OgsXmlGenerator::VP_TRANSPARENCY_NAME.c_str();
 }
+
+} // namespace MaterialXMaya

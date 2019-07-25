@@ -9,6 +9,8 @@ namespace mx = MaterialX;
 
 namespace MaterialXMaya
 {
+namespace MaterialXUtil
+{
 
 /// Find a given file path under a set of search paths. The search is performed
 /// on all subdirectories for each search path
@@ -27,6 +29,7 @@ mx::TypedElementPtr getRenderableElement(mx::DocumentPtr document,
                                         const std::vector<mx::TypedElementPtr> renderableElements,
                                         const std::string &desiredElementPath);
 
+} // namespace MaterialXUtil
 } // namespace MaterialXMaya
 
 #endif

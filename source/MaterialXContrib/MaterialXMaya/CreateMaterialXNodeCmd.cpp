@@ -25,6 +25,9 @@
 
 namespace mx = MaterialX;
 
+namespace MaterialXMaya
+{
+
 namespace
 {
 const char* const kDocumentFlag     = "d";
@@ -98,7 +101,7 @@ std::string CreateMaterialXNodeCmd::createNode( mx::DocumentPtr document,
                                                   renderableElement,
                                                   searchPath) };
 
-    MaterialXMaya::registerFragment(
+    MayaUtil::registerFragment(
         materialXData->getFragmentName(), materialXData->getFragmentSource()
     );
 
@@ -157,7 +160,7 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
             throw mx::Exception("MaterialX document file path is empty.");
         }
 
-        mx::DocumentPtr document = MaterialXMaya::loadDocument(
+        mx::DocumentPtr document = MaterialXUtil::loadDocument(
             documentFilePath.asChar(), Plugin::instance().getLibrarySearchPath()
         );
 
@@ -178,7 +181,7 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
             if (elementPath.length())
             {
                 mx::TypedElementPtr desiredElement =
-                    MaterialXMaya::getRenderableElement(document, renderableElements, elementPath.asChar());
+                    MaterialXUtil::getRenderableElement(document, renderableElements, elementPath.asChar());
 
                 if (desiredElement)
                 {
@@ -196,7 +199,7 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
 
         if (ogsXmlFileName.length() > 0)
         {
-            ::registerDebugFragment(ogsXmlFileName.asChar());
+            registerDebugFragment(ogsXmlFileName.asChar());
         }
 
         bool createAsTexture = false;
@@ -274,3 +277,5 @@ void* CreateMaterialXNodeCmd::creator()
 {
     return new CreateMaterialXNodeCmd();
 }
+
+} // namespace MaterialXMaya

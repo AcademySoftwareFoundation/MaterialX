@@ -8,6 +8,9 @@
 
 namespace mx = MaterialX;
 
+namespace MaterialXMaya
+{
+
 class MaterialXData;
 
 class MaterialXNode : public MPxNode
@@ -118,5 +121,7 @@ public:
 
     static MObject VP2_TRANSPARENCY_ATTRIBUTE;
 };
+
+} // namespace MaterialXMaya
 
 #endif /* MATERIALX_NODE_H */

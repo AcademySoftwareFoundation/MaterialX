@@ -11,6 +11,9 @@ namespace mx = MaterialX;
 namespace MaterialXMaya
 {
 
+namespace MaterialXUtil
+{
+
 mx::FilePath findInSubdirectories(const mx::FileSearchPath& searchPaths,
                                   const mx::FilePath& filePath)
 {
@@ -83,6 +86,5 @@ mx::TypedElementPtr getRenderableElement(mx::DocumentPtr document,
     return nullptr;
 }
 
-
+} // namespace MaterialXUtil
 } // namespace MaterialXMaya
-
