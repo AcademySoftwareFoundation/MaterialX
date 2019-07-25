@@ -1,5 +1,4 @@
-#include "MaterialXShadingNodeImpl.h"
-
+#include "ShadingNodeOverrides.h"
 #include "MaterialXNode.h"
 #include "Plugin.h"
 #include "MaterialXUtil.h"
@@ -276,7 +275,7 @@ void ShadingNodeOverride<BASE>::updateDG()
 
 template <class BASE>
 void ShadingNodeOverride<BASE>::updateShader(MHWRender::MShaderInstance& shader,
-                                                  const MHWRender::MAttributeParameterMappingList& mappings)
+                                             const MHWRender::MAttributeParameterMappingList& mappings)
 {
     MStatus status;
     MFnDependencyNode depNode(_object, &status);
