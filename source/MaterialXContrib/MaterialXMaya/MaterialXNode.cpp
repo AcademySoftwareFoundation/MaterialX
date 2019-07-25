@@ -156,19 +156,19 @@ void MaterialXNode::createAndRegisterFragment()
         if (_elementPath.length() == 0)
         {
             // If the element path attribute is empty, bail early and don't
-            // attempt to create a MaterialXData.
+            // attempt to create an OgsFragment.
             //
             return;
         }
 
-        _materialXData.reset(new MaterialXData(
+        _ogsFragment.reset(new OgsFragment(
             _document,
             _document->getDescendant(_elementPath.asChar()),
             Plugin::instance().getLibrarySearchPath()
         ));
 
         MayaUtil::registerFragment(
-            _materialXData->getFragmentName(), _materialXData->getFragmentSource()
+            _ogsFragment->getFragmentName(), _ogsFragment->getFragmentSource()
         );
     }
     catch (std::exception& e)
@@ -208,7 +208,7 @@ bool MaterialXNode::setInternalValue(const MPlug& plug, const MDataHandle& dataH
 
         _documentFilePath = value;
         _document.reset();
-        _materialXData.reset();
+        _ogsFragment.reset();
         
         createAndRegisterFragment();
     }
@@ -221,7 +221,7 @@ bool MaterialXNode::setInternalValue(const MPlug& plug, const MDataHandle& dataH
         }
 
         _elementPath = value;
-        _materialXData.reset();
+        _ogsFragment.reset();
 
         createAndRegisterFragment();
     }
@@ -272,7 +272,7 @@ void MaterialXNode::setData(const MString& documentFilePath,
                             const MString& elementPath,
                             const MString& envRadianceFileName,
                             const MString& envIrradianceFileName,
-                            std::unique_ptr<MaterialXData>&& materialXData)
+                            std::unique_ptr<OgsFragment>&& ogsFragment)
 {
     _documentFilePath = documentFilePath;
     _elementPath = elementPath;
@@ -289,10 +289,10 @@ void MaterialXNode::setData(const MString& documentFilePath,
         _envIrradianceFileName = envIrradianceFileName;
     }
 
-    _materialXData = std::move(materialXData);
-    if (_materialXData)
+    _ogsFragment = std::move(ogsFragment);
+    if (_ogsFragment)
     {
-        _document = _materialXData->getDocument();
+        _document = _ogsFragment->getDocument();
     }
 }
 
@@ -352,7 +352,7 @@ MaterialXSurfaceNode::getInternalValue(const MPlug& plug, MDataHandle& dataHandl
 {
     if (plug == VP2_TRANSPARENCY_ATTRIBUTE)
     {
-        dataHandle.set(_materialXData && _materialXData->isTransparent() ? 0.5f : 0.0f);
+        dataHandle.set(_ogsFragment && _ogsFragment->isTransparent() ? 0.5f : 0.0f);
         return true;
     }
     else

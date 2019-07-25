@@ -1,9 +1,6 @@
 #ifndef MATERIALX_DATA_H
 #define MATERIALX_DATA_H
 
-/// @file
-/// MaterialX Data wrapper
-
 #include <MaterialXCore/Document.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXRender/ImageHandler.h>
@@ -13,7 +10,7 @@ namespace mx = MaterialX;
 namespace MaterialXMaya
 {
 
-/// @class MaterialXData
+/// @class OgsFragment
 /// Wrapper for MaterialX associated data. 
 ///
 /// Keeps track of an element to render and it's associated document.
@@ -23,19 +20,19 @@ namespace MaterialXMaya
 /// on the specified element to render.
 /// Currently the only language target available is GLSL.
 ///
-class MaterialXData
+class OgsFragment
 {
   public:
     /// The element and document that the element resides in are passed in
     /// as input arguments.
-    MaterialXData(  mx::DocumentPtr document,
-                    mx::ElementPtr element,
-                    const mx::FileSearchPath& librarySearchPath);
+    OgsFragment(mx::DocumentPtr document,
+                mx::ElementPtr element,
+                const mx::FileSearchPath& librarySearchPath);
 
-    MaterialXData(const MaterialXData&) = delete;
-    MaterialXData(MaterialXData&&) = delete;
+    OgsFragment(const OgsFragment&) = delete;
+    OgsFragment(OgsFragment&&) = delete;
 
-    ~MaterialXData();
+    ~OgsFragment();
 
     /// Returns the path of the element to render
     std::string getElementPath() const
@@ -43,8 +40,8 @@ class MaterialXData
         return _element ? _element->getNamePath() : mx::EMPTY_STRING;
     }
 
-    MaterialXData& operator=(const MaterialXData&) = delete;
-    MaterialXData& operator=(MaterialXData&&) = delete;
+    OgsFragment& operator=(const OgsFragment&) = delete;
+    OgsFragment& operator=(OgsFragment&&) = delete;
 
     /// Return MaterialX document 
     mx::DocumentPtr getDocument() const

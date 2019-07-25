@@ -11,7 +11,7 @@ namespace mx = MaterialX;
 namespace MaterialXMaya
 {
 
-class MaterialXData;
+class OgsFragment;
 
 class MaterialXNode : public MPxNode
 {
@@ -32,13 +32,13 @@ class MaterialXNode : public MPxNode
                     const MString& elementPath,
                     const MString& envRadianceFileName,
                     const MString& envIrradianceFileName,
-                    std::unique_ptr<MaterialXData>&& ); 
+                    std::unique_ptr<OgsFragment>&& ); 
 
     void reloadDocument();
 
-    const MaterialXData* getMaterialXData() const
+    const OgsFragment* getOgsFragment() const
     {
-        return _materialXData.get();
+        return _ogsFragment.get();
     }
 
     const MString& getDocumentFilePath() const
@@ -80,7 +80,7 @@ class MaterialXNode : public MPxNode
     static MObject OUT_ATTRIBUTE;
 
   protected:
-    std::unique_ptr<MaterialXData> _materialXData;
+    std::unique_ptr<OgsFragment> _ogsFragment;
 
   private:
     void createAndRegisterFragment();
@@ -90,9 +90,10 @@ class MaterialXNode : public MPxNode
     MString _envRadianceFileName = "goegap_4k_dim.hdr";
     MString _envIrradianceFileName = "goegap_4k_dim.convolved.hdr";
 
-    /// MaterialXData keeps a shared pointer to the document but we also keep
-    /// another shared pointer here to avoid reloading the document when the
-    /// element path becomes invalid and the MaterialXData doesn't exist.
+    /// The OgsFragment keeps a shared pointer to the document it was created
+    /// from but we also keep another shared pointer here to avoid reloading
+    /// the document when the element path becomes invalid and the OgsFragment
+    /// doesn't exist.
     mx::DocumentPtr _document;
 };
 

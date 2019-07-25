@@ -248,7 +248,7 @@ ShadingNodeOverride<BASE>::fragmentName() const
     MStatus status;
     MFnDependencyNode depNode(_object, &status);
     const auto* const node = dynamic_cast<MaterialXNode*>(depNode.userNode());
-    const MaterialXData* const data = node ? node->getMaterialXData() : nullptr;
+    const OgsFragment* const data = node ? node->getOgsFragment() : nullptr;
     return data ? data->getFragmentName().c_str() : "";
 }
 
@@ -285,8 +285,8 @@ void ShadingNodeOverride<BASE>::updateShader(MHWRender::MShaderInstance& shader,
         return;
     }
 
-    const MaterialXData* const materialXData = node->getMaterialXData();
-    if (!materialXData)
+    const OgsFragment* const ogsFragment = node->getOgsFragment();
+    if (!ogsFragment)
     {
         return;
     }
@@ -303,7 +303,7 @@ void ShadingNodeOverride<BASE>::updateShader(MHWRender::MShaderInstance& shader,
 
     bindEnvironmentLighting(shader, parameterList, imageSearchPath, *node);
 
-    mx::DocumentPtr document = materialXData->getDocument();
+    mx::DocumentPtr document = ogsFragment->getDocument();
 
     // Look for any udimset on the document to use for texture binding.
     mx::ValuePtr udimSetValue = document->getGeomAttrValue("udimset");
@@ -329,7 +329,7 @@ void ShadingNodeOverride<BASE>::updateShader(MHWRender::MShaderInstance& shader,
         MHWRender::MSamplerState::kAnisotropic
     };
 
-    const mx::StringMap& inputs = materialXData->getPathInputMap();
+    const mx::StringMap& inputs = ogsFragment->getPathInputMap();
     for (const auto& input : inputs)
     {
         mx::ElementPtr element = document->getDescendant(input.first);
@@ -382,7 +382,7 @@ void ShadingNodeOverride<BASE>::updateShader(MHWRender::MShaderInstance& shader,
                     }
                 }
                 // Note: the parameter exposed uses a derived matrix44 name.
-                std::string matrix4Name = MaterialXData::getMatrix4Name(resolvedName.asChar());
+                std::string matrix4Name = OgsFragment::getMatrix4Name(resolvedName.asChar());
                 status = shader.setParameter(matrix4Name.c_str(), mayaValue);
             }
 
@@ -398,7 +398,7 @@ void ShadingNodeOverride<BASE>::updateShader(MHWRender::MShaderInstance& shader,
                     MHWRender::MTextureDescription textureDescription;
 
                     mx::ImageSamplingProperties samplingProperties
-                        = materialXData->getImageSamplngProperties(textureParameterName);
+                        = ogsFragment->getImageSamplngProperties(textureParameterName);
 
                     MHWRender::MSamplerStateDesc samplerDescription;
 

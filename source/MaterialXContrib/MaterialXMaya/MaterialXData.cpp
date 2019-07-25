@@ -11,7 +11,7 @@
 namespace MaterialXMaya
 {
 
-MaterialXData::MaterialXData(mx::DocumentPtr document,
+OgsFragment::OgsFragment(mx::DocumentPtr document,
                              mx::ElementPtr element,
                              const mx::FileSearchPath& librarySearchPath ) :
     _document(document),
@@ -37,31 +37,31 @@ MaterialXData::MaterialXData(mx::DocumentPtr document,
     }
 }
 
-MaterialXData::~MaterialXData()
+OgsFragment::~OgsFragment()
 {
 }
 
-const std::string& MaterialXData::getFragmentName() const
+const std::string& OgsFragment::getFragmentName() const
 {
     return _fragmentName;
 }
 
-const std::string& MaterialXData::getFragmentSource() const
+const std::string& OgsFragment::getFragmentSource() const
 {
     return _fragmentSource;
 }
 
-const mx::StringMap& MaterialXData::getPathInputMap() const
+const mx::StringMap& OgsFragment::getPathInputMap() const
 {
     return _pathInputMap;
 }
 
-bool MaterialXData::elementIsAShader() const
+bool OgsFragment::elementIsAShader() const
 {
     return _element && _element->isA<mx::ShaderRef>();
 }
 
-void MaterialXData::generateFragment(const mx::FileSearchPath& librarySearchPath)
+void OgsFragment::generateFragment(const mx::FileSearchPath& librarySearchPath)
 {
     if (!_element)
     {
@@ -196,7 +196,7 @@ void MaterialXData::generateFragment(const mx::FileSearchPath& librarySearchPath
     }
 }
 
-mx::ImageSamplingProperties MaterialXData::getImageSamplngProperties(const std::string& fileParameterName) const
+mx::ImageSamplingProperties OgsFragment::getImageSamplngProperties(const std::string& fileParameterName) const
 {
     mx::ImageSamplingProperties samplingProperties;
     if (_shader && _shader->hasStage(mx::Stage::PIXEL))
@@ -209,7 +209,7 @@ mx::ImageSamplingProperties MaterialXData::getImageSamplngProperties(const std::
     return samplingProperties;
 }
 
-std::string MaterialXData::getMatrix4Name(const std::string& matrix3Name)
+std::string OgsFragment::getMatrix4Name(const std::string& matrix3Name)
 {
     return (matrix3Name + mx::GlslFragmentGenerator::MATRIX3_TO_MATRIX4_POSTFIX);
 }
