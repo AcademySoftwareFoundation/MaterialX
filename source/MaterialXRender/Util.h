@@ -61,7 +61,7 @@ namespace MaterialX
 
     /// Get the UI properties for a given nodedef element.
     /// Returns the number of properties found.
-    unsigned int getUIProperties(ValueElementPtr nodeDefElement, UIProperties& uiProperties);
+    unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& uiProperties);
 
     /// Get the UI properties for a given element path. If the path is to a node, a target
     /// identifier can be provided.
@@ -71,7 +71,7 @@ namespace MaterialX
     /// Interface for holding the UI properties associated shader port
     struct UIPropertyItem
     {
-        std::string label;
+        string label;
         ValuePtr value;
         ShaderPort* variable = nullptr;
         UIProperties ui;

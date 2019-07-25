@@ -177,7 +177,7 @@ class Material
 
     std::string _udim;
     bool _hasTransparency;
-    mx::StringSet _uniformNames;
+    mx::StringSet _uniformVariable;
 
     std::vector<mx::FilePath> _boundImages;
 };
