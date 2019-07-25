@@ -6,6 +6,8 @@
 #include <maya/MPxNode.h>
 #include <maya/MObject.h>
 
+namespace mx = MaterialX;
+
 class Plugin
 {
   public:
@@ -15,13 +17,13 @@ class Plugin
     void initialize(const std::string& loadPath);
 
     /// Get the search paths for MaterialX libraries
-    const MaterialX::FileSearchPath& getLibrarySearchPath() const
+    const mx::FileSearchPath& getLibrarySearchPath() const
     {
         return _librarySearchPath;
     }
 
     /// Get the search paths for resources
-    const MaterialX::FileSearchPath& getResourceSearchPath() const
+    const mx::FileSearchPath& getResourceSearchPath() const
     {
         return _resourceSearchPath;
     }
@@ -31,8 +33,8 @@ class Plugin
     {
     }
 
-    MaterialX::FileSearchPath _librarySearchPath;
-    MaterialX::FileSearchPath _resourceSearchPath;
+    mx::FileSearchPath _librarySearchPath;
+    mx::FileSearchPath _resourceSearchPath;
 };
 
 #endif /* PLUGIN_H */

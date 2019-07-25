@@ -31,7 +31,7 @@ mx::FilePath findInSubdirectories(const mx::FileSearchPath& searchPaths,
 }
 
 mx::DocumentPtr loadDocument(const std::string& materialXDocumentPath,
-                             const MaterialX::FileSearchPath& librarySearchPath)
+                             const mx::FileSearchPath& librarySearchPath)
 {
     // Create document
     mx::DocumentPtr document = mx::createDocument();

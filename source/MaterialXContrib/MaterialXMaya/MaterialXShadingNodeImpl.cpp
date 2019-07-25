@@ -70,7 +70,7 @@ using Vp2SamplerUniquePtr = std::unique_ptr<
 // This should be a shared utility
 MStatus bindFileTexture(MHWRender::MShaderInstance& shader, 
                         const std::string& parameterName,
-                        const MaterialX::FileSearchPath& searchPath, 
+                        const mx::FileSearchPath& searchPath, 
                         const std::string& fileName,
                         const MHWRender::MSamplerStateDesc& samplerDescription,
                         MHWRender::MTextureDescription& textureDescription,
@@ -100,7 +100,7 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shader,
             MFloatArray uvScaleOffset;
             for (size_t i=0; i<udimPaths.size(); i++)
             {
-                MaterialX::FilePath resolvedPath = MaterialXMaya::findInSubdirectories(searchPath, udimPaths[i]);
+                mx::FilePath resolvedPath = MaterialXMaya::findInSubdirectories(searchPath, udimPaths[i]);
                 mTilePaths.append(resolvedPath.asString().c_str());
                 mTilePositions.append(udimCoordinates[i][0]);
                 mTilePositions.append(udimCoordinates[i][1]);
@@ -115,10 +115,10 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shader,
         }
         else
         {
-            MaterialX::FilePath imagePath = MaterialXMaya::findInSubdirectories(searchPath, fileName);
+            mx::FilePath imagePath = MaterialXMaya::findInSubdirectories(searchPath, fileName);
             if (!imagePath.isEmpty())
             {
-                texturePtr.reset(textureManager->acquireTexture(imagePath.asString().c_str(), MaterialX::EMPTY_STRING.c_str()));
+                texturePtr.reset(textureManager->acquireTexture(imagePath.asString().c_str(), mx::EMPTY_STRING.c_str()));
             }
         }
 
@@ -156,7 +156,7 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shader,
 // This should be a shared utility
 void bindEnvironmentLighting(MHWRender::MShaderInstance& shader,
                             const MStringArray parameterList,
-                            const MaterialX::FileSearchPath imageSearchPath,
+                            const mx::FileSearchPath imageSearchPath,
                             const MaterialXNode& node)
 {
     MHWRender::MSamplerStateDesc samplerDescription;
@@ -279,14 +279,14 @@ void MaterialXShadingNodeImpl<BASE>::updateShader(MHWRender::MShaderInstance& sh
     shader.parameterList(parameterList);
 
     // Set up image file name search path.
-    MaterialX::FilePath documentPath(node->getDocumentFilePath().asChar());
+    mx::FilePath documentPath(node->getDocumentFilePath().asChar());
     documentPath.pop();
-    MaterialX::FileSearchPath imageSearchPath = Plugin::instance().getResourceSearchPath(); 
+    mx::FileSearchPath imageSearchPath = Plugin::instance().getResourceSearchPath(); 
     imageSearchPath.prepend(documentPath);
 
     ::bindEnvironmentLighting(shader, parameterList, imageSearchPath, *node);
 
-    MaterialX::DocumentPtr document = materialXData->getDocument();
+    mx::DocumentPtr document = materialXData->getDocument();
 
     // Look for any udimset on the document to use for texture binding.
     mx::ValuePtr udimSetValue = document->getGeomAttrValue("udimset");
@@ -312,16 +312,16 @@ void MaterialXShadingNodeImpl<BASE>::updateShader(MHWRender::MShaderInstance& sh
         MHWRender::MSamplerState::kAnisotropic
     };
 
-    const MaterialX::StringMap& inputs = materialXData->getPathInputMap();
+    const mx::StringMap& inputs = materialXData->getPathInputMap();
     for (const auto& input : inputs)
     {
-        MaterialX::ElementPtr element = document->getDescendant(input.first);
+        mx::ElementPtr element = document->getDescendant(input.first);
         if (!element)
         {
             continue;
         }
 
-        MaterialX::ValueElementPtr valueElement = element->asA<MaterialX::ValueElement>();
+        mx::ValueElementPtr valueElement = element->asA<mx::ValueElement>();
         if (!valueElement)
         {
             continue;

@@ -10,7 +10,7 @@
 
 MaterialXData::MaterialXData(mx::DocumentPtr document,
                              mx::ElementPtr element,
-                             const MaterialX::FileSearchPath& librarySearchPath ) :
+                             const mx::FileSearchPath& librarySearchPath ) :
     _document(document),
     _element(element)
 {

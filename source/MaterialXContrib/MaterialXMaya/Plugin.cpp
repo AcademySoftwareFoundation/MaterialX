@@ -23,16 +23,16 @@ Plugin& Plugin::instance()
 void Plugin::initialize(const std::string& loadPath)
 {
     // Always include plug-in load path
-	const MaterialX::FilePath searchPath(loadPath);
+	const mx::FilePath searchPath(loadPath);
     
     // Search in standard library directories
     _librarySearchPath.append(searchPath);
-    _librarySearchPath.append(searchPath / MaterialX::FilePath("../../libraries"));
+    _librarySearchPath.append(searchPath / mx::FilePath("../../libraries"));
 
     // Search in standard installed resources directories and plug-in relative resources
     _resourceSearchPath.append(searchPath);
-    _resourceSearchPath.append(searchPath / MaterialX::FilePath("../../resources"));
-    _resourceSearchPath.append(searchPath / MaterialX::FilePath("../resources"));
+    _resourceSearchPath.append(searchPath / mx::FilePath("../../resources"));
+    _resourceSearchPath.append(searchPath / mx::FilePath("../resources"));
 
     MHWRender::MRenderer* const theRenderer = MHWRender::MRenderer::theRenderer();
     MHWRender::MFragmentManager* const fragmentManager = theRenderer ? theRenderer->getFragmentManager() : nullptr;

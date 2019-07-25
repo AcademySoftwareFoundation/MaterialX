@@ -90,7 +90,7 @@ std::string CreateMaterialXNodeCmd::createNode( mx::DocumentPtr document,
                                                 mx::TypedElementPtr renderableElement,
                                                 bool createAsTexture,
                                                 const MString& documentFilePath,
-                                                const MaterialX::FileSearchPath& searchPath,
+                                                const mx::FileSearchPath& searchPath,
                                                 const MString& envRadianceFileName,
                                                 const MString& envIrradianceFileName )
 {
@@ -217,7 +217,7 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
             CHECK_MSTATUS(argData.getFlagArgument(kEnvIrradianceFlagLong, 0, envIrradianceFileName));
         }
 
-        const MaterialX::FileSearchPath& searchPath = Plugin::instance().getLibrarySearchPath();
+        const mx::FileSearchPath& searchPath = Plugin::instance().getLibrarySearchPath();
         MStringArray nodeNames;
         for (auto renderableElement : renderableElements)
         {
