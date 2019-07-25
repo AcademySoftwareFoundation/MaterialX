@@ -2,7 +2,7 @@
 #include "CreateMaterialXNodeCmd.h"
 #include "ReloadMaterialXNodeCmd.h"
 #include "MaterialXNode.h"
-#include "MaterialXShadingNodeImpl.h"
+#include "ShadingNodeOverrides.h"
 
 #include <maya/MFnPlugin.h>
 #include <maya/MDGMessage.h>
