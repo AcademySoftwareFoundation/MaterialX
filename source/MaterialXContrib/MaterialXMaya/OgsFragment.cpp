@@ -1,4 +1,4 @@
-#include "MaterialXData.h"
+#include "OgsFragment.h"
 #include "MaterialXUtil.h"
 
 #include <MaterialXFormat/XmlIo.h>

@@ -2,7 +2,7 @@
 #include "Plugin.h"
 #include "MaterialXUtil.h"
 #include "MayaUtil.h"
-#include "MaterialXData.h"
+#include "OgsFragment.h"
 
 #include <MaterialXGenOgsXml/OgsXmlGenerator.h>
 

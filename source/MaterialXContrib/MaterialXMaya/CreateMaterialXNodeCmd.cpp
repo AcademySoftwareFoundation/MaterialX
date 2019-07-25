@@ -1,6 +1,6 @@
 #include "CreateMaterialXNodeCmd.h"
 #include "MaterialXNode.h"
-#include "MaterialXData.h"
+#include "OgsFragment.h"
 #include "MaterialXUtil.h"
 #include "MayaUtil.h"
 #include "Plugin.h"

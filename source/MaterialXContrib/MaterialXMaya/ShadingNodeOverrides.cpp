@@ -2,6 +2,7 @@
 #include "MaterialXNode.h"
 #include "Plugin.h"
 #include "MaterialXUtil.h"
+#include "OgsFragment.h"
 
 #include <maya/MDGModifier.h>
 #include <maya/MShaderManager.h>
@@ -9,7 +10,6 @@
 #include <maya/MPxShadingNodeOverride.h>
 #include <maya/MPxSurfaceShadingNodeOverride.h>
 
-#include <MaterialXData.h>
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenOgsXml/OgsXmlGenerator.h>
