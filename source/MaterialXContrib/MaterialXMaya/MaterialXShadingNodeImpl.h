@@ -2,12 +2,13 @@
 #define MATERIALX_SHADINGNODE_IMPL_H
 
 #include <maya/MViewport2Renderer.h>
+#include <maya/MPxSurfaceShadingNodeOverride.h>
 
 namespace MaterialXMaya
 {
 
 template <class BASE>
-class MaterialXShadingNodeImpl : public BASE
+class ShadingNodeOverride : public BASE
 {
   public:
     MHWRender::DrawAPI supportedDrawAPIs() const override
@@ -27,12 +28,45 @@ class MaterialXShadingNodeImpl : public BASE
     bool valueChangeRequiresFragmentRebuild(const MPlug*) const override;
 
   protected:
-    ~MaterialXShadingNodeImpl() override;
+    ~ShadingNodeOverride() override;
 
-    MaterialXShadingNodeImpl(const MObject&);
+    ShadingNodeOverride(const MObject&);
 
     MObject _object;
 };
+
+/// VP2 surface shading node override
+//
+class SurfaceOverride
+    : public ShadingNodeOverride<MHWRender::MPxSurfaceShadingNodeOverride>
+{
+public:
+    static MHWRender::MPxSurfaceShadingNodeOverride* creator(const MObject&);
+
+    MString transparencyParameter() const override;
+
+    static const MString REGISTRANT_ID, DRAW_CLASSIFICATION;
+
+private:
+    /// Inheriting the constructor from the base class.
+    using ShadingNodeOverride<MHWRender::MPxSurfaceShadingNodeOverride>::ShadingNodeOverride;
+};
+
+/// VP2 texture shading node override
+//
+class TextureOverride
+    : public ShadingNodeOverride<MHWRender::MPxShadingNodeOverride>
+{
+public:
+    static MHWRender::MPxShadingNodeOverride* creator(const MObject&);
+
+    static const MString REGISTRANT_ID, DRAW_CLASSIFICATION;
+
+protected:
+    /// Inheriting the constructor from the base class.
+    using ShadingNodeOverride<MHWRender::MPxShadingNodeOverride>::ShadingNodeOverride;
+};
+
 
 } // namespace MaterialXMaya
 

@@ -2,8 +2,7 @@
 #include "CreateMaterialXNodeCmd.h"
 #include "ReloadMaterialXNodeCmd.h"
 #include "MaterialXNode.h"
-#include "MaterialXTextureOverride.h"
-#include "MaterialXSurfaceOverride.h"
+#include "MaterialXShadingNodeImpl.h"
 
 #include <maya/MFnPlugin.h>
 #include <maya/MDGMessage.h>
@@ -86,12 +85,12 @@ MStatus initializePlugin(MObject obj)
 
     {
         CHECK_MSTATUS(MHWRender::MDrawRegistry::registerShadingNodeOverrideCreator(
-            MaterialXTextureOverride::DRAW_CLASSIFICATION,
-            MaterialXTextureOverride::REGISTRANT_ID,
-            MaterialXTextureOverride::creator));
+            TextureOverride::DRAW_CLASSIFICATION,
+            TextureOverride::REGISTRANT_ID,
+            TextureOverride::creator));
 
         static const MString texture2dNodeClassification =
-            MString("texture/2d:") + MaterialXTextureOverride::DRAW_CLASSIFICATION;
+            MString("texture/2d:") + TextureOverride::DRAW_CLASSIFICATION;
 
         CHECK_MSTATUS(plugin.registerNode(
             MaterialXTextureNode::MATERIALX_TEXTURE_NODE_TYPENAME,
@@ -104,14 +103,14 @@ MStatus initializePlugin(MObject obj)
 
     {
         CHECK_MSTATUS(MHWRender::MDrawRegistry::registerSurfaceShadingNodeOverrideCreator(
-            MaterialXSurfaceOverride::DRAW_CLASSIFICATION,
-            MaterialXSurfaceOverride::REGISTRANT_ID,
-            MaterialXSurfaceOverride::creator));
+            SurfaceOverride::DRAW_CLASSIFICATION,
+            SurfaceOverride::REGISTRANT_ID,
+            SurfaceOverride::creator));
 
         const MString& swatchName = MHWShaderSwatchGenerator::initialize();
 
         static const MString surfaceNodeClassification =
-            MString("shader/surface:") + MaterialXSurfaceOverride::DRAW_CLASSIFICATION + ":swatch/" + swatchName;
+            MString("shader/surface:") + SurfaceOverride::DRAW_CLASSIFICATION + ":swatch/" + swatchName;
 
         CHECK_MSTATUS(plugin.registerNode(
             MaterialXSurfaceNode::MATERIALX_SURFACE_NODE_TYPENAME,
@@ -141,13 +140,13 @@ MStatus uninitializePlugin(MObject obj)
 
     CHECK_MSTATUS(
         MHWRender::MDrawRegistry::deregisterShadingNodeOverrideCreator(
-            MaterialXTextureOverride::DRAW_CLASSIFICATION,
-            MaterialXTextureOverride::REGISTRANT_ID ));
+            TextureOverride::DRAW_CLASSIFICATION,
+            TextureOverride::REGISTRANT_ID ));
 
     CHECK_MSTATUS(
         MHWRender::MDrawRegistry::deregisterShadingNodeOverrideCreator(
-            MaterialXSurfaceOverride::DRAW_CLASSIFICATION,
-            MaterialXSurfaceOverride::REGISTRANT_ID ));
+            SurfaceOverride::DRAW_CLASSIFICATION,
+            SurfaceOverride::REGISTRANT_ID ));
 
     return MS::kSuccess;
 }

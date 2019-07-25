@@ -13,6 +13,7 @@
 #include <MaterialXData.h>
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenOgsXml/OgsXmlGenerator.h>
 #include <MaterialXRender/ImageHandler.h>
 
 namespace mx = MaterialX;
@@ -25,6 +26,14 @@ namespace MHWRender
 
 namespace MaterialXMaya
 {
+
+const MString
+    SurfaceOverride::REGISTRANT_ID = "materialXSurface",
+    SurfaceOverride::DRAW_CLASSIFICATION = "drawdb/shader/surface/materialX";
+
+const MString
+    TextureOverride::REGISTRANT_ID = "materialXTexture",
+    TextureOverride::DRAW_CLASSIFICATION = "drawdb/shader/texture/2d/materialX";
 
 namespace
 {
@@ -222,20 +231,20 @@ void bindEnvironmentLighting(MHWRender::MShaderInstance& shader,
 } // anonymous namespace
 
 template <class BASE>
-MaterialXShadingNodeImpl<BASE>::MaterialXShadingNodeImpl(const MObject& obj)
+ShadingNodeOverride<BASE>::ShadingNodeOverride(const MObject& obj)
     : BASE(obj)
     , _object(obj)
 {
 }
 
 template <class BASE>
-MaterialXShadingNodeImpl<BASE>::~MaterialXShadingNodeImpl()
+ShadingNodeOverride<BASE>::~ShadingNodeOverride()
 {
 }
 
 template <class BASE>
 MString
-MaterialXShadingNodeImpl<BASE>::fragmentName() const
+ShadingNodeOverride<BASE>::fragmentName() const
 {
     MStatus status;
     MFnDependencyNode depNode(_object, &status);
@@ -246,7 +255,7 @@ MaterialXShadingNodeImpl<BASE>::fragmentName() const
 
 template <class BASE>
 bool
-MaterialXShadingNodeImpl<BASE>::valueChangeRequiresFragmentRebuild(const MPlug* plug) const
+ShadingNodeOverride<BASE>::valueChangeRequiresFragmentRebuild(const MPlug* plug) const
 {
     if (   *plug == MaterialXNode::DOCUMENT_ATTRIBUTE
         || *plug == MaterialXNode::ELEMENT_ATTRIBUTE
@@ -261,12 +270,12 @@ MaterialXShadingNodeImpl<BASE>::valueChangeRequiresFragmentRebuild(const MPlug* 
 }
 
 template <class BASE>
-void MaterialXShadingNodeImpl<BASE>::updateDG()
+void ShadingNodeOverride<BASE>::updateDG()
 {
 }
 
 template <class BASE>
-void MaterialXShadingNodeImpl<BASE>::updateShader(MHWRender::MShaderInstance& shader,
+void ShadingNodeOverride<BASE>::updateShader(MHWRender::MShaderInstance& shader,
                                                   const MHWRender::MAttributeParameterMappingList& mappings)
 {
     MStatus status;
@@ -428,7 +437,26 @@ void MaterialXShadingNodeImpl<BASE>::updateShader(MHWRender::MShaderInstance& sh
     }
 }
 
-template class MaterialXShadingNodeImpl<MHWRender::MPxShadingNodeOverride>;
-template class MaterialXShadingNodeImpl<MHWRender::MPxSurfaceShadingNodeOverride>;
+template class ShadingNodeOverride<MHWRender::MPxShadingNodeOverride>;
+template class ShadingNodeOverride<MHWRender::MPxSurfaceShadingNodeOverride>;
+
+MHWRender::MPxSurfaceShadingNodeOverride*
+SurfaceOverride::creator(const MObject& obj)
+{
+    std::cout.rdbuf(std::cerr.rdbuf());
+    return new SurfaceOverride(obj);
+}
+
+MString
+SurfaceOverride::transparencyParameter() const
+{
+    return mx::OgsXmlGenerator::VP_TRANSPARENCY_NAME.c_str();
+}
+
+MHWRender::MPxShadingNodeOverride* TextureOverride::creator(const MObject& obj)
+{
+    std::cout.rdbuf(std::cerr.rdbuf());
+    return new TextureOverride(obj);
+}
 
 } // namespace MaterialXMaya
