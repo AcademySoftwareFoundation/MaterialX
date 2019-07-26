@@ -56,8 +56,8 @@ mx::DocumentPtr loadDocument(const std::string& materialXDocumentPath,
 }
 
 mx::TypedElementPtr getRenderableElement(mx::DocumentPtr document, 
-                                         const std::vector<mx::TypedElementPtr> renderableElements, 
-                                         const std::string &desiredElementPath)
+                                         const std::vector<mx::TypedElementPtr>& renderableElements, 
+                                         const std::string& desiredElementPath)
 {
   
 

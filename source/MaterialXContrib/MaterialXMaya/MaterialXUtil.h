@@ -26,8 +26,8 @@ mx::DocumentPtr loadDocument(const std::string& materialXDocumentPath,
 /// @param renderableElements List of elements in the document that are considered to be renderable.
 /// @param elementPath Path to element to find
 mx::TypedElementPtr getRenderableElement(mx::DocumentPtr document,
-                                        const std::vector<mx::TypedElementPtr> renderableElements,
-                                        const std::string &desiredElementPath);
+                                        const std::vector<mx::TypedElementPtr>& renderableElements,
+                                        const std::string& desiredElementPath);
 
 } // namespace MaterialXUtil
 } // namespace MaterialXMaya
