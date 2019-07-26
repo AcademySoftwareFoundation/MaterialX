@@ -1197,14 +1197,14 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
         {
             const ShaderPort* v = constants[i];
             // There is no way to match with an unnamed variable
-            if (v->getName().empty())
+            if (v->getVariable().empty())
             {
                 continue;
             }
 
             // TODO: Shoud we really create new ones here each update?
             InputPtr inputPtr = std::make_shared<Input>(-1, -1, int(v->getType()->getSize()), EMPTY_STRING);
-            _uniformList[v->getName()] = inputPtr;
+            _uniformList[v->getVariable()] = inputPtr;
             inputPtr->isConstant = true;
             inputPtr->value = v->getValue();
             inputPtr->typeString = v->getType()->getName();
@@ -1225,12 +1225,12 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
             {
                 const ShaderPort* v = uniforms[i];
                 // There is no way to match with an unnamed variable
-                if (v->getName().empty())
+                if (v->getVariable().empty())
                 {
                     continue;
                 }
 
-                auto inputIt = _uniformList.find(v->getName());
+                auto inputIt = _uniformList.find(v->getVariable());
                 if (inputIt != _uniformList.end())
                 {
                     Input* input = inputIt->second.get();
@@ -1244,7 +1244,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                     {
                         errors.push_back(
                             "Pixel shader uniform block type mismatch [" + uniforms.getName() + "]. "
-                            + "Name: \"" + v->getName()
+                            + "Name: \"" + v->getVariable()
                             + "\". Type: \"" + v->getType()->getName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
@@ -1263,7 +1263,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
             for (size_t i = 0; i < uniforms.size(); ++i)
             {
                 const ShaderPort* v = uniforms[i];
-                auto inputIt = _uniformList.find(v->getName());
+                auto inputIt = _uniformList.find(v->getVariable());
                 if (inputIt != _uniformList.end())
                 {
                     Input* input = inputIt->second.get();
@@ -1277,7 +1277,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                     {
                         errors.push_back(
                             "Vertex shader uniform block type mismatch [" + uniforms.getName() + "]. "
-                            + "Name: \"" + v->getName()
+                            + "Name: \"" + v->getVariable()
                             + "\". Type: \"" + v->getType()->getName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
@@ -1391,7 +1391,7 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
             for (size_t i = 0; i < vertexInputs.size(); ++i)
             {
                 const ShaderPort* v = vertexInputs[i];
-                auto inputIt = _attributeList.find(v->getName());
+                auto inputIt = _attributeList.find(v->getVariable());
                 if (inputIt != _attributeList.end())
                 {
                     Input* input = inputIt->second.get();
@@ -1403,7 +1403,7 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
                     else
                     {
                         errors.push_back(
-                            "Vertex shader attribute type mismatch in block. Name: \"" + v->getName()
+                            "Vertex shader attribute type mismatch in block. Name: \"" + v->getVariable()
                             + "\". Type: \"" + v->getType()->getName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")

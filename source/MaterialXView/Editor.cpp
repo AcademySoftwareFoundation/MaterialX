@@ -172,7 +172,7 @@ ng::FloatBox<float>* PropertyEditor::makeFloatWidget(ng::Widget* container, cons
             if (uniform)
             {
                 material->getShader()->bind();
-                material->getShader()->setUniform(uniform->getName(), value);
+                material->getShader()->setUniform(uniform->getVariable(), value);
             }
         }
     });
@@ -186,7 +186,7 @@ ng::FloatBox<float>* PropertyEditor::makeFloatWidget(ng::Widget* container, cons
             if (uniform)
             {
                 material->getShader()->bind();
-                material->getShader()->setUniform(uniform->getName(), value);
+                material->getShader()->setUniform(uniform->getVariable(), value);
             }
         }
     });
@@ -250,11 +250,11 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                     material->getShader()->bind();
                     if (v < (int) enumValues.size())
                     {
-                        material->getShader()->setUniform(uniform->getName(), enumValues[v]->asA<int>());
+                        material->getShader()->setUniform(uniform->getVariable(), enumValues[v]->asA<int>());
                     }
                     else
                     {
-                        material->getShader()->setUniform(uniform->getName(), v);
+                        material->getShader()->setUniform(uniform->getVariable(), v);
                     }
                 }
             });
@@ -278,7 +278,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                     if (uniform)
                     {
                         material->getShader()->bind();
-                        material->getShader()->setUniform(uniform->getName(), v);
+                        material->getShader()->setUniform(uniform->getVariable(), v);
                     }
                 }
             });
@@ -311,7 +311,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             if (uniform)
             {
                 material->getShader()->bind();
-                material->getShader()->setUniform(uniform->getName(), v);
+                material->getShader()->setUniform(uniform->getVariable(), v);
             }
         });
     }
@@ -342,7 +342,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 ng::Vector2f v;
                 v.x() = c.r();
                 v.y() = c.g();
-                material->getShader()->setUniform(uniform->getName(), v);
+                material->getShader()->setUniform(uniform->getVariable(), v);
                 ng::Color c2 = c;
                 c2.b() = 0.0f;
                 c2.w() = 1.0f;
@@ -395,7 +395,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                         v.x() = c[0];
                         v.y() = c[1];
                         v.z() = c[2];
-                        material->getShader()->setUniform(uniform->getName(), v);
+                        material->getShader()->setUniform(uniform->getVariable(), v);
                     }
                 }
             });
@@ -424,7 +424,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                     v.x() = c.r();
                     v.y() = c.g();
                     v.z() = c.b();
-                    material->getShader()->setUniform(uniform->getName(), v);
+                    material->getShader()->setUniform(uniform->getVariable(), v);
                 }
             });
         }
@@ -458,7 +458,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 v.y() = c.g();
                 v.z() = c.b();
                 v.w() = c.w();
-                material->getShader()->setUniform(uniform->getName(), v);
+                material->getShader()->setUniform(uniform->getVariable(), v);
             }
         });
     }
@@ -488,7 +488,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 ng::Vector2f v;
                 v.x() = f;
                 v.y() = v2->value();
-                material->getShader()->setUniform(uniform->getName(), v);
+                material->getShader()->setUniform(uniform->getVariable(), v);
             }
         });
         v1->setSpinnable(editable);
@@ -502,7 +502,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 ng::Vector2f v;
                 v.x() = v1->value();
                 v.y() = f;
-                material->getShader()->setUniform(uniform->getName(), v);
+                material->getShader()->setUniform(uniform->getVariable(), v);
             }
         });
         v2->setSpinnable(editable);
@@ -539,7 +539,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 v.x() = f;
                 v.y() = v2->value();
                 v.z() = v3->value();
-                material->getShader()->setUniform(uniform->getName(), v);
+                material->getShader()->setUniform(uniform->getVariable(), v);
             }
         });
         v1->setSpinnable(editable);
@@ -554,7 +554,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 v.x() = v1->value();
                 v.y() = f;
                 v.z() = v3->value();
-                material->getShader()->setUniform(uniform->getName(), v);
+                material->getShader()->setUniform(uniform->getVariable(), v);
             }
         });
         v2->setSpinnable(editable);
@@ -569,7 +569,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 v.x() = v1->value();
                 v.y() = v2->value();
                 v.z() = f;
-                material->getShader()->setUniform(uniform->getName(), v);
+                material->getShader()->setUniform(uniform->getVariable(), v);
             }
         });
         v3->setSpinnable(editable);
@@ -611,7 +611,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 v.y() = v2->value();
                 v.z() = v3->value();
                 v.w() = v4->value();
-                material->getShader()->setUniform(uniform->getName(), v);
+                material->getShader()->setUniform(uniform->getVariable(), v);
             }
         });
         v1->setSpinnable(editable);
@@ -627,7 +627,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 v.y() = f;
                 v.z() = v3->value();
                 v.w() = v4->value();
-                material->getShader()->setUniform(uniform->getName(), v);
+                material->getShader()->setUniform(uniform->getVariable(), v);
             }
         });
         v2->setSpinnable(editable);
@@ -643,7 +643,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 v.y() = v2->value();
                 v.z() = f;
                 v.w() = v4->value();
-                material->getShader()->setUniform(uniform->getName(), v);
+                material->getShader()->setUniform(uniform->getVariable(), v);
             }
         });
         v3->setSpinnable(editable);
@@ -659,7 +659,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 v.y() = v2->value();
                 v.z() = v3->value();
                 v.w() = f;
-                material->getShader()->setUniform(uniform->getName(), v);
+                material->getShader()->setUniform(uniform->getVariable(), v);
             }
         });
         v4->setSpinnable(editable);

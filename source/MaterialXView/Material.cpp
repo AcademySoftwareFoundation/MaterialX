@@ -153,7 +153,7 @@ bool Material::loadSource(const mx::FilePath& vertexShaderFile, const mx::FilePa
 
 void Material::updateUniformsList()
 {
-    _uniformNames.clear();
+    _uniformVariable.clear();
 
     // Must bind to be able to inspect the uniforms
     _glShader->bind();
@@ -173,7 +173,7 @@ void Material::updateUniformsList()
         GLint uniformLocation = glGetUniformLocation(_programId, uniformName);
         if (uniformLocation >= 0)
         {
-            _uniformNames.insert(uniformName);
+            _uniformVariable.insert(uniformName);
         }
     }
     delete[] uniformName;
@@ -326,7 +326,7 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
         {
             continue;
         }
-        const std::string& uniformName = uniform->getName();
+        const std::string& uniformVariable = uniform->getVariable();
         std::string filename;
         if (uniform->getValue())
         {
@@ -335,10 +335,10 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
 
         // Extract out sampling properties
         mx::ImageSamplingProperties samplingProperties;
-        samplingProperties.setProperties(uniformName, *publicUniforms);
+        samplingProperties.setProperties(uniformVariable, *publicUniforms);
 
         mx::ImageDesc desc;
-        mx::FilePath resolvedFilename = bindImage(filename, uniformName, imageHandler, desc, samplingProperties, udim, &fallbackColor);
+        mx::FilePath resolvedFilename = bindImage(filename, uniformVariable, imageHandler, desc, samplingProperties, udim, &fallbackColor);
         if (!resolvedFilename.isEmpty())
         {
             _boundImages.push_back(resolvedFilename);
@@ -602,7 +602,7 @@ mx::ShaderPort* Material::findUniform(const std::string& path) const
             });
 
         // Check if the uniform exists in the shader program
-        if (port && !_uniformNames.count(port->getName()))
+        if (port && !_uniformVariable.count(port->getVariable()))
         {
             port = nullptr;
         }

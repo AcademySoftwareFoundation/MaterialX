@@ -90,6 +90,13 @@ class Material
     /// Generate a shader from the given inputs.
     bool generateShader(mx::GenContext& context);
 
+    /// Copy shader from one material to this one
+    void copyShader(MaterialPtr material)
+    {
+        _hwShader = material->_hwShader;
+        _glShader = material->_glShader;
+    }
+
     /// Generate a constant color shader
     bool generateConstantShader(mx::GenContext& context,
                                 mx::DocumentPtr stdLib,
@@ -170,7 +177,7 @@ class Material
 
     std::string _udim;
     bool _hasTransparency;
-    mx::StringSet _uniformNames;
+    mx::StringSet _uniformVariable;
 
     std::vector<mx::FilePath> _boundImages;
 };
