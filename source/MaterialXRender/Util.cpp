@@ -34,7 +34,7 @@ ShaderPtr createConstantShader(GenContext& context,
     return createShader(shaderName, context, output);
 }
 
-unsigned int getUIProperties(ValueElementPtr nodeDefElement, UIProperties& uiProperties)
+unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& uiProperties)
 {
     if (!nodeDefElement)
     {
