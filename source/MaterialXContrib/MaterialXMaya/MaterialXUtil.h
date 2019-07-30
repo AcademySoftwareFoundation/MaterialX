@@ -17,9 +17,9 @@ namespace MaterialXUtil
 mx::FilePath findInSubdirectories(const mx::FileSearchPath& searchPaths,
                                   const mx::FilePath& filePath);
 
-/// Load in a document and associated libraries from library search path
+/// Load in a document and import associated libraries
 mx::DocumentPtr loadDocument(const std::string& materialXDocumentPath,
-                             const mx::FileSearchPath& librarySearchPath);
+                             mx::ConstDocumentPtr libraryDocument);
 
 /// Given an element path return a pointer to it within a document if it is considered to be renderable.
 /// @param document Document to examine

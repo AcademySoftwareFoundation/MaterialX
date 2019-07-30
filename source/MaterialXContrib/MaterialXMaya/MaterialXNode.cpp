@@ -149,7 +149,7 @@ void MaterialXNode::createAndRegisterFragment()
         if (!_document)
         {
             _document = MaterialXUtil::loadDocument(
-                _documentFilePath.asChar(), Plugin::instance().getLibrarySearchPath()
+                _documentFilePath.asChar(), Plugin::instance().getLibraryDocument()
             );
         };
 

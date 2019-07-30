@@ -166,6 +166,7 @@ void OgsFragment::generateFragment(const mx::FileSearchPath& librarySearchPath)
 
     // Extract out the input fragment parameter names along with their
     // associated Element paths to allow for value binding.
+    //
     const mx::ShaderStage& pixelShader = _shader->getStage(mx::Stage::PIXEL);
     for (const auto& blockMap : pixelShader.getUniformBlocks())
     {
@@ -177,7 +178,7 @@ void OgsFragment::generateFragment(const mx::FileSearchPath& librarySearchPath)
             continue;
         }
 
-        for (size_t i = 0; i < uniforms.size(); i++)
+        for (size_t i = 0; i < uniforms.size(); ++i)
         {
             const mx::ShaderPort* port = uniforms[i];
             const std::string& path = port->getPath();

@@ -34,7 +34,7 @@ mx::FilePath findInSubdirectories(const mx::FileSearchPath& searchPaths,
 }
 
 mx::DocumentPtr loadDocument(const std::string& materialXDocumentPath,
-                             const mx::FileSearchPath& librarySearchPath)
+                             mx::ConstDocumentPtr libraryDocument)
 {
     // Create document
     mx::DocumentPtr document = mx::createDocument();
@@ -43,9 +43,10 @@ mx::DocumentPtr loadDocument(const std::string& materialXDocumentPath,
         throw mx::Exception("Failed to create a MaterialX document");
     }
 
-    // Load libraries
-    static const mx::StringVec libraries = { "stdlib", "pbrlib", "bxdf", "stdlib/genglsl", "pbrlib/genglsl", "lights", "lights/genglsl" };
-    loadLibraries(libraries, librarySearchPath, document);
+    // Import libraries.
+    mx::CopyOptions copyOptions;
+    copyOptions.skipConflictingElements = true;
+    document->importLibrary(libraryDocument, &copyOptions);
 
     // Read document contents from disk
     mx::XmlReadOptions readOptions;

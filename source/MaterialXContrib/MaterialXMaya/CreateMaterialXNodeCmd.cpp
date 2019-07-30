@@ -161,7 +161,7 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
         }
 
         mx::DocumentPtr document = MaterialXUtil::loadDocument(
-            documentFilePath.asChar(), Plugin::instance().getLibrarySearchPath()
+            documentFilePath.asChar(), Plugin::instance().getLibraryDocument()
         );
 
         // Find renderables in the document
