@@ -1,4 +1,4 @@
-global proc MaterialXSurface_extraCtrlsBuild(string $nodeName)
+global proc MaterialXSurface_CommandButtonsNew(string $nodeName)
 {
     string $editCommand = "python(\"from MaterialXNodeUtil import editMaterialXNode; editMaterialXNode(\\\"" + $nodeName + "\\\")\")";
     string $reloadCommand = "reloadMaterialXNode \"" + $nodeName + "\"";
@@ -6,7 +6,7 @@ global proc MaterialXSurface_extraCtrlsBuild(string $nodeName)
     button -label "Reload" -command $reloadCommand reloadButton;
 }
 
-global proc MaterialXSurface_extraCtrlsUpdate(string $nodeName)
+global proc MaterialXSurface_CommandButtonsReplace(string $nodeName)
 {
     string $editCommand = "python(\"from MaterialXNodeUtil import editMaterialXNode; editMaterialXNode(\\\"" + $nodeName + "\\\")\")";
     string $reloadCommand = "reloadMaterialXNode \"" + $nodeName + "\"";
@@ -14,14 +14,52 @@ global proc MaterialXSurface_extraCtrlsUpdate(string $nodeName)
     button -edit -command $reloadCommand reloadButton;
 }
 
+global proc MaterialXSurface_FilePathNew(string $attrName)
+{
+    setUITemplate -pushTemplate attributeEditorTemplate;
+
+    rowLayout -numberOfColumns 3;
+        text -label "Document File Path";
+        textField documentFilePathField;
+        symbolButton -image "navButtonBrowse.xpm" documentFileBrowserButton;
+    setParent ..;
+    
+    MaterialXSurface_FilePathReplace($attrName);
+    setUITemplate -popTemplate;
+}
+
+global proc MaterialXSurface_FilePathReplace(string $attrName)
+{
+    evalDeferred ("connectControl documentFilePathField " + $attrName);
+    button -edit -command ("MaterialXSurface_FileBrowser " + $attrName) documentFileBrowserButton;
+}
+
+global proc MaterialXSurface_FileBrowser(string $attrName) 
+{
+    // Start in current file's directory if possible. 
+    string $sStartingdir = `textField -q -fileName documentFilePathField`;
+    $sStartingdir = `match ".*/" $sStartingdir`; 
+
+    string $fileNames[] = `fileDialog2
+        -caption "Open MaterialX Document"
+        -fileFilter "MaterialX Document Files (*.mtlx);;All Files (*.*)"
+        -startingDirectory $sStartingdir
+        -fileMode 1`;
+
+    if (size($fileNames) > 0)
+    {
+        evalEcho ("setAttr -type \"string\" " + $attrName + " \"" + $fileNames[0] + "\"");
+    }
+}
+
 global proc AEMaterialXSurfaceTemplate(string $nodeName)
 {
     editorTemplate -beginScrollLayout;
 
-    editorTemplate -addControl "documentFilePath";
+    editorTemplate -callCustom "MaterialXSurface_FilePathNew" "MaterialXSurface_FilePathReplace" "documentFilePath";
     editorTemplate -addControl "elementPath";
 
-    editorTemplate -callCustom "MaterialXSurface_extraCtrlsBuild" "MaterialXSurface_extraCtrlsUpdate" "";
+    editorTemplate -callCustom "MaterialXSurface_CommandButtonsNew" "MaterialXSurface_CommandButtonsReplace" "";
 
     editorTemplate -addExtraControls;
 
