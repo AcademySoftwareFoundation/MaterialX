@@ -161,10 +161,8 @@ MStatus initializePlugin(MObject obj)
             SurfaceOverride::REGISTRANT_ID,
             SurfaceOverride::creator));
 
-        const MString& swatchName = MHWShaderSwatchGenerator::initialize();
-
         static const MString surfaceNodeClassification =
-            MString("shader/surface:") + SurfaceOverride::DRAW_CLASSIFICATION + ":swatch/" + swatchName;
+            MString("shader/surface:") + SurfaceOverride::DRAW_CLASSIFICATION;
 
         CHECK_MSTATUS(plugin.registerNode(
             MaterialXSurfaceNode::MATERIALX_SURFACE_NODE_TYPENAME,
