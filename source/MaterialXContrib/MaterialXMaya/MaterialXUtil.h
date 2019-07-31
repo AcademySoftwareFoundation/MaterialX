@@ -1,5 +1,5 @@
-#ifndef MATERIALX_UTILS_H
-#define MATERIALX_UTILS_H
+#ifndef MATERIALX_MAYA_MATERIALXUTIL_H
+#define MATERIALX_MAYA_MATERIALXUTIL_H
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Interface.h>

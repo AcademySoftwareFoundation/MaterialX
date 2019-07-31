@@ -1,5 +1,5 @@
-#ifndef MATERIALX_DATA_H
-#define MATERIALX_DATA_H
+#ifndef MATERIALX_MAYA_OGSFRAGMENT_H
+#define MATERIALX_MAYA_OGSFRAGMENT_H
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXGenShader/Shader.h>

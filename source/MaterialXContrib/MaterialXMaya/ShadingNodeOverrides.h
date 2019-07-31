@@ -1,5 +1,5 @@
-#ifndef MATERIALX_SHADINGNODE_IMPL_H
-#define MATERIALX_SHADINGNODE_IMPL_H
+#ifndef MATERIALX_MAYA_SHADINGNODEOVERRIDES_H
+#define MATERIALX_MAYA_SHADINGNODEOVERRIDES_H
 
 #include <maya/MViewport2Renderer.h>
 #include <maya/MPxSurfaceShadingNodeOverride.h>
@@ -67,7 +67,6 @@ protected:
     using ShadingNodeOverride<MHWRender::MPxShadingNodeOverride>::ShadingNodeOverride;
 };
 
-
 } // namespace MaterialXMaya
 
-#endif /* MATERIALX_SHADINGNODE_IMPL_H */
+#endif

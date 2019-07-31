@@ -1,5 +1,5 @@
-#ifndef MAYA_UTILS_H
-#define MAYA_UTILS_H
+#ifndef MATERIALX_MAYA_MAYAUTIL_H
+#define MATERIALX_MAYA_MAYAUTIL_H
 
 #include <string>
 

@@ -1,5 +1,5 @@
-#ifndef CREATE_MATERIALX_NODE_CMD_H
-#define CREATE_MATERIALX_NODE_CMD_H
+#ifndef MATERIALX_MAYA_CREATENODECMD_H
+#define MATERIALX_MAYA_CREATENODECMD_H
 
 #include <maya/MPxCommand.h>
 #include <maya/MDGModifier.h>

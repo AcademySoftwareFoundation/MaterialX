@@ -1,5 +1,5 @@
-#ifndef MATERIALXNODE_H
-#define MATERIALXNODE_H
+#ifndef MATERIALX_MAYA_MATERIALXNODE_H
+#define MATERIALX_MAYA_MATERIALXNODE_H
 
 #include <MaterialXCore/Document.h>
 

@@ -1,5 +1,5 @@
-#ifndef PLUGIN_H
-#define PLUGIN_H
+#ifndef MATERIALX_MAYA_PLUGIN_H
+#define MATERIALX_MAYA_PLUGIN_H
 
 #include <MaterialXFormat/File.h>
 #include <MaterialXCore/Document.h>
@@ -53,4 +53,4 @@ class Plugin
 
 } // namespace MaterialXMaya
 
-#endif /* PLUGIN_H */
+#endif

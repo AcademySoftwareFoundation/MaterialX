@@ -1,5 +1,5 @@
-#ifndef RELOAD_MATERIALX_NODE_CMD_H
-#define RELOAD_MATERIALX_NODE_CMD_H
+#ifndef MATERIALX_MAYA_RELOADNODECMD_H
+#define MATERIALX_MAYA_RELOADNODECMD_H
 
 #include <maya/MPxCommand.h>
 
@@ -26,4 +26,4 @@ public:
 
 } // namespace MaterialXMaya
 
-#endif /* RELOAD_MATERIALX_NODE_CMD_H */
+#endif
