@@ -8,62 +8,96 @@ This module contains code for a sample Maya plug-in which implements Maya surfac
 
 To build this plug-in, the `MATERIALX_BUILD_CONTRIB` build flag must be enabled and the respective `MAYA_DEBUG_DIR` and/or `MAYA_RELEASE_DIR` build directory options set. The minimum required Maya version is Maya 2019.
 
+## Load
+To load the plug-in, set your MAYA_MODULE_PATH to the folder containing the MaterialXMaya.mod file. 
+
+Upon startup of Maya, load the MaterialXMaya plug-in via the Plug-in Manager. 
+
+You can now create MaterialX nodes in your scene. 
+
 ## Maya Nodes
 
-The plug-in defines two Maya nodes: `MaterialXSurfaceNode` and `MaterialXTextureNode`, accessible in Hypershade in the _Surface_ and _2D Textures_ categories, respectively. A new `MaterialXSurfaceNode` can be assigned to a shape via the [Marking Menu](https://knowledge.autodesk.com/support/maya/learn-explore/caas/CloudHelp/cloudhelp/2019/ENU/Maya-LightingShading/files/GUID-D41AF807-F7CB-447E-BACC-7F0867C14E8D-htm.html).
+The plug-in defines two Maya nodes: `MaterialXSurfaceNode` and `MaterialXTextureNode`, accessible from the Hypershade under the _Surface_ and _2D Textures_ categories, respectively. A `MaterialXSurfaceNode` can be assigned to a shape via the [Marking Menu](https://knowledge.autodesk.com/support/maya/learn-explore/caas/CloudHelp/cloudhelp/2019/ENU/Maya-LightingShading/files/GUID-D41AF807-F7CB-447E-BACC-7F0867C14E8D-htm.html).
+
+A `MaterialXTextureNode` can be mapped to any shader. For example, you can map its OutColor attribute to the Color attribute of a Lambert, or the Specular Color of an aiStandardSurface. 
 
 Both node types expose the following attributes:
-*   `documentFilePath`: the file path to the MaterialX document (an XML file with extension .mtlx);
-*   `elementPath`: the path to the MaterialX element within the document to generate the shader for;
-*   `environmentRadianceMap`: the file path to the environment map to use for specular shading, defaults to a texture that ships with the plug-in;
-*   `environmentIrradianceMap`: the file path to the environment map to use for diffuse shading, defaults to a texture that ships with the plug-in.
+*   `documentFilePath`: the file path to the MaterialX document (an XML file with extension `.mtlx`).
+*   `elementPath`: the path to the MaterialX element within the document, in a slash-delimited format similar to XPath, e.g. <material name/element name>. 
+*   `environmentRadianceMap`: the file path to the environment map to use for specular shading. Defaults to a texture that ships with the plug-in.
+*   `environmentIrradianceMap`: the file path to the environment map to use for diffuse shading. Defaults to a texture that ships with the plug-in.
+
+You can find the `environmentRadianceMap` and `environmentIrradianceMap` attributes in the Extra Attributes section of the Attribute Editor.
+
+The element name can be found in a _shaderref_ or _output_ element of the .mtlx document. For example, in `standard_surface_carpaint.mtlx`, the material name and element name are as follows:
+
+```XML
+<material name="Car_Paint">
+    <shaderref name="SR_carpaint" node="standard_surface">
+```
+    
+The element path is therefore: _Car_Paint/SR_carpaint_.
 
 Modifying any one of these attributes via GUI or scripting causes the shading node to refresh in the viewport.
 
 ## Maya Commands
 ### `createMaterialXNode`
 
-Creates one or many MaterialX nodes from the supplied MaterialX document. The command accepts the following flags:
+Creates one or many MaterialX nodes from the specified MaterialX document. The command accepts the following flags:
 
 ```MEL
    -d -documentFilePath  String
 ```
-
 Required argument: the path to a valid MaterialX document.
 
 ```MEL
    -e -elementPath       String
 ```
+
 If specified, the command tries to create a node for the given element. If the path is invalid or the element is not renderable, the command fails.
 
-If this argument is omitted, the command creates one node per each renderable element found in the document.
+If this argument is omitted, the command creates one node per renderable element found in the document.
 
 ```MEL
   -ei -envIrradiance     String
   -er -envRadiance       String
 ```
 
-These arguments allow to specify environment maps to use for IBL on the created nodes (see the node documentation). Default assets are used if these arguments are omitted.
+Use these arguments to specify environment maps to use for IBL on the created nodes (see the node documentation). Default assets are used if these arguments are omitted.
 
 ```MEL
    -t -asTexture         on|off
 ```
-If specified, determines the type of nodes to create with this command (`MaterialXSurfaceNode` or `MaterialXTextureNode`). If omitted, the type of nodes to create is determined by the type of the MaterialX element (`MaterialXSurfaceNode` for shader refs, `MaterialXTextureNode` otherwise).
+If specified, determines whether the node created will be of type `MaterialXSurfaceNode` or `MaterialXTextureNode`. If omitted, the type of the node is determined by the type of the MaterialX element (`MaterialXSurfaceNode` for shader refs, `MaterialXTextureNode` otherwise).
 
 ```MEL
    -x -ogsXml            String
 ```
-Allows to specify the file path to a Maya XML fragment to use instead of the one auto-generated by MaterialX. For debug purposes only.
+Specifies the file path to a Maya XML fragment instead of using the one that is auto-generated by MaterialX. For debug purposes only.
+
+An example is as follows:
+```MEL
+createMaterialXNode -d "D:/myMaterialsDirectory/standard_surface_brass_tiled.mtlx" -e "Tiled_Brass/SR_brass1" -ei "E:/environmentLighting/Exterior1Color.exr" -er "E:/environmentLighting/Exterior1Color.convolved.exr"
+```
+
+> Note: A shader that is created via this command is not listed in the Browser of the Hypershade (unlike those created via the Create tab of the Hypershade). It will, however, appear in the marking menu, from which you can assign it to your object. 
+> The shader is named _materialName_elementName_.
 
 ### `reloadMaterialXNode`
 
-Reloads the document and refreshes the viewport shader for the MaterialX node with the specified name. Useful in situations when the contents of the document file have changed on disk, e.g. due to editing in LookdevX or an external XML editor.
+For example:
+```MEL
+reloadMaterialXNode Jade_SR_jade
+```
+
+Reloads the document and refreshes the viewport shader mapped to the specified MaterialX node. This command is useful when the contents of the document file have changed on disk, e.g. due to editing in LookdevX or an external XML editor.
 
 ## MaterialX Libraries
 
-The plug-in loads a set of standard MaterialX libraries (installed together with the plug-in)  at load time. When documents are loaded for particular MaterialX nodes, they import these libraries from memory instead of reading them from the file system.
+The plug-in loads a set of standard MaterialX libraries (installed with the plug-in) at load time. When a document is loaded for a MaterialX node, it imports these libraries from memory instead of reading them from the file system.
 
-Users can configure additional library search paths and library directory names with the option variables `materialXLibrarySearchPaths` and `materialXLibraryNames` respectively which both hold arrays of strings. Here's an example of how these variables can be manipulated in MEL:
+Users can configure additional library search paths and library directory names with the option variables `materialXLibrarySearchPaths` and `materialXLibraryNames` respectively which both hold arrays of strings. 
+The following are a couple of examples in MEL:
 
 ```MEL
 optionVar -stringValueAppend materialXLibrarySearchPaths "D:/MaterialX/Teapot_Demo_MatX"
@@ -72,13 +106,13 @@ optionVar -stringValueAppend materialXLibraryNames "stdlib"
 
 ## LookdevX integration
 
-The plug-in integrates with LookdevX or any other editor that can open MaterialX document files. The `MAYA_MATERIALX_EDITOR` option variable needs to be set to the path of the editor executable to enable the integration, for example:
+The MaterialXMaya plug-in integrates with LookdevX or any other editor that can open MaterialX document files. To enable the integration with the LookdexX editor, set the `MAYA_MATERIALX_EDITOR` option variable to the path of the editor executable, for example:
 
 ```MEL
 optionVar -stringValue MAYA_MATERIALX_EDITOR "D:/LookdevX/bin/LookdevX.exe"
 ```
 
-To open the MaterialX document in the editor, press the **Edit** button in the Attribute Editor for the MaterialX node. Once the document has been edited and saved, you can press the **Reload** button the Attribute Editor which will execute the `reloadMaterialXNode` command, refreshing the shader in the viewport.
+To open the MaterialX document in the editor, press **Edit** in the Attribute Editor of the MaterialX node. Once the document has been edited and saved, press **Reload** in the Attribute Editor which executes the `reloadMaterialXNode` command and refreshes the shader in the viewport.
 
 ## Limitations
 
