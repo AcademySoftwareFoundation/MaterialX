@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.36.3] - Development
+## [1.36.3] - 2019-08-02
 
 Merged shader code generation and physically-based shading nodes from Autodesk's ShaderX extensions.  Added a default MaterialX viewer based on GLSL shader generation.
 
@@ -9,11 +9,13 @@ Merged shader code generation and physically-based shading nodes from Autodesk's
 - Added the MaterialXRender library, providing helper functionality for rendering MaterialX content.
 - Added the MaterialXView library, providing a default MaterialX viewer.
 - Added the physically-based shading node library (libraries/pbrlib).
-- Added a root-level 'resources' folder.
-- Added support for the 'place2d' node.
+- Added a root-level 'cmake' folder, including a standard FindMaterialX module.
+- Added a root-level 'resources' folder, including example materials and meshes.
+- Added documents for the 1.37 specification.
 
 ### Changed
 - Moved the MaterialX data libraries from 'documents/Libraries' to 'libraries'.
+- Updated MaterialX node definitions to the 1.37 specification.
 - Updated the PyBind11 library to version 2.2.4.
 
 ### Removed
