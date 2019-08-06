@@ -3,7 +3,7 @@ language: cpp
 addons:
   apt:
     sources:
-      - llvm-toolchain-trusty-7
+      - llvm-toolchain-xenial-8
       - ubuntu-toolchain-r-test
     packages:
       - libglu1-mesa-dev
@@ -15,7 +15,7 @@ addons:
       - libx11-dev
       - g++-6
       - g++-8
-      - clang-7
+      - clang-8
 
 matrix:
   include:
@@ -35,10 +35,10 @@ matrix:
       env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
     - os: linux
       compiler: gcc
-      env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8 && CMAKE_EXTRA_ARGS='-DMATERIALX_PYTHON_LTO=OFF'"
+      env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
     - os: linux
       compiler: clang
-      env: MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
+      env: MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
 
 before_install:
   - eval "${MATRIX_EVAL}"
@@ -46,7 +46,7 @@ before_install:
 script:
   - mkdir build
   - cd build
-  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${CMAKE_EXTRA_ARGS} ..
+  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ..
   - cmake --build . --target install -- -j4
   - ctest -VV --output-on-failure
   - export PYTHONPATH=$PYTHONPATH:$PWD/installed/python
