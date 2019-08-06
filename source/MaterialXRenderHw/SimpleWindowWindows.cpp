@@ -14,6 +14,8 @@ namespace MaterialX
 
 SimpleWindow::SimpleWindow()
 {
+    clearInternalState();
+
     // Give a unique ID to this window.
     //
     static unsigned int windowCount = 1;
