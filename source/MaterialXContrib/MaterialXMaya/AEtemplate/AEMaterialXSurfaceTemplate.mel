@@ -30,7 +30,7 @@ global proc MaterialXSurface_FilePathNew(string $attrName)
 
 global proc MaterialXSurface_FilePathReplace(string $attrName)
 {
-    evalDeferred ("connectControl documentFilePathField " + $attrName);
+    connectControl -fileName documentFilePathField $attrName;
     button -edit -command ("MaterialXSurface_FileBrowser " + $attrName) documentFileBrowserButton;
 }
 
