@@ -91,7 +91,7 @@ CreateMaterialXNodeCmd::~CreateMaterialXNodeCmd()
 
 std::string CreateMaterialXNodeCmd::createNode( mx::DocumentPtr document,
                                                 mx::TypedElementPtr renderableElement,
-                                                bool createAsTexture,
+                                                NodeTypeToCreate nodeTypeToCreate,
                                                 const MString& documentFilePath,
                                                 const mx::FileSearchPath& searchPath,
                                                 const MString& envRadianceFileName,
@@ -105,24 +105,23 @@ std::string CreateMaterialXNodeCmd::createNode( mx::DocumentPtr document,
         ogsFragment->getFragmentName(), ogsFragment->getFragmentSource()
     );
 
-    // Decide what kind of node we want to create
-    if (!createAsTexture)
-    {
-        createAsTexture = !ogsFragment->elementIsAShader();
-    }
+    const bool createAsTexture = nodeTypeToCreate == NodeTypeToCreate::TEXTURE
+        || (nodeTypeToCreate == NodeTypeToCreate::AUTO && !ogsFragment->elementIsAShader());
 
     // Create the MaterialX node
-    MObject node = _dgModifier.createNode(createAsTexture ? 
-                                          MaterialXTextureNode::MATERIALX_TEXTURE_NODE_TYPEID :
-                                          MaterialXSurfaceNode::MATERIALX_SURFACE_NODE_TYPEID);
+    MObject nodeObj = _dgModifier.createNode(
+        createAsTexture ? MaterialXTextureNode::MATERIALX_TEXTURE_NODE_TYPEID
+        : MaterialXSurfaceNode::MATERIALX_SURFACE_NODE_TYPEID
+    );
+
+    const std::string renderableElementPath = renderableElement->getNamePath();
 
     // Generate a valid Maya node name from the path string
-    std::string renderableElementPath = renderableElement->getNamePath();
     const std::string nodeName = mx::createValidName(renderableElementPath);
-    _dgModifier.renameNode(node, nodeName.c_str());
+    _dgModifier.renameNode(nodeObj, nodeName.c_str());
 
-    MFnDependencyNode depNode(node);
-    auto materialXNode = dynamic_cast<MaterialXNode*>(depNode.userNode());
+    MFnDependencyNode dgNode(nodeObj);
+    auto materialXNode = dynamic_cast<MaterialXNode*>(dgNode.userNode());
     if (!materialXNode)
     {
         throw mx::Exception("Unexpected DG node type.");
@@ -178,7 +177,7 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
         if (parser.isFlagSet(kElementFlag))
         {
             CHECK_MSTATUS(argData.getFlagArgument(kElementFlag, 0, elementPath));
-            if (elementPath.length())
+            if (elementPath.length() > 0)
             {
                 mx::TypedElementPtr desiredElement =
                     MaterialXUtil::getRenderableElement(document, renderableElements, elementPath.asChar());
@@ -202,10 +201,12 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
             registerDebugFragment(ogsXmlFileName.asChar());
         }
 
-        bool createAsTexture = false;
+        NodeTypeToCreate nodeTypeToCreate = NodeTypeToCreate::AUTO;
         if (parser.isFlagSet(kAsTextureFlag))
         {
+            bool createAsTexture = false;
             CHECK_MSTATUS(argData.getFlagArgument(kAsTextureFlag, 0, createAsTexture));
+            nodeTypeToCreate = createAsTexture ? NodeTypeToCreate::TEXTURE : NodeTypeToCreate::SURFACE;
         }
 
         MString envRadianceFileName;
@@ -220,36 +221,35 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
             CHECK_MSTATUS(argData.getFlagArgument(kEnvIrradianceFlagLong, 0, envIrradianceFileName));
         }
 
-        const mx::FileSearchPath& searchPath = Plugin::instance().getLibrarySearchPath();
-        MStringArray nodeNames;
-        for (auto renderableElement : renderableElements)
+        MStringArray createdNodeNames;
+        for (const auto& renderableElement : renderableElements)
         {
             std::string nodeName = createNode(  document,
                                                 renderableElement,
-                                                createAsTexture,
+                                                nodeTypeToCreate,
                                                 documentFilePath,
-                                                searchPath,
+                                                Plugin::instance().getLibrarySearchPath(),
                                                 envRadianceFileName,
                                                 envIrradianceFileName );
-            nodeNames.append(nodeName.c_str());
+            createdNodeNames.append(nodeName.c_str());
         }
 
         status = _dgModifier.doIt();
         if (!status)
         {
-            unsigned int nodeNameCount = nodeNames.length();
-            std::string nodeString;
-            if (nodeNameCount)
+            const unsigned int createdNodeCount = createdNodeNames.length();
+            std::string msg;
+            if (createdNodeCount > 0)
             {
-                nodeString = nodeNames[0].asChar();
-                for (unsigned int i = 1; i < nodeNameCount; i++)
+                msg = createdNodeNames[0].asChar();
+                for (unsigned int i = 1; i < createdNodeCount; i++)
                 {
-                    nodeString += std::string(",") + nodeNames[i].asChar();
+                    msg += std::string(", ") + createdNodeNames[i].asChar();
                 }
             }
-            throw mx::Exception(nodeString);
+            throw mx::Exception(msg);
         }
-        setResult(nodeNames);
+        setResult(createdNodeNames);
         return status;
     }
     catch (std::exception& e)
