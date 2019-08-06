@@ -16,11 +16,11 @@ def editMaterialXDocument(documentPath, element, editor):
 def editMaterialXNode(nodeName):
     documentFilePath = cmds.getAttr(nodeName + "documentFilePath")
     elementPath = cmds.getAttr(nodeName + "elementPath")
-    if cmds.optionVar(exists='MAYA_MATERIALX_EDITOR'):
-        editor = cmds.optionVar(q='MAYA_MATERIALX_EDITOR')
+    if cmds.optionVar(exists='materialXEditorPath'):
+        editor = cmds.optionVar(q='materialXEditorPath')
         editMaterialXDocument(documentFilePath, elementPath, editor)
     else:
-        print "Please set optionVar: 'MAYA_MATERIALX_EDITOR'"
+        print "Please set optionVar: 'materialXEditorPath'"
 
 def getMaterialXNodesForDocument(documentPath):
     nodes = cmds.ls(type="MaterialXNode")

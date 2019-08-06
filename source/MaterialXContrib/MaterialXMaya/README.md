@@ -106,10 +106,10 @@ optionVar -stringValueAppend materialXLibraryNames "stdlib"
 
 ## LookdevX integration
 
-The MaterialXMaya plug-in integrates with LookdevX or any other editor that can open MaterialX document files. To enable the integration with the LookdexX editor, set the `MAYA_MATERIALX_EDITOR` option variable to the path of the editor executable, for example:
+The MaterialXMaya plug-in integrates with LookdevX or any other editor that can open MaterialX document files. To enable the integration with the LookdexX editor, set the `materialXEditorPath` option variable to the path of the editor executable, for example:
 
 ```MEL
-optionVar -stringValue MAYA_MATERIALX_EDITOR "D:/LookdevX/bin/LookdevX.exe"
+optionVar -stringValue materialXEditorPath "D:/LookdevX/bin/LookdevX.exe"
 ```
 
 To open the MaterialX document in the editor, press **Edit** in the Attribute Editor of the MaterialX node. Once the document has been edited and saved, press **Reload** in the Attribute Editor which executes the `reloadMaterialXNode` command and refreshes the shader in the viewport.
