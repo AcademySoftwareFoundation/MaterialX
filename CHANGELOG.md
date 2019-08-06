@@ -1,5 +1,10 @@
 # Change Log
 
+## [1.36.4] - Development
+
+### Added
+- Added support for Clang 8.
+
 ## [1.36.3] - 2019-08-02
 
 Merged shader code generation and physically-based shading nodes from Autodesk's ShaderX extensions.  Added a default MaterialX viewer based on GLSL shader generation.
