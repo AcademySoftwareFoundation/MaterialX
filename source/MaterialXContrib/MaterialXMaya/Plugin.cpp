@@ -1,6 +1,7 @@
 #include "Plugin.h"
 #include "CreateMaterialXNodeCmd.h"
 #include "ReloadMaterialXNodeCmd.h"
+#include "ReloadMaterialXLibrariesCmd.h"
 #include "MaterialXNode.h"
 #include "ShadingNodeOverrides.h"
 
@@ -117,7 +118,18 @@ MStatus initializePlugin(MObject obj)
     using namespace MaterialXMaya;
 
     MFnPlugin plugin(obj, "Autodesk", "1.0", "Any");
-    Plugin::instance().initialize(plugin.loadPath().asChar());
+
+    try
+    {
+        Plugin::instance().initialize(plugin.loadPath().asChar());
+    }
+    catch (std::exception& e)
+    {
+        MString message("Failed to initialize MaterialXMaya plugin: ");
+        message += MString(e.what());
+        MGlobal::displayError(message);
+        return MS::kFailure;
+    }
 
     CHECK_MSTATUS(plugin.registerCommand(
         CreateMaterialXNodeCmd::NAME,
@@ -128,6 +140,11 @@ MStatus initializePlugin(MObject obj)
         ReloadMaterialXNodeCmd::NAME,
         ReloadMaterialXNodeCmd::creator,
         ReloadMaterialXNodeCmd::newSyntax));
+
+    CHECK_MSTATUS(plugin.registerCommand(
+        ReloadMaterialXLibrariesCmd::NAME,
+        ReloadMaterialXLibrariesCmd::creator,
+        ReloadMaterialXLibrariesCmd::newSyntax));
 
     CHECK_MSTATUS(plugin.registerNode(
         MaterialXNode::MATERIALX_NODE_TYPENAME,
@@ -189,6 +206,7 @@ MStatus uninitializePlugin(MObject obj)
 
     CHECK_MSTATUS(plugin.deregisterCommand(CreateMaterialXNodeCmd::NAME));
     CHECK_MSTATUS(plugin.deregisterCommand(ReloadMaterialXNodeCmd::NAME));
+    CHECK_MSTATUS(plugin.deregisterCommand(ReloadMaterialXLibrariesCmd::NAME));
 
     CHECK_MSTATUS(
         MHWRender::MDrawRegistry::deregisterShadingNodeOverrideCreator(

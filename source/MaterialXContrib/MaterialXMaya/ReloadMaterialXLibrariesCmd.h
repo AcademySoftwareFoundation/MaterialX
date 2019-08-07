@@ -1,5 +1,5 @@
-#ifndef MATERIALX_MAYA_RELOADNODECMD_H
-#define MATERIALX_MAYA_RELOADNODECMD_H
+#ifndef MATERIALX_MAYA_RELOADLIBRARIESCMD_H
+#define MATERIALX_MAYA_RELOADLIBRARIESCMD_H
 
 #include <maya/MPxCommand.h>
 
@@ -9,11 +9,11 @@ namespace MaterialXMaya
 ///
 ///
 ///
-class ReloadMaterialXNodeCmd : MPxCommand
+class ReloadMaterialXLibrariesCmd : MPxCommand
 {
 public:
-    ReloadMaterialXNodeCmd();
-    ~ReloadMaterialXNodeCmd() override;
+    ReloadMaterialXLibrariesCmd();
+    ~ReloadMaterialXLibrariesCmd() override;
 
     MStatus doIt(const MArgList&) override;
     bool isUndoable() { return false; }
