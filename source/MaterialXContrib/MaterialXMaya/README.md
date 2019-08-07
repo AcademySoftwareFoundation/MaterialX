@@ -38,6 +38,8 @@ The element name can be found in a _shaderref_ or _output_ element of the .mtlx 
     
 The element path is therefore: _Car_Paint/SR_carpaint_.
 
+Refer to the [MaterialX Specification](https://github.com/materialx/MaterialX/tree/master/documents/Specification) for more information.
+
 Modifying any one of these attributes via GUI or scripting causes the shading node to refresh in the viewport.
 
 ## Maya Commands
@@ -90,7 +92,7 @@ For example:
 reloadMaterialXNode Jade_SR_jade
 ```
 
-Reloads the document and refreshes the viewport shader mapped to the specified MaterialX node. This command is useful when the contents of the document file have changed on disk, e.g. due to editing in LookdevX or an external XML editor.
+Reloads the document and refreshes the viewport shader mapped to the specified MaterialX node. This command is useful when the contents of the document file have changed on disk, e.g. due to editing in an external XML editor.
 
 ## MaterialX Libraries
 
@@ -104,12 +106,12 @@ optionVar -stringValueAppend materialXLibrarySearchPaths "D:/MaterialX/Teapot_De
 optionVar -stringValueAppend materialXLibraryNames "stdlib"
 ```
 
-## LookdevX integration
+## Editor integration
 
-The MaterialXMaya plug-in integrates with LookdevX or any other editor that can open MaterialX document files. To enable the integration with the LookdexX editor, set the `materialXEditorPath` option variable to the path of the editor executable, for example:
+The MaterialXMaya plug-in integrates with any editor that can open MaterialX document files. To enable the integration with an editor, set the `materialXEditorPath` option variable to the path of the editor executable, for example:
 
 ```MEL
-optionVar -stringValue materialXEditorPath "D:/LookdevX/bin/LookdevX.exe"
+optionVar -stringValue materialXEditorPath "D:/MyEditor/bin/MyEditor.exe"
 ```
 
 To open the MaterialX document in the editor, press **Edit** in the Attribute Editor of the MaterialX node. Once the document has been edited and saved, press **Reload** in the Attribute Editor which executes the `reloadMaterialXNode` command and refreshes the shader in the viewport.
