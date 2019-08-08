@@ -216,7 +216,7 @@ void Material::bindShader()
     }
 }
 
-void Material::bindMesh(const mx::MeshPtr mesh) const
+void Material::bindMesh(mx::MeshPtr mesh) const
 {
     if (!mesh || !_glShader)
     {

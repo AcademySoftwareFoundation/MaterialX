@@ -1,29 +1,29 @@
-version: 1.36.3.{build}
-os: Visual Studio 2017
+version: 1.36.4.{build}
+image: Visual Studio 2017
 clone_folder: C:\Projects\MaterialX
 
 environment:
   matrix:
-    - CMAKE_PLATFORM: "Visual Studio 14 2015"
+    - GENERATOR: "Visual Studio 14 2015"
+      GENERATOR_NAME: vs2015
+      configuration: Release
+      ARCH: Win32
       PYTHON: C:\Python27
-      VS_PLATFORM: Windows_x86
-      VS_COMPILER: vs2015
+    - GENERATOR: "Visual Studio 14 2015"
+      GENERATOR_NAME: vs2015
       configuration: Release
-    - CMAKE_PLATFORM: "Visual Studio 14 2015 Win64"
+      ARCH: x64
       PYTHON: C:\Python27-x64
-      VS_PLATFORM: Windows
-      VS_COMPILER: vs2015
+    - GENERATOR: "Visual Studio 15 2017"
+      GENERATOR_NAME: vs2017
       configuration: Release
-    - CMAKE_PLATFORM: "Visual Studio 15 2017"
+      ARCH: Win32
       PYTHON: C:\Python36
-      VS_PLATFORM: Windows_x86
-      VS_COMPILER: vs2017
+    - GENERATOR: "Visual Studio 15 2017"
+      GENERATOR_NAME: vs2015
       configuration: Release
-    - CMAKE_PLATFORM: "Visual Studio 15 2017 Win64"
+      ARCH: x64
       PYTHON: C:\Python37-x64
-      VS_PLATFORM: Windows
-      VS_COMPILER: vs2017
-      configuration: Release
 
 install:
   - set PATH=%PYTHON%;%PATH%
@@ -32,7 +32,7 @@ install:
 build_script:
   - mkdir build
   - cd build
-  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON -G "%CMAKE_PLATFORM%" -DCMAKE_BUILD_TYPE="%CONFIGURATION%" ..
+  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_WARNINGS_AS_ERRORS=ON -G "%GENERATOR%" -A "%ARCH%" ..
   - cmake --build . --target install --config %CONFIGURATION%
   - ctest -VV --output-on-failure --build-config %CONFIGURATION%
   - cmake -E chdir ../python/MaterialXTest python main.py
@@ -41,29 +41,29 @@ build_script:
 before_deploy:
     # Go to install directory and zip it up.  Currently marked as pre-release
     - cd C:\Projects\MaterialX\build\installed
-    - 7z a -r C:\Projects\MaterialX\materialx-v1.36.0_shaderx-%VS_PLATFORM%-%CONFIGURATION%.zip .
+    - 7z a -r C:\Projects\MaterialX\materialx-v1.36.4_shaderx-%ARCH%-%GENERATOR_NAME%-%CONFIGURATION%.zip .
 
 artifacts:
     # Set artifact to be created zip.  Currently marked as pre-release
-    - path: materialx-v1.36.0_shaderx-%VS_PLATFORM%-%CONFIGURATION%.zip 
+    - path: materialx-v1.36.4_shaderx-%ARCH%-%GENERATOR_NAME%-%CONFIGURATION%.zip
       name: MaterialX_ADSK
 
 deploy:
-    # Deploy on main working branch
+    # Deploy on "release" branch
     - provider: GitHub
       prerelease: true
       on:
         VS_PLATFORM: Windows
-        branch: adsk_contrib/shaderx
+        branch: adsk_contrib/release
       auth_token:
         secure: qg4BvNKremS4OMcbGZEjaXrumrQ+8/pJvr3WrNqM1ZQDyzvNpmUEA0ZMRkUJzeOh
 
-    # Deploy on tags
+    # Deploy on tags -- only works with master branch
     #- provider: GitHub
     #  prerelease: true
     #  #tag: $(APPVEYOR_REPO_TAG_NAME)
     #  on:
     #    VS_PLATFORM: Windows
-    #    appveyor_repo_tag: true 
+    #    APPVEYOR_REPO_TAG: true
     #  auth_token:
     #    secure: qg4BvNKremS4OMcbGZEjaXrumrQ+8/pJvr3WrNqM1ZQDyzvNpmUEA0ZMRkUJzeOh

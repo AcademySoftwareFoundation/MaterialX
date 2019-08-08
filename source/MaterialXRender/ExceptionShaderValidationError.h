@@ -40,7 +40,7 @@ class ExceptionShaderValidationError : public Exception
         return *this;
     }
 
-    virtual ~ExceptionShaderValidationError() throw()
+    virtual ~ExceptionShaderValidationError() noexcept
     {
     }
 
