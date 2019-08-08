@@ -20,11 +20,8 @@ class Plugin
     /// Plugin initialization
     void initialize(const std::string& pluginLoadPath);
 
-    /// Get the search paths for resources
-    const mx::FileSearchPath& getResourceSearchPath() const
-    {
-        return _resourceSearchPath;
-    }
+    /// Get the search paths for resources such as texture files
+    mx::FileSearchPath getResourceSearchPath() const;
 
     void loadLibraries();
 
@@ -46,7 +43,6 @@ class Plugin
 
     mx::FilePath _pluginLoadPath;
     mx::FileSearchPath _librarySearchPath;
-    mx::FileSearchPath _resourceSearchPath;
 
     mx::DocumentPtr _libraryDocument;
 };

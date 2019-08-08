@@ -45,32 +45,30 @@ const char* const kEnvRadianceFlagLong = "envRadiance";
 const char* const kEnvIrradianceFlag = "ei";
 const char* const kEnvIrradianceFlagLong = "envIrradiance";
 
-void registerDebugFragment(const std::string& ogsXmlFileName)
+/// Use the fragment from an explicitly provided file instead of
+/// the one generated in OgsFragment - this can be used for debugging.
+void registerDebugFragment(const mx::FilePath& ogsXmlFilePath)
 {
-    // Use the fragment from an explicitly provided file instead of
-    // the one generated in OgsFragment - this can be used for debugging.
-    //
+    if (ogsXmlFilePath.isEmpty())
+    {
+        throw mx::Exception("Provided an empty path to the debug fragment");
+    }
+    
     MHWRender::MRenderer* const theRenderer = MHWRender::MRenderer::theRenderer();
-    MHWRender::MFragmentManager* const fragmentManager =
-        theRenderer ? theRenderer->getFragmentManager() : nullptr;
+    if (!theRenderer)
+    {
+        throw std::runtime_error("Failed to get the VP2 renderer");
+    }
 
+    MHWRender::MFragmentManager* const fragmentManager = theRenderer->getFragmentManager();
     if (!fragmentManager)
     {
         throw std::runtime_error("Failed to get the VP2 fragment manager");
     }
 
-    // If explicit XML file specified use it.
-    const mx::FilePath ogsXmlPath =
-        Plugin::instance().getResourceSearchPath().find(ogsXmlFileName);
-
-    if (ogsXmlPath.isEmpty())
-    {
-        throw mx::Exception("Failed to find the explicitly provided fragment file.");
-    }
-
     constexpr bool hidden = false;
     const MString registeredFragment =
-        fragmentManager->addShadeFragmentFromFile(ogsXmlPath.asString().c_str(), hidden);
+        fragmentManager->addShadeFragmentFromFile(ogsXmlFilePath.asString().c_str(), hidden);
 
     if (registeredFragment.length() == 0)
     {
@@ -190,15 +188,15 @@ MStatus CreateMaterialXNodeCmd::doIt( const MArgList &args )
             }
         }
 
-        MString ogsXmlFileName;
+        MString ogsXmlFilePath;
         if (parser.isFlagSet(kOgsXmlFlag))
         {
-            CHECK_MSTATUS(argData.getFlagArgument(kOgsXmlFlag, 0, ogsXmlFileName));
+            CHECK_MSTATUS(argData.getFlagArgument(kOgsXmlFlag, 0, ogsXmlFilePath));
         }
 
-        if (ogsXmlFileName.length() > 0)
+        if (ogsXmlFilePath.length() > 0)
         {
-            registerDebugFragment(ogsXmlFileName.asChar());
+            registerDebugFragment(mx::FilePath(ogsXmlFilePath.asChar()));
         }
 
         NodeTypeToCreate nodeTypeToCreate = NodeTypeToCreate::AUTO;

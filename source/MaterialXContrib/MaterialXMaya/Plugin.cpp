@@ -19,6 +19,84 @@
 namespace MaterialXMaya
 {
 
+namespace
+{
+class SearchPathBuilder
+{
+  public:
+    explicit SearchPathBuilder(mx::FileSearchPath& searchPath)
+        : _searchPath(searchPath)
+    {
+        _searchPath = mx::FileSearchPath();
+    }
+
+    void append(const mx::FilePath& filePath)
+    {
+        if (_uniquePaths.insert(filePath.asString()).second)
+        {
+            _searchPath.append(filePath);
+        }
+    }
+
+    void appendFromOptionVar(const MString& optionVarName)
+    {
+        MStringArray mstrArray;
+        if (MGlobal::executeCommand("optionVar -q " + optionVarName, mstrArray))
+        {
+            for (const MString& mstrPath : mstrArray)
+            {
+                append(mx::FilePath(mstrPath.asChar()));
+            }
+        }
+    }
+
+  private:
+    mx::FileSearchPath& _searchPath;
+    std::unordered_set<std::string> _uniquePaths;
+};
+
+void setIntermediateDumpPath()
+{
+    bool optionVarExists = false;
+    MString path = MGlobal::optionVarStringValue("materialXIntermediateDumpPath", &optionVarExists);
+
+    if ( !optionVarExists || path.length() == 0 )
+    {
+        return;
+    }
+
+    MHWRender::MRenderer* const theRenderer = MHWRender::MRenderer::theRenderer();
+    if (!theRenderer)
+    {
+        MGlobal::displayError("Failed to get the VP2 renderer");
+        return;
+    }
+
+    MHWRender::MFragmentManager* const fragmentManager = theRenderer->getFragmentManager();
+    if (!fragmentManager)
+    {
+        MGlobal::displayError("Failed to get the VP2 fragment manager");
+        return;
+    }
+
+    switch (path.asChar()[path.length() - 1])
+    {
+    case '/':
+    case '\\':
+        break;
+
+    default:
+        // Add explicitly as VP2 does not append a folder separator,
+        // and thus fails silently to output anything.
+        path += "/";
+    }
+
+    fragmentManager->setEffectOutputDirectory(path);
+    fragmentManager->setIntermediateGraphOutputDirectory(path);
+}
+
+} // anonymous namespace
+
 Plugin& Plugin::instance()
 {
     static Plugin s_instance;
@@ -29,63 +107,34 @@ void Plugin::initialize(const std::string& pluginLoadPath)
 {
     // Always include plug-in load path
     _pluginLoadPath = pluginLoadPath;
+    setIntermediateDumpPath();
+    loadLibraries();
+}
+
+mx::FileSearchPath Plugin::getResourceSearchPath() const
+{
+    mx::FileSearchPath searchPath;
+    SearchPathBuilder builder(searchPath);
 
     // Search in standard installed resources directories and plug-in relative resources
-    _resourceSearchPath.append(_pluginLoadPath);
-    _resourceSearchPath.append(_pluginLoadPath / mx::FilePath("../../resources"));
-    _resourceSearchPath.append(_pluginLoadPath / mx::FilePath("../resources"));
+    builder.append(_pluginLoadPath);
+    builder.append(_pluginLoadPath / mx::FilePath("../../resources"));
+    builder.append(_pluginLoadPath / mx::FilePath("../resources"));
 
-    MHWRender::MRenderer* const theRenderer = MHWRender::MRenderer::theRenderer();
-    MHWRender::MFragmentManager* const fragmentManager = theRenderer ? theRenderer->getFragmentManager() : nullptr;
-    if (!fragmentManager)
-    {
-        MGlobal::displayError("Failed to get the VP2 fragment manager");
-    }
-    else
-    {
-        // Set to resource path for now
-        std::string shaderDebugPath = _resourceSearchPath[1].asString();
-
-        // Add explicitly as VP2 does no prepend a folder separator, and thus fails silently to output anything.
-        shaderDebugPath += "/";
-        fragmentManager->setEffectOutputDirectory(shaderDebugPath.c_str());
-        fragmentManager->setIntermediateGraphOutputDirectory(shaderDebugPath.c_str());
-    }
-
-    loadLibraries();
+    builder.appendFromOptionVar("materialXResourceSearchPaths");
+    return searchPath;
 }
 
 void Plugin::loadLibraries()
 {
-    _librarySearchPath = mx::FileSearchPath();
     _libraryDocument = mx::createDocument();
 
     {
-        // Hash set to avoid duplicates.
-        std::unordered_set<std::string> uniquePaths;
+        SearchPathBuilder builder(_librarySearchPath);
+        builder.append(_pluginLoadPath);
+        builder.append(_pluginLoadPath / mx::FilePath("../../libraries"));
 
-        auto appendFilePath = [this, &uniquePaths](const mx::FilePath& filePath)
-        {
-            if (uniquePaths.insert(filePath.asString()).second)
-            {
-                _librarySearchPath.append(filePath);
-            }
-        };
-
-        appendFilePath(_pluginLoadPath);
-        appendFilePath(_pluginLoadPath / mx::FilePath("../../libraries"));
-
-        MStringArray extraSearchPaths;
-        MGlobal::executeCommand("optionVar -q materialXLibrarySearchPaths", extraSearchPaths);
-
-        for (const MString& mstrPath : extraSearchPaths)
-        {
-            const std::string strPath = mstrPath.asChar();
-            if (uniquePaths.insert(strPath).second)
-            {
-                _librarySearchPath.append(mx::FilePath(strPath));
-            }
-        }
+        builder.appendFromOptionVar("materialXLibrarySearchPaths");
     }
 
     std::unordered_set<std::string> uniqueLibraryNames{
