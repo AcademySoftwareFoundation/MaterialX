@@ -70,9 +70,10 @@ void writeTextFile(const std::string& text, const std::string& filePath)
     file.close();
 }
 
-mx::DocumentPtr loadLibraries(const mx::StringVec& libraryFolders, const mx::FileSearchPath& searchPath)
+std::pair<mx::DocumentPtr, mx::StringVec> loadLibraries(const mx::StringVec& libraryFolders, const mx::FileSearchPath& searchPath)
 {
     mx::DocumentPtr doc = mx::createDocument();
+    mx::StringVec xincludeFiles;
     for (const std::string& libraryFolder : libraryFolders)
     {
         mx::FilePath path = searchPath.find(libraryFolder);
@@ -90,9 +91,10 @@ mx::DocumentPtr loadLibraries(const mx::StringVec& libraryFolders, const mx::Fil
             mx::readFromXmlFile(libDoc, file, mx::EMPTY_STRING, &readOptions);
             libDoc->setSourceUri(file);
             doc->importLibrary(libDoc, &copyOptions);
+            xincludeFiles.push_back(file);
         }
     }
-    return doc;
+    return std::make_pair(doc, xincludeFiles);
 }
 
 void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
@@ -219,14 +221,8 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
 
     createLoadMeshInterface(_window, "Load Mesh");
     createLoadMaterialsInterface(_window, "Load Material");
-
-    ng::Button* editorButton = new ng::Button(_window, "Property Editor");
-    editorButton->setFlags(ng::Button::ToggleButton);
-    editorButton->setChangeCallback([this](bool state)
-    {
-        _propertyEditor.setVisible(state);
-        performLayout();
-    });
+    createSaveMaterialsInterface(_window, "Save Material");
+    createPropertyEditorInterface(_window, "Property Editor");
 
     // Set this before building UI as this flag is used
     // for the UI building
@@ -276,7 +272,10 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     _lightFileName = "resources/Materials/TestSuite/Utilities/Lights/default_viewer_lights.mtlx";
 
     // Initialize standard library and color management.
-    _stdLib = loadLibraries(_libraryFolders, _searchPath);
+    const auto stdDocAndXIncludes = loadLibraries(_libraryFolders, _searchPath);
+     _stdLib = stdDocAndXIncludes.first;
+     _xincludeFiles = stdDocAndXIncludes.second;
+
     mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(_genContext.getShaderGenerator().getLanguage());
     cms->loadLibrary(_stdLib);
     for (size_t i = 0; i < _searchPath.size(); i++)
@@ -370,6 +369,7 @@ void Viewer::setupLights(mx::DocumentPtr doc)
             mx::CopyOptions copyOptions;
             copyOptions.skipConflictingElements = true;
             doc->importLibrary(lightDoc, &copyOptions);
+            _xincludeFiles.push_back(path);
         }
         catch (std::exception& e)
         {
@@ -516,6 +516,44 @@ void Viewer::createLoadMaterialsInterface(Widget* parent, const std::string& lab
             loadDocument(_materialFilename, _stdLib);
         }
         mProcessEvents = true;
+    });
+}
+
+void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& label)
+{
+    ng::Button* materialButton = new ng::Button(parent, label);
+    materialButton->setIcon(ENTYPO_ICON_SAVE);
+    materialButton->setCallback([this]()
+    {
+        mProcessEvents = false;
+        std::string filename = ng::file_dialog({ { "mtlx", "MaterialX" } }, true);
+
+        // Save document
+        if (!filename.empty() && !_materials.empty())
+        {
+            mx::DocumentPtr doc = _materials.front()->getDocument();
+            mx::XmlWriteOptions writeOptions;
+            writeOptions.ignoredXIncludes = _xincludeFiles;
+            MaterialX::writeToXmlFile(doc, filename, &writeOptions);
+        }
+
+        // Update material file name
+        if (!filename.empty() && _materialFilename != filename)
+        {
+            _materialFilename = filename;
+        }
+        mProcessEvents = true;
+    });
+}
+
+void Viewer::createPropertyEditorInterface(Widget* parent, const std::string& label)
+{
+    ng::Button* editorButton = new ng::Button(parent, label);
+    editorButton->setFlags(ng::Button::ToggleButton);
+    editorButton->setChangeCallback([this](bool state)
+    {
+        _propertyEditor.setVisible(state);
+        performLayout();
     });
 }
 
