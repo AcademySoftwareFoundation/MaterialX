@@ -178,6 +178,10 @@ class ShaderRenderTester
         _skipFiles.insert("default_viewer_lights.mtlx");
     }
 
+    // Load dependencies
+    void loadDependentLibraries(GenShaderUtil::TestSuiteOptions options, mx::FilePath searchPath,
+                             mx::DocumentPtr& dependLib);
+
     // Load any additional libraries requird by the generator
     virtual void loadAdditionalLibraries(mx::DocumentPtr /*dependLib*/,
                                          GenShaderUtil::TestSuiteOptions& /*options*/) {};

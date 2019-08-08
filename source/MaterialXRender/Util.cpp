@@ -93,6 +93,10 @@ unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& 
             {
                 uiProperties.enumerationValues.push_back(Value::createValue(enumerationValues));
             }
+            if(uiProperties.enumeration.size() != uiProperties.enumerationValues.size())
+            {
+                throw std::runtime_error("Every enum must have a value!");
+            }
             propertyCount++;
         }
     }

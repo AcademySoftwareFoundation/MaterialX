@@ -78,6 +78,31 @@ void ShaderRenderTester::printRunLog(const RenderProfileTimes &profileTimes,
     //}
 }
 
+void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions options, mx::FilePath searchPath, mx::DocumentPtr& dependLib)
+{
+    dependLib = mx::createDocument();
+
+    const mx::StringVec libraries = { "stdlib", "pbrlib", "lights" };
+    mx::loadLibraries(libraries, searchPath, dependLib, nullptr);
+    for (size_t i = 0; i < options.externalLibraryPaths.size(); i++)
+    {
+        const mx::FilePath& extraPath = options.externalLibraryPaths[i];
+        mx::FilePathVec libraryFiles  = extraPath.getFilesInDirectory("mtlx");
+        for (size_t l = 0; l < libraryFiles.size(); l++)
+        {
+            std::cout << "Extra library path: " << (extraPath / libraryFiles[l]).asString() << std::endl;
+            mx::loadLibrary((extraPath / libraryFiles[l]), dependLib);
+        }
+    }
+
+    // Load shader definitions used in the test suite.
+    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), dependLib);
+    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd_preview_surface.mtlx"), dependLib);
+
+    // Load any addition per validator libraries
+    loadAdditionalLibraries(dependLib, options);
+}
+
 bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx::FilePath optionsFilePath)
 {
     // Test has been turned off so just do nothing.
@@ -143,36 +168,17 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
     ioTimer.endTimer();
 
+    // Add files to skip
+    addSkipFiles();
+
     // Library search path
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
 
     // Load in the library dependencies once
     // This will be imported in each test document below
     ioTimer.startTimer();
-    mx::DocumentPtr dependLib = mx::createDocument();
-
-    // Add files to skip
-    addSkipFiles();
-
-    const mx::StringVec libraries = { "stdlib", "pbrlib", "lights" };
-    mx::loadLibraries(libraries, searchPath, dependLib, nullptr);
-    for (size_t i = 0; i < options.externalLibraryPaths.size(); i++)
-    {
-        const mx::FilePath& extraPath = options.externalLibraryPaths[i];
-        mx::FilePathVec libraryFiles = extraPath.getFilesInDirectory("mtlx");
-        for (size_t l = 0; l < libraryFiles.size(); l++)
-        {
-            std::cout << "Extra library path: " << (extraPath / libraryFiles[l]).asString() << std::endl;
-            mx::loadLibrary((extraPath / libraryFiles[l]), dependLib);
-        }
-    }
-
-    // Load shader definitions used in the test suite.
-    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), dependLib);
-    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd_preview_surface.mtlx"), dependLib);
-
-    // Load any addition per validator libraries
-    loadAdditionalLibraries(dependLib, options);
+    mx::DocumentPtr dependLib;
+    loadDependentLibraries(options, searchPath, dependLib);
     ioTimer.endTimer();
 
     // Create validators and generators
