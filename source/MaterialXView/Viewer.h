@@ -88,6 +88,7 @@ class Viewer : public ng::Screen
     void setupLights(mx::DocumentPtr doc);
     void loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries);
     void reloadShaders();
+    void loadStandardLibraries();
     void saveShaderSource();
     void loadShaderSource();
     void saveDotFiles();
@@ -132,6 +133,10 @@ class Viewer : public ng::Screen
 
     bool _translationActive;
     ng::Vector2i _translationStart;
+
+    // Shading model information
+    ng::Label* _shaderLabel;
+    ng::TextBox* _shaderTextBox;
 
     // Document management
     mx::StringVec _libraryFolders;
