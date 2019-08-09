@@ -1077,7 +1077,7 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
     }
 
     // Reload all files from standard library
-	if (key == GLFW_KEY_R && modifiers == GLFW_MOD_SHIFT && action == GLFW_PRESS)
+    if (key == GLFW_KEY_R && modifiers == GLFW_MOD_SHIFT && action == GLFW_PRESS)
     {
         MaterialPtr material = getSelectedMaterial();
         mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
