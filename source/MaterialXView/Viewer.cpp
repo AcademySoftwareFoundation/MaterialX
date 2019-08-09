@@ -785,6 +785,18 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         for (auto renderablePath : renderablePaths)
         {
             mx::ElementPtr elem = doc->getDescendant(renderablePath);
+            if (!elem->getAttribute("node").empty())
+            {
+            	_shaderLabel->setVisible(true);
+            	_shaderTextBox->setVisible(true);
+            	_shaderTextBox->setValue(elem->getAttribute("node"));
+            }
+            else
+            {
+            	_shaderLabel->setVisible(false);
+            	_shaderLabel->setVisible(false);
+            }
+
             mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
             if (!typedElem)
             {
@@ -1019,6 +1031,17 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
     if (key == GLFW_KEY_L && action == GLFW_PRESS)
     {
         loadShaderSource();
+        return true;
+    }
+
+    // Reload all files from standard library
+    if (key == GLFW_KEY_R && modifiers == GLFW_MOD_SHIFT && action == GLFW_PRESS)
+    {
+        MaterialPtr material = getSelectedMaterial();
+        mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
+        mx::FilePath filename = doc ? mx::FilePath(doc->getSourceUri()) : _materialFilename;
+        loadStandardLibraries();
+        loadDocument(filename, _stdLib);
         return true;
     }
 
