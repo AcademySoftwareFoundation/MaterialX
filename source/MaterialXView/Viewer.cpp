@@ -544,7 +544,7 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
             mx::XmlWriteOptions writeOptions;
             writeOptions.writeXIncludeEnable = true;
             writeOptions.elementPredicate = skipXincludes;
-            MaterialX::writeToXmlFile(doc, filename, &writeOptions);
+            mx::writeToXmlFile(doc, filename, &writeOptions);
         }
 
         // Update material file name

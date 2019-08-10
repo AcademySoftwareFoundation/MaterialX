@@ -322,7 +322,7 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
     mx::Color4 fallbackColor(0, 0, 0, 1);
     for (const auto& uniform : publicUniforms->getVariableOrder())
     {
-        if (uniform->getType() != MaterialX::Type::FILENAME)
+        if (uniform->getType() != mx::Type::FILENAME)
         {
             continue;
         }
@@ -620,7 +620,7 @@ void Material::changeUniformElement(mx::ShaderPort* uniform, const std::string& 
     mx::ElementPtr element = _doc->getDescendant(uniform->getPath());
     if (element)
     {
-        mx::ValueElementPtr valueElement = element->asA<MaterialX::ValueElement>();
+        mx::ValueElementPtr valueElement = element->asA<mx::ValueElement>();
         if (valueElement)
         {
             valueElement->setValueString(value);

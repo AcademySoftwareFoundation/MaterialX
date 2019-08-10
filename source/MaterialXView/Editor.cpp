@@ -81,11 +81,11 @@ class MyColorPicker : public ng::ColorPicker
 //
 
 PropertyEditor::PropertyEditor() :
-    _visible(false),
     _container(nullptr),
     _formWindow(nullptr),
     _gridLayout2(nullptr),
     _gridLayout3(nullptr),
+    _visible(false),
     _fileDialogsForImages(true)
 {
 }
@@ -647,7 +647,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             ng::Widget* twoColumns = new ng::Widget(container);
             twoColumns->setLayout(_gridLayout2);
 
-            if (item.variable->getType() == MaterialX::Type::FILENAME)
+            if (item.variable->getType() == mx::Type::FILENAME)
             {
                 new ng::Label(twoColumns, label);
                 ng::Button* buttonVar = new ng::Button(twoColumns, mx::FilePath(v).getBaseName());
@@ -659,7 +659,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                     mx::ShaderPort* uniform = material ? material->findUniform(path) : nullptr;
                     if (uniform)
                     {
-                        if (uniform->getType() == MaterialX::Type::FILENAME)
+                        if (uniform->getType() == mx::Type::FILENAME)
                         {
                             const mx::GLTextureHandlerPtr handler = viewer->getImageHandler();
                             if (handler)
@@ -709,13 +709,7 @@ void PropertyEditor::updateContents(Viewer* viewer)
     create(*viewer);
 
     MaterialPtr material = viewer->getSelectedMaterial();
-    mx::TypedElementPtr materialElement = material ? material->getElement() : nullptr;
-    if (!materialElement)
-    {
-        return;
-    }
-
-    mx::DocumentPtr doc = material->getDocument();
+    mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
     if (!doc)
     {
         return;
@@ -723,13 +717,13 @@ void PropertyEditor::updateContents(Viewer* viewer)
 
     const bool showAdvancedItems = viewer->showAdvancedProperties();
     bool addedItems = false;
-    const MaterialX::VariableBlock* publicUniforms = material->getPublicUniforms();
+    const mx::VariableBlock* publicUniforms = material->getPublicUniforms();
     if (publicUniforms)
     {
         mx::UIPropertyGroup groups;
         mx::UIPropertyGroup unnamedGroups;
         const std::string pathSeparator(":");
-        mx::createUIPropertyGroups(*publicUniforms, doc, materialElement,
+        mx::createUIPropertyGroups(*publicUniforms, doc, material->getElement(),
                                     pathSeparator, groups, unnamedGroups); 
 
         std::string previousFolder;
