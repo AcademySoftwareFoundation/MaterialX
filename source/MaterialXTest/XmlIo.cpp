@@ -205,6 +205,38 @@ TEST_CASE("Load content", "[xmlio]")
     }
     REQUIRE(imageElementCount == 0);
 
+    // Serialize to XML with a custom predicate to remove xincludes.
+    auto skipLibIncludes = [libs](mx::ConstElementPtr elem)
+    {
+        if (elem->hasSourceUri())
+        {
+            for (auto lib : libs)
+            {
+                if (lib->getSourceUri() == elem->getSourceUri())
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    };
+    writeOptions.writeXIncludeEnable = true;
+    writeOptions.elementPredicate = skipLibIncludes;
+    xmlString = mx::writeToXmlString(writtenDoc, &writeOptions);
+    // Verify that the document contains no xincludes.
+    writtenDoc = mx::createDocument();
+    mx::readFromXmlString(writtenDoc, xmlString);
+    bool hasSourceUri = false;
+    for (mx::ElementPtr elem : writtenDoc->traverseTree())
+    {
+        if (elem->hasSourceUri())
+        {
+            hasSourceUri = true;
+            break;
+        }
+    }
+    REQUIRE(!hasSourceUri);
+
     // Read a non-existent document.
     mx::DocumentPtr nonExistentDoc = mx::createDocument();
     REQUIRE_THROWS_AS(mx::readFromXmlFile(nonExistentDoc, "NonExistent.mtlx"), mx::ExceptionFileMissing&);

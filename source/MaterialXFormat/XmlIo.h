@@ -56,10 +56,6 @@ class XmlWriteOptions
     /// If provided, this function will be used to exclude specific elements
     /// (those returning false) from the write operation.  Defaults to nullptr.
     ElementPredicate elementPredicate;
-
-    /// The vector of XIncludes to ignore saving out.  Defaults to an empty
-    /// vector.
-    StringVec ignoredXIncludes;
 };
 
 /// @class ExceptionParseError
