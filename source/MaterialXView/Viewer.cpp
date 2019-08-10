@@ -532,8 +532,18 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
         if (!filename.empty() && !_materials.empty())
         {
             mx::DocumentPtr doc = _materials.front()->getDocument();
+            // Add element predicate to prune out writing elements from included files
+            auto skipXincludes = [this](mx::ConstElementPtr elem)
+            {
+                if (elem->hasSourceUri())
+                {
+                    return (std::find(_xincludeFiles.begin(), _xincludeFiles.end(), elem->getSourceUri()) == _xincludeFiles.end());
+                }
+                return true;
+            };
             mx::XmlWriteOptions writeOptions;
-            writeOptions.ignoredXIncludes = _xincludeFiles;
+            writeOptions.writeXIncludeEnable = true;
+            writeOptions.elementPredicate = skipXincludes;
             MaterialX::writeToXmlFile(doc, filename, &writeOptions);
         }
 
