@@ -76,7 +76,6 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
 void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions* writeOptions)
 {
     bool writeXIncludeEnable = writeOptions ? writeOptions->writeXIncludeEnable : true;
-    const StringVec& ignoredXIncludes = writeOptions ? writeOptions->ignoredXIncludes : StringVec();
     ElementPredicate elementPredicate = writeOptions ? writeOptions->elementPredicate : nullptr;
 
     // Store attributes in XML.
@@ -107,11 +106,6 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions
             {
                 if (!writtenSourceFiles.count(sourceUri))
                 {
-                    // Check to see if we have flagged this XInclude to be ignored, if so skip it.
-                    if (std::find(ignoredXIncludes.begin(), ignoredXIncludes.end(), sourceUri) != ignoredXIncludes.end())
-                    {
-                        continue;
-                    }
                     xml_node includeNode = xmlNode.append_child(XINCLUDE_TAG.c_str());
                     xml_attribute includeAttr = includeNode.append_attribute("href");
                     includeAttr.set_value(sourceUri.c_str());
