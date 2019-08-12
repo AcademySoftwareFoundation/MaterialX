@@ -612,7 +612,7 @@ mx::ShaderPort* Material::findUniform(const std::string& path) const
 
 void Material::changeUniformElement(mx::ShaderPort* uniform, const std::string& value)
 {
-    if (nullptr == uniform)
+    if (!uniform)
     {
         throw std::runtime_error("Null ShaderPort");
     }

@@ -70,10 +70,9 @@ void writeTextFile(const std::string& text, const std::string& filePath)
     file.close();
 }
 
-std::pair<mx::DocumentPtr, mx::StringVec> loadLibraries(const mx::StringVec& libraryFolders, const mx::FileSearchPath& searchPath)
+mx::DocumentPtr loadLibraries(const mx::StringVec& libraryFolders, const mx::FileSearchPath& searchPath)
 {
     mx::DocumentPtr doc = mx::createDocument();
-    mx::StringVec xincludeFiles;
     for (const std::string& libraryFolder : libraryFolders)
     {
         mx::FilePath path = searchPath.find(libraryFolder);
@@ -91,10 +90,9 @@ std::pair<mx::DocumentPtr, mx::StringVec> loadLibraries(const mx::StringVec& lib
             mx::readFromXmlFile(libDoc, file, mx::EMPTY_STRING, &readOptions);
             libDoc->setSourceUri(file);
             doc->importLibrary(libDoc, &copyOptions);
-            xincludeFiles.push_back(file);
         }
     }
-    return std::make_pair(doc, xincludeFiles);
+    return doc;
 }
 
 void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
@@ -272,9 +270,8 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     _lightFileName = "resources/Materials/TestSuite/Utilities/Lights/default_viewer_lights.mtlx";
 
     // Initialize standard library and color management.
-    const auto stdDocAndXIncludes = loadLibraries(_libraryFolders, _searchPath);
-     _stdLib = stdDocAndXIncludes.first;
-     _xincludeFiles = stdDocAndXIncludes.second;
+    _stdLib = loadLibraries(_libraryFolders, _searchPath);
+    _xincludeFiles = _stdLib->getReferencedSourceUris();
 
     mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(_genContext.getShaderGenerator().getLanguage());
     cms->loadLibrary(_stdLib);
@@ -369,7 +366,7 @@ void Viewer::setupLights(mx::DocumentPtr doc)
             mx::CopyOptions copyOptions;
             copyOptions.skipConflictingElements = true;
             doc->importLibrary(lightDoc, &copyOptions);
-            _xincludeFiles.push_back(path);
+            _xincludeFiles.insert(path);
         }
         catch (std::exception& e)
         {
@@ -537,7 +534,7 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
             {
                 if (elem->hasSourceUri())
                 {
-                    return (std::find(_xincludeFiles.begin(), _xincludeFiles.end(), elem->getSourceUri()) == _xincludeFiles.end());
+                    return (_xincludeFiles.count(elem->getSourceUri()) == 0);
                 }
                 return true;
             };

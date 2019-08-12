@@ -218,18 +218,18 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         auto indexInEnumeration = [&value, &enumValues, &enumeration]()
         {
             size_t index = 0;
-            for(auto& enumValue: enumValues)
+            for (auto& enumValue: enumValues)
             {
-                if(value->getValueString() == enumValue->getValueString())
+                if (value->getValueString() == enumValue->getValueString())
                 {
                     return index;
                 }
                 index++;
             }
             index = 0;
-            for(auto& enumName: enumeration)
+            for (auto& enumName: enumeration)
             {
-                if(value->getValueString() == enumName)
+                if (value->getValueString() == enumName)
                 {
                     return index;
                 }
@@ -255,11 +255,11 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             comboBox->setCallback([path, viewer, enumeration, enumValues](int index)
             {
                 MaterialPtr material = viewer->getSelectedMaterial();
-                if(index >= 0 && static_cast<size_t>(index) < enumValues.size())
+                if (index >= 0 && static_cast<size_t>(index) < enumValues.size())
                 {
                     material->setUniformInt(path, enumValues[index]->asA<int>());
                 }
-                else if(index >= 0 && static_cast<size_t>(index) < enumeration.size())
+                else if (index >= 0 && static_cast<size_t>(index) < enumeration.size())
                 {
                     material->setUniformEnum(path, index, enumeration[index]);
                 }
@@ -308,7 +308,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         boolVar->setCallback([path, viewer](bool v)
         {
             MaterialPtr material = viewer->getSelectedMaterial();
-            if(material)
+            if (material)
             {
                 material->setUniformFloat(path, v);
             }
@@ -334,7 +334,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         colorVar->setFinalCallback([path, viewer, colorVar](const ng::Color &c)
         {
             MaterialPtr material = viewer->getSelectedMaterial();
-            if(material)
+            if (material)
             {
                 ng::Vector2f v;
                 v.x() = c.r();
@@ -734,7 +734,7 @@ void PropertyEditor::updateContents(Viewer* viewer)
             const std::string& folder = it->first;
             const mx::UIPropertyItem& item = it->second;
 
-            if(item.ui.uiAdvanced && !showAdvancedItems)
+            if (item.ui.uiAdvanced && !showAdvancedItems)
             {
                 continue;
             }

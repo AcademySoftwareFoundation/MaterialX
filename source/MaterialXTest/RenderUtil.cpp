@@ -86,12 +86,11 @@ void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions 
     mx::loadLibraries(libraries, searchPath, dependLib, nullptr);
     for (size_t i = 0; i < options.externalLibraryPaths.size(); i++)
     {
-        const mx::FilePath& extraPath = options.externalLibraryPaths[i];
-        mx::FilePathVec libraryFiles  = extraPath.getFilesInDirectory("mtlx");
-        for (size_t l = 0; l < libraryFiles.size(); l++)
+        const mx::FilePath& libraryPath = options.externalLibraryPaths[i];
+        for (const mx::FilePath& libraryFile : libraryPath.getFilesInDirectory("mtlx"))
         {
-            std::cout << "Extra library path: " << (extraPath / libraryFiles[l]).asString() << std::endl;
-            mx::loadLibrary((extraPath / libraryFiles[l]), dependLib);
+            std::cout << "Extra library path: " << (libraryPath / libraryFile).asString() << std::endl;
+            mx::loadLibrary((libraryPath / libraryFile), dependLib);
         }
     }
 
