@@ -246,7 +246,7 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
             {
                 setSelectedMaterial(_materialAssignments[getSelectedGeometry()]);
             }
-            updatePropertyEditor();
+            updateDisplayedProperties();
             updateMaterialSelectionUI();
         }
     });
@@ -446,7 +446,7 @@ void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)
     if (geometry == getSelectedGeometry())
     {
         setSelectedMaterial(material);
-        updatePropertyEditor();
+        updateDisplayedProperties();
     }
 }
 
@@ -616,7 +616,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     showAdvancedProperties->setCallback([this](bool enable)
     {
         _showAdvancedProperties = enable;
-        updatePropertyEditor();
+        updateDisplayedProperties();
     });
 }
 
@@ -806,17 +806,6 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         for (const auto& renderablePath : renderablePaths)
         {
             mx::ElementPtr elem = doc->getDescendant(renderablePath);
-            if (!elem->getAttribute("node").empty())
-            {
-                _shaderLabel->setVisible(true);
-                _shaderTextBox->setVisible(true);
-                _shaderTextBox->setValue(elem->getAttribute("node"));
-            }
-            else
-            {
-                _shaderLabel->setVisible(false);
-                _shaderTextBox->setVisible(false);
-            }
             mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
             if (!typedElem)
             {
@@ -1599,7 +1588,21 @@ void Viewer::computeCameraMatrices(mx::Matrix44& world,
     world *= mx::Matrix44::createTranslation(_modelTranslation).getTranspose();
 }
 
-void Viewer::updatePropertyEditor()
+void Viewer::updateDisplayedProperties()
 {
     _propertyEditor.updateContents(this);
+    mx::TypedElementPtr elem = getSelectedMaterial() ? getSelectedMaterial()->getElement() : nullptr;
+    const std::string& node = (elem && !elem->getAttribute("node").empty()) ? elem->getAttribute("node"): "";
+    if (!node.empty())
+    {
+        _shaderLabel->setVisible(true);
+        _shaderTextBox->setVisible(true);
+        _shaderTextBox->setValue(node);
+    }
+    else
+    {
+        _shaderLabel->setVisible(false);
+        _shaderTextBox->setVisible(false);
+        _shaderTextBox->setValue("");
+    }
 }

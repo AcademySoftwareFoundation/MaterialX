@@ -104,7 +104,7 @@ class Viewer : public ng::Screen
     void updateGeometrySelections();
     void updateMaterialSelections();
     void updateMaterialSelectionUI();
-    void updatePropertyEditor();
+    void updateDisplayedProperties();
 
     void createLoadMeshInterface(Widget* parent, const std::string& label);
     void createLoadMaterialsInterface(Widget* parent, const std::string& label);
