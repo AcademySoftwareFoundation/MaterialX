@@ -1592,8 +1592,7 @@ void Viewer::updateDisplayedProperties()
 {
     _propertyEditor.updateContents(this);
     mx::TypedElementPtr elem = getSelectedMaterial() ? getSelectedMaterial()->getElement() : nullptr;
-    const std::string& node = (elem && !elem->getAttribute("node").empty()) ? elem->getAttribute("node"): "";
-    if (!node.empty())
+    if (elem && !elem->getAttribute("node").empty())
     {
         _shaderLabel->setVisible(true);
         _shaderTextBox->setVisible(true);
