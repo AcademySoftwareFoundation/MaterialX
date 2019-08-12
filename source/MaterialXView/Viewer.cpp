@@ -1596,7 +1596,7 @@ void Viewer::updateDisplayedProperties()
     {
         _shaderLabel->setVisible(true);
         _shaderTextBox->setVisible(true);
-        _shaderTextBox->setValue(node);
+        _shaderTextBox->setValue(elem->getAttribute("node"));
     }
     else
     {
