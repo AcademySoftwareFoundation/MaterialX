@@ -19,7 +19,7 @@ TEST_CASE("Material", "[material]")
     mx::InputPtr diffColor = simpleSrf->setInputValue("diffColor", mx::Color3(1.0f));
     mx::InputPtr specColor = simpleSrf->setInputValue("specColor", mx::Color3(0.0f));
     mx::ParameterPtr roughness = simpleSrf->setParameterValue("roughness", 0.25f);
-    mx::TokenPtr texId = simpleSrf->setTokenValue("texId", std::string("01"));
+    mx::TokenPtr texId = simpleSrf->setTokenValue("texId", "01");
     REQUIRE(simpleSrf->getInputValue("diffColor")->asA<mx::Color3>() == mx::Color3(1.0f));
     REQUIRE(simpleSrf->getInputValue("specColor")->asA<mx::Color3>() == mx::Color3(0.0f));
     REQUIRE(simpleSrf->getParameterValue("roughness")->asA<float>() == 0.25f);
@@ -68,7 +68,7 @@ TEST_CASE("Material", "[material]")
 
     // Bind a shader token to a value.
     mx::BindTokenPtr bindToken = refAnisoSrf->addBindToken("texId");
-    bindToken->setValue(std::string("02"));
+    bindToken->setValue("02");
     REQUIRE(texId->getBoundValue(material)->asA<std::string>() == "02");
     REQUIRE(texId->getDefaultValue()->asA<std::string>() == "01");
     mx::StringResolverPtr resolver = doc->createStringResolver(mx::UNIVERSAL_GEOM_NAME, material);

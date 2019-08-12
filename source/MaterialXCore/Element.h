@@ -1037,6 +1037,12 @@ class ValueElement : public TypedElement
         setValueString(toValueString(value));
     }
 
+    /// Set the typed value of an element from a string literal.
+    void setValue(const char* value, const string& type = EMPTY_STRING)
+    {
+        setValue(string(value), type);
+    }
+
     /// Return true if the element possesses a typed value.
     bool hasValue() const
     {

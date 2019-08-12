@@ -49,6 +49,12 @@ class Value
         return std::make_shared< TypedValue<T> >(data);
     }
 
+    // Create a new value from a string literal.
+    static ValuePtr createValue(const char* data)
+    {
+        return createValue(string(data));
+    }
+
     /// Create a new value instance from value and type strings.
     /// @return A shared pointer to a typed value, or an empty shared pointer
     ///    if the conversion to the given data type cannot be performed.

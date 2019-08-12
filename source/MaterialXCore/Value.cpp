@@ -183,6 +183,11 @@ template <class T> string toValueString(const T& data)
     return value;
 }
 
+string toValueString(const char* data)
+{
+    return toValueString(string(data));
+}
+
 template <class T> T fromValueString(const string& value)
 {
     T data;

@@ -50,8 +50,7 @@ TEST_CASE("Value strings", "[value]")
     REQUIRE(mx::toValueString(mx::Color3(1.0f)) == "1, 1, 1");
     REQUIRE(mx::toValueString(std::string("text")) == "text");
 
-    // Convert from data values to value strings
-    // using the various float formattings.
+    // Convert from floats to value strings with custom formatting.
     {
         mx::ScopedFloatFormatting fmt(mx::Value::FloatFormatFixed, 3);
         REQUIRE(mx::toValueString(0.1234f) == "0.123");
@@ -115,6 +114,11 @@ TEST_CASE("Typed values", "[value]")
                    std::vector<float>{4.0f, 5.0f, 6.0f});
     testTypedValue(std::vector<std::string>{"one", "two", "three"},
                    std::vector<std::string>{"four", "five", "six"});
+
+    // String literals
+    mx::ValuePtr value = mx::Value::createValue("text");
+    REQUIRE(value->isA<std::string>());
+    REQUIRE(value->asA<std::string>() == "text");
 
     // Alias types
     testTypedValue<long>(1l, 2l);
