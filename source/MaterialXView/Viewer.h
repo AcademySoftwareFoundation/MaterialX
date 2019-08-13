@@ -108,6 +108,8 @@ class Viewer : public ng::Screen
 
     void createLoadMeshInterface(Widget* parent, const std::string& label);
     void createLoadMaterialsInterface(Widget* parent, const std::string& label);
+    void createSaveMaterialsInterface(Widget* parent, const std::string& label);
+    void createPropertyEditorInterface(Widget* parent, const std::string& label);
     void createAdvancedSettings(Widget* parent);
 
     mx::MeshStreamPtr createUvPositionStream(mx::MeshPtr mesh, 
@@ -144,6 +146,7 @@ class Viewer : public ng::Screen
     mx::DocumentPtr _stdLib;
     mx::FilePath _materialFilename;
     DocumentModifiers _modifiers;
+    mx::StringSet _xincludeFiles;
 
     // Lighting information
     std::string _lightFileName;

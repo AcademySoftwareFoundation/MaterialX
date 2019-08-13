@@ -190,6 +190,19 @@ void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions*
     }
 }
 
+StringSet Document::getReferencedSourceUris() const
+{
+    StringSet sourceUris;
+    for (ElementPtr elem : traverseTree())
+    {
+        if (elem->hasSourceUri())
+        {
+            sourceUris.insert(elem->getSourceUri());
+        }
+    }
+    return sourceUris;
+}
+
 std::pair<int, int> Document::getVersionIntegers() const
 {
     if (!hasVersionString())
