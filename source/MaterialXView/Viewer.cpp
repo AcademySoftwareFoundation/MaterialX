@@ -246,7 +246,7 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
             {
                 setSelectedMaterial(_materialAssignments[getSelectedGeometry()]);
             }
-            updatePropertyEditor();
+            updateDisplayedProperties();
             updateMaterialSelectionUI();
         }
     });
@@ -267,6 +267,9 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
         }
     });
 
+    _shaderLabel = new ng::Label(_window, "Current Shading Model");
+    _shaderTextBox = new ng::TextBox(_window, "");
+
     // Set default generator options.
     _genContext.getOptions().hwSpecularEnvironmentMethod = _specularEnvironmentMethod;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
@@ -276,14 +279,7 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
     _lightFileName = "resources/Materials/TestSuite/Utilities/Lights/default_viewer_lights.mtlx";
 
     // Initialize standard library and color management.
-    _stdLib = loadLibraries(_libraryFolders, _searchPath);
-    mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(_genContext.getShaderGenerator().getLanguage());
-    cms->loadLibrary(_stdLib);
-    for (size_t i = 0; i < _searchPath.size(); i++)
-    {
-        _genContext.registerSourceCodeSearchPath(_searchPath[i]);
-    }
-    _genContext.getShaderGenerator().setColorManagementSystem(cms);
+    loadStandardLibraries();
 
     // Generate wireframe material.
     const std::string constantShaderName("__WIRE_SHADER_NAME__");
@@ -450,7 +446,7 @@ void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)
     if (geometry == getSelectedGeometry())
     {
         setSelectedMaterial(material);
-        updatePropertyEditor();
+        updateDisplayedProperties();
     }
 }
 
@@ -620,7 +616,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     showAdvancedProperties->setCallback([this](bool enable)
     {
         _showAdvancedProperties = enable;
-        updatePropertyEditor();
+        updateDisplayedProperties();
     });
 }
 
@@ -1039,6 +1035,19 @@ void Viewer::saveDotFiles()
     }
 }
 
+void Viewer::loadStandardLibraries()
+{
+    // Initialize standard library and color management.
+    _stdLib = loadLibraries(_libraryFolders, _searchPath);
+    mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(_genContext.getShaderGenerator().getLanguage());
+    cms->loadLibrary(_stdLib);
+    for (size_t i = 0; i < _searchPath.size(); i++)
+    {
+        _genContext.registerSourceCodeSearchPath(_searchPath[i]);
+    }
+    _genContext.getShaderGenerator().setColorManagementSystem(cms);
+}
+
 bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
 {
     if (Screen::keyboardEvent(key, scancode, action, modifiers))
@@ -1052,6 +1061,17 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         MaterialPtr material = getSelectedMaterial();
         mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
         mx::FilePath filename = doc ? mx::FilePath(doc->getSourceUri()) : _materialFilename;
+        loadDocument(filename, _stdLib);
+        return true;
+    }
+
+    // Reload all files from standard library
+    if (key == GLFW_KEY_R && modifiers == GLFW_MOD_SHIFT && action == GLFW_PRESS)
+    {
+        MaterialPtr material = getSelectedMaterial();
+        mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
+        mx::FilePath filename = doc ? mx::FilePath(doc->getSourceUri()) : _materialFilename;
+        loadStandardLibraries();
         loadDocument(filename, _stdLib);
         return true;
     }
@@ -1568,7 +1588,20 @@ void Viewer::computeCameraMatrices(mx::Matrix44& world,
     world *= mx::Matrix44::createTranslation(_modelTranslation).getTranspose();
 }
 
-void Viewer::updatePropertyEditor()
+void Viewer::updateDisplayedProperties()
 {
     _propertyEditor.updateContents(this);
+    mx::TypedElementPtr elem = getSelectedMaterial() ? getSelectedMaterial()->getElement() : nullptr;
+    if (elem && !elem->getAttribute("node").empty())
+    {
+        _shaderLabel->setVisible(true);
+        _shaderTextBox->setVisible(true);
+        _shaderTextBox->setValue(elem->getAttribute("node"));
+    }
+    else
+    {
+        _shaderLabel->setVisible(false);
+        _shaderTextBox->setVisible(false);
+        _shaderTextBox->setValue("");
+    }
 }
