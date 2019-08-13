@@ -144,10 +144,6 @@ bool GLTextureHandler::acquireImage(const FilePath& filePath,
             glBindTexture(GL_TEXTURE_2D, imageDesc.resourceId);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, imageDesc.width, imageDesc.height, 0,
                 GL_RGBA, GL_FLOAT, imageDesc.resourceBuffer);
-            if (generateMipMaps)
-            {
-                glGenerateMipmap(GL_TEXTURE_2D);
-            }
             glBindTexture(GL_TEXTURE_2D, 0);
         }
         imageDesc.freeResourceBuffer();
