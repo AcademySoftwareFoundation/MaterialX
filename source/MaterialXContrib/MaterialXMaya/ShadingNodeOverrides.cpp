@@ -2,11 +2,11 @@
 #include "MaterialXNode.h"
 #include "Plugin.h"
 #include "MaterialXUtil.h"
+#include "MayaUtil.h"
 #include "OgsFragment.h"
 
 #include <maya/MDGModifier.h>
 #include <maya/MShaderManager.h>
-#include <maya/MTextureManager.h>
 #include <maya/MPxShadingNodeOverride.h>
 #include <maya/MPxSurfaceShadingNodeOverride.h>
 
@@ -36,54 +36,6 @@ const MString
 
 namespace
 {
-struct Vp2TextureDeleter
-{
-    void operator () (MHWRender::MTexture* texture)
-    {
-        if (!texture)
-        {
-            return;
-        }
-
-        MHWRender::MRenderer* const renderer = MRenderer::theRenderer();
-        if (!renderer)
-        {
-            return;
-        }
-
-        MHWRender::MTextureManager* const
-            textureMgr = renderer->getTextureManager();
-
-        if (!textureMgr)
-        {
-            return;
-        }
-
-        textureMgr->releaseTexture(texture);
-    };
-};
-
-using VP2TextureUniquePtr = std::unique_ptr<
-    MHWRender::MTexture,
-    Vp2TextureDeleter
->;
-
-struct Vp2SamplerDeleter
-{
-    void operator () (const MHWRender::MSamplerState* sampler)
-    {
-        if (sampler)
-        {
-            MHWRender::MStateManager::releaseSamplerState(sampler);
-        }
-    };
-};
-
-using Vp2SamplerUniquePtr = std::unique_ptr<
-    const MHWRender::MSamplerState,
-    Vp2SamplerDeleter
->;
-
 // This should be a shared utility
 MStatus bindFileTexture(MHWRender::MShaderInstance& shader, 
                         const std::string& parameterName,
@@ -100,7 +52,7 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shader,
     MHWRender::MTextureManager* textureManager = renderer ? textureManager = renderer->getTextureManager() : nullptr;
     if (textureManager)
     {
-        VP2TextureUniquePtr texturePtr;
+        MayaUtil::TextureUniquePtr texturePtr;
         if (udimIdentifiers && !udimIdentifiers->empty())
         {
             std::vector<mx::Vector2> udimCoordinates{ mx::getUdimCoordinates(*udimIdentifiers) };
@@ -159,9 +111,9 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shader,
     }
 
     // Bind sampler
-    const std::string SAMPLE_PREFIX_STRING("Sampler");
-    std::string samplerParameterName(parameterName + SAMPLE_PREFIX_STRING);
-    Vp2SamplerUniquePtr samplerState{ MHWRender::MStateManager::acquireSamplerState(samplerDescription) };
+    static const std::string SAMPLE_PREFIX_STRING("Sampler");
+    const std::string samplerParameterName = parameterName + SAMPLE_PREFIX_STRING;
+    MayaUtil::SamplerUniquePtr samplerState{ MHWRender::MStateManager::acquireSamplerState(samplerDescription) };
     if (samplerState)
     {
         status = shader.setParameter(samplerParameterName.c_str(), *samplerState);
@@ -266,11 +218,6 @@ ShadingNodeOverride<BASE>::valueChangeRequiresFragmentRebuild(const MPlug* plug)
     }
 
     return BASE::valueChangeRequiresFragmentRebuild(plug);
-}
-
-template <class BASE>
-void ShadingNodeOverride<BASE>::updateDG()
-{
 }
 
 template <class BASE>

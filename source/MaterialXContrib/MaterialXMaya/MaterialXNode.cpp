@@ -38,11 +38,11 @@ MObject MaterialXNode::ENV_IRRADIANCE_ATTRIBUTE;
 
 MObject MaterialXNode::OUT_ATTRIBUTE;
 
-const MTypeId MaterialXTextureNode::MATERIALX_TEXTURE_NODE_TYPEID(0x00042403);
-const MString MaterialXTextureNode::MATERIALX_TEXTURE_NODE_TYPENAME("MaterialXTexture");
+const MTypeId MaterialXTextureNode::MATERIALX_TEXTURE_NODE_TYPEID = 0x00042403;
+const MString MaterialXTextureNode::MATERIALX_TEXTURE_NODE_TYPENAME = "MaterialXTexture";
 
-const MTypeId MaterialXSurfaceNode::MATERIALX_SURFACE_NODE_TYPEID(0x00042404);
-const MString MaterialXSurfaceNode::MATERIALX_SURFACE_NODE_TYPENAME("MaterialXSurface");
+const MTypeId MaterialXSurfaceNode::MATERIALX_SURFACE_NODE_TYPEID = 0x00042404;
+const MString MaterialXSurfaceNode::MATERIALX_SURFACE_NODE_TYPENAME = "MaterialXSurface";
 
 MObject MaterialXSurfaceNode::VP2_TRANSPARENCY_ATTRIBUTE;
 

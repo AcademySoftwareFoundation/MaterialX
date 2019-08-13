@@ -1,6 +1,9 @@
 #ifndef MATERIALX_MAYA_CREATENODECMD_H
 #define MATERIALX_MAYA_CREATENODECMD_H
 
+/// @file
+/// Maya command for creating MaterialX shading nodes.
+
 #include <maya/MPxCommand.h>
 #include <maya/MDGModifier.h>
 
@@ -14,8 +17,8 @@ namespace mx = MaterialX;
 namespace MaterialXMaya
 {
 
-///
-///
+/// @class CreateMaterialXNodeCmd
+/// Creates one or more MaterialX nodes from the specified MaterialX document.
 ///
 class CreateMaterialXNodeCmd : MPxCommand
 {
@@ -23,12 +26,16 @@ class CreateMaterialXNodeCmd : MPxCommand
     CreateMaterialXNodeCmd();
     ~CreateMaterialXNodeCmd() override;
 
+    /// @name Maya API methods
+    /// @{
     MStatus doIt(const MArgList&) override;
     bool isUndoable() { return false; }
 
     static MSyntax newSyntax();
     static void* creator();
+    /// @}
 
+    /// The name of the command in MEL
     static MString NAME;
 
   private:
@@ -40,13 +47,16 @@ class CreateMaterialXNodeCmd : MPxCommand
         TEXTURE     ///< A texture shading node
     };
 
-    /// Create a new Maya node for a given renderable element
-    /// @param document Document containing the element
-    /// @param renderableElement Element to use
-    /// @param nodeTypeToCreate The type of shading node to create
-    /// @param documentFilePath Path to document
-    /// @param searchPath Shader generation source paths
-    /// @return Name of Maya node created
+    /// Create a new Maya node for a given renderable element.
+    /// @param document The document containing the element.
+    /// @param renderableElement The element to use.
+    /// @param nodeTypeToCreate The type of shading node to create.
+    /// @param documentFilePath Path to the document.
+    /// @param searchPath Shader generation source paths.
+    /// @param envRadianceFileName The file name of the environment map to use for specular shading.
+    /// @param envIrradianceFileName The file name of the environment map to use for diffuse shading.
+    /// @return Name of Maya node created.
+    ///
     std::string createNode(
         mx::DocumentPtr document,
         mx::TypedElementPtr renderableElement,
@@ -56,6 +66,7 @@ class CreateMaterialXNodeCmd : MPxCommand
         const MString& envRadianceFileName,
         const MString& envIrradianceFileName );
 
+    /// Used to make the necessary changes to Maya's dependency graph.
     MDGModifier _dgModifier;
 };
 

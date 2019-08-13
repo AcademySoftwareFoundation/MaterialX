@@ -105,7 +105,6 @@ Plugin& Plugin::instance()
 
 void Plugin::initialize(const std::string& pluginLoadPath)
 {
-    // Always include plug-in load path
     _pluginLoadPath = pluginLoadPath;
     setIntermediateDumpPath();
     loadLibraries();

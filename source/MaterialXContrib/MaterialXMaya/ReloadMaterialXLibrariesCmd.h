@@ -1,13 +1,16 @@
 #ifndef MATERIALX_MAYA_RELOADLIBRARIESCMD_H
 #define MATERIALX_MAYA_RELOADLIBRARIESCMD_H
 
+/// @file
+/// Maya command for reloading MaterialX libraries.
+
 #include <maya/MPxCommand.h>
 
 namespace MaterialXMaya
 {
 
-///
-///
+/// @class ReloadMaterialXLibrariesCmd
+/// Reloads all MaterialX libraries used by the plug-in.
 ///
 class ReloadMaterialXLibrariesCmd : MPxCommand
 {

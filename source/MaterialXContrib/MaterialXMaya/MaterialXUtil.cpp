@@ -60,8 +60,6 @@ mx::TypedElementPtr getRenderableElement(mx::DocumentPtr document,
                                          const std::vector<mx::TypedElementPtr>& renderableElements, 
                                          const std::string& desiredElementPath)
 {
-  
-
     if (!desiredElementPath.empty())
     {
         mx::ElementPtr element = document->getDescendant(desiredElementPath);

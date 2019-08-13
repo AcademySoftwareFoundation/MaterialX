@@ -44,5 +44,37 @@ void registerFragment(const std::string& fragmentName, const std::string& fragme
     }
 }
 
+void TextureDeleter::operator()(MHWRender::MTexture* texture)
+{
+    if (!texture)
+    {
+        return;
+    }
+
+    MHWRender::MRenderer* const renderer = MRenderer::theRenderer();
+    if (!renderer)
+    {
+        return;
+    }
+
+    MHWRender::MTextureManager* const
+        textureMgr = renderer->getTextureManager();
+
+    if (!textureMgr)
+    {
+        return;
+    }
+
+    textureMgr->releaseTexture(texture);
+};
+
+void SamplerDeleter::operator () (const MHWRender::MSamplerState* sampler)
+{
+    if (sampler)
+    {
+        MHWRender::MStateManager::releaseSamplerState(sampler);
+    }
+};
+
 } // namespace MayaUtil
 } // namespace MaterialXMaya
