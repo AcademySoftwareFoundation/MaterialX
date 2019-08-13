@@ -219,14 +219,8 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
 
     createLoadMeshInterface(_window, "Load Mesh");
     createLoadMaterialsInterface(_window, "Load Material");
-
-    ng::Button* editorButton = new ng::Button(_window, "Property Editor");
-    editorButton->setFlags(ng::Button::ToggleButton);
-    editorButton->setChangeCallback([this](bool state)
-    {
-        _propertyEditor.setVisible(state);
-        performLayout();
-    });
+    createSaveMaterialsInterface(_window, "Save Material");
+    createPropertyEditorInterface(_window, "Property Editor");
 
     // Set this before building UI as this flag is used
     // for the UI building
@@ -366,6 +360,7 @@ void Viewer::setupLights(mx::DocumentPtr doc)
             mx::CopyOptions copyOptions;
             copyOptions.skipConflictingElements = true;
             doc->importLibrary(lightDoc, &copyOptions);
+            _xincludeFiles.insert(path);
         }
         catch (std::exception& e)
         {
@@ -512,6 +507,54 @@ void Viewer::createLoadMaterialsInterface(Widget* parent, const std::string& lab
             loadDocument(_materialFilename, _stdLib);
         }
         mProcessEvents = true;
+    });
+}
+
+void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& label)
+{
+    ng::Button* materialButton = new ng::Button(parent, label);
+    materialButton->setIcon(ENTYPO_ICON_SAVE);
+    materialButton->setCallback([this]()
+    {
+        mProcessEvents = false;
+        std::string filename = ng::file_dialog({ { "mtlx", "MaterialX" } }, true);
+
+        // Save document
+        if (!filename.empty() && !_materials.empty())
+        {
+            mx::DocumentPtr doc = _materials.front()->getDocument();
+            // Add element predicate to prune out writing elements from included files
+            auto skipXincludes = [this](mx::ConstElementPtr elem)
+            {
+                if (elem->hasSourceUri())
+                {
+                    return (_xincludeFiles.count(elem->getSourceUri()) == 0);
+                }
+                return true;
+            };
+            mx::XmlWriteOptions writeOptions;
+            writeOptions.writeXIncludeEnable = true;
+            writeOptions.elementPredicate = skipXincludes;
+            mx::writeToXmlFile(doc, filename, &writeOptions);
+        }
+
+        // Update material file name
+        if (!filename.empty() && _materialFilename != filename)
+        {
+            _materialFilename = filename;
+        }
+        mProcessEvents = true;
+    });
+}
+
+void Viewer::createPropertyEditorInterface(Widget* parent, const std::string& label)
+{
+    ng::Button* editorButton = new ng::Button(parent, label);
+    editorButton->setFlags(ng::Button::ToggleButton);
+    editorButton->setChangeCallback([this](bool state)
+    {
+        _propertyEditor.setVisible(state);
+        performLayout();
     });
 }
 

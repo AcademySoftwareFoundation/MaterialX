@@ -65,6 +65,9 @@ class Document : public GraphElement
     ///    import function.  Defaults to a null pointer.
     void importLibrary(const ConstDocumentPtr& library, const CopyOptions* copyOptions = nullptr);
 
+    /// Get a list of source URI's referenced by the document
+    StringSet getReferencedSourceUris() const;
+
     /// @}
     /// @name NodeGraph Elements
     /// @{
