@@ -15,6 +15,8 @@
 #include <MaterialXGenOgsXml/OgsXmlGenerator.h>
 #include <MaterialXRender/ImageHandler.h>
 
+#include <iostream>
+
 namespace mx = MaterialX;
 
 namespace MHWRender
