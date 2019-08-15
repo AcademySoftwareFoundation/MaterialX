@@ -3,13 +3,13 @@
 #include <MaterialXView/Viewer.h>
 
 #include <nanogui/button.h>
+#include <nanogui/colorpicker.h>
+#include <nanogui/colorwheel.h>
 #include <nanogui/combobox.h>
 #include <nanogui/layout.h>
-#include <nanogui/vscrollpanel.h>
-#include <nanogui/textbox.h>
 #include <nanogui/slider.h>
-#include <nanogui/colorwheel.h>
-#include <nanogui/colorpicker.h>
+#include <nanogui/textbox.h>
+#include <nanogui/vscrollpanel.h>
 
 namespace {
 
@@ -24,12 +24,12 @@ class EditorFormHelper : public ng::FormHelper
     void setVariableSpacing(int val) { mVariableSpacing = val; }
 };
 
-// Custom color picker so we can get numeric entry and feedback.
+// Custom color picker with numeric entry and feedback.
 //
-class MyColorPicker : public ng::ColorPicker
+class EditorColorPicker : public ng::ColorPicker
 {
   public:
-    MyColorPicker(ng::Widget *parent, const ng::Color& color) :
+    EditorColorPicker(ng::Widget *parent, const ng::Color& color) :
         ng::ColorPicker(parent, color)
     {
         ng::Popup *popup = this->popup();
@@ -328,7 +328,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         c.g() = v[1];
         c.b() = 0.0f;
         c.w() = 1.0f;
-        auto colorVar = new MyColorPicker(twoColumns, c);
+        auto colorVar = new EditorColorPicker(twoColumns, c);
         colorVar->setFixedSize({ 100, 20 });
         colorVar->setFontSize(15);
         colorVar->setFinalCallback([path, viewer, colorVar](const ng::Color &c)
@@ -405,7 +405,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             c.w() = 1.0;
             
             new ng::Label(twoColumns, label);
-            auto colorVar = new MyColorPicker(twoColumns, c);
+            auto colorVar = new EditorColorPicker(twoColumns, c);
             colorVar->setFixedSize({ 100, 20 });
             colorVar->setFontSize(15);
             colorVar->setFinalCallback([path, viewer](const ng::Color &c)
@@ -433,7 +433,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         c.g() = v[1];
         c.b() = v[2];
         c.w() = v[3];
-        auto colorVar = new MyColorPicker(twoColumns, c);
+        auto colorVar = new EditorColorPicker(twoColumns, c);
         colorVar->setFixedSize({ 100, 20 });
         colorVar->setFontSize(15);
         colorVar->setFinalCallback([path, viewer](const ng::Color &c)
@@ -713,6 +713,20 @@ void PropertyEditor::updateContents(Viewer* viewer)
     if (!doc)
     {
         return;
+    }
+
+    // Shading model display
+    mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
+    std::string shaderName = elem ? elem->getAttribute("node") : mx::EMPTY_STRING;
+    if (!shaderName.empty())
+    {
+        ng::Widget* twoColumns = new ng::Widget(_container);
+        twoColumns->setLayout(_gridLayout2);
+        ng::Label* modelLabel = new ng::Label(twoColumns, "Shading Model");
+        modelLabel->setFontSize(20);
+        modelLabel->setFont("sans-bold");
+        ng::Label* nameLabel = new ng::Label(twoColumns, shaderName);
+        nameLabel->setFontSize(20);
     }
 
     const bool showAdvancedItems = viewer->showAdvancedProperties();
