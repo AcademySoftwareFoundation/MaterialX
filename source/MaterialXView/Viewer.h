@@ -136,10 +136,6 @@ class Viewer : public ng::Screen
     bool _translationActive;
     ng::Vector2i _translationStart;
 
-    // Shading model information
-    ng::Label* _shaderLabel;
-    ng::TextBox* _shaderTextBox;
-
     // Document management
     mx::StringVec _libraryFolders;
     mx::FileSearchPath _searchPath;
