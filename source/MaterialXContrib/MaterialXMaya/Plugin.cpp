@@ -6,12 +6,8 @@
 #include "ShadingNodeOverrides.h"
 
 #include <maya/MFnPlugin.h>
-#include <maya/MDGMessage.h>
 #include <maya/MDrawRegistry.h>
 #include <maya/MGlobal.h>
-#include <maya/MIOStream.h>
-#include <maya/MHWShaderSwatchGenerator.h>
-#include <maya/MViewport2Renderer.h>
 #include <maya/MFragmentManager.h>
 
 #include <unordered_set>
