@@ -261,9 +261,6 @@ Viewer::Viewer(const mx::StringVec& libraryFolders,
         }
     });
 
-    _shaderLabel = new ng::Label(_window, "Current Shading Model");
-    _shaderTextBox = new ng::TextBox(_window, "");
-
     // Set default generator options.
     _genContext.getOptions().hwSpecularEnvironmentMethod = _specularEnvironmentMethod;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
@@ -1634,17 +1631,4 @@ void Viewer::computeCameraMatrices(mx::Matrix44& world,
 void Viewer::updateDisplayedProperties()
 {
     _propertyEditor.updateContents(this);
-    mx::TypedElementPtr elem = getSelectedMaterial() ? getSelectedMaterial()->getElement() : nullptr;
-    if (elem && !elem->getAttribute("node").empty())
-    {
-        _shaderLabel->setVisible(true);
-        _shaderTextBox->setVisible(true);
-        _shaderTextBox->setValue(elem->getAttribute("node"));
-    }
-    else
-    {
-        _shaderLabel->setVisible(false);
-        _shaderTextBox->setVisible(false);
-        _shaderTextBox->setValue("");
-    }
 }
