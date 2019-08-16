@@ -60,6 +60,12 @@ class TypeDesc
     /// Throws an exception if no type with that name is found.
     static const TypeDesc* get(const string& name);
 
+	// Structured destructor for typeDesc making it possible to destroy TypeDescs
+	// but making shared_ptrs in general failing
+	static void destroy(TypeDesc* typeDesc) {
+		delete typeDesc;
+	}
+
     /// Return the name of the type.
     const string& getName() const { return _name; }
 
@@ -105,7 +111,10 @@ class TypeDesc
   private:
     TypeDesc(const string& name, unsigned char basetype, unsigned char semantic, size_t size,
              bool editable, const ChannelMap& channelMapping);
-
+	
+	// Make destructor private so casually making a shared_ptr to a typedesc doesn't
+	// delete it since it's returned as a pointer from the type map while held as a shared_ptr
+	~TypeDesc() {}
     const string _name;
     const unsigned char _basetype;
     const unsigned char _semantic;

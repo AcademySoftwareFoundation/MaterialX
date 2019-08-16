@@ -47,7 +47,7 @@ const TypeDesc* TypeDesc::registerType(const string& name, unsigned char basetyp
         throw ExceptionShaderGenError("A type with name '" + name + "' is already registered");
     }
 
-    TypeDescPtr ptr = TypeDescPtr(new TypeDesc(name, basetype, semantic, size, editable, channelMapping));
+	TypeDescPtr ptr = TypeDescPtr(new TypeDesc(name, basetype, semantic, size, editable, channelMapping), TypeDesc::destroy);
     map[name] = ptr;
 
     return ptr.get();
