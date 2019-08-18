@@ -71,7 +71,7 @@ class Viewer : public ng::Screen
         return _searchPath;
     }
 
-    const mx::GLTextureHandlerPtr getImageHandler() const
+    mx::GLTextureHandlerPtr getImageHandler() const
     {
         return _imageHandler;
     }

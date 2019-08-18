@@ -357,7 +357,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         // Determine if there is an enumeration for this
         mx::Color3 color = value->asA<mx::Color3>();
         int index = -1;
-        if (enumeration.size() && enumValues.size())
+        if (!enumeration.empty() && !enumValues.empty())
         {
             index = 0;
             for (size_t i = 0; i < enumValues.size(); i++)
@@ -661,7 +661,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                     {
                         if (uniform->getType() == mx::Type::FILENAME)
                         {
-                            const mx::GLTextureHandlerPtr handler = viewer->getImageHandler();
+                            mx::GLTextureHandlerPtr handler = viewer->getImageHandler();
                             if (handler)
                             {
                                 mx::StringSet extensions;

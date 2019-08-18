@@ -12,9 +12,9 @@
 #include <MaterialXCore/Types.h>
 #include <MaterialXCore/Util.h>
 
+#include <cstring>
 #include <fstream>
 #include <sstream>
-#include <string.h>
 
 using namespace pugi;
 

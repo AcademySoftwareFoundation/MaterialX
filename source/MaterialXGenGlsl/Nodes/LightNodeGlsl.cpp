@@ -12,7 +12,7 @@ namespace MaterialX
 
 namespace
 {
-    static const string LIGHT_DIRECTION_CALCULATION =
+    const string LIGHT_DIRECTION_CALCULATION =
         "vec3 L = light.position - position;\n"
         "float distance = length(L);\n"
         "L /= distance;\n"

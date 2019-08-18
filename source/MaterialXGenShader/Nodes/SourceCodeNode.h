@@ -19,10 +19,8 @@ class SourceCodeNode : public ShaderNodeImpl
 public:
     static ShaderNodeImplPtr create();
 
-    void initialize(const InterfaceElement& implementation, GenContext& context) override;
-
+    void initialize(const InterfaceElement& element, GenContext& context) override;
     void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
-
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
 protected:

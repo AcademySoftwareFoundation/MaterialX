@@ -50,22 +50,6 @@ class ImageDesc
     /// Preset image type identifiers
     static ImageType IMAGETYPE_2D;
 
-    /// Image width
-    unsigned int width = 0;
-    /// Image height
-    unsigned int height = 0;
-    /// Number of channels
-    unsigned int channelCount = 0;
-    /// Number of mip map levels
-    unsigned int mipCount = 0;
-    /// CPU buffer. May be empty
-    void* resourceBuffer = nullptr;
-    /// Base type
-    BaseType baseType = BASETYPE_UINT8;
-    /// Image Type
-    ImageType imageType = IMAGETYPE_2D;
-    /// Hardware target dependent resource identifier. May be undefined.
-    unsigned int resourceId = 0;
     /// Deallocator to free resource buffer memory. If not defined then malloc() is
     /// assumed to have been used to allocate the buffer and corresponding free() is
     /// used to deallocate.
@@ -77,11 +61,26 @@ class ImageDesc
     /// Compute the number of mip map levels based on size of the image
     void computeMipCount()
     {
-        mipCount = (unsigned int)std::log2(std::max(width, height)) + 1;
+        mipCount = (unsigned int) std::log2(std::max(width, height)) + 1;
     }
 
     /// Free any resource buffer memory
     void freeResourceBuffer();
+
+  public:
+    unsigned int width = 0;
+    unsigned int height = 0;
+    unsigned int channelCount = 0;
+    unsigned int mipCount = 0;
+
+    BaseType baseType = BASETYPE_UINT8;
+    ImageType imageType = IMAGETYPE_2D;
+
+    // CPU buffer. May be empty.
+    void* resourceBuffer = nullptr;
+
+    // Hardware target dependent resource identifier. May be undefined.
+    unsigned int resourceId = 0;
 };
 
 /// Structure containing harware image description restrictions

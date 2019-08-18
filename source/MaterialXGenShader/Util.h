@@ -29,11 +29,9 @@ string removeExtension(const string& filename);
 bool readFile(const string& filename, string& content);
 
 /// Scans for all documents under a root path and returns documents which can be loaded
-void loadDocuments(const FilePath& rootPath,
-                   const FileSearchPath& searchPath,
-                   const StringSet& skipFiles, const StringSet& includeFiles,
-                   vector<DocumentPtr>& documents, StringVec& documentsPaths,
-                   StringVec& errorLog);
+void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, const StringSet& skipFiles,
+                   const StringSet& includeFiles, vector<DocumentPtr>& documents, StringVec& documentsPaths,
+                   StringVec& errors);
 
 /// Load a given MaterialX library into a document
 void loadLibrary(const FilePath& file, DocumentPtr doc);
