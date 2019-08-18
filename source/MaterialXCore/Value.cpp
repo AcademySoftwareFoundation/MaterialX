@@ -30,12 +30,12 @@ template <class T> class is_std_vector< vector<T> > : public std::true_type { };
 template <class T> using enable_if_std_vector_t =
     typename std::enable_if<is_std_vector<T>::value, T>::type;
 
-template <class T> void stringToData(const string& value, T& data)
+template <class T> void stringToData(const string& str, T& data)
 {
-    std::stringstream ss(value);
+    std::stringstream ss(str);
     if (!(ss >> data))
     {
-        throw ExceptionTypeError("Type mismatch in generic stringToData: " + value);
+        throw ExceptionTypeError("Type mismatch in generic stringToData: " + str);
     }
 }
 

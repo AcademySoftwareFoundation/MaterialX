@@ -56,10 +56,7 @@ bool stringEndsWith(const std::string& str, std::string const& end)
     {
         return !str.compare(str.length() - end.length(), end.length(), end);
     }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
 void writeTextFile(const std::string& text, const std::string& filePath)
@@ -921,9 +918,8 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 mx::MaterialPtr materialRef = shaderRef ? shaderRef->getParent()->asA<mx::Material>() : nullptr;
                 if (materialRef)
                 {
-                    for (size_t partIndex = 0; partIndex < _geometryList.size(); partIndex++)
+                    for (mx::MeshPartitionPtr part : _geometryList)
                     {
-                        mx::MeshPartitionPtr part = _geometryList[partIndex];
                         std::string partGeomName = part->getIdentifier();
                         if (!materialRef->getGeometryBindings(partGeomName).empty())
                         {

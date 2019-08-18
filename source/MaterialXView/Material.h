@@ -142,8 +142,9 @@ class Material
     void unbindImages(mx::GLTextureHandlerPtr imageHandler);
 
     /// Bind a single image.
-    mx::FilePath bindImage(const mx::FilePath& filename, const std::string& uniformName, mx::GLTextureHandlerPtr imageHandler,
-                           mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, const std::string& udim = mx::EMPTY_STRING, mx::Color4* fallbackColor = nullptr);
+    mx::FilePath bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::GLTextureHandlerPtr imageHandler,
+                           mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, const std::string& udim = mx::EMPTY_STRING,
+                           mx::Color4* fallbackColor = nullptr);
 
     /// Bind lights to shader.
     void bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandlerPtr imageHandler, const mx::FileSearchPath& imagePath, 

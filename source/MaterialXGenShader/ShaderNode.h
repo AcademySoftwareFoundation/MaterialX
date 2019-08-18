@@ -242,7 +242,7 @@ class ShaderNode
         ScopeInfo() : type(UNKNOWN), conditionalNode(nullptr), conditionBitmask(0), fullConditionMask(0) {}
 
         void merge(const ScopeInfo& fromScope);
-        void adjustAtConditionalInput(ShaderNode* condNode, int branch, const uint32_t condMask);
+        void adjustAtConditionalInput(ShaderNode* condNode, int branch, uint32_t fullMask);
         bool usedByBranch(int branchIndex) const { return (conditionBitmask & (1 << branchIndex)) != 0; }
 
         Type type;

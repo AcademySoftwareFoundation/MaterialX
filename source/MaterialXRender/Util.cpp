@@ -56,7 +56,7 @@ unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& 
         if (!enumString.empty())
         {
             uiProperties.enumeration = splitString(enumString, ",");
-            if (uiProperties.enumeration.size())
+            if (!uiProperties.enumeration.empty())
                 propertyCount++;
         }
 

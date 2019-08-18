@@ -42,13 +42,11 @@ class Exception : public std::exception
 {
   public:
     explicit Exception(const string& msg) :
-        std::exception(),
         _msg(msg)
     {
     }
 
     Exception(const Exception& e) :
-        std::exception(),
         _msg(e._msg)
     {
     }

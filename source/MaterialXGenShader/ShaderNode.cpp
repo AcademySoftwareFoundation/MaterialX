@@ -146,7 +146,7 @@ bool ShaderNode::referencedConditionally() const
     return false;
 }
 
-void ShaderNode::ScopeInfo::adjustAtConditionalInput(ShaderNode* condNode, int branch, const uint32_t fullMask)
+void ShaderNode::ScopeInfo::adjustAtConditionalInput(ShaderNode* condNode, int branch, uint32_t fullMask)
 {
     if (type == ScopeInfo::GLOBAL || (type == ScopeInfo::SINGLE && conditionBitmask == fullConditionMask))
     {

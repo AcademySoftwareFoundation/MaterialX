@@ -28,7 +28,6 @@ DefaultColorManagementSystemPtr DefaultColorManagementSystem::create(const strin
 }
 
 DefaultColorManagementSystem::DefaultColorManagementSystem(const string& language)
-    : ColorManagementSystem()
 {
     _language = createValidName(language);
 }
