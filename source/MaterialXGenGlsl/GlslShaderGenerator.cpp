@@ -709,7 +709,7 @@ bool GlslShaderGenerator::remapEnumeration(const ValueElement& input, const stri
     result.second = nullptr;
 
     // Try remapping to an enum value.
-    if (value.size())
+    if (!value.empty())
     {
         StringVec valueElemEnumsVec = splitString(enumNames, ",");
         auto pos = std::find(valueElemEnumsVec.begin(), valueElemEnumsVec.end(), value);

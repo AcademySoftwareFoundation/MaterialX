@@ -347,7 +347,8 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
 }
 
 mx::FilePath Material::bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::GLTextureHandlerPtr imageHandler,
-                                 mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, const std::string& udim, mx::Color4* fallbackColor)
+                                 mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, const std::string& udim,
+                                 mx::Color4* fallbackColor)
 {
     mx::FilePath returnPath;
 

@@ -73,6 +73,8 @@ class Element : public std::enable_shared_from_this<Element>
     }
   public:
     virtual ~Element() { }
+    Element(const Element&) = delete;
+    Element& operator=(const Element&) = delete;
 
   protected:
     using DocumentPtr = shared_ptr<Document>;
@@ -447,10 +449,7 @@ class Element : public std::enable_shared_from_this<Element>
     ElementPtr getChild(const string& name) const
     {
         ElementMap::const_iterator it = _childMap.find(name);
-        if (it == _childMap.end())
-            return ElementPtr();
-        else
-            return it->second;
+        return (it != _childMap.end()) ? it->second : ElementPtr();
     }
 
     /// Return the child element, if any, with the given name and subclass.
@@ -525,10 +524,7 @@ class Element : public std::enable_shared_from_this<Element>
     const string& getAttribute(const string& attrib) const
     {
         StringMap::const_iterator it = _attributeMap.find(attrib);
-        if (it == _attributeMap.end())
-            return EMPTY_STRING;
-        else
-            return it->second;
+        return (it != _attributeMap.end()) ? it->second : EMPTY_STRING;
     }
 
     /// Return a vector of stored attribute names, in the order they were set.
@@ -548,7 +544,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// Return the the value of an implicitly typed attribute.  If the given
     /// attribute is not present, or cannot be converted to the given data
     /// type, then the zero value for the data type is returned.
-    template<class T> const T getTypedAttribute(const string& attrib) const
+    template<class T> T getTypedAttribute(const string& attrib) const
     {
         try
         {
@@ -870,9 +866,6 @@ class Element : public std::enable_shared_from_this<Element>
     weak_ptr<Element> _root;
 
   private:
-    Element(const Element&) = delete;
-    Element& operator=(const Element&) = delete;
-
     template <class T> static ElementPtr createElement(ElementPtr parent, const string& name)
     {
         return std::make_shared<T>(parent, name);

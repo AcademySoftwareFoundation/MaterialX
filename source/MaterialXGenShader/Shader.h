@@ -20,8 +20,6 @@ namespace MaterialX
 
 class ShaderGenerator;
 class Shader;
-// Shared pointer to a Shader
-using ShaderPtr = shared_ptr<Shader>;
 
 /// @class Shader
 /// Class containing all data needed during shader generation.
