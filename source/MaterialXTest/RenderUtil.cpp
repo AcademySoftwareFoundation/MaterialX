@@ -234,35 +234,33 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                 continue;
             }
 
-            const mx::FilePath filePath = mx::FilePath(dir) / mx::FilePath(file);
-            const std::string filename = filePath;
-
+            const mx::FilePath filename = mx::FilePath(dir) / mx::FilePath(file);
             mx::DocumentPtr doc = mx::createDocument();
             try
             {
-                mx::FileSearchPath readSearchPath(searchPath.asString());
+                mx::FileSearchPath readSearchPath(searchPath);
                 readSearchPath.append(dir);
-                mx::readFromXmlFile(doc, filename, readSearchPath.asString());
+                mx::readFromXmlFile(doc, filename, readSearchPath);
             }
             catch (mx::Exception& e)
             {
-                docValidLog << "Failed to load in file: " << filename << ". Error: " << e.what() << std::endl;
-                WARN("Failed to load in file: " + filename + "See: " + docValidLogFilename + " for details.");                    
+                docValidLog << "Failed to load in file: " << filename.asString() << ". Error: " << e.what() << std::endl;
+                WARN("Failed to load in file: " + filename.asString() + "See: " + docValidLogFilename + " for details.");                    
             }
 
             doc->importLibrary(dependLib, &copyOptions);
             ioTimer.endTimer();
 
             validateTimer.startTimer();
-            std::cout << "- Validating MTLX file: " << filename << std::endl;
-            log << "MTLX Filename: " << filename << std::endl;
+            std::cout << "- Validating MTLX file: " << filename.asString() << std::endl;
+            log << "MTLX Filename: " << filename.asString() << std::endl;
 
             // Validate the test document
             std::string validationErrors;
             bool validDoc = doc->validate(&validationErrors);
             if (!validDoc)
             {
-                docValidLog << filename << std::endl;
+                docValidLog << filename.asString() << std::endl;
                 docValidLog << validationErrors << std::endl;
             }
             validateTimer.endTimer();

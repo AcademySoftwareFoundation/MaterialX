@@ -60,9 +60,9 @@ void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, c
                 const FilePath filePath = dir / file;
                 try
                 {
-                    FileSearchPath readSearchPath(searchPath.asString());
+                    FileSearchPath readSearchPath(searchPath);
                     readSearchPath.append(dir);
-                    readFromXmlFile(doc, filePath, readSearchPath.asString());
+                    readFromXmlFile(doc, filePath, readSearchPath);
                     documents.push_back(doc);
                     documentsPaths.push_back(filePath.asString());
                 }
@@ -80,7 +80,7 @@ void loadLibrary(const FilePath& file, DocumentPtr doc)
     DocumentPtr libDoc = createDocument();
     XmlReadOptions readOptions;
     readOptions.skipConflictingElements = true;
-    readFromXmlFile(libDoc, file, EMPTY_STRING, &readOptions);
+    readFromXmlFile(libDoc, file, FileSearchPath(), &readOptions);
     CopyOptions copyOptions;
     copyOptions.skipConflictingElements = true;
     doc->importLibrary(libDoc, &copyOptions);

@@ -54,7 +54,7 @@ class GLTextureHandler : public ImageHandler
     /// Bind an image. This method will bind the texture to an active texture
     /// unit as defined by the corresponding image description. The method
     /// will fail if there are not enough available image units to bind to.
-    /// @param identifier Identifier for image description to bind.
+    /// @param filePath File path of image description to bind.
     /// @param samplingProperties Sampling properties for the image
     /// @return true if succeded to bind
     bool bindImage(const FilePath& filePath, const ImageSamplingProperties& samplingProperties) override;

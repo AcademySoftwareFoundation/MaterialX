@@ -13,6 +13,8 @@
 
 #include <MaterialXCore/Document.h>
 
+#include <MaterialXFormat/File.h>
+
 namespace MaterialX
 {
 
@@ -22,7 +24,7 @@ extern const string MTLX_EXTENSION;
 
 /// A standard function that reads from an XML file into a Document, with
 /// optional search path and read options.
-using XmlReadFunction = std::function<void(DocumentPtr, string, string, const XmlReadOptions*)>;
+using XmlReadFunction = std::function<void(DocumentPtr, const FilePath&, const FileSearchPath&, const XmlReadOptions*)>;
 
 /// @class XmlReadOptions
 /// A set of options for controlling the behavior of XML read functions.
@@ -97,18 +99,20 @@ void readFromXmlStream(DocumentPtr doc, std::istream& stream, const XmlReadOptio
 
 /// Read a Document as XML from the given filename.
 /// @param doc The Document into which data is read.
-/// @param filename The filename from which data is read.
-/// @param searchPath A semicolon-separated sequence of file paths, which will
-///    be applied in order when searching for the given file and its includes.
-///    Defaults to the empty string.
+/// @param filename The filename from which data is read.  This argument can
+///    be supplied either as a FilePath or a standard string.
+/// @param searchPath An optional sequence of file paths that will be applied
+///    in order when searching for the given file and its includes.  This
+///    argument can be supplied either as a FileSearchPath, or as a standard
+///    string with paths separated by the PATH_SEPARATOR character.
 /// @param readOptions An optional pointer to an XmlReadOptions object.
-///    If provided, then the given options will affect the behavior of the
-///    read function.  Defaults to a null pointer.
+///    If provided, then the given options will affect the behavior of the read
+///    function.  Defaults to a null pointer.
 /// @throws ExceptionParseError if the document cannot be parsed.
 /// @throws ExceptionFileMissing if the file cannot be opened.
 void readFromXmlFile(DocumentPtr doc,
-                     const string& filename,
-                     const string& searchPath = EMPTY_STRING,
+                     const FilePath& filename,
+                     const FileSearchPath& searchPath = FileSearchPath(),
                      const XmlReadOptions* readOptions = nullptr);
 
 /// Read a Document as XML from the given string.
@@ -134,11 +138,12 @@ void writeToXmlStream(DocumentPtr doc, std::ostream& stream, const XmlWriteOptio
 
 /// Write a Document as XML to the given filename.
 /// @param doc The Document to be written.
-/// @param filename The filename to which data is written
+/// @param filename The filename to which data is written.  This argument can
+///    be supplied either as a FilePath or a standard string.
 /// @param writeOptions An optional pointer to an XmlWriteOptions object.
 ///    If provided, then the given options will affect the behavior of the
 ///    write function.  Defaults to a null pointer.
-void writeToXmlFile(DocumentPtr doc, const string& filename, const XmlWriteOptions* writeOptions = nullptr);
+void writeToXmlFile(DocumentPtr doc, const FilePath& filename, const XmlWriteOptions* writeOptions = nullptr);
 
 /// Write a Document as XML to a new string, returned by value.
 /// @param doc The Document to be written.
@@ -156,7 +161,7 @@ string writeToXmlString(DocumentPtr doc, const XmlWriteOptions* writeOptions = n
 /// element to hold the reference filename.
 /// @param doc The Document to be modified.
 /// @param filename The filename of the XInclude reference to be added.
-void prependXInclude(DocumentPtr doc, const string& filename);
+void prependXInclude(DocumentPtr doc, const FilePath& filename);
 
 /// @}
 

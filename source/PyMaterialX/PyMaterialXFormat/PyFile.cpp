@@ -25,18 +25,40 @@ void bindPyFile(py::module& mod)
         .export_values();
 
     py::class_<mx::FilePath>(mod, "FilePath")
-        .def_static("getCurrentPath", &mx::FilePath::getCurrentPath)
         .def(py::init<>())
         .def(py::init<const std::string&>())
         .def(py::self == py::self)
         .def(py::self != py::self)
         .def(py::self / py::self)
-        .def("assign", &mx::FilePath::assign)
-        .def("asString", &mx::FilePath::asString)
+        .def("asString", &mx::FilePath::asString,
+             py::arg("format") = mx::FilePath::Format::FormatNative)
         .def("isEmpty", &mx::FilePath::isEmpty)
         .def("isAbsolute", &mx::FilePath::isAbsolute)
         .def("getBaseName", &mx::FilePath::getBaseName)
-        .def("exists", &mx::FilePath::exists);
+        .def("getParentPath", &mx::FilePath::getParentPath)
+        .def("getExtension", &mx::FilePath::getExtension)
+        .def("exists", &mx::FilePath::exists)
+        .def("isDirectory", &mx::FilePath::isDirectory)
+        .def("getFilesInDirectory", &mx::FilePath::getFilesInDirectory)
+        .def("getSubDirectories", &mx::FilePath::getSubDirectories)
+        .def("createDirectory", &mx::FilePath::createDirectory)
+        .def_static("getCurrentPath", &mx::FilePath::getCurrentPath);
+
+    py::class_<mx::FileSearchPath>(mod, "FileSearchPath")
+        .def(py::init<>())
+        .def(py::init<const std::string&, const std::string&>(),
+             py::arg("searchPath"), py::arg("sep") = mx::PATH_LIST_SEPARATOR)
+        .def("asString", &mx::FileSearchPath::asString,
+             py::arg("sep") = mx::PATH_LIST_SEPARATOR)
+        .def("append", static_cast<void (mx::FileSearchPath::*)(const mx::FilePath&)>(&mx::FileSearchPath::append))
+        .def("append", static_cast<void (mx::FileSearchPath::*)(const mx::FileSearchPath&)>(&mx::FileSearchPath::append))
+        .def("prepend", &mx::FileSearchPath::prepend)
+        .def("size", &mx::FileSearchPath::size)
+        .def("isEmpty", &mx::FileSearchPath::isEmpty)
+        .def("find", &mx::FileSearchPath::find);
+
+    py::implicitly_convertible<std::string, mx::FilePath>();
+    py::implicitly_convertible<std::string, mx::FileSearchPath>();
 
     mod.attr("PATH_LIST_SEPARATOR") = mx::PATH_LIST_SEPARATOR;
     mod.attr("MATERIALX_SEARCH_PATH_ENV_VAR") = mx::MATERIALX_SEARCH_PATH_ENV_VAR;
