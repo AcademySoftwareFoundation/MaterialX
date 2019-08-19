@@ -15,13 +15,13 @@ TEST_CASE("Load content", "[xmlio]")
 {
     mx::FilePath libraryPath("libraries/stdlib");
     mx::FilePath examplesPath("resources/Materials/Examples/Syntax");
-    std::string searchPath = libraryPath.asString() +
-                             mx::PATH_LIST_SEPARATOR +
-                             examplesPath.asString();
+    mx::FileSearchPath searchPath = libraryPath.asString() +
+                                    mx::PATH_LIST_SEPARATOR +
+                                    examplesPath.asString();
 
     // Read the standard library.
     std::vector<mx::DocumentPtr> libs;
-    for (std::string filename : libraryPath.getFilesInDirectory(mx::MTLX_EXTENSION))
+    for (const mx::FilePath& filename : libraryPath.getFilesInDirectory(mx::MTLX_EXTENSION))
     {
         mx::DocumentPtr lib = mx::createDocument();
         mx::readFromXmlFile(lib, filename, searchPath);
@@ -29,7 +29,7 @@ TEST_CASE("Load content", "[xmlio]")
     }
 
     // Read and validate each example document.
-    for (std::string filename : examplesPath.getFilesInDirectory(mx::MTLX_EXTENSION))
+    for (const mx::FilePath& filename : examplesPath.getFilesInDirectory(mx::MTLX_EXTENSION))
     {
         mx::DocumentPtr doc = mx::createDocument();
         mx::readFromXmlFile(doc, filename, searchPath);
@@ -41,7 +41,7 @@ TEST_CASE("Load content", "[xmlio]")
         bool docValid = doc->validate(&message);
         if (!docValid)
         {
-            WARN("[" + filename + "] " + message);
+            WARN("[" + filename.asString() + "] " + message);
         }
         REQUIRE(docValid);
 
@@ -174,7 +174,7 @@ TEST_CASE("Load content", "[xmlio]")
     REQUIRE(*flatDoc != *doc);
 
     // Read document using environment search path.
-    mx::setEnviron(mx::MATERIALX_SEARCH_PATH_ENV_VAR, searchPath);
+    mx::setEnviron(mx::MATERIALX_SEARCH_PATH_ENV_VAR, searchPath.asString());
     mx::DocumentPtr envDoc = mx::createDocument();
     mx::readFromXmlFile(envDoc, filename);
     REQUIRE(*envDoc == *doc);
