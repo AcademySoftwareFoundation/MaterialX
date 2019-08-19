@@ -28,8 +28,8 @@ int main(int argc, char* const argv[])
         tokens.push_back(std::string(argv[i]));
     }
 
-    mx::StringVec libraryFolders = { "libraries/stdlib", "libraries/pbrlib", "libraries/stdlib/genglsl", "libraries/pbrlib/genglsl", 
-                                     "libraries/bxdf", "libraries/lights", "libraries/lights/genglsl" };
+    mx::FilePathVec libraryFolders = { "libraries/stdlib", "libraries/pbrlib", "libraries/stdlib/genglsl", "libraries/pbrlib/genglsl", 
+                                       "libraries/bxdf", "libraries/lights", "libraries/lights/genglsl" };
     mx::FileSearchPath searchPath;
     std::string meshFilename = "resources/Geometry/shaderball.obj";
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
@@ -108,8 +108,7 @@ int main(int argc, char* const argv[])
 
     // Search current directory and parent directory if not found.
     mx::FilePath currentPath(mx::FilePath::getCurrentPath());
-    mx::FilePath parentCurrentPath(currentPath);
-    parentCurrentPath.pop();
+    mx::FilePath parentCurrentPath = currentPath.getParentPath();
     std::vector<mx::FilePath> libraryPaths =
     { 
         mx::FilePath("libraries")

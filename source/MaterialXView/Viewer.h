@@ -13,7 +13,7 @@ namespace ng = nanogui;
 class Viewer : public ng::Screen
 {
   public:
-    Viewer(const mx::StringVec& libraryFolders,
+    Viewer(const mx::FilePathVec& libraryFolders,
            const mx::FileSearchPath& searchPath,
            const std::string& meshFilename,
            const std::string& materialFilename,
@@ -137,7 +137,7 @@ class Viewer : public ng::Screen
     ng::Vector2i _translationStart;
 
     // Document management
-    mx::StringVec _libraryFolders;
+    mx::FilePathVec _libraryFolders;
     mx::FileSearchPath _searchPath;
     mx::DocumentPtr _stdLib;
     mx::FilePath _materialFilename;

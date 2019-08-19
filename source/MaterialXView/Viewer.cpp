@@ -67,25 +67,22 @@ void writeTextFile(const std::string& text, const std::string& filePath)
     file.close();
 }
 
-mx::DocumentPtr loadLibraries(const mx::StringVec& libraryFolders, const mx::FileSearchPath& searchPath)
+mx::DocumentPtr loadLibraries(const mx::FilePathVec& libraryFolders, const mx::FileSearchPath& searchPath)
 {
     mx::DocumentPtr doc = mx::createDocument();
     for (const std::string& libraryFolder : libraryFolders)
     {
-        mx::FilePath path = searchPath.find(libraryFolder);
-        mx::FilePathVec filenames = path.getFilesInDirectory("mtlx");
-
         mx::CopyOptions copyOptions;
         copyOptions.skipConflictingElements = true;
 
         mx::XmlReadOptions readOptions;
         readOptions.skipConflictingElements = true;
-        for (const std::string& filename : filenames)
+
+        mx::FilePath libraryPath = searchPath.find(libraryFolder);
+        for (const mx::FilePath& filename : libraryPath.getFilesInDirectory("mtlx"))
         {
-            mx::FilePath file = path / filename;
             mx::DocumentPtr libDoc = mx::createDocument();
-            mx::readFromXmlFile(libDoc, file, mx::EMPTY_STRING, &readOptions);
-            libDoc->setSourceUri(file);
+            mx::readFromXmlFile(libDoc, libraryPath / filename, mx::FileSearchPath(), &readOptions);
             doc->importLibrary(libDoc, &copyOptions);
         }
     }
@@ -158,7 +155,7 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
 // Viewer methods
 //
 
-Viewer::Viewer(const mx::StringVec& libraryFolders,
+Viewer::Viewer(const mx::FilePathVec& libraryFolders,
                const mx::FileSearchPath& searchPath,
                const std::string& meshFilename,
                const std::string& materialFilename,
@@ -348,7 +345,7 @@ void Viewer::setupLights(mx::DocumentPtr doc)
         {
             mx::XmlReadOptions readOptions;
             readOptions.skipConflictingElements = true;
-            mx::readFromXmlFile(lightDoc, path.asString(), mx::EMPTY_STRING, &readOptions);
+            mx::readFromXmlFile(lightDoc, path, mx::FileSearchPath(), &readOptions);
             lightDoc->setSourceUri(path);
 
             mx::CopyOptions copyOptions;
@@ -770,17 +767,17 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
     // Set up read options.
     mx::XmlReadOptions readOptions;
     readOptions.skipConflictingElements = true;
-    readOptions.readXIncludeFunction = [](mx::DocumentPtr doc, const std::string& filename,
-                                          const std::string& searchPath, const mx::XmlReadOptions* options)
+    readOptions.readXIncludeFunction = [](mx::DocumentPtr doc, const mx::FilePath& filename,
+                                          const mx::FileSearchPath& searchPath, const mx::XmlReadOptions* options)
     {
-        mx::FilePath resolvedFilename = mx::FileSearchPath(searchPath).find(filename);
+        mx::FilePath resolvedFilename = searchPath.find(filename);
         if (resolvedFilename.exists())
         {
             readFromXmlFile(doc, resolvedFilename, searchPath, options);
         }
         else
         {
-            std::cerr << "Include file not found: " << filename << std::endl;
+            std::cerr << "Include file not found: " << filename.asString() << std::endl;
         }
     };
 
@@ -805,7 +802,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
     {
         // Load source document.
         mx::DocumentPtr doc = mx::createDocument();
-        mx::readFromXmlFile(doc, filename, _searchPath.asString(), &readOptions);
+        mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
 
         // Import libraries.
         mx::CopyOptions copyOptions; 
@@ -876,8 +873,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             _materials.insert(_materials.end(), newMaterials.begin(), newMaterials.end());
 
             // Set the default image search path.
-            mx::FilePath materialFolder = _materialFilename;
-            materialFolder.pop();
+            mx::FilePath materialFolder = _materialFilename.getParentPath();
             _imageHandler->setSearchPath(mx::FileSearchPath(materialFolder));
 
             mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
@@ -1077,9 +1073,9 @@ void Viewer::loadStandardLibraries()
     _stdLib = loadLibraries(_libraryFolders, _searchPath);
     mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(_genContext.getShaderGenerator().getLanguage());
     cms->loadLibrary(_stdLib);
-    for (size_t i = 0; i < _searchPath.size(); i++)
+    for (const mx::FilePath& filePath : _searchPath)
     {
-        _genContext.registerSourceCodeSearchPath(_searchPath[i]);
+        _genContext.registerSourceCodeSearchPath(filePath);
     }
     _genContext.getShaderGenerator().setColorManagementSystem(cms);
 }

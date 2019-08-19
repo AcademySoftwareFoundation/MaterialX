@@ -73,11 +73,9 @@ void OslShaderRenderTester::createValidator(std::ostream& log)
             _validator->setOslOutputFilePath(shaderPath);
 
             const std::string OSL_EXTENSION("osl");
-            mx::FilePathVec files = shaderPath.getFilesInDirectory(OSL_EXTENSION);
-            for (const auto& file : files)
+            for (const mx::FilePath& filename : shaderPath.getFilesInDirectory(OSL_EXTENSION))
             {
-                mx::FilePath filePath = shaderPath / file;
-                _validator->compileOSL(filePath.asString());
+                _validator->compileOSL(shaderPath / filename);
             }
 
             // Set the search path for these compiled shaders.
