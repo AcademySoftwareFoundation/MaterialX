@@ -31,5 +31,5 @@ PYBIND11_MODULE(PyMaterialXGenShader, mod)
     bindPyGenOptions(mod);
     bindPyShaderStage(mod);
     bindPyUtil(mod);
-	bindPyTypeDesc(mod);
+    bindPyTypeDesc(mod);
 }

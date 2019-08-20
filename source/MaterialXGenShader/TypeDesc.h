@@ -111,7 +111,7 @@ class TypeDesc
   private:
     TypeDesc(const string& name, unsigned char basetype, unsigned char semantic, size_t size,
              bool editable, const ChannelMap& channelMapping);
-	
+
 	// Make destructor private so casually making a shared_ptr to a typedesc doesn't
 	// delete it since it's returned as a pointer from the type map while held as a shared_ptr
 	~TypeDesc() {}
