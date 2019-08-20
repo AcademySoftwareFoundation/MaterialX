@@ -60,11 +60,11 @@ class TypeDesc
     /// Throws an exception if no type with that name is found.
     static const TypeDesc* get(const string& name);
 
-	// Structured destructor for typeDesc making it possible to destroy TypeDescs
-	// but making shared_ptrs in general failing
-	static void destroy(TypeDesc* typeDesc) {
-		delete typeDesc;
-	}
+    // Structured destructor for typeDesc making it possible to destroy TypeDescs
+    // but making shared_ptrs in general failing
+    static void destroy(TypeDesc* typeDesc) {
+        delete typeDesc;
+    }
 
     /// Return the name of the type.
     const string& getName() const { return _name; }
