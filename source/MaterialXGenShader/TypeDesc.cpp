@@ -11,7 +11,7 @@ namespace MaterialX
 
 namespace
 {
-    using TypeDescPtr = std::shared_ptr<TypeDesc>;
+    using TypeDescPtr = std::unique_ptr<TypeDesc>;
     using TypeDescMap = std::unordered_map<string, TypeDescPtr>;
 
     // Internal storage of the type descriptor pointers
@@ -47,10 +47,11 @@ const TypeDesc* TypeDesc::registerType(const string& name, unsigned char basetyp
         throw ExceptionShaderGenError("A type with name '" + name + "' is already registered");
     }
 
-    TypeDescPtr ptr = TypeDescPtr(new TypeDesc(name, basetype, semantic, size, editable, channelMapping), TypeDesc::destroy);
-    map[name] = ptr;
+    std::unique_ptr<TypeDesc> uniquePtr(new TypeDesc(name, basetype, semantic, size, editable, channelMapping));
+    TypeDesc* rawPtr = uniquePtr.get();
+    map[name] = std::move(uniquePtr);
 
-    return ptr.get();
+    return rawPtr;
 }
 
 int TypeDesc::getChannelIndex(char channel) const
