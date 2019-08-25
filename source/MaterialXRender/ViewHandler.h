@@ -10,7 +10,6 @@
 /// Utility for providing view data
 
 #include <MaterialXCore/Types.h>
-#include <memory>
 
 namespace MaterialX
 {
@@ -21,18 +20,16 @@ using ViewHandlerPtr = std::shared_ptr<class ViewHandler>;
 /// @class ViewHandler
 /// Utility view handler for creating and providing 
 /// View data for shader binding.
-///
 class ViewHandler
 {
   public:
-    /// Static instance create function
-    static ViewHandlerPtr create() { return std::make_shared<ViewHandler>(); }
+    ViewHandler()
+    {
+    }
+    virtual ~ViewHandler() { }
 
-    /// Default constructor
-    ViewHandler() {};
-    
-    /// Default destructor
-    virtual ~ViewHandler() {};
+    /// Create a new view handler
+    static ViewHandlerPtr create() { return std::make_shared<ViewHandler>(); }
 
     /// Create a view matrix given a eye position, a target position and an up vector
     static Matrix44 createViewMatrix(const Vector3& eye,
@@ -89,21 +86,13 @@ class ViewHandler
     /// @return value converted to radians
     float degreesToRadians(float degrees) const;
 
-    /// PI
-    static float PI_VALUE;
-
     /// @}
 
   protected:
-    /// World matrix
     Matrix44 _worldMatrix;
-    /// View matrix
     Matrix44 _viewMatrix;
-    /// View position
     Vector3 _viewPosition;
-    /// View direction
     Vector3 _viewDirection;
-    /// Projection matrix
     Matrix44 _projectionMatrix;
 };
 

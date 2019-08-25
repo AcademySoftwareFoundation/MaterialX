@@ -21,7 +21,6 @@
 
 #include <OpenImageIO/imageio.h>
 
-
 #if defined(_WIN32)
 #pragma warning( pop )
 #elif defined(__clang__)

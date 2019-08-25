@@ -6,11 +6,10 @@
 #include <MaterialXRenderGlsl/External/GLew/glew.h>
 #include <MaterialXRenderGlsl/GlslProgram.h>
 
+#include <MaterialXRender/ShaderValidator.h>
+
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
-
-#include <cmath>
-#include <iostream>
 
 namespace MaterialX
 {
@@ -27,8 +26,9 @@ static string FILTER_TYPE_POST_FIX("_filtertype");
 static string DEFAULT_COLOR_POST_FIX("_default");
 
 //
-// Creator
+// GlslProgram methods
 //
+
 GlslProgramPtr GlslProgram::create()
 {
     return std::shared_ptr<GlslProgram>(new GlslProgram());

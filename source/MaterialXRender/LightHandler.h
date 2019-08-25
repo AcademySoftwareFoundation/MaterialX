@@ -9,11 +9,7 @@
 /// @file
 /// Handler for hardware lights
 
-#include <MaterialXCore/Definition.h>
-#include <MaterialXCore/Node.h>
-
-#include <string>
-#include <memory>
+#include <MaterialXCore/Document.h>
 
 namespace MaterialX
 {
@@ -29,14 +25,11 @@ using LightHandlerPtr = std::shared_ptr<class LightHandler>;
 class LightHandler
 {
   public:
-    /// Static instance create function
-    static LightHandlerPtr create() { return std::make_shared<LightHandler>(); }
-
-    /// Default constructor
     LightHandler();
-
-    /// Default destructor
     virtual ~LightHandler();
+
+    /// Create a new light handler
+    static LightHandlerPtr create() { return std::make_shared<LightHandler>(); }
 
     /// Adds a light source node
     void addLightSource(NodePtr node);
@@ -85,19 +78,19 @@ class LightHandler
 
     /// From a set of nodes, create a mapping of corresponding
     /// nodedef identifiers to numbers
-    void mapNodeDefToIdentiers(const std::vector<NodePtr>& nodes,
+    void mapNodeDefToIdentiers(const vector<NodePtr>& nodes,
                                std::unordered_map<string, unsigned int>& ids);
 
     /// Find lights to use based on an input document
     /// @param doc Document to scan for lights
     /// @param lights List of lights found in document
-    void findLights(DocumentPtr doc, std::vector<NodePtr>& lights);
+    void findLights(DocumentPtr doc, vector<NodePtr>& lights);
 
     /// Register light node definitions and light count with a given generation context
     /// @param doc Document containing light nodes and definitions
     /// @param lights Lights to register
     /// @param context Context to update
-    void registerLights(DocumentPtr doc, const std::vector<NodePtr>& lights, GenContext& context);
+    void registerLights(DocumentPtr doc, const vector<NodePtr>& lights, GenContext& context);
 
   private:
     vector<NodePtr> _lightSources;

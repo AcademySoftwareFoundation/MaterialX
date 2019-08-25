@@ -9,16 +9,16 @@
 /// @file
 /// Base class for shader validation
 
-#include <MaterialXCore/Library.h>
-#include <MaterialXGenShader/Shader.h>
-#include <MaterialXRender/ExceptionShaderValidationError.h>
-#include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/GeometryHandler.h>
-#include <MaterialXRender/ViewHandler.h>
+#include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/LightHandler.h>
+#include <MaterialXRender/ViewHandler.h>
+
+#include <MaterialXGenShader/Shader.h>
 
 namespace MaterialX
 {
+
 /// Shared pointer to a shader validator
 using ShaderValidatorPtr = std::shared_ptr<class ShaderValidator>;
 
@@ -32,8 +32,7 @@ class ShaderValidator
     using StageMap = StringMap;
 
   public:
-    /// Destructor
-    virtual ~ShaderValidator() {};
+    virtual ~ShaderValidator() { }
 
     /// @name Setup
     /// @{
@@ -43,28 +42,28 @@ class ShaderValidator
 
     /// Set image handler to use for image load and save
     /// @param imageHandler Handler used to save image
-    void setImageHandler(const ImageHandlerPtr imageHandler)
+    void setImageHandler(ImageHandlerPtr imageHandler)
     {
         _imageHandler = imageHandler;
     }
 
     /// Get image handler
     /// @return Shared pointer to an image handler
-    const ImageHandlerPtr getImageHandler() const
+    ImageHandlerPtr getImageHandler() const
     {
         return _imageHandler;
     }
 
     /// Set light handler to use for light bindings
     /// @param lightHandler Handler used for lights
-    void setLightHandler(const LightHandlerPtr lightHandler)
+    void setLightHandler(LightHandlerPtr lightHandler)
     {
         _lightHandler = lightHandler;
     }
 
     /// Get light handler
     /// @return Shared pointer to a light handler
-    const LightHandlerPtr getLightHandler() const
+    LightHandlerPtr getLightHandler() const
     {
         return _lightHandler;
     }
@@ -78,18 +77,17 @@ class ShaderValidator
 
     /// Set viewing utilities handler.
     /// @param viewHandler Handler to use
-    void setViewHandler(const ViewHandlerPtr viewHandler)
+    void setViewHandler(ViewHandlerPtr viewHandler)
     {
         _viewHandler = viewHandler;
     }
 
     /// Get viewing utilities handler
     /// @return Shared pointer to a view utilities handler
-    const ViewHandlerPtr getViewHandler() const
+    ViewHandlerPtr getViewHandler() const
     {
         return _viewHandler;
     }
-
 
     /// @}
     /// @name Validation
@@ -122,21 +120,54 @@ class ShaderValidator
     /// @}
 
   protected:
-    /// Constructor
-    ShaderValidator() {};
+    // Protected constructor
+    ShaderValidator() { }
 
-    /// Utility image handler
+  protected:
     ImageHandlerPtr _imageHandler;
-
-    /// Utility geometry handler
     GeometryHandlerPtr _geometryHandler;
-
-    /// Utility light handler
     LightHandlerPtr _lightHandler;
-
-    /// Viewing utilities handler
     ViewHandlerPtr _viewHandler;
 };
 
+/// Error string list type
+using ShaderValidationErrorList = StringVec;
+
+/// @class ExceptionShaderValidationError
+/// An exception that is thrown when shader validation fails.
+/// An error log of shader errors is cached as part of the exception.
+/// For example, if shader compilation fails, then a list of compilation errors is cached.
+class ExceptionShaderValidationError : public Exception
+{
+  public:
+    ExceptionShaderValidationError(const string& msg, const ShaderValidationErrorList& errorList) :
+        Exception(msg),
+        _errorLog(errorList)
+    {
+    }
+
+    ExceptionShaderValidationError(const ExceptionShaderValidationError& e) :
+        Exception(e),
+        _errorLog(e._errorLog)
+    {
+    }
+
+    ExceptionShaderValidationError& operator=(const ExceptionShaderValidationError& e)         
+    {
+        Exception::operator=(e);
+        _errorLog = e._errorLog;
+        return *this;
+    }
+
+    const ShaderValidationErrorList& errorLog() const
+    {
+        return _errorLog;
+    }
+
+  private:
+    ShaderValidationErrorList _errorLog;
+};
+
 } // namespace MaterialX
+
 #endif
