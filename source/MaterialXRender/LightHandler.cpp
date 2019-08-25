@@ -23,8 +23,8 @@ void LightHandler::addLightSource(NodePtr node)
     _lightSources.push_back(node);
 }
 
-void LightHandler::mapNodeDefToIdentiers(const std::vector<NodePtr>& nodes,
-                                           std::unordered_map<string, unsigned int>& ids)
+void LightHandler::mapNodeDefToIdentiers(const vector<NodePtr>& nodes,
+                                         std::unordered_map<string, unsigned int>& ids)
 {
     unsigned int id = 1;
     for (const auto& node : nodes)
@@ -41,7 +41,7 @@ void LightHandler::mapNodeDefToIdentiers(const std::vector<NodePtr>& nodes,
     }
 }
 
-void LightHandler::findLights(DocumentPtr doc, std::vector<NodePtr>& lights)
+void LightHandler::findLights(DocumentPtr doc, vector<NodePtr>& lights)
 {
     lights.clear();
     for (NodePtr node : doc->getNodes())
@@ -54,7 +54,7 @@ void LightHandler::findLights(DocumentPtr doc, std::vector<NodePtr>& lights)
     }
 }
 
-void LightHandler::registerLights(DocumentPtr doc, const std::vector<NodePtr>& lights, GenContext& context)
+void LightHandler::registerLights(DocumentPtr doc, const vector<NodePtr>& lights, GenContext& context)
 {
     // Clear context light user data which is set when bindLightShader() 
     // is called. This is necessary in case the light types have already been

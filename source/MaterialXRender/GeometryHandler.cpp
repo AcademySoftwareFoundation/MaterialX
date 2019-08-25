@@ -3,8 +3,9 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXGenShader/Util.h>
 #include <MaterialXRender/GeometryHandler.h>
+
+#include <MaterialXGenShader/Util.h>
 
 namespace MaterialX
 {
@@ -13,7 +14,7 @@ void GeometryHandler::addLoader(GeometryLoaderPtr loader)
     const StringSet& extensions = loader->supportedExtensions();
     for (const auto& extension : extensions)
     {
-        _geometryLoaders.insert(std::pair<std::string, GeometryLoaderPtr>(extension, loader));
+        _geometryLoaders.insert(std::pair<string, GeometryLoaderPtr>(extension, loader));
     }
 }
 

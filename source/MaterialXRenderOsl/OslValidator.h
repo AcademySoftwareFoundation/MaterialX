@@ -9,7 +9,6 @@
 /// @file
 /// OSL code validator
 
-#include <MaterialXRender/ExceptionShaderValidationError.h>
 #include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/ShaderValidator.h>
 

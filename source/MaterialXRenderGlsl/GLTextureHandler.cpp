@@ -3,10 +3,12 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXCore/Types.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
+
 #include <MaterialXRenderGlsl/GlslProgram.h>
 #include <MaterialXRenderGlsl/External/GLew/glew.h>
+
+#include <MaterialXRender/ShaderValidator.h>
 
 namespace MaterialX
 {
