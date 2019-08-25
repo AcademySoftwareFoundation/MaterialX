@@ -9,11 +9,11 @@
 namespace MaterialX
 { 
 
-float ViewHandler::PI_VALUE = 3.14159265358979323846f;
+const float PI = std::acos(-1.0f);
 
 float ViewHandler::degreesToRadians(float degrees) const
 {
-    return (degrees * PI_VALUE / 180.0f);
+    return (degrees * PI / 180.0f);
 }
 
 Matrix44 ViewHandler::createViewMatrix(const Vector3& eye,

@@ -9,12 +9,12 @@
 /// @file 
 /// OBJ geometry format loader using the TinyObj library
 
-#include <MaterialXCore/Library.h>
 #include <MaterialXRender/GeometryHandler.h>
 
 namespace MaterialX
 {
-/// Shared pointer to an TinyObjLoader
+
+/// Shared pointer to a TinyObjLoader
 using TinyObjLoaderPtr = std::shared_ptr<class TinyObjLoader>;
 
 /// @class TinyObjLoader
@@ -23,21 +23,19 @@ using TinyObjLoaderPtr = std::shared_ptr<class TinyObjLoader>;
 class TinyObjLoader : public GeometryLoader
 {
   public:
-    /// Static instance create function
-    static TinyObjLoaderPtr create() { return std::make_shared<TinyObjLoader>(); }
-
-    /// Default constructor
     TinyObjLoader()
     {
         _extensions = { "obj", "OBJ" };
     }
-    
-    /// Default destructor
-    virtual ~TinyObjLoader() {}
+    virtual ~TinyObjLoader() { }
+
+    /// Create a new TinyObjLoader
+    static TinyObjLoaderPtr create() { return std::make_shared<TinyObjLoader>(); }
 
     /// Load geometry from disk
     bool load(const FilePath& filePath, MeshList& meshList) override;
 };
 
 } // namespace MaterialX
+
 #endif

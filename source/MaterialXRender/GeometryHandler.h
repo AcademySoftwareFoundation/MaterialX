@@ -9,9 +9,10 @@
 /// @file
 /// Geometry loader interfaces
 
-#include <MaterialXFormat/File.h>
 #include <MaterialXRender/Mesh.h>
-#include <memory>
+
+#include <MaterialXFormat/File.h>
+
 #include <map>
 
 namespace MaterialX
@@ -26,11 +27,10 @@ using GeometryLoaderPtr = std::shared_ptr<class GeometryLoader>;
 class GeometryLoader
 {
   public:
-    /// Default constructor
-    GeometryLoader() {}
-
-    /// Default destructor
-    virtual ~GeometryLoader() {}
+    GeometryLoader()
+    {
+    }
+    virtual ~GeometryLoader() { }
 
     /// Returns a list of supported extensions
     /// @return List of support extensions
@@ -46,7 +46,7 @@ class GeometryLoader
     virtual bool load(const FilePath& filePath, MeshList& meshList) = 0;
 
   protected:
-    /// List of supported string extensions
+    // List of supported string extensions
     StringSet _extensions;
 };
 
@@ -62,13 +62,12 @@ using GeometryLoaderMap = std::multimap<string, GeometryLoaderPtr>;
 class GeometryHandler
 {
   public:
-    /// Default constructor
-    GeometryHandler() {};
+    GeometryHandler()
+    {
+    }
+    virtual ~GeometryHandler() { }
 
-    /// Default destructor
-    virtual ~GeometryHandler() {};
-
-    /// Static instance create function
+    /// Create a new geometry handler
     static GeometryHandlerPtr create()
     {
         return std::make_shared<GeometryHandler>();
@@ -112,9 +111,10 @@ class GeometryHandler
     }
 
   protected:
-    /// Recompute bounds for all stored geometry
+    // Recompute bounds for all stored geometry
     void computeBounds();
 
+  protected:
     GeometryLoaderMap _geometryLoaders;
     MeshList _meshes;
     Vector3 _minimumBounds;
@@ -122,4 +122,5 @@ class GeometryHandler
 };
 
 } // namespace MaterialX
+
 #endif

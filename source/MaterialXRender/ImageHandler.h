@@ -9,16 +9,16 @@
 /// @file
 /// Image handler interfaces
 
+#include <MaterialXFormat/File.h>
+
 #include <MaterialXCore/Types.h>
 
 #include <cmath>
 #include <map>
-#include <array>
-
-#include <MaterialXFormat/File.h>
 
 namespace MaterialX
 {
+
 class VariableBlock;
 
 /// A function to perform image buffer deallocation
@@ -149,11 +149,10 @@ using ImageLoaderPtr = std::shared_ptr<class ImageLoader>;
 class ImageLoader
 {
   public:
-    /// Default constructor
-    ImageLoader() {}
-
-    /// Default destructor
-    virtual ~ImageLoader() {}
+    ImageLoader()
+    {
+    }
+    virtual ~ImageLoader() { }
 
     /// Stock extension names
     static string BMP_EXTENSION;
@@ -207,7 +206,7 @@ using ImageHandlerPtr = std::shared_ptr<class ImageHandler>;
 /// Map of extensions to image loaders
 using ImageLoaderMap = std::multimap<string, ImageLoaderPtr>;
 
-/// @class @ImageHandler
+/// @class ImageHandler
 /// A image handler class. Keeps track of images which are loaded
 /// from disk via supplied ImageLoader. Derive classes are responsible
 /// for determinine how to perform the logic for "binding" of these resources
@@ -217,7 +216,7 @@ class ImageHandler
 {
   public:
     /// Constructor. Assume at least one loader must be supplied.
-    ImageHandler(ImageLoaderPtr imageLoader);
+    explicit ImageHandler(ImageLoaderPtr imageLoader);
 
     /// Static instance create function
     static ImageHandlerPtr create(ImageLoaderPtr imageLoader)
@@ -342,14 +341,12 @@ class ImageHandler
     /// this to add restrictions specific to that handler.
     virtual const ImageDescRestrictions* getRestrictions() const { return nullptr; }
 
-    /// Image loader utilities
+  protected:
     ImageLoaderMap _imageLoaders;
-    /// Image description cache
     ImageDescCache _imageCache;
-
-    /// Filename search path
     FileSearchPath _searchPath;
 };
 
 } // namespace MaterialX
+
 #endif
