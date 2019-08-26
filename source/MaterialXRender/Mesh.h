@@ -19,7 +19,7 @@ using MeshIndexBuffer = vector<unsigned int>;
 /// Float geometry buffer
 using MeshFloatBuffer = vector<float>;
 
-/// Shader pointer to a mesh stream
+/// Shared pointer to a mesh stream
 using MeshStreamPtr = shared_ptr<class MeshStream>;
 
 /// List of mesh streams
@@ -30,45 +30,38 @@ using MeshStreamList = vector<MeshStreamPtr>;
 class MeshStream
 {
   public:
-    /// Position attribute
     static const string POSITION_ATTRIBUTE;
-    /// Normal attribute
     static const string NORMAL_ATTRIBUTE;
-    /// Texture coordinate attribute
     static const string TEXCOORD_ATTRIBUTE;
-    /// Tangent attribute
     static const string TANGENT_ATTRIBUTE;
-    /// Bitangent attribute
     static const string BITANGENT_ATTRIBUTE;
-    /// Color attribute
     static const string COLOR_ATTRIBUTE;
-    /// Generic geometry property attribute
     static const string GEOMETRY_PROPERTY_ATTRIBUTE;
 
-    /// Create instance of a mesh stream
-    static MeshStreamPtr create(const string& name, const string& type, unsigned int index=0)
-    {
-        return std::make_shared<MeshStream>(name, type, index);
-    }
-
-    /// Default element string is 3.
     static const unsigned int STRIDE_3D = 3;
     static const unsigned int STRIDE_2D = 2;
     static const unsigned int DEFAULT_STRIDE = STRIDE_3D;
 
-    /// Constructor
+  public:
     MeshStream(const string& name, const string& type, unsigned int index) :
         _name(name),
         _type(type),
         _index(index),
-        _stride(DEFAULT_STRIDE) {}
+        _stride(DEFAULT_STRIDE)
+    {
+    }
+    ~MeshStream() { }
 
-    ~MeshStream() {}
+    /// Create a new mesh stream
+    static MeshStreamPtr create(const string& name, const string& type, unsigned int index = 0)
+    {
+        return std::make_shared<MeshStream>(name, type, index);
+    }
 
     /// Resize data to an given number of elements
     void resize(unsigned int elementCount)
     {
-        _data.resize(elementCount * _stride);
+        _data.resize((size_t) elementCount * (size_t) _stride);
     }
 
     /// Get stream name
@@ -128,7 +121,7 @@ class MeshStream
     unsigned int _stride;
 };
 
-/// Shader pointer to a mesh stream
+/// Shared pointer to a mesh partition
 using MeshPartitionPtr = shared_ptr<class MeshPartition>;
 
 /// @class MeshPartition
@@ -137,24 +130,22 @@ using MeshPartitionPtr = shared_ptr<class MeshPartition>;
 class MeshPartition
 {
   public:
+    MeshPartition() :
+        _faceCount(0)
+    {
+    }
+    ~MeshPartition() { }
+
+    /// Create a new mesh partition
     static MeshPartitionPtr create()
     {
         return std::make_shared<MeshPartition>();
     }
 
-    /// Default constructor
-    MeshPartition() :
-        _faceCount(0)
+    /// Resize data to the given number of indices
+    void resize(unsigned int indexCount)
     {
-    }
-
-    /// Default destructor
-    ~MeshPartition() { }
-
-    /// Resize data to an given number of indices
-    void resize(unsigned int elementCount)
-    {
-        _indices.resize(elementCount);
+        _indices.resize(indexCount);
     }
 
     /// Get geometry identifier
@@ -199,29 +190,28 @@ class MeshPartition
     size_t _faceCount;
 };
 
-
-/// Shader pointer to a GeometryMesh
+/// Shared pointer to a mesh
 using MeshPtr = shared_ptr<class Mesh>;
 
 /// List of meshes
 using MeshList = vector<MeshPtr>;
 
-/// Map of names to mesh
+/// Map from names to meshes
 using MeshMap = std::unordered_map<string, MeshPtr>;
 
 /// @class Mesh
 /// Container for mesh data
-///
 class Mesh
 {
   public:
+    Mesh(const string& identifier);
+    ~Mesh() { }
+
+    /// Create a new mesh
     static MeshPtr create(const string& identifier)
     {
         return std::make_shared<Mesh>(identifier);
     }
-
-    Mesh(const string& identifier);
-    ~Mesh() { }
 
     /// Get mesh identifier
     const string& getIdentifier() const
@@ -229,7 +219,7 @@ class Mesh
         return _identifier;
     }
 
-    /// Set the mesh 's source URI.
+    /// Set the mesh's source URI.
     void setSourceUri(const string& sourceUri)
     {
         _sourceUri = sourceUri;
@@ -241,7 +231,7 @@ class Mesh
         return !_sourceUri.empty();
     }
 
-    /// Return the mesh 's source URI.
+    /// Return the mesh's source URI.
     const string& getSourceUri() const
     {
         return _sourceUri;

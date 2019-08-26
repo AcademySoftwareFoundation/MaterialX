@@ -13,21 +13,18 @@
 
 namespace MaterialX
 {
-/// Shared pointer to an stbImageLoader
+
+/// Shared pointer to an StbImageLoader
 using StbImageLoaderPtr = std::shared_ptr<class StbImageLoader>;
 
 /// @class StbImageLoader
-/// Disk image loader wrapper using stb library
-///
+/// Image file loader using stb library
 class StbImageLoader : public ImageLoader
 {
   public:
-    /// Static instance create function
-    static StbImageLoaderPtr create() { return std::make_shared<StbImageLoader>(); }
-
-    /// Default constructor. Set all extensions supported by stb
-    StbImageLoader() 
+    StbImageLoader()
     {
+        // Set all extensions supported by stb image
         _extensions.insert(BMP_EXTENSION);
         _extensions.insert(GIF_EXTENSION);
         _extensions.insert(HDR_EXTENSION);
@@ -38,9 +35,10 @@ class StbImageLoader : public ImageLoader
         _extensions.insert(PSD_EXTENSION);
         _extensions.insert(TGA_EXTENSION);
     }
+    virtual ~StbImageLoader() { }    
 
-    /// Default destructor
-    virtual ~StbImageLoader() {}    
+    /// Create a new stb image loader
+    static StbImageLoaderPtr create() { return std::make_shared<StbImageLoader>(); }
 
     /// Save image to disk. This method must be implemented by derived classes.
     /// @param filePath Path to file to save image to

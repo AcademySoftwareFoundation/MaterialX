@@ -10,7 +10,6 @@
 namespace py = pybind11;
 namespace mx = MaterialX;
 
-
 class PyShaderValidator : public mx::ShaderValidator
 {
   public:
@@ -94,4 +93,26 @@ void bindPyShaderValidator(py::module& mod)
         .def("validateInputs", &mx::ShaderValidator::validateInputs)
         .def("validateRender", &mx::ShaderValidator::validateRender)
         .def("save", &mx::ShaderValidator::save);
+
+    static py::exception<mx::ExceptionShaderValidationError> pyExceptionShaderValidationError(mod, "ExceptionShaderValidationError");
+
+    py::register_exception_translator(
+        [](std::exception_ptr errPtr)
+        {
+            try
+            {
+                if (errPtr != NULL)
+                    std::rethrow_exception(errPtr);
+            }
+            catch (const mx::ExceptionShaderValidationError& err)
+            {
+                std::string errorMsg = err.what();
+                for (std::string error : err.errorLog())
+                {
+                    errorMsg += "\n" + error;
+                }
+                PyErr_SetString(PyExc_LookupError, errorMsg.c_str());
+            }
+        }
+    );
 }

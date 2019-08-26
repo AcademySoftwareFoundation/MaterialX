@@ -76,12 +76,25 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shader,
                 mTilePositions.append(udimCoordinates[i][0]);
                 mTilePositions.append(udimCoordinates[i][1]);
             }
-            const unsigned int UDIM_BAKE_WIDTH = 4096;
-            const unsigned int UDIM_BAKE_HEIGHT = 4096;
+            mx::Vector2 scaleUV;
+            mx::Vector2 offsetUV;
+            mx::getUdimScaleAndOffset(udimCoordinates, scaleUV, offsetUV);
+
+            unsigned int udimBakeWidth = 4096;
+            unsigned int udimBakeHeight = 4096;
+            float ratio = scaleUV[1] / scaleUV[0];
+            if (ratio > 1.0)
+            {
+                udimBakeHeight = static_cast<unsigned int>(std::truncf(static_cast<float>(udimBakeHeight) * ratio));
+            }
+            else
+            {
+                udimBakeWidth = static_cast<unsigned int>(std::truncf(static_cast<float>(udimBakeWidth) * ratio));
+            }
             // Note: we do not use the uv scale and offset. Ideally this should be used for the texture lookup code
             // but at this point the shader code has already been generated.
             texturePtr.reset(textureManager->acquireTiledTexture(fileName.c_str(), mTilePaths, mTilePositions,
-                                                                 undefinedColor, UDIM_BAKE_WIDTH, UDIM_BAKE_HEIGHT, 
+                                                                 undefinedColor, udimBakeWidth, udimBakeHeight,
                                                                  failedTilePaths, uvScaleOffset));
         }
         else
@@ -246,7 +259,7 @@ void ShadingNodeOverride<BASE>::updateShader(MHWRender::MShaderInstance& shader,
 
     // Set up image file name search path.
     mx::FilePath documentPath(node->getDocumentFilePath().asChar());
-    documentPath.pop();
+    documentPath = documentPath.getParentPath();
     mx::FileSearchPath imageSearchPath = Plugin::instance().getResourceSearchPath(); 
     imageSearchPath.prepend(documentPath);
 

@@ -28,13 +28,13 @@ int main(int argc, char* const argv[])
         tokens.push_back(std::string(argv[i]));
     }
 
-    mx::StringVec libraryFolders = { "libraries/stdlib", "libraries/pbrlib", "libraries/stdlib/genglsl", "libraries/pbrlib/genglsl", 
-                                     "libraries/bxdf", "libraries/lights", "libraries/lights/genglsl" };
+    mx::FilePathVec libraryFolders = { "libraries/stdlib", "libraries/pbrlib", "libraries/stdlib/genglsl", "libraries/pbrlib/genglsl", 
+                                       "libraries/bxdf", "libraries/lights", "libraries/lights/genglsl" };
     mx::FileSearchPath searchPath;
     std::string meshFilename = "resources/Geometry/shaderball.obj";
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
-    std::string envRadiancePath = "resources/Images/goegap_4k_dim.hdr";
-    std::string envIrradiancePath = "resources/Images/goegap_4k_dim.convolved.hdr";
+    std::string envRadiancePath = "resources/Images/san_giuseppe_bridge.hdr";
+    std::string envIrradiancePath = "resources/Images/san_giuseppe_bridge_diffuse.hdr";
     DocumentModifiers modifiers;
     int multiSampleCount = 0;
     int refresh = 50;
@@ -108,8 +108,7 @@ int main(int argc, char* const argv[])
 
     // Search current directory and parent directory if not found.
     mx::FilePath currentPath(mx::FilePath::getCurrentPath());
-    mx::FilePath parentCurrentPath(currentPath);
-    parentCurrentPath.pop();
+    mx::FilePath parentCurrentPath = currentPath.getParentPath();
     std::vector<mx::FilePath> libraryPaths =
     { 
         mx::FilePath("libraries")

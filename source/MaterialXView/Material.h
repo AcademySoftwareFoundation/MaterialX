@@ -142,8 +142,9 @@ class Material
     void unbindImages(mx::GLTextureHandlerPtr imageHandler);
 
     /// Bind a single image.
-    mx::FilePath bindImage(const mx::FilePath& filename, const std::string& uniformName, mx::GLTextureHandlerPtr imageHandler,
-                           mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, const std::string& udim = mx::EMPTY_STRING, mx::Color4* fallbackColor = nullptr);
+    mx::FilePath bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::GLTextureHandlerPtr imageHandler,
+                           mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, const std::string& udim = mx::EMPTY_STRING,
+                           mx::Color4* fallbackColor = nullptr);
 
     /// Bind lights to shader.
     void bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandlerPtr imageHandler, const mx::FileSearchPath& imagePath, 
@@ -167,22 +168,22 @@ class Material
     /// Change the uniform value inside the shader and the associated element in the MaterialX document.
     void changeUniformElement(mx::ShaderPort* uniform, const std::string& value);
 
-    /// Set the value for an element with a given path.
+    /// Set the value for an integer element with a given path.
     void setUniformInt(const std::string& path, int value);
 
-    /// Set the value for an element with a given path.
+    /// Set the value for a float element with a given path.
     void setUniformFloat(const std::string& path, float value);
 
-    /// Set the value for an element with a given path.
+    /// Set the value for a vector2 element with a given path.
     void setUniformVec2(const std::string& path, const ng::Vector2f& value);
 
-    /// Set the value for an element with a given path.
+    /// Set the value for a vector3 element with a given path.
     void setUniformVec3(const std::string& path, const ng::Vector3f& value);
 
-    /// Set the value for an element with a given path.
+    /// Set the value for a vector4 element with a given path.
     void setUniformVec4(const std::string& path, const ng::Vector4f& value);
 
-    /// Set the value for an element with a given path.
+    /// Set the value for an enumerated element with a given path.
     void setUniformEnum(const std::string& path, int index, const std::string& value);
 
   protected:

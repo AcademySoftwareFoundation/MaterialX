@@ -6,11 +6,10 @@
 #include <MaterialXRenderGlsl/External/GLew/glew.h>
 #include <MaterialXRenderGlsl/GlslProgram.h>
 
+#include <MaterialXRender/ShaderValidator.h>
+
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
-
-#include <cmath>
-#include <iostream>
 
 namespace MaterialX
 {
@@ -27,8 +26,9 @@ static string FILTER_TYPE_POST_FIX("_filtertype");
 static string DEFAULT_COLOR_POST_FIX("_default");
 
 //
-// Creator
+// GlslProgram methods
 //
+
 GlslProgramPtr GlslProgram::create()
 {
     return std::shared_ptr<GlslProgram>(new GlslProgram());
@@ -135,7 +135,7 @@ unsigned int GlslProgram::build()
 
         // Compile vertex shader
         const char* vertexChar = vertexShaderSource.c_str();
-        glShaderSource(vertexShaderId, 1, &vertexChar, NULL);
+        glShaderSource(vertexShaderId, 1, &vertexChar, nullptr);
         glCompileShader(vertexShaderId);
 
         // Check Vertex Shader
@@ -147,8 +147,7 @@ unsigned int GlslProgram::build()
             if (GLInfoLogLength > 0)
             {
                 std::vector<char> vsErrorMessage(GLInfoLogLength + 1);
-                glGetShaderInfoLog(vertexShaderId, GLInfoLogLength, NULL,
-                    &vsErrorMessage[0]);
+                glGetShaderInfoLog(vertexShaderId, GLInfoLogLength, nullptr, &vsErrorMessage[0]);
                 errors.push_back(&vsErrorMessage[0]);
             }
         }
@@ -167,7 +166,7 @@ unsigned int GlslProgram::build()
 
         // Compile fragment shader
         const char *fragmentChar = fragmentShaderSource.c_str();
-        glShaderSource(fragmentShaderId, 1, &fragmentChar, NULL);
+        glShaderSource(fragmentShaderId, 1, &fragmentChar, nullptr);
         glCompileShader(fragmentShaderId);
 
         // Check fragment shader
@@ -179,8 +178,7 @@ unsigned int GlslProgram::build()
             if (GLInfoLogLength > 0)
             {
                 std::vector<char> fsErrorMessage(GLInfoLogLength + 1);
-                glGetShaderInfoLog(fragmentShaderId, GLInfoLogLength, NULL,
-                    &fsErrorMessage[0]);
+                glGetShaderInfoLog(fragmentShaderId, GLInfoLogLength, nullptr, &fsErrorMessage[0]);
                 errors.push_back(&fsErrorMessage[0]);
             }
         }
@@ -207,8 +205,7 @@ unsigned int GlslProgram::build()
             if (GLInfoLogLength > 0)
             {
                 std::vector<char> ProgramErrorMessage(GLInfoLogLength + 1);
-                glGetProgramInfoLog(_programId, GLInfoLogLength, NULL,
-                    &ProgramErrorMessage[0]);
+                glGetProgramInfoLog(_programId, GLInfoLogLength, nullptr, &ProgramErrorMessage[0]);
                 errors.push_back(&ProgramErrorMessage[0]);
             }
         }
@@ -242,7 +239,7 @@ unsigned int GlslProgram::build()
     // errors during linking and throw one exception for them all so that
     // if there is a failure a complete set of issues is returned. We do
     // this after cleanup so keep GL state clean.
-    if (errors.size())
+    if (!errors.empty())
     {
         throw ExceptionShaderValidationError(errorType, errors);
     }
@@ -365,7 +362,7 @@ void GlslProgram::bindAttribute(const GlslProgram::InputMap& inputs, MeshPtr mes
 
         glEnableVertexAttribArray(location);
         _enabledStreamLocations.insert(location);
-        glVertexAttribPointer(location, stride, GL_FLOAT, GL_FALSE, 0, 0);
+        glVertexAttribPointer(location, stride, GL_FLOAT, GL_FALSE, 0, nullptr);
     }
 }
 
@@ -1519,10 +1516,10 @@ void GlslProgram::checkErrors()
     {
         errors.push_back("OpenGL error: " + std::to_string(error));
     }
-    if (errors.size())
+    if (!errors.empty())
     {
         throw ExceptionShaderValidationError("OpenGL context error.", errors);
     }
 }
 
-}
+} // namespace MaterialX

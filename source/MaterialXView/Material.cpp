@@ -322,7 +322,7 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
     mx::Color4 fallbackColor(0, 0, 0, 1);
     for (const auto& uniform : publicUniforms->getVariableOrder())
     {
-        if (uniform->getType() != MaterialX::Type::FILENAME)
+        if (uniform->getType() != mx::Type::FILENAME)
         {
             continue;
         }
@@ -347,7 +347,8 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
 }
 
 mx::FilePath Material::bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::GLTextureHandlerPtr imageHandler,
-                                 mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, const std::string& udim, mx::Color4* fallbackColor)
+                                 mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, const std::string& udim,
+                                 mx::Color4* fallbackColor)
 {
     mx::FilePath returnPath;
 
@@ -612,7 +613,7 @@ mx::ShaderPort* Material::findUniform(const std::string& path) const
 
 void Material::changeUniformElement(mx::ShaderPort* uniform, const std::string& value)
 {
-    if (nullptr == uniform)
+    if (!uniform)
     {
         throw std::runtime_error("Null ShaderPort");
     }
@@ -620,7 +621,7 @@ void Material::changeUniformElement(mx::ShaderPort* uniform, const std::string& 
     mx::ElementPtr element = _doc->getDescendant(uniform->getPath());
     if (element)
     {
-        mx::ValueElementPtr valueElement = element->asA<MaterialX::ValueElement>();
+        mx::ValueElementPtr valueElement = element->asA<mx::ValueElement>();
         if (valueElement)
         {
             valueElement->setValueString(value);

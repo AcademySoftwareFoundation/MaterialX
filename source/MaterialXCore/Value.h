@@ -12,6 +12,7 @@
 #include <MaterialXCore/Library.h>
 
 #include <MaterialXCore/Types.h>
+#include <MaterialXCore/Util.h>
 
 namespace MaterialX
 {
@@ -47,6 +48,12 @@ class Value
     template<class T> static ValuePtr createValue(const T& data)
     {
         return std::make_shared< TypedValue<T> >(data);
+    }
+
+    // Create a new value from a C-style string.
+    static ValuePtr createValue(const char* data)
+    {
+        return createValue(data ? string(data) : EMPTY_STRING);
     }
 
     /// Create a new value instance from value and type strings.

@@ -14,8 +14,8 @@
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 
+#include <MaterialXRender/ShaderValidator.h>
 #include <MaterialXRender/Util.h>
-#include <MaterialXRender/ExceptionShaderValidationError.h>
 
 #include <MaterialXTest/RenderUtil.h>
 

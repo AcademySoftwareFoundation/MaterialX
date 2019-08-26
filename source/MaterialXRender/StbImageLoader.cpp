@@ -23,11 +23,11 @@
     #pragma warning( pop )
 #endif
 
-
 #include <MaterialXRender/StbImageLoader.h>
 
 namespace MaterialX
 {
+
 bool StbImageLoader::saveImage(const FilePath& filePath,
                                const ImageDesc& imageDesc,
                                bool verticalFlip)
@@ -52,7 +52,7 @@ bool StbImageLoader::saveImage(const FilePath& filePath,
 
     const string filePathName = filePath.asString();
 
-    std::string extension = (filePathName.substr(filePathName.find_last_of(".") + 1));
+    string extension = (filePathName.substr(filePathName.find_last_of(".") + 1));
     if (!isFloat)
     {
         if (extension == PNG_EXTENSION)
@@ -104,7 +104,7 @@ bool StbImageLoader::loadImage(const FilePath& filePath, ImageDesc &imageDesc,
     const string fileName = filePath.asString();
 
     // If HDR, switch to float reader
-    std::string extension = (fileName.substr(fileName.find_last_of(".") + 1));
+    string extension = (fileName.substr(fileName.find_last_of(".") + 1));
     if (extension == HDR_EXTENSION)
     {
         // Early out if base type is unsupported

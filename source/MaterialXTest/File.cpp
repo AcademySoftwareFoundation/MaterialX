@@ -24,8 +24,7 @@ TEST_CASE("Syntactic operations", "[file]")
 
     for (const InputPair& pair : inputPairs)
     {
-        mx::FilePath path;
-        path.assign(pair.first, pair.second);
+        mx::FilePath path(pair.first);
         REQUIRE(path.asString(pair.second) == pair.first);
     }
 }
@@ -49,20 +48,19 @@ TEST_CASE("File system operations", "[file]")
 
 TEST_CASE("File search path operations", "[file]")
 {
-    std::string searchPath = "libraries/stdlib" + 
-                             mx::PATH_LIST_SEPARATOR + 
-                             "resources/Materials/Examples/Syntax";
+    mx::FileSearchPath searchPath = "libraries/stdlib" + 
+                                    mx::PATH_LIST_SEPARATOR + 
+                                    "resources/Materials/Examples/Syntax";
 
-    mx::StringVec filenames =
+    mx::FilePathVec filenames =
     {
         "stdlib_defs.mtlx",
         "MaterialBasic.mtlx",
         "PaintMaterials.mtlx",
     };
 
-    for (const std::string& filename : filenames)
+    for (const mx::FilePath& filename : filenames)
     {
-        mx::FilePath path(filename);
-        REQUIRE(mx::FileSearchPath(searchPath, mx::PATH_LIST_SEPARATOR).find(path).exists());
+        REQUIRE(searchPath.find(filename).exists());
     }
 }

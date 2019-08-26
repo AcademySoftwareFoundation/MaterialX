@@ -56,7 +56,7 @@ GLUtilityContext::GLUtilityContext(const WindowWrapper& /*windowWrapper*/, Hardw
             if (SetPixelFormat(dummyWindowWrapper.internalHandle(), chosenPixelFormat, &pfd))
             {
                 _contextHandle = wglCreateContext(dummyWindowWrapper.internalHandle());
-                if (_contextHandle != 0)
+                if (_contextHandle)
                 {
                     if (sharedWithContext)
                     {

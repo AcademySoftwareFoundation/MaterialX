@@ -9,16 +9,16 @@
 /// @file
 /// Image handler interfaces
 
+#include <MaterialXFormat/File.h>
+
 #include <MaterialXCore/Types.h>
 
 #include <cmath>
 #include <map>
-#include <array>
-
-#include <MaterialXFormat/File.h>
 
 namespace MaterialX
 {
+
 class VariableBlock;
 
 /// A function to perform image buffer deallocation
@@ -50,22 +50,6 @@ class ImageDesc
     /// Preset image type identifiers
     static ImageType IMAGETYPE_2D;
 
-    /// Image width
-    unsigned int width = 0;
-    /// Image height
-    unsigned int height = 0;
-    /// Number of channels
-    unsigned int channelCount = 0;
-    /// Number of mip map levels
-    unsigned int mipCount = 0;
-    /// CPU buffer. May be empty
-    void* resourceBuffer = nullptr;
-    /// Base type
-    BaseType baseType = BASETYPE_UINT8;
-    /// Image Type
-    ImageType imageType = IMAGETYPE_2D;
-    /// Hardware target dependent resource identifier. May be undefined.
-    unsigned int resourceId = 0;
     /// Deallocator to free resource buffer memory. If not defined then malloc() is
     /// assumed to have been used to allocate the buffer and corresponding free() is
     /// used to deallocate.
@@ -77,11 +61,26 @@ class ImageDesc
     /// Compute the number of mip map levels based on size of the image
     void computeMipCount()
     {
-        mipCount = (unsigned int)std::log2(std::max(width, height)) + 1;
+        mipCount = (unsigned int) std::log2(std::max(width, height)) + 1;
     }
 
     /// Free any resource buffer memory
     void freeResourceBuffer();
+
+  public:
+    unsigned int width = 0;
+    unsigned int height = 0;
+    unsigned int channelCount = 0;
+    unsigned int mipCount = 0;
+
+    BaseType baseType = BASETYPE_UINT8;
+    ImageType imageType = IMAGETYPE_2D;
+
+    // CPU buffer. May be empty.
+    void* resourceBuffer = nullptr;
+
+    // Hardware target dependent resource identifier. May be undefined.
+    unsigned int resourceId = 0;
 };
 
 /// Structure containing harware image description restrictions
@@ -104,10 +103,8 @@ class ImageSamplingProperties
     void setProperties(const string& fileNameUniform,
                        const VariableBlock& uniformBlock);
 
-    /// Address mode options. Matches enumerations
-    /// allowed for <image> address modes, except
-    /// UNSPECIFIED which indicates no explicit mode was
-    /// defined.
+    /// Address mode options. Matches enumerations allowed for image address
+    /// modes, except UNSPECIFIED which indicates no explicit mode was defined.
     enum class AddressMode : int
     { 
         UNSPECIFIED = -1,
@@ -122,10 +119,8 @@ class ImageSamplingProperties
     /// Address mode in V
     AddressMode vaddressMode = AddressMode::UNSPECIFIED;
 
-    /// Filter type options. Matches enumerations
-    /// allowed for <image> filter types, except
-    /// UNSPECIFIED which indicates no explicit type was
-    /// defined.
+    /// Filter type options. Matches enumerations allowed for image filter
+    /// types, except UNSPECIFIED which indicates no explicit type was defined.
     enum class FilterType : int
     {
         UNSPECIFIED = -1,
@@ -137,8 +132,8 @@ class ImageSamplingProperties
     /// Filter type
     FilterType filterType = FilterType::UNSPECIFIED;
 
-    /// Default color. Corresponds to the "default"
-    /// value on the <image> node definition.
+    /// Default color. Corresponds to the "default" value on the image
+    /// node definition.
     Color4 defaultColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 };
 
@@ -154,11 +149,10 @@ using ImageLoaderPtr = std::shared_ptr<class ImageLoader>;
 class ImageLoader
 {
   public:
-    /// Default constructor
-    ImageLoader() {}
-
-    /// Default destructor
-    virtual ~ImageLoader() {}
+    ImageLoader()
+    {
+    }
+    virtual ~ImageLoader() { }
 
     /// Stock extension names
     static string BMP_EXTENSION;
@@ -212,7 +206,7 @@ using ImageHandlerPtr = std::shared_ptr<class ImageHandler>;
 /// Map of extensions to image loaders
 using ImageLoaderMap = std::multimap<string, ImageLoaderPtr>;
 
-/// @class @ImageHandler
+/// @class ImageHandler
 /// A image handler class. Keeps track of images which are loaded
 /// from disk via supplied ImageLoader. Derive classes are responsible
 /// for determinine how to perform the logic for "binding" of these resources
@@ -222,7 +216,7 @@ class ImageHandler
 {
   public:
     /// Constructor. Assume at least one loader must be supplied.
-    ImageHandler(ImageLoaderPtr imageLoader);
+    explicit ImageHandler(ImageLoaderPtr imageLoader);
 
     /// Static instance create function
     static ImageHandlerPtr create(ImageLoaderPtr imageLoader)
@@ -347,14 +341,12 @@ class ImageHandler
     /// this to add restrictions specific to that handler.
     virtual const ImageDescRestrictions* getRestrictions() const { return nullptr; }
 
-    /// Image loader utilities
+  protected:
     ImageLoaderMap _imageLoaders;
-    /// Image description cache
     ImageDescCache _imageCache;
-
-    /// Filename search path
     FileSearchPath _searchPath;
 };
 
 } // namespace MaterialX
+
 #endif

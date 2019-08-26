@@ -9,10 +9,11 @@
 /// @file
 /// Rendering utility methods
 
-#include <MaterialXCore/Document.h>
-#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
+
+#include <MaterialXCore/Document.h>
 
 #include <map>
 

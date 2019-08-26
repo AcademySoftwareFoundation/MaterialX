@@ -17,9 +17,9 @@ ShaderPtr createShader(const string& shaderName, GenContext& context, ElementPtr
 }
 
 ShaderPtr createConstantShader(GenContext& context,
-                            DocumentPtr stdLib,
-                            const string& shaderName,
-                            const Color3& color)
+                               DocumentPtr stdLib,
+                               const string& shaderName,
+                               const Color3& color)
 {
     // Construct the constant color nodegraph
     DocumentPtr doc = createDocument();
@@ -56,7 +56,7 @@ unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& 
         if (!enumString.empty())
         {
             uiProperties.enumeration = splitString(enumString, ",");
-            if (uiProperties.enumeration.size())
+            if (!uiProperties.enumeration.empty())
                 propertyCount++;
         }
 
@@ -93,7 +93,7 @@ unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& 
             {
                 uiProperties.enumerationValues.push_back(Value::createValue(enumerationValues));
             }
-            if(uiProperties.enumeration.size() != uiProperties.enumerationValues.size())
+            if (uiProperties.enumeration.size() != uiProperties.enumerationValues.size())
             {
                 throw std::runtime_error("Every enum must have a value!");
             }
@@ -125,7 +125,7 @@ unsigned int getUIProperties(ConstValueElementPtr nodeDefElement, UIProperties& 
 
     const string& uiAdvancedString = nodeDefElement->getAttribute(ValueElement::UI_ADVANCED_ATTRIBUTE);
     uiProperties.uiAdvanced = (uiAdvancedString == "true");
-    if(!uiAdvancedString.empty())
+    if (!uiAdvancedString.empty())
     {
         propertyCount++;
     }
@@ -154,13 +154,13 @@ void createUIPropertyGroups(ElementPtr uniformElement, DocumentPtr contentDocume
         item.value = uniformElement->asA<ValueElement>()->getValue();
         getUIProperties(uniformElement->getNamePath(), contentDocument, EMPTY_STRING, item.ui);
 
-        std::string parentLabel;
+        string parentLabel;
         ElementPtr parent = uniformElement->getParent();
         if (parent && parent != contentDocument && parent != materialElement)
         {
             parentLabel = parent->getNamePath();
         }
-        if (!materialElement ||  parentLabel == materialElement->getAttribute(PortElement::NODE_NAME_ATTRIBUTE))
+        if (!materialElement || parentLabel == materialElement->getAttribute(PortElement::NODE_NAME_ATTRIBUTE))
         {
             parentLabel.clear();
         }
@@ -180,19 +180,19 @@ void createUIPropertyGroups(ElementPtr uniformElement, DocumentPtr contentDocume
 
         if (!item.ui.uiFolder.empty())
         {
-            groups.insert(std::pair<std::string, UIPropertyItem>
+            groups.insert(std::pair<string, UIPropertyItem>
                 (item.ui.uiFolder, item));
         }
         else
         {
-            unnamedGroups.insert(std::pair<std::string, UIPropertyItem>
+            unnamedGroups.insert(std::pair<string, UIPropertyItem>
                 (EMPTY_STRING, item));
         }
     }
 }
 
 void createUIPropertyGroups(const VariableBlock& block, DocumentPtr contentDocument, TypedElementPtr materialElement,
-                          const string& pathSeparator, UIPropertyGroup& groups, UIPropertyGroup& unnamedGroups)
+                            const string& pathSeparator, UIPropertyGroup& groups, UIPropertyGroup& unnamedGroups)
 {
     for (const auto& uniform : block.getVariableOrder())
     {
