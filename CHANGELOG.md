@@ -3,7 +3,16 @@
 ## [1.36.4] - Development
 
 ### Added
-- Added support for Clang 8.
+- Added a Save Material option to the viewer.
+- Added Python bindings for TypeDesc.
+- Extended Python bindings for FilePath and FileSearchPath.
+- Added support for GCC 9 and Clang 8.
+
+### Changed
+- Updated the interface of readFromXmlFile and writeToXmlFile to support FilePath and FileSearchPath arguments.
+
+### Fixed
+- Fixed the OSL implementation of roughness_dual.
 
 ## [1.36.3] - 2019-08-02
 
