@@ -16,13 +16,11 @@ set(NANOGUI_INSTALL OFF CACHE BOOL " " FORCE)
 set(PREV_CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
 set(PREV_CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 if(MSVC)
-    add_compile_options(/wd4389 -DEIGEN_DONT_VECTORIZE)
+    add_compile_options(-wd4389 -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -DEIGEN_DONT_VECTORIZE)
 elseif(UNIX AND NOT APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    add_compile_options(-Wno-misleading-indentation)
-    add_compile_options(-Wno-format-truncation)
-    add_compile_options(-Wno-implicit-fallthrough)
-    add_compile_options(-Wno-int-in-bool-context)
-    add_compile_options(-Wno-maybe-uninitialized) # GCC-8 only
+    add_compile_options(-Wno-format-truncation -Wno-implicit-fallthrough -Wno-int-in-bool-context
+                        -Wno-maybe-uninitialized -Wno-misleading-indentation)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-copy")
 endif()
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/NanoGUI external/NanoGUI)
@@ -37,10 +35,6 @@ include_directories(
     ${NANOGUI_EXTRA_INCS})
 
 add_definitions(${NANOGUI_EXTRA_DEFS})
-
-if(MSVC)
-    add_compile_options(/D_CRT_SECURE_NO_WARNINGS /D_SCL_SECURE_NO_WARNINGS )
-endif()
 
 add_executable(MaterialXView ${materialx_source} ${materialx_headers})
 

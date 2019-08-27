@@ -27,6 +27,10 @@ endfunction(assign_source_group)
 assign_source_group("Header Files" ${materialx_header})
 assign_source_group("Source Files" ${materialx_source})
 
+if(NOT MSVC)
+    add_compile_options(-Wno-unused-function)
+endif()
+
 add_library(MaterialXRender STATIC
     ${materialx_source}
     ${materialx_header}
@@ -56,13 +60,13 @@ elseif (UNIX AND NOT APPLE)
 endif(MSVC)
 
 if(MATERIALX_BUILD_OIIO)
-	set(OPENIMAGEIO_ROOT_DIR ${MATERIALX_OIIO_DIR})
-	list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/External/OpenImageIO")
-	find_package(OpenImageIO REQUIRED)
-	if(OPENIMAGEIO_FOUND)
-		include_directories(${OPENIMAGEIO_INCLUDE_DIR})
-		target_link_libraries(MaterialXRender ${OPENIMAGEIO_LIBRARIES})
-	endif()
+    set(OPENIMAGEIO_ROOT_DIR ${MATERIALX_OIIO_DIR})
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/External/OpenImageIO")
+    find_package(OpenImageIO REQUIRED)
+    if(OPENIMAGEIO_FOUND)
+        include_directories(${OPENIMAGEIO_INCLUDE_DIR})
+        target_link_libraries(MaterialXRender ${OPENIMAGEIO_LIBRARIES})
+    endif()
 endif()
 
 set_target_properties(
