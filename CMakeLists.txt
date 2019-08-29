@@ -8,10 +8,9 @@ cmake_minimum_required(VERSION 3.1)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_MACOSX_RPATH ON)
-include(CMakeDependentOption)
 enable_testing()
 
-option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 2.6 or greater." OFF)
+option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 2.7 or greater." OFF)
 option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
 option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
 option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)
@@ -78,6 +77,20 @@ else()
     endif()
 endif()
 
+# Shared functions
+function(assign_source_group prefix)
+    foreach(_source IN ITEMS ${ARGN})
+        if(IS_ABSOLUTE "${_source}")
+            file(RELATIVE_PATH _source_rel "${CMAKE_CURRENT_SOURCE_DIR}" "${_source}")
+        else()
+            set(_source_rel "${_source}")
+        endif()
+        get_filename_component(_source_path "${_source_rel}" PATH)
+        string(REPLACE "/" "\\" _source_path_msvc "${_source_path}")
+        source_group("${prefix}\\${_source_path_msvc}" FILES "${_source}")
+    endforeach()
+endfunction(assign_source_group)
+
 # Add core subdirectories
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
@@ -96,9 +109,6 @@ add_subdirectory(source/MaterialXRender)
 add_subdirectory(source/MaterialXRenderOsl)
 add_subdirectory(source/MaterialXRenderHw)
 add_subdirectory(source/MaterialXRenderGlsl)
-if(MATERIALX_TEST_RENDER)
-    add_definitions(-DMATERIALX_TEST_RENDER)
-endif()
 
 # Add viewer subdirectory
 if(MATERIALX_BUILD_VIEWER)
@@ -106,6 +116,9 @@ if(MATERIALX_BUILD_VIEWER)
 endif()
 
 # Add test subdirectory
+if(MATERIALX_TEST_RENDER)
+    add_definitions(-DMATERIALX_TEST_RENDER)
+endif()
 add_subdirectory(source/MaterialXTest)
 
 # Add resource and library subdirectories
@@ -128,6 +141,6 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.6.2")
     endif()
 endif()
 
-# install MaterialX find_package module
+# Install MaterialX find_package module
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
-        DESTINATION "${CMAKE_INSTALL_PREFIX}" MESSAGE_NEVER)
+    DESTINATION "${CMAKE_INSTALL_PREFIX}" MESSAGE_NEVER)
