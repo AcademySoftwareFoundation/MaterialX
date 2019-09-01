@@ -4,6 +4,7 @@
 
 ### Added
 - Added a Save Material option to the viewer.
+- Added property accessors to PropertyAssign and PropertySetAssign
 - Added Python bindings for TypeDesc.
 - Extended Python bindings for FilePath and FileSearchPath.
 - Added support for GCC 9 and Clang 8.

@@ -67,6 +67,28 @@ class PropertyAssign : public ValueElement
     }
     virtual ~PropertyAssign() { }
 
+    /// @name Property
+    /// @{
+
+    /// Set the property string of this element.
+    void setProperty(const string& property)
+    {
+        setAttribute(PROPERTY_ATTRIBUTE, property);
+    }
+
+    /// Return true if this element has a property string.
+    bool hasProperty() const
+    {
+        return hasAttribute(PROPERTY_ATTRIBUTE);
+    }
+
+    /// Return the property string of this element.
+    const string& getProperty() const
+    {
+        return getAttribute(PROPERTY_ATTRIBUTE);
+    }
+
+    /// @}
     /// @name Geometry
     /// @{
 
@@ -120,6 +142,7 @@ class PropertyAssign : public ValueElement
 
   public:
     static const string CATEGORY;
+    static const string PROPERTY_ATTRIBUTE;
     static const string GEOM_ATTRIBUTE;
     static const string COLLECTION_ATTRIBUTE;
 };
@@ -210,8 +233,38 @@ class PropertySetAssign : public GeomElement
     }
     virtual ~PropertySetAssign() { }
 
+    /// @name Property Set
+    /// @{
+
+    /// Set the property set string of this element.
+    void setPropertySetString(const string& propertySet)
+    {
+        setAttribute(PROPERTY_SET_ATTRIBUTE, propertySet);
+    }
+
+    /// Return true if this element has a property set string.
+    bool hasPropertySetString() const
+    {
+        return hasAttribute(PROPERTY_SET_ATTRIBUTE);
+    }
+
+    /// Return the property set string of this element.
+    const string& getPropertySetString() const
+    {
+        return getAttribute(PROPERTY_SET_ATTRIBUTE);
+    }
+
+    /// Assign a property set to this element.
+    void setPropertySet(ConstPropertySetPtr propertySet);
+
+    /// Return the property set that is assigned to this element.
+    PropertySetPtr getPropertySet() const;
+
+    /// @}
+
   public:
     static const string CATEGORY;
+    static const string PROPERTY_SET_ATTRIBUTE;
 };
 
 } // namespace MaterialX

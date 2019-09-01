@@ -19,6 +19,9 @@ void bindPyProperty(py::module& mod)
         .def_readonly_static("CATEGORY", &mx::Property::CATEGORY);
 
     py::class_<mx::PropertyAssign, mx::PropertyAssignPtr, mx::ValueElement>(mod, "PropertyAssign")
+        .def("setProperty", &mx::PropertyAssign::setProperty)
+        .def("hasProperty", &mx::PropertyAssign::hasProperty)
+        .def("getProperty", &mx::PropertyAssign::getProperty)
         .def("setGeom", &mx::PropertyAssign::setGeom)
         .def("hasGeom", &mx::PropertyAssign::hasGeom)
         .def("getGeom", &mx::PropertyAssign::getGeom)
@@ -49,5 +52,10 @@ void bindPyProperty(py::module& mod)
         .def_readonly_static("CATEGORY", &mx::Property::CATEGORY);
 
     py::class_<mx::PropertySetAssign, mx::PropertySetAssignPtr, mx::GeomElement>(mod, "PropertySetAssign")
+        .def("setPropertySetString", &mx::PropertySetAssign::setPropertySetString)
+        .def("hasPropertySetString", &mx::PropertySetAssign::hasPropertySetString)
+        .def("getPropertySetString", &mx::PropertySetAssign::getPropertySetString)
+        .def("setPropertySet", &mx::PropertySetAssign::setPropertySet)
+        .def("getPropertySet", &mx::PropertySetAssign::getPropertySet)
         .def_readonly_static("CATEGORY", &mx::PropertySetAssign::CATEGORY);
 }

@@ -292,9 +292,11 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(len(material.getGeometryBindings("/robot2/left_arm")) == 0)
 
         # Create a property assignment.
-        propertyAssign = look.addPropertyAssign("twosided")
+        propertyAssign = look.addPropertyAssign()
+        propertyAssign.setProperty("twosided")
         propertyAssign.setGeom("/robot1")
         propertyAssign.setValue(True)
+        self.assertTrue(propertyAssign.getProperty() == "twosided")
         self.assertTrue(propertyAssign.getGeom() == "/robot1")
         self.assertTrue(propertyAssign.getValue() == True)
 
@@ -302,8 +304,10 @@ class TestMaterialX(unittest.TestCase):
         propertySet = doc.addPropertySet()
         propertySet.setPropertyValue('matte', False)
         self.assertTrue(propertySet.getPropertyValue('matte') == False)
-        propertySetAssign = look.addPropertySetAssign(propertySet.getName())
+        propertySetAssign = look.addPropertySetAssign()
+        propertySetAssign.setPropertySet(propertySet)
         propertySetAssign.setGeom('/robot1')
+        self.assertTrue(propertySetAssign.getPropertySet() == propertySet)
         self.assertTrue(propertySetAssign.getGeom() == '/robot1')
 
         # Create a variant set.

@@ -17,21 +17,6 @@ const string Visibility::VISIBILITY_TYPE_ATTRIBUTE = "vistype";
 const string Visibility::VISIBLE_ATTRIBUTE = "visible";
 
 //
-// MaterialAssign methods
-//
-
-vector<VariantAssignPtr> MaterialAssign::getActiveVariantAssigns() const
-{
-    vector<VariantAssignPtr> activeAssigns;
-    for (ConstElementPtr elem : traverseInheritance())
-    {
-        vector<VariantAssignPtr> assigns = elem->asA<MaterialAssign>()->getVariantAssigns();
-        activeAssigns.insert(activeAssigns.end(), assigns.begin(), assigns.end());
-    }
-    return activeAssigns;
-}
-
-//
 // Look methods
 //
 
@@ -107,6 +92,17 @@ vector<VisibilityPtr> Look::getActiveVisibilities() const
 MaterialPtr MaterialAssign::getReferencedMaterial() const
 {
     return resolveRootNameReference<Material>(getMaterial());   
+}
+
+vector<VariantAssignPtr> MaterialAssign::getActiveVariantAssigns() const
+{
+    vector<VariantAssignPtr> activeAssigns;
+    for (ConstElementPtr elem : traverseInheritance())
+    {
+        vector<VariantAssignPtr> assigns = elem->asA<MaterialAssign>()->getVariantAssigns();
+        activeAssigns.insert(activeAssigns.end(), assigns.begin(), assigns.end());
+    }
+    return activeAssigns;
 }
 
 } // namespace MaterialX
