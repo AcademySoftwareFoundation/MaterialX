@@ -4,9 +4,9 @@
 //
 
 #if defined(_WIN32)
-    #pragma warning( push )
-    #pragma warning( disable: 4100)
-    #pragma warning( disable: 4505)
+    #pragma warning(push)
+    #pragma warning(disable: 4100)
+    #pragma warning(disable: 4505)
 #endif
 
 // Make the functions static to avoid multiple definitions if other libraries
@@ -20,7 +20,7 @@
 #include <MaterialXRender/External/StbImage/stb_image.h>
 
 #if defined(_WIN32)
-    #pragma warning( pop )
+    #pragma warning(pop)
 #endif
 
 #include <MaterialXRender/StbImageLoader.h>
@@ -52,7 +52,7 @@ bool StbImageLoader::saveImage(const FilePath& filePath,
 
     const string filePathName = filePath.asString();
 
-    string extension = (filePathName.substr(filePathName.find_last_of(".") + 1));
+    string extension = filePath.getExtension();
     if (!isFloat)
     {
         if (extension == PNG_EXTENSION)
@@ -104,7 +104,7 @@ bool StbImageLoader::loadImage(const FilePath& filePath, ImageDesc &imageDesc,
     const string fileName = filePath.asString();
 
     // If HDR, switch to float reader
-    string extension = (fileName.substr(fileName.find_last_of(".") + 1));
+    string extension = filePath.getExtension();
     if (extension == HDR_EXTENSION)
     {
         // Early out if base type is unsupported

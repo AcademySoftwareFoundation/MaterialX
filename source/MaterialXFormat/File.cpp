@@ -17,9 +17,9 @@
 #include <dirent.h>
 #endif
 
+#include <array>
 #include <cctype>
 #include <cerrno>
-#include <climits>
 #include <cstring>
 
 namespace MaterialX
@@ -235,19 +235,19 @@ void FilePath::createDirectory()
 FilePath FilePath::getCurrentPath()
 {
 #if defined(_WIN32)
-    char buf[MAX_PATH];
-    if (!GetCurrentDirectory(MAX_PATH, buf))
+    std::array<char, MAX_PATH> buf;
+    if (!GetCurrentDirectory(MAX_PATH, buf.data()))
     {
         throw Exception("Error in getCurrentPath: " + std::to_string(GetLastError()));
     }
-    return FilePath(buf);
+    return FilePath(buf.data());
 #else
-    char buf[PATH_MAX];
-    if (getcwd(buf, PATH_MAX) == NULL)
+    std::array<char, PATH_MAX> buf;
+    if (getcwd(buf.data(), PATH_MAX) == NULL)
     {
         throw Exception("Error in getCurrentPath: " + string(strerror(errno)));
     }
-    return FilePath(buf);
+    return FilePath(buf.data());
 #endif
 }
 
