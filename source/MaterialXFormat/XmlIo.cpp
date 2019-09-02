@@ -132,13 +132,11 @@ void xmlDocumentFromFile(xml_document& xmlDoc, FilePath filename, FileSearchPath
         {
             throw ExceptionFileMissing("Failed to open file for reading: " + filename.asString());
         }
-        else
-        {
-            string desc = result.description();
-            string offset = std::to_string(result.offset);
-            throw ExceptionParseError("XML parse error in file: " + filename.asString() +
-                                      " (" + desc + " at character " + offset + ")");
-        }
+
+        string desc = result.description();
+        string offset = std::to_string(result.offset);
+        throw ExceptionParseError("XML parse error in file: " + filename.asString() +
+                                  " (" + desc + " at character " + offset + ")");
     }
 }
 

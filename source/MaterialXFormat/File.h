@@ -72,7 +72,7 @@ class FilePath
     /// Construct a path from a C-style string.
     FilePath(const char* str)
     {
-        assign(string(str));
+        assign(str ? string(str) : EMPTY_STRING);
     }
 
     /// Convert a path to a standard string.
@@ -101,7 +101,7 @@ class FilePath
 
     /// Return the base name of the given path, with leading directory
     /// information removed.
-    string getBaseName() const
+    const string& getBaseName() const
     {
         if (isEmpty())
         {
@@ -125,7 +125,7 @@ class FilePath
     /// Return the file extension of the given path.
     string getExtension() const
     {
-        string baseName = getBaseName();
+        const string& baseName = getBaseName();
         size_t i = baseName.rfind('.');
         return i != string::npos ? baseName.substr(i + 1) : EMPTY_STRING;
     }
