@@ -250,7 +250,8 @@ XmlReadOptions::XmlReadOptions() :
 //
 
 XmlWriteOptions::XmlWriteOptions() :
-    writeXIncludeEnable(true)
+    writeXIncludeEnable(true),
+    includePathSeparator(FilePath::FormatNative)
 {
 }
 
