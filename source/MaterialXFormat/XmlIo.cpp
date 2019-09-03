@@ -105,7 +105,13 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions
                 {
                     xml_node includeNode = xmlNode.append_child(XINCLUDE_TAG.c_str());
                     xml_attribute includeAttr = includeNode.append_attribute("href");
-                    includeAttr.set_value(sourceUri.c_str());
+                    if (writeOptions) {
+                        FilePath sourceUriPath(sourceUri);
+                        includeAttr.set_value(sourceUriPath.asString(writeOptions->includePathSeparator).c_str());
+                    }
+                    else {
+                        includeAttr.set_value(sourceUri.c_str());
+                    }
                     writtenSourceFiles.insert(sourceUri);
                 }
                 continue;

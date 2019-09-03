@@ -246,4 +246,18 @@ TEST_CASE("Load content", "[xmlio]")
     mx::readFromXmlFile(parentDoc,
         "resources/Materials/TestSuite/libraries/metal/brass_wire_mesh.mtlx", searchPath);
     REQUIRE(nullptr != parentDoc->getNodeDef("ND_TestMetal"));
+
+    // Read a document with posix include separator and write it with windows separator
+    mx::DocumentPtr docWithIncludes = mx::createDocument();
+    mx::readFromXmlFile(docWithIncludes,
+        "resources/Materials/TestSuite/libraries/metal/brass_wire_mesh.mtlx", searchPath);
+    REQUIRE(nullptr != docWithIncludes->getNodeDef("ND_TestMetal"));
+    mx::XmlWriteOptions writeOptionsWindows;
+    writeOptionsWindows.includePathSeparator = mx::FilePath::FormatWindows;
+    xmlString = mx::writeToXmlString(docWithIncludes, &writeOptionsWindows);
+    std::string includeTag = "<xi:include href=\"";
+    std::string includeExpected = "libraries\\metal_definition.mtlx";
+    size_t includePos = xmlString.find(includeTag);
+    std::string includePath = xmlString.substr(includePos + includeTag.size(), includeExpected.size());
+    REQUIRE(includeExpected == includePath);
 }
