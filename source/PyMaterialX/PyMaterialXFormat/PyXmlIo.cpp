@@ -15,14 +15,12 @@ void bindPyXmlIo(py::module& mod)
 {
     py::class_<mx::XmlReadOptions, mx::CopyOptions>(mod, "XmlReadOptions")
         .def(py::init())
-        .def_readwrite("readXIncludeFunction", &mx::XmlReadOptions::readXIncludeFunction)
-        .def_readwrite("parentXIncludes", &mx::XmlReadOptions::parentXIncludes);
+        .def_readwrite("readXIncludeFunction", &mx::XmlReadOptions::readXIncludeFunction);
 
     py::class_<mx::XmlWriteOptions>(mod, "XmlWriteOptions")
         .def(py::init())
         .def_readwrite("writeXIncludeEnable", &mx::XmlWriteOptions::writeXIncludeEnable)
-        .def_readwrite("elementPredicate", &mx::XmlWriteOptions::elementPredicate)
-        .def_readwrite("includePathSeparator", &mx::XmlWriteOptions::includePathSeparator);
+        .def_readwrite("elementPredicate", &mx::XmlWriteOptions::elementPredicate);
 
     mod.def("readFromXmlFileBase", &mx::readFromXmlFile,
         py::arg("doc"), py::arg("filename"), py::arg("searchPath") = mx::FileSearchPath(), py::arg("readOptions") = (mx::XmlReadOptions*) nullptr);

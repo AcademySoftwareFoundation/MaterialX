@@ -58,9 +58,6 @@ class XmlWriteOptions
     /// If provided, this function will be used to exclude specific elements
     /// (those returning false) from the write operation.  Defaults to nullptr.
     ElementPredicate elementPredicate;
- 
-    /// Sets what path separator to use when writing include references
-    FilePath::Format includePathSeparator;
 };
 
 /// @class ExceptionParseError

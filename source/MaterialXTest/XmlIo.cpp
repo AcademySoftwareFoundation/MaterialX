@@ -247,17 +247,18 @@ TEST_CASE("Load content", "[xmlio]")
         "resources/Materials/TestSuite/libraries/metal/brass_wire_mesh.mtlx", searchPath);
     REQUIRE(nullptr != parentDoc->getNodeDef("ND_TestMetal"));
 
-    // Read a document with posix include separator and write it with windows separator
+    // Include a document with a relative windows include path 
+    // and make sure it's written as a posix path
     mx::DocumentPtr docWithIncludes = mx::createDocument();
-    mx::readFromXmlFile(docWithIncludes,
-        "resources/Materials/TestSuite/libraries/metal/brass_wire_mesh.mtlx", searchPath);
-    REQUIRE(nullptr != docWithIncludes->getNodeDef("ND_TestMetal"));
-    mx::XmlWriteOptions writeOptionsWindows;
-    writeOptionsWindows.includePathSeparator = mx::FilePath::FormatWindows;
-    xmlString = mx::writeToXmlString(docWithIncludes, &writeOptionsWindows);
+    mx::DocumentPtr docToInclude = mx::createDocument();
+    mx::readFromXmlFile(docToInclude, 
+        "resources\\Materials\\TestSuite\\libraries\\metal\\libraries\\metal_definition.mtlx", 
+        searchPath);
+    docWithIncludes->importLibrary(docToInclude);
+    xmlString = mx::writeToXmlString(docWithIncludes);
     std::string includeTag = "<xi:include href=\"";
-    std::string includeExpected = "libraries\\metal_definition.mtlx";
+    std::string includeExpected = "resources/Materials/TestSuite/libraries/metal/libraries/metal_definition.mtlx";
     size_t includePos = xmlString.find(includeTag);
-    std::string includePath = xmlString.substr(includePos + includeTag.size(), includeExpected.size());
-    REQUIRE(includeExpected == includePath);
+    std::string docInclude = xmlString.substr(includePos + includeTag.size(), includeExpected.size());
+    REQUIRE(includeExpected == docInclude);
 }

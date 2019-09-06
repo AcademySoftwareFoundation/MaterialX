@@ -105,12 +105,16 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions
                 {
                     xml_node includeNode = xmlNode.append_child(XINCLUDE_TAG.c_str());
                     xml_attribute includeAttr = includeNode.append_attribute("href");
-                    if (writeOptions) {
-                        FilePath sourceUriPath(sourceUri);
-                        includeAttr.set_value(sourceUriPath.asString(writeOptions->includePathSeparator).c_str());
-                    }
-                    else {
+                    FilePath sourceUriFilePath(sourceUri);
+                    if (sourceUriFilePath.isAbsolute()) 
+                    {
+                        // Write absolute paths using the original file path separator
                         includeAttr.set_value(sourceUri.c_str());
+                    }
+                    else 
+                    {
+                        // Force relative paths to posix path separator
+                        includeAttr.set_value(sourceUriFilePath.asString(FilePath::FormatPosix).c_str());
                     }
                     writtenSourceFiles.insert(sourceUri);
                 }
@@ -250,8 +254,7 @@ XmlReadOptions::XmlReadOptions() :
 //
 
 XmlWriteOptions::XmlWriteOptions() :
-    writeXIncludeEnable(true),
-    includePathSeparator(FilePath::FormatNative)
+    writeXIncludeEnable(true)
 {
 }
 
