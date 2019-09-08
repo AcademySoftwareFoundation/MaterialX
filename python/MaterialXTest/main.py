@@ -18,7 +18,11 @@ _testValues = (1,
                mx.Vector4(1.0, 2.0, 3.0, 4.0),
                mx.Matrix33(0.0),
                mx.Matrix44(1.0),
-               'value')
+               'value',
+               [1, 2, 3],
+               [False, True, False],
+               [1.0, 2.0, 3.0],
+               ['one', 'two', 'three'])
 
 _fileDir = os.path.dirname(os.path.abspath(__file__))
 _libraryDir = os.path.join(_fileDir, '../../libraries/stdlib/')
@@ -43,15 +47,11 @@ _epsilon = 1e-4
 class TestMaterialX(unittest.TestCase):
     def test_DataTypes(self):
         for value in _testValues:
-            # Convert between values and strings.
-            string = mx.valueToString(value)
-            newValue = mx.stringToValue(string, type(value))
+            valueString = mx.getValueString(value)
+            typeString = mx.getTypeString(value)
+            newValue = mx.createValueFromStrings(valueString, typeString)
             self.assertTrue(newValue == value)
-
-            # Convert between types and strings.
-            string = mx.typeToName(type(value))
-            newType = mx.nameToType(string)
-            self.assertTrue(newType == type(value))
+            self.assertTrue(mx.getTypeString(newValue) == typeString)
 
     def test_Vectors(self):
         v1 = mx.Vector3(1, 2, 3)

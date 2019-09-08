@@ -96,5 +96,9 @@ void bindPyInterface(py::module& mod)
         BIND_INTERFACE_TYPE_INSTANCE(matrix33, mx::Matrix33)
         BIND_INTERFACE_TYPE_INSTANCE(matrix44, mx::Matrix44)
         BIND_INTERFACE_TYPE_INSTANCE(string, std::string)
+        BIND_INTERFACE_TYPE_INSTANCE(integerarray, mx::IntVec)
+        BIND_INTERFACE_TYPE_INSTANCE(booleanarray, mx::BoolVec)
+        BIND_INTERFACE_TYPE_INSTANCE(floatarray, mx::FloatVec)
+        BIND_INTERFACE_TYPE_INSTANCE(stringarray, mx::StringVec)
         .def_readonly_static("NODE_DEF_ATTRIBUTE", &mx::InterfaceElement::NODE_DEF_ATTRIBUTE);
 }

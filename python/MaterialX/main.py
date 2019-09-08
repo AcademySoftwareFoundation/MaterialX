@@ -65,7 +65,7 @@ Element.removeChildOfType = _removeChildOfType
 
 def _setValue(self, value, typeString = ''):
     "Set the typed value of an element."
-    method = getattr(self.__class__, "_setValue" + typeToName(value.__class__))
+    method = getattr(self.__class__, "_setValue" + getTypeString(value))
     method(self, value, typeString)
 
 def _getValue(self):
@@ -98,7 +98,7 @@ ValueElement.getDefaultValue = _getDefaultValue
 def _setParameterValue(self, name, value, typeString = ''):
     """Set the typed value of a parameter by its name, creating a child element
        to hold the parameter if needed."""
-    method = getattr(self.__class__, "_setParameterValue" + typeToName(value.__class__))
+    method = getattr(self.__class__, "_setParameterValue" + getTypeString(value))
     return method(self, name, value, typeString)
 
 def _getParameterValue(self, name, target = ''):
@@ -118,7 +118,7 @@ def _getParameterValueString(self, name):
 def _setInputValue(self, name, value, typeString = ''):
     """Set the typed value of an input by its name, creating a child element
        to hold the input if needed."""
-    method = getattr(self.__class__, "_setInputValue" + typeToName(value.__class__))
+    method = getattr(self.__class__, "_setInputValue" + getTypeString(value))
     return method(self, name, value, typeString)
 
 def _getInputValue(self, name, target = ''):
@@ -169,7 +169,7 @@ def _addOverride(self, name):
 def _setOverrideValue(self, name, value, typeString = ''):
     """Set the value of an override by its name, creating a child element
        to hold the override if needed."""
-    method = getattr(self.__class__, "_setOverrideValue" + typeToName(value.__class__))
+    method = getattr(self.__class__, "_setOverrideValue" + getTypeString(value))
     return method(self, name, value, typeString)
 
 def _addShaderRef(self, name = '', node = ''):
@@ -212,7 +212,7 @@ ShaderRef.getReferencedShaderDef = _getReferencedShaderDef
 def _setPropertyValue(self, name, value, typeString = ''):
     """Set the typed value of a property by its name, creating a child element
        to hold the property if needed."""
-    method = getattr(self.__class__, "_setPropertyValue" + typeToName(value.__class__))
+    method = getattr(self.__class__, "_setPropertyValue" + getTypeString(value))
     return method(self, name, value, typeString)
 
 def _getPropertyValue(self, name, target = ''):
@@ -236,7 +236,7 @@ def _addGeomAttr(self, name):
 def _setGeomAttrValue(self, name, value, typeString = ''):
     """Set the value of a geomattr by its name, creating a child element
        to hold the geomattr if needed."""
-    method = getattr(self.__class__, "_setGeomAttrValue" + typeToName(value.__class__))
+    method = getattr(self.__class__, "_setGeomAttrValue" + getTypeString(value))
     return method(self, name, value, typeString)
 
 GeomInfo.addGeomAttr = _addGeomAttr
@@ -266,18 +266,24 @@ Document.generateRequireString = _generateRequireString
 # Value
 #
 
-def _objectToString(value):
-    "(Deprecated) Convert a value of MaterialX type to a string."
-    warnings.warn("This function is deprecated; call valueToString instead.", DeprecationWarning, stacklevel = 2)
-    return valueToString(value)
+def _typeToName(t):
+    "(Deprecated) Return the MaterialX type string associated with the given Python type."
+    warnings.warn("This function is deprecated; call MaterialX.getTypeString instead.", DeprecationWarning, stacklevel = 2)
+    return getTypeString(t())
 
-def _stringToObject(string, t):
-    "(Deprecated) Convert a string to a value of MaterialX type."
-    warnings.warn("This function is deprecated; call stringToValue instead.", DeprecationWarning, stacklevel = 2)
-    return stringToValue(string, t)
+def _valueToString(value):
+    "(Deprecated) Convert a Python value to its correponding MaterialX value string."
+    warnings.warn("This function is deprecated; call MaterialX.getValueString instead.", DeprecationWarning, stacklevel = 2)
+    return getValueString(value)
 
-objectToString = _objectToString
-stringToObject = _stringToObject
+def _stringToValue(string, t):
+    "(Deprecated) Convert a MaterialX value string and Python type to the corresponding Python value."
+    warnings.warn("This function is deprecated; call MaterialX.createValueFromStrings instead.", DeprecationWarning, stacklevel = 2)
+    return createValueFromStrings(string, getTypeString(t()))
+
+typeToName = _typeToName
+valueToString = _valueToString
+stringToValue = _stringToValue
 
 
 #
