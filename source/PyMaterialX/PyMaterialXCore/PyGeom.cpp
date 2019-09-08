@@ -48,6 +48,10 @@ void bindPyGeom(py::module& mod)
         BIND_GEOMINFO_FUNC_INSTANCE(matrix33, mx::Matrix33)
         BIND_GEOMINFO_FUNC_INSTANCE(matrix44, mx::Matrix44)
         BIND_GEOMINFO_FUNC_INSTANCE(string, std::string)
+        BIND_GEOMINFO_FUNC_INSTANCE(integerarray, mx::IntVec)
+        BIND_GEOMINFO_FUNC_INSTANCE(booleanarray, mx::BoolVec)
+        BIND_GEOMINFO_FUNC_INSTANCE(floatarray, mx::FloatVec)
+        BIND_GEOMINFO_FUNC_INSTANCE(stringarray, mx::StringVec)
         .def_readonly_static("CATEGORY", &mx::GeomInfo::CATEGORY);
 
     py::class_<mx::GeomAttr, mx::GeomAttrPtr, mx::ValueElement>(mod, "GeomAttr")
