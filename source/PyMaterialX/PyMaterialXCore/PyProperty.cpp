@@ -49,6 +49,10 @@ void bindPyProperty(py::module& mod)
         BIND_PROPERTYSET_TYPE_INSTANCE(matrix33, mx::Matrix33)
         BIND_PROPERTYSET_TYPE_INSTANCE(matrix44, mx::Matrix44)
         BIND_PROPERTYSET_TYPE_INSTANCE(string, std::string)
+        BIND_PROPERTYSET_TYPE_INSTANCE(integerarray, mx::IntVec)
+        BIND_PROPERTYSET_TYPE_INSTANCE(booleanarray, mx::BoolVec)
+        BIND_PROPERTYSET_TYPE_INSTANCE(floatarray, mx::FloatVec)
+        BIND_PROPERTYSET_TYPE_INSTANCE(stringarray, mx::StringVec)
         .def_readonly_static("CATEGORY", &mx::Property::CATEGORY);
 
     py::class_<mx::PropertySetAssign, mx::PropertySetAssignPtr, mx::GeomElement>(mod, "PropertySetAssign")

@@ -36,4 +36,8 @@ void bindPyValue(py::module& mod)
     BIND_TYPE_INSTANCE(matrix33, mx::Matrix33)
     BIND_TYPE_INSTANCE(matrix44, mx::Matrix44)
     BIND_TYPE_INSTANCE(string, std::string)
+    BIND_TYPE_INSTANCE(integerarray, mx::IntVec)
+    BIND_TYPE_INSTANCE(booleanarray, mx::BoolVec)
+    BIND_TYPE_INSTANCE(floatarray, mx::FloatVec)
+    BIND_TYPE_INSTANCE(stringarray, mx::StringVec)
 }
