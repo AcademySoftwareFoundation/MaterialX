@@ -105,16 +105,16 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions
                 {
                     xml_node includeNode = xmlNode.append_child(XINCLUDE_TAG.c_str());
                     xml_attribute includeAttr = includeNode.append_attribute("href");
-                    FilePath sourceUriFilePath(sourceUri);
-                    if (sourceUriFilePath.isAbsolute()) 
+                    FilePath sourceUriPath(sourceUri);
+                    if (sourceUriPath.isAbsolute()) 
                     {
-                        // Write absolute paths using the original file path separator
+                        // Write absolute paths in native format.
                         includeAttr.set_value(sourceUri.c_str());
                     }
                     else 
                     {
-                        // Force relative paths to posix path separator
-                        includeAttr.set_value(sourceUriFilePath.asString(FilePath::FormatPosix).c_str());
+                        // Write relative paths in Posix format.
+                        includeAttr.set_value(sourceUriPath.asString(FilePath::FormatPosix).c_str());
                     }
                     writtenSourceFiles.insert(sourceUri);
                 }
