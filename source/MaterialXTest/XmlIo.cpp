@@ -246,19 +246,4 @@ TEST_CASE("Load content", "[xmlio]")
     mx::readFromXmlFile(parentDoc,
         "resources/Materials/TestSuite/libraries/metal/brass_wire_mesh.mtlx", searchPath);
     REQUIRE(nullptr != parentDoc->getNodeDef("ND_TestMetal"));
-
-    // Include a document with a relative windows include path 
-    // and make sure it's written as a posix path
-    mx::DocumentPtr docWithIncludes = mx::createDocument();
-    mx::DocumentPtr docToInclude = mx::createDocument();
-    mx::readFromXmlFile(docToInclude, 
-        "resources\\Materials\\TestSuite\\libraries\\metal\\libraries\\metal_definition.mtlx", 
-        searchPath);
-    docWithIncludes->importLibrary(docToInclude);
-    xmlString = mx::writeToXmlString(docWithIncludes);
-    std::string includeTag = "<xi:include href=\"";
-    std::string includeExpected = "resources/Materials/TestSuite/libraries/metal/libraries/metal_definition.mtlx";
-    size_t includePos = xmlString.find(includeTag);
-    std::string docInclude = xmlString.substr(includePos + includeTag.size(), includeExpected.size());
-    REQUIRE(includeExpected == docInclude);
 }
