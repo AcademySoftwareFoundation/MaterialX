@@ -12,6 +12,8 @@
 
 #include <MaterialXRender/Util.h>
 #include <MaterialXRender/LightHandler.h>
+#include <MaterialXRender/StbImageLoader.h>
+#include <MaterialXRenderGlsl/GLTextureHandler.h>
 
 #include <MaterialXTest/GenShaderUtil.h>
 
@@ -21,25 +23,27 @@ namespace MaterialX
     TextureBaker::TextureBaker() 
     {}
 
-    void TextureBaker::prepareBake(mx::GenContext& context, mx::ElementPtr input, const std::string udim) {
+    void TextureBaker::prepareTextureSpace(mx::GenOptions& options, mx::ElementPtr input, const std::string udim)
+    {
         std::string outputStr = input->getAttribute("nodegraph") + "_" + input->getAttribute("output");
         outputStr += (!udim.empty()) ? ("_" + udim) : "";
-        context.setTextureInputString(input->getName());
-        context.setNodeGraphOutputString(outputStr);
-        context.setTextureInputType(input->getAttribute("type"));
+        options.textureSpaceInput = input->getName();
+        options.textureSpaceInputType = input->getAttribute("type");
+        options.textureSpaceOutput = outputStr;
     }
 
-    void TextureBaker::cleanup(mx::GenContext& context)
+    void TextureBaker::cleanup(mx::GenOptions& options)
     {
-        context.setTextureBake(false);
-        context.setTextureInputString("");
-        context.setTextureInputType("");
-        context.setNodeGraphOutputString("");
+        options.textureSpaceRender = false;
+        options.textureSpaceInput = "";
+        options.textureSpaceInputType = "";
+        options.textureSpaceOutput = "";
     }
+
 
     void TextureBaker::bakeAllInputTextures(unsigned int frameBufferDim, const std::string fileSuffix, const FileSearchPath& searchPath, mx::ElementPtr elem, mx::GenContext& context, const std::string udim)
     {
-        context.setTextureBake(true);
+        context.getOptions().textureSpaceRender = true;
         _fileSuffix = fileSuffix;
         _frameBufferDim = frameBufferDim;
         _searchPath = searchPath;
@@ -55,14 +59,14 @@ namespace MaterialX
                 }
                 if (_bakedOutputs.count(outputStr) == 0)
                 {
-                    prepareBake(context, input, udim);
+                    prepareTextureSpace(context.getOptions(), input, udim);
                     bakeTextureFromElementInput(elem, context);
                     recordNodegraphInput(outputStr, input->getAttribute("type"));
                 }
                 recordBakedTexture(input->getName(), outputStr);
             }
         }
-        cleanup(context);
+        cleanup(context.getOptions());
     }
 
 
@@ -77,13 +81,13 @@ namespace MaterialX
 
         _generator = mx::GlslShaderGenerator::create();
 
-        const std::string name = "" + elem->getName() + "_" + context.getNodeGraphOutputString();
+        const std::string name = "" + elem->getName() + "_" + context.getOptions().textureSpaceOutput;
         ShaderPtr shader = _generator->generate("" + name + "_baker", elem, context);
         std::string vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
         std::string pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
 
         _rasterizer->validateCreation(shader);
-        _rasterizer->renderToScreenSpaceQuad(context);
+        _rasterizer->renderScreenSpaceQuad(context);
         std::string filename = elem->getDocument()->getSourceUri();
         filename.erase(filename.find_last_of("\\"));
         filename += ("\\") + name + _fileSuffix;

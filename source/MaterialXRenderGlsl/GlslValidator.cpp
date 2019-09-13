@@ -22,18 +22,18 @@ const float FAR_PLANE_PERSP = 100.0f;
 //
 // Creator
 //
-GlslValidatorPtr GlslValidator::create(unsigned int dim)
+GlslValidatorPtr GlslValidator::create(unsigned int res)
 {
-    return std::shared_ptr<GlslValidator>(new GlslValidator(dim));
+    return std::shared_ptr<GlslValidator>(new GlslValidator(res));
 }
 
-GlslValidator::GlslValidator(unsigned int dim) :
+GlslValidator::GlslValidator(unsigned int res) :
     ShaderValidator(),
     _colorTarget(0),
     _depthTarget(0),
     _frameBuffer(0),
-    _frameBufferWidth(dim),
-    _frameBufferHeight(dim),
+    _frameBufferWidth(res),
+    _frameBufferHeight(res),
     _initialized(false),
     _window(nullptr),
     _context(nullptr)
@@ -315,11 +315,11 @@ void GlslValidator::validateCreation(const StageMap& stages)
     _program->build();
 }
 
-void GlslValidator::renderToScreenSpaceQuad(GenContext& context)
+void GlslValidator::renderScreenSpaceQuad(GenContext& context)
 {
     bindTarget(true);
-    _type = context.getTextureInputType();
-    (_type == "color3")? glEnable(GL_FRAMEBUFFER_SRGB) : glDisable(GL_FRAMEBUFFER_SRGB);
+    _type = context.getOptions().textureSpaceInputType;
+    (_type == "color3" || _type == "color4")? glEnable(GL_FRAMEBUFFER_SRGB) : glDisable(GL_FRAMEBUFFER_SRGB);
     glViewport(0, 0, _frameBufferWidth, _frameBufferHeight);
 
     _program->bind();

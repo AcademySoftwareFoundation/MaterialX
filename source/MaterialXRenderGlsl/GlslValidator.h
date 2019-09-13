@@ -80,7 +80,7 @@ class GlslValidator : public ShaderValidator
     /// Render output as a texture to screenspace quad to an 
     /// offscreen hardware buffer 
     /// @param context Context for the shader
-    void renderToScreenSpaceQuad(GenContext& context);
+    void renderScreenSpaceQuad(GenContext& context);
 
     /// @}
     /// @name Utilities

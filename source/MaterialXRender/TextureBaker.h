@@ -14,21 +14,7 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
 #include <MaterialXGenShader/Shader.h>
-#include <MaterialXCore/Types.h>
 
-#ifdef MATERIALX_BUILD_OIIO
-#include <MaterialXRender/OiioImageLoader.h>
-#endif
-#include <MaterialXRender/StbImageLoader.h>
-
-#if defined(__linux__)
-#define NonePrev None
-#undef None
-#endif
-#include <MaterialXTest/Catch/catch.hpp>
-#if defined(__linux__)
-#define None NonePrev
-#endif
 #include <MaterialXTest/RenderUtil.h>
 
 #include <iostream>
@@ -100,9 +86,9 @@ class TextureBaker
         /// @{
 
         /// Internal context initialization for texture baking
-        void prepareBake(mx::GenContext& context, mx::ElementPtr input, const std::string udim);
+        void prepareTextureSpace(mx::GenOptions& options, mx::ElementPtr input, const std::string udim);
         /// Internal context cleanup for texture baking
-        void cleanup(mx::GenContext& context);
+        void cleanup(mx::GenOptions& options);
 
         /// Our rasterizer that will do the rendering
         GlslValidatorPtr _rasterizer;
