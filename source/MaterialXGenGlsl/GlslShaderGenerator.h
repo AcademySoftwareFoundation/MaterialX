@@ -46,7 +46,7 @@ class GlslShaderGenerator : public HwShaderGenerator
 
     /// Emit a shader variable.
     void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext& context, ShaderStage& stage,
-                                 bool assignValue = true) const override;
+                                 bool assignValue = true, int i = 0) const override;
 
     /// Given an input specification attempt to remap this to an enumeration which is accepted by
     /// the shader generator. The enumeration may be converted to a different type than the input.

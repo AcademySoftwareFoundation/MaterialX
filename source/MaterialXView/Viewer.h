@@ -6,6 +6,7 @@
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/LightHandler.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#include <MaterialXRender/TextureBaker.h>
 
 namespace mx = MaterialX;
 namespace ng = nanogui;
@@ -135,6 +136,11 @@ class Viewer : public ng::Screen
 
     bool _translationActive;
     ng::Vector2i _translationStart;
+
+    // TextureBaker information
+    mx::TextureBaker _textureBaker;
+    int _textureDimensions = 1024;
+    std::string _textureFormat = ".png";
 
     // Document management
     mx::FilePathVec _libraryFolders;
