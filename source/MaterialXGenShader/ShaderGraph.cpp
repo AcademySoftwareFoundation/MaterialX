@@ -53,17 +53,14 @@ void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& cont
 
 void ShaderGraph::addOutputSockets(const InterfaceElement& elem)
 {
-    if (!_bakeTexture)
+    for (const OutputPtr& output : elem.getActiveOutputs())
     {
-        for (const OutputPtr& output : elem.getActiveOutputs())
-        {
-            ShaderGraphOutputSocket* outputSocket = addOutputSocket(output->getName(), TypeDesc::get(output->getType()));
-            outputSocket->setChannels(output->getChannels());
-        }
-        if (numOutputSockets() == 0)
-        {
-            addOutputSocket("out", TypeDesc::get(elem.getType()));
-        }
+        ShaderGraphOutputSocket* outputSocket = addOutputSocket(output->getName(), TypeDesc::get(output->getType()));
+        outputSocket->setChannels(output->getChannels());
+    }
+    if (numOutputSockets() == 0)
+    {
+        addOutputSocket("out", TypeDesc::get(elem.getType()));
     }
 }
 
@@ -146,7 +143,7 @@ void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
             ShaderInput* input = rootNode->getInput(connectingElement->getName());
             if (input)
             {
-                if (context.isTextureBake())
+                if (context.getOptions().textureSpaceRender)
                 {
                     ShaderGraphOutputSocket* outputSocket = getOutputSocket(connectingElement->getName());
                     if (outputSocket)
@@ -348,7 +345,10 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& n
     graph->addInputSockets(*nodeDef, context);
 
     // Create output sockets from the nodegraph
-    graph->addOutputSockets(nodeGraph);
+    if (!context.getOptions().textureSpaceRender)
+    {
+        graph->addOutputSockets(nodeGraph);
+    }
 
     // Traverse all outputs and create all upstream dependencies
     for (OutputPtr graphOutput : nodeGraph.getActiveOutputs())
@@ -407,7 +407,6 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         }
 
         graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument());
-        graph->_bakeTexture = context.isTextureBake();
 
         // Clear classification
         graph->_classification = 0;
@@ -434,13 +433,15 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         }
 
         graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument());
-        graph->_bakeTexture = context.isTextureBake();
 
         // Create input sockets
         graph->addInputSockets(*nodeDef, context);
 
         // Create output sockets
-        graph->addOutputSockets(*nodeDef);
+        if (!context.getOptions().textureSpaceRender)
+        {
+            graph->addOutputSockets(*nodeDef);
+        }
 
         // Create this shader node in the graph.
         const string& newNodeName = shaderRef->getName();
@@ -449,7 +450,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         graph->_nodeOrder.push_back(newNode.get());
 
         // Connect it to the graph output
-        if (!context.isTextureBake())
+        if (!context.getOptions().textureSpaceRender)
         {
             ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
             outputSocket->makeConnection(newNode->getOutput());
@@ -518,7 +519,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                 inputSocket->setPath(bindInput->getNamePath());
                 input->setPath(inputSocket->getPath());
 
-                if (context.isTextureBake() && input->getName() == context.getTextureInputString())
+                if (context.getOptions().textureSpaceRender && input->getName() == context.getOptions().textureSpaceInput)
                 {
                     ShaderGraphOutputSocket* outputSocket = graph->addOutputSocket(input->getName(), TypeDesc::get(bindInput->getType()));
                     outputSocket->setPath(input->getPath());
@@ -799,7 +800,7 @@ void ShaderGraph::finalize(GenContext& context)
     //       texture nodes are reached.
     for (ShaderNode* node : _nodeOrder)
     {
-        if (node->hasClassification(ShaderNode::Classification::SHADER) || _bakeTexture)
+        if (node->hasClassification(ShaderNode::Classification::SHADER) || context.getOptions().textureSpaceRender)
         {
             for (ShaderGraphEdge edge : ShaderGraph::traverseUpstream(node->getOutput()))
             {
@@ -896,7 +897,7 @@ void ShaderGraph::optimize(GenContext& context)
         }
     }
 
-    if (numEdits > 0 || _bakeTexture)
+    if (numEdits > 0 || context.getOptions().textureSpaceRender)
     {
         std::set<ShaderNode*> usedNodes;
 
@@ -904,7 +905,7 @@ void ShaderGraph::optimize(GenContext& context)
         for (ShaderGraphOutputSocket* outputSocket : getOutputSockets())
         {
             ShaderOutput* upstreamOutput = outputSocket->getConnection();
-            if (_bakeTexture)
+            if (context.getOptions().textureSpaceRender)
             {
                 upstreamOutput = rewireNormals(upstreamOutput, outputSocket);
             }

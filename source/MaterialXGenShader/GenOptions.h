@@ -93,6 +93,12 @@ class GenOptions
     /// compress a set of UDIMs into a single normalized image for
     /// hardware rendering.
     bool hwNormalizeUdimTexCoords;
+
+    /// Variables for texture space renderings
+    bool textureSpaceRender;
+    std::string textureSpaceInput;
+    std::string textureSpaceInputType;
+    std::string textureSpaceOutput;
 };
 
 } // namespace MaterialX

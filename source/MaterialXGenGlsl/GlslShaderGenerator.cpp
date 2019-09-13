@@ -646,7 +646,7 @@ void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
     else
     {
         string str = "";
-        if (context.isTextureBake() && stage.getName() == "vertex" && qualifier == "in")
+        if (context.getOptions().textureSpaceRender && stage.getName() == "vertex" && qualifier == "in")
         {
             str = "layout (location = " + std::to_string(i) + ") ";
         }
