@@ -198,6 +198,24 @@ class GenContext
     /// @param suffix Suffix string returned. Is empty if not found.
     void getOutputSuffix(const ShaderOutput* output, string& suffix) const;
 
+    /// Flag to indicate texture baking
+    /// @param bake Whether it is a texture bake or not
+    void setTextureBake(bool bake) { _bake = bake; }
+    /// Flag to check texture bake
+    bool isTextureBake() { return _bake; }
+
+    /// Getter and setter for texture baking inputs
+    void setTextureInputString(const std::string input) { _input = input; }
+    const std::string getTextureInputString() { return _input; }
+
+    /// Getter and setter for texture baking input types
+    void setTextureInputType(const std::string type) { _type = type; }
+    const std::string getTextureInputType() { return _type; }
+
+    /// Getter and setter for texture baking node graph outputs
+    void setNodeGraphOutputString(const std::string output) { _output = output; }
+    const std::string getNodeGraphOutputString() { return _output; }
+
   protected:
     // Shader generator.
     ShaderGeneratorPtr _sg;
@@ -223,6 +241,12 @@ class GenContext
 
     // List of output suffixes
     std::unordered_map<const ShaderOutput*, string> _outputSuffix;
+
+    // Texture baking data
+    bool _bake = false;
+    std::string _input = "";
+    std::string _type = "";
+    std::string _output = "";
 };
 
 } // namespace MaterialX

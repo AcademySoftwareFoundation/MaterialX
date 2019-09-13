@@ -7,6 +7,8 @@
 #include <MaterialXRenderGlsl/GlslValidator.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/TinyObjLoader.h>
+#include <MaterialXRender/ImageHandler.h>
+#include <MaterialXRender/StbImageLoader.h>
 
 #include <iostream>
 
@@ -20,18 +22,18 @@ const float FAR_PLANE_PERSP = 100.0f;
 //
 // Creator
 //
-GlslValidatorPtr GlslValidator::create()
+GlslValidatorPtr GlslValidator::create(unsigned int dim)
 {
-    return std::shared_ptr<GlslValidator>(new GlslValidator());
+    return std::shared_ptr<GlslValidator>(new GlslValidator(dim));
 }
 
-GlslValidator::GlslValidator() :
+GlslValidator::GlslValidator(unsigned int dim) :
     ShaderValidator(),
     _colorTarget(0),
     _depthTarget(0),
     _frameBuffer(0),
-    _frameBufferWidth(512),
-    _frameBufferHeight(512),
+    _frameBufferWidth(dim),
+    _frameBufferHeight(dim),
     _initialized(false),
     _window(nullptr),
     _context(nullptr)
@@ -313,6 +315,66 @@ void GlslValidator::validateCreation(const StageMap& stages)
     _program->build();
 }
 
+void GlslValidator::renderToScreenSpaceQuad(GenContext& context)
+{
+    bindTarget(true);
+    _type = context.getTextureInputType();
+    (_type == "color3")? glEnable(GL_FRAMEBUFFER_SRGB) : glDisable(GL_FRAMEBUFFER_SRGB);
+    glViewport(0, 0, _frameBufferWidth, _frameBufferHeight);
+
+    _program->bind();
+
+    // load and generate the texture
+    unsigned int VAO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+
+    _program->bindTextures(_imageHandler);
+
+    glBindVertexArray(VAO);
+    float vertices[] = {
+        // positions          // texture coords
+         1.f,  1.f, 0.0f,   1.0f, 1.0f,   // top right
+         1.f, -1.f, 0.0f,   1.0f, 0.0f,   // bottom right
+        -1.f, -1.f, 0.0f,   0.0f, 0.0f,   // bottom left
+        -1.f,  1.f, 0.0f,   0.0f, 1.0f    // top left 
+    };
+    unsigned int indices[] = {
+                                0, 1, 3,   // first triangle
+                                1, 2, 3    // second triangle
+    };
+    
+    unsigned int VBO;
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+    unsigned int EBO;
+    glGenBuffers(1, &EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    bindTarget(false);
+    checkErrors();
+    // Update viewing information
+    const Vector3 eye(0.0f, 0.0f, 4.0f);
+    const Vector3 center;
+    const Vector3 up(0.0f, 1.0f, 0.0f);
+    float objectScale(1.0f);
+    updateViewInformation(eye, center, up, FOV_PERSP, NEAR_PLANE_PERSP, FAR_PLANE_PERSP, objectScale);
+    _program->bindInputs(_viewHandler, _geometryHandler, _imageHandler, _lightHandler);
+    _program->unbind();
+    _program->unbindInputs(_imageHandler);
+    _program->unbindTextures(_imageHandler);
+}
+
 void GlslValidator::validateInputs()
 {
     ShaderValidationErrorList errors;
@@ -390,7 +452,7 @@ void GlslValidator::validateRender()
     bindTarget(true);
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_FRAMEBUFFER_SRGB);
+    (_type == "color3")? glEnable(GL_FRAMEBUFFER_SRGB) : glDisable(GL_FRAMEBUFFER_SRGB);
     glDepthFunc(GL_LESS);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

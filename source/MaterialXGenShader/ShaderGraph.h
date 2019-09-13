@@ -161,6 +161,10 @@ class ShaderGraph : public ShaderNode
 
     // Temporary storage for outputs that require color transformations
     std::unordered_map<ShaderOutput*, ColorSpaceTransform> _outputColorTransformMap;
+  private:
+    bool _bakeTexture = false;
+    /// Ignores the normal map node for baking out normals onto a texture
+    ShaderOutput* rewireNormals(ShaderOutput* upstreamOutput, ShaderGraphOutputSocket*& outputSocket);
 };
 
 /// @class ShaderGraphEdge

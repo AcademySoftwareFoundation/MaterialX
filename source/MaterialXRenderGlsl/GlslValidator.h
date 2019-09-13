@@ -14,6 +14,7 @@
 #include <MaterialXRenderHw/SimpleWindow.h>
 #include <MaterialXRenderGlsl/GLUtilityContext.h>
 #include <MaterialXRenderGlsl/GlslProgram.h>
+#include <MaterialXGenShader/GenContext.h>
 
 namespace MaterialX
 {
@@ -39,7 +40,7 @@ class GlslValidator : public ShaderValidator
 {
   public:
     /// Create a GLSL validator instance
-    static GlslValidatorPtr create();
+    static GlslValidatorPtr create(unsigned int dim = 1024);
 
     /// Destructor
     virtual ~GlslValidator();
@@ -73,6 +74,15 @@ class GlslValidator : public ShaderValidator
     void validateRender() override;
 
     /// @}
+    /// @name Texture Baking
+    /// @{
+
+    /// Render output as a texture to screenspace quad to an 
+    /// offscreen hardware buffer 
+    /// @param context Context for the shader
+    void renderToScreenSpaceQuad(GenContext& context);
+
+    /// @}
     /// @name Utilities
     /// @{
 
@@ -91,7 +101,7 @@ class GlslValidator : public ShaderValidator
 
   protected:
     /// Constructor
-    GlslValidator();
+    GlslValidator(unsigned int dim = 1024);
 
     /// Internal cleanup of stages and OpenGL constructs
     void cleanup();
@@ -151,6 +161,9 @@ class GlslValidator : public ShaderValidator
 
     /// Flag to indicate if validator has been initialized properly.
     bool _initialized;
+
+    /// Data type being rendered out to texture
+    std::string _type = "color3";
 
     /// Dummy window for OpenGL usage.
     SimpleWindowPtr _window;

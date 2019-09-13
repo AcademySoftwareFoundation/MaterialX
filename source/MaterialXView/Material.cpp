@@ -288,16 +288,16 @@ void Material::bindViewInformation(const mx::Matrix44& world, const mx::Matrix44
     mx::Matrix44 invTransWorld = world.getInverse().getTranspose();
 
     // Bind view properties.
-    _glShader->setUniform(mx::HW::WORLD_MATRIX, ng::Matrix4f(world.getTranspose().data()));
-    _glShader->setUniform(mx::HW::VIEW_PROJECTION_MATRIX, ng::Matrix4f(viewProj.getTranspose().data()));
+    _glShader->setUniform(mx::HW::WORLD_MATRIX, ng::Matrix4f(world.getTranspose().data()), _enableWarnings);
+    _glShader->setUniform(mx::HW::VIEW_PROJECTION_MATRIX, ng::Matrix4f(viewProj.getTranspose().data()), _enableWarnings);
     if (_glShader->uniform(mx::HW::WORLD_INVERSE_TRANSPOSE_MATRIX, false) != -1)
     {
-        _glShader->setUniform(mx::HW::WORLD_INVERSE_TRANSPOSE_MATRIX, ng::Matrix4f(invTransWorld.getTranspose().data()));
+        _glShader->setUniform(mx::HW::WORLD_INVERSE_TRANSPOSE_MATRIX, ng::Matrix4f(invTransWorld.getTranspose().data()), _enableWarnings);
     }
     if (_glShader->uniform(mx::HW::VIEW_POSITION, false) != -1)
     {
         mx::Vector3 viewPosition(invView[0][3], invView[1][3], invView[2][3]);
-        _glShader->setUniform(mx::HW::VIEW_POSITION, ng::Vector3f(viewPosition.data()));
+        _glShader->setUniform(mx::HW::VIEW_POSITION, ng::Vector3f(viewPosition.data()), _enableWarnings);
     }
 }
 

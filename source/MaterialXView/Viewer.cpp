@@ -266,6 +266,9 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
     // Initialize standard library and color management.
     loadStandardLibraries();
 
+    //Initialize texture baker
+    _textureBaker = mx::TextureBaker();
+
     // Generate wireframe material.
     const std::string constantShaderName("__WIRE_SHADER_NAME__");
     const mx::Color3 color(1.0f);
@@ -496,6 +499,7 @@ void Viewer::createLoadMaterialsInterface(Widget* parent, const std::string& lab
             _materialFilename = filename;
             assignMaterial(getSelectedGeometry(), nullptr);
             loadDocument(_materialFilename, _stdLib);
+            getSelectedMaterial()->enableWarnings();
         }
         mProcessEvents = true;
     });
@@ -840,6 +844,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         for (const auto& renderablePath : renderablePaths)
         {
             mx::ElementPtr elem = doc->getDescendant(renderablePath);
+            elem->setAttribute("Shading model", elem->getAttribute("node"));
             mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
             if (!typedElem)
             {
@@ -1107,6 +1112,21 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         loadDocument(filename, _stdLib);
         return true;
     }
+
+    // Bake textures and create MTLX file for material
+    if (key == GLFW_KEY_B && action == GLFW_PRESS)
+    {
+        MaterialPtr material = getSelectedMaterial();
+        mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
+        mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
+        const std::string udim = material ? material->getUdim() : "";
+        _textureBaker.bakeAllInputTextures(_textureDimensions, _textureFormat, _searchPath, elem, _genContext, udim);
+        _textureBaker.saveMtlx(doc, elem);
+        material->disableWarnings();
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Texture Bake Output", "Baked textures and mtlx file successfully saved to disk.");
+        return true;
+    }
+
 
     // Save the current shader source to file.
     if (key == GLFW_KEY_S && action == GLFW_PRESS)

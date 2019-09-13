@@ -53,14 +53,17 @@ void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& cont
 
 void ShaderGraph::addOutputSockets(const InterfaceElement& elem)
 {
-    for (const OutputPtr& output : elem.getActiveOutputs())
+    if (!_bakeTexture)
     {
-        ShaderGraphOutputSocket* outputSocket = addOutputSocket(output->getName(), TypeDesc::get(output->getType()));
-        outputSocket->setChannels(output->getChannels());
-    }
-    if (numOutputSockets() == 0)
-    {
-        addOutputSocket("out", TypeDesc::get(elem.getType()));
+        for (const OutputPtr& output : elem.getActiveOutputs())
+        {
+            ShaderGraphOutputSocket* outputSocket = addOutputSocket(output->getName(), TypeDesc::get(output->getType()));
+            outputSocket->setChannels(output->getChannels());
+        }
+        if (numOutputSockets() == 0)
+        {
+            addOutputSocket("out", TypeDesc::get(elem.getType()));
+        }
     }
 }
 
@@ -143,8 +146,19 @@ void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
             ShaderInput* input = rootNode->getInput(connectingElement->getName());
             if (input)
             {
-                input->breakConnection();
-                input->makeConnection(output);
+                if (context.isTextureBake())
+                {
+                    ShaderGraphOutputSocket* outputSocket = getOutputSocket(connectingElement->getName());
+                    if (outputSocket)
+                    {
+                        outputSocket->makeConnection(output);
+                    }
+                }
+                else
+                {
+                    input->breakConnection();
+                    input->makeConnection(output);
+                }
             }
         }
         else
@@ -393,6 +407,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         }
 
         graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument());
+        graph->_bakeTexture = context.isTextureBake();
 
         // Clear classification
         graph->_classification = 0;
@@ -419,6 +434,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         }
 
         graph = std::make_shared<ShaderGraph>(parent, name, element->getDocument());
+        graph->_bakeTexture = context.isTextureBake();
 
         // Create input sockets
         graph->addInputSockets(*nodeDef, context);
@@ -433,9 +449,12 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         graph->_nodeOrder.push_back(newNode.get());
 
         // Connect it to the graph output
-        ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
-        outputSocket->makeConnection(newNode->getOutput());
-        outputSocket->setPath(shaderRef->getNamePath());
+        if (!context.isTextureBake())
+        {
+            ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
+            outputSocket->makeConnection(newNode->getOutput());
+            outputSocket->setPath(shaderRef->getNamePath());
+        }
 
         // Handle node parameters
         for (ParameterPtr elem : nodeDef->getActiveParameters())
@@ -498,6 +517,12 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                 }
                 inputSocket->setPath(bindInput->getNamePath());
                 input->setPath(inputSocket->getPath());
+
+                if (context.isTextureBake() && input->getName() == context.getTextureInputString())
+                {
+                    ShaderGraphOutputSocket* outputSocket = graph->addOutputSocket(input->getName(), TypeDesc::get(bindInput->getType()));
+                    outputSocket->setPath(input->getPath());
+                }
             }
 
             // If no explicit connection, connect to geometric node if a geomprop is used
@@ -774,7 +799,7 @@ void ShaderGraph::finalize(GenContext& context)
     //       texture nodes are reached.
     for (ShaderNode* node : _nodeOrder)
     {
-        if (node->hasClassification(ShaderNode::Classification::SHADER))
+        if (node->hasClassification(ShaderNode::Classification::SHADER) || _bakeTexture)
         {
             for (ShaderGraphEdge edge : ShaderGraph::traverseUpstream(node->getOutput()))
             {
@@ -800,6 +825,20 @@ void ShaderGraph::disconnect(ShaderNode* node) const
     {
         output->breakConnections();
     }
+}
+
+ShaderOutput* ShaderGraph::rewireNormals(ShaderOutput* upstreamOutput, ShaderGraphOutputSocket*& outputSocket)
+{
+    if (upstreamOutput)
+    {
+        ShaderNode* normalmapNode = upstreamOutput->getSelf()->getNode();
+        if (outputSocket->getName() == "normal" && normalmapNode->getImplementation().getName().find("normalmap") != std::string::npos)
+        {
+            outputSocket->breakConnection();
+            outputSocket->makeConnection(normalmapNode->getInput("in")->getConnection());
+        }
+    }
+    return outputSocket->getConnection();
 }
 
 void ShaderGraph::optimize(GenContext& context)
@@ -857,14 +896,20 @@ void ShaderGraph::optimize(GenContext& context)
         }
     }
 
-    if (numEdits > 0)
+    if (numEdits > 0 || _bakeTexture)
     {
         std::set<ShaderNode*> usedNodes;
 
-        // Travers the graph to find nodes still in use
+        // Traverse the graph to find nodes still in use
         for (ShaderGraphOutputSocket* outputSocket : getOutputSockets())
         {
-            if (outputSocket->getConnection())
+            ShaderOutput* upstreamOutput = outputSocket->getConnection();
+            if (_bakeTexture)
+            {
+                upstreamOutput = rewireNormals(upstreamOutput, outputSocket);
+            }
+
+            if (upstreamOutput)
             {
                 for (ShaderGraphEdge edge : ShaderGraph::traverseUpstream(outputSocket->getConnection()))
                 {

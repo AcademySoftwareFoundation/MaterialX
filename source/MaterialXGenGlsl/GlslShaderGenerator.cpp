@@ -634,8 +634,8 @@ void GlslShaderGenerator::toVec4(const TypeDesc* type, string& variable)
 }
 
 void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, 
-                                                  GenContext&, ShaderStage& stage,
-                                                  bool assignValue) const
+                                                  GenContext& context, ShaderStage& stage,
+                                                  bool assignValue, int i) const
 {
     // A file texture input needs special handling on GLSL
     if (variable->getType() == Type::FILENAME)
@@ -645,7 +645,12 @@ void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
     }
     else
     {
-        string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
+        string str = "";
+        if (context.isTextureBake() && stage.getName() == "vertex" && qualifier == "in")
+        {
+            str = "layout (location = " + std::to_string(i) + ") ";
+        }
+        str += qualifier.empty() ? EMPTY_STRING : qualifier + " ";
         str += _syntax->getTypeName(variable->getType()) + " " + variable->getVariable();
 
         // If an array we need an array qualifier (suffix) for the variable name
