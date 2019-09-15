@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of 'geomattrvalue' node for GLSL
+/// GeomAttrValue node implementation for GLSL
 class GeomAttrValueNodeGlsl : public GlslImplementation
 {
 public:

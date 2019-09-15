@@ -13,9 +13,10 @@
 namespace MaterialX
 {
 
+/// Compound node implementation
 class CompoundNode : public ShaderNodeImpl
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 
     void initialize(const InterfaceElement& element, GenContext& context) override;
@@ -28,7 +29,7 @@ public:
 
     ShaderGraph* getGraph() const override { return _rootGraph.get(); }
 
-protected:
+  protected:
     ShaderGraphPtr _rootGraph;
     string _functionName;
 };

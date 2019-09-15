@@ -196,7 +196,6 @@ namespace HW
     extern const string USER_DATA_LIGHT_SHADERS;
 }
 
-/// Shader stage identifiers.
 namespace Stage
 {
     /// Identifier for vertex stage.

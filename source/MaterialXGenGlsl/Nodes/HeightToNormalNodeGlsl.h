@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of height-field to normal for GLSL
+/// HeightToNormal node implementation for GLSL
 class HeightToNormalNodeGlsl : public ConvolutionNode
 {
   public:

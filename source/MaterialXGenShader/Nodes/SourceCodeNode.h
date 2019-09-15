@@ -11,9 +11,9 @@
 namespace MaterialX
 {
 
-/// Implementation using data driven static source code.
-/// This is the defaul implementation used for all nodes that 
-/// does not have a custom ShaderNodeImpl class.
+/// Node implementation using data-driven static source code.
+/// This is the default implementation used for all nodes that 
+/// do not have a custom ShaderNodeImpl class.
 class SourceCodeNode : public ShaderNodeImpl
 {
 public:

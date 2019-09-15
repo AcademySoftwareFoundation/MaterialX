@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of view direction for GLSL
+/// ViewDirection node implementation for GLSL
 class ViewDirectionNodeGlsl : public GlslImplementation
 {
 public:
