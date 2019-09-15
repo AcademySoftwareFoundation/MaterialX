@@ -121,7 +121,7 @@ class ShaderGenerator
     /// @param stage The stage to emit code into.
     /// @param assignValue If true the variable is initialized with its value.
     virtual void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext& context, ShaderStage& stage,
-                                         bool assignValue = true, int i = 0) const;
+                                         bool assignValue = true, unsigned int index = 0) const;
 
     /// Return the result of an upstream connection or value for an input.
     virtual string getUpstreamResult(const ShaderInput* input, GenContext& context) const;
