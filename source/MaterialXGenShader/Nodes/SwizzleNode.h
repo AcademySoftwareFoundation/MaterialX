@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of swizzle node
+/// Swizzle node implementation
 class SwizzleNode : public ShaderNodeImpl
 {
   public:

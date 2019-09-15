@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of transformspoint node for GLSL
+/// TransformPoint node implementation for GLSL
 class TransformPointNodeGlsl : public TransformVectorNodeGlsl
 {
 public:

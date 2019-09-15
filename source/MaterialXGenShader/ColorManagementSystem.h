@@ -25,7 +25,7 @@ class ShaderGenerator;
 /// A shared pointer to a ColorManagementSystem
 using ColorManagementSystemPtr = shared_ptr<class ColorManagementSystem>;
 
-/// @struct @ColorSpaceTransform
+/// @struct ColorSpaceTransform
 /// Structure that represents color space transform information
 struct ColorSpaceTransform
 {
@@ -45,8 +45,7 @@ struct ColorSpaceTransform
 };
 
 /// @class ColorManagementSystem
-/// Abstract base class for a ColorManagementSystem.
-///
+/// Abstract base class for color management systems
 class ColorManagementSystem
 {
   public:

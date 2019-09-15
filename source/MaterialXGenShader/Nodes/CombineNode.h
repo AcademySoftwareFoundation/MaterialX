@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of coombine node
+/// Combine node implementation
 class CombineNode : public ShaderNodeImpl
 {
   public:

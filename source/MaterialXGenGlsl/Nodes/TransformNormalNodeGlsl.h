@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of transformsnormal node for GLSL
+/// TransformNormal node implementation for GLSL
 class TransformNormalNodeGlsl : public TransformVectorNodeGlsl
 {
 public:

@@ -1,6 +1,6 @@
 # MaterialX Viewer
 
-The MaterialX Viewer leverages shader generation to build GLSL shaders from MaterialX graphs, rendering the results using the NanoGUI framework.  Both the standard set of MaterialX nodes and the PBR node set are supported.
+The MaterialX Viewer leverages shader generation to build GLSL shaders from MaterialX graphs, rendering the results using the NanoGUI framework.  The standard set of pattern and physically-based shading nodes is supported, and libraries of custom nodes can be included as additional library paths.
 
 ### Example Images
 
@@ -15,26 +15,27 @@ Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX Viewer.  Insta
 
 ### Summary of Viewer Options
 
-1.  **Load Mesh**: Load in geometry for viewing.  There is currently support for OBJ file loading.
-2.  **Load Material**: Load in a MaterialX document containing elements to render.
-3.  **Property Editor**: View or edit the properties for the current element selected.
-4.  **Advanced Settings** : Loading and fidelity options.
+1.  **Load Mesh**: Load a new model for viewing.
+2.  **Load Material**: Load a MaterialX document containing materials to render.
+3.  **Save Material**: Save the current material.
+4.  **Property Editor**: View or edit properties of the current material.
+5.  **Advanced Settings** : Asset and rendering options.
 
 ### Geometry
 
-Upon launching MaterialXView, a teapot model is automatically loaded.
-To change this preview geometry, click `Load Mesh` and navigate to `/resources/Geometry` for a list of available models.
+Upon launching MaterialXView, a shader ball model is automatically loaded.
+To change this geometry, click `Load Mesh` and navigate to the [Geometry](../../resources/Geometry) folder for a list of available models.
 
-Currently, files using the  OBJ file format are supported. If a file contains more than one `group`, then a `Select Geometry` option is available which lists the available groups.  One group is chosen as the current *active* group. To change the *active* group, click the `Select Geometry` list to choose from a list of available groups.
+Currently, files using the  OBJ file format are supported. If a file contains more than one `group`, then a `Select Geometry` option is available which lists the available groups.  One group is chosen as the current *active* group. To change the active group, click the `Select Geometry` list to choose from a list of available groups.
 
 Under `Advanced Settings` it is possible to have a wireframe overlay displayed for the active group by choosing `Outline Selected Geometry`.
 
 ### Materials
 
 To experiment with different materials, click `Load Material`.  Navigate to
-`resources/Materials/Examples/StandardSurface` for a selection of `.mtlx` files.
+the [Materials/Examples/StandardSurface](../../resources/Materials/Examples/StandardSurface) or [Materials/Examples/UsdPreviewSurface](../../resources/Materials/Examples/UsdPreviewSurface) folders for selections of renderable materials.
 
-To adjust the attributes on the materials, click `Property Editor` to show or hide the material properties.  Note that this changes the generated shader inputs and not the original MaterialX document.
+To adjust the attributes on the materials, click `Property Editor` to show or hide the material properties.  An edited material may be saved to the file system with the `Save Material` option.
 
 Multiple materials can be loaded using the following options:
 
@@ -52,7 +53,7 @@ To clear the entries, disable `Merge Materials` and load in a new `.mtlx` file. 
 
 ### Looks
 
-Assignment of materials to geometry can be performed by loading a MaterialX document which contains one or more looks (e.g. `resources\Materials\Examples\StandardSurface\standard_surface_look_brass_tiled.mtlx`).  If the geometry string referenced by a look matches the name of a group in the current mesh, then the given material assignment will be applied to that mesh group.
+Assignment of materials to geometry can be performed by loading a MaterialX document which contains look elements (e.g. [Materials/Examples/StandardSurface/standard_surface_look_brass_tiled](../../resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx)).  If the geometry string referenced by a look matches the name of a group in the current mesh, then the material assignment will be applied to that mesh group.
 
 ### Lighting
 
@@ -62,7 +63,7 @@ To improve the indirect lighting highlights on your material, increase the `Adva
 
 ### Keyboard Shortcuts
 
-- `R`: Reload the current document from file.
+- `R`: Reload the current material from file.
 - `S`: Save the current shader source to file.
 - `L`: Load shader source from file.  Editing the source files before loading provides a way to debug and experiment with shader source code.
 - `D`: Save each node graph in the current material as a DOT file.  See www.graphviz.org for more details on this format.
