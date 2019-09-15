@@ -5,7 +5,7 @@
 #include <MaterialXView/Material.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/LightHandler.h>
-#include <MaterialXRender/TextureBaker.h>
+#include <MaterialXRenderGlsl/TextureBaker.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 namespace mx = MaterialX;

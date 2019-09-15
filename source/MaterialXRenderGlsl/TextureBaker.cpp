@@ -3,13 +3,14 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRender/TextureBaker.h>
+#include <MaterialXRenderGlsl/TextureBaker.h>
+
+#include <MaterialXRenderGlsl/GLTextureHandler.h>
+#include <MaterialXRenderGlsl/GlslValidator.h>
 
 #include <MaterialXRender/LightHandler.h>
 #include <MaterialXRender/StbImageLoader.h>
 #include <MaterialXRender/Util.h>
-#include <MaterialXRenderGlsl/GLTextureHandler.h>
-#include <MaterialXRenderGlsl/GlslValidator.h>
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
