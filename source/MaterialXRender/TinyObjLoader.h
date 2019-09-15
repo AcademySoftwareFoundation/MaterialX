@@ -18,8 +18,7 @@ namespace MaterialX
 using TinyObjLoaderPtr = std::shared_ptr<class TinyObjLoader>;
 
 /// @class TinyObjLoader
-/// Wrapper for geometry loader to read in OBJ files using the TinyObjLoader library.
-///
+/// Wrapper for geometry loader to read in OBJ files using the TinyObj library.
 class TinyObjLoader : public GeometryLoader
 {
   public:

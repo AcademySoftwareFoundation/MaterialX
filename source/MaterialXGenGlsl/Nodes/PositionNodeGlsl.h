@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of 'position' node for GLSL
+/// Position node implementation for GLSL
 class PositionNodeGlsl : public GlslImplementation
 {
 public:

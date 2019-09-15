@@ -223,7 +223,7 @@ class TypeSyntax
     static const StringVec EMPTY_MEMBERS;
 };
 
-/// Syntax class for scalar types.
+/// Specialization of TypeSyntax for scalar types.
 class ScalarTypeSyntax : public TypeSyntax
 {
   public:
@@ -234,7 +234,7 @@ class ScalarTypeSyntax : public TypeSyntax
     string getValue(const StringVec& values, bool uniform) const override;
 };
 
-/// Syntax class for string types.
+/// Specialization of TypeSyntax for string types.
 class StringTypeSyntax : public ScalarTypeSyntax
 {
   public:
@@ -244,7 +244,7 @@ class StringTypeSyntax : public ScalarTypeSyntax
     string getValue(const Value& value, bool uniform) const override;
 };
 
-/// Syntax class for aggregate types.
+/// Specialization of TypeSyntax for aggregate types.
 class AggregateTypeSyntax : public TypeSyntax
 {
   public:

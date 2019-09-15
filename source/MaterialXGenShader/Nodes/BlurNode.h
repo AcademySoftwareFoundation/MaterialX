@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of blur convolution
+/// Blur node implementation
 class BlurNode : public ConvolutionNode
 {
   public:

@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of 'surface' node for GLSL
+/// Surface node implementation for GLSL
 class SurfaceNodeGlsl : public GlslImplementation
 {
   public:
