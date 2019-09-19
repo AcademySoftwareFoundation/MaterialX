@@ -16,6 +16,11 @@
 #include <fstream>
 #include <iostream>
 
+#ifdef _WIN32
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include "GLFW/glfw3native.h"
+#endif
+
 const float PI = std::acos(-1.0f);
 
 const int MIN_ENV_SAMPLES = 4;
@@ -196,6 +201,10 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
     _specularEnvironmentMethod(specularEnvironmentMethod),
     _envSamples(DEFAULT_ENV_SAMPLES),
     _drawEnvironment(false),
+#ifdef _WIN32
+    _topmost(false),
+    _hwnd(glfwGetWin32Window(glfwWindow())),
+#endif
     _showAdvancedProperties(false),
     _captureFrame(false),
     _drawUVGeometry(false),
@@ -322,6 +331,9 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
         }
     }
 
+    glfwWindowHint(GLFW_FLOATING, GL_TRUE);
+
+
     // Initialize camera
     initCamera();
     setResizeCallback([this](ng::Vector2i size)
@@ -443,7 +455,16 @@ void Viewer::createLoadMeshInterface(Widget* parent, const std::string& label)
     meshButton->setCallback([this]()
     {
         mProcessEvents = false;
+#ifdef WIN32
+        if (_topmost)
+            SetWindowPos(_hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+#endif
         std::string filename = ng::file_dialog({ { "obj", "Wavefront OBJ" } }, false);
+#ifdef WIN32
+        if (_topmost)
+            SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+#endif
+
         if (!filename.empty())
         {
             _geometryHandler->clearGeometry();
@@ -490,7 +511,16 @@ void Viewer::createLoadMaterialsInterface(Widget* parent, const std::string& lab
     materialButton->setCallback([this]()
     {
         mProcessEvents = false;
+#ifdef WIN32
+        if (_topmost)
+            SetWindowPos(_hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+#endif
         std::string filename = ng::file_dialog({ { "mtlx", "MaterialX" } }, false);
+#ifdef WIN32
+        if (_topmost)
+            SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+#endif
+
         if (!filename.empty())
         {
             _materialFilename = filename;
@@ -508,7 +538,15 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
     materialButton->setCallback([this]()
     {
         mProcessEvents = false;
+#ifdef WIN32
+        if (_topmost)
+            SetWindowPos(_hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+#endif
         std::string filename = ng::file_dialog({ { "mtlx", "MaterialX" } }, true);
+#ifdef WIN32
+        if (_topmost)
+            SetWindowPos(_hwnd, HWND_TOPMOST , 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+#endif
 
         // Save document
         if (!filename.empty() && !_materials.empty())
@@ -621,6 +659,16 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _drawEnvironment = enable;
     });
+
+#ifdef _WIN32
+    ng::CheckBox* topmost = new ng::CheckBox(advancedPopup, "Always On Top");
+    topmost->setChecked(_topmost);
+    topmost->setCallback([this](bool enable)
+    {
+        _topmost = enable;
+        SetWindowPos(_hwnd, enable ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+    });
+#endif
 
     if (_specularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
     {
@@ -803,6 +851,45 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         // Load source document.
         mx::DocumentPtr doc = mx::createDocument();
         mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
+
+
+        std::cout << "\n---------\n";
+
+        // Traverse the document tree (explicit iterator).
+        int nodeCount = 0;
+        size_t lastElementDepth = 0;
+        for (mx::TreeIterator it = doc->traverseTree().begin(); it != mx::TreeIterator::end(); ++it)
+        {
+            mx::ElementPtr elem = it.getElement();
+
+            std::string indent = "";
+            for (int i = 0; i < it.getElementDepth(); i++)
+                indent += "    ";
+
+            if (it.getElementDepth() == lastElementDepth-1)
+                std::cout << indent << "    },\n";
+
+            if (it.getElementDepth() <= lastElementDepth)
+                std::cout << indent << "},\n";
+
+            lastElementDepth = it.getElementDepth();
+
+            std::cout << indent << "\"" << elem->getCategory() << "\" : { \n";
+            std::cout << indent << "    \"name\"\t  :   \"" << elem->getName() << "\", \n";
+
+            auto atts = elem->getAttributeNames();
+            for (auto att : atts)
+                std::cout << indent << "    \"" << att << "\"\t  :   \"" << elem->getAttribute(att) << "\",\n";
+
+            if (elem->isA<mx::Node>())
+            {
+                nodeCount++;
+            }
+        }
+
+
+
+
 
         // Import libraries.
         mx::CopyOptions copyOptions; 
@@ -1142,7 +1229,16 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
             {
                 filetypes.push_back(std::make_pair(extension, extension));
             }
+#ifdef WIN32
+            if (_topmost)
+                SetWindowPos(_hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+#endif
             std::string fileName = ng::file_dialog(filetypes, true);
+#ifdef WIN32
+            if (_topmost)
+                SetWindowPos(_hwnd, HWND_TOPMOST , 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+#endif
+
             if (!fileName.empty())
             {
                 std::string fileExtension = mx::FilePath(fileName).getExtension();

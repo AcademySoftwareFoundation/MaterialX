@@ -194,6 +194,10 @@ class Viewer : public ng::Screen
     mx::HwSpecularEnvironmentMethod _specularEnvironmentMethod;
     int _envSamples;
     bool _drawEnvironment;
+#ifdef _WIN32
+    bool _topmost;
+    HWND _hwnd;
+#endif
     mx::Matrix44 _envMatrix;
 
     // Property options
