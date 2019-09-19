@@ -331,9 +331,6 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
         }
     }
 
-    glfwWindowHint(GLFW_FLOATING, GL_TRUE);
-
-
     // Initialize camera
     initCamera();
     setResizeCallback([this](ng::Vector2i size)
