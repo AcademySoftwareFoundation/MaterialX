@@ -849,45 +849,6 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         mx::DocumentPtr doc = mx::createDocument();
         mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
 
-
-        std::cout << "\n---------\n";
-
-        // Traverse the document tree (explicit iterator).
-        int nodeCount = 0;
-        size_t lastElementDepth = 0;
-        for (mx::TreeIterator it = doc->traverseTree().begin(); it != mx::TreeIterator::end(); ++it)
-        {
-            mx::ElementPtr elem = it.getElement();
-
-            std::string indent = "";
-            for (int i = 0; i < it.getElementDepth(); i++)
-                indent += "    ";
-
-            if (it.getElementDepth() == lastElementDepth-1)
-                std::cout << indent << "    },\n";
-
-            if (it.getElementDepth() <= lastElementDepth)
-                std::cout << indent << "},\n";
-
-            lastElementDepth = it.getElementDepth();
-
-            std::cout << indent << "\"" << elem->getCategory() << "\" : { \n";
-            std::cout << indent << "    \"name\"\t  :   \"" << elem->getName() << "\", \n";
-
-            auto atts = elem->getAttributeNames();
-            for (auto att : atts)
-                std::cout << indent << "    \"" << att << "\"\t  :   \"" << elem->getAttribute(att) << "\",\n";
-
-            if (elem->isA<mx::Node>())
-            {
-                nodeCount++;
-            }
-        }
-
-
-
-
-
         // Import libraries.
         mx::CopyOptions copyOptions; 
         copyOptions.skipConflictingElements = true;
