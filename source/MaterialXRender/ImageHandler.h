@@ -173,7 +173,7 @@ class ImageLoader
 
     /// Returns a list of supported extensions
     /// @return List of support extensions
-    const StringSet& supportedExtensions()
+    const StringSet& supportedExtensions() const
     {
         return _extensions;
     }
@@ -286,7 +286,7 @@ class ImageHandler
     /// Clear the contents of the image cache.
     /// deleteImage() will be called for each cache description to
     /// allow derived classes to clean up any associated resources.
-    virtual void clearImageCache();
+    void clearImageCache();
 
     /// Set the search path to be used for finding images on the file system.
     void setSearchPath(const FileSearchPath& path)
@@ -295,7 +295,7 @@ class ImageHandler
     }
 
     /// Return the image search path
-    const FileSearchPath& getSearchPath()
+    const FileSearchPath& getSearchPath() const
     {
         return _searchPath;
     }

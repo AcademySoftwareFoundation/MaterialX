@@ -42,7 +42,7 @@ class ViewHandler
                                             float nearP, float farP);
 
     /// Set the world matrix
-    void setWorldMatrix(Matrix44& m)
+    void setWorldMatrix(const Matrix44& m)
     {
         _worldMatrix = m;
     }

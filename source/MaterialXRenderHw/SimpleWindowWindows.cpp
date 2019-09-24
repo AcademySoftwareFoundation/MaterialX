@@ -23,7 +23,7 @@ SimpleWindow::SimpleWindow()
     windowCount++;
 
     // Generate a unique string for our window class.
-    sprintf_s(_windowClassName, "_SW_%lu", _id);
+    sprintf_s(_windowClassName, "_SW_%u", _id);
 }
 
 // No-op window procedure
