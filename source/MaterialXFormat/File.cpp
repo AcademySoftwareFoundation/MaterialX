@@ -223,7 +223,7 @@ FilePathVec FilePath::getSubDirectories() const
     return dirs;
 }
 
-void FilePath::createDirectory()
+void FilePath::createDirectory() const
 {
 #if defined(_WIN32)
     _mkdir(asString().c_str());
