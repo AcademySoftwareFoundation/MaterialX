@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.36.4] - Development
+## [1.36.4] - 2019-09-26
 
 ### Added
 - Added a Save Material option to the viewer.
