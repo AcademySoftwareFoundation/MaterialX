@@ -44,7 +44,22 @@
   <typedef name="geomnamearray"/>
 
   <!-- ======================================================================== -->
-  <!-- Geometric Properties
+  <!-- Unit types                                                               -->
+  <!-- ======================================================================== -->
+   <unittypedef name="length" default="meter">
+      <unitdef name="nanometer" scale="1000000000.0" />
+      <unitdef name="micron" scale="1000000.0" />
+      <unitdef name="millimeter" scale="1000.0" />
+      <unitdef name="centimeter" scale="100.0" />
+      <unitdef name="kilometer" scale="0.001" />
+      <unitdef name="foot" scale="3.281" />
+      <unitdef name="inch" scale="39.37" />
+      <unitdef name="yard" scale="1.093613" />
+      <unitdef name="mile" scale="0.000621" />
+   </unittypedef>
+
+  <!-- ======================================================================== -->
+  <!-- Geometric Properties                                                     -->
   <!-- ======================================================================== -->
 
   <geompropdef name="Pobject" type="vector3" geomprop="position" space="object"/>

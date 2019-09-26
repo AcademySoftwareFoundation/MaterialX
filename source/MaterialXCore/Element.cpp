@@ -33,6 +33,7 @@ const string ValueElement::UI_FOLDER_ATTRIBUTE = "uifolder";
 const string ValueElement::UI_MIN_ATTRIBUTE = "uimin";
 const string ValueElement::UI_MAX_ATTRIBUTE = "uimax";
 const string ValueElement::UI_ADVANCED_ATTRIBUTE = "uiadvanced";
+const string ValueElement::UNIT_ATTRIBUTE = "unit";
 
 Element::CreatorMap Element::_creatorMap;
 
@@ -444,6 +445,7 @@ bool Element::validate(string* message) const
         res = child->validate(message) && res;
     }
     validateRequire(!hasInheritanceCycle(), res, message, "Cycle in element inheritance chain");
+
     return res;
 }
 
@@ -615,6 +617,12 @@ bool ValueElement::validate(string* message) const
             }
         }
     }
+    if (hasUnit())
+    {
+        const string& unit = getUnit();
+        UnitTypeDefPtr typeDef = getDocument()->getUnitTypeDefWithUnit(unit);
+        validateRequire(typeDef != nullptr, res, message, "Unit definition does not exist in document");
+    }
     return TypedElement::validate(message) && res;
 }
 
@@ -764,5 +772,7 @@ INSTANTIATE_CONCRETE_SUBCLASS(Variant, "variant")
 INSTANTIATE_CONCRETE_SUBCLASS(VariantAssign, "variantassign")
 INSTANTIATE_CONCRETE_SUBCLASS(VariantSet, "variantset")
 INSTANTIATE_CONCRETE_SUBCLASS(Visibility, "visibility")
+INSTANTIATE_CONCRETE_SUBCLASS(UnitDef, "unitdef")
+INSTANTIATE_CONCRETE_SUBCLASS(UnitTypeDef, "unittypedef")
 
 } // namespace MaterialX

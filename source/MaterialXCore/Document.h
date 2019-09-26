@@ -15,6 +15,7 @@
 #include <MaterialXCore/Material.h>
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Variant.h>
+#include <MaterialXCore/UnitConverter.h>
 
 namespace MaterialX
 {
@@ -555,6 +556,31 @@ class Document : public GraphElement
     
     /// Disable observer callbacks
     virtual void disableCallbacks() { }
+
+    /// @}
+    /// @name Unit support
+    /// @{
+
+    /// Return the UnitTypeDef, if any, with the given name.
+    UnitTypeDefPtr getUnitTypeDef(const string& name) const
+    {
+        return getChildOfType<UnitTypeDef>(name);
+    }
+
+    /// Return the UnitTypeDef, if any, with a matching unit name.
+    UnitTypeDefPtr getUnitTypeDefWithUnit(const string& unitName) const;
+
+    /// Return a vector of all UnitTypeDef elements in the document.
+    vector<UnitTypeDefPtr> getUnitTypeDefs() const
+    {
+        return getChildrenOfType<UnitTypeDef>();
+    }
+
+    /// Remove the UnitTypeDef, if any, with the given name.
+    void removeUnitTypeDef(const string& name)
+    {
+        removeChildOfType<UnitTypeDef>(name);
+    }    
 
     /// @}
 

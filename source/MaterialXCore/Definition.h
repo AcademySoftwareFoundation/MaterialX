@@ -30,6 +30,8 @@ class Implementation;
 class TypeDef;
 class Member;
 class ShaderRef;
+class UnitTypeDef;
+class UnitDef;
 
 /// A shared pointer to a NodeDef
 using NodeDefPtr = shared_ptr<NodeDef>;
@@ -50,6 +52,16 @@ using ConstTypeDefPtr = shared_ptr<const TypeDef>;
 using MemberPtr = shared_ptr<Member>;
 /// A shared pointer to a const Member
 using ConstMemberPtr = shared_ptr<const Member>;
+
+/// A shared pointer to a UnitTypeDef
+using UnitTypeDefPtr = shared_ptr<UnitTypeDef>;
+/// A shared pointer to a const UnitTypeDef
+using ConstUnitTypeDefPtr = shared_ptr<const UnitTypeDef>;
+
+/// A shared pointer to a UnitDef
+using UnitDefPtr  = shared_ptr<UnitDef>;
+/// A shared pointer to a const UnitDef
+using ConstUnitDefPtr = shared_ptr<const UnitDef>;
 
 /// @class NodeDef
 /// A node definition element within a Document.
@@ -376,6 +388,95 @@ class Member : public TypedElement
 
   public:
     static const string CATEGORY;
+};
+
+/// @class UnitDef
+/// A unit definition within a UnitTypeDef.
+class UnitDef : public Element
+{
+  public:
+      UnitDef(ElementPtr parent, const string& name) :
+          Element(parent, CATEGORY, name)
+      {
+      }
+      virtual ~UnitDef() { }
+
+  public:
+    static const string CATEGORY;
+};
+
+/// @class UnitTypeDef
+/// A unit type definition element within a Document.
+class UnitTypeDef : public Element
+{
+  public:
+    UnitTypeDef(ElementPtr parent, const string& name) :
+        Element(parent, CATEGORY, name)
+    {
+    }
+    virtual ~UnitTypeDef() { }
+
+    /// @name Semantic
+    /// @{
+
+    /// Set the default unit string for the UnitTypeDef.
+    void setDefault(const string& value)
+    {
+        setAttribute(DEFAULT_ATTRIBUTE, value);
+    }
+
+    /// Return true if the given TypeDef has a default unit string.
+    bool hasDefault() const
+    {
+        return hasAttribute(DEFAULT_ATTRIBUTE);
+    }
+
+    /// Return the default unit string for the UnitTypeDef.
+    const string& getDefault() const
+    {
+        return getAttribute(DEFAULT_ATTRIBUTE);
+    }
+
+    /// @}
+    /// @name UnitDef Elements
+    /// @{
+
+    /// Add a UnitDef to the UnitTypeDef.
+    /// @param name The name of the new UnitDef. An exception is thrown
+    /// if the name provided is an empty string.
+    /// @return A shared pointer to the new UnitDef.
+    UnitDefPtr addUnitDef(const string& name)
+    {
+        if (name.empty())
+        {
+            throw Exception("A unit definition name cannot be empty");
+        }
+        return addChild<UnitDef>(name);
+    }
+
+    /// Return the UnitDef, if any, with the given name.
+    UnitDefPtr getUnitDef(const string& name) const
+    {
+        return getChildOfType<UnitDef>(name);
+    }
+
+    /// Return a vector of all Member elements in the TypeDef.
+    vector<UnitDefPtr> getUnitDefs() const
+    {
+        return getChildrenOfType<UnitDef>();
+    }
+
+    /// Remove the UnitDef, if any, with the given name.
+    void removeUnitDef(const string& name)
+    {
+        removeChildOfType<UnitDef>(name);
+    }
+
+    /// @}
+
+  public:
+    static const string CATEGORY;
+    static const string DEFAULT_ATTRIBUTE;
 };
 
 } // namespace MaterialX

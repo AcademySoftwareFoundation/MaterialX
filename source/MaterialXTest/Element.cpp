@@ -29,6 +29,8 @@ TEST_CASE("Element", "[element]")
     doc->setColorSpace("lin_rec709");
     REQUIRE(elem1->getActiveFilePrefix() == doc->getFilePrefix());
     REQUIRE(elem2->getActiveColorSpace() == doc->getColorSpace());
+    elem2->setColorSpace("srgb_texture");
+    REQUIRE(elem2->getActiveColorSpace() == elem2->getColorSpace());
 
     // Set typed attributes.
     REQUIRE(elem1->getTypedAttribute<bool>("customFlag") == false);
