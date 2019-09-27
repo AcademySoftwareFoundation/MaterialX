@@ -39,7 +39,8 @@ void TextureBaker::cleanup(GenOptions& options)
 }
 
 
-void TextureBaker::bakeAllInputTextures(unsigned int frameBufferDim, const std::string fileSuffix, const FileSearchPath& searchPath, ElementPtr elem, GenContext& context, const std::string udim)
+void TextureBaker::bakeAllInputTextures(unsigned int frameBufferDim, const string& fileSuffix, const FileSearchPath& searchPath,
+                                        ElementPtr elem, GenContext& context, const string& udim, const FilePath& outputFolder)
 {
     context.getOptions().textureSpaceRender = true;
     _fileSuffix = fileSuffix;
@@ -58,7 +59,7 @@ void TextureBaker::bakeAllInputTextures(unsigned int frameBufferDim, const std::
             if (_bakedOutputs.count(outputStr) == 0)
             {
                 prepareTextureSpace(context.getOptions(), input, udim);
-                bakeTextureFromElementInput(elem, context);
+                bakeTextureFromElementInput(elem, context, outputFolder);
                 recordNodegraphInput(outputStr, input->getAttribute("type"));
             }
             recordBakedTexture(input->getName(), outputStr);
@@ -68,7 +69,7 @@ void TextureBaker::bakeAllInputTextures(unsigned int frameBufferDim, const std::
 }
 
 
-void TextureBaker::bakeTextureFromElementInput(ElementPtr elem, GenContext& context)
+void TextureBaker::bakeTextureFromElementInput(ElementPtr elem, GenContext& context, const FilePath& outputFolder)
 {
     _rasterizer = GlslValidator::create(_frameBufferDim);
     StbImageLoaderPtr stbLoader = StbImageLoader::create();
@@ -86,19 +87,16 @@ void TextureBaker::bakeTextureFromElementInput(ElementPtr elem, GenContext& cont
 
     _rasterizer->validateCreation(shader);
     _rasterizer->renderScreenSpaceQuad(context);
-    std::string filename = elem->getDocument()->getSourceUri();
-    filename.erase(filename.find_last_of("\\"));
-    filename += ("\\") + name + _fileSuffix;
+
+    FilePath filename = outputFolder / FilePath(name + _fileSuffix);
     _rasterizer->save(filename, false);
 }
 
-void TextureBaker::saveMtlx(DocumentPtr& origDoc, TypedElementPtr elem)
+void TextureBaker::writeDocument(DocumentPtr& origDoc, TypedElementPtr elem, const FilePath& filename)
 {
-    // create filename
-    std::string filename = origDoc->getSourceUri();
-    filename.insert(filename.find(".mtlx"), "_bake");
     // create doc
     DocumentPtr bakedTextureDoc = createDocument();
+
     // copy over all geominfo
     GeomInfoPtr newGeom;
     for (GeomInfoPtr geom : origDoc->getGeomInfos())

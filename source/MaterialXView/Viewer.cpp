@@ -1110,20 +1110,25 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         return true;
     }
 
-    // Bake textures and create MTLX file for material
+    // Bake textures for the current material and generate a new document.
     if (key == GLFW_KEY_B && action == GLFW_PRESS)
     {
         MaterialPtr material = getSelectedMaterial();
         mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
         mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
         const std::string udim = material ? material->getUdim() : "";
-        _textureBaker.bakeAllInputTextures(_textureDimensions, _textureFormat, _searchPath, elem, _genContext, udim);
-        _textureBaker.saveMtlx(doc, elem);
-        material->disableWarnings();
-        new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Texture Bake Output", "Baked textures and mtlx file successfully saved to disk.");
+        mx::FilePath filename = ng::file_dialog({ { mx::MTLX_EXTENSION, "MaterialX" } }, true);
+        if (!filename.isEmpty())
+        {
+            filename.setExtension(mx::MTLX_EXTENSION);
+            _textureBaker.bakeAllInputTextures(_textureDimensions, _textureFormat, _searchPath,
+                                               elem, _genContext, udim, filename.getParentPath());
+            _textureBaker.writeDocument(doc, elem, filename);
+            material->disableWarnings();
+            new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Texture Bake Output", "Baked textures and mtlx file successfully saved to disk.");
+        }
         return true;
     }
-
 
     // Save the current shader source to file.
     if (key == GLFW_KEY_S && action == GLFW_PRESS)

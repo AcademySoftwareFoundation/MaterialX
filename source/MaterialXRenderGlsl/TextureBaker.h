@@ -42,11 +42,14 @@ class TextureBaker
     }
 
     /// Saves freshly made images for various outputs to disk
-    void bakeAllInputTextures(unsigned int frameBufferDim, const string fileSuffix, const FileSearchPath& searchPath, ElementPtr elem, GenContext& context, const string udim);
+    void bakeAllInputTextures(unsigned int frameBufferDim, const string& fileSuffix, const FileSearchPath& searchPath,
+                              ElementPtr elem, GenContext& context, const string& udim, const FilePath& outputFolder);
+
     /// Saves freshly made image for specific output to disk
-    void bakeTextureFromElementInput(ElementPtr elem, GenContext& context);
-    /// Saves materialX file for baked object
-    void saveMtlx(DocumentPtr& origDoc, TypedElementPtr elem);
+    void bakeTextureFromElementInput(ElementPtr elem, GenContext& context, const FilePath& outputFolder);
+
+    /// Write out a document with baked images.
+    void writeDocument(DocumentPtr& origDoc, TypedElementPtr elem, const FilePath& filename);
 
   protected:
     /// Getters and setters for variables
