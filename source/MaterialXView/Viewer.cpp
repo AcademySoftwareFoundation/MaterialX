@@ -499,7 +499,6 @@ void Viewer::createLoadMaterialsInterface(Widget* parent, const std::string& lab
             _materialFilename = filename;
             assignMaterial(getSelectedGeometry(), nullptr);
             loadDocument(_materialFilename, _stdLib);
-            getSelectedMaterial()->enableWarnings();
         }
         mProcessEvents = true;
     });
@@ -1124,8 +1123,6 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
             _textureBaker.bakeAllInputTextures(_textureDimensions, _textureFormat, _searchPath,
                                                elem, _genContext, udim, filename.getParentPath());
             _textureBaker.writeDocument(doc, elem, filename);
-            material->disableWarnings();
-            new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Texture Bake Output", "Baked textures and mtlx file successfully saved to disk.");
         }
         return true;
     }

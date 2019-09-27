@@ -186,11 +186,6 @@ class Material
     /// Set the value for an enumerated element with a given path.
     void setUniformEnum(const std::string& path, int index, const std::string& value);
 
-    /// Turn on warning messages
-    void enableWarnings() { _enableWarnings = true; }
-    /// Turn off warning messages
-    void disableWarnings() { _enableWarnings = false; }
-
   protected:
     void bindUniform(const std::string& name, mx::ConstValuePtr value);
     void updateUniformsList();
@@ -207,8 +202,6 @@ class Material
     mx::StringSet _uniformVariable;
 
     std::vector<mx::FilePath> _boundImages;
-
-    bool _enableWarnings = true;
 };
 
 #endif // MATERIALXVIEW_MATERIAL_H
