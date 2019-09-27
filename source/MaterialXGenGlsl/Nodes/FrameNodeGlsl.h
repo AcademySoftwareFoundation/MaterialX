@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of frame node for GLSL
+/// Frame node implementation for GLSL
 class FrameNodeGlsl : public GlslImplementation
 {
 public:

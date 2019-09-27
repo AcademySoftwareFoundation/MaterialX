@@ -12,7 +12,7 @@
 namespace MaterialX
 {
 
-/// Implementation of light shaders for GLSL.
+/// LightShader node implementation for GLSL
 /// Used for all light shaders implemented in source code.
 class LightShaderNodeGlsl : public SourceCodeNode
 {

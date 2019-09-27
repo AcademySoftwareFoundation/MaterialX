@@ -70,7 +70,7 @@ class ShaderValidator
 
     /// Get geometry handler
     /// @return Reference to a geometry handler
-    GeometryHandlerPtr getGeometryHandler()
+    GeometryHandlerPtr getGeometryHandler() const
     {
         return _geometryHandler;
     }

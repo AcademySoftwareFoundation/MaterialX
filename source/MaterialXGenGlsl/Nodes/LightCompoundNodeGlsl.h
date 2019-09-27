@@ -15,7 +15,7 @@ namespace MaterialX
 
 class GlslShaderGenerator;
 
-/// Implementation of 'light' node for GLSL
+/// LightCompound node implementation for GLSL
 class LightCompoundNodeGlsl : public CompoundNode
 {
 public:

@@ -1078,10 +1078,7 @@ void Viewer::loadStandardLibraries()
     _stdLib = loadLibraries(_libraryFolders, _searchPath);
     mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(_genContext.getShaderGenerator().getLanguage());
     cms->loadLibrary(_stdLib);
-    for (const mx::FilePath& filePath : _searchPath)
-    {
-        _genContext.registerSourceCodeSearchPath(filePath);
-    }
+    _genContext.registerSourceCodeSearchPath(_searchPath);
     _genContext.getShaderGenerator().setColorManagementSystem(cms);
 }
 

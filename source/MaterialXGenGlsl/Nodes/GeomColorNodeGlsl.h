@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of 'geomcolor' node for GLSL
+/// GeomColor node implementation for GLSL
 class GeomColorNodeGlsl : public GlslImplementation
 {
 public:

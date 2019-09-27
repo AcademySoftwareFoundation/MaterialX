@@ -151,7 +151,7 @@ class FilePath
     FilePathVec getSubDirectories() const;
 
     /// Create a directory on the file system at the given path.
-    void createDirectory();
+    void createDirectory() const;
 
     /// @}
 

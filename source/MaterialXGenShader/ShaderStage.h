@@ -31,8 +31,6 @@
 namespace MaterialX
 {
 
-/// @class Stage
-/// Shader stage identifiers.
 namespace Stage
 {
     /// Identifier for pixel stage.

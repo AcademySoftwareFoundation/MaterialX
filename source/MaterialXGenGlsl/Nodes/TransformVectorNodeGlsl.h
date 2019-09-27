@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of transformsvector node for GLSL
+/// TransformVector node implementation for GLSL
 class TransformVectorNodeGlsl : public GlslImplementation
 {
 public:
