@@ -1121,8 +1121,7 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         {
             filename.setExtension(mx::MTLX_EXTENSION);
             mx::TextureBakerPtr baker = mx::TextureBaker::create();
-            baker->bakeAllInputTextures(_textureDimensions, _textureFormat, _searchPath,
-                                        elem, _genContext, udim, filename.getParentPath());
+            baker->bakeAllInputTextures(_searchPath, elem, _genContext, udim, filename.getParentPath());
             baker->writeDocument(doc, elem, filename);
         }
         return true;

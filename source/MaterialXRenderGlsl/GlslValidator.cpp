@@ -24,7 +24,7 @@ const float FAR_PLANE_PERSP = 100.0f;
 //
 GlslValidatorPtr GlslValidator::create(unsigned int res)
 {
-    return std::shared_ptr<GlslValidator>(new GlslValidator(res));
+    return GlslValidatorPtr(new GlslValidator(res));
 }
 
 GlslValidator::GlslValidator(unsigned int res) :

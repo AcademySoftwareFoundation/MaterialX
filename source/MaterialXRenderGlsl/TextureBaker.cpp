@@ -30,12 +30,9 @@ void TextureBaker::init(GenOptions& options, ElementPtr input, const std::string
     options.textureSpaceOutput = outputStr;
 }
 
-void TextureBaker::bakeAllInputTextures(unsigned int frameBufferDim, const string& fileSuffix, const FileSearchPath& searchPath,
-                                        ElementPtr elem, GenContext context, const string& udim, const FilePath& outputFolder)
+void TextureBaker::bakeAllInputTextures(const FileSearchPath& searchPath, ElementPtr elem, GenContext context, const string& udim, const FilePath& outputFolder)
 {
     context.getOptions().textureSpaceRender = true;
-    _fileSuffix = fileSuffix;
-    _frameBufferDim = frameBufferDim;
     _searchPath = searchPath;
     for (ElementPtr input : elem->getChildren())
     {
@@ -60,7 +57,7 @@ void TextureBaker::bakeAllInputTextures(unsigned int frameBufferDim, const strin
 
 void TextureBaker::bakeTextureFromElementInput(ElementPtr elem, GenContext& context, const FilePath& outputFolder)
 {
-    _rasterizer = GlslValidator::create(_frameBufferDim);
+    _rasterizer = GlslValidator::create(_frameBufferRes);
     StbImageLoaderPtr stbLoader = StbImageLoader::create();
     GLTextureHandlerPtr imageHandler = GLTextureHandler::create(stbLoader);
     imageHandler->setSearchPath(_searchPath);
@@ -77,7 +74,7 @@ void TextureBaker::bakeTextureFromElementInput(ElementPtr elem, GenContext& cont
     _rasterizer->validateCreation(shader);
     _rasterizer->renderScreenSpaceQuad(context);
 
-    FilePath filename = outputFolder / FilePath(name + _fileSuffix);
+    FilePath filename = outputFolder / FilePath(name + "." + _fileSuffix);
     _rasterizer->save(filename, false);
 }
 
@@ -106,7 +103,7 @@ void TextureBaker::writeDocument(DocumentPtr& origDoc, TypedElementPtr elem, con
         // add the image node in the node graph
         NodePtr img_node = ng->addNode("image", "" + it->first + "_image",it->second);
         ParameterPtr param = img_node->addParameter("file", "filename");
-        param->setValueString("" + elem->getName() + "_" + it->first + _fileSuffix);
+        param->setValueString(elem->getName() + "_" + it->first + "." + _fileSuffix);
         std::string outputStr = it->first;
         std::string nodeName = img_node->getName();
 

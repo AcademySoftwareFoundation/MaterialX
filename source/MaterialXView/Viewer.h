@@ -136,10 +136,6 @@ class Viewer : public ng::Screen
     bool _translationActive;
     ng::Vector2i _translationStart;
 
-    // TextureBaker information
-    int _textureDimensions = 1024;
-    std::string _textureFormat = ".png";
-
     // Document management
     mx::FilePathVec _libraryFolders;
     mx::FileSearchPath _searchPath;

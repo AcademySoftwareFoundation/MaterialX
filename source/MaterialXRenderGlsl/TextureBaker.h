@@ -9,6 +9,8 @@
 /// @file
 /// Texture baking functionality
 
+#include <MaterialXRender/ImageHandler.h>
+
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 #include <map>
@@ -26,7 +28,9 @@ using TextureBakerPtr = shared_ptr<TextureBaker>;
 class TextureBaker
 {
   public:
-    TextureBaker()
+    TextureBaker() :
+        _frameBufferRes(1024),
+        _fileSuffix(ImageLoader::PNG_EXTENSION)
     {
     }
     ~TextureBaker() { }
@@ -37,8 +41,7 @@ class TextureBaker
     }
 
     /// Saves freshly made images for various outputs to disk
-    void bakeAllInputTextures(unsigned int frameBufferDim, const string& fileSuffix, const FileSearchPath& searchPath,
-                              ElementPtr elem, GenContext context, const string& udim, const FilePath& outputFolder);
+    void bakeAllInputTextures(const FileSearchPath& searchPath, ElementPtr elem, GenContext context, const string& udim, const FilePath& outputFolder);
 
     /// Saves freshly made image for specific output to disk
     void bakeTextureFromElementInput(ElementPtr elem, GenContext& context, const FilePath& outputFolder);
@@ -59,8 +62,8 @@ class TextureBaker
     GlslValidatorPtr _rasterizer;
     ShaderGeneratorPtr _generator;
 
-    string _fileSuffix = ".png";
-    unsigned int _frameBufferDim = 512;
+    unsigned int _frameBufferRes;
+    string _fileSuffix;
 
     FileSearchPath _searchPath;
 

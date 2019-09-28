@@ -40,7 +40,7 @@ class GlslValidator : public ShaderValidator
 {
   public:
     /// Create a GLSL validator instance
-    static GlslValidatorPtr create(unsigned int dim = 1024);
+    static GlslValidatorPtr create(unsigned int res = 512);
 
     /// Destructor
     virtual ~GlslValidator();
@@ -101,7 +101,7 @@ class GlslValidator : public ShaderValidator
 
   protected:
     /// Constructor
-    GlslValidator(unsigned int dim = 1024);
+    GlslValidator(unsigned int res = 512);
 
     /// Internal cleanup of stages and OpenGL constructs
     void cleanup();
