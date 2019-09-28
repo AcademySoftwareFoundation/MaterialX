@@ -267,7 +267,7 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
     loadStandardLibraries();
 
     //Initialize texture baker
-    _textureBaker = mx::TextureBaker();
+    _textureBaker = mx::TextureBaker::create();
 
     // Generate wireframe material.
     const std::string constantShaderName("__WIRE_SHADER_NAME__");
@@ -1120,9 +1120,9 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         if (!filename.isEmpty())
         {
             filename.setExtension(mx::MTLX_EXTENSION);
-            _textureBaker.bakeAllInputTextures(_textureDimensions, _textureFormat, _searchPath,
-                                               elem, _genContext, udim, filename.getParentPath());
-            _textureBaker.writeDocument(doc, elem, filename);
+            _textureBaker->bakeAllInputTextures(_textureDimensions, _textureFormat, _searchPath,
+                                                elem, _genContext, udim, filename.getParentPath());
+            _textureBaker->writeDocument(doc, elem, filename);
         }
         return true;
     }

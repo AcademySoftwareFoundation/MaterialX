@@ -138,7 +138,7 @@ class Viewer : public ng::Screen
     ng::Vector2i _translationStart;
 
     // TextureBaker information
-    mx::TextureBaker _textureBaker;
+    mx::TextureBakerPtr _textureBaker;
     int _textureDimensions = 1024;
     std::string _textureFormat = ".png";
 

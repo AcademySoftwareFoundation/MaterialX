@@ -35,8 +35,7 @@ class TextureBaker
     }
     ~TextureBaker() { }
 
-    /// Create a TextureBaker instance
-    static TextureBakerPtr createTextureBaker(const string destinationShadingModel)
+    static TextureBakerPtr create()
     {
         return std::make_shared<TextureBaker>();
     }
@@ -52,7 +51,6 @@ class TextureBaker
     void writeDocument(DocumentPtr& origDoc, TypedElementPtr elem, const FilePath& filename);
 
   protected:
-    /// Getters and setters for variables
     void setFileSuffix(const string fileSuffix) { _fileSuffix = fileSuffix; }
     const string getFileSuffix() { return _fileSuffix; }
     void setFrameBufferDim(int frameBufferDim) { _frameBufferDim = frameBufferDim; }
@@ -63,9 +61,6 @@ class TextureBaker
     bool alreadyBaked(const string output) { return _bakedOutputs.count(output) == 0; }
     void recordBakedTexture(const string input, const string outputFile) { _bakedTextures[input] = outputFile; }
     void recordNodegraphInput(const string input, const string type) { _bakedOutputs[input] = type; }
-
-    /// @name Texture Baking Housekeeping
-    /// @{
 
     /// Internal context initialization for texture baking
     void prepareTextureSpace(GenOptions& options, ElementPtr input, const string udim);
