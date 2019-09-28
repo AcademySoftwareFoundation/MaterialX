@@ -527,10 +527,8 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
             if (_bakeTextures)
             {
                 mx::TextureBakerPtr baker = mx::TextureBaker::create();
-                mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
-                const std::string udim = material ? material->getUdim() : "";
-                baker->bakeAllInputTextures(_searchPath, elem, _genContext, udim, filename.getParentPath());
-                baker->writeDocument(doc, elem, filename);
+                baker->bakeAllInputTextures(_searchPath, material->getElement(), _genContext, material->getUdim(), filename.getParentPath());
+                baker->writeDocument(doc, material->getElement(), filename);
             }
             else
             {
@@ -865,7 +863,6 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         for (const auto& renderablePath : renderablePaths)
         {
             mx::ElementPtr elem = doc->getDescendant(renderablePath);
-            elem->setAttribute("ShadingModel", elem->getAttribute("node"));
             mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
             if (!typedElem)
             {
