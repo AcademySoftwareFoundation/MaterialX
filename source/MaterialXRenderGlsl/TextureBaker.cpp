@@ -21,7 +21,7 @@
 namespace MaterialX
 {
 
-void TextureBaker::prepareTextureSpace(GenOptions& options, ElementPtr input, const std::string udim)
+void TextureBaker::setup(GenOptions& options, ElementPtr input, const std::string udim)
 {
     std::string outputStr = input->getAttribute("nodegraph") + "_" + input->getAttribute("output");
     outputStr += (!udim.empty()) ? ("_" + udim) : "";
@@ -58,7 +58,7 @@ void TextureBaker::bakeAllInputTextures(unsigned int frameBufferDim, const strin
             }
             if (_bakedOutputs.count(outputStr) == 0)
             {
-                prepareTextureSpace(context.getOptions(), input, udim);
+                setup(context.getOptions(), input, udim);
                 bakeTextureFromElementInput(elem, context, outputFolder);
                 recordNodegraphInput(outputStr, input->getAttribute("type"));
             }
@@ -67,7 +67,6 @@ void TextureBaker::bakeAllInputTextures(unsigned int frameBufferDim, const strin
     }
     cleanup(context.getOptions());
 }
-
 
 void TextureBaker::bakeTextureFromElementInput(ElementPtr elem, GenContext& context, const FilePath& outputFolder)
 {

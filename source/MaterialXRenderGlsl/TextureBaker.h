@@ -51,39 +51,25 @@ class TextureBaker
     void writeDocument(DocumentPtr& origDoc, TypedElementPtr elem, const FilePath& filename);
 
   protected:
-    void setFileSuffix(const string fileSuffix) { _fileSuffix = fileSuffix; }
-    const string getFileSuffix() { return _fileSuffix; }
-    void setFrameBufferDim(int frameBufferDim) { _frameBufferDim = frameBufferDim; }
-    int getFrameBufferDim() { return _frameBufferDim; }
+    void setup(GenOptions& options, ElementPtr input, const string udim);
+    void cleanup(GenOptions& options);
+
     void setSearchPath(const FileSearchPath searchPath) { _searchPath = searchPath; }
     FileSearchPath getSearchPath() { return _searchPath; }
 
-    bool alreadyBaked(const string output) { return _bakedOutputs.count(output) == 0; }
     void recordBakedTexture(const string input, const string outputFile) { _bakedTextures[input] = outputFile; }
     void recordNodegraphInput(const string input, const string type) { _bakedOutputs[input] = type; }
 
-    /// Internal context initialization for texture baking
-    void prepareTextureSpace(GenOptions& options, ElementPtr input, const string udim);
-    /// Internal context cleanup for texture baking
-    void cleanup(GenOptions& options);
-
-    /// Our rasterizer that will do the rendering
+  protected:
     GlslValidatorPtr _rasterizer;
-    /// Our shader generator
     ShaderGeneratorPtr _generator;
 
-    /// Default file format for baked texture
     string _fileSuffix = ".png";
-
-    /// dimensions for the texture
     unsigned int _frameBufferDim = 512;
 
-    /// Path to look for textures
     FileSearchPath _searchPath;
 
-    /// Map to keep track of textures baked so far
     std::map<string, string> _bakedTextures;
-    /// Map to keep track of shader graph outputs baked so far
     std::map<string, string> _bakedOutputs;
 };
 
