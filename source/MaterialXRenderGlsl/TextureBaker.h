@@ -7,11 +7,9 @@
 #define MATERIALX_TEXTUREBAKER
 
 /// @file
-/// TextureBaker
+/// Texture baking functionality
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
-#include <MaterialXGenShader/Shader.h>
-#include <MaterialXCore/Document.h>
 
 #include <map>
 
@@ -24,8 +22,6 @@ using GlslValidatorPtr = std::shared_ptr<GlslValidator>;
 
 /// A shared pointer to a TextureBaker
 using TextureBakerPtr = shared_ptr<TextureBaker>;
-/// A shared pointer to a const TextureBaker
-using ConstTextureBakerPtr = shared_ptr<const TextureBaker>;
 
 class TextureBaker
 {
@@ -42,7 +38,7 @@ class TextureBaker
 
     /// Saves freshly made images for various outputs to disk
     void bakeAllInputTextures(unsigned int frameBufferDim, const string& fileSuffix, const FileSearchPath& searchPath,
-                              ElementPtr elem, GenContext& context, const string& udim, const FilePath& outputFolder);
+                              ElementPtr elem, GenContext context, const string& udim, const FilePath& outputFolder);
 
     /// Saves freshly made image for specific output to disk
     void bakeTextureFromElementInput(ElementPtr elem, GenContext& context, const FilePath& outputFolder);
@@ -51,8 +47,7 @@ class TextureBaker
     void writeDocument(DocumentPtr& origDoc, TypedElementPtr elem, const FilePath& filename);
 
   protected:
-    void setup(GenOptions& options, ElementPtr input, const string udim);
-    void cleanup(GenOptions& options);
+    void init(GenOptions& options, ElementPtr input, const string udim);
 
     void setSearchPath(const FileSearchPath searchPath) { _searchPath = searchPath; }
     FileSearchPath getSearchPath() { return _searchPath; }

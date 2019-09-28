@@ -5,7 +5,6 @@
 #include <MaterialXView/Material.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/LightHandler.h>
-#include <MaterialXRenderGlsl/TextureBaker.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 namespace mx = MaterialX;
@@ -138,7 +137,6 @@ class Viewer : public ng::Screen
     ng::Vector2i _translationStart;
 
     // TextureBaker information
-    mx::TextureBakerPtr _textureBaker;
     int _textureDimensions = 1024;
     std::string _textureFormat = ".png";
 

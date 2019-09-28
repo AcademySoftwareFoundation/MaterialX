@@ -21,7 +21,7 @@
 namespace MaterialX
 {
 
-void TextureBaker::setup(GenOptions& options, ElementPtr input, const std::string udim)
+void TextureBaker::init(GenOptions& options, ElementPtr input, const std::string udim)
 {
     std::string outputStr = input->getAttribute("nodegraph") + "_" + input->getAttribute("output");
     outputStr += (!udim.empty()) ? ("_" + udim) : "";
@@ -30,17 +30,8 @@ void TextureBaker::setup(GenOptions& options, ElementPtr input, const std::strin
     options.textureSpaceOutput = outputStr;
 }
 
-void TextureBaker::cleanup(GenOptions& options)
-{
-    options.textureSpaceRender = false;
-    options.textureSpaceInput = "";
-    options.textureSpaceInputType = "";
-    options.textureSpaceOutput = "";
-}
-
-
 void TextureBaker::bakeAllInputTextures(unsigned int frameBufferDim, const string& fileSuffix, const FileSearchPath& searchPath,
-                                        ElementPtr elem, GenContext& context, const string& udim, const FilePath& outputFolder)
+                                        ElementPtr elem, GenContext context, const string& udim, const FilePath& outputFolder)
 {
     context.getOptions().textureSpaceRender = true;
     _fileSuffix = fileSuffix;
@@ -58,14 +49,13 @@ void TextureBaker::bakeAllInputTextures(unsigned int frameBufferDim, const strin
             }
             if (_bakedOutputs.count(outputStr) == 0)
             {
-                setup(context.getOptions(), input, udim);
+                init(context.getOptions(), input, udim);
                 bakeTextureFromElementInput(elem, context, outputFolder);
                 recordNodegraphInput(outputStr, input->getAttribute("type"));
             }
             recordBakedTexture(input->getName(), outputStr);
         }
     }
-    cleanup(context.getOptions());
 }
 
 void TextureBaker::bakeTextureFromElementInput(ElementPtr elem, GenContext& context, const FilePath& outputFolder)
@@ -158,8 +148,6 @@ void TextureBaker::writeDocument(DocumentPtr& origDoc, TypedElementPtr elem, con
     XmlWriteOptions writeOptions;
     writeOptions.writeXIncludeEnable = false;
     writeToXmlFile(bakedTextureDoc, filename, &writeOptions);
-    _bakedOutputs.clear();
-    _bakedTextures.clear();
 }
 
 } // namespace MaterialX

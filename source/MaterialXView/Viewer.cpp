@@ -1,11 +1,14 @@
 #include <MaterialXView/Viewer.h>
 
-#include <MaterialXGenShader/DefaultColorManagementSystem.h>
-#include <MaterialXGenShader/Shader.h>
+#include <MaterialXRenderGlsl/TextureBaker.h>
+
 #include <MaterialXRender/OiioImageLoader.h>
 #include <MaterialXRender/StbImageLoader.h>
 #include <MaterialXRender/TinyObjLoader.h>
 #include <MaterialXRender/Util.h>
+
+#include <MaterialXGenShader/DefaultColorManagementSystem.h>
+#include <MaterialXGenShader/Shader.h>
 
 #include <nanogui/button.h>
 #include <nanogui/combobox.h>
@@ -265,9 +268,6 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
 
     // Initialize standard library and color management.
     loadStandardLibraries();
-
-    //Initialize texture baker
-    _textureBaker = mx::TextureBaker::create();
 
     // Generate wireframe material.
     const std::string constantShaderName("__WIRE_SHADER_NAME__");
@@ -1120,9 +1120,10 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         if (!filename.isEmpty())
         {
             filename.setExtension(mx::MTLX_EXTENSION);
-            _textureBaker->bakeAllInputTextures(_textureDimensions, _textureFormat, _searchPath,
-                                                elem, _genContext, udim, filename.getParentPath());
-            _textureBaker->writeDocument(doc, elem, filename);
+            mx::TextureBakerPtr baker = mx::TextureBaker::create();
+            baker->bakeAllInputTextures(_textureDimensions, _textureFormat, _searchPath,
+                                        elem, _genContext, udim, filename.getParentPath());
+            baker->writeDocument(doc, elem, filename);
         }
         return true;
     }
