@@ -122,24 +122,6 @@ class FilePath
         return parent;
     }
 
-    /// Set or replace the file extension of the given path.
-    void setExtension(const string& ext)
-    {
-        if (!isEmpty())
-        {
-            string& baseName = _vec[_vec.size() - 1];
-            size_t i = baseName.rfind('.');
-            if (i == string::npos)
-            {
-                baseName += '.' + ext;
-            }
-            else
-            {
-                baseName = baseName.substr(0, i + 1) + ext;
-            }
-        }
-    }
-
     /// Return the file extension of the given path.
     string getExtension() const
     {

@@ -82,7 +82,7 @@ mx::DocumentPtr loadLibraries(const mx::FilePathVec& libraryFolders, const mx::F
         readOptions.skipConflictingElements = true;
 
         mx::FilePath libraryPath = searchPath.find(libraryFolder);
-        for (const mx::FilePath& filename : libraryPath.getFilesInDirectory("mtlx"))
+        for (const mx::FilePath& filename : libraryPath.getFilesInDirectory(mx::MTLX_EXTENSION))
         {
             mx::DocumentPtr libDoc = mx::createDocument();
             mx::readFromXmlFile(libDoc, libraryPath / filename, mx::FileSearchPath(), &readOptions);
@@ -195,6 +195,7 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
     _genContext(mx::GlslShaderGenerator::create()),
     _splitByUdims(false),
     _mergeMaterials(false),
+    _bakeTextures(false),
     _outlineSelection(false),
     _specularEnvironmentMethod(specularEnvironmentMethod),
     _envSamples(DEFAULT_ENV_SAMPLES),
@@ -511,30 +512,44 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
     materialButton->setCallback([this]()
     {
         mProcessEvents = false;
-        std::string filename = ng::file_dialog({ { "mtlx", "MaterialX" } }, true);
+        MaterialPtr material = getSelectedMaterial();
+        mx::FilePath filename = ng::file_dialog({ { "mtlx", "MaterialX" } }, true);
 
         // Save document
-        if (!filename.empty() && !_materials.empty())
+        if (material && !filename.isEmpty())
         {
-            mx::DocumentPtr doc = _materials.front()->getDocument();
-            // Add element predicate to prune out writing elements from included files
-            auto skipXincludes = [this](mx::ConstElementPtr elem)
+            mx::DocumentPtr doc = material->getDocument();
+            if (filename.getExtension() != mx::MTLX_EXTENSION)
             {
-                if (elem->hasSourceUri())
-                {
-                    return (_xincludeFiles.count(elem->getSourceUri()) == 0);
-                }
-                return true;
-            };
-            mx::XmlWriteOptions writeOptions;
-            writeOptions.writeXIncludeEnable = true;
-            writeOptions.elementPredicate = skipXincludes;
-            mx::writeToXmlFile(doc, filename, &writeOptions);
-        }
+                filename = mx::FilePath(filename.asString() + "." + mx::MTLX_EXTENSION);
+            }
 
-        // Update material file name
-        if (!filename.empty() && _materialFilename != filename)
-        {
+            if (_bakeTextures)
+            {
+                mx::TextureBakerPtr baker = mx::TextureBaker::create();
+                mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
+                const std::string udim = material ? material->getUdim() : "";
+                baker->bakeAllInputTextures(_searchPath, elem, _genContext, udim, filename.getParentPath());
+                baker->writeDocument(doc, elem, filename);
+            }
+            else
+            {
+                // Add element predicate to prune out writing elements from included files
+                auto skipXincludes = [this](mx::ConstElementPtr elem)
+                {
+                    if (elem->hasSourceUri())
+                    {
+                        return (_xincludeFiles.count(elem->getSourceUri()) == 0);
+                    }
+                    return true;
+                };
+                mx::XmlWriteOptions writeOptions;
+                writeOptions.writeXIncludeEnable = true;
+                writeOptions.elementPredicate = skipXincludes;
+                mx::writeToXmlFile(doc, filename, &writeOptions);
+            }
+
+            // Update material file name
             _materialFilename = filename;
         }
         mProcessEvents = true;
@@ -576,6 +591,13 @@ void Viewer::createAdvancedSettings(Widget* parent)
     mergeMaterialsBox->setCallback([this](bool enable)
     {
         _mergeMaterials = enable;
+    });    
+
+    ng::CheckBox* bakeTexturesBox = new ng::CheckBox(advancedPopup, "Bake Textures");
+    bakeTexturesBox->setChecked(_bakeTextures);
+    bakeTexturesBox->setCallback([this](bool enable)
+    {
+        _bakeTextures = enable;
     });    
 
     new ng::Label(advancedPopup, "Lighting Options");
@@ -843,7 +865,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         for (const auto& renderablePath : renderablePaths)
         {
             mx::ElementPtr elem = doc->getDescendant(renderablePath);
-            elem->setAttribute("Shading model", elem->getAttribute("node"));
+            elem->setAttribute("ShadingModel", elem->getAttribute("node"));
             mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
             if (!typedElem)
             {
@@ -1075,6 +1097,10 @@ void Viewer::loadStandardLibraries()
 {
     // Initialize standard library and color management.
     _stdLib = loadLibraries(_libraryFolders, _searchPath);
+    for (std::string sourceUri : _stdLib->getReferencedSourceUris())
+    {
+        _xincludeFiles.insert(sourceUri);
+    }
     mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(_genContext.getShaderGenerator().getLanguage());
     cms->loadLibrary(_stdLib);
     _genContext.registerSourceCodeSearchPath(_searchPath);
@@ -1106,24 +1132,6 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         mx::FilePath filename = doc ? mx::FilePath(doc->getSourceUri()) : _materialFilename;
         loadStandardLibraries();
         loadDocument(filename, _stdLib);
-        return true;
-    }
-
-    // Bake textures for the current material and generate a new document.
-    if (key == GLFW_KEY_B && action == GLFW_PRESS)
-    {
-        MaterialPtr material = getSelectedMaterial();
-        mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
-        mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
-        const std::string udim = material ? material->getUdim() : "";
-        mx::FilePath filename = ng::file_dialog({ { mx::MTLX_EXTENSION, "MaterialX" } }, true);
-        if (!filename.isEmpty())
-        {
-            filename.setExtension(mx::MTLX_EXTENSION);
-            mx::TextureBakerPtr baker = mx::TextureBaker::create();
-            baker->bakeAllInputTextures(_searchPath, elem, _genContext, udim, filename.getParentPath());
-            baker->writeDocument(doc, elem, filename);
-        }
         return true;
     }
 

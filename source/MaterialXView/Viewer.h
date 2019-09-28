@@ -188,6 +188,7 @@ class Viewer : public ng::Screen
 
     // Material options
     bool _mergeMaterials;
+    bool _bakeTextures;
 
     // Render options
     bool _outlineSelection;

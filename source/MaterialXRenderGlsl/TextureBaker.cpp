@@ -122,7 +122,7 @@ void TextureBaker::writeDocument(DocumentPtr& origDoc, TypedElementPtr elem, con
 
     // create translated mat & shaderref
     MaterialPtr baked_mat = bakedTextureDoc->addMaterial("baked_material");
-    ShaderRefPtr shaderRef = baked_mat->addShaderRef("" + elem->getName() + "_baked", elem->getAttribute("Shading model"));
+    ShaderRefPtr shaderRef = baked_mat->addShaderRef("" + elem->getName() + "_baked", elem->getAttribute("ShadingModel"));
 
     // fill in doc contents
     for (ElementPtr input : elem->getChildren())
