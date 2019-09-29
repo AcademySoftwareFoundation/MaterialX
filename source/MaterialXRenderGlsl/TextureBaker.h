@@ -13,8 +13,6 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
-#include <map>
-
 namespace MaterialX
 {
 

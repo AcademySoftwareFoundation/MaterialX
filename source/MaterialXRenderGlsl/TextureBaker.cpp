@@ -10,11 +10,6 @@
 
 #include <MaterialXRender/LightHandler.h>
 #include <MaterialXRender/StbImageLoader.h>
-#include <MaterialXRender/Util.h>
-
-#include <MaterialXGenShader/DefaultColorManagementSystem.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
-#include <MaterialXGenShader/Util.h>
 
 #include <MaterialXFormat/XmlIo.h>
 
