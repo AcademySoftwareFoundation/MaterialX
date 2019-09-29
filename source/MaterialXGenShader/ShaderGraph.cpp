@@ -822,20 +822,6 @@ void ShaderGraph::disconnect(ShaderNode* node) const
     }
 }
 
-ShaderOutput* ShaderGraph::rewireNormals(ShaderOutput* upstreamOutput, ShaderGraphOutputSocket*& outputSocket)
-{
-    if (upstreamOutput)
-    {
-        ShaderNode* normalmapNode = upstreamOutput->getSelf()->getNode();
-        if (outputSocket->getName() == "normal" && normalmapNode->getImplementation().getName().find("normalmap") != std::string::npos)
-        {
-            outputSocket->breakConnection();
-            outputSocket->makeConnection(normalmapNode->getInput("in")->getConnection());
-        }
-    }
-    return outputSocket->getConnection();
-}
-
 void ShaderGraph::optimize(GenContext& context)
 {
     size_t numEdits = 0;
@@ -899,11 +885,6 @@ void ShaderGraph::optimize(GenContext& context)
         for (ShaderGraphOutputSocket* outputSocket : getOutputSockets())
         {
             ShaderOutput* upstreamOutput = outputSocket->getConnection();
-            if (context.getOptions().textureSpaceRender)
-            {
-                upstreamOutput = rewireNormals(upstreamOutput, outputSocket);
-            }
-
             if (upstreamOutput)
             {
                 for (ShaderGraphEdge edge : ShaderGraph::traverseUpstream(outputSocket->getConnection()))

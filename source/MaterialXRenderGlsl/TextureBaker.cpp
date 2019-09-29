@@ -61,7 +61,7 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
 
     bool writeSrgb = output->getType() == "color3" || output->getType() == "color4";
     _rasterizer->validateCreation(shader);
-    _rasterizer->renderScreenSpaceQuad(context, writeSrgb);
+    _rasterizer->renderScreenSpaceQuad(writeSrgb);
 
     FilePath filename = outputFolder / FilePath(outputName + "_baked." + _fileSuffix);
     _rasterizer->save(filename, false);

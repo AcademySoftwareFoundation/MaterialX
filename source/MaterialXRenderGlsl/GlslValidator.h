@@ -77,10 +77,8 @@ class GlslValidator : public ShaderValidator
     /// @name Texture Baking
     /// @{
 
-    /// Render output as a texture to screenspace quad to an 
-    /// offscreen hardware buffer 
-    /// @param context Context for the shader
-    void renderScreenSpaceQuad(GenContext& context, bool writeSrgb);
+    /// Render output as a texture to screenspace quad to an offscreen buffer.
+    void renderScreenSpaceQuad(bool writeSrgb);
 
     /// @}
     /// @name Utilities

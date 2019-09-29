@@ -315,7 +315,7 @@ void GlslValidator::validateCreation(const StageMap& stages)
     _program->build();
 }
 
-void GlslValidator::renderScreenSpaceQuad(GenContext& context, bool writeSrgb)
+void GlslValidator::renderScreenSpaceQuad(bool writeSrgb)
 {
     bindTarget(true);
     if (writeSrgb)
