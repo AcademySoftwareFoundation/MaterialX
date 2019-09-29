@@ -40,35 +40,26 @@ class TextureBaker
         return std::make_shared<TextureBaker>();
     }
 
-    /// Saves freshly made images for various outputs to disk
-    void bakeAllInputTextures(const FileSearchPath& searchPath, ElementPtr elem, GenContext context, const string& udim, const FilePath& outputFolder);
+    /// Bake textures for all graph inputs of the given shader reference.
+    void bakeShaderInputs(ShaderRefPtr shaderRef, const FileSearchPath& searchPath, GenContext context, const FilePath& outputFolder);
 
-    /// Saves freshly made image for specific output to disk
-    void bakeTextureFromElementInput(ElementPtr elem, GenContext& context, const FilePath& outputFolder);
+    /// Bake a texture for the given graph output.
+    void bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& outputFolder);
 
     /// Write out a document with baked images.
-    void writeDocument(DocumentPtr& origDoc, TypedElementPtr elem, const FilePath& filename);
+    void writeBakedDocument(ShaderRefPtr shaderRef, const FilePath& filename);
 
   protected:
-    void init(GenOptions& options, ElementPtr input, const string udim);
-
     void setSearchPath(const FileSearchPath searchPath) { _searchPath = searchPath; }
     FileSearchPath getSearchPath() { return _searchPath; }
-
-    void recordBakedTexture(const string input, const string outputFile) { _bakedTextures[input] = outputFile; }
-    void recordNodegraphInput(const string input, const string type) { _bakedOutputs[input] = type; }
 
   protected:
     GlslValidatorPtr _rasterizer;
     ShaderGeneratorPtr _generator;
+    FileSearchPath _searchPath;
 
     unsigned int _frameBufferRes;
     string _fileSuffix;
-
-    FileSearchPath _searchPath;
-
-    std::map<string, string> _bakedTextures;
-    std::map<string, string> _bakedOutputs;
 };
 
 } // namespace MaterialX

@@ -15,10 +15,7 @@ GenOptions::GenOptions() :
     hwSpecularEnvironmentMethod(SPECULAR_ENVIRONMENT_FIS),
     hwMaxActiveLightSources(3),
     hwNormalizeUdimTexCoords(false),
-    textureSpaceRender(false),
-    textureSpaceInput(""),
-    textureSpaceInputType(""),
-    textureSpaceOutput("")
+    textureSpaceRender(false)
 {
 }
 GenOptions::~GenOptions()

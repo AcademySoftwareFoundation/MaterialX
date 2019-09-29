@@ -315,11 +315,17 @@ void GlslValidator::validateCreation(const StageMap& stages)
     _program->build();
 }
 
-void GlslValidator::renderScreenSpaceQuad(GenContext& context)
+void GlslValidator::renderScreenSpaceQuad(GenContext& context, bool writeSrgb)
 {
     bindTarget(true);
-    _type = context.getOptions().textureSpaceInputType;
-    (_type == "color3" || _type == "color4")? glEnable(GL_FRAMEBUFFER_SRGB) : glDisable(GL_FRAMEBUFFER_SRGB);
+    if (writeSrgb)
+    {
+        glEnable(GL_FRAMEBUFFER_SRGB);
+    }
+    else
+    {
+        glDisable(GL_FRAMEBUFFER_SRGB);
+    }
     glViewport(0, 0, _frameBufferWidth, _frameBufferHeight);
 
     _program->bind();

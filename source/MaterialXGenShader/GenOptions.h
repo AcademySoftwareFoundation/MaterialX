@@ -94,11 +94,8 @@ class GenOptions
     /// hardware rendering.
     bool hwNormalizeUdimTexCoords;
 
-    /// Variables for texture space renderings
+    /// Enable texture-space rendering for the given element.
     bool textureSpaceRender;
-    std::string textureSpaceInput;
-    std::string textureSpaceInputType;
-    std::string textureSpaceOutput;
 };
 
 } // namespace MaterialX

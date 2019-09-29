@@ -524,11 +524,12 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
                 filename = mx::FilePath(filename.asString() + "." + mx::MTLX_EXTENSION);
             }
 
-            if (_bakeTextures)
+            mx::ShaderRefPtr shaderRef = material->getElement()->asA<mx::ShaderRef>();
+            if (_bakeTextures && shaderRef)
             {
                 mx::TextureBakerPtr baker = mx::TextureBaker::create();
-                baker->bakeAllInputTextures(_searchPath, material->getElement(), _genContext, material->getUdim(), filename.getParentPath());
-                baker->writeDocument(doc, material->getElement(), filename);
+                baker->bakeShaderInputs(shaderRef, _searchPath, _genContext, filename.getParentPath());
+                baker->writeBakedDocument(shaderRef, filename);
             }
             else
             {

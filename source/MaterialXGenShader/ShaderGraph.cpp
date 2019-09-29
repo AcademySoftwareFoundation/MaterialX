@@ -518,12 +518,6 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                 }
                 inputSocket->setPath(bindInput->getNamePath());
                 input->setPath(inputSocket->getPath());
-
-                if (context.getOptions().textureSpaceRender && input->getName() == context.getOptions().textureSpaceInput)
-                {
-                    ShaderGraphOutputSocket* outputSocket = graph->addOutputSocket(input->getName(), TypeDesc::get(bindInput->getType()));
-                    outputSocket->setPath(input->getPath());
-                }
             }
 
             // If no explicit connection, connect to geometric node if a geomprop is used
