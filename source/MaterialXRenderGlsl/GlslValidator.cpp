@@ -7,8 +7,6 @@
 #include <MaterialXRenderGlsl/GlslValidator.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/TinyObjLoader.h>
-#include <MaterialXRender/ImageHandler.h>
-#include <MaterialXRender/StbImageLoader.h>
 
 #include <iostream>
 
@@ -454,7 +452,7 @@ void GlslValidator::validateRender()
     bindTarget(true);
 
     glEnable(GL_DEPTH_TEST);
-    (_type == "color3")? glEnable(GL_FRAMEBUFFER_SRGB) : glDisable(GL_FRAMEBUFFER_SRGB);
+    glEnable(GL_FRAMEBUFFER_SRGB);
     glDepthFunc(GL_LESS);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
