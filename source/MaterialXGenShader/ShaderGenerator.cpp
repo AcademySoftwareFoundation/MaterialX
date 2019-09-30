@@ -141,7 +141,7 @@ void ShaderGenerator::emitTypeDefinitions(GenContext&, ShaderStage& stage) const
 
 void ShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, 
                                               GenContext&, ShaderStage& stage,
-                                              bool assignValue, unsigned int) const
+                                              bool assignValue) const
 {
     string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
     str += _syntax->getTypeName(variable->getType()) + " " + variable->getVariable();
@@ -170,7 +170,7 @@ void ShaderGenerator::emitVariableDeclarations(const VariableBlock& block, const
     for (size_t i=0; i<block.size(); ++i)
     {
         emitLineBegin(stage);
-        emitVariableDeclaration(block[i], qualifier, context, stage, assignValue, (unsigned int) i);
+        emitVariableDeclaration(block[i], qualifier, context, stage, assignValue);
         emitString(separator, stage);
         emitLineEnd(stage, false);
     }

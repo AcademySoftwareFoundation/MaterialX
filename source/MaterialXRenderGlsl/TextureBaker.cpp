@@ -16,14 +16,13 @@
 namespace MaterialX
 {
 
-void TextureBaker::bakeShaderInputs(ShaderRefPtr shaderRef, const FileSearchPath& searchPath, GenContext context, const FilePath& outputFolder)
+void TextureBaker::bakeShaderInputs(ShaderRefPtr shaderRef, const FileSearchPath& searchPath, GenContext& context, const FilePath& outputFolder)
 {
     if (!shaderRef)
     {
         return;
     }
 
-    context.getOptions().textureSpaceRender = true;
     _searchPath = searchPath;
     for (BindInputPtr bindInput : shaderRef->getBindInputs())
     {

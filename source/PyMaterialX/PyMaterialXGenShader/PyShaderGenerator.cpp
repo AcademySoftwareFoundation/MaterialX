@@ -265,7 +265,7 @@ class PyShaderGenerator : public mx::ShaderGenerator
         );
     }
 
-    void emitVariableDeclaration(const mx::ShaderPort* variable, const std::string& qualifier, mx::GenContext& context, mx::ShaderStage& stage, bool assignValue, unsigned int index) const override
+    void emitVariableDeclaration(const mx::ShaderPort* variable, const std::string& qualifier, mx::GenContext& context, mx::ShaderStage& stage, bool assignValue) const override
     {
         PYBIND11_OVERLOAD(
             void,
@@ -275,8 +275,7 @@ class PyShaderGenerator : public mx::ShaderGenerator
             qualifier,
             context,
             stage,
-            assignValue,
-            index
+            assignValue
         );
     }
 

@@ -39,7 +39,7 @@ class TextureBaker
     }
 
     /// Bake textures for all graph inputs of the given shader reference.
-    void bakeShaderInputs(ShaderRefPtr shaderRef, const FileSearchPath& searchPath, GenContext context, const FilePath& outputFolder);
+    void bakeShaderInputs(ShaderRefPtr shaderRef, const FileSearchPath& searchPath, GenContext& context, const FilePath& outputFolder);
 
     /// Bake a texture for the given graph output.
     void bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& outputFolder);

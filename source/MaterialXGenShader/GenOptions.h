@@ -93,9 +93,6 @@ class GenOptions
     /// compress a set of UDIMs into a single normalized image for
     /// hardware rendering.
     bool hwNormalizeUdimTexCoords;
-
-    /// Enable texture-space rendering for the given element.
-    bool textureSpaceRender;
 };
 
 } // namespace MaterialX
