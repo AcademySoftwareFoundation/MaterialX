@@ -50,7 +50,7 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
 
     _generator = GlslShaderGenerator::create();
 
-    const std::string outputName = createValidName(output->getNamePath());
+    string outputName = createValidName(output->getNamePath());
     ShaderPtr shader = _generator->generate(outputName + "_baker", output, context);
 
     bool writeSrgb = output->getType() == "color3" || output->getType() == "color4";
@@ -84,7 +84,7 @@ void TextureBaker::writeBakedDocument(ShaderRefPtr shaderRef, const FilePath& fi
         if (bindInput && bindInput->getConnectedOutput())
         {
             OutputPtr output = bindInput->getConnectedOutput();
-            const std::string outputName = createValidName(output->getNamePath());
+            string outputName = createValidName(output->getNamePath());
 
             // Create the baked bind input.
             BindInputPtr bakedBindInput = bakedShaderRef->addBindInput(bindInput->getName(), bindInput->getType());
