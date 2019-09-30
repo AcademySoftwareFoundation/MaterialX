@@ -14,7 +14,6 @@
 #include <MaterialXRenderHw/SimpleWindow.h>
 #include <MaterialXRenderGlsl/GLUtilityContext.h>
 #include <MaterialXRenderGlsl/GlslProgram.h>
-#include <MaterialXGenShader/GenContext.h>
 
 namespace MaterialX
 {
@@ -159,9 +158,6 @@ class GlslValidator : public ShaderValidator
 
     /// Flag to indicate if validator has been initialized properly.
     bool _initialized;
-
-    /// Data type being rendered out to texture
-    std::string _type = "color3";
 
     /// Dummy window for OpenGL usage.
     SimpleWindowPtr _window;
