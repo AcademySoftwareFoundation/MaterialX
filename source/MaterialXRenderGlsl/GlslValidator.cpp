@@ -328,7 +328,6 @@ void GlslValidator::renderScreenSpaceQuad(bool writeSrgb)
 
     _program->bind();
 
-    // load and generate the texture
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
