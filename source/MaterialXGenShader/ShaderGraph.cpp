@@ -864,8 +864,7 @@ void ShaderGraph::optimize(GenContext& context)
         // Traverse the graph to find nodes still in use
         for (ShaderGraphOutputSocket* outputSocket : getOutputSockets())
         {
-            ShaderOutput* upstreamOutput = outputSocket->getConnection();
-            if (upstreamOutput)
+            if (outputSocket->getConnection())
             {
                 for (ShaderGraphEdge edge : ShaderGraph::traverseUpstream(outputSocket->getConnection()))
                 {
