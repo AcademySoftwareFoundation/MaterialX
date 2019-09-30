@@ -634,7 +634,7 @@ void GlslShaderGenerator::toVec4(const TypeDesc* type, string& variable)
 }
 
 void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, 
-                                                  GenContext& context, ShaderStage& stage,
+                                                  GenContext&, ShaderStage& stage,
                                                   bool assignValue) const
 {
     // A file texture input needs special handling on GLSL
@@ -645,8 +645,7 @@ void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
     }
     else
     {
-        string str = "";
-        str += qualifier.empty() ? EMPTY_STRING : qualifier + " ";
+        string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
         str += _syntax->getTypeName(variable->getType()) + " " + variable->getVariable();
 
         // If an array we need an array qualifier (suffix) for the variable name
