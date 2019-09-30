@@ -338,16 +338,18 @@ void GlslValidator::renderScreenSpaceQuad(bool writeSrgb)
     _program->bindTextures(_imageHandler);
 
     glBindVertexArray(VAO);
-    float vertices[] = {
-        // positions          // texture coords
-         1.f,  1.f, 0.0f,   1.0f, 1.0f,   // top right
-         1.f, -1.f, 0.0f,   1.0f, 0.0f,   // bottom right
-        -1.f, -1.f, 0.0f,   0.0f, 0.0f,   // bottom left
-        -1.f,  1.f, 0.0f,   0.0f, 1.0f    // top left 
+    float vertices[] =
+    {
+         // positions       // texcoords
+         1.f,  1.f, 0.0f,   1.0f, 1.0f,
+         1.f, -1.f, 0.0f,   1.0f, 0.0f,
+        -1.f, -1.f, 0.0f,   0.0f, 0.0f,
+        -1.f,  1.f, 0.0f,   0.0f, 1.0f
     };
-    unsigned int indices[] = {
-                                0, 1, 3,   // first triangle
-                                1, 2, 3    // second triangle
+    unsigned int indices[] =
+    {
+        0, 1, 3,   // first triangle
+        1, 2, 3    // second triangle
     };
     
     unsigned int VBO;
@@ -369,13 +371,7 @@ void GlslValidator::renderScreenSpaceQuad(bool writeSrgb)
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     bindTarget(false);
     checkErrors();
-    // Update viewing information
-    const Vector3 eye(0.0f, 0.0f, 4.0f);
-    const Vector3 center;
-    const Vector3 up(0.0f, 1.0f, 0.0f);
-    float objectScale(1.0f);
-    updateViewInformation(eye, center, up, FOV_PERSP, NEAR_PLANE_PERSP, FAR_PLANE_PERSP, objectScale);
-    _program->bindInputs(_viewHandler, _geometryHandler, _imageHandler, _lightHandler);
+
     _program->unbind();
     _program->unbindInputs(_imageHandler);
     _program->unbindTextures(_imageHandler);
@@ -590,4 +586,4 @@ void GlslValidator::checkErrors()
     }
 }
 
-}
+} // namespace MaterialX
