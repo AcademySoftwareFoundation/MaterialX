@@ -143,19 +143,8 @@ void ShaderGraph::addUpstreamDependencies(const Element& root, ConstMaterialPtr 
             ShaderInput* input = rootNode->getInput(connectingElement->getName());
             if (input)
             {
-                if (context.getOptions().textureSpaceRender)
-                {
-                    ShaderGraphOutputSocket* outputSocket = getOutputSocket(connectingElement->getName());
-                    if (outputSocket)
-                    {
-                        outputSocket->makeConnection(output);
-                    }
-                }
-                else
-                {
-                    input->breakConnection();
-                    input->makeConnection(output);
-                }
+                input->breakConnection();
+                input->makeConnection(output);
             }
         }
         else
@@ -345,10 +334,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& n
     graph->addInputSockets(*nodeDef, context);
 
     // Create output sockets from the nodegraph
-    if (!context.getOptions().textureSpaceRender)
-    {
-        graph->addOutputSockets(nodeGraph);
-    }
+    graph->addOutputSockets(nodeGraph);
 
     // Traverse all outputs and create all upstream dependencies
     for (OutputPtr graphOutput : nodeGraph.getActiveOutputs())
@@ -438,10 +424,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         graph->addInputSockets(*nodeDef, context);
 
         // Create output sockets
-        if (!context.getOptions().textureSpaceRender)
-        {
-            graph->addOutputSockets(*nodeDef);
-        }
+        graph->addOutputSockets(*nodeDef);
 
         // Create this shader node in the graph.
         const string& newNodeName = shaderRef->getName();
@@ -450,12 +433,9 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         graph->_nodeOrder.push_back(newNode.get());
 
         // Connect it to the graph output
-        if (!context.getOptions().textureSpaceRender)
-        {
-            ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
-            outputSocket->makeConnection(newNode->getOutput());
-            outputSocket->setPath(shaderRef->getNamePath());
-        }
+        ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
+        outputSocket->makeConnection(newNode->getOutput());
+        outputSocket->setPath(shaderRef->getNamePath());
 
         // Handle node parameters
         for (ParameterPtr elem : nodeDef->getActiveParameters())
@@ -794,7 +774,7 @@ void ShaderGraph::finalize(GenContext& context)
     //       texture nodes are reached.
     for (ShaderNode* node : _nodeOrder)
     {
-        if (node->hasClassification(ShaderNode::Classification::SHADER) || context.getOptions().textureSpaceRender)
+        if (node->hasClassification(ShaderNode::Classification::SHADER))
         {
             for (ShaderGraphEdge edge : ShaderGraph::traverseUpstream(node->getOutput()))
             {
@@ -877,7 +857,7 @@ void ShaderGraph::optimize(GenContext& context)
         }
     }
 
-    if (numEdits > 0 || context.getOptions().textureSpaceRender)
+    if (numEdits > 0)
     {
         std::set<ShaderNode*> usedNodes;
 
