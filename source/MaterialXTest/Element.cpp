@@ -31,6 +31,10 @@ TEST_CASE("Element", "[element]")
     REQUIRE(elem2->getActiveColorSpace() == doc->getColorSpace());
     elem2->setColorSpace("srgb_texture");
     REQUIRE(elem2->getActiveColorSpace() == elem2->getColorSpace());
+    REQUIRE(elem2->getActiveColorSpace(false) == doc->getColorSpace());
+    mx::ElementPtr elem3 = elem2->addChildOfCategory("generic");
+    elem3->setColorSpace("acescg");
+    REQUIRE(elem3->getActiveColorSpace(false) == doc->getColorSpace());
 
     // Set typed attributes.
     REQUIRE(elem1->getTypedAttribute<bool>("customFlag") == false);

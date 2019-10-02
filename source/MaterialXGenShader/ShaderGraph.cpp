@@ -437,6 +437,14 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         outputSocket->makeConnection(newNode->getOutput());
         outputSocket->setPath(shaderRef->getNamePath());
 
+        string targetColorSpace;
+        ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
+        if (colorManagementSystem)
+        {
+            targetColorSpace = context.getOptions().targetColorSpaceOverride.empty() ?
+                element->getDocument()->getColorSpace() : context.getOptions().targetColorSpaceOverride;
+        }
+
         // Handle node parameters
         for (ParameterPtr elem : nodeDef->getActiveParameters())
         {
@@ -457,9 +465,6 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     inputSocket->setValue(bindParamValue);
 
                     input->setBindInput();
-                    ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
-                    const string& targetColorSpace = context.getOptions().targetColorSpaceOverride.empty() ?
-                        element->getDocument()->getActiveColorSpace() : context.getOptions().targetColorSpaceOverride;
                     graph->populateInputColorTransformMap(colorManagementSystem, graph->_nodeMap[newNodeName], bindParam, targetColorSpace);
                 }
                 inputSocket->setPath(bindParam->getNamePath());
@@ -491,9 +496,6 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     inputSocket->setValue(bindInputValue);
 
                     input->setBindInput();
-                    ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
-                    const string& targetColorSpace = context.getOptions().targetColorSpaceOverride.empty() ?
-                        element->getDocument()->getActiveColorSpace() : context.getOptions().targetColorSpaceOverride;
                     graph->populateInputColorTransformMap(colorManagementSystem, graph->_nodeMap[newNodeName], bindInput, targetColorSpace);
                 }
                 inputSocket->setPath(bindInput->getNamePath());
@@ -632,9 +634,13 @@ ShaderNode* ShaderGraph::addNode(const Node& node, GenContext& context)
         }
     }
 
+    string targetColorSpace;
     ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
-    const string& targetColorSpace = context.getOptions().targetColorSpaceOverride.empty() ?
-        _document->getActiveColorSpace() : context.getOptions().targetColorSpaceOverride;
+    if (colorManagementSystem)
+    {
+        targetColorSpace = context.getOptions().targetColorSpaceOverride.empty() ?
+            _document->getActiveColorSpace() : context.getOptions().targetColorSpaceOverride;
+    }
 
     if (colorManagementSystem && !targetColorSpace.empty())
     {
@@ -1107,14 +1113,26 @@ void ShaderGraph::setVariableNames(GenContext& context)
     }
 }
 
-void ShaderGraph::populateInputColorTransformMap(ColorManagementSystemPtr colorManagementSystem, ShaderNodePtr shaderNode, ValueElementPtr input, const string& targetColorSpace)
+void ShaderGraph::populateInputColorTransformMap(ColorManagementSystemPtr colorManagementSystem, ShaderNodePtr shaderNode, ValueElementPtr input, const string& globalTargetColorSpace)
 {
+    if (!colorManagementSystem)
+    {
+        return;
+    }
+
     ShaderInput* shaderInput = shaderNode->getInput(input->getName());
     const string& sourceColorSpace = input->getActiveColorSpace();
     if (shaderInput && !sourceColorSpace.empty())
     {
         if(shaderInput->getType() == Type::COLOR3 || shaderInput->getType() == Type::COLOR4)
         {
+            // Findest ancestor closest to the root global target color space is empty
+            string targetColorSpace = globalTargetColorSpace;
+            if (targetColorSpace.empty())
+            {
+                targetColorSpace = input->getActiveColorSpace(false);
+            }
+
             // If we're converting between two identical color spaces than we have no work to do.
             if (sourceColorSpace != targetColorSpace)
             {
