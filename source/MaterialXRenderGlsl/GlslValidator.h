@@ -39,7 +39,7 @@ class GlslValidator : public ShaderValidator
 {
   public:
     /// Create a GLSL validator instance
-    static GlslValidatorPtr create();
+    static GlslValidatorPtr create(unsigned int res = 512);
 
     /// Destructor
     virtual ~GlslValidator();
@@ -47,7 +47,7 @@ class GlslValidator : public ShaderValidator
     /// @name Setup
     /// @{
 
-    /// Internal initialization of stages and OpenGL contstructs
+    /// Internal initialization of stages and OpenGL constructs
     /// required for program validation and rendering.
     /// An exception is thrown on failure.
     /// The exception will contain a list of initialization errors.
@@ -73,6 +73,15 @@ class GlslValidator : public ShaderValidator
     void validateRender() override;
 
     /// @}
+    /// @name Texture Baking
+    /// @{
+
+    /// Render the current program in texture space to our off-screen buffer.
+    /// @param encodeSrgb If true, then the off-screen buffer will be encoded
+    ///    as sRGB; otherwise, no encoding is performed.
+    void renderTextureSpace(bool encodeSrgb);
+
+    /// @}
     /// @name Utilities
     /// @{
 
@@ -91,7 +100,7 @@ class GlslValidator : public ShaderValidator
 
   protected:
     /// Constructor
-    GlslValidator();
+    GlslValidator(unsigned int res = 512);
 
     /// Internal cleanup of stages and OpenGL constructs
     void cleanup();
