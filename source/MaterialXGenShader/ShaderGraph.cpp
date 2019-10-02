@@ -861,7 +861,7 @@ void ShaderGraph::optimize(GenContext& context)
     {
         std::set<ShaderNode*> usedNodes;
 
-        // Travers the graph to find nodes still in use
+        // Traverse the graph to find nodes still in use
         for (ShaderGraphOutputSocket* outputSocket : getOutputSockets())
         {
             if (outputSocket->getConnection())
