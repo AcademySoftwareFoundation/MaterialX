@@ -26,11 +26,7 @@ using TextureBakerPtr = shared_ptr<TextureBaker>;
 class TextureBaker
 {
   public:
-    TextureBaker() :
-        _frameBufferRes(1024),
-        _fileSuffix(ImageLoader::PNG_EXTENSION)
-    {
-    }
+    TextureBaker(unsigned int res = 1024);
     ~TextureBaker() { }
 
     static TextureBakerPtr create()
@@ -55,8 +51,6 @@ class TextureBaker
     GlslValidatorPtr _rasterizer;
     ShaderGeneratorPtr _generator;
     FileSearchPath _searchPath;
-
-    unsigned int _frameBufferRes;
     string _fileSuffix;
 };
 

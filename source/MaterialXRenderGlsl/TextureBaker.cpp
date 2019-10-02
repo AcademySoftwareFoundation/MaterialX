@@ -16,6 +16,13 @@
 namespace MaterialX
 {
 
+TextureBaker::TextureBaker(unsigned int res) :
+    _fileSuffix(ImageLoader::PNG_EXTENSION)
+{
+    _rasterizer = GlslValidator::create(res);
+    _rasterizer->initialize();
+}
+
 void TextureBaker::bakeShaderInputs(ShaderRefPtr shaderRef, const FileSearchPath& searchPath, GenContext& context, const FilePath& outputFolder)
 {
     if (!shaderRef)
@@ -41,21 +48,21 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
         return;
     }
 
-    _rasterizer = GlslValidator::create(_frameBufferRes);
-    StbImageLoaderPtr stbLoader = StbImageLoader::create();
-    GLTextureHandlerPtr imageHandler = GLTextureHandler::create(stbLoader);
+    GLTextureHandlerPtr imageHandler = GLTextureHandler::create(StbImageLoader::create());
     imageHandler->setSearchPath(_searchPath);
     _rasterizer->setImageHandler(imageHandler);
-    _rasterizer->initialize();
 
     _generator = GlslShaderGenerator::create();
 
     string outputName = createValidName(output->getNamePath());
     ShaderPtr shader = _generator->generate(outputName + "_baker", output, context);
 
-    bool writeSrgb = output->getType() == "color3" || output->getType() == "color4";
+    bool encodeSrgb = output->getType() == "color3" || output->getType() == "color4";
     _rasterizer->validateCreation(shader);
-    _rasterizer->renderScreenSpaceQuad(writeSrgb);
+    _rasterizer->renderTextureSpace(encodeSrgb);
+
+    // TODO: Add support for graphs containing geometric nodes such as position and normal.
+    //       Currently, the only supported geometric node is texcoord.
 
     FilePath filename = outputFolder / FilePath(outputName + "_baked." + _fileSuffix);
     _rasterizer->save(filename, false);

@@ -47,7 +47,7 @@ class GlslValidator : public ShaderValidator
     /// @name Setup
     /// @{
 
-    /// Internal initialization of stages and OpenGL contstructs
+    /// Internal initialization of stages and OpenGL constructs
     /// required for program validation and rendering.
     /// An exception is thrown on failure.
     /// The exception will contain a list of initialization errors.
@@ -76,8 +76,10 @@ class GlslValidator : public ShaderValidator
     /// @name Texture Baking
     /// @{
 
-    /// Render output as a texture to screenspace quad to an offscreen buffer.
-    void renderScreenSpaceQuad(bool writeSrgb);
+    /// Render the current program in texture space to our off-screen buffer.
+    /// @param encodeSrgb If true, then the off-screen buffer will be encoded
+    ///    as sRGB; otherwise, no encoding is performed.
+    void renderTextureSpace(bool encodeSrgb);
 
     /// @}
     /// @name Utilities

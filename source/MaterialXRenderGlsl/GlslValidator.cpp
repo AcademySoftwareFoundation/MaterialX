@@ -313,10 +313,10 @@ void GlslValidator::validateCreation(const StageMap& stages)
     _program->build();
 }
 
-void GlslValidator::renderScreenSpaceQuad(bool writeSrgb)
+void GlslValidator::renderTextureSpace(bool encodeSrgb)
 {
     bindTarget(true);
-    if (writeSrgb)
+    if (encodeSrgb)
     {
         glEnable(GL_FRAMEBUFFER_SRGB);
     }
