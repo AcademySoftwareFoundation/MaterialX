@@ -14,7 +14,7 @@ addons:
       - libxi-dev
       - libx11-dev
       - g++-6
-      - g++-8
+      - g++-9
       - clang-8
 
 matrix:
@@ -47,7 +47,7 @@ matrix:
       env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
     - os: linux
       compiler: gcc
-      env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+      env: MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
     - os: linux
       compiler: clang
       env: MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"

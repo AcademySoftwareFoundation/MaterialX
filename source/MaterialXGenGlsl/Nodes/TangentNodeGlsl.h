@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of 'tangent' node for GLSL
+/// Tangent node implementation for GLSL
 class TangentNodeGlsl : public GlslImplementation
 {
 public:

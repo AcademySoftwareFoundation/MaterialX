@@ -19,6 +19,9 @@ void bindPyProperty(py::module& mod)
         .def_readonly_static("CATEGORY", &mx::Property::CATEGORY);
 
     py::class_<mx::PropertyAssign, mx::PropertyAssignPtr, mx::ValueElement>(mod, "PropertyAssign")
+        .def("setProperty", &mx::PropertyAssign::setProperty)
+        .def("hasProperty", &mx::PropertyAssign::hasProperty)
+        .def("getProperty", &mx::PropertyAssign::getProperty)
         .def("setGeom", &mx::PropertyAssign::setGeom)
         .def("hasGeom", &mx::PropertyAssign::hasGeom)
         .def("getGeom", &mx::PropertyAssign::getGeom)
@@ -46,8 +49,17 @@ void bindPyProperty(py::module& mod)
         BIND_PROPERTYSET_TYPE_INSTANCE(matrix33, mx::Matrix33)
         BIND_PROPERTYSET_TYPE_INSTANCE(matrix44, mx::Matrix44)
         BIND_PROPERTYSET_TYPE_INSTANCE(string, std::string)
+        BIND_PROPERTYSET_TYPE_INSTANCE(integerarray, mx::IntVec)
+        BIND_PROPERTYSET_TYPE_INSTANCE(booleanarray, mx::BoolVec)
+        BIND_PROPERTYSET_TYPE_INSTANCE(floatarray, mx::FloatVec)
+        BIND_PROPERTYSET_TYPE_INSTANCE(stringarray, mx::StringVec)
         .def_readonly_static("CATEGORY", &mx::Property::CATEGORY);
 
     py::class_<mx::PropertySetAssign, mx::PropertySetAssignPtr, mx::GeomElement>(mod, "PropertySetAssign")
+        .def("setPropertySetString", &mx::PropertySetAssign::setPropertySetString)
+        .def("hasPropertySetString", &mx::PropertySetAssign::hasPropertySetString)
+        .def("getPropertySetString", &mx::PropertySetAssign::getPropertySetString)
+        .def("setPropertySet", &mx::PropertySetAssign::setPropertySet)
+        .def("getPropertySet", &mx::PropertySetAssign::getPropertySet)
         .def_readonly_static("CATEGORY", &mx::PropertySetAssign::CATEGORY);
 }

@@ -50,7 +50,7 @@ using DisplayHandle = void*;
 
 ///
 /// @class WindowWrapper
-/// Generic wrapper for encapsulating a "window" construct
+/// Generic wrapper for encapsulating a "window" construct.
 /// Each supported platform will have specific storage and management logic.
 ///
 class WindowWrapper

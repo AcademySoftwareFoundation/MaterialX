@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of convert node
+/// Convert node implementation
 class ConvertNode : public ShaderNodeImpl
 {
   public:

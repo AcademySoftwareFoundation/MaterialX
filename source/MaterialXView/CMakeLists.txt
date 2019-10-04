@@ -5,7 +5,7 @@ if (NOT IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/NanoGUI/ext/glfw/src")
 endif()
 
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
 set(NANOGUI_BUILD_EXAMPLE OFF CACHE BOOL " " FORCE)
 set(NANOGUI_BUILD_SHARED OFF CACHE BOOL " " FORCE)
@@ -16,13 +16,11 @@ set(NANOGUI_INSTALL OFF CACHE BOOL " " FORCE)
 set(PREV_CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
 set(PREV_CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 if(MSVC)
-    add_compile_options(/wd4389 -DEIGEN_DONT_VECTORIZE)
+    add_compile_options(-wd4389 -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -DEIGEN_DONT_VECTORIZE)
 elseif(UNIX AND NOT APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    add_compile_options(-Wno-misleading-indentation)
-    add_compile_options(-Wno-format-truncation)
-    add_compile_options(-Wno-implicit-fallthrough)
-    add_compile_options(-Wno-int-in-bool-context)
-    add_compile_options(-Wno-maybe-uninitialized) # GCC-8 only
+    add_compile_options(-Wno-format-truncation -Wno-implicit-fallthrough -Wno-int-in-bool-context
+                        -Wno-maybe-uninitialized -Wno-misleading-indentation)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-copy")
 endif()
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/NanoGUI external/NanoGUI)
@@ -38,10 +36,6 @@ include_directories(
 
 add_definitions(${NANOGUI_EXTRA_DEFS})
 
-if(MSVC)
-    add_compile_options(/D_CRT_SECURE_NO_WARNINGS /D_SCL_SECURE_NO_WARNINGS )
-endif()
-
 add_executable(MaterialXView ${materialx_source} ${materialx_headers})
 
 target_link_libraries(
@@ -53,19 +47,18 @@ target_link_libraries(
     ${NANOGUI_EXTRA_LIBS})
 
 add_custom_command(TARGET MaterialXView POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_CURRENT_BINARY_DIR}/libraries)
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_CURRENT_BINARY_DIR}/libraries)
 add_custom_command(TARGET MaterialXView POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_CURRENT_BINARY_DIR}/resources)
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_CURRENT_BINARY_DIR}/resources)
 if(MATERIALX_BUILD_OIIO AND OPENIMAGEIO_ROOT_DIR)
     add_custom_command(TARGET MaterialXView POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${OPENIMAGEIO_ROOT_DIR}/bin ${CMAKE_CURRENT_BINARY_DIR})
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${OPENIMAGEIO_ROOT_DIR}/bin ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 install(TARGETS MaterialXView
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXView.pdb"
-        DESTINATION "${CMAKE_INSTALL_PREFIX}/bin/" OPTIONAL)
-
+    DESTINATION "${CMAKE_INSTALL_PREFIX}/bin/" OPTIONAL)

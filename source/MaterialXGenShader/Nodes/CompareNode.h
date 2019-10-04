@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of compare node
+/// Compare node implementation
 class CompareNode : public ShaderNodeImpl
 {
 public:

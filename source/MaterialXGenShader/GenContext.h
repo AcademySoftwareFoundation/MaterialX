@@ -90,12 +90,6 @@ class GenContext
     }
 
     /// Add to the search path used for finding source code.
-    void registerSourceCodeSearchPath(const string& path)
-    {
-        _sourceCodeSearchPath.append(FilePath(path));
-    }
-
-    /// Add to the search path used for finding source code.
     void registerSourceCodeSearchPath(const FilePath& path)
     {
         _sourceCodeSearchPath.append(path);

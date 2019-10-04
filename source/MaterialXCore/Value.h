@@ -17,6 +17,13 @@
 namespace MaterialX
 {
 
+/// A vector of integers.
+using IntVec = vector<int>;
+/// A vector of booleans.
+using BoolVec = vector<bool>;
+/// A vector of floats.
+using FloatVec = vector<float>;
+
 class Value;
 
 /// A shared pointer to a Value
@@ -185,7 +192,7 @@ template <class T> class TypedValue : public Value
 class ScopedFloatFormatting
 {
   public:
-    ScopedFloatFormatting(Value::FloatFormat format, int precision = 6);
+    explicit ScopedFloatFormatting(Value::FloatFormat format, int precision = 6);
     ~ScopedFloatFormatting();
 
   private:

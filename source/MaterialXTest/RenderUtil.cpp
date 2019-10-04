@@ -262,7 +262,6 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             }
 
             doc->importLibrary(dependLib, &copyOptions);
-            
             ioTimer.endTimer();
 
             validateTimer.startTimer();

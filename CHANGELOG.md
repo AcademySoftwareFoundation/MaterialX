@@ -1,9 +1,26 @@
 # Change Log
 
-## [1.36.4] - Development
+## [1.36.5] - Development
+
+## [1.36.4] - 2019-09-26
 
 ### Added
-- Added support for Clang 8.
+- Added a Save Material option to the viewer.
+- Added property accessors to PropertyAssign and PropertySetAssign
+- Added Python bindings for TypeDesc and array-type Values.
+- Added Python functions getTypeString, getValueString, and createValueFromStrings.
+- Added support for GCC 9 and Clang 8.
+
+### Changed
+- Updated the interface of readFromXmlFile and writeToXmlFile to support FilePath and FileSearchPath arguments.
+- Extended Python bindings for FilePath and FileSearchPath.
+
+### Removed
+- Deprecated Python functions typeToName, valueToString, and stringToValue.
+- Removed deprecated Python functions objectToString and stringToObject.
+
+### Fixed
+- Fixed the OSL implementation of roughness_dual.
 
 ## [1.36.3] - 2019-08-02
 

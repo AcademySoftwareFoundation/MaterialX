@@ -71,11 +71,11 @@ void BlurNode::emitFunctionCall(const ShaderNode& node, GenContext& context, Sha
         const ShaderInput* inInput = node.getInput(IN_STRING);
 
         // Get input type name string
-        const string& inputTypeString = acceptsInputType(inInput->getType()) ?
+        const string& inputTypeString = inInput && acceptsInputType(inInput->getType()) ?
             shadergen.getSyntax().getTypeName(inInput->getType()) : EMPTY_STRING;
 
         const ShaderInput* filterTypeInput = node.getInput(FILTER_TYPE_STRING);
-        if (!inInput || !filterTypeInput || inputTypeString.empty())
+        if (!filterTypeInput || inputTypeString.empty())
         {
             throw ExceptionShaderGenError("Node '" + node.getName() + "' is not a valid Blur node");
         }

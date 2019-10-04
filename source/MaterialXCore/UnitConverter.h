@@ -3,22 +3,11 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-/**
-* Copyright 2019 Autodesk, Inc.
-* All rights reserved.
-*
-* This computer source code and related instructions and comments are the
-* unpublished confidential and proprietary information of Autodesk, Inc. and
-* are protected under Federal copyright and state trade secret law. They may
-* not be disclosed to, copied or used by any third party without the prior
-* written consent of Autodesk, Inc.
-*
-* @file UnitConverter.h
-* @brief Unit converter classes.
-*/
-
 #ifndef MATERIALX_UNITCONVERTER_H_
 #define MATERIALX_UNITCONVERTER_H_
+
+/// @file UnitConverter.h
+/// Unit converter classes.
 
 #include <MaterialXCore/Library.h>
 

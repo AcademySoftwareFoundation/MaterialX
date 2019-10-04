@@ -191,7 +191,11 @@ void bindPyElement(py::module& mod)
         BIND_VALUE_ELEMENT_FUNC_INSTANCE(vector4, mx::Vector4)
         BIND_VALUE_ELEMENT_FUNC_INSTANCE(matrix33, mx::Matrix33)
         BIND_VALUE_ELEMENT_FUNC_INSTANCE(matrix44, mx::Matrix44)
-        BIND_VALUE_ELEMENT_FUNC_INSTANCE(string, std::string);
+        BIND_VALUE_ELEMENT_FUNC_INSTANCE(string, std::string)
+        BIND_VALUE_ELEMENT_FUNC_INSTANCE(integerarray, mx::IntVec)
+        BIND_VALUE_ELEMENT_FUNC_INSTANCE(booleanarray, mx::BoolVec)
+        BIND_VALUE_ELEMENT_FUNC_INSTANCE(floatarray, mx::FloatVec)
+        BIND_VALUE_ELEMENT_FUNC_INSTANCE(stringarray, mx::StringVec);
 
     py::class_<mx::Token, mx::TokenPtr, mx::ValueElement>(mod, "Token")
         .def_readonly_static("CATEGORY", &mx::Token::CATEGORY);

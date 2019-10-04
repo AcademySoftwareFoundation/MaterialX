@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of time node for GLSL
+/// Time node implementation for GLSL
 class TimeNodeGlsl : public GlslImplementation
 {
 public:

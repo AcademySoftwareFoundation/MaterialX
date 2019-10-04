@@ -110,11 +110,12 @@ TEST_CASE("GenShader: OSL Unique Names", "[genosl]")
 static void generateOslCode()
 {
     const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
+    const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
+    const mx::FilePath testRootPath3 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/UsdPreviewSurface");
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back(testRootPath);
-    testRootPaths.push_back(mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface"));
-    testRootPaths.push_back(mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/UsdPreviewSurface"));
-    testRootPaths.push_back(mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/Units"));
+    testRootPaths.push_back(testRootPath2);
+    testRootPaths.push_back(testRootPath3);
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     srcSearchPath.append(libSearchPath / mx::FilePath("stdlib/osl"));

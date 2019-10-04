@@ -18,7 +18,11 @@ _testValues = (1,
                mx.Vector4(1.0, 2.0, 3.0, 4.0),
                mx.Matrix33(0.0),
                mx.Matrix44(1.0),
-               'value')
+               'value',
+               [1, 2, 3],
+               [False, True, False],
+               [1.0, 2.0, 3.0],
+               ['one', 'two', 'three'])
 
 _fileDir = os.path.dirname(os.path.abspath(__file__))
 _libraryDir = os.path.join(_fileDir, '../../libraries/stdlib/')
@@ -43,15 +47,11 @@ _epsilon = 1e-4
 class TestMaterialX(unittest.TestCase):
     def test_DataTypes(self):
         for value in _testValues:
-            # Convert between values and strings.
-            string = mx.valueToString(value)
-            newValue = mx.stringToValue(string, type(value))
+            valueString = mx.getValueString(value)
+            typeString = mx.getTypeString(value)
+            newValue = mx.createValueFromStrings(valueString, typeString)
             self.assertTrue(newValue == value)
-
-            # Convert between types and strings.
-            string = mx.typeToName(type(value))
-            newType = mx.nameToType(string)
-            self.assertTrue(newType == type(value))
+            self.assertTrue(mx.getTypeString(newValue) == typeString)
 
     def test_Vectors(self):
         v1 = mx.Vector3(1, 2, 3)
@@ -292,9 +292,11 @@ class TestMaterialX(unittest.TestCase):
         self.assertTrue(len(material.getGeometryBindings("/robot2/left_arm")) == 0)
 
         # Create a property assignment.
-        propertyAssign = look.addPropertyAssign("twosided")
+        propertyAssign = look.addPropertyAssign()
+        propertyAssign.setProperty("twosided")
         propertyAssign.setGeom("/robot1")
         propertyAssign.setValue(True)
+        self.assertTrue(propertyAssign.getProperty() == "twosided")
         self.assertTrue(propertyAssign.getGeom() == "/robot1")
         self.assertTrue(propertyAssign.getValue() == True)
 
@@ -302,8 +304,10 @@ class TestMaterialX(unittest.TestCase):
         propertySet = doc.addPropertySet()
         propertySet.setPropertyValue('matte', False)
         self.assertTrue(propertySet.getPropertyValue('matte') == False)
-        propertySetAssign = look.addPropertySetAssign(propertySet.getName())
+        propertySetAssign = look.addPropertySetAssign()
+        propertySetAssign.setPropertySet(propertySet)
         propertySetAssign.setGeom('/robot1')
+        self.assertTrue(propertySetAssign.getPropertySet() == propertySet)
         self.assertTrue(propertySetAssign.getGeom() == '/robot1')
 
         # Create a variant set.

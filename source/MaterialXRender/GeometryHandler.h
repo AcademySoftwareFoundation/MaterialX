@@ -34,7 +34,7 @@ class GeometryLoader
 
     /// Returns a list of supported extensions
     /// @return List of support extensions
-    const StringSet& supportedExtensions()
+    const StringSet& supportedExtensions() const
     {
         return _extensions;
     }

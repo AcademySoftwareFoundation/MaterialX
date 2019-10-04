@@ -173,7 +173,7 @@ class ImageLoader
 
     /// Returns a list of supported extensions
     /// @return List of support extensions
-    const StringSet& supportedExtensions()
+    const StringSet& supportedExtensions() const
     {
         return _extensions;
     }
@@ -295,7 +295,7 @@ class ImageHandler
     }
 
     /// Return the image search path
-    const FileSearchPath& getSearchPath()
+    const FileSearchPath& getSearchPath() const
     {
         return _searchPath;
     }

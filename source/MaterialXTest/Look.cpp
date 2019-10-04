@@ -38,9 +38,11 @@ TEST_CASE("Look", "[look]")
     REQUIRE(material->getGeometryBindings("/robot2/left_arm").size() == 0);
 
     // Create a property assignment.
-    mx::PropertyAssignPtr propertyAssign = look->addPropertyAssign("twosided");
+    mx::PropertyAssignPtr propertyAssign = look->addPropertyAssign();
+	propertyAssign->setProperty("twosided");
     propertyAssign->setGeom("/robot1");
     propertyAssign->setValue(true);
+    REQUIRE(propertyAssign->getProperty() == "twosided");
     REQUIRE(propertyAssign->getGeom() == "/robot1");
     REQUIRE(propertyAssign->getValue()->isA<bool>());
     REQUIRE(propertyAssign->getValue()->asA<bool>() == true);
@@ -50,8 +52,10 @@ TEST_CASE("Look", "[look]")
     propertySet->setPropertyValue("matte", false);
     REQUIRE(propertySet->getPropertyValue("matte")->isA<bool>());
     REQUIRE(propertySet->getPropertyValue("matte")->asA<bool>() == false);
-    mx::PropertySetAssignPtr propertySetAssign = look->addPropertySetAssign(propertySet->getName());
+    mx::PropertySetAssignPtr propertySetAssign = look->addPropertySetAssign();
+	propertySetAssign->setPropertySet(propertySet);
     propertySetAssign->setGeom("/robot1");
+    REQUIRE(propertySetAssign->getPropertySet() == propertySet);
     REQUIRE(propertySetAssign->getGeom() == "/robot1");
     
     // Create a variant set.

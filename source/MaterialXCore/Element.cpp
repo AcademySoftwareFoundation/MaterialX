@@ -463,7 +463,6 @@ bool Element::validate(string* message) const
         res = child->validate(message) && res;
     }
     validateRequire(!hasInheritanceCycle(), res, message, "Cycle in element inheritance chain");
-
     return res;
 }
 

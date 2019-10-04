@@ -105,7 +105,14 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions
                 {
                     xml_node includeNode = xmlNode.append_child(XINCLUDE_TAG.c_str());
                     xml_attribute includeAttr = includeNode.append_attribute("href");
-                    includeAttr.set_value(sourceUri.c_str());
+                    FilePath includePath(sourceUri);
+
+                    // Write relative include paths in Posix format, and absolute
+                    // include paths in native format.
+                    FilePath::Format includeFormat = includePath.isAbsolute() ?
+                        FilePath::FormatNative : FilePath::FormatPosix;
+                    includeAttr.set_value(includePath.asString(includeFormat).c_str());
+
                     writtenSourceFiles.insert(sourceUri);
                 }
                 continue;
@@ -132,13 +139,11 @@ void xmlDocumentFromFile(xml_document& xmlDoc, FilePath filename, FileSearchPath
         {
             throw ExceptionFileMissing("Failed to open file for reading: " + filename.asString());
         }
-        else
-        {
-            string desc = result.description();
-            string offset = std::to_string(result.offset);
-            throw ExceptionParseError("XML parse error in file: " + filename.asString() +
-                                      " (" + desc + " at character " + offset + ")");
-        }
+
+        string desc = result.description();
+        string offset = std::to_string(result.offset);
+        throw ExceptionParseError("XML parse error in file: " + filename.asString() +
+                                  " (" + desc + " at character " + offset + ")");
     }
 }
 

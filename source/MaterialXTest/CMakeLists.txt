@@ -1,58 +1,31 @@
 include_directories(
     ${EXTERNAL_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../
-)
+    ${CMAKE_CURRENT_SOURCE_DIR}/../)
 
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-if(NOT MATERIALX_BUILD_GEN_ARNOLD)
-    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/GenArnold.cpp")
-    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/RenderArnold.cpp")
-endif()
-if(NOT MATERIALX_BUILD_GEN_OGSFX)
-    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/GenOgsFx.cpp")
-    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/RenderOgsfx.cpp")
-endif()
-if(NOT MATERIALX_BUILD_GEN_OGSXML)
-    list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/GenOgsXml.cpp")
-endif()
-file(GLOB_RECURSE materialx_header "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
-file(GLOB_RECURSE catch_headers "${CMAKE_CURRENT_SOURCE_DIR}/Catch/*.hpp")
+file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
-function(assign_source_group prefix)
-    foreach(_source IN ITEMS ${ARGN})
-        if (IS_ABSOLUTE "${_source}")
-            file(RELATIVE_PATH _source_rel "${CMAKE_CURRENT_SOURCE_DIR}" "${_source}")
-        else()
-            set(_source_rel "${_source}")
-        endif()
-        get_filename_component(_source_path "${_source_rel}" PATH)
-        string(REPLACE "/" "\\" _source_path_msvc "${_source_path}")
-        source_group("${prefix}\\${_source_path_msvc}" FILES "${_source}")
-    endforeach()
-endfunction(assign_source_group)
-
-assign_source_group("Header Files" ${materialx_header})
 assign_source_group("Source Files" ${materialx_source})
-source_group("Header Files\\Catch" FILES ${catch_headers})
+assign_source_group("Header Files" ${materialx_headers})
 
-add_executable(MaterialXTest ${materialx_source} ${materialx_header} ${catch_headers})
+add_executable(MaterialXTest ${materialx_source} ${materialx_headers})
 
 add_test(NAME MaterialXTest
-         COMMAND MaterialXTest
-         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+	COMMAND MaterialXTest
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 if(MATERIALX_BUILD_OIIO AND OPENIMAGEIO_ROOT_DIR)
     add_custom_command(TARGET MaterialXTest POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${OPENIMAGEIO_ROOT_DIR}/bin ${CMAKE_CURRENT_BINARY_DIR})
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+		${OPENIMAGEIO_ROOT_DIR}/bin ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 add_custom_command(TARGET MaterialXTest POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_CURRENT_BINARY_DIR}/libraries)
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+	${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_CURRENT_BINARY_DIR}/libraries)
 add_custom_command(TARGET MaterialXTest POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_CURRENT_BINARY_DIR}/resources)
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+	${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_CURRENT_BINARY_DIR}/resources)
 
 set_target_properties(
     MaterialXTest PROPERTIES
@@ -62,7 +35,7 @@ set_target_properties(
     VERSION "${MATERIALX_LIBRARY_VERSION}"
     SOVERSION "${MATERIALX_MAJOR_VERSION}")
 
-set (LIBS
+set(LIBS
     MaterialXCore
     MaterialXFormat
     MaterialXGenShader
@@ -91,6 +64,6 @@ if (MATERIALX_BUILD_CONTRIB)
 endif()
 
 target_link_libraries(
-    MaterialXTest ${LIBS}
-    ${CMAKE_DL_LIBS}
-)
+    MaterialXTest
+    ${LIBS}
+    ${CMAKE_DL_LIBS})

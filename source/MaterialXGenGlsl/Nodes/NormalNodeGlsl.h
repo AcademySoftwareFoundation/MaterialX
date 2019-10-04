@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of 'normal' node for GLSL
+/// Normal node implementation for GLSL
 class NormalNodeGlsl : public GlslImplementation
 {
 public:

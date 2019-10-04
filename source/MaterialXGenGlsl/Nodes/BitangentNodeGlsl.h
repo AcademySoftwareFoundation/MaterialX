@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of 'bitangent' node for GLSL
+/// Bitangent node implementation for GLSL
 class BitangentNodeGlsl : public GlslImplementation
 {
 public:

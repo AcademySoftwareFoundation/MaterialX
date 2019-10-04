@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of 'light' node for GLSL
+/// Light node implementation for GLSL
 class LightNodeGlsl : public GlslImplementation
 {
   public:

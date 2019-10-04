@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of switch node
+/// Switch node implementation
 class SwitchNode : public ShaderNodeImpl
 {
 public:

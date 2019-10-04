@@ -91,7 +91,7 @@ For nodes that can’t be implemented by inline expressions a function definitio
   <parameter name="vaddressmode" type="string" value="periodic"/>
   <parameter name="framerange" type="string" value=""/>
   <parameter name="frameoffset" type="integer" value="0"/>
-  <parameter name="frameendaction" type="string" value="constant"/>
+  <parameter name="frameendaction" type="string" value="black"/>
 </nodedef>
 
 // Implementation element

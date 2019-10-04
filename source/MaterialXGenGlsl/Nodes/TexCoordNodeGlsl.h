@@ -11,7 +11,7 @@
 namespace MaterialX
 {
 
-/// Implementation of 'texcoord' node for GLSL
+/// TexCoord node implementation for GLSL
 class TexCoordNodeGlsl : public GlslImplementation
 {
 public:
