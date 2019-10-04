@@ -279,7 +279,7 @@ class ImageHandler
     /// Clear the contents of the image cache.
     /// deleteImage() will be called for each cache description to
     /// allow derived classes to clean up any associated resources.
-    void clearImageCache();
+    virtual void clearImageCache();
 
     /// Set the search path to be used for finding images on the file system.
     void setSearchPath(const FileSearchPath& path)
