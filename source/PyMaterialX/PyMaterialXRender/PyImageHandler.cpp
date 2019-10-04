@@ -99,6 +99,15 @@ class PyImageHandler : public mx::ImageHandler
         );
     }
 
+    void clearImageCache() override
+    {
+        PYBIND11_OVERLOAD(
+            void,
+            mx::ImageHandler,
+            clearImageCache
+        );
+    }
+
   protected:
     void deleteImage(mx::ImageDesc& imageDesc) override
     {

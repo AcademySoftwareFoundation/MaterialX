@@ -6,4 +6,5 @@ to read and generate MaterialX content and .mtlx files.
 - [mxvalidate.py](mxvalidate.py): Validate a .mtlx file and optionally print a detailed or very-detailed summary of its contents.
 - [writenodegraphs.py](writenodegraphs.py): Generate the "NodeGraphs.mtlx" example file using the MaterialX API.
 - [writelooks.py](writelooks.py): Generate the "Looks.mtlx" example file using the MaterialX API.
+- [mxdoc.py](mxdoc.py): Output the documentation for nodedefs in a MaterialX file.
 

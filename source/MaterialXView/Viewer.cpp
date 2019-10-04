@@ -8,6 +8,7 @@
 #include <MaterialXRender/Util.h>
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
+#include <MaterialXGenShader/UnitSystem.h>
 #include <MaterialXGenShader/Shader.h>
 
 #include <nanogui/button.h>
@@ -207,6 +208,11 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
     _uvTranslation(-0.5f, 0.5f, 0.0f),
     _uvZoom(1.0f)
 {
+
+    // Set default unit
+    _unitspace = "meter";
+    _unitRegistry = mx::UnitConverterRegistry::create();
+    
     // Transpary option before creating Advanced UI 
     // as this flag is used to set the default value.
     _genContext.getOptions().hwTransparency = true;
@@ -262,6 +268,7 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
     // Set default generator options.
     _genContext.getOptions().hwSpecularEnvironmentMethod = _specularEnvironmentMethod;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
+    _genContext.getOptions().targetLengthUnit = _unitspace;
     _genContext.getOptions().fileTextureVerticalFlip = true;
 
     // Set default light information before initialization
@@ -413,6 +420,16 @@ void Viewer::setupLights(mx::DocumentPtr doc)
     {
         new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to set up lighting", e.what());
     }
+}
+
+void Viewer::setupUnitConverter(mx::DocumentPtr doc)
+{
+    mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(_genContext.getShaderGenerator().getLanguage());
+    unitSystem->loadLibrary(_stdLib);
+    unitSystem->setUnitConverterRegistry(_unitRegistry);
+    _genContext.getShaderGenerator().setUnitSystem(unitSystem);
+    mx::UnitTypeDefPtr lengthTypeDef = doc->getUnitTypeDef(mx::LengthUnitConverter::LENGTH_UNIT);
+    _unitRegistry->addUnitConverter(lengthTypeDef, mx::LengthUnitConverter::create(lengthTypeDef));
 }
 
 void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)
@@ -653,7 +670,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     transparencyBox->setCallback([this](bool enable)
     {
         _genContext.getOptions().hwTransparency = enable;
-        reloadShaders();
+        reloadShaders(false);
     });
 
     ng::CheckBox* drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Render Environment");
@@ -693,6 +710,47 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _showAdvancedProperties = enable;
         updateDisplayedProperties();
     });
+
+    //Units
+    {
+        Widget* sampleGroup = new Widget(advancedPopup);
+        sampleGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+        new ng::Label(sampleGroup, "Unit Space:");
+
+       
+        {
+            //TODO: Need a get supported units
+            mProcessEvents = false;
+            unitOptions.push_back("nanometer");
+            unitOptions.push_back("millimeter");
+            unitOptions.push_back("micron");
+            unitOptions.push_back("centimeter");
+            unitOptions.push_back("foot");
+            unitOptions.push_back("kilometer");
+            unitOptions.push_back("inch");
+            unitOptions.push_back("yard");
+            unitOptions.push_back("mile");
+            unitOptions.push_back("meter");
+            mProcessEvents = true;
+        }
+        ng::ComboBox* sampleBox = new ng::ComboBox(sampleGroup, unitOptions);
+        sampleBox->setChevronIcon(-1);
+
+        int index = (int) std::distance(unitOptions.begin(),
+                                     std::find(unitOptions.begin(),
+                                               unitOptions.end(),
+                                               _unitspace));
+        sampleBox->setSelectedIndex(index);
+        sampleBox->setCallback([this](int index)
+        {
+            _unitspace = unitOptions[index];
+            _genContext.getOptions().targetLengthUnit = _unitspace;
+            for (MaterialPtr material : _materials)
+            {
+                material->bindUnits(_unitRegistry, _genContext);
+            }    
+        });
+    }
 }
 
 void Viewer::updateGeometrySelections()
@@ -853,6 +911,9 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         // Add lighting 
         setupLights(doc);
 
+        // Define Unit converters
+        setupUnitConverter(doc);
+
         // Apply modifiers to the content document.
         applyModifiers(doc, _modifiers);
 
@@ -999,13 +1060,18 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
     updateMaterialSelectionUI();
 }
 
-void Viewer::reloadShaders()
+void Viewer::reloadShaders(bool forceCreation)
 {
     try
     {
+        const mx::MeshList& meshes = _geometryHandler->getMeshes();
         for (MaterialPtr material : _materials)
         {
-            material->generateShader(_genContext);
+            material->generateShader(_genContext, forceCreation);
+            if (forceCreation && !meshes.empty())
+            {
+                material->bindMesh(meshes[0]);
+            }
         }
     }
     catch (std::exception& e)

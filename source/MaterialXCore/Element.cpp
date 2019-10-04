@@ -33,6 +33,8 @@ const string ValueElement::UI_FOLDER_ATTRIBUTE = "uifolder";
 const string ValueElement::UI_MIN_ATTRIBUTE = "uimin";
 const string ValueElement::UI_MAX_ATTRIBUTE = "uimax";
 const string ValueElement::UI_ADVANCED_ATTRIBUTE = "uiadvanced";
+const string ValueElement::UNIT_ATTRIBUTE = "unit";
+const string ValueElement::UNITTYPE_ATTRIBUTE = "unittype";
 
 Element::CreatorMap Element::_creatorMap;
 
@@ -325,6 +327,23 @@ ConstElementPtr Element::getRoot() const
     return root;
 }
 
+const string& Element::getActiveColorSpace(bool returnClosest) const
+{
+    ConstElementPtr colorSpaceElement = nullptr;
+    for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
+    {
+        if (elem->hasColorSpace())
+        {
+            colorSpaceElement = elem;
+            if (returnClosest)
+            {
+                break;
+            }
+        }
+    }
+    return  (colorSpaceElement ? colorSpaceElement->getColorSpace() : EMPTY_STRING);
+}
+
 bool Element::hasInheritedBase(ConstElementPtr base) const
 {
     for (ConstElementPtr elem : traverseInheritance())
@@ -615,6 +634,27 @@ bool ValueElement::validate(string* message) const
             }
         }
     }
+    UnitTypeDefPtr unitDefType;
+    if (hasUnitType())
+    {
+        const string& unittype = getUnitType();
+        if (!unittype.empty())
+        {
+            unitDefType = getDocument()->getUnitTypeDef(unittype);
+            validateRequire(unitDefType != nullptr, res, message, "Unit type definition does not exist in document");
+        }
+    }            
+    if (hasUnit())
+    {
+        bool foundUnit = false;
+        const string& unit = getUnit();
+        if ((unitDefType && (unitDefType->getDefault() == unit)) ||
+            getDocument()->getChild(unit))
+        {
+            foundUnit = true;
+        }
+        validateRequire(foundUnit, res, message, "Unit definition does not exist in document");
+    }
     return TypedElement::validate(message) && res;
 }
 
@@ -764,5 +804,7 @@ INSTANTIATE_CONCRETE_SUBCLASS(Variant, "variant")
 INSTANTIATE_CONCRETE_SUBCLASS(VariantAssign, "variantassign")
 INSTANTIATE_CONCRETE_SUBCLASS(VariantSet, "variantset")
 INSTANTIATE_CONCRETE_SUBCLASS(Visibility, "visibility")
+INSTANTIATE_CONCRETE_SUBCLASS(UnitDef, "unitdef")
+INSTANTIATE_CONCRETE_SUBCLASS(UnitTypeDef, "unittypedef")
 
 } // namespace MaterialX

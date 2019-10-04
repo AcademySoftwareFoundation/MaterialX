@@ -1,6 +1,7 @@
 #ifndef MATERIALXVIEW_VIEWER_H
 #define MATERIALXVIEW_VIEWER_H
 
+#include <MaterialXCore/UnitConverter.h>
 #include <MaterialXView/Editor.h>
 #include <MaterialXView/Material.h>
 #include <MaterialXRender/GeometryHandler.h>
@@ -86,8 +87,9 @@ class Viewer : public ng::Screen
     void drawScene2D();
 
     void setupLights(mx::DocumentPtr doc);
+    void setupUnitConverter(mx::DocumentPtr doc);
     void loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries);
-    void reloadShaders();
+    void reloadShaders(bool forceCreation);
     void loadStandardLibraries();
     void saveShaderSource();
     void loadShaderSource();
@@ -203,6 +205,11 @@ class Viewer : public ng::Screen
     // Image save
     bool _captureFrame;
     mx::FilePath _captureFrameFileName;
+
+    // Working space
+    std::string _unitspace;
+    mx::StringVec unitOptions;
+    mx::UnitConverterRegistryPtr _unitRegistry;
 
     // UV wireframe drawing
     bool _drawUVGeometry;

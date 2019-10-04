@@ -9,6 +9,7 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenShader/UnitSystem.h>
 #include <MaterialXRender/LightHandler.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
 
@@ -88,7 +89,7 @@ class Material
                     bool hasTransparency);
 
     /// Generate a shader from the given inputs.
-    bool generateShader(mx::GenContext& context);
+    bool generateShader(mx::GenContext& context, bool forceCreation=false);
 
     /// Copy shader from one material to this one
     void copyShader(MaterialPtr material)
@@ -146,6 +147,9 @@ class Material
     /// Bind lights to shader.
     void bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandlerPtr imageHandler, const mx::FileSearchPath& imagePath, 
                     bool directLighting, bool indirectLighting, mx::HwSpecularEnvironmentMethod specularEnvironmentMethod, int envSamples);
+
+    /// Bind units.
+    void bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenContext& context);
 
     /// Bind the given mesh to this material.
     void bindMesh(mx::MeshPtr mesh) const;
