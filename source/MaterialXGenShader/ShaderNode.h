@@ -89,6 +89,12 @@ class ShaderPort : public std::enable_shared_from_this<ShaderPort>
     /// Return the value set on this port.
     ValuePtr getValue() const { return _value; }
 
+    /// Set a unit type for the value on this port.
+    void setUnit(const string& unit) { _unit = unit; }
+
+    /// Return the unit type for the value on this port.
+    const string& getUnit() const { return _unit; }
+
     /// Set the path to this port.
     void setPath(const string& path) { _path = path; }
 
@@ -121,6 +127,7 @@ class ShaderPort : public std::enable_shared_from_this<ShaderPort>
     string _semantic;
     string _variable;
     ValuePtr _value;
+    string _unit;
     unsigned int _flags;
 };
 

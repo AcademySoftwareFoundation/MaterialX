@@ -401,8 +401,27 @@ class UnitDef : public Element
       }
       virtual ~UnitDef() { }
 
+      /// Set the unit type definition.
+      void setUnitTypeDef(const string& value)
+      {
+          setAttribute(UNITTYPEDEF_ATTRIBUTE, value);
+      }
+
+      /// Return true if the given UnitDef has a unit type definition..
+      bool hasUnitType() const
+      {
+          return hasAttribute(UNITTYPEDEF_ATTRIBUTE);
+      }
+
+      /// Return the unit type definition for the UnitDef.
+      const string& getUnitType() const
+      {
+          return getAttribute(UNITTYPEDEF_ATTRIBUTE);
+      }
+
   public:
     static const string CATEGORY;
+    static const string UNITTYPEDEF_ATTRIBUTE;
 };
 
 /// @class UnitTypeDef
@@ -415,9 +434,6 @@ class UnitTypeDef : public Element
     {
     }
     virtual ~UnitTypeDef() { }
-
-    /// @name Semantic
-    /// @{
 
     /// Set the default unit string for the UnitTypeDef.
     void setDefault(const string& value)
@@ -435,44 +451,10 @@ class UnitTypeDef : public Element
     const string& getDefault() const
     {
         return getAttribute(DEFAULT_ATTRIBUTE);
-    }
+    } 
 
-    /// @}
-    /// @name UnitDef Elements
-    /// @{
-
-    /// Add a UnitDef to the UnitTypeDef.
-    /// @param name The name of the new UnitDef. An exception is thrown
-    /// if the name provided is an empty string.
-    /// @return A shared pointer to the new UnitDef.
-    UnitDefPtr addUnitDef(const string& name)
-    {
-        if (name.empty())
-        {
-            throw Exception("A unit definition name cannot be empty");
-        }
-        return addChild<UnitDef>(name);
-    }
-
-    /// Return the UnitDef, if any, with the given name.
-    UnitDefPtr getUnitDef(const string& name) const
-    {
-        return getChildOfType<UnitDef>(name);
-    }
-
-    /// Return a vector of all Member elements in the TypeDef.
-    vector<UnitDefPtr> getUnitDefs() const
-    {
-        return getChildrenOfType<UnitDef>();
-    }
-
-    /// Remove the UnitDef, if any, with the given name.
-    void removeUnitDef(const string& name)
-    {
-        removeChildOfType<UnitDef>(name);
-    }
-
-    /// @}
+    /// Find all UnitDefs for the UnitTypeDef
+    vector<UnitDefPtr> getUnitDefs() const;
 
   public:
     static const string CATEGORY;

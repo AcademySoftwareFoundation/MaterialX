@@ -17,6 +17,7 @@ void bindPyGenOptions(py::module& mod);
 void bindPyShaderStage(py::module& mod);
 void bindPyUtil(py::module& mod);
 void bindPyTypeDesc(py::module& mod);
+void bindPyUnitSystem(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXGenShader, mod)
 {
@@ -32,4 +33,5 @@ PYBIND11_MODULE(PyMaterialXGenShader, mod)
     bindPyShaderStage(mod);
     bindPyUtil(mod);
     bindPyTypeDesc(mod);
+    bindPyUnitSystem(mod);
 }

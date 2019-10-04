@@ -1105,11 +1105,30 @@ class ValueElement : public TypedElement
         return hasAttribute(UNIT_ATTRIBUTE);
     }
 
-    /// Return the unit .
+    /// Return the unit.
     const string& getUnit() const
     {
         return getAttribute(UNIT_ATTRIBUTE);
     }
+
+    /// Set the unit type.
+    void setUnitType(const string& unit)
+    {
+        setAttribute(UNITTYPE_ATTRIBUTE, unit);
+    }
+
+    /// Return true if a unit attribute exists.
+    bool hasUnitType() const
+    {
+        return hasAttribute(UNITTYPE_ATTRIBUTE);
+    }
+
+    /// Return the unit type
+    const string& getUnitType() const
+    {
+        return getAttribute(UNITTYPE_ATTRIBUTE);
+    }
+
 
     /// @}
     /// @name Validation
@@ -1134,6 +1153,7 @@ class ValueElement : public TypedElement
     static const string UI_MAX_ATTRIBUTE;
     static const string UI_ADVANCED_ATTRIBUTE;
     static const string UNIT_ATTRIBUTE;
+    static const string UNITTYPE_ATTRIBUTE;
 };
 
 /// @class Token

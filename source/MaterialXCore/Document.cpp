@@ -642,17 +642,4 @@ void Document::onClearContent(ElementPtr)
     _cache->valid = false;
 }
 
-UnitTypeDefPtr Document::getUnitTypeDefWithUnit(const string& unitName) const
-{
-    for (UnitTypeDefPtr typeDef : getUnitTypeDefs())
-    {
-        if (typeDef->getDefault() == unitName ||
-            typeDef->getUnitDef(unitName))
-        {
-            return typeDef;
-        }
-    }
-    return nullptr;
-}
-
 } // namespace MaterialX

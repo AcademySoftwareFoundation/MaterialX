@@ -34,6 +34,7 @@ const string ValueElement::UI_MIN_ATTRIBUTE = "uimin";
 const string ValueElement::UI_MAX_ATTRIBUTE = "uimax";
 const string ValueElement::UI_ADVANCED_ATTRIBUTE = "uiadvanced";
 const string ValueElement::UNIT_ATTRIBUTE = "unit";
+const string ValueElement::UNITTYPE_ATTRIBUTE = "unittype";
 
 Element::CreatorMap Element::_creatorMap;
 
@@ -634,11 +635,26 @@ bool ValueElement::validate(string* message) const
             }
         }
     }
+    UnitTypeDefPtr unitDefType;
+    if (hasUnitType())
+    {
+        const string& unittype = getUnitType();
+        if (!unittype.empty())
+        {
+            unitDefType = getDocument()->getUnitTypeDef(unittype);
+            validateRequire(unitDefType != nullptr, res, message, "Unit type definition does not exist in document");
+        }
+    }            
     if (hasUnit())
     {
+        bool foundUnit = false;
         const string& unit = getUnit();
-        UnitTypeDefPtr typeDef = getDocument()->getUnitTypeDefWithUnit(unit);
-        validateRequire(typeDef != nullptr, res, message, "Unit definition does not exist in document");
+        if ((unitDefType && (unitDefType->getDefault() == unit)) ||
+            getDocument()->getChild(unit))
+        {
+            foundUnit = true;
+        }
+        validateRequire(foundUnit, res, message, "Unit definition does not exist in document");
     }
     return TypedElement::validate(message) && res;
 }

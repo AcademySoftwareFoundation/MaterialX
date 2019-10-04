@@ -16,7 +16,7 @@
 * @brief Units support
 */
 
-
+#include <algorithm>
 #include <MaterialXCore/Util.h>
 #include <MaterialXCore/Value.h>
 #include <MaterialXCore/UnitConverter.h>
@@ -29,7 +29,7 @@ LengthUnitConverter::LengthUnitConverter(UnitTypeDefPtr unitTypeDef) :
     UnitConverter()
 {
     static const string SCALE_ATTRIBUTE = "scale";
-    static const string OFFSET_ATTRIBUTE = "offset";
+    unsigned int enumerant = 0;
 
     // Populate the unit scale and offset maps for each UnitDef. 
     vector<UnitDefPtr> unitDefs = unitTypeDef->getUnitDefs();
@@ -48,6 +48,7 @@ LengthUnitConverter::LengthUnitConverter(UnitTypeDefPtr unitTypeDef) :
             {
                 _unitScale[name] = 1.0f;
             }
+            _unitEnumeration[name] = enumerant++;
         }
     }
 
@@ -59,7 +60,8 @@ LengthUnitConverter::LengthUnitConverter(UnitTypeDefPtr unitTypeDef) :
     if (it == _unitScale.end())
     {
         _unitScale[_defaultUnit] = 1.0f;
-    }    
+        _unitEnumeration[_defaultUnit] = enumerant++;
+    }
 }
 
 LengthUnitConverterPtr LengthUnitConverter::create(UnitTypeDefPtr unitTypeDef)
@@ -68,13 +70,8 @@ LengthUnitConverterPtr LengthUnitConverter::create(UnitTypeDefPtr unitTypeDef)
     return converter;
 }
 
-float LengthUnitConverter::convert(float input, const string& inputUnit, const string& outputUnit) const
+float LengthUnitConverter::conversionRatio(const string& inputUnit, const string& outputUnit) const
 {
-    if (inputUnit == outputUnit)
-    {
-        return input;
-    }
-
     auto it = _unitScale.find(inputUnit);
     if (it == _unitScale.end())
     {
@@ -89,12 +86,79 @@ float LengthUnitConverter::convert(float input, const string& inputUnit, const s
     }
     float toScale = it->second;
 
-    return (input * fromScale / toScale);
+    return (fromScale / toScale);
+
+}
+
+float LengthUnitConverter::convert(float input, const string& inputUnit, const string& outputUnit) const
+{
+    if (inputUnit == outputUnit)
+    {
+        return input;
+    }
+
+    return (input * conversionRatio(inputUnit, outputUnit));
+}
+
+Vector2 LengthUnitConverter::convert(Vector2 input, const string& inputUnit, const string& outputUnit) const
+{
+    if (inputUnit == outputUnit)
+    {
+        return input;
+    }
+
+    return (input * conversionRatio(inputUnit, outputUnit));
+}
+
+Vector3 LengthUnitConverter::convert(Vector3 input, const string& inputUnit, const string& outputUnit) const
+{
+    if (inputUnit == outputUnit)
+    {
+        return input;
+    }
+
+    return (input * conversionRatio(inputUnit, outputUnit));
+}
+
+Vector4 LengthUnitConverter::convert(Vector4 input, const string& inputUnit, const string& outputUnit) const
+{
+    if (inputUnit == outputUnit)
+    {
+        return input;
+    }
+
+    return (input * conversionRatio(inputUnit, outputUnit));
+}
+
+int LengthUnitConverter::getUnitAsInteger(const string& unitName) const
+{
+    const auto it = _unitEnumeration.find(unitName);
+    if (it != _unitEnumeration.end())
+    {
+        return it->second;
+    }
+    return -1;
+}
+
+string LengthUnitConverter::getUnitFromInteger(unsigned int index) const
+{
+    auto it = std::find_if(
+                _unitEnumeration.begin(), _unitEnumeration.end(),
+                [&index](const std::pair<string, unsigned int> &e)->bool
+                {
+                    return (e.second == index);
+                });
+
+    if (it != _unitEnumeration.end())
+    {
+        return it->first;
+    }
+    return EMPTY_STRING;
 }
 
 UnitConverterRegistryPtr UnitConverterRegistry::create()
 {
-    static std::shared_ptr<UnitConverterRegistry> registry(new UnitConverterRegistry());
+    static UnitConverterRegistryPtr registry(new UnitConverterRegistry());
     return registry;
 }
 
@@ -138,5 +202,17 @@ void UnitConverterRegistry::clearUnitConverters()
 {
     _unitConverters.clear();
 }
+
+int UnitConverterRegistry::getUnitAsInteger(const string& unitName) const
+{
+    for (auto it : _unitConverters)
+    {
+        int value = it.second->getUnitAsInteger(unitName);
+        if (value >= 0)
+            return value;
+    }
+    return -1;
+}
+
 
 }

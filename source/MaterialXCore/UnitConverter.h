@@ -54,6 +54,33 @@ class UnitConverter
     /// @param inputUnit Unit of input value
     /// @param outputUnit Unit for output value
     virtual float convert(float input, const string& inputUnit, const string& outputUnit) const = 0;
+
+    /// Given a unit name return a value that it can map to as an integer
+    /// Returns -1 value if not found
+    virtual int getUnitAsInteger(const string&) const { return -1; }
+
+    /// Given an integer index return the unit name in the map used by the converter
+    /// Returns Empty string if not found
+    virtual string getUnitFromInteger(unsigned int) const { return EMPTY_STRING; }
+
+    /// Convert a given value in a given unit to a desired unit
+    /// @param input Input value to convert
+    /// @param inputUnit Unit of input value
+    /// @param outputUnit Unit for output value
+    virtual Vector2 convert(Vector2 input, const string& inputUnit, const string& outputUnit) const = 0;
+
+    /// Convert a given value in a given unit to a desired unit
+    /// @param input Input value to convert
+    /// @param inputUnit Unit of input value
+    /// @param outputUnit Unit for output value
+    virtual Vector3 convert(Vector3 input, const string& inputUnit, const string& outputUnit) const = 0;
+
+    /// Convert a given value in a given unit to a desired unit
+    /// @param input Input value to convert
+    /// @param inputUnit Unit of input value
+    /// @param outputUnit Unit for output value
+    virtual Vector4 convert(Vector4 input, const string& inputUnit, const string& outputUnit) const = 0;
+
 };
 
 class LengthUnitConverter;
@@ -80,6 +107,9 @@ class LengthUnitConverter : public UnitConverter
         return _defaultUnit;
     }
 
+    /// @name Conversion
+    /// @{
+
     /// Return the mappings from unit names to the scale value
     /// defined by a linear converter. 
     const std::unordered_map<string, float>& getUnitScale() const
@@ -87,11 +117,48 @@ class LengthUnitConverter : public UnitConverter
         return _unitScale;
     }
 
+    /// Ratio between the given unit to a desired unit
+    /// @param inputUnit Unit of input value
+    /// @param outputUnit Unit for output value
+    float conversionRatio(const string& inputUnit, const string& outputUnit) const;
+
     /// Convert a given value in a given unit to a desired unit
     /// @param input Input value to convert
     /// @param inputUnit Unit of input value
     /// @param outputUnit Unit for output value
     float convert(float input, const string& inputUnit, const string& outputUnit) const override;
+
+    /// Convert a given value in a given unit to a desired unit
+    /// @param input Input value to convert
+    /// @param inputUnit Unit of input value
+    /// @param outputUnit Unit for output value
+    Vector2 convert(Vector2 input, const string& inputUnit, const string& outputUnit) const override;
+
+    /// Convert a given value in a given unit to a desired unit
+    /// @param input Input value to convert
+    /// @param inputUnit Unit of input value
+    /// @param outputUnit Unit for output value
+    Vector3 convert(Vector3 input, const string& inputUnit, const string& outputUnit) const override;
+
+    /// Convert a given value in a given unit to a desired unit
+    /// @param input Input value to convert
+    /// @param inputUnit Unit of input value
+    /// @param outputUnit Unit for output value
+    Vector4 convert(Vector4 input, const string& inputUnit, const string& outputUnit) const override;
+
+    /// @}
+    /// @name Shader Mapping
+    /// @{
+
+    /// Given a unit name return a value that it can map to as an integer.
+    /// Returns -1 value if not found
+    int getUnitAsInteger(const string& unitName) const override;
+
+    /// Given an integer index return the unit name in the map used by the converter.
+    /// Returns Empty string if not found
+    virtual string getUnitFromInteger(unsigned int index) const override;
+
+    /// @}
 
     /// Length unit type name
     static const string LENGTH_UNIT;
@@ -100,6 +167,7 @@ class LengthUnitConverter : public UnitConverter
     LengthUnitConverter(UnitTypeDefPtr unitTypeDef);
 
     std::unordered_map<string, float> _unitScale;
+    std::unordered_map<string, unsigned int> _unitEnumeration;
     string _defaultUnit;
 };
 
@@ -137,8 +205,16 @@ class UnitConverterRegistry
     /// Clear all unit converters from the registry.
     void clearUnitConverters();
 
+    /// Given a unit name return a value that it can map to as an integer
+    /// Returns -1 value if not found
+    int getUnitAsInteger(const string& unitName) const;
+
   private:
     UnitConverterRegistry() { }
+
+    UnitConverterRegistry(const UnitConverterRegistry&) = delete;
+
+    UnitConverterRegistry& operator=(const UnitConverterRegistry&) = delete;
 
     std::unordered_map<string, UnitConverterPtr> _unitConverters;
 };

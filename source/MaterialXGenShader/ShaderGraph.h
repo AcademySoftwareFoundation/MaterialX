@@ -12,6 +12,7 @@
 #include <MaterialXGenShader/Library.h>
 
 #include <MaterialXGenShader/ColorManagementSystem.h>
+#include <MaterialXGenShader/UnitSystem.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/TypeDesc.h>
 
@@ -122,6 +123,12 @@ class ShaderGraph : public ShaderNode
     /// Add a color transform node and connect to the given output.
     void addColorTransformNode(ShaderOutput* output, const ColorSpaceTransform& transform, GenContext& context);
 
+    /// Add a unit transform node and connect to the given input.
+    void addUnitTransformNode(ShaderInput* input, const UnitTransform& transform, GenContext& context);
+    
+    /// Add a unit transform node and connect to the given output.
+    void addUnitTransformNode(ShaderOutput* output, const UnitTransform& transform, GenContext& context);
+
     /// Perform all post-build operations on the graph.
     void finalize(GenContext& context);
 
@@ -149,6 +156,10 @@ class ShaderGraph : public ShaderNode
     /// has a color space attribute and has a type of color3 or color4.
     void populateInputColorTransformMap(ColorManagementSystemPtr colorManagementSystem, ShaderNodePtr shaderNode, ValueElementPtr input, const string& targetColorSpace);
 
+    /// Populates the input unit transform map if the provided input/parameter
+    /// has a unit attribute and has a type of float.
+    void populateInputUnitTransformMap(UnitSystemPtr unitSystem, ShaderNodePtr shaderNode, ValueElementPtr input, const string& targetUnitSpace, const string& unitType);
+
     /// Break all connections on a node
     void disconnect(ShaderNode* node) const;
 
@@ -158,9 +169,13 @@ class ShaderGraph : public ShaderNode
 
     // Temporary storage for inputs that require color transformations
     std::unordered_map<ShaderInput*, ColorSpaceTransform> _inputColorTransformMap;
+    // Temporary storage for inputs that require unit transformations
+    std::unordered_map<ShaderInput*, UnitTransform> _inputUnitTransformMap;
 
     // Temporary storage for outputs that require color transformations
     std::unordered_map<ShaderOutput*, ColorSpaceTransform> _outputColorTransformMap;
+    // Temporary storage for outputs that require unit transformations
+    std::unordered_map<ShaderOutput*, UnitTransform> _outputUnitTransformMap;
 };
 
 /// @class ShaderGraphEdge
