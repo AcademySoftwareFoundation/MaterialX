@@ -3,11 +3,11 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_SHADERVALIDATOR_H
-#define MATERIALX_SHADERVALIDATOR_H
+#ifndef MATERIALX_SHADERRENDERER_H
+#define MATERIALX_SHADERRENDERER_H
 
 /// @file
-/// Base class for shader validation
+/// Base class for shader rendering
 
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/ImageHandler.h>
@@ -19,25 +19,24 @@
 namespace MaterialX
 {
 
-/// Shared pointer to a shader validator
-using ShaderValidatorPtr = std::shared_ptr<class ShaderValidator>;
+/// Shared pointer to a shader renderer
+using ShaderRendererPtr = std::shared_ptr<class ShaderRenderer>;
 
-/// @class ShaderValidator
-/// Base class for a shader validator
-///
-class ShaderValidator
+/// @class ShaderRenderer
+/// Helper class for rendering generated shader code to produce images.
+class ShaderRenderer
 {
   public:
     /// A map with name and source code for each shader stage.
     using StageMap = StringMap;
 
   public:
-    virtual ~ShaderValidator() { }
+    virtual ~ShaderRenderer() { }
 
     /// @name Setup
     /// @{
 
-    /// Validator initialization 
+    /// Renderer initialization 
     virtual void initialize() = 0;
 
     /// Set image handler to use for image load and save
@@ -90,23 +89,22 @@ class ShaderValidator
     }
 
     /// @}
-    /// @name Validation
+    /// @name Rendering
     /// @{
 
-    /// Validate creation of program based on an input shader
+    /// Create program based on an input shader
     /// @param shader Input Shader
-    virtual void validateCreation(const ShaderPtr shader) = 0;
+    virtual void createProgram(const ShaderPtr shader) = 0;
 
-    /// Validate creation of program based on shader stage source code.
+    /// Create program based on shader stage source code.
     /// @param stages Map of name and source code for the shader stages.
-    virtual void validateCreation(const StageMap& stages) = 0;
+    virtual void createProgram(const StageMap& stages) = 0;
 
     /// Validate inputs for the program 
     virtual void validateInputs() = 0;
 
-    /// Perform validation that inputs can be bound to and 
-    /// Uendered with. Rendering is to an offscreen hardware buffer.
-    virtual void validateRender() = 0;
+    /// Render the current program to produce an image
+    virtual void render() = 0;
 
     /// @}
     /// @name Utilities
@@ -121,7 +119,7 @@ class ShaderValidator
 
   protected:
     // Protected constructor
-    ShaderValidator() { }
+    ShaderRenderer() { }
 
   protected:
     ImageHandlerPtr _imageHandler;
@@ -130,42 +128,39 @@ class ShaderValidator
     ViewHandlerPtr _viewHandler;
 };
 
-/// Error string list type
-using ShaderValidationErrorList = StringVec;
-
-/// @class ExceptionShaderValidationError
-/// An exception that is thrown when shader validation fails.
+/// @class ExceptionShaderRenderError
+/// An exception that is thrown when shader rendering fails.
 /// An error log of shader errors is cached as part of the exception.
 /// For example, if shader compilation fails, then a list of compilation errors is cached.
-class ExceptionShaderValidationError : public Exception
+class ExceptionShaderRenderError : public Exception
 {
   public:
-    ExceptionShaderValidationError(const string& msg, const ShaderValidationErrorList& errorList) :
+    ExceptionShaderRenderError(const string& msg, const StringVec& errorList) :
         Exception(msg),
         _errorLog(errorList)
     {
     }
 
-    ExceptionShaderValidationError(const ExceptionShaderValidationError& e) :
+    ExceptionShaderRenderError(const ExceptionShaderRenderError& e) :
         Exception(e),
         _errorLog(e._errorLog)
     {
     }
 
-    ExceptionShaderValidationError& operator=(const ExceptionShaderValidationError& e)         
+    ExceptionShaderRenderError& operator=(const ExceptionShaderRenderError& e)         
     {
         Exception::operator=(e);
         _errorLog = e._errorLog;
         return *this;
     }
 
-    const ShaderValidationErrorList& errorLog() const
+    const StringVec& errorLog() const
     {
         return _errorLog;
     }
 
   private:
-    ShaderValidationErrorList _errorLog;
+    StringVec _errorLog;
 };
 
 } // namespace MaterialX
