@@ -27,7 +27,7 @@ namespace mx = MaterialX;
 
 // Utilities for running render tests.
 //
-// Execution uses existing code generator instances to produce the code and corresponding validator
+// Execution uses existing code generator instances to produce the code and corresponding renderer
 // instance to check the validity of the generated code by compiling and / or rendering
 // the code to produce images on disk.
 //
@@ -202,11 +202,11 @@ class ShaderRenderTester
     // Code validation methods (compile and render)
     //
 
-    // Create a validator for the generated code
-    virtual void createValidator(std::ostream& log) = 0;
+    // Create a renderer for the generated code
+    virtual void createRenderer(std::ostream& log) = 0;
 
-    // Run the validator
-    virtual bool runValidator(const std::string& shaderName,
+    // Run the renderer
+    virtual bool runRenderer(const std::string& shaderName,
         mx::TypedElementPtr element,
         mx::GenContext& context,
         mx::DocumentPtr doc,

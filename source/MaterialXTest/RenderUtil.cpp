@@ -98,7 +98,7 @@ void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions 
     loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), dependLib);
     loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd_preview_surface.mtlx"), dependLib);
 
-    // Load any addition per validator libraries
+    // Load any addition per renderer libraries
     loadAdditionalLibraries(dependLib, options);
 }
 
@@ -180,10 +180,10 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     loadDependentLibraries(options, searchPath, dependLib);
     ioTimer.endTimer();
 
-    // Create validators and generators
+    // Create renderers and generators
     RenderUtil::AdditiveScopedTimer setupTime(profileTimes.languageTimes.setupTime, "Setup time");
 
-    createValidator(log);
+    createRenderer(log);
 
     mx::ColorManagementSystemPtr colorManagementSystem = mx::DefaultColorManagementSystem::create(_shaderGenerator->getLanguage());
     colorManagementSystem->loadLibrary(dependLib);
@@ -310,7 +310,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                                 mx::InterfaceElementPtr nodeGraphImpl = nodeGraph ? nodeGraph->getImplementation() : nullptr;
                                 usedImpls.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl->getName());
                             }
-                            runValidator(elementName, element, context, doc, log, options, profileTimes, imageSearchPath, outputPath);
+                            runRenderer(elementName, element, context, doc, log, options, profileTimes, imageSearchPath, outputPath);
                         }
                     }
                 }
