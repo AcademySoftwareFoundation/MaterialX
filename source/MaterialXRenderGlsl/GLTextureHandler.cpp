@@ -8,7 +8,7 @@
 #include <MaterialXRenderGlsl/GlslProgram.h>
 #include <MaterialXRenderGlsl/External/GLew/glew.h>
 
-#include <MaterialXRender/ShaderValidator.h>
+#include <MaterialXRender/ShaderRenderer.h>
 
 namespace MaterialX
 {
@@ -31,9 +31,9 @@ bool GLTextureHandler::acquireImage(const FilePath& filePath,
         glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
         if (maxTextureUnits <= 0)
         {
-            ShaderValidationErrorList errors;
+            StringVec errors;
             errors.push_back("No texture units available");
-            throw ExceptionShaderValidationError("OpenGL context error.", errors);
+            throw ExceptionShaderRenderError("OpenGL context error.", errors);
         }
         _boundTextureLocations.resize(maxTextureUnits, MaterialX::GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
     }

@@ -7,11 +7,11 @@
 
 namespace py = pybind11;
 
-void bindPyOslValidator(py::module& mod);
+void bindPyOslRenderer(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXRenderOsl, mod)
 {
     mod.doc() = "Module containing Python bindings for the MaterialXRenderOsl library";
 
-    bindPyOslValidator(mod);
+    bindPyOslRenderer(mod);
 }
