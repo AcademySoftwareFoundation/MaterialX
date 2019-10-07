@@ -210,8 +210,8 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
 {
 
     // Set default unit
-    _unitspace = "meter";
     _unitRegistry = mx::UnitConverterRegistry::create();
+    _unitOptionsUI = nullptr;
     
     // Transpary option before creating Advanced UI 
     // as this flag is used to set the default value.
@@ -268,7 +268,6 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
     // Set default generator options.
     _genContext.getOptions().hwSpecularEnvironmentMethod = _specularEnvironmentMethod;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
-    _genContext.getOptions().targetLengthUnit = _unitspace;
     _genContext.getOptions().fileTextureVerticalFlip = true;
 
     // Set default light information before initialization
@@ -429,7 +428,13 @@ void Viewer::setupUnitConverter(mx::DocumentPtr doc)
     unitSystem->setUnitConverterRegistry(_unitRegistry);
     _genContext.getShaderGenerator().setUnitSystem(unitSystem);
     mx::UnitTypeDefPtr lengthTypeDef = doc->getUnitTypeDef(mx::LengthUnitConverter::LENGTH_UNIT);
-    _unitRegistry->addUnitConverter(lengthTypeDef, mx::LengthUnitConverter::create(lengthTypeDef));
+    _lengthUnitConverter = mx::LengthUnitConverter::create(lengthTypeDef);
+    _unitRegistry->addUnitConverter(lengthTypeDef, _lengthUnitConverter);
+    _unitOptions.clear();
+    for (int unitid = 0; unitid < _lengthUnitConverter->getUnitScale().size(); unitid++)
+    {
+        _unitOptions.push_back(_lengthUnitConverter->getUnitFromInteger(unitid));
+    }
 }
 
 void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)
@@ -693,47 +698,15 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _showAdvancedProperties = enable;
         updateDisplayedProperties();
     });
+    
+    new ng::Label(advancedPopup, "Unit Options");
+    // Unit selection widget
+    Widget* sampleGroup = new Widget(advancedPopup);
+    sampleGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(sampleGroup, "Unit Space:");
+    _unitOptionsUI = new ng::ComboBox(sampleGroup, _unitOptions);
+    _unitOptionsUI->setChevronIcon(-1);
 
-    //Units
-    {
-        Widget* sampleGroup = new Widget(advancedPopup);
-        sampleGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
-        new ng::Label(sampleGroup, "Unit Space:");
-
-       
-        {
-            //TODO: Need a get supported units
-            mProcessEvents = false;
-            unitOptions.push_back("nanometer");
-            unitOptions.push_back("millimeter");
-            unitOptions.push_back("micron");
-            unitOptions.push_back("centimeter");
-            unitOptions.push_back("foot");
-            unitOptions.push_back("kilometer");
-            unitOptions.push_back("inch");
-            unitOptions.push_back("yard");
-            unitOptions.push_back("mile");
-            unitOptions.push_back("meter");
-            mProcessEvents = true;
-        }
-        ng::ComboBox* sampleBox = new ng::ComboBox(sampleGroup, unitOptions);
-        sampleBox->setChevronIcon(-1);
-
-        int index = (int) std::distance(unitOptions.begin(),
-                                     std::find(unitOptions.begin(),
-                                               unitOptions.end(),
-                                               _unitspace));
-        sampleBox->setSelectedIndex(index);
-        sampleBox->setCallback([this](int index)
-        {
-            _unitspace = unitOptions[index];
-            _genContext.getOptions().targetLengthUnit = _unitspace;
-            for (MaterialPtr material : _materials)
-            {
-                material->bindUnits(_unitRegistry, _genContext);
-            }    
-        });
-    }
 }
 
 void Viewer::updateGeometrySelections()
@@ -842,6 +815,29 @@ void Viewer::updateMaterialSelectionUI()
             }
         }
     }
+}
+
+void Viewer::updateUnitSelections()
+{
+    mProcessEvents = false;
+    if (_unitOptionsUI)
+    {
+        if (_unitOptionsUI->items().empty()) {
+            _unitOptionsUI->setItems(_unitOptions);
+            std::string workingUnitSpace = _lengthUnitConverter->getDefaultUnit();
+            int index = _lengthUnitConverter->getUnitAsInteger(workingUnitSpace);
+            _unitOptionsUI->setSelectedIndex(index);
+            _unitOptionsUI->setCallback([this](int index)
+            {
+                _genContext.getOptions().targetLengthUnit = _lengthUnitConverter->getUnitFromInteger(index);
+                for (MaterialPtr material : _materials)
+                {
+                    material->bindUnits(_unitRegistry, _genContext);
+                }
+            });
+        }
+    }
+    mProcessEvents = true;
 }
 
 void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries)
@@ -1041,6 +1037,9 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
     // Update material UI.
     updateMaterialSelections();
     updateMaterialSelectionUI();
+
+    // Update units UI.
+    updateUnitSelections();
 }
 
 void Viewer::reloadShaders(bool forceCreation)
