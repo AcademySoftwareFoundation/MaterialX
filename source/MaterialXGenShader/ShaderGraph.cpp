@@ -540,7 +540,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     graph->populateInputColorTransformMap(colorManagementSystem, graph->_nodeMap[newNodeName], bindParam, targetColorSpace);
                     // Collect transforms that are Length units.
                     graph->populateInputUnitTransformMap(context.getShaderGenerator().getUnitSystem(), graph->_nodeMap[newNodeName],
-                        bindParam, context.getOptions().targetLengthUnit, LengthUnitConverter::LENGTH_UNIT);
+                        bindParam, context.getOptions().targetLengthUnit, DistanceUnitConverter::DISTANCE_UNIT);
                 }
                 inputSocket->setPath(bindParam->getNamePath());
                 input->setPath(inputSocket->getPath());
@@ -579,7 +579,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     input->setBindInput();
                     graph->populateInputColorTransformMap(colorManagementSystem, graph->_nodeMap[newNodeName], bindInput, targetColorSpace);
                     graph->populateInputUnitTransformMap(context.getShaderGenerator().getUnitSystem(), graph->_nodeMap[newNodeName], bindInput, 
-                                                         context.getOptions().targetLengthUnit, LengthUnitConverter::LENGTH_UNIT);
+                                                         context.getOptions().targetLengthUnit, DistanceUnitConverter::DISTANCE_UNIT);
                 }
                 inputSocket->setPath(bindInput->getNamePath());
                 input->setPath(inputSocket->getPath());
@@ -790,11 +790,11 @@ ShaderNode* ShaderGraph::addNode(const Node& node, GenContext& context)
     {
         for (InputPtr input : node.getInputs())
         {
-            populateInputUnitTransformMap(unitSystem, newNode, input, context.getOptions().targetLengthUnit, LengthUnitConverter::LENGTH_UNIT);
+            populateInputUnitTransformMap(unitSystem, newNode, input, context.getOptions().targetLengthUnit, DistanceUnitConverter::DISTANCE_UNIT);
         }
         for (ParameterPtr parameter : node.getParameters())
         {
-            populateInputUnitTransformMap(unitSystem, newNode, parameter, context.getOptions().targetLengthUnit, LengthUnitConverter::LENGTH_UNIT);
+            populateInputUnitTransformMap(unitSystem, newNode, parameter, context.getOptions().targetLengthUnit, DistanceUnitConverter::DISTANCE_UNIT);
         }
     }
     return newNode.get();

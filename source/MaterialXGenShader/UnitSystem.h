@@ -85,7 +85,7 @@ public:
     virtual string getImplementationName(const UnitTransform& transform, const string& unitname) const;
 
     static const string UNITSYTEM_NAME;
-    static const string LENGTH_UNIT_TARGET_NAME;
+    static const string DISTANCE_UNIT_TARGET_NAME;
 
 protected:
     /// Protected constructor

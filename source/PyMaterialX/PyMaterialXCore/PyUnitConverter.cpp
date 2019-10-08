@@ -79,14 +79,14 @@ void bindPyUnitConverters(py::module& mod)
         .def("getUnitAsInteger", &mx::UnitConverter::getUnitAsInteger)
         .def("getUnitFromInteger", &mx::UnitConverter::getUnitFromInteger);
 
-    py::class_<mx::LengthUnitConverter, mx::UnitConverter, mx::LengthUnitConverterPtr>(mod, "LengthUnitConverter")
-        .def_static("create", &mx::LengthUnitConverter::create)
-        .def("getUnitScale", &mx::LengthUnitConverter::getUnitScale)
-        .def("getDefaultUnit", &mx::LengthUnitConverter::getDefaultUnit)
-        .def("convert", (float       (mx::LengthUnitConverter::*)(float, const std::string&, const std::string&)const) &mx::LengthUnitConverter::convert)
-        .def("convert", (mx::Vector2 (mx::LengthUnitConverter::*)(mx::Vector2, const std::string&, const std::string&)const) &mx::LengthUnitConverter::convert)
-        .def("convert", (mx::Vector3 (mx::LengthUnitConverter::*)(mx::Vector3, const std::string&, const std::string&)const) &mx::LengthUnitConverter::convert)
-        .def("convert", (mx::Vector4 (mx::LengthUnitConverter::*)(mx::Vector4, const std::string&, const std::string&)const) &mx::LengthUnitConverter::convert)
+    py::class_<mx::DistanceUnitConverter, mx::UnitConverter, mx::DistanceUnitConverterPtr>(mod, "DistanceUnitConverter")
+        .def_static("create", &mx::DistanceUnitConverter::create)
+        .def("getUnitScale", &mx::DistanceUnitConverter::getUnitScale)
+        .def("getDefaultUnit", &mx::DistanceUnitConverter::getDefaultUnit)
+        .def("convert", (float       (mx::DistanceUnitConverter::*)(float, const std::string&, const std::string&)const) &mx::DistanceUnitConverter::convert)
+        .def("convert", (mx::Vector2 (mx::DistanceUnitConverter::*)(mx::Vector2, const std::string&, const std::string&)const) &mx::DistanceUnitConverter::convert)
+        .def("convert", (mx::Vector3 (mx::DistanceUnitConverter::*)(mx::Vector3, const std::string&, const std::string&)const) &mx::DistanceUnitConverter::convert)
+        .def("convert", (mx::Vector4 (mx::DistanceUnitConverter::*)(mx::Vector4, const std::string&, const std::string&)const) &mx::DistanceUnitConverter::convert)
         .def("getUnitAsInteger", &mx::UnitConverter::getUnitAsInteger)
         .def("getUnitFromInteger", &mx::UnitConverter::getUnitFromInteger);
 

@@ -573,7 +573,7 @@ void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenCo
         port = publicUniforms->find(
             [](mx::ShaderPort* port)
         {
-            return (port && (port->getName() == mx::UnitSystem::LENGTH_UNIT_TARGET_NAME));
+            return (port && (port->getName() == mx::UnitSystem::DISTANCE_UNIT_TARGET_NAME));
         });
 
         // Check if the uniform exists in the shader program
@@ -590,9 +590,9 @@ void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenCo
         {
             port->setValue(mx::Value::createValue(intPortValue));
             _glShader->bind();
-            if (_glShader->uniform(mx::UnitSystem::LENGTH_UNIT_TARGET_NAME, false) != -1)
+            if (_glShader->uniform(mx::UnitSystem::DISTANCE_UNIT_TARGET_NAME, false) != -1)
             {
-                _glShader->setUniform(mx::UnitSystem::LENGTH_UNIT_TARGET_NAME, intPortValue);
+                _glShader->setUniform(mx::UnitSystem::DISTANCE_UNIT_TARGET_NAME, intPortValue);
             }
         }
     }

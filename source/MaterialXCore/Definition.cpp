@@ -26,8 +26,7 @@ const string TypeDef::CONTEXT_ATTRIBUTE = "context";
 const string Implementation::FILE_ATTRIBUTE = "file";
 const string Implementation::FUNCTION_ATTRIBUTE = "function";
 const string Implementation::LANGUAGE_ATTRIBUTE = "language";
-const string UnitDef::UNITTYPEDEF_ATTRIBUTE = "unittypedef";
-const string UnitTypeDef::DEFAULT_ATTRIBUTE = "default";
+const string UnitDef::DEFAULT_ATTRIBUTE = "default";
 
 //
 // NodeDef methods
@@ -147,19 +146,6 @@ NodeDefPtr Implementation::getNodeDef() const
 ConstNodeDefPtr Implementation::getDeclaration(const string&) const
 {
     return getNodeDef();
-}
-
-vector<UnitDefPtr> UnitTypeDef::getUnitDefs() const
-{
-    vector<UnitDefPtr> unitDefs;
-    for (UnitDefPtr unitDef : getDocument()->getChildrenOfType<UnitDef>())
-    {
-        if (unitDef->getUnitType() == _name)
-        {
-            unitDefs.push_back(unitDef);
-        }
-    }
-    return unitDefs;
 }
 
 } // namespace MaterialX

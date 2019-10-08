@@ -634,24 +634,31 @@ bool ValueElement::validate(string* message) const
             }
         }
     }
-    UnitTypeDefPtr unitDefType;
+    vector<UnitDefPtr> unitDefs;
     if (hasUnitType())
     {
         const string& unittype = getUnitType();
         if (!unittype.empty())
         {
-            unitDefType = getDocument()->getUnitTypeDef(unittype);
-            validateRequire(unitDefType != nullptr, res, message, "Unit type definition does not exist in document");
+            unitDefs = getDocument()->getUnitDefs(unittype);
+            validateRequire(!unitDefs.empty(), res, message, "Unit type definition does not exist in document");
         }
     }            
     if (hasUnit())
     {
         bool foundUnit = false;
         const string& unit = getUnit();
-        if ((unitDefType && (unitDefType->getDefault() == unit)) ||
-            getDocument()->getChild(unit))
+        for (UnitDefPtr unitDef : unitDefs)
         {
-            foundUnit = true;
+            if (unitDef->getDefault() == unit)
+            {
+                foundUnit = true;
+                break;
+            }
+            if (unitDef->getChild(unit))
+            {
+                foundUnit = true;
+            }
         }
         validateRequire(foundUnit, res, message, "Unit definition does not exist in document");
     }
@@ -804,7 +811,7 @@ INSTANTIATE_CONCRETE_SUBCLASS(Variant, "variant")
 INSTANTIATE_CONCRETE_SUBCLASS(VariantAssign, "variantassign")
 INSTANTIATE_CONCRETE_SUBCLASS(VariantSet, "variantset")
 INSTANTIATE_CONCRETE_SUBCLASS(Visibility, "visibility")
+INSTANTIATE_CONCRETE_SUBCLASS(Unit, "unit")
 INSTANTIATE_CONCRETE_SUBCLASS(UnitDef, "unitdef")
-INSTANTIATE_CONCRETE_SUBCLASS(UnitTypeDef, "unittypedef")
 
 } // namespace MaterialX

@@ -22,8 +22,8 @@ TEST_CASE("UnitAttribute", "[units]")
 {
     mx::DocumentPtr doc = mx::createDocument();
     mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
-    std::vector<mx::UnitTypeDefPtr> unitTypeDefs = doc->getUnitTypeDefs();
-    REQUIRE(!unitTypeDefs.empty());
+    std::vector<mx::UnitDefPtr> UnitDefs = doc->getUnitDefs();
+    REQUIRE(!UnitDefs.empty());
 
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
     nodeGraph->setName("graph1");
@@ -34,7 +34,7 @@ TEST_CASE("UnitAttribute", "[units]")
     constant->setParameterValue("value", mx::Color3(0.5f));
     mx::ParameterPtr param = constant->getParameter("value");
     param->setName("param1");
-    param->setUnitType("length");
+    param->setUnitType("distance");
     param->setUnit("meter");
     REQUIRE(param->hasUnit());
     REQUIRE(!param->getUnit().empty());
@@ -42,7 +42,7 @@ TEST_CASE("UnitAttribute", "[units]")
     // Test for valid unit names
     mx::OutputPtr output = nodeGraph->addOutput();
     output->setConnectedNode(constant);
-    output->setUnitType("length");
+    output->setUnitType("distance");
     output->setUnit("bad unit");
     REQUIRE(!output->validate());
     output->setUnit("foot");
@@ -56,18 +56,25 @@ TEST_CASE("UnitEvaluation", "[units]")
 {
     mx::DocumentPtr doc = mx::createDocument();
     mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
+    std::vector<mx::UnitDefPtr> UnitDefs = doc->getUnitDefs();
+    REQUIRE(!UnitDefs.empty());
 
-    mx::UnitTypeDefPtr lengthTypeDef = doc->getUnitTypeDef(mx::LengthUnitConverter::LENGTH_UNIT);
-    REQUIRE(lengthTypeDef);
+    mx::UnitDefPtr distanceTypeDef;
+    std::vector<mx::UnitDefPtr> distanceTypeDefs = doc->getUnitDefs(mx::DistanceUnitConverter::DISTANCE_UNIT);
+    if (!distanceTypeDefs.empty())
+    {
+        distanceTypeDef = distanceTypeDefs[0];
+    }
+    REQUIRE(distanceTypeDef);
 
     mx::UnitConverterRegistryPtr registry = mx::UnitConverterRegistry::create();
     mx::UnitConverterRegistryPtr registry2 = mx::UnitConverterRegistry::create();
     REQUIRE(registry == registry2);
 
-    mx::LengthUnitConverterPtr converter = mx::LengthUnitConverter::create(lengthTypeDef);
+    mx::DistanceUnitConverterPtr converter = mx::DistanceUnitConverter::create(distanceTypeDef);
     REQUIRE(converter);
-    registry->addUnitConverter(lengthTypeDef, converter);
-    mx::UnitConverterPtr uconverter = registry->getUnitConverter(lengthTypeDef);
+    registry->addUnitConverter(distanceTypeDef, converter);
+    mx::UnitConverterPtr uconverter = registry->getUnitConverter(distanceTypeDef);
     REQUIRE(uconverter);
 
     // Use converter to convert
@@ -85,7 +92,7 @@ TEST_CASE("UnitEvaluation", "[units]")
     result = 0.1f * unitScale.find("kilometer")->second / unitScale.find("millimeter")->second;
     REQUIRE((result - 10000.0f) < EPSILON);
     const std::string& defaultUnit = converter->getDefaultUnit();
-    REQUIRE(defaultUnit == lengthTypeDef->getDefault());
+    REQUIRE(defaultUnit == distanceTypeDef->getDefault());
 
     // Test integrer mapping
     unsigned int unitNumber = converter->getUnitAsInteger("mile");
@@ -107,15 +114,18 @@ TEST_CASE("UnitDocument", "[units]")
         mx::DocumentPtr doc = mx::createDocument();
         mx::readFromXmlFile(doc, filename, searchPath);
         mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
+        
+        std::vector<mx::UnitDefPtr> distanceTypeDefs = doc->getUnitDefs(mx::DistanceUnitConverter::DISTANCE_UNIT);
+        REQUIRE(!distanceTypeDefs.empty());
 
-        mx::UnitTypeDefPtr lengthTypeDef = doc->getUnitTypeDef(mx::LengthUnitConverter::LENGTH_UNIT);
-        REQUIRE(lengthTypeDef);
+        mx::UnitDefPtr distanceTypeDef = distanceTypeDefs[0];
+        REQUIRE(distanceTypeDef);
 
-        mx::UnitConverterPtr uconverter = mx::LengthUnitConverter::create(lengthTypeDef);
+        mx::UnitConverterPtr uconverter = mx::DistanceUnitConverter::create(distanceTypeDef);
         REQUIRE(uconverter);
         mx::UnitConverterRegistryPtr registry = mx::UnitConverterRegistry::create();
-        registry->addUnitConverter(lengthTypeDef, uconverter);
-        uconverter = registry->getUnitConverter(lengthTypeDef);
+        registry->addUnitConverter(distanceTypeDef, uconverter);
+        uconverter = registry->getUnitConverter(distanceTypeDef);
         REQUIRE(uconverter);
 
         // Traverse the document tree
@@ -134,29 +144,29 @@ TEST_CASE("UnitDocument", "[units]")
                             if (type->isScalar())
                             {
                                 float originalval = value->asA<float>();
-                                float convertedValue = uconverter->convert(originalval, input->getUnit(), lengthTypeDef->getDefault());
-                                float reconvert = uconverter->convert(convertedValue, lengthTypeDef->getDefault(), input->getUnit());
+                                float convertedValue = uconverter->convert(originalval, input->getUnit(), distanceTypeDef->getDefault());
+                                float reconvert = uconverter->convert(convertedValue, distanceTypeDef->getDefault(), input->getUnit());
                                 REQUIRE(originalval == reconvert);
                             }
                             else if (type->isFloat2())
                             {
                                 mx::Vector2 originalval = value->asA<mx::Vector2>();
-                                mx::Vector2 convertedValue = uconverter->convert(originalval, input->getUnit(), lengthTypeDef->getDefault());
-                                mx::Vector2 reconvert = uconverter->convert(convertedValue, lengthTypeDef->getDefault(), input->getUnit());
+                                mx::Vector2 convertedValue = uconverter->convert(originalval, input->getUnit(), distanceTypeDef->getDefault());
+                                mx::Vector2 reconvert = uconverter->convert(convertedValue, distanceTypeDef->getDefault(), input->getUnit());
                                 REQUIRE(originalval == reconvert);
                             }
                             else if (type->isFloat3())
                             {
                                 mx::Vector3 originalval = value->asA<mx::Vector3>();
-                                mx::Vector3 convertedValue = uconverter->convert(originalval, input->getUnit(), lengthTypeDef->getDefault());
-                                mx::Vector3 reconvert = uconverter->convert(convertedValue, lengthTypeDef->getDefault(), input->getUnit());
+                                mx::Vector3 convertedValue = uconverter->convert(originalval, input->getUnit(), distanceTypeDef->getDefault());
+                                mx::Vector3 reconvert = uconverter->convert(convertedValue, distanceTypeDef->getDefault(), input->getUnit());
                                 REQUIRE(originalval == reconvert);
                             }
                             else if (type->isFloat4())
                             {
                                 mx::Vector4 originalval = value->asA<mx::Vector4>();
-                                mx::Vector4 convertedValue = uconverter->convert(originalval, input->getUnit(), lengthTypeDef->getDefault());
-                                mx::Vector4 reconvert = uconverter->convert(convertedValue, lengthTypeDef->getDefault(), input->getUnit());
+                                mx::Vector4 convertedValue = uconverter->convert(originalval, input->getUnit(), distanceTypeDef->getDefault());
+                                mx::Vector4 reconvert = uconverter->convert(convertedValue, distanceTypeDef->getDefault(), input->getUnit());
                                 REQUIRE(originalval == reconvert);
                             }
                         }
@@ -172,29 +182,29 @@ TEST_CASE("UnitDocument", "[units]")
                             if (type->isScalar())
                             {
                                 float originalval = value->asA<float>();
-                                float convertedValue = uconverter->convert(originalval, param->getUnit(), lengthTypeDef->getDefault());
-                                float reconvert = uconverter->convert(convertedValue, lengthTypeDef->getDefault(), param->getUnit());
+                                float convertedValue = uconverter->convert(originalval, param->getUnit(), distanceTypeDef->getDefault());
+                                float reconvert = uconverter->convert(convertedValue, distanceTypeDef->getDefault(), param->getUnit());
                                 REQUIRE(originalval == reconvert);
                             }
                             else if (type->isFloat2())
                             {
                                 mx::Vector2 originalval = value->asA<mx::Vector2>();
-                                mx::Vector2 convertedValue = uconverter->convert(originalval, param->getUnit(), lengthTypeDef->getDefault());
-                                mx::Vector2 reconvert = uconverter->convert(convertedValue, lengthTypeDef->getDefault(), param->getUnit());
+                                mx::Vector2 convertedValue = uconverter->convert(originalval, param->getUnit(), distanceTypeDef->getDefault());
+                                mx::Vector2 reconvert = uconverter->convert(convertedValue, distanceTypeDef->getDefault(), param->getUnit());
                                 REQUIRE(originalval == reconvert);
                             }
                             else if (type->isFloat3())
                             {
                                 mx::Vector3 originalval = value->asA<mx::Vector3>();
-                                mx::Vector3 convertedValue = uconverter->convert(originalval, param->getUnit(), lengthTypeDef->getDefault());
-                                mx::Vector3 reconvert = uconverter->convert(convertedValue, lengthTypeDef->getDefault(), param->getUnit());
+                                mx::Vector3 convertedValue = uconverter->convert(originalval, param->getUnit(), distanceTypeDef->getDefault());
+                                mx::Vector3 reconvert = uconverter->convert(convertedValue, distanceTypeDef->getDefault(), param->getUnit());
                                 REQUIRE(originalval == reconvert);
                             }
                             else if (type->isFloat4())
                             {
                                 mx::Vector4 originalval = value->asA<mx::Vector4>();
-                                mx::Vector4 convertedValue = uconverter->convert(originalval, param->getUnit(), lengthTypeDef->getDefault());
-                                mx::Vector4 reconvert = uconverter->convert(convertedValue, lengthTypeDef->getDefault(), param->getUnit());
+                                mx::Vector4 convertedValue = uconverter->convert(originalval, param->getUnit(), distanceTypeDef->getDefault());
+                                mx::Vector4 reconvert = uconverter->convert(convertedValue, distanceTypeDef->getDefault(), param->getUnit());
                                 REQUIRE(originalval == reconvert);
                             }
                         }

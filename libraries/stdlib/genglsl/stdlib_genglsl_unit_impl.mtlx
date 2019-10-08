@@ -6,8 +6,8 @@
   <!-- Unit System Implementations -->
   <!-- ======================================================================== -->
 
-  <implementation name="IM_length_unit_float_genglsl" file="stdlib/genglsl/mx_length_unit.glsl" function="mx_length_unit_float" language="genglsl" />
-  <implementation name="IM_length_unit_vector2_genglsl" file="stdlib/genglsl/mx_length_unit.glsl" function="mx_length_unit_vector2" language="genglsl" />
-  <implementation name="IM_length_unit_vector3_genglsl" file="stdlib/genglsl/mx_length_unit.glsl" function="mx_length_unit_vector3" language="genglsl" />
-  <implementation name="IM_length_unit_vector4_genglsl" file="stdlib/genglsl/mx_length_unit.glsl" function="mx_length_unit_vector4" language="genglsl" />
+  <implementation name="IM_distance_unit_float_genglsl" file="stdlib/genglsl/mx_distance_unit.glsl" function="mx_distance_unit_float" language="genglsl" />
+  <implementation name="IM_distance_unit_vector2_genglsl" file="stdlib/genglsl/mx_distance_unit.glsl" function="mx_distance_unit_vector2" language="genglsl" />
+  <implementation name="IM_distance_unit_vector3_genglsl" file="stdlib/genglsl/mx_distance_unit.glsl" function="mx_distance_unit_vector3" language="genglsl" />
+  <implementation name="IM_distance_unit_vector4_genglsl" file="stdlib/genglsl/mx_distance_unit.glsl" function="mx_distance_unit_vector4" language="genglsl" />
 </materialx>

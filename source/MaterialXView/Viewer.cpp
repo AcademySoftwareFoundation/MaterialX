@@ -428,8 +428,12 @@ void Viewer::setupUnitConverter(mx::DocumentPtr doc)
     unitSystem->loadLibrary(_stdLib);
     unitSystem->setUnitConverterRegistry(_unitRegistry);
     _genContext.getShaderGenerator().setUnitSystem(unitSystem);
-    mx::UnitTypeDefPtr lengthTypeDef = doc->getUnitTypeDef(mx::LengthUnitConverter::LENGTH_UNIT);
-    _unitRegistry->addUnitConverter(lengthTypeDef, mx::LengthUnitConverter::create(lengthTypeDef));
+    std::vector<mx::UnitDefPtr> distanceTypeDefs = doc->getUnitDefs(mx::DistanceUnitConverter::DISTANCE_UNIT);
+    if (!distanceTypeDefs.empty())
+    {
+        mx::UnitDefPtr distanceTypeDef = distanceTypeDefs[0];
+        _unitRegistry->addUnitConverter(distanceTypeDef, mx::DistanceUnitConverter::create(distanceTypeDef));
+    }
 }
 
 void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)

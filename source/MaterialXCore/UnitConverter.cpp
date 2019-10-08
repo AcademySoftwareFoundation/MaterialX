@@ -10,22 +10,22 @@
 
 namespace MaterialX
 {
-const string LengthUnitConverter::LENGTH_UNIT = "length";
+const string DistanceUnitConverter::DISTANCE_UNIT = "distance";
 
-LengthUnitConverter::LengthUnitConverter(UnitTypeDefPtr unitTypeDef) :
+DistanceUnitConverter::DistanceUnitConverter(UnitDefPtr UnitDef) :
     UnitConverter()
 {
     static const string SCALE_ATTRIBUTE = "scale";
     unsigned int enumerant = 0;
 
-    // Populate the unit scale and offset maps for each UnitDef. 
-    vector<UnitDefPtr> unitDefs = unitTypeDef->getUnitDefs();
-    for (UnitDefPtr unitdef : unitDefs)
+    // Populate the unit scale and offset maps for each Unit. 
+    vector<UnitPtr> Units = UnitDef->getUnits();
+    for (UnitPtr Unit : Units)
     {
-        const string& name = unitdef->getName();
+        const string& name = Unit->getName();
         if (!name.empty())
         {
-            const string& scaleString = unitdef->getAttribute(SCALE_ATTRIBUTE);
+            const string& scaleString = Unit->getAttribute(SCALE_ATTRIBUTE);
             if (!scaleString.empty())
             {
                 ValuePtr scaleValue = Value::createValueFromStrings(scaleString, getTypeString<float>());
@@ -39,10 +39,10 @@ LengthUnitConverter::LengthUnitConverter(UnitTypeDefPtr unitTypeDef) :
         }
     }
 
-    // In case the default unit was not specified in the unittypedef explicit
+    // In case the default unit was not specified in the UnitDef explicit
     // add this to be able to accept converstion with the default 
     // as the input or output unit
-    _defaultUnit = unitTypeDef->getDefault();
+    _defaultUnit = UnitDef->getDefault();
     auto it = _unitScale.find(_defaultUnit);
     if (it == _unitScale.end())
     {
@@ -51,13 +51,13 @@ LengthUnitConverter::LengthUnitConverter(UnitTypeDefPtr unitTypeDef) :
     }
 }
 
-LengthUnitConverterPtr LengthUnitConverter::create(UnitTypeDefPtr unitTypeDef)
+DistanceUnitConverterPtr DistanceUnitConverter::create(UnitDefPtr UnitDef)
 {
-    std::shared_ptr<LengthUnitConverter> converter(new LengthUnitConverter(unitTypeDef));
+    std::shared_ptr<DistanceUnitConverter> converter(new DistanceUnitConverter(UnitDef));
     return converter;
 }
 
-float LengthUnitConverter::conversionRatio(const string& inputUnit, const string& outputUnit) const
+float DistanceUnitConverter::conversionRatio(const string& inputUnit, const string& outputUnit) const
 {
     auto it = _unitScale.find(inputUnit);
     if (it == _unitScale.end())
@@ -77,7 +77,7 @@ float LengthUnitConverter::conversionRatio(const string& inputUnit, const string
 
 }
 
-float LengthUnitConverter::convert(float input, const string& inputUnit, const string& outputUnit) const
+float DistanceUnitConverter::convert(float input, const string& inputUnit, const string& outputUnit) const
 {
     if (inputUnit == outputUnit)
     {
@@ -87,7 +87,7 @@ float LengthUnitConverter::convert(float input, const string& inputUnit, const s
     return (input * conversionRatio(inputUnit, outputUnit));
 }
 
-Vector2 LengthUnitConverter::convert(Vector2 input, const string& inputUnit, const string& outputUnit) const
+Vector2 DistanceUnitConverter::convert(Vector2 input, const string& inputUnit, const string& outputUnit) const
 {
     if (inputUnit == outputUnit)
     {
@@ -97,7 +97,7 @@ Vector2 LengthUnitConverter::convert(Vector2 input, const string& inputUnit, con
     return (input * conversionRatio(inputUnit, outputUnit));
 }
 
-Vector3 LengthUnitConverter::convert(Vector3 input, const string& inputUnit, const string& outputUnit) const
+Vector3 DistanceUnitConverter::convert(Vector3 input, const string& inputUnit, const string& outputUnit) const
 {
     if (inputUnit == outputUnit)
     {
@@ -107,7 +107,7 @@ Vector3 LengthUnitConverter::convert(Vector3 input, const string& inputUnit, con
     return (input * conversionRatio(inputUnit, outputUnit));
 }
 
-Vector4 LengthUnitConverter::convert(Vector4 input, const string& inputUnit, const string& outputUnit) const
+Vector4 DistanceUnitConverter::convert(Vector4 input, const string& inputUnit, const string& outputUnit) const
 {
     if (inputUnit == outputUnit)
     {
@@ -117,7 +117,7 @@ Vector4 LengthUnitConverter::convert(Vector4 input, const string& inputUnit, con
     return (input * conversionRatio(inputUnit, outputUnit));
 }
 
-int LengthUnitConverter::getUnitAsInteger(const string& unitName) const
+int DistanceUnitConverter::getUnitAsInteger(const string& unitName) const
 {
     const auto it = _unitEnumeration.find(unitName);
     if (it != _unitEnumeration.end())
@@ -127,11 +127,11 @@ int LengthUnitConverter::getUnitAsInteger(const string& unitName) const
     return -1;
 }
 
-string LengthUnitConverter::getUnitFromInteger(unsigned int index) const
+string DistanceUnitConverter::getUnitFromInteger(int index) const
 {
     auto it = std::find_if(
                 _unitEnumeration.begin(), _unitEnumeration.end(),
-                [&index](const std::pair<string, unsigned int> &e)->bool
+                [&index](const std::pair<string, int> &e)->bool
                 {
                     return (e.second == index);
                 });
@@ -149,7 +149,7 @@ UnitConverterRegistryPtr UnitConverterRegistry::create()
     return registry;
 }
 
-bool UnitConverterRegistry::addUnitConverter(UnitTypeDefPtr def, UnitConverterPtr converter)
+bool UnitConverterRegistry::addUnitConverter(UnitDefPtr def, UnitConverterPtr converter)
 {
     const string& name = def->getName();
     if (_unitConverters.find(name) != _unitConverters.end())
@@ -160,7 +160,7 @@ bool UnitConverterRegistry::addUnitConverter(UnitTypeDefPtr def, UnitConverterPt
     return true;
 }
 
-bool UnitConverterRegistry::removeUnitConverter(UnitTypeDefPtr def)
+bool UnitConverterRegistry::removeUnitConverter(UnitDefPtr def)
 {
     const string& name = def->getName();
     auto it = _unitConverters.find(name);
@@ -173,7 +173,7 @@ bool UnitConverterRegistry::removeUnitConverter(UnitTypeDefPtr def)
     return true;
 }
 
-UnitConverterPtr UnitConverterRegistry::getUnitConverter(UnitTypeDefPtr def)
+UnitConverterPtr UnitConverterRegistry::getUnitConverter(UnitDefPtr def)
 {
     const string& name = def->getName();
     auto it = _unitConverters.find(name);

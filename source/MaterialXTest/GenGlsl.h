@@ -45,7 +45,7 @@ class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
             "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
             "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue", "IM_light_genglsl",
             "IM_point_light_genglsl", "IM_spot_light_genglsl", "IM_directional_light_genglsl",
-            "IM_length_unit_float_genglsl", "IM_length_unit_vector2_genglsl", "IM_length_unit_vector3_genglsl", "IM_length_unit_vector4_genglsl"
+            "IM_distance_"
         };
     }
 };
