@@ -431,7 +431,7 @@ void Viewer::setupUnitConverter(mx::DocumentPtr doc)
     _lengthUnitConverter = mx::LengthUnitConverter::create(lengthTypeDef);
     _unitRegistry->addUnitConverter(lengthTypeDef, _lengthUnitConverter);
     _unitOptions.clear();
-    for (int unitid = 0; unitid < _lengthUnitConverter->getUnitScale().size(); unitid++)
+    for (size_t unitid = 0; unitid < _lengthUnitConverter->getUnitScale().size(); unitid++)
     {
         _unitOptions.push_back(_lengthUnitConverter->getUnitFromInteger(unitid));
     }
