@@ -59,7 +59,7 @@ void LengthUnitNode::emitFunctionDefinition(const ShaderNode& node, GenContext& 
     shadergen.emitVariableDeclarations(lengthUnitLUT, shadergen.getSyntax().getConstantQualifier(), ";", context, stage, true);
     
     shadergen.emitLineBreak(stage);
-    shadergen.emitString("return ("+ VAR_LENGTH_UNIT_SCALE + "[unit_from] / " + VAR_LENGTH_UNIT_SCALE +"[unit_to]);", stage);
+    shadergen.emitString("return ("+ VAR_LENGTH_UNIT_SCALE + "[unit_to] / " + VAR_LENGTH_UNIT_SCALE +"[unit_from]);", stage);
     shadergen.emitLineBreak(stage);
     shadergen.emitScopeEnd(stage);
     shadergen.emitLineBreak(stage);
