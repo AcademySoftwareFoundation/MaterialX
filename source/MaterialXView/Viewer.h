@@ -107,6 +107,7 @@ class Viewer : public ng::Screen
     void updateMaterialSelections();
     void updateMaterialSelectionUI();
     void updateDisplayedProperties();
+    void updateUnitSelections();
 
     void createLoadMeshInterface(Widget* parent, const std::string& label);
     void createLoadMaterialsInterface(Widget* parent, const std::string& label);
@@ -206,10 +207,11 @@ class Viewer : public ng::Screen
     bool _captureFrame;
     mx::FilePath _captureFrameFileName;
 
-    // Working space
-    std::string _unitspace;
-    mx::StringVec unitOptions;
+    // Working unit space
+    mx::StringVec _unitOptions;
+    ng::ComboBox* _unitOptionsUI;
     mx::UnitConverterRegistryPtr _unitRegistry;
+    mx::DistanceUnitConverterPtr _distanceUnitConverter;
 
     // UV wireframe drawing
     bool _drawUVGeometry;
