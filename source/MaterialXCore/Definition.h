@@ -30,8 +30,9 @@ class Implementation;
 class TypeDef;
 class Member;
 class ShaderRef;
-class UnitDef;
 class Unit;
+class UnitDef;
+class UnitTypeDef;
 
 /// A shared pointer to a NodeDef
 using NodeDefPtr = shared_ptr<NodeDef>;
@@ -53,15 +54,20 @@ using MemberPtr = shared_ptr<Member>;
 /// A shared pointer to a const Member
 using ConstMemberPtr = shared_ptr<const Member>;
 
+/// A shared pointer to a Unit
+using UnitPtr = shared_ptr<Unit>;
+/// A shared pointer to a const Unit
+using ConstUnitPtr = shared_ptr<const Unit>;
+
 /// A shared pointer to a UnitDef
 using UnitDefPtr = shared_ptr<UnitDef>;
 /// A shared pointer to a const UnitDef
 using ConstUnitDefPtr = shared_ptr<const UnitDef>;
 
-/// A shared pointer to a Unit
-using UnitPtr = shared_ptr<Unit>;
-/// A shared pointer to a const Unit
-using ConstUnitPtr = shared_ptr<const Unit>;
+/// A shared pointer to a UnitTypeDef
+using UnitTypeDefPtr = shared_ptr<UnitTypeDef>;
+/// A shared pointer to a const UnitTypeDef
+using ConstUnitTypeDefPtr = shared_ptr<const UnitTypeDef>;
 
 /// @class NodeDef
 /// A node definition element within a Document.
@@ -407,38 +413,38 @@ class Unit : public Element
 
 /// @class UnitDef
 /// A unit definition element within a Document.
-class UnitDef : public TypedElement
+class UnitDef : public Element
 {
   public:
     UnitDef(ElementPtr parent, const string& name) :
-        TypedElement(parent, CATEGORY, name)
+        Element(parent, CATEGORY, name)
     {
     }
     virtual ~UnitDef() { }
 
-    /// @name Default support
+    /// @name Unit Type methods
     /// @{
 
-    /// Set the default unit string for the UnitDef.
-    void setDefault(const string& value)
+    /// Set the element's unittype string.
+    void setUnitType(const string& type)
     {
-        setAttribute(DEFAULT_ATTRIBUTE, value);
+        setAttribute(UNITTYPE_ATTRIBUTE, type);
     }
 
-    /// Return true if the given TypeDef has a default unit string.
-    bool hasDefault() const
+    /// Return true if the given element has a unittype string.
+    bool hasUnitType() const
     {
-        return hasAttribute(DEFAULT_ATTRIBUTE);
+        return hasAttribute(UNITTYPE_ATTRIBUTE);
     }
 
-    /// Return the default unit string for the UnitDef.
-    const string& getDefault() const
+    /// Return the element's type string.
+    const string& getUnitType() const
     {
-        return getAttribute(DEFAULT_ATTRIBUTE);
-    } 
+        return getAttribute(UNITTYPE_ATTRIBUTE);
+    }
 
     /// @}
-    /// @name Unit Support
+    /// @name Unit methods
     /// @{
 
     /// Add a Unit to the UnitDef.
@@ -472,10 +478,50 @@ class UnitDef : public TypedElement
         removeChildOfType<Unit>(name);
     }
 
+    /// @}
+
   public:
+    static const string CATEGORY;
+    static const string UNITTYPE_ATTRIBUTE;
+};
+
+/// @class UnitTypeDef
+/// A unit type definition element within a Document.
+class UnitTypeDef : public Element
+{
+public:
+    UnitTypeDef(ElementPtr parent, const string& name) :
+        Element(parent, CATEGORY, name)
+    {
+    }
+    virtual ~UnitTypeDef() { }
+
+    /// Set the default unit string for the UnitTypeDef.
+    void setDefault(const string& value)
+    {
+        setAttribute(DEFAULT_ATTRIBUTE, value);
+    }
+
+    /// Return true if the given TypeDef has a default unit string.
+    bool hasDefault() const
+    {
+        return hasAttribute(DEFAULT_ATTRIBUTE);
+    }
+
+    /// Return the default unit string for the UnitTypeDef.
+    const string& getDefault() const
+    {
+        return getAttribute(DEFAULT_ATTRIBUTE);
+    }
+
+    /// Find all UnitDefs for the UnitTypeDef
+    vector<UnitDefPtr> getUnitDefs() const;
+
+public:
     static const string CATEGORY;
     static const string DEFAULT_ATTRIBUTE;
 };
+
 
 } // namespace MaterialX
 

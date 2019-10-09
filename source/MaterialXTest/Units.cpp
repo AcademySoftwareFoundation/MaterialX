@@ -22,8 +22,8 @@ TEST_CASE("UnitAttribute", "[units]")
 {
     mx::DocumentPtr doc = mx::createDocument();
     mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
-    std::vector<mx::UnitDefPtr> UnitDefs = doc->getUnitDefs();
-    REQUIRE(!UnitDefs.empty());
+    std::vector<mx::UnitTypeDefPtr> unitTypeDefs = doc->getUnitTypeDefs();
+    REQUIRE(!unitTypeDefs.empty());
 
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
     nodeGraph->setName("graph1");
@@ -56,15 +56,8 @@ TEST_CASE("UnitEvaluation", "[units]")
 {
     mx::DocumentPtr doc = mx::createDocument();
     mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
-    std::vector<mx::UnitDefPtr> UnitDefs = doc->getUnitDefs();
-    REQUIRE(!UnitDefs.empty());
 
-    mx::UnitDefPtr distanceTypeDef;
-    std::vector<mx::UnitDefPtr> distanceTypeDefs = doc->getUnitDefs(mx::DistanceUnitConverter::DISTANCE_UNIT);
-    if (!distanceTypeDefs.empty())
-    {
-        distanceTypeDef = distanceTypeDefs[0];
-    }
+    mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef(mx::DistanceUnitConverter::DISTANCE_UNIT);
     REQUIRE(distanceTypeDef);
 
     mx::UnitConverterRegistryPtr registry = mx::UnitConverterRegistry::create();
@@ -114,11 +107,8 @@ TEST_CASE("UnitDocument", "[units]")
         mx::DocumentPtr doc = mx::createDocument();
         mx::readFromXmlFile(doc, filename, searchPath);
         mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
-        
-        std::vector<mx::UnitDefPtr> distanceTypeDefs = doc->getUnitDefs(mx::DistanceUnitConverter::DISTANCE_UNIT);
-        REQUIRE(!distanceTypeDefs.empty());
 
-        mx::UnitDefPtr distanceTypeDef = distanceTypeDefs[0];
+        mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef(mx::DistanceUnitConverter::DISTANCE_UNIT);
         REQUIRE(distanceTypeDef);
 
         mx::UnitConverterPtr uconverter = mx::DistanceUnitConverter::create(distanceTypeDef);

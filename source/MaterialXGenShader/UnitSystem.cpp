@@ -137,24 +137,19 @@ ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& t
     }
 
     // Length Unit Conversion
-    std::vector<UnitDefPtr> distanceTypeDefs = _document->getUnitDefs(DistanceUnitConverter::DISTANCE_UNIT);
-    if (distanceTypeDefs.empty())
-    {
-        throw ExceptionTypeError("No unit definitions exist for unit type: " + DistanceUnitConverter::DISTANCE_UNIT);
-    }
-    UnitDefPtr distanceTypeDef = distanceTypeDefs[0];
-    if (!_unitRegistry || !_unitRegistry->getUnitConverter(distanceTypeDef))
+    UnitTypeDefPtr lengthTypeDef = _document->getUnitTypeDef(DistanceUnitConverter::DISTANCE_UNIT);
+    if (!_unitRegistry && !_unitRegistry->getUnitConverter(lengthTypeDef))
     {
         throw ExceptionTypeError("Unit registry unavaliable or undefined Unit convertor for: " + DistanceUnitConverter::DISTANCE_UNIT);
     }
-    DistanceUnitConverterPtr distanceConverter = std::dynamic_pointer_cast<DistanceUnitConverter>(_unitRegistry->getUnitConverter(distanceTypeDef));
+    DistanceUnitConverterPtr lengthConverter = std::dynamic_pointer_cast<DistanceUnitConverter>(_unitRegistry->getUnitConverter(lengthTypeDef));
 
     // Check if it's created and cached already,
     // otherwise create and cache it.
     ShaderNodeImplPtr nodeImpl = context.findNodeImplementation(implName);
     if (!nodeImpl)
     {
-        nodeImpl = LengthUnitNode::create(distanceConverter);
+        nodeImpl = LengthUnitNode::create(lengthConverter);
         nodeImpl->initialize(*impl, context);
         context.addNodeImplementation(implName, nodeImpl);
     }
@@ -187,7 +182,7 @@ ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& t
    
     // Add the conversion code
     {
-        int value = distanceConverter->getUnitAsInteger(transform.sourceUnit);
+        int value = lengthConverter->getUnitAsInteger(transform.sourceUnit);
         if (value < 0)
         {
             throw ExceptionTypeError("Unrecognized source unit: " + transform.sourceUnit);
@@ -198,7 +193,7 @@ ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& t
     }
 
     {
-        int value = distanceConverter->getUnitAsInteger(transform.targetUnit);
+        int value = lengthConverter->getUnitAsInteger(transform.targetUnit);
         if (value < 0)
         {
             throw ExceptionTypeError("Unrecognized target unit: " + transform.targetUnit);

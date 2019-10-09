@@ -27,7 +27,7 @@ using ConstUnitConverterPtr = shared_ptr<const UnitConverter>;
 /// @class UnitConverter
 /// An unit conversion utility class.
 ///
-/// This class can perform a linear conversion for a given UnitDef.
+/// This class can perform a linear conversion for a given UnitTypeDef.
 /// The conversion of a value to the default unit is defined as multipling 
 /// by a scale value and adding an offset value. 
 /// Reversing these operations performs a conversion from the default unit.
@@ -88,7 +88,7 @@ class DistanceUnitConverter : public UnitConverter
     virtual ~DistanceUnitConverter() { }
 
     /// Creator 
-    static DistanceUnitConverterPtr create(UnitDefPtr UnitDef);
+    static DistanceUnitConverterPtr create(UnitTypeDefPtr UnitDef);
 
     /// Return the name of the default unit for "distance"
     const string& getDefaultUnit() const
@@ -153,7 +153,7 @@ class DistanceUnitConverter : public UnitConverter
     static const string DISTANCE_UNIT;
 
   private:
-    DistanceUnitConverter(UnitDefPtr UnitDef);
+    DistanceUnitConverter(UnitTypeDefPtr UnitDef);
 
     std::unordered_map<string, float> _unitScale;
     std::unordered_map<string, int> _unitEnumeration;
@@ -181,15 +181,15 @@ class UnitConverterRegistry
 
     /// Add a unit converter for a given UnitDef.
     /// Returns false if a converter has already been registered for the given UnitDef 
-    bool addUnitConverter(UnitDefPtr def, UnitConverterPtr converter);
+    bool addUnitConverter(UnitTypeDefPtr def, UnitConverterPtr converter);
 
     /// Remove a unit converter for a given UnitDef.
     /// Returns false if a converter does not exist for the given UnitDef 
-    bool removeUnitConverter(UnitDefPtr def);
+    bool removeUnitConverter(UnitTypeDefPtr def);
 
     /// Get a unit converter for a given UnitDef
     /// Returns any empty pointer if a converter does not exist for the given UnitDef 
-    UnitConverterPtr getUnitConverter(UnitDefPtr def);
+    UnitConverterPtr getUnitConverter(UnitTypeDefPtr def);
 
     /// Clear all unit converters from the registry.
     void clearUnitConverters();

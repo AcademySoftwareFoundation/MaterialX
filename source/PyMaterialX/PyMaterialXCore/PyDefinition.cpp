@@ -70,13 +70,20 @@ void bindPyDefinition(py::module& mod)
         .def_readonly_static("CATEGORY", &mx::Unit::CATEGORY);
 
     py::class_<mx::UnitDef, mx::UnitDefPtr, mx::Element>(mod, "UnitDef")
-        .def("setDefault", &mx::UnitDef::setDefault)
-        .def("hasDefault", &mx::UnitDef::hasDefault)
-        .def("getDefault", &mx::UnitDef::getDefault)
+        .def("setUnitType", &mx::UnitDef::hasUnitType)
+        .def("hasUnitType", &mx::UnitDef::hasUnitType)
+        .def("getUnitType", &mx::UnitDef::getUnitType)
         .def("addUnit", &mx::UnitDef::addUnit)
         .def("getUnit", &mx::UnitDef::getUnit)
         .def("getUnits", &mx::UnitDef::getUnits)
-        .def("removeUnit", &mx::UnitDef::removeUnit)
         .def_readonly_static("CATEGORY", &mx::UnitDef::CATEGORY)
-        .def_readonly_static("DEFAULT_ATTRIBUTE", &mx::UnitDef::DEFAULT_ATTRIBUTE);
+        .def_readonly_static("UNITTYPE_ATTRIBUTE", &mx::UnitDef::UNITTYPE_ATTRIBUTE);
+
+    py::class_<mx::UnitTypeDef, mx::UnitTypeDefPtr, mx::Element>(mod, "UnitTypeDef")
+        .def("setDefault", &mx::UnitTypeDef::setDefault)
+        .def("hasDefault", &mx::UnitTypeDef::hasDefault)
+        .def("getDefault", &mx::UnitTypeDef::getDefault)
+        .def("getUnitDefs", &mx::UnitTypeDef::getUnitDefs)
+        .def_readonly_static("CATEGORY", &mx::UnitTypeDef::CATEGORY)
+        .def_readonly_static("DEFAULT_ATTRIBUTE", &mx::UnitTypeDef::DEFAULT_ATTRIBUTE);
 }

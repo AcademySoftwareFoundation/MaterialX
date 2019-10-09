@@ -46,7 +46,8 @@
   <!-- ======================================================================== -->
   <!-- Unit types                                                               -->
   <!-- ======================================================================== -->
-   <unitdef name="UD_stdlib_distance" type="distance" default="meter">
+   <unittypedef name="distance" default="meter"/>
+   <unitdef name="UD_stdlib_distance" unittype="distance">
       <unit name="nanometer" scale="1000000000.0" />
       <unit name="micron" scale="1000000.0"/>
       <unit name="millimeter" scale="1000.0" />

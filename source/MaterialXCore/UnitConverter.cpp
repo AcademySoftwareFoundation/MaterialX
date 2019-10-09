@@ -12,37 +12,40 @@ namespace MaterialX
 {
 const string DistanceUnitConverter::DISTANCE_UNIT = "distance";
 
-DistanceUnitConverter::DistanceUnitConverter(UnitDefPtr UnitDef) :
+DistanceUnitConverter::DistanceUnitConverter(UnitTypeDefPtr unitTypeDef) :
     UnitConverter()
 {
     static const string SCALE_ATTRIBUTE = "scale";
     unsigned int enumerant = 0;
 
-    // Populate the unit scale and offset maps for each Unit. 
-    vector<UnitPtr> Units = UnitDef->getUnits();
-    for (UnitPtr Unit : Units)
+    // Populate the unit scale and offset maps for each UnitDef. 
+    vector<UnitDefPtr> unitDefs = unitTypeDef->getUnitDefs();
+    for (UnitDefPtr unitdef : unitDefs)
     {
-        const string& name = Unit->getName();
-        if (!name.empty())
+        for (UnitPtr unit : unitdef->getUnits())
         {
-            const string& scaleString = Unit->getAttribute(SCALE_ATTRIBUTE);
-            if (!scaleString.empty())
+            const string& name = unit->getName();
+            if (!name.empty())
             {
-                ValuePtr scaleValue = Value::createValueFromStrings(scaleString, getTypeString<float>());
-                _unitScale[name] = scaleValue->asA<float>();
+                const string& scaleString = unit->getAttribute(SCALE_ATTRIBUTE);
+                if (!scaleString.empty())
+                {
+                    ValuePtr scaleValue = Value::createValueFromStrings(scaleString, getTypeString<float>());
+                    _unitScale[name] = scaleValue->asA<float>();
+                }
+                else
+                {
+                    _unitScale[name] = 1.0f;
+                }
+                _unitEnumeration[name] = enumerant++;
             }
-            else
-            {
-                _unitScale[name] = 1.0f;
-            }
-            _unitEnumeration[name] = enumerant++;
         }
     }
 
     // In case the default unit was not specified in the UnitDef explicit
     // add this to be able to accept converstion with the default 
     // as the input or output unit
-    _defaultUnit = UnitDef->getDefault();
+    _defaultUnit = unitTypeDef->getDefault();
     auto it = _unitScale.find(_defaultUnit);
     if (it == _unitScale.end())
     {
@@ -51,9 +54,9 @@ DistanceUnitConverter::DistanceUnitConverter(UnitDefPtr UnitDef) :
     }
 }
 
-DistanceUnitConverterPtr DistanceUnitConverter::create(UnitDefPtr UnitDef)
+DistanceUnitConverterPtr DistanceUnitConverter::create(UnitTypeDefPtr unitTypeDef)
 {
-    std::shared_ptr<DistanceUnitConverter> converter(new DistanceUnitConverter(UnitDef));
+    std::shared_ptr<DistanceUnitConverter> converter(new DistanceUnitConverter(unitTypeDef));
     return converter;
 }
 
@@ -149,7 +152,7 @@ UnitConverterRegistryPtr UnitConverterRegistry::create()
     return registry;
 }
 
-bool UnitConverterRegistry::addUnitConverter(UnitDefPtr def, UnitConverterPtr converter)
+bool UnitConverterRegistry::addUnitConverter(UnitTypeDefPtr def, UnitConverterPtr converter)
 {
     const string& name = def->getName();
     if (_unitConverters.find(name) != _unitConverters.end())
@@ -160,7 +163,7 @@ bool UnitConverterRegistry::addUnitConverter(UnitDefPtr def, UnitConverterPtr co
     return true;
 }
 
-bool UnitConverterRegistry::removeUnitConverter(UnitDefPtr def)
+bool UnitConverterRegistry::removeUnitConverter(UnitTypeDefPtr def)
 {
     const string& name = def->getName();
     auto it = _unitConverters.find(name);
@@ -173,7 +176,7 @@ bool UnitConverterRegistry::removeUnitConverter(UnitDefPtr def)
     return true;
 }
 
-UnitConverterPtr UnitConverterRegistry::getUnitConverter(UnitDefPtr def)
+UnitConverterPtr UnitConverterRegistry::getUnitConverter(UnitTypeDefPtr def)
 {
     const string& name = def->getName();
     auto it = _unitConverters.find(name);

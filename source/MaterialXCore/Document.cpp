@@ -642,25 +642,4 @@ void Document::onClearContent(ElementPtr)
     _cache->valid = false;
 }
 
-vector<UnitDefPtr> Document::getUnitDefs(const string& typeString) const
-{
-    vector<UnitDefPtr> unitDefs;
-    if (typeString.empty())
-    {
-        unitDefs = getChildrenOfType<UnitDef>();
-    }
-    else
-    {
-        for (auto unitDef : getChildrenOfType<UnitDef>())
-        {
-            if (unitDef->getType() == typeString)
-            {
-                unitDefs.push_back(unitDef);
-            }
-        }
-    }
-    return unitDefs;
-}
-
-
 } // namespace MaterialX

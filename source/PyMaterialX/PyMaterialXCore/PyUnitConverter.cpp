@@ -87,8 +87,8 @@ void bindPyUnitConverters(py::module& mod)
         .def("convert", (mx::Vector2 (mx::DistanceUnitConverter::*)(mx::Vector2, const std::string&, const std::string&)const) &mx::DistanceUnitConverter::convert)
         .def("convert", (mx::Vector3 (mx::DistanceUnitConverter::*)(mx::Vector3, const std::string&, const std::string&)const) &mx::DistanceUnitConverter::convert)
         .def("convert", (mx::Vector4 (mx::DistanceUnitConverter::*)(mx::Vector4, const std::string&, const std::string&)const) &mx::DistanceUnitConverter::convert)
-        .def("getUnitAsInteger", &mx::UnitConverter::getUnitAsInteger)
-        .def("getUnitFromInteger", &mx::UnitConverter::getUnitFromInteger);
+        .def("getUnitAsInteger", &mx::DistanceUnitConverter::getUnitAsInteger)
+        .def("getUnitFromInteger", &mx::DistanceUnitConverter::getUnitFromInteger);
 
     py::class_<mx::UnitConverterRegistry, std::unique_ptr<mx::UnitConverterRegistry, py::nodelete>>(mod, "UnitConverterRegistry")
         .def_static("create", &mx::UnitConverterRegistry::create)
