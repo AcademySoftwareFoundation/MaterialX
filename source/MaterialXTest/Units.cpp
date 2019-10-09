@@ -72,18 +72,18 @@ TEST_CASE("UnitEvaluation", "[units]")
 
     // Use converter to convert
     float result = converter->convert(0.1f, "kilometer", "millimeter");
-    REQUIRE((result - 10000.0f) < EPSILON);
+    REQUIRE((result - 100000.0f) < EPSILON);
     result = converter->convert(2.3f, "meter", "meter");
     REQUIRE((result - 2.3f) < EPSILON);
     result = converter->convert(1.0f, "mile", "meter");
-    REQUIRE((result - 0.000621f) < EPSILON);
+    REQUIRE((result - 1609.344f) < EPSILON);
     result = converter->convert(1.0f, "meter", "mile");
     REQUIRE((result - (1.0 / 0.000621f)) < EPSILON);
 
     // Use explicit converter values
     const std::unordered_map<std::string, float>& unitScale = converter->getUnitScale();
     result = 0.1f * unitScale.find("kilometer")->second / unitScale.find("millimeter")->second;
-    REQUIRE((result - 10000.0f) < EPSILON);
+    REQUIRE((result - 100000.0f) < EPSILON);
     const std::string& defaultUnit = converter->getDefaultUnit();
     REQUIRE(defaultUnit == distanceTypeDef->getDefault());
 
@@ -174,7 +174,7 @@ TEST_CASE("UnitDocument", "[units]")
                                 float originalval = value->asA<float>();
                                 float convertedValue = uconverter->convert(originalval, param->getUnit(), distanceTypeDef->getDefault());
                                 float reconvert = uconverter->convert(convertedValue, distanceTypeDef->getDefault(), param->getUnit());
-                                REQUIRE(originalval == reconvert);
+                                REQUIRE((originalval - reconvert) < EPSILON);
                             }
                             else if (type->isFloat2())
                             {
