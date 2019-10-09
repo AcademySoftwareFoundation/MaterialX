@@ -94,10 +94,10 @@ class GenOptions
     /// hardware rendering.
     bool hwNormalizeUdimTexCoords;
 
-    /// Define the target unit space.
+    /// Define the target unit space for distance.
     /// Shader fragments will be generated to transform
     /// input unit values to this unit space.
-    string targetLengthUnit;
+    string targetDistanceUnit;
     
 };
 

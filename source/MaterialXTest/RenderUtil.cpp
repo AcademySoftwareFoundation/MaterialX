@@ -194,8 +194,8 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(_shaderGenerator->getLanguage());
     _shaderGenerator->setUnitSystem(unitSystem);
     mx::UnitConverterRegistryPtr registry = mx::UnitConverterRegistry::create();
-    mx::UnitTypeDefPtr lengthTypeDef = dependLib->getUnitTypeDef(mx::DistanceUnitConverter::DISTANCE_UNIT);
-    registry->addUnitConverter(lengthTypeDef, mx::DistanceUnitConverter::create(lengthTypeDef));
+    mx::UnitTypeDefPtr distanceTypeDef = dependLib->getUnitTypeDef(mx::DistanceUnitConverter::DISTANCE_UNIT);
+    registry->addUnitConverter(distanceTypeDef, mx::DistanceUnitConverter::create(distanceTypeDef));
     _shaderGenerator->getUnitSystem()->loadLibrary(dependLib);
     _shaderGenerator->getUnitSystem()->setUnitConverterRegistry(registry);
 
@@ -204,7 +204,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     registerSourceCodeSearchPaths(context);
 
     // Set target unit space    
-    context.getOptions().targetLengthUnit = lengthTypeDef->getDefault();
+    context.getOptions().targetDistanceUnit = distanceTypeDef->getDefault();
 
     setupTime.endTimer();
 

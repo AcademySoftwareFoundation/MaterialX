@@ -268,7 +268,7 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
     // Set default generator options.
     _genContext.getOptions().hwSpecularEnvironmentMethod = _specularEnvironmentMethod;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
-    _genContext.getOptions().targetLengthUnit = _unitspace;
+    _genContext.getOptions().targetDistanceUnit = _unitspace;
     _genContext.getOptions().fileTextureVerticalFlip = true;
 
     // Set default light information before initialization
@@ -428,8 +428,8 @@ void Viewer::setupUnitConverter(mx::DocumentPtr doc)
     unitSystem->loadLibrary(_stdLib);
     unitSystem->setUnitConverterRegistry(_unitRegistry);
     _genContext.getShaderGenerator().setUnitSystem(unitSystem);
-    mx::UnitTypeDefPtr lengthTypeDef = doc->getUnitTypeDef(mx::DistanceUnitConverter::DISTANCE_UNIT);
-    _unitRegistry->addUnitConverter(lengthTypeDef, mx::DistanceUnitConverter::create(lengthTypeDef));
+    mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef(mx::DistanceUnitConverter::DISTANCE_UNIT);
+    _unitRegistry->addUnitConverter(distanceTypeDef, mx::DistanceUnitConverter::create(distanceTypeDef));
 }
 
 void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)
@@ -744,7 +744,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
         sampleBox->setCallback([this](int index)
         {
             _unitspace = unitOptions[index];
-            _genContext.getOptions().targetLengthUnit = _unitspace;
+            _genContext.getOptions().targetDistanceUnit = _unitspace;
             for (MaterialPtr material : _materials)
             {
                 material->bindUnits(_unitRegistry, _genContext);

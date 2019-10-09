@@ -449,9 +449,9 @@ void ShaderGeneratorTester::addUnitSystem()
             _shaderGenerator->setUnitSystem(_unitSystem);
             _unitSystem->loadLibrary(_dependLib);
             _unitSystem->setUnitConverterRegistry(mx::UnitConverterRegistry::create());
-            mx::UnitTypeDefPtr lengthTypeDef = _dependLib->getUnitTypeDef(mx::DistanceUnitConverter::DISTANCE_UNIT);
-            _unitSystem->getUnitConverterRegistry()->addUnitConverter(lengthTypeDef, mx::DistanceUnitConverter::create(lengthTypeDef));
-            _defaultLenghtUnit = lengthTypeDef->getDefault();
+            mx::UnitTypeDefPtr distanceTypeDef = _dependLib->getUnitTypeDef(mx::DistanceUnitConverter::DISTANCE_UNIT);
+            _unitSystem->getUnitConverterRegistry()->addUnitConverter(distanceTypeDef, mx::DistanceUnitConverter::create(distanceTypeDef));
+            _defaultDistanceUnit = distanceTypeDef->getDefault();
         }
     }
 }
@@ -604,8 +604,8 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     context.registerSourceCodeSearchPath(_srcSearchPath);
 
     // Define working unit if not defined
-    if (context.getOptions().targetLengthUnit.empty())
-       context.getOptions().targetLengthUnit = _defaultLenghtUnit;
+    if (context.getOptions().targetDistanceUnit.empty())
+       context.getOptions().targetDistanceUnit = _defaultDistanceUnit;
 
     size_t documentIndex = 0;
     mx::CopyOptions copyOptions;

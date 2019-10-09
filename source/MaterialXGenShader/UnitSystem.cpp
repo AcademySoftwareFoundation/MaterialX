@@ -14,40 +14,38 @@
 
 namespace MaterialX
 {
-// Helper class to create constantBlock for mx_DISTANCE_UNIT
-class LengthUnitNode : public SourceCodeNode
+// Helper class to create the constant block for mx_distance_unit
+class DistanceUnitNode : public SourceCodeNode
 {
 public:
-    explicit LengthUnitNode(DistanceUnitConverterPtr DistanceUnitConverter)
-        :_DistanceUnitConverter(DistanceUnitConverter) {}
+    explicit DistanceUnitNode(DistanceUnitConverterPtr distanceUnitConverter) :
+         _distanceUnitConverter(distanceUnitConverter) {}
 
-    static ShaderNodeImplPtr create(DistanceUnitConverterPtr DistanceUnitConverter);
+    static ShaderNodeImplPtr create(DistanceUnitConverterPtr distanceUnitConverter);
     
     void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
 protected:
-    DistanceUnitConverterPtr _DistanceUnitConverter;
+    DistanceUnitConverterPtr _distanceUnitConverter;
 };
 
-ShaderNodeImplPtr LengthUnitNode::create(DistanceUnitConverterPtr DistanceUnitConverter)
+ShaderNodeImplPtr DistanceUnitNode::create(DistanceUnitConverterPtr distanceUnitConverter)
 {
-    return std::make_shared<LengthUnitNode>(DistanceUnitConverter);
+    return std::make_shared<DistanceUnitNode>(distanceUnitConverter);
 }
 
-void LengthUnitNode::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
-{
-    
-    
+void DistanceUnitNode::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
+{ 
     // Emit the helper funtion unit_ratio that embeds a look up table for unit scale
-    vector<float> lengthUnitScales;
-    lengthUnitScales.reserve(_DistanceUnitConverter->getUnitScale().size());
-    for (auto scaleValue : _DistanceUnitConverter->getUnitScale()) {
-        lengthUnitScales.push_back(scaleValue.second);
+    vector<float> distanceUnitScales;
+    distanceUnitScales.reserve(_distanceUnitConverter->getUnitScale().size());
+    for (auto scaleValue : _distanceUnitConverter->getUnitScale()) {
+        distanceUnitScales.push_back(scaleValue.second);
     }
     // see stdlib/gen*/mx_DISTANCE_UNIT. This helper function is called by these shaders.
-    const string VAR_DISTANCE_UNIT_SCALE = "u_DISTANCE_UNIT_scales";
-    VariableBlock lengthUnitLUT("unitLUT", EMPTY_STRING);
-    lengthUnitLUT.add(Type::FLOATARRAY, VAR_DISTANCE_UNIT_SCALE, Value::createValue<vector<float>>(lengthUnitScales));
+    const string VAR_DISTANCE_UNIT_SCALE = "u_distance_unit_scales";
+    VariableBlock distanceUnitLUT("unitLUT", EMPTY_STRING);
+    distanceUnitLUT.add(Type::FLOATARRAY, VAR_DISTANCE_UNIT_SCALE, Value::createValue<vector<float>>(distanceUnitScales));
 
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     const ShaderGenerator& shadergen = context.getShaderGenerator();
@@ -56,7 +54,7 @@ void LengthUnitNode::emitFunctionDefinition(const ShaderNode& node, GenContext& 
     shadergen.emitScopeBegin(stage);
 
     shadergen.emitLineBreak(stage);
-    shadergen.emitVariableDeclarations(lengthUnitLUT, shadergen.getSyntax().getConstantQualifier(), ";", context, stage, true);
+    shadergen.emitVariableDeclarations(distanceUnitLUT, shadergen.getSyntax().getConstantQualifier(), ";", context, stage, true);
     
     shadergen.emitLineBreak(stage);
     shadergen.emitString("return ("+ VAR_DISTANCE_UNIT_SCALE + "[unit_from] / " + VAR_DISTANCE_UNIT_SCALE +"[unit_to]);", stage);
@@ -86,7 +84,7 @@ UnitTransform::UnitTransform(const string& ss, const string& ts, const TypeDesc*
 }
 
 const string UnitSystem::UNITSYTEM_NAME = "default_unit_system";
-const string UnitSystem::DISTANCE_UNIT_TARGET_NAME = "u_lengthUnitTarget";
+const string UnitSystem::DISTANCE_UNIT_TARGET_NAME = "u_distanceUnitTarget";
 
 UnitSystem::UnitSystem(const string& language)
 {
@@ -136,20 +134,20 @@ ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& t
         throw ExceptionShaderGenError("No implementation found for transform: ('" + transform.sourceUnit + "', '" + transform.targetUnit + "').");
     }
 
-    // Length Unit Conversion
-    UnitTypeDefPtr lengthTypeDef = _document->getUnitTypeDef(DistanceUnitConverter::DISTANCE_UNIT);
-    if (!_unitRegistry && !_unitRegistry->getUnitConverter(lengthTypeDef))
+    // distance Unit Conversion
+    UnitTypeDefPtr distanceTypeDef = _document->getUnitTypeDef(DistanceUnitConverter::DISTANCE_UNIT);
+    if (!_unitRegistry && !_unitRegistry->getUnitConverter(distanceTypeDef))
     {
         throw ExceptionTypeError("Unit registry unavaliable or undefined Unit convertor for: " + DistanceUnitConverter::DISTANCE_UNIT);
     }
-    DistanceUnitConverterPtr lengthConverter = std::dynamic_pointer_cast<DistanceUnitConverter>(_unitRegistry->getUnitConverter(lengthTypeDef));
+    DistanceUnitConverterPtr distanceConverter = std::dynamic_pointer_cast<DistanceUnitConverter>(_unitRegistry->getUnitConverter(distanceTypeDef));
 
     // Check if it's created and cached already,
     // otherwise create and cache it.
     ShaderNodeImplPtr nodeImpl = context.findNodeImplementation(implName);
     if (!nodeImpl)
     {
-        nodeImpl = LengthUnitNode::create(lengthConverter);
+        nodeImpl = DistanceUnitNode::create(distanceConverter);
         nodeImpl->initialize(*impl, context);
         context.addNodeImplementation(implName, nodeImpl);
     }
@@ -182,7 +180,7 @@ ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& t
    
     // Add the conversion code
     {
-        int value = lengthConverter->getUnitAsInteger(transform.sourceUnit);
+        int value = distanceConverter->getUnitAsInteger(transform.sourceUnit);
         if (value < 0)
         {
             throw ExceptionTypeError("Unrecognized source unit: " + transform.sourceUnit);
@@ -193,7 +191,7 @@ ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& t
     }
 
     {
-        int value = lengthConverter->getUnitAsInteger(transform.targetUnit);
+        int value = distanceConverter->getUnitAsInteger(transform.targetUnit);
         if (value < 0)
         {
             throw ExceptionTypeError("Unrecognized target unit: " + transform.targetUnit);
