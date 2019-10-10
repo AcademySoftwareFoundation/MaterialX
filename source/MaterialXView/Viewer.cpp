@@ -435,6 +435,7 @@ void Viewer::setupUnitConverter(mx::DocumentPtr doc)
     {
         _unitOptions.push_back(_distanceUnitConverter->getUnitFromInteger(unitid));
     }
+    _genContext.getOptions().targetDistanceUnit = _distanceUnitConverter->getDefaultUnit();
 }
 
 void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)
