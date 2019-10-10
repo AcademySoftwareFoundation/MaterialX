@@ -449,6 +449,12 @@ bool GlslShaderRenderTester::runValidator(const std::string& shaderName,
                                 log << ". UI Min: " << uiProperties.uiMin->getValueString();
                             if (uiProperties.uiMax)
                                 log << ". UI Max: " << uiProperties.uiMax->getValueString();
+                            if (uiProperties.uiSoftMin)
+                                log << ". UI Soft Min: " << uiProperties.uiSoftMin->getValueString();
+                            if (uiProperties.uiSoftMax)
+                                log << ". UI Soft Max: " << uiProperties.uiSoftMax->getValueString();
+                            if (uiProperties.uiStep)
+                                log << ". UI Step: " << uiProperties.uiStep->getValueString();
                             log << std::endl;
                         }
                     }

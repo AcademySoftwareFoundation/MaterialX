@@ -39,7 +39,7 @@ class PropertyEditor
     void addItemToForm(const mx::UIPropertyItem& item, const std::string& group,
                        ng::Widget* container, Viewer* viewer, bool editable);
     ng::FloatBox<float>* makeFloatWidget(ng::Widget* container, const std::string& label, mx::ValuePtr value,
-                       bool editable, mx::ValuePtr min, mx::ValuePtr max, Viewer* viewer, const std::string& path);
+                       bool editable, const mx::UIProperties& ui, Viewer* viewer, const std::string& path);
 
     ng::Widget* _container;
     ng::Window* _formWindow;
