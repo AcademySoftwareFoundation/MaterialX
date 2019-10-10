@@ -431,7 +431,7 @@ void Viewer::setupUnitConverter(mx::DocumentPtr doc)
     _distanceUnitConverter = mx::DistanceUnitConverter::create(distanceTypeDef);
     _unitRegistry->addUnitConverter(distanceTypeDef, _distanceUnitConverter);
     _unitOptions.clear();
-    for (int unitid = 0; unitid < _distanceUnitConverter->getUnitScale().size(); unitid++)
+    for (int unitid = 0; unitid < static_cast<int>(_distanceUnitConverter->getUnitScale().size()); unitid++)
     {
         _unitOptions.push_back(_distanceUnitConverter->getUnitFromInteger(unitid));
     }
