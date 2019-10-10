@@ -14,7 +14,7 @@
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 
-#include <MaterialXRender/ShaderValidator.h>
+#include <MaterialXRender/ShaderRenderer.h>
 #include <MaterialXRender/Util.h>
 
 #include <MaterialXTest/RenderUtil.h>
@@ -100,7 +100,7 @@ TEST_CASE("Render: Geometry Handler Load", "[rendercore]")
 
         geomLoaded = true;
     }
-    catch (mx::ExceptionShaderValidationError& e)
+    catch (mx::ExceptionShaderRenderError& e)
     {
         for (const auto& error : e.errorLog())
         {
@@ -201,7 +201,7 @@ TEST_CASE("Render: Image Handler Load", "[rendercore]")
 #endif
         imagesLoaded = true;
     }
-    catch (mx::ExceptionShaderValidationError& e)
+    catch (mx::ExceptionShaderRenderError& e)
     {
         for (const auto& error : e.errorLog())
         {

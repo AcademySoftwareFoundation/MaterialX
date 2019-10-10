@@ -46,17 +46,18 @@
   <!-- ======================================================================== -->
   <!-- Unit types                                                               -->
   <!-- ======================================================================== -->
-   <unittypedef name="length" default="meter"/>
-   <unitdef name="nanometer" scale="1000000000.0" unittypedef="length"/>
-   <unitdef name="micron" scale="1000000.0" unittypedef="length"/>
-   <unitdef name="millimeter" scale="1000.0" unittypedef="length" />
-   <unitdef name="centimeter" scale="100.0" unittypedef="length" />
-   <unitdef name="meter" scale="1.0" unittypedef="length" />
-   <unitdef name="kilometer" scale="0.001" unittypedef="length" />
-   <unitdef name="foot" scale="3.281" unittypedef="length" />
-   <unitdef name="inch" scale="39.37" unittypedef="length" />
-   <unitdef name="yard" scale="1.093613" unittypedef="length" />
-   <unitdef name="mile" scale="0.000621" unittypedef="length" />
+   <unittypedef name="distance" default="meter"/>
+   <unitdef name="UD_stdlib_distance" unittype="distance">
+      <unit name="nanometer" scale="0.000000001" />
+      <unit name="micron" scale="0.000001"/>
+      <unit name="millimeter" scale="0.001"/>
+      <unit name="centimeter" scale="0.01"/>
+      <unit name="kilometer" scale="1000.0"/>
+      <unit name="inch" scale="0.0254"/>
+      <unit name="foot" scale="0.3048"/>
+      <unit name="yard" scale="0.9144"/>
+      <unit name="mile" scale="1609.344"/>
+   </unitdef>
 
    <!-- ======================================================================== -->
   <!-- Geometric Properties                                                     -->

@@ -211,7 +211,7 @@ class Viewer : public ng::Screen
     mx::StringVec _unitOptions;
     ng::ComboBox* _unitOptionsUI;
     mx::UnitConverterRegistryPtr _unitRegistry;
-    mx::LengthUnitConverterPtr _lengthUnitConverter;
+    mx::DistanceUnitConverterPtr _distanceUnitConverter;
 
     // UV wireframe drawing
     bool _drawUVGeometry;

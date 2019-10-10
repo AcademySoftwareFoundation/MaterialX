@@ -5,7 +5,7 @@
 
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenOsl/OslShaderGenerator.h>
-#include <MaterialXRenderOsl/OslValidator.h>
+#include <MaterialXRenderOsl/OslRenderer.h>
 
 #include <MaterialXTest/Catch/catch.hpp>
 #include <MaterialXTest/RenderUtil.h>
@@ -28,61 +28,61 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
         context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
     }
 
-    void createValidator(std::ostream& log) override;
+    void createRenderer(std::ostream& log) override;
 
-    bool runValidator(const std::string& shaderName,
-                      mx::TypedElementPtr element,
-                      mx::GenContext& context,
-                      mx::DocumentPtr doc,
-                      std::ostream& log,
-                      const GenShaderUtil::TestSuiteOptions& testOptions,
-                      RenderUtil::RenderProfileTimes& profileTimes,
-                      const mx::FileSearchPath& imageSearchPath,
-                      const std::string& outputPath = ".") override;
+    bool runRenderer(const std::string& shaderName,
+                     mx::TypedElementPtr element,
+                     mx::GenContext& context,
+                     mx::DocumentPtr doc,
+                     std::ostream& log,
+                     const GenShaderUtil::TestSuiteOptions& testOptions,
+                     RenderUtil::RenderProfileTimes& profileTimes,
+                     const mx::FileSearchPath& imageSearchPath,
+                     const std::string& outputPath = ".") override;
 
-    mx::OslValidatorPtr _validator;
+    mx::OslRendererPtr _renderer;
 };
 
-// Validator setup
-void OslShaderRenderTester::createValidator(std::ostream& log)
+// Renderer setup
+void OslShaderRenderTester::createRenderer(std::ostream& log)
 {
     bool initialized = false;
 
-    _validator = mx::OslValidator::create();
+    _renderer = mx::OslRenderer::create();
 
     // Set up additional utilities required to run OSL testing including
     // oslc and testrender paths and OSL include path
     //
     const std::string oslcExecutable(MATERIALX_OSLC_EXECUTABLE);
-    _validator->setOslCompilerExecutable(oslcExecutable);
+    _renderer->setOslCompilerExecutable(oslcExecutable);
     const std::string testRenderExecutable(MATERIALX_TESTRENDER_EXECUTABLE);
-    _validator->setOslTestRenderExecutable(testRenderExecutable);
-    _validator->setOslIncludePath(mx::FilePath(MATERIALX_OSL_INCLUDE_PATH));
+    _renderer->setOslTestRenderExecutable(testRenderExecutable);
+    _renderer->setOslIncludePath(mx::FilePath(MATERIALX_OSL_INCLUDE_PATH));
 
     try
     {
-        _validator->initialize();
-        _validator->setImageHandler(nullptr);
-        _validator->setLightHandler(nullptr);
+        _renderer->initialize();
+        _renderer->setImageHandler(nullptr);
+        _renderer->setLightHandler(nullptr);
         initialized = true;
 
         // Pre-compile some required shaders for testrender
         if (!oslcExecutable.empty() && !testRenderExecutable.empty())
         {
             mx::FilePath shaderPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/Utilities/");
-            _validator->setOslOutputFilePath(shaderPath);
+            _renderer->setOslOutputFilePath(shaderPath);
 
             const std::string OSL_EXTENSION("osl");
             for (const mx::FilePath& filename : shaderPath.getFilesInDirectory(OSL_EXTENSION))
             {
-                _validator->compileOSL(shaderPath / filename);
+                _renderer->compileOSL(shaderPath / filename);
             }
 
             // Set the search path for these compiled shaders.
-            _validator->setOslUtilityOSOPath(shaderPath);
+            _renderer->setOslUtilityOSOPath(shaderPath);
         }
     }
-    catch (mx::ExceptionShaderValidationError& e)
+    catch (mx::ExceptionShaderRenderError& e)
     {
         for (const auto& error : e.errorLog())
         {
@@ -92,8 +92,8 @@ void OslShaderRenderTester::createValidator(std::ostream& log)
     REQUIRE(initialized);
 }
 
-// Validator execution
-bool OslShaderRenderTester::runValidator(const std::string& shaderName,
+// Renderer execution
+bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                                          mx::TypedElementPtr element,
                                          mx::GenContext& context,
                                          mx::DocumentPtr doc,
@@ -187,13 +187,13 @@ bool OslShaderRenderTester::runValidator(const std::string& shaderName,
             try
             {
                 // Set output path and shader name
-                _validator->setOslOutputFilePath(outputFilePath);
-                _validator->setOslShaderName(shaderName);
+                _renderer->setOslOutputFilePath(outputFilePath);
+                _renderer->setOslShaderName(shaderName);
 
                 // Validate compilation
                 {
                     RenderUtil::AdditiveScopedTimer compileTimer(profileTimes.languageTimes.compileTime, "OSL compile time");
-                    _validator->validateCreation(shader);
+                    _renderer->createProgram(shader);
                 }
 
                 if (testOptions.renderImages)
@@ -239,8 +239,8 @@ bool OslShaderRenderTester::runValidator(const std::string& shaderName,
                     std::string envmap_filename("string envmap_filename \"resources/Images/san_giuseppe_bridge.hdr\";\n");
                     envOverrides.push_back(envmap_filename);
 
-                    _validator->setShaderParameterOverrides(overrides);
-                    _validator->setEnvShaderParameterOverrides(envOverrides);
+                    _renderer->setShaderParameterOverrides(overrides);
+                    _renderer->setEnvShaderParameterOverrides(envOverrides);
 
                     const mx::VariableBlock& outputs = stage.getOutputBlock(mx::OSL::OUTPUTS);
                     if (outputs.size() > 0)
@@ -256,17 +256,17 @@ bool OslShaderRenderTester::runValidator(const std::string& shaderName,
                         const std::string& sceneTemplateFile = mx::elementRequiresShading(element) ? SHADING_SCENE_FILE : NON_SHADING_SCENE_FILE;
 
                         // Set shader output name and type to use
-                        _validator->setOslShaderOutput(outputName, outputType);
+                        _renderer->setOslShaderOutput(outputName, outputType);
 
                         // Set scene template file. For now we only have the constant color scene file
                         mx::FilePath sceneTemplatePath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/Utilities/");
                         sceneTemplatePath = sceneTemplatePath / sceneTemplateFile;
-                        _validator->setOslTestRenderSceneTemplateFile(sceneTemplatePath.asString());
+                        _renderer->setOslTestRenderSceneTemplateFile(sceneTemplatePath.asString());
 
                         // Validate rendering
                         {
                             RenderUtil::AdditiveScopedTimer renderTimer(profileTimes.languageTimes.renderTime, "OSL render time");
-                            _validator->validateRender();
+                            _renderer->render();
                         }
                     }
                     else
@@ -278,7 +278,7 @@ bool OslShaderRenderTester::runValidator(const std::string& shaderName,
 
                 validated = true;
             }
-            catch (mx::ExceptionShaderValidationError& e)
+            catch (mx::ExceptionShaderRenderError& e)
             {
                 // Always dump shader on error
                 std::ofstream file;
@@ -310,10 +310,12 @@ TEST_CASE("Render: OSL TestSuite", "[renderosl]")
     const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
     const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
     const mx::FilePath testRootPath3 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/UsdPreviewSurface");
+    const mx::FilePath testRootPath4 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/Units");
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back(testRootPath);
     testRootPaths.push_back(testRootPath2);
     testRootPaths.push_back(testRootPath3);
+    testRootPaths.push_back(testRootPath4);
 
     mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
 

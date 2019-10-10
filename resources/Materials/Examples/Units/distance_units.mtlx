@@ -3,26 +3,26 @@
 
 <!-- scale -->
 <constant name="realscale" type="float">
-   <parameter name="value" type="float" value="1.25" unit="centimeter" unittype="length"/>
+   <parameter name="value" type="float" value="1.25" unit="centimeter" unittype="distance"/>
 </constant>
 
   <!-- scale -->
 <constant name="albedo_realworldscale" type="vector2">
-      <parameter name="value" type="vector2" value="0.25, 0.25" unit="inch" unittype="length"/>
+      <parameter name="value" type="vector2" value="0.25, 0.25" unit="inch" unittype="distance"/>
 </constant>
- 
+
 <!-- 1/scale -->
 <divide name="recip_albedo_realworldscale" type="vector2">
       <input name="in1" type="vector2" value="1.0, 1.0"/>
       <input name="in2" type="vector2" nodename="albedo_realworldscale" />
 </divide>
- 
- 
+
+
 <!-- offset -->
 <constant name="albedo_realworldoffset" type="vector2">
-      <parameter name="value" type="vector2" value="0.2, 0.2" unit="millimeter" unittype="length"/>
+      <parameter name="value" type="vector2" value="0.2, 0.2" unit="millimeter" unittype="distance"/>
 </constant>
- 
+
 <!-- connect the unit converted parameters to a placement node -->
 <texcoord name="albedo_texcoord" type="vector2" />
 <place2d name="albedo_placement_transform" type="vector2">
@@ -31,11 +31,22 @@
   <input name="scale" type="vector2" nodename="recip_albedo_realworldscale" />
   <input name="rotate" type="float" value="0" />
 </place2d>
- 
- 
+
+
 <image name="SurfaceAlbedo_color" type="color3" colorspace="raw">
   <parameter name="file" type="filename" value="resources/Images/grid.png" />
   <input name="texcoord" type="vector2" nodename="albedo_placement_transform" />
 </image>
 <output name="SurfaceAlbedo_output" type="color3" nodename="SurfaceAlbedo_color" />
+
+<constant name="constant_v3" type="vector3">
+   <parameter name="value" type="vector3" value="0.25, 0.25, 0.25" unittype="distance" unit="inch" />
+</constant>
+<output name="unit_vector3" type="vector3" nodename="constant_v3" />
+
+<constant name="constant_v4" type="vector4">
+   <parameter name="value" type="vector4" value="0.25, 0.25, 0.25, 1.0" unittype="distance" unit="inch" />
+</constant>
+<output name="unit_vector4" type="vector4" nodename="constant_v4" />
+
 </materialx>

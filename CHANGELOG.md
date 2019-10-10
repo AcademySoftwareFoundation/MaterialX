@@ -3,7 +3,7 @@
 ## [1.36.5] - Development
 
 ### Added
-- Unit type support with support for Length.
+- Unit type support with support for Distance.
 - Utility to generate Markdown from `nodedef` definition.
 
 ### Changed

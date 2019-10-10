@@ -31,9 +31,9 @@ protected:
     void registerLights(mx::DocumentPtr document, const GenShaderUtil::TestSuiteOptions &options,
                         mx::GenContext& context) override;
 
-    void createValidator(std::ostream& log) override;
+    void createRenderer(std::ostream& log) override;
 
-    bool runValidator(const std::string& shaderName,
+    bool runRenderer(const std::string& shaderName,
         mx::TypedElementPtr element,
         mx::GenContext& context,
         mx::DocumentPtr doc,
@@ -70,11 +70,11 @@ void OgsFxShaderRenderTester::registerLights(mx::DocumentPtr document,
         options.irradianceIBLPath, options.radianceIBLPath);
 }
 
-void OgsFxShaderRenderTester::createValidator(std::ostream& /*log*/)
+void OgsFxShaderRenderTester::createRenderer(std::ostream& /*log*/)
 {
 }
 
-bool OgsFxShaderRenderTester::runValidator(const std::string& shaderName,
+bool OgsFxShaderRenderTester::runRenderer(const std::string& shaderName,
                                            mx::TypedElementPtr element,
                                            mx::GenContext& context,
                                            mx::DocumentPtr doc,

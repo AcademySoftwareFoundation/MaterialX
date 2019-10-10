@@ -50,7 +50,7 @@ class UnitConverter
 
     /// Given an integer index return the unit name in the map used by the converter
     /// Returns Empty string if not found
-    virtual string getUnitFromInteger(unsigned int) const { return EMPTY_STRING; }
+    virtual string getUnitFromInteger(int) const { return EMPTY_STRING; }
 
     /// Convert a given value in a given unit to a desired unit
     /// @param input Input value to convert
@@ -72,25 +72,25 @@ class UnitConverter
 
 };
 
-class LengthUnitConverter;
+class DistanceUnitConverter;
 
-/// A shared pointer to an LengthUnitConverter
-using LengthUnitConverterPtr = shared_ptr<LengthUnitConverter>;
-/// A shared pointer to a const LengthUnitConverter
-using ConstLengthUnitConverterPtr = shared_ptr<const LengthUnitConverter>;
+/// A shared pointer to an DistanceUnitConverter
+using DistanceUnitConverterPtr = shared_ptr<DistanceUnitConverter>;
+/// A shared pointer to a const DistanceUnitConverter
+using ConstDistanceUnitConverterPtr = shared_ptr<const DistanceUnitConverter>;
 
-/// @class LLengthUnitConverter
+/// @class LDistanceUnitConverter
 /// An unit conversion utility for handling length.
 ///
-class LengthUnitConverter : public UnitConverter
+class DistanceUnitConverter : public UnitConverter
 {
   public:
-    virtual ~LengthUnitConverter() { }
+    virtual ~DistanceUnitConverter() { }
 
     /// Creator 
-    static LengthUnitConverterPtr create(UnitTypeDefPtr unitTypeDef);
+    static DistanceUnitConverterPtr create(UnitTypeDefPtr UnitDef);
 
-    /// Return the name of the default unit for "length"
+    /// Return the name of the default unit for "distance"
     const string& getDefaultUnit() const
     {
         return _defaultUnit;
@@ -145,18 +145,18 @@ class LengthUnitConverter : public UnitConverter
 
     /// Given an integer index return the unit name in the map used by the converter.
     /// Returns Empty string if not found
-    virtual string getUnitFromInteger(unsigned int index) const override;
+    virtual string getUnitFromInteger(int index) const override;
 
     /// @}
 
     /// Length unit type name
-    static const string LENGTH_UNIT;
+    static const string DISTANCE_UNIT;
 
   private:
-    LengthUnitConverter(UnitTypeDefPtr unitTypeDef);
+    DistanceUnitConverter(UnitTypeDefPtr UnitDef);
 
     std::unordered_map<string, float> _unitScale;
-    std::unordered_map<string, unsigned int> _unitEnumeration;
+    std::unordered_map<string, int> _unitEnumeration;
     string _defaultUnit;
 };
 
@@ -179,16 +179,16 @@ class UnitConverterRegistry
     /// Creator 
     static UnitConverterRegistryPtr create();
 
-    /// Add a unit converter for a given UnitTypeDef.
-    /// Returns false if a converter has already been registered for the given UnitTypeDef 
+    /// Add a unit converter for a given UnitDef.
+    /// Returns false if a converter has already been registered for the given UnitDef 
     bool addUnitConverter(UnitTypeDefPtr def, UnitConverterPtr converter);
 
-    /// Remove a unit converter for a given UnitTypeDef.
-    /// Returns false if a converter does not exist for the given UnitTypeDef 
+    /// Remove a unit converter for a given UnitDef.
+    /// Returns false if a converter does not exist for the given UnitDef 
     bool removeUnitConverter(UnitTypeDefPtr def);
 
-    /// Get a unit converter for a given UnitTypeDef
-    /// Returns any empty pointer if a converter does not exist for the given UnitTypeDef 
+    /// Get a unit converter for a given UnitDef
+    /// Returns any empty pointer if a converter does not exist for the given UnitDef 
     UnitConverterPtr getUnitConverter(UnitTypeDefPtr def);
 
     /// Clear all unit converters from the registry.

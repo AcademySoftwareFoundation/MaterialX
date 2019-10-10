@@ -427,14 +427,15 @@ void Viewer::setupUnitConverter(mx::DocumentPtr doc)
     unitSystem->loadLibrary(_stdLib);
     unitSystem->setUnitConverterRegistry(_unitRegistry);
     _genContext.getShaderGenerator().setUnitSystem(unitSystem);
-    mx::UnitTypeDefPtr lengthTypeDef = doc->getUnitTypeDef(mx::LengthUnitConverter::LENGTH_UNIT);
-    _lengthUnitConverter = mx::LengthUnitConverter::create(lengthTypeDef);
-    _unitRegistry->addUnitConverter(lengthTypeDef, _lengthUnitConverter);
+    mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef(mx::DistanceUnitConverter::DISTANCE_UNIT);
+    _distanceUnitConverter = mx::DistanceUnitConverter::create(distanceTypeDef);
+    _unitRegistry->addUnitConverter(distanceTypeDef, _distanceUnitConverter);
     _unitOptions.clear();
-    for (int unitid = 0; unitid < (int) _lengthUnitConverter->getUnitScale().size(); unitid++)
+    for (int unitid = 0; unitid < static_cast<int>(_distanceUnitConverter->getUnitScale().size()); unitid++)
     {
-        _unitOptions.push_back(_lengthUnitConverter->getUnitFromInteger(unitid));
+        _unitOptions.push_back(_distanceUnitConverter->getUnitFromInteger(unitid));
     }
+    _genContext.getOptions().targetDistanceUnit = _distanceUnitConverter->getDefaultUnit();
 }
 
 void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)
@@ -698,15 +699,17 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _showAdvancedProperties = enable;
         updateDisplayedProperties();
     });
-    
-    new ng::Label(advancedPopup, "Unit Options");
-    // Unit selection widget
-    Widget* sampleGroup = new Widget(advancedPopup);
-    sampleGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
-    new ng::Label(sampleGroup, "Unit Space:");
-    _unitOptionsUI = new ng::ComboBox(sampleGroup, _unitOptions);
-    _unitOptionsUI->setChevronIcon(-1);
 
+    // Units
+    {
+        new ng::Label(advancedPopup, "Unit Options");
+        // Unit selection widget
+        Widget* sampleGroup = new Widget(advancedPopup);
+        sampleGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+        new ng::Label(sampleGroup, "Unit Space:");
+        _unitOptionsUI = new ng::ComboBox(sampleGroup, _unitOptions);
+        _unitOptionsUI->setChevronIcon(-1);
+    }
 }
 
 void Viewer::updateGeometrySelections()
@@ -822,14 +825,20 @@ void Viewer::updateUnitSelections()
     mProcessEvents = false;
     if (_unitOptionsUI)
     {
-        if (_unitOptionsUI->items().empty()) {
+        if (_unitOptionsUI->items().empty()) 
+        {
             _unitOptionsUI->setItems(_unitOptions);
-            std::string workingUnitSpace = _lengthUnitConverter->getDefaultUnit();
-            int index = _lengthUnitConverter->getUnitAsInteger(workingUnitSpace);
+            std::vector<Widget*> children = _unitOptionsUI->children();
+            for (Widget* child : children)
+            {
+                child->setFontSize(13);
+            }
+            std::string workingUnitSpace = _distanceUnitConverter->getDefaultUnit();
+            int index = _distanceUnitConverter->getUnitAsInteger(workingUnitSpace);
             _unitOptionsUI->setSelectedIndex(index);
             _unitOptionsUI->setCallback([this](int index)
             {
-                _genContext.getOptions().targetLengthUnit = _lengthUnitConverter->getUnitFromInteger(index);
+                _genContext.getOptions().targetDistanceUnit = _distanceUnitConverter->getUnitFromInteger(index);
                 for (MaterialPtr material : _materials)
                 {
                     material->bindUnits(_unitRegistry, _genContext);

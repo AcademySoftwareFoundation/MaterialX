@@ -29,9 +29,9 @@ class ArnoldShaderRenderTester : public RenderUtil::ShaderRenderTester
         context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
     }
 
-    void createValidator(std::ostream& log) override;
+    void createRenderer(std::ostream& log) override;
 
-    bool runValidator(const std::string& shaderName,
+    bool runRenderer(const std::string& shaderName,
                       mx::TypedElementPtr element,
                       mx::GenContext& context,
                       mx::DocumentPtr doc,
@@ -42,11 +42,11 @@ class ArnoldShaderRenderTester : public RenderUtil::ShaderRenderTester
                       const std::string& outputPath = ".") override;
 };
 
-void ArnoldShaderRenderTester::createValidator(std::ostream& /*log*/)
+void ArnoldShaderRenderTester::createRenderer(std::ostream& /*log*/)
 {
 }
 
-bool ArnoldShaderRenderTester::runValidator(const std::string& shaderName,
+bool ArnoldShaderRenderTester::runRenderer(const std::string& shaderName,
                                             mx::TypedElementPtr element,
                                             mx::GenContext& context,
                                             mx::DocumentPtr doc,

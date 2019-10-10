@@ -14,40 +14,38 @@
 
 namespace MaterialX
 {
-// Helper class to create constantBlock for mx_length_unit
-class LengthUnitNode : public SourceCodeNode
+// Helper class to create the constant block for mx_distance_unit
+class DistanceUnitNode : public SourceCodeNode
 {
 public:
-    explicit LengthUnitNode(LengthUnitConverterPtr lengthUnitConverter)
-        :_lengthUnitConverter(lengthUnitConverter) {}
+    explicit DistanceUnitNode(DistanceUnitConverterPtr distanceUnitConverter) :
+         _distanceUnitConverter(distanceUnitConverter) {}
 
-    static ShaderNodeImplPtr create(LengthUnitConverterPtr lengthUnitConverter);
+    static ShaderNodeImplPtr create(DistanceUnitConverterPtr distanceUnitConverter);
     
     void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
 protected:
-    LengthUnitConverterPtr _lengthUnitConverter;
+    DistanceUnitConverterPtr _distanceUnitConverter;
 };
 
-ShaderNodeImplPtr LengthUnitNode::create(LengthUnitConverterPtr lengthUnitConverter)
+ShaderNodeImplPtr DistanceUnitNode::create(DistanceUnitConverterPtr distanceUnitConverter)
 {
-    return std::make_shared<LengthUnitNode>(lengthUnitConverter);
+    return std::make_shared<DistanceUnitNode>(distanceUnitConverter);
 }
 
-void LengthUnitNode::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
-{
-    
-    
+void DistanceUnitNode::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
+{ 
     // Emit the helper funtion unit_ratio that embeds a look up table for unit scale
-    vector<float> lengthUnitScales;
-    lengthUnitScales.reserve(_lengthUnitConverter->getUnitScale().size());
-    for (auto scaleValue : _lengthUnitConverter->getUnitScale()) {
-        lengthUnitScales.push_back(scaleValue.second);
+    vector<float> distanceUnitScales;
+    distanceUnitScales.reserve(_distanceUnitConverter->getUnitScale().size());
+    for (auto scaleValue : _distanceUnitConverter->getUnitScale()) {
+        distanceUnitScales.push_back(scaleValue.second);
     }
-    // see stdlib/gen*/mx_length_unit. This helper function is called by these shaders.
-    const string VAR_LENGTH_UNIT_SCALE = "u_length_unit_scales";
-    VariableBlock lengthUnitLUT("unitLUT", EMPTY_STRING);
-    lengthUnitLUT.add(Type::FLOATARRAY, VAR_LENGTH_UNIT_SCALE, Value::createValue<vector<float>>(lengthUnitScales));
+    // see stdlib/gen*/mx_DISTANCE_UNIT. This helper function is called by these shaders.
+    const string VAR_DISTANCE_UNIT_SCALE = "u_distance_unit_scales";
+    VariableBlock distanceUnitLUT("unitLUT", EMPTY_STRING);
+    distanceUnitLUT.add(Type::FLOATARRAY, VAR_DISTANCE_UNIT_SCALE, Value::createValue<vector<float>>(distanceUnitScales));
 
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     const ShaderGenerator& shadergen = context.getShaderGenerator();
@@ -56,10 +54,10 @@ void LengthUnitNode::emitFunctionDefinition(const ShaderNode& node, GenContext& 
     shadergen.emitScopeBegin(stage);
 
     shadergen.emitLineBreak(stage);
-    shadergen.emitVariableDeclarations(lengthUnitLUT, shadergen.getSyntax().getConstantQualifier(), ";", context, stage, true);
+    shadergen.emitVariableDeclarations(distanceUnitLUT, shadergen.getSyntax().getConstantQualifier(), ";", context, stage, true);
     
     shadergen.emitLineBreak(stage);
-    shadergen.emitString("return ("+ VAR_LENGTH_UNIT_SCALE + "[unit_to] / " + VAR_LENGTH_UNIT_SCALE +"[unit_from]);", stage);
+    shadergen.emitString("return ("+ VAR_DISTANCE_UNIT_SCALE + "[unit_from] / " + VAR_DISTANCE_UNIT_SCALE +"[unit_to]);", stage);
     shadergen.emitLineBreak(stage);
     shadergen.emitScopeEnd(stage);
     shadergen.emitLineBreak(stage);
@@ -86,7 +84,7 @@ UnitTransform::UnitTransform(const string& ss, const string& ts, const TypeDesc*
 }
 
 const string UnitSystem::UNITSYTEM_NAME = "default_unit_system";
-const string UnitSystem::LENGTH_UNIT_TARGET_NAME = "u_lengthUnitTarget";
+const string UnitSystem::DISTANCE_UNIT_TARGET_NAME = "u_distanceUnitTarget";
 
 UnitSystem::UnitSystem(const string& language)
 {
@@ -121,7 +119,7 @@ string UnitSystem::getImplementationName(const UnitTransform& transform, const s
 
 bool UnitSystem::supportsTransform(const UnitTransform& transform) const
 {
-    const string implName = getImplementationName(transform, LengthUnitConverter::LENGTH_UNIT);
+    const string implName = getImplementationName(transform, DistanceUnitConverter::DISTANCE_UNIT);
     ImplementationPtr impl = _document->getImplementation(implName);
     return impl != nullptr;
 }
@@ -129,27 +127,27 @@ bool UnitSystem::supportsTransform(const UnitTransform& transform) const
 ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& transform, const string& name,
     GenContext& context) const
 {
-    const string implName = getImplementationName(transform, LengthUnitConverter::LENGTH_UNIT);
+    const string implName = getImplementationName(transform, DistanceUnitConverter::DISTANCE_UNIT);
     ImplementationPtr impl = _document->getImplementation(implName);
     if (!impl)
     {
         throw ExceptionShaderGenError("No implementation found for transform: ('" + transform.sourceUnit + "', '" + transform.targetUnit + "').");
     }
 
-    // Length Unit Conversion
-    UnitTypeDefPtr lengthTypeDef = _document->getUnitTypeDef(LengthUnitConverter::LENGTH_UNIT);
-    if (!_unitRegistry && !_unitRegistry->getUnitConverter(lengthTypeDef))
+    // distance Unit Conversion
+    UnitTypeDefPtr distanceTypeDef = _document->getUnitTypeDef(DistanceUnitConverter::DISTANCE_UNIT);
+    if (!_unitRegistry && !_unitRegistry->getUnitConverter(distanceTypeDef))
     {
-        throw ExceptionTypeError("Unit registry unavaliable or undefined Unit convertor for: " + LengthUnitConverter::LENGTH_UNIT);
+        throw ExceptionTypeError("Unit registry unavaliable or undefined Unit convertor for: " + DistanceUnitConverter::DISTANCE_UNIT);
     }
-    LengthUnitConverterPtr lengthConverter = std::dynamic_pointer_cast<LengthUnitConverter>(_unitRegistry->getUnitConverter(lengthTypeDef));
+    DistanceUnitConverterPtr distanceConverter = std::dynamic_pointer_cast<DistanceUnitConverter>(_unitRegistry->getUnitConverter(distanceTypeDef));
 
     // Check if it's created and cached already,
     // otherwise create and cache it.
     ShaderNodeImplPtr nodeImpl = context.findNodeImplementation(implName);
     if (!nodeImpl)
     {
-        nodeImpl = LengthUnitNode::create(lengthConverter);
+        nodeImpl = DistanceUnitNode::create(distanceConverter);
         nodeImpl->initialize(*impl, context);
         context.addNodeImplementation(implName, nodeImpl);
     }
@@ -182,7 +180,7 @@ ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& t
    
     // Add the conversion code
     {
-        int value = lengthConverter->getUnitAsInteger(transform.sourceUnit);
+        int value = distanceConverter->getUnitAsInteger(transform.sourceUnit);
         if (value < 0)
         {
             throw ExceptionTypeError("Unrecognized source unit: " + transform.sourceUnit);
@@ -193,7 +191,7 @@ ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& t
     }
 
     {
-        int value = lengthConverter->getUnitAsInteger(transform.targetUnit);
+        int value = distanceConverter->getUnitAsInteger(transform.targetUnit);
         if (value < 0)
         {
             throw ExceptionTypeError("Unrecognized target unit: " + transform.targetUnit);
@@ -202,10 +200,10 @@ ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& t
         ShaderInput* convertTo = shaderNode->addInput("unit_to", Type::INTEGER);
 
         // Create a graph input to connect to the "unit_to" if it does not already exist.
-        ShaderGraphInputSocket* globalInput = parent->getInputSocket(LENGTH_UNIT_TARGET_NAME);
+        ShaderGraphInputSocket* globalInput = parent->getInputSocket(DISTANCE_UNIT_TARGET_NAME);
         if (!globalInput)
         {
-            globalInput = parent->addInputSocket(LENGTH_UNIT_TARGET_NAME, Type::INTEGER);
+            globalInput = parent->addInputSocket(DISTANCE_UNIT_TARGET_NAME, Type::INTEGER);
         }
         globalInput->setValue(Value::createValue(value));
         convertTo->makeConnection(globalInput);

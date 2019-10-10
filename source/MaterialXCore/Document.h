@@ -557,13 +557,9 @@ class Document : public GraphElement
     virtual void disableCallbacks() { }
 
     /// @}
-    /// @name UnitDef Support
+    /// @name UnitDef support
     /// @{
 
-    /// Add a UnitDef to the UnitTypeDef.
-    /// @param name The name of the new UnitDef. An exception is thrown
-    /// if the name provided is an empty string.
-    /// @return A shared pointer to the new UnitDef.
     UnitDefPtr addUnitDef(const string& name)
     {
         if (name.empty())
@@ -589,7 +585,7 @@ class Document : public GraphElement
     void removeUnitDef(const string& name)
     {
         removeChildOfType<UnitDef>(name);
-    }
+    }    
 
     /// @}
     /// @name UnitTypeDef support
@@ -620,7 +616,8 @@ class Document : public GraphElement
     void removeUnitTypeDef(const string& name)
     {
         removeChildOfType<UnitTypeDef>(name);
-    }    
+    }
+
 
     /// @}
 

@@ -236,7 +236,7 @@ class GlslProgram
                      ImageDesc& desc);
 
     /// Utility to check for OpenGL context errors.
-    /// Will throw an ExceptionShaderValidationError exception which will list of the errors found
+    /// Will throw an ExceptionShaderRenderError exception which will list of the errors found
     /// if any errors encountered.
     void checkErrors();
 

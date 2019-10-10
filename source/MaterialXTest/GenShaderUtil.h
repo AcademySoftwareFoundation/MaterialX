@@ -215,7 +215,7 @@ class ShaderGeneratorTester
 
     // Unit system 
     mx::UnitSystemPtr _unitSystem;
-    std::string _defaultLenghtUnit;
+    std::string _defaultDistanceUnit;
 
     mx::DocumentPtr _dependLib;
 

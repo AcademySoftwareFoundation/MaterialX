@@ -9,19 +9,15 @@
 /// @file
 /// Texture baking functionality
 
-#include <MaterialXRender/ImageHandler.h>
+#include <MaterialXRenderGlsl/GlslRenderer.h>
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 namespace MaterialX
 {
 
-class TextureBaker;
-class GlslValidator;
-using GlslValidatorPtr = std::shared_ptr<GlslValidator>;
-
 /// A shared pointer to a TextureBaker
-using TextureBakerPtr = shared_ptr<TextureBaker>;
+using TextureBakerPtr = shared_ptr<class TextureBaker>;
 
 class TextureBaker
 {
@@ -48,7 +44,7 @@ class TextureBaker
     FileSearchPath getSearchPath() { return _searchPath; }
 
   protected:
-    GlslValidatorPtr _rasterizer;
+    GlslRendererPtr _renderer;
     ShaderGeneratorPtr _generator;
     FileSearchPath _searchPath;
     string _fileSuffix;
@@ -56,4 +52,4 @@ class TextureBaker
 
 } // namespace MaterialX
 
-#endif // MATERIALX_TEXTUREBAKER
+#endif

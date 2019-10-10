@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRenderOsl/OslValidator.h>
+#include <MaterialXRenderOsl/OslRenderer.h>
 
 #include <MaterialXGenShader/Util.h>
 
@@ -15,45 +15,45 @@ namespace MaterialX
 {
 
 // Statics
-string OslValidator::OSL_CLOSURE_COLOR_STRING("closure color");
+string OslRenderer::OSL_CLOSURE_COLOR_STRING("closure color");
 
 //
-// Creator
+// OslRenderer methods
 //
-OslValidatorPtr OslValidator::create()
+
+OslRendererPtr OslRenderer::create()
 {
-    return std::shared_ptr<OslValidator>(new OslValidator());
+    return std::shared_ptr<OslRenderer>(new OslRenderer());
 }
 
-OslValidator::OslValidator() :
-    ShaderValidator(),
+OslRenderer::OslRenderer() :
     _useTestRender(true) // By default use testrender
 {
 }
 
-OslValidator::~OslValidator()
+OslRenderer::~OslRenderer()
 {
 }
 
-void OslValidator::initialize()
+void OslRenderer::initialize()
 {
-    ShaderValidationErrorList errors;
+    StringVec errors;
     const string errorType("OSL initialization error.");
     if (_oslIncludePath.isEmpty())
     {
         errors.push_back("OSL validation include path is empty.");
-        throw ExceptionShaderValidationError(errorType, errors);
+        throw ExceptionShaderRenderError(errorType, errors);
     }
     if (_oslTestShadeExecutable.isEmpty() && _oslCompilerExecutable.isEmpty())
     {
         errors.push_back("OSL validation executables not set.");
-        throw ExceptionShaderValidationError(errorType, errors);
+        throw ExceptionShaderRenderError(errorType, errors);
     }
 }
 
-void OslValidator::renderOSL(const FilePath& dirPath, const string& shaderName, const string& outputName)
+void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, const string& outputName)
 {
-    ShaderValidationErrorList errors;
+    StringVec errors;
     const string errorType("OSL rendering error.");
 
     // If command options missing, skip testing.
@@ -61,7 +61,7 @@ void OslValidator::renderOSL(const FilePath& dirPath, const string& shaderName, 
         _oslTestRenderSceneTemplateFile.isEmpty() || _oslUtilityOSOPath.isEmpty())
     {
         errors.push_back("Command input arguments are missing");
-        throw ExceptionShaderValidationError(errorType, errors);
+        throw ExceptionShaderRenderError(errorType, errors);
     }
 
     static const StringSet RENDERABLE_TYPES = { "float", "color", "vector", "closure color", "color2", "color4", "vector2", "vector4" };
@@ -71,7 +71,7 @@ void OslValidator::renderOSL(const FilePath& dirPath, const string& shaderName, 
     if (RENDERABLE_TYPES.count(_oslShaderOutputType) == 0)
     {
         errors.push_back("Output type to render is not supported: " + _oslShaderOutputType);
-        throw ExceptionShaderValidationError(errorType, errors);
+        throw ExceptionShaderRenderError(errorType, errors);
     }
 
     const bool isColorClosure = _oslShaderOutputType == "closure color";
@@ -138,7 +138,7 @@ void OslValidator::renderOSL(const FilePath& dirPath, const string& shaderName, 
     {
         errors.push_back("Scene template file: " + _oslTestRenderSceneTemplateFile.asString() +
                          " does not include proper tokens for rendering.");
-        throw ExceptionShaderValidationError(errorType, errors);
+        throw ExceptionShaderRenderError(errorType, errors);
     }
 
     // Write scene file
@@ -195,11 +195,11 @@ void OslValidator::renderOSL(const FilePath& dirPath, const string& shaderName, 
         {
             errors.push_back(result[i]);
         }
-        throw ExceptionShaderValidationError(errorType, errors);
+        throw ExceptionShaderRenderError(errorType, errors);
     }
 }
 
-void OslValidator::shadeOSL(const FilePath& dirPath, const string& shaderName, const string& outputName)
+void OslRenderer::shadeOSL(const FilePath& dirPath, const string& shaderName, const string& outputName)
 {
     // If no command and include path specified then skip checking.
     if (_oslTestShadeExecutable.isEmpty() || _oslIncludePath.isEmpty())
@@ -249,7 +249,7 @@ void OslValidator::shadeOSL(const FilePath& dirPath, const string& shaderName, c
     if (!results.empty())
     {
         const string errorType("OSL rendering error.");
-        ShaderValidationErrorList errors;
+        StringVec errors;
         errors.push_back("Command string: " + command);
         errors.push_back("Command return code: " + std::to_string(returnValue));
         errors.push_back("Shader failed to render:");
@@ -257,11 +257,11 @@ void OslValidator::shadeOSL(const FilePath& dirPath, const string& shaderName, c
         {
             errors.push_back(resultLine);
         }
-        throw ExceptionShaderValidationError(errorType, errors);
+        throw ExceptionShaderRenderError(errorType, errors);
     }
 }
 
-void OslValidator::compileOSL(const FilePath& oslFilePath)
+void OslRenderer::compileOSL(const FilePath& oslFilePath)
 {
     // If no command and include path specified then skip checking.
     if (_oslCompilerExecutable.isEmpty() || _oslIncludePath.isEmpty())
@@ -293,38 +293,38 @@ void OslValidator::compileOSL(const FilePath& oslFilePath)
     if (!result.empty())
     {
         const string errorType("OSL compilation error.");
-        ShaderValidationErrorList errors;
+        StringVec errors;
         errors.push_back("Command string: " + command);
         errors.push_back("Command return code: " + std::to_string(returnValue));
         errors.push_back("Shader failed to compile:");
         errors.push_back(result);
-        throw ExceptionShaderValidationError(errorType, errors);
+        throw ExceptionShaderRenderError(errorType, errors);
     }
 }
 
-void OslValidator::validateCreation(const ShaderPtr shader)
+void OslRenderer::createProgram(const ShaderPtr shader)
 {
     StageMap stages = { {Stage::PIXEL, shader->getStage(Stage::PIXEL).getSourceCode()} };
-    validateCreation(stages);
+    createProgram(stages);
 }
 
-void OslValidator::validateCreation(const StageMap& stages)
+void OslRenderer::createProgram(const StageMap& stages)
 {
     // There is only one stage in an OSL shader so only
     // the first stage is examined.
-    ShaderValidationErrorList errors;
+    StringVec errors;
     const string errorType("OSL compilation error.");
     if (stages.empty() || stages.begin()->second.empty())
     {
         errors.push_back("No shader code to validate");
-        throw ExceptionShaderValidationError(errorType, errors);
+        throw ExceptionShaderRenderError(errorType, errors);
     }
 
     bool haveCompiler = !_oslCompilerExecutable.isEmpty() && !_oslIncludePath.isEmpty();
     if (!haveCompiler)
     {
         errors.push_back("No OSL compiler specified for validation.");
-        throw ExceptionShaderValidationError(errorType, errors);
+        throw ExceptionShaderRenderError(errorType, errors);
     }
 
     // Dump string to disk. For OSL assume shader is in stage 0 slot.
@@ -355,29 +355,29 @@ void OslValidator::validateCreation(const StageMap& stages)
     compileOSL(fileName);
 }
 
-void OslValidator::validateInputs()
+void OslRenderer::validateInputs()
 {
-    ShaderValidationErrorList errors;
+    StringVec errors;
     const string errorType("OSL validation error.");
 
     errors.push_back("OSL input validation is not supported at this time.");
-    throw ExceptionShaderValidationError(errorType, errors);
+    throw ExceptionShaderRenderError(errorType, errors);
 }
 
-void OslValidator::validateRender()
+void OslRenderer::render()
 {
-    ShaderValidationErrorList errors;
+    StringVec errors;
     const string errorType("OSL rendering error.");
 
     if (_oslOutputFilePath.isEmpty())
     {
         errors.push_back("OSL output file path string has not been specified.");
-        throw ExceptionShaderValidationError(errorType, errors);
+        throw ExceptionShaderRenderError(errorType, errors);
     }
     if (_oslShaderOutputName.empty())
     {
         errors.push_back("OSL shader output name has not been specified.");
-        throw ExceptionShaderValidationError(errorType, errors);
+        throw ExceptionShaderRenderError(errorType, errors);
     }
 
     // Use testshade
@@ -392,13 +392,13 @@ void OslValidator::validateRender()
         if (_oslShaderName.empty())
         {
             errors.push_back("OSL shader name has not been specified.");
-            throw ExceptionShaderValidationError(errorType, errors);
+            throw ExceptionShaderRenderError(errorType, errors);
         }
         renderOSL(_oslOutputFilePath, _oslShaderName, _oslShaderOutputName);
     }
 }
 
-void OslValidator::save(const FilePath& /*filePath*/, bool /*floatingPoint*/)
+void OslRenderer::save(const FilePath& /*filePath*/, bool /*floatingPoint*/)
 {
     // No-op: image save is done as part of rendering.
 }

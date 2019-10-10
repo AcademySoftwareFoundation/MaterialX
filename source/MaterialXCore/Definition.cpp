@@ -26,7 +26,7 @@ const string TypeDef::CONTEXT_ATTRIBUTE = "context";
 const string Implementation::FILE_ATTRIBUTE = "file";
 const string Implementation::FUNCTION_ATTRIBUTE = "function";
 const string Implementation::LANGUAGE_ATTRIBUTE = "language";
-const string UnitDef::UNITTYPEDEF_ATTRIBUTE = "unittypedef";
+const string UnitDef::UNITTYPE_ATTRIBUTE = "unittype";
 const string UnitTypeDef::DEFAULT_ATTRIBUTE = "default";
 
 //
