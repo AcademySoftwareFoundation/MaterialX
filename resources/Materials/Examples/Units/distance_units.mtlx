@@ -38,4 +38,15 @@
   <input name="texcoord" type="vector2" nodename="albedo_placement_transform" />
 </image>
 <output name="SurfaceAlbedo_output" type="color3" nodename="SurfaceAlbedo_color" />
+
+<constant name="constant_v3" type="vector3">
+   <parameter name="value" type="vector3" value="0.25, 0.25, 0.25" unittype="distance" unit="inch" />
+</constant>
+<output name="unit_vector3" type="vector3" nodename="constant_v3" />
+
+<constant name="constant_v4" type="vector4">
+   <parameter name="value" type="vector4" value="0.25, 0.25, 0.25, 1.0" unittype="distance" unit="inch" />
+</constant>
+<output name="unit_vector4" type="vector4" nodename="constant_v4" />
+
 </materialx>

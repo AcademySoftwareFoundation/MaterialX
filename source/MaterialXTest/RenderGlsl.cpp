@@ -506,10 +506,12 @@ TEST_CASE("Render: GLSL TestSuite", "[renderglsl]")
     const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
     const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
     const mx::FilePath testRootPath3 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/UsdPreviewSurface");
+    const mx::FilePath testRootPath4 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/Units");
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back(testRootPath);
     testRootPaths.push_back(testRootPath2);
     testRootPaths.push_back(testRootPath3);
+    testRootPaths.push_back(testRootPath4);
 
     mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
 

@@ -136,7 +136,7 @@ TEST_CASE("UnitDocument", "[units]")
                                 float originalval = value->asA<float>();
                                 float convertedValue = uconverter->convert(originalval, input->getUnit(), distanceTypeDef->getDefault());
                                 float reconvert = uconverter->convert(convertedValue, distanceTypeDef->getDefault(), input->getUnit());
-                                REQUIRE(originalval == reconvert);
+                                REQUIRE((originalval - reconvert) < EPSILON);
                             }
                             else if (type->isFloat2())
                             {
