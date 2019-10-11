@@ -94,6 +94,7 @@ if (EXISTS "${MAYA_DEBUG_DIR}" OR EXISTS "${MAYA_RELEASE_DIR}")
         SOVERSION ${MATERIALX_NODE_VERSION}
         PREFIX ""
         SUFFIX ".mll"
+        DEBUG_POSTFIX ${MATERIALX_DEBUG_POSTFIX}
     )
 
     include_directories(
