@@ -315,7 +315,7 @@ void Material::unbindImages(mx::GLTextureHandlerPtr imageHandler)
     }
 }
 
-void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSearchPath& searchPath, const std::string& udim)
+void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSearchPath& searchPath)
 {
     if (!_glShader)
     {
@@ -344,7 +344,7 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
         samplingProperties.setProperties(uniformVariable, *publicUniforms);
 
         mx::ImageDesc desc;
-        mx::FilePath resolvedFilename = bindImage(filename, uniformVariable, imageHandler, desc, samplingProperties, udim, &fallbackColor);
+        mx::FilePath resolvedFilename = bindImage(filename, uniformVariable, imageHandler, desc, samplingProperties, &fallbackColor);
         if (!resolvedFilename.isEmpty())
         {
             _boundImages.push_back(resolvedFilename);
@@ -353,8 +353,7 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
 }
 
 mx::FilePath Material::bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::GLTextureHandlerPtr imageHandler,
-                                 mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, const std::string& udim,
-                                 mx::Color4* fallbackColor)
+                                 mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, mx::Color4* fallbackColor)
 {
     mx::FilePath returnPath;
 
@@ -363,34 +362,31 @@ mx::FilePath Material::bindImage(const mx::FilePath& filePath, const std::string
         return returnPath;
     }
 
-    // Apply udim string if specified.
-    mx::FilePath resolvedFilename = filePath;
-    if (!udim.empty())
+    // Resolve the input filepath.
+    mx::FilePath resolvedFilePath = filePath;
+    if (!getUdim().empty())
     {
-        const mx::StringVec udimSet{ udim };
-        mx::FilePathVec udimPaths = mx::getUdimPaths(filePath, udimSet);
-        if (!udimPaths.empty())
-        {
-            resolvedFilename = udimPaths[0];
-        }
+        mx::StringResolverPtr resolver = std::make_shared<mx::StringResolver>();
+        resolver->setUdimString(getUdim());
+        resolvedFilePath = resolver->resolve(resolvedFilePath, mx::FILENAME_TYPE_STRING);
     }
+    resolvedFilePath = imageHandler->getSearchPath().find(resolvedFilePath);
 
     // Acquire the given image.
-    resolvedFilename = imageHandler->getSearchPath().find(resolvedFilename);
-    if (!imageHandler->acquireImage(resolvedFilename, desc, true, fallbackColor) && !filePath.isEmpty())
+    if (!imageHandler->acquireImage(resolvedFilePath, desc, true, fallbackColor) && !filePath.isEmpty())
     {
-        std::cerr << "Failed to load image: " << resolvedFilename.asString() << std::endl;
+        std::cerr << "Failed to load image: " << resolvedFilePath.asString() << std::endl;
         return returnPath;
     }
 
     // Bind the image and set its sampling properties.
-    if (imageHandler->bindImage(resolvedFilename, samplingProperties))
+    if (imageHandler->bindImage(resolvedFilePath, samplingProperties))
     {
         int textureLocation = imageHandler->getBoundTextureLocation(desc.resourceId);
         if (textureLocation >= 0)
         {
             _glShader->setUniform(uniformName, textureLocation, false);
-            return resolvedFilename;
+            return resolvedFilePath;
         }
     }
     return returnPath;
@@ -488,7 +484,7 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandler
             samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
             samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::CUBIC;
 
-            if (!bindImage(filename, pair.first, imageHandler, desc, samplingProperties, udim, &fallbackColor).isEmpty())
+            if (!bindImage(filename, pair.first, imageHandler, desc, samplingProperties, &fallbackColor).isEmpty())
             {
                 if (specularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
                 {

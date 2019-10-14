@@ -259,9 +259,9 @@ bool GlslProgram::bind()
 }
 
 void GlslProgram::bindInputs(ViewHandlerPtr viewHandler,
-                            GeometryHandlerPtr geometryHandler,
-                            ImageHandlerPtr imageHandler,
-                            LightHandlerPtr lightHandler)
+                             GeometryHandlerPtr geometryHandler,
+                             ImageHandlerPtr imageHandler,
+                             LightHandlerPtr lightHandler)
 {
     // Bind the program to use
     if (!bind())
@@ -530,10 +530,19 @@ bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, con
                               const ImageSamplingProperties& samplingProperties, ImageDesc& desc)
 {
     bool textureBound = false;
-    FilePath resolvedFilePath = imageHandler->getSearchPath().find(filePath);
+
     if (uniformLocation >= 0 &&
         uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
     {
+        // Resolve the input filepath.
+        FilePath resolvedFilePath = filePath;
+        if (imageHandler->getFilenameResolver())
+        {
+            resolvedFilePath = imageHandler->getFilenameResolver()->resolve(resolvedFilePath, FILENAME_TYPE_STRING);
+        }
+        resolvedFilePath = imageHandler->getSearchPath().find(resolvedFilePath);
+
+        // Acquire the image.
         if (imageHandler->acquireImage(resolvedFilePath, desc, generateMipMaps, &(samplingProperties.defaultColor)))
         {
             textureBound = imageHandler->bindImage(resolvedFilePath, samplingProperties);

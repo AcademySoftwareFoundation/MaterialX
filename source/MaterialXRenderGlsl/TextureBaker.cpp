@@ -5,31 +5,26 @@
 
 #include <MaterialXRenderGlsl/TextureBaker.h>
 
-#include <MaterialXRenderGlsl/GLTextureHandler.h>
-
-#include <MaterialXRender/LightHandler.h>
-#include <MaterialXRender/StbImageLoader.h>
-
 #include <MaterialXFormat/XmlIo.h>
 
 namespace MaterialX
 {
 
 TextureBaker::TextureBaker(unsigned int res) :
-    _fileSuffix(ImageLoader::PNG_EXTENSION)
+    GlslRenderer(res),
+    _generator(GlslShaderGenerator::create()),
+    _extension(ImageLoader::PNG_EXTENSION)
 {
-    _renderer = GlslRenderer::create(res);
-    _renderer->initialize();
+    initialize();
 }
 
-void TextureBaker::bakeShaderInputs(ShaderRefPtr shaderRef, const FileSearchPath& searchPath, GenContext& context, const FilePath& outputFolder)
+void TextureBaker::bakeShaderInputs(ShaderRefPtr shaderRef, GenContext& context, const FilePath& outputFolder)
 {
     if (!shaderRef)
     {
         return;
     }
 
-    _searchPath = searchPath;
     for (BindInputPtr bindInput : shaderRef->getBindInputs())
     {
         OutputPtr output = bindInput->getConnectedOutput();
@@ -47,24 +42,17 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
         return;
     }
 
-    GLTextureHandlerPtr imageHandler = GLTextureHandler::create(StbImageLoader::create());
-    imageHandler->setSearchPath(_searchPath);
-    _renderer->setImageHandler(imageHandler);
-
-    _generator = GlslShaderGenerator::create();
-
-    string outputName = createValidName(output->getNamePath());
-    ShaderPtr shader = _generator->generate(outputName + "_baker", output, context);
+    ShaderPtr shader = _generator->generate("BakingShader", output, context);
+    createProgram(shader);
 
     bool encodeSrgb = output->getType() == "color3" || output->getType() == "color4";
-    _renderer->createProgram(shader);
-    _renderer->renderTextureSpace(encodeSrgb);
+    renderTextureSpace(encodeSrgb);
 
     // TODO: Add support for graphs containing geometric nodes such as position and normal.
     //       Currently, the only supported geometric node is texcoord.
 
-    FilePath filename = outputFolder / FilePath(outputName + "_baked." + _fileSuffix);
-    _renderer->save(filename, false);
+    FilePath filename = outputFolder / generateTextureFilename(output);
+    save(filename, false);
 }
 
 void TextureBaker::writeBakedDocument(ShaderRefPtr shaderRef, const FilePath& filename)
@@ -90,7 +78,6 @@ void TextureBaker::writeBakedDocument(ShaderRefPtr shaderRef, const FilePath& fi
         if (bindInput && bindInput->getConnectedOutput())
         {
             OutputPtr output = bindInput->getConnectedOutput();
-            string outputName = createValidName(output->getNamePath());
 
             // Create the baked bind input.
             BindInputPtr bakedBindInput = bakedShaderRef->addBindInput(bindInput->getName(), bindInput->getType());
@@ -98,7 +85,7 @@ void TextureBaker::writeBakedDocument(ShaderRefPtr shaderRef, const FilePath& fi
             // Add the image node.
             NodePtr bakedImage = bakedNodeGraph->addNode("image", bindInput->getName() + "_baked", bindInput->getType());
             ParameterPtr param = bakedImage->addParameter("file", "filename");
-            param->setValueString(outputName + "_baked." + _fileSuffix);
+            param->setValueString(generateTextureFilename(output));
 
             // Add the graph output.
             OutputPtr bakedOutput = bakedNodeGraph->addOutput(bindInput->getName() + "_output", bindInput->getType());
@@ -112,9 +99,14 @@ void TextureBaker::writeBakedDocument(ShaderRefPtr shaderRef, const FilePath& fi
         }
     }
 
-    XmlWriteOptions writeOptions;
-    writeOptions.writeXIncludeEnable = false;
-    writeToXmlFile(bakedTextureDoc, filename, &writeOptions);
+    writeToXmlFile(bakedTextureDoc, filename);
+}
+
+FilePath TextureBaker::generateTextureFilename(OutputPtr output)
+{
+    string outputName = createValidName(output->getNamePath());
+    string udimSuffix = _udim.empty() ? EMPTY_STRING : "_" + _udim;
+    return FilePath(outputName + "_baked" + udimSuffix + "." + _extension);
 }
 
 } // namespace MaterialX
