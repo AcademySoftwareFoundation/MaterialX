@@ -729,29 +729,6 @@ void tokenSubstitution(const StringMap& substitutions, string& source)
     source = buffer;
 }
 
-FilePathVec getUdimPaths(const FilePath& filePath, const StringVec& udimIdentifiers)
-{
-    FilePathVec resolvedFilePaths;
-    if (udimIdentifiers.empty())
-    {
-        return resolvedFilePaths;
-    }
-
-    for (const string& udimIdentifier : udimIdentifiers)
-    {
-        if (udimIdentifier.empty())
-        {
-            continue;
-        }
-
-        StringMap map;
-        map[UDIM_TOKEN] = udimIdentifier;
-        resolvedFilePaths.push_back(FilePath(replaceSubstrings(filePath.asString(), map)));
-    }
-
-    return resolvedFilePaths;
-}
-
 vector<Vector2> getUdimCoordinates(const StringVec& udimIdentifiers)
 {
     vector<Vector2> udimCoordinates;

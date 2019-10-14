@@ -11,6 +11,7 @@
 
 #include <MaterialXFormat/File.h>
 
+#include <MaterialXCore/Element.h>
 #include <MaterialXCore/Types.h>
 
 #include <cmath>
@@ -144,8 +145,7 @@ using ImageDescCache = std::unordered_map<string, ImageDesc>;
 using ImageLoaderPtr = std::shared_ptr<class ImageLoader>;
 
 /// @class ImageLoader
-/// Abstract class representing an disk image loader
-///
+/// Abstract base class for file-system image loaders
 class ImageLoader
 {
   public:
@@ -207,35 +207,28 @@ using ImageHandlerPtr = std::shared_ptr<class ImageHandler>;
 using ImageLoaderMap = std::multimap<string, ImageLoaderPtr>;
 
 /// @class ImageHandler
-/// A image handler class. Keeps track of images which are loaded
-/// from disk via supplied ImageLoader. Derive classes are responsible
-/// for determinine how to perform the logic for "binding" of these resources
+/// Base image handler class. Keeps track of images which are loaded from
+/// disk via supplied ImageLoader. Derived classes are responsible for
+/// determinining how to perform the logic for "binding" of these resources
 /// for a given target (such as a given shading language).
-///
 class ImageHandler
 {
   public:
-    /// Constructor. Assume at least one loader must be supplied.
-    explicit ImageHandler(ImageLoaderPtr imageLoader);
-
-    /// Static instance create function
     static ImageHandlerPtr create(ImageLoaderPtr imageLoader)
     {
-        return std::make_shared<ImageHandler>(imageLoader);
+        return ImageHandlerPtr(new ImageHandler(imageLoader));
     }
 
-    /// Add additional image loaders. Useful to handle different file
-    /// extensions
-    /// @param loader Loader to add to list of available loaders.
-    void addLoader(ImageLoaderPtr loader);
-
-    /// Default destructor
     virtual ~ImageHandler()
     {
         clearImageCache();
-    };
+    }
 
-    /// Get a list of extensions supported by the handler
+    /// Add another image loader to the handler, which will be invoked if
+    /// existing loaders cannot load a given image.
+    void addLoader(ImageLoaderPtr loader);
+
+    /// Get a list of extensions supported by the handler.
     void supportedExtensions(StringSet& extensions);
 
     /// Save image to disk. This method must be implemented by derived classes.
@@ -300,51 +293,61 @@ class ImageHandler
         return _searchPath;
     }
 
+    /// Set the filename resolver for images.
+    void setFilenameResolver(StringResolverPtr resolver)
+    {
+        _resolver = resolver;
+    }
+
+    /// Return the filename resolver for images.
+    StringResolverPtr getFilenameResolver() const
+    {
+        return _resolver;
+    }
+
     /// Resolve a path to a file using the registered search paths.
     FilePath findFile(const FilePath& filePath);
 
-    /// Returns the bound texture location for a given resource
+    /// Return the bound texture location for a given resource.
     virtual int getBoundTextureLocation(unsigned int)
     {
         return -1;
     }
 
   protected:
-    /// Cache an image for reuse.
-    /// @param filePath File path of image to cache.
-    /// @param imageDesc Image description to cache.
+    // Protected constructor.
+    ImageHandler(ImageLoaderPtr imageLoader);
+
+    // Cache an image for reuse.
     void cacheImage(const string& filePath, const ImageDesc& imageDesc);
 
-    /// Remove image description from the cache.
-    /// @param filePath File path of image to remove.
+    // Remove image description from the cache.
     void uncacheImage(const string& filePath);
 
-    /// Get an image description in the image cache if it exists
-    /// @param filePath File path of image to find in the cache.
-    /// @return A null ptr is returned if not found.
+    // Return the cached image description, if found; otherwise
+    // return a null pointer.
     const ImageDesc* getCachedImage(const string& filePath);
 
-    /// Return a reference to the image cache
+    // Return a reference to the image cache
     ImageDescCache& getImageCache()
     {
         return _imageCache;
     }
 
-    /// Delete an image
-    /// @param imageDesc Image description indicate which image to delete.
-    /// Derived classes should override this method to clean up any related resources
-    /// an image is deleted from the handler.
+    // Delete an image. Derived classes should override this method to clean
+    // up any related resources when an image is deleted from the handler.
     virtual void deleteImage(ImageDesc& imageDesc);
 
-    /// Return image description restrictions. By default nullptr is
-    /// returned meaning no restrictions. Derived classes can override
-    /// this to add restrictions specific to that handler.
+    // Return image description restrictions. By default nullptr is
+    // returned meaning no restrictions. Derived classes can override
+    // this to add restrictions specific to that handler.
     virtual const ImageDescRestrictions* getRestrictions() const { return nullptr; }
 
   protected:
     ImageLoaderMap _imageLoaders;
     ImageDescCache _imageCache;
     FileSearchPath _searchPath;
+    StringResolverPtr _resolver;
 };
 
 } // namespace MaterialX

@@ -134,17 +134,14 @@ class Material
     void bindViewInformation(const mx::Matrix44& world, const mx::Matrix44& view, const mx::Matrix44& proj);
 
     /// Bind all images for this material.
-    void bindImages(mx::GLTextureHandlerPtr imageHandler,
-                    const mx::FileSearchPath& searchPath,
-                    const std::string& udim);
+    void bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSearchPath& searchPath);
 
     /// Unbbind all images for this material.
     void unbindImages(mx::GLTextureHandlerPtr imageHandler);
 
     /// Bind a single image.
     mx::FilePath bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::GLTextureHandlerPtr imageHandler,
-                           mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, const std::string& udim = mx::EMPTY_STRING,
-                           mx::Color4* fallbackColor = nullptr);
+                           mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, mx::Color4* fallbackColor = nullptr);
 
     /// Bind lights to shader.
     void bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandlerPtr imageHandler, const mx::FileSearchPath& imagePath, 

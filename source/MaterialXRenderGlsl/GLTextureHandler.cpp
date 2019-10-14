@@ -43,8 +43,7 @@ bool GLTextureHandler::acquireImage(const FilePath& filePath,
         glewInit();
     }
 
-    // Check to see if we have already loaded in the texture.
-    // If so, reuse the existing texture id
+    // Return a cached image if available.
     const ImageDesc* cachedDesc = getCachedImage(filePath);
     if (cachedDesc)
     {

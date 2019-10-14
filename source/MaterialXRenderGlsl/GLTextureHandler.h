@@ -13,6 +13,7 @@
 
 namespace MaterialX
 {
+
 /// Shared pointer to an OpenGL texture handler
 using GLTextureHandlerPtr = std::shared_ptr<class GLTextureHandler>;
 
@@ -21,18 +22,12 @@ using GLTextureHandlerPtr = std::shared_ptr<class GLTextureHandler>;
 class GLTextureHandler : public ImageHandler
 {
   public:
-    /// Static instance create function
     static GLTextureHandlerPtr create(ImageLoaderPtr imageLoader)
     {
-        return std::make_shared<GLTextureHandler>(imageLoader);
+        return GLTextureHandlerPtr(new GLTextureHandler(imageLoader));
     }
 
-    /// Default constructor
-    GLTextureHandler(ImageLoaderPtr imageLoader);
-
-    /// Default destructor
-    virtual ~GLTextureHandler() {}
-
+    virtual ~GLTextureHandler() { }
 
     /// Acquire an image from the cache or file system.  If the image is not
     /// found in the cache, then each image loader will be applied in turn.
@@ -73,31 +68,35 @@ class GLTextureHandler : public ImageHandler
     int getBoundTextureLocation(unsigned int resourceId) override;
 
   protected:
-    /// Unbind an image.
+    // Protected constructor
+    GLTextureHandler(ImageLoaderPtr imageLoader);
+
+    // Unbind an image.
     bool unbindImage(const ImageDesc& imageDesc);
 
-    /// Delete an image
-    /// @param imageDesc Image description indicate which image to delete.
-    /// Any OpenGL texture resource and as well as any CPU side reosurce memory will be deleted.
+    // Delete an image. Any OpenGL texture resource and as well as any CPU-side
+    // resource memory will be deleted.
     void deleteImage(MaterialX::ImageDesc& imageDesc) override;
 
-    /// Return restrictions specific to this handler
+    // Return restrictions specific to this handler
     const ImageDescRestrictions* getRestrictions() const override
     {
         return &_restrictions;
     }
 
-    /// Returns the first free texture location that can be bound to.
+    // Return the first free texture location that can be bound to.
     int getNextAvailableTextureLocation();
 
-    /// Maximum number of available image units
+  protected:
+    // Maximum number of available image units
     int _maxImageUnits;
 
-    /// Support restrictions
+    // Support restrictions
     ImageDescRestrictions _restrictions;
 
     std::vector<unsigned int> _boundTextureLocations;
 };
 
 } // namespace MaterialX
+
 #endif
