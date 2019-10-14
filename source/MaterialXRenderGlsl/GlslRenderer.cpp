@@ -373,7 +373,6 @@ void GlslRenderer::renderTextureSpace(bool encodeSrgb)
 
     _program->unbind();
     _program->unbindInputs(_imageHandler);
-    _program->unbindTextures(_imageHandler);
 }
 
 void GlslRenderer::validateInputs()

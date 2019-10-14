@@ -527,8 +527,25 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
             mx::ShaderRefPtr shaderRef = material->getElement()->asA<mx::ShaderRef>();
             if (_bakeTextures && shaderRef)
             {
+                mx::FileSearchPath searchPath = _searchPath;
+                if (material->getDocument())
+                {
+                    mx::FilePath documentFilename = material->getDocument()->getSourceUri();
+                    searchPath.append(documentFilename.getParentPath());
+                }
+
+                mx::ImageHandlerPtr imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
+                imageHandler->setSearchPath(searchPath);
+                if (!material->getUdim().empty())
+                {
+                    mx::StringResolverPtr resolver = std::make_shared<mx::StringResolver>();
+                    resolver->setUdimString(material->getUdim());
+                    imageHandler->setFilenameResolver(resolver);
+                }
+
                 mx::TextureBakerPtr baker = mx::TextureBaker::create();
-                baker->bakeShaderInputs(shaderRef, _searchPath, _genContext, filename.getParentPath());
+                baker->setImageHandler(imageHandler);
+                baker->bakeShaderInputs(shaderRef, _genContext, filename.getParentPath());
                 baker->writeBakedDocument(shaderRef, filename);
             }
             else
@@ -1236,7 +1253,7 @@ void Viewer::drawScene3D()
             glCullFace(GL_FRONT);
             envShader->bind();
             _envMaterial->bindViewInformation(_envMatrix, view, proj);
-            _envMaterial->bindImages(_imageHandler, _searchPath, _envMaterial->getUdim());
+            _envMaterial->bindImages(_imageHandler, _searchPath);
             _envMaterial->drawPartition(envPart);
             glDisable(GL_CULL_FACE);
             glCullFace(GL_BACK);
@@ -1259,7 +1276,7 @@ void Viewer::drawScene3D()
         material->bindLights(_lightHandler, _imageHandler, _searchPath,
                              _directLighting, _indirectLighting,
                              _specularEnvironmentMethod, _envSamples);
-        material->bindImages(_imageHandler, _searchPath, material->getUdim());
+        material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
         material->unbindImages(_imageHandler);
     }
@@ -1281,7 +1298,7 @@ void Viewer::drawScene3D()
         material->bindLights(_lightHandler, _imageHandler, _searchPath,
                              _directLighting, _indirectLighting,
                              _specularEnvironmentMethod, _envSamples);
-        material->bindImages(_imageHandler, _searchPath, material->getUdim());
+        material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
         material->unbindImages(_imageHandler);
     }
@@ -1306,7 +1323,7 @@ void Viewer::drawScene3D()
             _ambOccMaterial->bindLights(_lightHandler, _imageHandler, _searchPath,
                                         _directLighting, _indirectLighting,
                                         _specularEnvironmentMethod, _envSamples);
-            _ambOccMaterial->bindImages(_imageHandler, _searchPath, material->getUdim());
+            _ambOccMaterial->bindImages(_imageHandler, _searchPath);
             _ambOccMaterial->drawPartition(geom);
             _ambOccMaterial->unbindImages(_imageHandler);
         }

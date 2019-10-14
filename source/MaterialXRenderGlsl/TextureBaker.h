@@ -19,35 +19,45 @@ namespace MaterialX
 /// A shared pointer to a TextureBaker
 using TextureBakerPtr = shared_ptr<class TextureBaker>;
 
-class TextureBaker
+class TextureBaker : public GlslRenderer
 {
   public:
-    TextureBaker(unsigned int res = 1024);
-    ~TextureBaker() { }
-
-    static TextureBakerPtr create()
+    static TextureBakerPtr create(unsigned int res = 1024)
     {
-        return std::make_shared<TextureBaker>();
+        return TextureBakerPtr(new TextureBaker(res));
+    }
+
+    /// Set the file extension for baked textures.
+    void setExtension(const string& extension)
+    {
+        _extension = extension;
+    }
+
+    /// Return the file extension for baked textures.
+    const string& getExtension()
+    {
+        return _extension;
     }
 
     /// Bake textures for all graph inputs of the given shader reference.
-    void bakeShaderInputs(ShaderRefPtr shaderRef, const FileSearchPath& searchPath, GenContext& context, const FilePath& outputFolder);
+    void bakeShaderInputs(ShaderRefPtr shaderRef, GenContext& context, const FilePath& outputFolder);
 
     /// Bake a texture for the given graph output.
     void bakeGraphOutput(OutputPtr output, GenContext& context, const FilePath& outputFolder);
 
-    /// Write out a document with baked images.
+    /// Write out the baked material document.
     void writeBakedDocument(ShaderRefPtr shaderRef, const FilePath& filename);
 
   protected:
-    void setSearchPath(const FileSearchPath searchPath) { _searchPath = searchPath; }
-    FileSearchPath getSearchPath() { return _searchPath; }
+    TextureBaker(unsigned int res);
+
+    // Generate a texture filename for the given graph output.
+    FilePath generateTextureFilename(OutputPtr output);
 
   protected:
-    GlslRendererPtr _renderer;
     ShaderGeneratorPtr _generator;
-    FileSearchPath _searchPath;
-    string _fileSuffix;
+    string _udim;
+    string _extension;
 };
 
 } // namespace MaterialX
