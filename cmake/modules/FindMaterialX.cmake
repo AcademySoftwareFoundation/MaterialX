@@ -176,8 +176,23 @@ foreach(MATERIALX_LIB
     )
 
     if (MATERIALX_${MATERIALX_LIB}_LIBRARY)
-        list(APPEND MATERIALX_CORE_LIBS ${MATERIALX_${MATERIALX_LIB}_LIBRARY})
+        list(APPEND MATERIALX_CORE_LIBS optimized ${MATERIALX_${MATERIALX_LIB}_LIBRARY})
     endif ()
+
+    # debug libraries
+    find_library(MATERIALX_${MATERIALX_LIB}_DEBUG_LIBRARY
+            MaterialX${MATERIALX_LIB}${MATERIALX_DEBUG_POSTFIX}
+        HINTS
+            "${MATERIALX_LIB_DIRS}"
+        DOC
+            "MaterialX's ${MATERIALX_LIB} library path"
+        NO_CMAKE_SYSTEM_PATH
+    )
+
+    if (MATERIALX_${MATERIALX_LIB}_DEBUG_LIBRARY)
+        list(APPEND MATERIALX_CORE_LIBS debug ${MATERIALX_${MATERIALX_LIB}_DEBUG_LIBRARY})
+    endif ()
+
 endforeach()
 
 # Target generator Libraries
@@ -198,7 +213,21 @@ foreach(MATERIALXGEN_LIB
     )
 
     if (MATERIALX_GEN_${MATERIALXGEN_LIB}_LIBRARY)
-        list(APPEND MATERIALX_GENERATOR_LIBS ${MATERIALX_GEN_${MATERIALXGEN_LIB}_LIBRARY})
+        list(APPEND MATERIALX_GENERATOR_LIBS optimized ${MATERIALX_GEN_${MATERIALXGEN_LIB}_LIBRARY})
+    endif ()
+
+    # debug libraries
+    find_library(MATERIALX_GEN_${MATERIALXGEN_LIB}_DEBUG_LIBRARY
+            MaterialXGen${MATERIALXGEN_LIB}${MATERIALX_DEBUG_POSTFIX}
+        HINTS
+            "${MATERIALX_LIB_DIRS}"
+        DOC
+            "MaterialX's ${MATERIALX_LIB} library path"
+        NO_CMAKE_SYSTEM_PATH
+    )
+
+    if (MATERIALX_GEN_${MATERIALXGEN_LIB}_DEBUG_LIBRARY)
+        list(APPEND MATERIALX_GENERATOR_LIBS debug ${MATERIALX_GEN_${MATERIALXGEN_LIB}_DEBUG_LIBRARY})
     endif ()
 endforeach()
 
@@ -219,7 +248,21 @@ foreach(MATERIALXRENDER_LIB
     )
 
     if (MATERIALX_RENDER_${MATERIALXRENDER_LIB}_LIBRARY)
-        list(APPEND MATERIALX_RENDER_LIBS ${MATERIALX_GEN_${MATERIALXRENDER_LIB}_LIBRARY})
+        list(APPEND MATERIALX_RENDER_LIBS optimized ${MATERIALX_GEN_${MATERIALXRENDER_LIB}_LIBRARY})
+    endif ()
+
+    # debug libraries
+    find_library(MATERIALX_RENDER_${MATERIALXRENDER_LIB}_DEBUG_LIBRARY
+            MaterialXRender${MATERIALXRENDER_LIB}${MATERIALX_DEBUG_POSTFIX}
+        HINTS
+            "${MATERIALX_LIB_DIRS}"
+        DOC
+            "MaterialX's ${MATERIALX_LIB} library path"
+        NO_CMAKE_SYSTEM_PATH
+    )
+
+    if (MATERIALX_RENDER_${MATERIALXRENDER_LIB}_DEBUG_LIBRARY)
+        list(APPEND MATERIALX_RENDER_LIBS debug ${MATERIALX_GEN_${MATERIALXRENDER_LIB}_DEBUG_LIBRARY})
     endif ()
 endforeach()
 
