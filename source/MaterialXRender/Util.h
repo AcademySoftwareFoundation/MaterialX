@@ -56,6 +56,15 @@ namespace MaterialX
         /// UI maximum value
         ValuePtr uiMax;
 
+        /// UI soft minimum value
+        ValuePtr uiSoftMin;
+
+        /// UI soft maximum value
+        ValuePtr uiSoftMax;
+
+        /// UI step value
+        ValuePtr uiStep;
+
         /// UI advanced element
         bool uiAdvanced = false;
     };

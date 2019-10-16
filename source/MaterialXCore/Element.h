@@ -1151,6 +1151,9 @@ class ValueElement : public TypedElement
     static const string UI_FOLDER_ATTRIBUTE;
     static const string UI_MIN_ATTRIBUTE;
     static const string UI_MAX_ATTRIBUTE;
+    static const string UI_SOFT_MIN_ATTRIBUTE;
+    static const string UI_SOFT_MAX_ATTRIBUTE;
+    static const string UI_STEP_ATTRIBUTE;
     static const string UI_ADVANCED_ATTRIBUTE;
     static const string UNIT_ATTRIBUTE;
     static const string UNITTYPE_ATTRIBUTE;

@@ -11,6 +11,18 @@ def usage():
     print 'Usage:  mxdoc.py <file.mtlx> [<outputfile.md>]'
     print '- Default output file name is "nodedef_documentation.md"'
 
+HEADERS = ('Name', 'Type', 'Default Value',
+           'UI min', 'UI max',
+           'UI Soft Min', 'UI Soft Max',
+           'UI step', 'UI group',
+           'Description', 'UI Advanced',
+           'Connectable')
+
+ATTR_NAMES = ('uimin', 'uimax',
+              'uisoftmin', 'uisoftmax',
+              'uistep', 'uifolder',
+              'doc', 'uiadvanced')
+
 def main():
     if len(sys.argv) < 2:
         usage()
@@ -18,7 +30,7 @@ def main():
 
     outfilename = 'nodedef_documentation.md'
     if len(sys.argv) > 2:
-        outfilename = sys.argv[2]                
+        outfilename = sys.argv[2]
 
     filename = sys.argv[1]
 
@@ -43,30 +55,34 @@ def main():
     for nd in nodedefs:
         file.write('- *Nodedef*: %s\n' % nd.getName())
         file.write('- *Type*: %s\n' % nd.getType())
-        file.write('- *Doc*: %s\n' % nd.getAttribute('doc'))
-        file.write('| Name | Type | Default Value | UI min | UI max | UI group | Description | UI Advanced | Connectable |\n')
-        file.write('| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |\n')
+        file.write('- *Doc*: %s\n\n' % nd.getAttribute('doc'))
+        file.write('| ' + ' | '.join(HEADERS) + ' |\n')
+        file.write('|' + ' ---- |' * len(HEADERS) + '\n')
         for inp in nd.getInputs():
-            name = inp.getName()
-            type = inp.getType();
-            value = inp.getValue()
-            uimin = inp.getAttribute('uimin')
-            uimax = inp.getAttribute('uimax')
-            uifolder = inp.getAttribute('uifolder')
-            docattr = inp.getAttribute('doc')
-            adv = inp.getAttribute('uiadvanced')
-            buf = '| %s | %s | %s | %s | %s | %s | %s | %s | %s |\n' % (name, type, value, uimin, uimax, uifolder, docattr, adv, "true")
+            infos = []
+            infos.append(inp.getName())
+            infos.append(inp.getType())
+            val = inp.getValue()
+            if infos[1] == "float":
+                val = round(val, 6)
+            infos.append(str(val))
+            for attrname in ATTR_NAMES:
+                infos.append(inp.getAttribute(attrname))
+            infos.append("true")
+            buf = '| ' + " | ".join(infos) + ' |\n'
             file.write(buf)
         for p in nd.getParameters():
-            name = p.getName()
-            type = p.getType();
-            value = inp.getValue()
-            uimin = p.getAttribute('uimin')
-            uimax = p.getAttribute('uimax')
-            uifolder = p.getAttribute('uifolder')
-            docattr = p.getAttribute('doc')
-            adv = inp.getAttribute('uiadvanced')
-            buf = '| %s | %s | %s | %s | %s | %s | %s | %s | %s |\n' % (name, type, value, uimin, uimax, uifolder, docattr, adv, "false")
+            infos = []
+            infos.append(p.getName())
+            infos.append(p.getType())
+            val = p.getValue()
+            if infos[1] == "float":
+                val = round(val, 6)
+            infos.append(str(val))
+            for attrname in ATTR_NAMES:
+                infos.append(p.getAttribute(attrname))
+            infos.append("false")
+            buf = '| ' + " | ".join(infos) + ' |\n'
             file.write(buf)
 
     file.close()

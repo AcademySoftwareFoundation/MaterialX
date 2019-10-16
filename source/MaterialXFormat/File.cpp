@@ -209,9 +209,20 @@ FilePathVec FilePath::getSubDirectories() const
         while (struct dirent* entry = readdir(dir))
         {
             string path = entry->d_name;
-            if (entry->d_type == DT_DIR && (path != "." && path != ".."))
+            if (path == "." || path == "..") continue;
+
+            auto d_type = entry->d_type;
+            FilePath newDir = *this / path;
+
+            if (d_type == DT_UNKNOWN)
             {
-                FilePath newDir = *this / path;
+                if (newDir.isDirectory())
+                {
+                    d_type = DT_DIR;
+                }
+            }
+            if (d_type == DT_DIR)
+            {
                 FilePathVec newDirs = newDir.getSubDirectories();
                 dirs.insert(dirs.end(), newDirs.begin(), newDirs.end());
             }
