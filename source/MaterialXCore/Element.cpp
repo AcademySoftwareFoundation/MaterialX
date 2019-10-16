@@ -603,6 +603,26 @@ ValuePtr ValueElement::getDefaultValue() const
     return ValuePtr();
 }
 
+const string& ValueElement::getDefaultUnit() const
+{
+    // Return the unit, if any, stored in our declaration.
+    ConstElementPtr parent = getParent();
+    ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
+    if (interface)
+    {
+        ConstNodeDefPtr decl = interface->getDeclaration();
+        if (decl)
+        {
+            ValueElementPtr value = decl->getActiveValueElement(getName());
+            if (value)
+            {
+                return value->getUnit();
+            }
+        }
+    }
+    return EMPTY_STRING;
+}
+
 bool ValueElement::validate(string* message) const
 {
     bool res = true;

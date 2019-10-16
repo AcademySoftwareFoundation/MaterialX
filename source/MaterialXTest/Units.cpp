@@ -50,6 +50,16 @@ TEST_CASE("UnitAttribute", "[units]")
     REQUIRE(!output->getUnit().empty());
 
     REQUIRE(doc->validate());
+
+    // Test for target unit specified on a nodedef
+    mx::NodeDefPtr customNodeDef = doc->addNodeDef("ND_dummy", "float", "dummy");
+    mx::InputPtr input = customNodeDef->setInputValue("angle", 23.0f, "float");
+    input->setUnit("degrees");
+    mx::NodePtr custom = doc->addNodeInstance(customNodeDef);
+    input = custom->setInputValue("angle", 45.0f, "float");
+    input->setUnit("radians");
+    REQUIRE(input->getUnit() == "radians");
+    REQUIRE(input->getDefaultUnit() == "degrees");
 }
 
 TEST_CASE("UnitEvaluation", "[units]")

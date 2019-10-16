@@ -1111,6 +1111,10 @@ class ValueElement : public TypedElement
         return getAttribute(UNIT_ATTRIBUTE);
     }
 
+    /// Return the unit defined by the assocaited NodeDef if this element
+    /// is a child of a Node.
+    const string& getDefaultUnit() const;
+
     /// Set the unit type.
     void setUnitType(const string& unit)
     {
