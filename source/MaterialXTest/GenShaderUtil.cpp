@@ -449,8 +449,8 @@ void ShaderGeneratorTester::addUnitSystem()
             _shaderGenerator->setUnitSystem(_unitSystem);
             _unitSystem->loadLibrary(_dependLib);
             _unitSystem->setUnitConverterRegistry(mx::UnitConverterRegistry::create());
-            mx::UnitTypeDefPtr distanceTypeDef = _dependLib->getUnitTypeDef(mx::DistanceUnitConverter::DISTANCE_UNIT);
-            _unitSystem->getUnitConverterRegistry()->addUnitConverter(distanceTypeDef, mx::DistanceUnitConverter::create(distanceTypeDef));
+            mx::UnitTypeDefPtr distanceTypeDef = _dependLib->getUnitTypeDef(mx::DefaultUnitConverter::DISTANCE_UNIT);
+            _unitSystem->getUnitConverterRegistry()->addUnitConverter(distanceTypeDef, mx::DefaultUnitConverter::create(distanceTypeDef));
             _defaultDistanceUnit = distanceTypeDef->getDefault();
         }
     }

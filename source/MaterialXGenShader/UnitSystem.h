@@ -9,7 +9,7 @@
 /// @file
 /// Unit  system classes
 
-#include <MaterialXCore/UnitConverter.h>
+#include <MaterialXGenShader/UnitConverter.h>
 
 #include <MaterialXGenShader/Library.h>
 
@@ -43,7 +43,7 @@ struct UnitTransform
     {
         return sourceUnit == other.sourceUnit &&
             targetUnit == other.targetUnit &&
-            type == other.type && 
+            type == other.type &&
             unitType == other.unitType;
     }
 };
@@ -67,7 +67,7 @@ public:
 
     /// Assign unit converter registry replacing any previous assignment
     virtual void setUnitConverterRegistry(UnitConverterRegistryPtr registry);
-    
+
     /// Returns the currently assigned unit converter registry
     virtual UnitConverterRegistryPtr getUnitConverterRegistry() const;
 

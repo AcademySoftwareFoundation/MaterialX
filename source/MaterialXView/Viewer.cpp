@@ -427,8 +427,8 @@ void Viewer::setupUnitConverter(mx::DocumentPtr doc)
     unitSystem->loadLibrary(_stdLib);
     unitSystem->setUnitConverterRegistry(_unitRegistry);
     _genContext.getShaderGenerator().setUnitSystem(unitSystem);
-    mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef(mx::DistanceUnitConverter::DISTANCE_UNIT);
-    _distanceUnitConverter = mx::DistanceUnitConverter::create(distanceTypeDef);
+    mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef(mx::DefaultUnitConverter::DISTANCE_UNIT);
+    _distanceUnitConverter = mx::DefaultUnitConverter::create(distanceTypeDef);
     _unitRegistry->addUnitConverter(distanceTypeDef, _distanceUnitConverter);
     _unitOptions.clear();
     for (int unitid = 0; unitid < static_cast<int>(_distanceUnitConverter->getUnitScale().size()); unitid++)

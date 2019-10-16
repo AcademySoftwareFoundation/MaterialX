@@ -1,7 +1,7 @@
 #ifndef MATERIALXVIEW_VIEWER_H
 #define MATERIALXVIEW_VIEWER_H
 
-#include <MaterialXCore/UnitConverter.h>
+#include <MaterialXGenShader/UnitConverter.h>
 #include <MaterialXView/Editor.h>
 #include <MaterialXView/Material.h>
 #include <MaterialXRender/GeometryHandler.h>
@@ -211,7 +211,7 @@ class Viewer : public ng::Screen
     mx::StringVec _unitOptions;
     ng::ComboBox* _unitOptionsUI;
     mx::UnitConverterRegistryPtr _unitRegistry;
-    mx::DistanceUnitConverterPtr _distanceUnitConverter;
+    mx::DefaultUnitConverterPtr _distanceUnitConverter;
 
     // UV wireframe drawing
     bool _drawUVGeometry;

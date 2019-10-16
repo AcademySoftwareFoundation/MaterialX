@@ -72,23 +72,24 @@ class UnitConverter
 
 };
 
-class DistanceUnitConverter;
+class DefaultUnitConverter;
 
-/// A shared pointer to an DistanceUnitConverter
-using DistanceUnitConverterPtr = shared_ptr<DistanceUnitConverter>;
-/// A shared pointer to a const DistanceUnitConverter
-using ConstDistanceUnitConverterPtr = shared_ptr<const DistanceUnitConverter>;
+/// A shared pointer to an DefaultUnitConverter
+using DefaultUnitConverterPtr = shared_ptr<DefaultUnitConverter>;
+/// A shared pointer to a const DefaultUnitConverter
+using ConstDefaultUnitConverterPtr = shared_ptr<const DefaultUnitConverter>;
 
-/// @class LDistanceUnitConverter
-/// An unit conversion utility for handling length.
+/// @class DefaultUnitConverter
+/// An unit conversion utility for handling conversions which only require a scalar multiplication
+/// such as distance.
 ///
-class DistanceUnitConverter : public UnitConverter
+class DefaultUnitConverter : public UnitConverter
 {
   public:
-    virtual ~DistanceUnitConverter() { }
+    virtual ~DefaultUnitConverter() { }
 
     /// Creator 
-    static DistanceUnitConverterPtr create(UnitTypeDefPtr UnitDef);
+    static DefaultUnitConverterPtr create(UnitTypeDefPtr UnitDef);
 
     /// Return the name of the default unit for "distance"
     const string& getDefaultUnit() const
@@ -149,11 +150,11 @@ class DistanceUnitConverter : public UnitConverter
 
     /// @}
 
-    /// Length unit type name
+    /// Distance unit type name
     static const string DISTANCE_UNIT;
 
   private:
-    DistanceUnitConverter(UnitTypeDefPtr UnitDef);
+    DefaultUnitConverter(UnitTypeDefPtr UnitDef);
 
     std::unordered_map<string, float> _unitScale;
     std::unordered_map<string, int> _unitEnumeration;

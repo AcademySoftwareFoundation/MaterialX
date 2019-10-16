@@ -6,11 +6,11 @@
 #include <MaterialXTest/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
-#include <MaterialXCore/UnitConverter.h>
 #include <MaterialXFormat/File.h>
 #include <MaterialXFormat/XmlIo.h>
 #include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/Util.h>
+#include <MaterialXGenShader/UnitConverter.h>
 
 #include <cmath>
 
@@ -57,14 +57,14 @@ TEST_CASE("UnitEvaluation", "[units]")
     mx::DocumentPtr doc = mx::createDocument();
     mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
 
-    mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef(mx::DistanceUnitConverter::DISTANCE_UNIT);
+    mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef(mx::DefaultUnitConverter::DISTANCE_UNIT);
     REQUIRE(distanceTypeDef);
 
     mx::UnitConverterRegistryPtr registry = mx::UnitConverterRegistry::create();
     mx::UnitConverterRegistryPtr registry2 = mx::UnitConverterRegistry::create();
     REQUIRE(registry == registry2);
 
-    mx::DistanceUnitConverterPtr converter = mx::DistanceUnitConverter::create(distanceTypeDef);
+    mx::DefaultUnitConverterPtr converter = mx::DefaultUnitConverter::create(distanceTypeDef);
     REQUIRE(converter);
     registry->addUnitConverter(distanceTypeDef, converter);
     mx::UnitConverterPtr uconverter = registry->getUnitConverter(distanceTypeDef);
@@ -108,10 +108,10 @@ TEST_CASE("UnitDocument", "[units]")
         mx::readFromXmlFile(doc, filename, searchPath);
         mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
 
-        mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef(mx::DistanceUnitConverter::DISTANCE_UNIT);
+        mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef(mx::DefaultUnitConverter::DISTANCE_UNIT);
         REQUIRE(distanceTypeDef);
 
-        mx::UnitConverterPtr uconverter = mx::DistanceUnitConverter::create(distanceTypeDef);
+        mx::UnitConverterPtr uconverter = mx::DefaultUnitConverter::create(distanceTypeDef);
         REQUIRE(uconverter);
         mx::UnitConverterRegistryPtr registry = mx::UnitConverterRegistry::create();
         registry->addUnitConverter(distanceTypeDef, uconverter);

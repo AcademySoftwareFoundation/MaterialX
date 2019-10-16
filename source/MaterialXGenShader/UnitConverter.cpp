@@ -6,19 +6,19 @@
 #include <algorithm>
 #include <MaterialXCore/Util.h>
 #include <MaterialXCore/Value.h>
-#include <MaterialXCore/UnitConverter.h>
+#include <MaterialXGenShader/UnitConverter.h>
 
 namespace MaterialX
 {
-const string DistanceUnitConverter::DISTANCE_UNIT = "distance";
+const string DefaultUnitConverter::DISTANCE_UNIT = "distance";
 
-DistanceUnitConverter::DistanceUnitConverter(UnitTypeDefPtr unitTypeDef) :
+DefaultUnitConverter::DefaultUnitConverter(UnitTypeDefPtr unitTypeDef) :
     UnitConverter()
 {
     static const string SCALE_ATTRIBUTE = "scale";
     unsigned int enumerant = 0;
 
-    // Populate the unit scale and offset maps for each UnitDef. 
+    // Populate the unit scale and offset maps for each UnitDef.
     vector<UnitDefPtr> unitDefs = unitTypeDef->getUnitDefs();
     for (UnitDefPtr unitdef : unitDefs)
     {
@@ -43,7 +43,7 @@ DistanceUnitConverter::DistanceUnitConverter(UnitTypeDefPtr unitTypeDef) :
     }
 
     // In case the default unit was not specified in the UnitDef explicit
-    // add this to be able to accept converstion with the default 
+    // add this to be able to accept converstion with the default
     // as the input or output unit
     _defaultUnit = unitTypeDef->getDefault();
     auto it = _unitScale.find(_defaultUnit);
@@ -54,13 +54,13 @@ DistanceUnitConverter::DistanceUnitConverter(UnitTypeDefPtr unitTypeDef) :
     }
 }
 
-DistanceUnitConverterPtr DistanceUnitConverter::create(UnitTypeDefPtr unitTypeDef)
+DefaultUnitConverterPtr DefaultUnitConverter::create(UnitTypeDefPtr unitTypeDef)
 {
-    std::shared_ptr<DistanceUnitConverter> converter(new DistanceUnitConverter(unitTypeDef));
+    std::shared_ptr<DefaultUnitConverter> converter(new DefaultUnitConverter(unitTypeDef));
     return converter;
 }
 
-float DistanceUnitConverter::conversionRatio(const string& inputUnit, const string& outputUnit) const
+float DefaultUnitConverter::conversionRatio(const string& inputUnit, const string& outputUnit) const
 {
     auto it = _unitScale.find(inputUnit);
     if (it == _unitScale.end())
@@ -80,7 +80,7 @@ float DistanceUnitConverter::conversionRatio(const string& inputUnit, const stri
 
 }
 
-float DistanceUnitConverter::convert(float input, const string& inputUnit, const string& outputUnit) const
+float DefaultUnitConverter::convert(float input, const string& inputUnit, const string& outputUnit) const
 {
     if (inputUnit == outputUnit)
     {
@@ -90,7 +90,7 @@ float DistanceUnitConverter::convert(float input, const string& inputUnit, const
     return (input * conversionRatio(inputUnit, outputUnit));
 }
 
-Vector2 DistanceUnitConverter::convert(Vector2 input, const string& inputUnit, const string& outputUnit) const
+Vector2 DefaultUnitConverter::convert(Vector2 input, const string& inputUnit, const string& outputUnit) const
 {
     if (inputUnit == outputUnit)
     {
@@ -100,7 +100,7 @@ Vector2 DistanceUnitConverter::convert(Vector2 input, const string& inputUnit, c
     return (input * conversionRatio(inputUnit, outputUnit));
 }
 
-Vector3 DistanceUnitConverter::convert(Vector3 input, const string& inputUnit, const string& outputUnit) const
+Vector3 DefaultUnitConverter::convert(Vector3 input, const string& inputUnit, const string& outputUnit) const
 {
     if (inputUnit == outputUnit)
     {
@@ -110,7 +110,7 @@ Vector3 DistanceUnitConverter::convert(Vector3 input, const string& inputUnit, c
     return (input * conversionRatio(inputUnit, outputUnit));
 }
 
-Vector4 DistanceUnitConverter::convert(Vector4 input, const string& inputUnit, const string& outputUnit) const
+Vector4 DefaultUnitConverter::convert(Vector4 input, const string& inputUnit, const string& outputUnit) const
 {
     if (inputUnit == outputUnit)
     {
@@ -120,7 +120,7 @@ Vector4 DistanceUnitConverter::convert(Vector4 input, const string& inputUnit, c
     return (input * conversionRatio(inputUnit, outputUnit));
 }
 
-int DistanceUnitConverter::getUnitAsInteger(const string& unitName) const
+int DefaultUnitConverter::getUnitAsInteger(const string& unitName) const
 {
     const auto it = _unitEnumeration.find(unitName);
     if (it != _unitEnumeration.end())
@@ -130,7 +130,7 @@ int DistanceUnitConverter::getUnitAsInteger(const string& unitName) const
     return -1;
 }
 
-string DistanceUnitConverter::getUnitFromInteger(int index) const
+string DefaultUnitConverter::getUnitFromInteger(int index) const
 {
     auto it = std::find_if(
                 _unitEnumeration.begin(), _unitEnumeration.end(),
