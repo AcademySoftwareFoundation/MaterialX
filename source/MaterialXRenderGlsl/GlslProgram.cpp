@@ -584,7 +584,7 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
 
     // Bind textures based on uniforms found in the program
     const GlslProgram::InputMap& uniformList = getUniformsList();
-    const std::string IMAGE_SEPARATOR("_");
+    VariableBlock& publicUniforms = _shader->getStage(Stage::PIXEL).getUniformBlock(HW::PUBLIC_UNIFORMS);
     for (const auto& uniform : uniformList)
     {
         GLenum uniformType = uniform.second->gltype;
@@ -600,38 +600,9 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
                 fileName != HW::ENV_RADIANCE &&
                 fileName != HW::ENV_IRRADIANCE)
             {
-                // Get the additional texture parameters based on image uniform name
-                // excluding the trailing "_file" postfix string
-                std::string root = uniform.first;
-                size_t pos = root.find_last_of(IMAGE_SEPARATOR);
-                if (pos != std::string::npos)
-                {
-                    root = root.substr(0, pos);
-                }
-
                 ImageSamplingProperties samplingProperties;
+                samplingProperties.setProperties(uniform.first, publicUniforms);
 
-                const int INVALID_MAPPED_INT_VALUE = -1; // Any value < 0 is not considered to be invalid
-                const std::string uaddressModeStr = root + UADDRESS_MODE_POST_FIX;
-                ValuePtr intValue = findUniformValue(uaddressModeStr, uniformList);
-                samplingProperties.uaddressMode = ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
-
-                const std::string vaddressmodeStr = root + VADDRESS_MODE_POST_FIX;
-                intValue = findUniformValue(vaddressmodeStr, uniformList);
-                samplingProperties.vaddressMode = ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
-
-                const std::string filtertypeStr = root + FILTER_TYPE_POST_FIX;
-                intValue = findUniformValue(filtertypeStr, uniformList);
-                samplingProperties.filterType = ImageSamplingProperties::FilterType(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
-
-                const std::string defaultColorStr = root + DEFAULT_COLOR_POST_FIX;
-                ValuePtr colorValue = findUniformValue(defaultColorStr, uniformList);
-                Color4 defaultColor;
-                mapValueToColor(colorValue, defaultColor);
-                samplingProperties.defaultColor[0] = defaultColor[0];
-                samplingProperties.defaultColor[1] = defaultColor[1];
-                samplingProperties.defaultColor[2] = defaultColor[2];
-                samplingProperties.defaultColor[3] = defaultColor[3];
                 ImageDesc desc;
                 bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, samplingProperties, desc);
             }
