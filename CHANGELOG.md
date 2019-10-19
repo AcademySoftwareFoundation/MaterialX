@@ -8,7 +8,6 @@
 
 ### Changed
 - Standard surface `subsurface_color` changed type to color3 from vec3. `subsurface_scale` supported in code generation
-- Shader generation supports target `colorspace` targets not at the document root.
 - Search path argument for MaterialView adds search paths versus replacing.
 
 ## [1.36.4] - 2019-09-26

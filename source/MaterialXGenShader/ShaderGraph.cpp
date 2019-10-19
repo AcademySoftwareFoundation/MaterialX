@@ -784,7 +784,7 @@ ShaderNode* ShaderGraph::addNode(const Node& node, GenContext& context)
         }
     }
 
-    //Unit Conversion: Only applicable if Unit system and a targetDistanceUnit is defined.
+    // Unit Conversion: Only applicable if Unit system and a targetDistanceUnit is defined.
     UnitSystemPtr unitSystem = context.getShaderGenerator().getUnitSystem();
     if (unitSystem && !context.getOptions().targetDistanceUnit.empty())
     {

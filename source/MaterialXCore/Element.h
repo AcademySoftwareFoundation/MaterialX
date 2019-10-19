@@ -233,10 +233,10 @@ class Element : public std::enable_shared_from_this<Element>
         return getAttribute(COLOR_SPACE_ATTRIBUTE);
     }
 
-    /// Return the color space string that is active at the scope of this	    
-    /// element, taking all ancestor elements into account.	    
+    /// Return the color space string that is active at the scope of this
+    /// element, taking all ancestor elements into account.
     const string& getActiveColorSpace() const
-    {	    
+    {
         for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
         {
             if (elem->hasColorSpace())
