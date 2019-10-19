@@ -3,7 +3,6 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <algorithm>
 #include <MaterialXCore/Util.h>
 #include <MaterialXCore/Value.h>
 #include <MaterialXGenShader/UnitConverter.h>

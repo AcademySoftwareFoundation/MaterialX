@@ -1242,7 +1242,7 @@ void ShaderGraph::setVariableNames(GenContext& context)
     }
 }
 
-void ShaderGraph::populateInputColorTransformMap(ColorManagementSystemPtr colorManagementSystem, ShaderNodePtr shaderNode, ValueElementPtr input, const string& globalTargetColorSpace)
+void ShaderGraph::populateInputColorTransformMap(ColorManagementSystemPtr colorManagementSystem, ShaderNodePtr shaderNode, ValueElementPtr input, const string& targetColorSpace)
 {
     if (!colorManagementSystem)
     {
@@ -1255,13 +1255,6 @@ void ShaderGraph::populateInputColorTransformMap(ColorManagementSystemPtr colorM
     {
         if(shaderInput->getType() == Type::COLOR3 || shaderInput->getType() == Type::COLOR4)
         {
-            // Findest ancestor closest to the root global target color space is empty
-            string targetColorSpace = globalTargetColorSpace;
-            if (targetColorSpace.empty())
-            {
-                targetColorSpace = input->getActiveColorSpace(false);
-            }
-
             // If we're converting between two identical color spaces than we have no work to do.
             if (sourceColorSpace != targetColorSpace)
             {

@@ -327,23 +327,6 @@ ConstElementPtr Element::getRoot() const
     return root;
 }
 
-const string& Element::getActiveColorSpace(bool returnClosest) const
-{
-    ConstElementPtr colorSpaceElement = nullptr;
-    for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
-    {
-        if (elem->hasColorSpace())
-        {
-            colorSpaceElement = elem;
-            if (returnClosest)
-            {
-                break;
-            }
-        }
-    }
-    return  (colorSpaceElement ? colorSpaceElement->getColorSpace() : EMPTY_STRING);
-}
-
 bool Element::hasInheritedBase(ConstElementPtr base) const
 {
     for (ConstElementPtr elem : traverseInheritance())

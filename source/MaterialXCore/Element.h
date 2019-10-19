@@ -233,12 +233,20 @@ class Element : public std::enable_shared_from_this<Element>
         return getAttribute(COLOR_SPACE_ATTRIBUTE);
     }
 
-    /// Return the color space string that is active at the scope of this
-    /// element, taking all ancestor elements into account.
-    /// @param returnFirst If set to be true will return the first non-empty color space
-    /// string found starting from the current Element. The default value is true.
-    const string& getActiveColorSpace(bool returnFirst=true) const;
-   
+    /// Return the color space string that is active at the scope of this	    
+    /// element, taking all ancestor elements into account.	    
+    const string& getActiveColorSpace() const
+    {	    
+        for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
+        {
+            if (elem->hasColorSpace())
+            {
+                return elem->getColorSpace();
+            }
+        }
+        return EMPTY_STRING;
+    }
+
     /// @}
     /// @name Target
     /// @{
