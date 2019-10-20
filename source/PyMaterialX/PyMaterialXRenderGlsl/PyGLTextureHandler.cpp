@@ -18,6 +18,5 @@ void bindPyGLTextureHandler(py::module& mod)
         .def("acquireImage", &mx::GLTextureHandler::acquireImage)
         .def("bindImage", &mx::GLTextureHandler::bindImage)
         .def("mapAddressModeToGL", &mx::GLTextureHandler::mapAddressModeToGL)
-        .def("mapFilterTypeToGL", &mx::GLTextureHandler::mapFilterTypeToGL)
-        .def("clearImageCache", &mx::GLTextureHandler::clearImageCache);
+        .def("mapFilterTypeToGL", &mx::GLTextureHandler::mapFilterTypeToGL);
 }

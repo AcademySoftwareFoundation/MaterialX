@@ -618,7 +618,6 @@ class Document : public GraphElement
         removeChildOfType<UnitTypeDef>(name);
     }
 
-
     /// @}
 
   public:

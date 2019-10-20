@@ -1141,7 +1141,6 @@ class ValueElement : public TypedElement
         return getAttribute(UNITTYPE_ATTRIBUTE);
     }
 
-
     /// @}
     /// @name Validation
     /// @{

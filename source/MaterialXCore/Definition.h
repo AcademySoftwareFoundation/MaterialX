@@ -522,7 +522,6 @@ public:
     static const string DEFAULT_ATTRIBUTE;
 };
 
-
 } // namespace MaterialX
 
 #endif
