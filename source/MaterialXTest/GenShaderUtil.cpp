@@ -677,53 +677,59 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                 nodeDef = shaderRef->getNodeDef();
             }
 
-            // Allow to skip nodedefs to test if specified
-            const std::string nodeDefName = nodeDef->getName();
-            if (_skipNodeDefs.count(nodeDefName))
+            if (!nodeDef)
             {
-                _logFile << ">> Skipped testing nodedef: " << nodeDefName << std::endl;
-                continue;
+                CHECK(nodeDef);
             }
-
-            const std::string namePath(element->getNamePath());
-            if (nodeDef)
+            else
             {
-                mx::string elementName = mx::replaceSubstrings(namePath, pathMap);
-                elementName = mx::createValidName(elementName);
-
-                mx::InterfaceElementPtr impl = nodeDef->getImplementation(_shaderGenerator->getTarget(), _shaderGenerator->getLanguage());
-                if (impl)
+                // Allow to skip nodedefs to test if specified
+                const std::string nodeDefName = nodeDef->getName();
+                if (_skipNodeDefs.count(nodeDefName))
                 {
-                    // Record implementations tested
-                    if (options.checkImplCount)
-                    {
-                        mx::NodeGraphPtr nodeGraph = impl->asA<mx::NodeGraph>();
-                        mx::InterfaceElementPtr nodeGraphImpl = nodeGraph ? nodeGraph->getImplementation() : nullptr;
-                        _usedImplementations.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl->getName());
-                    }
+                    _logFile << ">> Skipped testing nodedef: " << nodeDefName << std::endl;
+                    continue;
+                }
 
-                    _logFile << "------------ Run validation with element: " << namePath << "------------" << std::endl;
-                    mx::StringVec sourceCode;
-                    bool generatedCode = generateCode(context, elementName, element, _logFile, _testStages, sourceCode);
-                    if (!generatedCode)
+                const std::string namePath(element->getNamePath());
+                if (nodeDef)
+                {
+                    mx::string elementName = mx::replaceSubstrings(namePath, pathMap);
+                    elementName = mx::createValidName(elementName);
+
+                    mx::InterfaceElementPtr impl = nodeDef->getImplementation(_shaderGenerator->getTarget(), _shaderGenerator->getLanguage());
+                    if (impl)
                     {
-                        _logFile << ">> Failed to generate code for nodedef: " << nodeDefName << std::endl;
-                        codeGenerationFailures++;
+                        // Record implementations tested
+                        if (options.checkImplCount)
+                        {
+                            mx::NodeGraphPtr nodeGraph = impl->asA<mx::NodeGraph>();
+                            mx::InterfaceElementPtr nodeGraphImpl = nodeGraph ? nodeGraph->getImplementation() : nullptr;
+                            _usedImplementations.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl->getName());
+                        }
+
+                        _logFile << "------------ Run validation with element: " << namePath << "------------" << std::endl;
+                        mx::StringVec sourceCode;
+                        bool generatedCode = generateCode(context, elementName, element, _logFile, _testStages, sourceCode);
+                        if (!generatedCode)
+                        {
+                            _logFile << ">> Failed to generate code for nodedef: " << nodeDefName << std::endl;
+                            codeGenerationFailures++;
+                        }
+                    }
+                    else
+                    {
+                        _logFile << ">> Failed to find implementation for nodedef: " << nodeDefName << std::endl;
+                        missingImplementations++;
                     }
                 }
                 else
                 {
-                    _logFile << ">> Failed to find implementation for nodedef: " << nodeDefName << std::endl;
-                    missingImplementations++;
+                    _logFile << ">> Failed to find nodedef for: " << namePath << std::endl;
+                    missingNodeDefs++;
                 }
             }
-            else
-            {
-                _logFile << ">> Failed to find nodedef for: " << namePath << std::endl;
-                missingNodeDefs++;
-            }
         }
-
         CHECK(missingNodeDefs == 0);
         CHECK(missingImplementations == 0);
         CHECK(codeGenerationFailures == 0);

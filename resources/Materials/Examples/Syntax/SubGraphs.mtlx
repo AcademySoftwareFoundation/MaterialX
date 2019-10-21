@@ -3,8 +3,9 @@
 
    <!-- Define a node that implements a checker board pattern -->
    <!-- Using a graph for the implementation.                 -->
-   <nodedef name="ND_checker_float" node="checker" type="float">
+   <nodedef name="ND_checker_float" node="checker">
       <input name="scale" type="vector2" value="8.0, 8.0"/>
+      <output name="out" type="float"/>
    </nodedef>
    <nodegraph name="NG_checker_float" nodedef="ND_checker_float">
       <texcoord name="texcoord1" type="vector2">
@@ -41,10 +42,11 @@
 
    <!-- Define a node that uses the checker pattern for mixing two colors.  -->
    <!-- Using a graph for the implementation. checker1 becomes a sub-graph. -->
-   <nodedef name="ND_color_checker_color3" node="color_checker" type="color3">
+   <nodedef name="ND_color_checker_color3" node="color_checker">
       <input name="color1" type="color3" value="0.8, 0.2, 0.1"/>
       <input name="color2" type="color3" value="0.1, 0.1, 0.8"/>
       <input name="scale" type="vector2" value="8.0, 8.0"/>
+      <output name="out" type="color3"/>
    </nodedef>
    <nodegraph name="NG_color_checker_color3" nodedef="ND_color_checker_color3">
       <checker name="checker1" type="float">

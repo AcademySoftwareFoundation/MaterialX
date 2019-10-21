@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.36" cms="ocio" colorspace="lin_rec709">
-  <nodedef name="ND_physicallyMetallicRoughnessDk" type="surfaceshader" node="physicallyMetallicRoughnessDk">
+  <nodedef name="ND_physicallyMetallicRoughnessDk" node="physicallyMetallicRoughnessDk">
     <input name="ambientOcclusion" type="float" value="1.0" uifolder="Ambient Occlusion" uiname="Ambient Occlusion" uimax="1"
            doc="AmbientOcclusion"  />
     <input name="baseColor" type="color3" value="0.5, 0.5, 0.5" uifolder="Diffuse" uiname="Base Color channel"
@@ -36,7 +36,7 @@
     <parameter name="absorption" type="float" value="0" uifolder="Refraction" uiname="Absorption" uimax="1"
            doc="Scattering"/>
     <parameter name="absorptionColor" type="vector3" value="1,1,1" uifolder="Refraction" uiname="Absorption Color" uimax="1"
-           doc="Scattering"/>
-
+	   doc="Scattering"/>
+    <output name="out" type="surfaceshader"/>
   </nodedef>
 </materialx>

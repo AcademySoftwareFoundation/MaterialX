@@ -56,9 +56,9 @@ TEST_CASE("Observer", "[observer]")
 
         void verifyCountsPreWrite()
         {
-            REQUIRE(_beginUpdateCount == 22);
-            REQUIRE(_endUpdateCount == 22);
-            REQUIRE(_addElementCount == 10);
+            REQUIRE(_beginUpdateCount == 23);
+            REQUIRE(_endUpdateCount == 23);
+            REQUIRE(_addElementCount == 11);
             REQUIRE(_setAttributeCount == 12);
             REQUIRE(_removeElementCount == 0);
             REQUIRE(_removeAttributeCount == 0);
@@ -72,7 +72,7 @@ TEST_CASE("Observer", "[observer]")
         {
             REQUIRE(_beginUpdateCount == 4);
             REQUIRE(_endUpdateCount == 4);
-            REQUIRE(_addElementCount == 10);
+            REQUIRE(_addElementCount == 11);
             REQUIRE(_setAttributeCount == 13);
             REQUIRE(_removeElementCount == 3);
             REQUIRE(_removeAttributeCount == 0);

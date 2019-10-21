@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.36" cms="ocio" colorspace="lin_rec709">
-  <nodedef name="ND_alSurface_surface" type="surfaceshader" node="alSurface">
+  <nodedef name="ND_alSurface_surface" node="alSurface">
     <input name="diffuseStrength" type="float" value="1.0" uifolder="Diffuse" uiname="Strength" uimax="1.0"
            doc="Multiplier on the intensity of the diffuse reflection."  />
     <input name="diffuseColor" type="color3" value="0.5, 0.5, 0.5" uifolder="Diffuse" uiname="Color"
@@ -117,6 +117,7 @@
            doc="Color tint on the emitted light."  />
     <input name="opacity" type="color3" value="1.0, 1.0, 1.0" uifolder="Opacity"
            doc="Opacity of the material. In the vast majority of cases, if you want to see through your material you should be using transmission. Opacity can be useful for doing cut out effects such as a leaf texture on a card."  />
+    <output name="out" type="surfaceshader"/>
   </nodedef>
   <implementation name="IM_alSurface_surface_arnold4" nodedef="ND_alSurface_surface" target="arnold4" language="cpp" file="https://bitbucket.org/anderslanglands/alshaders/src"/>
 </materialx>

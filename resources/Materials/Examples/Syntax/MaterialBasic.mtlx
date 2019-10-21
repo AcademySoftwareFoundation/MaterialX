@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx version="1.36">
-  <nodedef name="ND_simplesrf_surface" type="surfaceshader" node="simplesrf">
+  <nodedef name="ND_simplesrf_surface" node="simplesrf">
     <input name="diff_albedo" type="color3" value="0.18,0.18,0.18"/>
     <input name="spec_color" type="color3" value="1,1,1"/>
     <input name="roughness" type="float" value="0.3"/>
     <parameter name="fresnel_exp" type="float" value="0.2"/>
+    <output name="out" type="surfaceshader"/>
   </nodedef>
 
-  <nodedef name="ND_noisebump_displacement" type="displacementshader" node="noisebump">
+  <nodedef name="ND_noisebump_displacement" node="noisebump">
     <parameter name="bump_scale" type="float" value="0.02"/>
     <parameter name="bump_ampl" type="float" value="0.015"/>
+    <output name="out" type="displacementshader"/>
   </nodedef>
 
   <material name="material1">

@@ -4,7 +4,7 @@
    <xi:include href="alglib_ng.mtlx" />
    <xi:include href="bxdf/ubershader_defs.mtlx" />
    <!-- <xi:include href="bxdf/standard_surface.mtlx" /> -->
-   <nodedef name="ND_MtlxShader" type="multioutput" node="MtlxShader">
+   <nodedef name="ND_MtlxShader" node="MtlxShader">
       <parameter name="rust_tiling" type="float" value="1.0" uifolder="Material Parameters" uimin="0.0" uimax="2.0" />
       <parameter name="rust_roughness" type="float" value="1.0" uifolder="Material Parameters" uimin="0.0" uimax="2.0" />
       <output name="base_color_output" type="color3" />
