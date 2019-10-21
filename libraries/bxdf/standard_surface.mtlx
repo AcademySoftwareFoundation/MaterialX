@@ -3,7 +3,7 @@
   <!--
     Autodesk Standard Surface node definition.
   -->
-  <nodedef name="ND_standard_surface_surfaceshader" node="standard_surface" type="surfaceshader" nodegroup="pbr"
+  <nodedef name="ND_standard_surface_surfaceshader" node="standard_surface" nodegroup="pbr"
             doc="Autodesk standard surface shader">
       <input name="base" type="float" value="0.8" uimin="0.0" uimax="1.0" uiname="Base" uifolder="Base"
             doc="Multiplier on the intensity of the diffuse reflection." />
@@ -89,6 +89,7 @@
             doc="Input geometric normal" />
       <input name="tangent" type="vector3"  defaultgeomprop="Tworld" uiname="Tangent Input" uifolder="Geometry"
           doc="Input geometric tangent" />
+      <output name="out" type="surfaceshader" />
   </nodedef>
 
   <!--

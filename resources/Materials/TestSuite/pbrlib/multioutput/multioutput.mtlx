@@ -40,7 +40,7 @@
   </nodegraph>
 
   <!-- Test custom node graph implementation with multioutput -->
-  <nodedef name="ND_color4split" node="color4split" type="multioutput">
+  <nodedef name="ND_color4split" node="color4split">
     <input name="in" type="color4" />
     <output name="colour" type="color3"/>
     <output name="alpha" type="float"/>
