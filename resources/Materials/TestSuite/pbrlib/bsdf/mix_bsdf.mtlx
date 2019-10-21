@@ -21,10 +21,11 @@
     <output name="out" type="surfaceshader" nodename="surface1" />
   </nodegraph>
     
-   <nodedef name="ND_substratebsdf" node="substratebsdf" type="BSDF">
+   <nodedef name="ND_substratebsdf" node="substratebsdf">
       <input name="albedo" type="color3" value="0.8, 0.2, 0.1"/>
       <input name="subsurface" type="color3" value="0.1, 0.1, 0.8"/>
       <input name="subsurface_weight" type="float" value="0.0"/>
+      <output name="out" type="BSDF"/>
    </nodedef>
    <nodegraph name="IMP_substratebsdf" nodedef="ND_substratebsdf">
       <diffuse_brdf name="diffuse" type="BSDF">
@@ -41,12 +42,13 @@
       <output name="out" type="BSDF" nodename="layer1" />
    </nodegraph>
 
-   <nodedef name="ND_substratebsdf_example" node="subgraph_ex2" type="color3">
+   <nodedef name="ND_substratebsdf_example" node="subgraph_ex2">
       <input name="albedo" type="color3" value="0.8, 0.2, 0.1"/>
       <input name="subsurface" type="color3" value="0.1, 0.1, 0.8"/>
       <input name="subsurface_weight" type="float" value="0.0"/>
       <input name="emission" type="color3" value="0.0, 0.0, 0.0"/>
       <input name="opacity" type="float" value="1.0"/>
+      <output name="out" type="color3"/>
    </nodedef>
    <nodegraph name="NG_substratebsdf_example" nodedef="ND_substratebsdf_example">
       <substratebsdf name="substrate1" type="BSDF">

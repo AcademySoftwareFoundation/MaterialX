@@ -21,12 +21,13 @@
     <input name="in" type="vector3" nodename="normalTex" />
   </normalmap>
   <output name="outNormal" type="vector3" nodename="normalmap1" />
-  <nodedef name="ND_testshader2" type="surfaceshader" node="testshader2">
+  <nodedef name="ND_testshader2" node="testshader2">
     <input name="diffuse_reflectance" type="color3" />
     <input name="diffuse_roughness" type="float" />
     <input name="specular_reflectance" type="color3" />
     <input name="specular_roughness" type="float" />
     <input name="specular_IOR" type="float" />
+    <output name="out" type="surfaceshader" />
   </nodedef>
   <nodegraph name="IMP_testshader2" nodedef="ND_testshader2">
     <normal name="shadingnormal1" type="vector3" />
@@ -60,13 +61,14 @@
     </shaderref>
   </material>
 
-  <nodedef name="ND_testshader3" type="surfaceshader" node="testshader3">
+  <nodedef name="ND_testshader3" node="testshader3">
     <input name="reflectivity" type="color3" />
     <input name="edge_color" type="color3" />
     <input name="ior_n" type="vector3" />
     <input name="ior_k" type="vector3" />
     <input name="artistic_vs_complex" type="float" />
     <input name="roughness" type="float" />
+    <output name="out" type="surfaceshader" />
   </nodedef>
   <nodegraph name="IMP_testshader3" nodedef="ND_testshader3">
     <normal name="shadingnormal1" type="vector3" />
@@ -110,7 +112,7 @@
     </shaderref>
   </material>
 
-  <nodedef name="ND_testshader4" type="surfaceshader" node="testshader4">
+  <nodedef name="ND_testshader4" node="testshader4">
     <input name="base" type="float" />
     <input name="base_color" type="color3" />
     <input name="base_color_map" type="filename" />
@@ -142,6 +144,7 @@
     <input name="coat_IOR" type="float" />
     <input name="normalmap" type="filename" />
     <input name="coat_normalmap" type="filename" />
+    <output name="out" type="surfaceshader" />
   </nodedef>
   <nodegraph name="IMP_testshader4" nodedef="ND_testshader4">
     <image name="base_color" type="color3">

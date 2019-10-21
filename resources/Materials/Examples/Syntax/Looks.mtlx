@@ -46,9 +46,10 @@
   <collection name="c_lamphouse" includegeom="/a/lamp1/housing*Mesh"/>
   <collection name="c_setgeom" includegeom="/b"/>
 
-  <nodedef name="ND_disk_lgt_light" type="lightshader" node="disk_lgt">
+  <nodedef name="ND_disk_lgt_light" node="disk_lgt">
     <parameter name="emissionmap" type="filename" value=""/>
     <parameter name="gain" type="float" value="2000.0"/>
+    <output name="out" type="lightshader"/>
   </nodedef>
   <material name="mheadlight">
     <shaderref name="lgtsr1" node="disk_lgt">

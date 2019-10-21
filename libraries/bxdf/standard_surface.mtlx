@@ -3,7 +3,7 @@
   <!--
     Autodesk Standard Surface node definition.
   -->
-  <nodedef name="ND_standard_surface_surfaceshader" node="standard_surface" type="surfaceshader" nodegroup="pbr"
+  <nodedef name="ND_standard_surface_surfaceshader" node="standard_surface" nodegroup="pbr"
             doc="Autodesk standard surface shader">
       <input name="base" type="float" value="0.8" uimin="0.0" uimax="1.0" uiname="Base" uifolder="Base"
             doc="Multiplier on the intensity of the diffuse reflection." />
@@ -69,9 +69,9 @@
             doc="The index of refraction of the clear-coat layer." />
       <input name="coat_normal" type="vector3" defaultgeomprop="Nworld" uimin="0,0,0" uimax="1,1,1" uiname="Coat normal" uifolder="Coat"
             doc="Input normal for clear-coat layer" />
-      <input name="coat_affect_color" type="float" value="0" uimin="0,0,0" uimax="1,1,1" uiname="Coat Affect Color" uifolder="Coat" uiadvanced="true"
+      <input name="coat_affect_color" type="float" value="0" uimin="0" uimax="1" uiname="Coat Affect Color" uifolder="Coat" uiadvanced="true"
             doc="Controls the saturation of diffuse reflection and subsurface scattering below the clear-coat." />
-      <input name="coat_affect_roughness" type="float" value="0" uiname="Coat Affect Roughness" uifolder="Coat" uiadvanced="true"
+      <input name="coat_affect_roughness" type="float" value="0" uimin="0" uimax="1" uiname="Coat Affect Roughness" uifolder="Coat" uiadvanced="true"
             doc="Controls the roughness of the specular reflection in the layers below the clear-coat." />
       <input name="thin_film_thickness" type="float" value="0" uimin="0.0" uimax="2000.0" uiname="Thin Film Thickness" uifolder="Thin Film" uiadvanced="true"
             doc="The thickness of the thin film layer on a surface. Use for materials such as multitone car paint or soap bubbles." />
@@ -89,6 +89,7 @@
             doc="Input geometric normal" />
       <input name="tangent" type="vector3"  defaultgeomprop="Tworld" uiname="Tangent Input" uifolder="Geometry"
           doc="Input geometric tangent" />
+      <output name="out" type="surfaceshader" />
   </nodedef>
 
   <!--
@@ -161,8 +162,8 @@
       <input name="in" type="color3" interfacename="subsurface_radius" />
     </convert>
     <multiply name="subsurface_radius_scaled" type="vector3">
-      <input name="in1" type="vector3" nodename="subsurface_radius_vector" />
-      <input name="in2" type="float" interfacename="subsurface_scale" />
+        <input name="in1" type="vector3" nodename="subsurface_radius_vector" />
+        <input name="in2" type="float" interfacename="subsurface_scale" />
     </multiply>
     <subsurface_brdf name="subsurface_bsdf" type="BSDF">
       <input name="weight" type="float" value="1.0" />

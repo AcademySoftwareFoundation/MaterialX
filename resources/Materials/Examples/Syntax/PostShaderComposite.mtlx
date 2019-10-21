@@ -3,7 +3,7 @@
   <xi:include href="SimpleSrf.mtlx"/>
 
   <!-- Define interface and shading network for "twoLayerSurface" node -->
-  <nodedef name="ND_twolayersurface_surface" type="surfaceshader" node="twoLayerSurface">
+  <nodedef name="ND_twolayersurface_surface" node="twoLayerSurface">
     <input name="diffmult1" type="color3" value="1,1,1"/>
     <token name="color1" type="string" value="color"/>
     <token name="spec1" type="string" value="spec"/>
@@ -13,6 +13,7 @@
     <token name="spec2" type="string" value="specalt"/>
     <parameter name="roughness2" type="float" value="0.5"/>
     <input name="mixamt" type="float" value="0"/>
+    <output name="out" type="surfaceshader"/>
   </nodedef>
   <nodegraph name="NG_twolayersurface_srf" nodedef="ND_twolayersurface_surface">
     <image name="i_diff1" type="color3">

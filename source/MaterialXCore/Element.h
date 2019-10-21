@@ -910,7 +910,7 @@ class TypedElement : public Element
     }
 
     /// Return the element's type string.
-    const string& getType() const
+    virtual const string& getType() const
     {
         return getAttribute(TYPE_ATTRIBUTE);
     }

@@ -6,7 +6,7 @@
   <!-- ======================================================================== -->
 
   <!-- Node: UsdPreviewSurface -->
-  <nodedef name="ND_UsdPreviewSurface_surfaceshader" node="UsdPreviewSurface" type="surfaceshader">
+  <nodedef name="ND_UsdPreviewSurface_surfaceshader" node="UsdPreviewSurface">
     <input name="diffuseColor" type="color3" value="0.18, 0.18, 0.18" />
     <input name="emissiveColor" type="color3" value="0, 0, 0" />
     <input name="useSpecularWorkflow" type="integer" value="0" />
@@ -21,10 +21,11 @@
     <input name="normal" type="vector3" value="0, 0, 1"/>
     <input name="displacement" type="float" value="0" />
     <input name="occlusion" type="float" value="1" />
+    <output name="out" type="surfaceshader" />
   </nodedef>
 
   <!-- Node: UsdUVTexture -->
-  <nodedef name="ND_UsdUVTexture" node="UsdUVTexture" type="multioutput">
+  <nodedef name="ND_UsdUVTexture" node="UsdUVTexture">
     <parameter name="file" type="filename" />
     <input name="st" type="vector2" defaultgeomprop="UV0" />
     <parameter name="wrapS" type="string" value="periodic" enum="black,clamp,periodic" />
@@ -41,47 +42,56 @@
   </nodedef>
 
   <!-- Node: UsdPrimvarReader -->
-  <nodedef name="ND_UsdPrimvarReader_integer" node="UsdPrimvarReader" type="integer">
+  <nodedef name="ND_UsdPrimvarReader_integer" node="UsdPrimvarReader">
     <parameter name="varname" type="string" />
     <parameter name="fallback" type="integer" value="0" />
+    <output name="out" type="integer" />
   </nodedef>
-  <nodedef name="ND_UsdPrimvarReader_boolean" node="UsdPrimvarReader" type="boolean">
+  <nodedef name="ND_UsdPrimvarReader_boolean" node="UsdPrimvarReader">
     <parameter name="varname" type="string" />
     <parameter name="fallback" type="boolean" value="false" />
+    <output name="out" type="boolean" />
   </nodedef>
-  <nodedef name="ND_UsdPrimvarReader_string" node="UsdPrimvarReader" type="string">
+  <nodedef name="ND_UsdPrimvarReader_string" node="UsdPrimvarReader">
     <parameter name="varname" type="string" />
     <parameter name="fallback" type="string" value="" />
+    <output name="out" type="string" />
   </nodedef>
-  <nodedef name="ND_UsdPrimvarReader_float" node="UsdPrimvarReader" type="float">
+  <nodedef name="ND_UsdPrimvarReader_float" node="UsdPrimvarReader">
     <parameter name="varname" type="string" />
     <parameter name="fallback" type="float" value="0" />
+    <output name="out" type="float" />
   </nodedef>
-  <nodedef name="ND_UsdPrimvarReader_vector2" node="UsdPrimvarReader" type="vector2">
+  <nodedef name="ND_UsdPrimvarReader_vector2" node="UsdPrimvarReader">
     <parameter name="varname" type="string" />
     <parameter name="fallback" type="vector2" value="0, 0" />
+    <output name="out" type="vector2" />
   </nodedef>
-  <nodedef name="ND_UsdPrimvarReader_vector3" node="UsdPrimvarReader" type="vector3">
+  <nodedef name="ND_UsdPrimvarReader_vector3" node="UsdPrimvarReader">
     <parameter name="varname" type="string" />
     <parameter name="fallback" type="vector3" value="0, 0, 0" />
+    <output name="out" type="vector3" />
   </nodedef>
-  <nodedef name="ND_UsdPrimvarReader_vector4" node="UsdPrimvarReader" type="vector4">
+  <nodedef name="ND_UsdPrimvarReader_vector4" node="UsdPrimvarReader">
     <parameter name="varname" type="string" />
     <parameter name="fallback" type="vector4" value="0, 0, 0, 0" />
+    <output name="out" type="vector4" />
   </nodedef>
   <!-- TODO: Getting primvar of matrix type is not supported in MaterialX standard library.
-  <nodedef name="ND_UsdPrimvarReader_matrix44" node="UsdPrimvarReader" type="matrix44">
+  <nodedef name="ND_UsdPrimvarReader_matrix44" node="UsdPrimvarReader">
     <parameter name="varname" type="string" />
     <parameter name="fallback" type="matrix44" value="1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1" />
+    <output name="out" type="matrix44" />
   </nodedef>
   -->
 
   <!-- Node: UsdTransform2d -->
-  <nodedef name="ND_UsdTransform2d" node="UsdTransform2d" type="vector2">
+  <nodedef name="ND_UsdTransform2d" node="UsdTransform2d">
     <input name="in" type="vector2"/>
     <input name="rotation" type="float" value="0"/>
     <input name="scale" type="vector2" value="1, 1"/>
     <input name="translation" type="vector2" value="0, 0"/>
+    <output name="out" type="vector2"/>
   </nodedef>
 
   <!-- ======================================================================== -->
