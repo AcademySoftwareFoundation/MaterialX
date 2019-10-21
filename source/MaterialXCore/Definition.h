@@ -88,6 +88,25 @@ class NodeDef : public InterfaceElement
         return getAttribute(NODE_ATTRIBUTE);
     }
 
+    /// Return the element's output type.
+    const string& getType() const override
+    {
+        const vector<OutputPtr>& activeOutputs = getActiveOutputs();
+        size_t numActiveOutputs = activeOutputs.size();
+        if (numActiveOutputs > 1)
+        {
+            return MULTI_OUTPUT_TYPE_STRING;
+        }
+        else if (numActiveOutputs == 1)
+        {
+            return activeOutputs[0]->getType();
+        }
+        else
+        {
+            throw Exception("Nodedef: " + getName() + " has no outputs");
+        }
+    }
+
     /// @}
     /// @name Node Group
     /// @{
