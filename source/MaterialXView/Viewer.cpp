@@ -676,7 +676,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     transparencyBox->setCallback([this](bool enable)
     {
         _genContext.getOptions().hwTransparency = enable;
-        reloadShaders(false);
+        reloadShaders();
     });
 
     ng::CheckBox* drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Render Environment");
@@ -1068,15 +1068,15 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
     updateUnitSelections();
 }
 
-void Viewer::reloadShaders(bool forceCreation)
+void Viewer::reloadShaders()
 {
     try
     {
         const mx::MeshList& meshes = _geometryHandler->getMeshes();
         for (MaterialPtr material : _materials)
         {
-            material->generateShader(_genContext, forceCreation);
-            if (forceCreation && !meshes.empty())
+            material->generateShader(_genContext);
+            if (!meshes.empty())
             {
                 material->bindMesh(meshes[0]);
             }

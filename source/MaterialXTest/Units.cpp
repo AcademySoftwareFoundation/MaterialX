@@ -106,7 +106,7 @@ TEST_CASE("UnitEvaluation", "[units]")
 TEST_CASE("UnitDocument", "[units]")
 {
     mx::FilePath libraryPath("libraries/stdlib");
-    mx::FilePath examplesPath("resources/Materials/Examples/Units");
+    mx::FilePath examplesPath("resources/Materials/TestSuite/stdlib/units");
     std::string searchPath = libraryPath.asString() +
         mx::PATH_LIST_SEPARATOR +
         examplesPath.asString();
@@ -133,7 +133,7 @@ TEST_CASE("UnitDocument", "[units]")
         {
             // If we have nodes with inputs
             mx::NodePtr pNode = elem->asA<mx::Node>();
-            if (pNode) 
+            if (pNode)
             {
                 if (pNode->getInputCount()) {
                     for (mx::InputPtr input : pNode->getInputs()) {

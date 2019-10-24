@@ -179,13 +179,13 @@ void Material::updateUniformsList()
     delete[] uniformName;
 }
 
-bool Material::generateShader(mx::GenContext& context, bool forceCreation)
+bool Material::generateShader(mx::GenContext& context)
 {
     if (!_elem)
     {
         return false;
     }
-    if (forceCreation || !_hwShader)
+    if (!_hwShader)
     {
         _hwShader = createShader("Shader", context, _elem);
     }
@@ -196,7 +196,7 @@ bool Material::generateShader(mx::GenContext& context, bool forceCreation)
 
     _hasTransparency = context.getOptions().hwTransparency;
 
-    if (forceCreation || !_glShader)
+    if (!_glShader)
     {
         std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
         std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);

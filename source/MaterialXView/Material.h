@@ -89,7 +89,7 @@ class Material
                     bool hasTransparency);
 
     /// Generate a shader from the given inputs.
-    bool generateShader(mx::GenContext& context, bool forceCreation=false);
+    bool generateShader(mx::GenContext& context);
 
     /// Copy shader from one material to this one
     void copyShader(MaterialPtr material)
