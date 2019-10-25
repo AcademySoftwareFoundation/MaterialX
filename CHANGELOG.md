@@ -3,12 +3,11 @@
 ## [1.36.5] - Development
 
 ### Added
-- Unit type support with support for Distance.
-- Utility to generate Markdown from `nodedef` definition.
+- Add the Unit, UnitDef, and UnitTypeDef elements.
+- Add support for distance units in shader code generation.
 
 ### Changed
-- Standard surface `subsurface_color` changed type to color3 from vec3. `subsurface_scale` supported in code generation
-- Search path argument for MaterialView adds search paths versus replacing.
+- Propagate Standard Surface updates from its main repository.
 
 ## [1.36.4] - 2019-09-26
 
