@@ -41,9 +41,9 @@ DefaultUnitConverter::DefaultUnitConverter(UnitTypeDefPtr unitTypeDef) :
         }
     }
 
-    // In case the default unit was not specified in the UnitDef explicit
-    // add this to be able to accept converstion with the default
-    // as the input or output unit
+    // In case the default unit was not specified in the UnitDef, explicitly
+    // add this to be able to accept conversion with the default as the input
+    // or output unit.
     _defaultUnit = unitTypeDef->getDefault();
     auto it = _unitScale.find(_defaultUnit);
     if (it == _unitScale.end())
