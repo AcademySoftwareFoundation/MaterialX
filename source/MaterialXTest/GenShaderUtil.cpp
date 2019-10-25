@@ -603,9 +603,11 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     context.getOptions() = generateOptions;
     context.registerSourceCodeSearchPath(_srcSearchPath);
 
-    // Define working unit if not defined
+    // Define working unit if required
     if (context.getOptions().targetDistanceUnit.empty())
-       context.getOptions().targetDistanceUnit = _defaultDistanceUnit;
+    {
+        context.getOptions().targetDistanceUnit = _defaultDistanceUnit;
+    }
 
     size_t documentIndex = 0;
     mx::CopyOptions copyOptions;
