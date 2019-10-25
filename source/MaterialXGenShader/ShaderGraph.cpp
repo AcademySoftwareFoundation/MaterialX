@@ -538,7 +538,8 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
 
                     input->setBindInput();
                     graph->populateInputColorTransformMap(colorManagementSystem, graph->_nodeMap[newNodeName], bindParam, targetColorSpace);
-                    // Collect transforms that are Length units.
+
+                    // Collect transforms that are distance units.
                     graph->populateInputUnitTransformMap(context.getShaderGenerator().getUnitSystem(), graph->_nodeMap[newNodeName],
                         bindParam, context.getOptions().targetDistanceUnit, DefaultUnitConverter::DISTANCE_UNIT);
                 }
