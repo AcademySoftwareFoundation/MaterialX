@@ -13,10 +13,11 @@
 
 namespace MaterialX
 {
+
 // Helper class to create the constant block for mx_distance_unit
 class DistanceUnitNode : public SourceCodeNode
 {
-public:
+  public:
     explicit DistanceUnitNode(DefaultUnitConverterPtr distanceUnitConverter) :
          _distanceUnitConverter(distanceUnitConverter) {}
 
@@ -24,7 +25,7 @@ public:
 
     void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
-protected:
+  protected:
     DefaultUnitConverterPtr _distanceUnitConverter;
 };
 
@@ -133,11 +134,11 @@ ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& t
         throw ExceptionShaderGenError("No implementation found for transform: ('" + transform.sourceUnit + "', '" + transform.targetUnit + "').");
     }
 
-    // distance Unit Conversion
+    // Distance unit conversion
     UnitTypeDefPtr distanceTypeDef = _document->getUnitTypeDef(DefaultUnitConverter::DISTANCE_UNIT);
     if (!_unitRegistry && !_unitRegistry->getUnitConverter(distanceTypeDef))
     {
-        throw ExceptionTypeError("Unit registry unavaliable or undefined Unit convertor for: " + DefaultUnitConverter::DISTANCE_UNIT);
+        throw ExceptionTypeError("Unit registry unavaliable or undefined unit converter for: " + DefaultUnitConverter::DISTANCE_UNIT);
     }
     DefaultUnitConverterPtr distanceConverter = std::dynamic_pointer_cast<DefaultUnitConverter>(_unitRegistry->getUnitConverter(distanceTypeDef));
 
@@ -211,5 +212,6 @@ ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& t
     shaderNode->addOutput("out", transform.type);
 
     return shaderNode;
-    }
+}
+
 } // namespace MaterialX
