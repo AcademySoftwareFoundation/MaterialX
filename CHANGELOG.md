@@ -3,11 +3,11 @@
 ## [1.36.5] - Development
 
 ### Added
-- Add the Unit, UnitDef, and UnitTypeDef elements.
-- Add support for distance units in shader code generation.
+- Added support for Unit, UnitDef, and UnitTypeDef elements.
+- Added support for distance units in shader code generation.
 
 ### Changed
-- Propagate Standard Surface updates from its main repository.
+- Updated Standard Surface shader interface and logic.
 
 ## [1.36.4] - 2019-09-26
 
