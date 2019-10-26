@@ -1,12 +1,12 @@
 #ifndef MATERIALXVIEW_VIEWER_H
 #define MATERIALXVIEW_VIEWER_H
 
-#include <MaterialXGenShader/UnitConverter.h>
 #include <MaterialXView/Editor.h>
 #include <MaterialXView/Material.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/LightHandler.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#include <MaterialXGenShader/UnitConverter.h>
 
 namespace mx = MaterialX;
 namespace ng = nanogui;
