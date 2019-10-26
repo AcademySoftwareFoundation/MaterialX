@@ -18,7 +18,9 @@
 #include <MaterialXGenShader/TypeDesc.h>
 
 #include <MaterialXCore/Document.h>
+
 #include <array>
+
 namespace MaterialX
 {
 
@@ -49,11 +51,10 @@ struct UnitTransform
 };
 
 /// @class UnitSystem
-/// Abstract base class for a UnitSystem
-///
+/// Abstract base class for a unit system
 class UnitSystem
 {
-public:
+  public:
     virtual ~UnitSystem() { }
 
     /// Create a new UnitSystem
@@ -87,13 +88,11 @@ public:
     static const string UNITSYTEM_NAME;
     static const string DISTANCE_UNIT_TARGET_NAME;
 
-protected:
-    /// Protected constructor
+  protected:
+    // Protected constructor
     UnitSystem(const string& language);
 
-
-
-protected:
+  protected:
     UnitConverterRegistryPtr _unitRegistry;
     DocumentPtr _document;
     string _language;
