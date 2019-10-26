@@ -510,7 +510,7 @@ TEST_CASE("Render: GLSL TestSuite", "[renderglsl]")
     testRootPaths.push_back(testRootPath);
     testRootPaths.push_back(testRootPath2);
     testRootPaths.push_back(testRootPath3);
-    
+
     mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
 
     renderTester.validate(testRootPaths, optionsFilePath);
