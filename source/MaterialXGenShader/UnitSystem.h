@@ -11,15 +11,12 @@
 
 #include <MaterialXGenShader/Library.h>
 
-#include <MaterialXGenShader/UnitConverter.h>
-
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/TypeDesc.h>
+#include <MaterialXGenShader/UnitConverter.h>
 
 #include <MaterialXCore/Document.h>
-
-#include <array>
 
 namespace MaterialX
 {
@@ -80,7 +77,7 @@ class UnitSystem
 
     /// Create a node to use to perform the given unit space transformation.
     ShaderNodePtr createNode(ShaderGraph* parent, const UnitTransform& transform, const string& name,
-        GenContext& context) const;
+                             GenContext& context) const;
 
     /// Returns an implementation name for a given transform
     virtual string getImplementationName(const UnitTransform& transform, const string& unitname) const;
