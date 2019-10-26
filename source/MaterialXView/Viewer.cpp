@@ -8,8 +8,8 @@
 #include <MaterialXRender/Util.h>
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
-#include <MaterialXGenShader/UnitSystem.h>
 #include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/UnitSystem.h>
 
 #include <nanogui/button.h>
 #include <nanogui/combobox.h>
