@@ -7,11 +7,11 @@
 #define MATERIALX_UNIT_SYSTEM_H
 
 /// @file
-/// Unit  system classes
-
-#include <MaterialXGenShader/UnitConverter.h>
+/// Unit system classes
 
 #include <MaterialXGenShader/Library.h>
+
+#include <MaterialXGenShader/UnitConverter.h>
 
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
