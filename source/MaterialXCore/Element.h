@@ -1101,19 +1101,19 @@ class ValueElement : public TypedElement
     /// @name Units
     /// @{
 
-    /// Set the unit.
+    /// Set the unit string of an element.
     void setUnit(const string& unit)
     {
         setAttribute(UNIT_ATTRIBUTE, unit);
     }
 
-    /// Return true if a unit attribute exists.
+    /// Return true if the given element has a unit string.
     bool hasUnit() const
     {
         return hasAttribute(UNIT_ATTRIBUTE);
     }
 
-    /// Return the unit.
+    /// Return the unit string of an element.
     const string& getUnit() const
     {
         return getAttribute(UNIT_ATTRIBUTE);
@@ -1123,19 +1123,19 @@ class ValueElement : public TypedElement
     /// is a child of a Node.
     const string& getDefaultUnit() const;
 
-    /// Set the unit type.
+    /// Set the unit type of an element.
     void setUnitType(const string& unit)
     {
         setAttribute(UNITTYPE_ATTRIBUTE, unit);
     }
 
-    /// Return true if a unit attribute exists.
+    /// Return true if the given element has a unit type.
     bool hasUnitType() const
     {
         return hasAttribute(UNITTYPE_ATTRIBUTE);
     }
 
-    /// Return the unit type
+    /// Return the unit type of an element.
     const string& getUnitType() const
     {
         return getAttribute(UNITTYPE_ATTRIBUTE);
