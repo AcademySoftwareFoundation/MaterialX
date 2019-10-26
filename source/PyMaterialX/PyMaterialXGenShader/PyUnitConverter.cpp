@@ -13,11 +13,6 @@ namespace mx = MaterialX;
 class PyUnitConverter : public mx::UnitConverter
 {
   public:
-      explicit PyUnitConverter() :
-        mx::UnitConverter()
-    {
-    }
-
     float convert(float input, const std::string& inputUnit, const std::string& outputUnit) const override
     {
         PYBIND11_OVERLOAD_PURE(
