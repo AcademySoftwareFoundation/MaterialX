@@ -12,9 +12,9 @@
 #include <MaterialXGenShader/Library.h>
 
 #include <MaterialXGenShader/ColorManagementSystem.h>
-#include <MaterialXGenShader/UnitSystem.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/TypeDesc.h>
+#include <MaterialXGenShader/UnitSystem.h>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Node.h>
