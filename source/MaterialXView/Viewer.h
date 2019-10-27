@@ -71,7 +71,7 @@ class Viewer : public ng::Screen
         return _searchPath;
     }
 
-    mx::GLTextureHandlerPtr getImageHandler() const
+    mx::ImageHandlerPtr getImageHandler() const
     {
         return _imageHandler;
     }
@@ -172,7 +172,7 @@ class Viewer : public ng::Screen
 
     // Resource handlers
     mx::GeometryHandlerPtr _geometryHandler;
-    mx::GLTextureHandlerPtr _imageHandler;
+    mx::ImageHandlerPtr _imageHandler;
     mx::LightHandlerPtr _lightHandler;
 
     // Supporting materials and geometry.

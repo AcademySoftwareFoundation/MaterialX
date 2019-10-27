@@ -452,7 +452,7 @@ StringResolverPtr Element::createStringResolver(const string& geom,
                                                 const string& target,
                                                 const string& type) const
 {
-    StringResolverPtr resolver = std::make_shared<StringResolver>();
+    StringResolverPtr resolver = StringResolver::create();
 
     // Compute file and geom prefixes as this scope.
     resolver->setFilePrefix(getActiveFilePrefix());

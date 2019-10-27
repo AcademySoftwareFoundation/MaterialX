@@ -22,25 +22,15 @@ using GLTextureHandlerPtr = std::shared_ptr<class GLTextureHandler>;
 class GLTextureHandler : public ImageHandler
 {
   public:
-    static GLTextureHandlerPtr create(ImageLoaderPtr imageLoader)
+    static ImageHandlerPtr create(ImageLoaderPtr imageLoader)
     {
-        return GLTextureHandlerPtr(new GLTextureHandler(imageLoader));
+        return ImageHandlerPtr(new GLTextureHandler(imageLoader));
     }
 
     virtual ~GLTextureHandler() { }
 
     /// Acquire an image from the cache or file system.  If the image is not
     /// found in the cache, then each image loader will be applied in turn.
-    /// @param filePath File path of the image.
-    /// @param imageDesc On success, this image descriptor will be filled out
-    ///    and assigned ownership of a resource buffer.
-    /// @param generateMipMaps Generate mip maps if supported.
-    /// @param fallbackColor Optional uniform color of a fallback texture
-    ///    to create when the image cannot be loaded from the file system.
-    ///    By default, no fallback texture is created.
-    /// @return True if the image was successfully found in the cache or
-    ///    file system.  Returns false if this call generated a fallback
-    ///    texture.
     bool acquireImage(const FilePath& filePath,
                       ImageDesc& imageDesc,
                       bool generateMipMaps,
@@ -49,14 +39,10 @@ class GLTextureHandler : public ImageHandler
     /// Bind an image. This method will bind the texture to an active texture
     /// unit as defined by the corresponding image description. The method
     /// will fail if there are not enough available image units to bind to.
-    /// @param filePath File path of image description to bind.
-    /// @param samplingProperties Sampling properties for the image
-    /// @return true if succeded to bind
-    bool bindImage(const FilePath& filePath, const ImageSamplingProperties& samplingProperties) override;
+    bool bindImage(const ImageDesc& desc, const ImageSamplingProperties& samplingProperties) override;
 
     /// Unbind an image. 
-    /// @param filePath File path to image description to unbind
-    virtual bool unbindImage(const FilePath& filePath) override;
+    virtual bool unbindImage(const ImageDesc& desc) override;
 
     /// Utility to map an address mode enumeration to an OpenGL address mode
     static int mapAddressModeToGL(ImageSamplingProperties::AddressMode addressModeEnum);
@@ -71,12 +57,9 @@ class GLTextureHandler : public ImageHandler
     // Protected constructor
     GLTextureHandler(ImageLoaderPtr imageLoader);
 
-    // Unbind an image.
-    bool unbindImage(const ImageDesc& imageDesc);
-
     // Delete an image. Any OpenGL texture resource and as well as any CPU-side
     // resource memory will be deleted.
-    void deleteImage(MaterialX::ImageDesc& imageDesc) override;
+    void deleteImage(ImageDesc& imageDesc) override;
 
     // Return restrictions specific to this handler
     const ImageDescRestrictions* getRestrictions() const override
