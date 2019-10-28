@@ -59,7 +59,7 @@ TEST_CASE("UnitAttribute", "[units]")
     input = custom->setInputValue("angle", 45.0f, "float");
     input->setUnit("radians");
     REQUIRE(input->getUnit() == "radians");
-    REQUIRE(input->getDefaultUnit() == "degrees");
+    REQUIRE(input->getActiveUnit() == "degrees");
 }
 
 TEST_CASE("UnitEvaluation", "[units]")

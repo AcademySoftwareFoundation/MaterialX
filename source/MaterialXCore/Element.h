@@ -1121,7 +1121,7 @@ class ValueElement : public TypedElement
 
     /// Return the unit defined by the assocaited NodeDef if this element
     /// is a child of a Node.
-    const string& getDefaultUnit() const;
+    const string& getActiveUnit() const;
 
     /// Set the unit type of an element.
     void setUnitType(const string& unit)

@@ -586,7 +586,7 @@ ValuePtr ValueElement::getDefaultValue() const
     return ValuePtr();
 }
 
-const string& ValueElement::getDefaultUnit() const
+const string& ValueElement::getActiveUnit() const
 {
     // Return the unit, if any, stored in our declaration.
     ConstElementPtr parent = getParent();

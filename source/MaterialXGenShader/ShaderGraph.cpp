@@ -1271,7 +1271,7 @@ void ShaderGraph::populateInputColorTransformMap(ColorManagementSystemPtr colorM
 
 void ShaderGraph::populateInputUnitTransformMap(UnitSystemPtr unitSystem, ShaderNodePtr shaderNode, ValueElementPtr input, const string& globalTargetUnitSpace, const string& unitType)
 {
-    string targetUnitSpace = input->getDefaultUnit();
+    string targetUnitSpace = input->getActiveUnit();
     if (targetUnitSpace.empty())
     {
         targetUnitSpace = globalTargetUnitSpace;
