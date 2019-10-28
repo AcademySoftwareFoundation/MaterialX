@@ -534,18 +534,10 @@ bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, con
     if (uniformLocation >= 0 &&
         uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
     {
-        // Resolve the input filepath.
-        FilePath resolvedFilePath = filePath;
-        if (imageHandler->getFilenameResolver())
-        {
-            resolvedFilePath = imageHandler->getFilenameResolver()->resolve(resolvedFilePath, FILENAME_TYPE_STRING);
-        }
-        resolvedFilePath = imageHandler->getSearchPath().find(resolvedFilePath);
-
         // Acquire the image.
-        if (imageHandler->acquireImage(resolvedFilePath, desc, generateMipMaps, &(samplingProperties.defaultColor)))
+        if (imageHandler->acquireImage(filePath, desc, generateMipMaps, &(samplingProperties.defaultColor)))
         {
-            textureBound = imageHandler->bindImage(resolvedFilePath, samplingProperties);
+            textureBound = imageHandler->bindImage(desc, samplingProperties);
             if (textureBound)
             {
                 int textureLocation = imageHandler->getBoundTextureLocation(desc.resourceId);

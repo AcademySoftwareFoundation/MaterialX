@@ -1,5 +1,6 @@
 #include <MaterialXView/Viewer.h>
 
+#include <MaterialXRenderGlsl/GLTextureHandler.h>
 #include <MaterialXRenderGlsl/TextureBaker.h>
 
 #include <MaterialXRender/OiioImageLoader.h>
@@ -538,7 +539,7 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
                 imageHandler->setSearchPath(searchPath);
                 if (!material->getUdim().empty())
                 {
-                    mx::StringResolverPtr resolver = std::make_shared<mx::StringResolver>();
+                    mx::StringResolverPtr resolver = mx::StringResolver::create();
                     resolver->setUdimString(material->getUdim());
                     imageHandler->setFilenameResolver(resolver);
                 }
