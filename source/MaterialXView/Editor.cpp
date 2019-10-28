@@ -666,7 +666,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                     {
                         if (uniform->getType() == mx::Type::FILENAME)
                         {
-                            mx::GLTextureHandlerPtr handler = viewer->getImageHandler();
+                            mx::ImageHandlerPtr handler = viewer->getImageHandler();
                             if (handler)
                             {
                                 mx::StringSet extensions;

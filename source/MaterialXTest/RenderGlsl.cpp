@@ -106,7 +106,7 @@ void GlslShaderRenderTester::createRenderer(std::ostream& log)
 
         // Set image handler on renderer
         mx::StbImageLoaderPtr stbLoader = mx::StbImageLoader::create();
-        mx::GLTextureHandlerPtr imageHandler = mx::GLTextureHandler::create(stbLoader);
+        mx::ImageHandlerPtr imageHandler = mx::GLTextureHandler::create(stbLoader);
         _renderer->setImageHandler(imageHandler);
 
         // Set light handler.

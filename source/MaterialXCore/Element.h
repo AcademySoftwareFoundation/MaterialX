@@ -1231,7 +1231,12 @@ class GenericElement : public Element
 class StringResolver
 {
   public:
-    StringResolver() { }
+    /// Create a new string resolver.
+    static StringResolverPtr create()
+    {
+        return StringResolverPtr(new StringResolver());
+    }
+
     virtual ~StringResolver() { }
 
     /// @name File Prefix
@@ -1320,6 +1325,9 @@ class StringResolver
     }
 
     /// @}
+
+  protected:
+    StringResolver() { }
 
   protected:
     string _filePrefix;

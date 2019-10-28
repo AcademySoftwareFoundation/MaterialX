@@ -138,8 +138,8 @@ class ImageSamplingProperties
     Color4 defaultColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 };
 
-/// Image description cache
-using ImageDescCache = std::unordered_map<string, ImageDesc>;
+/// A map from strings to image descriptions.
+using ImageDescMap = std::unordered_map<string, ImageDesc>;
 
 /// Shared pointer to an ImageLoader
 using ImageLoaderPtr = std::shared_ptr<class ImageLoader>;
@@ -262,19 +262,18 @@ class ImageHandler
     /// @param color Color to set
     /// @param imageDesc Description of image updated during load.
     /// @return if creation succeeded
-    virtual bool createColorImage(const Color4& color,
-                                  ImageDesc& imageDesc);
+    virtual bool createColorImage(const Color4& color, ImageDesc& imageDesc);
 
     /// Bind an image. Derived classes should implement this method to handle logical binding of
     /// an image resource. The default implementation performs no action.
     /// @param filePath File path of image description to bind.
     /// @param samplingProperties Sampling properties for the image
     /// @return true if succeded to bind
-    virtual bool bindImage(const FilePath& filePath, const ImageSamplingProperties& samplingProperties);
+    virtual bool bindImage(const ImageDesc& desc, const ImageSamplingProperties& samplingProperties);
 
     /// Unbind an image. The default implementation performs no action.
     /// @param filePath File path to image description to unbind
-    virtual bool unbindImage(const FilePath& filePath);
+    virtual bool unbindImage(const ImageDesc& desc);
 
     /// Clear the contents of the image cache.
     /// deleteImage() will be called for each cache description to
@@ -305,8 +304,11 @@ class ImageHandler
         return _resolver;
     }
 
-    /// Resolve a path to a file using the registered search paths.
-    FilePath findFile(const FilePath& filePath);
+    /// Find the given file on the registered search path.
+    FilePath findFile(const FilePath& filePath)
+    {
+        return _searchPath.find(filePath);
+    }
 
     /// Return the bound texture location for a given resource.
     virtual int getBoundTextureLocation(unsigned int)
@@ -318,21 +320,12 @@ class ImageHandler
     // Protected constructor.
     ImageHandler(ImageLoaderPtr imageLoader);
 
-    // Cache an image for reuse.
+    // Add an image description to the cache.
     void cacheImage(const string& filePath, const ImageDesc& imageDesc);
-
-    // Remove image description from the cache.
-    void uncacheImage(const string& filePath);
 
     // Return the cached image description, if found; otherwise
     // return a null pointer.
-    const ImageDesc* getCachedImage(const string& filePath);
-
-    // Return a reference to the image cache
-    ImageDescCache& getImageCache()
-    {
-        return _imageCache;
-    }
+    const ImageDesc* getCachedImage(const FilePath& filePath);
 
     // Delete an image. Derived classes should override this method to clean
     // up any related resources when an image is deleted from the handler.
@@ -345,7 +338,7 @@ class ImageHandler
 
   protected:
     ImageLoaderMap _imageLoaders;
-    ImageDescCache _imageCache;
+    ImageDescMap _imageCache;
     FileSearchPath _searchPath;
     StringResolverPtr _resolver;
 };

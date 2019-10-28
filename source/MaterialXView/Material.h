@@ -10,8 +10,8 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/UnitSystem.h>
+#include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/LightHandler.h>
-#include <MaterialXRenderGlsl/GLTextureHandler.h>
 
 #include <nanogui/common.h>
 #include <nanogui/glutil.h>
@@ -135,17 +135,17 @@ class Material
     void bindViewInformation(const mx::Matrix44& world, const mx::Matrix44& view, const mx::Matrix44& proj);
 
     /// Bind all images for this material.
-    void bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSearchPath& searchPath);
+    void bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearchPath& searchPath);
 
     /// Unbbind all images for this material.
-    void unbindImages(mx::GLTextureHandlerPtr imageHandler);
+    void unbindImages(mx::ImageHandlerPtr imageHandler);
 
     /// Bind a single image.
-    mx::FilePath bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::GLTextureHandlerPtr imageHandler,
-                           mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, mx::Color4* fallbackColor = nullptr);
+    bool bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
+                   mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, mx::Color4* fallbackColor = nullptr);
 
     /// Bind lights to shader.
-    void bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandlerPtr imageHandler, const mx::FileSearchPath& imagePath, 
+    void bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler, const mx::FileSearchPath& imagePath, 
                     bool directLighting, bool indirectLighting, mx::HwSpecularEnvironmentMethod specularEnvironmentMethod, int envSamples);
 
     /// Bind units.
@@ -202,7 +202,7 @@ class Material
     bool _hasTransparency;
     mx::StringSet _uniformVariable;
 
-    std::vector<mx::FilePath> _boundImages;
+    std::vector<mx::ImageDesc> _boundImages;
 };
 
 #endif // MATERIALXVIEW_MATERIAL_H
