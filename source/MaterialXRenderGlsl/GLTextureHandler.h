@@ -42,7 +42,7 @@ class GLTextureHandler : public ImageHandler
     bool bindImage(const ImageDesc& desc, const ImageSamplingProperties& samplingProperties) override;
 
     /// Unbind an image. 
-    virtual bool unbindImage(const ImageDesc& desc) override;
+    bool unbindImage(const ImageDesc& desc) override;
 
     /// Utility to map an address mode enumeration to an OpenGL address mode
     static int mapAddressModeToGL(ImageSamplingProperties::AddressMode addressModeEnum);
