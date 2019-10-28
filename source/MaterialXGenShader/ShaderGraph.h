@@ -158,7 +158,7 @@ class ShaderGraph : public ShaderNode
 
     /// Populates the input unit transform map if the provided input/parameter
     /// has a unit attribute and has a type of float.
-    void populateInputUnitTransformMap(UnitSystemPtr unitSystem, ShaderNodePtr shaderNode, ValueElementPtr input, const string& targetUnitSpace, const string& unitType);
+    void populateInputUnitTransformMap(UnitSystemPtr unitSystem, ShaderNodePtr shaderNode, ValueElementPtr input, const string& targetUnitSpace);
 
     /// Break all connections on a node
     void disconnect(ShaderNode* node) const;

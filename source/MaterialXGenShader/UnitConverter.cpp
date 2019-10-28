@@ -9,8 +9,6 @@
 
 namespace MaterialX
 {
-const string DefaultUnitConverter::DISTANCE_UNIT = "distance";
-
 DefaultUnitConverter::DefaultUnitConverter(UnitTypeDefPtr unitTypeDef) :
     UnitConverter()
 {
@@ -51,6 +49,8 @@ DefaultUnitConverter::DefaultUnitConverter(UnitTypeDefPtr unitTypeDef) :
         _unitScale[_defaultUnit] = 1.0f;
         _unitEnumeration[_defaultUnit] = enumerant++;
     }
+
+    _unitType = unitTypeDef->getName();
 }
 
 DefaultUnitConverterPtr DefaultUnitConverter::create(UnitTypeDefPtr unitTypeDef)

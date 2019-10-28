@@ -48,7 +48,7 @@ struct UnitTransform
 };
 
 /// @class UnitSystem
-/// Abstract base class for a unit system
+/// Base unit system support
 class UnitSystem
 {
   public:
@@ -83,7 +83,6 @@ class UnitSystem
     virtual string getImplementationName(const UnitTransform& transform, const string& unitname) const;
 
     static const string UNITSYTEM_NAME;
-    static const string DISTANCE_UNIT_TARGET_NAME;
 
   protected:
     // Protected constructor

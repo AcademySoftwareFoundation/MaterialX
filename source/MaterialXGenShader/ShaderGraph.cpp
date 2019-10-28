@@ -539,9 +539,8 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     input->setBindInput();
                     graph->populateInputColorTransformMap(colorManagementSystem, graph->_nodeMap[newNodeName], bindParam, targetColorSpace);
 
-                    // Collect transforms that are distance units.
                     graph->populateInputUnitTransformMap(context.getShaderGenerator().getUnitSystem(), graph->_nodeMap[newNodeName],
-                        bindParam, context.getOptions().targetDistanceUnit, DefaultUnitConverter::DISTANCE_UNIT);
+                        bindParam, context.getOptions().targetDistanceUnit);
                 }
                 inputSocket->setPath(bindParam->getNamePath());
                 input->setPath(inputSocket->getPath());
@@ -580,7 +579,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     input->setBindInput();
                     graph->populateInputColorTransformMap(colorManagementSystem, graph->_nodeMap[newNodeName], bindInput, targetColorSpace);
                     graph->populateInputUnitTransformMap(context.getShaderGenerator().getUnitSystem(), graph->_nodeMap[newNodeName], bindInput, 
-                                                         context.getOptions().targetDistanceUnit, DefaultUnitConverter::DISTANCE_UNIT);
+                                                         context.getOptions().targetDistanceUnit);
                 }
                 inputSocket->setPath(bindInput->getNamePath());
                 input->setPath(inputSocket->getPath());
@@ -785,17 +784,17 @@ ShaderNode* ShaderGraph::addNode(const Node& node, GenContext& context)
         }
     }
 
-    // Unit Conversion: Only applicable if Unit system and a targetDistanceUnit is defined.
+    // Unit Conversion: Only applicable if Unit system and a "targetDistanceUnit" is defined for now.
     UnitSystemPtr unitSystem = context.getShaderGenerator().getUnitSystem();
     if (unitSystem && !context.getOptions().targetDistanceUnit.empty())
     {
         for (InputPtr input : node.getInputs())
         {
-            populateInputUnitTransformMap(unitSystem, newNode, input, context.getOptions().targetDistanceUnit, DefaultUnitConverter::DISTANCE_UNIT);
+            populateInputUnitTransformMap(unitSystem, newNode, input, context.getOptions().targetDistanceUnit);
         }
         for (ParameterPtr parameter : node.getParameters())
         {
-            populateInputUnitTransformMap(unitSystem, newNode, parameter, context.getOptions().targetDistanceUnit, DefaultUnitConverter::DISTANCE_UNIT);
+            populateInputUnitTransformMap(unitSystem, newNode, parameter, context.getOptions().targetDistanceUnit);
         }
     }
     return newNode.get();
@@ -1269,8 +1268,14 @@ void ShaderGraph::populateInputColorTransformMap(ColorManagementSystemPtr colorM
     }
 }
 
-void ShaderGraph::populateInputUnitTransformMap(UnitSystemPtr unitSystem, ShaderNodePtr shaderNode, ValueElementPtr input, const string& globalTargetUnitSpace, const string& unitType)
+void ShaderGraph::populateInputUnitTransformMap(UnitSystemPtr unitSystem, ShaderNodePtr shaderNode, ValueElementPtr input, const string& globalTargetUnitSpace)
 {
+    const string& unitType = input->getUnitType();
+    if (!input->getDocument()->getUnitTypeDef(unitType))
+    {
+        return;
+    }
+
     string targetUnitSpace = input->getActiveUnit();
     if (targetUnitSpace.empty())
     {

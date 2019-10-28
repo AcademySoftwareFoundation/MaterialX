@@ -91,7 +91,13 @@ class DefaultUnitConverter : public UnitConverter
     /// Creator 
     static DefaultUnitConverterPtr create(UnitTypeDefPtr UnitDef);
 
-    /// Return the name of the default unit for "distance"
+    /// Return the unit type string
+    const string& getUnitType() const
+    {
+        return _unitType;
+    }
+
+    /// Return the name of the default unit
     const string& getDefaultUnit() const
     {
         return _defaultUnit;
@@ -150,15 +156,13 @@ class DefaultUnitConverter : public UnitConverter
 
     /// @}
 
-    /// Distance unit type name
-    static const string DISTANCE_UNIT;
-
   private:
     DefaultUnitConverter(UnitTypeDefPtr UnitDef);
 
     std::unordered_map<string, float> _unitScale;
     std::unordered_map<string, int> _unitEnumeration;
     string _defaultUnit;
+    string _unitType;
 };
 
 

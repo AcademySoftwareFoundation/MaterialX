@@ -560,6 +560,8 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
 
 void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenContext& context)
 {
+    static std::string DISTANCE_UNIT_TARGET_NAME = "u_distanceUnitTarget";
+
     mx::ShaderPort* port = nullptr;
     mx::VariableBlock* publicUniforms = getPublicUniforms();
     if (publicUniforms)
@@ -568,7 +570,7 @@ void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenCo
         port = publicUniforms->find(
             [](mx::ShaderPort* port)
         {
-            return (port && (port->getName() == mx::UnitSystem::DISTANCE_UNIT_TARGET_NAME));
+            return (port && (port->getName() == DISTANCE_UNIT_TARGET_NAME));
         });
 
         // Check if the uniform exists in the shader program
@@ -585,9 +587,9 @@ void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenCo
         {
             port->setValue(mx::Value::createValue(intPortValue));
             _glShader->bind();
-            if (_glShader->uniform(mx::UnitSystem::DISTANCE_UNIT_TARGET_NAME, false) != -1)
+            if (_glShader->uniform(DISTANCE_UNIT_TARGET_NAME, false) != -1)
             {
-                _glShader->setUniform(mx::UnitSystem::DISTANCE_UNIT_TARGET_NAME, intPortValue);
+                _glShader->setUniform(DISTANCE_UNIT_TARGET_NAME, intPortValue);
             }
         }
     }

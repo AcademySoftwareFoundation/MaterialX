@@ -67,7 +67,7 @@ TEST_CASE("UnitEvaluation", "[units]")
     mx::DocumentPtr doc = mx::createDocument();
     mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
 
-    mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef(mx::DefaultUnitConverter::DISTANCE_UNIT);
+    mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef("distance");
     REQUIRE(distanceTypeDef);
 
     mx::UnitConverterRegistryPtr registry = mx::UnitConverterRegistry::create();
@@ -118,7 +118,7 @@ TEST_CASE("UnitDocument", "[units]")
         mx::readFromXmlFile(doc, filename, searchPath);
         mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
 
-        mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef(mx::DefaultUnitConverter::DISTANCE_UNIT);
+        mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef("distance");
         REQUIRE(distanceTypeDef);
 
         mx::UnitConverterPtr uconverter = mx::DefaultUnitConverter::create(distanceTypeDef);

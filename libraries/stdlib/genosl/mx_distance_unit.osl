@@ -1,19 +1,19 @@
 void mx_distance_unit_float(float _in, int _unit_from, int _unit_to, output float result)
 {
-    result = _in * unit_ratio(_unit_from, _unit_to);
+    result = _in * mx_distance_unit_ratio(_unit_from, _unit_to);
 }
 
 void mx_distance_unit_vector2(vector2 _in, int _unit_from, int _unit_to, output vector2 result)
 {
-    result = _in * unit_ratio(_unit_from, _unit_to);
+    result = _in * mx_distance_unit_ratio(_unit_from, _unit_to);
 }
 
 void mx_distance_unit_vector3(vector _in, int _unit_from, int _unit_to, output vector result)
 {
-    result = _in * unit_ratio(_unit_from, _unit_to);
+    result = _in * mx_distance_unit_ratio(_unit_from, _unit_to);
 }
 
 void mx_distance_unit_vector4(vector4 _in, int _unit_from, int _unit_to, output vector4 result)
 {
-    result = _in * unit_ratio(_unit_from, _unit_to);
+    result = _in * mx_distance_unit_ratio(_unit_from, _unit_to);
 }
