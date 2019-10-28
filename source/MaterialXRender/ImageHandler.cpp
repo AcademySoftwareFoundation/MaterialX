@@ -129,8 +129,7 @@ bool ImageHandler::acquireImage(const FilePath& filePath, ImageDesc& imageDesc, 
     return false;
 }
 
-bool ImageHandler::createColorImage(const Color4& color,
-                                    ImageDesc& desc)
+bool ImageHandler::createColorImage(const Color4& color, ImageDesc& desc)
 {
     unsigned int bufferSize = desc.width * desc.height * desc.channelCount;
     if (bufferSize < 1)
@@ -160,12 +159,12 @@ bool ImageHandler::createColorImage(const Color4& color,
     return true;
 }
 
-bool ImageHandler::bindImage(const FilePath& /*filePath*/, const ImageSamplingProperties& /*samplingProperties*/)
+bool ImageHandler::bindImage(const ImageDesc&, const ImageSamplingProperties&)
 {
     return false;
 }
 
-bool ImageHandler::unbindImage(const FilePath& /*filePath*/)
+bool ImageHandler::unbindImage(const ImageDesc&)
 {
     return false;
 }
@@ -178,23 +177,24 @@ void ImageHandler::cacheImage(const string& filePath, const ImageDesc& desc)
     }
 }
 
-void ImageHandler::uncacheImage(const string& filePath)
-{
-    _imageCache.erase(filePath);
-}
-
-const ImageDesc* ImageHandler::getCachedImage(const string& filePath)
+const ImageDesc* ImageHandler::getCachedImage(const FilePath& filePath)
 {
     if (_imageCache.count(filePath))
     {
         return &(_imageCache[filePath]);
     }
+    if (!filePath.isAbsolute())
+    {
+        for (const FilePath& path : _searchPath)
+        {
+            FilePath combined = path / filePath;
+            if (_imageCache.count(combined))
+            {
+                return &(_imageCache[combined]);
+            }
+        }
+    }
     return nullptr;
-}
-
-FilePath ImageHandler::findFile(const FilePath& filePath)
-{
-    return _searchPath.find(filePath);
 }
 
 void ImageHandler::deleteImage(ImageDesc& imageDesc)
