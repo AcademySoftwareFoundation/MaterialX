@@ -138,7 +138,7 @@ ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& t
 
     // Scalar unit conversion
     UnitTypeDefPtr scalarTypeDef = _document->getUnitTypeDef(transform.unitType);
-    if (!_unitRegistry && !_unitRegistry->getUnitConverter(scalarTypeDef))
+    if (!_unitRegistry || !_unitRegistry->getUnitConverter(scalarTypeDef))
     {
         throw ExceptionTypeError("Unit registry unavaliable or undefined unit converter for: " + transform.unitType);
     }

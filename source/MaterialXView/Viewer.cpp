@@ -431,6 +431,10 @@ void Viewer::setupUnitConverter(mx::DocumentPtr doc)
     mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef("distance");
     _distanceUnitConverter = mx::DefaultUnitConverter::create(distanceTypeDef);
     _unitRegistry->addUnitConverter(distanceTypeDef, _distanceUnitConverter);
+    mx::UnitTypeDefPtr angleTypeDef = doc->getUnitTypeDef("angle");
+    mx::DefaultUnitConverterPtr angleConverter = mx::DefaultUnitConverter::create(angleTypeDef);
+    _unitRegistry->addUnitConverter(angleTypeDef, angleConverter);
+
     _unitOptions.clear();
     for (int unitid = 0; unitid < static_cast<int>(_distanceUnitConverter->getUnitScale().size()); unitid++)
     {

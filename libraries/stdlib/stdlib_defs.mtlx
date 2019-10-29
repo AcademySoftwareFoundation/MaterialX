@@ -44,7 +44,7 @@
   <typedef name="geomnamearray"/>
 
   <!-- ======================================================================== -->
-  <!-- Unit types                                                               -->
+  <!-- Units and unit types                                                     -->
   <!-- ======================================================================== -->
 
    <unittypedef name="distance" default="meter"/>
@@ -1096,7 +1096,7 @@
     values represent greater accessibility to ambient light, 0 means "fully occluded".
   -->
   <nodedef name="ND_ambientocclusion_float" node="ambientocclusion" type="float" nodegroup="global" default="1.0">
-    <parameter name="coneangle" type="float" value="90.0"/>
+    <parameter name="coneangle" type="float" value="90.0" unittype="angle" unit="degrees"/>
     <parameter name="maxdistance" type="float" value="1e38"/>
   </nodedef>
 
@@ -2199,11 +2199,11 @@
   -->
   <nodedef name="ND_rotate_vector2" node="rotate" type="vector2" nodegroup="math" defaultinput="in">
     <input name="in" type="vector2" value="0.0, 0.0"/>
-    <input name="amount" type="float" value="0.0"/>
+    <input name="amount" type="float" value="0.0" unittype="angle" unit="degrees"/>
   </nodedef>
   <nodedef name="ND_rotate_vector3" node="rotate" type="vector3" nodegroup="math" defaultinput="in">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
-    <input name="amount" type="float" value="0.0"/>
+    <input name="amount" type="float" value="0.0" unittype="angle" unit="degrees"/>
     <parameter name="axis" type="vector3" value="0.0, 1.0, 0.0"/>
   </nodedef>
 
@@ -2215,7 +2215,7 @@
     <input name="texcoord" type="vector2" value="0.0, 0.0"/>
     <parameter name="pivot" type="vector2" value="0.0,0.0"/>
     <input name="scale" type="vector2" value="1.0,1.0"/>
-    <input name="rotate" type="float" value="0.0"/>
+    <input name="rotate" type="float" value="0.0" unittype="angle" unit="degrees"/>
     <input name="offset" type="vector2" value="0.0,0.0"/>
   </nodedef>
 

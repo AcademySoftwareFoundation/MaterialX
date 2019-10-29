@@ -67,6 +67,9 @@ TEST_CASE("UnitEvaluation", "[units]")
     mx::DocumentPtr doc = mx::createDocument();
     mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
 
+    //
+    // Test distance converter
+    //
     mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef("distance");
     REQUIRE(distanceTypeDef);
 
@@ -101,6 +104,21 @@ TEST_CASE("UnitEvaluation", "[units]")
     unsigned int unitNumber = converter->getUnitAsInteger("mile");
     const std::string& unitName = converter->getUnitFromInteger(unitNumber);
     REQUIRE(unitName == "mile");
+
+    //
+    // Add angle converter
+    //
+    mx::UnitTypeDefPtr angleTypeDef = doc->getUnitTypeDef("angle");
+    REQUIRE(angleTypeDef);
+    mx::DefaultUnitConverterPtr converter2 = mx::DefaultUnitConverter::create(angleTypeDef);
+    REQUIRE(converter2);
+    registry->addUnitConverter(angleTypeDef, converter2);
+    mx::UnitConverterPtr uconverter2 = registry->getUnitConverter(angleTypeDef);
+    REQUIRE(uconverter2);
+    result = converter2->convert(2.5f, "degrees", "degrees");
+    REQUIRE((result - 2.5f) < EPSILON);
+    result = converter2->convert(2.0f, "radians", "degrees");
+    REQUIRE((result - 114.591559026f) < EPSILON);
 }
 
 TEST_CASE("UnitDocument", "[units]")

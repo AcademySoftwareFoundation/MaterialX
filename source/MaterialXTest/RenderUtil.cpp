@@ -196,6 +196,8 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     mx::UnitConverterRegistryPtr registry = mx::UnitConverterRegistry::create();
     mx::UnitTypeDefPtr distanceTypeDef = dependLib->getUnitTypeDef("distance");
     registry->addUnitConverter(distanceTypeDef, mx::DefaultUnitConverter::create(distanceTypeDef));
+    mx::UnitTypeDefPtr angleTypeDef = dependLib->getUnitTypeDef("angle");
+    registry->addUnitConverter(angleTypeDef, mx::DefaultUnitConverter::create(angleTypeDef));
     _shaderGenerator->getUnitSystem()->loadLibrary(dependLib);
     _shaderGenerator->getUnitSystem()->setUnitConverterRegistry(registry);
 
