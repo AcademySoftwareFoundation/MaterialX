@@ -1,8 +1,3 @@
-include_directories(
-    ${EXTERNAL_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../
-)
-
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB_RECURSE materialx_header "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
@@ -43,9 +38,16 @@ target_link_libraries(
     MaterialXCore
     ${CMAKE_DL_LIBS})
 
+target_include_directories(MaterialXGenOgsXml
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
+        $<INSTALL_INTERFACE:include>
+    PRIVATE
+        ${EXTERNAL_INCLUDE_DIRS})
+
 install(TARGETS MaterialXGenOgsXml
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/
-)
+    EXPORT MaterialX
+    ARCHIVE DESTINATION lib)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXGenOgsXml/ MESSAGE_NEVER
