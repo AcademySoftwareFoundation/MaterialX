@@ -435,10 +435,13 @@ void Viewer::setupUnitConverter(mx::DocumentPtr doc)
     mx::DefaultUnitConverterPtr angleConverter = mx::DefaultUnitConverter::create(angleTypeDef);
     _unitRegistry->addUnitConverter(angleTypeDef, angleConverter);
 
-    _unitOptions.clear();
-    for (int unitid = 0; unitid < static_cast<int>(_distanceUnitConverter->getUnitScale().size()); unitid++)
+    // Store in order determine by the converter
+    auto unitScales = _distanceUnitConverter->getUnitScale();
+    _unitOptions.resize(unitScales.size());
+    for (auto unitScale : unitScales)
     {
-        _unitOptions.push_back(_distanceUnitConverter->getUnitFromInteger(unitid));
+        int location = _distanceUnitConverter->getUnitAsInteger(unitScale.first);
+        _unitOptions[location] = unitScale.first;
     }
     _genContext.getOptions().targetDistanceUnit = _distanceUnitConverter->getDefaultUnit();
 }
@@ -845,28 +848,21 @@ void Viewer::updateMaterialSelectionUI()
 void Viewer::updateUnitSelections()
 {
     mProcessEvents = false;
+
     if (_unitOptionsUI)
     {
-        if (_unitOptionsUI->items().empty()) 
+        _unitOptionsUI->setItems(_unitOptions);
+        std::string workingUnitSpace = _distanceUnitConverter->getDefaultUnit();
+        int index = _distanceUnitConverter->getUnitAsInteger(workingUnitSpace);
+        _unitOptionsUI->setSelectedIndex(index);
+        _unitOptionsUI->setCallback([this](int index)
         {
-            _unitOptionsUI->setItems(_unitOptions);
-            std::vector<Widget*> children = _unitOptionsUI->children();
-            for (Widget* child : children)
+            _genContext.getOptions().targetDistanceUnit = _unitOptions[index];
+            for (MaterialPtr material : _materials)
             {
-                child->setFontSize(13);
+                material->bindUnits(_unitRegistry, _genContext);
             }
-            std::string workingUnitSpace = _distanceUnitConverter->getDefaultUnit();
-            int index = _distanceUnitConverter->getUnitAsInteger(workingUnitSpace);
-            _unitOptionsUI->setSelectedIndex(index);
-            _unitOptionsUI->setCallback([this](int index)
-            {
-                _genContext.getOptions().targetDistanceUnit = _distanceUnitConverter->getUnitFromInteger(index);
-                for (MaterialPtr material : _materials)
-                {
-                    material->bindUnits(_unitRegistry, _genContext);
-                }
-            });
-        }
+        });
     }
     mProcessEvents = true;
 }
@@ -1071,6 +1067,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
     // Update units UI.
     updateUnitSelections();
+    performLayout();
 }
 
 void Viewer::reloadShaders()

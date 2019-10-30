@@ -53,10 +53,11 @@
       <unit name="micron" scale="0.000001"/>
       <unit name="millimeter" scale="0.001"/>
       <unit name="centimeter" scale="0.01"/>
-      <unit name="kilometer" scale="1000.0"/>
       <unit name="inch" scale="0.0254"/>
       <unit name="foot" scale="0.3048"/>
       <unit name="yard" scale="0.9144"/>
+      <unit name="meter" scale="1.0"/>
+      <unit name="kilometer" scale="1000.0"/>
       <unit name="mile" scale="1609.344"/>
    </unitdef>
 

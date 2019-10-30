@@ -41,13 +41,17 @@ void ScalarUnitNode::emitFunctionDefinition(const ShaderNode& node, GenContext& 
     // Emit the helper funtion mx_<unittype>_unit_ratio that embeds a look up table for unit scale
     vector<float> unitScales;
     unitScales.reserve(_scalarUnitConverter->getUnitScale().size());
-    for (auto scaleValue : _scalarUnitConverter->getUnitScale()) 
+    auto unitScaleMap = _scalarUnitConverter->getUnitScale();
+    unitScales.resize(unitScaleMap.size());
+    for (auto unitScale : unitScaleMap)
     {
-        unitScales.push_back(scaleValue.second);
+        int location = _scalarUnitConverter->getUnitAsInteger(unitScale.first);
+        unitScales[location] = unitScale.second;
     }
     // See stdlib/gen*/mx_<unittype>_unit. This helper function is called by these shaders.
     const string VAR_UNIT_SCALE = "u_" + _scalarUnitConverter->getUnitType() + "_unit_scales";
     VariableBlock unitLUT("unitLUT", EMPTY_STRING);
+    ScopedFloatFormatting fmt(Value::FloatFormatFixed, 15);
     unitLUT.add(Type::FLOATARRAY, VAR_UNIT_SCALE, Value::createValue<vector<float>>(unitScales));
 
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
