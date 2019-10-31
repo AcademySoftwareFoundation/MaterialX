@@ -87,7 +87,6 @@ class Viewer : public ng::Screen
     void drawScene2D();
 
     void setupLights(mx::DocumentPtr doc);
-    void setupUnitConverter(mx::DocumentPtr doc);
     void loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries);
     void reloadShaders();
     void loadStandardLibraries();
@@ -107,7 +106,6 @@ class Viewer : public ng::Screen
     void updateMaterialSelections();
     void updateMaterialSelectionUI();
     void updateDisplayedProperties();
-    void updateUnitSelections();
 
     void createLoadMeshInterface(Widget* parent, const std::string& label);
     void createLoadMaterialsInterface(Widget* parent, const std::string& label);
