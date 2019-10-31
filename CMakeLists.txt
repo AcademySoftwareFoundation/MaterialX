@@ -214,7 +214,7 @@ write_basic_package_version_file(
     COMPATIBILITY AnyNewerVersion
 )
 
-# Package for using the developper build
+# Package for using the developer build
 export(
     EXPORT MaterialX
     FILE ${CMAKE_BINARY_DIR}/cmake/MaterialXConfig.cmake
