@@ -195,6 +195,7 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
     _selectedGeom(0),
     _selectedMaterial(0),
     _genContext(mx::GlslShaderGenerator::create()),
+    _unitRegistry(mx::UnitConverterRegistry::create()),
     _splitByUdims(false),
     _mergeMaterials(false),
     _bakeTextures(false),
@@ -209,12 +210,7 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
     _uvTranslation(-0.5f, 0.5f, 0.0f),
     _uvZoom(1.0f)
 {
-
-    // Set default unit
-    _unitRegistry = mx::UnitConverterRegistry::create();
-    _unitOptionsUI = nullptr;
-    
-    // Transpary option before creating Advanced UI 
+    // Set transparency option before creating Advanced UI 
     // as this flag is used to set the default value.
     _genContext.getOptions().hwTransparency = true;
 
@@ -435,13 +431,13 @@ void Viewer::setupUnitConverter(mx::DocumentPtr doc)
     mx::DefaultUnitConverterPtr angleConverter = mx::DefaultUnitConverter::create(angleTypeDef);
     _unitRegistry->addUnitConverter(angleTypeDef, angleConverter);
 
-    // Store in order determine by the converter
+    // Store in order determined by the converter
     auto unitScales = _distanceUnitConverter->getUnitScale();
-    _unitOptions.resize(unitScales.size());
+    _distanceUnitOptions.resize(unitScales.size());
     for (auto unitScale : unitScales)
     {
         int location = _distanceUnitConverter->getUnitAsInteger(unitScale.first);
-        _unitOptions[location] = unitScale.first;
+        _distanceUnitOptions[location] = unitScale.first;
     }
     _genContext.getOptions().targetDistanceUnit = _distanceUnitConverter->getDefaultUnit();
 }
@@ -647,6 +643,13 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _bakeTextures = enable;
     });    
 
+    Widget* unitGroup = new Widget(advancedPopup);
+    unitGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(unitGroup, "Distance Unit:");
+    _distanceUnitBox = new ng::ComboBox(unitGroup, _distanceUnitOptions);
+    _distanceUnitBox->setFixedSize(ng::Vector2i(100, 20));
+    _distanceUnitBox->setChevronIcon(-1);
+
     new ng::Label(advancedPopup, "Lighting Options");
 
     ng::CheckBox* directLightingBox = new ng::CheckBox(advancedPopup, "Direct lighting");
@@ -724,17 +727,6 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _showAdvancedProperties = enable;
         updateDisplayedProperties();
     });
-
-    // Units
-    {
-        new ng::Label(advancedPopup, "Unit Options");
-        // Unit selection widget
-        Widget* sampleGroup = new Widget(advancedPopup);
-        sampleGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
-        new ng::Label(sampleGroup, "Unit Space:");
-        _unitOptionsUI = new ng::ComboBox(sampleGroup, _unitOptions);
-        _unitOptionsUI->setChevronIcon(-1);
-    }
 }
 
 void Viewer::updateGeometrySelections()
@@ -849,15 +841,15 @@ void Viewer::updateUnitSelections()
 {
     mProcessEvents = false;
 
-    if (_unitOptionsUI)
+    if (_distanceUnitBox)
     {
-        _unitOptionsUI->setItems(_unitOptions);
+        _distanceUnitBox->setItems(_distanceUnitOptions);
         std::string workingUnitSpace = _distanceUnitConverter->getDefaultUnit();
         int index = _distanceUnitConverter->getUnitAsInteger(workingUnitSpace);
-        _unitOptionsUI->setSelectedIndex(index);
-        _unitOptionsUI->setCallback([this](int index)
+        _distanceUnitBox->setSelectedIndex(index);
+        _distanceUnitBox->setCallback([this](int index)
         {
-            _genContext.getOptions().targetDistanceUnit = _unitOptions[index];
+            _genContext.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
             for (MaterialPtr material : _materials)
             {
                 material->bindUnits(_unitRegistry, _genContext);

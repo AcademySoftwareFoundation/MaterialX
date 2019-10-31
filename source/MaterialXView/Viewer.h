@@ -186,12 +186,20 @@ class Viewer : public ng::Screen
     // Shader generator
     mx::GenContext _genContext;
 
+    // Unit registry
+    mx::UnitConverterRegistryPtr _unitRegistry;
+
     // Mesh options
     bool _splitByUdims;
 
     // Material options
     bool _mergeMaterials;
     bool _bakeTextures;
+
+    // Unit options
+    mx::StringVec _distanceUnitOptions;
+    ng::ComboBox* _distanceUnitBox;
+    mx::DefaultUnitConverterPtr _distanceUnitConverter;
 
     // Render options
     bool _outlineSelection;
@@ -206,12 +214,6 @@ class Viewer : public ng::Screen
     // Image save
     bool _captureFrame;
     mx::FilePath _captureFrameFileName;
-
-    // Working unit space
-    mx::StringVec _unitOptions;
-    ng::ComboBox* _unitOptionsUI;
-    mx::UnitConverterRegistryPtr _unitRegistry;
-    mx::DefaultUnitConverterPtr _distanceUnitConverter;
 
     // UV wireframe drawing
     bool _drawUVGeometry;
