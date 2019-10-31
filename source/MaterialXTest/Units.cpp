@@ -77,7 +77,7 @@ TEST_CASE("UnitEvaluation", "[units]")
     mx::UnitConverterRegistryPtr registry2 = mx::UnitConverterRegistry::create();
     REQUIRE(registry == registry2);
 
-    mx::DefaultUnitConverterPtr converter = mx::DefaultUnitConverter::create(distanceTypeDef);
+    mx::LinearUnitConverterPtr converter = mx::LinearUnitConverter::create(distanceTypeDef);
     REQUIRE(converter);
     registry->addUnitConverter(distanceTypeDef, converter);
     mx::UnitConverterPtr uconverter = registry->getUnitConverter(distanceTypeDef);
@@ -110,7 +110,7 @@ TEST_CASE("UnitEvaluation", "[units]")
     //
     mx::UnitTypeDefPtr angleTypeDef = doc->getUnitTypeDef("angle");
     REQUIRE(angleTypeDef);
-    mx::DefaultUnitConverterPtr converter2 = mx::DefaultUnitConverter::create(angleTypeDef);
+    mx::LinearUnitConverterPtr converter2 = mx::LinearUnitConverter::create(angleTypeDef);
     REQUIRE(converter2);
     registry->addUnitConverter(angleTypeDef, converter2);
     mx::UnitConverterPtr uconverter2 = registry->getUnitConverter(angleTypeDef);
@@ -139,7 +139,7 @@ TEST_CASE("UnitDocument", "[units]")
         mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef("distance");
         REQUIRE(distanceTypeDef);
 
-        mx::UnitConverterPtr uconverter = mx::DefaultUnitConverter::create(distanceTypeDef);
+        mx::UnitConverterPtr uconverter = mx::LinearUnitConverter::create(distanceTypeDef);
         REQUIRE(uconverter);
         mx::UnitConverterRegistryPtr registry = mx::UnitConverterRegistry::create();
         registry->addUnitConverter(distanceTypeDef, uconverter);

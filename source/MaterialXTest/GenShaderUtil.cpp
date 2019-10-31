@@ -450,10 +450,10 @@ void ShaderGeneratorTester::addUnitSystem()
             _unitSystem->loadLibrary(_dependLib);
             _unitSystem->setUnitConverterRegistry(mx::UnitConverterRegistry::create());
             mx::UnitTypeDefPtr distanceTypeDef = _dependLib->getUnitTypeDef("distance");
-            _unitSystem->getUnitConverterRegistry()->addUnitConverter(distanceTypeDef, mx::DefaultUnitConverter::create(distanceTypeDef));
+            _unitSystem->getUnitConverterRegistry()->addUnitConverter(distanceTypeDef, mx::LinearUnitConverter::create(distanceTypeDef));
             _defaultDistanceUnit = distanceTypeDef->getDefault();            
             mx::UnitTypeDefPtr angleTypeDef = _dependLib->getUnitTypeDef("angle");
-            _unitSystem->getUnitConverterRegistry()->addUnitConverter(angleTypeDef, mx::DefaultUnitConverter::create(angleTypeDef));
+            _unitSystem->getUnitConverterRegistry()->addUnitConverter(angleTypeDef, mx::LinearUnitConverter::create(angleTypeDef));
         }
     }
 }

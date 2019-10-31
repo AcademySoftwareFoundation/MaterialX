@@ -3,14 +3,14 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXCore/Util.h>
-#include <MaterialXCore/Value.h>
 #include <MaterialXGenShader/UnitConverter.h>
+
+#include <MaterialXCore/Util.h>
 
 namespace MaterialX
 {
-DefaultUnitConverter::DefaultUnitConverter(UnitTypeDefPtr unitTypeDef) :
-    UnitConverter()
+
+LinearUnitConverter::LinearUnitConverter(UnitTypeDefPtr unitTypeDef)
 {
     static const string SCALE_ATTRIBUTE = "scale";
     unsigned int enumerant = 0;
@@ -53,13 +53,12 @@ DefaultUnitConverter::DefaultUnitConverter(UnitTypeDefPtr unitTypeDef) :
     _unitType = unitTypeDef->getName();
 }
 
-DefaultUnitConverterPtr DefaultUnitConverter::create(UnitTypeDefPtr unitTypeDef)
+LinearUnitConverterPtr LinearUnitConverter::create(UnitTypeDefPtr unitTypeDef)
 {
-    std::shared_ptr<DefaultUnitConverter> converter(new DefaultUnitConverter(unitTypeDef));
-    return converter;
+    return std::shared_ptr<LinearUnitConverter>(new LinearUnitConverter(unitTypeDef));
 }
 
-float DefaultUnitConverter::conversionRatio(const string& inputUnit, const string& outputUnit) const
+float LinearUnitConverter::conversionRatio(const string& inputUnit, const string& outputUnit) const
 {
     auto it = _unitScale.find(inputUnit);
     if (it == _unitScale.end())
@@ -75,51 +74,50 @@ float DefaultUnitConverter::conversionRatio(const string& inputUnit, const strin
     }
     float toScale = it->second;
 
-    return (fromScale / toScale);
-
+    return fromScale / toScale;
 }
 
-float DefaultUnitConverter::convert(float input, const string& inputUnit, const string& outputUnit) const
+float LinearUnitConverter::convert(float input, const string& inputUnit, const string& outputUnit) const
 {
     if (inputUnit == outputUnit)
     {
         return input;
     }
 
-    return (input * conversionRatio(inputUnit, outputUnit));
+    return input * conversionRatio(inputUnit, outputUnit);
 }
 
-Vector2 DefaultUnitConverter::convert(Vector2 input, const string& inputUnit, const string& outputUnit) const
+Vector2 LinearUnitConverter::convert(Vector2 input, const string& inputUnit, const string& outputUnit) const
 {
     if (inputUnit == outputUnit)
     {
         return input;
     }
 
-    return (input * conversionRatio(inputUnit, outputUnit));
+    return input * conversionRatio(inputUnit, outputUnit);
 }
 
-Vector3 DefaultUnitConverter::convert(Vector3 input, const string& inputUnit, const string& outputUnit) const
+Vector3 LinearUnitConverter::convert(Vector3 input, const string& inputUnit, const string& outputUnit) const
 {
     if (inputUnit == outputUnit)
     {
         return input;
     }
 
-    return (input * conversionRatio(inputUnit, outputUnit));
+    return input * conversionRatio(inputUnit, outputUnit);
 }
 
-Vector4 DefaultUnitConverter::convert(Vector4 input, const string& inputUnit, const string& outputUnit) const
+Vector4 LinearUnitConverter::convert(Vector4 input, const string& inputUnit, const string& outputUnit) const
 {
     if (inputUnit == outputUnit)
     {
         return input;
     }
 
-    return (input * conversionRatio(inputUnit, outputUnit));
+    return input * conversionRatio(inputUnit, outputUnit);
 }
 
-int DefaultUnitConverter::getUnitAsInteger(const string& unitName) const
+int LinearUnitConverter::getUnitAsInteger(const string& unitName) const
 {
     const auto it = _unitEnumeration.find(unitName);
     if (it != _unitEnumeration.end())
@@ -129,14 +127,13 @@ int DefaultUnitConverter::getUnitAsInteger(const string& unitName) const
     return -1;
 }
 
-string DefaultUnitConverter::getUnitFromInteger(int index) const
+string LinearUnitConverter::getUnitFromInteger(int index) const
 {
-    auto it = std::find_if(
-                _unitEnumeration.begin(), _unitEnumeration.end(),
-                [&index](const std::pair<string, int> &e)->bool
-                {
-                    return (e.second == index);
-                });
+    auto it = std::find_if(_unitEnumeration.begin(), _unitEnumeration.end(),
+        [&index](const std::pair<string, int> &e)->bool
+        {
+            return (e.second == index);
+        });
 
     if (it != _unitEnumeration.end())
     {
@@ -186,7 +183,6 @@ UnitConverterPtr UnitConverterRegistry::getUnitConverter(UnitTypeDefPtr def)
     return nullptr;
 }
 
-
 void UnitConverterRegistry::clearUnitConverters()
 {
     _unitConverters.clear();
@@ -200,8 +196,8 @@ int UnitConverterRegistry::getUnitAsInteger(const string& unitName) const
         if (value >= 0)
             return value;
     }
+
     return -1;
 }
 
-
-}
+} // namespace MaterialX

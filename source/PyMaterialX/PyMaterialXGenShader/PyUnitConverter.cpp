@@ -74,16 +74,16 @@ void bindPyUnitConverters(py::module& mod)
         .def("getUnitAsInteger", &mx::UnitConverter::getUnitAsInteger)
         .def("getUnitFromInteger", &mx::UnitConverter::getUnitFromInteger);
 
-    py::class_<mx::DefaultUnitConverter, mx::UnitConverter, mx::DefaultUnitConverterPtr>(mod, "DefaultUnitConverter")
-        .def_static("create", &mx::DefaultUnitConverter::create)
-        .def("getUnitScale", &mx::DefaultUnitConverter::getUnitScale)
-        .def("getDefaultUnit", &mx::DefaultUnitConverter::getDefaultUnit)
-        .def("convert", (float       (mx::DefaultUnitConverter::*)(float, const std::string&, const std::string&)const) &mx::DefaultUnitConverter::convert)
-        .def("convert", (mx::Vector2 (mx::DefaultUnitConverter::*)(mx::Vector2, const std::string&, const std::string&)const) &mx::DefaultUnitConverter::convert)
-        .def("convert", (mx::Vector3 (mx::DefaultUnitConverter::*)(mx::Vector3, const std::string&, const std::string&)const) &mx::DefaultUnitConverter::convert)
-        .def("convert", (mx::Vector4 (mx::DefaultUnitConverter::*)(mx::Vector4, const std::string&, const std::string&)const) &mx::DefaultUnitConverter::convert)
-        .def("getUnitAsInteger", &mx::DefaultUnitConverter::getUnitAsInteger)
-        .def("getUnitFromInteger", &mx::DefaultUnitConverter::getUnitFromInteger);
+    py::class_<mx::LinearUnitConverter, mx::UnitConverter, mx::LinearUnitConverterPtr>(mod, "LinearUnitConverter")
+        .def_static("create", &mx::LinearUnitConverter::create)
+        .def("getUnitScale", &mx::LinearUnitConverter::getUnitScale)
+        .def("getDefaultUnit", &mx::LinearUnitConverter::getDefaultUnit)
+        .def("convert", (float       (mx::LinearUnitConverter::*)(float, const std::string&, const std::string&)const) &mx::LinearUnitConverter::convert)
+        .def("convert", (mx::Vector2 (mx::LinearUnitConverter::*)(mx::Vector2, const std::string&, const std::string&)const) &mx::LinearUnitConverter::convert)
+        .def("convert", (mx::Vector3 (mx::LinearUnitConverter::*)(mx::Vector3, const std::string&, const std::string&)const) &mx::LinearUnitConverter::convert)
+        .def("convert", (mx::Vector4 (mx::LinearUnitConverter::*)(mx::Vector4, const std::string&, const std::string&)const) &mx::LinearUnitConverter::convert)
+        .def("getUnitAsInteger", &mx::LinearUnitConverter::getUnitAsInteger)
+        .def("getUnitFromInteger", &mx::LinearUnitConverter::getUnitFromInteger);
 
     py::class_<mx::UnitConverterRegistry, std::unique_ptr<mx::UnitConverterRegistry, py::nodelete>>(mod, "UnitConverterRegistry")
         .def_static("create", &mx::UnitConverterRegistry::create)

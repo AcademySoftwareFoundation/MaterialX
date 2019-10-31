@@ -199,7 +199,7 @@ class Viewer : public ng::Screen
     // Unit options
     mx::StringVec _distanceUnitOptions;
     ng::ComboBox* _distanceUnitBox;
-    mx::DefaultUnitConverterPtr _distanceUnitConverter;
+    mx::LinearUnitConverterPtr _distanceUnitConverter;
 
     // Render options
     bool _outlineSelection;

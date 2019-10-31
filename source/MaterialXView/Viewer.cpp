@@ -425,10 +425,10 @@ void Viewer::setupUnitConverter(mx::DocumentPtr doc)
     unitSystem->setUnitConverterRegistry(_unitRegistry);
     _genContext.getShaderGenerator().setUnitSystem(unitSystem);
     mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef("distance");
-    _distanceUnitConverter = mx::DefaultUnitConverter::create(distanceTypeDef);
+    _distanceUnitConverter = mx::LinearUnitConverter::create(distanceTypeDef);
     _unitRegistry->addUnitConverter(distanceTypeDef, _distanceUnitConverter);
     mx::UnitTypeDefPtr angleTypeDef = doc->getUnitTypeDef("angle");
-    mx::DefaultUnitConverterPtr angleConverter = mx::DefaultUnitConverter::create(angleTypeDef);
+    mx::LinearUnitConverterPtr angleConverter = mx::LinearUnitConverter::create(angleTypeDef);
     _unitRegistry->addUnitConverter(angleTypeDef, angleConverter);
 
     // Store in order determined by the converter

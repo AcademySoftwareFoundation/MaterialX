@@ -18,20 +18,20 @@ namespace MaterialX
 class ScalarUnitNode : public SourceCodeNode
 {
   public:
-    explicit ScalarUnitNode(DefaultUnitConverterPtr scalarUnitConverter) :
+    explicit ScalarUnitNode(LinearUnitConverterPtr scalarUnitConverter) :
         _scalarUnitConverter(scalarUnitConverter)
     {
     }
 
-    static ShaderNodeImplPtr create(DefaultUnitConverterPtr scalarUnitConverter);
+    static ShaderNodeImplPtr create(LinearUnitConverterPtr scalarUnitConverter);
 
     void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   protected:
-    DefaultUnitConverterPtr _scalarUnitConverter;
+    LinearUnitConverterPtr _scalarUnitConverter;
 };
 
-ShaderNodeImplPtr ScalarUnitNode::create(DefaultUnitConverterPtr scalarUnitConverter)
+ShaderNodeImplPtr ScalarUnitNode::create(LinearUnitConverterPtr scalarUnitConverter)
 {
     return std::make_shared<ScalarUnitNode>(scalarUnitConverter);
 }
@@ -146,7 +146,7 @@ ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& t
     {
         throw ExceptionTypeError("Unit registry unavaliable or undefined unit converter for: " + transform.unitType);
     }
-    DefaultUnitConverterPtr scalarConverter = std::dynamic_pointer_cast<DefaultUnitConverter>(_unitRegistry->getUnitConverter(scalarTypeDef));
+    LinearUnitConverterPtr scalarConverter = std::dynamic_pointer_cast<LinearUnitConverter>(_unitRegistry->getUnitConverter(scalarTypeDef));
 
     // Check if it's created and cached already,
     // otherwise create and cache it.
