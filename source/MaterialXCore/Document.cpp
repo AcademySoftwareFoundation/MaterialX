@@ -611,7 +611,7 @@ void Document::upgradeVersion()
         InterfaceElementPtr interfaceElem = std::static_pointer_cast<InterfaceElement>(nodeDef);
         if (interfaceElem && interfaceElem->hasType())
         {
-            string type = interfaceElem->getType();
+            string type = interfaceElem->getAttribute(TypedElement::TYPE_ATTRIBUTE);
             if (type != MULTI_OUTPUT_TYPE_STRING)
             {
                 interfaceElem->addOutput("out", type);
