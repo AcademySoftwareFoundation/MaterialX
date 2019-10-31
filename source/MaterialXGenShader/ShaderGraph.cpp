@@ -1296,7 +1296,11 @@ void ShaderGraph::populateInputUnitTransformMap(UnitSystemPtr unitSystem, Shader
             shaderInput->getType() == Type::VECTOR3 ||
             shaderInput->getType() == Type::VECTOR4)
         {
-            if (sourceUnitSpace != targetUnitSpace)
+            // TODO: Consider this to be an optimization option as
+            // this allows for the source and target unit to be the same value
+            // while still allowing target unit updates on a compiled shader as the
+            // target is exposed as an input uniform.
+            // if (sourceUnitSpace != targetUnitSpace)
             {
                 UnitTransform transform(sourceUnitSpace, targetUnitSpace, shaderInput->getType(), unitType);
                 if (unitSystem->supportsTransform(transform))
