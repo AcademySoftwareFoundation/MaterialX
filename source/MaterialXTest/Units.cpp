@@ -159,7 +159,7 @@ TEST_CASE("UnitDocument", "[units]")
                         const mx::ValuePtr value = input->getValue();
                         if (input->hasUnit() && value) {
 
-                            if (type->isScalar())
+                            if (type->isScalar() && type->getBaseType() == mx::TypeDesc::BASETYPE_FLOAT)
                             {
                                 float originalval = value->asA<float>();
                                 float convertedValue = uconverter->convert(originalval, input->getUnit(), distanceTypeDef->getDefault());
@@ -197,7 +197,7 @@ TEST_CASE("UnitDocument", "[units]")
                         const mx::ValuePtr value = param->getValue();
                         if (param->hasUnit() && value) {
 
-                            if (type->isScalar())
+                            if (type->isScalar() && type->getBaseType() == mx::TypeDesc::BASETYPE_FLOAT)
                             {
                                 float originalval = value->asA<float>();
                                 float convertedValue = uconverter->convert(originalval, param->getUnit(), distanceTypeDef->getDefault());

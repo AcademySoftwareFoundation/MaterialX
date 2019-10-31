@@ -156,9 +156,9 @@ class ShaderGraph : public ShaderNode
     /// has a color space attribute and has a type of color3 or color4.
     void populateInputColorTransformMap(ColorManagementSystemPtr colorManagementSystem, ShaderNodePtr shaderNode, ValueElementPtr input, const string& targetColorSpace);
 
-    /// Populates the input unit transform map if the provided input/parameter
-    /// has a unit attribute and has a type of float.
-    void populateInputUnitTransformMap(UnitSystemPtr unitSystem, ShaderNodePtr shaderNode, ValueElementPtr input, const string& targetUnitSpace);
+    /// Populates the appropriate unit transform map if the provided input/parameter or output
+    /// has a unit attribute and is of the supported type
+    void populateUnitTransformMap(bool asInput, UnitSystemPtr unitSystem, ShaderPort* shaderPort, ValueElementPtr element, const string& targetUnitSpace);
 
     /// Break all connections on a node
     void disconnect(ShaderNode* node) const;

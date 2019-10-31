@@ -193,7 +193,7 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
         if (!geomNodeDef)
         {
             throw ExceptionShaderGenError("Could not find a nodedef named '" + geomNodeDefName +
-                "' for defaultgeomprop on input '" + input->getNode()->getName() + "." + input->getName() + "'");
+                "' for defaultgeomprop on input '" + input->getFullName() + "'");
         }
 
         ShaderNodePtr geomNode = ShaderNode::create(this, geomNodeName, *geomNodeDef, context);
@@ -257,7 +257,7 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
         // allowed to have colorspaces specified.
         return;
     }
-    const string colorTransformNodeName = input->getNode()->getName() + "_" + input->getName() + "_cm";
+    const string colorTransformNodeName = input->getFullName() + "_cm";
     ShaderNodePtr colorTransformNodePtr = colorManagementSystem->createNode(this, transform, colorTransformNodeName, context);
 
     if (colorTransformNodePtr)
@@ -269,7 +269,7 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
         ShaderOutput* colorTransformNodeOutput = colorTransformNode->getOutput(0);
 
         ShaderInput* shaderInput = colorTransformNode->getInput(0);
-        shaderInput->setVariable(input->getNode()->getName() + "_" + input->getName());
+        shaderInput->setVariable(input->getFullName());
         shaderInput->setValue(input->getValue());
         shaderInput->setPath(input->getPath());
         shaderInput->setUnit(EMPTY_STRING);
@@ -292,7 +292,7 @@ void ShaderGraph::addColorTransformNode(ShaderOutput* output, const ColorSpaceTr
         return;
     }
 
-    const string colorTransformNodeName = output->getNode()->getName() + "_" + output->getName() + "_cm";
+    const string colorTransformNodeName = output->getFullName() + "_cm";
     ShaderNodePtr colorTransformNodePtr = colorManagementSystem->createNode(this, transform, colorTransformNodeName, context);
 
     if (colorTransformNodePtr)
@@ -323,7 +323,7 @@ void ShaderGraph::addUnitTransformNode(ShaderInput* input, const UnitTransform& 
     {
         return;
     }
-    const string unitTransformNodeName = input->getNode()->getName() + "_" + input->getName() + "_unit";
+    const string unitTransformNodeName = input->getFullName() + "_unit";
     ShaderNodePtr unitTransformNodePtr = unitSystem->createNode(this, transform, unitTransformNodeName, context);
 
     if (unitTransformNodePtr)
@@ -335,7 +335,7 @@ void ShaderGraph::addUnitTransformNode(ShaderInput* input, const UnitTransform& 
         ShaderOutput* unitTransformNodeOutput = unitTransformNode->getOutput(0);
 
         ShaderInput* shaderInput = unitTransformNode->getInput(0);
-        shaderInput->setVariable(input->getNode()->getName() + "_" + input->getName());
+        shaderInput->setVariable(input->getFullName());
         shaderInput->setValue(input->getValue());
         shaderInput->setPath(input->getPath());
         shaderInput->setUnit(input->getUnit());
@@ -358,7 +358,7 @@ void ShaderGraph::addUnitTransformNode(ShaderOutput* output, const UnitTransform
         return;
     }
 
-    const string unitTransformNodeName = output->getNode()->getName() + "_" + output->getName() + "_unit";
+    const string unitTransformNodeName = output->getFullName() + "_unit";
     ShaderNodePtr unitTransformNodePtr = unitSystem->createNode(this, transform, unitTransformNodeName, context);
 
     if (unitTransformNodePtr)
@@ -372,6 +372,7 @@ void ShaderGraph::addUnitTransformNode(ShaderOutput* output, const UnitTransform
         ShaderInputSet inputs = output->getConnections();
         for (ShaderInput* input : inputs)
         {
+            string inname = input->getFullName();
             input->breakConnection();
             input->makeConnection(unitTransformNodeOutput);
         }
@@ -537,9 +538,10 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     inputSocket->setValue(bindParamValue);
 
                     input->setBindInput();
-                    graph->populateInputColorTransformMap(colorManagementSystem, graph->_nodeMap[newNodeName], bindParam, targetColorSpace);
-
-                    graph->populateInputUnitTransformMap(context.getShaderGenerator().getUnitSystem(), graph->_nodeMap[newNodeName],
+                    ShaderNodePtr updateNode = graph->_nodeMap[newNodeName];
+                    graph->populateInputColorTransformMap(colorManagementSystem, updateNode, bindParam, targetColorSpace);
+                    ShaderInput* updateInput = updateNode->getInput(bindParam->getName());
+                    graph->populateUnitTransformMap(true, context.getShaderGenerator().getUnitSystem(), updateInput,
                         bindParam, context.getOptions().targetDistanceUnit);
                 }
                 inputSocket->setPath(bindParam->getNamePath());
@@ -577,8 +579,10 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     inputSocket->setValue(bindInputValue);
 
                     input->setBindInput();
-                    graph->populateInputColorTransformMap(colorManagementSystem, graph->_nodeMap[newNodeName], bindInput, targetColorSpace);
-                    graph->populateInputUnitTransformMap(context.getShaderGenerator().getUnitSystem(), graph->_nodeMap[newNodeName], bindInput, 
+                    ShaderNodePtr updateNode = graph->_nodeMap[newNodeName];
+                    graph->populateInputColorTransformMap(colorManagementSystem, updateNode, bindInput, targetColorSpace);
+                    ShaderInput* updateInput = updateNode->getInput(bindInput->getName());
+                    graph->populateUnitTransformMap(true, context.getShaderGenerator().getUnitSystem(), updateInput, bindInput,
                                                          context.getOptions().targetDistanceUnit);
                 }
                 inputSocket->setPath(bindInput->getNamePath());
@@ -790,11 +794,36 @@ ShaderNode* ShaderGraph::addNode(const Node& node, GenContext& context)
     {
         for (InputPtr input : node.getInputs())
         {
-            populateInputUnitTransformMap(unitSystem, newNode, input, context.getOptions().targetDistanceUnit);
+            ShaderInput* inputPort = newNode->getInput(input->getName());
+            populateUnitTransformMap(true, unitSystem, inputPort, input, context.getOptions().targetDistanceUnit);
         }
         for (ParameterPtr parameter : node.getParameters())
         {
-            populateInputUnitTransformMap(unitSystem, newNode, parameter, context.getOptions().targetDistanceUnit);
+            ShaderInput* inputPort = newNode->getInput(parameter->getName());
+            populateUnitTransformMap(true, unitSystem, inputPort, parameter, context.getOptions().targetDistanceUnit);
+        }
+
+        // Check if this is a file texture node that requires unit transformation.
+        if (newNode->hasClassification(ShaderNode::Classification::FILETEXTURE))
+        {
+            ParameterPtr file = node.getParameter("file");
+            if (file)
+            {
+                const TypeDesc* fileType = TypeDesc::get(node.getType());
+
+                // Add unit transform if type is supported
+                if (fileType == Type::FLOAT ||
+                    fileType == Type::VECTOR2 ||
+                    fileType == Type::VECTOR3 ||
+                    fileType == Type::VECTOR4)
+                {
+                    ShaderOutput* shaderOutput = newNode->getOutput();
+                    if (shaderOutput)
+                    {
+                        populateUnitTransformMap(false, unitSystem, shaderOutput, file, context.getOptions().targetDistanceUnit);
+                    }
+                }
+            }
         }
     }
     return newNode.get();
@@ -1228,14 +1257,14 @@ void ShaderGraph::setVariableNames(GenContext& context)
     {
         for (ShaderInput* input : node->getInputs())
         {
-            string variable = input->getNode()->getName() + "_" + input->getName();
+            string variable = input->getFullName();
             variable = syntax.getVariableName(variable, input->getType(), context);
             input->setVariable(variable);
         }
         for (ShaderOutput* output : node->getOutputs())
         {
             // Node outputs use long names for better code readability
-            string variable = output->getNode()->getName() + "_" + output->getName();
+            string variable = output->getFullName();
             variable = syntax.getVariableName(variable, output->getType(), context);
             output->setVariable(variable);
         }
@@ -1268,8 +1297,14 @@ void ShaderGraph::populateInputColorTransformMap(ColorManagementSystemPtr colorM
     }
 }
 
-void ShaderGraph::populateInputUnitTransformMap(UnitSystemPtr unitSystem, ShaderNodePtr shaderNode, ValueElementPtr input, const string& globalTargetUnitSpace)
+void ShaderGraph::populateUnitTransformMap(bool asInput, UnitSystemPtr unitSystem, ShaderPort* shaderPort, ValueElementPtr input, const string& globalTargetUnitSpace)
 {
+    const string& sourceUnitSpace = input->getUnit();
+    if (!shaderPort || sourceUnitSpace.empty())
+    {
+        return;
+    }
+
     const string& unitType = input->getUnitType();
     if (!input->getDocument()->getUnitTypeDef(unitType))
     {
@@ -1282,32 +1317,40 @@ void ShaderGraph::populateInputUnitTransformMap(UnitSystemPtr unitSystem, Shader
         targetUnitSpace = globalTargetUnitSpace;
     }
 
-    // Don't perfrom unit conversion if targetUnitSpace is unspecified.
+    // Don't perform unit conversion if targetUnitSpace is unspecified.
     if (targetUnitSpace.empty())
-        return;
-
-    ShaderInput* shaderInput = shaderNode->getInput(input->getName());
-    const string& sourceUnitSpace = input->getUnit();
-    if (shaderInput && !sourceUnitSpace.empty())
     {
-        // Only support convertion for float and vectors. arrays, matrices are not supported.
-        if (shaderInput->getType() == Type::FLOAT ||
-            shaderInput->getType() == Type::VECTOR2 || 
-            shaderInput->getType() == Type::VECTOR3 ||
-            shaderInput->getType() == Type::VECTOR4)
+        return;
+    }
+
+    // TODO: Consider this to be an optimization option as
+    // this allows for the source and target unit to be the same value
+    // while still allowing target unit updates on a compiled shader as the
+    // target is exposed as an input uniform.
+    //if (sourceUnitSpace == targetUnitSpace)
+    //{
+    //    return;
+    //}
+
+    // Only support convertion for float and vectors. arrays, matrices are not supported.
+    // TODO: This should be provided by the UnitSystem.
+    bool supportedType = (shaderPort->getType() == Type::FLOAT ||
+                        shaderPort->getType() == Type::VECTOR2 ||
+                        shaderPort->getType() == Type::VECTOR3 ||
+                        shaderPort->getType() == Type::VECTOR4);
+    if (supportedType)
+    {
+        UnitTransform transform(sourceUnitSpace, targetUnitSpace, shaderPort->getType(), unitType);
+        if (unitSystem->supportsTransform(transform))
         {
-            // TODO: Consider this to be an optimization option as
-            // this allows for the source and target unit to be the same value
-            // while still allowing target unit updates on a compiled shader as the
-            // target is exposed as an input uniform.
-            // if (sourceUnitSpace != targetUnitSpace)
+            shaderPort->setUnit(sourceUnitSpace);
+            if (asInput)
             {
-                UnitTransform transform(sourceUnitSpace, targetUnitSpace, shaderInput->getType(), unitType);
-                if (unitSystem->supportsTransform(transform))
-                {
-                    shaderInput->setUnit(sourceUnitSpace);
-                    _inputUnitTransformMap.emplace(shaderInput, transform);
-                }
+                _inputUnitTransformMap.emplace(static_cast<ShaderInput*>(shaderPort), transform);
+            }
+            else
+            {
+                _outputUnitTransformMap.emplace(static_cast<ShaderOutput*>(shaderPort), transform);
             }
         }
     }
@@ -1391,7 +1434,7 @@ void ShaderGraphEdgeIterator::extendPathUpstream(ShaderOutput* upstream, ShaderI
     // Check for cycles.
     if (_path.count(upstream))
     {
-        throw ExceptionFoundCycle("Encountered cycle at element: " + upstream->getNode()->getName() + "." + upstream->getName());
+        throw ExceptionFoundCycle("Encountered cycle at element: " + upstream->getFullName());
     }
 
     // Extend the current path to the new element.
