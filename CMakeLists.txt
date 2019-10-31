@@ -207,6 +207,24 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.6.2")
     endif()
 endif()
 
-# Install MaterialX find_package module
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
-    DESTINATION "${CMAKE_INSTALL_PREFIX}" MESSAGE_NEVER)
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    ${CMAKE_BINARY_DIR}/cmake/MaterialXConfigVersion.cmake
+    VERSION ${CMAKE_VERSION}
+    COMPATIBILITY AnyNewerVersion
+)
+
+# Package for using the developer build
+export(
+    EXPORT MaterialX
+    FILE ${CMAKE_BINARY_DIR}/cmake/MaterialXConfig.cmake
+    )
+
+# Package for using the installed build
+install(
+    EXPORT      MaterialX
+    DESTINATION cmake
+    FILE        MaterialXConfig.cmake)
+install(
+    FILES "${CMAKE_BINARY_DIR}/cmake/MaterialXConfigVersion.cmake"
+    DESTINATION cmake)

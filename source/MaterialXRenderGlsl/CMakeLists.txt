@@ -1,7 +1,3 @@
-include_directories(
-    ${EXTERNAL_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../)
-
 # Linux checks for X and OpenGL
 if(UNIX AND NOT APPLE)
 	find_package(PkgConfig REQUIRED)
@@ -70,8 +66,17 @@ set_target_properties(
     SOVERSION "${MATERIALX_MAJOR_VERSION}"
     DEBUG_POSTFIX ${MATERIALX_DEBUG_POSTFIX})
 
+target_include_directories(MaterialXRenderGlsl
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
+        $<INSTALL_INTERFACE:include>
+    PRIVATE
+        ${EXTERNAL_INCLUDE_DIRS}
+)
+
 install(TARGETS MaterialXRenderGlsl
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/)
+    EXPORT MaterialX
+    ARCHIVE DESTINATION lib)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXRenderGlsl/ MESSAGE_NEVER

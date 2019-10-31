@@ -1,8 +1,3 @@
-include_directories(    
-    ${EXTERNAL_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../
-)
-
 file(GLOB pugixml_source "${CMAKE_CURRENT_SOURCE_DIR}/../MaterialXFormat/PugiXML/*.cpp")
 file(GLOB pugixml_headers "${CMAKE_CURRENT_SOURCE_DIR}/../MaterialXFormat/PugiXML/*.hpp")
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/External/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/Handlers/*.cpp")
@@ -31,9 +26,17 @@ target_link_libraries(
     MaterialXRender
     ${CMAKE_DL_LIBS})
 
-install(TARGETS MaterialXContrib
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/
+target_include_directories(MaterialXContrib
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
+        $<INSTALL_INTERFACE:include>
+    PRIVATE
+        ${EXTERNAL_INCLUDE_DIRS}
 )
+
+install(TARGETS MaterialXContrib
+    EXPORT MaterialX
+    ARCHIVE DESTINATION lib)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/External" "${CMAKE_CURRENT_SOURCE_DIR}/Handlers"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXContrib/
