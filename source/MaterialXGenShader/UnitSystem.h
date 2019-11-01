@@ -3,8 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_UNIT_SYSTEM_H
-#define MATERIALX_UNIT_SYSTEM_H
+#ifndef MATERIALX_UNITSYSTEM_H
+#define MATERIALX_UNITSYSTEM_H
 
 /// @file
 /// Unit system classes
@@ -38,12 +38,12 @@ struct UnitTransform
     string unitType;
 
     /// Comparison operator
-    bool operator==(const UnitTransform &other) const
+    bool operator==(const UnitTransform& rhs) const
     {
-        return sourceUnit == other.sourceUnit &&
-            targetUnit == other.targetUnit &&
-            type == other.type &&
-            unitType == other.unitType;
+        return sourceUnit == rhs.sourceUnit &&
+               targetUnit == rhs.targetUnit &&
+               type == rhs.type &&
+               unitType == rhs.unitType;
     }
 };
 

@@ -17,7 +17,7 @@
   </place2d>
 
   <image name="albedo_color" type="color3" colorspace="raw">
-    <parameter name="file" type="filename" value="resources/Images/grid.png" />
+    <parameter name="file" type="filename" value="resources/Images/grid.png" colorspace="srgb_texture" />
     <input name="texcoord" type="vector2" nodename="albedo_placement_transform" />
   </image>
   <output name="albedo_output" type="color3" nodename="albedo_color" />

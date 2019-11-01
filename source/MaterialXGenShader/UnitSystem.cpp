@@ -114,8 +114,7 @@ UnitConverterRegistryPtr UnitSystem::getUnitConverterRegistry() const
 
 UnitSystemPtr UnitSystem::create(const string& language)
 {
-    UnitSystemPtr result(new UnitSystem(language));
-    return result;
+    return UnitSystemPtr(new UnitSystem(language));
 }
 
 string UnitSystem::getImplementationName(const UnitTransform& transform, const string& unitname) const
