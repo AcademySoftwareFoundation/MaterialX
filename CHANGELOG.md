@@ -3,8 +3,9 @@
 ## [1.36.5] - Development
 
 ### Added
+- Added an initial TextureBaker class, supporting baking of graph outputs to textures.
 - Added support for Unit, UnitDef, and UnitTypeDef elements.
-- Added support for distance units in shader code generation.
+- Added support for unit conversion in shader code generation.
 
 ### Changed
 - Updated Standard Surface shader interface and logic.
