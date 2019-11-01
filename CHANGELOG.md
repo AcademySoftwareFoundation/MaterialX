@@ -4,11 +4,11 @@
 
 ### Added
 - Added an initial TextureBaker class, supporting baking of graph outputs to textures.
-- Added support for Unit, UnitDef, and UnitTypeDef elements.
+- Added initial support for units, including the MaterialX\:\:Unit, MaterialX\:\:UnitDef, and MaterialX\:\:UnitTypeDef classes.
 - Added support for unit conversion in shader code generation.
 
 ### Changed
-- Updated Standard Surface shader interface and logic.
+- Updated subsurface interface and logic for Autodesk Standard Surface.
 
 ## [1.36.4] - 2019-09-26
 

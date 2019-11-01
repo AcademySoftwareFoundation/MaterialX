@@ -466,7 +466,7 @@ class UnitDef : public Element
         return getChildOfType<Unit>(name);
     }
 
-    /// Return a vector of all Member elements in the TypeDef.
+    /// Return a vector of all Unit elements in the UnitDef.
     vector<UnitPtr> getUnits() const
     {
         return getChildrenOfType<Unit>();
