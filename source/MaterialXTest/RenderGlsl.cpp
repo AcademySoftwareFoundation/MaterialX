@@ -44,7 +44,7 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
     void loadAdditionalLibraries(mx::DocumentPtr document,
                                  GenShaderUtil::TestSuiteOptions& options) override;
 
-    void registerLights(mx::DocumentPtr document, const GenShaderUtil::TestSuiteOptions &options, 
+    void registerLights(mx::DocumentPtr document, const GenShaderUtil::TestSuiteOptions &options,
                         mx::GenContext& context) override;
 
     void createRenderer(std::ostream& log) override;

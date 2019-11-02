@@ -72,6 +72,11 @@ class GenOptions
     /// input values and textures into this color space.
     string targetColorSpaceOverride;
 
+    /// Define the target distance unit.
+    /// Shader fragments will be generated to transform
+    /// input distance values to the given unit.
+    string targetDistanceUnit;
+    
     /// Sets if transparency is needed or not for HW shaders.
     /// If a surface shader has potential of being transparent
     /// this must be set to true, otherwise no transparency

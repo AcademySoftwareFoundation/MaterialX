@@ -50,7 +50,7 @@ int main(int argc, char* const argv[])
         }
         if (token == "--path" && !nextToken.empty())
         {
-            searchPath = mx::FileSearchPath(nextToken);
+            searchPath.append(mx::FileSearchPath(nextToken));
         }
         if (token == "--mesh" && !nextToken.empty())
         {

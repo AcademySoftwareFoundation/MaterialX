@@ -194,6 +194,7 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
     _selectedGeom(0),
     _selectedMaterial(0),
     _genContext(mx::GlslShaderGenerator::create()),
+    _unitRegistry(mx::UnitConverterRegistry::create()),
     _splitByUdims(false),
     _mergeMaterials(false),
     _bakeTextures(false),
@@ -208,13 +209,12 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
     _uvTranslation(-0.5f, 0.5f, 0.0f),
     _uvZoom(1.0f)
 {
-    // Transpary option before creating Advanced UI 
-    // as this flag is used to set the default value.
-    _genContext.getOptions().hwTransparency = true;
-
     _window = new ng::Window(this, "Viewer Options");
     _window->setPosition(ng::Vector2i(15, 15));
     _window->setLayout(new ng::GroupLayout());
+
+    // Initialize the standard libraries and color/unit management.
+    loadStandardLibraries();
 
     createLoadMeshInterface(_window, "Load Mesh");
     createLoadMaterialsInterface(_window, "Load Material");
@@ -267,9 +267,6 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
 
     // Set default light information before initialization
     _lightFileName = "resources/Materials/TestSuite/Utilities/Lights/default_viewer_lights.mtlx";
-
-    // Initialize standard library and color management.
-    loadStandardLibraries();
 
     // Generate wireframe material.
     const std::string constantShaderName("__WIRE_SHADER_NAME__");
@@ -616,6 +613,25 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _bakeTextures = enable;
     });    
+
+    Widget* unitGroup = new Widget(advancedPopup);
+    unitGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(unitGroup, "Distance Unit:");
+    _distanceUnitBox = new ng::ComboBox(unitGroup, _distanceUnitOptions);
+    _distanceUnitBox->setFixedSize(ng::Vector2i(100, 20));
+    _distanceUnitBox->setChevronIcon(-1);
+    _distanceUnitBox->setSelectedIndex(_distanceUnitConverter->getUnitAsInteger(
+        _distanceUnitConverter->getDefaultUnit()));
+    _distanceUnitBox->setCallback([this](int index)
+    {
+        mProcessEvents = false;
+        _genContext.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
+        for (MaterialPtr material : _materials)
+        {
+            material->bindUnits(_unitRegistry, _genContext);
+        }
+        mProcessEvents = true;
+    });
 
     new ng::Label(advancedPopup, "Lighting Options");
 
@@ -998,15 +1014,22 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
     // Update material UI.
     updateMaterialSelections();
     updateMaterialSelectionUI();
+
+    performLayout();
 }
 
 void Viewer::reloadShaders()
 {
     try
     {
+        const mx::MeshList& meshes = _geometryHandler->getMeshes();
         for (MaterialPtr material : _materials)
         {
             material->generateShader(_genContext);
+            if (!meshes.empty())
+            {
+                material->bindMesh(meshes[0]);
+            }
         }
     }
     catch (std::exception& e)
@@ -1111,16 +1134,40 @@ void Viewer::saveDotFiles()
 
 void Viewer::loadStandardLibraries()
 {
-    // Initialize standard library and color management.
+    // Initialize the standard library.
     _stdLib = loadLibraries(_libraryFolders, _searchPath);
     for (std::string sourceUri : _stdLib->getReferencedSourceUris())
     {
         _xincludeFiles.insert(sourceUri);
     }
+
+    // Initialize color management.
     mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(_genContext.getShaderGenerator().getLanguage());
     cms->loadLibrary(_stdLib);
     _genContext.registerSourceCodeSearchPath(_searchPath);
     _genContext.getShaderGenerator().setColorManagementSystem(cms);
+
+    // Initialize unit management.
+    mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(_genContext.getShaderGenerator().getLanguage());
+    unitSystem->loadLibrary(_stdLib);
+    unitSystem->setUnitConverterRegistry(_unitRegistry);
+    _genContext.getShaderGenerator().setUnitSystem(unitSystem);
+    mx::UnitTypeDefPtr distanceTypeDef = _stdLib->getUnitTypeDef("distance");
+    _distanceUnitConverter = mx::LinearUnitConverter::create(distanceTypeDef);
+    _unitRegistry->addUnitConverter(distanceTypeDef, _distanceUnitConverter);
+    mx::UnitTypeDefPtr angleTypeDef = _stdLib->getUnitTypeDef("angle");
+    mx::LinearUnitConverterPtr angleConverter = mx::LinearUnitConverter::create(angleTypeDef);
+    _unitRegistry->addUnitConverter(angleTypeDef, angleConverter);
+    _genContext.getOptions().targetDistanceUnit = _distanceUnitConverter->getDefaultUnit();
+
+    // Create the list of supported distance units.
+    auto unitScales = _distanceUnitConverter->getUnitScale();
+    _distanceUnitOptions.resize(unitScales.size());
+    for (auto unitScale : unitScales)
+    {
+        int location = _distanceUnitConverter->getUnitAsInteger(unitScale.first);
+        _distanceUnitOptions[location] = unitScale.first;
+    }
 }
 
 bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)

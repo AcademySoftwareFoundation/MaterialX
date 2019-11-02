@@ -14,6 +14,7 @@
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/TypeDesc.h>
+#include <MaterialXGenShader/UnitSystem.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <cstdlib>
@@ -174,6 +175,9 @@ class ShaderGeneratorTester
     // Add color management
     virtual void addColorManagement();
 
+    // Add unit system
+    virtual void addUnitSystem();
+
     // Load in dependent libraries
     virtual void setupDependentLibraries();
 
@@ -208,6 +212,11 @@ class ShaderGeneratorTester
     mx::ShaderGeneratorPtr _shaderGenerator;
     const std::string _languageTargetString;
     mx::DefaultColorManagementSystemPtr _colorManagementSystem;
+
+    // Unit system 
+    mx::UnitSystemPtr _unitSystem;
+    std::string _defaultDistanceUnit;
+
     mx::DocumentPtr _dependLib;
 
     const mx::FilePathVec _testRootPaths;
