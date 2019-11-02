@@ -451,6 +451,68 @@ class Document : public GraphElement
     vector<InterfaceElementPtr> getMatchingImplementations(const string& nodeDef) const;
 
     /// @}
+    /// @name UnitDef Elements
+    /// @{
+
+    UnitDefPtr addUnitDef(const string& name)
+    {
+        if (name.empty())
+        {
+            throw Exception("A unit definition name cannot be empty");
+        }
+        return addChild<UnitDef>(name);
+    }
+
+    /// Return the UnitDef, if any, with the given name.
+    UnitDefPtr getUnitDef(const string& name) const
+    {
+        return getChildOfType<UnitDef>(name);
+    }
+
+    /// Return a vector of all Member elements in the TypeDef.
+    vector<UnitDefPtr> getUnitDefs() const
+    {
+        return getChildrenOfType<UnitDef>();
+    }
+
+    /// Remove the UnitDef, if any, with the given name.
+    void removeUnitDef(const string& name)
+    {
+        removeChildOfType<UnitDef>(name);
+    }    
+
+    /// @}
+    /// @name UnitTypeDef Elements
+    /// @{
+
+    UnitTypeDefPtr addUnitTypeDef(const string& name)
+    {
+        if (name.empty())
+        {
+            throw Exception("A unit type definition name cannot be empty");
+        }
+        return addChild<UnitTypeDef>(name);
+    }
+
+    /// Return the UnitTypeDef, if any, with the given name.
+    UnitTypeDefPtr getUnitTypeDef(const string& name) const
+    {
+        return getChildOfType<UnitTypeDef>(name);
+    }
+
+    /// Return a vector of all UnitTypeDef elements in the document.
+    vector<UnitTypeDefPtr> getUnitTypeDefs() const
+    {
+        return getChildrenOfType<UnitTypeDef>();
+    }
+
+    /// Remove the UnitTypeDef, if any, with the given name.
+    void removeUnitTypeDef(const string& name)
+    {
+        removeChildOfType<UnitTypeDef>(name);
+    }
+
+    /// @}
     /// @name Version
     /// @{
 

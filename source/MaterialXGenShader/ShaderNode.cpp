@@ -28,6 +28,11 @@ ShaderPort::ShaderPort(ShaderNode* node, const TypeDesc* type, const string& nam
 {
 }
 
+string ShaderPort::getFullName() const 
+{ 
+    return (_node->getName() + "_" + _name); 
+}
+
 //
 // ShaderInput methods
 //
@@ -73,8 +78,8 @@ void ShaderOutput::breakConnection(ShaderInput* dst)
     if (!_connections.count(dst))
     {
         throw ExceptionShaderGenError(
-            "Cannot break non-existent connection from output: " + getNode()->getName() + "." + getName()
-            + " to input: " + dst->getNode()->getName() + "." + dst->getName());
+            "Cannot break non-existent connection from output: " + getFullName()
+            + " to input: " + dst->getFullName());
     }
     dst->breakConnection(); 
 }
@@ -90,7 +95,7 @@ void ShaderOutput::breakConnections()
     if (!_connections.empty())
     {
         throw ExceptionShaderGenError("Number of output connections not broken properly'" + std::to_string(_connections.size()) +
-            " for output: " + getNode()->getName() + "." + getName());
+            " for output: " + getFullName());
     }
 }
 

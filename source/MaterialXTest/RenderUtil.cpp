@@ -3,6 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
+#include <MaterialXGenShader/UnitConverter.h>
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXTest/RenderUtil.h>
 #include <MaterialXTest/Catch/catch.hpp>
@@ -189,9 +190,23 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     colorManagementSystem->loadLibrary(dependLib);
     _shaderGenerator->setColorManagementSystem(colorManagementSystem);
 
+    // Setup Unit system and working space
+    mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(_shaderGenerator->getLanguage());
+    _shaderGenerator->setUnitSystem(unitSystem);
+    mx::UnitConverterRegistryPtr registry = mx::UnitConverterRegistry::create();
+    mx::UnitTypeDefPtr distanceTypeDef = dependLib->getUnitTypeDef("distance");
+    registry->addUnitConverter(distanceTypeDef, mx::LinearUnitConverter::create(distanceTypeDef));
+    mx::UnitTypeDefPtr angleTypeDef = dependLib->getUnitTypeDef("angle");
+    registry->addUnitConverter(angleTypeDef, mx::LinearUnitConverter::create(angleTypeDef));
+    _shaderGenerator->getUnitSystem()->loadLibrary(dependLib);
+    _shaderGenerator->getUnitSystem()->setUnitConverterRegistry(registry);
+
     mx::GenContext context(_shaderGenerator);
     context.registerSourceCodeSearchPath(searchPath);
     registerSourceCodeSearchPaths(context);
+
+    // Set target unit space
+    context.getOptions().targetDistanceUnit = distanceTypeDef->getDefault();
 
     setupTime.endTimer();
 
@@ -245,7 +260,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             catch (mx::Exception& e)
             {
                 docValidLog << "Failed to load in file: " << filename.asString() << ". Error: " << e.what() << std::endl;
-                WARN("Failed to load in file: " + filename.asString() + "See: " + docValidLogFilename + " for details.");                    
+                WARN("Failed to load in file: " + filename.asString() + "See: " + docValidLogFilename + " for details.");
             }
 
             doc->importLibrary(dependLib, &copyOptions);

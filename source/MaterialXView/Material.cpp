@@ -558,6 +558,43 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
     }
 }
 
+void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenContext& context)
+{
+    static std::string DISTANCE_UNIT_TARGET_NAME = "u_distanceUnitTarget";
+
+    mx::ShaderPort* port = nullptr;
+    mx::VariableBlock* publicUniforms = getPublicUniforms();
+    if (publicUniforms)
+    {
+        // Scan block based on unit name match predicate
+        port = publicUniforms->find(
+            [](mx::ShaderPort* port)
+        {
+            return (port && (port->getName() == DISTANCE_UNIT_TARGET_NAME));
+        });
+
+        // Check if the uniform exists in the shader program
+        if (port && !_uniformVariable.count(port->getVariable()))
+        {
+            port = nullptr;
+        }
+    }
+
+    if (port)
+    {
+        int intPortValue = registry->getUnitAsInteger(context.getOptions().targetDistanceUnit);
+        if (intPortValue >= 0)
+        {
+            port->setValue(mx::Value::createValue(intPortValue));
+            _glShader->bind();
+            if (_glShader->uniform(DISTANCE_UNIT_TARGET_NAME, false) != -1)
+            {
+                _glShader->setUniform(DISTANCE_UNIT_TARGET_NAME, intPortValue);
+            }
+        }
+    }
+}
+
 void Material::drawPartition(mx::MeshPartitionPtr part) const
 {
     if (!bindPartition(part))

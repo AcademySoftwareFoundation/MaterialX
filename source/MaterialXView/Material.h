@@ -9,6 +9,7 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenShader/UnitSystem.h>
 #include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/LightHandler.h>
 
@@ -146,6 +147,9 @@ class Material
     /// Bind lights to shader.
     void bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler, const mx::FileSearchPath& imagePath, 
                     bool directLighting, bool indirectLighting, mx::HwSpecularEnvironmentMethod specularEnvironmentMethod, int envSamples);
+
+    /// Bind units.
+    void bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenContext& context);
 
     /// Bind the given mesh to this material.
     void bindMesh(mx::MeshPtr mesh) const;

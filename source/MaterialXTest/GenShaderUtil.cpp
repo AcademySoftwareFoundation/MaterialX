@@ -434,6 +434,30 @@ void ShaderGeneratorTester::addColorManagement()
     }
 }
 
+void ShaderGeneratorTester::addUnitSystem()
+{
+    if (!_unitSystem && _shaderGenerator)
+    {
+        const std::string language = _shaderGenerator->getLanguage();
+        _unitSystem = mx::UnitSystem::create(language);
+        if (!_unitSystem)
+        {
+            _logFile << ">> Failed to create unit system for language: " << language << std::endl;
+        }
+        else
+        {
+            _shaderGenerator->setUnitSystem(_unitSystem);
+            _unitSystem->loadLibrary(_dependLib);
+            _unitSystem->setUnitConverterRegistry(mx::UnitConverterRegistry::create());
+            mx::UnitTypeDefPtr distanceTypeDef = _dependLib->getUnitTypeDef("distance");
+            _unitSystem->getUnitConverterRegistry()->addUnitConverter(distanceTypeDef, mx::LinearUnitConverter::create(distanceTypeDef));
+            _defaultDistanceUnit = distanceTypeDef->getDefault();            
+            mx::UnitTypeDefPtr angleTypeDef = _dependLib->getUnitTypeDef("angle");
+            _unitSystem->getUnitConverterRegistry()->addUnitConverter(angleTypeDef, mx::LinearUnitConverter::create(angleTypeDef));
+        }
+    }
+}
+
 void ShaderGeneratorTester::setupDependentLibraries()
 {
     _dependLib = mx::createDocument();
@@ -546,6 +570,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     // Dependent library setup
     setupDependentLibraries();
     addColorManagement();
+    addUnitSystem();
 
     // Test suite setup
     addSkipFiles();
@@ -579,6 +604,12 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     mx::GenContext context(_shaderGenerator);
     context.getOptions() = generateOptions;
     context.registerSourceCodeSearchPath(_srcSearchPath);
+
+    // Define working unit if required
+    if (context.getOptions().targetDistanceUnit.empty())
+    {
+        context.getOptions().targetDistanceUnit = _defaultDistanceUnit;
+    }
 
     size_t documentIndex = 0;
     mx::CopyOptions copyOptions;

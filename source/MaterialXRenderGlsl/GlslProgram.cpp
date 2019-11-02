@@ -1270,6 +1270,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                         input->typeString = v->getType()->getName();
                         input->value = v->getValue();
                         input->path = v->getPath();
+                        input->unit = v->getUnit();
                     }
                     else
                     {
@@ -1279,6 +1280,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                             + "\". Type: \"" + v->getType()->getName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
+                            + "\". Unit: \"" + (!v->getUnit().empty() ? v->getUnit() : "<none>")
                             + "\". GLType: " + std::to_string(mapTypeToOpenGLType(v->getType()))
                         );
                         uniformTypeMismatchFound = true;
@@ -1469,6 +1471,7 @@ void GlslProgram::printUniforms(std::ostream& outputStream)
         int size = input.second->size;
         std::string type = input.second->typeString;
         std::string value = input.second->value ? input.second->value->getValueString() : EMPTY_STRING;
+        std::string unit = input.second->unit;
         bool isConstant = input.second->isConstant;
         outputStream << "Program Uniform: \"" << input.first
             << "\". Location:" << location
@@ -1477,7 +1480,11 @@ void GlslProgram::printUniforms(std::ostream& outputStream)
         if (!type.empty())
             outputStream << ". TypeString: \"" << type << "\"";
         if (!value.empty())
+        {
             outputStream << ". Value: " << value;
+            if (!unit.empty())
+                outputStream << ". Unit: " << unit;
+        }
         outputStream << ". Is constant: " << isConstant;
         if (!input.second->path.empty())
             outputStream << ". Element Path: \"" << input.second->path << "\"";

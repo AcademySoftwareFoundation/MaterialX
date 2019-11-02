@@ -17,10 +17,13 @@ void bindPyShaderPort(py::module& mod)
         .def("getType", &mx::ShaderPort::getType)
         .def("setName", &mx::ShaderPort::setName)
         .def("getName", &mx::ShaderPort::getName)
+        .def("getFullName", &mx::ShaderPort::getFullName)
         .def("setSemantic", &mx::ShaderPort::setSemantic)
         .def("getSemantic", &mx::ShaderPort::getSemantic)
         .def("setValue", &mx::ShaderPort::setValue)
         .def("getValue", &mx::ShaderPort::getValue)
         .def("setPath", &mx::ShaderPort::setPath)
-        .def("getPath", &mx::ShaderPort::getPath);
+        .def("getPath", &mx::ShaderPort::getPath)
+        .def("setUnit", &mx::ShaderPort::setUnit)
+        .def("getUnit", &mx::ShaderPort::getUnit);
 }

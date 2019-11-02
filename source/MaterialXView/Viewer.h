@@ -6,6 +6,7 @@
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/LightHandler.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#include <MaterialXGenShader/UnitConverter.h>
 
 namespace mx = MaterialX;
 namespace ng = nanogui;
@@ -183,12 +184,20 @@ class Viewer : public ng::Screen
     // Shader generator
     mx::GenContext _genContext;
 
+    // Unit registry
+    mx::UnitConverterRegistryPtr _unitRegistry;
+
     // Mesh options
     bool _splitByUdims;
 
     // Material options
     bool _mergeMaterials;
     bool _bakeTextures;
+
+    // Unit options
+    mx::StringVec _distanceUnitOptions;
+    ng::ComboBox* _distanceUnitBox;
+    mx::LinearUnitConverterPtr _distanceUnitConverter;
 
     // Render options
     bool _outlineSelection;
