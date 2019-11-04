@@ -57,7 +57,6 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
     explicit VectorN(const vector<float>& vec) { std::copy(vec.begin(), vec.end(), _arr.begin()); }
     explicit VectorN(const S* begin, const S* end) { std::copy(begin, end, _arr.begin()); }
 
-    /// @}
     /// @name Equality Operators
     /// @{
 
@@ -333,7 +332,6 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     explicit MatrixN(S s) { std::fill_n(&_arr[0][0], N * N, s); }
     explicit MatrixN(const S* begin, const S* end) { std::copy(begin, end, &_arr[0][0]); }
 
-    /// @}
     /// @name Equality Operators
     /// @{
 
@@ -343,8 +341,8 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
     /// Return true if the given vector differs from this one.
     bool operator!=(const M& rhs) const { return _arr != rhs._arr; }
 
-    /// Return true if the given matrix is equivalent to another
-    /// matrix within a given floating point tolerance
+    /// Return true if the given matrix is equivalent to this one
+    /// within a given floating point tolerance.
     bool isEquivalent(const M& rhs, S tolerance) const
     {
         for (size_t i = 0; i < N; i++)

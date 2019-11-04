@@ -19,6 +19,8 @@ namespace MaterialX
 /// A shared pointer to a TextureBaker
 using TextureBakerPtr = shared_ptr<class TextureBaker>;
 
+/// @class TextureBaker
+/// A helper class for baking procedural material content to textures.
 class TextureBaker : public GlslRenderer
 {
   public:
