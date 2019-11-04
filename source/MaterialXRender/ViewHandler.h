@@ -77,7 +77,6 @@ class ViewHandler
         return _worldMatrix;
     }
 
-    /// @}
     /// @name General utilities
     /// @{
 

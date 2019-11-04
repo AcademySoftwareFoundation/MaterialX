@@ -51,14 +51,6 @@ class ImageDesc
     /// Preset image type identifiers
     static ImageType IMAGETYPE_2D;
 
-    /// Deallocator to free resource buffer memory. If not defined then malloc() is
-    /// assumed to have been used to allocate the buffer and corresponding free() is
-    /// used to deallocate.
-    ImageBufferDeallocator resourceBufferDeallocator = [](void *buffer)
-    {
-        free(buffer);
-    };
-
     /// Compute the number of mip map levels based on size of the image
     void computeMipCount()
     {
@@ -79,6 +71,11 @@ class ImageDesc
 
     // CPU buffer. May be empty.
     void* resourceBuffer = nullptr;
+
+    // Deallocator to free resource buffer memory. If not defined then malloc() is
+    // assumed to have been used to allocate the buffer and corresponding free() is
+    // used to deallocate.
+    ImageBufferDeallocator resourceBufferDeallocator = nullptr;
 
     // Hardware target dependent resource identifier. May be undefined.
     unsigned int resourceId = 0;
@@ -259,20 +256,19 @@ class ImageHandler
                               const Color4* fallbackColor = nullptr);
 
     /// Utility to create a solid color color image
-    /// @param color Color to set
-    /// @param imageDesc Description of image updated during load.
-    /// @return if creation succeeded
+    /// @param color Uniform color of the image to create
+    /// @param imageDesc On success, the newly created image description
+    /// @return True if the image was successfully created
     virtual bool createColorImage(const Color4& color, ImageDesc& imageDesc);
 
     /// Bind an image. Derived classes should implement this method to handle logical binding of
     /// an image resource. The default implementation performs no action.
-    /// @param filePath File path of image description to bind.
+    /// @param desc The image description to bind
     /// @param samplingProperties Sampling properties for the image
-    /// @return true if succeded to bind
     virtual bool bindImage(const ImageDesc& desc, const ImageSamplingProperties& samplingProperties);
 
     /// Unbind an image. The default implementation performs no action.
-    /// @param filePath File path to image description to unbind
+    /// @param desc The image description to unbind
     virtual bool unbindImage(const ImageDesc& desc);
 
     /// Clear the contents of the image cache.

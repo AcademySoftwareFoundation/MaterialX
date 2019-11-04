@@ -894,8 +894,8 @@ class TypedElement : public Element
     using TypeDefPtr = shared_ptr<class TypeDef>;
 
   public:
-    /// @}
     /// @name Type String
+    /// @{
 
     /// Set the element's type string.
     void setType(const string& type)

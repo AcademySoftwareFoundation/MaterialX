@@ -49,7 +49,6 @@ class Node : public InterfaceElement
     }
     virtual ~Node() { }
 
-    /// @}
     /// @name Connections
     /// @{
 
