@@ -72,6 +72,11 @@ class GenOptions
     /// input values and textures into this color space.
     string targetColorSpaceOverride;
 
+    /// Define the target distance unit.
+    /// Shader fragments will be generated to transform
+    /// input distance values to the given unit.
+    string targetDistanceUnit;
+    
     /// Sets if transparency is needed or not for HW shaders.
     /// If a surface shader has potential of being transparent
     /// this must be set to true, otherwise no transparency
@@ -93,12 +98,6 @@ class GenOptions
     /// compress a set of UDIMs into a single normalized image for
     /// hardware rendering.
     bool hwNormalizeUdimTexCoords;
-
-    /// Define the target unit space for distance.
-    /// Shader fragments will be generated to transform
-    /// input unit values to this unit space.
-    string targetDistanceUnit;
-    
 };
 
 } // namespace MaterialX

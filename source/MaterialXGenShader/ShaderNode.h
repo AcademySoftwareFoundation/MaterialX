@@ -71,6 +71,9 @@ class ShaderPort : public std::enable_shared_from_this<ShaderPort>
     /// Return the name of this port.
     const string& getName() const { return _name; }
 
+    /// Return the name of this port.
+    string getFullName() const;
+
     /// Set the variable name of this port.
     void setVariable(const string& name) { _variable = name; }
 

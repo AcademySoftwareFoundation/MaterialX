@@ -259,9 +259,9 @@ bool GlslProgram::bind()
 }
 
 void GlslProgram::bindInputs(ViewHandlerPtr viewHandler,
-                            GeometryHandlerPtr geometryHandler,
-                            ImageHandlerPtr imageHandler,
-                            LightHandlerPtr lightHandler)
+                             GeometryHandlerPtr geometryHandler,
+                             ImageHandlerPtr imageHandler,
+                             LightHandlerPtr lightHandler)
 {
     // Bind the program to use
     if (!bind())
@@ -530,13 +530,14 @@ bool GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation, con
                               const ImageSamplingProperties& samplingProperties, ImageDesc& desc)
 {
     bool textureBound = false;
-    FilePath resolvedFilePath = imageHandler->getSearchPath().find(filePath);
+
     if (uniformLocation >= 0 &&
         uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
     {
-        if (imageHandler->acquireImage(resolvedFilePath, desc, generateMipMaps, &(samplingProperties.defaultColor)))
+        // Acquire the image.
+        if (imageHandler->acquireImage(filePath, desc, generateMipMaps, &(samplingProperties.defaultColor)))
         {
-            textureBound = imageHandler->bindImage(resolvedFilePath, samplingProperties);
+            textureBound = imageHandler->bindImage(desc, samplingProperties);
             if (textureBound)
             {
                 int textureLocation = imageHandler->getBoundTextureLocation(desc.resourceId);
@@ -583,7 +584,7 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
 
     // Bind textures based on uniforms found in the program
     const GlslProgram::InputMap& uniformList = getUniformsList();
-    VariableBlock& publicUniforms = _shader->getStage(Stage::PIXEL).getUniformBlock(HW::PUBLIC_UNIFORMS);
+    const std::string IMAGE_SEPARATOR("_");
     for (const auto& uniform : uniformList)
     {
         GLenum uniformType = uniform.second->gltype;
@@ -599,9 +600,38 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
                 fileName != HW::ENV_RADIANCE &&
                 fileName != HW::ENV_IRRADIANCE)
             {
-                ImageSamplingProperties samplingProperties;
-                samplingProperties.setProperties(uniform.first, publicUniforms);
+                // Get the additional texture parameters based on image uniform name
+                // excluding the trailing "_file" postfix string
+                std::string root = uniform.first;
+                size_t pos = root.find_last_of(IMAGE_SEPARATOR);
+                if (pos != std::string::npos)
+                {
+                    root = root.substr(0, pos);
+                }
 
+                ImageSamplingProperties samplingProperties;
+
+                const int INVALID_MAPPED_INT_VALUE = -1; // Any value < 0 is not considered to be invalid
+                const std::string uaddressModeStr = root + UADDRESS_MODE_POST_FIX;
+                ValuePtr intValue = findUniformValue(uaddressModeStr, uniformList);
+                samplingProperties.uaddressMode = ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
+
+                const std::string vaddressmodeStr = root + VADDRESS_MODE_POST_FIX;
+                intValue = findUniformValue(vaddressmodeStr, uniformList);
+                samplingProperties.vaddressMode = ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
+
+                const std::string filtertypeStr = root + FILTER_TYPE_POST_FIX;
+                intValue = findUniformValue(filtertypeStr, uniformList);
+                samplingProperties.filterType = ImageSamplingProperties::FilterType(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
+
+                const std::string defaultColorStr = root + DEFAULT_COLOR_POST_FIX;
+                ValuePtr colorValue = findUniformValue(defaultColorStr, uniformList);
+                Color4 defaultColor;
+                mapValueToColor(colorValue, defaultColor);
+                samplingProperties.defaultColor[0] = defaultColor[0];
+                samplingProperties.defaultColor[1] = defaultColor[1];
+                samplingProperties.defaultColor[2] = defaultColor[2];
+                samplingProperties.defaultColor[3] = defaultColor[3];
                 ImageDesc desc;
                 bindTexture(uniformType, uniformLocation, fileName, imageHandler, true, samplingProperties, desc);
             }

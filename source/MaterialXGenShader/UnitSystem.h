@@ -3,22 +3,21 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_UNIT_SYSTEM_H
-#define MATERIALX_UNIT_SYSTEM_H
+#ifndef MATERIALX_UNITSYSTEM_H
+#define MATERIALX_UNITSYSTEM_H
 
 /// @file
-/// Unit  system classes
-
-#include <MaterialXCore/UnitConverter.h>
+/// Unit system classes
 
 #include <MaterialXGenShader/Library.h>
 
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/TypeDesc.h>
+#include <MaterialXGenShader/UnitConverter.h>
 
 #include <MaterialXCore/Document.h>
-#include <array>
+
 namespace MaterialX
 {
 
@@ -39,21 +38,20 @@ struct UnitTransform
     string unitType;
 
     /// Comparison operator
-    bool operator==(const UnitTransform &other) const
+    bool operator==(const UnitTransform& rhs) const
     {
-        return sourceUnit == other.sourceUnit &&
-            targetUnit == other.targetUnit &&
-            type == other.type && 
-            unitType == other.unitType;
+        return sourceUnit == rhs.sourceUnit &&
+               targetUnit == rhs.targetUnit &&
+               type == rhs.type &&
+               unitType == rhs.unitType;
     }
 };
 
 /// @class UnitSystem
-/// Abstract base class for a UnitSystem
-///
+/// Base unit system support
 class UnitSystem
 {
-public:
+  public:
     virtual ~UnitSystem() { }
 
     /// Create a new UnitSystem
@@ -67,7 +65,7 @@ public:
 
     /// Assign unit converter registry replacing any previous assignment
     virtual void setUnitConverterRegistry(UnitConverterRegistryPtr registry);
-    
+
     /// Returns the currently assigned unit converter registry
     virtual UnitConverterRegistryPtr getUnitConverterRegistry() const;
 
@@ -79,21 +77,18 @@ public:
 
     /// Create a node to use to perform the given unit space transformation.
     ShaderNodePtr createNode(ShaderGraph* parent, const UnitTransform& transform, const string& name,
-        GenContext& context) const;
+                             GenContext& context) const;
 
     /// Returns an implementation name for a given transform
     virtual string getImplementationName(const UnitTransform& transform, const string& unitname) const;
 
     static const string UNITSYTEM_NAME;
-    static const string DISTANCE_UNIT_TARGET_NAME;
 
-protected:
-    /// Protected constructor
+  protected:
+    // Protected constructor
     UnitSystem(const string& language);
 
-
-
-protected:
+  protected:
     UnitConverterRegistryPtr _unitRegistry;
     DocumentPtr _document;
     string _language;

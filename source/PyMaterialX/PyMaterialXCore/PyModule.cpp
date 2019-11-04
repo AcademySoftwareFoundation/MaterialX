@@ -22,7 +22,6 @@ void bindPyTypes(py::module& mod);
 void bindPyUtil(py::module& mod);
 void bindPyValue(py::module& mod);
 void bindPyVariant(py::module& mod);
-void bindPyUnitConverters(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXCore, mod)
 {
@@ -43,5 +42,4 @@ PYBIND11_MODULE(PyMaterialXCore, mod)
     bindPyTypes(mod);
     bindPyUtil(mod);
     bindPyException(mod);
-    bindPyUnitConverters(mod);
 }

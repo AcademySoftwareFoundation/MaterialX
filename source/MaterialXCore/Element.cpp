@@ -330,23 +330,6 @@ ConstElementPtr Element::getRoot() const
     return root;
 }
 
-const string& Element::getActiveColorSpace(bool returnClosest) const
-{
-    ConstElementPtr colorSpaceElement = nullptr;
-    for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
-    {
-        if (elem->hasColorSpace())
-        {
-            colorSpaceElement = elem;
-            if (returnClosest)
-            {
-                break;
-            }
-        }
-    }
-    return  (colorSpaceElement ? colorSpaceElement->getColorSpace() : EMPTY_STRING);
-}
-
 bool Element::hasInheritedBase(ConstElementPtr base) const
 {
     for (ConstElementPtr elem : traverseInheritance())
@@ -474,7 +457,7 @@ StringResolverPtr Element::createStringResolver(const string& geom,
                                                 const string& target,
                                                 const string& type) const
 {
-    StringResolverPtr resolver = std::make_shared<StringResolver>();
+    StringResolverPtr resolver = StringResolver::create();
 
     // Compute file and geom prefixes as this scope.
     resolver->setFilePrefix(getActiveFilePrefix());
@@ -604,6 +587,26 @@ ValuePtr ValueElement::getDefaultValue() const
         }
     }
     return ValuePtr();
+}
+
+const string& ValueElement::getActiveUnit() const
+{
+    // Return the unit, if any, stored in our declaration.
+    ConstElementPtr parent = getParent();
+    ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
+    if (interface)
+    {
+        ConstNodeDefPtr decl = interface->getDeclaration();
+        if (decl)
+        {
+            ValueElementPtr value = decl->getActiveValueElement(getName());
+            if (value)
+            {
+                return value->getUnit();
+            }
+        }
+    }
+    return EMPTY_STRING;
 }
 
 bool ValueElement::validate(string* message) const
@@ -816,12 +819,12 @@ INSTANTIATE_CONCRETE_SUBCLASS(PropertySetAssign, "propertysetassign")
 INSTANTIATE_CONCRETE_SUBCLASS(ShaderRef, "shaderref")
 INSTANTIATE_CONCRETE_SUBCLASS(Token, "token")
 INSTANTIATE_CONCRETE_SUBCLASS(TypeDef, "typedef")
+INSTANTIATE_CONCRETE_SUBCLASS(Unit, "unit")
+INSTANTIATE_CONCRETE_SUBCLASS(UnitDef, "unitdef")
+INSTANTIATE_CONCRETE_SUBCLASS(UnitTypeDef, "unittypedef")
 INSTANTIATE_CONCRETE_SUBCLASS(Variant, "variant")
 INSTANTIATE_CONCRETE_SUBCLASS(VariantAssign, "variantassign")
 INSTANTIATE_CONCRETE_SUBCLASS(VariantSet, "variantset")
 INSTANTIATE_CONCRETE_SUBCLASS(Visibility, "visibility")
-INSTANTIATE_CONCRETE_SUBCLASS(Unit, "unit")
-INSTANTIATE_CONCRETE_SUBCLASS(UnitDef, "unitdef")
-INSTANTIATE_CONCRETE_SUBCLASS(UnitTypeDef, "unittypedef")
 
 } // namespace MaterialX

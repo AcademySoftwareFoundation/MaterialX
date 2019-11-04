@@ -179,13 +179,13 @@ void Material::updateUniformsList()
     delete[] uniformName;
 }
 
-bool Material::generateShader(mx::GenContext& context, bool forceCreation)
+bool Material::generateShader(mx::GenContext& context)
 {
     if (!_elem)
     {
         return false;
     }
-    if (forceCreation || !_hwShader)
+    if (!_hwShader)
     {
         _hwShader = createShader("Shader", context, _elem);
     }
@@ -196,7 +196,7 @@ bool Material::generateShader(mx::GenContext& context, bool forceCreation)
 
     _hasTransparency = context.getOptions().hwTransparency;
 
-    if (forceCreation || !_glShader)
+    if (!_glShader)
     {
         std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
         std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
@@ -307,15 +307,15 @@ void Material::bindViewInformation(const mx::Matrix44& world, const mx::Matrix44
     }
 }
 
-void Material::unbindImages(mx::GLTextureHandlerPtr imageHandler)
+void Material::unbindImages(mx::ImageHandlerPtr imageHandler)
 {
-    for (const auto& filePath : _boundImages)
+    for (const mx::ImageDesc& desc : _boundImages)
     {
-        imageHandler->unbindImage(filePath);
+        imageHandler->unbindImage(desc);
     }
 }
 
-void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSearchPath& searchPath, const std::string& udim)
+void Material::bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearchPath& searchPath)
 {
     if (!_glShader)
     {
@@ -344,56 +344,47 @@ void Material::bindImages(mx::GLTextureHandlerPtr imageHandler, const mx::FileSe
         samplingProperties.setProperties(uniformVariable, *publicUniforms);
 
         mx::ImageDesc desc;
-        mx::FilePath resolvedFilename = bindImage(filename, uniformVariable, imageHandler, desc, samplingProperties, udim, &fallbackColor);
-        if (!resolvedFilename.isEmpty())
+        if (bindImage(filename, uniformVariable, imageHandler, desc, samplingProperties, &fallbackColor))
         {
-            _boundImages.push_back(resolvedFilename);
+            _boundImages.push_back(desc);
         }
     }
 }
 
-mx::FilePath Material::bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::GLTextureHandlerPtr imageHandler,
-                                 mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, const std::string& udim,
-                                 mx::Color4* fallbackColor)
+bool Material::bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
+                         mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, mx::Color4* fallbackColor)
 {
-    mx::FilePath returnPath;
-
     if (!_glShader)
     {
-        return returnPath;
+        return false;
     }
 
-    // Apply udim string if specified.
-    mx::FilePath resolvedFilename = filePath;
-    if (!udim.empty())
+    // Create a filename resolver for geometric properties.
+    mx::StringResolverPtr resolver = mx::StringResolver::create();
+    if (!getUdim().empty())
     {
-        const mx::StringVec udimSet{ udim };
-        mx::FilePathVec udimPaths = mx::getUdimPaths(filePath, udimSet);
-        if (!udimPaths.empty())
-        {
-            resolvedFilename = udimPaths[0];
-        }
+        resolver->setUdimString(getUdim());
     }
+    imageHandler->setFilenameResolver(resolver);
 
     // Acquire the given image.
-    resolvedFilename = imageHandler->getSearchPath().find(resolvedFilename);
-    if (!imageHandler->acquireImage(resolvedFilename, desc, true, fallbackColor) && !filePath.isEmpty())
+    if (!imageHandler->acquireImage(filePath, desc, true, fallbackColor) && !filePath.isEmpty())
     {
-        std::cerr << "Failed to load image: " << resolvedFilename.asString() << std::endl;
-        return returnPath;
+        std::cerr << "Failed to load image: " << filePath.asString() << std::endl;
+        return false;
     }
 
     // Bind the image and set its sampling properties.
-    if (imageHandler->bindImage(resolvedFilename, samplingProperties))
+    if (imageHandler->bindImage(desc, samplingProperties))
     {
         int textureLocation = imageHandler->getBoundTextureLocation(desc.resourceId);
         if (textureLocation >= 0)
         {
             _glShader->setUniform(uniformName, textureLocation, false);
-            return resolvedFilename;
+            return true;
         }
     }
-    return returnPath;
+    return false;
 }
 
 void Material::bindUniform(const std::string& name, mx::ConstValuePtr value)
@@ -450,7 +441,7 @@ void Material::bindUniform(const std::string& name, mx::ConstValuePtr value)
     }
 }
 
-void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandlerPtr imageHandler,
+void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler,
                           const mx::FileSearchPath& imagePath, bool directLighting,
                           bool indirectLighting, mx::HwSpecularEnvironmentMethod specularEnvironmentMethod, int envSamples)
 {
@@ -488,7 +479,7 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandler
             samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
             samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::CUBIC;
 
-            if (!bindImage(filename, pair.first, imageHandler, desc, samplingProperties, udim, &fallbackColor).isEmpty())
+            if (bindImage(filename, pair.first, imageHandler, desc, samplingProperties, &fallbackColor))
             {
                 if (specularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS)
                 {
@@ -569,6 +560,8 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandler
 
 void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenContext& context)
 {
+    static std::string DISTANCE_UNIT_TARGET_NAME = "u_distanceUnitTarget";
+
     mx::ShaderPort* port = nullptr;
     mx::VariableBlock* publicUniforms = getPublicUniforms();
     if (publicUniforms)
@@ -577,7 +570,7 @@ void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenCo
         port = publicUniforms->find(
             [](mx::ShaderPort* port)
         {
-            return (port && (port->getName() == mx::UnitSystem::DISTANCE_UNIT_TARGET_NAME));
+            return (port && (port->getName() == DISTANCE_UNIT_TARGET_NAME));
         });
 
         // Check if the uniform exists in the shader program
@@ -594,9 +587,9 @@ void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenCo
         {
             port->setValue(mx::Value::createValue(intPortValue));
             _glShader->bind();
-            if (_glShader->uniform(mx::UnitSystem::DISTANCE_UNIT_TARGET_NAME, false) != -1)
+            if (_glShader->uniform(DISTANCE_UNIT_TARGET_NAME, false) != -1)
             {
-                _glShader->setUniform(mx::UnitSystem::DISTANCE_UNIT_TARGET_NAME, intPortValue);
+                _glShader->setUniform(DISTANCE_UNIT_TARGET_NAME, intPortValue);
             }
         }
     }

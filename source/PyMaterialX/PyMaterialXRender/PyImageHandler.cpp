@@ -88,23 +88,14 @@ class PyImageHandler : public mx::ImageHandler
         );
     }
 
-    bool bindImage(const mx::FilePath& filePath, const mx::ImageSamplingProperties& samplingProperties) override
+    bool bindImage(const mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties) override
     {
         PYBIND11_OVERLOAD(
             bool,
             mx::ImageHandler,
             bindImage,
-            filePath,
+            desc,
             samplingProperties
-        );
-    }
-
-    void clearImageCache() override
-    {
-        PYBIND11_OVERLOAD(
-            void,
-            mx::ImageHandler,
-            clearImageCache
         );
     }
 

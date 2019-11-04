@@ -6,10 +6,10 @@
 #ifndef MATERIALX_UNITCONVERTER_H_
 #define MATERIALX_UNITCONVERTER_H_
 
-/// @file UnitConverter.h
-/// Unit converter classes.
+/// @file
+/// Unit converter classes
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXGenShader/Library.h>
 
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Types.h>
@@ -18,24 +18,31 @@ namespace MaterialX
 {
 
 class UnitConverter;
+class LinearUnitConverter;
+class UnitConverterRegistry;
 
-/// A shared pointer to an UnitConverter
+/// A shared pointer to a UnitConverter
 using UnitConverterPtr = shared_ptr<UnitConverter>;
 /// A shared pointer to a const UnitConverter
 using ConstUnitConverterPtr = shared_ptr<const UnitConverter>;
 
+/// A shared pointer to a LinearUnitConverter
+using LinearUnitConverterPtr = shared_ptr<LinearUnitConverter>;
+/// A shared pointer to a const LinearUnitConverter
+using ConstLinearUnitConverterPtr = shared_ptr<const LinearUnitConverter>;
+
+/// A shared pointer to a UnitConverterRegistry
+using UnitConverterRegistryPtr = shared_ptr<UnitConverterRegistry>;
+/// A shared pointer to a const UnitConverterRegistry
+using ConstUnitConverterRegistryPtr = shared_ptr<const UnitConverterRegistry>;
+
 /// @class UnitConverter
-/// An unit conversion utility class.
-///
-/// This class can perform a linear conversion for a given UnitTypeDef.
-/// The conversion of a value to the default unit is defined as multipling 
-/// by a scale value and adding an offset value. 
-/// Reversing these operations performs a conversion from the default unit.
-///
+/// An abstract base class for unit converters.
+/// Each unit converter instance is responsible for a single unit type.
 class UnitConverter
 {
   public:
-    UnitConverter() {};
+    UnitConverter() { }
     virtual ~UnitConverter() { }
 
     /// Convert a given value in a given unit to a desired unit
@@ -69,28 +76,25 @@ class UnitConverter
     /// @param inputUnit Unit of input value
     /// @param outputUnit Unit for output value
     virtual Vector4 convert(Vector4 input, const string& inputUnit, const string& outputUnit) const = 0;
-
 };
 
-class DistanceUnitConverter;
-
-/// A shared pointer to an DistanceUnitConverter
-using DistanceUnitConverterPtr = shared_ptr<DistanceUnitConverter>;
-/// A shared pointer to a const DistanceUnitConverter
-using ConstDistanceUnitConverterPtr = shared_ptr<const DistanceUnitConverter>;
-
-/// @class LDistanceUnitConverter
-/// An unit conversion utility for handling length.
-///
-class DistanceUnitConverter : public UnitConverter
+/// @class LinearUnitConverter
+/// A converter class for linear units that require only a scalar multiplication.
+class LinearUnitConverter : public UnitConverter
 {
   public:
-    virtual ~DistanceUnitConverter() { }
+    virtual ~LinearUnitConverter() { }
 
     /// Creator 
-    static DistanceUnitConverterPtr create(UnitTypeDefPtr UnitDef);
+    static LinearUnitConverterPtr create(UnitTypeDefPtr UnitDef);
 
-    /// Return the name of the default unit for "distance"
+    /// Return the unit type string
+    const string& getUnitType() const
+    {
+        return _unitType;
+    }
+
+    /// Return the name of the default unit
     const string& getDefaultUnit() const
     {
         return _defaultUnit;
@@ -149,28 +153,18 @@ class DistanceUnitConverter : public UnitConverter
 
     /// @}
 
-    /// Length unit type name
-    static const string DISTANCE_UNIT;
+  private:
+    LinearUnitConverter(UnitTypeDefPtr UnitDef);
 
   private:
-    DistanceUnitConverter(UnitTypeDefPtr UnitDef);
-
     std::unordered_map<string, float> _unitScale;
     std::unordered_map<string, int> _unitEnumeration;
     string _defaultUnit;
+    string _unitType;
 };
 
-
-class UnitConverterRegistry;
-
-/// A shared pointer to an UnitConverterRegistry
-using UnitConverterRegistryPtr = shared_ptr<UnitConverterRegistry>;
-/// A shared pointer to a const UnitConverterRegistry
-using ConstUnitConverterRegistryPtr = shared_ptr<const UnitConverterRegistry>;
-
 /// @class UnitConverterRegistry
-/// A registry of unit converters.
-///
+/// A registry for unit converters.
 class UnitConverterRegistry
 {
   public:
@@ -199,15 +193,15 @@ class UnitConverterRegistry
     int getUnitAsInteger(const string& unitName) const;
 
   private:
-    UnitConverterRegistry() { }
-
     UnitConverterRegistry(const UnitConverterRegistry&) = delete;
+    UnitConverterRegistry() { }
 
     UnitConverterRegistry& operator=(const UnitConverterRegistry&) = delete;
 
+  private:
     std::unordered_map<string, UnitConverterPtr> _unitConverters;
 };
 
-}  // namespace MaterialX
+} // namespace MaterialX
 
-#endif  // MATERIALX_UNITCONVERTER_H_
+#endif

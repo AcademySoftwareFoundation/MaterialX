@@ -44,7 +44,7 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
     void loadAdditionalLibraries(mx::DocumentPtr document,
                                  GenShaderUtil::TestSuiteOptions& options) override;
 
-    void registerLights(mx::DocumentPtr document, const GenShaderUtil::TestSuiteOptions &options, 
+    void registerLights(mx::DocumentPtr document, const GenShaderUtil::TestSuiteOptions &options,
                         mx::GenContext& context) override;
 
     void createRenderer(std::ostream& log) override;
@@ -106,7 +106,7 @@ void GlslShaderRenderTester::createRenderer(std::ostream& log)
 
         // Set image handler on renderer
         mx::StbImageLoaderPtr stbLoader = mx::StbImageLoader::create();
-        mx::GLTextureHandlerPtr imageHandler = mx::GLTextureHandler::create(stbLoader);
+        mx::ImageHandlerPtr imageHandler = mx::GLTextureHandler::create(stbLoader);
         _renderer->setImageHandler(imageHandler);
 
         // Set light handler.
@@ -449,12 +449,6 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                                 log << ". UI Min: " << uiProperties.uiMin->getValueString();
                             if (uiProperties.uiMax)
                                 log << ". UI Max: " << uiProperties.uiMax->getValueString();
-                            if (uiProperties.uiSoftMin)
-                                log << ". UI Soft Min: " << uiProperties.uiSoftMin->getValueString();
-                            if (uiProperties.uiSoftMax)
-                                log << ". UI Soft Max: " << uiProperties.uiSoftMax->getValueString();
-                            if (uiProperties.uiStep)
-                                log << ". UI Step: " << uiProperties.uiStep->getValueString();
                             log << std::endl;
                         }
                     }
@@ -512,12 +506,10 @@ TEST_CASE("Render: GLSL TestSuite", "[renderglsl]")
     const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
     const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
     const mx::FilePath testRootPath3 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/UsdPreviewSurface");
-    const mx::FilePath testRootPath4 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/Units");
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back(testRootPath);
     testRootPaths.push_back(testRootPath2);
     testRootPaths.push_back(testRootPath3);
-    testRootPaths.push_back(testRootPath4);
 
     mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
 

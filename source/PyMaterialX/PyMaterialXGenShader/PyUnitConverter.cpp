@@ -5,23 +5,18 @@
 
 #include <PyMaterialX/PyMaterialX.h>
 
-#include <MaterialXCore/UnitConverter.h>
+#include <MaterialXGenShader/UnitConverter.h>
 
 namespace py = pybind11;
 namespace mx = MaterialX;
 
-class PyUnitConverter : public mx::UnitConverter 
+class PyUnitConverter : public mx::UnitConverter
 {
   public:
-      explicit PyUnitConverter() :
-        mx::UnitConverter()
-    {
-    }
-
     float convert(float input, const std::string& inputUnit, const std::string& outputUnit) const override
     {
         PYBIND11_OVERLOAD_PURE(
-            float, 
+            float,
             mx::UnitConverter,
             convert,
             input,
@@ -70,7 +65,7 @@ class PyUnitConverter : public mx::UnitConverter
 PYBIND11_DECLARE_HOLDER_TYPE(T, std::shared_ptr<T>);
 
 void bindPyUnitConverters(py::module& mod)
-{    
+{
     py::class_<mx::UnitConverter, PyUnitConverter, mx::UnitConverterPtr>(mod, "UnitConverter")
         .def("convert", (float       (mx::UnitConverter::*)(float      , const std::string&, const std::string&)const) &mx::UnitConverter::convert)
         .def("convert", (mx::Vector2 (mx::UnitConverter::*)(mx::Vector2, const std::string&, const std::string&)const) &mx::UnitConverter::convert)
@@ -79,16 +74,16 @@ void bindPyUnitConverters(py::module& mod)
         .def("getUnitAsInteger", &mx::UnitConverter::getUnitAsInteger)
         .def("getUnitFromInteger", &mx::UnitConverter::getUnitFromInteger);
 
-    py::class_<mx::DistanceUnitConverter, mx::UnitConverter, mx::DistanceUnitConverterPtr>(mod, "DistanceUnitConverter")
-        .def_static("create", &mx::DistanceUnitConverter::create)
-        .def("getUnitScale", &mx::DistanceUnitConverter::getUnitScale)
-        .def("getDefaultUnit", &mx::DistanceUnitConverter::getDefaultUnit)
-        .def("convert", (float       (mx::DistanceUnitConverter::*)(float, const std::string&, const std::string&)const) &mx::DistanceUnitConverter::convert)
-        .def("convert", (mx::Vector2 (mx::DistanceUnitConverter::*)(mx::Vector2, const std::string&, const std::string&)const) &mx::DistanceUnitConverter::convert)
-        .def("convert", (mx::Vector3 (mx::DistanceUnitConverter::*)(mx::Vector3, const std::string&, const std::string&)const) &mx::DistanceUnitConverter::convert)
-        .def("convert", (mx::Vector4 (mx::DistanceUnitConverter::*)(mx::Vector4, const std::string&, const std::string&)const) &mx::DistanceUnitConverter::convert)
-        .def("getUnitAsInteger", &mx::DistanceUnitConverter::getUnitAsInteger)
-        .def("getUnitFromInteger", &mx::DistanceUnitConverter::getUnitFromInteger);
+    py::class_<mx::LinearUnitConverter, mx::UnitConverter, mx::LinearUnitConverterPtr>(mod, "LinearUnitConverter")
+        .def_static("create", &mx::LinearUnitConverter::create)
+        .def("getUnitScale", &mx::LinearUnitConverter::getUnitScale)
+        .def("getDefaultUnit", &mx::LinearUnitConverter::getDefaultUnit)
+        .def("convert", (float       (mx::LinearUnitConverter::*)(float, const std::string&, const std::string&)const) &mx::LinearUnitConverter::convert)
+        .def("convert", (mx::Vector2 (mx::LinearUnitConverter::*)(mx::Vector2, const std::string&, const std::string&)const) &mx::LinearUnitConverter::convert)
+        .def("convert", (mx::Vector3 (mx::LinearUnitConverter::*)(mx::Vector3, const std::string&, const std::string&)const) &mx::LinearUnitConverter::convert)
+        .def("convert", (mx::Vector4 (mx::LinearUnitConverter::*)(mx::Vector4, const std::string&, const std::string&)const) &mx::LinearUnitConverter::convert)
+        .def("getUnitAsInteger", &mx::LinearUnitConverter::getUnitAsInteger)
+        .def("getUnitFromInteger", &mx::LinearUnitConverter::getUnitFromInteger);
 
     py::class_<mx::UnitConverterRegistry, std::unique_ptr<mx::UnitConverterRegistry, py::nodelete>>(mod, "UnitConverterRegistry")
         .def_static("create", &mx::UnitConverterRegistry::create)

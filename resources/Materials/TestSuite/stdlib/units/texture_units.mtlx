@@ -7,8 +7,8 @@
   </material>
 
   <nodegraph name="Unit_test_inputGraph" fileprefix="resources/Images/" >
-  <!-- opacity_output -->
-  <output name="base_color_output" type="color3" nodename="base_color_image" />
+    <!-- opacity_output -->
+    <output name="base_color_output" type="color3" nodename="base_color_image" />
 
     <!-- multiply unit converted realworldscale and additional scale-->
     <multiply name="total_scale" type="vector2">
@@ -23,11 +23,11 @@
       <input name="scale" type="vector2" nodename="total_scale" />
       <parameter name="pivot" type="vector2" value="0.5, 0.5" />
     </place2d>
-  <image name="base_color_image" type="color3">
-      <parameter name="file" type="filename" value="grid.png" />
+    <image name="base_color_image" type="color3">
+      <parameter name="file" type="filename" value="grid.png" colorspace="srgb_texture" />
       <parameter name="uaddressmode" type="string" value="periodic" />
       <parameter name="vaddressmode" type="string" value="periodic" />
       <input name="texcoord" type="vector2" nodename="a_place2d" />
-  </image>
-</nodegraph>
+    </image>
+  </nodegraph>
 </materialx>

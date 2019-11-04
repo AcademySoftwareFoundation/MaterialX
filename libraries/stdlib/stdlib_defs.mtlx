@@ -44,22 +44,29 @@
   <typedef name="geomnamearray"/>
 
   <!-- ======================================================================== -->
-  <!-- Unit types                                                               -->
+  <!-- Units and unit types                                                     -->
   <!-- ======================================================================== -->
+
    <unittypedef name="distance" default="meter"/>
    <unitdef name="UD_stdlib_distance" unittype="distance">
       <unit name="nanometer" scale="0.000000001" />
       <unit name="micron" scale="0.000001"/>
       <unit name="millimeter" scale="0.001"/>
       <unit name="centimeter" scale="0.01"/>
-      <unit name="kilometer" scale="1000.0"/>
       <unit name="inch" scale="0.0254"/>
       <unit name="foot" scale="0.3048"/>
       <unit name="yard" scale="0.9144"/>
+      <unit name="meter" scale="1.0"/>
+      <unit name="kilometer" scale="1000.0"/>
       <unit name="mile" scale="1609.344"/>
    </unitdef>
 
-   <!-- ======================================================================== -->
+  <unittypedef name="angle" default="degrees"/>
+  <unitdef name="UD_stdlib_angle" unittype="angle">
+    <unit name="radians" scale="57.295779513" />
+  </unitdef>
+
+  <!-- ======================================================================== -->
   <!-- Geometric Properties                                                     -->
   <!-- ======================================================================== -->
 
@@ -2587,12 +2594,12 @@
   -->
   <nodedef name="ND_rotate_vector2" node="rotate" nodegroup="math" defaultinput="in">
     <input name="in" type="vector2" value="0.0, 0.0"/>
-    <input name="amount" type="float" value="0.0"/>
+    <input name="amount" type="float" value="0.0" unittype="angle" unit="degrees"/>
     <output name="out" type="vector2"/>
   </nodedef>
   <nodedef name="ND_rotate_vector3" node="rotate" nodegroup="math" defaultinput="in">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0"/>
-    <input name="amount" type="float" value="0.0"/>
+    <input name="amount" type="float" value="0.0" unittype="angle" unit="degrees"/>
     <parameter name="axis" type="vector3" value="0.0, 1.0, 0.0"/>
     <output name="out" type="vector3"/>
   </nodedef>
@@ -2605,7 +2612,7 @@
     <input name="texcoord" type="vector2" value="0.0, 0.0"/>
     <parameter name="pivot" type="vector2" value="0.0,0.0"/>
     <input name="scale" type="vector2" value="1.0,1.0"/>
-    <input name="rotate" type="float" value="0.0"/>
+    <input name="rotate" type="float" value="0.0" unittype="angle" unit="degrees"/>
     <input name="offset" type="vector2" value="0.0,0.0"/>
     <output name="out" type="vector2"/>
   </nodedef>

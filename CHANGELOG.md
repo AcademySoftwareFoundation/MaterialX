@@ -3,13 +3,12 @@
 ## [1.36.5] - Development
 
 ### Added
-- Unit type support with support for Distance.
-- Utility to generate Markdown from `nodedef` definition.
+- Added an initial TextureBaker class, supporting baking of graph outputs to textures.
+- Added initial support for units, including the MaterialX\:\:Unit, MaterialX\:\:UnitDef, and MaterialX\:\:UnitTypeDef classes.
+- Added support for unit conversion in shader code generation.
 
 ### Changed
-- Standard surface `subsurface_color` changed type to color3 from vec3. `subsurface_scale` supported in code generation
-- Shader generation supports target `colorspace` targets not at the document root.
-- Search path argument for MaterialView adds search paths versus replacing.
+- Updated subsurface interface and logic for Autodesk Standard Surface.
 
 ## [1.36.4] - 2019-09-26
 

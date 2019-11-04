@@ -235,10 +235,18 @@ class Element : public std::enable_shared_from_this<Element>
 
     /// Return the color space string that is active at the scope of this
     /// element, taking all ancestor elements into account.
-    /// @param returnFirst If set to be true will return the first non-empty color space
-    /// string found starting from the current Element. The default value is true.
-    const string& getActiveColorSpace(bool returnFirst=true) const;
-   
+    const string& getActiveColorSpace() const
+    {
+        for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
+        {
+            if (elem->hasColorSpace())
+            {
+                return elem->getColorSpace();
+            }
+        }
+        return EMPTY_STRING;
+    }
+
     /// @}
     /// @name Target
     /// @{
@@ -1093,42 +1101,45 @@ class ValueElement : public TypedElement
     /// @name Units
     /// @{
 
-    /// Set the unit.
+    /// Set the unit string of an element.
     void setUnit(const string& unit)
     {
         setAttribute(UNIT_ATTRIBUTE, unit);
     }
 
-    /// Return true if a unit attribute exists.
+    /// Return true if the given element has a unit string.
     bool hasUnit() const
     {
         return hasAttribute(UNIT_ATTRIBUTE);
     }
 
-    /// Return the unit.
+    /// Return the unit string of an element.
     const string& getUnit() const
     {
         return getAttribute(UNIT_ATTRIBUTE);
     }
 
-    /// Set the unit type.
+    /// Return the unit defined by the assocaited NodeDef if this element
+    /// is a child of a Node.
+    const string& getActiveUnit() const;
+
+    /// Set the unit type of an element.
     void setUnitType(const string& unit)
     {
         setAttribute(UNITTYPE_ATTRIBUTE, unit);
     }
 
-    /// Return true if a unit attribute exists.
+    /// Return true if the given element has a unit type.
     bool hasUnitType() const
     {
         return hasAttribute(UNITTYPE_ATTRIBUTE);
     }
 
-    /// Return the unit type
+    /// Return the unit type of an element.
     const string& getUnitType() const
     {
         return getAttribute(UNITTYPE_ATTRIBUTE);
     }
-
 
     /// @}
     /// @name Validation
@@ -1223,7 +1234,12 @@ class GenericElement : public Element
 class StringResolver
 {
   public:
-    StringResolver() { }
+    /// Create a new string resolver.
+    static StringResolverPtr create()
+    {
+        return StringResolverPtr(new StringResolver());
+    }
+
     virtual ~StringResolver() { }
 
     /// @name File Prefix
@@ -1312,6 +1328,9 @@ class StringResolver
     }
 
     /// @}
+
+  protected:
+    StringResolver() { }
 
   protected:
     string _filePrefix;
