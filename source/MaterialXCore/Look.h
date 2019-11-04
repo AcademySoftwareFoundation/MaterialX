@@ -49,7 +49,6 @@ class Look : public Element
     }
     virtual ~Look() { }
 
-    /// @}
     /// @name MaterialAssign Elements
     /// @{
 
