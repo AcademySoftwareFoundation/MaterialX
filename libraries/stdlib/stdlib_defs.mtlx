@@ -47,7 +47,7 @@
   <!-- Units and unit types                                                     -->
   <!-- ======================================================================== -->
 
-   <unittypedef name="distance" default="meter"/>
+   <unittypedef name="distance"/>
    <unitdef name="UD_stdlib_distance" unittype="distance">
       <unit name="nanometer" scale="0.000000001" />
       <unit name="micron" scale="0.000001"/>
@@ -61,9 +61,10 @@
       <unit name="mile" scale="1609.344"/>
    </unitdef>
 
-  <unittypedef name="angle" default="degrees"/>
+  <unittypedef name="angle" />
   <unitdef name="UD_stdlib_angle" unittype="angle">
-    <unit name="radians" scale="57.295779513" />
+     <unit name="degrees" scale="1.0" />
+     <unit name="radians" scale="57.295779513" />
   </unitdef>
 
   <!-- ======================================================================== -->
