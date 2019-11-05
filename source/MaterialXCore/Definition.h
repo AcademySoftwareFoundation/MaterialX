@@ -496,30 +496,11 @@ class UnitTypeDef : public Element
     }
     virtual ~UnitTypeDef() { }
 
-    /// Set the default unit string for the UnitTypeDef.
-    void setDefault(const string& value)
-    {
-        setAttribute(DEFAULT_ATTRIBUTE, value);
-    }
-
-    /// Return true if the given TypeDef has a default unit string.
-    bool hasDefault() const
-    {
-        return hasAttribute(DEFAULT_ATTRIBUTE);
-    }
-
-    /// Return the default unit string for the UnitTypeDef.
-    const string& getDefault() const
-    {
-        return getAttribute(DEFAULT_ATTRIBUTE);
-    }
-
     /// Find all UnitDefs for the UnitTypeDef
     vector<UnitDefPtr> getUnitDefs() const;
 
   public:
     static const string CATEGORY;
-    static const string DEFAULT_ATTRIBUTE;
 };
 
 } // namespace MaterialX

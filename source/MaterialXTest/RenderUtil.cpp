@@ -206,7 +206,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     registerSourceCodeSearchPaths(context);
 
     // Set target unit space
-    context.getOptions().targetDistanceUnit = distanceTypeDef->getDefault();
+    context.getOptions().targetDistanceUnit = "meter";
 
     setupTime.endTimer();
 

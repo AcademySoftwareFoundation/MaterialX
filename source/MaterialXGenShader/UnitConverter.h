@@ -94,12 +94,6 @@ class LinearUnitConverter : public UnitConverter
         return _unitType;
     }
 
-    /// Return the name of the default unit
-    const string& getDefaultUnit() const
-    {
-        return _defaultUnit;
-    }
-
     /// @name Conversion
     /// @{
 
@@ -159,7 +153,6 @@ class LinearUnitConverter : public UnitConverter
   private:
     std::unordered_map<string, float> _unitScale;
     std::unordered_map<string, int> _unitEnumeration;
-    string _defaultUnit;
     string _unitType;
 };
 
