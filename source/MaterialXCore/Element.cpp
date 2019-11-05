@@ -656,19 +656,12 @@ bool ValueElement::validate(string* message) const
         if (unitTypeDef)
         {
             const string& unit = getUnit();
-            if (unitTypeDef->getDefault() == unit)
+            for (UnitDefPtr unitDef : unitTypeDef->getUnitDefs())
             {
-                foundUnit = true;
-            }
-            else
-            {
-                for (UnitDefPtr unitDef : unitTypeDef->getUnitDefs())
+                if (unitDef->getUnit(unit))
                 {
-                    if (unitDef->getUnit(unit))
-                    {
-                        foundUnit = true;
-                        break;
-                    }
+                    foundUnit = true;
+                    break;
                 }
             }
         }

@@ -27,7 +27,6 @@ const string Implementation::FILE_ATTRIBUTE = "file";
 const string Implementation::FUNCTION_ATTRIBUTE = "function";
 const string Implementation::LANGUAGE_ATTRIBUTE = "language";
 const string UnitDef::UNITTYPE_ATTRIBUTE = "unittype";
-const string UnitTypeDef::DEFAULT_ATTRIBUTE = "default";
 
 //
 // NodeDef methods

@@ -39,17 +39,6 @@ LinearUnitConverter::LinearUnitConverter(UnitTypeDefPtr unitTypeDef)
         }
     }
 
-    // In case the default unit was not specified in the UnitDef, explicitly
-    // add this to be able to accept conversion with the default as the input
-    // or output unit.
-    _defaultUnit = unitTypeDef->getDefault();
-    auto it = _unitScale.find(_defaultUnit);
-    if (it == _unitScale.end())
-    {
-        _unitScale[_defaultUnit] = 1.0f;
-        _unitEnumeration[_defaultUnit] = enumerant++;
-    }
-
     _unitType = unitTypeDef->getName();
 }
 

@@ -620,8 +620,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     _distanceUnitBox = new ng::ComboBox(unitGroup, _distanceUnitOptions);
     _distanceUnitBox->setFixedSize(ng::Vector2i(100, 20));
     _distanceUnitBox->setChevronIcon(-1);
-    _distanceUnitBox->setSelectedIndex(_distanceUnitConverter->getUnitAsInteger(
-        _distanceUnitConverter->getDefaultUnit()));
+    _distanceUnitBox->setSelectedIndex(_distanceUnitConverter->getUnitAsInteger("meter"));
     _distanceUnitBox->setCallback([this](int index)
     {
         mProcessEvents = false;
@@ -1158,7 +1157,7 @@ void Viewer::loadStandardLibraries()
     mx::UnitTypeDefPtr angleTypeDef = _stdLib->getUnitTypeDef("angle");
     mx::LinearUnitConverterPtr angleConverter = mx::LinearUnitConverter::create(angleTypeDef);
     _unitRegistry->addUnitConverter(angleTypeDef, angleConverter);
-    _genContext.getOptions().targetDistanceUnit = _distanceUnitConverter->getDefaultUnit();
+    _genContext.getOptions().targetDistanceUnit = "meter";
 
     // Create the list of supported distance units.
     auto unitScales = _distanceUnitConverter->getUnitScale();
