@@ -19,7 +19,11 @@
             doc="Color tint on the specular reflection." />
       <input name="specular_roughness" type="float" value="0.2" uimin="0.0" uimax="1.0" uiname="Specular Roughness" uifolder="Specular"
             doc="The roughness of the specular reflection. Lower numbers produce sharper reflections, higher numbers produce blurrier reflections." />
+<<<<<<< HEAD
       <input name="specular_IOR" type="float" value="1.5" uimin="0.0" uimax="3.0" uiname="Index of Refraction" uifolder="Specular"
+=======
+      <input name="specular_IOR" type="float" value="1.5" uimin="0.0" uisoftmax="3.0" uiname="Index of Refraction" uifolder="Specular"
+>>>>>>> e89d31e4052e9e7558b1e3cec6eb8e63d97c32c1
             doc="Index of refraction for specular reflection." />
       <input name="specular_anisotropy" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Specular Anisotropy" uifolder="Specular" uiadvanced="true"
             doc="The directional bias of reflected and transmitted light resulting in materials appearing rougher or glossier in certain directions." />
@@ -29,15 +33,25 @@
             doc="Transmission of light through the surface for materials such as glass or water. The greater the value the more transparent the material." />
       <input name="transmission_color" type="color3" value="1, 1, 1" uimin="0,0,0" uimax="1,1,1" uiname="Transmission Color" uifolder="Transmission" uiadvanced="true"
             doc="Color tint on the transmitted light." />
+<<<<<<< HEAD
       <input name="transmission_depth" type="float" value="0" uimin="0.0" uimax="100.0" uiname="Transmission Depth" uifolder="Transmission" uiadvanced="true"
+=======
+      <input name="transmission_depth" type="float" value="0" uimin="0.0" uisoftmax="100.0" uiname="Transmission Depth" uifolder="Transmission" uiadvanced="true"
+>>>>>>> e89d31e4052e9e7558b1e3cec6eb8e63d97c32c1
             doc="Specifies the distance light travels inside the material before its becomes exactly the transmission color according to Beer's law." />
       <input name="transmission_scatter" type="color3" value="0, 0, 0" uimin="0,0,0" uimax="1,1,1" uiname="Transmission Scatter" uifolder="Transmission" uiadvanced="true"
             doc="Scattering coefficient of the interior medium. Suitable for a large body of liquid or one that is fairly thick, such as an ocean, honey, ice, or frosted glass." />
       <input name="transmission_scatter_anisotropy" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Transmission Anisotropy" uifolder="Transmission" uiadvanced="true"
             doc="The amount of directional bias, or anisotropy, of the scattering." />
+<<<<<<< HEAD
       <input name="transmission_dispersion" type="float" value="0" uimin="0.0" uimax="100.0" uiname="Transmission Dispersion" uifolder="Transmission" uiadvanced="true"
             doc="Dispersion amount, describing how much the index of refraction varies across wavelengths." />
       <input name="transmission_extra_roughness" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Transmission Roughness" uifolder="Transmission" uiadvanced="true"
+=======
+      <input name="transmission_dispersion" type="float" value="0" uimin="0.0" uisoftmax="100.0" uiname="Transmission Dispersion" uifolder="Transmission" uiadvanced="true"
+            doc="Dispersion amount, describing how much the index of refraction varies across wavelengths." />
+      <input name="transmission_extra_roughness" type="float" value="0" uimin="-1.0" uisoftmin="0.0" uimax="1.0" uiname="Transmission Roughness" uifolder="Transmission" uiadvanced="true"
+>>>>>>> e89d31e4052e9e7558b1e3cec6eb8e63d97c32c1
             doc="Additional roughness on top of specular roughness. Positive values blur refractions more than reflections, and negative values blur refractions less." />
       <input name="subsurface" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Subsurface" uifolder="Subsurface" uiadvanced="true"
             doc="The blend between diffuse reflection and subsurface scattering. A value of 1.0 indicates full subsurface scattering and a value 0 for diffuse reflection only." />
@@ -45,7 +59,11 @@
             doc="The color of the subsurface scattering effect." />
       <input name="subsurface_radius" type="color3" value="1, 1, 1" uimin="0,0,0" uimax="1,1,1" uiname="Subsurface Radius" uifolder="Subsurface" uiadvanced="true"
             doc="The mean free path. The distance which light can travel before being scattered inside the surface." />
+<<<<<<< HEAD
       <input name="subsurface_scale" type="float" value="1" uimin="0.0" uimax="10.0" uiname="Subsurface Scale" uifolder="Subsurface" uiadvanced="true"
+=======
+      <input name="subsurface_scale" type="float" value="1" uimin="0.0" uisoftmax="10.0" uiname="Subsurface Scale" uifolder="Subsurface" uiadvanced="true"
+>>>>>>> e89d31e4052e9e7558b1e3cec6eb8e63d97c32c1
             doc="Scalar weight for the subsurface radius value." />
       <input name="subsurface_anisotropy" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Subsurface Anisotropy" uifolder="Subsurface" uiadvanced="true"
             doc="The direction of subsurface scattering. 0 scatters light evenly, positive values scatter forward and negative values scatter backward." />
@@ -65,19 +83,33 @@
             doc="The amount of directional bias, or anisotropy, of the clear-coat layer." />
       <input name="coat_rotation" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Coat Rotation" uifolder="Coat" uiadvanced="true"
             doc="The rotation of the anisotropic effect of the clear-coat layer." />
+<<<<<<< HEAD
       <input name="coat_IOR" type="float" value="1.5" uimin="0.0" uimax="3.0" uiname="Coat Index of Refraction" uifolder="Coat"
             doc="The index of refraction of the clear-coat layer." />
       <input name="coat_normal" type="vector3" defaultgeomprop="Nworld" uimin="0,0,0" uimax="1,1,1" uiname="Coat normal" uifolder="Coat"
+=======
+      <input name="coat_IOR" type="float" value="1.5" uimin="0.0" uisoftmax="3.0" uiname="Coat Index of Refraction" uifolder="Coat"
+            doc="The index of refraction of the clear-coat layer." />
+      <input name="coat_normal" type="vector3" defaultgeomprop="Nworld" uiname="Coat normal" uifolder="Coat"
+>>>>>>> e89d31e4052e9e7558b1e3cec6eb8e63d97c32c1
             doc="Input normal for clear-coat layer" />
       <input name="coat_affect_color" type="float" value="0" uimin="0" uimax="1" uiname="Coat Affect Color" uifolder="Coat" uiadvanced="true"
             doc="Controls the saturation of diffuse reflection and subsurface scattering below the clear-coat." />
       <input name="coat_affect_roughness" type="float" value="0" uimin="0" uimax="1" uiname="Coat Affect Roughness" uifolder="Coat" uiadvanced="true"
             doc="Controls the roughness of the specular reflection in the layers below the clear-coat." />
+<<<<<<< HEAD
       <input name="thin_film_thickness" type="float" value="0" uimin="0.0" uimax="2000.0" uiname="Thin Film Thickness" uifolder="Thin Film" uiadvanced="true"
             doc="The thickness of the thin film layer on a surface. Use for materials such as multitone car paint or soap bubbles." />
       <input name="thin_film_IOR" type="float" value="1.5" uimin="0.0" uimax="3.0" uiname="Thin Film Index of Refraction" uifolder="Thin Film" uiadvanced="true"
             doc="The index of refraction of the medium surrounding the material." />
       <input name="emission" type="float" value="0" uimin="0.0" uimax="1.0"  uiname="Emission" uifolder="Emission"
+=======
+      <input name="thin_film_thickness" type="float" value="0" uimin="0.0" uisoftmax="2000.0" uiname="Thin Film Thickness" uifolder="Thin Film" uiadvanced="true"
+            doc="The thickness of the thin film layer on a surface. Use for materials such as multitone car paint or soap bubbles." />
+      <input name="thin_film_IOR" type="float" value="1.5" uimin="0.0" uisoftmax="3.0" uiname="Thin Film Index of Refraction" uifolder="Thin Film" uiadvanced="true"
+            doc="The index of refraction of the medium surrounding the material." />
+      <input name="emission" type="float" value="0" uimin="0.0" uisoftmax="1.0"  uiname="Emission" uifolder="Emission"
+>>>>>>> e89d31e4052e9e7558b1e3cec6eb8e63d97c32c1
             doc="The amount of emitted incandescent light." />
       <input name="emission_color" type="color3" value="1, 1, 1" uimin="0,0,0" uimax="1,1,1" uiname="Emission Color" uifolder="Emission"
             doc="The color of the emitted light." />

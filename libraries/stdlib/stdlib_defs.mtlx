@@ -1244,7 +1244,11 @@
     values represent greater accessibility to ambient light, 0 means "fully occluded".
   -->
   <nodedef name="ND_ambientocclusion_float" node="ambientocclusion" nodegroup="global" default="1.0">
+<<<<<<< HEAD
     <parameter name="coneangle" type="float" value="90.0" unittype="angle" unit="degrees"/>
+=======
+    <parameter name="coneangle" type="float" value="90.0"/>
+>>>>>>> e89d31e4052e9e7558b1e3cec6eb8e63d97c32c1
     <parameter name="maxdistance" type="float" value="1e38"/>
     <output name="out" type="float"/>
   </nodedef>
@@ -2595,7 +2599,11 @@
   -->
   <nodedef name="ND_rotate_vector2" node="rotate" nodegroup="math" defaultinput="in">
     <input name="in" type="vector2" value="0.0, 0.0"/>
+<<<<<<< HEAD
     <input name="amount" type="float" value="0.0" unittype="angle" unit="degrees"/>
+=======
+    <input name="amount" type="float" value="0.0"/>
+>>>>>>> e89d31e4052e9e7558b1e3cec6eb8e63d97c32c1
     <output name="out" type="vector2"/>
   </nodedef>
   <nodedef name="ND_rotate_vector3" node="rotate" nodegroup="math" defaultinput="in">
