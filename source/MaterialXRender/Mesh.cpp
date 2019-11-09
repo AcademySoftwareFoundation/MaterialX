@@ -62,12 +62,12 @@ bool Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr texcoord
 
         // Based on Eric Lengyel at http://www.terathon.com/code/tangent.html
 
-        const MeshIndexBuffer& indicies = part->getIndices();
+        const MeshIndexBuffer& indices = part->getIndices();
         for (size_t faceIndex = 0; faceIndex < part->getFaceCount(); faceIndex++)
         {
-            int i1 = indicies[faceIndex * MeshStream::STRIDE_3D + 0];
-            int i2 = indicies[faceIndex * MeshStream::STRIDE_3D + 1];
-            int i3 = indicies[faceIndex * MeshStream::STRIDE_3D + 2];
+            uint32_t i1 = indices[faceIndex * MeshStream::STRIDE_3D + 0];
+            uint32_t i2 = indices[faceIndex * MeshStream::STRIDE_3D + 1];
+            uint32_t i3 = indices[faceIndex * MeshStream::STRIDE_3D + 2];
 
             Vector3& v1 = *reinterpret_cast<Vector3*>(&(positions[i1 * positionStride]));
             Vector3& v2 = *reinterpret_cast<Vector3*>(&(positions[i2 * positionStride]));
@@ -172,7 +172,7 @@ void Mesh::splitByUdims()
 
     using UdimMap = std::map<uint32_t, MeshPartitionPtr>;
     UdimMap udimMap;
-    const unsigned int FACE_VERTEX_COUNT = 3;
+    const size_t FACE_VERTEX_COUNT = 3;
     for (size_t p = 0; p < getPartitionCount(); p++)
     {
         MeshPartitionPtr part = getPartition(p);

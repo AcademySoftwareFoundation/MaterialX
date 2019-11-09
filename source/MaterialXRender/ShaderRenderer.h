@@ -94,7 +94,7 @@ class ShaderRenderer
 
     /// Create program based on an input shader
     /// @param shader Input Shader
-    virtual void createProgram(const ShaderPtr shader) = 0;
+    virtual void createProgram(ShaderPtr shader) = 0;
 
     /// Create program based on shader stage source code.
     /// @param stages Map of name and source code for the shader stages.
