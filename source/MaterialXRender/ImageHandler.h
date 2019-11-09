@@ -20,6 +20,12 @@
 namespace MaterialX
 {
 
+extern const string IMAGE_PROPERTY_SEPARATOR;
+extern const string UADDRESS_MODE_SUFFIX;
+extern const string VADDRESS_MODE_SUFFIX;
+extern const string FILTER_TYPE_SUFFIX;
+extern const string DEFAULT_COLOR_SUFFIX;
+
 class VariableBlock;
 
 /// A function to perform image buffer deallocation

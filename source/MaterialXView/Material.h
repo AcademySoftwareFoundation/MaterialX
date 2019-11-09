@@ -142,7 +142,7 @@ class Material
 
     /// Bind a single image.
     bool bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
-                   mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, mx::Color4* fallbackColor = nullptr);
+                   mx::ImageDesc& desc, const mx::ImageSamplingProperties& samplingProperties, const mx::Color4* fallbackColor = nullptr);
 
     /// Bind lights to shader.
     void bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler, const mx::FileSearchPath& imagePath, 

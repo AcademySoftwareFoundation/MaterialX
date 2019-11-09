@@ -63,19 +63,19 @@ class UnitConverter
     /// @param input Input value to convert
     /// @param inputUnit Unit of input value
     /// @param outputUnit Unit for output value
-    virtual Vector2 convert(Vector2 input, const string& inputUnit, const string& outputUnit) const = 0;
+    virtual Vector2 convert(const Vector2& input, const string& inputUnit, const string& outputUnit) const = 0;
 
     /// Convert a given value in a given unit to a desired unit
     /// @param input Input value to convert
     /// @param inputUnit Unit of input value
     /// @param outputUnit Unit for output value
-    virtual Vector3 convert(Vector3 input, const string& inputUnit, const string& outputUnit) const = 0;
+    virtual Vector3 convert(const Vector3& input, const string& inputUnit, const string& outputUnit) const = 0;
 
     /// Convert a given value in a given unit to a desired unit
     /// @param input Input value to convert
     /// @param inputUnit Unit of input value
     /// @param outputUnit Unit for output value
-    virtual Vector4 convert(Vector4 input, const string& inputUnit, const string& outputUnit) const = 0;
+    virtual Vector4 convert(const Vector4& input, const string& inputUnit, const string& outputUnit) const = 0;
 };
 
 /// @class LinearUnitConverter
@@ -119,19 +119,19 @@ class LinearUnitConverter : public UnitConverter
     /// @param input Input value to convert
     /// @param inputUnit Unit of input value
     /// @param outputUnit Unit for output value
-    Vector2 convert(Vector2 input, const string& inputUnit, const string& outputUnit) const override;
+    Vector2 convert(const Vector2& input, const string& inputUnit, const string& outputUnit) const override;
 
     /// Convert a given value in a given unit to a desired unit
     /// @param input Input value to convert
     /// @param inputUnit Unit of input value
     /// @param outputUnit Unit for output value
-    Vector3 convert(Vector3 input, const string& inputUnit, const string& outputUnit) const override;
+    Vector3 convert(const Vector3& input, const string& inputUnit, const string& outputUnit) const override;
 
     /// Convert a given value in a given unit to a desired unit
     /// @param input Input value to convert
     /// @param inputUnit Unit of input value
     /// @param outputUnit Unit for output value
-    Vector4 convert(Vector4 input, const string& inputUnit, const string& outputUnit) const override;
+    Vector4 convert(const Vector4& input, const string& inputUnit, const string& outputUnit) const override;
 
     /// @}
     /// @name Shader Mapping
