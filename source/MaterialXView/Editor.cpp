@@ -189,6 +189,11 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
 {
     const mx::UIProperties& ui = item.ui;
     mx::ValuePtr value = item.variable->getValue();
+    if (!value)
+    {
+        return;
+    }
+
     std::string label = item.label;
     const std::string& unit = item.variable->getUnit();
     if (!unit.empty())
@@ -200,11 +205,6 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
     mx::ValuePtr max = ui.uiMax;
     const mx::StringVec& enumeration = ui.enumeration;
     const std::vector<mx::ValuePtr> enumValues = ui.enumerationValues;
-
-    if (!value)
-    {
-        return;
-    }
 
     if (!group.empty())
     {
@@ -315,7 +315,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             MaterialPtr material = viewer->getSelectedMaterial();
             if (material)
             {
-                material->setUniformFloat(path, v);
+                material->setUniformFloat(path, (float) v);
             }
         });
     }

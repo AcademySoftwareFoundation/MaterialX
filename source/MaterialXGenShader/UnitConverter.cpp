@@ -76,7 +76,7 @@ float LinearUnitConverter::convert(float input, const string& inputUnit, const s
     return input * conversionRatio(inputUnit, outputUnit);
 }
 
-Vector2 LinearUnitConverter::convert(Vector2 input, const string& inputUnit, const string& outputUnit) const
+Vector2 LinearUnitConverter::convert(const Vector2& input, const string& inputUnit, const string& outputUnit) const
 {
     if (inputUnit == outputUnit)
     {
@@ -86,7 +86,7 @@ Vector2 LinearUnitConverter::convert(Vector2 input, const string& inputUnit, con
     return input * conversionRatio(inputUnit, outputUnit);
 }
 
-Vector3 LinearUnitConverter::convert(Vector3 input, const string& inputUnit, const string& outputUnit) const
+Vector3 LinearUnitConverter::convert(const Vector3& input, const string& inputUnit, const string& outputUnit) const
 {
     if (inputUnit == outputUnit)
     {
@@ -96,7 +96,7 @@ Vector3 LinearUnitConverter::convert(Vector3 input, const string& inputUnit, con
     return input * conversionRatio(inputUnit, outputUnit);
 }
 
-Vector4 LinearUnitConverter::convert(Vector4 input, const string& inputUnit, const string& outputUnit) const
+Vector4 LinearUnitConverter::convert(const Vector4& input, const string& inputUnit, const string& outputUnit) const
 {
     if (inputUnit == outputUnit)
     {

@@ -44,7 +44,7 @@ WindowWrapper::WindowWrapper(ExternalWindowHandle externalHandle,
 WindowWrapper::WindowWrapper(const WindowWrapper& other)
 {
     _externalHandle = other._externalHandle;
-    if (_externalHandle && !_internalHandle)
+    if (_externalHandle && !other._internalHandle)
     {
         // Cache a HDC that corresponds to the window handle
         _internalHandle = GetDC(_externalHandle);
@@ -60,7 +60,7 @@ const WindowWrapper& WindowWrapper::operator=(const WindowWrapper& other)
     release();
 
     _externalHandle = other._externalHandle;
-    if (_externalHandle && !_internalHandle)
+    if (_externalHandle && !other._internalHandle)
     {
         // Cache a HDC that corresponds to the window handle
         _internalHandle = GetDC(_externalHandle);

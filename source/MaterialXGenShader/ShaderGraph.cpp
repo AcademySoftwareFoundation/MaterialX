@@ -250,11 +250,15 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
 
 void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTransform& transform, GenContext& context)
 {
-    ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
-    if (!input->isBindInput() && (!colorManagementSystem || input->getConnection()))
+    // Ignore connected node inputs, which don't support colorspace attributes.
+    if (!input->isBindInput() && input->getConnection())
     {
-        // Ignore unbound inputs with connections as they are not 
-        // allowed to have colorspaces specified.
+        return;
+    }
+
+    ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
+    if (!colorManagementSystem)
+    {
         return;
     }
     const string colorTransformNodeName = input->getFullName() + "_cm";
@@ -318,8 +322,14 @@ void ShaderGraph::addColorTransformNode(ShaderOutput* output, const ColorSpaceTr
 
 void ShaderGraph::addUnitTransformNode(ShaderInput* input, const UnitTransform& transform, GenContext& context)
 {
+    // Ignore connected node inputs, which don't support unit attributes.
+    if (!input->isBindInput() && input->getConnection())
+    {
+        return;
+    }
+
     UnitSystemPtr unitSystem = context.getShaderGenerator().getUnitSystem();
-    if (!input->isBindInput() && (!unitSystem || input->getConnection()))
+    if (!unitSystem)
     {
         return;
     }

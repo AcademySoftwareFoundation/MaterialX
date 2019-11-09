@@ -270,7 +270,7 @@ bool GlslRenderer::bindTarget(bool bind)
     return true;
 }
 
-void GlslRenderer::createProgram(const ShaderPtr shader)
+void GlslRenderer::createProgram(ShaderPtr shader)
 {
     StringVec errors;
     const string errorType("GLSL program creation error.");
@@ -464,8 +464,7 @@ void GlslRenderer::render()
     try
     {
         // Bind program and input parameters
-        bool useFixed = false;
-        if (_program && !useFixed)
+        if (_program)
         {
             // Check if we have any attributes to bind. If not then
             // there is nothing to draw
@@ -523,11 +522,6 @@ void GlslRenderer::save(const FilePath& filePath, bool floatingPoint)
 
     size_t bufferSize = _frameBufferWidth * _frameBufferHeight * 4;
     float* buffer = new float[bufferSize];
-    if (!buffer)
-    {
-        errors.push_back("Failed to read color buffer back.");
-        throw ExceptionShaderRenderError(errorType, errors);
-    }
 
     // Read back from the color texture.
     bindTarget(true);
