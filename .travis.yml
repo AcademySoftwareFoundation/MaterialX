@@ -35,20 +35,21 @@ matrix:
       env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
     - os: linux
       compiler: gcc
-      env: MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
+      env: MATRIX_EVAL="CC=gcc-9 && CXX=g++-9 && PY=3"
     - os: linux
       compiler: clang
-      env: MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
+      env: MATRIX_EVAL="CC=clang-8 && CXX=clang++-8 && PY=3"
 
 before_install:
   - eval "${MATRIX_EVAL}"
+  - export PY=${PY:-"2"}
 
 script:
   - mkdir build
   - cd build
-  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ..
+  - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_PYTHON_VERSION=$PY -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ..
   - cmake --build . --target install -- -j4
   - ctest -VV --output-on-failure
   - export PYTHONPATH=$PYTHONPATH:$PWD/installed/python
-  - cmake -E chdir ../python/MaterialXTest python main.py
-  - cmake -E chdir ../python/MaterialXTest python genshader.py
+  - cmake -E chdir ../python/MaterialXTest python$PY main.py
+  - cmake -E chdir ../python/MaterialXTest python$PY genshader.py
