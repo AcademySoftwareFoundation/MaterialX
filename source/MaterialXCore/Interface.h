@@ -561,6 +561,12 @@ class InterfaceElement : public TypedElement
     /// @name Value Elements
     /// @{
 
+    /// Return the ValueElement, if any, with the given name.
+    ValueElementPtr getValueElement(const string& name) const
+    {
+        return getChildOfType<ValueElement>(name);
+    }
+
     /// Return the first value element with the given name that belongs to this
     /// interface, taking interface inheritance into account.
     /// Examples of value elements are Parameter, Input, Output, and Token.

@@ -89,6 +89,9 @@ class Shader
     /// Return the shader graph.
     const ShaderGraph& getGraph() const { return *_graph; }
 
+    /// Return the shader graph.
+    ShaderGraph& getGraph() { return *_graph; }
+
     /// Return true if this shader matches the given classification.
     bool hasClassification(unsigned int c) const { return _graph->hasClassification(c); }
 

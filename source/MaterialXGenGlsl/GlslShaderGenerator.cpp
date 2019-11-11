@@ -264,7 +264,6 @@ GlslShaderGenerator::GlslShaderGenerator() :
 
 ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
-    resetIdentifiers(context);
     ShaderPtr shader = createShader(name, element, context);
 
     // Turn on fixed float formatting to make sure float values are
@@ -457,14 +456,15 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         emitLineBreak(stage);
     }
 
-    // Emit uv transform function
-    if (!context.getOptions().fileTextureVerticalFlip)
+    // Set the include file to use for uv transformations,
+    // depending on the vertical flip flag.
+    if (context.getOptions().fileTextureVerticalFlip)
     {
-        emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv.glsl", context, stage);
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv_vflip.glsl";
     }
     else
     {
-        emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv_vflip.glsl", context, stage);
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv.glsl";
     }
 
     // Add all functions for node implementations

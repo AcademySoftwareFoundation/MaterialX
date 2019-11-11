@@ -14,11 +14,11 @@ const string ArnoldShaderGenerator::TARGET = "arnold";
 ArnoldShaderGenerator::ArnoldShaderGenerator()
     : OslShaderGenerator()
 {
-    const StringSet restrictedNames = { "metal", "sheen", "bssrdf", "empirical_bssrdf", "randomwalk_bssrdf", 
-                                        "volume_absorption", "volume_emission", "volume_henyey_greenstein", 
-                                        "volume_matte" };
+    const StringSet reservedWords = { "metal", "sheen", "bssrdf", "empirical_bssrdf", "randomwalk_bssrdf", 
+                                      "volume_absorption", "volume_emission", "volume_henyey_greenstein", 
+                                      "volume_matte" };
 
-    _syntax->registerRestrictedNames(restrictedNames);
+    _syntax->registerReservedWords(reservedWords);
 }
 
 }

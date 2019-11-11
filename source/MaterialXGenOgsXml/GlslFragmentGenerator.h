@@ -19,7 +19,7 @@ namespace MaterialX
 class GlslFragmentSyntax : public GlslSyntax
 {
   public:
-    string getVariableName(const string& name, const TypeDesc* type, GenContext& context) const override;
+    string getVariableName(const string& name, const TypeDesc* type, IdentifierMap& identifiers) const override;
 };
 
 using GlslFragmentGeneratorPtr = shared_ptr<class GlslFragmentGenerator>;

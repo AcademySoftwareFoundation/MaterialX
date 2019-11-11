@@ -303,10 +303,17 @@ ParameterPtr InterfaceElement::getActiveParameter(const string& name) const
 vector<ParameterPtr> InterfaceElement::getActiveParameters() const
 {
     vector<ParameterPtr> activeParams;
+    ValueElementSet activeParamsSet(ValueElementLess);
     for (ConstElementPtr elem : traverseInheritance())
     {
         vector<ParameterPtr> params = elem->asA<InterfaceElement>()->getParameters();
-        activeParams.insert(activeParams.end(), params.begin(), params.end());
+        for (const ParameterPtr& param : params)
+        {
+            if (activeParamsSet.insert(param).second)
+            {
+                activeParams.push_back(param);
+            }
+        }
     }
     return activeParams;
 }
@@ -331,7 +338,7 @@ vector<InputPtr> InterfaceElement::getActiveInputs() const
     for (ConstElementPtr elem : traverseInheritance())
     {
         vector<InputPtr> inputs = elem->asA<InterfaceElement>()->getInputs();
-        for (InputPtr input : inputs)
+        for (const InputPtr& input : inputs)
         {
             if (activeInputsSet.insert(input).second)
             {
@@ -363,7 +370,7 @@ vector<OutputPtr> InterfaceElement::getActiveOutputs() const
     for (ConstElementPtr elem : traverseInheritance())
     {
         vector<OutputPtr> outputs = elem->asA<InterfaceElement>()->getOutputs();
-        for (OutputPtr output : outputs)
+        for (const OutputPtr& output : outputs)
         {
             if (activeOutputsSet.insert(output).second)
             {
@@ -418,7 +425,7 @@ vector<ValueElementPtr> InterfaceElement::getActiveValueElements() const
     for (ConstElementPtr interface : traverseInheritance())
     {
         vector<ValueElementPtr> valueElems = interface->getChildrenOfType<ValueElement>();
-        for (ValueElementPtr valueElem : valueElems)
+        for (const ValueElementPtr& valueElem : valueElems)
         {
             if (activeValueElemsSet.insert(valueElem).second)
             {

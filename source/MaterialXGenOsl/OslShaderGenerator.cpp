@@ -171,10 +171,9 @@ OslShaderGenerator::OslShaderGenerator() :
 
 ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
-    resetIdentifiers(context);
     ShaderPtr shader = createShader(name, element, context);
 
-    const ShaderGraph& graph = shader->getGraph();
+    ShaderGraph& graph = shader->getGraph();
     ShaderStage& stage = shader->getStage(Stage::PIXEL);
 
     emitIncludes(stage, context);
@@ -191,27 +190,28 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
         emitLineBreak(stage);
     }
 
-    // Emit uv transform function
-    if (!context.getOptions().fileTextureVerticalFlip)
+    // Set the include file to use for uv transformations,
+    // depending on the vertical flip flag.
+    if (context.getOptions().fileTextureVerticalFlip)
     {
-        emitInclude("stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv.osl", context, stage);
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv_vflip.osl";
     }
     else
     {
-        emitInclude("stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv_vflip.osl", context, stage);
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + OslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv.osl";
     }
-    emitLineBreak(stage);
 
     // Emit function definitions for all nodes
     emitFunctionDefinitions(graph, context, stage);
 
-    // Emit shader type
-    const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket();
-    if (outputSocket->getType() == Type::SURFACESHADER)
+    // Emit shader type, determined from the first
+    // output if there are multiple outputs.
+    const ShaderGraphOutputSocket* outputSocket0 = graph.getOutputSocket(0);
+    if (outputSocket0->getType() == Type::SURFACESHADER)
     {
         emitString("surface ", stage);
     }
-    else if (outputSocket->getType() == Type::VOLUMESHADER)
+    else if (outputSocket0->getType() == Type::VOLUMESHADER)
     {
         emitString("volume ", stage);
     }
@@ -222,13 +222,10 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
 
     // Begin shader signature. Note that makeIdentifier() will sanitize the name.
     string functionName = shader->getName();
-    context.makeIdentifier(functionName);
+    _syntax->makeIdentifier(functionName, graph.getIdentifierMap());
     setFunctionName(functionName, stage);
     emitLine(functionName, stage, false);
     emitScopeBegin(stage, Syntax::PARENTHESES);
-    string dummy = "dummy";
-    context.makeIdentifier(dummy);
-    emitLine("float " + dummy + " = 0.0,", stage, false);
 
     // Emit all varying inputs
     const VariableBlock& inputs = stage.getInputBlock(OSL::INPUTS);
@@ -245,11 +242,16 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     emitVariableDeclarations(uniforms, _syntax->getUniformQualifier(), COMMA, context, stage);
 
     // Emit shader output
-    // TODO: Support multiple outputs
-    const TypeDesc* outputType = outputSocket->getType();
-    const string type = _syntax->getOutputTypeName(outputType);
-    const string value = _syntax->getDefaultValue(outputType, true);
-    emitLine(type + " " + outputSocket->getVariable() + " = " + value, stage, false);
+    const VariableBlock& outputs = stage.getOutputBlock(OSL::OUTPUTS);
+    for (size_t i = 0; i < outputs.size(); ++i)
+    {
+        const ShaderPort* output = outputs[i];
+        const TypeDesc* outputType = output->getType();
+        const string type = _syntax->getOutputTypeName(outputType);
+        const string value = _syntax->getDefaultValue(outputType, true);
+        const string& delim = (i == outputs.size() - 1) ? EMPTY_STRING : COMMA;
+        emitLine(type + " " + output->getVariable() + " = " + value + delim, stage, false);
+    }
 
     // End shader signature
     emitScopeEnd(stage);
@@ -268,9 +270,13 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     // Emit function calls for all nodes
     emitFunctionCalls(graph, context, stage);
 
-    // Emit final output
-    const string result = getUpstreamResult(outputSocket, context);
-    emitLine(outputSocket->getVariable() + " = " + result, stage);
+    // Emit final outputs
+    for (size_t i = 0; i < outputs.size(); ++i)
+    {
+        const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket(i);
+        const string result = getUpstreamResult(outputSocket, context);
+        emitLine(outputSocket->getVariable() + " = " + result, stage);
+    }
 
     // End shader body
     emitScopeEnd(stage);
@@ -336,11 +342,6 @@ void OslShaderGenerator::emitIncludes(ShaderStage& stage, GenContext& context) c
     static const string INCLUDE_SUFFIX = "\"";
     static const StringVec INCLUDE_FILES =
     {
-        "color2.h",
-        "color4.h",
-        "matrix33.h",
-        "vector2.h",
-        "vector4.h",
         "mx_funcs.h"
     };
 

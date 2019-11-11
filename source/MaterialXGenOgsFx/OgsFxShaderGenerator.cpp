@@ -90,7 +90,6 @@ ShaderGeneratorPtr OgsFxShaderGenerator::create()
 
 ShaderPtr OgsFxShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
-    resetIdentifiers(context);
     ShaderPtr shader = createShader(name, element, context);
 
     // Turn on fixed formatting since OgsFx doesn't support scientific values
@@ -314,14 +313,15 @@ void OgsFxShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& 
         emitLineBreak(stage);
     }
 
-    // Emit uv transform function
-    if (!context.getOptions().fileTextureVerticalFlip)
+    // Set the include file to use for uv transformations,
+    // depending on the vertical flip flag.
+    if (context.getOptions().fileTextureVerticalFlip)
     {
-        emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv.glsl", context, stage);
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv_vflip.glsl";
     }
     else
     {
-        emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv_vflip.glsl", context, stage);
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv.glsl";
     }
 
     // Emit environment lighting functions

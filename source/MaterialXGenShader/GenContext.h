@@ -107,15 +107,19 @@ class GenContext
         return _sourceCodeSearchPath.find(filename);
     }
 
-    /// Add the given name to the list of unique identifiers in use.
-    void addIdentifier(const string& name);
+    /// Add reserved words that should not be used as
+    /// identifiers during code generation.
+    void addReservedWords(const StringSet& names)
+    {
+        _reservedWords.insert(names.begin(), names.end());
+    }
 
-    /// Make sure the given name is a unique identifiers, 
-    /// updating the name if needed.
-    void makeIdentifier(string& name);
-
-    /// Clear all identifiers in use.
-    void clearIdentifiers();
+    /// Return the set of reserved words that should not be used
+    /// as identifiers during code generation.
+    const StringSet& getReservedWords() const
+    {
+        return _reservedWords;
+    }
 
     /// Cache a shader node implementation.
     void addNodeImplementation(const string& name, ShaderNodeImplPtr impl);
@@ -202,9 +206,8 @@ class GenContext
     // Search path for finding source files.
     FileSearchPath _sourceCodeSearchPath;
 
-    // Set of unique identifier names.
-    StringSet _identifiers;
-    size_t _identifierIndex;
+    // Set of globally reserved words.
+    StringSet _reservedWords;
 
     // Cached shader node implementations.
     std::unordered_map<string, ShaderNodeImplPtr> _nodeImpls;

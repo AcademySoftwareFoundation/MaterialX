@@ -12,9 +12,9 @@
 namespace MaterialX
 {
 
-string GlslFragmentSyntax::getVariableName(const string& name, const TypeDesc* type, GenContext& context) const
+string GlslFragmentSyntax::getVariableName(const string& name, const TypeDesc* type, IdentifierMap& identifiers) const
 {
-    string variable = GlslSyntax::getVariableName(name, type, context);
+    string variable = GlslSyntax::getVariableName(name, type, identifiers);
     // A filename input corresponds to a texture sampler uniform
     // which requires a special suffix in OGS XML fragments.
     if (type == Type::FILENAME)
@@ -59,17 +59,15 @@ ShaderGeneratorPtr GlslFragmentGenerator::create()
 
 ShaderPtr GlslFragmentGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
-    resetIdentifiers(context);
     ShaderPtr shader = createShader(name, element, context);
 
     ShaderStage& stage = shader->getStage(Stage::PIXEL);
+    ShaderGraph& graph = shader->getGraph();
 
     // Turn on fixed float formatting to make sure float values are
     // emitted with a decimal point and not as integers, and to avoid
     // any scientific notation which isn't supported by all OpenGL targets.
     ScopedFloatFormatting fmt(Value::FloatFormatFixed);
-
-    const ShaderGraph& graph = shader->getGraph();
 
     // Add global constants and type definitions
     emitInclude("pbrlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_defines.glsl", context, stage);
@@ -119,14 +117,15 @@ ShaderPtr GlslFragmentGenerator::generate(const string& name, ElementPtr element
         emitLineBreak(stage);
     }
 
-    // Emit uv transform function
-    if (!context.getOptions().fileTextureVerticalFlip)
+    // Set the include file to use for uv transformations,
+    // depending on the vertical flip flag.
+    if (context.getOptions().fileTextureVerticalFlip)
     {
-        emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv.glsl", context, stage);
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv_vflip.glsl";
     }
     else
     {
-        emitInclude("stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv_vflip.glsl", context, stage);
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + GlslShaderGenerator::LANGUAGE + "/lib/mx_transform_uv.glsl";
     }
 
     // Add all functions for node implementations
@@ -140,7 +139,7 @@ ShaderPtr GlslFragmentGenerator::generate(const string& name, ElementPtr element
     StringVec convertMatrixStrings;
 
     string functionName = shader->getName();
-    context.makeIdentifier(functionName);
+    _syntax->makeIdentifier(functionName, graph.getIdentifierMap());
     setFunctionName(functionName, stage);
 
     emitLine((context.getOptions().hwTransparency ? "vec4 " : "vec3 ") + functionName, stage, false);
