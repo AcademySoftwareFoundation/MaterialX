@@ -1,4 +1,6 @@
 language: cpp
+dist: xenial
+osx_image: xcode10
 
 addons:
   apt:
@@ -41,14 +43,14 @@ matrix:
       env: MATRIX_EVAL="CC=clang-8 && CXX=clang++-8 && PY=3"
 
 before_install:
+  - export PY=2
   - eval "${MATRIX_EVAL}"
-  - export PY=${PY:-"2"}
 
 script:
   - mkdir build
   - cd build
   - cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_PYTHON_VERSION=$PY -DMATERIALX_INSTALL_PYTHON=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ..
-  - cmake --build . --target install -- -j4
+  - cmake --build . --target install -- -j2
   - ctest -VV --output-on-failure
   - export PYTHONPATH=$PYTHONPATH:$PWD/installed/python
   - cmake -E chdir ../python/MaterialXTest python$PY main.py
