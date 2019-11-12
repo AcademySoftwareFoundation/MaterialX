@@ -50,39 +50,46 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shader,
     MStatus status = MStatus::kFailure;
 
     // Bind file texture
-    MHWRender::MRenderer* renderer = MHWRender::MRenderer::theRenderer();
-    MHWRender::MTextureManager* textureManager = renderer ? textureManager = renderer->getTextureManager() : nullptr;
+    MHWRender::MRenderer* const renderer = MHWRender::MRenderer::theRenderer();
+    MHWRender::MTextureManager* const textureManager =
+        renderer ? renderer->getTextureManager() : nullptr;
+
     if (textureManager)
     {
         MayaUtil::TextureUniquePtr texturePtr;
         if (udimIdentifiers && !udimIdentifiers->empty())
         {
-            std::vector<mx::Vector2> udimCoordinates{ mx::getUdimCoordinates(*udimIdentifiers) };
-            mx::FilePathVec udimPaths{ mx::getUdimPaths(fileName, *udimIdentifiers) };
+            const std::vector<mx::Vector2> udimCoordinates{ mx::getUdimCoordinates(*udimIdentifiers) };
+
             // Make sure we have 1:1 match of paths to coordinates.
-            if (udimCoordinates.size() != udimPaths.size())
+            if (udimCoordinates.size() != udimIdentifiers->size())
             {
-                throw mx::Exception("Failed to resolve UDIM information properly for file: " + fileName);
+                throw mx::Exception("Failed to resolve UDIM information for file: " + fileName);
             }
+
+            mx::StringResolverPtr resolver = mx::StringResolver::create();
+
             MStringArray mTilePaths;
             MFloatArray mTilePositions;
-            MColor undefinedColor;
-            MStringArray failedTilePaths;
-            MFloatArray uvScaleOffset;
-            for (size_t i = 0; i < udimPaths.size(); ++i)
+            for (size_t i = 0; i < udimIdentifiers->size(); ++i)
             {
-                mx::FilePath resolvedPath = MaterialXUtil::findInSubdirectories(searchPath, udimPaths[i]);
+                resolver->setUdimString((*udimIdentifiers)[i]);
+
+                mx::FilePath resolvedPath = MaterialXUtil::findInSubdirectories(
+                    searchPath, resolver->resolve(fileName, mx::FILENAME_TYPE_STRING)
+                );
                 mTilePaths.append(resolvedPath.asString().c_str());
                 mTilePositions.append(udimCoordinates[i][0]);
                 mTilePositions.append(udimCoordinates[i][1]);
             }
+
             mx::Vector2 scaleUV;
             mx::Vector2 offsetUV;
             mx::getUdimScaleAndOffset(udimCoordinates, scaleUV, offsetUV);
 
             unsigned int udimBakeWidth = 4096;
             unsigned int udimBakeHeight = 4096;
-            float ratio = scaleUV[1] / scaleUV[0];
+            const float ratio = scaleUV[1] / scaleUV[0];
             if (ratio > 1.0)
             {
                 udimBakeHeight = static_cast<unsigned int>(std::truncf(static_cast<float>(udimBakeHeight) * ratio));
@@ -91,6 +98,11 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shader,
             {
                 udimBakeWidth = static_cast<unsigned int>(std::truncf(static_cast<float>(udimBakeWidth) * ratio));
             }
+
+            static const MColor undefinedColor;
+            MStringArray failedTilePaths;
+            MFloatArray uvScaleOffset;
+
             // Note: we do not use the uv scale and offset. Ideally this should be used for the texture lookup code
             // but at this point the shader code has already been generated.
             texturePtr.reset(textureManager->acquireTiledTexture(fileName.c_str(), mTilePaths, mTilePositions,
@@ -99,7 +111,7 @@ MStatus bindFileTexture(MHWRender::MShaderInstance& shader,
         }
         else
         {
-            mx::FilePath imagePath = MaterialXUtil::findInSubdirectories(searchPath, fileName);
+            const mx::FilePath imagePath = MaterialXUtil::findInSubdirectories(searchPath, fileName);
             if (!imagePath.isEmpty())
             {
                 texturePtr.reset(textureManager->acquireTexture(imagePath.asString().c_str(), mx::EMPTY_STRING.c_str()));
